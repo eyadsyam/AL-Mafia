@@ -1,0 +1,492 @@
+{
+  "@@locale": "en",
+  "appTitle": "Mafia Master",
+  "@appTitle": {
+    "description": "Application name, shown on Home."
+  },
+  "back": "Back",
+  "cancel": "Cancel",
+  "deleteAction": "Delete",
+  "continueAction": "Continue",
+  "listSeparator": ", ",
+  "@listSeparator": {
+    "description": "Joins names in a list. Arabic uses an Arabic comma, so this is translated rather than hardcoded."
+  },
+  "newMatch": "New match",
+  "history": "History",
+  "settings": "Settings",
+  "addPlayersTitle": "Add players",
+  "seatingOrderSubtitle": "In seating order",
+  "playerNameHint": "Player name",
+  "addPlayer": "Add",
+  "playerCountLine": "Players: {count}",
+  "@playerCountLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noPlayersYet": "No players added yet",
+  "next": "Next",
+  "seatNumber": "Seat #{seat}",
+  "@seatNumber": {
+    "placeholders": {
+      "seat": {
+        "type": "int"
+      }
+    }
+  },
+  "rolesTitle": "Role setup",
+  "playerCountShort": "{count} players",
+  "@playerCountShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roleGroupMafia": "Mafia",
+  "roleGroupDetective": "Detective",
+  "roleGroupDoctor": "Doctor",
+  "roleGroupCitizen": "Citizen",
+  "balanceValid": "Balanced setup",
+  "balancePlayerCountTooLow": "You need at least 5 players",
+  "balancePlayerCountTooHigh": "You cannot have more than 20 players",
+  "balanceNegativeRoleCount": "A role count cannot be negative",
+  "balanceRoleCountMismatch": "Role counts must add up to the number of players",
+  "balanceNoMafia": "There must be at least one Mafia",
+  "balanceMafiaTooMany": "Mafia must be fewer than half the players",
+  "balanceRecommendThreeMafia": "3 Mafia is recommended at 9 or more players",
+  "balanceTwoDetectivesLowPlayerCount": "Warning: two Detectives below 11 players heavily favours the town",
+  "settingsTitle": "Settings",
+  "speechSecondsLabel": "Speaking time (seconds)",
+  "secondsSuffix": "{seconds}s",
+  "@secondsSuffix": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "discussionModeLabel": "Discussion mode",
+  "discussionStructured": "Structured (turn by turn)",
+  "discussionFree": "Free (no turns)",
+  "dayTieRuleLabel": "Day tie rule",
+  "tieRevote": "Revote",
+  "tieNoElimination": "No elimination",
+  "narrationEnabledLabel": "Enable narration",
+  "abstainAllowedLabel": "Allow abstaining",
+  "save": "Save",
+  "nightApproaching": "Night is falling",
+  "nightLabel": "Night",
+  "aliveCountLabel": "Players alive",
+  "placePhoneOnTable": "Put the phone on the table and wait for the signal",
+  "beginNight": "Begin night",
+  "distributionSubtitle": "Role distribution",
+  "roleMafia": "Mafia",
+  "roleDoctor": "Doctor",
+  "roleDetective": "Detective",
+  "roleCitizen": "Citizen",
+  "roleMafiaDescription": "Each night you agree with the rest of the mafia on someone to kill. Let nobody find out.",
+  "roleDoctorDescription": "Each night you protect one player — and never the same person two nights running.",
+  "roleDetectiveDescription": "Each night you uncover one player's role. Only you see the result, and only once.",
+  "roleCitizenDescription": "You have no special power. Observation and argument are your weapons.",
+  "gotIt": "Got it",
+  "holdToRevealRole": "Press and hold to reveal your role",
+  "teammatesLine": "With you in the mafia: {names}",
+  "@teammatesLine": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "passPhoneTo": "Pass the phone to",
+  "iAmHoldInstruction": "I am {name} — press and hold",
+  "@iAmHoldInstruction": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notYouNamed": "Not {name}?",
+  "@notYouNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "yourTurn": "Your turn",
+  "holdToConfirm": "Press and hold to confirm",
+  "notYou": "Not you?",
+  "takeYourTime": "Take your time reading",
+  "choosePlayer": "Choose a player",
+  "confirmAction": "Confirm",
+  "choiceRecorded": "Your choice is recorded",
+  "keepPhoneUntilUnlock": "Keep the phone until the pass button unlocks",
+  "passPhone": "Pass the phone",
+  "waitEllipsis": "Wait…",
+  "nightPromptMafia": "Who do you kill tonight?",
+  "@nightPromptMafia": {
+    "description": "MUST NOT name any role — a screen reader says this aloud (Constitution VII). Keep all four night prompts the same rendered length so no role's screen is brighter (L-05)."
+  },
+  "nightPromptDoctor": "Who do you want to protect tonight?",
+  "nightPromptDetective": "Whose cards do you want to see tonight?",
+  "nightPromptCitizen": "Whose behaviour do you doubt tonight?",
+  "notEveryoneSurvived": "Not everyone made it",
+  "lostPlayerLastNight": "{name} was killed last night.",
+  "@lostPlayerLastNight": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "quietNight": "A quiet night",
+  "someoneSavedBody": "The mafia tried to kill, but someone survived. We will not say who.",
+  "noLossesBody": "The night passed without losses.",
+  "morningOfDay": "Morning of day {day}",
+  "@morningOfDay": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "startDiscussion": "Start discussion",
+  "discussionTitle": "Discussion",
+  "discussionFreeTitle": "Open discussion",
+  "currentSpeaker": "Speaking now",
+  "speakersRemaining": "Remaining: {count}",
+  "@speakersRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "skip": "Skip",
+  "endDiscussion": "End discussion",
+  "resume": "Resume",
+  "pause": "Pause",
+  "votingSubtitle": "Voting",
+  "whoDoYouVoteOut": "Who do you vote out?",
+  "abstain": "Abstain",
+  "confirmVote": "Confirm vote",
+  "eliminatedHeadline": "{name} is out",
+  "@eliminatedHeadline": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tieRevoteHeadline": "Tied — revote",
+  "tieNoEliminationHeadline": "Tied — nobody is out",
+  "nobodyEliminated": "Nobody is out",
+  "wasRole": "Was {role}",
+  "@wasRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "revote": "Revote",
+  "gameOver": "Game over",
+  "mafiaWins": "The Mafia wins",
+  "townWins": "The town wins",
+  "analytics": "Analytics",
+  "homeAction": "Home",
+  "endMatchTitle": "End the match?",
+  "endMatchBody": "You will lose this match's progress and it will not appear in History.",
+  "keepPlaying": "Keep playing",
+  "endAction": "End",
+  "endMatchTooltip": "End the match",
+  "unfinishedMatchTitle": "You have an unfinished match",
+  "unfinishedMatchBody": "{count} players. {where}",
+  "@unfinishedMatchBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "where": {
+        "type": "String"
+      }
+    }
+  },
+  "resumeFromPassTo": "It will resume by passing the phone to {name}.",
+  "@resumeFromPassTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resumeFromDay": "It will resume from day {day}.",
+  "@resumeFromDay": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "endMatch": "End the match",
+  "resumeAction": "Resume",
+  "nightNumbered": "Night {number}",
+  "@nightNumbered": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "dayNumbered": "Day {number}",
+  "@dayNumbered": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "analyticsTitle": "Analytics",
+  "analyticsLoadFailed": "Could not open this match's analytics",
+  "seatFallback": "Seat {seat}",
+  "@seatFallback": {
+    "placeholders": {
+      "seat": {
+        "type": "int"
+      }
+    }
+  },
+  "tabEvents": "Events",
+  "tabPlayers": "Players",
+  "tabSuspicions": "Suspicions",
+  "tabAchievements": "Achievements",
+  "timelineMafiaVote": "{actor} voted for {target}",
+  "@timelineMafiaVote": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineProtect": "{actor} protected {target}",
+  "@timelineProtect": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineInvestigate": "{actor} investigated {target}",
+  "@timelineInvestigate": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineSuspect": "{actor} suspected {target}",
+  "@timelineSuspect": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineNightKill": "{target} was killed in the night",
+  "@timelineNightKill": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineSaved": "{target} survived an attempt",
+  "@timelineSaved": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineDayElimination": "The town voted {target} out",
+  "@timelineDayElimination": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "noEventsRecorded": "No events recorded",
+  "noPlayerData": "No player data",
+  "noSuspicionsByPlayer": "Recorded no suspicions",
+  "suspicionAccuracyLine": "Suspicion accuracy: {correct}/{total}",
+  "@suspicionAccuracyLine": {
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "noSuspicionsRecorded": "No suspicions were recorded",
+  "noAchievements": "No achievements",
+  "achievementSharpestEye": "Sharpest Eye",
+  "achievementSharpestEyeDescription": "Highest suspicion accuracy through the nights",
+  "achievementUntouchable": "Survivor",
+  "achievementUntouchableDescription": "Survived to the end of the game",
+  "achievementGuardian": "Guardian",
+  "achievementGuardianDescription": "Blocked a Mafia attack with a protection",
+  "achievementFirstBlood": "First Blood",
+  "achievementFirstBloodDescription": "The first player lost in the night",
+  "achievementSurvivors": "Survivors",
+  "achievementSurvivorsDescription": "The game is over",
+  "historyTitle": "History",
+  "deleteMatchTitle": "Delete this match?",
+  "deleteMatchBody": "Its analytics will be permanently removed.",
+  "noPastMatches": "No past matches",
+  "mafiaWon": "Mafia won",
+  "townWon": "Town won",
+  "endedWithoutResult": "Ended without a result",
+  "matchMeta": "{players} players · {nights} nights",
+  "@matchMeta": {
+    "placeholders": {
+      "players": {
+        "type": "int"
+      },
+      "nights": {
+        "type": "int"
+      }
+    }
+  },
+  "holdToConfirmIdentity": "Press and hold to see your card",
+  "swipeToReveal": "Swipe right to flip the card",
+  "passThePhone": "Pass the phone",
+  "phaseNightFalls": "Darkness falls on the town… everyone close your eyes",
+  "phaseMorningSomeoneDied": "Morning has come… and the town woke to bad news",
+  "phaseMorningNobodyDied": "Morning has come… nobody died today",
+  "phaseVoting": "The people will decide… and there is no going back",
+  "phaseMafiaWins": "The Mafia took over the town",
+  "phaseTownWins": "The people have won",
+  "identityHoldLabel": "Hold time before the card",
+  "identityHoldSuffix": "{seconds}s",
+  "@identityHoldSuffix": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "startGame": "Start the game",
+  "howToPlay": "How to play",
+  "tapCardHint": "Tap any card to see what it does",
+  "howToPlayTitle": "How to play",
+  "rulesTitle": "Game rules",
+  "rulesGoalTitle": "The goal",
+  "rulesGoalBody": "The townspeople look for the mafia and vote them out.\nThe mafia kill one person a night until the town is finished.",
+  "rulesRolesTitle": "The roles",
+  "rulesDayTitle": "Day phase",
+  "rulesDayBody": "1. Discussion: everyone speaks and defends themselves.\n2. Accusation: everyone points their suspicion at someone.\n3. Vote: the group decides who goes.",
+  "rulesNightTitle": "Night phase",
+  "rulesNightBody": "Each player takes the phone alone and does their part:\n— Mafia: agree on someone to kill.\n— Detective: choose someone to check.\n— Doctor: choose someone to protect.\n— Citizen: pass the phone on without doing anything.",
+  "rulesWinTitle": "Winning",
+  "rulesWinBody": "The town wins if every mafia is voted out.\nThe mafia win once they equal the number of townspeople.",
+  "rulesTipsTitle": "Tips",
+  "rulesTipsBody": "— Watch how people react while they talk.\n— Do not reveal yourself early if you are the detective or the doctor.\n— If you are mafia, steer suspicion elsewhere.\n— The doctor may not protect the same person twice running.\n— Never look at anyone else's screen, and never hand the phone on with a card showing.",
+  "audioSettingsLabel": "Audio",
+  "muteAllAudio": "Mute all sounds",
+  "scoreEnabledLabel": "Background score",
+  "muteNarrator": "Mute narrator",
+  "narratorPlaceholder": "Voice will be recorded later",
+  "groupsTitle": "Who is playing?",
+  "newGroupAction": "New group",
+  "groupMeta": "{members} players · played {plays} times",
+  "@groupMeta": {
+    "placeholders": {
+      "members": {
+        "type": "int"
+      },
+      "plays": {
+        "type": "int"
+      }
+    }
+  },
+  "groupMetaNeverPlayed": "{members} players · not played yet",
+  "@groupMetaNeverPlayed": {
+    "placeholders": {
+      "members": {
+        "type": "int"
+      }
+    }
+  },
+  "saveGroupPrompt": "Save these as a group?",
+  "saveAction": "Save",
+  "notNowAction": "Not now",
+  "groupNameHint": "Group name",
+  "groupNameDefault": "Group {number}",
+  "@groupNameDefault": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "saveGroupTitle": "Name this group",
+  "renameAction": "Rename",
+  "renameGroupTitle": "Rename group",
+  "deleteGroupTitle": "Delete group?",
+  "deleteGroupBody": "The roster is removed. Past matches are not affected.",
+  "quickStartAction": "Start now",
+  "presentAction": "Here",
+  "absentAction": "Away",
+  "attendanceHint": "Tap a name to mark them away tonight. They stay in the group.",
+  "playingTonight": "Playing tonight: {count}",
+  "@playingTonight": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addGuestsToGroupTitle": "Add to the group?",
+  "addGuestsToGroupBody": "{names} played tonight but are not in {group}.",
+  "@addGuestsToGroupBody": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "saveGroupOrderTitle": "Save the new seating order?",
+  "saveGroupOrderBody": "Tonight {group} sat in a different order.",
+  "@saveGroupOrderBody": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "addAction": "Add"
+}

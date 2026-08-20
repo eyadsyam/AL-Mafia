@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Both LaunchTheme and NormalTheme are dark regardless of the OS setting,
+      and values-night/styles.xml is identical. The app ships one theme
+      (constitution: "dark theme only in MVP"), so a light launch window would
+      be a white flash in front of a black app — which is exactly the thing a
+      splash screen exists to prevent.
+    -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <!-- Removed automatically when the Flutter engine draws its first frame. -->
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+
+    <!-- Applied once the process has started and behind the Flutter UI while it runs. -->
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+</resources>

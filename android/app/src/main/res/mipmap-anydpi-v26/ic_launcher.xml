@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive icon, API 26+. The launcher masks these two layers to whatever shape
+  the device uses and may parallax them independently, so the mask painting sits
+  in the foreground inside the 72% safe zone (see tool/generate_icons.py) and the
+  background is the app's own ground colour rather than part of the artwork.
+
+  Both files are generated. Edit the source in raw_assets/icon/ and re-run
+  `python tool/generate_icons.py`.
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+    <monochrome android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>

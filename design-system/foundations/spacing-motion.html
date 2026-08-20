@@ -1,0 +1,54 @@
+<!-- @dsCard group="Foundations" -->
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mafia Master — Spacing, Radii &amp; Motion</title>
+<style>
+  :root{--bg:#0D0F14;--card:#161A22;--bd:#2A3140;--t1:#EDEFF3;--t2:#9AA3B2;--t3:#5C6575;--gold:#C9A227}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--t1);font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;padding:28px 24px}
+  h1{font-size:22px;font-weight:600}
+  .sub{color:var(--t2);font-size:13px;margin:4px 0 18px}
+  h2{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin:22px 0 12px;font-weight:600}
+  .bar{display:flex;align-items:center;gap:14px;margin-bottom:9px}
+  .box{background:var(--gold);height:16px;border-radius:3px}
+  .lbl{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--t2);white-space:nowrap}
+  .radii{display:flex;gap:16px;flex-wrap:wrap}
+  .rc{background:var(--card);border:1px solid var(--bd);width:92px;height:64px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px}
+  .rc span{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--t2)}
+  table{width:100%;border-collapse:collapse;margin-top:6px}
+  td{border-bottom:1px solid var(--bd);padding:9px 6px;font-size:13px}
+  td.k{font-family:"IBM Plex Mono",monospace;color:var(--gold);font-size:12px}
+  td.v{color:var(--t2);font-size:12px;text-align:right;font-family:"IBM Plex Mono",monospace}
+</style>
+</head>
+<body>
+  <h1>Spacing · Radii · Motion</h1>
+  <div class="sub">4dp base unit. Screen margins 20dp. Max content width 480dp, auto-centered.</div>
+
+  <h2>Spacing scale</h2>
+  <div class="bar"><div class="box" style="width:4px"></div><div class="lbl">space-xs · 4dp</div></div>
+  <div class="bar"><div class="box" style="width:8px"></div><div class="lbl">space-sm · 8dp</div></div>
+  <div class="bar"><div class="box" style="width:16px"></div><div class="lbl">space-md · 16dp</div></div>
+  <div class="bar"><div class="box" style="width:24px"></div><div class="lbl">space-lg · 24dp</div></div>
+  <div class="bar"><div class="box" style="width:32px"></div><div class="lbl">space-xl · 32dp</div></div>
+  <div class="bar"><div class="box" style="width:48px"></div><div class="lbl">space-2xl · 48dp</div></div>
+
+  <h2>Corner radii</h2>
+  <div class="radii">
+    <div class="rc" style="border-radius:16px"><span>cards · 16</span></div>
+    <div class="rc" style="border-radius:14px"><span>buttons · 14</span></div>
+    <div class="rc" style="border-radius:20px"><span>dialogs · 20</span></div>
+  </div>
+
+  <h2>Motion tokens</h2>
+  <table>
+    <tr><td class="k">motion-instant</td><td>Button state changes</td><td class="v">100ms · linear</td></tr>
+    <tr><td class="k">motion-quick</td><td>Entrance, selection</td><td class="v">200ms · ease-out</td></tr>
+    <tr><td class="k">motion-standard</td><td>Screen transitions</td><td class="v">300ms · ease-in-out</td></tr>
+    <tr><td class="k">motion-dramatic</td><td>Card flip, elimination</td><td class="v">600ms · ease-in-out</td></tr>
+  </table>
+</body>
+</html>

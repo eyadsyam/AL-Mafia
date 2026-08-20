@@ -1,0 +1,69 @@
+<!-- @dsCard group="Foundations" -->
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mafia Master — Color Palette</title>
+<style>
+  :root{
+    --surface-base:#0D0F14; --surface-raised:#161A22; --surface-overlay:#1F2530;
+    --border-subtle:#2A3140; --text-primary:#EDEFF3; --text-secondary:#9AA3B2; --text-muted:#5C6575;
+    --accent-gold:#C9A227; --accent-gold-pressed:#A8871F; --accent-crimson:#8E2A35; --accent-sage:#4C7A5C;
+    --role-mafia:#8E2A35; --role-doctor:#3F6E8C; --role-detective:#C9A227; --role-citizen:#6B7484;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--surface-base);color:var(--text-primary);
+    font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;padding:28px 24px 32px}
+  h1{font-size:22px;font-weight:600;letter-spacing:.02em}
+  .sub{color:var(--text-secondary);font-size:13px;margin-top:4px}
+  .warn{margin-top:14px;font-size:12px;color:var(--accent-gold);
+    border:1px solid var(--border-subtle);border-radius:10px;padding:8px 12px;background:#1a1408}
+  h2{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);
+    margin:26px 0 12px;font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .sw{border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden;background:var(--surface-raised)}
+  .chip{height:64px}
+  .meta{padding:9px 11px}
+  .name{font-size:13px;font-weight:600}
+  .tok{font-size:11px;color:var(--text-secondary);font-family:"IBM Plex Mono",monospace;margin-top:2px}
+  .hex{font-size:11px;color:var(--text-muted);font-family:"IBM Plex Mono",monospace}
+</style>
+</head>
+<body>
+  <h1>Color Palette</h1>
+  <div class="sub">Dark theme — the only theme in MVP. An interrogation room, not a nightclub.</div>
+  <div class="warn">⚠ Anti-leakage: never bind a color to a role during gameplay. Red must never appear on night screens.</div>
+
+  <h2>Surfaces</h2>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:#0D0F14"></div><div class="meta"><div class="name">Deep Night</div><div class="tok">surface-base</div><div class="hex">#0D0F14</div></div></div>
+    <div class="sw"><div class="chip" style="background:#161A22"></div><div class="meta"><div class="name">Charcoal</div><div class="tok">surface-raised</div><div class="hex">#161A22</div></div></div>
+    <div class="sw"><div class="chip" style="background:#1F2530"></div><div class="meta"><div class="name">Light Charcoal</div><div class="tok">surface-overlay</div><div class="hex">#1F2530</div></div></div>
+    <div class="sw"><div class="chip" style="background:#2A3140"></div><div class="meta"><div class="name">Subtle Border</div><div class="tok">border-subtle</div><div class="hex">#2A3140</div></div></div>
+  </div>
+
+  <h2>Text</h2>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:#EDEFF3"></div><div class="meta"><div class="name">Primary</div><div class="tok">text-primary</div><div class="hex">#EDEFF3 · ≥7:1</div></div></div>
+    <div class="sw"><div class="chip" style="background:#9AA3B2"></div><div class="meta"><div class="name">Secondary</div><div class="tok">text-secondary</div><div class="hex">#9AA3B2 · ≥4.5:1</div></div></div>
+    <div class="sw"><div class="chip" style="background:#5C6575"></div><div class="meta"><div class="name">Muted</div><div class="tok">text-muted</div><div class="hex">#5C6575</div></div></div>
+  </div>
+
+  <h2>Accents</h2>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:#C9A227"></div><div class="meta"><div class="name">Muted Gold</div><div class="tok">accent-gold</div><div class="hex">#C9A227</div></div></div>
+    <div class="sw"><div class="chip" style="background:#A8871F"></div><div class="meta"><div class="name">Pressed Gold</div><div class="tok">accent-gold-pressed</div><div class="hex">#A8871F</div></div></div>
+    <div class="sw"><div class="chip" style="background:#8E2A35"></div><div class="meta"><div class="name">Crimson</div><div class="tok">accent-crimson</div><div class="hex">#8E2A35 · destructive</div></div></div>
+    <div class="sw"><div class="chip" style="background:#4C7A5C"></div><div class="meta"><div class="name">Muted Sage</div><div class="tok">accent-sage</div><div class="hex">#4C7A5C · success</div></div></div>
+  </div>
+
+  <h2>Role colors — reveal &amp; post-game ONLY</h2>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:#8E2A35"></div><div class="meta"><div class="name">Mafia</div><div class="hex">#8E2A35</div></div></div>
+    <div class="sw"><div class="chip" style="background:#3F6E8C"></div><div class="meta"><div class="name">Doctor</div><div class="hex">#3F6E8C</div></div></div>
+    <div class="sw"><div class="chip" style="background:#C9A227"></div><div class="meta"><div class="name">Detective</div><div class="hex">#C9A227</div></div></div>
+    <div class="sw"><div class="chip" style="background:#6B7484"></div><div class="meta"><div class="name">Citizen</div><div class="hex">#6B7484</div></div></div>
+  </div>
+</body>
+</html>

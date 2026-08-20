@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The launch window, shown by the OS between tapping the icon and Flutter's
+  first frame.
+
+  Two things make this feel like part of the app rather than a stall:
+
+  * the ground is `ic_launcher_background`, which is the same colour as
+    `MafiaColors.dark.surfaceBase` and therefore the same colour as the first
+    frame Flutter draws — so there is no flash at the handover, in either OS
+    theme (values/ and values-night/ both point here on purpose);
+  * the mask is centred at its natural size rather than stretched, so it reads
+    as the icon growing into the app.
+
+  Generated bitmaps: `python tool/generate_icons.py`.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/window_background" />
+
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/splash" />
+    </item>
+</layer-list>

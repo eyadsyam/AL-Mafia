@@ -1,0 +1,3 @@
+# Raw AI generations staged for tool/normalise_card_art.py. These are inputs,
+# not assets — only the normalised WebP output in assets/images/ is committed.
+incoming/

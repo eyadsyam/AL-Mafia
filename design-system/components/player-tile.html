@@ -1,0 +1,61 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mafia Master — PlayerTile</title>
+<style>
+  :root{--bg:#0D0F14;--card:#161A22;--bd:#2A3140;--t1:#EDEFF3;--t2:#9AA3B2;--t3:#5C6575;--gold:#C9A227}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--t1);font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;padding:28px 24px}
+  h1{font-size:22px;font-weight:600}
+  .sub{color:var(--t2);font-size:13px;margin:4px 0 22px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:420px}
+  .cell .lbl{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--t2);margin-top:6px}
+  .tile{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--bd);
+    border-radius:16px;padding:12px 14px;min-height:68px;position:relative}
+  .avatar{width:44px;height:44px;border-radius:50%;background:#222835;display:flex;align-items:center;
+    justify-content:center;font-weight:600;color:var(--t1);flex:0 0 44px}
+  .name{font-size:20px;font-weight:600}
+  /* reserved indicator slot — exists for ALL roles, empty unless Mafia */
+  .slot{margin-inline-start:auto;width:34px;height:24px;display:flex;align-items:center;justify-content:center}
+  .dot{display:flex;align-items:center;gap:5px;color:var(--gold);font-size:13px;font-weight:600;font-family:"IBM Plex Mono",monospace}
+  .dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px #c9a22766}
+  .sel{border:2px solid var(--gold);background:linear-gradient(0deg,#c9a2271a,#c9a2271a),var(--card);padding:11px 13px}
+  .dead{opacity:.4}
+  .badge{font-size:11px;color:var(--t3);border:1px solid var(--bd);border-radius:999px;padding:2px 8px;margin-inline-start:auto}
+  .disabled{opacity:.6}
+</style>
+</head>
+<body>
+  <h1>PlayerTile</h1>
+  <div class="sub">The most important component. On night screens, identical elements for every role — the Mafia indicator lives in a reserved slot that exists (empty) for all roles. Dimensions never differ.</div>
+  <div class="grid">
+    <div class="cell">
+      <div class="tile"><div class="avatar">A</div><div class="name">Ahmed</div><div class="slot"></div></div>
+      <div class="lbl">Default — reserved slot empty</div>
+    </div>
+    <div class="cell">
+      <div class="tile sel"><div class="avatar">S</div><div class="name">Sara</div><div class="slot"></div></div>
+      <div class="lbl">Selected — 2dp gold + 8% glow</div>
+    </div>
+    <div class="cell">
+      <div class="tile"><div class="avatar">O</div><div class="name">Omar</div><div class="slot"><div class="dot">2</div></div></div>
+      <div class="lbl">Mafia vote indicator (data-only, same box)</div>
+    </div>
+    <div class="cell">
+      <div class="tile dead"><div class="avatar">K</div><div class="name">Khaled</div><div class="badge">Out of the game</div></div>
+      <div class="lbl">Dead (day) — 40% dim + badge</div>
+    </div>
+    <div class="cell">
+      <div class="tile disabled"><div class="avatar">N</div><div class="name">Nour</div><div class="slot"></div></div>
+      <div class="lbl">Disabled — 60% dim, non-tappable</div>
+    </div>
+    <div class="cell">
+      <div class="tile"><div class="avatar">L</div><div class="name">Laila</div><div class="slot"></div></div>
+      <div class="lbl">Default (LTR/RTL mirrored via logical props)</div>
+    </div>
+  </div>
+</body>
+</html>

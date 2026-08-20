@@ -1,0 +1,50 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mafia Master — RoleCard</title>
+<style>
+  :root{--bg:#0D0F14;--card:#161A22;--bd:#2A3140;--t1:#EDEFF3;--t2:#9AA3B2;--t3:#5C6575;--gold:#C9A227}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--t1);font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;padding:28px 24px}
+  h1{font-size:22px;font-weight:600}
+  .sub{color:var(--t2);font-size:13px;margin:4px 0 24px}
+  .row{display:flex;gap:26px;justify-content:center;flex-wrap:wrap}
+  .wrap{text-align:center}
+  .card{width:190px;height:270px;border-radius:20px;border:1px solid var(--bd);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;padding:20px}
+  .back{background:radial-gradient(120% 90% at 50% 20%,#181c24,#12141a)}
+  .logo{width:70px;height:70px;border-radius:16px;border:1px solid #2f3644;display:flex;align-items:center;justify-content:center;color:#3a4150;font-size:30px}
+  .back .flip{color:var(--t3);font-size:13px;margin-top:6px}
+  .front{background:linear-gradient(180deg,#1a1418,#141017);border-color:#3a2730}
+  .glyph{font-size:40px}
+  .role{font-size:26px;font-weight:700;letter-spacing:.06em}
+  .desc{color:var(--t2);font-size:13px;line-height:1.5;max-width:150px}
+  .got{margin-top:10px;border:1px solid var(--gold);color:var(--gold);border-radius:12px;padding:9px 20px;font-size:13px;font-weight:600}
+  .lbl{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--t2);margin-top:10px}
+  .arrow{align-self:center;color:var(--t3);font-size:24px;display:flex;align-items:center}
+</style>
+</head>
+<body>
+  <h1>RoleCard</h1>
+  <div class="sub">Uniform back face for every role. 3D flip via long-press (motion-dramatic 600ms, identical for all). "Got it" appears after a fixed 2s delay — read-length is never a signal. Teammates' names print on the card for Mafia.</div>
+  <div class="row">
+    <div class="wrap">
+      <div class="card back"><div class="logo">◆</div><div class="flip">Hold to flip the card</div></div>
+      <div class="lbl">Back face — identical for all roles</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="wrap">
+      <div class="card front">
+        <div class="glyph">🎭</div>
+        <div class="role">MAFIA</div>
+        <div class="desc">Pick a target each night with your partners: Omar, Laila.</div>
+        <div class="got">Got it</div>
+      </div>
+      <div class="lbl">Flipped — long-press "Got it"</div>
+    </div>
+  </div>
+</body>
+</html>

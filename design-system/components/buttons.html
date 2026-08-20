@@ -1,0 +1,40 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mafia Master — Buttons</title>
+<style>
+  :root{--bg:#0D0F14;--card:#161A22;--bd:#2A3140;--t1:#EDEFF3;--t2:#9AA3B2;--gold:#C9A227;--goldp:#A8871F;--crimson:#8E2A35}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--t1);font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;padding:28px 24px}
+  h1{font-size:22px;font-weight:600}
+  .sub{color:var(--t2);font-size:13px;margin:4px 0 22px}
+  .stack{display:flex;flex-direction:column;gap:14px;max-width:360px}
+  .btn{height:56px;border-radius:14px;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;border:none;width:100%;cursor:default;letter-spacing:.01em}
+  .primary{background:var(--gold);color:#0D0F14}
+  .primary.pressed{background:var(--goldp)}
+  .secondary{background:transparent;color:var(--t1);border:1.5px solid var(--bd)}
+  .text{background:transparent;color:var(--t2);height:auto;font-weight:500}
+  .danger{background:var(--crimson);color:#EDEFF3}
+  .disabled{opacity:.5}
+  .lbl{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--t2);margin-top:2px}
+  .grp{margin-bottom:6px}
+  .note{margin-top:22px;font-size:12px;color:var(--t2);border-left:2px solid var(--gold);padding-left:10px}
+</style>
+</head>
+<body>
+  <h1>Buttons</h1>
+  <div class="sub">Exactly one primary per screen. Min touch target 48×48dp. Height 56dp, full width.</div>
+  <div class="stack">
+    <div class="grp"><button class="btn primary">New Match</button><div class="lbl">PrimaryButton — accent-gold / #0D0F14 text</div></div>
+    <div class="grp"><button class="btn primary pressed">New Match</button><div class="lbl">PrimaryButton · pressed — accent-gold-pressed</div></div>
+    <div class="grp"><button class="btn secondary">Match History</button><div class="lbl">SecondaryButton — 1.5dp border-subtle</div></div>
+    <div class="grp"><button class="btn primary disabled">Next</button><div class="lbl">PrimaryButton · disabled (until 5 players)</div></div>
+    <div class="grp"><button class="btn text">How to play?</button><div class="lbl">TextButton — marginal actions only</div></div>
+    <div class="grp"><button class="btn danger">End match</button><div class="lbl">DangerButton — accent-crimson · ONLY for "End match"</div></div>
+  </div>
+  <div class="note">Danger/crimson never appears on night or in-hand screens (anti-leakage luminance budget).</div>
+</body>
+</html>

@@ -1,0 +1,138 @@
+name: mafia_master
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^2.5.1
+  go_router: ^14.2.0
+  isar_community: ^3.1.0
+  isar_community_flutter_libs: ^3.1.0
+  phosphor_flutter: ^2.1.0
+  path_provider: ^2.1.4
+  intl: any
+  audioplayers: ^6.8.1
+  sensors_plus: ^7.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  test: ^1.24.0
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.11
+  isar_community_generator: ^3.1.0
+  alchemist: ^0.11.0
+  mocktail: ^1.0.4
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+  generate: true
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # Directory entries, not file-by-file: every asset here is referenced through
+  # the generated `lib/app/asset_constants.dart`, and that file is regenerated
+  # from the same directories by `tool/generate_asset_constants.py`, so the two
+  # cannot drift apart.
+  assets:
+    - assets/images/
+    # Flutter's directory entries are not recursive, so the gallery needs its
+    # own line. It is a separate directory precisely because its contents are
+    # post-game-only and must stay easy to tell apart from the in-match art.
+    - assets/images/gallery/
+    - assets/icons/
+    - assets/audio/
+    - assets/fonts/OFL.txt
+
+  # Every family below is SIL OFL 1.1; the license text ships in
+  # assets/fonts/OFL.txt and is registered with the LicenseRegistry in
+  # main.dart so it appears in the app's own licence page.
+  #
+  # Cairo, Cinzel and Oswald are shipped by Google Fonts as *variable* fonts
+  # only. Flutter renders a variable font at its default instance unless the
+  # style names an axis, so every token that wants a heavier cut sets
+  # `fontVariations: [FontVariation('wght', ...)]` rather than relying on
+  # `fontWeight` alone — otherwise the platform silently synthesises a fake
+  # bold, which looks muddy at display sizes.
+  fonts:
+    # --- Display: Latin ---
+    - family: Bebas Neue
+      fonts:
+        - asset: assets/fonts/BebasNeue-Regular.ttf
+
+    # --- Display: Arabic (also carries Latin, used as the RTL fallback) ---
+    - family: Cairo
+      fonts:
+        - asset: assets/fonts/Cairo-Variable.ttf
+
+    # --- Body: covers both Latin and Arabic from one family ---
+    - family: IBM Plex Sans Arabic
+      fonts:
+        - asset: assets/fonts/IBMPlexSansArabic-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexSansArabic-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexSansArabic-SemiBold.ttf
+          weight: 600
+
+    # --- Numerals: tabular figures for timers and counters ---
+    - family: IBM Plex Mono
+      fonts:
+        - asset: assets/fonts/IBMPlexMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexMono-Medium.ttf
+          weight: 500
+
+# path_provider_foundation >= 2.5 depends on `objective_c`, which ships a Dart
+# native-asset build hook. That hook invokes the Flutter SDK's dart binary
+# unquoted, so on a machine whose SDK path contains a space it dies with
+# "'D:\Flutter' is not recognized" and every `flutter test`/`build` fails before
+# a single test runs. 2.4.1 is the last release without that dependency.
+#
+# Remove this override once the SDK lives at a space-free path.
+dependency_overrides:
+  path_provider_foundation: 2.4.1

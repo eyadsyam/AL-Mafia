@@ -1,0 +1,41 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mafia Master — SuspicionNote</title>
+<style>
+  :root{--bg:#0D0F14;--card:#161A22;--ov:#1F2530;--bd:#2A3140;--t1:#EDEFF3;--t2:#9AA3B2;--t3:#5C6575;--gold:#C9A227}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--t1);font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;padding:28px 24px}
+  h1{font-size:22px;font-weight:600}
+  .sub{color:var(--t2);font-size:13px;margin:4px 0 22px}
+  .sheet{max-width:360px;background:var(--ov);border:1px solid var(--bd);border-radius:20px 20px 0 0;padding:20px;margin:0 auto}
+  .q{font-size:18px;font-weight:600;margin-bottom:14px}
+  .field{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;color:var(--t3)}
+  .counter{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--t3)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 20px}
+  .chip{border:1px solid var(--bd);border-radius:999px;padding:7px 12px;font-size:13px;color:var(--t2);background:var(--card)}
+  .actions{display:flex;gap:12px}
+  .actions button{flex:1;height:52px;border-radius:14px;font-size:15px;font-weight:600;border:none}
+  .skip{background:transparent;border:1.5px solid var(--bd);color:var(--t1)}
+  .confirm{background:var(--gold);color:#0D0F14}
+  .note{font-size:12px;color:var(--t2);border-left:2px solid var(--gold);padding-left:10px;margin-top:18px;max-width:360px}
+</style>
+</head>
+<body>
+  <h1>SuspicionNote</h1>
+  <div class="sub">Citizen's second step — "every tap has value." Feeds post-game analytics.</div>
+  <div class="sheet">
+    <div class="q">Reason? (optional)</div>
+    <div class="field"><span>Type a short reason…</span><span class="counter">0/40</span></div>
+    <div class="chips">
+      <span class="chip">nervous</span><span class="chip">too quiet</span><span class="chip">defending someone</span>
+      <span class="chip">suspicious reaction</span><span class="chip">eye contact</span><span class="chip">gut feeling</span>
+    </div>
+    <div class="actions"><button class="skip">Skip</button><button class="confirm">Confirm</button></div>
+  </div>
+  <div class="note">"Skip" and "Confirm" are identical in size and position — prevents timing analysis between roles.</div>
+</body>
+</html>

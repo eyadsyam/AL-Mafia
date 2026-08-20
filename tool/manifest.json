@@ -1,0 +1,270 @@
+{
+  "_comment": [
+    "The single source of truth for every generated image asset.",
+    "",
+    "Read by BOTH tool/normalise_art.py (which writes the files) and",
+    "test/platform/asset_manifest_test.dart (which checks the shipped bytes",
+    "against it). That is the whole reason this is JSON and not the manifest.yaml",
+    "the prompt pack asks for: there is no YAML parser here without adding a",
+    "dependency, and dart:convert reads JSON for free. One list, two consumers,",
+    "nothing to drift.",
+    "",
+    "'tier' drives the treatment normalise_art.py applies:",
+    "  1 = leakage-critical. Luminance-matched across the set and nothing else.",
+    "      These are the only images an in-hand surface may show.",
+    "",
+    "'face_set': the four in-match role faces. They are FOUR DISTINCT FILES, so",
+    "  cross-role parity is no longer structural — it is measured, and nothing",
+    "  else prevents the brightest card from lighting its holder's face more than",
+    "  the others. normalise_art.py gains all four onto their common mean and",
+    "  refuses to write if any lands outside +/-2%; luminance_budget_test.dart",
+    "  re-measures both the shipped bytes and the rendered card. Do not widen",
+    "  either tolerance to make a nice-looking card pass.",
+    "",
+    "'art_only': generate_assets.py must not own this slot. The art is real and",
+    "  procedural placeholder would silently replace it.",
+    "  2 = gallery. Post-game only. Colour is allowed. Never referenced by a",
+    "      handoff-reachable widget (handoff_purity_test.dart enforces that).",
+    "  3 = public backdrop. Gained into 'lum_band' so overlaid bone-white text",
+    "      keeps its contrast ratio whatever the art does.",
+    "  4 = outcome plate / ornament. Post-game or on-table. Cosmetic.",
+    "",
+    "'lum_band' is [min, max] mean Rec. 709 luminance out of 255."
+  ],
+  "_card_box_comment": [
+    "The four paintings are finished artwork and are NEVER cropped. The painted",
+    "border, the corner letter and the corner icon are part of the picture.",
+    "",
+    "That creates a geometry problem. Three sources are aspect 0.7467 and the",
+    "mafia is 0.8733, so 'uncropped' and 'identical bounds' cannot both hold for",
+    "the PAINTING. They hold for the CARD BOX: one fixed 1024x1536 rectangle for",
+    "every role, the painting scaled to fit whole inside it (BoxFit.contain, no",
+    "pixel lost) and centred, with 'card_ground' filling the remainder. Article II",
+    "is satisfied by the box — every role occupies the same rectangle, and the",
+    "golden symmetry tests are scoped to 'outside the card image bounds'.",
+    "",
+    "Because coverage of the box differs per role, luminance is solved on the",
+    "COMPOSITED BOX (painting + its letterbox ground), not on the painting alone:",
+    "two paintings at identical mean brightness covering different fractions of a",
+    "fixed box still emit different amounts of light, and light on a bystander's",
+    "retina is what Article I is about. The ground is gained by the same factor as",
+    "the art so the bars never become a brighter frame around one card.",
+    "",
+    "The ONLY processing applied to a face is that one scalar gain. No crop, no",
+    "desaturation, no cast stripping, no hue shift, no overlay."
+  ],
+  "_card_ground_comment": [
+    "Must equal MafiaColors.dark.surfaceBase, which is AppColors.groundBase in",
+    "lib/core/theme/app_colors.dart — 0xFF0D0F14 = rgb(13, 15, 20). If the two",
+    "drift, the letterbox bars either side of a painting stop matching the screen",
+    "behind the card and become a visible frame, wider on the mafia card (76.4%",
+    "coverage) than on the other three (89.3%). That is a role tell, and no",
+    "luminance budget catches it.",
+    "normalise_art.py holds the bars at exactly this value and gains only the",
+    "art, so the shipped bars are this colour rather than this colour times a",
+    "per-role gain. card_ground_matches_surface_test.dart fails the build on any",
+    "drift, and probes the outer 4px ring of every shipped face."
+  ],
+  "card_ground": [13, 15, 20],
+  "card_size": [1024, 1536],
+  "backdrop_size": [1080, 1920],
+  "badge_size": [1024, 1024],
+  "assets": [
+    {
+      "slot": "card_face_mafia",
+      "tier": 1,
+      "face_set": true,
+      "art_only": true,
+      "raw_match": "Mafia",
+      "out": "assets/images/card_face_mafia.webp",
+      "size": [1024, 1536],
+      "quality": 88
+    },
+    {
+      "slot": "card_face_doctor",
+      "tier": 1,
+      "face_set": true,
+      "art_only": true,
+      "raw_match": "Doctor_in_archway",
+      "out": "assets/images/card_face_doctor.webp",
+      "size": [1024, 1536],
+      "quality": 88
+    },
+    {
+      "slot": "card_face_detective",
+      "tier": 1,
+      "face_set": true,
+      "art_only": true,
+      "raw_match": "Detective_with_magnifying",
+      "out": "assets/images/card_face_detective.webp",
+      "size": [1024, 1536],
+      "quality": 88
+    },
+    {
+      "slot": "card_face_citizen",
+      "tier": 1,
+      "face_set": true,
+      "art_only": true,
+      "raw_match": "Painterly_illustration_for_playi",
+      "out": "assets/images/card_face_citizen.webp",
+      "size": [1024, 1536],
+      "quality": 88
+    },
+    {
+      "slot": "card_back",
+      "tier": 1,
+      "raw_match": "Symmetrical_card_back",
+      "out": "assets/images/card_back.webp",
+      "size": [1024, 1536],
+      "quality": 88,
+      "uncropped": true,
+      "rotational_symmetry": true,
+      "note": "What the table sees while a player holds their card. Exactly one file, shared by every role, and required to be identical turned upside down — card_back_symmetry_test.dart measures that from the shipped bytes."
+    },
+    {
+      "slot": "gallery_mafia",
+      "tier": 2,
+      "art_only": true,
+      "raw_match": "Mafia",
+      "out": "assets/images/gallery/gallery_mafia.webp",
+      "size": [1024, 1536],
+      "quality": 84
+    },
+    {
+      "slot": "gallery_doctor",
+      "tier": 2,
+      "art_only": true,
+      "raw_match": "Doctor_in_archway",
+      "out": "assets/images/gallery/gallery_doctor.webp",
+      "size": [1024, 1536],
+      "quality": 84
+    },
+    {
+      "slot": "gallery_detective",
+      "tier": 2,
+      "art_only": true,
+      "raw_match": "Detective_with_magnifying",
+      "out": "assets/images/gallery/gallery_detective.webp",
+      "size": [1024, 1536],
+      "quality": 84
+    },
+    {
+      "slot": "gallery_citizen",
+      "tier": 2,
+      "art_only": true,
+      "raw_match": "Painterly_illustration_for_playi",
+      "out": "assets/images/gallery/gallery_citizen.webp",
+      "size": [1024, 1536],
+      "quality": 84
+    },
+    {
+      "slot": "bg_home",
+      "tier": 3,
+      "out": "assets/images/bg_home.webp",
+      "size": [1080, 1920],
+      "quality": 82,
+      "lum_band": [14, 30],
+      "register": "warm"
+    },
+    {
+      "slot": "bg_night",
+      "tier": 3,
+      "out": "assets/images/bg_night.webp",
+      "size": [1080, 1920],
+      "quality": 82,
+      "lum_band": [10, 22],
+      "register": "cold",
+      "note": "On-table phase announcement only. Never behind an in-hand turn."
+    },
+    {
+      "slot": "bg_day",
+      "tier": 3,
+      "out": "assets/images/bg_day.webp",
+      "size": [1080, 1920],
+      "quality": 82,
+      "lum_band": [26, 46],
+      "register": "cold",
+      "note": "The one bright surface in the app. Public by definition."
+    },
+    {
+      "slot": "bg_vote",
+      "tier": 3,
+      "out": "assets/images/bg_vote.webp",
+      "size": [1080, 1920],
+      "quality": 82,
+      "lum_band": [16, 32],
+      "register": "warm"
+    },
+    {
+      "slot": "outcome_death",
+      "tier": 4,
+      "out": "assets/images/outcome_death.webp",
+      "size": [1024, 1536],
+      "quality": 82
+    },
+    {
+      "slot": "outcome_saved",
+      "tier": 4,
+      "out": "assets/images/outcome_saved.webp",
+      "size": [1024, 1536],
+      "quality": 82
+    },
+    {
+      "slot": "outcome_mafia_win",
+      "tier": 4,
+      "out": "assets/images/outcome_mafia_win.webp",
+      "size": [1024, 1536],
+      "quality": 82
+    },
+    {
+      "slot": "outcome_town_win",
+      "tier": 4,
+      "out": "assets/images/outcome_town_win.webp",
+      "size": [1024, 1536],
+      "quality": 82
+    },
+    {
+      "slot": "badge_frame",
+      "tier": 4,
+      "out": "assets/icons/badge_frame.webp",
+      "size": [1024, 1024],
+      "quality": 84,
+      "alpha": true
+    },
+    {
+      "slot": "canvas_texture",
+      "tier": 4,
+      "out": "assets/images/canvas_texture.webp",
+      "size": [192, 192],
+      "quality": 72,
+      "alpha": true,
+      "generated_only": true,
+      "note": "A seamless tile. Cropping or gaining it would break the tiling, so normalise_art.py refuses to touch it — tool/generate_assets.py owns this slot outright."
+    }
+  ],
+  "emblems": [
+    {
+      "slot": "role_mafia",
+      "out": "assets/icons/role_mafia.webp"
+    },
+    {
+      "slot": "role_doctor",
+      "out": "assets/icons/role_doctor.webp"
+    },
+    {
+      "slot": "role_detective",
+      "out": "assets/icons/role_detective.webp"
+    },
+    {
+      "slot": "role_citizen",
+      "out": "assets/icons/role_citizen.webp"
+    }
+  ],
+  "_emblem_comment": [
+    "Listed separately because they are not photographs and are not normalised:",
+    "generate_assets.py solves each one's internal stroke weight by bisection so",
+    "all four land on the same ink coverage (27.00% +/- 0.234%) inside the same",
+    "bounding box. asset_manifest_test.dart re-measures that from the shipped",
+    "bytes. Passing them through a crop/gain stage would destroy the property."
+  ]
+}

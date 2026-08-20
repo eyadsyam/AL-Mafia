@@ -1,0 +1,46 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mafia Master — PhaseTimer</title>
+<style>
+  :root{--bg:#0D0F14;--t1:#EDEFF3;--t2:#9AA3B2;--t3:#5C6575;--bd:#2A3140;--gold:#C9A227}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--t1);font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;padding:28px 24px}
+  h1{font-size:22px;font-weight:600}
+  .sub{color:var(--t2);font-size:13px;margin:4px 0 26px}
+  .row{display:flex;gap:40px;align-items:center;justify-content:center;flex-wrap:wrap}
+  .ring{position:relative;width:150px;height:150px}
+  .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:48px;font-weight:500;color:var(--gold);font-variant-numeric:tabular-nums}
+  .cap{text-align:center;color:var(--t2);font-size:12px;margin-top:12px;font-family:"IBM Plex Mono",monospace}
+  svg circle{fill:none;stroke-width:8}
+  .track{stroke:#20262f}
+  .prog{stroke:var(--gold);stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%}
+</style>
+</head>
+<body>
+  <h1>PhaseTimer</h1>
+  <div class="sub">96dp progress ring around a timer-scale number. Final 10s: subtle ring-thickness pulse — no color change (color shifts would signal tension = a leak).</div>
+  <div class="row">
+    <div>
+      <div class="ring">
+        <svg viewBox="0 0 150 150"><circle class="track" cx="75" cy="75" r="67"/>
+          <circle class="prog" cx="75" cy="75" r="67" stroke-dasharray="421" stroke-dashoffset="120"/></svg>
+        <div class="num">45</div>
+      </div>
+      <div class="cap">Round timer · 45s</div>
+    </div>
+    <div>
+      <div class="ring">
+        <svg viewBox="0 0 150 150"><circle class="track" cx="75" cy="75" r="67"/>
+          <circle class="prog" cx="75" cy="75" r="67" stroke-width="11" stroke-dasharray="421" stroke-dashoffset="380"/></svg>
+        <div class="num">08</div>
+      </div>
+      <div class="cap">Final 10s · thickness pulse</div>
+    </div>
+  </div>
+</body>
+</html>

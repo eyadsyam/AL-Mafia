@@ -1,0 +1,483 @@
+{
+  "@@locale": "ar",
+  "appTitle": "سيد المافيا",
+  "back": "رجوع",
+  "cancel": "إلغاء",
+  "deleteAction": "حذف",
+  "continueAction": "متابعة",
+  "listSeparator": "، ",
+  "newMatch": "مباراة جديدة",
+  "history": "السجل",
+  "settings": "الإعدادات",
+  "addPlayersTitle": "أضف اللاعبين",
+  "seatingOrderSubtitle": "بالترتيب الجلوس",
+  "playerNameHint": "اسم اللاعب",
+  "addPlayer": "إضافة",
+  "playerCountLine": "عدد اللاعبين: {count}",
+  "@playerCountLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noPlayersYet": "لم تضف أي لاعب بعد",
+  "next": "التالي",
+  "seatNumber": "الكرسي #{seat}",
+  "@seatNumber": {
+    "placeholders": {
+      "seat": {
+        "type": "int"
+      }
+    }
+  },
+  "rolesTitle": "توزيع الأدوار",
+  "playerCountShort": "{count} لاعب",
+  "@playerCountShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roleGroupMafia": "المافيا",
+  "roleGroupDetective": "المحقق",
+  "roleGroupDoctor": "الدكتور",
+  "roleGroupCitizen": "المواطن",
+  "balanceValid": "التوزيع صحيح!",
+  "balancePlayerCountTooLow": "يجب أن يكون عدد اللاعبين 5 على الأقل",
+  "balancePlayerCountTooHigh": "يجب ألا يتجاوز عدد اللاعبين 20",
+  "balanceNegativeRoleCount": "لا يمكن أن يكون عدد الأدوار سالبًا",
+  "balanceRoleCountMismatch": "مجموع الأدوار يجب أن يساوي عدد اللاعبين",
+  "balanceNoMafia": "لازم يكون في مافيا واحد على الأقل",
+  "balanceMafiaTooMany": "عدد المافيا لازم يكون أقل من نص اللاعبين",
+  "balanceRecommendThreeMafia": "الأفضل تختار 3 مافيا لما تكونوا 9 لاعبين أو أكتر",
+  "balanceTwoDetectivesLowPlayerCount": "تحذير: اختيار اثنين من المحققين مع أقل من 11 لاعبًا قد يعطي فرصة عالية جدًا للمدينة",
+  "settingsTitle": "الإعدادات",
+  "speechSecondsLabel": "وقت الكلام (بالثواني)",
+  "secondsSuffix": "{seconds} ث",
+  "@secondsSuffix": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "discussionModeLabel": "طريقة النقاش",
+  "discussionStructured": "منظم (أدوار محددة)",
+  "discussionFree": "حر (بدون أدوار)",
+  "dayTieRuleLabel": "قاعدة التعادل في النهار",
+  "tieRevote": "إعادة تصويت",
+  "tieNoElimination": "بدون إقصاء",
+  "narrationEnabledLabel": "تفعيل السرد الصوتي",
+  "abstainAllowedLabel": "السماح بعدم التصويت",
+  "save": "حفظ",
+  "nightApproaching": "الليل يقترب",
+  "nightLabel": "الليلة",
+  "aliveCountLabel": "لاعبون على الحياة",
+  "placePhoneOnTable": "ضع الهاتف على الطاولة وانتظر الإشارة",
+  "beginNight": "ابدأ الليل",
+  "distributionSubtitle": "توزيع الأدوار",
+  "roleMafia": "مافيا",
+  "roleDoctor": "دكتور",
+  "roleDetective": "محقق",
+  "roleCitizen": "مواطن",
+  "roleMafiaDescription": "كل ليلة تتفق مع باقي المافيا على حد تقتلوه. وميعرفش عنك حد.",
+  "roleDoctorDescription": "كل ليلة تحمي لاعب واحد — ومينفعش تحمي نفس الشخص ليلتين ورا بعض.",
+  "roleDetectiveDescription": "كل ليلة تكشف لاعب واحد وتعرف لو مافيا. النتيجة تظهرلك إنت بس، ومرة واحدة.",
+  "roleCitizenDescription": "مالكش قدرة خاصة. سلاحك إنك تلاحظ وتتكلم.",
+  "gotIt": "فهمت",
+  "holdToRevealRole": "اضغط مع الاستمرار لكشف دورك",
+  "teammatesLine": "معاك في المافيا: {names}",
+  "@teammatesLine": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "passPhoneTo": "مرّر الهاتف إلى",
+  "iAmHoldInstruction": "أنا {name} — اضغط مع الاستمرار",
+  "@iAmHoldInstruction": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notYouNamed": "لست {name}؟",
+  "@notYouNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "yourTurn": "دورك",
+  "holdToConfirm": "اضغط مع الاستمرار للتأكيد",
+  "notYou": "لست أنت؟",
+  "takeYourTime": "خذ وقتك في القراءة",
+  "choosePlayer": "اختر لاعبًا",
+  "confirmAction": "تأكيد",
+  "choiceRecorded": "تم تسجيل اختيارك",
+  "keepPhoneUntilUnlock": "أبقِ الهاتف معك حتى يُفتح زر التمرير",
+  "passPhone": "مرّر الهاتف",
+  "waitEllipsis": "انتظر…",
+  "nightPromptMafia": "مين عايز تقتله الليلة؟",
+  "nightPromptDoctor": "مين عايز تحميه الليلة؟",
+  "nightPromptDetective": "مين عايز تكشفه الليلة؟",
+  "nightPromptCitizen": "مين شاكك فيه الليلة دي؟",
+  "notEveryoneSurvived": "لم ينجُ الجميع",
+  "lostPlayerLastNight": "{name} اتقتل الليلة اللي فاتت.",
+  "@lostPlayerLastNight": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "quietNight": "ليلة هادئة",
+  "someoneSavedBody": "المافيا حاولت تقتل، بس حد نجا. مش هنقول مين.",
+  "noLossesBody": "مرّت الليلة دون خسائر.",
+  "morningOfDay": "صباح اليوم {day}",
+  "@morningOfDay": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "startDiscussion": "ابدأ النقاش",
+  "discussionTitle": "النقاش",
+  "discussionFreeTitle": "النقاش الحر",
+  "currentSpeaker": "المتحدث الآن",
+  "speakersRemaining": "متبقي: {count}",
+  "@speakersRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "skip": "تخطي",
+  "endDiscussion": "إنهاء النقاش",
+  "resume": "متابعة",
+  "pause": "إيقاف",
+  "votingSubtitle": "التصويت",
+  "whoDoYouVoteOut": "مين تصوّت على طرده؟",
+  "abstain": "امتناع",
+  "confirmVote": "تأكيد الصوت",
+  "eliminatedHeadline": "خرج {name}",
+  "@eliminatedHeadline": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tieRevoteHeadline": "تعادل — إعادة التصويت",
+  "tieNoEliminationHeadline": "تعادل — لم يخرج أحد",
+  "nobodyEliminated": "لم يخرج أحد",
+  "wasRole": "كان {role}",
+  "@wasRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "revote": "إعادة التصويت",
+  "gameOver": "نهاية اللعبة",
+  "mafiaWins": "المافيا كسبت",
+  "townWins": "الشعب كسب",
+  "analytics": "التحليلات",
+  "homeAction": "الرئيسية",
+  "endMatchTitle": "إنهاء المباراة؟",
+  "endMatchBody": "ستفقد تقدّم هذه المباراة ولن تظهر في السجل.",
+  "keepPlaying": "متابعة اللعب",
+  "endAction": "إنهاء",
+  "endMatchTooltip": "إنهاء المباراة",
+  "unfinishedMatchTitle": "لديك مباراة غير مكتملة",
+  "unfinishedMatchBody": "{count} لاعبين. {where}",
+  "@unfinishedMatchBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "where": {
+        "type": "String"
+      }
+    }
+  },
+  "resumeFromPassTo": "ستُستأنف من تمرير الهاتف إلى {name}.",
+  "@resumeFromPassTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resumeFromDay": "ستُستأنف من اليوم {day}.",
+  "@resumeFromDay": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "endMatch": "إنهاء المباراة",
+  "resumeAction": "استئناف",
+  "nightNumbered": "الليلة {number}",
+  "@nightNumbered": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "dayNumbered": "اليوم {number}",
+  "@dayNumbered": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "analyticsTitle": "التحليلات",
+  "analyticsLoadFailed": "تعذّر فتح تحليلات المباراة",
+  "seatFallback": "مقعد {seat}",
+  "@seatFallback": {
+    "placeholders": {
+      "seat": {
+        "type": "int"
+      }
+    }
+  },
+  "tabEvents": "الأحداث",
+  "tabPlayers": "اللاعبون",
+  "tabSuspicions": "الشكوك",
+  "tabAchievements": "الإنجازات",
+  "timelineMafiaVote": "{actor} صوّت على {target}",
+  "@timelineMafiaVote": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineProtect": "{actor} حمى {target}",
+  "@timelineProtect": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineInvestigate": "{actor} حقّق مع {target}",
+  "@timelineInvestigate": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineSuspect": "{actor} اشتبه في {target}",
+  "@timelineSuspect": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineNightKill": "قُتل {target} ليلًا",
+  "@timelineNightKill": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineSaved": "نجا {target} من محاولة اغتيال",
+  "@timelineSaved": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineDayElimination": "الشعب صوّت على طرد {target}",
+  "@timelineDayElimination": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "noEventsRecorded": "لا توجد أحداث مسجّلة",
+  "noPlayerData": "لا توجد بيانات لاعبين",
+  "noSuspicionsByPlayer": "لم يسجّل أي اشتباه",
+  "suspicionAccuracyLine": "دقة الاشتباه: {correct}/{total}",
+  "@suspicionAccuracyLine": {
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "noSuspicionsRecorded": "لم يُسجَّل أي اشتباه",
+  "noAchievements": "لا توجد إنجازات",
+  "achievementSharpestEye": "العين الثاقبة",
+  "achievementSharpestEyeDescription": "أعلى دقة في الاشتباهات خلال الليل",
+  "achievementUntouchable": "الناجي",
+  "achievementUntouchableDescription": "نجا حتى نهاية اللعبة",
+  "achievementGuardian": "الحامي",
+  "achievementGuardianDescription": "منع هجوم المافيا بالحماية",
+  "achievementFirstBlood": "أول ضحية",
+  "achievementFirstBloodDescription": "أول من تم القضاء عليه في الليل الأول",
+  "achievementSurvivors": "الناجون",
+  "achievementSurvivorsDescription": "انتهت اللعبة",
+  "historyTitle": "السجل",
+  "deleteMatchTitle": "حذف المباراة؟",
+  "deleteMatchBody": "سيتم حذف التحليلات نهائيًا.",
+  "noPastMatches": "لا توجد مباريات سابقة",
+  "mafiaWon": "المافيا كسبت",
+  "townWon": "الشعب كسب",
+  "endedWithoutResult": "انتهت دون نتيجة",
+  "matchMeta": "{players} لاعبين · {nights} ليالٍ",
+  "@matchMeta": {
+    "placeholders": {
+      "players": {
+        "type": "int"
+      },
+      "nights": {
+        "type": "int"
+      }
+    }
+  },
+  "holdToConfirmIdentity": "دوس واستني عشان تشوف كارتك",
+  "swipeToReveal": "اسحب لليمين عشان تقلب الكارت",
+  "passThePhone": "سلّم الموبايل",
+  "phaseNightFalls": "الضلمة نزلت على البلد… كله يغمّض",
+  "phaseMorningSomeoneDied": "الصبح جه… والبلد صحيت على خبر وحش",
+  "phaseMorningNobodyDied": "الصبح جه… ومحدش مات النهارده",
+  "phaseVoting": "الشعب هيقرر… ومفيش رجوع",
+  "phaseMafiaWins": "المافيا خلصت على البلد",
+  "phaseTownWins": "الشعب انتصر",
+  "identityHoldLabel": "مدة الضغط قبل الكارت",
+  "identityHoldSuffix": "{seconds} ثانية",
+  "@identityHoldSuffix": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "startGame": "ابدأ اللعبة",
+  "howToPlay": "إزاي نلعب",
+  "tapCardHint": "دوس على أي كارت تعرف بيعمل إيه",
+  "howToPlayTitle": "إزاي نلعب",
+  "rulesTitle": "قوانين اللعبة",
+  "rulesGoalTitle": "هدف اللعبة",
+  "rulesGoalBody": "المواطنين بيدوروا على المافيا ويصوّتوا يطلعوهم برّه.\nوالمافيا بتقتل واحد كل ليلة لحد ما تخلص على البلد.",
+  "rulesRolesTitle": "الأدوار",
+  "rulesDayTitle": "مرحلة النهار",
+  "rulesDayBody": "1. النقاش: كل واحد بيتكلم ويدافع عن نفسه.\n2. الاتهام: كل واحد بيوجّه شكّه لحد.\n3. التصويت: الجماعة بتقرر مين يطلع برّه.",
+  "rulesNightTitle": "مرحلة الليل",
+  "rulesNightBody": "كل واحد بياخد الموبايل لوحده وبيعمل دوره:\n— المافيا: بيتفقوا على حد يقتلوه.\n— المحقق: بيختار حد يكشفه.\n— الدكتور: بيختار حد يحميه.\n— المواطن: بيمرّر الموبايل من غير ما يعمل حاجة.",
+  "rulesWinTitle": "شروط الفوز",
+  "rulesWinBody": "المواطنين بيكسبوا: لو كل المافيا طلعوا برّه.\nالمافيا بتكسب: لو عددهم بقى قد المواطنين.",
+  "rulesTipsTitle": "نصايح",
+  "rulesTipsBody": "— راقب ردود فعل الناس وهما بيتكلموا.\n— متكشفش دورك بسرعة لو إنت محقق أو دكتور.\n— لو إنت مافيا، حاول توجّه الشك لغيرك.\n— الدكتور مينفعش يحمي نفس الشخص مرتين ورا بعض.\n— متبصّش في موبايل حد تاني، ومتسلّمش الموبايل وهو مفتوح على كارت.",
+  "audioSettingsLabel": "الصوتيات",
+  "muteAllAudio": "اقفل كل الأصوات",
+  "scoreEnabledLabel": "الموسيقى ورا اللعب",
+  "muteNarrator": "كتم الراوي",
+  "narratorPlaceholder": "صوت الراوي هيتسجّل بعدين",
+  "groupsTitle": "مين بيلعب؟",
+  "newGroupAction": "مجموعة جديدة",
+  "groupMeta": "{members} لاعبين · لعبتوا {plays} مرة",
+  "@groupMeta": {
+    "placeholders": {
+      "members": {
+        "type": "int"
+      },
+      "plays": {
+        "type": "int"
+      }
+    }
+  },
+  "groupMetaNeverPlayed": "{members} لاعبين · لسه ملعبوش",
+  "@groupMetaNeverPlayed": {
+    "placeholders": {
+      "members": {
+        "type": "int"
+      }
+    }
+  },
+  "saveGroupPrompt": "احفظ دول كمجموعة؟",
+  "saveAction": "احفظ",
+  "notNowAction": "مش دلوقتي",
+  "groupNameHint": "اسم المجموعة",
+  "groupNameDefault": "مجموعة {number}",
+  "@groupNameDefault": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "saveGroupTitle": "سمّي المجموعة",
+  "renameAction": "إعادة تسمية",
+  "renameGroupTitle": "إعادة تسمية المجموعة",
+  "deleteGroupTitle": "حذف المجموعة؟",
+  "deleteGroupBody": "هتتشال خالص. المباريات القديمة مش هتتأثر.",
+  "quickStartAction": "ابدأ فوراً",
+  "presentAction": "موجود",
+  "absentAction": "مش موجود",
+  "attendanceHint": "دوس على أي اسم لو مش موجود النهارده. هيفضل في المجموعة.",
+  "playingTonight": "بيلعبوا النهارده: {count}",
+  "@playingTonight": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addGuestsToGroupTitle": "تضيفهم للمجموعة؟",
+  "addGuestsToGroupBody": "{names} لعبوا النهارده ومش في {group}.",
+  "@addGuestsToGroupBody": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "saveGroupOrderTitle": "تحفظ ترتيب القعدة الجديد؟",
+  "saveGroupOrderBody": "النهارده {group} قعدوا بترتيب تاني.",
+  "@saveGroupOrderBody": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "addAction": "ضيف"
+}

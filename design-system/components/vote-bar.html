@@ -1,0 +1,41 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mafia Master — VoteBar &amp; Reveal</title>
+<style>
+  :root{--bg:#0D0F14;--card:#161A22;--bd:#2A3140;--t1:#EDEFF3;--t2:#9AA3B2;--t3:#5C6575;--gold:#C9A227;--crimson:#8E2A35}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--t1);font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;padding:28px 24px}
+  h1{font-size:22px;font-weight:600}
+  .sub{color:var(--t2);font-size:13px;margin:4px 0 22px}
+  .panel{max-width:380px}
+  .vrow{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .vname{width:70px;font-size:15px}
+  .track{flex:1;height:14px;background:#20262f;border-radius:8px;overflow:hidden}
+  .fill{height:100%;background:var(--gold);border-radius:8px}
+  .count{width:64px;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--t2)}
+  .reveal{margin-top:22px;background:var(--card);border:1px solid #3a2730;border-radius:16px;padding:22px;text-align:center}
+  .elim{font-size:20px;font-weight:600}
+  .elim b{color:var(--t1)}
+  .rolebadge{display:inline-flex;align-items:center;gap:8px;margin-top:12px;color:var(--crimson);font-weight:700;font-size:18px;letter-spacing:.04em}
+  .note{font-size:12px;color:var(--t2);border-left:2px solid var(--gold);padding-left:10px;margin-top:18px;max-width:380px}
+</style>
+</head>
+<body>
+  <h1>VoteBar &amp; Elimination Reveal</h1>
+  <div class="sub">Bars fill with staggered motion, a dramatic pause, then the name. Role reveal via card flip + drum hit.</div>
+  <div class="panel">
+    <div class="vrow"><div class="vname">Youssef</div><div class="track"><div class="fill" style="width:80%"></div></div><div class="count">4 votes</div></div>
+    <div class="vrow"><div class="vname">Sara</div><div class="track"><div class="fill" style="width:40%"></div></div><div class="count">2 votes</div></div>
+    <div class="vrow"><div class="vname">Omar</div><div class="track"><div class="fill" style="width:20%"></div></div><div class="count">1 vote</div></div>
+    <div class="reveal">
+      <div class="elim">«&nbsp;<b>Youssef</b>&nbsp;» is eliminated</div>
+      <div class="rolebadge">🎭 MAFIA</div>
+    </div>
+  </div>
+  <div class="note">Who-voted-for-whom is NOT shown here — it is revealed only in post-game analytics (ballot secrecy during play).</div>
+</body>
+</html>
