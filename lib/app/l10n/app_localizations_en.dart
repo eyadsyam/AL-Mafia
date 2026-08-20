@@ -746,4 +746,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addAction => 'Add';
+
+  @override
+  String get onboardingTitle => 'First round';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingStart => 'Start your first match';
+
+  @override
+  String get onboardingReadRules => 'Read the full rules';
+
+  @override
+  String onboardingProgress(int current, int total) {
+    return 'Card $current of $total';
+  }
+
+  @override
+  String get onboardingStoryTitle => 'The story';
+
+  @override
+  String get onboardingStoryBody =>
+      'A small town goes to sleep every night and wakes up one person short.\nSome of the people at this table are not who they say they are — and the rest have to find them before the town is gone.';
+
+  @override
+  String get onboardingRolesTitle => 'The roles';
+
+  @override
+  String get onboardingRolesBody =>
+      'Four cards. Everyone gets exactly one, and nobody sees anyone else\'s.\nTap any card below to see what it does.';
+
+  @override
+  String get onboardingNightTitle => 'The night';
+
+  @override
+  String get onboardingNightBody =>
+      'The phone goes round the table one person at a time. Each player opens it alone, takes their turn, closes it and passes it on.\nThe mafia pick someone, the doctor protects someone, the detective checks someone.';
+
+  @override
+  String get onboardingDayTitle => 'The day';
+
+  @override
+  String get onboardingDayBody =>
+      'In the morning the phone goes in the middle of the table and says who is gone.\nThen the talking is open, on a timer, and it ends in a vote — the app does the counting.';
+
+  @override
+  String get onboardingPassTitle => 'The phone';
+
+  @override
+  String get onboardingPassBody =>
+      'This is the part that is won and lost in your hands, not on the screen:\n— Hold the phone tilted towards you, with its back to the rest of the table.\n— Never look at the phone while someone else is holding it.\n— Do not change your face while your card is showing.\n— Never hand the phone on with anything open on it.';
+
+  @override
+  String get onboardingWinTitle => 'Winning';
+
+  @override
+  String get onboardingWinBody =>
+      'The town wins when the last mafia is voted out.\nThe mafia win once there are as many of them as there are townspeople.\nThat is all of it — the rest is talk and suspicion.';
 }

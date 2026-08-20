@@ -69,6 +69,19 @@
   "card_size": [1024, 1536],
   "backdrop_size": [1080, 1920],
   "badge_size": [1024, 1024],
+  "_onboarding_comment": [
+    "onboarding_* are chapter art for the onboarding deck. No source exists",
+    "yet — they are declared so the slots are named, sized and banded before",
+    "anyone has art to drop in, exactly as bg_* is. The deck renders correctly",
+    "with none of them: OnboardingCard takes a null image and prints its",
+    "chapter numeral instead, so adding one is a single line in the chapter",
+    "table and no code change.",
+    "Card-shaped rather than screen-shaped: these appear as a band inside a",
+    "panel, not full bleed. The roles chapter has no slot — it already has the",
+    "four gallery paintings.",
+    "Cold register on all of them. See HANDOFF 2a: the warm ground experiment",
+    "was reverted and is not to be reintroduced."
+  ],
   "assets": [
     {
       "slot": "card_face_mafia",
@@ -194,6 +207,56 @@
       "quality": 82,
       "lum_band": [16, 32],
       "register": "warm"
+    },
+    {
+      "slot": "onboarding_story",
+      "tier": 3,
+      "out": "assets/images/onboarding_story.webp",
+      "size": [1024, 1024],
+      "quality": 82,
+      "lum_band": [14, 30],
+      "register": "cold",
+      "note": "The village asleep. The card that opens the deck."
+    },
+    {
+      "slot": "onboarding_night",
+      "tier": 3,
+      "out": "assets/images/onboarding_night.webp",
+      "size": [1024, 1024],
+      "quality": 82,
+      "lum_band": [14, 30],
+      "register": "cold",
+      "note": "The phone going round a dark table. On-table screen, but keep it dim."
+    },
+    {
+      "slot": "onboarding_day",
+      "tier": 3,
+      "out": "assets/images/onboarding_day.webp",
+      "size": [1024, 1024],
+      "quality": 82,
+      "lum_band": [14, 30],
+      "register": "cold",
+      "note": "Morning in the square. Still dimmer than bg_day — this one sits inside a panel, not behind a screen."
+    },
+    {
+      "slot": "onboarding_pass",
+      "tier": 3,
+      "out": "assets/images/onboarding_pass.webp",
+      "size": [1024, 1024],
+      "quality": 82,
+      "lum_band": [14, 30],
+      "register": "cold",
+      "note": "One pair of hands holding a phone tilted away from the table."
+    },
+    {
+      "slot": "onboarding_win",
+      "tier": 3,
+      "out": "assets/images/onboarding_win.webp",
+      "size": [1024, 1024],
+      "quality": 82,
+      "lum_band": [14, 30],
+      "register": "cold",
+      "note": "The town at rest. The card that hands the host to a real match."
     },
     {
       "slot": "outcome_death",

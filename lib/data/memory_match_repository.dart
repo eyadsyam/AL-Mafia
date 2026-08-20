@@ -23,9 +23,15 @@ class MemoryMatchStore {
   /// Encoded default settings, or null if none saved.
   String? defaultSettings;
 
+  /// Whether onboarding has been seen. Part of the store rather than of the
+  /// repository so it survives the repository being thrown away and rebuilt —
+  /// which is how the tests simulate a relaunch.
+  bool onboardingSeen = false;
+
   void clear() {
     matches.clear();
     defaultSettings = null;
+    onboardingSeen = false;
   }
 }
 
@@ -112,6 +118,14 @@ class MemoryMatchRepository implements MatchRepository {
   @override
   Future<void> saveDefaultSettings(MatchSettings settings) async {
     store.defaultSettings = jsonEncode(MatchCodec.encodeSettings(settings));
+  }
+
+  @override
+  Future<bool> hasSeenOnboarding() async => store.onboardingSeen;
+
+  @override
+  Future<void> markOnboardingSeen() async {
+    store.onboardingSeen = true;
   }
 
   static Match _decode(String encoded) =>

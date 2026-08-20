@@ -1,14 +1,26 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/app/app.dart';
+import 'package:mafia_master/data/memory_match_repository.dart';
+import 'package:mafia_master/data/repository_provider.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
+
+import '../support/stores.dart';
 
 void main() {
   group('App Boot', () {
     testWidgets('MafiaApp boots and displays title', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
-          child: AmbientMotion(enabled: false, child: MafiaApp()),
+        ProviderScope(
+          // A returning host. Booting onto Home is only what a launch does once
+          // onboarding has been seen — on a genuine first install the app opens
+          // the deck instead, which `onboarding_gate_test.dart` covers.
+          overrides: [
+            matchRepositoryProvider.overrideWithValue(
+              MemoryMatchRepository(returningHostStore()),
+            ),
+          ],
+          child: const AmbientMotion(enabled: false, child: MafiaApp()),
         ),
       );
       await tester.pumpAndSettle();

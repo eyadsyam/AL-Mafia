@@ -6,10 +6,12 @@ cannot recover from the code quickly, or a decision whose *reasoning* is not obv
 from the diff. Anything you can get from `flutter analyze`, `flutter test`, or a
 `grep` is deliberately not repeated here.
 
-Last verified: 2026-08-03 — `flutter analyze lib test tool` clean of errors/warnings
+Last verified: 2026-08-20 — `flutter analyze lib test tool` clean of errors/warnings
 (51 `info`, all pre-existing const/super-parameter hints in `test/` and `lib/engine/`),
-`flutter test` **372 passed, 0 failed**. `flutter build apk --release` succeeds
-(universal **62.2 MB**). Saved groups (§11) were also driven on `emulator-5554`.
+`flutter test` **398 passed, 0 failed**. The 26 new tests are the onboarding deck
+(§9b). Not re-verified since the 2026-08-03 run: `flutter build apk --release`
+(then universal **62.2 MB**) and the `emulator-5554` pass. Onboarding has been
+looked at only through `test/preview/onboarding_preview.dart`, never on a device.
 
 ---
 
@@ -34,8 +36,9 @@ the artwork, the four paintings shipped uncropped, a three-step reveal, six phas
 announcements, an ambient icon layer, and a real audio backend. Saved groups (§11) landed on top
 of that: a rematch with a known roster now reaches role distribution in three taps.
 `PRODUCT.md` says what the app is for; `DESIGN.md` says why each visual number is
-what it is. What remains is listed in §9 and is mostly *missing inputs* — no source
-art for the tier-3 backdrops, no recorded narration.
+what it is. The onboarding deck (§9b) then landed on top: a first launch now opens
+six cards rather than Home. What remains is listed in §9 and is mostly *missing
+inputs* — no source art for the tier-3 backdrops, no recorded narration.
 
 ---
 
@@ -561,8 +564,9 @@ bitmaps for thumbnails a centimetre tall.
    (A universal APK is ~57 MB — all three ABIs in one file, not what ships.) Bundled
    assets are 3.9 MB of that; 2.9 MB is images, of which 1.05 MB is the new gallery.
 
-2. **Tier-3 backdrops** (`bg_home`, `bg_night`, `bg_day`, `bg_vote`) — the only
-   remaining art slots with no source. Generators are half-written and blocked on
+2. **Tier-3 backdrops** (`bg_home`, `bg_night`, `bg_day`, `bg_vote`) — and, since
+   the onboarding deck landed, five `onboarding_*` slots alongside them (§9b).
+   All of them are art slots with no source. Generators are half-written and blocked on
    image-generation credit. `AppBackdrop` already takes an optional image and every
    screen already passes through it, so these are a drop-in when art exists.
 
@@ -589,6 +593,10 @@ one-file seam, and `PRODUCT.md` / `DESIGN.md`.
 Four new ship-blocking tests worth knowing about:
 `card_ground_matches_surface_test.dart`, `audio_backend_isolation_test.dart`,
 `ambient_icon_placement_test.dart`, `phase_moment_test.dart`.
+
+Then the onboarding deck (§9b): six cards on first launch, an `onboardingSeen`
+flag sharing the settings row, and `OnboardingGate` beside `ResumeGate`. It moved
+Home's help control off the rules screen and onto the deck.
 
 One new widget worth knowing about: `AmbientMotion` — an inherited opt-out for
 motion that *never finishes*. The falling icons run on a bare `Ticker`, so any
@@ -697,6 +705,141 @@ verification.
 
 ---
 
+## 9b. Onboarding (S-19), and the one thing it teaches that nothing else does
+
+A first launch now opens a deck of six cards instead of Home. The host deals
+through them — the story, the roles, the night, the day, the phone, winning — and
+the last card puts them into setup.
+
+### Why this is not just a second rules screen
+
+`HowToPlayScreen` already existed and still does. It is a **reference**: six
+headings a host skims to settle an argument mid-match. This is a **first read**,
+in the order the game happens, one idea at a time. They fail differently — a
+reference you have to page through is useless in an argument, and a first read
+that opens as six stacked walls of text does not get read. Card 6 links to the
+reference, so the deck is also how a new host finds it. Home's help control opens
+the deck; the rules are one tap further in.
+
+**Card 5 is the reason the feature exists.** Everything else in the deck is also
+in the rules. The etiquette of the pass — hold it tilted, do not look at someone
+else's screen, do not change your face, never hand it on with anything open — is
+not, because it is not a *rule*. It is the handful of physical habits without
+which this game leaks through its players rather than through its pixels, and a
+table that has never played pass-the-phone has no way to guess any of them. Doc
+05 spends its whole length on what the device must not emit; nothing anywhere
+told the humans what *they* must not emit. Card 5 does.
+
+### Article I does not reach it, and the reason matters
+
+Onboarding is on-table by definition: nothing has been dealt, nobody is holding a
+secret, the whole table is looking at one screen. That is the same argument that
+lets Home show all four paintings at once, and it is why the roles chapter may use
+the full-colour `AppGallery` art — the set that spans nearly 2:1 in brightness and
+would leak both luminance and hue on an in-hand surface.
+
+Nothing about that is promised in prose. `handoff_purity_test.dart` derives the
+ban from the **import graph** starting at the handoff roots, so the moment anyone
+imports `onboarding_role_grid.dart` from a private surface the suite fails. No new
+leakage test was needed and none was written; if you find yourself wanting to add
+one, check first whether you are actually about to wire the deck somewhere it does
+not belong.
+
+### The storage row now carries two things, and that is a trap
+
+`SettingsRecord` is the app-level singleton. It used to hold only the default
+settings; it now also holds `onboardingSeen`. **Every writer of that row must
+read-modify-write** — `IsarMatchRepository._updateSettingsRow` is the only writer
+for exactly that reason. A `put` of a freshly constructed record silently resets
+the field it does not set, and the specific bug that produces is nasty: the host
+finishes their first match, the app stores their settings on the way in, the flag
+is cleared, and the tutorial is waiting for them the next time they open the app.
+`onboarding_flag_test.dart` asserts both directions of that.
+
+`payload` also stopped being `late`. A row can now be created by
+`markOnboardingSeen` before any settings have ever been saved, and a `late String`
+would throw on the next read. Empty payload means "no settings yet" and
+`loadDefaultSettings` treats it exactly like a missing row.
+
+### Resume outranks it
+
+If storage holds an unfinished match, `OnboardingGate` stands down and lets
+`ResumeGate` have the launch. A table that is mid-game and has just relaunched
+does not want a tutorial, and a route change under a modal prompt would put the
+prompt over the wrong screen. The deck is **deferred, not consumed** — the flag is
+still false, so it appears on the next clean launch. Both halves of that are
+tested; the second half is the one that would rot silently.
+
+The two gates do not know about each other. Both read the same storage, and
+`OnboardingGate` asks it directly rather than coordinating, which is what keeps
+them from needing to run in a particular order.
+
+### A fresh `MemoryMatchStore` is now a fresh install
+
+This is the part that will waste someone's afternoon. A bare `MemoryMatchStore`
+has `onboardingSeen == false`, so any test that boots `MafiaApp` over one gets
+redirected to the deck before it can look at Home. Four existing tests were
+affected and now build their store through `returningHostStore()` in
+`test/support/stores.dart`. If a test about something else suddenly cannot find
+Home, that is why.
+
+`onboarding_gate_test.dart` also pumps an empty widget between launches. Without
+it, re-pumping `MafiaApp` *updates* the existing elements instead of remounting
+them, `OnboardingGate.initState` never runs again, and the test passes while
+looking at the screen the previous launch left behind.
+
+### There is no art, and the deck does not need any
+
+No painting exists for "the night" or "the pass", and none can be generated (§6).
+The faces are built from what the app already owns: `PaperPanel` stock, the canvas
+weave, a short gold rule, and the chapter numeral set large and faint. The numeral
+earns its place — a deck needs its cards distinct at a glance and six panels of
+identical type are not.
+
+Five `onboarding_*` tier-3 slots are declared in `tool/manifest.json` with no
+source, exactly as `bg_*` is. `OnboardingCard` takes an optional `image` and
+prints the numeral when it is null, so dropping art in later is one line in the
+chapter table and no code change. The roles chapter has no slot — it already has
+the four gallery paintings.
+
+Two things to know if you touch the manifest: entries in `assets` **must** have a
+`slot`, so commentary goes in a top-level `_*_comment` key (a comment object in
+the array is a `KeyError` in `normalise_art.py`), and all five are `cold` register
+because §2a's warm-ground experiment is not to be reintroduced.
+
+### Motion, and why `pumpAndSettle` works here
+
+Everything in the deck is bounded and ends. Unlike the home spread there is no
+ambient float, so no `AmbientMotion` opt-out is needed. Reduce Motion collapses
+the durations to zero, which leaves the deck instantly stepped and fully usable.
+
+Horizontal direction is signed off `Directionality` throughout — nothing hardcodes
+a side, so the deck advances the way the text runs in Arabic and mirrors in
+English.
+
+### Deliberate duplication
+
+`_RoleTile` re-implements the flip that `_Face` in `card_spread.dart` already
+does. Not shared, on purpose: `_Face` is welded to the home spread, which owns
+which single card is open and drives the animation externally. The tile owns its
+own, so all four can be open at once — which is what a reference wants and a
+background does not. Sharing would mean reworking the spread's animation ownership
+on a screen whose behaviour is already tested. Forty lines was the cheaper side.
+
+### Not built
+
+* **No dry-run match.** A fake three-player walkthrough was considered and cut.
+  It would need throwaway engine state that never touches `MatchRepository`, and
+  the deck's job is to get a table playing a *real* first match, not a practice
+  one.
+* **No live drag.** A swipe is read on release, not tracked under the finger.
+  The card does not follow the thumb before it commits. Worth doing; not done.
+* **Never run on a device.** The previews in `tool/preview/` are widget-test
+  renders with the shipped fonts loaded, which is a fair likeness and not a
+  phone. Nobody has held this.
+
+---
+
 ## 10. Quick orientation map
 
 | Path | What it is |
@@ -720,6 +863,10 @@ verification.
 | `lib/ui/screens/setup/group_follow_up.dart` | match-end "add the guest / keep the new order" prompts |
 | `test/integration/group_rematch_test.dart` | **counts the taps** and fails at four |
 | `lib/ui/widgets/card_spread.dart` | the home deck: shuffled each visit, tap to flip, parallax |
+| `lib/ui/screens/onboarding/onboarding_chapters.dart` | what onboarding *says*, as data — one screen to read it all |
+| `lib/ui/widgets/onboarding_deck.dart` | the deal-through deck; direction is signed off `Directionality` |
+| `lib/app/onboarding_gate.dart` | first-run redirect; stands down for a resumable match (§9b) |
+| `test/support/stores.dart` | `returningHostStore()` — a boot that is **not** a first run |
 | `lib/ui/widgets/textured_surface.dart` | `AppBackdrop` + the warm/cold register — night screens must pass `cold` |
 | `lib/platform/tilt_source.dart` | the only file that names `sensors_plus` |
 | `lib/platform/frame_report.dart` | `--dart-define=FRAME_REPORT=true`; `dumpsys gfxinfo` is useless for Flutter |

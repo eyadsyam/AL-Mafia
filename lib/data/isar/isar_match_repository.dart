@@ -117,7 +117,11 @@ class IsarMatchRepository implements MatchRepository {
   @override
   Future<MatchSettings> loadDefaultSettings() async {
     final record = await isar.settingsRecords.get(SettingsRecord.singletonId);
-    if (record == null) return const MatchSettings.defaults();
+    // An empty payload means the row exists only to carry a flag — see
+    // [SettingsRecord]. Treat it exactly like a missing row.
+    if (record == null || record.payload.isEmpty) {
+      return const MatchSettings.defaults();
+    }
     return MatchCodec.decodeSettings(
       jsonDecode(record.payload) as Map<String, dynamic>,
     );
@@ -126,12 +130,41 @@ class IsarMatchRepository implements MatchRepository {
   @override
   Future<void> saveDefaultSettings(MatchSettings settings) async {
     final payload = jsonEncode(MatchCodec.encodeSettings(settings));
+    await _updateSettingsRow((record) => record..payload = payload);
+  }
+
+  @override
+  Future<bool> hasSeenOnboarding() async {
+    try {
+      final record = await isar.settingsRecords.get(SettingsRecord.singletonId);
+      return record?.onboardingSeen ?? false;
+    } catch (_) {
+      // Contract: never throw here. Storage that cannot be read on the very
+      // first frame must degrade to "show the deck", not to a crash.
+      return false;
+    }
+  }
+
+  @override
+  Future<void> markOnboardingSeen() async {
+    await _updateSettingsRow((record) => record..onboardingSeen = true);
+  }
+
+  /// Read-modify-write of the app singleton row.
+  ///
+  /// The row carries two independent things (see [SettingsRecord]), so a writer
+  /// that constructs a fresh record clobbers whichever one it does not set.
+  /// Loading inside the transaction is what makes the two writers safe to
+  /// interleave; doing it outside would reintroduce the same lost update with a
+  /// smaller window.
+  Future<void> _updateSettingsRow(
+    SettingsRecord Function(SettingsRecord) change,
+  ) async {
     await isar.writeTxn(() async {
-      await isar.settingsRecords.put(
-        SettingsRecord()
-          ..id = SettingsRecord.singletonId
-          ..payload = payload,
-      );
+      final existing =
+          await isar.settingsRecords.get(SettingsRecord.singletonId) ??
+              (SettingsRecord()..id = SettingsRecord.singletonId);
+      await isar.settingsRecords.put(change(existing));
     });
   }
 

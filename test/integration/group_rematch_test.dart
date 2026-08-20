@@ -16,6 +16,7 @@ import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/screens/setup/setup_draft.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
 import 'package:mafia_master/ui/widgets/back_action.dart';
+import '../support/stores.dart';
 
 /// UX-2 — saved groups, driven through the app's own router.
 ///
@@ -59,7 +60,8 @@ void main() {
     container = ProviderContainer(
       overrides: [
         matchRepositoryProvider
-            .overrideWithValue(MemoryMatchRepository(MemoryMatchStore())),
+            .overrideWithValue(
+                MemoryMatchRepository(returningHostStore())),
         playerGroupRepositoryProvider
             .overrideWithValue(MemoryPlayerGroupRepository(groupStore)),
       ],

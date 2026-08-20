@@ -1387,6 +1387,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add'**
   String get addAction;
+
+  /// Title of the onboarding deck screen.
+  ///
+  /// In en, this message translates to:
+  /// **'First round'**
+  String get onboardingTitle;
+
+  /// Advance to the next onboarding card.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// Primary action on the last onboarding card.
+  ///
+  /// In en, this message translates to:
+  /// **'Start your first match'**
+  String get onboardingStart;
+
+  /// Secondary action on the last onboarding card; opens the rules screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the full rules'**
+  String get onboardingReadRules;
+
+  /// Screen-reader label for the onboarding progress pips.
+  ///
+  /// In en, this message translates to:
+  /// **'Card {current} of {total}'**
+  String onboardingProgress(int current, int total);
+
+  /// No description provided for @onboardingStoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The story'**
+  String get onboardingStoryTitle;
+
+  /// No description provided for @onboardingStoryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A small town goes to sleep every night and wakes up one person short.\nSome of the people at this table are not who they say they are — and the rest have to find them before the town is gone.'**
+  String get onboardingStoryBody;
+
+  /// No description provided for @onboardingRolesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The roles'**
+  String get onboardingRolesTitle;
+
+  /// No description provided for @onboardingRolesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Four cards. Everyone gets exactly one, and nobody sees anyone else\'s.\nTap any card below to see what it does.'**
+  String get onboardingRolesBody;
+
+  /// No description provided for @onboardingNightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The night'**
+  String get onboardingNightTitle;
+
+  /// No description provided for @onboardingNightBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone goes round the table one person at a time. Each player opens it alone, takes their turn, closes it and passes it on.\nThe mafia pick someone, the doctor protects someone, the detective checks someone.'**
+  String get onboardingNightBody;
+
+  /// No description provided for @onboardingDayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The day'**
+  String get onboardingDayTitle;
+
+  /// No description provided for @onboardingDayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'In the morning the phone goes in the middle of the table and says who is gone.\nThen the talking is open, on a timer, and it ends in a vote — the app does the counting.'**
+  String get onboardingDayBody;
+
+  /// No description provided for @onboardingPassTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone'**
+  String get onboardingPassTitle;
+
+  /// No description provided for @onboardingPassBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the part that is won and lost in your hands, not on the screen:\n— Hold the phone tilted towards you, with its back to the rest of the table.\n— Never look at the phone while someone else is holding it.\n— Do not change your face while your card is showing.\n— Never hand the phone on with anything open on it.'**
+  String get onboardingPassBody;
+
+  /// No description provided for @onboardingWinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Winning'**
+  String get onboardingWinTitle;
+
+  /// No description provided for @onboardingWinBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The town wins when the last mafia is voted out.\nThe mafia win once there are as many of them as there are townspeople.\nThat is all of it — the rest is talk and suspicion.'**
+  String get onboardingWinBody;
 }
 
 class _AppLocalizationsDelegate

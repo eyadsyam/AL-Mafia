@@ -735,4 +735,63 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get addAction => 'ضيف';
+
+  @override
+  String get onboardingTitle => 'أول جولة';
+
+  @override
+  String get onboardingNext => 'التالي';
+
+  @override
+  String get onboardingStart => 'ابدأ أول مباراة';
+
+  @override
+  String get onboardingReadRules => 'القواعد بالتفصيل';
+
+  @override
+  String onboardingProgress(int current, int total) {
+    return 'كارت $current من $total';
+  }
+
+  @override
+  String get onboardingStoryTitle => 'الحكاية';
+
+  @override
+  String get onboardingStoryBody =>
+      'بلد صغيرة بتنام كل ليلة، وتصحى الصبح ناقصة واحد.\nفيه ناس بينهم مش زي ما بيقولوا — والباقي لازم يكشفوهم قبل ما البلد تخلص.';
+
+  @override
+  String get onboardingRolesTitle => 'الأدوار';
+
+  @override
+  String get onboardingRolesBody =>
+      'أربع كروت. كل واحد بياخد كارت واحد ومحدش يعرف كارت التاني.\nدوس على أي كارت تحت تعرف بيعمل إيه.';
+
+  @override
+  String get onboardingNightTitle => 'الليل';
+
+  @override
+  String get onboardingNightBody =>
+      'الموبايل بيلف على الكل واحد واحد. كل واحد بيفتحه لوحده، يعمل دوره، ويقفله ويمرّره.\nالمافيا بتختار حد، الدكتور بيحمي حد، والمحقق بيكشف حد.';
+
+  @override
+  String get onboardingDayTitle => 'النهار';
+
+  @override
+  String get onboardingDayBody =>
+      'الصبح الموبايل بيتحط في نص الترابيزة ويقول مين راح.\nبعدها الكلام مفتوح بمؤقّت، وفي الآخر تصويت — والتطبيق هو اللي بيعدّ.';
+
+  @override
+  String get onboardingPassTitle => 'الموبايل';
+
+  @override
+  String get onboardingPassBody =>
+      'دي اللعبة اللي بتتكسب وتتخسر من إيدك مش من الشاشة:\n— امسك الموبايل مايل ناحيتك، وخلي ضهره لباقي الترابيزة.\n— متبصّش في موبايل حد وهو ماسكه.\n— متغيّرش وشّك وإنت شايف كارتك.\n— متسلّمش الموبايل وهو مفتوح على حاجة.';
+
+  @override
+  String get onboardingWinTitle => 'الفوز';
+
+  @override
+  String get onboardingWinBody =>
+      'المواطنين بيكسبوا لما آخر مافيا يطلع برّه بالتصويت.\nوالمافيا بتكسب لما عددهم يبقى قد المواطنين.\nكده إنت عارف كل حاجة — الباقي كلام وشكّ.';
 }

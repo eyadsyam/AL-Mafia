@@ -12,6 +12,7 @@ import 'package:mafia_master/ui/screens/setup/home_screen.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/screens/setup/settings_screen.dart';
 import 'package:mafia_master/ui/screens/setup/setup_draft.dart';
+import '../support/stores.dart';
 
 /// T063 — the real setup flow, driven through the app's own router.
 ///
@@ -32,7 +33,7 @@ void main() {
     await tester.binding.setSurfaceSize(surface);
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    store = MemoryMatchStore();
+    store = returningHostStore();
     container = ProviderContainer(
       overrides: [
         matchRepositoryProvider

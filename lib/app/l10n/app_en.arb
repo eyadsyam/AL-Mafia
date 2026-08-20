@@ -488,5 +488,45 @@
       }
     }
   },
-  "addAction": "Add"
+  "addAction": "Add",
+  "onboardingTitle": "First round",
+  "@onboardingTitle": {
+    "description": "Title of the onboarding deck screen."
+  },
+  "onboardingNext": "Next",
+  "@onboardingNext": {
+    "description": "Advance to the next onboarding card."
+  },
+  "onboardingStart": "Start your first match",
+  "@onboardingStart": {
+    "description": "Primary action on the last onboarding card."
+  },
+  "onboardingReadRules": "Read the full rules",
+  "@onboardingReadRules": {
+    "description": "Secondary action on the last onboarding card; opens the rules screen."
+  },
+  "onboardingProgress": "Card {current} of {total}",
+  "@onboardingProgress": {
+    "description": "Screen-reader label for the onboarding progress pips.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingStoryTitle": "The story",
+  "onboardingStoryBody": "A small town goes to sleep every night and wakes up one person short.\nSome of the people at this table are not who they say they are — and the rest have to find them before the town is gone.",
+  "onboardingRolesTitle": "The roles",
+  "onboardingRolesBody": "Four cards. Everyone gets exactly one, and nobody sees anyone else's.\nTap any card below to see what it does.",
+  "onboardingNightTitle": "The night",
+  "onboardingNightBody": "The phone goes round the table one person at a time. Each player opens it alone, takes their turn, closes it and passes it on.\nThe mafia pick someone, the doctor protects someone, the detective checks someone.",
+  "onboardingDayTitle": "The day",
+  "onboardingDayBody": "In the morning the phone goes in the middle of the table and says who is gone.\nThen the talking is open, on a timer, and it ends in a vote — the app does the counting.",
+  "onboardingPassTitle": "The phone",
+  "onboardingPassBody": "This is the part that is won and lost in your hands, not on the screen:\n— Hold the phone tilted towards you, with its back to the rest of the table.\n— Never look at the phone while someone else is holding it.\n— Do not change your face while your card is showing.\n— Never hand the phone on with anything open on it.",
+  "onboardingWinTitle": "Winning",
+  "onboardingWinBody": "The town wins when the last mafia is voted out.\nThe mafia win once there are as many of them as there are townspeople.\nThat is all of it — the rest is talk and suspicion."
 }

@@ -923,7 +923,12 @@ const SettingsRecordSchema = CollectionSchema(
   name: r'SettingsRecord',
   id: -4061629773282228682,
   properties: {
-    r'payload': PropertySchema(id: 0, name: r'payload', type: IsarType.string),
+    r'onboardingSeen': PropertySchema(
+      id: 0,
+      name: r'onboardingSeen',
+      type: IsarType.bool,
+    ),
+    r'payload': PropertySchema(id: 1, name: r'payload', type: IsarType.string),
   },
 
   estimateSize: _settingsRecordEstimateSize,
@@ -957,7 +962,8 @@ void _settingsRecordSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.payload);
+  writer.writeBool(offsets[0], object.onboardingSeen);
+  writer.writeString(offsets[1], object.payload);
 }
 
 SettingsRecord _settingsRecordDeserialize(
@@ -968,7 +974,8 @@ SettingsRecord _settingsRecordDeserialize(
 ) {
   final object = SettingsRecord();
   object.id = id;
-  object.payload = reader.readString(offsets[0]);
+  object.onboardingSeen = reader.readBool(offsets[0]);
+  object.payload = reader.readString(offsets[1]);
   return object;
 }
 
@@ -980,6 +987,8 @@ P _settingsRecordDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
+      return (reader.readBool(offset)) as P;
+    case 1:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1144,6 +1153,15 @@ extension SettingsRecordQueryFilter
   }
 
   QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  onboardingSeenEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'onboardingSeen', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
   payloadEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1293,6 +1311,20 @@ extension SettingsRecordQueryLinks
 
 extension SettingsRecordQuerySortBy
     on QueryBuilder<SettingsRecord, SettingsRecord, QSortBy> {
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterSortBy>
+  sortByOnboardingSeen() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'onboardingSeen', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterSortBy>
+  sortByOnboardingSeenDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'onboardingSeen', Sort.desc);
+    });
+  }
+
   QueryBuilder<SettingsRecord, SettingsRecord, QAfterSortBy> sortByPayload() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'payload', Sort.asc);
@@ -1321,6 +1353,20 @@ extension SettingsRecordQuerySortThenBy
     });
   }
 
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterSortBy>
+  thenByOnboardingSeen() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'onboardingSeen', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterSortBy>
+  thenByOnboardingSeenDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'onboardingSeen', Sort.desc);
+    });
+  }
+
   QueryBuilder<SettingsRecord, SettingsRecord, QAfterSortBy> thenByPayload() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'payload', Sort.asc);
@@ -1337,6 +1383,13 @@ extension SettingsRecordQuerySortThenBy
 
 extension SettingsRecordQueryWhereDistinct
     on QueryBuilder<SettingsRecord, SettingsRecord, QDistinct> {
+  QueryBuilder<SettingsRecord, SettingsRecord, QDistinct>
+  distinctByOnboardingSeen() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'onboardingSeen');
+    });
+  }
+
   QueryBuilder<SettingsRecord, SettingsRecord, QDistinct> distinctByPayload({
     bool caseSensitive = true,
   }) {
@@ -1351,6 +1404,13 @@ extension SettingsRecordQueryProperty
   QueryBuilder<SettingsRecord, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<SettingsRecord, bool, QQueryOperations>
+  onboardingSeenProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'onboardingSeen');
     });
   }
 

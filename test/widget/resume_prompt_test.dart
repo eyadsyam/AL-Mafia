@@ -12,6 +12,7 @@ import 'package:mafia_master/ui/widgets/hold_pad.dart';
 import 'package:mafia_master/ui/widgets/player_tile.dart';
 
 import '../support/scripted_match.dart';
+import '../support/stores.dart';
 
 /// T070 / S-17 — launching with an unfinished match offers Resume or End.
 ///
@@ -55,7 +56,10 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  setUp(() => store = MemoryMatchStore());
+  // A returning host: these cases are about the resume prompt, and a first
+  // launch would redirect to the onboarding deck before any of them could
+  // look at Home.
+  setUp(() => store = returningHostStore());
 
   group('S-17 resume prompt', () {
     testWidgets('no prompt appears when there is nothing to resume',

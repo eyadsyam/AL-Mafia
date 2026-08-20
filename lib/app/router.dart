@@ -10,6 +10,7 @@ import '../engine/models/match_settings.dart';
 import '../ui/l10n_ext.dart';
 import '../ui/screens/match_controller.dart';
 import '../ui/screens/match_route.dart';
+import '../ui/screens/onboarding/onboarding_screen.dart';
 import '../ui/screens/postgame/analytics_screen.dart';
 import '../ui/screens/postgame/history_screen.dart';
 import '../ui/screens/setup/add_players_screen.dart';
@@ -32,6 +33,7 @@ abstract final class Routes {
   static const analytics = '/analytics';
   static const history = '/history';
   static const howToPlay = '/how-to-play';
+  static const onboarding = '/onboarding';
 
   /// Analytics for a stored match.
   static String storedAnalytics(int id) => '/history/$id';
@@ -121,7 +123,7 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
           },
           onHistory: () => context.go(Routes.history),
           onSettings: () => context.go(Routes.defaults),
-          onHowToPlay: () => context.go(Routes.howToPlay),
+          onHowToPlay: () => context.go(Routes.onboarding),
         ),
       ),
       GoRoute(
@@ -129,6 +131,34 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
         builder: (context, state) => HowToPlayScreen(
           onBack: () => context.go(Routes.home),
         ),
+      ),
+      // The onboarding deck, reached two ways: automatically on a first launch
+      // (`OnboardingGate`) and from Home's help control thereafter.
+      //
+      // Every exit records that it was seen, including the skip. The write is
+      // deliberately not awaited — it is a single local row, and nothing about
+      // the next screen depends on it having landed. The worst case if it were
+      // lost is one extra tap on the next launch.
+      GoRoute(
+        path: Routes.onboarding,
+        builder: (context, state) {
+          void leave(String destination) {
+            ref.read(matchRepositoryProvider).markOnboardingSeen();
+            context.go(destination);
+          }
+
+          return OnboardingScreen(
+            onSkip: () => leave(Routes.home),
+            onRules: () => leave(Routes.howToPlay),
+            onStartMatch: () {
+              ref.read(setupDraftProvider.notifier).resetForNewMatch();
+              // Exactly what Home's primary action does. A host finishing the
+              // deck has been told "start your first match", so they should
+              // land where that tap lands and not one screen short of it.
+              leave(loadedGroups().isEmpty ? Routes.players : Routes.groups);
+            },
+          );
+        },
       ),
       GoRoute(
         path: Routes.groups,
