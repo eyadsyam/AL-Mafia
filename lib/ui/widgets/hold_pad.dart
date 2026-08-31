@@ -12,6 +12,10 @@ import '../theme/mafia_theme.dart';
 /// a timing invariant, and a `Timer` is exactly as long for every player
 /// regardless of frame rate or device (Constitution VI).
 ///
+/// A decoration must not *lie*, either. The ring is therefore always driven
+/// from zero over exactly [holdDuration], so it cannot reach the end of its
+/// travel before the timer it is illustrating — see [_HoldPadState._down].
+///
 /// Nothing here emits audio or haptics: this widget only ever appears while the
 /// phone is in someone's hand, where a click or a buzz is audible to the people
 /// sitting next to them (L-10, L-11).
@@ -40,23 +44,28 @@ class _HoldPadState extends State<HoldPad> with SingleTickerProviderStateMixin {
   Timer? _timer;
   bool _done = false;
 
-  /// Whether the pad is currently under a finger.
+  /// The pointer that owns the hold in flight, or null when the pad is idle.
   ///
-  /// Drives nothing but the press scale. Deliberately separate from `_timer`,
-  /// which is the load-bearing state: if these two ever disagree the visual is
-  /// wrong for a frame and the timing is still exact.
-  bool _pressed = false;
+  /// A pad is held by one finger, not by "the screen is being touched". Without
+  /// an owner, a second finger brushing the pad — the steadying hand on a phone
+  /// being passed across a table — arrives as a pointer down that is ignored
+  /// and then a pointer up that is *not*, and lifting it cancels the hold the
+  /// first finger is still making. The player then holds a finger that is
+  /// already on the pad for as long as they like and nothing ever happens.
+  ///
+  /// So every event is matched against the owner: only the finger that started
+  /// the hold can end it, and every other pointer on the pad is inert.
+  int? _pointer;
+
+  /// Whether the pad is under its owning finger. Drives nothing but the press
+  /// scale, and is derived rather than stored so it cannot drift out of step
+  /// with the hold it is meant to be showing.
+  bool get _pressed => _pointer != null;
 
   @override
   void initState() {
     super.initState();
     _ring = AnimationController(vsync: this, duration: Duration.zero);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _ring.duration = widget.holdDuration;
   }
 
   @override
@@ -66,10 +75,25 @@ class _HoldPadState extends State<HoldPad> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  void _down(PointerDownEvent _) {
-    if (_done || _timer != null) return;
-    setState(() => _pressed = true);
-    _ring.forward();
+  void _down(PointerDownEvent event) {
+    if (_done || _pointer != null) return;
+    setState(() => _pointer = event.pointer);
+
+    // `from: 0.0`, and the duration reset on every press, are both load-bearing.
+    //
+    // `AnimationController.forward()` scales its duration by the distance left
+    // to travel, so a ring resumed from part-way fills in a *fraction* of
+    // `holdDuration` while the timer beside it still runs the full length. That
+    // is not a cosmetic drift: with a five-second identity hold, a player whose
+    // finger slipped at 4.5s and pressed again 200ms later saw a completely
+    // full ring after 600ms with 4.4s still to run. Reading the ring — which is
+    // the only thing on screen that claims to know — they let go, which
+    // cancelled the timer, which left the ring even fuller for the next
+    // attempt, which filled even faster. The pad appeared to finish loading and
+    // then do nothing, permanently, and it got worse every time it was tried.
+    _ring.duration = widget.holdDuration;
+    _ring.forward(from: 0.0);
+
     _timer = Timer(widget.holdDuration, () {
       _timer = null;
       if (!mounted || _done) return;
@@ -78,11 +102,23 @@ class _HoldPadState extends State<HoldPad> with SingleTickerProviderStateMixin {
     });
   }
 
-  void _release([PointerEvent? _]) {
-    if (mounted && _pressed) setState(() => _pressed = false);
+  void _release(PointerEvent event) {
+    if (event.pointer != _pointer) return;
+    if (!mounted) {
+      // `dispose` has already cancelled the timer.
+      _pointer = null;
+      return;
+    }
+    setState(() => _pointer = null);
     if (_done) return;
     _timer?.cancel();
     _timer = null;
+
+    // Drained quickly rather than unwound over the hold's own length. The drain
+    // is the only feedback that the progress was lost, so it has to finish
+    // before the player's next press rather than still be running underneath
+    // it.
+    _ring.duration = context.motion.quick;
     _ring.reverse();
   }
 
