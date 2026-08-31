@@ -46,3 +46,13 @@ app.*.map.json
 
 # Generated art review screenshots — written by --tags preview tests.
 tool/preview/
+
+# Encoder input for assets/video/ — ~115MB of source loops, kept out of the
+# repo deliberately. `tool/normalise_video.py` reads these to write the seven
+# shipped loops in assets/video/, which ARE committed, so a clean clone builds
+# and runs. The sources are not derivable from anything here: keep a backup.
+raw_assets/assets/videos/
+
+# VS Code Code Runner scratch output. Lands in whatever directory was focused,
+# is never valid Dart, and trips the analyzer.
+**/tempCodeRunnerFile.dart
