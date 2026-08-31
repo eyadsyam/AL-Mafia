@@ -8,10 +8,16 @@ from the diff. Anything you can get from `flutter analyze`, `flutter test`, or a
 
 Last verified: 2026-08-20 — `flutter analyze lib test tool` clean of errors/warnings
 (51 `info`, all pre-existing const/super-parameter hints in `test/` and `lib/engine/`),
-`flutter test` **398 passed, 0 failed**. The 26 new tests are the onboarding deck
-(§9b). Not re-verified since the 2026-08-03 run: `flutter build apk --release`
-(then universal **62.2 MB**) and the `emulator-5554` pass. Onboarding has been
-looked at only through `test/preview/onboarding_preview.dart`, never on a device.
+`flutter test` **403 passed, 0 failed** — 398 plus the five that fence the card
+turn (§7a). Re-run after the ground was neutralised (§2a), the loops were
+re-encoded (§9c), the score was replaced (§7a), the swipe became omnidirectional
+and names went bold (§9d). Not
+re-verified since the 2026-08-03 run: `flutter build apk --release` (then
+universal **62.2 MB**) and the `emulator-5554` pass — and note that bundled
+assets have grown to **12 MB** since, of which 3.8 MB is the new score and
+2.9 MB the ambient loops, so that size number is stale by more than the usual
+drift. Onboarding, Home and the score have been looked at only through
+`test/preview/` renders and a waveform, never on a device.
 
 ---
 
@@ -102,13 +108,30 @@ central 0.53-aspect strip, because `RoleCard` used `BoxFit.cover` and threw the
 outer columns away. That machinery is gone along with the crop. `luminance_budget_test.dart`
 now measures the whole file, because the whole file now reaches the screen.
 
-### 2a. The ground is near-black, and the leather experiment has been reverted
+### 2a. The ground is near-black and neutral, and the leather experiment has been reverted
 
-`AppColors.groundBase` = **`#0D0F14`** is the ground on every screen, private and
-table alike, with `groundRaised` `#161A22`, `groundOverlay` `#1F2530` and
-`groundBorder` `#2A3140`. One cool hue family, four brightness steps, blue
-channel leading at every step. Doc 05 rule 3 (no warm colour at night) holds in
-its original form.
+`AppColors.groundBase` = **`#0F0F0F`** is the ground on every screen, private and
+table alike, with `groundRaised` `#1A1A1A`, `groundOverlay` `#252525` and
+`groundBorder` `#313131`. One hue family, four brightness steps, no cast at any
+step. Doc 05 rule 3 (no warm colour at night) holds in its original form.
+
+**The ramp used to lean cool and no longer does, and the reason it could be
+changed safely is the reason to read this paragraph before changing it again.**
+It was 13/15/20 · 22/26/34 · 31/37/48 · 42/49/64, blue ahead of red by 7 levels
+at the bottom and 22 at the top, on the argument that cool is the direction away
+from skin tone. That argument is sound but it was being applied past the point
+where it bought anything: a 22-level spread on a hairline is not subliminal, and
+the panels and dividers read plainly as blue-grey against artwork that measures
+neutral to within half a level. The interface and the paintings looked like two
+different products.
+
+The four rungs above are the **Rec. 709 luminances of the four values they
+replaced**, to the nearest level — 15, 26, 37, 49. Nothing about what the screen
+emits changed; only the hue did, and only as far as grey. That is what makes it
+a safe change rather than a taste change, and it is the test to apply to the
+next one: `role_accent_parity_test.dart` asserts `blue >= green >= red` at every
+rung, which a neutral ramp satisfies with equality and a warm one cannot satisfy
+at all.
 
 **An earlier revision made this ground warm tanned leather (`#241C14`) and logged
 the deviation as a trade-off in `05-zero-leakage-spec.md` §5. That entry is gone
@@ -119,9 +142,13 @@ face, is a real weakening of Article I bought with nothing but taste. Do not
 reintroduce it, and do not reintroduce a warm/cold register split.
 
 **`card_ground` now follows the ground**, and this is the part worth
-understanding. It is `[13, 15, 20]` in `tool/manifest.json` — the same
-`#0D0F14` — so the card box letterboxes against exactly the colour of the screen
-behind it and the box edge is invisible.
+understanding. It is `[15, 15, 15]` in `tool/manifest.json` — the same
+`#0F0F0F` — so the card box letterboxes against exactly the colour of the screen
+behind it and the box edge is invisible. Moving the ground therefore means
+re-running `normalise_art.py`, and then `extract_palette.dart`, because the
+composited box is what both of them measure. `card_ground_matches_surface_test.dart`
+probes the shipped bars against `groundBase` to 2 levels, so forgetting either
+step fails the build rather than shipping a frame around every card.
 
 That required a change to `normalise_art.py`. It used to gain the ground
 *together with* the art, so the shipped bars were `card_ground × gain` — and the
@@ -211,13 +238,23 @@ into a double exposure. Half the source art is discarded; that is the price.
 
 ```
 raw_assets/*.{png,jpeg}        # source art, matched by manifest "raw_match" substring
-  └─ python tool/normalise_art.py         # contain→composite→gain→fold→WebP; WRITES assets/
+  └─ python tool/normalise_art.py         # contain→composite→gain→fold→WebP; WRITES assets/images/
        └─ python tool/generate_asset_constants.py   # regenerates lib/app/asset_constants.dart
             └─ flutter test                          # re-measures the shipped bytes
+
+raw_assets/assets/videos/<slot>.webp      # source loops, matched by slot name exactly
+  └─ python tool/normalise_video.py       # resample→soften→close→limit→gain→WebP; WRITES assets/video/
+       └─ python tool/generate_asset_constants.py
 ```
 
 * `python tool/normalise_art.py --check` is a dry run — measures and reports, writes
-  nothing. Use it first.
+  nothing. Use it first. `normalise_video.py` has no dry run and is slow — it does
+  four full encodes per loop searching for the highest quality that fits (§9c) —
+  so expect minutes, not seconds, and run it in the background.
+* **Do not run the suite while it is running.** It truncates each file before
+  rewriting it, and a test that renders a zero-length asset fails in a way that
+  looks like a real regression. Two integration tests were caught out by exactly
+  that once.
 * `tool/generate_assets.py` owns the **procedural** slots only (`canvas_texture`, the
   four emblems). `normalise_art.py` refuses to touch anything marked
   `generated_only`, and exits if art is supplied for such a slot.
@@ -256,14 +293,14 @@ Rec. 709 over the whole composited card box, out of 255. Target is the set's own
 
 | slot | raw | drift | cast | cover | gain | final | drift |
 |---|---|---|---|---|---|---|---|
-| card_face_mafia | 38.22 | −35.56% | 4.59 | 76.4% | 1.6125 | 59.34 | +0.041% |
-| card_face_doctor | 66.46 | +12.05% | 4.65 | 89.3% | 0.8898 | 59.32 | 0.000% |
-| card_face_detective | 70.67 | +19.14% | 5.86 | 89.3% | 0.8356 | 59.32 | 0.000% |
-| card_face_citizen | 61.91 | +4.37% | 5.02 | 89.3% | 0.9570 | 59.32 | 0.000% |
+| card_face_mafia | 38.24 | −35.54% | 4.59 | 76.4% | 1.6123 | 59.35 | +0.041% |
+| card_face_doctor | 66.47 | +12.05% | 4.65 | 89.3% | 0.8898 | 59.33 | 0.000% |
+| card_face_detective | 70.67 | +19.13% | 5.86 | 89.3% | 0.8357 | 59.33 | 0.000% |
+| card_face_citizen | 61.92 | +4.37% | 5.02 | 89.3% | 0.9570 | 59.33 | 0.000% |
 
-Set mean 59.323/255 · worst drift 0.0309% · max spread 0.0412% · budget 2%.
+Set mean 59.331/255 · worst drift 0.0308% · max spread 0.0411% · budget 2%.
 `card_back` 77.9 → 81.1 after the fold. The raw column is higher than it was
-because the box is now composited on `#0D0F14` rather than on near-black; the
+because the box is now composited on `#0F0F0F` rather than on near-black; the
 gain column is the multiplier applied to the **art alone** (§2a). Raw spread across the set is **1.70:1** —
 that is the leak the gain closes.
 
@@ -321,11 +358,15 @@ destructive, would take tests with it, and would need an Article VII amendment.
 
 ### A smaller conflict, flagged rather than resolved
 
-`AudioCue.cardFlip` exists, has a sound file, and is **never played**. The brief
-lists a card-flip cue; the only card flip in the game happens during distribution,
-which is an in-hand phase, and Article I bans any sound while one player holds the
-phone. The cue and its file are shipped so the decision is a one-line change if the
-rule is ever relaxed for the distribution phase specifically. It is not relaxed.
+**Superseded — `AudioCue.cardFlip` now plays, including in a hand.** This entry
+used to say the opposite: the cue existed, had a file, and was never fired,
+because the only card flip in the game happens during distribution and Article I
+bans sound while a player holds the phone. That was the right call for a cue
+fired through the ordinary door. It is now fired through a door of its own,
+`AudioDirector.playCardTurn`, and §7a has the argument. Two things about that
+worth knowing here: `AudioDirector.play` still throws for **every** cue, this one
+included, and the new method takes **no argument**, so the exception cannot be
+pointed at anything else. The fence is `audio_gate_test.dart`.
 
 ---
 
@@ -408,9 +449,27 @@ accessibility setting must not change what the app claims happened.
    `MatchSettings.identityHoldSeconds` (host setting, default **20s**, chips at
    10/15/20/30 on the settings screen). This is the turn-length equaliser as much as
    an identity check: everyone's turn starts with the same wait whatever they drew.
-2. **Swipe to flip** — the card follows the finger and completes on distance (30% of
-   the card) *or* velocity (300 px/s), with a depth shadow that moves with the
-   rotation. One duration, one curve, one rotation, for every role.
+2. **Swipe to flip, in any direction** — the card follows the finger and
+   completes on distance (30% of the card *along the axis that was swiped*) or
+   velocity (300 px/s), with a depth shadow that moves with the rotation. One
+   duration, one curve, one geometry, for every role.
+
+   It used to be right-only: `onHorizontalDrag*` with the offset clamped
+   positive, and a hint underneath that said "swipe right". That is a rule to
+   remember at the exact moment nobody wants one — the phone has just been
+   handed over, the table is watching, and the thumb goes wherever it was
+   already resting. A leftward swipe did nothing at all, which reads as the app
+   being stuck rather than as the player having guessed wrong. It is now a pan:
+   the dominant axis of the travel picks the rotation axis (Y for sideways, X
+   for up and down) and its sign picks the direction, so **the card turns the
+   way it was pushed**. The resolved axis is held after the gesture, so the
+   automatic conceal five seconds later reverses along the same line rather
+   than snapping back through a different one.
+
+   Leak-safe for a reason worth stating: the direction is the player's, and it
+   is chosen *before* they have seen anything, because the flip is what shows
+   them the card. What a bystander learns from watching it is which way somebody
+   was holding their thumb.
 3. **Auto-conceal after 5s**, with a progress line, and unlimited re-reveals within
    the turn — each another 5s. Then "سلّم الموبايل".
 
@@ -463,9 +522,99 @@ recordings happen to exist.
 synthesised Arabic voice sitting in `assets/audio` looking finished is worse than an
 obviously missing one. `mafia_wake` has no bed at all and is silent until recorded.
 
-Everything works with sound off, and there are two switches because they answer
-different questions: `muteAllAudio` ("the phone should not make noise") and
-`narrationEnabled` ("chimes yes, a voice no").
+Everything works with sound off, and there are three switches because they answer
+different questions: `muteAllAudio` ("the phone should not make noise"),
+`narrationEnabled` ("chimes yes, a voice no") and `scoreEnabled` ("no music").
+
+### The card turn, which is the other one
+
+A page turns whenever a card does, anywhere in the app: the home spread, the
+onboarding tiles, and — this is the new part — the reveal, in somebody's hand.
+`AudioDirector.playCardTurn` is the only way to fire it, `AudioDirector.play`
+still throws for every cue including this one, and the method takes no argument
+precisely so the exception cannot grow a second case.
+
+**Why this one is allowed when no other cue is.** Article I rule 2 stops a cue
+firing during a private turn because the *firing* is the tell: a sound that
+arrives partway through a turn reports what stage that turn has reached, and
+stages differ by role. This sound reports something that is the same for
+everybody:
+
+* it cannot encode the card, because the flip that opens a turn happens
+  **before** the holder has seen anything — at the instant it sounds they know
+  exactly what the table knows;
+* it cannot encode the role: one file, one level, one length, from a code path
+  with no branch on anything. All four roles flip, all four conceal after the
+  same five seconds, all four sound identical doing it;
+* it adds no channel the room did not have. A player who looks again lengthens
+  their own turn in full view, and `RoleCard` already documents that as a choice
+  rather than a tell (see `_autoFlipBack`). A rustle alongside a choice everyone
+  can already watch somebody make is not new information.
+
+The wiring is a callback, not a provider read, and that is load-bearing:
+`audio_gate_test.dart` asserts that `role_card.dart` does not so much as mention
+the audio layer, so the file cannot trip the gate even by accident. The screen
+above it hands the method in.
+
+The cue itself was rewritten to be paper rather than a swoosh — 0.18s, fast
+transient, granular rustle, bright crackle dying faster than the body — and it
+ships at **−15 dBFS against every other cue's −3**, because it sounds in a hand
+and has to be felt rather than heard. `PEAK['card_flip']` in
+`tool/generate_audio.py` is the knob, and that script now takes cue names so
+re-tuning one sound does not rewrite the other eight.
+
+### The score, which is the one sound allowed in a player's hand
+
+`assets/audio/score_loop.ogg` starts at app launch, plays until the app is
+backgrounded, and **is not stopped when the phone is picked up**. Every cue is;
+`AudioBackend.stopAll` deliberately cannot reach the loop.
+
+The argument is in the verb of Article I rule 2: a sound that *fires* while a
+player is holding the phone marks the moment it fired. A sound that has been
+running since before anyone picked anything up marks nothing — it is the same
+floor for the mafioso and for the citizen who takes the phone from them, and it
+does not change when either of them does anything. It also earns its place: a
+steady bed masks the thumb-drag, the held breath and the pause before a
+decision, all of which silence broadcasts. There is deliberately **no API** to
+swell it, duck it, layer it or stop it at a phase boundary, because each of
+those would make it react to the game.
+
+**The music is now supplied rather than synthesised, and it is prepared by
+`tool/normalise_score.py`.** Drop a file in `raw_assets/audio/`, run the script,
+and it writes `score_loop.ogg`; nothing in `lib/` changes, because the path is
+fixed and the properties the app depends on are established by the tool rather
+than assumed of the file. Two of them matter:
+
+* **The loop has to close.** Music ends by fading out. `Unresolved Room` as
+  supplied ran from −19 dBFS at its head to −58 dBFS across its last half
+  second, so looping it raw would take the room to near-silence and then start
+  the music again, once every five minutes — the single most conspicuous thing a
+  background bed can do. The outro is cut and the new tail is cross-faded into
+  the head: **38.80 dB of level step at the seam became 0.64 dB**, and the
+  sample-level step across the wrap is −58 dBFS, which is quieter than the
+  synthesised bed it replaces managed.
+* **The level is a contract.** `AudioDirector.scoreVolume` is 0.5 *because* the
+  file is −20 dBFS RMS. The supplied track was −12.5 dBFS and peaked a tenth of
+  a decibel over full scale; the script gains it to the target, so swapping music
+  cannot quietly double the score's loudness.
+
+**What was lost and is worth knowing.** The old bed was synthesised with a
+literal hole between 1 and 4 kHz — 0.00% of its energy in the band that carries
+consonants — and that hole is why a table could talk over it. Real music has no
+such hole and cannot be given one without becoming a different piece. The
+current score is simply dark: 0.91% of its energy in that band, about −46 dBFS
+at the shipped volume, which is the same practical result by a different route.
+`normalise_score.py` prints that figure on every run, so a brighter piece
+measuring several percent asks the question at the point of the swap rather than
+at a table. **A brighter piece would need a notch or a lower `scoreVolume`.**
+
+**Not verified on a device.** `audioplayers` loops via Android `MediaPlayer`'s
+own `setLooping`, and whether that wrap is gapless is a platform question this
+repo cannot answer from a widget test. The file is now seamless *as a file*; if
+a click or a beat of silence is audible once every five minutes on hardware,
+that is the loop implementation and not the asset, and the fix is a
+ping-pong pair of players — which would be the first thing in this layer that
+had to be argued past L-11.
 
 ---
 
@@ -564,22 +713,26 @@ bitmaps for thumbnails a centimetre tall.
    (A universal APK is ~57 MB — all three ABIs in one file, not what ships.) Bundled
    assets are 3.9 MB of that; 2.9 MB is images, of which 1.05 MB is the new gallery.
 
-2. **Tier-3 backdrops** (`bg_home`, `bg_night`, `bg_day`, `bg_vote`) — and, since
-   the onboarding deck landed, five `onboarding_*` slots alongside them (§9b).
-   All of them are art slots with no source. Generators are half-written and blocked on
-   image-generation credit. `AppBackdrop` already takes an optional image and every
-   screen already passes through it, so these are a drop-in when art exists.
+2. **~~Tier-3 backdrops have no source~~ — they do now.** `bg_home`, `bg_night`,
+   `bg_day`, `bg_vote`, the four `outcome_*` and the five `onboarding_*` slots all
+   have art in `raw_assets/assets/images/`, and seven ambient loops have sources in
+   `raw_assets/assets/videos/` (§9c). What is *still* missing is a painting for the
+   `secrecy` onboarding chapter, which prints its numeral instead (§9b).
 
-3. **`AppBackdrop`'s `image` parameter is used by exactly one screen** (Home). Once
-   the tier-3 art exists, decide which on-table screens get ambient art — doc 05
-   forbids it on anything in-hand, so the answer is a subset of the public screens,
-   not "all of them".
+3. **Which on-table screens get ambient art is now a decision that has been
+   partly made.** Home, the day discussion screen and the six phase announcements
+   carry backdrops; the ballot deliberately does not, and nothing in-hand may.
+   The remaining public screens — setup, roles, history, analytics, result — are
+   still on the bare ground, and whether that is deliberate restraint or an
+   unfinished sweep has not been decided.
 
 4. **Recorded narration.** The plumbing is complete and tested; there are no
    recordings. Dropping files into `assets/audio/narrator/` and registering them with
    `AudioDirector.registerNarratorLine` is the whole job — no code change.
 
-5. **`AudioCue.cardFlip` is shipped and unplayed.** See §5.
+5. **~~`AudioCue.cardFlip` is shipped and unplayed~~ — it plays now**, on every
+   card turn in the app including the in-hand reveal, through its own narrowly
+   fenced method. See §7a.
 
 ### Recently completed, for orientation
 
@@ -707,9 +860,9 @@ verification.
 
 ## 9b. Onboarding (S-19), and the one thing it teaches that nothing else does
 
-A first launch now opens a deck of six cards instead of Home. The host deals
-through them — the story, the roles, the night, the day, the phone, winning — and
-the last card puts them into setup.
+A first launch now opens a deck of seven cards instead of Home. The host deals
+through them — the story, the roles, the night, the day, the phone, what the app
+itself withholds, winning — and the last card puts them into setup.
 
 ### Why this is not just a second rules screen
 
@@ -721,14 +874,31 @@ that opens as six stacked walls of text does not get read. Card 6 links to the
 reference, so the deck is also how a new host finds it. Home's help control opens
 the deck; the rules are one tap further in.
 
-**Card 5 is the reason the feature exists.** Everything else in the deck is also
-in the rules. The etiquette of the pass — hold it tilted, do not look at someone
+**Cards 5 and 6 are the reason the feature exists, and they are a pair.**
+Everything else in the deck is also in the rules. The etiquette of the pass — hold it tilted, do not look at someone
 else's screen, do not change your face, never hand it on with anything open — is
 not, because it is not a *rule*. It is the handful of physical habits without
 which this game leaks through its players rather than through its pixels, and a
 table that has never played pass-the-phone has no way to guess any of them. Doc
 05 spends its whole length on what the device must not emit; nothing anywhere
 told the humans what *they* must not emit. Card 5 does.
+
+**Card 6 is the other half: what the device withholds.** It was added later, at
+the user's request, and the argument for it is the mirror of card 5's. Every
+guarantee it lists is invisible when it is working — nobody notices that the four
+faces were matched to within 2% of each other's brightness, that the citizen's
+night turn is held at the same eight-second dwell as the mafia's so a short turn
+cannot be counted from across the table, that the phone is silent in a hand, or
+that a saved group has nowhere to record who was what (§9a). A table only
+notices the absence of all of it, in the form of a game that stops being worth
+playing. The secrecy *is* the product, and a host who does not know it is there
+cannot tell their table why to trust it.
+
+Every claim on that card is one the suite actually holds. If one of them stops
+being true the copy is a lie rather than merely stale, and the fix is the code,
+not the card. It has no painting — there is no source art and none can be
+generated (§6) — so it prints its numeral, which is what the whole deck did
+before the tier-3 art landed.
 
 ### Article I does not reach it, and the reason matters
 
@@ -840,6 +1010,144 @@ on a screen whose behaviour is already tested. Forty lines was the cheaper side.
 
 ---
 
+## 9c. The ambient loops, and what Home is actually for
+
+Seven animated WebP loops now ship in `assets/video/`, played by an ordinary
+`Image.asset` — no `video_player`, no platform view, no lifecycle. They are
+declared in the manifest's `videos` list and written by `tool/normalise_video.py`,
+which is the only thing that may write that directory.
+
+**On-table only, and the rule is stronger than it looks.** A loop is brightness
+that changes frame to frame, so on an in-hand surface it breaks the ±2% budget
+on nearly every frame — and a loop at a different point in its cycle for a fast
+player than for a slow one is a timing channel on top of that. Home and the six
+phase announcements are the whole list. `voting_screen.dart` carries a comment
+saying why the ballot does *not* get one, which is worth reading before adding
+the eighth call site: it was tried, and byte-identical ballots across roles are
+not achievable when the backdrop is at whatever frame wall-clock says.
+
+Every loop has a still counterpart in the image list — `bg_home_loop`/`bg_home`,
+`outcome_death_loop`/`outcome_death` — and `AppBackdrop` takes the pair. That is
+not an optimisation: an animated WebP has no pause API, so handing the engine a
+different file is the only way to honour Reduce Motion at all. **The two must
+stay in the same luminance band**, or an accessibility setting becomes a visible
+change of art direction.
+
+### The encoder spends the budget, and that is a recent change
+
+`max_bytes` is a budget, not a pass mark. The first version of the script
+searched quality *downward from 62* and stopped at the first setting that fit,
+so `bg_home` fit immediately at 426 KB against a 600 KB allowance and simply
+never spent the rest. What that bought was a backdrop blocking up in its dark
+gradients — the first defect a starved WebP shows on near-black — which is what
+"it has a lot of pixels" turned out to mean.
+
+It now bisects the quality ladder for the **highest** rung that fits. Four
+encodes instead of up to fourteen, and the file lands just under its budget
+rather than well under it. The effect is not uniform: `bg_night_loop` went from
+18 KB to 372 KB, because a nearly-static near-black loop is exactly the case
+where the old search quit earliest and the banding was worst. If the total ever
+needs to come down, the honest knob is `max_bytes` in the manifest, one line per
+slot — not a return to stopping early.
+
+Two things make that search survivable. It probes at encoder **method 4** and
+writes the winner at **method 6** — the search only needs to know which rung
+fits, and paying three times over for the slow method on four throwaway passes
+buys nothing; the final size is re-checked against the budget rather than
+assumed. And the script now takes **slot names**: `python tool/normalise_video.py
+outcome_death_loop`. That matters because a run that is interrupted leaves the
+slot it was writing zero bytes long, and a zero-length asset fails the widget
+suite in a way that looks like a real regression. One run has already been
+killed part-way; the recovery is naming the slots, not redoing the lot.
+
+`soften` is the other half, and it is a bitrate decision rather than a look.
+Generated loops arrive full of sensor-style grain, which is incompressible by
+construction (different in every frame, so inter-frame prediction cannot help)
+and eats the bits the gradients need. `bg_home_loop` is the only slot that sets
+it. It is off by default because a loop with real detail should not be blurred
+to buy a number.
+
+### Home is the four cards, and everything else on it is the table they are on
+
+Two changes landed together and they are the same decision.
+
+**The fifth card is gone.** The spread used to deal the card back above the fan,
+on the argument that it is the picture the table stares at for a whole match and
+belongs in the deck. On screen it read as an extra card: five objects on a
+screen whose entire subject is that there are *four* roles, with the one nobody
+may tap sitting highest and taking the eye first. The back has its own screen —
+every night turn opens on it. The four faces then moved up into the space it
+left and grew from 0.46 to 0.50 of the short edge, because leaving them where
+they were would have left a hole in the top of the screen rather than a
+composition.
+
+**`bg_home` and `bg_home_loop` were dimmed**, from band `[14, 30]` to `[9, 17]`,
+and the loop was softened. Home is the only surface in the app whose backdrop
+has foreground art over it, and the four paintings have to be the brightest
+thing on it. Both slots moved together, for the Reduce Motion reason above.
+
+Neither of these is a leakage matter — nothing has been dealt, nobody is holding
+anything, the whole table is looking at one screen — which is the same argument
+that lets Home show all four faces at once in the first place.
+
+`test/preview/home_preview.dart` writes `tool/preview/home.png` and
+`home_short.png`. Like the other two previews it lives outside the `*_test.dart`
+glob on purpose. It pumps `HomeScreen` directly rather than `MafiaApp`, because
+the accelerometer behind the parallax and the audio plugin behind the deal sound
+both throw in a widget test the moment anything listens to them.
+
+---
+
+## 9d. Two smaller rules that are easy to undo by accident
+
+### Names and roles are set in the heaviest cut their family ships
+
+`TextStyle.emphasised`, in `lib/ui/theme/mafia_theme.dart`, and it is applied to
+exactly two kinds of word: **a player's name** and **a role's name**. Nothing
+else. Those are the two things anybody is ever actually looking for on these
+screens — whose turn it is, who is being voted for, what the card says — read at
+arm's length, in a dim room, usually while somebody is talking. The rule only
+works while it is narrow: emphasise a third kind of word and the first two stop
+standing out.
+
+It is an extension rather than a token because names appear at four sizes
+(`display` on the identity gate and the handoff pad, `title` on the speaker
+card, `body` in every list and tally, `bodySmall` in a stored roster). A `name`
+token would have to pick one and be wrong on the other three.
+
+**It is not `FontWeight.bold`, and that is not fussiness.** Cairo is a variable
+font whose weight the display styles request on the `wght` axis; setting
+`fontWeight` instead leaves it at its default instance and invites a synthesised
+fake bold that smears at 44pt. IBM Plex Sans Arabic ships 400, 500 and 600 and
+nothing above, so `w700` asks for a cut that is not in the bundle. The extension
+raises the axis to 900 for the first case and asks for w600 — the real top of
+the family — for the second.
+
+**The one place to be careful** is `TurnShell._detailSlot`. That slot holds a
+role name for the detective and a player name for everyone else, which is the
+app's single most delicate pair of strings — §2b is the story of what happened
+last time those two were not comparable. It is emphasised unconditionally, so
+both cases get the same treatment and the four roles keep rendering the same
+amount of ink. Emphasising only one of them is what would put it over the
+luminance budget.
+
+### A tied vote eliminates nobody, by default
+
+`MatchSettings.dayTieRule` now defaults to `DayTieRule.noElimination`. It used to
+default to `revote`, which is the more familiar table rule and the worse default
+here: a revote narrows the ballot to exactly the seats that tied, so a table that
+split evenly once has every reason to split evenly again, and each round costs a
+full pass of the phone. The engine caps the rounds so it always ends — in no
+elimination anyway, several minutes later.
+
+It is also the outcome that adds no information. A revote asks the same people to
+vote again *knowing exactly who tied*, which is a second round of public
+signalling the first round did not have. The revote is still one tap away on the
+settings screen, and `day_tie_revote_test.dart` passes the rule explicitly, so
+the default is not what any of those tests are measuring.
+
+---
+
 ## 10. Quick orientation map
 
 | Path | What it is |
@@ -850,6 +1158,7 @@ on a screen whose behaviour is already tested. Forty lines was the cheaper side.
 | `tool/generate_art_ai.py` | Gemini generation; blocked on credit |
 | `tool/IMAGE_PROMPTS.md` | the prompt pack + an IMPLEMENTATION NOTES section listing every deviation |
 | `lib/ui/theme/design_tokens.dart` | all `ThemeExtension` tokens; role accents are **post-game only** |
+| `lib/ui/theme/mafia_theme.dart` | the `context.*` token getters, and `TextStyle.emphasised` (§9d) |
 | `lib/ui/widgets/role_card.dart` | `_face` maps `Role` → face asset; border/emblem are neutral by design |
 | `lib/ui/widgets/phase_transition.dart` | the dip between phases — read the doc before "improving" it into a cross-fade |
 | `lib/app/asset_constants.dart` | generated; `AppImages` / `AppGallery` / `AppIcons` / `AppAudio` |
@@ -862,7 +1171,10 @@ on a screen whose behaviour is already tested. Forty lines was the cheaper side.
 | `lib/ui/screens/setup/group_picker_screen.dart` | the picker, and the shared name dialog |
 | `lib/ui/screens/setup/group_follow_up.dart` | match-end "add the guest / keep the new order" prompts |
 | `test/integration/group_rematch_test.dart` | **counts the taps** and fails at four |
-| `lib/ui/widgets/card_spread.dart` | the home deck: shuffled each visit, tap to flip, parallax |
+| `lib/ui/widgets/card_spread.dart` | the home deck: **four** cards, shuffled each visit, tap to flip, parallax |
+| `tool/normalise_video.py` | the only thing that writes `assets/video/*`; owns the loop budget search |
+| `tool/normalise_score.py` | `raw_assets/audio/` -> `score_loop.ogg`: closes the loop, sets the level |
+| `test/preview/home_preview.dart` | writes `tool/preview/home.png` — the only way to look at the spread |
 | `lib/ui/screens/onboarding/onboarding_chapters.dart` | what onboarding *says*, as data — one screen to read it all |
 | `lib/ui/widgets/onboarding_deck.dart` | the deal-through deck; direction is signed off `Directionality` |
 | `lib/app/onboarding_gate.dart` | first-run redirect; stands down for a resumable match (§9b) |

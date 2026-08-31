@@ -22,10 +22,10 @@
 
 | Name | Token | Hex | Usage |
 |---|---|---|---|
-| Deep Night | `surface-base` | `#0D0F14` | App background |
-| Charcoal | `surface-raised` | `#161A22` | Cards and raised surfaces |
-| Light Charcoal | `surface-overlay` | `#1F2530` | Dialogs and sheets |
-| Subtle Border | `border-subtle` | `#2A3140` | Dividers and card borders |
+| Deep Night | `surface-base` | `#0F0F0F` | App background |
+| Charcoal | `surface-raised` | `#1A1A1A` | Cards and raised surfaces |
+| Light Charcoal | `surface-overlay` | `#252525` | Dialogs and sheets |
+| Subtle Border | `border-subtle` | `#313131` | Dividers and card borders |
 
 ### 2.2 Text Colors
 
@@ -114,7 +114,7 @@ Spacing system built on a **4dp** unit:
 
 | Component | Spec |
 |---|---|
-| `PrimaryButton` | `accent-gold` background, `#0D0F14` text, height 56dp, full width, SemiBold 16sp |
+| `PrimaryButton` | `accent-gold` background, `#0F0F0F` text, height 56dp, full width, SemiBold 16sp |
 | `SecondaryButton` | 1.5dp `border-subtle` outline, `text-primary` label, same height |
 | `TextButton` | `text-secondary` label, no background — marginal actions only |
 | `DangerButton` | `accent-crimson` background — used ONLY for "End match" |
@@ -228,8 +228,8 @@ The handoff screen between players:
 ```dart
 // Proposed tokens as a ThemeExtension
 class MafiaColors extends ThemeExtension<MafiaColors> {
-  final Color surfaceBase;    // #0D0F14
-  final Color surfaceRaised;  // #161A22
+  final Color surfaceBase;    // #0F0F0F
+  final Color surfaceRaised;  // #1A1A1A
   final Color accentGold;     // #C9A227
   final Color accentCrimson;  // #8E2A35
   // ...

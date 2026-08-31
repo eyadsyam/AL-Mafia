@@ -42,7 +42,7 @@ onto semantic tokens in `lib/ui/theme/design_tokens.dart`.
 | `paleSilver` | `#5A5852` | 88.0 | beadwork highlights | borders and dividers |
 | `mutedGrey` | `#908C82` | 140.1 | receding detail | disabled and tertiary text |
 | `secondaryGrey` | `#ADA89E` | 168.3 | mid-tone detail | body text |
-| `agedParchment` | `#C1BCB1` | 188.3 | the painted border | the single accent — buttons, active states |
+| `agedParchment` | `#C2BDB2` | 189.3 | the painted border | the single accent — buttons, active states |
 | `boneWhite` | `#E9E4D9` | 229.4 | brightest highlights | all primary text, including the role name |
 
 Per-role agreement at each band is within a few levels, which is the check that
@@ -50,18 +50,29 @@ this is one palette and not an average of four.
 
 ### The four colours that are not measured
 
-`groundBase` — **`#0D0F14`**, luminance 15 — is the ground on every screen, and
+`groundBase` — **`#0F0F0F`**, luminance 15 — is the ground on every screen, and
 it is a product decision rather than a measurement. The 3rd-percentile black is
 what the *inside of a hood* looks like; used as the whole UI it leaves no headroom
 to lift a panel off the ground. So the ground sits a few levels above it and the
-ladder steps up: panels `#161A22`, overlays `#1F2530`, hairlines `#2A3140`. One
+ladder steps up: panels `#1A1A1A`, overlays `#252525`, hairlines `#313131`. One
 hue at four brightnesses.
 
-The hue is **cool** — 13/15/20, blue leading — and that is the point rather than a
-preference. Doc 05 rule 3 forbids warm colour at night because a warm cast is
-conspicuous on a face across a dark table; blue-leading is the direction *away*
-from skin tone, so the ramp is strictly safer than a neutral grey would be.
-`role_accent_parity_test.dart` asserts blue ≥ green ≥ red at every rung.
+The hue is **neutral**, and it did not start that way. The ramp was
+13/15/20 · 22/26/34 · 31/37/48 · 42/49/64 — blue leading by 7 levels at the
+bottom and 22 at the top — on the argument that blue-leading is the direction
+*away* from skin tone and therefore strictly safer than grey under doc 05 rule
+3. What that argument left out is that a lean of that size is not subliminal:
+the panels and hairlines read as blue-grey against artwork that measures neutral
+to within half a level, so the interface and the paintings looked like two
+products.
+
+The four rungs are now `#0F0F0F` · `#1A1A1A` · `#252525` · `#313131`, which are
+the Rec. 709 luminances of the four values they replace — 15, 26, 37, 49 — to
+the nearest level. **The screen emits exactly what it emitted before.** Only the
+hue moved, and only as far as grey. Rule 3 is about warm light on a face and
+neutral is not warm; `role_accent_parity_test.dart` still asserts
+blue ≥ green ≥ red at every rung, now satisfied with equality, which is the
+strongest form the ramp can satisfy without turning back toward blue.
 
 **Previously:** this was warm tanned leather (`#241C14`, luminance 29), logged as
 a deliberate deviation from rule 3. It has been reverted and the trade-off entry

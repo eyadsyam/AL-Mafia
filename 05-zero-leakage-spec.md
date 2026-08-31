@@ -83,14 +83,25 @@ Players sit together and watch each other. Possible leakage channels:
 | Mafia tie resolved automatically | Extra passing round | An extra pass instantly leaks the Mafia count |
 | Night victim's role NOT revealed | Immediate reveal | Preserves mystery, prevents rapid deduction chains; toggleable in settings |
 | Detective result vanishes forever | Investigation log | A log turns the phone into physical evidence that can be socially extorted ("show me your screen!") |
-| One near-black ground (`#0D0F14`) on every screen, private and table alike | A warm ground on public screens, near-black on private ones | A register that switches makes the switch itself an event the table can see; one ground is both simpler and what rule 3 asks for |
+| One near-black ground (`#0F0F0F`) on every screen, private and table alike | A warm ground on public screens, near-black on private ones | A register that switches makes the switch itself an event the table can see; one ground is both simpler and what rule 3 asks for |
 
 ### On the ground, and rule 3
 
-The ground is `#0D0F14` — 13/15/20, blue channel leading — with panels at
-`#161A22`, overlays at `#1F2530` and hairlines at `#2A3140`. One hue family,
-four brightness steps, no warm cast at any step. Rule 3 holds in its original
-form: **no warm colour at night**, and the neutrality test is the plain one.
+The ground is `#0F0F0F` — 15/15/15, neutral — with panels at `#1A1A1A`,
+overlays at `#252525` and hairlines at `#313131`. One hue family, four
+brightness steps, no warm cast at any step. Rule 3 holds in its original form:
+**no warm colour at night**, and the neutrality test is the plain one.
+
+The ramp used to lean cool: 13/15/20 up to 42/49/64, blue ahead of red by 7
+levels at the bottom and 22 at the top. That was more than rule 3 asks for, and
+the surplus was visible — large flat panels are exactly where the eye finds a
+tint of a few levels, and the app's own artwork measures neutral. Neutralising
+it changed **no luminance**: each new rung carries the Rec. 709 luminance of the
+one it replaced, to the nearest level, so a bystander receives precisely the
+light they received before. Rule 3 is not a preference for blue; it is a
+prohibition on warm, and grey does not warm a face. Going one step further, to
+a warm ground, is the change this document has already rejected once — see
+below.
 
 **A previous revision bent this rule and the bend has been reverted.** That
 revision made the ground warm tanned leather (`#241C14`, 36/28/20, luminance
