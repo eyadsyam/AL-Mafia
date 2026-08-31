@@ -5,6 +5,26 @@ import 'enums.dart';
 class MatchSettings {
   final int speechSeconds;
   final DiscussionMode discussionMode;
+
+  /// What happens when the day's vote ties.
+  ///
+  /// **Defaults to [DayTieRule.noElimination], and that is a change.** It used
+  /// to default to a revote, which is the more familiar table rule and the
+  /// worse default for this app: a revote narrows the ballot to exactly the
+  /// seats that tied, so a table that split evenly once has every reason to
+  /// split evenly again, and each round costs another full pass of the phone.
+  /// The engine caps the rounds, so the ceremony always ends — but it ends in
+  /// no elimination anyway, several minutes later, having spent them on a
+  /// ballot whose outcome the room had already argued to a standstill.
+  ///
+  /// Nobody dies on a tied vote is also the safer default in the sense the rest
+  /// of this app cares about: it is the outcome that adds no information. A
+  /// revote asks the same people to vote again knowing exactly who was tied,
+  /// which is a second round of public signalling that the first round did not
+  /// have.
+  ///
+  /// The revote is still one tap away on the settings screen for tables that
+  /// prefer it.
   final DayTieRule dayTieRule;
   final bool narrationEnabled;
   final bool abstainAllowed;
@@ -42,7 +62,7 @@ class MatchSettings {
   const MatchSettings({
     this.speechSeconds = 60,
     this.discussionMode = DiscussionMode.structured,
-    this.dayTieRule = DayTieRule.revote,
+    this.dayTieRule = DayTieRule.noElimination,
     this.narrationEnabled = true,
     this.abstainAllowed = false,
     this.identityHoldSeconds = 5,
@@ -54,7 +74,7 @@ class MatchSettings {
   const MatchSettings.defaults()
       : speechSeconds = 60,
         discussionMode = DiscussionMode.structured,
-        dayTieRule = DayTieRule.revote,
+        dayTieRule = DayTieRule.noElimination,
         narrationEnabled = true,
         abstainAllowed = false,
         identityHoldSeconds = 5,
