@@ -49,19 +49,19 @@ IOS_ICONS = os.path.join(
 
 SUFFIXES = (".png", ".jpg", ".jpeg", ".webp")
 
-# The app's ground, from `AppColors.groundBase` (#0D0F14). The splash bitmap is
+# The app's ground, from `AppColors.groundBase` (#0F0F0F). The splash bitmap is
 # seated on this so the launch window, the Flutter first frame and the home
 # screen are all the same colour and the handover is invisible.
 #
 # Keep these two in step with `window_background` in
 # `android/app/src/main/res/values/ic_launcher_background.xml`; a drift between
 # them is a visible band at the top or bottom of the launch window.
-GROUND = (13, 15, 20)
+GROUND = (15, 15, 15)
 
 # The adaptive icon's own backdrop, behind the launcher's mask. Now the same
 # ground as the app: the icon reads as the app's surface with the cream mark on
 # it, rather than as a separate near-black tile that happens to share a logo.
-ICON_GROUND = (13, 15, 20)
+ICON_GROUND = (15, 15, 15)
 
 # Android adaptive icons reserve the outer edges for the launcher's mask. 72% is
 # the documented safe zone — content outside it may be cropped on some shapes.

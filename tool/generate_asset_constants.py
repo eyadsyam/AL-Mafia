@@ -37,6 +37,13 @@ GROUPS = [
                           "their own; the widget layer supplies it."),
     ("audio", "AppAudio", "Table cues. Never played while the phone is in a "
                           "player's hand — see AudioDirector."),
+    ("video", "AppVideo",
+     "Ambient loops, as animated WebP played by Image.asset — no video_player, "
+     "no platform view. ON-TABLE ONLY: a moving image is brightness that "
+     "changes frame to frame, so on an in-hand surface it breaks the +/-2% "
+     "luminance budget on nearly every frame and its loop position is a timing "
+     "channel besides. Every *_loop has a *_still beside it, which is what "
+     "Reduce Motion renders — animated WebP has no pause API."),
 ]
 
 SKIP = {".gitkeep", "OFL.txt"}

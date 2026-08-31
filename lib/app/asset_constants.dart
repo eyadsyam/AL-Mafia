@@ -8,6 +8,10 @@
 
 /// Full-bleed textures and backdrops.
 abstract final class AppImages {
+  static const String bgDay = 'assets/images/bg_day.webp';
+  static const String bgHome = 'assets/images/bg_home.webp';
+  static const String bgNight = 'assets/images/bg_night.webp';
+  static const String bgVote = 'assets/images/bg_vote.webp';
   static const String canvasTexture = 'assets/images/canvas_texture.webp';
   static const String cardBack = 'assets/images/card_back.webp';
   static const String cardFaceCitizen = 'assets/images/card_face_citizen.webp';
@@ -15,10 +19,23 @@ abstract final class AppImages {
   static const String cardFaceDoctor = 'assets/images/card_face_doctor.webp';
   static const String cardFaceMafia = 'assets/images/card_face_mafia.webp';
   static const String homeBackdrop = 'assets/images/home_backdrop.webp';
+  static const String onboardingDay = 'assets/images/onboarding_day.webp';
+  static const String onboardingNight = 'assets/images/onboarding_night.webp';
+  static const String onboardingPass = 'assets/images/onboarding_pass.webp';
+  static const String onboardingStory = 'assets/images/onboarding_story.webp';
+  static const String onboardingWin = 'assets/images/onboarding_win.webp';
+  static const String outcomeDeath = 'assets/images/outcome_death.webp';
+  static const String outcomeMafiaWin = 'assets/images/outcome_mafia_win.webp';
+  static const String outcomeSaved = 'assets/images/outcome_saved.webp';
+  static const String outcomeTownWin = 'assets/images/outcome_town_win.webp';
   static const String splashMask = 'assets/images/splash_mask.webp';
 
   /// Every asset in this group, for preloading and for the manifest test.
   static const List<String> values = <String>[
+    bgDay,
+    bgHome,
+    bgNight,
+    bgVote,
     canvasTexture,
     cardBack,
     cardFaceCitizen,
@@ -26,6 +43,15 @@ abstract final class AppImages {
     cardFaceDoctor,
     cardFaceMafia,
     homeBackdrop,
+    onboardingDay,
+    onboardingNight,
+    onboardingPass,
+    onboardingStory,
+    onboardingWin,
+    outcomeDeath,
+    outcomeMafiaWin,
+    outcomeSaved,
+    outcomeTownWin,
     splashMask,
   ];
 }
@@ -48,6 +74,7 @@ abstract final class AppGallery {
 
 /// Tintable alpha masks. These carry no colour of their own; the widget layer supplies it.
 abstract final class AppIcons {
+  static const String badgeFrame = 'assets/icons/badge_frame.webp';
   static const String roleCitizen = 'assets/icons/role_citizen.webp';
   static const String roleDetective = 'assets/icons/role_detective.webp';
   static const String roleDoctor = 'assets/icons/role_doctor.webp';
@@ -55,6 +82,7 @@ abstract final class AppIcons {
 
   /// Every asset in this group, for preloading and for the manifest test.
   static const List<String> values = <String>[
+    badgeFrame,
     roleCitizen,
     roleDetective,
     roleDoctor,
@@ -85,5 +113,27 @@ abstract final class AppAudio {
     timerEnd,
     timerWarning,
     win,
+  ];
+}
+
+/// Ambient loops, as animated WebP played by Image.asset — no video_player, no platform view. ON-TABLE ONLY: a moving image is brightness that changes frame to frame, so on an in-hand surface it breaks the +/-2% luminance budget on nearly every frame and its loop position is a timing channel besides. Every *_loop has a *_still beside it, which is what Reduce Motion renders — animated WebP has no pause API.
+abstract final class AppVideo {
+  static const String bgHomeLoop = 'assets/video/bg_home_loop.webp';
+  static const String bgNightLoop = 'assets/video/bg_night_loop.webp';
+  static const String bgVoteLoop = 'assets/video/bg_vote_loop.webp';
+  static const String outcomeDeathLoop = 'assets/video/outcome_death_loop.webp';
+  static const String outcomeMafiaWinLoop = 'assets/video/outcome_mafia_win_loop.webp';
+  static const String outcomeSavedLoop = 'assets/video/outcome_saved_loop.webp';
+  static const String outcomeTownWinLoop = 'assets/video/outcome_town_win_loop.webp';
+
+  /// Every asset in this group, for preloading and for the manifest test.
+  static const List<String> values = <String>[
+    bgHomeLoop,
+    bgNightLoop,
+    bgVoteLoop,
+    outcomeDeathLoop,
+    outcomeMafiaWinLoop,
+    outcomeSavedLoop,
+    outcomeTownWinLoop,
   ];
 }

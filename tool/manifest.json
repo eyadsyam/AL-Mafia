@@ -65,10 +65,23 @@
     "per-role gain. card_ground_matches_surface_test.dart fails the build on any",
     "drift, and probes the outer 4px ring of every shipped face."
   ],
-  "card_ground": [13, 15, 20],
-  "card_size": [1024, 1536],
-  "backdrop_size": [1080, 1920],
-  "badge_size": [1024, 1024],
+  "card_ground": [
+    15,
+    15,
+    15
+  ],
+  "card_size": [
+    1024,
+    1536
+  ],
+  "backdrop_size": [
+    1080,
+    1920
+  ],
+  "badge_size": [
+    1024,
+    1024
+  ],
   "_onboarding_comment": [
     "onboarding_* are chapter art for the onboarding deck. No source exists",
     "yet — they are declared so the slots are named, sized and banded before",
@@ -90,7 +103,10 @@
       "art_only": true,
       "raw_match": "Mafia",
       "out": "assets/images/card_face_mafia.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 88
     },
     {
@@ -100,7 +116,10 @@
       "art_only": true,
       "raw_match": "Doctor_in_archway",
       "out": "assets/images/card_face_doctor.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 88
     },
     {
@@ -110,7 +129,10 @@
       "art_only": true,
       "raw_match": "Detective_with_magnifying",
       "out": "assets/images/card_face_detective.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 88
     },
     {
@@ -120,7 +142,10 @@
       "art_only": true,
       "raw_match": "Painterly_illustration_for_playi",
       "out": "assets/images/card_face_citizen.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 88
     },
     {
@@ -128,7 +153,10 @@
       "tier": 1,
       "raw_match": "Symmetrical_card_back",
       "out": "assets/images/card_back.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 88,
       "uncropped": true,
       "rotational_symmetry": true,
@@ -140,7 +168,10 @@
       "art_only": true,
       "raw_match": "Mafia",
       "out": "assets/images/gallery/gallery_mafia.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 84
     },
     {
@@ -149,7 +180,10 @@
       "art_only": true,
       "raw_match": "Doctor_in_archway",
       "out": "assets/images/gallery/gallery_doctor.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 84
     },
     {
@@ -158,7 +192,10 @@
       "art_only": true,
       "raw_match": "Detective_with_magnifying",
       "out": "assets/images/gallery/gallery_detective.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 84
     },
     {
@@ -167,25 +204,41 @@
       "art_only": true,
       "raw_match": "Painterly_illustration_for_playi",
       "out": "assets/images/gallery/gallery_citizen.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 84
     },
     {
       "slot": "bg_home",
       "tier": 3,
       "out": "assets/images/bg_home.webp",
-      "size": [1080, 1920],
+      "size": [
+        1080,
+        1920
+      ],
       "quality": 82,
-      "lum_band": [14, 30],
-      "register": "warm"
+      "lum_band": [
+        9,
+        17
+      ],
+      "register": "warm",
+      "note": "Reduce Motion stand-in for bg_home_loop; the two bands must stay equal. Dimmer than the tier-3 default band on purpose - Home is the one screen whose backdrop competes with foreground art, and the four paintings have to be the brightest thing on it."
     },
     {
       "slot": "bg_night",
       "tier": 3,
       "out": "assets/images/bg_night.webp",
-      "size": [1080, 1920],
+      "size": [
+        1080,
+        1920
+      ],
       "quality": 82,
-      "lum_band": [10, 22],
+      "lum_band": [
+        10,
+        22
+      ],
       "register": "cold",
       "note": "On-table phase announcement only. Never behind an in-hand turn."
     },
@@ -193,9 +246,15 @@
       "slot": "bg_day",
       "tier": 3,
       "out": "assets/images/bg_day.webp",
-      "size": [1080, 1920],
+      "size": [
+        1080,
+        1920
+      ],
       "quality": 82,
-      "lum_band": [26, 46],
+      "lum_band": [
+        26,
+        46
+      ],
       "register": "cold",
       "note": "The one bright surface in the app. Public by definition."
     },
@@ -203,18 +262,30 @@
       "slot": "bg_vote",
       "tier": 3,
       "out": "assets/images/bg_vote.webp",
-      "size": [1080, 1920],
+      "size": [
+        1080,
+        1920
+      ],
       "quality": 82,
-      "lum_band": [16, 32],
+      "lum_band": [
+        16,
+        32
+      ],
       "register": "warm"
     },
     {
       "slot": "onboarding_story",
       "tier": 3,
       "out": "assets/images/onboarding_story.webp",
-      "size": [1024, 1024],
+      "size": [
+        1024,
+        1024
+      ],
       "quality": 82,
-      "lum_band": [14, 30],
+      "lum_band": [
+        14,
+        30
+      ],
       "register": "cold",
       "note": "The village asleep. The card that opens the deck."
     },
@@ -222,9 +293,15 @@
       "slot": "onboarding_night",
       "tier": 3,
       "out": "assets/images/onboarding_night.webp",
-      "size": [1024, 1024],
+      "size": [
+        1024,
+        1024
+      ],
       "quality": 82,
-      "lum_band": [14, 30],
+      "lum_band": [
+        14,
+        30
+      ],
       "register": "cold",
       "note": "The phone going round a dark table. On-table screen, but keep it dim."
     },
@@ -232,9 +309,15 @@
       "slot": "onboarding_day",
       "tier": 3,
       "out": "assets/images/onboarding_day.webp",
-      "size": [1024, 1024],
+      "size": [
+        1024,
+        1024
+      ],
       "quality": 82,
-      "lum_band": [14, 30],
+      "lum_band": [
+        14,
+        30
+      ],
       "register": "cold",
       "note": "Morning in the square. Still dimmer than bg_day — this one sits inside a panel, not behind a screen."
     },
@@ -242,9 +325,15 @@
       "slot": "onboarding_pass",
       "tier": 3,
       "out": "assets/images/onboarding_pass.webp",
-      "size": [1024, 1024],
+      "size": [
+        1024,
+        1024
+      ],
       "quality": 82,
-      "lum_band": [14, 30],
+      "lum_band": [
+        14,
+        30
+      ],
       "register": "cold",
       "note": "One pair of hands holding a phone tilted away from the table."
     },
@@ -252,9 +341,15 @@
       "slot": "onboarding_win",
       "tier": 3,
       "out": "assets/images/onboarding_win.webp",
-      "size": [1024, 1024],
+      "size": [
+        1024,
+        1024
+      ],
       "quality": 82,
-      "lum_band": [14, 30],
+      "lum_band": [
+        14,
+        30
+      ],
       "register": "cold",
       "note": "The town at rest. The card that hands the host to a real match."
     },
@@ -262,35 +357,50 @@
       "slot": "outcome_death",
       "tier": 4,
       "out": "assets/images/outcome_death.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 82
     },
     {
       "slot": "outcome_saved",
       "tier": 4,
       "out": "assets/images/outcome_saved.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 82
     },
     {
       "slot": "outcome_mafia_win",
       "tier": 4,
       "out": "assets/images/outcome_mafia_win.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 82
     },
     {
       "slot": "outcome_town_win",
       "tier": 4,
       "out": "assets/images/outcome_town_win.webp",
-      "size": [1024, 1536],
+      "size": [
+        1024,
+        1536
+      ],
       "quality": 82
     },
     {
       "slot": "badge_frame",
       "tier": 4,
       "out": "assets/icons/badge_frame.webp",
-      "size": [1024, 1024],
+      "size": [
+        1024,
+        1024
+      ],
       "quality": 84,
       "alpha": true
     },
@@ -298,7 +408,10 @@
       "slot": "canvas_texture",
       "tier": 4,
       "out": "assets/images/canvas_texture.webp",
-      "size": [192, 192],
+      "size": [
+        192,
+        192
+      ],
       "quality": 72,
       "alpha": true,
       "generated_only": true,
@@ -329,5 +442,140 @@
     "all four land on the same ink coverage (27.00% +/- 0.234%) inside the same",
     "bounding box. asset_manifest_test.dart re-measures that from the shipped",
     "bytes. Passing them through a crop/gain stage would destroy the property."
+  ],
+  "_videos_comment": [
+    "Ambient loops, shipped as ANIMATED WEBP and played by Image.asset — no",
+    "video_player dependency, no platform view. Read by tool/normalise_video.py",
+    "and test/platform/video_manifest_test.dart, same two-consumer arrangement as",
+    "the image list above.",
+    "",
+    "ON-TABLE ONLY. A moving image is brightness that changes frame to frame, so",
+    "on an in-hand surface it breaks the +/-2% luminance budget (L-05) on nearly",
+    "every frame, and a loop at a different point in its cycle for a fast player",
+    "than a slow one is a timing channel too (L-08). There is no safe way to put",
+    "one behind a pass screen, a role reveal or a night action.",
+    "",
+    "'pair': loops that answer the same question for the table (someone died /",
+    "nobody died) must run the SAME NUMBER OF FRAMES and sit in the same band. A",
+    "longer or richer animation for one outcome announces the answer before the",
+    "words arrive.",
+    "",
+    "Reduce Motion: every loop has a still counterpart in the image list above -",
+    "bg_night_loop/bg_night, outcome_death_loop/outcome_death - and AppBackdrop",
+    "takes the pair. Animated WebP has no pause API, so handing the engine a",
+    "different file is the only way to honour the setting (BRAND_KIT 9.3)."
+  ],
+  "videos": [
+    {
+      "slot": "bg_home_loop",
+      "out": "assets/video/bg_home_loop.webp",
+      "size": [
+        720,
+        1280
+      ],
+      "frames": 60,
+      "fps": 12,
+      "lum_band": [
+        9,
+        17
+      ],
+      "soften": 0.8,
+      "max_bytes": 600000,
+      "note": "Softened and dimmed: this is the only loop with foreground art over it. The blur is a bitrate decision (see normalise_video.py) and the band is a contrast one - the card spread is the subject of Home and the backdrop is the table it is dealt on."
+    },
+    {
+      "slot": "bg_night_loop",
+      "out": "assets/video/bg_night_loop.webp",
+      "size": [
+        720,
+        1280
+      ],
+      "frames": 48,
+      "fps": 12,
+      "lum_band": [
+        10,
+        22
+      ],
+      "max_bytes": 600000
+    },
+    {
+      "slot": "bg_vote_loop",
+      "out": "assets/video/bg_vote_loop.webp",
+      "size": [
+        720,
+        1280
+      ],
+      "frames": 36,
+      "fps": 12,
+      "lum_band": [
+        16,
+        32
+      ],
+      "max_bytes": 500000
+    },
+    {
+      "slot": "outcome_death_loop",
+      "pair": "morning",
+      "out": "assets/video/outcome_death_loop.webp",
+      "size": [
+        720,
+        1280
+      ],
+      "frames": 48,
+      "fps": 12,
+      "lum_band": [
+        20,
+        34
+      ],
+      "max_bytes": 500000
+    },
+    {
+      "slot": "outcome_saved_loop",
+      "pair": "morning",
+      "out": "assets/video/outcome_saved_loop.webp",
+      "size": [
+        720,
+        1280
+      ],
+      "frames": 48,
+      "fps": 12,
+      "lum_band": [
+        20,
+        34
+      ],
+      "max_bytes": 500000
+    },
+    {
+      "slot": "outcome_mafia_win_loop",
+      "pair": "result",
+      "out": "assets/video/outcome_mafia_win_loop.webp",
+      "size": [
+        720,
+        1280
+      ],
+      "frames": 60,
+      "fps": 12,
+      "lum_band": [
+        20,
+        34
+      ],
+      "max_bytes": 600000
+    },
+    {
+      "slot": "outcome_town_win_loop",
+      "pair": "result",
+      "out": "assets/video/outcome_town_win_loop.webp",
+      "size": [
+        720,
+        1280
+      ],
+      "frames": 60,
+      "fps": 12,
+      "lum_band": [
+        20,
+        34
+      ],
+      "max_bytes": 600000
+    }
   ]
 }

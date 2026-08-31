@@ -86,6 +86,8 @@ flutter:
     - assets/images/gallery/
     - assets/icons/
     - assets/audio/
+    # Ambient loops + their Reduce Motion stills. On-table surfaces only.
+    - assets/video/
     - assets/fonts/OFL.txt
 
   # Every family below is SIL OFL 1.1; the license text ships in

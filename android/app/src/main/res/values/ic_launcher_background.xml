@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-      Both are the app's ground, #0D0F14 — `AppColors.groundBase` in
+      Both are the app's ground, #0F0F0F — `AppColors.groundBase` in
       lib/core/theme/app_colors.dart, and `GROUND` / `ICON_GROUND` in
       tool/generate_icons.py.
 
@@ -19,6 +19,6 @@
       the splash bitmap is composited against these values rather than drawn
       over them.
     -->
-    <color name="window_background">#FF0D0F14</color>
-    <color name="ic_launcher_background">#FF0D0F14</color>
+    <color name="window_background">#FF0F0F0F</color>
+    <color name="ic_launcher_background">#FF0F0F0F</color>
 </resources>
