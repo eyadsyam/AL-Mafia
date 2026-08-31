@@ -25,7 +25,7 @@ import '../support/localized.dart';
 ///
 /// `card_preview.dart` says the type renders as boxes, because `flutter_test`
 /// ships a stub font — fine there, where the point is to judge a painting. Here
-/// the type *is* the card: six faces whose only content is a heading, a
+/// the type *is* the card: seven faces whose only content is a heading, a
 /// paragraph and a numeral. A preview of them in stub boxes would show nothing
 /// worth looking at, so the shipped families are registered with a [FontLoader]
 /// first. That makes these screenshots a fair likeness of the phone, which the
@@ -119,8 +119,13 @@ void main() {
         chapter: OnboardingChapter.pass.index);
   });
 
-  testWidgets('chapter 6 — winning, and the way into a match', (tester) async {
-    await shoot(tester, 'onboarding_6_win',
+  testWidgets('chapter 6 — what the app will not give away', (tester) async {
+    await shoot(tester, 'onboarding_6_secrecy',
+        chapter: OnboardingChapter.secrecy.index);
+  });
+
+  testWidgets('chapter 7 — winning, and the way into a match', (tester) async {
+    await shoot(tester, 'onboarding_7_win',
         chapter: OnboardingChapter.win.index);
   });
 

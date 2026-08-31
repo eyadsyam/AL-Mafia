@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/asset_constants.dart';
+import '../../platform/reduce_motion.dart';
 import '../theme/mafia_theme.dart';
 
 /// The painterly surface treatment, in two pieces: a screen backdrop and a
@@ -32,12 +33,37 @@ import '../theme/mafia_theme.dart';
 /// [image] is optional: screens in the night register pass nothing and get the
 /// charcoal ground plus weave, which is all doc 05 allows them.
 class AppBackdrop extends StatelessWidget {
-  /// Backdrop art. Only Result passes one — see [AppImages.homeBackdrop].
+  /// Backdrop art, or null for the bare ground.
+  ///
+  /// Null on every in-hand surface — pass screen, role reveal, night action —
+  /// and that is not a default anyone may change. Those three get charcoal and
+  /// the weave, which is all doc 05 allows them.
   final String? image;
+
+  /// An ambient loop to play instead of [image] when motion is allowed.
+  ///
+  /// Animated WebP, so this is an ordinary `Image.asset` — no `video_player`,
+  /// no platform view, no lifecycle. [image] stays required alongside it and is
+  /// what Reduce Motion renders: an animated WebP has no pause API, so the only
+  /// way to honour the setting is to hand the engine a different file.
+  ///
+  /// That also satisfies the rule the setting actually carries — Reduce Motion
+  /// degrades to the *finished* state and never changes how long anything
+  /// takes. The still is the frame the loop rests on, so the screen holds for
+  /// exactly as long either way.
+  ///
+  /// On-table surfaces only, for the same reason [image] is: a loop is
+  /// brightness that changes frame to frame.
+  final String? loop;
 
   final Widget child;
 
-  const AppBackdrop({super.key, this.image, required this.child});
+  const AppBackdrop({
+    super.key,
+    this.image,
+    this.loop,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +76,7 @@ class AppBackdrop extends StatelessWidget {
         children: [
           if (image != null)
             Image.asset(
-              image!,
+              loop != null && !ReduceMotion.of(context) ? loop! : image!,
               fit: BoxFit.cover,
               // The art is a backdrop, not content: it must never announce a
               // loading state or shift the layout when it decodes.

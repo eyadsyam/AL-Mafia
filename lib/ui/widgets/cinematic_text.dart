@@ -33,6 +33,17 @@ import 'textured_surface.dart';
 class CinematicText extends StatefulWidget {
   final String text;
 
+  /// The announcement's backdrop, or null for the bare ground.
+  ///
+  /// Every announcement is on-table — the phone is flat and the whole room is
+  /// reading the same words at the same time — which is the only reason there
+  /// may be art behind them at all. The picture is chosen by the *moment*, in
+  /// `MatchFlow._Moment`, and never by anybody's role.
+  final String? image;
+
+  /// The ambient loop for this announcement, played unless Reduce Motion is on.
+  final String? loop;
+
   /// Fired once, as the announcement begins. The audio hook.
   final VoidCallback? onStart;
 
@@ -42,6 +53,8 @@ class CinematicText extends StatefulWidget {
   const CinematicText({
     super.key,
     required this.text,
+    this.image,
+    this.loop,
     this.onStart,
     this.onComplete,
   });
@@ -152,6 +165,8 @@ class _CinematicTextState extends State<CinematicText>
     );
 
     return AppBackdrop(
+      image: widget.image,
+      loop: widget.loop,
       child: Stack(
         children: [
           // The corner icons drifting behind the words. Atmosphere only: all

@@ -102,6 +102,16 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
     final canSubmit = _abstaining || _selectedSeat != null;
 
     return AppBackdrop(
+      // No backdrop, and this is not an oversight. The ballot is secret and is
+      // cast through PassScreen — the phone is in one voter's hand, so this is
+      // an in-hand surface and gets the bare ground like every other one.
+      //
+      // `bg_vote` belongs to the on-table announcement that precedes this
+      // screen (`MatchFlow._Moment.voting`), where the whole room is reading
+      // the same words at once. Putting it here instead cost a byte-identical
+      // ballot across roles: an animated WebP is at whatever frame wall-clock
+      // time says, so two roles rendered a millisecond apart no longer match.
+      // voting_symmetry_test.dart caught it.
       child: SafeArea(
         child: Center(
           child: ConstrainedBox(

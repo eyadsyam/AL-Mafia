@@ -130,7 +130,7 @@ class VoteResultScreen extends StatelessWidget {
                                 l10n.wasRole(
                                   EngineCopy.roleName(l10n, eliminatedRole!),
                                 ),
-                                style: type.body.copyWith(
+                                style: type.body.emphasised.copyWith(
                                   color: _roleColor(context, eliminatedRole!),
                                 ),
                               ),

@@ -216,7 +216,7 @@ class _RoleRow extends StatelessWidget {
             children: [
               Text(
                 EngineCopy.roleName(context.l10n, role),
-                style: type.title.copyWith(color: colors.textPrimary),
+                style: type.title.emphasised.copyWith(color: colors.textPrimary),
               ),
               SizedBox(height: spacing.xs),
               Text(

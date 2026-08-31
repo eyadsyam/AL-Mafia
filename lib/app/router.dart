@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../data/player_group.dart';
 import '../data/player_group_provider.dart';
 import '../data/repository_provider.dart';
+import '../platform/audio_director.dart';
 import '../engine/models/match_settings.dart';
 import '../ui/l10n_ext.dart';
 import '../ui/screens/match_controller.dart';
@@ -150,6 +151,7 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
           return OnboardingScreen(
             onSkip: () => leave(Routes.home),
             onRules: () => leave(Routes.howToPlay),
+            onCardFlip: ref.read(audioDirectorProvider).playCardTurn,
             onStartMatch: () {
               ref.read(setupDraftProvider.notifier).resetForNewMatch();
               // Exactly what Home's primary action does. A host finishing the

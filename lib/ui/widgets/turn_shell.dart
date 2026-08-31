@@ -654,7 +654,15 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
               child: Center(
                 child: Text(
                   detail,
-                  style: type.title.copyWith(color: colors.textPrimary),
+                  // Emphasised, and note what is in this slot: a role name for
+                  // the detective and a player name for everyone else. Those
+                  // are exactly the two kinds of word the app sets in the
+                  // heavy cut, so one style is right for both — and because it
+                  // is one style applied unconditionally, the four roles keep
+                  // rendering the same amount of ink here. Emphasising only
+                  // one of the two cases is what would put this over the
+                  // luminance budget.
+                  style: type.title.emphasised.copyWith(color: colors.textPrimary),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,

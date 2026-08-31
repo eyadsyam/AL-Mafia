@@ -95,7 +95,7 @@ class PlayerTile extends StatelessWidget {
             Expanded(
               child: Text(
                 name,
-                style: type.body.copyWith(
+                style: type.body.emphasised.copyWith(
                   color: text,
                   decoration: state == PlayerTileState.dead
                       ? TextDecoration.lineThrough

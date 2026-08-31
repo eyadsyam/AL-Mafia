@@ -14,7 +14,8 @@ import 'hold_pad.dart';
 /// The role card used during distribution — now a 3-step reveal:
 ///
 /// 1. **Identity confirmation** — player name + hold button with ring.
-/// 2. **Swipe to flip** — card back appears, swipe right for 3D Y-axis flip.
+/// 2. **Swipe to flip** — card back appears; a swipe in any direction turns
+///    it, about Y for a sideways one and about X for an up-or-down one.
 /// 3. **Auto-conceal** — card stays visible for 5s, auto-flips back,
 ///    re-reveal available, then pass button.
 ///
@@ -46,6 +47,23 @@ class RoleCard extends StatefulWidget {
 
   final VoidCallback onDismissed;
 
+  /// Fired every time the card turns, in either direction — the swipe that
+  /// opens it, the automatic conceal five seconds later, and every re-reveal
+  /// after that.
+  ///
+  /// A callback rather than a read of the audio provider, and that is not only
+  /// about testing. `audio_gate_test.dart` asserts that this file does not so
+  /// much as *mention* the audio layer — an in-hand surface that cannot reach
+  /// it cannot trip its gate — so the wiring lives in the screen above:
+  /// `role_reveal_screen.dart` hands in `playCardTurn`, the one sound in the
+  /// app allowed to happen while somebody is holding the phone. The argument
+  /// for that exception is on the method itself, in
+  /// `lib/platform/audio_director.dart`.
+  ///
+  /// It fires for all four roles at exactly the same three moments, which is
+  /// what keeps it out of the leakage tests' way.
+  final VoidCallback? onFlip;
+
   /// How long the identity pad must be held, from `MatchSettings`.
   ///
   /// Passed in rather than read from the theme because it is a *host* decision,
@@ -63,6 +81,7 @@ class RoleCard extends StatefulWidget {
     required this.role,
     required this.teammateNames,
     required this.onDismissed,
+    this.onFlip,
     this.identityHold,
   });
 
@@ -91,7 +110,7 @@ enum _RevealPhase {
   /// Player sees their name and holds to confirm identity.
   identityGate,
 
-  /// Card back is shown. Player swipes right to flip.
+  /// Card back is shown. Player swipes in any direction to flip.
   cardBack,
 
   /// Card face is visible. Auto-conceals after the timer.
@@ -117,8 +136,30 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
   late final CurvedAnimation _flipCurve;
 
   // -- Swipe tracking --
-  double _dragOffset = 0.0;
+  //
+  // The swipe is read in two dimensions and the card turns the way it was
+  // pushed. [_drag] is the raw travel since the finger went down; [_axis] and
+  // [_sign] are resolved from it at the end of the gesture and then held, so
+  // the animated part of the flip continues in the direction the hand started
+  // and the automatic conceal five seconds later reverses along the same line.
+  Offset _drag = Offset.zero;
+  Axis _axis = Axis.horizontal;
+  double _sign = 1.0;
   bool _swiping = false;
+
+  /// Which way the *live* drag is turning the card, before the gesture ends.
+  ///
+  /// Resolved on every update rather than latched at drag start: a finger that
+  /// sets off sideways and commits upward should have the card follow it, and
+  /// at the moment of touch-down there is no direction to latch yet.
+  (Axis, double) get _liveDirection {
+    final horizontal = _drag.dx.abs() >= _drag.dy.abs();
+    final travel = horizontal ? _drag.dx : _drag.dy;
+    return (
+      horizontal ? Axis.horizontal : Axis.vertical,
+      travel < 0 ? -1.0 : 1.0,
+    );
+  }
 
   // -- Auto-conceal timer --
   Timer? _concealTimer;
@@ -170,9 +211,10 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
     if (_phase != _RevealPhase.cardBack && _phase != _RevealPhase.concealed) {
       return;
     }
+    widget.onFlip?.call();
     setState(() {
       _phase = _RevealPhase.cardRevealed;
-      _dragOffset = 0.0;
+      _drag = Offset.zero;
       _swiping = false;
     });
     _flip.forward();
@@ -199,7 +241,7 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
   /// action it was. It is the wrong rule here, and it produced the worst bug in
   /// the flow: the card conceals itself after five seconds, so for the next
   /// seven the screen showed a face-down card, no pass button, and a hint
-  /// reading "swipe right" — the only affordance on screen. Players did the
+  /// reading "swipe to flip" — the only affordance on screen. Players did the
   /// only thing offered and saw their card a second time, then a third, until
   /// the clock happened to run out. It read as the app being stuck.
   ///
@@ -210,6 +252,7 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
   void _autoFlipBack() {
     _concealTimer?.cancel();
     _concealProgress.stop();
+    widget.onFlip?.call();
     setState(() {
       _phase = _RevealPhase.concealed;
       _passUnlocked = true;
@@ -221,42 +264,77 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
   // Swipe gesture handling
   // ---------------------------------------------------------------------------
 
-  /// The fraction of the card's width that must be swiped to trigger the flip.
+  /// The fraction of the card's own size along the swiped axis that must be
+  /// travelled to trigger the flip.
   static const _swipeThresholdFraction = 0.3;
 
   /// Minimum velocity (logical pixels/s) that triggers the flip regardless of
   /// distance, so a fast flick also works.
   static const _swipeVelocityThreshold = 300.0;
 
-  void _onHorizontalDragStart(DragStartDetails _) {
+  /// Any direction, and the card turns the way it was pushed.
+  ///
+  /// # Why this is a pan and not two drags
+  ///
+  /// It used to be `onHorizontalDrag*` with the offset clamped to positive:
+  /// one gesture, rightwards, and the hint under the card said so. That is a
+  /// rule to remember at the exact moment nobody wants to remember one — the
+  /// phone has just been handed over, everyone is watching, and the natural
+  /// motion is whatever the thumb happens to be resting on. A leftward swipe
+  /// simply did nothing, which reads as the app being stuck rather than as the
+  /// player having guessed wrong.
+  ///
+  /// So the gesture is a pan, both axes are live, and the *dominant* axis of
+  /// the travel picks the rotation axis while its sign picks the direction. A
+  /// swipe left turns the card left; a swipe up tips it away from you. The
+  /// threshold is measured along whichever axis won, against that side of the
+  /// card, so an upward swipe on a tall card is not held to the same number of
+  /// pixels as a sideways one.
+  ///
+  /// # Why this is still leak-safe
+  ///
+  /// The direction is chosen by the player, and chosen *before* they have seen
+  /// anything — the flip is what shows them the card. There is no branch on
+  /// role anywhere in it: same thresholds, same durations, same geometry for
+  /// all four. What a bystander could learn from watching the direction is
+  /// which way somebody's thumb was pointing.
+  void _onPanStart(DragStartDetails _) {
     if (_phase != _RevealPhase.cardBack && _phase != _RevealPhase.concealed) {
       return;
     }
     _swiping = true;
   }
 
-  void _onHorizontalDragUpdate(DragUpdateDetails details) {
+  void _onPanUpdate(DragUpdateDetails details) {
     if (!_swiping) return;
-    setState(() {
-      // Only allow right swipes (positive delta in LTR; note: the card is
-      // direction-agnostic since the flip is a Y-axis rotation).
-      _dragOffset = (_dragOffset + details.delta.dx).clamp(0.0, double.infinity);
-    });
+    setState(() => _drag += details.delta);
   }
 
-  void _onHorizontalDragEnd(DragEndDetails details) {
+  void _onPanEnd(DragEndDetails details) {
     if (!_swiping) return;
-    final velocity = details.velocity.pixelsPerSecond.dx;
-    final cardWidth = context.findRenderObject()?.paintBounds.width ?? 300;
 
-    if (_dragOffset > cardWidth * _swipeThresholdFraction ||
-        velocity > _swipeVelocityThreshold) {
-      // Threshold met — flip the card.
+    final (axis, sign) = _liveDirection;
+    final bounds = context.findRenderObject()?.paintBounds;
+    final extent = axis == Axis.horizontal
+        ? (bounds?.width ?? 300)
+        : (bounds?.height ?? 450);
+
+    final travel = axis == Axis.horizontal ? _drag.dx : _drag.dy;
+    final velocity = axis == Axis.horizontal
+        ? details.velocity.pixelsPerSecond.dx
+        : details.velocity.pixelsPerSecond.dy;
+
+    // Both tests are on the magnitude: the sign has already been taken out and
+    // put into `sign`, and a flick leftwards is exactly as much a flick as one
+    // to the right.
+    if (travel.abs() > extent * _swipeThresholdFraction ||
+        velocity.abs() > _swipeVelocityThreshold) {
+      _axis = axis;
+      _sign = sign;
       _doFlip();
     } else {
-      // Spring back.
       setState(() {
-        _dragOffset = 0.0;
+        _drag = Offset.zero;
         _swiping = false;
       });
     }
@@ -334,7 +412,7 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
       children: [
         Text(
           widget.playerName,
-          style: type.display.copyWith(color: colors.textPrimary),
+          style: type.display.emphasised.copyWith(color: colors.textPrimary),
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -372,7 +450,7 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
           child: Center(
             child: Text(
               widget.playerName,
-              style: type.headline.copyWith(color: colors.textPrimary),
+              style: type.headline.emphasised.copyWith(color: colors.textPrimary),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -385,12 +463,17 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
           child: KeyedSubtree(
             key: RoleCard.slotCard,
             child: GestureDetector(
-              onHorizontalDragStart: _onHorizontalDragStart,
-              onHorizontalDragUpdate: _onHorizontalDragUpdate,
-              onHorizontalDragEnd: _onHorizontalDragEnd,
+              onPanStart: _onPanStart,
+              onPanUpdate: _onPanUpdate,
+              onPanEnd: _onPanEnd,
               child: _SwipeFlipCard(
                 flipProgress: _flipCurve,
-                dragOffset: _dragOffset,
+                // Mid-gesture the card follows the finger; once the gesture has
+                // committed, the resolved axis and sign are what the animation
+                // continues along.
+                drag: _swiping ? _drag : Offset.zero,
+                axis: _swiping ? _liveDirection.$1 : _axis,
+                sign: _swiping ? _liveDirection.$2 : _sign,
                 radius: radii.card,
                 elevation: context.elevation,
                 perspective: context.motion.perspective,
@@ -458,7 +541,7 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
                 child: Center(
                   child: Text(
                     _title(context),
-                    style: type.display.copyWith(color: colors.textPrimary),
+                    style: type.display.emphasised.copyWith(color: colors.textPrimary),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -501,7 +584,8 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
                               widget.teammateNames
                                   .join(context.l10n.listSeparator),
                             ),
-                      style: type.bodySmall.copyWith(color: colors.textPrimary),
+                      style: type.bodySmall.emphasised
+                          .copyWith(color: colors.textPrimary),
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -649,8 +733,13 @@ class _CardSurface extends StatelessWidget {
 /// The 3D flip with swipe-to-reveal physics.
 ///
 /// Supports two modes of input:
-/// - **Animated flip** via [flipAnimation] (forward = reveal, reverse = conceal)
-/// - **Drag offset** via [dragOffset] for the physical swipe-follow feel
+/// - **Animated flip** via [flipProgress] (forward = reveal, reverse = conceal)
+/// - **Live drag** via [drag] for the physical swipe-follow feel
+///
+/// [axis] and [sign] say which way the card is turning: about Y for a sideways
+/// swipe, about X for an up-or-down one, in the direction the hand went. The
+/// mirror applied to the front face turns about the same axis, because a face
+/// mirrored across the wrong one arrives upside down.
 ///
 /// Both faces are built for every role at every moment, and the swap happens at
 /// the halfway point by geometry alone — no role-dependent branch anywhere.
@@ -658,7 +747,16 @@ class _SwipeFlipCard extends StatelessWidget {
   /// The eased flip progress, owned by the parent so the text beneath the card
   /// can share it. 0 = face-down, 1 = face-up.
   final Animation<double> flipProgress;
-  final double dragOffset;
+
+  /// Travel since the finger went down, or [Offset.zero] when nothing is being
+  /// dragged.
+  final Offset drag;
+
+  /// The rotation axis: horizontal swipe turns about Y, vertical about X.
+  final Axis axis;
+
+  /// +1 or −1, following the direction of the swipe.
+  final double sign;
   final Widget front;
   final Widget back;
   final double radius;
@@ -669,7 +767,9 @@ class _SwipeFlipCard extends StatelessWidget {
 
   const _SwipeFlipCard({
     required this.flipProgress,
-    required this.dragOffset,
+    required this.drag,
+    required this.axis,
+    required this.sign,
     required this.front,
     required this.back,
     required this.radius,
@@ -685,20 +785,36 @@ class _SwipeFlipCard extends StatelessWidget {
         // Combine the animated flip progress with the drag preview.
         // During a drag, the card tilts slightly to follow the finger.
         final animT = flipProgress.value;
-        final dragAngle = dragOffset > 0
-            ? (dragOffset / 300.0).clamp(0.0, 0.3) * math.pi
-            : 0.0;
-        final angle = animT * math.pi + dragAngle;
-        final showingFront = angle >= math.pi * 0.5 && angle < math.pi * 1.5;
+        final travel = axis == Axis.horizontal ? drag.dx : drag.dy;
+        final dragAngle =
+            (travel.abs() / 300.0).clamp(0.0, 0.3) * math.pi;
+
+        // Magnitude first, sign last: the half-turn test below is about how far
+        // the card has turned, not about which way, and a signed angle would
+        // make the front face appear on one side and not the other.
+        final turn = animT * math.pi + dragAngle;
+        final showingFront = turn >= math.pi * 0.5 && turn < math.pi * 1.5;
+        final angle = turn * sign;
 
         final transform = Matrix4.identity()
-          ..setEntry(3, 2, perspective)
-          ..rotateY(angle);
+          ..setEntry(3, 2, perspective);
+        if (axis == Axis.horizontal) {
+          transform.rotateY(angle);
+        } else {
+          transform.rotateX(angle);
+        }
+
+        final mirror = Matrix4.identity();
+        if (axis == Axis.horizontal) {
+          mirror.rotateY(math.pi);
+        } else {
+          mirror.rotateX(math.pi);
+        }
 
         final face = showingFront
             ? Transform(
                 alignment: Alignment.center,
-                transform: Matrix4.identity()..rotateY(math.pi),
+                transform: mirror,
                 child: front,
               )
             : back;

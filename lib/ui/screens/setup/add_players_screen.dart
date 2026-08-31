@@ -585,7 +585,7 @@ class _PlayerTile extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: type.body.copyWith(
+                    style: type.body.emphasised.copyWith(
                       color: absent ? colors.textMuted : colors.textPrimary,
                     ),
                     maxLines: 1,

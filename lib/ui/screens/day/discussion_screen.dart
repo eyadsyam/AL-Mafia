@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../app/asset_constants.dart';
 import '../../../engine/models/enums.dart';
 import '../../../engine/models/player.dart';
 import '../../l10n_ext.dart';
@@ -167,6 +168,9 @@ class _DiscussionScreenState extends State<DiscussionScreen>
     return Scaffold(
       backgroundColor: colors.surfaceBase,
       body: AppBackdrop(
+        // The day is public by definition — nobody is holding anything — so
+        // this is the one screen allowed to be brighter than the ground.
+        image: AppImages.bgDay,
         child: SafeArea(
           child: Center(
             child: ConstrainedBox(
@@ -214,7 +218,7 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                             SizedBox(height: spacing.sm),
                             Text(
                               currentSpeaker.name,
-                              style: type.title.copyWith(
+                              style: type.title.emphasised.copyWith(
                                 color: colors.accentGold,
                               ),
                               textAlign: TextAlign.center,

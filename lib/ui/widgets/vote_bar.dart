@@ -123,7 +123,7 @@ class _VoteBarState extends State<VoteBar> with SingleTickerProviderStateMixin {
               Expanded(
                 child: Text(
                   widget.name,
-                  style: type.body.copyWith(
+                  style: type.body.emphasised.copyWith(
                     color: widget.highlighted
                         ? colors.textPrimary
                         : colors.textSecondary,

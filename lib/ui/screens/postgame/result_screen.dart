@@ -194,7 +194,7 @@ class ResultScreen extends StatelessWidget {
                                     children: [
                                       Text(
                                         row.name,
-                                        style: type.body.copyWith(
+                                        style: type.body.emphasised.copyWith(
                                           color: colors.textPrimary,
                                         ),
                                         maxLines: 1,

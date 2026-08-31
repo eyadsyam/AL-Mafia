@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/models/enums.dart' as engine show Alignment;
 import '../../engine/models/enums.dart' show GamePhase, PlayerStatus;
 import '../../engine/models/player.dart' show PhaseRef;
+import '../../app/asset_constants.dart';
 import '../../platform/audio_director.dart';
 import '../l10n_ext.dart';
 import '../theme/mafia_theme.dart';
@@ -63,19 +64,50 @@ class MatchFlow extends ConsumerStatefulWidget {
 /// narrator slot" is a property of the type, not a convention somebody has to
 /// remember at the seventh.
 enum _Moment {
-  nightFalls(AudioCue.nightFalls),
-  morningDeath(AudioCue.morning),
-  morningQuiet(AudioCue.morning),
-  voting(null),
-  mafiaWins(AudioCue.win),
-  townWins(AudioCue.win);
+  nightFalls(AudioCue.nightFalls, AppImages.bgNight, AppVideo.bgNightLoop),
+  morningDeath(AudioCue.morning, AppImages.outcomeDeath,
+      AppVideo.outcomeDeathLoop),
+  morningQuiet(AudioCue.morning, AppImages.outcomeSaved,
+      AppVideo.outcomeSavedLoop),
+  voting(null, AppImages.bgVote, AppVideo.bgVoteLoop),
+  mafiaWins(AudioCue.win, AppImages.outcomeMafiaWin,
+      AppVideo.outcomeMafiaWinLoop),
+  townWins(AudioCue.win, AppImages.outcomeTownWin,
+      AppVideo.outcomeTownWinLoop);
 
-  const _Moment(this.cue);
+  const _Moment(this.cue, this.backdrop, this.loop);
 
   /// The cue to fire as the words appear, or null for an announcement that has
   /// no sound yet. A recorded narrator line for the cue plays over its ambient
   /// bed; with neither, the line on screen carries the moment alone.
   final AudioCue? cue;
+
+  /// The picture behind the words.
+  ///
+  /// Here rather than at the call site for the same reason the cue is: "every
+  /// announcement has a backdrop" becomes a property of the type, and the
+  /// seventh moment cannot be added without one. It is also the only place the
+  /// six tier-3/4 paintings are chosen, so the mapping from moment to picture
+  /// can be read in one glance and checked against the manifest.
+  ///
+  /// Safe because every one of these is on-table: the phone is flat, the words
+  /// are for the room, and the picture is a function of the *phase*, never of
+  /// a role. Nothing reachable while the phone is in a hand has a backdrop at
+  /// all.
+  final String backdrop;
+
+  /// The ambient loop that plays instead of [backdrop] when motion is allowed.
+  ///
+  /// Paired in the same row precisely so the two cannot drift: a moment whose
+  /// loop showed a different scene from its Reduce Motion still would be two
+  /// announcements wearing one name.
+  ///
+  /// `morningDeath`/`morningQuiet` and `mafiaWins`/`townWins` run the same
+  /// number of frames as each other — enforced in `tool/manifest.json` by
+  /// `pair` and checked by `normalise_video.py`. An announcement that ran
+  /// longer for one outcome than the other would tell the room the answer
+  /// before the words arrived.
+  final String loop;
 }
 
 class MatchFlowState extends ConsumerState<MatchFlow> {
@@ -203,6 +235,8 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         // inheriting the first's finished animation.
         key: ValueKey('moment-${moment.name}-${state.dayNumber}'),
         text: _momentLine(moment),
+        image: moment.backdrop,
+        loop: moment.loop,
         onStart: () {
           final cue = moment.cue;
           if (cue != null) _cue(cue);

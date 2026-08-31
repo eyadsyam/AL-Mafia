@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/asset_constants.dart';
 import '../../../app/l10n/app_localizations.dart';
 import '../../../platform/audio_director.dart';
 import '../../../platform/tilt_source.dart';
@@ -85,11 +86,16 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: colors.surfaceBase,
       body: BulbFlicker(
-        // The app's default ground, same as every other public screen. Home
-        // used to carry its own backdrop image; with the warm register in
-        // `AppBackdrop` it does not need one, and one fewer full-screen bitmap
-        // to decode on the slowest frame of the app's life is worth having.
+        // The one screen a returning host sees every time, and the one with
+        // the longest dwell — people are finding chairs while it is up. It can
+        // afford the only full-screen bitmap decoded on the app's slowest
+        // frame; nothing else on this route is competing for it.
+        //
+        // `bg_home` is deliberately near-featureless: the falling icons and the
+        // card spread are drawn on top of it, and two ornaments fight.
         child: AppBackdrop(
+          image: AppImages.bgHome,
+          loop: AppVideo.bgHomeLoop,
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -99,7 +105,8 @@ class HomeScreen extends ConsumerWidget {
                 // The deal is on-table by definition — this screen is the one
                 // moment nobody is holding anything private — so a sound here
                 // is safe in a way one during a turn never is.
-                onDealStarted: () => _dealSound(ref),
+                onDealStarted: () => _flipSound(ref),
+                onFlip: () => _flipSound(ref),
               ),
               const BottomHaze(),
               SafeArea(
@@ -124,16 +131,15 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _dealSound(WidgetRef ref) {
-    final audio = ref.read(audioDirectorProvider);
-    try {
-      audio.play(AudioCue.cardFlip);
-    } on StateError {
-      // The gate throws if the director still thinks the phone is in a hand —
-      // possible for one frame when returning here from an abandoned match.
-      // A missing sound effect is not worth a crash on the home screen.
-    }
-  }
+  /// The page turn, for the deal and for every card the host taps over.
+  ///
+  /// Goes through `playCardTurn` rather than `play`, even though this screen is
+  /// as on-table as a screen gets. One path for one sound: if the card turn
+  /// ever needs to change — level, file, whether it plays at all — there should
+  /// be a single place that decides, and it should be the one that already
+  /// carries the argument for why this sound is allowed to exist.
+  void _flipSound(WidgetRef ref) =>
+      ref.read(audioDirectorProvider).playCardTurn();
 
   /// Secondary actions, small, in the top corner, out of the spread's way.
   Widget _corner(BuildContext context, AppLocalizations l10n) {

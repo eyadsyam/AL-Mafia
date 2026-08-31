@@ -306,7 +306,7 @@ class _PlayersTab extends StatelessWidget {
               ),
               Text(
                 EngineCopy.roleName(l10n, role),
-                style: type.body.copyWith(color: colors.accentGold),
+                style: type.body.emphasised.copyWith(color: colors.accentGold),
               ),
             ],
           ),

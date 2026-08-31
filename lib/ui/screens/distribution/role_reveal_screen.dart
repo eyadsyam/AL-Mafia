@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../platform/audio_director.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/role_card.dart';
 import '../match_controller.dart';
@@ -68,6 +69,11 @@ class RoleRevealScreen extends ConsumerWidget {
       identityHold: Duration(
         seconds: controller.engine.match.settings.identityHoldSeconds,
       ),
+      // The page turn. This is the one screen in the app where a sound plays
+      // while the phone is in somebody's hand, and `playCardTurn` is the only
+      // door that allows it — see the note on the method for why this
+      // particular sound cannot say anything about the card behind it.
+      onFlip: ref.read(audioDirectorProvider).playCardTurn,
       onDismissed: () {
         controller.confirmRevealed();
         if (controller.engine.match.currentActorSeat == null) {

@@ -56,10 +56,19 @@ class CardSpread extends StatefulWidget {
   /// Fired once when the entrance deal begins, for the dealing sound.
   final VoidCallback? onDealStarted;
 
+  /// Fired every time a card turns over, in either direction.
+  ///
+  /// A callback rather than a direct read of the audio provider, for the same
+  /// reason [onDealStarted] is one: this widget is pumped by four test entry
+  /// points and none of them should have to stand up an audio stack to draw a
+  /// card.
+  final VoidCallback? onFlip;
+
   const CardSpread({
     super.key,
     this.tiltSource = const LevelTiltSource(),
     this.onDealStarted,
+    this.onFlip,
   });
 
   @override
@@ -72,8 +81,8 @@ class CardSpread extends StatefulWidget {
 /// small phone and a tablet. Nothing here is in logical pixels.
 @immutable
 class _Slot {
-  /// Null for the card back, which sits under the others.
-  final Role? role;
+  /// Which painting sits in this slot.
+  final Role role;
 
   /// Centre, as a fraction of the stage: (0,0) is the middle.
   final Offset centre;
@@ -108,27 +117,23 @@ class _Slot {
 
 const double _deg = math.pi / 180;
 
-/// Back first so it paints underneath, then the four faces.
+/// The four faces, stepping across and down in a shallow arc, each clearing
+/// enough of the one behind it to show its corner letter — the letter is how a
+/// player finds the card they want to tap.
 ///
-/// The back is set high and near-upright so a band of it stays visible above
-/// the fan — it is the picture the whole table stares at for an entire match,
-/// and leaving it out of the spread would be leaving out the fifth card in the
-/// deck. The four faces then step across and down in a shallow arc, each
-/// clearing enough of the one behind it to show its corner letter, because the
-/// letter is how a player finds the card they want to tap.
+/// **There is no fifth card here.** An earlier version dealt the card back
+/// above the fan, on the argument that it is the picture the table stares at
+/// for a whole match and belongs in the deck. It read as an extra card rather
+/// than as the deck's lid: five objects on a screen whose whole subject is
+/// that there are *four* roles, and the one nobody may tap sat highest and
+/// took the eye first. The back has its own screen — every night turn opens on
+/// it — and does not need a second one. The four then move up into the space
+/// it left, which is the point: this screen is the four roles and nothing
+/// else.
 const List<_Slot> _slots = [
   _Slot(
-    role: null,
-    centre: Offset(0.03, -0.42),
-    angle: -9 * _deg,
-    depth: 0.0,
-    floatPeriod: 6.0,
-    floatPhase: 0.10,
-    from: Offset(0, -1.7),
-  ),
-  _Slot(
     role: Role.mafia,
-    centre: Offset(-0.40, -0.17),
+    centre: Offset(-0.40, -0.23),
     angle: -12 * _deg,
     depth: 0.35,
     floatPeriod: 5.3,
@@ -137,7 +142,7 @@ const List<_Slot> _slots = [
   ),
   _Slot(
     role: Role.doctor,
-    centre: Offset(-0.14, -0.07),
+    centre: Offset(-0.14, -0.13),
     angle: -5 * _deg,
     depth: 0.55,
     floatPeriod: 4.7,
@@ -146,7 +151,7 @@ const List<_Slot> _slots = [
   ),
   _Slot(
     role: Role.detective,
-    centre: Offset(0.14, -0.07),
+    centre: Offset(0.14, -0.13),
     angle: 5 * _deg,
     depth: 0.75,
     floatPeriod: 4.0,
@@ -155,7 +160,7 @@ const List<_Slot> _slots = [
   ),
   _Slot(
     role: Role.citizen,
-    centre: Offset(0.40, -0.17),
+    centre: Offset(0.40, -0.23),
     angle: 12 * _deg,
     depth: 1.0,
     floatPeriod: 5.7,
@@ -166,41 +171,31 @@ const List<_Slot> _slots = [
 
 class _CardSpreadState extends State<CardSpread>
     with TickerProviderStateMixin {
-  /// The four faces, shuffled into the four face slots for this visit.
+  /// The four faces, shuffled into the four slots for this visit.
   ///
   /// A fresh deal every time the home screen is built. The positions, angles,
   /// float periods and depths all stay exactly where they are — what changes is
   /// which painting lands in which place, which is what makes it feel like a
   /// hand being dealt rather than a fixed illustration.
-  ///
-  /// The card back is not part of the shuffle: it has its own slot behind the
-  /// fan and there is only one of it.
   late final List<_Slot> _dealt = _shuffleFaces();
 
   static List<_Slot> _shuffleFaces() {
-    final faces = [
-      for (final s in _slots)
-        if (s.role != null) s,
-    ];
-    final roles = [for (final s in faces) s.role]..shuffle();
+    final roles = [for (final s in _slots) s.role]..shuffle();
     return [
       for (final s in _slots)
-        if (s.role == null)
-          s
-        else
-          _Slot(
-            role: roles.removeLast(),
-            centre: s.centre,
-            angle: s.angle,
-            depth: s.depth,
-            floatPeriod: s.floatPeriod,
-            floatPhase: s.floatPhase,
-            from: s.from,
-          ),
+        _Slot(
+          role: roles.removeLast(),
+          centre: s.centre,
+          angle: s.angle,
+          depth: s.depth,
+          floatPeriod: s.floatPeriod,
+          floatPhase: s.floatPhase,
+          from: s.from,
+        ),
     ];
   }
 
-  /// The deal. One controller for all five cards; each reads its own window out
+  /// The deal. One controller for all four cards; each reads its own window out
   /// of it with an [Interval], so there is no pending `Timer` to leak and a
   /// `pumpAndSettle` settles the whole cascade.
   late final AnimationController _deal;
@@ -288,6 +283,9 @@ class _CardSpreadState extends State<CardSpread>
 
   void _toggle(Role role) {
     _skipDeal();
+    // Both directions: closing a card is a card turning over too, and a turn
+    // that is silent on the way back sounds like the sound failed.
+    widget.onFlip?.call();
     setState(() {
       if (_open == role) {
         _open = null;
@@ -310,8 +308,11 @@ class _CardSpreadState extends State<CardSpread>
 
         // Cards are sized off the shorter edge so the spread keeps its shape
         // when the window is wide, and capped so it does not become absurd on a
-        // tablet.
-        final cardWidth = math.min(stage.shortestSide * 0.46, 260.0);
+        // tablet. The fraction went up when the fifth card came out: four cards
+        // in the room five used to share is the visible point of removing the
+        // back, and a fan that kept its old size would have read as a screen
+        // with a hole in the top of it.
+        final cardWidth = math.min(stage.shortestSide * 0.50, 280.0);
         final cardHeight = cardWidth * 1.5;
 
         return GestureDetector(
@@ -329,8 +330,8 @@ class _CardSpreadState extends State<CardSpread>
                   dealIndex: _dealt.indexOf(slot),
                   idleSeconds: _seconds,
                   tilt: _tilt,
-                  flip: slot.role != null && slot.role == _open ? _flip : null,
-                  onTap: slot.role == null ? null : () => _toggle(slot.role!),
+                  flip: slot.role == _open ? _flip : null,
+                  onTap: () => _toggle(slot.role),
                 ),
             ],
           ),
@@ -466,7 +467,7 @@ class _SpreadCard extends StatelessWidget {
 /// One card: the painting, and its Arabic name and description on the back of
 /// the turn.
 class _Face extends StatelessWidget {
-  final Role? role;
+  final Role role;
   final Animation<double>? flip;
   final double depth;
 
@@ -502,13 +503,13 @@ class _Face extends StatelessWidget {
       child: ClipRRect(
         borderRadius: shape,
         child: Image.asset(
-          role == null ? AppImages.cardBack : _asset(role!),
+          _asset(role),
           // Same rule as everywhere else the art appears: contain, never cover.
           // These are finished paintings and the frame is part of the picture.
           fit: BoxFit.contain,
-          // Not optional. The source paintings are 1024×1536 and there are five
+          // Not optional. The source paintings are 1024×1536 and there are four
           // of them on this screen at once; decoded at full size that is about
-          // 30 MB of bitmaps, and the decode blocked the UI thread long enough
+          // 24 MB of bitmaps, and the decode blocked the UI thread long enough
           // to drop several hundred frames on launch — the splash could not
           // even fade out, because there were no frames for it to fade in.
           //
@@ -522,8 +523,6 @@ class _Face extends StatelessWidget {
         ),
       ),
     );
-
-    if (role == null) return painting;
 
     final animation = flip;
     if (animation == null) return _tappable(context, painting);
@@ -554,7 +553,7 @@ class _Face extends StatelessWidget {
 
   Widget _tappable(BuildContext context, Widget child) => Semantics(
         button: true,
-        label: EngineCopy.roleName(context.l10n, role!),
+        label: EngineCopy.roleName(context.l10n, role),
         child: child,
       );
 
@@ -602,8 +601,9 @@ class _Face extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    EngineCopy.roleName(context.l10n, role!),
-                    style: type.headline.copyWith(color: colors.textPrimary),
+                    EngineCopy.roleName(context.l10n, role),
+                    style:
+                        type.headline.emphasised.copyWith(color: colors.textPrimary),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: spacing.sm),
@@ -619,7 +619,7 @@ class _Face extends StatelessWidget {
                   SizedBox(height: spacing.sm),
                   Flexible(
                     child: Text(
-                      EngineCopy.roleDescription(context.l10n, role!),
+                      EngineCopy.roleDescription(context.l10n, role),
                       style: type.body.copyWith(color: colors.textSecondary),
                       textAlign: TextAlign.center,
                     ),

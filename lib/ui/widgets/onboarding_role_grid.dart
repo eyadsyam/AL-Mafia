@@ -33,7 +33,13 @@ import '../theme/mafia_theme.dart';
 /// sixty-pixel column is a stack of two-word lines. Two by two buys double the
 /// measure for the same area.
 class OnboardingRoleGrid extends StatelessWidget {
-  const OnboardingRoleGrid({super.key});
+  /// Fired every time one of the four tiles turns over.
+  ///
+  /// Same arrangement as `CardSpread.onFlip`: a callback, so the widget can be
+  /// pumped by a test or a preview without an audio stack behind it.
+  final VoidCallback? onFlip;
+
+  const OnboardingRoleGrid({super.key, this.onFlip});
 
   /// A stable handle on one tile.
   ///
@@ -64,6 +70,7 @@ class OnboardingRoleGrid extends StatelessWidget {
                     child: _RoleTile(
                       key: tileFor(roles[row + column]),
                       role: roles[row + column],
+                      onFlip: onFlip,
                     ),
                   ),
                 ),
@@ -88,8 +95,9 @@ class OnboardingRoleGrid extends StatelessWidget {
 /// the duplication is about forty lines and is the cheaper of the two.
 class _RoleTile extends StatefulWidget {
   final Role role;
+  final VoidCallback? onFlip;
 
-  const _RoleTile({super.key, required this.role});
+  const _RoleTile({super.key, required this.role, this.onFlip});
 
   @override
   State<_RoleTile> createState() => _RoleTileState();
@@ -120,6 +128,8 @@ class _RoleTileState extends State<_RoleTile>
   }
 
   void _toggle() {
+    // Both directions: a card turning back over is still a card turning over.
+    widget.onFlip?.call();
     setState(() => _open = !_open);
     if (_open) {
       _flip.forward();
@@ -245,7 +255,7 @@ class _RoleTileState extends State<_RoleTile>
                 children: [
                   Text(
                     EngineCopy.roleName(l10n, widget.role),
-                    style: type.title.copyWith(color: colors.textPrimary),
+                    style: type.title.emphasised.copyWith(color: colors.textPrimary),
                   ),
                   SizedBox(height: spacing.xs),
                   Flexible(

@@ -214,7 +214,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           summary.playerNames.join(l10n.listSeparator),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: type.bodySmall.copyWith(
+                          style: type.bodySmall.emphasised.copyWith(
                             color: colors.textSecondary,
                           ),
                         ),

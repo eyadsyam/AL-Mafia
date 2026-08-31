@@ -9,7 +9,8 @@ import '../../widgets/onboarding_role_grid.dart';
 import '../../widgets/textured_surface.dart';
 import 'onboarding_chapters.dart';
 
-/// The first-run deck (S-19): six cards that teach the game and the phone.
+/// The first-run deck (S-19): seven cards that teach the game, the phone and
+/// what the app itself will not tell anyone.
 ///
 /// ## Why this exists next to the rules screen rather than instead of it
 ///
@@ -17,15 +18,18 @@ import 'onboarding_chapters.dart';
 /// argument mid-match. This is a *first read*, in the order the game happens,
 /// one idea at a time, ending in a match. They are different jobs and they fail
 /// differently — a reference that has to be paged through is useless in an
-/// argument, and a first read that opens as six stacked walls of text does not
-/// get read at all. Card 6 links to the reference, so the deck is also how a new
-/// host finds it.
+/// argument, and a first read that opens as seven stacked walls of text does
+/// not get read at all. The last card links to the reference, so the deck is
+/// also how a new host finds it.
 ///
-/// The chapter that justifies the whole feature is the fifth. Everything else
-/// here is also in the rules; the etiquette of the pass is not, because it is
-/// not a rule — it is the handful of physical habits without which this game
-/// leaks through its players rather than through its pixels, and a table that
-/// has never played pass-the-phone has no way to guess them.
+/// The two chapters that justify the whole feature are the fifth and the sixth,
+/// and they are a pair. Everything else here is also in the rules. The etiquette
+/// of the pass is not, because it is not a rule — it is the handful of physical
+/// habits without which this game leaks through its players rather than through
+/// its pixels, and a table that has never played pass-the-phone has no way to
+/// guess them. What the *device* withholds is not in the rules either, and is
+/// harder still to discover: every one of those guarantees is invisible while
+/// it is working. See `OnboardingChapter.secrecy`.
 ///
 /// ## Why nothing here is Article I's business
 ///
@@ -55,11 +59,19 @@ class OnboardingScreen extends StatefulWidget {
   /// The last card's secondary action: the full rules reference.
   final VoidCallback onRules;
 
+  /// Fired when one of the roles chapter's four cards is turned over.
+  ///
+  /// A callback like the other three, so this screen stays free of Riverpod —
+  /// the deck is pumped by widget tests and a preview, and none of them wants
+  /// an audio stack.
+  final VoidCallback? onCardFlip;
+
   const OnboardingScreen({
     super.key,
     required this.onSkip,
     required this.onStartMatch,
     required this.onRules,
+    this.onCardFlip,
   });
 
   static const Key deck = ValueKey('onboarding_deck');
@@ -157,10 +169,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       numeral: chapter.numeral,
       title: chapter.title(l10n),
       body: chapter.body(l10n),
-      // Null for all six today. The chapter table is where an `onboarding_*`
-      // painting will be named once tier-3 art exists; see [OnboardingCard].
-      image: null,
-      child: chapter.interactive ? const OnboardingRoleGrid() : null,
+      image: chapter.image,
+      child: chapter.interactive
+          ? OnboardingRoleGrid(onFlip: widget.onCardFlip)
+          : null,
     );
   }
 
@@ -201,7 +213,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 ///
 /// This is what carries the count exactly — the pile behind the card tops out
 /// at two, so "how much is left" is this row's job. It is a single semantics
-/// node reading "card 3 of 6" rather than six unlabelled dots.
+/// node reading "card 3 of 7" rather than seven unlabelled dots.
 class _Pips extends StatelessWidget {
   final int current;
   final int total;
