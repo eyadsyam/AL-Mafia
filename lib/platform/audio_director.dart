@@ -17,9 +17,11 @@ enum PhoneLocation {
 
 /// The sound catalogue from the design system, §8.
 ///
-/// Every cue is on-table by construction: there is deliberately no in-hand cue
-/// to add one to. If a future feature seems to need one, that is a signal to
-/// re-read L-11 rather than to extend this enum.
+/// Every cue here is on-table by construction and [AudioDirector.play] refuses
+/// to fire any of them in a hand. The single exception is [cardFlip], and it is
+/// deliberately not reachable through the normal path: it has its own method,
+/// [AudioDirector.playCardTurn], which takes no argument precisely so that the
+/// exception cannot be widened by passing it something else.
 enum AudioCue {
   /// "Night falls…" — deep calm narrator over a faint ambient layer.
   nightFalls(narration: true, sound: 'audio/night_falls.ogg'),
@@ -42,8 +44,12 @@ enum AudioCue {
   /// Single deep drum hit on an elimination reveal.
   eliminationReveal(narration: false, sound: 'audio/elimination_reveal.ogg'),
 
-  /// Subtle whoosh for the card flip — plays on-table only, during the
-  /// distribution phase when all players can see the flip.
+  /// A page turning, 0.18s, at a sixth the level of every other cue.
+  ///
+  /// The only cue that may sound while the phone is in a hand, and it may do
+  /// so only through [AudioDirector.playCardTurn] — never through
+  /// [AudioDirector.play], which still throws. Read the note there before
+  /// using it anywhere new.
   cardFlip(narration: false, sound: 'audio/card_flip.ogg'),
 
   /// Soft tick through the last ten seconds of a phase timer.
@@ -159,19 +165,38 @@ class AudioDirector {
   }
 
   /// The looping score asset, relative to `assets/`.
+  ///
+  /// The path is fixed and the music behind it is not. `tool/normalise_score.py`
+  /// takes whatever is in `raw_assets/audio/` and writes this file, closing the
+  /// loop and setting the level, so changing the score is a source file and one
+  /// script run with nothing to edit here.
   static const String scoreLoop = 'audio/score_loop.ogg';
 
-  /// Quiet enough to talk over — but the volume is not what does that work.
+  /// Quiet enough to talk over — and the volume is only half of what does that.
   ///
-  /// The shipped bed is empty between 1 and 4 kHz (a 13 dB notch at 2.2 kHz),
-  /// which is the band that carries consonants and therefore speech
-  /// intelligibility. That notch is why a table can converse over it at a
-  /// normal volume without anyone raising their voice; the level below is only
-  /// setting how present it feels.
+  /// **The number this is chosen against is the file's level, so the two move
+  /// together or not at all.** The shipped bed is −20 dBFS RMS, which puts 0.5
+  /// at about −26 dBFS in the room. `tool/normalise_score.py` gains every
+  /// supplied piece of music to that RMS precisely so this constant stays
+  /// meaningful across a change of music: a mastered track arrives 7 or 8 dB
+  /// louder than the bed it replaces, and dropping one in unregauged would
+  /// double the score's loudness without anything here appearing to change.
   ///
-  /// The file is −20 dBFS RMS, so 0.5 lands it near −26 dBFS — the value the
-  /// asset's own integration note specifies. Do not raise it to compensate for
-  /// a quiet phone; raise the phone.
+  /// The other half is the speech band. The original bed was synthesised with a
+  /// literal hole in it — 0.00% of its energy between 1 and 4 kHz, where
+  /// consonants live — which is what let a table converse over it without
+  /// anyone raising their voice. **A real piece of music has no such hole and
+  /// the current score does not have one.** What it has instead is very little
+  /// up there to begin with: 0.91% of its energy in that band, about −40 dBFS
+  /// in absolute terms and −46 dBFS at this volume, which is far enough under a
+  /// speaking voice to be the same practical result by a different route.
+  ///
+  /// That is a measurement of *this* music, not a property of the design. A
+  /// brighter piece would measure several percent and would want either a notch
+  /// or a lower number here, and `normalise_score.py` prints the figure on
+  /// every run so the question is asked at the point of the swap.
+  ///
+  /// Do not raise this to compensate for a quiet phone; raise the phone.
   static const double scoreVolume = 0.5;
 
   /// Configures the audio session and preloads every cue the app can fire.
@@ -214,6 +239,9 @@ class AudioDirector {
   /// Throwing rather than returning quietly is deliberate. A swallowed call
   /// would simply never be heard in testing, and the first person to notice
   /// would be a player who had worked out the pattern.
+  ///
+  /// This throws for **every** cue, [AudioCue.cardFlip] included. The card turn
+  /// has its own door — [playCardTurn] — and the argument for it is there.
   void play(AudioCue cue) {
     if (_location == PhoneLocation.inHand) {
       throw StateError(
@@ -235,6 +263,48 @@ class AudioDirector {
 
     final narratorLine = narratorLines[cue];
     if (narratorLine != null) _emit(narratorLine);
+  }
+
+  /// The page-turn, and the one sound allowed under a player's own thumb.
+  ///
+  /// # Why this exists when [play] throws
+  ///
+  /// Article I rule 2 stops a cue *firing* during a private turn because the
+  /// firing is the tell: a sound that arrives partway through somebody's turn
+  /// reports what stage that turn has reached, and stages differ by role. The
+  /// rule is about what a sound can *say*, not about whether a sound exists.
+  ///
+  /// A card turning says one thing and it is the same thing for everyone:
+  ///
+  ///  * **it cannot encode the card.** The flip that opens a turn happens
+  ///    *before* the holder has seen anything. At the instant it sounds, the
+  ///    person holding the phone knows exactly as much as the table does;
+  ///  * **it cannot encode the role.** One file, one level, one length, fired
+  ///    from a code path with no branch on [AudioCue] and no branch on
+  ///    anything else. All four roles flip, all four conceal after the same
+  ///    five seconds, and all four sound identical doing it;
+  ///  * **it adds no channel the table did not already have.** A player who
+  ///    chooses to look again lengthens their own turn, in full view of
+  ///    everyone, and `RoleCard` already documents that as a choice rather than
+  ///    a tell. A quiet rustle accompanying a choice the room can already see
+  ///    somebody making is not new information.
+  ///
+  /// # What keeps it narrow
+  ///
+  /// It takes **no argument**. There is no way to reach any other cue through
+  /// it, so the exception cannot grow by one call site at a time — which is how
+  /// this kind of exception usually grows. It still respects [muted], and it
+  /// still appends to [emitted], so the leakage suites keep reading a truthful
+  /// log rather than one with a hole in it where the in-hand sounds were.
+  ///
+  /// Everything else about the gate is unchanged: [play] throws for every cue
+  /// including [AudioCue.cardFlip].
+  void playCardTurn() {
+    if (muted) return;
+    const cue = AudioCue.cardFlip;
+    emitted.add(cue);
+    final sound = cue.sound;
+    if (sound != null) _emit(sound);
   }
 
   /// Hands one asset to the backend. Fire-and-forget: a phase transition must

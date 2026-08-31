@@ -73,4 +73,61 @@ void main() {
               '$offenders');
     });
   });
+
+  /// The one sound allowed under a player's own thumb, and the fence round it.
+  ///
+  /// The card turn is an exception to the gate above, and the danger with an
+  /// exception is not the exception — it is the second one, added later,
+  /// because the first one was already there. These tests are the fence: the
+  /// door is one method, it takes no argument, and the ordinary door is still
+  /// shut.
+  group('the card turn is the only sound allowed in a hand', () {
+    test('it plays with the phone in a hand', () {
+      final director = AudioDirector()..setLocation(PhoneLocation.inHand);
+      director.playCardTurn();
+      expect(director.emitted, equals([AudioCue.cardFlip]));
+    });
+
+    test('the ordinary door is still shut, cardFlip included', () {
+      final director = AudioDirector()..setLocation(PhoneLocation.inHand);
+      // Not "every cue except cardFlip". Every cue.
+      for (final cue in AudioCue.values) {
+        expect(() => director.play(cue), throwsStateError,
+            reason: '$cue got through AudioDirector.play while the phone was '
+                'in somebody\'s hand. The card turn has its own method; the '
+                'gate is not the place to make room for it.');
+      }
+    });
+
+    test('it takes no argument, so the exception cannot be widened', () {
+      // Structural, and the reason is in the failure mode rather than in the
+      // code: an exception that accepts a cue is one call site away from being
+      // a general in-hand channel, and the call site always looks reasonable
+      // on the day it is written.
+      final source =
+          File('lib/platform/audio_director.dart').readAsStringSync();
+      expect(source.contains('void playCardTurn()'), isTrue,
+          reason: 'playCardTurn has grown a parameter. It exists precisely '
+              'because it cannot be pointed at anything else.');
+    });
+
+    test('a master mute takes it with everything else', () {
+      final director = AudioDirector()
+        ..setLocation(PhoneLocation.inHand)
+        ..muted = true;
+      director.playCardTurn();
+      expect(director.emitted, isEmpty);
+    });
+
+    test('it is the same sound whatever the card is', () {
+      // There is no role in its signature and no role in its body, so this can
+      // only be asserted the way the type already guarantees it: one cue, one
+      // file, reached from a method that knows nothing about the match.
+      expect(AudioCue.cardFlip.sound, isNotNull);
+      expect(AudioCue.cardFlip.narration, isFalse,
+          reason: 'a narration switch that silenced the card turn would make '
+              'the turn sound different for hosts with narration off — same '
+              'shape of tell, one setting away');
+    });
+  });
 }

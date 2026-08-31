@@ -146,26 +146,55 @@ def elimination_reveal() -> np.ndarray:
 
 
 def card_flip() -> np.ndarray:
-    """Subtle whoosh as a card turns over.
+    """A page turning. Short, papery, and quiet enough to be almost subliminal.
 
-    Filtered noise with a moving passband, no tone at all. A card has no pitch,
-    and anything pitched here would read as a *result* rather than a movement.
+    No tone at all — a card has no pitch, and anything pitched here would read
+    as a *result* rather than a movement.
+
+    # Why this is not the whoosh it used to be
+
+    The first version was a 0.42s symmetric noise sweep: slow in, slow out, no
+    transient. That is the sound of something large passing, and at the speed a
+    thumb turns a card it read as a swoosh rather than as paper. Paper is three
+    things this now has and that did not:
+
+      * **a transient** — the moment the sheet releases. Everything after it is
+        decay, so the envelope is fast-attack rather than symmetric;
+      * **rustle** — paper does not make one sound, it makes a few hundred tiny
+        ones. The noise is amplitude-jittered at audio rate so the texture is
+        granular instead of smooth;
+      * **brightness that dies fast** — the crackle is high and short-lived
+        while the body of the sheet is low and lasts a little longer, so the
+        two are enveloped separately and summed.
+
+    # Why it is short
+
+    This now fires on a surface a player is holding, once per turn plus once
+    per look (see AudioDirector.playCardTurn). A long cue there would still be
+    sounding when the next thing happens, and a cue that overlaps the next
+    moment is a cue the table can time. 0.18s is over before anyone can begin
+    to.
     """
-    n = int(SR * 0.42)
+    n = int(SR * 0.18)
     t = np.arange(n) / SR
     rng = np.random.default_rng(5)
-    noise = rng.normal(0, 1, n)
 
-    # Sweep a one-pole low-pass from bright to dull by mixing the raw noise with
-    # a running average whose weight rises over the length of the cue. Cheap,
-    # and it gives the sense of something passing and settling.
-    smooth = np.convolve(noise, np.ones(40) / 40.0, mode="same")
-    mix = np.clip(t / 0.30, 0.0, 1.0)
-    body = noise * (1 - mix) + smooth * mix
+    # The rustle: white noise whose amplitude is itself noisy, which is what
+    # turns a smooth hiss into a granular one.
+    grain = np.abs(rng.normal(0, 1, n)) ** 1.5
+    grain /= grain.max()
+    noise = rng.normal(0, 1, n) * (0.35 + 0.65 * grain)
 
-    # Slow in, slow out: a percussive envelope would make it a hit, not a turn.
-    env = np.sin(np.pi * np.clip(t / (n / SR), 0.0, 1.0)) ** 1.6
-    return body * env * 0.5
+    # Split it into a bright crackle and a duller body by subtracting a running
+    # average from the signal (high part) and keeping the average (low part).
+    body = np.convolve(noise, np.ones(24) / 24.0, mode="same")
+    crackle = noise - body
+
+    # Fast attack, exponential decay, the crackle dying about twice as fast as
+    # the body. `1 - exp` rather than a step so there is no click on the front.
+    attack = 1.0 - np.exp(-t / 0.004)
+    return (crackle * attack * np.exp(-t / 0.035)
+            + body * 1.4 * attack * np.exp(-t / 0.070))
 
 
 def timer_warning() -> np.ndarray:
@@ -350,11 +379,27 @@ def score_loop() -> np.ndarray:
 # because a fade to silence at each end is an audible dip at the seam.
 LOOPS = {"score_loop"}
 
-# `score_loop` is NOT here. The shipped bed is a supplied asset — a 120.000s
-# bare-fifth drone with a 13 dB notch at 2.2 kHz — and regenerating it from the
-# synthesiser below would replace a carefully shaped file with a rough one. The
-# `score_loop()` function is kept as a reference implementation and as the thing
-# to fall back on if the asset is ever lost.
+# Cues that want a level of their own, as a peak in dBFS-ish linear terms. The
+# default is 0.708 (-3 dBFS), which is right for something the whole table is
+# meant to hear across a room.
+#
+# `card_flip` is the exception and it is a large one: -15 dBFS against -3, a
+# factor of six down. It is the only cue that sounds while somebody is holding
+# the phone, and what it has to be is *felt* rather than heard — the audible
+# edge of a gesture, not an announcement that a gesture happened. It still
+# carries, because it is a transient and the bed it sits over is not; the level
+# is set so it reads as paper in the holder's hand rather than as the app
+# making a noise at the table.
+PEAK = {"card_flip": 0.18}
+
+# `score_loop` is NOT here, and running this script does not touch it. The
+# shipped bed is supplied music, prepared by `tool/normalise_score.py` from
+# whatever is in `raw_assets/audio/` — currently `Unresolved Room`, 309.5s,
+# cross-faded closed and gained to -20 dBFS RMS. Before that it was a 120.000s
+# synthesised bare-fifth drone with a 13 dB notch at 2.2 kHz, which is what the
+# `score_loop()` function below still produces; it is kept as a reference
+# implementation and as the thing to fall back on if there is ever no music to
+# ship. Regenerating the shipped file from it would silently replace the score.
 CUES = {
     "speaker_change": speaker_change,
     "timer_end": timer_end,
@@ -369,17 +414,28 @@ CUES = {
 
 def main() -> None:
     ffmpeg = shutil.which("ffmpeg")
+
+    # Naming cues does only those. One cue at a time matters here for the same
+    # reason it does in `normalise_video.py`: these files are shipped assets,
+    # and a full run rewrites every one of them to re-tune a single sound.
+    wanted = [a for a in sys.argv[1:] if not a.startswith("-")]
+    unknown = [w for w in wanted if w not in CUES]
+    if unknown:
+        sys.exit("FAIL: no such cue(s): " + ", ".join(unknown)
+                 + "\n  known: " + ", ".join(sorted(CUES)))
+    cues = {k: v for k, v in CUES.items() if not wanted or k in wanted}
+
     print("synthesising cues")
 
     wavs = []
-    for name, fn in CUES.items():
+    for name, fn in cues.items():
         looping = name in LOOPS
         wavs.append(_write(
             name, fn(),
             fade=not looping,
             # The score plays for the length of a match under a table of people
             # talking. -20 dBFS is present without competing.
-            peak_level=0.10 if looping else 0.708,
+            peak_level=PEAK.get(name, 0.10 if looping else 0.708),
         ))
 
     if not ffmpeg:
