@@ -1061,7 +1061,7 @@ abstract class AppLocalizations {
   /// No description provided for @swipeToReveal.
   ///
   /// In en, this message translates to:
-  /// **'Swipe right to flip the card'**
+  /// **'Swipe the card any way to flip it'**
   String get swipeToReveal;
 
   /// No description provided for @passThePhone.
@@ -1477,6 +1477,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This is the part that is won and lost in your hands, not on the screen:\n— Hold the phone tilted towards you, with its back to the rest of the table.\n— Never look at the phone while someone else is holding it.\n— Do not change your face while your card is showing.\n— Never hand the phone on with anything open on it.'**
   String get onboardingPassBody;
+
+  /// Heading of the onboarding card about what the app itself keeps secret.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing leaks'**
+  String get onboardingSecrecyTitle;
+
+  /// Body of the onboarding card about what the app itself keeps secret.
+  ///
+  /// In en, this message translates to:
+  /// **'The app has one job while a match is running: give nothing away. The only way to cheat at this game is to learn something nobody told you.\n— Every turn takes the same time, holds the same screen brightness and shows the same layout, whatever card you drew.\n— The phone makes no sound at all while it is in somebody\'s hand.\n— Your card hides itself after a few seconds, and the phone never passes on with anything still open.\n— A saved group remembers names and seating order. It never remembers who was what.'**
+  String get onboardingSecrecyBody;
 
   /// No description provided for @onboardingWinTitle.
   ///

@@ -552,7 +552,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get holdToConfirmIdentity => 'دوس واستني عشان تشوف كارتك';
 
   @override
-  String get swipeToReveal => 'اسحب لليمين عشان تقلب الكارت';
+  String get swipeToReveal => 'اسحب الكارت في أي اتجاه عشان يتقلب';
 
   @override
   String get passThePhone => 'سلّم الموبايل';
@@ -787,6 +787,13 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get onboardingPassBody =>
       'دي اللعبة اللي بتتكسب وتتخسر من إيدك مش من الشاشة:\n— امسك الموبايل مايل ناحيتك، وخلي ضهره لباقي الترابيزة.\n— متبصّش في موبايل حد وهو ماسكه.\n— متغيّرش وشّك وإنت شايف كارتك.\n— متسلّمش الموبايل وهو مفتوح على حاجة.';
+
+  @override
+  String get onboardingSecrecyTitle => 'السرّ محفوظ';
+
+  @override
+  String get onboardingSecrecyBody =>
+      'التطبيق شغلته الوحيدة طول المباراة إنه ميفضحش حاجة. الغش في اللعبة دي مالوش طريق غير إنك تعرف حاجة محدش قالهالك.\n— كل دور بياخد نفس الوقت، وبنفس إضاءة الشاشة، وبنفس الشكل، مهما كان الكارت اللي معاك.\n— الموبايل مبيطلّعش أي صوت وهو في إيد حد.\n— الكارت بيتقفل لوحده بعد كام ثانية، والموبايل عمره ما بيتسلّم وهو مفتوح على حاجة.\n— المجموعة المحفوظة بتفتكر الأسامي والترتيب بس. عمرها ما بتفتكر مين كان إيه.';
 
   @override
   String get onboardingWinTitle => 'الفوز';

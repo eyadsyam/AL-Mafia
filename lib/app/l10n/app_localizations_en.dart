@@ -559,7 +559,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get holdToConfirmIdentity => 'Press and hold to see your card';
 
   @override
-  String get swipeToReveal => 'Swipe right to flip the card';
+  String get swipeToReveal => 'Swipe the card any way to flip it';
 
   @override
   String get passThePhone => 'Pass the phone';
@@ -798,6 +798,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingPassBody =>
       'This is the part that is won and lost in your hands, not on the screen:\n— Hold the phone tilted towards you, with its back to the rest of the table.\n— Never look at the phone while someone else is holding it.\n— Do not change your face while your card is showing.\n— Never hand the phone on with anything open on it.';
+
+  @override
+  String get onboardingSecrecyTitle => 'Nothing leaks';
+
+  @override
+  String get onboardingSecrecyBody =>
+      'The app has one job while a match is running: give nothing away. The only way to cheat at this game is to learn something nobody told you.\n— Every turn takes the same time, holds the same screen brightness and shows the same layout, whatever card you drew.\n— The phone makes no sound at all while it is in somebody\'s hand.\n— Your card hides itself after a few seconds, and the phone never passes on with anything still open.\n— A saved group remembers names and seating order. It never remembers who was what.';
 
   @override
   String get onboardingWinTitle => 'Winning';
