@@ -93,16 +93,21 @@ void main() {
       //
       // # Why this is a direction and not "neutral to within 6 levels"
       //
-      // The original test asserted the channels agreed to within 6 levels. The
-      // shipped ramp does not satisfy that and is not trying to: it is a
-      // deliberately *cool* ladder (`#0D0F14` spreads 7 levels, `#2A3140`
-      // spreads 22), because a cool cast is the direction *away* from skin tone
-      // and therefore strictly safer at a dark table than a neutral grey. A
-      // literal neutrality bound would fail the palette for being too far in
-      // the safe direction, which is the wrong shape of test.
+      // The original test asserted the channels agreed to within 6 levels, and
+      // the ramp it was written against did not satisfy it: `#0D0F14` spread 7
+      // levels and `#2A3140` spread 22, deliberately cool, on the argument that
+      // cool is the direction away from skin tone. A literal neutrality bound
+      // would have failed that palette for being too far in the *safe*
+      // direction, which is the wrong shape of test — so this became a
+      // direction instead.
       //
-      // So: blue leads, red never leads. That admits the cool ramp, rejects
-      // every warm one, and cannot be satisfied by drifting toward amber.
+      // The ramp has since been neutralised (see `AppColors.groundBase`) at the
+      // same luminances, because the cool surplus was visible as blue on every
+      // panel and did not match the artwork. The direction still holds, now
+      // with equality, and it is still the right shape: it admits a neutral
+      // ramp and a cool one, rejects every warm one, and cannot be satisfied by
+      // drifting toward amber. What it protects is the light on the holder's
+      // face, and grey does not warm a face.
       final ladder = <String, Color>{
         'surfaceBase': colors.surfaceBase,
         'surfaceRaised': colors.surfaceRaised,

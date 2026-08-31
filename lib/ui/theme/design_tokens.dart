@@ -66,7 +66,7 @@ class MafiaColors extends ThemeExtension<MafiaColors> {
   /// ## One ground, everywhere
   ///
   /// The four surfaces are a single cool near-black hue family at four
-  /// brightnesses — `#0D0F14` / `#161A22` / `#1F2530` / `#2A3140`. The blue
+  /// brightnesses — `#0F0F0F` / `#1A1A1A` / `#252525` / `#313131`. The blue
   /// channel leads at every step, which is the direction *away* from skin tone.
   ///
   /// There is deliberately no warm/cold register split any more. Doc 05 rule 3

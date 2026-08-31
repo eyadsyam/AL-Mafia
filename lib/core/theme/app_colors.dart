@@ -61,23 +61,39 @@ abstract final class AppColors {
   /// entirely on it has no headroom to raise a panel off the ground. So the
   /// ground sits a few levels above it and the ladder steps up from there.
   ///
-  /// # Why it is cool and not warm
+  /// # Why it is neutral, and why that is not a relaxation of rule 3
   ///
-  /// Doc 05 rule 3: no warm colour at night. 13/15/20 — the blue channel leads,
-  /// which is the direction away from skin tone. A warm ground is conspicuous on
-  /// a face across a dark table, and the whole point of this app is that the
-  /// person opposite you learns nothing from the light coming off your screen.
+  /// Doc 05 rule 3 is **no warm colour at night**, and neutral is not warm.
+  /// The ramp used to go a good deal further than the rule asked: 13/15/20,
+  /// with the blue channel leading by 7 levels here and by 22 at
+  /// [groundBorder]. That surplus was not free. It was plainly readable as blue
+  /// on every panel and dialog in the app, and it put the interface in a
+  /// different colour family from the artwork it frames — the paintings and the
+  /// backdrops measure neutral charcoal to within half a level.
+  ///
+  /// So the ladder is now neutral **at the luminance it already had**: 15, 26,
+  /// 37 and 49 out of 255, which are the Rec. 709 luminances of the four values
+  /// it replaced, to the nearest level. Nothing about how much light the screen
+  /// throws at the table has changed. Only the hue has, and only as far as
+  /// grey.
+  ///
+  /// # The step after this one is the one not to take
   ///
   /// An earlier revision made this ground warm tanned leather (`#241C14`) and
-  /// logged the deviation as a trade-off. That has been reverted: the ground is
-  /// near-black again on every screen, and rule 3 holds in its original form.
-  static const Color groundBase = Color(0xFF0D0F14);
+  /// logged the deviation as a trade-off. It was reverted, and the reason is
+  /// worth keeping in view from here: a warm ground throws light the colour of
+  /// skin onto the face of whoever is holding the phone, and it cost roughly
+  /// seventeen times the ground luminance to do it. Neutral is the end of this
+  /// road, not a waypoint on it. `role_accent_parity_test.dart` holds
+  /// `blue >= green >= red` at every rung, which this satisfies with equality
+  /// and a warm ramp cannot satisfy at all.
+  static const Color groundBase = Color(0xFF0F0F0F);
 
-  /// The coat bodies and interior folds. 22nd percentile, luminance 8.0.
+  /// The coat bodies and interior folds. 22nd percentile, luminance 10.1.
   ///
   /// Kept as the measured value because it is still the right colour for the
   /// *card* interior. It is no longer the panel colour — see [groundRaised].
-  static const Color midCharcoal = Color(0xFF080808);
+  static const Color midCharcoal = Color(0xFF0A0A0B);
 
   /// Panels and tiles, one step up from the ground.
   ///
@@ -85,18 +101,25 @@ abstract final class AppColors {
   /// ground is: a panel has to sit *above* the surface it is on. The measured
   /// charcoal is darker than the ground, so using it made every panel look like
   /// a hole cut in the table.
-  static const Color groundRaised = Color(0xFF161A22);
+  ///
+  /// This is the rung where the old blue lean was most visible — a panel is a
+  /// large flat area of one colour, which is the condition under which the eye
+  /// finds a tint of a few levels easily. 26/255, the luminance `#161A22` had.
+  static const Color groundRaised = Color(0xFF1A1A1A);
 
-  /// Dialogs, sheets and pressed states, one step up again.
-  static const Color groundOverlay = Color(0xFF1F2530);
+  /// Dialogs, sheets and pressed states, one step up again. 37/255, the
+  /// luminance `#1F2530` had.
+  static const Color groundOverlay = Color(0xFF252525);
 
   /// Hairlines. Light enough to draw an edge, dark enough to stay a hairline
   /// rather than a highlight.
   ///
-  /// These four tones are one hue family at four brightnesses — the blue
-  /// channel leads at every step, by the same few levels. That is what keeps the
-  /// ladder from acquiring a cast as it climbs.
-  static const Color groundBorder = Color(0xFF2A3140);
+  /// These four tones are one hue family at four brightnesses — now the same
+  /// hue family the artwork is in, which is none. A ladder whose lean grows as
+  /// it climbs acquires a cast exactly where it is most visible: this rung was
+  /// 42/49/64, a 22-level spread, and it drew every hairline in the app in
+  /// blue-grey. 49/255, the luminance it had.
+  static const Color groundBorder = Color(0xFF313131);
 
   /// The ornament shadows and secondary detail in the painted frames.
   /// 45th percentile, luminance 19.3.
@@ -112,25 +135,25 @@ abstract final class AppColors {
   /// surfaces rather than a whisper above them.
   static const Color paleSilver = Color(0xFF5A5852);
 
-  /// The dimmest tone still legible as text. 84th percentile, luminance 140.
+  /// The dimmest tone still legible as text. 84th percentile, luminance 140.2.
   ///
   /// Disabled controls, tertiary labels, placeholders.
-  static const Color mutedGrey = Color(0xFF908C82);
+  static const Color mutedGrey = Color(0xFF908C83);
 
-  /// Receding card detail. 92nd percentile, luminance 168.
+  /// Receding card detail. 92nd percentile, luminance 169.1.
   ///
   /// Body text and secondary information — clearly subordinate to bone white
   /// and still far above the 4.5:1 Article VII floor on any surface here.
-  static const Color secondaryGrey = Color(0xFFADA89E);
+  static const Color secondaryGrey = Color(0xFFADA99F);
 
   /// The painted card border and its aged-paper ground. 96.5th percentile,
-  /// luminance 188.
+  /// luminance 189.3.
   ///
   /// The app's one accent, used for buttons and active states. It measures
   /// close to neutral because the paintings *are* close to neutral; the warmth
   /// people read into a parchment border is mostly its brightness against the
   /// charcoal, not its hue.
-  static const Color agedParchment = Color(0xFFC1BCB1);
+  static const Color agedParchment = Color(0xFFC2BDB2);
 
   /// The brightest highlights — the beadwork catch-light, the pale edge of a
   /// lapel, the printing on the card itself.

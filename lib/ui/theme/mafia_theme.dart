@@ -165,6 +165,57 @@ class MafiaTheme {
   }
 }
 
+/// The one weight change the app makes, and the two kinds of word it is for.
+///
+/// **Player names and role names are set in the heaviest cut their family
+/// ships.** Those are the two things a person actually looks for on any screen
+/// in this game — whose turn it is, who is being voted for, what the card says
+/// — and they are read at arm's length, across a table, in a dim room, usually
+/// while somebody is talking. Everything else on the screen is scaffolding for
+/// them.
+///
+/// # Why an extension and not another token
+///
+/// Names appear at four different sizes: [MafiaTypography.display] on the
+/// identity gate and the handoff pad, [MafiaTypography.title] on the speaker
+/// card, [MafiaTypography.body] in every list and tally, and inside a sentence
+/// here and there. A `name` token would have to pick one of those and would be
+/// wrong on the other three. This modifies whichever style the layout already
+/// chose, so emphasis and size stay independent.
+///
+/// # Why it is not `FontWeight.bold`
+///
+/// The two families answer to different mechanisms and neither answers to
+/// `w700`:
+///
+///  * **Cairo is variable.** The display styles request weight on the `wght`
+///    axis, and setting [TextStyle.fontWeight] instead leaves the font at its
+///    default instance and invites the platform to synthesise a fake bold,
+///    which smears at display sizes. So the axis value is raised to 900.
+///  * **IBM Plex Sans Arabic ships 400, 500 and 600 and nothing above.**
+///    `w700` on it is a request for a cut that is not in the bundle, and what
+///    comes back is either the 600 or a synthetic smear depending on the
+///    platform. 600 — SemiBold — is the real top of that family and is what
+///    this asks for.
+///
+/// Nothing about size, line height or figures changes, which matters more than
+/// it sounds: a name that changed *width* when it was emphasised would shift
+/// the row it sits in, and rows shifting on a shared screen is the kind of
+/// motion this app spends a lot of effort not having.
+extension MafiaEmphasis on TextStyle {
+  /// This style in the heaviest cut its family actually ships.
+  TextStyle get emphasised {
+    final axes = fontVariations;
+    if (axes != null && axes.any((axis) => axis.axis == 'wght')) {
+      return copyWith(fontVariations: <FontVariation>[
+        for (final axis in axes)
+          if (axis.axis == 'wght') const FontVariation('wght', 900) else axis,
+      ]);
+    }
+    return copyWith(fontWeight: FontWeight.w600);
+  }
+}
+
 /// Convenient extensions on [BuildContext] to access theme tokens.
 extension MafiaThemeX on BuildContext {
   /// The shadow ladder. One light source; see [MafiaElevation].
