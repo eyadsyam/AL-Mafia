@@ -12,6 +12,9 @@ import '../ui/l10n_ext.dart';
 import '../ui/screens/match_controller.dart';
 import '../ui/screens/match_route.dart';
 import '../ui/screens/onboarding/onboarding_screen.dart';
+import '../ui/screens/online/lobby_screen.dart';
+import '../ui/screens/online/online_entry_screen.dart';
+import '../ui/screens/online/online_session.dart';
 import '../ui/screens/postgame/analytics_screen.dart';
 import '../ui/screens/postgame/history_screen.dart';
 import '../ui/screens/setup/add_players_screen.dart';
@@ -35,6 +38,8 @@ abstract final class Routes {
   static const history = '/history';
   static const howToPlay = '/how-to-play';
   static const onboarding = '/onboarding';
+  static const online = '/online';
+  static const lobby = '/online/lobby';
 
   /// Analytics for a stored match.
   static String storedAnalytics(int id) => '/history/$id';
@@ -122,9 +127,36 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
               loadedGroups().isEmpty ? Routes.players : Routes.groups,
             );
           },
+          // Offered only when this build has a project to talk to. A button
+          // that always fails is worse than an app that only does what it can:
+          // see `SupabaseConfig`.
+          onPlayOnline: SupabaseConfig.isConfigured
+              ? () => context.go(Routes.online)
+              : null,
           onHistory: () => context.go(Routes.history),
           onSettings: () => context.go(Routes.defaults),
           onHowToPlay: () => context.go(Routes.onboarding),
+        ),
+      ),
+      GoRoute(
+        path: Routes.online,
+        builder: (context, state) => OnlineEntryScreen(
+          onJoined: () => context.go(Routes.lobby),
+          onPlayOffline: () => context.go(Routes.home),
+        ),
+      ),
+      GoRoute(
+        path: Routes.lobby,
+        builder: (context, state) => LobbyScreen(
+          onStarted: () {
+            // The state is already there — it arrived from the server before
+            // this screen did. The controller adopts it rather than starting
+            // anything, which is the whole difference between the two modes at
+            // this point in the flow.
+            ref.read(matchControllerProvider.notifier).adoptSnapshot();
+            context.go(Routes.match);
+          },
+          onLeave: () => context.go(Routes.home),
         ),
       ),
       GoRoute(

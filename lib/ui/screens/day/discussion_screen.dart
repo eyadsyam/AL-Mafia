@@ -39,6 +39,23 @@ class DiscussionScreen extends StatefulWidget {
   /// Fired when a speaking slot runs out of time, as opposed to being skipped.
   final VoidCallback? onTimerEnded;
 
+  /// Reports how long a speaker actually held the floor, in seconds.
+  ///
+  /// The only source for `C6` («انت أقل واحد اتكلم»). Fired whether the slot
+  /// expired or was skipped, because a player who waves the phone on after four
+  /// seconds has spoken for four seconds, and that is exactly the observation
+  /// the confrontation is about.
+  final void Function(int seat, int seconds)? onSpoke;
+
+  /// Opens the whisper composer. Null when the layer is off for this match.
+  final VoidCallback? onWhisper;
+
+  /// Today's whisper graph, as `(sender, recipient)` display names.
+  ///
+  /// Public by design (doc 09 §3.1) — *"The existence and the recipient are
+  /// public. The content is private."* Nothing here carries a body.
+  final List<(String, String)> whisperGraph;
+
   const DiscussionScreen({
     super.key,
     required this.mode,
@@ -47,6 +64,9 @@ class DiscussionScreen extends StatefulWidget {
     required this.onFinished,
     this.onSpeakerChanged,
     this.onTimerEnded,
+    this.onSpoke,
+    this.onWhisper,
+    this.whisperGraph = const [],
   });
 
   @override
@@ -93,8 +113,21 @@ class _DiscussionScreenState extends State<DiscussionScreen>
     });
   }
 
+  /// Reports the floor time of the speaker who is finishing.
+  void _reportSpoke(Duration used) {
+    final report = widget.onSpoke;
+    if (report == null) return;
+    if (widget.mode != DiscussionMode.structured) return;
+    if (_currentSpeakerIndex >= widget.alivePlayers.length) return;
+    report(
+      widget.alivePlayers[_currentSpeakerIndex].seat,
+      used.inSeconds,
+    );
+  }
+
   void _handlePhaseEnd() {
     _countdownTimer.cancel();
+    _reportSpoke(widget.perSpeakerTime);
     // The slot expired rather than being skipped, which is the case the two
     // ascending tones exist to mark (design §8).
     widget.onTimerEnded?.call();
@@ -118,6 +151,7 @@ class _DiscussionScreenState extends State<DiscussionScreen>
 
   void _skipSpeaker() {
     _countdownTimer.cancel();
+    _reportSpoke(widget.perSpeakerTime - _remaining);
     if (widget.mode == DiscussionMode.structured) {
       if (_currentSpeakerIndex < widget.alivePlayers.length - 1) {
         _currentSpeakerIndex++;
@@ -250,6 +284,17 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                     ),
                     SizedBox(height: spacing.lg),
 
+                    // The whisper graph, and the way into the composer. Both
+                    // are on-table: who wrote to whom is meant to be argued
+                    // about, and the composer gates itself behind a seat pick.
+                    if (widget.onWhisper != null) ...[
+                      _WhisperPanel(
+                        graph: widget.whisperGraph,
+                        onCompose: widget.onWhisper!,
+                      ),
+                      SizedBox(height: spacing.lg),
+                    ],
+
                     // Control buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -317,6 +362,82 @@ class _DiscussionScreenState extends State<DiscussionScreen>
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+
+/// The public half of the whisper layer, on the discussion screen.
+///
+/// Shows the day's edges — «أحمد ← سارة» — and the control that opens the
+/// composer. It never shows a body, and it has no way to reach one: the graph
+/// arrives as display names and the store is not wired into this widget at all.
+class _WhisperPanel extends StatelessWidget {
+  final List<(String, String)> graph;
+  final VoidCallback onCompose;
+
+  const _WhisperPanel({required this.graph, required this.onCompose});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final spacing = context.spacing;
+    final radii = context.radii;
+    final type = context.typography;
+    final l10n = context.l10n;
+
+    return Container(
+      padding: EdgeInsets.all(spacing.md),
+      decoration: BoxDecoration(
+        color: colors.surfaceRaised,
+        borderRadius: BorderRadius.circular(radii.card),
+        border: Border.all(color: colors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l10n.whisperLabel,
+            style: type.caption.copyWith(color: colors.textMuted),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: spacing.sm),
+          if (graph.isEmpty)
+            Text(
+              l10n.whisperGraphEmpty,
+              style: type.bodySmall.copyWith(color: colors.textSecondary),
+              textAlign: TextAlign.center,
+            )
+          else
+            for (final (from, to) in graph)
+              Padding(
+                padding: EdgeInsets.only(bottom: spacing.xs),
+                child: Text(
+                  '$from  ${l10n.whisperArrow}  $to',
+                  style: type.body.copyWith(color: colors.textPrimary),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          SizedBox(height: spacing.sm),
+          OutlinedButton(
+            onPressed: onCompose,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: colors.textPrimary,
+              side: BorderSide(color: colors.borderSubtle),
+              padding: EdgeInsets.symmetric(vertical: spacing.sm),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(radii.button),
+              ),
+            ),
+            child: Text(
+              l10n.whisperCompose,
+              style: type.body.copyWith(color: colors.textPrimary),
+            ),
+          ),
+        ],
       ),
     );
   }

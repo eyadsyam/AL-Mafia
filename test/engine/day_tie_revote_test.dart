@@ -1,3 +1,4 @@
+import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
@@ -14,7 +15,7 @@ void main() {
     late List<int> citizenSeats;
 
     void startFive(DayTieRule rule) {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: const ['A', 'B', 'C', 'D', 'E'],
         roleCounts: const {Role.mafia: 1, Role.doctor: 1, Role.detective: 1, Role.citizen: 2},

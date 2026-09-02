@@ -801,4 +801,304 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get onboardingWinBody =>
       'المواطنين بيكسبوا لما آخر مافيا يطلع برّه بالتصويت.\nوالمافيا بتكسب لما عددهم يبقى قد المواطنين.\nكده إنت عارف كل حاجة — الباقي كلام وشكّ.';
+
+  @override
+  String get traceLabel => 'الأثر';
+
+  @override
+  String get traceNone => 'الليلة دي ماسابتش أي أثر';
+
+  @override
+  String traceLastSuspicion(String victim, String target) {
+    return 'آخر حاجة سجّلها $victim: كان شاكك في «$target»';
+  }
+
+  @override
+  String get traceSomeoneSurvived => 'حد اتحمى الليلة دي… ونجا';
+
+  @override
+  String traceAgreement(int count) {
+    return '$count لاعبين شكّوا في نفس الشخص الليلة دي';
+  }
+
+  @override
+  String traceShift(int count) {
+    return '$count غيّر شكّه الليلة دي';
+  }
+
+  @override
+  String get traceShadow => 'فيه لاعب لسه محدش شك فيه ولا مرة';
+
+  @override
+  String get traceSilence => 'فيه لاعب رفض يسجّل شكّه الليلة دي';
+
+  @override
+  String get traceCircle => 'اتنين شاكّين في بعض';
+
+  @override
+  String get traceConsensus => 'أغلب الطاولة شكّت في نفس الشخص';
+
+  @override
+  String get openingRoundTitle => 'اسم واحد';
+
+  @override
+  String get openingRoundBody =>
+      'كل واحد يقول اسم واحد بس، بالترتيب. من غير شرح.';
+
+  @override
+  String openingRoundPrompt(String name) {
+    return 'مين شاكك فيه، يا $name؟';
+  }
+
+  @override
+  String get confrontationLabel => 'المواجهة';
+
+  @override
+  String get confrontationExplain => 'اشرح.';
+
+  @override
+  String get confrontationDone => 'خلّصت';
+
+  @override
+  String confrontationC1(String x, String y) {
+    return 'قلت إنك شاكك في $x، وصوّت لـ$y.';
+  }
+
+  @override
+  String get confrontationC4 => 'محدش شك فيك ولا مرة. ليه في رأيك؟';
+
+  @override
+  String confrontationC5(String x, int count) {
+    return 'انت و$x صوّتوا نفس التصويت $count مرات. صدفة؟';
+  }
+
+  @override
+  String get confrontationC6 => 'انت أقل واحد اتكلم في اللعبة. عايز تقول إيه؟';
+
+  @override
+  String get confrontationC7 => 'آخر واحد مات كان شاكك فيك. ردّك؟';
+
+  @override
+  String confrontationC8(String x) {
+    return 'بتهمس لـ$x كل يوم. ليه هو بالذات؟';
+  }
+
+  @override
+  String get confrontationC11 => 'حد حاول يوصلك وماعرفش. مين ممكن يحميك؟';
+
+  @override
+  String get whisperLabel => 'الهمس';
+
+  @override
+  String get whisperNoneForYou => 'مفيش همسات ليك';
+
+  @override
+  String whisperFrom(String name) {
+    return 'من $name';
+  }
+
+  @override
+  String get whisperCompose => 'ابعت همسة';
+
+  @override
+  String get whisperPickRecipient => 'لمين؟';
+
+  @override
+  String get whisperBodyHint => 'لغاية ١٢٠ حرف';
+
+  @override
+  String get whisperSend => 'ابعت';
+
+  @override
+  String get whisperSent => 'اتبعتت';
+
+  @override
+  String get whisperAlreadySentToday => 'بعتّ همستك النهارده';
+
+  @override
+  String get whisperUndelivered => 'الهمسة ماوصلتش';
+
+  @override
+  String whisperGraphTitle(int day) {
+    return 'همسات النهار $day';
+  }
+
+  @override
+  String get whisperGraphEmpty => 'محدش همس النهارده';
+
+  @override
+  String whisperNobodySent(String names) {
+    return '($names مابعتوش)';
+  }
+
+  @override
+  String get whisperArrow => '←';
+
+  @override
+  String whisperTooLong(int count) {
+    return 'زايد $count حرف';
+  }
+
+  @override
+  String get whisperLanguageWarning =>
+      'الكلام ده أقسى مما تقصد يمكن. تبعته بردو؟';
+
+  @override
+  String get whisperReport => 'بلّغ';
+
+  @override
+  String get whisperReported => 'اتبلّغ. مش هتشوف همساته تاني.';
+
+  @override
+  String get nightChooseNobody => 'مش هختار حد';
+
+  @override
+  String get informationEngineSection => 'محرك المعلومات';
+
+  @override
+  String get settingTrace => 'الأثر';
+
+  @override
+  String get settingTraceHint =>
+      'ملاحظة واحدة صحيحة كل صبح. لو قفلتها بترجع المافيا العادية.';
+
+  @override
+  String get settingConfrontation => 'المواجهة';
+
+  @override
+  String get settingConfrontationHint =>
+      'لاعب واحد يرد على تصرفاته، مرة في اليوم.';
+
+  @override
+  String get settingOpeningRound => 'جولة «اسم واحد» في اليوم الأول';
+
+  @override
+  String get settingOpeningRoundHint =>
+      'عشر ثواني لكل واحد، بالترتيب، يقول اسم واحد.';
+
+  @override
+  String get settingWhisper => 'الهمس';
+
+  @override
+  String get settingWhisperHint =>
+      'رسالة خاصة واحدة في اليوم. مين بيكلم مين علني، والكلام نفسه لأ.';
+
+  @override
+  String get settingRevealWhispers => 'اكشف محتوى الهمسات بعد المباراة';
+
+  @override
+  String get settingRevealWhispersHint =>
+      'الخريطة بتتكشف دايمًا. ده عن الكلام نفسه.';
+
+  @override
+  String get settingSurvivorConfrontation => 'مواجهة «الناجي»';
+
+  @override
+  String get settingSurvivorConfrontationHint =>
+      'بتسمّي لاعب نجا من محاولة ليل. بتضيّق الدايرة على الدكتور — للمجموعات المخضرمة.';
+
+  @override
+  String get settingConfrontationSeconds => 'مدة المواجهة';
+
+  @override
+  String get onlineMatch => 'العب أونلاين';
+
+  @override
+  String get onlineCreateRoom => 'اعمل أوضة';
+
+  @override
+  String get onlineJoinRoom => 'ادخل أوضة';
+
+  @override
+  String get onlineRoomCode => 'كود الأوضة';
+
+  @override
+  String get onlineRoomCodeHint => 'ست خانات';
+
+  @override
+  String get onlineShareCode => 'ابعت الكود';
+
+  @override
+  String get onlineWaitingForPlayers => 'مستنيين اللاعبين…';
+
+  @override
+  String get onlineStartMatch => 'يلا نبدأ';
+
+  @override
+  String get onlineConnecting => 'إعادة اتصال…';
+
+  @override
+  String get onlineDisconnected => 'مفيش اتصال';
+
+  @override
+  String get onlineNotConnected => 'غير متصل';
+
+  @override
+  String onlineHostLeft(String name) {
+    return 'صاحب الأوضة خرج. $name بقى هو المسؤول دلوقتي.';
+  }
+
+  @override
+  String get onlineRoomFull => 'الأوضة مليانة';
+
+  @override
+  String get onlineRoomFinished => 'المباراة دي خلصت خلاص';
+
+  @override
+  String get onlineRoomNotFound => 'مفيش أوضة بالكود ده';
+
+  @override
+  String get onlineUnreachable => 'مفيش وصول للسيرفر. تلعبوا أوفلاين؟';
+
+  @override
+  String get onlineProjectPaused => 'السيرفر نايم. جرّب تاني بعد دقيقة.';
+
+  @override
+  String get onlinePlayOffline => 'العب أوفلاين';
+
+  @override
+  String get onlineHeadphonesWarning =>
+      'لو قاعدين في نفس الأوضة، استخدموا سماعات';
+
+  @override
+  String get voiceMicOff => 'المايك مقفول';
+
+  @override
+  String get voiceMicOn => 'المايك شغّال';
+
+  @override
+  String get voiceTextMode => 'الصوت مش شغّال — وضع الكتابة';
+
+  @override
+  String get voiceMicDenied => 'مفيش مايك. لسه بتسمع الكل.';
+
+  @override
+  String get whoAreYou => 'مين فيكم؟';
+
+  @override
+  String get onlineYourName => 'اسمك';
+
+  @override
+  String get onlineHostBadge => 'المسؤول';
+
+  @override
+  String get onlineNeedFivePlayers => 'محتاجين ٥ لاعبين على الأقل';
+
+  @override
+  String get onlineLeave => 'اخرج من الأوضة';
+
+  @override
+  String get onlineCodeCopied => 'الكود اتنسخ';
+
+  @override
+  String get onlineWaitingForHost => 'مستنيين المسؤول…';
+
+  @override
+  String get voiceTakeFloor => 'اتكلم';
+
+  @override
+  String get voiceYieldFloor => 'خلصت';
+
+  @override
+  String get voiceFloorTaken => 'فيه حد بيتكلم دلوقتي';
 }

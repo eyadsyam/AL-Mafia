@@ -1,3 +1,4 @@
+import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
@@ -14,7 +15,7 @@ import 'package:test/test.dart';
 void main() {
   group('Full Match Integration (T023)', () {
     test('7-player match reaches a definite town win and phase==result', () {
-      final engine = MatchEngine();
+      final engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: const ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace'],
         roleCounts: const {Role.mafia: 2, Role.doctor: 1, Role.detective: 1, Role.citizen: 3},

@@ -536,5 +536,190 @@
     "description": "Body of the onboarding card about what the app itself keeps secret."
   },
   "onboardingWinTitle": "Winning",
-  "onboardingWinBody": "The town wins when the last mafia is voted out.\nThe mafia win once there are as many of them as there are townspeople.\nThat is all of it — the rest is talk and suspicion."
+  "onboardingWinBody": "The town wins when the last mafia is voted out.\nThe mafia win once there are as many of them as there are townspeople.\nThat is all of it — the rest is talk and suspicion.",
+  "traceLabel": "The trace",
+  "@traceLabel": {
+    "description": "Divider caption above the morning's forensic observation (doc 09 S-10)."
+  },
+  "traceNone": "This night left no trace",
+  "traceLastSuspicion": "The last thing {victim} recorded: they suspected «{target}»",
+  "@traceLastSuspicion": {
+    "placeholders": {
+      "victim": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "traceSomeoneSurvived": "Somebody was covered tonight… and lived",
+  "traceAgreement": "{count} players suspected the same person tonight",
+  "@traceAgreement": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "traceShift": "{count} changed who they suspect tonight",
+  "@traceShift": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "traceShadow": "There is a player nobody has ever suspected",
+  "traceSilence": "Somebody refused to record a suspicion tonight",
+  "traceCircle": "Two of you suspect each other",
+  "traceConsensus": "Most of the table suspected the same person",
+  "openingRoundTitle": "One name",
+  "openingRoundBody": "One name each, in seating order. No explaining.",
+  "openingRoundPrompt": "Who do you suspect, {name}?",
+  "@openingRoundPrompt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationLabel": "The confrontation",
+  "confrontationExplain": "Explain.",
+  "confrontationDone": "Done",
+  "confrontationC1": "You said you suspected {x}, and you voted for {y}.",
+  "@confrontationC1": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "y": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC4": "Nobody has suspected you once. Why do you think that is?",
+  "confrontationC5": "You and {x} voted the same way {count} times. Coincidence?",
+  "@confrontationC5": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "confrontationC6": "You have talked the least of anyone. Anything to say?",
+  "confrontationC7": "The last person to die suspected you. Your answer?",
+  "confrontationC8": "You whisper to {x} every day. Why him in particular?",
+  "@confrontationC8": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC11": "Somebody tried to reach you and failed. Who would protect you?",
+  "whisperLabel": "Whisper",
+  "whisperNoneForYou": "No whispers for you",
+  "whisperFrom": "From {name}",
+  "@whisperFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "whisperCompose": "Send a whisper",
+  "whisperPickRecipient": "To whom?",
+  "whisperBodyHint": "Up to 120 characters",
+  "whisperSend": "Send",
+  "whisperSent": "Sent",
+  "whisperAlreadySentToday": "You have already whispered today",
+  "whisperUndelivered": "Your whisper never arrived",
+  "whisperGraphTitle": "Whispers, day {day}",
+  "@whisperGraphTitle": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "whisperGraphEmpty": "Nobody whispered today",
+  "whisperNobodySent": "({names} did not send one)",
+  "@whisperNobodySent": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "whisperArrow": "→",
+  "whisperTooLong": "Too long by {count}",
+  "@whisperTooLong": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "whisperLanguageWarning": "That reads harsher than you may mean. Send anyway?",
+  "whisperReport": "Report",
+  "whisperReported": "Reported. You will not see whispers from them again.",
+  "nightChooseNobody": "Choose nobody",
+  "informationEngineSection": "Information engine",
+  "settingTrace": "The trace",
+  "settingTraceHint": "One true observation each morning. Off restores classic Mafia.",
+  "settingConfrontation": "The confrontation",
+  "settingConfrontationHint": "One player answers for their own behaviour, once a day.",
+  "settingOpeningRound": "«One name» on day 1",
+  "settingOpeningRoundHint": "Ten seconds each, in seating order, to name one suspect.",
+  "settingWhisper": "The whisper",
+  "settingWhisperHint": "One private message a day. Who wrote to whom is public; what they wrote is not.",
+  "settingRevealWhispers": "Reveal whisper text after the match",
+  "settingRevealWhispersHint": "The graph is always revealed. This is about the words.",
+  "settingSurvivorConfrontation": "«The survivor» confrontation",
+  "settingSurvivorConfrontationHint": "Names a player who survived a night attempt. Narrows the doctor — for experienced groups.",
+  "settingConfrontationSeconds": "Confrontation length",
+  "onlineMatch": "Play online",
+  "onlineCreateRoom": "Create a room",
+  "onlineJoinRoom": "Join a room",
+  "onlineRoomCode": "Room code",
+  "onlineRoomCodeHint": "Six characters",
+  "onlineShareCode": "Share the code",
+  "onlineWaitingForPlayers": "Waiting for players…",
+  "onlineStartMatch": "Start",
+  "onlineConnecting": "Reconnecting…",
+  "onlineDisconnected": "No connection",
+  "onlineNotConnected": "Offline",
+  "onlineHostLeft": "The host left. {name} is hosting now.",
+  "@onlineHostLeft": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineRoomFull": "That room is full",
+  "onlineRoomFinished": "That match has already finished",
+  "onlineRoomNotFound": "No room with that code",
+  "onlineUnreachable": "Cannot reach the server. Play offline instead?",
+  "onlineProjectPaused": "The server is asleep. Try again in a minute.",
+  "onlinePlayOffline": "Play offline",
+  "onlineHeadphonesWarning": "If you are in the same room, use headphones",
+  "voiceMicOff": "Microphone off",
+  "voiceMicOn": "Microphone on",
+  "voiceTextMode": "Voice unavailable — text mode",
+  "voiceMicDenied": "No microphone. You can still hear everyone.",
+  "whoAreYou": "Who are you?",
+  "onlineYourName": "Your name",
+  "onlineHostBadge": "Host",
+  "onlineNeedFivePlayers": "At least five players",
+  "onlineLeave": "Leave the room",
+  "onlineCodeCopied": "Code copied",
+  "onlineWaitingForHost": "Waiting for the host…",
+  "voiceTakeFloor": "Speak",
+  "voiceYieldFloor": "Done",
+  "voiceFloorTaken": "Someone else has the floor"
 }

@@ -57,7 +57,7 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
       _selectedSeat = null;
       _abstaining = false;
     });
-    if (controller.engine.match.currentActorSeat == null) {
+    if (controller.snapshot.currentActorSeat == null) {
       widget.onVotingComplete();
     }
   }

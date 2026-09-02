@@ -11,6 +11,7 @@ import '../repository_types.dart';
 import '../resume_resolver.dart';
 import 'match_record.dart';
 import 'player_group_record.dart';
+import 'whisper_content_record.dart';
 
 /// Isar-backed [MatchRepository].
 ///
@@ -37,7 +38,12 @@ class IsarMatchRepository implements MatchRepository {
   /// history survives the change.
   static Future<IsarMatchRepository> open({required String directory}) async {
     final isar = await Isar.open(
-      [MatchRecordSchema, SettingsRecordSchema, PlayerGroupRecordSchema],
+      [
+        MatchRecordSchema,
+        SettingsRecordSchema,
+        PlayerGroupRecordSchema,
+        WhisperContentRecordSchema,
+      ],
       directory: directory,
     );
     return IsarMatchRepository(isar);

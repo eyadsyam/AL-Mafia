@@ -31,6 +31,11 @@ void main() {
       for (final file in [...dartFilesUnder('lib/ui'), ...dartFilesUnder('lib/platform')]) {
         final path = normalise(file.path);
         if (path.endsWith('platform/haptics.dart')) continue;
+        // The second, and only other, sanctioned door onto `services.dart`.
+        // The import ban is a proxy for "no widget may fire a haptic"; an
+        // exception is only safe while it is named here and while the file it
+        // names is checked below for the thing the proxy stands in for.
+        if (path.endsWith('platform/clipboard.dart')) continue;
 
         final source = file.readAsStringSync();
         if (source.contains('HapticFeedback') ||
@@ -64,6 +69,16 @@ void main() {
       expect(pass.contains('Haptics'), isFalse,
           reason: 'pass_screen.dart calls the haptics helper; opening the pass '
               'screen must be silent');
+    });
+
+    test('the clipboard exception cannot fire a haptic', () {
+      final source = File('lib/platform/clipboard.dart').readAsStringSync();
+      expect(source.contains('HapticFeedback'), isFalse,
+          reason: 'the one file exempted from the import ban must still be '
+              'incapable of the thing the ban exists to prevent');
+      expect(source.contains("show Clipboard, ClipboardData"), isTrue,
+          reason: 'a show-clause is what keeps the exemption narrow: the file '
+              'cannot reach anything else in services.dart');
     });
 
     test('the helper exposes exactly the two sanctioned calls', () {

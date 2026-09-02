@@ -1,3 +1,4 @@
+import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
@@ -16,11 +17,12 @@ void main() {
     });
 
     test('start → distributing phase', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       final match = engine.start(
         names: playerNames,
         roleCounts: roleCounts,
         settings: MatchSettings.defaults(),
+        seed: 1056,
       );
 
       expect(match.phase, equals(GamePhase.distributing));
@@ -30,11 +32,12 @@ void main() {
     });
 
     test('distribution loop advances currentActorSeat', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: playerNames,
         roleCounts: roleCounts,
         settings: MatchSettings.defaults(),
+        seed: 1063,
       );
 
       // Reveal for seat 0
@@ -61,11 +64,12 @@ void main() {
     });
 
     test('beginNight transitions to night phase', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: playerNames,
         roleCounts: roleCounts,
         settings: MatchSettings.defaults(),
+        seed: 1070,
       );
 
       // Complete distribution
@@ -84,11 +88,12 @@ void main() {
     });
 
     test('night loop skips dead players', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: playerNames,
         roleCounts: roleCounts,
         settings: MatchSettings.defaults(),
+        seed: 1077,
       );
 
       // Complete distribution
@@ -114,11 +119,12 @@ void main() {
     });
 
     test('currentActorSeat always references alive player', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: playerNames,
         roleCounts: roleCounts,
         settings: MatchSettings.defaults(),
+        seed: 1084,
       );
 
       // Complete distribution
@@ -139,11 +145,12 @@ void main() {
     });
 
     test('full cycle: distributing → preNightLobby → night → morning', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: playerNames,
         roleCounts: roleCounts,
         settings: MatchSettings.defaults(),
+        seed: 1091,
       );
 
       expect(engine.match.phase, equals(GamePhase.distributing));

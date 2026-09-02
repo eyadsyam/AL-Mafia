@@ -191,6 +191,13 @@ void main() {
       // `lib/engine` is pure Dart and language-agnostic (L-16). Copy there
       // could never be translated, and would drag a locale into the domain
       // layer.
+      //
+      // Comments are skipped, exactly as they are in the screens check above,
+      // and for a stronger reason here: the specs this engine implements are
+      // written in Arabic, and the rule a piece of code enforces is far clearer
+      // quoted than paraphrased. «الأثر» in a doc comment explaining `T1` is
+      // documentation. What this test is about is copy that can reach a screen,
+      // and a comment never does.
       final arabic = RegExp(r'[؀-ۿ]');
       final offenders = <String>[];
 
@@ -198,8 +205,17 @@ void main() {
           .listSync(recursive: true)
           .whereType<File>()
           .where((f) => f.path.endsWith('.dart'))) {
-        if (arabic.hasMatch(file.readAsStringSync())) {
-          offenders.add(file.path.replaceAll(r'\', '/'));
+        for (final line in file.readAsLinesSync()) {
+          final code = line.trim();
+          if (code.startsWith('//') ||
+              code.startsWith('///') ||
+              code.startsWith('*')) {
+            continue;
+          }
+          if (arabic.hasMatch(code)) {
+            offenders.add('${file.path.replaceAll(r'\', '/')}: $code');
+            break;
+          }
         }
       }
 

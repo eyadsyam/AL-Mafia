@@ -130,29 +130,79 @@ void main() {
   });
 
   group('the property the table is an instance of', () {
-    test('every valid state matches the parity rule', () {
-      // Hand-written cases miss off-by-ones; this does not.
-      final rng = Random(20260803);
-      for (var i = 0; i < 500; i++) {
-        final mafia = rng.nextInt(6);
-        final others = rng.nextInt(9);
-        final deadMafia = rng.nextInt(4);
-        final deadOthers = rng.nextInt(4);
-        final players = roster(
+    // Doc 11 §10 asks for this over 100,000 pairs. Drawing 100,000 samples out
+    // of a space a few hundred states wide would be 99% repetition dressed up
+    // as coverage, so the sweep is **exhaustive** and the count falls out of
+    // the bounds rather than being chosen to hit a number:
+    //
+    //     64 alive mafia × 64 alive others × 5 dead mafia × 5 dead others
+    //       = 102,400 states, no two of them the same.
+    //
+    // Sixty-three living mafia is far past anything the game permits — S1 caps
+    // a match at fifteen players — and that is the point. The rule is
+    // arithmetic on two counts; if it has an off-by-one it is at a boundary,
+    // and a sweep that stops at the largest legal roster never reaches the
+    // boundaries a later rule change might move.
+    const aliveCeiling = 64;
+    const deadCeiling = 5;
+
+    test('every state matches the parity rule, over 100,000 of them', () {
+      var checked = 0;
+      for (var mafia = 0; mafia < aliveCeiling; mafia++) {
+        for (var others = 0; others < aliveCeiling; others++) {
+          // No mafia left: the town has won, whatever else is on the table.
+          // Otherwise the mafia win the moment they stop being outnumbered.
+          final expected = mafia == 0
+              ? Alignment.town
+              : (mafia >= others ? Alignment.mafia : null);
+
+          for (var deadMafia = 0; deadMafia < deadCeiling; deadMafia++) {
+            for (var deadOthers = 0; deadOthers < deadCeiling; deadOthers++) {
+              final actual = WinChecker.outcomeFor(roster(
+                mafia: mafia,
+                others: others,
+                deadMafia: deadMafia,
+                deadOthers: deadOthers,
+                otherRoles: const [Role.citizen, Role.doctor, Role.detective],
+              ));
+
+              // `expect` inside a loop this size spends most of its time in the
+              // matcher machinery, so the comparison is done by hand and only a
+              // failure pays for a report.
+              if (actual != expected) {
+                fail('$mafia mafia vs $others non-mafia '
+                    '(plus $deadMafia + $deadOthers dead) gave '
+                    '${actual?.name ?? 'in progress'}, expected '
+                    '${expected?.name ?? 'in progress'}');
+              }
+              checked++;
+            }
+          }
+        }
+      }
+
+      expect(checked, greaterThanOrEqualTo(100000),
+          reason: 'doc 11 §10 puts the floor at 100,000 states');
+    });
+
+    test('the dead never change the answer', () {
+      // The same property from the other side: whatever the rule says about a
+      // living roster, adding corpses to it may not move the answer. Stated
+      // separately because it is the one a future "graveyard reveals" feature
+      // would break, and it would break it silently.
+      final rng = Random(20260902);
+      for (var i = 0; i < 2000; i++) {
+        final mafia = rng.nextInt(8);
+        final others = rng.nextInt(12);
+        final bare = WinChecker.outcomeFor(roster(mafia: mafia, others: others));
+        final buried = WinChecker.outcomeFor(roster(
           mafia: mafia,
           others: others,
-          deadMafia: deadMafia,
-          deadOthers: deadOthers,
-          otherRoles: const [Role.citizen, Role.doctor, Role.detective],
-        );
-
-        final expected = mafia == 0
-            ? Alignment.town
-            : (mafia >= others ? Alignment.mafia : null);
-
-        expect(WinChecker.outcomeFor(players), equals(expected),
-            reason: '$mafia mafia vs $others non-mafia '
-                '(plus $deadMafia + $deadOthers dead)');
+          deadMafia: rng.nextInt(9),
+          deadOthers: rng.nextInt(9),
+        ));
+        expect(buried, equals(bare),
+            reason: '$mafia vs $others changed answer once the dead were added');
       }
     });
   });

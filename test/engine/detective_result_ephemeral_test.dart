@@ -1,3 +1,4 @@
+import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
@@ -8,11 +9,12 @@ void main() {
     late MatchEngine engine;
 
     test('investigate returns four-valued exact role once', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
         roleCounts: {Role.mafia: 1, Role.doctor: 1, Role.detective: 1, Role.citizen: 2},
         settings: MatchSettings.defaults(),
+        seed: 1007,
       );
 
       for (int i = 0; i < 5; i++) {
@@ -46,11 +48,12 @@ void main() {
     });
 
     test('second investigate in same turn throws StateError', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
         roleCounts: {Role.mafia: 1, Role.doctor: 1, Role.detective: 1, Role.citizen: 2},
         settings: MatchSettings.defaults(),
+        seed: 1014,
       );
 
       for (int i = 0; i < 5; i++) {
@@ -91,11 +94,12 @@ void main() {
     });
 
     test('publicView() exposes NO role field', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
         roleCounts: {Role.mafia: 1, Role.doctor: 1, Role.detective: 1, Role.citizen: 2},
         settings: MatchSettings.defaults(),
+        seed: 1021,
       );
 
       final publicView = engine.publicView();
@@ -116,11 +120,12 @@ void main() {
     });
 
     test('investigate result never appears in PublicMatchView', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
         roleCounts: {Role.mafia: 1, Role.doctor: 1, Role.detective: 1, Role.citizen: 2},
         settings: MatchSettings.defaults(),
+        seed: 1028,
       );
 
       for (int i = 0; i < 5; i++) {

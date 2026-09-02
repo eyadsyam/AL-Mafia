@@ -14,10 +14,12 @@ import 'app/app.dart';
 import 'core/theme/app_colors.dart';
 import 'data/isar/isar_match_repository.dart';
 import 'data/isar/isar_player_group_repository.dart';
+import 'data/isar/isar_whisper_store.dart';
 import 'data/match_repository.dart';
 import 'data/player_group_provider.dart';
 import 'data/player_group_repository.dart';
 import 'data/repository_provider.dart';
+import 'data/whisper_store.dart';
 import 'platform/frame_report.dart';
 
 Future<void> main() async {
@@ -63,15 +65,18 @@ Future<void> main() async {
   // in-memory stores declared in the providers.
   MatchRepository? repository;
   PlayerGroupRepository? groupRepository;
+  WhisperStore? whisperStore;
   try {
     final directory = await getApplicationDocumentsDirectory();
     final isarRepository =
         await IsarMatchRepository.open(directory: directory.path);
     repository = isarRepository;
     groupRepository = IsarPlayerGroupRepository(isarRepository.isar);
+    whisperStore = IsarWhisperStore(isarRepository.isar);
   } catch (_) {
     repository = null;
     groupRepository = null;
+    whisperStore = null;
   }
 
   runApp(
@@ -81,6 +86,8 @@ Future<void> main() async {
           matchRepositoryProvider.overrideWithValue(repository),
         if (groupRepository != null)
           playerGroupRepositoryProvider.overrideWithValue(groupRepository),
+        if (whisperStore != null)
+          whisperStoreProvider.overrideWithValue(whisperStore),
       ],
       child: const MafiaApp(),
     ),

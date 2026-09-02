@@ -21,6 +21,16 @@ enum ResumeScreen {
   /// On-table morning briefing.
   morning,
 
+  /// On-table Day-1 «اسم واحد» round.
+  ///
+  /// Not a pass screen, even though it has a current actor: the round is spoken
+  /// aloud with the phone on the table, so nothing on it is private and there
+  /// is nothing to re-gate.
+  dayOpening,
+
+  /// On-table confrontation.
+  confrontation,
+
   /// On-table discussion.
   discussion,
 

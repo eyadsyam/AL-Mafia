@@ -96,6 +96,15 @@ class NightActionScreen extends ConsumerWidget {
     ];
 
     final investigate = state.investigateResult;
+    final whispers = controller.settings.whisperEnabled;
+    final delivery = state.whisper;
+    final whisperBody = delivery == null
+        ? null
+        : (delivery.isUndeliveredNotice
+            // The sender's half of doc 09 §3.4. Same box, same treatment —
+            // this is not a different card, it is a different sentence.
+            ? context.l10n.whisperUndelivered
+            : delivery.body);
 
     return TurnShell(
       labels: TurnShellLabels.of(context.l10n),
@@ -111,16 +120,24 @@ class NightActionScreen extends ConsumerWidget {
       confirmationDetail: investigate == null
           ? null
           : EngineCopy.roleName(context.l10n, investigate.revealedRole),
+      whispersEnabled: whispers,
+      whisperBody: whisperBody,
+      onWhisperRead: delivery?.id == null
+          ? null
+          : () => controller.markWhisperDelivered(delivery!.id!),
       onNotYou: onWrongPerson,
       onConfirmed: (targetSeat) => controller.submitNightAction(
         kind: nightActionFor(turn.actorRole),
         targetSeat: targetSeat,
       ),
+      // Available to every role, which is a doc 05 requirement before it is a
+      // game rule — see `TurnShell._skipSlot`.
+      onSkip: controller.skipNightAction,
       onPass: () {
         // Drops the Detective result and every other secret before the phone
         // changes hands (FR-028, L-14).
         controller.passTurn();
-        if (controller.engine.match.currentActorSeat == null) {
+        if (controller.snapshot.currentActorSeat == null) {
           onNightComplete();
         } else {
           controller.openActorTurn();

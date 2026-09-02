@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/textured_surface.dart';
+import '../../widgets/trace_line.dart';
 
 /// The on-table morning announcement (screen S-10).
 ///
@@ -23,6 +24,15 @@ class MorningScreen extends StatelessWidget {
   /// True when the Mafia's target survived because they were protected.
   final bool someoneSavedUnnamed;
 
+  /// This morning's trace, already rendered to a sentence, or null when the
+  /// layer is switched off for this match.
+  ///
+  /// A *string*, not a `TraceResult`: which sentence a trace becomes is
+  /// `InformationText`'s decision and this screen has no business making it,
+  /// and passing the rendered line is what lets the golden suite drive every
+  /// trace type through here without building an engine.
+  final String? traceText;
+
   final VoidCallback onContinue;
 
   const MorningScreen({
@@ -30,6 +40,7 @@ class MorningScreen extends StatelessWidget {
     required this.dayNumber,
     required this.victimName,
     required this.someoneSavedUnnamed,
+    this.traceText,
     required this.onContinue,
   });
 
@@ -85,6 +96,17 @@ class MorningScreen extends StatelessWidget {
                     style: type.body.copyWith(color: colors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
+                  if (traceText != null) ...[
+                    SizedBox(height: spacing.xl),
+                    TraceLine(
+                      // Keyed on the day so a second morning really replays the
+                      // beat rather than inheriting the first one's finished
+                      // fade.
+                      key: ValueKey('trace-$dayNumber'),
+                      label: l10n.traceLabel,
+                      text: traceText!,
+                    ),
+                  ],
                   const Spacer(),
                   SizedBox(
                     height: spacing.xxl + spacing.sm,

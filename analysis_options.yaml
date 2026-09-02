@@ -9,6 +9,18 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude:
+    # Isar's generator emits calls to APIs the isar_community package marks
+    # `@experimental` — `putByIndex` and friends, produced for any collection
+    # with a unique index. They are warnings about code nobody here wrote and
+    # nobody here can change, and the release gate is "zero analyzer warnings":
+    # left in, they would either fail that gate or teach everyone to ignore it.
+    #
+    # This hides nothing hand-written. Every `.g.dart` in the tree is
+    # `build_runner` output regenerated from a source file that *is* analysed.
+    - "**/*.g.dart"
+
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`

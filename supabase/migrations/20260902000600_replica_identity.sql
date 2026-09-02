@@ -1,0 +1,44 @@
+-- `room_players` could not be updated or deleted at all (doc 10 §3.1, §10).
+--
+-- ## The symptom
+--
+--     ERROR 42P10: cannot delete from table "room_players"
+--     DETAIL:  Column list used by the publication does not cover the
+--              replica identity.
+--
+-- ...on *every* write. Not a corner case: the heartbeat updates `connected`
+-- and `last_seen` every fifteen seconds, `start_match` writes the roles,
+-- eliminations set `alive`, and leaving a lobby deletes a row and re-packs the
+-- seats. All of it fails, so an online match could not survive its first
+-- heartbeat.
+--
+-- ## Why the schema asked for something impossible
+--
+-- The realtime migration did two correct-looking things that contradict each
+-- other:
+--
+--   * published `room_players` **with a column list**, so that `role` can
+--     never enter the replication stream — right, and worth keeping: it is the
+--     belt to RLS's braces, and doc 10 §10 is unambiguous about the role
+--     column;
+--   * set `replica identity full`, so a change payload would carry the whole
+--     old row.
+--
+-- `full` *means* "the replica identity is every column", and Postgres refuses
+-- a publication whose column list does not cover the replica identity — which
+-- a list that deliberately omits `role` never can. The two are mutually
+-- exclusive by construction, and the one to give up is `full`.
+--
+-- ## Why the default identity loses nothing
+--
+-- The replica identity exists so a subscriber can *identify the row that
+-- changed*. The default is the primary key, `(room_id, user_id)`, and both
+-- columns are already in the published list. Realtime matches rows and applies
+-- the table's policies against the new image; nothing in this app reads
+-- `old_record` for a player. So the default carries exactly what is needed and
+-- nothing that is secret.
+--
+-- `room_state` keeps `replica identity full`: it is published whole, it holds
+-- no secret by construction, and its payload is the phase snapshot.
+
+alter table public.room_players replica identity default;

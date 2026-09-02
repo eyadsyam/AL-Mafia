@@ -39,6 +39,19 @@ enum GamePhase {
   night,
   nightResolving,
   morning,
+
+  /// Day 1's «اسم واحد» round — every living player names one suspect aloud,
+  /// in seating order, ten seconds each (doc 09 §2.2).
+  ///
+  /// A phase of its own rather than a mode of [discussion] because it has a
+  /// current actor and [discussion] does not: the phone points at one seat at
+  /// a time, which is exactly the distinction `currentActorSeat` draws.
+  openingRound,
+
+  /// Day 2+'s single confrontation (doc 09 §2). One player is named and given
+  /// a timed window; nobody else may speak.
+  confrontation,
+
   discussion,
   voting,
   voteResolving,
@@ -69,4 +82,18 @@ enum NightActionKind {
   protect,
   investigate,
   suspect,
+}
+
+/// The night action every role performs, as a total function of the role.
+///
+/// One place, so that a caller who needs "what does this seat do tonight" —
+/// the fuzz driver, the online timer-expiry defaults, the whisper card — cannot
+/// answer it differently from the engine.
+extension RoleNightAction on Role {
+  NightActionKind get nightAction => switch (this) {
+        Role.mafia => NightActionKind.mafiaVote,
+        Role.doctor => NightActionKind.protect,
+        Role.detective => NightActionKind.investigate,
+        Role.citizen => NightActionKind.suspect,
+      };
 }

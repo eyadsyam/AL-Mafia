@@ -1,3 +1,4 @@
+import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/analytics_builder.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
@@ -9,7 +10,7 @@ import 'package:test/test.dart';
 void main() {
   group('Analytics Builder (T064)', () {
     test('builds analytics from a complete match', () {
-      final engine = MatchEngine();
+      final engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: const ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace'],
         roleCounts: const {Role.mafia: 2, Role.doctor: 1, Role.detective: 1, Role.citizen: 3},
@@ -106,7 +107,7 @@ void main() {
     });
 
     test('timeline rows include night and day events', () {
-      final engine = MatchEngine();
+      final engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: const ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace'],
         roleCounts: const {Role.mafia: 2, Role.doctor: 1, Role.detective: 1, Role.citizen: 3},
@@ -182,7 +183,7 @@ void main() {
     });
 
     test('suspicion accuracy correctly identifies correct vs incorrect suspicions', () {
-      final engine = MatchEngine();
+      final engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: const ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace'],
         roleCounts: const {Role.mafia: 2, Role.doctor: 1, Role.detective: 1, Role.citizen: 3},
@@ -262,7 +263,7 @@ void main() {
     });
 
     test('suspicion matrix totals match number of suspicion events', () {
-      final engine = MatchEngine();
+      final engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: const ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace'],
         roleCounts: const {Role.mafia: 2, Role.doctor: 1, Role.detective: 1, Role.citizen: 3},
@@ -352,7 +353,7 @@ void main() {
     });
 
     test('at least one achievement is produced', () {
-      final engine = MatchEngine();
+      final engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: const ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace'],
         roleCounts: const {Role.mafia: 2, Role.doctor: 1, Role.detective: 1, Role.citizen: 3},
@@ -433,7 +434,7 @@ void main() {
     });
 
     test('finalRoles covers every seat', () {
-      final engine = MatchEngine();
+      final engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: const ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace'],
         roleCounts: const {Role.mafia: 2, Role.doctor: 1, Role.detective: 1, Role.citizen: 3},

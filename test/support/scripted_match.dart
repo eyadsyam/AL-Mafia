@@ -1,3 +1,4 @@
+import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match.dart';
@@ -62,7 +63,7 @@ MatchEngine scriptedMatch({
   DateTime? createdAt,
   MatchSettings settings = const MatchSettings(),
 }) {
-  final engine = MatchEngine();
+  final engine = MatchEngine(clock: Clocks.monotonic());
   engine.start(
     names: _names,
     roleCounts: _roleCounts,
@@ -106,7 +107,7 @@ MatchEngine scriptedMatch({
 
 /// Plays until a day vote ties, so the revote path (and its event) is covered.
 MatchEngine playToTiedVote() {
-  final engine = MatchEngine();
+  final engine = MatchEngine(clock: Clocks.monotonic());
   engine.start(
     names: const ['A', 'B', 'C', 'D', 'E'],
     roleCounts: const {
@@ -169,6 +170,22 @@ void _playNight(MatchEngine engine) {
 
 void _playDay(MatchEngine engine) {
   if (engine.match.phase != GamePhase.morning) return;
+
+  // The night may already have ended the match, and if it did there is no day.
+  //
+  // This helper used to go straight to `beginDiscussion`, which meant that
+  // whenever a kill brought the mafia to parity it scripted a full day on top
+  // of a finished game — a discussion, a ballot, and an elimination that could
+  // not matter — and then `winCheck` reported the same winner the night had
+  // already produced. Every match this helper built that way carried a day of
+  // events that a real match cannot contain, and those matches are the
+  // fixtures the persistence and analytics suites assert against.
+  //
+  // `match_flow.dart` has always done it in this order (`_startDiscussion`
+  // calls `concludeAfterNight` first); the helper simply did not. It is the
+  // engine refusing the call that surfaced the difference.
+  if (engine.concludeAfterNight() != null) return;
+
   engine.beginDiscussion();
   engine.beginVoting();
 

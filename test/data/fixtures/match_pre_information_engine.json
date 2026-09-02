@@ -1,0 +1,278 @@
+{
+  "id": 1700000000000000,
+  "createdAt": "2025-06-01T20:30:00.000Z",
+  "seed": 424242,
+  "phase": "reveal",
+  "dayNumber": 1,
+  "currentActorSeat": null,
+  "settings": {
+    "speechSeconds": 60,
+    "discussionMode": "structured",
+    "dayTieRule": "noElimination",
+    "narrationEnabled": true,
+    "abstainAllowed": false,
+    "identityHoldSeconds": 5,
+    "muteAllAudio": false,
+    "scoreEnabled": true
+  },
+  "players": [
+    {
+      "seat": 0,
+      "name": "A",
+      "role": "citizen",
+      "status": "dead",
+      "eliminatedOn": {
+        "phase": "voting",
+        "number": 1
+      }
+    },
+    {
+      "seat": 1,
+      "name": "B",
+      "role": "detective",
+      "status": "alive",
+      "eliminatedOn": null
+    },
+    {
+      "seat": 2,
+      "name": "C",
+      "role": "citizen",
+      "status": "alive",
+      "eliminatedOn": null
+    },
+    {
+      "seat": 3,
+      "name": "D",
+      "role": "mafia",
+      "status": "alive",
+      "eliminatedOn": null
+    },
+    {
+      "seat": 4,
+      "name": "E",
+      "role": "citizen",
+      "status": "alive",
+      "eliminatedOn": null
+    },
+    {
+      "seat": 5,
+      "name": "F",
+      "role": "mafia",
+      "status": "alive",
+      "eliminatedOn": null
+    },
+    {
+      "seat": 6,
+      "name": "G",
+      "role": "doctor",
+      "status": "alive",
+      "eliminatedOn": null
+    }
+  ],
+  "eventLog": [
+    {
+      "at": "2025-06-01T20:30:00.000Z",
+      "phase": "distributing",
+      "number": 1,
+      "k": "roleAssigned",
+      "seat": 0,
+      "role": "citizen"
+    },
+    {
+      "at": "2025-06-01T20:30:00.000Z",
+      "phase": "distributing",
+      "number": 1,
+      "k": "roleAssigned",
+      "seat": 1,
+      "role": "detective"
+    },
+    {
+      "at": "2025-06-01T20:30:00.000Z",
+      "phase": "distributing",
+      "number": 1,
+      "k": "roleAssigned",
+      "seat": 2,
+      "role": "citizen"
+    },
+    {
+      "at": "2025-06-01T20:30:00.000Z",
+      "phase": "distributing",
+      "number": 1,
+      "k": "roleAssigned",
+      "seat": 3,
+      "role": "mafia"
+    },
+    {
+      "at": "2025-06-01T20:30:00.000Z",
+      "phase": "distributing",
+      "number": 1,
+      "k": "roleAssigned",
+      "seat": 4,
+      "role": "citizen"
+    },
+    {
+      "at": "2025-06-01T20:30:00.000Z",
+      "phase": "distributing",
+      "number": 1,
+      "k": "roleAssigned",
+      "seat": 5,
+      "role": "mafia"
+    },
+    {
+      "at": "2025-06-01T20:30:00.000Z",
+      "phase": "distributing",
+      "number": 1,
+      "k": "roleAssigned",
+      "seat": 6,
+      "role": "doctor"
+    },
+    {
+      "at": "2000-01-01T00:00:00.000Z",
+      "phase": "night",
+      "number": 1,
+      "k": "nightOpened"
+    },
+    {
+      "at": "2000-01-01T00:00:00.001Z",
+      "phase": "night",
+      "number": 1,
+      "k": "suspect",
+      "actor": 0,
+      "target": 1,
+      "reason": null
+    },
+    {
+      "at": "2000-01-01T00:00:00.002Z",
+      "phase": "night",
+      "number": 1,
+      "k": "investigate",
+      "actor": 1,
+      "target": 0
+    },
+    {
+      "at": "2000-01-01T00:00:00.003Z",
+      "phase": "night",
+      "number": 1,
+      "k": "suspect",
+      "actor": 2,
+      "target": 0,
+      "reason": null
+    },
+    {
+      "at": "2000-01-01T00:00:00.004Z",
+      "phase": "night",
+      "number": 1,
+      "k": "mafiaVote",
+      "actor": 3,
+      "target": 0
+    },
+    {
+      "at": "2000-01-01T00:00:00.005Z",
+      "phase": "night",
+      "number": 1,
+      "k": "suspect",
+      "actor": 4,
+      "target": 0,
+      "reason": null
+    },
+    {
+      "at": "2000-01-01T00:00:00.006Z",
+      "phase": "night",
+      "number": 1,
+      "k": "mafiaVote",
+      "actor": 5,
+      "target": 0
+    },
+    {
+      "at": "2000-01-01T00:00:00.007Z",
+      "phase": "night",
+      "number": 1,
+      "k": "protect",
+      "actor": 6,
+      "target": 0
+    },
+    {
+      "at": "2000-01-01T00:00:00.008Z",
+      "phase": "night",
+      "number": 1,
+      "k": "nightResolved",
+      "victim": null,
+      "saved": 0
+    },
+    {
+      "at": "2000-01-01T00:00:00.009Z",
+      "phase": "voting",
+      "number": 1,
+      "k": "vote",
+      "voter": 0,
+      "target": 1,
+      "round": 1
+    },
+    {
+      "at": "2000-01-01T00:00:00.010Z",
+      "phase": "voting",
+      "number": 1,
+      "k": "vote",
+      "voter": 1,
+      "target": 0,
+      "round": 1
+    },
+    {
+      "at": "2000-01-01T00:00:00.011Z",
+      "phase": "voting",
+      "number": 1,
+      "k": "vote",
+      "voter": 2,
+      "target": 0,
+      "round": 1
+    },
+    {
+      "at": "2000-01-01T00:00:00.012Z",
+      "phase": "voting",
+      "number": 1,
+      "k": "vote",
+      "voter": 3,
+      "target": 0,
+      "round": 1
+    },
+    {
+      "at": "2000-01-01T00:00:00.013Z",
+      "phase": "voting",
+      "number": 1,
+      "k": "vote",
+      "voter": 4,
+      "target": 0,
+      "round": 1
+    },
+    {
+      "at": "2000-01-01T00:00:00.014Z",
+      "phase": "voting",
+      "number": 1,
+      "k": "vote",
+      "voter": 5,
+      "target": 0,
+      "round": 1
+    },
+    {
+      "at": "2000-01-01T00:00:00.015Z",
+      "phase": "voting",
+      "number": 1,
+      "k": "vote",
+      "voter": 6,
+      "target": 0,
+      "round": 1
+    },
+    {
+      "at": "2000-01-01T00:00:00.016Z",
+      "phase": "voting",
+      "number": 1,
+      "k": "dayResolved",
+      "eliminated": 0,
+      "tally": {
+        "1": 1,
+        "0": 6
+      }
+    }
+  ],
+  "outcome": null
+}

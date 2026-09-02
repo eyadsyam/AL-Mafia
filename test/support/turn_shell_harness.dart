@@ -88,6 +88,10 @@ class TurnShellHarness {
     List<TurnTarget> targetList = targets,
     ValueChanged<int>? onConfirmed,
     VoidCallback? onPass,
+    bool whispersEnabled = false,
+    String? whisperBody,
+    VoidCallback? onWhisperRead,
+    VoidCallback? onSkip,
   }) async {
     await tester.binding.setSurfaceSize(surface);
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -103,6 +107,10 @@ class TurnShellHarness {
             promptText: prompt,
             targets: targetList,
             confirmationDetail: confirmationDetail,
+            whispersEnabled: whispersEnabled,
+            whisperBody: whisperBody,
+            onWhisperRead: onWhisperRead,
+            onSkip: onSkip,
             onConfirmed: onConfirmed ?? (_) {},
             onPass: onPass ?? () {},
           )
@@ -169,12 +177,16 @@ class TurnShellHarness {
       'rail': TurnShell.slotRail,
       'body': TurnShell.slotBody,
       'detail': TurnShell.slotDetail,
+      // Present only when the match runs the whisper layer, which is a
+      // property of the match and therefore the same for every seat in it.
+      'whisper': TurnShell.slotWhisper,
       'action': TurnShell.slotAction,
       'footnote': TurnShell.slotFootnote,
     };
     return {
       for (final entry in slots.entries)
-        entry.key: tester.getRect(find.byKey(entry.value)),
+        if (find.byKey(entry.value).evaluate().isNotEmpty)
+          entry.key: tester.getRect(find.byKey(entry.value)),
     };
   }
 

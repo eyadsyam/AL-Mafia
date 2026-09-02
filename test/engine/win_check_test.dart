@@ -1,3 +1,4 @@
+import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/win_check.dart';
 import 'package:mafia_master/engine/models/enums.dart';
@@ -14,11 +15,12 @@ void main() {
   group('Win Check (T021)', () {
     // Build a valid started match, then override player statuses to model a board.
     MatchEngine started(Map<Role, int> roles) {
-      final engine = MatchEngine();
+      final engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: const ['A', 'B', 'C', 'D', 'E'],
         roleCounts: roles,
         settings: const MatchSettings.defaults(),
+        seed: 1098,
       );
       for (int i = 0; i < 5; i++) {
         engine.revealFor(i);

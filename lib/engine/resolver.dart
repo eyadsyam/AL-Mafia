@@ -2,6 +2,7 @@ import 'dart:math';
 import 'models/enums.dart';
 import 'models/match.dart';
 import 'models/timeline_event.dart';
+import 'seed.dart';
 import 'views.dart';
 
 /// Resolves a night phase:
@@ -9,9 +10,32 @@ import 'views.dart';
 /// - Determines target via seeded tie-break
 /// - Applies doctor protect
 /// - Returns MorningReport
+/// What a night resolved to, split by who is allowed to know it.
+///
+/// The two halves exist because a doctor save is simultaneously a *public*
+/// fact and a *secret* one. The table is told that somebody was protected and
+/// survived; it is never told who, because naming the saved player narrows the
+/// doctor's read to whoever was near them (doc 09 SS1.4 keeps `T2` aggregate for
+/// exactly this reason, and gates the naming variant `C11` off by default).
+///
+/// But the match *record* has to hold the seat. `T2`'s eligibility is "the
+/// doctor successfully blocked a kill", and doc 09 SS5 makes `saveOccurred` a
+/// field of `NightRecord` - neither is computable from a log that threw the
+/// information away.
+class NightResolution {
+  /// The half that may be rendered. Never names the saved player.
+  final MorningReport report;
+
+  /// The seat the mafia chose that the doctor protected, or null if no save
+  /// occurred. Written to the event log; never handed to a screen.
+  final int? savedSeat;
+
+  const NightResolution({required this.report, this.savedSeat});
+}
+
 class NightResolver {
-  /// Resolve the night: tally mafia votes, apply protect, return report.
-  static MorningReport resolveNight({
+  /// Resolve the night: tally mafia votes, apply protect, return the result.
+  static NightResolution resolveNight({
     required Match match,
     required DateTime now,
   }) {
@@ -48,8 +72,19 @@ class NightResolver {
       if (tiedTargets.length == 1) {
         victimSeat = tiedTargets.first;
       } else {
-        // Tie-break using seed + dayNumber
-        final rng = Random(match.seed + match.dayNumber);
+        // Tie-break on the stream reserved for it.
+        //
+        // This was `Random(match.seed + match.dayNumber)`, which is one stream
+        // shared by whoever happens to pick the same arithmetic. The moment a
+        // second seeded decision lands on the same night - the trace tie-break
+        // of doc 09 SS1.5 is the next one - it draws from the identical
+        // sequence, and the two correlate: the same tie between mafia targets
+        // and the same tie between traces would break the same way in every
+        // match forever. A table would read that as the app having a favourite,
+        // and it would never show up as a failing test.
+        final rng = Random(
+          deriveSeed(match.seed, SeedSalt.nightTieBreak, match.dayNumber),
+        );
         victimSeat = tiedTargets[rng.nextInt(tiedTargets.length)];
       }
     }
@@ -62,19 +97,38 @@ class NightResolver {
       }
     }
 
-    // Check if victim was protected
-    bool saved = false;
+    // Check if victim was protected.
+    //
+    // `victimSeat` is cleared here because nobody dies - and that clearing is
+    // what used to lose the save. `MatchEngine.resolveNight` logged
+    // `savedSeat: someoneSavedUnnamed ? report.victimSeat : null`, which on the
+    // only branch where the condition is true reads a field this line has
+    // already set to null. So `NightResolved.savedSeat` was null after every
+    // night the game has ever played, and two very different nights - the
+    // doctor blocking a kill, and the mafia simply not agreeing on anyone -
+    // were recorded identically.
+    //
+    // Nothing on screen was wrong, because the morning reads the boolean. What
+    // was wrong is everything downstream of the log: the `guardian` achievement
+    // tested `savedSeat == victimSeat`, which after this line is
+    // `null == null`, and it is guarded by `savedSeat != null`, so it could
+    // never fire. `T2` and `C11` in doc 09 read the same field and would have
+    // inherited the same silence.
+    int? savedSeat;
     if (victimSeat != null && protectedSeats.contains(victimSeat)) {
-      saved = true;
+      savedSeat = victimSeat;
       victimSeat = null; // Nobody dies
     }
 
     bool allSurvived = victimSeat == null;
 
-    return MorningReport(
-      victimSeat: victimSeat,
-      someoneSavedUnnamed: saved,
-      allSurvived: allSurvived,
+    return NightResolution(
+      savedSeat: savedSeat,
+      report: MorningReport(
+        victimSeat: victimSeat,
+        someoneSavedUnnamed: savedSeat != null,
+        allSurvived: allSurvived,
+      ),
     );
   }
 

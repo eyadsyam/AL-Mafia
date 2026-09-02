@@ -1,3 +1,4 @@
+import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
@@ -8,11 +9,12 @@ void main() {
     late MatchEngine engine;
 
     test('mafia target dies without doctor protection', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
         roleCounts: {Role.mafia: 2, Role.detective: 1, Role.doctor: 1, Role.citizen: 1},
         settings: MatchSettings.defaults(),
+        seed: 1042,
       );
 
       for (int i = 0; i < 5; i++) {
@@ -45,11 +47,12 @@ void main() {
     });
 
     test('doctor protecting mafia target → saved', () {
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
         roleCounts: {Role.mafia: 2, Role.detective: 1, Role.doctor: 1, Role.citizen: 1},
         settings: MatchSettings.defaults(),
+        seed: 1049,
       );
 
       for (int i = 0; i < 5; i++) {
@@ -87,7 +90,7 @@ void main() {
       int? victim1, victim2;
 
       // First run
-      MatchEngine engine1 = MatchEngine();
+      MatchEngine engine1 = MatchEngine(clock: Clocks.monotonic());
       engine1.start(
         names: ['A', 'B', 'C', 'D', 'E'],
         roleCounts: {Role.mafia: 2, Role.detective: 1, Role.doctor: 1, Role.citizen: 1},
@@ -125,7 +128,7 @@ void main() {
       victim1 = report1.victimSeat;
 
       // Second run with same seed
-      MatchEngine engine2 = MatchEngine();
+      MatchEngine engine2 = MatchEngine(clock: Clocks.monotonic());
       engine2.start(
         names: ['A', 'B', 'C', 'D', 'E'],
         roleCounts: {Role.mafia: 2, Role.detective: 1, Role.doctor: 1, Role.citizen: 1},
@@ -166,7 +169,7 @@ void main() {
 
     test('doctor no-repeat: protecting same seat twice in a row throws', () {
       // 1 mafia / 3 town so the game survives a day into a second night.
-      engine = MatchEngine();
+      engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
         roleCounts: {Role.mafia: 1, Role.detective: 1, Role.doctor: 1, Role.citizen: 2},

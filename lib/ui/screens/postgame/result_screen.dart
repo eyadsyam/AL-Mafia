@@ -40,7 +40,12 @@ class ResultScreen extends StatelessWidget {
   final List<ResultRow> rows;
 
   /// Callback when "التحليلات" is tapped.
-  final VoidCallback onAnalytics;
+  /// Opens the post-game autopsy, or null when there is nothing to open.
+  ///
+  /// Null hides the button rather than disabling it: a greyed-out control on
+  /// the last screen of a match reads as something broken, and there is nothing
+  /// broken about an online match having no local record to inspect.
+  final VoidCallback? onAnalytics;
 
   /// Callback when "الرئيسية" is tapped.
   final VoidCallback onHome;
@@ -49,7 +54,7 @@ class ResultScreen extends StatelessWidget {
     super.key,
     required this.winner,
     required this.rows,
-    required this.onAnalytics,
+    this.onAnalytics,
     required this.onHome,
   });
 
@@ -247,19 +252,21 @@ class ResultScreen extends StatelessWidget {
                     SizedBox(height: spacing.lg),
 
                     // Action buttons
-                    FilledButton(
-                      onPressed: onAnalytics,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: colors.accentGold,
-                        foregroundColor: colors.surfaceBase,
-                        padding: EdgeInsets.symmetric(vertical: spacing.lg),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(radii.button),
+                    if (onAnalytics != null) ...[
+                      FilledButton(
+                        onPressed: onAnalytics,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: colors.accentGold,
+                          foregroundColor: colors.surfaceBase,
+                          padding: EdgeInsets.symmetric(vertical: spacing.lg),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(radii.button),
+                          ),
                         ),
+                        child: Text(context.l10n.analytics, style: type.title),
                       ),
-                      child: Text(context.l10n.analytics, style: type.title),
-                    ),
-                    SizedBox(height: spacing.md),
+                      SizedBox(height: spacing.md),
+                    ],
                     OutlinedButton(
                       onPressed: onHome,
                       style: OutlinedButton.styleFrom(

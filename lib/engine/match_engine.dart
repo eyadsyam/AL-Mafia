@@ -1,23 +1,73 @@
 import 'dart:math';
 
+import 'clock.dart';
+import 'information/confrontation_generator.dart';
+import 'information/game_history.dart';
+import 'information/records.dart';
+import 'information/trace_generator.dart';
+import 'invariants.dart';
+import 'legal_moves.dart';
 import 'models/enums.dart';
 import 'models/match.dart';
 import 'models/match_settings.dart';
 import 'models/player.dart';
 import 'models/timeline_event.dart';
 import 'resolver.dart';
+import 'seed.dart';
 import 'views.dart';
 import 'win_check.dart';
 
 /// The core pure-Dart game engine for Mafia Master.
-/// No Flutter or dart:ui imports allowed (enforced by test).
+///
+/// **Pure** means more than "no Flutter imports", and every clause is enforced
+/// by `test/engine/engine_purity_test.dart` rather than trusted:
+///
+/// - no `package:flutter`, `dart:ui` or `dart:io`;
+/// - no reads of the wall clock — time arrives through [clock];
+/// - no unseeded or secure `Random` — every stream is derived from `Match.seed`
+///   by way of `deriveSeed`.
+///
+/// Together those make a match a pure function of `(names, roles, settings,
+/// seed, clock, moves)`. That is what lets the fuzz harness reproduce any
+/// failure from a seed alone, and what will let an Edge Function and a phone
+/// resolve the same night to the same bytes when the online mode lands
+/// (`10-online-architecture.md` §5.1).
 class MatchEngine {
+  /// Where every timestamp this engine writes comes from.
+  ///
+  /// The app passes `DateTime.now`; tests and the fuzz harness pass
+  /// [Clocks.monotonic]. Required, and deliberately not defaulted: a default
+  /// would have to be one or the other, and whichever it was would be silently
+  /// wrong half the time.
+  final Clock clock;
+
+  MatchEngine({required this.clock});
+
+  Match? _match;
+
   /// The current match.
   ///
   /// Settable so a match restored from storage can be adopted wholesale
   /// (`MatchController.adoptMatch`). Every *rule* still goes through a command
   /// on this class — assigning here replaces state, it does not bypass logic.
-  late Match match;
+  ///
+  /// Reading it before a match exists is a programming error and throws, the
+  /// same as the `late` field it replaces. The difference is [hasMatch]: the
+  /// transport is constructed when the app starts, long before anybody taps
+  /// "new match", and it needs a way to ask rather than a way to find out by
+  /// crashing.
+  Match get match {
+    final current = _match;
+    if (current == null) {
+      throw StateError('MatchEngine: no match has been started');
+    }
+    return current;
+  }
+
+  set match(Match value) => _match = value;
+
+  /// Whether a match has been started or adopted.
+  bool get hasMatch => _match != null;
 
   /// Start a new match.
   /// Validates player count (5-20), role counts (sum == players, mafia >= 1, mafia < players/2),
@@ -26,7 +76,7 @@ class MatchEngine {
     required List<String> names,
     required Map<Role, int> roleCounts,
     required MatchSettings settings,
-    int? seed,
+    required int seed,
     int? id,
     DateTime? now,
   }) {
@@ -52,15 +102,19 @@ class MatchEngine {
           'Mafia must be less than half the players: got $mafiaCount, max ${names.length ~/ 2}');
     }
 
-    // A *fresh* seed unless the caller supplied one.
+    // The seed is the caller's to mint, not the engine's.
     //
-    // This used to default to the constant 12345, which meant the shuffle below
-    // ran the same way every time: seat 0 drew the same role in every match
-    // anyone ever played, and a table that noticed would never need to guess
-    // again. Tests and replays still pass an explicit seed, which is what keeps
-    // them deterministic — determinism is a property of the *stored* seed, not
-    // of the default.
-    final finalSeed = seed ?? Random.secure().nextInt(1 << 32);
+    // It used to be `seed ?? Random.secure().nextInt(1 << 32)` — a read of the
+    // platform entropy pool, in the middle of the one class that is supposed to
+    // be a pure function of its arguments. It made `start` the only command
+    // whose output could not be predicted from its input, which is exactly the
+    // property the fuzz harness and the online mode both depend on.
+    //
+    // So it moved out. `newMatchSeed()` in `lib/data/` is the app's minter;
+    // online the seed comes from `rooms.match_seed` (doc 10 §4) and is never
+    // sent to clients, so they cannot predict a tie-break. The engine cannot
+    // tell the two apart and does not need to.
+    final finalSeed = seed;
 
     // Build role list
     final roleList = <Role>[];
@@ -70,8 +124,10 @@ class MatchEngine {
       }
     }
 
-    // Shuffle roles deterministically
-    final rng = Random(finalSeed);
+    // Shuffle roles deterministically, on the stream reserved for the deal.
+    // Sharing one stream between the deal and the night tie-break would
+    // correlate them; see `seed.dart`.
+    final rng = Random(deriveSeed(finalSeed, SeedSalt.roleShuffle, 0));
     for (int i = roleList.length - 1; i > 0; i--) {
       final j = rng.nextInt(i + 1);
       final temp = roleList[i];
@@ -99,7 +155,7 @@ class MatchEngine {
     // `persistStep` for this match addresses the same row. Deriving it from the
     // creation instant keeps it stable across a reload without needing the
     // database to hand one back.
-    final createdAt = now ?? DateTime.now();
+    final createdAt = now ?? clock();
     match = Match(
       id: id ?? createdAt.microsecondsSinceEpoch,
       createdAt: createdAt,
@@ -127,6 +183,7 @@ class MatchEngine {
       );
     }
 
+    assertMatchInvariants(match, 'start');
     return match;
   }
 
@@ -172,6 +229,7 @@ class MatchEngine {
     } else {
       match = match.copyWith(currentActorSeat: nextSeat);
     }
+    assertMatchInvariants(match, 'confirmRevealed');
   }
 
   /// Begin the night phase.
@@ -182,7 +240,23 @@ class MatchEngine {
       throw StateError('beginNight: not in preNightLobby, reveal, or winCheck phase');
     }
 
-    final now = DateTime.now();
+    // A night may not open on a match that is already decided.
+    //
+    // Doc 11 N14 — *"Every living player is Mafia -> win check fires before the
+    // night begins"* — and there was nothing making it so. `winCheck()` is the
+    // only route the UI takes into `preNightLobby` and it does end the match,
+    // so this was unreachable through the app; it was reachable through the
+    // engine, because `beginNight` also accepts `reveal` and `winCheck` as
+    // source phases and neither of those has looked at the roster yet. The cost
+    // of the gap is a full pass of the phone around a table whose game ended
+    // before the night started.
+    final decided = WinChecker.checkWin(match);
+    if (decided != null) {
+      throw StateError(
+          'beginNight: ${decided.name} has already won - run winCheck first');
+    }
+
+    final now = clock();
     match = match.copyWith(
       phase: GamePhase.night,
       currentActorSeat: _findFirstAliveActorSeat(),
@@ -194,6 +268,7 @@ class MatchEngine {
         ),
       ],
     );
+    assertMatchInvariants(match, 'beginNight');
   }
 
   /// Get the actor view for the current actor's turn.
@@ -243,40 +318,22 @@ class MatchEngine {
   /// Derived from the event log rather than held in a field, so that a match
   /// rebuilt from storage after a force-quit enforces the same one-shot rule
   /// (L-14, repository contract inv. 2).
-  bool _hasInvestigatedTonight(int seat) => match.eventLog.any(
-        (e) =>
-            e is InvestigateCast &&
-            e.actorSeat == seat &&
-            e.phaseRef.phase == GamePhase.night &&
-            e.phaseRef.number == match.dayNumber,
-      );
+  bool _hasInvestigatedTonight(int seat) =>
+      hasInvestigatedTonight(match, seat);
 
   /// Which balloting round of the current day is open.
   ///
   /// Round 1 is the opening ballot; each tie under [DayTieRule.revote] appends a
   /// [DayRevoteCalled] and opens the next round. Deriving it from the log keeps
   /// a resumed match on the round it was actually interrupted in.
-  int get currentVoteRound =>
-      1 +
-      match.eventLog
-          .where((e) =>
-              e is DayRevoteCalled && e.phaseRef.number == match.dayNumber)
-          .length;
+  int get currentVoteRound => voteRoundFor(match);
 
   /// Seats that may legally be voted for right now, or null when every living
   /// player other than the voter is a legal target (the opening ballot).
   ///
   /// On a revote this is exactly the tied set — a revote is "among tied players
   /// only" (FR-020).
-  List<int>? get currentVoteCandidates {
-    DayRevoteCalled? last;
-    for (final e in match.eventLog) {
-      if (e is DayRevoteCalled && e.phaseRef.number == match.dayNumber) {
-        last = e;
-      }
-    }
-    return last?.tiedSeats;
-  }
+  List<int>? get currentVoteCandidates => voteCandidatesFor(match);
 
   /// Submit a night action for the current actor.
   /// For investigate: returns InvestigateResult once; second call throws.
@@ -299,7 +356,7 @@ class MatchEngine {
     }
 
     final player = match.players[seat];
-    final now = DateTime.now();
+    final now = clock();
     final phaseRef = PhaseRef(phase: GamePhase.night, number: match.dayNumber);
 
     InvestigateResult? result;
@@ -395,7 +452,63 @@ class MatchEngine {
         break;
     }
 
-    // Advance to next alive actor
+    _advanceNightActor(seat);
+
+    assertMatchInvariants(match, 'submitNightAction');
+    return result;
+  }
+
+  /// Take the current actor's night turn without choosing anybody.
+  ///
+  /// ## Why every role can do this and not just the Citizen
+  ///
+  /// Doc 11 N10 names one case — *"Citizen skips their suspicion → recorded as
+  /// `null`. Feeds `T6` and `C10`"* — and if that were the only case, the skip
+  /// control would exist on one role's screen and not on the other three. That
+  /// is doc 05 rule 6 (single layout tree) and rule 5 (identical tap count) in
+  /// one stroke: an extra button for one role is the cleanest structural tell
+  /// in the app, and it would be handed to the table for free.
+  ///
+  /// So the option is universal, and it happens to be the right game rule too.
+  /// Doc 10 §8.2's expiry defaults already require three of the four to have a
+  /// null action — "no protection", "no investigation", "recorded as skipped" —
+  /// so the model needs to hold them regardless. The Mafia's expiry default is
+  /// a *seeded random target* rather than a skip, but a Mafia who deliberately
+  /// kills nobody is a legal, and occasionally very good, night; the resolver
+  /// has always handled zero mafia votes.
+  ///
+  /// The trace never says who skipped. `T6` is «فيه لاعب رفض يسجّل شكه» —
+  /// aggregate, unnamed, exactly like every other trace but `T1`.
+  void skipNightAction({required int seat}) {
+    if (match.phase != GamePhase.night) {
+      throw StateError('skipNightAction: not in night phase');
+    }
+    if (match.currentActorSeat != seat) {
+      throw StateError('skipNightAction: seat $seat is not current actor');
+    }
+    if (match.players[seat].status != PlayerStatus.alive) {
+      throw StateError('skipNightAction: actor is dead');
+    }
+
+    final now = clock();
+    match = match.copyWith(
+      eventLog: [
+        ...match.eventLog,
+        NightActionSkipped(
+          at: now,
+          phaseRef: PhaseRef(phase: GamePhase.night, number: match.dayNumber),
+          actorSeat: seat,
+          kind: match.players[seat].role.nightAction,
+        ),
+      ],
+    );
+
+    _advanceNightActor(seat);
+    assertMatchInvariants(match, 'skipNightAction');
+  }
+
+  /// Moves the phone on after a night turn, or closes the night.
+  void _advanceNightActor(int seat) {
     final nextSeat = _findNextAliveActorSeat(seat);
     if (nextSeat == null) {
       match = match.copyWith(
@@ -406,8 +519,6 @@ class MatchEngine {
     } else {
       match = match.copyWith(currentActorSeat: nextSeat);
     }
-
-    return result;
   }
 
   /// Resolve the night: tally mafia votes, apply doctor protect, update match.
@@ -416,8 +527,9 @@ class MatchEngine {
       throw StateError('resolveNight: not in nightResolving phase');
     }
 
-    final now = DateTime.now();
-    final report = NightResolver.resolveNight(match: match, now: now);
+    final now = clock();
+    final resolution = NightResolver.resolveNight(match: match, now: now);
+    final report = resolution.report;
 
     // Update players if there's a victim
     List<Player> updatedPlayers = match.players;
@@ -442,13 +554,107 @@ class MatchEngine {
           at: now,
           phaseRef: PhaseRef(phase: GamePhase.night, number: match.dayNumber),
           victimSeat: report.victimSeat,
-          savedSeat: report.someoneSavedUnnamed ? report.victimSeat : null,
+          // The seat comes from the resolution, not from `report.victimSeat` -
+          // the report has already cleared that to null precisely because the
+          // save meant nobody died, so reading it back here recorded nothing.
+          savedSeat: resolution.savedSeat,
         ),
       ],
     );
 
+    if (report.victimSeat != null) _voidWhispersTo(report.victimSeat!, now);
+    _publishTrace(now);
+
+    assertMatchInvariants(match, 'resolveNight');
     return report;
   }
+
+  /// Chooses and records the morning's trace (doc 09 §1).
+  ///
+  /// Runs here, at the moment the night resolves, rather than when the morning
+  /// screen builds. Two reasons, and both are about the answer being *fixed*:
+  /// the generator reads the history up to this night, and the history keeps
+  /// growing; and the online transport resolves the night in an Edge Function
+  /// (doc 10 §5) and broadcasts the result, so the trace has to be part of the
+  /// resolution rather than something each client works out for itself.
+  ///
+  /// `T0` is recorded like any other outcome. "Nothing was eligible" is a fact
+  /// about the night and the table is told it — the alternative is an empty
+  /// space where a sentence usually is, which reads as a bug.
+  void _publishTrace(DateTime now) {
+    if (!match.settings.traceEnabled) return;
+
+    final history = buildHistory(match);
+    final night = history.nightAt(match.dayNumber);
+    if (night == null) return;
+
+    final earlier = history.resolvedNights
+        .where((n) => n.nightNumber < match.dayNumber)
+        .toList();
+
+    final trace = selectTrace(
+      night: night,
+      history: earlier,
+      players: match.players,
+      nightNumber: match.dayNumber,
+      matchSeed: match.seed,
+    );
+
+    match = match.copyWith(
+      eventLog: [
+        ...match.eventLog,
+        TracePublished(
+          at: now,
+          phaseRef: PhaseRef(phase: GamePhase.morning, number: match.dayNumber),
+          type: trace.type,
+          subjectSeat: trace.subjectSeat,
+          targetSeat: trace.targetSeat,
+          count: trace.count,
+        ),
+      ],
+    );
+  }
+
+  /// This morning's trace, as it was published. Null when the layer is off or
+  /// the night has not resolved.
+  TraceResult? get currentTrace {
+    for (final e in match.eventLog.reversed) {
+      if (e is TracePublished && e.phaseRef.number == match.dayNumber) {
+        return TraceResult(
+          type: e.type,
+          subjectSeat: e.subjectSeat,
+          targetSeat: e.targetSeat,
+          count: e.count,
+        );
+      }
+    }
+    return null;
+  }
+
+  /// Today's confrontation, as it was issued. Null when there was none.
+  Confrontation? get currentConfrontation {
+    for (final e in match.eventLog.reversed) {
+      if (e is ConfrontationIssued && e.phaseRef.number == match.dayNumber) {
+        return Confrontation(
+          type: e.type,
+          targetSeat: e.targetSeat,
+          evidenceSeat: e.evidenceSeat,
+          evidenceSeat2: e.evidenceSeat2,
+          evidenceDay: e.evidenceDay,
+          count: e.count,
+        );
+      }
+    }
+    return null;
+  }
+
+  /// The accusations recorded so far in today's «اسم واحد» round.
+  Map<int, int> get openingAccusations => {
+        for (final e in match.eventLog)
+          if (e is OpeningAccusationCast &&
+              e.phaseRef.number == match.dayNumber)
+            e.actorSeat: e.targetSeat,
+      };
 
   /// Whether the night that just resolved already decided the match.
   ///
@@ -466,13 +672,191 @@ class MatchEngine {
   Alignment? outcomeAfterNight() =>
       match.phase == GamePhase.morning ? WinChecker.checkWin(match) : null;
 
+  /// Opens the day after the table has read the morning.
+  ///
+  /// The single door out of `morning`. Which screen the table lands on is the
+  /// engine's decision, not the caller's, because it depends on facts only the
+  /// engine holds — the day number, the settings, and whether the confrontation
+  /// generator found anything:
+  ///
+  /// ```
+  /// day 1, opener on   → openingRound   («اسم واحد»)
+  /// day 2+, evidence   → confrontation  (exactly one, never two)
+  /// otherwise          → discussion
+  /// ```
+  ///
+  /// [beginDiscussion] remains the way into `discussion` and is still callable
+  /// from `morning` directly, which is what a match with all three layers
+  /// switched off does — and what the classic-Mafia tests do.
+  void beginDay() {
+    if (match.phase != GamePhase.morning) {
+      throw StateError('beginDay: not in morning phase');
+    }
+    final decided = outcomeAfterNight();
+    if (decided != null) {
+      throw StateError(
+          'beginDay: ${decided.name} won overnight - call concludeAfterNight');
+    }
+
+    if (match.dayNumber == 1 && match.settings.openingRoundEnabled) {
+      final first = _findFirstAliveActorSeat();
+      if (first != null) {
+        match = match.copyWith(
+          phase: GamePhase.openingRound,
+          currentActorSeat: first,
+        );
+        assertMatchInvariants(match, 'beginDay (opening round)');
+        return;
+      }
+    }
+
+    _openConfrontationOrDiscussion();
+  }
+
+  /// Records one public accusation in the «اسم واحد» round and passes on.
+  ///
+  /// A forced choice: doc 09 §2.2 — *"No explanation permitted. No 'I don't
+  /// know' permitted."* There is deliberately no skip. That is what converts a
+  /// dead opening into a full suspicion map, and it is safe to force because
+  /// naming somebody out loud on Day 1 costs a player nothing they have not
+  /// already been asked for.
+  void submitOpeningAccusation({required int seat, required int targetSeat}) {
+    if (match.phase != GamePhase.openingRound) {
+      throw StateError('submitOpeningAccusation: not in openingRound phase');
+    }
+    if (match.currentActorSeat != seat) {
+      throw StateError('submitOpeningAccusation: seat $seat is not current actor');
+    }
+    if (seat == targetSeat) {
+      throw ArgumentError('submitOpeningAccusation: cannot accuse yourself');
+    }
+    if (targetSeat < 0 || targetSeat >= match.players.length) {
+      throw ArgumentError('submitOpeningAccusation: invalid seat $targetSeat');
+    }
+    if (match.players[targetSeat].status != PlayerStatus.alive) {
+      throw StateError('submitOpeningAccusation: cannot accuse a dead player');
+    }
+
+    final now = clock();
+    match = match.copyWith(
+      eventLog: [
+        ...match.eventLog,
+        OpeningAccusationCast(
+          at: now,
+          phaseRef:
+              PhaseRef(phase: GamePhase.openingRound, number: match.dayNumber),
+          actorSeat: seat,
+          targetSeat: targetSeat,
+        ),
+      ],
+    );
+
+    final next = _findNextAliveActorSeat(seat);
+    if (next != null) {
+      match = match.copyWith(currentActorSeat: next);
+      assertMatchInvariants(match, 'submitOpeningAccusation');
+      return;
+    }
+
+    match = match.copyWith(currentActorSeat: null, clearCurrentActorSeat: true);
+    _openConfrontationOrDiscussion();
+  }
+
+  /// Closes the confrontation window and opens the discussion.
+  ///
+  /// [silent] records that the named player said nothing — a timer that ran
+  /// out at the table, or a disconnect online. C-E5: silence is recorded, and
+  /// is itself information.
+  void endConfrontation({bool silent = false}) {
+    if (match.phase != GamePhase.confrontation) {
+      throw StateError('endConfrontation: not in confrontation phase');
+    }
+    final issued = currentConfrontation;
+    final now = clock();
+    match = match.copyWith(
+      eventLog: [
+        ...match.eventLog,
+        ConfrontationAnswered(
+          at: now,
+          phaseRef:
+              PhaseRef(phase: GamePhase.confrontation, number: match.dayNumber),
+          targetSeat: issued?.targetSeat ?? -1,
+          silent: silent,
+        ),
+      ],
+    );
+    _openDiscussion();
+    assertMatchInvariants(match, 'endConfrontation');
+  }
+
+  /// Runs the confrontation generator, or falls straight through to discussion.
+  void _openConfrontationOrDiscussion() {
+    if (match.settings.confrontationEnabled && match.dayNumber > 1) {
+      final confrontation = selectConfrontation(
+        history: buildHistory(match),
+        players: match.players,
+        dayNumber: match.dayNumber,
+        matchSeed: match.seed,
+        settings: match.settings,
+      );
+      if (confrontation != null) {
+        final now = clock();
+        match = match.copyWith(
+          phase: GamePhase.confrontation,
+          currentActorSeat: null,
+          clearCurrentActorSeat: true,
+          eventLog: [
+            ...match.eventLog,
+            ConfrontationIssued(
+              at: now,
+              phaseRef: PhaseRef(
+                  phase: GamePhase.confrontation, number: match.dayNumber),
+              targetSeat: confrontation.targetSeat,
+              type: confrontation.type,
+              evidenceSeat: confrontation.evidenceSeat,
+              evidenceSeat2: confrontation.evidenceSeat2,
+              evidenceDay: confrontation.evidenceDay,
+              count: confrontation.count,
+            ),
+          ],
+        );
+        assertMatchInvariants(match, 'beginDay (confrontation)');
+        return;
+      }
+    }
+    _openDiscussion();
+    assertMatchInvariants(match, 'beginDay (discussion)');
+  }
+
+  void _openDiscussion() {
+    match = match.copyWith(
+      phase: GamePhase.discussion,
+      currentActorSeat: null,
+      clearCurrentActorSeat: true,
+    );
+  }
+
   /// Begin discussion phase.
   void beginDiscussion() {
     if (match.phase != GamePhase.morning) {
       throw StateError('beginDiscussion: not in morning phase');
     }
 
+    // The doc comment on [concludeAfterNight] said this class was "separate
+    // from beginDiscussion so the caller cannot accidentally open a discussion
+    // on a finished game". Separating the two methods expressed that intent; it
+    // did not enforce it. A caller that read the morning and then reached for
+    // the wrong one got a whole day - discussion, ballot, elimination - on a
+    // match whose winner was already fixed, and the table would only find out
+    // after voting somebody out for nothing.
+    final decided = outcomeAfterNight();
+    if (decided != null) {
+      throw StateError('beginDiscussion: ${decided.name} won overnight - '
+          'call concludeAfterNight');
+    }
+
     match = match.copyWith(phase: GamePhase.discussion);
+    assertMatchInvariants(match, 'beginDiscussion');
   }
 
   /// Ends the match on a night that already decided it.
@@ -484,7 +868,7 @@ class MatchEngine {
     final result = outcomeAfterNight();
     if (result == null) return null;
 
-    final now = DateTime.now();
+    final now = clock();
     match = match.copyWith(
       phase: GamePhase.result,
       outcome: MatchOutcome(winner: result, completedAt: now),
@@ -497,6 +881,7 @@ class MatchEngine {
         ),
       ],
     );
+    assertMatchInvariants(match, 'concludeAfterNight');
     return result;
   }
 
@@ -510,6 +895,7 @@ class MatchEngine {
       phase: GamePhase.voting,
       currentActorSeat: _findFirstAliveActorSeat(),
     );
+    assertMatchInvariants(match, 'beginVoting');
   }
 
   /// Submit a vote during day voting.
@@ -545,7 +931,7 @@ class MatchEngine {
       }
     }
 
-    final now = DateTime.now();
+    final now = clock();
     match = match.copyWith(
       eventLog: [
         ...match.eventLog,
@@ -570,6 +956,7 @@ class MatchEngine {
     } else {
       match = match.copyWith(currentActorSeat: nextSeat);
     }
+    assertMatchInvariants(match, 'submitVote');
   }
 
   /// Resolve day votes and eliminate someone (or not).
@@ -593,11 +980,12 @@ class MatchEngine {
       }
     }
 
-    final now = DateTime.now();
+    final now = clock();
 
     if (tally.isEmpty) {
       // No votes, nobody eliminated
       match = match.copyWith(phase: GamePhase.reveal);
+      assertMatchInvariants(match, 'resolveDayVote (no votes)');
       return DayVoteResult();
     }
 
@@ -611,6 +999,7 @@ class MatchEngine {
     if (aliveTiedTargets.isEmpty) {
       // No valid targets, nobody eliminated
       match = match.copyWith(phase: GamePhase.reveal);
+      assertMatchInvariants(match, 'resolveDayVote (no living target)');
       return DayVoteResult();
     }
 
@@ -634,6 +1023,7 @@ class MatchEngine {
       if (match.settings.dayTieRule == DayTieRule.noElimination || isRevote) {
         // Nobody eliminated
         match = match.copyWith(phase: GamePhase.reveal);
+        assertMatchInvariants(match, 'resolveDayVote (tie stands)');
         return DayVoteResult(tie: true, tally: tally, tiedSeats: [...aliveTiedTargets]..sort());
       } else {
         // Revote among tied seats only. Logging the call is what opens the next
@@ -651,6 +1041,7 @@ class MatchEngine {
             ),
           ],
         );
+        assertMatchInvariants(match, 'resolveDayVote (revote called)');
         return DayVoteResult(
           tie: true,
           tally: tally,
@@ -685,6 +1076,9 @@ class MatchEngine {
       ],
     );
 
+    _voidWhispersTo(eliminatedSeat, now);
+
+    assertMatchInvariants(match, 'resolveDayVote (elimination)');
     return DayVoteResult(
       eliminatedSeat: eliminatedSeat,
       tally: tally,
@@ -702,7 +1096,7 @@ class MatchEngine {
 
     if (result != null) {
       // Game over
-      final now = DateTime.now();
+      final now = clock();
       match = match.copyWith(
         phase: GamePhase.result,
         outcome: MatchOutcome(winner: result, completedAt: now),
@@ -715,12 +1109,14 @@ class MatchEngine {
           ),
         ],
       );
+      assertMatchInvariants(match, 'winCheck (match over)');
       return result;
     }
 
     // Continue to next cycle
     match = match.copyWith(dayNumber: match.dayNumber + 1);
     match = match.copyWith(phase: GamePhase.preNightLobby);
+    assertMatchInvariants(match, 'winCheck (next cycle)');
     return null;
   }
 
@@ -740,7 +1136,7 @@ class MatchEngine {
       return p;
     }).toList();
 
-    final now = DateTime.now();
+    final now = clock();
     match = match.copyWith(
       players: updatedPlayers,
       eventLog: [
@@ -753,8 +1149,211 @@ class MatchEngine {
       ],
     );
 
-    // Run win check
+    _voidWhispersTo(seat, now);
+
+    // Run win check. It asserts the invariants on the way out, which is why
+    // there is none between the roster edit above and this call: a removal that
+    // brings the mafia to parity leaves the match momentarily
+    // decided-but-still-playing, and that is exactly the state `winCheck`
+    // exists to clear.
     winCheck();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Layer 3 — the Whisper (doc 09 §3)
+  //
+  // The engine handles the *graph* and every rule about it. It never sees a
+  // body for longer than it takes to measure one: [sendWhisper] validates the
+  // length and returns an id, and the caller puts the body in the whisper
+  // store. That is the offline half of §5's storage split, and it is why no
+  // amount of reading `Match` can recover what anybody wrote.
+  // ---------------------------------------------------------------------------
+
+  /// Records one whisper and returns its id. Throws if any rule is broken.
+  ///
+  /// [body] is validated and discarded. Store it under the returned id.
+  String sendWhisper({
+    required int fromSeat,
+    required int toSeat,
+    required String body,
+  }) {
+    if (!match.settings.whisperEnabled) {
+      throw StateError('sendWhisper: whispers are switched off for this match');
+    }
+    if (match.phase != GamePhase.discussion) {
+      throw StateError('sendWhisper: whispers are written during discussion');
+    }
+    if (fromSeat == toSeat) {
+      throw ArgumentError('sendWhisper: cannot whisper to yourself');
+    }
+    for (final seat in [fromSeat, toSeat]) {
+      if (seat < 0 || seat >= match.players.length) {
+        throw ArgumentError('sendWhisper: invalid seat $seat');
+      }
+      if (match.players[seat].status != PlayerStatus.alive) {
+        throw StateError('sendWhisper: seat $seat is not alive');
+      }
+    }
+    final trimmed = body.trim();
+    if (trimmed.isEmpty) {
+      // H-E10. An empty whisper is still a public edge on the graph, so
+      // sending one would be a free, costless signal — «أنا وهو بنتكلم» with
+      // nothing said. Rejected.
+      throw ArgumentError('sendWhisper: empty body');
+    }
+    if (trimmed.length > WhisperLimits.maxLength) {
+      // H-E6: blocked, never silently truncated.
+      throw ArgumentError(
+          'sendWhisper: ${trimmed.length} characters, limit is '
+          '${WhisperLimits.maxLength}');
+    }
+    if (whispersSentBy(fromSeat, match.dayNumber) >=
+        WhisperLimits.perPlayerPerDay) {
+      // H-E1. The UI disables the control after the first, and this is what
+      // makes that a rule rather than a courtesy.
+      throw StateError('sendWhisper: seat $fromSeat has already whispered today');
+    }
+
+    final id = WhisperMeta.idFor(
+      day: match.dayNumber,
+      fromSeat: fromSeat,
+      toSeat: toSeat,
+    );
+    final now = clock();
+    match = match.copyWith(
+      eventLog: [
+        ...match.eventLog,
+        WhisperSent(
+          at: now,
+          phaseRef:
+              PhaseRef(phase: GamePhase.discussion, number: match.dayNumber),
+          id: id,
+          fromSeat: fromSeat,
+          toSeat: toSeat,
+        ),
+      ],
+    );
+    assertMatchInvariants(match, 'sendWhisper');
+    return id;
+  }
+
+  /// The whisper graph for [day] — senders and recipients, never bodies.
+  ///
+  /// Public: doc 09 §3.1 puts the graph on the table on purpose, because a
+  /// visible alliance map that everyone can argue about is the point of the
+  /// layer. What it deliberately cannot reach is the body, which is not in
+  /// `Match` at all.
+  List<WhisperMeta> whispersOn(int day) => [
+        for (final w in _whisperGraph().values)
+          if (w.day == day) w,
+      ]..sort((a, b) => a.fromSeat.compareTo(b.fromSeat));
+
+  /// How many whispers [seat] has sent on [day].
+  int whispersSentBy(int seat, int day) => match.eventLog
+      .whereType<WhisperSent>()
+      .where((e) => e.fromSeat == seat && e.phaseRef.number == day)
+      .length;
+
+  /// Whispers waiting for [seat] — sent, not yet read, not voided.
+  ///
+  /// Offline these are delivered on the recipient's next private turn (doc 09
+  /// §3.6). The card that shows them appears on **every** player's turn, empty
+  /// or not; see `WhisperCard`.
+  List<WhisperMeta> pendingWhispersFor(int seat) {
+    final all = _whisperGraph();
+    return [
+      for (final w in all.values)
+        if (w.toSeat == seat && !w.delivered && !w.voided) w,
+    ]..sort((a, b) => a.day.compareTo(b.day));
+  }
+
+  /// Whispers this player sent that will never arrive («الهمسة ماوصلتش»).
+  List<WhisperMeta> voidedWhispersFrom(int seat) => [
+        for (final w in _whisperGraph().values)
+          if (w.fromSeat == seat && w.voided) w,
+      ];
+
+  /// Marks a whisper read. Idempotent.
+  void markWhisperDelivered(String id) {
+    final existing = _whisperGraph()[id];
+    if (existing == null || existing.delivered || existing.voided) return;
+    final now = clock();
+    match = match.copyWith(
+      eventLog: [
+        ...match.eventLog,
+        WhisperDelivered(
+          at: now,
+          phaseRef: PhaseRef(phase: match.phase, number: match.dayNumber),
+          id: id,
+        ),
+      ],
+    );
+    assertMatchInvariants(match, 'markWhisperDelivered');
+  }
+
+  /// Voids everything still in flight to a player who has just died (§3.4).
+  ///
+  /// Called from every path that kills somebody, which is why it takes the
+  /// timestamp: the void belongs to the same instant as the death, not to
+  /// whenever the UI next asks.
+  void _voidWhispersTo(int seat, DateTime now) {
+    final pending = pendingWhispersFor(seat);
+    if (pending.isEmpty) return;
+    match = match.copyWith(
+      eventLog: [
+        ...match.eventLog,
+        for (final w in pending)
+          WhisperVoided(
+            at: now,
+            phaseRef: PhaseRef(phase: match.phase, number: match.dayNumber),
+            id: w.id,
+          ),
+      ],
+    );
+  }
+
+  Map<String, WhisperMeta> _whisperGraph() {
+    final graph = <String, WhisperMeta>{};
+    for (final e in match.eventLog) {
+      switch (e) {
+        case WhisperSent():
+          graph[e.id] = WhisperMeta(
+            id: e.id,
+            day: e.phaseRef.number,
+            fromSeat: e.fromSeat,
+            toSeat: e.toSeat,
+          );
+        case WhisperDelivered():
+          final existing = graph[e.id];
+          if (existing != null) {
+            graph[e.id] = existing.copyWith(delivered: true);
+          }
+        case WhisperVoided():
+          final existing = graph[e.id];
+          if (existing != null) graph[e.id] = existing.copyWith(voided: true);
+        default:
+          break;
+      }
+    }
+    return graph;
+  }
+
+  /// Records how long [seat] held the floor today. Feeds `C6`.
+  void recordSpeaking({required int seat, required int seconds}) {
+    if (seconds <= 0) return;
+    final now = clock();
+    match = match.copyWith(
+      eventLog: [
+        ...match.eventLog,
+        SpeakingRecorded(
+          at: now,
+          phaseRef:
+              PhaseRef(phase: GamePhase.discussion, number: match.dayNumber),
+          seat: seat,
+          seconds: seconds,
+        ),
+      ],
+    );
   }
 
   /// Get the public view of the match (no roles exposed).

@@ -119,7 +119,8 @@ void main() {
     }
   }
 
-  /// Runs one day: morning briefing, discussion, then a full ballot.
+  /// Runs one day: morning briefing and trace, then whichever opening surface
+  /// the engine chose for the day, then discussion and a full ballot.
   Future<void> playDay(WidgetTester tester) async {
     expect(controller().engine.match.phase, GamePhase.morning);
     await tester.tap(find.text('ابدأ النقاش'));
@@ -129,6 +130,23 @@ void main() {
     // §4), and only when it is dismissed does the result arrive — so this is
     // the point at which the day may turn out not to happen at all.
     if (controller().engine.match.phase == GamePhase.result) return;
+
+    // Day 1 opens on the «اسم واحد» round: every living player names somebody,
+    // in seating order, with no way to decline (doc 09 §2.2).
+    var accusations = 0;
+    while (controller().engine.match.phase == GamePhase.openingRound) {
+      await tester.tap(find.byType(PlayerTile).first);
+      await tester.pumpAndSettle();
+      expect(++accusations, lessThan(names.length + 1),
+          reason: 'the opener must end after one accusation per living seat');
+    }
+
+    // Day 2+ may open with a confrontation instead. There is exactly one, and
+    // its only control belongs to the player it names.
+    if (controller().engine.match.phase == GamePhase.confrontation) {
+      await tester.tap(find.text('خلّصت'));
+      await tester.pumpAndSettle();
+    }
 
     expect(controller().engine.match.phase, GamePhase.discussion);
     await tester.tap(find.text('إنهاء النقاش'));

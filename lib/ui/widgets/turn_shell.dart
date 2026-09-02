@@ -85,6 +85,20 @@ class TurnShellLabels {
   final String passAction;
   final String passLockedHint;
 
+  /// Caption above the whisper slot.
+  final String whisperLabel;
+
+  /// What the whisper slot says when nothing is waiting.
+  ///
+  /// Not an absence — a sentence. Doc 09 §3.6 and doc 11 H-E8 both make this
+  /// mandatory: if the card only appeared for a player who had received a
+  /// whisper, the *number of screens* in a turn would say who did, and the
+  /// whole table can count screens.
+  final String whisperEmpty;
+
+  /// The control that records a night turn with no target.
+  final String skipAction;
+
   const TurnShellLabels({
     required this.turnLabel,
     required this.handoffInstruction,
@@ -96,6 +110,9 @@ class TurnShellLabels {
     required this.confirmedBody,
     required this.passAction,
     required this.passLockedHint,
+    required this.whisperLabel,
+    required this.whisperEmpty,
+    required this.skipAction,
   });
 
   /// Builds the labels from the app's localisations.
@@ -114,6 +131,9 @@ class TurnShellLabels {
     confirmedBody: l10n.keepPhoneUntilUnlock,
     passAction: l10n.passPhone,
     passLockedHint: l10n.waitEllipsis,
+    whisperLabel: l10n.whisperLabel,
+    whisperEmpty: l10n.whisperNoneForYou,
+    skipAction: l10n.nightChooseNobody,
   );
 }
 
@@ -163,7 +183,26 @@ class TurnShell extends StatefulWidget {
   /// its emptiness is not observable (L-02).
   final String? confirmationDetail;
 
+  /// The whisper waiting for this player, or null for "none waiting".
+  ///
+  /// Null does **not** hide the slot — see [TurnShellLabels.whisperEmpty]. The
+  /// slot disappears only when [whispersEnabled] is false, which is a property
+  /// of the match and therefore identical for every seat in it.
+  final String? whisperBody;
+
+  /// Whether this match runs the whisper layer at all.
+  final bool whispersEnabled;
+
+  /// Fired once, when the whisper slot first becomes readable, so the caller
+  /// can mark it delivered.
+  final VoidCallback? onWhisperRead;
+
   final ValueChanged<int> onConfirmed;
+
+  /// Records the turn with no target chosen. Null leaves the control out —
+  /// which is a match-level decision, never a per-role one.
+  final VoidCallback? onSkip;
+
   final VoidCallback onPass;
   final VoidCallback? onNotYou;
   final ValueChanged<TurnShellState>? onStateChanged;
@@ -179,6 +218,7 @@ class TurnShell extends StatefulWidget {
   static const Key slotRail = ValueKey('turn_shell_rail');
   static const Key slotBody = ValueKey('turn_shell_body');
   static const Key slotDetail = ValueKey('turn_shell_detail');
+  static const Key slotWhisper = ValueKey('turn_shell_whisper');
   static const Key slotAction = ValueKey('turn_shell_action');
   static const Key slotFootnote = ValueKey('turn_shell_footnote');
 
@@ -187,6 +227,9 @@ class TurnShell extends StatefulWidget {
 
   /// Key of the hold-to-reveal identity pad.
   static const Key holdPad = ValueKey('turn_shell_hold_pad');
+
+  /// Key of the "choose nobody" control.
+  static const Key skipButton = ValueKey('turn_shell_skip_button');
 
   const TurnShell({
     super.key,
@@ -198,6 +241,10 @@ class TurnShell extends StatefulWidget {
     required this.onConfirmed,
     required this.onPass,
     this.confirmationDetail,
+    this.whisperBody,
+    this.whispersEnabled = false,
+    this.onWhisperRead,
+    this.onSkip,
     this.onNotYou,
     this.onStateChanged,
     required this.labels,
@@ -302,6 +349,15 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
   bool get _confirmEnabled =>
       _dwellElapsed && _selectedSeat != null && !_confirmed;
 
+  /// Choosing nobody is gated on exactly the same dwell as confirming.
+  ///
+  /// Not because a fast skip would leak — the pass control is what ends the
+  /// turn, and it is measured from the reveal — but because two controls on one
+  /// screen that unlock at different moments are two different affordances, and
+  /// one path with one shape for every role is the whole of L-05.
+  bool get _skipEnabled =>
+      widget.onSkip != null && _dwellElapsed && !_confirmed;
+
   bool get _passEnabled => _confirmed && _floorElapsed;
 
   void _select(int seat) {
@@ -314,6 +370,29 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
     final seat = _selectedSeat!;
     setState(() => _confirmed = true);
     widget.onConfirmed(seat);
+  }
+
+  void _skip() {
+    if (!_skipEnabled) return;
+    setState(() {
+      _selectedSeat = null;
+      _confirmed = true;
+    });
+    widget.onSkip!.call();
+  }
+
+  /// True once the whisper slot has been on screen; the read is reported once.
+  bool _whisperReported = false;
+
+  void _reportWhisperRead() {
+    if (_whisperReported) return;
+    if (widget.whisperBody == null) return;
+    _whisperReported = true;
+    final cb = widget.onWhisperRead;
+    if (cb == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) cb();
+    });
   }
 
   void _notifyStateIfChanged() {
@@ -372,11 +451,22 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
                     key: TurnShell.slotDetail,
                     child: _detailSlot(state),
                   ),
+                  if (widget.whispersEnabled) ...[
+                    SizedBox(height: spacing.sm),
+                    KeyedSubtree(
+                      key: TurnShell.slotWhisper,
+                      child: _whisperSlot(state),
+                    ),
+                  ],
                   SizedBox(height: spacing.md),
                   KeyedSubtree(
                     key: TurnShell.slotAction,
                     child: _actionSlot(state),
                   ),
+                  if (widget.onSkip != null) ...[
+                    SizedBox(height: spacing.xs),
+                    _skipSlot(state),
+                  ],
                   SizedBox(height: spacing.sm),
                   KeyedSubtree(
                     key: TurnShell.slotFootnote,
@@ -670,6 +760,121 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
               ),
             )
           : const SizedBox.expand(),
+    );
+  }
+
+  /// "Choose nobody" — the same control, in the same place, for every role.
+  ///
+  /// ## Why every role gets it and not just the Citizen
+  ///
+  /// Doc 11 N10 names one case: a Citizen who declines to record a suspicion,
+  /// which feeds `T6` and `C10`. If that were the only case, the control would
+  /// exist on one role's screen and be absent from three — the cleanest
+  /// structural tell in the app, and a direct breach of doc 05 rules 5 and 6.
+  ///
+  /// It is also the right game rule. Doc 10 §8.2 already needs three of the
+  /// four roles to have a null action for timer expiry ("no protection", "no
+  /// investigation", "recorded as skipped"), and a Mafia who deliberately kills
+  /// nobody is a legal and occasionally very good night.
+  ///
+  /// Low emphasis, below the primary action: it is an alternative to the
+  /// confirm, not a competitor for it.
+  Widget _skipSlot(TurnShellState state) {
+    final colors = context.colors;
+    final spacing = context.spacing;
+    final type = context.typography;
+
+    final isPassPhase = state == TurnShellState.confirmed ||
+        state == TurnShellState.passUnlocked;
+
+    return SizedBox(
+      height: _reserve(spacing.xl),
+      child: isPassPhase
+          // Gone once the turn is recorded, exactly like the Confirm it sits
+          // under — and gone for everyone at the same moment, because the
+          // moment is a function of the shared turn clock.
+          ? const SizedBox.expand()
+          : TextButton(
+              key: TurnShell.skipButton,
+              onPressed: _skipEnabled ? _skip : null,
+              style: TextButton.styleFrom(
+                foregroundColor: colors.textMuted,
+                disabledForegroundColor: colors.surfaceOverlay,
+              ),
+              child: Text(
+                widget.labels.skipAction,
+                style: type.bodySmall,
+                maxLines: 1,
+                textAlign: TextAlign.center,
+              ),
+            ),
+    );
+  }
+
+  /// The whisper slot (doc 09 §3.6).
+  ///
+  /// ## This is the one slot that may never vary by recipient
+  ///
+  /// Doc 11 H-E8 makes it mandatory and says why: the card must appear on every
+  /// player's turn, empty state included, *"otherwise screen count leaks who
+  /// received one."* So the box, the border, the caption, the height and the
+  /// moment it appears are all fixed, and the only thing that differs between a
+  /// player with a whisper and a player without one is the sentence inside it.
+  /// Two players holding the phone produce the same shape, the same amount of
+  /// light and the same number of screens whatever is waiting for them.
+  ///
+  /// It shows from the confirmed state onward, which is the "second screen" of
+  /// doc 05 rule 1 — the part of a turn that is otherwise dead time while the
+  /// pass floor runs down.
+  Widget _whisperSlot(TurnShellState state) {
+    final colors = context.colors;
+    final spacing = context.spacing;
+    final radii = context.radii;
+    final type = context.typography;
+
+    final visible = state == TurnShellState.confirmed ||
+        state == TurnShellState.passUnlocked;
+    if (visible) _reportWhisperRead();
+
+    return SizedBox(
+      // Unconditional, like every other reservation in this shell.
+      height: _reserve(spacing.xxl + spacing.md),
+      child: !visible
+          ? const SizedBox.expand()
+          : DecoratedBox(
+              decoration: BoxDecoration(
+                color: colors.surfaceRaised,
+                borderRadius: BorderRadius.circular(radii.card),
+                border: Border.all(color: colors.borderSubtle),
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: spacing.sm),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.labels.whisperLabel,
+                      style: type.caption.copyWith(color: colors.textMuted),
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: spacing.xs),
+                    Text(
+                      widget.whisperBody ?? widget.labels.whisperEmpty,
+                      style: type.bodySmall.copyWith(
+                        // One colour for both cases. A whisper set brighter
+                        // than the empty line would put the difference back
+                        // into the light the neighbours can see.
+                        color: colors.textSecondary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 

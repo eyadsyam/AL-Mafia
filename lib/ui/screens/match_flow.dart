@@ -6,11 +6,16 @@ import '../../engine/models/enums.dart' show GamePhase, PlayerStatus;
 import '../../engine/models/player.dart' show PhaseRef;
 import '../../app/asset_constants.dart';
 import '../../platform/audio_director.dart';
+import '../../transport/game_snapshot.dart' show ConnectionQuality;
+import '../information_text.dart';
 import '../l10n_ext.dart';
 import '../theme/mafia_theme.dart';
+import 'day/confrontation_screen.dart';
 import 'day/discussion_screen.dart';
+import 'day/opening_round_screen.dart';
 import 'day/vote_result_screen.dart';
 import 'day/voting_screen.dart';
+import 'day/whisper_compose_screen.dart';
 import 'distribution/pre_night_lobby_screen.dart';
 import 'distribution/role_reveal_screen.dart';
 import 'match_controller.dart';
@@ -19,7 +24,10 @@ import 'night/night_action_screen.dart';
 import 'postgame/result_screen.dart';
 import 'setup/group_follow_up.dart';
 import '../widgets/cinematic_text.dart';
+import '../widgets/connection_banner.dart';
 import '../widgets/phase_transition.dart';
+import '../widgets/voice_controls.dart';
+import 'online/voice_session.dart';
 
 /// Drives a whole match from role distribution to the result screen.
 ///
@@ -123,6 +131,14 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
   /// Runs after the current announcement finishes fading out.
   VoidCallback? _afterMoment;
 
+  /// True while the whisper composer is open over the discussion.
+  ///
+  /// Local, on-table state rather than a route: the phase is the router in this
+  /// file, and pushing a page would create a second notion of "where we are"
+  /// that a resume could not reproduce. An interrupted match comes back to the
+  /// discussion, which is the right answer — an unsent whisper was never sent.
+  bool _composingWhisper = false;
+
   /// Shows [moment], then runs [then].
   ///
   /// The engine step goes in [then] rather than before the call, so the words
@@ -174,6 +190,12 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     GamePhase.voting,
     GamePhase.voteResolving,
   };
+  //
+  // `openingRound` is deliberately absent, and it is the one entry worth
+  // justifying: it has a `currentActorSeat`, and every *other* phase that has
+  // one is in-hand. Nothing on it is private — the player says the name to the
+  // room and the phone writes down what everyone already heard — so the phone
+  // stays flat and the cues stay allowed.
 
   /// Pushes the host's audio settings onto the director before anything plays.
   ///
@@ -181,7 +203,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
   /// covers every path into a phase, including a resume, rather than only the
   /// ones somebody remembered to annotate.
   void _syncAudioSettings() {
-    final settings = _controller.engine.match.settings;
+    final settings = _controller.settings;
     _audio
       ..muted = settings.muteAllAudio
       ..narrationEnabled = settings.narrationEnabled
@@ -247,7 +269,33 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
 
     // Keyed on the phase alone, so a rebuild inside a phase — a timer tick, a
     // target being picked — passes straight through without a dip.
-    return PhaseTransition(phaseKey: state.phase, child: _phaseScreen(state));
+    final screen =
+        PhaseTransition(phaseKey: state.phase, child: _phaseScreen(state));
+
+    // The banner is one of the two widgets doc 10 §7 lets read the transport's
+    // state, and it reads a field rather than a type. Offline the quality is
+    // `local` and it draws nothing at all, so this costs an offline match one
+    // zero-height box.
+    final connection = _controller.snapshot.connection;
+    final banner = connection != ConnectionQuality.local &&
+        connection != ConnectionQuality.connected;
+
+    // The voice controls are the second of doc 10 §7's two exceptions, and
+    // they are here rather than on the screens that have a floor so that the
+    // rule lives in one place. Offline there is no call, so this is null and
+    // the tree below is exactly the tree an offline match has always had —
+    // which the golden tests would notice if it were not.
+    final voice = ref.watch(voiceStateProvider).valueOrNull;
+
+    if (!banner && voice == null) return screen;
+    return Column(
+      children: [
+        if (banner)
+          SafeArea(bottom: false, child: ConnectionBanner(quality: connection)),
+        Expanded(child: screen),
+        if (voice != null) const SafeArea(top: false, child: VoiceControls()),
+      ],
+    );
   }
 
   Widget _phaseScreen(MatchUiState state) {
@@ -264,10 +312,12 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         onBeginNight: _beginNight,
       ),
       GamePhase.night || GamePhase.nightResolving => _night(state),
-      GamePhase.morning => _morningOrDiscussion(state),
+      GamePhase.morning => _morningOrDay(state),
+      GamePhase.openingRound => _openingRound(state),
+      GamePhase.confrontation => _confrontation(state),
       GamePhase.discussion => _discussion(state),
       GamePhase.voting || GamePhase.voteResolving => VotingScreen(
-        allowAbstain: _controller.engine.match.settings.abstainAllowed,
+        allowAbstain: _controller.settings.abstainAllowed,
         onVotingComplete: _resolveDayVote,
       ),
       GamePhase.reveal || GamePhase.winCheck => _voteResult(state),
@@ -301,12 +351,12 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
 
     // Which morning it was is public the moment it is announced — the briefing
     // screen behind this says the same thing in more words.
-    final died = _controller.engine.match.phase == GamePhase.morning &&
+    final died = _controller.snapshot.phase == GamePhase.morning &&
         ref.read(matchControllerProvider)?.morning?.victimSeat != null;
     _announce(died ? _Moment.morningDeath : _Moment.morningQuiet, () {});
   }
 
-  void _startDiscussion() {
+  void _startDay() {
     // The morning has been read; only now may the match end on it. Doc 06 §4:
     // the victim is announced first and the result second, because "the last
     // mafia is gone" landing *after* you know who died is the payoff for the
@@ -324,9 +374,13 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     }
 
     setState(
-      () => _morningAcknowledgedFor = _controller.engine.match.dayNumber,
+      () => _morningAcknowledgedFor = _controller.snapshot.dayNumber,
     );
-    _controller.beginDiscussion();
+    // One door out of the morning. Whether that lands on the «اسم واحد» round,
+    // a confrontation, or straight on the discussion is the engine's call —
+    // `_phaseScreen` follows the phase it produced, exactly as it does
+    // everywhere else.
+    _controller.beginDay();
     _commit();
   }
 
@@ -358,7 +412,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     // If that ended the match, the result gets its own announcement before the
     // roster of who was what. The same sting either way — two would tell the
     // room the outcome before the screen did.
-    final winner = _controller.engine.match.outcome?.winner;
+    final winner = _controller.snapshot.public.outcome?.winner;
     if (winner != null) {
       _announce(
         winner == engine.Alignment.mafia ? _Moment.mafiaWins : _Moment.townWins,
@@ -383,8 +437,8 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     return NightActionScreen(onNightComplete: _resolveNight);
   }
 
-  Widget _morningOrDiscussion(MatchUiState state) {
-    // `morning` covers both the briefing and the moment just before discussion
+  Widget _morningOrDay(MatchUiState state) {
+    // `morning` covers both the briefing and the moment just before the day
     // opens; the acknowledgement flag distinguishes them without inventing a
     // phase the engine does not have.
     if (_morningAcknowledgedFor == state.dayNumber) {
@@ -399,12 +453,74 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
           ? null
           : state.public.players[victimSeat].name,
       someoneSavedUnnamed: report?.someoneSavedUnnamed ?? false,
-      onContinue: _startDiscussion,
+      // Read from the engine rather than recomputed here. The trace was
+      // decided when the night resolved and written to the log; asking the
+      // generator again on every rebuild could produce a different sentence
+      // from the one the table is looking at.
+      traceText: InformationText.trace(
+        context.l10n,
+        _controller.snapshot.trace,
+        _seatNames(state),
+      ),
+      onContinue: _startDay,
+    );
+  }
+
+  Map<int, String> _seatNames(MatchUiState state) => {
+        for (final p in state.public.players) p.seat: p.name,
+      };
+
+  Widget _openingRound(MatchUiState state) {
+    final seat = state.currentActorSeat;
+    if (seat == null) return const SizedBox.shrink();
+    return OpeningRoundScreen(
+      key: ValueKey('opening-$seat'),
+      dayNumber: state.dayNumber,
+      currentSeat: seat,
+      players: state.public.players,
+      onAccuse: (target) {
+        _controller.submitOpeningAccusation(targetSeat: target);
+        _commit();
+      },
+    );
+  }
+
+  Widget _confrontation(MatchUiState state) {
+    final confrontation = _controller.snapshot.confrontation;
+    final names = _seatNames(state);
+    final observation = confrontation == null
+        ? null
+        : InformationText.confrontation(context.l10n, confrontation, names);
+
+    // A confrontation the renderer cannot express is not shown at all — the
+    // day simply moves on. Never a blank screen with a timer on it.
+    if (confrontation == null || observation == null) {
+      return _AutoAdvance(
+        onReady: () {
+          _controller.endConfrontation(silent: true);
+          _commit();
+        },
+      );
+    }
+
+    return ConfrontationScreen(
+      key: ValueKey('confrontation-${state.dayNumber}'),
+      dayNumber: state.dayNumber,
+      playerName: names[confrontation.targetSeat] ?? '',
+      observation: observation,
+      window: Duration(
+        seconds: _controller.settings.confrontationSeconds,
+      ),
+      onFinished: ({required bool silent}) {
+        _controller.endConfrontation(silent: silent);
+        _commit();
+      },
     );
   }
 
   Widget _discussion(MatchUiState state) {
-    final settings = _controller.engine.match.settings;
+    final settings = _controller.settings;
+    if (_composingWhisper) return _whisperComposer(state);
     // Discussion is entirely on-table, so its cues are always safe to play.
     // (The narration switch itself is applied in `build`, for every phase.)
     return DiscussionScreen(
@@ -418,7 +534,48 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       perSpeakerTime: Duration(seconds: settings.speechSeconds),
       onSpeakerChanged: () => _cue(AudioCue.speakerChange),
       onTimerEnded: () => _cue(AudioCue.timerEnd),
+      // Floor time is the only evidence `C6` has, and it is recorded whether
+      // the slot expired or was waved on.
+      onSpoke: (seat, seconds) {
+        _controller.recordSpeaking(seat: seat, seconds: seconds);
+        _commit();
+      },
+      onWhisper: settings.whisperEnabled
+          ? () => setState(() => _composingWhisper = true)
+          : null,
+      whisperGraph: _whisperGraph(state),
       onFinished: _startVoting,
+    );
+  }
+
+  /// Today's whisper edges, as display names. Never a body.
+  ///
+  /// Off the snapshot, which is where the graph is public in both modes: the
+  /// edge is the layer's whole point and the body is somewhere this screen
+  /// cannot reach.
+  List<(String, String)> _whisperGraph(MatchUiState state) {
+    final names = _seatNames(state);
+    return [
+      for (final w in _controller.snapshot.whisperGraph)
+        (names[w.fromSeat] ?? '', names[w.toSeat] ?? ''),
+    ];
+  }
+
+  Widget _whisperComposer(MatchUiState state) {
+    return WhisperComposeScreen(
+      players: state.public.players,
+      alreadySent: {
+        for (final w in _controller.snapshot.whisperGraph) w.fromSeat,
+      },
+      onCancel: () => setState(() => _composingWhisper = false),
+      onSend: (from, to, body) async {
+        // Graph and body part company inside the transport - doc 09 §5's
+        // split, made in the one layer that knows where each half lives.
+        await _controller.sendWhisper(fromSeat: from, toSeat: to, body: body);
+        if (!mounted) return;
+        setState(() => _composingWhisper = false);
+        _commit();
+      },
     );
   }
 
@@ -444,7 +601,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     final outcome = state.public.outcome;
     if (outcome == null) return const SizedBox.shrink();
 
-    final match = _controller.engine.match;
+    final snapshot = _controller.snapshot;
     // Wrapped, not modified: the follow-up asks whether tonight's guests and
     // seating order should be kept in the saved group, and renders the result
     // screen underneath untouched. It is a no-op unless this match was started
@@ -453,15 +610,25 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       child: ResultScreen(
         winner: outcome.winner,
         rows: [
-          for (final p in match.players)
+          for (final p in snapshot.standings)
             ResultRow(
               seat: p.seat,
               name: p.name,
               role: p.role,
-              eliminatedLabel: _eliminationLabel(p.eliminatedOn),
+              eliminatedLabel: _eliminationLabel(
+                p.eliminatedPhase == null
+                    ? null
+                    : PhaseRef(
+                        phase: p.eliminatedPhase!,
+                        number: p.eliminatedNumber ?? 0,
+                      ),
+              ),
             ),
         ],
-        onAnalytics: widget.onAnalytics,
+        // Offered only when there is a local record to open. An online match
+        // has not been written to this device's database, so the autopsy would
+        // open on nothing.
+        onAnalytics: snapshot.analyticsAvailable ? widget.onAnalytics : null,
         onHome: widget.onExit,
       ),
     );

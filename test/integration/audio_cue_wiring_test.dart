@@ -129,6 +129,14 @@ void main() {
       await playNight(tester);
       await tester.tap(find.text('ابدأ النقاش'));
       await tester.pumpAndSettle();
+
+      // Day 1 opens on the «اسم واحد» round, which is on the table and has
+      // to be played through before the discussion exists.
+      while (controller().engine.match.phase == GamePhase.openingRound) {
+        await tester.tap(find.byType(PlayerTile).first);
+        await tester.pumpAndSettle();
+      }
+
       await tester.tap(find.text('إنهاء النقاش'));
       await tester.pumpAndSettle();
 

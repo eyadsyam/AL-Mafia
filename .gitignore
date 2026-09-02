@@ -56,3 +56,16 @@ raw_assets/assets/videos/
 # VS Code Code Runner scratch output. Lands in whatever directory was focused,
 # is never valid Dart, and trips the analyzer.
 **/tempCodeRunnerFile.dart
+
+# The project this build talks to. Copy `dart_defines.example.json` to
+# `dart_defines.json` and fill it in; the publishable key is not a secret the
+# way a service key is, but it is per-deployment and a checked-in one is a
+# checked-in one (see `SupabaseConfig`).
+dart_defines.json
+
+# The release signing key and its passwords. Does not exist yet — the release
+# block still uses the debug config — and is ignored ahead of time so that the
+# day it does exist is not the day somebody commits a keystore password.
+android/key.properties
+*.jks
+*.keystore

@@ -59,6 +59,51 @@ class MatchSettings {
   /// point. Five is long enough to be deliberate.
   final int identityHoldSeconds;
 
+  // ---------------------------------------------------------------------------
+  // The Information Engine (doc 09 §7).
+  //
+  // Every one of these is togglable, and that is a rule rather than a courtesy:
+  // *"Groups differ, and a mechanic that a group dislikes should be removable
+  // rather than endured."* With all four of the first flags off, the match is
+  // classic Mafia and the generators never run.
+  // ---------------------------------------------------------------------------
+
+  /// Layer 1. The one true forensic observation published each morning.
+  final bool traceEnabled;
+
+  /// Layer 2. The single daily confrontation, Day 2 onward.
+  final bool confrontationEnabled;
+
+  /// Layer 3. One private message per living player per day.
+  ///
+  /// **Off by default offline**, per doc 09 §7: at the table a whisper waits
+  /// for the recipient's next night turn, so it lands a full phase after it was
+  /// written and reads as an odd delayed note rather than a live channel. The
+  /// online transport turns it on, where delivery is immediate and the layer is
+  /// the thing that makes online richer than offline.
+  final bool whisperEnabled;
+
+  /// Whether the post-match screen shows whisper *bodies* as well as the graph.
+  ///
+  /// The graph is always revealed; this is only about content, and it is off by
+  /// default because a player writes a whisper believing one other person will
+  /// read it.
+  final bool revealWhisperContent;
+
+  /// Day 1's «اسم واحد» round.
+  final bool openingRoundEnabled;
+
+  /// `C11` («الناجي»).
+  ///
+  /// **Off, and it should stay off for most tables.** It announces that a save
+  /// occurred *and* names who was saved, which narrows the Doctor to whoever
+  /// could plausibly have been protecting that seat. Doc 09 §2.3 lists it "for
+  /// completeness only".
+  final bool survivorConfrontationEnabled;
+
+  /// How long the confronted player holds the floor. 30 / 45 / 60.
+  final int confrontationSeconds;
+
   const MatchSettings({
     this.speechSeconds = 60,
     this.discussionMode = DiscussionMode.structured,
@@ -68,6 +113,13 @@ class MatchSettings {
     this.identityHoldSeconds = 5,
     this.muteAllAudio = false,
     this.scoreEnabled = true,
+    this.traceEnabled = true,
+    this.confrontationEnabled = true,
+    this.whisperEnabled = false,
+    this.revealWhisperContent = false,
+    this.openingRoundEnabled = true,
+    this.survivorConfrontationEnabled = false,
+    this.confrontationSeconds = 45,
   });
 
   /// Default settings constructor.
@@ -79,7 +131,14 @@ class MatchSettings {
         abstainAllowed = false,
         identityHoldSeconds = 5,
         muteAllAudio = false,
-        scoreEnabled = true;
+        scoreEnabled = true,
+        traceEnabled = true,
+        confrontationEnabled = true,
+        whisperEnabled = false,
+        revealWhisperContent = false,
+        openingRoundEnabled = true,
+        survivorConfrontationEnabled = false,
+        confrontationSeconds = 45;
 
   /// Create a copy with optional field overrides.
   MatchSettings copyWith({
@@ -91,6 +150,13 @@ class MatchSettings {
     int? identityHoldSeconds,
     bool? muteAllAudio,
     bool? scoreEnabled,
+    bool? traceEnabled,
+    bool? confrontationEnabled,
+    bool? whisperEnabled,
+    bool? revealWhisperContent,
+    bool? openingRoundEnabled,
+    bool? survivorConfrontationEnabled,
+    int? confrontationSeconds,
   }) =>
       MatchSettings(
         speechSeconds: speechSeconds ?? this.speechSeconds,
@@ -101,6 +167,17 @@ class MatchSettings {
         identityHoldSeconds: identityHoldSeconds ?? this.identityHoldSeconds,
         muteAllAudio: muteAllAudio ?? this.muteAllAudio,
         scoreEnabled: scoreEnabled ?? this.scoreEnabled,
+        traceEnabled: traceEnabled ?? this.traceEnabled,
+        confrontationEnabled:
+            confrontationEnabled ?? this.confrontationEnabled,
+        whisperEnabled: whisperEnabled ?? this.whisperEnabled,
+        revealWhisperContent:
+            revealWhisperContent ?? this.revealWhisperContent,
+        openingRoundEnabled: openingRoundEnabled ?? this.openingRoundEnabled,
+        survivorConfrontationEnabled:
+            survivorConfrontationEnabled ?? this.survivorConfrontationEnabled,
+        confrontationSeconds:
+            confrontationSeconds ?? this.confrontationSeconds,
       );
 
   @override
@@ -115,23 +192,42 @@ class MatchSettings {
           abstainAllowed == other.abstainAllowed &&
           identityHoldSeconds == other.identityHoldSeconds &&
           muteAllAudio == other.muteAllAudio &&
-          scoreEnabled == other.scoreEnabled;
+          scoreEnabled == other.scoreEnabled &&
+          traceEnabled == other.traceEnabled &&
+          confrontationEnabled == other.confrontationEnabled &&
+          whisperEnabled == other.whisperEnabled &&
+          revealWhisperContent == other.revealWhisperContent &&
+          openingRoundEnabled == other.openingRoundEnabled &&
+          survivorConfrontationEnabled == other.survivorConfrontationEnabled &&
+          confrontationSeconds == other.confrontationSeconds;
 
   @override
-  int get hashCode =>
-      speechSeconds.hashCode ^
-      discussionMode.hashCode ^
-      dayTieRule.hashCode ^
-      narrationEnabled.hashCode ^
-      abstainAllowed.hashCode ^
-      identityHoldSeconds.hashCode ^
-      muteAllAudio.hashCode ^
-      scoreEnabled.hashCode;
+  int get hashCode => Object.hash(
+        speechSeconds,
+        discussionMode,
+        dayTieRule,
+        narrationEnabled,
+        abstainAllowed,
+        identityHoldSeconds,
+        muteAllAudio,
+        scoreEnabled,
+        traceEnabled,
+        confrontationEnabled,
+        whisperEnabled,
+        revealWhisperContent,
+        openingRoundEnabled,
+        survivorConfrontationEnabled,
+        confrontationSeconds,
+      );
 
   @override
   String toString() =>
       'MatchSettings(speechSeconds=$speechSeconds, discussionMode=$discussionMode, '
       'dayTieRule=$dayTieRule, narrationEnabled=$narrationEnabled, abstainAllowed=$abstainAllowed, '
       'identityHoldSeconds=$identityHoldSeconds, muteAllAudio=$muteAllAudio, '
-      'scoreEnabled=$scoreEnabled)';
+      'scoreEnabled=$scoreEnabled, traceEnabled=$traceEnabled, '
+      'confrontationEnabled=$confrontationEnabled, whisperEnabled=$whisperEnabled, '
+      'revealWhisperContent=$revealWhisperContent, openingRoundEnabled=$openingRoundEnabled, '
+      'survivorConfrontationEnabled=$survivorConfrontationEnabled, '
+      'confrontationSeconds=$confrontationSeconds)';
 }

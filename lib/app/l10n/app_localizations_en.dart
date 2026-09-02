@@ -812,4 +812,311 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingWinBody =>
       'The town wins when the last mafia is voted out.\nThe mafia win once there are as many of them as there are townspeople.\nThat is all of it — the rest is talk and suspicion.';
+
+  @override
+  String get traceLabel => 'The trace';
+
+  @override
+  String get traceNone => 'This night left no trace';
+
+  @override
+  String traceLastSuspicion(String victim, String target) {
+    return 'The last thing $victim recorded: they suspected «$target»';
+  }
+
+  @override
+  String get traceSomeoneSurvived => 'Somebody was covered tonight… and lived';
+
+  @override
+  String traceAgreement(int count) {
+    return '$count players suspected the same person tonight';
+  }
+
+  @override
+  String traceShift(int count) {
+    return '$count changed who they suspect tonight';
+  }
+
+  @override
+  String get traceShadow => 'There is a player nobody has ever suspected';
+
+  @override
+  String get traceSilence => 'Somebody refused to record a suspicion tonight';
+
+  @override
+  String get traceCircle => 'Two of you suspect each other';
+
+  @override
+  String get traceConsensus => 'Most of the table suspected the same person';
+
+  @override
+  String get openingRoundTitle => 'One name';
+
+  @override
+  String get openingRoundBody =>
+      'One name each, in seating order. No explaining.';
+
+  @override
+  String openingRoundPrompt(String name) {
+    return 'Who do you suspect, $name?';
+  }
+
+  @override
+  String get confrontationLabel => 'The confrontation';
+
+  @override
+  String get confrontationExplain => 'Explain.';
+
+  @override
+  String get confrontationDone => 'Done';
+
+  @override
+  String confrontationC1(String x, String y) {
+    return 'You said you suspected $x, and you voted for $y.';
+  }
+
+  @override
+  String get confrontationC4 =>
+      'Nobody has suspected you once. Why do you think that is?';
+
+  @override
+  String confrontationC5(String x, int count) {
+    return 'You and $x voted the same way $count times. Coincidence?';
+  }
+
+  @override
+  String get confrontationC6 =>
+      'You have talked the least of anyone. Anything to say?';
+
+  @override
+  String get confrontationC7 =>
+      'The last person to die suspected you. Your answer?';
+
+  @override
+  String confrontationC8(String x) {
+    return 'You whisper to $x every day. Why him in particular?';
+  }
+
+  @override
+  String get confrontationC11 =>
+      'Somebody tried to reach you and failed. Who would protect you?';
+
+  @override
+  String get whisperLabel => 'Whisper';
+
+  @override
+  String get whisperNoneForYou => 'No whispers for you';
+
+  @override
+  String whisperFrom(String name) {
+    return 'From $name';
+  }
+
+  @override
+  String get whisperCompose => 'Send a whisper';
+
+  @override
+  String get whisperPickRecipient => 'To whom?';
+
+  @override
+  String get whisperBodyHint => 'Up to 120 characters';
+
+  @override
+  String get whisperSend => 'Send';
+
+  @override
+  String get whisperSent => 'Sent';
+
+  @override
+  String get whisperAlreadySentToday => 'You have already whispered today';
+
+  @override
+  String get whisperUndelivered => 'Your whisper never arrived';
+
+  @override
+  String whisperGraphTitle(int day) {
+    return 'Whispers, day $day';
+  }
+
+  @override
+  String get whisperGraphEmpty => 'Nobody whispered today';
+
+  @override
+  String whisperNobodySent(String names) {
+    return '($names did not send one)';
+  }
+
+  @override
+  String get whisperArrow => '→';
+
+  @override
+  String whisperTooLong(int count) {
+    return 'Too long by $count';
+  }
+
+  @override
+  String get whisperLanguageWarning =>
+      'That reads harsher than you may mean. Send anyway?';
+
+  @override
+  String get whisperReport => 'Report';
+
+  @override
+  String get whisperReported =>
+      'Reported. You will not see whispers from them again.';
+
+  @override
+  String get nightChooseNobody => 'Choose nobody';
+
+  @override
+  String get informationEngineSection => 'Information engine';
+
+  @override
+  String get settingTrace => 'The trace';
+
+  @override
+  String get settingTraceHint =>
+      'One true observation each morning. Off restores classic Mafia.';
+
+  @override
+  String get settingConfrontation => 'The confrontation';
+
+  @override
+  String get settingConfrontationHint =>
+      'One player answers for their own behaviour, once a day.';
+
+  @override
+  String get settingOpeningRound => '«One name» on day 1';
+
+  @override
+  String get settingOpeningRoundHint =>
+      'Ten seconds each, in seating order, to name one suspect.';
+
+  @override
+  String get settingWhisper => 'The whisper';
+
+  @override
+  String get settingWhisperHint =>
+      'One private message a day. Who wrote to whom is public; what they wrote is not.';
+
+  @override
+  String get settingRevealWhispers => 'Reveal whisper text after the match';
+
+  @override
+  String get settingRevealWhispersHint =>
+      'The graph is always revealed. This is about the words.';
+
+  @override
+  String get settingSurvivorConfrontation => '«The survivor» confrontation';
+
+  @override
+  String get settingSurvivorConfrontationHint =>
+      'Names a player who survived a night attempt. Narrows the doctor — for experienced groups.';
+
+  @override
+  String get settingConfrontationSeconds => 'Confrontation length';
+
+  @override
+  String get onlineMatch => 'Play online';
+
+  @override
+  String get onlineCreateRoom => 'Create a room';
+
+  @override
+  String get onlineJoinRoom => 'Join a room';
+
+  @override
+  String get onlineRoomCode => 'Room code';
+
+  @override
+  String get onlineRoomCodeHint => 'Six characters';
+
+  @override
+  String get onlineShareCode => 'Share the code';
+
+  @override
+  String get onlineWaitingForPlayers => 'Waiting for players…';
+
+  @override
+  String get onlineStartMatch => 'Start';
+
+  @override
+  String get onlineConnecting => 'Reconnecting…';
+
+  @override
+  String get onlineDisconnected => 'No connection';
+
+  @override
+  String get onlineNotConnected => 'Offline';
+
+  @override
+  String onlineHostLeft(String name) {
+    return 'The host left. $name is hosting now.';
+  }
+
+  @override
+  String get onlineRoomFull => 'That room is full';
+
+  @override
+  String get onlineRoomFinished => 'That match has already finished';
+
+  @override
+  String get onlineRoomNotFound => 'No room with that code';
+
+  @override
+  String get onlineUnreachable =>
+      'Cannot reach the server. Play offline instead?';
+
+  @override
+  String get onlineProjectPaused =>
+      'The server is asleep. Try again in a minute.';
+
+  @override
+  String get onlinePlayOffline => 'Play offline';
+
+  @override
+  String get onlineHeadphonesWarning =>
+      'If you are in the same room, use headphones';
+
+  @override
+  String get voiceMicOff => 'Microphone off';
+
+  @override
+  String get voiceMicOn => 'Microphone on';
+
+  @override
+  String get voiceTextMode => 'Voice unavailable — text mode';
+
+  @override
+  String get voiceMicDenied => 'No microphone. You can still hear everyone.';
+
+  @override
+  String get whoAreYou => 'Who are you?';
+
+  @override
+  String get onlineYourName => 'Your name';
+
+  @override
+  String get onlineHostBadge => 'Host';
+
+  @override
+  String get onlineNeedFivePlayers => 'At least five players';
+
+  @override
+  String get onlineLeave => 'Leave the room';
+
+  @override
+  String get onlineCodeCopied => 'Code copied';
+
+  @override
+  String get onlineWaitingForHost => 'Waiting for the host…';
+
+  @override
+  String get voiceTakeFloor => 'Speak';
+
+  @override
+  String get voiceYieldFloor => 'Done';
+
+  @override
+  String get voiceFloorTaken => 'Someone else has the floor';
 }

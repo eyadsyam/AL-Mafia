@@ -67,7 +67,7 @@ class RoleRevealScreen extends ConsumerWidget {
       role: reveal.role,
       teammateNames: reveal.teammateNames,
       identityHold: Duration(
-        seconds: controller.engine.match.settings.identityHoldSeconds,
+        seconds: controller.settings.identityHoldSeconds,
       ),
       // The page turn. This is the one screen in the app where a sound plays
       // while the phone is in somebody's hand, and `playCardTurn` is the only
@@ -76,7 +76,7 @@ class RoleRevealScreen extends ConsumerWidget {
       onFlip: ref.read(audioDirectorProvider).playCardTurn,
       onDismissed: () {
         controller.confirmRevealed();
-        if (controller.engine.match.currentActorSeat == null) {
+        if (controller.snapshot.currentActorSeat == null) {
           onDistributionComplete();
         }
       },

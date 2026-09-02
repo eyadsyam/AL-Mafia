@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mafia_master/data/match_seed.dart';
+import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
@@ -27,7 +29,7 @@ void main() {
   /// random now, so a test that assumed seat 0 was the mafia would pass or fail
   /// by luck.
   MatchEngine freshMatch() {
-    final engine = MatchEngine();
+    final engine = MatchEngine(clock: Clocks.monotonic());
     engine.start(
       names: const ['A', 'B', 'C', 'D', 'E'],
       roleCounts: const {
@@ -171,11 +173,17 @@ void main() {
 
   group('the deal is random', () {
     test('two matches with the same names deal different hands', () {
-      // Not a statistical claim — just that the default is not a constant. The
-      // seed used to default to 12345, so seat 0 drew the same role in every
-      // match ever played on every device.
+      // Not a statistical claim — just that a new match is not dealt from a
+      // constant. The seed used to default to 12345, so seat 0 drew the same
+      // role in every match ever played on every device.
+      //
+      // Where that freshness *comes from* has moved. `start` no longer mints a
+      // seed of its own: minting one means reading the platform's entropy, and
+      // `lib/engine/` may not read anything (the purity check enforces it). So
+      // the app mints it — `newMatchSeed()` — and this test now exercises the
+      // pair, which is the combination a real `startMatch` actually runs.
       List<Role> deal() {
-        final engine = MatchEngine();
+        final engine = MatchEngine(clock: Clocks.monotonic());
         engine.start(
           names: const ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
           roleCounts: const {
@@ -185,6 +193,7 @@ void main() {
             Role.citizen: 4,
           },
           settings: const MatchSettings(),
+          seed: newMatchSeed(),
         );
         return engine.match.players.map((p) => p.role).toList();
       }
@@ -201,7 +210,7 @@ void main() {
       // Determinism has to survive, or a stored match cannot be resumed and the
       // rest of the suite cannot rely on a fixed hand.
       List<Role> deal() {
-        final engine = MatchEngine();
+        final engine = MatchEngine(clock: Clocks.monotonic());
         engine.start(
           names: const ['A', 'B', 'C', 'D', 'E'],
           roleCounts: const {

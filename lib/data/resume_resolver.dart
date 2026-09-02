@@ -62,6 +62,14 @@ class ResumeResolver {
         ),
       GamePhase.morning =>
         ResumeTarget(screen: ResumeScreen.morning, dayNumber: match.dayNumber),
+      GamePhase.openingRound => ResumeTarget(
+          screen: ResumeScreen.dayOpening,
+          dayNumber: match.dayNumber,
+        ),
+      GamePhase.confrontation => ResumeTarget(
+          screen: ResumeScreen.confrontation,
+          dayNumber: match.dayNumber,
+        ),
       GamePhase.discussion => ResumeTarget(
           screen: ResumeScreen.discussion,
           dayNumber: match.dayNumber,

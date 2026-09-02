@@ -1501,6 +1501,540 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The town wins when the last mafia is voted out.\nThe mafia win once there are as many of them as there are townspeople.\nThat is all of it — the rest is talk and suspicion.'**
   String get onboardingWinBody;
+
+  /// Divider caption above the morning's forensic observation (doc 09 S-10).
+  ///
+  /// In en, this message translates to:
+  /// **'The trace'**
+  String get traceLabel;
+
+  /// No description provided for @traceNone.
+  ///
+  /// In en, this message translates to:
+  /// **'This night left no trace'**
+  String get traceNone;
+
+  /// No description provided for @traceLastSuspicion.
+  ///
+  /// In en, this message translates to:
+  /// **'The last thing {victim} recorded: they suspected «{target}»'**
+  String traceLastSuspicion(String victim, String target);
+
+  /// No description provided for @traceSomeoneSurvived.
+  ///
+  /// In en, this message translates to:
+  /// **'Somebody was covered tonight… and lived'**
+  String get traceSomeoneSurvived;
+
+  /// No description provided for @traceAgreement.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} players suspected the same person tonight'**
+  String traceAgreement(int count);
+
+  /// No description provided for @traceShift.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} changed who they suspect tonight'**
+  String traceShift(int count);
+
+  /// No description provided for @traceShadow.
+  ///
+  /// In en, this message translates to:
+  /// **'There is a player nobody has ever suspected'**
+  String get traceShadow;
+
+  /// No description provided for @traceSilence.
+  ///
+  /// In en, this message translates to:
+  /// **'Somebody refused to record a suspicion tonight'**
+  String get traceSilence;
+
+  /// No description provided for @traceCircle.
+  ///
+  /// In en, this message translates to:
+  /// **'Two of you suspect each other'**
+  String get traceCircle;
+
+  /// No description provided for @traceConsensus.
+  ///
+  /// In en, this message translates to:
+  /// **'Most of the table suspected the same person'**
+  String get traceConsensus;
+
+  /// No description provided for @openingRoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One name'**
+  String get openingRoundTitle;
+
+  /// No description provided for @openingRoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'One name each, in seating order. No explaining.'**
+  String get openingRoundBody;
+
+  /// No description provided for @openingRoundPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Who do you suspect, {name}?'**
+  String openingRoundPrompt(String name);
+
+  /// No description provided for @confrontationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'The confrontation'**
+  String get confrontationLabel;
+
+  /// No description provided for @confrontationExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain.'**
+  String get confrontationExplain;
+
+  /// No description provided for @confrontationDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get confrontationDone;
+
+  /// No description provided for @confrontationC1.
+  ///
+  /// In en, this message translates to:
+  /// **'You said you suspected {x}, and you voted for {y}.'**
+  String confrontationC1(String x, String y);
+
+  /// No description provided for @confrontationC4.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody has suspected you once. Why do you think that is?'**
+  String get confrontationC4;
+
+  /// No description provided for @confrontationC5.
+  ///
+  /// In en, this message translates to:
+  /// **'You and {x} voted the same way {count} times. Coincidence?'**
+  String confrontationC5(String x, int count);
+
+  /// No description provided for @confrontationC6.
+  ///
+  /// In en, this message translates to:
+  /// **'You have talked the least of anyone. Anything to say?'**
+  String get confrontationC6;
+
+  /// No description provided for @confrontationC7.
+  ///
+  /// In en, this message translates to:
+  /// **'The last person to die suspected you. Your answer?'**
+  String get confrontationC7;
+
+  /// No description provided for @confrontationC8.
+  ///
+  /// In en, this message translates to:
+  /// **'You whisper to {x} every day. Why him in particular?'**
+  String confrontationC8(String x);
+
+  /// No description provided for @confrontationC11.
+  ///
+  /// In en, this message translates to:
+  /// **'Somebody tried to reach you and failed. Who would protect you?'**
+  String get confrontationC11;
+
+  /// No description provided for @whisperLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Whisper'**
+  String get whisperLabel;
+
+  /// No description provided for @whisperNoneForYou.
+  ///
+  /// In en, this message translates to:
+  /// **'No whispers for you'**
+  String get whisperNoneForYou;
+
+  /// No description provided for @whisperFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String whisperFrom(String name);
+
+  /// No description provided for @whisperCompose.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a whisper'**
+  String get whisperCompose;
+
+  /// No description provided for @whisperPickRecipient.
+  ///
+  /// In en, this message translates to:
+  /// **'To whom?'**
+  String get whisperPickRecipient;
+
+  /// No description provided for @whisperBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 120 characters'**
+  String get whisperBodyHint;
+
+  /// No description provided for @whisperSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get whisperSend;
+
+  /// No description provided for @whisperSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get whisperSent;
+
+  /// No description provided for @whisperAlreadySentToday.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already whispered today'**
+  String get whisperAlreadySentToday;
+
+  /// No description provided for @whisperUndelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Your whisper never arrived'**
+  String get whisperUndelivered;
+
+  /// No description provided for @whisperGraphTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Whispers, day {day}'**
+  String whisperGraphTitle(int day);
+
+  /// No description provided for @whisperGraphEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody whispered today'**
+  String get whisperGraphEmpty;
+
+  /// No description provided for @whisperNobodySent.
+  ///
+  /// In en, this message translates to:
+  /// **'({names} did not send one)'**
+  String whisperNobodySent(String names);
+
+  /// No description provided for @whisperArrow.
+  ///
+  /// In en, this message translates to:
+  /// **'→'**
+  String get whisperArrow;
+
+  /// No description provided for @whisperTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Too long by {count}'**
+  String whisperTooLong(int count);
+
+  /// No description provided for @whisperLanguageWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'That reads harsher than you may mean. Send anyway?'**
+  String get whisperLanguageWarning;
+
+  /// No description provided for @whisperReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get whisperReport;
+
+  /// No description provided for @whisperReported.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported. You will not see whispers from them again.'**
+  String get whisperReported;
+
+  /// No description provided for @nightChooseNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose nobody'**
+  String get nightChooseNobody;
+
+  /// No description provided for @informationEngineSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Information engine'**
+  String get informationEngineSection;
+
+  /// No description provided for @settingTrace.
+  ///
+  /// In en, this message translates to:
+  /// **'The trace'**
+  String get settingTrace;
+
+  /// No description provided for @settingTraceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One true observation each morning. Off restores classic Mafia.'**
+  String get settingTraceHint;
+
+  /// No description provided for @settingConfrontation.
+  ///
+  /// In en, this message translates to:
+  /// **'The confrontation'**
+  String get settingConfrontation;
+
+  /// No description provided for @settingConfrontationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One player answers for their own behaviour, once a day.'**
+  String get settingConfrontationHint;
+
+  /// No description provided for @settingOpeningRound.
+  ///
+  /// In en, this message translates to:
+  /// **'«One name» on day 1'**
+  String get settingOpeningRound;
+
+  /// No description provided for @settingOpeningRoundHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ten seconds each, in seating order, to name one suspect.'**
+  String get settingOpeningRoundHint;
+
+  /// No description provided for @settingWhisper.
+  ///
+  /// In en, this message translates to:
+  /// **'The whisper'**
+  String get settingWhisper;
+
+  /// No description provided for @settingWhisperHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One private message a day. Who wrote to whom is public; what they wrote is not.'**
+  String get settingWhisperHint;
+
+  /// No description provided for @settingRevealWhispers.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal whisper text after the match'**
+  String get settingRevealWhispers;
+
+  /// No description provided for @settingRevealWhispersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The graph is always revealed. This is about the words.'**
+  String get settingRevealWhispersHint;
+
+  /// No description provided for @settingSurvivorConfrontation.
+  ///
+  /// In en, this message translates to:
+  /// **'«The survivor» confrontation'**
+  String get settingSurvivorConfrontation;
+
+  /// No description provided for @settingSurvivorConfrontationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Names a player who survived a night attempt. Narrows the doctor — for experienced groups.'**
+  String get settingSurvivorConfrontationHint;
+
+  /// No description provided for @settingConfrontationSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Confrontation length'**
+  String get settingConfrontationSeconds;
+
+  /// No description provided for @onlineMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Play online'**
+  String get onlineMatch;
+
+  /// No description provided for @onlineCreateRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a room'**
+  String get onlineCreateRoom;
+
+  /// No description provided for @onlineJoinRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a room'**
+  String get onlineJoinRoom;
+
+  /// No description provided for @onlineRoomCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Room code'**
+  String get onlineRoomCode;
+
+  /// No description provided for @onlineRoomCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Six characters'**
+  String get onlineRoomCodeHint;
+
+  /// No description provided for @onlineShareCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the code'**
+  String get onlineShareCode;
+
+  /// No description provided for @onlineWaitingForPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for players…'**
+  String get onlineWaitingForPlayers;
+
+  /// No description provided for @onlineStartMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get onlineStartMatch;
+
+  /// No description provided for @onlineConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnecting…'**
+  String get onlineConnecting;
+
+  /// No description provided for @onlineDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection'**
+  String get onlineDisconnected;
+
+  /// No description provided for @onlineNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get onlineNotConnected;
+
+  /// No description provided for @onlineHostLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'The host left. {name} is hosting now.'**
+  String onlineHostLeft(String name);
+
+  /// No description provided for @onlineRoomFull.
+  ///
+  /// In en, this message translates to:
+  /// **'That room is full'**
+  String get onlineRoomFull;
+
+  /// No description provided for @onlineRoomFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'That match has already finished'**
+  String get onlineRoomFinished;
+
+  /// No description provided for @onlineRoomNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No room with that code'**
+  String get onlineRoomNotFound;
+
+  /// No description provided for @onlineUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot reach the server. Play offline instead?'**
+  String get onlineUnreachable;
+
+  /// No description provided for @onlineProjectPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'The server is asleep. Try again in a minute.'**
+  String get onlineProjectPaused;
+
+  /// No description provided for @onlinePlayOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Play offline'**
+  String get onlinePlayOffline;
+
+  /// No description provided for @onlineHeadphonesWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'If you are in the same room, use headphones'**
+  String get onlineHeadphonesWarning;
+
+  /// No description provided for @voiceMicOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone off'**
+  String get voiceMicOff;
+
+  /// No description provided for @voiceMicOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone on'**
+  String get voiceMicOn;
+
+  /// No description provided for @voiceTextMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice unavailable — text mode'**
+  String get voiceTextMode;
+
+  /// No description provided for @voiceMicDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'No microphone. You can still hear everyone.'**
+  String get voiceMicDenied;
+
+  /// No description provided for @whoAreYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Who are you?'**
+  String get whoAreYou;
+
+  /// No description provided for @onlineYourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get onlineYourName;
+
+  /// No description provided for @onlineHostBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Host'**
+  String get onlineHostBadge;
+
+  /// No description provided for @onlineNeedFivePlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'At least five players'**
+  String get onlineNeedFivePlayers;
+
+  /// No description provided for @onlineLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the room'**
+  String get onlineLeave;
+
+  /// No description provided for @onlineCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied'**
+  String get onlineCodeCopied;
+
+  /// No description provided for @onlineWaitingForHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the host…'**
+  String get onlineWaitingForHost;
+
+  /// No description provided for @voiceTakeFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Speak'**
+  String get voiceTakeFloor;
+
+  /// No description provided for @voiceYieldFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get voiceYieldFloor;
+
+  /// No description provided for @voiceFloorTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else has the floor'**
+  String get voiceFloorTaken;
 }
 
 class _AppLocalizationsDelegate

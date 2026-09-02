@@ -498,6 +498,21 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// pause before the words arrive, and there is nothing to gain by varying it.
   final Duration phaseHold;
 
+  /// The pause between the morning's death line and the trace beneath it.
+  ///
+  /// Doc 09 §1.7: *"Trace text appears **1.2s after** the death line — never
+  /// simultaneously. The pause is the drama."* It is on the table, in front of
+  /// everyone, so it carries no leakage weight; it is here because it is a
+  /// duration and durations live in one file.
+  final Duration traceBeat;
+
+  /// How long the «اسم واحد» opener gives each player (doc 09 §2.2).
+  ///
+  /// Ten seconds, forced, one name. Not a setting: the whole mechanic is that
+  /// it is too short to explain in, and a table that stretches it has turned it
+  /// back into the opening silence it exists to kill.
+  final Duration openingRoundPerPlayer;
+
   const MafiaTiming({
     required this.holdToReveal,
     required this.dwellGate,
@@ -506,6 +521,8 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
     required this.revealFloor,
     required this.autoRevealDuration,
     required this.phaseHold,
+    required this.traceBeat,
+    required this.openingRoundPerPlayer,
   });
 
   static const MafiaTiming defaults = MafiaTiming(
@@ -516,6 +533,8 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
     revealFloor: Duration(seconds: 5),
     autoRevealDuration: Duration(seconds: 5),
     phaseHold: Duration(seconds: 3),
+    traceBeat: Duration(milliseconds: 1200),
+    openingRoundPerPlayer: Duration(seconds: 10),
   );
 
   @override
@@ -527,6 +546,8 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
     Duration? revealFloor,
     Duration? autoRevealDuration,
     Duration? phaseHold,
+    Duration? traceBeat,
+    Duration? openingRoundPerPlayer,
   }) {
     return MafiaTiming(
       holdToReveal: holdToReveal ?? this.holdToReveal,
@@ -536,6 +557,9 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
       revealFloor: revealFloor ?? this.revealFloor,
       autoRevealDuration: autoRevealDuration ?? this.autoRevealDuration,
       phaseHold: phaseHold ?? this.phaseHold,
+      traceBeat: traceBeat ?? this.traceBeat,
+      openingRoundPerPlayer:
+          openingRoundPerPlayer ?? this.openingRoundPerPlayer,
     );
   }
 

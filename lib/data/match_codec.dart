@@ -1,4 +1,5 @@
 import 'package:mafia_master/engine/models/enums.dart';
+import 'package:mafia_master/engine/models/information_enums.dart';
 import 'package:mafia_master/engine/models/match.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
 import 'package:mafia_master/engine/models/player.dart';
@@ -88,6 +89,13 @@ class MatchCodec {
         'identityHoldSeconds': s.identityHoldSeconds,
         'muteAllAudio': s.muteAllAudio,
         'scoreEnabled': s.scoreEnabled,
+        'traceEnabled': s.traceEnabled,
+        'confrontationEnabled': s.confrontationEnabled,
+        'whisperEnabled': s.whisperEnabled,
+        'revealWhisperContent': s.revealWhisperContent,
+        'openingRoundEnabled': s.openingRoundEnabled,
+        'survivorConfrontationEnabled': s.survivorConfrontationEnabled,
+        'confrontationSeconds': s.confrontationSeconds,
       };
 
   static MatchSettings _decodeSettings(Map<String, dynamic> json) =>
@@ -107,6 +115,27 @@ class MatchCodec {
             const MatchSettings.defaults().muteAllAudio,
         scoreEnabled: json['scoreEnabled'] as bool? ??
             const MatchSettings.defaults().scoreEnabled,
+        // The Information Engine's switches, all tolerated as missing for the
+        // same reason: a match written before this phase existed must still
+        // open in History and still resume. A resumed classic match simply
+        // gains the layers from its next morning on — nothing retroactive can
+        // be published, because the generators read the log and a log with no
+        // suspicions in it makes every trace ineligible.
+        traceEnabled: json['traceEnabled'] as bool? ??
+            const MatchSettings.defaults().traceEnabled,
+        confrontationEnabled: json['confrontationEnabled'] as bool? ??
+            const MatchSettings.defaults().confrontationEnabled,
+        whisperEnabled: json['whisperEnabled'] as bool? ??
+            const MatchSettings.defaults().whisperEnabled,
+        revealWhisperContent: json['revealWhisperContent'] as bool? ??
+            const MatchSettings.defaults().revealWhisperContent,
+        openingRoundEnabled: json['openingRoundEnabled'] as bool? ??
+            const MatchSettings.defaults().openingRoundEnabled,
+        survivorConfrontationEnabled:
+            json['survivorConfrontationEnabled'] as bool? ??
+                const MatchSettings.defaults().survivorConfrontationEnabled,
+        confrontationSeconds: json['confrontationSeconds'] as int? ??
+            const MatchSettings.defaults().confrontationSeconds,
       );
 
   // ---------------------------------------------------------------------------
@@ -177,6 +206,59 @@ class MatchCodec {
         },
       PlayerRemoved() => {...base, 'k': 'playerRemoved', 'seat': e.seat},
       WinReached() => {...base, 'k': 'winReached', 'alignment': e.alignment.name},
+      NightActionSkipped() => {
+          ...base,
+          'k': 'nightSkipped',
+          'actor': e.actorSeat,
+          'kind': e.kind.name,
+        },
+      TracePublished() => {
+          ...base,
+          'k': 'trace',
+          'type': e.type.name,
+          'subject': e.subjectSeat,
+          'target': e.targetSeat,
+          'count': e.count,
+        },
+      OpeningAccusationCast() => {
+          ...base,
+          'k': 'opening',
+          'actor': e.actorSeat,
+          'target': e.targetSeat,
+        },
+      ConfrontationIssued() => {
+          ...base,
+          'k': 'confront',
+          'target': e.targetSeat,
+          'type': e.type.name,
+          'evidenceSeat': e.evidenceSeat,
+          'evidenceSeat2': e.evidenceSeat2,
+          'evidenceDay': e.evidenceDay,
+          'count': e.count,
+        },
+      ConfrontationAnswered() => {
+          ...base,
+          'k': 'confrontEnd',
+          'target': e.targetSeat,
+          'silent': e.silent,
+        },
+      SpeakingRecorded() => {
+          ...base,
+          'k': 'spoke',
+          'seat': e.seat,
+          'seconds': e.seconds,
+        },
+      // Bodies are absent by construction — this log is the public record of
+      // the match and is written to History in full. See `WhisperContentStore`.
+      WhisperSent() => {
+          ...base,
+          'k': 'whisper',
+          'id': e.id,
+          'from': e.fromSeat,
+          'to': e.toSeat,
+        },
+      WhisperDelivered() => {...base, 'k': 'whisperRead', 'id': e.id},
+      WhisperVoided() => {...base, 'k': 'whisperVoid', 'id': e.id},
     };
   }
 
@@ -276,6 +358,67 @@ class MatchCodec {
           phaseRef: ref,
           alignment: _enumByName(Alignment.values, json['alignment'] as String),
         );
+      case 'nightSkipped':
+        return NightActionSkipped(
+          at: at,
+          phaseRef: ref,
+          actorSeat: json['actor'] as int,
+          kind: _enumByName(NightActionKind.values, json['kind'] as String),
+        );
+      case 'trace':
+        return TracePublished(
+          at: at,
+          phaseRef: ref,
+          type: _enumByName(TraceType.values, json['type'] as String),
+          subjectSeat: json['subject'] as int?,
+          targetSeat: json['target'] as int?,
+          count: json['count'] as int?,
+        );
+      case 'opening':
+        return OpeningAccusationCast(
+          at: at,
+          phaseRef: ref,
+          actorSeat: json['actor'] as int,
+          targetSeat: json['target'] as int,
+        );
+      case 'confront':
+        return ConfrontationIssued(
+          at: at,
+          phaseRef: ref,
+          targetSeat: json['target'] as int,
+          type: _enumByName(
+              ConfrontationType.values, json['type'] as String),
+          evidenceSeat: json['evidenceSeat'] as int?,
+          evidenceSeat2: json['evidenceSeat2'] as int?,
+          evidenceDay: json['evidenceDay'] as int?,
+          count: json['count'] as int?,
+        );
+      case 'confrontEnd':
+        return ConfrontationAnswered(
+          at: at,
+          phaseRef: ref,
+          targetSeat: json['target'] as int,
+          silent: json['silent'] as bool,
+        );
+      case 'spoke':
+        return SpeakingRecorded(
+          at: at,
+          phaseRef: ref,
+          seat: json['seat'] as int,
+          seconds: json['seconds'] as int,
+        );
+      case 'whisper':
+        return WhisperSent(
+          at: at,
+          phaseRef: ref,
+          id: json['id'] as String,
+          fromSeat: json['from'] as int,
+          toSeat: json['to'] as int,
+        );
+      case 'whisperRead':
+        return WhisperDelivered(at: at, phaseRef: ref, id: json['id'] as String);
+      case 'whisperVoid':
+        return WhisperVoided(at: at, phaseRef: ref, id: json['id'] as String);
       default:
         throw FormatException('Unknown timeline event kind: ${json['k']}');
     }

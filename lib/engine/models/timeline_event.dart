@@ -1,5 +1,8 @@
 import 'enums.dart';
+import 'information_enums.dart';
 import 'player.dart';
+
+part 'information_events.dart';
 
 /// Result of a Detective's investigation: the role discovered.
 /// Reference: data-model.md §5

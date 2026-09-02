@@ -363,17 +363,24 @@ class AnalyticsBuilder {
     }
 
     for (final doctorSeat in doctors) {
-      // Check if there's a NightResolved with a victimSeat and a savedSeat
+      // A night on which the doctor's protection actually stopped a kill.
+      //
+      // This asked for `victimSeat != null && savedSeat == victimSeat`, which
+      // no night can satisfy: a save is *defined* by nobody dying, so the two
+      // fields are never both set. The achievement was unreachable, and so was
+      // the bug - `savedSeat` was null on every night anyway (see
+      // `NightResolution`), so the condition failed at its first clause and the
+      // impossible second clause was never reached to look wrong.
+      //
+      // A recorded `savedSeat` *is* the whole condition. It is only ever
+      // written when a chosen target was protected.
       for (final event in match.eventLog) {
-        if (event is NightResolved && event.victimSeat != null && event.savedSeat != null) {
-          if (event.savedSeat == event.victimSeat) {
-            // Doctor protected the target that was about to be killed
-            achievements.add(Achievement(
-              code: 'guardian',
-              seats: [doctorSeat],
-            ));
-            break;
-          }
+        if (event is NightResolved && event.savedSeat != null) {
+          achievements.add(Achievement(
+            code: 'guardian',
+            seats: [doctorSeat],
+          ));
+          break;
         }
       }
     }
