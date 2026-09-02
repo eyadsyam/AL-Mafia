@@ -994,9 +994,20 @@ a credential, so it is yours to do, not mine — and once you have, the release
 block wants a real `signingConfig` and `key.properties` must join
 `dart_defines.json` in `.gitignore`.
 
-The APK is also large. Almost all of it is artwork, the ambient loops and the
-audio bed; a `--split-per-abi` build or the bundle's own per-device splitting
-brings the download down a long way, and the bundle is what ships.
+The APK is also large, and **not for the reason stated here earlier**. Opening
+it up: 92.6 MB of the 110 is three copies of the native libraries — x86_64
+36.9, arm64-v8a 31.7, armeabi-v7a 24.0 — and `assets/flutter_assets`, the
+artwork and the ambient loops and the audio bed together, is **14.7 MB**. The
+art is not the problem; shipping every ABI to every device is. Confirmed by
+building the splits:
+
+    app-arm64-v8a-release.apk     46.2 MB     <- what almost every real phone gets
+    app-armeabi-v7a-release.apk   38.4 MB
+    app-x86_64-release.apk        51.4 MB
+    app-release.apk (fat)        107.1 MB
+
+So the bundle, which splits per device automatically, is not a nicety here — it
+is more than half the download.
 
 Open:
 - The 5-device live match. Still the one thing five phones have to do, and
@@ -1023,3 +1034,105 @@ Open:
 
 Next:       Nothing in the build order. Every phase from 1 to 9 is done. What
             is left is a room with five phones in it.
+
+---
+
+## PHASE 9a — done
+
+Built:      nothing new. This closes the one box PHASE 9 left open: the release
+            build has now been **run**, not merely built — a whole match, on a
+            device, from a release APK, with every screen looked at.
+
+Files:      docs/PROGRESS.md (the APK-size paragraph above was wrong; corrected)
+
+Verified:   app-x86_64-release.apk installed and played end to end on an
+            Android 36 x86_64 emulator. Five seats, full role distribution,
+            night one, the morning trace, the opening round, the discussion
+            timer, four votes, the elimination and the postgame reveal.
+            `adb logcat -b crash` empty for the whole run; no `E/flutter`.
+
+Gate:       PASS.
+
+### What a release build was hiding, and what it wasn't
+
+Nothing. That is the finding, and it is worth stating plainly rather than
+skipping: R8 did not strip anything the app needed, the tree-shaken icon font
+resolved, and every asset that the debug build shows the release build shows
+too. Specifically confirmed on screen, because these are the things that fail
+only in release:
+
+  * the four role paintings and the ornate card back, at full size;
+  * the night street and the day square ambient grounds;
+  * the Arabic type — the display face, the numerals, RTL layout and the
+    line-height rule — in the release font subset;
+  * the `google_fonts` deferred-asset path, which is the one this project has
+    a standing note about (the Flutter SDK lives under a path with a space).
+
+### The information engine, watched rather than asserted
+
+Omar was killed on night one. The morning published exactly one trace:
+
+    الأثر — آخر حاجة سجّلها OMAR: كان شاكك في «ALI»
+
+Omar was a **citizen**. His night turn was a decoy, and the app reported it in
+the same words, the same slot and the same typography it would have used for a
+detective's real investigation — and it reported *whom he looked at*, never
+what he found, because for a citizen there is nothing to find. A player reading
+that sentence learns that Omar was looking at Ali and cannot tell whether Omar
+was capable of learning anything by doing so. That is doc 05's whole argument,
+and it is the first time it has been seen working on glass rather than in a
+matcher.
+
+The postgame timeline then showed the full set, correctly and only after the
+match was over: Nour investigated Ali, Zain protected Ali, Ali killed Omar,
+the town voted Ali out. Town won; `WinChecker` agreed with the table.
+
+### The turn shell, at the two places it is easiest to break
+
+Both hold gates behave: the identity gate at 5s, and the night-turn dwell gate
+at 8s, during which Confirm stays disabled and no amount of tapping ends the
+turn early. The mafia's kill screen and a citizen's decoy screen were captured
+back to back and are the same screen — same tile count, same tile spacing, same
+disabled Confirm, same subtitle rhythm — with only the sentence differing. And
+the reveal conceals itself: the card flips back to its back on its own and only
+then does the gold pass button appear, so the face is never what the next pair
+of hands sees.
+
+### The emulator problem was not the host disk
+
+PHASE 9 recorded this as "`C:` has 1.7 GB free". `C:` now has 32 GB free and
+the emulator still could not take the app: `INSTALL_FAILED_INSUFFICIENT_STORAGE`
+for a 51 MB APK with 378 MB free. The reason is that Android refuses *any*
+install once a partition is under its low-storage reserve — for a 5.8 GB
+`/data` that reserve is ~580 MB, so at 378 MB free the device was already
+below it and the size of the APK never entered into it. The stock
+`Pixel_9_Pro_2` AVD ships a 6 GB userdata partition and the Play system image's
+own data fills 5.2 GB of it; growing `disk.dataPartition.size` does not help,
+because the existing userdata image is not resized on boot.
+
+Resolved by creating a **separate** AVD rather than wiping the existing one:
+
+    MafiaMaster_Test — android-36 google_apis_playstore x86_64, 16 GB /data
+
+`Pixel_9_Pro_2` was not touched (its `config.ini` was restored byte for byte
+and no `-wipe-data` was ever run), so nothing installed on it was lost. Future
+release-build testing should use `MafiaMaster_Test`.
+
+### `auth_leaked_password_protection` — closed as not applicable
+
+Recorded in PHASE 9 as "a dashboard toggle, if you want it". Closing it: this
+project has no password authentication at all — the app's only door is
+`signInAnonymously`, and the setting checks submitted passwords against
+HaveIBeenPwned. With no password ever submitted there is nothing for it to
+check. It is not a gap and it does not need to be opened.
+
+Open:
+- The 5-device live match. Unchanged, and now the only untested box: a
+  disconnect at every phase boundary, one device refusing the microphone, one
+  on text mode.
+- A real signing key, and the Play track that follows it. The release block
+  still signs with the debug key.
+- `flutter_webrtc` applies the Kotlin Gradle Plugin. Unchanged; watch the
+  plugin's changelog.
+
+Next:       Nothing in the build order.
