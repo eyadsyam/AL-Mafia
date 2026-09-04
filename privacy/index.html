@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="index, follow">
+<title>سياسة الخصوصية — سيد المافيا | Privacy Policy — Mafia Master</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ground:  #0F0F0F;
+    --raised:  #1A1A1A;
+    --border:  #313131;
+    --muted:   #908C83;
+    --second:  #ADA99F;
+    --gold:    #C2BDB2;
+    --bone:    #E9E4D9;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--second);
+    font-family: 'IBM Plex Sans Arabic', system-ui, -apple-system, Segoe UI, sans-serif;
+    /* 1.6 and no letter-spacing: the same rule the app itself is held to. */
+    line-height: 1.6;
+    letter-spacing: 0;
+    font-size: 16px;
+  }
+  main { max-width: 46rem; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+  header { text-align: center; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+  h1 { color: var(--bone); font-size: 1.55rem; font-weight: 600; margin: 0 0 .35rem; }
+  .sub { color: var(--muted); font-size: .85rem; margin: 0; }
+  h2 {
+    color: var(--gold); font-size: 1.1rem; font-weight: 600;
+    margin: 2.75rem 0 .75rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  h3 { color: var(--bone); font-size: .98rem; font-weight: 600; margin: 1.75rem 0 .5rem; }
+  p, li { font-size: .95rem; }
+  ul { padding-inline-start: 1.35rem; }
+  li { margin-bottom: .45rem; }
+  strong { color: var(--bone); font-weight: 600; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--raised); border: 1px solid var(--border);
+    border-radius: 4px; padding: .1rem .35rem; font-size: .85em; color: var(--gold);
+    direction: ltr; display: inline-block;
+  }
+  .card {
+    background: var(--raised); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem 1.25rem; margin: 1.25rem 0;
+  }
+  .lede { color: var(--bone); }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  th, td { text-align: start; padding: .55rem .5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--gold); font-weight: 600; }
+  .wrap { overflow-x: auto; }
+  section[lang="en"] { direction: ltr; text-align: start; }
+  footer {
+    margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: .82rem; text-align: center;
+  }
+  a { color: var(--gold); }
+  hr.split { border: 0; border-top: 1px solid var(--border); margin: 4rem 0 0; }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>سيد المافيا — سياسة الخصوصية</h1>
+  <p class="sub">آخر تحديث: ٤ سبتمبر ٢٠٢٦ · الإصدار 1.0.0 · <code>com.mafiamaster.mafia_master</code></p>
+</header>
+
+<p class="lede">
+  اللعبة دي محتاجة أقل حاجة ممكنة عنك، وده مش شعار — ده اللي الكود بيعمله فعلاً.
+  مفيش تسجيل حساب، ومفيش إيميل، ومفيش رقم تليفون، ومفيش تتبّع، ومفيش إعلانات.
+  الصفحة دي بتقول بالظبط إيه اللي بيتخزن، وفين، وإمتى بيتمسح.
+</p>
+
+<h2>١. الوضع بدون إنترنت (اللعب على تليفون واحد)</h2>
+<p>
+  ده هو الوضع الأساسي للعبة: تليفون واحد بيلف على الترابيزة.
+  <strong>مفيش أي بيانات بتخرج من الجهاز.</strong> أسماء اللاعبين، والمجموعات المحفوظة،
+  وتاريخ المباريات، والإعدادات — كل ده متخزن في قاعدة بيانات محلية جوّه التطبيق نفسه،
+  وبيتمسح لما تمسح التطبيق. مفيش أي اتصال بأي سيرفر في الوضع ده.
+</p>
+
+<h2>٢. الوضع أونلاين</h2>
+
+<h3>الدخول</h3>
+<p>
+  لما تفتح أوضة أونلاين، التطبيق بيعمل <strong>دخول مجهول</strong>
+  (<span dir="ltr">anonymous sign-in</span>) على Supabase. يعني بيتعمل رقم تعريف عشوائي
+  للجهاز بتاعك ومفيش معاه <strong>ولا إيميل، ولا اسم، ولا رقم تليفون، ولا كلمة سر</strong>.
+  الرقم ده هو اللي بيخلّيك ترجع لمكانك لو التليفون فصل في نص المباراة.
+</p>
+
+<h3>اللي بيتخزن طول المباراة</h3>
+<div class="wrap">
+<table>
+  <tr><th>الحاجة</th><th>ليه</th></tr>
+  <tr><td>الاسم اللي إنت كتبته في الأوضة</td><td>عشان باقي اللاعبين يعرفوا مين على كل كرسي</td></tr>
+  <tr><td>رقم كرسيك، وحيّ ولا خارج، ومتصل ولا لأ</td><td>عشان الترابيزة تترسم صح</td></tr>
+  <tr><td>تصويتاتك وحركاتك في الليل</td><td>عشان السيرفر هو اللي بيحكم اللعبة، مش تليفونك</td></tr>
+  <tr><td>الهمسات، ورسايل الخارجين، والتوقّعات</td><td>عشان توصل للي هي ليه</td></tr>
+  <tr><td>إعدادات الأوضة وكود الأوضة</td><td>عشان كل التليفونات تلعب بنفس القواعد</td></tr>
+</table>
+</div>
+<p>
+  السيرفر بيشوف الأدوار (مين مافيا ومين دكتور) لأنه هو اللي بيوزّعها ويحكم بيها —
+  بس <strong>ولا لاعب يقدر يقراها من على تليفونه</strong>. ده متحطّ في قواعد صلاحيات جوّه
+  قاعدة البيانات نفسها، والقاعدة دي بتتجرّب بهجمات حقيقية قبل كل إصدار.
+</p>
+
+<h3>إمتى بيتمسح</h3>
+<ul>
+  <li><strong>الأوضة وكل حاجة فيها — خلال ٢٤ ساعة</strong> من نهاية المباراة (أو من فتح الأوضة لو محدّش بدأ). ده شغّال أوتوماتيك كل ساعة، مش بإيد حد.</li>
+  <li><strong>رسايل تجهيز الصوت — خلال ساعة واحدة.</strong></li>
+  <li><strong>رقم التعريف المجهول — بعد ٣٠ يوم.</strong> بيفضل شوية عشان لو رجعت لنفس الأوضة تلاقي مكانك.</li>
+</ul>
+
+<h2>٣. الميكروفون</h2>
+<p>
+  الميكروفون بيشتغل <strong>بس</strong> وإنت جوّه مباراة أونلاين وموافق على الإذن، وبيقف لما تخرج.
+</p>
+<ul>
+  <li><strong>الصوت مش بيتسجّل، ولا بيتخزّن، ولا بيعدّي على السيرفر بتاعنا أبداً.</strong> بيروح من تليفونك لتليفونات اللي في نفس الأوضة على طول <span dir="ltr">(WebRTC peer-to-peer)</span>.</li>
+  <li>اللي بيعدّي على قاعدة البيانات هو <strong>رسايل تجهيز الاتصال بس</strong> — يعني «إزاي أوصلك»، مش الكلام نفسه. وبتتمسح خلال ساعة.</li>
+  <li>عشان التليفونات تلاقي بعضها، التطبيق بيسأل سيرفرات <span dir="ltr">STUN</span> عامة بتاعة جوجل
+      <code>stun.l.google.com</code> و <code>stun1.l.google.com</code>.
+      السيرفرات دي <strong>بتشوف عنوان الـ IP بتاعك</strong> وهي بتقول لك هو إيه —
+      وده كل حاجة؛ مفيش صوت ولا بيانات لعب بتعدّي عليها.</li>
+  <li>الصوت مش أساسي في اللعبة: المباراة بتخلص عادي وهو مقفول أو باظ تماماً.</li>
+</ul>
+
+<h2>٤. اللي إحنا <em>مش</em> بنعمله</h2>
+<ul>
+  <li>مفيش تحليلات ولا أدوات قياس <span dir="ltr">(no analytics)</span>.</li>
+  <li>مفيش إعلانات ولا معرّفات إعلانية.</li>
+  <li>مفيش أدوات تتبّع من طرف تالت.</li>
+  <li>مفيش بيع ولا مشاركة لأي بيانات مع أي حد، ولا مقابل فلوس ولا ببلاش.</li>
+  <li>مفيش موقع جغرافي، ولا جهات اتصال، ولا صور، ولا ملفات، ولا كاميرا.</li>
+</ul>
+<p>
+  التطبيق بيطلب ٤ أذونات بس: <code>INTERNET</code> و <code>ACCESS_NETWORK_STATE</code>
+  (اللعب أونلاين، ومعرفة إذا كان النت واقع ولا السيرفر)، و <code>RECORD_AUDIO</code>
+  (الصوت أثناء المباراة)، و <code>MODIFY_AUDIO_SETTINGS</code> مع <code>BLUETOOTH</code>
+  (توجيه الصوت للسماعة).
+</p>
+
+<h2>٥. الأطفال</h2>
+<p>
+  التصنيف المعلن للتطبيق هو <strong>PEGI 12 / ESRB Teen — مناسب لسن ١٢ سنة فما فوق</strong>،
+  وهو <strong>مش</strong> موجّه للأطفال. السبب مش محتوى مصوّر — مفيش عنف مرسوم في اللعبة —
+  السبب إن فيها <strong>دردشة صوتية ونصّية بين اللاعبين</strong>، والكلام ده مش بنقراه ولا
+  بنفلتره. عشان كده التطبيق مش داخل في برنامج
+  <span dir="ltr">Google Play «Designed for Families»</span>.
+</p>
+<p>
+  الهمسة فيها زرار <strong>بلاغ</strong> وزرار <strong>حظر</strong> لكل لاعب.
+</p>
+
+<h2>٦. حقوقك</h2>
+<p>
+  عشان مفيش حساب، مفيش «بياناتك» اللي تدخل عليها بعد ما الأوضة تتمسح.
+  قبل كده: <strong>اخرج من الأوضة</strong> وكرسيك يتشال، ولما المباراة تخلص كل حاجة
+  بتروح خلال ٢٤ ساعة لوحدها. الوضع بدون إنترنت بيتمسح بمسح التطبيق.
+  لو عايز حاجة تتشال بدري، ابعت لنا الكود بتاع الأوضة.
+</p>
+
+<h2>٧. أين تُخزَّن</h2>
+<p>
+  بيانات الأوضة بتتخزّن على <strong>Supabase</strong> (مبني على Google Cloud).
+  دي المعالج الوحيد من طرف تانت اللي بيلمس بيانات اللعب.
+  <span dir="ltr">Supabase</span> بتشتغل تحت اتفاقية معالجة بيانات متوافقة مع
+  <span dir="ltr">GDPR</span>.
+</p>
+
+<h2>٨. التواصل</h2>
+<p>
+  أي سؤال عن الصفحة دي: <a href="mailto:claudeacount124@gmail.com">claudeacount124@gmail.com</a>
+</p>
+
+<hr class="split">
+
+<section lang="en" dir="ltr">
+
+<header style="margin-top:3rem">
+  <h1>Mafia Master — Privacy Policy</h1>
+  <p class="sub">Last updated 4 September 2026 · version 1.0.0 · <code>com.mafiamaster.mafia_master</code></p>
+</header>
+
+<p class="lede">
+  This game needs as little as possible about you, and that is not a slogan —
+  it is what the code does. No account, no email, no phone number, no tracking,
+  no advertising. This page says exactly what is stored, where, and when it is
+  deleted.
+</p>
+
+<h2>1. Offline mode (one phone, passed around)</h2>
+<p>
+  This is the game's primary mode: one phone going round the table.
+  <strong>No data leaves the device.</strong> Player names, saved groups, match
+  history and settings live in a local database inside the app and are removed
+  when you uninstall it. Offline mode makes no network connection at all.
+</p>
+
+<h2>2. Online mode</h2>
+
+<h3>Signing in</h3>
+<p>
+  Opening or joining an online room performs an <strong>anonymous sign-in</strong>
+  with Supabase. That mints a random identifier for your device with
+  <strong>no email, no name, no phone number and no password</strong> attached to
+  it. That identifier is what lets you return to your seat if your phone drops
+  mid-match.
+</p>
+
+<h3>What is stored for the length of a match</h3>
+<div class="wrap">
+<table>
+  <tr><th>What</th><th>Why</th></tr>
+  <tr><td>The display name you typed when joining</td><td>So the other players know who is in which seat</td></tr>
+  <tr><td>Your seat number, alive/eliminated, connected/dropped</td><td>So the table can be drawn</td></tr>
+  <tr><td>Your votes and night actions</td><td>Because the server adjudicates the game, not your phone</td></tr>
+  <tr><td>Whisper content, eliminated-player messages, predictions</td><td>So they reach the people they are addressed to</td></tr>
+  <tr><td>Room settings and room code</td><td>So every phone plays by the same rules</td></tr>
+</table>
+</div>
+<p>
+  The server knows the roles — it deals them and adjudicates with them — but
+  <strong>no player's device can read another player's role</strong>. That is
+  enforced by row-level security inside the database itself, and it is tested
+  with real attacks before every release.
+</p>
+
+<h3>When it is deleted</h3>
+<ul>
+  <li><strong>The room and everything attached to it: within 24 hours</strong> of the match ending, or of the room being created if nobody ever started. This runs automatically, hourly.</li>
+  <li><strong>Voice connection-setup messages: within one hour.</strong></li>
+  <li><strong>The anonymous identifier: after 30 days.</strong> It outlives the room only so a rejoin works.</li>
+</ul>
+
+<h2>3. The microphone</h2>
+<p>
+  The microphone is used <strong>only</strong> while you are inside an online
+  match and have granted the permission, and it stops when you leave.
+</p>
+<ul>
+  <li><strong>Audio is never recorded, never stored, and never passes through our server.</strong> It goes directly from your phone to the phones of the other players in the room (WebRTC peer-to-peer).</li>
+  <li>What passes through the database is the <strong>connection-setup messages only</strong> — "here is how to reach me", not the speech itself. They are deleted within an hour.</li>
+  <li>To let two phones find each other, the app queries Google's public STUN servers, <code>stun.l.google.com</code> and <code>stun1.l.google.com</code>. Those servers <strong>see your public IP address</strong> — that is what they exist to tell you — and nothing else. No audio and no game data goes through them.</li>
+  <li>Voice is never load-bearing: a match completes normally with it muted, denied, or entirely broken.</li>
+</ul>
+
+<h2>4. What we do <em>not</em> do</h2>
+<ul>
+  <li>No analytics or telemetry of any kind.</li>
+  <li>No advertising and no advertising identifiers.</li>
+  <li>No third-party trackers.</li>
+  <li>No data is sold or shared with anyone, for money or otherwise.</li>
+  <li>No location, no contacts, no photos, no files, no camera.</li>
+</ul>
+<p>
+  The app requests four permissions: <code>INTERNET</code> and
+  <code>ACCESS_NETWORK_STATE</code> (online play, and telling "your phone has no
+  network" from "the server did not answer"), <code>RECORD_AUDIO</code> (in-match
+  voice), and <code>MODIFY_AUDIO_SETTINGS</code> with <code>BLUETOOTH</code>
+  (routing that voice to a headset).
+</p>
+
+<h2>5. Children</h2>
+<p>
+  The declared rating is <strong>PEGI 12 / ESRB Teen — suitable for ages 12 and
+  over</strong>, and the app is <strong>not</strong> directed at children. The
+  reason is not depicted content; there is no depicted violence in the game. The
+  reason is <strong>player-to-player voice and text chat</strong>, which we
+  neither read nor filter. The app is therefore not enrolled in Google Play's
+  <em>Designed for Families</em> programme.
+</p>
+<p>
+  Whispers carry a <strong>report</strong> control, and every player carries a
+  <strong>block</strong> control.
+</p>
+
+<h2>6. Your rights</h2>
+<p>
+  Because there is no account, there is no "your data" to access once a room has
+  been deleted. Before that: <strong>leave the room</strong> and your seat is
+  removed, and when the match ends everything goes on its own within 24 hours.
+  Offline data is removed by uninstalling. To have something removed sooner,
+  send us the room code.
+</p>
+
+<h2>7. Where it is stored</h2>
+<p>
+  Room data is stored with <strong>Supabase</strong> (built on Google Cloud), the
+  only third-party processor that touches gameplay data. Supabase operates under
+  a GDPR-compliant data processing agreement.
+</p>
+
+<h2>8. Contact</h2>
+<p>
+  Questions about this policy:
+  <a href="mailto:claudeacount124@gmail.com">claudeacount124@gmail.com</a>
+</p>
+
+</section>
+
+<footer>
+  سيد المافيا · Mafia Master · <a href="../">العودة إلى اللعبة / back to the game</a>
+</footer>
+
+</main>
+</body>
+</html>
