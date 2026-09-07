@@ -321,6 +321,123 @@ class MafiaSpacing extends ThemeExtension<MafiaSpacing> {
   }
 }
 
+/// Fixed geometry for the portrait online council in doc 15.
+abstract final class CouncilTokens {
+  static const double headerHeight = 56;
+  static const int councilFlex = 36;
+  static const int voiceFlex = 34;
+  static const int handFlex = 24;
+  static const double seatLarge = 72;
+  static const double seatMedium = 64;
+  static const double seatSmall = 56;
+  static const double seatCompact = 48;
+  static const double backRowScale = 0.88;
+  static const double selectedScale = 1.08;
+  static const double selectedOthersOpacity = 0.45;
+  static const double deadOpacity = 0.30;
+  static const double disconnectedOpacity = 0.40;
+
+  /// Task 4. A player who stepped away keeps their ring and loses their face:
+  /// the empty ring is the whole signal, and it carries no label because the
+  /// table is supposed to notice it and wonder.
+  static const double awayOpacity = 0.45;
+
+  /// Task 4. A player who is gone. Cracked, and quieter than the dead — they
+  /// are not part of the argument any more in either direction.
+  static const double leftOpacity = 0.30;
+
+  /// Task 6. The struck-through microphone on a silenced seat, as a fraction
+  /// of the ring's diameter.
+  static const double mutedMicRatio = 0.30;
+
+  /// Task 7. How much of a seat's diameter the character art fills. The ring
+  /// art paints its own margin, so the face sits inside it rather than against
+  /// it — the same number `PlayerAvatar.artRatio` uses off-council.
+  static const double avatarSizeRatio = 0.72;
+  static const double confrontedOthersOpacity = 0.25;
+  static const double backdropOpacity = 0.12;
+  static const double primaryHeight = 56;
+  static const double nameHeight = 20;
+  static const double viewerSeatSize = 30;
+  static const double deadTiltRadians = 0.105;
+  static const double arcDepth = 0.18;
+
+  /// How far the fog overlay slides with the table's breath, in logical
+  /// pixels. Small on purpose: weather that moves is weather; weather that
+  /// travels is a distraction sitting on top of the game.
+  static const double fogDrift = 24;
+
+  /// The corner ornament on a band divider (doc 15 A4).
+  static const double cornerSize = 12;
+
+  /// The perspective entry for the card flip's 4x4 (doc 15 §S-O12 beat 4).
+  /// Small: enough for the card to have a near edge, not enough to make the
+  /// table look like it is being filmed through a lens.
+  static const double flipPerspective = 0.0012;
+
+  /// How strongly a phase sting sits over the council (doc 16 V1/V2).
+  ///
+  /// Deliberately not opaque: the seats stay readable underneath, because the
+  /// sting is a change of light rather than a cut to another screen.
+  static const double stingOpacity = 0.55;
+
+  /// What a losing seat drops to at the result (doc 15 §S-O13 beat 3).
+  static const double loserOpacity = 0.30;
+  static const double outerGlowBlur = 12;
+  static const double hairline = 1;
+
+  /// Ring stroke on a selected seat.
+  static const double selectedRingWidth = 2;
+
+  /// How much of the seat's diameter the initial is allowed to occupy.
+  static const double initialWidthRatio = 0.55;
+
+  /// How much of the seat's diameter the role mark occupies at the result.
+  ///
+  /// Larger than the initial's share on purpose. A letter is read; a mark is
+  /// recognised, and recognition at the smallest ring the council ever draws —
+  /// 44dp at fifteen players — needs the extra few pixels more than the letter
+  /// does. Doc 15 §S-O13 beat 2.
+  static const double glyphSizeRatio = 0.62;
+
+  /// How wide a name may run before it is truncated, as a share of the seat.
+  static const double nameWidthRatio = 1.35;
+
+  /// Radius of the speaking/selected glow, as a share of the seat diameter.
+  static const double glowRadiusRatio = 0.43;
+
+  static const double selectedGlowAlpha = 0.22;
+  static const double breathingGlowBase = 0.08;
+  static const double breathingGlowSwing = 0.10;
+
+  /// A seat that has not been claimed yet, in the lobby.
+  static const double emptySeatOpacity = 0.35;
+
+  /// Size of the whisper mote as it crosses the council.
+  static const double moteSize = 18;
+
+  /// How high above the straight line a whisper's light arcs, as a share of
+  /// the distance it travels.
+  static const double whisperArcLift = 0.28;
+
+  /// How far a cracked seat drops and shakes while it tears.
+  static const double crackShakeAmplitude = 5;
+  static const int crackShakeCycles = 4;
+
+  /// Bar height and gap for the live vote tally in Band 3.
+  static const double tallyBarHeight = 10;
+
+  /// Full size a card reaches when it rises out of the council (doc 15 §1.3:
+  /// card art never renders below 200dp, and the reveal is 280).
+  static const double cardRiseSize = 280;
+
+  /// Diameter of the confrontation timer ring.
+  static const double timerRingSize = 96;
+
+  /// The victory emblem on the result screen.
+  static const double victoryEmblemSize = 120;
+}
+
 /// Border radius tokens.
 class MafiaRadii extends ThemeExtension<MafiaRadii> {
   final double card;
@@ -366,10 +483,79 @@ class MafiaMotion extends ThemeExtension<MafiaMotion> {
   final Duration standard;
   final Duration dramatic;
 
+  /// A whole surface changing what it is: the table morphing from night to
+  /// morning, a spotlight opening, a backdrop crossfading (doc 12 §6).
+  ///
+  /// Longer than [dramatic] on purpose. [dramatic] is one object moving and the
+  /// eye tracks it; this is the ground under every object moving at once, and
+  /// at 600ms that reads as a cut rather than as a change of light.
+  final Duration phase;
+
+  /// The death tear. The one motion in the game that is meant to be violent.
+  final Duration tear;
+
+  /// A whisper's light crossing the table, seat to seat (doc 12 §3.7).
+  ///
+  /// Deliberately the same number as [phase] and deliberately a separate token:
+  /// they mean different things and only one of them may ever be tuned to make
+  /// a whisper feel faster.
+  final Duration travel;
+
+  /// Morning light arriving from the top edge (doc 12 §3.4 beat 1).
+  final Duration reveal;
+
+  /// One cycle of anything that breathes — a speaking seat's glow, fog drift.
+  ///
+  /// A *period*, not a transition: it is handed to a repeating controller, so
+  /// unlike every other token here it never ends.
+  final Duration breathe;
+
+  /// A single seat or button acknowledging a finger (doc 15 §3 `m-tap`).
+  ///
+  /// Distinct from [instant], which is the whole app's "no perceptible
+  /// duration" token. This one is perceptible on purpose: a council seat is
+  /// small and far from the thumb, so the acknowledgement has to travel.
+  final Duration tap;
+
+  /// Band 3 swapping the thing the game is saying (doc 15 §3 `m-band`).
+  final Duration band;
+
+  /// A card rising out of its seat to full size (doc 15 §3 `m-rise`).
+  final Duration rise;
+
+  /// A card turning over (doc 15 §3 `m-card`).
+  ///
+  /// The same number the offline role card flips at, and a separate token for
+  /// the same reason [travel] is separate from [phase]: an elimination reveal
+  /// and a private identity are two different arguments about pace, and only
+  /// one of them may ever be tuned.
+  final Duration card;
+
+  /// How often a countdown re-reads the clock.
+  ///
+  /// A token because doc 15 forbids a bare number anywhere outside this file,
+  /// and because a timer that re-read twice a second would cost a rebuild per
+  /// seat per half-second for no visible gain.
+  final Duration tick;
+
   final Curve instantCurve;
   final Curve quickCurve;
   final Curve standardCurve;
   final Curve dramaticCurve;
+  final Curve phaseCurve;
+  final Curve tearCurve;
+  final Curve travelCurve;
+  final Curve revealCurve;
+
+  /// The overshoot a rising card lands with (doc 15 §3 `m-rise`).
+  final Curve riseCurve;
+
+  /// The curve a breathing loop is driven through.
+  ///
+  /// Sinusoidal in both directions, so there is no moment where the glow stops.
+  /// An `easeInOut` ping-pong has a visible dwell at each end, which reads as a
+  /// pulse — and a pulse is a beat somebody can count from across a table.
+  final Curve breatheCurve;
 
   /// Scale a pressable surface shrinks to while held.
   ///
@@ -392,18 +578,43 @@ class MafiaMotion extends ThemeExtension<MafiaMotion> {
   /// list position into a timing channel.
   final Duration stagger;
 
+  /// Delay between the characters of the room code as it arrives
+  /// (doc 12 §3.1: "letters stagger in on first render, 60ms apart").
+  ///
+  /// Longer than [stagger] and deliberately so: [stagger] paces a *list*, where
+  /// the eye reads a block, and this paces six characters somebody is about to
+  /// read out loud one at a time.
+  final Duration codeStagger;
+
   const MafiaMotion({
     required this.instant,
     required this.quick,
     required this.standard,
     required this.dramatic,
+    required this.phase,
+    required this.tear,
+    required this.travel,
+    required this.reveal,
+    required this.breathe,
+    required this.tap,
+    required this.card,
+    required this.band,
+    required this.rise,
+    required this.tick,
     required this.instantCurve,
     required this.quickCurve,
     required this.standardCurve,
     required this.dramaticCurve,
+    required this.phaseCurve,
+    required this.tearCurve,
+    required this.travelCurve,
+    required this.revealCurve,
+    required this.riseCurve,
+    required this.breatheCurve,
     required this.pressScale,
     required this.perspective,
     required this.stagger,
+    required this.codeStagger,
   });
 
   static const MafiaMotion defaults = MafiaMotion(
@@ -411,13 +622,30 @@ class MafiaMotion extends ThemeExtension<MafiaMotion> {
     quick: Duration(milliseconds: 200),
     standard: Duration(milliseconds: 300),
     dramatic: Duration(milliseconds: 600),
+    phase: Duration(milliseconds: 700),
+    tear: Duration(milliseconds: 400),
+    travel: Duration(milliseconds: 700),
+    reveal: Duration(milliseconds: 1400),
+    breathe: Duration(milliseconds: 1400),
+    tap: Duration(milliseconds: 120),
+    card: Duration(milliseconds: 600),
+    band: Duration(milliseconds: 350),
+    rise: Duration(milliseconds: 500),
+    tick: Duration(seconds: 1),
     instantCurve: Curves.linear,
     quickCurve: Curves.easeOut,
     standardCurve: Curves.easeInOut,
     dramaticCurve: Curves.easeInOut,
+    phaseCurve: Curves.easeInOut,
+    tearCurve: Curves.easeIn,
+    travelCurve: Curves.easeInOut,
+    revealCurve: Curves.easeOut,
+    riseCurve: Curves.easeOutBack,
+    breatheCurve: Curves.easeInOutSine,
     pressScale: 0.97,
     perspective: 0.0012,
     stagger: Duration(milliseconds: 40),
+    codeStagger: Duration(milliseconds: 60),
   );
 
   @override
@@ -426,26 +654,60 @@ class MafiaMotion extends ThemeExtension<MafiaMotion> {
     Duration? quick,
     Duration? standard,
     Duration? dramatic,
+    Duration? phase,
+    Duration? tear,
+    Duration? travel,
+    Duration? reveal,
+    Duration? breathe,
+    Duration? tap,
+    Duration? card,
+    Duration? band,
+    Duration? rise,
+    Duration? tick,
     Curve? instantCurve,
     Curve? quickCurve,
     Curve? standardCurve,
     Curve? dramaticCurve,
+    Curve? phaseCurve,
+    Curve? tearCurve,
+    Curve? travelCurve,
+    Curve? revealCurve,
+    Curve? riseCurve,
+    Curve? breatheCurve,
     double? pressScale,
     double? perspective,
     Duration? stagger,
+    Duration? codeStagger,
   }) {
     return MafiaMotion(
       instant: instant ?? this.instant,
       quick: quick ?? this.quick,
       standard: standard ?? this.standard,
       dramatic: dramatic ?? this.dramatic,
+      phase: phase ?? this.phase,
+      tear: tear ?? this.tear,
+      travel: travel ?? this.travel,
+      reveal: reveal ?? this.reveal,
+      breathe: breathe ?? this.breathe,
+      tap: tap ?? this.tap,
+      card: card ?? this.card,
+      band: band ?? this.band,
+      rise: rise ?? this.rise,
+      tick: tick ?? this.tick,
       instantCurve: instantCurve ?? this.instantCurve,
       quickCurve: quickCurve ?? this.quickCurve,
       standardCurve: standardCurve ?? this.standardCurve,
       dramaticCurve: dramaticCurve ?? this.dramaticCurve,
+      phaseCurve: phaseCurve ?? this.phaseCurve,
+      tearCurve: tearCurve ?? this.tearCurve,
+      travelCurve: travelCurve ?? this.travelCurve,
+      revealCurve: revealCurve ?? this.revealCurve,
+      riseCurve: riseCurve ?? this.riseCurve,
+      breatheCurve: breatheCurve ?? this.breatheCurve,
       pressScale: pressScale ?? this.pressScale,
       perspective: perspective ?? this.perspective,
       stagger: stagger ?? this.stagger,
+      codeStagger: codeStagger ?? this.codeStagger,
     );
   }
 
@@ -464,6 +726,11 @@ class MafiaMotion extends ThemeExtension<MafiaMotion> {
 /// role-agnostic by construction: nothing in the widget layer may derive a
 /// duration from a [Role].
 class MafiaTiming extends ThemeExtension<MafiaTiming> {
+  /// One full 60-frame victory sequence at 12 fps.
+  static const victoryReveal = Duration(seconds: 5);
+
+  /// How long «{name} بقى الهوست» stays on screen after a host migration.
+  static const hostHandover = Duration(seconds: 3);
   /// How long the identity pad must be held before the turn content is shown.
   final Duration holdToReveal;
 
@@ -513,6 +780,33 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// back into the opening silence it exists to kill.
   final Duration openingRoundPerPlayer;
 
+  /// How long an in-context hint stays up before it fades (doc 12 §9).
+  ///
+  /// Long enough to read one line twice, short enough that it is gone before it
+  /// becomes furniture. It gates nothing — a hint is a caption, not a modal —
+  /// so this is pacing rather than a rule.
+  final Duration hintDwell;
+
+  /// Beat 2 of the elimination: how long the colour takes to drain
+  /// (doc 12 §4.2).
+  final Duration eliminationDrain;
+
+  /// Beat 3: how long the sentence holds before the table returns.
+  ///
+  /// A *hold*, which is why Reduce Motion keeps it — doc 12 §6: dramatic holds
+  /// remain, because they are pacing and not motion. Somebody who has switched
+  /// animations off still gets the silence; they simply do not watch the drain.
+  final Duration eliminationHold;
+
+  /// How long an arriving whisper stays on screen before it withdraws itself.
+  ///
+  /// Doc 14 §3.4's twelve seconds. Long enough to read a hundred and twenty
+  /// characters twice while an argument is going on around you; short enough
+  /// that a card nobody dismissed is not still covering the table when the vote
+  /// opens. It never blocks anything — the table and the timer stay live behind
+  /// it — so the only cost of the upper bound being generous is the card.
+  final Duration whisperCardDwell;
+
   const MafiaTiming({
     required this.holdToReveal,
     required this.dwellGate,
@@ -523,10 +817,14 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
     required this.phaseHold,
     required this.traceBeat,
     required this.openingRoundPerPlayer,
+    required this.hintDwell,
+    required this.eliminationDrain,
+    required this.eliminationHold,
+    required this.whisperCardDwell,
   });
 
   static const MafiaTiming defaults = MafiaTiming(
-    holdToReveal: Duration(milliseconds: 600),
+    holdToReveal: Duration(seconds: 2),
     dwellGate: Duration(seconds: 8),
     turnFloor: Duration(seconds: 12),
     passTransition: Duration(milliseconds: 300),
@@ -535,6 +833,10 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
     phaseHold: Duration(seconds: 3),
     traceBeat: Duration(milliseconds: 1200),
     openingRoundPerPlayer: Duration(seconds: 10),
+    hintDwell: Duration(seconds: 4),
+    eliminationDrain: Duration(milliseconds: 1200),
+    eliminationHold: Duration(milliseconds: 2200),
+    whisperCardDwell: Duration(seconds: 12),
   );
 
   @override
@@ -548,6 +850,10 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
     Duration? phaseHold,
     Duration? traceBeat,
     Duration? openingRoundPerPlayer,
+    Duration? hintDwell,
+    Duration? eliminationDrain,
+    Duration? eliminationHold,
+    Duration? whisperCardDwell,
   }) {
     return MafiaTiming(
       holdToReveal: holdToReveal ?? this.holdToReveal,
@@ -560,6 +866,10 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
       traceBeat: traceBeat ?? this.traceBeat,
       openingRoundPerPlayer:
           openingRoundPerPlayer ?? this.openingRoundPerPlayer,
+      hintDwell: hintDwell ?? this.hintDwell,
+      eliminationDrain: eliminationDrain ?? this.eliminationDrain,
+      eliminationHold: eliminationHold ?? this.eliminationHold,
+      whisperCardDwell: whisperCardDwell ?? this.whisperCardDwell,
     );
   }
 

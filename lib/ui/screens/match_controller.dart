@@ -1,3 +1,4 @@
+import '../../engine/models/player.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -8,6 +9,7 @@ import '../../data/whisper_store.dart';
 import '../../transport/game_snapshot.dart';
 import '../../transport/game_transport.dart';
 import '../../transport/local_transport.dart';
+import '../../engine/bullets.dart';
 import '../../engine/match_engine.dart';
 import '../../engine/models/enums.dart';
 import '../../engine/models/match.dart';
@@ -244,12 +246,14 @@ class MatchController extends Notifier<MatchUiState?> {
 
   void startMatch({
     required List<String> names,
+    Map<String, PlayerGender> genders = const {},
     required Map<Role, int> roleCounts,
     required MatchSettings settings,
     int? seed,
   }) {
     engine.start(
       names: names,
+      genders: genders,
       roleCounts: roleCounts,
       settings: settings,
       // Minted here rather than inside the engine, which may not read the
@@ -339,11 +343,29 @@ class MatchController extends Notifier<MatchUiState?> {
     state = state?.copyWith(whisper: delivery);
   }
 
-  /// What this seat should be shown in the whisper slot, or null for nothing.
+  /// The whisper waiting for **this device's own player**, or null.
+  ///
+  /// Doc 14 §3.2 and §3.4: online, a whisper is delivered the moment it is
+  /// sent, into the discussion it was written about. It used to wait for the
+  /// recipient's next night turn, which offline meant a full phase later and
+  /// online meant *never* — the online table has no in-hand turn to put it in,
+  /// so the body was fetched by nobody and the recipient heard a chime and read
+  /// a light crossing the table.
+  ///
+  /// Returns the body once. The transport marks the row read on fetch, so a
+  /// second call after the card is dismissed finds nothing waiting.
+  Future<WhisperDelivery?> pullViewerWhisper() async {
+    final seat = transport.snapshot.viewerSeat;
+    if (seat == null) return null;
+    final secrets = await transport.secretsFor(seat);
+    if (secrets == null) return null;
+    return _whisperFrom(secrets);
+  }
+
+  /// What this seat should be shown, or null for nothing.
   ///
   /// Priority: a whisper addressed to them, then the notice that one they sent
-  /// never arrived. Both render in the same box as the empty state, so the
-  /// order only decides which sentence is inside it.
+  /// never arrived.
   /// What this seat should be shown in the whisper slot, or null for nothing.
   ///
   /// The join of graph to body happens in the transport - offline against Isar,
@@ -360,9 +382,13 @@ class MatchController extends Notifier<MatchUiState?> {
 
   /// Submits the current actor's night action. A Detective's result is held in
   /// state only until [passTurn] is called.
+  /// [useBullet] arms «الطلقة الواحدة» on the same turn (doc 13 §2). The shell
+  /// holds the flag while the player is deciding; it becomes irreversible here
+  /// and nowhere earlier.
   Future<void> submitNightAction({
     required NightActionKind kind,
     required int targetSeat,
+    bool useBullet = false,
   }) async {
     final seat = transport.snapshot.currentActorSeat;
     if (seat == null) return;
@@ -373,6 +399,7 @@ class MatchController extends Notifier<MatchUiState?> {
       seat: seat,
       kind: kind,
       targetSeat: targetSeat,
+      useBullet: useBullet,
     );
     // The turn has already moved on; keep the outgoing actor's view on screen
     // until the pass so the shell does not change under the player's hands.
@@ -383,15 +410,66 @@ class MatchController extends Notifier<MatchUiState?> {
   }
 
   /// Records the current actor's turn with no target chosen.
-  void skipNightAction() {
+  ///
+  /// A Doctor arming [useBullet] here is protecting themselves, which is an
+  /// action rather than an absence — the engine turns it into one. For every
+  /// other role this is the empty turn it has always been, with the bullet
+  /// spent alongside it.
+  Future<void> skipNightAction({bool useBullet = false}) async {
     final seat = transport.snapshot.currentActorSeat;
     if (seat == null) return;
     // The role comes off the turn view this screen is already holding, not off
     // the roster: the roster has no roles in it, in either mode, by design.
     final kind = state?.actorTurn?.actorRole.nightAction;
     if (kind == null) return;
-    transport.submitNightAction(seat: seat, kind: kind, targetSeat: null);
+    final pending = transport.submitNightAction(
+      seat: seat,
+      kind: kind,
+      targetSeat: null,
+      useBullet: useBullet,
+    );
     state = _publish().copyWith(actorTurn: state?.actorTurn);
+    await pending;
+  }
+
+  /// Whether «الطلقة الواحدة» exists in this match at all (doc 13 §2, §7).
+  ///
+  /// Two facts, both constant for the whole match: the host turned it on, and
+  /// this transport can carry it. Constant is the point — a control that came
+  /// and went inside a match would be a control whose presence is a fact about
+  /// whoever is holding the phone.
+  bool get bulletsAvailable =>
+      settings.bulletsEnabled && transport.supportsBullets;
+
+  /// Whether the current actor still has theirs.
+  ///
+  /// Asked of the transport, because the answer lives in a different place in
+  /// each mode and neither place is this class's business: offline it is the
+  /// engine, which spent it; online it is `night_actions.used_bullet`, which
+  /// the server wrote after deciding the move was legal. A spent bullet still
+  /// draws its tile, dimmed (doc 13 §2.4, doc 14 §1.3) — a tile that vanished
+  /// would change the grid's shape, and grid shape is a tell.
+  bool get currentBulletSpent =>
+      transport.supportsBullets && transport.currentActorBulletSpent;
+
+  /// Whether [role]'s once-per-match ability exists in *this room*.
+  ///
+  /// Three facts, all constant for the whole match: the role holds one at all
+  /// (two of the four do), the host left «الطلقة الواحدة» on, and the host left
+  /// this particular one on. Constant is what makes it safe to draw — a control
+  /// that came and went inside a match would be a control whose presence is a
+  /// fact about whoever is holding the phone.
+  ///
+  /// Says nothing about whether it has been *used*; that is
+  /// [currentBulletSpent], and a used ability still draws its tile (doc 14
+  /// §1.3 — a tile that vanished would change the grid's shape, and grid shape
+  /// is a tell).
+  bool bulletExistsFor(Role role) {
+    final kind = role.bullet;
+    if (kind == null) return false;
+    if (role == Role.doctor) return transport.supportsBullets;
+    if (!bulletsAvailable) return false;
+    return Bullets.enabled(settings, kind);
   }
 
   /// Drops every secret held for the outgoing player.
@@ -418,11 +496,12 @@ class MatchController extends Notifier<MatchUiState?> {
   }
 
   /// One public accusation in the Day-1 «اسم واحد» round.
-  void submitOpeningAccusation({required int targetSeat}) {
+  Future<void> submitOpeningAccusation({required int targetSeat}) async {
     final seat = transport.snapshot.currentActorSeat;
     if (seat == null) return;
-    transport.submitOpeningAccusation(seat: seat, targetSeat: targetSeat);
+    final pending = transport.submitOpeningAccusation(seat: seat, targetSeat: targetSeat);
     state = _publish(clearSecrets: true);
+    await pending;
   }
 
   /// Closes the confrontation window. [silent] when nobody spoke.
@@ -493,11 +572,12 @@ class MatchController extends Notifier<MatchUiState?> {
     state = _publish(clearSecrets: true, clearVote: true);
   }
 
-  void submitVote({required int? targetSeat}) {
+  Future<void> submitVote({required int? targetSeat}) async {
     final seat = transport.snapshot.currentActorSeat;
     if (seat == null) return;
-    transport.submitVote(seat: seat, targetSeat: targetSeat);
+    final pending = transport.submitVote(seat: seat, targetSeat: targetSeat);
     state = _publish(clearSecrets: true);
+    await pending;
   }
 
   DayVoteResult resolveDayVote() {

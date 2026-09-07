@@ -131,8 +131,16 @@ class MatchRoute extends ConsumerWidget {
   /// Fire-and-forget on purpose: a storage hiccup must never block the game in
   /// front of the players. The cost of a dropped write is one replayed step on
   /// resume, which the pass screen makes safe.
+  ///
+  /// Asks the engine whether there is anything to write rather than asking
+  /// which transport is in use. There is no local match in an online room —
+  /// the room's state is the server's, and resuming it is the server's
+  /// business — so every committed step there used to reach `engine.match` and
+  /// throw. The failure was silent to the player and total to the log: it
+  /// landed on the first night action of every online match.
   void _persist(WidgetRef ref) {
     final engine = ref.read(matchControllerProvider.notifier).engine;
+    if (!engine.hasMatch) return;
     ref
         .read(matchRepositoryProvider)
         .persistStep(engine.match)

@@ -357,3 +357,58 @@ class WhisperVoided extends TimelineEvent {
   @override
   String toString() => 'WhisperVoided(at=$at, phaseRef=$phaseRef, id=$id)';
 }
+
+/// A player spent «الطلقة الواحدة» (doc 13 §2).
+///
+/// Logged the moment it is armed, during that player's own night turn, and
+/// never again — the whole mechanic is that there is no second one. Everything
+/// downstream reads it back from here rather than from a field on [Player]:
+/// a match rebuilt from storage after a force-quit has to know the bullet is
+/// gone, and the log is the only thing that survives.
+///
+/// [kind] is recorded rather than derived from the actor's role. The two agree
+/// today by construction, but the log is the public record of the match and a
+/// reader of it is not entitled to look up the actor's role to find out what
+/// they did — and after the match, when the roles *are* public, an explicit
+/// field is what lets the timeline say «فتح الملف» rather than reconstruct it.
+///
+/// ## Why this is not a leak in the log
+///
+/// It plainly is one, read literally: `BulletSpent(actorSeat: 3, kind: openFile)`
+/// says seat 3 is the Detective. That is fine, and it is fine for the same
+/// reason the event exists — every bullet in doc 13 is *public by design*. The
+/// quiet night publishes an absence the whole table sees, the opened file is a
+/// public attributed announcement, the testimony carries the player's own name,
+/// and the self-protection is the only one that is private, which is why the
+/// morning never mentions it and no reader of the log gets to see it before the
+/// match ends. Nothing renders this event mid-match except the announcements
+/// the player themselves chose to make.
+class BulletSpent extends TimelineEvent {
+  final int actorSeat;
+  final BulletKind kind;
+
+  const BulletSpent({
+    required DateTime at,
+    required PhaseRef phaseRef,
+    required this.actorSeat,
+    required this.kind,
+  }) : super(at: at, phaseRef: phaseRef);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BulletSpent &&
+          runtimeType == other.runtimeType &&
+          at == other.at &&
+          phaseRef == other.phaseRef &&
+          actorSeat == other.actorSeat &&
+          kind == other.kind;
+
+  @override
+  int get hashCode =>
+      at.hashCode ^ phaseRef.hashCode ^ actorSeat.hashCode ^ kind.hashCode;
+
+  @override
+  String toString() =>
+      'BulletSpent(at=$at, phaseRef=$phaseRef, actorSeat=$actorSeat, kind=$kind)';
+}

@@ -51,7 +51,12 @@ void main() {
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
         roleCounts: {Role.mafia: 2, Role.detective: 1, Role.doctor: 1, Role.citizen: 1},
-        settings: MatchSettings.defaults(),
+        // The save is *announced* only when the Mafia cannot buy a morning
+        // that looks the same (doc 13 §2.1, §8). This test is about the
+        // resolver blocking the kill, so it runs in the regime where the
+        // announcement still exists; `doc13_acceptance_test.dart` covers the
+        // other one, where a save and a quiet night are indistinguishable.
+        settings: const MatchSettings(quietNightEnabled: false),
         seed: 1049,
       );
 

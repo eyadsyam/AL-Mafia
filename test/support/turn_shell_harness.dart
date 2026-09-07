@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/engine/models/enums.dart' show Role;
 import 'package:mafia_master/ui/l10n_ext.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
+import 'package:mafia_master/ui/widgets/night_grid.dart';
 import 'package:mafia_master/ui/widgets/turn_shell.dart';
 
 import 'artwork.dart';
@@ -27,11 +28,11 @@ class TurnShellHarness {
   /// Latin names, which is fine for the structural suites: every role gets the
   /// same string, so whatever it costs in ink it costs four times. Any suite
   /// that measures *light* wants [arabicTargets] instead — see there.
-  static const List<TurnTarget> targets = [
-    TurnTarget(seat: 0, name: 'Seat 0'),
-    TurnTarget(seat: 1, name: 'Seat 1'),
-    TurnTarget(seat: 2, name: 'Seat 2'),
-    TurnTarget(seat: 3, name: 'Seat 3'),
+  static const List<NightChoice> targets = [
+    NightChoice(seat: 0, label: 'Seat 0'),
+    NightChoice(seat: 1, label: 'Seat 1'),
+    NightChoice(seat: 2, label: 'Seat 2'),
+    NightChoice(seat: 3, label: 'Seat 3'),
   ];
 
   /// The same four seats under Arabic names, for suites that measure emitted
@@ -56,11 +57,39 @@ class TurnShellHarness {
   /// detective 2.35% off the set mean, Arabic ones put it at 0.40%. The budget
   /// is ±2% and has not moved. What moved is that the stimulus now matches what
   /// ships — which is the only reason the old number was ever interesting.
-  static const List<TurnTarget> arabicTargets = [
-    TurnTarget(seat: 0, name: 'سمير'),
-    TurnTarget(seat: 1, name: 'أحمد'),
-    TurnTarget(seat: 2, name: 'منى'),
-    TurnTarget(seat: 3, name: 'ليلى'),
+  static const List<NightChoice> arabicTargets = [
+    NightChoice(seat: 0, label: 'سمير'),
+    NightChoice(seat: 1, label: 'أحمد'),
+    NightChoice(seat: 2, label: 'منى'),
+    NightChoice(seat: 3, label: 'ليلى'),
+  ];
+
+  /// The same four seats plus the special tile every role's grid ends with
+  /// (doc 14 §1.3), which is what a real night screen actually renders.
+  static List<NightChoice> withSpecial(
+    Role role, {
+    List<NightChoice> seats = arabicTargets,
+    bool spent = false,
+  }) => [
+    ...seats,
+    if (role == Role.doctor)
+      NightChoice(
+        seat: 99,
+        // The shipped words, not a stand-in name. The Doctor's tile used
+        // to read their own name and now reads the self-protection, and a
+        // harness holding the old string would let the luminance suites
+        // keep measuring copy the app no longer draws.
+        label: EngineCopy.nightSpecial(arStrings, Role.doctor),
+        special: true,
+        spent: spent,
+      )
+    else
+      NightChoice(
+        seat: NightChoice.skipSeat,
+        label: EngineCopy.nightSpecial(arStrings, role),
+        special: true,
+        spent: spent && role == Role.mafia,
+      ),
   ];
 
   /// The prompt each role is really shown.
@@ -85,13 +114,9 @@ class TurnShellHarness {
     required String prompt,
     String playerName = 'Player',
     String? confirmationDetail,
-    List<TurnTarget> targetList = targets,
+    List<NightChoice> targetList = targets,
     ValueChanged<int>? onConfirmed,
     VoidCallback? onPass,
-    bool whispersEnabled = false,
-    String? whisperBody,
-    VoidCallback? onWhisperRead,
-    VoidCallback? onSkip,
   }) async {
     await tester.binding.setSurfaceSize(surface);
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -99,21 +124,18 @@ class TurnShellHarness {
     await tester.pumpWidget(
       RepaintBoundary(
         key: boundaryKey,
-        child: localizedApp(TurnShell(
+        child: localizedApp(
+          TurnShell(
             labels: TurnShellLabels.of(arStrings),
             turnId: 'turn-${_turnCounter++}',
             playerName: playerName,
             role: role,
             promptText: prompt,
-            targets: targetList,
+            choices: targetList,
             confirmationDetail: confirmationDetail,
-            whispersEnabled: whispersEnabled,
-            whisperBody: whisperBody,
-            onWhisperRead: onWhisperRead,
-            onSkip: onSkip,
             onConfirmed: onConfirmed ?? (_) {},
             onPass: onPass ?? () {},
-          )
+          ),
         ),
       ),
     );
@@ -142,8 +164,9 @@ class TurnShellHarness {
   /// Rasterisation has to happen on the real async zone (this is what
   /// `matchesGoldenFile` does internally), hence [WidgetTester.runAsync].
   static Future<Uint8List> capture(WidgetTester tester) async {
-    final boundary =
-        tester.renderObject<RenderRepaintBoundary>(find.byKey(boundaryKey));
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.byKey(boundaryKey),
+    );
     final bytes = await tester.runAsync(() async {
       final ui.Image image = await boundary.toImage();
       try {
@@ -177,9 +200,6 @@ class TurnShellHarness {
       'rail': TurnShell.slotRail,
       'body': TurnShell.slotBody,
       'detail': TurnShell.slotDetail,
-      // Present only when the match runs the whisper layer, which is a
-      // property of the match and therefore the same for every seat in it.
-      'whisper': TurnShell.slotWhisper,
       'action': TurnShell.slotAction,
       'footnote': TurnShell.slotFootnote,
     };
@@ -192,7 +212,9 @@ class TurnShellHarness {
 
   /// Whether the primary action button is currently enabled.
   static bool actionEnabled(WidgetTester tester) {
-    final button = tester.widget<FilledButton>(find.byKey(TurnShell.actionButton));
+    final button = tester.widget<FilledButton>(
+      find.byKey(TurnShell.actionButton),
+    );
     return button.onPressed != null;
   }
 }

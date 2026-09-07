@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../widgets/hint_slot.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/phase_timer.dart';
@@ -40,8 +41,15 @@ class ConfrontationScreen extends StatefulWidget {
   /// Called when the window closes — early via «خلّصت», or by expiry.
   final void Function({required bool silent}) onFinished;
 
+  /// Whether doc 13 §4.2's one-line interface hints are printed at all.
+  ///
+  /// The slot's space is reserved either way; this only decides whether
+  /// anything goes in it. See [HintSlot].
+  final bool interfaceHintsEnabled;
+
   const ConfrontationScreen({
     super.key,
+    this.interfaceHintsEnabled = true,
     required this.dayNumber,
     required this.playerName,
     required this.observation,
@@ -113,7 +121,10 @@ class _ConfrontationScreenState extends State<ConfrontationScreen> {
                     style: type.caption.copyWith(color: colors.textMuted),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: spacing.lg),
+                  SizedBox(height: spacing.sm),
+                  // Doc 14 Part 6: reserved, and empty inside a match.
+                  SizedBox(height: HintSlot.reservedHeight(context)),
+                  SizedBox(height: spacing.sm),
                   Row(
                     children: [
                       Expanded(child: Divider(color: colors.borderSubtle)),

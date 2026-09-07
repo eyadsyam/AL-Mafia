@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../engine/models/enums.dart' as engine;
+import '../../../engine/coaching.dart';
 import '../../l10n_ext.dart';
 import '../../../app/asset_constants.dart';
 import '../../theme/mafia_theme.dart';
@@ -50,13 +51,34 @@ class ResultScreen extends StatelessWidget {
   /// Callback when "الرئيسية" is tapped.
   final VoidCallback onHome;
 
+  /// Doc 13 §4.4's «كان ممكن», by seat.
+  ///
+  /// # Why this tier is safe when the other two are not
+  ///
+  /// It is conditioned on a player's own role, their own suspicions and their
+  /// own votes, which would be a leak anywhere else in the app. Here the match
+  /// is over, every role is already printed on this very screen, and nothing
+  /// said here can change a decision — there are none left. Doc 13 §4.1's
+  /// table says so in as many words.
+  ///
+  /// # And why a seat can be missing
+  ///
+  /// Doc 13 §9: *"post-match coaching generates from real data only; no
+  /// generic filler."* A player who did nothing remarkable gets nothing, not a
+  /// platitude. An absent seat here is a correct result and not a gap to fill.
+  final Map<int, List<CoachingNote>> coaching;
+
   const ResultScreen({
     super.key,
     required this.winner,
     required this.rows,
     this.onAnalytics,
     required this.onHome,
+    this.coaching = const {},
   });
+
+  /// Key on the «كان ممكن» block for a given seat.
+  static Key coachingKey(int seat) => ValueKey('coaching_$seat');
 
   String _winnerText(BuildContext context, engine.Alignment alignment) =>
       alignment == engine.Alignment.mafia
@@ -79,6 +101,41 @@ class ResultScreen extends StatelessWidget {
 
   String _getRoleLabel(BuildContext context, engine.Role role) =>
       EngineCopy.roleName(context.l10n, role);
+
+  List<Widget> _coachingLines(BuildContext context, int seat) {
+    final notes = coaching[seat] ?? const <CoachingNote>[];
+    if (notes.isEmpty) return const [];
+
+    final colors = context.colors;
+    final spacing = context.spacing;
+    final type = context.typography;
+    final nameOf = {for (final r in rows) r.seat: r.name};
+
+    return [
+      SizedBox(height: spacing.sm),
+      Column(
+        key: ResultScreen.coachingKey(seat),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.l10n.coachingTitle,
+            style: type.caption.copyWith(color: colors.accentGold),
+          ),
+          for (final note in notes) ...[
+            SizedBox(height: spacing.xs),
+            Text(
+              EngineCopy.coaching(
+                context.l10n,
+                note,
+                (s) => nameOf[s] ?? '',
+              ),
+              style: type.bodySmall.copyWith(color: colors.textSecondary),
+            ),
+          ],
+        ],
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -216,6 +273,13 @@ class ResultScreen extends StatelessWidget {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ],
+                                      // «كان ممكن» — doc 13 §4.4. Under the
+                                      // player's own name, because it is about
+                                      // them and about nobody else, and in
+                                      // muted body text because doc 13 asks
+                                      // for *"an observation, never a scold.
+                                      // No score, no grade, no stars."*
+                                      ..._coachingLines(context, row.seat),
                                     ],
                                   ),
                                 ),

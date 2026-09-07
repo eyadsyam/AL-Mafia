@@ -23,7 +23,14 @@ Deno.serve(handler(async (req, userId, db) => {
 
   await db
     .from("room_players")
-    .update({ connected: true, last_seen: new Date().toISOString() })
+    // A beat is the definition of `connected`. The ageing job walks the same
+    // column in the other direction, so this write is the only thing that
+    // stops a row sliding to `away` and then to `left`.
+    .update({
+      connected: true,
+      status: "connected",
+      last_seen: new Date().toISOString(),
+    })
     .eq("room_id", roomId)
     .eq("user_id", userId);
 

@@ -120,7 +120,7 @@ void main() {
               playerName: 'عبد الرحمن',
               role: Role.detective,
               promptText: TurnShellHarness.naturalPrompt(Role.detective),
-              targets: TurnShellHarness.targets,
+              choices: TurnShellHarness.targets,
               onConfirmed: (_) {},
               onPass: () {},
             ),

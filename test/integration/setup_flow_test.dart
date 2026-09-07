@@ -9,6 +9,7 @@ import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/ui/screens/match_controller.dart';
 import 'package:mafia_master/ui/screens/setup/add_players_screen.dart';
 import 'package:mafia_master/ui/screens/setup/home_screen.dart';
+import 'package:mafia_master/ui/screens/setup/mode_screen.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/screens/setup/settings_screen.dart';
 import 'package:mafia_master/ui/screens/setup/setup_draft.dart';
@@ -73,17 +74,21 @@ void main() {
 
       await tester.tap(find.text('ابدأ اللعبة'));
       await tester.pumpAndSettle();
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
+      await tester.pumpAndSettle();
       expect(find.byType(AddPlayersScreen), findsOneWidget);
 
       await enterNames(tester, names);
-      await tester.tap(find.text('التالي'));
+      await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
 
       expect(find.byType(RolesScreen), findsOneWidget);
       expect(find.text('${names.length} لاعب'), findsOneWidget,
           reason: 'the roster did not survive the step');
 
-      await tester.tap(find.text('التالي'));
+      await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
 
       expect(find.byType(SettingsScreen), findsOneWidget);
@@ -103,10 +108,14 @@ void main() {
       await pumpApp(tester);
       await tester.tap(find.text('ابدأ اللعبة'));
       await tester.pumpAndSettle();
-      await enterNames(tester, names);
-      await tester.tap(find.text('التالي'));
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('التالي'));
+      await enterNames(tester, names);
+      await tester.tap(find.text('كمل'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
 
       final chosen = container.read(setupDraftProvider).roleCounts;
@@ -133,13 +142,17 @@ void main() {
       await pumpApp(tester);
       await tester.tap(find.text('ابدأ اللعبة'));
       await tester.pumpAndSettle();
-      await enterNames(tester, names);
-      await tester.tap(find.text('التالي'));
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('التالي'));
+      await enterNames(tester, names);
+      await tester.tap(find.text('كمل'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('حر (بدون أدوار)'));
+      await tester.tap(find.text('حر'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('حفظ'));
       await tester.pumpAndSettle();
@@ -156,12 +169,16 @@ void main() {
       await pumpApp(tester);
       await tester.tap(find.text('ابدأ اللعبة'));
       await tester.pumpAndSettle();
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
+      await tester.pumpAndSettle();
 
       await enterNames(tester, names.take(4).toList());
 
       final next = tester.widget<FilledButton>(
         find.ancestor(
-          of: find.text('التالي'),
+          of: find.text('كمل'),
           matching: find.byType(FilledButton),
         ),
       );
@@ -178,6 +195,10 @@ void main() {
 
       // Simulate a deep link / restored route by driving the router directly.
       await tester.tap(find.text('ابدأ اللعبة'));
+      await tester.pumpAndSettle();
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
       // Leave without entering names, then come back to Home.
       expect(find.byType(AddPlayersScreen), findsOneWidget);

@@ -43,10 +43,6 @@ class HomeScreen extends ConsumerWidget {
   /// Callback when the primary action is tapped.
   final VoidCallback onNewMatch;
 
-  /// Opens the online entry screen, or null when this build has no server to
-  /// talk to. Null hides the action rather than disabling it.
-  final VoidCallback? onPlayOnline;
-
   /// Callback when the history control is tapped.
   final VoidCallback onHistory;
 
@@ -63,7 +59,6 @@ class HomeScreen extends ConsumerWidget {
   const HomeScreen({
     super.key,
     required this.onNewMatch,
-    this.onPlayOnline,
     required this.onHistory,
     required this.onSettings,
     required this.onHowToPlay,
@@ -76,7 +71,6 @@ class HomeScreen extends ConsumerWidget {
   static const TiltSource defaultTiltSource = SensorTiltSource();
 
   static const Key startButton = ValueKey('home_start');
-  static const Key onlineButton = ValueKey('home_online');
   static const Key historyButton = ValueKey('home_history');
   static const Key settingsButton = ValueKey('home_settings');
   static const Key howToPlayButton = ValueKey('home_how_to_play');
@@ -234,15 +228,11 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 child: Text(l10n.startGame, style: type.title),
               ),
-              if (onPlayOnline != null)
-                TextButton(
-                  key: HomeScreen.onlineButton,
-                  onPressed: onPlayOnline,
-                  child: Text(
-                    l10n.onlineMatch,
-                    style: type.body.copyWith(color: colors.textSecondary),
-                  ),
-                ),
+              // There is no second button here any more. Online used to sit
+              // under this one as a quiet text link, offered only when the
+              // build had a project — two modes at two weights, one of them
+              // invisible in half the builds. Both questions are now asked
+              // once, at the same size, on the screen behind this button.
             ],
           ),
         ),

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../data/player_group_provider.dart';
 import '../platform/audio_director.dart';
 import '../ui/screens/setup/setup_draft.dart';
+import '../ui/l10n_ext.dart';
 import '../ui/theme/mafia_theme.dart';
 import '../ui/widgets/splash_gate.dart';
 import 'l10n/app_localizations.dart';
@@ -30,8 +31,7 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   /// otherwise fight over the same key.
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
-  late final GoRouter _router =
-      buildRouter(ref, navigatorKey: _navigatorKey);
+  late final GoRouter _router = buildRouter(ref, navigatorKey: _navigatorKey);
 
   AudioDirector get _audio => ref.read(audioDirectorProvider);
 
@@ -82,8 +82,9 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   void _syncScore() {
     final settings = ref.read(setupDraftProvider).settings;
     _audio
-      ..muted = settings.muteAllAudio
       ..scoreEnabled = settings.scoreEnabled
+      ..narrationEnabled = settings.narrationEnabled
+      ..muted = settings.muteAllAudio
       ..syncScore();
   }
 
@@ -96,15 +97,19 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(setupDraftProvider.select((draft) => draft.settings), (_, next) {
+      _syncScore();
+    });
     return MaterialApp.router(
-      title: 'Mafia Master',
+      // `onGenerateTitle` rather than `title`, because this string is the
+      // browser tab and the task-switcher label, and the app is Arabic-first.
+      // A hardcoded Latin title would name an Arabic game in English on the
+      // one surface outside the app's own frame.
+      onGenerateTitle: (context) => context.l10n.appTitle,
       theme: MafiaTheme.dark,
       routerConfig: _router,
       locale: const Locale('ar'),
-      supportedLocales: const <Locale>[
-        Locale('ar'),
-        Locale('en'),
-      ],
+      supportedLocales: const <Locale>[Locale('ar'), Locale('en')],
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

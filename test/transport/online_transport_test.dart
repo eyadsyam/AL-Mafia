@@ -50,6 +50,27 @@ void main() {
 
   setUp(() => localNow = DateTime.utc(2026, 9, 2, 12));
 
+  test('an unacknowledged night action remains retryable', () async {
+    await connect();
+    backend.unreachable = true;
+    await expectLater(
+      transport.submitNightAction(
+        seat: 0,
+        kind: NightActionKind.investigate,
+        targetSeat: 1,
+      ),
+      throwsA(isA<BackendException>()),
+    );
+    expect(transport.snapshot.currentActorSeat, 0);
+    backend.unreachable = false;
+    await transport.submitNightAction(
+      seat: 0,
+      kind: NightActionKind.investigate,
+      targetSeat: 1,
+    );
+    expect(transport.snapshot.currentActorSeat, isNull);
+  });
+
   group('the snapshot', () {
     test('carries the room and never a role', () async {
       await connect();
@@ -78,8 +99,11 @@ void main() {
         kind: NightActionKind.suspect,
         targetSeat: 1,
       );
-      expect(transport.snapshot.currentActorSeat, isNull,
-          reason: 'a client that has acted is waiting, not holding the room up');
+      expect(
+        transport.snapshot.currentActorSeat,
+        isNull,
+        reason: 'a client that has acted is waiting, not holding the room up',
+      );
     });
 
     test('a dead player is never the current actor', () async {
@@ -93,69 +117,87 @@ void main() {
   });
 
   group('O8 — the client clock is never trusted', () {
-    test('a phone ten minutes fast still renders the right countdown',
-        () async {
-      final serverNow = DateTime.utc(2026, 9, 2, 12);
-      // The device believes it is 12:10 while the server is at 12:00.
-      localNow = serverNow.add(const Duration(minutes: 10));
+    test(
+      'a phone ten minutes fast still renders the right countdown',
+      () async {
+        final serverNow = DateTime.utc(2026, 9, 2, 12);
+        // The device believes it is 12:10 while the server is at 12:00.
+        localNow = serverNow.add(const Duration(minutes: 10));
 
-      await connect(
-        state: roomState(
-          serverNow: serverNow,
-          endsAt: serverNow.add(const Duration(seconds: 90)),
-        ),
-      );
+        await connect(
+          state: roomState(
+            serverNow: serverNow,
+            endsAt: serverNow.add(const Duration(seconds: 90)),
+          ),
+        );
 
-      final deadline = transport.snapshot.phaseDeadline!;
-      final remaining = deadline.difference(localNow);
-      expect(remaining, equals(const Duration(seconds: 90)),
-          reason: 'the countdown is 90s on every device, whatever it thinks '
-              'the time is');
-    });
+        final deadline = transport.snapshot.phaseDeadline!;
+        final remaining = deadline.difference(localNow);
+        expect(
+          remaining,
+          equals(const Duration(seconds: 90)),
+          reason:
+              'the countdown is 90s on every device, whatever it thinks '
+              'the time is',
+        );
+      },
+    );
 
     test('a phase with no deadline renders none', () async {
       await connect(state: roomState(phase: 'morning'));
       expect(transport.snapshot.phaseDeadline, isNull);
     });
 
-    test('a host does not advance a phase whose deadline has not passed',
-        () async {
-      final serverNow = DateTime.utc(2026, 9, 2, 12);
-      localNow = serverNow.add(const Duration(minutes: 10));
-      await connect(
-        state: roomState(
-          serverNow: serverNow,
-          endsAt: serverNow.add(const Duration(seconds: 90)),
-        ),
-      );
+    test(
+      'a host does not advance a phase whose deadline has not passed',
+      () async {
+        final serverNow = DateTime.utc(2026, 9, 2, 12);
+        localNow = serverNow.add(const Duration(minutes: 10));
+        await connect(
+          state: roomState(
+            serverNow: serverNow,
+            endsAt: serverNow.add(const Duration(seconds: 90)),
+          ),
+        );
 
-      await transport.tick();
-      expect(backend.called('advance_phase'), isFalse,
-          reason: 'the fast clock must not end the phase early');
+        await transport.tick();
+        expect(
+          backend.called('advance_phase'),
+          isFalse,
+          reason: 'the fast clock must not end the phase early',
+        );
 
-      localNow = localNow.add(const Duration(seconds: 91));
-      await transport.tick();
-      expect(backend.called('advance_phase'), isTrue);
-    });
+        localNow = localNow.add(const Duration(seconds: 91));
+        await transport.tick();
+        expect(backend.called('advance_phase'), isTrue);
+      },
+    );
   });
 
   group('O7 — the phase moved while the tap was in flight', () {
     test('PHASE_CLOSED resyncs instead of raising', () async {
       await connect();
-      backend.refusals['submit_vote'] =
-          const BackendException('PHASE_CLOSED', 'the ballot is closed');
+      backend.refusals['submit_vote'] = const BackendException(
+        'PHASE_CLOSED',
+        'the ballot is closed',
+      );
       final before = backend.fetches;
 
       await transport.submitVote(seat: 0, targetSeat: 2);
 
-      expect(backend.fetches, greaterThan(before),
-          reason: 'the client force-resyncs from a snapshot');
+      expect(
+        backend.fetches,
+        greaterThan(before),
+        reason: 'the client force-resyncs from a snapshot',
+      );
     });
 
     test('any other refusal reaches the caller', () async {
       await connect();
-      backend.refusals['send_whisper'] =
-          const BackendException('RATE_LIMITED', 'one a day');
+      backend.refusals['send_whisper'] = const BackendException(
+        'RATE_LIMITED',
+        'one a day',
+      );
 
       await expectLater(
         transport.sendWhisper(fromSeat: 0, toSeat: 1, body: 'hi'),
@@ -170,24 +212,40 @@ void main() {
       final before = transport.snapshot;
 
       backend.unreachable = true;
-      await transport.submitVote(seat: 0, targetSeat: 1);
+      await expectLater(
+        transport.submitVote(seat: 0, targetSeat: 1),
+        throwsA(isA<BackendException>()),
+      );
 
-      expect(transport.snapshot.phase, equals(before.phase),
-          reason: 'state is preserved locally throughout');
-      expect(transport.snapshot.connection,
-          equals(ConnectionQuality.reconnecting));
+      expect(
+        transport.snapshot.phase,
+        equals(before.phase),
+        reason: 'state is preserved locally throughout',
+      );
+      expect(
+        transport.snapshot.connection,
+        equals(ConnectionQuality.reconnecting),
+      );
     });
 
     test('a reachable server puts the banner down again', () async {
       await connect();
       backend.unreachable = true;
-      await transport.submitVote(seat: 0, targetSeat: 1);
-      expect(transport.snapshot.connection,
-          equals(ConnectionQuality.reconnecting));
+      await expectLater(
+        transport.submitVote(seat: 0, targetSeat: 1),
+        throwsA(isA<BackendException>()),
+      );
+      expect(
+        transport.snapshot.connection,
+        equals(ConnectionQuality.reconnecting),
+      );
 
       backend.unreachable = false;
       await transport.resync();
-      expect(transport.snapshot.connection, equals(ConnectionQuality.connected));
+      expect(
+        transport.snapshot.connection,
+        equals(ConnectionQuality.connected),
+      );
     });
 
     test('a dropped subscription is a resync, not a lost match', () async {
@@ -195,13 +253,18 @@ void main() {
       final before = backend.fetches;
       backend.pushDisconnected();
       await pumpEventQueue();
-      expect(transport.snapshot.connection,
-          equals(ConnectionQuality.reconnecting));
+      expect(
+        transport.snapshot.connection,
+        equals(ConnectionQuality.reconnecting),
+      );
 
       backend.pushResync();
       await pumpEventQueue();
       expect(backend.fetches, greaterThan(before));
-      expect(transport.snapshot.connection, equals(ConnectionQuality.connected));
+      expect(
+        transport.snapshot.connection,
+        equals(ConnectionQuality.connected),
+      );
     });
   });
 
@@ -220,18 +283,20 @@ void main() {
     });
 
     test('a paused project is distinguishable from a dropped one', () async {
-      final paused = FakeBackend(
-        roomId: 'room-1',
-        state: roomState(),
-        players: roster(5),
-      )
-        ..unreachable = true
-        ..projectPaused = true;
+      final paused =
+          FakeBackend(roomId: 'room-1', state: roomState(), players: roster(5))
+            ..unreachable = true
+            ..projectPaused = true;
 
       await expectLater(
         OnlineTransport.connect(backend: paused, roomId: 'room-1'),
-        throwsA(isA<BackendUnreachable>()
-            .having((e) => e.projectPaused, 'projectPaused', isTrue)),
+        throwsA(
+          isA<BackendUnreachable>().having(
+            (e) => e.projectPaused,
+            'projectPaused',
+            isTrue,
+          ),
+        ),
       );
     });
   });
@@ -252,17 +317,22 @@ void main() {
       await connect();
       final before = backend.fetches;
 
-      backend.pushPlayer(RoomPlayer(
-        userId: 'u2',
-        seat: 2,
-        name: 'C',
-        alive: false,
-        lastSeen: localNow,
-      ));
+      backend.pushPlayer(
+        RoomPlayer(
+          userId: 'u2',
+          seat: 2,
+          name: 'C',
+          alive: false,
+          lastSeen: localNow,
+        ),
+      );
       await pumpEventQueue();
 
-      expect(backend.fetches, equals(before),
-          reason: 'a heartbeat must not cost a full read');
+      expect(
+        backend.fetches,
+        equals(before),
+        reason: 'a heartbeat must not cost a full read',
+      );
       expect(
         transport.snapshot.public.players[2].status,
         equals(PlayerStatus.dead),
@@ -330,8 +400,11 @@ void main() {
       );
 
       await transport.tick();
-      expect(backend.called('claim_host'), isFalse,
-          reason: 'seat 0 is connected and is the heir');
+      expect(
+        backend.called('claim_host'),
+        isFalse,
+        reason: 'seat 0 is connected and is the heir',
+      );
     });
 
     test('it cascades when the heir has gone too (O2)', () async {
@@ -368,10 +441,10 @@ void main() {
   });
 
   group('one device drives (doc 10 §7)', () {
-    test('a guest makes no phase call at all', () async {
+    test('a guest makes no phase call the host owns', () async {
       await connect(
         userId: 'u3',
-        state: roomState(phase: 'reveal', hostId: 'u0'),
+        state: roomState(phase: 'morning', hostId: 'u0'),
         own: const OwnSeat(seat: 3, role: 'citizen'),
       );
 
@@ -384,25 +457,145 @@ void main() {
       expect(transport.snapshot.canAdvance, isFalse);
     });
 
+    test('ending the deal is the one call a guest may make', () async {
+      // The deal ends when the last card is dismissed, and the person who
+      // dismissed it is whoever it is. Making the room wait for the host to
+      // notice would strand it on the one screen where everybody is looking at
+      // their own phone — and it costs nothing to allow, because `open_phase`
+      // refuses the transition until every seat has `saw_role`.
+      await connect(
+        userId: 'u3',
+        state: roomState(phase: 'reveal', hostId: 'u0'),
+        own: const OwnSeat(seat: 3, role: 'citizen'),
+      );
+
+      await transport.advancePhase();
+
+      expect(backend.lastCall('open_phase')?.body['phase'], equals('night'));
+      expect(transport.snapshot.canAdvance, isFalse);
+    });
+
     test('the host does', () async {
-      await connect(state: roomState(phase: 'reveal', hostId: 'u0'));
+      await connect(
+        state: roomState(phase: 'reveal', hostId: 'u0'),
+      );
       await transport.beginNight();
 
       expect(backend.lastCall('open_phase')?.body['phase'], equals('night'));
       expect(transport.snapshot.canAdvance, isTrue);
     });
 
-    test('day 1 opens the naming round, day 2 asks for a confrontation',
-        () async {
-      await connect(state: roomState(phase: 'morning', phaseNumber: 1));
-      await transport.beginDay();
-      expect(backend.lastCall('open_phase')?.body['phase'], equals('opening'));
+    test(
+      'day 1 opens the naming round, day 2 asks for a confrontation',
+      () async {
+        await connect(state: roomState(phase: 'morning', phaseNumber: 1));
+        await transport.beginDay();
+        expect(
+          backend.lastCall('open_phase')?.body['phase'],
+          equals('opening'),
+        );
 
-      backend.setState(roomState(phase: 'morning', phaseNumber: 2),
-          push: false);
-      await transport.resync();
-      await transport.beginDay();
-      expect(backend.called('generate_confrontation'), isTrue);
+        backend.setState(
+          roomState(phase: 'morning', phaseNumber: 2),
+          push: false,
+        );
+        await transport.resync();
+        await transport.beginDay();
+        expect(backend.called('generate_confrontation'), isTrue);
+      },
+    );
+  });
+
+  group('«الطلقة الواحدة», online (doc 13 §2 / doc 14 §4)', () {
+    // **This used to be the one thing online could not do.**
+    // `supportsBullets` returned false, so the last tile on the night grid was
+    // an ordinary skip. For the Mafia that cost only the "once per match" part
+    // — a skip already makes a quiet night. For the Doctor it cost the whole
+    // move: `submit_night_action` refused a self-target outright, so the tile
+    // bearing their own name was a tile the server rejected.
+
+    test('the transport says it can carry one', () async {
+      await connect();
+      expect(transport.supportsBullets, isTrue);
+    });
+
+    test('the intention travels, and only the intention', () async {
+      await connect(own: const OwnSeat(seat: 0, role: 'doctor'));
+      backend.responses['submit_night_action'] = {'bulletSpent': true};
+
+      await transport.submitNightAction(
+        seat: 0,
+        kind: NightActionKind.protect,
+        targetSeat: 0,
+        useBullet: true,
+      );
+
+      final body = backend.lastCall('submit_night_action')!.body;
+      expect(body['useBullet'], isTrue);
+      // The actor is never named: the server takes it from the JWT, and a
+      // field that named one would be O17 with a different noun.
+      expect(body.containsKey('seat'), isFalse);
+      expect(body['targetSeat'], equals(0));
+    });
+
+    test('the answer comes from the ack, not from the asking', () async {
+      await connect(own: const OwnSeat(seat: 0, role: 'mafia'));
+      // The client asked. The server said no — the room has this bullet
+      // switched off, which is a fact the client does not get to overrule.
+      backend.responses['submit_night_action'] = {'bulletSpent': false};
+
+      await transport.submitNightAction(
+        seat: 0,
+        kind: NightActionKind.mafiaVote,
+        targetSeat: null,
+        useBullet: true,
+      );
+
+      expect(transport.currentActorBulletSpent, isFalse);
+    });
+
+    test('a spent bullet stays spent for the rest of the match', () async {
+      await connect(own: const OwnSeat(seat: 0, role: 'doctor'));
+      backend.responses['submit_night_action'] = {'bulletSpent': true};
+      await transport.submitNightAction(
+        seat: 0,
+        kind: NightActionKind.protect,
+        targetSeat: 0,
+        useBullet: true,
+      );
+      expect(transport.currentActorBulletSpent, isTrue);
+
+      // A later, ordinary night. The ack says `false` because *this* move did
+      // not spend one, and that must not un-spend the one already gone.
+      backend.responses['submit_night_action'] = {'bulletSpent': false};
+      await transport.submitNightAction(
+        seat: 0,
+        kind: NightActionKind.protect,
+        targetSeat: 2,
+      );
+      expect(transport.currentActorBulletSpent, isTrue);
+    });
+
+    test('a reconnect finds it out again from its own rows', () async {
+      // The flag is not kept in the client's head. It is read back from
+      // `night_actions.used_bullet`, whose read policy is `actor_id =
+      // auth.uid()` — so a phone that dropped mid-match and came back knows
+      // what it has left, and no other phone can be told.
+      await connect(
+        own: const OwnSeat(seat: 0, role: 'doctor', bulletSpent: true),
+      );
+      expect(transport.currentActorBulletSpent, isTrue);
+    });
+
+    test('nothing about it reaches the rendered snapshot', () async {
+      // Only two of the four roles hold one, so a public "seat 0 has spent
+      // theirs" would say *seat 0 is the Mafia or the Doctor*, which is most
+      // of the game. It is on the own row and nowhere else.
+      await connect(
+        own: const OwnSeat(seat: 0, role: 'doctor', bulletSpent: true),
+      );
+      expect(transport.snapshot.toString(), isNot(contains('bulletSpent')));
+      expect(transport.snapshot.toString(), isNot(contains('doctor')));
     });
   });
 
@@ -425,8 +618,11 @@ void main() {
         targetSeat: 3,
       );
       final body = backend.lastCall('submit_night_action')!.body;
-      expect(body['action'], equals('kill'),
-          reason: 'the engine calls it a vote, the server calls it a kill');
+      expect(
+        body['action'],
+        equals('kill'),
+        reason: 'the engine calls it a vote, the server calls it a kill',
+      );
       expect(body.containsKey('seat'), isFalse);
       expect(body.containsKey('actorSeat'), isFalse);
     });
@@ -459,33 +655,39 @@ void main() {
         kind: NightActionKind.suspect,
         targetSeat: null,
       );
-      expect(backend.lastCall('submit_night_action')!.body['action'],
-          equals('skip'));
+      expect(
+        backend.lastCall('submit_night_action')!.body['action'],
+        equals('skip'),
+      );
     });
   });
 
   group('whispers', () {
-    test('the body is fetched for the recipient and never held in the graph',
-        () async {
-      final whisper = const WhisperRow(
-        id: 'w1',
-        day: 1,
-        fromSeat: 2,
-        toSeat: 0,
-        toMe: true,
-      );
-      await connect(
-        own: const OwnSeat(seat: 0, role: 'citizen'),
-        whispers: [whisper],
-      );
-      backend.bodies['w1'] = 'watch seat four';
+    test(
+      'the body is fetched for the recipient and never held in the graph',
+      () async {
+        final whisper = const WhisperRow(
+          id: 'w1',
+          day: 1,
+          fromSeat: 2,
+          toSeat: 0,
+          toMe: true,
+        );
+        await connect(
+          own: const OwnSeat(seat: 0, role: 'citizen'),
+          whispers: [whisper],
+        );
+        backend.bodies['w1'] = 'watch seat four';
 
-      final secrets = await transport.secretsFor(0);
-      expect(secrets!.whisperBody, equals('watch seat four'));
-      expect(transport.snapshot.whisperGraph, hasLength(1));
-      expect(transport.snapshot.whisperGraph.single.toString(),
-          isNot(contains('watch seat four')));
-    });
+        final secrets = await transport.secretsFor(0);
+        expect(secrets!.whisperBody, equals('watch seat four'));
+        expect(transport.snapshot.whisperGraph, hasLength(1));
+        expect(
+          transport.snapshot.whisperGraph.single.toString(),
+          isNot(contains('watch seat four')),
+        );
+      },
+    );
 
     test('a blocked sender is dropped silently (H-E9)', () async {
       await connect(
@@ -499,9 +701,13 @@ void main() {
       await transport.block('u2');
       final secrets = await transport.secretsFor(0);
       expect(secrets!.whisperBody, isNull);
-      expect(transport.snapshot.whisperGraph, hasLength(1),
-          reason: 'the edge stays public — a block the table could see would '
-              'be a channel of its own');
+      expect(
+        transport.snapshot.whisperGraph,
+        hasLength(1),
+        reason:
+            'the edge stays public — a block the table could see would '
+            'be a channel of its own',
+      );
     });
 
     test('a voided whisper tells its sender, not the room', () async {

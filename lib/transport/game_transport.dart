@@ -2,6 +2,7 @@ import '../engine/models/enums.dart';
 import '../engine/models/timeline_event.dart' show InvestigateResult;
 import 'game_snapshot.dart';
 import 'voice_link.dart';
+import 'witness_channel.dart';
 
 /// One engine, two transports (doc 10 §7).
 ///
@@ -79,7 +80,30 @@ abstract class GameTransport {
     required int seat,
     required NightActionKind kind,
     required int? targetSeat,
+    bool useBullet = false,
   });
+
+  /// Whether this transport can carry «الطلقة الواحدة» (doc 13 §2).
+  ///
+  /// The one-phone game spends it in the engine, in the same call that records
+  /// the turn. Online it is `night_actions.used_bullet`, written by
+  /// `submit_night_action` after it has checked the caller's role against the
+  /// role *the server* holds — so a client cannot spend a move it does not
+  /// have, and cannot spend one twice.
+  ///
+  /// Read *with* [MatchSettings.bulletsEnabled] and never instead of it. Both
+  /// are constant for a whole match, which is what makes a false answer safe:
+  /// it is a fact about this match, never about whoever is holding the phone.
+  bool get supportsBullets;
+
+  /// Whether the seat now acting has already spent its ability.
+  ///
+  /// Offline that seat is whoever is holding the phone, and the engine knows.
+  /// Online it is always this device's own seat, and the answer came back from
+  /// the server with the action that spent it. Both are the same question —
+  /// *should the last tile be drawn as gone?* — so the screen asks it once and
+  /// does not care which side answered.
+  bool get currentActorBulletSpent;
 
   /// Tallies the night.
   Future<void> resolveNight();
@@ -167,6 +191,18 @@ abstract class GameTransport {
   /// above that a broken call can make fail, because the whole of voice hangs
   /// off one field that is allowed not to be there.
   VoiceLink? get voice;
+
+  /// Witness mode's channel, or null when this transport has none.
+  ///
+  /// Null offline, and for a reason that is not symmetry with [voice]: offline
+  /// an eliminated player is still sitting at the table with everybody else,
+  /// which is the premise doc 12 §4 opens with. There is no graveyard to talk
+  /// in because nobody left the room.
+  ///
+  /// Nullable for the same structural reason as [voice], though. Ghost chat and
+  /// the prediction panel touch no rule: nothing above may await them, nothing
+  /// may branch a phase on them, and a match completes with this field broken.
+  WitnessChannel? get witness;
 
   /// True when this device resolves the game itself.
   bool get isAuthoritative;

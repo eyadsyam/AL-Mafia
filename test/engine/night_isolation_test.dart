@@ -38,7 +38,11 @@ void main() {
         Role.detective: 1,
         Role.citizen: 2,
       },
-      settings: const MatchSettings(),
+      // `saved` below is the morning's *announcement*, which doc 13 §2.1
+      // deliberately removes once the Mafia can buy a quiet night that looks
+      // identical to it. These tests are about a night reading only its own
+      // actions, so they run in the regime where the announcement exists.
+      settings: const MatchSettings(quietNightEnabled: false),
       seed: 4242,
     );
     return engine;
@@ -118,17 +122,17 @@ void main() {
       final firstVictim = victims[0];
       final secondVictim = victims[1];
 
-      // The doctor covers themselves and then the mafia — anyone but the two
-      // targets, and never the same seat twice running, which the engine
-      // forbids outright.
+      // The doctor covers the mafia and then a bystander — anyone but the two
+      // targets, never themselves (doc 13 §2 makes that the Doctor's one
+      // bullet), and never the same seat twice running.
       final night1 = playNight(engine,
-          mafiaTarget: firstVictim, doctorTarget: doctor);
+          mafiaTarget: firstVictim, doctorTarget: mafia);
       expect(night1.victimSeat, equals(firstVictim));
 
       skipDayWithoutElimination(engine);
 
       final night2 = playNight(engine,
-          mafiaTarget: secondVictim, doctorTarget: mafia);
+          mafiaTarget: secondVictim, doctorTarget: victims[2]);
       expect(
         night2.victimSeat,
         equals(secondVictim),

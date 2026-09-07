@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
@@ -33,6 +34,9 @@ class WebRtcVoiceEngine implements VoiceEngine {
   final Map<String, RTCPeerConnection> _connections = {};
   final Map<String, MediaStream> _inbound = {};
   final Set<String> _live = {};
+
+  /// Peers this session has already spent its one automatic ICE restart on.
+  final Set<String> _restarted = {};
 
   MediaStream? _local;
   String _selfId = '';
@@ -112,7 +116,22 @@ class WebRtcVoiceEngine implements VoiceEngine {
           switch (state) {
             case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
               _events.add(PeerConnected(peer.userId));
+              unawaited(_logCandidateType(peer.userId, pc));
             case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
+              // Once, automatically, before giving up. A `failed` is usually a
+              // network that moved — Wi-Fi to cellular, a NAT binding that
+              // expired — and the candidates that were gathered describe an
+              // address the device no longer has. Gathering again is the whole
+              // fix, and it is cheap.
+              //
+              // Once and not repeatedly: a peer that fails a restart is a peer
+              // that is genuinely unreachable, and a loop of restarts would
+              // keep a dead connection alive in the UI for ever.
+              if (_restarted.add(peer.userId)) {
+                unawaited(_restartIce(peer.userId));
+              } else {
+                _events.add(PeerFailed(peer.userId));
+              }
             case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
               _events.add(PeerFailed(peer.userId));
             default:
@@ -198,8 +217,30 @@ class WebRtcVoiceEngine implements VoiceEngine {
     }
   }
 
+  /// Drops every connection (V6) and silences the local track — but does not
+  /// release it.
+  ///
+  /// The microphone is acquired once per session and kept for the length of
+  /// it. Stopping the track here is what made voice a one-night affair: every
+  /// night tears the mesh down, and a stopped track cannot be added to the
+  /// connections built when the night ends, so the second day was silent and
+  /// nothing said so. Worse on the web, where re-acquiring can put the
+  /// permission prompt back in front of a player mid-match.
+  ///
+  /// So: mute, keep, re-add. [dispose] is the one place the hardware is
+  /// handed back.
   @override
   Future<void> teardown() async {
+    await _closeConnections();
+    final stream = _local;
+    if (stream == null) return;
+    for (final track in stream.getAudioTracks()) {
+      track.enabled = false;
+    }
+  }
+
+  @override
+  Future<void> dispose() async {
     await _closeConnections();
     final stream = _local;
     _local = null;
@@ -209,15 +250,67 @@ class WebRtcVoiceEngine implements VoiceEngine {
       }
       await stream.dispose();
     }
-  }
-
-  @override
-  Future<void> dispose() async {
-    await teardown();
     await _events.close();
   }
 
   // ---------------------------------------------------------------------------
+
+  /// Logs which kind of candidate the connection actually settled on.
+  ///
+  /// `host` is the same network, `srflx` is a direct connection through NAT,
+  /// and `relay` is TURN. It matters because the three failure modes are
+  /// indistinguishable from the UI — a call that never connects looks like a
+  /// call nobody is talking on — and because "did the relay get used" is the
+  /// only way to know whether the TURN credentials are doing anything.
+  ///
+  /// Log-only, on purpose. Nothing in the game reads it, so it cannot become
+  /// load-bearing.
+  Future<void> _logCandidateType(String peerId, RTCPeerConnection pc) async {
+    try {
+      final stats = await pc.getStats();
+      final pairs = stats.where(
+        (report) =>
+            report.type == 'candidate-pair' &&
+            report.values['state'] == 'succeeded',
+      );
+      for (final pair in pairs) {
+        final localId = pair.values['localCandidateId'];
+        final local = stats.where((r) => r.id == localId).firstOrNull;
+        final type = local?.values['candidateType'] ?? 'unknown';
+        developer.log(
+          'peer $peerId connected via $type',
+          name: 'voice',
+        );
+        return;
+      }
+    } catch (_) {
+      // A stats call that fails tells us nothing and must cost nothing.
+    }
+  }
+
+  /// Re-gathers candidates for one peer and re-offers if this side offers.
+  ///
+  /// The glare tie-break decides who re-offers, exactly as it decided who
+  /// offered first: both sides restarting at once is the same deadlock by
+  /// another name. The answering side still calls `restartIce`, which arms the
+  /// connection to accept the new offer when it arrives.
+  Future<void> _restartIce(String peerId) async {
+    final pc = _connections[peerId];
+    if (pc == null) return;
+    try {
+      await pc.restartIce();
+      if (_selfId.compareTo(peerId) >= 0) return;
+      final offer = await pc.createOffer({'iceRestart': true});
+      await pc.setLocalDescription(offer);
+      _events.add(OutboundSignal(peerId, {
+        'kind': 'offer',
+        'sdp': offer.sdp,
+        'type': offer.type,
+      }));
+    } catch (_) {
+      _events.add(PeerFailed(peerId));
+    }
+  }
 
   Future<void> _closeConnections() async {
     for (final pc in _connections.values) {
@@ -229,6 +322,7 @@ class WebRtcVoiceEngine implements VoiceEngine {
     }
     _connections.clear();
     _inbound.clear();
+    _restarted.clear();
   }
 
   /// True as soon as one peer reports connected, false when [timeout] passes

@@ -42,11 +42,36 @@ Deno.serve(handler(async (req, userId, db) => {
 
   const me = await loadMembership(db, roomId, userId);
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
-  if (me.hostId !== userId) return fail("NOT_HOST", "only the host advances", 403);
+
+  // The one transition any member may make. The deal ends when the last card
+  // is dismissed, and the person who dismissed it is whoever it is — making
+  // the room wait for the host to notice would strand it on the one screen
+  // where every player is looking at their own phone anyway. The gate below
+  // is what actually decides, and it is the same gate for everybody.
+  const communal = me.phase === "reveal" && phase === "night";
+  if (!communal && me.hostId !== userId) {
+    return fail("NOT_HOST", "only the host advances", 403);
+  }
 
   const allowed = TRANSITIONS[me.phase] ?? [];
   if (!allowed.includes(phase)) {
     return fail("PHASE_CLOSED", `cannot go from ${me.phase} to ${phase}`);
+  }
+
+  // The deal's gate. Never the client's word for it: `saw_role` is written by
+  // one Edge Function, per seat, and read here.
+  if (communal) {
+    const { data: unseen } = await db
+      .from("room_players")
+      .select("seat")
+      .eq("room_id", roomId)
+      .eq("saw_role", false);
+    if ((unseen ?? []).length > 0) {
+      return fail(
+        "PHASE_CLOSED",
+        "not everybody has seen their card",
+      );
+    }
   }
 
   // `result` is only reachable from a morning that already decided the match.

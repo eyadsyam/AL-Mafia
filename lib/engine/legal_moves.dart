@@ -31,6 +31,7 @@ library engine.legal_moves;
 
 import 'dart:math';
 
+import 'bullets.dart';
 import 'match_engine.dart';
 import 'models/enums.dart';
 import 'models/match.dart';
@@ -38,7 +39,6 @@ import 'models/timeline_event.dart';
 import 'resolver.dart';
 import 'seed.dart';
 import 'win_check.dart';
-
 
 /// A single engine command, reified so it can be enumerated, scored and
 /// replayed.
@@ -74,22 +74,34 @@ class NightActionMove extends Move {
   final NightActionKind kind;
   final int targetSeat;
 
+  /// Whether «الطلقة الواحدة» is armed on this turn (doc 13 §2).
+  ///
+  /// Enumerated as a *separate move* rather than as a flag a caller may set,
+  /// because that is what it is: arming the bullet and not arming it lead to
+  /// different states, and anything that reasons about "what could happen
+  /// next" — the fuzz harness, the balance harness, the online timer default —
+  /// has to be able to see both.
+  final bool useBullet;
+
   const NightActionMove({
     required this.seat,
     required this.kind,
     required this.targetSeat,
+    this.useBullet = false,
   });
 
   @override
   void apply(MatchEngine engine) => engine.submitNightAction(
-        seat: seat,
-        kind: kind,
-        targetSeat: targetSeat,
-      );
+    seat: seat,
+    kind: kind,
+    targetSeat: targetSeat,
+    useBullet: useBullet,
+  );
 
   @override
   String toString() =>
-      'submitNightAction(seat: $seat, kind: ${kind.name}, target: $targetSeat)';
+      'submitNightAction(seat: $seat, kind: ${kind.name}, '
+      'target: $targetSeat${useBullet ? ', bullet' : ''})';
 }
 
 /// Take a night turn and choose nobody (`night`).
@@ -99,13 +111,20 @@ class NightActionMove extends Move {
 class SkipNightActionMove extends Move {
   final int seat;
 
-  const SkipNightActionMove({required this.seat});
+  /// See [NightActionMove.useBullet]. A Doctor who arms the bullet and chooses
+  /// nobody is protecting themselves, which is an action; every other role is
+  /// spending theirs on an otherwise empty turn.
+  final bool useBullet;
+
+  const SkipNightActionMove({required this.seat, this.useBullet = false});
 
   @override
-  void apply(MatchEngine engine) => engine.skipNightAction(seat: seat);
+  void apply(MatchEngine engine) =>
+      engine.skipNightAction(seat: seat, useBullet: useBullet);
 
   @override
-  String toString() => 'skipNightAction(seat: $seat)';
+  String toString() =>
+      'skipNightAction(seat: $seat${useBullet ? ', bullet' : ''})';
 }
 
 /// Tally the night (`nightResolving`).
@@ -205,11 +224,8 @@ class VoteMove extends Move {
   const VoteMove({required this.seat, required this.targetSeat});
 
   @override
-  void apply(MatchEngine engine) => engine.submitVote(
-        seat: seat,
-        voterSeat: seat,
-        targetSeat: targetSeat,
-      );
+  void apply(MatchEngine engine) =>
+      engine.submitVote(seat: seat, voterSeat: seat, targetSeat: targetSeat);
 
   @override
   String toString() => 'submitVote(seat: $seat, target: ${targetSeat ?? '—'})';
@@ -278,10 +294,7 @@ List<Move> legalMoves(Match match) {
       // Both endings are legal and they are not the same event: the named
       // player either used their window or let it pass, and C-E5 says the
       // difference is recorded because silence is itself information.
-      return const [
-        EndConfrontationMove(),
-        EndConfrontationMove(silent: true),
-      ];
+      return const [EndConfrontationMove(), EndConfrontationMove(silent: true)];
 
     case GamePhase.discussion:
       return [const BeginVotingMove(), ..._whisperMoves(match)];
@@ -370,14 +383,24 @@ List<Move> _nightMoves(Match match) {
   // a real dead end if it ever became reachable. It is not: the engine advances
   // the actor the moment an action lands. The guard stays because I3 is only
   // worth asserting if it is asserted honestly.
-  if (kind == NightActionKind.investigate && hasInvestigatedTonight(match, seat)) {
+  if (kind == NightActionKind.investigate &&
+      hasInvestigatedTonight(match, seat)) {
     return const [];
   }
 
   // Choosing nobody is always available, to every role. It is listed first so
   // that a seat with no legal target — a Doctor whose only living neighbour is
   // the one they covered last night — still has a way to pass the phone.
-  final moves = <Move>[SkipNightActionMove(seat: seat)];
+  // Whether this seat still has its one irreversible move (doc 13 §2). When
+  // it does, every night move below exists twice — once plain, once armed —
+  // because arming it is a decision the table can make and therefore a
+  // transition the harnesses have to be able to reach.
+  final armable = Bullets.canArm(match, seat);
+
+  final moves = <Move>[
+    if (actor.role != Role.doctor) SkipNightActionMove(seat: seat),
+    if (armable) SkipNightActionMove(seat: seat, useBullet: true),
+  ];
   for (final target in match.players) {
     if (target.seat == seat) continue;
     if (target.status != PlayerStatus.alive) continue;
@@ -393,9 +416,21 @@ List<Move> _nightMoves(Match match) {
       continue;
     }
 
-    moves.add(
-      NightActionMove(seat: seat, kind: kind, targetSeat: target.seat),
-    );
+    moves.add(NightActionMove(seat: seat, kind: kind, targetSeat: target.seat));
+    // Not for the Doctor: «حماية النفس» redirects to their own seat whatever
+    // is highlighted, so an armed move per target would be the same state
+    // enumerated N times — which would both mislead a reader of this list and
+    // skew a harness that picks from it uniformly. Theirs is on the skip.
+    if (armable && kind != NightActionKind.protect) {
+      moves.add(
+        NightActionMove(
+          seat: seat,
+          kind: kind,
+          targetSeat: target.seat,
+          useBullet: true,
+        ),
+      );
+    }
   }
   return moves;
 }
@@ -431,8 +466,10 @@ List<Move> _whisperMoves(Match match) {
     // One per living player per day, non-cumulative (doc 09 §3.3).
     final sent = match.eventLog
         .whereType<WhisperSent>()
-        .where((e) =>
-            e.fromSeat == from.seat && e.phaseRef.number == match.dayNumber)
+        .where(
+          (e) =>
+              e.fromSeat == from.seat && e.phaseRef.number == match.dayNumber,
+        )
         .length;
     if (sent >= 1) continue;
     for (final to in match.players) {
@@ -474,12 +511,12 @@ List<Move> _voteMoves(Match match) {
 /// repository contract inv. 2). `MatchEngine` delegates to this so the rule the
 /// engine enforces and the rule this file enumerates cannot drift apart.
 bool hasInvestigatedTonight(Match match, int seat) => match.eventLog.any(
-      (e) =>
-          e is InvestigateCast &&
-          e.actorSeat == seat &&
-          e.phaseRef.phase == GamePhase.night &&
-          e.phaseRef.number == match.dayNumber,
-    );
+  (e) =>
+      e is InvestigateCast &&
+      e.actorSeat == seat &&
+      e.phaseRef.phase == GamePhase.night &&
+      e.phaseRef.number == match.dayNumber,
+);
 
 /// Which balloting round of the current day is open.
 ///
@@ -489,8 +526,9 @@ bool hasInvestigatedTonight(Match match, int seat) => match.eventLog.any(
 int voteRoundFor(Match match) =>
     1 +
     match.eventLog
-        .where((e) =>
-            e is DayRevoteCalled && e.phaseRef.number == match.dayNumber)
+        .where(
+          (e) => e is DayRevoteCalled && e.phaseRef.number == match.dayNumber,
+        )
         .length;
 
 /// Seats that may legally be voted for right now, or null when every living

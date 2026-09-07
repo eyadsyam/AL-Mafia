@@ -1,8 +1,10 @@
 # Claude Code Brief — Information Engine + Online Mode
 
 > Paste this into Claude Code from the project root.
-> **Read first, in this order:** `05-zero-leakage-spec.md` → `09-information-engine.md` → `10-online-architecture.md` → `11-edge-cases-and-tests.md`.
-> Those four documents are the specification. This file is the build order and the gates.
+> **Read first, in this order:** `05-zero-leakage-spec.md` → `09-information-engine.md` → `10-online-architecture.md` → `11-edge-cases-and-tests.md` → `12-online-experience.md` → `13-gameplay-depth-and-hints.md` → **`14-consolidation-and-cleanup.md`**.
+> Those seven documents are the specification. **`14` supersedes parts of `09`, `12` and `13` — where they conflict, `14` wins.** This file is the build order and the gates.
+>
+> **`10` is the plumbing. `12` is the surface.** Phase 7 implements `10`; **Phase 7b implements `12`**. Do not write any online UI before reading `12` — online mode is **one persistent scene that morphs between phases**, not a stack of pushed routes. Getting that wrong means rewriting the whole online UI later.
 
 ---
 
@@ -51,6 +53,54 @@ You have MCP servers connected. Use them — do not hand-write what a tool does 
 `Pixel 9 pro (2)` is running. `adb devices` → `flutter run -d <id>` → `adb exec-out screencap -p > /tmp/s.png` → **look at it**.
 
 ---
+
+
+# PHASE C — CLEANUP (do this before anything else)
+
+**Read `14-consolidation-and-cleanup.md` in full. It supersedes parts of `09`, `12`, and `13`.**
+
+Three systems were added at once without defining the moment-to-moment experience first. The result is cluttered and in places illogical. This phase is subtraction, not addition. Ship nothing new until it is done.
+
+### C1 — Remove
+- «فتح الملف» (Detective) — delete the mechanic, its UI, its state, and its tests
+- **All whispers in offline mode** — one shared phone cannot deliver a private message during discussion
+- **Every hint, tip, and strategy line inside a live match** — including the one on «الليل يقترب»
+- Whisper text on the «تم تسجيل اختيارك» screen
+- «مش هختار حد» as a line on the pre-action interstitial
+- The two-long-press ability arming pattern
+
+### C2 — The night grid (fixes four reported problems at once)
+Rebuild the night action screen as **one grid: (N−1) player tiles + exactly 1 special tile in the last position**, for every role.
+
+| Role | Special tile |
+|---|---|
+| مافيا | «مفيش قتل الليلة» |
+| طبيب | **their own name** — self-protect, once per match |
+| محقق | «مش هحقق الليلة» |
+| مواطن | «مش شاكك في حد» |
+
+- **All players visible without scrolling** at 5–15. The grid shrinks; it never scrolls. Sizing table in `14` §1.3
+- **Confirm is a single tap.** Long-press survives only on identity confirmation and the role card flip
+- A used once-per-match tile dims to 40% and stays in place — **never removed** (grid shape is a tell)
+- Parity is now structural: identical grid shape for every role, no extra control
+
+### C3 — Screen hygiene
+- «الليل يقترب» → exactly three elements: confirmation line, instruction, button
+- «تم تسجيل اختيارك» → exactly one line, auto-advance 1.0s
+- «اسم واحد» Day-1 round → **default OFF**, opt-in only
+
+### C4 — Whisper rebuild (online only)
+- Available **during the discussion phase only**
+- Delivered **immediately** as a styled, non-blocking card — never a system toast
+- Recipient list built from `alive.where((p) => p.id != me.id)` — **self-exclusion is structural, not a check**
+- Sender→recipient line public; content private, shown once
+
+### C5 — Settings
+Four sections with one-line descriptions under each control. Segmented controls for times, steppers for counts, switches only for genuine on/off. Online-only settings greyed with «في الأونلاين بس» when offline. Layout in `14` §5.
+
+### Gate
+Play a full offline match on the emulator and **write down every screen you see**. It must match `14` Part 1 exactly, with nothing extra. Then: all doc-05 golden and timing tests pass, fuzz harness green, release build succeeds.
+
 
 # PHASE 0 — Foundations (do this first, no exceptions)
 
@@ -103,7 +153,7 @@ UI: morning screen (`S-10`), trace text appears **1.2s after** the death line, i
 
 ---
 
-# PHASE 3 — Layer 2: The Confrontation + Day-1 opener
+# PHASE 3 — Layer 2: The Confrontation  *(Day-1 «اسم واحد» opener is now DEFAULT OFF — see 14 §C3)*
 
 1. **Day-1 opener «اسم واحد»** — 10 seconds per living player, seating order, forced choice, recorded to `openingAccusations`.
 2. `lib/engine/information/confrontation_generator.dart` — types C1–C10 (C11 gated OFF by default).
@@ -119,7 +169,7 @@ UI per doc 09 §2.6. Named player may end early. Nobody may interrupt.
 
 ---
 
-# PHASE 4 — Layer 3: The Whisper (offline first)
+# PHASE 4 — Layer 3: The Whisper — **SUPERSEDED BY PHASE C4. Whispers are ONLINE ONLY. Skip this phase.**
 
 - 1 per living player per day, 120 chars, no self, no dead
 - Graph public, content private
@@ -179,6 +229,24 @@ UI: lobby, room code share, connection banner, per-player connected state — **
 
 ---
 
+# PHASE 7b — The Table (online experience)
+
+**Read `12-online-experience.md` in full before starting. This phase is why online is the product's strongest feature rather than a worse version of offline.**
+
+1. **One persistent scene.** Build `OnlineTableScreen` as a single route that morphs between phases. No `Navigator.push` between phases inside a match. Phase changes are state transitions on the same widget tree.
+2. **Seat rendering** — card back asset per seat, six states (idle / speaking / confronted / disconnected / dead / self). Self always carries a cream hairline.
+3. **Night parity (binding, doc 05):** during the night phase, freeze every per-seat status. No speaking dots, no connection state, no action-complete ticks, no completion counter in the waiting text. All seats render identically for every role.
+4. **Selection on the table** — tap a seat, not a separate list. Line draws from your seat to the target.
+5. **The seven signature animations:** role-card lift-and-flip, morning light sweep, the death tear, confrontation spotlight, vote lines forming, the whisper light travelling seat-to-seat, and the simultaneous result flip.
+6. **Witness mode** for eliminated players (§4) — full monochrome table, spectate, whisper graph, ghost chat, prediction panel. Ghost chat must have **no channel to living players**; prove it with a test.
+7. **Connection states as atmosphere** (§5) — fog and desaturation, never a blocking modal, never red, never a bare spinner. The table stays readable in every failure state.
+8. **Backdrops** — the `Scense/` stills behind the table at 15–20% opacity, master grade applied, cross-fading on phase change. Downscale to 1080px longest edge, convert to WebP, **total payload under 1.5MB**.
+
+**Performance:** 60fps with 15 seats in profile mode. No `BackdropFilter` in any per-frame path. Table lines and glows in a single `CustomPainter`; do not repaint the whole table per tick.
+
+**Gate:** full online match on the emulator with 5 clients. Screenshot every phase. Verify: no route pushes inside the match, night seats visually identical across roles, voice disabled still completes, and an eliminated player still has something to do 30 minutes later.
+
+
 # PHASE 8 — Whisper online + voice
 
 1. Whispers over Supabase with **server-side** rate limiting.
@@ -192,6 +260,23 @@ UI: lobby, room code share, connection banner, per-player connected state — **
 **Gate:** a complete online match with voice **entirely disabled** finishes normally. This is the acceptance criterion for "voice is not load-bearing".
 
 ---
+
+# PHASE 8b — Gameplay depth & hints
+
+**Read `13-gameplay-depth-and-hints.md` in full first.** This phase makes the four existing roles interesting instead of adding a fifth.
+
+1. **«الطلقة الواحدة»** — one irreversible single-use action per role: Mafia quiet night, Doctor self-protect, Detective open-the-file, Citizen testify. The control occupies the **same slot, same size, same two long-presses** on every role's night screen, armed or not. A spent bullet is struck through, **never removed** — removal changes layout height and layout height is a tell.
+2. **Quiet night must be byte-identical to a Doctor save** in the morning output. Assert this with a test that diffs both paths.
+3. **Detective's file** lives inside the existing second step. No new screen, no day-view badge. Log the doc-05 §5 trade-off explicitly.
+4. **Pressure curve** — timers derived from living player count only, never from roles.
+5. **Hint system, three tiers.** The engine takes `mode` as a required parameter; role-conditioned hint text must be **unreachable offline by construction**, not by convention. Offline hints are seeded by `deriveSeed(matchSeed, 'hint', phaseIndex)`.
+6. **Post-match coaching «كان ممكن»** — generated from real data only. Include the conformity rate.
+7. **Match presets** — سريعة / كلاسيكية / قاسية.
+
+**Balance harness (required, not optional):** extend the existing fuzz harness per §6. Simulate every preset × player count with `NaivePolicy` and `TracePolicy`. Assert the mafia win rate lands in **40–60%**, median match length **3–6 nights**, and that **`TracePolicy` beats `NaivePolicy` for the town** — if it does not, the Trace system is not producing usable information and that is a design bug, not a test failure.
+
+**Gate:** balance harness green across all presets, all doc-05 golden and timing tests still passing, and the quiet-night/Doctor-save diff test passing.
+
 
 # PHASE 9 — Hardening & release
 

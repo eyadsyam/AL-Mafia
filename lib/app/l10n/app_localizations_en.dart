@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Mafia Master';
 
   @override
+  String get actionNotSaved => 'Your choice was not saved. Try again.';
+
+  @override
   String get back => 'Back';
 
   @override
@@ -203,7 +206,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gotIt => 'Got it';
 
   @override
-  String get holdToRevealRole => 'Press and hold to reveal your role';
+  String get holdToRevealRole => 'Hold for 2 seconds to see your card';
 
   @override
   String teammatesLine(String names) {
@@ -227,13 +230,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourTurn => 'Your turn';
 
   @override
-  String get holdToConfirm => 'Press and hold to confirm';
+  String get holdToConfirm => 'Hold for 2 seconds to continue';
 
   @override
   String get notYou => 'Not you?';
-
-  @override
-  String get takeYourTime => 'Take your time reading';
 
   @override
   String get choosePlayer => 'Choose a player';
@@ -243,10 +243,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get choiceRecorded => 'Your choice is recorded';
-
-  @override
-  String get keepPhoneUntilUnlock =>
-      'Keep the phone until the pass button unlocks';
 
   @override
   String get passPhone => 'Pass the phone';
@@ -556,7 +552,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get holdToConfirmIdentity => 'Press and hold to see your card';
+  String get holdToConfirmIdentity => 'Hold for 2 seconds to see your card';
 
   @override
   String get swipeToReveal => 'Swipe the card any way to flip it';
@@ -905,9 +901,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whisperLabel => 'Whisper';
 
   @override
-  String get whisperNoneForYou => 'No whispers for you';
-
-  @override
   String whisperFrom(String name) {
     return 'From $name';
   }
@@ -966,9 +959,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Reported. You will not see whispers from them again.';
 
   @override
-  String get nightChooseNobody => 'Choose nobody';
-
-  @override
   String get informationEngineSection => 'Information engine';
 
   @override
@@ -1007,16 +997,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'The graph is always revealed. This is about the words.';
 
   @override
-  String get settingSurvivorConfrontation => '«The survivor» confrontation';
-
-  @override
-  String get settingSurvivorConfrontationHint =>
-      'Names a player who survived a night attempt. Narrows the doctor — for experienced groups.';
-
-  @override
-  String get settingConfrontationSeconds => 'Confrontation length';
-
-  @override
   String get onlineMatch => 'Play online';
 
   @override
@@ -1024,6 +1004,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onlineJoinRoom => 'Join a room';
+
+  @override
+  String get onlineCreateRoomHint => 'You get a code to send the others';
+
+  @override
+  String get onlineJoinRoomHint => 'Somebody sent you a code?';
 
   @override
   String get onlineRoomCode => 'Room code';
@@ -1082,6 +1068,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get voiceMicOff => 'Microphone off';
 
   @override
+  String get voiceMuteMe => 'Mute me';
+
+  @override
+  String get voiceUnmuteMe => 'Unmute me';
+
+  @override
+  String get voiceSelfMuted => 'You are muted';
+
+  @override
   String get voiceMicOn => 'Microphone on';
 
   @override
@@ -1100,6 +1095,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineHostBadge => 'Host';
 
   @override
+  String get onlineYou => 'You';
+
+  @override
   String get onlineNeedFivePlayers => 'At least five players';
 
   @override
@@ -1107,6 +1105,125 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onlineCodeCopied => 'Code copied';
+
+  @override
+  String get onlinePublicRooms => 'Public rooms';
+
+  @override
+  String get onlinePublicRoomsHint => 'Join an open room without a code';
+
+  @override
+  String get onlineNoPublicRooms => 'No public rooms open right now';
+
+  @override
+  String onlinePublicRoomPlayers(int count) {
+    return '$count players';
+  }
+
+  @override
+  String get onlineUntitledRoom => 'Unnamed room';
+
+  @override
+  String get onlineRoomSettings => 'Room settings';
+
+  @override
+  String get onlineSettingsRoom => 'Room';
+
+  @override
+  String get onlineSettingsVoice => 'Voice';
+
+  @override
+  String get onlineSettingsPlay => 'Play';
+
+  @override
+  String get onlineSettingsInfo => 'Information';
+
+  @override
+  String get onlineRoomVisibility => 'Room type';
+
+  @override
+  String get onlineRoomVisibilityHint =>
+      'Private rooms take a code. Public ones are listed for anybody.';
+
+  @override
+  String get onlineRoomPrivate => 'Private';
+
+  @override
+  String get onlineRoomPublic => 'Public';
+
+  @override
+  String get onlineRoomTitle => 'Room name';
+
+  @override
+  String get onlineRoomTitleHint => 'What people see in the list.';
+
+  @override
+  String get onlineMaxPlayers => 'Maximum players';
+
+  @override
+  String get onlineMaxPlayersHint => 'The room closes once it is this full.';
+
+  @override
+  String get onlineVoiceEnabled => 'Voice';
+
+  @override
+  String get onlineVoiceEnabledHint => 'The match plays fine without it.';
+
+  @override
+  String get onlineMuteAtNight => 'Mute everyone at night';
+
+  @override
+  String get onlineMuteAtNightHint => 'A voice at night says who is awake.';
+
+  @override
+  String get onlineSpeakDuration => 'Speaking time';
+
+  @override
+  String get onlineSpeakDurationHint =>
+      'How long each player holds the floor alone.';
+
+  @override
+  String get onlineDiscussDuration => 'Discussion time';
+
+  @override
+  String get onlineDiscussDurationHint => 'The open argument before the vote.';
+
+  @override
+  String get onlineOpenVoting => 'Open voting';
+
+  @override
+  String get onlineOpenVotingHint =>
+      'Everyone sees who voted for whom until the ballot locks.';
+
+  @override
+  String get onlineTrace => 'Trace';
+
+  @override
+  String get onlineTraceHint =>
+      'The morning names one trace of the night\'s movement.';
+
+  @override
+  String get onlineConfrontation => 'Confrontation';
+
+  @override
+  String get onlineConfrontationHint =>
+      'Two players face each other before the vote.';
+
+  @override
+  String get onlineWhispers => 'Whispers';
+
+  @override
+  String get onlineWhispersHint =>
+      'A private line to one player; the room knows it was sent.';
+
+  @override
+  String get onlineSeconds => 'seconds';
+
+  @override
+  String get onlineMinutes => 'minutes';
+
+  @override
+  String get onlineLinkCopied => 'Room link copied';
 
   @override
   String get onlineWaitingForHost => 'Waiting for the host…';
@@ -1119,4 +1236,530 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get voiceFloorTaken => 'Someone else has the floor';
+
+  @override
+  String get onlineWeatherConnecting => 'Connecting…';
+
+  @override
+  String get onlineWeatherReconnecting => 'Weak connection — trying';
+
+  @override
+  String get onlineWeatherUnreachable => 'No connection. The match is saved.';
+
+  @override
+  String get onlineCopy => 'Copy';
+
+  @override
+  String get onlineShare => 'Share';
+
+  @override
+  String onlinePlayersOfMax(int count, int max) {
+    return '$count / $max players';
+  }
+
+  @override
+  String get onlineVoiceConnecting => 'Voice: connecting…';
+
+  @override
+  String get onlineVoiceConnected => 'Voice: connected';
+
+  @override
+  String get onlineVoiceUnavailable =>
+      'Voice is unavailable — the game plays normally';
+
+  @override
+  String onlineShareInvite(String code) {
+    return 'Play Mafia with us. Room code: $code';
+  }
+
+  @override
+  String get onlineGhostRule =>
+      'Whoever is out does not talk to whoever is still playing';
+
+  @override
+  String onlineChosen(String name) {
+    return 'Chosen: $name';
+  }
+
+  @override
+  String onlineUpNext(String names) {
+    return 'Up next: $names';
+  }
+
+  @override
+  String get onlineLeftRoom => 'Left';
+
+  @override
+  String onlineNewHost(String name) {
+    return '$name is the host now';
+  }
+
+  @override
+  String get onlineCloseRoom => 'Close the room';
+
+  @override
+  String get onlineCloseRoomBody =>
+      'This ends the match for everyone in the room. Are you sure?';
+
+  @override
+  String get onlineCloseRoomConfirm => 'Close';
+
+  @override
+  String get onlineRoomClosed => 'The host closed the room';
+
+  @override
+  String get onlineKick => 'Remove';
+
+  @override
+  String get onlineMute => 'Mute';
+
+  @override
+  String get onlineUnmute => 'Unmute';
+
+  @override
+  String get onlineKickedByHost => 'The host removed you from the room';
+
+  @override
+  String onlineWaitingForCards(String names) {
+    return 'Waiting for: $names';
+  }
+
+  @override
+  String onlineRaisedHands(String names) {
+    return 'Hands up: $names';
+  }
+
+  @override
+  String get onlineRaiseHand => 'My turn';
+
+  @override
+  String get onlineHandRaised => 'Hand up';
+
+  @override
+  String get onlineSeeRoles => 'See the roles';
+
+  @override
+  String onlineRosterOf(int index, int total) {
+    return '$index of $total';
+  }
+
+  @override
+  String get onlinePickFromTable => 'Choose from the table';
+
+  @override
+  String get onlineWaitingForTheRest => 'Done. Waiting for the rest…';
+
+  @override
+  String get onlineConfirmHold => 'Confirm — press and hold';
+
+  @override
+  String get confrontationSilent => 'Silence.';
+
+  @override
+  String get confrontationAudience => 'Listening';
+
+  @override
+  String get settingVoteVisibility => 'Voting';
+
+  @override
+  String get settingOpenVoting => 'Open voting';
+
+  @override
+  String get settingSecretVoting => 'Secret ballot';
+
+  @override
+  String get settingOpenVotingHint =>
+      'You watch each vote land, and you see who changes their mind';
+
+  @override
+  String get witnessTitle => 'The Witness';
+
+  @override
+  String get witnessEliminated =>
+      'You are out of the game. But you are still watching.';
+
+  @override
+  String get witnessSpectating => 'Watching';
+
+  @override
+  String get witnessTabTable => 'The table';
+
+  @override
+  String get witnessTabChat => 'Those who are out';
+
+  @override
+  String get witnessTabPrediction => 'Your call';
+
+  @override
+  String get witnessTabRecord => 'Your record';
+
+  @override
+  String get witnessChatHint => 'Write to the others who are out…';
+
+  @override
+  String get witnessChatEmpty => 'Nothing said yet';
+
+  @override
+  String get witnessChatWalled => 'Nobody still playing can see this';
+
+  @override
+  String get witnessChatSend => 'Send';
+
+  @override
+  String get witnessPredictionWinner => 'Who wins?';
+
+  @override
+  String get witnessPredictionMafia => 'And who is Mafia?';
+
+  @override
+  String get witnessPredictionLock => 'Lock it in';
+
+  @override
+  String get witnessPredictionLocked => 'Locked. We will see at the end.';
+
+  @override
+  String witnessPredictionScore(int correct, int total) {
+    return 'Your call: $correct of $total';
+  }
+
+  @override
+  String get witnessRecordEmpty => 'You did not write anything down';
+
+  @override
+  String get onlineIntroPhoneTitle => 'Your phone is your turn';
+
+  @override
+  String get onlineIntroPhoneBody =>
+      'Nothing is passed around. Everything you do, you do here. Each player uses a device and a room code. Offline uses one shared phone and needs no internet.';
+
+  @override
+  String get onlineIntroNightTitle => 'The night happens all at once';
+
+  @override
+  String get onlineIntroNightBody =>
+      'Everybody acts together, on their own screen. It takes under a minute. Discuss and vote by day. Town wins by eliminating all Mafia; Mafia wins at parity with the remaining town. Voice is optional; play continues without it.';
+
+  @override
+  String get onlineIntroWhisperTitle => 'A whisper shows who, never what';
+
+  @override
+  String get onlineIntroWhisperBody =>
+      'The table sees a light cross it. Only one person reads the words. Private messages are online only, unavailable offline.';
+
+  @override
+  String get onlineIntroWitnessTitle =>
+      'If you are out, you are still watching';
+
+  @override
+  String get onlineIntroWitnessBody =>
+      'You keep the table, you talk to the others who are out, and you call the ending. This spectator area is online only. Offline, eliminated players stop taking private turns.';
+
+  @override
+  String get onlineIntroSkip => 'Skip';
+
+  @override
+  String get onlineIntroStart => 'Let\'s go';
+
+  @override
+  String get modeTitle => 'How are you playing?';
+
+  @override
+  String get modeSubtitle => 'You can change this next time.';
+
+  @override
+  String get modeOnePhoneTitle => 'One phone, passed around';
+
+  @override
+  String get modeOnePhoneBody =>
+      'Everybody in the same room. The phone goes from hand to hand.';
+
+  @override
+  String get modeOnlineTitle => 'Everybody on their own phone';
+
+  @override
+  String get modeOnlineBody =>
+      'Same room or anywhere. Nothing is passed, and nobody waits their turn to look.';
+
+  @override
+  String get modeNoServer =>
+      'This build has no server. Rebuild it with a project configured.';
+
+  @override
+  String get bulletMafia => 'The quiet night';
+
+  @override
+  String get bulletDoctor => 'Cover yourself, once';
+
+  @override
+  String testimonyGiven(String name, String suspect) {
+    return '$name testifies: their suspicion last night was $suspect.';
+  }
+
+  @override
+  String testimonyNobody(String name) {
+    return '$name testifies: they suspected nobody last night.';
+  }
+
+  @override
+  String fileOpenedTitle(String name) {
+    return '$name opened the file.';
+  }
+
+  @override
+  String fileOpenedEntry(String name, String role) {
+    return '$name — $role';
+  }
+
+  @override
+  String get fileOpenedEmpty => 'The file was empty.';
+
+  @override
+  String get hintTalkers =>
+      'Whoever talks most is not always whoever is hiding.';
+
+  @override
+  String get hintQuickAgreement =>
+      'Watch who agrees immediately without thinking.';
+
+  @override
+  String get hintSilence => 'Silence is not evidence. But it is information.';
+
+  @override
+  String get hintChangesMind => 'Who changes their mind fast under pressure?';
+
+  @override
+  String get hintEarlyAccuser =>
+      'Good mafia accuse early so they look innocent.';
+
+  @override
+  String get hintMajorityComfort =>
+      'Voting with the majority is comfortable. That is exactly what they count on.';
+
+  @override
+  String get hintWhoBenefited => 'Who gained from whoever died last night?';
+
+  @override
+  String get hintMafiaSuspicionSpreads =>
+      'Do not kill whoever suspects you straight away — their suspicion gets published.';
+
+  @override
+  String get hintMafiaQuietNight =>
+      'The quiet night starves the table of information.';
+
+  @override
+  String get hintMafiaSpeak => 'Talk. Silent mafia die.';
+
+  @override
+  String get hintDoctorNoRepeat =>
+      'Do not cover the same person two nights running.';
+
+  @override
+  String get hintDoctorSelf => 'You get to cover yourself once — save it.';
+
+  @override
+  String get hintDoctorSaveReveals =>
+      'If a save lands, the mafia learn there is a doctor.';
+
+  @override
+  String get hintDetectiveInvestigateLoud =>
+      'Investigate whoever talks most, not whoever is quiet.';
+
+  @override
+  String get hintCitizenSuspicionCounts =>
+      'Your suspicion is not going nowhere — it gets recorded.';
+
+  @override
+  String coachStuckOnInnocent(String name, int count) {
+    return 'You suspected $name on $count nights and they were a citizen. Try changing your mind faster when the evidence does not arrive.';
+  }
+
+  @override
+  String coachConformity(int count, int total) {
+    return 'You voted with the majority $count times out of $total. Try forming your own view before you hear everybody else\'s.';
+  }
+
+  @override
+  String coachUnusedBullet(String bullet) {
+    return 'You never used «$bullet». It was there from the first night.';
+  }
+
+  @override
+  String get coachNeverWhispered =>
+      'You never whispered once. A whisper builds alliances.';
+
+  @override
+  String coachAbandonedRead(String name) {
+    return 'You suspected $name on the first nights and they were mafia — then you let it go. Trust your first read.';
+  }
+
+  @override
+  String coachQuiet(int seconds) {
+    return 'You spoke for $seconds seconds all match — among the least at the table. Silence makes a table suspect you.';
+  }
+
+  @override
+  String get coachSurvivedAsMafia =>
+      'You lived to the end without the table catching you.';
+
+  @override
+  String get coachingTitle => 'It could have gone otherwise';
+
+  @override
+  String get coachingEmpty => 'Nothing to add. You played it as it came.';
+
+  @override
+  String get presetFast => 'Quick';
+
+  @override
+  String get presetClassic => 'Classic';
+
+  @override
+  String get presetBrutal => 'Brutal';
+
+  @override
+  String get presetCustom => 'Custom';
+
+  @override
+  String get presetFastHint =>
+      'Around fifteen minutes, fewer rules. Best for a group\'s first match.';
+
+  @override
+  String get presetClassicHint =>
+      'Everything on, at the pace it was designed at.';
+
+  @override
+  String get presetBrutalHint =>
+      'No doctor, more mafia, no whispers, a brutal clock.';
+
+  @override
+  String get presetLabel => 'Preset';
+
+  @override
+  String get settingPressureCurve => 'The pressure curve';
+
+  @override
+  String get settingPressureCurveHint =>
+      'The clock closes as the table shrinks. It only ever tightens.';
+
+  @override
+  String get settingDiscussionSeconds => 'Discussion length';
+
+  @override
+  String get settingPlayHints => 'Play hints';
+
+  @override
+  String get settingCoaching =>
+      '«It could have gone otherwise», after the match';
+
+  @override
+  String get settingRevealVictimRole => 'The night victim\'s role';
+
+  @override
+  String get settingRevealVictimRoleHint =>
+      'A day elimination is always public. This is about the night.';
+
+  @override
+  String victimWasRole(String name, String role) {
+    return '$name was $role.';
+  }
+
+  @override
+  String get nightSpecialMafia => 'No kill tonight';
+
+  @override
+  String get nightSpecialDoctor => 'Protect yourself';
+
+  @override
+  String get nightSpecialDetective => 'No check tonight';
+
+  @override
+  String get nightSpecialCitizen => 'No read tonight';
+
+  @override
+  String get settingsSectionPace => 'Pace';
+
+  @override
+  String get settingsSectionInformation => 'Information';
+
+  @override
+  String get settingsSectionReveal => 'Reveals';
+
+  @override
+  String get settingsSectionVoting => 'Voting';
+
+  @override
+  String get settingsSectionAudio => 'Sound and motion';
+
+  @override
+  String get settingsOnlineOnly => 'Online only';
+
+  @override
+  String get settingSpeechSecondsHint =>
+      'How long one player speaks in a structured discussion.';
+
+  @override
+  String get settingDiscussionSecondsHint =>
+      'How long the whole discussion runs when it is free.';
+
+  @override
+  String get settingIdentityHoldHint =>
+      'The same for every player, so turn length says nothing about a role.';
+
+  @override
+  String get settingDiscussionModeHint =>
+      'Structured: one at a time, in order. Free: everyone at once.';
+
+  @override
+  String get settingAbstainHint => 'A player may cast no vote at all.';
+
+  @override
+  String get settingPlayHintsHint =>
+      'One line, in the lobby and settings only. Never inside a match.';
+
+  @override
+  String get settingCoachingHint =>
+      'After the match, one honest note per player.';
+
+  @override
+  String get settingMuteAllHint =>
+      'No sound at all. Nothing in the game depends on hearing it.';
+
+  @override
+  String minutesSuffix(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String whisperFromTitle(String name) {
+    return 'Whisper from $name';
+  }
+
+  @override
+  String get whisperDismiss => 'Got it';
+
+  @override
+  String get playerMale => 'Male';
+
+  @override
+  String get playerFemale => 'Female';
+
+  @override
+  String timelineMafiaVoteFemale(String actor, String target) {
+    return '$actor voted for $target';
+  }
+
+  @override
+  String timelineProtectFemale(String actor, String target) {
+    return '$actor protected $target';
+  }
+
+  @override
+  String timelineInvestigateFemale(String actor, String target) {
+    return '$actor investigated $target';
+  }
+
+  @override
+  String timelineSuspectFemale(String actor, String target) {
+    return '$actor suspected $target';
+  }
 }

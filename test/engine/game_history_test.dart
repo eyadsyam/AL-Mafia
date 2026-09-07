@@ -21,7 +21,7 @@ void main() {
       engine.start(
         names: kNames,
         roleCounts: kRoles,
-        settings: const MatchSettings(),
+        settings: const MatchSettings(openingRoundEnabled: true),
         seed: 3,
       );
       final history = buildHistory(engine.match);

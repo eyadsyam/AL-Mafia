@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/engine/models/enums.dart' show Role;
 import 'package:mafia_master/ui/theme/design_tokens.dart';
-import 'package:mafia_master/ui/widgets/player_tile.dart';
+import 'package:mafia_master/ui/widgets/night_grid.dart';
 import 'package:mafia_master/ui/widgets/turn_shell.dart';
 
 import '../support/turn_shell_harness.dart';
@@ -105,8 +105,12 @@ void main() {
       test: 'Whisper card shown on every turn',
       criterion: 'Including the empty state',
       pins: {
-        'test/golden/leakage/whisper_card_parity_test.dart': [
-          'L7 — the whisper card is unconditional',
+        // Doc 14 §3.1 inverts this row rather than dropping it. The card
+        // was unconditional so that the *number of screens* in a turn could
+        // not say who had received a whisper; the layer is online-only now,
+        // so offline there is no card for anybody and nothing to count.
+        'test/golden/leakage/offline_whisper_absence_test.dart': [
+          'doc 14 §3.1 — offline has no whisper layer',
         ],
       },
     ),
@@ -260,7 +264,7 @@ void main() {
     await tester.pump(timing.dwellGate);
     await tester.pump();
 
-    final tiles = find.byType(PlayerTile);
+    final tiles = find.byType(NightGridTile);
     expect(tiles.evaluate().length, equals(TurnShellHarness.targets.length),
         reason: '${role.name} is offered a different number of targets');
 
@@ -272,7 +276,7 @@ void main() {
     final taps = <String>[];
 
     // Step 1.
-    await tester.tap(tiles.at(1));
+    await tester.tap(find.byKey(NightGrid.tile(TurnShellHarness.targets[1].seat)));
     await tester.pump();
     taps.add('target');
     expect(confirmed, isEmpty,

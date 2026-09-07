@@ -11,6 +11,9 @@ import '../../widgets/textured_surface.dart';
 /// Reference: spec US4, FR-003, FR-004 (balance validation)
 /// UI patterns: see turn_shell.dart for styling reference
 class RolesScreen extends StatefulWidget {
+  static const Key nextButton = ValueKey('roles_next');
+  static Key stepper(Role role) => ValueKey('roles_${role.name}_stepper');
+
   /// Number of players (from AddPlayersScreen).
   final int playerCount;
 
@@ -126,10 +129,7 @@ class _RolesScreenState extends State<RolesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Header
-                    ScreenHeader(
-                      title: l10n.rolesTitle,
-                      onBack: widget.onBack,
-                    ),
+                    ScreenHeader(title: l10n.rolesTitle, onBack: widget.onBack),
                     SizedBox(height: spacing.md),
                     Text(
                       l10n.playerCountShort(widget.playerCount),
@@ -145,6 +145,7 @@ class _RolesScreenState extends State<RolesScreen> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             _RoleStepper(
+                              key: RolesScreen.stepper(Role.mafia),
                               label: l10n.roleGroupMafia,
                               value: _mafia,
                               onIncrement: _incrementMafia,
@@ -152,6 +153,7 @@ class _RolesScreenState extends State<RolesScreen> {
                             ),
                             SizedBox(height: spacing.lg),
                             _RoleStepper(
+                              key: RolesScreen.stepper(Role.detective),
                               label: l10n.roleGroupDetective,
                               value: _detective,
                               onIncrement: _incrementDetective,
@@ -159,6 +161,7 @@ class _RolesScreenState extends State<RolesScreen> {
                             ),
                             SizedBox(height: spacing.lg),
                             _RoleStepper(
+                              key: RolesScreen.stepper(Role.doctor),
                               label: l10n.roleGroupDoctor,
                               value: _doctor,
                               onIncrement: _incrementDoctor,
@@ -253,6 +256,7 @@ class _RolesScreenState extends State<RolesScreen> {
 
                     // Next button (disabled while blocking issues exist)
                     FilledButton(
+                      key: RolesScreen.nextButton,
                       onPressed: report.valid ? _onNext : null,
                       style: FilledButton.styleFrom(
                         backgroundColor: colors.accentGold,
@@ -285,6 +289,7 @@ class _RoleStepper extends StatelessWidget {
   final VoidCallback onDecrement;
 
   const _RoleStepper({
+    super.key,
     required this.label,
     required this.value,
     required this.onIncrement,

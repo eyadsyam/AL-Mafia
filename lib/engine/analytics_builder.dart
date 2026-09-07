@@ -1,3 +1,4 @@
+import 'models/player.dart';
 import 'models/enums.dart';
 import 'models/match.dart';
 import 'models/timeline_event.dart';
@@ -88,6 +89,7 @@ class MatchAnalyticsData {
   final List<SuspicionAccuracy> suspicionAccuracy;
   final SuspicionMatrix suspicionMatrix;
   final List<Achievement> achievements; // at least one is always produced
+  final Map<int, PlayerGender> genders;
   final Map<int, Role> finalRoles; // seat -> role, post-game only
 
   const MatchAnalyticsData({
@@ -99,6 +101,7 @@ class MatchAnalyticsData {
     required this.suspicionMatrix,
     required this.achievements,
     required this.finalRoles,
+    this.genders = const {},
   });
 
   @override
@@ -122,6 +125,7 @@ class AnalyticsBuilder {
 
     return MatchAnalyticsData(
       matchId: match.id,
+      genders: {for (final p in match.players) p.seat: p.gender},
       winner: winner,
       nightsPlayed: nightsPlayed,
       timeline: timeline,

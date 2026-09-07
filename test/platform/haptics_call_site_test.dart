@@ -37,13 +37,19 @@ void main() {
         // names is checked below for the thing the proxy stands in for.
         if (path.endsWith('platform/clipboard.dart')) continue;
 
-        final source = file.readAsStringSync();
-        if (source.contains('HapticFeedback') ||
-            source.contains('package:flutter/services.dart')) {
-          // services.dart is the only import that makes HapticFeedback
-          // reachable, so importing it at all is the thing to flag.
-          offenders.add(path);
-        }
+        // Code, not prose. `services.dart` is the only import that makes
+        // `HapticFeedback` reachable, so importing it at all is the thing to
+        // flag — but a file explaining *why it does not import it* named both
+        // strings in a doc comment and failed this test for saying so. A
+        // comment cannot make an API reachable, and the same allowance is made
+        // for the same reason in `web_safe_integers_test`.
+        final offending = file.readAsLinesSync().where((line) {
+          final code = line.trimLeft();
+          if (code.startsWith('//') || code.startsWith('///')) return false;
+          return code.contains('HapticFeedback') ||
+              code.contains('package:flutter/services.dart');
+        });
+        if (offending.isNotEmpty) offenders.add(path);
       }
 
       expect(offenders, isEmpty,

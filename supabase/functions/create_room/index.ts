@@ -32,6 +32,7 @@ Deno.serve(handler(async (req, userId, db) => {
       room_id: data.id,
       user_id: userId,
       name,
+      gender: ["male", "female"].includes(body.gender) ? body.gender : "unspecified",
       seat: 0,
     });
     await db.from("room_state").insert({ room_id: data.id, phase: "lobby" });

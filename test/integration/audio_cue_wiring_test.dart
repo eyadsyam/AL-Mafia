@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +9,7 @@ import 'package:mafia_master/ui/screens/match_controller.dart';
 import 'package:mafia_master/ui/screens/match_flow.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
+import 'package:mafia_master/ui/widgets/night_grid.dart';
 import 'package:mafia_master/ui/widgets/player_tile.dart';
 import 'package:mafia_master/ui/widgets/turn_shell.dart';
 
@@ -85,12 +87,12 @@ void main() {
   }
 
   Future<void> playNight(WidgetTester tester) async {
-    await tester.tap(find.text('ابدأ الليل'));
+    expect(find.text('الليل يقترب'), findsNothing);
     await tester.pumpAndSettle();
 
     while (controller().engine.match.phase == GamePhase.night) {
       await hold(tester);
-      await tester.tap(find.byType(PlayerTile).first);
+      await tester.tap(find.byType(NightGridTile).first);
       await tester.pump();
       await tester.pump(MafiaTiming.defaults.dwellGate);
       await tester.pumpAndSettle();
@@ -104,13 +106,13 @@ void main() {
   }
 
   group('phone location tracks the phase', () {
-    testWidgets('the lobby is on-table and the night is in-hand',
+    testWidgets('night opens directly with the in-hand audio gate closed',
         (tester) async {
       await pumpFlow(tester);
-      expect(controller().engine.match.phase, GamePhase.preNightLobby);
-      expect(audio.location, equals(PhoneLocation.onTable));
+      expect(controller().engine.match.phase, GamePhase.night);
+      expect(audio.location, equals(PhoneLocation.inHand));
 
-      await tester.tap(find.text('ابدأ الليل'));
+      expect(find.text('الليل يقترب'), findsNothing);
       await tester.pumpAndSettle();
       expect(controller().engine.match.phase, GamePhase.night);
       expect(audio.location, equals(PhoneLocation.inHand),
@@ -137,7 +139,7 @@ void main() {
         await tester.pumpAndSettle();
       }
 
-      await tester.tap(find.text('إنهاء النقاش'));
+      await tester.tap(find.text('خلص النقاش'));
       await tester.pumpAndSettle();
 
       expect(controller().engine.match.phase, GamePhase.voting);
@@ -147,16 +149,16 @@ void main() {
   });
 
   group('cues land in the right phase', () {
-    testWidgets('the night narration plays before the first turn opens',
+    testWidgets('direct night handoff plays no social narration',
         (tester) async {
       await pumpFlow(tester);
       expect(audio.emitted, isEmpty);
 
-      await tester.tap(find.text('ابدأ الليل'));
+      expect(find.text('الليل يقترب'), findsNothing);
       await tester.pumpAndSettle();
 
       expect(audio.emitted,
-          containsAllInOrder([AudioCue.nightFalls, AudioCue.mafiaWake]));
+          isEmpty);
     });
 
     testWidgets('the morning cue plays once the night resolves',
@@ -169,12 +171,12 @@ void main() {
     testWidgets('no cue is emitted while a turn is in someone\'s hand',
         (tester) async {
       await pumpFlow(tester);
-      await tester.tap(find.text('ابدأ الليل'));
+      expect(find.text('الليل يقترب'), findsNothing);
       await tester.pumpAndSettle();
 
       final beforeTurns = List<AudioCue>.from(audio.emitted);
       await hold(tester);
-      await tester.tap(find.byType(PlayerTile).first);
+      await tester.tap(find.byType(NightGridTile).first);
       await tester.pump(MafiaTiming.defaults.dwellGate);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(TurnShell.actionButton));
@@ -189,7 +191,7 @@ void main() {
       await pumpFlow(tester, narrationEnabled: false);
       audio.narrationEnabled = false;
 
-      await tester.tap(find.text('ابدأ الليل'));
+      expect(find.text('الليل يقترب'), findsNothing);
       await tester.pumpAndSettle();
 
       expect(audio.emitted, isNot(contains(AudioCue.nightFalls)));
@@ -219,14 +221,40 @@ void main() {
       expect(
         AudioCue.values.where((c) => !c.narration).toSet(),
         equals({
+          // Doc 01 §8 and the atmosphere brief.
           AudioCue.speakerChange,
           AudioCue.timerEnd,
           AudioCue.eliminationReveal,
           AudioCue.cardFlip,
           AudioCue.timerWarning,
           AudioCue.win,
+          // Doc 12 §8 — the online table. Every one of them fires on a public
+          // surface with the phone flat: a lobby, a whisper crossing a table
+          // the whole room can see, a ballot, a death, a confrontation
+          // opening. None is switchable, for the reason above.
+          AudioCue.joinChime,
+          AudioCue.leaveChime,
+          AudioCue.whisperSend,
+          AudioCue.whisperReceive,
+          AudioCue.voteTick,
+          AudioCue.deathTear,
+          AudioCue.confrontationSwell,
         }),
       );
+
+      // Every cue that claims a sound has one on disk. The seven added for doc
+      // 12 §8 were synthesised rather than produced, and a generated asset is
+      // exactly the kind that goes missing in a rebuild without anybody
+      // noticing until a match is silent.
+      for (final cue in AudioCue.values) {
+        final sound = cue.sound;
+        if (sound == null) continue;
+        expect(
+          File('assets/$sound').existsSync(),
+          isTrue,
+          reason: '${cue.name} names $sound, which is not in assets/',
+        );
+      }
     });
 
     test('the seven cues the atmosphere brief names are all present', () {

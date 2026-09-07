@@ -1,3 +1,4 @@
+import '../../../engine/models/player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -113,11 +114,11 @@ class AnalyticsView extends StatelessWidget {
           leading: IconButton(
             onPressed: onClose,
             // `arrow_back`, not `arrow_forward`. Both are declared
-          // `matchTextDirection: true`, so Flutter mirrors them under RTL:
-          // `arrow_forward` renders pointing *left* in Arabic, which is the
-          // wrong way for a back control. `arrow_back` means "backwards" and
-          // the framework resolves which way that points.
-          icon: const Icon(Icons.arrow_back),
+            // `matchTextDirection: true`, so Flutter mirrors them under RTL:
+            // `arrow_forward` renders pointing *left* in Arabic, which is the
+            // wrong way for a back control. `arrow_back` means "backwards" and
+            // the framework resolves which way that points.
+            icon: const Icon(Icons.arrow_back),
             tooltip: l10n.back,
           ),
           bottom: TabBar(
@@ -162,6 +163,17 @@ class _TimelineTab extends StatelessWidget {
     final l10n = context.l10n;
     final actor = nameOf(row.actorSeat);
     final target = nameOf(row.targetSeat);
+    if (l10n.localeName == 'ar' &&
+        data.genders[row.actorSeat] == PlayerGender.female) {
+      final description = switch (row.kind) {
+        'mafiaVote' => l10n.timelineMafiaVoteFemale(actor, target),
+        'protect' => l10n.timelineProtectFemale(actor, target),
+        'investigate' => l10n.timelineInvestigateFemale(actor, target),
+        'suspect' => l10n.timelineSuspectFemale(actor, target),
+        _ => null,
+      };
+      if (description != null) return description;
+    }
     return switch (row.kind) {
       'mafiaVote' => l10n.timelineMafiaVote(actor, target),
       'protect' => l10n.timelineProtect(actor, target),

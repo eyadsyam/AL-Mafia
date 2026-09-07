@@ -69,3 +69,33 @@ dart_defines.json
 android/key.properties
 *.jks
 *.keystore
+
+# ── Release signing ────────────────────────────────────────────────────────
+#
+# Losing these locks the app out of Play updates forever; committing them hands
+# anyone who can read the repository the ability to sign an update as you. Both
+# failures are permanent, so both files stay out of git and are backed up by
+# hand — see KEYSTORE-BACKUP-READ-ME.txt, which is itself ignored because it
+# holds the passwords in plain text.
+*.jks
+*.keystore
+android/key.properties
+KEYSTORE-BACKUP-READ-ME.txt
+
+# Android Gradle state and packaged app binaries. `build/` already covers the
+# usual output paths; these catch a build run from Android Studio, and an APK
+# or bundle copied somewhere else to be shared.
+android/.gradle/
+*.apk
+*.aab
+
+# ── Agent and browser tool droppings ───────────────────────────────────────
+#
+# Headless-browser profiles and PDF/render scratch directories that CLI agents
+# leave in the working directory. Nothing here is an input to a build and one
+# of them is 66 MB, so they are ignored rather than repeatedly un-staged.
+.agents/
+.codex/
+.codex-*/
+.edge-pdf-export/
+.playwright-mcp/

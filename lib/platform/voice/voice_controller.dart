@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import '../../engine/voice_policy.dart';
 import '../../transport/game_snapshot.dart';
@@ -49,6 +50,13 @@ class VoiceState {
   /// refused. V1: *"told once, calmly, then never again."*
   final bool receiveOnlyNotice;
 
+  /// Whether this player has silenced their own microphone.
+  ///
+  /// The one thing about the call a player decides. It only ever subtracts —
+  /// see [VoiceController.setSelfMuted] — so it is a fact about this device
+  /// and never a permission.
+  final bool selfMuted;
+
   const VoiceState({
     this.mode = VoiceMode.off,
     this.rung,
@@ -58,6 +66,7 @@ class VoiceState {
     this.activeSpeakerSeat,
     this.holdsFloor = false,
     this.receiveOnlyNotice = false,
+    this.selfMuted = false,
   });
 
   /// Whether this device may ask for the floor at all right now.
@@ -66,6 +75,21 @@ class VoiceState {
   /// is unreliable; one that is not offered teaches them the rule.
   bool get canRequestFloor =>
       policy == MicPolicy.activeSpeakerOnly && activeSpeakerSeat == null;
+
+  /// Whether the microphone switch is worth offering.
+  ///
+  /// There is a microphone to silence and a call to silence it in. Offered
+  /// while the ladder is still climbing as well as after it settles, so a
+  /// player who wants to be muted before anybody can hear them can be —
+  /// [VoiceController.setSelfMuted] is remembered and applied when the call
+  /// comes up.
+  ///
+  /// Not conditioned on the phase: a player who wants to be sure they are
+  /// silent should be able to see that they are, and the switch cannot make
+  /// them audible in a phase that does not already allow it.
+  bool get canMuteSelf =>
+      microphoneAvailable &&
+      (mode == VoiceMode.live || mode == VoiceMode.connecting);
 
   VoiceState copyWith({
     VoiceMode? mode,
@@ -76,6 +100,7 @@ class VoiceState {
     int? activeSpeakerSeat,
     bool? holdsFloor,
     bool? receiveOnlyNotice,
+    bool? selfMuted,
     bool clearRung = false,
     bool clearSpeaker = false,
   }) =>
@@ -91,12 +116,13 @@ class VoiceState {
         // Never carried forward. The notice is a one-shot by construction
         // rather than by anybody remembering to clear it (V1).
         receiveOnlyNotice: receiveOnlyNotice ?? false,
+        selfMuted: selfMuted ?? this.selfMuted,
       );
 
   @override
   String toString() =>
       'VoiceState($mode, rung=$rung, mic=$microphoneLive, policy=$policy, '
-      'speaker=$activeSpeakerSeat)';
+      'speaker=$activeSpeakerSeat, selfMuted=$selfMuted)';
 }
 
 /// The call, driven by the game.
@@ -159,6 +185,27 @@ class VoiceController {
   bool _micAvailable = false;
   bool _micAsked = false;
 
+  /// The room's ICE servers, fetched once for the whole match.
+  ///
+  /// Once, not once per peer: the credentials are the same for every
+  /// connection in the mesh, and a fetch per peer would be fifteen round trips
+  /// to say the same thing — and, on a fifteen-seat table, fifteen chances for
+  /// one of them to be slow at the exact moment the lobby fills.
+  IceConfig? _fetched;
+  bool _fetchAttempted = false;
+
+  /// Set by the player, cleared by the player, and by nothing else.
+  bool _selfMuted = false;
+
+  /// The seats the host has silenced (task 6), as the last snapshot reported.
+  ///
+  /// Enforced twice, deliberately. The muted device stops publishing, which is
+  /// the polite half and the one a modified client can skip; every *listener*
+  /// also refuses to render that peer, which is the half that holds. The same
+  /// two-sided argument as doc 10 §6.1's V4, for the same reason: a mesh has
+  /// nothing in the middle to drop a stream.
+  Set<int> _mutedSeats = const {};
+
   VoiceState get state => _state;
 
   Stream<VoiceState> watch() => _states.stream;
@@ -203,6 +250,13 @@ class VoiceController {
       discussion: snapshot.settings.discussionMode,
     );
 
+    // The seat comes from the snapshot rather than from whatever was known
+    // when the call started. In the lobby the call comes up first and the
+    // room fills afterwards, so a seat captured at `start` would be the seat
+    // this device had before half the room existed.
+    _selfSeat = snapshot.viewerSeat ?? _selfSeat;
+    _mutedSeats = snapshot.mutedSeats;
+
     if (voiceTornDownIn(snapshot.phase)) {
       if (!_tornDown) {
         _tornDown = true;
@@ -223,7 +277,17 @@ class VoiceController {
     // necessarily the one the first rung succeeded on.
     if (_tornDown) {
       _tornDown = false;
+      _peers = link.peers;
       if (_started) await _climb();
+    } else if (_started &&
+        link.peers.isNotEmpty &&
+        _rosterChanged(link.peers)) {
+      // Somebody joined or left. The call was made to the room as it was, and
+      // a player who arrived after it came up would otherwise be in a room
+      // that cannot hear them — which is the whole point of bringing voice up
+      // in the lobby rather than at kick-off.
+      _peers = link.peers;
+      await _climb();
     }
 
     final speaker = snapshot.activeSpeakerSeat;
@@ -233,17 +297,59 @@ class VoiceController {
       MicPolicy.muted => false,
     };
 
-    final live = maySpeak && _micAvailable && _state.mode == VoiceMode.live;
-    await _quietly(() => engine.setMicrophoneLive(live));
     await _quietly(() => engine.setAudiblePeers(_audible(policy, speaker)));
 
     _emit(_state.copyWith(
-      microphoneLive: live,
       policy: policy,
       activeSpeakerSeat: speaker,
       holdsFloor: maySpeak && policy == MicPolicy.activeSpeakerOnly,
       clearSpeaker: speaker == null,
     ));
+
+    // The microphone is decided in one place, from the state that was just
+    // published, so a player's own switch and a phase change cannot reach
+    // different conclusions about the same facts.
+    await _syncMicrophone();
+  }
+
+  /// Silences this device's microphone, or lets it go back to whatever the
+  /// phase and the server already allow.
+  ///
+  /// This is not the client-side mute doc 10 §6.1 forbids. That rule is about
+  /// a client that decides it *may speak*; this only ever subtracts. Muting
+  /// works in every phase, and unmuting grants nothing — [_syncMicrophone]
+  /// asks [micPolicyFor] and the active speaker exactly as it does after a
+  /// snapshot, so a player who unmutes during a night is still silent.
+  Future<void> setSelfMuted(bool muted) async {
+    if (_selfMuted == muted) return;
+    _selfMuted = muted;
+    await _syncMicrophone();
+  }
+
+  /// Whether this player has silenced themselves.
+  bool get selfMuted => _selfMuted;
+
+  /// Re-decides whether the microphone publishes, from what is already known.
+  ///
+  /// Called after every snapshot, whenever the player touches the switch, and
+  /// once the ladder settles — that last one matters in a lobby, where a call
+  /// that came up between two joins would otherwise stay silent until somebody
+  /// else arrived and produced the next snapshot.
+  Future<void> _syncMicrophone() async {
+    final policy = _state.policy;
+    final speaker = _state.activeSpeakerSeat;
+    final maySpeak = switch (policy) {
+      MicPolicy.open => true,
+      MicPolicy.activeSpeakerOnly => speaker != null && speaker == _selfSeat,
+      MicPolicy.muted => false,
+    };
+    final live = maySpeak &&
+        _micAvailable &&
+        !_selfMuted &&
+        !_mutedSeats.contains(_selfSeat) &&
+        _state.mode == VoiceMode.live;
+    await _quietly(() => engine.setMicrophoneLive(live));
+    _emit(_state.copyWith(microphoneLive: live, selfMuted: _selfMuted));
   }
 
   /// Asks the server for the floor. False is an ordinary answer.
@@ -277,10 +383,16 @@ class VoiceController {
       ));
     }
 
+    // Before any `RTCPeerConnection` exists. A mesh brought up on public STUN
+    // alone dies silently behind symmetric NAT — the microphone is granted,
+    // candidates are gathered, and nothing ever connects — which is the shape
+    // of the failure this repository has been carrying.
+    await _fetchIceServers();
+
     final selfId = link.selfId;
     final others = _peers.where((p) => p.userId != selfId).toList();
 
-    for (final ice in [IceConfig.stun, if (relay != null) relay!]) {
+    for (final ice in _ladder()) {
       final up = await _quietly(() => engine.connect(
                 selfId: selfId,
                 ice: ice,
@@ -290,6 +402,7 @@ class VoiceController {
           false;
       if (up) {
         _emit(_state.copyWith(mode: VoiceMode.live, rung: ice.rung));
+        await _syncMicrophone();
         return;
       }
     }
@@ -303,14 +416,82 @@ class VoiceController {
     ));
   }
 
+  /// The rungs to try, in order.
+  ///
+  /// One rung when the server answered: the array it hands back already holds
+  /// STUN *and* TURN, and ICE tries the cheap candidates first on its own —
+  /// a relay is only used when nothing else reaches. Splitting that into two
+  /// rungs would make every symmetric-NAT pair wait out a whole STUN timeout
+  /// before being allowed the thing that was going to work.
+  ///
+  /// Two rungs when it did not: public STUN, then whatever a build-time TURN
+  /// define supplied, which is what this app had before.
+  List<IceConfig> _ladder() {
+    final fetched = _fetched;
+    if (fetched != null) return [fetched];
+    return [IceConfig.stun, if (relay != null) relay!];
+  }
+
+  /// Asks the server for the room's ICE servers, once.
+  ///
+  /// A failure is not a failure of the call: the ladder falls back to public
+  /// STUN, which is what the app used before this existed, and the warning is
+  /// logged rather than shown. Non-negotiable 5 — voice is never load-bearing,
+  /// and that has to include the thing that configures it.
+  Future<void> _fetchIceServers() async {
+    if (_fetchAttempted) return;
+    _fetchAttempted = true;
+    final servers = await _quietly(link.iceServers);
+    if (servers == null || servers.isEmpty) {
+      developer.log(
+        'ice_servers unavailable — falling back to public STUN. Voice will '
+        'fail for any pair behind symmetric NAT.',
+        name: 'voice',
+        level: 900,
+      );
+      return;
+    }
+    final relaying = servers.any(
+      (server) => server['urls'].toString().contains('turn'),
+    );
+    if (!relaying) {
+      developer.log(
+        'ice_servers returned no relay — STUN only.',
+        name: 'voice',
+        level: 900,
+      );
+    }
+    _fetched = IceConfig(relaying ? VoiceRung.turn : VoiceRung.stun, servers);
+  }
+
+  /// Whether the room's addresses have changed since the call was made to it.
+  ///
+  /// Addresses, not seats: a seat that moved is not a peer that has to be
+  /// dialled again, and [VoiceEngine.connect] tears the mesh down to rebuild
+  /// it. Cheap to ask on every snapshot, and false on nearly all of them.
+  ///
+  /// An empty roster is never a change. A link that is not reporting anybody
+  /// is saying "I do not know who is here", and the answer to that is to keep
+  /// calling the room that was there — not to hang up on it.
+  bool _rosterChanged(List<VoicePeer> roster) {
+    final now = roster.map((p) => p.userId).toSet();
+    final before = _peers.map((p) => p.userId).toSet();
+    return now.length != before.length || !now.containsAll(before);
+  }
+
   Set<String> _audible(MicPolicy policy, int? speaker) {
+    // Subtracted last and from every branch, so there is no policy under which
+    // a silenced player is heard — including the open discussion, which is the
+    // one a host would be muting somebody *during*.
+    bool allowed(VoicePeer p) => !_mutedSeats.contains(p.seat);
+
     switch (policy) {
       case MicPolicy.open:
-        return _peers.map((p) => p.userId).toSet();
+        return _peers.where(allowed).map((p) => p.userId).toSet();
       case MicPolicy.activeSpeakerOnly:
         if (speaker == null) return const {};
         return _peers
-            .where((p) => p.seat == speaker)
+            .where((p) => p.seat == speaker && allowed(p))
             .map((p) => p.userId)
             .toSet();
       case MicPolicy.muted:

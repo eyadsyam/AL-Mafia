@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../engine/models/player.dart';
+import '../../widgets/gender_picker.dart';
+import '../../widgets/player_avatar.dart';
 import '../../../data/player_group.dart';
 import '../../../engine/balance_guard.dart';
 import '../../l10n_ext.dart';
@@ -42,6 +45,8 @@ class AddPlayersScreen extends StatefulWidget {
 
   /// Names to start with, in seating order. Never sorted.
   final List<String> initialNames;
+  final Map<String, PlayerGender> initialGenders;
+  final ValueChanged<Map<String, PlayerGender>>? onGendersChanged;
 
   /// The group these names came from, or null for a fresh roster.
   ///
@@ -70,6 +75,8 @@ class AddPlayersScreen extends StatefulWidget {
     required this.onNext,
     required this.onBack,
     this.initialNames = const [],
+    this.initialGenders = const {},
+    this.onGendersChanged,
     this.group,
     this.savedGroups = const [],
     this.onQuickStart,
@@ -78,6 +85,7 @@ class AddPlayersScreen extends StatefulWidget {
 
   static const Key quickStartButton = ValueKey('players_quick_start');
   static const Key nextButton = ValueKey('players_next');
+  static const Key addButton = ValueKey('players_add');
   static const Key saveGroupPrompt = ValueKey('players_save_group_prompt');
   static const Key saveGroupAccept = ValueKey('players_save_group_accept');
   static const Key saveGroupDismiss = ValueKey('players_save_group_dismiss');
@@ -92,6 +100,8 @@ class AddPlayersScreen extends StatefulWidget {
 class _AddPlayersScreenState extends State<AddPlayersScreen> {
   /// Everyone on screen, in seating order — present and absent alike.
   late final List<String> _players = [...widget.initialNames];
+  late final Map<String, PlayerGender> _genders = {...widget.initialGenders};
+  PlayerGender _gender = PlayerGender.unspecified;
 
   /// Members sitting tonight out. Held by name rather than by index so a
   /// reorder cannot silently mark the wrong person away.
@@ -115,8 +125,10 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
       widget.group?.memberNames.contains(name) ?? false;
 
   /// Seating order, present players only. This is what starts a match.
-  List<String> get _present =>
-      [for (final name in _players) if (!_absent.contains(name)) name];
+  List<String> get _present => [
+    for (final name in _players)
+      if (!_absent.contains(name)) name,
+  ];
 
   /// Adds a player name, auto-suffixing duplicates.
   void _addPlayer() {
@@ -135,6 +147,8 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
 
     setState(() {
       _players.add(finalName);
+      _genders[finalName] = _gender;
+      widget.onGendersChanged?.call(_genders);
     });
   }
 
@@ -174,8 +188,10 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
     final present = _present.length;
     if (counts.values.fold(0, (a, b) => a + b) != present) return false;
 
-    return BalanceGuard.evaluate(playerCount: present, roleCounts: counts)
-        .valid;
+    return BalanceGuard.evaluate(
+      playerCount: present,
+      roleCounts: counts,
+    ).valid;
   }
 
   /// Whether to offer to remember this roster.
@@ -240,7 +256,10 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
                     ),
                     SizedBox(height: spacing.lg),
 
-                    // Input row: text field + add button
+                    // Input row: text field + add button. The gender marks are
+                    // inside the field (task 8) rather than on a row of their
+                    // own underneath it.
+
                     Row(
                       children: [
                         Expanded(
@@ -250,6 +269,11 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
                               color: colors.textPrimary,
                             ),
                             decoration: InputDecoration(
+                              suffixIcon: GenderPicker(
+                                value: _gender,
+                                onChanged: (v) => setState(() => _gender = v),
+                              ),
+                              suffixIconConstraints: const BoxConstraints(),
                               hintText: l10n.playerNameHint,
                               hintStyle: type.body.copyWith(
                                 color: colors.textMuted,
@@ -288,6 +312,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
                         ),
                         SizedBox(width: spacing.sm),
                         FilledButton(
+                          key: AddPlayersScreen.addButton,
                           onPressed: _addPlayer,
                           style: FilledButton.styleFrom(
                             backgroundColor: colors.accentGold,
@@ -350,6 +375,13 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
                                   key: ValueKey(name + index.toString()),
                                   index: index + 1, // 1-based seating
                                   name: name,
+                                  gender:
+                                      _genders[name] ??
+                                      PlayerGender.unspecified,
+                                  onGender: (v) => setState(() {
+                                    _genders[name] = v;
+                                    widget.onGendersChanged?.call(_genders);
+                                  }),
                                   absent: absent,
                                   // A saved member is toggled, never deleted.
                                   // A guest added just for tonight was never in
@@ -357,8 +389,8 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
                                   // and delete is the honest control.
                                   onToggleAttendance:
                                       _groupMode && _isMember(name)
-                                          ? () => _toggleAttendance(name)
-                                          : null,
+                                      ? () => _toggleAttendance(name)
+                                      : null,
                                   onDelete: () => _removePlayer(index),
                                 );
                               },
@@ -405,11 +437,13 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
                               foregroundColor: colors.textSecondary,
                               disabledForegroundColor: colors.textMuted,
                               side: BorderSide(color: colors.borderSubtle),
-                              padding:
-                                  EdgeInsets.symmetric(vertical: spacing.md),
+                              padding: EdgeInsets.symmetric(
+                                vertical: spacing.md,
+                              ),
                               shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(radii.button),
+                                borderRadius: BorderRadius.circular(
+                                  radii.button,
+                                ),
                               ),
                             ),
                             child: Text(l10n.next, style: type.body),
@@ -422,11 +456,13 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
                               foregroundColor: colors.surfaceBase,
                               disabledBackgroundColor: colors.surfaceOverlay,
                               disabledForegroundColor: colors.textMuted,
-                              padding:
-                                  EdgeInsets.symmetric(vertical: spacing.lg),
+                              padding: EdgeInsets.symmetric(
+                                vertical: spacing.lg,
+                              ),
                               shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(radii.button),
+                                borderRadius: BorderRadius.circular(
+                                  radii.button,
+                                ),
                               ),
                             ),
                             child: Text(l10n.next, style: type.title),
@@ -517,6 +553,8 @@ class _SaveGroupPrompt extends StatelessWidget {
 class _PlayerTile extends StatelessWidget {
   final int index; // 1-based seating order
   final String name;
+  final PlayerGender gender;
+  final ValueChanged<PlayerGender> onGender;
 
   /// Away tonight. Dimmed, still listed, still in the group.
   final bool absent;
@@ -530,6 +568,8 @@ class _PlayerTile extends StatelessWidget {
     super.key,
     required this.index,
     required this.name,
+    required this.gender,
+    required this.onGender,
     required this.absent,
     required this.onToggleAttendance,
     required this.onDelete,
@@ -577,6 +617,36 @@ class _PlayerTile extends StatelessWidget {
               ),
             ),
 
+            // Task 7 — the person, in the same ornamental ring the online
+            // council draws, from the same one mapping in `player_avatar.dart`.
+            // It is also the gender control: tapping the face is how you
+            // change it, which is one affordance where there used to be an
+            // icon that meant nothing on its own.
+            PopupMenuButton<PlayerGender>(
+              key: ValueKey('gender_$index'),
+              tooltip:
+                  '${context.l10n.playerMale} / ${context.l10n.playerFemale}',
+              initialValue: gender,
+              onSelected: onGender,
+              padding: EdgeInsets.zero,
+              icon: PlayerAvatar(
+                name: name,
+                gender: gender,
+                diameter: kListAvatarDiameter,
+                ringColor: absent ? colors.textMuted : colors.borderSubtle,
+              ),
+              iconSize: kListAvatarDiameter,
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: PlayerGender.male,
+                  child: Text(context.l10n.playerMale),
+                ),
+                PopupMenuItem(
+                  value: PlayerGender.female,
+                  child: Text(context.l10n.playerFemale),
+                ),
+              ],
+            ),
             // Seat number and name
             Expanded(
               child: Column(
@@ -595,6 +665,12 @@ class _PlayerTile extends StatelessWidget {
                   Text(
                     context.l10n.seatNumber(index),
                     style: type.caption.copyWith(color: colors.textMuted),
+                    // One line, like the name above it. The row is a fixed
+                    // height and the gender control takes width off this
+                    // column, so a seat number allowed to wrap makes the tile
+                    // overflow rather than making the label longer.
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -631,10 +707,10 @@ class _PlayerTile extends StatelessWidget {
                         minimumSize: const Size(48, 48),
                         padding: EdgeInsets.symmetric(horizontal: spacing.sm),
                       ),
-                      child: Text(context.l10n.deleteAction,
-                          style: type.bodySmall.copyWith(
-                            color: colors.textMuted,
-                          )),
+                      child: Text(
+                        context.l10n.deleteAction,
+                        style: type.bodySmall.copyWith(color: colors.textMuted),
+                      ),
                     ),
             ),
           ],

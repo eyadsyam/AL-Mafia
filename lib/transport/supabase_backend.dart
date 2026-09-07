@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../engine/models/enums.dart' show Alignment;
 import 'online_backend.dart';
 
 /// [OnlineBackend] over Supabase. A translation layer with no rules of its own.
@@ -29,6 +30,10 @@ class SupabaseBackend implements OnlineBackend {
 
   RealtimeChannel? _channel;
   StreamController<RoomPush>? _pushes;
+
+  /// One ghost-chat feed per room, so several screens watching the graveyard
+  /// share a single Realtime channel.
+  final Map<String, StreamController<List<GhostRow>>> _ghost = {};
 
   RealtimeChannel? _signalChannel;
   StreamController<VoiceSignal>? _signals;
@@ -94,9 +99,12 @@ class SupabaseBackend implements OnlineBackend {
   }
 
   @override
-  Future<RoomHandle> createRoom({required String name}) async {
+  Future<RoomHandle> createRoom({
+    required String name,
+    String gender = 'unspecified',
+  }) async {
     await ensureSession();
-    final result = await call('create_room', {'name': name});
+    final result = await call('create_room', {'name': name, 'gender': gender});
     return RoomHandle(
       roomId: result['roomId'] as String,
       code: result['code'] as String,
@@ -108,9 +116,14 @@ class SupabaseBackend implements OnlineBackend {
   Future<RoomHandle> joinRoom({
     required String code,
     required String name,
+    String gender = 'unspecified',
   }) async {
     await ensureSession();
-    final result = await call('join_room', {'code': code, 'name': name});
+    final result = await call('join_room', {
+      'code': code,
+      'name': name,
+      'gender': gender,
+    });
     return RoomHandle(
       roomId: result['roomId'] as String,
       code: code.toUpperCase(),
@@ -126,30 +139,38 @@ class SupabaseBackend implements OnlineBackend {
     // One round of parallel reads rather than a chain: a resync that took six
     // sequential round trips would be slowest exactly when the network is
     // worst, which is the only time it runs.
-    final results = await _guarded(() => Future.wait([
-          client
-              .from('room_state')
-              .select()
-              .eq('room_id', roomId)
-              .maybeSingle(),
-          client
-              .from('rooms_public')
-              .select('code, host_id, status, settings')
-              .eq('id', roomId)
-              .maybeSingle(),
-          client
-              .from('room_players_public')
-              .select()
-              .eq('room_id', roomId)
-              .order('seat'),
-          client.from('night_actions').select('night').eq('room_id', roomId),
-          client.from('votes').select('day, round, voter_id').eq('room_id', roomId),
-          client
-              .from('whisper_meta')
-              .select('id, day, from_id, to_id, voided')
-              .eq('room_id', roomId),
-          client.rpc('server_now'),
-        ]));
+    final results = await _guarded(
+      () => Future.wait([
+        client.from('room_state').select().eq('room_id', roomId).maybeSingle(),
+        client
+            .from('rooms_public')
+            .select('code, host_id, status, settings, visibility, title')
+            .eq('id', roomId)
+            .maybeSingle(),
+        client
+            .from('room_players_public')
+            .select()
+            .eq('room_id', roomId)
+            .order('seat'),
+        // `used_bullet` rides along on the query that was already being
+        // made. RLS returns this client's rows and nobody else's, which is
+        // exactly the audience for "have I spent mine" — the fact that a
+        // seat holds a bullet at all is a fact about its role.
+        client
+            .from('night_actions')
+            .select('night, used_bullet')
+            .eq('room_id', roomId),
+        client
+            .from('votes')
+            .select('day, round, voter_id, target_id')
+            .eq('room_id', roomId),
+        client
+            .from('whisper_meta')
+            .select('id, day, from_id, to_id, voided')
+            .eq('room_id', roomId),
+        client.rpc('server_now'),
+      ]),
+    );
 
     final stateRow = results[0] as Map<String, dynamic>?;
     final roomRow = results[1] as Map<String, dynamic>?;
@@ -167,9 +188,7 @@ class SupabaseBackend implements OnlineBackend {
       'server_now': results[6],
     });
 
-    final players = [
-      for (final row in playerRows) RoomPlayer.fromJson(row),
-    ];
+    final players = [for (final row in playerRows) RoomPlayer.fromJson(row)];
 
     final seatOf = {for (final p in players) p.userId: p.seat};
     final mine = players.where((p) => p.userId == me).toList();
@@ -181,12 +200,17 @@ class SupabaseBackend implements OnlineBackend {
         role: identity.role,
         alive: mine.first.alive,
         teammateNames: identity.teammates,
-        actedThisNight: actionRows
-            .any((row) => (row['night'] as num).toInt() == state.phaseNumber),
+        actedThisNight: actionRows.any(
+          (row) => (row['night'] as num).toInt() == state.phaseNumber,
+        ),
+        // Any night, not tonight: a bullet is spent once for the whole match.
+        bulletSpent: actionRows.any((row) => row['used_bullet'] == true),
         votedRound: voteRows
-            .where((row) =>
-                row['voter_id'] == me &&
-                (row['day'] as num).toInt() == state.phaseNumber)
+            .where(
+              (row) =>
+                  row['voter_id'] == me &&
+                  (row['day'] as num).toInt() == state.phaseNumber,
+            )
             .map((row) => (row['round'] as num).toInt())
             .fold<int?>(null, (best, r) => best == null || r > best ? r : best),
       );
@@ -196,6 +220,7 @@ class SupabaseBackend implements OnlineBackend {
       state: state,
       players: players,
       own: own,
+      ballots: _ballotsFrom(voteRows, state: state, seatOf: seatOf),
       whispers: [
         for (final row in whisperRows)
           WhisperRow(
@@ -208,6 +233,94 @@ class SupabaseBackend implements OnlineBackend {
           ),
       ],
     );
+  }
+
+  @override
+  Future<Map<int, int?>> ballots(String roomId) async {
+    final results = await _guarded(
+      () => Future.wait<dynamic>([
+        client
+            .from('room_state')
+            .select('phase, phase_number')
+            .eq('room_id', roomId)
+            .maybeSingle(),
+        client
+            .from('votes')
+            .select('day, round, voter_id, target_id')
+            .eq('room_id', roomId),
+        client
+            .from('room_players_public')
+            .select('user_id, seat')
+            .eq('room_id', roomId),
+      ]),
+    );
+
+    final stateRow = results[0] as Map<String, dynamic>?;
+    if (stateRow == null) return const {};
+
+    final seatOf = {
+      for (final row in (results[2] as List).cast<Map<String, dynamic>>())
+        row['user_id'] as String: (row['seat'] as num).toInt(),
+    };
+
+    return _ballotsFromRows(
+      (results[1] as List).cast<Map<String, dynamic>>(),
+      phase: stateRow['phase'] as String? ?? '',
+      day: (stateRow['phase_number'] as num?)?.toInt() ?? 0,
+      seatOf: seatOf,
+    );
+  }
+
+  /// The current day's ballot, as seats.
+  ///
+  /// ## Why the round matters
+  ///
+  /// A tie produces a revote, and the revote's rows sit beside the ones that
+  /// tied under the same `(day, voter)` with a higher `round`. Drawing lines
+  /// for both would show the table a graph of two different votes at once, and
+  /// the older one would be the wrong answer stated confidently. Only the
+  /// highest round present is kept.
+  ///
+  /// ## Why it is scoped to the open day
+  ///
+  /// Rows for a day that has closed are readable by everyone by design — that
+  /// is the tally. They are not this: this is *intent, while it can still
+  /// change*, and rendering yesterday's settled ballot as though it were live
+  /// would be the app inventing a fact.
+  static Map<int, int?> _ballotsFrom(
+    List<Map<String, dynamic>> rows, {
+    required RoomState state,
+    required Map<String, int> seatOf,
+  }) => _ballotsFromRows(
+    rows,
+    phase: state.phase,
+    day: state.phaseNumber,
+    seatOf: seatOf,
+  );
+
+  static Map<int, int?> _ballotsFromRows(
+    List<Map<String, dynamic>> rows, {
+    required String phase,
+    required int day,
+    required Map<String, int> seatOf,
+  }) {
+    if (phase != 'vote') return const {};
+
+    final today = rows.where((row) => (row['day'] as num).toInt() == day);
+    if (today.isEmpty) return const {};
+
+    final round = today
+        .map((row) => (row['round'] as num).toInt())
+        .reduce((a, b) => a > b ? a : b);
+
+    final out = <int, int?>{};
+    for (final row in today) {
+      if ((row['round'] as num).toInt() != round) continue;
+      final voter = seatOf[row['voter_id']];
+      if (voter == null) continue;
+      out[voter] = seatOf[row['target_id']];
+    }
+    return out;
   }
 
   /// What this device is, asked once and remembered.
@@ -229,13 +342,10 @@ class SupabaseBackend implements OnlineBackend {
     if (cached != null) return cached;
 
     final result = await call('my_team', {'roomId': roomId});
-    final identity = _Identity(
-      result['role'] as String?,
-      <String>[
-        for (final name in (result['teammates'] as List? ?? const []))
-          name as String,
-      ],
-    );
+    final identity = _Identity(result['role'] as String?, <String>[
+      for (final name in (result['teammates'] as List? ?? const []))
+        name as String,
+    ]);
     // A null role means the deal has not landed for this seat yet — a race
     // against `start_match`, not an answer. Caching it would freeze the blank.
     if (identity.role != null) _identity = identity;
@@ -270,14 +380,33 @@ class SupabaseBackend implements OnlineBackend {
           // The row arrives without the two fields that live on `rooms`, so it
           // is passed on as a delta and the transport decides whether the
           // change is worth a full read. A phase change always is.
-          controller.add(RoomPush.state(RoomState.fromJson({
-            ...payload.newRecord,
-            'status': 'playing',
-            'host_id': '',
-            'code': '',
-            'server_now': DateTime.now().toUtc().toIso8601String(),
-          })));
+          controller.add(
+            RoomPush.state(
+              RoomState.fromJson({
+                ...payload.newRecord,
+                'status': 'playing',
+                'host_id': '',
+                'code': '',
+                'server_now': DateTime.now().toUtc().toIso8601String(),
+              }),
+            ),
+          );
         },
+      )
+      // Task 10 — the host can change the room's rules while nine people are
+      // looking at the lobby. `rooms` carries no phase, so there is nothing to
+      // decode into a delta: this asks for a full read, which is doc 10 §9's
+      // rule for everything a client did not watch happen.
+      ..onPostgresChanges(
+        event: PostgresChangeEvent.update,
+        schema: 'public',
+        table: 'rooms',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'id',
+          value: roomId,
+        ),
+        callback: (_) => controller.add(const RoomPush.resync()),
       )
       ..onPostgresChanges(
         event: PostgresChangeEvent.all,
@@ -373,11 +502,14 @@ class SupabaseBackend implements OnlineBackend {
         callback: (payload) {
           final row = payload.newRecord;
           if (row['room_id'] != roomId) return;
-          controller.add(VoiceSignal(
-            fromUserId: row['from_id'] as String,
-            payload: Map<String, dynamic>.from(
-                (row['payload'] as Map?) ?? const {}),
-          ));
+          controller.add(
+            VoiceSignal(
+              fromUserId: row['from_id'] as String,
+              payload: Map<String, dynamic>.from(
+                (row['payload'] as Map?) ?? const {},
+              ),
+            ),
+          );
         },
       );
 
@@ -388,31 +520,133 @@ class SupabaseBackend implements OnlineBackend {
 
   @override
   Future<String?> whisperBody(String whisperId) async {
-    final row = await _guarded(() => client
-        .from('whisper_content')
-        .select('body')
-        .eq('whisper_id', whisperId)
-        .maybeSingle());
+    final row = await _guarded(
+      () => client
+          .from('whisper_content')
+          .select('body')
+          .eq('whisper_id', whisperId)
+          .maybeSingle(),
+    );
     return row?['body'] as String?;
+  }
+
+  @override
+  Stream<List<GhostRow>> ghostMessages(String roomId) {
+    final existing = _ghost[roomId];
+    if (existing != null) return existing.stream;
+
+    // Kept as a running list rather than as individual inserts, because the
+    // screen wants a conversation and a conversation is a list. The first
+    // emission is the backlog, so a player eliminated on day three arrives to
+    // find what was said on day two.
+    final rows = <GhostRow>[];
+    late final StreamController<List<GhostRow>> controller;
+
+    Future<void> load() async {
+      try {
+        final data = await client
+            .from('ghost_messages')
+            .select('id, author_id, body, created_at')
+            .eq('room_id', roomId)
+            .order('created_at');
+        rows
+          ..clear()
+          ..addAll([
+            for (final row in (data as List).cast<Map<String, dynamic>>())
+              _ghostRow(row),
+          ]);
+        if (!controller.isClosed) controller.add(List.unmodifiable(rows));
+      } catch (_) {
+        // A living caller lands here with an empty list, which is the correct
+        // answer and not an error worth surfacing.
+        if (!controller.isClosed) controller.add(const []);
+      }
+    }
+
+    final channel = client.channel('ghost:$roomId')
+      ..onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'ghost_messages',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'room_id',
+          value: roomId,
+        ),
+        callback: (payload) {
+          final row = payload.newRecord;
+          if (row.isEmpty) return;
+          final message = _ghostRow(row);
+          if (rows.any((existing) => existing.id == message.id)) return;
+          rows.add(message);
+          if (!controller.isClosed) controller.add(List.unmodifiable(rows));
+        },
+      );
+
+    controller = StreamController<List<GhostRow>>.broadcast(
+      onListen: load,
+      onCancel: () {
+        _ghost.remove(roomId);
+        client.removeChannel(channel);
+      },
+    );
+    _ghost[roomId] = controller;
+    channel.subscribe();
+    return controller.stream;
+  }
+
+  static GhostRow _ghostRow(Map<String, dynamic> row) => GhostRow(
+    id: row['id'] as String,
+    authorId: row['author_id'] as String,
+    body: row['body'] as String? ?? '',
+    at:
+        DateTime.tryParse(row['created_at'] as String? ?? '')?.toLocal() ??
+        DateTime.now(),
+  );
+
+  @override
+  Future<Prediction?> myPrediction(String roomId) async {
+    final me = userId;
+    if (me == null) return null;
+    final row = await _guarded(
+      () => client
+          .from('predictions')
+          .select('winner, mafia_seats')
+          .eq('room_id', roomId)
+          .eq('user_id', me)
+          .maybeSingle(),
+    );
+    if (row == null) return null;
+    return Prediction(
+      winner: row['winner'] == 'mafia' ? Alignment.mafia : Alignment.town,
+      mafiaSeats: {
+        for (final seat in (row['mafia_seats'] as List? ?? const []))
+          (seat as num).toInt(),
+      },
+    );
   }
 
   @override
   Future<void> blockSender(String roomId, String senderId) async {
     final me = userId;
     if (me == null) return;
-    await _guarded(() => client.from('whisper_blocks').insert({
-          'room_id': roomId,
-          'blocker_id': me,
-          'blocked_id': senderId,
-        }));
+    await _guarded(
+      () => client.from('whisper_blocks').insert({
+        'room_id': roomId,
+        'blocker_id': me,
+        'blocked_id': senderId,
+      }),
+    );
   }
 
   @override
   Future<Set<String>> blockedSenders(String roomId) async {
-    final rows = await _guarded(() => client
-        .from('whisper_blocks')
-        .select('blocked_id')
-        .eq('room_id', roomId));
+    final rows = await _guarded(
+      () => client
+          .from('whisper_blocks')
+          .select('blocked_id')
+          .eq('room_id', roomId),
+    );
     return {
       for (final row in (rows as List).cast<Map<String, dynamic>>())
         row['blocked_id'] as String,
@@ -451,7 +685,8 @@ class SupabaseBackend implements OnlineBackend {
       throw BackendException(e.code ?? 'BAD_REQUEST', e.message);
     } catch (e) {
       final text = e.toString().toLowerCase();
-      final paused = text.contains('paused') ||
+      final paused =
+          text.contains('paused') ||
           text.contains('503') ||
           text.contains('project is inactive');
       throw BackendUnreachable(e, projectPaused: paused);

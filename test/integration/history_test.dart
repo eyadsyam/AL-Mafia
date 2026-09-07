@@ -54,7 +54,7 @@ void main() {
     testWidgets('shows an empty state when nothing has been played',
         (tester) async {
       await pumpHistory(tester);
-      expect(find.text('لا توجد مباريات سابقة'), findsOneWidget);
+      expect(find.text('لسه مفيش مباريات'), findsOneWidget);
       expect(find.byKey(HistoryScreen.list), findsNothing);
     });
 
@@ -116,7 +116,7 @@ void main() {
       await MemoryMatchRepository(store).persistStep(unfinished.match);
       await pumpHistory(tester);
 
-      expect(find.text('لا توجد مباريات سابقة'), findsOneWidget);
+      expect(find.text('لسه مفيش مباريات'), findsOneWidget);
     });
   });
 
@@ -169,7 +169,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(store.matches, isEmpty);
-      expect(find.text('لا توجد مباريات سابقة'), findsOneWidget);
+      expect(find.text('لسه مفيش مباريات'), findsOneWidget);
     });
   });
 

@@ -1,5 +1,6 @@
 import 'package:mafia_master/engine/models/enums.dart' show Role;
 import 'package:mafia_master/engine/models/match_settings.dart';
+import '../engine/models/player.dart';
 
 /// A saved roster — the same people who play together every week.
 ///
@@ -35,6 +36,7 @@ class PlayerGroup {
 
   /// Members, **in seating order**. Never sorted. See the class doc.
   final List<String> memberNames;
+  final Map<String, PlayerGender> genders;
 
   final DateTime createdAt;
 
@@ -63,6 +65,7 @@ class PlayerGroup {
     this.id = unsaved,
     required this.name,
     required this.memberNames,
+    this.genders = const {},
     required this.createdAt,
     required this.lastPlayedAt,
     this.playCount = 0,
@@ -75,13 +78,12 @@ class PlayerGroup {
     required String name,
     required List<String> memberNames,
     required DateTime now,
-  }) =>
-      PlayerGroup(
-        name: name,
-        memberNames: List.unmodifiable(memberNames),
-        createdAt: now,
-        lastPlayedAt: now,
-      );
+  }) => PlayerGroup(
+    name: name,
+    memberNames: List.unmodifiable(memberNames),
+    createdAt: now,
+    lastPlayedAt: now,
+  );
 
   bool get isSaved => id != unsaved;
 
@@ -114,25 +116,28 @@ class PlayerGroup {
     int? id,
     String? name,
     List<String>? memberNames,
+    Map<String, PlayerGender>? genders,
     DateTime? createdAt,
     DateTime? lastPlayedAt,
     int? playCount,
     Map<Role, int>? lastRoleCounts,
     MatchSettings? lastSettings,
-  }) =>
-      PlayerGroup(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        memberNames:
-            memberNames == null ? this.memberNames : List.unmodifiable(memberNames),
-        createdAt: createdAt ?? this.createdAt,
-        lastPlayedAt: lastPlayedAt ?? this.lastPlayedAt,
-        playCount: playCount ?? this.playCount,
-        lastRoleCounts: lastRoleCounts ?? this.lastRoleCounts,
-        lastSettings: lastSettings ?? this.lastSettings,
-      );
+  }) => PlayerGroup(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    genders: genders ?? this.genders,
+    memberNames: memberNames == null
+        ? this.memberNames
+        : List.unmodifiable(memberNames),
+    createdAt: createdAt ?? this.createdAt,
+    lastPlayedAt: lastPlayedAt ?? this.lastPlayedAt,
+    playCount: playCount ?? this.playCount,
+    lastRoleCounts: lastRoleCounts ?? this.lastRoleCounts,
+    lastSettings: lastSettings ?? this.lastSettings,
+  );
 
   @override
-  String toString() => 'PlayerGroup(id=$id, name=$name, '
+  String toString() =>
+      'PlayerGroup(id=$id, name=$name, '
       'members=${memberNames.length}, playCount=$playCount)';
 }

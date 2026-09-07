@@ -929,6 +929,11 @@ const SettingsRecordSchema = CollectionSchema(
       type: IsarType.bool,
     ),
     r'payload': PropertySchema(id: 1, name: r'payload', type: IsarType.string),
+    r'seenHints': PropertySchema(
+      id: 2,
+      name: r'seenHints',
+      type: IsarType.stringList,
+    ),
   },
 
   estimateSize: _settingsRecordEstimateSize,
@@ -953,6 +958,13 @@ int _settingsRecordEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.payload.length * 3;
+  bytesCount += 3 + object.seenHints.length * 3;
+  {
+    for (var i = 0; i < object.seenHints.length; i++) {
+      final value = object.seenHints[i];
+      bytesCount += value.length * 3;
+    }
+  }
   return bytesCount;
 }
 
@@ -964,6 +976,7 @@ void _settingsRecordSerialize(
 ) {
   writer.writeBool(offsets[0], object.onboardingSeen);
   writer.writeString(offsets[1], object.payload);
+  writer.writeStringList(offsets[2], object.seenHints);
 }
 
 SettingsRecord _settingsRecordDeserialize(
@@ -976,6 +989,7 @@ SettingsRecord _settingsRecordDeserialize(
   object.id = id;
   object.onboardingSeen = reader.readBool(offsets[0]);
   object.payload = reader.readString(offsets[1]);
+  object.seenHints = reader.readStringList(offsets[2]) ?? [];
   return object;
 }
 
@@ -990,6 +1004,8 @@ P _settingsRecordDeserializeProp<P>(
       return (reader.readBool(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
+    case 2:
+      return (reader.readStringList(offset) ?? []) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -1301,6 +1317,200 @@ extension SettingsRecordQueryFilter
       );
     });
   }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsElementEqualTo(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'seenHints',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'seenHints',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'seenHints',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'seenHints',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsElementStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'seenHints',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsElementEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'seenHints',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsElementContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'seenHints',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsElementMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'seenHints',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'seenHints', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'seenHints', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'seenHints', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'seenHints', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'seenHints', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsLengthLessThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'seenHints', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsLengthGreaterThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'seenHints', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QAfterFilterCondition>
+  seenHintsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'seenHints',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
 }
 
 extension SettingsRecordQueryObject
@@ -1397,6 +1607,13 @@ extension SettingsRecordQueryWhereDistinct
       return query.addDistinctBy(r'payload', caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<SettingsRecord, SettingsRecord, QDistinct>
+  distinctBySeenHints() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'seenHints');
+    });
+  }
 }
 
 extension SettingsRecordQueryProperty
@@ -1417,6 +1634,13 @@ extension SettingsRecordQueryProperty
   QueryBuilder<SettingsRecord, String, QQueryOperations> payloadProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'payload');
+    });
+  }
+
+  QueryBuilder<SettingsRecord, List<String>, QQueryOperations>
+  seenHintsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'seenHints');
     });
   }
 }

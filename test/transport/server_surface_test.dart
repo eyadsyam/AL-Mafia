@@ -105,6 +105,10 @@ void main() {
         final name = nameOf(dir);
         if (beforeMembership.contains(name)) continue;
         final source = File('${dir.path}/index.ts').readAsStringSync();
+        // A function that never names a room has no membership to check. It is
+        // still behind `handler`, which is the test above, so it is still
+        // authenticated — it simply has nothing room-shaped to be wrong about.
+        if (!source.contains('roomId')) continue;
         final guarded = source.contains('loadMembership(') ||
             source.contains('host_id !== userId');
         if (!guarded) unguarded.add(name);

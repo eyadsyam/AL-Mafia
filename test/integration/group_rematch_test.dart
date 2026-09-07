@@ -12,6 +12,7 @@ import 'package:mafia_master/ui/screens/match_controller.dart';
 import 'package:mafia_master/ui/screens/setup/add_players_screen.dart';
 import 'package:mafia_master/ui/screens/setup/group_picker_screen.dart';
 import 'package:mafia_master/ui/screens/setup/home_screen.dart';
+import 'package:mafia_master/ui/screens/setup/mode_screen.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/screens/setup/setup_draft.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
@@ -96,6 +97,10 @@ void main() {
   Future<void> firstNight(WidgetTester tester) async {
     await tester.tap(find.text('ابدأ اللعبة'));
     await tester.pumpAndSettle();
+    // Play now asks which of the two games this is (S-01a). The one-phone
+    // card is the offline flow's front door.
+    await tester.tap(find.byKey(ModeScreen.offlineCard));
+    await tester.pumpAndSettle();
     await enterNames(tester, friday);
 
     // The offer to remember these people, and the name dialog behind it.
@@ -109,7 +114,7 @@ void main() {
 
     await tester.tap(find.byKey(AddPlayersScreen.nextButton));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('التالي')); // roles
+    await tester.tap(find.text('كمل')); // roles
     await tester.pumpAndSettle();
     await tester.tap(find.text('حفظ')); // settings → start
     await tester.pumpAndSettle();
@@ -131,6 +136,17 @@ void main() {
       await tester.tap(find.text('ابدأ اللعبة'));
       taps++;
       await tester.pumpAndSettle();
+
+      // The fourth tap, and it is a deliberate one. Play now asks which of the
+      // two games this is (S-01a) before it asks anything else, because online
+      // used to be a text link under the gold button that half the builds did
+      // not draw at all — a mode nobody was told about is not a mode. The
+      // rematch budget below moved from three to four to pay for it, and that
+      // is the only thing it has ever been allowed to pay for.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
+      taps++;
+      await tester.pumpAndSettle();
+
       expect(find.byType(GroupPickerScreen), findsOneWidget,
           reason: 'a host with saved groups must land on the picker');
 
@@ -155,9 +171,10 @@ void main() {
           container.read(matchControllerProvider.notifier).engine.match;
       expect(match.phase, equals(GamePhase.distributing),
           reason: 'three taps must reach role distribution');
-      expect(taps, lessThanOrEqualTo(3),
-          reason: 'the rematch budget is three taps from launch. Every '
-              'confirmation added to this path costs one of them.');
+      expect(taps, lessThanOrEqualTo(4),
+          reason: 'the rematch budget is four taps from launch — play, the '
+              'mode, the group, go. Every confirmation added to this path '
+              'costs one of them.');
     });
 
     testWidgets('the pre-filled roster is in the saved seating order',
@@ -167,6 +184,10 @@ void main() {
       await pumpApp(tester, groups: groupStore);
 
       await tester.tap(find.text('ابدأ اللعبة'));
+      await tester.pumpAndSettle();
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
       final group = (await container
               .read(playerGroupRepositoryProvider)
@@ -212,6 +233,10 @@ void main() {
 
       await tester.tap(find.text('ابدأ اللعبة'));
       await tester.pumpAndSettle();
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
+      await tester.pumpAndSettle();
 
       expect(find.byType(AddPlayersScreen), findsOneWidget);
       expect(find.byType(GroupPickerScreen), findsNothing,
@@ -228,6 +253,10 @@ void main() {
       // Reach the empty roster screen the long way, then type the same people.
       await tester.tap(find.text('ابدأ اللعبة'));
       await tester.pumpAndSettle();
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(GroupPickerScreen.newGroupButton));
       await tester.pumpAndSettle();
       await enterNames(tester, friday);
@@ -242,6 +271,10 @@ void main() {
     /// Picks the saved group and lands on the pre-filled roster.
     Future<PlayerGroup> openGroup(WidgetTester tester) async {
       await tester.tap(find.text('ابدأ اللعبة'));
+      await tester.pumpAndSettle();
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
       final group = (await container
               .read(playerGroupRepositoryProvider)
@@ -270,7 +303,7 @@ void main() {
       await tester.tap(find.byKey(AddPlayersScreen.nextButton));
       await tester.pumpAndSettle();
       expect(find.byType(RolesScreen), findsOneWidget);
-      await tester.tap(find.text('التالي'));
+      await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('حفظ'));
       await tester.pumpAndSettle();
@@ -352,6 +385,10 @@ void main() {
 
       await tester.tap(find.text('ابدأ اللعبة'));
       await tester.pumpAndSettle();
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
+      await tester.pumpAndSettle();
       final group = (await container
               .read(playerGroupRepositoryProvider)
               .listGroups())
@@ -380,6 +417,10 @@ void main() {
       await pumpApp(tester, groups: groupStore);
 
       await tester.tap(find.text('ابدأ اللعبة'));
+      await tester.pumpAndSettle();
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
       final group = (await container
               .read(playerGroupRepositoryProvider)
@@ -414,6 +455,10 @@ void main() {
       await pumpApp(tester, groups: groupStore);
 
       await tester.tap(find.text('ابدأ اللعبة'));
+      await tester.pumpAndSettle();
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
       final group = (await container
               .read(playerGroupRepositoryProvider)
@@ -455,6 +500,10 @@ void main() {
       await pumpApp(tester, groups: groupStore);
 
       await tester.tap(find.text('ابدأ اللعبة'));
+      await tester.pumpAndSettle();
+      // Play now asks which of the two games this is (S-01a). The one-phone
+      // card is the offline flow's front door.
+      await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
       final before = (await container
               .read(playerGroupRepositoryProvider)

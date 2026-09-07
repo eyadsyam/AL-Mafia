@@ -47,8 +47,14 @@ void main() {
 
         final townSeats = aliveWhere((r) => r != Role.mafia);
         final firstAliveTown = townSeats.first;
-        // Alternate the protected seat so the no-repeat rule is never violated.
-        final protectSeat = townSeats.firstWhere((s) => s != lastProtect, orElse: () => townSeats.first);
+        // Alternate the protected seat so the no-repeat rule is never
+        // violated, and never land on the Doctor themselves — that is the
+        // Doctor's one bullet (doc 13 §2) and this fixture never arms it.
+        final doctorSeats = aliveWhere((r) => r == Role.doctor).toSet();
+        final coverable =
+            townSeats.where((s) => !doctorSeats.contains(s)).toList();
+        final protectSeat = coverable.firstWhere((s) => s != lastProtect,
+            orElse: () => coverable.isEmpty ? townSeats.first : coverable.first);
         lastProtect = protectSeat;
 
         while (engine.match.currentActorSeat != null) {

@@ -38,10 +38,7 @@ final voiceControllerProvider = Provider<VoiceController?>((ref) {
   // a failure inside `apply` cannot reach it — see [VoiceController].
   final subscription = transport.watch().listen(controller.apply);
 
-  unawaited(controller.start(
-    selfSeat: transport.mySeat,
-    peers: link.peers,
-  ));
+  unawaited(controller.start(selfSeat: transport.mySeat, peers: link.peers));
 
   ref.onDispose(() {
     unawaited(subscription.cancel());

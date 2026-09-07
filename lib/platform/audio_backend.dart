@@ -42,7 +42,14 @@ abstract class AudioBackend {
   /// Never throws. A cue that cannot be found is a missing recording, not a
   /// fault: the app is specified to work with sound off, so it must also work
   /// with sound merely absent.
-  Future<void> play(String assetKey);
+  ///
+  /// [rate] multiplies playback speed, which raises pitch with it. Used by one
+  /// caller for one cue — the turn-change chime of doc 13 §3, whose pitch is a
+  /// property of the timer band and therefore of the living player count and of
+  /// nothing else. Everything else plays at 1.0 and must keep doing so: a cue
+  /// whose pitch tracked anything about the game would be a channel that every
+  /// player at the table hears.
+  Future<void> play(String assetKey, {double rate = 1.0});
 
   /// Cuts every *cue* currently sounding. Used when the phone is picked up.
   ///
@@ -79,7 +86,7 @@ class SilentAudioBackend implements AudioBackend {
   Future<void> warmUp(Iterable<String> assetKeys) async {}
 
   @override
-  Future<void> play(String assetKey) async {}
+  Future<void> play(String assetKey, {double rate = 1.0}) async {}
 
   @override
   Future<void> stopAll() async {}
@@ -109,6 +116,8 @@ class PluginAudioBackend implements AudioBackend {
   /// The score. Held separately from [_players] so [stopAll] cannot reach it.
   AudioPlayer? _loop;
   String? _loopKey;
+  int _loopGeneration = 0;
+  int _cueGeneration = 0;
 
   bool _sessionConfigured = false;
 
@@ -191,16 +200,21 @@ class PluginAudioBackend implements AudioBackend {
       await _loop!.setVolume(volume);
       return;
     }
+    final stopping = stopLoop();
+    final generation = _loopGeneration;
+    await stopping;
     try {
       await _configureSession();
-      await stopLoop();
+      if (generation != _loopGeneration) return;
       final player = AudioPlayer()
         ..setReleaseMode(ReleaseMode.loop)
         ..setPlayerMode(PlayerMode.mediaPlayer);
-      await player.setVolume(volume);
-      await player.play(AssetSource(assetKey));
       _loop = player;
       _loopKey = assetKey;
+      await player.setVolume(volume);
+      if (generation != _loopGeneration) return;
+      await player.play(AssetSource(assetKey));
+      if (generation != _loopGeneration) await player.stop();
     } catch (error) {
       debugPrint('audio: could not start loop $assetKey — $error');
     }
@@ -208,6 +222,7 @@ class PluginAudioBackend implements AudioBackend {
 
   @override
   Future<void> stopLoop() async {
+    _loopGeneration++;
     final player = _loop;
     _loop = null;
     _loopKey = null;
@@ -221,10 +236,15 @@ class PluginAudioBackend implements AudioBackend {
   }
 
   @override
-  Future<void> play(String assetKey) async {
+  Future<void> play(String assetKey, {double rate = 1.0}) async {
+    final generation = _cueGeneration;
     try {
       final warmed = _players[assetKey];
       if (warmed != null) {
+        // Set before the retrigger, and reset on every call rather than only
+        // when it changes: a player left at last night's rate would play the
+        // next match's first chime sharp.
+        await _setRate(warmed, rate);
         // Already decoded and resident. Retrigger rather than re-open: a rapid
         // series of taps has to replay the same clip, and re-setting the source
         // each time is what made the first tap silent.
@@ -237,15 +257,21 @@ class PluginAudioBackend implements AudioBackend {
         // SoundPool stream to the start, so the seek bought nothing even in
         // principle.
         await warmed.stop();
+        if (generation != _cueGeneration) return;
         await warmed.resume();
+        if (generation != _cueGeneration) await warmed.stop();
         return;
       }
       // Not in the warm set — a narrator line registered after start-up, or a
       // cue whose preload failed. Open it the slow way rather than not at all.
       await _configureSession();
+      if (generation != _cueGeneration) return;
       final player = _players.putIfAbsent(assetKey, AudioPlayer.new);
       await player.stop();
+      await _setRate(player, rate);
+      if (generation != _cueGeneration) return;
       await player.play(AssetSource(assetKey));
+      if (generation != _cueGeneration) await player.stop();
     } catch (error, stack) {
       // A missing or unplayable cue must not take a phase transition with it.
       // The game is played face to face; silence is a degraded experience and a
@@ -258,8 +284,20 @@ class PluginAudioBackend implements AudioBackend {
     }
   }
 
+  /// Best-effort. `setPlaybackRate` is unsupported on some Android low-latency
+  /// paths, and a chime at the wrong pitch is not worth a thrown exception in
+  /// the middle of a speaking turn.
+  Future<void> _setRate(AudioPlayer player, double rate) async {
+    try {
+      await player.setPlaybackRate(rate);
+    } catch (error) {
+      debugPrint('audio: could not set the playback rate — $error');
+    }
+  }
+
   @override
   Future<void> stopAll() async {
+    _cueGeneration++;
     for (final player in _players.values) {
       try {
         await player.stop();

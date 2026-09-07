@@ -21,6 +21,8 @@ library transport.online_backend;
 
 import 'dart:async';
 
+import '../engine/models/enums.dart' show Alignment;
+
 /// A refusal from the server, carrying the code the client acts on.
 ///
 /// The codes are `ErrorCode` in `supabase/functions/_shared/api.ts`, verbatim.
@@ -88,6 +90,15 @@ class RoomState {
   /// in the lobby in front of everybody, and every client renders against them.
   final Map<String, dynamic> settings;
 
+  /// private | public. Whether the room is listed in «أوض عامة» (task 10).
+  /// Locked once the match starts, and never a rule of the game — which is why
+  /// it is a column of its own and not a key in [settings].
+  final String visibility;
+
+  /// The host's name for a public room. Null for a private one, and null for a
+  /// public one whose host has not named it yet.
+  final String? title;
+
   final String hostId;
   final String code;
 
@@ -106,22 +117,26 @@ class RoomState {
     this.activeSpeaker,
     this.publicData = const {},
     this.settings = const {},
+    this.visibility = 'private',
+    this.title,
   });
 
   factory RoomState.fromJson(Map<String, dynamic> json) => RoomState(
-        phase: json['phase'] as String? ?? 'lobby',
-        phaseNumber: (json['phase_number'] as num?)?.toInt() ?? 0,
-        phaseEndsAt: _time(json['phase_ends_at']),
-        activeSpeaker: json['active_speaker'] as String?,
-        publicData: Map<String, dynamic>.from(
-            (json['public_data'] as Map?) ?? const {}),
-        status: json['status'] as String? ?? 'lobby',
-        hostId: json['host_id'] as String? ?? '',
-        code: json['code'] as String? ?? '',
-        settings:
-            Map<String, dynamic>.from((json['settings'] as Map?) ?? const {}),
-        serverNow: _time(json['server_now']) ?? DateTime.now().toUtc(),
-      );
+    phase: json['phase'] as String? ?? 'lobby',
+    phaseNumber: (json['phase_number'] as num?)?.toInt() ?? 0,
+    phaseEndsAt: _time(json['phase_ends_at']),
+    activeSpeaker: json['active_speaker'] as String?,
+    publicData: Map<String, dynamic>.from(
+      (json['public_data'] as Map?) ?? const {},
+    ),
+    status: json['status'] as String? ?? 'lobby',
+    hostId: json['host_id'] as String? ?? '',
+    code: json['code'] as String? ?? '',
+    settings: Map<String, dynamic>.from((json['settings'] as Map?) ?? const {}),
+    visibility: json['visibility'] as String? ?? 'private',
+    title: json['title'] as String?,
+    serverNow: _time(json['server_now']) ?? DateTime.now().toUtc(),
+  );
 
   RoomState copyWith({String? phase, String? status, String? hostId}) =>
       RoomState(
@@ -134,6 +149,8 @@ class RoomState {
         hostId: hostId ?? this.hostId,
         code: code,
         settings: settings,
+        visibility: visibility,
+        title: title,
         serverNow: serverNow,
       );
 
@@ -146,6 +163,7 @@ class RoomState {
 /// room may see. There is no role here for anybody, including its owner: the
 /// owner's role arrives as [OwnSeat], on a path that never fans out.
 class RoomPlayer {
+  final String gender;
   final String userId;
   final int seat;
   final String name;
@@ -153,32 +171,92 @@ class RoomPlayer {
   final bool connected;
   final DateTime? lastSeen;
 
+  /// When this player last asked for the floor and did not get it, or null.
+  ///
+  /// Doc 15 §1.4: this is a raised hand, not a queue position. It is carried
+  /// as a timestamp so a stale one can be aged out, and it is deliberately
+  /// never sorted on — the UI renders raised hands in seat order, because
+  /// request order is not what decides who speaks next.
+  final DateTime? handRaisedAt;
+
+  /// Whether the host has silenced this player for the whole room (task 6).
+  final bool muted;
+
+  /// Whether the host removed this player. True on the ejected player's own
+  /// row and nowhere else — the ban list itself is a fact about the room and
+  /// never reaches a client.
+  final bool kicked;
+
+  /// connected | away | left (doc: task 3).
+  ///
+  /// Distinct from [connected], which stays a boolean about whether the row
+  /// has been heard from at all and is what host migration and room archival
+  /// read. This is the three-state fact a *table* needs: an empty chair, an
+  /// empty ring, and a person who is still deciding whether to come back.
+  final String status;
+
+  /// Whether this player has dismissed their own role card. False for the
+  /// whole lobby, false again on every deal, and the one thing `open_phase`
+  /// consults before it will open the night.
+  final bool sawRole;
+
   const RoomPlayer({
     required this.userId,
+    this.gender = 'unspecified',
     required this.seat,
     required this.name,
     this.alive = true,
     this.connected = true,
     this.lastSeen,
+    this.handRaisedAt,
+    this.sawRole = false,
+    this.status = 'connected',
+    this.muted = false,
+    this.kicked = false,
   });
 
   factory RoomPlayer.fromJson(Map<String, dynamic> json) => RoomPlayer(
-        userId: json['user_id'] as String,
-        seat: (json['seat'] as num).toInt(),
-        name: json['name'] as String? ?? '',
-        alive: json['alive'] as bool? ?? true,
-        connected: json['connected'] as bool? ?? true,
-        lastSeen: _time(json['last_seen']),
-      );
+    userId: json['user_id'] as String,
+    seat: (json['seat'] as num).toInt(),
+    name: json['name'] as String? ?? '',
+    gender: json['gender'] as String? ?? 'unspecified',
+    alive: json['alive'] as bool? ?? true,
+    connected: json['connected'] as bool? ?? true,
+    lastSeen: _time(json['last_seen']),
+    handRaisedAt: _time(json['hand_raised_at']),
+    sawRole: json['saw_role'] as bool? ?? false,
+    status: json['status'] as String? ?? 'connected',
+    muted: json['muted'] as bool? ?? false,
+    kicked: json['kicked'] as bool? ?? false,
+  );
 
-  RoomPlayer copyWith({bool? alive, bool? connected, DateTime? lastSeen}) =>
-      RoomPlayer(
+  RoomPlayer copyWith({
+    bool? alive,
+    bool? connected,
+    DateTime? lastSeen,
+    DateTime? handRaisedAt,
+    bool? sawRole,
+    String? status,
+    bool? muted,
+    bool? kicked,
+    bool clearHand = false,
+  }) => RoomPlayer(
         userId: userId,
+        // Carried, not defaulted. Every liveness and presence update goes
+        // through here, so dropping it would quietly reset the roster to
+        // `unspecified` the first time somebody died or reconnected — and the
+        // Arabic copy would start addressing her as him.
+        gender: gender,
         seat: seat,
         name: name,
         alive: alive ?? this.alive,
         connected: connected ?? this.connected,
         lastSeen: lastSeen ?? this.lastSeen,
+        handRaisedAt: clearHand ? null : (handRaisedAt ?? this.handRaisedAt),
+        sawRole: sawRole ?? this.sawRole,
+        status: status ?? this.status,
+        muted: muted ?? this.muted,
+        kicked: kicked ?? this.kicked,
       );
 }
 
@@ -212,6 +290,17 @@ class OwnSeat {
   /// The ballot round this client has already voted in, or null.
   final int? votedRound;
 
+  /// Whether this client has spent its once-per-match ability (doc 13 §2).
+  ///
+  /// On the *own* row and never on the roster, and the difference is doc 05's.
+  /// Only two of the four roles hold a bullet at all, so a public "seat 3 has
+  /// spent theirs" would say *seat 3 is the Mafia or the Doctor*. It is read
+  /// back from `night_actions.used_bullet`, whose read policy is
+  /// `actor_id = auth.uid()` — the same rows this client already loads to work
+  /// out whether it still owes a move tonight, so the fact refreshes itself on
+  /// every resync and costs no extra call.
+  final bool bulletSpent;
+
   const OwnSeat({
     required this.seat,
     this.role,
@@ -219,7 +308,28 @@ class OwnSeat {
     this.teammateNames = const [],
     this.actedThisNight = false,
     this.votedRound,
+    this.bulletSpent = false,
   });
+
+  OwnSeat copyWith({
+    int? seat,
+    String? role,
+    bool? alive,
+    List<String>? teammateNames,
+    bool? actedThisNight,
+    int? votedRound,
+    bool? bulletSpent,
+  }) => OwnSeat(
+    seat: seat ?? this.seat,
+    role: role ?? this.role,
+    alive: alive ?? this.alive,
+    teammateNames: teammateNames ?? this.teammateNames,
+    actedThisNight: actedThisNight ?? this.actedThisNight,
+    // Null is a real value here — "has not voted" — so it cannot be
+    // spelled as "leave it alone". The one field that needs the escape.
+    votedRound: votedRound ?? this.votedRound,
+    bulletSpent: bulletSpent ?? this.bulletSpent,
+  );
 }
 
 /// One edge of the whisper graph. Public by design; the body is not here.
@@ -256,11 +366,60 @@ class RoomRows {
   final OwnSeat? own;
   final List<WhisperRow> whispers;
 
+  /// The day's ballot so far, voter seat to target seat. Null is an
+  /// abstention; a missing key has not voted.
+  ///
+  /// **Usually empty, and empty for a reason that is not in this file.** The
+  /// `votes_read` policy refuses another player's open ballot unless the room
+  /// was created with `openVoting` (doc 12 §3.6), so an ordinary room reads
+  /// back only the caller's own row and the map has one entry in it. Nothing
+  /// on the client decides that; the database does, which is why nothing on
+  /// the client has to be trusted with it.
+  final Map<int, int?> ballots;
+
   const RoomRows({
     required this.state,
     required this.players,
     this.own,
     this.whispers = const [],
+    this.ballots = const {},
+  });
+}
+
+/// What an eliminated player called, before the match answered.
+class Prediction {
+  final Alignment winner;
+
+  /// The seats they believe are Mafia.
+  final Set<int> mafiaSeats;
+
+  const Prediction({required this.winner, required this.mafiaSeats});
+
+  /// How many of [mafiaSeats] were right, given the finished match's roster.
+  ///
+  /// Pure, so the post-game score can be computed and tested without a server:
+  /// the standings are already public by the time anybody reads this.
+  int correctAgainst(Set<int> actualMafiaSeats) =>
+      mafiaSeats.intersection(actualMafiaSeats).length;
+}
+
+/// One row of ghost chat, as the database holds it.
+///
+/// Deliberately raw: a user id and a body, with no seat and no display name.
+/// Turning a user id into a seat is the roster's job and the roster lives on
+/// the transport, so a backend that guessed would be a second, staler answer to
+/// a question something else already answers correctly.
+class GhostRow {
+  final String id;
+  final String authorId;
+  final String body;
+  final DateTime at;
+
+  const GhostRow({
+    required this.id,
+    required this.authorId,
+    required this.body,
+    required this.at,
   });
 }
 
@@ -282,26 +441,26 @@ class RoomPush {
   final bool disconnected;
 
   const RoomPush.state(RoomState this.state)
-      : player = null,
-        resyncRequired = false,
-        disconnected = false;
+    : player = null,
+      resyncRequired = false,
+      disconnected = false;
 
   const RoomPush.player(RoomPlayer this.player)
-      : state = null,
-        resyncRequired = false,
-        disconnected = false;
+    : state = null,
+      resyncRequired = false,
+      disconnected = false;
 
   const RoomPush.resync()
-      : state = null,
-        player = null,
-        resyncRequired = true,
-        disconnected = false;
+    : state = null,
+      player = null,
+      resyncRequired = true,
+      disconnected = false;
 
   const RoomPush.disconnected()
-      : state = null,
-        player = null,
-        resyncRequired = false,
-        disconnected = true;
+    : state = null,
+      player = null,
+      resyncRequired = false,
+      disconnected = true;
 }
 
 /// One WebRTC signal, addressed to this device.
@@ -347,13 +506,33 @@ abstract class OnlineBackend {
   Future<Map<String, dynamic>> call(String function, Map<String, dynamic> body);
 
   /// Creates a room and takes seat 0.
-  Future<RoomHandle> createRoom({required String name});
+  Future<RoomHandle> createRoom({
+    required String name,
+    String gender = 'unspecified',
+  });
 
   /// Joins by code, or rejoins a seat this user already holds (O4).
-  Future<RoomHandle> joinRoom({required String code, required String name});
+  Future<RoomHandle> joinRoom({
+    required String code,
+    required String name,
+    String gender = 'unspecified',
+  });
 
   /// One consistent read of everything this client may see.
   Future<RoomRows> fetchRows(String roomId);
+
+  /// The day's ballot so far, voter seat to target seat. Null is an
+  /// abstention.
+  ///
+  /// A light read, kept separate from [fetchRows], because it is the one thing
+  /// in an open ballot that changes *within* a phase — everything else on a
+  /// snapshot only moves when the phase does, which is what makes doc 10
+  /// §3.1's once-per-phase budget affordable everywhere else.
+  ///
+  /// Returns an empty map outside the vote phase and in every room that did not
+  /// opt into an open ballot (doc 12 §3.6). The refusal is the `votes_read`
+  /// policy's, not this method's.
+  Future<Map<int, int?>> ballots(String roomId);
 
   /// The live feed for a room. Broadcast: several listeners, and a late one
   /// misses nothing that matters because the transport resyncs on subscribe.
@@ -361,6 +540,19 @@ abstract class OnlineBackend {
 
   /// A whisper's body, readable only by its two parties (RLS).
   Future<String?> whisperBody(String whisperId);
+
+  /// The graveyard's conversation, oldest first, and everything said after.
+  ///
+  /// **Empty for a living caller, and empty because the server says so.** The
+  /// `ghost_messages_dead_read` policy admits only a dead member of the room,
+  /// so a living client's read returns no rows and its Realtime subscription
+  /// delivers none — there is nothing here to filter and therefore nothing to
+  /// get wrong (doc 12 §4.1).
+  Stream<List<GhostRow>> ghostMessages(String roomId);
+
+  /// This device's locked-in prediction for a room, or null if it never made
+  /// one. Own row only, by policy.
+  Future<Prediction?> myPrediction(String roomId);
 
   /// Blocks a sender for this client only. Never visible to the blocked party
   /// (H-E9).

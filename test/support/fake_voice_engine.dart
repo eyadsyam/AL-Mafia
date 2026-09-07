@@ -169,6 +169,14 @@ class FakeVoiceLink implements VoiceLink {
     sent.add(toUserId);
   }
 
+  /// What the `ice_servers` function would have answered. Null by default:
+  /// every existing test predates the fetch and must keep behaving as though
+  /// the app fell back to public STUN.
+  List<Map<String, dynamic>>? ice;
+
+  @override
+  Future<List<Map<String, dynamic>>?> iceServers() async => ice;
+
   @override
   Future<bool> claimFloor() async {
     claims++;

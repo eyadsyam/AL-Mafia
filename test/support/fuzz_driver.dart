@@ -242,4 +242,9 @@ MatchSettings _randomSettings(Random rng) => MatchSettings(
       abstainAllowed: rng.nextBool(),
       discussionMode:
           rng.nextBool() ? DiscussionMode.structured : DiscussionMode.free,
+      // Doc 14 §4.2 made this opt-in, which means the fuzzer has to opt in for
+      // some of its matches or `openingRound` becomes a phase nothing enters
+      // and nothing exercises. Random rather than always: the two shapes of
+      // Day 1 are both real, and both have to survive ten thousand matches.
+      openingRoundEnabled: rng.nextBool(),
     );

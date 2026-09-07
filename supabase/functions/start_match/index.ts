@@ -64,7 +64,10 @@ Deno.serve(handler(async (req, userId, db) => {
   for (let i = 0; i < roster.length; i++) {
     await db
       .from("room_players")
-      .update({ role: dealt[i] })
+      // `saw_role` back to false with the new card: a rematch deals again, and
+      // a seat that had seen its previous role must not count as having seen
+      // this one.
+      .update({ role: dealt[i], saw_role: false })
       .eq("room_id", roomId)
       .eq("user_id", roster[i].user_id);
   }

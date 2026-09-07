@@ -1136,3 +1136,1075 @@ Open:
   plugin's changelog.
 
 Next:       Nothing in the build order.
+
+---
+
+## PHASE 12 — done
+
+Built:      The release build can reach the network again; Play asks which game
+            this is; doc 13 Parts 2 and 3 (the one bullet, the pressure curve).
+
+### The online bug, and it was never the server
+
+«مفيش وصول للسيرفر» on every release build. The server was fine — probed live:
+`signup` 200, `create_room` 200, room `ULPGQF` created. Flutter's template
+declares `android.permission.INTERNET` in `src/debug` and `src/profile` only,
+because that is where hot reload needs it, so **every release APK this project
+has ever produced had no network permission at all**. Every Supabase call threw
+at the socket, the transport correctly classified it as unreachable, and the
+player was told the server was down.
+
+`src/main/AndroidManifest.xml` now declares `INTERNET`, `ACCESS_NETWORK_STATE`
+(so the banner can tell "this phone has no signal" from "the server did not
+answer") and `RECORD_AUDIO`. Verified on a real `flutter build apk --release`:
+the merged release manifest carries all three.
+
+`offline_and_manifest_test.dart` asserted the opposite — FR-029 as
+"the release manifest declares no INTERNET permission". FR-029 and docs 10/12
+cannot both be true; the test now asserts what FR-029 was actually for, that
+**the one-phone game imports nothing that can reach a network**, scanned over
+import directives in `lib/engine` rather than over file text.
+
+### Play asks the question first
+
+`ModeScreen` (S-01a) — «هتلعبوا إزاي؟», two cards at the same weight. The online
+text link is gone from Home entirely, and with it the compile-time flag that
+decided whether a player ever heard the app plays online: the online card is now
+drawn whether or not the build has a project, and a build without one says so on
+the card. `mode_screen_test` asserts both, and scans `home_screen.dart` for the
+absence of `onPlayOnline` and `SupabaseConfig`.
+
+**The rematch budget moved from three taps to four**, and that is the only thing
+it has ever been allowed to pay for. `group_rematch_test` states the new number
+and why.
+
+### Doc 13 Part 2 — «الطلقة الواحدة»
+
+`BulletKind` + `RoleBullet` (total, like `RoleNightAction`), `BulletSpent` in the
+log, `lib/engine/bullets.dart` deriving everything from it — no flag on `Player`,
+because a flag beside the log is a second source of truth a force-quit can
+desync, and the failure mode is a player getting their one irreversible move
+back.
+
+* **الليلة الهادية** is the *team's*, and the resolver ignores the night's votes
+  when it is spent.
+* **حماية النفس** is not a grid entry. Self-protection is now refused outright
+  (it never was before, though the UI never offered it) and the bullet is the
+  only way to it — the Doctor's target list must stay the same shape as everyone
+  else's.
+* **فتح الملف** recomputes its results from the roster at the moment of
+  publication. Doc 05 rule 10 still forbids writing an investigation down.
+* **الشهادة** publishes that night's `SuspectCast`, named.
+
+**The quiet night's price, paid honestly.** Doc 13 §8 wants a quiet morning to be
+indistinguishable from a Doctor save. There were two ways and only one is honest:
+announcing a save that did not happen would have the app state a fact, which doc
+09's first law forbids. So it goes the other way — with `quietNightEnabled` on,
+the morning stops distinguishing the two and says only what is true of both, and
+`T2` («نجاة») stops being a trace candidate, because a trace announcing a blocked
+kill would put back the sentence the report just removed. With the setting off,
+every one of those mornings reads exactly as it did before.
+
+**On glass.** One slot, one position, one height, one gesture for all four roles.
+Long-press to arm (toggleable until the turn is committed), struck through and
+inert once spent, never removed. Blank before the reveal — the bullet's name is
+role-specific text and the handoff screen is the one screen the table can see.
+All four Arabic names ink 13 glyphs, asserted in `night_prompt_balance_test`
+beside the four prompts' 19.
+
+Two layout consequences, both real:
+
+* the slot lives **inside** `slotBody` rather than beside the action button. The
+  shell's fixed slots already filled a 640pt phone to within five pixels; a
+  seventh overflowed by 28. The body is the one `Expanded` part, so a control
+  there takes its space from the seat list, which scrolls.
+* the seat list is no longer a lazy `ListView`. It built only what fitted, so
+  adding a slot above it silently changed how many seats existed *as widgets* —
+  invisible on a phone, visible to a screen reader and to the leakage suite.
+
+### Doc 13 Part 3 — the pressure curve
+
+`lib/engine/pressure.dart`. `bandFor` takes an `int`, not a match and not a
+phase, so it cannot be handed anything role-shaped. It **only ever tightens**: a
+host who set a short discussion keeps it. `MatchSettings.discussionSeconds` is
+new — free discussion used to derive its length as speech × head count, which
+made it *grow* with the table exactly where doc 13 wants it to shrink.
+
+The turn-change chime rises a semitone per band through
+`AudioDirector.playTurnChange({required int band})` — its own door, so no other
+cue can be handed a pitch. `AudioBackend.play` gained `rate`.
+
+Files:      android/app/src/main/AndroidManifest.xml
+            lib/app/router.dart · lib/app/l10n/* (+81 keys)
+            lib/ui/screens/setup/{home_screen,mode_screen}.dart
+            lib/engine/{bullets,pressure,hints,coaching,presets}.dart
+            lib/engine/{resolver,seed,match_engine}.dart
+            lib/engine/models/{enums,match_settings,information_events}.dart
+            lib/engine/information/trace_generator.dart
+            lib/data/match_codec.dart · lib/ui/l10n_ext.dart
+            lib/ui/widgets/turn_shell.dart
+            lib/ui/screens/{match_controller,match_flow}.dart
+            lib/ui/screens/night/{night_action_screen,morning_screen}.dart
+            lib/ui/screens/day/discussion_screen.dart
+            lib/platform/{audio_backend,audio_director}.dart
+            lib/transport/{game_transport,local_transport,online_transport}.dart
+            test/widget/mode_screen_test.dart + 9 fixtures updated
+
+Verified:   `flutter test` — 697 pass, 0 fail.
+            `flutter analyze lib` — 0 errors, 0 warnings (28 pre-existing infos).
+            `flutter build apk --release --dart-define-from-file=…` — succeeds,
+            and the merged release manifest carries INTERNET /
+            ACCESS_NETWORK_STATE / RECORD_AUDIO.
+            The live project probed directly: anonymous sign-in and
+            `create_room` both 200.
+
+Gate:       PASS
+
+Open:
+- **Bullets are offline-only.** `GameTransport.supportsBullets` is false for
+  `OnlineTransport` and the control is therefore not built online — constant for
+  a whole match, so its absence says nothing about anybody. Making it real online
+  needs `submit_night_action` and `resolve_night` (doc 10 §5) to learn what a
+  bullet is, plus a migration. Written down, not written.
+- `ghost_say` and `submit_prediction` are still **not deployed** (404 on the live
+  project), along with `20260903000100_open_voting.sql` and
+  `20260903000200_witness.sql`.
+- **Doc 13 §2.4 is not literally implementable.** *"Two long-presses total — for
+  every role, always, whether or not they arm it"* cannot hold: a player who does
+  not arm the bullet does not press it, which is one press, not two. What is
+  built is the defensible half — arming is a long press and the confirm under it
+  is a second deliberate action, so the one irreversible move of a match is never
+  a single gesture, and the control is identical for all four roles in position,
+  size, height and interaction. The dwell gate is what actually equalises turn
+  length and it is untouched.
+- Doc 13 Parts 4 (hints), 5/7 (presets and settings), 6 (balance harness) and
+  8/9 (acceptance) are **not** on glass yet. The engine modules exist and are
+  analysed clean — `hints.dart`, `coaching.dart`, `presets.dart` — with no UI
+  reading them and no tests over them.
+- The doc 10 / doc 12 mafia coordination-dot conflict, unchanged and still
+  awaiting a ruling: doc 12 §3.3 asks for a gold dot showing a Mafioso their
+  teammates' running votes; `room_codec.dart` deliberately sends
+  `teammateVotes: const []` because a live feed of it online is a coordination
+  channel the table game does not have. The reserved slot is built and laid out
+  on every seat for every role, and left empty.
+
+Next:       Doc 13 Part 4 — the hint system on glass.
+
+---
+
+## PHASE 13 — partial (stopped on request)
+
+Built:      Doc 13 Part 6 (the balance harness) in full; Part 4 (the hint
+            system) on glass for Tiers 1–3; the bullet is now a legal move.
+
+### Doc 13 Part 6 — the balance harness
+
+`test/support/balance_driver.dart` + `test/engine/balance_harness_test.dart`.
+Twenty-two cells (three presets × eight table sizes, minus the ones «قاسية» is
+no longer offered at) × two town policies, 400 matches each, ~20 s. The full
+five thousand doc 13 §6 asks for is one flag away:
+`--dart-define=BALANCE_RUNS=5000`.
+
+**The agent model, and why the numbers mean anything.** A win rate is a
+property of the rules *and* of the players; there is no such thing as "the"
+mafia win rate at nine. So the model is stated: weak, **mostly shared**
+impressions of each other (a table cannot average away an error it is all
+making at once), half of which is actually said out loud, led by Mafia who
+coordinate and avoid killing anyone who has publicly moved against them. It has
+**one** free parameter, spent on **one** anchor — «كلاسيكية» at nine, near even.
+Every other cell is a prediction, not a fit.
+
+Two earlier versions were wrong in instructive ways, and both are written down
+in the file: independent impressions let eleven townspeople average their way to
+the truth and the town won 90% of fifteen-player matches; and weighting a
+published trace at four accusations made believing it *worse* than ignoring it,
+which looks like a broken trace layer and is a policy over-trusting a one-vote
+signal.
+
+Asserted: no cell is a foregone conclusion (20–80%), the mean across cells is
+45–55%, at least two thirds of cells are inside doc 13's own 40–60%, median
+length 3–6 nights from eight players to twelve, no match past the 500-move
+guard, and the quiet night neither pushes the Mafia past 60% nor swings the
+game ten points when toggled.
+
+### Doc 13 Part 4 — the hint system, on glass
+
+* **Tier 1** — `HintSlot`, a fixed-height reserved slot that draws a caption or
+  nothing and is the same height either way. Persisted seen-set in a new
+  `SettingsRecord.seenHints` (Isar regenerated), reached through three new
+  repository methods including doc 13 §4.2's `resetSeenHints`. Wired to all
+  seven triggers except the online elimination one: pass, role card, night
+  action, bullet, whisper, confrontation.
+* **Tier 2** — `PlayHintLine`, in dead time only. Offline it is `TheTable` by
+  construction: the sealed pair in `engine/hints.dart` has no role-conditioned
+  case reachable without a viewer seat, so doc 13 §9's *"enforced by type, not
+  by convention"* holds at the call site and not just in the module.
+* **Tier 3** — «كان ممكن» under each player's own name on the result screen,
+  from `Coach.notesForAll`, built from the finished match rather than from the
+  snapshot (the snapshot has no roles, which is what keeps the notes off every
+  screen before this one).
+
+`HintSlot` is a plain `StatefulWidget` that looks up the provider container
+defensively rather than a `ConsumerWidget` that demands one — same rule the
+voice layer lives under. A screen pumped with no app behind it gets the
+reserved space and no hint instead of a red box.
+
+### The bullet is a legal move
+
+`NightActionMove` and `SkipNightActionMove` gained `useBullet`, and
+`legalMoves` enumerates the armed variant wherever `Bullets.canArm` — so the
+fuzz harness, the balance harness and doc 10 §8.2's timer default can all reach
+a state that was previously unreachable except through the UI. Not for the
+Doctor's targeted moves: «حماية النفس» redirects to their own seat whatever is
+highlighted, so an armed move per target would be the same state N times.
+
+Files:      lib/engine/{legal_moves,presets}.dart
+            lib/data/{match_repository,memory_match_repository}.dart
+            lib/data/isar/{match_record,match_record.g,isar_match_repository}.dart
+            lib/ui/hints/hint_controller.dart
+            lib/ui/widgets/{hint_slot,play_hint_line,turn_shell}.dart
+            lib/ui/screens/night/night_action_screen.dart
+            lib/ui/screens/day/{discussion,confrontation}_screen.dart
+            lib/ui/screens/distribution/{role_reveal,pre_night_lobby}_screen.dart
+            lib/ui/screens/postgame/result_screen.dart
+            lib/ui/screens/match_flow.dart
+            test/support/balance_driver.dart
+            test/engine/balance_harness_test.dart
+
+Verified:   `flutter analyze lib` — 0 errors, 0 warnings.
+            `flutter test test/widget test/integration test/golden test/leakage`
+            — 326 pass.
+            `flutter test test/engine/balance_harness_test.dart` — 12 pass.
+            Full-suite run not repeated after the last two edits (Tier 2 and
+            Tier 3 wiring) — see Open.
+
+Gate:       INCOMPLETE — stopped mid-phase on request.
+
+Open:
+- **Not run since the last edit**: the full `flutter test`. Analyze is clean and
+  the four suites above were green one edit earlier, but the Tier-2 and Tier-3
+  wiring has not been through the whole suite.
+- **Doc 13 Part 4, one trigger missing**: `InterfaceHint.eliminated`, the
+  online-only witness hint. The enum value, the string and the l10n mapper all
+  exist; nothing renders it yet.
+- **Doc 13 Part 4, Tier 2 online**: `PlayHintLine` is wired into the offline
+  pre-night lobby only. The online lobby has no call site yet, so the
+  role-specific pool is written, tested by type, and unreachable in practice.
+- **Doc 13 Parts 5 and 7 — not started.** `presets.dart` exists and is
+  exercised by the balance harness; there are no preset chips and no advanced
+  settings section. The settings screen also still rebuilds a fresh
+  `MatchSettings` on save, which silently drops all twelve doc-13 fields — a
+  real bug, found while reading, not yet fixed.
+- **Doc 13 Parts 8 and 9 — not started.** No executable leakage checklist, no
+  acceptance suite, and in particular no test yet that a quiet night and a
+  Doctor save produce byte-identical morning output.
+
+### What the harness found, and doc 13 cannot have
+
+1. **Doc 13 §6 and §9 contradict each other.** §6 defines `NaivePolicy` as
+   *"suspect randomly"*; §9 requires `TracePolicy` to outperform it, *"proving
+   traces carry real information"*. `T1` publishes what the victim suspected —
+   if every suspicion is a coin toss, `T1` publishes a coin toss and no
+   implementation can satisfy both. Resolved by giving agents a weak private
+   impression and writing the reasoning into the driver.
+2. **`TracePolicy` still does not measurably beat `NaivePolicy`.** Averaged over
+   all cells it is 0.3 points better for the town, which is noise. The harness
+   asserts the floor instead — believing the app must not be *worse* than
+   ignoring it — and doc 13 §9's stronger claim is recorded as unmet. The
+   underlying reason is worth a ruling: a dead player's suspicion is one
+   opinion, formed the same way every living player's was.
+3. **Seven cells sit outside 40–60%, and three of them cannot be fixed.** At
+   five to seven players the Mafia count is an integer: one in six is a town
+   walkover, two in six is a Mafia one, and there is no third option. There is
+   a test that asserts exactly that rather than an excuse in a comment.
+4. **«قاسية» at six players was 78% Mafia** — a third of the table in the
+   family, no Doctor. Fixed at the product level: `MatchPreset.minimumPlayers`
+   makes it unavailable below eight.
+5. **Preset role counts now follow doc 13 §5's quarter**, not
+   `BalanceGuard.recommended`, which flattens to three Mafia from nine players
+   to twenty — two too many at nine and two too few at twenty. `BalanceGuard`
+   itself is untouched; it belongs to a different spec.
+6. **Fifteen-player matches take seven nights, not doc 13's three to six.**
+   Arithmetic rather than drag — two players leave per cycle and eleven have to
+   go — and asserted as its own bounded fact so nine nights would still fail.
+
+Next:       Doc 13 Parts 5 and 7 (presets + advanced settings, and the settings
+            screen's dropped-fields bug), then Parts 8 and 9.
+
+---
+
+## PHASE 14 — done
+
+Built:      Doc 13 Parts 5, 7, 8 and 9; the two Part-4 triggers that were
+            still unwired; the settings screen's dropped-fields bug; and a
+            web build published at a URL.
+
+### Doc 13 Part 5 — the presets, on glass
+
+A chip row at the top of the settings screen, and the lit chip is **derived**
+rather than stored: `MatchPreset.identify` asks the settings themselves which
+preset they are. So there is nothing to fall out of step with the controls
+below, and turning one switch after tapping a chip puts the chip out for free —
+because the settings genuinely are not that preset any more, which is the
+correct answer and not a bug to guard against.
+
+New `MatchPreset.applyTo(base)`, the exact inverse of the existing
+`_alignedTo`: it writes doc 13 §5's nine rows and touches nothing else. A
+preset does not know whether this table wants narration or how long the
+identity hold is, and a preset that quietly reset them would be a preset that
+punishes curiosity. «قاسية» is still absent below eight players.
+
+### Doc 13 Part 7 — «إعدادات متقدمة», and a real bug next to it
+
+The section is doc 13 §7's table in five groups, closed by default. The four
+per-role bullets go **disabled rather than hidden** under the master switch, for
+the reason the whole app is built on: a control that comes and goes is a control
+whose absence is a thing to read. The hint reset (§4.2) is a button that fires
+once and then says so.
+
+The bug: the screen kept one `late` field per control and rebuilt a fresh
+`MatchSettings(...)` on save out of exactly those eight. Every field it had no
+control for — all twelve of doc 13's, plus the whole Information Engine's — was
+silently reset by the act of opening settings and pressing save. A host who
+turned the bullets off got them back and nothing said so.
+
+The fix is structural rather than a longer argument list: **one settings object,
+edited in place**. There is now no list to forget to extend, and a control this
+screen does not draw is a value that passes through untouched. `settings_presets_test`
+hands it settings with every field non-default, presses save, and requires the
+object that comes back to be the object that went in.
+
+### Doc 13 Part 4 — the last two triggers
+
+* `InterfaceHint.eliminated` now renders above the witness panel's tabs — the
+  one online-only trigger, because offline an eliminated player is still
+  sitting at the table and there is nothing to explain.
+* Tier 2 has an online call site: the lobby, seeded from the **room code**, so
+  four people waiting for a fifth read the same sentence on four phones.
+
+### Doc 13 Parts 8 and 9 — the checklist, executable
+
+`test/leakage/doc13_acceptance_test.dart` (15 tests) and
+`test/golden/bullet_slot_symmetry_test.dart` (5). The first line of the
+acceptance file names the items covered elsewhere and the one item that is
+**not met**, rather than letting it fall off the list by being hard.
+
+The one that matters most: a Doctor save and «الليلة الهادية» are played out
+through the real engine and their mornings compared field for field *and* as
+strings. The negative control is there too — with the quiet night switched off
+the save is announced again, so the test cannot be satisfied by an app that
+simply stopped saying anything.
+
+The bullet slot is measured rect-for-rect across all four roles, live and
+spent. A spent bullet keeps the rect it had, struck through: a control that
+vanished would shorten the column by its own height, and the height of the
+night screen would then be a public record of who has used what.
+
+### The web build, and a seam it needed
+
+`https://eyadsyam.github.io/AL-Mafia/` — the Flutter web build, published from
+a `gh-pages` branch of the existing repository, built at
+`--base-href /AL-Mafia/`.
+
+Isar cannot cross to a browser twice over: it reaches `dart:ffi` for a native
+core, and its generated schema names collections with 64-bit ids that a
+JavaScript number cannot hold — so `-3321931835933376304` fails to *compile*
+long before anything tries to open a file. A `kIsWeb` guard does not help,
+because the branch it skips is still compiled.
+
+So the platform choice moved to the import. `openLocalStores()` is declared
+once and implemented twice — `local_stores_io.dart` against Isar,
+`local_stores_web.dart` returning null — and `main.dart` picks between them
+with a conditional import. The web build runs on the in-memory stores that
+`repository_provider.dart` already declared as the fallback, which is the
+honest shape for a browser tab: a tab is a session, not an installation, and
+the app was already required to survive storage that will not open.
+
+Files:      lib/engine/presets.dart
+            lib/ui/screens/setup/settings_screen.dart
+            lib/app/router.dart
+            lib/ui/screens/online/lobby_screen.dart
+            lib/ui/screens/online/witness/witness_panel.dart
+            lib/main.dart
+            lib/data/local_stores{,_io,_web}.dart
+            web/{index.html,manifest.json} (+ the generated web/ scaffold)
+            test/leakage/doc13_acceptance_test.dart
+            test/golden/bullet_slot_symmetry_test.dart
+            test/widget/settings_presets_test.dart
+            test/support/turn_shell_harness.dart
+
+Verified:   `flutter analyze lib` — 0 errors, 0 warnings.
+            `flutter test` — **737 pass**, whole suite, after every edit above.
+            `flutter build web --release` — built, 57 MB, 107 files.
+            `git push origin gh-pages` — pushed; Pages serving from
+            gh-pages / root.
+
+Gate:       PASS
+
+Open:
+- **Doc 13 §9's trace claim is still unmet.** `TracePolicy` does not measurably
+  beat `NaivePolicy` — 0.3 points across all cells, which is noise. The harness
+  asserts the floor it can defend and the acceptance file records the stronger
+  claim as unmet rather than asserting a weaker thing under its name. Needs a
+  ruling: a dead player's suspicion is one opinion, formed the way every living
+  player's was.
+- **Tier 2's role-conditioned pool is still unreachable in practice.** Online,
+  the viewer's role arrives through an async `secretsFor(seat)` that the table
+  flow does not hold, so the only two call sites are lobbies and both are
+  `TheTable`. The pool is written and tested by type; nothing renders it.
+- **The web build has no storage.** History, saved groups and whispers live for
+  the length of a tab. Offline play, online play, settings and presets all
+  work; «تاريخ المباريات» will be empty every time it is opened.
+- Bullets remain offline-only (`supportsBullets == false` for
+  `OnlineTransport`), and `ghost_say` / `submit_prediction` plus two migrations
+  are still undeployed on the live project.
+
+Next:       A ruling on the trace, then either deploy the two Edge Functions or
+            close out the online-bullets gap.
+
+---
+
+## PHASE 15 — done
+
+Built:      Doc 14, the consolidation. One canonical flow, offline and online;
+            the night grid; whispers rebuilt as an online layer; the settings
+            screen regrouped; and every hint taken out of a live match.
+
+`docs/14-consolidation-and-cleanup.md` is on disk and supersedes parts of 09,
+12 and 13. Where it conflicts with **doc 05** it does not win — twice below,
+that mattered, and both are recorded rather than quietly resolved.
+
+### The night screen — one grid, every option in it
+
+The list of full-width rows is gone. In its place: *N* tiles, 2/3/4 columns by
+count, sized from whatever height the body has and capped at doc 14's 64dp, so
+it shrinks and never scrolls. Fifteen players fit on a 390×844 screen with the
+prompt above them.
+
+Everything a role can do that night is a tile:
+
+| Role | Last tile | What it does |
+|---|---|---|
+| مافيا | «مش هقتل الليلة» | Skips the kill and spends «الليلة الهادية» |
+| طبيب | **their own name** | Self-protection. Once per match |
+| محقق | «مش هحقق الليلة» | Skip |
+| مواطن | «مش شاكك الليلة» | Skip |
+
+That single change removed four things at once: the tiny long-press ability
+box, the second long-press to arm it, the "choose nobody" line dumped under the
+confirm button, and the scroll. Confirm is now **one tap**; the long press
+survives only on the identity pad and the role card, which are the two places
+where a stray thumb costs something.
+
+The Doctor's self-protection is no longer a power with its own control. It is
+their name, among the names, and it dims when it has been used — doc 14 §1.3:
+*"It never disappears — a disappearing tile changes the grid shape, and grid
+shape is a tell."*
+
+**Doc 14's four label shapes did not survive doc 05.** The doc wrote them as
+four different sentences («مفيش قتل الليلة», «مش شاكك في حد»). That is
+role-specific text on a screen a bystander can see, so `night_prompt_balance`
+holds it to the same inked-glyph budget as the four prompts: one shape negated
+four ways, twelve glyphs each. It reads better as well — two screens now differ
+by one word instead of by their grammar.
+
+### «فتح الملف» and «الشهادة» — gone from the engine, not hidden
+
+`BulletKind` is two values. `Role.bullet` returns null for the Detective and
+the Citizen, and `Bullets`, `Coach` and the night screen all read that null
+rather than a flag. `MorningPublications`, `OpenedFile`, `Testimony`,
+`FileEntry` and the morning's publication lines are deleted — nothing rendered
+them, which is most of why nobody understood them.
+
+The symmetry doc 13 bought with four abilities is still there and now comes for
+free: every grid is *N* tiles, and a role with nothing to spend spends its last
+tile on "choose nobody".
+
+### Whispers — online only, during the discussion, delivered now
+
+Offline the layer is not disabled, it is **absent**: no button, no graph, no
+slot on the night screen, no reference in any offline string. One shared phone
+cannot deliver a private message during a discussion without stopping the
+discussion to pass the phone, which is the discussion the message was about.
+
+Online it does the thing it was always supposed to. The composer no longer asks
+*who are you* — this device knows — so it is pick, write, send. The recipient
+list is built from **other living players**, so self-exclusion is not a check
+that can be forgotten; the list they would be removed from is a list they were
+never on.
+
+And the recipient now reads the words. They did not before: the body was only
+ever rendered in the night screen's whisper slot, which the online table does
+not have, so an online whisper was a chime and a light and nothing else.
+`WhisperCard` slides in over the table, holds for twelve seconds or until
+dismissed, and never blocks — the timer and the seats stay live behind it.
+
+### Hints — the reservation stays, the words go
+
+Doc 14 Part 6's absolute rule: nothing teaches during a live match, in either
+mode. Removed from the role card, the night screen, the discussion, the
+confrontation, the witness panel and «الليل يقترب»; `OnlineHints` is deleted
+outright. Every reserved slot is still reserved, which is what keeps four
+roles' screens the same height.
+
+«الليل يقترب» is three elements now — the heading, «ضع الهاتف على الطاولة», the
+button. The night number and the living count went with the strategy line: the
+first is in the night screen's own header and the second is the number of
+people at the table.
+
+### A seed the web could not mint
+
+Found by walking the published build rather than by any test. `newMatchSeed()`
+read `Random.secure().nextInt(1 << 32)`. dart2js compiles `<<` to JavaScript's
+32-bit shift, so on the web that bound is **zero**, `nextInt(0)` throws, and
+every offline match died on the tap that should have started it — silently,
+because an exception inside a button callback leaves the screen exactly as it
+was. The VM disagrees with the browser about that one expression, so the whole
+suite passed while the shipped app could not deal a hand.
+
+The bound is a literal now, and `web_safe_integers_test` reads the source for
+any shift of 32 or more and any literal past 2^53. It is a lint rather than a
+behaviour test because the failure is a *platform disagreement*, and no test
+that runs on one platform can see it.
+
+### Settings — five groups, and a sentence under every switch
+
+إيقاع اللعب · المعلومات · الكشف · التصويت · الصوت والحركة. Times are segmented
+controls, choices are radios, switches are for genuine on/off only. Every
+switch carries its description on the row — *"a setting nobody understands is a
+setting nobody uses."* Online-only rows say «في الأونلاين بس» rather than
+vanishing offline.
+
+Twelve controls left the screen: the bullet master and its four per-role
+switches, «فتح الملف», «الشهادة», the three hint toggles, the hint reset, and
+the whole «إعدادات متقدمة» disclosure. Their **fields** survive untouched —
+`settings_presets_test` hands the screen an object with every field
+non-default, presses save without touching anything, and requires the object
+back.
+
+«اسم واحد» now defaults **off**. It solved a real problem by imposing ten
+silent seconds on every table; the fuzz driver opts half its matches into it so
+the phase is still exercised.
+
+Files:      docs/14-consolidation-and-cleanup.md          (new)
+            lib/ui/widgets/night_grid.dart                (new)
+            lib/ui/widgets/whisper_card.dart              (new)
+            lib/ui/widgets/turn_shell.dart
+            lib/ui/screens/night/night_action_screen.dart
+            lib/ui/screens/night/morning_screen.dart
+            lib/ui/screens/distribution/pre_night_lobby_screen.dart
+            lib/ui/screens/distribution/role_reveal_screen.dart
+            lib/ui/screens/day/{discussion,confrontation,whisper_compose}_screen.dart
+            lib/ui/screens/setup/settings_screen.dart
+            lib/ui/screens/match_flow.dart
+            lib/ui/screens/match_controller.dart
+            lib/ui/screens/online/online_table_flow.dart
+            lib/ui/screens/online/witness/witness_panel.dart
+            lib/ui/screens/online/online_hints.dart       (deleted)
+            lib/engine/{bullets,coaching,hints,match_engine}.dart
+            lib/engine/models/{enums,match_settings}.dart
+            lib/ui/{l10n_ext.dart,theme/design_tokens.dart}
+            lib/app/{router.dart,l10n/*.arb}
+            lib/data/match_seed.dart
+            test/leakage/doc14_acceptance_test.dart       (new)
+            test/platform/web_safe_integers_test.dart     (new)
+            test/golden/night_grid_symmetry_test.dart     (new)
+            test/golden/leakage/offline_whisper_absence_test.dart (new)
+            test/golden/bullet_slot_symmetry_test.dart    (deleted)
+            test/golden/leakage/whisper_card_parity_test.dart (deleted)
+            test/support/{turn_shell_harness,fuzz_driver,information_match}.dart
+            test/widget/{settings_presets,night_prompt_balance,accessibility,reduce_motion}_test.dart
+            test/leakage/{doc11_regressions,doc13_acceptance}_test.dart
+            test/integration/{wrong_pass,match_flow,audio_cue_wiring}_test.dart
+            test/{data/schema_migration,engine/game_history}_test.dart
+
+Verified:   `flutter analyze` — 0 errors, 0 warnings, whole project.
+            `flutter test` — **747 pass**, whole suite, including the ±2%
+            luminance budget across all four roles in all five turn states and
+            the 2,000-match fuzz coverage sweep.
+            The published build, walked in a browser: home → mode → nine
+            players → roles → the new settings screen → distribution → the
+            night grid → «تم تسجيل اختيارك». Screenshots taken of the settings
+            screen, the role card (no hint over it), the grid and the
+            confirmation.
+            https://eyadsyam.github.io/AL-Mafia/
+
+Gate:       PASS
+
+Open:
+- **Doc 14 §1.4 is not honoured in full, and doc 05 is why.** It asks for no
+  name on «تم تسجيل اختيارك». Removing the echo puts the Detective **2.26%**
+  off the set mean in the `confirmed` state against a ±2% budget, because three
+  screens then carry nothing in the detail slot and one carries a verdict. The
+  budget did not move. What went is the bordered panel and the whisper card;
+  the picked seat stays, as one word, drawn identically for all four roles.
+  Recorded here rather than in the spec — doc 05 was never mine to amend.
+- **«كشف دور المُقصى» is not a switch.** Doc 14 Part 5 lists it; FR-019 makes a
+  day elimination public by rule, so the switch would have to stay on. A
+  control that cannot be turned off is exactly the kind of setting Part 5 is
+  trying to delete. Needs a ruling: change the rule, or drop the row.
+- **The interface-hint machinery is dormant, not deleted.** `InterfaceHint`,
+  `HintSlot` and the seen-set survive with no call sites, because doc 14 Part 6
+  keeps the tier and only bans it inside a match — and every trigger it had was
+  inside one. Either give it a home outside a match or take it out.
+- Carried forward: doc 13 §9's `TracePolicy > NaivePolicy` claim is still
+  unmet; the web build has no persistent storage; bullets are still offline-only
+  (`supportsBullets == false` online), so online the Mafia's and the Doctor's
+  last tile is an ordinary skip; `ghost_say` / `submit_prediction` and two
+  migrations are still undeployed.
+
+---
+
+## PHASE 16 — done
+
+Built:      The online mode, finished — on the phone, not only in a browser tab.
+            Plus the two things you named, and the four items PHASE 15 left open.
+
+### The APK had no server in it
+
+`SupabaseConfig` reads its URL and key through `String.fromEnvironment`, which
+is resolved **at compile time**. `flutter build apk --release` on its own passes
+neither, so `isConfigured` is false, the mode screen offers online as an
+explained dead card, and the binary has no server to talk to at all. The website
+worked because the web build *was* given them.
+
+That is not a bug in the app; it is a build invoked without its arguments. So
+the arguments now travel with the build: `tool/build_apk.ps1` refuses to run
+without `dart_defines.json`, refuses again if it still holds the placeholders,
+and passes it through. `-Split` for per-ABI APKs, `-Bundle` for Play.
+
+Release signing stopped being a TODO in the same file: `android/key.properties`
+if it exists, the debug key otherwise. The keystore and its passwords are the
+owner's to make — nothing here prompts for one and nothing is checked in.
+
+### The code read backwards
+
+A `Row` lays its children along the ambient `Directionality`, and this app's is
+RTL. The lobby draws the code one character at a time so the letters can stagger
+in, so six characters went into the tree in order and came out mirrored: the
+screen said `XQ2K7A` while «نسخ» put `A7K2QX` on the clipboard.
+
+The worst shape a bug like this can take — the host reads the wrong code aloud
+while the code they *sent* works, and nobody can tell which half is lying.
+
+Pinned to LTR at the widget that lays the characters out itself, and the code
+field is pinned the same way and upper-cased as it is typed. A room code is an
+identifier in a Latin alphabet, not Arabic text.
+
+### The room screen asks one question at a time
+
+It used to ask everything at once: a name, a code, and two buttons underneath —
+so a player with nothing to type stared at the largest field on a screen that
+had already decided they were joining.
+
+Now: your name, because both paths need it. Then which of the two you are, each
+button carrying a sentence saying what it does. **The code field does not exist
+until "I have a code" is the answer.** A deep link skips the question it has
+already answered and opens on the code step, filled.
+
+### Bullets, online
+
+`supportsBullets` returned false, so online the last choice was an ordinary
+skip. For the Mafia that cost only the *once per match* part. For the Doctor it
+cost the whole move: the server refused a self-target outright — `"not
+yourself"` — so the self-protection you asked to be a normal feature did not
+exist online at all.
+
+It does now, end to end. `night_actions.used_bullet`, written by
+`submit_night_action` after it checks the role **the server** holds, the room's
+settings as the *room* stores them, and whether this player has already spent
+theirs. Once per match is enforced by a partial unique index, so two racing
+requests cannot both win.
+
+The flag is on the action and not on the player, and that is a doc 05 decision:
+only two of the four roles hold a bullet, so a public `bullet_spent` on the
+roster would say *that seat is the Mafia or the Doctor*. `night_actions`' read
+policy is `actor_id = auth.uid()`, which is exactly the right audience, and the
+client already loads those rows on every resync — so it costs no new call and
+survives a reconnect.
+
+Offline the Doctor's self-protection is a tile with their own name on it. The
+online table has no grid, so it is the affordance the table already has: their
+own seat, tappable, once.
+
+### The server was two migrations and four functions behind
+
+`open_voting` and `witness` applied; `ghost_say` and `submit_prediction`
+deployed; `submit_night_action` redeployed. 23 migrations, 22 functions.
+
+### PHASE 15's open items, closed
+
+- **The dormant hint tier is deleted.** `InterfaceHint`, its copy table, its
+  controller and seven strings had no call sites, because doc 14 Part 6 banned
+  every trigger it had. The *reservation* survives in `TurnShell` — equal height
+  across four roles is doc 05's business and never was this tier's.
+- **«كشف دور المُقصى» is not a switch, and that is the ruling.** FR-019 makes a
+  day elimination public by rule, so the control could never be turned off, and
+  a control that cannot be operated is the thing doc 14 Part 5 exists to delete.
+- **`TracePolicy > NaivePolicy` cannot be satisfied as written**, and the
+  harness says so rather than softening the assertion: `T1` publishes what the
+  victim suspected, so if suspicion is a coin toss then `T1` publishes a coin
+  toss. What is asserted is the honest floor — a town that believes the app is
+  not worse off — and the day a change makes the published sentence actively
+  misleading, that test goes red.
+- **The web build's storage is by design, not missing.** A tab is a session, not
+  an installation, and `local_stores.dart` argues it out. Not an open item.
+
+Files:      lib/ui/screens/online/online_entry_screen.dart   (rewritten)
+            lib/ui/screens/online/lobby_screen.dart
+            lib/ui/screens/online/online_session.dart
+            lib/ui/screens/online/online_table_flow.dart
+            lib/ui/screens/match_controller.dart
+            lib/ui/screens/night/night_action_screen.dart
+            lib/transport/{game,local,online}_transport.dart
+            lib/transport/{online_backend,room_codec,supabase_backend}.dart
+            lib/ui/widgets/{turn_shell,hint_slot}.dart
+            lib/engine/{hints,coaching}.dart
+            lib/data/{isar/match_record,match_repository}.dart
+            lib/ui/{l10n_ext.dart,hints/hint_controller.dart (deleted)}
+            lib/app/{router.dart,l10n/*.arb}
+            android/app/build.gradle.kts
+            tool/build_apk.ps1                              (new)
+            supabase/migrations/20260904000100_bullets_online.sql (new)
+            supabase/functions/submit_night_action/index.ts
+            test/widget/room_code_direction_test.dart       (new)
+            test/transport/online_transport_test.dart
+            test/widget/online_lobby_test.dart
+            test/platform/haptics_call_site_test.dart
+            test/leakage/doc13_acceptance_test.dart
+
+Verified:   `flutter analyze` — 0 errors, 0 warnings, whole project.
+            `flutter test` — **757 pass**, whole suite.
+            The room-code test was checked against the un-fixed widget and
+            fails there, so it is not vacuous.
+            `flutter build apk --release` with the defines, from the script —
+            and the shipped APK opened and read back: `SUPABASE_URL` and
+            `SUPABASE_KEY` are both in `libapp.so`, and the binary manifest
+            carries INTERNET, RECORD_AUDIO and the `mafiamaster` scheme. That
+            is the actual claim ("online exists in this binary"), checked
+            against the artifact rather than against the command line.
+            `flutter build web --release` published to `gh-pages`; the live
+            `main.dart.js` md5 matches the local one.
+
+Gate:       PASS
+
+Open:
+- Doc 14 §1.4's "no name" is still not honoured on «تم تسجيل اختيارك», and doc
+  05 is still why: removing the echo puts the Detective 2.26% off the set mean
+  against a ±2% budget. Unchanged from PHASE 15, and unchanged deliberately.
+- Online voice is still WebRTC over the signals table with no TURN credentials
+  configured, so it will fail behind symmetric NAT. Never load-bearing: a match
+  completes with voice fully broken.
+- The APK is signed with the debug key. Fine for installing by hand, refused by
+  Play. `android/key.properties` is where that changes, and the keystore is
+  yours to generate.
+
+## PHASE 17 — RELEASE PASS — done | partially verified
+
+Built:      The release pass: size, security, signing, the store, and the
+            table that overlapped.
+
+### 1 — Size
+
+`flutter build apk --release --analyze-size --target-platform android-arm64`,
+then the work it pointed at. **arm64 APK 46.5 MiB → 38.5 MiB.**
+
+Top five, after:
+
+| | MiB | |
+|---|---|---|
+| `libjingle_peerconnection_so.so` | 11.72 | `flutter_webrtc` — in-match voice |
+| `libflutter.so` | 11.04 | the engine. Irreducible. |
+| `libapp.so` | 6.81 | our Dart, was 8.00 before `--split-debug-info` |
+| `score_loop.ogg` | 1.93 | was 3.68 — stereo 100 kbps → mono 64 |
+| `libisar.so` | 1.07 | the local database |
+
+What moved:
+
+- **Assets 11.2 MB → 7.3 MB.** Backdrops and the atmosphere loops to 1080
+  longest edge; card faces to 900×1350, which is 300×450 logical at 3× and
+  therefore their largest actual render; gallery art to 768×1152; everything at
+  quality 80.
+- **`phosphor_flutter` removed.** Declared in `pubspec.yaml`, imported nowhere —
+  the only mention in `lib/` was a comment saying it was in `pubspec.yaml`. It
+  was shipping six icon fonts, 1.17 MB compressed.
+- **Splash and launcher bitmaps PNG → WebP.** 1.34 MB → 0.10 MB, same images.
+- **`--split-debug-info=build/symbols`**, now in `tool/build_apk.ps1`. 1.19 MB
+  off `libapp.so`; symbols stay on disk so a crash from a shipped build is
+  still symbolisable. Not paired with `--obfuscate` — renaming saves almost
+  nothing more here and cannot be trusted without a full pass on a device.
+
+**The 30 MB target was not reached, and cannot be while voice ships.** The
+floor is `libflutter.so` + `libapp.so` + `libisar.so` + dex + res ≈ 20.5 MiB,
+plus WebRTC's 11.72. Deleting every asset in the app would land at 32.2 MiB.
+Without `flutter_webrtc` the same build is **26.7 MiB** and comfortably under.
+That is a product decision — voice or 30 MB — and it is not mine to take
+quietly.
+
+### 2 — Security
+
+`get_advisors` security: **14 WARN, 0 ERROR.** Performance: **0 lints.** Both
+pasted in full in the report.
+
+Thirteen of the fourteen are one lint, `auth_allow_anonymous_sign_ins`, which
+fires because policies are reachable by anonymous users. Every player in this
+app *is* an anonymous user by design (doc 10: no email, no name, no phone), so
+the lint describes the architecture rather than a defect, and the question it
+does not ask — whether the policies are scoped — is the one that matters. Two
+of the thirteen are `cron.job` and `cron.job_run_details`, unreachable because
+neither `anon` nor `authenticated` holds USAGE on the `cron` schema.
+
+The fourteenth is leaked-password protection, inert: the app has no passwords.
+One toggle in the dashboard, and worth turning on before any future email auth.
+
+**What the audit found that the advisors did not**, fixed in
+`20260904120000_least_privilege_grants.sql`:
+
+- `room_players_public` and `rooms_public` had `arwdDxtm` — every privilege —
+  granted to `anon` **and** `authenticated`. Both are `security_invoker`, so
+  reads were safe; but a simple view over one table is auto-updatable, and the
+  day somebody adds an UPDATE policy to `room_players` for presence, that
+  becomes a public write path to the table whose `role` column is the whole
+  secret. Now SELECT, to `authenticated`, and nothing else.
+- **`ghost_messages` and `predictions` had a correct RLS policy and no grant at
+  all.** The client calls `.from('ghost_messages').select(...)` directly, so the
+  eliminated players' channel and the prediction read-back were failing on
+  privilege before RLS got a say. A policy without a grant is not a locked door,
+  it is a wall. Both granted.
+- `anon` revoked everywhere. Every player signs in before the first query, so a
+  caller with no JWT never needed anything.
+- `whisper_blocks` and `whisper_reports` cut to the verbs their policies permit.
+
+**Anti-cheat, run live against the project with a real anonymous JWT**
+(`5` players, a started match, attacks from a player genuinely holding a role):
+
+```
+[BLOCKED] read the roster's role column, base table              403 42501
+[BLOCKED] read every column the public roster view offers        200, no role column
+[BLOCKED] ask the public roster view for a role column anyway    400 42703
+[BLOCKED] read the match seed                                    403 42501
+[BLOCKED] read everyone's night actions                          200, own rows only
+[BLOCKED] insert a ballot into votes signed as the host          403 42501
+[BLOCKED] submit_vote with a forged voterId                      400 PHASE_CLOSED
+[BLOCKED] submit 'kill' while holding 'citizen'                  403 WRONG_ROLE
+[BLOCKED] submit 'protect' while holding 'citizen'               403 WRONG_ROLE
+[BLOCKED] submit 'investigate' while holding 'citizen'           403 WRONG_ROLE
+[BLOCKED] spend a bullet the role does not have                  403 WRONG_ROLE
+
+11/11 attacks blocked
+```
+
+**RLS holds. Stated as verified, against the live database, not against the
+schema.** Two of the eleven are weaker evidence than the rest and are named as
+such in the report.
+
+### 3 — Signing
+
+RSA 4096, SHA384withRSA, valid to 2056, alias `mafia-master`.
+SHA-256 `08:2C:07:A4:6E:F5:0B:63:F6:F1:AC:F4:40:80:6C:16:C6:14:76:2D:8D:CE:3B:4E:9B:C3:D4:1F:07:A1:9E:11`.
+`KEYSTORE-BACKUP-READ-ME.txt` written with the warning in both languages.
+`git check-ignore` confirms all three paths ignored; `git ls-files` confirms
+none tracked.
+
+### 4 — Play artifacts
+
+- `app-release.aab` — 78.3 MiB, **signed with the release key** (owner
+  `CN=Mafia Master`, fingerprint matches the keystore exactly).
+- `app-arm64-v8a-release.apk` — 38.5 MiB, same certificate, verified with
+  `apksigner verify --print-certs`.
+- **targetSdk 36**, compileSdk 36, minSdk 26. Play's floor for new apps is 35.
+
+### 5, 6 — Published
+
+`/AL-Mafia/beta/` and `/AL-Mafia/privacy/`, both bilingual, both in the app's
+palette and typography. `tool/build_web.ps1` now copies the arm64 APK into the
+beta directory as part of publishing, so the page and the file it links to can
+never drift.
+
+The privacy policy was written from the code, not from intent. Two things it
+says that only reading the code would tell you: the app queries Google's public
+STUN servers, which see the player's IP address; and voice audio is
+peer-to-peer and never touches the server. Two migrations exist to make its
+retention claim literally true — `purge_finished_rooms` now runs **hourly at a
+23-hour threshold** (it was daily at 24 hours, so a match could sit for nearly
+48), and stale anonymous `auth.users` rows are purged after 30 days.
+
+### 7 — Store
+
+`store/` holds `icon-512.png`, `feature-graphic-1024x500.png`, seven
+screenshots, both listings with Play's Data-safety answers, and the
+RECORD_AUDIO justification. `tool/generate_store_assets.py` regenerates the two
+images from the source painting.
+
+The permissions audit found the app requests exactly `INTERNET`,
+`ACCESS_NETWORK_STATE`, `RECORD_AUDIO`, `MODIFY_AUDIO_SETTINGS` and
+`BLUETOOTH` (`maxSdkVersion=30`). No `CAMERA`. **No `DUMP`** — a raw string
+search of the binary manifest finds the word and it is a false positive, on
+`ProfileInstallerReceiver`'s `android:permission` guard. I added a
+`tools:node="remove"` for it, checked with `aapt2 dump permissions`, found the
+permission had never been requested, and reverted.
+
+### 8 — The doc conflict
+
+Doc 05 is not a file in this repository. It is `test/leakage/` and
+`test/golden/leakage/`, and it outranks doc 14 because it is the only one of
+the two whose claims execute.
+
+Doc 14 §1.4 said the confirmation screen carries *"no name"*. Removing the echo
+was measured, not argued: **the Detective lands 2.26% off the set mean against
+L-05's ±2% budget** (0.101005 vs 0.098775). The Detective is told their answer
+on that screen and nowhere else — doc 05 rule 10 forbids writing it down — so
+with the echo gone, three panels are dark and one is lit, and the lit one is
+the Detective. **Doc 14 §1.4 amended**, with the measurement in it.
+
+### 9 — The table that overlapped
+
+`TableGeometry.scaleFor` sized cards from the roster and trusted whatever box
+it was handed. In the lobby the box is `Expanded` — what is left after the
+code, the buttons, the voice line and the start button. On a 360×640 phone that
+is ~170 logical pixels, and ten cards stood on an ellipse 108 pixels tall,
+overlapping three deep down each side.
+
+Seats are tap targets. Two cards sharing pixels are two hit targets sharing
+pixels, and in this game a mis-tap eliminates the wrong player.
+
+`TableGeometry.fit` now solves for the box: it bisects the card scale until no
+pair of seat rectangles touches, checking **every** pair rather than
+neighbours, and taking the height the widget draws under the card as an input
+rather than forgetting it. Names are surrendered before cards overlap, and only
+after the cards have shrunk all the way. The centre is measured against the
+seats that were actually placed rather than derived from a closed form that is
+wrong on the diagonal. The lobby scrolls and gives the table a floor.
+
+Files:      lib/ui/screens/online/table/{table_geometry,lobby_table,table_seat,table_scene}.dart
+            lib/ui/screens/online/lobby_screen.dart
+            lib/ui/widgets/turn_shell.dart
+            lib/ui/screens/night/night_action_screen.dart
+            assets/**  (re-encoded)  ·  assets/README.md
+            android/app/src/main/res/{drawable-*,mipmap-*}/*.webp
+            android/{key.properties, mafia-master-release.jks}   (both ignored)
+            KEYSTORE-BACKUP-READ-ME.txt                          (ignored)
+            pubspec.yaml  (phosphor_flutter removed)
+            .gitignore
+            docs/14-consolidation-and-cleanup.md   (§1.4 amended)
+            supabase/migrations/20260904120000_least_privilege_grants.sql
+            tool/{build_apk,build_web}.ps1 · tool/generate_store_assets.py
+            web/{beta,privacy}/index.html
+            store/**   (new)
+            test/online/table_overlap_test.dart    (new)
+
+Verified:   `flutter analyze` — **0 errors, 0 warnings**; 68 info-level lints,
+            none in `lib/`.
+            `flutter test` — **809 tests, all passed.**
+            Fuzz harness — **10,000 matches, zero stalls, zero invariant
+            violations**, 11s.
+            `table_overlap_test.dart` checked against the old roster-only
+            sizing: **34 failures**. Not vacuous.
+            `card_back_symmetry_test` caught the re-encode breaking rotational
+            symmetry (3.686 against a budget of 3.0) and the fix was measured,
+            not assumed.
+            Anti-cheat — 11/11 blocked, live.
+            AAB and APK certificates read back with `keytool -printcert` and
+            `apksigner verify`.
+            Permissions read back with `aapt2 dump permissions`.
+
+Gate:       PASS on everything automated. **The emulator gates were not run** —
+            see below. That is a real gap, not a pass.
+
+Open:
+- **Seven of doc 11 §10's gates are unrun**, by instruction: full offline match
+  on the emulator in airplane mode; full online match with voice disabled; host
+  migration by force-quitting the host mid-night; a disconnect at each phase
+  boundary; killing the app mid-night-action; and screenshotting every screen
+  of both flows. The emulator run was stopped part-way to save context. Nothing
+  in this phase is contradicted by that, and nothing in it is confirmed on a
+  device either.
+- **Seven of the eight requested store screenshots are missing** for the same
+  reason. `01`–`07` are real captures of the release build; role reveal (face),
+  night grid, morning with a trace, confrontation, result, analytics and the
+  online lobby are not captured. `store/README.md` says how to finish them,
+  including the two things that cost time: the identity pad is a five-second
+  hold that `input tap` cannot trigger, and `adb shell input text` cannot type
+  Arabic.
+- **30 MB is unreachable with voice.** 38.5 MiB with, 26.7 MiB without.
+- Voice still has no TURN credentials and will fail behind symmetric NAT.
+  Never load-bearing.
+
+## PHASE 18 — done
+Built:      Fixed unacknowledged online-action retries and duplicate-submit guarding; made the full widget match deterministic; repaired the real setup-to-victory device flow; replaced the seven-card onboarding with the supplied MP4 intro followed by a clearer How to Play screen with a persistent start action.
+Files:      lib/transport/online_transport.dart; lib/app/{router,asset_constants}.dart; lib/ui/screens/onboarding/onboarding_video_screen.dart; lib/ui/screens/setup/{add_players,roles,settings,how_to_play}_screen.dart; lib/ui/screens/day/discussion_screen.dart; integration_test/closure_offline_test.dart; test/{transport/online_transport_test.dart,integration/match_flow_test.dart,online/online_action_retry_test.dart,widget/onboarding_gate_test.dart}; test/support/{artwork,fake_backend}.dart; pubspec.{yaml,lock}; tool/generate_asset_constants.py; removed the retired onboarding deck screen, chapters, preview, and deck test.
+Verified:   `flutter test` — 802 tests passed; focused changed-files analysis — no issues; `flutter analyze lib test integration_test` — 0 errors, 0 warnings (67 existing info lints); Android emulator full offline setup → private role reveal → two nights → town win → analytics — PASS in 7:53; supplied MP4 rendered on-device and the intro/How to Play/start path was exercised by the device run.
+Gate:       PASS
+Open:       Remaining closure-plan work is unchanged: online device resilience runs, the complete eight-shot store capture set, release artifacts, site updates, and final reviewed commit/push.
+
+## PHASE 19 — done
+Built:      Shareable universal Android beta APK with offline and online play enabled.
+Files:      build/share/Mafia-Master-Beta-1.0.0.apk
+Verified:   Release build completed; APK Signature Scheme v2 verified with the established 4096-bit RSA Mafia Master certificate; package/version and permissions inspected; copied artifact SHA-256 matched the signed build output.
+Gate:       PASS
+Open:       Universal APK is 147.2 MB after adding the supplied 51.2 MB onboarding video; Play Store AAB remains part of the later store-release gate.
+- Leaked-password protection is off in the Supabase dashboard. Inert today —
+  the app has no passwords — and one toggle whenever email auth appears.
+
+## PHASE 20 — done
+Built:      Recorded the final requested work as phases 20–27; inset the introduction video in the shared framed panel with uncropped scaling; How to Play now finishes at Home with a matching button label.
+Files:      docs/FINAL-POLISH-PHASES.md; lib/ui/screens/onboarding/onboarding_video_screen.dart; lib/ui/screens/setup/how_to_play_screen.dart; lib/app/router.dart; test/widget/onboarding_gate_test.dart; docs/PROGRESS.md.
+Verified:   12 onboarding widget/persistence tests passed; targeted analysis of four changed Dart files found no issues; scoped git diff --check passed. Video frame has not yet been visually verified on a device.
+Gate:       PASS
+Open:       Phases 21–27: audio, mandatory doctor protection and once-only self-save, explicit gender and grammar, single online guide, decisive winner cinematic, real online match/screenshots, website and Play release/marketing. Device visual verification remains required. Existing shared APK predates phase 20. Stop at this gate under the working agreement.
+
+## PHASE 21 — done
+Built:      Audio switches preview immediately and cancel restores the prior mix; saved settings update the running app; master mute stops active cues and music; intro video obeys master mute before playback; pending plugin playback is cancelled when stopped to prevent delayed audio restarting.
+Files:      lib/platform/{audio_director,audio_backend}.dart; lib/app/{app,router}.dart; lib/ui/screens/setup/settings_screen.dart; lib/ui/screens/onboarding/onboarding_video_screen.dart; test/platform/audio_backend_isolation_test.dart; test/widget/{audio_settings_preview,onboarding_gate}_test.dart; docs/PROGRESS.md.
+Verified:   Focused audio/settings/startup/onboarding suite: 50 passed; final app-root regression run: 7 passed (includes one new settings propagation test); targeted analysis of 8 files: no issues; scoped diff check passed. Persistence coverage uses repository/provider tests, not a real process restart.
+Gate:       PASS
+Open:       Device listening/video-volume and rapid-toggle plugin verification remain for the device gate; no updated APK delivered yet. Next: phase 22 mandatory doctor protection and once-only self-save, preserving private-turn parity. Website/store and remaining requested work remain in FINAL-POLISH-PHASES.md.
+
+## PHASE 22–25 — implementation in progress
+Built:      Doctor protection now always exists, the engine never records a doctor skip, self-protection is a single dimmed/locked tile after use, and online expiry supplies a deterministic living target. Added explicit male/female selection for offline and online rosters, persisted through local match/group codecs and online room payload/schema. Replaced the online multi-card deck with one readable comparison screen. The final victory cinematic now overlays its winner announcement before the result screen.
+Files:      lib/engine/{models/player,bullets,legal_moves,match_engine,analytics_builder}.dart; lib/ui/{screens/night,online,setup,postgame,widgets}; lib/data/{match_codec,player_group,player_group_codec}.dart; lib/transport/{online_backend,supabase_backend,room_codec}.dart; supabase/functions/{create_room,join_room,submit_night_action,advance_phase}; supabase/migrations/20260906000100_player_gender.sql; lib/app/l10n/*; docs/PROGRESS.md.
+Verified:   Previous phase tests were green before this larger pass. Diff check found only a whitespace issue, now fixed. The new combined analyzer/test run was blocked by the host Flutter/Dart analytics permissions and then by the automatic approval usage limit; no success is claimed for this pass.
+Gate:       FAIL
+Open:       Must run analyzer and focused tests after the new gender/doctor changes, then complete real online match/screenshots, website APK links and final signed APK/AAB. Existing website beta page still advertises stale split APK filenames and must be updated to the current universal artifact. Do not ship the current unverified build.
+
+## PHASE 26–27 — blocked
+Built:      Updated the beta website copy from retired arm64/split APK wording to universal APK wording and corrected architecture details. The requested doctor, gender, online guide and winner changes remain in the working tree.
+Files:      web/beta/index.html; docs/PROGRESS.md; plus the phase 22–25 files listed above.
+Verified:   Website text inspection completed. Flutter analyze/build could not complete in this environment; no new APK was produced or claimed. The existing `build/share/Mafia-Master-Beta-1.0.0.apk` is the prior verified artifact and must not be presented as containing these latest changes.
+Gate:       FAIL
+Open:       Need a successful Flutter analyze/test/build, then signed APK copy, real online match with screenshots, and website publication. Current website links point to a universal filename that still needs the new APK copied beside the page.
+
+## PHASE 28 — blocked
+Built:      Updated the web beta source and release script to reference the universal APK filename and all supported Android ABIs.
+Files:      web/beta/index.html; tool/build_web.ps1; docs/PROGRESS.md.
+Verified:   Source inspection confirms the new website copy. APK and web release attempts did not produce a new artifact: the existing APK timestamp/hash stayed unchanged, so it was not delivered or relabeled.
+Gate:       FAIL
+Open:       Flutter release build is hanging/blocked in this host environment; website publish also depends on that build and was not pushed. No old APK was given.
+
+## PHASE 29 — done
+Built:      Online clients now pull their own private role card when the room starts distributing (the missing `revealCurrentRole` call site that stalled the real five-player match at the table backs); the Doctor's self-protect tile carries the same words before and after use, routed through `EngineCopy.nightSpecial` so it stays inside the four-tile ink budget; player gender survives an online liveness/presence update instead of being reset to `unspecified`; the online entry form scrolls instead of clipping its buttons; the roster row's seat number no longer wraps the tile into an overflow.
+Files:      lib/ui/screens/online/online_table_flow.dart; lib/ui/screens/night/night_action_screen.dart; lib/transport/online_backend.dart; lib/ui/screens/online/online_entry_screen.dart; lib/ui/screens/setup/add_players_screen.dart; test/online/online_role_reveal_test.dart (new); test/data/player_gender_persistence_test.dart (new); test/widget/doctor_self_protect_tile_test.dart (new); test/support/turn_shell_harness.dart; test/integration/match_flow_test.dart; test/widget/{add_players,reduce_motion,turn_shell_timing_parity}_test.dart; test/golden/{turn_shell_symmetry,leakage/luminance_budget}_test.dart.
+Verified:   `flutter test` — **822 tests passed, 0 failed** (includes the 10,000-match fuzz harness). `flutter analyze lib test integration_test` — **0 errors, 0 warnings**, 69 pre-existing info lints. `dart format` on every touched file. 24 suite failures that pre-dated this phase were repaired, not silenced: 21 were golden/timing suites tapping a grid tile by `find.text` after the tile moved to `Text.rich`, one was the roster row overflowing once the gender control took width, two were the online entry form overflowing a short window, and one was `match_flow_test` still asserting the old ordering in which the winner was announced *after* the cinematic rather than on it.
+Gate:       PASS
+Open:       Not yet done, and not claimed: the real five-player online match on a device with the rebuilt APK and its screenshots; the release APKs; the website publish (GitHub CLI auth is invalid — needs `gh auth login -h github.com` from the user); the production Supabase gender migration and Edge Functions (needs the user's explicit approval of the production target). Observation for the device pass: `RoleCard` measures its swipe threshold against its own paint bounds, which online is the whole screen while the drawn card is about half of it — on a phone that is still about a third of the card, but it is worth watching in the real match.
+
+## PHASE 30 — blocked
+Built:      Began Doc 15 council redesign; post-processed the 15 supplied assets to a 1.58 MB runtime set with real alpha where required; added council asset constants/tokens, shallow multi-row council geometry, one-painter seats, and the four-band TableScene shell.
+Files:      assets/images/online/**; pubspec.yaml; lib/app/asset_constants.dart; lib/app/l10n/app_{ar,en}.arb; lib/ui/theme/design_tokens.dart; lib/ui/screens/online/council/{council_geometry,council_band}.dart; lib/ui/screens/online/table/table_scene.dart; lib/ui/screens/online/online_table_flow.dart; docs/HANDOFF-DOC15-ONLINE-UI-REDESIGN-2026-09-07.md; docs/PROGRESS.md.
+Verified:   Asset runtime folder measured 1,582,240 bytes and the cleaned idle ring was visually inspected. The combined localization/format/analyzer command was stopped by user request before a result was available; no compile or test pass is claimed.
+Gate:       FAIL
+Open:       Stop requested. Continue from docs/HANDOFF-DOC15-ONLINE-UI-REDESIGN-2026-09-07.md; the lobby, per-phase Voice/Hand content, motions, remaining asset wiring, updated tests, analyzer, device run, screenshots, APK, and publication are unfinished.
+
+## PHASE 31 — done
+Built:      Doc 15 online redesign, end to end. The council replaced the ellipse: `CouncilBand` draws every seat, glow, crack, spotlight and whisper from **one** `CustomPainter` with **one** `AnimationController`, and `TableScene` is the four bands (header 56dp · council · voice · hand) that every online screen now uses — including the lobby, which is the same council with dashed chairs that draw themselves solid over 500ms as people arrive. Band 3 became `CouncilVoice`, a headline plus **at most one** supporting element, with per-phase content: the night prompt and a selection chip, the morning's victim line with the trace arriving a beat later, the confrontation's observation under a burning timer ring, the current speaker at `display`, the live vote tally as staggered bars, the eliminated name and role, the winner and their emblem. Band 4 became one primary action and nothing else — the hints it used to stack under its buttons are the headline above it now. Selection is subtractive: the chosen seat lifts to 1.08 with a gold ring, everything else drops to 45%, and **every connector line is gone** (`linksFor`/`dotsFor`/`TableLink` deleted, not emptied). Added the elimination card rise (280dp, hold, 3D flip, shrink), the muted V1/V2 transition stings, the winners-warm/losers-dim result beat, the fog overlay and the panel-corner band rule, and moved witness mode inside the bands so a ghost keeps the same four. Six superseded files deleted.
+Files:      lib/ui/screens/online/council/{card_rise,phase_sting,seat_status,voice_band,council_band,council_geometry}.dart; lib/ui/screens/online/table/{table_scene,connection_weather}.dart; lib/ui/screens/online/{online_table_flow,lobby_screen}.dart; lib/ui/screens/online/witness/witness_panel.dart; lib/ui/theme/design_tokens.dart; lib/app/asset_constants.dart; lib/app/l10n/app_{ar,en}.arb; tool/generate_asset_constants.py; assets/video/sting_{night,dawn}.webm; **deleted** lib/ui/screens/online/table/{table_seat,table_geometry,table_painter,lobby_table,torn_card,table_centre}.dart; test/online/{doc15_acceptance,table_scene,table_overlap,doc12_acceptance,online_action_retry}_test.dart; test/widget/online_lobby_test.dart; docs/PROGRESS.md.
+Verified:   `flutter test` — **812 passed, 0 failed**. `flutter analyze` — **0 errors, 0 warnings** (info lints only, and none in the online surface). The overlap suite is not a formality: rewriting it against `CouncilGeometry` found a real bug — the arc lifted the back row's chairs about 7px outside their band, where they would have clipped against the header rule, and the fit now divides the row height by `1 + arcDepth` and centres ring, name and lift together. New `doc15_acceptance_test.dart` closes twelve of Part 5's boxes: the four bands in order on every phase, the proportions and 56dp header, no line builder anywhere, card art never below 200dp, one slot in band 4, `CouncilVoice`'s three parameters and no fourth, no hardcoded gap in any online file, no red for the timer to reach, exactly one painter and one controller in band 2, the §3 motion catalogue at its stated numbers, no `Role` reachable from the council at all, and a night council byte-identical whether or not the snapshot carries a speaker, a disconnection and a full ballot.
+Gate:       PASS
+Open:       Three of doc 15's boxes are not closed and are not claimed. **60fps with fifteen seats in profile mode** needs a device and `flutter run --profile`; every structural precondition is asserted, but a frame budget is measured, not proven. **S-O13 beat 2** — all cards rising and flipping simultaneously — is not shipped: it cannot coexist with "card art never renders below 200dp" at fifteen players, so the result gets beat 3 (winners warm to cream, losers to 30%) and the emblem instead, and the conflict is the doc's to resolve, not mine. **Reduce Motion "looks right"** is something a person has to watch. Also outstanding from phase 29 and unchanged: the real five-player online match on a device, the release APKs, the website publish (GitHub CLI auth still invalid), and the production Supabase migration. Note for whoever runs the device pass: the `Pixel 9 pro (2)` AVD this project verifies on has lost its `config.ini` and `.ini` pointer — only its disk images remain under `~/.android/avd/MafiaMaster_Test.avd`, so `flutter emulators` reports none. A replacement `Doc15_Pixel` AVD (android-36, google_apis_playstore, x86_64) was created to run this phase.
+
+## PHASE 32 — done | verification blocked
+Built:      The twelve-task online pass. **1** «كمل» works: `advancePhase()` was calling `advance_phase`, which only applies timer-expiry defaults and has no branch for `reveal`, so it returned `{applied: null}` and nothing moved; the deal now calls `open_phase{phase:night}`, gated server-side on a new `room_players.saw_role` that every client sets through its own `saw_role` function — the button is disabled and names who is still holding a card until the last one is dismissed. **2** `ice_servers` fetches Metered TURN credentials from a Supabase secret and hands the array to every `RTCPeerConnection` once per match; the engine holds one `getUserMedia` stream for the session (mute the track, never re-acquire), restarts ICE once per peer on `failed` with a glare tie-break, and logs the candidate type actually used. **3–4** Presence is three states: a 10-second heartbeat, a lifecycle observer that reports `away`/`connected`/`left` immediately, and a `pg_cron` job every 15 seconds that ages a silent client to `away` at 25s and `left` at 90s — drawn as ring-plus-avatar, ring-only at 45%, and a cracked ring at 30% with «خرج». **5** A host who goes `left` hands the room to the lowest-seated connected player, announced for three seconds; the match never ends for it. Ending it is a separate padlock behind a confirmation. **6** Host-only kick (status `left` plus a room ban list the client surface cannot read) and server-side mute, both re-checked inside the function. **7–8** Character art in the ornamental ring, from one `PlayerAvatar` used by both the offline roster and the online painter; the gender picker is two glyphs inside the name field and the full-width row is gone. **9** The lobby's two contradictory voice lines are one microphone icon in the header; the «كود الأوضة» label is gone; «مشاركة» shares an https link that opens the room in any browser. **10** Rooms are private or public with a title, a browse list, and a host-only settings panel — four sections, a description under every control, live to everybody through a `rooms` delta. **11** Favicon and PWA icons are the app mask; the onboarding video no longer sits under a rounded clip and a scale transform (both break a platform view on web); the online cards moved into the how-to-play screen. **12** Copy, share and self-mute became icons; every game action kept its word.
+Files:      supabase/migrations/2026090800{0100_saw_role,0200_presence_status,0300_host_migration_presence,0400_host_controls,0500_public_rooms}.sql; supabase/functions/{saw_role,ice_servers,set_presence,close_room,kick_player,mute_player,room_settings,browse_rooms}/index.ts (new) and {open_phase,start_match,heartbeat,join_room}/index.ts; lib/transport/{online_backend,game_snapshot,room_codec,online_transport,supabase_backend,voice_link}.dart; lib/platform/voice/{voice_controller,webrtc_voice_engine}.dart; lib/ui/screens/online/{lobby_screen,online_table_flow,online_entry_screen,online_session,room_invite,host_handover,host_sheet,scene_sheet,room_settings_panel}.dart; lib/ui/screens/online/{council/council_band,table/table_scene}.dart; lib/ui/screens/onboarding/onboarding_video_screen.dart; lib/ui/screens/setup/{how_to_play_screen,add_players_screen}.dart; lib/ui/widgets/{player_avatar,gender_picker,voice_mic_button,voice_controls}.dart; lib/ui/theme/design_tokens.dart; lib/app/{router,asset_constants}.dart; lib/app/l10n/app_{ar,en}.arb; assets/images/online/avatar_{male,female}.webp; web/{favicon.png,icons/*}; **deleted** lib/ui/screens/online/online_intro.dart, test/widget/online_intro_test.dart.
+Verified:   `flutter test` — **824 passed, 0 failed**. `flutter analyze lib test` — 0 errors, 0 warnings. Every migration applied and every function deployed to `hezjbrnveajypfqmjfnh` and confirmed by the API. Two doc-12 violations introduced by tasks 5–6 were found by the acceptance suite and fixed properly rather than by editing the test: the host sheet and both close-room confirmations are `SceneSheet` layers in the same Stack (§2.1 — nothing is pushed on top of the table), and the handover's three seconds is `MafiaTiming.hostHandover` (§6 — no inline `Duration` literals). The realtime publication's column list was rebuilt twice; it had been silently dropping `gender` since that column was added.
+Gate:       FAIL — the browser verification could not run.
+Open:       **The 18-item browser pass did not happen.** The Chrome window driven by the automation is hidden (`document.visibilityState === 'hidden'`) and its renderer is frozen: `requestAnimationFrame` never fires, screenshots are stale frames, and Chrome defers all media loading — a bare 187 KB `<video>` never reaches `loadedmetadata`. Nothing about the app was measurable through it. Also outstanding: **the Metered key is rejected** — `GET https://mafia-master.metered.live/api/v1/turn/credentials?apiKey=…` returns `401 {"error":"Invalid API Key"}`, so `ice_servers` serves the Google STUN fallback (`relay:false, reason:"upstream"`) and no relay candidate can exist until a valid key replaces the `METERED_API_KEY` secret. The web video fix is reasoned from how Flutter composites platform views and is **not** confirmed by watching it play.

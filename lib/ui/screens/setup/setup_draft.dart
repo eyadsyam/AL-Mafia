@@ -3,6 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/player_group.dart';
 import '../../../engine/models/enums.dart' show Role;
 import '../../../engine/models/match_settings.dart';
+import '../../../engine/models/player.dart';
+
+/// Loaded before the first frame so saved audio and game choices apply at launch.
+final initialMatchSettingsProvider = Provider<MatchSettings>(
+  (ref) => const MatchSettings.defaults(),
+);
 
 /// The match being configured, accumulated across the three setup screens.
 ///
@@ -12,6 +18,7 @@ import '../../../engine/models/match_settings.dart';
 /// setup budget (US4) cannot afford.
 class SetupDraft {
   final List<String> names;
+  final Map<String, PlayerGender> genders;
   final Map<Role, int>? roleCounts;
   final MatchSettings settings;
 
@@ -25,6 +32,7 @@ class SetupDraft {
 
   const SetupDraft({
     this.names = const [],
+    this.genders = const {},
     this.roleCounts,
     this.settings = const MatchSettings.defaults(),
     this.group,
@@ -32,12 +40,14 @@ class SetupDraft {
 
   SetupDraft copyWith({
     List<String>? names,
+    Map<String, PlayerGender>? genders,
     Map<Role, int>? roleCounts,
     MatchSettings? settings,
     PlayerGroup? group,
     bool clearGroup = false,
   }) => SetupDraft(
     names: names ?? this.names,
+    genders: genders ?? this.genders,
     roleCounts: roleCounts ?? this.roleCounts,
     settings: settings ?? this.settings,
     group: clearGroup ? null : (group ?? this.group),
@@ -84,7 +94,10 @@ class SetupDraft {
 
 class SetupDraftNotifier extends Notifier<SetupDraft> {
   @override
-  SetupDraft build() => const SetupDraft();
+  SetupDraft build() => SetupDraft(settings: ref.read(initialMatchSettingsProvider));
+
+  void setGenders(Map<String, PlayerGender> genders) =>
+      state = state.copyWith(genders: Map.unmodifiable(genders));
 
   void setNames(List<String> names) =>
       state = state.copyWith(names: List.unmodifiable(names));

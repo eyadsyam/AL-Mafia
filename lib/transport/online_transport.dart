@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart' show mapEquals;
+
 import '../engine/models/enums.dart';
 import '../engine/models/timeline_event.dart' show InvestigateResult;
 import '../engine/views.dart';
@@ -9,6 +11,7 @@ import 'game_transport.dart';
 import 'online_backend.dart';
 import 'room_codec.dart';
 import 'voice_link.dart';
+import 'witness_channel.dart';
 
 /// The online transport: the server is the authority (doc 10 §1.3).
 ///
@@ -68,9 +71,33 @@ class OnlineTransport implements GameTransport {
   RoomState? _state;
   List<RoomPlayer> _players = const [];
   VoiceLink? _voice;
+  WitnessChannel? _witness;
   OwnSeat? _own;
   List<WhisperRow> _whispers = const [];
   Set<String> _blocked = const {};
+
+  /// The open ballot, voter seat to target seat (doc 12 §3.6).
+  ///
+  /// Empty in every room that did not opt in, and empty outside the vote
+  /// phase — but not because this file checks. The `votes_read` policy refuses
+  /// the rows, so an open ballot is a thing the *database* is doing and this is
+  /// only where the answer is kept.
+  Map<int, int?> _ballots = const {};
+
+  /// Polls the ballot while it is open, and only then.
+  ///
+  /// The one thing on the snapshot that moves within a phase, so the one thing
+  /// the phase-change resync cannot deliver. Doc 12 §3.6 is asking to watch a
+  /// player change their mind, and a fifteen-second heartbeat would show that
+  /// as a line that had already moved.
+  ///
+  /// Bounded by construction: it starts when the vote opens, stops when it
+  /// closes, and never runs at all unless the host chose an open ballot — so a
+  /// default room pays nothing for it. The honest cost in a room that did opt
+  /// in is one narrow read every [_ballotInterval] for the length of a ballot.
+  Timer? _ballotPoll;
+
+  static const Duration _ballotInterval = Duration(seconds: 2);
 
   /// The connection map as it stood when the night began, or null outside one.
   ///
@@ -78,6 +105,7 @@ class OnlineTransport implements GameTransport {
   /// phase."* Captured on the way in and dropped on the way out, so the freeze
   /// cannot outlive the phase that needs it.
   Map<int, bool>? _frozenConnected;
+  Map<int, SeatPresence>? _frozenPresence;
 
   /// serverNow − localNow at the last read. Added to nothing but a deadline.
   Duration _skew = Duration.zero;
@@ -97,15 +125,15 @@ class OnlineTransport implements GameTransport {
     required RoomState state,
     OwnSeat? own,
     List<WhisperRow> whispers = const [],
-    this.heartbeatInterval = const Duration(seconds: 15),
+    this.heartbeatInterval = const Duration(seconds: 10),
     this.now = DateTime.now,
-  })  : _snapshot = const GameSnapshot(
-          public: PublicMatchView(
-            phase: GamePhase.setup,
-            dayNumber: 0,
-            players: [],
-          ),
-        ) {
+  }) : _snapshot = const GameSnapshot(
+         public: PublicMatchView(
+           phase: GamePhase.setup,
+           dayNumber: 0,
+           players: [],
+         ),
+       ) {
     _state = state;
     _players = players;
     _own = own;
@@ -124,7 +152,7 @@ class OnlineTransport implements GameTransport {
   static Future<OnlineTransport> connect({
     required OnlineBackend backend,
     required String roomId,
-    Duration heartbeatInterval = const Duration(seconds: 15),
+    Duration heartbeatInterval = const Duration(seconds: 10),
     DateTime Function() now = DateTime.now,
   }) async {
     await backend.ensureSession();
@@ -145,9 +173,14 @@ class OnlineTransport implements GameTransport {
 
   Future<void> _listen() async {
     _blocked = await backend.blockedSenders(roomId);
-    _pushes = backend.pushes(roomId).listen(_onPush, onError: (_) {
-      _degrade();
-    });
+    _pushes = backend
+        .pushes(roomId)
+        .listen(
+          _onPush,
+          onError: (_) {
+            _degrade();
+          },
+        );
     if (heartbeatInterval > Duration.zero) {
       _ticker = Timer.periodic(heartbeatInterval, (_) => tick());
     }
@@ -165,14 +198,27 @@ class OnlineTransport implements GameTransport {
   /// the voice controls have somewhere to send a floor request, and it can be
   /// broken for the whole match without a single command above noticing.
   @override
-  VoiceLink? get voice =>
-      _voice ??= BackendVoiceLink(
-        backend: backend,
-        roomId: roomId,
-        roster: () => [
-          for (final p in _players) VoicePeer(userId: p.userId, seat: p.seat),
-        ],
-      );
+  VoiceLink? get voice => _voice ??= BackendVoiceLink(
+    backend: backend,
+    roomId: roomId,
+    roster: () => [
+      for (final p in _players) VoicePeer(userId: p.userId, seat: p.seat),
+    ],
+  );
+
+  /// The graveyard, built on the first ask.
+  ///
+  /// Like [voice], nothing in the phase flow reads this back. It exists so the
+  /// witness surface has somewhere to send a message, and it can be broken for
+  /// the whole match without one rule noticing.
+  @override
+  WitnessChannel? get witness => _witness ??= BackendWitnessChannel(
+    backend: backend,
+    roomId: roomId,
+    roster: () => {
+      for (final p in _players) p.userId: (seat: p.seat, name: p.name),
+    },
+  );
 
   @override
   GameSnapshot get snapshot => _snapshot;
@@ -189,7 +235,9 @@ class OnlineTransport implements GameTransport {
   /// Whether this client is the room's host. Read from the state, so a
   /// migration changes it on every device at once.
   bool get isHost =>
-      _state != null && backend.userId != null && _state!.hostId == backend.userId;
+      _state != null &&
+      backend.userId != null &&
+      _state!.hostId == backend.userId;
 
   /// The room code, for the share sheet in the lobby.
   String get code => _state?.code ?? '';
@@ -203,8 +251,13 @@ class OnlineTransport implements GameTransport {
     final dark = state.phase == 'night' || state.phase == 'reveal';
     if (dark) {
       _frozenConnected ??= {for (final p in _players) p.seat: p.connected};
+      _frozenPresence ??= {
+        for (final p in _players)
+          p.seat: SeatPresence.fromServer(p.status),
+      };
     } else {
       _frozenConnected = null;
+      _frozenPresence = null;
     }
     _snapshot = snapshotFrom(
       state: state,
@@ -216,8 +269,60 @@ class OnlineTransport implements GameTransport {
       whispers: _whispers,
       ownTurnPending: _ownTurnPending(state),
       frozenConnected: _frozenConnected,
+      frozenPresence: _frozenPresence,
+      liveBallots: _ballots,
     );
     if (!_controller.isClosed) _controller.add(_snapshot);
+    _syncBallotPolling();
+  }
+
+  /// Starts or stops the ballot poll to match the phase.
+  ///
+  /// Driven off the published snapshot rather than off the push handler so
+  /// that every route into a new phase — a delta, a resync, a reconnection —
+  /// leaves the timer in the right state without three call sites agreeing.
+  void _syncBallotPolling() {
+    final open =
+        _snapshot.phase == GamePhase.voting && _snapshot.settings.openVoting;
+    if (open && _ballotPoll == null) {
+      _ballotPoll = Timer.periodic(_ballotInterval, (_) => _refreshBallots());
+      unawaited(_refreshBallots());
+    } else if (!open && _ballotPoll != null) {
+      _ballotPoll?.cancel();
+      _ballotPoll = null;
+      if (_ballots.isNotEmpty) {
+        // The ballot has closed. Drop it rather than leaving yesterday's lines
+        // drawn on the table: they are settled facts now, and the tally is
+        // where a settled fact belongs.
+        _ballots = const {};
+        _publishWithoutPolling();
+      }
+    }
+  }
+
+  /// Republish without re-entering [_syncBallotPolling].
+  void _publishWithoutPolling() {
+    final state = _state;
+    if (state == null) return;
+    _snapshot = _snapshot.copyWith(liveBallots: _ballots);
+    if (!_controller.isClosed) _controller.add(_snapshot);
+  }
+
+  /// One narrow read of the open ballot.
+  ///
+  /// Failures are swallowed. A ballot line that did not arrive is a line that
+  /// is not drawn yet; it is never a reason to degrade a live match, and the
+  /// next tick two seconds later will have it.
+  Future<void> _refreshBallots() async {
+    try {
+      final ballots = await backend.ballots(roomId);
+      if (_controller.isClosed) return;
+      if (mapEquals(_ballots, ballots)) return;
+      _ballots = ballots;
+      _publishWithoutPolling();
+    } catch (_) {
+      // Deliberately silent. See above.
+    }
   }
 
   /// Whether this device still owes the current phase a move.
@@ -272,14 +377,7 @@ class OnlineTransport implements GameTransport {
       }
       _players = next..sort((a, b) => a.seat.compareTo(b.seat));
       if (incoming.userId == backend.userId && _own != null) {
-        _own = OwnSeat(
-          seat: _own!.seat,
-          role: _own!.role,
-          alive: incoming.alive,
-          teammateNames: _own!.teammateNames,
-          actedThisNight: _own!.actedThisNight,
-          votedRound: _own!.votedRound,
-        );
+        _own = _own!.copyWith(alive: incoming.alive);
       }
       _restore();
       _publish();
@@ -379,6 +477,73 @@ class OnlineTransport implements GameTransport {
     await _applyExpiryIfDue();
   }
 
+  /// Removes a player and bars them from the code. Host only; the server
+  /// checks, and the ban is what makes it a removal rather than a nudge.
+  Future<void> kickPlayer(int seat) async {
+    await _send('kick_player', {'seat': seat}, hostOnly: true);
+    await resync();
+  }
+
+  /// Silences one player for the whole room, or lets them speak again. Host
+  /// only; the server checks. The value is passed rather than toggled so two
+  /// taps on a slow network cannot leave the room disagreeing.
+  Future<void> setPlayerMuted(int seat, bool muted) async {
+    await _send('mute_player', {'seat': seat, 'muted': muted}, hostOnly: true);
+    await resync();
+  }
+
+  /// Changes the room's settings, live, for everybody in the lobby (task 10).
+  ///
+  /// Host only, and the server both checks that and decides what a settings
+  /// object may contain — the allow-list in `room_settings` is the schema, not
+  /// this call site. Every other client learns about it from the `rooms`
+  /// delta, which asks them to re-read rather than telling them what changed.
+  Future<void> setRoomSettings({
+    String? visibility,
+    String? title,
+    Map<String, dynamic>? settings,
+  }) async {
+    await _send('room_settings', {
+      if (visibility != null) 'visibility': visibility,
+      if (title != null) 'title': title,
+      if (settings != null) 'settings': settings,
+    }, hostOnly: true);
+    await resync();
+  }
+
+  /// Ends the match for everybody. Host only; the server checks.
+  ///
+  /// Deliberately not what leaving does. A host whose battery died must not
+  /// take four other people's game with them, so the only way to reach this is
+  /// a host tapping words that say so, behind a confirmation.
+  Future<void> closeRoom() async {
+    await _send('close_room', const {}, hostOnly: true);
+    await resync();
+  }
+
+  /// Says what just happened to this device: connected | away | left.
+  ///
+  /// The ageing job on the server is what makes presence true for a client
+  /// that crashed. This is for the one that did not: backgrounding the app
+  /// empties this player's ring on every other table *now*, rather than in the
+  /// twenty-five seconds it would take the clock to notice.
+  ///
+  /// Never throws and is never awaited by anything in the phase flow.
+  Future<void> setPresence(String status) async {
+    try {
+      await backend.call('set_presence', {
+        'roomId': roomId,
+        'status': status,
+      });
+      _restore();
+    } on BackendException {
+      // Not a member any more, or the room is gone. The screen finds out from
+      // the next read; a presence update is not the place to say so.
+    } on BackendUnreachable {
+      _degrade();
+    }
+  }
+
   /// O1, O2 — the match never ends because the host left.
   ///
   /// Every client can see who the host is and when each player was last heard
@@ -392,16 +557,25 @@ class OnlineTransport implements GameTransport {
     if (state.status == 'finished') return;
 
     final cutoff = now().toUtc().subtract(presenceTimeout);
-    bool live(RoomPlayer p) =>
+    bool fresh(RoomPlayer p) =>
         p.connected && (p.lastSeen == null || p.lastSeen!.isAfter(cutoff));
 
-    final host = _players.where((p) => p.userId == state.hostId).firstOrNull;
-    if (host != null && live(host)) return;
+    // A host who said they were going is gone now, not in thirty seconds.
+    // A host who merely stepped away still holds the room — `away` is a
+    // person who is coming back, and taking the room off them would be a
+    // migration triggered by a notification shade.
+    bool holdsRoom(RoomPlayer p) => p.status != 'left' && fresh(p);
+    bool eligible(RoomPlayer p) => p.status == 'connected' && fresh(p);
 
-    final heir = _players.where(live).fold<RoomPlayer?>(
-      null,
-      (lowest, p) => lowest == null || p.seat < lowest.seat ? p : lowest,
-    );
+    final host = _players.where((p) => p.userId == state.hostId).firstOrNull;
+    if (host != null && holdsRoom(host)) return;
+
+    final heir = _players
+        .where(eligible)
+        .fold<RoomPlayer?>(
+          null,
+          (lowest, p) => lowest == null || p.seat < lowest.seat ? p : lowest,
+        );
     if (heir?.userId != me) return;
 
     try {
@@ -433,15 +607,15 @@ class OnlineTransport implements GameTransport {
 
   /// One request, with everything the client is allowed to get wrong handled.
   ///
-  /// Returns null when the call did not happen or was absorbed — a caller that
-  /// needs the answer checks for it, and a caller that does not simply carries
-  /// on, because the state it will render is coming from [watch] either way.
-  Future<Map<String, dynamic>?> _send(
+  /// Separates a superseded command from a request that received no
+  /// acknowledgement. Both have no payload, but only the latter may be retried:
+  /// a `PHASE_CLOSED` response means the room already moved on.
+  Future<({Map<String, dynamic>? payload, bool superseded})> _send(
     String function,
     Map<String, dynamic> body, {
     bool hostOnly = false,
   }) async {
-    if (hostOnly && !isHost) return null;
+    if (hostOnly && !isHost) return (payload: null, superseded: false);
     try {
       final result = await backend.call(function, {
         'roomId': roomId,
@@ -452,23 +626,25 @@ class OnlineTransport implements GameTransport {
         ...body,
       });
       _restore();
-      return result;
+      return (payload: result, superseded: false);
     } on BackendException catch (e) {
       if (e.isPhaseClosed) {
         await resync();
-        return null;
+        return (payload: null, superseded: true);
       }
-      if (e.isNotHost) return null;
+      if (e.isNotHost) return (payload: null, superseded: false);
       rethrow;
     } on BackendUnreachable {
       _degrade();
-      return null;
+      return (payload: null, superseded: false);
     }
   }
 
   String _actionId() {
     final stamp = now().microsecondsSinceEpoch.toRadixString(16);
-    final salt = _ids.nextInt(1 << 32).toRadixString(16);
+    // Not `1 << 32`: on the web that shift is 32-bit and evaluates to zero,
+    // and `nextInt(0)` throws. See `newMatchSeed`.
+    final salt = _ids.nextInt(4294967296).toRadixString(16);
     return '$stamp-$salt';
   }
 
@@ -479,10 +655,16 @@ class OnlineTransport implements GameTransport {
 
   @override
   Future<void> confirmRevealed() async {
-    // Nothing to hand on: this client is looking at its own card, and the room
-    // moves when the host says it does. The card is dismissed locally and the
-    // server is not troubled with the fact that somebody stopped looking at
-    // something only they could see.
+    // There is nothing to hand on — this client is looking at its own card —
+    // but the room does have to know the card was looked at. Offline that fact
+    // is witnessed: the phone comes back. Online it is a claim, so it is sent
+    // to the one place that may hold it, and `open_phase` reads it there
+    // rather than taking any client's word for the room's readiness.
+    //
+    // What crosses is a boolean about *this* seat. Nothing about what was on
+    // the card goes with it.
+    await _send('saw_role', const {});
+    await resync();
   }
 
   @override
@@ -500,24 +682,35 @@ class OnlineTransport implements GameTransport {
     required int seat,
     required NightActionKind kind,
     required int? targetSeat,
+    bool useBullet = false,
   }) async {
     // The seat is not sent. The server takes the actor from the JWT, and a
     // client that could name one would be O17 with a different noun.
     if (seat != mySeat) return null;
-    final result = await _send('submit_night_action', {
+    final sent = await _send('submit_night_action', {
       'action': targetSeat == null ? 'skip' : nightActionToServer(kind),
       'targetSeat': targetSeat,
+      // The *intention*, and nothing more. Whether it is honoured is the
+      // server's call: it checks the role it holds, the room's settings, and
+      // whether this player has already spent theirs. A client that asked for
+      // a move it does not have is refused rather than obeyed.
+      'useBullet': useBullet,
     });
-    if (result == null) return null;
+    if (sent.superseded) return null;
+    final result = sent.payload;
+    if (result == null) {
+      throw const BackendException('ACTION_NOT_SAVED', 'No acknowledgement');
+    }
     final own = _own;
     if (own != null) {
-      _own = OwnSeat(
-        seat: own.seat,
-        role: own.role,
-        alive: own.alive,
-        teammateNames: own.teammateNames,
+      _own = own.copyWith(
         actedThisNight: true,
-        votedRound: own.votedRound,
+        // From the ack, not from the request. The client asked; the server
+        // decided; this is the decision. `??` rather than a default so an
+        // older server that does not send the field leaves the flag alone
+        // instead of clearing a bullet that was spent.
+        bulletSpent:
+            (result['bulletSpent'] as bool? ?? false) || own.bulletSpent,
       );
       _publish();
     }
@@ -530,6 +723,26 @@ class OnlineTransport implements GameTransport {
     if (revealed == null || targetSeat == null) return null;
     return InvestigateResult(targetSeat: targetSeat, revealedRole: revealed);
   }
+
+  /// Yes, since `submit_night_action` learned what one is.
+  ///
+  /// It used to be false, and the comment here used to say why: the night is
+  /// resolved server-side (doc 10 §5), so a client offering the control would
+  /// have been offering a move the server silently dropped. That was true and
+  /// it cost the online Doctor their self-protection outright — the server
+  /// refused a self-target with `"not yourself"`, so the tile bearing their own
+  /// name was a tile that could not be pressed.
+  ///
+  /// The server now validates both bullets against the role *it* holds, spends
+  /// them into `night_actions.used_bullet`, and refuses a second one against a
+  /// partial unique index. Constant for the whole match either way, which is
+  /// what makes the answer safe to read: it is a fact about this match, never
+  /// about whoever is holding the phone.
+  @override
+  bool get supportsBullets => true;
+
+  @override
+  bool get currentActorBulletSpent => _own?.bulletSpent ?? false;
 
   @override
   Future<void> resolveNight() async {
@@ -555,13 +768,20 @@ class OnlineTransport implements GameTransport {
     required int targetSeat,
   }) async {
     if (seat != mySeat) return;
-    await _send('submit_accusation', {'targetSeat': targetSeat});
+    final sent = await _send('submit_accusation', {'targetSeat': targetSeat});
+    if (sent.superseded) return;
+    final result = sent.payload;
+    if (result == null) {
+      throw const BackendException('ACTION_NOT_SAVED', 'No acknowledgement');
+    }
   }
 
   @override
   Future<void> endConfrontation({required bool silent}) async {
-    await _send('open_phase', {'phase': 'discuss', 'silent': silent},
-        hostOnly: true);
+    await _send('open_phase', {
+      'phase': 'discuss',
+      'silent': silent,
+    }, hostOnly: true);
   }
 
   @override
@@ -576,13 +796,10 @@ class OnlineTransport implements GameTransport {
     required int toSeat,
     required String body,
   }) async {
-    final result = await _send('send_whisper', {
-      'toSeat': toSeat,
-      'body': body,
-    });
+    final sent = await _send('send_whisper', {'toSeat': toSeat, 'body': body});
     // A whisper that could not be sent has no id, and the compose screen is
     // entitled to know that rather than to be told a lie it can quote.
-    final id = result?['id'] as String?;
+    final id = sent.payload?['id'] as String?;
     if (id == null) {
       throw const BackendException('BAD_REQUEST', 'the whisper was not sent');
     }
@@ -609,21 +826,18 @@ class OnlineTransport implements GameTransport {
   Future<void> submitVote({required int seat, required int? targetSeat}) async {
     if (seat != mySeat) return;
     final state = _state;
-    final result = await _send('submit_vote', {
+    final sent = await _send('submit_vote', {
       'targetSeat': targetSeat,
       'round': state == null ? 1 : _round(state),
     });
-    if (result == null) return;
+    if (sent.superseded) return;
+    final result = sent.payload;
+    if (result == null) {
+      throw const BackendException('ACTION_NOT_SAVED', 'No acknowledgement');
+    }
     final own = _own;
     if (own != null && state != null) {
-      _own = OwnSeat(
-        seat: own.seat,
-        role: own.role,
-        alive: own.alive,
-        teammateNames: own.teammateNames,
-        actedThisNight: own.actedThisNight,
-        votedRound: _round(state),
-      );
+      _own = own.copyWith(votedRound: _round(state));
       _publish();
     }
   }
@@ -650,7 +864,23 @@ class OnlineTransport implements GameTransport {
   @override
   Future<void> advancePhase() async {
     final state = _state;
-    if (state == null || !isHost) return;
+    if (state == null) return;
+
+    // The deal is the one phase that ends on a decision rather than on a
+    // clock, and `advance_phase` — which exists to apply *expiry defaults* —
+    // has no row for it. That mismatch is why «كمل» did nothing: the button
+    // posted to a function that looked at `reveal`, found no default to apply,
+    // and honestly answered that it had applied none.
+    //
+    // The deal ends by opening the night, and any member may ask for it: the
+    // server refuses until every seat has dismissed its card, so the gate is
+    // the gate and not the caller's identity.
+    if (state.phase == 'reveal') {
+      await _send('open_phase', const {'phase': 'night'});
+      return;
+    }
+
+    if (!isHost) return;
     await _send('advance_phase', const {}, hostOnly: true);
     // The defaults fill in the moves nobody made; somebody still has to tally
     // them, and online that somebody is the host's client asking the server to.
@@ -743,8 +973,10 @@ class OnlineTransport implements GameTransport {
   @override
   Future<void> dispose() async {
     _ticker?.cancel();
+    _ballotPoll?.cancel();
     _retry?.cancel();
     await _pushes?.cancel();
+    await _witness?.dispose();
     await backend.dispose();
     await _controller.close();
   }

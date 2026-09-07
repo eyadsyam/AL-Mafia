@@ -4,6 +4,7 @@ import 'package:mafia_master/engine/models/enums.dart' show Role;
 import 'package:mafia_master/platform/reduce_motion.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/turn_shell.dart';
+import 'package:mafia_master/ui/widgets/night_grid.dart';
 
 import '../support/localized.dart';
 
@@ -41,7 +42,7 @@ void main() {
             playerName: 'Player',
             role: role,
             promptText: TurnShellHarness.naturalPrompt(role),
-            targets: TurnShellHarness.targets,
+            choices: TurnShellHarness.targets,
             onConfirmed: (_) {},
             onPass: () {},
           ),
@@ -71,7 +72,7 @@ void main() {
       for (final reduceMotion in [false, true]) {
         await pumpShell(tester, role: Role.mafia, reduceMotion: reduceMotion);
         await completeHold(tester);
-        await tester.tap(find.text('Seat 1'));
+        await tester.tap(find.byKey(NightGrid.tile(1)));
         await tester.pump();
 
         await tester.pump(dwell - epsilon);
@@ -95,7 +96,7 @@ void main() {
       for (final reduceMotion in [false, true]) {
         await pumpShell(tester, role: Role.doctor, reduceMotion: reduceMotion);
         await completeHold(tester);
-        await tester.tap(find.text('Seat 1'));
+        await tester.tap(find.byKey(NightGrid.tile(1)));
         await tester.pump(dwell + epsilon);
         await tester.tap(find.byKey(TurnShell.actionButton));
         await tester.pump();

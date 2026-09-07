@@ -120,7 +120,7 @@ void main() {
         (tester) async {
       await pumpFollowUp(tester, played: reseated);
 
-      expect(find.text('تحفظ ترتيب القعدة الجديد؟'), findsOneWidget);
+      expect(find.text('تحفظ ترتيب اللاعبين؟'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('group_follow_up_accept')));
       await tester.pumpAndSettle();
 
@@ -146,7 +146,7 @@ void main() {
         played: const ['Salem', 'Ahmed', 'Laila', 'Omar', 'Nada'],
       );
 
-      expect(find.text('تحفظ ترتيب القعدة الجديد؟'), findsOneWidget);
+      expect(find.text('تحفظ ترتيب اللاعبين؟'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('group_follow_up_accept')));
       await tester.pumpAndSettle();
 

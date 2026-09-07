@@ -165,3 +165,45 @@ parity above has to be *measured in pixels* to mean anything — which means
 rasterising regardless. Going straight to raster removes a dependency and a
 conversion step without losing anything: these emblems are only ever drawn at
 one size.
+
+---
+
+## Re-encoding: two rules that are not optional
+
+Every image here was re-encoded on 2026-09-04 to cut the download (11.2 MB of
+assets → 7.3 MB). Two of them cannot be re-encoded naively, and both failures
+are silent — the app looks fine and a test goes red somewhere else entirely.
+
+### `card_back.webp` must survive a half turn
+
+`test/golden/leakage/card_back_symmetry_test.dart` measures the shipped bytes
+against their own 180° rotation and allows a mean drift of 3 levels out of 255.
+A back that is *orientable* reintroduces a visible difference between one
+player's card and another's: hand the phone over rotated and the card looks
+different even though nothing about the game changed. That is noise a table can
+learn to read.
+
+Resizing to 900×1350 at quality 80 took the drift to **3.686** and failed the
+suite. Two things fixed it, and both are needed:
+
+* **Dimensions that are multiples of 16.** WebP encodes in 16-pixel macroblocks
+  and pads the right and bottom edges only, so an unaligned size breaks
+  rotational symmetry at the seams. 896×1344 is 56×84 blocks exactly. The
+  original 1024×1536 was aligned too — which is why it measured 0.91 and nobody
+  had to think about this before.
+* **Symmetrise the pixels before encoding.** Average the resized array with its
+  own half turn (`a = (a + a[::-1, ::-1]) / 2`). On an already-symmetric source
+  this is a no-op in exact arithmetic; what it removes is the resampling error.
+
+Result: 420 KB → 221 KB, and the suite passes.
+
+### The four `card_face_*.webp` must stay in step with each other
+
+`luminance_budget_test.dart` (L-05) holds every role's card within ±2% of the
+set mean. Re-encode all four the same way, at the same dimensions and the same
+quality, in the same pass — never one of them on its own. Re-run the leakage
+suite afterwards. **Never widen the budget to make a re-encode pass.**
+
+The pass that did this is `tool/` scratch, not a committed script: it ran once,
+the numbers are above, and a script nobody runs twice is a script that goes
+stale. If it is ever needed again, the two rules are here.

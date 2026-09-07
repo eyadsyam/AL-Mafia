@@ -48,4 +48,25 @@ abstract interface class MatchRepository {
   /// Skipping counts. A host who dismissed the deck has told us they do not
   /// want it; re-offering it on the next launch would be the app arguing.
   Future<void> markOnboardingSeen();
+
+  /// The Tier-1 interface hints already shown on this installation
+  /// (doc 13 §4.2). No longer written — see `MatchRecord.seenHints`.
+  ///
+  /// Shared across offline and online: the hints teach controls, and it is the
+  /// same control either way.
+  ///
+  /// Implementations MUST NOT throw on unreadable storage, for the same reason
+  /// [hasSeenOnboarding] must not. Showing a one-line hint a second time is a
+  /// far cheaper failure than refusing to open a screen.
+  Future<Set<String>> loadSeenHints();
+
+  /// Record that [hintId] has now been shown. Idempotent.
+  Future<void> markHintSeen(String hintId);
+
+  /// Forget every hint, so the next match shows them all again.
+  ///
+  /// Doc 13 §4.2 asks for this by name — *"a 'reset hints' option in settings,
+  /// for showing a friend how to play"* — and it is the only reason the
+  /// seen-set is a set of ids rather than a counter.
+  Future<void> resetSeenHints();
 }

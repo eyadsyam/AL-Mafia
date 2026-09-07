@@ -26,10 +26,10 @@ class FakeBackend implements OnlineBackend {
     OwnSeat? own,
     List<WhisperRow> whispers = const [],
     this.userId = 'u0',
-  })  : _state = state,
-        _players = players,
-        _own = own,
-        _whispers = whispers;
+  }) : _state = state,
+       _players = players,
+       _own = own,
+       _whispers = whispers;
 
   final String roomId;
 
@@ -65,6 +65,10 @@ class FakeBackend implements OnlineBackend {
 
   /// What a successful call returns, by function name.
   final Map<String, Map<String, dynamic>> responses = {};
+
+  /// Optional in-flight responses, used to prove that a UI cannot submit the
+  /// same action twice while its first acknowledgement is still pending.
+  final Map<String, Future<Map<String, dynamic>>> delayedResponses = {};
 
   // ---------------------------------------------------------------------------
   // Driving the fake
@@ -126,11 +130,13 @@ class FakeBackend implements OnlineBackend {
       if (!stickyRefusals.contains(function)) refusals.remove(function);
       throw refusal;
     }
+    final delayed = delayedResponses[function];
+    if (delayed != null) return delayed;
     return responses[function] ?? const {'ok': true};
   }
 
   @override
-  Future<RoomHandle> createRoom({required String name}) async {
+  Future<RoomHandle> createRoom({required String name, String gender = 'unspecified'}) async {
     _guard();
     calls.add(FakeCall('createRoom', {'name': name}));
     return RoomHandle(roomId: roomId, code: _state.code, seat: 0);
@@ -140,7 +146,7 @@ class FakeBackend implements OnlineBackend {
   Future<RoomHandle> joinRoom({
     required String code,
     required String name,
-  }) async {
+  String gender = 'unspecified',}) async {
     _guard();
     calls.add(FakeCall('joinRoom', {'code': code, 'name': name}));
     final refusal = refusals['joinRoom'];
@@ -162,6 +168,36 @@ class FakeBackend implements OnlineBackend {
       whispers: _whispers,
     );
   }
+
+  /// The open ballot this fake will report, voter seat to target seat.
+  ///
+  /// Empty by default, which is what a room without doc 12 §3.6's `openVoting`
+  /// reads back from the real server — the `votes_read` policy refuses the rows
+  /// and the client cannot tell the difference between "refused" and "nobody
+  /// has voted". A test that wants lines on the table sets this.
+  Map<int, int?> openBallots = const {};
+
+  @override
+  Future<Map<int, int?>> ballots(String room) async {
+    _guard();
+    return openBallots;
+  }
+
+  /// The graveyard, and the prediction this device has lodged.
+  ///
+  /// Both default to "nothing", because that is what a *living* caller gets
+  /// from the real server: `ghost_messages_dead_read` admits only the dead, so
+  /// an empty list here is not a stub standing in for a feature — it is the
+  /// production answer for the common case.
+  final StreamController<List<GhostRow>> ghostFeed =
+      StreamController<List<GhostRow>>.broadcast();
+  Prediction? prediction;
+
+  @override
+  Stream<List<GhostRow>> ghostMessages(String room) => ghostFeed.stream;
+
+  @override
+  Future<Prediction?> myPrediction(String room) async => prediction;
 
   @override
   Stream<RoomPush> pushes(String room) => _pushes.stream;
@@ -234,26 +270,29 @@ RoomState roomState({
   String hostId = 'u0',
   DateTime? serverNow,
   String? activeSpeaker,
-}) =>
-    RoomState(
-      phase: phase,
-      phaseNumber: phaseNumber,
-      status: status,
-      hostId: hostId,
-      code: 'ABCDEF',
-      serverNow: serverNow ?? DateTime.utc(2026, 9, 2, 12),
-      phaseEndsAt: endsAt,
-      publicData: publicData,
-      activeSpeaker: activeSpeaker,
-    );
+}) => RoomState(
+  phase: phase,
+  phaseNumber: phaseNumber,
+  status: status,
+  hostId: hostId,
+  code: 'ABCDEF',
+  serverNow: serverNow ?? DateTime.utc(2026, 9, 2, 12),
+  phaseEndsAt: endsAt,
+  publicData: publicData,
+  activeSpeaker: activeSpeaker,
+);
 
-List<RoomPlayer> roster(int count, {DateTime? lastSeen, Set<int> dead = const {}}) => [
-      for (var seat = 0; seat < count; seat++)
-        RoomPlayer(
-          userId: 'u$seat',
-          seat: seat,
-          name: String.fromCharCode(65 + seat),
-          alive: !dead.contains(seat),
-          lastSeen: lastSeen ?? DateTime.utc(2026, 9, 2, 12),
-        ),
-    ];
+List<RoomPlayer> roster(
+  int count, {
+  DateTime? lastSeen,
+  Set<int> dead = const {},
+}) => [
+  for (var seat = 0; seat < count; seat++)
+    RoomPlayer(
+      userId: 'u$seat',
+      seat: seat,
+      name: String.fromCharCode(65 + seat),
+      alive: !dead.contains(seat),
+      lastSeen: lastSeen ?? DateTime.utc(2026, 9, 2, 12),
+    ),
+];

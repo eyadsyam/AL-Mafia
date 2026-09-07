@@ -2,6 +2,7 @@ import 'package:mafia_master/engine/models/enums.dart' show Role;
 
 import 'match_codec.dart';
 import 'player_group.dart';
+import '../engine/models/player.dart';
 
 /// Converts a [PlayerGroup] to and from plain JSON-safe maps.
 ///
@@ -19,21 +20,22 @@ class PlayerGroupCodec {
   const PlayerGroupCodec._();
 
   static Map<String, dynamic> encode(PlayerGroup group) => {
-        'name': group.name,
-        'memberNames': [...group.memberNames],
-        'createdAt': group.createdAt.toIso8601String(),
-        'lastPlayedAt': group.lastPlayedAt.toIso8601String(),
-        'playCount': group.playCount,
-        'lastRoleCounts': group.lastRoleCounts == null
-            ? null
-            : {
-                for (final entry in group.lastRoleCounts!.entries)
-                  entry.key.name: entry.value,
-              },
-        'lastSettings': group.lastSettings == null
-            ? null
-            : MatchCodec.encodeSettings(group.lastSettings!),
-      };
+    'name': group.name,
+    'genders': {for (final e in group.genders.entries) e.key: e.value.name},
+    'memberNames': [...group.memberNames],
+    'createdAt': group.createdAt.toIso8601String(),
+    'lastPlayedAt': group.lastPlayedAt.toIso8601String(),
+    'playCount': group.playCount,
+    'lastRoleCounts': group.lastRoleCounts == null
+        ? null
+        : {
+            for (final entry in group.lastRoleCounts!.entries)
+              entry.key.name: entry.value,
+          },
+    'lastSettings': group.lastSettings == null
+        ? null
+        : MatchCodec.encodeSettings(group.lastSettings!),
+  };
 
   /// [id] comes from the storage row rather than the payload, so a group cannot
   /// carry a stale id across a copy.
@@ -44,9 +46,16 @@ class PlayerGroupCodec {
     return PlayerGroup(
       id: id,
       name: json['name'] as String,
-      memberNames: List.unmodifiable(
-        [for (final n in (json['memberNames'] as List)) n as String],
-      ),
+      genders: {
+        for (final e in ((json['genders'] as Map?) ?? {}).entries)
+          e.key as String: PlayerGender.values.firstWhere(
+            (g) => g.name == e.value,
+            orElse: () => PlayerGender.unspecified,
+          ),
+      },
+      memberNames: List.unmodifiable([
+        for (final n in (json['memberNames'] as List)) n as String,
+      ]),
       createdAt: DateTime.parse(json['createdAt'] as String),
       lastPlayedAt: DateTime.parse(json['lastPlayedAt'] as String),
       playCount: json['playCount'] as int? ?? 0,
@@ -56,13 +65,14 @@ class PlayerGroupCodec {
               for (final entry in counts.entries)
                 _roleByName(entry.key): entry.value as int,
             },
-      lastSettings:
-          settings == null ? null : MatchCodec.decodeSettings(settings),
+      lastSettings: settings == null
+          ? null
+          : MatchCodec.decodeSettings(settings),
     );
   }
 
   static Role _roleByName(String name) => Role.values.firstWhere(
-        (r) => r.name == name,
-        orElse: () => throw FormatException('Unknown role "$name"'),
-      );
+    (r) => r.name == name,
+    orElse: () => throw FormatException('Unknown role "$name"'),
+  );
 }

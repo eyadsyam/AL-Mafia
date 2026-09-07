@@ -10,7 +10,7 @@ import '../match_controller.dart';
 /// three-step reveal (screen S-06).
 ///
 /// 1. **Identity gate** — the player's name, large, and a pad held for
-///    `MatchSettings.identityHoldSeconds`.
+///    the fixed two-second identity duration.
 /// 2. **Swipe to flip** — card back to card face, 3D Y-axis rotation.
 /// 3. **Auto-conceal** — 5s, progress line, unlimited re-reveals, then pass.
 ///
@@ -60,27 +60,30 @@ class RoleRevealScreen extends ConsumerWidget {
       );
     }
 
-    return RoleCard(
-      // A new seat must always get a fresh, face-down card.
-      key: ValueKey('role-card-$seat'),
-      playerName: reveal.name,
-      role: reveal.role,
-      teammateNames: reveal.teammateNames,
-      identityHold: Duration(
-        seconds: controller.settings.identityHoldSeconds,
-      ),
+    // Doc 14 Part 6: no hint over the card. The card is the whole screen and
+    // a line of teaching across the top of it was the first thing a new player
+    // read on the one screen where reading anything else is a mistake.
+    return Stack(children: [
+      RoleCard(
+        // A new seat must always get a fresh, face-down card.
+        key: ValueKey('role-card-$seat'),
+        playerName: reveal.name,
+        role: reveal.role,
+        teammateNames: reveal.teammateNames,
+        identityHold: context.timing.holdToReveal,
       // The page turn. This is the one screen in the app where a sound plays
       // while the phone is in somebody's hand, and `playCardTurn` is the only
       // door that allows it — see the note on the method for why this
       // particular sound cannot say anything about the card behind it.
-      onFlip: ref.read(audioDirectorProvider).playCardTurn,
-      onDismissed: () {
-        controller.confirmRevealed();
-        if (controller.snapshot.currentActorSeat == null) {
-          onDistributionComplete();
-        }
-      },
-    );
+        onFlip: ref.read(audioDirectorProvider).playCardTurn,
+        onDismissed: () {
+          controller.confirmRevealed();
+          if (controller.snapshot.currentActorSeat == null) {
+            onDistributionComplete();
+          }
+        },
+      ),
+    ]);
   }
 }
 

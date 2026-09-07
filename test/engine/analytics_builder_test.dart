@@ -39,7 +39,14 @@ void main() {
         engine.beginNight();
         final townSeats = aliveWhere((r) => r != Role.mafia);
         final firstAliveTown = townSeats.first;
-        final protectSeat = townSeats.firstWhere((s) => s != lastProtect, orElse: () => townSeats.first);
+        // A Doctor may not cover their own seat - that is exactly what
+        // «حماية النفس» buys, once in a match (doc 13 §2), and these fixtures
+        // never arm it - and may not cover the same seat two nights running.
+        final doctorSeats = aliveWhere((r) => r == Role.doctor).toSet();
+        final coverable =
+            townSeats.where((s) => !doctorSeats.contains(s)).toList();
+        final protectSeat = coverable.firstWhere((s) => s != lastProtect,
+            orElse: () => coverable.isEmpty ? townSeats.first : coverable.first);
         lastProtect = protectSeat;
 
         while (engine.match.currentActorSeat != null) {
@@ -136,7 +143,14 @@ void main() {
         engine.beginNight();
         final townSeats = aliveWhere((r) => r != Role.mafia);
         final firstAliveTown = townSeats.first;
-        final protectSeat = townSeats.firstWhere((s) => s != lastProtect, orElse: () => townSeats.first);
+        // A Doctor may not cover their own seat - that is exactly what
+        // «حماية النفس» buys, once in a match (doc 13 §2), and these fixtures
+        // never arm it - and may not cover the same seat two nights running.
+        final doctorSeats = aliveWhere((r) => r == Role.doctor).toSet();
+        final coverable =
+            townSeats.where((s) => !doctorSeats.contains(s)).toList();
+        final protectSeat = coverable.firstWhere((s) => s != lastProtect,
+            orElse: () => coverable.isEmpty ? townSeats.first : coverable.first);
         lastProtect = protectSeat;
 
         while (engine.match.currentActorSeat != null) {
@@ -211,7 +225,14 @@ void main() {
         engine.beginNight();
         final townSeats = aliveWhere((r) => r != Role.mafia);
         final firstAliveTown = townSeats.first;
-        final protectSeat = townSeats.firstWhere((s) => s != lastProtect, orElse: () => townSeats.first);
+        // A Doctor may not cover their own seat - that is exactly what
+        // «حماية النفس» buys, once in a match (doc 13 §2), and these fixtures
+        // never arm it - and may not cover the same seat two nights running.
+        final doctorSeats = aliveWhere((r) => r == Role.doctor).toSet();
+        final coverable =
+            townSeats.where((s) => !doctorSeats.contains(s)).toList();
+        final protectSeat = coverable.firstWhere((s) => s != lastProtect,
+            orElse: () => coverable.isEmpty ? townSeats.first : coverable.first);
         lastProtect = protectSeat;
 
         while (engine.match.currentActorSeat != null) {
@@ -291,7 +312,14 @@ void main() {
         engine.beginNight();
         final townSeats = aliveWhere((r) => r != Role.mafia);
         final firstAliveTown = townSeats.first;
-        final protectSeat = townSeats.firstWhere((s) => s != lastProtect, orElse: () => townSeats.first);
+        // A Doctor may not cover their own seat - that is exactly what
+        // «حماية النفس» buys, once in a match (doc 13 §2), and these fixtures
+        // never arm it - and may not cover the same seat two nights running.
+        final doctorSeats = aliveWhere((r) => r == Role.doctor).toSet();
+        final coverable =
+            townSeats.where((s) => !doctorSeats.contains(s)).toList();
+        final protectSeat = coverable.firstWhere((s) => s != lastProtect,
+            orElse: () => coverable.isEmpty ? townSeats.first : coverable.first);
         lastProtect = protectSeat;
 
         while (engine.match.currentActorSeat != null) {
@@ -381,7 +409,14 @@ void main() {
         engine.beginNight();
         final townSeats = aliveWhere((r) => r != Role.mafia);
         final firstAliveTown = townSeats.first;
-        final protectSeat = townSeats.firstWhere((s) => s != lastProtect, orElse: () => townSeats.first);
+        // A Doctor may not cover their own seat - that is exactly what
+        // «حماية النفس» buys, once in a match (doc 13 §2), and these fixtures
+        // never arm it - and may not cover the same seat two nights running.
+        final doctorSeats = aliveWhere((r) => r == Role.doctor).toSet();
+        final coverable =
+            townSeats.where((s) => !doctorSeats.contains(s)).toList();
+        final protectSeat = coverable.firstWhere((s) => s != lastProtect,
+            orElse: () => coverable.isEmpty ? townSeats.first : coverable.first);
         lastProtect = protectSeat;
 
         while (engine.match.currentActorSeat != null) {
@@ -462,7 +497,14 @@ void main() {
         engine.beginNight();
         final townSeats = aliveWhere((r) => r != Role.mafia);
         final firstAliveTown = townSeats.first;
-        final protectSeat = townSeats.firstWhere((s) => s != lastProtect, orElse: () => townSeats.first);
+        // A Doctor may not cover their own seat - that is exactly what
+        // «حماية النفس» buys, once in a match (doc 13 §2), and these fixtures
+        // never arm it - and may not cover the same seat two nights running.
+        final doctorSeats = aliveWhere((r) => r == Role.doctor).toSet();
+        final coverable =
+            townSeats.where((s) => !doctorSeats.contains(s)).toList();
+        final protectSeat = coverable.firstWhere((s) => s != lastProtect,
+            orElse: () => coverable.isEmpty ? townSeats.first : coverable.first);
         lastProtect = protectSeat;
 
         while (engine.match.currentActorSeat != null) {

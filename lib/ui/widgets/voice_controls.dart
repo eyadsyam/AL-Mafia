@@ -10,13 +10,15 @@ import '../theme/mafia_theme.dart';
 /// something about the transport, and like the banner it reads a value rather
 /// than a type.
 ///
-/// ## What it will not do
+/// ## The one switch, and the direction it turns
 ///
-/// Mute. There is no mute button here and there is not going to be one: the
-/// microphone is live because the phase permits it and the server granted the
-/// floor (doc 10 §6.1), and a control that could contradict either would be a
-/// control that lets a player be heard during a night. [VoiceState.microphoneLive]
-/// is reported, never set.
+/// A player can silence themselves. They cannot un-silence themselves past the
+/// phase: [VoiceController.setSelfMuted] only ever subtracts, and turning it
+/// back off restores exactly what `micPolicyFor` and the server already allow
+/// — which during a night is nothing. So this is not the client-side mute doc
+/// 10 §6.1 forbids; that rule is about a client deciding it may be heard, and
+/// nothing here can decide that. [VoiceState.microphoneLive] is still reported
+/// and never set.
 ///
 /// ## What it renders when there is no call
 ///
@@ -29,6 +31,9 @@ class VoiceControls extends ConsumerWidget {
 
   static const Key stripKey = ValueKey('voice_controls');
   static const Key floorButton = ValueKey('voice_floor');
+
+  /// The player's own microphone switch. Live from the lobby onwards.
+  static const Key micButton = ValueKey('voice_mic');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,6 +56,8 @@ class VoiceControls extends ConsumerWidget {
       // V1 and V2 — stated once, as a fact about this device, and never as an
       // error. It stays because it stays true, not because it is repeated.
       status = l10n.voiceMicDenied;
+    } else if (state.selfMuted) {
+      status = l10n.voiceSelfMuted;
     } else if (state.microphoneLive) {
       status = l10n.voiceMicOn;
     } else if (state.activeSpeakerSeat != null) {
@@ -77,8 +84,22 @@ class VoiceControls extends ConsumerWidget {
               style: type.caption.copyWith(color: colors.textSecondary),
             ),
           ),
-          // Words, not a microphone glyph: doc 07 keeps icons for navigation
-          // chrome and gives every game action a word.
+          // Task 12 — a microphone, not the words for one. Doc 07 keeps icons
+          // for navigation chrome and gives every *game action* a word, and
+          // this is not one: muting your own microphone changes nothing about
+          // the match and is the same control every call app on the phone
+          // draws exactly this way. The floor below it keeps its words,
+          // because taking the floor is a move.
+          if (controller != null && state.canMuteSelf)
+            IconButton(
+              key: micButton,
+              tooltip: state.selfMuted ? l10n.voiceUnmuteMe : l10n.voiceMuteMe,
+              onPressed: () => controller.setSelfMuted(!state.selfMuted),
+              icon: Icon(
+                state.selfMuted ? Icons.mic_off : Icons.mic_none,
+                color: state.selfMuted ? colors.textMuted : colors.textSecondary,
+              ),
+            ),
           if (controller != null &&
               (state.canRequestFloor || state.holdsFloor))
             TextButton(

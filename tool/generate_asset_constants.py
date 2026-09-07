@@ -33,17 +33,17 @@ GROUPS = [
      "across roles — these must never be referenced from a surface reachable "
      "while the phone is in a player's hand. handoff_purity_test.dart enforces "
      "that."),
+    ("images/online", "AppCouncilArt",
+     "Doc 15's council furniture: seat rings, backdrops, the timer ornament "
+     "and the two victory emblems. Every one of them is a tintable alpha mask "
+     "or a full-bleed ground — none carries a role, and none may."),
     ("icons", "AppIcons", "Tintable alpha masks. These carry no colour of "
                           "their own; the widget layer supplies it."),
     ("audio", "AppAudio", "Table cues. Never played while the phone is in a "
                           "player's hand — see AudioDirector."),
     ("video", "AppVideo",
-     "Ambient loops, as animated WebP played by Image.asset — no video_player, "
-     "no platform view. ON-TABLE ONLY: a moving image is brightness that "
-     "changes frame to frame, so on an in-hand surface it breaks the +/-2% "
-     "luminance budget on nearly every frame and its loop position is a timing "
-     "channel besides. Every *_loop has a *_still beside it, which is what "
-     "Reduce Motion renders — animated WebP has no pause API."),
+     "Public, on-table motion assets. Ambient loops use animated WebP; the "
+     "first-run introduction is an MP4. None may be used on an in-hand surface."),
 ]
 
 SKIP = {".gitkeep", "OFL.txt"}

@@ -1,4 +1,25 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Online play, and nothing else.
+
+         This was the bug that made "play online" unusable in every release
+         build: Flutter's template declares INTERNET only in the *debug* and
+         *profile* manifests, because that is what hot reload needs. A release
+         APK built from the template has no network permission at all, so every
+         Supabase call fails at the socket and the app — correctly, from where
+         it was standing — reported that it could not reach the server. The
+         server was fine. The app had never been allowed to ask.
+
+         ACCESS_NETWORK_STATE so the connection banner can tell "this phone has
+         no network" from "the server did not answer"; they need different
+         sentences (doc 11 O9/O11).
+
+         RECORD_AUDIO is voice, which is never load-bearing: a refusal here
+         must leave a match that still completes. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+
     <application
         android:label="سيد المافيا"
         android:name="${applicationName}"
@@ -24,6 +45,26 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <!-- The room invite (doc 12 §3.1): "a single button producing a
+                 deep link plus a fallback text. This is the primary growth
+                 loop - make it one tap."
+
+                 A custom scheme rather than an https App Link because an App
+                 Link needs a verified domain, and this project has none. The
+                 cost is that the link is inert on a phone without the app; the
+                 invite therefore carries the code in words beside it, which is
+                 what the fallback text is for.
+
+                 Host and path are shaped so `uri.path` is the router's own
+                 path: go_router matches on the path and drops the host, so
+                 mafiamaster://online/join/K7M2QP arrives as /join/K7M2QP. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="mafiamaster" android:host="online"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

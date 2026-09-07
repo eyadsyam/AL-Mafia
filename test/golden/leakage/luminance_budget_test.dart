@@ -11,6 +11,7 @@ import 'package:mafia_master/engine/models/enums.dart' show Role;
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/role_card.dart';
 import 'package:mafia_master/ui/widgets/turn_shell.dart';
+import 'package:mafia_master/ui/widgets/night_grid.dart';
 
 import '../../support/artwork.dart';
 import '../../support/localized.dart';
@@ -94,7 +95,7 @@ void main() {
     if (state == TurnShellState.selecting ||
         state == TurnShellState.confirmed ||
         state == TurnShellState.passUnlocked) {
-      await tester.tap(find.text('أحمد'));
+      await tester.tap(find.byKey(NightGrid.tile(1)));
       await tester.pump();
     }
     if (state == TurnShellState.confirmed ||

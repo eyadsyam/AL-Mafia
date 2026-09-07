@@ -55,12 +55,12 @@ Deno.serve(handler(async (req, userId, db) => {
     for (const player of roster) {
       if (done.has(player.user_id)) continue;
       const action = actionForRole(player.role);
-      if (action === "kill") {
+      if (action === "kill" || action === "protect") {
         // The one default that picks a target: a Mafia who does nothing would
         // otherwise make "the Mafia are all disconnected" strictly better for
         // them than playing (N9).
         const targets = roster
-          .filter((p) => p.role !== "mafia")
+          .filter((p) => action === "kill" ? p.role !== "mafia" : p.user_id !== player.user_id)
           .sort((a, b) => a.seat - b.seat);
         if (targets.length === 0) continue;
         const pick = targets[
@@ -73,7 +73,7 @@ Deno.serve(handler(async (req, userId, db) => {
           room_id: roomId,
           night: me.phaseNumber,
           actor_id: player.user_id,
-          action: "kill",
+          action,
           target_id: pick.user_id,
         });
       } else {

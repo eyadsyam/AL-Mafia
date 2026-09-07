@@ -9,33 +9,31 @@ import '../../theme/mafia_theme.dart';
 import '../../widgets/player_tile.dart';
 import '../../widgets/textured_surface.dart';
 
-/// The whisper composer (doc 09 §3).
+/// The whisper composer (doc 14 §3).
 ///
-/// ## Three steps, and why the first one exists
+/// ## Two steps, and the first one used to be "who are you"
 ///
-/// Offline there is one phone, so "who is writing this" is a question the app
-/// has to ask before it can ask anything else. The seat picker is that
-/// question, and it is also the day's only gate: a player picks their own seat,
-/// writes, sends, and puts the phone back down.
+/// It asked, because offline there is one phone and the app genuinely could
+/// not know. Doc 14 §3.1 settles that by removing the layer from offline
+/// altogether: one shared screen cannot deliver a private message during a
+/// discussion without stopping the discussion to pass the phone, which is the
+/// conversation the message existed to influence.
 ///
-/// A seat that has already used its whisper today is shown and disabled rather
-/// than hidden. Hiding it would make the *length of the list* say who had
-/// already written — and the whisper graph on the table behind this screen says
-/// that out loud anyway, so there is nothing to protect and a disabled tile is
-/// the clearer explanation.
+/// So the sender is [fromSeat] — this device's own player — and what is left is
+/// pick somebody, write, send.
 ///
-/// ## What is private here and what is not
+/// ## Self-exclusion is structural, not a check
 ///
-/// The recipient is public the instant the whisper is sent; the body never is.
-/// So this screen is dimmed and held close, but its *secret* is small and
-/// short-lived: whoever is holding the phone is visibly composing, and the
-/// table will see the edge appear. That is the design (doc 09 §3.1) rather
-/// than a compromise in it.
+/// The recipient list is built from *other living players*. There is no `if`
+/// anywhere that removes the sender afterwards, because the list they could be
+/// removed from is a list they were never on. Doc 14 Part 0 names this as the
+/// original bug: the spec said "self excluded" and the code filtered a list
+/// that had already been built from everybody.
 class WhisperComposeScreen extends StatefulWidget {
   final List<PublicPlayer> players;
 
-  /// Seats that have already used today's whisper.
-  final Set<int> alreadySent;
+  /// The seat writing this. Never in the recipient list.
+  final int fromSeat;
 
   /// Sends the whisper. The caller writes the body to the whisper store.
   final void Function(int fromSeat, int toSeat, String body) onSend;
@@ -45,7 +43,7 @@ class WhisperComposeScreen extends StatefulWidget {
   const WhisperComposeScreen({
     super.key,
     required this.players,
-    required this.alreadySent,
+    required this.fromSeat,
     required this.onSend,
     required this.onCancel,
   });
@@ -55,7 +53,6 @@ class WhisperComposeScreen extends StatefulWidget {
 }
 
 class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
-  int? _from;
   int? _to;
   final TextEditingController _body = TextEditingController();
 
@@ -80,8 +77,7 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
 
   bool get _canSend {
     final text = _body.text.trim();
-    return _from != null &&
-        _to != null &&
+    return _to != null &&
         text.isNotEmpty &&
         text.length <= WhisperLimits.maxLength;
   }
@@ -93,7 +89,7 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
       setState(() => _languageAcknowledged = true);
       return;
     }
-    widget.onSend(_from!, _to!, text);
+    widget.onSend(widget.fromSeat, _to!, text);
   }
 
   @override
@@ -104,9 +100,11 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
     final type = context.typography;
     final l10n = context.l10n;
 
-    final living = [
+    // Doc 14 §3.3. *Other* living players — the sender is not filtered out of
+    // this list, they were never put in it.
+    final recipients = [
       for (final p in widget.players)
-        if (p.status == PlayerStatus.alive) p,
+        if (p.status == PlayerStatus.alive && p.seat != widget.fromSeat) p,
     ];
     final remaining = WhisperLimits.maxLength - _body.text.trim().length;
 
@@ -130,33 +128,20 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
                   ),
                   SizedBox(height: spacing.md),
                   Text(
-                    _from == null
-                        ? l10n.whoAreYou
-                        : (_to == null
-                            ? l10n.whisperPickRecipient
-                            : l10n.whisperBodyHint),
+                    _to == null
+                        ? l10n.whisperPickRecipient
+                        : l10n.whisperBodyHint,
                     style: type.bodySmall.copyWith(color: colors.textMuted),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: spacing.md),
                   Expanded(
-                    child: _from == null
+                    child: _to == null
                         ? _seatList(
-                            living,
-                            // A seat that has already whispered today cannot
-                            // whisper again (H-E1). Shown, not hidden.
-                            disabled: widget.alreadySent,
-                            onPick: (seat) => setState(() => _from = seat),
+                            recipients,
+                            onPick: (seat) => setState(() => _to = seat),
                           )
-                        : _to == null
-                            ? _seatList(
-                                living,
-                                // No self-whisper (H-E5), and the dead are not
-                                // in `living` at all (H-E4).
-                                disabled: {_from!},
-                                onPick: (seat) => setState(() => _to = seat),
-                              )
-                            : _composer(remaining),
+                        : _composer(remaining),
                   ),
                   SizedBox(height: spacing.md),
                   if (_languageAcknowledged &&
@@ -204,22 +189,19 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
   }
 
   Widget _seatList(
-    List<PublicPlayer> living, {
-    required Set<int> disabled,
+    List<PublicPlayer> recipients, {
     required ValueChanged<int> onPick,
   }) {
     final spacing = context.spacing;
     return ListView.separated(
-      itemCount: living.length,
+      itemCount: recipients.length,
       separatorBuilder: (_, __) => SizedBox(height: spacing.xs),
       itemBuilder: (context, index) {
-        final player = living[index];
-        final blocked = disabled.contains(player.seat);
+        final player = recipients[index];
         return PlayerTile(
           seat: player.seat,
           name: player.name,
-          state: blocked ? PlayerTileState.disabled : PlayerTileState.normal,
-          onTap: blocked ? null : () => onPick(player.seat),
+          onTap: () => onPick(player.seat),
         );
       },
     );

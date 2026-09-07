@@ -2,6 +2,7 @@ import 'dart:async';
 
 import '../data/whisper_store.dart';
 import '../engine/legal_moves.dart';
+import '../engine/bullets.dart';
 import '../engine/match_engine.dart';
 import '../engine/models/enums.dart';
 import '../engine/models/match.dart';
@@ -9,6 +10,7 @@ import '../engine/models/timeline_event.dart' show InvestigateResult;
 import '../engine/views.dart';
 import 'game_snapshot.dart';
 import 'game_transport.dart';
+import 'witness_channel.dart';
 import 'voice_link.dart';
 
 /// The offline transport: this device is the authority (doc 10 §1.1).
@@ -78,6 +80,11 @@ class LocalTransport implements GameTransport {
   /// of people who can hear each other, and the software has no part in it.
   @override
   VoiceLink? get voice => null;
+
+  /// No graveyard offline: the eliminated player is still at the table, still
+  /// talking, still part of the evening (doc 12 §4).
+  @override
+  WitnessChannel? get witness => null;
 
   @override
   bool get isAuthoritative => true;
@@ -203,16 +210,32 @@ class LocalTransport implements GameTransport {
     required int seat,
     required NightActionKind kind,
     required int? targetSeat,
+    bool useBullet = false,
   }) async {
     InvestigateResult? result;
     if (targetSeat == null) {
-      engine.skipNightAction(seat: seat);
+      engine.skipNightAction(seat: seat, useBullet: useBullet);
     } else {
-      result =
-          engine.submitNightAction(seat: seat, kind: kind, targetSeat: targetSeat);
+      result = engine.submitNightAction(
+        seat: seat,
+        kind: kind,
+        targetSeat: targetSeat,
+        useBullet: useBullet,
+      );
     }
     _publish();
     return result;
+  }
+
+  @override
+  bool get supportsBullets => true;
+
+  @override
+  bool get currentActorBulletSpent {
+    if (!engine.hasMatch) return false;
+    final seat = engine.match.currentActorSeat;
+    if (seat == null) return false;
+    return Bullets.isSpentFor(engine.match, seat);
   }
 
   @override

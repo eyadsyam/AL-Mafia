@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/engine/models/enums.dart' show Role;
 import 'package:mafia_master/ui/widgets/turn_shell.dart';
+import 'package:mafia_master/ui/widgets/night_grid.dart';
 
 import '../support/turn_shell_harness.dart';
 
@@ -19,7 +20,7 @@ import '../support/turn_shell_harness.dart';
 /// Covers L-01 (identical night-turn tree per role) and L-02 (reserved slot
 /// dimensions are role-invariant).
 void main() {
-  const neutralPrompt = 'اختر لاعبًا';
+  const neutralPrompt = 'اختار لاعب';
   const neutralDetail = 'تفصيل';
 
   const allStates = <TurnShellState>[
@@ -52,7 +53,7 @@ void main() {
     await TurnShellHarness.completeHold(tester);
     frames[TurnShellState.revealed] = await TurnShellHarness.capture(tester);
 
-    await tester.tap(find.text('Seat 1'));
+    await tester.tap(find.byKey(NightGrid.tile(1)));
     await tester.pump();
     frames[TurnShellState.selecting] = await TurnShellHarness.capture(tester);
 
@@ -89,7 +90,7 @@ void main() {
     await TurnShellHarness.completeHold(tester);
     record(TurnShellState.revealed);
 
-    await tester.tap(find.text('Seat 1'));
+    await tester.tap(find.byKey(NightGrid.tile(1)));
     await tester.pump();
     record(TurnShellState.selecting);
 
@@ -207,7 +208,7 @@ void main() {
           confirmationDetail: detail,
         );
         await TurnShellHarness.completeHold(tester);
-        await tester.tap(find.text('Seat 1'));
+        await tester.tap(find.byKey(NightGrid.tile(1)));
         await tester.pump(const Duration(seconds: 9));
         await tester.tap(find.byKey(TurnShell.actionButton));
         await tester.pump(const Duration(seconds: 4));

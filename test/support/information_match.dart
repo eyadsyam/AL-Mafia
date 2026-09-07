@@ -22,17 +22,15 @@ const Map<Role, int> kRoles = {
 /// A started match with the three layers on and the roles above dealt.
 MatchEngine informationMatch({
   int seed = 7,
-  MatchSettings settings = const MatchSettings(whisperEnabled: true),
+  MatchSettings settings = const MatchSettings(
+    whisperEnabled: true,
+    openingRoundEnabled: true,
+  ),
   List<String> names = kNames,
   Map<Role, int> roles = kRoles,
 }) {
   final engine = MatchEngine(clock: Clocks.monotonic());
-  engine.start(
-    names: names,
-    roleCounts: roles,
-    settings: settings,
-    seed: seed,
-  );
+  engine.start(names: names, roleCounts: roles, settings: settings, seed: seed);
   while (engine.match.phase == GamePhase.distributing) {
     engine.confirmRevealed();
   }
@@ -67,7 +65,7 @@ int firstLegalTarget(MatchEngine engine, int seat) {
 void playQuietNight(MatchEngine engine) {
   engine.beginNight();
   while (engine.match.currentActorSeat != null) {
-    engine.skipNightAction(seat: engine.match.currentActorSeat!);
+    skipOrProtect(engine, engine.match.currentActorSeat!);
   }
   engine.resolveNight();
 }
@@ -83,7 +81,7 @@ void playScriptedNight(MatchEngine engine, Map<int, int?> choices) {
     final seat = engine.match.currentActorSeat!;
     final target = choices[seat];
     if (target == null) {
-      engine.skipNightAction(seat: seat);
+      skipOrProtect(engine, seat);
       continue;
     }
     engine.submitNightAction(
@@ -137,4 +135,16 @@ int _nextLivingSeat(MatchEngine engine, int seat) {
     }
   }
   throw StateError('nobody left for seat $seat to name');
+}
+
+void skipOrProtect(MatchEngine engine, int seat) {
+  if (engine.match.players[seat].role == Role.doctor) {
+    engine.submitNightAction(
+      seat: seat,
+      kind: NightActionKind.protect,
+      targetSeat: firstLegalTarget(engine, seat),
+    );
+  } else {
+    engine.skipNightAction(seat: seat);
+  }
 }

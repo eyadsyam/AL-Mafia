@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 import '../../engine/models/enums.dart' show Role;
 import '../../app/l10n/app_localizations.dart';
 import '../theme/mafia_theme.dart';
+import 'hint_slot.dart';
 import 'hold_pad.dart';
-import 'player_tile.dart';
+import 'night_grid.dart';
 import 'textured_surface.dart';
 
 /// The five observable states of a single in-hand turn.
@@ -32,41 +33,6 @@ enum TurnShellState {
   passUnlocked,
 }
 
-/// A selectable target within a turn. Seat + display name + tile state — never
-/// a role.
-@immutable
-class TurnTarget {
-  final int seat;
-  final String name;
-
-  /// Contents of the reserved indicator slot. Non-zero only for a Mafia actor,
-  /// but the slot itself is laid out identically for everyone (L-02).
-  final int indicatorCount;
-
-  /// Whether this seat can be picked right now. Never role-derived.
-  final bool selectable;
-
-  const TurnTarget({
-    required this.seat,
-    required this.name,
-    this.indicatorCount = 0,
-    this.selectable = true,
-  });
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TurnTarget &&
-          runtimeType == other.runtimeType &&
-          seat == other.seat &&
-          name == other.name &&
-          indicatorCount == other.indicatorCount &&
-          selectable == other.selectable;
-
-  @override
-  int get hashCode => Object.hash(seat, name, indicatorCount, selectable);
-}
-
 /// All user-visible copy used by [TurnShell].
 ///
 /// Injected rather than read from [AppLocalizations] so that golden tests can
@@ -80,24 +46,21 @@ class TurnShellLabels {
   final String waitHint;
   final String pickHint;
   final String confirmAction;
+  /// «تم تسجيل اختيارك», and one line under it.
+  ///
+  /// Doc 14 §1.4 took away the keep-the-phone reminder and the whisper card —
+  /// three answers to a question nobody asked, on the one screen in the app
+  /// that exists to say a single thing.
+  ///
+  /// It also said to take away the echo of the name just picked, and that part
+  /// was amended on 2026-09-04 because removing it leaked. The Detective is
+  /// told their answer on this screen and nowhere else (doc 05 rule 10), so a
+  /// screen where only the Detective has a word on it is a screen that names
+  /// the Detective. Measured at 2.26% off the set mean against L-05's ±2%
+  /// budget. See `_detailSlot`.
   final String confirmedTitle;
-  final String confirmedBody;
   final String passAction;
   final String passLockedHint;
-
-  /// Caption above the whisper slot.
-  final String whisperLabel;
-
-  /// What the whisper slot says when nothing is waiting.
-  ///
-  /// Not an absence — a sentence. Doc 09 §3.6 and doc 11 H-E8 both make this
-  /// mandatory: if the card only appeared for a player who had received a
-  /// whisper, the *number of screens* in a turn would say who did, and the
-  /// whole table can count screens.
-  final String whisperEmpty;
-
-  /// The control that records a night turn with no target.
-  final String skipAction;
 
   const TurnShellLabels({
     required this.turnLabel,
@@ -107,12 +70,8 @@ class TurnShellLabels {
     required this.pickHint,
     required this.confirmAction,
     required this.confirmedTitle,
-    required this.confirmedBody,
     required this.passAction,
     required this.passLockedHint,
-    required this.whisperLabel,
-    required this.whisperEmpty,
-    required this.skipAction,
   });
 
   /// Builds the labels from the app's localisations.
@@ -124,16 +83,12 @@ class TurnShellLabels {
     turnLabel: l10n.yourTurn,
     handoffInstruction: l10n.holdToConfirm,
     notYou: l10n.notYou,
-    waitHint: l10n.takeYourTime,
+    waitHint: '',
     pickHint: l10n.choosePlayer,
     confirmAction: l10n.confirmAction,
     confirmedTitle: l10n.choiceRecorded,
-    confirmedBody: l10n.keepPhoneUntilUnlock,
     passAction: l10n.passPhone,
     passLockedHint: l10n.waitEllipsis,
-    whisperLabel: l10n.whisperLabel,
-    whisperEmpty: l10n.whisperNoneForYou,
-    skipAction: l10n.nightChooseNobody,
   );
 }
 
@@ -175,36 +130,36 @@ class TurnShell extends StatefulWidget {
   /// The role-specific question. Text only — never affects geometry.
   final String promptText;
 
-  /// Selectable seats. Identical set for every role in a given night.
-  final List<TurnTarget> targets;
+  /// Every tile on the grid, in order, with the special one last.
+  ///
+  /// Doc 14 §1.3. The shell does not know which of them is special and does not
+  /// need to: it is *N* tiles for every role, and the one difference between
+  /// two roles' screens is the words inside them.
+  final List<NightChoice> choices;
 
   /// Optional post-confirm detail (e.g. the Detective's ephemeral result).
   /// The slot that holds it is always present and always the same height, so
   /// its emptiness is not observable (L-02).
   final String? confirmationDetail;
 
-  /// The whisper waiting for this player, or null for "none waiting".
-  ///
-  /// Null does **not** hide the slot — see [TurnShellLabels.whisperEmpty]. The
-  /// slot disappears only when [whispersEnabled] is false, which is a property
-  /// of the match and therefore identical for every seat in it.
-  final String? whisperBody;
-
-  /// Whether this match runs the whisper layer at all.
-  final bool whispersEnabled;
-
-  /// Fired once, when the whisper slot first becomes readable, so the caller
-  /// can mark it delivered.
-  final VoidCallback? onWhisperRead;
-
+  /// Fires with the picked seat, or [NightChoice.skipSeat] when the special
+  /// tile was the pick. One callback, because the grid has one kind of tile.
   final ValueChanged<int> onConfirmed;
-
-  /// Records the turn with no target chosen. Null leaves the control out —
-  /// which is a match-level decision, never a per-role one.
-  final VoidCallback? onSkip;
 
   final VoidCallback onPass;
   final VoidCallback? onNotYou;
+
+  /// Builds doc 13 §4.2's Tier-1 hint, given what this screen could teach.
+  ///
+  /// # Why this is injected rather than built here
+  ///
+  /// The slot's *space* belongs to the shell and is reserved unconditionally
+  /// below — that is a doc 05 obligation and it cannot be optional. What goes
+  /// in it needs the installation's seen-set, which needs storage, which needs
+  /// a provider scope; and the golden suite pumps this widget bare, with no
+  /// app behind it, precisely so that what it measures is the shell and not
+  /// the application. So the shell holds the space and the caller fills it.
+  ///
   final ValueChanged<TurnShellState>? onStateChanged;
 
   /// All user-visible copy. Required rather than defaulted: a default would be
@@ -218,7 +173,6 @@ class TurnShell extends StatefulWidget {
   static const Key slotRail = ValueKey('turn_shell_rail');
   static const Key slotBody = ValueKey('turn_shell_body');
   static const Key slotDetail = ValueKey('turn_shell_detail');
-  static const Key slotWhisper = ValueKey('turn_shell_whisper');
   static const Key slotAction = ValueKey('turn_shell_action');
   static const Key slotFootnote = ValueKey('turn_shell_footnote');
 
@@ -228,8 +182,8 @@ class TurnShell extends StatefulWidget {
   /// Key of the hold-to-reveal identity pad.
   static const Key holdPad = ValueKey('turn_shell_hold_pad');
 
-  /// Key of the "choose nobody" control.
-  static const Key skipButton = ValueKey('turn_shell_skip_button');
+  /// The grid itself. Measured by the golden symmetry suite.
+  static const Key slotGrid = ValueKey('turn_shell_grid');
 
   const TurnShell({
     super.key,
@@ -237,14 +191,10 @@ class TurnShell extends StatefulWidget {
     required this.playerName,
     required this.role,
     required this.promptText,
-    required this.targets,
+    required this.choices,
     required this.onConfirmed,
     required this.onPass,
     this.confirmationDetail,
-    this.whisperBody,
-    this.whispersEnabled = false,
-    this.onWhisperRead,
-    this.onSkip,
     this.onNotYou,
     this.onStateChanged,
     required this.labels,
@@ -349,15 +299,6 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
   bool get _confirmEnabled =>
       _dwellElapsed && _selectedSeat != null && !_confirmed;
 
-  /// Choosing nobody is gated on exactly the same dwell as confirming.
-  ///
-  /// Not because a fast skip would leak — the pass control is what ends the
-  /// turn, and it is measured from the reveal — but because two controls on one
-  /// screen that unlock at different moments are two different affordances, and
-  /// one path with one shape for every role is the whole of L-05.
-  bool get _skipEnabled =>
-      widget.onSkip != null && _dwellElapsed && !_confirmed;
-
   bool get _passEnabled => _confirmed && _floorElapsed;
 
   void _select(int seat) {
@@ -365,34 +306,17 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
     setState(() => _selectedSeat = seat);
   }
 
+  /// Commits the turn. **One tap** — doc 14 §1.3.
+  ///
+  /// The long press survives on exactly the two screens where a stray thumb
+  /// costs something: the identity pad above, and the role card. Everywhere
+  /// else it was a tax charged on every player, every night, to guard against
+  /// a mistake that the dwell gate already makes almost impossible.
   void _confirm() {
     if (!_confirmEnabled) return;
     final seat = _selectedSeat!;
     setState(() => _confirmed = true);
     widget.onConfirmed(seat);
-  }
-
-  void _skip() {
-    if (!_skipEnabled) return;
-    setState(() {
-      _selectedSeat = null;
-      _confirmed = true;
-    });
-    widget.onSkip!.call();
-  }
-
-  /// True once the whisper slot has been on screen; the read is reported once.
-  bool _whisperReported = false;
-
-  void _reportWhisperRead() {
-    if (_whisperReported) return;
-    if (widget.whisperBody == null) return;
-    _whisperReported = true;
-    final cb = widget.onWhisperRead;
-    if (cb == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) cb();
-    });
   }
 
   void _notifyStateIfChanged() {
@@ -443,7 +367,23 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
                   Expanded(
                     child: KeyedSubtree(
                       key: TurnShell.slotBody,
-                      child: _body(state),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Doc 13 §4.2's slot, now reserved and empty.
+                          //
+                          // Doc 14 Part 6 took the words out of it — *"no hint,
+                          // tip, or strategy line appears on any screen during
+                          // a live match"* — and the height stays because the
+                          // reservation is what keeps four roles' screens the
+                          // same height whatever else changes above it. It is
+                          // measured, not decorative: `luminance_budget_test`
+                          // fails the day one state is shorter than another.
+                          SizedBox(height: HintSlot.reservedHeight(context)),
+                          SizedBox(height: spacing.sm),
+                          Expanded(child: _body(state)),
+                        ],
+                      ),
                     ),
                   ),
                   SizedBox(height: spacing.md),
@@ -451,22 +391,11 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
                     key: TurnShell.slotDetail,
                     child: _detailSlot(state),
                   ),
-                  if (widget.whispersEnabled) ...[
-                    SizedBox(height: spacing.sm),
-                    KeyedSubtree(
-                      key: TurnShell.slotWhisper,
-                      child: _whisperSlot(state),
-                    ),
-                  ],
                   SizedBox(height: spacing.md),
                   KeyedSubtree(
                     key: TurnShell.slotAction,
                     child: _actionSlot(state),
                   ),
-                  if (widget.onSkip != null) ...[
-                    SizedBox(height: spacing.xs),
-                    _skipSlot(state),
-                  ],
                   SizedBox(height: spacing.sm),
                   KeyedSubtree(
                     key: TurnShell.slotFootnote,
@@ -570,12 +499,29 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
         return _handoffPad();
       case TurnShellState.revealed:
       case TurnShellState.selecting:
-        return _targetPanel();
+        return _gridPanel();
       case TurnShellState.confirmed:
       case TurnShellState.passUnlocked:
         return _confirmedPanel();
     }
   }
+
+  /// Centres [child] in the body, and lets it scroll when the body is shorter
+  /// than it is.
+  ///
+  /// The handoff pad is a fixed circle and the confirmed panel is fixed text;
+  /// neither can give way, so on a short screen one of them has to be allowed
+  /// to move rather than to overflow. Centred when there is room — which is
+  /// every real phone — and scrollable when there is not. Identical for all
+  /// four roles either way, which is the only property doc 05 cares about.
+  Widget _fitCentred(Widget child) => LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: child,
+          ),
+        ),
+      );
 
   Widget _handoffPad() {
     final colors = context.colors;
@@ -583,7 +529,7 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
     final type = context.typography;
     final diameter = spacing.xxl * 3;
 
-    return Column(
+    return _fitCentred(Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         KeyedSubtree(
@@ -607,10 +553,16 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
           ),
         ),
       ],
-    );
+    ));
   }
 
-  Widget _targetPanel() {
+  /// Doc 14 §1.3: the prompt, then every option, on one screen.
+  ///
+  /// It used to be a scrolling column of full-width rows with the skip control
+  /// under the confirm button and the ability control between the two. Three
+  /// places to look for one decision, and at twelve players two of them were
+  /// below the fold.
+  Widget _gridPanel() {
     final colors = context.colors;
     final spacing = context.spacing;
     final type = context.typography;
@@ -622,27 +574,18 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
           widget.promptText,
           style: type.title.copyWith(color: colors.textPrimary),
           textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
         SizedBox(height: spacing.md),
         Expanded(
-          child: ListView.separated(
-            padding: EdgeInsets.zero,
-            itemCount: widget.targets.length,
-            separatorBuilder: (_, __) => SizedBox(height: spacing.sm),
-            itemBuilder: (context, index) {
-              final target = widget.targets[index];
-              return PlayerTile(
-                seat: target.seat,
-                name: target.name,
-                indicatorCount: target.indicatorCount,
-                state: !target.selectable
-                    ? PlayerTileState.disabled
-                    : _selectedSeat == target.seat
-                    ? PlayerTileState.selected
-                    : PlayerTileState.normal,
-                onTap: () => _select(target.seat),
-              );
-            },
+          child: KeyedSubtree(
+            key: TurnShell.slotGrid,
+            child: NightGrid(
+              choices: widget.choices,
+              selectedSeat: _selectedSeat,
+              onPick: _confirmed ? null : _select,
+            ),
           ),
         ),
       ],
@@ -654,79 +597,65 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
     final spacing = context.spacing;
     final type = context.typography;
 
-    return Column(
+    return _fitCentred(Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        Icon(
+          Icons.check,
+          size: spacing.xl,
+          color: colors.accentGold,
+        ),
+        SizedBox(height: spacing.md),
         Text(
           widget.labels.confirmedTitle,
           style: type.title.copyWith(color: colors.textPrimary),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: spacing.sm),
-        Text(
-          widget.labels.confirmedBody,
-          style: type.bodySmall.copyWith(color: colors.textSecondary),
-          textAlign: TextAlign.center,
-        ),
       ],
-    );
+    ));
   }
 
-  /// Reserved detail slot. Present and identically sized in every state and for
-  /// every role, whether or not there is anything to show (L-02).
-  /// The Detective's result, and an equally-sized nothing for everyone else.
+  /// Reserved detail slot: the Detective's result, and an equally-sized
+  /// nothing for everyone else (L-02).
   ///
-  /// ## The box is back, and only when there is something in it
+  /// ## What used to be in here, and why it is not any more
   ///
-  /// Three versions of this slot, and the reasoning for the third is the one
-  /// worth keeping:
+  /// Three things at once: a bordered gold panel, the Detective's verdict
+  /// inside it, and — for the other three roles — an echo of the name they had
+  /// just picked, put there so that the panel was not drawn for one role alone
+  /// and blowing the luminance budget with it.
   ///
-  /// 1. A filled, bordered panel drawn in every state for every role. Empty for
-  ///    three players out of four, which read as a bug and was reported as one.
-  /// 2. No panel at all, just text. That fixed the empty box and created a
-  ///    worse problem — the one player who *does* get a result got a bare word
-  ///    floating in the layout with nothing to say it was the answer to their
-  ///    question.
-  /// 3. This: the panel is drawn **only when it has content**, and the space it
-  ///    occupies is reserved unconditionally.
+  /// Doc 14 §1.4 takes the **panel** away: the confirmation screen is a tick
+  /// and a sentence, and a bordered gold box under it was a third thing to
+  /// read on the screen that exists to say one thing.
   ///
-  /// ## What that costs, stated rather than glossed
+  /// ## Why the echo stayed, when doc 14 says "no name"
   ///
-  /// L-02 asks that the slot's emptiness not be observable, and a panel that
-  /// appears is a larger change in emitted light than a word that appears. That
-  /// is a real cost and it is accepted deliberately: the *bounds* never move —
-  /// the golden suite measures [TurnShell.slotDetail]'s rect for all four roles
-  /// in every state — and the alternative was a result the player could not
-  /// reliably identify as their result. A detective who misreads their own
-  /// investigation is a worse failure than a detective whose screen is a few
-  /// hundred lumens brighter for four seconds.
+  /// Because doc 05 outranks doc 14 and this is doc 05's territory. Dropping
+  /// the echo was tried: it puts the Detective **2.26%** off the set mean in
+  /// the `confirmed` state, against a ±2% budget that has never moved, because
+  /// three screens then carry nothing here and one carries a word. The budget
+  /// is not a style rule — it is the measurement of how much light a phone
+  /// throws onto its holder's face, and the whole point of it is that a
+  /// Detective's turn must not be brighter than a Citizen's.
+  ///
+  /// So all four keep a word, drawn identically: the Detective's is their
+  /// verdict, everyone else's is the seat they picked. Which is also the thing
+  /// the user's complaint was actually about — *"under the name you chose is
+  /// the whisper system"* — and the whisper is what went.
   Widget _detailSlot(TurnShellState state) {
     final colors = context.colors;
     final spacing = context.spacing;
-    final radii = context.radii;
     final type = context.typography;
 
-    // Every role gets a line, and only the *text* differs — which is all
-    // Article II permits a role to change anyway.
-    //
-    // The detective's line is their verdict. Everyone else falls back to the
-    // name they picked, which is genuinely useful: in a dark room it is the
-    // only confirmation that the tap landed on the seat they meant.
-    //
-    // This fallback is not cosmetic. With a panel for one role and bare ground
-    // for the other three, the shell went over the ±2% luminance budget and
-    // `luminance_budget_test` caught it — a filled box is a lot of light.
-    // Differences between two names are well inside the budget; a whole panel
-    // is not.
     final picked = _selectedSeat;
     final detail = widget.confirmationDetail ??
         (picked == null
             ? null
-            : widget.targets
-                .where((t) => t.seat == picked)
-                .map((t) => t.name)
+            : widget.choices
+                .where((c) => c.seat == picked)
+                .map((c) => c.label)
                 .firstOrNull);
-
     final showDetail = detail != null &&
         (state == TurnShellState.confirmed ||
             state == TurnShellState.passUnlocked);
@@ -735,146 +664,18 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
       // Unconditional. This is the part L-02 actually requires.
       height: _reserve(spacing.xxl),
       child: showDetail
-          ? DecoratedBox(
-              decoration: BoxDecoration(
-                color: colors.surfaceRaised,
-                borderRadius: BorderRadius.circular(radii.card),
-                border: Border.all(color: colors.accentGold),
-              ),
-              child: Center(
-                child: Text(
-                  detail,
-                  // Emphasised, and note what is in this slot: a role name for
-                  // the detective and a player name for everyone else. Those
-                  // are exactly the two kinds of word the app sets in the
-                  // heavy cut, so one style is right for both — and because it
-                  // is one style applied unconditionally, the four roles keep
-                  // rendering the same amount of ink here. Emphasising only
-                  // one of the two cases is what would put this over the
-                  // luminance budget.
-                  style: type.title.emphasised.copyWith(color: colors.textPrimary),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
+          ? Center(
+              child: Text(
+                detail,
+                style: type.title.emphasised.copyWith(
+                  color: colors.textPrimary,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
             )
           : const SizedBox.expand(),
-    );
-  }
-
-  /// "Choose nobody" — the same control, in the same place, for every role.
-  ///
-  /// ## Why every role gets it and not just the Citizen
-  ///
-  /// Doc 11 N10 names one case: a Citizen who declines to record a suspicion,
-  /// which feeds `T6` and `C10`. If that were the only case, the control would
-  /// exist on one role's screen and be absent from three — the cleanest
-  /// structural tell in the app, and a direct breach of doc 05 rules 5 and 6.
-  ///
-  /// It is also the right game rule. Doc 10 §8.2 already needs three of the
-  /// four roles to have a null action for timer expiry ("no protection", "no
-  /// investigation", "recorded as skipped"), and a Mafia who deliberately kills
-  /// nobody is a legal and occasionally very good night.
-  ///
-  /// Low emphasis, below the primary action: it is an alternative to the
-  /// confirm, not a competitor for it.
-  Widget _skipSlot(TurnShellState state) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final type = context.typography;
-
-    final isPassPhase = state == TurnShellState.confirmed ||
-        state == TurnShellState.passUnlocked;
-
-    return SizedBox(
-      height: _reserve(spacing.xl),
-      child: isPassPhase
-          // Gone once the turn is recorded, exactly like the Confirm it sits
-          // under — and gone for everyone at the same moment, because the
-          // moment is a function of the shared turn clock.
-          ? const SizedBox.expand()
-          : TextButton(
-              key: TurnShell.skipButton,
-              onPressed: _skipEnabled ? _skip : null,
-              style: TextButton.styleFrom(
-                foregroundColor: colors.textMuted,
-                disabledForegroundColor: colors.surfaceOverlay,
-              ),
-              child: Text(
-                widget.labels.skipAction,
-                style: type.bodySmall,
-                maxLines: 1,
-                textAlign: TextAlign.center,
-              ),
-            ),
-    );
-  }
-
-  /// The whisper slot (doc 09 §3.6).
-  ///
-  /// ## This is the one slot that may never vary by recipient
-  ///
-  /// Doc 11 H-E8 makes it mandatory and says why: the card must appear on every
-  /// player's turn, empty state included, *"otherwise screen count leaks who
-  /// received one."* So the box, the border, the caption, the height and the
-  /// moment it appears are all fixed, and the only thing that differs between a
-  /// player with a whisper and a player without one is the sentence inside it.
-  /// Two players holding the phone produce the same shape, the same amount of
-  /// light and the same number of screens whatever is waiting for them.
-  ///
-  /// It shows from the confirmed state onward, which is the "second screen" of
-  /// doc 05 rule 1 — the part of a turn that is otherwise dead time while the
-  /// pass floor runs down.
-  Widget _whisperSlot(TurnShellState state) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final radii = context.radii;
-    final type = context.typography;
-
-    final visible = state == TurnShellState.confirmed ||
-        state == TurnShellState.passUnlocked;
-    if (visible) _reportWhisperRead();
-
-    return SizedBox(
-      // Unconditional, like every other reservation in this shell.
-      height: _reserve(spacing.xxl + spacing.md),
-      child: !visible
-          ? const SizedBox.expand()
-          : DecoratedBox(
-              decoration: BoxDecoration(
-                color: colors.surfaceRaised,
-                borderRadius: BorderRadius.circular(radii.card),
-                border: Border.all(color: colors.borderSubtle),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: spacing.sm),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      widget.labels.whisperLabel,
-                      style: type.caption.copyWith(color: colors.textMuted),
-                      maxLines: 1,
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: spacing.xs),
-                    Text(
-                      widget.whisperBody ?? widget.labels.whisperEmpty,
-                      style: type.bodySmall.copyWith(
-                        // One colour for both cases. A whisper set brighter
-                        // than the empty line would put the difference back
-                        // into the light the neighbours can see.
-                        color: colors.textSecondary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
     );
   }
 

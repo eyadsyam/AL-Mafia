@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../app/asset_constants.dart';
 import '../../../engine/models/enums.dart';
 import '../../../engine/models/player.dart';
+import '../../widgets/hint_slot.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/phase_timer.dart';
@@ -19,14 +20,27 @@ import '../../widgets/textured_surface.dart';
 ///
 /// Reference: spec FR-016, FR-017, T034
 class DiscussionScreen extends StatefulWidget {
+  static const Key skipButton = ValueKey('discussion_skip');
+
   /// Discussion mode: structured (taking turns) or free (open discussion).
   final DiscussionMode mode;
 
   /// List of alive players in seating order.
   final List<PublicPlayer> alivePlayers;
 
-  /// Time allowed per speaker (structured) or total time (free).
+  /// Time allowed per speaker in structured mode.
   final Duration perSpeakerTime;
+
+  /// How long the whole free discussion runs.
+  ///
+  /// Free mode used to derive this as [perSpeakerTime] times the head count,
+  /// which made "how long may we argue" a number nobody had ever chosen — and
+  /// made it *grow* with the table exactly where doc 13 §3 wants it to shrink.
+  /// It is now its own setting, and the pressure curve tightens it.
+  ///
+  /// Null falls back to the old derivation, which is what a caller that has
+  /// not been told about the setting still gets.
+  final Duration? totalTime;
 
   /// Callback when discussion ends.
   final VoidCallback onFinished;
@@ -56,11 +70,19 @@ class DiscussionScreen extends StatefulWidget {
   /// public. The content is private."* Nothing here carries a body.
   final List<(String, String)> whisperGraph;
 
+  /// Whether doc 13 §4.2's one-line interface hints are printed at all.
+  ///
+  /// The slot's space is reserved either way; this only decides whether
+  /// anything goes in it. See [HintSlot].
+  final bool interfaceHintsEnabled;
+
   const DiscussionScreen({
     super.key,
+    this.interfaceHintsEnabled = true,
     required this.mode,
     required this.alivePlayers,
     required this.perSpeakerTime,
+    this.totalTime,
     required this.onFinished,
     this.onSpeakerChanged,
     this.onTimerEnded,
@@ -87,7 +109,9 @@ class _DiscussionScreenState extends State<DiscussionScreen>
     if (widget.mode == DiscussionMode.structured) {
       _remaining = widget.perSpeakerTime;
     } else {
-      _remaining = widget.perSpeakerTime * widget.alivePlayers.length;
+      _remaining =
+          widget.totalTime ??
+          widget.perSpeakerTime * widget.alivePlayers.length;
     }
     _startCountdown();
   }
@@ -119,10 +143,7 @@ class _DiscussionScreenState extends State<DiscussionScreen>
     if (report == null) return;
     if (widget.mode != DiscussionMode.structured) return;
     if (_currentSpeakerIndex >= widget.alivePlayers.length) return;
-    report(
-      widget.alivePlayers[_currentSpeakerIndex].seat,
-      used.inSeconds,
-    );
+    report(widget.alivePlayers[_currentSpeakerIndex].seat, used.inSeconds);
   }
 
   void _handlePhaseEnd() {
@@ -226,7 +247,13 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                       style: type.display.copyWith(color: colors.textPrimary),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: spacing.lg),
+                    SizedBox(height: spacing.sm),
+                    // Doc 14 Part 6: the row is reserved and empty. Nothing
+                    // teaches during a live match, in either mode — but the
+                    // reservation is what keeps the screen the same height as
+                    // it was, so the timer under it does not jump.
+                    SizedBox(height: HintSlot.reservedHeight(context)),
+                    SizedBox(height: spacing.sm),
 
                     // Speaker info (structured mode only)
                     if (widget.mode == DiscussionMode.structured) ...[
@@ -302,6 +329,7 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                         // Skip button
                         Expanded(
                           child: OutlinedButton(
+                            key: DiscussionScreen.skipButton,
                             onPressed: _skipSpeaker,
                             style: OutlinedButton.styleFrom(
                               foregroundColor: colors.textPrimary,
@@ -366,7 +394,6 @@ class _DiscussionScreenState extends State<DiscussionScreen>
     );
   }
 }
-
 
 /// The public half of the whisper layer, on the discussion screen.
 ///

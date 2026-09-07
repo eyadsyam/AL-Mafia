@@ -28,10 +28,14 @@ class MemoryMatchStore {
   /// which is how the tests simulate a relaunch.
   bool onboardingSeen = false;
 
+  /// Tier-1 interface hints already shown, for the same reason.
+  final Set<String> seenHints = {};
+
   void clear() {
     matches.clear();
     defaultSettings = null;
     onboardingSeen = false;
+    seenHints.clear();
   }
 }
 
@@ -127,6 +131,17 @@ class MemoryMatchRepository implements MatchRepository {
   Future<void> markOnboardingSeen() async {
     store.onboardingSeen = true;
   }
+
+  @override
+  Future<Set<String>> loadSeenHints() async => {...store.seenHints};
+
+  @override
+  Future<void> markHintSeen(String hintId) async {
+    store.seenHints.add(hintId);
+  }
+
+  @override
+  Future<void> resetSeenHints() async => store.seenHints.clear();
 
   static Match _decode(String encoded) =>
       MatchCodec.decode(jsonDecode(encoded) as Map<String, dynamic>);

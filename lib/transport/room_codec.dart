@@ -26,6 +26,7 @@ import '../engine/models/match.dart';
 import '../engine/models/match_settings.dart';
 import '../engine/models/player.dart';
 import '../engine/views.dart';
+import '../engine/voice_policy.dart';
 import 'game_snapshot.dart';
 import 'online_backend.dart';
 
@@ -36,40 +37,40 @@ import 'online_backend.dart';
 /// screen of its own. Everything else is one-to-one, which is deliberate: two
 /// vocabularies that nearly line up are worse than two that do.
 GamePhase phaseFromServer(String phase) => switch (phase) {
-      'lobby' => GamePhase.setup,
-      'reveal' => GamePhase.distributing,
-      'night' => GamePhase.night,
-      'morning' => GamePhase.morning,
-      'opening' => GamePhase.openingRound,
-      'confront' => GamePhase.confrontation,
-      'discuss' => GamePhase.discussion,
-      'defense' => GamePhase.discussion,
-      'vote' => GamePhase.voting,
-      'result' => GamePhase.result,
-      _ => GamePhase.setup,
-    };
+  'lobby' => GamePhase.setup,
+  'reveal' => GamePhase.distributing,
+  'night' => GamePhase.night,
+  'morning' => GamePhase.morning,
+  'opening' => GamePhase.openingRound,
+  'confront' => GamePhase.confrontation,
+  'discuss' => GamePhase.discussion,
+  'defense' => GamePhase.discussion,
+  'vote' => GamePhase.voting,
+  'result' => GamePhase.result,
+  _ => GamePhase.setup,
+};
 
 /// The inverse, for the phase a client asks the server to open.
 String phaseToServer(GamePhase phase) => switch (phase) {
-      GamePhase.setup || GamePhase.rolesConfigured => 'lobby',
-      GamePhase.distributing || GamePhase.preNightLobby => 'reveal',
-      GamePhase.night || GamePhase.nightResolving => 'night',
-      GamePhase.morning => 'morning',
-      GamePhase.openingRound => 'opening',
-      GamePhase.confrontation => 'confront',
-      GamePhase.discussion => 'discuss',
-      GamePhase.voting || GamePhase.voteResolving => 'vote',
-      GamePhase.reveal || GamePhase.winCheck => 'vote',
-      GamePhase.result || GamePhase.analytics => 'result',
-    };
+  GamePhase.setup || GamePhase.rolesConfigured => 'lobby',
+  GamePhase.distributing || GamePhase.preNightLobby => 'reveal',
+  GamePhase.night || GamePhase.nightResolving => 'night',
+  GamePhase.morning => 'morning',
+  GamePhase.openingRound => 'opening',
+  GamePhase.confrontation => 'confront',
+  GamePhase.discussion => 'discuss',
+  GamePhase.voting || GamePhase.voteResolving => 'vote',
+  GamePhase.reveal || GamePhase.winCheck => 'vote',
+  GamePhase.result || GamePhase.analytics => 'result',
+};
 
 Role? roleFromServer(String? role) => switch (role) {
-      'mafia' => Role.mafia,
-      'doctor' => Role.doctor,
-      'detective' => Role.detective,
-      'citizen' => Role.citizen,
-      _ => null,
-    };
+  'mafia' => Role.mafia,
+  'doctor' => Role.doctor,
+  'detective' => Role.detective,
+  'citizen' => Role.citizen,
+  _ => null,
+};
 
 String roleToServer(Role role) => role.name;
 
@@ -81,11 +82,11 @@ String roleToServer(Role role) => role.name;
 /// Translating in one function is the whole of keeping that difference from
 /// spreading.
 String nightActionToServer(NightActionKind kind) => switch (kind) {
-      NightActionKind.mafiaVote => 'kill',
-      NightActionKind.protect => 'protect',
-      NightActionKind.investigate => 'investigate',
-      NightActionKind.suspect => 'suspect',
-    };
+  NightActionKind.mafiaVote => 'kill',
+  NightActionKind.protect => 'protect',
+  NightActionKind.investigate => 'investigate',
+  NightActionKind.suspect => 'suspect',
+};
 
 TraceResult? traceFromJson(Object? value) {
   if (value is! Map) return null;
@@ -159,15 +160,15 @@ Map<int, int> accusationsFromJson(Object? value) {
 }
 
 List<WhisperMeta> whisperGraph(List<WhisperRow> rows, int day) => [
-      for (final row in rows.where((w) => w.day == day))
-        WhisperMeta(
-          id: row.id,
-          day: row.day,
-          fromSeat: row.fromSeat,
-          toSeat: row.toSeat,
-          voided: row.voided,
-        ),
-    ];
+  for (final row in rows.where((w) => w.day == day))
+    WhisperMeta(
+      id: row.id,
+      day: row.day,
+      fromSeat: row.fromSeat,
+      toSeat: row.toSeat,
+      voided: row.voided,
+    ),
+];
 
 /// The final standings, which the server writes only when it sets `result`.
 ///
@@ -175,10 +176,7 @@ List<WhisperMeta> whisperGraph(List<WhisperRow> rows, int day) => [
 /// the key is absent for the whole of a live match. That is the difference
 /// between a screen that may not show roles and a payload that does not have
 /// any.
-List<FinalStanding> standingsFromJson(
-  Object? value,
-  List<RoomPlayer> players,
-) {
+List<FinalStanding> standingsFromJson(Object? value, List<RoomPlayer> players) {
   if (value is! List) return const [];
   final nameOf = {for (final p in players) p.seat: p.name};
   final out = <FinalStanding>[];
@@ -187,17 +185,19 @@ List<FinalStanding> standingsFromJson(
     final seat = (entry['seat'] as num?)?.toInt();
     final role = roleFromServer(entry['role'] as String?);
     if (seat == null || role == null) continue;
-    out.add(FinalStanding(
-      seat: seat,
-      name: nameOf[seat] ?? '',
-      role: role,
-      eliminatedPhase: switch (entry['eliminatedPhase']) {
-        'night' => GamePhase.night,
-        'day' => GamePhase.voting,
-        _ => null,
-      },
-      eliminatedNumber: (entry['eliminatedNumber'] as num?)?.toInt(),
-    ));
+    out.add(
+      FinalStanding(
+        seat: seat,
+        name: nameOf[seat] ?? '',
+        role: role,
+        eliminatedPhase: switch (entry['eliminatedPhase']) {
+          'night' => GamePhase.night,
+          'day' => GamePhase.voting,
+          _ => null,
+        },
+        eliminatedNumber: (entry['eliminatedNumber'] as num?)?.toInt(),
+      ),
+    );
   }
   out.sort((a, b) => a.seat.compareTo(b.seat));
   return out;
@@ -218,6 +218,8 @@ GameSnapshot snapshotFrom({
   List<WhisperRow> whispers = const [],
   bool ownTurnPending = false,
   Map<int, bool>? frozenConnected,
+  Map<int, SeatPresence>? frozenPresence,
+  Map<int, int?> liveBallots = const {},
 }) {
   final phase = phaseFromServer(state.phase);
   final data = state.publicData;
@@ -231,6 +233,10 @@ GameSnapshot snapshotFrom({
         PublicPlayer(
           seat: p.seat,
           name: p.name,
+          gender: PlayerGender.values.firstWhere(
+            (g) => g.name == p.gender,
+            orElse: () => PlayerGender.unspecified,
+          ),
           status: p.alive ? PlayerStatus.alive : PlayerStatus.dead,
         ),
     ],
@@ -254,6 +260,13 @@ GameSnapshot snapshotFrom({
     morning: morningFromJson(data['morning']),
     lastVote: voteFromJson(data['lastVote']),
     settings: settingsFromJson(state.settings),
+    room: RoomOptions(
+      visibility: state.visibility,
+      title: state.title,
+      maxPlayers: (state.settings['maxPlayers'] as num?)?.toInt() ?? 10,
+      voice: state.settings['voice'] as bool? ?? true,
+      muteAllAtNight: state.settings['muteAllAtNight'] as bool? ?? true,
+    ),
     pendingOutcome: switch (data['outcome']) {
       'mafia' => Alignment.mafia,
       'town' => Alignment.town,
@@ -263,8 +276,35 @@ GameSnapshot snapshotFrom({
     // Doc 10 §6.3 — frozen for the whole night, and for the reveal that
     // precedes it. The transport hands in the values from before it started;
     // a live map here would report on who is still deciding.
-    connectedSeats: frozenConnected ??
-        {for (final p in roster) p.seat: p.connected},
+    connectedSeats:
+        frozenConnected ?? {for (final p in roster) p.seat: p.connected},
+    mutedSeats: {
+      for (final p in roster)
+        if (p.muted) p.seat,
+    },
+    viewerKicked: roster
+        .where((p) => p.seat == viewerSeat)
+        .any((p) => p.kicked),
+    hostSeat: roster
+        .where((p) => p.userId == state.hostId)
+        .map((p) => p.seat)
+        .firstOrNull,
+    // A finished room with nothing in the payload that says anybody won. The
+    // only way to reach it is `close_room`, which deliberately writes no
+    // outcome — a room that was closed was not a room that was won, and
+    // inventing an ending would be exactly what rule 4 forbids.
+    roomClosed: state.status == 'finished' && data['outcome'] == null,
+    // Frozen for the night for the same reason `connectedSeats` is: a table
+    // that watched people arrive and leave while the room was dark would be
+    // reporting on who is still deciding.
+    presence:
+        frozenPresence ??
+        {
+          for (final p in roster) p.seat: SeatPresence.fromServer(p.status),
+        },
+    // Doc 12 §3.6. Empty unless the room opted into an open ballot, and empty
+    // then too until somebody votes — the policy decides, not this file.
+    liveBallots: liveBallots,
     // The post-game autopsy reads a local match record, and an online match
     // has not been written to this device's database.
     analyticsAvailable: false,
@@ -282,9 +322,43 @@ GameSnapshot snapshotFrom({
     activeSpeakerSeat: state.activeSpeaker == null
         ? null
         : roster
-            .where((p) => p.userId == state.activeSpeaker)
-            .map((p) => p.seat)
-            .firstOrNull,
+              .where((p) => p.userId == state.activeSpeaker)
+              .map((p) => p.seat)
+              .firstOrNull,
+    // Who has asked. Read straight off the roster and kept as a set, because
+    // the moment it became a list somebody would sort it by `hand_raised_at`
+    // and the queue doc 15 §1.4 removed would be back.
+    //
+    // The floor holder is never in it — the server lowers a hand the instant
+    // it grants that hand the floor — but the filter is here anyway, because a
+    // snapshot arriving mid-write should not show the speaker asking to speak.
+    //
+    // Gated on the phase as well as on the column, and that is not belt and
+    // braces for its own sake. `micPolicyFor` is the same function the server
+    // runs, so a hand can only have been written in a phase where a floor
+    // exists — but doc 05's guarantees are not allowed to rest on the server
+    // having behaved, and the client already collapses every per-seat fact at
+    // night for exactly this reason. A raised hand arriving in a dark phase is
+    // a row that should not exist, and the answer to a row that should not
+    // exist is to draw nothing.
+    // Who the room is still waiting for on the deal. Only during the deal:
+    // the column stays true for the rest of the match and a set that outlived
+    // the phase would read as a list of people who had done nothing.
+    unseenRoleSeats: phase == GamePhase.distributing
+        ? {
+            for (final player in roster)
+              if (!player.sawRole) player.seat,
+          }
+        : const {},
+    raisedHands: micPolicyFor(phase) == MicPolicy.muted
+        ? const {}
+        : {
+            for (final player in roster)
+              if (player.handRaisedAt != null &&
+                  player.alive &&
+                  player.userId != state.activeSpeaker)
+                player.seat,
+          },
   );
 }
 
@@ -303,6 +377,8 @@ MatchSettings settingsFromJson(Object? value) {
       _ => null,
     },
     confrontationSeconds: (value['confrontationSeconds'] as num?)?.toInt(),
+    discussionSeconds: (value['discussionSeconds'] as num?)?.toInt(),
+    openVoting: value['openVoting'] as bool?,
     abstainAllowed: value['abstainAllowed'] as bool?,
     whisperEnabled: value['whisperEnabled'] as bool?,
     traceEnabled: value['traceEnabled'] as bool?,
@@ -310,6 +386,9 @@ MatchSettings settingsFromJson(Object? value) {
     openingRoundEnabled: value['openingRoundEnabled'] as bool?,
     survivorConfrontationEnabled:
         value['survivorConfrontationEnabled'] as bool?,
+    bulletsEnabled: value['bulletsEnabled'] as bool?,
+    quietNightEnabled: value['quietNightEnabled'] as bool?,
+    selfProtectEnabled: value['selfProtectEnabled'] as bool?,
     dayTieRule: switch (value['dayTieRule']) {
       'revote' => DayTieRule.revote,
       'noElimination' => DayTieRule.noElimination,

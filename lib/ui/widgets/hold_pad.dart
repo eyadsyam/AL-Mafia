@@ -122,6 +122,25 @@ class _HoldPadState extends State<HoldPad> with SingleTickerProviderStateMixin {
     _ring.reverse();
   }
 
+  void _move(PointerMoveEvent event) {
+    if (event.pointer != _pointer) return;
+    // The pad is very often replaced by whatever it unlocked — the role card
+    // takes the identity gate's place the instant the hold completes — while
+    // the finger is still down. Every further move of that same finger is then
+    // dispatched to a listener whose element is gone, and reading `context`
+    // there throws once per event: an assertion in a debug build, a null check
+    // in a release one. Nothing breaks, and the log fills with it.
+    if (!mounted) {
+      _pointer = null;
+      return;
+    }
+    final box = context.findRenderObject() as RenderBox?;
+    if (box == null ||
+        !(Offset.zero & box.size).contains(event.localPosition)) {
+      _release(event);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -133,6 +152,7 @@ class _HoldPadState extends State<HoldPad> with SingleTickerProviderStateMixin {
     return Listener(
       behavior: HitTestBehavior.opaque,
       onPointerDown: _down,
+      onPointerMove: _move,
       onPointerUp: _release,
       onPointerCancel: _release,
       child: Semantics(

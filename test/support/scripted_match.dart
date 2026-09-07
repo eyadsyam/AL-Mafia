@@ -124,20 +124,26 @@ MatchEngine playToTiedVote() {
     engine.confirmRevealed();
   }
 
-  // Night in which the doctor self-protects and the mafia targets the doctor,
-  // so nobody dies and all five seats can vote.
+  // A night in which the Mafia take their turn and name nobody, so all five
+  // seats are alive to cast the tie this fixture is for.
+  //
+  // It used to arrange that by having the Doctor cover their own seat against
+  // a Mafia who targeted them. Doc 13 §2 makes self-protection the Doctor's
+  // single bullet and forbids it otherwise, and a Mafia who kills nobody has
+  // always been a legal night, so this is the same outcome by a route the
+  // engine allows.
   engine.beginNight();
-  final doctorSeat =
-      engine.match.players.firstWhere((p) => p.role == Role.doctor).seat;
   while (engine.match.currentActorSeat != null) {
     final seat = engine.match.currentActorSeat!;
     final role = engine.match.players[seat].role;
+    if (role == Role.mafia) {
+      engine.skipNightAction(seat: seat);
+      continue;
+    }
     engine.submitNightAction(
       seat: seat,
       kind: _kindFor(role),
-      targetSeat: role == Role.mafia || role == Role.doctor
-          ? doctorSeat
-          : (seat + 1) % 5,
+      targetSeat: (seat + 1) % 5,
     );
   }
   engine.resolveNight();

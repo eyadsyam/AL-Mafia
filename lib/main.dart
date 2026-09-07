@@ -8,19 +8,17 @@ import 'package:flutter/services.dart'
         SystemUiMode;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'app/app.dart';
 import 'core/theme/app_colors.dart';
-import 'data/isar/isar_match_repository.dart';
-import 'data/isar/isar_player_group_repository.dart';
-import 'data/isar/isar_whisper_store.dart';
-import 'data/match_repository.dart';
+import 'data/local_stores.dart';
+import 'data/local_stores_io.dart'
+    if (dart.library.js_interop) 'data/local_stores_web.dart';
 import 'data/player_group_provider.dart';
-import 'data/player_group_repository.dart';
 import 'data/repository_provider.dart';
 import 'data/whisper_store.dart';
 import 'platform/frame_report.dart';
+import 'ui/screens/setup/setup_draft.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,31 +61,19 @@ Future<void> main() async {
   // Both repositories come out of the same `Isar.open`, and both fall back
   // together: if the database will not open, the app runs entirely on the
   // in-memory stores declared in the providers.
-  MatchRepository? repository;
-  PlayerGroupRepository? groupRepository;
-  WhisperStore? whisperStore;
-  try {
-    final directory = await getApplicationDocumentsDirectory();
-    final isarRepository =
-        await IsarMatchRepository.open(directory: directory.path);
-    repository = isarRepository;
-    groupRepository = IsarPlayerGroupRepository(isarRepository.isar);
-    whisperStore = IsarWhisperStore(isarRepository.isar);
-  } catch (_) {
-    repository = null;
-    groupRepository = null;
-    whisperStore = null;
-  }
+  final LocalStores? stores = await openLocalStores();
+  final savedSettings = await stores?.matches.loadDefaultSettings();
 
   runApp(
     ProviderScope(
       overrides: [
-        if (repository != null)
-          matchRepositoryProvider.overrideWithValue(repository),
-        if (groupRepository != null)
-          playerGroupRepositoryProvider.overrideWithValue(groupRepository),
-        if (whisperStore != null)
-          whisperStoreProvider.overrideWithValue(whisperStore),
+        if (savedSettings != null)
+          initialMatchSettingsProvider.overrideWithValue(savedSettings),
+        if (stores != null) ...[
+          matchRepositoryProvider.overrideWithValue(stores.matches),
+          playerGroupRepositoryProvider.overrideWithValue(stores.groups),
+          whisperStoreProvider.overrideWithValue(stores.whispers),
+        ],
       ],
       child: const MafiaApp(),
     ),

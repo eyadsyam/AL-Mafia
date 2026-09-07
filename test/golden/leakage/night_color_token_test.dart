@@ -51,7 +51,7 @@ void main() {
     'lib/ui/widgets/pass_screen.dart',
     'lib/ui/screens/night/night_action_screen.dart',
     'lib/ui/screens/night/morning_screen.dart',
-    'lib/ui/screens/distribution/pre_night_lobby_screen.dart',
+
     'lib/ui/screens/day/voting_screen.dart',
   ];
 

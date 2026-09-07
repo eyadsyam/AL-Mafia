@@ -39,19 +39,27 @@ void main() {
         }
       }
 
-      expect(offenders, isEmpty,
-          reason: 'these files reference the audio package directly, so '
-              'swapping it would no longer be a one-file change: $offenders. '
-              'Route the call through AudioBackend instead.');
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            'these files reference the audio package directly, so '
+            'swapping it would no longer be a one-file change: $offenders. '
+            'Route the call through AudioBackend instead.',
+      );
     });
 
     test('the scan is not vacuous', () {
       // If the seam were renamed or emptied, the check above would pass by
       // finding nothing anywhere.
-      expect(File(seam).readAsStringSync(), contains('audioplayers'),
-          reason: '$seam no longer imports the audio package; either the seam '
-              'moved or playback was removed, and this test is now checking '
-              'nothing');
+      expect(
+        File(seam).readAsStringSync(),
+        contains('audioplayers'),
+        reason:
+            '$seam no longer imports the audio package; either the seam '
+            'moved or playback was removed, and this test is now checking '
+            'nothing',
+      );
     });
   });
 
@@ -77,32 +85,46 @@ void main() {
         director.play(cue);
       }
 
-      expect(director.emitted, isEmpty,
-          reason: 'muting must stop the cue before it is recorded as played');
-      expect((director.backend as _RecordingBackend).played, isEmpty,
-          reason: 'a muted director reached the speaker');
+      expect(
+        director.emitted,
+        isEmpty,
+        reason: 'muting must stop the cue before it is recorded as played',
+      );
+      expect(
+        (director.backend as _RecordingBackend).played,
+        isEmpty,
+        reason: 'a muted director reached the speaker',
+      );
     });
 
     test('narration off silences the voice and the bed, not the chime', () {
       final director = AudioDirector(backend: _RecordingBackend())
         ..narrationEnabled = false
         ..registerNarratorLine(
-            AudioCue.nightFalls, 'assets/audio/narrator/night_falls.ogg');
+          AudioCue.nightFalls,
+          'assets/audio/narrator/night_falls.ogg',
+        );
 
       director.play(AudioCue.nightFalls);
       director.play(AudioCue.speakerChange);
 
       final played = (director.backend as _RecordingBackend).played;
-      expect(played, equals(['audio/speaker_change.ogg']),
-          reason: 'switching narration off must take its ambient bed with it — '
-              'a bed playing under a line nobody can hear is just an unexplained '
-              'noise');
+      expect(
+        played,
+        equals(['audio/speaker_change.ogg']),
+        reason:
+            'switching narration off must take its ambient bed with it — '
+            'a bed playing under a line nobody can hear is just an unexplained '
+            'noise',
+      );
     });
 
     test('a narrator line plays over its bed, not instead of it', () {
       final director = AudioDirector(backend: _RecordingBackend())
         ..registerNarratorLine(
-            AudioCue.nightFalls, 'assets/audio/narrator/night_falls.ogg');
+          AudioCue.nightFalls,
+          'assets/audio/narrator/night_falls.ogg',
+        );
 
       director.play(AudioCue.nightFalls);
 
@@ -117,13 +139,27 @@ void main() {
       director.play(AudioCue.nightFalls);
       director.setLocation(PhoneLocation.inHand);
 
-      expect((director.backend as _RecordingBackend).stops, 1,
-          reason: 'a bed carrying on under a handoff marks the moment the turn '
-              'started as clearly as a cue during one would');
+      expect(
+        (director.backend as _RecordingBackend).stops,
+        1,
+        reason:
+            'a bed carrying on under a handoff marks the moment the turn '
+            'started as clearly as a cue during one would',
+      );
     });
   });
 
   group('the score never reacts to the game', () {
+    test('master mute immediately stops existing cues and blocks new ones', () {
+      final backend = _RecordingBackend();
+      final director = AudioDirector(backend: backend);
+      director.play(AudioCue.win);
+      expect(backend.played, hasLength(1));
+      director.muted = true;
+      expect(backend.stops, 1);
+      director.play(AudioCue.win);
+      expect(backend.played, hasLength(1));
+    });
     // The whole safety argument for a bed that plays while the phone is in
     // someone's hand is that it is *constant*. A loop that started, stopped,
     // swelled or ducked at a game event would mark that event as loudly as a
@@ -132,8 +168,7 @@ void main() {
     // These assertions are the argument, written down.
 
     test('starts once and is not restarted by anything', () {
-      final director = AudioDirector(backend: _RecordingBackend())
-        ..syncScore();
+      final director = AudioDirector(backend: _RecordingBackend())..syncScore();
       final backend = director.backend as _RecordingBackend;
       expect(backend.loopStarts, hasLength(1));
 
@@ -148,11 +183,18 @@ void main() {
         director.syncScore();
       }
 
-      expect(backend.loopStarts, hasLength(1),
-          reason: 'the score was restarted mid-match. Every restart is an '
-              'audible seam at the exact moment of whatever caused it.');
-      expect(backend.loopStops, isZero,
-          reason: 'something stopped the score during play');
+      expect(
+        backend.loopStarts,
+        hasLength(1),
+        reason:
+            'the score was restarted mid-match. Every restart is an '
+            'audible seam at the exact moment of whatever caused it.',
+      );
+      expect(
+        backend.loopStops,
+        isZero,
+        reason: 'something stopped the score during play',
+      );
     });
 
     test('picking the phone up silences cues but not the score', () {
@@ -162,10 +204,14 @@ void main() {
       director.setLocation(PhoneLocation.inHand);
 
       expect(backend.stops, 1, reason: 'cues must be cut at a handoff');
-      expect(backend.loopStops, isZero,
-          reason: 'the score stopped when the phone was picked up, which turns '
-              'it into the loudest possible announcement that a turn has '
-              'started — the exact failure it is meant to avoid');
+      expect(
+        backend.loopStops,
+        isZero,
+        reason:
+            'the score stopped when the phone was picked up, which turns '
+            'it into the loudest possible announcement that a turn has '
+            'started — the exact failure it is meant to avoid',
+      );
     });
 
     test('a master mute takes the score with it', () {
@@ -187,17 +233,22 @@ void main() {
       // Structural, not behavioural: if there is no way to make the bed react
       // to the game, nobody can accidentally make it react to the game. This
       // reads the source because that is where the absence lives.
-      final source =
-          File('lib/platform/audio_director.dart').readAsStringSync();
+      final source = File(
+        'lib/platform/audio_director.dart',
+      ).readAsStringSync();
       for (final forbidden in const [
         'duckScore',
         'setScoreVolume',
         'scoreForPhase',
         'fadeScore',
       ]) {
-        expect(source.contains(forbidden), isFalse,
-            reason: 'AudioDirector gained `$forbidden`. A score that can be '
-                'varied is a channel that reports on the game.');
+        expect(
+          source.contains(forbidden),
+          isFalse,
+          reason:
+              'AudioDirector gained `$forbidden`. A score that can be '
+              'varied is a channel that reports on the game.',
+        );
       }
     });
   });
@@ -210,9 +261,13 @@ void main() {
       for (final cue in AudioCue.values) {
         final sound = cue.sound;
         if (sound == null) continue;
-        expect(File('assets/$sound').existsSync(), isTrue,
-            reason: '${cue.name} points at assets/$sound, which is not on '
-                'disk. Run `python tool/generate_audio.py`.');
+        expect(
+          File('assets/$sound').existsSync(),
+          isTrue,
+          reason:
+              '${cue.name} points at assets/$sound, which is not on '
+              'disk. Run `python tool/generate_audio.py`.',
+        );
       }
     });
   });
@@ -235,7 +290,8 @@ class _RecordingBackend implements AudioBackend {
       warmed.addAll(assetKeys);
 
   @override
-  Future<void> play(String assetKey) async => played.add(assetKey);
+  Future<void> play(String assetKey, {double rate = 1.0}) async =>
+      played.add(assetKey);
 
   @override
   Future<void> stopAll() async => stops++;

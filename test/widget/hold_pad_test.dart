@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
+import 'package:mafia_master/ui/theme/design_tokens.dart';
 
 import '../support/localized.dart';
 
-/// The identity hold as distribution actually configures it
-/// (`MatchSettings.identityHoldSeconds`), not the 600ms token. The bugs these
-/// tests cover are only reachable at a duration long enough for a hand to
-/// fumble during it, and five seconds is what ships.
-const _hold = Duration(seconds: 5);
+/// The fixed two-second identity hold used by all reveal surfaces.
+const _hold = Duration(seconds: 2);
 const _frame = Duration(milliseconds: 50);
 
-double _ring(WidgetTester tester) => tester
+double _ring(WidgetTester tester) =>
+    tester
         .widget<CircularProgressIndicator>(
           find.byType(CircularProgressIndicator),
         )
@@ -45,8 +44,59 @@ Future<Duration?> _pumpWatchingRing(WidgetTester tester, Duration d) async {
 }
 
 void main() {
-  testWidgets('a clean hold completes once, at the end of the duration',
-      (tester) async {
+  testWidgets('a finger still down when the pad is replaced is harmless', (
+    tester,
+  ) async {
+    // The pad is almost always replaced by whatever it unlocked, and the
+    // player's finger is still on the glass when that happens: the role card
+    // takes the identity gate's place the instant the hold completes. Every
+    // further move of that finger is dispatched to a listener whose element is
+    // gone. Reading `context` there throws once per pointer event — an
+    // assertion in debug, a null check in release — and a real online match
+    // produced hundreds of them in the log for one ordinary reveal.
+    var done = false;
+
+    await tester.pumpWidget(
+      localizedApp(
+        StatefulBuilder(
+          builder: (context, setState) {
+            return Center(
+              child: done
+                  ? const Text('revealed')
+                  : HoldPad(
+                      holdDuration: _hold,
+                      instruction: 'hold',
+                      onHoldComplete: () => setState(() => done = true),
+                    ),
+            );
+          },
+        ),
+      ),
+    );
+
+    final finger = await tester.startGesture(
+      tester.getCenter(find.byType(HoldPad)),
+    );
+    await tester.pump(_hold + const Duration(milliseconds: 10));
+    expect(find.text('revealed'), findsOneWidget);
+
+    // The finger has not lifted. It moves, as a finger resting on glass does.
+    await finger.moveBy(const Offset(4, 4));
+    await tester.pump();
+    await finger.moveBy(const Offset(-6, 2));
+    await tester.pump();
+    await finger.up();
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+  });
+
+  test('the shipping identity hold is exactly two seconds', () {
+    expect(MafiaTiming.defaults.holdToReveal, _hold);
+  });
+  testWidgets('a clean hold completes once, at the end of the duration', (
+    tester,
+  ) async {
     var completions = 0;
     await _pad(tester, () => completions++);
 
@@ -67,7 +117,7 @@ void main() {
     await _pad(tester, () => completions++);
 
     final g = await tester.startGesture(tester.getCenter(find.byType(HoldPad)));
-    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 1));
     await g.up();
     await tester.pump(const Duration(seconds: 10));
     expect(completions, 0);
@@ -79,15 +129,16 @@ void main() {
   // while the timer beside it ran the full length — and each abandoned attempt
   // left the ring fuller, so the next one filled faster still. The pad read as
   // finished and did nothing, permanently.
-  testWidgets('the ring never reads full before the hold has completed',
-      (tester) async {
+  testWidgets('the ring never reads full before the hold has completed', (
+    tester,
+  ) async {
     var completions = 0;
     await _pad(tester, () => completions++);
     final centre = tester.getCenter(find.byType(HoldPad));
 
     // A hold that gets almost all the way there, then the finger slips.
     final slipped = await tester.startGesture(centre);
-    await _pumpWatchingRing(tester, const Duration(milliseconds: 4500));
+    await _pumpWatchingRing(tester, const Duration(milliseconds: 1500));
     await slipped.up();
     await tester.pump(_frame * 4);
 
@@ -105,7 +156,8 @@ void main() {
     expect(
       full!.inMilliseconds,
       greaterThanOrEqualTo(_hold.inMilliseconds - _frame.inMilliseconds),
-      reason: 'the ring said done at ${full.inMilliseconds}ms of a '
+      reason:
+          'the ring said done at ${full.inMilliseconds}ms of a '
           '${_hold.inMilliseconds}ms hold',
     );
   });
@@ -114,8 +166,9 @@ void main() {
   // was not, so a steadying touch on the pad cancelled the hold the first
   // finger was still making — and that finger, never having lifted, could not
   // start another one.
-  testWidgets('a second finger on the pad cannot cancel the hold',
-      (tester) async {
+  testWidgets('a second finger on the pad cannot cancel the hold', (
+    tester,
+  ) async {
     var completions = 0;
     await _pad(tester, () => completions++);
     final centre = tester.getCenter(find.byType(HoldPad));
@@ -144,9 +197,9 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     final other = await tester.startGesture(centre, pointer: 2);
 
-    // The owning finger lifts three seconds in; the hold dies with it even
+    // The owning finger lifts before completion; the hold dies with it even
     // though the pad is still being touched by the other one.
-    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(milliseconds: 500));
     await thumb.up();
     await tester.pump(const Duration(seconds: 10));
     expect(completions, 0);
@@ -163,7 +216,7 @@ void main() {
 
     for (var attempt = 0; attempt < 3; attempt++) {
       final g = await tester.startGesture(centre);
-      await tester.pump(const Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 1));
       await g.up();
       await tester.pump(const Duration(milliseconds: 150));
     }
@@ -174,5 +227,31 @@ void main() {
     await g.up();
     await tester.pump();
     expect(completions, 1, reason: 'a fourth, complete hold must still work');
+  });
+  testWidgets('leaving the pad cancels and returning cannot resume the hold', (
+    tester,
+  ) async {
+    var completions = 0;
+    await _pad(tester, () => completions++);
+    final centre = tester.getCenter(find.byType(HoldPad));
+    final finger = await tester.startGesture(centre);
+    await tester.pump(const Duration(seconds: 1));
+    await finger.moveTo(centre + const Offset(250, 0));
+    await finger.moveTo(centre);
+    await tester.pump(_hold);
+    expect(completions, 0);
+    await finger.up();
+  });
+
+  testWidgets('pointer cancellation never reveals', (tester) async {
+    var completions = 0;
+    await _pad(tester, () => completions++);
+    final finger = await tester.startGesture(
+      tester.getCenter(find.byType(HoldPad)),
+    );
+    await tester.pump(const Duration(milliseconds: 1999));
+    await finger.cancel();
+    await tester.pump(_hold);
+    expect(completions, 0);
   });
 }

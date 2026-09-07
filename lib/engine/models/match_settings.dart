@@ -91,6 +91,11 @@ class MatchSettings {
   final bool revealWhisperContent;
 
   /// Day 1's «اسم واحد» round.
+  ///
+  /// **Off, and doc 14 §4.2 is why it changed.** It solved a real problem — a
+  /// first day with nothing in it — by imposing ten silent seconds and a bare
+  /// name on every table whether or not they wanted the ceremony. A round that
+  /// good tables opt into is worth more than one every table sits through.
   final bool openingRoundEnabled;
 
   /// `C11` («الناجي»).
@@ -103,6 +108,93 @@ class MatchSettings {
 
   /// How long the confronted player holds the floor. 30 / 45 / 60.
   final int confrontationSeconds;
+
+  /// Whether ballots are visible to the table while the day's vote is open
+  /// (doc 12 §3.6).
+  ///
+  /// **Off by default, which is the offline game's rule and doc 10 §4's.** A
+  /// running count is a coordination channel a table around a real deck does
+  /// not have, and the `votes` table is read-restricted until the phase closes
+  /// for exactly that reason.
+  ///
+  /// Doc 12 turns that restriction into a choice, and is explicit that it is
+  /// doing so: *"vote intention is public and changeable until the timer ends,
+  /// then locked... This deliberately differs from offline (secret ballot) —
+  /// and that difference is a feature of online, not an inconsistency."*
+  ///
+  /// So this is a room setting rather than a mode. Off, every client sees
+  /// exactly what doc 10 built. On, the ballot becomes the thing only an online
+  /// game can show: ten lines of intent accumulating on a table, and somebody
+  /// visibly changing their mind under pressure.
+  ///
+  /// It never affects *counting*. The tally is resolved from the same rows
+  /// either way; this decides only whether they may be read early.
+  final bool openVoting;
+
+  /// How long the whole discussion runs, before the pressure curve is applied.
+  ///
+  /// Only free discussion has ever had a total; the structured mode's length is
+  /// [speechSeconds] times the number of people still alive, which shrinks on
+  /// its own as the table does. This is the number doc 13 §3's curve tightens,
+  /// and the number «سريعة» and «قاسية» differ on most visibly.
+  final int discussionSeconds;
+
+  // ---------------------------------------------------------------------------
+  // «الطلقة الواحدة» (doc 13 §2) and the pressure curve (§3).
+  //
+  // Same rule as the Information Engine's flags above, for the same reason:
+  // *"a mechanic that a group dislikes should be removable rather than
+  // endured."* With [bulletsEnabled] off, the four controls are not built — not
+  // built and refused, which would be a control whose presence varies between
+  // matches and therefore a thing to read.
+  // ---------------------------------------------------------------------------
+
+  /// The master switch. Off is the game exactly as it was before doc 13.
+  final bool bulletsEnabled;
+
+  /// مافيا — «الليلة الهادية».
+  ///
+  /// Turning this on also makes every quiet morning ambiguous: with it
+  /// available, the morning stops distinguishing "the Doctor blocked a kill"
+  /// from "nobody died", and the `T2` trace stops being published at all. Both
+  /// are required — a bullet whose use the table can detect is not a bluff, it
+  /// is an announcement. See `NightResolver` and `selectTrace`.
+  final bool quietNightEnabled;
+
+  /// طبيب — «حماية النفس». The single night a Doctor may cover themselves.
+  final bool selfProtectEnabled;
+
+  /// Doc 13 §3. The clock closes as the table shrinks.
+  ///
+  /// It only ever tightens: a host who set a short discussion keeps it. See
+  /// [PressureCurve.discussionSeconds].
+  final bool pressureCurveEnabled;
+
+  /// Whether the morning names the role of whoever the Mafia killed.
+  ///
+  /// **Off**, and off is the interesting default. A day elimination is public
+  /// (FR-019) because the table chose it; a night victim's role is a free gift
+  /// of information that nobody paid for, and «سريعة» turns it on only because
+  /// a group's first match should be easier to follow than it is to win.
+  final bool revealNightVictimRole;
+
+  /// Doc 13 §4.2 — the one-line hints that teach the app.
+  final bool interfaceHintsEnabled;
+
+  /// Doc 13 §4.3 — the hints that teach the game, in dead time only.
+  final bool playHintsEnabled;
+
+  /// Doc 13 §4.4 — «كان ممكن», after the match.
+  final bool postMatchCoachingEnabled;
+
+  /// A second confrontation, opened from inside the discussion.
+  ///
+  /// Doc 13 §3 hands this to the tightest band of the pressure curve — four
+  /// living players and fewer — and doc 13 §5 hands it to «قاسية» at every
+  /// count. So it is a setting rather than a consequence: the curve raises it
+  /// when the table shrinks, a preset can raise it from the start, and neither
+  /// one has to know about the other.
+  final bool midDiscussionConfrontation;
 
   const MatchSettings({
     this.speechSeconds = 60,
@@ -117,9 +209,20 @@ class MatchSettings {
     this.confrontationEnabled = true,
     this.whisperEnabled = false,
     this.revealWhisperContent = false,
-    this.openingRoundEnabled = true,
+    this.openingRoundEnabled = false,
     this.survivorConfrontationEnabled = false,
     this.confrontationSeconds = 45,
+    this.openVoting = false,
+    this.discussionSeconds = 300,
+    this.bulletsEnabled = true,
+    this.quietNightEnabled = true,
+    this.selfProtectEnabled = true,
+    this.pressureCurveEnabled = true,
+    this.revealNightVictimRole = false,
+    this.interfaceHintsEnabled = true,
+    this.playHintsEnabled = true,
+    this.postMatchCoachingEnabled = true,
+    this.midDiscussionConfrontation = false,
   });
 
   /// Default settings constructor.
@@ -136,9 +239,20 @@ class MatchSettings {
         confrontationEnabled = true,
         whisperEnabled = false,
         revealWhisperContent = false,
-        openingRoundEnabled = true,
+        openingRoundEnabled = false,
         survivorConfrontationEnabled = false,
-        confrontationSeconds = 45;
+        confrontationSeconds = 45,
+        openVoting = false,
+        discussionSeconds = 300,
+        bulletsEnabled = true,
+        quietNightEnabled = true,
+        selfProtectEnabled = true,
+        pressureCurveEnabled = true,
+        revealNightVictimRole = false,
+        interfaceHintsEnabled = true,
+        playHintsEnabled = true,
+        postMatchCoachingEnabled = true,
+        midDiscussionConfrontation = false;
 
   /// Create a copy with optional field overrides.
   MatchSettings copyWith({
@@ -157,6 +271,17 @@ class MatchSettings {
     bool? openingRoundEnabled,
     bool? survivorConfrontationEnabled,
     int? confrontationSeconds,
+    bool? openVoting,
+    int? discussionSeconds,
+    bool? bulletsEnabled,
+    bool? quietNightEnabled,
+    bool? selfProtectEnabled,
+    bool? pressureCurveEnabled,
+    bool? revealNightVictimRole,
+    bool? interfaceHintsEnabled,
+    bool? playHintsEnabled,
+    bool? postMatchCoachingEnabled,
+    bool? midDiscussionConfrontation,
   }) =>
       MatchSettings(
         speechSeconds: speechSeconds ?? this.speechSeconds,
@@ -178,6 +303,18 @@ class MatchSettings {
             survivorConfrontationEnabled ?? this.survivorConfrontationEnabled,
         confrontationSeconds:
             confrontationSeconds ?? this.confrontationSeconds,
+        openVoting: openVoting ?? this.openVoting,
+        discussionSeconds: discussionSeconds ?? this.discussionSeconds,
+        bulletsEnabled: bulletsEnabled ?? this.bulletsEnabled,
+        quietNightEnabled: quietNightEnabled ?? this.quietNightEnabled,
+        selfProtectEnabled: selfProtectEnabled ?? this.selfProtectEnabled,
+        pressureCurveEnabled: pressureCurveEnabled ?? this.pressureCurveEnabled,
+        revealNightVictimRole: revealNightVictimRole ?? this.revealNightVictimRole,
+        interfaceHintsEnabled: interfaceHintsEnabled ?? this.interfaceHintsEnabled,
+        playHintsEnabled: playHintsEnabled ?? this.playHintsEnabled,
+        postMatchCoachingEnabled: postMatchCoachingEnabled ?? this.postMatchCoachingEnabled,
+        midDiscussionConfrontation:
+            midDiscussionConfrontation ?? this.midDiscussionConfrontation,
       );
 
   @override
@@ -199,10 +336,21 @@ class MatchSettings {
           revealWhisperContent == other.revealWhisperContent &&
           openingRoundEnabled == other.openingRoundEnabled &&
           survivorConfrontationEnabled == other.survivorConfrontationEnabled &&
-          confrontationSeconds == other.confrontationSeconds;
+          confrontationSeconds == other.confrontationSeconds &&
+          openVoting == other.openVoting &&
+          discussionSeconds == other.discussionSeconds &&
+          bulletsEnabled == other.bulletsEnabled &&
+          quietNightEnabled == other.quietNightEnabled &&
+          selfProtectEnabled == other.selfProtectEnabled &&
+          pressureCurveEnabled == other.pressureCurveEnabled &&
+          revealNightVictimRole == other.revealNightVictimRole &&
+          interfaceHintsEnabled == other.interfaceHintsEnabled &&
+          playHintsEnabled == other.playHintsEnabled &&
+          postMatchCoachingEnabled == other.postMatchCoachingEnabled &&
+          midDiscussionConfrontation == other.midDiscussionConfrontation;
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
         speechSeconds,
         discussionMode,
         dayTieRule,
@@ -218,7 +366,18 @@ class MatchSettings {
         openingRoundEnabled,
         survivorConfrontationEnabled,
         confrontationSeconds,
-      );
+        openVoting,
+        discussionSeconds,
+        bulletsEnabled,
+        quietNightEnabled,
+        selfProtectEnabled,
+        pressureCurveEnabled,
+        revealNightVictimRole,
+        interfaceHintsEnabled,
+        playHintsEnabled,
+        postMatchCoachingEnabled,
+        midDiscussionConfrontation,
+      ]);
 
   @override
   String toString() =>
@@ -229,5 +388,7 @@ class MatchSettings {
       'confrontationEnabled=$confrontationEnabled, whisperEnabled=$whisperEnabled, '
       'revealWhisperContent=$revealWhisperContent, openingRoundEnabled=$openingRoundEnabled, '
       'survivorConfrontationEnabled=$survivorConfrontationEnabled, '
-      'confrontationSeconds=$confrontationSeconds)';
+      'confrontationSeconds=$confrontationSeconds, openVoting=$openVoting, '
+      'discussionSeconds=$discussionSeconds, bullets=$bulletsEnabled, '
+      'pressureCurve=$pressureCurveEnabled, revealNightVictimRole=$revealNightVictimRole)';
 }

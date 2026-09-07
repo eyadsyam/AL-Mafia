@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'clock.dart';
 import 'information/confrontation_generator.dart';
+import 'bullets.dart';
 import 'information/game_history.dart';
 import 'information/records.dart';
 import 'information/trace_generator.dart';
@@ -74,6 +75,7 @@ class MatchEngine {
   /// assigns roles, and transitions to distributing phase.
   Match start({
     required List<String> names,
+    Map<String, PlayerGender> genders = const {},
     required Map<Role, int> roleCounts,
     required MatchSettings settings,
     required int seed,
@@ -86,10 +88,14 @@ class MatchEngine {
     }
 
     // Validate role counts sum
-    final totalRoles = roleCounts.values.fold<int>(0, (sum, count) => sum + count);
+    final totalRoles = roleCounts.values.fold<int>(
+      0,
+      (sum, count) => sum + count,
+    );
     if (totalRoles != names.length) {
       throw ArgumentError(
-          'Role counts must sum to player count: got $totalRoles, expected ${names.length}');
+        'Role counts must sum to player count: got $totalRoles, expected ${names.length}',
+      );
     }
 
     // Validate mafia count
@@ -99,7 +105,8 @@ class MatchEngine {
     }
     if (mafiaCount >= names.length / 2) {
       throw ArgumentError(
-          'Mafia must be less than half the players: got $mafiaCount, max ${names.length ~/ 2}');
+        'Mafia must be less than half the players: got $mafiaCount, max ${names.length ~/ 2}',
+      );
     }
 
     // The seed is the caller's to mint, not the engine's.
@@ -142,6 +149,7 @@ class MatchEngine {
         Player(
           seat: i,
           name: names[i],
+          gender: genders[names[i]] ?? PlayerGender.unspecified,
           role: roleList[i],
           status: PlayerStatus.alive,
           eliminatedOn: null,
@@ -192,7 +200,8 @@ class MatchEngine {
   ({Role role, List<String> teammateNames}) revealFor(int seat) {
     if (match.currentActorSeat != seat) {
       throw StateError(
-          'revealFor: seat $seat is not current actor (${match.currentActorSeat})');
+        'revealFor: seat $seat is not current actor (${match.currentActorSeat})',
+      );
     }
 
     final player = match.players[seat];
@@ -237,7 +246,9 @@ class MatchEngine {
     if (match.phase != GamePhase.preNightLobby &&
         match.phase != GamePhase.reveal &&
         match.phase != GamePhase.winCheck) {
-      throw StateError('beginNight: not in preNightLobby, reveal, or winCheck phase');
+      throw StateError(
+        'beginNight: not in preNightLobby, reveal, or winCheck phase',
+      );
     }
 
     // A night may not open on a match that is already decided.
@@ -253,7 +264,8 @@ class MatchEngine {
     final decided = WinChecker.checkWin(match);
     if (decided != null) {
       throw StateError(
-          'beginNight: ${decided.name} has already won - run winCheck first');
+        'beginNight: ${decided.name} has already won - run winCheck first',
+      );
     }
 
     final now = clock();
@@ -289,14 +301,17 @@ class MatchEngine {
     };
 
     // Get other alive players as targets
-    final targets =
-        match.players.where((p) => p.seat != seat && p.status == PlayerStatus.alive).map((p) => p.seat).toList();
+    final targets = match.players
+        .where((p) => p.seat != seat && p.status == PlayerStatus.alive)
+        .map((p) => p.seat)
+        .toList();
 
     // Get teammate votes (only for mafia)
     final teammateVotes = <int>[];
     if (role == Role.mafia) {
       for (final event in match.eventLog) {
-        if (event is MafiaVoteCast && event.phaseRef.number == match.dayNumber) {
+        if (event is MafiaVoteCast &&
+            event.phaseRef.number == match.dayNumber) {
           if (!teammateVotes.contains(event.targetSeat)) {
             teammateVotes.add(event.targetSeat);
           }
@@ -318,8 +333,7 @@ class MatchEngine {
   /// Derived from the event log rather than held in a field, so that a match
   /// rebuilt from storage after a force-quit enforces the same one-shot rule
   /// (L-14, repository contract inv. 2).
-  bool _hasInvestigatedTonight(int seat) =>
-      hasInvestigatedTonight(match, seat);
+  bool _hasInvestigatedTonight(int seat) => hasInvestigatedTonight(match, seat);
 
   /// Which balloting round of the current day is open.
   ///
@@ -338,10 +352,16 @@ class MatchEngine {
   /// Submit a night action for the current actor.
   /// For investigate: returns InvestigateResult once; second call throws.
   /// For protect: throws if this doctor protected the same target last night.
+  ///
+  /// [useBullet] arms «الطلقة الواحدة» (doc 13 §2) on the same turn. It is one
+  /// parameter for all four roles because it is one control in one slot on all
+  /// four screens: what it *means* differs by role, what it costs and how it is
+  /// armed does not. See [_spendBullet] for what each one does.
   InvestigateResult? submitNightAction({
     required int seat,
     required NightActionKind kind,
     required int targetSeat,
+    bool useBullet = false,
   }) {
     if (match.currentActorSeat != seat) {
       throw StateError('submitNightAction: seat $seat is not current actor');
@@ -358,6 +378,17 @@ class MatchEngine {
     final player = match.players[seat];
     final now = clock();
     final phaseRef = PhaseRef(phase: GamePhase.night, number: match.dayNumber);
+
+    // Spent first, so that everything below - including the Doctor's target,
+    // which the bullet replaces - reads a log that already knows about it.
+    if (useBullet) _spendBullet(seat: seat, now: now, phaseRef: phaseRef);
+
+    // «حماية النفس». The bullet *is* the target: the Doctor's grid has never
+    // held their own name and doc 05 rule 6 is why it never will, so a Doctor
+    // who arms this is protecting themselves whoever they happened to have
+    // highlighted. Redirected rather than refused, because refusing would mean
+    // the confirm button behaves differently for one role.
+    if (useBullet && player.role == Role.doctor) targetSeat = seat;
 
     InvestigateResult? result;
 
@@ -384,12 +415,21 @@ class MatchEngine {
         if (player.role != Role.doctor) {
           throw StateError('submitNightAction: non-doctor cannot protect');
         }
-        if (NightResolver.wouldViolateDoctorNoRepeat(
-          match: match,
-          doctorSeat: seat,
-          targetSeat: targetSeat,
-        )) {
-          throw StateError('submitNightAction: doctor cannot protect same seat on consecutive nights');
+        if (targetSeat == seat && !useBullet) {
+          throw StateError(
+            'submitNightAction: doctor cannot protect themselves without '
+            'the self-protection bullet',
+          );
+        }
+        if (targetSeat != seat &&
+            NightResolver.wouldViolateDoctorNoRepeat(
+              match: match,
+              doctorSeat: seat,
+              targetSeat: targetSeat,
+            )) {
+          throw StateError(
+            'submitNightAction: doctor cannot protect same seat on consecutive nights',
+          );
         }
         match = match.copyWith(
           eventLog: [
@@ -406,11 +446,15 @@ class MatchEngine {
 
       case NightActionKind.investigate:
         if (player.role != Role.detective) {
-          throw StateError('submitNightAction: non-detective cannot investigate');
+          throw StateError(
+            'submitNightAction: non-detective cannot investigate',
+          );
         }
         // One investigation per detective per night (L-14, inv. 3).
         if (_hasInvestigatedTonight(seat)) {
-          throw StateError('submitNightAction: detective already investigated this night');
+          throw StateError(
+            'submitNightAction: detective already investigated this night',
+          );
         }
 
         // Get the exact role of the target
@@ -479,7 +523,31 @@ class MatchEngine {
   ///
   /// The trace never says who skipped. `T6` is «فيه لاعب رفض يسجّل شكه» —
   /// aggregate, unnamed, exactly like every other trace but `T1`.
-  void skipNightAction({required int seat}) {
+  /// [useBullet] arms the bullet without choosing anybody, which is the whole
+  /// of the Mafia's «الليلة الهادية» and of a Detective who opens a file and
+  /// investigates nobody else tonight.
+  void skipNightAction({required int seat, bool useBullet = false}) {
+    if (match.players[seat].role == Role.doctor && !useBullet) {
+      // Expiry and legacy callers still need a deterministic action. The UI
+      // requires an explicit choice; the engine's safety default protects the
+      // first legal living target so a doctor can never submit "nothing".
+      final target = match.players.firstWhere(
+        (p) =>
+            p.status == PlayerStatus.alive &&
+            p.seat != seat &&
+            !NightResolver.wouldViolateDoctorNoRepeat(
+              match: match,
+              doctorSeat: seat,
+              targetSeat: p.seat,
+            ),
+      );
+      submitNightAction(
+        seat: seat,
+        kind: NightActionKind.protect,
+        targetSeat: target.seat,
+      );
+      return;
+    }
     if (match.phase != GamePhase.night) {
       throw StateError('skipNightAction: not in night phase');
     }
@@ -491,12 +559,36 @@ class MatchEngine {
     }
 
     final now = clock();
+    final phaseRef = PhaseRef(phase: GamePhase.night, number: match.dayNumber);
+
+    if (useBullet) _spendBullet(seat: seat, now: now, phaseRef: phaseRef);
+
+    // A Doctor's self-protection is an *action*, not an absence, so arming it
+    // with nobody selected still protects them. Every other bullet leaves the
+    // turn itself empty, which is exactly what it was before.
+    if (useBullet && match.players[seat].role == Role.doctor) {
+      match = match.copyWith(
+        eventLog: [
+          ...match.eventLog,
+          ProtectCast(
+            at: now,
+            phaseRef: phaseRef,
+            actorSeat: seat,
+            targetSeat: seat,
+          ),
+        ],
+      );
+      _advanceNightActor(seat);
+      assertMatchInvariants(match, 'skipNightAction');
+      return;
+    }
+
     match = match.copyWith(
       eventLog: [
         ...match.eventLog,
         NightActionSkipped(
           at: now,
-          phaseRef: PhaseRef(phase: GamePhase.night, number: match.dayNumber),
+          phaseRef: phaseRef,
           actorSeat: seat,
           kind: match.players[seat].role.nightAction,
         ),
@@ -506,6 +598,45 @@ class MatchEngine {
     _advanceNightActor(seat);
     assertMatchInvariants(match, 'skipNightAction');
   }
+
+  /// Records that [seat] spent their one bullet, and refuses if they have not
+  /// got one.
+  ///
+  /// A `StateError` rather than a silent no-op: every caller has already been
+  /// told by [Bullets.canArm] whether the control should be there at all, so
+  /// reaching here with a spent bullet is a wiring bug and the loudest place
+  /// to find out is here.
+  void _spendBullet({
+    required int seat,
+    required DateTime now,
+    required PhaseRef phaseRef,
+  }) {
+    if (!Bullets.canArm(match, seat)) {
+      throw StateError(
+        'bullet: seat $seat has none left, or this match has '
+        'none to give',
+      );
+    }
+    match = match.copyWith(
+      eventLog: [
+        ...match.eventLog,
+        BulletSpent(
+          at: now,
+          phaseRef: phaseRef,
+          actorSeat: seat,
+          // Non-null by construction: [Bullets.canArm] above is false for
+          // every role that holds nothing, so reaching this line means there
+          // is a kind to record.
+          kind: match.players[seat].role.bullet!,
+        ),
+      ],
+    );
+  }
+
+  /// Whether the current actor may still arm a bullet. False when this match
+  /// has the mechanic turned off, so the control is never built rather than
+  /// built and disabled.
+  bool canArmBullet(int seat) => Bullets.canArm(match, seat);
 
   /// Moves the phone on after a night turn, or closes the night.
   void _advanceNightActor(int seat) {
@@ -538,7 +669,10 @@ class MatchEngine {
         if (p.seat == report.victimSeat) {
           return p.copyWith(
             status: PlayerStatus.dead,
-            eliminatedOn: PhaseRef(phase: GamePhase.night, number: match.dayNumber),
+            eliminatedOn: PhaseRef(
+              phase: GamePhase.night,
+              number: match.dayNumber,
+            ),
           );
         }
         return p;
@@ -598,6 +732,9 @@ class MatchEngine {
       players: match.players,
       nightNumber: match.dayNumber,
       matchSeed: match.seed,
+      // Doc 13 §8. `T2` says a kill was blocked, and a morning in which
+      // nobody died has to be unreadable once the Mafia can buy one.
+      allowSaveTrace: !match.settings.quietNightEnabled,
     );
 
     match = match.copyWith(
@@ -650,11 +787,10 @@ class MatchEngine {
 
   /// The accusations recorded so far in today's «اسم واحد» round.
   Map<int, int> get openingAccusations => {
-        for (final e in match.eventLog)
-          if (e is OpeningAccusationCast &&
-              e.phaseRef.number == match.dayNumber)
-            e.actorSeat: e.targetSeat,
-      };
+    for (final e in match.eventLog)
+      if (e is OpeningAccusationCast && e.phaseRef.number == match.dayNumber)
+        e.actorSeat: e.targetSeat,
+  };
 
   /// Whether the night that just resolved already decided the match.
   ///
@@ -695,7 +831,8 @@ class MatchEngine {
     final decided = outcomeAfterNight();
     if (decided != null) {
       throw StateError(
-          'beginDay: ${decided.name} won overnight - call concludeAfterNight');
+        'beginDay: ${decided.name} won overnight - call concludeAfterNight',
+      );
     }
 
     if (match.dayNumber == 1 && match.settings.openingRoundEnabled) {
@@ -725,7 +862,9 @@ class MatchEngine {
       throw StateError('submitOpeningAccusation: not in openingRound phase');
     }
     if (match.currentActorSeat != seat) {
-      throw StateError('submitOpeningAccusation: seat $seat is not current actor');
+      throw StateError(
+        'submitOpeningAccusation: seat $seat is not current actor',
+      );
     }
     if (seat == targetSeat) {
       throw ArgumentError('submitOpeningAccusation: cannot accuse yourself');
@@ -743,8 +882,10 @@ class MatchEngine {
         ...match.eventLog,
         OpeningAccusationCast(
           at: now,
-          phaseRef:
-              PhaseRef(phase: GamePhase.openingRound, number: match.dayNumber),
+          phaseRef: PhaseRef(
+            phase: GamePhase.openingRound,
+            number: match.dayNumber,
+          ),
           actorSeat: seat,
           targetSeat: targetSeat,
         ),
@@ -778,8 +919,10 @@ class MatchEngine {
         ...match.eventLog,
         ConfrontationAnswered(
           at: now,
-          phaseRef:
-              PhaseRef(phase: GamePhase.confrontation, number: match.dayNumber),
+          phaseRef: PhaseRef(
+            phase: GamePhase.confrontation,
+            number: match.dayNumber,
+          ),
           targetSeat: issued?.targetSeat ?? -1,
           silent: silent,
         ),
@@ -810,7 +953,9 @@ class MatchEngine {
             ConfrontationIssued(
               at: now,
               phaseRef: PhaseRef(
-                  phase: GamePhase.confrontation, number: match.dayNumber),
+                phase: GamePhase.confrontation,
+                number: match.dayNumber,
+              ),
               targetSeat: confrontation.targetSeat,
               type: confrontation.type,
               evidenceSeat: confrontation.evidenceSeat,
@@ -851,8 +996,10 @@ class MatchEngine {
     // after voting somebody out for nothing.
     final decided = outcomeAfterNight();
     if (decided != null) {
-      throw StateError('beginDiscussion: ${decided.name} won overnight - '
-          'call concludeAfterNight');
+      throw StateError(
+        'beginDiscussion: ${decided.name} won overnight - '
+        'call concludeAfterNight',
+      );
     }
 
     match = match.copyWith(phase: GamePhase.discussion);
@@ -927,7 +1074,8 @@ class MatchEngine {
       final candidates = currentVoteCandidates;
       if (candidates != null && !candidates.contains(targetSeat)) {
         throw StateError(
-            'submitVote: seat $targetSeat is not on the revote ballot $candidates');
+          'submitVote: seat $targetSeat is not on the revote ballot $candidates',
+        );
       }
     }
 
@@ -991,10 +1139,15 @@ class MatchEngine {
 
     // Find max votes
     final maxVotes = tally.values.reduce((a, b) => a > b ? a : b);
-    final tiedTargets = tally.entries.where((e) => e.value == maxVotes).map((e) => e.key).toList();
+    final tiedTargets = tally.entries
+        .where((e) => e.value == maxVotes)
+        .map((e) => e.key)
+        .toList();
 
     // Filter to alive players only
-    final aliveTiedTargets = tiedTargets.where((seat) => match.players[seat].status == PlayerStatus.alive).toList();
+    final aliveTiedTargets = tiedTargets
+        .where((seat) => match.players[seat].status == PlayerStatus.alive)
+        .toList();
 
     if (aliveTiedTargets.isEmpty) {
       // No valid targets, nobody eliminated
@@ -1024,7 +1177,11 @@ class MatchEngine {
         // Nobody eliminated
         match = match.copyWith(phase: GamePhase.reveal);
         assertMatchInvariants(match, 'resolveDayVote (tie stands)');
-        return DayVoteResult(tie: true, tally: tally, tiedSeats: [...aliveTiedTargets]..sort());
+        return DayVoteResult(
+          tie: true,
+          tally: tally,
+          tiedSeats: [...aliveTiedTargets]..sort(),
+        );
       } else {
         // Revote among tied seats only. Logging the call is what opens the next
         // round and narrows the ballot; both are then re-derivable from the log.
@@ -1036,17 +1193,16 @@ class MatchEngine {
             ...match.eventLog,
             DayRevoteCalled(
               at: now,
-              phaseRef: PhaseRef(phase: GamePhase.voting, number: match.dayNumber),
+              phaseRef: PhaseRef(
+                phase: GamePhase.voting,
+                number: match.dayNumber,
+              ),
               tiedSeats: sortedTied,
             ),
           ],
         );
         assertMatchInvariants(match, 'resolveDayVote (revote called)');
-        return DayVoteResult(
-          tie: true,
-          tally: tally,
-          tiedSeats: sortedTied,
-        );
+        return DayVoteResult(tie: true, tally: tally, tiedSeats: sortedTied);
       }
     }
 
@@ -1056,7 +1212,10 @@ class MatchEngine {
       if (p.seat == eliminatedSeat) {
         return p.copyWith(
           status: PlayerStatus.dead,
-          eliminatedOn: PhaseRef(phase: GamePhase.voting, number: match.dayNumber),
+          eliminatedOn: PhaseRef(
+            phase: GamePhase.voting,
+            number: match.dayNumber,
+          ),
         );
       }
       return p;
@@ -1104,7 +1263,10 @@ class MatchEngine {
           ...match.eventLog,
           WinReached(
             at: now,
-            phaseRef: PhaseRef(phase: GamePhase.result, number: match.dayNumber),
+            phaseRef: PhaseRef(
+              phase: GamePhase.result,
+              number: match.dayNumber,
+            ),
             alignment: result,
           ),
         ],
@@ -1204,14 +1366,17 @@ class MatchEngine {
     if (trimmed.length > WhisperLimits.maxLength) {
       // H-E6: blocked, never silently truncated.
       throw ArgumentError(
-          'sendWhisper: ${trimmed.length} characters, limit is '
-          '${WhisperLimits.maxLength}');
+        'sendWhisper: ${trimmed.length} characters, limit is '
+        '${WhisperLimits.maxLength}',
+      );
     }
     if (whispersSentBy(fromSeat, match.dayNumber) >=
         WhisperLimits.perPlayerPerDay) {
       // H-E1. The UI disables the control after the first, and this is what
       // makes that a rule rather than a courtesy.
-      throw StateError('sendWhisper: seat $fromSeat has already whispered today');
+      throw StateError(
+        'sendWhisper: seat $fromSeat has already whispered today',
+      );
     }
 
     final id = WhisperMeta.idFor(
@@ -1225,8 +1390,10 @@ class MatchEngine {
         ...match.eventLog,
         WhisperSent(
           at: now,
-          phaseRef:
-              PhaseRef(phase: GamePhase.discussion, number: match.dayNumber),
+          phaseRef: PhaseRef(
+            phase: GamePhase.discussion,
+            number: match.dayNumber,
+          ),
           id: id,
           fromSeat: fromSeat,
           toSeat: toSeat,
@@ -1244,9 +1411,9 @@ class MatchEngine {
   /// layer. What it deliberately cannot reach is the body, which is not in
   /// `Match` at all.
   List<WhisperMeta> whispersOn(int day) => [
-        for (final w in _whisperGraph().values)
-          if (w.day == day) w,
-      ]..sort((a, b) => a.fromSeat.compareTo(b.fromSeat));
+    for (final w in _whisperGraph().values)
+      if (w.day == day) w,
+  ]..sort((a, b) => a.fromSeat.compareTo(b.fromSeat));
 
   /// How many whispers [seat] has sent on [day].
   int whispersSentBy(int seat, int day) => match.eventLog
@@ -1269,9 +1436,9 @@ class MatchEngine {
 
   /// Whispers this player sent that will never arrive («الهمسة ماوصلتش»).
   List<WhisperMeta> voidedWhispersFrom(int seat) => [
-        for (final w in _whisperGraph().values)
-          if (w.fromSeat == seat && w.voided) w,
-      ];
+    for (final w in _whisperGraph().values)
+      if (w.fromSeat == seat && w.voided) w,
+  ];
 
   /// Marks a whisper read. Idempotent.
   void markWhisperDelivered(String id) {
@@ -1347,8 +1514,10 @@ class MatchEngine {
         ...match.eventLog,
         SpeakingRecorded(
           at: now,
-          phaseRef:
-              PhaseRef(phase: GamePhase.discussion, number: match.dayNumber),
+          phaseRef: PhaseRef(
+            phase: GamePhase.discussion,
+            number: match.dayNumber,
+          ),
           seat: seat,
           seconds: seconds,
         ),
@@ -1358,8 +1527,9 @@ class MatchEngine {
 
   /// Get the public view of the match (no roles exposed).
   PublicMatchView publicView() {
-    final publicPlayers =
-        match.players.map((p) => PublicPlayer.from(p)).toList();
+    final publicPlayers = match.players
+        .map((p) => PublicPlayer.from(p))
+        .toList();
 
     return PublicMatchView(
       phase: match.phase,

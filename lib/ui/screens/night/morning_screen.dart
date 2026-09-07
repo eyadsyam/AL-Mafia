@@ -33,6 +33,15 @@ class MorningScreen extends StatelessWidget {
   /// trace type through here without building an engine.
   final String? traceText;
 
+  /// What the night victim turned out to be, or null.
+  ///
+  /// Null in every match that has not turned [MatchSettings.revealNightVictimRole]
+  /// on — which is every match by default, and «سريعة» is the one preset that
+  /// does. A day elimination's role is always public because the table chose
+  /// it (FR-019); a night victim's is a gift nobody paid for, and doc 13 §5
+  /// hands it only to the preset whose job is to be easy to follow.
+  final String? victimRole;
+
   final VoidCallback onContinue;
 
   const MorningScreen({
@@ -41,6 +50,7 @@ class MorningScreen extends StatelessWidget {
     required this.victimName,
     required this.someoneSavedUnnamed,
     this.traceText,
+    this.victimRole,
     required this.onContinue,
   });
 
@@ -96,6 +106,14 @@ class MorningScreen extends StatelessWidget {
                     style: type.body.copyWith(color: colors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
+                  if (victimRole != null && victimName != null) ...[
+                    SizedBox(height: spacing.sm),
+                    Text(
+                      l10n.victimWasRole(victimName!, victimRole!),
+                      style: type.body.copyWith(color: colors.textMuted),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                   if (traceText != null) ...[
                     SizedBox(height: spacing.xl),
                     TraceLine(

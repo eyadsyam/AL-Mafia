@@ -95,6 +95,7 @@ TraceResult selectTrace({
   required List<Player> players,
   required int nightNumber,
   required int matchSeed,
+  bool allowSaveTrace = true,
 }) {
   final alive = {
     for (final p in players)
@@ -105,6 +106,21 @@ TraceResult selectTrace({
 
   final eligible = <TraceCandidate>[];
   for (final type in TraceType.candidates) {
+    // «الليلة الهادية» closes this door (doc 13 §2.1, §8).
+    //
+    // `T2` announces that a kill was blocked, which is precisely the sentence
+    // the quiet night is bought to prevent: a morning in which nobody died
+    // has to be unreadable, and «فيه محاولة قتل اتمنعت» reads it out. So with
+    // the bullet available the trace is not a candidate at all - not scored
+    // low, not tie-broken away, absent - because a trace that fires one night
+    // in twenty is still a trace the table learns to wait for.
+    //
+    // The cost is real and is doc 13's to pay: a Doctor's successful save is
+    // no longer announced anywhere while the match is running. It is still on
+    // the record, still in the post-match timeline, and still what the
+    // guardian achievement reads.
+    if (type == TraceType.t2 && !allowSaveTrace) continue;
+
     // Never repeat back-to-back. Checked before evaluating rather than after,
     // because a type that fired yesterday is not a candidate today whatever it
     // would have scored.

@@ -2,7 +2,10 @@ import 'package:flutter/widgets.dart';
 
 import '../app/l10n/app_localizations.dart';
 import '../engine/balance_guard.dart';
-import '../engine/models/enums.dart' show Role;
+import '../engine/coaching.dart';
+import '../engine/hints.dart';
+import '../engine/models/enums.dart' show BulletKind, Role;
+import '../engine/presets.dart';
 
 /// Convenient, non-null access to the app's strings.
 extension AppLocalizationsX on BuildContext {
@@ -71,6 +74,89 @@ abstract final class EngineCopy {
         'first_blood' => l10n.achievementFirstBloodDescription,
         'survivors' => l10n.achievementSurvivorsDescription,
         _ => code,
+      };
+
+  /// The name of a role's once-per-match ability, for the post-match note that
+  /// says it went unused. Two roles have one; the other two hold nothing.
+  static String bulletName(AppLocalizations l10n, BulletKind kind) =>
+      switch (kind) {
+        BulletKind.quietNight => l10n.bulletMafia,
+        BulletKind.selfProtect => l10n.bulletDoctor,
+      };
+
+  /// The words on the last tile of the night grid (doc 14 §1.3).
+  ///
+  /// Only for the three roles whose special tile records no target. The
+  /// Doctor's tile carries their own name instead, which the night screen
+  /// already has and this layer does not.
+  static String nightSpecial(AppLocalizations l10n, Role role) =>
+      switch (role) {
+        Role.mafia => l10n.nightSpecialMafia,
+        Role.doctor => l10n.nightSpecialDoctor,
+        Role.detective => l10n.nightSpecialDetective,
+        Role.citizen => l10n.nightSpecialCitizen,
+      };
+
+  /// A play hint's sentence (doc 13 §4.3).
+  static String playHint(AppLocalizations l10n, PlayHint hint) =>
+      switch (hint.code) {
+        'hint_talkers' => l10n.hintTalkers,
+        'hint_quick_agreement' => l10n.hintQuickAgreement,
+        'hint_silence' => l10n.hintSilence,
+        'hint_changes_mind' => l10n.hintChangesMind,
+        'hint_early_accuser' => l10n.hintEarlyAccuser,
+        'hint_majority_comfort' => l10n.hintMajorityComfort,
+        'hint_who_benefited' => l10n.hintWhoBenefited,
+        'hint_mafia_suspicion_spreads' => l10n.hintMafiaSuspicionSpreads,
+        'hint_mafia_quiet_night' => l10n.hintMafiaQuietNight,
+        'hint_mafia_speak' => l10n.hintMafiaSpeak,
+        'hint_doctor_no_repeat' => l10n.hintDoctorNoRepeat,
+        'hint_doctor_self' => l10n.hintDoctorSelf,
+        'hint_doctor_save_reveals' => l10n.hintDoctorSaveReveals,
+        'hint_detective_investigate_loud' => l10n.hintDetectiveInvestigateLoud,
+        'hint_citizen_suspicion_counts' => l10n.hintCitizenSuspicionCounts,
+        _ => hint.code,
+      };
+
+  /// One «كان ممكن» note (doc 13 §4.4), with its own numbers in it.
+  ///
+  /// [nameOf] resolves the seats the note names. Passed in rather than looked
+  /// up, because the engine deals in seats and only the caller holds a roster.
+  static String coaching(
+    AppLocalizations l10n,
+    CoachingNote note,
+    String Function(int seat) nameOf,
+  ) =>
+      switch (note.code) {
+        CoachingCode.stuckOnInnocent => l10n.coachStuckOnInnocent(
+            nameOf(note.seats.first), note.numbers.first),
+        CoachingCode.conformity =>
+          l10n.coachConformity(note.numbers[0], note.numbers[1]),
+        CoachingCode.unusedBullet => l10n.coachUnusedBullet(
+            bulletName(l10n, BulletKind.values[note.numbers.first])),
+        CoachingCode.neverWhispered => l10n.coachNeverWhispered,
+        CoachingCode.abandonedRead =>
+          l10n.coachAbandonedRead(nameOf(note.seats.first)),
+        CoachingCode.quiet => l10n.coachQuiet(note.numbers.first),
+        CoachingCode.survivedAsMafia => l10n.coachSurvivedAsMafia,
+        _ => note.code,
+      };
+
+  /// A preset's name (doc 13 §5).
+  static String presetName(AppLocalizations l10n, MatchPreset? preset) =>
+      switch (preset) {
+        MatchPreset.fast => l10n.presetFast,
+        MatchPreset.classic => l10n.presetClassic,
+        MatchPreset.brutal => l10n.presetBrutal,
+        null => l10n.presetCustom,
+      };
+
+  /// What a preset is for, in one line.
+  static String presetHint(AppLocalizations l10n, MatchPreset preset) =>
+      switch (preset) {
+        MatchPreset.fast => l10n.presetFastHint,
+        MatchPreset.classic => l10n.presetClassicHint,
+        MatchPreset.brutal => l10n.presetBrutalHint,
       };
 
   /// The player-facing name of a role.

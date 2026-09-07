@@ -26,22 +26,22 @@ class MatchCodec {
   // ---------------------------------------------------------------------------
 
   static Map<String, dynamic> encode(Match match) => {
-        'id': match.id,
-        'createdAt': match.createdAt.toIso8601String(),
-        'seed': match.seed,
-        'phase': match.phase.name,
-        'dayNumber': match.dayNumber,
-        'currentActorSeat': match.currentActorSeat,
-        'settings': _encodeSettings(match.settings),
-        'players': [for (final p in match.players) _encodePlayer(p)],
-        'eventLog': [for (final e in match.eventLog) _encodeEvent(e)],
-        'outcome': match.outcome == null
-            ? null
-            : {
-                'winner': match.outcome!.winner.name,
-                'completedAt': match.outcome!.completedAt.toIso8601String(),
-              },
-      };
+    'id': match.id,
+    'createdAt': match.createdAt.toIso8601String(),
+    'seed': match.seed,
+    'phase': match.phase.name,
+    'dayNumber': match.dayNumber,
+    'currentActorSeat': match.currentActorSeat,
+    'settings': _encodeSettings(match.settings),
+    'players': [for (final p in match.players) _encodePlayer(p)],
+    'eventLog': [for (final e in match.eventLog) _encodeEvent(e)],
+    'outcome': match.outcome == null
+        ? null
+        : {
+            'winner': match.outcome!.winner.name,
+            'completedAt': match.outcome!.completedAt.toIso8601String(),
+          },
+  };
 
   static Match decode(Map<String, dynamic> json) {
     final outcome = json['outcome'] as Map<String, dynamic>?;
@@ -64,7 +64,10 @@ class MatchCodec {
       outcome: outcome == null
           ? null
           : MatchOutcome(
-              winner: _enumByName(Alignment.values, outcome['winner'] as String),
+              winner: _enumByName(
+                Alignment.values,
+                outcome['winner'] as String,
+              ),
               completedAt: DateTime.parse(outcome['completedAt'] as String),
             ),
     );
@@ -81,39 +84,48 @@ class MatchCodec {
       _decodeSettings(json);
 
   static Map<String, dynamic> _encodeSettings(MatchSettings s) => {
-        'speechSeconds': s.speechSeconds,
-        'discussionMode': s.discussionMode.name,
-        'dayTieRule': s.dayTieRule.name,
-        'narrationEnabled': s.narrationEnabled,
-        'abstainAllowed': s.abstainAllowed,
-        'identityHoldSeconds': s.identityHoldSeconds,
-        'muteAllAudio': s.muteAllAudio,
-        'scoreEnabled': s.scoreEnabled,
-        'traceEnabled': s.traceEnabled,
-        'confrontationEnabled': s.confrontationEnabled,
-        'whisperEnabled': s.whisperEnabled,
-        'revealWhisperContent': s.revealWhisperContent,
-        'openingRoundEnabled': s.openingRoundEnabled,
-        'survivorConfrontationEnabled': s.survivorConfrontationEnabled,
-        'confrontationSeconds': s.confrontationSeconds,
-      };
+    'speechSeconds': s.speechSeconds,
+    'discussionMode': s.discussionMode.name,
+    'dayTieRule': s.dayTieRule.name,
+    'narrationEnabled': s.narrationEnabled,
+    'abstainAllowed': s.abstainAllowed,
+    'identityHoldSeconds': s.identityHoldSeconds,
+    'muteAllAudio': s.muteAllAudio,
+    'scoreEnabled': s.scoreEnabled,
+    'traceEnabled': s.traceEnabled,
+    'confrontationEnabled': s.confrontationEnabled,
+    'whisperEnabled': s.whisperEnabled,
+    'revealWhisperContent': s.revealWhisperContent,
+    'openingRoundEnabled': s.openingRoundEnabled,
+    'survivorConfrontationEnabled': s.survivorConfrontationEnabled,
+    'confrontationSeconds': s.confrontationSeconds,
+    'openVoting': s.openVoting,
+  };
 
   static MatchSettings _decodeSettings(Map<String, dynamic> json) =>
       MatchSettings(
         speechSeconds: json['speechSeconds'] as int,
-        discussionMode:
-            _enumByName(DiscussionMode.values, json['discussionMode'] as String),
-        dayTieRule: _enumByName(DayTieRule.values, json['dayTieRule'] as String),
+        discussionMode: _enumByName(
+          DiscussionMode.values,
+          json['discussionMode'] as String,
+        ),
+        dayTieRule: _enumByName(
+          DayTieRule.values,
+          json['dayTieRule'] as String,
+        ),
         narrationEnabled: json['narrationEnabled'] as bool,
         abstainAllowed: json['abstainAllowed'] as bool,
         // Tolerated as missing: a match saved before this setting existed must
         // still resume. Everything else here is required, because a match with
         // no speech time or no tie rule is not a match that can be played on.
-        identityHoldSeconds: json['identityHoldSeconds'] as int? ??
+        identityHoldSeconds:
+            json['identityHoldSeconds'] as int? ??
             const MatchSettings.defaults().identityHoldSeconds,
-        muteAllAudio: json['muteAllAudio'] as bool? ??
+        muteAllAudio:
+            json['muteAllAudio'] as bool? ??
             const MatchSettings.defaults().muteAllAudio,
-        scoreEnabled: json['scoreEnabled'] as bool? ??
+        scoreEnabled:
+            json['scoreEnabled'] as bool? ??
             const MatchSettings.defaults().scoreEnabled,
         // The Information Engine's switches, all tolerated as missing for the
         // same reason: a match written before this phase existed must still
@@ -121,21 +133,30 @@ class MatchCodec {
         // gains the layers from its next morning on — nothing retroactive can
         // be published, because the generators read the log and a log with no
         // suspicions in it makes every trace ineligible.
-        traceEnabled: json['traceEnabled'] as bool? ??
+        traceEnabled:
+            json['traceEnabled'] as bool? ??
             const MatchSettings.defaults().traceEnabled,
-        confrontationEnabled: json['confrontationEnabled'] as bool? ??
+        confrontationEnabled:
+            json['confrontationEnabled'] as bool? ??
             const MatchSettings.defaults().confrontationEnabled,
-        whisperEnabled: json['whisperEnabled'] as bool? ??
+        whisperEnabled:
+            json['whisperEnabled'] as bool? ??
             const MatchSettings.defaults().whisperEnabled,
-        revealWhisperContent: json['revealWhisperContent'] as bool? ??
+        revealWhisperContent:
+            json['revealWhisperContent'] as bool? ??
             const MatchSettings.defaults().revealWhisperContent,
-        openingRoundEnabled: json['openingRoundEnabled'] as bool? ??
+        openingRoundEnabled:
+            json['openingRoundEnabled'] as bool? ??
             const MatchSettings.defaults().openingRoundEnabled,
         survivorConfrontationEnabled:
             json['survivorConfrontationEnabled'] as bool? ??
-                const MatchSettings.defaults().survivorConfrontationEnabled,
-        confrontationSeconds: json['confrontationSeconds'] as int? ??
+            const MatchSettings.defaults().survivorConfrontationEnabled,
+        confrontationSeconds:
+            json['confrontationSeconds'] as int? ??
             const MatchSettings.defaults().confrontationSeconds,
+        openVoting:
+            json['openVoting'] as bool? ??
+            const MatchSettings.defaults().openVoting,
       );
 
   // ---------------------------------------------------------------------------
@@ -143,25 +164,30 @@ class MatchCodec {
   // ---------------------------------------------------------------------------
 
   static Map<String, dynamic> _encodePlayer(Player p) => {
-        'seat': p.seat,
-        'name': p.name,
-        'role': p.role.name,
-        'status': p.status.name,
-        'eliminatedOn': _encodePhaseRef(p.eliminatedOn),
-      };
+    'seat': p.seat,
+    'name': p.name,
+    'gender': p.gender.name,
+    'role': p.role.name,
+    'status': p.status.name,
+    'eliminatedOn': _encodePhaseRef(p.eliminatedOn),
+  };
 
   static Player _decodePlayer(Map<String, dynamic> json) => Player(
-        seat: json['seat'] as int,
-        name: json['name'] as String,
-        role: _enumByName(Role.values, json['role'] as String),
-        status: _enumByName(PlayerStatus.values, json['status'] as String),
-        eliminatedOn:
-            _decodePhaseRef(json['eliminatedOn'] as Map<String, dynamic>?),
-      );
+    seat: json['seat'] as int,
+    name: json['name'] as String,
+    gender: PlayerGender.values.firstWhere(
+      (g) => g.name == json['gender'],
+      orElse: () => PlayerGender.unspecified,
+    ),
+    role: _enumByName(Role.values, json['role'] as String),
+    status: _enumByName(PlayerStatus.values, json['status'] as String),
+    eliminatedOn: _decodePhaseRef(
+      json['eliminatedOn'] as Map<String, dynamic>?,
+    ),
+  );
 
-  static Map<String, dynamic>? _encodePhaseRef(PhaseRef? ref) => ref == null
-      ? null
-      : {'phase': ref.phase.name, 'number': ref.number};
+  static Map<String, dynamic>? _encodePhaseRef(PhaseRef? ref) =>
+      ref == null ? null : {'phase': ref.phase.name, 'number': ref.number};
 
   static PhaseRef? _decodePhaseRef(Map<String, dynamic>? json) => json == null
       ? null
@@ -185,78 +211,132 @@ class MatchCodec {
       'number': e.phaseRef.number,
     };
     return switch (e) {
-      RoleAssigned() => {...base, 'k': 'roleAssigned', 'seat': e.seat, 'role': e.role.name},
+      RoleAssigned() => {
+        ...base,
+        'k': 'roleAssigned',
+        'seat': e.seat,
+        'role': e.role.name,
+      },
       NightOpened() => {...base, 'k': 'nightOpened'},
-      MafiaVoteCast() => {...base, 'k': 'mafiaVote', 'actor': e.actorSeat, 'target': e.targetSeat},
-      ProtectCast() => {...base, 'k': 'protect', 'actor': e.actorSeat, 'target': e.targetSeat},
-      InvestigateCast() => {...base, 'k': 'investigate', 'actor': e.actorSeat, 'target': e.targetSeat},
-      SuspectCast() => {...base, 'k': 'suspect', 'actor': e.actorSeat, 'target': e.targetSeat, 'reason': e.reason},
-      NightResolved() => {...base, 'k': 'nightResolved', 'victim': e.victimSeat, 'saved': e.savedSeat},
+      MafiaVoteCast() => {
+        ...base,
+        'k': 'mafiaVote',
+        'actor': e.actorSeat,
+        'target': e.targetSeat,
+      },
+      ProtectCast() => {
+        ...base,
+        'k': 'protect',
+        'actor': e.actorSeat,
+        'target': e.targetSeat,
+      },
+      InvestigateCast() => {
+        ...base,
+        'k': 'investigate',
+        'actor': e.actorSeat,
+        'target': e.targetSeat,
+      },
+      SuspectCast() => {
+        ...base,
+        'k': 'suspect',
+        'actor': e.actorSeat,
+        'target': e.targetSeat,
+        'reason': e.reason,
+      },
+      NightResolved() => {
+        ...base,
+        'k': 'nightResolved',
+        'victim': e.victimSeat,
+        'saved': e.savedSeat,
+      },
       MorningAnnounced() => {...base, 'k': 'morning'},
       DiscussionRound() => {...base, 'k': 'discussionRound'},
-      QuestionAsked() => {...base, 'k': 'question', 'from': e.fromSeat, 'to': e.toSeat},
-      VoteCast() => {...base, 'k': 'vote', 'voter': e.voterSeat, 'target': e.targetSeat, 'round': e.round},
+      QuestionAsked() => {
+        ...base,
+        'k': 'question',
+        'from': e.fromSeat,
+        'to': e.toSeat,
+      },
+      VoteCast() => {
+        ...base,
+        'k': 'vote',
+        'voter': e.voterSeat,
+        'target': e.targetSeat,
+        'round': e.round,
+      },
       DayRevoteCalled() => {...base, 'k': 'revote', 'tied': e.tiedSeats},
       DayResolved() => {
-          ...base,
-          'k': 'dayResolved',
-          'eliminated': e.eliminatedSeat,
-          // Map keys must be strings to survive a JSON round trip.
-          'tally': {for (final entry in e.tally.entries) '${entry.key}': entry.value},
+        ...base,
+        'k': 'dayResolved',
+        'eliminated': e.eliminatedSeat,
+        // Map keys must be strings to survive a JSON round trip.
+        'tally': {
+          for (final entry in e.tally.entries) '${entry.key}': entry.value,
         },
+      },
       PlayerRemoved() => {...base, 'k': 'playerRemoved', 'seat': e.seat},
-      WinReached() => {...base, 'k': 'winReached', 'alignment': e.alignment.name},
+      WinReached() => {
+        ...base,
+        'k': 'winReached',
+        'alignment': e.alignment.name,
+      },
       NightActionSkipped() => {
-          ...base,
-          'k': 'nightSkipped',
-          'actor': e.actorSeat,
-          'kind': e.kind.name,
-        },
+        ...base,
+        'k': 'nightSkipped',
+        'actor': e.actorSeat,
+        'kind': e.kind.name,
+      },
       TracePublished() => {
-          ...base,
-          'k': 'trace',
-          'type': e.type.name,
-          'subject': e.subjectSeat,
-          'target': e.targetSeat,
-          'count': e.count,
-        },
+        ...base,
+        'k': 'trace',
+        'type': e.type.name,
+        'subject': e.subjectSeat,
+        'target': e.targetSeat,
+        'count': e.count,
+      },
       OpeningAccusationCast() => {
-          ...base,
-          'k': 'opening',
-          'actor': e.actorSeat,
-          'target': e.targetSeat,
-        },
+        ...base,
+        'k': 'opening',
+        'actor': e.actorSeat,
+        'target': e.targetSeat,
+      },
       ConfrontationIssued() => {
-          ...base,
-          'k': 'confront',
-          'target': e.targetSeat,
-          'type': e.type.name,
-          'evidenceSeat': e.evidenceSeat,
-          'evidenceSeat2': e.evidenceSeat2,
-          'evidenceDay': e.evidenceDay,
-          'count': e.count,
-        },
+        ...base,
+        'k': 'confront',
+        'target': e.targetSeat,
+        'type': e.type.name,
+        'evidenceSeat': e.evidenceSeat,
+        'evidenceSeat2': e.evidenceSeat2,
+        'evidenceDay': e.evidenceDay,
+        'count': e.count,
+      },
       ConfrontationAnswered() => {
-          ...base,
-          'k': 'confrontEnd',
-          'target': e.targetSeat,
-          'silent': e.silent,
-        },
+        ...base,
+        'k': 'confrontEnd',
+        'target': e.targetSeat,
+        'silent': e.silent,
+      },
       SpeakingRecorded() => {
-          ...base,
-          'k': 'spoke',
-          'seat': e.seat,
-          'seconds': e.seconds,
-        },
+        ...base,
+        'k': 'spoke',
+        'seat': e.seat,
+        'seconds': e.seconds,
+      },
       // Bodies are absent by construction — this log is the public record of
       // the match and is written to History in full. See `WhisperContentStore`.
       WhisperSent() => {
-          ...base,
-          'k': 'whisper',
-          'id': e.id,
-          'from': e.fromSeat,
-          'to': e.toSeat,
-        },
+        ...base,
+        'k': 'whisper',
+        'id': e.id,
+        'from': e.fromSeat,
+        'to': e.toSeat,
+      },
+      BulletSpent() => {
+        ...base,
+        'k': 'bullet',
+        'actor': e.actorSeat,
+        'kind': e.kind.name,
+      },
       WhisperDelivered() => {...base, 'k': 'whisperRead', 'id': e.id},
       WhisperVoided() => {...base, 'k': 'whisperVoid', 'id': e.id},
     };
@@ -358,6 +438,13 @@ class MatchCodec {
           phaseRef: ref,
           alignment: _enumByName(Alignment.values, json['alignment'] as String),
         );
+      case 'bullet':
+        return BulletSpent(
+          at: at,
+          phaseRef: ref,
+          actorSeat: json['actor'] as int,
+          kind: _enumByName(BulletKind.values, json['kind'] as String),
+        );
       case 'nightSkipped':
         return NightActionSkipped(
           at: at,
@@ -386,8 +473,7 @@ class MatchCodec {
           at: at,
           phaseRef: ref,
           targetSeat: json['target'] as int,
-          type: _enumByName(
-              ConfrontationType.values, json['type'] as String),
+          type: _enumByName(ConfrontationType.values, json['type'] as String),
           evidenceSeat: json['evidenceSeat'] as int?,
           evidenceSeat2: json['evidenceSeat2'] as int?,
           evidenceDay: json['evidenceDay'] as int?,
@@ -416,7 +502,11 @@ class MatchCodec {
           toSeat: json['to'] as int,
         );
       case 'whisperRead':
-        return WhisperDelivered(at: at, phaseRef: ref, id: json['id'] as String);
+        return WhisperDelivered(
+          at: at,
+          phaseRef: ref,
+          id: json['id'] as String,
+        );
       case 'whisperVoid':
         return WhisperVoided(at: at, phaseRef: ref, id: json['id'] as String);
       default:

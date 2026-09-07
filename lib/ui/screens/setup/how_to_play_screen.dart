@@ -30,8 +30,15 @@ import '../../widgets/textured_surface.dart';
 /// visual language competing with the one the app already has.
 class HowToPlayScreen extends StatelessWidget {
   final VoidCallback onBack;
+  final VoidCallback onStartMatch;
 
-  const HowToPlayScreen({super.key, required this.onBack});
+  const HowToPlayScreen({
+    super.key,
+    required this.onBack,
+    required this.onStartMatch,
+  });
+
+  static const Key startButton = ValueKey('how_to_play_start');
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +59,7 @@ class HowToPlayScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  ScreenHeader(title: l10n.rulesTitle, onBack: onBack),
+                  ScreenHeader(title: l10n.howToPlayTitle, onBack: onBack),
                   Expanded(
                     child: ListView(
                       padding: EdgeInsets.fromLTRB(
@@ -62,6 +69,29 @@ class HowToPlayScreen extends StatelessWidget {
                         spacing.xxl,
                       ),
                       children: [
+                        PaperPanel(
+                          child: Padding(
+                            padding: EdgeInsets.all(spacing.lg),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.onboardingStoryTitle,
+                                  style: context.typography.title.emphasised
+                                      .copyWith(color: colors.accentGold),
+                                ),
+                                SizedBox(height: spacing.sm),
+                                Text(
+                                  l10n.onboardingStoryBody,
+                                  style: context.typography.body.copyWith(
+                                    color: colors.textPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: spacing.xl),
                         _Section(
                           title: l10n.rulesGoalTitle,
                           body: l10n.rulesGoalBody,
@@ -79,11 +109,29 @@ class HowToPlayScreen extends StatelessWidget {
                           title: l10n.rulesWinTitle,
                           body: l10n.rulesWinBody,
                         ),
-                        _Section(
-                          title: l10n.rulesTipsTitle,
-                          body: l10n.rulesTipsBody,
-                        ),
+                        // Task 11c — the four things doc 12 §9 says a
+                        // first-time online player has to know, moved here off
+                        // the deck that used to stand between them and the
+                        // room. They are not a different game and they were
+                        // never worth their own screen: a player who has just
+                        // watched the film reads them in the same breath as
+                        // the rules, and a player who joined by link is no
+                        // longer made to read four cards while a friend waits.
+                        const _OnlineSection(),
                       ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      spacing.screenMargin,
+                      spacing.sm,
+                      spacing.screenMargin,
+                      spacing.lg,
+                    ),
+                    child: FilledButton(
+                      key: startButton,
+                      onPressed: onStartMatch,
+                      child: Text(l10n.homeAction),
                     ),
                   ),
                 ],
@@ -96,6 +144,45 @@ class HowToPlayScreen extends StatelessWidget {
   }
 }
 
+/// The online half of the rules (task 11c).
+///
+/// Four items, and deliberately only four: they are the things that are **not**
+/// guessable from the offline game, which is the only game any of these players
+/// has seen. The phone is not passed; the night is simultaneous, so there is a
+/// clock; a whisper's existence is public and its contents are not; and being
+/// eliminated is not being ejected.
+///
+/// Everything else — what a role does, how a vote works — is on the sections
+/// above this one, because it is the same in both games.
+class _OnlineSection extends StatelessWidget {
+  const _OnlineSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _Section(
+          title: l10n.onlineIntroPhoneTitle,
+          body: l10n.onlineIntroPhoneBody,
+        ),
+        _Section(
+          title: l10n.onlineIntroNightTitle,
+          body: l10n.onlineIntroNightBody,
+        ),
+        _Section(
+          title: l10n.onlineIntroWhisperTitle,
+          body: l10n.onlineIntroWhisperBody,
+        ),
+        _Section(
+          title: l10n.onlineIntroWitnessTitle,
+          body: l10n.onlineIntroWitnessBody,
+        ),
+      ],
+    );
+  }
+}
 
 /// A heading with a rule under it, and one panel of text.
 class _Section extends StatelessWidget {
@@ -182,11 +269,11 @@ class _RoleRow extends StatelessWidget {
   /// The bone-white emblems from `assets/icons/`, solved to identical ink
   /// coverage so no role's mark reads as louder than another's.
   String get _emblem => switch (role) {
-        Role.mafia => AppIcons.roleMafia,
-        Role.doctor => AppIcons.roleDoctor,
-        Role.detective => AppIcons.roleDetective,
-        Role.citizen => AppIcons.roleCitizen,
-      };
+    Role.mafia => AppIcons.roleMafia,
+    Role.doctor => AppIcons.roleDoctor,
+    Role.detective => AppIcons.roleDetective,
+    Role.citizen => AppIcons.roleCitizen,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -216,7 +303,9 @@ class _RoleRow extends StatelessWidget {
             children: [
               Text(
                 EngineCopy.roleName(context.l10n, role),
-                style: type.title.emphasised.copyWith(color: colors.textPrimary),
+                style: type.title.emphasised.copyWith(
+                  color: colors.textPrimary,
+                ),
               ),
               SizedBox(height: spacing.xs),
               Text(
@@ -250,10 +339,7 @@ class _Heading extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: type.title.copyWith(color: colors.textPrimary),
-        ),
+        Text(title, style: type.title.copyWith(color: colors.textPrimary)),
         SizedBox(height: spacing.xs),
         SizedBox(
           width: spacing.xl,

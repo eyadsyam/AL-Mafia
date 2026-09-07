@@ -12,16 +12,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appTitle => 'سيد المافيا';
 
   @override
+  String get actionNotSaved => 'اختيارك متسجلش جرب تاني';
+
+  @override
   String get back => 'رجوع';
 
   @override
-  String get cancel => 'إلغاء';
+  String get cancel => 'الغاء';
 
   @override
-  String get deleteAction => 'حذف';
+  String get deleteAction => 'امسح';
 
   @override
-  String get continueAction => 'متابعة';
+  String get continueAction => 'كمل';
 
   @override
   String get listSeparator => '، ';
@@ -36,16 +39,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settings => 'الإعدادات';
 
   @override
-  String get addPlayersTitle => 'أضف اللاعبين';
+  String get addPlayersTitle => 'ضيف اللاعبين';
 
   @override
-  String get seatingOrderSubtitle => 'بالترتيب الجلوس';
+  String get seatingOrderSubtitle => 'اسحب الاسم عشان تغير ترتيبه';
 
   @override
   String get playerNameHint => 'اسم اللاعب';
 
   @override
-  String get addPlayer => 'إضافة';
+  String get addPlayer => 'ضيف';
 
   @override
   String playerCountLine(int count) {
@@ -53,10 +56,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get noPlayersYet => 'لم تضف أي لاعب بعد';
+  String get noPlayersYet => 'ضيف أول لاعب';
 
   @override
-  String get next => 'التالي';
+  String get next => 'كمل';
 
   @override
   String seatNumber(int seat) {
@@ -84,20 +87,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get roleGroupCitizen => 'المواطن';
 
   @override
-  String get balanceValid => 'التوزيع صحيح!';
+  String get balanceValid => 'التوزيع جاهز';
 
   @override
-  String get balancePlayerCountTooLow => 'يجب أن يكون عدد اللاعبين 5 على الأقل';
+  String get balancePlayerCountTooLow => 'محتاجين 5 لاعبين على الأقل';
 
   @override
-  String get balancePlayerCountTooHigh => 'يجب ألا يتجاوز عدد اللاعبين 20';
+  String get balancePlayerCountTooHigh => 'الحد الأقصى 20 لاعب';
 
   @override
-  String get balanceNegativeRoleCount => 'لا يمكن أن يكون عدد الأدوار سالبًا';
+  String get balanceNegativeRoleCount => 'عدد الأدوار مينفعش يبقى بالسالب';
 
   @override
   String get balanceRoleCountMismatch =>
-      'مجموع الأدوار يجب أن يساوي عدد اللاعبين';
+      'مجموع الأدوار لازم يساوي عدد اللاعبين';
 
   @override
   String get balanceNoMafia => 'لازم يكون في مافيا واحد على الأقل';
@@ -111,13 +114,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get balanceTwoDetectivesLowPlayerCount =>
-      'تحذير: اختيار اثنين من المحققين مع أقل من 11 لاعبًا قد يعطي فرصة عالية جدًا للمدينة';
+      'محققين مع أقل من 11 لاعب بيقووا فريق المواطنين';
 
   @override
   String get settingsTitle => 'الإعدادات';
 
   @override
-  String get speechSecondsLabel => 'وقت الكلام (بالثواني)';
+  String get speechSecondsLabel => 'وقت كل لاعب';
 
   @override
   String secondsSuffix(int seconds) {
@@ -128,22 +131,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get discussionModeLabel => 'طريقة النقاش';
 
   @override
-  String get discussionStructured => 'منظم (أدوار محددة)';
+  String get discussionStructured => 'بالدور';
 
   @override
-  String get discussionFree => 'حر (بدون أدوار)';
+  String get discussionFree => 'حر';
 
   @override
   String get dayTieRuleLabel => 'قاعدة التعادل في النهار';
 
   @override
-  String get tieRevote => 'إعادة تصويت';
+  String get tieRevote => 'تصويت تاني';
 
   @override
-  String get tieNoElimination => 'بدون إقصاء';
+  String get tieNoElimination => 'محدش يخرج';
 
   @override
-  String get narrationEnabledLabel => 'تفعيل السرد الصوتي';
+  String get narrationEnabledLabel => 'صوت بداية النهار';
 
   @override
   String get abstainAllowedLabel => 'السماح بعدم التصويت';
@@ -158,7 +161,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get nightLabel => 'الليلة';
 
   @override
-  String get aliveCountLabel => 'لاعبون على الحياة';
+  String get aliveCountLabel => 'لاعبين لسه في اللعبة';
 
   @override
   String get placePhoneOnTable => 'ضع الهاتف على الطاولة وانتظر الإشارة';
@@ -182,26 +185,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get roleCitizen => 'مواطن';
 
   @override
-  String get roleMafiaDescription =>
-      'كل ليلة تتفق مع باقي المافيا على حد تقتلوه. وميعرفش عنك حد.';
+  String get roleMafiaDescription => 'كل ليلة بتختار مين يتقتل';
 
   @override
   String get roleDoctorDescription =>
-      'كل ليلة تحمي لاعب واحد — ومينفعش تحمي نفس الشخص ليلتين ورا بعض.';
+      'كل ليلة بتحمي لاعب وحماية نفسك متاحة مرة في المباراة';
 
   @override
   String get roleDetectiveDescription =>
-      'كل ليلة تكشف لاعب واحد وتعرف لو مافيا. النتيجة تظهرلك إنت بس، ومرة واحدة.';
+      'كل ليلة بتكشف عن شخصية واحد من اللاعبين';
 
   @override
   String get roleCitizenDescription =>
-      'مالكش قدرة خاصة. سلاحك إنك تلاحظ وتتكلم.';
+      'ملاكش ميزة خاصة بتحاول تفهم ايه اللي بيحصل ';
 
   @override
   String get gotIt => 'فهمت';
 
   @override
-  String get holdToRevealRole => 'اضغط مع الاستمرار لكشف دورك';
+  String get holdToRevealRole => 'دوس عشان تشوف كارتك';
 
   @override
   String teammatesLine(String names) {
@@ -209,47 +211,41 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get passPhoneTo => 'مرّر الهاتف إلى';
+  String get passPhoneTo => 'سلم الموبايل لـ';
 
   @override
   String iAmHoldInstruction(String name) {
-    return 'أنا $name — اضغط مع الاستمرار';
+    return 'أنا $name — دوس';
   }
 
   @override
   String notYouNamed(String name) {
-    return 'لست $name؟';
+    return 'مش $name؟';
   }
 
   @override
   String get yourTurn => 'دورك';
 
   @override
-  String get holdToConfirm => 'اضغط مع الاستمرار للتأكيد';
+  String get holdToConfirm => 'دوس ثانيتين عشان تكمل';
 
   @override
-  String get notYou => 'لست أنت؟';
+  String get notYou => 'مش انت؟';
 
   @override
-  String get takeYourTime => 'خذ وقتك في القراءة';
+  String get choosePlayer => 'اختار لاعب';
 
   @override
-  String get choosePlayer => 'اختر لاعبًا';
+  String get confirmAction => 'أكد';
 
   @override
-  String get confirmAction => 'تأكيد';
+  String get choiceRecorded => 'اختيارك اتسجل';
 
   @override
-  String get choiceRecorded => 'تم تسجيل اختيارك';
+  String get passPhone => 'سلم الموبايل';
 
   @override
-  String get keepPhoneUntilUnlock => 'أبقِ الهاتف معك حتى يُفتح زر التمرير';
-
-  @override
-  String get passPhone => 'مرّر الهاتف';
-
-  @override
-  String get waitEllipsis => 'انتظر…';
+  String get waitEllipsis => 'استنى';
 
   @override
   String get nightPromptMafia => 'مين عايز تقتله الليلة؟';
@@ -258,27 +254,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get nightPromptDoctor => 'مين عايز تحميه الليلة؟';
 
   @override
-  String get nightPromptDetective => 'مين عايز تكشفه الليلة؟';
+  String get nightPromptDetective => 'مين عايز تفحصه الليلة؟';
 
   @override
   String get nightPromptCitizen => 'مين شاكك فيه الليلة دي؟';
 
   @override
-  String get notEveryoneSurvived => 'لم ينجُ الجميع';
+  String get notEveryoneSurvived => 'فيه لاعبين خرجوا';
 
   @override
   String lostPlayerLastNight(String name) {
-    return '$name اتقتل الليلة اللي فاتت.';
+    return '$name اتقتل بالليل';
   }
 
   @override
-  String get quietNight => 'ليلة هادئة';
+  String get quietNight => 'محدش مات';
 
   @override
-  String get someoneSavedBody => 'المافيا حاولت تقتل، بس حد نجا. مش هنقول مين.';
+  String get someoneSavedBody => 'حد نجا من محاولة قتل';
 
   @override
-  String get noLossesBody => 'مرّت الليلة دون خسائر.';
+  String get noLossesBody => 'محدش مات الليلة دي';
 
   @override
   String morningOfDay(int day) {
@@ -295,36 +291,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String get discussionFreeTitle => 'النقاش الحر';
 
   @override
-  String get currentSpeaker => 'المتحدث الآن';
+  String get currentSpeaker => 'الدور على';
 
   @override
   String speakersRemaining(int count) {
-    return 'متبقي: $count';
+    return 'فاضل $count';
   }
 
   @override
   String get skip => 'تخطي';
 
   @override
-  String get endDiscussion => 'إنهاء النقاش';
+  String get endDiscussion => 'خلص النقاش';
 
   @override
   String get resume => 'متابعة';
 
   @override
-  String get pause => 'إيقاف';
+  String get pause => 'وقف';
 
   @override
   String get votingSubtitle => 'التصويت';
 
   @override
-  String get whoDoYouVoteOut => 'مين تصوّت على طرده؟';
+  String get whoDoYouVoteOut => 'مين يخرج؟';
 
   @override
   String get abstain => 'امتناع';
 
   @override
-  String get confirmVote => 'تأكيد الصوت';
+  String get confirmVote => 'أكد صوتك';
 
   @override
   String eliminatedHeadline(String name) {
@@ -332,13 +328,13 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get tieRevoteHeadline => 'تعادل — إعادة التصويت';
+  String get tieRevoteHeadline => 'تعادل هنصوت تاني';
 
   @override
-  String get tieNoEliminationHeadline => 'تعادل — لم يخرج أحد';
+  String get tieNoEliminationHeadline => 'تعادل ومحدش خرج';
 
   @override
-  String get nobodyEliminated => 'لم يخرج أحد';
+  String get nobodyEliminated => 'محدش خرج';
 
   @override
   String wasRole(String role) {
@@ -346,10 +342,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get revote => 'إعادة التصويت';
+  String get revote => 'صوتوا تاني';
 
   @override
-  String get gameOver => 'نهاية اللعبة';
+  String get gameOver => 'المباراة خلصت';
 
   @override
   String get mafiaWins => 'المافيا كسبت';
@@ -364,22 +360,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeAction => 'الرئيسية';
 
   @override
-  String get endMatchTitle => 'إنهاء المباراة؟';
+  String get endMatchTitle => 'تنهي المباراة؟';
 
   @override
-  String get endMatchBody => 'ستفقد تقدّم هذه المباراة ولن تظهر في السجل.';
+  String get endMatchBody => 'المباراة مش هتتحفظ في السجل';
 
   @override
-  String get keepPlaying => 'متابعة اللعب';
+  String get keepPlaying => 'كمل اللعب';
 
   @override
-  String get endAction => 'إنهاء';
+  String get endAction => 'خلص';
 
   @override
-  String get endMatchTooltip => 'إنهاء المباراة';
+  String get endMatchTooltip => 'انهي المباراة';
 
   @override
-  String get unfinishedMatchTitle => 'لديك مباراة غير مكتملة';
+  String get unfinishedMatchTitle => 'فيه مباراة لسه مخلصتش';
 
   @override
   String unfinishedMatchBody(int count, String where) {
@@ -388,19 +384,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String resumeFromPassTo(String name) {
-    return 'ستُستأنف من تمرير الهاتف إلى $name.';
+    return 'هنكمل من دور $name';
   }
 
   @override
   String resumeFromDay(int day) {
-    return 'ستُستأنف من اليوم $day.';
+    return 'هنكمل من اليوم $day';
   }
 
   @override
-  String get endMatch => 'إنهاء المباراة';
+  String get endMatch => 'انهي المباراة';
 
   @override
-  String get resumeAction => 'استئناف';
+  String get resumeAction => 'كمل';
 
   @override
   String nightNumbered(int number) {
@@ -416,7 +412,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get analyticsTitle => 'التحليلات';
 
   @override
-  String get analyticsLoadFailed => 'تعذّر فتح تحليلات المباراة';
+  String get analyticsLoadFailed => 'مش قادرين نفتح التحليلات دلوقتي';
 
   @override
   String seatFallback(int seat) {
@@ -427,7 +423,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tabEvents => 'الأحداث';
 
   @override
-  String get tabPlayers => 'اللاعبون';
+  String get tabPlayers => 'اللاعبين';
 
   @override
   String get tabSuspicions => 'الشكوك';
@@ -437,7 +433,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String timelineMafiaVote(String actor, String target) {
-    return '$actor صوّت على $target';
+    return '$actor صوت على $target';
   }
 
   @override
@@ -447,22 +443,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String timelineInvestigate(String actor, String target) {
-    return '$actor حقّق مع $target';
+    return '$actor كشف $target';
   }
 
   @override
   String timelineSuspect(String actor, String target) {
-    return '$actor اشتبه في $target';
+    return '$actor شك في $target';
   }
 
   @override
   String timelineNightKill(String target) {
-    return 'قُتل $target ليلًا';
+    return '$target اتقتل بالليل';
   }
 
   @override
   String timelineSaved(String target) {
-    return 'نجا $target من محاولة اغتيال';
+    return '$target نجا من القتل';
   }
 
   @override
@@ -471,37 +467,36 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get noEventsRecorded => 'لا توجد أحداث مسجّلة';
+  String get noEventsRecorded => 'مفيش أحداث متسجلة';
 
   @override
-  String get noPlayerData => 'لا توجد بيانات لاعبين';
+  String get noPlayerData => 'مفيش بيانات للاعبين';
 
   @override
-  String get noSuspicionsByPlayer => 'لم يسجّل أي اشتباه';
+  String get noSuspicionsByPlayer => 'مسجلش شكوك';
 
   @override
   String suspicionAccuracyLine(int correct, int total) {
-    return 'دقة الاشتباه: $correct/$total';
+    return 'شكوك صح: $correct/$total';
   }
 
   @override
-  String get noSuspicionsRecorded => 'لم يُسجَّل أي اشتباه';
+  String get noSuspicionsRecorded => 'مفيش شكوك متسجلة';
 
   @override
-  String get noAchievements => 'لا توجد إنجازات';
+  String get noAchievements => 'مفيش انجازات';
 
   @override
   String get achievementSharpestEye => 'العين الثاقبة';
 
   @override
-  String get achievementSharpestEyeDescription =>
-      'أعلى دقة في الاشتباهات خلال الليل';
+  String get achievementSharpestEyeDescription => 'أعلى دقة في الشكوك';
 
   @override
   String get achievementUntouchable => 'الناجي';
 
   @override
-  String get achievementUntouchableDescription => 'نجا حتى نهاية اللعبة';
+  String get achievementUntouchableDescription => 'كمل للآخر';
 
   @override
   String get achievementGuardian => 'الحامي';
@@ -514,25 +509,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get achievementFirstBloodDescription =>
-      'أول من تم القضاء عليه في الليل الأول';
+      'أول لاعب مات في الليلة الأولى';
 
   @override
-  String get achievementSurvivors => 'الناجون';
+  String get achievementSurvivors => 'اللي كملوا للآخر';
 
   @override
-  String get achievementSurvivorsDescription => 'انتهت اللعبة';
+  String get achievementSurvivorsDescription => 'فضلوا في اللعبة لحد النهاية';
 
   @override
   String get historyTitle => 'السجل';
 
   @override
-  String get deleteMatchTitle => 'حذف المباراة؟';
+  String get deleteMatchTitle => 'تمسح المباراة؟';
 
   @override
-  String get deleteMatchBody => 'سيتم حذف التحليلات نهائيًا.';
+  String get deleteMatchBody => 'التحليلات هتتمسح نهائي';
 
   @override
-  String get noPastMatches => 'لا توجد مباريات سابقة';
+  String get noPastMatches => 'لسه مفيش مباريات';
 
   @override
   String get mafiaWon => 'المافيا كسبت';
@@ -541,15 +536,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get townWon => 'الشعب كسب';
 
   @override
-  String get endedWithoutResult => 'انتهت دون نتيجة';
+  String get endedWithoutResult => 'خلصت من غير نتيجة';
 
   @override
   String matchMeta(int players, int nights) {
-    return '$players لاعبين · $nights ليالٍ';
+    return '$players لاعبين · $nights ليالي';
   }
 
   @override
-  String get holdToConfirmIdentity => 'دوس واستني عشان تشوف كارتك';
+  String get holdToConfirmIdentity => 'دوس عشان تشوف كارتك';
 
   @override
   String get swipeToReveal => 'اسحب الكارت في أي اتجاه عشان يتقلب';
@@ -561,13 +556,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get phaseNightFalls => 'الضلمة نزلت على البلد… كله يغمّض';
 
   @override
-  String get phaseMorningSomeoneDied => 'الصبح جه… والبلد صحيت على خبر وحش';
+  String get phaseMorningSomeoneDied => 'نتيجة الليل';
 
   @override
-  String get phaseMorningNobodyDied => 'الصبح جه… ومحدش مات النهارده';
+  String get phaseMorningNobodyDied => 'محدش مات الليلة دي';
 
   @override
-  String get phaseVoting => 'الشعب هيقرر… ومفيش رجوع';
+  String get phaseVoting => 'وقت التصويت';
 
   @override
   String get phaseMafiaWins => 'المافيا خلصت على البلد';
@@ -603,7 +598,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rulesGoalBody =>
-      'المواطنين بيدوروا على المافيا ويصوّتوا يطلعوهم برّه.\nوالمافيا بتقتل واحد كل ليلة لحد ما تخلص على البلد.';
+      'المواطنين بيحاولوا يخرجوا المافيا بالتصويت والمافيا بتحاول تقلل عدد المواطنين';
 
   @override
   String get rulesRolesTitle => 'الأدوار';
@@ -613,21 +608,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rulesDayBody =>
-      '1. النقاش: كل واحد بيتكلم ويدافع عن نفسه.\n2. الاتهام: كل واحد بيوجّه شكّه لحد.\n3. التصويت: الجماعة بتقرر مين يطلع برّه.';
+      'الصبح بتظهر نتيجة الليل وبعد النقاش كل لاعب بيصوت على مين يخرج';
 
   @override
   String get rulesNightTitle => 'مرحلة الليل';
 
   @override
   String get rulesNightBody =>
-      'كل واحد بياخد الموبايل لوحده وبيعمل دوره:\n— المافيا: بيتفقوا على حد يقتلوه.\n— المحقق: بيختار حد يكشفه.\n— الدكتور: بيختار حد يحميه.\n— المواطن: بيمرّر الموبايل من غير ما يعمل حاجة.';
+      'بالليل كل لاعب بيسجل اختياره: المافيا بتختار ضحية والدكتور بيحمي والمحقق بيكشف والمواطن بيسجل شكه';
 
   @override
   String get rulesWinTitle => 'شروط الفوز';
 
   @override
   String get rulesWinBody =>
-      'المواطنين بيكسبوا: لو كل المافيا طلعوا برّه.\nالمافيا بتكسب: لو عددهم بقى قد المواطنين.';
+      'المواطنين بيكسبوا لما كل المافيا يخرجوا والمافيا بتكسب لما عددهم يساوي باقي اللاعبين';
 
   @override
   String get rulesTipsTitle => 'نصايح';
@@ -637,13 +632,13 @@ class AppLocalizationsAr extends AppLocalizations {
       '— راقب ردود فعل الناس وهما بيتكلموا.\n— متكشفش دورك بسرعة لو إنت محقق أو دكتور.\n— لو إنت مافيا، حاول توجّه الشك لغيرك.\n— الدكتور مينفعش يحمي نفس الشخص مرتين ورا بعض.\n— متبصّش في موبايل حد تاني، ومتسلّمش الموبايل وهو مفتوح على كارت.';
 
   @override
-  String get audioSettingsLabel => 'الصوتيات';
+  String get audioSettingsLabel => 'الصوت';
 
   @override
   String get muteAllAudio => 'اقفل كل الأصوات';
 
   @override
-  String get scoreEnabledLabel => 'الموسيقى ورا اللعب';
+  String get scoreEnabledLabel => 'الموسيقى';
 
   @override
   String get muteNarrator => 'كتم الراوي';
@@ -685,13 +680,13 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get saveGroupTitle => 'سمّي المجموعة';
+  String get saveGroupTitle => 'اسم المجموعة';
 
   @override
-  String get renameAction => 'إعادة تسمية';
+  String get renameAction => 'غير الاسم';
 
   @override
-  String get renameGroupTitle => 'إعادة تسمية المجموعة';
+  String get renameGroupTitle => 'غير اسم المجموعة';
 
   @override
   String get deleteGroupTitle => 'حذف المجموعة؟';
@@ -700,7 +695,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deleteGroupBody => 'هتتشال خالص. المباريات القديمة مش هتتأثر.';
 
   @override
-  String get quickStartAction => 'ابدأ فوراً';
+  String get quickStartAction => 'ابدأ';
 
   @override
   String get presentAction => 'موجود';
@@ -726,11 +721,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get saveGroupOrderTitle => 'تحفظ ترتيب القعدة الجديد؟';
+  String get saveGroupOrderTitle => 'تحفظ ترتيب اللاعبين؟';
 
   @override
   String saveGroupOrderBody(String group) {
-    return 'النهارده $group قعدوا بترتيب تاني.';
+    return 'ترتيب اللاعبين في $group اتغير';
   }
 
   @override
@@ -740,7 +735,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onboardingTitle => 'أول جولة';
 
   @override
-  String get onboardingNext => 'التالي';
+  String get onboardingNext => 'كمل';
 
   @override
   String get onboardingStart => 'ابدأ أول مباراة';
@@ -758,49 +753,49 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onboardingStoryBody =>
-      'بلد صغيرة بتنام كل ليلة، وتصحى الصبح ناقصة واحد.\nفيه ناس بينهم مش زي ما بيقولوا — والباقي لازم يكشفوهم قبل ما البلد تخلص.';
+      'لعبة أدوار سرية فريق المواطنين ضد فريق المافيا';
 
   @override
   String get onboardingRolesTitle => 'الأدوار';
 
   @override
   String get onboardingRolesBody =>
-      'أربع كروت. كل واحد بياخد كارت واحد ومحدش يعرف كارت التاني.\nدوس على أي كارت تحت تعرف بيعمل إيه.';
+      'كل لاعب ليه كارت واحد دوس على الكارت عشان تعرف دوره';
 
   @override
   String get onboardingNightTitle => 'الليل';
 
   @override
   String get onboardingNightBody =>
-      'الموبايل بيلف على الكل واحد واحد. كل واحد بيفتحه لوحده، يعمل دوره، ويقفله ويمرّره.\nالمافيا بتختار حد، الدكتور بيحمي حد، والمحقق بيكشف حد.';
+      'المافيا بتختار ضحية والدكتور بيحمي والمحقق بيكشف والمواطن بيسجل شكه';
 
   @override
   String get onboardingDayTitle => 'النهار';
 
   @override
   String get onboardingDayBody =>
-      'الصبح الموبايل بيتحط في نص الترابيزة ويقول مين راح.\nبعدها الكلام مفتوح بمؤقّت، وفي الآخر تصويت — والتطبيق هو اللي بيعدّ.';
+      'الصبح بتظهر نتيجة الليل وبعد النقاش بيبدأ التصويت';
 
   @override
   String get onboardingPassTitle => 'الموبايل';
 
   @override
   String get onboardingPassBody =>
-      'دي اللعبة اللي بتتكسب وتتخسر من إيدك مش من الشاشة:\n— امسك الموبايل مايل ناحيتك، وخلي ضهره لباقي الترابيزة.\n— متبصّش في موبايل حد وهو ماسكه.\n— متغيّرش وشّك وإنت شايف كارتك.\n— متسلّمش الموبايل وهو مفتوح على حاجة.';
+      'دوس ثانيتين على اسمك واسحب الكارت عشان تشوفه الكارت بيتقفل لوحده قبل ما تسلم الموبايل';
 
   @override
   String get onboardingSecrecyTitle => 'السرّ محفوظ';
 
   @override
   String get onboardingSecrecyBody =>
-      'التطبيق شغلته الوحيدة طول المباراة إنه ميفضحش حاجة. الغش في اللعبة دي مالوش طريق غير إنك تعرف حاجة محدش قالهالك.\n— كل دور بياخد نفس الوقت، وبنفس إضاءة الشاشة، وبنفس الشكل، مهما كان الكارت اللي معاك.\n— الموبايل مبيطلّعش أي صوت وهو في إيد حد.\n— الكارت بيتقفل لوحده بعد كام ثانية، والموبايل عمره ما بيتسلّم وهو مفتوح على حاجة.\n— المجموعة المحفوظة بتفتكر الأسامي والترتيب بس. عمرها ما بتفتكر مين كان إيه.';
+      'لو قفلت التطبيق وقت دورك هترجع لشاشة اسمك النتيجة الخاصة مش بتظهر تاني';
 
   @override
   String get onboardingWinTitle => 'الفوز';
 
   @override
   String get onboardingWinBody =>
-      'المواطنين بيكسبوا لما آخر مافيا يطلع برّه بالتصويت.\nوالمافيا بتكسب لما عددهم يبقى قد المواطنين.\nكده إنت عارف كل حاجة — الباقي كلام وشكّ.';
+      'المواطنين بيكسبوا لما كل المافيا يخرجوا والمافيا بتكسب لما عددهم يساوي باقي اللاعبين';
 
   @override
   String get traceLabel => 'الأثر';
@@ -842,8 +837,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get openingRoundTitle => 'اسم واحد';
 
   @override
-  String get openingRoundBody =>
-      'كل واحد يقول اسم واحد بس، بالترتيب. من غير شرح.';
+  String get openingRoundBody => 'اختار اسم قبل ما الوقت يخلص';
 
   @override
   String openingRoundPrompt(String name) {
@@ -854,43 +848,40 @@ class AppLocalizationsAr extends AppLocalizations {
   String get confrontationLabel => 'المواجهة';
 
   @override
-  String get confrontationExplain => 'اشرح.';
+  String get confrontationExplain => 'ردك';
 
   @override
-  String get confrontationDone => 'خلّصت';
+  String get confrontationDone => 'خلصت';
 
   @override
   String confrontationC1(String x, String y) {
-    return 'قلت إنك شاكك في $x، وصوّت لـ$y.';
+    return 'قلت انك شاكك في $x وصوت لـ$y';
   }
 
   @override
-  String get confrontationC4 => 'محدش شك فيك ولا مرة. ليه في رأيك؟';
+  String get confrontationC4 => 'محدش شك فيك لحد دلوقتي';
 
   @override
   String confrontationC5(String x, int count) {
-    return 'انت و$x صوّتوا نفس التصويت $count مرات. صدفة؟';
+    return 'انت و$x صوتوا نفس التصويت $count مرات';
   }
 
   @override
-  String get confrontationC6 => 'انت أقل واحد اتكلم في اللعبة. عايز تقول إيه؟';
+  String get confrontationC6 => 'انت أقل واحد اتكلم في المباراة ردك؟';
 
   @override
-  String get confrontationC7 => 'آخر واحد مات كان شاكك فيك. ردّك؟';
+  String get confrontationC7 => 'آخر واحد مات كان شاكك فيك ردك؟';
 
   @override
   String confrontationC8(String x) {
-    return 'بتهمس لـ$x كل يوم. ليه هو بالذات؟';
+    return 'بتهمس لـ$x كل يوم ليه؟';
   }
 
   @override
-  String get confrontationC11 => 'حد حاول يوصلك وماعرفش. مين ممكن يحميك؟';
+  String get confrontationC11 => 'حد حاول يوصلك وماعرفش';
 
   @override
   String get whisperLabel => 'الهمس';
-
-  @override
-  String get whisperNoneForYou => 'مفيش همسات ليك';
 
   @override
   String whisperFrom(String name) {
@@ -913,7 +904,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get whisperSent => 'اتبعتت';
 
   @override
-  String get whisperAlreadySentToday => 'بعتّ همستك النهارده';
+  String get whisperAlreadySentToday => 'بعت همستك النهارده';
 
   @override
   String get whisperUndelivered => 'الهمسة ماوصلتش';
@@ -940,65 +931,46 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get whisperLanguageWarning =>
-      'الكلام ده أقسى مما تقصد يمكن. تبعته بردو؟';
+  String get whisperLanguageWarning => 'الرسالة فيها لفظ مسيء تبعتها؟';
 
   @override
-  String get whisperReport => 'بلّغ';
+  String get whisperReport => 'امنع همسات اللاعب';
 
   @override
-  String get whisperReported => 'اتبلّغ. مش هتشوف همساته تاني.';
+  String get whisperReported => 'مش هتوصلك همسات من اللاعب ده';
 
   @override
-  String get nightChooseNobody => 'مش هختار حد';
-
-  @override
-  String get informationEngineSection => 'محرك المعلومات';
+  String get informationEngineSection => 'معلومات المباراة';
 
   @override
   String get settingTrace => 'الأثر';
 
   @override
-  String get settingTraceHint =>
-      'ملاحظة واحدة صحيحة كل صبح. لو قفلتها بترجع المافيا العادية.';
+  String get settingTraceHint => 'معلومة من أحداث المباراة لو فيه أثر متاح';
 
   @override
   String get settingConfrontation => 'المواجهة';
 
   @override
-  String get settingConfrontationHint =>
-      'لاعب واحد يرد على تصرفاته، مرة في اليوم.';
+  String get settingConfrontationHint => 'سؤال مبني على اللي حصل في المباراة';
 
   @override
-  String get settingOpeningRound => 'جولة «اسم واحد» في اليوم الأول';
+  String get settingOpeningRound => 'اختيار اسم في أول يوم';
 
   @override
-  String get settingOpeningRoundHint =>
-      'عشر ثواني لكل واحد، بالترتيب، يقول اسم واحد.';
+  String get settingOpeningRoundHint => '10 ثواني لكل لاعب';
 
   @override
   String get settingWhisper => 'الهمس';
 
   @override
-  String get settingWhisperHint =>
-      'رسالة خاصة واحدة في اليوم. مين بيكلم مين علني، والكلام نفسه لأ.';
+  String get settingWhisperHint => 'رسالة خاصة واحدة في اليوم';
 
   @override
   String get settingRevealWhispers => 'اكشف محتوى الهمسات بعد المباراة';
 
   @override
-  String get settingRevealWhispersHint =>
-      'الخريطة بتتكشف دايمًا. ده عن الكلام نفسه.';
-
-  @override
-  String get settingSurvivorConfrontation => 'مواجهة «الناجي»';
-
-  @override
-  String get settingSurvivorConfrontationHint =>
-      'بتسمّي لاعب نجا من محاولة ليل. بتضيّق الدايرة على الدكتور — للمجموعات المخضرمة.';
-
-  @override
-  String get settingConfrontationSeconds => 'مدة المواجهة';
+  String get settingRevealWhispersHint => 'اظهار الرسائل في التحليلات';
 
   @override
   String get onlineMatch => 'العب أونلاين';
@@ -1010,6 +982,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineJoinRoom => 'ادخل أوضة';
 
   @override
+  String get onlineCreateRoomHint => 'هتاخد كود وتبعته للباقي';
+
+  @override
+  String get onlineJoinRoomHint => 'معاك كود من حد؟';
+
+  @override
   String get onlineRoomCode => 'كود الأوضة';
 
   @override
@@ -1019,13 +997,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineShareCode => 'ابعت الكود';
 
   @override
-  String get onlineWaitingForPlayers => 'مستنيين اللاعبين…';
+  String get onlineWaitingForPlayers => 'مستني اللاعبين';
 
   @override
   String get onlineStartMatch => 'يلا نبدأ';
 
   @override
-  String get onlineConnecting => 'إعادة اتصال…';
+  String get onlineConnecting => 'بنرجع الاتصال';
 
   @override
   String get onlineDisconnected => 'مفيش اتصال';
@@ -1042,16 +1020,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineRoomFull => 'الأوضة مليانة';
 
   @override
-  String get onlineRoomFinished => 'المباراة دي خلصت خلاص';
+  String get onlineRoomFinished => 'المباراة دي خلصت';
 
   @override
   String get onlineRoomNotFound => 'مفيش أوضة بالكود ده';
 
   @override
-  String get onlineUnreachable => 'مفيش وصول للسيرفر. تلعبوا أوفلاين؟';
+  String get onlineUnreachable => 'مش قادرين نتصل جرب تاني';
 
   @override
-  String get onlineProjectPaused => 'السيرفر نايم. جرّب تاني بعد دقيقة.';
+  String get onlineProjectPaused => 'الأونلاين مش متاح دلوقتي جرب كمان دقيقة';
 
   @override
   String get onlinePlayOffline => 'العب أوفلاين';
@@ -1064,13 +1042,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get voiceMicOff => 'المايك مقفول';
 
   @override
-  String get voiceMicOn => 'المايك شغّال';
+  String get voiceMuteMe => 'اقفل المايك';
 
   @override
-  String get voiceTextMode => 'الصوت مش شغّال — وضع الكتابة';
+  String get voiceUnmuteMe => 'افتح المايك';
 
   @override
-  String get voiceMicDenied => 'مفيش مايك. لسه بتسمع الكل.';
+  String get voiceSelfMuted => 'قافل مايكك';
+
+  @override
+  String get voiceMicOn => 'المايك شغال';
+
+  @override
+  String get voiceTextMode => 'الصوت مش متاح';
+
+  @override
+  String get voiceMicDenied => 'اسمح بالمايك عشان تتكلم';
 
   @override
   String get whoAreYou => 'مين فيكم؟';
@@ -1082,6 +1069,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineHostBadge => 'المسؤول';
 
   @override
+  String get onlineYou => 'أنت';
+
+  @override
   String get onlineNeedFivePlayers => 'محتاجين ٥ لاعبين على الأقل';
 
   @override
@@ -1091,7 +1081,124 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineCodeCopied => 'الكود اتنسخ';
 
   @override
-  String get onlineWaitingForHost => 'مستنيين المسؤول…';
+  String get onlinePublicRooms => 'أوض عامة';
+
+  @override
+  String get onlinePublicRoomsHint => 'ادخل أوضة مفتوحة من غير كود';
+
+  @override
+  String get onlineNoPublicRooms => 'مفيش أوض عامة مفتوحة دلوقتي';
+
+  @override
+  String onlinePublicRoomPlayers(int count) {
+    return '$count لاعب';
+  }
+
+  @override
+  String get onlineUntitledRoom => 'أوضة من غير اسم';
+
+  @override
+  String get onlineRoomSettings => 'إعدادات الأوضة';
+
+  @override
+  String get onlineSettingsRoom => 'الأوضة';
+
+  @override
+  String get onlineSettingsVoice => 'الصوت';
+
+  @override
+  String get onlineSettingsPlay => 'اللعب';
+
+  @override
+  String get onlineSettingsInfo => 'المعلومات';
+
+  @override
+  String get onlineRoomVisibility => 'نوع الأوضة';
+
+  @override
+  String get onlineRoomVisibilityHint =>
+      'الخاصة بالكود بس. العامة بتظهر في القايمة لأي حد.';
+
+  @override
+  String get onlineRoomPrivate => 'خاصة';
+
+  @override
+  String get onlineRoomPublic => 'عامة';
+
+  @override
+  String get onlineRoomTitle => 'اسم الأوضة';
+
+  @override
+  String get onlineRoomTitleHint => 'الاسم اللي هيشوفه الناس في القايمة.';
+
+  @override
+  String get onlineMaxPlayers => 'أقصى عدد لاعبين';
+
+  @override
+  String get onlineMaxPlayersHint => 'الأوضة بتتقفل لما العدد ده يكتمل.';
+
+  @override
+  String get onlineVoiceEnabled => 'الصوت';
+
+  @override
+  String get onlineVoiceEnabledHint => 'من غيره المباراة شغالة عادي بالكتابة.';
+
+  @override
+  String get onlineMuteAtNight => 'كتم الكل عند الليل';
+
+  @override
+  String get onlineMuteAtNightHint => 'الصوت في الليل بيقول مين صاحي.';
+
+  @override
+  String get onlineSpeakDuration => 'مدة الكلام';
+
+  @override
+  String get onlineSpeakDurationHint => 'الوقت اللي كل واحد بيتكلم فيه لوحده.';
+
+  @override
+  String get onlineDiscussDuration => 'مدة النقاش';
+
+  @override
+  String get onlineDiscussDurationHint => 'الوقت المفتوح قبل التصويت.';
+
+  @override
+  String get onlineOpenVoting => 'تصويت مكشوف';
+
+  @override
+  String get onlineOpenVotingHint =>
+      'الكل بيشوف صوت مين راح لمين قبل ما القفل ينزل.';
+
+  @override
+  String get onlineTrace => 'الأثر';
+
+  @override
+  String get onlineTraceHint => 'الصبح بيقول أثر واحد عن حركة الليل.';
+
+  @override
+  String get onlineConfrontation => 'المواجهة';
+
+  @override
+  String get onlineConfrontationHint =>
+      'اتنين بيتواجهوا قدام الأوضة قبل التصويت.';
+
+  @override
+  String get onlineWhispers => 'الهمسات';
+
+  @override
+  String get onlineWhispersHint =>
+      'رسالة خاصة لواحد بس، والأوضة بتعرف إنها اتبعتت.';
+
+  @override
+  String get onlineSeconds => 'ثانية';
+
+  @override
+  String get onlineMinutes => 'دقايق';
+
+  @override
+  String get onlineLinkCopied => 'لينك الأوضة اتنسخ';
+
+  @override
+  String get onlineWaitingForHost => 'مستني المسؤول';
 
   @override
   String get voiceTakeFloor => 'اتكلم';
@@ -1100,5 +1207,507 @@ class AppLocalizationsAr extends AppLocalizations {
   String get voiceYieldFloor => 'خلصت';
 
   @override
-  String get voiceFloorTaken => 'فيه حد بيتكلم دلوقتي';
+  String get voiceFloorTaken => 'فيه لاعب بيتكلم دلوقتي';
+
+  @override
+  String get onlineWeatherConnecting => 'بنتصل';
+
+  @override
+  String get onlineWeatherReconnecting => 'بنرجع الاتصال';
+
+  @override
+  String get onlineWeatherUnreachable => 'مفيش اتصال هنكمل لما يرجع';
+
+  @override
+  String get onlineCopy => 'نسخ';
+
+  @override
+  String get onlineShare => 'مشاركة';
+
+  @override
+  String onlinePlayersOfMax(int count, int max) {
+    return '$count / $max لاعبين';
+  }
+
+  @override
+  String get onlineVoiceConnecting => 'الصوت: بيتصل…';
+
+  @override
+  String get onlineVoiceConnected => 'الصوت: متصل';
+
+  @override
+  String get onlineVoiceUnavailable => 'الصوت مش متاح والمباراة شغالة';
+
+  @override
+  String onlineShareInvite(String code) {
+    return 'العب معانا مافيا. كود الأوضة: $code';
+  }
+
+  @override
+  String get onlineGhostRule => 'اللي بيخرج ما يتكلمش مع اللي لسه لاعب';
+
+  @override
+  String onlineChosen(String name) {
+    return 'اخترت: $name';
+  }
+
+  @override
+  String onlineUpNext(String names) {
+    return 'بعدها: $names';
+  }
+
+  @override
+  String get onlineLeftRoom => 'خرج';
+
+  @override
+  String onlineNewHost(String name) {
+    return '$name بقى الهوست';
+  }
+
+  @override
+  String get onlineCloseRoom => 'اقفل الأوضة';
+
+  @override
+  String get onlineCloseRoomBody => 'الأوضة هتقفل لكل اللي فيها. أكيد؟';
+
+  @override
+  String get onlineCloseRoomConfirm => 'اقفل';
+
+  @override
+  String get onlineRoomClosed => 'الهوست قفل الأوضة';
+
+  @override
+  String get onlineKick => 'اطرد';
+
+  @override
+  String get onlineMute => 'اكتم';
+
+  @override
+  String get onlineUnmute => 'شيل الكتم';
+
+  @override
+  String get onlineKickedByHost => 'الهوست طردك من الأوضة';
+
+  @override
+  String onlineWaitingForCards(String names) {
+    return 'مستنيين: $names';
+  }
+
+  @override
+  String onlineRaisedHands(String names) {
+    return 'رافعين إيدهم: $names';
+  }
+
+  @override
+  String get onlineRaiseHand => 'دوري';
+
+  @override
+  String get onlineHandRaised => 'إيدك مرفوعة';
+
+  @override
+  String get onlineSeeRoles => 'شوف الأدوار';
+
+  @override
+  String onlineRosterOf(int index, int total) {
+    return '$index من $total';
+  }
+
+  @override
+  String get onlinePickFromTable => 'اختار لاعب';
+
+  @override
+  String get onlineWaitingForTheRest => 'مستني باقي اللاعبين';
+
+  @override
+  String get onlineConfirmHold => 'دوس ثانيتين عشان تأكد';
+
+  @override
+  String get confrontationSilent => 'مفيش رد';
+
+  @override
+  String get confrontationAudience => 'بتسمع';
+
+  @override
+  String get settingVoteVisibility => 'التصويت';
+
+  @override
+  String get settingOpenVoting => 'تصويت مكشوف';
+
+  @override
+  String get settingSecretVoting => 'تصويت سري';
+
+  @override
+  String get settingOpenVotingHint => 'الأصوات بتظهر للكل أول بأول';
+
+  @override
+  String get witnessTitle => 'الشاهد';
+
+  @override
+  String get witnessEliminated => 'خرجت من المباراة';
+
+  @override
+  String get witnessSpectating => 'بتتفرج';
+
+  @override
+  String get witnessTabTable => 'الطاولة';
+
+  @override
+  String get witnessTabChat => 'الخارجين';
+
+  @override
+  String get witnessTabPrediction => 'توقعك';
+
+  @override
+  String get witnessTabRecord => 'اختياراتك';
+
+  @override
+  String get witnessChatHint => 'اكتب للخارجين…';
+
+  @override
+  String get witnessChatEmpty => 'مفيش كلام لسه';
+
+  @override
+  String get witnessChatWalled => 'اللي لسه لاعب مش هيشوف الكلام ده';
+
+  @override
+  String get witnessChatSend => 'ابعت';
+
+  @override
+  String get witnessPredictionWinner => 'مين هيكسب؟';
+
+  @override
+  String get witnessPredictionMafia => 'ومين المافيا؟';
+
+  @override
+  String get witnessPredictionLock => 'أكد توقعك';
+
+  @override
+  String get witnessPredictionLocked => 'توقعك اتسجل';
+
+  @override
+  String witnessPredictionScore(int correct, int total) {
+    return 'توقعاتك الصح: $correct من $total';
+  }
+
+  @override
+  String get witnessRecordEmpty => 'مفيش اختيارات متسجلة';
+
+  @override
+  String get onlineIntroPhoneTitle => 'دورك على شاشتك';
+
+  @override
+  String get onlineIntroPhoneBody =>
+      'كارتك واختياراتك بيظهروا ليك بس كل واحد بيلعب من جهازه بكود الغرفة؛ الأوفلاين جهاز واحد بيتنقل بينكم ومن غير إنترنت.';
+
+  @override
+  String get onlineIntroNightTitle => 'الليل للكل في نفس الوقت';
+
+  @override
+  String get onlineIntroNightBody =>
+      'اختار قبل ما العداد يخلص بالنهار تناقشوا وصوّتوا؛ المافيا تكسب لما عددها يبقى قد باقي الأحياء، والمواطنين يكسبوا بخروج كل المافيا. الصوت اختياري، واللعبة بتكمل من غيره.';
+
+  @override
+  String get onlineIntroWhisperTitle => 'رسالة خاصة';
+
+  @override
+  String get onlineIntroWhisperBody =>
+      'الكل بيشوف مين بعت لمين والمستلم بس بيقرا الرسالة الرسائل الخاصة للأونلاين بس، ومش موجودة في الأوفلاين.';
+
+  @override
+  String get onlineIntroWitnessTitle => 'بعد الخروج';
+
+  @override
+  String get onlineIntroWitnessBody =>
+      'تقدر تتابع المباراة وتكتب للاعبين اللي خرجوا ده متاح أونلاين؛ في الأوفلاين اللاعب اللي خرج مش بيمسك الجهاز تاني أثناء اللعب.';
+
+  @override
+  String get onlineIntroSkip => 'تخطي';
+
+  @override
+  String get onlineIntroStart => 'يلا';
+
+  @override
+  String get modeTitle => 'اختار طريقة اللعب';
+
+  @override
+  String get modeSubtitle => 'تقدروا تغيّروها المرة الجاية.';
+
+  @override
+  String get modeOnePhoneTitle => 'اوفلاين';
+
+  @override
+  String get modeOnePhoneBody => 'من 5 لـ15 لاعب';
+
+  @override
+  String get modeOnlineTitle => 'اونلاين';
+
+  @override
+  String get modeOnlineBody => 'من 5 لـ10 لاعبين';
+
+  @override
+  String get modeNoServer => 'الأونلاين مش متاح في النسخة دي';
+
+  @override
+  String get bulletMafia => 'الليلة الهادية';
+
+  @override
+  String get bulletDoctor => 'حماية النفس مرة';
+
+  @override
+  String testimonyGiven(String name, String suspect) {
+    return 'شهادة $name: شكه كان على $suspect الليلة اللي فاتت.';
+  }
+
+  @override
+  String testimonyNobody(String name) {
+    return 'شهادة $name: ماشكش في حد الليلة اللي فاتت.';
+  }
+
+  @override
+  String fileOpenedTitle(String name) {
+    return '$name فتح الملف.';
+  }
+
+  @override
+  String fileOpenedEntry(String name, String role) {
+    return '$name — $role';
+  }
+
+  @override
+  String get fileOpenedEmpty => 'الملف كان فاضي.';
+
+  @override
+  String get hintTalkers => 'اللي بيتكلم كتير مش دايمًا اللي بيخبّي.';
+
+  @override
+  String get hintQuickAgreement =>
+      'خلي بالك مين بيوافق على طول من غير ما يفكر.';
+
+  @override
+  String get hintSilence => 'الصمت مش دليل. بس هو معلومة.';
+
+  @override
+  String get hintChangesMind => 'مين بيغيّر رأيه بسرعة لما يتضغط؟';
+
+  @override
+  String get hintEarlyAccuser => 'المافيا الشاطرة بتتهم بدري عشان تبان بريئة.';
+
+  @override
+  String get hintMajorityComfort =>
+      'التصويت مع الأغلبية مريح. وده بالظبط اللي بيعتمدوا عليه.';
+
+  @override
+  String get hintWhoBenefited => 'مين استفاد من اللي مات امبارح؟';
+
+  @override
+  String get hintMafiaSuspicionSpreads =>
+      'متقتلش اللي بيشك فيك على طول — شكه هيتنشر';
+
+  @override
+  String get hintMafiaQuietNight =>
+      'الليلة الهادية بتجوّع الطاولة من المعلومات';
+
+  @override
+  String get hintMafiaSpeak => 'اتكلم. المافيا الساكتة بتموت';
+
+  @override
+  String get hintDoctorNoRepeat => 'متحميش نفس الشخص مرتين ورا بعض';
+
+  @override
+  String get hintDoctorSelf => 'حماية النفس معاك مرة واحدة — استناها';
+
+  @override
+  String get hintDoctorSaveReveals =>
+      'لو نجحت في الحماية، المافيا هتعرف إن فيه دكتور';
+
+  @override
+  String get hintDetectiveInvestigateLoud =>
+      'حقق في اللي بيتكلم كتير، مش في اللي ساكت';
+
+  @override
+  String get hintCitizenSuspicionCounts => 'شكك مش رايح على فاضي — بيتسجّل';
+
+  @override
+  String coachStuckOnInnocent(String name, int count) {
+    return 'شكيت في $name $count ليالي وهو مواطن. جرب تغيّر رأيك أسرع لما الدليل ما يجيش.';
+  }
+
+  @override
+  String coachConformity(int count, int total) {
+    return 'صوّت مع الأغلبية $count من $total. جرب تكوّن رأيك قبل ما تسمع الباقي.';
+  }
+
+  @override
+  String coachUnusedBullet(String bullet) {
+    return 'ماستخدمتش «$bullet». كانت معاك من أول ليلة.';
+  }
+
+  @override
+  String get coachNeverWhispered => 'ماهمستش ولا مرة. الهمسة بتبني تحالفات.';
+
+  @override
+  String coachAbandonedRead(String name) {
+    return 'كنت شاكك في $name من أول الليالي وهو كان مافيا — وبعدين سبته. ثق في قراءتك الأولى.';
+  }
+
+  @override
+  String coachQuiet(int seconds) {
+    return 'اتكلمت $seconds ثانية في المباراة كلها — من أقل اللي اتكلموا. الصمت بيخلي الطاولة تشك فيك.';
+  }
+
+  @override
+  String get coachSurvivedAsMafia => 'عشت للآخر من غير ما الطاولة تمسكك.';
+
+  @override
+  String get coachingTitle => 'كان ممكن';
+
+  @override
+  String get coachingEmpty => 'مفيش حاجة تتقال. لعبتها زي ما جت.';
+
+  @override
+  String get presetFast => 'سريعة';
+
+  @override
+  String get presetClassic => 'كلاسيكية';
+
+  @override
+  String get presetBrutal => 'قاسية';
+
+  @override
+  String get presetCustom => 'مخصصة';
+
+  @override
+  String get presetFastHint => 'وقت أقل وقواعد أبسط';
+
+  @override
+  String get presetClassicHint => 'دكتور ومحقق ووقت نقاش كامل';
+
+  @override
+  String get presetBrutalHint => 'مافيا أكتر ومن غير دكتور أو همس';
+
+  @override
+  String get presetLabel => 'نمط اللعب';
+
+  @override
+  String get settingPressureCurve => 'وقت أقل مع خروج اللاعبين';
+
+  @override
+  String get settingPressureCurveHint =>
+      'مدة الكلام والنقاش بتقل مع عدد اللاعبين';
+
+  @override
+  String get settingDiscussionSeconds => 'مدة النقاش';
+
+  @override
+  String get settingPlayHints => 'تلميحات اللعب';
+
+  @override
+  String get settingCoaching => '«كان ممكن» بعد المباراة';
+
+  @override
+  String get settingRevealVictimRole => 'دور ضحية الليل';
+
+  @override
+  String get settingRevealVictimRoleHint => 'اظهار دور اللاعب اللي مات بالليل';
+
+  @override
+  String victimWasRole(String name, String role) {
+    return '$name كان $role.';
+  }
+
+  @override
+  String get nightSpecialMafia => 'مش هقتل الليلة';
+
+  @override
+  String get nightSpecialDoctor => 'احمي نفسك حالا';
+
+  @override
+  String get nightSpecialDetective => 'مش هحقق الليلة';
+
+  @override
+  String get nightSpecialCitizen => 'مش شاكك الليلة';
+
+  @override
+  String get settingsSectionPace => 'وقت اللعب';
+
+  @override
+  String get settingsSectionInformation => 'قواعد ومعلومات';
+
+  @override
+  String get settingsSectionReveal => 'اظهار الأدوار والرسائل';
+
+  @override
+  String get settingsSectionVoting => 'التصويت';
+
+  @override
+  String get settingsSectionAudio => 'الصوت';
+
+  @override
+  String get settingsOnlineOnly => 'في الأونلاين بس';
+
+  @override
+  String get settingSpeechSecondsHint => 'في النقاش بالدور';
+
+  @override
+  String get settingDiscussionSecondsHint => 'في النقاش الحر';
+
+  @override
+  String get settingIdentityHoldHint =>
+      'نفس المدة لكل لاعب، عشان طول الدور ميقولش على الدور.';
+
+  @override
+  String get settingDiscussionModeHint => 'بالدور لكل لاعب وقت محدد';
+
+  @override
+  String get settingAbstainHint => 'تقدر تعدي من غير ما تصوت لحد';
+
+  @override
+  String get settingPlayHintsHint =>
+      'سطر قصير في اللوبي والإعدادات بس. ولا حاجة جوه المباراة.';
+
+  @override
+  String get settingCoachingHint =>
+      'بعد ما تخلصوا، التطبيق بيقول لكل واحد كان ممكن يعمل إيه.';
+
+  @override
+  String get settingMuteAllHint => 'الموسيقى والمؤثرات';
+
+  @override
+  String minutesSuffix(int minutes) {
+    return '$minutes د';
+  }
+
+  @override
+  String whisperFromTitle(String name) {
+    return 'همسة من «$name»';
+  }
+
+  @override
+  String get whisperDismiss => 'تمام';
+
+  @override
+  String get playerMale => 'ولد';
+
+  @override
+  String get playerFemale => 'بنت';
+
+  @override
+  String timelineMafiaVoteFemale(String actor, String target) {
+    return '$actor صوتت على $target';
+  }
+
+  @override
+  String timelineProtectFemale(String actor, String target) {
+    return '$actor حمت $target';
+  }
+
+  @override
+  String timelineInvestigateFemale(String actor, String target) {
+    return '$actor كشفت $target';
+  }
+
+  @override
+  String timelineSuspectFemale(String actor, String target) {
+    return '$actor شكت في $target';
+  }
 }

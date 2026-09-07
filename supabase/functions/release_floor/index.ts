@@ -25,5 +25,9 @@ Deno.serve(handler(async (req, userId, db) => {
   });
   if (error) throw error;
 
+  // You have finished speaking. Leaving your own hand up afterwards would put
+  // you back in the set of people asking for a turn you just took.
+  await db.rpc("lower_hand", { p_room: roomId, p_user: userId });
+
   return ok();
 }));

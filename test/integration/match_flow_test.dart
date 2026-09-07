@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mafia_master/ui/widgets/victory_reveal.dart';
+import '../support/artwork.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/engine/models/enums.dart';
@@ -7,6 +9,7 @@ import 'package:mafia_master/ui/screens/match_controller.dart';
 import 'package:mafia_master/ui/screens/match_flow.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
+import 'package:mafia_master/ui/widgets/night_grid.dart';
 import 'package:mafia_master/ui/widgets/player_tile.dart';
 import 'package:mafia_master/ui/widgets/role_card.dart';
 import 'package:mafia_master/ui/widgets/turn_shell.dart';
@@ -26,7 +29,8 @@ void main() {
   const names = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 
   late ProviderContainer container;
-  MatchController controller() => container.read(matchControllerProvider.notifier);
+  MatchController controller() =>
+      container.read(matchControllerProvider.notifier);
 
   Future<void> pumpFlow(WidgetTester tester) async {
     await tester.binding.setSurfaceSize(surface);
@@ -50,7 +54,11 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: localizedApp(MatchFlow(onExit: () {}, onAnalytics: () {})
+        child: localizedApp(
+          MediaQuery(
+            data: const MediaQueryData(disableAnimations: true),
+            child: MatchFlow(onExit: () {}, onAnalytics: () {}),
+          ),
         ),
       ),
     );
@@ -66,6 +74,15 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> finishAnnouncement(WidgetTester tester) async {
+    await tester.pump(
+      MafiaMotion.defaults.dramatic +
+          MafiaTiming.defaults.phaseHold +
+          MafiaMotion.defaults.dramatic,
+    );
+    await tester.pumpAndSettle();
+  }
+
   /// Runs the whole distribution: for each seat, the pass gate, the identity
   /// gate, the swipe that turns the card over, the auto-conceal, and the pass.
   ///
@@ -74,12 +91,7 @@ void main() {
   /// the widget tree alone, and a shortcut past the part a player actually does
   /// would be testing the engine twice instead.
   Future<void> distribute(WidgetTester tester) async {
-    // Read from the match rather than hardcoded: the identity hold is a host
-    // setting now, and a test that assumed the default would start failing the
-    // day somebody changed it for a reason unrelated to this file.
-    final identityHold = Duration(
-      seconds: controller().engine.match.settings.identityHoldSeconds,
-    );
+    final identityHold = MafiaTiming.defaults.holdToReveal;
 
     for (var i = 0; i < names.length; i++) {
       // One gate, not two. Distribution has no separate pass screen — the
@@ -97,14 +109,14 @@ void main() {
   /// Runs one night: every living actor takes the phone, picks the first legal
   /// target, waits out both gates and passes on.
   Future<void> playNight(WidgetTester tester) async {
-    await tester.tap(find.text('ابدأ الليل'));
+    expect(find.text('الليل يقترب'), findsNothing);
     await tester.pumpAndSettle();
 
     while (controller().engine.match.phase == GamePhase.night) {
       await hold(tester);
 
       // Any target will do; the flow is what is under test, not the strategy.
-      await tester.tap(find.byType(PlayerTile).first);
+      await tester.tap(find.byType(NightGridTile).first);
       await tester.pump();
 
       await tester.pump(MafiaTiming.defaults.dwellGate);
@@ -117,6 +129,7 @@ void main() {
       await tester.tap(find.byKey(TurnShell.actionButton));
       await tester.pumpAndSettle();
     }
+    await finishAnnouncement(tester);
   }
 
   /// Runs one day: morning briefing and trace, then whichever opening surface
@@ -137,38 +150,44 @@ void main() {
     while (controller().engine.match.phase == GamePhase.openingRound) {
       await tester.tap(find.byType(PlayerTile).first);
       await tester.pumpAndSettle();
-      expect(++accusations, lessThan(names.length + 1),
-          reason: 'the opener must end after one accusation per living seat');
+      expect(
+        ++accusations,
+        lessThan(names.length + 1),
+        reason: 'the opener must end after one accusation per living seat',
+      );
     }
 
     // Day 2+ may open with a confrontation instead. There is exactly one, and
     // its only control belongs to the player it names.
     if (controller().engine.match.phase == GamePhase.confrontation) {
-      await tester.tap(find.text('خلّصت'));
+      await tester.tap(find.text('خلصت'));
       await tester.pumpAndSettle();
     }
 
     expect(controller().engine.match.phase, GamePhase.discussion);
-    await tester.tap(find.text('إنهاء النقاش'));
-    await tester.pumpAndSettle();
+    await tester.tap(find.text('خلص النقاش'));
+    await tester.pump();
+    await finishAnnouncement(tester);
 
     expect(controller().engine.match.phase, GamePhase.voting);
     while (controller().engine.match.phase == GamePhase.voting) {
       await hold(tester); // ballot identity gate
       await tester.tap(find.byType(PlayerTile).first);
       await tester.pump();
-      await tester.tap(find.text('تأكيد الصوت'));
+      await tester.tap(find.text('أكد صوتك'));
       await tester.pumpAndSettle();
     }
   }
 
-  testWidgets('a full match is playable through the widget tree alone',
-      (WidgetTester tester) async {
+  testWidgets('a full match is playable through the widget tree alone', (
+    WidgetTester tester,
+  ) async {
+    await loadArtwork(tester);
     await pumpFlow(tester);
 
     expect(controller().engine.match.phase, GamePhase.distributing);
     await distribute(tester);
-    expect(controller().engine.match.phase, GamePhase.preNightLobby);
+    expect(controller().engine.match.phase, GamePhase.night);
 
     // Bounded so a wiring bug shows up as a failed expectation rather than a
     // hung test.
@@ -180,33 +199,61 @@ void main() {
 
       // Reveal → win check.
       if (controller().engine.match.phase == GamePhase.reveal) {
-        await tester.tap(find.text('متابعة'));
+        await tester.tap(find.text('كمل'));
         await tester.pumpAndSettle();
       }
     }
 
-    expect(controller().engine.match.phase, GamePhase.result,
-        reason: 'the match should reach a result within $guard day cycles');
+    expect(
+      controller().engine.match.phase,
+      GamePhase.result,
+      reason: 'the match should reach a result within $guard day cycles',
+    );
     expect(controller().engine.match.outcome, isNotNull);
 
-    // The result screen is the only in-flow screen that names roles.
+    // The cinematic is the first thing that names the winner, and for the
+    // length of it, it is the *only* thing: the result screen and its
+    // standings come afterwards.
+    final reveal = find.byType(VictoryReveal);
+    expect(reveal, findsOneWidget);
+    expect(
+      find.descendant(of: reveal, matching: find.textContaining('كسب')),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('كسب'),
+      findsOneWidget,
+      reason: 'nothing outside the reveal may announce the winner first',
+    );
+
+    await tester.pump();
+    await tester.pump(MafiaTiming.victoryReveal);
+    await tester.pumpAndSettle();
+
+    // The reveal hands over to the result screen, which repeats the outcome
+    // and adds the detail the cinematic deliberately withheld.
+    expect(reveal, findsNothing);
     expect(find.textContaining('كسب'), findsWidgets);
   });
 
-  testWidgets('no screen in the night loop names a role',
-      (WidgetTester tester) async {
+  testWidgets('no screen in the night loop names a role', (
+    WidgetTester tester,
+  ) async {
     await pumpFlow(tester);
     await distribute(tester);
 
-    await tester.tap(find.text('ابدأ الليل'));
+    expect(find.text('الليل يقترب'), findsNothing);
     await tester.pumpAndSettle();
     await hold(tester);
 
     // The four role names must not appear on a night turn. The Detective's own
     // result is the sole exception, and it only exists after a confirm.
     for (final roleName in ['مافيا', 'دكتور', 'محقق', 'مواطن']) {
-      expect(find.text(roleName), findsNothing,
-          reason: '"$roleName" must not be visible during a night turn');
+      expect(
+        find.text(roleName),
+        findsNothing,
+        reason: '"$roleName" must not be visible during a night turn',
+      );
     }
   });
 }

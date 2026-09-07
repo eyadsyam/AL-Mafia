@@ -145,4 +145,12 @@ class SeedSalt {
   /// Choosing a default target when a phase timer expires with no action
   /// submitted (doc 10 §8.2).
   static const String timerDefault = 'timer-default';
+
+  /// Choosing which play hint a phase shows (doc 13 §4.3).
+  ///
+  /// A stream of its own for the reason the whole file exists: offline every
+  /// phone must land on the same sentence at the same moment, and sharing a
+  /// stream with the night tie-break would mean the hint a table read on
+  /// morning 3 correlated with who died on night 3.
+  static const String hint = 'hint';
 }

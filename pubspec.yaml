@@ -40,7 +40,6 @@ dependencies:
   go_router: ^14.2.0
   isar_community: ^3.1.0
   isar_community_flutter_libs: ^3.1.0
-  phosphor_flutter: ^2.1.0
   path_provider: ^2.1.4
   intl: any
   audioplayers: ^6.8.1
@@ -48,8 +47,11 @@ dependencies:
   supabase_flutter: ^2.17.2
   meta: ^1.18.0
   flutter_webrtc: ^1.6.1
+  video_player: ^2.14.0
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
   test: ^1.24.0
@@ -87,6 +89,7 @@ flutter:
     # own line. It is a separate directory precisely because its contents are
     # post-game-only and must stay easy to tell apart from the in-match art.
     - assets/images/gallery/
+    - assets/images/online/
     - assets/icons/
     - assets/audio/
     # Ambient loops + their Reduce Motion stills. On-table surfaces only.

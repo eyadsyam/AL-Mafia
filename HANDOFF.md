@@ -1152,6 +1152,9 @@ the default is not what any of those tests are measuring.
 
 | Path | What it is |
 |---|---|
+| `tool/build_apk.ps1` | **the only correct way to build the APK** — bakes `dart_defines.json` in, or online compiles out silently |
+| `tool/build_web.ps1` | same for the web; `-Publish` force-pushes `gh-pages` with the right `--base-href` |
+| `android/key.properties` | release keystore, git-ignored; absent means the debug key, which Play refuses |
 | `tool/manifest.json` | asset source of truth; read by Python *and* Dart |
 | `tool/normalise_art.py` | the only thing that writes `assets/images/card_face_*` |
 | `tool/generate_assets.py` | procedural slots only (texture, emblems) |

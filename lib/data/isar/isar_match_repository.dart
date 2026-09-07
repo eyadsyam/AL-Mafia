@@ -122,6 +122,7 @@ class IsarMatchRepository implements MatchRepository {
 
   @override
   Future<MatchSettings> loadDefaultSettings() async {
+    try {
     final record = await isar.settingsRecords.get(SettingsRecord.singletonId);
     // An empty payload means the row exists only to carry a flag — see
     // [SettingsRecord]. Treat it exactly like a missing row.
@@ -131,6 +132,10 @@ class IsarMatchRepository implements MatchRepository {
     return MatchCodec.decodeSettings(
       jsonDecode(record.payload) as Map<String, dynamic>,
     );
+    } catch (_) {
+      // A damaged preferences row must not prevent the app from starting.
+      return const MatchSettings.defaults();
+    }
   }
 
   @override
@@ -154,6 +159,30 @@ class IsarMatchRepository implements MatchRepository {
   @override
   Future<void> markOnboardingSeen() async {
     await _updateSettingsRow((record) => record..onboardingSeen = true);
+  }
+
+  @override
+  Future<Set<String>> loadSeenHints() async {
+    try {
+      final record = await isar.settingsRecords.get(SettingsRecord.singletonId);
+      return (record?.seenHints ?? const <String>[]).toSet();
+    } catch (_) {
+      // Contract: never throw. An unreadable row costs a repeated hint.
+      return const <String>{};
+    }
+  }
+
+  @override
+  Future<void> markHintSeen(String hintId) async {
+    await _updateSettingsRow((record) {
+      if (record.seenHints.contains(hintId)) return record;
+      return record..seenHints = [...record.seenHints, hintId];
+    });
+  }
+
+  @override
+  Future<void> resetSeenHints() async {
+    await _updateSettingsRow((record) => record..seenHints = const []);
   }
 
   /// Read-modify-write of the app singleton row.

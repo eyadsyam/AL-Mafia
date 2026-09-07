@@ -10,10 +10,7 @@ import 'audio_backend.dart';
 /// that plays while one player is holding the phone tells the entire table what
 /// stage that player's turn has reached — which is why the gate is a hard
 /// error, not a silent no-op (FR-026, L-11).
-enum PhoneLocation {
-  onTable,
-  inHand,
-}
+enum PhoneLocation { onTable, inHand }
 
 /// The sound catalogue from the design system, §8.
 ///
@@ -57,7 +54,46 @@ enum AudioCue {
 
   /// The match result. Deliberately the *same* sting for both outcomes — two
   /// stings would tell the room who won before the screen did.
-  win(narration: false, sound: 'audio/win.ogg');
+  win(narration: false, sound: 'audio/win.ogg'),
+
+  // ── the online table (doc 12 §8) ─────────────────────────────────────────
+  //
+  // Every cue below fires while the phone is flat and the room is public: a
+  // lobby, a whisper crossing a table everybody can see, a ballot, a death,
+  // the opening of a confrontation. None may fire during a night, and the
+  // in-hand gate in [AudioDirector.play] is what makes that structural rather
+  // than a thing seven call sites remember.
+  //
+  // They are also the only cues in the folder that were **synthesised** rather
+  // than produced — see `tool/`-adjacent notes in PROGRESS. That is why they
+  // are quieter than their neighbours: a generated tone next to a produced one
+  // reads as louder than it measures, and these fire far more often.
+
+  /// Somebody took a seat in the lobby. Rising.
+  joinChime(narration: false, sound: 'audio/join_chime.ogg'),
+
+  /// Somebody left it. The same two notes, falling — one gesture with a
+  /// direction, so the room never has to work out which just happened.
+  leaveChime(narration: false, sound: 'audio/leave_chime.ogg'),
+
+  /// A whisper leaving your seat. A short airy sweep, nothing pitched.
+  whisperSend(narration: false, sound: 'audio/whisper_send.ogg'),
+
+  /// A whisper arriving at yours. A falling minor third, deliberately unlike
+  /// every other cue in interval, direction and timbre (doc 12 §8: "distinct
+  /// from every other cue").
+  whisperReceive(narration: false, sound: 'audio/whisper_receive.ogg'),
+
+  /// One ballot landing. The driest sound in the app, because in a ten-player
+  /// room it fires ten times in a minute.
+  voteTick(narration: false, sound: 'audio/vote_tick.ogg'),
+
+  /// The morning's tear: paper, and one low drum.
+  deathTear(narration: false, sound: 'audio/death_tear.ogg'),
+
+  /// A confrontation opening. The one cue in the app that grows over its
+  /// length; everything else decays.
+  confrontationSwell(narration: false, sound: 'audio/confrontation_swell.ogg');
 
   const AudioCue({required this.narration, this.sound});
 
@@ -108,7 +144,14 @@ class AudioDirector {
   bool narrationEnabled = true;
 
   /// Master mute — when true, no audio plays at all.
-  bool muted = false;
+  bool _muted = false;
+  bool get muted => _muted;
+  set muted(bool value) {
+    if (_muted == value) return;
+    _muted = value;
+    if (value) unawaited(backend.stopAll());
+    syncScore();
+  }
 
   /// Cues emitted so far, in order. Exposed for tests and for debugging a
   /// mis-sequenced phase; not read by the app.
@@ -209,10 +252,10 @@ class AudioDirector {
   /// The registered narrator lines are included, so dropping recordings in and
   /// registering them before this runs gets them warmed too.
   Future<void> warmUp() => backend.warmUp(<String>{
-        for (final cue in AudioCue.values)
-          if (cue.sound != null) _assetKey(cue.sound!),
-        for (final line in narratorLines.values) _assetKey(line),
-      });
+    for (final cue in AudioCue.values)
+      if (cue.sound != null) _assetKey(cue.sound!),
+    for (final line in narratorLines.values) _assetKey(line),
+  });
 
   PhoneLocation get location => _location;
 
@@ -242,6 +285,35 @@ class AudioDirector {
   ///
   /// This throws for **every** cue, [AudioCue.cardFlip] included. The card turn
   /// has its own door — [playCardTurn] — and the argument for it is there.
+  /// The turn-change chime, pitched for the pressure band (doc 13 §3).
+  ///
+  /// ## Why a rising pitch leaks nothing
+  ///
+  /// Doc 05 forbids reactive audio, and this is the one cue in the app whose
+  /// sound is not byte-identical every time. It is allowed because doc 13 §8
+  /// draws the line in the right place: *"turn-change chime pitch is a function
+  /// of the timer band, never of game state."* The timer band is a function of
+  /// how many people are still alive, and how many people are still alive is on
+  /// the screen — everybody can count the cards. A cue derived from a number
+  /// the whole table already has is not a channel.
+  ///
+  /// [band] is [PressureCurve.bandIndex]'s answer and nothing else. It is an
+  /// `int` rather than a match or a phase precisely so that no caller can hand
+  /// it something role-shaped.
+  void playTurnChange({required int band}) {
+    _turnChangeRate =
+        turnChangeRates[band.clamp(0, turnChangeRates.length - 1)];
+    play(AudioCue.speakerChange);
+    _turnChangeRate = 1.0;
+  }
+
+  /// One semitone-ish per band, five bands. A whole tone and a half from the
+  /// roomiest table to the last three players — audible as pressure, nowhere
+  /// near audible as a specific number.
+  static const List<double> turnChangeRates = [1.0, 1.06, 1.12, 1.19, 1.26];
+
+  double _turnChangeRate = 1.0;
+
   void play(AudioCue cue) {
     if (_location == PhoneLocation.inHand) {
       throw StateError(
@@ -309,7 +381,8 @@ class AudioDirector {
 
   /// Hands one asset to the backend. Fire-and-forget: a phase transition must
   /// not wait on a speaker.
-  void _emit(String assetPath) => unawaited(backend.play(_assetKey(assetPath)));
+  void _emit(String assetPath) =>
+      unawaited(backend.play(_assetKey(assetPath), rate: _turnChangeRate));
 
   /// Drops the `assets/` prefix the backend does not want.
   static String _assetKey(String assetPath) {

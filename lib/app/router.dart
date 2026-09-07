@@ -6,12 +6,12 @@ import 'package:go_router/go_router.dart';
 import '../data/player_group.dart';
 import '../data/player_group_provider.dart';
 import '../data/repository_provider.dart';
-import '../platform/audio_director.dart';
 import '../engine/models/match_settings.dart';
+import '../platform/audio_director.dart';
 import '../ui/l10n_ext.dart';
 import '../ui/screens/match_controller.dart';
 import '../ui/screens/match_route.dart';
-import '../ui/screens/onboarding/onboarding_screen.dart';
+import '../ui/screens/onboarding/onboarding_video_screen.dart';
 import '../ui/screens/online/lobby_screen.dart';
 import '../ui/screens/online/online_entry_screen.dart';
 import '../ui/screens/online/online_session.dart';
@@ -20,6 +20,7 @@ import '../ui/screens/postgame/history_screen.dart';
 import '../ui/screens/setup/add_players_screen.dart';
 import '../ui/screens/setup/group_picker_screen.dart';
 import '../ui/screens/setup/home_screen.dart';
+import '../ui/screens/setup/mode_screen.dart';
 import '../ui/screens/setup/how_to_play_screen.dart';
 import '../ui/screens/setup/roles_screen.dart';
 import '../ui/screens/setup/settings_screen.dart';
@@ -28,6 +29,7 @@ import '../ui/screens/setup/setup_draft.dart';
 /// Route paths, in one place so navigation calls cannot drift from the table.
 abstract final class Routes {
   static const home = '/';
+  static const mode = '/mode';
   static const groups = '/setup/groups';
   static const players = '/setup/players';
   static const roles = '/setup/roles';
@@ -41,6 +43,15 @@ abstract final class Routes {
   static const online = '/online';
   static const lobby = '/online/lobby';
 
+  /// Where a room invite lands (doc 12 §3.1).
+  ///
+  /// The scheme's host is dropped by go_router, which matches on the path — so
+  /// `mafiamaster://online/join/K7M2QP` arrives here as `/join/K7M2QP`.
+  static const joinByLink = '/join/:code';
+
+  /// That path, for a given code.
+  static String joinLink(String code) => '/join/${code.toUpperCase()}';
+
   /// Analytics for a stored match.
   static String storedAnalytics(int id) => '/history/$id';
 }
@@ -51,14 +62,25 @@ abstract final class Routes {
 /// that the setup steps can hand their results straight to the draft and the
 /// engine. Routes stay dumb; the screens they host stay reusable in tests
 /// without a router at all.
+void _previewAudio(WidgetRef ref, MatchSettings settings) {
+  ref.read(audioDirectorProvider)
+    ..scoreEnabled = settings.scoreEnabled
+    ..narrationEnabled = settings.narrationEnabled
+    ..muted = settings.muteAllAudio
+    ..syncScore();
+}
+
 GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
   void startMatch(BuildContext context) {
     final draft = ref.read(setupDraftProvider);
     final roleCounts = draft.roleCounts;
     if (roleCounts == null) return;
 
-    ref.read(matchControllerProvider.notifier).startMatch(
+    ref
+        .read(matchControllerProvider.notifier)
+        .startMatch(
           names: draft.names,
+          genders: draft.genders,
           roleCounts: roleCounts,
           settings: draft.settings,
         );
@@ -69,7 +91,9 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
     // sit between the host tapping start and the first card appearing.
     final group = draft.group;
     if (group != null && group.isSaved) {
-      ref.read(playerGroupsProvider.notifier).recordPlayed(
+      ref
+          .read(playerGroupsProvider.notifier)
+          .recordPlayed(
             group.id,
             roleCounts: roleCounts,
             settings: draft.settings,
@@ -84,6 +108,18 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
   /// why "not loaded yet" degrades to today's behaviour rather than to a stall.
   List<PlayerGroup> loadedGroups() =>
       ref.read(playerGroupsProvider).valueOrNull ?? const [];
+
+  /// Begin the one-phone game: clear the draft and go wherever this host's
+  /// history says. Shared by the mode picker and by every "play offline
+  /// instead" offer on the online screens, so the two never drift into
+  /// landing in different places.
+  void goOffline(BuildContext context) {
+    ref.read(setupDraftProvider.notifier).resetForNewMatch();
+    // First run, or a host who has never saved anyone, goes exactly where
+    // they always went. The picker only exists once there is something in it
+    // to pick.
+    context.go(loadedGroups().isEmpty ? Routes.players : Routes.groups);
+  }
 
   /// Start a match on a group's remembered configuration, skipping the roles
   /// and settings screens entirely. This is the third tap of a rematch.
@@ -118,31 +154,49 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
       GoRoute(
         path: Routes.home,
         builder: (context, state) => HomeScreen(
-          onNewMatch: () {
-            ref.read(setupDraftProvider.notifier).resetForNewMatch();
-            // First run, or a host who has never saved anyone, goes exactly
-            // where they always went. The picker only exists once there is
-            // something in it to pick.
-            context.go(
-              loadedGroups().isEmpty ? Routes.players : Routes.groups,
-            );
-          },
-          // Offered only when this build has a project to talk to. A button
-          // that always fails is worse than an app that only does what it can:
-          // see `SupabaseConfig`.
-          onPlayOnline: SupabaseConfig.isConfigured
-              ? () => context.go(Routes.online)
-              : null,
+          // Play now asks which of the two games this is, rather than starting
+          // one of them and offering the other in smaller type.
+          onNewMatch: () => context.go(Routes.mode),
           onHistory: () => context.go(Routes.history),
           onSettings: () => context.go(Routes.defaults),
           onHowToPlay: () => context.go(Routes.onboarding),
         ),
       ),
+      // S-01a. Both answers are the same size, and online is offered whether
+      // or not this build has a project — a card that explains itself is
+      // something a player can act on, and a card that is not there is not.
+      GoRoute(
+        path: Routes.mode,
+        builder: (context, state) => ModeScreen(
+          onPlayOffline: () => goOffline(context),
+          onPlayOnline: SupabaseConfig.isConfigured
+              ? () => context.go(Routes.online)
+              : null,
+          onBack: () => context.go(Routes.home),
+        ),
+      ),
+      // The online front door. Doc 12 §9's four cards used to stand in front
+      // of it on the first online match of a run; they are in the how-to-play
+      // screen now (task 11c), which is where somebody looking for them would
+      // have gone anyway — and this is one fewer screen between a player and a
+      // friend who is already in a room.
       GoRoute(
         path: Routes.online,
         builder: (context, state) => OnlineEntryScreen(
           onJoined: () => context.go(Routes.lobby),
-          onPlayOffline: () => context.go(Routes.home),
+          onPlayOffline: () => goOffline(context),
+        ),
+      ),
+      // A room invite, opened from wherever the host pasted it. The code is
+      // pre-filled and nothing else happens: the joiner still types their name
+      // and still taps join, because a link that seated somebody automatically
+      // would be a link anybody could send them.
+      GoRoute(
+        path: Routes.joinByLink,
+        builder: (context, state) => OnlineEntryScreen(
+          initialCode: state.pathParameters['code'],
+          onJoined: () => context.go(Routes.lobby),
+          onPlayOffline: () => goOffline(context),
         ),
       ),
       GoRoute(
@@ -163,35 +217,20 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
         path: Routes.howToPlay,
         builder: (context, state) => HowToPlayScreen(
           onBack: () => context.go(Routes.home),
+          onStartMatch: () => context.go(Routes.home),
         ),
       ),
-      // The onboarding deck, reached two ways: automatically on a first launch
-      // (`OnboardingGate`) and from Home's help control thereafter.
-      //
-      // Every exit records that it was seen, including the skip. The write is
-      // deliberately not awaited — it is a single local row, and nothing about
-      // the next screen depends on it having landed. The worst case if it were
-      // lost is one extra tap on the next launch.
+      // One cinematic introduction, followed by the concise rules reference.
+      // First launch and Home's help control intentionally share this path.
       GoRoute(
         path: Routes.onboarding,
         builder: (context, state) {
-          void leave(String destination) {
+          void finishIntro() {
             ref.read(matchRepositoryProvider).markOnboardingSeen();
-            context.go(destination);
+            context.go(Routes.howToPlay);
           }
 
-          return OnboardingScreen(
-            onSkip: () => leave(Routes.home),
-            onRules: () => leave(Routes.howToPlay),
-            onCardFlip: ref.read(audioDirectorProvider).playCardTurn,
-            onStartMatch: () {
-              ref.read(setupDraftProvider.notifier).resetForNewMatch();
-              // Exactly what Home's primary action does. A host finishing the
-              // deck has been told "start your first match", so they should
-              // land where that tap lands and not one screen short of it.
-              leave(loadedGroups().isEmpty ? Routes.players : Routes.groups);
-            },
-          );
+          return OnboardingVideoScreen(onFinished: finishIntro);
         },
       ),
       GoRoute(
@@ -224,7 +263,9 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
           return AddPlayersScreen(
             // Seating order, exactly as saved. Not sorted, not deduplicated,
             // not touched.
-            initialNames: group?.memberNames ?? const [],
+            initialNames: group?.memberNames ?? ref.read(setupDraftProvider).names,
+            initialGenders: {...?group?.genders, ...ref.read(setupDraftProvider).genders},
+            onGendersChanged: ref.read(setupDraftProvider.notifier).setGenders,
             group: group,
             savedGroups: loadedGroups(),
             onNext: (names) {
@@ -258,16 +299,27 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
       ),
       GoRoute(
         path: Routes.settings,
-        builder: (context, state) => SettingsScreen(
-          initial: ref.read(setupDraftProvider).settings,
-          onSave: (settings) {
-            ref.read(setupDraftProvider.notifier).setSettings(settings);
-            // These become the defaults for the next match too (FR-005).
-            ref.read(matchRepositoryProvider).saveDefaultSettings(settings);
-            startMatch(context);
-          },
-          onBack: () => context.go(Routes.roles),
-        ),
+        builder: (context, state) {
+          final draft = ref.read(setupDraftProvider);
+          return SettingsScreen(
+            initial: draft.settings,
+            onAudioPreview: (settings) => _previewAudio(ref, settings),
+            // Doc 13 5. The preset row needs the table it is being picked for:
+            // the three shapes differ on the Mafia ratio, and a ratio with no
+            // count behind it is not a split.
+            playerCount: draft.names.length,
+            roleCounts: draft.roleCounts,
+            onRoleCounts: (counts) =>
+                ref.read(setupDraftProvider.notifier).setRoleCounts(counts),
+            onSave: (settings) {
+              ref.read(setupDraftProvider.notifier).setSettings(settings);
+              // These become the defaults for the next match too (FR-005).
+              ref.read(matchRepositoryProvider).saveDefaultSettings(settings);
+              startMatch(context);
+            },
+            onBack: () => context.go(Routes.roles),
+          );
+        },
       ),
       // The same screen, reached from Home, editing only the stored defaults.
       GoRoute(
@@ -283,9 +335,8 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
       ),
       GoRoute(
         path: Routes.analytics,
-        builder: (context, state) => LiveAnalyticsScreen(
-          onClose: () => context.go(Routes.home),
-        ),
+        builder: (context, state) =>
+            LiveAnalyticsScreen(onClose: () => context.go(Routes.home)),
       ),
       GoRoute(
         path: Routes.history,
@@ -331,11 +382,8 @@ Future<void> _saveNewGroup(
   if (name == null) return;
 
   final now = DateTime.now();
-  final group = PlayerGroup.create(
-    name: name,
-    memberNames: names,
-    now: now,
-  );
+  final group = PlayerGroup.create(name: name, memberNames: names, now: now)
+      .copyWith(genders: ref.read(setupDraftProvider).genders);
   final id = await ref.read(playerGroupsProvider.notifier).save(group);
   ref.read(setupDraftProvider.notifier).setGroup(group.copyWith(id: id));
 }
@@ -377,6 +425,9 @@ class _DefaultSettingsRoute extends StatelessWidget {
         if (initial == null) return const SizedBox.shrink();
         return SettingsScreen(
           initial: initial,
+          onAudioPreview: (settings) => _previewAudio(ref, settings),
+          // No table yet, so a preset here sets the shape of the game and
+          // leaves the split to the screen that asks for it.
           onSave: (settings) {
             ref.read(matchRepositoryProvider).saveDefaultSettings(settings);
             ref.read(setupDraftProvider.notifier).setSettings(settings);
@@ -400,9 +451,6 @@ class NightLockScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      child: Scaffold(body: child),
-    );
+    return PopScope(canPop: false, child: Scaffold(body: child));
   }
 }

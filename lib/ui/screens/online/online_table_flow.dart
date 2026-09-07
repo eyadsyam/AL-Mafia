@@ -1,0 +1,1417 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart' hide Alignment;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// `Alignment` here is the engine's win side, not Flutter's layout anchor.
+import '../../../app/asset_constants.dart';
+import '../../../engine/models/enums.dart';
+import '../../../platform/audio_director.dart';
+import '../../../platform/haptics.dart';
+import '../../../platform/reduce_motion.dart';
+import '../../../transport/game_snapshot.dart';
+import '../../../transport/online_backend.dart';
+import '../../information_text.dart';
+import '../../l10n_ext.dart';
+import '../../theme/mafia_theme.dart';
+import '../../widgets/hold_pad.dart';
+import '../../widgets/role_card.dart';
+import '../day/whisper_compose_screen.dart';
+import '../../widgets/whisper_card.dart';
+import '../match_controller.dart';
+import 'council/card_rise.dart';
+import 'council/phase_sting.dart';
+import 'council/role_roster.dart';
+import 'council/council_band.dart';
+import 'host_handover.dart';
+import 'host_sheet.dart';
+import 'scene_sheet.dart';
+import 'online_session.dart';
+import 'council/voice_band.dart';
+import 'table/connection_weather.dart';
+import 'table/table_mood.dart';
+import 'table/table_scene.dart';
+import 'witness/elimination_beat.dart';
+import 'witness/own_record.dart';
+import 'witness/witness_panel.dart';
+
+/// The online match, as one table that changes state (doc 12 §2.1, §3).
+///
+/// ## What this replaces, and what it does not
+///
+/// It replaces the *presentation* of a phase, not its rules. Every command
+/// below goes through [MatchController] exactly as the offline screens' do, and
+/// the engine and the server decide everything they decided before. What
+/// changes is that a phase no longer swaps a screen: it re-dresses the table
+/// that was already there.
+///
+/// ## Why the interaction moved onto the table
+///
+/// Doc 12 §3.3: *"You select by tapping a seat on the table itself — not from a
+/// separate list."* The list was the right shape for one phone being passed
+/// around — it is a form you fill in and hand on — and it is the wrong shape
+/// for ten people who can all see the same room at once. Tapping the person is
+/// what you would do at a table.
+///
+/// The leakage properties are unchanged and are checked in the same places: the
+/// seat's own widget refuses per-seat status when the phase forbids it
+/// ([TableMood.showsPerSeatStatus]), the footer's copy is the engine's
+/// role-blind prompt, and nothing here branches on a role.
+class OnlineTableFlow extends ConsumerStatefulWidget {
+  /// Leaves the match.
+  final VoidCallback onExit;
+
+  /// Opens the post-game autopsy, when there is one to open.
+  final VoidCallback onAnalytics;
+
+  /// Called after a command that changed the match, so the host's device can
+  /// persist. A no-op on every client that is not the host.
+  final VoidCallback onStepCommitted;
+
+  const OnlineTableFlow({
+    super.key,
+    required this.onExit,
+    required this.onAnalytics,
+    required this.onStepCommitted,
+  });
+
+  /// Doc 15 §S-O13 beat 5: the roster control.
+  static const Key seeRoles = ValueKey('online_see_roles');
+
+  static const Key confirmAction = ValueKey('table_confirm');
+  static const Key hostAdvance = ValueKey('table_host_advance');
+  static const Key closeRoomConfirm = ValueKey('table_close_room_confirm');
+  static const Key abstain = ValueKey('table_abstain');
+  static const Key whisperButton = ValueKey('table_whisper');
+  static const Key confrontationDone = ValueKey('table_confrontation_done');
+
+  @override
+  ConsumerState<OnlineTableFlow> createState() => _OnlineTableFlowState();
+}
+
+class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
+    with TickerProviderStateMixin {
+  MatchController get _controller => ref.read(matchControllerProvider.notifier);
+  GameSnapshot get _snapshot => _controller.snapshot;
+
+  /// The seat this client currently has chosen, or null.
+  int? _selected;
+
+  /// True once this client has committed its move for the current phase.
+  ///
+  /// Reset on every phase change rather than tracked per phase, so a client
+  /// that reconnects into a new phase is never left holding a stale "done".
+  bool _submitted = false;
+  bool _actionFailed = false;
+  int _attemptNumber = 0;
+
+  GamePhase? _phaseAt;
+  int? _dayAt;
+
+  /// The snapshot this device last asked its private view from, and whether
+  /// the answer ever arrived.
+  ///
+  /// Online nobody passes the phone, so nothing else asks on this seat's
+  /// behalf: the role card and the night turn both have to be pulled by the
+  /// client that owns the seat. See [_maybePullPrivateView].
+  GameSnapshot? _privateAskedFor;
+  bool _privateHeld = false;
+
+  /// The morning's tear, and the seat it belongs to.
+  // Built with no duration and given one in `didChangeDependencies`, where the
+  // theme is readable. Zero rather than a literal: a placeholder number here
+  // would be a second, wrong copy of a token, and the one that never gets
+  // updated is the one somebody eventually ships.
+  late final AnimationController _tear = AnimationController(
+    vsync: this,
+    duration: Duration.zero,
+  );
+  int? _tearingSeat;
+
+  /// A whisper crossing the table.
+  late final AnimationController _sparkFlight = AnimationController(
+    vsync: this,
+    duration: Duration.zero,
+  );
+
+  /// The confrontation's radial mask opening over the council (doc 15 §S-O7).
+  late final AnimationController _spotlight = AnimationController(
+    vsync: this,
+    duration: Duration.zero,
+  );
+  CouncilSpark? _spark;
+
+  /// Doc 15 §S-O13 beat 2: the whole council turning over at once.
+  ///
+  /// Owned here rather than inside [CouncilBand] because the band is allowed
+  /// exactly one controller — doc 15 §3's frame budget is what fifteen
+  /// controllers would spend — and because the beat is a *phase* event, which
+  /// is the thing this state object exists to notice.
+  late final AnimationController _turn = AnimationController(
+    vsync: this,
+    duration: Duration.zero,
+  );
+
+  /// The transition sting playing over the council, or null.
+  ///
+  /// Doc 16 V1/V2. Muted and never load-bearing — see [PhaseSting].
+  String? _sting;
+
+  /// The verdict this device has already watched turn over, as a phase-and-day
+  /// stamp. Doc 15 §S-O12 is a once-per-elimination beat, and a rebuild is not
+  /// an elimination.
+  String? _cardShown;
+
+  /// Whether the elimination beat has been played for this device's own death.
+  bool _mourned = false;
+  bool _mourning = false;
+
+  /// The ballot as it stood at the last build, so a new one can be heard
+  /// arriving (doc 12 §8's vote tick).
+  Map<int, int?> _heardBallots = const {};
+
+  /// Whispers this device has already sounded for, so a resync does not replay
+  /// the day's conversation as a burst of chimes.
+  final Set<String> _heardWhispers = <String>{};
+
+  AudioDirector get _audio => ref.read(audioDirectorProvider);
+
+  /// The whisper this device is currently showing, or null.
+  ///
+  /// One at a time. Two arriving inside twelve seconds is a real possibility
+  /// and stacking cards over a table nobody can see is not an answer, so the
+  /// second waits for the first to go — [_pullWhisper] is re-entered on the
+  /// next fold either way.
+  _Incoming? _incoming;
+
+  /// True while a body fetch is in flight, so a rebuild does not start a
+  /// second one for the same whisper.
+  bool _pulling = false;
+
+  /// True while the whisper composer is over the table.
+  ///
+  /// Local state rather than a route, for the same reason the offline flow
+  /// keeps it local: the phase is the router here, and a pushed page would
+  /// create a second notion of "where we are" that a reconnection could not
+  /// reproduce. An unsent whisper was never sent.
+  bool _composing = false;
+
+  /// Doc 15 §S-O13 beat 5: whether the roster is open over the council.
+  bool _roster = false;
+
+  /// True once this device has been told to go home and has asked to.
+  bool _leaving = false;
+
+  /// The seat whose host sheet is open, and whether the close-room
+  /// confirmation is showing. Layers in the table's Stack, never routes
+  /// (doc 12 §2.1).
+  int? _inspect;
+  bool _closing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tear.addListener(_repaint);
+    _sparkFlight.addListener(_repaint);
+    _spotlight.addListener(_repaint);
+    _turn.addListener(_repaint);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _tear.duration = context.motion.tear;
+    _sparkFlight.duration = context.motion.travel;
+    _spotlight.duration = context.motion.phase;
+  }
+
+  @override
+  void dispose() {
+    _tear.dispose();
+    _sparkFlight.dispose();
+    _spotlight.dispose();
+    _turn.dispose();
+    super.dispose();
+  }
+
+  void _repaint() {
+    if (mounted) setState(() {});
+  }
+
+  // ── phase bookkeeping ────────────────────────────────────────────────────
+
+  /// Notices a phase change and resets everything that was about the old one.
+  void _syncPhase(GameSnapshot snapshot) {
+    if (snapshot.phase == _phaseAt && snapshot.dayNumber == _dayAt) return;
+
+    final previous = _phaseAt;
+    _phaseAt = snapshot.phase;
+    _dayAt = snapshot.dayNumber;
+    _selected = null;
+    _submitted = false;
+    _actionFailed = false;
+    _privateAskedFor = null;
+    _privateHeld = false;
+
+    // The morning's tear. Started here rather than in a builder so it plays
+    // once per morning and not once per rebuild.
+    if (snapshot.phase == GamePhase.morning && previous != GamePhase.morning) {
+      final victim = snapshot.morning?.victimSeat;
+      _tearingSeat = victim;
+      if (victim != null) {
+        // Paper and one low drum. Safe here and nowhere near a night: the
+        // morning is the phone flat on the table with the whole room looking
+        // at it, which is the only condition `play` accepts.
+        _audio.play(AudioCue.deathTear);
+        if (ReduceMotion.of(context)) {
+          _tear.value = 1;
+        } else {
+          _tear.forward(from: 0);
+        }
+      }
+    } else if (snapshot.phase != GamePhase.morning) {
+      _tearingSeat = null;
+      _tear.value = 0;
+    }
+
+    // Doc 16 V1 and V2, on the two phase changes that are a change of *light*
+    // rather than a change of turn. Started here, with the rest of the phase's
+    // one-shot beats, so a rebuild cannot replay it.
+    _sting = switch (snapshot.phase) {
+      GamePhase.night when previous != GamePhase.night => AppVideo.stingNight,
+      GamePhase.morning when previous != GamePhase.morning =>
+        AppVideo.stingDawn,
+      _ => null,
+    };
+
+    // Doc 15 §S-O13. Beat 1 is the freeze the result phase arrives with; this
+    // is beat 2, once per match. Under Reduce Motion the rings are simply
+    // carrying their marks when the result appears — there is no turn to read
+    // and none is faked.
+    if (snapshot.phase == GamePhase.result && previous != GamePhase.result) {
+      _audio.play(AudioCue.cardFlip);
+      if (ReduceMotion.of(context)) {
+        _turn.value = 1;
+      } else {
+        _turn.duration = context.motion.card;
+        _turn.forward(from: 0);
+      }
+    } else if (snapshot.phase != GamePhase.result &&
+        snapshot.phase != GamePhase.analytics) {
+      _turn.value = 0;
+    }
+
+    if (snapshot.phase == GamePhase.confrontation) {
+      if (previous != GamePhase.confrontation) {
+        _audio.play(AudioCue.confrontationSwell);
+      }
+      if (ReduceMotion.of(context)) {
+        _spotlight.value = 1;
+      } else if (_spotlight.value == 0) {
+        _spotlight.forward(from: 0);
+      }
+    } else {
+      _spotlight.value = 0;
+    }
+
+    ref.read(ownRecordProvider.notifier).observe(snapshot);
+  }
+
+  /// Pulls whatever this device is privately owed in the phase it is in.
+  ///
+  /// # Why anything has to ask at all
+  ///
+  /// Offline a screen walks the seats: it asks for one seat's card, waits for
+  /// the phone to be handed on, and asks for the next. Online there is no such
+  /// screen and no phone to pass — every client sits in the same phase at the
+  /// same moment — so each one has to ask for its own seat, and only its own.
+  /// `secretsFor` refuses every other seat, which is what makes asking safe.
+  ///
+  /// Two phases owe this device something private: the deal owes it a role
+  /// card, and the night owes it the turn view its action is chosen from.
+  /// Neither had a caller here. The deal showed the table backs for ever, and
+  /// the night showed «مستني اللاعبين» to a player who had not yet acted — both
+  /// of them silently, because the server was perfectly happy and the client
+  /// was simply never going to ask.
+  ///
+  /// # Why it retries, and why it still asks only once
+  ///
+  /// The answer is not always ready the first time. A phase change arrives as
+  /// a push, and the client's own row — the one carrying the role — is only
+  /// re-read by the resync that push triggers. So the first snapshot of a new
+  /// phase can legitimately have nothing to give, and a single attempt spent
+  /// on it is an attempt wasted for the whole phase. That is exactly what one
+  /// real five-player match did: the reveal arrived, the ask went out a beat
+  /// early, and the card never came.
+  ///
+  /// So the attempt is once per *snapshot* rather than once per phase, and it
+  /// stops for good the moment the answer lands — which is what keeps a
+  /// dismissed card from being handed straight back, and a submitted night
+  /// action from reopening its own picker.
+  void _maybePullPrivateView(GameSnapshot snapshot, MatchUiState state) {
+    final held = switch (snapshot.phase) {
+      GamePhase.distributing => state.reveal != null,
+      GamePhase.night => state.actorTurn != null,
+      // Every other phase is public, or is answered by a call this screen
+      // already makes. Nothing to pull, and nothing to retry.
+      _ => true,
+    };
+    if (held) {
+      _privateHeld = true;
+      return;
+    }
+    if (_privateHeld) return;
+    // Null means this device owes nothing: it has already acted tonight, or
+    // it is dead, or the roster has not landed yet. Asking would answer
+    // nothing.
+    if (snapshot.currentActorSeat == null) return;
+    if (identical(_privateAskedFor, snapshot)) return;
+    _privateAskedFor = snapshot;
+
+    // After the frame: both calls publish controller state, and a notifier
+    // must not be written to during a build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(
+        snapshot.phase == GamePhase.distributing
+            ? _controller.revealCurrentRole()
+            : _controller.openActorTurn(),
+      );
+    });
+  }
+
+  /// Sounds the things that happen *within* a phase.
+  ///
+  /// Separate from [_syncPhase] because these are not transitions: a ballot
+  /// landing and a whisper arriving both happen while the phase stands still,
+  /// and both are public events on a table everybody is looking at.
+  void _syncSounds(GameSnapshot snapshot) {
+    // One tick per new ballot, never per rebuild. Only reachable at all in a
+    // room that chose an open ballot — a secret one has an empty map, so this
+    // is silent and there is nothing to suppress.
+    if (snapshot.phase == GamePhase.voting) {
+      for (final voter in snapshot.liveBallots.keys) {
+        if (!_heardBallots.containsKey(voter)) {
+          _audio.play(AudioCue.voteTick);
+          break;
+        }
+      }
+      _heardBallots = Map.of(snapshot.liveBallots);
+    } else if (_heardBallots.isNotEmpty) {
+      _heardBallots = const {};
+    }
+
+    final me = snapshot.viewerSeat;
+    final first = _heardWhispers.isEmpty;
+    for (final whisper in snapshot.whisperGraph) {
+      if (whisper.voided || !_heardWhispers.add(whisper.id)) continue;
+
+      // The light crosses the table on **every** device (doc 12 §3.7):
+      // *"Everyone sees the light — nobody sees the words."* Driven off the
+      // graph rather than off the sender's own tap, so it is the same event on
+      // every screen and a viewer who joined late still sees the traffic.
+      //
+      // Not on the first fold, though: a client that has just resynced would
+      // otherwise replay the whole day's conversation as a burst of lights.
+      if (!first) _flyWhisper(whisper.fromSeat, whisper.toSeat);
+
+      // Only the two ends *hear* it. A chime on every device would turn the
+      // graph into an audible census of who is talking to whom.
+      if (whisper.toSeat == me) {
+        _audio.play(AudioCue.whisperReceive);
+        // …and the words, which is the half that was missing. The chime and
+        // the light said *somebody wrote to you* and stopped there.
+        unawaited(_pullWhisper(snapshot, whisper.fromSeat));
+      } else if (whisper.fromSeat == me) {
+        _audio.play(AudioCue.whisperSend);
+      }
+    }
+  }
+
+  /// Fetches the body of a whisper that has just arrived for this device.
+  ///
+  /// The graph is public and arrives with the fold; the body lives behind a
+  /// row only the two parties may read, so it takes a round trip. A failure is
+  /// swallowed on purpose: a whisper whose body cannot be fetched is a whisper
+  /// that did not arrive, and the sender is already told that separately.
+  Future<void> _pullWhisper(GameSnapshot snapshot, int fromSeat) async {
+    if (_pulling || _incoming != null) return;
+    _pulling = true;
+    try {
+      final delivery = await _controller.pullViewerWhisper();
+      if (!mounted) return;
+      if (delivery == null || delivery.id == null) return;
+      if (delivery.isUndeliveredNotice) return;
+      final sender = snapshot.public.players
+          .where((p) => p.seat == fromSeat)
+          .map((p) => p.name)
+          .firstOrNull;
+      setState(
+        () => _incoming = _Incoming(
+          id: delivery.id!,
+          senderName: sender ?? '',
+          body: delivery.body,
+        ),
+      );
+    } on Object {
+      // Nothing to say and nowhere to say it. See above.
+    } finally {
+      _pulling = false;
+    }
+  }
+
+  /// Whether this device's own player is out of the match.
+  bool _viewerIsDead(GameSnapshot snapshot) {
+    final seat = snapshot.viewerSeat;
+    if (seat == null) return false;
+    return snapshot.public.players.any(
+      (p) => p.seat == seat && p.status == PlayerStatus.dead,
+    );
+  }
+
+  // ── commands ─────────────────────────────────────────────────────────────
+
+  void _pick(int seat) {
+    if (_submitted) return;
+    Haptics.select();
+    setState(() => _selected = _selected == seat ? null : seat);
+  }
+
+  Future<void> _attempt(Future<void> Function() action) async {
+    if (_submitted) return;
+    final phase = _snapshot.phase;
+    final day = _snapshot.dayNumber;
+    setState(() {
+      _submitted = true;
+      _actionFailed = false;
+    });
+    try {
+      await action();
+      widget.onStepCommitted();
+    } on BackendException {
+      if (!mounted || _snapshot.phase != phase || _snapshot.dayNumber != day) {
+        return;
+      }
+      setState(() {
+        _submitted = false;
+        _actionFailed = true;
+        _attemptNumber++;
+      });
+    }
+  }
+
+  Future<void> _confirmNight() => _attempt(() async {
+    final seat = _snapshot.viewerSeat;
+    final turn = ref.read(matchControllerProvider)?.actorTurn;
+    if (seat == null || turn == null) return;
+
+    final target = _selected;
+    if (target == null && turn.actorRole == Role.doctor) {
+      throw const BackendException('BAD_REQUEST', 'Choose a player to protect');
+    }
+    if (target == null) {
+      // A turn with no choice, which **every** role may take (doc 05 rules 5
+      // and 6). It is the same command, the same duration and the same
+      // confirmation as a turn with one — a role that could not decline would
+      // be a role you could identify by the fact that it never did.
+      //
+      // For the Mafia it is also «الليلة الهادية» when they still hold it: the
+      // decline *is* the move, and it is what makes the morning ambiguous. For
+      // the other three it is simply declining.
+      await _controller.skipNightAction(
+        useBullet:
+            turn.actorRole == Role.mafia &&
+            _controller.bulletExistsFor(Role.mafia) &&
+            !_controller.currentBulletSpent,
+      );
+    } else {
+      await _controller.submitNightAction(
+        kind: turn.actorRole.nightAction,
+        targetSeat: target,
+        // The Doctor choosing their own seat is the self-protection, and it is
+        // the only reason a night action may name its own actor. The server
+        // checks the same three things again with the service key.
+        useBullet: target == seat && _canSelfProtect(turn.actorRole),
+      );
+    }
+  });
+
+  /// Whether this client's own seat is a legal target tonight.
+  ///
+  /// Offline this is a tile in the night grid bearing the Doctor's own name,
+  /// among the names (doc 14 §4). The online table has no grid to put a tile
+  /// in, so the affordance is the one every other target already has: the seat
+  /// itself, tappable. Same rule, same three conditions, drawn by the surface
+  /// each mode actually has.
+  bool _canSelfProtect(Role role) =>
+      role == Role.doctor &&
+      _controller.bulletExistsFor(Role.doctor) &&
+      !_controller.currentBulletSpent;
+
+  void _confirmAccusation() {
+    final target = _selected;
+    if (target == null) return;
+    _attempt(() => _controller.submitOpeningAccusation(targetSeat: target));
+  }
+
+  void _confirmVote({required bool abstaining}) {
+    _attempt(
+      () => _controller.submitVote(targetSeat: abstaining ? null : _selected),
+    );
+  }
+
+  /// Flies a light from this seat to [toSeat] (doc 12 §3.7).
+  ///
+  /// Everybody sees the light; nobody sees the words. This is the sender's own
+  /// copy of it — the recipients see the same flight from their own snapshot's
+  /// whisper graph a moment later.
+  void _flyWhisper(int fromSeat, int toSeat) {
+    setState(
+      () => _spark = CouncilSpark(
+        fromSeat: fromSeat,
+        toSeat: toSeat,
+        progress: 0,
+      ),
+    );
+    _sparkFlight.forward(from: 0).whenComplete(() {
+      if (mounted) setState(() => _spark = null);
+    });
+  }
+
+  // ── build ────────────────────────────────────────────────────────────────
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(matchControllerProvider);
+    if (state == null) return const SizedBox.shrink();
+
+    final snapshot = _snapshot;
+    // Task 5. A room that was closed was not a room that was won, so there is
+    // no result screen to land on — this device goes home and says why. Once:
+    // `_leaving` is what stops a rebuild queuing a second exit.
+    // Task 6. Being removed is not a disconnection and there is nothing to
+    // come back to: the room code is barred, so this device says so and goes
+    // home rather than sitting on a table it is not part of.
+    if (snapshot.viewerKicked && !_leaving) {
+      _leaving = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text(context.l10n.onlineKickedByHost)),
+        );
+        widget.onExit();
+      });
+    }
+    if (snapshot.roomClosed && !_leaving) {
+      _leaving = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onExit();
+      });
+    }
+    _syncPhase(snapshot);
+    _maybePullPrivateView(snapshot, state);
+    _syncSounds(snapshot);
+
+    final dead = _viewerIsDead(snapshot);
+    if (dead && !_mourned && !_mourning) {
+      _mourning = true;
+    }
+
+    final table = TableScene(
+      snapshot: snapshot,
+      selectedSeat: _selected,
+      selectableSeats: _selectable(snapshot, state),
+      onSeatTap: _pick,
+      centre: _centre(context, snapshot, state),
+      spark: _spark == null
+          ? null
+          : CouncilSpark(
+              fromSeat: _spark!.fromSeat,
+              toSeat: _spark!.toSeat,
+              progress: _sparkFlight.value,
+            ),
+      tearingSeat: _tearingSeat,
+      tearProgress: _tear.value,
+      spotlight: _spotlight.value,
+      onCloseRoom:
+          snapshot.canAdvance ? () => setState(() => _closing = true) : null,
+      onSeatInspect:
+          snapshot.canAdvance ? (seat) => setState(() => _inspect = seat) : null,
+      revealProgress: _turn.value,
+      // Doc 15 §S-O14: a witness keeps the four bands. Band 4 stops being the
+      // one action and becomes the graveyard, the prediction and the record —
+      // which is doc 12 §4's "three things to do, not none", in the place the
+      // living player's control was.
+      footer: dead && _mourned
+          ? WitnessPanel(
+              snapshot: snapshot,
+              channel: _controller.transport.witness,
+            )
+          : _footer(context, snapshot, state),
+    );
+
+    // Doc 12 §4.2 beat 4: the table returns, in monochrome. Permanent for a
+    // witness, which is what makes being dead read as a *state* rather than as
+    // an ending.
+    final ground = dead && _mourned
+        ? ColorFiltered(
+            colorFilter: ColorFilter.matrix(
+              ConnectionWeather.saturationMatrix(1.0),
+            ),
+            child: table,
+          )
+        : table;
+
+    return ConnectionWeather(
+      weather: TableWeather.of(snapshot.connection),
+      onPlayOffline: widget.onExit,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ground,
+          if (_mourning)
+            EliminationBeat(
+              onFinished: () => setState(() {
+                _mourning = false;
+                _mourned = true;
+              }),
+            ),
+          // The role card is the one thing that legitimately covers the table:
+          // doc 12 §3.2 beat 2 is your card *lifting out of its seat toward the
+          // camera*, so for the length of the reveal it is the whole screen.
+          if (snapshot.phase == GamePhase.distributing && state.reveal != null)
+            _reveal(context, state),
+          // Doc 15 §S-O12 beats 2–5, over the council rather than instead of
+          // it: the seat the card came out of is still there underneath, which
+          // is what makes the ring cracking at the end read as the same
+          // person.
+          if (_sting != null)
+            PhaseSting(
+              key: ValueKey('sting-${snapshot.phase}-${snapshot.dayNumber}'),
+              asset: _sting!,
+              onFinished: () {
+                if (mounted) setState(() => _sting = null);
+              },
+            ),
+          ?_verdict(context, snapshot),
+          if (_composing) _composer(context, snapshot),
+          if (_roster)
+            RoleRoster(
+              standings: snapshot.standings,
+              onClose: () => setState(() => _roster = false),
+            ),
+          // Task 5 — one line, three seconds, over whatever is on screen. It
+          // is not a phase and it does not stop anything.
+          // Task 6 — the host's two moderation actions, in the scene.
+          HostSheet(
+            snapshot: snapshot,
+            transport: ref.read(onlineSessionProvider).transport,
+            seat: _inspect,
+            onDismiss: () => setState(() => _inspect = null),
+          ),
+          // Task 5 — the deliberate ending, never the accidental one.
+          SceneSheet(
+            visible: _closing,
+            title: context.l10n.onlineCloseRoom,
+            body: context.l10n.onlineCloseRoomBody,
+            onDismiss: () => setState(() => _closing = false),
+            actions: [
+              SceneAction(
+                key: OnlineTableFlow.closeRoomConfirm,
+                icon: Icons.lock_outline,
+                label: context.l10n.onlineCloseRoomConfirm,
+                emphasised: true,
+                onTap: () {
+                  setState(() => _closing = false);
+                  ref.read(onlineSessionProvider).transport?.closeRoom();
+                },
+              ),
+            ],
+          ),
+          HostHandover(snapshot: snapshot),
+          // Doc 14 §3.4. Over the table, never instead of it: the timer and
+          // the seats stay live underneath, because a whisper is a thing that
+          // happens *during* the argument.
+          if (_incoming != null)
+            WhisperCard(
+              key: ValueKey(_incoming!.id),
+              senderName: _incoming!.senderName,
+              body: _incoming!.body,
+              onDismissed: () {
+                final id = _incoming!.id;
+                setState(() => _incoming = null);
+                _controller.markWhisperDelivered(id);
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ── which seats may be tapped ────────────────────────────────────────────
+
+  /// The seats this client may choose right now.
+  ///
+  /// Everything else stays drawn and inert. A table that hid the seats you
+  /// cannot pick would tell the room which seats those are — and during a night
+  /// the set of legal targets is a fact about the actor's role.
+  Set<int> _selectable(GameSnapshot snapshot, MatchUiState state) {
+    if (_submitted || _viewerIsDead(snapshot)) return const {};
+    return switch (snapshot.phase) {
+      GamePhase.night => {
+        ...?state.actorTurn?.targets,
+        // `turnFor` builds the target list out of the *other* living seats,
+        // which is right for every role and every night but one move. The
+        // Doctor's self-protection is that move, and adding the seat here
+        // rather than there keeps the transport's view of a turn free of a
+        // rule it would otherwise have to know about bullets.
+        if (state.actorTurn != null &&
+            snapshot.viewerSeat != null &&
+            _canSelfProtect(state.actorTurn!.actorRole))
+          snapshot.viewerSeat!,
+      },
+      GamePhase.openingRound || GamePhase.voting => {
+        for (final p in snapshot.public.players)
+          if (p.status == PlayerStatus.alive && p.seat != snapshot.viewerSeat)
+            p.seat,
+      },
+      _ => const {},
+    };
+  }
+
+  // -- band 3: the voice ----------------------------------------------------
+
+  /// Doc 15 Band 3: one idea per phase, and at most one thing supporting it.
+  ///
+  /// The old centre was a stack of independently-placed strings, which is how
+  /// it ended up overlapping. [CouncilVoice] is the layout contract that
+  /// replaced it: a headline and a single support slot, with no third place to
+  /// put anything.
+  Widget? _centre(
+    BuildContext context,
+    GameSnapshot snapshot,
+    MatchUiState state,
+  ) {
+    final l10n = context.l10n;
+    final type = context.typography;
+    final colors = context.colors;
+    final names = {
+      for (final player in snapshot.public.players) player.seat: player.name,
+    };
+
+    /// Doc 15 §1.6's third selection signal, and the only one that spells the
+    /// name out. Null when nothing is chosen, so the slot stays empty rather
+    /// than holding a placeholder.
+    Widget? chosen() {
+      final name = names[_selected];
+      return name == null
+          ? null
+          : SelectionChip(label: l10n.onlineChosen(name));
+    }
+
+    Widget caption(String text) => Text(
+      text,
+      textAlign: TextAlign.center,
+      style: type.caption.copyWith(color: colors.textSecondary),
+    );
+
+    switch (snapshot.phase) {
+      case GamePhase.setup:
+      case GamePhase.rolesConfigured:
+        return null;
+
+      case GamePhase.distributing:
+        // The deal's headline is who the room is still waiting for. Names, not
+        // a count of people with something to do — the thing they have to do
+        // is look at a card, which every seat has, so no role is implied by
+        // being on the list or by being off it.
+        final waiting = [
+          for (final seat in snapshot.unseenRoleSeats.toList()..sort())
+            names[seat] ?? '',
+        ]..removeWhere((name) => name.isEmpty);
+        if (waiting.isEmpty) return null;
+        return CouncilVoice(
+          headline: l10n.onlineWaitingForCards(waiting.join(' · ')),
+        );
+
+      case GamePhase.preNightLobby:
+        return CouncilVoice(headline: l10n.onlineWaitingForTheRest);
+
+      case GamePhase.night:
+      case GamePhase.nightResolving:
+        final turn = state.actorTurn;
+        // No count and no names while the night runs. Doc 15 §S-O5: "how many
+        // are still to act" is a fact about how many people have a move, and
+        // that is a fact about roles.
+        if (turn == null || _submitted) {
+          return CouncilVoice(headline: l10n.onlineWaitingForTheRest);
+        }
+        return CouncilVoice(
+          headline: EngineCopy.nightPrompt(l10n, turn.actorRole),
+          support: chosen(),
+        );
+
+      case GamePhase.morning:
+        final victim = snapshot.morning?.victimSeat;
+        final trace = InformationText.trace(l10n, snapshot.trace, names);
+        return CouncilVoice(
+          headline: victim == null
+              ? l10n.quietNight
+              : l10n.lostPlayerLastNight(names[victim] ?? ''),
+          // The trace does not arrive with the body. Doc 15 §S-O6 beat 5: the
+          // room hears what happened, and only then hears what was left
+          // behind.
+          support: trace == null ? null : _AfterBeat(child: caption(trace)),
+        );
+
+      case GamePhase.openingRound:
+        final speaker = names[snapshot.currentActorSeat];
+        final queue = _upNext(snapshot);
+        return CouncilVoice(
+          headline: speaker == null
+              ? l10n.openingRoundTitle
+              : l10n.openingRoundPrompt(speaker),
+          // Your own choice outranks the queue: once you have picked, the one
+          // thing you want confirmed is who.
+          support:
+              chosen() ??
+              (queue.isEmpty ? null : caption(l10n.onlineUpNext(queue))),
+        );
+
+      case GamePhase.confrontation:
+        final confrontation = snapshot.confrontation;
+        if (confrontation == null) return null;
+        final deadline = snapshot.phaseDeadline;
+        return CouncilVoice(
+          // `title`, not `headline`: doc 15 §1.4 gives this phase the ring, and
+          // two things shouting at once is the old screen's mistake.
+          style: type.title,
+          headline:
+              InformationText.confrontation(l10n, confrontation, names) ??
+              l10n.confrontationExplain,
+          support: deadline == null
+              ? null
+              : _ConfrontationClock(
+                  deadline: deadline,
+                  total: snapshot.settings.confrontationSeconds,
+                ),
+        );
+
+      case GamePhase.discussion:
+        // Doc 15 §1.4, resolved 2026-09-07. Two real things and no third: the
+        // floor, and the hands. There is still no queue — `micPolicyFor` hands
+        // the floor out on request rather than in an order — so the hands go
+        // up in seat order and carry no numbers. Whoever claims next wins on
+        // their own merits, and the band never suggests otherwise.
+        final speaker = names[snapshot.activeSpeakerSeat];
+        final hands = _handsUp(snapshot, names);
+        final support = hands == null ? null : caption(l10n.onlineRaisedHands(hands));
+        if (speaker == null) {
+          return CouncilVoice(headline: l10n.currentSpeaker, support: support);
+        }
+        return CouncilVoice(
+          headline: '« $speaker »',
+          style: type.display,
+          support: support,
+        );
+
+      case GamePhase.voting:
+      case GamePhase.voteResolving:
+        final tally = _tally(snapshot);
+        return CouncilVoice(
+          headline: l10n.whoDoYouVoteOut,
+          // Public ballots become the bars; a secret ballot leaves `tally`
+          // empty and the band falls back to your own choice. Neither branch
+          // reads a setting: an empty `liveBallots` *is* the secret ballot.
+          support: tally.isEmpty
+              ? chosen()
+              : VoteTally(rows: tally, peak: tally.first.votes),
+        );
+
+      case GamePhase.reveal:
+      case GamePhase.winCheck:
+        final vote = snapshot.lastVote;
+        if (vote == null) return null;
+        final seat = vote.eliminatedSeat;
+        if (seat == null) return CouncilVoice(headline: l10n.tieRevoteHeadline);
+        final role = vote.eliminatedRole;
+        return CouncilVoice(
+          headline: names[seat] ?? '',
+          style: type.display,
+          support: role == null ? null : caption(EngineCopy.roleName(l10n, role)),
+        );
+
+      case GamePhase.result:
+      case GamePhase.analytics:
+        final winner = snapshot.outcome?.winner ?? snapshot.pendingOutcome;
+        if (winner == null) return null;
+        final mafiaWon = winner == Alignment.mafia;
+        return CouncilVoice(
+          headline: mafiaWon ? l10n.mafiaWins : l10n.townWins,
+          style: type.display,
+          support: VictoryEmblem(mafiaWon: mafiaWon),
+        );
+    }
+  }
+
+  /// The seats the opening round has still to hear from, in seat order.
+  ///
+  /// Derived from `openingAccusations`, which is public and complete: it is
+  /// the record of who has already named somebody. Nothing here is inferred —
+  /// a seat is either in that map or it is not.
+  /// Who has asked for the floor, in **seat order**, or null when nobody has.
+  ///
+  /// Seat order is the point. Sorting these by when they asked would print the
+  /// queue doc 15 §1.4 spent a whole section removing, because a reader who
+  /// sees two names in a row reads the first one as next — and the server does
+  /// not decide it that way. Seat order carries no such claim: it is the same
+  /// order the council is already drawn in.
+  ///
+  /// Null rather than an empty string, so band 3 renders one element instead of
+  /// a headline over a blank line.
+  String? _handsUp(GameSnapshot snapshot, Map<int, String> names) {
+    final up = snapshot.raisedHands.toList()..sort();
+    final labels = [
+      for (final seat in up)
+        if (names[seat] != null) names[seat]!,
+    ];
+    return labels.isEmpty ? null : labels.join(' · ');
+  }
+
+  String _upNext(GameSnapshot snapshot) {
+    final speaking = snapshot.currentActorSeat;
+    final waiting = [
+      for (final player in snapshot.public.players)
+        if (player.status == PlayerStatus.alive &&
+            player.seat != speaking &&
+            !snapshot.openingAccusations.containsKey(player.seat))
+          player.name,
+    ];
+    // Two names. A full roster read back at caption size is the wall of text
+    // doc 15 Part 0 was written against.
+    return waiting.take(2).join(' · ');
+  }
+
+  /// The open ballot as rows, heaviest first.
+  ///
+  /// Empty whenever the room chose a secret ballot, because the server never
+  /// sends the rows in that case. There is no branch on the setting here, and
+  /// there must not be one: the absence of data is the enforcement.
+  List<({String name, int votes})> _tally(GameSnapshot snapshot) {
+    if (snapshot.liveBallots.isEmpty) return const [];
+    final counts = <int, int>{};
+    for (final target in snapshot.liveBallots.values) {
+      if (target != null) counts[target] = (counts[target] ?? 0) + 1;
+    }
+    final rows = [
+      for (final player in snapshot.public.players)
+        if (counts[player.seat] != null)
+          (name: player.name, votes: counts[player.seat]!),
+    ]..sort((a, b) => b.votes.compareTo(a.votes));
+    return rows;
+  }
+
+  // -- band 4: your hand ----------------------------------------------------
+
+  /// Doc 15 §1.5: **one** primary action, in the same place every phase.
+  ///
+  /// The hints the old footer carried have moved up into band 3, where they
+  /// are the headline. A footer that repeated them was the second half of the
+  /// overlapping-strings problem: the same sentence, twice, in two type sizes.
+  /// When there is nothing for this device to do, there is no button — the
+  /// band holds your own seat and nothing else.
+  Widget? _footer(
+    BuildContext context,
+    GameSnapshot snapshot,
+    MatchUiState state,
+  ) {
+    final colors = context.colors;
+    final type = context.typography;
+    final spacing = context.spacing;
+    final l10n = context.l10n;
+
+    final action = _action(context, snapshot, state);
+    if (action == null && !_actionFailed) return null;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: spacing.md),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_actionFailed)
+            Text(
+              l10n.actionNotSaved,
+              style: type.caption.copyWith(color: colors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+          if (action != null) ...[
+            if (_actionFailed) SizedBox(height: spacing.xs),
+            action,
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget? _action(
+    BuildContext context,
+    GameSnapshot snapshot,
+    MatchUiState state,
+  ) {
+    final l10n = context.l10n;
+    final spacing = context.spacing;
+
+    switch (snapshot.phase) {
+      case GamePhase.night:
+        final turn = state.actorTurn;
+        if (turn == null || _submitted) return null;
+        // Held, not tapped. The confirm is the one irreversible move of the
+        // night, and a hold is what stops a thumb resting on a phone from
+        // making it (doc 12 §3.3).
+        return Center(
+          key: OnlineTableFlow.confirmAction,
+          child: IgnorePointer(
+            ignoring: turn.actorRole == Role.doctor && _selected == null,
+            child: HoldPad(
+              key: ValueKey('night-confirm-$_attemptNumber'),
+              holdDuration: context.timing.holdToReveal,
+              instruction: l10n.onlineConfirmHold,
+              onHoldComplete: _confirmNight,
+              diameter: spacing.xxl * 2,
+            ),
+          ),
+        );
+
+      case GamePhase.openingRound:
+        if (_submitted) return null;
+        return FilledButton(
+          key: OnlineTableFlow.confirmAction,
+          onPressed: _selected == null ? null : _confirmAccusation,
+          child: Text(l10n.confirmVote),
+        );
+
+      case GamePhase.confrontation:
+        // The audience has no move. Band 3 is already telling them what is
+        // being answered, so the hand stays empty rather than holding a
+        // sentence dressed as a control.
+        if (snapshot.confrontation?.targetSeat != snapshot.viewerSeat) {
+          return null;
+        }
+        return FilledButton(
+          key: OnlineTableFlow.confrontationDone,
+          onPressed: () {
+            _controller.endConfrontation(silent: false);
+            widget.onStepCommitted();
+          },
+          child: Text(l10n.confrontationDone),
+        );
+
+      case GamePhase.voting:
+        if (_submitted) return null;
+        final abstainAllowed = snapshot.settings.abstainAllowed;
+        final confirm = FilledButton(
+          key: OnlineTableFlow.confirmAction,
+          onPressed: _selected == null
+              ? null
+              : () => _confirmVote(abstaining: false),
+          child: Text(l10n.confirmVote),
+        );
+        if (!abstainAllowed) return confirm;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            confirm,
+            TextButton(
+              key: OnlineTableFlow.abstain,
+              onPressed: () => _confirmVote(abstaining: true),
+              child: Text(l10n.abstain),
+            ),
+          ],
+        );
+
+      case GamePhase.discussion:
+        if (!snapshot.settings.whisperEnabled || snapshot.viewerSeat == null) {
+          return null;
+        }
+        final spent = snapshot.whisperGraph.any(
+          (whisper) =>
+              whisper.fromSeat == snapshot.viewerSeat && !whisper.voided,
+        );
+        return FilledButton.icon(
+          key: OnlineTableFlow.whisperButton,
+          onPressed: spent ? null : () => setState(() => _composing = true),
+          icon: Image.asset(
+            AppCouncilArt.whisperSeal,
+            width: context.spacing.lg,
+            height: context.spacing.lg,
+            color: context.colors.textPrimary,
+            excludeFromSemantics: true,
+          ),
+          label: Text(
+            spent ? l10n.whisperAlreadySentToday : l10n.whisperCompose,
+          ),
+        );
+
+      case GamePhase.distributing:
+        // Everybody's button, not the host's. The server refuses the night
+        // until the last card is dismissed, so the gate is enforced there and
+        // shown here — disabled while anyone is still looking, live for the
+        // whole room the moment the last one is not.
+        return FilledButton(
+          key: OnlineTableFlow.hostAdvance,
+          onPressed: snapshot.unseenRoleSeats.isEmpty
+              ? () {
+                  _controller.advancePhase();
+                  widget.onStepCommitted();
+                }
+              : null,
+          child: Text(l10n.continueAction),
+        );
+
+      case GamePhase.result:
+      case GamePhase.analytics:
+        // Doc 15 §S-O13 beat 5. Two controls, and this is the one exception
+        // §1.5's "one primary button" makes for itself — the same exception the
+        // discussion already takes, and for the same reason: leaving is not the
+        // only thing left to do. The roster is where the card art lives now
+        // that beat 2 stopped trying to draw fifteen of them at once.
+        //
+        // The button is not shown when the standings are empty. A roster of
+        // nobody is the app offering a screen it cannot fill.
+        final roster = snapshot.standings;
+        final home = FilledButton(
+          onPressed: widget.onExit,
+          child: Text(l10n.homeAction),
+        );
+        if (roster.isEmpty) return home;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            FilledButton(
+              key: OnlineTableFlow.seeRoles,
+              onPressed: () => setState(() => _roster = true),
+              child: Text(l10n.onlineSeeRoles),
+            ),
+            SizedBox(height: spacing.sm),
+            TextButton(onPressed: widget.onExit, child: Text(l10n.homeAction)),
+          ],
+        );
+
+      default:
+        // Every remaining phase is one the *server* moves on, on its own timer
+        // or on the host's tap. A client that is not the host has nothing to
+        // press, and shows nothing rather than a disabled button.
+        if (!snapshot.canAdvance) return null;
+        return FilledButton(
+          key: OnlineTableFlow.hostAdvance,
+          onPressed: () {
+            _controller.advancePhase();
+            widget.onStepCommitted();
+          },
+          child: Text(l10n.continueAction),
+        );
+    }
+  }
+
+  /// The eliminated player's card, rising and turning over (doc 15 §S-O12).
+  ///
+  /// Null on every other phase, and null once this device has watched it — a
+  /// resync mid-reveal must not play the flip again, because the second time
+  /// it is not a reveal, it is a glitch.
+  Widget? _verdict(BuildContext context, GameSnapshot snapshot) {
+    if (snapshot.phase != GamePhase.reveal) return null;
+    final vote = snapshot.lastVote;
+    final seat = vote?.eliminatedSeat;
+    final role = vote?.eliminatedRole;
+    // No role means the server has not said one yet, and a card with nothing
+    // on its face is not a reveal. A tie has no card at all.
+    if (seat == null || role == null) return null;
+
+    final stamp = 'day${snapshot.dayNumber}-seat$seat';
+    if (_cardShown == stamp) return null;
+
+    return CardRise(
+      key: ValueKey(stamp),
+      role: role,
+      name: snapshot.public.players
+          .where((player) => player.seat == seat)
+          .map((player) => player.name)
+          .firstOrNull ??
+          '',
+      onFinished: () {
+        if (mounted) setState(() => _cardShown = stamp);
+      },
+    );
+  }
+
+  // ── the reveal ───────────────────────────────────────────────────────────
+
+  Widget _reveal(BuildContext context, MatchUiState state) {
+    final reveal = state.reveal!;
+    return ColoredBox(
+      color: context.colors.surfaceBase.withValues(alpha: 0.92),
+      child: SafeArea(
+        child: RoleCard(
+          key: ValueKey('online-role-card-${reveal.seat}'),
+          playerName: reveal.name,
+          role: reveal.role,
+          teammateNames: reveal.teammateNames,
+          identityHold: context.timing.holdToReveal,
+          // Not «سلّم الموبايل». This phone is staying exactly where it is.
+          dismissLabel: context.l10n.continueAction,
+          onDismissed: () {
+            _controller.confirmRevealed();
+            widget.onStepCommitted();
+          },
+        ),
+      ),
+    );
+  }
+
+  /// The whisper composer, over the table rather than instead of it.
+  ///
+  /// Doc 12 §3.7: *"bottom sheet, does not leave the table."* The table stays
+  /// underneath — this is a conversation *about* the room, and a screen that
+  /// replaced the room would be the wrong shape for it.
+  Widget _composer(BuildContext context, GameSnapshot snapshot) {
+    final me = snapshot.viewerSeat;
+    if (me == null) return const SizedBox.shrink();
+
+    return ColoredBox(
+      color: context.colors.surfaceBase.withValues(alpha: 0.72),
+      child: SafeArea(
+        child: WhisperComposeScreen(
+          players: snapshot.public.players,
+          // This device's own player. The recipient list is built from the
+          // others, so there is no seat to exclude.
+          fromSeat: me,
+          onCancel: () => setState(() => _composing = false),
+          onSend: (fromSeat, toSeat, body) {
+            setState(() => _composing = false);
+            unawaited(
+              _controller.sendWhisper(
+                fromSeat: fromSeat,
+                toSeat: toSeat,
+                body: body,
+              ),
+            );
+            widget.onStepCommitted();
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// One whisper on its way onto the screen.
+class _Incoming {
+  final String id;
+  final String senderName;
+  final String body;
+
+  const _Incoming({
+    required this.id,
+    required this.senderName,
+    required this.body,
+  });
+}
+
+/// One beat late, then in.
+///
+/// Doc 15 §S-O6 sequences the morning: the room is told *what happened*, and
+/// only after it has landed is it told *what was left behind*. Both at once is
+/// two sentences competing, which is exactly the failure Part 0 catalogued.
+///
+/// Under Reduce Motion there is no beat: the second element is simply there,
+/// because a delay a user cannot see is a screen that looks broken.
+class _AfterBeat extends StatefulWidget {
+  final Widget child;
+
+  const _AfterBeat({required this.child});
+
+  @override
+  State<_AfterBeat> createState() => _AfterBeatState();
+}
+
+class _AfterBeatState extends State<_AfterBeat> {
+  bool _shown = false;
+  Timer? _beat;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_shown || _beat != null) return;
+    if (ReduceMotion.of(context)) {
+      _shown = true;
+      return;
+    }
+    _beat = Timer(context.motion.phase, () {
+      if (mounted) setState(() => _shown = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _beat?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedOpacity(
+    opacity: _shown ? 1 : 0,
+    duration: ReduceMotion.of(context)
+        ? Duration.zero
+        : context.motion.reveal,
+    curve: context.motion.standardCurve,
+    child: widget.child,
+  );
+}
+
+/// The confrontation's answer clock (doc 15 §1.4, asset A5).
+///
+/// The one place a second timer is allowed, because it is not the match clock:
+/// it is *this person's* time to answer, and it is the subject of the phase
+/// rather than a status line about it. It burns down as an arc, never turns
+/// red, and carries the number so nobody has to read an angle.
+class _ConfrontationClock extends StatefulWidget {
+  final DateTime deadline;
+
+  /// The phase's full length, so the arc has a scale to be a fraction of.
+  final int total;
+
+  const _ConfrontationClock({required this.deadline, required this.total});
+
+  @override
+  State<_ConfrontationClock> createState() => _ConfrontationClockState();
+}
+
+class _ConfrontationClockState extends State<_ConfrontationClock> {
+  Timer? _ticker;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _ticker?.cancel();
+    _ticker = Timer.periodic(context.motion.tick, (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final left = HeaderTimer.secondsLeft(widget.deadline, DateTime.now());
+    return TimerRing(
+      remaining: widget.total <= 0 ? 0 : left / widget.total,
+      seconds: '$left',
+    );
+  }
+}

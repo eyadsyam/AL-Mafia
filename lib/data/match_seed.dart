@@ -28,4 +28,18 @@ import 'dart:math';
 /// could predict every tie-break, which is the last item on doc 10's security
 /// checklist. Nothing in the engine can tell which minter it was handed, and
 /// that is what keeps one engine serving both transports.
-int newMatchSeed() => Random.secure().nextInt(1 << 32);
+/// # `1 << 32` was zero, and the offline game did not start
+///
+/// It used to read `nextInt(1 << 32)`, which is correct on the VM and **wrong
+/// on the web**: dart2js compiles `<<` to JavaScript's 32-bit shift, so
+/// `1 << 32` evaluates to `0` and `nextInt(0)` throws — *"max must be in range
+/// 0 < max ≤ 2^32, was 0"*. Every offline match on the web died on the tap that
+/// should have started it, with nothing on screen to say why.
+///
+/// The bound is written as a plain literal now. 2^32 is far inside the 2^53
+/// integers dart2js represents exactly, so the constant is the same number on
+/// both platforms — it was only ever the shift that could not survive the
+/// crossing.
+const int _seedSpace = 4294967296;
+
+int newMatchSeed() => Random.secure().nextInt(_seedSpace);

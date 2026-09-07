@@ -83,7 +83,7 @@ void main() {
       // Verify the first speaker is displayed
       expect(find.text('Ahmed'), findsWidgets);
       // Verify the speaker count is displayed
-      expect(find.text('متبقي: 3'), findsOneWidget);
+      expect(find.text('فاضل 3'), findsOneWidget);
     });
 
     testWidgets('Structured mode advances to next speaker when skip is tapped',
@@ -106,7 +106,7 @@ void main() {
 
       // Verify Ahmed is the current speaker
       expect(find.text('Ahmed'), findsWidgets);
-      expect(find.text('متبقي: 3'), findsOneWidget);
+      expect(find.text('فاضل 3'), findsOneWidget);
 
       // Tap the skip button
       await tester.tap(find.text('تخطي'));
@@ -114,7 +114,7 @@ void main() {
 
       // Verify Fatima is now the current speaker
       expect(find.text('Fatima'), findsWidgets);
-      expect(find.text('متبقي: 2'), findsOneWidget);
+      expect(find.text('فاضل 2'), findsOneWidget);
     });
 
     testWidgets(
@@ -162,7 +162,7 @@ void main() {
       // Verify free discussion title is shown
       expect(find.text('النقاش الحر'), findsOneWidget);
       // Verify current speaker info is NOT shown (only shown in structured mode)
-      expect(find.text('المتحدث الآن'), findsNothing);
+      expect(find.text('الدور على'), findsNothing);
     });
 
     testWidgets('Pause button toggles between pause and resume states',
@@ -182,10 +182,10 @@ void main() {
       );
 
       // Initial button should say "إيقاف"
-      expect(find.text('إيقاف'), findsOneWidget);
+      expect(find.text('وقف'), findsOneWidget);
 
       // Tap pause
-      await tester.tap(find.text('إيقاف'));
+      await tester.tap(find.text('وقف'));
       await tester.pumpAndSettle();
 
       // Button should now say "متابعة"
@@ -196,7 +196,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Button should say "إيقاف" again
-      expect(find.text('إيقاف'), findsOneWidget);
+      expect(find.text('وقف'), findsOneWidget);
     });
   });
 

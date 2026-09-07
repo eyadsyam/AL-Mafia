@@ -10,7 +10,7 @@ import 'package:mafia_master/ui/screens/night/night_action_screen.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
 import 'package:mafia_master/ui/widgets/pass_screen.dart';
-import 'package:mafia_master/ui/widgets/player_tile.dart';
+import 'package:mafia_master/ui/widgets/night_grid.dart';
 
 import '../support/localized.dart';
 
@@ -88,7 +88,7 @@ void main() {
 
       // The shell is in its handoff state: a hold pad and nothing selectable.
       expect(find.byType(HoldPad), findsOneWidget);
-      expect(find.byType(PlayerTile), findsNothing,
+      expect(find.byType(NightGridTile), findsNothing,
           reason: 'the target list is visible before anyone identified '
               'themselves');
     });
@@ -167,7 +167,7 @@ void main() {
 
       expect(rerouted, isTrue);
       // Taking the escape hatch must not have revealed anything on the way out.
-      expect(find.byType(PlayerTile), findsNothing);
+      expect(find.byType(NightGridTile), findsNothing);
       final text = visibleText(tester);
       for (final roleWord in ['مافيا', 'دكتور', 'محقق', 'مواطن']) {
         expect(text, isNot(contains(roleWord)));
@@ -180,7 +180,7 @@ void main() {
 
       await tester.tap(find.byType(HoldPad));
       await tester.pumpAndSettle();
-      expect(find.byType(PlayerTile), findsNothing,
+      expect(find.byType(NightGridTile), findsNothing,
           reason: 'a stray tap revealed the turn');
 
       // A hold that is released early must not count either.
@@ -189,7 +189,7 @@ void main() {
       await tester.pump(MafiaTiming.defaults.holdToReveal ~/ 2);
       await gesture.up();
       await tester.pumpAndSettle();
-      expect(find.byType(PlayerTile), findsNothing,
+      expect(find.byType(NightGridTile), findsNothing,
           reason: 'an abandoned hold revealed the turn');
 
       // The full hold does open it — otherwise this test proves nothing.
@@ -199,7 +199,7 @@ void main() {
       await tester.pump(MafiaTiming.defaults.holdToReveal);
       await full.up();
       await tester.pumpAndSettle();
-      expect(find.byType(PlayerTile), findsWidgets);
+      expect(find.byType(NightGridTile), findsWidgets);
     });
 
     testWidgets('the target list is identical for every role', (tester) async {
@@ -213,14 +213,18 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
 
-      final tiles = tester.widgetList<PlayerTile>(find.byType(PlayerTile));
-      expect(tiles, hasLength(names.length - 1));
+      final tiles =
+          tester.widgetList<NightGridTile>(find.byType(NightGridTile));
+      // Doc 14 §1.3: (N−1) other living seats **plus** the special tile every
+      // role's grid ends with. The count is the same for all four; only the
+      // words on the last one differ.
+      expect(tiles, hasLength(names.length));
       // Nothing on a tile may encode a role; the indicator slot is the only
       // data-bearing part and it is empty for everyone but a mafioso.
       final shellRole = controller().engine.match.players[
           controller().engine.match.currentActorSeat!].role;
       if (shellRole != Role.mafia) {
-        expect(tiles.every((t) => t.indicatorCount == 0), isTrue);
+        expect(tiles.every((t) => t.choice.indicatorCount == 0), isTrue);
       }
     });
   });

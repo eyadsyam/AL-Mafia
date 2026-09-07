@@ -68,4 +68,19 @@ class SettingsRecord {
   /// False for every row that predates this field, which is the right answer:
   /// an existing install has never seen onboarding, so it should get it once.
   bool onboardingSeen = false;
+
+  /// The Tier-1 interface hints this installation has already been shown
+  /// (doc 13 §4.2). Retained but no longer written: doc 14 Part 6
+  /// deleted the tier that filled it. Kept because dropping a persisted
+  /// field costs a schema migration to reclaim bytes nobody is paying for.
+  ///
+  /// One line, shown once ever, then never again — so the set has to outlive
+  /// the match it was shown in, and it is shared between offline and online
+  /// because a hint that teaches a control teaches the same control in both.
+  ///
+  /// Stored as ids rather than indices for the reason [SettingsRecord.payload]
+  /// is stored as JSON: a reordered enum would otherwise re-show every hint to
+  /// everybody who has already seen them. Empty for every row that predates
+  /// this field, which is the right answer for the same reason as above.
+  List<String> seenHints = [];
 }

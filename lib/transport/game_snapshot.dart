@@ -8,6 +8,84 @@ import '../engine/models/match_settings.dart';
 import '../engine/models/timeline_event.dart' show InvestigateResult;
 import '../engine/views.dart';
 
+/// The room's own settings, as distinct from the match's rules (task 10).
+///
+/// [MatchSettings] is what the *engine* plays by, and it is deliberately
+/// ignorant of rooms: it has no idea whether anybody is talking, how many
+/// seats there are, or whether this room is listed anywhere. Those three are
+/// facts about a lobby, they mean nothing offline, and putting them in
+/// `MatchSettings` would put them in front of the offline setup screen too.
+///
+/// Every field has the value a room created before this existed would have had,
+/// so an older room reads as a private ten-seat room with voice on.
+class RoomOptions {
+  /// private | public.
+  final String visibility;
+
+  /// The host's name for a public room; null when they have not given one.
+  final String? title;
+
+  final int maxPlayers;
+
+  /// Whether the room has voice at all. Off is a legitimate choice, not a
+  /// failure: doc 10 §1.2 — the match completes either way.
+  final bool voice;
+
+  /// Whether every microphone is dropped for the duration of a night. On by
+  /// default, because a night is the one phase where a voice carries a fact
+  /// about who is awake.
+  final bool muteAllAtNight;
+
+  const RoomOptions({
+    this.visibility = 'private',
+    this.title,
+    this.maxPlayers = 10,
+    this.voice = true,
+    this.muteAllAtNight = true,
+  });
+
+  bool get isPublic => visibility == 'public';
+
+  RoomOptions copyWith({
+    String? visibility,
+    String? title,
+    int? maxPlayers,
+    bool? voice,
+    bool? muteAllAtNight,
+  }) => RoomOptions(
+    visibility: visibility ?? this.visibility,
+    title: title ?? this.title,
+    maxPlayers: maxPlayers ?? this.maxPlayers,
+    voice: voice ?? this.voice,
+    muteAllAtNight: muteAllAtNight ?? this.muteAllAtNight,
+  );
+}
+
+/// One row of the «أوض عامة» browse list. Four fields, and deliberately no
+/// room id: joining goes through the code, exactly as it does for a room
+/// somebody was told about.
+class PublicRoom {
+  final String code;
+  final String? title;
+  final int players;
+  final bool voice;
+
+  const PublicRoom({
+    required this.code,
+    required this.players,
+    required this.voice,
+    this.title,
+  });
+
+  factory PublicRoom.fromJson(Map<String, dynamic> json) => PublicRoom(
+    code: json['code'] as String? ?? '',
+    title: json['title'] as String?,
+    players: (json['players'] as num?)?.toInt() ?? 0,
+    voice: json['voice'] as bool? ?? true,
+  );
+}
+
+
 /// Everything the whole table may see at one moment (doc 10 §7).
 ///
 /// ## The rule this type exists to make structural
@@ -105,6 +183,25 @@ class GameSnapshot {
   /// button is not offered.
   final bool analyticsAvailable;
 
+  /// The ballot as it stands, voter seat to target seat, while the day's vote
+  /// is still open. Null is an abstention; an absent key has not voted yet.
+  ///
+  /// **Empty unless the room chose an open ballot** (`MatchSettings.openVoting`,
+  /// doc 12 §3.6). Empty offline in every case: one phone in the middle of a
+  /// table already has a secret ballot, and this is the field that would take
+  /// it away.
+  ///
+  /// It is the one thing on the snapshot that only an online game can carry,
+  /// and it is here rather than behind a transport check because a screen
+  /// asking "what does the table know about the vote" is not a screen asking
+  /// "am I online". A closed ballot answers "nothing", which is a real answer
+  /// and renders as a table with no lines on it.
+  ///
+  /// The server enforces this, not the client: `votes_read` refuses the rows
+  /// unless the room's own settings say otherwise, so a patched client sees the
+  /// same empty map.
+  final Map<int, int?> liveBallots;
+
   /// The seat this device belongs to, or null when the device belongs to the
   /// table rather than to a player.
   ///
@@ -149,6 +246,80 @@ class GameSnapshot {
   /// the software has no part in.
   final int? activeSpeakerSeat;
 
+  /// The seats that have asked for the floor and not been given it.
+  ///
+  /// Doc 15 §1.4, resolved 2026-09-07: this is a **set**, and the type is the
+  /// argument. There is no queue on the server — `micPolicyFor` grants the
+  /// floor to whoever claims it and is allowed to have it — so an ordered
+  /// collection here would be an order the app made up, and non-negotiable 4
+  /// forbids the app inventing a fact. A set cannot be printed as a queue by
+  /// accident; a list can.
+  ///
+  /// Safe by the same argument as [activeSpeakerSeat]: raising a hand is a
+  /// public, voluntary act available to every living player in exactly the
+  /// phases where every living player may speak. It is empty for the whole of
+  /// the night and the whole of the ballot, because the server refuses to
+  /// record a request it would never honour.
+  ///
+  /// Always empty offline. One phone has one microphone.
+  final Set<int> raisedHands;
+
+  /// The seats the host has silenced for the whole room (task 6).
+  ///
+  /// Every client subtracts these from what it will play, which is the only
+  /// place a mute can actually be enforced: a mesh has no server in the media
+  /// path, so the drop happens at fifteen ears rather than once in the middle.
+  final Set<int> mutedSeats;
+
+  /// True when the host removed *this* device's player.
+  ///
+  /// The ban list is a fact about the room and never crosses; this is the one
+  /// bit of it the ejected player is entitled to, on their own row.
+  final bool viewerKicked;
+
+  /// The seat the room's host is sitting in, or null when nobody in the
+  /// roster holds it.
+  ///
+  /// A seat rather than a user id, for the reason every other identity on this
+  /// object is a seat: a screen knows seats, and a user id on a snapshot is a
+  /// fact about a person that nothing above the transport needs. Null offline,
+  /// where the device *is* the authority and there is nobody to name.
+  final int? hostSeat;
+
+  /// True when the room was closed without being won.
+  ///
+  /// Task 5 draws the line: a host who leaves does not end a match, and a host
+  /// who taps «اقفل الأوضة» does. This is the second one — a finished room with
+  /// no outcome — and it is the only thing that puts every client back on Home
+  /// without a winner.
+  final bool roomClosed;
+
+  /// How present each seat is, as the server aged it.
+  ///
+  /// Three states because two were not enough to draw the table honestly. A
+  /// player who put the phone down for ten seconds and a player who closed the
+  /// app and went to bed were the same row, and both kept a face on the table.
+  ///
+  /// Empty offline, where everybody is in the room by definition.
+  final Map<int, SeatPresence> presence;
+
+  /// The seats that have not yet dismissed their role card.
+  ///
+  /// Empty offline, where the deal *is* a sequence of dismissals and the flow
+  /// cannot reach the night until the last phone has been handed back. Online
+  /// every player is looking at their own card at the same moment, so "has
+  /// everybody seen theirs" is a real question, and the server answers it —
+  /// `room_players.saw_role`, written by one Edge Function and re-checked by
+  /// `open_phase` before it will open the night.
+  ///
+  /// It carries seats and the screen turns them into names. Whether a seat has
+  /// dismissed a card says nothing about what was on it.
+  final Set<int> unseenRoleSeats;
+
+  /// The room's own settings — visibility, title, capacity, voice. Empty
+  /// defaults offline, where there is no room.
+  final RoomOptions room;
+
   const GameSnapshot({
     required this.public,
     this.trace,
@@ -162,11 +333,20 @@ class GameSnapshot {
     this.standings = const [],
     this.analyticsAvailable = true,
     this.connectedSeats = const {},
+    this.liveBallots = const {},
     this.connection = ConnectionQuality.local,
     this.viewerSeat,
     this.canAdvance = true,
     this.phaseDeadline,
     this.activeSpeakerSeat,
+    this.raisedHands = const {},
+    this.unseenRoleSeats = const {},
+    this.presence = const {},
+    this.hostSeat,
+    this.roomClosed = false,
+    this.mutedSeats = const {},
+    this.viewerKicked = false,
+    this.room = const RoomOptions(),
   });
 
   GamePhase get phase => public.phase;
@@ -187,11 +367,20 @@ class GameSnapshot {
     List<FinalStanding>? standings,
     bool? analyticsAvailable,
     Map<int, bool>? connectedSeats,
+    Map<int, int?>? liveBallots,
     ConnectionQuality? connection,
     int? viewerSeat,
     bool? canAdvance,
     DateTime? phaseDeadline,
     int? activeSpeakerSeat,
+    Set<int>? raisedHands,
+    Set<int>? unseenRoleSeats,
+    Map<int, SeatPresence>? presence,
+    int? hostSeat,
+    bool? roomClosed,
+    Set<int>? mutedSeats,
+    bool? viewerKicked,
+    RoomOptions? room,
     bool clearMorning = false,
     bool clearVote = false,
     bool clearDeadline = false,
@@ -210,6 +399,7 @@ class GameSnapshot {
         standings: standings ?? this.standings,
         analyticsAvailable: analyticsAvailable ?? this.analyticsAvailable,
         connectedSeats: connectedSeats ?? this.connectedSeats,
+        liveBallots: liveBallots ?? this.liveBallots,
         connection: connection ?? this.connection,
         viewerSeat: viewerSeat ?? this.viewerSeat,
         canAdvance: canAdvance ?? this.canAdvance,
@@ -218,6 +408,16 @@ class GameSnapshot {
         activeSpeakerSeat: clearSpeaker
             ? null
             : (activeSpeakerSeat ?? this.activeSpeakerSeat),
+        // A cleared floor clears the hands with it, for the same reason the
+        // server's trigger does: the thing being asked for no longer exists.
+        raisedHands: clearSpeaker ? const {} : (raisedHands ?? this.raisedHands),
+        unseenRoleSeats: unseenRoleSeats ?? this.unseenRoleSeats,
+        presence: presence ?? this.presence,
+        hostSeat: hostSeat ?? this.hostSeat,
+        roomClosed: roomClosed ?? this.roomClosed,
+        mutedSeats: mutedSeats ?? this.mutedSeats,
+        viewerKicked: viewerKicked ?? this.viewerKicked,
+        room: room ?? this.room,
       );
 
   @override
@@ -295,6 +495,25 @@ class FinalStanding {
 }
 
 /// How the transport is currently connected to authority.
+/// How present one player is (task 3), as the server aged it.
+///
+/// The three states are drawn differently and deliberately (task 4): a
+/// connected seat has a face in its ring, an away seat has the ring and
+/// nothing inside it, and a seat that left is gone from a lobby and cracked in
+/// a match. The empty ring carries no label, because the table is supposed to
+/// notice it and wonder.
+enum SeatPresence {
+  connected,
+  away,
+  left;
+
+  static SeatPresence fromServer(String? value) => switch (value) {
+    'away' => SeatPresence.away,
+    'left' => SeatPresence.left,
+    _ => SeatPresence.connected,
+  };
+}
+
 enum ConnectionQuality {
   /// Offline. This device *is* the authority, so there is nothing to lose.
   local,

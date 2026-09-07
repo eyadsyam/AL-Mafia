@@ -57,6 +57,16 @@ abstract class VoiceLink {
   /// does not arrive costs a peer connection and nothing else.
   Future<void> send(String toUserId, Map<String, dynamic> payload);
 
+  /// The ICE servers this match should use, from the `ice_servers` Edge
+  /// Function.
+  ///
+  /// Null means the server could not be asked at all; the caller falls back to
+  /// public STUN and logs it. The list itself is opaque here — it is whatever
+  /// the function returned, handed to the media stack verbatim — because the
+  /// transport has no business understanding a TURN credential, only fetching
+  /// one.
+  Future<List<Map<String, dynamic>>?> iceServers();
+
   /// Asks the server for the microphone. False is an ordinary refusal —
   /// wrong phase, wrong seat, or somebody else already holds it.
   Future<bool> claimFloor();
@@ -100,6 +110,23 @@ class BackendVoiceLink implements VoiceLink {
   @override
   Future<void> send(String toUserId, Map<String, dynamic> payload) =>
       backend.sendSignal(roomId, toUserId, payload);
+
+  @override
+  Future<List<Map<String, dynamic>>?> iceServers() async {
+    try {
+      final result = await backend.call('ice_servers', const {});
+      final servers = result['iceServers'];
+      if (servers is! List || servers.isEmpty) return null;
+      return [
+        for (final server in servers)
+          if (server is Map) Map<String, dynamic>.from(server),
+      ];
+    } on BackendException {
+      return null;
+    } on BackendUnreachable {
+      return null;
+    }
+  }
 
   @override
   Future<bool> claimFloor() async {

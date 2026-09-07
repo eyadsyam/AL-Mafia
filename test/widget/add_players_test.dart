@@ -24,11 +24,11 @@ void main() {
       for (int i = 1; i <= 4; i++) {
         final input = find.byType(TextField);
         await tester.enterText(input, 'Player $i');
-        await tester.tap(find.text('إضافة'));
+        await tester.tap(find.text('ضيف'));
         await tester.pumpAndSettle();
 
         // Find the التالي button (it's the one with the text "التالي")
-        final nextButton = find.text('التالي');
+        final nextButton = find.text('كمل');
         expect(nextButton, findsOneWidget);
 
         // The button should be disabled (onPressed = null)
@@ -43,11 +43,11 @@ void main() {
       // Add 5th player
       final input = find.byType(TextField);
       await tester.enterText(input, 'Player 5');
-      await tester.tap(find.text('إضافة'));
+      await tester.tap(find.text('ضيف'));
       await tester.pumpAndSettle();
 
       // Now the button should be enabled
-      final nextButton = find.text('التالي');
+      final nextButton = find.text('كمل');
       final button = find.ancestor(
         of: nextButton,
         matching: find.byType(FilledButton),
@@ -57,6 +57,13 @@ void main() {
     });
 
     testWidgets('Duplicate names are auto-suffixed', (WidgetTester tester) async {
+      // A phone, not the 800×600 default. Each roster row now carries the
+      // male/female choice as well as the name, so three rows no longer fit in
+      // a 600pt-tall window and the third is never built — which reads as the
+      // suffixing having failed when it has not.
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
       final capturedNames = <List<String>>[];
       await tester.pumpWidget(
         localizedApp(AddPlayersScreen(onBack: () {}, 
@@ -68,13 +75,13 @@ void main() {
       // Add a player named "Ahmed"
       var input = find.byType(TextField);
       await tester.enterText(input, 'Ahmed');
-      await tester.tap(find.text('إضافة'));
+      await tester.tap(find.text('ضيف'));
       await tester.pumpAndSettle();
 
       // Try to add another "Ahmed" — should be suffixed to "Ahmed 2"
       input = find.byType(TextField);
       await tester.enterText(input, 'Ahmed');
-      await tester.tap(find.text('إضافة'));
+      await tester.tap(find.text('ضيف'));
       await tester.pumpAndSettle();
 
       // Verify the second name is "Ahmed 2"
@@ -84,7 +91,7 @@ void main() {
       // Add third "Ahmed" — should be "Ahmed 3"
       input = find.byType(TextField);
       await tester.enterText(input, 'Ahmed');
-      await tester.tap(find.text('إضافة'));
+      await tester.tap(find.text('ضيف'));
       await tester.pumpAndSettle();
 
       expect(find.text('Ahmed 3'), findsOneWidget);
@@ -93,12 +100,12 @@ void main() {
       for (int i = 4; i <= 5; i++) {
         input = find.byType(TextField);
         await tester.enterText(input, 'Player $i');
-        await tester.tap(find.text('إضافة'));
+        await tester.tap(find.text('ضيف'));
         await tester.pumpAndSettle();
       }
 
       // Tap التالي
-      await tester.tap(find.text('التالي'));
+      await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
 
       // Verify names in order
@@ -122,7 +129,7 @@ void main() {
       for (int i = 1; i <= 5; i++) {
         final input = find.byType(TextField);
         await tester.enterText(input, 'Player $i');
-        await tester.tap(find.text('إضافة'));
+        await tester.tap(find.text('ضيف'));
         await tester.pumpAndSettle();
       }
 
@@ -132,7 +139,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap التالي
-      await tester.tap(find.text('التالي'));
+      await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
 
       // Verify the order changed
@@ -160,7 +167,7 @@ void main() {
       for (int i = 1; i <= 5; i++) {
         final input = find.byType(TextField);
         await tester.enterText(input, 'Player $i');
-        await tester.tap(find.text('إضافة'));
+        await tester.tap(find.text('ضيف'));
         await tester.pumpAndSettle();
       }
 
@@ -175,7 +182,7 @@ void main() {
       expect(find.text('Player 2'), findsNothing);
 
       // Now we have only 4, so التالي should be disabled
-      var nextButtonText = find.text('التالي');
+      var nextButtonText = find.text('كمل');
       var nextButtonWidget = find.ancestor(
         of: nextButtonText,
         matching: find.byType(FilledButton),
@@ -186,11 +193,11 @@ void main() {
       // Add a new player
       var input = find.byType(TextField);
       await tester.enterText(input, 'Player 6');
-      await tester.tap(find.text('إضافة'));
+      await tester.tap(find.text('ضيف'));
       await tester.pumpAndSettle();
 
       // Now التالي should be enabled again
-      nextButtonText = find.text('التالي');
+      nextButtonText = find.text('كمل');
       nextButtonWidget = find.ancestor(
         of: nextButtonText,
         matching: find.byType(FilledButton),
@@ -199,7 +206,7 @@ void main() {
       expect(button.onPressed, isNotNull);
 
       // Tap التالي
-      await tester.tap(find.text('التالي'));
+      await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
 
       // Verify Player 2 is gone

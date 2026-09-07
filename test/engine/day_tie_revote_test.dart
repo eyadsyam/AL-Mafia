@@ -5,13 +5,12 @@ import 'package:mafia_master/engine/models/match_settings.dart';
 import 'package:test/test.dart';
 
 /// T021a — day-vote tie handling. To make the tie deterministic and clean we
-/// keep the intended candidates alive at night (the doctor self-protects and the
-/// mafia targets the doctor → saved), then cast a 2–2 tie by seat number.
+/// keep the whole table alive at night (the Mafia take their turn and name
+/// nobody), then cast a 2–2 tie by seat number.
 /// Night/day are always driven via the engine's own currentActorSeat loop.
 void main() {
   group('Day Tie and Revote (T021a)', () {
     late MatchEngine engine;
-    late int doctorSeat;
     late List<int> citizenSeats;
 
     void startFive(DayTieRule rule) {
@@ -26,23 +25,45 @@ void main() {
         engine.revealFor(i);
         engine.confirmRevealed();
       }
-      doctorSeat = [for (int i = 0; i < 5; i++) if (engine.match.players[i].role == Role.doctor) i].first;
       citizenSeats = [for (int i = 0; i < 5; i++) if (engine.match.players[i].role == Role.citizen) i];
     }
 
-    // Drive one night. If [killSeat] is null the doctor self-protects and the
-    // mafia targets the doctor → nobody dies. Otherwise the mafia targets
-    // [killSeat] and the doctor protects itself → [killSeat] dies.
+    // Drive one night. If [killSeat] is null the Mafia take the turn and name
+    // nobody, so the whole table is still alive for the tie the test is
+    // actually about. Otherwise [killSeat] dies.
+    //
+    // This used to keep everybody alive by having the Doctor protect
+    // themselves against a Mafia who targeted them, which was never a legal
+    // night: doc 13 §2 makes self-protection the Doctor's one bullet and
+    // forbids it otherwise. A Mafia who kills nobody has always been legal —
+    // the resolver has always handled zero votes — and it costs the fixture
+    // nothing.
+    int? lastProtect;
     void runNight({int? killSeat}) {
       engine.beginNight();
       while (engine.match.currentActorSeat != null) {
         final seat = engine.match.currentActorSeat!;
         switch (engine.match.players[seat].role) {
           case Role.mafia:
-            engine.submitNightAction(
-                seat: seat, kind: NightActionKind.mafiaVote, targetSeat: killSeat ?? doctorSeat);
+            if (killSeat == null) {
+              engine.skipNightAction(seat: seat);
+            } else {
+              engine.submitNightAction(
+                  seat: seat,
+                  kind: NightActionKind.mafiaVote,
+                  targetSeat: killSeat);
+            }
           case Role.doctor:
-            engine.submitNightAction(seat: seat, kind: NightActionKind.protect, targetSeat: doctorSeat);
+            final cover = [
+              for (int i = 0; i < 5; i++)
+                if (i != seat &&
+                    i != lastProtect &&
+                    engine.match.players[i].status == PlayerStatus.alive)
+                  i,
+            ].first;
+            lastProtect = cover;
+            engine.submitNightAction(
+                seat: seat, kind: NightActionKind.protect, targetSeat: cover);
           case Role.detective:
             engine.submitNightAction(seat: seat, kind: NightActionKind.investigate, targetSeat: (seat + 1) % 5);
           case Role.citizen:

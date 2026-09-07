@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/engine/models/enums.dart' show Role;
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/turn_shell.dart';
+import 'package:mafia_master/ui/widgets/night_grid.dart';
 
 import '../support/turn_shell_harness.dart';
 
@@ -53,7 +54,7 @@ void main() {
 
     if (probeAt >= selectAt) {
       await advanceTo(selectAt);
-      await tester.tap(find.text('Seat 1'));
+      await tester.tap(find.byKey(NightGrid.tile(1)));
       await tester.pump();
     }
     if (confirmAt != null && probeAt >= confirmAt) {
@@ -290,7 +291,7 @@ void main() {
       // A fresh, complete hold starts t = 0 now, so Confirm is still gated by
       // the full dwell.
       await TurnShellHarness.completeHold(tester);
-      await tester.tap(find.text('Seat 1'));
+      await tester.tap(find.byKey(NightGrid.tile(1)));
       await tester.pump(timing.dwellGate - resolution);
       expect(TurnShellHarness.actionEnabled(tester), isFalse);
       await tester.pump(resolution);

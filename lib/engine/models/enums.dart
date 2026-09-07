@@ -97,3 +97,45 @@ extension RoleNightAction on Role {
         Role.citizen => NightActionKind.suspect,
       };
 }
+
+/// «الطلقة الواحدة» — the one irreversible thing each role is holding.
+///
+/// Doc 13 §2. Every role has exactly one, it is available from Night 1, it is
+/// spent at most once in a whole match, and it cannot be taken back. That
+/// symmetry is not decoration: doc 05 rule 6 wants one layout tree for all four
+/// night screens, and a mechanic that only three roles had would need a fourth
+/// screen shape to hide it in.
+enum BulletKind {
+  /// مافيا — «الليلة الهادية». Tonight there is no kill at all.
+  ///
+  /// The team's, not one Mafioso's: whoever spends it spends it for everybody,
+  /// because the kill it cancels was always the team's single kill.
+  quietNight,
+
+  /// طبيب — «حماية النفس». The one night the Doctor may cover their own seat.
+  selfProtect,
+
+}
+
+/// The once-per-match ability a role is holding, or null for the two roles
+/// that hold none.
+///
+/// **It used to be total, and doc 14 is why it is not any more.** Four roles
+/// with one ability each was a symmetry bought rather than found: the Detective
+/// got «فتح الملف» and the Citizen «الشهادة» because the other two had
+/// something, not because either was worth playing. Doc 14 §4.1 removes the
+/// file outright and §4.2 defers the testimony, and the honest way to say that
+/// is a null.
+///
+/// The symmetry the night screen actually needs survives without it, because it
+/// was never this: every role's grid is *N* tiles with a special one in the
+/// last position (doc 14 §1.3), and a role with no ability simply spends that
+/// tile on "choose nobody".
+extension RoleBullet on Role {
+  BulletKind? get bullet => switch (this) {
+        Role.mafia => BulletKind.quietNight,
+        Role.doctor => BulletKind.selfProtect,
+        Role.detective => null,
+        Role.citizen => null,
+      };
+}

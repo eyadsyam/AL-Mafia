@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'Mafia Master'**
   String get appTitle;
 
+  /// No description provided for @actionNotSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your choice was not saved. Try again.'**
+  String get actionNotSaved;
+
   /// No description provided for @back.
   ///
   /// In en, this message translates to:
@@ -455,7 +461,7 @@ abstract class AppLocalizations {
   /// No description provided for @holdToRevealRole.
   ///
   /// In en, this message translates to:
-  /// **'Press and hold to reveal your role'**
+  /// **'Hold for 2 seconds to see your card'**
   String get holdToRevealRole;
 
   /// No description provided for @teammatesLine.
@@ -491,7 +497,7 @@ abstract class AppLocalizations {
   /// No description provided for @holdToConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Press and hold to confirm'**
+  /// **'Hold for 2 seconds to continue'**
   String get holdToConfirm;
 
   /// No description provided for @notYou.
@@ -499,12 +505,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not you?'**
   String get notYou;
-
-  /// No description provided for @takeYourTime.
-  ///
-  /// In en, this message translates to:
-  /// **'Take your time reading'**
-  String get takeYourTime;
 
   /// No description provided for @choosePlayer.
   ///
@@ -523,12 +523,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your choice is recorded'**
   String get choiceRecorded;
-
-  /// No description provided for @keepPhoneUntilUnlock.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep the phone until the pass button unlocks'**
-  String get keepPhoneUntilUnlock;
 
   /// No description provided for @passPhone.
   ///
@@ -1055,7 +1049,7 @@ abstract class AppLocalizations {
   /// No description provided for @holdToConfirmIdentity.
   ///
   /// In en, this message translates to:
-  /// **'Press and hold to see your card'**
+  /// **'Hold for 2 seconds to see your card'**
   String get holdToConfirmIdentity;
 
   /// No description provided for @swipeToReveal.
@@ -1646,12 +1640,6 @@ abstract class AppLocalizations {
   /// **'Whisper'**
   String get whisperLabel;
 
-  /// No description provided for @whisperNoneForYou.
-  ///
-  /// In en, this message translates to:
-  /// **'No whispers for you'**
-  String get whisperNoneForYou;
-
   /// No description provided for @whisperFrom.
   ///
   /// In en, this message translates to:
@@ -1748,12 +1736,6 @@ abstract class AppLocalizations {
   /// **'Reported. You will not see whispers from them again.'**
   String get whisperReported;
 
-  /// No description provided for @nightChooseNobody.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose nobody'**
-  String get nightChooseNobody;
-
   /// No description provided for @informationEngineSection.
   ///
   /// In en, this message translates to:
@@ -1820,24 +1802,6 @@ abstract class AppLocalizations {
   /// **'The graph is always revealed. This is about the words.'**
   String get settingRevealWhispersHint;
 
-  /// No description provided for @settingSurvivorConfrontation.
-  ///
-  /// In en, this message translates to:
-  /// **'«The survivor» confrontation'**
-  String get settingSurvivorConfrontation;
-
-  /// No description provided for @settingSurvivorConfrontationHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Names a player who survived a night attempt. Narrows the doctor — for experienced groups.'**
-  String get settingSurvivorConfrontationHint;
-
-  /// No description provided for @settingConfrontationSeconds.
-  ///
-  /// In en, this message translates to:
-  /// **'Confrontation length'**
-  String get settingConfrontationSeconds;
-
   /// No description provided for @onlineMatch.
   ///
   /// In en, this message translates to:
@@ -1855,6 +1819,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Join a room'**
   String get onlineJoinRoom;
+
+  /// No description provided for @onlineCreateRoomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You get a code to send the others'**
+  String get onlineCreateRoomHint;
+
+  /// No description provided for @onlineJoinRoomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Somebody sent you a code?'**
+  String get onlineJoinRoomHint;
 
   /// No description provided for @onlineRoomCode.
   ///
@@ -1958,6 +1934,24 @@ abstract class AppLocalizations {
   /// **'Microphone off'**
   String get voiceMicOff;
 
+  /// No description provided for @voiceMuteMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute me'**
+  String get voiceMuteMe;
+
+  /// No description provided for @voiceUnmuteMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute me'**
+  String get voiceUnmuteMe;
+
+  /// No description provided for @voiceSelfMuted.
+  ///
+  /// In en, this message translates to:
+  /// **'You are muted'**
+  String get voiceSelfMuted;
+
   /// No description provided for @voiceMicOn.
   ///
   /// In en, this message translates to:
@@ -1994,6 +1988,12 @@ abstract class AppLocalizations {
   /// **'Host'**
   String get onlineHostBadge;
 
+  /// No description provided for @onlineYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get onlineYou;
+
   /// No description provided for @onlineNeedFivePlayers.
   ///
   /// In en, this message translates to:
@@ -2011,6 +2011,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Code copied'**
   String get onlineCodeCopied;
+
+  /// No description provided for @onlinePublicRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'Public rooms'**
+  String get onlinePublicRooms;
+
+  /// No description provided for @onlinePublicRoomsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Join an open room without a code'**
+  String get onlinePublicRoomsHint;
+
+  /// No description provided for @onlineNoPublicRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'No public rooms open right now'**
+  String get onlineNoPublicRooms;
+
+  /// No description provided for @onlinePublicRoomPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} players'**
+  String onlinePublicRoomPlayers(int count);
+
+  /// No description provided for @onlineUntitledRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed room'**
+  String get onlineUntitledRoom;
+
+  /// No description provided for @onlineRoomSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Room settings'**
+  String get onlineRoomSettings;
+
+  /// No description provided for @onlineSettingsRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Room'**
+  String get onlineSettingsRoom;
+
+  /// No description provided for @onlineSettingsVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice'**
+  String get onlineSettingsVoice;
+
+  /// No description provided for @onlineSettingsPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get onlineSettingsPlay;
+
+  /// No description provided for @onlineSettingsInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Information'**
+  String get onlineSettingsInfo;
+
+  /// No description provided for @onlineRoomVisibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Room type'**
+  String get onlineRoomVisibility;
+
+  /// No description provided for @onlineRoomVisibilityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Private rooms take a code. Public ones are listed for anybody.'**
+  String get onlineRoomVisibilityHint;
+
+  /// No description provided for @onlineRoomPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get onlineRoomPrivate;
+
+  /// No description provided for @onlineRoomPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get onlineRoomPublic;
+
+  /// No description provided for @onlineRoomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Room name'**
+  String get onlineRoomTitle;
+
+  /// No description provided for @onlineRoomTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What people see in the list.'**
+  String get onlineRoomTitleHint;
+
+  /// No description provided for @onlineMaxPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum players'**
+  String get onlineMaxPlayers;
+
+  /// No description provided for @onlineMaxPlayersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The room closes once it is this full.'**
+  String get onlineMaxPlayersHint;
+
+  /// No description provided for @onlineVoiceEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice'**
+  String get onlineVoiceEnabled;
+
+  /// No description provided for @onlineVoiceEnabledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The match plays fine without it.'**
+  String get onlineVoiceEnabledHint;
+
+  /// No description provided for @onlineMuteAtNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute everyone at night'**
+  String get onlineMuteAtNight;
+
+  /// No description provided for @onlineMuteAtNightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A voice at night says who is awake.'**
+  String get onlineMuteAtNightHint;
+
+  /// No description provided for @onlineSpeakDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Speaking time'**
+  String get onlineSpeakDuration;
+
+  /// No description provided for @onlineSpeakDurationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How long each player holds the floor alone.'**
+  String get onlineSpeakDurationHint;
+
+  /// No description provided for @onlineDiscussDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion time'**
+  String get onlineDiscussDuration;
+
+  /// No description provided for @onlineDiscussDurationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The open argument before the vote.'**
+  String get onlineDiscussDurationHint;
+
+  /// No description provided for @onlineOpenVoting.
+  ///
+  /// In en, this message translates to:
+  /// **'Open voting'**
+  String get onlineOpenVoting;
+
+  /// No description provided for @onlineOpenVotingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone sees who voted for whom until the ballot locks.'**
+  String get onlineOpenVotingHint;
+
+  /// No description provided for @onlineTrace.
+  ///
+  /// In en, this message translates to:
+  /// **'Trace'**
+  String get onlineTrace;
+
+  /// No description provided for @onlineTraceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The morning names one trace of the night\'s movement.'**
+  String get onlineTraceHint;
+
+  /// No description provided for @onlineConfrontation.
+  ///
+  /// In en, this message translates to:
+  /// **'Confrontation'**
+  String get onlineConfrontation;
+
+  /// No description provided for @onlineConfrontationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Two players face each other before the vote.'**
+  String get onlineConfrontationHint;
+
+  /// No description provided for @onlineWhispers.
+  ///
+  /// In en, this message translates to:
+  /// **'Whispers'**
+  String get onlineWhispers;
+
+  /// No description provided for @onlineWhispersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A private line to one player; the room knows it was sent.'**
+  String get onlineWhispersHint;
+
+  /// No description provided for @onlineSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'seconds'**
+  String get onlineSeconds;
+
+  /// No description provided for @onlineMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'minutes'**
+  String get onlineMinutes;
+
+  /// No description provided for @onlineLinkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Room link copied'**
+  String get onlineLinkCopied;
 
   /// No description provided for @onlineWaitingForHost.
   ///
@@ -2035,6 +2257,882 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Someone else has the floor'**
   String get voiceFloorTaken;
+
+  /// No description provided for @onlineWeatherConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get onlineWeatherConnecting;
+
+  /// No description provided for @onlineWeatherReconnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak connection — trying'**
+  String get onlineWeatherReconnecting;
+
+  /// No description provided for @onlineWeatherUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. The match is saved.'**
+  String get onlineWeatherUnreachable;
+
+  /// No description provided for @onlineCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get onlineCopy;
+
+  /// No description provided for @onlineShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get onlineShare;
+
+  /// No description provided for @onlinePlayersOfMax.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} / {max} players'**
+  String onlinePlayersOfMax(int count, int max);
+
+  /// No description provided for @onlineVoiceConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice: connecting…'**
+  String get onlineVoiceConnecting;
+
+  /// No description provided for @onlineVoiceConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice: connected'**
+  String get onlineVoiceConnected;
+
+  /// No description provided for @onlineVoiceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice is unavailable — the game plays normally'**
+  String get onlineVoiceUnavailable;
+
+  /// No description provided for @onlineShareInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Mafia with us. Room code: {code}'**
+  String onlineShareInvite(String code);
+
+  /// No description provided for @onlineGhostRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever is out does not talk to whoever is still playing'**
+  String get onlineGhostRule;
+
+  /// No description provided for @onlineChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen: {name}'**
+  String onlineChosen(String name);
+
+  /// No description provided for @onlineUpNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Up next: {names}'**
+  String onlineUpNext(String names);
+
+  /// No description provided for @onlineLeftRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get onlineLeftRoom;
+
+  /// No description provided for @onlineNewHost.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is the host now'**
+  String onlineNewHost(String name);
+
+  /// No description provided for @onlineCloseRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the room'**
+  String get onlineCloseRoom;
+
+  /// No description provided for @onlineCloseRoomBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This ends the match for everyone in the room. Are you sure?'**
+  String get onlineCloseRoomBody;
+
+  /// No description provided for @onlineCloseRoomConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get onlineCloseRoomConfirm;
+
+  /// No description provided for @onlineRoomClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'The host closed the room'**
+  String get onlineRoomClosed;
+
+  /// No description provided for @onlineKick.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get onlineKick;
+
+  /// No description provided for @onlineMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get onlineMute;
+
+  /// No description provided for @onlineUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get onlineUnmute;
+
+  /// No description provided for @onlineKickedByHost.
+  ///
+  /// In en, this message translates to:
+  /// **'The host removed you from the room'**
+  String get onlineKickedByHost;
+
+  /// No description provided for @onlineWaitingForCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for: {names}'**
+  String onlineWaitingForCards(String names);
+
+  /// Doc 15 §1.4. Who has asked for the floor, in seat order. Never a queue: no position numbers, and never sorted by who asked first.
+  ///
+  /// In en, this message translates to:
+  /// **'Hands up: {names}'**
+  String onlineRaisedHands(String names);
+
+  /// No description provided for @onlineRaiseHand.
+  ///
+  /// In en, this message translates to:
+  /// **'My turn'**
+  String get onlineRaiseHand;
+
+  /// No description provided for @onlineHandRaised.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand up'**
+  String get onlineHandRaised;
+
+  /// No description provided for @onlineSeeRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'See the roles'**
+  String get onlineSeeRoles;
+
+  /// No description provided for @onlineRosterOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{index} of {total}'**
+  String onlineRosterOf(int index, int total);
+
+  /// No description provided for @onlinePickFromTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from the table'**
+  String get onlinePickFromTable;
+
+  /// No description provided for @onlineWaitingForTheRest.
+  ///
+  /// In en, this message translates to:
+  /// **'Done. Waiting for the rest…'**
+  String get onlineWaitingForTheRest;
+
+  /// No description provided for @onlineConfirmHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm — press and hold'**
+  String get onlineConfirmHold;
+
+  /// No description provided for @confrontationSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Silence.'**
+  String get confrontationSilent;
+
+  /// No description provided for @confrontationAudience.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening'**
+  String get confrontationAudience;
+
+  /// No description provided for @settingVoteVisibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Voting'**
+  String get settingVoteVisibility;
+
+  /// No description provided for @settingOpenVoting.
+  ///
+  /// In en, this message translates to:
+  /// **'Open voting'**
+  String get settingOpenVoting;
+
+  /// No description provided for @settingSecretVoting.
+  ///
+  /// In en, this message translates to:
+  /// **'Secret ballot'**
+  String get settingSecretVoting;
+
+  /// No description provided for @settingOpenVotingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You watch each vote land, and you see who changes their mind'**
+  String get settingOpenVotingHint;
+
+  /// No description provided for @witnessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Witness'**
+  String get witnessTitle;
+
+  /// No description provided for @witnessEliminated.
+  ///
+  /// In en, this message translates to:
+  /// **'You are out of the game. But you are still watching.'**
+  String get witnessEliminated;
+
+  /// No description provided for @witnessSpectating.
+  ///
+  /// In en, this message translates to:
+  /// **'Watching'**
+  String get witnessSpectating;
+
+  /// No description provided for @witnessTabTable.
+  ///
+  /// In en, this message translates to:
+  /// **'The table'**
+  String get witnessTabTable;
+
+  /// No description provided for @witnessTabChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Those who are out'**
+  String get witnessTabChat;
+
+  /// No description provided for @witnessTabPrediction.
+  ///
+  /// In en, this message translates to:
+  /// **'Your call'**
+  String get witnessTabPrediction;
+
+  /// No description provided for @witnessTabRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Your record'**
+  String get witnessTabRecord;
+
+  /// No description provided for @witnessChatHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to the others who are out…'**
+  String get witnessChatHint;
+
+  /// No description provided for @witnessChatEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing said yet'**
+  String get witnessChatEmpty;
+
+  /// No description provided for @witnessChatWalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody still playing can see this'**
+  String get witnessChatWalled;
+
+  /// No description provided for @witnessChatSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get witnessChatSend;
+
+  /// No description provided for @witnessPredictionWinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Who wins?'**
+  String get witnessPredictionWinner;
+
+  /// No description provided for @witnessPredictionMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'And who is Mafia?'**
+  String get witnessPredictionMafia;
+
+  /// No description provided for @witnessPredictionLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock it in'**
+  String get witnessPredictionLock;
+
+  /// No description provided for @witnessPredictionLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked. We will see at the end.'**
+  String get witnessPredictionLocked;
+
+  /// No description provided for @witnessPredictionScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Your call: {correct} of {total}'**
+  String witnessPredictionScore(int correct, int total);
+
+  /// No description provided for @witnessRecordEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You did not write anything down'**
+  String get witnessRecordEmpty;
+
+  /// No description provided for @onlineIntroPhoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone is your turn'**
+  String get onlineIntroPhoneTitle;
+
+  /// No description provided for @onlineIntroPhoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is passed around. Everything you do, you do here. Each player uses a device and a room code. Offline uses one shared phone and needs no internet.'**
+  String get onlineIntroPhoneBody;
+
+  /// No description provided for @onlineIntroNightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The night happens all at once'**
+  String get onlineIntroNightTitle;
+
+  /// No description provided for @onlineIntroNightBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everybody acts together, on their own screen. It takes under a minute. Discuss and vote by day. Town wins by eliminating all Mafia; Mafia wins at parity with the remaining town. Voice is optional; play continues without it.'**
+  String get onlineIntroNightBody;
+
+  /// No description provided for @onlineIntroWhisperTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A whisper shows who, never what'**
+  String get onlineIntroWhisperTitle;
+
+  /// No description provided for @onlineIntroWhisperBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The table sees a light cross it. Only one person reads the words. Private messages are online only, unavailable offline.'**
+  String get onlineIntroWhisperBody;
+
+  /// No description provided for @onlineIntroWitnessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'If you are out, you are still watching'**
+  String get onlineIntroWitnessTitle;
+
+  /// No description provided for @onlineIntroWitnessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You keep the table, you talk to the others who are out, and you call the ending. This spectator area is online only. Offline, eliminated players stop taking private turns.'**
+  String get onlineIntroWitnessBody;
+
+  /// No description provided for @onlineIntroSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onlineIntroSkip;
+
+  /// No description provided for @onlineIntroStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s go'**
+  String get onlineIntroStart;
+
+  /// No description provided for @modeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How are you playing?'**
+  String get modeTitle;
+
+  /// No description provided for @modeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change this next time.'**
+  String get modeSubtitle;
+
+  /// No description provided for @modeOnePhoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One phone, passed around'**
+  String get modeOnePhoneTitle;
+
+  /// No description provided for @modeOnePhoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everybody in the same room. The phone goes from hand to hand.'**
+  String get modeOnePhoneBody;
+
+  /// No description provided for @modeOnlineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everybody on their own phone'**
+  String get modeOnlineTitle;
+
+  /// No description provided for @modeOnlineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Same room or anywhere. Nothing is passed, and nobody waits their turn to look.'**
+  String get modeOnlineBody;
+
+  /// No description provided for @modeNoServer.
+  ///
+  /// In en, this message translates to:
+  /// **'This build has no server. Rebuild it with a project configured.'**
+  String get modeNoServer;
+
+  /// No description provided for @bulletMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'The quiet night'**
+  String get bulletMafia;
+
+  /// No description provided for @bulletDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover yourself, once'**
+  String get bulletDoctor;
+
+  /// No description provided for @testimonyGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} testifies: their suspicion last night was {suspect}.'**
+  String testimonyGiven(String name, String suspect);
+
+  /// No description provided for @testimonyNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} testifies: they suspected nobody last night.'**
+  String testimonyNobody(String name);
+
+  /// No description provided for @fileOpenedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} opened the file.'**
+  String fileOpenedTitle(String name);
+
+  /// No description provided for @fileOpenedEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — {role}'**
+  String fileOpenedEntry(String name, String role);
+
+  /// No description provided for @fileOpenedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The file was empty.'**
+  String get fileOpenedEmpty;
+
+  /// No description provided for @hintTalkers.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever talks most is not always whoever is hiding.'**
+  String get hintTalkers;
+
+  /// No description provided for @hintQuickAgreement.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch who agrees immediately without thinking.'**
+  String get hintQuickAgreement;
+
+  /// No description provided for @hintSilence.
+  ///
+  /// In en, this message translates to:
+  /// **'Silence is not evidence. But it is information.'**
+  String get hintSilence;
+
+  /// No description provided for @hintChangesMind.
+  ///
+  /// In en, this message translates to:
+  /// **'Who changes their mind fast under pressure?'**
+  String get hintChangesMind;
+
+  /// No description provided for @hintEarlyAccuser.
+  ///
+  /// In en, this message translates to:
+  /// **'Good mafia accuse early so they look innocent.'**
+  String get hintEarlyAccuser;
+
+  /// No description provided for @hintMajorityComfort.
+  ///
+  /// In en, this message translates to:
+  /// **'Voting with the majority is comfortable. That is exactly what they count on.'**
+  String get hintMajorityComfort;
+
+  /// No description provided for @hintWhoBenefited.
+  ///
+  /// In en, this message translates to:
+  /// **'Who gained from whoever died last night?'**
+  String get hintWhoBenefited;
+
+  /// No description provided for @hintMafiaSuspicionSpreads.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not kill whoever suspects you straight away — their suspicion gets published.'**
+  String get hintMafiaSuspicionSpreads;
+
+  /// No description provided for @hintMafiaQuietNight.
+  ///
+  /// In en, this message translates to:
+  /// **'The quiet night starves the table of information.'**
+  String get hintMafiaQuietNight;
+
+  /// No description provided for @hintMafiaSpeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk. Silent mafia die.'**
+  String get hintMafiaSpeak;
+
+  /// No description provided for @hintDoctorNoRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not cover the same person two nights running.'**
+  String get hintDoctorNoRepeat;
+
+  /// No description provided for @hintDoctorSelf.
+  ///
+  /// In en, this message translates to:
+  /// **'You get to cover yourself once — save it.'**
+  String get hintDoctorSelf;
+
+  /// No description provided for @hintDoctorSaveReveals.
+  ///
+  /// In en, this message translates to:
+  /// **'If a save lands, the mafia learn there is a doctor.'**
+  String get hintDoctorSaveReveals;
+
+  /// No description provided for @hintDetectiveInvestigateLoud.
+  ///
+  /// In en, this message translates to:
+  /// **'Investigate whoever talks most, not whoever is quiet.'**
+  String get hintDetectiveInvestigateLoud;
+
+  /// No description provided for @hintCitizenSuspicionCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Your suspicion is not going nowhere — it gets recorded.'**
+  String get hintCitizenSuspicionCounts;
+
+  /// No description provided for @coachStuckOnInnocent.
+  ///
+  /// In en, this message translates to:
+  /// **'You suspected {name} on {count} nights and they were a citizen. Try changing your mind faster when the evidence does not arrive.'**
+  String coachStuckOnInnocent(String name, int count);
+
+  /// No description provided for @coachConformity.
+  ///
+  /// In en, this message translates to:
+  /// **'You voted with the majority {count} times out of {total}. Try forming your own view before you hear everybody else\'s.'**
+  String coachConformity(int count, int total);
+
+  /// No description provided for @coachUnusedBullet.
+  ///
+  /// In en, this message translates to:
+  /// **'You never used «{bullet}». It was there from the first night.'**
+  String coachUnusedBullet(String bullet);
+
+  /// No description provided for @coachNeverWhispered.
+  ///
+  /// In en, this message translates to:
+  /// **'You never whispered once. A whisper builds alliances.'**
+  String get coachNeverWhispered;
+
+  /// No description provided for @coachAbandonedRead.
+  ///
+  /// In en, this message translates to:
+  /// **'You suspected {name} on the first nights and they were mafia — then you let it go. Trust your first read.'**
+  String coachAbandonedRead(String name);
+
+  /// No description provided for @coachQuiet.
+  ///
+  /// In en, this message translates to:
+  /// **'You spoke for {seconds} seconds all match — among the least at the table. Silence makes a table suspect you.'**
+  String coachQuiet(int seconds);
+
+  /// No description provided for @coachSurvivedAsMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'You lived to the end without the table catching you.'**
+  String get coachSurvivedAsMafia;
+
+  /// No description provided for @coachingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'It could have gone otherwise'**
+  String get coachingTitle;
+
+  /// No description provided for @coachingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to add. You played it as it came.'**
+  String get coachingEmpty;
+
+  /// No description provided for @presetFast.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick'**
+  String get presetFast;
+
+  /// No description provided for @presetClassic.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic'**
+  String get presetClassic;
+
+  /// No description provided for @presetBrutal.
+  ///
+  /// In en, this message translates to:
+  /// **'Brutal'**
+  String get presetBrutal;
+
+  /// No description provided for @presetCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get presetCustom;
+
+  /// No description provided for @presetFastHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Around fifteen minutes, fewer rules. Best for a group\'s first match.'**
+  String get presetFastHint;
+
+  /// No description provided for @presetClassicHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything on, at the pace it was designed at.'**
+  String get presetClassicHint;
+
+  /// No description provided for @presetBrutalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No doctor, more mafia, no whispers, a brutal clock.'**
+  String get presetBrutalHint;
+
+  /// No description provided for @presetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset'**
+  String get presetLabel;
+
+  /// No description provided for @settingPressureCurve.
+  ///
+  /// In en, this message translates to:
+  /// **'The pressure curve'**
+  String get settingPressureCurve;
+
+  /// No description provided for @settingPressureCurveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The clock closes as the table shrinks. It only ever tightens.'**
+  String get settingPressureCurveHint;
+
+  /// No description provided for @settingDiscussionSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion length'**
+  String get settingDiscussionSeconds;
+
+  /// No description provided for @settingPlayHints.
+  ///
+  /// In en, this message translates to:
+  /// **'Play hints'**
+  String get settingPlayHints;
+
+  /// No description provided for @settingCoaching.
+  ///
+  /// In en, this message translates to:
+  /// **'«It could have gone otherwise», after the match'**
+  String get settingCoaching;
+
+  /// No description provided for @settingRevealVictimRole.
+  ///
+  /// In en, this message translates to:
+  /// **'The night victim\'s role'**
+  String get settingRevealVictimRole;
+
+  /// No description provided for @settingRevealVictimRoleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A day elimination is always public. This is about the night.'**
+  String get settingRevealVictimRoleHint;
+
+  /// No description provided for @victimWasRole.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} was {role}.'**
+  String victimWasRole(String name, String role);
+
+  /// No description provided for @nightSpecialMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'No kill tonight'**
+  String get nightSpecialMafia;
+
+  /// No description provided for @nightSpecialDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect yourself'**
+  String get nightSpecialDoctor;
+
+  /// No description provided for @nightSpecialDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'No check tonight'**
+  String get nightSpecialDetective;
+
+  /// No description provided for @nightSpecialCitizen.
+  ///
+  /// In en, this message translates to:
+  /// **'No read tonight'**
+  String get nightSpecialCitizen;
+
+  /// No description provided for @settingsSectionPace.
+  ///
+  /// In en, this message translates to:
+  /// **'Pace'**
+  String get settingsSectionPace;
+
+  /// No description provided for @settingsSectionInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Information'**
+  String get settingsSectionInformation;
+
+  /// No description provided for @settingsSectionReveal.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveals'**
+  String get settingsSectionReveal;
+
+  /// No description provided for @settingsSectionVoting.
+  ///
+  /// In en, this message translates to:
+  /// **'Voting'**
+  String get settingsSectionVoting;
+
+  /// No description provided for @settingsSectionAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound and motion'**
+  String get settingsSectionAudio;
+
+  /// No description provided for @settingsOnlineOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Online only'**
+  String get settingsOnlineOnly;
+
+  /// No description provided for @settingSpeechSecondsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How long one player speaks in a structured discussion.'**
+  String get settingSpeechSecondsHint;
+
+  /// No description provided for @settingDiscussionSecondsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How long the whole discussion runs when it is free.'**
+  String get settingDiscussionSecondsHint;
+
+  /// No description provided for @settingIdentityHoldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The same for every player, so turn length says nothing about a role.'**
+  String get settingIdentityHoldHint;
+
+  /// No description provided for @settingDiscussionModeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Structured: one at a time, in order. Free: everyone at once.'**
+  String get settingDiscussionModeHint;
+
+  /// No description provided for @settingAbstainHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A player may cast no vote at all.'**
+  String get settingAbstainHint;
+
+  /// No description provided for @settingPlayHintsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One line, in the lobby and settings only. Never inside a match.'**
+  String get settingPlayHintsHint;
+
+  /// No description provided for @settingCoachingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'After the match, one honest note per player.'**
+  String get settingCoachingHint;
+
+  /// No description provided for @settingMuteAllHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No sound at all. Nothing in the game depends on hearing it.'**
+  String get settingMuteAllHint;
+
+  /// No description provided for @minutesSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String minutesSuffix(int minutes);
+
+  /// No description provided for @whisperFromTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Whisper from {name}'**
+  String whisperFromTitle(String name);
+
+  /// No description provided for @whisperDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get whisperDismiss;
+
+  /// No description provided for @playerMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get playerMale;
+
+  /// No description provided for @playerFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get playerFemale;
+
+  /// No description provided for @timelineMafiaVoteFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} voted for {target}'**
+  String timelineMafiaVoteFemale(String actor, String target);
+
+  /// No description provided for @timelineProtectFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} protected {target}'**
+  String timelineProtectFemale(String actor, String target);
+
+  /// No description provided for @timelineInvestigateFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} investigated {target}'**
+  String timelineInvestigateFemale(String actor, String target);
+
+  /// No description provided for @timelineSuspectFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} suspected {target}'**
+  String timelineSuspectFemale(String actor, String target);
 }
 
 class _AppLocalizationsDelegate

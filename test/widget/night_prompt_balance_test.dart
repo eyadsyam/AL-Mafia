@@ -37,6 +37,46 @@ void main() {
       }
     });
 
+    test('all four special tiles ink exactly the same number of glyphs', () {
+      // Doc 14 §1.3 puts a second piece of role-specific text on the night
+      // screen — the words on the last tile of the grid — and it is on screen
+      // for every turn of every night. Subject to exactly the rule above and
+      // for exactly the same reason: a longer label is a brighter phone, and a
+      // brighter phone seen four nights running is a tell.
+      //
+      // Doc 14 wrote the four as four different sentence shapes («مفيش قتل
+      // الليلة», «مش شاكك في حد»). Doc 05 rule 5 outranks doc 14 and always
+      // did, so they are one shape negated four ways instead — which is also
+      // the better copy, because two screens now differ by one word rather
+      // than by their grammar.
+      final lengths = {
+        for (final role in Role.values)
+          role: inkLength(EngineCopy.nightSpecial(arStrings, role)),
+      };
+      final expected = lengths.values.first;
+
+      for (final entry in lengths.entries) {
+        expect(
+          entry.value,
+          equals(expected),
+          reason: 'the ${entry.key.name} tile inks ${entry.value} glyphs '
+              'against $expected for the others. Rewrite it to length; do not '
+              'relax this. All four: $lengths',
+        );
+      }
+    });
+
+    test('no special tile gives away the role that holds it', () {
+      const roleWords = ['مافيا', 'دكتور', 'طبيب', 'محقق', 'مواطن'];
+      for (final role in Role.values) {
+        final label = EngineCopy.nightSpecial(arStrings, role);
+        for (final word in roleWords) {
+          expect(label.contains(word), isFalse,
+              reason: 'the ${role.name} tile reads "$label"');
+        }
+      }
+    });
+
     test('the prompts are still four distinct questions', () {
       // Equal length must not have been achieved by making them all the same
       // sentence: the player has to be asked the question their role answers.

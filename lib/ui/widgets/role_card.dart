@@ -75,6 +75,16 @@ class RoleCard extends StatefulWidget {
   /// and the widget catalogue use.
   final Duration? identityHold;
 
+  /// What the control under the concealed card says.
+  ///
+  /// Defaults to «سلّم الموبايل», which is the truth at a table: the card is
+  /// finished because the phone is about to belong to somebody else. Online it
+  /// is not the truth at all — nobody is handing anything over, every player is
+  /// holding their own phone — so the online table passes its own word here.
+  /// The control itself, and every bound the golden suite measures, is the
+  /// same either way.
+  final String? dismissLabel;
+
   const RoleCard({
     super.key,
     required this.playerName,
@@ -83,6 +93,7 @@ class RoleCard extends StatefulWidget {
     required this.onDismissed,
     this.onFlip,
     this.identityHold,
+    this.dismissLabel,
   });
 
   static const Key holdPad = ValueKey('role_card_hold_pad');
@@ -176,7 +187,10 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
     super.initState();
     _flip = AnimationController(vsync: this, duration: Duration.zero);
     _flipCurve = CurvedAnimation(parent: _flip, curve: Curves.linear);
-    _concealProgress = AnimationController(vsync: this, duration: Duration.zero);
+    _concealProgress = AnimationController(
+      vsync: this,
+      duration: Duration.zero,
+    );
   }
 
   @override
@@ -450,7 +464,9 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
           child: Center(
             child: Text(
               widget.playerName,
-              style: type.headline.emphasised.copyWith(color: colors.textPrimary),
+              style: type.headline.emphasised.copyWith(
+                color: colors.textPrimary,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -541,7 +557,9 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
                 child: Center(
                   child: Text(
                     _title(context),
-                    style: type.display.emphasised.copyWith(color: colors.textPrimary),
+                    style: type.display.emphasised.copyWith(
+                      color: colors.textPrimary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -581,11 +599,13 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
                       widget.teammateNames.isEmpty
                           ? ''
                           : context.l10n.teammatesLine(
-                              widget.teammateNames
-                                  .join(context.l10n.listSeparator),
+                              widget.teammateNames.join(
+                                context.l10n.listSeparator,
+                              ),
                             ),
-                      style: type.bodySmall.emphasised
-                          .copyWith(color: colors.textPrimary),
+                      style: type.bodySmall.emphasised.copyWith(
+                        color: colors.textPrimary,
+                      ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -647,7 +667,10 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(radii.button),
               ),
             ),
-            child: Text(context.l10n.passThePhone, style: type.title),
+            child: Text(
+              widget.dismissLabel ?? context.l10n.passThePhone,
+              style: type.title,
+            ),
           );
         }
         return Center(
@@ -760,6 +783,7 @@ class _SwipeFlipCard extends StatelessWidget {
   final Widget front;
   final Widget back;
   final double radius;
+
   /// The app's shadow ladder. Passed in rather than read from context so the
   /// builder below stays a pure function of its inputs.
   final MafiaElevation elevation;
@@ -786,8 +810,7 @@ class _SwipeFlipCard extends StatelessWidget {
         // During a drag, the card tilts slightly to follow the finger.
         final animT = flipProgress.value;
         final travel = axis == Axis.horizontal ? drag.dx : drag.dy;
-        final dragAngle =
-            (travel.abs() / 300.0).clamp(0.0, 0.3) * math.pi;
+        final dragAngle = (travel.abs() / 300.0).clamp(0.0, 0.3) * math.pi;
 
         // Magnitude first, sign last: the half-turn test below is about how far
         // the card has turned, not about which way, and a signed angle would
@@ -796,8 +819,7 @@ class _SwipeFlipCard extends StatelessWidget {
         final showingFront = turn >= math.pi * 0.5 && turn < math.pi * 1.5;
         final angle = turn * sign;
 
-        final transform = Matrix4.identity()
-          ..setEntry(3, 2, perspective);
+        final transform = Matrix4.identity()..setEntry(3, 2, perspective);
         if (axis == Axis.horizontal) {
           transform.rotateY(angle);
         } else {
