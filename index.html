@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="سيد المافيا — لعبة المافيا على تليفون واحد، أو على النت مع أصحابك.">
+
+  <!-- The ground, so the browser chrome and the first paint are the same
+       charcoal the app is. A white flash before the first frame on a game
+       that is played in a dark room is the one thing a splash must not do. -->
+  <meta name="theme-color" content="#0F0F0F">
+  <meta name="color-scheme" content="dark">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="سيد المافيا">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <!-- The link preview.
+
+       An invite is sent into a chat, and a chat renders a link as a card
+       built from these tags and nothing else - it never runs the app, so
+       there is no frame of the game it could show on its own. Without them
+       WhatsApp and Telegram fall back to a bare grey rectangle beside a URL,
+       which is what a room invite looked like until now.
+
+       Absolute URLs, because the crawler resolves nothing: the same tags are
+       served for every path, including /join/CODE. The card is deliberately
+       about the game rather than the room - a code in a preview would be a
+       code cached by every service that ever scraped the link. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="سيد المافيا">
+  <meta property="og:locale" content="ar_AR">
+  <meta property="og:url" content="https://almafia.vercel.app/">
+  <meta property="og:title" content="سيد المافيا">
+  <meta property="og:description" content="العب مافيا مع أصحابك أونلاين، أو على تليفون واحد. افتح اللينك وادخل الأوضة على طول.">
+  <meta property="og:image" content="https://almafia.vercel.app/og-image.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="قناع المافيا واسم اللعبة: سيد المافيا">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="سيد المافيا">
+  <meta name="twitter:description" content="العب مافيا مع أصحابك أونلاين، أو على تليفون واحد.">
+  <meta name="twitter:image" content="https://almafia.vercel.app/og-image.jpg">
+
+  <title>سيد المافيا</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #0F0F0F; }
+
+    /* Where the film went.
+     *
+     * A platform view - the real <video> element the browser composites - is
+     * placed by the engine as an absolutely positioned box with no `left` of
+     * its own plus a translate. A box with no offsets starts at the static
+     * position, and in an RTL containing block that is the *right* edge, so
+     * the translate was measured from there: the intro was laid out at
+     * x = 1435 on a 1366-wide window and never appeared. The panel around it
+     * is painted by Flutter onto the canvas and was in the right place all
+     * along, which is what made it look like an empty box.
+     *
+     * The document stays `dir="rtl"`; only the surface Flutter composites is
+     * pinned, because Flutter paints its own text direction and never reads
+     * this one. `flt-text-editing-host` is a sibling and keeps its RTL, so
+     * typing Arabic into a field is untouched. Inherited, so it reaches the
+     * shadow tree the scene actually lives in. */
+    flt-glass-pane { direction: ltr; }
+  </style>
+</head>
+<body>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
