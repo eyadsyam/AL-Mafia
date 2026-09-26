@@ -1,7 +1,8 @@
 /**
- * Web coin packs: transfer links, manual verification (docs/
- * CLAUDE-UX-ECONOMY-NEXT.md, newest instruction). Pure helpers, testable in
- * node; the edge function `coin_orders` wires them to the database.
+ * Transfer payments (InstaPay / Vodafone Cash) with manual verification, on
+ * the Android app and the web (Payments v2). Pure helpers, testable in node;
+ * the edge function `coin_orders` wires them to the database. Selling is
+ * switched per platform in economy_config (transfer_enabled_*).
  *
  * There is no payment gateway and no webhook. A method is "available" only
  * when the operator configured an HTTPS destination for it. The destinations
@@ -40,10 +41,6 @@ export function paymentMethods(env: (name: string) => string | undefined): Metho
     }
     return { code, available: true, url: url.toString() };
   });
-}
-
-export function salesEnabled(env: (name: string) => string | undefined): boolean {
-  return env("COIN_SALES_ENABLED") === "true";
 }
 
 const REFERENCE = /^[A-Za-z0-9 ._/-]{4,64}$/;
@@ -110,4 +107,149 @@ export const REFUSALS: Record<string, [string, number]> = {
   TRANSACTION_REQUIRED: ["BAD_REQUEST", 400],
   NOTE_REQUIRED: ["BAD_REQUEST", 400],
   BAD_REQUEST: ["BAD_REQUEST", 400],
+  SALES_DISABLED: ["SALES_DISABLED", 403],
+  TOO_MANY_PENDING: ["TOO_MANY_PENDING", 409],
+  DUPLICATE_PROOF: ["DUPLICATE_PROOF", 409],
+  PROOF_REQUIRED: ["PROOF_REQUIRED", 400],
+  SENDER_REQUIRED: ["SENDER_REQUIRED", 400],
 };
+
+// ---------------------------------------------------------------------------
+// Payments v2 (migration 20260927000200): transfers on Android and web, proof
+// screenshots, admin review and the owner's Telegram notice.
+
+export type Platform = "android" | "web";
+
+/** The client says which build it is; each platform has its own kill switch
+ * on the server (economy_config.transfer_enabled_*), so a wrong claim only
+ * picks the other switch. Anything else is refused. */
+export function parsePlatform(value: unknown): Platform | null {
+  return value === "android" || value === "web" ? value : null;
+}
+
+/** A 1600px JPEG is well under 1 MB; 3 MB leaves room for PNG/WebP. */
+export const PROOF_MAX_BYTES = 3 * 1024 * 1024;
+export const PROOF_BUCKET = "payment-proofs";
+
+/** Letters of any script, digits (Vodafone Cash may show a number), spaces
+ * and the punctuation names use. Exactly as the payment app shows it. */
+const SENDER = /^[\p{L}\p{M}\p{N} .,'’_\-@+()]{2,80}$/u;
+
+export function parseSender(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const name = value.replace(/\s+/g, " ").trim();
+  return SENDER.test(name) ? name : null;
+}
+
+export type ProofImage = { bytes: Uint8Array; mime: "image/jpeg" | "image/png" | "image/webp"; ext: string };
+
+/** Base64 image from the client, checked by its bytes (never its name). */
+export function decodeProofImage(base64: unknown): Parsed<ProofImage> {
+  if (typeof base64 !== "string" || base64.length < 16) return { ok: false, error: "image required" };
+  const clean = base64.replace(/^data:image\/[a-z]+;base64,/, "").replace(/\s/g, "");
+  if (clean.length > Math.ceil(PROOF_MAX_BYTES / 3) * 4 + 4) return { ok: false, error: "image too large" };
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(clean)) return { ok: false, error: "invalid image" };
+  let bytes: Uint8Array;
+  try {
+    const raw = atob(clean);
+    bytes = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+  } catch {
+    return { ok: false, error: "invalid image" };
+  }
+  if (bytes.length > PROOF_MAX_BYTES) return { ok: false, error: "image too large" };
+  const at = (i: number) => bytes[i];
+  if (at(0) === 0xff && at(1) === 0xd8 && at(2) === 0xff) {
+    return { ok: true, value: { bytes, mime: "image/jpeg", ext: "jpg" } };
+  }
+  if (at(0) === 0x89 && at(1) === 0x50 && at(2) === 0x4e && at(3) === 0x47) {
+    return { ok: true, value: { bytes, mime: "image/png", ext: "png" } };
+  }
+  const tag = (from: number) => String.fromCharCode(...bytes.slice(from, from + 4));
+  if (bytes.length > 12 && tag(0) === "RIFF" && tag(8) === "WEBP") {
+    return { ok: true, value: { bytes, mime: "image/webp", ext: "webp" } };
+  }
+  return { ok: false, error: "not an image" };
+}
+
+export async function sha256Hex(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** `<user>/<order>/<nonce>.<ext>`: the player's own folder, never guessable. */
+export function proofPath(user: string, order: string, nonce: string, ext: string): string {
+  return `${user}/${order}/${nonce}.${ext}`;
+}
+
+export function parseSubmit(body: any): Parsed<{
+  order: string; sender: string; platform: Platform; image: ProofImage;
+}> {
+  if (typeof body?.order !== "string" || !UUID.test(body.order)) return { ok: false, error: "invalid order" };
+  const platform = parsePlatform(body?.platform);
+  if (!platform) return { ok: false, error: "invalid platform" };
+  const sender = parseSender(body?.senderName);
+  if (!sender) return { ok: false, error: "sender name required" };
+  const image = decodeProofImage(body?.image);
+  if (!image.ok) return image;
+  return { ok: true, value: { order: body.order, sender, platform, image: image.value } };
+}
+
+export function parseReject(body: any): Parsed<{ order: string; reason: string }> {
+  if (typeof body?.order !== "string" || !UUID.test(body.order)) return { ok: false, error: "invalid order" };
+  const reason = typeof body?.reason === "string" ? body.reason.trim().slice(0, 300) : "";
+  if (reason.length < 3) return { ok: false, error: "reason required" };
+  return { ok: true, value: { order: body.order, reason } };
+}
+
+export const ADMIN_FILTERS = ["pending", "approved", "rejected", "expired"] as const;
+export function parseFilter(value: unknown): string {
+  return typeof value === "string" && (ADMIN_FILTERS as readonly string[]).includes(value) ? value : "pending";
+}
+
+export function egp(piastres: number): string {
+  return piastres % 100 === 0 ? String(piastres / 100) : (piastres / 100).toFixed(2);
+}
+
+export interface OrderNotice {
+  id: string; reference: string; pack: string; coins: number; amountPiastres: number;
+  method: string; senderName: string; item?: string | null; entitlement?: string | null;
+}
+
+export const ADMIN_URL = "https://almafia.vercel.app/admin";
+
+function productName(o: OrderNotice): string {
+  if (o.entitlement === "remove_interruptions") return "Quiet Pass (remove interruptions)";
+  if (o.item) return `Starter Bundle (${o.coins} coins + ${o.item})`;
+  return `${o.coins} coins (${o.pack})`;
+}
+
+/** Plain text (no parse mode, so a sender name cannot inject markup). */
+export function telegramText(o: OrderNotice, adminUrl = ADMIN_URL): string {
+  const method = o.method === "instapay" ? "InstaPay" : o.method === "vodafone_cash" ? "Vodafone Cash" : o.method;
+  return [
+    "New payment order to review",
+    `Order: ${o.reference} (#${o.id.slice(0, 8)})`,
+    `Product: ${productName(o)}`,
+    `Price: ${egp(o.amountPiastres)} EGP`,
+    `Method: ${method}`,
+    `Sender: ${o.senderName}`,
+    `Review: ${adminUrl}?order=${encodeURIComponent(o.id)}`,
+  ].join("\n");
+}
+
+/** The Bot API request, or null when the secrets are absent (skip silently).
+ * The token is only ever inside the returned URL; never log this object. */
+export function telegramRequest(
+  env: (name: string) => string | undefined, o: OrderNotice,
+): { url: string; body: string } | null {
+  const token = env("TELEGRAM_BOT_TOKEN")?.trim();
+  const chat = env("TELEGRAM_ADMIN_CHAT_ID")?.trim();
+  if (!token || !chat || !/^[0-9]+:[A-Za-z0-9_-]{20,}$/.test(token) || !/^-?[0-9]{3,20}$/.test(chat)) return null;
+  const adminUrl = env("ADMIN_REVIEW_URL")?.trim() || ADMIN_URL;
+  return {
+    url: `https://api.telegram.org/bot${token}/sendMessage`,
+    body: JSON.stringify({ chat_id: chat, text: telegramText(o, adminUrl), disable_web_page_preview: true }),
+  };
+}
+

@@ -59,7 +59,11 @@ class _Step {
   final int step;
   final int amount;
   final String state;
-  const _Step(this.step, this.amount, this.state);
+
+  /// The match's total once this step is verified: x2 after the first ad,
+  /// x3 after the second (Ads v3).
+  final int totalAfter;
+  const _Step(this.step, this.amount, this.state, [this.totalAfter = 0]);
   bool get awarded => state == 'awarded';
 }
 
@@ -69,7 +73,8 @@ enum _Mode { loading, legacy, steps }
 ///
 /// Against a 1.0.0 server (or when the server has the two-step offer off) it
 /// is the original single ad for the match's completion coins. Against a
-/// 1.0.1 server it is two optional steps, each worth half, both amounts shown
+/// 1.0.1 server it is two optional steps — the first doubles the match's
+/// coins, the second makes them three times (Ads v3) — both totals shown
 /// before the first tap; a step that was verified is kept whatever happens to
 /// the next one. A match whose single-ad claim already exists stays single.
 class RewardedRewardButton extends ConsumerStatefulWidget {
@@ -206,6 +211,23 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
             row['state'] as String? ?? 'available',
           ),
     ]..sort((a, b) => a.step.compareTo(b.step));
+    final base =
+        (status['base'] as num?)?.toInt() ??
+        (status['total'] as num?)?.toInt() ??
+        _amount;
+    var running = base;
+    for (var i = 0; i < steps.length; i++) {
+      final row = (status['steps'] as List).whereType<Map>().firstWhere(
+        (r) => (r['step'] as num?)?.toInt() == steps[i].step,
+      );
+      running += steps[i].amount;
+      steps[i] = _Step(
+        steps[i].step,
+        steps[i].amount,
+        steps[i].state,
+        (row['totalAfter'] as num?)?.toInt() ?? running,
+      );
+    }
     if (steps.length != 2) {
       // An answer this build cannot draw: offer the single ad every server
       // understands rather than a button stuck on loading.
@@ -215,7 +237,7 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
     setState(() {
       _mode = _Mode.steps;
       _steps = steps;
-      _amount = (status['total'] as num?)?.toInt() ?? _amount;
+      _amount = base;
       _awarded = steps.every((s) => s.awarded);
     });
   }
@@ -439,14 +461,15 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
     final spacing = context.spacing;
     final l = context.l10n;
     final colors = context.colors;
-    final total = _steps.fold<int>(0, (sum, s) => sum + s.amount);
+    final doubled = _steps.first.totalAfter;
+    final tripled = _steps.last.totalAfter;
     return Padding(
       padding: EdgeInsets.only(bottom: spacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            _awarded ? l.adStepsComplete(total) : l.adStepsTitle,
+            _awarded ? l.adTripleComplete(tripled) : l.adDoubleTitle,
             style: context.typography.body.copyWith(
               color: colors.textPrimary,
               fontWeight: FontWeight.w600,
@@ -459,7 +482,7 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
           ],
           if (_stale && !_awarded) _checkAgain(context),
           Text(
-            l.adStepsDisclosure(total),
+            l.adDoubleDisclosure(_amount, doubled, tripled),
             style: context.typography.caption.copyWith(
               color: colors.textSecondary,
             ),
@@ -490,10 +513,14 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
           : const Icon(Icons.ondemand_video_outlined),
       label: Text(
         step.awarded
-            ? l.adStepDone(step.step, step.amount)
+            ? (step.step == 1
+                  ? l.adDoubleDone(step.totalAfter)
+                  : l.adTripleDone(step.totalAfter))
             : _pending && previousDone
             ? l.adRewardPending
-            : l.adStepAction(step.step, step.amount),
+            : step.step == 1
+            ? l.adDoubleAction(step.totalAfter)
+            : l.adTripleAction(step.totalAfter),
       ),
     );
   }

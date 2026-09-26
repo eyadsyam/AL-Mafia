@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +12,10 @@ import '../data/online_session_store.dart';
 import '../data/player_profile.dart';
 import '../engine/models/match_settings.dart';
 import '../platform/audio_director.dart';
+import '../ui/economy/interstitial_coordinator.dart';
 import '../ui/fun/welcome_back.dart';
 import '../ui/l10n_ext.dart';
-import '../ui/screens/admin/coin_review_screen.dart';
+import '../ui/screens/admin/payments_admin_screen.dart';
 import '../ui/screens/match_controller.dart';
 import '../ui/screens/match_route.dart';
 import '../ui/screens/onboarding/first_run_screen.dart';
@@ -52,6 +55,10 @@ abstract final class Routes {
   /// The owner's transfer review queue. A URL, not a secret: the server
   /// refuses every admin action to anyone outside commerce_admins.
   static const adminCoins = '/admin/coins';
+
+  /// The owner's payment review page (Payments v2; web only, in no menu).
+  /// The Telegram notice links to `/admin?order=<id>`.
+  static const admin = '/admin';
   static const online = '/online';
   static const lobby = '/online/lobby';
 
@@ -133,10 +140,25 @@ GoRouter buildRouter(
   /// room it belongs to.
   String? initialLocation,
 }) {
-  void startMatch(BuildContext context) {
+  // Set while the pass-and-play deal ad is being considered, so a second
+  // tap cannot start a second match underneath it.
+  var dealing = false;
+
+  Future<void> startMatch(BuildContext context) async {
     final draft = ref.read(setupDraftProvider);
     final roleCounts = draft.roleCounts;
-    if (roleCounts == null) return;
+    if (roleCounts == null || dealing) return;
+
+    // Ads v3 (phase 110): the one pass-and-play ad before a match comes
+    // here — setup confirmed, no role dealt yet, nobody holding the phone.
+    // Preloaded-or-skip: never waits for a load.
+    dealing = true;
+    try {
+      await ref.read(interstitialCoordinatorProvider).beforeDeal();
+    } finally {
+      dealing = false;
+    }
+    if (!context.mounted) return;
 
     ref
         .read(matchControllerProvider.notifier)
@@ -185,7 +207,7 @@ GoRouter buildRouter(
 
   /// Start a match on a group's remembered configuration, skipping the roles
   /// and settings screens entirely. This is the third tap of a rematch.
-  void quickStart(BuildContext context, List<String> names) {
+  Future<void> quickStart(BuildContext context, List<String> names) async {
     final group = ref.read(setupDraftProvider).group;
     final roleCounts = group?.lastRoleCounts;
     final settings = group?.lastSettings;
@@ -197,7 +219,7 @@ GoRouter buildRouter(
       ..setNames(names)
       ..setRoleCounts(roleCounts)
       ..setSettings(settings);
-    startMatch(context);
+    await startMatch(context);
   }
 
   return GoRouter(
@@ -342,9 +364,15 @@ GoRouter buildRouter(
         },
       ),
       GoRoute(
+        path: Routes.admin,
+        builder: (context, state) => PaymentsAdminScreen(
+          focusOrder: state.uri.queryParameters['order'],
+          onBack: () => context.go(Routes.home),
+        ),
+      ),
+      GoRoute(
         path: Routes.adminCoins,
-        builder: (context, state) =>
-            CoinReviewScreen(onBack: () => context.go(Routes.home)),
+        redirect: (context, state) => Routes.admin,
       ),
       GoRoute(
         path: Routes.groups,
@@ -432,7 +460,7 @@ GoRouter buildRouter(
               ref.read(setupDraftProvider.notifier).setSettings(settings);
               // These become the defaults for the next match too (FR-005).
               ref.read(matchRepositoryProvider).saveDefaultSettings(settings);
-              startMatch(context);
+              unawaited(startMatch(context));
             },
             onBack: () => context.go(Routes.roles),
           );

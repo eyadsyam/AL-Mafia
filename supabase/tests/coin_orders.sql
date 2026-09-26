@@ -11,6 +11,8 @@ begin
     (anon,null,null,true),(admin,'admin@example.test',now(),false);
   insert into public.commerce_admins(user_id) values(admin);
   update public.coin_packs set price_piastres=5000, active=true where code='coins_500';
+  -- 20260927000200 prices and activates every pack; this contract predates it.
+  update public.coin_packs set active=false where code='coins_2500';
   insert into public.wallet_accounts(user_id,balance,lifetime_earned) values(buyer,300,300);
 
   -- Anonymous (unrecoverable) accounts cannot buy.
@@ -56,7 +58,8 @@ begin
   assert exists(select 1 from public.coin_orders where id=o1 and reviewed_by=admin and reviewed_at is not null);
 
   -- One transfer cannot fund a second order.
-  r:=public.create_coin_order(other,'coins_500','instapay'); o2:=(r->'order'->>'id')::uuid;
+  -- (o1 is vodafone_cash since 20260927000200: resuming records the method tapped.)
+  r:=public.create_coin_order(other,'coins_500','vodafone_cash'); o2:=(r->'order'->>'id')::uuid;
   perform public.claim_coin_order(other,o2,'TXN-9999');
   begin perform public.admin_review_coin_order(admin,o2,'approve','T-777',5000,null); assert false;
   exception when others then assert sqlerrm='TRANSFER_ALREADY_USED', sqlerrm; end;

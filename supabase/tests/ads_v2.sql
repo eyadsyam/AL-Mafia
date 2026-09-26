@@ -39,8 +39,10 @@ begin
     assert caps->'ads'->'banner'->>'enabled'='false', 'banner default on';
     assert caps->'ads'->'extras'->>'spin'='false' and caps->'ads'->'extras'->>'coffer'='false'
       and caps->'ads'->'extras'->>'swap'='false', 'extras default on';
-    assert (caps->'ads'->'appOpen'->>'maxPerDay')::int=3, 'app open cap';
-    assert (caps->'ads'->'appOpen'->>'gapSeconds')::int=14400, 'app open gap';
+    -- Phase 110: the app-open cap/gap are replaced by the global full-screen pacing.
+    assert (caps->'ads'->'fullScreen'->>'maxPerDay')::int=40, 'full-screen cap';
+    assert (caps->'ads'->'fullScreen'->>'gapSeconds')::int=90, 'full-screen gap';
+    assert (caps->'ads'->'appOpen'->>'resumeAfterSeconds')::int=14400, 'app open resume';
     assert caps ? 'council' and caps ? 'interstitial' and caps ? 'products', 'earlier keys lost';
     st := public.ad_extras_status(u);
     assert st->>'enabled'='false', 'status enabled';

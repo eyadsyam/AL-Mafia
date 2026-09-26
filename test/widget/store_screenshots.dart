@@ -135,7 +135,7 @@ void main() {
             onlineBackendFactoryProvider.overrideWithValue(() async => backend),
             audioDirectorProvider.overrideWithValue(AudioDirector()),
             paymentCapabilitiesProvider.overrideWithValue(
-              PaymentCapabilities(webTransfer: webTransfer),
+              PaymentCapabilities(transfer: webTransfer),
             ),
           ],
           child: localizedApp(CoinStore(onClose: () {}), locale: locale),

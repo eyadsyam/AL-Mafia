@@ -47,6 +47,8 @@ class _NoInterstitialAds implements InterstitialAds {
   @override
   Future<bool> showIfReady() async => false;
   @override
+  Future<bool> canRequestAds() async => false;
+  @override
   void dispose() {}
 }
 

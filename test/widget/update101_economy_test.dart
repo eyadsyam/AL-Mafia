@@ -93,13 +93,23 @@ Map<String, dynamic> caps({
   'products': products,
 };
 
+// Ads v3 (phase 110): each step is the whole base — x2, then x3.
 Map<String, dynamic> steps(String one, String two) => {
   'scheme': 'steps',
+  'mode': 'multiply',
   'base': 100,
   'total': 100,
+  'double': 200,
+  'triple': 300,
   'steps': [
-    {'step': 1, 'amount': 50, 'state': one, 'claimId': 'c1'},
-    {'step': 2, 'amount': 50, 'state': two, 'claimId': two == 'available' ? null : 'c2'},
+    {'step': 1, 'amount': 100, 'totalAfter': 200, 'state': one, 'claimId': 'c1'},
+    {
+      'step': 2,
+      'amount': 100,
+      'totalAfter': 300,
+      'state': two,
+      'claimId': two == 'available' ? null : 'c2',
+    },
   ],
 };
 
@@ -155,8 +165,8 @@ void main() {
     await tester.pump();
   }
 
-  group('two-step post-match reward', () {
-    testWidgets('both steps and amounts are shown before any tap; step 2 waits', (
+  group('x2 / x3 post-match reward', () {
+    testWidgets('both totals are shown before any tap; the triple waits', (
       tester,
     ) async {
       backend.responders['economy'] = (body) => switch (body['action']) {
@@ -164,9 +174,13 @@ void main() {
         _ => steps('available', 'available'),
       };
       await pump(tester, const RewardedRewardButton(roomId: 'room-1'));
-      expect(find.text(arStrings.adStepAction(1, 50)), findsOneWidget);
-      expect(find.text(arStrings.adStepAction(2, 50)), findsOneWidget);
-      expect(find.text(arStrings.adStepsDisclosure(100)), findsOneWidget);
+      expect(find.text(arStrings.adDoubleTitle), findsOneWidget);
+      expect(find.text(arStrings.adDoubleAction(200)), findsOneWidget);
+      expect(find.text(arStrings.adTripleAction(300)), findsOneWidget);
+      expect(
+        find.text(arStrings.adDoubleDisclosure(100, 200, 300)),
+        findsOneWidget,
+      );
       final two = tester.widget<OutlinedButton>(
         find.byKey(RewardedRewardButton.stepKey(2)),
       );
@@ -196,12 +210,47 @@ void main() {
       await tester.pump(MafiaTiming.adRewardPoll);
       await tester.pump();
       expect(ads.shown.single, ('s2:c1', RewardedPlacement.matchStep));
-      expect(find.text(arStrings.adStepDone(1, 50)), findsOneWidget);
+      expect(find.text(arStrings.adDoubleDone(200)), findsOneWidget);
       final two = tester.widget<OutlinedButton>(
         find.byKey(RewardedRewardButton.stepKey(2)),
       );
       expect(two.onPressed, isNotNull);
       await tester.pump(const Duration(seconds: 5));
+    });
+
+    testWidgets('both verified: the match now pays x3', (tester) async {
+      backend.responders['economy'] = (body) => switch (body['action']) {
+        'capabilities' => caps(),
+        _ => steps('awarded', 'awarded'),
+      };
+      await pump(tester, const RewardedRewardButton(roomId: 'room-1'));
+      expect(find.text(arStrings.adTripleComplete(300)), findsOneWidget);
+      expect(find.text(arStrings.adDoubleDone(200)), findsOneWidget);
+      expect(find.text(arStrings.adTripleDone(300)), findsOneWidget);
+      for (final step in [1, 2]) {
+        final button = tester.widget<OutlinedButton>(
+          find.byKey(RewardedRewardButton.stepKey(step)),
+        );
+        expect(button.onPressed, isNull, reason: 'no third payment');
+      }
+    });
+
+    testWidgets('totals are derived when the server omits them', (tester) async {
+      backend.responders['economy'] = (body) => switch (body['action']) {
+        'capabilities' => caps(),
+        _ => {
+          'scheme': 'steps',
+          'base': 80,
+          'total': 80,
+          'steps': [
+            {'step': 1, 'amount': 80, 'state': 'available'},
+            {'step': 2, 'amount': 80, 'state': 'available'},
+          ],
+        },
+      };
+      await pump(tester, const RewardedRewardButton(roomId: 'room-1'));
+      expect(find.text(arStrings.adDoubleAction(160)), findsOneWidget);
+      expect(find.text(arStrings.adTripleAction(240)), findsOneWidget);
     });
 
     testWidgets('an old server keeps the 1.0.0 single ad', (tester) async {
@@ -306,7 +355,7 @@ void main() {
       expect(find.byKey(PlayOffersTab.buyKey('mm_coins_500')), findsOneWidget);
       expect(find.byKey(PlayOffersTab.buyKey('mm_coins_2500')), findsNothing,
           reason: 'not listed by Play on this device');
-      expect(find.text(arStrings.playBuy('EGP 29.99')), findsNWidgets(2));
+      expect(find.text(arStrings.payWithGoogle('EGP 29.99')), findsNWidgets(2));
     });
 
     testWidgets('an unprotected account is asked to link an email first', (

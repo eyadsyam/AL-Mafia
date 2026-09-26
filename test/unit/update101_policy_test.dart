@@ -114,8 +114,14 @@ void main() {
         'afterRewardSeconds': 1,
         'graceMatches': 0,
       });
-      expect(wild.maxPerDay, 3);
-      expect(wild.gap, const Duration(minutes: 10));
+      // Ads v3 (phase 110): the global safety cap is 40 and the gap floor
+      // 90 s; the server can only tighten them.
+      expect(wild.maxPerDay, 20);
+      expect(wild.gap, const Duration(seconds: 90));
+      expect(
+        InterstitialRules.fromJson({'maxPerDay': 99}).maxPerDay,
+        40,
+      );
       expect(wild.afterReward, const Duration(minutes: 3));
       expect(wild.graceMatches, 1);
     });

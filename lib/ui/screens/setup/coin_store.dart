@@ -218,7 +218,18 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
     final l = context.l10n;
     final wallet = ref.watch(walletProvider);
     final value = wallet.valueOrNull;
-    final coins = ref.watch(paymentCapabilitiesProvider).webTransfer;
+    // InstaPay / Vodafone Cash (Payments v2): always a tab on the web; on
+    // Android only while the server has transfers on for Android (kill
+    // switch) or the player still has orders to follow.
+    final pay = ref.watch(paymentCapabilitiesProvider);
+    final transferShop = pay.transfer && pay.platform == 'android'
+        ? ref.watch(coinShopProvider).valueOrNull
+        : null;
+    final coins =
+        pay.transfer &&
+        (pay.platform != 'android' ||
+            (transferShop != null &&
+                (transferShop.enabled || transferShop.orders.isNotEmpty)));
     // New vault features appear only when the server negotiated them; an
     // older server leaves this exactly the 1.0.0 store.
     final caps =
@@ -258,7 +269,11 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
             : _HistoryTab(history: value.history),
       ),
       if (play) (l.storeTabPlay, const PlayOffersTab()),
-      if (coins) (l.storeTabCoins, const CoinPacksTab()),
+      if (coins)
+        (
+          pay.platform == 'android' ? l.pay2TabTransfer : l.storeTabCoins,
+          const CoinPacksTab(),
+        ),
     ];
     return DefaultTabController(
       length: tabs.length,

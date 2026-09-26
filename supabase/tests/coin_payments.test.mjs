@@ -1,7 +1,7 @@
 // node --experimental-strip-types supabase/tests/coin_payments.test.mjs
 import assert from 'node:assert/strict';
 import {
-  parseClaim, parseCreate, parseReview, paymentMethods, salesEnabled,
+  parseClaim, parseCreate, parseReview, paymentMethods,
 } from '../functions/_shared/coin_payments.ts';
 
 const env = (values) => (name) => values[name];
@@ -23,9 +23,6 @@ assert.equal(methods[1].url, undefined, 'an unavailable method exposes no link')
 assert.equal(paymentMethods(env({ COIN_PAY_INSTAPAY_URL: 'https://u:p@x.example/' }))[0].available, false);
 assert.equal(paymentMethods(env({ COIN_PAY_INSTAPAY_URL: 'not a url' }))[0].available, false);
 
-assert.equal(salesEnabled(env({})), false);
-assert.equal(salesEnabled(env({ COIN_SALES_ENABLED: 'yes' })), false);
-assert.equal(salesEnabled(env({ COIN_SALES_ENABLED: 'true' })), true);
 
 // Price tampering: the client cannot send amounts; unknown fields are dropped.
 const created = parseCreate({ pack: 'coins_500', method: 'instapay', coins: 99999, amount: 1 });
@@ -45,4 +42,4 @@ assert.equal(parseReview({ order, decision: 'approve', transaction: 'T-1', recei
 assert.equal(parseReview({ order, decision: 'credit' }).ok, false);
 assert.equal(parseReview({ order, decision: 'approve', receivedPiastres: -5 }).ok, false);
 assert.equal(parseReview({ order, decision: 'approve', receivedPiastres: 1.5 }).ok, false);
-console.log('PASS coin payments: https-only methods, sales flag, no client prices, claim/review validation');
+console.log('PASS coin payments: https-only methods, no client prices, claim/review validation');

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../economy/interstitial_coordinator.dart';
 import '../../../data/player_profile.dart';
 import '../../../data/terms_consent.dart';
 import '../../economy/wallet.dart';
@@ -180,10 +181,21 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     }
   }
 
-  Future<void> _enter({bool host = false, String? code}) async {
+  Future<void> _enter({
+    bool host = false,
+    String? code,
+    bool resume = false,
+  }) async {
     if (!await acceptCommunityRules(context) || !mounted) return;
     final profile = ref.read(playerProfileProvider).valueOrNull;
     if (profile == null) return;
+    // Ads v3 (phase 110): the pre-match ad comes here, on the player's own
+    // tap and before any room is entered — never in the lobby, never on a
+    // resume (that seat may already be in a match). Preloaded-or-skip.
+    if (!resume) {
+      await ref.read(interstitialCoordinatorProvider).beforeOnlineMatch();
+      if (!mounted) return;
+    }
     // Capture the user's room-entry gesture before authentication and the
     // network round trip. Without this, Chrome/Edge may allow getUserMedia but
     // reject the later remote audio element until the player taps playback.
@@ -508,6 +520,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                                 ? null
                                                 : () => _enter(
                                                     code: _resume!.code,
+                                                    resume: true,
                                                   ),
                                           ),
                                         ),

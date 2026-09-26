@@ -420,6 +420,15 @@ class GoogleInterstitialAds implements InterstitialAds {
   }
 
   @override
+  Future<bool> canRequestAds() async {
+    try {
+      return await _runtime.canRequestNow();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
   void dispose() {
     _runtime.offConsentChanged(_discard);
     _discard();

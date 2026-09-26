@@ -1,31 +1,52 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../platform/haptics.dart';
 import '../../platform/links/external_link.dart';
+import '../../platform/payment_capabilities.dart';
+import '../../platform/payment_proof.dart';
 import '../../transport/online_backend.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
 import '../theme/mafia_theme.dart';
 import 'account_protection.dart';
+import 'council_art.dart';
+import 'economy_capabilities.dart';
 import 'mafia_coin.dart';
 import 'wallet.dart';
 import 'store_art.dart';
 import 'vault_kit.dart';
 import '../theme/design_tokens.dart';
 
-/// One pack as the server prices it. Amounts are piastres (1/100 EGP).
+/// One product as the server prices it for a transfer. Amounts are piastres
+/// (1/100 EGP) and equal the Play product's EGP price ([playProduct]).
 class CoinPack {
   final String code;
   final int coins;
   final int pricePiastres;
 
-  /// Set for the Quiet Pass: it grants this instead of coins, and the web
-  /// buyer's Android app carries it on the same linked account.
+  /// Set for the Quiet Pass: it grants this instead of coins.
   final String? entitlement;
-  const CoinPack(this.code, this.coins, this.pricePiastres, [this.entitlement]);
+
+  /// Set for the Starter Bundle: the cosmetic it adds to its coins.
+  final String? item;
+
+  /// The Google Play product this is the transfer twin of.
+  final String? playProduct;
+  const CoinPack(
+    this.code,
+    this.coins,
+    this.pricePiastres, [
+    this.entitlement,
+    this.item,
+    this.playProduct,
+  ]);
 
   bool get pass => entitlement != null;
+  bool get bundle => item != null;
 }
 
 class PayMethod {
@@ -38,11 +59,14 @@ class PayMethod {
 class CoinOrder {
   final String id;
   final String reference;
+  final String pack;
   final int coins;
   final int amountPiastres;
   final String method;
   final String status;
   final String? note;
+  final String? senderName;
+  final bool proofSubmitted;
   const CoinOrder({
     required this.id,
     required this.reference,
@@ -50,21 +74,32 @@ class CoinOrder {
     required this.amountPiastres,
     required this.method,
     required this.status,
+    this.pack = '',
     this.note,
+    this.senderName,
+    this.proofSubmitted = false,
   });
 
   factory CoinOrder.fromJson(Map<String, dynamic> j) => CoinOrder(
     id: j['id'] as String,
     reference: j['reference'] as String? ?? '',
+    pack: j['pack'] as String? ?? '',
     coins: (j['coins'] as num?)?.toInt() ?? 0,
     amountPiastres: (j['amountPiastres'] as num?)?.toInt() ?? 0,
     method: j['method'] as String? ?? '',
     status: j['status'] as String? ?? '',
     note: j['playerNote'] as String?,
+    senderName: j['senderName'] as String?,
+    proofSubmitted: j['proofSubmitted'] == true,
   );
 
+  /// Pending: waiting for the proof, or for the owner's review.
   bool get open =>
       const {'awaiting_transfer', 'claimed', 'needs_info'}.contains(status);
+
+  /// The player can (re)send the screenshot and sender name.
+  bool get needsProof =>
+      status == 'awaiting_transfer' || status == 'needs_info';
 }
 
 class CoinShop {
@@ -74,8 +109,9 @@ class CoinShop {
   final List<PayMethod> methods;
   final List<CoinOrder> orders;
 
-  /// This account already has the Quiet Pass (from Play or the web).
+  /// This account already has the Quiet Pass (from Play or a transfer).
   final bool adFree;
+  final int maxPending;
   const CoinShop({
     required this.enabled,
     required this.recoverable,
@@ -83,22 +119,27 @@ class CoinShop {
     required this.methods,
     required this.orders,
     this.adFree = false,
+    this.maxPending = 2,
   });
 
   factory CoinShop.fromJson(Map<String, dynamic> j) => CoinShop(
     enabled: j['enabled'] as bool? ?? false,
     recoverable: j['recoverable'] as bool? ?? false,
     adFree: j['adFree'] == true,
+    maxPending: (j['maxPending'] as num?)?.toInt() ?? 2,
     packs: [
       for (final p in (j['packs'] as List? ?? const []).whereType<Map>())
         if (p['pricePiastres'] is num &&
             ((p['coins'] as num?) ?? 0) >= 0 &&
-            (p['entitlement'] == null || p['entitlement'] == 'remove_interruptions'))
+            (p['entitlement'] == null ||
+                p['entitlement'] == 'remove_interruptions'))
           CoinPack(
             p['code'] as String,
             ((p['coins'] as num?) ?? 0).toInt(),
             (p['pricePiastres'] as num).toInt(),
             p['entitlement'] as String?,
+            p['item'] as String?,
+            p['playProduct'] as String?,
           ),
     ],
     methods: [
@@ -115,10 +156,14 @@ class CoinShop {
     ],
   );
 
-  /// The one order this player may still act on (server allows one open).
-  CoinOrder? get current =>
-      orders.where((o) => o.open).firstOrNull ??
-      orders.where((o) => o.status == 'expired').firstOrNull;
+  List<CoinOrder> get pending => orders.where((o) => o.open).toList();
+  bool get full => pending.length >= maxPending;
+
+  CoinPack? forPlayProduct(String id) =>
+      packs.where((p) => p.playProduct == id).firstOrNull;
+
+  PayMethod? method(String code) =>
+      methods.where((m) => m.code == code).firstOrNull;
 }
 
 String egp(int piastres) => piastres % 100 == 0
@@ -135,30 +180,51 @@ class CoinShopController extends AsyncNotifier<CoinShop> {
   Future<Map<String, dynamic>> _call(Map<String, Object?> body) async {
     final backend = await ref.read(onlineBackendFactoryProvider)();
     await backend.ensureSession();
-    return backend.call('coin_orders', body);
+    final platform = ref.read(paymentCapabilitiesProvider).platform;
+    return backend.call('coin_orders', {
+      ...body,
+      if (platform != null) 'platform': platform,
+    });
   }
 
   @override
   Future<CoinShop> build() async =>
       CoinShop.fromJson(await _call({'action': 'shop'}));
 
+  /// On resume and pull-to-refresh: an approval may have landed while the
+  /// player was away; the wallet (and a pass or bundle) is the server's to say.
   Future<void> reload() async {
+    final before = {
+      for (final o in state.valueOrNull?.orders ?? const <CoinOrder>[])
+        if (o.status == 'paid') o.id,
+    };
     state = await AsyncValue.guard(build);
-    // An approval may have landed; the wallet is the server's to say.
+    final after = state.valueOrNull?.orders ?? const <CoinOrder>[];
     await ref.read(walletProvider.notifier).refresh();
+    if (after.any((o) => o.status == 'paid' && !before.contains(o.id))) {
+      ref.invalidate(economyCapabilitiesProvider);
+    }
   }
 
-  Future<void> create(String pack, String method) async {
-    await _call({'action': 'create', 'pack': pack, 'method': method});
+  Future<CoinOrder> create(String pack, String method) async {
+    final answer = await _call({
+      'action': 'create',
+      'pack': pack,
+      'method': method,
+    });
     state = await AsyncValue.guard(build);
+    return CoinOrder.fromJson(
+      Map<String, dynamic>.from(answer['order'] as Map),
+    );
   }
 
-  Future<void> claim(String order, String reference, String? payer) async {
+  /// The proof: the screenshot (already a <=1600px JPEG) and the sender name.
+  Future<void> submit(String order, String sender, Uint8List image) async {
     await _call({
-      'action': 'claim',
+      'action': 'submit',
       'order': order,
-      'reference': reference,
-      if (payer != null && payer.trim().isNotEmpty) 'payerHint': payer,
+      'senderName': sender.trim(),
+      'image': base64Encode(image),
     });
     state = await AsyncValue.guard(build);
   }
@@ -173,19 +239,204 @@ String methodName(BuildContext context, String code) => code == 'instapay'
     ? context.l10n.coinPayInstapay
     : context.l10n.coinPayVodafone;
 
-/// The web store's coin packs: manual transfer review, never automatic.
+/// A refusal the player can act on, in their words.
+String transferError(BuildContext context, Object error) {
+  final l = context.l10n;
+  final code = error is BackendException ? error.code : '';
+  return switch (code) {
+    'ALREADY_OWNED' => l.pay2AlreadyOwned,
+    'TOO_MANY_PENDING' => l.pay2TooMany,
+    'DUPLICATE_PROOF' => l.pay2Duplicate,
+    'SENDER_REQUIRED' || 'PROOF_REQUIRED' => l.pay2ProofRequired,
+    'SALES_DISABLED' || 'METHOD_UNAVAILABLE' => l.coinPacksUnavailable,
+    _ => l.coinOrderFailed,
+  };
+}
+
+String productName(BuildContext context, CoinPack pack) {
+  final l = context.l10n;
+  if (pack.pass) return l.quietPassTitle;
+  if (pack.bundle) return l.bundleTitle;
+  return l.coinPackCoins(pack.coins);
+}
+
+String orderProduct(BuildContext context, CoinOrder order) {
+  final l = context.l10n;
+  if (order.pack == 'quiet_pass' || (order.coins == 0 && order.pack.isEmpty)) {
+    return l.quietPassTitle;
+  }
+  if (order.pack == 'starter_bundle') return l.bundleTitle;
+  return l.coinPackCoins(order.coins);
+}
+
+void _say(BuildContext context, String text) => ScaffoldMessenger.maybeOf(
+  context,
+)?.showSnackBar(SnackBar(content: Text(text)));
+
+/// Step 1 done: the chosen method's page opens inside the tap itself (a real
+/// link, never blocked as a pop-up) and the order is made alongside, so the
+/// player comes back to an order waiting for the proof. With [sheet], the
+/// order's steps open over the current tab (the Play offers tab).
+Future<void> startTransfer(
+  BuildContext context,
+  WidgetRef ref,
+  CoinPack pack,
+  PayMethod method, {
+  bool sheet = false,
+}) async {
+  final opened = ref.read(externalLinkOpenerProvider)(method.url!);
+  if (!opened) _say(context, context.l10n.coinOpenFailed);
+  try {
+    final order = await ref
+        .read(coinShopProvider.notifier)
+        .create(pack.code, method.code);
+    if (sheet && context.mounted) {
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        showDragHandle: true,
+        builder: (_) => TransferOrderSheet(orderId: order.id),
+      );
+    }
+  } catch (error) {
+    if (context.mounted) _say(context, transferError(context, error));
+  }
+}
+
+/// «إنستا باي» / «فودافون كاش» under a paid item on the Play tab. Nothing at
+/// all when the server has transfers off for this platform (kill switch), the
+/// item has no transfer twin, or it is already owned.
+class TransferMethodButtons extends ConsumerWidget {
+  final String playProduct;
+  const TransferMethodButtons({super.key, required this.playProduct});
+
+  static Key button(String product, String method) =>
+      ValueKey('transfer_${product}_$method');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!ref.watch(paymentCapabilitiesProvider).transfer) {
+      return const SizedBox.shrink();
+    }
+    final shop = ref.watch(coinShopProvider).valueOrNull;
+    final pack = shop?.forPlayProduct(playProduct);
+    if (shop == null || !shop.enabled || pack == null) {
+      return const SizedBox.shrink();
+    }
+    if (pack.pass && shop.adFree) return const SizedBox.shrink();
+    final methods = shop.methods.where((m) => m.available).toList();
+    if (methods.isEmpty) return const SizedBox.shrink();
+    final s = context.spacing;
+    return Padding(
+      padding: EdgeInsets.only(top: s.sm),
+      child: Row(
+        children: [
+          for (final (i, m) in methods.indexed) ...[
+            if (i > 0) SizedBox(width: s.sm),
+            Expanded(
+              child: OutlinedButton(
+                key: button(playProduct, m.code),
+                style: vaultOutlineStyle(context),
+                onPressed: () =>
+                    startTransfer(context, ref, pack, m, sheet: true),
+                child: Text(
+                  methodName(context, m.code),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Re-reads orders and the wallet whenever the app comes back to the front
+/// (the player returns from InstaPay / Vodafone Cash, or waits for review).
+class _ResumeRefresh extends ConsumerStatefulWidget {
+  final Widget child;
+  const _ResumeRefresh({required this.child});
+
+  @override
+  ConsumerState<_ResumeRefresh> createState() => _ResumeRefreshState();
+}
+
+class _ResumeRefreshState extends ConsumerState<_ResumeRefresh> {
+  late final AppLifecycleListener _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    _listener = AppLifecycleListener(
+      onResume: () => ref.read(coinShopProvider.notifier).reload(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _listener.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
+/// One order's steps, over the Play tab.
+class TransferOrderSheet extends ConsumerWidget {
+  final String orderId;
+  const TransferOrderSheet({super.key, required this.orderId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final shop = ref.watch(coinShopProvider).valueOrNull;
+    final order = shop?.orders.where((o) => o.id == orderId).firstOrNull;
+    final s = context.spacing;
+    return _ResumeRefresh(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          s.md,
+          0,
+          s.md,
+          s.md + MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: SingleChildScrollView(
+          child: order == null
+              ? const VaultSkeleton(cards: 1)
+              : !shop!.recoverable
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      context.l10n.coinPacksNeedAccount,
+                      style: context.typography.body,
+                    ),
+                    const AccountProtectionCard(),
+                  ],
+                )
+              : ProofOrderCard(order: order, method: shop.method(order.method)),
+        ),
+      ),
+    );
+  }
+}
+
+/// The transfer store: InstaPay / Vodafone Cash with manual review, on the
+/// web and (beside Google Play) on Android.
 class CoinPacksTab extends ConsumerStatefulWidget {
   const CoinPacksTab({super.key});
 
   static Key pack(String code) => ValueKey('coin_pack_$code');
   static Key method(String code) => ValueKey('coin_method_$code');
-  static const createButton = ValueKey('coin_create_order');
-  static const openButton = ValueKey('coin_open_payment');
-  static const referenceField = ValueKey('coin_reference');
-  static const claimButton = ValueKey('coin_claim');
-  static const cancelButton = ValueKey('coin_cancel');
+  static Key status(String id) => ValueKey('coin_status_$id');
   static const notice = ValueKey('coin_manual_notice');
   static const passNote = ValueKey('coin_pass_note');
+  static const openButton = ValueKey('coin_open_payment');
+  static const cancelButton = ValueKey('coin_cancel');
+  static const fullNote = ValueKey('coin_pending_full');
 
   @override
   ConsumerState<CoinPacksTab> createState() => _CoinPacksTabState();
@@ -194,39 +445,19 @@ class CoinPacksTab extends ConsumerStatefulWidget {
 class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
   String? _pack;
   bool _busy = false;
-
-  /// A late (expired) order stays claimable; this sets it aside to start a
-  /// new one without losing it (it remains in the list and on the server).
-  bool _newOrder = false;
-  final _reference = TextEditingController();
-  final _payer = TextEditingController();
   final _packScroll = ScrollController();
 
   @override
   void dispose() {
-    _reference.dispose();
-    _payer.dispose();
     _packScroll.dispose();
     super.dispose();
   }
 
-  void _say(String text) => ScaffoldMessenger.maybeOf(
-    context,
-  )?.showSnackBar(SnackBar(content: Text(text)));
-
-  Future<void> _act(Future<void> Function(CoinShopController) step) async {
+  Future<void> _pay(CoinPack pack, PayMethod method) async {
     if (_busy) return;
     setState(() => _busy = true);
     try {
-      await step(ref.read(coinShopProvider.notifier));
-    } on BackendException catch (error) {
-      if (mounted) {
-        _say(
-          error.code == 'ALREADY_OWNED'
-              ? context.l10n.webPassOwned
-              : context.l10n.coinOrderFailed,
-        );
-      }
+      await startTransfer(context, ref, pack, method);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -242,85 +473,55 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
       accountStatusProvider,
       (_, _) => ref.invalidate(coinShopProvider),
     );
-    return shop.when(
-      loading: () => const VaultSkeleton(cards: 2),
-      // A server without the orders feature (or offline) is "not available",
-      // said plainly, with a retry.
-      error: (_, _) => VaultRetry(
-        message: l.coinPacksUnavailable,
-        action: l.videoRetry,
-        onRetry: () => ref.invalidate(coinShopProvider),
-      ),
-      data: (shop) {
-        if (!shop.enabled) {
-          return Padding(
-            padding: EdgeInsets.all(s.md),
-            child: Text(l.coinPacksUnavailable, style: context.typography.body),
-          );
-        }
-        final current = shop.current;
-        final order = current?.status == 'expired' && _newOrder
-            ? null
-            : current;
-        return RefreshIndicator(
+    return _ResumeRefresh(
+      child: shop.when(
+        loading: () => const VaultSkeleton(cards: 2),
+        // A server without the orders feature (or offline) is "not
+        // available", said plainly, with a retry.
+        error: (_, _) => VaultRetry(
+          message: l.coinPacksUnavailable,
+          action: l.videoRetry,
+          onRetry: () => ref.invalidate(coinShopProvider),
+        ),
+        data: (shop) => RefreshIndicator(
           onRefresh: () => ref.read(coinShopProvider.notifier).reload(),
           child: ListView(
             padding: EdgeInsets.all(s.md),
             children: [
-              if (!shop.recoverable) ...[
+              if (!shop.enabled)
+                Text(l.coinPacksUnavailable, style: context.typography.body)
+              else if (!shop.recoverable) ...[
                 Text(l.coinPacksNeedAccount, style: context.typography.body),
                 SizedBox(height: s.sm),
                 const AccountProtectionCard(),
-              ] else if (order != null)
-                VaultCard(
-                  lit: order.status == 'awaiting_transfer',
-                  children: [
-                    _OrderCard(
-                  order: order,
-                  method: shop.methods
-                      .where((m) => m.code == order.method)
-                      .firstOrNull,
-                  reference: _reference,
-                  payer: _payer,
-                  busy: _busy,
-                  onClaim: () => _act(
-                    (c) =>
-                        c.claim(order.id, _reference.text.trim(), _payer.text),
+              ] else ...[
+                for (final order in shop.pending) ...[
+                  VaultCard(
+                    lit: order.needsProof,
+                    children: [
+                      ProofOrderCard(
+                        order: order,
+                        method: shop.method(order.method),
+                      ),
+                    ],
                   ),
-                  onCancel: () => _act((c) => c.cancel(order.id)),
-                  onOpenFailed: () => _say(l.coinOpenFailed),
-                  onNewOrder: order.status == 'expired'
-                      ? () => setState(() => _newOrder = true)
-                      : null,
-                    ),
-                  ],
-                )
-              else
-                ..._chooser(shop),
-              SizedBox(height: s.lg),
-              for (final past in shop.orders)
-                if (!past.open && past.id != order?.id)
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                    title: Text(l.coinOrderTitle(past.reference)),
-                    subtitle: Text(settledStatus(context, past)),
-                  ),
+                  SizedBox(height: s.md),
+                ],
+                if (shop.full)
+                  Text(
+                    key: CoinPacksTab.fullNote,
+                    l.pay2TooMany,
+                    style: context.typography.bodySmall,
+                  )
+                else
+                  ..._chooser(shop),
+              ],
+              OrderStatusList(orders: shop.orders),
             ],
           ),
-        );
-      },
+        ),
+      ),
     );
-  }
-
-  /// Choose a pack, then tap a method: its payment page opens inside the tap
-  /// itself (a real link, never blocked as a pop-up) and the order is made
-  /// alongside, so the player comes back to an order waiting for the
-  /// transfer reference.
-  void _payWith(CoinPack pack, PayMethod method) {
-    final opened = ref.read(externalLinkOpenerProvider)(method.url!);
-    if (!opened) _say(context.l10n.coinOpenFailed);
-    _act((c) => c.create(pack.code, method.code));
   }
 
   List<Widget> _chooser(CoinShop shop) {
@@ -332,7 +533,7 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
     // Best value only where the numbers prove it: the most coins per pound,
     // strictly ahead of every other coin pack.
     final coinPacks = shop.packs
-        .where((p) => !p.pass && p.coins > 0 && p.pricePiastres > 0)
+        .where((p) => !p.pass && !p.bundle && p.coins > 0 && p.pricePiastres > 0)
         .toList();
     String? best;
     if (coinPacks.length > 1) {
@@ -348,7 +549,7 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
     return [
       _Step(
         number: 1,
-        title: l.storeTabCoins,
+        title: l.pay2StepChoose,
         hint: pack == null ? l.coinPickPackFirst : null,
       ),
       SizedBox(height: s.sm),
@@ -421,11 +622,13 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
                                     errorBuilder: (_, _, _) =>
                                         const SizedBox.shrink(),
                                   )
+                                : p.bundle
+                                ? const FittedBox(child: StarterBundleArt())
                                 : StoreProductArt(code: p.code),
                           ),
-                          if (p.pass)
+                          if (p.pass || p.bundle)
                             Text(
-                              l.quietPassTitle,
+                              productName(context, p),
                               style: context.typography.title.copyWith(
                                 color: VaultTokens.goldLight,
                               ),
@@ -478,6 +681,12 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
                               start: s.sm,
                               child: VaultTag(l.vaultBestValue, oxblood: true),
                             ),
+                          if (p.bundle)
+                            PositionedDirectional(
+                              top: -VaultTokens.tagLift,
+                              start: s.sm,
+                              child: VaultTag(l.vaultOneTime, oxblood: true),
+                            ),
                           if (selected)
                             PositionedDirectional(
                               top: s.sm,
@@ -497,15 +706,28 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
       if (pack != null && pack.pass) ...[
         Text(
           key: CoinPacksTab.passNote,
-          passOwned ? l.webPassOwned : l.webPassBody,
+          passOwned
+              ? l.webPassOwned
+              : kIsWeb
+              ? l.webPassBody
+              : l.quietPassBody,
           style: context.typography.bodySmall.copyWith(
             color: passOwned ? VaultTokens.gold : colors.textSecondary,
           ),
         ),
         SizedBox(height: s.sm),
       ],
+      if (pack != null && pack.bundle) ...[
+        Text(
+          l.bundleBody(pack.coins),
+          style: context.typography.bodySmall.copyWith(
+            color: colors.textSecondary,
+          ),
+        ),
+        SizedBox(height: s.sm),
+      ],
       SizedBox(height: s.sm),
-      _Step(number: 2, title: l.coinPayMethod, hint: l.coinPayStep),
+      _Step(number: 2, title: l.coinPayMethod, hint: l.pay2StepPayHint),
       SizedBox(height: s.sm),
       for (final m in shop.methods) ...[
         VaultPress(
@@ -514,12 +736,12 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
             style: vaultGoldStyle(context),
             icon: const Icon(Icons.open_in_new),
             onPressed: m.available && pack != null && !passOwned && !_busy
-                ? () => _payWith(pack, m)
+                ? () => _pay(pack, m)
                 : null,
             label: Text(
               pack == null
-                  ? l.coinPayWith(methodName(context, m.code))
-                  : '${l.coinPayWith(methodName(context, m.code))} · ${l.coinPackPrice(egp(pack.pricePiastres))}',
+                  ? methodName(context, m.code)
+                  : '${methodName(context, m.code)} · ${l.coinPackPrice(egp(pack.pricePiastres))}',
             ),
           ),
         ),
@@ -537,7 +759,7 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
         SizedBox(height: s.sm),
       ],
       SizedBox(height: s.sm),
-      _Notice(),
+      const _Notice(),
     ];
   }
 }
@@ -547,7 +769,13 @@ class _Step extends StatelessWidget {
   final int number;
   final String title;
   final String? hint;
-  const _Step({required this.number, required this.title, this.hint});
+  final bool done;
+  const _Step({
+    required this.number,
+    required this.title,
+    this.hint,
+    this.done = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -570,13 +798,19 @@ class _Step extends StatelessWidget {
               ],
             ),
           ),
-          child: Text(
-            '$number',
-            style: context.typography.body.emphasised.copyWith(
-              color: VaultTokens.goldInk,
-              height: 1.1,
-            ),
-          ),
+          child: done
+              ? const Icon(
+                  Icons.check_rounded,
+                  size: VaultTokens.chipCoin,
+                  color: VaultTokens.goldInk,
+                )
+              : Text(
+                  '$number',
+                  style: context.typography.body.emphasised.copyWith(
+                    color: VaultTokens.goldInk,
+                    height: 1.1,
+                  ),
+                ),
         ),
         SizedBox(width: s.sm),
         Expanded(
@@ -631,6 +865,8 @@ class _Check extends StatelessWidget {
 }
 
 class _Notice extends StatelessWidget {
+  const _Notice();
+
   @override
   Widget build(BuildContext context) => VaultCard(
     key: CoinPacksTab.notice,
@@ -646,7 +882,7 @@ class _Notice extends StatelessWidget {
       ),
       SizedBox(height: context.spacing.sm),
       Text(
-        context.l10n.coinManualDetail,
+        '${context.l10n.pay2ReviewDetail}\n${context.l10n.pay2ProofPrivacy}',
         style: context.typography.bodySmall.copyWith(
           color: context.colors.textSecondary,
         ),
@@ -655,46 +891,88 @@ class _Notice extends StatelessWidget {
   );
 }
 
-class _OrderCard extends ConsumerWidget {
+/// One pending order: pay in the other app, then come back with the proof
+/// (the screenshot and the sender name, both required).
+class ProofOrderCard extends ConsumerStatefulWidget {
   final CoinOrder order;
   final PayMethod? method;
-  final TextEditingController reference;
-  final TextEditingController payer;
-  final bool busy;
-  final VoidCallback onClaim;
-  final VoidCallback onCancel;
-  final VoidCallback onOpenFailed;
-  final VoidCallback? onNewOrder;
-  const _OrderCard({
-    this.onNewOrder,
-    required this.order,
-    required this.method,
-    required this.reference,
-    required this.payer,
-    required this.busy,
-    required this.onClaim,
-    required this.onCancel,
-    required this.onOpenFailed,
-  });
+  const ProofOrderCard({super.key, required this.order, required this.method});
+
+  static const pickButton = ValueKey('proof_pick');
+  static const senderField = ValueKey('proof_sender');
+  static const submitButton = ValueKey('proof_submit');
+  static const imageReady = ValueKey('proof_image_ready');
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProofOrderCard> createState() => _ProofOrderCardState();
+}
+
+class _ProofOrderCardState extends ConsumerState<ProofOrderCard> {
+  final _sender = TextEditingController();
+  Uint8List? _image;
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _sender.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pick() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final bytes = await ref.read(proofPickerProvider)();
+      if (!mounted) return;
+      if (bytes == null) return;
+      setState(() => _image = bytes);
+    } catch (_) {
+      if (mounted) _say(context, context.l10n.pay2ImageFailed);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _submit() async {
+    final image = _image;
+    final sender = _sender.text.trim();
+    if (image == null || sender.length < 2) {
+      _say(context, context.l10n.pay2ProofRequired);
+      return;
+    }
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await ref
+          .read(coinShopProvider.notifier)
+          .submit(widget.order.id, sender, image);
+      if (mounted) {
+        setState(() => _image = null);
+        _say(context, context.l10n.pay2Sent);
+      }
+    } catch (error) {
+      if (mounted) _say(context, transferError(context, error));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  void _open() {
+    final url = widget.method?.url;
+    if (url == null || !ref.read(externalLinkOpenerProvider)(url)) {
+      _say(context, context.l10n.coinOpenFailed);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
     final s = context.spacing;
+    final order = widget.order;
     final name = methodName(context, order.method);
-    final canClaim = const {
-      'awaiting_transfer',
-      'needs_info',
-      'expired',
-    }.contains(order.status);
-    final status = switch (order.status) {
-      'awaiting_transfer' => l.coinStatusAwaiting,
-      'claimed' => l.coinStatusClaimed,
-      'needs_info' => l.coinStatusNeedsInfo(order.note ?? ''),
-      'expired' => l.coinStatusExpired,
-      _ => '',
-    };
+    final amount = egp(order.amountPiastres);
     return Column(
+      key: ValueKey('proof_order_${order.id}'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
@@ -704,82 +982,179 @@ class _OrderCard extends ConsumerWidget {
           ),
         ),
         Text(
-          order.coins == 0
-              ? l.coinOrderPassSummary(egp(order.amountPiastres), name)
-              : l.coinOrderSummary(order.coins, egp(order.amountPiastres), name),
+          l.pay2OrderSummary(orderProduct(context, order), amount, name),
           style: context.typography.body,
         ),
-        SizedBox(height: s.xs),
-        Text(status, style: context.typography.bodySmall),
         SizedBox(height: s.md),
-        _Notice(),
-        if (order.status == 'awaiting_transfer' && method?.url != null) ...[
-          SizedBox(height: s.md),
-          FilledButton.icon(
+        _Step(number: 1, title: l.pay2StepChoose, done: true),
+        SizedBox(height: s.sm),
+        _Step(
+          number: 2,
+          title: l.pay2StepPay(amount, name),
+          done: !order.needsProof,
+        ),
+        if (order.needsProof && widget.method?.url != null) ...[
+          SizedBox(height: s.xs),
+          OutlinedButton.icon(
             key: CoinPacksTab.openButton,
-            style: vaultGoldStyle(context),
+            style: vaultOutlineStyle(context),
             icon: const Icon(Icons.open_in_new),
             label: Text(l.coinOpenPayment(name)),
-            // Opened inside the tap itself; the order stays open here.
-            onPressed: () {
-              if (!ref.read(externalLinkOpenerProvider)(method!.url!)) {
-                onOpenFailed();
-              }
-            },
+            onPressed: _open,
           ),
-          Text(l.coinDesktopHint, style: context.typography.bodySmall),
+          if (kIsWeb)
+            Text(l.coinDesktopHint, style: context.typography.caption),
         ],
-        if (canClaim) ...[
-          SizedBox(height: s.md),
-          TextField(
-            key: CoinPacksTab.referenceField,
-            controller: reference,
-            decoration: InputDecoration(labelText: l.coinTransferReference),
+        SizedBox(height: s.sm),
+        _Step(
+          number: 3,
+          title: l.pay2StepProof,
+          hint: order.status == 'claimed' ? l.pay2StatusPending : null,
+          done: order.status == 'claimed',
+        ),
+        if (order.status == 'needs_info' && (order.note ?? '').isNotEmpty)
+          Padding(
+            padding: EdgeInsets.only(top: s.xs),
+            child: Text(
+              l.coinStatusNeedsInfo(order.note!),
+              style: context.typography.bodySmall.copyWith(
+                color: VaultTokens.oxbloodLight,
+              ),
+            ),
           ),
-          TextField(
-            controller: payer,
-            maxLength: 60,
-            decoration: InputDecoration(labelText: l.coinPayerHint),
-          ),
-          Text(l.coinClaimNote, style: context.typography.bodySmall),
+        if (order.needsProof) ...[
           SizedBox(height: s.sm),
+          OutlinedButton.icon(
+            key: ProofOrderCard.pickButton,
+            style: vaultOutlineStyle(context),
+            onPressed: _busy ? null : _pick,
+            icon: Icon(
+              _image == null
+                  ? Icons.add_photo_alternate_outlined
+                  : Icons.check_circle_outline,
+            ),
+            label: Text(_image == null ? l.pay2PickImage : l.pay2ImageChosen),
+          ),
+          if (_image != null)
+            Padding(
+              key: ProofOrderCard.imageReady,
+              padding: EdgeInsets.only(top: s.xs),
+              child: Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(context.radii.button),
+                  child: Image.memory(
+                    _image!,
+                    height: DailyTokens.passArt,
+                    fit: BoxFit.contain,
+                    excludeFromSemantics: true,
+                    errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                  ),
+                ),
+              ),
+            ),
+          SizedBox(height: s.sm),
+          TextField(
+            key: ProofOrderCard.senderField,
+            controller: _sender,
+            maxLength: 80,
+            textInputAction: TextInputAction.done,
+            decoration: InputDecoration(labelText: l.pay2SenderName(name)),
+          ),
           ListenableBuilder(
-            listenable: reference,
-            builder: (context, _) => FilledButton(
-              key: CoinPacksTab.claimButton,
-              style: vaultGoldStyle(context),
-              onPressed: busy || reference.text.trim().length < 4
-                  ? null
-                  : onClaim,
-              child: Text(l.coinSentTransfer),
+            listenable: _sender,
+            builder: (context, _) => VaultPress(
+              child: FilledButton(
+                key: ProofOrderCard.submitButton,
+                style: vaultGoldStyle(context),
+                onPressed:
+                    _busy || _image == null || _sender.text.trim().length < 2
+                    ? null
+                    : _submit,
+                child: Text(l.pay2Submit),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: s.xs),
+            child: Text(
+              l.pay2ProofRequired,
+              style: context.typography.caption.copyWith(
+                color: context.colors.textMuted,
+              ),
             ),
           ),
         ],
         if (order.status == 'awaiting_transfer')
           TextButton(
             key: CoinPacksTab.cancelButton,
-            onPressed: busy ? null : onCancel,
+            onPressed: _busy
+                ? null
+                : () async {
+                    try {
+                      await ref
+                          .read(coinShopProvider.notifier)
+                          .cancel(order.id);
+                    } catch (error) {
+                      if (context.mounted) {
+                        _say(context, transferError(context, error));
+                      }
+                    }
+                  },
             child: Text(l.coinCancelOrder),
-          ),
-        if (onNewOrder != null)
-          TextButton(
-            onPressed: busy ? null : onNewOrder,
-            child: Text(l.storeTabCoins),
           ),
       ],
     );
   }
 }
 
-/// What happened to a finished order, in the player's words.
+/// Every recent order and what happened to it: pending, approved, rejected
+/// (with the owner's reason), expired.
+class OrderStatusList extends StatelessWidget {
+  final List<CoinOrder> orders;
+  const OrderStatusList({super.key, required this.orders});
+
+  @override
+  Widget build(BuildContext context) {
+    if (orders.isEmpty) return const SizedBox.shrink();
+    final s = context.spacing;
+    return Padding(
+      padding: EdgeInsets.only(top: s.lg),
+      child: VaultCard(
+        children: [
+          VaultHeading(title: context.l10n.pay2OrdersTitle, compact: true),
+          for (final (i, order) in orders.indexed) ...[
+            if (i > 0) const VaultDivider(),
+            ListTile(
+              key: CoinPacksTab.status(order.id),
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text(
+                '${order.reference} · ${orderProduct(context, order)} · ${context.l10n.coinPackPrice(egp(order.amountPiastres))}',
+              ),
+              subtitle: Text(settledStatus(context, order)),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// What happened to an order, in the player's words.
 String settledStatus(BuildContext context, CoinOrder order) {
   final l = context.l10n;
   return switch (order.status) {
-    'paid' => l.coinStatusPaid(order.coins),
+    'awaiting_transfer' => l.pay2StatusAwaiting,
+    'claimed' => l.pay2StatusPending,
+    'needs_info' => l.coinStatusNeedsInfo(order.note ?? ''),
+    'paid' =>
+      order.coins > 0 && order.pack != 'starter_bundle'
+          ? l.coinStatusPaid(order.coins)
+          : l.pay2StatusApproved,
     'rejected' => l.coinStatusRejected(order.note ?? ''),
     'cancelled' => l.coinStatusCancelled,
     'refunded' => l.coinStatusRefunded(order.note ?? ''),
-    'expired' => l.coinStatusExpired,
-    _ => l.coinStatusClaimed,
+    'expired' => l.pay2StatusExpired,
+    _ => l.pay2StatusPending,
   };
 }

@@ -20,6 +20,7 @@ import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/splash_gate.dart';
 import 'economy_capabilities.dart';
+import 'interstitial_coordinator.dart';
 
 /// Wall clock for the app-open coordinator; a test replaces it.
 final appOpenClockProvider = Provider<int Function()>(
@@ -116,16 +117,13 @@ class AppOpenCoordinator {
 
       // The remembered answer first: a feature the server switched off (the
       // default) never costs a launch a network round trip.
+      // Ads v3: the global full-screen pacing (cap and gap) shared with the
+      // interstitials replaces the app-open ad's own daily cap.
+      final pacing = _ref.read(interstitialCoordinatorProvider);
       final pre = decideAppOpen(
-        rules: ledger.knownEnabled
-            ? const AppOpenRules(
-                enabled: true,
-                maxPerDay: AdTokens.appOpenMaxPerDay,
-                gap: AdTokens.appOpenMinGap,
-                resumeAfter: AdTokens.appOpenResumeAfter,
-              )
-            : AppOpenRules.off,
+        rules: ledger.knownEnabled ? AppOpenRules.on : AppOpenRules.off,
         ledger: ledger,
+        fullScreen: await pacing.pacingLedger(),
         nowMs: _now(),
         trigger: trigger,
         adFree: ledger.knownAdFree,
@@ -149,9 +147,12 @@ class AppOpenCoordinator {
             }
             await remember(caps);
             final fresh = await _load();
+            final fullScreen = await pacing.pacingLedger();
             AppOpenVerdict decide(bool consent, int? loadedAt) => decideAppOpen(
               rules: caps.ads.appOpen,
               ledger: fresh,
+              pacing: caps.interstitial,
+              fullScreen: fullScreen,
               nowMs: _now(),
               trigger: trigger,
               adFree: caps.adFree,
@@ -181,6 +182,7 @@ class AppOpenCoordinator {
       }
       // Recorded before showing: a crash mid-ad must not unlock another.
       await _save((await _load()).shown(_now()));
+      await pacing.fullScreenShown();
       final audio = _ref.read(audioDirectorProvider);
       final wasMuted = audio.muted;
       audio.muted = true;

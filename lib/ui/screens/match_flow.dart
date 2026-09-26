@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,6 +19,7 @@ import 'day/vote_result_screen.dart';
 import 'day/voting_screen.dart';
 import 'distribution/role_reveal_screen.dart';
 import 'match_controller.dart';
+import '../economy/interstitial_coordinator.dart';
 import 'online/online_session.dart';
 import 'online/online_table_flow.dart';
 import 'online/table/table_scene.dart' show tableIsAvailableFor;
@@ -658,8 +661,20 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         // match that is over — they used to outlive the result screen until
         // the next room was entered.
         onHome: () async {
+          // Ads v3 (phase 110): a finished pass-and-play match is counted and
+          // may be followed by one ad, after Home is already on screen —
+          // never while the phone is passed or a role is private.
+          final localId = switch (_controller.transport) {
+            final LocalTransport local when local.engine.hasMatch =>
+              'local-${local.engine.match.seed}',
+            _ => null,
+          };
+          final ads = ref.read(interstitialCoordinatorProvider);
           await ref.read(onlineSessionProvider.notifier).leave();
           widget.onExit();
+          if (localId != null) {
+            unawaited(ads.leftPassAndPlayResult(localId));
+          }
         },
       ),
     );

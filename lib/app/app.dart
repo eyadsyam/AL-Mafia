@@ -20,6 +20,7 @@ import 'resume_gate.dart';
 import 'router.dart';
 import '../ui/economy/app_open_gate.dart';
 import '../ui/economy/economy_capabilities.dart' show retryCapabilitiesIfFailed;
+import '../ui/economy/interstitial_coordinator.dart';
 import 'locale_controller.dart';
 
 /// Root app widget for Mafia Master.
@@ -54,6 +55,11 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // Ads v3 (phase 110): the menu clock and the session ad follow the
+    // router. A listener only: it never changes where the player goes.
+    _lastPath = _router.routerDelegate.currentConfiguration.uri.path;
+    _router.routerDelegate.addListener(_routeChanged);
+    ref.read(interstitialCoordinatorProvider).foreground(true);
     // Warm the saved groups now, while the splash is still up.
     //
     // The choice they feed — picker, or straight to an empty roster — is made
@@ -112,16 +118,28 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     return true;
   }
 
+  String _lastPath = '/';
+
+  void _routeChanged() {
+    final path = _router.routerDelegate.currentConfiguration.uri.path;
+    if (path == _lastPath) return;
+    final from = _lastPath;
+    _lastPath = path;
+    unawaited(ref.read(interstitialCoordinatorProvider).navigated(from, path));
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // The one thing that may silence the loop besides a setting: the app going
     // to the background. Leaving it running would have the phone playing music
     // from a pocket, and it is not information about the game either way.
     if (state == AppLifecycleState.resumed) {
+      ref.read(interstitialCoordinatorProvider).foreground(true);
       _syncScore();
       // A vault capability read that could not reach the server is retried.
       retryCapabilitiesIfFailed(ref);
     } else if (state == AppLifecycleState.paused) {
+      ref.read(interstitialCoordinatorProvider).foreground(false);
       _audio.scoreEnabled = false;
       _audio.syncScore();
       _audio.scoreEnabled = _settingsScoreEnabled;
@@ -143,6 +161,7 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _router.routerDelegate.removeListener(_routeChanged);
     _router.dispose();
     super.dispose();
   }

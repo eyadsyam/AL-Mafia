@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///
 /// Bump only when the required terms themselves change. A new app build with
 /// the same terms must never ask again.
-const currentTermsVersion = '2026-09-24';
+const currentTermsVersion = '2026-09-27';
 
 /// One acceptance, as stored on this install.
 class TermsAcceptance {

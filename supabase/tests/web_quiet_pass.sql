@@ -12,6 +12,8 @@ begin
     (anon_user,null,null,true);
   insert into public.commerce_admins(user_id) values(admin);
   insert into public.wallet_accounts(user_id,balance,lifetime_earned) values(buyer,300,300);
+  -- 20260927000200 prices the pass; this contract starts from the 000400 seed.
+  update public.coin_packs set active=false, price_piastres=null where code='quiet_pass';
 
   -- Seeded inactive and unpriced: nothing is sold until an operator prices it.
   assert not exists(select 1 from jsonb_array_elements(public.coin_shop(buyer)->'packs') p where p->>'code'='quiet_pass');

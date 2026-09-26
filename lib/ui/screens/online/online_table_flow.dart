@@ -1704,7 +1704,8 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         final completed = snapshot.outcome?.winner != null;
         if (completed && roomId != null) _noteCompleted(roomId);
         // Home from a completed result is the one exit an automatic ad may
-        // follow (after the screen has already moved on). Rematch never.
+        // follow (after the screen has already moved on). Rematch gets the
+        // next match's pre-match ad instead (Ads v3), never both.
         final goHome = completed ? _homeAfterCompleted : widget.onExit;
         final home = FilledButton(
           onPressed: goHome,
@@ -1795,7 +1796,11 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
               FilledButton.icon(
                 key: OnlineTableFlow.playAgain,
                 onPressed: () async {
+                  final ads = ref.read(interstitialCoordinatorProvider);
                   await ref.read(onlineSessionProvider.notifier).leave();
+                  // Ads v3: the next match's pre-match ad, room already left
+                  // and before the online door — never in the lobby.
+                  if (mounted) await ads.beforeRematch();
                   if (mounted) (widget.onRematch ?? widget.onExit)();
                 },
                 icon: const Icon(Icons.group_add_rounded),

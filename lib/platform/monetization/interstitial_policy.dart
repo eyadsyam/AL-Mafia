@@ -1,24 +1,51 @@
-/// When the one automatic ad may appear. Pure: no clock, no storage, no SDK.
+/// When an automatic full-screen ad may appear. Pure: no clock, no storage,
+/// no SDK.
 ///
-/// Placement (Play policy on unexpected ads): only after the player chose to
-/// leave the result of a *completed* match for the menu. Never before or
-/// during a match, on resume, on an invite, on back, after a kick or a lost
-/// connection, or right after a rewarded ad. Preloaded-or-skip.
+/// Ads v3 (phase 110): ads per match, never inside a match phase.
+/// * pre-match: the player tapped Create / Join / «روم جديدة للشلة», before
+///   the lobby is entered — never the first match after a launch (the
+///   app-open ad already had that moment);
+/// * post-match: Home from the result of a *completed* match;
+/// * pass-and-play: after the setup is confirmed and before the first pass
+///   screen (no role exists yet), and after leaving the result;
+/// * session: after [InterstitialRules.sessionAfter] of menu time without
+///   any full-screen ad, only on a navigation between two menu screens.
+///
+/// Global for every full-screen ad (the app-open ad included): at most
+/// [InterstitialRules.maxPerDay] a day and [InterstitialRules.gap] apart;
+/// never [InterstitialRules.afterReward] after a rewarded ad; none around a
+/// brand-new player's first match; none with the Quiet Pass; consent
+/// (canRequestAds) required; preloaded-or-skip, never waited for.
 library;
 
 import '../../ui/theme/design_tokens.dart';
 
+/// Where an automatic interstitial is being considered.
+enum AdPlacement { preMatch, postMatch, passAndPlayDeal, passAndPlayResult, session }
+
 class InterstitialRules {
+  /// Post-match (the phase-103 switch).
   final bool enabled;
+  final bool preMatch;
+  final bool passAndPlay;
+  final bool session;
+  final Duration sessionAfter;
+
+  /// Global full-screen pacing: a safety cap per day and a minimum gap.
   final int maxPerDay;
   final Duration gap;
   final Duration afterReward;
 
-  /// Completed matches per install that never end in an automatic ad.
+  /// Completed matches per install that never end in an automatic ad (and
+  /// before which none starts).
   final int graceMatches;
 
   const InterstitialRules({
     required this.enabled,
+    this.preMatch = false,
+    this.passAndPlay = false,
+    this.session = false,
+    this.sessionAfter = AdTokens.sessionInterstitialAfter,
     required this.maxPerDay,
     required this.gap,
     required this.afterReward,
@@ -27,23 +54,41 @@ class InterstitialRules {
 
   static const off = InterstitialRules(
     enabled: false,
-    maxPerDay: 0,
-    gap: MafiaTiming.interstitialMinGap,
+    maxPerDay: AdTokens.fullScreenMaxPerDay,
+    gap: AdTokens.fullScreenMinGap,
     afterReward: MafiaTiming.interstitialAfterReward,
     graceMatches: 1,
   );
 
-  static final _minGap = MafiaTiming.interstitialMinGap.inSeconds;
+  /// Pacing used before the server has answered (the app-open ad on a
+  /// launch that trusts its remembered answer).
+  static const pacingDefaults = off;
+
+  static final _minGap = AdTokens.fullScreenMinGap.inSeconds;
   static final _minAfter = MafiaTiming.interstitialAfterReward.inSeconds;
+  static final _minSession = AdTokens.sessionInterstitialAfter.inSeconds;
   static final _day = const Duration(days: 1).inSeconds;
 
   /// The server's numbers, clamped to the product rules whatever it says.
+  /// A missing key is off (or the safe default for a number).
   factory InterstitialRules.fromJson(Map<String, dynamic> json) {
     int read(String key, int fallback) =>
         (json[key] as num?)?.toInt() ?? fallback;
+    bool flag(String key) => json[key] == true;
+    // A pre-v3 server sent a 3-a-day / 10-minute pair; v3 sends the global
+    // pacing under the same keys. Either way the ceiling is the safety cap.
     return InterstitialRules(
-      enabled: json['enabled'] == true,
-      maxPerDay: read('maxPerDay', 0).clamp(0, 3),
+      enabled: flag('enabled'),
+      preMatch: flag('preMatch'),
+      passAndPlay: flag('passAndPlay'),
+      session: flag('session'),
+      sessionAfter: Duration(
+        seconds: read('sessionAfterSeconds', _minSession).clamp(_minSession, _day),
+      ),
+      maxPerDay: read(
+        'maxPerDay',
+        AdTokens.fullScreenMaxPerDay,
+      ).clamp(0, AdTokens.fullScreenMaxPerDay),
       gap: Duration(seconds: read('gapSeconds', _minGap).clamp(_minGap, _day)),
       afterReward: Duration(
         seconds: read('afterRewardSeconds', _minAfter).clamp(_minAfter, _day),
@@ -51,12 +96,22 @@ class InterstitialRules {
       graceMatches: read('graceMatches', 1).clamp(1, 100),
     );
   }
+
+  bool allows(AdPlacement placement) => switch (placement) {
+    AdPlacement.postMatch => enabled,
+    AdPlacement.preMatch => preMatch,
+    AdPlacement.passAndPlayDeal || AdPlacement.passAndPlayResult => passAndPlay,
+    AdPlacement.session => session,
+  };
+
+  bool get anyPlacement => enabled || preMatch || passAndPlay || session;
 }
 
 /// How the player left the result screen.
 enum ResultExit { homeAfterCompleted, rematch, back, kicked, disconnected }
 
-/// The durable counters, persisted on the device.
+/// The durable counters, persisted on the device. Shared by every
+/// full-screen ad: [shown] records an app-open ad as well as interstitials.
 class InterstitialLedger {
   final int completedMatches;
   final String? lastCountedRoom;
@@ -103,7 +158,7 @@ class InterstitialLedger {
     );
   }
 
-  /// Counts a completed match once per room.
+  /// Counts a completed match once per room (or pass-and-play match id).
   InterstitialLedger matchCompleted(String roomId, int nowMs) {
     final base = _at(nowMs);
     if (roomId == lastCountedRoom) return base;
@@ -170,30 +225,26 @@ enum InterstitialVerdict {
   show,
   off,
   adFree,
+  busy,
   notThisExit,
   grace,
+  firstAfterLaunch,
+  notDue,
   dailyCap,
   tooSoon,
   afterReward,
+  noConsent,
   notLoaded,
 }
 
-InterstitialVerdict decideInterstitial({
+/// The global pacing every full-screen ad obeys, or null when it allows one
+/// now: [InterstitialVerdict.dailyCap] or [InterstitialVerdict.tooSoon].
+InterstitialVerdict? fullScreenPacing({
   required InterstitialRules rules,
   required InterstitialLedger ledger,
   required int nowMs,
-  required ResultExit exit,
-  required bool adFree,
-  required bool loaded,
 }) {
-  if (!rules.enabled || rules.maxPerDay <= 0) return InterstitialVerdict.off;
-  if (adFree) return InterstitialVerdict.adFree;
-  if (exit != ResultExit.homeAfterCompleted) {
-    return InterstitialVerdict.notThisExit;
-  }
-  if (ledger.completedMatches <= rules.graceMatches) {
-    return InterstitialVerdict.grace;
-  }
+  if (rules.maxPerDay <= 0) return InterstitialVerdict.dailyCap;
   final now = ledger.effectiveNow(nowMs);
   final today = InterstitialLedger.dayOf(now);
   final shownToday = today == ledger.day ? ledger.shownToday : 0;
@@ -202,10 +253,130 @@ InterstitialVerdict decideInterstitial({
   if (lastShown != null && now - lastShown < rules.gap.inMilliseconds) {
     return InterstitialVerdict.tooSoon;
   }
+  return null;
+}
+
+/// [gameplay]: a match, a pass-and-play game in progress, an online room
+/// (lobby countdown, voice) — never. [firstMatchOfLaunch]: no match has
+/// been started since the app launched. [menuMs]: menu time banked since
+/// the last full-screen ad (session placement only).
+InterstitialVerdict decideInterstitial({
+  required InterstitialRules rules,
+  required InterstitialLedger ledger,
+  required int nowMs,
+  AdPlacement placement = AdPlacement.postMatch,
+  ResultExit exit = ResultExit.homeAfterCompleted,
+  required bool adFree,
+  required bool loaded,
+  bool canRequestAds = true,
+  bool firstMatchOfLaunch = false,
+  bool gameplay = false,
+  int menuMs = 0,
+}) {
+  if (!rules.allows(placement) || rules.maxPerDay <= 0) {
+    return InterstitialVerdict.off;
+  }
+  if (adFree) return InterstitialVerdict.adFree;
+  if (gameplay) return InterstitialVerdict.busy;
+  final after =
+      placement == AdPlacement.postMatch ||
+      placement == AdPlacement.passAndPlayResult;
+  if (after && exit != ResultExit.homeAfterCompleted) {
+    return InterstitialVerdict.notThisExit;
+  }
+  // A brand-new player's first match: nothing before it, nothing after it.
+  if (after
+      ? ledger.completedMatches <= rules.graceMatches
+      : ledger.completedMatches < rules.graceMatches) {
+    return InterstitialVerdict.grace;
+  }
+  final before =
+      placement == AdPlacement.preMatch ||
+      placement == AdPlacement.passAndPlayDeal;
+  if (before && firstMatchOfLaunch) return InterstitialVerdict.firstAfterLaunch;
+  if (placement == AdPlacement.session &&
+      menuMs < rules.sessionAfter.inMilliseconds) {
+    return InterstitialVerdict.notDue;
+  }
+  final pacing = fullScreenPacing(rules: rules, ledger: ledger, nowMs: nowMs);
+  if (pacing != null) return pacing;
+  final now = ledger.effectiveNow(nowMs);
   final lastReward = ledger.lastRewardMs;
-  if (lastReward != null && now - lastReward < rules.afterReward.inMilliseconds) {
+  if (lastReward != null &&
+      now - lastReward < rules.afterReward.inMilliseconds) {
     return InterstitialVerdict.afterReward;
   }
+  if (!canRequestAds) return InterstitialVerdict.noConsent;
   if (!loaded) return InterstitialVerdict.notLoaded;
   return InterstitialVerdict.show;
+}
+
+/// What a route is, for the automatic ads.
+enum AdSurface {
+  /// A match (pass-and-play or online). Never an ad; the clock stops.
+  gameplay,
+
+  /// The online lobby: time counts, never an ad (countdown, voice).
+  waiting,
+
+  /// A menu between matches: time counts, a session ad may follow a
+  /// navigation between two of these.
+  menu,
+
+  /// Setup, onboarding, invites: time counts, never an ad.
+  other,
+}
+
+const _menuPaths = {
+  '/',
+  '/mode',
+  '/online',
+  '/history',
+  '/profile',
+  '/settings',
+  '/how-to-play',
+  '/analytics',
+};
+
+AdSurface adSurfaceOf(String path) {
+  if (path.startsWith('/match')) return AdSurface.gameplay;
+  if (path.startsWith('/online/lobby')) return AdSurface.waiting;
+  if (_menuPaths.contains(path) || RegExp(r'^/history/\d+$').hasMatch(path)) {
+    return AdSurface.menu;
+  }
+  return AdSurface.other;
+}
+
+/// A navigation the session ad may follow: from one menu to another.
+bool sessionNavigation(String from, String to) =>
+    from != to &&
+    adSurfaceOf(from) == AdSurface.menu &&
+    adSurfaceOf(to) == AdSurface.menu;
+
+/// Menu time banked since the last full-screen ad. Runs only while the app
+/// is in the foreground and off a gameplay surface. Pure.
+class MenuClock {
+  final int bankedMs;
+  final int? sinceMs;
+  const MenuClock({this.bankedMs = 0, this.sinceMs});
+
+  static const stopped = MenuClock();
+
+  bool get running => sinceMs != null;
+
+  MenuClock run(int nowMs) =>
+      running ? this : MenuClock(bankedMs: bankedMs, sinceMs: nowMs);
+
+  MenuClock pause(int nowMs) =>
+      running ? MenuClock(bankedMs: elapsed(nowMs)) : this;
+
+  /// A full-screen ad was shown: the count starts again.
+  MenuClock reset(int nowMs) => MenuClock(sinceMs: running ? nowMs : null);
+
+  int elapsed(int nowMs) {
+    final since = sinceMs;
+    if (since == null) return bankedMs;
+    final delta = nowMs - since;
+    return bankedMs + (delta > 0 ? delta : 0);
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/platform/monetization/app_open_policy.dart';
+import 'package:mafia_master/platform/monetization/interstitial_policy.dart';
 import 'package:mafia_master/ui/economy/app_open_gate.dart';
 import 'package:mafia_master/ui/economy/economy_capabilities.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
@@ -8,12 +9,7 @@ void main() {
   const hour = 60 * 60 * 1000;
   // 2026-09-26 12:00 UTC
   final noon = DateTime.utc(2026, 9, 26, 12).millisecondsSinceEpoch;
-  const on = AppOpenRules(
-    enabled: true,
-    maxPerDay: 3,
-    gap: AdTokens.appOpenMinGap,
-    resumeAfter: AdTokens.appOpenResumeAfter,
-  );
+  const on = AppOpenRules.on;
   // A returning, onboarded player on their second launch.
   final seasoned = AppOpenLedger.empty
       .launched(noon - 48 * hour)
@@ -32,11 +28,15 @@ void main() {
     bool busy = false,
     bool consent = true,
     int? loadedAt = -1,
+    InterstitialLedger fullScreen = InterstitialLedger.empty,
+    InterstitialRules pacing = InterstitialRules.pacingDefaults,
   }) {
     final at = now ?? noon;
     return decideAppOpen(
       rules: rules,
       ledger: ledger ?? seasoned,
+      pacing: pacing,
+      fullScreen: fullScreen,
       nowMs: at,
       trigger: trigger,
       adFree: adFree,
@@ -59,8 +59,11 @@ void main() {
       reason: 'an old server has no ads key',
     );
     expect(
-      decide(rules: AppOpenRules.fromJson({'enabled': true, 'maxPerDay': 0})),
-      AppOpenVerdict.off,
+      decide(
+        pacing: InterstitialRules.fromJson({'maxPerDay': 0}),
+      ),
+      AppOpenVerdict.dailyCap,
+      reason: 'a zero global cap stops every full-screen ad',
     );
   });
 
@@ -109,51 +112,54 @@ void main() {
     );
   });
 
-  test('daily cap and minimum gap', () {
+  test('Ads v3: no app-open daily cap; the global pacing decides', () {
+    // Three app-open ads earlier today no longer stop a fourth.
     final ledger = before(
       (l) => l
           .shown(noon - 9 * hour)
           .shown(noon - 5 * hour)
           .shown(noon - 4 * hour - 1),
     );
-    expect(decide(ledger: ledger), AppOpenVerdict.dailyCap);
-    final once = before((l) => l.shown(noon - hour));
-    expect(decide(ledger: once), AppOpenVerdict.tooSoon);
+    expect(decide(ledger: ledger), AppOpenVerdict.show);
+    // The global full-screen gap (90 s) counts interstitials too.
+    final justShown = InterstitialLedger.empty.shown(noon - 60 * 1000);
+    expect(decide(fullScreen: justShown), AppOpenVerdict.tooSoon);
     expect(
-      decide(ledger: once, now: noon + 3 * hour),
+      decide(fullScreen: justShown, now: noon + 30 * 1000),
       AppOpenVerdict.show,
-      reason: 'four hours after the last one',
+      reason: '90 s after the interstitial',
     );
-    // A new UTC day resets the count.
+    // The global safety cap of 40 a day.
+    var capped = InterstitialLedger.empty;
+    for (var i = 0; i < AdTokens.fullScreenMaxPerDay; i++) {
+      capped = capped.shown(noon - 11 * hour + i * 2 * 60 * 1000);
+    }
+    expect(decide(fullScreen: capped), AppOpenVerdict.dailyCap);
     final tomorrow = DateTime.utc(2026, 9, 27, 9).millisecondsSinceEpoch;
-    expect(decide(ledger: ledger, now: tomorrow), AppOpenVerdict.show);
+    expect(decide(fullScreen: capped, now: tomorrow), AppOpenVerdict.show);
   });
 
-  test('a clock moved backwards never frees the cap', () {
-    final ledger = seasoned.shown(noon);
+  test('a clock moved backwards never frees the gap', () {
+    final fullScreen = InterstitialLedger.empty.shown(noon);
     expect(
-      decide(ledger: ledger, now: noon - 24 * hour),
+      decide(fullScreen: fullScreen, now: noon - 24 * hour),
       AppOpenVerdict.tooSoon,
     );
   });
 
-  test('the server can only widen the floors', () {
+  test('the server can only lengthen the resume floor', () {
     final loose = AppOpenRules.fromJson({
       'enabled': true,
       'maxPerDay': 9,
       'gapSeconds': 60,
       'resumeAfterSeconds': 1,
     });
-    expect(loose.maxPerDay, 3);
-    expect(loose.gap, AdTokens.appOpenMinGap);
     expect(loose.resumeAfter, AdTokens.appOpenResumeAfter);
     final strict = AppOpenRules.fromJson({
       'enabled': true,
-      'maxPerDay': 1,
-      'gapSeconds': 8 * 3600,
+      'resumeAfterSeconds': 8 * 3600,
     });
-    expect(strict.maxPerDay, 1);
-    expect(strict.gap, const Duration(hours: 8));
+    expect(strict.resumeAfter, const Duration(hours: 8));
   });
 
   test('a loaded ad expires four hours after it loaded', () {
@@ -192,13 +198,12 @@ void main() {
       final caps = EconomyCapabilities.fromJson({
         'version': 2,
         'ads': {
-          'appOpen': {'enabled': true, 'maxPerDay': 2, 'gapSeconds': 14400},
+          'appOpen': {'enabled': true, 'resumeAfterSeconds': 14400},
           'banner': {'enabled': true},
           'extras': {'spin': true, 'coffer': false, 'swap': true},
         },
       });
       expect(caps.ads.appOpen.enabled, isTrue);
-      expect(caps.ads.appOpen.maxPerDay, 2);
       expect(caps.ads.banner, isTrue);
       expect(caps.ads.extraSpin, isTrue);
       expect(caps.ads.extraCoffer, isFalse);

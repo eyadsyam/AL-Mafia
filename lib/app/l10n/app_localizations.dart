@@ -3293,7 +3293,7 @@ abstract class AppLocalizations {
   /// No description provided for @safetyPolicy.
   ///
   /// In en, this message translates to:
-  /// **'Developer: Eyad Syam\nSupport: eyadsyam124@gmail.com\n\nLocal play stays on your device. Online play uses a random identifier, profile, match actions and messages. Earned coins, rewards and unlocked items remain with that identity until deletion. Optional voice is encrypted in transit and is not recorded by the game. Service providers process connection data needed to operate online play. An email is collected only if you choose to protect your account.\n\nAds (Android): Google AdMob may show an app-open ad when the game launches or you come back to it after a long break (never before or during a match); at most one automatic ad when you return to the menu after a completed match; a small labelled banner on waiting screens such as the online lobby, match history and your profile (never during play); and optional rewarded ads, only when you choose to watch one, after a completed online match and in the vault. To serve ads and prevent fraud, Google\'s ads SDK collects IP address, ad and app interactions, diagnostics and device identifiers such as the Advertising ID. Change ad consent in Settings → Ad privacy choices. Purchases in the Play version use Google Play Billing only; we receive the order, product and purchase token to verify it.\n\nFinished rooms are eligible for deletion after 24 hours. Old anonymous identities with no room membership are removed on the cleanup schedule. You can request online-data deletion below; submission is not completed deletion. Outside the app, use almafia.vercel.app/delete-data with your identifier or receipt. Never send passwords or access keys.\n\nHarassment, threats, hate, sexual content, child exploitation and sharing private information are prohibited. Report abusive players, room names or messages. Blocking hides their private messages and mutes their voice for you; public game actions remain visible. Reports are reviewed by the developer and are not visible to players.'**
+  /// **'Developer: Eyad Syam\nSupport: eyadsyam124@gmail.com\n\nLocal play stays on your device. Online play uses a random identifier, profile, match actions and messages. Earned coins, rewards and unlocked items remain with that identity until deletion. Optional voice is encrypted in transit and is not recorded by the game. Service providers process connection data needed to operate online play. An email is collected only if you choose to protect your account.\n\nAds (Android): Google AdMob may show an app-open ad when the game launches or you come back to it after a long break; a full-screen ad between matches — before you enter a room, when you leave a finished match, before the roles are dealt and after the result of a pass-and-play game, or occasionally when you move between menus after several minutes without one (never during a match or while the phone is being passed, at most 40 a day, at least 90 seconds apart); a small labelled banner on waiting screens such as the online lobby, match history and your profile (never during play); and optional rewarded ads, only when you choose to watch one, after a completed online match (to double or triple its coins) and in the vault. To serve ads and prevent fraud, Google\'s ads SDK collects IP address, ad and app interactions, diagnostics and device identifiers such as the Advertising ID. Change ad consent in Settings → Ad privacy choices. Purchases in the Play version use Google Play Billing, where we receive the order, product and purchase token to verify it, or an InstaPay / Vodafone Cash transfer, where you upload the transfer screenshot and the sender name for manual review (stored privately; the screenshot is deleted 90 days after review).\n\nFinished rooms are eligible for deletion after 24 hours. Old anonymous identities with no room membership are removed on the cleanup schedule. You can request online-data deletion below; submission is not completed deletion. Outside the app, use almafia.vercel.app/delete-data with your identifier or receipt. Never send passwords or access keys.\n\nHarassment, threats, hate, sexual content, child exploitation and sharing private information are prohibited. Report abusive players, room names or messages. Blocking hides their private messages and mutes their voice for you; public game actions remain visible. Reports are reviewed by the developer and are not visible to players.'**
   String get safetyPolicy;
 
   /// No description provided for @safetyAgree.
@@ -3821,13 +3821,13 @@ abstract class AppLocalizations {
   /// No description provided for @termsBody.
   ///
   /// In en, this message translates to:
-  /// **'1. Mafia Master is a party game for entertainment. Roles and outcomes are part of the game only.\n\n2. Online play, voice and public rooms are for people aged 16 or older.\n\n3. Abuse, harassment, threats, hate speech, sexual content and sharing anyone\'s private information are prohibited. You can report or block a player from the safety tools.\n\n4. Voice is optional and the game does not record audio. Other players hear what you say, and nobody can stop someone recording with another device.\n\n5. Mafia Coins are an in-game currency for unlocking cosmetic content only, such as frames, themes and narrator styles. They have no cash value, cannot be exchanged for money and never give an advantage in play, voting or roles.\n\n6. Buying coins with money is available on the website only. Transfers are reviewed manually and coins are added after the transfer is confirmed. Opening a payment link or a receipt screenshot is not proof of payment. A transfer that cannot be matched stays under review until it is resolved.\n\n7. We may remove a room or restrict a player who breaks these terms. You can request deletion of your data from Settings.\n\n8. If these terms change in an important way, we will ask for your agreement again before you continue.'**
+  /// **'1. Mafia Master is a party game for entertainment. Roles and outcomes are part of the game only.\n\n2. Online play, voice and public rooms are for people aged 16 or older.\n\n3. Abuse, harassment, threats, hate speech, sexual content and sharing anyone\'s private information are prohibited. You can report or block a player from the safety tools.\n\n4. Voice is optional and the game does not record audio. Other players hear what you say, and nobody can stop someone recording with another device.\n\n5. Mafia Coins are an in-game currency for unlocking cosmetic content only, such as frames, themes and narrator styles. They have no cash value, cannot be exchanged for money and never give an advantage in play, voting or roles.\n\n6. Coins, the Quiet Pass and the Starter Bundle can be bought with money: in the Android app through Google Play Billing, and in the Android app and on the website by InstaPay or Vodafone Cash transfer at the same price. Transfers are reviewed manually within 72 hours; you upload the transfer screenshot and the sender name, and the purchase is added only after the money is confirmed. A screenshot can be used for one order only. A rejected order shows its reason; an order not reviewed within 72 hours expires.\n\n7. We may remove a room or restrict a player who breaks these terms. You can request deletion of your data from Settings.\n\n8. If these terms change in an important way, we will ask for your agreement again before you continue.'**
   String get termsBody;
 
   /// No description provided for @privacySummaryBody.
   ///
   /// In en, this message translates to:
-  /// **'• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you link an email to protect your coins, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads; at most one automatic ad after a completed match; at most a few app-open ads a day on the launch screen (never on first launch or into a match); and small banners on waiting screens (lobby, room list, history, vault, profile) — never during play. The Quiet Pass removes all automatic ads. Google\'s ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. Website transfer orders record the amount, method and transfer reference for review.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: almafia.vercel.app/privacy'**
+  /// **'• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you link an email to protect your coins, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads; automatic full-screen ads only between matches — before you enter a room (Create, Join or a rematch), when you leave a finished match, before the roles are dealt and after the result in pass-and-play, occasionally when you move between menus after several minutes without one, and an app-open ad on the launch screen — never during a match, at most 40 a day, at least 90 seconds apart, and none around your first match; and small banners on waiting screens (lobby, room list, history, vault, profile) — never during play. The Quiet Pass removes all automatic ads. Google\'s ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. InstaPay / Vodafone Cash transfer orders (Android app and website) record the product, amount, method, the transfer screenshot you upload and the sender name, only to verify the payment; the screenshot is stored privately and deleted 90 days after the order is reviewed, and the order record is kept for accounting.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: almafia.vercel.app/privacy'**
   String get privacySummaryBody;
 
   /// No description provided for @termsUpdatedTitle.
@@ -5453,7 +5453,7 @@ abstract class AppLocalizations {
   /// No description provided for @quietPassBody.
   ///
   /// In en, this message translates to:
-  /// **'Permanent. Removes every automatic ad: the app-open ad, the ad after matches and the waiting-room banners. Optional reward ads stay available if you want them. No gameplay advantage.'**
+  /// **'Permanent. Removes every automatic ad: the app-open ad, the ads before and after matches and between menus, and the waiting-room banners. Optional reward ads stay available if you want them. No gameplay advantage.'**
   String get quietPassBody;
 
   /// No description provided for @quietPassOwned.
@@ -6451,6 +6451,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick a pack above first, then how you\'ll pay.'**
   String get coinPickPackFirst;
+
+  /// No description provided for @adDoubleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional bonus: double or triple this match'**
+  String get adDoubleTitle;
+
+  /// No description provided for @adDoubleAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad · double to {total}'**
+  String adDoubleAction(int total);
+
+  /// No description provided for @adTripleAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Another ad · triple to {total}'**
+  String adTripleAction(int total);
+
+  /// No description provided for @adDoubleDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Doubled · {total} coins'**
+  String adDoubleDone(int total);
+
+  /// No description provided for @adTripleDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Tripled · {total} coins'**
+  String adTripleDone(int total);
+
+  /// No description provided for @adTripleComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'This match now pays {total} coins.'**
+  String adTripleComplete(int total);
+
+  /// No description provided for @adDoubleDisclosure.
+  ///
+  /// In en, this message translates to:
+  /// **'This match paid {base}. One verified ad makes it {doubled}; a second makes it {tripled}. Stopping after the first keeps the double. Your match reward stays yours either way.'**
+  String adDoubleDisclosure(int base, int doubled, int tripled);
+
+  /// No description provided for @payWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with Google · {price}'**
+  String payWithGoogle(String price);
+
+  /// No description provided for @pay2TabTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'InstaPay / Vodafone Cash'**
+  String get pay2TabTransfer;
+
+  /// No description provided for @pay2AlreadyOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'This account already has it.'**
+  String get pay2AlreadyOwned;
+
+  /// No description provided for @pay2TooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'You have two orders waiting for review. A new one opens when one is reviewed.'**
+  String get pay2TooMany;
+
+  /// No description provided for @pay2Duplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'This screenshot was already used for an order. Upload the screenshot of this transfer.'**
+  String get pay2Duplicate;
+
+  /// No description provided for @pay2ProofRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'The transfer screenshot and the sender name are both required.'**
+  String get pay2ProofRequired;
+
+  /// No description provided for @pay2StepChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the item and how to pay'**
+  String get pay2StepChoose;
+
+  /// No description provided for @pay2StepPayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tapping a method opens it outside the game. Send the exact amount, then come back here.'**
+  String get pay2StepPayHint;
+
+  /// No description provided for @pay2StepPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Send exactly EGP {amount} with {method}'**
+  String pay2StepPay(String amount, String method);
+
+  /// No description provided for @pay2StepProof.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back and upload the transfer screenshot'**
+  String get pay2StepProof;
+
+  /// No description provided for @pay2PickImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the transfer screenshot'**
+  String get pay2PickImage;
+
+  /// No description provided for @pay2ImageChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshot ready · change'**
+  String get pay2ImageChosen;
+
+  /// No description provided for @pay2ImageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That image could not be read. Try another screenshot.'**
+  String get pay2ImageFailed;
+
+  /// No description provided for @pay2SenderName.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender name exactly as shown in {method}'**
+  String pay2SenderName(String method);
+
+  /// No description provided for @pay2Submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send for review'**
+  String get pay2Submit;
+
+  /// No description provided for @pay2Sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. We review it by hand; coins are added once the money is confirmed.'**
+  String get pay2Sent;
+
+  /// No description provided for @pay2OrderSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{product} · EGP {amount} · {method}'**
+  String pay2OrderSummary(String product, String amount, String method);
+
+  /// No description provided for @pay2StatusAwaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your transfer screenshot'**
+  String get pay2StatusAwaiting;
+
+  /// No description provided for @pay2StatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Under review'**
+  String get pay2StatusPending;
+
+  /// No description provided for @pay2StatusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get pay2StatusApproved;
+
+  /// No description provided for @pay2StatusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired: not reviewed within 72 hours. If you paid, contact support with the order number.'**
+  String get pay2StatusExpired;
+
+  /// No description provided for @pay2OrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your orders'**
+  String get pay2OrdersTitle;
+
+  /// No description provided for @pay2ReviewDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Same price as Google Play. Orders are reviewed by hand within 72 hours; a rejected order shows the reason here.'**
+  String get pay2ReviewDetail;
+
+  /// No description provided for @pay2ProofPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'The screenshot and sender name are stored privately, only to verify the order, and the screenshot is deleted 90 days after review. Nobody will ask for a PIN or code.'**
+  String get pay2ProofPrivacy;
+
+  /// No description provided for @adminPaymentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment orders'**
+  String get adminPaymentsTitle;
+
+  /// No description provided for @adminSignInHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with the admin email (a one-time code is sent to it).'**
+  String get adminSignInHint;
+
+  /// No description provided for @adminWebOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'The admin page is available on the website only.'**
+  String get adminWebOnly;
+
+  /// No description provided for @adminFilterPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get adminFilterPending;
+
+  /// No description provided for @adminFilterApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get adminFilterApproved;
+
+  /// No description provided for @adminFilterRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get adminFilterRejected;
+
+  /// No description provided for @adminFilterExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get adminFilterExpired;
+
+  /// No description provided for @adminRejectReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (shown to the player)'**
+  String get adminRejectReason;
+
+  /// No description provided for @adminReasonRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a reason first.'**
+  String get adminReasonRequired;
+
+  /// No description provided for @adminProofGone.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshot deleted (retention)'**
+  String get adminProofGone;
+
+  /// No description provided for @adminApproveShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get adminApproveShort;
+
+  /// No description provided for @adminRejectShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get adminRejectShort;
+
+  /// No description provided for @adminRefundShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get adminRefundShort;
+
+  /// No description provided for @adminOrderMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'{product} · EGP {amount} · {method}'**
+  String adminOrderMeta(String product, String amount, String method);
+
+  /// No description provided for @adminSender.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender: {name}'**
+  String adminSender(String name);
+
+  /// No description provided for @adminPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Player: {name}'**
+  String adminPlayer(String name);
+
+  /// No description provided for @adminErrorOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'The player already owns this. Reject and return the money.'**
+  String get adminErrorOwned;
+
+  /// No description provided for @adminErrorProof.
+  ///
+  /// In en, this message translates to:
+  /// **'This order has no screenshot.'**
+  String get adminErrorProof;
 }
 
 class _AppLocalizationsDelegate

@@ -108,7 +108,7 @@ begin
     bal := (pg_temp.sec_wallet(u)).balance;
     perform public.commit_ad_step_v2(c1,'sec-g1-step-0001','unit',1,u);
     perform public.commit_ad_step_v2(c1,'sec-g1-step-0001','unit',1,u);
-    assert (pg_temp.sec_wallet(u)).balance=bal+50, 'step replay paid twice';
+    assert (pg_temp.sec_wallet(u)).balance=bal+100, 'step replay paid twice'; -- step = whole base since phase 110
     begin perform public.commit_ad_reward((legacy->>'claimId')::uuid,'sec-g1-step-0001','unit',1,u);
       assert false, 'step tx paid v1';
     exception when others then assert sqlerrm='TRANSACTION_ALREADY_USED', sqlerrm; end;
@@ -143,7 +143,7 @@ begin
   end;
 end $$;
 
--- G2. Two steps pay exactly the base, odd bases included -----------------
+-- G2. Two steps pay exactly twice the base (x3 total, phase 110), odd bases included -----------------
 do $$
 declare u uuid; r uuid; s jsonb; bal bigint;
 begin
@@ -155,7 +155,7 @@ begin
     perform public.commit_ad_step_v2((s->>'claimId')::uuid,'sec-g2-step-0001','unit',1,u);
     s := public.create_ad_step_claim_v2(u,r,2);
     perform public.commit_ad_step_v2((s->>'claimId')::uuid,'sec-g2-step-0002','unit',1,u);
-    assert (pg_temp.sec_wallet(u)).balance=bal+101, 'steps did not sum to base';
+    assert (pg_temp.sec_wallet(u)).balance=bal+202, 'steps did not sum to twice the base';
     -- No third payment through a fresh create.
     s := public.create_ad_step_claim_v2(u,r,2);
     assert (select count(*) from ad_step_claims where user_id=u and room_id=r)=2, 'extra claim row';

@@ -7,31 +7,31 @@
 /// live match or a pass-and-play game in progress, during a purchase, or
 /// right after the player came back from another full-screen ad or an
 /// external payment page. Preloaded-within-a-few-seconds-or-skip.
+///
+/// Ads v3 (phase 110): no per-format daily cap any more. The app-open ad
+/// obeys the global full-screen pacing shared with the interstitials (a
+/// safety cap per day and a minimum gap; see `interstitial_policy.dart`).
 library;
 
 import '../../ui/theme/design_tokens.dart';
+import 'interstitial_policy.dart';
 
 class AppOpenRules {
   final bool enabled;
-  final int maxPerDay;
-  final Duration gap;
   final Duration resumeAfter;
 
-  const AppOpenRules({
-    required this.enabled,
-    required this.maxPerDay,
-    required this.gap,
-    required this.resumeAfter,
-  });
+  const AppOpenRules({required this.enabled, required this.resumeAfter});
 
   static const off = AppOpenRules(
     enabled: false,
-    maxPerDay: 0,
-    gap: AdTokens.appOpenMinGap,
     resumeAfter: AdTokens.appOpenResumeAfter,
   );
 
-  static final _minGap = AdTokens.appOpenMinGap.inSeconds;
+  static const on = AppOpenRules(
+    enabled: true,
+    resumeAfter: AdTokens.appOpenResumeAfter,
+  );
+
   static final _minResume = AdTokens.appOpenResumeAfter.inSeconds;
   static final _day = const Duration(days: 1).inSeconds;
 
@@ -42,8 +42,6 @@ class AppOpenRules {
         (json[key] as num?)?.toInt() ?? fallback;
     return AppOpenRules(
       enabled: json['enabled'] == true,
-      maxPerDay: read('maxPerDay', 0).clamp(0, AdTokens.appOpenMaxPerDay),
-      gap: Duration(seconds: read('gapSeconds', _minGap).clamp(_minGap, _day)),
       resumeAfter: Duration(
         seconds: read('resumeAfterSeconds', _minResume).clamp(_minResume, _day),
       ),
@@ -204,9 +202,12 @@ enum AppOpenVerdict {
 
 /// [busy]: an active online room, a live match, a pass-and-play game in
 /// progress, or a purchase flow. [loadedAtMs] is null when no ad is loaded.
+/// [pacing] and [fullScreen] are the global full-screen rules and ledger.
 AppOpenVerdict decideAppOpen({
   required AppOpenRules rules,
   required AppOpenLedger ledger,
+  InterstitialRules pacing = InterstitialRules.pacingDefaults,
+  InterstitialLedger fullScreen = InterstitialLedger.empty,
   required int nowMs,
   required AppOpenTrigger trigger,
   required bool adFree,
@@ -215,7 +216,7 @@ AppOpenVerdict decideAppOpen({
   required bool canRequestAds,
   required int? loadedAtMs,
 }) {
-  if (!rules.enabled || rules.maxPerDay <= 0) return AppOpenVerdict.off;
+  if (!rules.enabled) return AppOpenVerdict.off;
   if (adFree) return AppOpenVerdict.adFree;
   // The launch being decided has been counted: the first is launch 1.
   if (ledger.launches <= 1) return AppOpenVerdict.firstLaunch;
@@ -229,13 +230,13 @@ AppOpenVerdict decideAppOpen({
     final left = ledger.backgroundedMs;
     if (left == null || now - left < resume) return AppOpenVerdict.notLongAway;
   }
-  final today = AppOpenLedger.dayOf(now);
-  final shownToday = today == ledger.day ? ledger.shownToday : 0;
-  if (shownToday >= rules.maxPerDay) return AppOpenVerdict.dailyCap;
-  final last = ledger.lastShownMs;
-  if (last != null && now - last < rules.gap.inMilliseconds) {
-    return AppOpenVerdict.tooSoon;
-  }
+  final paced = fullScreenPacing(
+    rules: pacing,
+    ledger: fullScreen,
+    nowMs: now,
+  );
+  if (paced == InterstitialVerdict.dailyCap) return AppOpenVerdict.dailyCap;
+  if (paced == InterstitialVerdict.tooSoon) return AppOpenVerdict.tooSoon;
   if (!canRequestAds) return AppOpenVerdict.noConsent;
   if (loadedAtMs == null) return AppOpenVerdict.notLoaded;
   if (now - loadedAtMs >= AdTokens.appOpenExpiry.inMilliseconds) {

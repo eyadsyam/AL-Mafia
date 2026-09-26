@@ -1,9 +1,81 @@
-# Ads v2 — revenue model, knobs and kill switch (phase 108)
+# Ads v3 — per-match revenue model, knobs and kill switch (phase 110)
 
-Not a forecast. Every number below is a planning input to be replaced by
-measured data from closed testing. Fill rate, eCPM, opt-in and retention in
-Egypt are unknown until the units serve real traffic; nothing here promises
-income, fill or Google approval.
+Supersedes the Ads v2 (phase 108) model below wherever they differ; the v2
+sections are kept for history. Not a forecast: every number is a planning
+input to be replaced by measured data from closed testing. Fill, eCPM,
+opt-in and retention in Egypt are unknown until the units serve traffic.
+
+## 0. Ads v3 — the per-match set (Android only; the web shows none)
+
+Automatic ads come **per match, never inside a match phase**.
+
+| Placement | Trigger | Rules | Switch |
+| --- | --- | --- | --- |
+| App-open | Launch picture: cold start, or return after >= 4 h | Existing gate (never first launch, before onboarding/terms, into a room/match/purchase, right after another ad); no own daily cap any more | `app_open_enabled` |
+| Pre-match interstitial | Tap on Create / Join / «روم جديدة للشلة», before the lobby | Skipped for the first match after launch; a rematch that showed one covers the next Create/Join | `pre_match_interstitial_enabled` |
+| Post-match interstitial | Home from a completed result | Every match (no 3/day) | `interstitial_enabled` |
+| Pass-and-play | After setup confirm, before the first pass screen; after leaving the result | Never while the phone is passed or a role is visible; skipped for the first match after launch | `pass_and_play_interstitial_enabled` |
+| Session interstitial | >= 5 min of menu time with no full-screen ad, only on a menu -> menu navigation | Never in a match, the lobby, its countdown or voice | `session_interstitial_enabled` (+ `session_interstitial_after_seconds`) |
+| Banner | Waiting surfaces (allowlist test) | Unchanged | `banner_enabled` |
+| Rewarded — post-match | Player's choice | Ad 1 = x2 of base match coins, optional ad 2 = x3 total, both shown first, SSV, ordered | `ad_steps_enabled` |
+| Rewarded — extras | Vault: coffer double, second spin, contract swap | Once a day each, same rewarded unit | `ad_extras_enabled` |
+
+Global rules for every full-screen ad (app-open + interstitials): at most
+`full_screen_max_per_day` (default 40, never above 40) per device per UTC day
+and at least `full_screen_min_gap_seconds` (default 90, never below 90)
+apart; never within `interstitial_after_reward_seconds` (>= 180) after a
+rewarded ad; none before or after a brand-new player's first match; the
+Quiet Pass removes app-open, all interstitials and banners (rewarded stays);
+consent (canRequestAds) required; no fill = skipped without waiting; game
+audio and the mic are muted during the ad and restored after.
+
+### Per-DAU impressions (v3)
+
+```
+app-open / DAU        = S_launch x P_eligible x F_ao
+pre-match / DAU       = (M_online - L) x P_pre x F_int     (L = first match per launch)
+post-match / DAU      = M_online x P_home x F_int
+pass-and-play / DAU   = M_local x (P_deal + P_result) x F_int
+session / DAU         = N_nav5 x F_int                     (menu->menu navs after >= 5 min)
+rewarded post / DAU   = M_online x (o1 + o1*o2) x F_rw
+rewarded extras / DAU = (o_spin + o_coffer + o_swap) x F_rw
+```
+
+subject to `sum(full-screen) <= 40` and the 90 s gap per device, minus the
+grace (first match of a new install), after-reward and Quiet Pass cases.
+Illustration only (made-up inputs): 2 online matches/DAU, 1 launch/DAU,
+P_home 0.6, P_pre 0.9, fills 0.8, o1 0.4, o2 0.6 gives pre-match
+(2-1) x 0.9 x 0.8 = 0.72, post-match 2 x 0.6 x 0.8 = 0.96, rewarded post
+2 x 0.64 x 0.8 = 1.02 per DAU. Multiply by *measured* eCPMs; never present
+the result as income.
+
+### Knobs (v3, `public.economy_config`)
+
+| Column | Default | Allowed |
+| --- | --- | --- |
+| `pre_match_interstitial_enabled` | false | bool |
+| `pass_and_play_interstitial_enabled` | false | bool |
+| `session_interstitial_enabled` | false | bool |
+| `session_interstitial_after_seconds` | 300 | 300-86400 |
+| `full_screen_max_per_day` | 40 | 0-40 |
+| `full_screen_min_gap_seconds` | 90 | 90-86400 |
+| `interstitial_enabled` (post-match) | false | bool |
+| `interstitial_after_reward_seconds` | 180 | >= 180 |
+| `ad_steps_enabled` (x2/x3) | false | bool |
+
+`interstitial_max_per_day`, `interstitial_gap_seconds`, `app_open_max_per_day`
+and `app_open_gap_seconds` are no longer read by a v3 client. Clients read
+everything through `economy capabilities -> interstitial` (and
+`ads.fullScreen`); a missing key or a failed read is OFF.
+
+Rollout order: post-match (week 1, measure D1/D7 and matches/DAU), then
+pre-match, then pass-and-play, then session; tighten `full_screen_*` first if
+post-ad exits rise. Kill switch and activation SQL: `build/update101/status.md`
+(phase 110 section).
+
+---
+
+# Ads v2 (phase 108, historical)
 
 ## 1. The ad set (all Android; the web shows none)
 

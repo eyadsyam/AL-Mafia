@@ -1506,6 +1506,16 @@ abstract final class AdTokens {
   static const appOpenExpiry = Duration(hours: 4);
   static const appOpenMaxPerDay = 3;
 
+  /// Ads v3 (phase 110): global pacing for every full-screen ad (app-open
+  /// and interstitials). A safety cap the server may only lower, and a gap
+  /// it may only widen.
+  static const fullScreenMaxPerDay = 40;
+  static const fullScreenMinGap = Duration(seconds: 90);
+
+  /// Menu time without any full-screen ad before a session interstitial may
+  /// follow a navigation between menus; the server may only lengthen it.
+  static const sessionInterstitialAfter = Duration(minutes: 5);
+
   /// The banner's thin frame and the gap that keeps it clear of any button.
   static const bannerFrame = 1.0;
   static const bannerLabelGap = 2.0;

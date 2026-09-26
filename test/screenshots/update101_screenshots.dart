@@ -600,7 +600,7 @@ void main() {
           overrides: [
             onlineBackendFactoryProvider.overrideWithValue(() async => backend),
             accountServiceProvider.overrideWithValue(_Accounts()),
-            paymentCapabilitiesProvider.overrideWithValue(const PaymentCapabilities(webTransfer: true)),
+            paymentCapabilitiesProvider.overrideWithValue(const PaymentCapabilities(transfer: true)),
             externalLinkOpenerProvider.overrideWithValue((url) => true),
             audioDirectorProvider.overrideWithValue(AudioDirector()),
           ],

@@ -80,7 +80,7 @@ void main() {
           onlineBackendFactoryProvider.overrideWithValue(() async => backend),
           audioDirectorProvider.overrideWithValue(AudioDirector()),
           paymentCapabilitiesProvider.overrideWithValue(
-            const PaymentCapabilities(webTransfer: false),
+            const PaymentCapabilities(transfer: false),
           ),
         ],
         child: localizedApp(child, locale: locale),

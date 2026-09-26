@@ -29,22 +29,31 @@ or build logs containing credentials.
 ## Monetization in 1.0.1 (as built)
 
 - **Rewarded ads (optional).** After a completed online match: v1 servers offer
-  one ad (+100% of the completion coins); v2 servers offer two optional steps
-  (+50% then +50%), the count and amounts shown before the choice. The vault
+  one ad (+100% of the completion coins); v3 servers (phase 110) offer ad 1 =
+  x2 of the match's completion coins and optional ad 2 = x3 total, both totals
+  shown before the choice, ad 2 only after ad 1 is verified. The vault
   offers one optional fixed daily ad (+25) outside a match. Rewards are
   credited only after AdMob's signed server-side verification callback.
-- **Interstitial (automatic).** At most one, only after the player taps
-  «Home» on the result of a completed match; never on first completed match per
-  install, never before/during a match, on resume, invite, back, kick or lost
-  connection; ≥10 min between interstitials, ≥3 min after any rewarded ad,
-  ≤3/day; preloaded-or-skip. Server off switch and caps. Owners of the Quiet
-  Pass get none.
+- **Interstitials (automatic, Ads v3 / phase 110, each OFF by default).** Per
+  match, never inside a match phase: pre-match (tap on Create / Join / «روم
+  جديدة للشلة», before navigating to the lobby; skipped for the first match
+  after launch), post-match (Home from a completed result), pass-and-play
+  (after setup confirm and before the first pass screen; after leaving the
+  result — never while the phone is passed or a role is visible), and a
+  session interstitial (≥5 min of menu time without a full-screen ad, only on
+  a navigation between two menu screens; never in a match, the lobby or its
+  countdown). Global for every full-screen ad incl. app-open: ≤40/day safety
+  cap, ≥90 s apart (server may only tighten), ≥3 min after any rewarded ad,
+  none around a brand-new player's first match, consent (canRequestAds)
+  required, preloaded-or-skip, game audio and mic muted and restored. Owners
+  of the Quiet Pass get none.
 - **App-open (automatic, phase 108, OFF by default).** Only while the branded
   launch screen is up: cold start, or a return after ≥4 h in the background.
   Never on first launch, before onboarding + terms, into an online room / live
   match / pass-and-play game / purchase, or right after another full-screen
   ad or the Play purchase sheet. Loaded within 3 s or skipped; an ad is
-  discarded 4 h after load; ≤3/day (server may lower), ≥4 h apart. Needs
+  discarded 4 h after load; phase 110: no own daily cap — the global
+  full-screen pacing above (≤40/day, ≥90 s apart) applies. Needs
   consent that allows ad requests (never shows a consent form itself).
 - **Banner (automatic, phase 108, OFF by default).** Anchored adaptive, labelled
   «إعلان»/"Advertisement", on waiting surfaces only (online lobby, online room
@@ -58,9 +67,25 @@ or build logs containing credentials.
   contract. Credited only after the signed SSV callback (`x1:` claims).
 - **Play Billing** (off until the owner activates products): permanent
   `mm_remove_interruptions` («ممر الهدوء» / Quiet Pass, removes every automatic
-  ad: app-open, interstitial and banners; rewarded ads stay optional) and consumable Council Coins packs `mm_coins_500`, `mm_coins_1200`,
+  ad: app-open, every interstitial and banners; rewarded ads stay optional) and consumable Council Coins packs `mm_coins_500`, `mm_coins_1200`,
   `mm_coins_2500`. Prices are set in Console; the app shows Play's localized
   price only. Coins are cosmetic-only and non-transferable.
+- **Manual transfers — InstaPay / Vodafone Cash (Payments v2, phase 111; OFF by
+  default).** Offered in the Android app beside Google Play Billing, and on the
+  website, for every coin pack, the Quiet Pass and the Starter Bundle, at the
+  same EGP price as the Play product (one server price table). Each paid item
+  shows «ادفع بجوجل» and «إنستا باي» / «فودافون كاش»; a transfer button opens the
+  owner's payment link (held server-side) in the payment app or browser; the
+  player then uploads the transfer screenshot and the sender name; an admin
+  reviews by hand (approve / reject with a reason shown to the player /
+  refund). Remote kill switch per platform (`economy_config.
+  transfer_enabled_android` / `transfer_enabled_web`). **Policy note for the
+  owner:** Google Play's Payments policy generally requires Play Billing for
+  digital goods sold in a Play-distributed app, with country/programme
+  exceptions. This build does not hide the transfer option from review; the
+  owner must confirm eligibility (e.g. an alternative-billing programme for
+  Egypt, if any applies) before enabling `transfer_enabled_android` on the
+  Play build.
 - **Daily rewards** (free, no purchase): coffer +20/day, wheel once per UTC day
   (10/20/35/60/100 at 40/30/20/8/2%, published beside the wheel), +60 on every
   seventh claimed day (no reset for missed days).
@@ -78,7 +103,9 @@ Source for SDK behaviour: https://developers.google.com/admob/android/privacy/pl
 | Email address | Yes, **optional** | Only when the player chooses account protection (one-time codes, restore). Account management. |
 | User IDs | Yes | Anonymous online identifier. App functionality, fraud prevention. |
 | Other personal info | Yes | Avatar/gender selection. |
-| Purchase history | Yes (when Billing active) | Order id, product, purchase token/time, verified with Google. App functionality, fraud prevention. |
+| Purchase history | Yes (when Billing or transfers are active) | Play: order id, product, purchase token/time, verified with Google. Transfers: product, amount, method, order status and review history. App functionality (order verification), fraud prevention. |
+| Other financial info | Yes, **when the player pays by transfer** | The sender name exactly as shown in InstaPay / Vodafone Cash (may be a wallet number for Vodafone Cash). Used only to match the payment (also sent to the owner's own Telegram chat as the new-order notice, a service the developer uses, not a third-party recipient); not shared; removed from the order if the account is deleted. App functionality (order verification), fraud prevention. |
+| Photos | Yes, **when the player pays by transfer** | The payment screenshot the player picks with the system photo picker (re-encoded on the device to a ≤1600 px JPEG). Stored in a private bucket (no public read; admin sees it through short-lived signed URLs), a duplicate image is refused, deleted 90 days after the order is reviewed (at once on account deletion). Not shared. App functionality (order verification), fraud prevention. |
 | In-app messages | Yes | Whispers, eliminated-player chat, report descriptions. |
 | Other UGC | Yes | Public room titles, reports. |
 | App interactions | Yes | Match actions, rewards, daily claims, purchases; **and** the Mobile Ads SDK's ad/app interaction data. Advertising, analytics (SDK), fraud prevention. |
@@ -95,7 +122,11 @@ that Google acts only as a service provider for them. Do not answer a blanket
 Data in transit: HTTPS/WSS, DTLS-SRTP. Deletion: **Yes**, in-app and external page.
 
 Also review: **Ads = Yes**; **Advertising ID = Yes** (advertising, analytics,
-fraud prevention); in-app purchases declared once products are active.
+fraud prevention); in-app purchases declared once products are active. The
+transfer rows (Photos, Other financial info) are collected, not shared, are
+required for that payment path only (optional for the player, who can pay with
+Google Play or not buy at all), and can be deleted (retention above; data
+deletion request).
 
 ## Content, audience and operations
 

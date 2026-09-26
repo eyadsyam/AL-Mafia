@@ -18,6 +18,10 @@ abstract interface class InterstitialAds {
   /// Returns whether an ad was actually shown. False at once when none is
   /// loaded.
   Future<bool> showIfReady();
+
+  /// Whether ads may be requested under the consent already given. Never
+  /// shows a form; false on any failure.
+  Future<bool> canRequestAds();
   void dispose();
 }
 

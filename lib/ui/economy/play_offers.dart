@@ -11,6 +11,7 @@ import '../screens/online/online_session.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import 'account_protection.dart';
+import 'coin_packs.dart' show TransferMethodButtons;
 import 'council_art.dart';
 import 'economy_capabilities.dart';
 import 'mafia_coin.dart';
@@ -272,13 +273,21 @@ class _PlayOffersTabState extends ConsumerState<PlayOffersTab> {
         ? null
         : packs.map((p) => p.$1.coins ?? 0).reduce((a, b) => a > b ? a : b);
     final idle = offers.busyProduct == null;
-    Widget buy(String id, String price, VoidCallback onPressed) => VaultPress(
-      child: FilledButton(
-        key: PlayOffersTab.buyKey(id),
-        style: vaultGoldStyle(context),
-        onPressed: idle ? onPressed : null,
-        child: Text(l.playBuy(price)),
-      ),
+    // «ادفع بجوجل», and under it the same item by InstaPay / Vodafone Cash
+    // at the same price when the server has transfers on (Payments v2).
+    Widget buy(String id, String price, VoidCallback onPressed) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        VaultPress(
+          child: FilledButton(
+            key: PlayOffersTab.buyKey(id),
+            style: vaultGoldStyle(context),
+            onPressed: idle ? onPressed : null,
+            child: Text(l.payWithGoogle(price)),
+          ),
+        ),
+        TransferMethodButtons(playProduct: id),
+      ],
     );
     return ListView(
       padding: EdgeInsets.all(s.md),

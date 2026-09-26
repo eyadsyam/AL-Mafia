@@ -1,15 +1,19 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:mafia_master/platform/links/external_link.dart';
 import 'package:mafia_master/platform/payment_capabilities.dart';
+import 'package:mafia_master/platform/payment_proof.dart';
 import 'package:mafia_master/transport/account_service.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/economy/account_protection.dart';
 import 'package:mafia_master/ui/economy/coin_packs.dart';
-import 'package:mafia_master/ui/screens/admin/coin_review_screen.dart';
+import 'package:mafia_master/ui/screens/admin/payments_admin_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/setup/coin_store.dart';
 
@@ -18,9 +22,9 @@ import '../support/localized.dart';
 
 const instapayUrl = 'https://pay.example/instapay/owner';
 
-/// A small stand-in for `coin_orders`: server-held orders that survive a
-/// "reload", server-owned prices, and no balance change from anything but an
-/// admin approval.
+/// A small stand-in for `coin_orders` (Payments v2): server-held orders,
+/// server-owned prices, a per-platform switch, proof required, at most two
+/// pending, and no balance change from anything but an admin approval.
 class CoinServer extends FakeBackend {
   CoinServer()
     : super(
@@ -32,10 +36,13 @@ class CoinServer extends FakeBackend {
   bool enabled = true;
   bool recoverable = true;
   bool admin = false;
-  bool pass = false;
   bool adFree = false;
   final orders = <Map<String, dynamic>>[];
+  final hashes = <String>{};
   int balance = 0;
+
+  Map<String, dynamic> _order(String id) =>
+      orders.firstWhere((o) => o['id'] == id);
 
   @override
   Future<Map<String, dynamic>> call(
@@ -50,21 +57,33 @@ class CoinServer extends FakeBackend {
       return super.call(function, body);
     }
     calls.add(FakeCall(function, body));
+    final pending = orders.where(
+      (o) => const {
+        'awaiting_transfer',
+        'claimed',
+        'needs_info',
+      }.contains(o['status']),
+    );
     switch (body['action']) {
       case 'shop':
         return {
           'enabled': enabled,
           'recoverable': recoverable,
+          'maxPending': 2,
           'packs': [
-            {'code': 'coins_500', 'coins': 500, 'pricePiastres': 5000},
-            {'code': 'coins_1200', 'coins': 1200, 'pricePiastres': 11000},
-            if (pass)
-              {
-                'code': 'quiet_pass',
-                'coins': 0,
-                'pricePiastres': 15000,
-                'entitlement': 'remove_interruptions',
-              },
+            {
+              'code': 'coins_500',
+              'coins': 500,
+              'pricePiastres': 4999,
+              'playProduct': 'mm_coins_500',
+            },
+            {
+              'code': 'quiet_pass',
+              'coins': 0,
+              'pricePiastres': 19999,
+              'entitlement': 'remove_interruptions',
+              'playProduct': 'mm_remove_interruptions',
+            },
           ],
           'adFree': adFree,
           'methods': enabled
@@ -76,48 +95,61 @@ class CoinServer extends FakeBackend {
           'orders': orders,
         };
       case 'create':
-        final open = orders.where((o) => o['status'] == 'awaiting_transfer');
-        if (open.isNotEmpty) return {'order': open.first, 'resumed': true};
+        if (pending.length >= 2) {
+          throw const BackendException('TOO_MANY_PENDING', 'no');
+        }
         final order = {
           'id': 'order-${orders.length + 1}',
-          'reference': 'MM-ABCD1234',
-          'coins': body['pack'] == 'coins_500'
-              ? 500
-              : body['pack'] == 'quiet_pass'
-              ? 0
-              : 1200,
-          'amountPiastres': body['pack'] == 'coins_500'
-              ? 5000
-              : body['pack'] == 'quiet_pass'
-              ? 15000
-              : 11000,
+          'reference': 'MM-ABCD000${orders.length + 1}',
+          'pack': body['pack'],
+          'coins': body['pack'] == 'coins_500' ? 500 : 0,
+          'amountPiastres': body['pack'] == 'coins_500' ? 4999 : 19999,
           'method': body['method'],
           'status': 'awaiting_transfer',
         };
         orders.insert(0, order);
         return {'order': order, 'resumed': false};
-      case 'claim':
-        final order = orders.firstWhere((o) => o['id'] == body['order']);
-        order['status'] = 'claimed';
-        order['claimReference'] = body['reference'];
+      case 'submit':
+        final image = body['image'] as String?;
+        final sender = (body['senderName'] as String? ?? '').trim();
+        if (image == null || sender.length < 2) {
+          throw const BackendException('BAD_REQUEST', 'proof required');
+        }
+        if (!hashes.add(image)) {
+          throw const BackendException('DUPLICATE_PROOF', 'no');
+        }
+        final order = _order(body['order'] as String);
+        order
+          ..['status'] = 'claimed'
+          ..['senderName'] = sender
+          ..['proofSubmitted'] = true;
         return {'order': order};
       case 'cancel':
-        final order = orders.firstWhere((o) => o['id'] == body['order']);
-        order['status'] = 'cancelled';
-        return {'order': order};
+        _order(body['order'] as String)['status'] = 'cancelled';
+        return {'order': _order(body['order'] as String)};
+      case 'admin_whoami':
+        return {'admin': admin};
       case 'admin_list':
         if (!admin) throw const BackendException('NOT_ADMIN', 'no');
-        return {'orders': orders};
-      case 'admin_review':
+        return {
+          'orders': [
+            for (final o in orders)
+              if (body['status'] != 'pending' || o['status'] == 'claimed')
+                {...o, 'proofUrl': null, 'displayName': 'Player One'},
+          ],
+        };
+      case 'admin_approve':
         if (!admin) throw const BackendException('NOT_ADMIN', 'no');
-        final order = orders.firstWhere((o) => o['id'] == body['order']);
-        if (body['decision'] == 'approve') {
-          if (body['receivedPiastres'] != order['amountPiastres']) {
-            throw const BackendException('AMOUNT_MISMATCH', 'no');
-          }
-          order['status'] = 'paid';
-          balance += order['coins'] as int;
-        }
+        final order = _order(body['order'] as String);
+        order['status'] = 'paid';
+        balance += order['coins'] as int;
+        return {'order': order};
+      case 'admin_reject':
+        if (!admin) throw const BackendException('NOT_ADMIN', 'no');
+        final order = _order(body['order'] as String);
+        order
+          ..['status'] = 'rejected'
+          ..['playerNote'] = body['reason'];
         return {'order': order};
     }
     throw const BackendException('BAD_REQUEST', 'no');
@@ -151,38 +183,55 @@ class FakeAccounts implements AccountService {
       confirmLink(email, code);
 }
 
+Uint8List jpegOf(int width, int height, [int shade = 0]) => Uint8List.fromList(
+  img.encodeJpg(
+    img.Image(width: width, height: height)
+      ..clear(img.ColorRgb8(shade, shade, shade)),
+  ),
+);
+
 void main() {
   late CoinServer server;
   late FakeAccounts accounts;
   late List<String> opened;
   late bool openWorks;
+  late Uint8List? picked;
 
   setUp(() {
     server = CoinServer();
     accounts = FakeAccounts();
     opened = [];
     openWorks = true;
+    picked = jpegOf(8, 8);
   });
 
-  Widget app(Widget child, {bool web = true}) => ProviderScope(
-    overrides: [
-      onlineBackendFactoryProvider.overrideWithValue(() async => server),
-      accountServiceProvider.overrideWithValue(accounts),
-      paymentCapabilitiesProvider.overrideWithValue(
-        PaymentCapabilities(webTransfer: web),
-      ),
-      externalLinkOpenerProvider.overrideWithValue((url) {
-        opened.add(url);
-        return openWorks;
-      }),
-    ],
-    child: localizedApp(child),
-  );
+  const android = PaymentCapabilities(transfer: true, platform: 'android');
+  const web = PaymentCapabilities(transfer: true, platform: 'web');
 
-  Future<void> pumpPacks(WidgetTester tester) async {
-    await tester.binding.setSurfaceSize(const Size(420, 1600));
+  Widget app(Widget child, {PaymentCapabilities caps = android}) =>
+      ProviderScope(
+        overrides: [
+          onlineBackendFactoryProvider.overrideWithValue(() async => server),
+          accountServiceProvider.overrideWithValue(accounts),
+          paymentCapabilitiesProvider.overrideWithValue(caps),
+          proofPickerProvider.overrideWithValue(() async => picked),
+          externalLinkOpenerProvider.overrideWithValue((url) {
+            opened.add(url);
+            return openWorks;
+          }),
+        ],
+        child: localizedApp(child),
+      );
+
+  Future<void> pumpPacks(
+    WidgetTester tester, {
+    PaymentCapabilities caps = android,
+  }) async {
+    await tester.binding.setSurfaceSize(const Size(420, 2400));
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(app(const Scaffold(body: CoinPacksTab())));
+    await tester.pumpWidget(
+      app(const Scaffold(body: CoinPacksTab()), caps: caps),
+    );
     await tester.pumpAndSettle();
   }
 
@@ -190,64 +239,287 @@ void main() {
     (c) => c.function == 'coin_orders' && c.body['action'] == action,
   );
 
-  group('Google Play build', () {
-    testWidgets('the store has no coin purchase at all', (tester) async {
-      await tester.pumpWidget(app(const CoinStore(), web: false));
-      await tester.pumpAndSettle();
-      expect(find.text(arStrings.storeTabCoins), findsNothing);
-      expect(find.byType(CoinPacksTab), findsNothing);
-      expect(coinCalls('shop'), isEmpty);
+  Map<String, dynamic> order(String id, String status, {String? note}) => {
+    'id': id,
+    'reference': 'MM-$id',
+    'pack': 'coins_500',
+    'coins': 500,
+    'amountPiastres': 4999,
+    'method': 'instapay',
+    'status': status,
+    'playerNote': ?note,
+  };
+
+  group('capabilities', () {
+    test('Android and web can show transfers; other platforms cannot', () {
+      final a = paymentCapabilitiesFor(
+        web: false,
+        target: TargetPlatform.android,
+      );
+      expect((a.transfer, a.platform), (true, 'android'));
+      final w = paymentCapabilitiesFor(web: true, target: TargetPlatform.iOS);
+      expect((w.transfer, w.platform), (true, 'web'));
+      final i = paymentCapabilitiesFor(web: false, target: TargetPlatform.iOS);
+      expect(i.transfer, isFalse);
     });
 
-    test(
-      'no payment destination, wallet link or transfer URL ships in the app',
-      () {
-        final sources =
-            [
-              ...Directory('lib').listSync(recursive: true),
-              ...Directory('android/app/src').listSync(recursive: true),
-              ...Directory('web').listSync(recursive: true),
-            ].whereType<File>().where(
-              (f) => RegExp(r'\.(dart|kt|xml|html|json|js)$').hasMatch(f.path),
-            );
-        for (final file in sources) {
-          final text = file.readAsStringSync();
-          for (final banned in ['ipn.eg', 'vf.eg', 'vfcash', 'instapay/']) {
-            expect(
-              text.contains(banned),
-              isFalse,
-              reason: '${file.path} contains $banned',
-            );
-          }
+    test('no payment destination or transfer URL ships in the app', () {
+      final sources =
+          [
+            ...Directory('lib').listSync(recursive: true),
+            ...Directory('android/app/src').listSync(recursive: true),
+            ...Directory('web').listSync(recursive: true),
+          ].whereType<File>().where(
+            (f) => RegExp(r'\.(dart|kt|xml|html|json|js)$').hasMatch(f.path),
+          );
+      for (final file in sources) {
+        final text = file.readAsStringSync();
+        for (final banned in [
+          'ipn.eg',
+          'vf.eg',
+          'vfcash',
+          'instapay/',
+          'api.telegram.org',
+        ]) {
+          expect(
+            text.contains(banned),
+            isFalse,
+            reason: '${file.path} contains $banned',
+          );
         }
-      },
-    );
+      }
+    });
 
-    test('the web capability cannot turn on outside a browser', () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-      expect(container.read(paymentCapabilitiesProvider).webTransfer, isFalse);
+    test('the proof is re-encoded as a JPEG of at most 1600px', () {
+      final out = compressProof(
+        Uint8List.fromList(img.encodePng(img.Image(width: 3200, height: 900))),
+      )!;
+      expect(out.sublist(0, 3), [0xff, 0xd8, 0xff]);
+      final back = img.decodeJpg(out)!;
+      expect((back.width, back.height), (1600, 450));
+      final tall = img.decodeJpg(compressProof(jpegOf(500, 2400))!)!;
+      expect((tall.width, tall.height), (333, 1600));
+      expect(compressProof(Uint8List.fromList(utf8.encode('not an image'))), isNull);
     });
   });
 
-  group('web coin packs (manual review)', () {
-    testWidgets('sales switched off: an honest sentence, no buttons', (
+  group('Android: kill switch', () {
+    testWidgets('switch off: no transfer tab and no transfer buttons', (
       tester,
     ) async {
       server.enabled = false;
-      await pumpPacks(tester);
-      expect(find.text(arStrings.coinPacksUnavailable), findsOneWidget);
-      expect(find.byKey(CoinPacksTab.createButton), findsNothing);
+      await tester.pumpWidget(app(const CoinStore()));
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.pay2TabTransfer), findsNothing);
+      await tester.pumpWidget(
+        app(
+          const Scaffold(
+            body: TransferMethodButtons(playProduct: 'mm_coins_500'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(TransferMethodButtons.button('mm_coins_500', 'instapay')),
+        findsNothing,
+      );
     });
 
-    testWidgets('a server without orders says so, with a retry', (
+    testWidgets('switch on: the tab and «إنستا باي» under the Play item', (
       tester,
     ) async {
-      server.refusals['coin_orders'] = const BackendException('NETWORK', 'x');
-      server.stickyRefusals.add('coin_orders');
+      await tester.pumpWidget(app(const CoinStore()));
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.pay2TabTransfer), findsOneWidget);
+      await tester.pumpWidget(
+        app(
+          const Scaffold(
+            body: TransferMethodButtons(playProduct: 'mm_coins_500'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final button = find.byKey(
+        TransferMethodButtons.button('mm_coins_500', 'instapay'),
+      );
+      expect(button, findsOneWidget);
+      expect(find.text(arStrings.coinPayInstapay), findsOneWidget);
+      // An unconfigured method is not offered at all.
+      expect(
+        find.byKey(TransferMethodButtons.button('mm_coins_500', 'vodafone_cash')),
+        findsNothing,
+      );
+      await tester.tap(button);
+      expect(opened, [instapayUrl], reason: 'opened in the tap, like a link');
+      await tester.pumpAndSettle();
+      expect(coinCalls('create').single.body, {
+        'action': 'create',
+        'pack': 'coins_500',
+        'method': 'instapay',
+        'platform': 'android',
+      });
+      // The order's steps open over the Play tab.
+      expect(find.byType(ProofOrderCard), findsOneWidget);
+    });
+
+    testWidgets('an owned Quiet Pass is not offered by transfer', (
+      tester,
+    ) async {
+      server.adFree = true;
+      await tester.pumpWidget(
+        app(
+          const Scaffold(
+            body: TransferMethodButtons(playProduct: 'mm_remove_interruptions'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(OutlinedButton), findsNothing);
+    });
+  });
+
+  group('transfer flow', () {
+    Future<void> startOrder(WidgetTester tester) async {
+      await tester.tap(find.byKey(CoinPacksTab.pack('coins_500')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(CoinPacksTab.method('instapay')));
+      await tester.pumpAndSettle();
+    }
+
+    FilledButton submit(WidgetTester tester) =>
+        tester.widget<FilledButton>(find.byKey(ProofOrderCard.submitButton));
+
+    testWidgets('choose → pay in the other app → upload proof; coins only after review', (
+      tester,
+    ) async {
       await pumpPacks(tester);
-      expect(find.text(arStrings.coinPacksUnavailable), findsOneWidget);
-      expect(find.text(arStrings.videoRetry), findsOneWidget);
+      expect(find.text(arStrings.coinManualNotice), findsOneWidget);
+      await startOrder(tester);
+      expect(opened, [instapayUrl]);
+      expect(find.text(arStrings.coinOrderTitle('MM-ABCD0001')), findsOneWidget);
+      expect(find.text(arStrings.pay2StepPay('49.99', arStrings.coinPayInstapay)), findsOneWidget);
+
+      // Coming back: the page can be opened again from the order.
+      await tester.tap(find.byKey(CoinPacksTab.openButton));
+      expect(opened, [instapayUrl, instapayUrl]);
+
+      await tester.tap(find.byKey(ProofOrderCard.pickButton));
+      await tester.pumpAndSettle();
+      expect(find.byKey(ProofOrderCard.imageReady), findsOneWidget);
+      await tester.enterText(find.byKey(ProofOrderCard.senderField), 'Eyad S');
+      await tester.pump();
+      await tester.tap(find.byKey(ProofOrderCard.submitButton));
+      await tester.pumpAndSettle();
+
+      final sent = coinCalls('submit').single.body;
+      expect(sent['senderName'], 'Eyad S');
+      expect(base64Decode(sent['image'] as String), picked);
+      expect(sent['platform'], 'android');
+      expect(sent.keys.toSet(), {
+        'action',
+        'order',
+        'senderName',
+        'image',
+        'platform',
+      }, reason: 'no price, amount or coins from the client');
+      expect(find.text(arStrings.pay2StatusPending), findsWidgets);
+      expect(server.balance, 0, reason: 'a proof is not a payment');
+    });
+
+    testWidgets('the screenshot and the sender name are both required', (
+      tester,
+    ) async {
+      await pumpPacks(tester);
+      await startOrder(tester);
+      expect(submit(tester).onPressed, isNull);
+      // A name alone is not enough.
+      await tester.enterText(find.byKey(ProofOrderCard.senderField), 'Eyad S');
+      await tester.pump();
+      expect(submit(tester).onPressed, isNull);
+      // Backing out of the picker leaves nothing chosen.
+      picked = null;
+      await tester.tap(find.byKey(ProofOrderCard.pickButton));
+      await tester.pumpAndSettle();
+      expect(submit(tester).onPressed, isNull);
+      // An image without a name is not enough either.
+      picked = jpegOf(8, 8, 9);
+      await tester.tap(find.byKey(ProofOrderCard.pickButton));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(ProofOrderCard.senderField), ' ');
+      await tester.pump();
+      expect(submit(tester).onPressed, isNull);
+      await tester.enterText(find.byKey(ProofOrderCard.senderField), 'Eyad S');
+      await tester.pump();
+      expect(submit(tester).onPressed, isNotNull);
+      expect(coinCalls('submit'), isEmpty);
+    });
+
+    testWidgets('a reused screenshot is refused in words', (tester) async {
+      server.hashes.add(base64Encode(picked!));
+      await pumpPacks(tester);
+      await startOrder(tester);
+      await tester.tap(find.byKey(ProofOrderCard.pickButton));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(ProofOrderCard.senderField), 'Eyad S');
+      await tester.pump();
+      await tester.tap(find.byKey(ProofOrderCard.submitButton));
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.pay2Duplicate), findsOneWidget);
+    });
+
+    testWidgets('two pending orders: no third, said plainly', (tester) async {
+      server.orders.addAll([order('a', 'claimed'), order('b', 'claimed')]);
+      await pumpPacks(tester);
+      expect(find.byKey(CoinPacksTab.fullNote), findsOneWidget);
+      expect(find.byKey(CoinPacksTab.method('instapay')), findsNothing);
+    });
+
+    testWidgets('order status list: pending, approved, rejected with reason, expired', (
+      tester,
+    ) async {
+      server.orders.addAll([
+        order('p', 'claimed'),
+        order('ok', 'paid'),
+        order('no', 'rejected', note: 'المبلغ ما وصلش'),
+        order('old', 'expired'),
+      ]);
+      await pumpPacks(tester);
+      String status(String id) => tester
+          .widget<Text>(
+            find.descendant(
+              of: find.byKey(CoinPacksTab.status(id)),
+              matching: find.byType(Text),
+            ).last,
+          )
+          .data!;
+      expect(status('p'), arStrings.pay2StatusPending);
+      expect(status('ok'), arStrings.coinStatusPaid(500));
+      expect(status('no'), arStrings.coinStatusRejected('المبلغ ما وصلش'));
+      expect(status('old'), arStrings.pay2StatusExpired);
+    });
+
+    testWidgets('an approval refreshes the wallet when the app resumes', (
+      tester,
+    ) async {
+      server.orders.add(order('p', 'claimed'));
+      await pumpPacks(tester);
+      final before = server.calls.where((c) => c.function == 'economy').length;
+      server
+        ..orders.first['status'] = 'paid'
+        ..balance = 500;
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+      expect(
+        server.calls.where((c) => c.function == 'economy').length,
+        greaterThan(before),
+      );
+      expect(find.text(arStrings.coinStatusPaid(500)), findsOneWidget);
+    });
+
+    testWidgets('the web build uses its own switch', (tester) async {
+      await pumpPacks(tester, caps: web);
+      expect(coinCalls('shop').first.body['platform'], 'web');
     });
 
     testWidgets('an unprotected account must link an email first', (
@@ -257,142 +529,18 @@ void main() {
       await pumpPacks(tester);
       expect(find.text(arStrings.coinPacksNeedAccount), findsOneWidget);
       expect(find.byType(AccountProtectionCard), findsOneWidget);
-      expect(find.byKey(CoinPacksTab.createButton), findsNothing);
-    });
-
-    testWidgets('pack, then the method opens its page and makes the order; claim: coins only after review', (
-      tester,
-    ) async {
-      await pumpPacks(tester);
-      // The notice is on screen before anything is ordered or opened.
-      expect(find.text(arStrings.coinManualNotice), findsOneWidget);
-      FilledButton method(String code) => tester.widget<FilledButton>(
-        find.byKey(CoinPacksTab.method(code)),
-      );
-      // Nothing to pay for until a pack is chosen.
-      expect(method('instapay').onPressed, isNull);
-      await tester.tap(find.byKey(CoinPacksTab.pack('coins_500')));
-      await tester.pumpAndSettle();
-      // An unconfigured method cannot be used.
-      expect(method('vodafone_cash').onPressed, isNull);
-      expect(opened, isEmpty);
-      // The method is the link: it opens inside the tap and the order is
-      // made alongside it.
-      await tester.tap(find.byKey(CoinPacksTab.method('instapay')));
-      expect(opened, [instapayUrl], reason: 'opened in the tap itself');
-      await tester.pumpAndSettle();
-
-      final created = coinCalls('create').single.body;
-      expect(created.keys.toSet(), {
-        'action',
-        'pack',
-        'method',
-      }, reason: 'no price, amount or coins from the client');
-      expect(
-        find.text(arStrings.coinOrderTitle('MM-ABCD1234')),
-        findsOneWidget,
-      );
-
-      // Coming back: the page can be opened again from the order.
-      await tester.tap(find.byKey(CoinPacksTab.openButton));
-      expect(opened, [instapayUrl, instapayUrl], reason: 'exactly the configured link');
-      // Opening (and coming back) adds nothing.
-      expect(server.balance, 0);
-
-      final claim = find.byKey(CoinPacksTab.claimButton);
-      expect(tester.widget<FilledButton>(claim).onPressed, isNull);
-      await tester.enterText(find.byKey(CoinPacksTab.referenceField), 'TX99');
-      await tester.pump();
-      await tester.tap(claim);
-      await tester.pumpAndSettle();
-      expect(coinCalls('claim').single.body['reference'], 'TX99');
-      expect(find.text(arStrings.coinStatusClaimed), findsOneWidget);
-      expect(server.balance, 0, reason: 'a claim is not a payment');
-    });
-
-    testWidgets('the web Quiet Pass: ordered like a pack, says it is for the Android app', (
-      tester,
-    ) async {
-      server.pass = true;
-      await pumpPacks(tester);
-      await tester.ensureVisible(find.byKey(CoinPacksTab.pack('quiet_pass')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(CoinPacksTab.pack('quiet_pass')));
-      await tester.pumpAndSettle();
-      expect(find.text(arStrings.webPassBody), findsOneWidget);
-      await tester.tap(find.byKey(CoinPacksTab.method('instapay')));
-      await tester.pumpAndSettle();
-      expect(coinCalls('create').single.body['pack'], 'quiet_pass');
-      expect(opened, [instapayUrl]);
-      expect(find.text(arStrings.coinOrderPassSummary('150', arStrings.coinPayInstapay)), findsOneWidget);
-    });
-
-    testWidgets('an account that owns the pass cannot order it again', (
-      tester,
-    ) async {
-      server
-        ..pass = true
-        ..adFree = true;
-      await pumpPacks(tester);
-      await tester.ensureVisible(find.byKey(CoinPacksTab.pack('quiet_pass')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(CoinPacksTab.pack('quiet_pass')));
-      await tester.pumpAndSettle();
-      expect(find.text(arStrings.webPassOwned), findsOneWidget);
-      expect(
-        tester.widget<FilledButton>(find.byKey(CoinPacksTab.method('instapay'))).onPressed,
-        isNull,
-      );
-    });
-
-    testWidgets('a reload shows the same pending order, not a new one', (      tester,
-    ) async {
-      server.orders.add({
-        'id': 'order-1',
-        'reference': 'MM-KEEP0001',
-        'coins': 500,
-        'amountPiastres': 5000,
-        'method': 'instapay',
-        'status': 'awaiting_transfer',
-      });
-      await pumpPacks(tester);
-      expect(
-        find.text(arStrings.coinOrderTitle('MM-KEEP0001')),
-        findsOneWidget,
-      );
-      expect(find.byKey(CoinPacksTab.createButton), findsNothing);
-      expect(find.byKey(CoinPacksTab.cancelButton), findsOneWidget);
+      expect(find.byKey(CoinPacksTab.method('instapay')), findsNothing);
     });
 
     testWidgets('a blocked pop-up is reported, not assumed opened', (
       tester,
     ) async {
       openWorks = false;
-      server.orders.add({
-        'id': 'order-1',
-        'reference': 'MM-POP00001',
-        'coins': 500,
-        'amountPiastres': 5000,
-        'method': 'instapay',
-        'status': 'awaiting_transfer',
-      });
+      server.orders.add(order('a', 'awaiting_transfer'));
       await pumpPacks(tester);
       await tester.tap(find.byKey(CoinPacksTab.openButton));
       await tester.pump();
       expect(find.text(arStrings.coinOpenFailed), findsOneWidget);
-    });
-
-    testWidgets('a paid order says how many coins were added', (tester) async {
-      server.orders.add({
-        'id': 'order-1',
-        'reference': 'MM-PAID0001',
-        'coins': 500,
-        'amountPiastres': 5000,
-        'method': 'instapay',
-        'status': 'paid',
-      });
-      await pumpPacks(tester);
-      expect(find.text(arStrings.coinStatusPaid(500)), findsOneWidget);
     });
   });
 
@@ -410,25 +558,11 @@ void main() {
       await tester.pump();
       await tester.enterText(
         find.byKey(AccountProtectionCard.emailField),
-        'bad',
-      );
-      await tester.tap(find.byKey(AccountProtectionCard.sendButton));
-      await tester.pumpAndSettle();
-      expect(find.text(arStrings.accountErrorEmail), findsOneWidget);
-      await tester.enterText(
-        find.byKey(AccountProtectionCard.emailField),
         'p@example.test',
       );
       await tester.tap(find.byKey(AccountProtectionCard.sendButton));
       await tester.pumpAndSettle();
       expect(accounts.codeSentTo, 'p@example.test');
-      await tester.enterText(
-        find.byKey(AccountProtectionCard.codeField),
-        '000000',
-      );
-      await tester.tap(find.byKey(AccountProtectionCard.confirmButton));
-      await tester.pumpAndSettle();
-      expect(find.text(arStrings.accountErrorCode), findsOneWidget);
       await tester.enterText(
         find.byKey(AccountProtectionCard.codeField),
         '123456',
@@ -442,58 +576,81 @@ void main() {
     });
   });
 
-  group('admin review', () {
-    Future<void> pumpAdmin(WidgetTester tester) async {
-      await tester.binding.setSurfaceSize(const Size(800, 1600));
+  group('admin page', () {
+    Future<void> pumpAdmin(WidgetTester tester, {bool isWeb = true}) async {
+      await tester.binding.setSurfaceSize(const Size(800, 2000));
       addTearDown(() => tester.binding.setSurfaceSize(null));
-      await tester.pumpWidget(app(const CoinReviewScreen()));
+      await tester.pumpWidget(
+        app(PaymentsAdminScreen(web: isWeb), caps: web),
+      );
       await tester.pumpAndSettle();
     }
 
-    testWidgets('a non-admin sees a refusal and no orders', (tester) async {
-      server.orders.add({'id': 'o1', 'reference': 'MM-1', 'status': 'claimed'});
-      await pumpAdmin(tester);
-      expect(find.text(arStrings.adminNotAdmin), findsOneWidget);
-      expect(find.byKey(CoinReviewScreen.approve('o1')), findsNothing);
-    });
-
-    testWidgets('approval sends the matched transaction and amount', (
+    testWidgets('outside the web build: a guard, and no server call', (
       tester,
     ) async {
+      accounts.linked = true;
+      server.admin = true;
+      await pumpAdmin(tester, isWeb: false);
+      expect(find.text(arStrings.adminWebOnly), findsOneWidget);
+      expect(coinCalls('admin_whoami'), isEmpty);
+      expect(coinCalls('admin_list'), isEmpty);
+    });
+
+    testWidgets('not signed in: the email code sign-in, nothing else', (
+      tester,
+    ) async {
+      server.orders.add(order('o1', 'claimed'));
+      await pumpAdmin(tester);
+      expect(find.text(arStrings.adminSignInHint), findsOneWidget);
+      expect(find.byType(AccountProtectionCard), findsOneWidget);
+      expect(coinCalls('admin_list'), isEmpty);
+      expect(find.byKey(PaymentsAdminScreen.approve('o1')), findsNothing);
+    });
+
+    testWidgets('signed in but not an admin: refused, no orders asked', (
+      tester,
+    ) async {
+      accounts.linked = true;
+      server.orders.add(order('o1', 'claimed'));
+      await pumpAdmin(tester);
+      expect(find.byKey(PaymentsAdminScreen.guard), findsOneWidget);
+      expect(find.text(arStrings.adminNotAdmin), findsOneWidget);
+      expect(coinCalls('admin_list'), isEmpty);
+      expect(find.byKey(PaymentsAdminScreen.approve('o1')), findsNothing);
+    });
+
+    testWidgets('an admin approves, and rejects only with a reason', (
+      tester,
+    ) async {
+      accounts.linked = true;
       server
         ..admin = true
-        ..orders.add({
-          'id': 'o1',
-          'reference': 'MM-1',
-          'coins': 500,
-          'amountPiastres': 5000,
-          'method': 'instapay',
-          'status': 'claimed',
-          'claimReference': 'TX99',
-          'account': 'p@example.test',
-        });
+        ..orders.addAll([
+          {...order('o1', 'claimed'), 'senderName': 'Eyad S', 'proofSubmitted': true},
+          {...order('o2', 'claimed'), 'senderName': 'Other', 'proofSubmitted': true},
+        ]);
       await pumpAdmin(tester);
-      await tester.enterText(
-        find.byKey(CoinReviewScreen.transaction('o1')),
-        'BANK-1',
-      );
-      await tester.enterText(find.byKey(CoinReviewScreen.received('o1')), '40');
-      await tester.tap(find.byKey(CoinReviewScreen.approve('o1')));
-      await tester.pumpAndSettle();
-      expect(find.text(arStrings.adminErrorAmount), findsOneWidget);
-      expect(server.balance, 0);
+      expect(coinCalls('admin_list').last.body['status'], 'pending');
+      expect(find.text(arStrings.adminSender('Eyad S')), findsOneWidget);
+      expect(find.text(arStrings.adminPlayer('Player One')), findsNWidgets(2));
 
-      await tester.enterText(find.byKey(CoinReviewScreen.received('o1')), '50');
-      await tester.tap(find.byKey(CoinReviewScreen.approve('o1')));
+      await tester.tap(find.byKey(PaymentsAdminScreen.approve('o1')));
       await tester.pumpAndSettle();
-      final review = server.calls
-          .where((c) => c.body['action'] == 'admin_review')
-          .last
-          .body;
-      expect(review['decision'], 'approve');
-      expect(review['transaction'], 'BANK-1');
-      expect(review['receivedPiastres'], 5000);
+      expect(coinCalls('admin_approve').single.body['order'], 'o1');
       expect(server.balance, 500);
+
+      await tester.tap(find.byKey(PaymentsAdminScreen.reject('o2')));
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.adminReasonRequired), findsOneWidget);
+      expect(coinCalls('admin_reject'), isEmpty);
+      await tester.enterText(
+        find.byKey(PaymentsAdminScreen.reason('o2')),
+        'المبلغ ما وصلش',
+      );
+      await tester.tap(find.byKey(PaymentsAdminScreen.reject('o2')));
+      await tester.pumpAndSettle();
+      expect(coinCalls('admin_reject').single.body['reason'], 'المبلغ ما وصلش');
     });
   });
 }

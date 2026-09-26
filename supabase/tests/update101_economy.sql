@@ -44,7 +44,8 @@ begin
   -- v2 status before any claim: exact amounts shown up front.
   s:=public.ad_steps_status_v2(u,r1);
   assert s->>'scheme'='steps' and (s->>'base')::bigint=100, s::text;
-  assert (s->'steps'->0->>'amount')::bigint=50 and (s->'steps'->1->>'amount')::bigint=50;
+  -- Ads v3 (phase 110): each step is the whole base (x2, then x3).
+  assert (s->'steps'->0->>'amount')::bigint=100 and (s->'steps'->1->>'amount')::bigint=100;
 
   -- Step 2 cannot come before step 1 is verified.
   begin perform public.create_ad_step_claim_v2(u,r1,2); assert false;
@@ -59,7 +60,7 @@ begin
   exception when others then assert sqlerrm='CLAIM_NOT_FOUND', sqlerrm; end;
   perform public.commit_ad_step_v2(c1,'tx-step-1-aaaa','unit',1,u);
   perform public.commit_ad_step_v2(c1,'tx-step-1-aaaa','unit',1,u); -- AdMob retry
-  assert (select balance from wallet_accounts where user_id=u)=bal+50;
+  assert (select balance from wallet_accounts where user_id=u)=bal+100; -- x2 (phase 110)
   begin perform public.commit_ad_step_v2(c1,'tx-step-1-bbbb','unit',1,u); assert false;
   exception when others then assert sqlerrm='CLAIM_ALREADY_USED', sqlerrm; end;
 
@@ -69,7 +70,7 @@ begin
   begin perform public.commit_ad_step_v2(c2,'tx-step-1-aaaa','unit',1,u); assert false;
   exception when others then assert sqlerrm='TRANSACTION_ALREADY_USED', sqlerrm; end;
   perform public.commit_ad_step_v2(c2,'tx-step-2-aaaa','unit',1,u);
-  assert (select balance from wallet_accounts where user_id=u)=bal+100, 'double base after both';
+  assert (select balance from wallet_accounts where user_id=u)=bal+200, 'x3 after both (phase 110)';
   s:=public.ad_steps_status_v2(u,r1);
   assert s->'steps'->0->>'state'='awarded' and s->'steps'->1->>'state'='awarded';
 
