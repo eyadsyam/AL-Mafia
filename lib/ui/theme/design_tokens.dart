@@ -1589,3 +1589,115 @@ abstract final class FunTokens {
     Color(0xFFC9A45C),
   ];
 }
+
+/// The 1.0.1 design pass (2026-09-26): one engraved card system for every
+/// vault, Council, reward and result surface, and the gold that marks a
+/// reward. Public surfaces only — nothing here is ever chosen by a role, and
+/// none of it is drawn while a phone is in a player's hand.
+abstract final class VaultTokens {
+  /// The coin's metal, light → mid → deep, and the ink printed on it.
+  static const Color goldLight = Color(0xFFF1DFA8);
+  static const Color gold = Color(0xFFC9A45C);
+  static const Color goldDeep = Color(0xFF7A5C26);
+  static const Color goldInk = Color(0xFF1A1512);
+
+  /// Pressed gold: the same metal one step darker.
+  static const Color goldPressedLight = Color(0xFFD9C38A);
+  static const Color goldPressed = Color(0xFFA9864A);
+
+  /// The dark enamel inside a reward chip and a medallion.
+  static const Color enamel = Color(0xFF17130F);
+
+  /// Oxblood for the seventh day, the best-value ribbon and the attention dot.
+  static const Color oxblood = Color(0xFF8E1F24);
+  static const Color oxbloodLight = Color(0xFFB8454A);
+
+  /// Lamp-light along a card's top edge, and the engraved hairline inside it.
+  static const double lampWash = 0.07;
+  static const double engraveInset = 4.0;
+  static const double engraveAlpha = 0.16;
+  static const double engraveWidth = 0.8;
+
+  /// The gold corner marks: a short bracket and a stud.
+  static const double cornerTick = 10.0;
+  static const double cornerAlpha = 0.5;
+  static const double cornerStud = 1.4;
+
+  /// A lit card (something waiting to be claimed, the best offer).
+  static const double litBorder = 1.2;
+  static const double litGlowAlpha = 0.16;
+  static const double litGlowBlur = 22.0;
+
+  /// The ribbon tag riding a card's top edge.
+  static const double tagHeight = 24.0;
+  static const double tagLift = 12.0;
+
+  /// The reward chip: coin and amount in a gold-rimmed enamel pill.
+  static const double chipHeight = 28.0;
+  static const double chipCoin = 16.0;
+  static const double chipRim = 1.0;
+
+  /// The engraved progress bar.
+  static const double barHeight = 10.0;
+  static const double barShine = 0.45;
+  static const Duration barFill = Duration(milliseconds: 700);
+
+  /// The one glint that crosses a best-value card or a fresh reward, once.
+  static const Duration glint = Duration(milliseconds: 1400);
+  static const double glintAlpha = 0.22;
+  static const Duration glintDelay = Duration(milliseconds: 500);
+
+  /// Skeleton blocks while a vault tab loads.
+  static const double skeletonAlpha = 0.10;
+  static const double skeletonLine = 12.0;
+  static const double skeletonCard = 196.0;
+
+  /// The seven-day medallions.
+  static const double dayMedal = 34.0;
+  static const double dayMedalToday = 2.0;
+
+  /// The wheel: studs around the rim, the hub coin, the pointer's shadow.
+  static const int wheelStuds = 24;
+  static const double wheelStud = 2.2;
+  static const double wheelRimWidth = 9.0;
+  static const double wheelHubCoin = 30.0;
+  static const double sliceShade = 0.35;
+
+  /// Level-up reveal: rays behind the crest and the crest's rise.
+  static const int rays = 16;
+  static const double raysAlpha = 0.22;
+  static const double raysExtent = 1.7;
+  static const double revealFromScale = 0.72;
+  static const Duration revealDuration = Duration(milliseconds: 820);
+
+  /// The invite code ticket.
+  static const double ticketDash = 6.0;
+  static const double ticketGap = 4.0;
+
+  /// Leaderboard podium discs.
+  static const double podiumDisc = 30.0;
+  static const List<Color> podium = [
+    Color(0xFFE0B85E), // first — gold
+    Color(0xFFB9BCC2), // second — silver
+    Color(0xFFB07A4A), // third — bronze
+  ];
+
+  /// The fade that lets a scrolling hand slide under a pinned action.
+  static const double pinnedFade = 28.0;
+
+  /// A hairline divider inside a card.
+  static const double dividerAlpha = 0.6;
+
+  /// The glow under a struck-gold button, and the lift it casts.
+  static const double buttonGlowAlpha = 0.22;
+  static const double buttonGlowBlur = 14.0;
+  static const double buttonGlowDrop = 3.0;
+
+  /// Lamp-light behind a crest or a medal: how far it reaches past the
+  /// object, and how bright its centre is.
+  static const double lampSpread = 1.25;
+  static const double lampAlpha = 0.20;
+
+  /// Below this width a row of header icons draws compact.
+  static const double narrowHeaderWidth = 360.0;
+}

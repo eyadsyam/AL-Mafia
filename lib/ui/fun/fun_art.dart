@@ -76,7 +76,15 @@ class _MedalPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     // Two ribbon tails behind the disc.
-    final tail = Paint()..color = ribbon;
+    // Silk: lit along one edge, in shadow along the other.
+    final tail = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          Color.lerp(ribbon, FunTokens.medalLight, 0.25)!,
+          ribbon,
+          Color.lerp(ribbon, VaultTokens.goldInk, 0.45)!,
+        ],
+      ).createShader(Rect.fromLTWH(w * 0.3, 0, w * 0.4, w * 0.42));
     final left = Path()
       ..moveTo(w * 0.30, 0)
       ..lineTo(w * 0.46, 0)
@@ -92,6 +100,14 @@ class _MedalPainter extends CustomPainter {
     canvas
       ..drawPath(left, tail)
       ..drawPath(right, tail);
+    // A stitched fold where the two tails cross.
+    canvas.drawLine(
+      Offset(w * 0.40, w * 0.36),
+      Offset(w * 0.60, w * 0.36),
+      Paint()
+        ..color = FunTokens.medalLight.withValues(alpha: 0.35)
+        ..strokeWidth = FunTokens.awardStroke / 2,
+    );
     final centre = Offset(w / 2, size.height * 0.62);
     final r = w * 0.36;
     // Light from the top left, like every other piece of the family.
@@ -116,6 +132,27 @@ class _MedalPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = FunTokens.awardStroke
         ..color = FunTokens.medalDark.withValues(alpha: 0.6),
+    );
+    // A milled edge: fine ticks around the rim, like a struck coin.
+    final mill = Paint()
+      ..color = FunTokens.medalDark.withValues(alpha: 0.5)
+      ..strokeWidth = FunTokens.awardStroke / 3;
+    for (var i = 0; i < 36; i++) {
+      final a = i * 2 * math.pi / 36;
+      final d = Offset(math.cos(a), math.sin(a));
+      canvas.drawLine(centre + d * r * 0.88, centre + d * r * 0.98, mill);
+    }
+    // The lamp catches the top-left of the rim.
+    canvas.drawArc(
+      Rect.fromCircle(center: centre, radius: r * 0.93),
+      math.pi * 1.05,
+      math.pi * 0.55,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = FunTokens.awardStroke / 1.5
+        ..strokeCap = StrokeCap.round
+        ..color = FunTokens.medalLight.withValues(alpha: 0.8),
     );
   }
 

@@ -10,6 +10,7 @@ import '../screens/setup/coin_store.dart' show CoinStore;
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../economy/council_art.dart' show RasterOr;
+import '../economy/vault_kit.dart';
 import 'fun_art.dart';
 
 /// Phase 109: «وحشتنا». When a player comes back after 20 hours or more, a
@@ -121,66 +122,74 @@ class _WelcomeBackCardState extends ConsumerState<WelcomeBackCard>
                 padding: EdgeInsets.only(bottom: s.sm),
                 child: Opacity(opacity: t, child: child),
               ),
-              child: Container(
+              child: VaultCard(
                 key: WelcomeBackCard.cardKey,
+                lit: true,
                 padding: EdgeInsets.all(s.sm),
-                decoration: BoxDecoration(
-                  color: colors.surfaceRaised,
-                  borderRadius: BorderRadius.circular(context.radii.card),
-                  border: Border.all(color: colors.accentGold),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox.square(
-                      dimension: FunTokens.welcomeArt,
-                      child: RasterOrWelcome(size: FunTokens.welcomeArt),
-                    ),
-                    SizedBox(width: s.sm),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            l.welcomeBackTitle,
-                            style: type.title.copyWith(
-                              color: colors.accentGold,
-                            ),
-                          ),
-                          Text(
-                            daily ? l.welcomeBackBody : l.welcomeBackBodyPlain,
-                            style: type.bodySmall.copyWith(
-                              color: colors.textSecondary,
-                            ),
-                          ),
-                          Wrap(
-                            spacing: s.xs,
-                            children: [
-                              if (daily)
-                                TextButton(
-                                  key: WelcomeBackCard.openKey,
-                                  onPressed: () {
-                                    setState(() => _dismissed = true);
-                                    _vault.show();
-                                  },
-                                  child: Text(l.welcomeBackOpen),
-                                ),
-                              TextButton(
-                                key: WelcomeBackCard.dismissKey,
-                                onPressed: () =>
-                                    setState(() => _dismissed = true),
-                                child: Text(
-                                  l.welcomeBackDismiss,
-                                  style: TextStyle(color: colors.textMuted),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                children: [
+                  Row(
+                    children: [
+                      const LampGlow(
+                        child: SizedBox.square(
+                          dimension: FunTokens.welcomeArt,
+                          child: RasterOrWelcome(size: FunTokens.welcomeArt),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                      SizedBox(width: s.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l.welcomeBackTitle,
+                              style: type.title.copyWith(
+                                color: VaultTokens.goldLight,
+                              ),
+                            ),
+                            Text(
+                              daily
+                                  ? l.welcomeBackBody
+                                  : l.welcomeBackBodyPlain,
+                              style: type.bodySmall.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            SizedBox(height: s.xs),
+                            Wrap(
+                              spacing: s.sm,
+                              runSpacing: s.xs,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                if (daily)
+                                  VaultPress(
+                                    child: FilledButton(
+                                      key: WelcomeBackCard.openKey,
+                                      style: vaultGoldStyle(context),
+                                      onPressed: () {
+                                        setState(() => _dismissed = true);
+                                        _vault.show();
+                                      },
+                                      child: Text(l.welcomeBackOpen),
+                                    ),
+                                  ),
+                                TextButton(
+                                  key: WelcomeBackCard.dismissKey,
+                                  onPressed: () =>
+                                      setState(() => _dismissed = true),
+                                  child: Text(
+                                    l.welcomeBackDismiss,
+                                    style: TextStyle(color: colors.textMuted),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
     );
@@ -197,10 +206,106 @@ class RasterOrWelcome extends StatelessWidget {
     path: FunRaster.welcomeBack,
     width: size,
     height: size,
-    fallback: Icon(
-      Icons.mark_email_unread_rounded,
-      size: size * 0.7,
-      color: context.colors.accentGold,
+    fallback: CustomPaint(
+      size: Size.square(size),
+      painter: const EnvelopePainter(),
     ),
   );
+}
+
+/// A sealed letter: parchment-dark paper, a gold-edged flap and an oxblood
+/// wax seal pressed with the council's mask.
+class EnvelopePainter extends CustomPainter {
+  const EnvelopePainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.shortestSide;
+    final body = Rect.fromCenter(
+      center: size.center(Offset.zero),
+      width: s * 0.86,
+      height: s * 0.58,
+    );
+    final rrect = RRect.fromRectAndRadius(body, Radius.circular(s * 0.05));
+    canvas.drawShadow(
+      Path()..addRRect(rrect),
+      VaultTokens.goldInk,
+      s * 0.05,
+      false,
+    );
+    canvas.drawRRect(
+      rrect,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [VaultTokens.goldPressedLight, VaultTokens.goldPressed],
+        ).createShader(body),
+    );
+    final edge = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = s * 0.018
+      ..strokeJoin = StrokeJoin.round
+      ..color = VaultTokens.goldDeep;
+    // The lower folds meet in the middle.
+    canvas.drawPath(
+      Path()
+        ..moveTo(body.left, body.bottom)
+        ..lineTo(body.center.dx, body.center.dy + s * 0.04)
+        ..lineTo(body.right, body.bottom),
+      edge,
+    );
+    // The flap, closed over the top.
+    final flap = Path()
+      ..moveTo(body.left, body.top)
+      ..lineTo(body.center.dx, body.center.dy + s * 0.06)
+      ..lineTo(body.right, body.top)
+      ..close();
+    canvas.drawPath(
+      flap,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [VaultTokens.goldLight, VaultTokens.gold],
+        ).createShader(body),
+    );
+    canvas.drawPath(flap, edge);
+    canvas.drawRRect(rrect, edge);
+    // The wax seal, where the flap's point rests.
+    final seal = Offset(body.center.dx, body.center.dy + s * 0.06);
+    final r = s * 0.12;
+    canvas.drawCircle(
+      seal,
+      r,
+      Paint()
+        ..shader = const RadialGradient(
+          center: Alignment(-0.35, -0.45),
+          colors: [VaultTokens.oxbloodLight, VaultTokens.oxblood],
+        ).createShader(Rect.fromCircle(center: seal, radius: r)),
+    );
+    canvas.drawCircle(
+      seal,
+      r * 0.72,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = s * 0.012
+        ..color = VaultTokens.goldLight.withValues(alpha: 0.6),
+    );
+    // Two eyes of the mask pressed into the wax.
+    final eye = Paint()..color = VaultTokens.goldLight.withValues(alpha: 0.8);
+    for (final dx in [-r * 0.3, r * 0.3]) {
+      canvas.drawOval(
+        Rect.fromCenter(
+          center: seal + Offset(dx, -r * 0.05),
+          width: r * 0.34,
+          height: r * 0.2,
+        ),
+        eye,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(EnvelopePainter old) => false;
 }

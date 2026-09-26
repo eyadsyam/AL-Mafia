@@ -6427,6 +6427,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Used today'**
   String get adExtraUsed;
+
+  /// No description provided for @vaultOneTime.
+  ///
+  /// In en, this message translates to:
+  /// **'One time only'**
+  String get vaultOneTime;
+
+  /// No description provided for @vaultBestValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Best value'**
+  String get vaultBestValue;
+
+  /// No description provided for @vaultMostCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Most coins'**
+  String get vaultMostCoins;
+
+  /// No description provided for @coinPickPackFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a pack above first, then how you\'ll pay.'**
+  String get coinPickPackFirst;
 }
 
 class _AppLocalizationsDelegate

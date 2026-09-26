@@ -1525,5 +1525,9 @@
   "adExtraSwapSlot": "العقد {number}",
   "adExtraSwapDone": "العقد اتبدّل",
   "adExtraNoneLeft": "مفيش حاجة تتبدّل النهارده.",
-  "adExtraUsed": "اتستخدمت النهارده"
+  "adExtraUsed": "اتستخدمت النهارده",
+  "vaultOneTime": "مرة واحدة بس",
+  "vaultBestValue": "الأوفر",
+  "vaultMostCoins": "أكبر باقة",
+  "coinPickPackFirst": "اختار باقة من فوق الأول، وبعدين طريقة الدفع."
 }

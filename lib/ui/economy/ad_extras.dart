@@ -10,12 +10,14 @@ import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
 import '../screens/online/rewarded_reward_button.dart'
     show showRewardedSilenced;
+import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import 'council.dart';
 import 'council_hub.dart' show contractName;
 import 'daily_rewards.dart';
 import 'economy_capabilities.dart';
 import 'reward_poll.dart';
+import 'vault_kit.dart';
 import 'wallet.dart';
 
 /// One voluntary extra as the server describes it.
@@ -361,24 +363,57 @@ class _AdExtrasPanelState extends ConsumerState<AdExtrasPanel> {
     final idle = !_busy && _pending == null && !status.inMatch;
 
     Widget row({
+      required IconData icon,
       required String title,
       required String body,
       required Widget action,
-    }) => Padding(
-      padding: EdgeInsets.only(top: s.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(title, style: type.body.copyWith(color: colors.textPrimary)),
-          SizedBox(height: s.xs),
-          Text(
-            body,
-            style: type.bodySmall.copyWith(color: colors.textSecondary),
-          ),
-          SizedBox(height: s.sm),
-          action,
-        ],
-      ),
+      bool first = false,
+    }) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        first ? SizedBox(height: s.md) : const VaultDivider(),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: CouncilLifeTokens.contractIcon,
+              height: CouncilLifeTokens.contractIcon,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: VaultTokens.enamel,
+                border: Border.all(
+                  color: VaultTokens.gold.withValues(alpha: 0.7),
+                ),
+              ),
+              child: Icon(
+                icon,
+                size: CouncilLifeTokens.contractIcon / 2,
+                color: VaultTokens.gold,
+              ),
+            ),
+            SizedBox(width: s.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: type.body.emphasised.copyWith(
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    body,
+                    style: type.bodySmall.copyWith(color: colors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: s.sm),
+        VaultPress(child: action),
+      ],
     );
 
     String label(AdExtra extra, String kind, String ready) => extra.awarded
@@ -392,84 +427,74 @@ class _AdExtrasPanelState extends ConsumerState<AdExtrasPanel> {
         '${p.coins} · ${l.dailyWheelPercent(_trimPercent(p.percent))}',
     ].join(l.listSeparator);
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.surfaceRaised,
-        borderRadius: BorderRadius.circular(context.radii.card),
-        border: Border.all(color: colors.borderSubtle),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(s.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Semantics(
-              header: true,
-              child: Text(
-                l.adExtrasTitle,
-                style: type.title.copyWith(color: colors.textPrimary),
-              ),
-            ),
-            SizedBox(height: s.xs),
-            Text(
-              status.inMatch ? l.dailyAdInMatch : l.adExtrasBody,
-              style: type.bodySmall.copyWith(color: colors.textSecondary),
-            ),
-            if (spin)
-              row(
-                title: l.adExtraSpinTitle,
-                body: status.spin.ready || status.spin.awarded
-                    ? '${l.adExtraSpinBody}\n${l.adExtraSpinOdds(odds)}'
-                    : l.adExtraSpinNotReady,
-                action: OutlinedButton.icon(
-                  key: AdExtrasPanel.spinKey,
-                  onPressed: idle && status.spin.ready && !status.spin.awarded
-                      ? () => _watch('spin')
-                      : null,
-                  icon: const Icon(Icons.ondemand_video_outlined),
-                  label: Text(
-                    status.spin.awarded
-                        ? l.adExtraSpinResult(status.spin.amount ?? 0)
-                        : label(status.spin, 'spin', l.adExtraSpinAction),
-                  ),
-                ),
-              ),
-            if (coffer)
-              row(
-                title: l.adExtraCofferTitle,
-                body: status.coffer.ready || status.coffer.awarded
-                    ? l.adExtraCofferAction(status.coffer.amount ?? 0)
-                    : l.adExtraCofferNotReady,
-                action: OutlinedButton.icon(
-                  key: AdExtrasPanel.cofferKey,
-                  onPressed:
-                      idle && status.coffer.ready && !status.coffer.awarded
-                      ? () => _watch('coffer')
-                      : null,
-                  icon: const Icon(Icons.ondemand_video_outlined),
-                  label: Text(
-                    label(
-                      status.coffer,
-                      'coffer',
-                      l.adExtraCofferAction(status.coffer.amount ?? 0),
-                    ),
-                  ),
-                ),
-              ),
-            if (swap)
-              row(
-                title: l.adExtraSwapTitle,
-                body: l.adExtraSwapBody,
-                action: OutlinedButton.icon(
-                  key: AdExtrasPanel.swapKey,
-                  onPressed: idle && !status.swap.awarded ? _chooseSwap : null,
-                  icon: const Icon(Icons.swap_horiz),
-                  label: Text(label(status.swap, 'swap', l.adExtraSwapAction)),
-                ),
-              ),
-          ],
+    final outline = vaultOutlineStyle(context);
+    return VaultCard(
+      children: [
+        VaultHeading(
+          title: l.adExtrasTitle,
+          subtitle: status.inMatch ? l.dailyAdInMatch : l.adExtrasBody,
         ),
-      ),
+        if (spin)
+          row(
+            first: true,
+            icon: Icons.casino_outlined,
+            title: l.adExtraSpinTitle,
+            body: status.spin.ready || status.spin.awarded
+                ? '${l.adExtraSpinBody}\n${l.adExtraSpinOdds(odds)}'
+                : l.adExtraSpinNotReady,
+            action: OutlinedButton.icon(
+              key: AdExtrasPanel.spinKey,
+              style: outline,
+              onPressed: idle && status.spin.ready && !status.spin.awarded
+                  ? () => _watch('spin')
+                  : null,
+              icon: const Icon(Icons.ondemand_video_outlined),
+              label: Text(
+                status.spin.awarded
+                    ? l.adExtraSpinResult(status.spin.amount ?? 0)
+                    : label(status.spin, 'spin', l.adExtraSpinAction),
+              ),
+            ),
+          ),
+        if (coffer)
+          row(
+            first: !spin,
+            icon: Icons.inventory_2_outlined,
+            title: l.adExtraCofferTitle,
+            body: status.coffer.ready || status.coffer.awarded
+                ? l.adExtraCofferAction(status.coffer.amount ?? 0)
+                : l.adExtraCofferNotReady,
+            action: OutlinedButton.icon(
+              key: AdExtrasPanel.cofferKey,
+              style: outline,
+              onPressed: idle && status.coffer.ready && !status.coffer.awarded
+                  ? () => _watch('coffer')
+                  : null,
+              icon: const Icon(Icons.ondemand_video_outlined),
+              label: Text(
+                label(
+                  status.coffer,
+                  'coffer',
+                  l.adExtraCofferAction(status.coffer.amount ?? 0),
+                ),
+              ),
+            ),
+          ),
+        if (swap)
+          row(
+            first: !spin && !coffer,
+            icon: Icons.swap_horiz_rounded,
+            title: l.adExtraSwapTitle,
+            body: l.adExtraSwapBody,
+            action: OutlinedButton.icon(
+              key: AdExtrasPanel.swapKey,
+              style: outline,
+              onPressed: idle && !status.swap.awarded ? _chooseSwap : null,
+              icon: const Icon(Icons.swap_horiz),
+              label: Text(label(status.swap, 'swap', l.adExtraSwapAction)),
+            ),
+          ),
+      ],
     );
   }
 }

@@ -8,6 +8,7 @@ import '../../engine/models/enums.dart' show GamePhase;
 import '../../platform/haptics.dart';
 import '../../transport/online_backend.dart';
 import '../l10n_ext.dart';
+import '../economy/vault_kit.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import 'fun_art.dart';
@@ -144,23 +145,40 @@ class _ReactionBarState extends ConsumerState<ReactionBar> {
     final on = caps?.fun.reactions ?? false;
     if (!widget.open || !on) return const SizedBox.shrink();
     final l = context.l10n;
+    // The seals sit in a dark tray, centred while they fit.
     return Semantics(
       container: true,
       label: l.reactionsLabel,
-      child: SingleChildScrollView(
-        key: ReactionBar.barKey,
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final kind in ReactionKind.values)
-              IconButton(
-                key: ReactionBar.seal(kind),
-                tooltip: reactionLabel(l, kind),
-                onPressed: () => unawaited(_send(kind)),
-                icon: ReactionSeal(kind: kind),
+      child: Center(
+        child: Container(
+          margin: EdgeInsets.only(bottom: context.spacing.xs),
+          decoration: BoxDecoration(
+            color: VaultTokens.enamel,
+            borderRadius: BorderRadius.circular(FunTokens.reactionFloat),
+            border: Border.all(
+              color: VaultTokens.gold.withValues(
+                alpha: VaultTokens.cornerAlpha,
               ),
-          ],
+            ),
+          ),
+          child: SingleChildScrollView(
+            key: ReactionBar.barKey,
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final kind in ReactionKind.values)
+                  VaultPress(
+                    child: IconButton(
+                      key: ReactionBar.seal(kind),
+                      tooltip: reactionLabel(l, kind),
+                      onPressed: () => unawaited(_send(kind)),
+                      icon: ReactionSeal(kind: kind),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );

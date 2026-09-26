@@ -3661,4 +3661,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adExtraUsed => 'اتستخدمت النهارده';
+
+  @override
+  String get vaultOneTime => 'مرة واحدة بس';
+
+  @override
+  String get vaultBestValue => 'الأوفر';
+
+  @override
+  String get vaultMostCoins => 'أكبر باقة';
+
+  @override
+  String get coinPickPackFirst =>
+      'اختار باقة من فوق الأول، وبعدين طريقة الدفع.';
 }

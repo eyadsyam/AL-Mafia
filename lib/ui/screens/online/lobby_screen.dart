@@ -424,54 +424,70 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                           children: [
                             SizedBox(
                               height: CouncilTokens.headerHeight,
-                              child: Row(
-                                children: [
-                                  // Task 9b — the «كود الأوضة» label is gone.
-                                  // The code is six gold characters in the middle
-                                  // of the screen; naming it was a caption on a
-                                  // thing nobody was mistaking for anything else.
-                                  const Spacer(),
-                                  // Out of the match only: the lobby is the
-                                  // last place the store is reachable from.
-                                  const CoinStoreButton(compact: true),
-                                  const SafetyButton(),
-                                  // Task 10 — the room's rules, while everybody
-                                  // watches. Host only, and the server checks that
-                                  // rather than trusting this.
-                                  if (isHost)
+                              // Seven 48 dp icons are 336 dp: on a 320 dp
+                              // phone they draw tighter (the tap target
+                              // stays 48 dp), rather than overflow.
+                              child: IconButtonTheme(
+                                data: IconButtonThemeData(
+                                  style: IconButton.styleFrom(
+                                    visualDensity:
+                                        MediaQuery.sizeOf(context).width <
+                                            VaultTokens.narrowHeaderWidth
+                                        ? VisualDensity.compact
+                                        : null,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Task 9b — the «كود الأوضة» label is gone.
+                                    // The code is six gold characters in the middle
+                                    // of the screen; naming it was a caption on a
+                                    // thing nobody was mistaking for anything else.
+                                    const Spacer(),
+                                    // Out of the match only: the lobby is the
+                                    // last place the store is reachable from.
+                                    const CoinStoreButton(compact: true),
+                                    const SafetyButton(),
+                                    // Task 10 — the room's rules, while everybody
+                                    // watches. Host only, and the server checks that
+                                    // rather than trusting this.
+                                    if (isHost)
+                                      IconButton(
+                                        key: LobbyScreen.settingsButton,
+                                        tooltip: l10n.onlineRoomSettings,
+                                        onPressed: () =>
+                                            setState(() => _settings = true),
+                                        icon: Icon(
+                                          Icons.tune,
+                                          color: colors.textSecondary,
+                                        ),
+                                      ),
                                     IconButton(
-                                      key: LobbyScreen.settingsButton,
-                                      tooltip: l10n.onlineRoomSettings,
-                                      onPressed: () =>
-                                          setState(() => _settings = true),
+                                      key: LobbyScreen.leaveButton,
+                                      tooltip: l10n.onlineLeave,
+                                      onPressed: () async {
+                                        if (isHost) {
+                                          setState(() => _closing = true);
+                                          return;
+                                        }
+                                        await ref
+                                            .read(
+                                              onlineSessionProvider.notifier,
+                                            )
+                                            .leave();
+                                        if (context.mounted) widget.onLeave();
+                                      },
                                       icon: Icon(
-                                        Icons.tune,
+                                        Icons.logout,
                                         color: colors.textSecondary,
                                       ),
                                     ),
-                                  IconButton(
-                                    key: LobbyScreen.leaveButton,
-                                    tooltip: l10n.onlineLeave,
-                                    onPressed: () async {
-                                      if (isHost) {
-                                        setState(() => _closing = true);
-                                        return;
-                                      }
-                                      await ref
-                                          .read(onlineSessionProvider.notifier)
-                                          .leave();
-                                      if (context.mounted) widget.onLeave();
-                                    },
-                                    icon: Icon(
-                                      Icons.logout,
-                                      color: colors.textSecondary,
-                                    ),
-                                  ),
-                                  // Task 9a — the lobby's whole voice surface. Last
-                                  // in the row, so it is the far edge of the header
-                                  // once the RTL layout has run.
-                                  const VoiceMicButton(),
-                                ],
+                                    // Task 9a — the lobby's whole voice surface. Last
+                                    // in the row, so it is the far edge of the header
+                                    // once the RTL layout has run.
+                                    const VoiceMicButton(),
+                                  ],
+                                ),
                               ),
                             ),
                             const BandDivider(),

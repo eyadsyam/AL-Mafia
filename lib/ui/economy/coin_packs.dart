@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../platform/haptics.dart';
 import '../../platform/links/external_link.dart';
 import '../../transport/online_backend.dart';
 import '../l10n_ext.dart';
@@ -10,6 +11,7 @@ import 'account_protection.dart';
 import 'mafia_coin.dart';
 import 'wallet.dart';
 import 'store_art.dart';
+import 'vault_kit.dart';
 import '../theme/design_tokens.dart';
 
 /// One pack as the server prices it. Amounts are piastres (1/100 EGP).
@@ -241,27 +243,13 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
       (_, _) => ref.invalidate(coinShopProvider),
     );
     return shop.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const VaultSkeleton(cards: 2),
       // A server without the orders feature (or offline) is "not available",
       // said plainly, with a retry.
-      error: (_, _) => Center(
-        child: Padding(
-          padding: EdgeInsets.all(s.md),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l.coinPacksUnavailable,
-                style: context.typography.body,
-                textAlign: TextAlign.center,
-              ),
-              TextButton(
-                onPressed: () => ref.invalidate(coinShopProvider),
-                child: Text(l.videoRetry),
-              ),
-            ],
-          ),
-        ),
+      error: (_, _) => VaultRetry(
+        message: l.coinPacksUnavailable,
+        action: l.videoRetry,
+        onRetry: () => ref.invalidate(coinShopProvider),
       ),
       data: (shop) {
         if (!shop.enabled) {
@@ -284,7 +272,10 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
                 SizedBox(height: s.sm),
                 const AccountProtectionCard(),
               ] else if (order != null)
-                _OrderCard(
+                VaultCard(
+                  lit: order.status == 'awaiting_transfer',
+                  children: [
+                    _OrderCard(
                   order: order,
                   method: shop.methods
                       .where((m) => m.code == order.method)
@@ -301,6 +292,8 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
                   onNewOrder: order.status == 'expired'
                       ? () => setState(() => _newOrder = true)
                       : null,
+                    ),
+                  ],
                 )
               else
                 ..._chooser(shop),
@@ -333,11 +326,34 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
   List<Widget> _chooser(CoinShop shop) {
     final l = context.l10n;
     final s = context.spacing;
+    final colors = context.colors;
     final pack = shop.packs.where((p) => p.code == _pack).firstOrNull;
     final passOwned = pack != null && pack.pass && shop.adFree;
+    // Best value only where the numbers prove it: the most coins per pound,
+    // strictly ahead of every other coin pack.
+    final coinPacks = shop.packs
+        .where((p) => !p.pass && p.coins > 0 && p.pricePiastres > 0)
+        .toList();
+    String? best;
+    if (coinPacks.length > 1) {
+      coinPacks.sort(
+        (a, b) =>
+            (b.coins / b.pricePiastres).compareTo(a.coins / a.pricePiastres),
+      );
+      final top = coinPacks[0], next = coinPacks[1];
+      if (top.coins / top.pricePiastres > next.coins / next.pricePiastres) {
+        best = top.code;
+      }
+    }
     return [
+      _Step(
+        number: 1,
+        title: l.storeTabCoins,
+        hint: pack == null ? l.coinPickPackFirst : null,
+      ),
+      SizedBox(height: s.sm),
       SizedBox(
-        height: StoreTokens.coinRailHeight,
+        height: StoreTokens.coinRailHeight + VaultTokens.tagLift,
         child: Scrollbar(
           controller: _packScroll,
           thumbVisibility: true,
@@ -349,63 +365,126 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
             itemBuilder: (context, index) {
               final p = shop.packs[index];
               final selected = p.code == _pack;
+              final radius = BorderRadius.circular(context.radii.card);
+              final card = AnimatedContainer(
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : context.motion.quick,
+                decoration: BoxDecoration(
+                  borderRadius: radius,
+                  boxShadow: selected
+                      ? [
+                          BoxShadow(
+                            color: VaultTokens.gold.withValues(
+                              alpha: VaultTokens.litGlowAlpha * 1.5,
+                            ),
+                            blurRadius: VaultTokens.litGlowBlur,
+                          ),
+                        ]
+                      : context.elevation.level1,
+                ),
+                child: Material(
+                  clipBehavior: Clip.antiAlias,
+                  color: selected
+                      ? Color.alphaBlend(
+                          VaultTokens.gold.withValues(
+                            alpha: VaultTokens.lampWash * 1.6,
+                          ),
+                          colors.surfaceRaised,
+                        )
+                      : colors.surfaceRaised,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: radius,
+                    side: BorderSide(
+                      color: selected ? VaultTokens.gold : colors.borderSubtle,
+                      width: selected ? StoreTokens.selectedBorder : 1,
+                    ),
+                  ),
+                  child: InkWell(
+                    key: CoinPacksTab.pack(p.code),
+                    onTap: _busy
+                        ? null
+                        : () {
+                            Haptics.select();
+                            setState(() => _pack = p.code);
+                          },
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(s.sm, s.md, s.sm, s.sm),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: p.pass
+                                ? Image.asset(
+                                    StoreArt.quietPassCover,
+                                    cacheWidth: StoreTokens.frameDecodeWidth,
+                                    excludeFromSemantics: true,
+                                    errorBuilder: (_, _, _) =>
+                                        const SizedBox.shrink(),
+                                  )
+                                : StoreProductArt(code: p.code),
+                          ),
+                          if (p.pass)
+                            Text(
+                              l.quietPassTitle,
+                              style: context.typography.title.copyWith(
+                                color: VaultTokens.goldLight,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          else
+                            CoinAmount(
+                              p.coins,
+                              style: context.typography.title.copyWith(
+                                color: VaultTokens.goldLight,
+                              ),
+                            ),
+                          Text(
+                            l.coinPackPrice(egp(p.pricePiastres)),
+                            style: context.typography.body.emphasised.copyWith(
+                              color: selected
+                                  ? VaultTokens.gold
+                                  : colors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
               return Padding(
-                padding: EdgeInsets.only(bottom: s.md),
+                padding: EdgeInsets.only(
+                  top: VaultTokens.tagLift,
+                  bottom: s.md,
+                ),
                 child: SizedBox(
                   width: StoreTokens.cardWidth,
                   child: Semantics(
                     selected: selected,
                     inMutuallyExclusiveGroup: true,
-                    child: Material(
-                      color: context.colors.surfaceRaised,
-                      clipBehavior: Clip.antiAlias,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(context.radii.card),
-                        side: BorderSide(
-                          color: selected
-                              ? context.colors.accentGold
-                              : context.colors.borderSubtle,
-                        ),
-                      ),
-                      child: InkWell(
-                        key: CoinPacksTab.pack(p.code),
-                        onTap: _busy
-                            ? null
-                            : () => setState(() => _pack = p.code),
-                        child: Padding(
-                          padding: EdgeInsets.all(s.sm),
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: p.pass
-                                    ? Image.asset(
-                                        StoreArt.quietPassCover,
-                                        cacheWidth: StoreTokens.frameDecodeWidth,
-                                        excludeFromSemantics: true,
-                                        errorBuilder: (_, _, _) =>
-                                            const SizedBox.shrink(),
-                                      )
-                                    : StoreProductArt(code: p.code),
-                              ),
-                              if (p.pass)
-                                Text(
-                                  l.quietPassTitle,
-                                  style: context.typography.title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                )
-                              else
-                                CoinAmount(
-                                  p.coins,
-                                  style: context.typography.title,
-                                ),
-                              Text(
-                                l.coinPackPrice(egp(p.pricePiastres)),
-                                style: context.typography.bodySmall,
-                              ),
-                            ],
+                    child: VaultPress(
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Positioned.fill(
+                            child: p.code == best
+                                ? VaultGlint(child: card)
+                                : card,
                           ),
-                        ),
+                          if (p.code == best)
+                            PositionedDirectional(
+                              top: -VaultTokens.tagLift,
+                              start: s.sm,
+                              child: VaultTag(l.vaultBestValue, oxblood: true),
+                            ),
+                          if (selected)
+                            PositionedDirectional(
+                              top: s.sm,
+                              end: s.sm,
+                              child: const _Check(),
+                            ),
+                        ],
                       ),
                     ),
                   ),
@@ -416,63 +495,163 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
         ),
       ),
       if (pack != null && pack.pass) ...[
-        SizedBox(height: s.sm),
         Text(
           key: CoinPacksTab.passNote,
           passOwned ? l.webPassOwned : l.webPassBody,
           style: context.typography.bodySmall.copyWith(
-            color: passOwned ? context.colors.accentGold : null,
+            color: passOwned ? VaultTokens.gold : colors.textSecondary,
           ),
         ),
+        SizedBox(height: s.sm),
       ],
       SizedBox(height: s.sm),
-      Text(l.coinPayMethod, style: context.typography.title),
-      Text(l.coinPayStep, style: context.typography.bodySmall),
+      _Step(number: 2, title: l.coinPayMethod, hint: l.coinPayStep),
       SizedBox(height: s.sm),
       for (final m in shop.methods) ...[
-        FilledButton.icon(
-          key: CoinPacksTab.method(m.code),
-          icon: const Icon(Icons.open_in_new),
-          onPressed: m.available && pack != null && !passOwned && !_busy
-              ? () => _payWith(pack, m)
-              : null,
-          label: Text(
-            pack == null
-                ? l.coinPayWith(methodName(context, m.code))
-                : '${l.coinPayWith(methodName(context, m.code))} · ${l.coinPackPrice(egp(pack.pricePiastres))}',
+        VaultPress(
+          child: FilledButton.icon(
+            key: CoinPacksTab.method(m.code),
+            style: vaultGoldStyle(context),
+            icon: const Icon(Icons.open_in_new),
+            onPressed: m.available && pack != null && !passOwned && !_busy
+                ? () => _payWith(pack, m)
+                : null,
+            label: Text(
+              pack == null
+                  ? l.coinPayWith(methodName(context, m.code))
+                  : '${l.coinPayWith(methodName(context, m.code))} · ${l.coinPackPrice(egp(pack.pricePiastres))}',
+            ),
           ),
         ),
         if (!m.available)
-          Text(l.coinPayMethodOff, style: context.typography.caption),
-        SizedBox(height: s.xs),
+          Padding(
+            padding: EdgeInsets.only(top: s.xs),
+            child: Text(
+              l.coinPayMethodOff,
+              textAlign: TextAlign.center,
+              style: context.typography.caption.copyWith(
+                color: colors.textMuted,
+              ),
+            ),
+          ),
+        SizedBox(height: s.sm),
       ],
-      SizedBox(height: s.md),
+      SizedBox(height: s.sm),
       _Notice(),
     ];
   }
 }
 
-class _Notice extends StatelessWidget {
+/// A numbered step: a struck medallion, its title, and what to do.
+class _Step extends StatelessWidget {
+  final int number;
+  final String title;
+  final String? hint;
+  const _Step({required this.number, required this.title, this.hint});
+
   @override
-  Widget build(BuildContext context) => Container(
-    key: CoinPacksTab.notice,
-    padding: EdgeInsets.all(context.spacing.md),
-    decoration: BoxDecoration(
-      color: context.colors.surfaceRaised,
-      borderRadius: BorderRadius.circular(context.radii.card),
-      border: Border.all(color: context.colors.accentGold),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget build(BuildContext context) {
+    final s = context.spacing;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.l10n.coinManualNotice, style: context.typography.title),
-        SizedBox(height: context.spacing.xs),
-        Text(
-          context.l10n.coinManualDetail,
-          style: context.typography.bodySmall,
+        Container(
+          width: VaultTokens.dayMedal,
+          height: VaultTokens.dayMedal,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              center: Alignment(-0.35, -0.45),
+              colors: [
+                VaultTokens.goldLight,
+                VaultTokens.gold,
+                VaultTokens.goldDeep,
+              ],
+            ),
+          ),
+          child: Text(
+            '$number',
+            style: context.typography.body.emphasised.copyWith(
+              color: VaultTokens.goldInk,
+              height: 1.1,
+            ),
+          ),
+        ),
+        SizedBox(width: s.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  title,
+                  style: context.typography.title.copyWith(
+                    color: context.colors.textPrimary,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+              if (hint != null)
+                Text(
+                  hint!,
+                  style: context.typography.bodySmall.copyWith(
+                    color: context.colors.textSecondary,
+                  ),
+                ),
+            ],
+          ),
         ),
       ],
+    );
+  }
+}
+
+/// The chosen pack's struck check.
+class _Check extends StatelessWidget {
+  const _Check();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: VaultTokens.chipHeight,
+    height: VaultTokens.chipHeight,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: VaultTokens.gold,
+      border: Border.all(color: VaultTokens.goldLight),
+      boxShadow: context.elevation.level1,
     ),
+    child: const Icon(
+      Icons.check_rounded,
+      size: VaultTokens.chipCoin,
+      color: VaultTokens.goldInk,
+    ),
+  );
+}
+
+class _Notice extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => VaultCard(
+    key: CoinPacksTab.notice,
+    children: [
+      VaultHeading(
+        leading: const Icon(
+          Icons.verified_user_outlined,
+          color: VaultTokens.gold,
+          size: CouncilLifeTokens.contractIcon * 0.8,
+        ),
+        title: context.l10n.coinManualNotice,
+        compact: true,
+      ),
+      SizedBox(height: context.spacing.sm),
+      Text(
+        context.l10n.coinManualDetail,
+        style: context.typography.bodySmall.copyWith(
+          color: context.colors.textSecondary,
+        ),
+      ),
+    ],
   );
 }
 
@@ -520,7 +699,9 @@ class _OrderCard extends ConsumerWidget {
       children: [
         Text(
           l.coinOrderTitle(order.reference),
-          style: context.typography.title,
+          style: context.typography.title.copyWith(
+            color: VaultTokens.goldLight,
+          ),
         ),
         Text(
           order.coins == 0
@@ -536,6 +717,7 @@ class _OrderCard extends ConsumerWidget {
           SizedBox(height: s.md),
           FilledButton.icon(
             key: CoinPacksTab.openButton,
+            style: vaultGoldStyle(context),
             icon: const Icon(Icons.open_in_new),
             label: Text(l.coinOpenPayment(name)),
             // Opened inside the tap itself; the order stays open here.
@@ -565,6 +747,7 @@ class _OrderCard extends ConsumerWidget {
             listenable: reference,
             builder: (context, _) => FilledButton(
               key: CoinPacksTab.claimButton,
+              style: vaultGoldStyle(context),
               onPressed: busy || reference.text.trim().length < 4
                   ? null
                   : onClaim,

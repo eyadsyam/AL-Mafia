@@ -720,6 +720,8 @@ class _CoinBurstState extends State<CoinBurst>
   Widget build(BuildContext context) => Stack(
     clipBehavior: Clip.none,
     alignment: Alignment.center,
+    // The child keeps the width its parent gives it (a full-width claim).
+    fit: StackFit.passthrough,
     children: [
       widget.child,
       IgnorePointer(
@@ -728,43 +730,46 @@ class _CoinBurstState extends State<CoinBurst>
           builder: (context, _) {
             if (!_run.isAnimating) return const SizedBox.shrink();
             final t = Curves.easeOutCubic.transform(_run.value);
-            return SizedBox.square(
-              key: CoinBurst.burstKey,
-              dimension: 0,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  for (var i = 0; i < CouncilLifeTokens.burstCoins; i++)
-                    Transform.translate(
-                      offset:
-                          Offset(
-                                math.cos(
-                                  i *
-                                      2 *
-                                      math.pi /
-                                      CouncilLifeTokens.burstCoins,
-                                ),
-                                math.sin(
-                                  i *
-                                      2 *
-                                      math.pi /
-                                      CouncilLifeTokens.burstCoins,
-                                ),
-                              ) *
-                              CouncilLifeTokens.burstReach *
-                              t -
-                          const Offset(
-                            CouncilLifeTokens.burstCoin / 2,
-                            CouncilLifeTokens.burstCoin / 2,
+            // Centred on the child whatever width the child was given.
+            return Center(
+              child: SizedBox.square(
+                key: CoinBurst.burstKey,
+                dimension: 0,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    for (var i = 0; i < CouncilLifeTokens.burstCoins; i++)
+                      Transform.translate(
+                        offset:
+                            Offset(
+                                  math.cos(
+                                    i *
+                                        2 *
+                                        math.pi /
+                                        CouncilLifeTokens.burstCoins,
+                                  ),
+                                  math.sin(
+                                    i *
+                                        2 *
+                                        math.pi /
+                                        CouncilLifeTokens.burstCoins,
+                                  ),
+                                ) *
+                                CouncilLifeTokens.burstReach *
+                                t -
+                            const Offset(
+                              CouncilLifeTokens.burstCoin / 2,
+                              CouncilLifeTokens.burstCoin / 2,
+                            ),
+                        child: Opacity(
+                          opacity: 1 - _run.value,
+                          child: const MafiaCoin(
+                            size: CouncilLifeTokens.burstCoin,
                           ),
-                      child: Opacity(
-                        opacity: 1 - _run.value,
-                        child: const MafiaCoin(
-                          size: CouncilLifeTokens.burstCoin,
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             );
           },

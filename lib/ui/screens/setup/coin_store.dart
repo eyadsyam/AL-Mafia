@@ -17,6 +17,7 @@ import '../../economy/play_offers.dart';
 import '../../../platform/monetization/play_billing.dart';
 import '../../economy/store_art.dart';
 import '../../economy/mafia_coin.dart';
+import '../../economy/vault_kit.dart';
 import '../../economy/wallet.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
@@ -706,94 +707,142 @@ class _ProductCard extends StatelessWidget {
     final radius = BorderRadius.circular(context.radii.card);
     return SizedBox(
       width: StoreTokens.cardWidth,
-      child: Material(
-        color: colors.surfaceRaised,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: radius,
-          side: equipped
-              ? BorderSide(
-                  color: colors.accentGold,
-                  width: StoreTokens.selectedBorder,
-                )
-              : BorderSide(color: colors.borderSubtle),
-        ),
-        child: InkWell(
-          key: CoinStore.item(item.code),
-          onTap: onTap,
-          child: Padding(
-            padding: EdgeInsets.all(s.sm),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: StoreTokens.artHeight,
-                  width: double.infinity,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: colors.surfaceBase,
-                      borderRadius: BorderRadius.circular(context.radii.button),
-                    ),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        StoreProductArt(code: item.code),
-                        if (owned || equipped)
-                          PositionedDirectional(
-                            top: s.xs,
-                            start: s.xs,
-                            child: SettingsPill(
-                              text: equipped ? l.storeEquipped : l.storeOwned,
+      child: VaultPress(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            boxShadow: [
+              ...context.elevation.level1,
+              if (equipped)
+                BoxShadow(
+                  color: VaultTokens.gold.withValues(
+                    alpha: VaultTokens.litGlowAlpha,
+                  ),
+                  blurRadius: VaultTokens.litGlowBlur,
+                ),
+            ],
+          ),
+          child: Material(
+            color: equipped
+                ? Color.alphaBlend(
+                    VaultTokens.gold.withValues(alpha: VaultTokens.lampWash),
+                    colors.surfaceRaised,
+                  )
+                : colors.surfaceRaised,
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
+              borderRadius: radius,
+              side: equipped
+                  ? const BorderSide(
+                      color: VaultTokens.gold,
+                      width: StoreTokens.selectedBorder,
+                    )
+                  : BorderSide(color: colors.borderSubtle),
+            ),
+            child: InkWell(
+              key: CoinStore.item(item.code),
+              onTap: onTap,
+              child: Padding(
+                padding: EdgeInsets.all(s.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: StoreTokens.artHeight,
+                      width: double.infinity,
+                      child: DecoratedBox(
+                        // The art sits in a lit well: lamp-light from above on
+                        // the dark ground.
+                        decoration: BoxDecoration(
+                          gradient: RadialGradient(
+                            center: const Alignment(0, -0.35),
+                            radius: 0.9,
+                            colors: [
+                              Color.alphaBlend(
+                                VaultTokens.gold.withValues(
+                                  alpha: VaultTokens.lampAlpha / 2,
+                                ),
+                                colors.surfaceBase,
+                              ),
+                              colors.surfaceBase,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(
+                            context.radii.button,
+                          ),
+                          border: Border.all(
+                            color: VaultTokens.gold.withValues(
+                              alpha: VaultTokens.engraveAlpha,
                             ),
                           ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: s.sm),
-                Text(
-                  cosmetic.name(l),
-                  style: context.typography.body.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  cosmetic.description(l),
-                  style: context.typography.caption.copyWith(
-                    color: colors.textMuted,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const Spacer(),
-                if (owned || equipped)
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        size: CosmeticTokens.coinInline,
-                        color: colors.accentGold,
-                      ),
-                      SizedBox(width: s.xs),
-                      Text(
-                        equipped ? l.storeEquipped : l.storeOwned,
-                        style: context.typography.bodySmall.copyWith(
-                          color: colors.textSecondary,
+                        ),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            StoreProductArt(code: item.code),
+                            if (owned || equipped)
+                              PositionedDirectional(
+                                top: s.xs,
+                                start: s.xs,
+                                child: SettingsPill(
+                                  text: equipped
+                                      ? l.storeEquipped
+                                      : l.storeOwned,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                    ],
-                  )
-                else
-                  CoinAmount(
-                    item.charge,
-                    style: context.typography.title.copyWith(
-                      color: colors.accentGold,
                     ),
-                  ),
-              ],
+                    SizedBox(height: s.sm),
+                    Text(
+                      cosmetic.name(l),
+                      style: context.typography.body.emphasised.copyWith(
+                        color: colors.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      cosmetic.description(l),
+                      style: context.typography.caption.copyWith(
+                        color: colors.textMuted,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Spacer(),
+                    if (owned || equipped)
+                      Row(
+                        children: [
+                          Icon(
+                            equipped
+                                ? Icons.check_circle_rounded
+                                : Icons.check_circle_outline,
+                            size: CosmeticTokens.coinInline,
+                            color: VaultTokens.gold,
+                          ),
+                          SizedBox(width: s.xs),
+                          Text(
+                            equipped ? l.storeEquipped : l.storeOwned,
+                            style: context.typography.bodySmall.copyWith(
+                              color: equipped
+                                  ? VaultTokens.gold
+                                  : colors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      CoinAmount(
+                        item.charge,
+                        style: context.typography.title.copyWith(
+                          color: VaultTokens.goldLight,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

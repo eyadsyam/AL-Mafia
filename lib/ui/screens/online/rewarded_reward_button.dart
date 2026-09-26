@@ -8,6 +8,7 @@ import '../../../platform/monetization/rewarded_ads.dart';
 import '../../economy/economy_capabilities.dart';
 import '../../economy/interstitial_coordinator.dart';
 import '../../economy/reward_poll.dart';
+import '../../economy/vault_kit.dart';
 import '../../economy/wallet.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
@@ -402,6 +403,7 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
         children: [
           OutlinedButton.icon(
             key: RewardedRewardButton.actionKey,
+            style: vaultOutlineStyle(context),
             onPressed: _busy || _awarded || _pending || _mode == _Mode.loading
                 ? null
                 : _showLegacy,
@@ -421,7 +423,13 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
           ),
           if (_stale && !_awarded) _checkAgain(context),
           SizedBox(height: spacing.xs),
-          Text(l.adRewardHint, style: context.typography.caption),
+          Text(
+            l.adRewardHint,
+            textAlign: TextAlign.center,
+            style: context.typography.caption.copyWith(
+              color: context.colors.textMuted,
+            ),
+          ),
         ],
       ),
     );
@@ -470,9 +478,10 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
     final enabled = !step.awarded && previousDone && !_busy && !_pending;
     return OutlinedButton.icon(
       key: RewardedRewardButton.stepKey(step.step),
+      style: vaultOutlineStyle(context),
       onPressed: enabled ? () => _showStep(step.step) : null,
       icon: step.awarded
-          ? Icon(Icons.check_circle_outline, color: context.colors.accentGold)
+          ? const Icon(Icons.check_circle_rounded, color: VaultTokens.gold)
           : _busy && previousDone
           ? SizedBox.square(
               dimension: spacing.md,

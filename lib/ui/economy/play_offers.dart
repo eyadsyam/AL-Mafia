@@ -13,7 +13,9 @@ import '../theme/mafia_theme.dart';
 import 'account_protection.dart';
 import 'council_art.dart';
 import 'economy_capabilities.dart';
+import 'mafia_coin.dart';
 import 'store_art.dart';
+import 'vault_kit.dart';
 import 'wallet.dart';
 
 enum PlayNotice {
@@ -264,20 +266,29 @@ class _PlayOffersTabState extends ConsumerState<PlayOffersTab> {
     final debt =
         ref.watch(economyCapabilitiesProvider).valueOrNull?.purchaseDebt ?? 0;
     final packs = offers.offers.where((o) => o.$1.consumable).toList();
+    // Play gives display prices only, so no per-coin value is claimed here:
+    // the largest pack is called what it is.
+    final most = packs.isEmpty
+        ? null
+        : packs.map((p) => p.$1.coins ?? 0).reduce((a, b) => a > b ? a : b);
+    final idle = offers.busyProduct == null;
+    Widget buy(String id, String price, VoidCallback onPressed) => VaultPress(
+      child: FilledButton(
+        key: PlayOffersTab.buyKey(id),
+        style: vaultGoldStyle(context),
+        onPressed: idle ? onPressed : null,
+        child: Text(l.playBuy(price)),
+      ),
+    );
     return ListView(
       padding: EdgeInsets.all(s.md),
       children: [
         if (notice != null)
           Padding(
-            padding: EdgeInsets.only(bottom: s.sm),
+            padding: EdgeInsets.only(bottom: s.md),
             child: Semantics(
               liveRegion: true,
-              child: Text(
-                notice,
-                style: context.typography.body.copyWith(
-                  color: colors.accentGold,
-                ),
-              ),
+              child: _Notice(text: notice, alarm: false),
             ),
           ),
         if (offers.notice == PlayNotice.needsProtection)
@@ -285,18 +296,25 @@ class _PlayOffersTabState extends ConsumerState<PlayOffersTab> {
         if (debt > 0 && offers.offers.any((o) => o.$1.consumable))
           Padding(
             key: PlayOffersTab.debtKey,
-            padding: EdgeInsets.only(bottom: s.sm),
+            padding: EdgeInsets.only(bottom: s.md),
+            child: _Notice(text: l.playDebtNotice(debt), alarm: true),
+          ),
+        if (offers.loading)
+          const SizedBox(
+            height: VaultTokens.skeletonCard * 2,
+            child: VaultSkeleton(cards: 2),
+          )
+        else if (offers.offers.isEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: s.lg),
             child: Text(
-              l.playDebtNotice(debt),
+              l.playUnavailable,
+              textAlign: TextAlign.center,
               style: context.typography.body.copyWith(
-                color: colors.accentCrimson,
+                color: colors.textSecondary,
               ),
             ),
           ),
-        if (offers.loading)
-          const Center(child: CircularProgressIndicator())
-        else if (offers.offers.isEmpty)
-          Text(l.playUnavailable, style: context.typography.body),
         // The Starter Bundle first: coins and a frame sold nowhere else.
         for (final (offer, listing) in bundles)
           _OfferCard(
@@ -304,14 +322,15 @@ class _PlayOffersTabState extends ConsumerState<PlayOffersTab> {
             artWidget: const StarterBundleArt(),
             artSize: CouncilLifeTokens.bundleArt,
             title: l.bundleTitle,
-            body: '${l.bundleBody(offer.coins ?? 0)}\n\n${l.bundleRefundRule}',
+            body: l.bundleBody(offer.coins ?? 0),
+            rule: l.bundleRefundRule,
+            tag: bundleOwned ? null : l.vaultOneTime,
+            lit: !bundleOwned,
             owned: bundleOwned ? l.bundleOwned : null,
-            action: FilledButton(
-              key: PlayOffersTab.buyKey(offer.id),
-              onPressed: offers.busyProduct == null
-                  ? () => ref.read(playOffersProvider.notifier).buy(offer)
-                  : null,
-              child: Text(l.playBuy(listing.price)),
+            action: buy(
+              offer.id,
+              listing.price,
+              () => ref.read(playOffersProvider.notifier).buy(offer),
             ),
           ),
         for (final (offer, listing) in pass)
@@ -319,40 +338,172 @@ class _PlayOffersTabState extends ConsumerState<PlayOffersTab> {
             art: StoreArt.quietPassCover,
             artSize: DailyTokens.passArt,
             title: l.quietPassTitle,
-            body: '${l.quietPassBody}\n\n${l.quietPassRefundRule}',
+            body: l.quietPassBody,
+            rule: l.quietPassRefundRule,
             action: offers.adFree
                 ? null
-                : FilledButton(
-                    key: PlayOffersTab.buyKey(offer.id),
-                    onPressed: offers.busyProduct == null
-                        ? () => ref.read(playOffersProvider.notifier).buy(offer)
-                        : null,
-                    child: Text(l.playBuy(listing.price)),
+                : buy(
+                    offer.id,
+                    listing.price,
+                    () => ref.read(playOffersProvider.notifier).buy(offer),
                   ),
             owned: offers.adFree ? l.quietPassOwned : null,
           ),
-        for (final (offer, listing) in packs)
-          _OfferCard(
-            art: StoreArt.forPlayProduct(offer.id),
-            artSize: DailyTokens.packArt,
-            title: l.playPackTitle(offer.coins ?? 0),
-            body: '${l.playCoinsNote}\n\n${l.playRefundRule}',
-            action: FilledButton(
-              key: PlayOffersTab.buyKey(offer.id),
-              onPressed: offers.busyProduct == null
-                  ? () => ref.read(playOffersProvider.notifier).buy(offer)
-                  : null,
-              child: Text(l.playBuy(listing.price)),
+        if (packs.isNotEmpty)
+          Padding(
+            padding: EdgeInsets.only(bottom: s.md),
+            child: VaultCard(
+              children: [
+                for (final (i, (offer, listing)) in packs.indexed) ...[
+                  if (i > 0) const VaultDivider(),
+                  _PackRow(
+                    art: StoreArt.forPlayProduct(offer.id),
+                    coins: offer.coins ?? 0,
+                    title: l.playPackTitle(offer.coins ?? 0),
+                    tag: packs.length > 1 && offer.coins == most
+                        ? l.vaultMostCoins
+                        : null,
+                    action: buy(
+                      offer.id,
+                      listing.price,
+                      () => ref.read(playOffersProvider.notifier).buy(offer),
+                    ),
+                  ),
+                ],
+                const VaultDivider(),
+                // One note for every pack: what coins are, and the refund
+                // rule, before anything is bought.
+                Text(
+                  '${l.playCoinsNote}\n\n${l.playRefundRule}',
+                  style: context.typography.caption.copyWith(
+                    color: colors.textMuted,
+                  ),
+                ),
+              ],
             ),
           ),
         if (offers.offers.isNotEmpty)
-          TextButton(
+          TextButton.icon(
             key: PlayOffersTab.restoreKey,
             onPressed: () => ref.read(playOffersProvider.notifier).restore(),
-            child: Text(l.playRestore),
+            icon: const Icon(Icons.restore_rounded),
+            label: Text(l.playRestore),
           ),
       ],
     );
+  }
+}
+
+/// A notice above the offers: gold for news, oxblood for a debt.
+class _Notice extends StatelessWidget {
+  final String text;
+  final bool alarm;
+  const _Notice({required this.text, required this.alarm});
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.spacing;
+    final tone = alarm ? VaultTokens.oxbloodLight : VaultTokens.gold;
+    return Container(
+      padding: EdgeInsets.all(s.sm),
+      decoration: BoxDecoration(
+        color: tone.withValues(alpha: StoreTokens.badgeWash / 2),
+        borderRadius: BorderRadius.circular(context.radii.button),
+        border: Border.all(color: tone),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            alarm ? Icons.error_outline_rounded : Icons.info_outline_rounded,
+            color: tone,
+            size: CosmeticTokens.coinInline,
+          ),
+          SizedBox(width: s.sm),
+          Expanded(
+            child: Text(
+              text,
+              style: context.typography.body.copyWith(
+                color: context.colors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One coin pack: its purse, the amount large, and the price on the button.
+class _PackRow extends StatelessWidget {
+  final String? art;
+  final int coins;
+  final String title;
+  final String? tag;
+  final Widget action;
+  const _PackRow({
+    required this.art,
+    required this.coins,
+    required this.title,
+    required this.tag,
+    required this.action,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.spacing;
+    final picture = art == null
+        ? const MafiaCoin(size: DailyTokens.passArt / 2)
+        : Image.asset(
+            art!,
+            width: DailyTokens.passArt,
+            height: DailyTokens.passArt,
+            cacheWidth: StoreTokens.frameDecodeWidth,
+            excludeFromSemantics: true,
+            errorBuilder: (_, _, _) =>
+                const SizedBox.square(dimension: DailyTokens.passArt),
+          );
+    final row = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            tag != null ? LampGlow(child: picture) : picture,
+            SizedBox(width: s.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (tag != null) VaultTag(tag!, oxblood: true),
+                  CoinAmount(
+                    coins,
+                    size: CosmeticTokens.coinInline * 1.2,
+                    style: context.typography.headline.copyWith(
+                      color: VaultTokens.goldLight,
+                      height: 1.3,
+                    ),
+                  ),
+                  Text(
+                    title,
+                    style: context.typography.caption.copyWith(
+                      color: context.colors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: s.sm),
+        action,
+      ],
+    );
+    return tag == null
+        ? row
+        : VaultGlint(
+            borderRadius: BorderRadius.circular(context.radii.button),
+            child: row,
+          );
   }
 }
 
@@ -364,88 +515,92 @@ class _OfferCard extends StatelessWidget {
   final double artSize;
   final String title;
   final String body;
+
+  /// The refund rule, set apart under the body: read, never buried.
+  final String rule;
   final Widget? action;
   final String? owned;
+  final String? tag;
+  final bool lit;
   const _OfferCard({
     required this.art,
     this.artWidget,
     required this.artSize,
     required this.title,
     required this.body,
+    required this.rule,
     this.action,
     this.owned,
+    this.tag,
+    this.lit = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final s = context.spacing;
     final colors = context.colors;
-    return Padding(
-      padding: EdgeInsets.only(bottom: s.md),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colors.surfaceRaised,
-          borderRadius: BorderRadius.circular(context.radii.card),
-          border: Border.all(
-            color: owned != null ? colors.accentGold : colors.borderSubtle,
+    final picture = SizedBox.square(
+      dimension: artSize,
+      child:
+          artWidget ??
+          Image.asset(
+            art!,
+            width: artSize,
+            height: artSize,
+            cacheWidth: StoreTokens.frameDecodeWidth,
+            excludeFromSemantics: true,
+            errorBuilder: (_, _, _) => SizedBox.square(dimension: artSize),
           ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(s.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+    );
+    final card = VaultCard(
+      lit: lit || owned != null,
+      tag: tag,
+      tagOxblood: true,
+      children: [
+        Row(
+          children: [
+            LampGlow(child: picture),
+            SizedBox(width: s.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ?artWidget,
-                  if (art != null)
-                    Image.asset(
-                      art!,
-                      width: artSize,
-                      height: artSize,
-                      cacheWidth: StoreTokens.frameDecodeWidth,
-                      excludeFromSemantics: true,
-                      errorBuilder: (_, _, _) =>
-                          SizedBox.square(dimension: artSize),
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      title,
+                      style: context.typography.title.copyWith(
+                        color: VaultTokens.goldLight,
+                      ),
                     ),
-                  SizedBox(width: s.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: context.typography.title.copyWith(
-                            color: colors.textPrimary,
-                          ),
-                        ),
-                        SizedBox(height: s.xs),
-                        Text(
-                          body,
-                          style: context.typography.bodySmall.copyWith(
-                            color: colors.textSecondary,
-                          ),
-                        ),
-                      ],
+                  ),
+                  SizedBox(height: s.xs),
+                  Text(
+                    body,
+                    style: context.typography.bodySmall.copyWith(
+                      color: colors.textPrimary,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: s.sm),
-              if (owned != null)
-                Text(
-                  owned!,
-                  textAlign: TextAlign.center,
-                  style: context.typography.body.copyWith(
-                    color: colors.accentGold,
-                  ),
-                )
-              else if (action != null)
-                action!,
-            ],
-          ),
+            ),
+          ],
         ),
-      ),
+        SizedBox(height: s.sm),
+        Text(
+          rule,
+          style: context.typography.caption.copyWith(color: colors.textMuted),
+        ),
+        SizedBox(height: s.md),
+        if (owned != null)
+          Center(child: ClaimedMark(owned!))
+        else if (action != null)
+          action!,
+      ],
+    );
+    return Padding(
+      padding: EdgeInsets.only(bottom: s.md),
+      child: tag != null ? VaultGlint(child: card) : card,
     );
   }
 }

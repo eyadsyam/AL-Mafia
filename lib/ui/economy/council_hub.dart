@@ -17,6 +17,7 @@ import 'council.dart';
 import 'council_art.dart';
 import 'economy_capabilities.dart';
 import 'mafia_coin.dart';
+import 'vault_kit.dart';
 
 /// What a contract asks, in the player's words.
 String contractName(AppLocalizations l, CouncilContract c) =>
@@ -79,55 +80,117 @@ class LevelUpSheet extends StatelessWidget {
     final l = context.l10n;
     final s = context.spacing;
     final title = rankTitle(l, rankTier(level));
-    return Padding(
+    final reduce = MediaQuery.disableAnimationsOf(context);
+    // Scrolls rather than overflows on a short phone held sideways.
+    return SingleChildScrollView(
       key: sheetKey,
       padding: EdgeInsets.fromLTRB(s.lg, 0, s.lg, s.lg),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Light behind the crest, only once the art pass adds it.
-                const RasterOr(
-                  path: CouncilRaster.levelUpRays,
-                  width: CouncilLifeTokens.emblemHero,
-                  height: CouncilLifeTokens.emblemHero,
-                  fallback: SizedBox.shrink(),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: reduce ? 1 : 0, end: 1),
+        duration: reduce ? Duration.zero : VaultTokens.revealDuration,
+        builder: (context, t, _) {
+          // The crest rises first; the words follow it in.
+          final crest = Curves.easeOutBack.transform((t / 0.7).clamp(0.0, 1.0));
+          final words = Curves.easeOut.transform(
+            ((t - 0.35) / 0.65).clamp(0.0, 1.0),
+          );
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: s.sm),
+              Center(
+                // The crest's own box: the rays paint past it into the
+                // sheet's margin, so they cost no height.
+                child: SizedBox.square(
+                  dimension: CouncilLifeTokens.emblemHero + s.lg,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.none,
+                    children: [
+                      // Light behind the crest: the art pass's rays once
+                      // delivered, painted rays until then.
+                      OverflowBox(
+                        maxWidth:
+                            CouncilLifeTokens.emblemHero *
+                            VaultTokens.raysExtent,
+                        maxHeight:
+                            CouncilLifeTokens.emblemHero *
+                            VaultTokens.raysExtent,
+                        child: Opacity(
+                          opacity: crest.clamp(0.0, 1.0),
+                          child: RasterOr(
+                            path: CouncilRaster.levelUpRays,
+                            width:
+                                CouncilLifeTokens.emblemHero *
+                                VaultTokens.raysExtent,
+                            height:
+                                CouncilLifeTokens.emblemHero *
+                                VaultTokens.raysExtent,
+                            fallback: CustomPaint(
+                              size: Size.square(
+                                CouncilLifeTokens.emblemHero *
+                                    VaultTokens.raysExtent,
+                              ),
+                              painter: RaysPainter(turn: t * 0.08),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Transform.scale(
+                        scale:
+                            VaultTokens.revealFromScale +
+                            (1 - VaultTokens.revealFromScale) * crest,
+                        child: RankEmblem(
+                          level: level,
+                          size: CouncilLifeTokens.emblemHero,
+                          shimmer: true,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                RankEmblem(
-                  level: level,
-                  size: CouncilLifeTokens.emblemHero,
-                  shimmer: true,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: s.md),
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              l.levelUpTitle(title),
-              textAlign: TextAlign.center,
-              style: context.typography.headline.copyWith(
-                color: context.colors.accentGold,
               ),
-            ),
-          ),
-          SizedBox(height: s.xs),
-          Text(
-            l.levelUpBody(level, coins),
-            textAlign: TextAlign.center,
-            style: context.typography.body,
-          ),
-          SizedBox(height: s.lg),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l.continueAction),
-          ),
-        ],
+              Opacity(
+                opacity: words,
+                child: Transform.translate(
+                  offset: Offset(0, s.sm * (1 - words)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          l.levelUpTitle(title),
+                          textAlign: TextAlign.center,
+                          style: context.typography.headline.copyWith(
+                            color: VaultTokens.goldLight,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: s.xs),
+                      Text(
+                        l.levelUpBody(level, coins),
+                        textAlign: TextAlign.center,
+                        style: context.typography.body.copyWith(
+                          color: context.colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: s.lg),
+              VaultPress(
+                child: FilledButton(
+                  style: vaultGoldStyle(context),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(l.continueAction),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -201,21 +264,13 @@ class _CouncilHubTabState extends ConsumerState<CouncilHubTab> {
     final council = ref.watch(councilProvider);
     final value = council.valueOrNull;
     if (value == null) {
-      return Center(
-        child: council.hasError
-            ? Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(l.councilFailed, style: context.typography.body),
-                  TextButton(
-                    onPressed: () =>
-                        ref.read(councilProvider.notifier).refresh(),
-                    child: Text(l.videoRetry),
-                  ),
-                ],
-              )
-            : const CircularProgressIndicator(),
-      );
+      return council.hasError
+          ? VaultRetry(
+              message: l.councilFailed,
+              action: l.videoRetry,
+              onRetry: () => ref.read(councilProvider.notifier).refresh(),
+            )
+          : const VaultSkeleton();
     }
     final controller = ref.read(councilProvider.notifier);
     return LayoutBuilder(
@@ -265,23 +320,7 @@ Widget _card(
   List<Widget> children, {
   Key? key,
   bool lit = false,
-}) => DecoratedBox(
-  key: key,
-  decoration: BoxDecoration(
-    color: context.colors.surfaceRaised,
-    borderRadius: BorderRadius.circular(context.radii.card),
-    border: Border.all(
-      color: lit ? context.colors.accentGold : context.colors.borderSubtle,
-    ),
-  ),
-  child: Padding(
-    padding: EdgeInsets.all(context.spacing.md),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: children,
-    ),
-  ),
-);
+}) => VaultCard(key: key, lit: lit, children: children);
 
 Widget _title(BuildContext context, String text) => Semantics(
   header: true,
@@ -297,15 +336,8 @@ class CouncilBar extends StatelessWidget {
   const CouncilBar({super.key, required this.value});
 
   @override
-  Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(CouncilLifeTokens.barRadius),
-    child: LinearProgressIndicator(
-      value: value.clamp(0.0, 1.0),
-      minHeight: CouncilLifeTokens.barHeight,
-      color: context.colors.accentGold,
-      backgroundColor: context.colors.surfaceBase,
-    ),
-  );
+  Widget build(BuildContext context) =>
+      VaultBar(value: value, height: CouncilLifeTokens.barHeight);
 }
 
 class _RankCard extends ConsumerWidget {
@@ -322,7 +354,7 @@ class _RankCard extends ConsumerWidget {
     return _card(context, key: CouncilHubTab.rankKey, [
       Row(
         children: [
-          RankEmblem(level: rank.level),
+          LampGlow(child: RankEmblem(level: rank.level)),
           SizedBox(width: s.md),
           Expanded(
             child: Column(
@@ -336,22 +368,18 @@ class _RankCard extends ConsumerWidget {
                 ),
                 Text(
                   rankTitle(l, rankTier(rank.level)),
-                  style: context.typography.title.copyWith(
-                    color: colors.accentGold,
+                  style: context.typography.headline.copyWith(
+                    color: VaultTokens.goldLight,
+                    height: 1.3,
                   ),
                 ),
-                Text(
-                  l.councilLevel(rank.level),
-                  style: context.typography.bodySmall,
-                ),
+                _LevelPill(text: l.councilLevel(rank.level)),
               ],
             ),
           ),
         ],
       ),
-      SizedBox(height: s.sm),
-      CouncilBar(value: rank.progress),
-      SizedBox(height: s.xs),
+      SizedBox(height: s.md),
       Row(
         children: [
           Expanded(
@@ -360,41 +388,69 @@ class _RankCard extends ConsumerWidget {
                   ? l.councilMaxLevel
                   : l.councilXpProgress(rank.xp, next),
               style: context.typography.bodySmall.copyWith(
-                color: colors.textSecondary,
+                color: colors.textPrimary,
               ),
             ),
           ),
           if (rank.nextReward case final coins?)
             Text(
               l.councilNextLevel(coins),
-              style: context.typography.bodySmall.copyWith(
-                color: colors.accentGold,
+              style: context.typography.bodySmall.emphasised.copyWith(
+                color: VaultTokens.gold,
               ),
             ),
         ],
       ),
       SizedBox(height: s.xs),
+      CouncilBar(value: rank.progress),
+      SizedBox(height: s.sm),
       Text(
         '${l.councilWeekXp(rank.weekXp)} · ${l.councilHowXp}',
         style: context.typography.caption.copyWith(color: colors.textMuted),
       ),
       if (leaderboard) ...[
-        SizedBox(height: s.sm),
-        OutlinedButton.icon(
-          key: CouncilHubTab.leaderboardKey,
-          onPressed: () => showModalBottomSheet<void>(
-            context: context,
-            isScrollControlled: true,
-            useSafeArea: true,
-            showDragHandle: true,
-            builder: (_) => const LeaderboardSheet(),
+        SizedBox(height: s.md),
+        VaultPress(
+          child: OutlinedButton.icon(
+            key: CouncilHubTab.leaderboardKey,
+            style: vaultOutlineStyle(context),
+            onPressed: () => showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              useSafeArea: true,
+              showDragHandle: true,
+              builder: (_) => const LeaderboardSheet(),
+            ),
+            icon: const Icon(Icons.emoji_events_outlined),
+            label: Text(l.leaderboardOpen),
           ),
-          icon: const Icon(Icons.leaderboard_outlined),
-          label: Text(l.leaderboardOpen),
         ),
       ],
     ]);
   }
+}
+
+/// «المستوى 8» on a small enamel plate.
+class _LevelPill extends StatelessWidget {
+  final String text;
+  const _LevelPill({required this.text});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: EdgeInsets.only(top: context.spacing.xs),
+    padding: EdgeInsets.symmetric(horizontal: context.spacing.sm),
+    decoration: BoxDecoration(
+      color: VaultTokens.enamel,
+      borderRadius: BorderRadius.circular(VaultTokens.chipHeight / 2),
+      border: Border.all(color: VaultTokens.gold.withValues(alpha: 0.6)),
+    ),
+    child: Text(
+      text,
+      style: context.typography.caption.emphasised.copyWith(
+        color: VaultTokens.goldLight,
+      ),
+    ),
+  );
 }
 
 class _ContractsCard extends StatelessWidget {
@@ -416,13 +472,16 @@ class _ContractsCard extends StatelessWidget {
     final colors = context.colors;
     final done = contracts.contracts.where((c) => c.claimed).length;
     return _card(context, key: CouncilHubTab.contractsKey, [
-      _title(context, l.contractsTitle),
-      Text(
-        l.contractsReset,
-        style: context.typography.caption.copyWith(color: colors.textMuted),
+      VaultHeading(
+        title: l.contractsTitle,
+        subtitle: l.contractsReset,
+        trailing: _CountPill(
+          text: l.contractProgress(done, contracts.contracts.length),
+          full: done == contracts.contracts.length,
+        ),
       ),
-      for (final c in contracts.contracts) ...[
-        SizedBox(height: s.sm),
+      for (final (i, c) in contracts.contracts.indexed) ...[
+        if (i == 0) SizedBox(height: s.sm) else const VaultDivider(),
         _ContractRow(
           contract: c,
           busy: busy,
@@ -431,11 +490,14 @@ class _ContractsCard extends StatelessWidget {
         ),
       ],
       if (contracts.bonusCoins > 0) ...[
-        SizedBox(height: s.md),
+        const VaultDivider(),
         Row(
           children: [
-            MafiaCoin(shine: contracts.bonusClaimed),
-            SizedBox(width: s.xs),
+            MafiaCoin(
+              size: CosmeticTokens.coinHeader / 1.6,
+              shine: contracts.bonusClaimed,
+            ),
+            SizedBox(width: s.sm),
             Expanded(
               child: Text(
                 contracts.bonusClaimed
@@ -443,20 +505,42 @@ class _ContractsCard extends StatelessWidget {
                     : l.contractsBonus(contracts.bonusCoins),
                 style: context.typography.bodySmall.copyWith(
                   color: contracts.bonusClaimed
-                      ? colors.accentGold
+                      ? VaultTokens.gold
                       : colors.textSecondary,
                 ),
               ),
-            ),
-            Text(
-              l.contractProgress(done, contracts.contracts.length),
-              style: context.typography.bodySmall,
             ),
           ],
         ),
       ],
     ]);
   }
+}
+
+/// «1/3» on a small plate; gold once every one is in.
+class _CountPill extends StatelessWidget {
+  final String text;
+  final bool full;
+  const _CountPill({required this.text, this.full = false});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: EdgeInsets.symmetric(horizontal: context.spacing.sm),
+    decoration: BoxDecoration(
+      color: full ? VaultTokens.gold : VaultTokens.enamel,
+      borderRadius: BorderRadius.circular(VaultTokens.chipHeight / 2),
+      border: Border.all(
+        color: full ? VaultTokens.goldLight : context.colors.borderSubtle,
+      ),
+    ),
+    child: Text(
+      text,
+      textDirection: TextDirection.ltr,
+      style: context.typography.bodySmall.emphasised.copyWith(
+        color: full ? VaultTokens.goldInk : context.colors.textSecondary,
+      ),
+    ),
+  );
 }
 
 class _ContractRow extends StatelessWidget {
@@ -475,65 +559,85 @@ class _ContractRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final s = context.spacing;
+    final colors = context.colors;
     final c = contract;
-    // Two lines, so a 320 dp phone keeps the name, the bar and a full
-    // 48 dp button without squeezing any of them.
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    final ready = c.claimable && !c.claimed;
+    // Name and count on one line; the bar and the claim on the next,
+    // indented under the name, so a 320 dp phone keeps a full 48 dp button.
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            ContractIcon(metric: c.metric, done: c.claimed || c.claimable),
-            SizedBox(width: s.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        ready
+            ? LampGlow(child: ContractIcon(metric: c.metric, done: true))
+            : ContractIcon(metric: c.metric, done: c.claimed),
+        SizedBox(width: s.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
                 children: [
-                  Text(
-                    contractName(l, c),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.typography.bodySmall.copyWith(
-                      color: context.colors.textPrimary,
+                  Expanded(
+                    child: Text(
+                      contractName(l, c),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.typography.body.copyWith(
+                        color: c.claimed
+                            ? colors.textSecondary
+                            : colors.textPrimary,
+                      ),
                     ),
                   ),
-                  SizedBox(height: s.xs),
-                  Row(
-                    children: [
-                      Expanded(child: CouncilBar(value: c.progress / c.target)),
-                      SizedBox(width: s.xs),
-                      Text(
-                        l.contractProgress(c.progress, c.target),
-                        style: context.typography.caption,
-                      ),
-                    ],
+                  SizedBox(width: s.xs),
+                  Text(
+                    l.contractProgress(c.progress, c.target),
+                    textDirection: TextDirection.ltr,
+                    style: context.typography.caption.copyWith(
+                      color: ready ? VaultTokens.gold : colors.textMuted,
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-        SizedBox(height: s.xs),
-        Align(
-          alignment: AlignmentDirectional.centerEnd,
-          child: CoinBurst(
-            trigger: burst,
-            child: c.claimed
-                ? Text(
-                    l.contractClaimed,
-                    style: context.typography.bodySmall.copyWith(
-                      color: context.colors.accentGold,
-                    ),
-                  )
-                : FilledButton(
-                    key: CouncilHubTab.claimKey(c.slot),
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(0, StoreTokens.touchTarget),
-                      padding: EdgeInsets.symmetric(horizontal: s.md),
-                    ),
-                    onPressed: c.claimable && !busy ? onClaim : null,
-                    child: Text(l.contractClaim(c.coins)),
+              SizedBox(height: s.xs),
+              Row(
+                children: [
+                  Expanded(child: CouncilBar(value: c.progress / c.target)),
+                  SizedBox(width: s.sm),
+                  CoinBurst(
+                    trigger: burst,
+                    child: c.claimed
+                        ? SizedBox(
+                            height: StoreTokens.touchTarget,
+                            child: Center(
+                              child: ClaimedMark(l.contractClaimed),
+                            ),
+                          )
+                        : VaultPress(
+                            child: FilledButton(
+                              key: CouncilHubTab.claimKey(c.slot),
+                              style:
+                                  vaultGoldStyle(
+                                    context,
+                                    minimumSize: const Size(
+                                      StoreTokens.touchTarget * 2,
+                                      StoreTokens.touchTarget,
+                                    ),
+                                  ).merge(
+                                    FilledButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: s.md,
+                                      ),
+                                    ),
+                                  ),
+                              onPressed: ready && !busy ? onClaim : null,
+                              child: Text(l.contractClaim(c.coins)),
+                            ),
+                          ),
                   ),
+                ],
+              ),
+            ],
           ),
         ),
       ],
@@ -558,50 +662,52 @@ class _WeeklyCard extends StatelessWidget {
     final l = context.l10n;
     final s = context.spacing;
     final colors = context.colors;
-    return _card(context, lit: weekly.claimable, [
-      Row(
-        children: [
-          const ContractIcon(metric: 'finish'),
-          SizedBox(width: s.sm),
-          Expanded(child: _title(context, l.weeklyTitle)),
-        ],
+    final waiting = weekly.claimable && !weekly.claimed;
+    final card = _card(context, lit: waiting, [
+      VaultHeading(
+        leading: waiting
+            ? const LampGlow(child: ContractIcon(metric: 'finish', done: true))
+            : ContractIcon(metric: 'finish', done: weekly.claimed),
+        title: l.weeklyTitle,
+        subtitle: l.weeklyBody(weekly.target),
+        trailing: _CountPill(
+          text: l.contractProgress(weekly.progress, weekly.target),
+          full: weekly.progress >= weekly.target,
+        ),
       ),
-      SizedBox(height: s.xs),
-      Text(l.weeklyBody(weekly.target), style: context.typography.bodySmall),
+      SizedBox(height: s.md),
+      CouncilBar(value: weekly.progress / weekly.target),
       SizedBox(height: s.sm),
-      Row(
-        children: [
-          Expanded(child: CouncilBar(value: weekly.progress / weekly.target)),
-          SizedBox(width: s.xs),
-          Text(
-            l.contractProgress(weekly.progress, weekly.target),
-            style: context.typography.caption,
-          ),
-        ],
-      ),
-      SizedBox(height: s.xs),
       Text(
         weekly.xp > 0
             ? l.weeklyReward(weekly.coins, weekly.xp)
             : l.weeklyRewardCoins(weekly.coins),
-        style: context.typography.bodySmall.copyWith(color: colors.accentGold),
+        style: context.typography.body.emphasised.copyWith(
+          color: VaultTokens.gold,
+        ),
       ),
       Text(
         l.weeklyReset,
         style: context.typography.caption.copyWith(color: colors.textMuted),
       ),
-      SizedBox(height: s.sm),
+      SizedBox(height: s.md),
       CoinBurst(
         trigger: burst,
-        child: FilledButton(
-          key: CouncilHubTab.weeklyKey,
-          onPressed: weekly.claimable && !busy ? onClaim : null,
-          child: Text(
-            weekly.claimed ? l.contractClaimed : l.contractClaim(weekly.coins),
+        child: VaultPress(
+          child: FilledButton(
+            key: CouncilHubTab.weeklyKey,
+            style: vaultGoldStyle(context),
+            onPressed: weekly.claimable && !busy ? onClaim : null,
+            child: Text(
+              weekly.claimed
+                  ? l.contractClaimed
+                  : l.contractClaim(weekly.coins),
+            ),
           ),
         ),
       ),
     ]);
+    return VaultGlint(play: waiting, child: card);
   }
 }
 
@@ -623,38 +729,66 @@ class LeaderboardSheet extends ConsumerWidget {
       expand: false,
       initialChildSize: SheetTokens.previewInitialFraction,
       builder: (context, scroll) => board.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => Center(
-          child: TextButton(
-            onPressed: () => ref.invalidate(leaderboardProvider),
-            child: Text(l.councilFailed),
-          ),
+        loading: () => const VaultSkeleton(cards: 2),
+        error: (_, _) => VaultRetry(
+          message: l.councilFailed,
+          action: l.videoRetry,
+          onRetry: () => ref.invalidate(leaderboardProvider),
         ),
         data: (board) {
           final meListed = board.entries.any((e) => e.me);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const RasterOr(
+              RasterOr(
                 path: CouncilRaster.leaderboardHeader,
                 height: CouncilLifeTokens.emblemCard,
-                fallback: SizedBox.shrink(),
+                fallback: Padding(
+                  padding: EdgeInsets.only(bottom: s.xs),
+                  child: const Center(
+                    child: LampGlow(
+                      child: Icon(
+                        Icons.emoji_events_rounded,
+                        size: CouncilLifeTokens.contractIcon,
+                        color: VaultTokens.gold,
+                      ),
+                    ),
+                  ),
+                ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: s.md),
-                child: _title(context, l.leaderboardTitle),
+                child: Semantics(
+                  header: true,
+                  child: Text(
+                    l.leaderboardTitle,
+                    textAlign: TextAlign.center,
+                    style: context.typography.headline.copyWith(
+                      color: VaultTokens.goldLight,
+                    ),
+                  ),
+                ),
               ),
+              SizedBox(height: s.xs),
+              const VaultDivider(),
               Expanded(
                 child: board.entries.isEmpty
                     ? Center(
-                        child: Text(
-                          l.leaderboardEmpty,
-                          style: context.typography.body,
+                        child: Padding(
+                          padding: EdgeInsets.all(s.lg),
+                          child: Text(
+                            l.leaderboardEmpty,
+                            textAlign: TextAlign.center,
+                            style: context.typography.body.copyWith(
+                              color: context.colors.textSecondary,
+                            ),
+                          ),
                         ),
                       )
                     : ListView.builder(
                         key: listKey,
                         controller: scroll,
+                        padding: EdgeInsets.symmetric(horizontal: s.sm),
                         itemCount: board.entries.length,
                         itemBuilder: (context, i) =>
                             _LeaderboardRow(entry: board.entries[i]),
@@ -662,33 +796,93 @@ class LeaderboardSheet extends ConsumerWidget {
               ),
               Padding(
                 key: meKey,
-                padding: EdgeInsets.all(s.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (!meListed)
-                      Text(
-                        board.myPosition == null
-                            ? l.leaderboardNone
-                            : '${l.leaderboardYou(board.myPosition!)} · ${l.councilXpTotal(board.myXp)}',
-                        style: context.typography.body.copyWith(
-                          color: context.colors.accentGold,
-                        ),
-                      ),
-                    if (!board.visible)
-                      Text(
-                        l.leaderboardHidden,
-                        style: context.typography.caption.copyWith(
-                          color: context.colors.textMuted,
-                        ),
-                      ),
-                    const LeaderboardVisibilitySwitch(),
-                  ],
+                padding: EdgeInsets.fromLTRB(s.md, s.xs, s.md, s.md),
+                // Its own Material: the switch's ink paints on the panel.
+                child: Material(
+                  color: context.colors.surfaceRaised,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(context.radii.card),
+                    side: BorderSide(color: context.colors.borderSubtle),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(s.md, s.sm, s.md, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (!meListed)
+                          Text(
+                            board.myPosition == null
+                                ? l.leaderboardNone
+                                : '${l.leaderboardYou(board.myPosition!)} · ${l.councilXpTotal(board.myXp)}',
+                            style: context.typography.body.emphasised.copyWith(
+                              color: VaultTokens.gold,
+                            ),
+                          ),
+                        if (!board.visible)
+                          Text(
+                            l.leaderboardHidden,
+                            style: context.typography.caption.copyWith(
+                              color: context.colors.textMuted,
+                            ),
+                          ),
+                        const LeaderboardVisibilitySwitch(),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// A place on the board: a struck disc for the podium, a plain figure
+/// after it.
+class PodiumDisc extends StatelessWidget {
+  final int position;
+  const PodiumDisc({super.key, required this.position});
+
+  @override
+  Widget build(BuildContext context) {
+    final type = context.typography;
+    if (position > VaultTokens.podium.length) {
+      return SizedBox(
+        width: VaultTokens.podiumDisc,
+        child: Text(
+          '$position',
+          textAlign: TextAlign.center,
+          style: type.title.copyWith(color: context.colors.textMuted),
+        ),
+      );
+    }
+    final metal = VaultTokens.podium[position - 1];
+    return Container(
+      width: VaultTokens.podiumDisc,
+      height: VaultTokens.podiumDisc,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          center: const Alignment(-0.35, -0.45),
+          colors: [
+            Color.lerp(metal, VaultTokens.goldLight, 0.55)!,
+            metal,
+            Color.lerp(metal, VaultTokens.goldInk, 0.55)!,
+          ],
+          stops: const [0, 0.55, 1],
+        ),
+        border: Border.all(color: Color.lerp(metal, VaultTokens.goldInk, 0.3)!),
+        boxShadow: context.elevation.level1,
+      ),
+      child: Text(
+        '$position',
+        style: type.bodySmall.emphasised.copyWith(
+          color: VaultTokens.goldInk,
+          height: 1.1,
+        ),
       ),
     );
   }
@@ -702,49 +896,59 @@ class _LeaderboardRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = context.spacing;
     final colors = context.colors;
+    final podium = entry.position <= VaultTokens.podium.length;
     return Container(
       key: LeaderboardSheet.rowKey(entry.position),
-      color: entry.me
-          ? colors.accentGold.withValues(alpha: StoreTokens.badgeWash)
-          : null,
-      padding: EdgeInsets.symmetric(horizontal: s.md, vertical: s.xs),
+      margin: EdgeInsets.symmetric(vertical: s.xs / 2),
+      decoration: BoxDecoration(
+        color: entry.me
+            ? VaultTokens.gold.withValues(alpha: StoreTokens.badgeWash)
+            : podium
+            ? colors.surfaceRaised
+            : null,
+        borderRadius: BorderRadius.circular(context.radii.button),
+        border: entry.me
+            ? Border.all(color: VaultTokens.gold)
+            : podium
+            ? Border.all(color: colors.borderSubtle)
+            : null,
+      ),
+      padding: EdgeInsets.symmetric(horizontal: s.sm, vertical: s.xs),
       child: Row(
         children: [
-          SizedBox(
-            width: CouncilLifeTokens.leaderboardAvatar,
-            child: Semantics(
-              label: '${entry.position}',
-              child: ExcludeSemantics(
-                child: RasterOr(
-                  path: entry.position <= 3
-                      ? CouncilRaster.podium(entry.position)
-                      : null,
-                  width: CouncilLifeTokens.leaderboardAvatar,
-                  height: CouncilLifeTokens.leaderboardAvatar,
-                  fallback: Text(
-                    '${entry.position}',
-                    style: context.typography.title.copyWith(
-                      color: entry.position <= 3
-                          ? colors.accentGold
-                          : colors.textSecondary,
-                    ),
-                  ),
-                ),
+          Semantics(
+            label: '${entry.position}',
+            child: ExcludeSemantics(
+              child: RasterOr(
+                path: podium ? CouncilRaster.podium(entry.position) : null,
+                width: CouncilLifeTokens.leaderboardAvatar,
+                height: CouncilLifeTokens.leaderboardAvatar,
+                fallback: PodiumDisc(position: entry.position),
               ),
             ),
           ),
-          ClipOval(
-            child: Image.asset(
-              entry.gender == 'female'
-                  ? AppCouncilArt.avatarFemale
-                  : AppCouncilArt.avatarMale,
-              width: CouncilLifeTokens.leaderboardAvatar,
-              height: CouncilLifeTokens.leaderboardAvatar,
-              cacheWidth: StoreTokens.frameDecodeWidth,
-              fit: BoxFit.cover,
-              excludeFromSemantics: true,
-              errorBuilder: (_, _, _) => const SizedBox.square(
-                dimension: CouncilLifeTokens.leaderboardAvatar,
+          SizedBox(width: s.sm),
+          Container(
+            padding: const EdgeInsets.all(VaultTokens.chipRim),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: podium
+                  ? VaultTokens.podium[entry.position - 1]
+                  : colors.borderSubtle,
+            ),
+            child: ClipOval(
+              child: Image.asset(
+                entry.gender == 'female'
+                    ? AppCouncilArt.avatarFemale
+                    : AppCouncilArt.avatarMale,
+                width: CouncilLifeTokens.leaderboardAvatar,
+                height: CouncilLifeTokens.leaderboardAvatar,
+                cacheWidth: StoreTokens.frameDecodeWidth,
+                fit: BoxFit.cover,
+                excludeFromSemantics: true,
+                errorBuilder: (_, _, _) => const SizedBox.square(
+                  dimension: CouncilLifeTokens.leaderboardAvatar,
+                ),
               ),
             ),
           ),
@@ -754,7 +958,9 @@ class _LeaderboardRow extends StatelessWidget {
               entry.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: context.typography.body,
+              style: entry.me || podium
+                  ? context.typography.body.emphasised
+                  : context.typography.body,
             ),
           ),
           RankEmblem(level: entry.level, size: CouncilLifeTokens.emblemRow),
@@ -762,7 +968,9 @@ class _LeaderboardRow extends StatelessWidget {
           Text(
             context.l10n.councilXpTotal(entry.xp),
             style: context.typography.bodySmall.copyWith(
-              color: colors.accentGold,
+              color: podium || entry.me
+                  ? VaultTokens.gold
+                  : colors.textSecondary,
             ),
           ),
         ],
@@ -835,8 +1043,18 @@ class _LeaderboardVisibilitySwitchState
       contentPadding: EdgeInsets.zero,
       value: rank.leaderboardVisible,
       onChanged: _busy ? null : _set,
-      title: Text(l.leaderboardVisibleLabel),
-      subtitle: Text(l.leaderboardVisibleBody),
+      activeThumbColor: VaultTokens.goldInk,
+      activeTrackColor: VaultTokens.gold,
+      title: Text(
+        l.leaderboardVisibleLabel,
+        style: context.typography.body.emphasised,
+      ),
+      subtitle: Text(
+        l.leaderboardVisibleBody,
+        style: context.typography.caption.copyWith(
+          color: context.colors.textSecondary,
+        ),
+      ),
     );
   }
 }
@@ -896,71 +1114,107 @@ class _InviteCardState extends ConsumerState<InviteCard> {
     final status = invite.valueOrNull;
     if (status == null) {
       return invite.hasError
-          ? TextButton(
-              onPressed: () => ref.invalidate(inviteProvider),
-              child: Text(l.councilFailed),
+          ? VaultRetry(
+              message: l.councilFailed,
+              action: l.videoRetry,
+              onRetry: () => ref.invalidate(inviteProvider),
             )
-          : const Center(child: CircularProgressIndicator());
+          : const SizedBox(
+              height: VaultTokens.skeletonCard,
+              child: VaultSkeleton(cards: 1),
+            );
     }
     if (!status.enabled) return const SizedBox.shrink();
     final code = status.code ?? '';
     return _card(context, key: InviteCard.codeKey, [
-      const RasterOr(
+      RasterOr(
         path: CouncilRaster.inviteIllustration,
         height: CouncilLifeTokens.emblemCard,
-        fallback: SizedBox.shrink(),
-      ),
-      _title(context, l.inviteTitle),
-      SizedBox(height: s.xs),
-      Text(
-        l.inviteBody(status.inviterCoins, status.inviteeCoins),
-        style: context.typography.bodySmall.copyWith(
-          color: colors.textSecondary,
+        fallback: VaultHeading(
+          leading: const LampGlow(
+            child: Icon(
+              Icons.handshake_rounded,
+              size: CouncilLifeTokens.contractIcon,
+              color: VaultTokens.gold,
+            ),
+          ),
+          title: l.inviteTitle,
+          subtitle: l.inviteBody(status.inviterCoins, status.inviteeCoins),
         ),
       ),
-      SizedBox(height: s.sm),
-      // An identifier in a Latin alphabet: always left to right.
-      Directionality(
-        textDirection: TextDirection.ltr,
-        child: SelectableText(
-          code,
-          textAlign: TextAlign.center,
-          style: context.typography.title.copyWith(
-            color: colors.accentGold,
-            fontSize:
-                (context.typography.title.fontSize ??
-                    CouncilLifeTokens.emblemSeat) *
-                CouncilLifeTokens.inviteCodeScale,
+      if (CouncilRaster.has(CouncilRaster.inviteIllustration)) ...[
+        _title(context, l.inviteTitle),
+        SizedBox(height: s.xs),
+        Text(
+          l.inviteBody(status.inviterCoins, status.inviteeCoins),
+          style: context.typography.bodySmall.copyWith(
+            color: colors.textSecondary,
+          ),
+        ),
+      ],
+      SizedBox(height: s.md),
+      // The code on a punched ticket. An identifier in a Latin alphabet:
+      // always left to right.
+      CustomPaint(
+        painter: TicketPainter(
+          radius: context.radii.button,
+          ground: colors.surfaceRaised,
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: s.sm, horizontal: s.lg),
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: SelectableText(
+              code,
+              textAlign: TextAlign.center,
+              style: context.typography.title.copyWith(
+                color: VaultTokens.goldLight,
+                fontSize:
+                    (context.typography.title.fontSize ??
+                        CouncilLifeTokens.emblemSeat) *
+                    CouncilLifeTokens.inviteCodeScale,
+              ),
+            ),
           ),
         ),
       ),
-      SizedBox(height: s.sm),
-      Wrap(
-        alignment: WrapAlignment.center,
-        spacing: s.sm,
-        runSpacing: s.xs,
+      SizedBox(height: s.md),
+      Row(
         children: [
-          OutlinedButton.icon(
-            key: InviteCard.copyKey,
-            onPressed: code.isEmpty
-                ? null
-                : () async {
-                    final copied = await AppClipboard.copy(code);
-                    if (copied && context.mounted)
-                      _say(context, l.inviteCopied);
-                  },
-            icon: const Icon(Icons.copy_rounded),
-            label: Text(l.inviteCopy),
+          Expanded(
+            child: VaultPress(
+              child: OutlinedButton.icon(
+                key: InviteCard.copyKey,
+                style: vaultOutlineStyle(context),
+                onPressed: code.isEmpty
+                    ? null
+                    : () async {
+                        final copied = await AppClipboard.copy(code);
+                        if (copied && context.mounted) {
+                          Haptics.select();
+                          _say(context, l.inviteCopied);
+                        }
+                      },
+                icon: const Icon(Icons.copy_rounded),
+                label: Text(l.inviteCopy, maxLines: 1),
+              ),
+            ),
           ),
-          FilledButton.icon(
-            key: InviteCard.shareKey,
-            onPressed: code.isEmpty
-                ? null
-                : () => SharePlus.instance.share(
-                    ShareParams(text: l.inviteShareText(code)),
-                  ),
-            icon: const Icon(Icons.share_rounded),
-            label: Text(l.inviteShare),
+          SizedBox(width: s.sm),
+          Expanded(
+            child: VaultPress(
+              child: FilledButton.icon(
+                key: InviteCard.shareKey,
+                style: vaultGoldStyle(context),
+                onPressed: code.isEmpty
+                    ? null
+                    : () => SharePlus.instance.share(
+                        ShareParams(text: l.inviteShareText(code)),
+                      ),
+                icon: const Icon(Icons.share_rounded),
+                label: Text(l.inviteShare, maxLines: 1),
+              ),
+            ),
           ),
         ],
       ),
@@ -971,18 +1225,23 @@ class _InviteCardState extends ConsumerState<InviteCard> {
         style: context.typography.caption.copyWith(color: colors.textMuted),
       ),
       if (status.redeemed) ...[
-        SizedBox(height: s.sm),
-        Text(
-          status.redeemedRewarded ? l.inviteRewarded : l.inviteRedeemed,
-          style: context.typography.bodySmall.copyWith(
-            color: colors.accentGold,
+        const VaultDivider(),
+        Center(
+          child: ClaimedMark(
+            status.redeemedRewarded ? l.inviteRewarded : l.inviteRedeemed,
           ),
         ),
       ] else if (status.canRedeem) ...[
-        SizedBox(height: s.md),
-        Text(l.inviteHaveCode, style: context.typography.bodySmall),
+        const VaultDivider(),
+        Text(
+          l.inviteHaveCode,
+          style: context.typography.body.emphasised.copyWith(
+            color: colors.textPrimary,
+          ),
+        ),
         SizedBox(height: s.xs),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               child: TextField(
@@ -1000,12 +1259,15 @@ class _InviteCardState extends ConsumerState<InviteCard> {
             SizedBox(width: s.sm),
             ListenableBuilder(
               listenable: _field,
-              builder: (context, _) => FilledButton(
-                key: InviteCard.redeemKey,
-                onPressed: _busy || _field.text.trim().length != 7
-                    ? null
-                    : _redeem,
-                child: Text(l.inviteRedeem),
+              builder: (context, _) => VaultPress(
+                child: FilledButton(
+                  key: InviteCard.redeemKey,
+                  style: vaultGoldStyle(context),
+                  onPressed: _busy || _field.text.trim().length != 7
+                      ? null
+                      : _redeem,
+                  child: Text(l.inviteRedeem),
+                ),
               ),
             ),
           ],
@@ -1110,9 +1372,23 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
                 padding: EdgeInsets.only(bottom: s.xs),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: colors.surfaceRaised,
-                    borderRadius: BorderRadius.circular(context.radii.card),
-                    border: Border.all(color: colors.accentGold),
+                    gradient: LinearGradient(
+                      begin: AlignmentDirectional.centerStart,
+                      end: AlignmentDirectional.centerEnd,
+                      colors: [
+                        Color.alphaBlend(
+                          VaultTokens.gold.withValues(
+                            alpha: VaultTokens.lampWash * 2,
+                          ),
+                          colors.surfaceRaised,
+                        ),
+                        colors.surfaceRaised,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(context.radii.button),
+                    border: Border.all(
+                      color: VaultTokens.gold.withValues(alpha: 0.7),
+                    ),
                   ),
                   child: Padding(
                     padding: EdgeInsets.symmetric(
@@ -1121,14 +1397,16 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
                     ),
                     child: Row(
                       children: [
-                        const MafiaCoin(),
+                        const LampGlow(child: MafiaCoin()),
                         SizedBox(width: s.xs),
                         Expanded(
                           child: Semantics(
                             liveRegion: true,
                             child: Text(
                               line,
-                              style: context.typography.bodySmall,
+                              style: context.typography.bodySmall.copyWith(
+                                color: colors.textPrimary,
+                              ),
                             ),
                           ),
                         ),
@@ -1162,11 +1440,41 @@ class CouncilAttentionBadge extends ConsumerWidget {
     if (!on) return child;
     return Semantics(
       label: context.l10n.councilAttention,
-      child: Badge(
+      child: Stack(
         key: dotKey,
-        smallSize: CouncilLifeTokens.attentionDot,
-        backgroundColor: context.colors.accentCrimson,
-        child: child,
+        clipBehavior: Clip.none,
+        children: [
+          child,
+          PositionedDirectional(
+            top: 0,
+            end: 0,
+            child: IgnorePointer(
+              child: Container(
+                width: CouncilLifeTokens.attentionDot,
+                height: CouncilLifeTokens.attentionDot,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const RadialGradient(
+                    center: Alignment(-0.3, -0.4),
+                    colors: [VaultTokens.oxbloodLight, VaultTokens.oxblood],
+                  ),
+                  border: Border.all(
+                    color: VaultTokens.goldLight,
+                    width: VaultTokens.chipRim,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: VaultTokens.oxbloodLight.withValues(
+                        alpha: VaultTokens.litGlowAlpha * 3,
+                      ),
+                      blurRadius: CouncilLifeTokens.attentionDot,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

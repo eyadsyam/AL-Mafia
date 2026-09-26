@@ -8,12 +8,14 @@ import '../../app/l10n/app_localizations.dart';
 import '../../platform/audio_director.dart';
 import '../../platform/haptics.dart';
 import '../economy/economy_capabilities.dart';
+import '../economy/vault_kit.dart';
 import '../economy/wallet.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart'
     show onlineBackendFactoryProvider;
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
+import '../economy/mafia_coin.dart';
 import 'fun_art.dart';
 import 'loaded_capabilities.dart';
 import 'match_awards.dart';
@@ -189,7 +191,6 @@ class _AwardRibbonState extends ConsumerState<AwardRibbon>
     final l = context.l10n;
     final s = context.spacing;
     final type = context.typography;
-    final colors = context.colors;
     final loading = widget.loading;
     final count = loading ? FunTokens.skeletonCards : widget.awards.length;
     final total = _reveal.duration?.inMilliseconds ?? 1;
@@ -200,69 +201,98 @@ class _AwardRibbonState extends ConsumerState<AwardRibbon>
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            loading ? l.awardsLoading : l.awardsTitle,
-            textAlign: TextAlign.center,
-            style: type.caption.copyWith(color: colors.accentGold),
+          // «— جوايز الماتش —» between two engraved rules.
+          Row(
+            children: [
+              const Expanded(child: _Rule(towardEnd: true)),
+              Flexible(
+                flex: 4,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: s.sm),
+                  child: Text(
+                    loading ? l.awardsLoading : l.awardsTitle,
+                    textAlign: TextAlign.center,
+                    style: type.bodySmall.emphasised.copyWith(
+                      color: VaultTokens.gold,
+                    ),
+                  ),
+                ),
+              ),
+              const Expanded(child: _Rule(towardEnd: false)),
+            ],
           ),
           SizedBox(height: s.xs),
           SizedBox(
             height: FunTokens.awardCardHeight,
             child: Semantics(
               liveRegion: !loading,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                itemCount: count,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(width: FunTokens.awardGap),
-                itemBuilder: (context, i) {
-                  if (loading) return const _SkeletonCard();
-                  final award = widget.awards[i];
-                  final begin =
-                      (FunTokens.awardStagger * i).inMilliseconds / total;
-                  final end =
-                      ((FunTokens.awardStagger * i) + FunTokens.awardReveal)
-                          .inMilliseconds /
-                      total;
-                  final curve = CurvedAnimation(
-                    parent: _reveal,
-                    curve: Interval(
-                      begin.clamp(0.0, 1.0),
-                      end.clamp(0.0, 1.0),
-                      curve: Curves.easeOutCubic,
-                    ),
-                  );
-                  return AnimatedBuilder(
-                    animation: curve,
-                    builder: (context, child) => Opacity(
-                      opacity: curve.value,
-                      child: Transform.translate(
-                        offset: Offset(
-                          0,
-                          FunTokens.awardLift * (1 - curve.value),
-                        ),
-                        child: child,
+              // Centred while the cards fit; scrolls once they do not.
+              child: Center(
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  physics: const ClampingScrollPhysics(),
+                  itemCount: count,
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(width: FunTokens.awardGap),
+                  itemBuilder: (context, i) {
+                    if (loading) return const _SkeletonCard();
+                    final award = widget.awards[i];
+                    final begin =
+                        (FunTokens.awardStagger * i).inMilliseconds / total;
+                    final end =
+                        ((FunTokens.awardStagger * i) + FunTokens.awardReveal)
+                            .inMilliseconds /
+                        total;
+                    final curve = CurvedAnimation(
+                      parent: _reveal,
+                      curve: Interval(
+                        begin.clamp(0.0, 1.0),
+                        end.clamp(0.0, 1.0),
+                        curve: Curves.easeOutCubic,
                       ),
-                    ),
-                    child: _AwardCard(
-                      award: award,
-                      mine: widget.mine.contains(award.kind),
-                      motes: _reveal,
-                    ),
-                  );
-                },
+                    );
+                    return AnimatedBuilder(
+                      animation: curve,
+                      builder: (context, child) => Opacity(
+                        opacity: curve.value,
+                        child: Transform.translate(
+                          offset: Offset(
+                            0,
+                            FunTokens.awardLift * (1 - curve.value),
+                          ),
+                          child: child,
+                        ),
+                      ),
+                      child: _AwardCard(
+                        award: award,
+                        mine: widget.mine.contains(award.kind),
+                        motes: _reveal,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),
           if (widget.granted > 0)
             Padding(
               padding: EdgeInsets.only(top: s.xs),
-              child: Text(
-                l.awardsYouEarned(widget.granted),
-                textAlign: TextAlign.center,
-                style: type.caption.copyWith(color: colors.accentGold),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const MafiaCoin(size: VaultTokens.chipCoin),
+                  SizedBox(width: s.xs),
+                  Flexible(
+                    child: Text(
+                      l.awardsYouEarned(widget.granted),
+                      textAlign: TextAlign.center,
+                      style: type.bodySmall.emphasised.copyWith(
+                        color: VaultTokens.gold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
         ],
@@ -301,12 +331,34 @@ class _AwardCard extends StatelessWidget {
         width: FunTokens.awardCardWidth,
         padding: EdgeInsets.symmetric(horizontal: s.xs, vertical: s.xs),
         decoration: BoxDecoration(
-          color: colors.surfaceRaised,
           borderRadius: BorderRadius.circular(context.radii.card),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.alphaBlend(
+                VaultTokens.gold.withValues(
+                  alpha: mine ? VaultTokens.lampWash * 2 : VaultTokens.lampWash,
+                ),
+                colors.surfaceRaised,
+              ),
+              Color.lerp(colors.surfaceRaised, colors.surfaceBase, 0.5)!,
+            ],
+          ),
           border: Border.all(
-            color: mine ? colors.accentGold : colors.borderSubtle,
+            color: mine ? VaultTokens.gold : colors.borderSubtle,
             width: mine ? FunTokens.awardStroke : 1,
           ),
+          boxShadow: mine
+              ? [
+                  BoxShadow(
+                    color: VaultTokens.gold.withValues(
+                      alpha: VaultTokens.litGlowAlpha,
+                    ),
+                    blurRadius: VaultTokens.litGlowBlur / 2,
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -314,8 +366,13 @@ class _AwardCard extends StatelessWidget {
             SizedBox.square(
               dimension: FunTokens.awardMedal,
               child: CustomPaint(
-                painter: _MotesPainter(motes, colors.accentGold),
-                child: AwardMedal(kind: award.kind),
+                painter: _MotesPainter(motes, VaultTokens.goldLight),
+                child: LampGlow(
+                  alpha: mine
+                      ? VaultTokens.lampAlpha
+                      : VaultTokens.lampAlpha / 2,
+                  child: AwardMedal(kind: award.kind),
+                ),
               ),
             ),
             SizedBox(height: s.xs),
@@ -324,9 +381,8 @@ class _AwardCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
-              style: type.caption.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w700,
+              style: type.caption.emphasised.copyWith(
+                color: mine ? VaultTokens.goldLight : colors.textPrimary,
               ),
             ),
             Text(
@@ -400,15 +456,43 @@ class _SkeletonCard extends StatelessWidget {
           Container(
             width: FunTokens.awardCardWidth * 0.6,
             height: s.sm,
-            color: block,
+            decoration: BoxDecoration(
+              color: block,
+              borderRadius: BorderRadius.circular(s.xs),
+            ),
           ),
           SizedBox(height: s.xs),
           Container(
             width: FunTokens.awardCardWidth * 0.4,
             height: s.sm,
-            color: block,
+            decoration: BoxDecoration(
+              color: block,
+              borderRadius: BorderRadius.circular(s.xs),
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A hairline that fades toward the words it frames.
+class _Rule extends StatelessWidget {
+  final bool towardEnd;
+  const _Rule({required this.towardEnd});
+
+  @override
+  Widget build(BuildContext context) {
+    final strong = VaultTokens.gold.withValues(alpha: VaultTokens.cornerAlpha);
+    final none = VaultTokens.gold.withValues(alpha: 0);
+    return Container(
+      height: 1,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: AlignmentDirectional.centerStart,
+          end: AlignmentDirectional.centerEnd,
+          colors: towardEnd ? [none, strong] : [strong, none],
+        ),
       ),
     );
   }

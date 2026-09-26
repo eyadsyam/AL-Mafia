@@ -2401,5 +2401,9 @@
   },
   "adExtraSwapDone": "Contract swapped",
   "adExtraNoneLeft": "Nothing to swap today.",
-  "adExtraUsed": "Used today"
+  "adExtraUsed": "Used today",
+  "vaultOneTime": "One time only",
+  "vaultBestValue": "Best value",
+  "vaultMostCoins": "Most coins",
+  "coinPickPackFirst": "Pick a pack above first, then how you'll pay."
 }

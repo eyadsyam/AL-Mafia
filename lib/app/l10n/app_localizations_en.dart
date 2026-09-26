@@ -3735,4 +3735,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adExtraUsed => 'Used today';
+
+  @override
+  String get vaultOneTime => 'One time only';
+
+  @override
+  String get vaultBestValue => 'Best value';
+
+  @override
+  String get vaultMostCoins => 'Most coins';
+
+  @override
+  String get coinPickPackFirst =>
+      'Pick a pack above first, then how you\'ll pay.';
 }

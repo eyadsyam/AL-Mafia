@@ -32,6 +32,7 @@ import 'scene_sheet.dart';
 import 'online_session.dart';
 import 'rewarded_reward_button.dart';
 import '../../economy/council_hub.dart' show CouncilResultStrip;
+import '../../economy/vault_kit.dart' show ScrollFadeEdge;
 import 'result_share_button.dart';
 import '../../fun/award_ribbon.dart' show OnlineAwardsStrip;
 import '../../fun/reactions.dart';
@@ -1731,56 +1732,60 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Flexible(
-                child: SingleChildScrollView(
-                  key: OnlineTableFlow.resultScroll,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (roomId != null && completed)
-                        OnlineAwardsStrip(
-                          key: ValueKey('awards-$roomId'),
-                          roomId: roomId,
-                        ),
-                      if (roomId != null && backend != null)
-                        ReactionBar(
-                          roomId: roomId,
-                          backend: backend,
-                          open: reactionsAreOpen,
-                        ),
-                      // Phase 107: what the finished match moved in the
-                      // Council. Only once the outcome is public — never
-                      // during play.
-                      if (roomId != null && completed)
-                        CouncilResultStrip(
-                          key: ValueKey(roomId),
-                          roomId: roomId,
-                        ),
-                      if (roomId != null) RewardedRewardButton(roomId: roomId),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              key: OnlineTableFlow.seeRoles,
-                              onPressed: () => setState(() => _roster = true),
-                              child: Text(l10n.onlineSeeRoles),
-                            ),
+                // Fades under the pinned rematch while more lies below.
+                child: ScrollFadeEdge(
+                  child: SingleChildScrollView(
+                    key: OnlineTableFlow.resultScroll,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (roomId != null && completed)
+                          OnlineAwardsStrip(
+                            key: ValueKey('awards-$roomId'),
+                            roomId: roomId,
                           ),
-                          if (snapshot.outcome?.winner != null) ...[
-                            SizedBox(width: spacing.sm),
-                            ResultShareButton(
-                              winner: snapshot.outcome!.winner,
-                              days: snapshot.dayNumber,
-                              roomId: roomId,
+                        if (roomId != null && backend != null)
+                          ReactionBar(
+                            roomId: roomId,
+                            backend: backend,
+                            open: reactionsAreOpen,
+                          ),
+                        // Phase 107: what the finished match moved in the
+                        // Council. Only once the outcome is public — never
+                        // during play.
+                        if (roomId != null && completed)
+                          CouncilResultStrip(
+                            key: ValueKey(roomId),
+                            roomId: roomId,
+                          ),
+                        if (roomId != null)
+                          RewardedRewardButton(roomId: roomId),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                key: OnlineTableFlow.seeRoles,
+                                onPressed: () => setState(() => _roster = true),
+                                child: Text(l10n.onlineSeeRoles),
+                              ),
                             ),
+                            if (snapshot.outcome?.winner != null) ...[
+                              SizedBox(width: spacing.sm),
+                              ResultShareButton(
+                                winner: snapshot.outcome!.winner,
+                                days: snapshot.dayNumber,
+                                roomId: roomId,
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                      TextButton(
-                        onPressed: goHome,
-                        child: Text(l10n.homeAction),
-                      ),
-                    ],
+                        ),
+                        TextButton(
+                          onPressed: goHome,
+                          child: Text(l10n.homeAction),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

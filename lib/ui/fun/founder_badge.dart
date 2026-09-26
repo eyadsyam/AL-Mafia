@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -64,9 +66,19 @@ class _FounderBadgeState extends ConsumerState<FounderBadge> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: s.sm, vertical: s.xs),
         decoration: BoxDecoration(
-          color: colors.surfaceRaised,
+          gradient: LinearGradient(
+            begin: AlignmentDirectional.centerStart,
+            end: AlignmentDirectional.centerEnd,
+            colors: [
+              Color.alphaBlend(
+                VaultTokens.gold.withValues(alpha: VaultTokens.lampWash * 2),
+                colors.surfaceRaised,
+              ),
+              colors.surfaceRaised,
+            ],
+          ),
           borderRadius: BorderRadius.circular(context.radii.button),
-          border: Border.all(color: colors.accentGold),
+          border: Border.all(color: VaultTokens.gold),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -75,10 +87,9 @@ class _FounderBadgeState extends ConsumerState<FounderBadge> {
               path: FunRaster.founderBadge,
               width: FunTokens.founderBadge,
               height: FunTokens.founderBadge,
-              fallback: Icon(
-                Icons.verified_rounded,
-                size: FunTokens.founderBadge,
-                color: colors.accentGold,
+              fallback: const CustomPaint(
+                size: Size.square(FunTokens.founderBadge),
+                painter: FounderSealPainter(),
               ),
             ),
             SizedBox(width: s.xs),
@@ -89,9 +100,8 @@ class _FounderBadgeState extends ConsumerState<FounderBadge> {
                 children: [
                   Text(
                     l.founderBadge,
-                    style: context.typography.body.copyWith(
-                      color: colors.accentGold,
-                      fontWeight: FontWeight.w700,
+                    style: context.typography.body.emphasised.copyWith(
+                      color: VaultTokens.goldLight,
                     ),
                   ),
                   Text(
@@ -108,4 +118,59 @@ class _FounderBadgeState extends ConsumerState<FounderBadge> {
       ),
     );
   }
+}
+
+/// The Founder's mark until its art arrives: a gold rosette with a laurel
+/// ring and a single star, struck like the rank crests.
+class FounderSealPainter extends CustomPainter {
+  const FounderSealPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.shortestSide;
+    final c = size.center(Offset.zero);
+    final r = s / 2;
+    // Scalloped rosette.
+    final rosette = Path();
+    const petals = 12;
+    for (var i = 0; i <= petals * 6; i++) {
+      final t = i / (petals * 6) * 2 * math.pi;
+      final rr = r * (0.9 + 0.1 * math.cos(t * petals));
+      final p = c + Offset(math.cos(t), math.sin(t)) * rr;
+      i == 0 ? rosette.moveTo(p.dx, p.dy) : rosette.lineTo(p.dx, p.dy);
+    }
+    rosette.close();
+    canvas.drawPath(
+      rosette,
+      Paint()
+        ..shader = const RadialGradient(
+          center: Alignment(-0.35, -0.45),
+          colors: [
+            VaultTokens.goldLight,
+            VaultTokens.gold,
+            VaultTokens.goldDeep,
+          ],
+        ).createShader(Rect.fromCircle(center: c, radius: r)),
+    );
+    canvas.drawCircle(c, r * 0.62, Paint()..color = VaultTokens.enamel);
+    canvas.drawCircle(
+      c,
+      r * 0.62,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = s * 0.04
+        ..color = VaultTokens.goldLight,
+    );
+    final star = Path();
+    for (var i = 0; i < 10; i++) {
+      final rr = i.isEven ? r * 0.4 : r * 0.17;
+      final a = -math.pi / 2 + i * math.pi / 5;
+      final p = c + Offset(math.cos(a), math.sin(a)) * rr;
+      i == 0 ? star.moveTo(p.dx, p.dy) : star.lineTo(p.dx, p.dy);
+    }
+    canvas.drawPath(star..close(), Paint()..color = VaultTokens.gold);
+  }
+
+  @override
+  bool shouldRepaint(FounderSealPainter old) => false;
 }
