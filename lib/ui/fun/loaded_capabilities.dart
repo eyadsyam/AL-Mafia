@@ -15,8 +15,12 @@ EconomyCapabilities? loadedCapabilities(WidgetRef ref) =>
 
 /// For a [ConsumerState] that read [loadedCapabilities] before anything had
 /// asked: looks again after the frame (another widget on the same screen may
-/// have started the read meanwhile) and rebuilds once it exists.
+/// have started the read meanwhile) and rebuilds once, only when the read
+/// has gone from not started to started. Once it exists the state already
+/// watches it, so nothing is re-armed; while it does not, the check costs
+/// no rebuild and schedules no frame.
 void recheckCapabilitiesAfterFrame(ConsumerState state) {
+  if (state.ref.exists(economyCapabilitiesProvider)) return;
   WidgetsBinding.instance.addPostFrameCallback((_) {
     if (state.mounted && state.ref.exists(economyCapabilitiesProvider)) {
       // ignore: invalid_use_of_protected_member

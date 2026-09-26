@@ -256,11 +256,17 @@ create or replace function public.commit_ad_extra(
 ) returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
 declare claim public.ad_extra_claims; total int; draw int; acc int := 0;
   prize public.daily_wheel_prizes; granted bigint := 0; outcome_ smallint;
-  code_ text; slot_ smallint;
+  code_ text; slot_ smallint; owner_ uuid;
 begin
   if p_transaction is null or length(p_transaction)<8 or p_reward_amount<=0 then
     raise exception 'BAD_SSV';
   end if;
+  -- Same lock order as create_ad_extra_claim (wallet, then claim row), so
+  -- the two can never deadlock: the owner is read unlocked (user_id never
+  -- changes, ad_extra_claim_immutable), the wallet taken, then the row.
+  select c.user_id into owner_ from public.ad_extra_claims c where c.id=p_claim;
+  if owner_ is null or owner_<>p_ssv_user then raise exception 'CLAIM_NOT_FOUND'; end if;
+  perform pg_advisory_xact_lock(hashtextextended('wallet:'||owner_::text,91));
   select * into claim from public.ad_extra_claims where id=p_claim for update;
   if claim.id is null or claim.user_id<>p_ssv_user then raise exception 'CLAIM_NOT_FOUND'; end if;
   if claim.state='awarded' then
@@ -269,7 +275,6 @@ begin
       'slot',coalesce(claim.outcome,claim.slot),'code',claim.outcome_code);
   end if;
   perform public.register_ad_transaction(p_transaction,'extra',claim.id,claim.user_id);
-  perform pg_advisory_xact_lock(hashtextextended('wallet:'||claim.user_id::text,91));
   slot_ := claim.slot;
   if claim.kind='spin' then
     select sum(weight) into total from public.daily_wheel_prizes;

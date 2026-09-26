@@ -136,6 +136,9 @@ class AppOpenCoordinator {
       );
       if (pre != AppOpenVerdict.show) return pre;
 
+      // Set when the 3 s budget runs out: the work still in flight must not
+      // start an ad load nobody will show.
+      var timedOut = false;
       final verdict =
           await () async {
             EconomyCapabilities caps;
@@ -160,11 +163,15 @@ class AppOpenCoordinator {
             final consent = await ads.canRequestAds();
             final before = decide(consent, _now());
             if (before != AppOpenVerdict.show) return before;
+            if (timedOut) return AppOpenVerdict.notLoaded;
             loading = ads.load(AdTokens.appOpenLoadTimeout);
             return decide(consent, await loading);
           }().timeout(
             AdTokens.appOpenLoadTimeout,
-            onTimeout: () => AppOpenVerdict.notLoaded,
+            onTimeout: () {
+              timedOut = true;
+              return AppOpenVerdict.notLoaded;
+            },
           );
       if (verdict != AppOpenVerdict.show) {
         // A late ad has nobody to show it.

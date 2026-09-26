@@ -713,9 +713,14 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                     ),
                   ),
                   // Phase 108: the waiting room is a waiting surface. Below
-                  // the hints, never beside the start button; zero size
-                  // unless switched on and filled.
-                  const WaitingBanner(),
+                  // the hints, never beside the start button: a filled
+                  // banner keeps AdTokens.bannerActionClearance (72dp) clear
+                  // of it inside its frame; zero size unless switched on and
+                  // filled. A screen too short for that clearance (a phone
+                  // on its side) gets no banner at all.
+                  if (MediaQuery.sizeOf(context).height >=
+                      AdTokens.bannerMinLobbyHeight)
+                    const WaitingBanner(belowPrimaryAction: true),
                 ],
               ),
             ),

@@ -1510,6 +1510,15 @@ abstract final class AdTokens {
   static const bannerFrame = 1.0;
   static const bannerLabelGap = 2.0;
   static const bannerMaxWidth = 728.0;
+
+  /// Kept clear between a surface's primary action and a banner below it
+  /// (the lobby's Start button): well past a thumb's slip, so a tap meant
+  /// for the button never lands on the ad.
+  static const bannerActionClearance = 72.0;
+
+  /// Below this screen height (a phone on its side) the lobby has no room
+  /// for a banner that clear of Start: it shows none.
+  static const bannerMinLobbyHeight = 560.0;
 }
 
 /// Phase 109: awards, reactions, welcome-back, Founder badge.

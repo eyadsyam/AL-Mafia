@@ -384,13 +384,53 @@ begin
   end;
 end $$;
 
+-- A10. Reactions do not outlive their sender, or a day ---------------------------
+do $$
+declare p uuid[]; r uuid; req uuid; ghost uuid := gen_random_uuid(); n int;
+begin
+  begin
+    update economy_config set reactions_enabled=true;
+    p := pg_temp.ar_six();
+    r := pg_temp.ar_room(p, array[null,null,null,null,null,null]::text[], 'lobby','lobby');
+    perform public.send_room_reaction(p[1],r,'laugh');
+    perform public.send_room_reaction(p[2],r,'rose');
+    -- p[1] leaves the lobby: the room (and its reactions) stays for the rest.
+    delete from room_players where room_id=r and user_id=p[1];
+    insert into player_badges(user_id,badge) values(p[1],'founder');
+    insert into data_deletion_requests(user_id) values(p[1]) returning id into req;
+    perform public.complete_data_deletion(req);
+    assert not exists(select 1 from room_reactions where user_id=p[1]), 'reaction survived deletion';
+    assert not exists(select 1 from player_badges where user_id=p[1]), 'badge survived deletion';
+    assert exists(select 1 from room_reactions where user_id=p[2]), 'deletion took another one';
+    assert (select completed_at is not null from data_deletion_requests where id=req), 'not completed';
+    -- An orphaned identity's reactions go with the orphan purge.
+    insert into room_reactions(room_id,user_id,seat,kind) values(r,ghost,5,'skull');
+    perform public.purge_orphan_economy();
+    assert not exists(select 1 from room_reactions where user_id=ghost), 'orphan kept';
+    assert exists(select 1 from room_reactions where user_id=p[2]), 'orphan purge took a live one';
+    -- The periodic purge: older than a day only.
+    -- (Sent first: every send trims its own room to ten minutes.)
+    perform public.send_room_reaction(p[3],r,'crown');
+    update room_reactions set created_at=now() - interval '25 hours' where user_id=p[2];
+    n := public.purge_room_reactions();
+    assert n=1, 'purged '||n;
+    assert not exists(select 1 from room_reactions where user_id=p[2]), 'day-old kept';
+    assert exists(select 1 from room_reactions where user_id=p[3]), 'fresh purged';
+    assert not has_function_privilege('authenticated','public.purge_room_reactions()','execute'), 'purge rpc';
+    assert not has_function_privilege('anon','public.purge_room_reactions()','execute'), 'purge rpc anon';
+    assert has_function_privilege('service_role','public.purge_room_reactions()','execute'), 'purge service';
+    raise exception 'GATE_OK';
+  exception when assert_failure or others then perform pg_temp.ar_record('A10 reaction retention', sqlerrm);
+  end;
+end $$;
+
 -- Report ----------------------------------------------------------------
 do $$
 declare failed text;
 begin
   select string_agg(gate||' => '||detail, ' | ' order by gate) into failed
     from ar_results where not ok;
-  if (select count(*) from ar_results) <> 9 then
+  if (select count(*) from ar_results) <> 10 then
     raise exception 'AWARDS GATES INCOMPLETE: % recorded', (select count(*) from ar_results);
   end if;
   if failed is not null then raise exception 'AWARDS GATES FAILED: %', failed; end if;

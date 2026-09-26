@@ -389,6 +389,48 @@ begin
   return jsonb_build_object('ok',true,'seat',v_seat,'kind',p_kind);
 end $$;
 
+-- Reactions keep the sender's user_id (for the rate limit only). They are
+-- gone with the person's deletion, with an orphaned identity, and in any case
+-- a day after they were sent (the room itself trims to ten minutes as it goes;
+-- this catches the rooms nobody reacts in again).
+create function public.purge_room_reactions()
+returns integer language plpgsql security definer set search_path=public,pg_temp as $$
+declare n int;
+begin
+  delete from public.room_reactions where created_at < now() - interval '1 day';
+  get diagnostics n = row_count;
+  return n;
+end $$;
+
+do $$ begin
+  if exists(select 1 from pg_extension where extname='pg_cron') then
+    perform cron.unschedule('purge-room-reactions') where exists(select 1 from cron.job where jobname='purge-room-reactions');
+    perform cron.schedule('purge-room-reactions','17 * * * *',$cron$select public.purge_room_reactions();$cron$);
+  end if;
+end $$;
+
+alter function public.complete_data_deletion(uuid) rename to complete_data_deletion_pre_fun;
+create function public.complete_data_deletion(p_request uuid)
+returns void language plpgsql security definer set search_path=public,auth,pg_temp as $$
+declare who uuid;
+begin
+  select user_id into who from public.data_deletion_requests
+   where id=p_request and completed_at is null;
+  perform public.complete_data_deletion_pre_fun(p_request);
+  if who is not null then
+    delete from public.room_reactions where user_id=who;
+    delete from public.player_badges where user_id=who;
+  end if;
+end $$;
+
+alter function public.purge_orphan_economy() rename to purge_orphan_economy_pre_fun;
+create function public.purge_orphan_economy()
+returns integer language plpgsql security definer set search_path=public,auth,pg_temp as $$
+begin
+  delete from public.room_reactions d where not exists(select 1 from auth.users u where u.id=d.user_id);
+  return public.purge_orphan_economy_pre_fun();
+end $$;
+
 -- 5. Capabilities -------------------------------------------------------------------
 alter function public.economy_capabilities(uuid) rename to economy_capabilities_pre_fun;
 create function public.economy_capabilities(p_user uuid)
@@ -416,6 +458,16 @@ revoke all on function public.match_awards_get(uuid,uuid) from public, anon, aut
 grant execute on function public.match_awards_get(uuid,uuid) to service_role;
 revoke all on function public.send_room_reaction(uuid,uuid,text) from public, anon, authenticated;
 grant execute on function public.send_room_reaction(uuid,uuid,text) to service_role;
+revoke all on function public.purge_room_reactions() from public, anon, authenticated;
+grant execute on function public.purge_room_reactions() to service_role;
+revoke all on function public.complete_data_deletion_pre_fun(uuid) from public, anon, authenticated;
+grant execute on function public.complete_data_deletion_pre_fun(uuid) to service_role;
+revoke all on function public.complete_data_deletion(uuid) from public, anon, authenticated;
+grant execute on function public.complete_data_deletion(uuid) to service_role;
+revoke all on function public.purge_orphan_economy_pre_fun() from public, anon, authenticated;
+grant execute on function public.purge_orphan_economy_pre_fun() to service_role;
+revoke all on function public.purge_orphan_economy() from public, anon, authenticated;
+grant execute on function public.purge_orphan_economy() to service_role;
 revoke all on function public.economy_capabilities_pre_fun(uuid) from public, anon, authenticated;
 grant execute on function public.economy_capabilities_pre_fun(uuid) to service_role;
 revoke all on function public.economy_capabilities(uuid) from public, anon, authenticated;

@@ -562,16 +562,22 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
     _AdsRuntime.instance.onConsentChanged(_drop);
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final width = MediaQuery.sizeOf(
-      context,
-    ).width.clamp(0, AdTokens.bannerMaxWidth).truncate();
-    if (width != _width) {
-      _width = width;
-      _load();
-    }
+  /// Sized from the space the slot is actually given (a surface may pad it
+  /// in from the screen edges), less the frame on both sides, floored: an
+  /// ad wider than its box would be cropped, which AdMob forbids.
+  void _fitTo(BoxConstraints constraints) {
+    final available = constraints.hasBoundedWidth
+        ? constraints.maxWidth
+        : MediaQuery.sizeOf(context).width;
+    final width = (available - 2 * AdTokens.bannerFrame)
+        .clamp(0.0, AdTokens.bannerMaxWidth)
+        .floor();
+    if (width == _width) return;
+    _width = width;
+    // Never load (or drop) mid-layout: after this frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _width == width) _load();
+    });
   }
 
   @override
@@ -640,7 +646,14 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      _fitTo(constraints);
+      return _framed(context);
+    },
+  );
+
+  Widget _framed(BuildContext context) {
     final ad = _ad;
     // No fill: nothing at all, so the surface never reserves an empty box.
     if (!_filled || ad == null) return const SizedBox.shrink();
