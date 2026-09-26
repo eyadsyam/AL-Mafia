@@ -6,7 +6,20 @@ cannot recover from the code quickly, or a decision whose *reasoning* is not obv
 from the diff. Anything you can get from `flutter analyze`, `flutter test`, or a
 `grep` is deliberately not repeated here.
 
-Last verified: 2026-08-20 — `flutter analyze lib test tool` clean of errors/warnings
+Last verified: 2026-09-26 (update 1.0.1+9, branch `claude/epic-roentgen-094f21`,
+commit `bd03100`): `flutter analyze` 0 errors/0 warnings, `flutter test` **1328 passed,
+1 skipped**, `node tool/test_sql_without_docker.mjs` **40/40** SQL files, all
+`supabase/tests/*.test.mjs` PASS. The 1.0.1 work (rewarded two-step ads, app-open,
+interstitial, waiting banners, Play Billing + web InstaPay/Vodafone Cash manual orders,
+daily coffer/wheel, Council Life contracts/rank/leaderboard/invites, match awards,
+reactions) is described in `docs/PROGRESS.md` phases 102–109,
+`build/update101/status.md` (activation SQL), `docs/ADS-V2-REVENUE-MODEL.md` and
+`docs/PHASE-107-COUNCIL-LIFE.md`. **Every new feature ships OFF behind
+`economy_config` flags; migrations 20260925000100–000600 are NOT deployed yet.**
+Raster art is requested from Codex (paths in the art request, painted fallbacks in
+code; register delivered files in `CouncilRaster.delivered`).
+
+Previous check, 2026-08-20 — `flutter analyze lib test tool` clean of errors/warnings
 (51 `info`, all pre-existing const/super-parameter hints in `test/` and `lib/engine/`),
 `flutter test` **403 passed, 0 failed** — 398 plus the five that fence the card
 turn (§7a). Re-run after the ground was neutralised (§2a), the loops were
