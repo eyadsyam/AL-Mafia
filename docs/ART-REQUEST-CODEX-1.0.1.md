@@ -1,7 +1,7 @@
 # طلب صور لـ Codex — تحديث 1.0.1 ("حياة المجلس" + المتجر + الإعلانات + المتعة)
 
 > المطلوب من Codex: يعمل **كل** الصور اللي في الملف ده، ويحط كل صورة بنفس الاسم وفي نفس المسار بالظبط.
-> المشروع: `D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\phase-99-release-ads-523d8a`
+> المشروع: `D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21` (branch `claude/epic-roentgen-094f21`). After adding each file, list it in `CouncilRaster.delivered` in `lib/ui/economy/council_art.dart`, then run `flutter test test/widget/council_raster_test.dart`.
 > الكود بيقرا المسارات دي. لحد ما الصورة توصل، فيه رسم بديل بالكود، فأي صورة ناقصة مش هتكسر حاجة، لكن كل صورة بتوصل بتعلّي المستوى.
 > Codex: generate **every** asset below at the exact path/name. The app reads these paths and falls back to a code-drawn placeholder until each file exists.
 
