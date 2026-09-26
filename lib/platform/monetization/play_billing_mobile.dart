@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatf
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
+import 'full_screen_away.dart';
 import 'play_billing.dart';
 import 'purchase_store.dart';
 
@@ -100,6 +101,8 @@ class GooglePlayBilling implements PlayBilling {
   }) async {
     final product = _details[productId];
     if (!supported || product == null) return false;
+    // The purchase sheet covers the game: no app-open ad on the way back.
+    FullScreenAway.mark();
     // applicationUserName becomes obfuscatedAccountId: the server refuses a
     // token presented by any other account.
     final param = PurchaseParam(

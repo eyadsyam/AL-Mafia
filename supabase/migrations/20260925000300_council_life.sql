@@ -58,8 +58,10 @@ begin
     'council_contract','council_contract_bonus','council_weekly','council_level',
     'council_invite_inviter','council_invite_invitee']) k;
   alter table public.wallet_ledger drop constraint if exists wallet_ledger_kind_check;
+  -- Written as an IN list so the constraint reads back as quoted words the
+  -- next migration's scan finds (an array literal would read back empty).
   execute format('alter table public.wallet_ledger add constraint wallet_ledger_kind_check '
-    'check (kind = any (%L::text[]))', kinds);
+    'check (kind in (%s))', (select string_agg(quote_literal(k), ',' order by k) from unnest(kinds) k));
 end $$;
 
 create or replace function public.council_week(p_day date)
@@ -384,6 +386,10 @@ begin
   for r in select * from public.council_invite_redemptions
       where rewarded_at is null and not detached and (invitee=p_user or inviter=p_user)
       order by redeemed_at limit 50 for update loop
+    -- Only rows whose every wallet is in the sorted set locked above: a
+    -- redemption committed after the set was read waits for the next call.
+    continue when not (r.invitee = any(users))
+      or (r.inviter is not null and not (r.inviter = any(users)));
     continue when not exists(select 1 from public.wallet_ledger
       where user_id=r.invitee and kind='match_completion' and source_room is not null);
     perform public.credit_earned(r.invitee,'council_invite_invitee',
@@ -833,6 +839,12 @@ begin
   if existing.purchase_token is not null and existing.user_id is not null
      and existing.user_id<>p_user then
     raise exception 'ACCOUNT_MISMATCH';
+  end if;
+  -- Granted to an account that has since been deleted: the grant went with
+  -- it. Refused plainly rather than answered granted:true with nothing given.
+  if existing.purchase_token is not null and existing.user_id is null
+     and existing.granted_at is not null then
+    raise exception 'OWNER_DELETED';
   end if;
   effective := case
     when public.play_is_voided(hash, coalesce(p_order, existing.order_id)) then 'revoked'

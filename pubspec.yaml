@@ -115,6 +115,15 @@ flutter:
     - assets/images/experience_v2/
     - assets/images/store_v2/
     - assets/images/economy_v2/
+    # Phase 107 art slots: each holds a README of expected files until the
+    # art pass lands; the UI paints its own art while a file is absent.
+    - assets/images/council/
+    - assets/images/store_v3/
+    - assets/images/profile/
+    # Phase 109 art slots (README until the art pass lands).
+    - assets/images/awards/
+    - assets/images/reactions/
+    - assets/images/launch/
     - assets/icons/
     - assets/audio/
     # Ambient loops + their Reduce Motion stills. On-table surfaces only.

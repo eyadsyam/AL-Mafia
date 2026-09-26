@@ -1490,3 +1490,93 @@ abstract final class CouncilLifeTokens {
   static const double inviteCodeScale = 1.6;
   static const double leaderboardAvatar = 36.0;
 }
+
+/// Ads v2 (phase 108): the app-open ad's product floors and the waiting-room
+/// banner's frame. Never shown on a gameplay surface.
+abstract final class AdTokens {
+  /// An app-open ad not loaded within this is skipped: the player is never
+  /// kept waiting on the launch screen for an ad.
+  static const appOpenLoadTimeout = Duration(seconds: 3);
+
+  /// Floors the server may only widen: four hours between app-open ads, four
+  /// hours away before a return may show one, and a loaded ad is stale
+  /// (Google's guidance) four hours after it loaded.
+  static const appOpenMinGap = Duration(hours: 4);
+  static const appOpenResumeAfter = Duration(hours: 4);
+  static const appOpenExpiry = Duration(hours: 4);
+  static const appOpenMaxPerDay = 3;
+
+  /// The banner's thin frame and the gap that keeps it clear of any button.
+  static const bannerFrame = 1.0;
+  static const bannerLabelGap = 2.0;
+  static const bannerMaxWidth = 728.0;
+}
+
+/// Phase 109: awards, reactions, welcome-back, Founder badge.
+abstract final class FunTokens {
+  /// One medal card in the awards ribbon, and the medal on it.
+  static const double awardCardWidth = 104.0;
+  static const double awardCardHeight = 136.0;
+  static const double awardMedal = 56.0;
+  static const double awardGap = 8.0;
+  static const double awardStroke = 2.0;
+
+  /// Cards appear one after another; each lifts this far as it lands.
+  static const Duration awardStagger = Duration(milliseconds: 140);
+  static const Duration awardReveal = Duration(milliseconds: 420);
+  static const double awardLift = 12.0;
+
+  /// Restrained gold motes behind a revealed medal: few, faint, slow.
+  static const int particleCount = 9;
+  static const double particleOpacity = 0.5;
+  static const double particleSize = 2.5;
+  static const Duration particleCycle = Duration(milliseconds: 2600);
+
+  /// Skeleton cards while the awards load.
+  static const int skeletonCards = 3;
+  static const double skeletonOpacity = 0.35;
+
+  /// The eight reaction seals: in the bar, and floating over a seat.
+  static const double reactionSeal = 36.0;
+  static const double reactionFloat = 44.0;
+  static const double reactionRise = 72.0;
+  static const Duration reactionFloatDuration = Duration(milliseconds: 1600);
+
+  /// The client's side of the server's rate limit: a burst of three, then one
+  /// every 1.5 s.
+  static const Duration reactionInterval = Duration(milliseconds: 1500);
+  static const int reactionBurst = 3;
+
+  /// "We missed you" after this long away.
+  static const Duration welcomeBackAfter = Duration(hours: 20);
+  static const double welcomeArt = 72.0;
+
+  /// The Founder badge on the profile.
+  static const double founderBadge = 32.0;
+
+  /// Medal palette (the painted fallback): gold face, ribbon per award.
+  static const Color medalLight = Color(0xFFF1DFA8);
+  static const Color medalMid = Color(0xFFC9A45C);
+  static const Color medalDark = Color(0xFF7A5C26);
+  static const List<Color> ribbons = [
+    Color(0xFF9E1B2A), // mvp — oxblood
+    Color(0xFF2E4A6B), // sharp eye — ink blue
+    Color(0xFF6B4A8A), // silver tongue — plum
+    Color(0xFF7A2E1E), // first blood — rust
+    Color(0xFF2F5E47), // lifesaver — bottle green
+    Color(0xFF151316), // perfect crime — black
+    Color(0xFF8A6A2E), // survivor — candle amber
+  ];
+
+  /// Wax colours for the reaction seals' painted fallback.
+  static const List<Color> waxes = [
+    Color(0xFFB8862E),
+    Color(0xFF8E2A2A),
+    Color(0xFF4F5B66),
+    Color(0xFFA06A2C),
+    Color(0xFF9E1B2A),
+    Color(0xFF3B3540),
+    Color(0xFF5C3A24),
+    Color(0xFFC9A45C),
+  ];
+}

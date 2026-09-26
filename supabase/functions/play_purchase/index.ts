@@ -94,6 +94,10 @@ Deno.serve(handler(async (req, userId, db) => {
       if (message.includes("ACCOUNT_MISMATCH")) {
         return fail("ACCOUNT_MISMATCH", "purchase belongs to another account", 409);
       }
+      if (message.includes("OWNER_DELETED")) {
+        // Granted to an account since deleted; the grant went with it.
+        return fail("ACCOUNT_MISMATCH", "purchase belonged to a deleted account", 409);
+      }
       if (message.includes("PRODUCT_UNKNOWN")) {
         return fail("PRODUCT_UNKNOWN", "product is not sold here", 409);
       }

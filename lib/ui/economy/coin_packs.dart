@@ -379,7 +379,7 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
                               Expanded(
                                 child: p.pass
                                     ? Image.asset(
-                                        StoreArt.quietPass,
+                                        StoreArt.quietPassCover,
                                         cacheWidth: StoreTokens.frameDecodeWidth,
                                         excludeFromSemantics: true,
                                         errorBuilder: (_, _, _) =>

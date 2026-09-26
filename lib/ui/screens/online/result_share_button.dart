@@ -2,28 +2,39 @@ import 'dart:ui' as ui;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../engine/models/enums.dart' as game;
+import '../../economy/council.dart' show councilProvider;
+import '../../economy/council_art.dart' show rankTier, rankTitle;
+import '../../fun/award_ribbon.dart' show awardName, onlineAwardsProvider;
+import '../../fun/match_awards.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 
-class ResultShareButton extends StatefulWidget {
+class ResultShareButton extends ConsumerStatefulWidget {
   final game.Alignment winner;
   final int days;
+
+  /// Phase 109: the room whose awards (the sharer's own) go on the card. The
+  /// match is over when this button exists, and the card carries only this
+  /// player's awards and rank title — nobody else's role, nothing private.
+  final String? roomId;
 
   const ResultShareButton({
     super.key,
     required this.winner,
     required this.days,
+    this.roomId,
   });
 
   @override
-  State<ResultShareButton> createState() => _ResultShareButtonState();
+  ConsumerState<ResultShareButton> createState() => _ResultShareButtonState();
 }
 
-class _ResultShareButtonState extends State<ResultShareButton> {
+class _ResultShareButtonState extends ConsumerState<ResultShareButton> {
   bool _busy = false;
 
   Future<void> _share() async {
@@ -35,12 +46,26 @@ class _ResultShareButtonState extends State<ResultShareButton> {
           ? l10n.mafiaWins
           : l10n.townWins;
       final message = l10n.shareResultText(winner, widget.days);
+      final room = widget.roomId;
+      final awards = room == null
+          ? const OnlineAwards()
+          : ref.read(onlineAwardsProvider(room)).valueOrNull ??
+                const OnlineAwards();
+      final mine = [
+        for (final kind in AwardKind.values)
+          if (awards.mine.contains(kind)) awardName(l10n, kind),
+      ];
+      final rank = ref.read(councilProvider).valueOrNull?.rank;
       final bytes = await _cardPng(
         title: l10n.appTitle,
         winner: winner,
         days: widget.days,
         footer: 'almafia.vercel.app',
         rtl: Directionality.of(context) == TextDirection.rtl,
+        rank: rank != null && rank.enabled
+            ? rankTitle(l10n, rankTier(rank.level))
+            : null,
+        awards: mine.isEmpty ? null : l10n.shareCardAwards(mine.join(' · ')),
       );
       if (!mounted) return;
       final box = context.findRenderObject() as RenderBox?;
@@ -85,6 +110,8 @@ Future<Uint8List> _cardPng({
   required int days,
   required String footer,
   required bool rtl,
+  String? rank,
+  String? awards,
 }) async {
   const size = Size(ShareCardTokens.width, ShareCardTokens.height);
   final recorder = ui.PictureRecorder();
@@ -143,6 +170,22 @@ Future<Uint8List> _cardPng({
     ShareCardTokens.resultSize,
     ShareCardTokens.gold,
   );
+  if (rank != null) {
+    line(
+      rank,
+      size.height * 0.72,
+      ShareCardTokens.bodySize,
+      ShareCardTokens.gold,
+    );
+  }
+  if (awards != null) {
+    line(
+      awards,
+      size.height * 0.775,
+      ShareCardTokens.bodySize,
+      ShareCardTokens.headline,
+    );
+  }
   line(
     footer,
     size.height - ShareCardTokens.edge * 2,

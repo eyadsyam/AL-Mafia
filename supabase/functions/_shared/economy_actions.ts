@@ -14,6 +14,8 @@ const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const WEEK = /^\d{4}-W\d{2}$/;
 /** Invite codes: 7 characters from the room-code alphabet. */
 const INVITE = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{7}$/;
+/** The eight quick reactions (phase 109). */
+const REACTION = /^(laugh|shock|suspicious|applause|rose|skull|coffee|crown)$/;
 
 export type EconomyCall = { rpc: string; args: Record<string, unknown> };
 
@@ -78,6 +80,21 @@ export function economyCall(
         : action === "daily_spin" ? "spin_daily_wheel" : "create_daily_ad_claim";
       return { rpc, args: { p_user: userId, p_day: d } };
     }
+    // Phase 108: Ads v2 voluntary extras -------------------------------------------
+    case "extras_status":
+      return { rpc: "ad_extras_status", args: { p_user: userId } };
+    case "extra_claim": {
+      const d = day(body.day);
+      const kind = body.kind;
+      if (d === undefined) return null;
+      if (kind === "spin" || kind === "coffer") {
+        return { rpc: "create_ad_extra_claim", args: { p_user: userId, p_day: d, p_kind: kind, p_slot: null } };
+      }
+      const slot = body.slot;
+      return kind === "swap" && (slot === 0 || slot === 1 || slot === 2)
+        ? { rpc: "create_ad_extra_claim", args: { p_user: userId, p_day: d, p_kind: kind, p_slot: slot } }
+        : null;
+    }
     // Phase 107: Council Life ---------------------------------------------------
     case "contracts_get":
       return { rpc: "council_contracts", args: { p_user: userId } };
@@ -112,6 +129,15 @@ export function economyCall(
         ? { rpc: "redeem_council_invite", args: { p_user: userId, p_code: code } }
         : null;
     }
+    // Phase 109: awards, reactions, Founder badge ------------------------------
+    case "awards_get":
+      return room ? { rpc: "match_awards_get", args: { p_user: userId, p_room: room } } : null;
+    case "react":
+      return room && typeof body.kind === "string" && REACTION.test(body.kind)
+        ? { rpc: "send_room_reaction", args: { p_user: userId, p_room: room, p_kind: body.kind } }
+        : null;
+    case "fun_profile":
+      return { rpc: "fun_profile", args: { p_user: userId } };
     default:
       return null;
   }
@@ -124,6 +150,8 @@ export const ECONOMY_REFUSALS = [
   "REWARD_NOT_SYNCED", "REWARD_SCHEME_V2",
   "CONTRACT_INCOMPLETE", "WEEK_CHANGED", "WEEK_REQUIRED", "INVITE_SELF", "INVITE_EXPIRED",
   "INVITE_NOT_NEW", "INVITE_ALREADY", "INVITE_LOOP", "INVITE_LIMIT", "INVITE_RATE_LIMIT",
+  "REACTION_RATE_LIMIT", "REACTION_CLOSED", "REACTION_UNKNOWN", "NOT_MEMBER",
+  "EXTRA_NOT_READY",
 ] as const;
 
 export function refusalOf(message: string | undefined): string | null {

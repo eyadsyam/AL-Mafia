@@ -562,6 +562,42 @@ class SupabaseBackend implements OnlineBackend {
     return controller.stream;
   }
 
+  /// Phase 109 quick reactions. A channel per listener: it lives exactly as
+  /// long as the lobby or result screen that shows them. The select grant
+  /// carries the seat and never the user id; RLS admits members only.
+  @override
+  Stream<RoomReactionRow> reactions(String roomId) {
+    late final StreamController<RoomReactionRow> controller;
+    final channel = client.channel('reactions:$roomId')
+      ..onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'room_reactions',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'room_id',
+          value: roomId,
+        ),
+        callback: (payload) {
+          final row = payload.newRecord;
+          final id = row['id'];
+          final seat = row['seat'];
+          final kind = row['kind'];
+          if (id is! num || seat is! num || kind is! String) return;
+          if (!controller.isClosed) {
+            controller.add(
+              RoomReactionRow(id: id.toInt(), seat: seat.toInt(), kind: kind),
+            );
+          }
+        },
+      );
+    controller = StreamController<RoomReactionRow>.broadcast(
+      onListen: channel.subscribe,
+      onCancel: () => client.removeChannel(channel),
+    );
+    return controller.stream;
+  }
+
   @override
   Future<String?> whisperBody(String whisperId) async {
     final row = await _guarded(

@@ -10,6 +10,7 @@ import '../data/online_session_store.dart';
 import '../data/player_profile.dart';
 import '../engine/models/match_settings.dart';
 import '../platform/audio_director.dart';
+import '../ui/fun/welcome_back.dart';
 import '../ui/l10n_ext.dart';
 import '../ui/screens/admin/coin_review_screen.dart';
 import '../ui/screens/match_controller.dart';
@@ -231,6 +232,7 @@ GoRouter buildRouter(
             store: SupabaseConfig.isConfigured
                 ? const CoinStoreButton(compact: true)
                 : null,
+            banner: const WelcomeBackCard(),
           ),
         ),
       ),

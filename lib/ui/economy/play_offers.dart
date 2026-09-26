@@ -316,7 +316,7 @@ class _PlayOffersTabState extends ConsumerState<PlayOffersTab> {
           ),
         for (final (offer, listing) in pass)
           _OfferCard(
-            art: StoreArt.quietPass,
+            art: StoreArt.quietPassCover,
             artSize: DailyTokens.passArt,
             title: l.quietPassTitle,
             body: '${l.quietPassBody}\n\n${l.quietPassRefundRule}',

@@ -19,14 +19,16 @@ import 'economy_capabilities.dart';
 import 'mafia_coin.dart';
 
 /// What a contract asks, in the player's words.
-String contractName(AppLocalizations l, CouncilContract c) => switch (c.metric) {
-  'finish' => c.target <= 1 ? l.contractFinishOne : l.contractFinishMany(c.target),
-  'town' => l.contractTown,
-  'mafia' => l.contractMafia,
-  'win' => c.target <= 1 ? l.contractWinOne : l.contractWinMany(c.target),
-  'host' => l.contractHost,
-  _ => l.contractReunion,
-};
+String contractName(AppLocalizations l, CouncilContract c) =>
+    switch (c.metric) {
+      'finish' =>
+        c.target <= 1 ? l.contractFinishOne : l.contractFinishMany(c.target),
+      'town' => l.contractTown,
+      'mafia' => l.contractMafia,
+      'win' => c.target <= 1 ? l.contractWinOne : l.contractWinMany(c.target),
+      'host' => l.contractHost,
+      _ => l.contractReunion,
+    };
 
 String _refusal(AppLocalizations l, String? code) => switch (code) {
   'CONTRACT_INCOMPLETE' => l.contractIncomplete,
@@ -44,11 +46,10 @@ String _refusal(AppLocalizations l, String? code) => switch (code) {
 
 /// The newest word replaces the last: a second tap's answer never waits
 /// behind the first one's.
-void _say(BuildContext context, String message) => ScaffoldMessenger.maybeOf(
-  context,
-)
-  ?..hideCurrentSnackBar()
-  ..showSnackBar(SnackBar(content: Text(message)));
+void _say(BuildContext context, String message) =>
+    ScaffoldMessenger.maybeOf(context)
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
 
 /// Shows the celebration for any level the server has paid and nobody has
 /// celebrated yet. One sheet for the highest new level, with every coin.
@@ -86,10 +87,22 @@ class LevelUpSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Center(
-            child: RankEmblem(
-              level: level,
-              size: CouncilLifeTokens.emblemHero,
-              shimmer: true,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Light behind the crest, only once the art pass adds it.
+                const RasterOr(
+                  path: CouncilRaster.levelUpRays,
+                  width: CouncilLifeTokens.emblemHero,
+                  height: CouncilLifeTokens.emblemHero,
+                  fallback: SizedBox.shrink(),
+                ),
+                RankEmblem(
+                  level: level,
+                  size: CouncilLifeTokens.emblemHero,
+                  shimmer: true,
+                ),
+              ],
             ),
           ),
           SizedBox(height: s.md),
@@ -207,7 +220,10 @@ class _CouncilHubTabState extends ConsumerState<CouncilHubTab> {
     final controller = ref.read(councilProvider.notifier);
     return LayoutBuilder(
       builder: (context, box) {
-        final side = math.max(s.md, (box.maxWidth - DailyTokens.cardMaxWidth) / 2);
+        final side = math.max(
+          s.md,
+          (box.maxWidth - DailyTokens.cardMaxWidth) / 2,
+        );
         return RefreshIndicator(
           onRefresh: controller.refresh,
           child: ListView(
@@ -244,24 +260,28 @@ class _CouncilHubTabState extends ConsumerState<CouncilHubTab> {
   }
 }
 
-Widget _card(BuildContext context, List<Widget> children, {Key? key, bool lit = false}) =>
-    DecoratedBox(
-      key: key,
-      decoration: BoxDecoration(
-        color: context.colors.surfaceRaised,
-        borderRadius: BorderRadius.circular(context.radii.card),
-        border: Border.all(
-          color: lit ? context.colors.accentGold : context.colors.borderSubtle,
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(context.spacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: children,
-        ),
-      ),
-    );
+Widget _card(
+  BuildContext context,
+  List<Widget> children, {
+  Key? key,
+  bool lit = false,
+}) => DecoratedBox(
+  key: key,
+  decoration: BoxDecoration(
+    color: context.colors.surfaceRaised,
+    borderRadius: BorderRadius.circular(context.radii.card),
+    border: Border.all(
+      color: lit ? context.colors.accentGold : context.colors.borderSubtle,
+    ),
+  ),
+  child: Padding(
+    padding: EdgeInsets.all(context.spacing.md),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
+    ),
+  ),
+);
 
 Widget _title(BuildContext context, String text) => Semantics(
   header: true,
@@ -310,13 +330,20 @@ class _RankCard extends ConsumerWidget {
               children: [
                 Text(
                   l.councilRankTitle,
-                  style: context.typography.caption.copyWith(color: colors.textMuted),
+                  style: context.typography.caption.copyWith(
+                    color: colors.textMuted,
+                  ),
                 ),
                 Text(
                   rankTitle(l, rankTier(rank.level)),
-                  style: context.typography.title.copyWith(color: colors.accentGold),
+                  style: context.typography.title.copyWith(
+                    color: colors.accentGold,
+                  ),
                 ),
-                Text(l.councilLevel(rank.level), style: context.typography.bodySmall),
+                Text(
+                  l.councilLevel(rank.level),
+                  style: context.typography.bodySmall,
+                ),
               ],
             ),
           ),
@@ -329,14 +356,20 @@ class _RankCard extends ConsumerWidget {
         children: [
           Expanded(
             child: Text(
-              next == null ? l.councilMaxLevel : l.councilXpProgress(rank.xp, next),
-              style: context.typography.bodySmall.copyWith(color: colors.textSecondary),
+              next == null
+                  ? l.councilMaxLevel
+                  : l.councilXpProgress(rank.xp, next),
+              style: context.typography.bodySmall.copyWith(
+                color: colors.textSecondary,
+              ),
             ),
           ),
           if (rank.nextReward case final coins?)
             Text(
               l.councilNextLevel(coins),
-              style: context.typography.bodySmall.copyWith(color: colors.accentGold),
+              style: context.typography.bodySmall.copyWith(
+                color: colors.accentGold,
+              ),
             ),
         ],
       ),
@@ -409,7 +442,9 @@ class _ContractsCard extends StatelessWidget {
                     ? l.contractsBonusDone
                     : l.contractsBonus(contracts.bonusCoins),
                 style: context.typography.bodySmall.copyWith(
-                  color: contracts.bonusClaimed ? colors.accentGold : colors.textSecondary,
+                  color: contracts.bonusClaimed
+                      ? colors.accentGold
+                      : colors.textSecondary,
                 ),
               ),
             ),
@@ -600,6 +635,11 @@ class LeaderboardSheet extends ConsumerWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const RasterOr(
+                path: CouncilRaster.leaderboardHeader,
+                height: CouncilLifeTokens.emblemCard,
+                fallback: SizedBox.shrink(),
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: s.md),
                 child: _title(context, l.leaderboardTitle),
@@ -664,16 +704,32 @@ class _LeaderboardRow extends StatelessWidget {
     final colors = context.colors;
     return Container(
       key: LeaderboardSheet.rowKey(entry.position),
-      color: entry.me ? colors.accentGold.withValues(alpha: StoreTokens.badgeWash) : null,
+      color: entry.me
+          ? colors.accentGold.withValues(alpha: StoreTokens.badgeWash)
+          : null,
       padding: EdgeInsets.symmetric(horizontal: s.md, vertical: s.xs),
       child: Row(
         children: [
           SizedBox(
             width: CouncilLifeTokens.leaderboardAvatar,
-            child: Text(
-              '${entry.position}',
-              style: context.typography.title.copyWith(
-                color: entry.position <= 3 ? colors.accentGold : colors.textSecondary,
+            child: Semantics(
+              label: '${entry.position}',
+              child: ExcludeSemantics(
+                child: RasterOr(
+                  path: entry.position <= 3
+                      ? CouncilRaster.podium(entry.position)
+                      : null,
+                  width: CouncilLifeTokens.leaderboardAvatar,
+                  height: CouncilLifeTokens.leaderboardAvatar,
+                  fallback: Text(
+                    '${entry.position}',
+                    style: context.typography.title.copyWith(
+                      color: entry.position <= 3
+                          ? colors.accentGold
+                          : colors.textSecondary,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -687,8 +743,9 @@ class _LeaderboardRow extends StatelessWidget {
               cacheWidth: StoreTokens.frameDecodeWidth,
               fit: BoxFit.cover,
               excludeFromSemantics: true,
-              errorBuilder: (_, _, _) =>
-                  const SizedBox.square(dimension: CouncilLifeTokens.leaderboardAvatar),
+              errorBuilder: (_, _, _) => const SizedBox.square(
+                dimension: CouncilLifeTokens.leaderboardAvatar,
+              ),
             ),
           ),
           SizedBox(width: s.sm),
@@ -704,7 +761,9 @@ class _LeaderboardRow extends StatelessWidget {
           SizedBox(width: s.sm),
           Text(
             context.l10n.councilXpTotal(entry.xp),
-            style: context.typography.bodySmall.copyWith(color: colors.accentGold),
+            style: context.typography.bodySmall.copyWith(
+              color: colors.accentGold,
+            ),
           ),
         ],
       ),
@@ -737,7 +796,11 @@ class _LeaderboardVisibilitySwitchState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !ref.exists(economyCapabilitiesProvider)) return;
       final board =
-          ref.read(economyCapabilitiesProvider).valueOrNull?.council.leaderboard ??
+          ref
+              .read(economyCapabilitiesProvider)
+              .valueOrNull
+              ?.council
+              .leaderboard ??
           false;
       if (board && ref.read(councilProvider).valueOrNull == null) {
         ref.read(councilProvider.notifier).refresh();
@@ -760,7 +823,8 @@ class _LeaderboardVisibilitySwitchState
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    if (!ref.exists(economyCapabilitiesProvider)) return const SizedBox.shrink();
+    if (!ref.exists(economyCapabilitiesProvider))
+      return const SizedBox.shrink();
     final caps = ref.watch(economyCapabilitiesProvider).valueOrNull?.council;
     final rank = ref.watch(councilProvider).valueOrNull?.rank;
     if (!(caps?.leaderboard ?? false) || rank == null || !rank.enabled) {
@@ -811,7 +875,10 @@ class _InviteCardState extends ConsumerState<InviteCard> {
     try {
       final status = await ref.read(inviteProvider.notifier).redeem(code);
       if (!mounted) return;
-      _say(context, status == 'not_found' ? l.inviteNotFound : l.inviteRedeemed);
+      _say(
+        context,
+        status == 'not_found' ? l.inviteNotFound : l.inviteRedeemed,
+      );
       if (status != 'not_found') _field.clear();
     } on CouncilActionFailed catch (error) {
       if (mounted) _say(context, _refusal(l, error.code));
@@ -838,11 +905,18 @@ class _InviteCardState extends ConsumerState<InviteCard> {
     if (!status.enabled) return const SizedBox.shrink();
     final code = status.code ?? '';
     return _card(context, key: InviteCard.codeKey, [
+      const RasterOr(
+        path: CouncilRaster.inviteIllustration,
+        height: CouncilLifeTokens.emblemCard,
+        fallback: SizedBox.shrink(),
+      ),
       _title(context, l.inviteTitle),
       SizedBox(height: s.xs),
       Text(
         l.inviteBody(status.inviterCoins, status.inviteeCoins),
-        style: context.typography.bodySmall.copyWith(color: colors.textSecondary),
+        style: context.typography.bodySmall.copyWith(
+          color: colors.textSecondary,
+        ),
       ),
       SizedBox(height: s.sm),
       // An identifier in a Latin alphabet: always left to right.
@@ -854,7 +928,8 @@ class _InviteCardState extends ConsumerState<InviteCard> {
           style: context.typography.title.copyWith(
             color: colors.accentGold,
             fontSize:
-                (context.typography.title.fontSize ?? CouncilLifeTokens.emblemSeat) *
+                (context.typography.title.fontSize ??
+                    CouncilLifeTokens.emblemSeat) *
                 CouncilLifeTokens.inviteCodeScale,
           ),
         ),
@@ -871,7 +946,8 @@ class _InviteCardState extends ConsumerState<InviteCard> {
                 ? null
                 : () async {
                     final copied = await AppClipboard.copy(code);
-                    if (copied && context.mounted) _say(context, l.inviteCopied);
+                    if (copied && context.mounted)
+                      _say(context, l.inviteCopied);
                   },
             icon: const Icon(Icons.copy_rounded),
             label: Text(l.inviteCopy),
@@ -898,7 +974,9 @@ class _InviteCardState extends ConsumerState<InviteCard> {
         SizedBox(height: s.sm),
         Text(
           status.redeemedRewarded ? l.inviteRewarded : l.inviteRedeemed,
-          style: context.typography.bodySmall.copyWith(color: colors.accentGold),
+          style: context.typography.bodySmall.copyWith(
+            color: colors.accentGold,
+          ),
         ),
       ] else if (status.canRedeem) ...[
         SizedBox(height: s.md),
@@ -924,7 +1002,9 @@ class _InviteCardState extends ConsumerState<InviteCard> {
               listenable: _field,
               builder: (context, _) => FilledButton(
                 key: InviteCard.redeemKey,
-                onPressed: _busy || _field.text.trim().length != 7 ? null : _redeem,
+                onPressed: _busy || _field.text.trim().length != 7
+                    ? null
+                    : _redeem,
                 child: Text(l.inviteRedeem),
               ),
             ),
@@ -990,7 +1070,9 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
             after.rank.xp > before.rank.xp)
           l.resultXpGained(after.rank.xp - before.rank.xp),
         ...ready,
-        if (weekly != null && weekly.claimable && !(before?.contracts.weekly?.claimable ?? false))
+        if (weekly != null &&
+            weekly.claimable &&
+            !(before?.contracts.weekly?.claimable ?? false))
           l.resultWeeklyToast(weekly.coins),
       ];
       setState(() {
@@ -1021,7 +1103,8 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
               tween: Tween(begin: reduce ? 1 : 0, end: 1),
               duration: reduce
                   ? Duration.zero
-                  : context.motion.standard + CouncilLifeTokens.toastStagger * i,
+                  : context.motion.standard +
+                        CouncilLifeTokens.toastStagger * i,
               builder: (context, t, child) => Opacity(opacity: t, child: child),
               child: Padding(
                 padding: EdgeInsets.only(bottom: s.xs),
@@ -1032,7 +1115,10 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
                     border: Border.all(color: colors.accentGold),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: s.sm, vertical: s.xs),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: s.sm,
+                      vertical: s.xs,
+                    ),
                     child: Row(
                       children: [
                         const MafiaCoin(),
@@ -1040,7 +1126,10 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
                         Expanded(
                           child: Semantics(
                             liveRegion: true,
-                            child: Text(line, style: context.typography.bodySmall),
+                            child: Text(
+                              line,
+                              style: context.typography.bodySmall,
+                            ),
                           ),
                         ),
                       ],

@@ -1,13 +1,20 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../ui/theme/design_tokens.dart';
+import '../../ui/theme/mafia_theme.dart';
+import 'ad_formats.dart';
+import 'full_screen_away.dart';
 import 'interstitial_ads.dart';
 import 'rewarded_ads.dart';
 
 RewardedAds createRewardedAds() => GoogleRewardedAds();
 InterstitialAds createInterstitialAds() => GoogleInterstitialAds();
+AppOpenAds createAppOpenAds() => GoogleAppOpenAds();
+BannerAds createBannerAds() => const GoogleBannerAds();
 
 abstract final class _Units {
   static const enabled = bool.fromEnvironment('ADS_ENABLED');
@@ -19,10 +26,14 @@ abstract final class _Units {
   static const interstitial = String.fromEnvironment(
     'ADMOB_INTERSTITIAL_ANDROID_ID',
   );
+  static const appOpen = String.fromEnvironment('ADMOB_APP_OPEN_ANDROID_ID');
+  static const banner = String.fromEnvironment('ADMOB_BANNER_ANDROID_ID');
 
   // Google's documented sample units.
   static const testRewarded = 'ca-app-pub-3940256099942544/5224354917';
   static const testInterstitial = 'ca-app-pub-3940256099942544/1033173712';
+  static const testAppOpen = 'ca-app-pub-3940256099942544/9257395921';
+  static const testBanner = 'ca-app-pub-3940256099942544/9214589741';
 
   static bool get rewardedConfigured =>
       enabled && (testMode || rewarded.isNotEmpty);
@@ -37,6 +48,13 @@ abstract final class _Units {
 
   static String get interstitialUnit =>
       testMode ? testInterstitial : interstitial;
+
+  static bool get appOpenConfigured =>
+      enabled && (testMode || appOpen.isNotEmpty);
+  static bool get bannerConfigured =>
+      enabled && (testMode || banner.isNotEmpty);
+  static String get appOpenUnit => testMode ? testAppOpen : appOpen;
+  static String get bannerUnit => testMode ? testBanner : banner;
 }
 
 /// Consent and SDK start, shared by the rewarded offers and the interstitial.
@@ -75,7 +93,10 @@ class _AdsRuntime {
     } catch (_) {
       if (!done.isCompleted) done.complete();
     }
-    await done.future.timeout(MafiaTiming.adConsentInfoTimeout, onTimeout: () {});
+    await done.future.timeout(
+      MafiaTiming.adConsentInfoTimeout,
+      onTimeout: () {},
+    );
   }
 
   Future<void> refreshPrivacyRequirement() async {
@@ -276,6 +297,7 @@ class GoogleRewardedAds implements RewardedAds {
       },
     );
     try {
+      FullScreenAway.mark();
       await ad.show(onUserEarnedReward: (_, _) => earned = true);
     } catch (_) {
       ad.dispose();
@@ -380,6 +402,7 @@ class GoogleInterstitialAds implements InterstitialAds {
       },
     );
     try {
+      FullScreenAway.mark();
       await ad.show();
       return await finished.future.timeout(
         MafiaTiming.adShowTimeout,
@@ -400,5 +423,262 @@ class GoogleInterstitialAds implements InterstitialAds {
   void dispose() {
     _runtime.offConsentChanged(_discard);
     _discard();
+  }
+}
+
+/// Phase 108: the app-open ad. Loaded only under consent already given, only
+/// for the few seconds the launch screen may wait, and discarded if late.
+class GoogleAppOpenAds implements AppOpenAds {
+  _AdsRuntime get _runtime => _AdsRuntime.instance;
+  AppOpenAd? _ad;
+  bool _showing = false;
+  bool _listening = false;
+
+  @override
+  bool get configured => _Units.appOpenConfigured;
+
+  @override
+  Future<bool> canRequestAds() async {
+    if (!configured) return false;
+    // Never a consent form from an automatic ad.
+    if (!await _runtime.start(prompt: false)) return false;
+    return _runtime.canRequestNow();
+  }
+
+  @override
+  Future<int?> load(Duration timeout) async {
+    if (!configured || _showing) return null;
+    if (!_listening) {
+      _listening = true;
+      _runtime.onConsentChanged(discard);
+    }
+    discard();
+    final loaded = Completer<AppOpenAd?>();
+    try {
+      await AppOpenAd.load(
+        adUnitId: _Units.appOpenUnit,
+        request: const AdRequest(),
+        adLoadCallback: AppOpenAdLoadCallback(
+          onAdLoaded: (ad) {
+            // Late: the launch screen is gone and nobody will show it.
+            if (loaded.isCompleted) {
+              ad.dispose();
+            } else {
+              loaded.complete(ad);
+            }
+          },
+          onAdFailedToLoad: (_) {
+            if (!loaded.isCompleted) loaded.complete(null);
+          },
+        ),
+      );
+    } catch (_) {
+      if (!loaded.isCompleted) loaded.complete(null);
+    }
+    _ad = await loaded.future.timeout(
+      timeout,
+      onTimeout: () {
+        loaded.complete(null);
+        return null;
+      },
+    );
+    return _ad == null ? null : DateTime.now().millisecondsSinceEpoch;
+  }
+
+  @override
+  Future<bool> show() async {
+    final ad = _ad;
+    if (ad == null || _showing) return false;
+    _ad = null;
+    _showing = true;
+    final finished = Completer<bool>();
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (shown) {
+        shown.dispose();
+        if (!finished.isCompleted) finished.complete(true);
+      },
+      onAdFailedToShowFullScreenContent: (shown, _) {
+        shown.dispose();
+        if (!finished.isCompleted) finished.complete(false);
+      },
+    );
+    try {
+      await ad.show();
+      return await finished.future.timeout(
+        MafiaTiming.adShowTimeout,
+        onTimeout: () {
+          ad.dispose();
+          return false;
+        },
+      );
+    } catch (_) {
+      ad.dispose();
+      return false;
+    } finally {
+      _showing = false;
+    }
+  }
+
+  @override
+  void discard() {
+    _ad?.dispose();
+    _ad = null;
+  }
+}
+
+/// Phase 108: the anchored adaptive banner for waiting surfaces.
+class GoogleBannerAds implements BannerAds {
+  const GoogleBannerAds();
+
+  @override
+  bool get configured => _Units.bannerConfigured;
+
+  @override
+  Widget slot({Key? key, required String label, required double gap}) =>
+      configured
+      ? _BannerSlot(key: key, label: label, gap: gap)
+      : SizedBox.shrink(key: key);
+}
+
+class _BannerSlot extends StatefulWidget {
+  final String label;
+  final double gap;
+  const _BannerSlot({super.key, required this.label, required this.gap});
+
+  @override
+  State<_BannerSlot> createState() => _BannerSlotState();
+}
+
+class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
+  BannerAd? _ad;
+  bool _filled = false;
+  int? _width;
+  int _epoch = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _AdsRuntime.instance.onConsentChanged(_drop);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final width = MediaQuery.sizeOf(
+      context,
+    ).width.clamp(0, AdTokens.bannerMaxWidth).truncate();
+    if (width != _width) {
+      _width = width;
+      _load();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // No banner refreshes while the app is in the background; a new one is
+    // asked for on return. Voice and the mic are never touched.
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      _drop();
+    } else if (state == AppLifecycleState.resumed && _ad == null) {
+      _load();
+    }
+  }
+
+  void _drop() {
+    _epoch++;
+    _ad?.dispose();
+    _ad = null;
+    if (mounted && _filled) setState(() => _filled = false);
+  }
+
+  Future<void> _load() async {
+    _drop();
+    final epoch = _epoch;
+    final width = _width;
+    if (width == null || width <= 0) return;
+    try {
+      if (!await _AdsRuntime.instance.start(prompt: false)) return;
+      if (!await _AdsRuntime.instance.canRequestNow()) return;
+      if (!mounted || epoch != _epoch) return;
+      final size =
+          await AdSize.getLargeAnchoredAdaptiveBannerAdSizeWithOrientation(
+            MediaQuery.orientationOf(context),
+            width,
+          );
+      if (size == null || !mounted || epoch != _epoch) return;
+      final ad = BannerAd(
+        size: size,
+        adUnitId: _Units.bannerUnit,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (_) {
+            if (mounted && epoch == _epoch) setState(() => _filled = true);
+          },
+          onAdFailedToLoad: (failed, _) {
+            failed.dispose();
+            if (identical(_ad, failed)) _ad = null;
+            if (mounted && _filled) setState(() => _filled = false);
+          },
+        ),
+      );
+      _ad = ad;
+      await ad.load();
+    } catch (_) {
+      _drop();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _AdsRuntime.instance.offConsentChanged(_drop);
+    _epoch++;
+    _ad?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ad = _ad;
+    // No fill: nothing at all, so the surface never reserves an empty box.
+    if (!_filled || ad == null) return const SizedBox.shrink();
+    final colors = context.colors;
+    return Padding(
+      padding: EdgeInsets.only(top: widget.gap),
+      child: Semantics(
+        container: true,
+        label: widget.label,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.surfaceBase,
+            border: Border.all(
+              color: colors.borderSubtle,
+              width: AdTokens.bannerFrame,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: AdTokens.bannerLabelGap),
+                child: Text(
+                  widget.label,
+                  style: context.typography.caption.copyWith(
+                    color: colors.textMuted,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: ad.size.width.toDouble(),
+                height: ad.size.height.toDouble(),
+                child: AdWidget(ad: ad),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -1311,7 +1311,7 @@
     }
   },
   "termsBody": "1. Mafia Master is a party game for entertainment. Roles and outcomes are part of the game only.\n\n2. Online play, voice and public rooms are for people aged 16 or older.\n\n3. Abuse, harassment, threats, hate speech, sexual content and sharing anyone's private information are prohibited. You can report or block a player from the safety tools.\n\n4. Voice is optional and the game does not record audio. Other players hear what you say, and nobody can stop someone recording with another device.\n\n5. Mafia Coins are an in-game currency for unlocking cosmetic content only, such as frames, themes and narrator styles. They have no cash value, cannot be exchanged for money and never give an advantage in play, voting or roles.\n\n6. Buying coins with money is available on the website only. Transfers are reviewed manually and coins are added after the transfer is confirmed. Opening a payment link or a receipt screenshot is not proof of payment. A transfer that cannot be matched stays under review until it is resolved.\n\n7. We may remove a room or restrict a player who breaks these terms. You can request deletion of your data from Settings.\n\n8. If these terms change in an important way, we will ask for your agreement again before you continue.",
-  "privacySummaryBody": "• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you link an email to protect your coins, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads, and at most one automatic ad after a completed match. Google's ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. Website transfer orders record the amount, method and transfer reference for review.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: almafia.vercel.app/privacy",
+  "privacySummaryBody": "• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you link an email to protect your coins, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads; at most one automatic ad after a completed match; at most a few app-open ads a day on the launch screen (never on first launch or into a match); and small banners on waiting screens (lobby, room list, history, vault, profile) — never during play. The Quiet Pass removes all automatic ads. Google's ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. Website transfer orders record the amount, method and transfer reference for review.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: almafia.vercel.app/privacy",
   "termsUpdatedTitle": "Before you continue",
   "termsUpdatedHint": "Review and accept the terms once. Your profile and progress are kept.",
   "settingsLegalTitle": "Terms and privacy",
@@ -1961,7 +1961,7 @@
   "historyPlayReversal": "Google Play refund",
   "storeTabPlay": "Coins & pass",
   "quietPassTitle": "Quiet Pass",
-  "quietPassBody": "Permanent. Removes the automatic ad after matches. Optional reward ads stay available if you want them. No gameplay advantage.",
+  "quietPassBody": "Permanent. Removes every automatic ad: the app-open ad, the ad after matches and the waiting-room banners. Optional reward ads stay available if you want them. No gameplay advantage.",
   "quietPassOwned": "Quiet Pass active",
   "playPackTitle": "{coins} Council Coins",
   "@playPackTitle": {
@@ -2294,7 +2294,7 @@
     }
   },
   "webPassTitle": "Quiet Pass for the Android app",
-  "webPassBody": "The website shows no ads. The pass removes automatic interruptions in the Android app on this same linked account. Optional reward ads stay available.",
+  "webPassBody": "The website shows no ads. The pass removes every automatic ad in the Android app (app-open, after-match and banners) on this same linked account. Optional reward ads stay available.",
   "webPassOwned": "Quiet Pass active on this account",
   "coinOrderPassSummary": "Quiet Pass · EGP {price} · {method}",
   "@coinOrderPassSummary": {
@@ -2306,5 +2306,100 @@
         "type": "String"
       }
     }
-  }
+  },
+  "awardsTitle": "Match awards",
+  "awardMvp": "MVP",
+  "awardSharpEye": "Sharp Eye",
+  "awardSurvivor": "Survivor",
+  "awardSilverTongue": "Silver Tongue",
+  "awardLifesaver": "Lifesaver",
+  "awardPerfectCrime": "Perfect Crime",
+  "awardFirstBlood": "First Blood",
+  "awardMvpBody": "The winning side's standout",
+  "awardSharpEyeBody": "Most votes on the Mafia",
+  "awardSurvivorBody": "Still standing at the end",
+  "awardSilverTongueBody": "Brought the table along",
+  "awardLifesaverBody": "The Doctor's save held",
+  "awardPerfectCrimeBody": "The Mafia won untouched",
+  "awardFirstBloodBody": "First vote that caught the Mafia",
+  "awardsYouEarned": "Your awards: +{coins} coins",
+  "@awardsYouEarned": {"placeholders": {"coins": {"type": "int"}}},
+  "awardsLoading": "Counting the awards",
+  "reactionsLabel": "Reactions",
+  "reactionLaugh": "Laugh",
+  "reactionShock": "Shock",
+  "reactionSuspicious": "Suspicious",
+  "reactionApplause": "Applause",
+  "reactionRose": "Rose",
+  "reactionSkull": "Skull",
+  "reactionCoffee": "Coffee",
+  "reactionCrown": "Crown",
+  "reactionFrom": "{name}: {reaction}",
+  "@reactionFrom": {"placeholders": {"name": {"type": "String"}, "reaction": {"type": "String"}}},
+  "reactionSlowDown": "Easy, one at a time",
+  "welcomeBackTitle": "We missed you",
+  "welcomeBackBody": "Your daily coffer is waiting in the vault.",
+  "welcomeBackBodyPlain": "The table is ready when you are.",
+  "welcomeBackOpen": "Open the vault",
+  "welcomeBackDismiss": "Later",
+  "founderBadge": "Founder",
+  "founderBadgeBody": "One of the council's first players",
+  "shareCardAwards": "Awards: {awards}",
+  "@shareCardAwards": {"placeholders": {"awards": {"type": "String"}}},
+  "adBannerLabel": "Advertisement",
+  "adExtrasTitle": "Optional extras",
+  "adExtrasBody": "Each is one optional ad, once a day. Nothing here affects play.",
+  "adExtraSpinTitle": "Second spin",
+  "adExtraSpinBody": "After today's free spin: one more, same odds, drawn by the server.",
+  "adExtraSpinOdds": "Odds: {odds}",
+  "@adExtraSpinOdds": {
+    "placeholders": {
+      "odds": {
+        "type": "String"
+      }
+    }
+  },
+  "adExtraSpinAction": "Watch · spin again",
+  "adExtraSpinNotReady": "Spin today's free wheel first.",
+  "adExtraSpinResult": "Second spin: +{amount} coins.",
+  "@adExtraSpinResult": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "adExtraCofferTitle": "Double today's coffer",
+  "adExtraCofferAction": "Watch · +{amount}",
+  "@adExtraCofferAction": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "adExtraCofferNotReady": "Open today's coffer first.",
+  "adExtraCofferDone": "Coffer doubled: +{amount}",
+  "@adExtraCofferDone": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "adExtraSwapTitle": "Swap a contract",
+  "adExtraSwapBody": "Replace one of today's unclaimed contracts with another.",
+  "adExtraSwapAction": "Choose · watch",
+  "adExtraSwapPick": "Which contract to swap?",
+  "adExtraSwapSlot": "Contract {number}",
+  "@adExtraSwapSlot": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "adExtraSwapDone": "Contract swapped",
+  "adExtraNoneLeft": "Nothing to swap today.",
+  "adExtraUsed": "Used today"
 }

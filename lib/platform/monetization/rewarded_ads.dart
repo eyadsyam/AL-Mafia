@@ -24,6 +24,10 @@ enum RewardedPlacement {
 
   /// The one fixed daily vault ad (v2 unit when configured, else primary).
   daily,
+
+  /// Phase 108 voluntary extras: second spin, doubled coffer, contract swap
+  /// (v2 unit when configured, else primary).
+  extra,
 }
 
 abstract interface class RewardedAds {

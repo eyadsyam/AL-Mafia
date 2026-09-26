@@ -3827,7 +3827,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacySummaryBody.
   ///
   /// In en, this message translates to:
-  /// **'• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you link an email to protect your coins, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads, and at most one automatic ad after a completed match. Google\'s ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. Website transfer orders record the amount, method and transfer reference for review.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: almafia.vercel.app/privacy'**
+  /// **'• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you link an email to protect your coins, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads; at most one automatic ad after a completed match; at most a few app-open ads a day on the launch screen (never on first launch or into a match); and small banners on waiting screens (lobby, room list, history, vault, profile) — never during play. The Quiet Pass removes all automatic ads. Google\'s ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. Website transfer orders record the amount, method and transfer reference for review.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: almafia.vercel.app/privacy'**
   String get privacySummaryBody;
 
   /// No description provided for @termsUpdatedTitle.
@@ -5453,7 +5453,7 @@ abstract class AppLocalizations {
   /// No description provided for @quietPassBody.
   ///
   /// In en, this message translates to:
-  /// **'Permanent. Removes the automatic ad after matches. Optional reward ads stay available if you want them. No gameplay advantage.'**
+  /// **'Permanent. Removes every automatic ad: the app-open ad, the ad after matches and the waiting-room banners. Optional reward ads stay available if you want them. No gameplay advantage.'**
   String get quietPassBody;
 
   /// No description provided for @quietPassOwned.
@@ -6071,7 +6071,7 @@ abstract class AppLocalizations {
   /// No description provided for @webPassBody.
   ///
   /// In en, this message translates to:
-  /// **'The website shows no ads. The pass removes automatic interruptions in the Android app on this same linked account. Optional reward ads stay available.'**
+  /// **'The website shows no ads. The pass removes every automatic ad in the Android app (app-open, after-match and banners) on this same linked account. Optional reward ads stay available.'**
   String get webPassBody;
 
   /// No description provided for @webPassOwned.
@@ -6085,6 +6085,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Quiet Pass · EGP {price} · {method}'**
   String coinOrderPassSummary(String price, String method);
+
+  /// No description provided for @awardsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Match awards'**
+  String get awardsTitle;
+
+  /// No description provided for @awardMvp.
+  ///
+  /// In en, this message translates to:
+  /// **'MVP'**
+  String get awardMvp;
+
+  /// No description provided for @awardSharpEye.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharp Eye'**
+  String get awardSharpEye;
+
+  /// No description provided for @awardSurvivor.
+  ///
+  /// In en, this message translates to:
+  /// **'Survivor'**
+  String get awardSurvivor;
+
+  /// No description provided for @awardSilverTongue.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver Tongue'**
+  String get awardSilverTongue;
+
+  /// No description provided for @awardLifesaver.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifesaver'**
+  String get awardLifesaver;
+
+  /// No description provided for @awardPerfectCrime.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect Crime'**
+  String get awardPerfectCrime;
+
+  /// No description provided for @awardFirstBlood.
+  ///
+  /// In en, this message translates to:
+  /// **'First Blood'**
+  String get awardFirstBlood;
+
+  /// No description provided for @awardMvpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The winning side\'s standout'**
+  String get awardMvpBody;
+
+  /// No description provided for @awardSharpEyeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Most votes on the Mafia'**
+  String get awardSharpEyeBody;
+
+  /// No description provided for @awardSurvivorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Still standing at the end'**
+  String get awardSurvivorBody;
+
+  /// No description provided for @awardSilverTongueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Brought the table along'**
+  String get awardSilverTongueBody;
+
+  /// No description provided for @awardLifesaverBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Doctor\'s save held'**
+  String get awardLifesaverBody;
+
+  /// No description provided for @awardPerfectCrimeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Mafia won untouched'**
+  String get awardPerfectCrimeBody;
+
+  /// No description provided for @awardFirstBloodBody.
+  ///
+  /// In en, this message translates to:
+  /// **'First vote that caught the Mafia'**
+  String get awardFirstBloodBody;
+
+  /// No description provided for @awardsYouEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Your awards: +{coins} coins'**
+  String awardsYouEarned(int coins);
+
+  /// No description provided for @awardsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Counting the awards'**
+  String get awardsLoading;
+
+  /// No description provided for @reactionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get reactionsLabel;
+
+  /// No description provided for @reactionLaugh.
+  ///
+  /// In en, this message translates to:
+  /// **'Laugh'**
+  String get reactionLaugh;
+
+  /// No description provided for @reactionShock.
+  ///
+  /// In en, this message translates to:
+  /// **'Shock'**
+  String get reactionShock;
+
+  /// No description provided for @reactionSuspicious.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspicious'**
+  String get reactionSuspicious;
+
+  /// No description provided for @reactionApplause.
+  ///
+  /// In en, this message translates to:
+  /// **'Applause'**
+  String get reactionApplause;
+
+  /// No description provided for @reactionRose.
+  ///
+  /// In en, this message translates to:
+  /// **'Rose'**
+  String get reactionRose;
+
+  /// No description provided for @reactionSkull.
+  ///
+  /// In en, this message translates to:
+  /// **'Skull'**
+  String get reactionSkull;
+
+  /// No description provided for @reactionCoffee.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee'**
+  String get reactionCoffee;
+
+  /// No description provided for @reactionCrown.
+  ///
+  /// In en, this message translates to:
+  /// **'Crown'**
+  String get reactionCrown;
+
+  /// No description provided for @reactionFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {reaction}'**
+  String reactionFrom(String name, String reaction);
+
+  /// No description provided for @reactionSlowDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy, one at a time'**
+  String get reactionSlowDown;
+
+  /// No description provided for @welcomeBackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We missed you'**
+  String get welcomeBackTitle;
+
+  /// No description provided for @welcomeBackBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily coffer is waiting in the vault.'**
+  String get welcomeBackBody;
+
+  /// No description provided for @welcomeBackBodyPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'The table is ready when you are.'**
+  String get welcomeBackBodyPlain;
+
+  /// No description provided for @welcomeBackOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the vault'**
+  String get welcomeBackOpen;
+
+  /// No description provided for @welcomeBackDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get welcomeBackDismiss;
+
+  /// No description provided for @founderBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Founder'**
+  String get founderBadge;
+
+  /// No description provided for @founderBadgeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'One of the council\'s first players'**
+  String get founderBadgeBody;
+
+  /// No description provided for @shareCardAwards.
+  ///
+  /// In en, this message translates to:
+  /// **'Awards: {awards}'**
+  String shareCardAwards(String awards);
+
+  /// No description provided for @adBannerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Advertisement'**
+  String get adBannerLabel;
+
+  /// No description provided for @adExtrasTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional extras'**
+  String get adExtrasTitle;
+
+  /// No description provided for @adExtrasBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Each is one optional ad, once a day. Nothing here affects play.'**
+  String get adExtrasBody;
+
+  /// No description provided for @adExtraSpinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Second spin'**
+  String get adExtraSpinTitle;
+
+  /// No description provided for @adExtraSpinBody.
+  ///
+  /// In en, this message translates to:
+  /// **'After today\'s free spin: one more, same odds, drawn by the server.'**
+  String get adExtraSpinBody;
+
+  /// No description provided for @adExtraSpinOdds.
+  ///
+  /// In en, this message translates to:
+  /// **'Odds: {odds}'**
+  String adExtraSpinOdds(String odds);
+
+  /// No description provided for @adExtraSpinAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch · spin again'**
+  String get adExtraSpinAction;
+
+  /// No description provided for @adExtraSpinNotReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Spin today\'s free wheel first.'**
+  String get adExtraSpinNotReady;
+
+  /// No description provided for @adExtraSpinResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Second spin: +{amount} coins.'**
+  String adExtraSpinResult(int amount);
+
+  /// No description provided for @adExtraCofferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Double today\'s coffer'**
+  String get adExtraCofferTitle;
+
+  /// No description provided for @adExtraCofferAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch · +{amount}'**
+  String adExtraCofferAction(int amount);
+
+  /// No description provided for @adExtraCofferNotReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Open today\'s coffer first.'**
+  String get adExtraCofferNotReady;
+
+  /// No description provided for @adExtraCofferDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffer doubled: +{amount}'**
+  String adExtraCofferDone(int amount);
+
+  /// No description provided for @adExtraSwapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap a contract'**
+  String get adExtraSwapTitle;
+
+  /// No description provided for @adExtraSwapBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace one of today\'s unclaimed contracts with another.'**
+  String get adExtraSwapBody;
+
+  /// No description provided for @adExtraSwapAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose · watch'**
+  String get adExtraSwapAction;
+
+  /// No description provided for @adExtraSwapPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Which contract to swap?'**
+  String get adExtraSwapPick;
+
+  /// No description provided for @adExtraSwapSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Contract {number}'**
+  String adExtraSwapSlot(int number);
+
+  /// No description provided for @adExtraSwapDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Contract swapped'**
+  String get adExtraSwapDone;
+
+  /// No description provided for @adExtraNoneLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to swap today.'**
+  String get adExtraNoneLeft;
+
+  /// No description provided for @adExtraUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Used today'**
+  String get adExtraUsed;
 }
 
 class _AppLocalizationsDelegate

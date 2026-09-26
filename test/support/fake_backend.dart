@@ -291,6 +291,12 @@ class FakeBackend implements OnlineBackend {
   @override
   Stream<VoiceSignal> signals(String room) => _signals.stream;
 
+  /// Phase 109: reactions the test pushes as if another member sent them.
+  final reactionFeed = StreamController<RoomReactionRow>.broadcast();
+
+  @override
+  Stream<RoomReactionRow> reactions(String room) => reactionFeed.stream;
+
   /// Delivers one signal to the client under test, as the server would.
   void deliverSignal(VoiceSignal signal) => _signals.add(signal);
 

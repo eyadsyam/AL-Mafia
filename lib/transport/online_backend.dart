@@ -451,6 +451,20 @@ class GhostRow {
   });
 }
 
+/// One quick reaction (phase 109), as every member of the room receives it:
+/// a seat and a reaction code, never a user id.
+class RoomReactionRow {
+  final int id;
+  final int seat;
+  final String kind;
+
+  const RoomReactionRow({
+    required this.id,
+    required this.seat,
+    required this.kind,
+  });
+}
+
 /// A push from Realtime.
 ///
 /// Deltas are the happy path and snapshots are the recovery path (doc 10 §8.4),
@@ -622,6 +636,11 @@ abstract class OnlineBackend {
   /// where every player is on text mode is a room where nobody signals, and
   /// that is a working room.
   Stream<VoiceSignal> signals(String roomId);
+
+  /// Quick reactions sent in this room from now on (phase 109). The server
+  /// accepts them only in the lobby and on the result, so this stream is
+  /// silent through every match phase by construction.
+  Stream<RoomReactionRow> reactions(String roomId);
 
   Future<void> dispose();
 }

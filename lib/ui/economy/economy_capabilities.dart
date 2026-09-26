@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../transport/online_backend.dart';
 
+import '../../platform/monetization/app_open_policy.dart';
 import '../../platform/monetization/interstitial_policy.dart';
 import '../screens/online/online_session.dart';
 
@@ -67,6 +68,70 @@ class CouncilCapabilities {
   bool get hub => contracts || rank || invites;
 }
 
+/// Phase 109, each switched on by the server alone. An older server has no
+/// `fun` key: everything off.
+class FunCapabilities {
+  final bool awards;
+  final bool reactions;
+  final bool founder;
+
+  /// The server answers the phase-109 actions at all (it sent the key).
+  final bool known;
+  const FunCapabilities({
+    this.awards = false,
+    this.reactions = false,
+    this.founder = false,
+    this.known = false,
+  });
+
+  static const off = FunCapabilities();
+
+  factory FunCapabilities.fromJson(Object? json) {
+    if (json is! Map) return off;
+    return FunCapabilities(
+      awards: json['awards'] == true,
+      reactions: json['reactions'] == true,
+      founder: json['founder'] == true,
+      known: true,
+    );
+  }
+}
+
+/// Ads v2 (phase 108), each switched on by the server alone. Missing (an
+/// older server) is all off.
+class AdsCapabilities {
+  final AppOpenRules appOpen;
+  final bool banner;
+  final bool extraSpin;
+  final bool extraCoffer;
+  final bool extraSwap;
+  const AdsCapabilities({
+    this.appOpen = AppOpenRules.off,
+    this.banner = false,
+    this.extraSpin = false,
+    this.extraCoffer = false,
+    this.extraSwap = false,
+  });
+
+  static const off = AdsCapabilities();
+
+  factory AdsCapabilities.fromJson(Object? json) {
+    if (json is! Map) return off;
+    final banner = json['banner'];
+    final extras = json['extras'];
+    bool extra(String key) => extras is Map && extras[key] == true;
+    return AdsCapabilities(
+      appOpen: AppOpenRules.fromJson(json['appOpen']),
+      banner: banner is Map && banner['enabled'] == true,
+      extraSpin: extra('spin'),
+      extraCoffer: extra('coffer'),
+      extraSwap: extra('swap'),
+    );
+  }
+
+  bool get extras => extraSpin || extraCoffer || extraSwap;
+}
+
 /// What this server supports for 1.0.1, negotiated once per session.
 ///
 /// Every field defaults to off. A server without the 1.0.1 migration answers
@@ -83,6 +148,10 @@ class EconomyCapabilities {
   final InterstitialRules interstitial;
   final List<PlayProductOffer> products;
   final CouncilCapabilities council;
+  final AdsCapabilities ads;
+
+  /// Phase 109: awards, reactions, the Founder badge.
+  final FunCapabilities fun;
 
   /// Purchased coins still owed after an earlier refund; the next coin pack
   /// pays this first. Disclosed before Buy.
@@ -102,6 +171,8 @@ class EconomyCapabilities {
     this.interstitial = InterstitialRules.off,
     this.products = const [],
     this.council = CouncilCapabilities.off,
+    this.ads = AdsCapabilities.off,
+    this.fun = FunCapabilities.off,
     this.purchaseDebt = 0,
     this.failed = false,
   });
@@ -125,6 +196,8 @@ class EconomyCapabilities {
           : null,
       purchaseDebt: (json['purchaseDebt'] as num?)?.toInt() ?? 0,
       council: CouncilCapabilities.fromJson(json['council']),
+      ads: AdsCapabilities.fromJson(json['ads']),
+      fun: FunCapabilities.fromJson(json['fun']),
       interstitial: rules is Map
           ? InterstitialRules.fromJson(Map<String, dynamic>.from(rules))
           : InterstitialRules.off,

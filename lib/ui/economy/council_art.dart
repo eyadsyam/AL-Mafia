@@ -11,6 +11,96 @@ import 'mafia_coin.dart';
 /// badge to the celebration, and nothing to download. Public identity only —
 /// a rank is earned from matches that are over, and says nothing about a role.
 
+/// Raster art a later art pass may add (see the README in each folder). A
+/// file is used only once it is listed in [delivered]; until then, and
+/// whenever it fails to decode, the painting stands in, so a missing file
+/// never shows a blank or a broken image. council_raster_test keeps the list
+/// and the folders on disk in step.
+abstract final class CouncilRaster {
+  static const council = 'assets/images/council';
+  static const storeV3 = 'assets/images/store_v3';
+
+  static String rankTier(int tier) =>
+      '$council/rank_tier_${tier.clamp(1, 10).toString().padLeft(2, '0')}.webp';
+  static const levelUpRays = '$council/rank_levelup_rays.webp';
+  static const leaderboardHeader = '$council/leaderboard_header.webp';
+  static String podium(int position) =>
+      '$council/leaderboard_podium_$position.webp';
+  static const inviteIllustration = '$council/invite_illustration.webp';
+  static const inviteRewardBadge = '$council/invite_reward_badge.webp';
+
+  /// The six contract kinds, the weekly contract and the claimed mark.
+  static const contractKinds = {
+    'finish',
+    'town',
+    'mafia',
+    'win',
+    'host',
+    'reunion',
+    'weekly',
+    'bonus_all3',
+    'claimed_check',
+  };
+  static String? contract(String kind) =>
+      contractKinds.contains(kind) ? '$council/contract_$kind.webp' : null;
+
+  static const councilSeal = '$storeV3/frame_council_seal.webp';
+  static const starterBundle = '$storeV3/starter_bundle_cover.webp';
+  static const quietPass = '$storeV3/quiet_pass_cover.webp';
+  static const vaultHero = '$storeV3/vault_hero_v3.webp';
+
+  /// Coin pack covers by size: the smallest, middle and largest pack.
+  static String coinPack(int index) =>
+      '$storeV3/coins_pack_${const ['small', 'medium', 'large'][index.clamp(0, 2)]}.webp';
+
+  /// The files the art pass has delivered, by path. Empty until it lands.
+  static const delivered = <String>{};
+
+  static Set<String>? _override;
+
+  /// Whether this build bundles [path].
+  static bool has(String path) => (_override ?? delivered).contains(path);
+
+  /// Which files count as bundled, for tests.
+  @visibleForTesting
+  static set bundledForTest(Set<String>? paths) => _override = paths;
+}
+
+/// [path] when the build bundles it, else [fallback] (also on a decode
+/// failure). Decorative: never read by a screen reader.
+class RasterOr extends StatelessWidget {
+  final String? path;
+  final Widget fallback;
+  final double? width;
+  final double? height;
+  final BoxFit fit;
+  const RasterOr({
+    super.key,
+    required this.path,
+    required this.fallback,
+    this.width,
+    this.height,
+    this.fit = BoxFit.contain,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final asset = path;
+    if (asset == null || !CouncilRaster.has(asset)) return fallback;
+    final w = width;
+    final ratio = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;
+    return Image.asset(
+      asset,
+      width: width,
+      height: height,
+      fit: fit,
+      cacheWidth: w == null ? StoreTokens.decodeWidth : (w * ratio).ceil(),
+      excludeFromSemantics: true,
+      errorBuilder: (_, _, _) => fallback,
+    );
+  }
+}
+
 /// The tier a level belongs to: five levels each, 1–10.
 int rankTier(int level) => ((level.clamp(1, 50) - 1) ~/ 5) + 1;
 
@@ -85,7 +175,12 @@ class _RankEmblemState extends State<RankEmblem>
       child: ExcludeSemantics(
         child: RepaintBoundary(
           child: light == null
-              ? paint(-1)
+              ? RasterOr(
+                  path: CouncilRaster.rankTier(tier),
+                  width: widget.size,
+                  height: widget.size,
+                  fallback: paint(-1),
+                )
               : AnimatedBuilder(
                   animation: light,
                   builder: (context, _) => paint(light.value),
@@ -112,8 +207,18 @@ class RankEmblemPainter extends CustomPainter {
       ..moveTo(r.left + w * 0.5, r.top)
       ..lineTo(r.left + w * 0.92, r.top + h * 0.14)
       ..lineTo(r.left + w * 0.92, r.top + h * 0.5)
-      ..quadraticBezierTo(r.left + w * 0.9, r.top + h * 0.82, r.left + w * 0.5, r.bottom)
-      ..quadraticBezierTo(r.left + w * 0.1, r.top + h * 0.82, r.left + w * 0.08, r.top + h * 0.5)
+      ..quadraticBezierTo(
+        r.left + w * 0.9,
+        r.top + h * 0.82,
+        r.left + w * 0.5,
+        r.bottom,
+      )
+      ..quadraticBezierTo(
+        r.left + w * 0.1,
+        r.top + h * 0.82,
+        r.left + w * 0.08,
+        r.top + h * 0.5,
+      )
       ..lineTo(r.left + w * 0.08, r.top + h * 0.14)
       ..close();
   }
@@ -210,7 +315,12 @@ class RankEmblemPainter extends CustomPainter {
       }
     } else {
       // The Godfather's star.
-      _star(canvas, Offset(inner.center.dx, inner.top + inner.height * 0.7), inner.width * 0.18, trim);
+      _star(
+        canvas,
+        Offset(inner.center.dx, inner.top + inner.height * 0.7),
+        inner.width * 0.18,
+        trim,
+      );
     }
 
     if (obsidian) {
@@ -246,13 +356,16 @@ class RankEmblemPainter extends CustomPainter {
       canvas.drawRect(
         outer,
         Paint()
-          ..shader = const LinearGradient(
-            colors: [
-              Colors.transparent,
-              CouncilLifeTokens.highlight,
-              Colors.transparent,
-            ],
-          ).createShader(Rect.fromLTWH(x, outer.top, outer.width, outer.height)),
+          ..shader =
+              const LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  CouncilLifeTokens.highlight,
+                  Colors.transparent,
+                ],
+              ).createShader(
+                Rect.fromLTWH(x, outer.top, outer.width, outer.height),
+              ),
       );
       canvas.restore();
     }
@@ -263,12 +376,18 @@ class RankEmblemPainter extends CustomPainter {
     for (final side in [-1.0, 1.0]) {
       for (var i = 0; i < 2 + leaves; i++) {
         final a = math.pi / 2 + side * (0.5 + i * 0.32);
-        final c = Offset(s / 2, s * 0.52) + Offset(math.cos(a), math.sin(a)) * s * 0.44;
+        final c =
+            Offset(s / 2, s * 0.52) +
+            Offset(math.cos(a), math.sin(a)) * s * 0.44;
         canvas.save();
         canvas.translate(c.dx, c.dy);
         canvas.rotate(a + math.pi / 2);
         canvas.drawOval(
-          Rect.fromCenter(center: Offset.zero, width: s * 0.07, height: s * 0.15),
+          Rect.fromCenter(
+            center: Offset.zero,
+            width: s * 0.07,
+            height: s * 0.15,
+          ),
           paint,
         );
         canvas.restore();
@@ -328,14 +447,19 @@ class ContractIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-    child: CustomPaint(
-      size: Size.square(size),
-      painter: ContractIconPainter(
-        metric: metric,
-        ink: done
-            ? CouncilLifeTokens.tierMetal[5][0]
-            : CouncilLifeTokens.tierMetal[3][1],
-        ground: CouncilLifeTokens.field,
+    child: RasterOr(
+      path: CouncilRaster.contract(metric),
+      width: size,
+      height: size,
+      fallback: CustomPaint(
+        size: Size.square(size),
+        painter: ContractIconPainter(
+          metric: metric,
+          ink: done
+              ? CouncilLifeTokens.tierMetal[5][0]
+              : CouncilLifeTokens.tierMetal[3][1],
+          ground: CouncilLifeTokens.field,
+        ),
       ),
     ),
   );
@@ -520,6 +644,12 @@ class CouncilSealArt extends StatelessWidget {
       ),
     ),
   );
+
+  /// The frame's product picture: the raster when bundled, else the seal.
+  static Widget product() => const RasterOr(
+    path: CouncilRaster.councilSeal,
+    fallback: CouncilSealArt(),
+  );
 }
 
 class _SealPainter extends CustomPainter {
@@ -541,7 +671,12 @@ class StarterBundleArt extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SizedBox.square(
     dimension: size,
-    child: CouncilSealArt(centre: MafiaCoin(size: size / 2)),
+    child: RasterOr(
+      path: CouncilRaster.starterBundle,
+      width: size,
+      height: size,
+      fallback: CouncilSealArt(centre: MafiaCoin(size: size / 2)),
+    ),
   );
 }
 
@@ -603,9 +738,19 @@ class _CoinBurstState extends State<CoinBurst>
                     Transform.translate(
                       offset:
                           Offset(
-                            math.cos(i * 2 * math.pi / CouncilLifeTokens.burstCoins),
-                            math.sin(i * 2 * math.pi / CouncilLifeTokens.burstCoins),
-                          ) *
+                                math.cos(
+                                  i *
+                                      2 *
+                                      math.pi /
+                                      CouncilLifeTokens.burstCoins,
+                                ),
+                                math.sin(
+                                  i *
+                                      2 *
+                                      math.pi /
+                                      CouncilLifeTokens.burstCoins,
+                                ),
+                              ) *
                               CouncilLifeTokens.burstReach *
                               t -
                           const Offset(
@@ -614,7 +759,9 @@ class _CoinBurstState extends State<CoinBurst>
                           ),
                       child: Opacity(
                         opacity: 1 - _run.value,
-                        child: const MafiaCoin(size: CouncilLifeTokens.burstCoin),
+                        child: const MafiaCoin(
+                          size: CouncilLifeTokens.burstCoin,
+                        ),
                       ),
                     ),
                 ],

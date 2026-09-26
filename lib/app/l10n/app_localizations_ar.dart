@@ -2121,7 +2121,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get privacySummaryBody =>
-      '• اللعبة بتستخدم معرّف مجهول للأونلاين، ومش محتاجة رقم تليفون ولا تاريخ ميلاد عشان تلعب.\n\n• اسمك في اللعبة ونوع الصورة بيظهروا للاعبين معاك في الأوضة.\n\n• الصوت اختياري ومشفّر أثناء النقل، واللعبة ما بتسجّلهوش.\n\n• لو ربطت حسابك بإيميل عشان تحمي عملاتك، الإيميل بيستخدم لاستعادة الحساب بس.\n\n• نسخة أندرويد فيها إعلانات Google AdMob: إعلانات مكافأة اختيارية، وإعلان تلقائي واحد بالكتير بعد ماتش مكتمل. مكتبة إعلانات Google بتجمع عنوان الإنترنت والتفاعل وبيانات الأعطال ومعرّفات الجهاز زي Advertising ID.\n\n• الشراء في نسخة Play بيتم عن طريق Google Play Billing، وبنحتفظ برقم الطلب والمنتج ورمز الشراء عشان نتحقق منه. طلبات التحويل على الموقع بتتسجل بالمبلغ والوسيلة ورقم العملية للمراجعة.\n\n• الأوض المنتهية بتتمسح بشكل دوري، وتقدر تطلب مسح بياناتك من الإعدادات.\n\n• رتبة المجلس وترتيب الأسبوع: مستواك بيظهر على كرسيك، واسمك في اللعبة ونوع الصورة والإطار ومستواك ونقط خبرة الأسبوع ممكن يظهروا في ترتيب الأسبوع العام. تقدر تخفي نفسك من الترتيب من صفحة البروفايل. سجل الماتشات اللي وراهم بيتحفظ 21 يوم.\n\nالسياسة الكاملة: almafia.vercel.app/privacy';
+      '• اللعبة بتستخدم معرّف مجهول للأونلاين، ومش محتاجة رقم تليفون ولا تاريخ ميلاد عشان تلعب.\n\n• اسمك في اللعبة ونوع الصورة بيظهروا للاعبين معاك في الأوضة.\n\n• الصوت اختياري ومشفّر أثناء النقل، واللعبة ما بتسجّلهوش.\n\n• لو ربطت حسابك بإيميل عشان تحمي عملاتك، الإيميل بيستخدم لاستعادة الحساب بس.\n\n• نسخة أندرويد فيها إعلانات Google AdMob: إعلانات مكافأة اختيارية؛ وإعلان تلقائي واحد بالكتير بعد ماتش مكتمل؛ وعدد قليل بالكتير من إعلانات الفتح في اليوم على شاشة البداية (أبدًا مش أول مرة تفتح اللعبة ولا وإنت داخل ماتش)؛ وبانرات صغيرة في شاشات الانتظار (اللوبي، قايمة الأوض، السجل، الخزنة، البروفايل) — أبدًا مش أثناء اللعب. ممر الهدوء بيشيل كل الإعلانات التلقائية. مكتبة إعلانات Google بتجمع عنوان الإنترنت والتفاعل وبيانات الأعطال ومعرّفات الجهاز زي Advertising ID.\n\n• الشراء في نسخة Play بيتم عن طريق Google Play Billing، وبنحتفظ برقم الطلب والمنتج ورمز الشراء عشان نتحقق منه. طلبات التحويل على الموقع بتتسجل بالمبلغ والوسيلة ورقم العملية للمراجعة.\n\n• الأوض المنتهية بتتمسح بشكل دوري، وتقدر تطلب مسح بياناتك من الإعدادات.\n\n• رتبة المجلس وترتيب الأسبوع: مستواك بيظهر على كرسيك، واسمك في اللعبة ونوع الصورة والإطار ومستواك ونقط خبرة الأسبوع ممكن يظهروا في ترتيب الأسبوع العام. تقدر تخفي نفسك من الترتيب من صفحة البروفايل. سجل الماتشات اللي وراهم بيتحفظ 21 يوم.\n\nالسياسة الكاملة: almafia.vercel.app/privacy';
 
   @override
   String get termsUpdatedTitle => 'قبل ما تكمل';
@@ -3081,7 +3081,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get quietPassBody =>
-      'دائم. بيشيل الإعلان التلقائي بعد الماتشات. إعلانات المكافأة الاختيارية بتفضل موجودة لو عايزها. مفيش أي ميزة في اللعب.';
+      'دائم. بيشيل كل الإعلانات التلقائية: إعلان الفتح، والإعلان بعد الماتشات، وبانرات شاشات الانتظار. إعلانات المكافأة الاختيارية بتفضل موجودة لو عايزها. مفيش أي ميزة في اللعب.';
 
   @override
   String get quietPassOwned => 'ممر الهدوء مفعّل';
@@ -3462,7 +3462,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get webPassBody =>
-      'الموقع مفيهوش إعلانات. الممر بيشيل الإعلانات التلقائية في تطبيق أندرويد على نفس الحساب المربوط. إعلانات المكافأة الاختيارية بتفضل موجودة.';
+      'الموقع مفيهوش إعلانات. الممر بيشيل كل الإعلانات التلقائية في تطبيق أندرويد (إعلان الفتح، وبعد الماتش، والبانرات) على نفس الحساب المربوط. إعلانات المكافأة الاختيارية بتفضل موجودة.';
 
   @override
   String get webPassOwned => 'ممر الهدوء شغال على الحساب ده';
@@ -3471,4 +3471,194 @@ class AppLocalizationsAr extends AppLocalizations {
   String coinOrderPassSummary(String price, String method) {
     return 'ممر الهدوء · $price جنيه · $method';
   }
+
+  @override
+  String get awardsTitle => 'جوايز الماتش';
+
+  @override
+  String get awardMvp => 'نجم الماتش';
+
+  @override
+  String get awardSharpEye => 'العين الحادة';
+
+  @override
+  String get awardSurvivor => 'الناجي';
+
+  @override
+  String get awardSilverTongue => 'اللسان الذهبي';
+
+  @override
+  String get awardLifesaver => 'المنقذ';
+
+  @override
+  String get awardPerfectCrime => 'الجريمة الكاملة';
+
+  @override
+  String get awardFirstBlood => 'أول كشف';
+
+  @override
+  String get awardMvpBody => 'أحسن لاعب في الفريق الكسبان';
+
+  @override
+  String get awardSharpEyeBody => 'أكتر واحد صوّت على المافيا';
+
+  @override
+  String get awardSurvivorBody => 'فضل لحد الآخر';
+
+  @override
+  String get awardSilverTongueBody => 'أقنع الترابيزة معاه';
+
+  @override
+  String get awardLifesaverBody => 'الدكتور أنقذ حد';
+
+  @override
+  String get awardPerfectCrimeBody => 'المافيا كسبت من غير ما حد يتكشف';
+
+  @override
+  String get awardFirstBloodBody => 'أول صوت كشف المافيا';
+
+  @override
+  String awardsYouEarned(int coins) {
+    return 'جوايزك: +$coins عملة';
+  }
+
+  @override
+  String get awardsLoading => 'بنحسب الجوايز';
+
+  @override
+  String get reactionsLabel => 'ريأكشنز';
+
+  @override
+  String get reactionLaugh => 'ضحك';
+
+  @override
+  String get reactionShock => 'صدمة';
+
+  @override
+  String get reactionSuspicious => 'شاكك';
+
+  @override
+  String get reactionApplause => 'تسقيف';
+
+  @override
+  String get reactionRose => 'وردة';
+
+  @override
+  String get reactionSkull => 'جمجمة';
+
+  @override
+  String get reactionCoffee => 'قهوة';
+
+  @override
+  String get reactionCrown => 'تاج';
+
+  @override
+  String reactionFrom(String name, String reaction) {
+    return '$name: $reaction';
+  }
+
+  @override
+  String get reactionSlowDown => 'بالراحة، واحدة واحدة';
+
+  @override
+  String get welcomeBackTitle => 'وحشتنا';
+
+  @override
+  String get welcomeBackBody => 'صندوقك اليومي مستنيك في الخزنة.';
+
+  @override
+  String get welcomeBackBodyPlain => 'الترابيزة جاهزة وقت ما تحب.';
+
+  @override
+  String get welcomeBackOpen => 'افتح الخزنة';
+
+  @override
+  String get welcomeBackDismiss => 'بعدين';
+
+  @override
+  String get founderBadge => 'مؤسس';
+
+  @override
+  String get founderBadgeBody => 'من أوائل لاعبين المجلس';
+
+  @override
+  String shareCardAwards(String awards) {
+    return 'الجوايز: $awards';
+  }
+
+  @override
+  String get adBannerLabel => 'إعلان';
+
+  @override
+  String get adExtrasTitle => 'إضافات اختيارية';
+
+  @override
+  String get adExtrasBody =>
+      'كل واحدة إعلان اختياري واحد، مرة في اليوم. مفيش حاجة هنا بتأثر على اللعب.';
+
+  @override
+  String get adExtraSpinTitle => 'لفة تانية';
+
+  @override
+  String get adExtraSpinBody =>
+      'بعد لفة النهارده المجانية: لفة كمان، بنفس الاحتمالات، والسيرفر هو اللي بيختار.';
+
+  @override
+  String adExtraSpinOdds(String odds) {
+    return 'الاحتمالات: $odds';
+  }
+
+  @override
+  String get adExtraSpinAction => 'اتفرج · لف تاني';
+
+  @override
+  String get adExtraSpinNotReady => 'لف العجلة المجانية بتاعة النهارده الأول.';
+
+  @override
+  String adExtraSpinResult(int amount) {
+    return 'اللفة التانية: +$amount عملة.';
+  }
+
+  @override
+  String get adExtraCofferTitle => 'ضاعف خزنة النهارده';
+
+  @override
+  String adExtraCofferAction(int amount) {
+    return 'اتفرج · +$amount';
+  }
+
+  @override
+  String get adExtraCofferNotReady => 'افتح خزنة النهارده الأول.';
+
+  @override
+  String adExtraCofferDone(int amount) {
+    return 'الخزنة اتضاعفت: +$amount';
+  }
+
+  @override
+  String get adExtraSwapTitle => 'بدّل عقد';
+
+  @override
+  String get adExtraSwapBody =>
+      'بدّل عقد من عقود النهارده اللي لسه ما خدتش مكافأته بعقد تاني.';
+
+  @override
+  String get adExtraSwapAction => 'اختار · اتفرج';
+
+  @override
+  String get adExtraSwapPick => 'تبدّل أنهي عقد؟';
+
+  @override
+  String adExtraSwapSlot(int number) {
+    return 'العقد $number';
+  }
+
+  @override
+  String get adExtraSwapDone => 'العقد اتبدّل';
+
+  @override
+  String get adExtraNoneLeft => 'مفيش حاجة تتبدّل النهارده.';
+
+  @override
+  String get adExtraUsed => 'اتستخدمت النهارده';
 }

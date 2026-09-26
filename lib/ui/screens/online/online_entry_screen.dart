@@ -25,6 +25,7 @@ import '../setup/profile_screen.dart';
 import 'online_session.dart';
 import 'room_settings_panel.dart';
 import 'safety_center.dart';
+import '../../economy/waiting_banner.dart';
 
 /// Public rooms are the front door; identity belongs to the saved profile.
 ///
@@ -403,9 +404,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                     gender: profile.gender,
                                     onEdit: state.busy
                                         ? null
-                                        : () => setState(
-                                            () => _editing = true,
-                                          ),
+                                        : () => setState(() => _editing = true),
                                   ),
                                   SizedBox(height: s.md),
                                   // The two ways in, at equal width: create
@@ -648,6 +647,16 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                         : () => _enter(code: room.code),
                                   );
                                 },
+                              ),
+                            ),
+                            // Phase 108: after the room list, never in the
+                            // create panel beside its button.
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: s.screenMargin,
+                                ),
+                                child: const WaitingBanner(),
                               ),
                             ),
                           ],

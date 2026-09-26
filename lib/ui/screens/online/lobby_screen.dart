@@ -30,6 +30,8 @@ import '../setup/coin_store.dart';
 import '../../theme/design_tokens.dart';
 import '../../widgets/player_avatar.dart';
 import 'council/council_band.dart';
+import 'council/council_geometry.dart';
+import '../../fun/reactions.dart';
 import 'host_handover.dart';
 import '../../widgets/voice_mic_button.dart';
 import 'host_sheet.dart';
@@ -38,6 +40,7 @@ import 'scene_sheet.dart';
 import 'council/seat_status.dart';
 import 'table/table_pulse.dart';
 import 'table/table_scene.dart';
+import '../../economy/waiting_banner.dart';
 
 /// S-21 — the room, before it is a match (doc 12 §3.1).
 ///
@@ -474,28 +477,37 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                             const BandDivider(),
                             Expanded(
                               flex: CouncilTokens.councilFlex,
-                              child: TablePulse(
-                                child: CouncilBand(
-                                  seats: _chairs(
-                                    players,
-                                    snapshot,
-                                    speakingLevels:
-                                        voice?.speakingLevels ?? const {},
+                              // Phase 109: a reaction rises from its sender's
+                              // chair. The lobby is before any role exists.
+                              child: ReactionScope(
+                                roomId: session.room?.roomId,
+                                backend: session.transport?.backend,
+                                open: reactionsOpen(snapshot?.phase),
+                                anchor: (seat, size) =>
+                                    _chairCentre(players, snapshot, seat, size),
+                                child: TablePulse(
+                                  child: CouncilBand(
+                                    seats: _chairs(
+                                      players,
+                                      snapshot,
+                                      speakingLevels:
+                                          voice?.speakingLevels ?? const {},
+                                    ),
+                                    totalPlayers: math.max(
+                                      snapshot?.room.maxPlayers ??
+                                          LobbyScreen.defaultCapacity,
+                                      players.length,
+                                    ),
+                                    joinProgress: {
+                                      for (final seat in _arriving)
+                                        seat: _join.value,
+                                    },
+                                    leftLabel: l10n.onlineLeftRoom,
+                                    onSeatInspect: isHost && snapshot != null
+                                        ? (seat) =>
+                                              setState(() => _inspect = seat)
+                                        : null,
                                   ),
-                                  totalPlayers: math.max(
-                                    snapshot?.room.maxPlayers ??
-                                        LobbyScreen.defaultCapacity,
-                                    players.length,
-                                  ),
-                                  joinProgress: {
-                                    for (final seat in _arriving)
-                                      seat: _join.value,
-                                  },
-                                  leftLabel: l10n.onlineLeftRoom,
-                                  onSeatInspect: isHost && snapshot != null
-                                      ? (seat) =>
-                                            setState(() => _inspect = seat)
-                                      : null,
                                 ),
                               ),
                             ),
@@ -595,6 +607,16 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
+                                    // Phase 109: quick reactions, lobby only.
+                                    if (session.room?.roomId != null &&
+                                        session.transport?.backend != null)
+                                      Center(
+                                        child: ReactionBar(
+                                          roomId: session.room!.roomId,
+                                          backend: session.transport!.backend,
+                                          open: reactionsOpen(snapshot?.phase),
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -690,6 +712,10 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                       ),
                     ),
                   ),
+                  // Phase 108: the waiting room is a waiting surface. Below
+                  // the hints, never beside the start button; zero size
+                  // unless switched on and filled.
+                  const WaitingBanner(),
                 ],
               ),
             ),
@@ -755,6 +781,28 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
   /// The lobby is before any role exists, so "who has dropped" cannot correlate
   /// with anything; every other table state routes the question through
   /// `TableMood.showsPerSeatStatus`, which refuses it for the whole night.
+  /// Where [seat]'s chair sits inside the council band, by the band's own
+  /// geometry — the same chairs, in the same order, as [_chairs] draws.
+  Offset? _chairCentre(
+    List<PublicPlayer> players,
+    GameSnapshot? snapshot,
+    int seat,
+    Size size,
+  ) {
+    final chairs = _chairs(players, snapshot);
+    final index = chairs.indexWhere((c) => c.seat == seat);
+    if (index < 0) return null;
+    final layout = CouncilGeometry.layout(
+      size: size,
+      seatCount: chairs.length,
+      totalPlayers: math.max(
+        snapshot?.room.maxPlayers ?? LobbyScreen.defaultCapacity,
+        players.length,
+      ),
+    );
+    return index < layout.length ? layout[index].centre : null;
+  }
+
   List<CouncilSeatData> _chairs(
     List<PublicPlayer> players,
     GameSnapshot? snapshot, {

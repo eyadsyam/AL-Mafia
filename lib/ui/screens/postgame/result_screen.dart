@@ -6,6 +6,8 @@ import '../../l10n_ext.dart';
 import '../../../app/asset_constants.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/textured_surface.dart';
+import '../../fun/award_ribbon.dart';
+import '../../fun/match_awards.dart';
 
 /// A single row in the result table showing a player's role and status.
 class ResultRow {
@@ -68,6 +70,10 @@ class ResultScreen extends StatelessWidget {
   /// platitude. An absent seat here is a correct result and not a gap to fill.
   final Map<int, List<CoachingNote>> coaching;
 
+  /// Phase 109: the finished match's awards (`localMatchAwards`). Empty hides
+  /// the ribbon. Safe here for the same reason the roles are: it is over.
+  final List<MatchAward> awards;
+
   const ResultScreen({
     super.key,
     required this.winner,
@@ -75,6 +81,7 @@ class ResultScreen extends StatelessWidget {
     this.onAnalytics,
     required this.onHome,
     this.coaching = const {},
+    this.awards = const [],
   });
 
   /// Key on the «كان ممكن» block for a given seat.
@@ -189,6 +196,7 @@ class ResultScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: spacing.lg),
+                    if (awards.isNotEmpty) AwardRibbon(awards: awards),
 
                     // Player roles table
                     Expanded(

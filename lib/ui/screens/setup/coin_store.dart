@@ -22,6 +22,7 @@ import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/settings_kit.dart';
+import '../../economy/waiting_banner.dart';
 
 /// Opens the store over the current screen. Reachable from Home, Settings and
 /// an out-of-match lobby only: never from inside a match.
@@ -297,6 +298,9 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
             Expanded(
               child: TabBarView(children: [for (final tab in tabs) tab.$2]),
             ),
+            // Phase 108: vault browse is a waiting surface; zero size unless
+            // switched on and filled.
+            const SafeArea(top: false, child: WaitingBanner()),
           ],
         ),
       ),
@@ -474,7 +478,7 @@ class _VaultHero extends StatelessWidget {
             Transform.flip(
               flipX: ltr,
               child: Image.asset(
-                StoreArt.hero,
+                StoreArt.heroCover,
                 fit: BoxFit.cover,
                 excludeFromSemantics: true,
                 errorBuilder: (_, _, _) =>

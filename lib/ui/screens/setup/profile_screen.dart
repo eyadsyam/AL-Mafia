@@ -1,3 +1,4 @@
+import '../../fun/founder_badge.dart';
 import '../../widgets/setup_entrance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,7 @@ import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
 import '../../widgets/profile_identity.dart';
+import '../../economy/waiting_banner.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final VoidCallback? onSaved;
@@ -102,6 +104,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           child: BackAction(onPressed: widget.onBack!),
                         ),
                       ),
+                    // Phase 108: only when editing (never the first-run
+                    // profile), at the top, far from the Save button.
+                    if (widget.onBack != null) const WaitingBanner(),
                     Expanded(
                       child: SingleChildScrollView(
                         padding: EdgeInsets.all(s.screenMargin),
@@ -132,6 +137,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               style: context.typography.body,
                               textAlign: TextAlign.center,
                             ),
+                            // Phase 109: the permanent Founder badge, once
+                            // earned. Editing only, like the banner above.
+                            if (widget.onBack != null)
+                              Padding(
+                                padding: EdgeInsets.only(top: s.sm),
+                                child: const Center(child: FounderBadge()),
+                              ),
                             SizedBox(height: s.lg),
                             ProfileIdentityFields(
                               name: _name,

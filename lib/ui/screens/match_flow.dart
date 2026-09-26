@@ -23,6 +23,8 @@ import 'online/table/table_scene.dart' show tableIsAvailableFor;
 import 'night/morning_screen.dart';
 import 'night/night_action_screen.dart';
 import 'postgame/result_screen.dart';
+import '../../transport/local_transport.dart' show LocalTransport;
+import '../fun/match_awards.dart' show localMatchAwards;
 import 'setup/group_follow_up.dart';
 import '../widgets/cinematic_text.dart';
 import '../widgets/connection_banner.dart';
@@ -643,6 +645,13 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         // has not been written to this device's database, so the autopsy would
         // open on nothing.
         onAnalytics: snapshot.analyticsAvailable ? widget.onAnalytics : null,
+        // Phase 109. Pass-and-play only: this device holds the finished log.
+        // Online the awards come from the server on the online result.
+        awards: switch (_controller.transport) {
+          final LocalTransport local when local.engine.hasMatch =>
+            localMatchAwards(local.engine.match),
+          _ => const [],
+        },
         // Not a branch on the transport: `leave()` on a session that holds no
         // room does nothing, so an offline match pays nothing here. Online it
         // is what stops the heartbeat, the channel and the voice link of a

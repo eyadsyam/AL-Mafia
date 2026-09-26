@@ -8,6 +8,7 @@ import '../../../data/repository_types.dart';
 import '../../../engine/models/enums.dart' as engine;
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
+import '../../economy/waiting_banner.dart';
 
 /// Finished matches, newest first (S-16).
 ///
@@ -143,6 +144,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           tooltip: l10n.back,
         ),
       ),
+      // Phase 108: history is a waiting surface; zero size unless switched
+      // on and filled.
+      bottomNavigationBar: const SafeArea(top: false, child: WaitingBanner()),
       body: Builder(
         builder: (context) {
           final summaries = _summaries;

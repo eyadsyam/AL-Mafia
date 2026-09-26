@@ -2175,7 +2175,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacySummaryBody =>
-      '• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you link an email to protect your coins, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads, and at most one automatic ad after a completed match. Google\'s ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. Website transfer orders record the amount, method and transfer reference for review.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: almafia.vercel.app/privacy';
+      '• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you link an email to protect your coins, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads; at most one automatic ad after a completed match; at most a few app-open ads a day on the launch screen (never on first launch or into a match); and small banners on waiting screens (lobby, room list, history, vault, profile) — never during play. The Quiet Pass removes all automatic ads. Google\'s ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. Website transfer orders record the amount, method and transfer reference for review.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: almafia.vercel.app/privacy';
 
   @override
   String get termsUpdatedTitle => 'Before you continue';
@@ -3152,7 +3152,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quietPassBody =>
-      'Permanent. Removes the automatic ad after matches. Optional reward ads stay available if you want them. No gameplay advantage.';
+      'Permanent. Removes every automatic ad: the app-open ad, the ad after matches and the waiting-room banners. Optional reward ads stay available if you want them. No gameplay advantage.';
 
   @override
   String get quietPassOwned => 'Quiet Pass active';
@@ -3536,7 +3536,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webPassBody =>
-      'The website shows no ads. The pass removes automatic interruptions in the Android app on this same linked account. Optional reward ads stay available.';
+      'The website shows no ads. The pass removes every automatic ad in the Android app (app-open, after-match and banners) on this same linked account. Optional reward ads stay available.';
 
   @override
   String get webPassOwned => 'Quiet Pass active on this account';
@@ -3545,4 +3545,194 @@ class AppLocalizationsEn extends AppLocalizations {
   String coinOrderPassSummary(String price, String method) {
     return 'Quiet Pass · EGP $price · $method';
   }
+
+  @override
+  String get awardsTitle => 'Match awards';
+
+  @override
+  String get awardMvp => 'MVP';
+
+  @override
+  String get awardSharpEye => 'Sharp Eye';
+
+  @override
+  String get awardSurvivor => 'Survivor';
+
+  @override
+  String get awardSilverTongue => 'Silver Tongue';
+
+  @override
+  String get awardLifesaver => 'Lifesaver';
+
+  @override
+  String get awardPerfectCrime => 'Perfect Crime';
+
+  @override
+  String get awardFirstBlood => 'First Blood';
+
+  @override
+  String get awardMvpBody => 'The winning side\'s standout';
+
+  @override
+  String get awardSharpEyeBody => 'Most votes on the Mafia';
+
+  @override
+  String get awardSurvivorBody => 'Still standing at the end';
+
+  @override
+  String get awardSilverTongueBody => 'Brought the table along';
+
+  @override
+  String get awardLifesaverBody => 'The Doctor\'s save held';
+
+  @override
+  String get awardPerfectCrimeBody => 'The Mafia won untouched';
+
+  @override
+  String get awardFirstBloodBody => 'First vote that caught the Mafia';
+
+  @override
+  String awardsYouEarned(int coins) {
+    return 'Your awards: +$coins coins';
+  }
+
+  @override
+  String get awardsLoading => 'Counting the awards';
+
+  @override
+  String get reactionsLabel => 'Reactions';
+
+  @override
+  String get reactionLaugh => 'Laugh';
+
+  @override
+  String get reactionShock => 'Shock';
+
+  @override
+  String get reactionSuspicious => 'Suspicious';
+
+  @override
+  String get reactionApplause => 'Applause';
+
+  @override
+  String get reactionRose => 'Rose';
+
+  @override
+  String get reactionSkull => 'Skull';
+
+  @override
+  String get reactionCoffee => 'Coffee';
+
+  @override
+  String get reactionCrown => 'Crown';
+
+  @override
+  String reactionFrom(String name, String reaction) {
+    return '$name: $reaction';
+  }
+
+  @override
+  String get reactionSlowDown => 'Easy, one at a time';
+
+  @override
+  String get welcomeBackTitle => 'We missed you';
+
+  @override
+  String get welcomeBackBody => 'Your daily coffer is waiting in the vault.';
+
+  @override
+  String get welcomeBackBodyPlain => 'The table is ready when you are.';
+
+  @override
+  String get welcomeBackOpen => 'Open the vault';
+
+  @override
+  String get welcomeBackDismiss => 'Later';
+
+  @override
+  String get founderBadge => 'Founder';
+
+  @override
+  String get founderBadgeBody => 'One of the council\'s first players';
+
+  @override
+  String shareCardAwards(String awards) {
+    return 'Awards: $awards';
+  }
+
+  @override
+  String get adBannerLabel => 'Advertisement';
+
+  @override
+  String get adExtrasTitle => 'Optional extras';
+
+  @override
+  String get adExtrasBody =>
+      'Each is one optional ad, once a day. Nothing here affects play.';
+
+  @override
+  String get adExtraSpinTitle => 'Second spin';
+
+  @override
+  String get adExtraSpinBody =>
+      'After today\'s free spin: one more, same odds, drawn by the server.';
+
+  @override
+  String adExtraSpinOdds(String odds) {
+    return 'Odds: $odds';
+  }
+
+  @override
+  String get adExtraSpinAction => 'Watch · spin again';
+
+  @override
+  String get adExtraSpinNotReady => 'Spin today\'s free wheel first.';
+
+  @override
+  String adExtraSpinResult(int amount) {
+    return 'Second spin: +$amount coins.';
+  }
+
+  @override
+  String get adExtraCofferTitle => 'Double today\'s coffer';
+
+  @override
+  String adExtraCofferAction(int amount) {
+    return 'Watch · +$amount';
+  }
+
+  @override
+  String get adExtraCofferNotReady => 'Open today\'s coffer first.';
+
+  @override
+  String adExtraCofferDone(int amount) {
+    return 'Coffer doubled: +$amount';
+  }
+
+  @override
+  String get adExtraSwapTitle => 'Swap a contract';
+
+  @override
+  String get adExtraSwapBody =>
+      'Replace one of today\'s unclaimed contracts with another.';
+
+  @override
+  String get adExtraSwapAction => 'Choose · watch';
+
+  @override
+  String get adExtraSwapPick => 'Which contract to swap?';
+
+  @override
+  String adExtraSwapSlot(int number) {
+    return 'Contract $number';
+  }
+
+  @override
+  String get adExtraSwapDone => 'Contract swapped';
+
+  @override
+  String get adExtraNoneLeft => 'Nothing to swap today.';
+
+  @override
+  String get adExtraUsed => 'Used today';
 }

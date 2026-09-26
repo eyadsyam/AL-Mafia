@@ -10,6 +10,7 @@
  *   <uuid>        1.0.0 one-ad claim            → commit_ad_reward
  *   s2:<uuid>     1.0.1 post-match step claim   → commit_ad_step_v2
  *   d1:<uuid>     1.0.1 daily vault ad claim    → commit_daily_ad
+ *   x1:<uuid>     1.0.1 ads v2 voluntary extra  → commit_ad_extra
  */
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -17,12 +18,13 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const isUuid = (value: string | null): value is string =>
   value !== null && UUID.test(value);
 
-export type RewardScheme = "v1" | "step" | "daily";
+export type RewardScheme = "v1" | "step" | "daily" | "extra";
 
 export const COMMIT_RPC: Record<RewardScheme, string> = {
   v1: "commit_ad_reward",
   step: "commit_ad_step_v2",
   daily: "commit_daily_ad",
+  extra: "commit_ad_extra",
 };
 
 /** The numeric unit id AdMob puts in `ad_unit`: the part after the slash. */
@@ -54,6 +56,9 @@ export function routeReward(
     claimId = customData.slice(3);
   } else if (customData.startsWith("d1:")) {
     scheme = "daily";
+    claimId = customData.slice(3);
+  } else if (customData.startsWith("x1:")) {
+    scheme = "extra";
     claimId = customData.slice(3);
   } else {
     scheme = "v1";

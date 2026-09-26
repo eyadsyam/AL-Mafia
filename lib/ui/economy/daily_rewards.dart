@@ -9,11 +9,13 @@ import '../../platform/monetization/rewarded_ads.dart';
 import '../../transport/online_backend.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
-import '../screens/online/rewarded_reward_button.dart' show showRewardedSilenced;
+import '../screens/online/rewarded_reward_button.dart'
+    show showRewardedSilenced;
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import 'economy_capabilities.dart';
 import 'mafia_coin.dart';
+import 'ad_extras.dart';
 import 'reward_poll.dart';
 import 'store_art.dart';
 import 'wallet.dart';
@@ -380,8 +382,7 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
                 children: [
                   Text(l.dailyFailed, style: context.typography.body),
                   TextButton(
-                    onPressed: () =>
-                        ref.read(dailyProvider.notifier).refresh(),
+                    onPressed: () => ref.read(dailyProvider.notifier).refresh(),
                     child: Text(l.videoRetry),
                   ),
                 ],
@@ -411,6 +412,12 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
             if (adsOffered) ...[
               SizedBox(height: s.md),
               _adCard(context, status),
+            ],
+            // Phase 108: the optional extras, each switched on by the
+            // server; a zero-size box otherwise.
+            if (caps?.ads.extras ?? false) ...[
+              SizedBox(height: s.md),
+              const AdExtrasPanel(),
             ],
             SizedBox(height: s.md),
             Text(
@@ -463,9 +470,8 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
             height: DailyTokens.cofferArt,
             cacheWidth: StoreTokens.frameDecodeWidth,
             excludeFromSemantics: true,
-            errorBuilder: (_, _, _) => const MafiaCoin(
-              size: DailyTokens.cofferArt / 2,
-            ),
+            errorBuilder: (_, _, _) =>
+                const MafiaCoin(size: DailyTokens.cofferArt / 2),
           ),
           SizedBox(width: s.md),
           Expanded(
@@ -764,7 +770,8 @@ class WheelPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = DailyTokens.wheelRim / 2;
       canvas.drawArc(rect, geometry.starts[i], geometry.sweeps[i], true, edge);
-      if (geometry.sweeps[i] * 180 / math.pi >= DailyTokens.minLabelSweepDegrees) {
+      if (geometry.sweeps[i] * 180 / math.pi >=
+          DailyTokens.minLabelSweepDegrees) {
         final mid = geometry.starts[i] + geometry.sweeps[i] / 2;
         final painter = TextPainter(
           text: TextSpan(

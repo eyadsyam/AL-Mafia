@@ -39,9 +39,26 @@ or build logs containing credentials.
   connection; ≥10 min between interstitials, ≥3 min after any rewarded ad,
   ≤3/day; preloaded-or-skip. Server off switch and caps. Owners of the Quiet
   Pass get none.
+- **App-open (automatic, phase 108, OFF by default).** Only while the branded
+  launch screen is up: cold start, or a return after ≥4 h in the background.
+  Never on first launch, before onboarding + terms, into an online room / live
+  match / pass-and-play game / purchase, or right after another full-screen
+  ad or the Play purchase sheet. Loaded within 3 s or skipped; an ad is
+  discarded 4 h after load; ≤3/day (server may lower), ≥4 h apart. Needs
+  consent that allows ad requests (never shows a consent form itself).
+- **Banner (automatic, phase 108, OFF by default).** Anchored adaptive, labelled
+  «إعلان»/"Advertisement", on waiting surfaces only (online lobby, online room
+  list, match history, vault, profile edit). Never on role reveal, night/day/
+  vote/discussion, pass-the-phone screens, dialogs or beside primary buttons
+  (enforced by `test/unit/banner_placement_test.dart`); zero height with no
+  fill; dropped while the app is in the background.
+- **Rewarded extras (optional, phase 108, OFF by default).** From the vault,
+  outside a match, each once per UTC day: a second wheel spin (same published
+  odds, server-drawn), doubling today's coffer, swapping one unclaimed daily
+  contract. Credited only after the signed SSV callback (`x1:` claims).
 - **Play Billing** (off until the owner activates products): permanent
-  `mm_remove_interruptions` («ممر الهدوء» / Quiet Pass, removes automatic ads
-  only) and consumable Council Coins packs `mm_coins_500`, `mm_coins_1200`,
+  `mm_remove_interruptions` («ممر الهدوء» / Quiet Pass, removes every automatic
+  ad: app-open, interstitial and banners; rewarded ads stay optional) and consumable Council Coins packs `mm_coins_500`, `mm_coins_1200`,
   `mm_coins_2500`. Prices are set in Console; the app shows Play's localized
   price only. Coins are cosmetic-only and non-transferable.
 - **Daily rewards** (free, no purchase): coffer +20/day, wheel once per UTC day
@@ -101,6 +118,11 @@ fraud prevention); in-app purchases declared once products are active.
    same `admob_ssv` URL; set `ADMOB_REWARDED_ANDROID_ID` (+ optional
    `ADMOB_REWARDED_V2_ANDROID_ID`) function secrets; add the interstitial id to
    `dart_defines.json`. Register a test device before any live ad view.
+   Phase 108: app-open unit `…/9527218766` (`ADMOB_APP_OPEN_ANDROID_ID`) and
+   banner unit `…/3131088967` (`ADMOB_BANNER_ANDROID_ID`) are in the local
+   `dart_defines.json`; the rewarded extras use the second rewarded unit, so its
+   SSV callback must point at `admob_ssv` as well. In Console → Ads, the new
+   formats need no new Data safety category (same Mobile Ads SDK).
 3. **Play products:** create `mm_remove_interruptions` (one-time, non-consumable),
    `mm_coins_500/1200/2500` (one-time, consumable, multi-quantity OFF); set
    prices (owner range for the pass 150–200 EGP); link the Play service account

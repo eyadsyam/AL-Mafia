@@ -56,6 +56,10 @@ class HomeScreen extends ConsumerWidget {
   /// The store's corner control, or null where the build has no server.
   final Widget? store;
 
+  /// Phase 109: a gentle card above the title (the «وحشتنا» welcome-back),
+  /// or null. It sizes itself to nothing when it has nothing to say.
+  final Widget? banner;
+
   /// Where the parallax gets its readings. Overridden in tests, and in any
   /// environment with no accelerometer this is what it falls back to.
   final TiltSource tiltSource;
@@ -68,6 +72,7 @@ class HomeScreen extends ConsumerWidget {
     required this.onHowToPlay,
     this.onProfile,
     this.store,
+    this.banner,
     this.tiltSource = defaultTiltSource,
   });
 
@@ -215,6 +220,7 @@ class HomeScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              ?banner,
               Text(
                 l10n.appTitle,
                 style: type.display.copyWith(color: colors.textPrimary),

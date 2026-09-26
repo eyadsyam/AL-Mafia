@@ -12,8 +12,24 @@ abstract final class StoreArt {
 
   /// Council Coins pack art for a Play coins product (`mm_coins_500` →
   /// `coins_500`).
-  static String? forPlayProduct(String productId) =>
-      productId.startsWith('mm_') ? forCode(productId.substring(3)) : null;
+  /// A store_v3 cover replaces it once the build bundles one.
+  static String? forPlayProduct(String productId) {
+    if (!productId.startsWith('mm_')) return null;
+    final code = productId.substring(3);
+    final size = const ['coins_500', 'coins_1200', 'coins_2500'].indexOf(code);
+    if (size >= 0 && CouncilRaster.has(CouncilRaster.coinPack(size))) {
+      return CouncilRaster.coinPack(size);
+    }
+    return forCode(code);
+  }
+
+  /// The store_v3 covers when bundled, else the ones above.
+  static String get quietPassCover => CouncilRaster.has(CouncilRaster.quietPass)
+      ? CouncilRaster.quietPass
+      : quietPass;
+  static String get heroCover => CouncilRaster.has(CouncilRaster.vaultHero)
+      ? CouncilRaster.vaultHero
+      : hero;
   static const codes = {
     'frame_gilded',
     'frame_crimson',
@@ -46,7 +62,7 @@ class StoreProductArt extends StatelessWidget {
   Widget build(BuildContext context) {
     // Drawn in code, not an image: the Starter Bundle's frame.
     if (code == 'frame_council_seal') {
-      return const RepaintBoundary(child: CouncilSealArt());
+      return RepaintBoundary(child: CouncilSealArt.product());
     }
     final asset = StoreArt.forCode(code);
     return RepaintBoundary(

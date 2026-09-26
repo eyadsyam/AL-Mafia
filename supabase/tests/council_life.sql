@@ -661,13 +661,70 @@ begin
   end;
 end $$;
 
+-- C14. Deletion never gives back the invite cap; an orphaned bundle is refused
+do $$
+declare a uuid; x uuid; y uuid; z uuid; u uuid; v uuid; code text; req uuid; s jsonb;
+begin
+  begin
+    perform pg_temp.cl_enable();
+    update economy_config set council_invite_cap=1;
+    a := pg_temp.cl_user('30 days'); x := pg_temp.cl_user(); y := pg_temp.cl_user();
+    z := pg_temp.cl_user();
+    code := public.council_invite(a)->>'code';
+    perform public.redeem_council_invite(x, code);
+    perform pg_temp.cl_match(x);
+    perform public.council_invite(x);
+    assert (public.council_invite(a)->>'rewarded')::int=1, 'first invite unpaid';
+    -- Deleted through the request path: the row stays, detached, still paid.
+    insert into data_deletion_requests(user_id) values(x) returning id into req;
+    perform public.complete_data_deletion(req);
+    assert not exists(select 1 from council_invite_redemptions where invitee=x), 'invitee id kept';
+    assert (select count(*) from council_invite_redemptions where inviter=a and inviter_paid and detached)=1,
+      'detached row lost';
+    assert (public.council_invite(a)->>'rewarded')::int=1, 'cap count dropped after deletion';
+    begin perform public.redeem_council_invite(y, code); assert false;
+    exception when others then assert sqlerrm='INVITE_LIMIT', 'after deletion: '||sqlerrm; end;
+    -- Purged as an orphan: the same.
+    update economy_config set council_invite_cap=2;
+    perform public.redeem_council_invite(z, code);
+    perform pg_temp.cl_match(z);
+    perform public.council_invite(z);
+    delete from rooms where id in (select room_id from room_players where user_id=z);
+    delete from auth.users where id=z;
+    perform public.purge_orphan_economy();
+    perform public.purge_orphan_economy();
+    assert (public.council_invite(a)->>'rewarded')::int=2, 'cap count dropped after purge';
+    assert (public.council_invite(a)->>'pending')::int=0, 'detached row pending';
+    begin perform public.redeem_council_invite(y, code); assert false;
+    exception when others then assert sqlerrm='INVITE_LIMIT', 'after purge: '||sqlerrm; end;
+    assert (select count(*) from wallet_ledger where user_id=a and kind='council_invite_inviter')=2,
+      'inviter paid past cap';
+    -- A bundle granted to an account since deleted is refused plainly, never
+    -- answered granted:true with nothing given.
+    update play_products set active=true where product_id='mm_starter_bundle';
+    u := pg_temp.cl_user(); v := pg_temp.cl_user();
+    s := public.commit_play_product(u,'cl-orphan-bundle-token','mm_starter_bundle','GPA.O1','active',now(),1,public.account_tag(u));
+    assert (s->>'granted')::boolean, 'bundle not granted: '||s::text;
+    insert into data_deletion_requests(user_id) values(u) returning id into req;
+    perform public.complete_data_deletion(req);
+    assert (select user_id from play_purchases where purchase_token='cl-orphan-bundle-token') is null, 'owner kept';
+    begin
+      perform public.commit_play_product(v,'cl-orphan-bundle-token','mm_starter_bundle','GPA.O1','active',now(),1,public.account_tag(v));
+      assert false, 'orphaned bundle answered';
+    exception when others then assert sqlerrm='OWNER_DELETED', 'orphan: '||sqlerrm; end;
+    assert pg_temp.cl_balance(v)=0 and not exists(select 1 from player_inventory where user_id=v), 'orphan granted';
+    raise exception 'GATE_OK';
+  exception when assert_failure or others then perform pg_temp.cl_record('C14 deletion keeps invite cap; orphan bundle', sqlerrm);
+  end;
+end $$;
+
 -- Report ----------------------------------------------------------------
 do $$
 declare failed text;
 begin
   select string_agg(gate||' => '||detail, ' | ' order by gate) into failed
     from cl_results where not ok;
-  if (select count(*) from cl_results) <> 13 then
+  if (select count(*) from cl_results) <> 14 then
     raise exception 'COUNCIL GATES INCOMPLETE: % recorded', (select count(*) from cl_results);
   end if;
   if failed is not null then raise exception 'COUNCIL GATES FAILED: %', failed; end if;
