@@ -169,8 +169,7 @@ const List<_Slot> _slots = [
   ),
 ];
 
-class _CardSpreadState extends State<CardSpread>
-    with TickerProviderStateMixin {
+class _CardSpreadState extends State<CardSpread> with TickerProviderStateMixin {
   /// The four faces, shuffled into the four slots for this visit.
   ///
   /// A fresh deal every time the home screen is built. The positions, angles,
@@ -218,7 +217,10 @@ class _CardSpreadState extends State<CardSpread>
   @override
   void initState() {
     super.initState();
-    _deal = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
+    _deal = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
     _flip = AnimationController(vsync: this, duration: Duration.zero);
     _idle = createTicker((elapsed) {
       _seconds.value = elapsed.inMicroseconds / 1e6;
@@ -408,13 +410,18 @@ class _SpreadCard extends StatelessWidget {
         final t = entrance.value;
 
         // Off-stage start, easing to the resting slot.
-        final flyIn = Offset(
-          slot.from.dx * stage.width * 0.8,
-          slot.from.dy * stage.height * 0.8,
-        ) * (1 - t);
+        final flyIn =
+            Offset(
+              slot.from.dx * stage.width * 0.8,
+              slot.from.dy * stage.height * 0.8,
+            ) *
+            (1 - t);
 
         final phase = (idleSeconds.value / slot.floatPeriod) + slot.floatPhase;
-        final float = Offset(0, math.sin(phase * 2 * math.pi) * _floatAmplitude);
+        final float = Offset(
+          0,
+          math.sin(phase * 2 * math.pi) * _floatAmplitude,
+        );
 
         final parallax = Offset(
           tilt.x * _parallaxThrow * slot.depth,
@@ -477,11 +484,11 @@ class _Face extends StatelessWidget {
   const _Face({required this.role, required this.flip, required this.depth});
 
   String _asset(Role role) => switch (role) {
-        Role.mafia => AppGallery.galleryMafia,
-        Role.doctor => AppGallery.galleryDoctor,
-        Role.detective => AppGallery.galleryDetective,
-        Role.citizen => AppGallery.galleryCitizen,
-      };
+    Role.mafia => AppGallery.galleryMafia,
+    Role.doctor => AppGallery.galleryDoctor,
+    Role.detective => AppGallery.galleryDetective,
+    Role.citizen => AppGallery.galleryCitizen,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -552,10 +559,10 @@ class _Face extends StatelessWidget {
   }
 
   Widget _tappable(BuildContext context, Widget child) => Semantics(
-        button: true,
-        label: EngineCopy.roleName(context.l10n, role),
-        child: child,
-      );
+    button: true,
+    label: EngineCopy.roleName(context.l10n, role),
+    child: child,
+  );
 
   /// The reverse of a card: what the role does, in one line.
   ///
@@ -602,8 +609,9 @@ class _Face extends StatelessWidget {
                 children: [
                   Text(
                     EngineCopy.roleName(context.l10n, role),
-                    style:
-                        type.headline.emphasised.copyWith(color: colors.textPrimary),
+                    style: type.headline.emphasised.copyWith(
+                      color: colors.textPrimary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: spacing.sm),

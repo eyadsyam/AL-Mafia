@@ -26,84 +26,83 @@ void main() {
 
   setUpAll(() {
     final file = File('supabase/tests/golden_vectors.json');
-    expect(file.existsSync(), isTrue,
-        reason: 'run `dart run tool/golden_vectors.dart`');
+    expect(
+      file.existsSync(),
+      isTrue,
+      reason: 'run `dart run tool/golden_vectors.dart`',
+    );
     vectors = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
   });
 
   NightRecord decodeNight(Map<String, dynamic> json) => NightRecord(
-        nightNumber: json['nightNumber'] as int,
-        suspicions: {
-          for (final e in (json['suspicions'] as Map).entries)
-            int.parse(e.key as String): e.value as int?,
-        },
-        reasons: const {},
-        victim: json['victim'] as int?,
-        saveOccurred: json['saveOccurred'] as bool,
-        savedSeat: json['savedSeat'] as int?,
-        revealedTrace: json['revealedTrace'] == null
-            ? null
-            : TraceType.values
-                .firstWhere((t) => t.name == json['revealedTrace']),
-        resolved: json['resolved'] as bool,
-      );
+    nightNumber: json['nightNumber'] as int,
+    suspicions: {
+      for (final e in (json['suspicions'] as Map).entries)
+        int.parse(e.key as String): e.value as int?,
+    },
+    reasons: const {},
+    victim: json['victim'] as int?,
+    saveOccurred: json['saveOccurred'] as bool,
+    savedSeat: json['savedSeat'] as int?,
+    revealedTrace: json['revealedTrace'] == null
+        ? null
+        : TraceType.values.firstWhere((t) => t.name == json['revealedTrace']),
+    resolved: json['resolved'] as bool,
+  );
 
   Confrontation decodeConfrontation(Map<String, dynamic> json) => Confrontation(
-        type: ConfrontationType.values
-            .firstWhere((t) => t.name == json['type']),
-        targetSeat: json['targetSeat'] as int,
-        evidenceSeat: json['evidenceSeat'] as int?,
-        evidenceSeat2: json['evidenceSeat2'] as int?,
-        evidenceDay: json['evidenceDay'] as int?,
-        count: json['count'] as int?,
-      );
+    type: ConfrontationType.values.firstWhere((t) => t.name == json['type']),
+    targetSeat: json['targetSeat'] as int,
+    evidenceSeat: json['evidenceSeat'] as int?,
+    evidenceSeat2: json['evidenceSeat2'] as int?,
+    evidenceDay: json['evidenceDay'] as int?,
+    count: json['count'] as int?,
+  );
 
   DayRecord decodeDay(Map<String, dynamic> json) => DayRecord(
-        dayNumber: json['dayNumber'] as int,
-        openingAccusations: {
-          for (final e in (json['openingAccusations'] as Map).entries)
-            int.parse(e.key as String): e.value as int,
-        },
-        confrontation: json['confrontation'] == null
-            ? null
-            : decodeConfrontation(
-                json['confrontation'] as Map<String, dynamic>),
-        votes: {
-          for (final e in (json['votes'] as Map).entries)
-            int.parse(e.key as String): e.value as int?,
-        },
-        speakingSeconds: {
-          for (final e in (json['speakingSeconds'] as Map).entries)
-            int.parse(e.key as String): e.value as int,
-        },
-        whispers: [
-          for (final w in (json['whispers'] as List))
-            WhisperMeta(
-              id: WhisperMeta.idFor(
-                day: (w as Map)['day'] as int,
-                fromSeat: w['fromSeat'] as int,
-                toSeat: w['toSeat'] as int,
-              ),
-              day: w['day'] as int,
-              fromSeat: w['fromSeat'] as int,
-              toSeat: w['toSeat'] as int,
-            ),
-        ],
-      );
+    dayNumber: json['dayNumber'] as int,
+    openingAccusations: {
+      for (final e in (json['openingAccusations'] as Map).entries)
+        int.parse(e.key as String): e.value as int,
+    },
+    confrontation: json['confrontation'] == null
+        ? null
+        : decodeConfrontation(json['confrontation'] as Map<String, dynamic>),
+    votes: {
+      for (final e in (json['votes'] as Map).entries)
+        int.parse(e.key as String): e.value as int?,
+    },
+    speakingSeconds: {
+      for (final e in (json['speakingSeconds'] as Map).entries)
+        int.parse(e.key as String): e.value as int,
+    },
+    whispers: [
+      for (final w in (json['whispers'] as List))
+        WhisperMeta(
+          id: WhisperMeta.idFor(
+            day: (w as Map)['day'] as int,
+            fromSeat: w['fromSeat'] as int,
+            toSeat: w['toSeat'] as int,
+          ),
+          day: w['day'] as int,
+          fromSeat: w['fromSeat'] as int,
+          toSeat: w['toSeat'] as int,
+        ),
+    ],
+  );
 
   List<Player> roster(Set<int> alive) => [
-        for (var seat = 0; seat < 7; seat++)
-          Player(
-            seat: seat,
-            name: 'P$seat',
-            role: Role.citizen,
-            status:
-                alive.contains(seat) ? PlayerStatus.alive : PlayerStatus.dead,
-            eliminatedOn: alive.contains(seat)
-                ? null
-                : const PhaseRef(phase: GamePhase.night, number: 1),
-          ),
-      ];
+    for (var seat = 0; seat < 7; seat++)
+      Player(
+        seat: seat,
+        name: 'P$seat',
+        role: Role.citizen,
+        status: alive.contains(seat) ? PlayerStatus.alive : PlayerStatus.dead,
+        eliminatedOn: alive.contains(seat)
+            ? null
+            : const PhaseRef(phase: GamePhase.night, number: 1),
+      ),
+  ];
 
   test('the vector file is not empty and both sections are populated', () {
     expect(vectors['version'], equals(1));
@@ -120,8 +119,11 @@ void main() {
     // Doc 11 §10: "every eligibility branch covered". A vector file that never
     // produces `t5` is a vector file that would not notice `t5` breaking.
     for (final type in TraceType.values) {
-      expect(produced, contains(type.name),
-          reason: '${type.name} is never exercised by the vectors');
+      expect(
+        produced,
+        contains(type.name),
+        reason: '${type.name} is never exercised by the vectors',
+      );
     }
   });
 
@@ -140,14 +142,26 @@ void main() {
           matchSeed: c['matchSeed'] as int,
         );
         final expected = c['expected'] as Map<String, dynamic>;
-        expect(result.type.name, equals(expected['type']),
-            reason: 'trace case "${c['name']}"');
-        expect(result.subjectSeat, equals(expected['subjectSeat']),
-            reason: 'trace case "${c['name']}"');
-        expect(result.targetSeat, equals(expected['targetSeat']),
-            reason: 'trace case "${c['name']}"');
-        expect(result.count, equals(expected['count']),
-            reason: 'trace case "${c['name']}"');
+        expect(
+          result.type.name,
+          equals(expected['type']),
+          reason: 'trace case "${c['name']}"',
+        );
+        expect(
+          result.subjectSeat,
+          equals(expected['subjectSeat']),
+          reason: 'trace case "${c['name']}"',
+        );
+        expect(
+          result.targetSeat,
+          equals(expected['targetSeat']),
+          reason: 'trace case "${c['name']}"',
+        );
+        expect(
+          result.count,
+          equals(expected['count']),
+          reason: 'trace case "${c['name']}"',
+        );
       }
     });
   });
@@ -186,18 +200,36 @@ void main() {
           continue;
         }
         expect(result, isNotNull, reason: 'confrontation case "${c['name']}"');
-        expect(result!.type.name, equals(expected['type']),
-            reason: 'confrontation case "${c['name']}"');
-        expect(result.targetSeat, equals(expected['targetSeat']),
-            reason: 'confrontation case "${c['name']}"');
-        expect(result.evidenceSeat, equals(expected['evidenceSeat']),
-            reason: 'confrontation case "${c['name']}"');
-        expect(result.evidenceSeat2, equals(expected['evidenceSeat2']),
-            reason: 'confrontation case "${c['name']}"');
-        expect(result.evidenceDay, equals(expected['evidenceDay']),
-            reason: 'confrontation case "${c['name']}"');
-        expect(result.count, equals(expected['count']),
-            reason: 'confrontation case "${c['name']}"');
+        expect(
+          result!.type.name,
+          equals(expected['type']),
+          reason: 'confrontation case "${c['name']}"',
+        );
+        expect(
+          result.targetSeat,
+          equals(expected['targetSeat']),
+          reason: 'confrontation case "${c['name']}"',
+        );
+        expect(
+          result.evidenceSeat,
+          equals(expected['evidenceSeat']),
+          reason: 'confrontation case "${c['name']}"',
+        );
+        expect(
+          result.evidenceSeat2,
+          equals(expected['evidenceSeat2']),
+          reason: 'confrontation case "${c['name']}"',
+        );
+        expect(
+          result.evidenceDay,
+          equals(expected['evidenceDay']),
+          reason: 'confrontation case "${c['name']}"',
+        );
+        expect(
+          result.count,
+          equals(expected['count']),
+          reason: 'confrontation case "${c['name']}"',
+        );
       }
     });
 
@@ -208,9 +240,11 @@ void main() {
       for (final raw in (vectors['confrontations'] as List)) {
         final expected = (raw as Map)['expected'] as Map?;
         if (expected == null) continue;
-        expect(const ['c2', 'c3', 'c9', 'c10'],
-            isNot(contains(expected['type'])),
-            reason: 'case "${raw['name']}" published ${expected['type']}');
+        expect(
+          const ['c2', 'c3', 'c9', 'c10'],
+          isNot(contains(expected['type'])),
+          reason: 'case "${raw['name']}" published ${expected['type']}',
+        );
       }
     });
   });

@@ -46,17 +46,17 @@ class ConfrontationCatalogue {
   /// Everything that may be published without telling the table somebody's
   /// role. See the library doc for the three that are held back.
   static List<ConfrontationType> get shipped => [
-        for (final t in ConfrontationType.values)
-          if (!t.namesANightSuspicion && t != ConfrontationType.c2) t,
-      ];
+    for (final t in ConfrontationType.values)
+      if (!t.namesANightSuspicion && t != ConfrontationType.c2) t,
+  ];
 
   /// The shipped set, minus whatever this match's settings switch off.
   static List<ConfrontationType> enabledFor(MatchSettings settings) => [
-        for (final t in shipped)
-          if (!(t.isGated && !settings.survivorConfrontationEnabled) &&
-              !(t.requiresWhispers && !settings.whisperEnabled))
-            t,
-      ];
+    for (final t in shipped)
+      if (!(t.isGated && !settings.survivorConfrontationEnabled) &&
+          !(t.requiresWhispers && !settings.whisperEnabled))
+        t,
+  ];
 }
 
 extension ConfrontationLeakage on ConfrontationType {
@@ -103,19 +103,23 @@ Confrontation? selectConfrontation({
 
   final candidates = <ConfrontationCandidate>[];
   for (final type in ConfrontationCatalogue.enabledFor(settings)) {
-    candidates.addAll(findConfrontations(
-      type: type,
-      history: history,
-      alive: alive,
-      dayNumber: dayNumber,
-    ));
+    candidates.addAll(
+      findConfrontations(
+        type: type,
+        history: history,
+        alive: alive,
+        dayNumber: dayNumber,
+      ),
+    );
   }
 
   // Hard filters (§2.4).
-  candidates.removeWhere((c) =>
-      !alive.contains(c.target) ||
-      c.target == history.lastConfrontedPlayer ||
-      c.type == history.lastConfrontationType);
+  candidates.removeWhere(
+    (c) =>
+        !alive.contains(c.target) ||
+        c.target == history.lastConfrontedPlayer ||
+        c.type == history.lastConfrontationType,
+  );
 
   if (candidates.isEmpty) return null;
 
@@ -130,7 +134,8 @@ Confrontation? selectConfrontation({
   final pool = within.isNotEmpty ? within : candidates;
 
   for (final c in pool) {
-    c.score = c.type.severity *
+    c.score =
+        c.type.severity *
         recencyBoost(c.evidenceDay, dayNumber) *
         fairnessFactor(history, c.target);
   }
@@ -210,13 +215,17 @@ List<ConfrontationCandidate> findConfrontations({
         for (var d = dayNumber - 1; d >= 1; d--) {
           final voted = history.dayAt(d)?.votes[seat];
           if (voted == null || voted == accused) continue;
-          out.add(ConfrontationCandidate(Confrontation(
-            type: ConfrontationType.c1,
-            targetSeat: seat,
-            evidenceSeat: accused,
-            evidenceSeat2: voted,
-            evidenceDay: d,
-          )));
+          out.add(
+            ConfrontationCandidate(
+              Confrontation(
+                type: ConfrontationType.c1,
+                targetSeat: seat,
+                evidenceSeat: accused,
+                evidenceSeat2: voted,
+                evidenceDay: d,
+              ),
+            ),
+          );
           break; // Most recent contradiction only — one per player.
         }
       }
@@ -235,18 +244,20 @@ List<ConfrontationCandidate> findConfrontations({
       if (nights.length < 3) return out;
       final last3 = nights.sublist(nights.length - 3);
       for (final seat in alive) {
-        final targets = [
-          for (final n in last3) n.recordedSuspicions[seat],
-        ];
+        final targets = [for (final n in last3) n.recordedSuspicions[seat]];
         if (targets.any((t) => t == null)) continue;
         if (targets.toSet().length != 1) continue;
-        out.add(ConfrontationCandidate(Confrontation(
-          type: ConfrontationType.c3,
-          targetSeat: seat,
-          evidenceSeat: targets.first,
-          evidenceDay: last3.last.nightNumber,
-          count: 3,
-        )));
+        out.add(
+          ConfrontationCandidate(
+            Confrontation(
+              type: ConfrontationType.c3,
+              targetSeat: seat,
+              evidenceSeat: targets.first,
+              evidenceDay: last3.last.nightNumber,
+              count: 3,
+            ),
+          ),
+        );
       }
       return out;
 
@@ -259,11 +270,13 @@ List<ConfrontationCandidate> findConfrontations({
       return [
         for (final seat in alive)
           if (!suspected.contains(seat))
-            ConfrontationCandidate(Confrontation(
-              type: ConfrontationType.c4,
-              targetSeat: seat,
-              evidenceDay: dayNumber - 1,
-            )),
+            ConfrontationCandidate(
+              Confrontation(
+                type: ConfrontationType.c4,
+                targetSeat: seat,
+                evidenceDay: dayNumber - 1,
+              ),
+            ),
       ];
 
     // ─── C5 التوأم ──────────────────────────────────────────────────────
@@ -293,13 +306,17 @@ List<ConfrontationCandidate> findConfrontations({
         final a = int.parse(parts[0]);
         final b = int.parse(parts[1]);
         for (final (self, other) in [(a, b), (b, a)]) {
-          out.add(ConfrontationCandidate(Confrontation(
-            type: ConfrontationType.c5,
-            targetSeat: self,
-            evidenceSeat: other,
-            evidenceDay: lastAgreement[key],
-            count: count,
-          )));
+          out.add(
+            ConfrontationCandidate(
+              Confrontation(
+                type: ConfrontationType.c5,
+                targetSeat: self,
+                evidenceSeat: other,
+                evidenceDay: lastAgreement[key],
+                count: count,
+              ),
+            ),
+          );
         }
       });
       return out;
@@ -320,12 +337,14 @@ List<ConfrontationCandidate> findConfrontations({
       final quietest = full.entries.where((e) => e.value == lowest).toList();
       if (quietest.length != 1) return const [];
       return [
-        ConfrontationCandidate(Confrontation(
-          type: ConfrontationType.c6,
-          targetSeat: quietest.first.key,
-          evidenceDay: dayNumber - 1,
-          count: lowest,
-        )),
+        ConfrontationCandidate(
+          Confrontation(
+            type: ConfrontationType.c6,
+            targetSeat: quietest.first.key,
+            evidenceDay: dayNumber - 1,
+            count: lowest,
+          ),
+        ),
       ];
 
     // ─── C7 الميت يتكلم ─────────────────────────────────────────────────
@@ -341,12 +360,14 @@ List<ConfrontationCandidate> findConfrontations({
       final named = last.recordedSuspicions[victim];
       if (named == null || !alive.contains(named)) return const [];
       return [
-        ConfrontationCandidate(Confrontation(
-          type: ConfrontationType.c7,
-          targetSeat: named,
-          evidenceSeat: victim,
-          evidenceDay: last.nightNumber,
-        )),
+        ConfrontationCandidate(
+          Confrontation(
+            type: ConfrontationType.c7,
+            targetSeat: named,
+            evidenceSeat: victim,
+            evidenceDay: last.nightNumber,
+          ),
+        ),
       ];
 
     // ─── C8 الهمّاس ─────────────────────────────────────────────────────
@@ -377,13 +398,17 @@ List<ConfrontationCandidate> findConfrontations({
         }
         if (bestRun < 2) return;
         final parts = key.split(':');
-        out.add(ConfrontationCandidate(Confrontation(
-          type: ConfrontationType.c8,
-          targetSeat: int.parse(parts[0]),
-          evidenceSeat: int.parse(parts[1]),
-          evidenceDay: bestEnd,
-          count: bestRun,
-        )));
+        out.add(
+          ConfrontationCandidate(
+            Confrontation(
+              type: ConfrontationType.c8,
+              targetSeat: int.parse(parts[0]),
+              evidenceSeat: int.parse(parts[1]),
+              evidenceDay: bestEnd,
+              count: bestRun,
+            ),
+          ),
+        );
       });
       return out;
 
@@ -401,12 +426,16 @@ List<ConfrontationCandidate> findConfrontations({
           if (before != null && now != null && before != now) changes++;
         }
         if (changes < 3) continue;
-        out.add(ConfrontationCandidate(Confrontation(
-          type: ConfrontationType.c9,
-          targetSeat: seat,
-          evidenceDay: window.last.nightNumber,
-          count: changes,
-        )));
+        out.add(
+          ConfrontationCandidate(
+            Confrontation(
+              type: ConfrontationType.c9,
+              targetSeat: seat,
+              evidenceDay: window.last.nightNumber,
+              count: changes,
+            ),
+          ),
+        );
       }
       return out;
 
@@ -423,12 +452,16 @@ List<ConfrontationCandidate> findConfrontations({
       }
       counts.forEach((seat, count) {
         if (count < 2 || !alive.contains(seat)) return;
-        out.add(ConfrontationCandidate(Confrontation(
-          type: ConfrontationType.c10,
-          targetSeat: seat,
-          evidenceDay: lastNight[seat],
-          count: count,
-        )));
+        out.add(
+          ConfrontationCandidate(
+            Confrontation(
+              type: ConfrontationType.c10,
+              targetSeat: seat,
+              evidenceDay: lastNight[seat],
+              count: count,
+            ),
+          ),
+        );
       });
       return out;
 
@@ -442,11 +475,15 @@ List<ConfrontationCandidate> findConfrontations({
         if (n.nightNumber >= dayNumber) continue;
         final saved = n.savedSeat;
         if (saved == null || !alive.contains(saved)) continue;
-        out.add(ConfrontationCandidate(Confrontation(
-          type: ConfrontationType.c11,
-          targetSeat: saved,
-          evidenceDay: n.nightNumber,
-        )));
+        out.add(
+          ConfrontationCandidate(
+            Confrontation(
+              type: ConfrontationType.c11,
+              targetSeat: saved,
+              evidenceDay: n.nightNumber,
+            ),
+          ),
+        );
       }
       return out;
   }

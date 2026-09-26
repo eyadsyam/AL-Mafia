@@ -43,12 +43,29 @@ Deno.serve(handler(async (req, userId, db) => {
   const me = await loadMembership(db, roomId, userId);
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
 
-  // The one transition any member may make. The deal ends when the last card
-  // is dismissed, and the person who dismissed it is whoever it is — making
-  // the room wait for the host to notice would strand it on the one screen
-  // where every player is looking at their own phone anyway. The gate below
-  // is what actually decides, and it is the same gate for everybody.
-  const communal = me.phase === "reveal" && phase === "night";
+  // Three cases where the transition is not the host's private property.
+  //
+  //  * the deal → the night, by anyone, once every seat has dismissed its card
+  //  * a confrontation → the discussion, by the player being confronted
+  //  * any phase at all, by anyone, once the server's own clock has run out
+  //
+  // The second used to be host-only, which meant «خلصت» did nothing unless the
+  // accused happened to be holding the room, and the table waited out the whole
+  // forty-five seconds instead. The window belongs to the person in it.
+  //
+  // The third is doc 10 §8.2 taken seriously: *no phase may stall*. A rule that
+  // lets only the host end a phase makes that promise conditional on one
+  // particular phone staying awake, and a host whose screen has locked is
+  // indistinguishable, from every other seat, from a match that has broken.
+  // Nothing is loosened by it: the deadline is the server's, it is read here
+  // from `phase_ends_at`, and the transition table below still governs where
+  // the room may go. A client with a fast clock can ask early and be refused.
+  const dealDone = me.phase === "reveal" && phase === "night";
+  const ownConfrontation = me.phase === "confront" &&
+    phase === "discuss" &&
+    (await confrontationTarget(db, roomId)) === me.seat;
+  const expired = !!me.phaseEndsAt && new Date(me.phaseEndsAt) <= new Date();
+  const communal = dealDone || ownConfrontation || expired;
   if (!communal && me.hostId !== userId) {
     return fail("NOT_HOST", "only the host advances", 403);
   }
@@ -60,12 +77,28 @@ Deno.serve(handler(async (req, userId, db) => {
 
   // The deal's gate. Never the client's word for it: `saw_role` is written by
   // one Edge Function, per seat, and read here.
-  if (communal) {
-    const { data: unseen } = await db
+  //
+  // `!expired` is the escape doc 10 s8.2 requires. While the deal's own clock
+  // is running the gate is absolute — no client may skip another player's
+  // card. Once it has run out, the room is no longer waiting on a decision;
+  // it is stuck behind one, and the night opens. Nothing is written about the
+  // seats that never answered: `saw_role` stays false, which is the honest
+  // record of what happened, and the night names their role to them anyway.
+  //
+  // Checked twice: here, so the caller gets a message that says what is
+  // missing; and again inside `commit_phase_open`, under the lock that opens
+  // the night, so that the answer cannot change between the check and the
+  // move. A read that fails is a refusal, never a pass — an empty answer from
+  // a query that errored used to look exactly like "everybody has seen it".
+  const requireAllSeen = dealDone && !expired;
+  if (requireAllSeen) {
+    const { data: unseen, error: unseenError } = await db
       .from("room_players")
       .select("seat")
       .eq("room_id", roomId)
+      .eq("kicked", false)
       .eq("saw_role", false);
+    if (unseenError) throw unseenError;
     if ((unseen ?? []).length > 0) {
       return fail(
         "PHASE_CLOSED",
@@ -76,9 +109,11 @@ Deno.serve(handler(async (req, userId, db) => {
 
   // `result` is only reachable from a morning that already decided the match.
   // Anything else would be a client ending a game that is still being played.
+  let finalStandings: Record<string, unknown>[] | null = null;
   if (phase === "result") {
-    const { data: state } = await db.from("room_state")
+    const { data: state, error: stateError } = await db.from("room_state")
       .select("public_data").eq("room_id", roomId).maybeSingle();
+    if (stateError) throw stateError;
     const archive = (state?.public_data ?? {}) as Record<string, unknown>;
     if (!archive.outcome) return fail("PHASE_CLOSED", "nobody has won yet");
 
@@ -86,42 +121,37 @@ Deno.serve(handler(async (req, userId, db) => {
     // ends when the match does). Written here and nowhere earlier: a payload
     // that carried roles a phase too soon would be the whole game, and this is
     // the only handler that can reach `result`.
-    const { data: roster } = await db
+    const { data: roster, error: rosterError } = await db
       .from("room_players")
       .select("seat, role")
       .eq("room_id", roomId)
+      .not("role", "is", null)
       .order("seat");
+    if (rosterError) throw rosterError;
     const eliminations = (archive.eliminations ?? {}) as Record<
       string,
       { phase: string; number: number }
     >;
-    const standings = (roster ?? []).map((p) => ({
+    finalStandings = (roster ?? []).map((p) => ({
       seat: p.seat,
       role: p.role,
       eliminatedPhase: eliminations[String(p.seat)]?.phase ?? null,
       eliminatedNumber: eliminations[String(p.seat)]?.number ?? null,
     }));
-    await db.rpc("merge_public_data", {
-      p_room: roomId,
-      p_patch: { standings },
-    });
-
-    await db.from("rooms")
-      .update({ status: "finished", ended_at: new Date().toISOString() })
-      .eq("id", roomId);
   }
 
   // The opening round points at one seat at a time, and the first one is the
   // lowest living seat — the same order the night pass uses.
   let openingSeat: number | null = null;
   if (phase === "opening") {
-    const { data: living } = await db
+    const { data: living, error: livingError } = await db
       .from("room_players")
       .select("seat")
       .eq("room_id", roomId)
       .eq("alive", true)
       .order("seat")
       .limit(1);
+    if (livingError) throw livingError;
     openingSeat = living?.[0]?.seat ?? null;
     if (openingSeat === null) return fail("BAD_REQUEST", "nobody is alive");
   }
@@ -134,20 +164,58 @@ Deno.serve(handler(async (req, userId, db) => {
     patch.confrontationSilent = silent === true;
   }
 
-  await db.rpc("merge_public_data", { p_room: roomId, p_patch: patch });
+  if (finalStandings !== null) patch.standings = finalStandings;
 
   const endsAt = deadlineFor(phase, me.settings);
 
-  const { error } = await db.from("room_state").update({
-    phase,
-    phase_ends_at: endsAt,
-    // Nobody's microphone is live across a phase change until the next phase
-    // grants one (doc 10 §6.3). Leaving a stale speaker set is how a mic stays
-    // open into the night.
-    active_speaker: null,
-    updated_at: new Date().toISOString(),
-  }).eq("room_id", roomId);
+  // The day number moves here, and only here: a new night *is* the new day.
+  // `resolve_vote` used to move it, which put the room on day N+1 before it had
+  // shown anybody the verdict of day N.
+  const opensNewDay = phase === "night" && me.phase === "verdict";
+
+  // Compare-and-set on the phase this caller actually read. Now that an expired
+  // phase may be advanced by any of five clients at once, two of them can ask
+  // for the same transition in the same instant; the first one moves the room
+  // and the second matches no row. Both asked for the same thing, so there is
+  // nothing to reconcile — but without the guard the second would re-open a
+  // phase the room had already left, and reset its clock while doing it.
+  const { data: moved, error } = await db.rpc("commit_phase_open", {
+    p_room: roomId, p_expected: me.phase, p_number: me.phaseNumber,
+    p_expected_deadline: me.phaseEndsAt,
+    p_next: phase, p_next_number: me.phaseNumber + (opensNewDay ? 1 : 0),
+    p_deadline: endsAt, p_patch: patch, p_require_all_seen: requireAllSeen,
+  });
   if (error) throw error;
+  if (!moved) {
+    // Somebody else got there first. Not an error, and not a lie either: the
+    // client resyncs on `PHASE_CLOSED` and finds the room already where it was
+    // trying to send it.
+    return fail("PHASE_CLOSED", "the room has already moved on");
+  }
 
   return ok({ phase, phaseEndsAt: endsAt });
 }));
+
+/**
+ * The seat currently being confronted, as the *server* holds it.
+ *
+ * Read from `public_data`, never from the request: the caller says which phase
+ * they want opened and nothing about who they are, and "am I the one being
+ * confronted" has to be answered from the room's own record or it is not an
+ * answer at all. Null when there is no confrontation running, which makes a
+ * caller who is not the host simply the host-check they always were.
+ */
+async function confrontationTarget(
+  // deno-lint-ignore no-explicit-any
+  db: any,
+  roomId: string,
+): Promise<number | null> {
+  const { data, error } = await db.from("room_state")
+    .select("public_data").eq("room_id", roomId).maybeSingle();
+  if (error) throw error;
+  const confrontation =
+    (data?.public_data as Record<string, unknown> | null)?.confrontation;
+  if (!confrontation || typeof confrontation !== "object") return null;
+  const seat = (confrontation as Record<string, unknown>).targetSeat;
+  return typeof seat === "number" ? seat : null;
+}

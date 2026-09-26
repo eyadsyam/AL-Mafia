@@ -125,18 +125,25 @@ void main() {
       // The doctor covers the mafia and then a bystander — anyone but the two
       // targets, never themselves (doc 13 §2 makes that the Doctor's one
       // bullet), and never the same seat twice running.
-      final night1 = playNight(engine,
-          mafiaTarget: firstVictim, doctorTarget: mafia);
+      final night1 = playNight(
+        engine,
+        mafiaTarget: firstVictim,
+        doctorTarget: mafia,
+      );
       expect(night1.victimSeat, equals(firstVictim));
 
       skipDayWithoutElimination(engine);
 
-      final night2 = playNight(engine,
-          mafiaTarget: secondVictim, doctorTarget: victims[2]);
+      final night2 = playNight(
+        engine,
+        mafiaTarget: secondVictim,
+        doctorTarget: victims[2],
+      );
       expect(
         night2.victimSeat,
         equals(secondVictim),
-        reason: 'night two reported seat ${night2.victimSeat} dead when the '
+        reason:
+            'night two reported seat ${night2.victimSeat} dead when the '
             'mafia voted for seat $secondVictim. If it reported $firstVictim, '
             'the resolver is still counting the first night\'s votes and every '
             'morning will name the same person.',
@@ -154,8 +161,11 @@ void main() {
           .seat;
 
       // Night one: the doctor covers the target, who survives.
-      final night1 =
-          playNight(engine, mafiaTarget: target, doctorTarget: target);
+      final night1 = playNight(
+        engine,
+        mafiaTarget: target,
+        doctorTarget: target,
+      );
       expect(night1.victimSeat, isNull);
       expect(night1.saved, isTrue);
 
@@ -163,12 +173,16 @@ void main() {
 
       // Night two: the doctor covers somebody else. The same target must now
       // die — a protection that persisted would make them permanently immortal.
-      final night2 =
-          playNight(engine, mafiaTarget: target, doctorTarget: mafia);
+      final night2 = playNight(
+        engine,
+        mafiaTarget: target,
+        doctorTarget: mafia,
+      );
       expect(
         night2.victimSeat,
         equals(target),
-        reason: 'seat $target survived a second night with no protection on '
+        reason:
+            'seat $target survived a second night with no protection on '
             'them, so last night\'s protect is still in force. Left alone, '
             'every seat eventually becomes unkillable and the match cannot end.',
       );
@@ -205,9 +219,13 @@ void main() {
       // Eight seats with this distribution have 420 arrangements, so twelve
       // identical deals in a row is a fixed seed rather than bad luck.
       final deals = <String>{for (var i = 0; i < 12; i++) deal().join(',')};
-      expect(deals.length, greaterThan(1),
-          reason: 'twelve matches dealt the identical hand, so the shuffle is '
-              'running off a constant seed');
+      expect(
+        deals.length,
+        greaterThan(1),
+        reason:
+            'twelve matches dealt the identical hand, so the shuffle is '
+            'running off a constant seed',
+      );
     });
 
     test('an explicit seed is still reproducible', () {

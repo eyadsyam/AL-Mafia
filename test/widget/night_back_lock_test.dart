@@ -52,7 +52,8 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: localizedApp(Navigator(
+        child: localizedApp(
+          Navigator(
             onPopPage: (route, result) {
               popCount++;
               return route.didPop(result);
@@ -62,7 +63,7 @@ void main() {
                 child: MatchRoute(onExit: onExit, onAnalytics: () {}),
               ),
             ],
-          )
+          ),
         ),
       ),
     );
@@ -77,8 +78,9 @@ void main() {
       GamePhase.voting,
       GamePhase.reveal,
     ]) {
-      testWidgets('a back gesture in ${phase.name} does not leave the match',
-          (tester) async {
+      testWidgets('a back gesture in ${phase.name} does not leave the match', (
+        tester,
+      ) async {
         var exited = false;
         await pumpMatch(tester, phase: phase, onExit: () => exited = true);
 
@@ -86,8 +88,11 @@ void main() {
         // it directly is more honest than simulating a platform back event,
         // which the test binding routes differently on each platform.
         final popScope = tester.widget<PopScope>(find.byType(PopScope).first);
-        expect(popScope.canPop, isFalse,
-            reason: 'back is poppable during ${phase.name}');
+        expect(
+          popScope.canPop,
+          isFalse,
+          reason: 'back is poppable during ${phase.name}',
+        );
         expect(exited, isFalse);
       });
     }
@@ -95,8 +100,11 @@ void main() {
     testWidgets('back works again once the match is over', (tester) async {
       await pumpMatch(tester, phase: GamePhase.result, onExit: () {});
       final popScope = tester.widget<PopScope>(find.byType(PopScope).first);
-      expect(popScope.canPop, isTrue,
-          reason: 'there is nothing left to protect after the result screen');
+      expect(
+        popScope.canPop,
+        isTrue,
+        reason: 'there is nothing left to protect after the result screen',
+      );
     });
 
     test('MatchRoute.isLocked matches the phases that need protecting', () {
@@ -110,8 +118,9 @@ void main() {
   });
 
   group('L-15 the End-match escape hatch', () {
-    testWidgets('is present during play and confirms before exiting',
-        (tester) async {
+    testWidgets('is present during play and confirms before exiting', (
+      tester,
+    ) async {
       var exited = false;
       await pumpMatch(
         tester,
@@ -127,8 +136,11 @@ void main() {
       expect(find.byKey(MatchRoute.endMatchCancel), findsOneWidget);
       await tester.tap(find.byKey(MatchRoute.endMatchCancel));
       await tester.pumpAndSettle();
-      expect(exited, isFalse,
-          reason: 'cancelling the dialog still ended the match');
+      expect(
+        exited,
+        isFalse,
+        reason: 'cancelling the dialog still ended the match',
+      );
 
       // Confirming does exit.
       await tester.tap(find.byKey(MatchRoute.endMatchButton));
@@ -148,8 +160,9 @@ void main() {
       expect(find.textContaining('السجل'), findsOneWidget);
     });
 
-    testWidgets('the escape hatch disappears once the match is over',
-        (tester) async {
+    testWidgets('the escape hatch disappears once the match is over', (
+      tester,
+    ) async {
       await pumpMatch(tester, phase: GamePhase.result, onExit: () {});
       expect(find.byKey(MatchRoute.endMatchButton), findsNothing);
     });

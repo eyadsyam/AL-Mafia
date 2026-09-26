@@ -46,8 +46,7 @@ class MemoryWhisperStore implements WhisperStore {
   Future<String?> read({
     required int matchId,
     required String whisperId,
-  }) async =>
-      _bodies[matchId]?[whisperId];
+  }) async => _bodies[matchId]?[whisperId];
 
   @override
   Future<Map<String, String>> readAll(int matchId) async =>

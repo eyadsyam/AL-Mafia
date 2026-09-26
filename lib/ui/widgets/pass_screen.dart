@@ -66,8 +66,9 @@ class PassScreen extends StatelessWidget {
                   SizedBox(height: spacing.sm),
                   Text(
                     targetName,
-                    style:
-                        type.display.emphasised.copyWith(color: colors.textPrimary),
+                    style: type.display.emphasised.copyWith(
+                      color: colors.textPrimary,
+                    ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

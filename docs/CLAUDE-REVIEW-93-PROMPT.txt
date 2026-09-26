@@ -1,0 +1,12 @@
+You are cooperating with Codex on Mafia Master at the user's explicit request. Use Opus at medium effort. This is an independent, bounded READ-ONLY code review, not a takeover. Do not spawn agents or run builds. No writes, publishing, accounts, network requests, secrets or migrations. Do not read dart_defines.json, key.properties, credential files or unrelated user files.
+
+Read docs/PARALLEL-93.md for current ownership. Codex has frozen the source. Inspect targeted ranges, not giant complete specs/history. Read the relevant root 05-zero-leakage-spec.md rules before evaluating UI and the latest PROGRESS entries only.
+
+Review these concrete risks:
+1. lib/transport/online_transport.dart: _syncBallotPolling/_refreshBallots/_publish, _ballotEpoch/_ballotRequest/_ballotApplied. Does a delayed response cross a phase or revote boundary? Does comparing applied requests (rather than latest started) prevent starvation with >2s latency without allowing regression? Verify test/transport/open_ballot_epoch_test.dart and relevant fake_backend support. Consider cleanup/reconnect and same-day revote.
+2. Claude's earlier RoomPush.stateDelta + RoomState.withRoomFieldsFrom fix in online_backend.dart, supabase_backend.dart and online_transport.dart. Can a partial row still erase host/settings or mix phase-private state? Existing online_action_retry tests cover host controls while another player holds floor.
+3. lib/ui/screens/onboarding/first_run_screen.dart: four chapters, profile save before terms, termsOnly state transition, failed saves, deep links, step back, language switch, keyboard, reduced motion. Inspect relevant first_run_test/profile_flow_test cases for real gaps.
+
+Return only actionable findings with severity, file:line, a specific reproducible scenario and suggested minimum fix. Distinguish actual defects from speculative improvements. If no blocker is found, say so without claiming bug-free or device-verified. Limit final answer to ~700 words. Do not rerun the full test suite in this review. Codex will read and challenge your findings; a separate verification/build assignment will follow.
+
+Verified by Codex: hosted revote38/38; previous core client78/78; new UI/capture22/22; newest ballot guard3/3; analyze0errors/0warnings/83infos. Full suite was user-interrupted at951/1skip/0failures, still incomplete. 1.1.1+4 is source only, no new release artifacts.

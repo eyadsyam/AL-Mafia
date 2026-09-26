@@ -34,12 +34,13 @@ Deno.serve(handler(async (req, userId, db) => {
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
   if (!me.alive) return fail("NOT_ALIVE", "the dead hold no floor", 403);
 
-  await db.rpc("add_speaking_seconds", {
+  const { error } = await db.rpc("add_speaking_seconds", {
     p_room: roomId,
     p_day: me.phaseNumber,
     p_seat: me.seat,
     p_seconds: value,
   });
+  if (error) throw error;
 
   return ok();
 }));

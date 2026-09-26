@@ -43,9 +43,13 @@ void main() {
       // socket, the transport correctly reports "unreachable", and the player
       // is told the server is down while the server is fine.
       final manifest = read('android/app/src/main/AndroidManifest.xml');
-      expect(manifest.contains('android.permission.INTERNET'), isTrue,
-          reason: 'a release build with no INTERNET permission cannot play '
-              'online, and reports it as the server being unreachable');
+      expect(
+        manifest.contains('android.permission.INTERNET'),
+        isTrue,
+        reason:
+            'a release build with no INTERNET permission cannot play '
+            'online, and reports it as the server being unreachable',
+      );
     });
 
     test('the debug manifest keeps its own copy, and that is fine', () {
@@ -62,11 +66,14 @@ void main() {
       // comment reading "no `package:flutter`" is not an import of it.
       final directive = RegExp(r'''^\s*(?:import|export)\s+['"]([^'"]+)['"]''');
       final offenders = <String>[];
-      for (final file in Directory('lib/engine')
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((f) => f.path.endsWith('.dart'))) {
-        for (final line in const LineSplitter().convert(file.readAsStringSync())) {
+      for (final file
+          in Directory('lib/engine')
+              .listSync(recursive: true)
+              .whereType<File>()
+              .where((f) => f.path.endsWith('.dart'))) {
+        for (final line in const LineSplitter().convert(
+          file.readAsStringSync(),
+        )) {
           final uri = directive.firstMatch(line)?.group(1);
           if (uri == null) continue;
           for (final forbidden in const [
@@ -82,8 +89,11 @@ void main() {
           }
         }
       }
-      expect(offenders, isEmpty,
-          reason: 'the engine reached outside itself: $offenders');
+      expect(
+        offenders,
+        isEmpty,
+        reason: 'the engine reached outside itself: $offenders',
+      );
     });
 
     test('no source file opens a network connection', () {
@@ -96,10 +106,11 @@ void main() {
       ];
 
       final offenders = <String>[];
-      for (final file in Directory('lib')
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((f) => f.path.endsWith('.dart'))) {
+      for (final file
+          in Directory('lib')
+              .listSync(recursive: true)
+              .whereType<File>()
+              .where((f) => f.path.endsWith('.dart'))) {
         final source = file.readAsStringSync();
         for (final api in networkApis) {
           if (source.contains(api)) {
@@ -108,8 +119,11 @@ void main() {
         }
       }
 
-      expect(offenders, isEmpty,
-          reason: 'these files can reach the network: $offenders');
+      expect(
+        offenders,
+        isEmpty,
+        reason: 'these files can reach the network: $offenders',
+      );
     });
 
     test('no dependency is a networking package', () {
@@ -118,8 +132,11 @@ void main() {
       // comment does not trip the check.
       const networkPackages = ['http:', 'dio:', 'web_socket_channel:', 'grpc:'];
       for (final package in networkPackages) {
-        expect(pubspec.contains('\n  $package'), isFalse,
-            reason: '$package is a networking dependency');
+        expect(
+          pubspec.contains('\n  $package'),
+          isFalse,
+          reason: '$package is a networking dependency',
+        );
       }
     });
   });
@@ -130,25 +147,37 @@ void main() {
       expect(manifest.contains('android:screenOrientation="portrait"'), isTrue);
 
       final gradle = read('android/app/build.gradle.kts');
-      expect(gradle.contains('minSdk = 26'), isTrue,
-          reason: 'the minimum Android version is API 26 (T001)');
+      expect(
+        gradle.contains('minSdk = 26'),
+        isTrue,
+        reason: 'the minimum Android version is API 26 (T001)',
+      );
     });
 
     test('iOS is portrait-only on both iPhone and iPad', () {
       final plist = read('ios/Runner/Info.plist');
       // A phone that rotates mid-turn re-lays-out the night screen in front of
       // whoever is nearby, which is exactly the exposure the design avoids.
-      expect(plist.contains('UIInterfaceOrientationLandscapeLeft'), isFalse,
-          reason: 'landscape is still allowed on iOS');
+      expect(
+        plist.contains('UIInterfaceOrientationLandscapeLeft'),
+        isFalse,
+        reason: 'landscape is still allowed on iOS',
+      );
       expect(plist.contains('UIInterfaceOrientationLandscapeRight'), isFalse);
-      expect(plist.contains('UIInterfaceOrientationPortraitUpsideDown'), isFalse);
+      expect(
+        plist.contains('UIInterfaceOrientationPortraitUpsideDown'),
+        isFalse,
+      );
       expect(plist.contains('UIInterfaceOrientationPortrait'), isTrue);
     });
 
     test('the app is labelled for players, not for developers', () {
       final manifest = read('android/app/src/main/AndroidManifest.xml');
-      expect(manifest.contains('android:label="mafia_master"'), isFalse,
-          reason: 'the launcher would show the package name');
+      expect(
+        manifest.contains('android:label="mafia_master"'),
+        isFalse,
+        reason: 'the launcher would show the package name',
+      );
 
       final plist = read('ios/Runner/Info.plist');
       expect(plist.contains('<string>Mafia Master</string>'), isTrue);
@@ -158,9 +187,9 @@ void main() {
       final manifest = read('android/app/src/main/AndroidManifest.xml');
       expect(manifest.contains('android:icon='), isTrue);
       expect(
-        Directory('android/app/src/main/res').listSync().any(
-              (e) => e.path.contains('mipmap'),
-            ),
+        Directory(
+          'android/app/src/main/res',
+        ).listSync().any((e) => e.path.contains('mipmap')),
         isTrue,
         reason: 'no mipmap directory holds the launcher icon',
       );

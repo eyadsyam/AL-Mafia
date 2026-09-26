@@ -90,17 +90,17 @@ class _WhisperCardState extends State<WhisperCard>
       alignment: Alignment.topCenter,
       child: SafeArea(
         child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, -1),
-            end: Offset.zero,
-          ).animate(
-            CurvedAnimation(parent: _slide, curve: context.motion.travelCurve),
-          ),
+          position: Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero)
+              .animate(
+                CurvedAnimation(
+                  parent: _slide,
+                  curve: context.motion.travelCurve,
+                ),
+              ),
           child: Padding(
             padding: EdgeInsets.all(spacing.md),
             child: ConstrainedBox(
-              constraints:
-                  BoxConstraints(maxWidth: spacing.maxContentWidth),
+              constraints: BoxConstraints(maxWidth: spacing.maxContentWidth),
               child: DecoratedBox(
                 key: WhisperCard.card,
                 decoration: BoxDecoration(
@@ -116,8 +116,7 @@ class _WhisperCardState extends State<WhisperCard>
                     children: [
                       Text(
                         l10n.whisperFromTitle(widget.senderName),
-                        style:
-                            type.caption.copyWith(color: colors.accentGold),
+                        style: type.caption.copyWith(color: colors.accentGold),
                       ),
                       SizedBox(height: spacing.sm),
                       Text(

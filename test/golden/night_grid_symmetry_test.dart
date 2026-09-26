@@ -49,8 +49,7 @@ void main() {
     return tester.getRect(find.byKey(NightGrid.tile(seat)));
   }
 
-  group('doc 14 §1.3 — the special tile is in the same place for everybody',
-      () {
+  group('doc 14 §1.3 — the special tile is in the same place for everybody', () {
     testWidgets('one rect, and all four roles get it', (tester) async {
       final rects = <Role, Rect>{};
       for (final role in Role.values) {
@@ -60,8 +59,11 @@ void main() {
 
       final first = rects[Role.values.first]!;
       for (final entry in rects.entries) {
-        expect(entry.value, first,
-            reason: '${entry.key} draws its special tile somewhere else');
+        expect(
+          entry.value,
+          first,
+          reason: '${entry.key} draws its special tile somewhere else',
+        );
       }
       // And it is a real tile rather than a collapsed one, so that "identical"
       // is not being satisfied by four zero-height boxes.
@@ -69,8 +71,9 @@ void main() {
       expect(first.width, greaterThan(0));
     });
 
-    testWidgets('a spent tile keeps the rect it had when it was live',
-        (tester) async {
+    testWidgets('a spent tile keeps the rect it had when it was live', (
+      tester,
+    ) async {
       // Doc 14 §1.3: *"It never disappears — a disappearing tile changes the
       // grid shape, and grid shape is a tell."*
       for (final role in [Role.mafia, Role.doctor]) {
@@ -82,8 +85,9 @@ void main() {
       }
     });
 
-    testWidgets('a spent tile is still on screen, and no longer tappable',
-        (tester) async {
+    testWidgets('a spent tile is still on screen, and no longer tappable', (
+      tester,
+    ) async {
       await open(tester, Role.doctor, spent: true);
 
       final tile = find.byKey(NightGrid.tile(99));
@@ -113,8 +117,11 @@ void main() {
 
       final first = skeletons[Role.values.first]!;
       for (final entry in skeletons.entries) {
-        expect(entry.value, first,
-            reason: '${entry.key} builds a different tree');
+        expect(
+          entry.value,
+          first,
+          reason: '${entry.key} builds a different tree',
+        );
       }
     });
   });
@@ -130,8 +137,9 @@ void main() {
       expect(NightGrid.columnsFor(15), 4);
     });
 
-    testWidgets('nothing scrolls and nothing overflows, 5 through 15',
-        (tester) async {
+    testWidgets('nothing scrolls and nothing overflows, 5 through 15', (
+      tester,
+    ) async {
       for (final players in [5, 9, 12, 15]) {
         await TurnShellHarness.pump(
           tester,
@@ -157,20 +165,30 @@ void main() {
           final tile = find.byKey(NightGrid.tile(seat));
           expect(tile, findsOneWidget, reason: 'seat $seat at $players');
           final rect = tester.getRect(tile);
-          expect(rect.top, greaterThanOrEqualTo(grid.top - 0.5),
-              reason: 'seat $seat is above the grid at $players');
-          expect(rect.bottom, lessThanOrEqualTo(grid.bottom + 0.5),
-              reason: 'seat $seat is below the fold at $players');
+          expect(
+            rect.top,
+            greaterThanOrEqualTo(grid.top - 0.5),
+            reason: 'seat $seat is above the grid at $players',
+          );
+          expect(
+            rect.bottom,
+            lessThanOrEqualTo(grid.bottom + 0.5),
+            reason: 'seat $seat is below the fold at $players',
+          );
         }
-        expect(find.byType(Scrollable), findsNothing,
-            reason: 'the grid scrolled at $players players');
+        expect(
+          find.byType(Scrollable),
+          findsNothing,
+          reason: 'the grid scrolled at $players players',
+        );
       }
     });
   });
 
   group('one tap confirms', () {
-    testWidgets('pick, wait out the dwell, confirm — no long press anywhere',
-        (tester) async {
+    testWidgets('pick, wait out the dwell, confirm — no long press anywhere', (
+      tester,
+    ) async {
       int? confirmed;
       await TurnShellHarness.pump(
         tester,
@@ -190,8 +208,9 @@ void main() {
       expect(confirmed, 1);
     });
 
-    testWidgets('the special tile confirms through the same button',
-        (tester) async {
+    testWidgets('the special tile confirms through the same button', (
+      tester,
+    ) async {
       // Doc 14 §4.1 removed the separate "choose nobody" control under the
       // confirm. There is one path off this screen now, and this is it.
       int? confirmed;

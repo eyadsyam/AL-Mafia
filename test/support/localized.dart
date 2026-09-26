@@ -13,10 +13,7 @@ import 'package:mafia_master/ui/theme/mafia_theme.dart';
 ///
 /// [locale] defaults to Arabic because Arabic is the product's primary language
 /// (FR-034); pass `Locale('en')` to check the English strings.
-Widget localizedApp(
-  Widget home, {
-  Locale locale = const Locale('ar'),
-}) {
+Widget localizedApp(Widget home, {Locale locale = const Locale('ar')}) {
   return MaterialApp(
     debugShowCheckedModeBanner: false,
     theme: MafiaTheme.dark,

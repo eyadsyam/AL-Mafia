@@ -60,14 +60,20 @@ class SetupDraft {
   List<String> get playedMembers {
     final members = group?.memberNames;
     if (members == null) return const [];
-    return [for (final name in names) if (members.contains(name)) name];
+    return [
+      for (final name in names)
+        if (members.contains(name)) name,
+    ];
   }
 
   /// Players who are not in [group] — people who turned up tonight only.
   List<String> get guests {
     final members = group?.memberNames;
     if (members == null) return const [];
-    return [for (final name in names) if (!members.contains(name)) name];
+    return [
+      for (final name in names)
+        if (!members.contains(name)) name,
+    ];
   }
 
   /// Whether the members who played sat in a different order from the saved
@@ -82,7 +88,8 @@ class SetupDraft {
     if (members == null) return false;
     final played = playedMembers;
     final expected = [
-      for (final name in members) if (played.contains(name)) name,
+      for (final name in members)
+        if (played.contains(name)) name,
     ];
     if (expected.length != played.length) return false;
     for (var i = 0; i < played.length; i++) {
@@ -94,7 +101,8 @@ class SetupDraft {
 
 class SetupDraftNotifier extends Notifier<SetupDraft> {
   @override
-  SetupDraft build() => SetupDraft(settings: ref.read(initialMatchSettingsProvider));
+  SetupDraft build() =>
+      SetupDraft(settings: ref.read(initialMatchSettingsProvider));
 
   void setGenders(Map<String, PlayerGender> genders) =>
       state = state.copyWith(genders: Map.unmodifiable(genders));

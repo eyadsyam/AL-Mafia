@@ -94,9 +94,9 @@ class NightRecord {
 
   /// Seat → suspected seat, skips excluded.
   Map<int, int> get recordedSuspicions => {
-        for (final e in suspicions.entries)
-          if (e.value != null) e.key: e.value!,
-      };
+    for (final e in suspicions.entries)
+      if (e.value != null) e.key: e.value!,
+  };
 
   @override
   String toString() =>
@@ -199,13 +199,13 @@ class Confrontation {
 
   @override
   int get hashCode => Object.hash(
-        type,
-        targetSeat,
-        evidenceSeat,
-        evidenceSeat2,
-        evidenceDay,
-        count,
-      );
+    type,
+    targetSeat,
+    evidenceSeat,
+    evidenceSeat2,
+    evidenceDay,
+    count,
+  );
 
   @override
   String toString() =>
@@ -244,17 +244,16 @@ class WhisperMeta {
     required int day,
     required int fromSeat,
     required int toSeat,
-  }) =>
-      'w:$day:$fromSeat:$toSeat';
+  }) => 'w:$day:$fromSeat:$toSeat';
 
   WhisperMeta copyWith({bool? voided, bool? delivered}) => WhisperMeta(
-        id: id,
-        day: day,
-        fromSeat: fromSeat,
-        toSeat: toSeat,
-        voided: voided ?? this.voided,
-        delivered: delivered ?? this.delivered,
-      );
+    id: id,
+    day: day,
+    fromSeat: fromSeat,
+    toSeat: toSeat,
+    voided: voided ?? this.voided,
+    delivered: delivered ?? this.delivered,
+  );
 
   @override
   bool operator ==(Object other) =>

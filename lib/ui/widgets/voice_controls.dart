@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../platform/clipboard.dart';
 import '../../platform/voice/voice_controller.dart';
 import '../l10n_ext.dart';
 import '../screens/online/voice_session.dart';
@@ -34,6 +36,9 @@ class VoiceControls extends ConsumerWidget {
 
   /// The player's own microphone switch. Live from the lobby onwards.
   static const Key micButton = ValueKey('voice_mic');
+
+  /// The diagnostics sheet. Reached only by holding the status line down.
+  static const Key diagnosticsSheet = ValueKey('voice_diagnostics');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -79,9 +84,21 @@ class VoiceControls extends ConsumerWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              status,
-              style: type.caption.copyWith(color: colors.textSecondary),
+            // Held down, the status line reads out what the media chain
+            // actually did. There is no other way to answer "why can nobody
+            // hear me" from a phone that is not plugged into a laptop, and a
+            // silent call is exactly the situation where nobody has adb to
+            // hand. Long-press rather than a button: it is a diagnostic, not a
+            // feature, and a player who has not been asked to hold it down
+            // will never find it.
+            child: GestureDetector(
+              onLongPress: controller == null
+                  ? null
+                  : () => showVoiceDiagnostics(context, controller),
+              child: Text(
+                status,
+                style: type.caption.copyWith(color: colors.textSecondary),
+              ),
             ),
           ),
           // Task 12 — a microphone, not the words for one. Doc 07 keeps icons
@@ -97,11 +114,23 @@ class VoiceControls extends ConsumerWidget {
               onPressed: () => controller.setSelfMuted(!state.selfMuted),
               icon: Icon(
                 state.selfMuted ? Icons.mic_off : Icons.mic_none,
-                color: state.selfMuted ? colors.textMuted : colors.textSecondary,
+                color: state.selfMuted
+                    ? colors.textMuted
+                    : colors.textSecondary,
               ),
             ),
-          if (controller != null &&
-              (state.canRequestFloor || state.holdsFloor))
+          if (kIsWeb && controller != null)
+            TextButton(
+              onPressed: controller.enableAudio,
+              child: Text(l10n.voiceEnablePlayback),
+            ),
+          if (!kIsWeb && controller != null)
+            IconButton(
+              tooltip: l10n.voiceRetry,
+              onPressed: controller.enableAudio,
+              icon: Icon(Icons.volume_up_outlined, color: colors.textSecondary),
+            ),
+          if (controller != null && (state.canRequestFloor || state.holdsFloor))
             TextButton(
               key: floorButton,
               onPressed: state.holdsFloor
@@ -115,4 +144,57 @@ class VoiceControls extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Shows the call's own account of itself.
+///
+/// English, and deliberately not localised: it is a bug report addressed to
+/// whoever is fixing the call, and translating field names would make it harder
+/// to read for the only person who reads it. Nothing here is part of the
+/// product surface, and nothing in it describes the table — see
+/// `VoiceDiagnostics`, which may only hold booleans, counts and enum names.
+Future<void> showVoiceDiagnostics(
+  BuildContext context,
+  VoiceController controller,
+) async {
+  await controller.sampleDiagnostics();
+  if (!context.mounted) return;
+  final report = controller.diagnosticsReport();
+  final colors = context.colors;
+  final spacing = context.spacing;
+  if (!context.mounted) return;
+
+  await showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      key: VoiceControls.diagnosticsSheet,
+      backgroundColor: colors.surfaceRaised,
+      title: const Text('Voice diagnostics'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: SelectableText(
+            report,
+            textDirection: TextDirection.ltr,
+            style: TextStyle(
+              fontFamily: 'monospace',
+              fontSize: context.typography.caption.fontSize,
+              color: colors.textSecondary,
+            ),
+          ),
+        ),
+      ),
+      actionsPadding: EdgeInsets.all(spacing.sm),
+      actions: [
+        TextButton(
+          onPressed: () => AppClipboard.copy(report),
+          child: const Text('Copy'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+      ],
+    ),
+  );
 }

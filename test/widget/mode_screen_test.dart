@@ -13,28 +13,27 @@ import '../support/localized.dart';
 /// removing it is what made "the app can't do that" and "this APK was built
 /// wrong" look identical from the outside.
 void main() {
-  testWidgets('online is offered even when the build has no project',
-      (tester) async {
-    await tester.pumpWidget(localizedApp(
-      ModeScreen(
-        onPlayOffline: () {},
-        onPlayOnline: null,
-        onBack: () {},
+  testWidgets('online is offered even when the build has no project', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      localizedApp(
+        ModeScreen(onPlayOffline: () {}, onPlayOnline: null, onBack: () {}),
       ),
-    ));
+    );
 
     expect(find.byKey(ModeScreen.onlineCard), findsOneWidget);
     expect(find.byKey(ModeScreen.unavailableText), findsOneWidget);
   });
 
-  testWidgets('a configured build says nothing about the build', (tester) async {
-    await tester.pumpWidget(localizedApp(
-      ModeScreen(
-        onPlayOffline: () {},
-        onPlayOnline: () {},
-        onBack: () {},
+  testWidgets('a configured build says nothing about the build', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      localizedApp(
+        ModeScreen(onPlayOffline: () {}, onPlayOnline: () {}, onBack: () {}),
       ),
-    ));
+    );
 
     expect(find.byKey(ModeScreen.unavailableText), findsNothing);
   });
@@ -42,18 +41,22 @@ void main() {
   testWidgets('each card leads to its own mode', (tester) async {
     var offline = 0;
     var online = 0;
-    await tester.pumpWidget(localizedApp(
-      ModeScreen(
-        onPlayOffline: () => offline++,
-        onPlayOnline: () => online++,
-        onBack: () {},
+    await tester.pumpWidget(
+      localizedApp(
+        ModeScreen(
+          onPlayOffline: () => offline++,
+          onPlayOnline: () => online++,
+          onBack: () {},
+        ),
       ),
-    ));
+    );
 
+    await tester.ensureVisible(find.byKey(ModeScreen.offlineCard));
     await tester.tap(find.byKey(ModeScreen.offlineCard));
     await tester.pump();
     expect([offline, online], [1, 0]);
 
+    await tester.ensureVisible(find.byKey(ModeScreen.onlineCard));
     await tester.tap(find.byKey(ModeScreen.onlineCard));
     await tester.pump();
     expect([offline, online], [1, 1]);
@@ -73,9 +76,15 @@ void main() {
         })
         .join('\n');
 
-    expect(source.contains('onPlayOnline'), isFalse,
-        reason: 'the online action is back on Home');
-    expect(source.contains('SupabaseConfig'), isFalse,
-        reason: 'Home decides what to show from a build flag again');
+    expect(
+      source.contains('onPlayOnline'),
+      isFalse,
+      reason: 'the online action is back on Home',
+    );
+    expect(
+      source.contains('SupabaseConfig'),
+      isFalse,
+      reason: 'Home decides what to show from a build flag again',
+    );
   });
 }

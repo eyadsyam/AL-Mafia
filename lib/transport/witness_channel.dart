@@ -1,6 +1,59 @@
 import 'dart:async';
 
+import '../engine/models/enums.dart';
 import 'online_backend.dart';
+
+/// One night choice, as the dead see it: who chose what, about whom.
+class WitnessAction {
+  final int night;
+  final int seat;
+
+  /// `kill`, `protect`, `investigate` or `suspect` — the server's own words.
+  final String action;
+  final int targetSeat;
+
+  const WitnessAction({
+    required this.night,
+    required this.seat,
+    required this.action,
+    required this.targetSeat,
+  });
+}
+
+/// The whole table, open. Only ever handed to an eliminated player: the
+/// server's `witness_view` refuses everyone alive (owner decision 2026-09-23,
+/// recorded in doc 12 §4.1).
+class WitnessTable {
+  final Map<int, Role> roles;
+  final List<WitnessAction> actions;
+
+  const WitnessTable({required this.roles, required this.actions});
+
+  static WitnessTable fromJson(Map<String, dynamic> json) {
+    Role? role(Object? name) =>
+        Role.values.where((r) => r.name == name).firstOrNull;
+    return WitnessTable(
+      roles: {
+        for (final row in (json['roles'] as List? ?? const []).cast<Map>())
+          if (row['seat'] is int && role(row['role']) != null)
+            row['seat'] as int: role(row['role'])!,
+      },
+      actions: [
+        for (final row in (json['actions'] as List? ?? const []).cast<Map>())
+          if (row['night'] is int &&
+              row['seat'] is int &&
+              row['targetSeat'] is int &&
+              row['action'] is String)
+            WitnessAction(
+              night: row['night'] as int,
+              seat: row['seat'] as int,
+              action: row['action'] as String,
+              targetSeat: row['targetSeat'] as int,
+            ),
+      ],
+    );
+  }
+}
 
 /// One thing said in the graveyard.
 class GhostMessage {
@@ -72,6 +125,10 @@ abstract class WitnessChannel {
   /// ordinary answer, not a failure: doc 12 §4.1 says locked once submitted.
   Future<bool> predict(Prediction prediction);
 
+  /// Every role and every night choice so far, or null when the server
+  /// refuses (this player is alive) or cannot be reached. Never throws.
+  Future<WitnessTable?> table();
+
   /// Stops listening. Called when the match ends or the screen goes away.
   Future<void> dispose();
 }
@@ -80,6 +137,8 @@ abstract class WitnessChannel {
 class BackendWitnessChannel implements WitnessChannel {
   final OnlineBackend backend;
   final String roomId;
+  final Set<String> Function()? blocked;
+  List<GhostRow> _rows = const [];
 
   /// Seat and display name for a user id, re-read from the roster each time a
   /// batch arrives. A message from a player who joined after this channel was
@@ -90,6 +149,7 @@ class BackendWitnessChannel implements WitnessChannel {
     required this.backend,
     required this.roomId,
     required this.roster,
+    this.blocked,
   });
 
   StreamSubscription<List<GhostRow>>? _feed;
@@ -106,18 +166,20 @@ class BackendWitnessChannel implements WitnessChannel {
     _out = out;
     _feed = backend.ghostMessages(roomId).listen(
       (rows) {
+        _rows = rows;
         if (out.isClosed) return;
         final who = roster();
         out.add([
           for (final row in rows)
-            GhostMessage(
-              id: row.id,
-              seat: who[row.authorId]?.seat,
-              authorName: who[row.authorId]?.name ?? '',
-              body: row.body,
-              at: row.at,
-              mine: row.authorId == backend.userId,
-            ),
+            if (!(blocked?.call().contains(row.authorId) ?? false))
+              GhostMessage(
+                id: row.id,
+                seat: who[row.authorId]?.seat,
+                authorName: who[row.authorId]?.name ?? '',
+                body: row.body,
+                at: row.at,
+                mine: row.authorId == backend.userId,
+              ),
         ]);
       },
       // A graveyard that stopped updating is a quiet graveyard, not a broken
@@ -130,6 +192,24 @@ class BackendWitnessChannel implements WitnessChannel {
   @override
   Future<void> say(String body) =>
       backend.call('ghost_say', {'roomId': roomId, 'body': body}).then((_) {});
+
+  void refreshBlocks() {
+    final out = _out;
+    if (out == null || out.isClosed) return;
+    final who = roster();
+    out.add([
+      for (final row in _rows)
+        if (!(blocked?.call().contains(row.authorId) ?? false))
+          GhostMessage(
+            id: row.id,
+            seat: who[row.authorId]?.seat,
+            authorName: who[row.authorId]?.name ?? '',
+            body: row.body,
+            at: row.at,
+            mine: row.authorId == backend.userId,
+          ),
+    ]);
+  }
 
   @override
   Future<Prediction?> myPrediction() => backend.myPrediction(roomId);
@@ -147,6 +227,16 @@ class BackendWitnessChannel implements WitnessChannel {
       // The only refusal a screen can act on: one was already lodged.
       if (e.code == 'RATE_LIMITED') return false;
       rethrow;
+    }
+  }
+
+  @override
+  Future<WitnessTable?> table() async {
+    try {
+      final json = await backend.call('witness_view', {'roomId': roomId});
+      return WitnessTable.fromJson(json);
+    } catch (_) {
+      return null;
     }
   }
 

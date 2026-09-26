@@ -77,7 +77,8 @@ class CardRise extends StatefulWidget {
   State<CardRise> createState() => _CardRiseState();
 }
 
-class _CardRiseState extends State<CardRise> with SingleTickerProviderStateMixin {
+class _CardRiseState extends State<CardRise>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _beats = AnimationController(
     vsync: this,
     duration: Duration.zero,
@@ -87,6 +88,7 @@ class _CardRiseState extends State<CardRise> with SingleTickerProviderStateMixin
   late double _riseEnd;
   late double _flipStart;
   late double _flipEnd;
+  late double _leaveStart;
 
   @override
   void didChangeDependencies() {
@@ -97,13 +99,15 @@ class _CardRiseState extends State<CardRise> with SingleTickerProviderStateMixin
     final rise = motion.rise;
     final hold = motion.phase;
     final flip = motion.card;
+    const dwell = MafiaTiming.eliminationCardDwell;
     final shrink = widget.shrinkBack ? motion.rise : Duration.zero;
-    final total = rise + hold + flip + shrink;
+    final total = rise + hold + flip + dwell + shrink;
 
     double at(Duration d) => d.inMicroseconds / total.inMicroseconds;
     _riseEnd = at(rise);
     _flipStart = at(rise + hold);
     _flipEnd = at(rise + hold + flip);
+    _leaveStart = at(rise + hold + flip + dwell);
 
     _beats.duration = total;
     _beats.forward().whenComplete(() {
@@ -138,33 +142,38 @@ class _CardRiseState extends State<CardRise> with SingleTickerProviderStateMixin
             _phase(_flipStart, _flipEnd),
           );
           final leaving = widget.shrinkBack
-              ? motion.standardCurve.transform(_phase(_flipEnd, 1))
+              ? motion.standardCurve.transform(_phase(_leaveStart, 1))
               : 0.0;
 
           // Cross-fade rather than transform, and face-up from the first
           // frame — there is no rotation to read and no scale to track.
-          final scale = still ? 1.0 : (0.2 + 0.8 * rising) * (1 - 0.8 * leaving);
+          final scale = still
+              ? 1.0
+              : (0.2 + 0.8 * rising) * (1 - 0.8 * leaving);
           final faceUp = still ? true : flipping >= 0.5;
           final turn = still ? 0.0 : flipping * math.pi;
-          final opacity = still
-              ? math.min(rising, 1 - leaving)
-              : (1 - leaving);
+          final opacity = still ? math.min(rising, 1 - leaving) : (1 - leaving);
 
           return ColoredBox(
             color: colors.surfaceBase.withValues(alpha: 0.86 * (1 - leaving)),
             child: Center(
               child: Opacity(
                 opacity: opacity.clamp(0.0, 1.0),
-                child: Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.identity()
-                    ..setEntry(3, 2, motion.perspective)
-                    ..rotateY(turn)
-                    ..scaleByDouble(scale, scale, 1, 1),
-                  child: _Face(
-                    role: widget.role,
-                    name: widget.name,
-                    faceUp: faceUp,
+                // A short landscape window gets the whole card, smaller,
+                // rather than a card that runs off the screen.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.identity()
+                      ..setEntry(3, 2, motion.perspective)
+                      ..rotateY(turn)
+                      ..scaleByDouble(scale, scale, 1, 1),
+                    child: _Face(
+                      role: widget.role,
+                      name: widget.name,
+                      faceUp: faceUp,
+                    ),
                   ),
                 ),
               ),
@@ -207,8 +216,8 @@ class _Face extends StatelessWidget {
             child: Image.asset(
               faceUp ? faceFor(role) : AppImages.cardBack,
               width: CouncilTokens.cardRiseSize,
-              height: CouncilTokens.cardRiseSize,
-              fit: BoxFit.cover,
+              height: CouncilTokens.cardRiseSize / CouncilTokens.cardArtAspect,
+              fit: BoxFit.contain,
               excludeFromSemantics: true,
             ),
           ),

@@ -38,7 +38,8 @@ class _Particle {
   });
 }
 
-class _FallingIconsState extends State<FallingIcons> with SingleTickerProviderStateMixin {
+class _FallingIconsState extends State<FallingIcons>
+    with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
   final List<_Particle> _particles = [];
   final Random _random = Random(42); // Seeded so the effect is deterministic
@@ -65,7 +66,8 @@ class _FallingIconsState extends State<FallingIcons> with SingleTickerProviderSt
           size: 16.0 + _random.nextDouble() * 24.0,
           // Very low opacity: 4% to 8%
           opacity: 0.04 + _random.nextDouble() * 0.04,
-          iconType: i % 4, // Guarantee an equal mix of all 4 roles to prevent leakage
+          iconType:
+              i % 4, // Guarantee an equal mix of all 4 roles to prevent leakage
         ),
       );
     }
@@ -123,13 +125,13 @@ class _FallingIconsPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
-    
+
     final seconds = elapsed.value.inMicroseconds / 1000000.0;
 
     for (final p in particles) {
       // Y offset goes downwards and wraps around cleanly
       final currentY = (p.y + (seconds * p.speed)) % 1.0;
-      
+
       final dx = p.x * size.width;
       final dy = currentY * size.height;
 

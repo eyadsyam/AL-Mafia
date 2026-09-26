@@ -76,22 +76,25 @@ void main() {
       for (final p in engine.match.players)
         p.seat == seat ? p.copyWith(role: role) : p,
     ];
-    controller.adoptMatch(engine.match.copyWith(
-      players: players,
-      phase: GamePhase.voting,
-      currentActorSeat: seat,
-    ));
+    controller.adoptMatch(
+      engine.match.copyWith(
+        players: players,
+        phase: GamePhase.voting,
+        currentActorSeat: seat,
+      ),
+    );
 
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
         child: RepaintBoundary(
           key: boundaryKey,
-          child: localizedApp(VotingScreen(
+          child: localizedApp(
+            VotingScreen(
               key: ValueKey('ballot-${mountCounter++}'),
               onVotingComplete: () {},
               allowAbstain: allowAbstain,
-            )
+            ),
           ),
         ),
       ),
@@ -109,8 +112,9 @@ void main() {
   }
 
   Future<Uint8List> capture(WidgetTester tester) async {
-    final boundary =
-        tester.renderObject<RenderRepaintBoundary>(find.byKey(boundaryKey));
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.byKey(boundaryKey),
+    );
     final bytes = await tester.runAsync(() async {
       final ui.Image image = await boundary.toImage();
       try {
@@ -159,37 +163,50 @@ void main() {
 
       final reference = captured[Role.mafia]!;
       for (final role in Role.values) {
-        expect(captured[role], equals(reference),
-            reason: 'the ballot handed to a ${role.name} differs from a '
-                'mafioso\'s — the voter\'s role is visible on screen');
-        expect(structures[role], equals(structures[Role.mafia]!),
-            reason: 'widget tree differs for ${role.name}');
+        expect(
+          captured[role],
+          equals(reference),
+          reason:
+              'the ballot handed to a ${role.name} differs from a '
+              'mafioso\'s — the voter\'s role is visible on screen',
+        );
+        expect(
+          structures[role],
+          equals(structures[Role.mafia]!),
+          reason: 'widget tree differs for ${role.name}',
+        );
       }
     });
 
-    testWidgets('the ballot offers the same choices regardless of role',
-        (tester) async {
+    testWidgets('the ballot offers the same choices regardless of role', (
+      tester,
+    ) async {
       final counts = <Role, int>{};
       for (final role in Role.values) {
         await openBallot(tester, seat: 0, role: role);
         counts[role] = tester.widgetList(find.byType(PlayerTile)).length;
       }
-      expect(counts.values.toSet(), hasLength(1),
-          reason: 'candidate count varies with the voter\'s role: $counts');
+      expect(
+        counts.values.toSet(),
+        hasLength(1),
+        reason: 'candidate count varies with the voter\'s role: $counts',
+      );
       // Six others, all alive: the voter is excluded, nobody else is.
       expect(counts[Role.mafia], equals(names.length - 1));
     });
 
-    testWidgets('every role is offered the same on-screen copy', (tester) async {
+    testWidgets('every role is offered the same on-screen copy', (
+      tester,
+    ) async {
       // The pixel comparison above cannot see this. `flutter_test` renders
       // every glyph of its default font as the same box, so two different
       // strings of equal length produce identical bytes. Comparing the actual
       // strings closes that gap — a role-specific label would slip past a
       // pixel-only check.
       List<String> textOf(WidgetTester t) => [
-            for (final w in t.widgetList<Text>(find.byType(Text)))
-              if (w.data != null) w.data!,
-          ]..sort();
+        for (final w in t.widgetList<Text>(find.byType(Text)))
+          if (w.data != null) w.data!,
+      ]..sort();
 
       final copy = <Role, List<String>>{};
       for (final role in Role.values) {
@@ -197,8 +214,11 @@ void main() {
         copy[role] = textOf(tester);
       }
       for (final role in Role.values) {
-        expect(copy[role], equals(copy[Role.mafia]!),
-            reason: 'the ballot says something different to a ${role.name}');
+        expect(
+          copy[role],
+          equals(copy[Role.mafia]!),
+          reason: 'the ballot says something different to a ${role.name}',
+        );
       }
     });
 
@@ -208,10 +228,18 @@ void main() {
       // glyph-shape reason described above — so toggle a control on and off.
       await openBallot(tester, seat: 0, role: Role.citizen, allowAbstain: true);
       final withAbstain = await capture(tester);
-      await openBallot(tester, seat: 0, role: Role.citizen, allowAbstain: false);
+      await openBallot(
+        tester,
+        seat: 0,
+        role: Role.citizen,
+        allowAbstain: false,
+      );
       final withoutAbstain = await capture(tester);
-      expect(withAbstain, isNot(equals(withoutAbstain)),
-          reason: 'pixel capture is not sensitive to content changes');
+      expect(
+        withAbstain,
+        isNot(equals(withoutAbstain)),
+        reason: 'pixel capture is not sensitive to content changes',
+      );
     });
   });
 }

@@ -40,9 +40,7 @@ void main() {
     saved = (await repository.listGroups()).single;
 
     container = ProviderContainer(
-      overrides: [
-        playerGroupRepositoryProvider.overrideWithValue(repository),
-      ],
+      overrides: [playerGroupRepositoryProvider.overrideWithValue(repository)],
     );
     addTearDown(container.dispose);
 
@@ -68,8 +66,9 @@ void main() {
       (await MemoryPlayerGroupRepository(store).listGroups()).single;
 
   group('guests', () {
-    testWidgets('a guest is offered to the group and joins when accepted',
-        (tester) async {
+    testWidgets('a guest is offered to the group and joins when accepted', (
+      tester,
+    ) async {
       await pumpFollowUp(tester, played: [...friday, 'Karim']);
 
       expect(find.text('تضيفهم للمجموعة؟'), findsOneWidget);
@@ -90,13 +89,18 @@ void main() {
       expect(group.memberNames, orderedEquals(friday));
     });
 
-    testWidgets('nothing is asked when the roster is unchanged',
-        (tester) async {
+    testWidgets('nothing is asked when the roster is unchanged', (
+      tester,
+    ) async {
       await pumpFollowUp(tester, played: friday);
 
-      expect(find.byType(AlertDialog), findsNothing,
-          reason: 'a night that changed nothing must not interrupt the result '
-              'screen to say so');
+      expect(
+        find.byType(AlertDialog),
+        findsNothing,
+        reason:
+            'a night that changed nothing must not interrupt the result '
+            'screen to say so',
+      );
     });
 
     testWidgets('an absence alone asks nothing', (tester) async {
@@ -116,8 +120,9 @@ void main() {
   group('seating order', () {
     const reseated = ['Fatima', 'Ahmed', 'Salem', 'Laila', 'Omar', 'Nada'];
 
-    testWidgets('a changed order is offered and saved when accepted',
-        (tester) async {
+    testWidgets('a changed order is offered and saved when accepted', (
+      tester,
+    ) async {
       await pumpFollowUp(tester, played: reseated);
 
       expect(find.text('تحفظ ترتيب اللاعبين؟'), findsOneWidget);
@@ -136,8 +141,9 @@ void main() {
       expect((await reload()).memberNames, orderedEquals(friday));
     });
 
-    testWidgets('an absent member keeps their slot when the order is saved',
-        (tester) async {
+    testWidgets('an absent member keeps their slot when the order is saved', (
+      tester,
+    ) async {
       // Fatima (seat 2) is away; Salem and Ahmed swapped. Saving the new order
       // must not drop Fatima — she was not there to be reordered, so she stays
       // where she was.
@@ -151,17 +157,24 @@ void main() {
       await tester.pumpAndSettle();
 
       final group = await reload();
-      expect(group.memberNames, contains('Fatima'),
-          reason: 'saving a seating order may never cost an absent member '
-              'their place in the group');
+      expect(
+        group.memberNames,
+        contains('Fatima'),
+        reason:
+            'saving a seating order may never cost an absent member '
+            'their place in the group',
+      );
       expect(group.memberNames, hasLength(friday.length));
-      expect(group.memberNames.indexOf('Salem'),
-          lessThan(group.memberNames.indexOf('Ahmed')));
+      expect(
+        group.memberNames.indexOf('Salem'),
+        lessThan(group.memberNames.indexOf('Ahmed')),
+      );
     });
   });
 
-  testWidgets('the question is asked once and not again on rebuild',
-      (tester) async {
+  testWidgets('the question is asked once and not again on rebuild', (
+    tester,
+  ) async {
     await pumpFollowUp(tester, played: [...friday, 'Karim']);
     await tester.tap(find.byKey(const ValueKey('group_follow_up_dismiss')));
     await tester.pumpAndSettle();
@@ -172,9 +185,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AlertDialog), findsNothing);
-    expect(container.read(setupDraftProvider).group, isNull,
-        reason: 'the draft holds the group only until the question has been '
-            'asked; leaving it attached is how a dismissed prompt comes back');
+    expect(
+      container.read(setupDraftProvider).group,
+      isNull,
+      reason:
+          'the draft holds the group only until the question has been '
+          'asked; leaving it attached is how a dismissed prompt comes back',
+    );
   });
 
   testWidgets('a group deleted during the match is not resurrected by the '
@@ -189,19 +206,22 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('group_follow_up_accept')));
     await tester.pumpAndSettle();
 
-    expect(await MemoryPlayerGroupRepository(store).listGroups(), isEmpty,
-        reason: 'the deleted group came back');
+    expect(
+      await MemoryPlayerGroupRepository(store).listGroups(),
+      isEmpty,
+      reason: 'the deleted group came back',
+    );
   });
 
   group('SetupDraft roster arithmetic', () {
     SetupDraft draftWith(List<String> names) => SetupDraft(
-          names: names,
-          group: PlayerGroup.create(
-            name: 'g',
-            memberNames: friday,
-            now: DateTime.utc(2026, 8, 1),
-          ),
-        );
+      names: names,
+      group: PlayerGroup.create(
+        name: 'g',
+        memberNames: friday,
+        now: DateTime.utc(2026, 8, 1),
+      ),
+    );
 
     test('guests are the names the group does not know', () {
       expect(draftWith([...friday, 'Karim']).guests, equals(['Karim']));
@@ -213,16 +233,27 @@ void main() {
       // is what stops "everyone after Fatima shifted up one" reading as the
       // table having rearranged itself.
       expect(
-        draftWith(const ['Ahmed', 'Salem', 'Laila', 'Omar', 'Nada'])
-            .seatingOrderChanged,
+        draftWith(const [
+          'Ahmed',
+          'Salem',
+          'Laila',
+          'Omar',
+          'Nada',
+        ]).seatingOrderChanged,
         isFalse,
       );
     });
 
     test('a genuine swap is a reorder', () {
       expect(
-        draftWith(const ['Fatima', 'Ahmed', 'Salem', 'Laila', 'Omar', 'Nada'])
-            .seatingOrderChanged,
+        draftWith(const [
+          'Fatima',
+          'Ahmed',
+          'Salem',
+          'Laila',
+          'Omar',
+          'Nada',
+        ]).seatingOrderChanged,
         isTrue,
       );
     });

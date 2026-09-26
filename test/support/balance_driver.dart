@@ -138,11 +138,13 @@ class PublicView {
   /// Whether any seat in [seats] was voted for on the most recent day.
   bool heatOn(Set<int> seats) {
     final day = match.dayNumber;
-    return match.eventLog.any((e) =>
-        e is VoteCast &&
-        e.phaseRef.number >= day - 1 &&
-        e.targetSeat != null &&
-        seats.contains(e.targetSeat));
+    return match.eventLog.any(
+      (e) =>
+          e is VoteCast &&
+          e.phaseRef.number >= day - 1 &&
+          e.targetSeat != null &&
+          seats.contains(e.targetSeat),
+    );
   }
 }
 
@@ -219,16 +221,18 @@ class _Reads {
   _Reads(Match match, Set<int> mafiaSeats, Random rng, this._readBias) {
     final shared = {
       for (final p in match.players)
-        p.seat: rng.nextInt(1000) +
-            (mafiaSeats.contains(p.seat) ? _readBias : 0),
+        p.seat:
+            rng.nextInt(1000) + (mafiaSeats.contains(p.seat) ? _readBias : 0),
     };
     for (final observer in match.players) {
       final row = <int, int>{};
       for (final target in match.players) {
         if (target.seat == observer.seat) continue;
-        final private = rng.nextInt(1000) +
+        final private =
+            rng.nextInt(1000) +
             (mafiaSeats.contains(target.seat) ? _readBias : 0);
-        row[target.seat] = (shared[target.seat]! * _sharedWeight +
+        row[target.seat] =
+            (shared[target.seat]! * _sharedWeight +
                 private * (10 - _sharedWeight)) ~/
             10;
       }
@@ -323,8 +327,10 @@ BalanceResult simulateMatch({
   while (!isTerminal(engine.match)) {
     final options = legalMoves(engine.match);
     if (options.isEmpty) {
-      throw StateError('balance: dead end in ${engine.match.phase.name} '
-          '(seed $seed, $players players, ${preset.name})');
+      throw StateError(
+        'balance: dead end in ${engine.match.phase.name} '
+        '(seed $seed, $players players, ${preset.name})',
+      );
     }
 
     final move = _choose(
@@ -358,8 +364,10 @@ BalanceResult simulateMatch({
 
     moves++;
     if (moves > kStallGuard) {
-      throw StateError('balance: ${preset.name} @ $players did not terminate '
-          'in $kStallGuard moves (seed $seed)');
+      throw StateError(
+        'balance: ${preset.name} @ $players did not terminate '
+        'in $kStallGuard moves (seed $seed)',
+      );
     }
   }
 
@@ -395,14 +403,22 @@ Move _choose({
   switch (match.phase) {
     case GamePhase.night:
       return _nightMove(
-          match, options, town, mafiaSeats, memory, reads, view, rng);
+        match,
+        options,
+        town,
+        mafiaSeats,
+        memory,
+        reads,
+        view,
+        rng,
+      );
 
     case GamePhase.openingRound:
       final seat = match.currentActorSeat!;
       return _pick<OpeningAccusationMove>(
         options.whereType<OpeningAccusationMove>().toList(),
-        (m) => _accusationScore(
-            m.targetSeat, seat, town, mafiaSeats, reads, view),
+        (m) =>
+            _accusationScore(m.targetSeat, seat, town, mafiaSeats, reads, view),
         rng,
       );
 
@@ -411,7 +427,14 @@ Move _choose({
       return _pick<VoteMove>(
         options.whereType<VoteMove>().toList(),
         (m) => _ballotScore(
-            m.targetSeat, seat, town, mafiaSeats, memory, reads, view),
+          m.targetSeat,
+          seat,
+          town,
+          mafiaSeats,
+          memory,
+          reads,
+          view,
+        ),
         rng,
       );
 
@@ -432,11 +455,7 @@ Move _choose({
 
 /// Higher is better. Ties are broken by [rng] so that two equally-suspected
 /// seats do not both die to seat order.
-T _pick<T extends Move>(
-  List<T> candidates,
-  int Function(T) score,
-  Random rng,
-) {
+T _pick<T extends Move>(List<T> candidates, int Function(T) score, Random rng) {
   if (candidates.isEmpty) throw StateError('balance: nothing to pick from');
   var best = <T>[candidates.first];
   var bestScore = score(candidates.first);
@@ -467,11 +486,10 @@ Move _nightMove(
   final acts = options.whereType<NightActionMove>().toList();
   final plain = acts.where((m) => !m.useBullet).toList();
   final skips = options.whereType<SkipNightActionMove>().toList();
-  final armedSkip =
-      skips.where((m) => m.useBullet).cast<SkipNightActionMove?>().firstWhere(
-            (m) => true,
-            orElse: () => null,
-          );
+  final armedSkip = skips
+      .where((m) => m.useBullet)
+      .cast<SkipNightActionMove?>()
+      .firstWhere((m) => true, orElse: () => null);
 
   switch (role) {
     case Role.mafia:
@@ -488,9 +506,10 @@ Move _nightMove(
       // leaving them alive. Coordinated by the same seat tie-break as the
       // ballot, so a night's kill votes converge on one name.
       return _pick<NightActionMove>(
-          plain,
-          (m) => (dangerous.contains(m.targetSeat) ? 0 : 1000) - m.targetSeat,
-          rng);
+        plain,
+        (m) => (dangerous.contains(m.targetSeat) ? 0 : 1000) - m.targetSeat,
+        rng,
+      );
 
     case Role.doctor:
       // «حماية النفس» when the table has been voting for us: a Doctor who dies
@@ -501,7 +520,10 @@ Move _nightMove(
       // Cover the loudest voice at the table.
       final suspicion = view.publicSuspicion;
       return _pick<NightActionMove>(
-          plain, (m) => suspicion[m.targetSeat] ?? 0, rng);
+        plain,
+        (m) => suspicion[m.targetSeat] ?? 0,
+        rng,
+      );
 
     case Role.detective:
       // «فتح الملف» once there is something in it worth the table hearing.
@@ -527,7 +549,10 @@ Move _nightMove(
       // Their own impression, published only by dying with it. This is the
       // single input the trace layer has to work with.
       final target = _pick<NightActionMove>(
-          plain, (m) => reads.of(seat, m.targetSeat), rng);
+        plain,
+        (m) => reads.of(seat, m.targetSeat),
+        rng,
+      );
       // «الشهادة» — say it out loud when the trace already said it. Two voices
       // on one name is the whole of what a Citizen can contribute.
       if (town == TownPolicy.trace &&

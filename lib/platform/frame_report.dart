@@ -26,8 +26,10 @@ import 'package:flutter/scheduler.dart';
 /// since launch" — and the launch frames, which include decoding every image on
 /// the home screen, would dominate a cumulative average forever.
 abstract final class FrameReport {
-  static const bool enabled =
-      bool.fromEnvironment('FRAME_REPORT', defaultValue: false);
+  static const bool enabled = bool.fromEnvironment(
+    'FRAME_REPORT',
+    defaultValue: false,
+  );
 
   /// Frames per report. At 60fps this is a report every ~5 seconds.
   static const int _window = 300;

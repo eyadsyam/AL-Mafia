@@ -145,8 +145,7 @@ class _OpeningRoundScreenState extends State<OpeningRoundScreen> {
                   Expanded(
                     child: ListView.separated(
                       itemCount: targets.length,
-                      separatorBuilder: (_, __) =>
-                          SizedBox(height: spacing.xs),
+                      separatorBuilder: (_, __) => SizedBox(height: spacing.xs),
                       itemBuilder: (context, index) {
                         final target = targets[index];
                         return PlayerTile(

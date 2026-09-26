@@ -46,7 +46,9 @@ void main() {
           PublicPlayer(
             seat: seat,
             name: 'P$seat',
-            status: dead.contains(seat) ? PlayerStatus.dead : PlayerStatus.alive,
+            status: dead.contains(seat)
+                ? PlayerStatus.dead
+                : PlayerStatus.alive,
           ),
       ],
     ),
@@ -65,7 +67,9 @@ void main() {
   }) async {
     await tester.pumpWidget(
       localizedApp(
-        Scaffold(body: TableScene(snapshot: snapshot, selectedSeat: selected)),
+        Scaffold(
+          body: TableScene(snapshot: snapshot, selectedSeat: selected),
+        ),
       ),
     );
     await tester.pump();
@@ -75,23 +79,24 @@ void main() {
       tester.widget<CouncilBand>(find.byType(CouncilBand)).seats;
 
   group('the council is one scene', () {
-    testWidgets('every seat but yours is drawn, in every phase, alive or dead', (
-      tester,
-    ) async {
-      for (final phase in GamePhase.values) {
-        if (phase == GamePhase.setup || phase == GamePhase.rolesConfigured) {
-          continue;
+    testWidgets(
+      'every seat but yours is drawn, in every phase, alive or dead',
+      (tester) async {
+        for (final phase in GamePhase.values) {
+          if (phase == GamePhase.setup || phase == GamePhase.rolesConfigured) {
+            continue;
+          }
+          await pump(tester, snapshotOf(phase: phase, dead: const {3}));
+          // Five, not six: doc 15 §1.1 takes the viewer out of the council and
+          // puts them under their own hand in band 4.
+          expect(
+            chairsIn(tester),
+            hasLength(5),
+            reason: '$phase drew a different number of chairs',
+          );
         }
-        await pump(tester, snapshotOf(phase: phase, dead: const {3}));
-        // Five, not six: doc 15 §1.1 takes the viewer out of the council and
-        // puts them under their own hand in band 4.
-        expect(
-          chairsIn(tester),
-          hasLength(5),
-          reason: '$phase drew a different number of chairs',
-        );
-      }
-    });
+      },
+    );
 
     testWidgets('the four bands are all there, at their stated proportions', (
       tester,
@@ -228,7 +233,8 @@ void main() {
       expect(
         byNight,
         byDay,
-        reason: 'a chair moved or resized when the phase changed, which makes '
+        reason:
+            'a chair moved or resized when the phase changed, which makes '
             'the phase readable off the geometry',
       );
     });
@@ -322,10 +328,7 @@ void main() {
 
     test('a deadline already past reads zero rather than a negative', () {
       final deadline = DateTime.utc(2026, 9, 2, 12);
-      expect(
-        HeaderTimer.secondsLeft(deadline, deadline),
-        0,
-      );
+      expect(HeaderTimer.secondsLeft(deadline, deadline), 0);
       expect(
         HeaderTimer.secondsLeft(deadline, DateTime.utc(2026, 9, 2, 12, 1)),
         0,
@@ -339,18 +342,18 @@ void main() {
 
   group('the phase rule the council reads', () {
     test('statusFor collapses everything the night forbids', () {
-      const player = PublicPlayer(seat: 1, name: 'P1', status: PlayerStatus.alive);
+      const player = PublicPlayer(
+        seat: 1,
+        name: 'P1',
+        status: PlayerStatus.alive,
+      );
       final loud = snapshotOf(
         phase: GamePhase.night,
         speaker: 1,
         connected: const {1: false},
       );
       expect(
-        TableScene.statusFor(
-          loud,
-          player,
-          mood: TableMood.of(GamePhase.night),
-        ),
+        TableScene.statusFor(loud, player, mood: TableMood.of(GamePhase.night)),
         SeatStatus.idle,
       );
       expect(
@@ -373,7 +376,10 @@ void main() {
         SeatStatus.confronted,
         SeatStatus.disconnected,
       ]) {
-        expect(effectiveSeatStatus(status, showsStatus: false), SeatStatus.idle);
+        expect(
+          effectiveSeatStatus(status, showsStatus: false),
+          SeatStatus.idle,
+        );
       }
     });
   });

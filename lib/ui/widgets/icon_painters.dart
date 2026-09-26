@@ -49,7 +49,7 @@ class PistolPainter extends _BaseIconPainter {
     path.lineTo(w * 0.8, h * 0.3);
     path.lineTo(w * 0.8, h * 0.45);
     path.lineTo(w * 0.5, h * 0.45);
-    
+
     // Grip
     path.lineTo(w * 0.4, h * 0.8);
     path.lineTo(w * 0.2, h * 0.8);
@@ -59,12 +59,19 @@ class PistolPainter extends _BaseIconPainter {
 
     // Trigger guard
     path.moveTo(w * 0.45, h * 0.45);
-    path.arcToPoint(Offset(w * 0.35, h * 0.55), radius: Radius.circular(w * 0.1));
+    path.arcToPoint(
+      Offset(w * 0.35, h * 0.55),
+      radius: Radius.circular(w * 0.1),
+    );
 
     canvas.drawPath(path, paint);
   }
 
-  static Widget icon({required Color color, double opacity = 1.0, double size = 24.0}) {
+  static Widget icon({
+    required Color color,
+    double opacity = 1.0,
+    double size = 24.0,
+  }) {
     return CustomPaint(
       size: Size(size, size),
       painter: PistolPainter(color: color, opacity: opacity),
@@ -102,7 +109,11 @@ class CrossPainter extends _BaseIconPainter {
     canvas.drawPath(path, paint);
   }
 
-  static Widget icon({required Color color, double opacity = 1.0, double size = 24.0}) {
+  static Widget icon({
+    required Color color,
+    double opacity = 1.0,
+    double size = 24.0,
+  }) {
     return CustomPaint(
       size: Size(size, size),
       painter: CrossPainter(color: color, opacity: opacity),
@@ -127,14 +138,25 @@ class LensPainter extends _BaseIconPainter {
     // Inner reflection
     final path = Path();
     path.moveTo(w * 0.25, h * 0.3);
-    path.arcToPoint(Offset(w * 0.35, h * 0.2), radius: Radius.circular(w * 0.15));
+    path.arcToPoint(
+      Offset(w * 0.35, h * 0.2),
+      radius: Radius.circular(w * 0.15),
+    );
     canvas.drawPath(path, paint);
 
     // Handle
-    canvas.drawLine(Offset(w * 0.58, h * 0.58), Offset(w * 0.85, h * 0.85), paint);
+    canvas.drawLine(
+      Offset(w * 0.58, h * 0.58),
+      Offset(w * 0.85, h * 0.85),
+      paint,
+    );
   }
 
-  static Widget icon({required Color color, double opacity = 1.0, double size = 24.0}) {
+  static Widget icon({
+    required Color color,
+    double opacity = 1.0,
+    double size = 24.0,
+  }) {
     return CustomPaint(
       size: Size(size, size),
       painter: LensPainter(color: color, opacity: opacity),
@@ -160,7 +182,7 @@ class SpadePainter extends _BaseIconPainter {
     path.quadraticBezierTo(w * 0.7, h * 0.8, w * 0.5, h * 0.7);
     path.quadraticBezierTo(w * 0.3, h * 0.8, w * 0.2, h * 0.65);
     path.quadraticBezierTo(w * 0.1, h * 0.4, w * 0.5, h * 0.1);
-    
+
     // Stem
     path.moveTo(w * 0.5, h * 0.7);
     path.lineTo(w * 0.6, h * 0.9);
@@ -170,7 +192,11 @@ class SpadePainter extends _BaseIconPainter {
     canvas.drawPath(path, paint);
   }
 
-  static Widget icon({required Color color, double opacity = 1.0, double size = 24.0}) {
+  static Widget icon({
+    required Color color,
+    double opacity = 1.0,
+    double size = 24.0,
+  }) {
     return CustomPaint(
       size: Size(size, size),
       painter: SpadePainter(color: color, opacity: opacity),

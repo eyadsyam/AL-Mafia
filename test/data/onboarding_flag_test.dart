@@ -38,13 +38,15 @@ void main() {
     expect(await repository.hasSeenOnboarding(), isTrue);
   });
 
-  test('it survives the repository being rebuilt over the same store',
-      () async {
-    await repository.markOnboardingSeen();
+  test(
+    'it survives the repository being rebuilt over the same store',
+    () async {
+      await repository.markOnboardingSeen();
 
-    // A relaunch. The repository is gone; the storage is not.
-    expect(await MemoryMatchRepository(store).hasSeenOnboarding(), isTrue);
-  });
+      // A relaunch. The repository is gone; the storage is not.
+      expect(await MemoryMatchRepository(store).hasSeenOnboarding(), isTrue);
+    },
+  );
 
   test('saving settings does not un-see it', () async {
     await repository.markOnboardingSeen();
@@ -63,15 +65,18 @@ void main() {
     expect(await repository.loadDefaultSettings(), settings);
   });
 
-  test('settings are still their defaults when only the flag was written',
-      () async {
-    await repository.markOnboardingSeen();
+  test(
+    'settings are still their defaults when only the flag was written',
+    () async {
+      await repository.markOnboardingSeen();
 
-    expect(
-      await repository.loadDefaultSettings(),
-      const MatchSettings.defaults(),
-      reason: 'a row written by markOnboardingSeen carries no settings '
-          'payload, and must read back as though there were no row at all',
-    );
-  });
+      expect(
+        await repository.loadDefaultSettings(),
+        const MatchSettings.defaults(),
+        reason:
+            'a row written by markOnboardingSeen carries no settings '
+            'payload, and must read back as though there were no row at all',
+      );
+    },
+  );
 }

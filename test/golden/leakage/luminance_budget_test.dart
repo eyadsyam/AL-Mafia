@@ -121,41 +121,60 @@ void main() {
 
   group('L-05 luminance budget', () {
     for (final state in states) {
-      testWidgets('all roles are within ±2% of the mean in ${state.name}',
-          (tester) async {
+      testWidgets('all roles are within ±2% of the mean in ${state.name}', (
+        tester,
+      ) async {
         final byRole = <Role, double>{};
         for (final role in Role.values) {
           byRole[role] = await luminanceOf(tester, role, state);
         }
 
-        final mean =
-            byRole.values.reduce((a, b) => a + b) / byRole.length;
+        final mean = byRole.values.reduce((a, b) => a + b) / byRole.length;
 
         // A pitch-black frame would make the ratio test meaningless.
-        expect(mean, greaterThan(0.0),
-            reason: 'nothing was rendered in state ${state.name}');
+        expect(
+          mean,
+          greaterThan(0.0),
+          reason: 'nothing was rendered in state ${state.name}',
+        );
 
         for (final entry in byRole.entries) {
           final drift = (entry.value - mean).abs() / mean;
-          expect(drift, lessThanOrEqualTo(0.02),
-              reason: '${entry.key.name} in ${state.name} is '
-                  '${(drift * 100).toStringAsFixed(2)}% off the set mean '
-                  '(${entry.value.toStringAsFixed(6)} vs '
-                  '${mean.toStringAsFixed(6)}), outside the ±2% budget');
+          expect(
+            drift,
+            lessThanOrEqualTo(0.02),
+            reason:
+                '${entry.key.name} in ${state.name} is '
+                '${(drift * 100).toStringAsFixed(2)}% off the set mean '
+                '(${entry.value.toStringAsFixed(6)} vs '
+                '${mean.toStringAsFixed(6)}), outside the ±2% budget',
+          );
         }
       });
     }
 
-    testWidgets('the measurement can detect a brightness difference',
-        (tester) async {
+    testWidgets('the measurement can detect a brightness difference', (
+      tester,
+    ) async {
       // Guards the metric itself. The handoff pad fills a large area, so a
       // screen that has revealed its content is measurably brighter than one
       // that has not; if these came out equal, every budget check above would
       // be passing on a constant.
-      final dark = await luminanceOf(tester, Role.citizen, TurnShellState.handoff);
-      final lit = await luminanceOf(tester, Role.citizen, TurnShellState.revealed);
-      expect((lit - dark).abs() / ((lit + dark) / 2), greaterThan(0.02),
-          reason: 'luminance measurement is not sensitive to screen content');
+      final dark = await luminanceOf(
+        tester,
+        Role.citizen,
+        TurnShellState.handoff,
+      );
+      final lit = await luminanceOf(
+        tester,
+        Role.citizen,
+        TurnShellState.revealed,
+      );
+      expect(
+        (lit - dark).abs() / ((lit + dark) / 2),
+        greaterThan(0.02),
+        reason: 'luminance measurement is not sensitive to screen content',
+      );
     });
   });
 
@@ -198,7 +217,8 @@ void main() {
       final rgba = data!.buffer.asUint8List();
       var total = 0.0;
       for (var i = 0; i < rgba.length; i += 4) {
-        total += 0.2126 * rgba[i] / 255.0 +
+        total +=
+            0.2126 * rgba[i] / 255.0 +
             0.7152 * rgba[i + 1] / 255.0 +
             0.0722 * rgba[i + 2] / 255.0;
       }
@@ -206,34 +226,44 @@ void main() {
     }
 
     /// Asserts every value is inside [budget] of the set mean.
-    void expectWithinBudget(Map<Role, double> byRole, String what,
-        {double budget = 0.02}) {
+    void expectWithinBudget(
+      Map<Role, double> byRole,
+      String what, {
+      double budget = 0.02,
+    }) {
       final mean = byRole.values.reduce((a, b) => a + b) / byRole.length;
       expect(mean, greaterThan(0.0), reason: 'nothing was measured for $what');
 
       for (final entry in byRole.entries) {
         final drift = (entry.value - mean).abs() / mean;
-        expect(drift, lessThanOrEqualTo(budget),
-            reason: '${entry.key.name} $what is '
-                '${(drift * 100).toStringAsFixed(3)}% off the set mean '
-                '(${entry.value.toStringAsFixed(6)} vs '
-                '${mean.toStringAsFixed(6)}), outside the '
-                '±${(budget * 100).toStringAsFixed(0)}% budget. Re-run '
-                'tool/normalise_art.py; do not widen this number.');
+        expect(
+          drift,
+          lessThanOrEqualTo(budget),
+          reason:
+              '${entry.key.name} $what is '
+              '${(drift * 100).toStringAsFixed(3)}% off the set mean '
+              '(${entry.value.toStringAsFixed(6)} vs '
+              '${mean.toStringAsFixed(6)}), outside the '
+              '±${(budget * 100).toStringAsFixed(0)}% budget. Re-run '
+              'tool/normalise_art.py; do not widen this number.',
+        );
       }
     }
 
-    test('the four shipped faces are within ±2% over the whole card box',
-        () async {
-      final byRole = <Role, double>{};
-      for (final entry in faces.entries) {
-        byRole[entry.key] = await byteLuminance(entry.value);
-      }
-      expectWithinBudget(byRole, 'card face file');
-    });
+    test(
+      'the four shipped faces are within ±2% over the whole card box',
+      () async {
+        final byRole = <Role, double>{};
+        for (final entry in faces.entries) {
+          byRole[entry.key] = await byteLuminance(entry.value);
+        }
+        expectWithinBudget(byRole, 'card face file');
+      },
+    );
 
-    testWidgets('the four rendered cards are within ±2% of the set mean',
-        (tester) async {
+    testWidgets('the four rendered cards are within ±2% of the set mean', (
+      tester,
+    ) async {
       const boundaryKey = ValueKey('luminance_card_boundary');
       var mount = 0;
 
@@ -251,8 +281,9 @@ void main() {
                 // Mafia is the only role carrying extra content. If that content
                 // moved the brightness budget it would still be a leak, so it is
                 // included rather than held constant.
-                teammateNames:
-                    role == Role.mafia ? const ['Aaaa', 'Bbbb'] : const [],
+                teammateNames: role == Role.mafia
+                    ? const ['Aaaa', 'Bbbb']
+                    : const [],
                 onDismissed: () {},
               ),
             ),
@@ -261,20 +292,23 @@ void main() {
         await loadArtwork(tester);
 
         // Turn the card over — the face is the surface under test.
-        final gesture =
-            await tester.startGesture(tester.getCenter(find.byKey(RoleCard.holdPad)));
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byKey(RoleCard.holdPad)),
+        );
         await tester.pump();
         await tester.pump(MafiaTiming.defaults.holdToReveal);
         await gesture.up();
         await tester.pumpAndSettle();
         await loadArtwork(tester);
 
-        final boundary =
-            tester.renderObject<RenderRepaintBoundary>(find.byKey(boundaryKey));
+        final boundary = tester.renderObject<RenderRepaintBoundary>(
+          find.byKey(boundaryKey),
+        );
         final pixels = await tester.runAsync(() async {
           final ui.Image image = await boundary.toImage();
-          final data =
-              await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+          final data = await image.toByteData(
+            format: ui.ImageByteFormat.rawRgba,
+          );
           image.dispose();
           return data!.buffer.asUint8List();
         });
@@ -300,9 +334,13 @@ void main() {
         final bytes = await File(entry.value).readAsBytes();
         digests[entry.key.name] = '${bytes.length}';
       }
-      expect(digests.values.toSet(), hasLength(4),
-          reason: 'two or more role faces are byte-identical in length, which '
-              'suggests one file was copied over another: $digests');
+      expect(
+        digests.values.toSet(),
+        hasLength(4),
+        reason:
+            'two or more role faces are byte-identical in length, which '
+            'suggests one file was copied over another: $digests',
+      );
     });
 
     test('the four faces agree on hue', () async {
@@ -326,8 +364,9 @@ void main() {
         final bytes = await File(entry.value).readAsBytes();
         final codec = await ui.instantiateImageCodec(bytes);
         final frame = await codec.getNextFrame();
-        final data =
-            await frame.image.toByteData(format: ui.ImageByteFormat.rawRgba);
+        final data = await frame.image.toByteData(
+          format: ui.ImageByteFormat.rawRgba,
+        );
         frame.image.dispose();
         codec.dispose();
 
@@ -351,13 +390,21 @@ void main() {
       }
 
       const budget = 3.0; // levels out of 255
-      expect(spreadOf((c) => c.rb), lessThanOrEqualTo(budget),
-          reason: 'the faces disagree on warm↔cool by more than $budget '
-              'levels, which is a role tell that survives the luminance '
-              'budget: $chroma');
-      expect(spreadOf((c) => c.gb), lessThanOrEqualTo(budget),
-          reason: 'the faces disagree on green↔magenta by more than $budget '
-              'levels: $chroma');
+      expect(
+        spreadOf((c) => c.rb),
+        lessThanOrEqualTo(budget),
+        reason:
+            'the faces disagree on warm↔cool by more than $budget '
+            'levels, which is a role tell that survives the luminance '
+            'budget: $chroma',
+      );
+      expect(
+        spreadOf((c) => c.gb),
+        lessThanOrEqualTo(budget),
+        reason:
+            'the faces disagree on green↔magenta by more than $budget '
+            'levels: $chroma',
+      );
     });
   });
 }

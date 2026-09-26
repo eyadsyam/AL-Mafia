@@ -310,6 +310,8 @@ The moment a player is eliminated, their view transforms rather than ending:
 
 **What they must never see:** living players' roles, night action contents, whisper contents, or the trace before it is published to the living.
 
+> **Owner decision, 2026-09-23 — supersedes the line above for online play.** A player who is out sees *every* role and every night choice as it is made (server function `witness_view`, refused to the living), shown with the character art. The prediction tab is replaced by this open table. Whisper contents stay private. The wall is what keeps it fair and is unchanged: no text **or voice** channel runs from dead to living — the dead hear the living and each other; the living never hear the dead, enforced on the dead device's sender as well as the living device's receiver. Offline is unaffected (an eliminated player there is still at the table).
+
 ## 4.2 The elimination moment
 
 Do not cut straight to a spectator UI. Give it weight:

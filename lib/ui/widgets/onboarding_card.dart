@@ -73,9 +73,7 @@ class OnboardingCard extends StatelessWidget {
     return PaperPanel(
       child: Stack(
         children: [
-          Positioned.fill(
-            child: _Watermark(numeral: numeral),
-          ),
+          Positioned.fill(child: _Watermark(numeral: numeral)),
           // The card scrolls rather than shrinking its type. Five bullet lines
           // on the pass card do not fit a small phone at any size worth
           // reading, and a card whose text is smaller than its neighbours'
@@ -111,10 +109,7 @@ class OnboardingCard extends StatelessWidget {
                   body,
                   style: type.body.copyWith(color: colors.textSecondary),
                 ),
-                if (child != null) ...[
-                  SizedBox(height: spacing.lg),
-                  child!,
-                ],
+                if (child != null) ...[SizedBox(height: spacing.lg), child!],
               ],
             ),
           ),
@@ -151,8 +146,9 @@ class _Watermark extends StatelessWidget {
               style: display.copyWith(
                 fontSize:
                     (display.fontSize ?? 0) * OnboardingCard._watermarkScale,
-                color: colors.textPrimary
-                    .withValues(alpha: OnboardingCard._watermarkAlpha),
+                color: colors.textPrimary.withValues(
+                  alpha: OnboardingCard._watermarkAlpha,
+                ),
                 // Set solid. The token's 1.6 leading exists so Arabic
                 // ascenders are not clipped; on a single Latin digit it only
                 // adds a band of empty space under the mark.

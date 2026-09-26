@@ -13,15 +13,17 @@ import '../support/localized.dart';
 /// T034, T036 — Discussion and Result screen widget tests.
 void main() {
   group('PhaseTimer', () {
-    testWidgets('Renders mm:ss text correctly for a given duration',
-        (WidgetTester tester) async {
+    testWidgets('Renders mm:ss text correctly for a given duration', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        localizedApp(Scaffold(
+        localizedApp(
+          Scaffold(
             body: PhaseTimer(
               remaining: const Duration(minutes: 2, seconds: 45),
               total: const Duration(minutes: 5),
             ),
-          )
+          ),
         ),
       );
 
@@ -31,12 +33,13 @@ void main() {
 
     testWidgets('Renders zero time correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
-        localizedApp(Scaffold(
+        localizedApp(
+          Scaffold(
             body: PhaseTimer(
               remaining: Duration.zero,
               total: const Duration(minutes: 5),
             ),
-          )
+          ),
         ),
       );
 
@@ -44,15 +47,17 @@ void main() {
       expect(find.text('00:00'), findsOneWidget);
     });
 
-    testWidgets('Renders single-digit minutes and seconds with leading zeros',
-        (WidgetTester tester) async {
+    testWidgets('Renders single-digit minutes and seconds with leading zeros', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        localizedApp(Scaffold(
+        localizedApp(
+          Scaffold(
             body: PhaseTimer(
               remaining: const Duration(seconds: 7),
               total: const Duration(minutes: 1),
             ),
-          )
+          ),
         ),
       );
 
@@ -62,8 +67,9 @@ void main() {
   });
 
   group('DiscussionScreen', () {
-    testWidgets('Structured mode shows current speaker and speaker count',
-        (WidgetTester tester) async {
+    testWidgets('Structured mode shows current speaker and speaker count', (
+      WidgetTester tester,
+    ) async {
       final players = [
         const PublicPlayer(seat: 0, name: 'Ahmed', status: PlayerStatus.alive),
         const PublicPlayer(seat: 1, name: 'Fatima', status: PlayerStatus.alive),
@@ -71,12 +77,13 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        localizedApp(DiscussionScreen(
+        localizedApp(
+          DiscussionScreen(
             mode: DiscussionMode.structured,
             alivePlayers: players,
             perSpeakerTime: const Duration(minutes: 1),
             onFinished: () {},
-          )
+          ),
         ),
       );
 
@@ -86,52 +93,68 @@ void main() {
       expect(find.text('فاضل 3'), findsOneWidget);
     });
 
-    testWidgets('Structured mode advances to next speaker when skip is tapped',
-        (WidgetTester tester) async {
-      final players = [
-        const PublicPlayer(seat: 0, name: 'Ahmed', status: PlayerStatus.alive),
-        const PublicPlayer(seat: 1, name: 'Fatima', status: PlayerStatus.alive),
-        const PublicPlayer(seat: 2, name: 'Salem', status: PlayerStatus.alive),
-      ];
-
-      await tester.pumpWidget(
-        localizedApp(DiscussionScreen(
-            mode: DiscussionMode.structured,
-            alivePlayers: players,
-            perSpeakerTime: const Duration(seconds: 10),
-            onFinished: () {},
-          )
-        ),
-      );
-
-      // Verify Ahmed is the current speaker
-      expect(find.text('Ahmed'), findsWidgets);
-      expect(find.text('فاضل 3'), findsOneWidget);
-
-      // Tap the skip button
-      await tester.tap(find.text('تخطي'));
-      await tester.pumpAndSettle();
-
-      // Verify Fatima is now the current speaker
-      expect(find.text('Fatima'), findsWidgets);
-      expect(find.text('فاضل 2'), findsOneWidget);
-    });
-
     testWidgets(
-        'Structured mode calls onFinished when last speaker finishes',
-        (WidgetTester tester) async {
+      'Structured mode advances to next speaker when skip is tapped',
+      (WidgetTester tester) async {
+        final players = [
+          const PublicPlayer(
+            seat: 0,
+            name: 'Ahmed',
+            status: PlayerStatus.alive,
+          ),
+          const PublicPlayer(
+            seat: 1,
+            name: 'Fatima',
+            status: PlayerStatus.alive,
+          ),
+          const PublicPlayer(
+            seat: 2,
+            name: 'Salem',
+            status: PlayerStatus.alive,
+          ),
+        ];
+
+        await tester.pumpWidget(
+          localizedApp(
+            DiscussionScreen(
+              mode: DiscussionMode.structured,
+              alivePlayers: players,
+              perSpeakerTime: const Duration(seconds: 10),
+              onFinished: () {},
+            ),
+          ),
+        );
+
+        // Verify Ahmed is the current speaker
+        expect(find.text('Ahmed'), findsWidgets);
+        expect(find.text('فاضل 3'), findsOneWidget);
+
+        // Tap the skip button
+        await tester.tap(find.text('تخطي'));
+        await tester.pumpAndSettle();
+
+        // Verify Fatima is now the current speaker
+        expect(find.text('Fatima'), findsWidgets);
+        expect(find.text('فاضل 2'), findsOneWidget);
+      },
+    );
+
+    testWidgets('Structured mode calls onFinished when last speaker finishes', (
+      WidgetTester tester,
+    ) async {
       var finishedCalled = false;
       final players = [
         const PublicPlayer(seat: 0, name: 'Ahmed', status: PlayerStatus.alive),
       ];
 
       await tester.pumpWidget(
-        localizedApp(DiscussionScreen(
+        localizedApp(
+          DiscussionScreen(
             mode: DiscussionMode.structured,
             alivePlayers: players,
             perSpeakerTime: const Duration(seconds: 1),
             onFinished: () => finishedCalled = true,
-          )
+          ),
         ),
       );
 
@@ -142,20 +165,22 @@ void main() {
       expect(finishedCalled, isTrue);
     });
 
-    testWidgets('Free mode shows open discussion label',
-        (WidgetTester tester) async {
+    testWidgets('Free mode shows open discussion label', (
+      WidgetTester tester,
+    ) async {
       final players = [
         const PublicPlayer(seat: 0, name: 'Ahmed', status: PlayerStatus.alive),
         const PublicPlayer(seat: 1, name: 'Fatima', status: PlayerStatus.alive),
       ];
 
       await tester.pumpWidget(
-        localizedApp(DiscussionScreen(
+        localizedApp(
+          DiscussionScreen(
             mode: DiscussionMode.free,
             alivePlayers: players,
             perSpeakerTime: const Duration(seconds: 30),
             onFinished: () {},
-          )
+          ),
         ),
       );
 
@@ -165,19 +190,21 @@ void main() {
       expect(find.text('الدور على'), findsNothing);
     });
 
-    testWidgets('Pause button toggles between pause and resume states',
-        (WidgetTester tester) async {
+    testWidgets('Pause button toggles between pause and resume states', (
+      WidgetTester tester,
+    ) async {
       final players = [
         const PublicPlayer(seat: 0, name: 'Ahmed', status: PlayerStatus.alive),
       ];
 
       await tester.pumpWidget(
-        localizedApp(DiscussionScreen(
+        localizedApp(
+          DiscussionScreen(
             mode: DiscussionMode.free,
             alivePlayers: players,
             perSpeakerTime: const Duration(minutes: 2),
             onFinished: () {},
-          )
+          ),
         ),
       );
 
@@ -212,12 +239,13 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        localizedApp(ResultScreen(
+        localizedApp(
+          ResultScreen(
             winner: engine.Alignment.mafia,
             rows: rows,
             onAnalytics: () {},
             onHome: () {},
-          )
+          ),
         ),
       );
 
@@ -225,7 +253,9 @@ void main() {
       expect(find.text('المافيا كسبت'), findsOneWidget);
     });
 
-    testWidgets('Shows town victory when town wins', (WidgetTester tester) async {
+    testWidgets('Shows town victory when town wins', (
+      WidgetTester tester,
+    ) async {
       final rows = [
         ResultRow(
           seat: 0,
@@ -236,12 +266,13 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        localizedApp(ResultScreen(
+        localizedApp(
+          ResultScreen(
             winner: engine.Alignment.town,
             rows: rows,
             onAnalytics: () {},
             onHome: () {},
-          )
+          ),
         ),
       );
 
@@ -249,7 +280,9 @@ void main() {
       expect(find.text('الشعب كسب'), findsOneWidget);
     });
 
-    testWidgets('Shows every player with their role', (WidgetTester tester) async {
+    testWidgets('Shows every player with their role', (
+      WidgetTester tester,
+    ) async {
       // The roster is a lazily-built ListView, so the assertion below is only
       // meaningful on a surface tall enough to hold every row at once. The
       // default 800x600 test window clips the last one.
@@ -284,12 +317,13 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        localizedApp(ResultScreen(
+        localizedApp(
+          ResultScreen(
             winner: engine.Alignment.town,
             rows: rows,
             onAnalytics: () {},
             onHome: () {},
-          )
+          ),
         ),
       );
 
@@ -311,8 +345,9 @@ void main() {
       expect(find.text('Day 2'), findsOneWidget);
     });
 
-    testWidgets('Action buttons are present and tappable',
-        (WidgetTester tester) async {
+    testWidgets('Action buttons are present and tappable', (
+      WidgetTester tester,
+    ) async {
       var analyticsTapped = false;
       var homeTapped = false;
 
@@ -326,12 +361,13 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        localizedApp(ResultScreen(
+        localizedApp(
+          ResultScreen(
             winner: engine.Alignment.mafia,
             rows: rows,
             onAnalytics: () => analyticsTapped = true,
             onHome: () => homeTapped = true,
-          )
+          ),
         ),
       );
 
@@ -350,8 +386,9 @@ void main() {
       expect(homeTapped, isTrue);
     });
 
-    testWidgets('Displays survival label when player survived',
-        (WidgetTester tester) async {
+    testWidgets('Displays survival label when player survived', (
+      WidgetTester tester,
+    ) async {
       final rows = [
         ResultRow(
           seat: 0,
@@ -362,12 +399,13 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        localizedApp(ResultScreen(
+        localizedApp(
+          ResultScreen(
             winner: engine.Alignment.town,
             rows: rows,
             onAnalytics: () {},
             onHome: () {},
-          )
+          ),
         ),
       );
 

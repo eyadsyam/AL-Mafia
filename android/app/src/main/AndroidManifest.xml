@@ -14,16 +14,49 @@
          sentences (doc 11 O9/O11).
 
          RECORD_AUDIO is voice, which is never load-bearing: a refusal here
-         must leave a match that still completes. -->
+         must leave a match that still completes.
+
+         MODIFY_AUDIO_SETTINGS is the other half of that, and its absence was
+         a silent bug of exactly the same family as the missing INTERNET above.
+         flutter_webrtc puts Android into MODE_IN_COMMUNICATION and picks the
+         output route through AudioManager; without this permission neither
+         call takes effect, so the remote track was decoded and played into the
+         media stream at the media volume — on a phone with media turned down,
+         indistinguishable from a call that never connected. It is a normal
+         permission: granted at install, no runtime prompt, nothing for a
+         player to refuse.
+
+         BLUETOOTH_CONNECT so a player on a headset is routed to it on Android
+         12 and later. Optional in every sense — denied, the loudspeaker is
+         used, which is the route this game wants anyway. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
+    <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
 
 
+    <!-- enableOnBackInvokedCallback=false: every screen navigates with `go`, so
+         Flutter never registers a predictive-back callback and Android 16
+         would finish the activity on the online list instead of asking the
+         app. Legacy dispatch always reaches MafiaApp.didPopRoute, which
+         applies systemBackTarget (and lets Home exit as before). -->
     <application
+        android:allowBackup="false"
+        android:enableOnBackInvokedCallback="false"
+        android:usesCleartextTraffic="false"
         android:label="سيد المافيا"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- The build script supplies the production AdMob app id. Its safe
+             fallback is Google's sample id, and Dart keeps ad requests off
+             unless a rewarded unit id is supplied too. This prevents a
+             half-configured release from crashing at process startup. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admobAppId}" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -42,24 +75,45 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+            <!-- No LAUNCHER filter here: the launcher entry is one of the two
+                 aliases below, so the name under the icon can follow the
+                 language chosen inside the game rather than the phone's. -->
 
             <!-- The room invite (doc 12 §3.1): "a single button producing a
                  deep link plus a fallback text. This is the primary growth
                  loop - make it one tap."
 
-                 A custom scheme rather than an https App Link because an App
-                 Link needs a verified domain, and this project has none. The
-                 cost is that the link is inert on a phone without the app; the
-                 invite therefore carries the code in words beside it, which is
-                 what the fallback text is for.
+                 Two filters, because they answer two different questions.
+
+                 The https one is an App Link, and it is the one a host sends.
+                 `autoVerify` makes Android fetch
+                 https://almafia.vercel.app/.well-known/assetlinks.json at
+                 install time and compare the signing certificate named there
+                 with this APK's; when they match, the link opens this app with
+                 no chooser and no browser in between. When they do not - an
+                 unsigned build, a re-signed one, a phone with no network at
+                 install time - the same link still opens the room on the site.
+                 That is the whole point of using the site's own URL: there is
+                 no dead end, only a slower path.
+
+                 The custom scheme stays for links already in circulation. It
+                 cannot be verified and never opens anything for a phone
+                 without the app, which is why it is no longer what is shared.
 
                  Host and path are shaped so `uri.path` is the router's own
                  path: go_router matches on the path and drops the host, so
-                 mafiamaster://online/join/K7M2QP arrives as /join/K7M2QP. -->
+                 both mafiamaster://online/join/K7M2QP and
+                 https://almafia.vercel.app/join/K7M2QP arrive as
+                 /join/K7M2QP. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"
+                      android:host="almafia.vercel.app"
+                      android:pathPrefix="/join/"/>
+            </intent-filter>
+
             <intent-filter android:autoVerify="false">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -67,6 +121,36 @@
                 <data android:scheme="mafiamaster" android:host="online"/>
             </intent-filter>
         </activity>
+        <!-- The launcher icon's name follows the in-game language (Settings).
+             Android's per-app language does not reach the launcher's label,
+             so there is one alias per language and exactly one is enabled at
+             a time; MainActivity.kt switches them, enabling the new one before
+             disabling the old so the app is never left without a launcher
+             entry, and the app re-asserts the choice on every start. Arabic
+             is the default, matching the game's default language.
+             Deep links stay on MainActivity and are untouched by the switch. -->
+        <activity-alias
+            android:name=".LauncherArabic"
+            android:targetActivity=".MainActivity"
+            android:label="سيد المافيا"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".LauncherEnglish"
+            android:targetActivity=".MainActivity"
+            android:label="Mafia Master"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

@@ -42,7 +42,10 @@ void main() {
       // state is entered explicitly when a turn begins. Defaulting to inHand
       // would make every legitimate on-table cue throw, and the fix would
       // predictably be to remove the gate.
-      expect(() => AudioDirector().play(AudioCue.speakerChange), returnsNormally);
+      expect(
+        () => AudioDirector().play(AudioCue.speakerChange),
+        returnsNormally,
+      );
     });
 
     test('no in-hand surface can reach the audio director', () {
@@ -68,9 +71,13 @@ void main() {
         }
       }
 
-      expect(offenders, isEmpty,
-          reason: 'LEAK: these in-hand surfaces reference AudioDirector: '
-              '$offenders');
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            'LEAK: these in-hand surfaces reference AudioDirector: '
+            '$offenders',
+      );
     });
   });
 
@@ -92,10 +99,14 @@ void main() {
       final director = AudioDirector()..setLocation(PhoneLocation.inHand);
       // Not "every cue except cardFlip". Every cue.
       for (final cue in AudioCue.values) {
-        expect(() => director.play(cue), throwsStateError,
-            reason: '$cue got through AudioDirector.play while the phone was '
-                'in somebody\'s hand. The card turn has its own method; the '
-                'gate is not the place to make room for it.');
+        expect(
+          () => director.play(cue),
+          throwsStateError,
+          reason:
+              '$cue got through AudioDirector.play while the phone was '
+              'in somebody\'s hand. The card turn has its own method; the '
+              'gate is not the place to make room for it.',
+        );
       }
     });
 
@@ -104,11 +115,16 @@ void main() {
       // code: an exception that accepts a cue is one call site away from being
       // a general in-hand channel, and the call site always looks reasonable
       // on the day it is written.
-      final source =
-          File('lib/platform/audio_director.dart').readAsStringSync();
-      expect(source.contains('void playCardTurn()'), isTrue,
-          reason: 'playCardTurn has grown a parameter. It exists precisely '
-              'because it cannot be pointed at anything else.');
+      final source = File(
+        'lib/platform/audio_director.dart',
+      ).readAsStringSync();
+      expect(
+        source.contains('void playCardTurn()'),
+        isTrue,
+        reason:
+            'playCardTurn has grown a parameter. It exists precisely '
+            'because it cannot be pointed at anything else.',
+      );
     });
 
     test('a master mute takes it with everything else', () {
@@ -124,10 +140,14 @@ void main() {
       // only be asserted the way the type already guarantees it: one cue, one
       // file, reached from a method that knows nothing about the match.
       expect(AudioCue.cardFlip.sound, isNotNull);
-      expect(AudioCue.cardFlip.narration, isFalse,
-          reason: 'a narration switch that silenced the card turn would make '
-              'the turn sound different for hosts with narration off — same '
-              'shape of tell, one setting away');
+      expect(
+        AudioCue.cardFlip.narration,
+        isFalse,
+        reason:
+            'a narration switch that silenced the card turn would make '
+            'the turn sound different for hosts with narration off — same '
+            'shape of tell, one setting away',
+      );
     });
   });
 }

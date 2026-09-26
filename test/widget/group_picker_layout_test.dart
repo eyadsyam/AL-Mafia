@@ -66,16 +66,24 @@ void main() {
 
     await pumpPicker(tester, punishing);
 
-    expect(tester.takeException(), isNull,
-        reason: 'a RenderFlex overflow here paints a striped bar across the '
-            'rematch screen');
+    expect(
+      tester.takeException(),
+      isNull,
+      reason:
+          'a RenderFlex overflow here paints a striped bar across the '
+          'rematch screen',
+    );
 
     for (final name in punishing) {
       final text = tester.widget<Text>(find.text(name));
       expect(text.maxLines, equals(1));
-      expect(text.overflow, equals(TextOverflow.ellipsis),
-          reason: 'the name is what must yield — the play count beside it is '
-              'short and fixed');
+      expect(
+        text.overflow,
+        equals(TextOverflow.ellipsis),
+        reason:
+            'the name is what must yield — the play count beside it is '
+            'short and fixed',
+      );
     }
   });
 
@@ -125,10 +133,9 @@ void main() {
     var bounced = false;
     final container = ProviderContainer(
       overrides: [
-        playerGroupRepositoryProvider
-            .overrideWithValue(MemoryPlayerGroupRepository(
-          MemoryPlayerGroupStore(),
-        )),
+        playerGroupRepositoryProvider.overrideWithValue(
+          MemoryPlayerGroupRepository(MemoryPlayerGroupStore()),
+        ),
       ],
     );
     addTearDown(container.dispose);

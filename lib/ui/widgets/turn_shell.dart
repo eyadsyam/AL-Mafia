@@ -46,6 +46,7 @@ class TurnShellLabels {
   final String waitHint;
   final String pickHint;
   final String confirmAction;
+
   /// «تم تسجيل اختيارك», and one line under it.
   ///
   /// Doc 14 §1.4 took away the keep-the-phone reminder and the whisper card —
@@ -515,13 +516,13 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
   /// every real phone — and scrollable when there is not. Identical for all
   /// four roles either way, which is the only property doc 05 cares about.
   Widget _fitCentred(Widget child) => LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: child,
-          ),
-        ),
-      );
+    builder: (context, constraints) => SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: constraints.maxHeight),
+        child: child,
+      ),
+    ),
+  );
 
   Widget _handoffPad() {
     final colors = context.colors;
@@ -529,31 +530,33 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
     final type = context.typography;
     final diameter = spacing.xxl * 3;
 
-    return _fitCentred(Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        KeyedSubtree(
-          key: TurnShell.holdPad,
-          // The generation key forces a fresh pad on turn change, so a hold
-          // begun by the previous player can never carry over.
-          child: HoldPad(
-            key: ValueKey(_padGeneration),
-            holdDuration: context.timing.holdToReveal,
-            instruction: widget.labels.handoffInstruction,
-            diameter: diameter,
-            onHoldComplete: _startTurn,
+    return _fitCentred(
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          KeyedSubtree(
+            key: TurnShell.holdPad,
+            // The generation key forces a fresh pad on turn change, so a hold
+            // begun by the previous player can never carry over.
+            child: HoldPad(
+              key: ValueKey(_padGeneration),
+              holdDuration: context.timing.holdToReveal,
+              instruction: widget.labels.handoffInstruction,
+              diameter: diameter,
+              onHoldComplete: _startTurn,
+            ),
           ),
-        ),
-        SizedBox(height: spacing.lg),
-        TextButton(
-          onPressed: widget.onNotYou,
-          child: Text(
-            widget.labels.notYou,
-            style: type.bodySmall.copyWith(color: colors.textMuted),
+          SizedBox(height: spacing.lg),
+          TextButton(
+            onPressed: widget.onNotYou,
+            child: Text(
+              widget.labels.notYou,
+              style: type.bodySmall.copyWith(color: colors.textMuted),
+            ),
           ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 
   /// Doc 14 §1.3: the prompt, then every option, on one screen.
@@ -597,22 +600,20 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
     final spacing = context.spacing;
     final type = context.typography;
 
-    return _fitCentred(Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.check,
-          size: spacing.xl,
-          color: colors.accentGold,
-        ),
-        SizedBox(height: spacing.md),
-        Text(
-          widget.labels.confirmedTitle,
-          style: type.title.copyWith(color: colors.textPrimary),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    ));
+    return _fitCentred(
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.check, size: spacing.xl, color: colors.accentGold),
+          SizedBox(height: spacing.md),
+          Text(
+            widget.labels.confirmedTitle,
+            style: type.title.copyWith(color: colors.textPrimary),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
   }
 
   /// Reserved detail slot: the Detective's result, and an equally-sized
@@ -649,14 +650,16 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
     final type = context.typography;
 
     final picked = _selectedSeat;
-    final detail = widget.confirmationDetail ??
+    final detail =
+        widget.confirmationDetail ??
         (picked == null
             ? null
             : widget.choices
-                .where((c) => c.seat == picked)
-                .map((c) => c.label)
-                .firstOrNull);
-    final showDetail = detail != null &&
+                  .where((c) => c.seat == picked)
+                  .map((c) => c.label)
+                  .firstOrNull);
+    final showDetail =
+        detail != null &&
         (state == TurnShellState.confirmed ||
             state == TurnShellState.passUnlocked);
 

@@ -173,7 +173,8 @@ TraceResult selectTrace({
   }
 
   for (final c in eligible) {
-    c.score = c.type.dramaWeight *
+    c.score =
+        c.type.dramaWeight *
         noveltyFactor(history, c.type) *
         c.informationValue;
   }
@@ -305,9 +306,7 @@ TraceCandidate? evaluateTrace({
     case TraceType.t6:
       final skipped = night.skipped.where(alive.contains).length;
       if (skipped < 1) return null;
-      return TraceCandidate(
-        TraceResult(type: TraceType.t6, count: skipped),
-      );
+      return TraceCandidate(TraceResult(type: TraceType.t6, count: skipped));
 
     // ─── T7 الدائرة ─────────────────────────────────────────────────────
     case TraceType.t7:

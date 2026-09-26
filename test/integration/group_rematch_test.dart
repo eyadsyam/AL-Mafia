@@ -60,11 +60,12 @@ void main() {
     groupStore = groups ?? MemoryPlayerGroupStore();
     container = ProviderContainer(
       overrides: [
-        matchRepositoryProvider
-            .overrideWithValue(
-                MemoryMatchRepository(returningHostStore())),
-        playerGroupRepositoryProvider
-            .overrideWithValue(MemoryPlayerGroupRepository(groupStore)),
+        matchRepositoryProvider.overrideWithValue(
+          MemoryMatchRepository(returningHostStore()),
+        ),
+        playerGroupRepositoryProvider.overrideWithValue(
+          MemoryPlayerGroupRepository(groupStore),
+        ),
       ],
     );
     addTearDown(container.dispose);
@@ -108,7 +109,9 @@ void main() {
     await tester.tap(find.byKey(AddPlayersScreen.saveGroupAccept));
     await tester.pumpAndSettle();
     await tester.enterText(
-        find.byKey(const ValueKey('group_name_field')), 'شلة الجمعة');
+      find.byKey(const ValueKey('group_name_field')),
+      'شلة الجمعة',
+    );
     await tester.tap(find.byKey(const ValueKey('group_name_confirm')));
     await tester.pumpAndSettle();
 
@@ -121,8 +124,9 @@ void main() {
   }
 
   group('the three-tap rematch', () {
-    testWidgets('a saved group reaches role distribution in three taps',
-        (tester) async {
+    testWidgets('a saved group reaches role distribution in three taps', (
+      tester,
+    ) async {
       await pumpApp(tester);
       await firstNight(tester);
 
@@ -147,38 +151,53 @@ void main() {
       taps++;
       await tester.pumpAndSettle();
 
-      expect(find.byType(GroupPickerScreen), findsOneWidget,
-          reason: 'a host with saved groups must land on the picker');
+      expect(
+        find.byType(GroupPickerScreen),
+        findsOneWidget,
+        reason: 'a host with saved groups must land on the picker',
+      );
 
-      final group = (await container
-              .read(playerGroupRepositoryProvider)
-              .listGroups())
-          .single;
+      final group =
+          (await container.read(playerGroupRepositoryProvider).listGroups())
+              .single;
       await tester.tap(find.byKey(GroupPickerScreen.tileFor(group.id)));
       taps++;
       await tester.pumpAndSettle();
       expect(find.byType(AddPlayersScreen), findsOneWidget);
       for (final name in friday) {
-        expect(find.text(name), findsOneWidget,
-            reason: 'the roster did not arrive pre-filled');
+        expect(
+          find.text(name),
+          findsOneWidget,
+          reason: 'the roster did not arrive pre-filled',
+        );
       }
 
       await tester.tap(find.byKey(AddPlayersScreen.quickStartButton));
       taps++;
       await tester.pumpAndSettle();
 
-      final match =
-          container.read(matchControllerProvider.notifier).engine.match;
-      expect(match.phase, equals(GamePhase.distributing),
-          reason: 'three taps must reach role distribution');
-      expect(taps, lessThanOrEqualTo(4),
-          reason: 'the rematch budget is four taps from launch — play, the '
-              'mode, the group, go. Every confirmation added to this path '
-              'costs one of them.');
+      final match = container
+          .read(matchControllerProvider.notifier)
+          .engine
+          .match;
+      expect(
+        match.phase,
+        equals(GamePhase.distributing),
+        reason: 'three taps must reach role distribution',
+      );
+      expect(
+        taps,
+        lessThanOrEqualTo(4),
+        reason:
+            'the rematch budget is four taps from launch — play, the '
+            'mode, the group, go. Every confirmation added to this path '
+            'costs one of them.',
+      );
     });
 
-    testWidgets('the pre-filled roster is in the saved seating order',
-        (tester) async {
+    testWidgets('the pre-filled roster is in the saved seating order', (
+      tester,
+    ) async {
       await pumpApp(tester);
       await firstNight(tester);
       await pumpApp(tester, groups: groupStore);
@@ -189,46 +208,58 @@ void main() {
       // card is the offline flow's front door.
       await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
-      final group = (await container
-              .read(playerGroupRepositoryProvider)
-              .listGroups())
-          .single;
+      final group =
+          (await container.read(playerGroupRepositoryProvider).listGroups())
+              .single;
       await tester.tap(find.byKey(GroupPickerScreen.tileFor(group.id)));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(AddPlayersScreen.quickStartButton));
       await tester.pumpAndSettle();
 
-      final match =
-          container.read(matchControllerProvider.notifier).engine.match;
-      expect(match.players.map((p) => p.name).toList(), orderedEquals(friday),
-          reason: 'seat order is the phone-passing order; it may not be '
-              're-sorted anywhere between the group and the engine');
-      expect(match.players.map((p) => p.seat).toList(),
-          equals(List.generate(friday.length, (i) => i)));
+      final match = container
+          .read(matchControllerProvider.notifier)
+          .engine
+          .match;
+      expect(
+        match.players.map((p) => p.name).toList(),
+        orderedEquals(friday),
+        reason:
+            'seat order is the phone-passing order; it may not be '
+            're-sorted anywhere between the group and the engine',
+      );
+      expect(
+        match.players.map((p) => p.seat).toList(),
+        equals(List.generate(friday.length, (i) => i)),
+      );
     });
 
-    testWidgets('the first night saves the group with its configuration',
-        (tester) async {
+    testWidgets('the first night saves the group with its configuration', (
+      tester,
+    ) async {
       await pumpApp(tester);
       await firstNight(tester);
 
-      final group = (await container
-              .read(playerGroupRepositoryProvider)
-              .listGroups())
-          .single;
+      final group =
+          (await container.read(playerGroupRepositoryProvider).listGroups())
+              .single;
 
       expect(group.name, equals('شلة الجمعة'));
       expect(group.memberNames, orderedEquals(friday));
       expect(group.playCount, equals(1));
-      expect(group.canQuickStart, isTrue,
-          reason: 'without the remembered configuration the next rematch is '
-              'five taps, not three');
+      expect(
+        group.canQuickStart,
+        isTrue,
+        reason:
+            'without the remembered configuration the next rematch is '
+            'five taps, not three',
+      );
     });
   });
 
   group('first run is unchanged', () {
-    testWidgets('a host with no saved groups goes straight to the roster',
-        (tester) async {
+    testWidgets('a host with no saved groups goes straight to the roster', (
+      tester,
+    ) async {
       await pumpApp(tester);
 
       await tester.tap(find.text('ابدأ اللعبة'));
@@ -239,13 +270,18 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(AddPlayersScreen), findsOneWidget);
-      expect(find.byType(GroupPickerScreen), findsNothing,
-          reason: 'an empty picker asking a first-run host to choose from '
-              'nothing is worse than the screen they used to get');
+      expect(
+        find.byType(GroupPickerScreen),
+        findsNothing,
+        reason:
+            'an empty picker asking a first-run host to choose from '
+            'nothing is worse than the screen they used to get',
+      );
     });
 
-    testWidgets('the save prompt is not offered for a roster already saved',
-        (tester) async {
+    testWidgets('the save prompt is not offered for a roster already saved', (
+      tester,
+    ) async {
       await pumpApp(tester);
       await firstNight(tester);
       await pumpApp(tester, groups: groupStore);
@@ -261,9 +297,13 @@ void main() {
       await tester.pumpAndSettle();
       await enterNames(tester, friday);
 
-      expect(find.byKey(AddPlayersScreen.saveGroupPrompt), findsNothing,
-          reason: 'asking to remember people the app already remembers turns a '
-              'helpful prompt into noise');
+      expect(
+        find.byKey(AddPlayersScreen.saveGroupPrompt),
+        findsNothing,
+        reason:
+            'asking to remember people the app already remembers turns a '
+            'helpful prompt into noise',
+      );
     });
   });
 
@@ -276,17 +316,17 @@ void main() {
       // card is the offline flow's front door.
       await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
-      final group = (await container
-              .read(playerGroupRepositoryProvider)
-              .listGroups())
-          .single;
+      final group =
+          (await container.read(playerGroupRepositoryProvider).listGroups())
+              .single;
       await tester.tap(find.byKey(GroupPickerScreen.tileFor(group.id)));
       await tester.pumpAndSettle();
       return group;
     }
 
-    testWidgets('marking someone away leaves the saved group untouched',
-        (tester) async {
+    testWidgets('marking someone away leaves the saved group untouched', (
+      tester,
+    ) async {
       await pumpApp(tester);
       await firstNight(tester);
       await pumpApp(tester, groups: groupStore);
@@ -308,23 +348,32 @@ void main() {
       await tester.tap(find.text('حفظ'));
       await tester.pumpAndSettle();
 
-      final match =
-          container.read(matchControllerProvider.notifier).engine.match;
-      expect(match.players.map((p) => p.name), isNot(contains('Fatima')),
-          reason: 'an absent player is not in tonight\'s match');
+      final match = container
+          .read(matchControllerProvider.notifier)
+          .engine
+          .match;
+      expect(
+        match.players.map((p) => p.name),
+        isNot(contains('Fatima')),
+        reason: 'an absent player is not in tonight\'s match',
+      );
       expect(match.players, hasLength(friday.length - 1));
 
-      final group = (await container
-              .read(playerGroupRepositoryProvider)
-              .listGroups())
-          .single;
-      expect(group.memberNames, orderedEquals(friday),
-          reason: 'the saved group must be exactly as it was — a Friday '
-              'absence may not cost someone their place on Saturday');
+      final group =
+          (await container.read(playerGroupRepositoryProvider).listGroups())
+              .single;
+      expect(
+        group.memberNames,
+        orderedEquals(friday),
+        reason:
+            'the saved group must be exactly as it was — a Friday '
+            'absence may not cost someone their place on Saturday',
+      );
     });
 
-    testWidgets('quick start withdraws when the head count changes',
-        (tester) async {
+    testWidgets('quick start withdraws when the head count changes', (
+      tester,
+    ) async {
       await pumpApp(tester);
       await firstNight(tester);
       await pumpApp(tester, groups: groupStore);
@@ -335,14 +384,19 @@ void main() {
       await tester.tap(find.byKey(AddPlayersScreen.attendanceToggleFor(2)));
       await tester.pumpAndSettle();
 
-      expect(find.byKey(AddPlayersScreen.quickStartButton), findsNothing,
-          reason: 'a distribution for six does not sum for five. Rather than '
-              'silently reshuffling roles, the action withdraws and the roles '
-              'screen takes over — which is where that decision belongs.');
+      expect(
+        find.byKey(AddPlayersScreen.quickStartButton),
+        findsNothing,
+        reason:
+            'a distribution for six does not sum for five. Rather than '
+            'silently reshuffling roles, the action withdraws and the roles '
+            'screen takes over — which is where that decision belongs.',
+      );
     });
 
-    testWidgets('marking someone back present restores quick start',
-        (tester) async {
+    testWidgets('marking someone back present restores quick start', (
+      tester,
+    ) async {
       await pumpApp(tester);
       await firstNight(tester);
       await pumpApp(tester, groups: groupStore);
@@ -356,8 +410,9 @@ void main() {
       expect(find.byKey(AddPlayersScreen.quickStartButton), findsOneWidget);
     });
 
-    testWidgets('a guest added for one night is not added to the group',
-        (tester) async {
+    testWidgets('a guest added for one night is not added to the group', (
+      tester,
+    ) async {
       await pumpApp(tester);
       await firstNight(tester);
       await pumpApp(tester, groups: groupStore);
@@ -366,19 +421,23 @@ void main() {
       await enterNames(tester, ['Karim']);
       await tester.pumpAndSettle();
 
-      final group = (await container
-              .read(playerGroupRepositoryProvider)
-              .listGroups())
-          .single;
-      expect(group.memberNames, isNot(contains('Karim')),
-          reason: 'joining the group is a decision taken at the end of the '
-              'night, not a side effect of typing a name');
+      final group =
+          (await container.read(playerGroupRepositoryProvider).listGroups())
+              .single;
+      expect(
+        group.memberNames,
+        isNot(contains('Karim')),
+        reason:
+            'joining the group is a decision taken at the end of the '
+            'night, not a side effect of typing a name',
+      );
     });
   });
 
   group('managing groups', () {
-    testWidgets('deleting asks first, and a cancelled delete keeps the group',
-        (tester) async {
+    testWidgets('deleting asks first, and a cancelled delete keeps the group', (
+      tester,
+    ) async {
       await pumpApp(tester);
       await firstNight(tester);
       await pumpApp(tester, groups: groupStore);
@@ -389,10 +448,9 @@ void main() {
       // card is the offline flow's front door.
       await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
-      final group = (await container
-              .read(playerGroupRepositoryProvider)
-              .listGroups())
-          .single;
+      final group =
+          (await container.read(playerGroupRepositoryProvider).listGroups())
+              .single;
 
       await tester.longPress(find.byKey(GroupPickerScreen.tileFor(group.id)));
       await tester.pumpAndSettle();
@@ -401,7 +459,10 @@ void main() {
 
       // The confirmation is not optional: a deleted roster is a minute of
       // typing and the reason the feature exists.
-      expect(find.byKey(const ValueKey('group_delete_confirm')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('group_delete_confirm')),
+        findsOneWidget,
+      );
       await tester.tap(find.byKey(const ValueKey('group_delete_cancel')));
       await tester.pumpAndSettle();
 
@@ -422,10 +483,9 @@ void main() {
       // card is the offline flow's front door.
       await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
-      final group = (await container
-              .read(playerGroupRepositoryProvider)
-              .listGroups())
-          .single;
+      final group =
+          (await container.read(playerGroupRepositoryProvider).listGroups())
+              .single;
 
       await tester.longPress(find.byKey(GroupPickerScreen.tileFor(group.id)));
       await tester.pumpAndSettle();
@@ -460,10 +520,9 @@ void main() {
       // card is the offline flow's front door.
       await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
-      final group = (await container
-              .read(playerGroupRepositoryProvider)
-              .listGroups())
-          .single;
+      final group =
+          (await container.read(playerGroupRepositoryProvider).listGroups())
+              .single;
 
       // Select it first, then go back — this is what leaves it on the draft.
       await tester.tap(find.byKey(GroupPickerScreen.tileFor(group.id)));
@@ -482,15 +541,26 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(AddPlayersScreen), findsOneWidget);
-      expect(container.read(setupDraftProvider).group, isNull,
-          reason: 'a deleted group must not stay attached to the draft');
-      expect(find.byKey(AddPlayersScreen.quickStartButton), findsNothing,
-          reason: 'the app must not offer to start a match on a group the '
-              'host has just deleted');
+      expect(
+        container.read(setupDraftProvider).group,
+        isNull,
+        reason: 'a deleted group must not stay attached to the draft',
+      );
+      expect(
+        find.byKey(AddPlayersScreen.quickStartButton),
+        findsNothing,
+        reason:
+            'the app must not offer to start a match on a group the '
+            'host has just deleted',
+      );
       for (final name in friday) {
-        expect(find.text(name), findsNothing,
-            reason: 'the deleted roster is still on screen, which reads as the '
-                'delete having failed');
+        expect(
+          find.text(name),
+          findsNothing,
+          reason:
+              'the deleted roster is still on screen, which reads as the '
+              'delete having failed',
+        );
       }
     });
 
@@ -505,31 +575,35 @@ void main() {
       // card is the offline flow's front door.
       await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
-      final before = (await container
-              .read(playerGroupRepositoryProvider)
-              .listGroups())
-          .single;
+      final before =
+          (await container.read(playerGroupRepositoryProvider).listGroups())
+              .single;
 
       await tester.longPress(find.byKey(GroupPickerScreen.tileFor(before.id)));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('group_action_rename')));
       await tester.pumpAndSettle();
       await tester.enterText(
-          find.byKey(const ValueKey('group_name_field')), 'شلة السبت');
+        find.byKey(const ValueKey('group_name_field')),
+        'شلة السبت',
+      );
       await tester.tap(find.byKey(const ValueKey('group_name_confirm')));
       await tester.pumpAndSettle();
 
-      final after = (await container
-              .read(playerGroupRepositoryProvider)
-              .listGroups())
-          .single;
+      final after =
+          (await container.read(playerGroupRepositoryProvider).listGroups())
+              .single;
       expect(after.name, equals('شلة السبت'));
       expect(after.id, equals(before.id));
       expect(after.memberNames, orderedEquals(friday));
       expect(after.playCount, equals(before.playCount));
-      expect(after.canQuickStart, isTrue,
-          reason: 'a rename must not cost the group its remembered '
-              'configuration and drop the next rematch back to five taps');
+      expect(
+        after.canQuickStart,
+        isTrue,
+        reason:
+            'a rename must not cost the group its remembered '
+            'configuration and drop the next rematch back to five taps',
+      );
     });
   });
 }

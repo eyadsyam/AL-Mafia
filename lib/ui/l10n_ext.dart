@@ -126,21 +126,26 @@ abstract final class EngineCopy {
     AppLocalizations l10n,
     CoachingNote note,
     String Function(int seat) nameOf,
-  ) =>
-      switch (note.code) {
-        CoachingCode.stuckOnInnocent => l10n.coachStuckOnInnocent(
-            nameOf(note.seats.first), note.numbers.first),
-        CoachingCode.conformity =>
-          l10n.coachConformity(note.numbers[0], note.numbers[1]),
-        CoachingCode.unusedBullet => l10n.coachUnusedBullet(
-            bulletName(l10n, BulletKind.values[note.numbers.first])),
-        CoachingCode.neverWhispered => l10n.coachNeverWhispered,
-        CoachingCode.abandonedRead =>
-          l10n.coachAbandonedRead(nameOf(note.seats.first)),
-        CoachingCode.quiet => l10n.coachQuiet(note.numbers.first),
-        CoachingCode.survivedAsMafia => l10n.coachSurvivedAsMafia,
-        _ => note.code,
-      };
+  ) => switch (note.code) {
+    CoachingCode.stuckOnInnocent => l10n.coachStuckOnInnocent(
+      nameOf(note.seats.first),
+      note.numbers.first,
+    ),
+    CoachingCode.conformity => l10n.coachConformity(
+      note.numbers[0],
+      note.numbers[1],
+    ),
+    CoachingCode.unusedBullet => l10n.coachUnusedBullet(
+      bulletName(l10n, BulletKind.values[note.numbers.first]),
+    ),
+    CoachingCode.neverWhispered => l10n.coachNeverWhispered,
+    CoachingCode.abandonedRead => l10n.coachAbandonedRead(
+      nameOf(note.seats.first),
+    ),
+    CoachingCode.quiet => l10n.coachQuiet(note.numbers.first),
+    CoachingCode.survivedAsMafia => l10n.coachSurvivedAsMafia,
+    _ => note.code,
+  };
 
   /// A preset's name (doc 13 §5).
   static String presetName(AppLocalizations l10n, MatchPreset? preset) =>

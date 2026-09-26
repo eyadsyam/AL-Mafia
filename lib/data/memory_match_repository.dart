@@ -147,10 +147,10 @@ class MemoryMatchRepository implements MatchRepository {
       MatchCodec.decode(jsonDecode(encoded) as Map<String, dynamic>);
 
   static MatchSummary _summarize(Match match) => MatchSummary(
-        id: match.id,
-        createdAt: match.createdAt,
-        playerNames: [for (final p in match.players) p.name],
-        winner: match.outcome?.winner,
-        nights: AnalyticsBuilder.build(match).nightsPlayed,
-      );
+    id: match.id,
+    createdAt: match.createdAt,
+    playerNames: [for (final p in match.players) p.name],
+    winner: match.outcome?.winner,
+    nights: AnalyticsBuilder.build(match).nightsPlayed,
+  );
 }

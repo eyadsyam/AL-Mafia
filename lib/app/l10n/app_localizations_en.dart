@@ -9,6 +9,57 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get onlineHostExitTitle => 'Leave the room?';
+
+  @override
+  String get onlineHostExitBody =>
+      'Keep the room running and hand hosting to the first available player, or close it for everyone.';
+
+  @override
+  String get onlineLeaveKeepRoom => 'Leave and keep playing';
+
+  @override
+  String get voiceEnablePlayback => 'Enable audio';
+
+  @override
+  String get onlineHistoryLabel => 'Online match';
+
+  @override
+  String onlineMatchMeta(int players, int day) {
+    return '$players players · day $day';
+  }
+
+  @override
+  String get profileTitle => 'Your profile';
+
+  @override
+  String get profileHint =>
+      'Choose your name and character once. Saved on this device, with no sign-in.';
+
+  @override
+  String get profileSaveFailed =>
+      'Could not save your profile. Allow browser storage and try again.';
+
+  @override
+  String get profileEdit => 'Edit profile';
+
+  @override
+  String get videoPlay => 'Play introduction';
+
+  @override
+  String get videoFailed => 'The introduction could not play here.';
+
+  @override
+  String get videoRetry => 'Try again';
+
+  @override
+  String get voiceRetry => 'Enable audio';
+
+  @override
+  String get onlineNightPrivacyHint =>
+      'Audio stays off during role reveal and night to protect game privacy.';
+
+  @override
   String get appTitle => 'Mafia Master';
 
   @override
@@ -1116,6 +1167,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineNoPublicRooms => 'No public rooms open right now';
 
   @override
+  String publicRoomSeats(int players, int capacity) {
+    return '$players/$capacity players';
+  }
+
+  @override
+  String publicRoomMissing(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more players needed before the host can start',
+      one: '1 more player needed before the host can start',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get publicRoomReady =>
+      'Enough players — the host decides when to start';
+
+  @override
+  String get publicRoomFullStatus => 'Full';
+
+  @override
+  String get publicRoomsStale =>
+      'Can\'t refresh the list right now. This is the last list we received and it may be out of date.';
+
+  @override
+  String get publicRoomsUnavailable =>
+      'Can\'t reach the server to load rooms. We\'ll keep trying.';
+
+  @override
+  String get onlineRoomStarted =>
+      'That room has already started. Pick another one from the list.';
+
+  @override
   String onlinePublicRoomPlayers(int count) {
     return '$count players';
   }
@@ -1323,6 +1409,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String onlineWaitingForCards(String names) {
     return 'Waiting for: $names';
   }
+
+  @override
+  String get onlineFloorOpen => 'The floor is open';
 
   @override
   String onlineRaisedHands(String names) {
@@ -1761,5 +1850,1699 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String timelineSuspectFemale(String actor, String target) {
     return '$actor suspected $target';
+  }
+
+  @override
+  String get onlineDiscardResume => 'Forget room';
+
+  @override
+  String get onlineStorageWarning =>
+      'This device could not save. The match is unaffected, but it may not bring you back to the room on its own or keep the result.';
+
+  @override
+  String get safetyTitle => 'Privacy and data deletion';
+
+  @override
+  String get safetyPolicy =>
+      'Developer: Eyad Syam\nSupport: eyadsyam124@gmail.com\n\nLocal play stays on your device. Online play uses a random identifier, profile, match actions and messages. Earned coins, rewards and unlocked items remain with that identity until deletion. Optional voice is encrypted in transit and is not recorded by the game. Service providers process connection data needed to operate online play. An email is collected only if you choose to protect your account.\n\nAds (Android): Google AdMob shows optional rewarded ads after a completed online match and in the vault, and at most one automatic ad when you return to the menu after a completed match (never before or during a match). To serve ads and prevent fraud, Google\'s ads SDK collects IP address, ad and app interactions, diagnostics and device identifiers such as the Advertising ID. Change ad consent in Settings → Ad privacy choices. Purchases in the Play version use Google Play Billing only; we receive the order, product and purchase token to verify it.\n\nFinished rooms are eligible for deletion after 24 hours. Old anonymous identities with no room membership are removed on the cleanup schedule. You can request online-data deletion below; submission is not completed deletion. Outside the app, use almafia.vercel.app/delete-data with your identifier or receipt. Never send passwords or access keys.\n\nHarassment, threats, hate, sexual content, child exploitation and sharing private information are prohibited. Report abusive players, room names or messages. Blocking hides their private messages and mutes their voice for you; public game actions remain visible. Reports are reviewed by the developer and are not visible to players.';
+
+  @override
+  String get safetyAgree => 'I accept the community rules';
+
+  @override
+  String get safetyConsentTitle => 'Before playing online';
+
+  @override
+  String get safetyConsentBody =>
+      'Abuse, harassment, hate, sexual content and sharing private information are prohibited. Use Safety to report or block. Voice is optional. Read Privacy in Settings for data practices.';
+
+  @override
+  String get safetyReport => 'Submit report';
+
+  @override
+  String get safetyBlock => 'Block player messages and voice';
+
+  @override
+  String get safetyRoom => 'Room name or content';
+
+  @override
+  String get safetyDetails =>
+      'Describe the abuse or message (no secret role information)';
+
+  @override
+  String get safetyReceipt => 'Request received. Keep this receipt:';
+
+  @override
+  String get safetyFailed => 'Request was not sent. Retry or contact support.';
+
+  @override
+  String get safetyDelete => 'Request online data deletion';
+
+  @override
+  String get safetyDeleteConfirm =>
+      'Send a request to delete your anonymous identity and associated online data. The developer will review it within 30 days. Other players’ local copies are separate; safety evidence may be retained for a limited period. This request does not delete local files.';
+
+  @override
+  String get safetyIdentity => 'Show my data identifier';
+
+  @override
+  String get safetyBlocked => 'Blocked for you.';
+
+  @override
+  String get safetyNoRoom =>
+      'Reporting and blocking are available inside a room.';
+
+  @override
+  String get safetyTools => 'Report and block';
+
+  @override
+  String get onlineWelcome => 'The table is ready. Take your seat.';
+
+  @override
+  String get languageLabel => 'Language';
+
+  @override
+  String get languageArabic => 'العربية';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get onlineNewRoomsPaused =>
+      'New rooms are temporarily paused. You can still join an existing room or play offline.';
+
+  @override
+  String get helpTitle => 'Help and FAQ';
+
+  @override
+  String get helpIntro =>
+      'Quick answers about playing, online rooms, safety and your data.';
+
+  @override
+  String get helpPlayQuestion => 'How does a match work?';
+
+  @override
+  String get helpPlayAnswer =>
+      'The game assigns secret roles, guides every night and day phase, and counts the vote. Citizens find the Mafia; the Mafia survives until it matches or outnumbers the town. The host can review the rules before starting.';
+
+  @override
+  String get helpOnlineQuestion => 'How do online rooms work?';
+
+  @override
+  String get helpOnlineAnswer =>
+      'Create a room and share its code, join with a code, or choose a public room. The match is controlled by the game server, and host control moves to another connected player if needed.';
+
+  @override
+  String get helpVoiceQuestion => 'Is voice required?';
+
+  @override
+  String get helpVoiceAnswer =>
+      'No. Voice is optional and is not recorded by the game. If microphone access or voice relay fails, the match continues with the game controls and structured text.';
+
+  @override
+  String get helpReconnectQuestion => 'What if the connection drops?';
+
+  @override
+  String get helpReconnectAnswer =>
+      'Reopen the game on the same device and use Continue room when it appears. Your seat is restored when the room still exists. Never create a second profile to recover a live seat.';
+
+  @override
+  String get helpSafetyQuestion => 'How do reporting and blocking work?';
+
+  @override
+  String get helpSafetyAnswer =>
+      'Inside a room, use the flag button to report a player or room content. Blocking immediately hides that player\'s private messages and mutes their voice for you. A report is evidence for review, not an automatic guilty decision.';
+
+  @override
+  String get helpCoinsQuestion => 'What are coins?';
+
+  @override
+  String get helpCoinsAnswer =>
+      'Coins are earned from verified completed online matches and can unlock fair content. They cannot be withdrawn, transferred or used to buy votes, secret information or a better chance to win. Coins stay with this device\'s anonymous online identity.';
+
+  @override
+  String get helpPrivacyQuestion => 'Where are privacy and deletion controls?';
+
+  @override
+  String get helpPrivacyAnswer =>
+      'They are on the Settings screen under Privacy and data deletion. You can view your anonymous data identifier and request deletion there.';
+
+  @override
+  String get helpAgeQuestion => 'Who is online play intended for?';
+
+  @override
+  String get helpAgeAnswer =>
+      'Online voice and public rooms are intended for players aged 16 or older. Do not share your address, phone number, passwords or other private information in voice, names, messages or room titles.';
+
+  @override
+  String get helpSupportQuestion => 'How can I contact support?';
+
+  @override
+  String get helpSupportAnswer =>
+      'Email eyadsyam124@gmail.com. Include a report receipt or your anonymous data identifier when relevant, but never send a password or access key.';
+
+  @override
+  String get coinsTitle => 'Coins and rewards';
+
+  @override
+  String coinsBalance(int count) {
+    return '$count coins';
+  }
+
+  @override
+  String get coinsEarnHint =>
+      'Complete an eligible online match to earn 100 coins. Players on the winning team earn 25 more. Rewards are verified by the game server and never affect votes, roles or the chance to win.';
+
+  @override
+  String get coinsLoadFailed =>
+      'Your coins could not be loaded. Nothing was spent; try again.';
+
+  @override
+  String get coinsGuideTitle => 'The Mastermind\'s Notebook';
+
+  @override
+  String get coinsGuideHint =>
+      'A permanent strategy guide for reading the table and defending your story. It never reveals live secret information.';
+
+  @override
+  String coinsGuidePrice(int count) {
+    return 'Unlock for $count coins';
+  }
+
+  @override
+  String get coinsBuyGuide => 'Unlock the notebook?';
+
+  @override
+  String get coinsBuyConfirm =>
+      'This permanently spends earned coins on this anonymous online identity. It cannot change a match or improve your odds.';
+
+  @override
+  String get coinsUnlock => 'Unlock';
+
+  @override
+  String get coinsGuideOpen => 'Open the notebook';
+
+  @override
+  String get coinsGuideContent =>
+      'CITIZEN — Track who changes a story after the vote, not who speaks the loudest. Ask for one clear reason and compare it with the next ballot.\n\nMAFIA — Build a simple position early. A complicated lie creates details you must remember. Defend a citizen sometimes; automatic aggression gives the table an easy pattern.\n\nDOCTOR — Survival is not the only goal. Think about which save would create the most trustworthy information for tomorrow.\n\nDETECTIVE — Your information is valuable only if the table can use it. Leave a believable trail before a risky accusation, without announcing your role too early.\n\nEVERY ROLE — Separate what the game confirmed from what a player claimed. The strongest argument is the one that survives the next revealed fact.';
+
+  @override
+  String adRewardAction(int count) {
+    return 'Watch an ad for +$count coins';
+  }
+
+  @override
+  String get adRewardHint =>
+      'Optional and shown only after the result. Your original reward stays yours if you decline or the ad fails.';
+
+  @override
+  String get adRewardPending =>
+      'Ad completed. The extra reward is being verified and will appear automatically.';
+
+  @override
+  String adRewardGranted(int count) {
+    return '$count extra coins added.';
+  }
+
+  @override
+  String get adRewardUnavailable =>
+      'No ad is available right now. Your original reward is unchanged.';
+
+  @override
+  String get adRewardUsed => 'You claimed the ad reward for this match.';
+
+  @override
+  String get privacyChoices => 'Ad privacy choices';
+
+  @override
+  String get privacyChoicesHint =>
+      'Review or change the privacy choices required by the advertising provider.';
+
+  @override
+  String get premiumScenarioTitle => 'Council of Shadows scenario';
+
+  @override
+  String get premiumScenarioHint =>
+      'A permanent host pack with balanced rules, whispers, confrontation and secret ballots. When the host selects it, everyone in the room plays without buying it.';
+
+  @override
+  String get premiumScenarioBuy => 'Buy scenario pack';
+
+  @override
+  String get premiumScenarioOwned => 'Scenario pack owned';
+
+  @override
+  String get premiumScenarioRestore => 'Restore purchases';
+
+  @override
+  String get premiumScenarioPending =>
+      'The store is still processing this purchase.';
+
+  @override
+  String get premiumScenarioFailed =>
+      'The purchase could not be verified. The game has not charged anything itself.';
+
+  @override
+  String get premiumScenarioUse => 'Council of Shadows';
+
+  @override
+  String get premiumScenarioUseHint =>
+      'A balanced scenario preset the host unlocks for the whole room.';
+
+  @override
+  String get shareResult => 'Share result';
+
+  @override
+  String shareResultText(String winner, int days) {
+    return 'A Mafia Master match ended with $winner winning after $days days. Open your room at https://almafia.vercel.app';
+  }
+
+  @override
+  String get playAgainWithGroup => 'New room for the group';
+
+  @override
+  String get setupWelcomeTitle => 'Welcome to Mafia Master';
+
+  @override
+  String get setupWelcomeHint =>
+      'Choose your language, name and preferences once, then play.';
+
+  @override
+  String get setupPreferencesTitle => 'Preferences';
+
+  @override
+  String get setupPreferencesHint => 'You can change these later in Settings.';
+
+  @override
+  String get prefSound => 'Game sounds';
+
+  @override
+  String get prefMusic => 'Music';
+
+  @override
+  String get prefReduceMotion => 'Reduce motion';
+
+  @override
+  String get setupAdultConfirm => 'I am 16 or older';
+
+  @override
+  String get setupAdultHint =>
+      'Online play, voice and public rooms are for ages 16 and up.';
+
+  @override
+  String get termsAcceptPrefix => 'I have read and agree to the ';
+
+  @override
+  String get termsAcceptLink => 'Terms and Conditions';
+
+  @override
+  String get termsAcceptSuffix => '.';
+
+  @override
+  String get privacyLinkLabel => 'Privacy policy';
+
+  @override
+  String get termsTitle => 'Terms and Conditions';
+
+  @override
+  String termsVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get termsBody =>
+      '1. Mafia Master is a party game for entertainment. Roles and outcomes are part of the game only.\n\n2. Online play, voice and public rooms are for people aged 16 or older.\n\n3. Abuse, harassment, threats, hate speech, sexual content and sharing anyone\'s private information are prohibited. You can report or block a player from the safety tools.\n\n4. Voice is optional and the game does not record audio. Other players hear what you say, and nobody can stop someone recording with another device.\n\n5. Mafia Coins are an in-game currency for unlocking cosmetic content only, such as frames, themes and narrator styles. They have no cash value, cannot be exchanged for money and never give an advantage in play, voting or roles.\n\n6. Buying coins with money is available on the website only. Transfers are reviewed manually and coins are added after the transfer is confirmed. Opening a payment link or a receipt screenshot is not proof of payment. A transfer that cannot be matched stays under review until it is resolved.\n\n7. We may remove a room or restrict a player who breaks these terms. You can request deletion of your data from Settings.\n\n8. If these terms change in an important way, we will ask for your agreement again before you continue.';
+
+  @override
+  String get privacySummaryBody =>
+      '• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you link an email to protect your coins, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads, and at most one automatic ad after a completed match. Google\'s ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. Website transfer orders record the amount, method and transfer reference for review.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: almafia.vercel.app/privacy';
+
+  @override
+  String get termsUpdatedTitle => 'Before you continue';
+
+  @override
+  String get termsUpdatedHint =>
+      'Review and accept the terms once. Your profile and progress are kept.';
+
+  @override
+  String get settingsLegalTitle => 'Terms and privacy';
+
+  @override
+  String get launcherLabelPending =>
+      'The icon name will update after you close the game.';
+
+  @override
+  String get documentClose => 'Back';
+
+  @override
+  String get publicRoomWaitingTitle => 'Waiting room ready';
+
+  @override
+  String get publicRoomWaitingStatus =>
+      'Empty; the first player in becomes the host';
+
+  @override
+  String get onlineShareFailed =>
+      'Couldn\'t open sharing or copy the link. Read the room code out to players.';
+
+  @override
+  String get coinsName => 'Council Coins';
+
+  @override
+  String get storeTitle => 'Store';
+
+  @override
+  String get storeTabShop => 'Shop';
+
+  @override
+  String get storeTabCollection => 'Collection';
+
+  @override
+  String get storeTabHistory => 'History';
+
+  @override
+  String get storeTabCoins => 'Buy coins';
+
+  @override
+  String storeEarnTime(int count, int matches) {
+    return '$count coins ≈ $matches online matches';
+  }
+
+  @override
+  String get storeSectionIdentity => 'Identity';
+
+  @override
+  String get storeSectionPacks => 'Room presentation';
+
+  @override
+  String get storeSectionNarrator => 'Narration styles';
+
+  @override
+  String get storeSectionBundles => 'Bundles';
+
+  @override
+  String get storePermanent => 'Permanent';
+
+  @override
+  String get storeOwned => 'Owned';
+
+  @override
+  String get storeEquipped => 'In use';
+
+  @override
+  String get storeEquip => 'Use';
+
+  @override
+  String get storeUnequip => 'Remove';
+
+  @override
+  String get storePreview => 'Preview';
+
+  @override
+  String storeBuyFor(int count) {
+    return 'Buy for $count';
+  }
+
+  @override
+  String storeBuyConfirmTitle(String item) {
+    return 'Buy $item?';
+  }
+
+  @override
+  String storeBuyConfirmBody(int count) {
+    return '$count coins will be deducted. The content is cosmetic and permanent, and changes nothing in play.';
+  }
+
+  @override
+  String storeNotEnough(int count) {
+    return '$count more coins needed';
+  }
+
+  @override
+  String storeBundleSaves(int count) {
+    return 'Saves $count coins';
+  }
+
+  @override
+  String get storeBundleOwnedAll => 'You own everything in it';
+
+  @override
+  String storeBundleContents(String items) {
+    return 'Includes: $items';
+  }
+
+  @override
+  String get storeBought => 'Added to your collection';
+
+  @override
+  String get storeFailed =>
+      'That did not go through and nothing was deducted. Try again.';
+
+  @override
+  String get storeHostPackNote =>
+      'When the host picks a presentation, everyone in the room sees it without buying it.';
+
+  @override
+  String get storePresentationNote =>
+      'Look and sound only. It never changes rules, votes or roles.';
+
+  @override
+  String get storeEmptyCollection => 'Nothing here yet.';
+
+  @override
+  String get storeEmptyHistory => 'No activity yet.';
+
+  @override
+  String get historyMatchCompletion => 'Online match finished';
+
+  @override
+  String get historyMatchWin => 'Win';
+
+  @override
+  String historyCatalogSpend(String item) {
+    return 'Bought: $item';
+  }
+
+  @override
+  String historyCatalogRefund(String item) {
+    return 'Refund: $item';
+  }
+
+  @override
+  String get historyAdReward => 'Video reward';
+
+  @override
+  String get historyCoinPurchase => 'Coin purchase';
+
+  @override
+  String get historyCoinPurchaseReversal => 'Coin purchase reversed';
+
+  @override
+  String get historyAdjustment => 'Adjustment';
+
+  @override
+  String get cosmeticClassic => 'Classic';
+
+  @override
+  String get cosmeticFrameGilded => 'Gilded frame';
+
+  @override
+  String get cosmeticFrameGildedDesc =>
+      'An engraved gold frame with a small mask beneath your portrait, seen by every player.';
+
+  @override
+  String get cosmeticFrameCrimson => 'Crimson frame';
+
+  @override
+  String get cosmeticFrameCrimsonDesc =>
+      'Dark silver with crimson enamel and a small crest below your portrait.';
+
+  @override
+  String get cosmeticFrameMoonlit => 'Moonlit frame';
+
+  @override
+  String get cosmeticFrameMoonlitDesc =>
+      'Cool silver with a small crescent moon below your portrait.';
+
+  @override
+  String get cosmeticPlateNoir => 'Noir nameplate';
+
+  @override
+  String get cosmeticPlateNoirDesc =>
+      'Your name on a charcoal plate in engraved silver with medallion ends.';
+
+  @override
+  String get cosmeticPlateGilded => 'Gilded nameplate';
+
+  @override
+  String get cosmeticPlateGildedDesc =>
+      'Your name on a charcoal plate with a gold edge and fan-shaped ends.';
+
+  @override
+  String get cosmeticPlateEmber => 'Ember nameplate';
+
+  @override
+  String get cosmeticPlateEmberDesc =>
+      'Your name on a charcoal plate edged in crimson and gold with pointed ends.';
+
+  @override
+  String get cosmeticPackManor => 'Midnight Manor';
+
+  @override
+  String get cosmeticPackManorDesc =>
+      'A candlelit manor hall behind the table with light fog, a candlelight transition between public phases, and an opening and closing line with sound. Everyone in the room sees it.';
+
+  @override
+  String get cosmeticPackOldTown => 'Old Town';
+
+  @override
+  String get cosmeticPackOldTownDesc =>
+      'A warm old-stone hall behind the table with drifting light, a sweeping-light transition across the table, and an opening and closing line with sound. Everyone in the room sees it.';
+
+  @override
+  String get cosmeticNarratorStoryteller => 'The Storyteller';
+
+  @override
+  String get cosmeticNarratorStorytellerDesc =>
+      'A narrator who marks every public phase with a short on-screen line, the same for every player. With sound off, the lines stay as text.';
+
+  @override
+  String get cosmeticBundleCouncil => 'Council bundle';
+
+  @override
+  String get cosmeticBundleCouncilDesc =>
+      'Midnight Manor, Old Town and The Storyteller together.';
+
+  @override
+  String get cosmeticBundleIdentity => 'Identity bundle';
+
+  @override
+  String get cosmeticBundleIdentityDesc =>
+      'All three frames and all three nameplates.';
+
+  @override
+  String get packManorIntro =>
+      'The manor doors are shut. Nobody leaves before the truth does.';
+
+  @override
+  String get packManorOutro =>
+      'The candles are out, and the manor keeps its secrets.';
+
+  @override
+  String get packOldTownIntro => 'The old town wakes to a new secret.';
+
+  @override
+  String get packOldTownOutro => 'The streets are quiet. The story is over.';
+
+  @override
+  String get narratorNight => 'Night falls. Everyone stays where they are.';
+
+  @override
+  String get narratorMorning => 'Morning comes, and something has changed.';
+
+  @override
+  String get narratorDiscussion => 'Now we talk. Who has a case?';
+
+  @override
+  String get narratorVoting => 'The decision belongs to the table.';
+
+  @override
+  String get narratorResult => 'The story ends, and the secrets are out.';
+
+  @override
+  String get roomPackLabel => 'Room presentation';
+
+  @override
+  String get roomNarratorLabel => 'Narrator';
+
+  @override
+  String get previewTransition => 'Play transition';
+
+  @override
+  String get previewSound => 'Play sound';
+
+  @override
+  String get previewIntro => 'Opening';
+
+  @override
+  String get previewOutro => 'Closing';
+
+  @override
+  String get previewSampleName => 'Sami';
+
+  @override
+  String get onlineRoomRefreshHint =>
+      'Updates automatically. Choose a room to join.';
+
+  @override
+  String get onlineRoomsAll => 'All rooms';
+
+  @override
+  String get onlineRoomsNearlyReady => 'Need 1–2 players';
+
+  @override
+  String get onlineRoomsNoFilterMatches =>
+      'No rooms need just 1–2 players right now. Browse all rooms or invite your friends.';
+
+  @override
+  String get onlineRoomVoiceOn => 'Voice enabled';
+
+  @override
+  String get onlineRoomVoiceOff => 'Voice disabled';
+
+  @override
+  String get onlineLobbyInviteHint =>
+      'Share the room invite to bring your friends to this table.';
+
+  @override
+  String get onlineLobbyHostReadyHint =>
+      'Your table has enough players. Start when everyone is ready.';
+
+  @override
+  String get onlineLobbyGuestReadyHint =>
+      'Enough players are here. Your host will start the match.';
+
+  @override
+  String get onlineVoteSending => 'Sending your vote…';
+
+  @override
+  String get onlineVoteReceived =>
+      'Vote received. Waiting for the ballot to close.';
+
+  @override
+  String get onlineVoteResolving =>
+      'The ballot is closed. Waiting for the result.';
+
+  @override
+  String get onlineVoteSelectHint =>
+      'Tap a player at the table, then confirm your vote.';
+
+  @override
+  String get onlineConfirmSuspicion => 'Confirm suspicion';
+
+  @override
+  String get onlineBeginVoting => 'Open voting';
+
+  @override
+  String get accountTitle => 'Account protection';
+
+  @override
+  String get accountAnonymousHint =>
+      'Your coins and items are tied to this device only. Uninstalling or changing phones can lose them. Link an email to be able to recover them. Playing never needs an account.';
+
+  @override
+  String accountProtected(String email) {
+    return 'Protected with $email';
+  }
+
+  @override
+  String get accountLink => 'Protect with email';
+
+  @override
+  String get accountRecover => 'I already have a protected account';
+
+  @override
+  String get accountEmail => 'Email';
+
+  @override
+  String get accountSendCode => 'Send code';
+
+  @override
+  String get accountCode => 'Code from the email';
+
+  @override
+  String get accountConfirm => 'Confirm';
+
+  @override
+  String accountCodeSent(String email) {
+    return 'We sent a code to $email. It can take a minute; check spam if you do not see it.';
+  }
+
+  @override
+  String get accountRecoverWarning =>
+      'You will sign in to your protected account. Coins on this device without an account will not move to it.';
+
+  @override
+  String get accountErrorEmail => 'That email does not look right.';
+
+  @override
+  String get accountErrorTaken =>
+      'That email belongs to another account. Use «I already have a protected account».';
+
+  @override
+  String get accountErrorCode =>
+      'The code is wrong or expired. Ask for a new one.';
+
+  @override
+  String get accountErrorRate =>
+      'Too many requests. Wait a little and try again.';
+
+  @override
+  String get accountErrorUnavailable => 'Not available right now. Try later.';
+
+  @override
+  String get coinPacksUnavailable =>
+      'Buying coins is not available right now. Coins are still earned from online matches.';
+
+  @override
+  String get coinPacksNeedAccount =>
+      'Before paying, protect your account with an email so paid coins stay with you on any device.';
+
+  @override
+  String coinPackCoins(int count) {
+    return '$count coins';
+  }
+
+  @override
+  String coinPackPrice(String amount) {
+    return 'EGP $amount';
+  }
+
+  @override
+  String get coinPayMethod => 'Payment method';
+
+  @override
+  String get coinPayInstapay => 'InstaPay';
+
+  @override
+  String get coinPayVodafone => 'Vodafone Cash';
+
+  @override
+  String get coinPayMethodOff => 'Not available now';
+
+  @override
+  String get coinManualNotice =>
+      'Transfers are reviewed by hand, and coins are added after the transfer is confirmed';
+
+  @override
+  String get coinManualDetail =>
+      'The payment page opens outside the game and may switch to your bank or wallet app. Transfer the exact amount shown, then come back and enter the transaction number. Opening or returning from the link adds no coins.';
+
+  @override
+  String coinCreateOrder(String amount) {
+    return 'Confirm order: EGP $amount';
+  }
+
+  @override
+  String coinOrderTitle(String reference) {
+    return 'Order $reference';
+  }
+
+  @override
+  String coinOrderSummary(int coins, String amount, String method) {
+    return '$coins coins for EGP $amount via $method';
+  }
+
+  @override
+  String coinOpenPayment(String method) {
+    return 'Open $method';
+  }
+
+  @override
+  String get coinOpenFailed =>
+      'The browser did not open the page. Allow pop-ups for this site and try again.';
+
+  @override
+  String get coinDesktopHint =>
+      'On a computer with the wallet app on your phone, open this site on the phone to complete the transfer.';
+
+  @override
+  String get coinSentTransfer => 'I sent the transfer';
+
+  @override
+  String get coinTransferReference => 'Transaction number';
+
+  @override
+  String get coinPayerHint => 'Sender name (optional)';
+
+  @override
+  String get coinClaimNote =>
+      'This reports your transfer; it is not a confirmation. Nobody will ask for your PIN or a code.';
+
+  @override
+  String get coinCancelOrder => 'Cancel order';
+
+  @override
+  String get coinStatusAwaiting => 'Waiting for your transfer';
+
+  @override
+  String get coinStatusClaimed =>
+      'Under review. Coins are added once the money is confirmed.';
+
+  @override
+  String coinStatusNeedsInfo(String note) {
+    return 'We need details: $note';
+  }
+
+  @override
+  String coinStatusPaid(int coins) {
+    return '$coins coins added';
+  }
+
+  @override
+  String coinStatusRejected(String note) {
+    return 'Order declined: $note';
+  }
+
+  @override
+  String get coinStatusCancelled => 'Order cancelled';
+
+  @override
+  String get coinStatusExpired =>
+      'The order expired. If you already transferred, enter the transaction number and it will be reviewed.';
+
+  @override
+  String coinStatusRefunded(String note) {
+    return 'Refunded: $note';
+  }
+
+  @override
+  String get coinOrderFailed =>
+      'The order was not recorded. Nothing was charged; try again.';
+
+  @override
+  String get adminCoinsTitle => 'Transfer review';
+
+  @override
+  String get adminNotAdmin => 'This account is not an admin.';
+
+  @override
+  String get adminEmpty => 'No orders waiting for review.';
+
+  @override
+  String get adminProviderTxn => 'Transaction ID in your statement';
+
+  @override
+  String get adminReceived => 'Amount received (EGP)';
+
+  @override
+  String get adminNote => 'Note to player';
+
+  @override
+  String get adminApprove => 'Received: add coins';
+
+  @override
+  String get adminNeedsInfo => 'Ask for details';
+
+  @override
+  String get adminReject => 'Decline';
+
+  @override
+  String get adminRefund => 'Money returned';
+
+  @override
+  String get adminCheckFirst =>
+      'Check your bank or wallet statement yourself and match amount, method and reference before approving. If unsure, leave it under review.';
+
+  @override
+  String get adminErrorAmount =>
+      'Amount does not match. Ask for details or decline.';
+
+  @override
+  String get adminErrorUsed => 'That transaction already funded another order.';
+
+  @override
+  String get adminErrorGeneric => 'Not done. Check the fields and try again.';
+
+  @override
+  String adminOrderLine(
+    String reference,
+    String account,
+    String amount,
+    String method,
+    String claim,
+  ) {
+    return '$reference · $account · EGP $amount · $method · player ref: $claim';
+  }
+
+  @override
+  String get adminFilterOpen => 'To review';
+
+  @override
+  String get adminFilterPaid => 'Paid';
+
+  @override
+  String get arrivalIdentityTitle => 'Your seat at the table';
+
+  @override
+  String get arrivalIdentityHint =>
+      'Choose the name and face your friends will recognise.';
+
+  @override
+  String get arrivalWelcomeHint =>
+      'A secret role. A room full of suspects. Your story starts here.';
+
+  @override
+  String get arrivalPactTitle => 'Before the first night';
+
+  @override
+  String arrivalStep(int step, int total) {
+    return 'Step $step of $total';
+  }
+
+  @override
+  String get arrivalSaving => 'Saving your seat…';
+
+  @override
+  String get councilInvitation =>
+      'Every voice has a story. Who will you believe?';
+
+  @override
+  String get witnessTableLoading => 'Opening the table…';
+
+  @override
+  String get witnessTableNoActions => 'Nobody has chosen anything at night yet';
+
+  @override
+  String witnessActionKill(String actor, String target) {
+    return '$actor chose to kill $target';
+  }
+
+  @override
+  String witnessActionProtect(String actor, String target) {
+    return '$actor is protecting $target';
+  }
+
+  @override
+  String witnessActionInvestigate(String actor, String target) {
+    return '$actor checked $target';
+  }
+
+  @override
+  String witnessActionSuspect(String actor, String target) {
+    return '$actor suspects $target';
+  }
+
+  @override
+  String get onlineDiscussionLive => 'The discussion is on';
+
+  @override
+  String get witnessEventNight => 'Night: everyone chooses in secret';
+
+  @override
+  String witnessEventOpening(String name) {
+    return '$name is naming a suspect';
+  }
+
+  @override
+  String get witnessEventDiscussion => 'The players still in are talking';
+
+  @override
+  String get witnessEventVoting => 'The vote is on';
+
+  @override
+  String get onlineAbandonedTitle => 'Everyone else has left';
+
+  @override
+  String get onlineAbandonedBody =>
+      'There is nobody left at the table but you, so this match is over. Head home and start a new room.';
+
+  @override
+  String get nightCitizenRest => 'You are a Citizen';
+
+  @override
+  String get nightCitizenRestSupport =>
+      'Nothing to do on the first night. Wait for the others to finish, and the day will come.';
+
+  @override
+  String readyToVote(int ready, int living) {
+    return 'Ready to vote ($ready of $living)';
+  }
+
+  @override
+  String readyToVoteWaiting(int ready, int living) {
+    return 'Waiting for the rest ($ready of $living)';
+  }
+
+  @override
+  String get settingsSectionGeneral => 'General';
+
+  @override
+  String get settingsRulesTitle => 'Match rules';
+
+  @override
+  String get settingsRulesHint =>
+      'Every new match starts from these, and you can still change them before one.';
+
+  @override
+  String get settingsSectionMore => 'Help & privacy';
+
+  @override
+  String get onlineRoomSettingsHint =>
+      'Every change reaches everyone in the room right away.';
+
+  @override
+  String get vaultTitle => 'The Council Vault';
+
+  @override
+  String get vaultSubtitle => 'Your signature. Your council atmosphere.';
+
+  @override
+  String get storeFrames => 'Avatar frames';
+
+  @override
+  String get storeNameplates => 'Nameplates';
+
+  @override
+  String get storeBrowseNext => 'More products';
+
+  @override
+  String get storeBrowsePrevious => 'Previous products';
+
+  @override
+  String get cosmeticPackArchive => 'Moonlit Archive';
+
+  @override
+  String get cosmeticPackArchiveDesc =>
+      'A moonlit archive behind the table in quiet silver, a moonlight transition between public phases, and an opening and closing line with sound. Everyone in the room sees it.';
+
+  @override
+  String get cosmeticNarratorKeeper => 'Secret Keeper';
+
+  @override
+  String get cosmeticNarratorKeeperDesc =>
+      'A solemn, archival narrator: a short on-screen line with a cue at each public phase, the same for every player. Written text, not a recorded voice.';
+
+  @override
+  String get cosmeticNarratorNoir => 'Noir Narrator';
+
+  @override
+  String get cosmeticNarratorNoirDesc =>
+      'A terse noir narrator: a short on-screen line with a cue at each public phase, the same for every player. Written text, not a recorded voice.';
+
+  @override
+  String get cosmeticBundleNocturne => 'Nocturne Collection';
+
+  @override
+  String get cosmeticBundleNocturneDesc =>
+      'Moonlit Archive, the Moonlit frame, the Noir nameplate and the Secret Keeper together.';
+
+  @override
+  String get packArchiveIntro => 'The archive opens its doors under the moon.';
+
+  @override
+  String get packArchiveOutro =>
+      'The moonlight withdraws, and the files return to their shelves.';
+
+  @override
+  String get narratorKeeperNight => 'The ledger closes on the night\'s page.';
+
+  @override
+  String get narratorKeeperMorning => 'The day\'s page is open.';
+
+  @override
+  String get narratorKeeperDiscussion =>
+      'Every word carries weight. Choose yours carefully.';
+
+  @override
+  String get narratorKeeperVoting => 'The council records its decision.';
+
+  @override
+  String get narratorKeeperResult =>
+      'The ledger is closed; the story joins the archive.';
+
+  @override
+  String get narratorNoirNight => 'The city sleeps. The streets are empty.';
+
+  @override
+  String get narratorNoirMorning =>
+      'Morning. Everyone is looking for the truth.';
+
+  @override
+  String get narratorNoirDiscussion =>
+      'Everyone has a story. Who is telling the truth?';
+
+  @override
+  String get narratorNoirVoting => 'Decision time. Every vote has a price.';
+
+  @override
+  String get narratorNoirResult => 'Case closed.';
+
+  @override
+  String get storeAboutCoins => 'About coins';
+
+  @override
+  String get storeInside => 'What\'s inside';
+
+  @override
+  String storeBalance(int count) {
+    return 'Your balance: $count coins';
+  }
+
+  @override
+  String get storeRoomArtNote =>
+      'The scene shows faintly behind the table in public phases only, never at night.';
+
+  @override
+  String get profileAddressLabel => 'Address me as';
+
+  @override
+  String get profileAddressHint =>
+      'Arabic speaks to men and women differently, so roles and messages are written this way.';
+
+  @override
+  String onlinePlayingAs(String name) {
+    return 'Playing as $name';
+  }
+
+  @override
+  String get onlineNoPublicRoomsHint =>
+      'Create a room and send your friends the code, or refresh in a moment.';
+
+  @override
+  String get lobbyInviteFriends => 'Invite friends';
+
+  @override
+  String get adStepsTitle => 'Optional bonus: up to 2 ads';
+
+  @override
+  String adStepsDisclosure(int total) {
+    return 'Each ad you finish is verified and adds its coins; stopping after the first keeps it. Both ads together add +$total. Your match reward stays yours either way.';
+  }
+
+  @override
+  String adStepAction(int step, int amount) {
+    return 'Ad $step of 2 · +$amount';
+  }
+
+  @override
+  String adStepDone(int step, int amount) {
+    return 'Ad $step of 2 · +$amount added';
+  }
+
+  @override
+  String adStepsComplete(int total) {
+    return '+$total bonus coins added for this match.';
+  }
+
+  @override
+  String get adRewardCheckAgain => 'Check again';
+
+  @override
+  String get adRewardNotConsented =>
+      'Ads need your consent first. You can change it in Settings → Ad privacy choices.';
+
+  @override
+  String get storeTabRewards => 'Rewards';
+
+  @override
+  String get dailyTitle => 'Daily rewards';
+
+  @override
+  String get dailyResetNote => 'A new day starts at 00:00 UTC.';
+
+  @override
+  String get dailyCofferTitle => 'Daily coffer';
+
+  @override
+  String dailyCofferBody(int amount) {
+    return 'Free once a day: +$amount Council Coins.';
+  }
+
+  @override
+  String dailyCofferClaim(int amount) {
+    return 'Open · +$amount';
+  }
+
+  @override
+  String get dailyCofferClaimed => 'Opened today. Come back tomorrow.';
+
+  @override
+  String dailyCofferGranted(int amount) {
+    return '+$amount added to your coins.';
+  }
+
+  @override
+  String dailyWeekBonusGranted(int amount) {
+    return 'Seventh day! +$amount bonus.';
+  }
+
+  @override
+  String get dailyWheelTitle => 'Free wheel';
+
+  @override
+  String get dailyWheelBody =>
+      'One free spin each day. It costs nothing and has no cash value.';
+
+  @override
+  String get dailyWheelSpin => 'Spin free';
+
+  @override
+  String dailyWheelResult(int amount) {
+    return 'The wheel landed on +$amount.';
+  }
+
+  @override
+  String dailyWheelDone(int amount) {
+    return 'Today\'s spin: +$amount. Next spin tomorrow.';
+  }
+
+  @override
+  String get dailyWheelOdds => 'Exact odds';
+
+  @override
+  String dailyWheelOddsRow(int coins) {
+    return '+$coins coins';
+  }
+
+  @override
+  String dailyWheelPercent(String percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get dailyWeekTitle => 'Seven-day card';
+
+  @override
+  String dailyWeekBody(int progress, int bonus) {
+    return '$progress of 7 opened. Every seventh day you open adds +$bonus. A missed day resets nothing.';
+  }
+
+  @override
+  String get dailyAdTitle => 'Daily ad (optional)';
+
+  @override
+  String dailyAdBody(int amount) {
+    return 'One optional ad per day for exactly +$amount coins.';
+  }
+
+  @override
+  String dailyAdAction(int amount) {
+    return 'Watch · +$amount';
+  }
+
+  @override
+  String get dailyAdDone => 'Today\'s ad reward is collected.';
+
+  @override
+  String get dailyAdInMatch => 'Available outside a match.';
+
+  @override
+  String get dailyFailed => 'Couldn\'t reach the vault. Try again.';
+
+  @override
+  String get dailyDayChanged => 'A new day started. Refreshed.';
+
+  @override
+  String get historyAdStep => 'Bonus ad';
+
+  @override
+  String get historyDailyCoffer => 'Daily coffer';
+
+  @override
+  String get historyDailyWheel => 'Free wheel';
+
+  @override
+  String get historyDailyWeek => 'Seventh-day bonus';
+
+  @override
+  String get historyDailyAd => 'Daily ad';
+
+  @override
+  String get historyPlayCoins => 'Coins bought on Google Play';
+
+  @override
+  String get historyPlayReversal => 'Google Play refund';
+
+  @override
+  String get storeTabPlay => 'Coins & pass';
+
+  @override
+  String get quietPassTitle => 'Quiet Pass';
+
+  @override
+  String get quietPassBody =>
+      'Permanent. Removes the automatic ad after matches. Optional reward ads stay available if you want them. No gameplay advantage.';
+
+  @override
+  String get quietPassOwned => 'Quiet Pass active';
+
+  @override
+  String playPackTitle(int coins) {
+    return '$coins Council Coins';
+  }
+
+  @override
+  String playBuy(String price) {
+    return 'Buy · $price';
+  }
+
+  @override
+  String get playUnavailable =>
+      'Purchases aren\'t available on this device right now.';
+
+  @override
+  String get playPending =>
+      'Payment pending. It is added when Google confirms it.';
+
+  @override
+  String get playVerified => 'Purchase confirmed.';
+
+  @override
+  String get playFailed => 'The purchase was not completed.';
+
+  @override
+  String get playAccountMismatch => 'This purchase belongs to another account.';
+
+  @override
+  String get playNeedsProtection =>
+      'Protect your account with an email before buying, so a purchase is never lost with your phone.';
+
+  @override
+  String get playRestore => 'Restore purchases';
+
+  @override
+  String get playCoinsNote =>
+      'Council Coins buy cosmetics only. They have no cash value and give no advantage.';
+
+  @override
+  String get playRefundRule =>
+      'If a coin pack is refunded, its unspent coins are removed. Coins already spent become an amount your next coin pack pays first; earned coins and owned items are never taken.';
+
+  @override
+  String playDebtNotice(int coins) {
+    return 'An earlier refund is still open: your next $coins purchased coins settle it first.';
+  }
+
+  @override
+  String get quietPassRefundRule =>
+      'If the pass is refunded, it is removed; your coins and items stay.';
+
+  @override
+  String get storeTabCouncil => 'Council';
+
+  @override
+  String get councilRankTitle => 'Your Council rank';
+
+  @override
+  String councilLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String councilXpProgress(int xp, int next) {
+    return '$xp / $next XP';
+  }
+
+  @override
+  String councilXpTotal(int xp) {
+    return '$xp XP';
+  }
+
+  @override
+  String get councilMaxLevel => 'The top of the Council';
+
+  @override
+  String councilNextLevel(int coins) {
+    return 'Next level: +$coins';
+  }
+
+  @override
+  String councilWeekXp(int xp) {
+    return '$xp XP this week';
+  }
+
+  @override
+  String get councilHowXp =>
+      'Every finished online match earns XP — a win earns more.';
+
+  @override
+  String get councilFailed => 'Couldn\'t reach the Council. Try again.';
+
+  @override
+  String get councilAttention => 'Something is waiting for you in the vault';
+
+  @override
+  String get contractsTitle => 'Today\'s contracts';
+
+  @override
+  String get contractsReset => 'Renews at 00:00 UTC';
+
+  @override
+  String get contractFinishOne => 'Finish a match';
+
+  @override
+  String contractFinishMany(int count) {
+    return 'Finish $count matches';
+  }
+
+  @override
+  String get contractTown => 'Finish a match on the town side';
+
+  @override
+  String get contractMafia => 'Finish a match on the mafia side';
+
+  @override
+  String get contractWinOne => 'Win a match';
+
+  @override
+  String contractWinMany(int count) {
+    return 'Win $count matches';
+  }
+
+  @override
+  String get contractHost => 'Host a match to the end';
+
+  @override
+  String get contractReunion => 'Play again with someone you\'ve played with';
+
+  @override
+  String contractProgress(int done, int target) {
+    return '$done/$target';
+  }
+
+  @override
+  String contractClaim(int coins) {
+    return 'Claim +$coins';
+  }
+
+  @override
+  String get contractClaimed => 'Claimed';
+
+  @override
+  String contractsBonus(int coins) {
+    return 'Complete all three: +$coins';
+  }
+
+  @override
+  String get contractsBonusDone => 'All three done';
+
+  @override
+  String contractBonusGranted(int coins) {
+    return 'All three! +$coins bonus.';
+  }
+
+  @override
+  String get contractIncomplete => 'Not yet — finish the match first.';
+
+  @override
+  String get weeklyTitle => 'This week\'s contract';
+
+  @override
+  String weeklyBody(int target) {
+    return 'Finish $target online matches this week';
+  }
+
+  @override
+  String weeklyReward(int coins, int xp) {
+    return '+$coins coins and $xp XP';
+  }
+
+  @override
+  String weeklyRewardCoins(int coins) {
+    return '+$coins coins';
+  }
+
+  @override
+  String get weeklyReset => 'Renews Monday 00:00 UTC';
+
+  @override
+  String get leaderboardTitle => 'Top this week';
+
+  @override
+  String get leaderboardOpen => 'This week\'s board';
+
+  @override
+  String leaderboardYou(int position) {
+    return 'Your position: $position';
+  }
+
+  @override
+  String get leaderboardNone => 'Play a match to enter the board';
+
+  @override
+  String get leaderboardEmpty => 'Nobody has earned XP this week yet.';
+
+  @override
+  String get leaderboardHidden =>
+      'You\'re hidden from the board; only you see your position.';
+
+  @override
+  String get leaderboardVisibleLabel => 'Show me on the leaderboard';
+
+  @override
+  String get leaderboardVisibleBody =>
+      'Your name, look and rank appear on the weekly board. Nothing about your matches is shown.';
+
+  @override
+  String get inviteTitle => 'Invite a friend';
+
+  @override
+  String inviteBody(int inviter, int invitee) {
+    return 'When your friend finishes their first online match: you +$inviter, they +$invitee.';
+  }
+
+  @override
+  String get inviteCopy => 'Copy code';
+
+  @override
+  String get inviteCopied => 'Code copied';
+
+  @override
+  String get inviteShare => 'Share';
+
+  @override
+  String inviteShareText(String code) {
+    return 'Join me in Mafia Master! Use my invite code $code in the Council tab of the vault.';
+  }
+
+  @override
+  String inviteCounters(int rewarded, int cap, int pending) {
+    return 'Rewarded: $rewarded/$cap · Waiting: $pending';
+  }
+
+  @override
+  String get inviteHaveCode => 'Have an invite code?';
+
+  @override
+  String get inviteField => 'Invite code';
+
+  @override
+  String get inviteRedeem => 'Use code';
+
+  @override
+  String get inviteRedeemed =>
+      'Invite saved. Finish a match to unlock both rewards.';
+
+  @override
+  String get inviteRewarded => 'Invite reward received.';
+
+  @override
+  String get inviteNotFound => 'That code doesn\'t exist.';
+
+  @override
+  String get inviteSelf => 'You can\'t use your own code.';
+
+  @override
+  String get inviteExpired =>
+      'Invite codes are for new accounts, within 7 days.';
+
+  @override
+  String get inviteNotNew => 'Invite codes work before your first match.';
+
+  @override
+  String get inviteAlready => 'You\'ve already used an invite code.';
+
+  @override
+  String get inviteLoop =>
+      'You invited this player — you can\'t use their code.';
+
+  @override
+  String get inviteLimit => 'This code has reached its limit.';
+
+  @override
+  String get inviteRateLimit => 'Too many tries. Try again tomorrow.';
+
+  @override
+  String resultContractToast(String name, int coins) {
+    return 'Contract complete: $name +$coins';
+  }
+
+  @override
+  String resultWeeklyToast(int coins) {
+    return 'Weekly contract complete: +$coins';
+  }
+
+  @override
+  String resultXpGained(int xp) {
+    return '+$xp XP';
+  }
+
+  @override
+  String get resultClaimHint => 'Claim them in the vault\'s Council tab.';
+
+  @override
+  String levelUpTitle(String title) {
+    return 'You rose to $title';
+  }
+
+  @override
+  String levelUpBody(int level, int coins) {
+    return 'Level $level · +$coins coins';
+  }
+
+  @override
+  String get rankTier1 => 'Newcomer';
+
+  @override
+  String get rankTier2 => 'Informant';
+
+  @override
+  String get rankTier3 => 'Night Watch';
+
+  @override
+  String get rankTier4 => 'Investigator';
+
+  @override
+  String get rankTier5 => 'Notable';
+
+  @override
+  String get rankTier6 => 'Councillor';
+
+  @override
+  String get rankTier7 => 'Capo';
+
+  @override
+  String get rankTier8 => 'Consigliere';
+
+  @override
+  String get rankTier9 => 'Council Elder';
+
+  @override
+  String get rankTier10 => 'Godfather';
+
+  @override
+  String rankSemantics(String title, int level) {
+    return '$title, level $level';
+  }
+
+  @override
+  String get bundleTitle => 'Starter Bundle';
+
+  @override
+  String bundleBody(int coins) {
+    return '$coins coins + the Council Seal frame, sold nowhere else. Once per account.';
+  }
+
+  @override
+  String get bundleOwned => 'You own the Starter Bundle';
+
+  @override
+  String get bundleRefundRule =>
+      'If it is refunded, its coins are settled like a coin pack and the Council Seal frame is removed.';
+
+  @override
+  String get bundleAlreadyOwned =>
+      'This account already has the Starter Bundle; the extra purchase is refunded by Google Play.';
+
+  @override
+  String get cosmeticFrameSeal => 'Council Seal';
+
+  @override
+  String get cosmeticFrameSealDesc =>
+      'A wax-red seal ring with eight gold studs — the Starter Bundle\'s own frame.';
+
+  @override
+  String get coinPayStep =>
+      'Choose a pack, then tap a payment method: its page opens. Come back here with the transfer reference.';
+
+  @override
+  String coinPayWith(String method) {
+    return 'Pay with $method';
+  }
+
+  @override
+  String get webPassTitle => 'Quiet Pass for the Android app';
+
+  @override
+  String get webPassBody =>
+      'The website shows no ads. The pass removes automatic interruptions in the Android app on this same linked account. Optional reward ads stay available.';
+
+  @override
+  String get webPassOwned => 'Quiet Pass active on this account';
+
+  @override
+  String coinOrderPassSummary(String price, String method) {
+    return 'Quiet Pass · EGP $price · $method';
   }
 }

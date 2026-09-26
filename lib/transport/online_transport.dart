@@ -10,8 +10,10 @@ import 'game_snapshot.dart';
 import 'game_transport.dart';
 import 'online_backend.dart';
 import 'room_codec.dart';
+import 'metered_voice_link.dart';
 import 'voice_link.dart';
 import 'witness_channel.dart';
+import '../ui/theme/design_tokens.dart';
 
 /// The online transport: the server is the authority (doc 10 §1.3).
 ///
@@ -47,9 +49,8 @@ class OnlineTransport implements GameTransport {
   final OnlineBackend backend;
   final String roomId;
 
-  /// How often this client says it is alive, and how often it checks whether
-  /// the host still is. Zero disables the timer entirely, which is how tests
-  /// drive [tick] by hand.
+  /// How often this client says it is alive and checks the host. Zero disables
+  /// the timer entirely, which is how tests drive [tick] by hand.
   final Duration heartbeatInterval;
 
   /// Injected so tests can hold a wrong clock deliberately (O8).
@@ -68,6 +69,25 @@ class OnlineTransport implements GameTransport {
   Timer? _ticker;
   Timer? _retry;
 
+  /// Fires once, at the moment this client becomes entitled to drive the room
+  /// forward. The heartbeat would find the same expiry eventually, but "within
+  /// ten seconds" is not the same phase change as "on the second", and the
+  /// difference is the whole of whether a match feels timed or merely slow.
+  Timer? _deadlineAlarm;
+
+  /// The room moves on by itself (owner decision 2026-09-23): no «كمل» for
+  /// the host. The beats that are *read* — the deal once every card is seen,
+  /// the morning, the verdict — end after a reading pause rather than at their
+  /// long server deadline. The host's device keeps that time silently; every
+  /// other device still takes over at the deadline if the host is gone.
+  Timer? _earlyAlarm;
+  String? _earlyKey;
+  DateTime? _phaseSeenAt;
+
+  /// Whether a drive is already in flight, so a push and an alarm landing
+  /// together do not both advance the room.
+  bool _driving = false;
+
   RoomState? _state;
   List<RoomPlayer> _players = const [];
   VoiceLink? _voice;
@@ -83,6 +103,9 @@ class OnlineTransport implements GameTransport {
   /// the rows, so an open ballot is a thing the *database* is doing and this is
   /// only where the answer is kept.
   Map<int, int?> _ballots = const {};
+  (int, int)? _ballotEpoch;
+  int _ballotRequest = 0;
+  int _ballotApplied = 0;
 
   /// Polls the ballot while it is open, and only then.
   ///
@@ -96,6 +119,19 @@ class OnlineTransport implements GameTransport {
   /// default room pays nothing for it. The honest cost in a room that did opt
   /// in is one narrow read every [_ballotInterval] for the length of a ballot.
   Timer? _ballotPoll;
+
+  /// Full reads are triggered by more than one Realtime table. They must not
+  /// race: a lobby read that started before `start_match` can otherwise finish
+  /// after the reveal read and put the guest's private role back to null.
+  Future<void>? _resyncInFlight;
+  bool _resyncAgain = false;
+
+  /// A same-phase row landed while a full read was on the wire. That read was
+  /// taken before the row, so publishing it would put the old speaker or
+  /// opening seat back; it is dropped and read again instead, at most
+  /// [_maxSupersededReads] times in a row so a busy room still converges.
+  bool _deltaDuringRead = false;
+  static const int _maxSupersededReads = 2;
 
   static const Duration _ballotInterval = Duration(seconds: 2);
 
@@ -125,7 +161,7 @@ class OnlineTransport implements GameTransport {
     required RoomState state,
     OwnSeat? own,
     List<WhisperRow> whispers = const [],
-    this.heartbeatInterval = const Duration(seconds: 10),
+    this.heartbeatInterval = MafiaTiming.onlineHeartbeat,
     this.now = DateTime.now,
   }) : _snapshot = const GameSnapshot(
          public: PublicMatchView(
@@ -152,7 +188,7 @@ class OnlineTransport implements GameTransport {
   static Future<OnlineTransport> connect({
     required OnlineBackend backend,
     required String roomId,
-    Duration heartbeatInterval = const Duration(seconds: 10),
+    Duration heartbeatInterval = MafiaTiming.onlineHeartbeat,
     DateTime Function() now = DateTime.now,
   }) async {
     await backend.ensureSession();
@@ -198,11 +234,13 @@ class OnlineTransport implements GameTransport {
   /// the voice controls have somewhere to send a floor request, and it can be
   /// broken for the whole match without a single command above noticing.
   @override
-  VoiceLink? get voice => _voice ??= BackendVoiceLink(
+  VoiceLink? get voice => _voice ??= MeteredVoiceLink(
     backend: backend,
     roomId: roomId,
     roster: () => [
-      for (final p in _players) VoicePeer(userId: p.userId, seat: p.seat),
+      for (final p in _players)
+        if (p.status != 'left' && !p.kicked)
+          VoicePeer(userId: p.userId, seat: p.seat),
     ],
   );
 
@@ -215,6 +253,7 @@ class OnlineTransport implements GameTransport {
   WitnessChannel? get witness => _witness ??= BackendWitnessChannel(
     backend: backend,
     roomId: roomId,
+    blocked: () => _blocked,
     roster: () => {
       for (final p in _players) p.userId: (seat: p.seat, name: p.name),
     },
@@ -252,8 +291,7 @@ class OnlineTransport implements GameTransport {
     if (dark) {
       _frozenConnected ??= {for (final p in _players) p.seat: p.connected};
       _frozenPresence ??= {
-        for (final p in _players)
-          p.seat: SeatPresence.fromServer(p.status),
+        for (final p in _players) p.seat: SeatPresence.fromServer(p.status),
       };
     } else {
       _frozenConnected = null;
@@ -268,12 +306,96 @@ class OnlineTransport implements GameTransport {
       skew: _skew,
       whispers: _whispers,
       ownTurnPending: _ownTurnPending(state),
+      viewerVoteRecorded:
+          state.phase == 'vote' && _own?.votedRound == _round(state),
       frozenConnected: _frozenConnected,
       frozenPresence: _frozenPresence,
       liveBallots: _ballots,
     );
     if (!_controller.isClosed) _controller.add(_snapshot);
     _syncBallotPolling();
+    _armDeadlineAlarm();
+  }
+
+  /// Re-arms the one-shot alarm for the current phase's deadline.
+  ///
+  /// Driven off the published snapshot for the same reason the ballot poll is:
+  /// every route into a new phase — a delta, a resync, a reconnection — leaves
+  /// the timer right without three call sites having to agree.
+  void _armDeadlineAlarm() {
+    _armEarlyAlarm();
+    _deadlineAlarm?.cancel();
+    _deadlineAlarm = null;
+    // Zero disables the periodic timer in tests, and it disables this with it:
+    // a test that wanted a beat calls `tick()`, and one that did not must not
+    // find the room advancing under it.
+    if (heartbeatInterval == Duration.zero) return;
+    final due = _driveDueAt();
+    if (due == null) return;
+    final wait = due.difference(now().toUtc());
+    _deadlineAlarm = Timer(
+      wait.isNegative ? Duration.zero : wait,
+      () => unawaited(_applyExpiryIfDue()),
+    );
+  }
+
+  void _armEarlyAlarm() {
+    final state = _state;
+    final key = state == null ? null : '${state.phase}-${state.phaseNumber}';
+    if (key != _earlyKey) {
+      _earlyKey = key;
+      _phaseSeenAt = now().toUtc();
+    }
+    _earlyAlarm?.cancel();
+    _earlyAlarm = null;
+    if (heartbeatInterval == Duration.zero || state == null || !isHost) return;
+    final seen = _phaseSeenAt!;
+    final due = switch (state.phase) {
+      'reveal' when _snapshot.unseenRoleSeats.isEmpty => seen.add(
+        MafiaTiming.autoRevealSettle,
+      ),
+      'morning' => seen.add(MafiaTiming.autoMorningRead),
+      'verdict' => seen.add(MafiaTiming.autoVerdictRead),
+      _ => null,
+    };
+    if (due == null) return;
+    final wait = due.difference(now().toUtc());
+    _earlyAlarm = Timer(wait.isNegative ? Duration.zero : wait, () {
+      if (_driving || _earlyKey != key) return;
+      _driving = true;
+      unawaited(
+        advancePhase().catchError((_) {}).whenComplete(() => _driving = false),
+      );
+    });
+  }
+
+  /// When this client may start driving the room, or null when the phase has
+  /// no clock.
+  ///
+  /// The host's answer is the deadline itself. A guest's is a little later, and
+  /// later again for each seat: the point is not to race the host, only to be
+  /// there if the host is not. See [MafiaTiming.onlineDriveGrace].
+  DateTime? _driveDueAt() {
+    final deadline = _state?.phaseEndsAt;
+    if (deadline == null) return null;
+    final corrected = deadline.subtract(_skew);
+    if (isHost) return corrected;
+    return corrected
+        .add(MafiaTiming.onlineDriveGrace)
+        .add(MafiaTiming.onlineDriveStep * (mySeat ?? 0));
+  }
+
+  /// Whether this client may move the room on right now.
+  ///
+  /// Doc 10 §8.2 says no phase may stall. That is not a promise the room can
+  /// keep while only the host may end a phase — a host whose screen has locked
+  /// looks, from every other seat, exactly like a match that has broken. So the
+  /// deadline opens the transition to everybody, staggered. The server re-reads
+  /// the same `phase_ends_at` before agreeing, so this is a client asking, never
+  /// a client deciding.
+  bool get _mayDrive {
+    final due = _driveDueAt();
+    return due != null && !due.isAfter(now().toUtc());
   }
 
   /// Starts or stops the ballot poll to match the phase.
@@ -282,21 +404,26 @@ class OnlineTransport implements GameTransport {
   /// that every route into a new phase — a delta, a resync, a reconnection —
   /// leaves the timer in the right state without three call sites agreeing.
   void _syncBallotPolling() {
-    final open =
-        _snapshot.phase == GamePhase.voting && _snapshot.settings.openVoting;
-    if (open && _ballotPoll == null) {
-      _ballotPoll = Timer.periodic(_ballotInterval, (_) => _refreshBallots());
-      unawaited(_refreshBallots());
-    } else if (!open && _ballotPoll != null) {
+    final state = _state;
+    final epoch =
+        state != null &&
+            _snapshot.phase == GamePhase.voting &&
+            _snapshot.settings.openVoting
+        ? (state.phaseNumber, _round(state))
+        : null;
+    if (_ballotEpoch != epoch) {
+      _ballotEpoch = epoch;
+      _ballotRequest++;
+      _ballotApplied = _ballotRequest;
       _ballotPoll?.cancel();
       _ballotPoll = null;
-      if (_ballots.isNotEmpty) {
-        // The ballot has closed. Drop it rather than leaving yesterday's lines
-        // drawn on the table: they are settled facts now, and the tally is
-        // where a settled fact belongs.
-        _ballots = const {};
-        _publishWithoutPolling();
-      }
+      // A revote can begin without changing the day or phase name.
+      _ballots = const {};
+      _publishWithoutPolling();
+    }
+    if (epoch != null && _ballotPoll == null) {
+      _ballotPoll = Timer.periodic(_ballotInterval, (_) => _refreshBallots());
+      unawaited(_refreshBallots());
     }
   }
 
@@ -314,9 +441,19 @@ class OnlineTransport implements GameTransport {
   /// is not drawn yet; it is never a reason to degrade a live match, and the
   /// next tick two seconds later will have it.
   Future<void> _refreshBallots() async {
+    final epoch = _ballotEpoch;
+    if (epoch == null) return;
+    final request = ++_ballotRequest;
     try {
       final ballots = await backend.ballots(roomId);
-      if (_controller.isClosed) return;
+      if (_controller.isClosed ||
+          _ballotEpoch != epoch ||
+          request <= _ballotApplied) {
+        return;
+      }
+      // A pending newer poll must not starve valid replies on slow networks.
+      // Only a newer reply already applied can supersede this one.
+      _ballotApplied = request;
       if (mapEquals(_ballots, ballots)) return;
       _ballots = ballots;
       _publishWithoutPolling();
@@ -334,7 +471,10 @@ class OnlineTransport implements GameTransport {
     final own = _own;
     if (own == null || !own.alive) return false;
     return switch (state.phase) {
-      'reveal' => true,
+      'reveal' =>
+        _players
+            .where((player) => player.userId == backend.userId)
+            .any((player) => !player.sawRole),
       'night' => !own.actedThisNight,
       'vote' => own.votedRound != _round(state),
       'opening' => _openingSeat(state) == own.seat,
@@ -373,6 +513,12 @@ class OnlineTransport implements GameTransport {
       if (at == -1) {
         next.add(incoming);
       } else {
+        final previousSeen = next[at].lastSeen;
+        final incomingSeen = incoming.lastSeen;
+        if (previousSeen != null &&
+            incomingSeen != null &&
+            incomingSeen.isBefore(previousSeen))
+          return;
         next[at] = incoming;
       }
       _players = next..sort((a, b) => a.seat.compareTo(b.seat));
@@ -383,12 +529,19 @@ class OnlineTransport implements GameTransport {
       _publish();
       return;
     }
-    final state = push.state;
-    if (state == null) return;
+    final pushed = push.state;
+    if (pushed == null) return;
 
     final previous = _state;
+    if (push.partial && previous == null) {
+      await resync();
+      return;
+    }
+    final state = push.partial ? pushed.withRoomFieldsFrom(previous!) : pushed;
     _state = state;
-    _skew = state.serverNow.difference(now().toUtc());
+    // A realtime row carries no server clock — its `serverNow` is stamped on
+    // this device when it arrives — so only a full read may correct the skew.
+    if (!push.partial) _skew = state.serverNow.difference(now().toUtc());
     _restore();
 
     // A phase change is the one push worth a full read: it is when the whisper
@@ -399,6 +552,11 @@ class OnlineTransport implements GameTransport {
         previous.phase != state.phase ||
         previous.phaseNumber != state.phaseNumber) {
       await resync();
+    } else if (_resyncInFlight != null) {
+      // The read on the wire predates this row; it will be read again and
+      // published once, rather than published now and then overwritten.
+      _deltaDuringRead = true;
+      _resyncAgain = true;
     } else {
       _publish();
     }
@@ -407,8 +565,44 @@ class OnlineTransport implements GameTransport {
   /// Reads everything again and republishes. The recovery path (doc 10 §8.4).
   @override
   Future<void> resync() async {
+    final inFlight = _resyncInFlight;
+    if (inFlight != null) {
+      _resyncAgain = true;
+      await inFlight;
+      return;
+    }
+
+    final operation = _drainResyncs();
+    _resyncInFlight = operation;
+    try {
+      await operation;
+    } finally {
+      if (identical(_resyncInFlight, operation)) {
+        _resyncInFlight = null;
+      }
+    }
+  }
+
+  Future<void> _drainResyncs() async {
+    var superseded = 0;
+    do {
+      _resyncAgain = false;
+      _deltaDuringRead = false;
+      final applied = await _performResync(
+        discardIfSuperseded: superseded < _maxSupersededReads,
+      );
+      superseded = applied ? 0 : superseded + 1;
+    } while (_resyncAgain);
+  }
+
+  /// False when the read was dropped because a newer row arrived meanwhile.
+  Future<bool> _performResync({bool discardIfSuperseded = false}) async {
     try {
       final rows = await backend.fetchRows(roomId);
+      if (discardIfSuperseded && _deltaDuringRead) {
+        _resyncAgain = true;
+        return false;
+      }
       _state = rows.state;
       _players = rows.players;
       _own = rows.own;
@@ -419,6 +613,7 @@ class OnlineTransport implements GameTransport {
     } on BackendUnreachable {
       _degrade();
     }
+    return true;
   }
 
   /// Back to connected, and the backoff forgotten.
@@ -460,7 +655,10 @@ class OnlineTransport implements GameTransport {
   ///
   /// Public so a test can run a match without waiting fifteen real seconds,
   /// and so the app can beat it once on resume from the background (O20).
+  bool _foreground = true;
+
   Future<void> tick() async {
+    if (!_foreground) return;
     try {
       await backend.call('heartbeat', {'roomId': roomId});
       _restore();
@@ -526,15 +724,13 @@ class OnlineTransport implements GameTransport {
   /// The ageing job on the server is what makes presence true for a client
   /// that crashed. This is for the one that did not: backgrounding the app
   /// empties this player's ring on every other table *now*, rather than in the
-  /// twenty-five seconds it would take the clock to notice.
+  /// few seconds it would take the ageing clock to notice.
   ///
   /// Never throws and is never awaited by anything in the phase flow.
   Future<void> setPresence(String status) async {
+    _foreground = status == 'connected';
     try {
-      await backend.call('set_presence', {
-        'roomId': roomId,
-        'status': status,
-      });
+      await backend.call('set_presence', {'roomId': roomId, 'status': status});
       _restore();
     } on BackendException {
       // Not a member any more, or the room is gone. The screen finds out from
@@ -593,12 +789,13 @@ class OnlineTransport implements GameTransport {
   /// The deadline is the server's and the server re-checks it, so a client with
   /// a fast clock cannot end a phase early: it can only ask, and be refused.
   Future<void> _applyExpiryIfDue() async {
-    final state = _state;
-    if (state == null || !isHost) return;
-    final deadline = state.phaseEndsAt;
-    if (deadline == null) return;
-    if (deadline.subtract(_skew).isAfter(now().toUtc())) return;
-    await advancePhase();
+    if (_state == null || _driving || !_mayDrive) return;
+    _driving = true;
+    try {
+      await advancePhase();
+    } finally {
+      _driving = false;
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -614,6 +811,7 @@ class OnlineTransport implements GameTransport {
     String function,
     Map<String, dynamic> body, {
     bool hostOnly = false,
+    bool assured = false,
   }) async {
     if (hostOnly && !isHost) return (payload: null, superseded: false);
     try {
@@ -636,16 +834,43 @@ class OnlineTransport implements GameTransport {
       rethrow;
     } on BackendUnreachable {
       _degrade();
+      // A move the player made is not allowed to disappear quietly.
+      //
+      // `_degrade` paints the weather, and for a phase this client is merely
+      // *driving* that is enough — the next deadline alarm asks again. It is
+      // not enough for something the player did: the caller clears the screen
+      // once this returns, and that screen was the only remaining way to try
+      // again. A reveal card was dismissed this way for a seat the server went
+      // on listing as waiting, with the card gone and «كمل» refused for the
+      // whole room, permanently. So an assured call reports the truth: the
+      // room was never told.
+      if (assured) rethrow;
       return (payload: null, superseded: false);
     }
   }
 
+  /// An RFC 4122 v4 identifier, because that is what the column is.
+  ///
+  /// `night_actions.action_id` and `votes.action_id` are `uuid`. This used to
+  /// return `<hex microseconds>-<hex salt>`, which is unique, readable, and
+  /// not a UUID — so Postgres refused the row with `22P02`, the Edge Function
+  /// turned that into a 400, and the *move the key was riding on* was refused
+  /// with it. Every night action and every vote in every online match, told to
+  /// the player as «اختيارك متسجلش». The key is not the point of the request;
+  /// it must never be the thing that loses it.
   String _actionId() {
-    final stamp = now().microsecondsSinceEpoch.toRadixString(16);
-    // Not `1 << 32`: on the web that shift is 32-bit and evaluates to zero,
-    // and `nextInt(0)` throws. See `newMatchSeed`.
-    final salt = _ids.nextInt(4294967296).toRadixString(16);
-    return '$stamp-$salt';
+    // Sixteen bytes, with the version and variant nibbles pinned. Not
+    // `1 << 32` anywhere: on the web that shift is 32-bit and evaluates to
+    // zero, and `nextInt(0)` throws. See `newMatchSeed`.
+    final bytes = List<int>.generate(16, (_) => _ids.nextInt(256));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    String hex(int from, int to) => [
+      for (var i = from; i < to; i++)
+        bytes[i].toRadixString(16).padLeft(2, '0'),
+    ].join();
+    return '${hex(0, 4)}-${hex(4, 6)}-${hex(6, 8)}-${hex(8, 10)}-'
+        '${hex(10, 16)}';
   }
 
   @override
@@ -663,8 +888,25 @@ class OnlineTransport implements GameTransport {
     //
     // What crosses is a boolean about *this* seat. Nothing about what was on
     // the card goes with it.
-    await _send('saw_role', const {});
+    await _send('saw_role', const {}, assured: true);
     await resync();
+
+    // The server's word for it, not the request's.
+    //
+    // A card may only leave the screen once the room actually holds the fact
+    // that it was seen, because dismissing it is irreversible on this device
+    // and the phase it gates is refused until every seat has one. A request
+    // that was lost, quietly refused, or answered by something that never
+    // reached the row leaves this seat in the waiting list with nothing left
+    // to press — so it ends here, as an error the card can be shown for again.
+    final me = backend.userId;
+    final mine = _players.where((player) => player.userId == me).firstOrNull;
+    if (_state?.phase == 'reveal' && mine != null && !mine.sawRole) {
+      throw const BackendException(
+        'NOT_ACKNOWLEDGED',
+        'the room was not told the card was seen',
+      );
+    }
   }
 
   @override
@@ -695,7 +937,7 @@ class OnlineTransport implements GameTransport {
       // whether this player has already spent theirs. A client that asked for
       // a move it does not have is refused rather than obeyed.
       'useBullet': useBullet,
-    });
+    }, assured: true);
     if (sent.superseded) return null;
     final result = sent.payload;
     if (result == null) {
@@ -746,19 +988,22 @@ class OnlineTransport implements GameTransport {
 
   @override
   Future<void> resolveNight() async {
-    await _send('resolve_night', const {}, hostOnly: true);
+    await _send('resolve_night', const {}, hostOnly: !_mayDrive);
   }
 
   @override
   Future<void> beginDay() async {
     final state = _state;
-    if (state == null || !isHost) return;
+    // The morning carries a clock now, so a guest may open the day once it has
+    // run out — otherwise the one beat with nothing to answer would be the one
+    // beat that could strand the match.
+    if (state == null || (!isHost && !_mayDrive)) return;
     // Day 1 opens on «اسم واحد»; every later day opens on the confrontation the
     // server chooses, or on discussion when it finds nothing true to say.
     if (state.phaseNumber <= 1) {
-      await _send('open_phase', {'phase': 'opening'}, hostOnly: true);
+      await _send('open_phase', {'phase': 'opening'}, hostOnly: !_mayDrive);
     } else {
-      await _send('generate_confrontation', const {}, hostOnly: true);
+      await _send('generate_confrontation', const {}, hostOnly: !_mayDrive);
     }
   }
 
@@ -768,7 +1013,9 @@ class OnlineTransport implements GameTransport {
     required int targetSeat,
   }) async {
     if (seat != mySeat) return;
-    final sent = await _send('submit_accusation', {'targetSeat': targetSeat});
+    final sent = await _send('submit_accusation', {
+      'targetSeat': targetSeat,
+    }, assured: true);
     if (sent.superseded) return;
     final result = sent.payload;
     if (result == null) {
@@ -778,10 +1025,15 @@ class OnlineTransport implements GameTransport {
 
   @override
   Future<void> endConfrontation({required bool silent}) async {
-    await _send('open_phase', {
-      'phase': 'discuss',
-      'silent': silent,
-    }, hostOnly: true);
+    // Not `hostOnly`. The button belongs to the *confronted player* — the
+    // table draws it for `confrontation.targetSeat` and for nobody else — so
+    // gating the call on the host meant that unless the accused happened to be
+    // holding the room, «خلصت» posted a request the server refused with
+    // `NOT_HOST` and the table waited out the full forty-five seconds instead.
+    // The server now recognises the target as entitled to close their own
+    // window, which is the same shape as the deal: the gate is the gate, not
+    // the caller's identity.
+    await _send('open_phase', {'phase': 'discuss', 'silent': silent});
   }
 
   @override
@@ -796,7 +1048,10 @@ class OnlineTransport implements GameTransport {
     required int toSeat,
     required String body,
   }) async {
-    final sent = await _send('send_whisper', {'toSeat': toSeat, 'body': body});
+    final sent = await _send('send_whisper', {
+      'toSeat': toSeat,
+      'body': body,
+    }, assured: true);
     // A whisper that could not be sent has no id, and the compose screen is
     // entitled to know that rather than to be told a lie it can quote.
     final id = sent.payload?['id'] as String?;
@@ -823,20 +1078,29 @@ class OnlineTransport implements GameTransport {
   }
 
   @override
+  Future<void> setReadyToVote(bool ready) async {
+    await _send('ready_to_vote', {'ready': ready});
+  }
+
+  @override
   Future<void> submitVote({required int seat, required int? targetSeat}) async {
     if (seat != mySeat) return;
     final state = _state;
     final sent = await _send('submit_vote', {
       'targetSeat': targetSeat,
       'round': state == null ? 1 : _round(state),
-    });
+    }, assured: true);
     if (sent.superseded) return;
     final result = sent.payload;
     if (result == null) {
       throw const BackendException('ACTION_NOT_SAVED', 'No acknowledgement');
     }
     final own = _own;
-    if (own != null && state != null) {
+    if (own != null &&
+        state != null &&
+        _state?.phase == state.phase &&
+        _state?.phaseNumber == state.phaseNumber &&
+        _round(_state!) == _round(state)) {
       _own = own.copyWith(votedRound: _round(state));
       _publish();
     }
@@ -844,7 +1108,7 @@ class OnlineTransport implements GameTransport {
 
   @override
   Future<void> resolveDayVote() async {
-    await _send('resolve_vote', const {}, hostOnly: true);
+    await _send('resolve_vote', const {}, hostOnly: !_mayDrive);
   }
 
   @override
@@ -880,10 +1144,38 @@ class OnlineTransport implements GameTransport {
       return;
     }
 
-    if (!isHost) return;
-    await _send('advance_phase', const {}, hostOnly: true);
+    // The morning is the second phase that ends on a decision rather than on a
+    // clock, and it stalled for exactly the same reason the deal did: «كمل»
+    // posted to `advance_phase`, which exists to apply *expiry defaults*, has
+    // no row for a phase with no deadline, and honestly answered that it had
+    // applied none. The room sat on the morning report forever.
+    //
+    // A morning ends by the day opening — day 1 on «اسم واحد», any later day
+    // on the confrontation the server chooses or on nothing, which is what
+    // `beginDay` already knows how to ask for.
+    if (state.phase == 'morning') {
+      await beginDay();
+      return;
+    }
+
+    // The verdict is the third phase that ends on a decision: the card has
+    // risen, the room has read it, and what comes next is either the night that
+    // follows this day or the end of the match. Which of the two is not the
+    // client's judgement — `outcome` is written by `resolve_vote`, and
+    // `open_phase` refuses `result` unless the server holds one.
+    if (state.phase == 'verdict') {
+      if (!isHost && !_mayDrive) return;
+      final decided = state.publicData['outcome'] != null;
+      await _send('open_phase', {
+        'phase': decided ? 'result' : 'night',
+      }, hostOnly: !_mayDrive);
+      return;
+    }
+
+    if (!isHost && !_mayDrive) return;
+    await _send('advance_phase', const {}, hostOnly: !_mayDrive);
     // The defaults fill in the moves nobody made; somebody still has to tally
-    // them, and online that somebody is the host's client asking the server to.
+    // them, and online that somebody is whichever client is driving.
     if (state.phase == 'night') {
       await resolveNight();
     } else if (state.phase == 'vote') {
@@ -905,12 +1197,24 @@ class OnlineTransport implements GameTransport {
   /// other seat is how the same screens mean the same thing in both modes.
   @override
   Future<ViewerSecrets?> secretsFor(int seat) async {
-    final own = _own;
-    final state = _state;
+    var own = _own;
+    var state = _state;
     if (own == null || state == null || seat != own.seat) return null;
 
-    final role = roleFromServer(own.role);
+    var role = roleFromServer(own.role);
     if (state.phase == 'reveal') {
+      // A phase push can race an older full read already in flight. Re-read on
+      // the private request itself instead of waiting for an unrelated push;
+      // the server still decides which role this JWT may receive.
+      if (role == null) {
+        await resync();
+        own = _own;
+        state = _state;
+        if (own == null || state?.phase != 'reveal' || seat != own.seat) {
+          return null;
+        }
+        role = roleFromServer(own.role);
+      }
       if (role == null) return null;
       return ViewerSecrets(
         seat: seat,
@@ -966,13 +1270,25 @@ class OnlineTransport implements GameTransport {
   /// Blocks a sender for this client only (doc 09 §3.7).
   Future<void> block(String senderId) async {
     await backend.blockSender(roomId, senderId);
+    await refreshBlocks();
+  }
+
+  Set<String> get blockedUserIds => Set.unmodifiable(_blocked);
+  List<RoomPlayer> get safetyPlayers =>
+      List.unmodifiable(_players.where((p) => p.userId != backend.userId));
+
+  Future<void> refreshBlocks() async {
     _blocked = await backend.blockedSenders(roomId);
+    final channel = _witness;
+    if (channel is BackendWitnessChannel) channel.refreshBlocks();
     _publish();
   }
 
   @override
   Future<void> dispose() async {
     _ticker?.cancel();
+    _deadlineAlarm?.cancel();
+    _earlyAlarm?.cancel();
     _ballotPoll?.cancel();
     _retry?.cancel();
     await _pushes?.cancel();

@@ -62,7 +62,8 @@ void main() {
     expect(
       offenders,
       isEmpty,
-      reason: 'a shift of 32 or more is zero in JavaScript. Write the literal '
+      reason:
+          'a shift of 32 or more is zero in JavaScript. Write the literal '
           'instead — dart2js represents integers exactly to 2^53.\n'
           '${offenders.join('\n')}',
     );
@@ -91,7 +92,10 @@ void main() {
       }
     }
 
-    expect(offenders, isEmpty,
-        reason: 'this will not compile for the web:\n${offenders.join('\n')}');
+    expect(
+      offenders,
+      isEmpty,
+      reason: 'this will not compile for the web:\n${offenders.join('\n')}',
+    );
   });
 }

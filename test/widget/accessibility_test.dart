@@ -26,7 +26,9 @@ void main() {
   double relativeLuminance(Color color) {
     double channel(double v) {
       final s = v / 255.0;
-      return s <= 0.03928 ? s / 12.92 : math.pow((s + 0.055) / 1.055, 2.4).toDouble();
+      return s <= 0.03928
+          ? s / 12.92
+          : math.pow((s + 0.055) / 1.055, 2.4).toDouble();
     }
 
     return 0.2126 * channel((color.r * 255).roundToDouble()) +
@@ -52,9 +54,13 @@ void main() {
         'overlay': colors.surfaceOverlay,
       }.entries) {
         final ratio = contrast(colors.textPrimary, surface.value);
-        expect(ratio, greaterThanOrEqualTo(7.0),
-            reason: 'primary text on ${surface.key} is only '
-                '${ratio.toStringAsFixed(2)}:1');
+        expect(
+          ratio,
+          greaterThanOrEqualTo(7.0),
+          reason:
+              'primary text on ${surface.key} is only '
+              '${ratio.toStringAsFixed(2)}:1',
+        );
       }
     });
 
@@ -65,24 +71,33 @@ void main() {
         'overlay': colors.surfaceOverlay,
       }.entries) {
         final ratio = contrast(colors.textSecondary, surface.value);
-        expect(ratio, greaterThanOrEqualTo(4.5),
-            reason: 'secondary text on ${surface.key} is only '
-                '${ratio.toStringAsFixed(2)}:1');
+        expect(
+          ratio,
+          greaterThanOrEqualTo(4.5),
+          reason:
+              'secondary text on ${surface.key} is only '
+              '${ratio.toStringAsFixed(2)}:1',
+        );
       }
     });
 
     test('the primary button label clears 4.5:1 against its own fill', () {
       // Gold fill with the base surface as the label colour (design §5.1).
       final ratio = contrast(colors.surfaceBase, colors.accentGold);
-      expect(ratio, greaterThanOrEqualTo(4.5),
-          reason: 'the primary action label is only '
-              '${ratio.toStringAsFixed(2)}:1 against the gold fill');
+      expect(
+        ratio,
+        greaterThanOrEqualTo(4.5),
+        reason:
+            'the primary action label is only '
+            '${ratio.toStringAsFixed(2)}:1 against the gold fill',
+      );
     });
   });
 
   group('FR-035 touch targets', () {
-    testWidgets('every interactive control in a turn is at least 48dp tall',
-        (tester) async {
+    testWidgets('every interactive control in a turn is at least 48dp tall', (
+      tester,
+    ) async {
       await TurnShellHarness.pump(
         tester,
         role: Role.citizen,
@@ -95,24 +110,32 @@ void main() {
         find.byType(InkWell),
       ]) {
         for (final element in finder.evaluate()) {
-          final size = tester.getSize(find.byElementPredicate((e) => e == element));
+          final size = tester.getSize(
+            find.byElementPredicate((e) => e == element),
+          );
           if (size.height == 0) continue; // not laid out in this state
-          expect(size.height, greaterThanOrEqualTo(48.0),
-              reason: 'a control is only ${size.height}dp tall; the minimum '
-                  'touch target is 48dp');
+          expect(
+            size.height,
+            greaterThanOrEqualTo(48.0),
+            reason:
+                'a control is only ${size.height}dp tall; the minimum '
+                'touch target is 48dp',
+          );
         }
       }
     });
   });
 
   group('FR-035 Dynamic Type', () {
-    testWidgets('a night turn survives 130% text scale without overflowing',
-        (tester) async {
+    testWidgets('a night turn survives 130% text scale without overflowing', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(TurnShellHarness.surface);
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
       await tester.pumpWidget(
-        localizedApp(MediaQuery(
+        localizedApp(
+          MediaQuery(
             data: const MediaQueryData(textScaler: TextScaler.linear(1.3)),
             child: TurnShell(
               labels: TurnShellLabels.of(arStrings),
@@ -124,14 +147,17 @@ void main() {
               onConfirmed: (_) {},
               onPass: () {},
             ),
-          )
+          ),
         ),
       );
       await tester.pumpAndSettle();
 
       // A RenderFlex overflow surfaces as a thrown exception in tests.
-      expect(tester.takeException(), isNull,
-          reason: 'the night turn overflows at 130% text scale');
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: 'the night turn overflows at 130% text scale',
+      );
     });
   });
 
@@ -164,17 +190,22 @@ void main() {
         final all = announced.join(' ');
 
         for (final roleWord in ['مافيا', 'دكتور', 'طبيب', 'محقق', 'مواطن']) {
-          expect(all.contains(roleWord), isFalse,
-              reason: 'a screen reader would say "$roleWord" during a '
-                  '${role.name} turn');
+          expect(
+            all.contains(roleWord),
+            isFalse,
+            reason:
+                'a screen reader would say "$roleWord" during a '
+                '${role.name} turn',
+          );
         }
       }
 
       handle.dispose();
     });
 
-    testWidgets('the semantics tree is the same shape for every role',
-        (tester) async {
+    testWidgets('the semantics tree is the same shape for every role', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
 
       final shapes = <Role, int>{};
@@ -199,8 +230,11 @@ void main() {
         shapes[role] = count;
       }
 
-      expect(shapes.values.toSet(), hasLength(1),
-          reason: 'the number of semantics nodes varies with the role: $shapes');
+      expect(
+        shapes.values.toSet(),
+        hasLength(1),
+        reason: 'the number of semantics nodes varies with the role: $shapes',
+      );
 
       handle.dispose();
     });

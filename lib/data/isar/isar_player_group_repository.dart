@@ -24,8 +24,10 @@ class IsarPlayerGroupRepository implements PlayerGroupRepository {
   Future<List<PlayerGroup>> listGroups() async {
     // Sorted by the indexed column, descending: most recently played first.
     // Note this sorts the *groups*; it never touches member order.
-    final records =
-        await isar.playerGroupRecords.where().sortByLastPlayedAtDesc().findAll();
+    final records = await isar.playerGroupRecords
+        .where()
+        .sortByLastPlayedAtDesc()
+        .findAll();
     return [for (final record in records) _decode(record)];
   }
 

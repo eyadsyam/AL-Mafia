@@ -6,11 +6,15 @@ import 'package:go_router/go_router.dart';
 import '../data/player_group.dart';
 import '../data/player_group_provider.dart';
 import '../data/repository_provider.dart';
+import '../data/online_session_store.dart';
+import '../data/player_profile.dart';
 import '../engine/models/match_settings.dart';
 import '../platform/audio_director.dart';
 import '../ui/l10n_ext.dart';
+import '../ui/screens/admin/coin_review_screen.dart';
 import '../ui/screens/match_controller.dart';
 import '../ui/screens/match_route.dart';
+import '../ui/screens/onboarding/first_run_screen.dart';
 import '../ui/screens/onboarding/onboarding_video_screen.dart';
 import '../ui/screens/online/lobby_screen.dart';
 import '../ui/screens/online/online_entry_screen.dart';
@@ -18,8 +22,10 @@ import '../ui/screens/online/online_session.dart';
 import '../ui/screens/postgame/analytics_screen.dart';
 import '../ui/screens/postgame/history_screen.dart';
 import '../ui/screens/setup/add_players_screen.dart';
+import '../ui/screens/setup/coin_store.dart';
 import '../ui/screens/setup/group_picker_screen.dart';
 import '../ui/screens/setup/home_screen.dart';
+import '../ui/screens/setup/profile_screen.dart';
 import '../ui/screens/setup/mode_screen.dart';
 import '../ui/screens/setup/how_to_play_screen.dart';
 import '../ui/screens/setup/roles_screen.dart';
@@ -29,6 +35,7 @@ import '../ui/screens/setup/setup_draft.dart';
 /// Route paths, in one place so navigation calls cannot drift from the table.
 abstract final class Routes {
   static const home = '/';
+  static const profile = '/profile';
   static const mode = '/mode';
   static const groups = '/setup/groups';
   static const players = '/setup/players';
@@ -40,6 +47,10 @@ abstract final class Routes {
   static const history = '/history';
   static const howToPlay = '/how-to-play';
   static const onboarding = '/onboarding';
+
+  /// The owner's transfer review queue. A URL, not a secret: the server
+  /// refuses every admin action to anyone outside commerce_admins.
+  static const adminCoins = '/admin/coins';
   static const online = '/online';
   static const lobby = '/online/lobby';
 
@@ -56,12 +67,52 @@ abstract final class Routes {
   static String storedAnalytics(int id) => '/history/$id';
 }
 
+/// Where the system back control goes from [location], or null where it is
+/// the platform's to answer (Home, and the match, which holds its own
+/// [PopScope]).
+///
+/// Every screen navigates with `go`, which replaces the page rather than
+/// stacking it, so the Navigator has nothing to pop and an Android back
+/// gesture anywhere — the mode choice, the online door, the room settings
+/// sheet's parent — used to finish the activity and drop the player on the
+/// launcher. This mirrors each screen's own back control, so the two agree.
+/// The lobby goes back to the online door *without* leaving the room: the
+/// seat is kept, and the door offers to resume it, exactly as a browser
+/// refresh does.
+String? systemBackTarget(String location, {bool hasGroups = true}) {
+  if (location == Routes.mode) return Routes.home;
+  if (location == Routes.online) return Routes.mode;
+  if (location == Routes.lobby) return Routes.online;
+  if (RegExp(r'^/join/[^/]+$').hasMatch(location)) return Routes.online;
+  if (location == Routes.profile ||
+      location == Routes.defaults ||
+      location == Routes.history ||
+      location == Routes.analytics ||
+      location == Routes.onboarding ||
+      location == Routes.groups) {
+    return Routes.home;
+  }
+  if (RegExp(r'^/history/\d+$').hasMatch(location)) return Routes.history;
+  if (location == Routes.players)
+    return hasGroups ? Routes.groups : Routes.home;
+  if (location == Routes.roles) return Routes.players;
+  if (location == Routes.settings) return Routes.roles;
+  return null;
+}
+
 /// Builds the app's router.
 ///
 /// Takes a [WidgetRef] rather than reading providers inside each builder so
 /// that the setup steps can hand their results straight to the draft and the
 /// engine. Routes stay dumb; the screens they host stay reusable in tests
 /// without a router at all.
+String _safeReturn(String? route) {
+  if (route == Routes.online ||
+      (route != null && RegExp(r'^/join/[A-Za-z0-9]{6}$').hasMatch(route)))
+    return route!;
+  return Routes.home;
+}
+
 void _previewAudio(WidgetRef ref, MatchSettings settings) {
   ref.read(audioDirectorProvider)
     ..scoreEnabled = settings.scoreEnabled
@@ -70,7 +121,17 @@ void _previewAudio(WidgetRef ref, MatchSettings settings) {
     ..syncScore();
 }
 
-GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
+GoRouter buildRouter(
+  WidgetRef ref, {
+  GlobalKey<NavigatorState>? navigatorKey,
+
+  /// Where this launch starts. Only a test passes it: it is the one way to
+  /// model an app opened *by* an invite link rather than one that navigated to
+  /// the link after it was already running, and those are different flows —
+  /// the first has the whole of onboarding standing between the code and the
+  /// room it belongs to.
+  String? initialLocation,
+}) {
   void startMatch(BuildContext context) {
     final draft = ref.read(setupDraftProvider);
     final roleCounts = draft.roleCounts;
@@ -147,32 +208,53 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
     //   flutter run --dart-define=START_ROUTE=/history
     // `String.fromEnvironment` is resolved at compile time and defaults to
     // Home, so a release build has no way to start anywhere else.
-    initialLocation: kDebugMode
-        ? const String.fromEnvironment('START_ROUTE', defaultValue: Routes.home)
-        : Routes.home,
+    initialLocation:
+        initialLocation ??
+        (kDebugMode
+            ? const String.fromEnvironment(
+                'START_ROUTE',
+                defaultValue: Routes.home,
+              )
+            : Routes.home),
     routes: [
       GoRoute(
         path: Routes.home,
-        builder: (context, state) => HomeScreen(
-          // Play now asks which of the two games this is, rather than starting
-          // one of them and offering the other in smaller type.
-          onNewMatch: () => context.go(Routes.mode),
-          onHistory: () => context.go(Routes.history),
-          onSettings: () => context.go(Routes.defaults),
-          onHowToPlay: () => context.go(Routes.onboarding),
+        builder: (context, state) => SetupRequired(
+          child: HomeScreen(
+            // Play now asks which of the two games this is, rather than starting
+            // one of them and offering the other in smaller type.
+            onNewMatch: () => context.go(Routes.mode),
+            onHistory: () => context.go(Routes.history),
+            onSettings: () => context.go(Routes.defaults),
+            onHowToPlay: () => context.go(Routes.onboarding),
+            onProfile: () => context.go(Routes.profile),
+            store: SupabaseConfig.isConfigured
+                ? const CoinStoreButton(compact: true)
+                : null,
+          ),
         ),
+      ),
+      GoRoute(
+        path: Routes.profile,
+        builder: (context, state) =>
+            ProfileScreen(
+              onSaved: () => context.go(Routes.home),
+              onBack: () => context.go(Routes.home),
+            ),
       ),
       // S-01a. Both answers are the same size, and online is offered whether
       // or not this build has a project — a card that explains itself is
       // something a player can act on, and a card that is not there is not.
       GoRoute(
         path: Routes.mode,
-        builder: (context, state) => ModeScreen(
-          onPlayOffline: () => goOffline(context),
-          onPlayOnline: SupabaseConfig.isConfigured
-              ? () => context.go(Routes.online)
-              : null,
-          onBack: () => context.go(Routes.home),
+        builder: (context, state) => SetupRequired(
+          child: ModeScreen(
+            onPlayOffline: () => goOffline(context),
+            onPlayOnline: SupabaseConfig.isConfigured
+                ? () => context.go(Routes.online)
+                : null,
+            onBack: () => context.go(Routes.home),
+          ),
         ),
       ),
       // The online front door. Doc 12 §9's four cards used to stand in front
@@ -182,9 +264,11 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
       // friend who is already in a room.
       GoRoute(
         path: Routes.online,
-        builder: (context, state) => OnlineEntryScreen(
-          onJoined: () => context.go(Routes.lobby),
-          onPlayOffline: () => goOffline(context),
+        builder: (context, state) => SetupRequired(
+          child: OnlineEntryScreen(
+            onJoined: () => context.go(Routes.lobby),
+            onBack: () => context.go(Routes.mode),
+          ),
         ),
       ),
       // A room invite, opened from wherever the host pasted it. The code is
@@ -193,14 +277,22 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
       // would be a link anybody could send them.
       GoRoute(
         path: Routes.joinByLink,
-        builder: (context, state) => OnlineEntryScreen(
-          initialCode: state.pathParameters['code'],
-          onJoined: () => context.go(Routes.lobby),
-          onPlayOffline: () => goOffline(context),
+        builder: (context, state) => SetupRequired(
+          child: OnlineEntryScreen(
+            initialCode: state.pathParameters['code'],
+            onJoined: () => context.go(Routes.lobby),
+            onBack: () => context.go(Routes.mode),
+          ),
         ),
       ),
       GoRoute(
         path: Routes.lobby,
+        // The lobby is a view of a session. Reached without one — a browser
+        // refresh keeps the URL and drops the session — it used to paint an
+        // empty room: no code, no seats, «مستني المسؤول» to the host itself.
+        // The entry screen is where the seat is taken back.
+        redirect: (context, state) =>
+            ref.read(onlineSessionProvider).isInRoom ? null : Routes.online,
         builder: (context, state) => LobbyScreen(
           onStarted: () {
             // The state is already there — it arrived from the server before
@@ -216,8 +308,10 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
       GoRoute(
         path: Routes.howToPlay,
         builder: (context, state) => HowToPlayScreen(
-          onBack: () => context.go(Routes.home),
-          onStartMatch: () => context.go(Routes.home),
+          onBack: () =>
+              context.go(_safeReturn(state.uri.queryParameters['next'])),
+          onStartMatch: () =>
+              context.go(_safeReturn(state.uri.queryParameters['next'])),
         ),
       ),
       // One cinematic introduction, followed by the concise rules reference.
@@ -227,11 +321,28 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
         builder: (context, state) {
           void finishIntro() {
             ref.read(matchRepositoryProvider).markOnboardingSeen();
-            context.go(Routes.howToPlay);
+            ref.read(profileStoreProvider).markIntroSeen();
+            context.go(
+              Uri(
+                path: Routes.howToPlay,
+                queryParameters: {
+                  'next': _safeReturn(state.uri.queryParameters['next']),
+                },
+              ).toString(),
+            );
           }
 
-          return OnboardingVideoScreen(onFinished: finishIntro);
+          // Setup first (language before a single word of the tutorial);
+          // the tutorial stays skippable and skipping it skips nothing else.
+          return SetupRequired(
+            child: OnboardingVideoScreen(onFinished: finishIntro),
+          );
         },
+      ),
+      GoRoute(
+        path: Routes.adminCoins,
+        builder: (context, state) =>
+            CoinReviewScreen(onBack: () => context.go(Routes.home)),
       ),
       GoRoute(
         path: Routes.groups,
@@ -263,8 +374,12 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
           return AddPlayersScreen(
             // Seating order, exactly as saved. Not sorted, not deduplicated,
             // not touched.
-            initialNames: group?.memberNames ?? ref.read(setupDraftProvider).names,
-            initialGenders: {...?group?.genders, ...ref.read(setupDraftProvider).genders},
+            initialNames:
+                group?.memberNames ?? ref.read(setupDraftProvider).names,
+            initialGenders: {
+              ...?group?.genders,
+              ...ref.read(setupDraftProvider).genders,
+            },
             onGendersChanged: ref.read(setupDraftProvider.notifier).setGenders,
             group: group,
             savedGroups: loadedGroups(),
@@ -328,9 +443,22 @@ GoRouter buildRouter(WidgetRef ref, {GlobalKey<NavigatorState>? navigatorKey}) {
       ),
       GoRoute(
         path: Routes.match,
+        // A match lives in memory. On the web a refresh — or a link typed
+        // straight to `/match` — arrives here with nothing to show, and the
+        // flow rendered an empty scaffold with a close button in the corner.
+        // An online room the server still holds is reachable again from the
+        // online entry (the resume pointer offers it there); an offline match
+        // is offered by the resume gate on Home. Either way, not a blank.
+        redirect: (context, state) async {
+          if (ref.read(matchControllerProvider) != null) return null;
+          if (ref.read(onlineSessionProvider).isInRoom) return null;
+          final resume = await OnlineSessionStore.load();
+          return resume != null ? Routes.online : Routes.home;
+        },
         builder: (context, state) => MatchRoute(
           onExit: () => context.go(Routes.home),
           onAnalytics: () => context.go(Routes.analytics),
+          onRematch: () => context.go(Routes.online),
         ),
       ),
       GoRoute(
@@ -382,8 +510,11 @@ Future<void> _saveNewGroup(
   if (name == null) return;
 
   final now = DateTime.now();
-  final group = PlayerGroup.create(name: name, memberNames: names, now: now)
-      .copyWith(genders: ref.read(setupDraftProvider).genders);
+  final group = PlayerGroup.create(
+    name: name,
+    memberNames: names,
+    now: now,
+  ).copyWith(genders: ref.read(setupDraftProvider).genders);
   final id = await ref.read(playerGroupsProvider.notifier).save(group);
   ref.read(setupDraftProvider.notifier).setGroup(group.copyWith(id: id));
 }

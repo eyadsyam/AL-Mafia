@@ -58,33 +58,35 @@ void main() {
       );
     });
 
-    test('the allowance does not accumulate — a new day grants exactly one',
-        () {
-      final engine = informationMatch(seed: 6);
-      playQuietNight(engine);
-      openDay(engine);
-      engine.sendWhisper(fromSeat: 0, toSeat: 2, body: 'day one');
-      engine.beginVoting();
-      while (engine.match.currentActorSeat != null) {
-        engine.submitVote(
-          seat: engine.match.currentActorSeat!,
-          voterSeat: engine.match.currentActorSeat!,
-          targetSeat: null,
-        );
-      }
-      engine.resolveDayVote();
-      engine.winCheck();
-      playQuietNight(engine);
-      openDay(engine);
+    test(
+      'the allowance does not accumulate — a new day grants exactly one',
+      () {
+        final engine = informationMatch(seed: 6);
+        playQuietNight(engine);
+        openDay(engine);
+        engine.sendWhisper(fromSeat: 0, toSeat: 2, body: 'day one');
+        engine.beginVoting();
+        while (engine.match.currentActorSeat != null) {
+          engine.submitVote(
+            seat: engine.match.currentActorSeat!,
+            voterSeat: engine.match.currentActorSeat!,
+            targetSeat: null,
+          );
+        }
+        engine.resolveDayVote();
+        engine.winCheck();
+        playQuietNight(engine);
+        openDay(engine);
 
-      expect(engine.match.dayNumber, equals(2));
-      expect(engine.whispersSentBy(0, 2), isZero);
-      engine.sendWhisper(fromSeat: 0, toSeat: 2, body: 'day two');
-      expect(
-        () => engine.sendWhisper(fromSeat: 0, toSeat: 3, body: 'again'),
-        throwsA(isA<StateError>()),
-      );
-    });
+        expect(engine.match.dayNumber, equals(2));
+        expect(engine.whispersSentBy(0, 2), isZero);
+        engine.sendWhisper(fromSeat: 0, toSeat: 2, body: 'day two');
+        expect(
+          () => engine.sendWhisper(fromSeat: 0, toSeat: 3, body: 'again'),
+          throwsA(isA<StateError>()),
+        );
+      },
+    );
   });
 
   group('H-E2 / H-E7 — the recipient dies first', () {
@@ -137,8 +139,11 @@ void main() {
       }
       engine.resolveDayVote();
 
-      expect(engine.voidedWhispersFrom(0), isEmpty,
-          reason: 'it arrived; dying afterwards does not un-deliver it');
+      expect(
+        engine.voidedWhispersFrom(0),
+        isEmpty,
+        reason: 'it arrived; dying afterwards does not un-deliver it',
+      );
     });
   });
 
@@ -162,8 +167,11 @@ void main() {
       engine.resolveDayVote();
 
       expect(engine.match.players[sender].status, equals(PlayerStatus.dead));
-      expect(engine.pendingWhispersFor(1), hasLength(1),
-          reason: 'the dead can accuse from the grave');
+      expect(
+        engine.pendingWhispersFor(1),
+        hasLength(1),
+        reason: 'the dead can accuse from the grave',
+      );
     });
   });
 
@@ -214,8 +222,11 @@ void main() {
         () => engine.sendWhisper(fromSeat: 0, toSeat: 1, body: tooLong),
         throwsA(isA<ArgumentError>()),
       );
-      expect(engine.whispersOn(1), isEmpty,
-          reason: 'a refused whisper leaves no edge on the graph either');
+      expect(
+        engine.whispersOn(1),
+        isEmpty,
+        reason: 'a refused whisper leaves no edge on the graph either',
+      );
     });
 
     test('exactly 120 characters are accepted', () {
@@ -238,7 +249,8 @@ void main() {
         expect(
           () => engine.sendWhisper(fromSeat: 0, toSeat: 1, body: body),
           throwsA(isA<ArgumentError>()),
-          reason: 'an empty whisper is still a public edge, so it would be a '
+          reason:
+              'an empty whisper is still a public edge, so it would be a '
               'free signal with nothing said',
         );
       }
@@ -277,14 +289,20 @@ void main() {
       playQuietNight(engine);
       openDay(engine);
       engine.sendWhisper(fromSeat: 0, toSeat: 1, body: 'you idiot');
-      expect(engine.whispersOn(1), hasLength(1),
-          reason: 'doc 09 §3.5 — "with a warning, not a hard block"');
+      expect(
+        engine.whispersOn(1),
+        hasLength(1),
+        reason: 'doc 09 §3.5 — "with a warning, not a hard block"',
+      );
     });
   });
 
   group('the layer switch', () {
     test('with whispers off the engine refuses outright', () {
-      final engine = informationMatch(seed: 17, settings: const MatchSettings());
+      final engine = informationMatch(
+        seed: 17,
+        settings: const MatchSettings(),
+      );
       playQuietNight(engine);
       openDay(engine);
       expect(
@@ -307,10 +325,15 @@ void main() {
     test('put, read, and purge round-trip', () async {
       final store = MemoryWhisperStore();
       await store.put(matchId: 1, whisperId: 'w:1:0:2', body: 'hello');
-      expect(await store.read(matchId: 1, whisperId: 'w:1:0:2'),
-          equals('hello'));
-      expect(await store.read(matchId: 2, whisperId: 'w:1:0:2'), isNull,
-          reason: 'bodies are scoped to their match');
+      expect(
+        await store.read(matchId: 1, whisperId: 'w:1:0:2'),
+        equals('hello'),
+      );
+      expect(
+        await store.read(matchId: 2, whisperId: 'w:1:0:2'),
+        isNull,
+        reason: 'bodies are scoped to their match',
+      );
       await store.purge(1);
       expect(await store.read(matchId: 1, whisperId: 'w:1:0:2'), isNull);
     });

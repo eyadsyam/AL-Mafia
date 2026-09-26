@@ -57,8 +57,11 @@ abstract class VoiceLink {
   /// does not arrive costs a peer connection and nothing else.
   Future<void> send(String toUserId, Map<String, dynamic> payload);
 
-  /// The ICE servers this match should use, from the `ice_servers` Edge
-  /// Function.
+  /// The ICE servers this match should use.
+  ///
+  /// The production path is Metered's welcome frame — see [MeteredVoiceLink] —
+  /// and this is the floor under it: the `ice_servers` Edge Function, which
+  /// answers with public STUN.
   ///
   /// Null means the server could not be asked at all; the caller falls back to
   /// public STUN and logs it. The list itself is opaque here — it is whatever
@@ -113,19 +116,20 @@ class BackendVoiceLink implements VoiceLink {
 
   @override
   Future<List<Map<String, dynamic>>?> iceServers() async {
+    Map<String, dynamic>? ticket;
     try {
-      final result = await backend.call('ice_servers', const {});
-      final servers = result['iceServers'];
-      if (servers is! List || servers.isEmpty) return null;
-      return [
-        for (final server in servers)
-          if (server is Map) Map<String, dynamic>.from(server),
-      ];
+      ticket = await backend.call('ice_servers', const {});
     } on BackendException {
       return null;
     } on BackendUnreachable {
       return null;
     }
+    final servers = ticket['iceServers'];
+    if (servers is! List || servers.isEmpty) return null;
+    return [
+      for (final server in servers)
+        if (server is Map) Map<String, dynamic>.from(server),
+    ];
   }
 
   @override

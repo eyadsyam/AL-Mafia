@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/repository_provider.dart';
+import '../data/player_profile.dart';
+import '../ui/theme/mafia_theme.dart';
+import 'intro_gate.dart';
 import 'router.dart';
 
 /// Shows the onboarding deck once, on the first launch of an install.
@@ -49,6 +52,7 @@ class OnboardingGate extends ConsumerStatefulWidget {
 
 class _OnboardingGateState extends ConsumerState<OnboardingGate> {
   bool _checked = false;
+  bool _pending = true;
 
   @override
   void initState() {
@@ -59,25 +63,53 @@ class _OnboardingGateState extends ConsumerState<OnboardingGate> {
   Future<void> _check() async {
     if (_checked || !mounted) return;
     _checked = true;
+    var navigated = false;
+    try {
+      navigated = await _decide();
+    } catch (_) {
+      // Every read inside is already guarded; this is the belt on the braces.
+    }
+    if (!mounted) return;
+    // The page being left is on screen for the length of the transition, and a
+    // page on its way out has no business asking a question. Without this wait
+    // the flag drops in the same turn as the `go`, the outgoing route rebuilds
+    // as the profile form, and the player watches a name field they were never
+    // asked to fill slide away.
+    if (navigated) await Future<void>.delayed(context.motion.standard);
+    if (mounted) setState(() => _pending = false);
+  }
 
+  /// Returns whether it sent this launch somewhere.
+  Future<bool> _decide() async {
     final repository = ref.read(matchRepositoryProvider);
     try {
-      if (await repository.hasSeenOnboarding()) return;
+      if (await ref.read(profileStoreProvider).introSeen) return false;
+    } catch (_) {
+      /* Storage failure must not skip the existing resume check. */
+    }
+    try {
+      if (await repository.hasSeenOnboarding()) return false;
       // Resume outranks onboarding. Deliberately checked here rather than
       // coordinated with `ResumeGate`: both gates read the same storage, so
       // asking it directly is what keeps them from having to know about each
       // other or run in a particular order.
-      if (await repository.loadActiveMatch() != null) return;
+      if (await repository.loadActiveMatch() != null) return false;
     } catch (_) {
       // Unreadable storage falls through to showing the deck.
     }
-    if (!mounted) return;
+    if (!mounted) return false;
 
     final navigatorContext = widget.navigatorKey.currentContext;
-    if (navigatorContext == null || !navigatorContext.mounted) return;
-    GoRouter.of(navigatorContext).go(Routes.onboarding);
+    if (navigatorContext == null || !navigatorContext.mounted) return false;
+    final router = GoRouter.of(navigatorContext);
+    final next = router.routeInformationProvider.value.uri.toString();
+    router.go(
+      Uri(path: Routes.onboarding, queryParameters: {'next': next}).toString(),
+    );
+    return true;
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) =>
+      IntroGate(pending: _pending, child: widget.child);
 }

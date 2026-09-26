@@ -43,43 +43,47 @@ class ResumeResolver {
 
     return switch (match.phase) {
       // Nothing has been dealt yet.
-      GamePhase.setup || GamePhase.rolesConfigured =>
-        const ResumeTarget(screen: ResumeScreen.home),
+      GamePhase.setup || GamePhase.rolesConfigured => const ResumeTarget(
+        screen: ResumeScreen.home,
+      ),
 
       // In-hand phases — always the pass screen, never the content.
       GamePhase.distributing ||
       GamePhase.night ||
       GamePhase.nightResolving ||
       GamePhase.voting ||
-      GamePhase.voteResolving =>
-        pass(),
+      GamePhase.voteResolving => pass(),
 
       // On-table phases can be restored directly: they show only what the whole
       // table has already seen.
       GamePhase.preNightLobby => ResumeTarget(
-          screen: ResumeScreen.preNightLobby,
-          dayNumber: match.dayNumber,
-        ),
-      GamePhase.morning =>
-        ResumeTarget(screen: ResumeScreen.morning, dayNumber: match.dayNumber),
+        screen: ResumeScreen.preNightLobby,
+        dayNumber: match.dayNumber,
+      ),
+      GamePhase.morning => ResumeTarget(
+        screen: ResumeScreen.morning,
+        dayNumber: match.dayNumber,
+      ),
       GamePhase.openingRound => ResumeTarget(
-          screen: ResumeScreen.dayOpening,
-          dayNumber: match.dayNumber,
-        ),
+        screen: ResumeScreen.dayOpening,
+        dayNumber: match.dayNumber,
+      ),
       GamePhase.confrontation => ResumeTarget(
-          screen: ResumeScreen.confrontation,
-          dayNumber: match.dayNumber,
-        ),
+        screen: ResumeScreen.confrontation,
+        dayNumber: match.dayNumber,
+      ),
       GamePhase.discussion => ResumeTarget(
-          screen: ResumeScreen.discussion,
-          dayNumber: match.dayNumber,
-        ),
+        screen: ResumeScreen.discussion,
+        dayNumber: match.dayNumber,
+      ),
       GamePhase.reveal || GamePhase.winCheck => ResumeTarget(
-          screen: ResumeScreen.voteReveal,
-          dayNumber: match.dayNumber,
-        ),
-      GamePhase.result || GamePhase.analytics =>
-        ResumeTarget(screen: ResumeScreen.result, dayNumber: match.dayNumber),
+        screen: ResumeScreen.voteReveal,
+        dayNumber: match.dayNumber,
+      ),
+      GamePhase.result || GamePhase.analytics => ResumeTarget(
+        screen: ResumeScreen.result,
+        dayNumber: match.dayNumber,
+      ),
     };
   }
 

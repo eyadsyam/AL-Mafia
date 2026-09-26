@@ -74,14 +74,15 @@ abstract final class AppGallery {
 
 /// Doc 15's council furniture: seat rings, backdrops, the timer ornament and the two victory emblems. Every one of them is a tintable alpha mask or a full-bleed ground — none carries a role, and none may.
 abstract final class AppCouncilArt {
-  static const String avatarFemale = 'assets/images/online/avatar_female.webp';
-  static const String avatarMale = 'assets/images/online/avatar_male.webp';
+  static const String avatarFemale = 'assets/images/online/avatar_female_transparent.png';
+  static const String avatarMale = 'assets/images/online/avatar_male_transparent.png';
   static const String backdropDawn = 'assets/images/online/backdrop_dawn.webp';
   static const String backdropDay = 'assets/images/online/backdrop_day.webp';
   static const String backdropNight = 'assets/images/online/backdrop_night.webp';
   static const String backdropVerdict = 'assets/images/online/backdrop_verdict.webp';
   static const String fogOverlay = 'assets/images/online/fog_overlay.webp';
   static const String lightMote = 'assets/images/online/light_mote.png';
+  static const String onlineWelcome = 'assets/images/online/online_welcome.webp';
   static const String panelCorner = 'assets/images/online/panel_corner.png';
   static const String seatRingCracked = 'assets/images/online/seat_ring_cracked.png';
   static const String seatRingEmpty = 'assets/images/online/seat_ring_empty.png';
@@ -102,6 +103,7 @@ abstract final class AppCouncilArt {
     backdropVerdict,
     fogOverlay,
     lightMote,
+    onlineWelcome,
     panelCorner,
     seatRingCracked,
     seatRingEmpty,
@@ -174,28 +176,37 @@ abstract final class AppAudio {
 
 /// Public, on-table motion assets. Ambient loops use animated WebP; the first-run introduction is an MP4. None may be used on an in-hand surface.
 abstract final class AppVideo {
+  static const String skeletonLungesAtViewer20260910114646 = 'assets/video/Skeleton_lunges_at_viewer_20260910114646.mp4';
   static const String bgHomeLoop = 'assets/video/bg_home_loop.webp';
   static const String bgNightLoop = 'assets/video/bg_night_loop.webp';
   static const String bgVoteLoop = 'assets/video/bg_vote_loop.webp';
+  static const String killJumpscare = 'assets/video/kill_jumpscare.mp4';
   static const String onboarding = 'assets/video/onboarding.mp4';
   static const String outcomeDeathLoop = 'assets/video/outcome_death_loop.webp';
   static const String outcomeMafiaWinLoop = 'assets/video/outcome_mafia_win_loop.webp';
   static const String outcomeSavedLoop = 'assets/video/outcome_saved_loop.webp';
   static const String outcomeTownWinLoop = 'assets/video/outcome_town_win_loop.webp';
-  static const String stingDawn = 'assets/video/sting_dawn.webm';
-  static const String stingNight = 'assets/video/sting_night.webm';
 
   /// Every asset in this group, for preloading and for the manifest test.
   static const List<String> values = <String>[
+    skeletonLungesAtViewer20260910114646,
     bgHomeLoop,
     bgNightLoop,
     bgVoteLoop,
+    killJumpscare,
     onboarding,
     outcomeDeathLoop,
     outcomeMafiaWinLoop,
     outcomeSavedLoop,
     outcomeTownWinLoop,
-    stingDawn,
-    stingNight,
   ];
+}
+
+/// «عملات المافيا». Derived from raw_assets/store/economy-v1/mafia-coin.png
+/// (cropped square, alpha kept); the vault concept is not shipped.
+abstract final class AppEconomyArt {
+  static const String coinSmall = 'assets/images/economy/mafia_coin_96.webp';
+  static const String coinLarge = 'assets/images/economy/mafia_coin_256.webp';
+
+  static const List<String> values = <String>[coinSmall, coinLarge];
 }

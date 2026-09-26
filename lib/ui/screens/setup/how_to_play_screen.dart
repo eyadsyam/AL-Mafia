@@ -5,7 +5,8 @@ import '../../../engine/models/enums.dart' show Role;
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
-import '../../widgets/textured_surface.dart';
+import '../../widgets/experience_surface.dart';
+import '../../widgets/textured_surface.dart' show PaperPanel;
 
 /// The rules, short enough to actually be read.
 ///
@@ -48,7 +49,7 @@ class HowToPlayScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
-      body: AppBackdrop(
+      body: ExperienceSurface(
         child: SafeArea(
           child: Center(
             // Prose has a readable measure regardless of window width. Without

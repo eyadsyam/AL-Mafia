@@ -142,10 +142,9 @@ abstract final class Coach {
   /// Notes for every seat, keyed by seat. Seats with nothing to say are absent
   /// rather than present-and-empty.
   static Map<int, List<CoachingNote>> notesForAll(Match match) => {
-        for (final p in match.players)
-          if (notesFor(match, p.seat).isNotEmpty)
-            p.seat: notesFor(match, p.seat),
-      };
+    for (final p in match.players)
+      if (notesFor(match, p.seat).isNotEmpty) p.seat: notesFor(match, p.seat),
+  };
 
   // ── the notes ──────────────────────────────────────────────────────────
 
@@ -191,7 +190,10 @@ abstract final class Coach {
 
   /// «شكيت في يوسف ٣ ليالي وهو مواطن».
   static CoachingNote? _stuckOnInnocent(
-      Match match, GameHistory history, int seat) {
+    Match match,
+    GameHistory history,
+    int seat,
+  ) {
     final counts = <int, int>{};
     for (final night in history.nights) {
       final target = night.suspicions[seat];
@@ -222,7 +224,10 @@ abstract final class Coach {
   /// The rarest note and the most useful one. Requires all three: an early
   /// read, that the read was right, and that they walked away from it.
   static CoachingNote? _abandonedRead(
-      Match match, GameHistory history, int seat) {
+    Match match,
+    GameHistory history,
+    int seat,
+  ) {
     for (final night in history.nights) {
       final target = night.suspicions[seat];
       if (target == null) continue;
@@ -281,12 +286,16 @@ abstract final class Coach {
 
   /// «ماهمستش ولا مرة».
   static CoachingNote? _neverWhispered(
-      Match match, GameHistory history, int seat) {
+    Match match,
+    GameHistory history,
+    int seat,
+  ) {
     if (!match.settings.whisperEnabled) return null;
     // A player who was out after day one never had the days to use it.
     if (history.days.length < 2) return null;
-    final sent = history.days
-        .any((d) => d.whispers.any((w) => w.fromSeat == seat));
+    final sent = history.days.any(
+      (d) => d.whispers.any((w) => w.fromSeat == seat),
+    );
     if (sent) return null;
     return CoachingNote(seat: seat, code: CoachingCode.neverWhispered);
   }

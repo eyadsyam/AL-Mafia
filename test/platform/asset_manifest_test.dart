@@ -79,9 +79,13 @@ void main() {
         }
       }
 
-      expect(orphans, isEmpty,
-          reason: 'present but undeclared — re-run '
-              'tool/generate_asset_constants.py: $orphans');
+      expect(
+        orphans,
+        isEmpty,
+        reason:
+            'present but undeclared — re-run '
+            'tool/generate_asset_constants.py: $orphans',
+      );
     });
 
     test('every bundled font file referenced by pubspec exists', () {
@@ -92,10 +96,9 @@ void main() {
           .readAsLinesSync()
           .where((l) => !l.trimLeft().startsWith('#'))
           .join('\n');
-      final assets = RegExp(r'- asset:\s*(\S+)')
-          .allMatches(pubspec)
-          .map((m) => m.group(1)!)
-          .toList();
+      final assets = RegExp(
+        r'- asset:\s*(\S+)',
+      ).allMatches(pubspec).map((m) => m.group(1)!).toList();
 
       expect(assets, isNotEmpty, reason: 'no fonts declared at all');
       final missing = assets.where((a) => !File(a).existsSync()).toList();
@@ -117,18 +120,22 @@ void main() {
         coverage[entry.key] = await inkCoverage(entry.value);
       }
 
-      final mean =
-          coverage.values.reduce((a, b) => a + b) / coverage.length;
-      expect(mean, greaterThan(0.05),
-          reason: 'emblems decoded to nearly nothing — is the alpha channel '
-              'surviving compression?');
+      final mean = coverage.values.reduce((a, b) => a + b) / coverage.length;
+      expect(
+        mean,
+        greaterThan(0.05),
+        reason:
+            'emblems decoded to nearly nothing — is the alpha channel '
+            'surviving compression?',
+      );
 
       for (final entry in coverage.entries) {
         final drift = (entry.value - mean).abs() / mean;
         expect(
           drift,
           lessThanOrEqualTo(0.02),
-          reason: 'LEAK: the ${entry.key} emblem is '
+          reason:
+              'LEAK: the ${entry.key} emblem is '
               '${(drift * 100).toStringAsFixed(2)}% off the mean ink budget '
               '(${entry.value.toStringAsFixed(5)} vs ${mean.toStringAsFixed(5)}). '
               'A role whose symbol is denser than the others makes its card '
@@ -153,9 +160,13 @@ void main() {
         codec.dispose();
       }
 
-      expect(sizes.values.toSet(), hasLength(1),
-          reason: 'emblems differ in size, which changes their layout box: '
-              '$sizes');
+      expect(
+        sizes.values.toSet(),
+        hasLength(1),
+        reason:
+            'emblems differ in size, which changes their layout box: '
+            '$sizes',
+      );
     });
 
     test('there is exactly one card back, and exactly four faces', () {
@@ -169,25 +180,28 @@ void main() {
       // `card_face_base.webp` still being shipped alongside them, means the
       // architecture is half-migrated and some code path is reading the wrong
       // file. Their *brightness* parity is luminance_budget_test's job.
-      final cards = Directory('assets/images')
-          .listSync()
-          .whereType<File>()
-          .map((f) => f.uri.pathSegments.last)
-          .where((n) => n.startsWith('card_'))
-          .toList()
-        ..sort();
+      final cards =
+          Directory('assets/images')
+              .listSync()
+              .whereType<File>()
+              .map((f) => f.uri.pathSegments.last)
+              .where((n) => n.startsWith('card_'))
+              .toList()
+            ..sort();
 
       expect(
-          cards,
-          equals([
-            'card_back.webp',
-            'card_face_citizen.webp',
-            'card_face_detective.webp',
-            'card_face_doctor.webp',
-            'card_face_mafia.webp',
-          ]),
-          reason: 'the card asset set is not one back plus four named faces: '
-              '$cards');
+        cards,
+        equals([
+          'card_back.webp',
+          'card_face_citizen.webp',
+          'card_face_detective.webp',
+          'card_face_doctor.webp',
+          'card_face_mafia.webp',
+        ]),
+        reason:
+            'the card asset set is not one back plus four named faces: '
+            '$cards',
+      );
     });
 
     test('the four faces share identical pixel dimensions', () async {
@@ -210,8 +224,11 @@ void main() {
         codec.dispose();
       }
 
-      expect(sizes.values.toSet(), hasLength(1),
-          reason: 'the role faces are not all the same size: $sizes');
+      expect(
+        sizes.values.toSet(),
+        hasLength(1),
+        reason: 'the role faces are not all the same size: $sizes',
+      );
     });
   });
 }

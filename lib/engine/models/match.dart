@@ -8,10 +8,7 @@ class MatchOutcome {
   final Alignment winner;
   final DateTime completedAt;
 
-  const MatchOutcome({
-    required this.winner,
-    required this.completedAt,
-  });
+  const MatchOutcome({required this.winner, required this.completedAt});
 
   @override
   bool operator ==(Object other) =>
@@ -84,19 +81,20 @@ class Match {
     bool clearCurrentActorSeat = false,
     List<TimelineEvent>? eventLog,
     MatchOutcome? outcome,
-  }) =>
-      Match(
-        id: id ?? this.id,
-        createdAt: createdAt ?? this.createdAt,
-        seed: seed ?? this.seed,
-        players: players ?? this.players,
-        settings: settings ?? this.settings,
-        phase: phase ?? this.phase,
-        dayNumber: dayNumber ?? this.dayNumber,
-        currentActorSeat: clearCurrentActorSeat ? currentActorSeat : (currentActorSeat ?? this.currentActorSeat),
-        eventLog: eventLog ?? this.eventLog,
-        outcome: outcome ?? this.outcome,
-      );
+  }) => Match(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    seed: seed ?? this.seed,
+    players: players ?? this.players,
+    settings: settings ?? this.settings,
+    phase: phase ?? this.phase,
+    dayNumber: dayNumber ?? this.dayNumber,
+    currentActorSeat: clearCurrentActorSeat
+        ? currentActorSeat
+        : (currentActorSeat ?? this.currentActorSeat),
+    eventLog: eventLog ?? this.eventLog,
+    outcome: outcome ?? this.outcome,
+  );
 
   /// Element-wise list comparison.
   ///
@@ -130,17 +128,17 @@ class Match {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        createdAt,
-        seed,
-        Object.hashAll(players),
-        settings,
-        phase,
-        dayNumber,
-        currentActorSeat,
-        Object.hashAll(eventLog),
-        outcome,
-      );
+    id,
+    createdAt,
+    seed,
+    Object.hashAll(players),
+    settings,
+    phase,
+    dayNumber,
+    currentActorSeat,
+    Object.hashAll(eventLog),
+    outcome,
+  );
 
   @override
   String toString() =>

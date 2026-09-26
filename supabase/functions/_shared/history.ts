@@ -28,40 +28,58 @@ export async function buildHistory(
   db: SupabaseClient,
   roomId: string,
 ): Promise<GameHistory> {
-  const { data: players } = await db
+  // Every read is checked. A history assembled from a query that failed is
+  // an empty history, and an empty history is not "nothing happened" — it is
+  // a generator handed a false record and a trace or confrontation chosen
+  // from it. The caller gets the error and the room keeps its phase.
+  const { data: players, error: playersError } = await db
     .from("room_players")
     .select("user_id, seat, alive")
     .eq("room_id", roomId)
     .order("seat");
+  if (playersError) throw playersError;
   const roster = players ?? [];
   const seatOf = new Map<string, number>(
     roster.map((p) => [p.user_id, p.seat]),
   );
   const alive = roster.filter((p) => p.alive).map((p) => p.seat);
 
-  const { data: actions } = await db
+  const { data: actions, error: actionsError } = await db
     .from("night_actions")
     .select("night, actor_id, action, target_id")
     .eq("room_id", roomId)
     .order("night");
+  if (actionsError) throw actionsError;
 
-  const { data: votes } = await db
+  const { data: votes, error: votesError } = await db
     .from("votes")
     .select("day, voter_id, target_id, round")
     .eq("room_id", roomId)
     .order("day");
+  if (votesError) throw votesError;
 
-  const { data: whispers } = await db
+  const { data: whispers, error: whispersError } = await db
     .from("whisper_meta")
     .select("day, from_id, to_id")
     .eq("room_id", roomId)
     .order("day");
+  if (whispersError) throw whispersError;
 
-  const { data: state } = await db
+  const { data: state, error: stateError } = await db
     .from("room_state")
     .select("public_data")
     .eq("room_id", roomId)
     .maybeSingle();
+  if (stateError) throw stateError;
+
+  const { data: privateNights, error: privateError } = await db
+    .from("night_resolution_private")
+    .select("night, saved_seat")
+    .eq("room_id", roomId);
+  if (privateError) throw privateError;
+  const savedByNight = new Map<number, number | null>(
+    (privateNights ?? []).map((row) => [row.night, row.saved_seat]),
+  );
 
   // The published history the server keeps alongside the tables: which trace
   // went out on which morning, which confrontation was issued on which day,
@@ -70,7 +88,6 @@ export async function buildHistory(
   const archive = (state?.public_data ?? {}) as {
     resolvedNights?: Record<string, {
       victimSeat: number | null;
-      savedSeat: number | null;
       trace: TraceType | null;
     }>;
     openingAccusations?: Record<string, number>;
@@ -112,8 +129,8 @@ export async function buildHistory(
       nightNumber: n,
       suspicions,
       victim: resolved?.victimSeat ?? null,
-      saveOccurred: resolved?.savedSeat != null,
-      savedSeat: resolved?.savedSeat ?? null,
+      saveOccurred: savedByNight.get(n) != null,
+      savedSeat: savedByNight.get(n) ?? null,
       revealedTrace: resolved?.trace ?? null,
       resolved: resolved !== undefined,
     });

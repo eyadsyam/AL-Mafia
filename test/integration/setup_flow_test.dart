@@ -37,8 +37,7 @@ void main() {
     store = returningHostStore();
     container = ProviderContainer(
       overrides: [
-        matchRepositoryProvider
-            .overrideWithValue(MemoryMatchRepository(store)),
+        matchRepositoryProvider.overrideWithValue(MemoryMatchRepository(store)),
       ],
     );
     addTearDown(container.dispose);
@@ -67,8 +66,9 @@ void main() {
   }
 
   group('Home → Players → Roles → Settings → match', () {
-    testWidgets('a host can start a match without touching the engine',
-        (tester) async {
+    testWidgets('a host can start a match without touching the engine', (
+      tester,
+    ) async {
       await pumpApp(tester);
       expect(find.byType(HomeScreen), findsOneWidget);
 
@@ -85,8 +85,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(RolesScreen), findsOneWidget);
-      expect(find.text('${names.length} لاعب'), findsOneWidget,
-          reason: 'the roster did not survive the step');
+      expect(
+        find.text('${names.length} لاعب'),
+        findsOneWidget,
+        reason: 'the roster did not survive the step',
+      );
 
       await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
@@ -96,15 +99,21 @@ void main() {
       await tester.pumpAndSettle();
 
       // The engine now has a real match, seated in the order that was typed.
-      final match = container.read(matchControllerProvider.notifier).engine.match;
+      final match = container
+          .read(matchControllerProvider.notifier)
+          .engine
+          .match;
       expect(match.phase, equals(GamePhase.distributing));
       expect(match.players.map((p) => p.name).toList(), equals(names));
-      expect(match.players.map((p) => p.seat).toList(),
-          equals(List.generate(names.length, (i) => i)));
+      expect(
+        match.players.map((p) => p.seat).toList(),
+        equals(List.generate(names.length, (i) => i)),
+      );
     });
 
-    testWidgets('the dealt roles match what the roles screen offered',
-        (tester) async {
+    testWidgets('the dealt roles match what the roles screen offered', (
+      tester,
+    ) async {
       await pumpApp(tester);
       await tester.tap(find.text('ابدأ اللعبة'));
       await tester.pumpAndSettle();
@@ -124,19 +133,26 @@ void main() {
       await tester.tap(find.text('حفظ'));
       await tester.pumpAndSettle();
 
-      final match = container.read(matchControllerProvider.notifier).engine.match;
+      final match = container
+          .read(matchControllerProvider.notifier)
+          .engine
+          .match;
       final dealt = <Role, int>{};
       for (final p in match.players) {
         dealt[p.role] = (dealt[p.role] ?? 0) + 1;
       }
       for (final entry in chosen!.entries) {
-        expect(dealt[entry.key] ?? 0, equals(entry.value),
-            reason: '${entry.key.name} count does not match the setup');
+        expect(
+          dealt[entry.key] ?? 0,
+          equals(entry.value),
+          reason: '${entry.key.name} count does not match the setup',
+        );
       }
     });
 
-    testWidgets('settings chosen at setup are persisted as the next default',
-        (tester) async {
+    testWidgets('settings chosen at setup are persisted as the next default', (
+      tester,
+    ) async {
       // FR-005: a group that always plays free discussion should not have to
       // re-pick it every night.
       await pumpApp(tester);
@@ -157,12 +173,18 @@ void main() {
       await tester.tap(find.text('حفظ'));
       await tester.pumpAndSettle();
 
-      final match = container.read(matchControllerProvider.notifier).engine.match;
+      final match = container
+          .read(matchControllerProvider.notifier)
+          .engine
+          .match;
       expect(match.settings.discussionMode, equals(DiscussionMode.free));
 
       final saved = await MemoryMatchRepository(store).loadDefaultSettings();
-      expect(saved.discussionMode, equals(DiscussionMode.free),
-          reason: 'the choice was not stored as the new default');
+      expect(
+        saved.discussionMode,
+        equals(DiscussionMode.free),
+        reason: 'the choice was not stored as the new default',
+      );
     });
 
     testWidgets('fewer than five names cannot advance', (tester) async {
@@ -182,12 +204,16 @@ void main() {
           matching: find.byType(FilledButton),
         ),
       );
-      expect(next.onPressed, isNull,
-          reason: 'a four-player match is not playable (FR-004)');
+      expect(
+        next.onPressed,
+        isNull,
+        reason: 'a four-player match is not playable (FR-004)',
+      );
     });
 
-    testWidgets('the roles step is skipped past if entered without a roster',
-        (tester) async {
+    testWidgets('the roles step is skipped past if entered without a roster', (
+      tester,
+    ) async {
       // Reaching /setup/roles with an empty draft would crash the balance
       // guard. The router has to notice and bounce, not throw.
       await pumpApp(tester);

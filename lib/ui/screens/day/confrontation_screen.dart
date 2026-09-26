@@ -129,12 +129,10 @@ class _ConfrontationScreenState extends State<ConfrontationScreen> {
                     children: [
                       Expanded(child: Divider(color: colors.borderSubtle)),
                       Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: spacing.sm),
+                        padding: EdgeInsets.symmetric(horizontal: spacing.sm),
                         child: Text(
                           l10n.confrontationLabel,
-                          style:
-                              type.caption.copyWith(color: colors.textMuted),
+                          style: type.caption.copyWith(color: colors.textMuted),
                         ),
                       ),
                       Expanded(child: Divider(color: colors.borderSubtle)),

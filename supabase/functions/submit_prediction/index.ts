@@ -45,10 +45,11 @@ Deno.serve(handler(async (req, userId, db) => {
 
   // Every named seat has to be a seat in this room. A prediction naming seat 40
   // would score as wrong forever and read as a bug at the end of the evening.
-  const { data: roster } = await db
+  const { data: roster, error: rosterError } = await db
     .from("room_players")
     .select("seat")
     .eq("room_id", roomId);
+  if (rosterError) throw rosterError;
   const known = new Set((roster ?? []).map((row) => row.seat as number));
   if (seats.some((seat) => !known.has(seat))) {
     return fail("BAD_REQUEST", "no such seat");

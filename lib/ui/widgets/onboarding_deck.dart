@@ -106,8 +106,9 @@ class _OnboardingDeckState extends State<OnboardingDeck>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _deal.duration =
-        ReduceMotion.of(context) ? Duration.zero : context.motion.standard;
+    _deal.duration = ReduceMotion.of(context)
+        ? Duration.zero
+        : context.motion.standard;
   }
 
   @override
@@ -207,7 +208,10 @@ class _OnboardingDeckState extends State<OnboardingDeck>
                 fit: StackFit.expand,
                 children: [
                   ..._pile(spacing.md),
-                  if (forward) ...[arriving, departing] else ...[
+                  if (forward) ...[
+                    arriving,
+                    departing,
+                  ] else ...[
                     departing,
                     arriving,
                   ],

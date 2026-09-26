@@ -21,30 +21,14 @@
  * switch mid-match would be changing a fact about a room whose players joined
  * under the other one. It refuses after the deal; every other setting refuses
  * too, because the rules of a match may not change once cards are out.
+ *
+ * The refusal is decided under the room lock (`commit_room_settings`), in the
+ * same statement as the write, so a start or a join racing this request finds
+ * either the old rules or the new ones — never a mix.
  */
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
-
-/** The whole schema of `rooms.settings`, as far as the host may write it. */
-//
-// The names are the engine's own — `settingsFromJson` in `room_codec.dart`
-// reads these keys — so the settings screen writes the same words the match
-// later plays by. Durations are seconds even where the screen offers minutes;
-// a unit that changes between the writer and the reader is a bug waiting for
-// somebody to pick 3 and get three seconds.
-const NUMBERS: Record<string, number[]> = {
-  maxPlayers: [5, 8, 10, 15],
-  speechSeconds: [30, 45, 60],
-  discussionSeconds: [180, 300, 420],
-};
-
-const FLAGS = [
-  "voice",
-  "muteAllAtNight",
-  "openVoting",
-  "traceEnabled",
-  "confrontationEnabled",
-  "whisperEnabled",
-];
+import { roomConfiguration } from "../_shared/room_configuration.ts";
+import { ensureCosmeticAccess, ensureScenarioAccess } from "../_shared/purchase_access.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const body = await req.json().catch(() => ({}));
@@ -57,54 +41,33 @@ Deno.serve(handler(async (req, userId, db) => {
     return fail("NOT_HOST", "only the host changes the room", 403);
   }
 
-  const { data: room } = await db
-    .from("rooms")
-    .select("id, status, settings")
-    .eq("id", roomId)
-    .maybeSingle();
-  if (!room) return fail("ROOM_NOT_FOUND", "no such room", 404);
-  if (room.status !== "lobby") {
-    return fail("PHASE_CLOSED", "the match has started", 409);
+  // Only the allow-list runs here; the host check, the lobby check, the
+  // capacity check and the write are one statement under the room lock in
+  // `commit_room_settings`. Reading status here and writing later let a start
+  // or a join land in between: a started match's rules could change, or the
+  // capacity could drop below a population the door had already admitted.
+  let patch;
+  try { patch = roomConfiguration(body, {}); }
+  catch (error) { return fail("BAD_REQUEST", (error as Error).message); }
+  if (!await ensureScenarioAccess(db, userId, patch.settings)) {
+    return fail("PURCHASE_REQUIRED", "scenario is not owned", 403);
   }
-
-  const patch: Record<string, unknown> = {};
-
-  if (body.visibility !== undefined) {
-    if (!["private", "public"].includes(body.visibility)) {
-      return fail("BAD_REQUEST", "visibility must be private or public");
-    }
-    patch.visibility = body.visibility;
+  if (!await ensureCosmeticAccess(db, userId, patch.settings)) {
+    return fail("PURCHASE_REQUIRED", "presentation pack is not owned", 403);
   }
-
-  if (body.title !== undefined) {
-    const title = String(body.title ?? "").trim().slice(0, 40);
-    patch.title = title.length === 0 ? null : title;
-  }
-
-  if (body.settings && typeof body.settings === "object") {
-    const incoming = body.settings as Record<string, unknown>;
-    const settings: Record<string, unknown> = {
-      ...(room.settings && typeof room.settings === "object" ? room.settings : {}),
-    };
-    for (const [key, allowed] of Object.entries(NUMBERS)) {
-      if (incoming[key] === undefined) continue;
-      const value = Number(incoming[key]);
-      if (!allowed.includes(value)) {
-        return fail("BAD_REQUEST", `${key} must be one of ${allowed.join(", ")}`);
-      }
-      settings[key] = value;
-    }
-    for (const key of FLAGS) {
-      if (incoming[key] === undefined) continue;
-      settings[key] = incoming[key] === true;
-    }
-    patch.settings = settings;
-  }
-
   if (Object.keys(patch).length === 0) return ok({ changed: false });
 
-  const { error } = await db.from("rooms").update(patch).eq("id", roomId);
-  if (error) throw error;
+  const { error } = await db.rpc("commit_room_settings", {
+    p_room: roomId, p_host: userId, p_patch: patch,
+  });
+  if (error) {
+    const message = String(error.message ?? "");
+    if (message.includes("ROOM_NOT_FOUND")) return fail("ROOM_NOT_FOUND", "no such room", 404);
+    if (message.includes("NOT_HOST")) return fail("NOT_HOST", "only the host changes the room", 403);
+    if (message.includes("PHASE_CLOSED")) return fail("PHASE_CLOSED", "the match has started", 409);
+    if (message.includes("BAD_REQUEST")) return fail("BAD_REQUEST", "capacity below current player count");
+    throw error;
+  }
 
   return ok({ changed: true });
 }));

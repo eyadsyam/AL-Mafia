@@ -68,8 +68,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: localizedApp(MatchFlow(onExit: () {}, onAnalytics: () {})
-        ),
+        child: localizedApp(MatchFlow(onExit: () {}, onAnalytics: () {})),
       ),
     );
     await tester.pumpAndSettle();
@@ -77,40 +76,53 @@ void main() {
 
   /// Every string currently rendered anywhere in the tree.
   List<String> visibleText(WidgetTester tester) => [
-        for (final w in tester.widgetList<Text>(find.byType(Text)))
-          if (w.data != null && w.data!.trim().isNotEmpty) w.data!.trim(),
-      ];
+    for (final w in tester.widgetList<Text>(find.byType(Text)))
+      if (w.data != null && w.data!.trim().isNotEmpty) w.data!.trim(),
+  ];
 
   group('L-12 the handoff exposes nothing', () {
-    testWidgets('a night turn opens on the identity gate, not on content',
-        (tester) async {
+    testWidgets('a night turn opens on the identity gate, not on content', (
+      tester,
+    ) async {
       await pumpNightHandoff(tester);
 
       // The shell is in its handoff state: a hold pad and nothing selectable.
       expect(find.byType(HoldPad), findsOneWidget);
-      expect(find.byType(NightGridTile), findsNothing,
-          reason: 'the target list is visible before anyone identified '
-              'themselves');
+      expect(
+        find.byType(NightGridTile),
+        findsNothing,
+        reason:
+            'the target list is visible before anyone identified '
+            'themselves',
+      );
     });
 
-    testWidgets('no role name and no prompt is on screen before the hold',
-        (tester) async {
+    testWidgets('no role name and no prompt is on screen before the hold', (
+      tester,
+    ) async {
       await pumpNightHandoff(tester);
       final text = visibleText(tester);
 
       for (final roleWord in ['مافيا', 'دكتور', 'محقق', 'مواطن']) {
-        expect(text, isNot(contains(roleWord)),
-            reason: '"$roleWord" was visible to whoever is holding the phone');
+        expect(
+          text,
+          isNot(contains(roleWord)),
+          reason: '"$roleWord" was visible to whoever is holding the phone',
+        );
       }
 
       for (final role in Role.values) {
-        expect(text, isNot(contains(EngineCopy.nightPrompt(arStrings, role))),
-            reason: 'the ${role.name} question was on screen before the gate');
+        expect(
+          text,
+          isNot(contains(EngineCopy.nightPrompt(arStrings, role))),
+          reason: 'the ${role.name} question was on screen before the gate',
+        );
       }
     });
 
-    testWidgets('the screen looks the same regardless of whose turn it is',
-        (tester) async {
+    testWidgets('the screen looks the same regardless of whose turn it is', (
+      tester,
+    ) async {
       // The only thing that may differ between two handoffs is the name. If
       // anything else changed, the person holding the phone could tell whose
       // turn — and eventually which role — is coming up.
@@ -120,12 +132,8 @@ void main() {
 
       // Advance to the next actor and re-render.
       controller().submitNightAction(
-        kind: nightActionFor(
-            controller().engine.match.players[firstSeat].role),
-        targetSeat: controller()
-            .engine
-            .match
-            .players
+        kind: nightActionFor(controller().engine.match.players[firstSeat].role),
+        targetSeat: controller().engine.match.players
             .firstWhere((p) => p.seat != firstSeat)
             .seat,
       );
@@ -144,20 +152,22 @@ void main() {
       expect(secondWithoutName, equals(firstWithoutName));
     });
 
-    testWidgets('"not you?" is offered and exposes nothing when taken',
-        (tester) async {
+    testWidgets('"not you?" is offered and exposes nothing when taken', (
+      tester,
+    ) async {
       var rerouted = false;
 
       await tester.binding.setSurfaceSize(surface);
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
       await tester.pumpWidget(
-        localizedApp(PassScreen(
+        localizedApp(
+          PassScreen(
             targetName: 'Fatima',
             subtitle: 'الليلة الأولى',
             onConfirmed: () {},
             onWrongPerson: () => rerouted = true,
-          )
+          ),
         ),
       );
 
@@ -174,27 +184,36 @@ void main() {
       }
     });
 
-    testWidgets('a tap cannot open the turn — only a sustained hold can',
-        (tester) async {
+    testWidgets('a tap cannot open the turn — only a sustained hold can', (
+      tester,
+    ) async {
       await pumpNightHandoff(tester);
 
       await tester.tap(find.byType(HoldPad));
       await tester.pumpAndSettle();
-      expect(find.byType(NightGridTile), findsNothing,
-          reason: 'a stray tap revealed the turn');
+      expect(
+        find.byType(NightGridTile),
+        findsNothing,
+        reason: 'a stray tap revealed the turn',
+      );
 
       // A hold that is released early must not count either.
-      final gesture =
-          await tester.startGesture(tester.getCenter(find.byType(HoldPad)));
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(HoldPad)),
+      );
       await tester.pump(MafiaTiming.defaults.holdToReveal ~/ 2);
       await gesture.up();
       await tester.pumpAndSettle();
-      expect(find.byType(NightGridTile), findsNothing,
-          reason: 'an abandoned hold revealed the turn');
+      expect(
+        find.byType(NightGridTile),
+        findsNothing,
+        reason: 'an abandoned hold revealed the turn',
+      );
 
       // The full hold does open it — otherwise this test proves nothing.
-      final full =
-          await tester.startGesture(tester.getCenter(find.byType(HoldPad)));
+      final full = await tester.startGesture(
+        tester.getCenter(find.byType(HoldPad)),
+      );
       await tester.pump();
       await tester.pump(MafiaTiming.defaults.holdToReveal);
       await full.up();
@@ -206,23 +225,28 @@ void main() {
       // Once the right person has identified themselves, what they see must
       // still not distinguish them: same seats, same order, same tile states.
       await pumpNightHandoff(tester);
-      final gesture =
-          await tester.startGesture(tester.getCenter(find.byType(HoldPad)));
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(HoldPad)),
+      );
       await tester.pump();
       await tester.pump(MafiaTiming.defaults.holdToReveal);
       await gesture.up();
       await tester.pumpAndSettle();
 
-      final tiles =
-          tester.widgetList<NightGridTile>(find.byType(NightGridTile));
+      final tiles = tester.widgetList<NightGridTile>(
+        find.byType(NightGridTile),
+      );
       // Doc 14 §1.3: (N−1) other living seats **plus** the special tile every
       // role's grid ends with. The count is the same for all four; only the
       // words on the last one differ.
       expect(tiles, hasLength(names.length));
       // Nothing on a tile may encode a role; the indicator slot is the only
       // data-bearing part and it is empty for everyone but a mafioso.
-      final shellRole = controller().engine.match.players[
-          controller().engine.match.currentActorSeat!].role;
+      final shellRole = controller()
+          .engine
+          .match
+          .players[controller().engine.match.currentActorSeat!]
+          .role;
       if (shellRole != Role.mafia) {
         expect(tiles.every((t) => t.choice.indicatorCount == 0), isTrue);
       }

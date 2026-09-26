@@ -15,20 +15,21 @@ import '../support/localized.dart';
 void main() {
   /// Glyphs that actually emit light. Whitespace advances the layout without
   /// putting anything on screen, so it cannot brighten the phone.
-  int inkLength(String s) =>
-      s.replaceAll(RegExp(r'\s+'), '').runes.length;
+  int inkLength(String s) => s.replaceAll(RegExp(r'\s+'), '').runes.length;
 
   group('night prompt luminance balance', () {
     test('every role\'s prompt inks exactly the same number of glyphs', () {
       final lengths = {
-        for (final role in Role.values) role: inkLength(EngineCopy.nightPrompt(arStrings, role)),
+        for (final role in Role.values)
+          role: inkLength(EngineCopy.nightPrompt(arStrings, role)),
       };
 
       for (final entry in lengths.entries) {
         expect(
           entry.value,
           equals(nightPromptInkLength),
-          reason: 'the ${entry.key.name} prompt inks ${entry.value} glyphs, not '
+          reason:
+              'the ${entry.key.name} prompt inks ${entry.value} glyphs, not '
               '$nightPromptInkLength — a longer or shorter question makes that '
               'role\'s turn measurably brighter or dimmer than the others. '
               'Rewrite it to length, do not relax this number. All prompts: '
@@ -59,7 +60,8 @@ void main() {
         expect(
           entry.value,
           equals(expected),
-          reason: 'the ${entry.key.name} tile inks ${entry.value} glyphs '
+          reason:
+              'the ${entry.key.name} tile inks ${entry.value} glyphs '
               'against $expected for the others. Rewrite it to length; do not '
               'relax this. All four: $lengths',
         );
@@ -71,8 +73,11 @@ void main() {
       for (final role in Role.values) {
         final label = EngineCopy.nightSpecial(arStrings, role);
         for (final word in roleWords) {
-          expect(label.contains(word), isFalse,
-              reason: 'the ${role.name} tile reads "$label"');
+          expect(
+            label.contains(word),
+            isFalse,
+            reason: 'the ${role.name} tile reads "$label"',
+          );
         }
       }
     });
@@ -80,7 +85,9 @@ void main() {
     test('the prompts are still four distinct questions', () {
       // Equal length must not have been achieved by making them all the same
       // sentence: the player has to be asked the question their role answers.
-      final prompts = {for (final role in Role.values) EngineCopy.nightPrompt(arStrings, role)};
+      final prompts = {
+        for (final role in Role.values) EngineCopy.nightPrompt(arStrings, role),
+      };
       expect(prompts, hasLength(Role.values.length));
     });
 
@@ -95,8 +102,11 @@ void main() {
       for (final role in Role.values) {
         final prompt = EngineCopy.nightPrompt(arStrings, role);
         for (final word in roleWords) {
-          expect(prompt.contains(word), isFalse,
-              reason: 'the ${role.name} prompt contains the role word "$word"');
+          expect(
+            prompt.contains(word),
+            isFalse,
+            reason: 'the ${role.name} prompt contains the role word "$word"',
+          );
         }
       }
     });

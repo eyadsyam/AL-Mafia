@@ -80,7 +80,9 @@ void main() {
               'زياد',
               'جنى',
             ][seat],
-            status: dead.contains(seat) ? PlayerStatus.dead : PlayerStatus.alive,
+            status: dead.contains(seat)
+                ? PlayerStatus.dead
+                : PlayerStatus.alive,
           ),
       ],
       outcome: winner == null
@@ -105,16 +107,14 @@ void main() {
           ],
   );
 
-  Future<void> shoot(
-    WidgetTester tester,
-    String name,
-    Widget child,
-  ) async {
+  Future<void> shoot(WidgetTester tester, String name, Widget child) async {
     await tester.pumpWidget(
       MediaQuery(
         data: const MediaQueryData(size: _phone),
         child: localizedApp(
-          RepaintBoundary(child: SizedBox.fromSize(size: _phone, child: child)),
+          RepaintBoundary(
+            child: SizedBox.fromSize(size: _phone, child: child),
+          ),
         ),
       ),
     );
@@ -123,7 +123,10 @@ void main() {
     await tester.runAsync(() async {
       for (final asset in AppCouncilArt.values) {
         if (!asset.endsWith('.png')) continue;
-        await precacheImage(AssetImage(asset), tester.element(find.byType(SizedBox).first));
+        await precacheImage(
+          AssetImage(asset),
+          tester.element(find.byType(SizedBox).first),
+        );
       }
       await Future<void>.delayed(const Duration(milliseconds: 300));
     });
@@ -288,7 +291,10 @@ void main() {
   shot(
     'phase-result-turning',
     () => TableScene(
-      snapshot: snapshotOf(phase: GamePhase.result, winner: engine.Alignment.town),
+      snapshot: snapshotOf(
+        phase: GamePhase.result,
+        winner: engine.Alignment.town,
+      ),
       revealProgress: 0.42,
       centre: const CouncilVoice(headline: 'فاز المواطنون'),
     ),
@@ -302,7 +308,10 @@ void main() {
       fit: StackFit.expand,
       children: [
         TableScene(
-          snapshot: snapshotOf(phase: GamePhase.result, winner: engine.Alignment.town),
+          snapshot: snapshotOf(
+            phase: GamePhase.result,
+            winner: engine.Alignment.town,
+          ),
           revealProgress: 1,
           centre: const CouncilVoice(headline: 'فاز المواطنون'),
         ),

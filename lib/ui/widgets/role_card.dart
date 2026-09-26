@@ -8,6 +8,7 @@ import '../../engine/models/enums.dart' show Role;
 import '../../platform/reduce_motion.dart';
 import '../l10n_ext.dart';
 import '../theme/design_tokens.dart';
+import 'card_art.dart';
 import '../theme/mafia_theme.dart';
 import 'hold_pad.dart';
 
@@ -479,6 +480,10 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
           child: KeyedSubtree(
             key: RoleCard.slotCard,
             child: GestureDetector(
+              // The whole slot takes the swipe, not only the drawn card: the
+              // card now keeps its own proportions and leaves margin beside
+              // it, and a swipe that starts there is still a swipe.
+              behavior: HitTestBehavior.opaque,
               onPanStart: _onPanStart,
               onPanUpdate: _onPanUpdate,
               onPanEnd: _onPanEnd,
@@ -731,24 +736,14 @@ class _CardSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final shape = BorderRadius.circular(radius);
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: shape,
-        border: Border.all(color: border),
-      ),
-      child: ClipRRect(
-        borderRadius: shape,
-        child: Image.asset(
-          image,
-          // BoxFit.contain ensures the entire card image is visible — painted
-          // border, corner letter, corner icon. Nothing is cropped.
-          fit: BoxFit.contain,
-          gaplessPlayback: true,
-          excludeFromSemantics: true,
-        ),
-      ),
+    // The files carry the card on a black margin. Drawn whole, that margin
+    // (and a border around it) read as a second, half-loaded picture behind
+    // the card — the owner saw exactly that. So only the card is drawn: the
+    // margin is cropped away and the card keeps its own proportions, painted
+    // border, corner letter and corner icon intact. [border] is the card's own
+    // edge now, so no outline is added around it.
+    return Center(
+      child: CardArt(image: image, radius: radius),
     );
   }
 }
@@ -844,21 +839,28 @@ class _SwipeFlipCard extends StatelessWidget {
         return Transform(
           alignment: Alignment.center,
           transform: transform,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(radius),
-              // The card lifts off the table as it turns and settles back.
-              // Interpolated between two rungs of the shared ladder rather than
-              // hand-rolled, so it grows in *size* only — the light direction
-              // is the app's one lamp at every point of the flip. This used to
-              // cast straight down while everything else cast down-right.
-              boxShadow: BoxShadow.lerpList(
-                elevation.level2,
-                elevation.level3,
-                math.sin(animT * math.pi),
+          // The shadow belongs to the card, not to the slot it sits in: cast
+          // around the whole slot it drew a second outline behind the card.
+          child: Center(
+            child: AspectRatio(
+              aspectRatio: CardArtTokens.cardAspect,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(radius),
+                  // The card lifts off the table as it turns and settles back.
+                  // Interpolated between two rungs of the shared ladder rather than
+                  // hand-rolled, so it grows in *size* only — the light direction
+                  // is the app's one lamp at every point of the flip. This used to
+                  // cast straight down while everything else cast down-right.
+                  boxShadow: BoxShadow.lerpList(
+                    elevation.level2,
+                    elevation.level3,
+                    math.sin(animT * math.pi),
+                  ),
+                ),
+                child: face,
               ),
             ),
-            child: face,
           ),
         );
       },

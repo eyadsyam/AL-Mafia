@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../app/asset_constants.dart';
-import '../../../../engine/models/enums.dart' show GamePhase, PlayerStatus, RoleX;
+import '../../../../engine/models/enums.dart'
+    show GamePhase, PlayerStatus, RoleX;
 import '../../../../engine/models/player.dart' show PublicPlayer;
 import '../../../../platform/reduce_motion.dart';
 import '../../../../transport/game_snapshot.dart';
@@ -12,10 +13,16 @@ import '../../../theme/design_tokens.dart';
 import '../../../theme/mafia_theme.dart';
 import '../council/council_band.dart';
 import '../../../widgets/player_avatar.dart';
-import '../council/role_glyph.dart';
+import '../../../widgets/ambient_media.dart';
+import '../../../../engine/models/enums.dart' as engine;
+import '../council/card_rise.dart' show faceFor;
 import '../council/seat_status.dart';
 import 'table_mood.dart';
 import 'table_pulse.dart';
+import '../safety_center.dart';
+import '../../../economy/cosmetic_paint.dart';
+import '../../../economy/cosmetics.dart';
+import 'room_presentation.dart';
 
 /// The single four-band online council described by doc 15 §1.1.
 ///
@@ -61,6 +68,9 @@ class TableScene extends StatelessWidget {
   /// would have to add a parameter, which is the point.
   final double revealProgress;
 
+  /// Safe local voice levels by seat for the speaking pulse.
+  final Map<int, double> speakingLevels;
+
   /// The host's explicit ending (task 5), or null for everybody else.
   ///
   /// In band 1 rather than band 4, because band 4 is the one primary action of
@@ -71,6 +81,10 @@ class TableScene extends StatelessWidget {
 
   /// Opens the host's sheet for one seat (task 6), or null for everybody else.
   final ValueChanged<int>? onSeatInspect;
+
+  /// Every seat's role, for an eliminated viewer only — what the server's
+  /// `witness_view` answered. Empty for every living player, always.
+  final Map<int, engine.Role> witnessRoles;
 
   const TableScene({
     super.key,
@@ -85,8 +99,10 @@ class TableScene extends StatelessWidget {
     this.tearProgress = 0,
     this.spotlight = 0,
     this.revealProgress = 0,
+    this.speakingLevels = const {},
     this.onCloseRoom,
     this.onSeatInspect,
+    this.witnessRoles = const {},
   });
 
   static const Key surface = ValueKey('table_scene');
@@ -95,7 +111,7 @@ class TableScene extends StatelessWidget {
   static const Key voice = ValueKey('council_voice');
   static const Key hand = ValueKey('council_hand');
   static const Key headerTimer = ValueKey('council_header_timer');
-  static const Key closeRoomButton = ValueKey('council_close_room');
+  static const Key exitRoomButton = ValueKey('council_exit_room');
 
   /// Your own chair, in band 4 rather than in the council (doc 15 §1.1).
   static const Key viewerSeat = ValueKey('council_viewer_seat');
@@ -132,6 +148,8 @@ class TableScene extends StatelessWidget {
   static List<CouncilSeatData> seatsFor(
     GameSnapshot snapshot, {
     required TableMood mood,
+    Map<int, double> speakingLevels = const {},
+    Map<int, engine.Role> witnessRoles = const {},
   }) {
     // Doc 15 §S-O13 beat 3, and the one line in this file that touches a role.
     //
@@ -148,17 +166,26 @@ class TableScene extends StatelessWidget {
               standing.seat: standing.role.alignment == winner,
           };
 
-    final roles = winner == null
-        ? const <int, String>{}
+    // The result shows faces, not marks: the standings' roles become each
+    // seat's card portrait, turned over by the same beat-2 flip.
+    const roles = <int, String>{};
+    final resultRoles = winner == null
+        ? const <int, engine.Role>{}
         : {
             for (final standing in snapshot.standings)
-              standing.seat: glyphFor(standing.role),
+              standing.seat: standing.role,
           };
 
+    // Purchased frames and plates: public phases only (doc 05 rule 3).
+    final dressed = cosmeticsVisibleIn(snapshot.phase);
     return [
       for (final player in snapshot.public.players)
         if (player.seat != snapshot.viewerSeat)
           CouncilSeatData(
+            frame: dressed ? snapshot.seatCosmetics[player.seat]?.frame : null,
+            plate: dressed ? snapshot.seatCosmetics[player.seat]?.plate : null,
+            // The Council rank rides with the frame: public phases only.
+            rank: dressed ? snapshot.seatCosmetics[player.seat]?.rank : null,
             seat: player.seat,
             name: player.name,
             status: statusFor(snapshot, player, mood: mood),
@@ -178,6 +205,17 @@ class TableScene extends StatelessWidget {
             // exist. The band cannot read it: it is an asset path, and the
             // mapping that produced it lives in `role_glyph.dart`.
             roleGlyph: roles[player.seat],
+            // The character, not an icon: at the result every seat turns over
+            // to its card's face (owner, 2026-09-23); for a witness, during
+            // play as well.
+            rolePortrait: witnessRoles[player.seat] != null
+                ? faceFor(witnessRoles[player.seat]!)
+                : resultRoles[player.seat] == null
+                ? null
+                : faceFor(resultRoles[player.seat]!),
+            speakingLevel: mood.showsPerSeatStatus
+                ? (speakingLevels[player.seat] ?? 0)
+                : 0,
           ),
     ];
   }
@@ -197,7 +235,13 @@ class TableScene extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           ColoredBox(color: colors.surfaceBase),
-          _Backdrop(mood: mood),
+          _Backdrop(
+            mood: mood,
+            winner: snapshot.outcome?.winner,
+            pack: cosmeticsVisibleIn(snapshot.phase)
+                ? Cosmetics.packs[snapshot.room.presentationPack]
+                : null,
+          ),
           if (mood.kind == TableMoodKind.morning)
             _MorningSweep(day: snapshot.dayNumber),
           SafeArea(
@@ -218,7 +262,12 @@ class TableScene extends StatelessWidget {
                     flex: CouncilTokens.councilFlex,
                     child: CouncilBand(
                       key: council,
-                      seats: seatsFor(snapshot, mood: mood),
+                      seats: seatsFor(
+                        snapshot,
+                        mood: mood,
+                        speakingLevels: speakingLevels,
+                        witnessRoles: witnessRoles,
+                      ),
                       totalPlayers: snapshot.public.players.length,
                       selectedSeat: selectedSeat,
                       selectableSeats: selectableSeats,
@@ -241,6 +290,7 @@ class TableScene extends StatelessWidget {
                           : context.motion.band,
                       switchInCurve: context.motion.standardCurve,
                       switchOutCurve: context.motion.standardCurve,
+                      transitionBuilder: bandTransition,
                       child: KeyedSubtree(
                         key: ValueKey(snapshot.phase),
                         child: centre ?? const SizedBox.shrink(),
@@ -250,12 +300,21 @@ class TableScene extends StatelessWidget {
                   Expanded(
                     key: hand,
                     flex: CouncilTokens.handFlex,
-                    child: _HandBand(footer: footer, viewer: viewer),
+                    child: _HandBand(
+                      footer: footer,
+                      viewer: viewer,
+                      speakingLevel: mood.showsPerSeatStatus
+                          ? (speakingLevels[snapshot.viewerSeat] ?? 0)
+                          : 0,
+                    ),
                   ),
                 ],
               ),
             ),
           ),
+          if (Cosmetics.packs.containsKey(snapshot.room.presentationPack) ||
+              Cosmetics.narrators.containsKey(snapshot.room.narratorPack))
+            RoomPresentationLayer(snapshot: snapshot),
         ],
       ),
     );
@@ -271,8 +330,9 @@ class _CouncilHeader extends StatelessWidget {
   String _label(BuildContext context) {
     final l10n = context.l10n;
     return switch (snapshot.phase) {
-      GamePhase.night || GamePhase.nightResolving || GamePhase.preNightLobby =>
-        l10n.nightNumbered(snapshot.dayNumber),
+      GamePhase.night ||
+      GamePhase.nightResolving ||
+      GamePhase.preNightLobby => l10n.nightNumbered(snapshot.dayNumber),
       GamePhase.morning ||
       GamePhase.openingRound ||
       GamePhase.confrontation ||
@@ -302,12 +362,13 @@ class _CouncilHeader extends StatelessWidget {
         ),
         if (snapshot.phaseDeadline != null)
           HeaderTimer(deadline: snapshot.phaseDeadline!),
+        const SafetyButton(),
         if (onCloseRoom != null)
           IconButton(
-            key: TableScene.closeRoomButton,
-            tooltip: context.l10n.onlineCloseRoom,
+            key: TableScene.exitRoomButton,
+            tooltip: context.l10n.onlineLeave,
             onPressed: onCloseRoom,
-            icon: Icon(Icons.lock_outline, color: colors.textSecondary),
+            icon: Icon(Icons.logout, color: colors.textSecondary),
             visualDensity: VisualDensity.compact,
           ),
       ],
@@ -386,8 +447,13 @@ class _HeaderTimerState extends State<HeaderTimer> {
 class _HandBand extends StatelessWidget {
   final Widget? footer;
   final PublicPlayer? viewer;
+  final double speakingLevel;
 
-  const _HandBand({required this.footer, required this.viewer});
+  const _HandBand({
+    required this.footer,
+    required this.viewer,
+    required this.speakingLevel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -396,7 +462,26 @@ class _HandBand extends StatelessWidget {
     final spacing = context.spacing;
     return Column(
       children: [
-        Expanded(child: Center(child: footer ?? const SizedBox.shrink())),
+        // The hand changes with the phase — a hold pad, a ballot button, the
+        // witness panel — and it used to change in one frame. It now moves the
+        // way band 3 does, so the whole screen re-dresses as one gesture.
+        Expanded(
+          child: Center(
+            child: AnimatedSwitcher(
+              duration: ReduceMotion.of(context)
+                  ? Duration.zero
+                  : context.motion.band,
+              switchInCurve: context.motion.standardCurve,
+              switchOutCurve: context.motion.standardCurve,
+              transitionBuilder: bandTransition,
+              // Only the incoming hand is ever on screen. A control fading out
+              // is still a control, and a thumb landing on yesterday's button
+              // while today's rises is a move nobody meant to make.
+              layoutBuilder: (current, _) => current ?? const SizedBox.shrink(),
+              child: footer ?? const SizedBox.shrink(),
+            ),
+          ),
+        ),
         if (viewer != null)
           Padding(
             padding: EdgeInsets.only(bottom: spacing.xs),
@@ -411,6 +496,7 @@ class _HandBand extends StatelessWidget {
                   gender: viewer!.gender,
                   diameter: CouncilTokens.viewerSeatSize,
                   ringColor: colors.textPrimary,
+                  speakingLevel: speakingLevel,
                 ),
                 SizedBox(width: spacing.sm),
                 Flexible(
@@ -505,35 +591,51 @@ class _MorningSweepState extends State<_MorningSweep>
 
 class _Backdrop extends StatelessWidget {
   final TableMood mood;
+  final engine.Alignment? winner;
 
-  const _Backdrop({required this.mood});
+  /// The host's presentation pack, already null outside public phases.
+  final PresentationPack? pack;
+
+  const _Backdrop({required this.mood, this.winner, this.pack});
 
   @override
   Widget build(BuildContext context) {
-    final asset = switch (mood.kind) {
-      TableMoodKind.night || TableMoodKind.reveal =>
-        AppCouncilArt.backdropNight,
-      TableMoodKind.morning => AppCouncilArt.backdropDawn,
-      TableMoodKind.discussion || TableMoodKind.lobby =>
-        AppCouncilArt.backdropDay,
-      TableMoodKind.confrontation ||
-      TableMoodKind.vote ||
-      TableMoodKind.result => AppCouncilArt.backdropVerdict,
-    };
+    final result = mood.kind == TableMoodKind.result && winner != null;
+    final asset = result
+        ? (winner == engine.Alignment.mafia
+              ? AppImages.outcomeMafiaWin
+              : AppImages.outcomeTownWin)
+        : switch (mood.kind) {
+            TableMoodKind.night ||
+            TableMoodKind.reveal => AppCouncilArt.backdropNight,
+            TableMoodKind.morning => AppCouncilArt.backdropDawn,
+            TableMoodKind.discussion ||
+            TableMoodKind.lobby => AppCouncilArt.backdropDay,
+            TableMoodKind.confrontation ||
+            TableMoodKind.vote ||
+            TableMoodKind.result => AppCouncilArt.backdropVerdict,
+          };
+    // Only public phases gain motion. Private night/reveal surfaces keep
+    // their existing neutral ground, independent of role and action state.
+    final loop = result
+        ? (winner == engine.Alignment.mafia
+              ? AppVideo.outcomeMafiaWinLoop
+              : AppVideo.outcomeTownWinLoop)
+        : switch (mood.kind) {
+            TableMoodKind.lobby => AppVideo.bgHomeLoop,
+            TableMoodKind.vote => AppVideo.bgVoteLoop,
+            _ => null,
+          };
     return AnimatedSwitcher(
-      duration: ReduceMotion.of(context)
-          ? Duration.zero
-          : context.motion.phase,
+      duration: ReduceMotion.of(context) ? Duration.zero : context.motion.phase,
       child: Opacity(
         key: ValueKey(asset),
         opacity: CouncilTokens.backdropOpacity,
-        child: Image.asset(
-          asset,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-          gaplessPlayback: true,
-          excludeFromSemantics: true,
+        child: PackBackdrop(
+          pack: pack,
+          // The result keeps its outcome picture; the pack only grades it.
+          showArt: !result,
+          child: AmbientMedia(still: asset, loop: loop),
         ),
       ),
     );
@@ -588,4 +690,27 @@ class BandDivider extends StatelessWidget {
       ),
     );
   }
+}
+
+/// How band 3 and the hand swap what they hold: the new content fades in while
+/// rising a few points and settling from a hair under full size; the old one
+/// does the same in reverse. Small distances on purpose — the eye should read
+/// "the same place, re-dressed", not "a new screen".
+Widget bandTransition(Widget child, Animation<double> animation) {
+  return FadeTransition(
+    opacity: animation,
+    child: SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, CouncilTokens.bandSwapRise),
+        end: Offset.zero,
+      ).animate(animation),
+      child: ScaleTransition(
+        scale: Tween<double>(
+          begin: CouncilTokens.bandSwapScale,
+          end: 1,
+        ).animate(animation),
+        child: child,
+      ),
+    ),
+  );
 }

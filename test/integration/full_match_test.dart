@@ -17,8 +17,21 @@ void main() {
     test('7-player match reaches a definite town win and phase==result', () {
       final engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
-        names: const ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace'],
-        roleCounts: const {Role.mafia: 2, Role.doctor: 1, Role.detective: 1, Role.citizen: 3},
+        names: const [
+          'Alice',
+          'Bob',
+          'Charlie',
+          'Diana',
+          'Eve',
+          'Frank',
+          'Grace',
+        ],
+        roleCounts: const {
+          Role.mafia: 2,
+          Role.doctor: 1,
+          Role.detective: 1,
+          Role.citizen: 3,
+        },
         settings: const MatchSettings.defaults(),
         seed: 7,
       );
@@ -30,14 +43,16 @@ void main() {
       }
       expect(engine.match.phase, equals(GamePhase.preNightLobby));
 
-      bool isAlive(int seat) => engine.match.players[seat].status == PlayerStatus.alive;
+      bool isAlive(int seat) =>
+          engine.match.players[seat].status == PlayerStatus.alive;
       List<int> aliveWhere(bool Function(Role) f) => [
-            for (int i = 0; i < 7; i++)
-              if (isAlive(i) && f(engine.match.players[i].role)) i
-          ];
+        for (int i = 0; i < 7; i++)
+          if (isAlive(i) && f(engine.match.players[i].role)) i,
+      ];
 
       int cycles = 0;
-      int? lastProtect; // doctor may not protect the same seat two nights running
+      int?
+      lastProtect; // doctor may not protect the same seat two nights running
       while (engine.match.phase != GamePhase.result && cycles < 12) {
         cycles++;
 
@@ -51,25 +66,50 @@ void main() {
         // violated, and never land on the Doctor themselves — that is the
         // Doctor's one bullet (doc 13 §2) and this fixture never arms it.
         final doctorSeats = aliveWhere((r) => r == Role.doctor).toSet();
-        final coverable =
-            townSeats.where((s) => !doctorSeats.contains(s)).toList();
-        final protectSeat = coverable.firstWhere((s) => s != lastProtect,
-            orElse: () => coverable.isEmpty ? townSeats.first : coverable.first);
+        final coverable = townSeats
+            .where((s) => !doctorSeats.contains(s))
+            .toList();
+        final protectSeat = coverable.firstWhere(
+          (s) => s != lastProtect,
+          orElse: () => coverable.isEmpty ? townSeats.first : coverable.first,
+        );
         lastProtect = protectSeat;
 
         while (engine.match.currentActorSeat != null) {
           final seat = engine.match.currentActorSeat!;
           switch (engine.match.players[seat].role) {
             case Role.mafia:
-              engine.submitNightAction(seat: seat, kind: NightActionKind.mafiaVote, targetSeat: firstAliveTown);
+              engine.submitNightAction(
+                seat: seat,
+                kind: NightActionKind.mafiaVote,
+                targetSeat: firstAliveTown,
+              );
             case Role.doctor:
-              engine.submitNightAction(seat: seat, kind: NightActionKind.protect, targetSeat: protectSeat);
+              engine.submitNightAction(
+                seat: seat,
+                kind: NightActionKind.protect,
+                targetSeat: protectSeat,
+              );
             case Role.detective:
-              final other = [for (int i = 0; i < 7; i++) if (i != seat) i].first;
-              engine.submitNightAction(seat: seat, kind: NightActionKind.investigate, targetSeat: other);
+              final other = [
+                for (int i = 0; i < 7; i++)
+                  if (i != seat) i,
+              ].first;
+              engine.submitNightAction(
+                seat: seat,
+                kind: NightActionKind.investigate,
+                targetSeat: other,
+              );
             case Role.citizen:
-              final other = [for (int i = 0; i < 7; i++) if (i != seat) i].first;
-              engine.submitNightAction(seat: seat, kind: NightActionKind.suspect, targetSeat: other);
+              final other = [
+                for (int i = 0; i < 7; i++)
+                  if (i != seat) i,
+              ].first;
+              engine.submitNightAction(
+                seat: seat,
+                kind: NightActionKind.suspect,
+                targetSeat: other,
+              );
           }
         }
         expect(engine.match.phase, equals(GamePhase.nightResolving));
@@ -108,8 +148,11 @@ void main() {
         expect(engine.match.phase, equals(GamePhase.preNightLobby));
       }
 
-      expect(engine.match.phase, equals(GamePhase.result),
-          reason: 'Match did not reach result after $cycles cycles');
+      expect(
+        engine.match.phase,
+        equals(GamePhase.result),
+        reason: 'Match did not reach result after $cycles cycles',
+      );
       expect(engine.match.outcome, isNotNull);
       expect(engine.match.outcome!.winner, equals(Alignment.town));
     });

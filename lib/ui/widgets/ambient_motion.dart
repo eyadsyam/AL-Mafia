@@ -23,11 +23,7 @@ import 'package:flutter/widgets.dart';
 class AmbientMotion extends InheritedWidget {
   final bool enabled;
 
-  const AmbientMotion({
-    super.key,
-    required this.enabled,
-    required super.child,
-  });
+  const AmbientMotion({super.key, required this.enabled, required super.child});
 
   /// Defaults to `true`: a screen with no scope above it animates. The opt-out
   /// has to be deliberate, so a new surface cannot lose its atmosphere by

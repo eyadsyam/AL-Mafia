@@ -54,14 +54,42 @@ abstract final class CouncilGeometry {
     double margin = 8,
   }) {
     if (seatCount <= 0 || size.isEmpty) return const [];
-    final rows = math.min(rowsFor(totalPlayers), seatCount);
+    final wide = size.width >= CouncilTokens.wideCouncilBreakpoint;
+    final nominal =
+        diameterFor(totalPlayers) *
+        (wide ? CouncilTokens.wideCouncilSeatScale : 1);
+    // A wide band picks its row count from the width *and* the height. It
+    // used to pack as many chairs across as the width allowed and stack the
+    // rest, which on a phone held sideways (844x390, band ~130px tall) put
+    // five chairs in two rows of a band that had room for one and drew them
+    // sixteen pixels wide (E-3). Every row count is tried and the one that
+    // gives the largest chair wins; a tie goes to the fewer rows.
+    var rows = wide ? 1 : math.min(rowsFor(totalPlayers), seatCount);
+    if (wide) {
+      final wideGap = CouncilTokens.wideCouncilTargetGap;
+      var best = 0.0;
+      for (var candidate = 1; candidate <= seatCount; candidate++) {
+        final columns = (seatCount / candidate).ceil();
+        final widthFit =
+            (size.width - margin * 2 - wideGap * (columns - 1)) / columns;
+        final heightFit =
+            (size.height / candidate - wideGap - CouncilTokens.nameHeight) /
+            (1 + CouncilTokens.arcDepth);
+        final fit = math.min(nominal, math.min(widthFit, heightFit));
+        if (fit > best) {
+          best = fit;
+          rows = candidate;
+        }
+      }
+    }
     final base = seatCount ~/ rows;
     final remainder = seatCount % rows;
     final counts = <int>[
       for (var row = 0; row < rows; row++) base + (row < remainder ? 1 : 0),
     ];
-    final nominal = diameterFor(totalPlayers);
-    final gap = gapFor(totalPlayers);
+    final gap = wide
+        ? CouncilTokens.wideCouncilTargetGap
+        : gapFor(totalPlayers);
     final rowHeight = size.height / rows;
     final answer = <CouncilSeatLayout>[];
 

@@ -49,6 +49,10 @@ class PlayerAvatar extends StatelessWidget {
   /// one composited image.
   final bool occupied;
 
+  /// Local audio level for the viewer's own avatar. Council seats use the
+  /// single council painter; this covers the separate Band 4 avatar.
+  final double speakingLevel;
+
   const PlayerAvatar({
     super.key,
     required this.name,
@@ -56,6 +60,7 @@ class PlayerAvatar extends StatelessWidget {
     required this.diameter,
     this.ringColor,
     this.occupied = true,
+    this.speakingLevel = 0,
   });
 
   /// How much of the ring's diameter the art fills. The ring art has its own
@@ -69,41 +74,107 @@ class PlayerAvatar extends StatelessWidget {
     final tint = ringColor ?? colors.borderSubtle;
     final art = occupied ? AvatarArt.forGender(gender) : null;
 
+    final pulseOverflow = diameter * CouncilTokens.voicePulseMaxRadiusRatio;
     return SizedBox(
       width: diameter,
       height: diameter,
       child: Stack(
+        clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
-          Image.asset(
-            AppCouncilArt.seatRingIdle,
-            width: diameter,
-            height: diameter,
-            color: tint,
-            filterQuality: FilterQuality.medium,
+          Positioned(
+            left: -pulseOverflow,
+            top: -pulseOverflow,
+            width: diameter + pulseOverflow * 2,
+            height: diameter + pulseOverflow * 2,
+            child: CustomPaint(
+              painter: _AvatarPulsePainter(
+                level: speakingLevel,
+                color: colors.accentGold,
+                ringDiameter: diameter,
+              ),
+            ),
           ),
-          if (art != null)
-            ClipOval(
-              child: Image.asset(
-                art,
-                width: diameter * artRatio,
-                height: diameter * artRatio,
-                fit: BoxFit.cover,
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Image.asset(
+                AppCouncilArt.seatRingIdle,
+                width: diameter,
+                height: diameter,
+                color: tint,
                 filterQuality: FilterQuality.medium,
               ),
-            )
-          else if (occupied && name.isNotEmpty)
-            Text(
-              name.characters.first,
-              style: context.typography.title.copyWith(
-                color: colors.textPrimary,
-              ),
-              textAlign: TextAlign.center,
-            ),
+              if (art != null)
+                ClipOval(
+                  child: Image.asset(
+                    art,
+                    width: diameter * artRatio,
+                    height: diameter * artRatio,
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.medium,
+                  ),
+                )
+              else if (occupied && name.isNotEmpty)
+                Text(
+                  name.characters.first,
+                  style: context.typography.title.copyWith(
+                    color: colors.textPrimary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+            ],
+          ),
         ],
       ),
     );
   }
+}
+
+class _AvatarPulsePainter extends CustomPainter {
+  final double level;
+  final Color color;
+  final double ringDiameter;
+
+  const _AvatarPulsePainter({
+    required this.level,
+    required this.color,
+    required this.ringDiameter,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final value = level.clamp(0.0, 1.0).toDouble();
+    if (value <= CouncilTokens.voicePulseThreshold) return;
+    final strength =
+        ((value - CouncilTokens.voicePulseThreshold) /
+                (1 - CouncilTokens.voicePulseThreshold))
+            .clamp(0.0, 1.0)
+            .toDouble();
+    for (var wave = 0; wave < 2; wave++) {
+      final radius =
+          ringDiameter / 2 +
+          ringDiameter *
+              (CouncilTokens.voicePulseSpacingRatio * (wave + 1) +
+                  CouncilTokens.voicePulseMaxRadiusRatio * strength);
+      canvas.drawCircle(
+        size.center(Offset.zero),
+        radius,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = CouncilTokens.voicePulseWidth
+          ..color = color.withValues(
+            alpha: CouncilTokens.voicePulseAlpha * strength * (1 - wave * 0.2),
+          ),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_AvatarPulsePainter old) =>
+      old.level != level ||
+      old.color != color ||
+      old.ringDiameter != ringDiameter;
 }
 
 /// The size the offline lists draw an avatar at.

@@ -15,6 +15,19 @@ class MafiaTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      // One way to move between screens, everywhere: the old one sinks into
+      // the dark as the new one rises out of it. Android's default zoom read
+      // as a system settings app, not a noir table.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: NoirPageTransitionsBuilder(),
+          TargetPlatform.iOS: NoirPageTransitionsBuilder(),
+          TargetPlatform.windows: NoirPageTransitionsBuilder(),
+          TargetPlatform.macOS: NoirPageTransitionsBuilder(),
+          TargetPlatform.linux: NoirPageTransitionsBuilder(),
+          TargetPlatform.fuchsia: NoirPageTransitionsBuilder(),
+        },
+      ),
       // Kept in step with MafiaColors.dark by hand. Material only reaches for
       // these on widgets the design system does not style itself (text
       // selection handles, the default cursor), so a drift here shows up as one
@@ -111,6 +124,52 @@ class MafiaTheme {
           ),
         ),
       ),
+      // Material's default selected segment is a tonal green that belongs to
+      // no palette here. Selected reads as the gold filled button; the rest
+      // as the outlined one, so a segmented choice looks like the buttons
+      // around it in both directions.
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              if (states.contains(WidgetState.disabled)) {
+                return colors.surfaceRaised;
+              }
+              return states.contains(WidgetState.pressed)
+                  ? colors.accentGoldPressed
+                  : colors.accentGold;
+            }
+            return colors.surfaceBase;
+          }),
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) return colors.textMuted;
+            if (states.contains(WidgetState.selected))
+              return colors.surfaceBase;
+            return colors.textPrimary;
+          }),
+          iconColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) return colors.textMuted;
+            if (states.contains(WidgetState.selected))
+              return colors.surfaceBase;
+            return colors.textPrimary;
+          }),
+          side: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused) ||
+                states.contains(WidgetState.selected)) {
+              return BorderSide(color: colors.accentGold);
+            }
+            return BorderSide(color: colors.borderSubtle);
+          }),
+          overlayColor: WidgetStateProperty.all(colors.surfaceOverlay),
+          minimumSize: WidgetStateProperty.all(const Size(64, 48)),
+          textStyle: WidgetStateProperty.all(typography.body),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(radii.button),
+            ),
+          ),
+        ),
+      ),
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
           foregroundColor: WidgetStateProperty.resolveWith((states) {
@@ -160,7 +219,15 @@ class MafiaTheme {
         }),
         overlayColor: WidgetStateProperty.all(colors.surfaceOverlay),
       ),
-      extensions: [colors, spacing, radii, motion, timing, typography, elevation],
+      extensions: [
+        colors,
+        spacing,
+        radii,
+        motion,
+        timing,
+        typography,
+        elevation,
+      ],
     );
   }
 }
@@ -207,10 +274,12 @@ extension MafiaEmphasis on TextStyle {
   TextStyle get emphasised {
     final axes = fontVariations;
     if (axes != null && axes.any((axis) => axis.axis == 'wght')) {
-      return copyWith(fontVariations: <FontVariation>[
-        for (final axis in axes)
-          if (axis.axis == 'wght') const FontVariation('wght', 900) else axis,
-      ]);
+      return copyWith(
+        fontVariations: <FontVariation>[
+          for (final axis in axes)
+            if (axis.axis == 'wght') const FontVariation('wght', 900) else axis,
+        ],
+      );
     }
     return copyWith(fontWeight: FontWeight.w600);
   }
@@ -219,8 +288,7 @@ extension MafiaEmphasis on TextStyle {
 /// Convenient extensions on [BuildContext] to access theme tokens.
 extension MafiaThemeX on BuildContext {
   /// The shadow ladder. One light source; see [MafiaElevation].
-  MafiaElevation get elevation =>
-      Theme.of(this).extension<MafiaElevation>()!;
+  MafiaElevation get elevation => Theme.of(this).extension<MafiaElevation>()!;
 
   MafiaColors get colors => Theme.of(this).extension<MafiaColors>()!;
   MafiaSpacing get spacing => Theme.of(this).extension<MafiaSpacing>()!;
@@ -229,4 +297,45 @@ extension MafiaThemeX on BuildContext {
   MafiaTiming get timing => Theme.of(this).extension<MafiaTiming>()!;
   MafiaTypography get typography =>
       Theme.of(this).extension<MafiaTypography>()!;
+}
+
+/// The app's screen change: a fade through the dark with a slight settle.
+class NoirPageTransitionsBuilder extends PageTransitionsBuilder {
+  const NoirPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    // The platform's own "remove animations" switch; the in-app Reduce Motion
+    // preference is folded into the same MediaQuery flag by the app shell.
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) return child;
+    final entering = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    );
+    final leaving = CurvedAnimation(
+      parent: secondaryAnimation,
+      curve: Curves.easeInCubic,
+      reverseCurve: Curves.easeOutCubic,
+    );
+    return FadeTransition(
+      opacity: entering,
+      child: ScaleTransition(
+        scale: Tween<double>(
+          begin: MafiaMotion.pageEnterScale,
+          end: 1,
+        ).animate(entering),
+        child: FadeTransition(
+          opacity: Tween<double>(begin: 1, end: 0).animate(leaving),
+          child: child,
+        ),
+      ),
+    );
+  }
 }

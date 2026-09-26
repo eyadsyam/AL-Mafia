@@ -150,8 +150,9 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
                       padding: EdgeInsets.only(bottom: spacing.sm),
                       child: Text(
                         l10n.whisperLanguageWarning,
-                        style: type.bodySmall
-                            .copyWith(color: colors.accentCrimson),
+                        style: type.bodySmall.copyWith(
+                          color: colors.accentCrimson,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),

@@ -27,7 +27,8 @@ class InvestigateResult {
   int get hashCode => targetSeat.hashCode ^ revealedRole.hashCode;
 
   @override
-  String toString() => 'InvestigateResult(targetSeat=$targetSeat, revealedRole=$revealedRole)';
+  String toString() =>
+      'InvestigateResult(targetSeat=$targetSeat, revealedRole=$revealedRole)';
 }
 
 /// A night action taken by a player.
@@ -83,11 +84,7 @@ class Vote {
   final int voterSeat;
   final int? targetSeat; // null means abstain
 
-  const Vote({
-    required this.day,
-    required this.voterSeat,
-    this.targetSeat,
-  });
+  const Vote({required this.day, required this.voterSeat, this.targetSeat});
 
   @override
   bool operator ==(Object other) =>
@@ -102,7 +99,8 @@ class Vote {
   int get hashCode => day.hashCode ^ voterSeat.hashCode ^ targetSeat.hashCode;
 
   @override
-  String toString() => 'Vote(day=$day, voterSeat=$voterSeat, targetSeat=$targetSeat)';
+  String toString() =>
+      'Vote(day=$day, voterSeat=$voterSeat, targetSeat=$targetSeat)';
 }
 
 /// Base class for all timeline events.
@@ -112,10 +110,7 @@ sealed class TimelineEvent {
   final DateTime at;
   final PhaseRef phaseRef;
 
-  const TimelineEvent({
-    required this.at,
-    required this.phaseRef,
-  });
+  const TimelineEvent({required this.at, required this.phaseRef});
 }
 
 /// A role was assigned to a player at distribution.
@@ -145,15 +140,14 @@ class RoleAssigned extends TimelineEvent {
       at.hashCode ^ phaseRef.hashCode ^ seat.hashCode ^ role.hashCode;
 
   @override
-  String toString() => 'RoleAssigned(at=$at, phaseRef=$phaseRef, seat=$seat, role=$role)';
+  String toString() =>
+      'RoleAssigned(at=$at, phaseRef=$phaseRef, seat=$seat, role=$role)';
 }
 
 /// The night phase has started.
 class NightOpened extends TimelineEvent {
-  const NightOpened({
-    required DateTime at,
-    required PhaseRef phaseRef,
-  }) : super(at: at, phaseRef: phaseRef);
+  const NightOpened({required DateTime at, required PhaseRef phaseRef})
+    : super(at: at, phaseRef: phaseRef);
 
   @override
   bool operator ==(Object other) =>
@@ -194,7 +188,10 @@ class MafiaVoteCast extends TimelineEvent {
 
   @override
   int get hashCode =>
-      at.hashCode ^ phaseRef.hashCode ^ actorSeat.hashCode ^ targetSeat.hashCode;
+      at.hashCode ^
+      phaseRef.hashCode ^
+      actorSeat.hashCode ^
+      targetSeat.hashCode;
 
   @override
   String toString() =>
@@ -225,7 +222,10 @@ class ProtectCast extends TimelineEvent {
 
   @override
   int get hashCode =>
-      at.hashCode ^ phaseRef.hashCode ^ actorSeat.hashCode ^ targetSeat.hashCode;
+      at.hashCode ^
+      phaseRef.hashCode ^
+      actorSeat.hashCode ^
+      targetSeat.hashCode;
 
   @override
   String toString() =>
@@ -256,7 +256,10 @@ class InvestigateCast extends TimelineEvent {
 
   @override
   int get hashCode =>
-      at.hashCode ^ phaseRef.hashCode ^ actorSeat.hashCode ^ targetSeat.hashCode;
+      at.hashCode ^
+      phaseRef.hashCode ^
+      actorSeat.hashCode ^
+      targetSeat.hashCode;
 
   @override
   String toString() =>
@@ -325,7 +328,10 @@ class NightResolved extends TimelineEvent {
 
   @override
   int get hashCode =>
-      at.hashCode ^ phaseRef.hashCode ^ victimSeat.hashCode ^ savedSeat.hashCode;
+      at.hashCode ^
+      phaseRef.hashCode ^
+      victimSeat.hashCode ^
+      savedSeat.hashCode;
 
   @override
   String toString() =>
@@ -334,10 +340,8 @@ class NightResolved extends TimelineEvent {
 
 /// The morning briefing has been announced.
 class MorningAnnounced extends TimelineEvent {
-  const MorningAnnounced({
-    required DateTime at,
-    required PhaseRef phaseRef,
-  }) : super(at: at, phaseRef: phaseRef);
+  const MorningAnnounced({required DateTime at, required PhaseRef phaseRef})
+    : super(at: at, phaseRef: phaseRef);
 
   @override
   bool operator ==(Object other) =>
@@ -356,10 +360,8 @@ class MorningAnnounced extends TimelineEvent {
 
 /// A discussion round has started.
 class DiscussionRound extends TimelineEvent {
-  const DiscussionRound({
-    required DateTime at,
-    required PhaseRef phaseRef,
-  }) : super(at: at, phaseRef: phaseRef);
+  const DiscussionRound({required DateTime at, required PhaseRef phaseRef})
+    : super(at: at, phaseRef: phaseRef);
 
   @override
   bool operator ==(Object other) =>
@@ -527,13 +529,13 @@ class DayResolved extends TimelineEvent {
 
   @override
   int get hashCode => Object.hash(
-        at,
-        phaseRef,
-        eliminatedSeat,
-        Object.hashAll([
-          for (final key in tally.keys.toList()..sort()) '$key:${tally[key]}',
-        ]),
-      );
+    at,
+    phaseRef,
+    eliminatedSeat,
+    Object.hashAll([
+      for (final key in tally.keys.toList()..sort()) '$key:${tally[key]}',
+    ]),
+  );
 
   @override
   String toString() =>
@@ -589,5 +591,6 @@ class WinReached extends TimelineEvent {
   int get hashCode => at.hashCode ^ phaseRef.hashCode ^ alignment.hashCode;
 
   @override
-  String toString() => 'WinReached(at=$at, phaseRef=$phaseRef, alignment=$alignment)';
+  String toString() =>
+      'WinReached(at=$at, phaseRef=$phaseRef, alignment=$alignment)';
 }

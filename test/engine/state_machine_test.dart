@@ -13,7 +13,12 @@ void main() {
 
     setUp(() {
       playerNames = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve'];
-      roleCounts = {Role.mafia: 2, Role.detective: 1, Role.doctor: 1, Role.citizen: 1};
+      roleCounts = {
+        Role.mafia: 2,
+        Role.detective: 1,
+        Role.doctor: 1,
+        Role.citizen: 1,
+      };
     });
 
     test('start → distributing phase', () {
@@ -84,7 +89,10 @@ void main() {
       expect(engine.match.dayNumber, equals(1));
       expect(engine.match.currentActorSeat, isNotNull);
       // currentActorSeat should reference an alive player
-      expect(engine.match.players[engine.match.currentActorSeat!].status, equals(PlayerStatus.alive));
+      expect(
+        engine.match.players[engine.match.currentActorSeat!].status,
+        equals(PlayerStatus.alive),
+      );
     });
 
     test('night loop skips dead players', () {
@@ -167,7 +175,9 @@ void main() {
       expect(engine.match.phase, equals(GamePhase.night));
 
       // Night has one NightOpened event
-      final nightOpenedEvents = engine.match.eventLog.whereType<NightOpened>().toList();
+      final nightOpenedEvents = engine.match.eventLog
+          .whereType<NightOpened>()
+          .toList();
       expect(nightOpenedEvents.length, equals(1));
     });
   });

@@ -1,0 +1,11 @@
+Work in D:/Flutter Data/Projects/AL Mafia/.claude/worktrees/crash-fixes-and-testing-b6c2f5, not main.
+
+Read docs/PARALLEL-93.md first, then the relevant sections of docs/CLAUDE-CONTINUE-92-93.md. Codex owns the design/online fixes and has frozen the source. You own independent final verification and candidate builds. No Docker, production publication, account changes, payment activation, real transactions or additional image generation. Do not reset/clean/overwrite earlier work or deliverables.
+
+1. Independently review the three risks in docs/CLAUDE-REVIEW-93-PROMPT.txt. Record concrete findings in docs/CLAUDE-REVIEW-93.md. Fix actual defects only, with meaningful regression coverage; preserve doc05 secrecy. Coordinate any source changes through docs/PARALLEL-93.md.
+2. Run the complete Flutter suite with concurrency2, once after source is stable, plus analyze. Previous partial951/1skip is not a full pass. Codex's latest81/81 core,22/22 capture/UI,3/3 ballot and clean analyze are focused evidence, not release completion.
+3. Build new signed online-configured1.1.1+4 APK, AAB and web candidates in build/deliverables-1.1.1/. Preserve1.1.0. Use existing scripts/configs/signing, never print secrets, never tool/build_web.ps1 -Publish. Keep monetization disabled where configuration/server gates are not complete. Validate R8, native16KB alignment and signer; generate SHA256SUMS.
+4. Verify the actual new build on Pixel_9_Pro_2 and available browser: startup, online option and public rooms, mode back navigation, onboarding AR/EN, language in place, saved terms and deep-link continuity. Preserve existing emulator data, isolate/back up test state before any reset. Capture downscaled screenshots. Do not claim voice/full-match/device coverage from widget images.
+5. Write docs/CLAUDE-VERIFY-93.md with commands, exact results, actual artifact paths/hashes, PASS/PARTIAL/FAIL/NOT VERIFIED and clear remaining human checks. Let Codex integrate PROGRESS to avoid concurrent edits. Final real human match remains with the owner. No claim of zero possible bugs or publish readiness without evidence.
+
+Minimize tokens: targeted reads and log tails, no redundant full reruns, no agents unless independent work actually benefits. No gameplay mechanic changes; the neighbourhood-round idea is only a future discussion.

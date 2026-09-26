@@ -32,46 +32,30 @@ Deno.serve(handler(async (req, userId, db) => {
     return fail("PHASE_CLOSED", "whispers are off for this match");
   }
 
-  const { data: target } = await db
-    .from("room_players")
-    .select("user_id, alive")
-    .eq("room_id", roomId)
-    .eq("seat", toSeat)
-    .maybeSingle();
-  if (!target) return fail("BAD_REQUEST", "no such seat");
-  if (!target.alive) return fail("BAD_REQUEST", "that player is dead");
-
-  const { data: meta, error } = await db
-    .from("whisper_meta")
-    .insert({
-      room_id: roomId,
-      day: me.phaseNumber,
-      from_id: userId,
-      to_id: target.user_id,
-    })
-    .select("id")
-    .single();
+  if (!Number.isInteger(toSeat) || toSeat < 0) return fail("BAD_REQUEST", "no such seat");
+  // The room lock serializes sends with phase changes and removals. Both
+  // tables commit together, before Realtime can notify the recipient.
+  const { data: id, error } = await db.rpc("commit_whisper", {
+    p_room: roomId, p_sender: userId, p_seat: toSeat,
+    p_day: me.phaseNumber, p_body: text,
+  });
 
   if (error) {
     if (error.code === "23505") {
       return fail("RATE_LIMITED", "you have already whispered today");
     }
+    const message = String(error.message ?? "");
+    if (message === "PHASE_CLOSED") return fail("PHASE_CLOSED", "whispers are closed");
+    if (message === "NOT_A_MEMBER") return fail("NOT_A_MEMBER", "you are not in that room", 403);
+    if (message === "NOT_ALIVE") return fail("NOT_ALIVE", "the dead do not whisper", 403);
+    if (message === "ROOM_NOT_FOUND") return fail("ROOM_NOT_FOUND", "no such room", 404);
+    if (message === "BAD_REQUEST") return fail("BAD_REQUEST", "invalid whisper");
     throw error;
-  }
-
-  const { error: bodyError } = await db
-    .from("whisper_content")
-    .insert({ whisper_id: meta.id, body: text });
-  if (bodyError) {
-    // The edge is public and the body is not there — a whisper the table can
-    // see and the recipient cannot read. Undo it rather than leave that.
-    await db.from("whisper_meta").delete().eq("id", meta.id);
-    throw bodyError;
   }
 
   // H-E9 — a blocked sender's whisper is dropped for the recipient, and the
   // sender is told nothing at all. The row exists, the graph shows it, and the
   // recipient's client simply never fetches the body. Building the drop here,
   // as a deletion, would be observable to the sender.
-  return ok({ id: meta.id });
+  return ok({ id });
 }));

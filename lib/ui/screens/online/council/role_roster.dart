@@ -38,14 +38,23 @@ class RosterCard extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(radii.card),
-          child: Image.asset(
-            faceFor(role),
-            width: CouncilTokens.cardRiseSize,
-            height: CouncilTokens.cardRiseSize,
-            fit: BoxFit.cover,
-            excludeFromSemantics: true,
+        // The whole card, frame included, as large as the page allows.
+        Flexible(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: CouncilTokens.cardRiseSize,
+            ),
+            child: AspectRatio(
+              aspectRatio: CouncilTokens.cardArtAspect,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(radii.card),
+                child: Image.asset(
+                  faceFor(role),
+                  fit: BoxFit.contain,
+                  excludeFromSemantics: true,
+                ),
+              ),
+            ),
           ),
         ),
         SizedBox(height: spacing.md),
@@ -113,11 +122,7 @@ class RoleRoster extends StatefulWidget {
   /// Called when the player is done looking.
   final VoidCallback onClose;
 
-  const RoleRoster({
-    super.key,
-    required this.standings,
-    required this.onClose,
-  });
+  const RoleRoster({super.key, required this.standings, required this.onClose});
 
   static const Key page = ValueKey('council_role_roster');
   static const Key pager = ValueKey('council_role_roster_pager');

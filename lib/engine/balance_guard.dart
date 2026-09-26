@@ -21,10 +21,7 @@ class BalanceIssue {
   /// Whether this issue blocks match start.
   final bool blocking;
 
-  const BalanceIssue({
-    required this.code,
-    required this.blocking,
-  });
+  const BalanceIssue({required this.code, required this.blocking});
 
   @override
   String toString() => 'BalanceIssue(code=$code, blocking=$blocking)';
@@ -38,10 +35,7 @@ class BalanceReport {
   /// All issues, blocking first (sorted by blocking descending).
   final List<BalanceIssue> issues;
 
-  const BalanceReport({
-    required this.valid,
-    required this.issues,
-  });
+  const BalanceReport({required this.valid, required this.issues});
 
   @override
   String toString() => 'BalanceReport(valid=$valid, issues=${issues.length})';
@@ -71,25 +65,22 @@ class BalanceGuard {
 
     // Blocking: player count out of range
     if (playerCount < 5) {
-      issues.add(const BalanceIssue(
-        code: 'player_count_too_low',
-        blocking: true,
-      ));
+      issues.add(
+        const BalanceIssue(code: 'player_count_too_low', blocking: true),
+      );
     }
     if (playerCount > 20) {
-      issues.add(const BalanceIssue(
-        code: 'player_count_too_high',
-        blocking: true,
-      ));
+      issues.add(
+        const BalanceIssue(code: 'player_count_too_high', blocking: true),
+      );
     }
 
     // Blocking: negative counts
     for (final entry in roleCounts.entries) {
       if (entry.value < 0) {
-        issues.add(const BalanceIssue(
-          code: 'negative_role_count',
-          blocking: true,
-        ));
+        issues.add(
+          const BalanceIssue(code: 'negative_role_count', blocking: true),
+        );
         break; // Report once
       }
     }
@@ -97,55 +88,46 @@ class BalanceGuard {
     // Blocking: counts don't sum to player count
     final roleSum = roleCounts.values.fold(0, (a, b) => a + b);
     if (roleSum != playerCount) {
-      issues.add(const BalanceIssue(
-        code: 'role_count_mismatch',
-        blocking: true,
-      ));
+      issues.add(
+        const BalanceIssue(code: 'role_count_mismatch', blocking: true),
+      );
     }
 
     final mafiaCount = roleCounts[Role.mafia] ?? 0;
 
     // Blocking: no mafia
     if (mafiaCount < 1) {
-      issues.add(const BalanceIssue(
-        code: 'no_mafia',
-        blocking: true,
-      ));
+      issues.add(const BalanceIssue(code: 'no_mafia', blocking: true));
     }
 
     // Blocking: mafia >= half of players
     if (mafiaCount * 2 >= playerCount) {
-      issues.add(const BalanceIssue(
-        code: 'mafia_too_many',
-        blocking: true,
-      ));
+      issues.add(const BalanceIssue(code: 'mafia_too_many', blocking: true));
     }
 
     // Advisory: recommend 3 Mafia at 9+
     if (playerCount >= 9 && mafiaCount != 3) {
-      issues.add(const BalanceIssue(
-        code: 'recommend_three_mafia',
-        blocking: false,
-      ));
+      issues.add(
+        const BalanceIssue(code: 'recommend_three_mafia', blocking: false),
+      );
     }
 
     // Advisory: 2+ detectives below 11 players
     final detectiveCount = roleCounts[Role.detective] ?? 0;
     if (detectiveCount >= 2 && playerCount < 11) {
-      issues.add(const BalanceIssue(
-        code: 'two_detectives_low_player_count',
-        blocking: false,
-      ));
+      issues.add(
+        const BalanceIssue(
+          code: 'two_detectives_low_player_count',
+          blocking: false,
+        ),
+      );
     }
 
     // Sort: blocking first (true > false)
     issues.sort((a, b) => (b.blocking ? 1 : 0).compareTo(a.blocking ? 1 : 0));
 
     final hasBlocking = issues.any((i) => i.blocking);
-    return BalanceReport(
-      valid: !hasBlocking,
-      issues: issues,
-    );
+    return BalanceReport(valid: !hasBlocking, issues: issues);
   }
 
   /// Returns a sensible default role distribution for the given player count.

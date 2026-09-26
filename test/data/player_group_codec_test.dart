@@ -21,26 +21,25 @@ void main() {
     List<String>? members,
     Map<Role, int>? roleCounts,
     MatchSettings? settings,
-  }) =>
-      PlayerGroup(
-        id: 7,
-        name: 'شلة الجمعة',
-        memberNames: members ??
-            const ['Ahmed', 'Fatima', 'Salem', 'Laila', 'Omar', 'Nada'],
-        createdAt: now,
-        lastPlayedAt: now.add(const Duration(days: 3)),
-        playCount: 12,
-        lastRoleCounts: roleCounts,
-        lastSettings: settings,
-      );
+  }) => PlayerGroup(
+    id: 7,
+    name: 'شلة الجمعة',
+    memberNames:
+        members ?? const ['Ahmed', 'Fatima', 'Salem', 'Laila', 'Omar', 'Nada'],
+    createdAt: now,
+    lastPlayedAt: now.add(const Duration(days: 3)),
+    playCount: 12,
+    lastRoleCounts: roleCounts,
+    lastSettings: settings,
+  );
 
   /// Encodes, stringifies and reads back — the same path storage takes, so a
   /// value that only survives in memory does not pass.
   PlayerGroup roundTrip(PlayerGroup group) => PlayerGroupCodec.decode(
-        jsonDecode(jsonEncode(PlayerGroupCodec.encode(group)))
-            as Map<String, dynamic>,
-        id: group.id,
-      );
+    jsonDecode(jsonEncode(PlayerGroupCodec.encode(group)))
+        as Map<String, dynamic>,
+    id: group.id,
+  );
 
   group('round trip', () {
     test('every field survives', () {
@@ -62,10 +61,14 @@ void main() {
       expect(restored.lastPlayedAt, equals(original.lastPlayedAt));
       expect(restored.playCount, equals(original.playCount));
       expect(restored.lastRoleCounts, equals(original.lastRoleCounts));
-      expect(restored.lastSettings?.speechSeconds,
-          equals(original.lastSettings?.speechSeconds));
-      expect(restored.lastSettings?.dayTieRule,
-          equals(original.lastSettings?.dayTieRule));
+      expect(
+        restored.lastSettings?.speechSeconds,
+        equals(original.lastSettings?.speechSeconds),
+      );
+      expect(
+        restored.lastSettings?.dayTieRule,
+        equals(original.lastSettings?.dayTieRule),
+      );
     });
 
     test('seating order is preserved exactly, not just as a set', () {
@@ -74,9 +77,13 @@ void main() {
       const seated = ['Zaid', 'Ahmed', 'يوسف', 'Mona', 'أحمد', 'Basel'];
       final restored = roundTrip(sample(members: seated));
 
-      expect(restored.memberNames, orderedEquals(seated),
-          reason: 'member order is the seating order and therefore the '
-              'phone-passing order — it may never be re-sorted');
+      expect(
+        restored.memberNames,
+        orderedEquals(seated),
+        reason:
+            'member order is the seating order and therefore the '
+            'phone-passing order — it may never be re-sorted',
+      );
     });
 
     test('a group that has never played round-trips with no configuration', () {
@@ -84,9 +91,13 @@ void main() {
 
       expect(restored.lastRoleCounts, isNull);
       expect(restored.lastSettings, isNull);
-      expect(restored.canQuickStart, isFalse,
-          reason: 'a group with no remembered configuration must not offer to '
-              'skip the roles and settings screens');
+      expect(
+        restored.canQuickStart,
+        isFalse,
+        reason:
+            'a group with no remembered configuration must not offer to '
+            'skip the roles and settings screens',
+      );
     });
 
     test('roles are keyed by name, so reordering the enum cannot reinterpret '
@@ -99,26 +110,33 @@ void main() {
       expect(counts.keys, containsAll(<String>['mafia', 'citizen']));
       for (final key in counts.keys) {
         expect(key, isA<String>());
-        expect(int.tryParse(key as String), isNull,
-            reason: 'an enum index in storage silently reinterprets every '
-                'stored group the day someone reorders `Role`');
+        expect(
+          int.tryParse(key as String),
+          isNull,
+          reason:
+              'an enum index in storage silently reinterprets every '
+              'stored group the day someone reorders `Role`',
+        );
       }
     });
 
-    test('an unknown role name is a format error rather than a silent drop', () {
-      expect(
-        () => PlayerGroupCodec.decode({
-          'name': 'x',
-          'memberNames': const <String>[],
-          'createdAt': now.toIso8601String(),
-          'lastPlayedAt': now.toIso8601String(),
-          'playCount': 0,
-          'lastRoleCounts': const {'jester': 1},
-          'lastSettings': null,
-        }, id: 1),
-        throwsFormatException,
-      );
-    });
+    test(
+      'an unknown role name is a format error rather than a silent drop',
+      () {
+        expect(
+          () => PlayerGroupCodec.decode({
+            'name': 'x',
+            'memberNames': const <String>[],
+            'createdAt': now.toIso8601String(),
+            'lastPlayedAt': now.toIso8601String(),
+            'playCount': 0,
+            'lastRoleCounts': const {'jester': 1},
+            'lastSettings': null,
+          }, id: 1),
+          throwsFormatException,
+        );
+      },
+    );
   });
 
   group('roster comparison', () {
@@ -130,16 +148,24 @@ void main() {
       final swapped = [...group.memberNames];
       final first = swapped.removeAt(0);
       swapped.insert(1, first);
-      expect(group.hasRoster(swapped), isFalse,
-          reason: 'the same people seated differently is a change to the '
-              'group, which is what lets the app offer to save the new order');
+      expect(
+        group.hasRoster(swapped),
+        isFalse,
+        reason:
+            'the same people seated differently is a change to the '
+            'group, which is what lets the app offer to save the new order',
+      );
     });
 
     test('hasSameMembers ignores order', () {
       final shuffled = [...group.memberNames.reversed];
-      expect(group.hasSameMembers(shuffled), isTrue,
-          reason: 'the save prompt must not offer to re-save people the app '
-              'already knows just because they sat down differently');
+      expect(
+        group.hasSameMembers(shuffled),
+        isTrue,
+        reason:
+            'the save prompt must not offer to re-save people the app '
+            'already knows just because they sat down differently',
+      );
       expect(group.hasSameMembers([...group.memberNames, 'Karim']), isFalse);
     });
   });
@@ -159,10 +185,13 @@ void main() {
     for (final name in sample().memberNames) {
       // A member's name may appear exactly once — in the roster. Anywhere else
       // means something is being recorded *about* them.
-      expect(RegExp(RegExp.escape('"$name"')).allMatches(serialised).length,
-          equals(1),
-          reason: '$name appears more than once in a stored group, which means '
-              'the group carries per-player data beyond the roster');
+      expect(
+        RegExp(RegExp.escape('"$name"')).allMatches(serialised).length,
+        equals(1),
+        reason:
+            '$name appears more than once in a stored group, which means '
+            'the group carries per-player data beyond the roster',
+      );
     }
   });
 }

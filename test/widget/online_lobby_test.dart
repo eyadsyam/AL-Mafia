@@ -1,3 +1,6 @@
+import 'package:mafia_master/data/player_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../support/stores.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +8,7 @@ import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/screens/online/lobby_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_entry_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
+import 'package:mafia_master/ui/screens/online/voice_session.dart';
 import 'package:mafia_master/ui/screens/online/council/council_band.dart';
 import 'package:mafia_master/ui/screens/online/council/seat_status.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
@@ -22,6 +26,7 @@ import '../support/localized.dart';
 /// they are widget tests — the transport's half of the same cases is in
 /// `test/transport/online_transport_test.dart`.
 void main() {
+  setUp(seedReturningProfile);
   late FakeBackend backend;
 
   ProviderContainer containerWith({
@@ -33,7 +38,8 @@ void main() {
   }) {
     backend = FakeBackend(
       roomId: 'room-1',
-      state: state ?? roomState(phase: 'lobby', phaseNumber: 0, status: 'lobby'),
+      state:
+          state ?? roomState(phase: 'lobby', phaseNumber: 0, status: 'lobby'),
       players: players ?? roster(3),
       own: own ?? const OwnSeat(seat: 0),
       userId: userId,
@@ -42,17 +48,24 @@ void main() {
       backend.refusals['joinRoom'] = refuseJoin;
       backend.stickyRefusals.add('joinRoom');
     }
-    final container = ProviderContainer(overrides: [
-      onlineBackendFactoryProvider.overrideWithValue(() async => backend),
-      // No periodic beat: a widget test that left one running would fail on a
-      // pending timer, and nothing on these screens is driven by it.
-      onlineHeartbeatProvider.overrideWithValue(Duration.zero),
-    ]);
+    final container = ProviderContainer(
+      overrides: [
+        onlineBackendFactoryProvider.overrideWithValue(() async => backend),
+        // No periodic beat: a widget test that left one running would fail on a
+        // pending timer, and nothing on these screens is driven by it.
+        onlineHeartbeatProvider.overrideWithValue(Duration.zero),
+        voiceStatsIntervalProvider.overrideWithValue(Duration.zero),
+      ],
+    );
     addTearDown(container.dispose);
+    container.read(playerProfileProvider);
     return container;
   }
 
-  Future<void> pumpLobby(WidgetTester tester, ProviderContainer container) async {
+  Future<void> pumpLobby(
+    WidgetTester tester,
+    ProviderContainer container,
+  ) async {
     await container.read(onlineSessionProvider.notifier).host('A');
     await tester.pumpWidget(
       UncontrolledProviderScope(
@@ -64,8 +77,41 @@ void main() {
   }
 
   group('S-21 the lobby', () {
-    testWidgets('shows the room code, the roster and the headphones line',
-        (tester) async {
+    testWidgets('host exit offers keeping the room before closing it', (
+      tester,
+    ) async {
+      final container = containerWith();
+      await pumpLobby(tester, container);
+      await tester.tap(find.byKey(LobbyScreen.leaveButton));
+      await tester.pump();
+      expect(
+        find.byKey(const ValueKey('lobby_leave_keep_room')),
+        findsOneWidget,
+      );
+      expect(find.byKey(LobbyScreen.closeRoomConfirm), findsOneWidget);
+      expect(backend.called('close_room'), isFalse);
+    });
+
+    for (final size in [
+      const Size(360, 640),
+      const Size(844, 390),
+      const Size(1366, 768),
+    ]) {
+      testWidgets('lobby fills available width at $size', (tester) async {
+        tester.view.resetPhysicalSize();
+        await tester.binding.setSurfaceSize(size);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        final container = containerWith();
+        await pumpLobby(tester, container);
+        expect(tester.takeException(), isNull);
+        final band = tester.getSize(find.byType(CouncilBand));
+        expect(band.width, greaterThan(size.width - 100));
+      });
+    }
+
+    testWidgets('shows the room code, the roster and the headphones line', (
+      tester,
+    ) async {
       final container = containerWith();
       await pumpLobby(tester, container);
 
@@ -103,8 +149,9 @@ void main() {
       expect(find.text(arStrings.onlineGhostRule), findsNothing);
     });
 
-    testWidgets('offers the host a start, and refuses it under five players',
-        (tester) async {
+    testWidgets('offers the host a start, and refuses it under five players', (
+      tester,
+    ) async {
       final container = containerWith();
       await pumpLobby(tester, container);
 
@@ -113,10 +160,13 @@ void main() {
       );
       expect(button.onPressed, isNull, reason: 'three players is not a match');
       expect(find.text(arStrings.onlineNeedFivePlayers), findsOneWidget);
+      expect(find.text(arStrings.publicRoomMissing(2)), findsOneWidget);
+      expect(find.text(arStrings.onlineLobbyInviteHint), findsOneWidget);
     });
 
-    testWidgets('lets the host start once the table is big enough',
-        (tester) async {
+    testWidgets('lets the host start once the table is big enough', (
+      tester,
+    ) async {
       final container = containerWith(players: roster(6));
       await pumpLobby(tester, container);
 
@@ -125,10 +175,13 @@ void main() {
       );
       expect(button.onPressed, isNotNull);
       expect(find.text(arStrings.onlineStartMatch), findsOneWidget);
+      expect(find.text(arStrings.onlineLobbyHostReadyHint), findsOneWidget);
+      expect(find.text(arStrings.onlineLobbyInviteHint), findsNothing);
     });
 
-    testWidgets('a guest waits for the host and is offered nothing to press',
-        (tester) async {
+    testWidgets('a guest waits for the host and is offered nothing to press', (
+      tester,
+    ) async {
       final container = containerWith(
         userId: 'u2',
         state: roomState(
@@ -198,11 +251,12 @@ void main() {
       WidgetTester tester,
       ProviderContainer container,
     ) async {
+      await container.read(playerProfileProvider.future);
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
           child: localizedApp(
-            OnlineEntryScreen(onJoined: () {}, onPlayOffline: () {}),
+            OnlineEntryScreen(onJoined: () {}, onBack: () {}),
           ),
         ),
       );
@@ -214,7 +268,7 @@ void main() {
     /// not exist before the second answer — which is the point of the step, and
     /// the first thing this helper would fail on if it came back.
     Future<void> attemptJoin(WidgetTester tester) async {
-      await tester.enterText(find.byKey(OnlineEntryScreen.nameField), 'A');
+      await containerProfileReady(tester);
       await tester.pump();
       expect(find.byKey(OnlineEntryScreen.codeField), findsNothing);
 
@@ -248,15 +302,17 @@ void main() {
       expect(find.text(arStrings.onlineRoomFull), findsOneWidget);
     });
 
-    testWidgets('O9 — an unreachable server offers offline instead',
-        (tester) async {
+    testWidgets('O9 — an unreachable server leaves the way back to offline', (
+      tester,
+    ) async {
       final container = containerWith();
       backend.unreachable = true;
       await pumpEntry(tester, container);
       await attemptJoin(tester);
 
       expect(find.text(arStrings.onlineUnreachable), findsOneWidget);
-      expect(find.byKey(OnlineEntryScreen.offlineButton), findsOneWidget);
+      // Offline lives one step back, at the online/offline choice.
+      expect(find.byKey(OnlineEntryScreen.backButton), findsOneWidget);
     });
 
     testWidgets('O11 — a paused project is its own sentence', (tester) async {
@@ -270,27 +326,19 @@ void main() {
       expect(find.text(arStrings.onlineProjectPaused), findsOneWidget);
     });
 
-    testWidgets('neither answer is offered without a name', (tester) async {
+    testWidgets('profile setup precedes online when identity is missing', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
       final container = containerWith();
+      await container.read(playerProfileProvider.future);
       await pumpEntry(tester, container);
-
-      expect(
-        tester
-            .widget<FilledButton>(find.byKey(OnlineEntryScreen.hostButton))
-            .onPressed,
-        isNull,
-      );
-      expect(
-        tester
-            .widget<OutlinedButton>(
-                find.byKey(OnlineEntryScreen.haveCodeButton))
-            .onPressed,
-        isNull,
-      );
+      expect(find.byKey(const ValueKey('profile_name')), findsOneWidget);
+      expect(find.byKey(OnlineEntryScreen.hostButton), findsNothing);
     });
-
-    testWidgets('a code cannot be typed before the question is answered',
-        (tester) async {
+    testWidgets('a code cannot be typed before the question is answered', (
+      tester,
+    ) async {
       final container = containerWith();
       await pumpEntry(tester, container);
 
@@ -302,26 +350,28 @@ void main() {
       expect(find.byKey(OnlineEntryScreen.hostButton), findsOneWidget);
       expect(find.byKey(OnlineEntryScreen.haveCodeButton), findsOneWidget);
 
-      await tester.enterText(find.byKey(OnlineEntryScreen.nameField), 'A');
+      await containerProfileReady(tester);
       await tester.pump();
       await tester.tap(find.byKey(OnlineEntryScreen.haveCodeButton));
       await tester.pump();
 
       expect(find.byKey(OnlineEntryScreen.codeField), findsOneWidget);
       expect(find.byKey(OnlineEntryScreen.joinButton), findsOneWidget);
-      expect(find.byKey(OnlineEntryScreen.hostButton), findsNothing);
+      expect(find.byKey(OnlineEntryScreen.hostButton), findsOneWidget);
     });
 
-    testWidgets('an invite link skips the question it has already answered',
-        (tester) async {
+    testWidgets('an invite link skips the question it has already answered', (
+      tester,
+    ) async {
       final container = containerWith();
+      await container.read(playerProfileProvider.future);
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
           child: localizedApp(
             OnlineEntryScreen(
               onJoined: () {},
-              onPlayOffline: () {},
+              onBack: () {},
               initialCode: 'abcdef',
             ),
           ),
@@ -339,11 +389,12 @@ void main() {
             .text,
         'ABCDEF',
       );
-      expect(find.byKey(OnlineEntryScreen.hostButton), findsNothing);
+      expect(find.byKey(OnlineEntryScreen.hostButton), findsOneWidget);
     });
 
-    testWidgets('stepping back puts the refusal away with the field',
-        (tester) async {
+    testWidgets('stepping back puts the refusal away with the field', (
+      tester,
+    ) async {
       final container = containerWith(
         refuseJoin: const BackendException('ROOM_NOT_FOUND', 'no'),
       );
@@ -360,4 +411,8 @@ void main() {
       expect(find.byKey(OnlineEntryScreen.hostButton), findsOneWidget);
     });
   });
+}
+
+Future<void> containerProfileReady(WidgetTester tester) async {
+  await tester.pump();
 }

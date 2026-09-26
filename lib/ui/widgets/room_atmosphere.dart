@@ -100,7 +100,8 @@ class _BulbFlickerState extends State<BulbFlicker>
     _ticker = createTicker((elapsed) {
       final t = elapsed.inMicroseconds / 1e6;
       // Three periods with no common multiple worth waiting for.
-      final wander = math.sin(t / 2.7) * 0.5 +
+      final wander =
+          math.sin(t / 2.7) * 0.5 +
           math.sin(t / 1.13 + 1.7) * 0.32 +
           math.sin(t / 0.41 + 3.1) * 0.18;
       _brightness.value = 1.0 - _depth * (0.5 + 0.5 * wander);

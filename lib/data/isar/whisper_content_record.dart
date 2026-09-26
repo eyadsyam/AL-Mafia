@@ -33,11 +33,7 @@ part 'whisper_content_record.g.dart';
 class WhisperContentRecord {
   Id id = Isar.autoIncrement;
 
-  @Index(
-    composite: [CompositeIndex('whisperId')],
-    unique: true,
-    replace: true,
-  )
+  @Index(composite: [CompositeIndex('whisperId')], unique: true, replace: true)
   late int matchId;
 
   late String whisperId;

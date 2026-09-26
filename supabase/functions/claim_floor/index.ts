@@ -33,11 +33,13 @@ Deno.serve(handler(async (req, userId, db) => {
   // The night, the reveal, the ballot. Not an error and not a negotiation.
   if (policy === "muted") return ok({ granted: false, policy });
 
-  const { data: state } = await db
+  const { data: state, error: stateError } = await db
     .from("room_state")
     .select("public_data")
     .eq("room_id", roomId)
     .maybeSingle();
+  if (stateError) throw stateError;
+  if (!state) throw new Error("room state missing");
 
   const owner = floorOwnerSeat(
     me.phase,

@@ -69,5 +69,6 @@ class Clocks {
   ///
   /// For tests that assert on an exact timestamp. Do not use it to drive a
   /// whole match — see the ordering note on [monotonic].
-  static Clock fixed(DateTime instant) => () => instant;
+  static Clock fixed(DateTime instant) =>
+      () => instant;
 }

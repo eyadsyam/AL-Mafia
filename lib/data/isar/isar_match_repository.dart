@@ -37,15 +37,12 @@ class IsarMatchRepository implements MatchRepository {
   /// first open and leaves existing `MatchRecord` rows untouched, so stored
   /// history survives the change.
   static Future<IsarMatchRepository> open({required String directory}) async {
-    final isar = await Isar.open(
-      [
-        MatchRecordSchema,
-        SettingsRecordSchema,
-        PlayerGroupRecordSchema,
-        WhisperContentRecordSchema,
-      ],
-      directory: directory,
-    );
+    final isar = await Isar.open([
+      MatchRecordSchema,
+      SettingsRecordSchema,
+      PlayerGroupRecordSchema,
+      WhisperContentRecordSchema,
+    ], directory: directory);
     return IsarMatchRepository(isar);
   }
 
@@ -90,8 +87,7 @@ class IsarMatchRepository implements MatchRepository {
         .findAll();
 
     return [
-      for (final record in records)
-        _summarize(record.id, _decode(record)),
+      for (final record in records) _summarize(record.id, _decode(record)),
     ];
   }
 
@@ -123,15 +119,15 @@ class IsarMatchRepository implements MatchRepository {
   @override
   Future<MatchSettings> loadDefaultSettings() async {
     try {
-    final record = await isar.settingsRecords.get(SettingsRecord.singletonId);
-    // An empty payload means the row exists only to carry a flag — see
-    // [SettingsRecord]. Treat it exactly like a missing row.
-    if (record == null || record.payload.isEmpty) {
-      return const MatchSettings.defaults();
-    }
-    return MatchCodec.decodeSettings(
-      jsonDecode(record.payload) as Map<String, dynamic>,
-    );
+      final record = await isar.settingsRecords.get(SettingsRecord.singletonId);
+      // An empty payload means the row exists only to carry a flag — see
+      // [SettingsRecord]. Treat it exactly like a missing row.
+      if (record == null || record.payload.isEmpty) {
+        return const MatchSettings.defaults();
+      }
+      return MatchCodec.decodeSettings(
+        jsonDecode(record.payload) as Map<String, dynamic>,
+      );
     } catch (_) {
       // A damaged preferences row must not prevent the app from starting.
       return const MatchSettings.defaults();
@@ -198,7 +194,7 @@ class IsarMatchRepository implements MatchRepository {
     await isar.writeTxn(() async {
       final existing =
           await isar.settingsRecords.get(SettingsRecord.singletonId) ??
-              (SettingsRecord()..id = SettingsRecord.singletonId);
+          (SettingsRecord()..id = SettingsRecord.singletonId);
       await isar.settingsRecords.put(change(existing));
     });
   }
@@ -208,16 +204,17 @@ class IsarMatchRepository implements MatchRepository {
   /// The id matters: `persistStep` uses it to overwrite the same row instead of
   /// appending a new one on every step.
   Match _decode(MatchRecord record) {
-    final match =
-        MatchCodec.decode(jsonDecode(record.payload) as Map<String, dynamic>);
+    final match = MatchCodec.decode(
+      jsonDecode(record.payload) as Map<String, dynamic>,
+    );
     return match.id == record.id ? match : match.copyWith(id: record.id);
   }
 
   static MatchSummary _summarize(int id, Match match) => MatchSummary(
-        id: id,
-        createdAt: match.createdAt,
-        playerNames: [for (final p in match.players) p.name],
-        winner: match.outcome?.winner,
-        nights: AnalyticsBuilder.build(match).nightsPlayed,
-      );
+    id: id,
+    createdAt: match.createdAt,
+    playerNames: [for (final p in match.players) p.name],
+    winner: match.outcome?.winner,
+    nights: AnalyticsBuilder.build(match).nightsPlayed,
+  );
 }

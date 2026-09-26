@@ -115,33 +115,39 @@ class SceneSheet extends StatelessWidget {
                           ),
                         ),
                       for (final action in actions)
-                        ListTile(
-                          key: action.key,
-                          leading: action.icon == null
-                              ? null
-                              : Icon(
-                                  action.icon,
-                                  color: action.emphasised
-                                      ? colors.textPrimary
-                                      : colors.textSecondary,
-                                ),
-                          title: Text(
-                            action.label,
-                            style: type.body.copyWith(
-                              color: action.emphasised
-                                  ? colors.textPrimary
-                                  : colors.textSecondary,
+                        Material(
+                          type: MaterialType.transparency,
+                          child: ListTile(
+                            key: action.key,
+                            leading: action.icon == null
+                                ? null
+                                : Icon(
+                                    action.icon,
+                                    color: action.emphasised
+                                        ? colors.textPrimary
+                                        : colors.textSecondary,
+                                  ),
+                            title: Text(
+                              action.label,
+                              style: type.body.copyWith(
+                                color: action.emphasised
+                                    ? colors.textPrimary
+                                    : colors.textSecondary,
+                              ),
                             ),
+                            onTap: action.onTap,
                           ),
-                          onTap: action.onTap,
                         ),
-                      ListTile(
-                        title: Text(
-                          context.l10n.cancel,
-                          textAlign: TextAlign.center,
-                          style: type.body.copyWith(color: colors.textMuted),
+                      Material(
+                        type: MaterialType.transparency,
+                        child: ListTile(
+                          title: Text(
+                            context.l10n.cancel,
+                            textAlign: TextAlign.center,
+                            style: type.body.copyWith(color: colors.textMuted),
+                          ),
+                          onTap: onDismiss,
                         ),
-                        onTap: onDismiss,
                       ),
                     ],
                   ),

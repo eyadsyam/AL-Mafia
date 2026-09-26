@@ -28,33 +28,24 @@ Deno.serve(handler(async (req, userId, db) => {
   if (me.hostId !== userId) return fail("NOT_HOST", "only the host removes", 403);
   if (me.seat === seat) return fail("BAD_REQUEST", "a host cannot remove itself");
 
-  const { data: target } = await db
-    .from("room_players")
-    .select("user_id")
-    .eq("room_id", roomId)
-    .eq("seat", seat)
-    .maybeSingle();
-  if (!target) return fail("BAD_REQUEST", "no such seat");
-
-  const { data: room } = await db
-    .from("rooms")
-    .select("banned_user_ids")
-    .eq("id", roomId)
-    .maybeSingle();
-  const banned = new Set<string>((room?.banned_user_ids ?? []) as string[]);
-  banned.add(target.user_id);
-
-  await db
-    .from("rooms")
-    .update({ banned_user_ids: [...banned] })
-    .eq("id", roomId);
-
-  const { error } = await db
-    .from("room_players")
-    .update({ status: "left", connected: false, kicked: true })
-    .eq("room_id", roomId)
-    .eq("user_id", target.user_id);
-  if (error) throw error;
+  // One statement under the room lock (`kick_member`): the ban is appended
+  // to the list the room holds *now*, and the seat is marked in the same
+  // transaction. The host check runs again inside it against the row.
+  const { data: removed, error } = await db.rpc("kick_member", {
+    p_room: roomId,
+    p_host: userId,
+    p_seat: seat,
+  });
+  if (error) {
+    if (error.message?.includes("NOT_HOST")) {
+      return fail("NOT_HOST", "only the host removes", 403);
+    }
+    if (error.message?.includes("BAD_REQUEST")) {
+      return fail("BAD_REQUEST", "no such seat");
+    }
+    throw error;
+  }
+  if (!removed) return fail("BAD_REQUEST", "no such seat");
 
   return ok({ kicked: seat });
 }));

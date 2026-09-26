@@ -17,7 +17,12 @@ void main() {
       engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: const ['A', 'B', 'C', 'D', 'E'],
-        roleCounts: const {Role.mafia: 1, Role.doctor: 1, Role.detective: 1, Role.citizen: 2},
+        roleCounts: const {
+          Role.mafia: 1,
+          Role.doctor: 1,
+          Role.detective: 1,
+          Role.citizen: 2,
+        },
         settings: MatchSettings(dayTieRule: rule),
         seed: 1,
       );
@@ -25,7 +30,10 @@ void main() {
         engine.revealFor(i);
         engine.confirmRevealed();
       }
-      citizenSeats = [for (int i = 0; i < 5; i++) if (engine.match.players[i].role == Role.citizen) i];
+      citizenSeats = [
+        for (int i = 0; i < 5; i++)
+          if (engine.match.players[i].role == Role.citizen) i,
+      ];
     }
 
     // Drive one night. If [killSeat] is null the Mafia take the turn and name
@@ -49,9 +57,10 @@ void main() {
               engine.skipNightAction(seat: seat);
             } else {
               engine.submitNightAction(
-                  seat: seat,
-                  kind: NightActionKind.mafiaVote,
-                  targetSeat: killSeat);
+                seat: seat,
+                kind: NightActionKind.mafiaVote,
+                targetSeat: killSeat,
+              );
             }
           case Role.doctor:
             final cover = [
@@ -63,11 +72,22 @@ void main() {
             ].first;
             lastProtect = cover;
             engine.submitNightAction(
-                seat: seat, kind: NightActionKind.protect, targetSeat: cover);
+              seat: seat,
+              kind: NightActionKind.protect,
+              targetSeat: cover,
+            );
           case Role.detective:
-            engine.submitNightAction(seat: seat, kind: NightActionKind.investigate, targetSeat: (seat + 1) % 5);
+            engine.submitNightAction(
+              seat: seat,
+              kind: NightActionKind.investigate,
+              targetSeat: (seat + 1) % 5,
+            );
           case Role.citizen:
-            engine.submitNightAction(seat: seat, kind: NightActionKind.suspect, targetSeat: (seat + 1) % 5);
+            engine.submitNightAction(
+              seat: seat,
+              kind: NightActionKind.suspect,
+              targetSeat: (seat + 1) % 5,
+            );
         }
       }
       engine.resolveNight();
@@ -79,35 +99,49 @@ void main() {
     void castVotes(Map<int, int> votes) {
       while (engine.match.currentActorSeat != null) {
         final seat = engine.match.currentActorSeat!;
-        engine.submitVote(seat: seat, voterSeat: seat, targetSeat: votes[seat]!);
+        engine.submitVote(
+          seat: seat,
+          voterSeat: seat,
+          targetSeat: votes[seat]!,
+        );
       }
     }
 
-    test('tie with revote rule → returns tie with tiedSeats and phase returns to voting', () {
-      startFive(DayTieRule.revote);
-      runNight(); // nobody dies, all five alive
-      // seat1 ← {0,2}, seat3 ← {1,4}, seat0 ← {3}: 2–2 tie between 1 and 3, no self-votes.
-      castVotes({0: 1, 1: 3, 2: 1, 3: 0, 4: 3});
+    test(
+      'tie with revote rule → returns tie with tiedSeats and phase returns to voting',
+      () {
+        startFive(DayTieRule.revote);
+        runNight(); // nobody dies, all five alive
+        // seat1 ← {0,2}, seat3 ← {1,4}, seat0 ← {3}: 2–2 tie between 1 and 3, no self-votes.
+        castVotes({0: 1, 1: 3, 2: 1, 3: 0, 4: 3});
 
-      final result = engine.resolveDayVote();
-      expect(result.tie, isTrue);
-      expect(result.tiedSeats, isNotNull);
-      expect(result.tiedSeats!.toSet(), equals({1, 3}));
-      expect(engine.match.phase, equals(GamePhase.voting));
-      expect(engine.match.currentActorSeat, isNotNull);
-      expect(engine.match.players[engine.match.currentActorSeat!].status, equals(PlayerStatus.alive));
-    });
+        final result = engine.resolveDayVote();
+        expect(result.tie, isTrue);
+        expect(result.tiedSeats, isNotNull);
+        expect(result.tiedSeats!.toSet(), equals({1, 3}));
+        expect(engine.match.phase, equals(GamePhase.voting));
+        expect(engine.match.currentActorSeat, isNotNull);
+        expect(
+          engine.match.players[engine.match.currentActorSeat!].status,
+          equals(PlayerStatus.alive),
+        );
+      },
+    );
 
     test('tie with noElimination rule → nobody eliminated, phase reveal', () {
       startFive(DayTieRule.noElimination);
       runNight();
-      final aliveBefore = engine.match.players.where((p) => p.status == PlayerStatus.alive).length;
+      final aliveBefore = engine.match.players
+          .where((p) => p.status == PlayerStatus.alive)
+          .length;
       castVotes({0: 1, 1: 3, 2: 1, 3: 0, 4: 3});
 
       final result = engine.resolveDayVote();
       expect(result.eliminatedSeat, isNull);
       expect(engine.match.phase, equals(GamePhase.reveal));
-      final aliveAfter = engine.match.players.where((p) => p.status == PlayerStatus.alive).length;
+      final aliveAfter = engine.match.players
+          .where((p) => p.status == PlayerStatus.alive)
+          .length;
       expect(aliveAfter, equals(aliveBefore));
     });
 
@@ -124,10 +158,14 @@ void main() {
       final voter = engine.match.currentActorSeat!;
       final untied = [
         for (int i = 0; i < 5; i++)
-          if (!tied.contains(i) && i != voter) i
+          if (!tied.contains(i) && i != voter) i,
       ].first;
       expect(
-        () => engine.submitVote(seat: voter, voterSeat: voter, targetSeat: untied),
+        () => engine.submitVote(
+          seat: voter,
+          voterSeat: voter,
+          targetSeat: untied,
+        ),
         throwsStateError,
       );
     });
@@ -143,7 +181,11 @@ void main() {
       // seat 1 would still be carrying two votes and this would tie again.
       while (engine.match.currentActorSeat != null) {
         final seat = engine.match.currentActorSeat!;
-        engine.submitVote(seat: seat, voterSeat: seat, targetSeat: seat == 3 ? 1 : 3);
+        engine.submitVote(
+          seat: seat,
+          voterSeat: seat,
+          targetSeat: seat == 3 ? 1 : 3,
+        );
       }
 
       final second = engine.resolveDayVote();
@@ -161,7 +203,10 @@ void main() {
       expect(engine.match.players[deadSeat].status, equals(PlayerStatus.dead));
 
       // Build a clean 2–2 tie among the four living seats, in ascending order.
-      final living = [for (int i = 0; i < 5; i++) if (engine.match.players[i].status == PlayerStatus.alive) i];
+      final living = [
+        for (int i = 0; i < 5; i++)
+          if (engine.match.players[i].status == PlayerStatus.alive) i,
+      ];
       final x = living[2], y = living[0];
       final votes = <int, int>{
         living[0]: x,

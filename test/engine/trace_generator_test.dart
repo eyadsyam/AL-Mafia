@@ -14,20 +14,20 @@ import 'package:mafia_master/engine/models/player.dart';
 void main() {
   // Seven seats. `dead` names the ones that are not coming back.
   List<Player> roster({Set<int> dead = const {}}) => [
-        for (var seat = 0; seat < 7; seat++)
-          Player(
-            seat: seat,
-            name: 'P$seat',
-            // The roster's roles are irrelevant to every trace — no trace reads
-            // one — so they are all citizens here, and that is itself worth
-            // asserting by construction.
-            role: Role.citizen,
-            status: dead.contains(seat) ? PlayerStatus.dead : PlayerStatus.alive,
-            eliminatedOn: dead.contains(seat)
-                ? const PhaseRef(phase: GamePhase.night, number: 1)
-                : null,
-          ),
-      ];
+    for (var seat = 0; seat < 7; seat++)
+      Player(
+        seat: seat,
+        name: 'P$seat',
+        // The roster's roles are irrelevant to every trace — no trace reads
+        // one — so they are all citizens here, and that is itself worth
+        // asserting by construction.
+        role: Role.citizen,
+        status: dead.contains(seat) ? PlayerStatus.dead : PlayerStatus.alive,
+        eliminatedOn: dead.contains(seat)
+            ? const PhaseRef(phase: GamePhase.night, number: 1)
+            : null,
+      ),
+  ];
 
   NightRecord night({
     int number = 1,
@@ -35,17 +35,16 @@ void main() {
     int? victim,
     int? savedSeat,
     TraceType? revealed,
-  }) =>
-      NightRecord(
-        nightNumber: number,
-        suspicions: suspicions,
-        reasons: const {},
-        victim: victim,
-        saveOccurred: savedSeat != null,
-        savedSeat: savedSeat,
-        revealedTrace: revealed,
-        resolved: true,
-      );
+  }) => NightRecord(
+    nightNumber: number,
+    suspicions: suspicions,
+    reasons: const {},
+    victim: victim,
+    saveOccurred: savedSeat != null,
+    savedSeat: savedSeat,
+    revealedTrace: revealed,
+    resolved: true,
+  );
 
   TraceResult select({
     required NightRecord tonight,
@@ -53,22 +52,24 @@ void main() {
     Set<int> dead = const {},
     int nightNumber = 1,
     int seed = 1234,
-  }) =>
-      selectTrace(
-        night: tonight,
-        history: history,
-        players: roster(dead: dead),
-        nightNumber: nightNumber,
-        matchSeed: seed,
-      );
+  }) => selectTrace(
+    night: tonight,
+    history: history,
+    players: roster(dead: dead),
+    nightNumber: nightNumber,
+    matchSeed: seed,
+  );
 
   group('T-E1 — nothing eligible', () {
     test('a night with no actions at all yields T0, and does not throw', () {
       final result = select(tonight: night());
       expect(result.type, equals(TraceType.t0));
       expect(result.isNone, isTrue);
-      expect(result.targetSeat, isNull,
-          reason: 'T0 names nobody, because there is nobody to name');
+      expect(
+        result.targetSeat,
+        isNull,
+        reason: 'T0 names nobody, because there is nobody to name',
+      );
     });
 
     test('T0 is never a candidate in its own right', () {
@@ -95,9 +96,13 @@ void main() {
         alive: const {0, 1, 2, 4, 6},
         nightNumber: 2,
       );
-      expect(candidate, isNull,
-          reason: 'a dead target cannot be asked to respond, which is the '
-              'entire point of naming them');
+      expect(
+        candidate,
+        isNull,
+        reason:
+            'a dead target cannot be asked to respond, which is the '
+            'entire point of naming them',
+      );
     });
 
     test('T-E3 — ineligible when the victim recorded nothing', () {
@@ -149,8 +154,11 @@ void main() {
         nightNumber: 3,
         history: [night(number: 1), night(number: 2)],
       );
-      expect(result.type, equals(TraceType.t1),
-          reason: 'drama weight 10.0 against 6.0 for the next best');
+      expect(
+        result.type,
+        equals(TraceType.t1),
+        reason: 'drama weight 10.0 against 6.0 for the next best',
+      );
     });
   });
 
@@ -159,9 +167,13 @@ void main() {
       final result = select(tonight: night(savedSeat: 4));
       expect(result.type, equals(TraceType.t2));
       expect(result.subjectSeat, isNull);
-      expect(result.targetSeat, isNull,
-          reason: 'doc 09 §1.4 — «Names? never». The saved seat is on the '
-              'record; it may not reach the table');
+      expect(
+        result.targetSeat,
+        isNull,
+        reason:
+            'doc 09 §1.4 — «Names? never». The saved seat is on the '
+            'record; it may not reach the table',
+      );
     });
 
     test('does not fire on a quiet night nobody was targeted on', () {
@@ -201,16 +213,17 @@ void main() {
 
     test('T3 scores higher the more of the table agrees', () {
       double scoreFor(Map<int, int?> suspicions) => evaluateTrace(
-            type: TraceType.t3,
-            night: night(suspicions: suspicions),
-            history: const [],
-            alive: const {0, 1, 2, 3, 4, 5, 6},
-            nightNumber: 1,
-          )!
-              .informationValue;
+        type: TraceType.t3,
+        night: night(suspicions: suspicions),
+        history: const [],
+        alive: const {0, 1, 2, 3, 4, 5, 6},
+        nightNumber: 1,
+      )!.informationValue;
 
-      expect(scoreFor({0: 5, 1: 5, 2: 5, 3: 5}),
-          greaterThan(scoreFor({0: 5, 1: 5})));
+      expect(
+        scoreFor({0: 5, 1: 5, 2: 5, 3: 5}),
+        greaterThan(scoreFor({0: 5, 1: 5})),
+      );
     });
 
     test('T4 counts only players who changed, not players who arrived', () {
@@ -251,8 +264,11 @@ void main() {
         nightNumber: 2,
       );
       expect(candidate, isNotNull);
-      expect(candidate!.result.targetSeat, isNull,
-          reason: 'naming the shadow would end the game on the spot');
+      expect(
+        candidate!.result.targetSeat,
+        isNull,
+        reason: 'naming the shadow would end the game on the spot',
+      );
     });
 
     test('T5 is silent when everybody has been named at least once', () {
@@ -348,9 +364,13 @@ void main() {
         history: [night(number: 0, savedSeat: 3, revealed: TraceType.t2)],
         nightNumber: 1,
       );
-      expect(result.type, equals(TraceType.t0),
-          reason: 'with T2 excluded and nothing else eligible, the honest '
-              'answer is that the night left no trace');
+      expect(
+        result.type,
+        equals(TraceType.t0),
+        reason:
+            'with T2 excluded and nothing else eligible, the honest '
+            'answer is that the night left no trace',
+      );
     });
 
     test('a type from two nights ago is eligible again', () {
@@ -373,18 +393,14 @@ void main() {
       // It may still lose on score — T2 has been published once, so its novelty
       // is 0.85 and a fresh T5 edges it — but it is back in the running, which
       // is all the rule is about.
-      final result =
-          select(tonight: tonight, history: history, nightNumber: 3);
+      final result = select(tonight: tonight, history: history, nightNumber: 3);
       expect(result.type, anyOf(TraceType.t2, TraceType.t5));
     });
 
     test('novelty decays with use and bottoms out at 0.4', () {
       TraceType t = TraceType.t3;
       expect(noveltyFactor(const [], t), equals(1.0));
-      expect(
-        noveltyFactor([night(revealed: t)], t),
-        closeTo(0.85, 1e-9),
-      );
+      expect(noveltyFactor([night(revealed: t)], t), closeTo(0.85, 1e-9));
       expect(
         noveltyFactor(List.filled(20, night(revealed: t)), t),
         equals(0.4),
@@ -395,10 +411,7 @@ void main() {
   group('T-E6 / T-E9 — determinism', () {
     // A night engineered so that two types tie: T7 (4.5) and T2 (4.0) do not,
     // so the tie is forced by making the same type available to two seeds.
-    NightRecord tied() => night(
-          suspicions: {0: 1, 1: 0},
-          savedSeat: 4,
-        );
+    NightRecord tied() => night(suspicions: {0: 1, 1: 0}, savedSeat: 4);
 
     test('the same inputs give the same trace, every time', () {
       final first = select(tonight: tied(), seed: 99);
@@ -421,14 +434,17 @@ void main() {
       }
     });
 
-    test('the winner does not depend on the order candidates were built in', () {
-      // `List.sort` is not stable in Dart, so a generator that left equal
-      // scores in encounter order would be leaving them in an arbitrary one —
-      // and two devices could then disagree before the seed was ever drawn.
-      final result = select(tonight: tied(), seed: 7);
-      for (var i = 0; i < 100; i++) {
-        expect(select(tonight: tied(), seed: 7).type, equals(result.type));
-      }
-    });
+    test(
+      'the winner does not depend on the order candidates were built in',
+      () {
+        // `List.sort` is not stable in Dart, so a generator that left equal
+        // scores in encounter order would be leaving them in an arbitrary one —
+        // and two devices could then disagree before the seed was ever drawn.
+        final result = select(tonight: tied(), seed: 7);
+        for (var i = 0; i < 100; i++) {
+          expect(select(tonight: tied(), seed: 7).type, equals(result.type));
+        }
+      },
+    );
   });
 }

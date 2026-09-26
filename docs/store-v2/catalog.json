@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "brand": {
+    "ar": "خزنة المجلس",
+    "en": "The Council Vault"
+  },
+  "status": "Artwork and design handoff only; not an enabled catalog.",
+  "categories": [
+    {
+      "id": "frames",
+      "ar": "إطارات الهوية",
+      "en": "Avatar frames",
+      "layout": "horizontal-rail",
+      "items": [
+        {
+          "sku": "frame_gilded",
+          "ar": "التاج المعتّق",
+          "en": "Gilded Crown",
+          "asset": "assets/images/store_v2/frame_gilded.webp",
+          "status": "existing-code-art-integration-needed",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "frame_crimson",
+          "ar": "العهد القرمزي",
+          "en": "Crimson Oath",
+          "asset": "assets/images/store_v2/frame_crimson.webp",
+          "status": "existing-code-art-integration-needed",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "frame_moonlit",
+          "ar": "هالة القمر",
+          "en": "Moonlit Halo",
+          "asset": "assets/images/store_v2/frame_moonlit.webp",
+          "status": "existing-code-art-integration-needed",
+          "priceSource": "server-only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "plates",
+      "ar": "لوحات الأسماء",
+      "en": "Nameplates",
+      "layout": "horizontal-rail",
+      "items": [
+        {
+          "sku": "plate_noir",
+          "ar": "توقيع الظل",
+          "en": "Noir Signature",
+          "asset": "assets/images/store_v2/plate_noir.webp",
+          "status": "existing-code-art-integration-needed",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "plate_gilded",
+          "ar": "الختم الذهبي",
+          "en": "Gilded Seal",
+          "asset": "assets/images/store_v2/plate_gilded.webp",
+          "status": "existing-code-art-integration-needed",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "plate_ember",
+          "ar": "وهج الجمر",
+          "en": "Ember Mark",
+          "asset": "assets/images/store_v2/plate_ember.webp",
+          "status": "existing-code-art-integration-needed",
+          "priceSource": "server-only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "rooms",
+      "ar": "أجواء المجلس",
+      "en": "Room atmospheres",
+      "layout": "horizontal-rail",
+      "items": [
+        {
+          "sku": "pack_midnight_manor",
+          "ar": "قصر منتصف الليل",
+          "en": "Midnight Manor",
+          "asset": "assets/images/store_v2/pack_midnight_manor.webp",
+          "status": "existing-code-art-integration-needed",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "pack_old_town",
+          "ar": "المدينة القديمة",
+          "en": "Old Town",
+          "asset": "assets/images/store_v2/pack_old_town.webp",
+          "status": "existing-code-art-integration-needed",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "pack_moonlit_archive",
+          "ar": "أرشيف القمر",
+          "en": "Moonlit Archive",
+          "asset": "assets/images/store_v2/pack_moonlit_archive.webp",
+          "status": "proposed-needs-implementation",
+          "priceSource": "server-only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "narration",
+      "ar": "أساليب الحكاية",
+      "en": "Narration styles",
+      "layout": "horizontal-rail",
+      "items": [
+        {
+          "sku": "narrator_storyteller",
+          "ar": "الحكّاء",
+          "en": "Storyteller",
+          "asset": "assets/images/store_v2/narrator_storyteller.webp",
+          "status": "existing-code-art-integration-needed",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "narrator_keeper",
+          "ar": "حارس الأسرار",
+          "en": "Secret Keeper",
+          "asset": "assets/images/store_v2/narrator_keeper.webp",
+          "status": "proposed-needs-implementation",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "narrator_noir",
+          "ar": "راوي الظلال",
+          "en": "Noir Narrator",
+          "asset": "assets/images/store_v2/narrator_noir.webp",
+          "status": "proposed-needs-implementation",
+          "priceSource": "server-only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "bundles",
+      "ar": "مجموعات الخزنة",
+      "en": "Vault collections",
+      "layout": "horizontal-rail",
+      "items": [
+        {
+          "sku": "bundle_council",
+          "ar": "مجموعة المجلس",
+          "en": "Council Collection",
+          "asset": "assets/images/store_v2/bundle_council.webp",
+          "status": "existing-code-art-integration-needed",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "bundle_identity",
+          "ar": "مجموعة الهوية",
+          "en": "Identity Collection",
+          "asset": "assets/images/store_v2/bundle_identity.webp",
+          "status": "existing-code-art-integration-needed",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "bundle_nocturne",
+          "ar": "مجموعة الليل",
+          "en": "Nocturne Collection",
+          "asset": "assets/images/store_v2/bundle_nocturne.webp",
+          "status": "proposed-needs-implementation",
+          "priceSource": "server-only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "coins",
+      "ar": "عملات المجلس",
+      "en": "Council coins",
+      "layout": "horizontal-rail",
+      "items": [
+        {
+          "sku": "coins_500",
+          "ar": "كيس المجلس · 500",
+          "en": "Council Pouch · 500",
+          "asset": "assets/images/store_v2/coins_500.webp",
+          "status": "existing-code-sales-gated",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "coins_1200",
+          "ar": "صندوق المجلس · 1200",
+          "en": "Council Case · 1200",
+          "asset": "assets/images/store_v2/coins_1200.webp",
+          "status": "existing-code-sales-gated",
+          "priceSource": "server-only",
+          "previewOnly": true
+        },
+        {
+          "sku": "coins_2500",
+          "ar": "خزنة المجلس · 2500",
+          "en": "Council Vault · 2500",
+          "asset": "assets/images/store_v2/coins_2500.webp",
+          "status": "existing-code-sales-gated",
+          "priceSource": "server-only",
+          "previewOnly": true
+        }
+      ]
+    }
+  ],
+  "hero": "assets/images/store_v2/store_hero.webp"
+}

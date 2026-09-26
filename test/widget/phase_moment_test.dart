@@ -62,9 +62,13 @@ void main() {
     // moving the clock the measurement below depends on.
     await tester.pump();
 
-    expect(started, isTrue,
-        reason: 'the narrator hook did not fire — a recorded line for this '
-            'moment would never play');
+    expect(
+      started,
+      isTrue,
+      reason:
+          'the narrator hook did not fire — a recorded line for this '
+          'moment would never play',
+    );
 
     // Stepped rather than settled: `pumpAndSettle` would report how long the
     // *animations* took, and the hold between them is a timer, not an
@@ -89,18 +93,23 @@ void main() {
 
       final reference = measured[lines.first]!;
       for (final entry in measured.entries) {
-        expect(entry.value, equals(reference),
-            reason: '"${entry.key}" was on screen for ${entry.value} while '
-                '"${lines.first}" took $reference. The table will learn to read '
-                'the difference.');
+        expect(
+          entry.value,
+          equals(reference),
+          reason:
+              '"${entry.key}" was on screen for ${entry.value} while '
+              '"${lines.first}" took $reference. The table will learn to read '
+              'the difference.',
+        );
       }
 
       // And it is a real pause, not an instant one.
       expect(reference, greaterThanOrEqualTo(MafiaTiming.defaults.phaseHold));
     });
 
-    testWidgets('Reduce Motion changes the fade, not the duration',
-        (tester) async {
+    testWidgets('Reduce Motion changes the fade, not the duration', (
+      tester,
+    ) async {
       // An accessibility setting that made the game faster would be a signal in
       // its own right — and would quietly hand an advantage to whoever turned
       // it on.
@@ -114,10 +123,14 @@ void main() {
       // elapses. The slack is the width of that difference, well under the
       // threshold at which a table would notice one mode running quicker.
       final slack = (reduced - normal).abs();
-      expect(slack, lessThan(const Duration(milliseconds: 150)),
-          reason: 'Reduce Motion changed how long a phase announcement lasts, '
-              'by $slack. An accessibility setting that speeds the game up is '
-              'a signal in its own right.');
+      expect(
+        slack,
+        lessThan(const Duration(milliseconds: 150)),
+        reason:
+            'Reduce Motion changed how long a phase announcement lasts, '
+            'by $slack. An accessibility setting that speeds the game up is '
+            'a signal in its own right.',
+      );
     });
 
     testWidgets('the line is legible while it is held', (tester) async {
@@ -135,13 +148,18 @@ void main() {
             )
             .first,
       );
-      expect(fade.opacity.value, closeTo(1.0, 0.01),
-          reason: 'the announcement never reaches full opacity, so the line is '
-              'never actually readable');
+      expect(
+        fade.opacity.value,
+        closeTo(1.0, 0.01),
+        reason:
+            'the announcement never reaches full opacity, so the line is '
+            'never actually readable',
+      );
     });
 
-    testWidgets('an announcement disposed mid-flight does not fire onComplete',
-        (tester) async {
+    testWidgets('an announcement disposed mid-flight does not fire onComplete', (
+      tester,
+    ) async {
       // The completion callback advances the match. If a host ended the game
       // while an announcement was fading, a late callback would step an engine
       // that had already been torn down.

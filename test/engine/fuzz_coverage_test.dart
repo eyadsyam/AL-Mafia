@@ -39,10 +39,16 @@ void main() {
     });
 
     test('matches run to a real length', () {
-      expect(cov.meanMoves, greaterThan(40),
-          reason: 'mean length ${cov.meanMoves} — matches are ending too early');
-      expect(cov.maxDay, greaterThanOrEqualTo(5),
-          reason: 'the longest match only reached day ${cov.maxDay}');
+      expect(
+        cov.meanMoves,
+        greaterThan(40),
+        reason: 'mean length ${cov.meanMoves} — matches are ending too early',
+      );
+      expect(
+        cov.maxDay,
+        greaterThanOrEqualTo(5),
+        reason: 'the longest match only reached day ${cov.maxDay}',
+      );
     });
 
     test('both alignments win', () {
@@ -75,9 +81,13 @@ void main() {
       need('N12 no doctor in the match', cov.matchesWithNoDoctor, 50);
       need('N13 no detective in the match', cov.matchesWithNoDetective, 50);
 
-      expect(shortfalls, isEmpty,
-          reason: 'the harness is not reaching these branches:\n'
-              '${shortfalls.map((s) => '  $s').join('\n')}');
+      expect(
+        shortfalls,
+        isEmpty,
+        reason:
+            'the harness is not reaching these branches:\n'
+            '${shortfalls.map((s) => '  $s').join('\n')}',
+      );
     });
 
     test('every phase a live match can occupy is entered', () {
@@ -90,11 +100,15 @@ void main() {
         GamePhase.winCheck,
         GamePhase.analytics,
       };
-      final expected =
-          GamePhase.values.where((p) => !unreachableByDesign.contains(p));
+      final expected = GamePhase.values.where(
+        (p) => !unreachableByDesign.contains(p),
+      );
       for (final phase in expected) {
-        expect(cov.phasesSeen, contains(phase),
-            reason: 'the harness never entered ${phase.name}');
+        expect(
+          cov.phasesSeen,
+          contains(phase),
+          reason: 'the harness never entered ${phase.name}',
+        );
       }
     });
   });
@@ -122,10 +136,12 @@ void main() {
 
     test('I1 catches a death with no cause recorded', () {
       final m = _liveMatch();
-      final broken = m.copyWith(players: [
-        m.players[0].copyWith(status: PlayerStatus.dead),
-        ...m.players.skip(1),
-      ]);
+      final broken = m.copyWith(
+        players: [
+          m.players[0].copyWith(status: PlayerStatus.dead),
+          ...m.players.skip(1),
+        ],
+      );
       expect(checkMatchInvariants(broken).join(), contains('eliminatedOn'));
     });
 
@@ -135,13 +151,17 @@ void main() {
       final broken = m.copyWith(
         phase: GamePhase.discussion,
         players: m.players
-            .map((p) => p.role == Role.mafia
-                ? p
-                : p.copyWith(
-                    status: PlayerStatus.dead,
-                    eliminatedOn:
-                        const PhaseRef(phase: GamePhase.night, number: 1),
-                  ))
+            .map(
+              (p) => p.role == Role.mafia
+                  ? p
+                  : p.copyWith(
+                      status: PlayerStatus.dead,
+                      eliminatedOn: const PhaseRef(
+                        phase: GamePhase.night,
+                        number: 1,
+                      ),
+                    ),
+            )
             .toList(),
         currentActorSeat: null,
         clearCurrentActorSeat: true,
@@ -153,7 +173,10 @@ void main() {
       final m = _liveMatch();
       final broken = m.copyWith(
         phase: GamePhase.discussion,
-        outcome: MatchOutcome(winner: Alignment.town, completedAt: Clocks.epoch),
+        outcome: MatchOutcome(
+          winner: Alignment.town,
+          completedAt: Clocks.epoch,
+        ),
       );
       expect(checkMatchInvariants(broken).join(), contains('I2'));
     });
@@ -173,10 +196,12 @@ void main() {
     test('I4 catches a role changing mid-match', () {
       final m = _liveMatch();
       final citizen = m.players.firstWhere((p) => p.role == Role.citizen);
-      final broken = m.copyWith(players: [
-        for (final p in m.players)
-          if (p.seat == citizen.seat) p.copyWith(role: Role.mafia) else p,
-      ]);
+      final broken = m.copyWith(
+        players: [
+          for (final p in m.players)
+            if (p.seat == citizen.seat) p.copyWith(role: Role.mafia) else p,
+        ],
+      );
       expect(checkMatchInvariants(broken).join(), contains('I4'));
     });
 
@@ -207,9 +232,13 @@ void main() {
         legalMoves(engine.match).first.apply(engine);
         steps++;
       }
-      expect(steps, lessThan(kStallGuard),
-          reason: 'a match driven by always taking the first legal move '
-              'should still finish');
+      expect(
+        steps,
+        lessThan(kStallGuard),
+        reason:
+            'a match driven by always taking the first legal move '
+            'should still finish',
+      );
       expect(isTerminal(engine.match), isTrue);
     });
   });
@@ -233,7 +262,8 @@ class _Coverage {
   final Set<GamePhase> phasesSeen = <GamePhase>{};
 
   @override
-  String toString() => 'mean ${meanMoves.toStringAsFixed(1)} moves, '
+  String toString() =>
+      'mean ${meanMoves.toStringAsFixed(1)} moves, '
       'longest day $maxDay, mafia $mafiaWins / town $townWins, '
       'saves $nightsWithASave, quiet nights $nightsWithNoDeath, '
       'ties $tiedDayVotes, revotes $revotesCalled, '
@@ -283,8 +313,9 @@ _Coverage _measure(int runs) {
         .whereType<PhaseRef>()
         .toList();
     if (deaths.isNotEmpty &&
-        deaths.any((d) =>
-            d.phase == GamePhase.night && d.number == match.dayNumber)) {
+        deaths.any(
+          (d) => d.phase == GamePhase.night && d.number == match.dayNumber,
+        )) {
       cov.matchesEndingAtNight++;
     }
 
@@ -299,12 +330,13 @@ _Coverage _measure(int runs) {
 
     // A tied ballot is a day on which somebody was voted for and nobody was
     // eliminated.
-    final resolvedDays =
-        match.eventLog.whereType<DayResolved>().map((e) => e.phaseRef.number);
+    final resolvedDays = match.eventLog.whereType<DayResolved>().map(
+      (e) => e.phaseRef.number,
+    );
     for (var day = 1; day <= match.dayNumber; day++) {
-      final votedThisDay = match.eventLog
-          .whereType<VoteCast>()
-          .any((e) => e.phaseRef.number == day && e.targetSeat != null);
+      final votedThisDay = match.eventLog.whereType<VoteCast>().any(
+        (e) => e.phaseRef.number == day && e.targetSeat != null,
+      );
       if (votedThisDay && !resolvedDays.contains(day)) cov.tiedDayVotes++;
     }
   }

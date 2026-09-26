@@ -20,9 +20,19 @@ import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 /// verb, no state, and nothing in it that could ever depend on what somebody
 /// drew.
 abstract final class AppClipboard {
-  /// Copies [text]. Silent on failure: a clipboard that refuses is a platform
-  /// quirk, and the code is still on screen to be read out.
-  static Future<void> copy(String text) async {
-    await Clipboard.setData(ClipboardData(text: text));
+  /// Copies [text]. Returns whether it landed.
+  ///
+  /// Quiet on failure: a clipboard that refuses is a platform quirk — a
+  /// browser tab without the permission, a headless one without a clipboard
+  /// at all — and the code is still on screen to be read out. The refusal
+  /// used to escape as an uncaught error from the share button's tap (E-8),
+  /// and the caller went on to announce a copy that had not happened.
+  static Future<bool> copy(String text) async {
+    try {
+      await Clipboard.setData(ClipboardData(text: text));
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 }

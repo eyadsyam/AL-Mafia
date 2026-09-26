@@ -46,11 +46,22 @@ GROUPS = [
      "first-run introduction is an MP4. None may be used on an in-hand surface."),
 ]
 
-SKIP = {".gitkeep", "OFL.txt"}
+MANUAL = """/// «عملات المافيا». Derived from raw_assets/store/economy-v1/mafia-coin.png
+/// (cropped square, alpha kept); the vault concept is not shipped.
+abstract final class AppEconomyArt {
+  static const String coinSmall = 'assets/images/economy/mafia_coin_96.webp';
+  static const String coinLarge = 'assets/images/economy/mafia_coin_256.webp';
+
+  static const List<String> values = <String>[coinSmall, coinLarge];
+}"""
+
+SKIP = {".gitkeep", "OFL.txt", "avatar_male.webp", "avatar_female.webp"}
 
 
 def _ident(filename: str) -> str:
     """role_detective.webp -> roleDetective"""
+    # Preserve the public avatar names and their corrected transparent artwork.
+    filename = filename.replace('_transparent.png', '.png')
     stem = os.path.splitext(filename)[0]
     parts = re.split(r"[^0-9a-zA-Z]+", stem)
     parts = [p for p in parts if p]
@@ -101,6 +112,11 @@ def main() -> None:
         out.append("")
         total += len(files)
         print(f"  {cls:<10} {len(files)} asset(s) from assets/{folder}/")
+
+    # Hand-named constants that a filename cannot produce. Kept here so a
+    # regeneration never drops them (it once did, and the store lost its coin).
+    out.extend(MANUAL.splitlines())
+    out.append("")
 
     os.makedirs(os.path.dirname(TARGET), exist_ok=True)
     with open(TARGET, "w", encoding="utf-8", newline="\n") as fh:

@@ -83,16 +83,15 @@ class NavIconButton extends StatelessWidget {
           minHeight: touchTarget,
         ),
         style: ButtonStyle(
-          foregroundColor: WidgetStateProperty.resolveWith((states) =>
-              states.contains(WidgetState.pressed)
-                  ? colors.accentGold
-                  : colors.accentGold.withValues(alpha: restingOpacity)),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.pressed)
+                ? colors.accentGold
+                : colors.accentGold.withValues(alpha: restingOpacity),
+          ),
           // No ripple. The press feedback is the glyph going to full opacity;
           // a Material splash on a bare icon over painted artwork reads as a
           // smudge rather than as a press.
-          overlayColor: const WidgetStatePropertyAll<Color>(
-            Colors.transparent,
-          ),
+          overlayColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
         ),
       ),
     );

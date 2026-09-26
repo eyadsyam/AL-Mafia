@@ -65,13 +65,16 @@ void main() {
 
     // Past the turn floor.
     await tester.pump(const Duration(seconds: 4));
-    frames[TurnShellState.passUnlocked] = await TurnShellHarness.capture(tester);
+    frames[TurnShellState.passUnlocked] = await TurnShellHarness.capture(
+      tester,
+    );
 
     return frames;
   }
 
   /// Same schedule, but only records slot rects and the widget-type skeleton.
-  Future<Map<TurnShellState, (List<String>, Map<String, Rect>)>> captureAllStructures(
+  Future<Map<TurnShellState, (List<String>, Map<String, Rect>)>>
+  captureAllStructures(
     WidgetTester tester,
     Role role, {
     required String prompt,
@@ -116,14 +119,18 @@ void main() {
         expect(captured[role]!.keys.toSet(), equals(allStates.toSet()));
         // A blank capture would make every comparison below trivially pass.
         for (final entry in captured[role]!.entries) {
-          expect(entry.value.length, greaterThan(0),
-              reason: 'empty capture for ${role.name}/${entry.key.name}');
+          expect(
+            entry.value.length,
+            greaterThan(0),
+            reason: 'empty capture for ${role.name}/${entry.key.name}',
+          );
         }
       });
     }
 
-    testWidgets('all four roles render byte-identical frames in every state',
-        (tester) async {
+    testWidgets('all four roles render byte-identical frames in every state', (
+      tester,
+    ) async {
       // Re-capture inside a single test so the comparison never depends on
       // cross-test ordering.
       final frames = <Role, Map<TurnShellState, Uint8List>>{};
@@ -138,15 +145,17 @@ void main() {
           expect(
             frames[role]![state],
             orderedEquals(reference[state]!),
-            reason: 'LEAK: ${role.name} renders differently from mafia in '
+            reason:
+                'LEAK: ${role.name} renders differently from mafia in '
                 'state ${state.name}',
           );
         }
       }
     });
 
-    testWidgets('the comparison is capable of detecting a difference',
-        (tester) async {
+    testWidgets('the comparison is capable of detecting a difference', (
+      tester,
+    ) async {
       // Guards the suite itself: if capture() ever returned a constant, every
       // assertion above would pass vacuously. Two genuinely different prompts
       // must produce different bytes.
@@ -162,62 +171,76 @@ void main() {
 
   group('L-01/L-02 structural symmetry with role-natural copy', () {
     testWidgets(
-        'widget-type skeleton and reserved slot rects are identical across roles '
-        'even when the question text differs', (tester) async {
-      final structures = <Role, Map<TurnShellState, (List<String>, Map<String, Rect>)>>{};
-      for (final role in Role.values) {
-        structures[role] = await captureAllStructures(
-          tester,
-          role,
-          prompt: TurnShellHarness.naturalPrompt(role),
-        );
-      }
-
-      final reference = structures[Role.mafia]!;
-      for (final state in allStates) {
+      'widget-type skeleton and reserved slot rects are identical across roles '
+      'even when the question text differs',
+      (tester) async {
+        final structures =
+            <Role, Map<TurnShellState, (List<String>, Map<String, Rect>)>>{};
         for (final role in Role.values) {
-          if (role == Role.mafia) continue;
-          final (skeleton, rects) = structures[role]![state]!;
-          final (refSkeleton, refRects) = reference[state]!;
-
-          expect(skeleton, orderedEquals(refSkeleton),
-              reason: 'LEAK: ${role.name} builds a different widget tree in '
-                  'state ${state.name}');
-          expect(rects, equals(refRects),
-              reason: 'LEAK: ${role.name} moves a reserved slot in '
-                  'state ${state.name}');
+          structures[role] = await captureAllStructures(
+            tester,
+            role,
+            prompt: TurnShellHarness.naturalPrompt(role),
+          );
         }
-      }
-    });
 
-    testWidgets('prompts really do differ, so the check is not vacuous',
-        (tester) async {
+        final reference = structures[Role.mafia]!;
+        for (final state in allStates) {
+          for (final role in Role.values) {
+            if (role == Role.mafia) continue;
+            final (skeleton, rects) = structures[role]![state]!;
+            final (refSkeleton, refRects) = reference[state]!;
+
+            expect(
+              skeleton,
+              orderedEquals(refSkeleton),
+              reason:
+                  'LEAK: ${role.name} builds a different widget tree in '
+                  'state ${state.name}',
+            );
+            expect(
+              rects,
+              equals(refRects),
+              reason:
+                  'LEAK: ${role.name} moves a reserved slot in '
+                  'state ${state.name}',
+            );
+          }
+        }
+      },
+    );
+
+    testWidgets('prompts really do differ, so the check is not vacuous', (
+      tester,
+    ) async {
       final prompts = Role.values.map(TurnShellHarness.naturalPrompt).toSet();
       expect(prompts.length, equals(Role.values.length));
     });
   });
 
   group('L-02 reserved detail slot', () {
-    testWidgets('detail slot occupies identical bounds whether or not it is filled',
-        (tester) async {
-      Future<Rect> detailRectWith(String? detail) async {
-        await TurnShellHarness.pump(
-          tester,
-          role: Role.detective,
-          prompt: neutralPrompt,
-          confirmationDetail: detail,
-        );
-        await TurnShellHarness.completeHold(tester);
-        await tester.tap(find.byKey(NightGrid.tile(1)));
-        await tester.pump(const Duration(seconds: 9));
-        await tester.tap(find.byKey(TurnShell.actionButton));
-        await tester.pump(const Duration(seconds: 4));
-        return tester.getRect(find.byKey(TurnShell.slotDetail));
-      }
+    testWidgets(
+      'detail slot occupies identical bounds whether or not it is filled',
+      (tester) async {
+        Future<Rect> detailRectWith(String? detail) async {
+          await TurnShellHarness.pump(
+            tester,
+            role: Role.detective,
+            prompt: neutralPrompt,
+            confirmationDetail: detail,
+          );
+          await TurnShellHarness.completeHold(tester);
+          await tester.tap(find.byKey(NightGrid.tile(1)));
+          await tester.pump(const Duration(seconds: 9));
+          await tester.tap(find.byKey(TurnShell.actionButton));
+          await tester.pump(const Duration(seconds: 4));
+          return tester.getRect(find.byKey(TurnShell.slotDetail));
+        }
 
-      final filled = await detailRectWith('مافيا');
-      final empty = await detailRectWith(null);
-      expect(filled, equals(empty));
-    });
+        final filled = await detailRectWith('مافيا');
+        final empty = await detailRectWith(null);
+        expect(filled, equals(empty));
+      },
+    );
   });
 }

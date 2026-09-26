@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/asset_constants.dart';
-import '../../platform/reduce_motion.dart';
+import 'ambient_media.dart';
 import '../theme/mafia_theme.dart';
 
 /// The painterly surface treatment, in two pieces: a screen backdrop and a
@@ -58,12 +58,7 @@ class AppBackdrop extends StatelessWidget {
 
   final Widget child;
 
-  const AppBackdrop({
-    super.key,
-    this.image,
-    this.loop,
-    required this.child,
-  });
+  const AppBackdrop({super.key, this.image, this.loop, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -74,16 +69,10 @@ class AppBackdrop extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (image != null)
-            Image.asset(
-              loop != null && !ReduceMotion.of(context) ? loop! : image!,
-              fit: BoxFit.cover,
-              // The art is a backdrop, not content: it must never announce a
-              // loading state or shift the layout when it decodes.
-              gaplessPlayback: true,
-              excludeFromSemantics: true,
-            ),
-          const _CanvasWeave(opacity: _CanvasWeave.backdrop),
+          if (image != null) AmbientMedia(still: image!, loop: loop),
+          const RepaintBoundary(
+            child: _CanvasWeave(opacity: _CanvasWeave.backdrop),
+          ),
           child,
         ],
       ),

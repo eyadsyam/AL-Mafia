@@ -31,8 +31,10 @@ void main() {
         // rendered form leaks nothing either.
         expect(player.toString(), isNot(contains('role')));
         for (final role in Role.values) {
-          expect(player.toString().toLowerCase(),
-              isNot(contains(role.name.toLowerCase())));
+          expect(
+            player.toString().toLowerCase(),
+            isNot(contains(role.name.toLowerCase())),
+          );
         }
       }
     });
@@ -46,32 +48,40 @@ void main() {
       final tally = view.lastTally;
       if (tally != null) {
         expect(tally, isA<VoteTally>());
-        expect(tally.votes.keys, everyElement(isA<int>()),
-            reason: 'the tally is keyed by target, not by voter');
+        expect(
+          tally.votes.keys,
+          everyElement(isA<int>()),
+          reason: 'the tally is keyed by target, not by voter',
+        );
       }
       expect(view.toString(), isNot(contains('voterSeat')));
     });
 
-    test('the day reveal names the eliminated role but not who voted for them',
-        () {
-      final engine = playToTiedVote();
-      // Break the tie so someone is actually eliminated.
-      while (engine.match.currentActorSeat != null) {
-        final seat = engine.match.currentActorSeat!;
-        final ballot = engine.currentVoteCandidates!;
-        final target = ballot.firstWhere((s) => s != seat, orElse: () => ballot.first);
-        if (target == seat) break;
-        engine.submitVote(seat: seat, voterSeat: seat, targetSeat: target);
-      }
-      final result = engine.resolveDayVote();
+    test(
+      'the day reveal names the eliminated role but not who voted for them',
+      () {
+        final engine = playToTiedVote();
+        // Break the tie so someone is actually eliminated.
+        while (engine.match.currentActorSeat != null) {
+          final seat = engine.match.currentActorSeat!;
+          final ballot = engine.currentVoteCandidates!;
+          final target = ballot.firstWhere(
+            (s) => s != seat,
+            orElse: () => ballot.first,
+          );
+          if (target == seat) break;
+          engine.submitVote(seat: seat, voterSeat: seat, targetSeat: target);
+        }
+        final result = engine.resolveDayVote();
 
-      if (result.eliminatedSeat != null) {
-        // The role is public — the table watched them get voted out (FR-019).
-        expect(result.eliminatedRole, isNotNull);
-        // The ballot is not.
-        expect(result.toString(), isNot(contains('voterSeat')));
-      }
-    });
+        if (result.eliminatedSeat != null) {
+          // The role is public — the table watched them get voted out (FR-019).
+          expect(result.eliminatedRole, isNotNull);
+          // The ballot is not.
+          expect(result.toString(), isNot(contains('voterSeat')));
+        }
+      },
+    );
 
     test('a mid-match repository refuses to serve analytics', () async {
       final store = MemoryMatchStore();
@@ -79,9 +89,13 @@ void main() {
       final engine = scriptedMatch(stopAfterNightActions: 4);
       await repository.persistStep(engine.match);
 
-      expect(() => repository.loadAnalytics(engine.match.id), throwsStateError,
-          reason: 'analytics is the only role-exposing read and must wait for '
-              'the match to end (repository contract inv. 6)');
+      expect(
+        () => repository.loadAnalytics(engine.match.id),
+        throwsStateError,
+        reason:
+            'analytics is the only role-exposing read and must wait for '
+            'the match to end (repository contract inv. 6)',
+      );
     });
   });
 
@@ -95,12 +109,18 @@ void main() {
       final analytics = await repository.loadAnalytics(engine.match.id);
       final data = analytics.data;
 
-      expect(data.finalRoles, hasLength(engine.match.players.length),
-          reason: 'every role should be revealed post-game');
+      expect(
+        data.finalRoles,
+        hasLength(engine.match.players.length),
+        reason: 'every role should be revealed post-game',
+      );
       expect(data.winner, equals(engine.match.outcome!.winner));
       expect(data.timeline, isNotEmpty);
-      expect(data.achievements, isNotEmpty,
-          reason: 'FR-032 requires at least one achievement');
+      expect(
+        data.achievements,
+        isNotEmpty,
+        reason: 'FR-032 requires at least one achievement',
+      );
       expect(data.nightsPlayed, greaterThan(0));
     });
 
@@ -110,20 +130,27 @@ void main() {
       final engine = scriptedMatch(playToEnd: true);
       await repository.persistStep(engine.match);
 
-      final suspicionsInLog =
-          engine.match.eventLog.whereType<SuspectCast>().toList();
+      final suspicionsInLog = engine.match.eventLog
+          .whereType<SuspectCast>()
+          .toList();
       final analytics = await repository.loadAnalytics(engine.match.id);
 
       if (suspicionsInLog.isEmpty) {
-        fail('the scripted match recorded no suspicions, so this proves '
-            'nothing — the citizens must act at night');
+        fail(
+          'the scripted match recorded no suspicions, so this proves '
+          'nothing — the citizens must act at night',
+        );
       }
 
       final recorded = analytics.data.suspicionMatrix.counts;
       for (final event in suspicionsInLog) {
-        expect(recorded[event.actorSeat]?[event.targetSeat], isNotNull,
-            reason: 'seat ${event.actorSeat} suspected ${event.targetSeat} but '
-                'it is missing from the suspicion map');
+        expect(
+          recorded[event.actorSeat]?[event.targetSeat],
+          isNotNull,
+          reason:
+              'seat ${event.actorSeat} suspected ${event.targetSeat} but '
+              'it is missing from the suspicion map',
+        );
       }
     });
 
@@ -143,8 +170,11 @@ void main() {
             .where((e) => e.actorSeat == accuracy.seat)
             .where((e) => roles[e.targetSeat] == Role.mafia)
             .length;
-        expect(accuracy.correctSuspicions, equals(expectedCorrect),
-            reason: 'accuracy for seat ${accuracy.seat} is miscounted');
+        expect(
+          accuracy.correctSuspicions,
+          equals(expectedCorrect),
+          reason: 'accuracy for seat ${accuracy.seat} is miscounted',
+        );
       }
     });
   });

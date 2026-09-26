@@ -379,6 +379,22 @@ class AudioDirector {
     if (sound != null) _emit(sound);
   }
 
+  /// Presentation accents the host's room pack or narrator adds (docs/
+  /// CLAUDE-UX-ECONOMY-NEXT.md §89), and the store's previews of them.
+  ///
+  /// Public moments only: a match's opening and closing, and a preview the
+  /// player asked for. Callers never fire one during a night or on a private
+  /// turn, and this refuses silently rather than throwing if the phone is in a
+  /// hand, because a cosmetic must never be able to stop a match. Respects
+  /// [muted]; a missing or failing file is the backend's quiet problem.
+  final List<String> emittedAccents = [];
+
+  void playAccent(String assetPath) {
+    if (_location == PhoneLocation.inHand || muted) return;
+    emittedAccents.add(assetPath);
+    _emit(assetPath);
+  }
+
   /// Hands one asset to the backend. Fire-and-forget: a phase transition must
   /// not wait on a speaker.
   void _emit(String assetPath) =>

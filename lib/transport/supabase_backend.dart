@@ -45,6 +45,7 @@ class SupabaseBackend implements OnlineBackend {
   /// `room_players.role` carries no column privilege for any client role, so
   /// there is no view, policy or PostgREST route that could return it instead.
   _Identity? _identity;
+  String? _identityRoomId;
 
   SupabaseBackend(this.client);
 
@@ -83,19 +84,42 @@ class SupabaseBackend implements OnlineBackend {
     final response = await _guarded(
       () => client.functions.invoke(function, body: body),
     );
-
     final data = response.data;
-    if (response.status >= 400) {
-      // The Edge Functions answer a refusal with `{error, message}` and the
-      // client acts on the code, not on the status: `PHASE_CLOSED` at 400 is
-      // an ordinary event and a 400 with no code is a bug.
-      final map = data is Map ? data : const {};
-      throw BackendException(
-        map['error'] as String? ?? 'BAD_REQUEST',
-        map['message'] as String? ?? 'the request was refused',
+    return data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+  }
+
+  /// A refusal from an Edge Function, as the code the client acts on.
+  ///
+  /// `functions.invoke` **throws** on any non-2xx — it does not hand back a
+  /// response with a status to inspect — so the `if (status >= 400)` this used
+  /// to do was unreachable, and every refusal fell through the catch-all in
+  /// [_guarded] and came back as [BackendUnreachable]. The consequences were
+  /// all of one shape and none of them true: a `PHASE_CLOSED` tap half a second
+  /// late became «الاتصال قطع» and «اختيارك متسجلش» instead of a resync onto
+  /// the phase the room had actually moved to; a full room became a network
+  /// failure; `NOT_HOST` became one too, and the client stopped trusting a
+  /// connection that was working perfectly.
+  ///
+  /// So the refusal is decoded here, from the `{error, message}` every function
+  /// answers with. A 5xx is the one case that really is the server being
+  /// unavailable rather than saying no, and it keeps the old meaning.
+  /// Static, and public, so the translation can be tested without a network:
+  /// it is a pure function of the exception, and the bug it replaces was
+  /// invisible precisely because nothing could reach it.
+  static Object refusalFor(FunctionException e) {
+    final details = e.details;
+    final map = details is Map ? details : const {};
+    final code = map['error'] as String?;
+    if (code == null && e.status >= 500) {
+      return BackendUnreachable(
+        e,
+        projectPaused: '$details'.toLowerCase().contains('paused'),
       );
     }
-    return data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+    return BackendException(
+      code ?? 'BAD_REQUEST',
+      map['message'] as String? ?? 'the request was refused',
+    );
   }
 
   @override
@@ -194,7 +218,7 @@ class SupabaseBackend implements OnlineBackend {
     final mine = players.where((p) => p.userId == me).toList();
     OwnSeat? own;
     if (mine.isNotEmpty) {
-      final identity = await _ownIdentity(roomId, state.status);
+      final identity = await _ownIdentity(roomId, state.phase);
       own = OwnSeat(
         seat: mine.first.seat,
         role: identity.role,
@@ -335,11 +359,11 @@ class SupabaseBackend implements OnlineBackend {
   /// blank on it is worse than a resync that says it could not finish.
   /// Once an answer arrives it is cached, so a later flaky moment cannot take
   /// the role away again.
-  Future<_Identity> _ownIdentity(String roomId, String status) async {
-    if (status == 'lobby') return const _Identity(null, <String>[]);
+  Future<_Identity> _ownIdentity(String roomId, String phase) async {
+    if (phase == 'lobby') return const _Identity(null, <String>[]);
 
     final cached = _identity;
-    if (cached != null) return cached;
+    if (cached != null && _identityRoomId == roomId) return cached;
 
     final result = await call('my_team', {'roomId': roomId});
     final identity = _Identity(result['role'] as String?, <String>[
@@ -348,11 +372,15 @@ class SupabaseBackend implements OnlineBackend {
     ]);
     // A null role means the deal has not landed for this seat yet — a race
     // against `start_match`, not an answer. Caching it would freeze the blank.
-    if (identity.role != null) _identity = identity;
+    if (identity.role != null) {
+      _identity = identity;
+      _identityRoomId = roomId;
+    }
     return identity;
   }
 
-  /// Realtime, over exactly the two published tables (doc 10 §9 migration).
+  /// Realtime, over the published tables (doc 10 §9 migration; the whisper
+  /// graph joined them in `whisper_graph_realtime`).
   ///
   /// Nothing is decoded optimistically: a `room_state` change carries the new
   /// row and is handed on as a delta, and anything else — a resubscribe, a
@@ -381,7 +409,7 @@ class SupabaseBackend implements OnlineBackend {
           // is passed on as a delta and the transport decides whether the
           // change is worth a full read. A phase change always is.
           controller.add(
-            RoomPush.state(
+            RoomPush.stateDelta(
               RoomState.fromJson({
                 ...payload.newRecord,
                 'status': 'playing',
@@ -404,6 +432,22 @@ class SupabaseBackend implements OnlineBackend {
         filter: PostgresChangeFilter(
           type: PostgresChangeFilterType.eq,
           column: 'id',
+          value: roomId,
+        ),
+        callback: (_) => controller.add(const RoomPush.resync()),
+      )
+      // A whisper is written between phases, and the graph is read only on a
+      // full read (once per phase): the recipient used to get the chime and
+      // the card at the *next* phase. The graph is public by design (doc 09
+      // §3.1), the row reaches room members only (RLS holds on the stream),
+      // and a whisper is a once-a-day event, so it is worth the read.
+      ..onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'whisper_meta',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'room_id',
           value: roomId,
         ),
         callback: (_) => controller.add(const RoomPush.resync()),
@@ -628,15 +672,18 @@ class SupabaseBackend implements OnlineBackend {
 
   @override
   Future<void> blockSender(String roomId, String senderId) async {
-    final me = userId;
-    if (me == null) return;
-    await _guarded(
-      () => client.from('whisper_blocks').insert({
-        'room_id': roomId,
-        'blocker_id': me,
-        'blocked_id': senderId,
-      }),
-    );
+    final rows = await fetchRows(roomId);
+    final seat = rows.players
+        .where((p) => p.userId == senderId)
+        .firstOrNull
+        ?.seat;
+    if (seat == null)
+      throw const BackendException('BAD_REQUEST', 'unknown player');
+    await call('player_safety', {
+      'action': 'block',
+      'roomId': roomId,
+      'seat': seat,
+    });
   }
 
   @override
@@ -647,7 +694,11 @@ class SupabaseBackend implements OnlineBackend {
           .select('blocked_id')
           .eq('room_id', roomId),
     );
+    final global = await _guarded(
+      () => client.from('player_blocks').select('blocked_id'),
+    );
     return {
+      for (final row in global) row['blocked_id'] as String,
       for (final row in (rows as List).cast<Map<String, dynamic>>())
         row['blocked_id'] as String,
     };
@@ -679,6 +730,11 @@ class SupabaseBackend implements OnlineBackend {
       return await body();
     } on BackendException {
       rethrow;
+    } on FunctionsFetchException {
+      // The request never reached a function. This one really is the network.
+      rethrow;
+    } on FunctionException catch (e) {
+      throw refusalFor(e);
     } on AuthException catch (e) {
       throw BackendException('UNAUTHENTICATED', e.message);
     } on PostgrestException catch (e) {

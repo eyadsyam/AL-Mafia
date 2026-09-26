@@ -52,7 +52,8 @@ void main() {
         expect(
           drift,
           lessThanOrEqualTo(0.02),
-          reason: 'LEAK: ${entry.key} is ${(drift * 100).toStringAsFixed(2)}% '
+          reason:
+              'LEAK: ${entry.key} is ${(drift * 100).toStringAsFixed(2)}% '
               'off the role-accent mean (${entry.value.toStringAsFixed(1)} vs '
               '${mean.toStringAsFixed(1)}). Re-match it before shipping — the '
               'brightest role accent is the one that shows on a face.',
@@ -68,7 +69,8 @@ void main() {
         expect(
           hsl.saturation,
           lessThanOrEqualTo(0.34),
-          reason: 'LEAK: ${entry.key} is ${hsl.saturation.toStringAsFixed(2)} '
+          reason:
+              'LEAK: ${entry.key} is ${hsl.saturation.toStringAsFixed(2)} '
               'saturated. Chroma is conspicuous independently of brightness.',
         );
       }
@@ -78,8 +80,11 @@ void main() {
       // Guards the opposite failure: matching them so hard they all collapse to
       // the same grey would pass every check above and make the card fronts
       // useless to the one person entitled to read them.
-      expect(accents.values.toSet(), hasLength(4),
-          reason: 'two role accents are now literally the same colour');
+      expect(
+        accents.values.toSet(),
+        hasLength(4),
+        reason: 'two role accents are now literally the same colour',
+      );
     });
 
     test('no night surface carries a warm cast', () {
@@ -118,14 +123,22 @@ void main() {
       for (final entry in ladder.entries) {
         final c = entry.value;
         final r = c.r * 255, g = c.g * 255, b = c.b * 255;
-        expect(b, greaterThanOrEqualTo(g),
-            reason: 'LEAK (doc 05 rule 3): ${entry.key} has more green than '
-                'blue (${r.round()}/${g.round()}/${b.round()}) — it is warming '
-                'up. Night surfaces must lead with blue.');
-        expect(g, greaterThanOrEqualTo(r),
-            reason: 'LEAK (doc 05 rule 3): ${entry.key} has more red than '
-                'green (${r.round()}/${g.round()}/${b.round()}). That is a warm '
-                'cast on the holder\'s face.');
+        expect(
+          b,
+          greaterThanOrEqualTo(g),
+          reason:
+              'LEAK (doc 05 rule 3): ${entry.key} has more green than '
+              'blue (${r.round()}/${g.round()}/${b.round()}) — it is warming '
+              'up. Night surfaces must lead with blue.',
+        );
+        expect(
+          g,
+          greaterThanOrEqualTo(r),
+          reason:
+              'LEAK (doc 05 rule 3): ${entry.key} has more red than '
+              'green (${r.round()}/${g.round()}/${b.round()}). That is a warm '
+              'cast on the holder\'s face.',
+        );
       }
     });
 
@@ -146,10 +159,14 @@ void main() {
 
       final spread =
           hues.values.reduce(math.max) - hues.values.reduce(math.min);
-      expect(spread, lessThanOrEqualTo(8.0),
-          reason: 'the night surfaces are $spread degrees apart in hue '
-              '($hues). They must be one colour at three brightnesses — a '
-              'surface with its own hue reads as a light source.');
+      expect(
+        spread,
+        lessThanOrEqualTo(8.0),
+        reason:
+            'the night surfaces are $spread degrees apart in hue '
+            '($hues). They must be one colour at three brightnesses — a '
+            'surface with its own hue reads as a light source.',
+      );
 
       // And they must genuinely be a *ladder*, not three shades of the same
       // level: a raised panel that does not read as raised sends players
@@ -159,8 +176,11 @@ void main() {
           0.2126 * (c.r * 255) + 0.7152 * (c.g * 255) + 0.0722 * (c.b * 255),
       ];
       for (var i = 1; i < levels.length; i++) {
-        expect(levels[i], greaterThan(levels[i - 1] + 4),
-            reason: 'the surface ladder has collapsed: $levels');
+        expect(
+          levels[i],
+          greaterThan(levels[i - 1] + 4),
+          reason: 'the surface ladder has collapsed: $levels',
+        );
       }
     });
 
@@ -171,8 +191,9 @@ void main() {
       // which moves every ratio the safe way, and a check that only ever passes
       // is still the one that catches the next person who lightens it.
       double relative(Color c) {
-        double channel(double v) =>
-            v <= 0.03928 ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4) as double;
+        double channel(double v) => v <= 0.03928
+            ? v / 12.92
+            : math.pow((v + 0.055) / 1.055, 2.4) as double;
         return 0.2126 * channel(c.r) +
             0.7152 * channel(c.g) +
             0.0722 * channel(c.b);
@@ -184,16 +205,23 @@ void main() {
         return (hi + 0.05) / (lo + 0.05);
       }
 
-      expect(contrast(colors.textPrimary, colors.surfaceBase),
-          greaterThanOrEqualTo(7.0),
-          reason: 'primary text no longer clears 7:1 on the ground '
-              '(Article VII)');
-      expect(contrast(colors.textSecondary, colors.surfaceBase),
-          greaterThanOrEqualTo(4.5),
-          reason: 'secondary text no longer clears 4.5:1 on the ground');
-      expect(contrast(colors.textMuted, colors.surfaceRaised),
-          greaterThanOrEqualTo(3.0),
-          reason: 'muted text has disappeared into a raised panel');
+      expect(
+        contrast(colors.textPrimary, colors.surfaceBase),
+        greaterThanOrEqualTo(7.0),
+        reason:
+            'primary text no longer clears 7:1 on the ground '
+            '(Article VII)',
+      );
+      expect(
+        contrast(colors.textSecondary, colors.surfaceBase),
+        greaterThanOrEqualTo(4.5),
+        reason: 'secondary text no longer clears 4.5:1 on the ground',
+      );
+      expect(
+        contrast(colors.textMuted, colors.surfaceRaised),
+        greaterThanOrEqualTo(3.0),
+        reason: 'muted text has disappeared into a raised panel',
+      );
     });
   });
 }

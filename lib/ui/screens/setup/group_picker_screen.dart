@@ -6,7 +6,7 @@ import '../../../data/player_group_provider.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
-import '../../widgets/textured_surface.dart';
+import '../../widgets/experience_surface.dart';
 import 'setup_draft.dart';
 
 /// Group picker (S-02a) — the first screen of a rematch.
@@ -83,7 +83,7 @@ class GroupPickerScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
-      body: AppBackdrop(
+      body: ExperienceSurface(
         child: SafeArea(
           child: Center(
             child: ConstrainedBox(
@@ -360,12 +360,10 @@ Future<String?> promptForGroupName(
   BuildContext context, {
   required String title,
   required String initial,
-}) =>
-    showDialog<String>(
-      context: context,
-      builder: (dialogContext) =>
-          _GroupNameDialog(title: title, initial: initial),
-    );
+}) => showDialog<String>(
+  context: context,
+  builder: (dialogContext) => _GroupNameDialog(title: title, initial: initial),
+);
 
 /// The naming dialog, stateful so that it owns its [TextEditingController].
 ///
@@ -387,15 +385,15 @@ class _GroupNameDialog extends StatefulWidget {
 }
 
 class _GroupNameDialogState extends State<_GroupNameDialog> {
-  late final TextEditingController _controller = TextEditingController(
-    text: widget.initial,
-  )..selection = TextSelection(
-      // Pre-selected, so the single most likely action — replacing the
-      // suggested name outright — is one keystroke rather than a hold-and-
-      // delete on a phone at a dim table.
-      baseOffset: 0,
-      extentOffset: widget.initial.length,
-    );
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.initial)
+        ..selection = TextSelection(
+          // Pre-selected, so the single most likely action — replacing the
+          // suggested name outright — is one keystroke rather than a hold-and-
+          // delete on a phone at a dim table.
+          baseOffset: 0,
+          extentOffset: widget.initial.length,
+        );
 
   @override
   void dispose() {

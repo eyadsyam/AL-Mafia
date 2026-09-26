@@ -34,7 +34,8 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     await tester.pumpWidget(
-      localizedApp(MediaQuery(
+      localizedApp(
+        MediaQuery(
           data: MediaQueryData(disableAnimations: reduceMotion),
           child: TurnShell(
             labels: TurnShellLabels.of(arStrings),
@@ -46,14 +47,15 @@ void main() {
             onConfirmed: (_) {},
             onPass: () {},
           ),
-        )
+        ),
       ),
     );
   }
 
   Future<void> completeHold(WidgetTester tester) async {
-    final gesture =
-        await tester.startGesture(tester.getCenter(find.byKey(TurnShell.holdPad)));
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.byKey(TurnShell.holdPad)),
+    );
     await tester.pump();
     await tester.pump(MafiaTiming.defaults.holdToReveal);
     await gesture.up();
@@ -61,11 +63,15 @@ void main() {
   }
 
   bool actionEnabled(WidgetTester tester) =>
-      tester.widget<FilledButton>(find.byKey(TurnShell.actionButton)).onPressed !=
+      tester
+          .widget<FilledButton>(find.byKey(TurnShell.actionButton))
+          .onPressed !=
       null;
 
   group('FR-036 the gates are unaffected by Reduce Motion', () {
-    testWidgets('the dwell gate still takes the full 8 seconds', (tester) async {
+    testWidgets('the dwell gate still takes the full 8 seconds', (
+      tester,
+    ) async {
       final dwell = MafiaTiming.defaults.dwellGate;
       const epsilon = Duration(milliseconds: 50);
 
@@ -76,19 +82,28 @@ void main() {
         await tester.pump();
 
         await tester.pump(dwell - epsilon);
-        expect(actionEnabled(tester), isFalse,
-            reason: 'Confirm unlocked early with disableAnimations='
-                '$reduceMotion');
+        expect(
+          actionEnabled(tester),
+          isFalse,
+          reason:
+              'Confirm unlocked early with disableAnimations='
+              '$reduceMotion',
+        );
 
         await tester.pump(epsilon * 2);
-        expect(actionEnabled(tester), isTrue,
-            reason: 'Confirm never unlocked with disableAnimations='
-                '$reduceMotion');
+        expect(
+          actionEnabled(tester),
+          isTrue,
+          reason:
+              'Confirm never unlocked with disableAnimations='
+              '$reduceMotion',
+        );
       }
     });
 
-    testWidgets('the turn floor still takes the full 12 seconds',
-        (tester) async {
+    testWidgets('the turn floor still takes the full 12 seconds', (
+      tester,
+    ) async {
       final floor = MafiaTiming.defaults.turnFloor;
       final dwell = MafiaTiming.defaults.dwellGate;
       const epsilon = Duration(milliseconds: 50);
@@ -102,12 +117,18 @@ void main() {
         await tester.pump();
 
         await tester.pump(floor - dwell - epsilon * 3);
-        expect(actionEnabled(tester), isFalse,
-            reason: 'Pass unlocked early with disableAnimations=$reduceMotion');
+        expect(
+          actionEnabled(tester),
+          isFalse,
+          reason: 'Pass unlocked early with disableAnimations=$reduceMotion',
+        );
 
         await tester.pump(epsilon * 6);
-        expect(actionEnabled(tester), isTrue,
-            reason: 'Pass never unlocked with disableAnimations=$reduceMotion');
+        expect(
+          actionEnabled(tester),
+          isTrue,
+          reason: 'Pass never unlocked with disableAnimations=$reduceMotion',
+        );
       }
     });
 
@@ -117,13 +138,18 @@ void main() {
       for (final reduceMotion in [false, true]) {
         await pumpShell(tester, role: Role.citizen, reduceMotion: reduceMotion);
 
-        final gesture = await tester
-            .startGesture(tester.getCenter(find.byKey(TurnShell.holdPad)));
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byKey(TurnShell.holdPad)),
+        );
         await tester.pump();
         await tester.pump(MafiaTiming.defaults.holdToReveal ~/ 2);
-        expect(find.byKey(TurnShell.holdPad), findsOneWidget,
-            reason: 'the pad revealed at half the hold duration with '
-                'disableAnimations=$reduceMotion');
+        expect(
+          find.byKey(TurnShell.holdPad),
+          findsOneWidget,
+          reason:
+              'the pad revealed at half the hold duration with '
+              'disableAnimations=$reduceMotion',
+        );
         await gesture.up();
         await tester.pumpAndSettle();
       }
@@ -131,16 +157,17 @@ void main() {
   });
 
   group('FR-036 structure is unaffected by Reduce Motion', () {
-    testWidgets('reserved slot geometry is identical either way',
-        (tester) async {
+    testWidgets('reserved slot geometry is identical either way', (
+      tester,
+    ) async {
       Map<String, Rect> slots(WidgetTester t) => {
-            'header': t.getRect(find.byKey(TurnShell.slotHeader)),
-            'rail': t.getRect(find.byKey(TurnShell.slotRail)),
-            'body': t.getRect(find.byKey(TurnShell.slotBody)),
-            'detail': t.getRect(find.byKey(TurnShell.slotDetail)),
-            'action': t.getRect(find.byKey(TurnShell.slotAction)),
-            'footnote': t.getRect(find.byKey(TurnShell.slotFootnote)),
-          };
+        'header': t.getRect(find.byKey(TurnShell.slotHeader)),
+        'rail': t.getRect(find.byKey(TurnShell.slotRail)),
+        'body': t.getRect(find.byKey(TurnShell.slotBody)),
+        'detail': t.getRect(find.byKey(TurnShell.slotDetail)),
+        'action': t.getRect(find.byKey(TurnShell.slotAction)),
+        'footnote': t.getRect(find.byKey(TurnShell.slotFootnote)),
+      };
 
       await pumpShell(tester, role: Role.detective, reduceMotion: false);
       await completeHold(tester);
@@ -150,9 +177,13 @@ void main() {
       await completeHold(tester);
       final reduced = slots(tester);
 
-      expect(reduced, equals(normal),
-          reason: 'Reduce Motion moved the layout; it may only affect '
-              'decoration');
+      expect(
+        reduced,
+        equals(normal),
+        reason:
+            'Reduce Motion moved the layout; it may only affect '
+            'decoration',
+      );
     });
   });
 

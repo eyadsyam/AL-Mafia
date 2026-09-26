@@ -99,3 +99,18 @@ android/.gradle/
 .codex-*/
 .edge-pdf-export/
 .playwright-mcp/
+
+# Edge Function secrets. `METERED_REALTIME_SECRET_KEY` and its key id live in
+# Supabase's own secret store and are read with `Deno.env.get` at run time —
+# nothing in this repository should ever hold their values. These patterns are
+# here so that a local `supabase secrets set --env-file` scratch file, or a
+# `supabase start` .env, cannot be committed by accident.
+supabase/.env
+supabase/.env.*
+supabase/functions/.env
+supabase/functions/.env.*
+# `npx supabase` writes these into the project root as it goes. They are the
+# CLI's own scratch, not this app's — Flutter has no npm dependencies.
+node_modules/
+package.json
+package-lock.json

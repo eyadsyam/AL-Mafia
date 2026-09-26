@@ -55,7 +55,8 @@ class MorningReport {
 /// Result of a day vote resolution.
 class DayVoteResult {
   final int? eliminatedSeat; // null if no elimination
-  final Map<int, int>? tally; // targetSeat -> vote count (only if tie or elimination)
+  final Map<int, int>?
+  tally; // targetSeat -> vote count (only if tie or elimination)
   final bool tie; // true if vote was tied
   final List<int>? tiedSeats; // seats that were tied (only if tie)
 
@@ -184,4 +185,3 @@ class PublicMatchView {
   String toString() =>
       'PublicMatchView(phase=$phase, dayNumber=$dayNumber, players=${players.length}, outcome=$outcome)';
 }
-

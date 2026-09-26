@@ -46,13 +46,13 @@ void main() {
   ];
 
   List<num> manifestGround() {
-    final manifest = jsonDecode(File('tool/manifest.json').readAsStringSync())
-        as Map<String, dynamic>;
+    final manifest =
+        jsonDecode(File('tool/manifest.json').readAsStringSync())
+            as Map<String, dynamic>;
     return (manifest['card_ground'] as List).cast<num>();
   }
 
-  double luminance(num r, num g, num b) =>
-      0.2126 * r + 0.7152 * g + 0.0722 * b;
+  double luminance(num r, num g, num b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
 
   /// Mean luminance of the outermost [band] pixels of a shipped face — the part
   /// of the picture the bars actually touch.
@@ -106,10 +106,14 @@ void main() {
       (AppColors.groundBase.b * 255).round(),
     ];
 
-    expect(ground, equals(expected),
-        reason: 'tool/manifest.json letterboxes against rgb$ground while '
-            'AppColors.groundBase is rgb$expected. Fix the manifest and '
-            're-run `python tool/normalise_art.py`.');
+    expect(
+      ground,
+      equals(expected),
+      reason:
+          'tool/manifest.json letterboxes against rgb$ground while '
+          'AppColors.groundBase is rgb$expected. Fix the manifest and '
+          're-run `python tool/normalise_art.py`.',
+    );
   });
 
   test('the letterbox bars ship as exactly the ground colour', () async {
@@ -149,8 +153,16 @@ void main() {
       var worst = 0;
       var worstAt = '';
       for (var x = 0; x < width; x++) {
-        for (final y in <int>[0, 1, 2, 3, height - 4, height - 3, height - 2,
-          height - 1]) {
+        for (final y in <int>[
+          0,
+          1,
+          2,
+          3,
+          height - 4,
+          height - 3,
+          height - 2,
+          height - 1,
+        ]) {
           final i = (y * width + x) * 4;
           for (var c = 0; c < 3; c++) {
             final delta = (rgba[i + c] - ground[c]).abs();
@@ -162,34 +174,44 @@ void main() {
         }
       }
 
-      expect(worst, lessThanOrEqualTo(tolerance),
-          reason: 'the letterbox bars of $face are up to $worst levels off '
-              'rgb$ground — worst at $worstAt. They must be the ground exactly, '
-              'or the card draws a frame against the screen behind it, and the '
-              "mafia's frame is more than twice as deep as the other three. "
-              'Re-run `python tool/normalise_art.py`.');
+      expect(
+        worst,
+        lessThanOrEqualTo(tolerance),
+        reason:
+            'the letterbox bars of $face are up to $worst levels off '
+            'rgb$ground — worst at $worstAt. They must be the ground exactly, '
+            'or the card draws a frame against the screen behind it, and the '
+            "mafia's frame is more than twice as deep as the other three. "
+            'Re-run `python tool/normalise_art.py`.',
+      );
     }
   });
 
-  test('the bars are indistinguishable from the art they sit against',
-      () async {
-    // The property that actually prevents the tell. A few levels is far below
-    // what anyone can see on a phone at a dark table; a couple of dozen would
-    // draw a rectangle around the mafia card.
-    const budget = 12.0;
+  test(
+    'the bars are indistinguishable from the art they sit against',
+    () async {
+      // The property that actually prevents the tell. A few levels is far below
+      // what anyone can see on a phone at a dark table; a couple of dozen would
+      // draw a rectangle around the mafia card.
+      const budget = 12.0;
 
-    final ground = manifestGround();
-    final groundLuminance = luminance(ground[0], ground[1], ground[2]);
+      final ground = manifestGround();
+      final groundLuminance = luminance(ground[0], ground[1], ground[2]);
 
-    for (final face in faces) {
-      final edge = await edgeLuminance(face);
-      expect((edge - groundLuminance).abs(), lessThan(budget),
-          reason: 'the outer edge of $face measures '
+      for (final face in faces) {
+        final edge = await edgeLuminance(face);
+        expect(
+          (edge - groundLuminance).abs(),
+          lessThan(budget),
+          reason:
+              'the outer edge of $face measures '
               '${edge.toStringAsFixed(1)}/255 while the letterbox bars measure '
               '${groundLuminance.toStringAsFixed(1)}. At that difference the '
               'bars are a visible frame — and the mafia painting covers 76% of '
               'the card box against 89% for the others, so its frame is '
-              'thicker. That is readable from across the table.');
-    }
-  });
+              'thicker. That is readable from across the table.',
+        );
+      }
+    },
+  );
 }

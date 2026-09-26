@@ -1,291 +1,706 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import '../../../engine/models/player.dart';
-import '../../widgets/gender_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/player_profile.dart';
+import '../../../data/terms_consent.dart';
+import '../../economy/wallet.dart';
+import '../../../data/online_session_store.dart';
+import '../../../engine/models/enums.dart';
+import '../../../engine/models/player.dart';
+import '../../../platform/voice/web_playout.dart';
+import '../../../platform/audio_director.dart';
+import '../../../engine/views.dart';
 import '../../../transport/game_snapshot.dart';
+import '../../../transport/room_codec.dart';
 import '../../l10n_ext.dart';
+import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
+import '../../widgets/storage_warning_note.dart';
 import '../../widgets/back_action.dart';
-import '../../widgets/textured_surface.dart';
+import '../../widgets/player_avatar.dart';
+import '../../widgets/experience_surface.dart';
+import '../setup/profile_screen.dart';
 import 'online_session.dart';
+import 'room_settings_panel.dart';
+import 'safety_center.dart';
 
-/// S-20 — host a room, or join one with six characters.
+/// Public rooms are the front door; identity belongs to the saved profile.
 ///
-/// ## One question at a time
-///
-/// This screen used to ask everything at once: a name, a code, and two buttons
-/// underneath, so a player arriving with nothing to type stared at a field they
-/// had no business filling in, on a screen that had already decided they were
-/// joining. The code field was the largest thing on it and it is the thing
-/// three players out of five never touch.
-///
-/// So the screen asks in order. Your name, because both paths need it. Then
-/// **which of the two you are** — and only the answer "I have a code" produces
-/// a field to type it into. The host never sees an empty code box; the joiner
-/// never reaches a button that would refuse them. Nothing about the second step
-/// exists until the first is answered.
-///
-/// A code that arrived from a deep link answers the question by itself: the
-/// screen opens on the second step with the field filled, because somebody who
-/// tapped an invite has already said which of the two they are.
-///
-/// ## The failure copy is the feature
-///
-/// Doc 11 gives four distinct ways this screen can fail — no room (O14), a full
-/// room (O15), a finished match, and a server that is not there at all (O9,
-/// O11) — and asks for a distinct, actionable message for each rather than a
-/// spinner that never resolves. They are the same size as the success path
-/// here, and the unreachable case ends with the one offer that is always
-/// available: play offline, which needs nothing from anybody.
+/// The player always chooses the room. Nothing on this screen seats anybody
+/// automatically: the list only reads, and a room is entered by tapping it,
+/// by code, or by creating one.
 class OnlineEntryScreen extends ConsumerStatefulWidget {
-  /// Where the lobby lives once a room has been joined.
   final VoidCallback onJoined;
 
-  /// The way back to a game that needs no server.
-  final VoidCallback onPlayOffline;
-
-  /// A room code that arrived from outside the app — a deep link a friend
-  /// sent (doc 12 §3.1). Opens on the code step with the field filled; it never
-  /// joins on its own, because a link that put somebody into a room without
-  /// their name and without a tap would be a link that could be sent to them by
-  /// anybody.
+  /// The screen's logical parent — the online/offline choice — not a match
+  /// setup. Kept apart from any "play offline" path on purpose.
+  final VoidCallback onBack;
   final String? initialCode;
-
   const OnlineEntryScreen({
     super.key,
     required this.onJoined,
-    required this.onPlayOffline,
+    required this.onBack,
     this.initialCode,
   });
-
-  static const Key nameField = ValueKey('online_name');
-
-  /// Only in the tree once the player has said they are joining.
-  static const Key codeField = ValueKey('online_code');
-
-  /// Step one: start a room. Hosts on the spot — there is nothing else to ask.
-  static const Key hostButton = ValueKey('online_host');
-
-  /// Step one: "I have a code". Opens the second step; joins nothing.
-  static const Key haveCodeButton = ValueKey('online_have_code');
-  static const Key browseButton = ValueKey('online_browse');
-  static const Key browseList = ValueKey('online_browse_list');
-
-  /// Step two: the join itself.
-  static const Key joinButton = ValueKey('online_join');
-
-  static const Key errorText = ValueKey('online_error');
-  static const Key offlineButton = ValueKey('online_play_offline');
-
+  static const codeField = ValueKey('online_code');
+  static const hostButton = ValueKey('online_host');
+  static const haveCodeButton = ValueKey('online_have_code');
+  static const joinButton = ValueKey('online_join');
+  static const browseButton = ValueKey('online_browse');
+  static const browseList = ValueKey('online_browse_list');
+  static const errorText = ValueKey('online_error');
+  static const resumeButton = ValueKey('online_resume');
+  static const discardButton = ValueKey('online_discard_resume');
+  static const storageWarning = ValueKey('online_storage_warning');
+  static const backButton = ValueKey('online_back');
+  static const staleNotice = ValueKey('online_rooms_stale');
   @override
   ConsumerState<OnlineEntryScreen> createState() => _OnlineEntryScreenState();
 }
 
-/// Which of the two questions the screen is on.
-enum _Step { choose, join, browse }
+enum _Step { browse, join, create }
 
 class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
-  final TextEditingController _name = TextEditingController();
-  late final TextEditingController _code = TextEditingController(
+  late final _code = TextEditingController(
     text: widget.initialCode?.toUpperCase() ?? '',
   );
+  late _Step _step = widget.initialCode == null ? _Step.browse : _Step.join;
+  List<PublicRoom> _rooms = [];
+  bool _loading = true;
 
-  /// A deep link has answered the question, so the screen does not ask it.
-  late _Step _step = (widget.initialCode?.isNotEmpty ?? false)
-      ? _Step.join
-      : _Step.choose;
+  /// The last read failed. [_rooms] is still the last good list, if there was
+  /// one, and the screen says it may be out of date instead of emptying it.
+  bool _browseFailed = false;
+  bool _everLoaded = false;
+  bool _nearlyReadyOnly = false;
+
+  /// One read at a time, and one pending timer at most.
+  bool _inFlight = false;
+  Timer? _poll;
+  Duration _wait = MafiaTiming.publicRoomsRefresh;
+  bool _foreground = true;
+  late final AppLifecycleListener _lifecycle;
+  bool _editing = false;
+  OnlineRoomResume? _resume;
+  RoomOptions _room = const RoomOptions();
+  static const _defaultSettings = <String, dynamic>{
+    'maxPlayers': 10,
+    'voice': true,
+    'muteAllAtNight': true,
+    'speechSeconds': 45,
+    'discussionSeconds': 300,
+    'openVoting': false,
+    'traceEnabled': true,
+    'discussionMode': 'structured',
+    'confrontationEnabled': true,
+    'whisperEnabled': true,
+    'scenarioCode': 'classic',
+  };
+  final Map<String, dynamic> _settings = {..._defaultSettings};
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(onStateChange: _onLifecycle);
+    _refresh();
+    _loadResume();
+  }
+
+  void _onLifecycle(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        final wasAway = !_foreground;
+        _foreground = true;
+        // Back from the background: the list is at least as old as the
+        // absence, so read it now instead of on the next tick.
+        if (wasAway) unawaited(_refresh());
+      case AppLifecycleState.hidden ||
+          AppLifecycleState.paused ||
+          AppLifecycleState.detached:
+        _foreground = false;
+        _poll?.cancel();
+      case AppLifecycleState.inactive:
+        break;
+    }
+  }
+
+  /// Reads the list again after [_wait], if the list is still what the player
+  /// is looking at. The create panel covers it, and a backgrounded app is not
+  /// looking at anything.
+  void _schedule() {
+    _poll?.cancel();
+    if (!mounted || !_foreground || _step == _Step.create) return;
+    _poll = Timer(_wait, _refresh);
+  }
+
+  Future<void> _loadResume() async {
+    final resume = await OnlineSessionStore.load();
+    if (mounted) setState(() => _resume = resume);
+  }
 
   @override
   void dispose() {
-    _name.dispose();
+    _poll?.cancel();
+    _lifecycle.dispose();
     _code.dispose();
     super.dispose();
   }
 
-  PlayerGender _gender = PlayerGender.unspecified;
-
-  /// The browse list, and whether it is being fetched. Null means "not asked
-  /// yet", which is the only state that triggers the first load — every state
-  /// after that is the host's own pull.
-  List<PublicRoom>? _rooms;
-  bool _browsing = false;
-
-  bool get _hasName => _name.text.trim().isNotEmpty;
-  bool get _hasCode => _code.text.trim().length == 6;
-
-  Future<void> _host() async {
-    await ref
-        .read(onlineSessionProvider.notifier)
-        .host(_name.text, gender: _gender.name);
-    _maybeLeave();
+  Future<void> _refresh() async {
+    if (_inFlight || !mounted) return;
+    _inFlight = true;
+    _poll?.cancel();
+    setState(() => _loading = true);
+    try {
+      final rooms = await ref.read(onlineSessionProvider.notifier).browse();
+      _wait = MafiaTiming.publicRoomsRefresh;
+      if (mounted) {
+        setState(() {
+          _rooms = rooms;
+          _browseFailed = false;
+          _everLoaded = true;
+        });
+      }
+    } catch (_) {
+      // Keep what was shown and say it may be stale. Back off, doubling to a
+      // cap, so a server that is down is not asked every tick by every phone.
+      final doubled = _wait * 2;
+      _wait = doubled > MafiaTiming.publicRoomsBackoffCap
+          ? MafiaTiming.publicRoomsBackoffCap
+          : doubled;
+      if (mounted) setState(() => _browseFailed = true);
+    } finally {
+      _inFlight = false;
+      if (mounted) {
+        setState(() => _loading = false);
+        _schedule();
+      }
+    }
   }
 
-  Future<void> _join() async {
-    await ref
-        .read(onlineSessionProvider.notifier)
-        .join(code: _code.text, name: _name.text, gender: _gender.name);
-    _maybeLeave();
+  Future<void> _enter({bool host = false, String? code}) async {
+    if (!await acceptCommunityRules(context) || !mounted) return;
+    final profile = ref.read(playerProfileProvider).valueOrNull;
+    if (profile == null) return;
+    // Capture the user's room-entry gesture before authentication and the
+    // network round trip. Without this, Chrome/Edge may allow getUserMedia but
+    // reject the later remote audio element until the player taps playback.
+    unawaited(primeWebPlayout());
+    final online = ref.read(onlineSessionProvider.notifier);
+    if (host) {
+      await online.host(
+        profile.name,
+        gender: profile.gender.name,
+        configuration: {
+          'visibility': _room.visibility,
+          'title': _room.title,
+          'settings': _settings,
+        },
+      );
+    } else {
+      await online.join(
+        code: code ?? _code.text,
+        name: profile.name,
+        gender: profile.gender.name,
+      );
+    }
+    if (mounted && ref.read(onlineSessionProvider).isInRoom) {
+      // The session exists now, so the queued acceptance can be recorded.
+      unawaited(_syncTerms());
+      widget.onJoined();
+      return;
+    }
+    // The room filled, started or closed between the list and the tap. The
+    // error line says so and the list is read again as it is now. The player
+    // is never moved into a different room they did not pick.
+    if (mounted &&
+        _listRefusals.contains(ref.read(onlineSessionProvider).errorCode)) {
+      unawaited(_refresh());
+    }
+    // The pointer may have just been proven obsolete (the room is gone, or has
+    // no seat for this player any more) and dropped; the button follows it.
+    if (mounted) await _loadResume();
   }
 
-  void _maybeLeave() {
-    if (!mounted) return;
-    if (ref.read(onlineSessionProvider).isInRoom) widget.onJoined();
+  /// Records the setup acceptance on the server once. Never blocks play: a
+  /// failure (or a server without the table yet) is retried on a later entry
+  /// and never makes the player tick the box again.
+  Future<void> _syncTerms() async {
+    final terms = ref.read(termsAcceptanceProvider).valueOrNull;
+    if (terms == null || !terms.current || terms.synced) return;
+    final notifier = ref.read(termsAcceptanceProvider.notifier);
+    try {
+      final backend = await ref.read(onlineBackendFactoryProvider)();
+      await backend.ensureSession();
+      await backend.call('player_safety', {
+        'action': 'accept_terms',
+        'version': terms.version,
+        'adult': true,
+        'acceptedAt': terms.acceptedAt.toUtc().toIso8601String(),
+      });
+      await notifier.markSynced();
+    } catch (_) {}
   }
 
-  /// Move between the two steps, and take any standing refusal with you.
-  ///
-  /// A "no room with that code" left over the two buttons would be a sentence
-  /// about a field that is no longer on the screen.
-  void _goTo(_Step step) {
+  static const _listRefusals = {
+    'ROOM_FULL',
+    'PHASE_CLOSED',
+    'ROOM_FINISHED',
+    'ROOM_NOT_FOUND',
+    'NOT_A_MEMBER',
+  };
+
+  /// A host's equipped packs are the default for rooms they create. Only
+  /// owned codes can be equipped, and the server checks again on create.
+  void _applyEquippedPacks() {
+    final equipped = ref.read(walletProvider).valueOrNull?.equipped;
+    if (equipped == null) return;
+    for (final (slot, key) in [
+      ('room_pack', 'presentationPack'),
+      ('narrator', 'narratorPack'),
+    ]) {
+      final code = equipped[slot];
+      if (code != null && !_settings.containsKey(key)) _settings[key] = code;
+    }
+    _room = _room.copyWith(
+      presentationPack: _settings['presentationPack'] as String?,
+      narratorPack: _settings['narratorPack'] as String?,
+    );
+  }
+
+  Future<void> _discard() async {
+    final resume = _resume;
+    if (resume == null) return;
+    await ref.read(onlineSessionProvider.notifier).discardResume(resume);
+    if (mounted) await _loadResume();
+  }
+
+  void _go(_Step step) {
+    if (_step != step) ref.read(audioDirectorProvider).playCardTurn();
     ref.read(onlineSessionProvider.notifier).clearError();
+    final fromCreate = _step == _Step.create;
+    if (step == _Step.create) _applyEquippedPacks();
     setState(() => _step = step);
-    if (step == _Step.browse && _rooms == null) _refreshRooms();
+    if (step == _Step.create) {
+      _poll?.cancel();
+    } else if (fromCreate) {
+      unawaited(_refresh());
+    }
   }
 
-  /// Task 10: pull-to-refresh only. Nothing here runs on a timer.
-  Future<void> _refreshRooms() async {
-    setState(() => _browsing = true);
-    final rooms = await ref.read(onlineSessionProvider.notifier).browse();
-    if (!mounted) return;
-    setState(() {
-      _rooms = rooms;
-      _browsing = false;
-    });
-  }
-
-  /// Tapping a public room is the same act as typing its code, so it goes
-  /// through the same call and meets the same ban list.
-  Future<void> _joinPublic(String code) async {
-    _code.text = code;
-    await _join();
-  }
-
-  /// The refusal, in words. The code comes from the server and the sentence
-  /// comes from here, which is why nothing in `lib/transport` holds copy.
-  String? _message(OnlineSessionState session) {
-    final l10n = context.l10n;
-    return switch (session.errorCode) {
-      null => null,
-      'ROOM_NOT_FOUND' => l10n.onlineRoomNotFound,
-      'ROOM_FULL' => l10n.onlineRoomFull,
-      'ROOM_FINISHED' => l10n.onlineRoomFinished,
-      'PHASE_CLOSED' => l10n.onlineRoomFinished,
-      'UNREACHABLE' =>
-        session.projectPaused
-            ? l10n.onlineProjectPaused
-            : l10n.onlineUnreachable,
-      _ => l10n.onlineUnreachable,
-    };
-  }
+  String? _error(OnlineSessionState state) => switch (state.errorCode) {
+    null => null,
+    'ROOM_NOT_FOUND' => context.l10n.onlineRoomNotFound,
+    'ROOM_FULL' => context.l10n.onlineRoomFull,
+    'NEW_ROOMS_PAUSED' => context.l10n.onlineNewRoomsPaused,
+    'ROOM_FINISHED' => context.l10n.onlineRoomFinished,
+    'PHASE_CLOSED' => context.l10n.onlineRoomStarted,
+    'NOT_A_MEMBER' => context.l10n.onlineKickedByHost,
+    'UNREACHABLE' =>
+      state.projectPaused
+          ? context.l10n.onlineProjectPaused
+          : context.l10n.onlineUnreachable,
+    _ => context.l10n.onlineUnreachable,
+  };
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final type = context.typography;
-    final spacing = context.spacing;
-    final l10n = context.l10n;
-    final session = ref.watch(onlineSessionProvider);
-    final message = _message(session);
-
+    final profile = ref.watch(playerProfileProvider).valueOrNull;
+    if (profile == null || _editing) {
+      return ProfileScreen(
+        onSaved: () => setState(() => _editing = false),
+        onBack: profile == null
+            ? widget.onBack
+            : () => setState(() => _editing = false),
+      );
+    }
+    final s = context.spacing;
+    final c = context.colors;
+    final l = context.l10n;
+    final state = ref.watch(onlineSessionProvider);
+    final visibleRooms = _nearlyReadyOnly
+        ? _rooms
+              .where(
+                (room) =>
+                    !room.isFull &&
+                    !room.waiting &&
+                    room.missingToStart > 0 &&
+                    room.missingToStart <= 2,
+              )
+              .toList()
+        : _rooms;
+    final error = _error(state);
+    final notice = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (error != null)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: s.md),
+            child: Text(
+              error,
+              key: OnlineEntryScreen.errorText,
+              style: context.typography.body.copyWith(color: c.accentCrimson),
+            ),
+          ),
+        if (state.storageWarning)
+          StorageWarningNote(
+            key: OnlineEntryScreen.storageWarning,
+            onDismiss: () => ref
+                .read(onlineSessionProvider.notifier)
+                .dismissStorageWarning(),
+          ),
+      ],
+    );
     return Scaffold(
-      backgroundColor: colors.surfaceBase,
-      body: AppBackdrop(
+      body: ExperienceSurface(
         child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(spacing.screenMargin),
+          child: Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: spacing.maxContentWidth),
-              // Tall enough to fill the screen, and able to scroll when the
-              // screen is shorter than it. The form grew — a name, an explicit
-              // male/female choice, a room code, and sometimes a refusal to
-              // explain — and on a short window or with a large system font
-              // the fixed column simply cut the buttons off the bottom. The
-              // `Spacer` below still does its job: `IntrinsicHeight` under a
-              // minimum of the viewport keeps the actions at the foot of the
-              // screen whenever there is room for them.
-              child: LayoutBuilder(
-                builder: (context, viewport) => SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: viewport.maxHeight),
-                    child: IntrinsicHeight(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Align(
-                            alignment: AlignmentDirectional.centerStart,
-                            child: BackAction(
-                              onPressed: _step == _Step.choose
-                                  ? widget.onPlayOffline
-                                  : () => _goTo(_Step.choose),
+              constraints: const BoxConstraints.expand(),
+              child: Stack(
+                children: [
+                  // One reading column on a wide screen (E-4): the title
+                  // used to sit at the far right and the refresh icon at the
+                  // far left of a 1280px desktop window, with the offline
+                  // button floating between them. The same column every other
+                  // screen reads in; a phone is narrower than it and unchanged.
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: s.maxContentWidth),
+                      child: RefreshIndicator(
+                        onRefresh: _refresh,
+                        child: CustomScrollView(
+                          key: OnlineEntryScreen.browseList,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          slivers: [
+                            SliverPadding(
+                              padding: EdgeInsets.all(s.screenMargin),
+                              sliver: SliverList.list(
+                                children: [
+                                  Row(
+                                    children: [
+                                      BackAction(
+                                        key: OnlineEntryScreen.backButton,
+                                        onPressed: _step == _Step.browse
+                                            ? widget.onBack
+                                            : () => _go(_Step.browse),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          l.onlineMatch,
+                                          style: context.typography.headline,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: s.sm),
+                                  // Who the room will see, and the way to
+                                  // change it: one target, not a bare name
+                                  // under the title and an avatar elsewhere.
+                                  _IdentityChip(
+                                    name: profile.name,
+                                    gender: profile.gender,
+                                    onEdit: state.busy
+                                        ? null
+                                        : () => setState(
+                                            () => _editing = true,
+                                          ),
+                                  ),
+                                  SizedBox(height: s.md),
+                                  // The two ways in, at equal width: create
+                                  // is the lit one, join its outline.
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: FilledButton.icon(
+                                          key: OnlineEntryScreen.hostButton,
+                                          style: FilledButton.styleFrom(
+                                            minimumSize: const Size.fromHeight(
+                                              kMinInteractiveDimension,
+                                            ),
+                                            // Half-width each: the stock
+                                            // 24 dp side padding wrapped
+                                            // «Create a room» at 390 dp.
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: s.sm,
+                                            ),
+                                          ),
+                                          icon: const Icon(Icons.add),
+                                          label: Text(l.onlineCreateRoom),
+                                          onPressed: state.busy
+                                              ? null
+                                              : () => _go(_Step.create),
+                                        ),
+                                      ),
+                                      SizedBox(width: s.sm),
+                                      Expanded(
+                                        child: OutlinedButton.icon(
+                                          key: OnlineEntryScreen.haveCodeButton,
+                                          style: OutlinedButton.styleFrom(
+                                            minimumSize: const Size.fromHeight(
+                                              kMinInteractiveDimension,
+                                            ),
+                                            // Half-width each: the stock
+                                            // 24 dp side padding wrapped
+                                            // «Create a room» at 390 dp.
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: s.sm,
+                                            ),
+                                          ),
+                                          icon: const Icon(Icons.login),
+                                          label: Text(l.onlineJoinRoom),
+                                          onPressed: state.busy
+                                              ? null
+                                              : () => _go(_Step.join),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (_step == _Step.browse &&
+                                      _rooms.isEmpty &&
+                                      _everLoaded) ...[
+                                    SizedBox(height: s.md),
+                                    const ExperienceHero(
+                                      asset: ExperienceArt.council,
+                                      compact: true,
+                                    ),
+                                  ],
+                                  if (_step == _Step.join) ...[
+                                    SizedBox(height: s.lg),
+                                    TextField(
+                                      key: OnlineEntryScreen.codeField,
+                                      controller: _code,
+                                      maxLength: 6,
+                                      textCapitalization:
+                                          TextCapitalization.characters,
+                                      textDirection: TextDirection.ltr,
+                                      onChanged: (_) => setState(() {}),
+                                      decoration: InputDecoration(
+                                        labelText: l.onlineRoomCode,
+                                        hintText: l.onlineRoomCodeHint,
+                                      ),
+                                    ),
+                                    FilledButton.icon(
+                                      key: OnlineEntryScreen.joinButton,
+                                      icon: const Icon(Icons.login),
+                                      label: Text(l.onlineJoinRoom),
+                                      onPressed:
+                                          state.busy ||
+                                              !RegExp(
+                                                r'^[A-Za-z0-9]{6}$',
+                                              ).hasMatch(_code.text.trim())
+                                          ? null
+                                          : () => _enter(),
+                                    ),
+                                  ],
+                                  if (_resume != null &&
+                                      _step == _Step.browse &&
+                                      !state.isInRoom) ...[
+                                    SizedBox(height: s.sm),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: OutlinedButton.icon(
+                                            key: OnlineEntryScreen.resumeButton,
+                                            icon: const Icon(Icons.history),
+                                            label: Text(l.resumeAction),
+                                            onPressed: state.busy
+                                                ? null
+                                                : () => _enter(
+                                                    code: _resume!.code,
+                                                  ),
+                                          ),
+                                        ),
+                                        SizedBox(width: s.sm),
+                                        // The way to drop a room this device
+                                        // remembers but the player does not want
+                                        // back: the seat is given up properly and
+                                        // the pointer goes.
+                                        TextButton(
+                                          key: OnlineEntryScreen.discardButton,
+                                          onPressed: state.busy
+                                              ? null
+                                              : _discard,
+                                          child: Text(l.onlineDiscardResume),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                  notice,
+                                  SizedBox(height: s.lg),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          l.onlinePublicRooms,
+                                          style: context.typography.title,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        key: OnlineEntryScreen.browseButton,
+                                        tooltip: l.onlinePublicRooms,
+                                        onPressed: _loading ? null : _refresh,
+                                        icon: const Icon(Icons.refresh),
+                                      ),
+                                    ],
+                                  ),
+                                  // The slot keeps its height either way, so
+                                  // a background refresh never moves the list
+                                  // under the player's thumb.
+                                  // Determinate while hidden, so an idle
+                                  // list is not animating an invisible bar.
+                                  Opacity(
+                                    opacity: _loading ? 1 : 0,
+                                    child: LinearProgressIndicator(
+                                      value: _loading ? null : 0,
+                                    ),
+                                  ),
+                                  Text(
+                                    l.onlineRoomRefreshHint,
+                                    style: context.typography.caption.copyWith(
+                                      color: c.textSecondary,
+                                    ),
+                                  ),
+                                  SizedBox(height: s.sm),
+                                  Wrap(
+                                    spacing: s.sm,
+                                    runSpacing: s.xs,
+                                    children: [
+                                      ChoiceChip(
+                                        key: const ValueKey('rooms_filter_all'),
+                                        label: Text(l.onlineRoomsAll),
+                                        selected: !_nearlyReadyOnly,
+                                        selectedColor: c.accentGold,
+                                        labelStyle: context.typography.caption
+                                            .copyWith(
+                                              color: !_nearlyReadyOnly
+                                                  ? c.surfaceBase
+                                                  : c.textPrimary,
+                                            ),
+                                        onSelected: (_) => setState(
+                                          () => _nearlyReadyOnly = false,
+                                        ),
+                                      ),
+                                      ChoiceChip(
+                                        key: const ValueKey(
+                                          'rooms_filter_nearly',
+                                        ),
+                                        label: Text(l.onlineRoomsNearlyReady),
+                                        selected: _nearlyReadyOnly,
+                                        selectedColor: c.accentGold,
+                                        labelStyle: context.typography.caption
+                                            .copyWith(
+                                              color: _nearlyReadyOnly
+                                                  ? c.surfaceBase
+                                                  : c.textPrimary,
+                                            ),
+                                        onSelected: (_) => setState(
+                                          () => _nearlyReadyOnly = true,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (_everLoaded &&
+                                      !_browseFailed &&
+                                      _nearlyReadyOnly &&
+                                      visibleRooms.isEmpty)
+                                    Text(
+                                      l.onlineRoomsNoFilterMatches,
+                                      style: context.typography.body,
+                                    ),
+                                  if (_browseFailed && error == null)
+                                    Text(
+                                      _everLoaded
+                                          ? l.publicRoomsStale
+                                          : l.publicRoomsUnavailable,
+                                      key: OnlineEntryScreen.staleNotice,
+                                      style: context.typography.body.copyWith(
+                                        color: c.textSecondary,
+                                      ),
+                                    ),
+                                  // Only after a read that worked: an
+                                  // unreachable server is not an empty one.
+                                  if (_everLoaded &&
+                                      !_browseFailed &&
+                                      !_nearlyReadyOnly &&
+                                      _rooms.isEmpty)
+                                    _EmptyRooms(
+                                      title: l.onlineNoPublicRooms,
+                                      hint: l.onlineNoPublicRoomsHint,
+                                    ),
+                                ],
+                              ),
                             ),
-                          ),
-                          SizedBox(height: spacing.lg),
-                          Text(
-                            l10n.onlineMatch,
-                            style: type.headline.copyWith(
-                              color: colors.textPrimary,
-                            ),
-                          ),
-                          SizedBox(height: spacing.xl),
-                          _field(
-                            key: OnlineEntryScreen.nameField,
-                            controller: _name,
-                            label: l10n.onlineYourName,
-                            maxLength: 20,
-                            // Task 8 — the same control, in the same place, as
-                            // the offline roster's. Two marks at the trailing
-                            // edge of the name, not a row of its own.
-                            suffix: GenderPicker(
-                              value: _gender,
-                              onChanged: (v) => setState(() => _gender = v),
-                            ),
-                          ),
-                          if (_step == _Step.browse) ...[
-                            SizedBox(height: spacing.lg),
-                            _browseList(),
-                          ],
-                          if (_step == _Step.join) ...[
-                            SizedBox(height: spacing.lg),
-                            _field(
-                              key: OnlineEntryScreen.codeField,
-                              controller: _code,
-                              label: l10n.onlineRoomCode,
-                              hint: l10n.onlineRoomCodeHint,
-                              maxLength: 6,
-                              code: true,
-                            ),
-                          ],
-                          if (message != null) ...[
-                            SizedBox(height: spacing.md),
-                            Text(
-                              key: OnlineEntryScreen.errorText,
-                              message,
-                              style: type.body.copyWith(
-                                color: colors.accentCrimson,
+                            SliverPadding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: s.screenMargin,
+                              ),
+                              sliver: SliverList.builder(
+                                itemCount: visibleRooms.length,
+                                itemBuilder: (_, index) {
+                                  final room = visibleRooms[index];
+                                  return _PublicRoomTile(
+                                    key: ValueKey('public_room_${room.code}'),
+                                    room: room,
+                                    onTap: state.busy || room.isFull
+                                        ? null
+                                        : () => _enter(code: room.code),
+                                  );
+                                },
                               ),
                             ),
                           ],
-                          const Spacer(),
-                          ..._actions(session),
-                          if (session.unreachable) ...[
-                            SizedBox(height: spacing.md),
-                            TextButton(
-                              key: OnlineEntryScreen.offlineButton,
-                              onPressed: widget.onPlayOffline,
-                              child: Text(
-                                l10n.onlinePlayOffline,
-                                style: type.body.copyWith(
-                                  color: colors.accentSage,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
+                  RoomSettingsPanel(
+                    visible: _step == _Step.create,
+                    snapshot: GameSnapshot(
+                      public: const PublicMatchView(
+                        phase: GamePhase.setup,
+                        dayNumber: 0,
+                        players: [],
+                      ),
+                      room: _room,
+                      settings: settingsFromJson(_settings),
+                    ),
+                    transport: null,
+                    onClose: () => _go(_Step.browse),
+                    onChanged: ({visibility, title, settings}) => setState(() {
+                      if (settings != null) _settings.addAll(settings);
+                      _room = _room.copyWith(
+                        visibility: visibility,
+                        title: title,
+                        maxPlayers: _settings['maxPlayers'] as int,
+                        voice: _settings['voice'] as bool,
+                        muteAllAtNight: _settings['muteAllAtNight'] as bool,
+                        scenarioCode:
+                            _settings['scenarioCode'] as String? ?? 'classic',
+                        presentationPack:
+                            _settings['presentationPack'] as String? ??
+                            'classic',
+                        narratorPack:
+                            _settings['narratorPack'] as String? ?? 'classic',
+                      );
+                    }),
+                    footer: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        notice,
+                        FilledButton.icon(
+                          key: const ValueKey('online_create_confirm'),
+                          icon: const Icon(Icons.add),
+                          onPressed: state.busy
+                              ? null
+                              : () => _enter(host: true),
+                          label: Text(l.onlineCreateRoom),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -293,297 +708,225 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
       ),
     );
   }
+}
 
-  /// The bottom of the screen, which is the whole of the difference between the
-  /// two steps.
-  ///
-  /// Both steps put one gold button in the same place, so the thing a player is
-  /// reaching for does not move when the screen changes underneath them.
-  List<Widget> _actions(OnlineSessionState session) {
-    final spacing = context.spacing;
-    final type = context.typography;
-    final l10n = context.l10n;
+/// The player the room will see, and the one tap that changes it.
+class _IdentityChip extends StatelessWidget {
+  final String name;
+  final PlayerGender gender;
+  final VoidCallback? onEdit;
+  const _IdentityChip({
+    required this.name,
+    required this.gender,
+    required this.onEdit,
+  });
 
-    if (_step == _Step.choose) {
-      return [
-        _primary(
-          key: OnlineEntryScreen.hostButton,
-          label: l10n.onlineCreateRoom,
-          caption: l10n.onlineCreateRoomHint,
-          onPressed: session.busy || !_hasName ? null : _host,
-        ),
-        SizedBox(height: spacing.md),
-        _secondary(
-          key: OnlineEntryScreen.haveCodeButton,
-          label: l10n.onlineJoinRoom,
-          caption: l10n.onlineJoinRoomHint,
-          onPressed: !_hasName ? null : () => _goTo(_Step.join),
-        ),
-        SizedBox(height: spacing.md),
-        // Task 10 — a room somebody did not have to be told about.
-        _secondary(
-          key: OnlineEntryScreen.browseButton,
-          label: l10n.onlinePublicRooms,
-          caption: l10n.onlinePublicRoomsHint,
-          onPressed: !_hasName ? null : () => _goTo(_Step.browse),
-        ),
-      ];
-    }
+  static const Key chipKey = ValueKey('online_identity');
 
-    if (_step == _Step.browse) {
-      return [
-        TextButton(
-          onPressed: session.busy ? null : () => _goTo(_Step.choose),
-          child: Text(
-            l10n.back,
-            style: type.body.copyWith(color: context.colors.textMuted),
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final s = context.spacing;
+    final l = context.l10n;
+    final radius = BorderRadius.circular(context.radii.button);
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Material(
+        color: c.surfaceRaised,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: BorderSide(color: c.borderSubtle),
+        ),
+        child: InkWell(
+          key: chipKey,
+          borderRadius: radius,
+          onTap: onEdit,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: kMinInteractiveDimension,
+            ),
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: s.xs,
+                end: s.sm,
+                top: s.xs,
+                bottom: s.xs,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  PlayerAvatar(
+                    name: name,
+                    gender: gender,
+                    diameter: kListAvatarDiameter,
+                  ),
+                  SizedBox(width: s.sm),
+                  Flexible(
+                    child: Text(
+                      l.onlinePlayingAs(name),
+                      style: context.typography.body.copyWith(
+                        color: c.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(width: s.sm),
+                  Tooltip(
+                    message: l.profileEdit,
+                    child: Icon(
+                      Icons.edit_outlined,
+                      size: s.md + s.xs,
+                      color: c.accentGold,
+                      semanticLabel: l.profileEdit,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-      ];
-    }
-
-    return [
-      _primary(
-        key: OnlineEntryScreen.joinButton,
-        label: l10n.onlineJoinRoom,
-        onPressed: session.busy || !_hasName || !_hasCode ? null : _join,
       ),
-      SizedBox(height: spacing.md),
-      TextButton(
-        onPressed: session.busy ? null : () => _goTo(_Step.choose),
-        child: Text(
-          l10n.back,
-          style: type.body.copyWith(color: context.colors.textMuted),
-        ),
-      ),
-    ];
+    );
   }
+}
 
-  /// The «أوض عامة» list.
-  ///
-  /// A room disappears from it the moment its match starts — the server's
-  /// `public_rooms()` only ever returns rooms still in the lobby — so a tap on
-  /// a stale row gets `PHASE_CLOSED` and the refusal above the list says so.
-  /// Refreshing is a pull and nothing else; see `OnlineSession.browse`.
-  Widget _browseList() {
-    final l10n = context.l10n;
-    final colors = context.colors;
-    final type = context.typography;
+/// An empty list that says what to do next, instead of a bare sentence.
+class _EmptyRooms extends StatelessWidget {
+  final String title;
+  final String hint;
+  const _EmptyRooms({required this.title, required this.hint});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final s = context.spacing;
+    return Container(
+      margin: EdgeInsets.only(top: s.md),
+      padding: EdgeInsets.all(s.md),
+      decoration: BoxDecoration(
+        color: c.surfaceRaised,
+        borderRadius: BorderRadius.circular(context.radii.card),
+        border: Border.all(color: c.borderSubtle),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.meeting_room_outlined, color: c.accentGold),
+          SizedBox(width: s.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: context.typography.body),
+                SizedBox(height: s.xs),
+                Text(
+                  hint,
+                  style: context.typography.caption.copyWith(
+                    color: c.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One public room: its name, seats taken of seats offered, and what it is
+/// waiting for. Nothing private — no names, no host, no roles.
+class _PublicRoomTile extends StatelessWidget {
+  final PublicRoom room;
+  final VoidCallback? onTap;
+  const _PublicRoomTile({super.key, required this.room, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final c = context.colors;
+    final status = room.waiting
+        ? l.publicRoomWaitingStatus
+        : room.isFull
+        ? l.publicRoomFullStatus
+        : room.missingToStart > 0
+        ? l.publicRoomMissing(room.missingToStart)
+        : l.publicRoomReady;
+    // Transparent Material, not decoration: the backdrop paints a background
+    // between these rows and the Scaffold, and a tile that finds that box
+    // before it finds a Material draws its press underneath it — so the one
+    // control a player taps to enter a room would answer with nothing at all.
     final spacing = context.spacing;
-    final rooms = _rooms;
-
-    if (rooms == null || _browsing) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: spacing.lg),
-        child: Center(
-          child: CircularProgressIndicator(color: colors.accentGold),
+    final radius = BorderRadius.circular(context.radii.card);
+    return Padding(
+      padding: EdgeInsets.only(top: spacing.sm, bottom: spacing.xs),
+      child: Material(
+        color: c.surfaceRaised,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: BorderSide(color: c.borderSubtle),
         ),
-      );
-    }
-
-    if (rooms.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: _refreshRooms,
-        child: ListView(
-          shrinkWrap: true,
-          physics: const AlwaysScrollableScrollPhysics(),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(height: spacing.xl),
-            Text(
-              l10n.onlineNoPublicRooms,
-              textAlign: TextAlign.center,
-              style: type.body.copyWith(color: colors.textMuted),
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: spacing.md,
+                vertical: spacing.xs,
+              ),
+              enabled: onTap != null,
+              title: Text(
+                room.waiting
+                    ? l.publicRoomWaitingTitle
+                    : (room.title ?? '').trim().isEmpty
+                    ? l.onlineUntitledRoom
+                    : room.title!,
+              ),
+              subtitle: Text(
+                '${l.publicRoomSeats(room.players, room.capacity)} · $status',
+                style: context.typography.caption.copyWith(
+                  color: room.isFull ? c.textSecondary : null,
+                ),
+              ),
+              leading: Icon(
+                room.waiting
+                    ? Icons.hourglass_empty
+                    : room.voice
+                    ? Icons.mic_none
+                    : Icons.mic_off,
+              ),
+              // `chevron_right` mirrors itself in Arabic (matchTextDirection),
+              // so it points the way the row reads in both languages. Picking
+              // `chevron_left` for RTL mirrored it back to «›», pointing out
+              // of the screen (phase 99 render).
+              trailing: room.isFull ? null : const Icon(Icons.chevron_right),
+              onTap: onTap,
             ),
-            SizedBox(height: spacing.xl),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                spacing.md,
+                0,
+                spacing.md,
+                spacing.sm,
+              ),
+              child: Text(
+                room.voice ? l.onlineRoomVoiceOn : l.onlineRoomVoiceOff,
+                style: context.typography.caption.copyWith(
+                  color: c.textSecondary,
+                ),
+              ),
+            ),
+            LinearProgressIndicator(
+              value: room.capacity > 0
+                  ? (room.players / room.capacity).clamp(0.0, 1.0)
+                  : 0,
+              color: room.isFull ? c.textMuted : c.accentGold,
+              backgroundColor: c.borderSubtle,
+              semanticsLabel: l.publicRoomSeats(room.players, room.capacity),
+            ),
           ],
-        ),
-      );
-    }
-
-    return RefreshIndicator(
-      key: OnlineEntryScreen.browseList,
-      onRefresh: _refreshRooms,
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: rooms.length,
-        itemBuilder: (_, index) {
-          final room = rooms[index];
-          return ListTile(
-            key: ValueKey('public_room_${room.code}'),
-            contentPadding: EdgeInsets.zero,
-            title: Text(
-              (room.title ?? '').trim().isEmpty
-                  ? l10n.onlineUntitledRoom
-                  : room.title!.trim(),
-              style: type.body.copyWith(color: colors.textPrimary),
-            ),
-            subtitle: Text(
-              l10n.onlinePublicRoomPlayers(room.players),
-              style: type.caption.copyWith(color: colors.textMuted),
-            ),
-            // Task 12 — voice is a microphone, not the word "voice".
-            trailing: Icon(
-              room.voice ? Icons.mic_none : Icons.mic_off,
-              color: room.voice ? colors.accentSage : colors.textMuted,
-            ),
-            onTap: () => _joinPublic(room.code),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _primary({
-    required Key key,
-    required String label,
-    String? caption,
-    required VoidCallback? onPressed,
-  }) {
-    final colors = context.colors;
-    final type = context.typography;
-    final spacing = context.spacing;
-    final radii = context.radii;
-
-    return FilledButton(
-      key: key,
-      onPressed: onPressed,
-      style: FilledButton.styleFrom(
-        backgroundColor: colors.accentGold,
-        foregroundColor: colors.surfaceBase,
-        padding: EdgeInsets.symmetric(vertical: spacing.md),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radii.button),
-        ),
-      ),
-      child: _label(
-        label,
-        caption,
-        type.title,
-        captionColor: colors.surfaceBase.withValues(alpha: 0.72),
-      ),
-    );
-  }
-
-  Widget _secondary({
-    required Key key,
-    required String label,
-    String? caption,
-    required VoidCallback? onPressed,
-  }) {
-    final colors = context.colors;
-    final type = context.typography;
-    final spacing = context.spacing;
-    final radii = context.radii;
-
-    return OutlinedButton(
-      key: key,
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        foregroundColor: colors.textPrimary,
-        side: BorderSide(color: colors.borderSubtle),
-        padding: EdgeInsets.symmetric(vertical: spacing.md),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radii.button),
-        ),
-      ),
-      child: _label(label, caption, type.title, captionColor: colors.textMuted),
-    );
-  }
-
-  /// A button's name, and under it the sentence that says what pressing it does.
-  ///
-  /// Doc 14 Part 5's rule for settings — *"a setting nobody understands is a
-  /// setting nobody uses"* — applied to the one screen where two buttons are
-  /// two different evenings.
-  Widget _label(
-    String label,
-    String? caption,
-    TextStyle style, {
-    required Color captionColor,
-  }) {
-    if (caption == null) return Text(label, style: style);
-    final type = context.typography;
-    final spacing = context.spacing;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(label, style: style),
-        SizedBox(height: spacing.xs),
-        Text(
-          caption,
-          textAlign: TextAlign.center,
-          style: type.caption.copyWith(color: captionColor),
-        ),
-      ],
-    );
-  }
-
-  /// Upper case, letters and digits, as it is typed.
-  ///
-  /// `TextCapitalization.characters` is a hint to the soft keyboard and nothing
-  /// more: it does not touch a paste, and a hardware keyboard ignores it. Every
-  /// code the server mints is upper case out of a 32-glyph alphabet, so a code
-  /// pasted in lower case out of a chat app would be refused for a reason the
-  /// player cannot see.
-  ///
-  /// Done here in `onChanged` rather than with a `TextInputFormatter` because a
-  /// formatter lives in `package:flutter/services.dart`, and no file under
-  /// `lib/ui` may import that — it is the only door onto `HapticFeedback`, and
-  /// `haptics_call_site_test` keeps the door shut for L-10's sake. A screen that
-  /// wanted to tidy six characters is not a good enough reason to open it.
-  void _tidy(TextEditingController controller, String value) {
-    final cleaned = value.replaceAll(RegExp('[^A-Za-z0-9]'), '').toUpperCase();
-    if (cleaned == value) return;
-    controller.value = TextEditingValue(
-      text: cleaned,
-      selection: TextSelection.collapsed(offset: cleaned.length),
-    );
-  }
-
-  Widget _field({
-    required Key key,
-    required TextEditingController controller,
-    required String label,
-    String? hint,
-    int? maxLength,
-    bool code = false,
-    Widget? suffix,
-  }) {
-    final colors = context.colors;
-    final type = context.typography;
-    final radii = context.radii;
-
-    return TextField(
-      key: key,
-      controller: controller,
-      maxLength: maxLength,
-      textCapitalization: code
-          ? TextCapitalization.characters
-          : TextCapitalization.words,
-      // A room code is Latin, six characters, and typed back in from something
-      // read aloud. Left to right wherever it is shown, for the same reason
-      // `_StaggeredCode` pins its own direction.
-      textDirection: code ? TextDirection.ltr : null,
-      textAlign: code ? TextAlign.center : TextAlign.start,
-      style: type.body.copyWith(color: colors.textPrimary),
-      onChanged: (value) {
-        if (code) _tidy(controller, value);
-        setState(() {});
-      },
-      decoration: InputDecoration(
-        suffixIcon: suffix,
-        suffixIconConstraints: const BoxConstraints(),
-        labelText: label,
-        hintText: hint,
-        counterText: '',
-        labelStyle: type.caption.copyWith(color: colors.textMuted),
-        hintStyle: type.caption.copyWith(color: colors.textMuted),
-        filled: true,
-        fillColor: colors.surfaceRaised,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radii.button),
-          borderSide: BorderSide(color: colors.borderSubtle),
         ),
       ),
     );

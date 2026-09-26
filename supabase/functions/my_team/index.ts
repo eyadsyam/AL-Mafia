@@ -44,13 +44,14 @@ Deno.serve(handler(async (req, userId, db) => {
   // whole of how a player learns what they are. Null until `start_match` deals.
   if (me.role !== "mafia") return ok({ role: me.role ?? null, teammates: [] });
 
-  const { data } = await db
+  const { data, error } = await db
     .from("room_players")
     .select("name, seat")
     .eq("room_id", roomId)
     .eq("role", "mafia")
     .neq("user_id", userId)
     .order("seat");
+  if (error) throw error;
 
   return ok({ role: "mafia", teammates: (data ?? []).map((p) => p.name) });
 }));

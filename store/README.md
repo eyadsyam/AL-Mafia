@@ -1,5 +1,12 @@
 # Play Store assets
 
+Latest upload package: see `GOOGLE-PLAY-SUBMISSION.md` and
+`../docs/PLAY-RELEASE-2026-09-21.md`. Developer: Eyad Syam;
+support: eyadsyam124@gmail.com. The screenshot inventory below is historical.
+Do not upload every file automatically (Play allows at most eight phone
+screenshots); `09-privacy-release.png` predates the final settings-only privacy
+revision and is review evidence, not current store marketing.
+
 Everything here is uploaded by hand in the Play Console. Nothing in this folder
 is bundled into the app.
 
@@ -7,7 +14,8 @@ is bundled into the app.
 |---|---|---|
 | `icon-512.png` | App icon, 512×512 PNG | 512×512, 32-bit PNG, no transparency, no rounded corners baked in |
 | `feature-graphic-1024x500.png` | Feature graphic | exactly 1024×500 PNG or JPEG |
-| `screenshots/*.png` | Phone screenshots, 1280×2856 | 2–8 per form factor, 320–3840px per side |
+| `screenshots/play-ar/*.png` | Connected Arabic marketing set, 1080×1920 | Upload all six in numeric order |
+| `screenshots/*.png` | Raw phone captures and review evidence | Keep for evidence; do not upload the whole folder |
 | `listing-ar.md` | Arabic listing — the default locale | name ≤30, short ≤80, full ≤4000 |
 | `listing-en.md` | English listing, plus the Data safety answers | same limits |
 | `permissions.md` | The RECORD_AUDIO justification, and the full permission set | free text |
@@ -17,6 +25,16 @@ Regenerate the two images with:
 ```bash
 python tool/generate_store_assets.py
 ```
+
+Regenerate the connected screenshot set with:
+
+```bash
+python tool/generate_play_screenshots.py
+```
+
+Its campaign backdrop is `raw_assets/store/connected-play-panorama.png`; the
+phones inside it are real release captures. The final files are
+`screenshots/play-ar/01.png` through `06.png`.
 
 ---
 
@@ -37,16 +55,12 @@ clock and a stack of debug icons.
 | `06-handoff.png` | The handoff pad — «دوس واستنى عشان تشوف كارتك» |
 | `07-reveal.png` | The card in hand, before the flip |
 
-**Seven of the eight requested screens are not here yet.** Role reveal (the
-face, not the back), the night grid, morning with a trace, the confrontation,
-the result, analytics and the online lobby all need a match played through on
-the emulator, and that run was stopped part-way. `01`–`07` are real captures
-of the shipped build; nothing here is a mock-up or a render.
+`01`–`11` are raw captures and review evidence. The separate `play-ar` set is the store-ready campaign: it uses real screens from this inventory and the latest online-enabled release capture. User-owned full-match acceptance remains outside this automated release pass.
 
 To finish the set, install the release build on the emulator and walk a match:
 
 ```bash
-adb install -r build/app/outputs/flutter-apk/app-x86_64-release.apk
+adb install -r build/app/outputs/flutter-apk/app-release.apk
 adb shell am start -n com.mafiamaster.mafia_master/.MainActivity
 ```
 
@@ -64,13 +78,6 @@ Two things that cost time the first time round:
 ### Play upload order
 
 Play shows screenshots in the order they are uploaded, and the first two are
-what appear in search results. Recommended order once the set is complete:
+what appear in search results. Upload `screenshots/play-ar/01.png` through `06.png` in numeric order. The gold line and burgundy glow continue across the row, while each frame communicates a single benefit.
 
-1. `06-handoff` — the one image that says *pass the phone* without a caption
-2. morning + trace — the thing no other Mafia app does
-3. `01-home`
-4. night grid
-5. confrontation
-6. result
-7. analytics
-8. online lobby
+

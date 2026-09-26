@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
 import '../../platform/reduce_motion.dart';
+import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 
 /// The press-and-hold identity pad shared by every handoff surface.
@@ -34,6 +36,12 @@ class HoldPad extends StatefulWidget {
     required this.onHoldComplete,
     this.diameter,
   });
+
+  /// The ring's paint, and how far round it reads — for the test that holds
+  /// the ring to never finishing before the timer does.
+  static const Key ring = ValueKey('hold_pad_ring');
+  static double progressOf(CustomPaint ring) =>
+      (ring.painter! as _HoldRingPainter).progress;
 
   @override
   State<HoldPad> createState() => _HoldPadState();
@@ -172,42 +180,107 @@ class _HoldPadState extends State<HoldPad> with SingleTickerProviderStateMixin {
         // confirmation at all, which is a usability regression dressed up as
         // an accessibility feature. `reduce_motion_test.dart` asserts the
         // widget tree keeps its shape either way.
-        child: AnimatedScale(
-          scale: _pressed ? motion.pressScale : 1.0,
-          duration: ReduceMotion.of(context) ? Duration.zero : motion.instant,
-          curve: motion.quickCurve,
-          child: SizedBox(
-            width: size,
-            height: size,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Positioned.fill(
-                  child: AnimatedBuilder(
-                    animation: _ring,
-                    builder: (context, _) => CircularProgressIndicator(
-                      value: _ring.value,
-                      strokeWidth: spacing.xs,
-                      backgroundColor: colors.surfaceOverlay,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        colors.textSecondary,
+        // The instruction sits under the pad, on one line, rather than
+        // wrapped inside the ring: a four-line sentence in a circle read as a
+        // label stuck on a button, not as a control.
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedScale(
+              scale: _pressed ? motion.pressScale : 1.0,
+              duration: ReduceMotion.of(context)
+                  ? Duration.zero
+                  : motion.instant,
+              curve: motion.quickCurve,
+              child: SizedBox(
+                width: size,
+                height: size,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned.fill(
+                      child: AnimatedBuilder(
+                        animation: _ring,
+                        builder: (context, _) => CustomPaint(
+                          key: HoldPad.ring,
+                          painter: _HoldRingPainter(
+                            progress: _ring.value,
+                            track: colors.surfaceOverlay,
+                            fill: colors.textSecondary,
+                            stroke: spacing.xs,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    // One mark, the same for every role and every state: the
+                    // pad never changes colour or brightness under the finger
+                    // (L-10), so the ring is the only thing that moves.
+                    Icon(
+                      Icons.fingerprint,
+                      size: size * HoldPadTokens.markRatio,
+                      color: colors.textSecondary,
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: spacing.lg),
-                  child: Text(
-                    widget.instruction,
-                    style: type.bodySmall.copyWith(color: colors.textSecondary),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+            SizedBox(height: spacing.sm),
+            Text(
+              widget.instruction,
+              maxLines: 2,
+              style: type.bodySmall.copyWith(color: colors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+/// A hairline track and a round-capped arc that fills clockwise from the top.
+class _HoldRingPainter extends CustomPainter {
+  final double progress;
+  final Color track;
+  final Color fill;
+  final double stroke;
+
+  const _HoldRingPainter({
+    required this.progress,
+    required this.track,
+    required this.fill,
+    required this.stroke,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final inset = rect.deflate(stroke / 2);
+    canvas.drawOval(
+      inset,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke / 2
+        ..color = track,
+    );
+    if (progress <= 0) return;
+    canvas.drawArc(
+      inset,
+      -math.pi / 2,
+      progress * 2 * math.pi,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke
+        ..strokeCap = StrokeCap.round
+        ..color = fill,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_HoldRingPainter old) =>
+      old.progress != progress ||
+      old.track != track ||
+      old.fill != fill ||
+      old.stroke != stroke;
 }

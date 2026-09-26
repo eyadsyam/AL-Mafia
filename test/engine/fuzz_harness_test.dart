@@ -39,7 +39,8 @@ void main() {
       expect(
         failures,
         isEmpty,
-        reason: 'the engine can reach a bad state:\n\n'
+        reason:
+            'the engine can reach a bad state:\n\n'
             '${failures.join('\n\n')}',
       );
 
@@ -50,7 +51,8 @@ void main() {
       expect(
         mean,
         greaterThan(20),
-        reason: 'matches are averaging only $mean moves — the harness is '
+        reason:
+            'matches are averaging only $mean moves — the harness is '
             'probably no longer exercising a whole game',
       );
       expect(longest, lessThanOrEqualTo(kStallGuard));

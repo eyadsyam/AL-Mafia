@@ -22,8 +22,11 @@ void main() {
     required int seed,
     required DateTime createdAt,
   }) async {
-    final engine =
-        scriptedMatch(playToEnd: true, seed: seed, createdAt: createdAt);
+    final engine = scriptedMatch(
+      playToEnd: true,
+      seed: seed,
+      createdAt: createdAt,
+    );
     await MemoryMatchRepository(store).persistStep(engine.match);
     return engine;
   }
@@ -38,10 +41,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          matchRepositoryProvider
-              .overrideWithValue(MemoryMatchRepository(store)),
+          matchRepositoryProvider.overrideWithValue(
+            MemoryMatchRepository(store),
+          ),
         ],
-        child: localizedApp(HistoryScreen(onOpen: onOpen ?? (_) {}, onBack: () {})
+        child: localizedApp(
+          HistoryScreen(onOpen: onOpen ?? (_) {}, onBack: () {}),
         ),
       ),
     );
@@ -51,30 +56,43 @@ void main() {
   setUp(() => store = MemoryMatchStore());
 
   group('history listing', () {
-    testWidgets('shows an empty state when nothing has been played',
-        (tester) async {
+    testWidgets('shows an empty state when nothing has been played', (
+      tester,
+    ) async {
       await pumpHistory(tester);
       expect(find.text('لسه مفيش مباريات'), findsOneWidget);
       expect(find.byKey(HistoryScreen.list), findsNothing);
     });
 
-    testWidgets('lists finished matches with players, winner and night count',
-        (tester) async {
-      final engine =
-          await storeFinishedMatch(seed: 7, createdAt: DateTime(2026, 3, 1));
+    testWidgets('lists finished matches with players, winner and night count', (
+      tester,
+    ) async {
+      final engine = await storeFinishedMatch(
+        seed: 7,
+        createdAt: DateTime(2026, 3, 1),
+      );
       await pumpHistory(tester);
 
-      expect(find.byKey(HistoryScreen.tileFor(engine.match.id)), findsOneWidget);
+      expect(
+        find.byKey(HistoryScreen.tileFor(engine.match.id)),
+        findsOneWidget,
+      );
 
       final winner = engine.match.outcome!.winner;
       expect(
-        find.text(winner == models.Alignment.mafia ? 'المافيا كسبت' : 'الشعب كسب'),
+        find.text(
+          winner == models.Alignment.mafia ? 'المافيا كسبت' : 'الشعب كسب',
+        ),
         findsOneWidget,
       );
-      expect(find.textContaining('${engine.match.players.length} لاعبين'),
-          findsOneWidget);
-      expect(find.textContaining(engine.match.players.first.name),
-          findsOneWidget);
+      expect(
+        find.textContaining('${engine.match.players.length} لاعبين'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining(engine.match.players.first.name),
+        findsOneWidget,
+      );
     });
 
     testWidgets('does not reveal any role', (tester) async {
@@ -91,23 +109,32 @@ void main() {
         // "المافيا كسبت" names the winning side, not any player's role, so the
         // check is for a role attached to a name.
         for (final player in ['Ahmed', 'A', 'B', 'C']) {
-          expect(text.contains('$player $roleWord'), isFalse,
-              reason: 'history attributed a role to a player');
+          expect(
+            text.contains('$player $roleWord'),
+            isFalse,
+            reason: 'history attributed a role to a player',
+          );
         }
       }
     });
 
     testWidgets('is ordered newest first', (tester) async {
-      final older =
-          await storeFinishedMatch(seed: 1, createdAt: DateTime(2026, 1, 1));
-      final newer =
-          await storeFinishedMatch(seed: 2, createdAt: DateTime(2026, 6, 1));
+      final older = await storeFinishedMatch(
+        seed: 1,
+        createdAt: DateTime(2026, 1, 1),
+      );
+      final newer = await storeFinishedMatch(
+        seed: 2,
+        createdAt: DateTime(2026, 6, 1),
+      );
       await pumpHistory(tester);
 
-      final newerTile =
-          tester.getTopLeft(find.byKey(HistoryScreen.tileFor(newer.match.id)));
-      final olderTile =
-          tester.getTopLeft(find.byKey(HistoryScreen.tileFor(older.match.id)));
+      final newerTile = tester.getTopLeft(
+        find.byKey(HistoryScreen.tileFor(newer.match.id)),
+      );
+      final olderTile = tester.getTopLeft(
+        find.byKey(HistoryScreen.tileFor(older.match.id)),
+      );
       expect(newerTile.dy, lessThan(olderTile.dy));
     });
 
@@ -122,8 +149,10 @@ void main() {
 
   group('reopening and deleting', () {
     testWidgets('tapping a match opens its analytics', (tester) async {
-      final engine =
-          await storeFinishedMatch(seed: 7, createdAt: DateTime(2026, 3, 1));
+      final engine = await storeFinishedMatch(
+        seed: 7,
+        createdAt: DateTime(2026, 3, 1),
+      );
       int? opened;
       await pumpHistory(tester, onOpen: (id) => opened = id);
 
@@ -132,38 +161,53 @@ void main() {
       expect(opened, equals(engine.match.id));
     });
 
-    testWidgets('swipe-to-delete asks first, and cancelling keeps the match',
-        (tester) async {
-      final engine =
-          await storeFinishedMatch(seed: 7, createdAt: DateTime(2026, 3, 1));
+    testWidgets('swipe-to-delete asks first, and cancelling keeps the match', (
+      tester,
+    ) async {
+      final engine = await storeFinishedMatch(
+        seed: 7,
+        createdAt: DateTime(2026, 3, 1),
+      );
       await pumpHistory(tester);
 
       // The app is RTL (FR-034), so `DismissDirection.endToStart` is a drag
       // towards the *right*. A negative offset would be startToEnd and would
       // not dismiss anything.
-      await tester.drag(find.byKey(HistoryScreen.tileFor(engine.match.id)),
-          const Offset(500, 0));
+      await tester.drag(
+        find.byKey(HistoryScreen.tileFor(engine.match.id)),
+        const Offset(500, 0),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byKey(HistoryScreen.deleteConfirm), findsOneWidget);
       await tester.tap(find.byKey(HistoryScreen.deleteCancel));
       await tester.pumpAndSettle();
 
-      expect(store.matches, hasLength(1),
-          reason: 'cancelling the confirm still deleted the match');
-      expect(find.byKey(HistoryScreen.tileFor(engine.match.id)), findsOneWidget);
+      expect(
+        store.matches,
+        hasLength(1),
+        reason: 'cancelling the confirm still deleted the match',
+      );
+      expect(
+        find.byKey(HistoryScreen.tileFor(engine.match.id)),
+        findsOneWidget,
+      );
     });
 
     testWidgets('confirming the swipe deletes the match', (tester) async {
-      final engine =
-          await storeFinishedMatch(seed: 7, createdAt: DateTime(2026, 3, 1));
+      final engine = await storeFinishedMatch(
+        seed: 7,
+        createdAt: DateTime(2026, 3, 1),
+      );
       await pumpHistory(tester);
 
       // The app is RTL (FR-034), so `DismissDirection.endToStart` is a drag
       // towards the *right*. A negative offset would be startToEnd and would
       // not dismiss anything.
-      await tester.drag(find.byKey(HistoryScreen.tileFor(engine.match.id)),
-          const Offset(500, 0));
+      await tester.drag(
+        find.byKey(HistoryScreen.tileFor(engine.match.id)),
+        const Offset(500, 0),
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(HistoryScreen.deleteConfirm));
       await tester.pumpAndSettle();
@@ -174,10 +218,13 @@ void main() {
   });
 
   group('stored analytics', () {
-    testWidgets('a reopened match shows all four tabs and every role',
-        (tester) async {
-      final engine =
-          await storeFinishedMatch(seed: 7, createdAt: DateTime(2026, 3, 1));
+    testWidgets('a reopened match shows all four tabs and every role', (
+      tester,
+    ) async {
+      final engine = await storeFinishedMatch(
+        seed: 7,
+        createdAt: DateTime(2026, 3, 1),
+      );
 
       await tester.binding.setSurfaceSize(surface);
       addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -185,13 +232,12 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            matchRepositoryProvider
-                .overrideWithValue(MemoryMatchRepository(store)),
+            matchRepositoryProvider.overrideWithValue(
+              MemoryMatchRepository(store),
+            ),
           ],
-          child: localizedApp(StoredAnalyticsScreen(
-              matchId: engine.match.id,
-              onClose: () {},
-            )
+          child: localizedApp(
+            StoredAnalyticsScreen(matchId: engine.match.id, onClose: () {}),
           ),
         ),
       );
@@ -205,8 +251,11 @@ void main() {
       // The players tab is the post-game reveal: every seat, with its role.
       await tester.tap(find.byKey(AnalyticsView.playersTab));
       await tester.pumpAndSettle();
-      expect(find.textContaining('مافيا'), findsWidgets,
-          reason: 'post-game analytics must reveal roles (FR-032)');
+      expect(
+        find.textContaining('مافيا'),
+        findsWidgets,
+        reason: 'post-game analytics must reveal roles (FR-032)',
+      );
     });
   });
 }
