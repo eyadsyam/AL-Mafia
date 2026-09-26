@@ -251,21 +251,40 @@ class _ReactionFloatsState extends State<ReactionFloats> {
 
   @override
   Widget build(BuildContext context) {
-    if (_floats.isEmpty) return widget.child;
     final reduce = MediaQuery.disableAnimationsOf(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final size = constraints.biggest;
-        const half = FunTokens.reactionFloat / 2;
-        return Stack(
-          clipBehavior: Clip.none,
-          fit: StackFit.passthrough,
-          children: [
-            widget.child,
-            for (final f in _floats) _floatAt(context, f, size, half, reduce),
-          ],
-        );
-      },
+    // One tree shape whether or not anything is in the air: returning the
+    // bare child when empty re-parented it on the first reaction, which
+    // rebuilt the award ribbon and reset the result's scroll.
+    return Stack(
+      clipBehavior: Clip.none,
+      fit: StackFit.passthrough,
+      children: [
+        widget.child,
+        Positioned.fill(
+          child: _floats.isEmpty
+              ? const SizedBox.shrink()
+              // Its own Material: the floats are an overlay and must not rely
+              // on whatever sits above this scope for a DefaultTextStyle.
+              : IgnorePointer(
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final size = constraints.biggest;
+                        const half = FunTokens.reactionFloat / 2;
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            for (final f in _floats)
+                              _floatAt(context, f, size, half, reduce),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+        ),
+      ],
     );
   }
 

@@ -97,6 +97,9 @@ class OnlineTableFlow extends ConsumerStatefulWidget {
   static const Key playAgain = ValueKey('online_play_again');
   static const Key seeRoles = ValueKey('online_see_roles');
 
+  /// The result's scrolling part: awards, reactions, council, roles, home.
+  static const Key resultScroll = ValueKey('online_result_scroll');
+
   static const Key confirmAction = ValueKey('table_confirm');
   static const Key hostAdvance = ValueKey('table_host_advance');
   static const Key closeRoomConfirm = ValueKey('table_close_room_confirm');
@@ -1520,7 +1523,11 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
             ),
           if (action != null) ...[
             if (_actionFailed) SizedBox(height: spacing.xs),
-            action,
+            // Flexible, so the hand's bounded height reaches the action. A
+            // plain child of a Column is laid out with unbounded height, and
+            // the result's scroll view then grew to its full content and
+            // overflowed the band instead of scrolling.
+            Flexible(child: action),
           ],
         ],
       ),
@@ -1709,71 +1716,87 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           snapshot.phase,
           outcomePublic: completed,
         );
-        final names = {
-          for (final p in snapshot.public.players) p.seat: p.name,
-        };
+        final names = {for (final p in snapshot.public.players) p.seat: p.name};
         return ReactionScope(
           roomId: roomId,
           backend: backend,
           open: reactionsAreOpen,
           nameOf: (seat) => names[seat] ?? '',
-          // Scrolls rather than overflows: the hand is a quarter of the
-          // screen and the result has more to say than that on a short phone.
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (roomId != null && completed)
-                  OnlineAwardsStrip(
-                    key: ValueKey('awards-$roomId'),
-                    roomId: roomId,
-                  ),
-                if (roomId != null && backend != null)
-                  ReactionBar(
-                    roomId: roomId,
-                    backend: backend,
-                    open: reactionsAreOpen,
-                  ),
-                // Phase 107: what the finished match moved in the Council. Only
-                // once the outcome is public — never during play.
-                if (roomId != null && completed)
-                  CouncilResultStrip(key: ValueKey(roomId), roomId: roomId),
-                if (roomId != null) RewardedRewardButton(roomId: roomId),
-                // Phase 109: keeping the group together is the loudest thing
-                // left to do — ahead of the roles and ahead of home.
-                FilledButton.icon(
-                  key: OnlineTableFlow.playAgain,
-                  onPressed: () async {
-                    await ref.read(onlineSessionProvider.notifier).leave();
-                    if (mounted) (widget.onRematch ?? widget.onExit)();
-                  },
-                  icon: const Icon(Icons.group_add_rounded),
-                  label: Text(l10n.playAgainWithGroup),
-                ),
-                SizedBox(height: spacing.sm),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        key: OnlineTableFlow.seeRoles,
-                        onPressed: () => setState(() => _roster = true),
-                        child: Text(l10n.onlineSeeRoles),
+          // The hand is a quarter of the screen and the result has more to
+          // say than that on a short phone: everything but the rematch
+          // scrolls, and the rematch is pinned under it so the loudest thing
+          // left to do is on screen at 640 high, awards or not.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Flexible(
+                child: SingleChildScrollView(
+                  key: OnlineTableFlow.resultScroll,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (roomId != null && completed)
+                        OnlineAwardsStrip(
+                          key: ValueKey('awards-$roomId'),
+                          roomId: roomId,
+                        ),
+                      if (roomId != null && backend != null)
+                        ReactionBar(
+                          roomId: roomId,
+                          backend: backend,
+                          open: reactionsAreOpen,
+                        ),
+                      // Phase 107: what the finished match moved in the
+                      // Council. Only once the outcome is public — never
+                      // during play.
+                      if (roomId != null && completed)
+                        CouncilResultStrip(
+                          key: ValueKey(roomId),
+                          roomId: roomId,
+                        ),
+                      if (roomId != null) RewardedRewardButton(roomId: roomId),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              key: OnlineTableFlow.seeRoles,
+                              onPressed: () => setState(() => _roster = true),
+                              child: Text(l10n.onlineSeeRoles),
+                            ),
+                          ),
+                          if (snapshot.outcome?.winner != null) ...[
+                            SizedBox(width: spacing.sm),
+                            ResultShareButton(
+                              winner: snapshot.outcome!.winner,
+                              days: snapshot.dayNumber,
+                              roomId: roomId,
+                            ),
+                          ],
+                        ],
                       ),
-                    ),
-                    if (snapshot.outcome?.winner != null) ...[
-                      SizedBox(width: spacing.sm),
-                      ResultShareButton(
-                        winner: snapshot.outcome!.winner,
-                        days: snapshot.dayNumber,
-                        roomId: roomId,
+                      TextButton(
+                        onPressed: goHome,
+                        child: Text(l10n.homeAction),
                       ),
                     ],
-                  ],
+                  ),
                 ),
-                TextButton(onPressed: goHome, child: Text(l10n.homeAction)),
-              ],
-            ),
+              ),
+              SizedBox(height: spacing.xs),
+              // Phase 109: keeping the group together is the loudest thing
+              // left to do — ahead of the roles and ahead of home.
+              FilledButton.icon(
+                key: OnlineTableFlow.playAgain,
+                onPressed: () async {
+                  await ref.read(onlineSessionProvider.notifier).leave();
+                  if (mounted) (widget.onRematch ?? widget.onExit)();
+                },
+                icon: const Icon(Icons.group_add_rounded),
+                label: Text(l10n.playAgainWithGroup),
+              ),
+            ],
           ),
         );
 

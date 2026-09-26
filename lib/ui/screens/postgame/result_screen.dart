@@ -166,155 +166,182 @@ class ResultScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Winner announcement
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: spacing.md,
-                        vertical: spacing.lg,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors.surfaceRaised,
-                        borderRadius: BorderRadius.circular(radii.card),
-                        border: Border.all(color: winnerColor, width: 2),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            context.l10n.gameOver,
-                            style: type.caption.copyWith(
-                              color: colors.textMuted,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: spacing.md),
-                          Text(
-                            _winnerText(context, winner),
-                            style: type.headline.copyWith(color: winnerColor),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: spacing.lg),
-                    if (awards.isNotEmpty) AwardRibbon(awards: awards),
-
-                    // Player roles table
+                    // The announcement, the awards and the roster scroll as
+                    // one; only the two buttons are pinned. On a 640-high
+                    // phone the fixed stack above the roster (card + awards)
+                    // left the roster a sliver and overflowed at larger text.
                     Expanded(
-                      child: ListView.separated(
-                        itemCount: rows.length,
-                        separatorBuilder: (_, __) =>
-                            SizedBox(height: spacing.sm),
-                        itemBuilder: (context, index) {
-                          final row = rows[index];
-                          final roleColor = _getRoleColor(context, row.role);
-
-                          return Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: spacing.md,
-                              vertical: spacing.md,
-                            ),
-                            decoration: BoxDecoration(
-                              color: colors.surfaceRaised,
-                              borderRadius: BorderRadius.circular(radii.card),
-                              border: Border.all(color: colors.borderSubtle),
-                            ),
-                            child: Row(
-                              children: [
-                                // The player's card, in full colour at last.
-                                //
-                                // This is the payoff for a whole match of
-                                // looking at a monochrome back: the gallery art
-                                // is the same painting the in-match face was cut
-                                // from, without the desaturation and without the
-                                // luminance matching. It is safe here and only
-                                // here — the match has an outcome, every role is
-                                // already public, and nothing on this screen can
-                                // influence play.
-                                _GalleryThumb(role: row.role),
-                                SizedBox(width: spacing.md),
-
-                                // Seat number
-                                Container(
-                                  width: spacing.lg + spacing.md,
-                                  height: spacing.lg + spacing.md,
-                                  decoration: BoxDecoration(
-                                    color: colors.surfaceOverlay,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${row.seat + 1}',
+                      child: CustomScrollView(
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: spacing.md,
+                                vertical: spacing.lg,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.surfaceRaised,
+                                borderRadius: BorderRadius.circular(radii.card),
+                                border: Border.all(
+                                  color: winnerColor,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    context.l10n.gameOver,
                                     style: type.caption.copyWith(
-                                      color: colors.textSecondary,
+                                      color: colors.textMuted,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                ),
-                                SizedBox(width: spacing.md),
+                                  SizedBox(height: spacing.md),
+                                  Text(
+                                    _winnerText(context, winner),
+                                    style: type.headline.copyWith(
+                                      color: winnerColor,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SliverToBoxAdapter(
+                            child: SizedBox(height: spacing.lg),
+                          ),
+                          if (awards.isNotEmpty)
+                            SliverToBoxAdapter(
+                              child: AwardRibbon(awards: awards),
+                            ),
 
-                                // Player name
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        row.name,
-                                        style: type.body.emphasised.copyWith(
-                                          color: colors.textPrimary,
+                          // Player roles table
+                          SliverList.separated(
+                            itemCount: rows.length,
+                            separatorBuilder: (_, __) =>
+                                SizedBox(height: spacing.sm),
+                            itemBuilder: (context, index) {
+                              final row = rows[index];
+                              final roleColor = _getRoleColor(
+                                context,
+                                row.role,
+                              );
+
+                              return Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: spacing.md,
+                                  vertical: spacing.md,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colors.surfaceRaised,
+                                  borderRadius: BorderRadius.circular(
+                                    radii.card,
+                                  ),
+                                  border: Border.all(
+                                    color: colors.borderSubtle,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    // The player's card, in full colour at last.
+                                    //
+                                    // This is the payoff for a whole match of
+                                    // looking at a monochrome back: the gallery art
+                                    // is the same painting the in-match face was cut
+                                    // from, without the desaturation and without the
+                                    // luminance matching. It is safe here and only
+                                    // here — the match has an outcome, every role is
+                                    // already public, and nothing on this screen can
+                                    // influence play.
+                                    _GalleryThumb(role: row.role),
+                                    SizedBox(width: spacing.md),
+
+                                    // Seat number
+                                    Container(
+                                      width: spacing.lg + spacing.md,
+                                      height: spacing.lg + spacing.md,
+                                      decoration: BoxDecoration(
+                                        color: colors.surfaceOverlay,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        '${row.seat + 1}',
+                                        style: type.caption.copyWith(
+                                          color: colors.textSecondary,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    SizedBox(width: spacing.md),
+
+                                    // Player name
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            row.name,
+                                            style: type.body.emphasised
+                                                .copyWith(
+                                                  color: colors.textPrimary,
+                                                ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          if (row.eliminatedLabel != null) ...[
+                                            SizedBox(height: spacing.xs),
+                                            Text(
+                                              row.eliminatedLabel!,
+                                              style: type.bodySmall.copyWith(
+                                                color: colors.textMuted,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                          // «كان ممكن» — doc 13 §4.4. Under the
+                                          // player's own name, because it is about
+                                          // them and about nobody else, and in
+                                          // muted body text because doc 13 asks
+                                          // for *"an observation, never a scold.
+                                          // No score, no grade, no stars."*
+                                          ..._coachingLines(context, row.seat),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(width: spacing.md),
+
+                                    // Role chip
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: spacing.sm,
+                                        vertical: spacing.xs,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: roleColor,
+                                        borderRadius: BorderRadius.circular(
+                                          radii.button,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        _getRoleLabel(context, row.role),
+                                        style: type.caption.copyWith(
+                                          color: colors.surfaceBase,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      if (row.eliminatedLabel != null) ...[
-                                        SizedBox(height: spacing.xs),
-                                        Text(
-                                          row.eliminatedLabel!,
-                                          style: type.bodySmall.copyWith(
-                                            color: colors.textMuted,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                      // «كان ممكن» — doc 13 §4.4. Under the
-                                      // player's own name, because it is about
-                                      // them and about nobody else, and in
-                                      // muted body text because doc 13 asks
-                                      // for *"an observation, never a scold.
-                                      // No score, no grade, no stars."*
-                                      ..._coachingLines(context, row.seat),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(width: spacing.md),
-
-                                // Role chip
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: spacing.sm,
-                                    vertical: spacing.xs,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: roleColor,
-                                    borderRadius: BorderRadius.circular(
-                                      radii.button,
                                     ),
-                                  ),
-                                  child: Text(
-                                    _getRoleLabel(context, row.role),
-                                    style: type.caption.copyWith(
-                                      color: colors.surfaceBase,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          );
-                        },
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(height: spacing.lg),
