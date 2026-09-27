@@ -17,7 +17,17 @@ function pemBytes(pem: string): Uint8Array<ArrayBuffer> {
 export async function playAccessToken(): Promise<string> {
   const raw = Deno.env.get("GOOGLE_PLAY_SERVICE_ACCOUNT_JSON");
   if (!raw) throw new Error("PLAY_NOT_CONFIGURED");
-  const account = JSON.parse(raw);
+  // Stored as plain JSON or as base64 of it (base64 survives shells that
+  // strip quotes); anything else is a configuration error, not a crash.
+  let account: { client_email?: string; private_key?: string };
+  try {
+    account = JSON.parse(raw.trim().startsWith("{") ? raw : atob(raw.trim()));
+  } catch {
+    throw new Error("PLAY_KEY_INVALID");
+  }
+  if (!account.client_email || !account.private_key) {
+    throw new Error("PLAY_KEY_INVALID");
+  }
   const now = Math.floor(Date.now() / 1000);
   const header = b64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
   const payload = b64url(JSON.stringify({

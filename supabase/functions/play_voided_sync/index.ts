@@ -27,10 +27,10 @@ Deno.serve(async (request) => {
     const db = serviceClient();
     const { data: checkpoint } = await db.from("play_sync_state")
       .select("voided_since_ms").eq("id", "voided").maybeSingle();
-    // First run: Google's own window is 30 days.
+    // First run: Google allows strictly less than 30 days back.
     const since = Math.max(
       Number(checkpoint?.voided_since_ms ?? 0),
-      Date.now() - 30 * 24 * 60 * 60 * 1000,
+      Date.now() - 29 * 24 * 60 * 60 * 1000,
     );
     const bearer = await playAccessToken();
     const tokens: string[] = []; const orders: string[] = [];
