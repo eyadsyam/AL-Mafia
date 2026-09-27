@@ -42,7 +42,10 @@ Deno.serve(async (request) => {
       url.searchParams.set("maxResults", "1000");
       if (page) url.searchParams.set("token", page);
       const response = await fetch(url, { headers: { authorization: `Bearer ${bearer}` } });
-      if (!response.ok) return new Response("play api", { status: 502 });
+      if (!response.ok) {
+        console.error("play_voided_sync: Play API", response.status);
+        return new Response(`play api ${response.status}`, { status: 502 });
+      }
       const body = await response.json();
       for (const item of body.voidedPurchases ?? []) {
         if (item.purchaseToken) tokens.push(String(item.purchaseToken));
@@ -69,6 +72,10 @@ Deno.serve(async (request) => {
     if (String(error).includes("PLAY_NOT_CONFIGURED")) {
       return new Response("not configured", { status: 503 });
     }
-    return new Response("retry", { status: 500 });
+    // Codes only (PLAY_AUTH_FAILED, a Postgres error code…), never key material.
+    const code = String((error as { code?: string; message?: string })?.code ??
+      (error as Error)?.message ?? "unknown").slice(0, 80);
+    console.error("play_voided_sync failed:", code);
+    return new Response(`retry: ${code}`, { status: 500 });
   }
 });

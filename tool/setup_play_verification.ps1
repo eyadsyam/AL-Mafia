@@ -33,8 +33,16 @@ $bytes = New-Object byte[] 32
 $sync = ([BitConverter]::ToString($bytes) -replace '-', '').ToLower()
 
 $compact = ($json | ConvertFrom-Json | ConvertTo-Json -Depth 10 -Compress)
-npx -y supabase secrets set --project-ref $ref "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON=$compact" "PLAY_SYNC_SECRET=$sync" | Out-Null
-if ($LASTEXITCODE -ne 0) { throw 'supabase secrets set failed (is the CLI logged in?).' }
+# Passing JSON on the Windows command line strips its quotes, so hand the
+# values over in a temporary env file (single-quoted keeps the JSON intact).
+$envFile = New-TemporaryFile
+try {
+  [IO.File]::WriteAllText($envFile,
+    "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON='$compact'`nPLAY_SYNC_SECRET=$sync`n",
+    (New-Object Text.UTF8Encoding $false))
+  npx -y supabase secrets set --project-ref $ref --env-file $envFile | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw 'supabase secrets set failed (is the CLI logged in?).' }
+} finally { Remove-Item $envFile -ErrorAction SilentlyContinue }
 Write-Host 'Secrets set.'
 
 npx -y supabase functions deploy play_voided_sync --no-verify-jwt --project-ref $ref --use-api | Out-Null
@@ -64,4 +72,14 @@ npx -y supabase db query --linked --project-ref $ref -f $tmp | Out-Null
 $rc = $LASTEXITCODE
 Remove-Item $tmp
 if ($rc -ne 0) { throw 'Scheduling the refund sync failed.' }
-Write-Host 'Done: Play verification secrets set, refund sync deployed and scheduled every 6 hours.'
+Write-Host 'Scheduled. Running the refund sync once to check the key...'
+Start-Sleep -Seconds 5
+$check = @"
+select net.http_post(url := 'https://$ref.supabase.co/functions/v1/play_voided_sync',
+  headers := jsonb_build_object('x-sync-secret',
+    (select decrypted_secret from vault.decrypted_secrets where name='play_sync_secret')));
+"@
+npx -y supabase db query --linked --project-ref $ref $check | Out-Null
+Start-Sleep -Seconds 10
+npx -y supabase db query --linked --project-ref $ref "select status_code, left(content::text,120) as body from net._http_response order by id desc limit 1"
+Write-Host 'status 200 = working. "play api 401/403" = Play permissions not active yet (can take up to 36 h; the 6-hourly job retries by itself).'
