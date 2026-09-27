@@ -37,6 +37,8 @@ class CoinServer extends FakeBackend {
   bool recoverable = true;
   bool admin = false;
   bool adFree = false;
+  BackendException? createRefusal;
+  BackendException? submitRefusal;
   final orders = <Map<String, dynamic>>[];
   final hashes = <String>{};
   int balance = 0;
@@ -95,6 +97,7 @@ class CoinServer extends FakeBackend {
           'orders': orders,
         };
       case 'create':
+        if (createRefusal case final refusal?) throw refusal;
         if (pending.length >= 2) {
           throw const BackendException('TOO_MANY_PENDING', 'no');
         }
@@ -110,6 +113,7 @@ class CoinServer extends FakeBackend {
         orders.insert(0, order);
         return {'order': order, 'resumed': false};
       case 'submit':
+        if (submitRefusal case final refusal?) throw refusal;
         final image = body['image'] as String?;
         final sender = (body['senderName'] as String? ?? '').trim();
         if (image == null || sender.length < 2) {
@@ -196,6 +200,7 @@ void main() {
   late List<String> opened;
   late bool openWorks;
   late Uint8List? picked;
+  late Uint8List? lost;
 
   setUp(() {
     server = CoinServer();
@@ -203,6 +208,7 @@ void main() {
     opened = [];
     openWorks = true;
     picked = jpegOf(8, 8);
+    lost = null;
   });
 
   const android = PaymentCapabilities(transfer: true, platform: 'android');
@@ -215,6 +221,7 @@ void main() {
           accountServiceProvider.overrideWithValue(accounts),
           paymentCapabilitiesProvider.overrideWithValue(caps),
           proofPickerProvider.overrideWithValue(() async => picked),
+          lostProofProvider.overrideWithValue(() async => lost),
           externalLinkOpenerProvider.overrideWithValue((url) {
             opened.add(url);
             return openWorks;
@@ -350,8 +357,8 @@ void main() {
         findsNothing,
       );
       await tester.tap(button);
-      expect(opened, [instapayUrl], reason: 'opened in the tap, like a link');
       await tester.pumpAndSettle();
+      expect(opened, [instapayUrl], reason: 'opened once the order exists');
       expect(coinCalls('create').single.body, {
         'action': 'create',
         'pack': 'coins_500',
@@ -452,6 +459,81 @@ void main() {
       await tester.pump();
       expect(submit(tester).onPressed, isNotNull);
       expect(coinCalls('submit'), isEmpty);
+    });
+
+    testWidgets('a refused order opens no payment page and says why', (
+      tester,
+    ) async {
+      server.createRefusal = const BackendException('SALES_DISABLED', 'off');
+      await pumpPacks(tester);
+      await startOrder(tester);
+      expect(coinCalls('create'), hasLength(1));
+      expect(opened, isEmpty, reason: 'nobody pays for a refused order');
+      expect(find.text(arStrings.coinPacksUnavailable), findsOneWidget);
+      expect(find.byType(ProofOrderCard), findsNothing);
+
+      tester
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .clearSnackBars();
+      await tester.pumpAndSettle();
+      server.createRefusal = const BackendException('TOO_MANY_PENDING', 'no');
+      await tester.tap(find.byKey(CoinPacksTab.method('instapay')));
+      await tester.pumpAndSettle();
+      expect(opened, isEmpty);
+      expect(find.text(arStrings.pay2TooMany), findsOneWidget);
+    });
+
+    testWidgets('the sender name follows the server pattern', (tester) async {
+      expect(validSenderName('  إياد   عبد الرحمن '), isTrue);
+      expect(validSenderName('01012345678'), isTrue);
+      expect(validSenderName("O'Brien-Smith (VF)"), isTrue);
+      expect(validSenderName('E'), isFalse);
+      expect(validSenderName('<b>x</b>'), isFalse);
+      expect(validSenderName('a' * 81), isFalse);
+      expect(validSenderName('a' * 80), isTrue);
+      expect(normalizeSenderName('  Eyad \n  S '), 'Eyad S');
+
+      await pumpPacks(tester);
+      await startOrder(tester);
+      await tester.tap(find.byKey(ProofOrderCard.pickButton));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(ProofOrderCard.senderField), 'Eyad <S>');
+      await tester.pump();
+      expect(submit(tester).onPressed, isNull, reason: 'the server would refuse it');
+
+      // Should the server still refuse the name, the player reads the proof
+      // message, not a generic failure.
+      await tester.enterText(find.byKey(ProofOrderCard.senderField), 'Eyad S');
+      await tester.pump();
+      server.submitRefusal = const BackendException(
+        'SENDER_REQUIRED',
+        'sender name required',
+      );
+      await tester.tap(find.byKey(ProofOrderCard.submitButton));
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.pay2ProofRequired), findsWidgets);
+      expect(find.text(arStrings.coinOrderFailed), findsNothing);
+      server.submitRefusal = const BackendException(
+        'BAD_REQUEST',
+        'sender name required',
+      );
+      await tester.tap(find.byKey(ProofOrderCard.submitButton));
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.coinOrderFailed), findsNothing);
+    });
+
+    testWidgets('a photo picked before Android killed the app comes back', (
+      tester,
+    ) async {
+      server.orders.add(order('a', 'awaiting_transfer'));
+      lost = jpegOf(8, 8, 5);
+      await pumpPacks(tester);
+      expect(find.byKey(ProofOrderCard.imageReady), findsOneWidget);
+      await tester.enterText(find.byKey(ProofOrderCard.senderField), 'Eyad S');
+      await tester.pump();
+      await tester.tap(find.byKey(ProofOrderCard.submitButton));
+      await tester.pumpAndSettle();
+      expect(base64Decode(coinCalls('submit').single.body['image'] as String), lost);
     });
 
     testWidgets('a reused screenshot is refused in words', (tester) async {

@@ -223,7 +223,7 @@ class CoinShopController extends AsyncNotifier<CoinShop> {
     await _call({
       'action': 'submit',
       'order': order,
-      'senderName': sender.trim(),
+      'senderName': normalizeSenderName(sender),
       'image': base64Encode(image),
     });
     state = await AsyncValue.guard(build);
@@ -234,6 +234,22 @@ class CoinShopController extends AsyncNotifier<CoinShop> {
     state = await AsyncValue.guard(build);
   }
 }
+
+/// The sender name exactly as the server accepts it (coin_payments.ts
+/// `SENDER`): letters, marks and digits of any script, spaces and
+/// `.,'’_-@+()`, 2–80 characters after runs of spaces are collapsed.
+final _senderPattern = RegExp(
+  r"^[\p{L}\p{M}\p{N} .,'’_\-@+()]{2,80}$",
+  unicode: true,
+);
+
+/// [raw] as it is sent: trimmed, inner runs of whitespace made one space.
+String normalizeSenderName(String raw) =>
+    raw.replaceAll(RegExp(r'\s+'), ' ').trim();
+
+/// Whether the server will accept [raw] as the sender name.
+bool validSenderName(String raw) =>
+    _senderPattern.hasMatch(normalizeSenderName(raw));
 
 String methodName(BuildContext context, String code) => code == 'instapay'
     ? context.l10n.coinPayInstapay
@@ -248,6 +264,10 @@ String transferError(BuildContext context, Object error) {
     'TOO_MANY_PENDING' => l.pay2TooMany,
     'DUPLICATE_PROOF' => l.pay2Duplicate,
     'SENDER_REQUIRED' || 'PROOF_REQUIRED' => l.pay2ProofRequired,
+    // An older server said a malformed sender name as a bare BAD_REQUEST.
+    'BAD_REQUEST' when error is BackendException &&
+        error.message.contains('sender') =>
+      l.pay2ProofRequired,
     'SALES_DISABLED' || 'METHOD_UNAVAILABLE' => l.coinPacksUnavailable,
     _ => l.coinOrderFailed,
   };
@@ -273,10 +293,12 @@ void _say(BuildContext context, String text) => ScaffoldMessenger.maybeOf(
   context,
 )?.showSnackBar(SnackBar(content: Text(text)));
 
-/// Step 1 done: the chosen method's page opens inside the tap itself (a real
-/// link, never blocked as a pop-up) and the order is made alongside, so the
-/// player comes back to an order waiting for the proof. With [sheet], the
-/// order's steps open over the current tab (the Play offers tab).
+/// Step 1 done: the order is made first — the server checks the kill
+/// switch, the pending cap and what the player already owns — and only when
+/// it exists does the chosen method's page open, so nobody pays for an order
+/// that was refused. A refusal is said in words and nothing opens. With
+/// [sheet], the order's steps open over the current tab (the Play offers tab).
+/// Should the browser block the page, the order's own «open» control is there.
 Future<void> startTransfer(
   BuildContext context,
   WidgetRef ref,
@@ -284,23 +306,26 @@ Future<void> startTransfer(
   PayMethod method, {
   bool sheet = false,
 }) async {
-  final opened = ref.read(externalLinkOpenerProvider)(method.url!);
-  if (!opened) _say(context, context.l10n.coinOpenFailed);
+  final CoinOrder order;
   try {
-    final order = await ref
+    order = await ref
         .read(coinShopProvider.notifier)
         .create(pack.code, method.code);
-    if (sheet && context.mounted) {
-      await showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        showDragHandle: true,
-        builder: (_) => TransferOrderSheet(orderId: order.id),
-      );
-    }
   } catch (error) {
     if (context.mounted) _say(context, transferError(context, error));
+    return;
+  }
+  if (!context.mounted) return;
+  final opened = ref.read(externalLinkOpenerProvider)(method.url!);
+  if (!opened) _say(context, context.l10n.coinOpenFailed);
+  if (sheet) {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (_) => TransferOrderSheet(orderId: order.id),
+    );
   }
 }
 
@@ -911,9 +936,32 @@ class _ProofOrderCardState extends ConsumerState<ProofOrderCard> {
   final _sender = TextEditingController();
   Uint8List? _image;
   bool _busy = false;
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    // Android may kill the app while the photo picker is open; the chosen
+    // screenshot is then handed back on the next start, not to the picker
+    // call that is gone. Asked for here and whenever the app comes back.
+    _lifecycle = AppLifecycleListener(onResume: _recover);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _recover());
+  }
+
+  Future<void> _recover() async {
+    if (!mounted || _busy || _image != null || !widget.order.needsProof) {
+      return;
+    }
+    try {
+      final bytes = await ref.read(lostProofProvider)();
+      if (bytes == null || !mounted || _image != null) return;
+      setState(() => _image = bytes);
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     _sender.dispose();
     super.dispose();
   }
@@ -935,8 +983,8 @@ class _ProofOrderCardState extends ConsumerState<ProofOrderCard> {
 
   Future<void> _submit() async {
     final image = _image;
-    final sender = _sender.text.trim();
-    if (image == null || sender.length < 2) {
+    final sender = normalizeSenderName(_sender.text);
+    if (image == null || !validSenderName(sender)) {
       _say(context, context.l10n.pay2ProofRequired);
       return;
     }
@@ -1067,7 +1115,7 @@ class _ProofOrderCardState extends ConsumerState<ProofOrderCard> {
                 key: ProofOrderCard.submitButton,
                 style: vaultGoldStyle(context),
                 onPressed:
-                    _busy || _image == null || _sender.text.trim().length < 2
+                    _busy || _image == null || !validSenderName(_sender.text)
                     ? null
                     : _submit,
                 child: Text(l.pay2Submit),

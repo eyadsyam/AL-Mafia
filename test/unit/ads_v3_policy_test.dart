@@ -2,6 +2,9 @@
 // coordinator with a fake ad unit. No SDK, no network.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mafia_master/data/memory_match_repository.dart';
+import 'package:mafia_master/data/repository_provider.dart';
+import 'package:mafia_master/engine/models/match.dart';
 import 'package:mafia_master/platform/audio_director.dart';
 import 'package:mafia_master/platform/monetization/interstitial_ads.dart';
 import 'package:mafia_master/platform/monetization/interstitial_policy.dart';
@@ -299,6 +302,7 @@ void main() {
 
   group('coordinator', () {
     late _FakeAds ads;
+    late _ActiveMatchRepository repository;
     late ProviderContainer container;
     late int now;
 
@@ -314,6 +318,7 @@ void main() {
           economyCapabilitiesProvider.overrideWith((ref) async => caps),
           audioDirectorProvider.overrideWithValue(AudioDirector()),
           voiceControllerProvider.overrideWithValue(null),
+          matchRepositoryProvider.overrideWithValue(repository),
         ],
       );
       addTearDown(c.dispose);
@@ -323,6 +328,7 @@ void main() {
     setUp(() {
       now = noon;
       ads = _FakeAds();
+      repository = _ActiveMatchRepository();
       SharedPreferences.setMockInitialValues({
         'interstitial_ledger_v1':
             '{"completedMatches":3,"highWaterMs":${noon - 60 * _minute}}',
@@ -395,25 +401,56 @@ void main() {
       expect(ads.preloads, 0);
     });
 
-    test('session: five menu minutes, then only between menus', () async {
+    test('session: five menu minutes, then only before a forward menu move', () async {
       final c = await ready();
       c.foreground(true);
-      await c.navigated('/', '/history');
+      c.navigated('/', '/history');
       now += 4 * _minute;
-      expect(await c.navigated('/history', '/'), InterstitialVerdict.notDue);
+      expect(await c.beforeMenuNavigation('/profile'), InterstitialVerdict.notDue);
+      c.navigated('/history', '/');
       // A match pauses the clock: ten minutes in play add nothing.
-      await c.navigated('/', '/match');
+      c.navigated('/', '/match');
       now += 10 * _minute;
-      await c.navigated('/match', '/');
+      c.navigated('/match', '/');
       now += 30 * _second;
-      expect(await c.navigated('/', '/online/lobby'), InterstitialVerdict.notThisExit);
+      expect(await c.beforeMenuNavigation('/online/lobby'), InterstitialVerdict.notThisExit);
       now += 31 * _second;
-      expect(await c.navigated('/online/lobby', '/'), InterstitialVerdict.notThisExit);
-      expect(await c.navigated('/', '/profile'), InterstitialVerdict.show);
+      expect(await c.beforeMenuNavigation('/profile'), InterstitialVerdict.show);
       expect(ads.shows, 1);
+      c.navigated('/', '/profile');
       // The clock starts again after the ad.
       now += _minute * 2;
-      expect(await c.navigated('/profile', '/'), InterstitialVerdict.notDue);
+      expect(await c.beforeMenuNavigation('/'), InterstitialVerdict.notDue);
+    });
+
+    test('session: back and pop never show it, however long the menus ran', () async {
+      final c = await ready();
+      c.foreground(true);
+      c.navigated('/', '/history');
+      now += 30 * _minute;
+      // Router moves — the system back, a back arrow, a pop — only keep the
+      // clock; nothing is shown over a screen already on display.
+      c.navigated('/history', '/');
+      c.navigated('/', '/profile');
+      c.navigated('/profile', '/');
+      await Future<void>.delayed(Duration.zero);
+      expect(ads.shows, 0);
+      // The next forward tap is when it is due, once.
+      expect(await c.beforeMenuNavigation('/history'), InterstitialVerdict.show);
+      c.navigated('/', '/history');
+      expect(await c.beforeMenuNavigation('/history/1'), isNot(InterstitialVerdict.show));
+      expect(ads.shows, 1);
+    });
+
+    test('session: none while a pass-and-play match is paused', () async {
+      repository.active = true;
+      final c = await ready();
+      c.foreground(true);
+      now += 30 * _minute;
+      expect(await c.beforeMenuNavigation('/history'), InterstitialVerdict.busy);
+      expect(ads.shows, 0);
+      repository.active = false;
+      expect(await c.beforeMenuNavigation('/history'), InterstitialVerdict.show);
     });
 
     test('pass-and-play result: counted, then shown after Home', () async {
@@ -458,4 +495,18 @@ class _FakeAds implements InterstitialAds {
 
   @override
   void dispose() {}
+}
+
+/// Nothing stored, except that [active] says a pass-and-play match is paused.
+class _ActiveMatchRepository extends MemoryMatchRepository {
+  _ActiveMatchRepository() : super(MemoryMatchStore());
+  bool active = false;
+
+  @override
+  Future<Match?> loadActiveMatch() async => active ? _PausedMatch() : null;
+}
+
+class _PausedMatch implements Match {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

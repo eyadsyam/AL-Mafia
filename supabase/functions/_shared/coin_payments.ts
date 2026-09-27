@@ -133,7 +133,9 @@ export const PROOF_BUCKET = "payment-proofs";
 
 /** Letters of any script, digits (Vodafone Cash may show a number), spaces
  * and the punctuation names use. Exactly as the payment app shows it. */
+/** Mirrored by the client (coin_packs.dart `validSenderName`); change both. */
 const SENDER = /^[\p{L}\p{M}\p{N} .,'’_\-@+()]{2,80}$/u;
+export const SENDER_ERROR = "sender name required";
 
 export function parseSender(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -189,10 +191,20 @@ export function parseSubmit(body: any): Parsed<{
   const platform = parsePlatform(body?.platform);
   if (!platform) return { ok: false, error: "invalid platform" };
   const sender = parseSender(body?.senderName);
-  if (!sender) return { ok: false, error: "sender name required" };
+  if (!sender) return { ok: false, error: SENDER_ERROR };
   const image = decodeProofImage(body?.image);
   if (!image.ok) return image;
   return { ok: true, value: { order: body.order, sender, platform, image: image.value } };
+}
+
+/** The refusal code for a [parseSubmit] failure: a sender name the pattern
+ * refuses is SENDER_REQUIRED and a missing or unreadable image is
+ * PROOF_REQUIRED (both said to the player as "proof required"); anything
+ * else is a malformed request. */
+export function submitRefusal(error: string): "SENDER_REQUIRED" | "PROOF_REQUIRED" | "BAD_REQUEST" {
+  if (error === SENDER_ERROR) return "SENDER_REQUIRED";
+  if (/image/.test(error)) return "PROOF_REQUIRED";
+  return "BAD_REQUEST";
 }
 
 export function parseReject(body: any): Parsed<{ order: string; reason: string }> {

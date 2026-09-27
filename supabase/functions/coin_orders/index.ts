@@ -20,7 +20,7 @@ import { fail, handler, ok } from "../_shared/api.ts";
 import {
   parseClaim, parseCreate, parseFilter, parsePlatform, parseReject, parseReview,
   parseSubmit, paymentMethods, PROOF_BUCKET, proofPath, REFUSALS, sha256Hex,
-  telegramRequest,
+  submitRefusal, telegramRequest,
 } from "../_shared/coin_payments.ts";
 
 const env = (name: string) => Deno.env.get(name);
@@ -63,8 +63,15 @@ Deno.serve(handler(async (req, userId, db) => {
     }
     case "submit": {
       const parsed = parseSubmit(body);
-      if (!parsed.ok) return fail("BAD_REQUEST", parsed.error);
+      if (!parsed.ok) return fail(submitRefusal(parsed.error) as never, parsed.error);
       const { order, sender, image } = parsed.value;
+      // Cheap checks before anything is stored: the platform's switch, the
+      // order is this player's, and it can still take a proof. The submit
+      // below repeats them under the lock; this only spares the bucket.
+      const pre = await db.rpc("coin_order_proof_precheck", {
+        p_user: userId, p_order: order, p_platform: parsed.value.platform,
+      });
+      if (pre.error) return refuse(pre.error);
       const sha = await sha256Hex(image.bytes);
       const path = proofPath(userId, order, crypto.randomUUID(), image.ext);
       const bucket = db.storage.from(PROOF_BUCKET);

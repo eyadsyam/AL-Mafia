@@ -125,7 +125,7 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     if (path == _lastPath) return;
     final from = _lastPath;
     _lastPath = path;
-    unawaited(ref.read(interstitialCoordinatorProvider).navigated(from, path));
+    ref.read(interstitialCoordinatorProvider).navigated(from, path);
   }
 
   @override

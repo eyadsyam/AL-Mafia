@@ -144,6 +144,25 @@ GoRouter buildRouter(
   // tap cannot start a second match underneath it.
   var dealing = false;
 
+  // Set while a forward menu move waits on the session ad, so a second tap
+  // cannot navigate underneath it.
+  var forwarding = false;
+
+  /// A menu control moving *forward* to another menu screen: the session ad
+  /// (Ads v3), if one is due, is shown first and the move follows. Back
+  /// controls and the system back use plain `go` and never show an ad.
+  Future<void> forwardTo(BuildContext context, String to) async {
+    if (forwarding) return;
+    forwarding = true;
+    try {
+      await ref.read(interstitialCoordinatorProvider).beforeMenuNavigation(to);
+    } finally {
+      forwarding = false;
+    }
+    if (!context.mounted) return;
+    context.go(to);
+  }
+
   Future<void> startMatch(BuildContext context) async {
     final draft = ref.read(setupDraftProvider);
     final roleCounts = draft.roleCounts;
@@ -246,11 +265,11 @@ GoRouter buildRouter(
           child: HomeScreen(
             // Play now asks which of the two games this is, rather than starting
             // one of them and offering the other in smaller type.
-            onNewMatch: () => context.go(Routes.mode),
-            onHistory: () => context.go(Routes.history),
-            onSettings: () => context.go(Routes.defaults),
+            onNewMatch: () => forwardTo(context, Routes.mode),
+            onHistory: () => forwardTo(context, Routes.history),
+            onSettings: () => forwardTo(context, Routes.defaults),
             onHowToPlay: () => context.go(Routes.onboarding),
-            onProfile: () => context.go(Routes.profile),
+            onProfile: () => forwardTo(context, Routes.profile),
             store: SupabaseConfig.isConfigured
                 ? const CoinStoreButton(compact: true)
                 : null,
@@ -275,7 +294,7 @@ GoRouter buildRouter(
           child: ModeScreen(
             onPlayOffline: () => goOffline(context),
             onPlayOnline: SupabaseConfig.isConfigured
-                ? () => context.go(Routes.online)
+                ? () => forwardTo(context, Routes.online)
                 : null,
             onBack: () => context.go(Routes.home),
           ),
@@ -499,7 +518,7 @@ GoRouter buildRouter(
       GoRoute(
         path: Routes.history,
         builder: (context, state) => HistoryScreen(
-          onOpen: (id) => context.go(Routes.storedAnalytics(id)),
+          onOpen: (id) => forwardTo(context, Routes.storedAnalytics(id)),
           onBack: () => context.go(Routes.home),
         ),
       ),

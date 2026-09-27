@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../data/repository_provider.dart';
 import '../../platform/audio_director.dart';
 import '../../platform/monetization/interstitial_ads.dart';
 import '../../platform/monetization/interstitial_policy.dart';
@@ -140,17 +141,17 @@ class InterstitialCoordinator {
   /// Menu time since the last full-screen ad (for tests and the session ad).
   int menuMs() => _clock.elapsed(_now());
 
-  /// The router moved from [from] to [to]. Keeps the menu clock, warms an ad
-  /// where one may soon be wanted, and — only between two menu screens —
-  /// considers the session ad. Never throws.
-  Future<InterstitialVerdict> navigated(String from, String to) async {
+  /// The router moved from [from] to [to]. Keeps the menu clock and warms an
+  /// ad where one may soon be wanted. Never shows anything: by the time the
+  /// router reports a move the destination is already on screen, and a back
+  /// or pop is a move too. The session ad is [beforeMenuNavigation]'s.
+  /// Never throws.
+  void navigated(String from, String to) {
     _path = to;
     _syncClock();
     try {
       // A build without an interstitial unit never asks anything.
-      if (!_ref.read(interstitialAdsProvider).configured) {
-        return InterstitialVerdict.off;
-      }
+      if (!_ref.read(interstitialAdsProvider).configured) return;
       if (to == '/online' || to.startsWith('/join/')) {
         // The online door: pre-match is next. Starting the read here is fine
         // (the player is going online anyway) and never awaited.
@@ -158,7 +159,25 @@ class InterstitialCoordinator {
       } else {
         _warm(_loadedCaps());
       }
-      if (!sessionNavigation(from, to)) return InterstitialVerdict.notThisExit;
+    } catch (_) {}
+  }
+
+  /// A menu control is about to move forward from the current menu screen to
+  /// [to]. Considers the session ad *before* the move, so it never covers a
+  /// destination already on screen; the caller navigates once this completes
+  /// (at once when no ad is due). Back controls and the system back never
+  /// call this. Never throws.
+  Future<InterstitialVerdict> beforeMenuNavigation(String to) async {
+    try {
+      if (!_ref.read(interstitialAdsProvider).configured) {
+        return InterstitialVerdict.off;
+      }
+      if (!sessionNavigation(_path, to)) return InterstitialVerdict.notThisExit;
+      // A pass-and-play match left paused (resumable from Home) is still a
+      // game in progress: no session ad over it, as the app-open ad.
+      if (await _ref.read(matchRepositoryProvider).loadActiveMatch() != null) {
+        return InterstitialVerdict.busy;
+      }
       return await _consider(AdPlacement.session);
     } catch (_) {
       return InterstitialVerdict.off;

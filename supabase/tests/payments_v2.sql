@@ -46,7 +46,7 @@ begin
   begin
     assert (select price_piastres from coin_packs where play_product='mm_coins_500')=4999, 'coins_500';
     assert (select price_piastres from coin_packs where play_product='mm_coins_1200')=9999, 'coins_1200';
-    assert (select price_piastres from coin_packs where play_product='mm_coins_2500')=17999, 'coins_2500';
+    assert (select price_piastres from coin_packs where play_product='mm_coins_2500')=18000, 'coins_2500';
     assert (select price_piastres from coin_packs where play_product='mm_remove_interruptions')=19999, 'pass';
     assert (select price_piastres from coin_packs where play_product='mm_starter_bundle')=2999, 'bundle';
     assert (select item_code from coin_packs where code='starter_bundle')='frame_council_seal', 'bundle item';
@@ -101,16 +101,28 @@ begin
   exception when assert_failure or others then perform pg_temp.pv_record('P3 max pending', sqlerrm);
   end;
 
-  -- P4 72 h expiry of unreviewed orders ---------------------------------------
+  -- P4 72 h expiry of orders without proof; proof keeps an order pending ----
   begin
     perform pg_temp.pv_on(true,true); u := pg_temp.pv_user();
+    -- With proof (claimed): past its window it still waits for the review.
     o := pg_temp.pv_order(u,'coins_500','p4');
     assert (select expires_at from coin_orders where id=o) between now()+interval '71 hours' and now()+interval '73 hours', 'window';
     update coin_orders set expires_at=now()-interval '1 minute' where id=o;
     perform public.expire_coin_orders(null);
-    assert (select status from coin_orders where id=o)='expired', 'not expired';
-    assert (public.coin_shop_v2(u,'android')->>'pending')::int=0, 'still pending';
-    assert exists(select 1 from coin_order_events where order_id=o and action='expired'), 'no event';
+    assert (select status from coin_orders where id=o)='claimed', 'claimed order expired';
+    -- needs_info (proof in, the owner asked a question): stays pending too.
+    update coin_orders set status='needs_info' where id=o;
+    perform public.expire_coin_orders(u);
+    assert (select status from coin_orders where id=o)='needs_info', 'needs_info order expired';
+    assert not exists(select 1 from coin_order_events where order_id=o and action='expired'), 'proof order logged expired';
+    -- No proof (awaiting_transfer): expires after 72 h.
+    o2 := (public.create_coin_order_v2(u,'coins_1200','instapay','android')->'order'->>'id')::uuid;
+    assert (public.coin_shop_v2(u,'android')->>'pending')::int=2, 'pending before';
+    update coin_orders set expires_at=now()-interval '1 minute' where id=o2;
+    perform public.expire_coin_orders(null);
+    assert (select status from coin_orders where id=o2)='expired', 'not expired';
+    assert (public.coin_shop_v2(u,'android')->>'pending')::int=1, 'still pending';
+    assert exists(select 1 from coin_order_events where order_id=o2 and action='expired'), 'no event';
     raise exception 'GATE_OK';
   exception when assert_failure or others then perform pg_temp.pv_record('P4 expiry', sqlerrm);
   end;
@@ -294,6 +306,25 @@ begin
     raise exception 'GATE_OK';
   exception when assert_failure or others then perform pg_temp.pv_record('P10 surface and owner seed', sqlerrm);
   end;
+
+  -- P11 cheap precheck before the image is stored ------------------------------
+  begin
+    perform pg_temp.pv_on(true,false); u := pg_temp.pv_user(); v := pg_temp.pv_user();
+    o := (public.create_coin_order_v2(u,'coins_500','instapay','android')->'order'->>'id')::uuid;
+    perform public.coin_order_proof_precheck(u,o,'android');
+    begin perform public.coin_order_proof_precheck(u,o,'web'); assert false, 'web switch off';
+    exception when others then assert sqlerrm='SALES_DISABLED', sqlerrm; end;
+    begin perform public.coin_order_proof_precheck(v,o,'android'); assert false, 'not the owner';
+    exception when others then assert sqlerrm='ORDER_NOT_FOUND', sqlerrm; end;
+    perform public.submit_coin_order_proof(u,o,'Eyad',u::text||'/pre.jpg',pg_temp.pv_sha('p11'),'android');
+    begin perform public.coin_order_proof_precheck(u,o,'android'); assert false, 'claimed again';
+    exception when others then assert sqlerrm='ORDER_NOT_CLAIMABLE', sqlerrm; end;
+    -- Nothing changed by asking.
+    assert (select status from coin_orders where id=o)='claimed', 'precheck wrote';
+    assert not has_function_privilege('authenticated','public.coin_order_proof_precheck(uuid,uuid,text)','execute'), 'precheck exposed';
+    raise exception 'GATE_OK';
+  exception when assert_failure or others then perform pg_temp.pv_record('P11 proof precheck', sqlerrm);
+  end;
 end $$;
 
 do $$
@@ -301,7 +332,7 @@ declare failed text;
 begin
   select string_agg(gate||' => '||detail, ' | ' order by gate) into failed
     from pv_results where not ok;
-  if (select count(*) from pv_results) <> 10 then
+  if (select count(*) from pv_results) <> 11 then
     raise exception 'PAYMENTS V2 GATES INCOMPLETE: % recorded', (select count(*) from pv_results);
   end if;
   if failed is not null then raise exception 'PAYMENTS V2 GATES FAILED: %', failed; end if;

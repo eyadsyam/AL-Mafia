@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import {
   decodeProofImage, parseFilter, parsePlatform, parseReject, parseSender, parseSubmit,
-  proofPath, PROOF_MAX_BYTES, REFUSALS, sha256Hex, telegramRequest, telegramText,
+  proofPath, PROOF_MAX_BYTES, REFUSALS, sha256Hex, submitRefusal, telegramRequest, telegramText,
 } from '../functions/_shared/coin_payments.ts';
 
 globalThis.fetch = () => { throw new Error('network used in a unit test'); };
@@ -49,6 +49,12 @@ assert.equal(parseSubmit({ ...good, image: undefined }).ok, false, 'upload requi
 assert.equal(parseSubmit({ ...good, senderName: ' ' }).ok, false, 'sender required');
 assert.equal(parseSubmit({ ...good, order: 'x' }).ok, false);
 assert.equal(parseSubmit({ ...good, platform: 'ios' }).ok, false);
+// A refused sender name or image reaches the client as a code it words as
+// "proof required", not as a bare BAD_REQUEST.
+assert.equal(submitRefusal(parseSubmit({ ...good, senderName: '<b>x</b>' }).error), 'SENDER_REQUIRED');
+assert.equal(submitRefusal(parseSubmit({ ...good, senderName: 'a'.repeat(81) }).error), 'SENDER_REQUIRED');
+assert.equal(submitRefusal(parseSubmit({ ...good, image: undefined }).error), 'PROOF_REQUIRED');
+assert.equal(submitRefusal(parseSubmit({ ...good, order: 'x' }).error), 'BAD_REQUEST');
 
 // Hash is of the bytes: the same image is the same hash, whatever its wrapper.
 const h1 = await sha256Hex(decodeProofImage(jpeg).value.bytes);

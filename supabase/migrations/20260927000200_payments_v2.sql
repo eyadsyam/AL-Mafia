@@ -10,7 +10,8 @@
 --     account).
 --   * Proof: a payment screenshot (private Storage bucket, sha256 unique across
 --     all orders) plus the sender name as the payment app shows it.
---   * Up to 2 pending orders per player; unreviewed orders expire after 72 h;
+--   * Up to 2 pending orders per player; an order with no proof expires after
+--     72 h (one with proof stays pending until the owner reviews it);
 --     a rejection needs a reason, which the player sees.
 --   * Remote kill switch per platform (economy_config.transfer_enabled_*),
 --     default OFF.
@@ -34,7 +35,7 @@ update public.coin_packs p set play_product=v.play_product, price_piastres=v.pri
   from (values
     ('coins_500','mm_coins_500',4999),
     ('coins_1200','mm_coins_1200',9999),
-    ('coins_2500','mm_coins_2500',17999),
+    ('coins_2500','mm_coins_2500',18000),
     ('quiet_pass','mm_remove_interruptions',19999),
     ('starter_bundle','mm_starter_bundle',2999)
   ) v(code,play_product,price)
@@ -85,14 +86,17 @@ drop trigger if exists coin_order_detach on public.coin_orders;
 create trigger coin_order_detach before update of user_id on public.coin_orders
   for each row execute function public.coin_order_detach();
 
--- 4. Expiry: 72 h without a review ----------------------------------------------------
+-- 4. Expiry: 72 h without proof ------------------------------------------------------
+-- Only an order the player never sent proof for expires. Once a screenshot is
+-- in (claimed, or needs_info after a review question), the player may have paid:
+-- it stays pending until the owner approves or rejects it.
 create or replace function public.expire_coin_orders(p_user uuid default null)
 returns integer language plpgsql security definer set search_path=public,pg_temp as $$
 declare n integer;
 begin
   with gone as (
     update public.coin_orders set status='expired'
-     where status in ('awaiting_transfer','claimed','needs_info') and expires_at < now()
+     where status='awaiting_transfer' and proof_sha256 is null and expires_at < now()
        and (p_user is null or user_id=p_user)
     returning id
   ), logged as (
@@ -189,6 +193,26 @@ begin
 end $$;
 
 -- 6. Proof ---------------------------------------------------------------------------
+-- Read-only, before the edge function stores an image: the platform's switch,
+-- ownership and a state that can take a proof. submit_coin_order_proof repeats
+-- every check under the player's lock; this only keeps refused submissions
+-- out of the bucket.
+create or replace function public.coin_order_proof_precheck(p_user uuid, p_order uuid,
+  p_platform text)
+returns void language plpgsql stable security definer set search_path=public,pg_temp as $$
+declare o public.coin_orders;
+begin
+  if not public.transfer_enabled(p_platform) then raise exception 'SALES_DISABLED'; end if;
+  select * into o from public.coin_orders where id=p_order and user_id=p_user;
+  if not found then raise exception 'ORDER_NOT_FOUND'; end if;
+  if o.status not in ('awaiting_transfer','needs_info','expired') then
+    raise exception 'ORDER_NOT_CLAIMABLE';
+  end if;
+  if o.status='expired' and public.coin_pending_count(p_user, o.id) >= 2 then
+    raise exception 'TOO_MANY_PENDING';
+  end if;
+end $$;
+
 -- The edge function has already stored the image (service role, private bucket)
 -- and computed its sha256 from the bytes it received. Returns the previous
 -- proof path of this order (a resubmission), for the caller to delete.
@@ -422,6 +446,8 @@ revoke all on function public.create_coin_order(uuid,text,text) from public, ano
 grant execute on function public.create_coin_order(uuid,text,text) to service_role;
 revoke all on function public.create_coin_order_v2(uuid,text,text,text) from public, anon, authenticated;
 grant execute on function public.create_coin_order_v2(uuid,text,text,text) to service_role;
+revoke all on function public.coin_order_proof_precheck(uuid,uuid,text) from public, anon, authenticated;
+grant execute on function public.coin_order_proof_precheck(uuid,uuid,text) to service_role;
 revoke all on function public.submit_coin_order_proof(uuid,uuid,text,text,text,text) from public, anon, authenticated;
 grant execute on function public.submit_coin_order_proof(uuid,uuid,text,text,text,text) to service_role;
 revoke all on function public.coin_shop_v2(uuid,text) from public, anon, authenticated;
