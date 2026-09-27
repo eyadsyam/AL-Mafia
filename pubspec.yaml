@@ -123,6 +123,7 @@ flutter:
     # art pass lands; the UI paints its own art while a file is absent.
     - assets/images/council/
     - assets/images/store_v3/
+    - assets/images/ads/
     - assets/images/profile/
     # Phase 109 art slots (README until the art pass lands).
     - assets/images/awards/

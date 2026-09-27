@@ -3394,3 +3394,10 @@ Files:      lib/transport/account_service.dart; lib/ui/economy/account_protectio
 Verified:   flutter analyze 0 errors/0 warnings; flutter test --concurrency=2 "+1384 ~1: All tests passed!"; SQL 42/42; 11/11 node tests. Live DB: 8 suites PASS inside rolled-back transactions; council_life, council_life_security and awards_reactions refuse on hosted (they ALTER auth.users, which the role does not own) — covered locally; fingerprint (687 users, 8 wallets, balance 850, config) identical before/after. play_voided_sync → "play api 401" (Play Console permission still propagating; cron retries every 6 h).
 Gate:       PASS.
 Open:       Owner: Resend SMTP + paste templates; upload AAB to Alpha; enable features per status.md; Codex raster art (Wednesday). No real email round-trip tested yet.
+
+## PHASE 114 — done | 1.0.1 raster art
+Built:      79 requested assets (75 transparent/opaque WebP art files + 4 opaque Play PNGs), using sheets A–H and all 17 individual-art requests; generated five store covers individually for clearer 768×768 output. CouncilRaster.delivered lists all 77 bundled WebPs used by RasterOr; all generated asset folders, including assets/images/ads/, are registered in pubspec.
+Files:      docs/ART-REQUEST-CODEX-1.0.1.md; lib/ui/economy/council_art.dart; test/widget/council_raster_test.dart; pubspec.yaml; assets/images/{ads,awards,council,economy_v2,launch,profile,reactions,store_v3}/*; store/play-1.0.1/*; raw_assets/update101b/*
+Verified:   A–H sliced; all 79 paths audited for target dimensions, transparency/opaque backgrounds and file-size caps; thumbnail contact review; flutter test test/widget/council_raster_test.dart --reporter=expanded (4/4 pass); flutter analyze lib/ui/economy/council_art.dart test/widget/council_raster_test.dart (no issues).
+Gate:       PASS.
+Open:       Play promo files are blank screenshot backgrounds ready for real in-app captures and store copy to be overlaid during publishing. No emulator/device capture in this art pass.

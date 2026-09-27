@@ -204,8 +204,94 @@ python tool/slice_art_sheet.py A_ranks raw_assets/update101b/_sheet_A_ranks.png
 ## جدول التسليم (يملاه Codex)
 
 | المسار | اتعمل؟ | المقاس الفعلي | الحجم (بايت) | ملاحظات |
-|---|---|---|---|---|
-| (سطر لكل ملف فوق) | | | | |
+|---|---|---|---:|---|
+| `assets/images/ads/ad_free_seal.webp` | نعم | 128×128 | 7256 | WebP، شفافة |
+| `assets/images/ads/banner_frame.webp` | نعم | 1080×200 | 13836 | WebP، شفافة |
+| `assets/images/awards/award_first_blood.webp` | نعم | 128×128 | 6546 | WebP، شفافة |
+| `assets/images/awards/award_lifesaver.webp` | نعم | 128×128 | 6524 | WebP، شفافة |
+| `assets/images/awards/award_mvp.webp` | نعم | 128×128 | 6782 | WebP، شفافة |
+| `assets/images/awards/award_perfect_crime.webp` | نعم | 128×128 | 6130 | WebP، شفافة |
+| `assets/images/awards/award_sharp_eye.webp` | نعم | 128×128 | 6470 | WebP، شفافة |
+| `assets/images/awards/award_silver_tongue.webp` | نعم | 128×128 | 6646 | WebP، شفافة |
+| `assets/images/awards/award_survivor.webp` | نعم | 128×128 | 6208 | WebP، شفافة |
+| `assets/images/awards/awards_banner.webp` | نعم | 1080×300 | 38710 | WebP، شفافة |
+| `assets/images/council/contract_bonus_all3.webp` | نعم | 96×96 | 5220 | WebP، شفافة |
+| `assets/images/council/contract_claimed_check.webp` | نعم | 96×96 | 4572 | WebP، شفافة |
+| `assets/images/council/contract_finish.webp` | نعم | 96×96 | 5096 | WebP، شفافة |
+| `assets/images/council/contract_host.webp` | نعم | 96×96 | 5820 | WebP، شفافة |
+| `assets/images/council/contract_mafia.webp` | نعم | 96×96 | 3440 | WebP، شفافة |
+| `assets/images/council/contract_reunion.webp` | نعم | 96×96 | 3654 | WebP، شفافة |
+| `assets/images/council/contract_town.webp` | نعم | 96×96 | 2910 | WebP، شفافة |
+| `assets/images/council/contract_weekly.webp` | نعم | 96×96 | 3946 | WebP، شفافة |
+| `assets/images/council/contract_win.webp` | نعم | 96×96 | 7100 | WebP، شفافة |
+| `assets/images/council/council_hub_tab.webp` | نعم | 96×96 | 4364 | WebP، شفافة |
+| `assets/images/council/invite_illustration.webp` | نعم | 256×256 | 18422 | WebP، شفافة |
+| `assets/images/council/invite_reward_badge.webp` | نعم | 96×96 | 5406 | WebP، شفافة |
+| `assets/images/council/leaderboard_header.webp` | نعم | 1080×360 | 50548 | WebP، خلفية معتمة |
+| `assets/images/council/leaderboard_podium_1.webp` | نعم | 128×128 | 7394 | WebP، شفافة |
+| `assets/images/council/leaderboard_podium_2.webp` | نعم | 128×128 | 6836 | WebP، شفافة |
+| `assets/images/council/leaderboard_podium_3.webp` | نعم | 128×128 | 7238 | WebP، شفافة |
+| `assets/images/council/rank_levelup_rays.webp` | نعم | 512×512 | 38764 | WebP، شفافة |
+| `assets/images/council/rank_tier_01.webp` | نعم | 128×128 | 6044 | WebP، شفافة |
+| `assets/images/council/rank_tier_02.webp` | نعم | 128×128 | 6718 | WebP، شفافة |
+| `assets/images/council/rank_tier_03.webp` | نعم | 128×128 | 7338 | WebP، شفافة |
+| `assets/images/council/rank_tier_04.webp` | نعم | 128×128 | 7422 | WebP، شفافة |
+| `assets/images/council/rank_tier_05.webp` | نعم | 128×128 | 7426 | WebP، شفافة |
+| `assets/images/council/rank_tier_06.webp` | نعم | 128×128 | 7290 | WebP، شفافة |
+| `assets/images/council/rank_tier_07.webp` | نعم | 128×128 | 6852 | WebP، شفافة |
+| `assets/images/council/rank_tier_08.webp` | نعم | 128×128 | 7826 | WebP، شفافة |
+| `assets/images/council/rank_tier_09.webp` | نعم | 128×128 | 8218 | WebP، شفافة |
+| `assets/images/council/rank_tier_10.webp` | نعم | 128×128 | 9274 | WebP، شفافة |
+| `assets/images/economy_v2/ad_reward_film.webp` | نعم | 96×96 | 5206 | WebP، شفافة |
+| `assets/images/economy_v2/daily_coffer_open.webp` | نعم | 384×384 | 38926 | WebP، شفافة |
+| `assets/images/economy_v2/double_coins_badge.webp` | نعم | 128×128 | 6454 | WebP، شفافة |
+| `assets/images/economy_v2/extra_spin_token.webp` | نعم | 96×96 | 5396 | WebP، شفافة |
+| `assets/images/economy_v2/streak_day7.webp` | نعم | 96×96 | 4088 | WebP، شفافة |
+| `assets/images/economy_v2/streak_day_done.webp` | نعم | 96×96 | 2368 | WebP، شفافة |
+| `assets/images/economy_v2/streak_day_empty.webp` | نعم | 96×96 | 2448 | WebP، شفافة |
+| `assets/images/economy_v2/wheel_hub.webp` | نعم | 192×192 | 11884 | WebP، شفافة |
+| `assets/images/economy_v2/wheel_pointer.webp` | نعم | 128×160 | 3850 | WebP، شفافة |
+| `assets/images/economy_v2/wheel_rim.webp` | نعم | 768×768 | 36296 | WebP، شفافة |
+| `assets/images/launch/launch_backdrop.webp` | نعم | 1080×1920 | 122606 | WebP، خلفية معتمة |
+| `assets/images/launch/launch_veil.webp` | نعم | 1080×1920 | 172566 | WebP، شفافة |
+| `assets/images/launch/welcome_back_card.webp` | نعم | 720×360 | 47438 | WebP، كارت/إطار شفاف |
+| `assets/images/profile/badge_founder.webp` | نعم | 128×128 | 8002 | WebP، شفافة |
+| `assets/images/profile/profile_banner_default.webp` | نعم | 1080×360 | 57942 | WebP، خلفية معتمة |
+| `assets/images/profile/stat_matches.webp` | نعم | 64×64 | 2254 | WebP، شفافة |
+| `assets/images/profile/stat_streak.webp` | نعم | 64×64 | 1940 | WebP، شفافة |
+| `assets/images/profile/stat_wins.webp` | نعم | 64×64 | 3316 | WebP، شفافة |
+| `assets/images/reactions/react_applause.webp` | نعم | 96×96 | 5016 | WebP، شفافة |
+| `assets/images/reactions/react_coffee.webp` | نعم | 96×96 | 5012 | WebP، شفافة |
+| `assets/images/reactions/react_crown.webp` | نعم | 96×96 | 5222 | WebP، شفافة |
+| `assets/images/reactions/react_laugh.webp` | نعم | 96×96 | 5272 | WebP، شفافة |
+| `assets/images/reactions/react_rose.webp` | نعم | 96×96 | 5384 | WebP، شفافة |
+| `assets/images/reactions/react_shock.webp` | نعم | 96×96 | 5240 | WebP، شفافة |
+| `assets/images/reactions/react_skull.webp` | نعم | 96×96 | 5006 | WebP، شفافة |
+| `assets/images/reactions/react_suspicious.webp` | نعم | 96×96 | 4882 | WebP، شفافة |
+| `assets/images/store_v3/best_value_ribbon.webp` | نعم | 160×64 | 3280 | WebP، شفافة |
+| `assets/images/store_v3/coins_pack_large.webp` | نعم | 768×768 | 110612 | WebP، شفافة |
+| `assets/images/store_v3/coins_pack_medium.webp` | نعم | 768×768 | 112956 | WebP، شفافة |
+| `assets/images/store_v3/coins_pack_small.webp` | نعم | 768×768 | 112042 | WebP، شفافة |
+| `assets/images/store_v3/frame_council_seal.webp` | نعم | 768×768 | 109466 | WebP، كارت/إطار شفاف |
+| `assets/images/store_v3/quiet_pass_cover.webp` | نعم | 768×768 | 111868 | WebP، شفافة |
+| `assets/images/store_v3/sparkle_sheet.webp` | نعم | 512×128 | 13390 | WebP، شفافة |
+| `assets/images/store_v3/starter_bundle_cover.webp` | نعم | 768×768 | 116720 | WebP، شفافة |
+| `assets/images/store_v3/vault_hero_v3.webp` | نعم | 1080×540 | 146542 | WebP، خلفية معتمة |
+| `assets/images/store_v3/web_pay_approved.webp` | نعم | 128×128 | 7950 | WebP، شفافة |
+| `assets/images/store_v3/web_pay_pending.webp` | نعم | 128×128 | 8692 | WebP، شفافة |
+| `assets/images/store_v3/web_pay_transfer.webp` | نعم | 256×256 | 18068 | WebP، شفافة |
+| `store/play-1.0.1/feature_graphic_1.0.1.png` | نعم | 1024×500 | 175341 | PNG، خلفية معتمة |
+| `store/play-1.0.1/promo_council_life.png` | نعم | 1080×1920 | 218343 | PNG، خلفية معتمة ومساحة للصورة |
+| `store/play-1.0.1/promo_daily_wheel.png` | نعم | 1080×1920 | 245258 | PNG، خلفية معتمة ومساحة للصورة |
+| `store/play-1.0.1/promo_rank.png` | نعم | 1080×1920 | 239541 | PNG، خلفية معتمة ومساحة للصورة |
+
+## حالة الربط في التطبيق
+
+**ظاهرة في الشاشات الحالية:** `rank_tier_*`, `contract_*`, `leaderboard_podium_*`, `leaderboard_header`, `invite_illustration`, `rank_levelup_rays`, `frame_council_seal`, `starter_bundle_cover`, `quiet_pass_cover`, `coins_pack_*`, `vault_hero_v3`, `award_*`, `react_*`, `badge_founder`, `welcome_back_card`.
+
+**مولّدة ومضمّنة، وتنتظر ربط الواجهة:** `invite_reward_badge`, `council_hub_tab`, `stat_*`, `daily_coffer_open`, `wheel_*`, `streak_day_*`, `double_coins_badge`, `ad_reward_film`, `extra_spin_token`, `web_pay_*`, `ad_free_seal`, `best_value_ribbon`, `sparkle_sheet`, `launch_backdrop`, `launch_veil`, `awards_banner`, `banner_frame`, `profile_banner_default`.
+
+**ملفات متجر Play:** `feature_graphic_1.0.1.png` و`promo_*.png` جاهزة كخلفيات؛ لقطات التطبيق الحقيقية والنصوص تُضاف عند تجهيز صفحة المتجر. لا تغييرات على الشاشات ضمن تسليم الصور.
 
 ## ملاحظات للمطوّر (Claude)
 

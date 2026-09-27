@@ -51,7 +51,16 @@ void main() {
 
   test('the delivered list matches the art folders on disk', () {
     final onDisk = <String>{
-      for (final dir in const [CouncilRaster.council, CouncilRaster.storeV3])
+      for (final dir in const [
+        CouncilRaster.council,
+        CouncilRaster.storeV3,
+        'assets/images/ads',
+        'assets/images/awards',
+        'assets/images/economy_v2',
+        'assets/images/launch',
+        'assets/images/profile',
+        'assets/images/reactions',
+      ])
         if (Directory(dir).existsSync())
           for (final f in Directory(dir).listSync().whereType<File>())
             if (f.path.endsWith('.webp')) '$dir/${f.uri.pathSegments.last}',
