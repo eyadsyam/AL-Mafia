@@ -20,8 +20,17 @@ enum _Mode { idle, link, recover }
 /// Optional email protection for coins and items. Shown in the store for
 /// every build (it guards earned coins too) and required before a web
 /// payment. Free play never asks for it.
+///
+/// The email may carry a code or, with the stock Supabase templates, only a
+/// link. The code always works where it arrives; «I opened the email link»
+/// covers the link: it confirms a link to this identity, and signs in only a
+/// client that already holds the session (the web page the link opened).
 class AccountProtectionCard extends ConsumerStatefulWidget {
-  const AccountProtectionCard({super.key});
+  /// Where a recovery email's link lands (the web admin page); null keeps the
+  /// project's Site URL.
+  final String? recoveryRedirect;
+
+  const AccountProtectionCard({super.key, this.recoveryRedirect});
 
   static const linkButton = ValueKey('account_link');
   static const recoverButton = ValueKey('account_recover');
@@ -30,6 +39,8 @@ class AccountProtectionCard extends ConsumerStatefulWidget {
   static const sendButton = ValueKey('account_send');
   static const confirmButton = ValueKey('account_confirm');
   static const errorText = ValueKey('account_error');
+  static const linkOpenedButton = ValueKey('account_link_opened');
+  static const recoverLinkNote = ValueKey('account_recover_link_note');
 
   @override
   ConsumerState<AccountProtectionCard> createState() =>
@@ -58,6 +69,8 @@ class _AccountProtectionCardState extends ConsumerState<AccountProtectionCard> {
       'EMAIL_TAKEN' => l.accountErrorTaken,
       'INVALID_CODE' => l.accountErrorCode,
       'RATE_LIMITED' => l.accountErrorRate,
+      'LINK_PENDING' => l.accountErrorLinkPending,
+      'LINK_ELSEWHERE' => l.accountErrorLinkElsewhere,
       _ => l.accountErrorUnavailable,
     };
   }
@@ -80,7 +93,10 @@ class _AccountProtectionCardState extends ConsumerState<AccountProtectionCard> {
     if (_mode == _Mode.link) {
       await service.requestLink(_email.text);
     } else {
-      await service.requestRecovery(_email.text);
+      await service.requestRecovery(
+        _email.text,
+        redirectTo: widget.recoveryRedirect,
+      );
     }
     if (mounted) setState(() => _sent = true);
   });
@@ -91,6 +107,19 @@ class _AccountProtectionCardState extends ConsumerState<AccountProtectionCard> {
     } else {
       await service.confirmRecovery(_email.text, _code.text);
     }
+    await _done();
+  });
+
+  Future<void> _confirmByLink() => _run((service) async {
+    if (_mode == _Mode.link) {
+      await service.confirmLinkByLink(_email.text);
+    } else {
+      await service.confirmRecoveryByLink(_email.text);
+    }
+    await _done();
+  });
+
+  Future<void> _done() async {
     // A recovered account has a different wallet; a linked one the same.
     ref.invalidate(accountStatusProvider);
     await ref.read(walletProvider.notifier).refresh();
@@ -101,7 +130,7 @@ class _AccountProtectionCardState extends ConsumerState<AccountProtectionCard> {
         _code.clear();
       });
     }
-  });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -170,6 +199,21 @@ class _AccountProtectionCardState extends ConsumerState<AccountProtectionCard> {
                   keyboardType: TextInputType.number,
                   autofillHints: const [AutofillHints.oneTimeCode],
                   decoration: InputDecoration(labelText: l.accountCode),
+                ),
+                if (_mode == _Mode.recover)
+                  Text(
+                    l.accountRecoverLinkNote,
+                    key: AccountProtectionCard.recoverLinkNote,
+                    style: context.typography.bodySmall,
+                  ),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    key: AccountProtectionCard.linkOpenedButton,
+                    onPressed: _busy ? null : _confirmByLink,
+                    icon: const Icon(Icons.mark_email_read_outlined),
+                    label: Text(l.accountLinkOpened),
+                  ),
                 ),
               ],
               if (_error != null)

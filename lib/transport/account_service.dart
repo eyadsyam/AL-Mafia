@@ -17,6 +17,8 @@ class AccountStatus {
 /// Why an account step did not go through.
 class AccountFailure implements Exception {
   /// INVALID_EMAIL | EMAIL_TAKEN | INVALID_CODE | RATE_LIMITED | UNAVAILABLE
+  /// | LINK_PENDING (the emailed link has not been opened yet)
+  /// | LINK_ELSEWHERE (the link signed in a browser, not this app)
   final String code;
   const AccountFailure(this.code);
 }
@@ -36,19 +38,50 @@ abstract class AccountService {
   Future<AccountStatus> confirmLink(String email, String code);
 
   /// Sends a sign-in code for an identity that already has [email].
-  Future<void> requestRecovery(String email);
+  ///
+  /// [redirectTo] is where the email's link lands (the web admin page); the
+  /// server ignores it unless it is in the project's allowed redirect URLs.
+  Future<void> requestRecovery(String email, {String? redirectTo});
   Future<AccountStatus> confirmRecovery(String email, String code);
+
+  /// The email may carry a link instead of a code (the stock Supabase
+  /// templates). Opening it confirms the email change on the server, even in
+  /// a browser, so this re-reads the identity and succeeds once it has
+  /// [email] confirmed; LINK_PENDING otherwise.
+  Future<AccountStatus> confirmLinkByLink(String email);
+
+  /// A recovery link signs in whichever browser opens it, never this app on
+  /// another device. Succeeds only when this client already holds that
+  /// signed-in session (the web page the link landed on); LINK_ELSEWHERE
+  /// otherwise, and the code is the way in.
+  Future<AccountStatus> confirmRecoveryByLink(String email);
+
+  /// Every sign-in change seen by this client, including a session the web
+  /// build picks up from the emailed link in its URL.
+  Stream<AccountStatus> changes();
 }
 
 class SupabaseAccountService implements AccountService {
-  final Future<OnlineBackend> Function() _backend;
-  SupabaseAccountService(this._backend);
+  final Future<GoTrueClient> Function() _auth;
+  final Future<void> Function() _ensureSession;
 
-  Future<GoTrueClient> _auth() async {
-    final backend = await _backend();
-    if (backend is! SupabaseBackend) throw const AccountFailure('UNAVAILABLE');
-    return backend.client.auth;
-  }
+  SupabaseAccountService(Future<OnlineBackend> Function() backend)
+    : this.withAuth(
+        () async {
+          final value = await backend();
+          if (value is! SupabaseBackend) {
+            throw const AccountFailure('UNAVAILABLE');
+          }
+          return value.client.auth;
+        },
+        ensureSession: () async => (await backend()).ensureSession(),
+      );
+
+  /// Over an auth client directly (tests hand in a fake one).
+  SupabaseAccountService.withAuth(
+    this._auth, {
+    Future<void> Function()? ensureSession,
+  }) : _ensureSession = ensureSession ?? (() async {});
 
   static final _email = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
@@ -105,7 +138,7 @@ class SupabaseAccountService implements AccountService {
   @override
   Future<void> requestLink(String email) => _guard(() async {
     final auth = await _auth();
-    await (await _backend()).ensureSession();
+    await _ensureSession();
     await auth.updateUser(UserAttributes(email: _clean(email)));
   });
 
@@ -122,10 +155,15 @@ class SupabaseAccountService implements AccountService {
       });
 
   @override
-  Future<void> requestRecovery(String email) => _guard(() async {
-    final auth = await _auth();
-    await auth.signInWithOtp(email: _clean(email), shouldCreateUser: false);
-  });
+  Future<void> requestRecovery(String email, {String? redirectTo}) =>
+      _guard(() async {
+        final auth = await _auth();
+        await auth.signInWithOtp(
+          email: _clean(email),
+          shouldCreateUser: false,
+          emailRedirectTo: redirectTo,
+        );
+      });
 
   @override
   Future<AccountStatus> confirmRecovery(String email, String code) =>
@@ -138,4 +176,57 @@ class SupabaseAccountService implements AccountService {
         );
         return _of(auth.currentUser);
       });
+
+  /// The identity as the server has it now. `getUser` reads the server;
+  /// `refreshSession` carries the change into this client's session. A
+  /// refresh refused (an old token) still leaves the server's answer.
+  Future<User?> _fresh(GoTrueClient auth) async {
+    if (auth.currentSession == null) return auth.currentUser;
+    try {
+      await auth.refreshSession();
+    } on AuthException {
+      // The server's own answer below still decides.
+    }
+    try {
+      return (await auth.getUser()).user ?? auth.currentUser;
+    } on AuthException {
+      return auth.currentUser;
+    }
+  }
+
+  @override
+  Future<AccountStatus> confirmLinkByLink(String email) => _guard(() async {
+    final wanted = _clean(email);
+    final auth = await _auth();
+    final status = _of(await _fresh(auth));
+    if (status.recoverable && status.email?.toLowerCase() == wanted) {
+      return status;
+    }
+    throw const AccountFailure('LINK_PENDING');
+  });
+
+  @override
+  Future<AccountStatus> confirmRecoveryByLink(String email) =>
+      _guard(() async {
+        final wanted = _clean(email);
+        final auth = await _auth();
+        final status = _of(await _fresh(auth));
+        if (status.recoverable && status.email?.toLowerCase() == wanted) {
+          return status;
+        }
+        throw const AccountFailure('LINK_ELSEWHERE');
+      });
+
+  @override
+  Stream<AccountStatus> changes() async* {
+    final GoTrueClient auth;
+    try {
+      auth = await _auth();
+    } catch (_) {
+      return;
+    }
+    yield* auth.onAuthStateChange.map(
+      (state) => _of(state.session?.user ?? auth.currentUser),
+    );
+  }
 }

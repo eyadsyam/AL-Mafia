@@ -2493,7 +2493,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String accountCodeSent(String email) {
-    return 'بعتنا كود لـ $email. ممكن ياخد دقيقة، وبص في السبام لو ما لقيتوش.';
+    return 'بعتنا إيميل لـ $email. فيه يا كود من 6 أرقام (اكتبه تحت) يا لينك (افتحه وبعدين دوس «فتحت اللينك من الإيميل»). ممكن ياخد دقيقة، وبص في السبام لو ما لقيتوش.';
   }
 
   @override
@@ -2515,6 +2515,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get accountErrorUnavailable => 'الخدمة مش متاحة دلوقتي. جرّب بعدين.';
+
+  @override
+  String get accountLinkOpened => 'فتحت اللينك من الإيميل';
+
+  @override
+  String get accountErrorLinkPending =>
+      'الإيميل لسه ما اتأكدش. افتح اللينك اللي في الإيميل وبعدين دوس تاني.';
+
+  @override
+  String get accountErrorLinkElsewhere =>
+      'اللينك بيدخّل المتصفح اللي فتحه، مش التطبيق ده. استخدم الكود اللي في الإيميل.';
+
+  @override
+  String get accountRecoverLinkNote =>
+      'على جهاز جديد، الكود اللي من 6 أرقام بس هو اللي يدخّل التطبيق، واللينك مش هيدخّله. لو الإيميل مفيهوش كود، الاسترجاع بالكود هيشتغل أول ما نحدّث إيميلاتنا.';
 
   @override
   String get coinPacksUnavailable =>
@@ -3800,7 +3815,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminSignInHint =>
-      'سجّل دخول بإيميل الإدارة (هيوصلك كود لمرة واحدة).';
+      'سجّل دخول بإيميل الإدارة. الإيميل فيه يا كود لمرة واحدة يا لينك؛ لو فتحت اللينك في المتصفح ده الصفحة هتدخل لوحدها.';
+
+  @override
+  String adminSignedInAs(String email) {
+    return 'داخل باسم $email';
+  }
 
   @override
   String get adminWebOnly => 'صفحة الإدارة متاحة على الموقع بس.';

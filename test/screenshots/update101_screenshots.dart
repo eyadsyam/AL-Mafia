@@ -363,9 +363,15 @@ class _Accounts implements AccountService {
   @override
   Future<AccountStatus> confirmLink(String email, String code) async => status();
   @override
-  Future<void> requestRecovery(String email) async {}
+  Future<void> requestRecovery(String email, {String? redirectTo}) async {}
   @override
   Future<AccountStatus> confirmRecovery(String email, String code) => confirmLink(email, code);
+  @override
+  Future<AccountStatus> confirmLinkByLink(String email) => status();
+  @override
+  Future<AccountStatus> confirmRecoveryByLink(String email) => status();
+  @override
+  Stream<AccountStatus> changes() => const Stream.empty();
 }
 
 /// Reports a room and a transport that already exist, skipping `host()`'s

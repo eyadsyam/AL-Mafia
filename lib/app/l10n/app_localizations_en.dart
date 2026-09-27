@@ -2555,7 +2555,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String accountCodeSent(String email) {
-    return 'We sent a code to $email. It can take a minute; check spam if you do not see it.';
+    return 'We sent an email to $email. It holds either a 6-digit code (type it below) or a link (open it, then tap «I opened the email link»). It can take a minute; check spam if you do not see it.';
   }
 
   @override
@@ -2579,6 +2579,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountErrorUnavailable => 'Not available right now. Try later.';
+
+  @override
+  String get accountLinkOpened => 'I opened the email link';
+
+  @override
+  String get accountErrorLinkPending =>
+      'The email is not confirmed yet. Open the link in the email, then tap again.';
+
+  @override
+  String get accountErrorLinkElsewhere =>
+      'The link signs in the browser that opened it, not this app. Use the code from the email.';
+
+  @override
+  String get accountRecoverLinkNote =>
+      'On a new device only the 6-digit code can sign this app in; the email link cannot. If your email has no code, recovery by code will work once our emails are updated.';
 
   @override
   String get coinPacksUnavailable =>
@@ -3876,7 +3891,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminSignInHint =>
-      'Sign in with the admin email (a one-time code is sent to it).';
+      'Sign in with the admin email. The email holds a one-time code or a link; opening the link in this browser signs this page in.';
+
+  @override
+  String adminSignedInAs(String email) {
+    return 'Signed in as $email';
+  }
 
   @override
   String get adminWebOnly => 'The admin page is available on the website only.';

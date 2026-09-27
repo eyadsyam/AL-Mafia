@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -180,11 +181,38 @@ class FakeAccounts implements AccountService {
     return status();
   }
 
+  String? redirectTo;
+
+  /// What the server says once the emailed link was opened elsewhere.
+  bool linkOpened = false;
+  final authChanges = StreamController<AccountStatus>.broadcast();
+
   @override
-  Future<void> requestRecovery(String email) async => codeSentTo = email;
+  Future<void> requestRecovery(String email, {String? redirectTo}) async {
+    codeSentTo = email;
+    this.redirectTo = redirectTo;
+  }
+
   @override
   Future<AccountStatus> confirmRecovery(String email, String code) =>
       confirmLink(email, code);
+
+  @override
+  Future<AccountStatus> confirmLinkByLink(String email) async {
+    if (!linkOpened) throw const AccountFailure('LINK_PENDING');
+    linked = true;
+    return status();
+  }
+
+  @override
+  Future<AccountStatus> confirmRecoveryByLink(String email) async {
+    if (!linkOpened) throw const AccountFailure('LINK_ELSEWHERE');
+    linked = true;
+    return status();
+  }
+
+  @override
+  Stream<AccountStatus> changes() => authChanges.stream;
 }
 
 Uint8List jpegOf(int width, int height, [int shade = 0]) => Uint8List.fromList(
@@ -656,6 +684,84 @@ void main() {
         findsOneWidget,
       );
     });
+
+    Future<void> sendFor(WidgetTester tester, Key mode) async {
+      await tester.pumpWidget(
+        app(
+          const Scaffold(
+            body: SingleChildScrollView(child: AccountProtectionCard()),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(mode));
+      await tester.pump();
+      await tester.enterText(
+        find.byKey(AccountProtectionCard.emailField),
+        'p@example.test',
+      );
+      await tester.tap(find.byKey(AccountProtectionCard.sendButton));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('after sending: says code or link, keeps the code field', (
+      tester,
+    ) async {
+      await sendFor(tester, AccountProtectionCard.linkButton);
+      expect(
+        find.text(arStrings.accountCodeSent('p@example.test')),
+        findsOneWidget,
+      );
+      expect(find.byKey(AccountProtectionCard.codeField), findsOneWidget);
+      expect(find.text(arStrings.accountLinkOpened), findsOneWidget);
+      expect(find.byKey(AccountProtectionCard.recoverLinkNote), findsNothing);
+    });
+
+    testWidgets('link: «I opened the email link» before opening it waits', (
+      tester,
+    ) async {
+      await sendFor(tester, AccountProtectionCard.linkButton);
+      await tester.tap(find.byKey(AccountProtectionCard.linkOpenedButton));
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.accountErrorLinkPending), findsOneWidget);
+      expect(find.byKey(AccountProtectionCard.codeField), findsOneWidget);
+      expect(accounts.linked, isFalse);
+    });
+
+    testWidgets('link: the link opened elsewhere protects this account', (
+      tester,
+    ) async {
+      await sendFor(tester, AccountProtectionCard.linkButton);
+      accounts.linkOpened = true;
+      await tester.tap(find.byKey(AccountProtectionCard.linkOpenedButton));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(arStrings.accountProtected('p@example.test')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('recovery: says plainly the link cannot sign this app in', (
+      tester,
+    ) async {
+      await sendFor(tester, AccountProtectionCard.recoverButton);
+      expect(accounts.redirectTo, isNull);
+      expect(find.byKey(AccountProtectionCard.recoverLinkNote), findsOneWidget);
+      await tester.tap(find.byKey(AccountProtectionCard.linkOpenedButton));
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.accountErrorLinkElsewhere), findsOneWidget);
+      // The code path stays open.
+      await tester.enterText(
+        find.byKey(AccountProtectionCard.codeField),
+        '123456',
+      );
+      await tester.tap(find.byKey(AccountProtectionCard.confirmButton));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(arStrings.accountProtected('p@example.test')),
+        findsOneWidget,
+      );
+    });
   });
 
   group('admin page', () {
@@ -688,6 +794,52 @@ void main() {
       expect(find.byType(AccountProtectionCard), findsOneWidget);
       expect(coinCalls('admin_list'), isEmpty);
       expect(find.byKey(PaymentsAdminScreen.approve('o1')), findsNothing);
+    });
+
+    testWidgets('a session from the emailed link skips the code step', (
+      tester,
+    ) async {
+      server.admin = true;
+      server.orders.add(order('o1', 'claimed'));
+      await pumpAdmin(tester);
+      expect(find.byType(AccountProtectionCard), findsOneWidget);
+      expect(find.byKey(PaymentsAdminScreen.signedInAs), findsNothing);
+
+      // The web client reads the session from the link's URL.
+      accounts.linked = true;
+      accounts.authChanges.add(
+        const AccountStatus(recoverable: true, email: 'p@example.test'),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.text(arStrings.adminSignedInAs('p@example.test')),
+        findsOneWidget,
+      );
+      expect(find.byType(AccountProtectionCard), findsNothing);
+      expect(find.byKey(AccountProtectionCard.codeField), findsNothing);
+      expect(coinCalls('admin_whoami'), isNotEmpty);
+      expect(find.byKey(PaymentsAdminScreen.order('o1')), findsOneWidget);
+    });
+
+    testWidgets('already signed in on arrival: shows who, no code step', (
+      tester,
+    ) async {
+      accounts.linked = true;
+      server.admin = true;
+      await pumpAdmin(tester);
+      expect(
+        find.text(arStrings.adminSignedInAs('p@example.test')),
+        findsOneWidget,
+      );
+      expect(find.byType(AccountProtectionCard), findsNothing);
+    });
+
+    testWidgets('an anonymous auth event changes nothing', (tester) async {
+      await pumpAdmin(tester);
+      accounts.authChanges.add(AccountStatus.anonymous);
+      await tester.pumpAndSettle();
+      expect(find.byType(AccountProtectionCard), findsOneWidget);
+      expect(coinCalls('admin_whoami'), isEmpty);
     });
 
     testWidgets('signed in but not an admin: refused, no orders asked', (

@@ -1494,7 +1494,7 @@
   "accountSendCode": "Send code",
   "accountCode": "Code from the email",
   "accountConfirm": "Confirm",
-  "accountCodeSent": "We sent a code to {email}. It can take a minute; check spam if you do not see it.",
+  "accountCodeSent": "We sent an email to {email}. It holds either a 6-digit code (type it below) or a link (open it, then tap «I opened the email link»). It can take a minute; check spam if you do not see it.",
   "@accountCodeSent": {
     "placeholders": {
       "email": {
@@ -1508,6 +1508,10 @@
   "accountErrorCode": "The code is wrong or expired. Ask for a new one.",
   "accountErrorRate": "Too many requests. Wait a little and try again.",
   "accountErrorUnavailable": "Not available right now. Try later.",
+  "accountLinkOpened": "I opened the email link",
+  "accountErrorLinkPending": "The email is not confirmed yet. Open the link in the email, then tap again.",
+  "accountErrorLinkElsewhere": "The link signs in the browser that opened it, not this app. Use the code from the email.",
+  "accountRecoverLinkNote": "On a new device only the 6-digit code can sign this app in; the email link cannot. If your email has no code, recovery by code will work once our emails are updated.",
   "coinPacksUnavailable": "Buying coins is not available right now. Coins are still earned from online matches.",
   "coinPacksNeedAccount": "Before paying, protect your account with an email so paid coins stay with you on any device.",
   "coinPackCoins": "{count} coins",
@@ -2523,7 +2527,15 @@
   "pay2ReviewDetail": "Same price as Google Play. Orders are reviewed by hand within 72 hours; a rejected order shows the reason here.",
   "pay2ProofPrivacy": "The screenshot and sender name are stored privately, only to verify the order, and the screenshot is deleted 90 days after review. Nobody will ask for a PIN or code.",
   "adminPaymentsTitle": "Payment orders",
-  "adminSignInHint": "Sign in with the admin email (a one-time code is sent to it).",
+  "adminSignInHint": "Sign in with the admin email. The email holds a one-time code or a link; opening the link in this browser signs this page in.",
+  "adminSignedInAs": "Signed in as {email}",
+  "@adminSignedInAs": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "adminWebOnly": "The admin page is available on the website only.",
   "adminFilterPending": "Pending",
   "adminFilterApproved": "Approved",

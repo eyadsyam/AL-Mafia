@@ -4487,7 +4487,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountCodeSent.
   ///
   /// In en, this message translates to:
-  /// **'We sent a code to {email}. It can take a minute; check spam if you do not see it.'**
+  /// **'We sent an email to {email}. It holds either a 6-digit code (type it below) or a link (open it, then tap «I opened the email link»). It can take a minute; check spam if you do not see it.'**
   String accountCodeSent(String email);
 
   /// No description provided for @accountRecoverWarning.
@@ -4525,6 +4525,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not available right now. Try later.'**
   String get accountErrorUnavailable;
+
+  /// No description provided for @accountLinkOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'I opened the email link'**
+  String get accountLinkOpened;
+
+  /// No description provided for @accountErrorLinkPending.
+  ///
+  /// In en, this message translates to:
+  /// **'The email is not confirmed yet. Open the link in the email, then tap again.'**
+  String get accountErrorLinkPending;
+
+  /// No description provided for @accountErrorLinkElsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'The link signs in the browser that opened it, not this app. Use the code from the email.'**
+  String get accountErrorLinkElsewhere;
+
+  /// No description provided for @accountRecoverLinkNote.
+  ///
+  /// In en, this message translates to:
+  /// **'On a new device only the 6-digit code can sign this app in; the email link cannot. If your email has no code, recovery by code will work once our emails are updated.'**
+  String get accountRecoverLinkNote;
 
   /// No description provided for @coinPacksUnavailable.
   ///
@@ -6647,8 +6671,14 @@ abstract class AppLocalizations {
   /// No description provided for @adminSignInHint.
   ///
   /// In en, this message translates to:
-  /// **'Sign in with the admin email (a one-time code is sent to it).'**
+  /// **'Sign in with the admin email. The email holds a one-time code or a link; opening the link in this browser signs this page in.'**
   String get adminSignInHint;
+
+  /// No description provided for @adminSignedInAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {email}'**
+  String adminSignedInAs(String email);
 
   /// No description provided for @adminWebOnly.
   ///

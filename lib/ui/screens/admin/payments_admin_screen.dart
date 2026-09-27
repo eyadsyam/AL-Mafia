@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/router.dart' show Routes;
+import '../../../transport/account_service.dart';
 import '../../../transport/online_backend.dart';
 import '../../economy/account_protection.dart';
 import '../../economy/coin_packs.dart';
@@ -16,7 +20,8 @@ import '../online/online_session.dart';
 /// signed-in account is in `commerce_admins` and shows nothing else until it
 /// is, and every read and decision goes through `coin_orders` admin actions,
 /// which the database refuses to anyone else. Sign-in is the email one-time
-/// code of the account-protection card.
+/// code of the account-protection card, or the email's link: it lands back
+/// on this page, where the web client takes the session from the URL.
 ///
 /// Approve only money seen arriving in the InstaPay / Vodafone Cash app: the
 /// amount, the sender name and the screenshot must match.
@@ -43,6 +48,7 @@ class PaymentsAdminScreen extends ConsumerStatefulWidget {
   static Key order(String id) => ValueKey('admin_order_$id');
   static Key filter(String name) => ValueKey('admin_filter_$name');
   static const guard = ValueKey('admin_guard');
+  static const signedInAs = ValueKey('admin_signed_in_as');
 
   @override
   ConsumerState<PaymentsAdminScreen> createState() =>
@@ -58,9 +64,36 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
   bool _busy = false;
   bool _asking = false;
   final _reasons = <String, TextEditingController>{};
+  StreamSubscription<AccountStatus>? _auth;
+
+  @override
+  void initState() {
+    super.initState();
+    // A session can arrive from the emailed link (the web client reads it
+    // from the URL), not only from the code typed into the card.
+    if (widget.web) {
+      _auth = ref.read(accountServiceProvider).changes().listen((status) {
+        if (!mounted) return;
+        final known = ref.read(accountStatusProvider).valueOrNull;
+        if (status.recoverable != (known?.recoverable ?? false) ||
+            status.email != known?.email) {
+          ref.invalidate(accountStatusProvider);
+        }
+      }, onError: (_) {});
+    }
+  }
+
+  /// Where the recovery email's link should land: back here. The server
+  /// uses it only when listed in the project's redirect URLs.
+  static String? get _linkReturn {
+    final base = Uri.base;
+    if (base.scheme != 'http' && base.scheme != 'https') return null;
+    return '${base.origin}${Routes.admin}';
+  }
 
   @override
   void dispose() {
+    _auth?.cancel();
     for (final c in _reasons.values) {
       c.dispose();
     }
@@ -173,6 +206,7 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
       }
     });
     final signedIn = account.valueOrNull?.recoverable == true;
+    final email = account.valueOrNull?.email ?? '';
     if (widget.web && signedIn && _admin == null && _error == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && _admin == null) _whoami();
@@ -209,8 +243,16 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
               else if (!signedIn) ...[
                 Text(l.adminSignInHint, style: context.typography.body),
                 SizedBox(height: s.sm),
-                const AccountProtectionCard(),
-              ] else if (_admin != true) ...[
+                AccountProtectionCard(recoveryRedirect: _linkReturn),
+              ] else ...[
+                Text(
+                  key: PaymentsAdminScreen.signedInAs,
+                  l.adminSignedInAs(email),
+                  style: context.typography.bodySmall,
+                ),
+                SizedBox(height: s.sm),
+              ],
+              if (widget.web && signedIn && _admin != true) ...[
                 if (_admin == false)
                   Text(
                     key: PaymentsAdminScreen.guard,
@@ -221,7 +263,7 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
                   const VaultSkeleton(cards: 1),
                 SizedBox(height: s.sm),
                 const AccountProtectionCard(),
-              ] else ...[
+              ] else if (widget.web && signedIn) ...[
                 Text(l.adminCheckFirst, style: context.typography.bodySmall),
                 SizedBox(height: s.sm),
                 Wrap(
