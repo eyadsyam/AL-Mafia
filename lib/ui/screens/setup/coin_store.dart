@@ -53,10 +53,30 @@ class _CoinStoreButtonState extends State<CoinStoreButton> {
 
   ProviderContainer? _container;
 
+  ProviderSubscription<String?>? _invite;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _container = ProviderScope.containerOf(context, listen: false);
+    final container = ProviderScope.containerOf(context, listen: false);
+    if (!identical(container, _container)) {
+      _invite?.close();
+      // An invite link opens the vault by itself, on the Council tab.
+      _invite = container.listen<String?>(pendingInviteCodeProvider, (_, next) {
+        if (next != null && !_overlay.isShowing) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _show();
+          });
+        }
+      }, fireImmediately: true);
+    }
+    _container = container;
+  }
+
+  @override
+  void dispose() {
+    _invite?.close();
+    super.dispose();
   }
 
   @override
@@ -276,8 +296,12 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
           const CoinPacksTab(),
         ),
     ];
+    final council = tabs.indexWhere((t) => t.$1 == l.storeTabCouncil);
     return DefaultTabController(
       length: tabs.length,
+      initialIndex: ref.read(pendingInviteCodeProvider) != null && council >= 0
+          ? council
+          : 0,
       child: Scaffold(
         appBar: AppBar(
           title: Text(l.vaultTitle),

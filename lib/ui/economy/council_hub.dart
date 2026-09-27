@@ -1064,6 +1064,15 @@ class _LeaderboardVisibilitySwitchState
   }
 }
 
+/// A council invite code that arrived by link (`/invite/CODE`): the vault
+/// opens on the Council tab with it already typed. Consumed once.
+final pendingInviteCodeProvider = StateProvider<String?>((ref) => null);
+
+/// The link a shared invite carries. The same site as room links, so it opens
+/// the installed app first (App Links, and the web shell's hand-off).
+String councilInviteLink(String code) =>
+    'https://almafia.vercel.app/invite/${code.toUpperCase()}';
+
 /// «ادعي صاحبك»: the player's code to share, and one to use if theirs is a
 /// new account.
 class InviteCard extends ConsumerStatefulWidget {
@@ -1082,6 +1091,18 @@ class InviteCard extends ConsumerStatefulWidget {
 class _InviteCardState extends ConsumerState<InviteCard> {
   final _field = TextEditingController();
   bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final pending = ref.read(pendingInviteCodeProvider);
+    if (pending != null) {
+      _field.text = pending;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) ref.read(pendingInviteCodeProvider.notifier).state = null;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -1214,7 +1235,10 @@ class _InviteCardState extends ConsumerState<InviteCard> {
                 onPressed: code.isEmpty
                     ? null
                     : () => SharePlus.instance.share(
-                        ShareParams(text: l.inviteShareText(code)),
+                        ShareParams(
+                          text:
+                              '${l.inviteShareText(code)}\n${councilInviteLink(code)}',
+                        ),
                       ),
                 icon: const Icon(Icons.share_rounded),
                 label: Text(l.inviteShare, maxLines: 1),

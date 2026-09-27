@@ -37,6 +37,7 @@ import '../ui/screens/setup/roles_screen.dart';
 import '../ui/screens/setup/settings_screen.dart';
 import '../ui/screens/setup/setup_draft.dart';
 import '../ui/fun/characters_screen.dart';
+import '../ui/economy/council_hub.dart' show pendingInviteCodeProvider;
 
 /// Route paths, in one place so navigation calls cannot drift from the table.
 abstract final class Routes {
@@ -289,6 +290,19 @@ GoRouter buildRouter(
           onBack: () => context.go(Routes.home),
           onCharacters: () => forwardTo(context, Routes.characters),
         ),
+      ),
+      // A council invite link: the code is handed to the vault, which opens
+      // on the Council tab with it typed in. Nothing is redeemed by the link.
+      GoRoute(
+        path: '/invite/:code',
+        redirect: (context, state) {
+          final code = state.pathParameters['code'] ?? '';
+          if (RegExp(r'^[A-Za-z0-9]{7}$').hasMatch(code)) {
+            ref.read(pendingInviteCodeProvider.notifier).state = code
+                .toUpperCase();
+          }
+          return Routes.home;
+        },
       ),
       // The Four Dossiers (1.1.0): public, outside any match.
       GoRoute(
