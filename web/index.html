@@ -14,6 +14,30 @@
   <meta name="theme-color" content="#0F0F0F">
   <meta name="color-scheme" content="dark">
 
+  <!-- App first. On Android, a game link opened in a browser (a chat's
+       in-app browser, a pasted URL) is handed to the installed app through
+       an intent; Chrome falls back to this same page, marked ?web=1, when the
+       app is not installed. Verified App Links cover the tap-from-chat case
+       before any page loads; this covers the rest. Never for the legal
+       pages, never twice, never inside the app's own web view. -->
+  <script>
+    (function () {
+      try {
+        var ua = navigator.userAgent || '';
+        var path = location.pathname || '/';
+        var search = location.search || '';
+        if (!/Android/i.test(ua) || /; wv\)/.test(ua)) return;
+        if (/[?&]web=1/.test(search)) return;
+        if (!/^\/(join\/|invite\/|$)/.test(path)) return;
+        if (sessionStorage.getItem('mm.appTried') === path) return;
+        sessionStorage.setItem('mm.appTried', path);
+        var fallback = location.origin + path + (search ? search + '&' : '?') + 'web=1';
+        location.replace('intent://' + location.host + path + search +
+          '#Intent;scheme=https;package=com.mafiamaster.mafia_master;' +
+          'S.browser_fallback_url=' + encodeURIComponent(fallback) + ';end');
+      } catch (e) { /* the web game is always the fallback */ }
+    })();
+  </script>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="سيد المافيا">
