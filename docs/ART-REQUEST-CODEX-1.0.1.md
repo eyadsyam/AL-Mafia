@@ -17,8 +17,45 @@
 - **الأحجام القصوى:** الأيقونة 40KB، والغلاف 120KB، والخلفية 250KB. النسخ الأصلية الكبيرة تتحفظ في `raw_assets/update101b/` بنفس الاسم وبصيغة `.png`.
 - **التناسق:** كل مجموعة (الرتب، المهام، الجوائز، الريأكشنز) لازم تبان عيلة واحدة: نفس اتجاه الإضاءة (من فوق شمال)، ونفس سُمك الحواف، ونفس الألوان.
 - **التسليم:**
-  - اعمل ملف واحد بيجمع كل الصور: `raw_assets/update101b/_contact_sheet.png`.
+  - الشيتات الأصلية نفسها بتكفي كمراجعة، فمش محتاج contact sheet منفصل.
   - واملا جدول التسليم اللي في آخر الملف.
+
+---
+
+## ⚡ توفير الكريدت: كل عيلة في صورة واحدة (اقرا ده الأول)
+
+**متعملش كل أيقونة لوحدها.** كل مجموعة أيقونات صغيرة تتعمل في **صورة واحدة (sheet)**، وبعدين السكريبت بيقطّعها للملفات المطلوبة بالأسامي والمقاسات والأحجام بالظبط. كده بدل ~85 صورة هتعمل **25 بس** (8 شيتات + 17 صورة لوحدها).
+**Codex: generate each family below as ONE image (uniform grid, one object per cell), then run the slicer. Do not generate these icons one by one.**
+
+**قواعد الشيت:**
+- شبكة منتظمة بالظبط (نفس عدد الأعمدة والصفوف اللي تحت)، والخانات كلها نفس المقاس، والترتيب من الشمال لليمين ومن فوق لتحت (الترتيب اللي في `--list`).
+- عنصر واحد في نص كل خانة، وحواليه مسافة فاضية كبيرة (حوالي 15% من الخانة). ممنوع أي عنصر يلمس أو يعدّي على خانة جنبه، وممنوع خطوط شبكة أو إطارات أو ظل واقع على الأرضية.
+- الخلفية **شفافة** لو الأداة بتدعم، ولو لأ: **أخضر سادة #00FF00** من غير تدرّج ولا ظل. وممنوع أي لون أخضر جوه الرسومات نفسها.
+- كل العيلة في نفس البرومبت، بنفس الإضاءة والحواف والخامة. ده كمان بيحل موضوع التناسق لوحده.
+- أكبر مقاس تقدر عليه الأداة (على الأقل 1536 عرض). شيت أغلفة المتجر D محتاج كل خانة 768 أو أكتر (يعني 2304×1536)، ولو الأداة ماتقدرش، اعمله على صورتين: 2×2 + 2×1.
+- لو السكريبت طلّع `EMPTY CELL` أو العنصر اتقطع، اعمل الشيت ده تاني بس.
+
+**الأمر:**
+```
+python tool/slice_art_sheet.py --list
+python tool/slice_art_sheet.py A_ranks raw_assets/update101b/_sheet_A_ranks.png
+```
+احفظ كل شيت أصلي في `raw_assets/update101b/_sheet_<ID>.png`. السكريبت بيحفظ كل عنصر كبير في `raw_assets/update101b/<name>.png`، والـ WebP بالمقاس والحجم المطلوب في مساره على طول.
+
+| الشيت | الشبكة | اللي فيه بالترتيب |
+|---|---|---|
+| `A_ranks` | 5×2 | `rank_tier_01` … `rank_tier_10` (نفس الختم، والفخامة بتزيد من الشمال لليمين) |
+| `B_contracts` | 3×3 | finish, town, mafia, win, host, reunion, weekly, bonus_all3, claimed_check |
+| `C_council_small` | 3×3 | podium_1, podium_2, podium_3, invite_reward_badge, council_hub_tab, badge_founder, stat_matches, stat_wins, stat_streak |
+| `D_store_covers` | 3×2 | starter_bundle_cover, quiet_pass_cover, coins_pack_small, coins_pack_medium, coins_pack_large, (خانة فاضية) |
+| `E_store_small` | 3×2 | invite_illustration, web_pay_transfer, web_pay_pending, web_pay_approved, ad_free_seal, double_coins_badge |
+| `F_daily` | 3×3 | daily_coffer_open, wheel_pointer, wheel_hub, streak_day_empty, streak_day_done, streak_day7, ad_reward_film, extra_spin_token, (فاضية) |
+| `G_awards` | 4×2 | mvp, sharp_eye, survivor, silver_tongue, lifesaver, perfect_crime, first_blood, (فاضية) |
+| `H_reactions` | 4×2 | laugh, shock, suspicious, applause, rose, skull, coffee, crown |
+
+**صور لوحدها (17)**، لأن مقاسها كبير أو شكلها عريض: `rank_levelup_rays`، `leaderboard_header`، `frame_council_seal` (لازم يطابق مكان `frame_gilded` بالظبط)، `vault_hero_v3`، `best_value_ribbon`، `sparkle_sheet` (هو أصلًا شيت)، `wheel_rim`، `launch_backdrop`، `launch_veil`، `welcome_back_card`، `awards_banner`، `banner_frame`، `profile_banner_default`، وصور جوجل بلاي الأربعة. **وفّر أكتر:** `leaderboard_header` و`profile_banner_default` نفس المقاس 1080×360، فاعملهم صورة واحدة 1080×720 فوق بعض واقسمها نصين.
+
+الوصف والمقاس والمسار لكل ملف لسه في الأقسام اللي تحت. الشيت بيغيّر **طريقة الإنتاج** بس، مش المواصفات.
 
 ---
 
