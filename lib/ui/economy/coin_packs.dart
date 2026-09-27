@@ -265,8 +265,8 @@ String transferError(BuildContext context, Object error) {
     'DUPLICATE_PROOF' => l.pay2Duplicate,
     'SENDER_REQUIRED' || 'PROOF_REQUIRED' => l.pay2ProofRequired,
     // An older server said a malformed sender name as a bare BAD_REQUEST.
-    'BAD_REQUEST' when error is BackendException &&
-        error.message.contains('sender') =>
+    'BAD_REQUEST'
+        when error is BackendException && error.message.contains('sender') =>
       l.pay2ProofRequired,
     'SALES_DISABLED' || 'METHOD_UNAVAILABLE' => l.coinPacksUnavailable,
     _ => l.coinOrderFailed,
@@ -558,7 +558,9 @@ class _CoinPacksTabState extends ConsumerState<CoinPacksTab> {
     // Best value only where the numbers prove it: the most coins per pound,
     // strictly ahead of every other coin pack.
     final coinPacks = shop.packs
-        .where((p) => !p.pass && !p.bundle && p.coins > 0 && p.pricePiastres > 0)
+        .where(
+          (p) => !p.pass && !p.bundle && p.coins > 0 && p.pricePiastres > 0,
+        )
         .toList();
     String? best;
     if (coinPacks.length > 1) {
@@ -1176,6 +1178,14 @@ class OrderStatusList extends StatelessWidget {
               key: CoinPacksTab.status(order.id),
               contentPadding: EdgeInsets.zero,
               dense: true,
+              leading: RasterOr(
+                path: orderSeal(order.status),
+                width: UiPolishTokens.caseEmblem,
+                height: UiPolishTokens.caseEmblem,
+                fallback: const SizedBox.square(
+                  dimension: UiPolishTokens.caseEmblem,
+                ),
+              ),
               title: Text(
                 '${order.reference} · ${orderProduct(context, order)} · ${context.l10n.coinPackPrice(egp(order.amountPiastres))}',
               ),
@@ -1187,6 +1197,16 @@ class OrderStatusList extends StatelessWidget {
     );
   }
 }
+
+/// The painted seal for an order's state: the hourglass while it waits, the
+/// stamp once it is paid. Other endings carry words only.
+String? orderSeal(String status) => switch (status) {
+  'awaiting_transfer' ||
+  'claimed' ||
+  'needs_info' => 'assets/images/store_v3/web_pay_pending.webp',
+  'paid' => 'assets/images/store_v3/web_pay_approved.webp',
+  _ => null,
+};
 
 /// What happened to an order, in the player's words.
 String settledStatus(BuildContext context, CoinOrder order) {

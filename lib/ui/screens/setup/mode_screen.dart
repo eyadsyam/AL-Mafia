@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../app/asset_constants.dart';
+import '../../theme/design_tokens.dart';
 
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
@@ -68,7 +70,8 @@ class ModeScreen extends StatelessWidget {
                     SizedBox(height: spacing.lg),
                     _ModeCard(
                       cardKey: ModeScreen.onlineCard,
-                      icon: Icons.groups_outlined,
+                      art: AppCouncilArt.seatRingIdle,
+                      tintArt: true,
                       title: l10n.modeOnlineTitle,
                       body: l10n.modeOnlineBody,
                       emphasised: true,
@@ -79,7 +82,8 @@ class ModeScreen extends StatelessWidget {
                     SizedBox(height: spacing.md),
                     _ModeCard(
                       cardKey: ModeScreen.offlineCard,
-                      icon: Icons.phone_android_outlined,
+                      art: AppImages.cardBack,
+                      tintArt: false,
                       title: l10n.modeOnePhoneTitle,
                       body: l10n.modeOnePhoneBody,
                       emphasised: false,
@@ -105,7 +109,11 @@ class ModeScreen extends StatelessWidget {
 /// colour.
 class _ModeCard extends StatelessWidget {
   final Key cardKey;
-  final IconData icon;
+
+  /// A painted mark instead of a stock glyph: the council's seat ring for the
+  /// online table, the card back for the phone that goes round the room.
+  final String art;
+  final bool tintArt;
   final String title;
   final String body;
   final bool emphasised;
@@ -115,7 +123,8 @@ class _ModeCard extends StatelessWidget {
 
   const _ModeCard({
     required this.cardKey,
-    required this.icon,
+    required this.art,
+    required this.tintArt,
     required this.title,
     required this.body,
     required this.emphasised,
@@ -160,7 +169,13 @@ class _ModeCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(icon, color: accent),
+                  Image.asset(
+                    art,
+                    width: UiPolishTokens.caseEmblem,
+                    height: UiPolishTokens.caseEmblem,
+                    color: tintArt ? accent : null,
+                    excludeFromSemantics: true,
+                  ),
                   SizedBox(width: spacing.md),
                   Expanded(
                     child: Column(

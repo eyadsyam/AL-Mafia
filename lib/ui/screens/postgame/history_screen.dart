@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/asset_constants.dart';
 import '../../../data/repository_provider.dart';
 import '../../../data/online_match_history.dart';
 import '../../../data/repository_types.dart';
 // Prefixed: the engine's `Alignment` collides with Flutter's.
 import '../../../engine/models/enums.dart' as engine;
 import '../../l10n_ext.dart';
+import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
+import '../../widgets/textured_surface.dart';
 import '../../economy/waiting_banner.dart';
 
 /// Finished matches, newest first (S-16).
@@ -147,122 +150,212 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       // Phase 108: history is a waiting surface; zero size unless switched
       // on and filled.
       bottomNavigationBar: const SafeArea(top: false, child: WaitingBanner()),
-      body: Builder(
-        builder: (context) {
-          final summaries = _summaries;
-          if (summaries == null) return const SizedBox.shrink();
-          if (summaries.isEmpty && _online.isEmpty) {
-            return Center(
-              child: Text(
-                l10n.noPastMatches,
-                style: type.body.copyWith(color: colors.textMuted),
-              ),
-            );
-          }
-
-          return ListView.separated(
-            key: HistoryScreen.list,
-            padding: EdgeInsets.all(spacing.md),
-            itemCount: summaries.length + _online.length,
-            separatorBuilder: (_, __) => SizedBox(height: spacing.sm),
-            itemBuilder: (context, index) {
-              if (index < _online.length) {
-                final row = _online[index];
-                return Card(
-                  child: ListTile(
-                    key: ValueKey('online_history_${row['roomId']}'),
-                    leading: const Icon(Icons.public),
-                    title: Text(
-                      '${l10n.onlineHistoryLabel} · ${_winnerLabel(row['winner'] == 'mafia' ? engine.Alignment.mafia : engine.Alignment.town)}',
-                    ),
-                    subtitle: Text(
-                      (row['names'] as List).whereType<String>().join(
-                        l10n.listSeparator,
-                      ),
-                    ),
-                    trailing: Text(
-                      l10n.onlineMatchMeta(
-                        (row['names'] as List).length,
-                        row['days'] as int,
-                      ),
-                    ),
-                  ),
-                );
-              }
-              final summary = summaries[index - _online.length];
-              return Dismissible(
-                key: HistoryScreen.tileFor(summary.id),
-                direction: DismissDirection.endToStart,
-                confirmDismiss: (_) => _confirmDelete(summary),
-                // Drop the row from local state in the same frame the
-                // dismissal completes; storage has already been updated by
-                // `_confirmDelete`.
-                onDismissed: (_) => setState(
-                  () => _summaries = [
-                    for (final s in summaries)
-                      if (s.id != summary.id) s,
-                  ],
-                ),
-                background: Container(
-                  alignment: AlignmentDirectional.centerStart,
-                  padding: EdgeInsets.symmetric(horizontal: spacing.lg),
-                  decoration: BoxDecoration(
-                    color: colors.accentCrimson,
-                    borderRadius: BorderRadius.circular(radii.card),
-                  ),
-                  child: Icon(Icons.delete_outline, color: colors.textPrimary),
-                ),
-                child: InkWell(
-                  onTap: () => widget.onOpen(summary.id),
-                  borderRadius: BorderRadius.circular(radii.card),
-                  child: Container(
-                    padding: EdgeInsets.all(spacing.md),
-                    decoration: BoxDecoration(
-                      color: colors.surfaceRaised,
-                      borderRadius: BorderRadius.circular(radii.card),
-                      border: Border.all(color: colors.borderSubtle),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                _winnerLabel(summary.winner),
-                                style: type.body.copyWith(
-                                  color: colors.textPrimary,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              l10n.matchMeta(
-                                summary.playerCount,
-                                summary.nights,
-                              ),
-                              style: type.caption.copyWith(
-                                color: colors.textMuted,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: spacing.xs),
-                        Text(
-                          summary.playerNames.join(l10n.listSeparator),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: type.bodySmall.emphasised.copyWith(
-                            color: colors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
+      body: AppBackdrop(
+        image: AppImages.bgNight,
+        child: Builder(
+          builder: (context) {
+            final summaries = _summaries;
+            if (summaries == null) {
+              return Center(
+                child: SizedBox.square(
+                  dimension: UiPolishTokens.progressSize,
+                  child: CircularProgressIndicator(
+                    strokeWidth: UiPolishTokens.progressStroke,
+                    color: colors.accentGold,
                   ),
                 ),
               );
-            },
-          );
-        },
+            }
+            if (summaries.isEmpty && _online.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: EdgeInsets.all(spacing.xl),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        AppCouncilArt.whisperSeal,
+                        width: UiPolishTokens.emptyEmblem,
+                        height: UiPolishTokens.emptyEmblem,
+                        color: colors.accentGold.withValues(
+                          alpha: UiPolishTokens.emptyEmblemOpacity,
+                        ),
+                        excludeFromSemantics: true,
+                      ),
+                      SizedBox(height: spacing.lg),
+                      Text(
+                        l10n.noPastMatches,
+                        textAlign: TextAlign.center,
+                        style: type.title.copyWith(color: colors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return ListView.separated(
+              key: HistoryScreen.list,
+              padding: EdgeInsets.all(spacing.md),
+              itemCount: summaries.length + _online.length,
+              separatorBuilder: (_, __) => SizedBox(height: spacing.sm),
+              itemBuilder: (context, index) {
+                if (index < _online.length) {
+                  final row = _online[index];
+                  final names = (row['names'] as List).whereType<String>();
+                  final winner = row['winner'] == 'mafia'
+                      ? engine.Alignment.mafia
+                      : engine.Alignment.town;
+                  return _CaseFile(
+                    key: ValueKey('online_history_${row['roomId']}'),
+                    winner: winner,
+                    title:
+                        '${l10n.onlineHistoryLabel} · ${_winnerLabel(winner)}',
+                    meta: l10n.onlineMatchMeta(
+                      names.length,
+                      row['days'] as int,
+                    ),
+                    names: names.join(l10n.listSeparator),
+                  );
+                }
+                final summary = summaries[index - _online.length];
+                return Dismissible(
+                  key: HistoryScreen.tileFor(summary.id),
+                  direction: DismissDirection.endToStart,
+                  confirmDismiss: (_) => _confirmDelete(summary),
+                  // Drop the row from local state in the same frame the
+                  // dismissal completes; storage has already been updated by
+                  // `_confirmDelete`.
+                  onDismissed: (_) => setState(
+                    () => _summaries = [
+                      for (final s in summaries)
+                        if (s.id != summary.id) s,
+                    ],
+                  ),
+                  background: Container(
+                    alignment: AlignmentDirectional.centerStart,
+                    padding: EdgeInsets.symmetric(horizontal: spacing.lg),
+                    decoration: BoxDecoration(
+                      color: colors.accentCrimson,
+                      borderRadius: BorderRadius.circular(radii.card),
+                    ),
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  child: _CaseFile(
+                    winner: summary.winner,
+                    title: _winnerLabel(summary.winner),
+                    meta: l10n.matchMeta(summary.playerCount, summary.nights),
+                    names: summary.playerNames.join(l10n.listSeparator),
+                    onTap: () => widget.onOpen(summary.id),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// One finished match as a case file: the winning side's emblem, the verdict,
+/// the table. The emblem is the council's public victory mask; the winner is
+/// already the row's title, so it tells a glance nothing the text does not.
+class _CaseFile extends StatelessWidget {
+  final engine.Alignment? winner;
+  final String title;
+  final String meta;
+  final String names;
+  final VoidCallback? onTap;
+
+  const _CaseFile({
+    super.key,
+    required this.winner,
+    required this.title,
+    required this.meta,
+    required this.names,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final spacing = context.spacing;
+    final radii = context.radii;
+    final type = context.typography;
+    final tint = switch (winner) {
+      engine.Alignment.mafia => colors.accentCrimson,
+      engine.Alignment.town => colors.accentGold,
+      null => colors.textMuted,
+    };
+    final emblem = switch (winner) {
+      engine.Alignment.mafia => AppCouncilArt.victoryMafia,
+      engine.Alignment.town => AppCouncilArt.victoryTown,
+      null => AppCouncilArt.whisperSeal,
+    };
+    return Material(
+      color: colors.surfaceRaised.withValues(
+        alpha: UiPolishTokens.caseSurfaceOpacity,
+      ),
+      borderRadius: BorderRadius.circular(radii.card),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            border: BorderDirectional(
+              start: BorderSide(color: tint, width: UiPolishTokens.caseStripe),
+            ),
+          ),
+          padding: EdgeInsets.all(spacing.md),
+          child: Row(
+            children: [
+              Image.asset(
+                emblem,
+                width: UiPolishTokens.caseEmblem,
+                height: UiPolishTokens.caseEmblem,
+                color: tint.withValues(alpha: UiPolishTokens.emblemOpacity),
+                excludeFromSemantics: true,
+              ),
+              SizedBox(width: spacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: type.body.copyWith(
+                              color: colors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          meta,
+                          style: type.caption.copyWith(color: colors.textMuted),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: spacing.xs),
+                    Text(
+                      names,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: type.bodySmall.emphasised.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

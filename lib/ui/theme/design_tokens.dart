@@ -1711,3 +1711,16 @@ abstract final class VaultTokens {
   /// Below this width a row of header icons draws compact.
   static const double narrowHeaderWidth = 360.0;
 }
+
+/// Launch polish (1.0.1+10), Claude's side: the case-file look of History and
+/// the other public lists. Emblems are the council's victory masks, tinted.
+abstract final class UiPolishTokens {
+  static const double caseEmblem = 44.0;
+  static const double emptyEmblem = 96.0;
+  static const double emblemOpacity = 0.9;
+  static const double emptyEmblemOpacity = 0.6;
+  static const double caseStripe = 3.0;
+  static const double caseSurfaceOpacity = 0.86;
+  static const double progressSize = 28.0;
+  static const double progressStroke = 2.0;
+}
