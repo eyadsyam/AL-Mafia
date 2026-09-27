@@ -103,4 +103,31 @@ void main() {
       Role.detective,
     );
   });
+
+  test('the first case opens a letter, favouring the player role', () {
+    final after = progressCharacterBonds(CharacterBondLedger.empty, caseOne());
+    final arrival = letterArrived(CharacterBondLedger.empty, after, caseOne());
+    expect(arrival?.role, Role.detective);
+    expect(arrival?.tier, 1);
+    expect(arrival?.receiptId, 'match-1');
+  });
+
+  test('a case that crosses no threshold opens nothing', () {
+    final one = progressCharacterBonds(CharacterBondLedger.empty, caseOne());
+    final two = progressCharacterBonds(one, caseOne(id: 'match-2'));
+    // Tier 2 needs three cases; the second case opens no letter.
+    expect(letterArrived(one, two, caseOne(id: 'match-2')), isNull);
+    final three = progressCharacterBonds(two, caseOne(id: 'match-3'));
+    expect(letterArrived(two, three, caseOne(id: 'match-3'))?.tier, 2);
+  });
+
+  test('tier thresholds are 1, 3, 7 and 15 cases', () {
+    expect(const CharacterBond(cases: 0).tier, 0);
+    expect(const CharacterBond(cases: 1).tier, 1);
+    expect(const CharacterBond(cases: 6).tier, 2);
+    expect(const CharacterBond(cases: 7).tier, 3);
+    expect(const CharacterBond(cases: 15).tier, 4);
+    expect(const CharacterBond(cases: 5).casesToNextTier, 2);
+    expect(const CharacterBond(cases: 40).casesToNextTier, isNull);
+  });
 }

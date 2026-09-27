@@ -197,4 +197,22 @@ void main() {
       ),
     );
   });
+
+  testWidgets('letter arrived', (tester) async {
+    await shoot(
+      tester,
+      'letter_arrived_ar',
+      const Scaffold(
+        body: Center(
+          child: BondLetterArrivedCard(
+            arrival: BondLetterArrival(
+              receiptId: 'x',
+              role: engine.Role.doctor,
+              tier: 2,
+            ),
+          ),
+        ),
+      ),
+    );
+  });
 }

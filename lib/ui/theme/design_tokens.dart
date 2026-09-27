@@ -1809,4 +1809,7 @@ abstract final class DossierTokens {
   /// The gallery paintings are cards with a drawn frame; zooming past the
   /// frame leaves the figure itself to dissolve into the night.
   static const double pastFrameZoom = 1.24;
+
+  /// The letter-arrived moment on the result screen.
+  static const double arrivalHeight = 196.0;
 }

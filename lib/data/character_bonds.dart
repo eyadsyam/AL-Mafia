@@ -309,6 +309,54 @@ class CharacterBondController extends AsyncNotifier<CharacterBondLedger> {
     if (identical(next, current)) return false;
     await ref.read(characterBondStoreProvider).save(next);
     state = AsyncData(next);
+    ref.read(bondLetterArrivedProvider.notifier).state = letterArrived(
+      current,
+      next,
+      completed,
+    );
     return true;
   }
+}
+
+/// A character wrote to this table: [role] just opened letter [tier].
+class BondLetterArrival {
+  final String receiptId;
+  final Role role;
+  final int tier;
+  const BondLetterArrival({
+    required this.receiptId,
+    required this.role,
+    required this.tier,
+  });
+}
+
+/// The letter the last recorded result opened, if any. One at a time: the
+/// player's own character first, then the character of the match's moment,
+/// then table order.
+final bondLetterArrivedProvider = StateProvider<BondLetterArrival?>(
+  (ref) => null,
+);
+
+/// Pure: which letter, if any, [completed] opened between [before] and [after].
+BondLetterArrival? letterArrived(
+  CharacterBondLedger before,
+  CharacterBondLedger after,
+  CharacterBondCase completed,
+) {
+  final order = <Role>[
+    ?completed.personalRole,
+    completed.momentRole,
+    ...Role.values,
+  ];
+  for (final role in order) {
+    final tier = after.bond(role).tier;
+    if (tier > before.bond(role).tier) {
+      return BondLetterArrival(
+        receiptId: completed.receiptId,
+        role: role,
+        tier: tier,
+      );
+    }
+  }
+  return null;
 }

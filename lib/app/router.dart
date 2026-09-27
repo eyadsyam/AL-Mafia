@@ -10,6 +10,7 @@ import '../data/player_group_provider.dart';
 import '../data/repository_provider.dart';
 import '../data/online_session_store.dart';
 import '../data/player_profile.dart';
+import '../engine/models/enums.dart' show Role;
 import '../engine/models/match_settings.dart';
 import '../platform/audio_director.dart';
 import '../ui/economy/interstitial_coordinator.dart';
@@ -292,8 +293,14 @@ GoRouter buildRouter(
       // The Four Dossiers (1.1.0): public, outside any match.
       GoRoute(
         path: Routes.characters,
-        builder: (context, state) =>
-            CharactersScreen(onBack: () => context.go(Routes.home)),
+        builder: (context, state) => CharactersScreen(
+          initial: Role.values
+              .where((r) => r.name == state.uri.queryParameters['role'])
+              .firstOrNull,
+          // Pushed from a result: back returns to it. Otherwise, Home.
+          onBack: () =>
+              context.canPop() ? context.pop() : context.go(Routes.home),
+        ),
       ),
       // S-01a. Both answers are the same size, and online is offered whether
       // or not this build has a project — a card that explains itself is

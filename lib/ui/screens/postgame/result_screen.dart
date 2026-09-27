@@ -13,6 +13,7 @@ import '../../theme/mafia_theme.dart';
 import '../../widgets/textured_surface.dart';
 import '../../fun/award_ribbon.dart';
 import '../../fun/match_awards.dart';
+import '../../fun/character_dossiers.dart' show BondLetterArrivedCard;
 import '../match_controller.dart';
 
 /// A single row in the result table showing a player's role and status.
@@ -528,14 +529,20 @@ class _BondResultRecorderState extends State<_BondResultRecorder> {
   Widget build(BuildContext context) => widget.child;
 }
 
-class _BondResultMoment extends StatelessWidget {
+class _BondResultMoment extends ConsumerWidget {
   final engine.Alignment winner;
   final List<ResultRow> rows;
   const _BondResultMoment({required this.winner, required this.rows});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (!_bondsEnabled(context) || rows.isEmpty) return const SizedBox.shrink();
+    final arrived = ref.watch(bondLetterArrivedProvider);
+    if (arrived != null) return BondLetterArrivedCard(arrival: arrived);
+    return _momentLine(context);
+  }
+
+  Widget _momentLine(BuildContext context) {
     final roles = rows.map((row) => row.role).toSet();
     final survivors = rows
         .where((row) => row.eliminatedLabel == null)

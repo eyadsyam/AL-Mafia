@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../economy/council_art.dart' show CouncilRaster, RasterOr;
 
 import '../../app/l10n/app_localizations.dart';
 import '../../data/character_bonds.dart';
@@ -262,4 +265,75 @@ class BondPortraitArt extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// On the result screen, when this match opened a letter: the character
+/// rising out of the level-up rays, its name, and the letter itself. Tapping
+/// it opens that character's dossier.
+class BondLetterArrivedCard extends StatelessWidget {
+  final BondLetterArrival arrival;
+  const BondLetterArrivedCard({super.key, required this.arrival});
+
+  static const cardKey = ValueKey('bond_letter_arrived');
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final colors = context.colors;
+    final spacing = context.spacing;
+    final type = context.typography;
+    final name = EngineCopy.roleName(l, arrival.role);
+    return Semantics(
+      button: true,
+      child: InkWell(
+        key: cardKey,
+        borderRadius: BorderRadius.circular(context.radii.card),
+        onTap: () => GoRouter.maybeOf(
+          context,
+        )?.push('/characters?role=${arrival.role.name}'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: DossierTokens.arrivalHeight,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned.fill(
+                    child: FeatheredArt(
+                      feather: Feather.hero,
+                      halo: false,
+                      child: RasterOr(
+                        path: CouncilRaster.levelUpRays,
+                        fit: BoxFit.cover,
+                        fallback: const SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
+                  FeatheredArt(
+                    feather: Feather.portrait,
+                    child: BondPortraitArt(
+                      role: arrival.role,
+                      cacheHeight: (DossierTokens.arrivalHeight * 2).ceil(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              l.bondNewLetter(name),
+              textAlign: TextAlign.center,
+              style: type.title.copyWith(color: colors.accentGold),
+            ),
+            SizedBox(height: spacing.xs),
+            Text(
+              '«${bondLetter(l, arrival.role, arrival.tier)}»',
+              textAlign: TextAlign.center,
+              style: type.body.copyWith(color: colors.textPrimary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
