@@ -6,16 +6,15 @@ cannot recover from the code quickly, or a decision whose *reasoning* is not obv
 from the diff. Anything you can get from `flutter analyze`, `flutter test`, or a
 `grep` is deliberately not repeated here.
 
-Last verified: 2026-09-26 (update 1.0.1+9, branch `claude/epic-roentgen-094f21`,
-commit `bd03100`): `flutter analyze` 0 errors/0 warnings, `flutter test` **1328 passed,
-1 skipped**, `node tool/test_sql_without_docker.mjs` **40/40** SQL files, all
-`supabase/tests/*.test.mjs` PASS. The 1.0.1 work (rewarded two-step ads, app-open,
-interstitial, waiting banners, Play Billing + web InstaPay/Vodafone Cash manual orders,
-daily coffer/wheel, Council Life contracts/rank/leaderboard/invites, match awards,
-reactions) is described in `docs/PROGRESS.md` phases 102–109,
-`build/update101/status.md` (activation SQL), `docs/ADS-V2-REVENUE-MODEL.md` and
-`docs/PHASE-107-COUNCIL-LIFE.md`. **Every new feature ships OFF behind
-`economy_config` flags; migrations 20260925000100–000600 are NOT deployed yet.**
+Last verified: 2026-09-27 (update 1.0.1+9, branch `claude/epic-roentgen-094f21`,
+commit `e531baf`): `flutter analyze` 0 errors/0 warnings, `flutter test` **1384 passed,
+1 skipped**, `node tool/test_sql_without_docker.mjs` **42/42** SQL files, all
+`supabase/tests/*.test.mjs` PASS. The 1.0.1 work (per-match ads v3, Play Billing +
+InstaPay/Vodafone Cash transfers with /admin review and Telegram notice, daily coffer/wheel,
+Council Life, match awards, reactions, email-link fallback) is described in `docs/PROGRESS.md`
+phases 102–113, `build/update101/status.md` (activation SQL), `docs/ADS-V2-REVENUE-MODEL.md`,
+`docs/PHASE-107-COUNCIL-LIFE.md` and `docs/EMAIL-SMTP-SETUP.md`. **All migrations and edge
+functions are deployed live; every new feature is still OFF behind `economy_config` flags.**
 Raster art is requested from Codex (paths in the art request, painted fallbacks in
 code; register delivered files in `CouncilRaster.delivered`).
 

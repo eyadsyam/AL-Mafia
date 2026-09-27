@@ -80,7 +80,7 @@
 علشان لينك إيميل الإدارة يرجّعك على صفحة الإدارة وانت داخل:
 **Authentication → URL Configuration → Redirect URLs → Add URL**:
 `https://almafia.vercel.app/admin`
-(الـ Site URL يفضل `https://almafia.vercel.app` زي ما هو.)
+(متضاف فعلًا من 2026-09-27 عن طريق `https://almafia.vercel.app/**` — مفيش حاجة تعملها. الـ Site URL يفضل `https://almafia.vercel.app` زي ما هو.)
 
 ## 6) التجربة
 
