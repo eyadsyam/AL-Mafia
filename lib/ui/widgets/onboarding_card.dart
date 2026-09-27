@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/mafia_theme.dart';
 import 'textured_surface.dart';
+import 'feathered_art.dart';
 
 /// One face of the onboarding deck.
 ///
@@ -180,10 +181,8 @@ class _ChapterImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radii = context.radii;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radii.card),
+    // Feathered, not boxed: each chapter's painting rises out of the card.
+    return FeatheredArt(
       child: Image.asset(
         image,
         fit: BoxFit.contain,

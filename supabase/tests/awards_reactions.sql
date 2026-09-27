@@ -119,7 +119,7 @@ begin
       and founder_window_start is null from economy_config), 'defaults not off';
     p := pg_temp.ar_six();
     s := public.economy_capabilities(p[1]);
-    assert s->'fun'='{"awards":false,"reactions":false,"founder":false}'::jsonb, s::text;
+    assert (s->'fun') - 'characterBonds'='{"awards":false,"reactions":false,"founder":false}'::jsonb, s::text;
     -- Earlier answers survive the composition.
     assert (s->>'version')::int=2 and s ? 'council' and s ? 'adSteps', s::text;
     r := pg_temp.ar_town_win(p);

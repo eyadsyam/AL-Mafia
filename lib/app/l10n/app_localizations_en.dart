@@ -3952,4 +3952,162 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminErrorProof => 'This order has no screenshot.';
+
+  @override
+  String get bondDossiersTitle => 'The Four Dossiers';
+
+  @override
+  String get bondDossiersHint => 'They remember. You are in it.';
+
+  @override
+  String bondCaseCount(int count) {
+    return 'Cases $count';
+  }
+
+  @override
+  String bondVictoryCount(int count) {
+    return 'Victories $count';
+  }
+
+  @override
+  String bondWitnessCount(int count) {
+    return 'Witnesses $count';
+  }
+
+  @override
+  String bondPersonalCount(int count) {
+    return 'Personal $count';
+  }
+
+  @override
+  String get bondLockedLine =>
+      'Finish a case with this character at the table.';
+
+  @override
+  String get bondMafiaTier1 =>
+      'I remember this table. It knew when to keep quiet.';
+
+  @override
+  String get bondMafiaTier2 =>
+      'A clean story needs fewer words than a nervous one.';
+
+  @override
+  String get bondMafiaTier3 =>
+      'You have learned that patience can look like innocence.';
+
+  @override
+  String get bondMafiaTier4 =>
+      'The room changes when you enter. That is influence.';
+
+  @override
+  String get bondDoctorTier1 => 'Not every rescue is seen. It still counts.';
+
+  @override
+  String get bondDoctorTier2 =>
+      'You are beginning to hear danger before it knocks.';
+
+  @override
+  String get bondDoctorTier3 =>
+      'Saving the right moment matters more than saving face.';
+
+  @override
+  String get bondDoctorTier4 =>
+      'The table breathes easier when you keep watch.';
+
+  @override
+  String get bondDetectiveTier1 =>
+      'One case is enough to teach the value of doubt.';
+
+  @override
+  String get bondDetectiveTier2 =>
+      'A changed story leaves a clearer print than a loud one.';
+
+  @override
+  String get bondDetectiveTier3 =>
+      'You notice the pause before the answer now.';
+
+  @override
+  String get bondDetectiveTier4 =>
+      'Nothing escapes you except what has not happened yet.';
+
+  @override
+  String get bondCitizenTier1 =>
+      'A town survives because somebody keeps listening.';
+
+  @override
+  String get bondCitizenTier2 =>
+      'You have learned when the simple question is strongest.';
+
+  @override
+  String get bondCitizenTier3 =>
+      'The table follows facts when you hold your ground.';
+
+  @override
+  String get bondCitizenTier4 =>
+      'You are the memory of every room you leave behind.';
+
+  @override
+  String get bondHomeMafia =>
+      'The Mafia remembers a victory nobody could stop.';
+
+  @override
+  String get bondHomeDoctor =>
+      'The Doctor remembers the night everyone came home.';
+
+  @override
+  String get bondHomeDetective =>
+      'The Detective has kept your files. It has been a while.';
+
+  @override
+  String get bondHomeCitizen =>
+      'The Citizen is waiting for the table to gather again.';
+
+  @override
+  String get bondMomentMafia =>
+      'The Mafia closes this file with a quiet smile.';
+
+  @override
+  String get bondMomentDoctor => 'The Doctor counts who remained standing.';
+
+  @override
+  String get bondMomentDetective =>
+      'The Detective writes the last fact in the margin.';
+
+  @override
+  String get bondMomentCitizen =>
+      'The Citizen keeps this case for the next gathering.';
+
+  @override
+  String get bondTitleMafia => 'Keeper of the Quiet Room';
+
+  @override
+  String get bondTitleDoctor => 'Guardian of the Last Lamp';
+
+  @override
+  String get bondTitleDetective => 'Reader of the Unsaid';
+
+  @override
+  String get bondTitleCitizen => 'Memory of the Table';
+
+  @override
+  String get bondScreenSubtitle => 'They remember. You are in it.';
+
+  @override
+  String bondSealedLetter(int count) {
+    return 'Sealed letter · opens in $count cases';
+  }
+
+  @override
+  String get bondLettersTitle => 'Letters to you';
+
+  @override
+  String get bondOpenAll => 'All dossiers';
+
+  @override
+  String bondNewLetter(String name) {
+    return 'A new letter from $name';
+  }
+
+  @override
+  String get bondStrangerLine => 'You have not sat at this table yet.';
 }

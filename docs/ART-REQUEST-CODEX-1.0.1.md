@@ -273,9 +273,9 @@ python tool/slice_art_sheet.py A_ranks raw_assets/update101b/_sheet_A_ranks.png
 | `assets/images/store_v3/coins_pack_medium.webp` | نعم | 768×768 | 112956 | WebP، شفافة |
 | `assets/images/store_v3/coins_pack_small.webp` | نعم | 768×768 | 112042 | WebP، شفافة |
 | `assets/images/store_v3/frame_council_seal.webp` | نعم | 768×768 | 109466 | WebP، كارت/إطار شفاف |
-| `assets/images/store_v3/quiet_pass_cover.webp` | نعم | 768×768 | 111868 | WebP، شفافة |
+| `assets/images/store_v3/quiet_pass_cover.webp` | نعم | 768×768 | 116248 | WebP، شفافة |
 | `assets/images/store_v3/sparkle_sheet.webp` | نعم | 512×128 | 13390 | WebP، شفافة |
-| `assets/images/store_v3/starter_bundle_cover.webp` | نعم | 768×768 | 116720 | WebP، شفافة |
+| `assets/images/store_v3/starter_bundle_cover.webp` | نعم | 768×768 | 117746 | WebP، شفافة |
 | `assets/images/store_v3/vault_hero_v3.webp` | نعم | 1080×540 | 146542 | WebP، خلفية معتمة |
 | `assets/images/store_v3/web_pay_approved.webp` | نعم | 128×128 | 7950 | WebP، شفافة |
 | `assets/images/store_v3/web_pay_pending.webp` | نعم | 128×128 | 8692 | WebP، شفافة |

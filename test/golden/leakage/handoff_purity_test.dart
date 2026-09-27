@@ -203,6 +203,19 @@ void main() {
       );
     });
 
+    test('character bonds and dossiers are outside every private closure', () {
+      expect(
+        closure,
+        isNot(contains('lib/data/character_bonds.dart')),
+        reason: 'a completed-match relationship ledger reached an in-hand UI',
+      );
+      expect(
+        closure,
+        isNot(contains('lib/ui/fun/character_dossiers.dart')),
+        reason: 'full-colour dossiers reached an in-hand UI',
+      );
+    });
+
     for (final entry in forbidden.entries) {
       test('no handoff-reachable file references ${entry.key.pattern}', () {
         final offenders = <String>[];

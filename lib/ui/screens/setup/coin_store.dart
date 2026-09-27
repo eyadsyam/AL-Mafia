@@ -24,6 +24,7 @@ import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/settings_kit.dart';
 import '../../economy/waiting_banner.dart';
+import '../../widgets/feathered_art.dart';
 
 /// Opens the store over the current screen. Reachable from Home, Settings and
 /// an out-of-match lobby only: never from inside a match.
@@ -484,21 +485,26 @@ class _VaultHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final ltr = Directionality.of(context) == TextDirection.ltr;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(context.radii.card),
+    // No box: the cabinet dissolves into the vault around it.
+    return Padding(
+      padding: EdgeInsets.zero,
       child: SizedBox(
         height: StoreTokens.heroHeight,
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Transform.flip(
-              flipX: ltr,
-              child: Image.asset(
-                StoreArt.heroCover,
-                fit: BoxFit.cover,
-                excludeFromSemantics: true,
-                errorBuilder: (_, _, _) =>
-                    ColoredBox(color: colors.surfaceRaised),
+            FeatheredArt(
+              feather: Feather.banner,
+              halo: false,
+              child: Transform.flip(
+                flipX: ltr,
+                child: Image.asset(
+                  StoreArt.heroCover,
+                  fit: BoxFit.cover,
+                  excludeFromSemantics: true,
+                  errorBuilder: (_, _, _) =>
+                      ColoredBox(color: colors.surfaceRaised),
+                ),
               ),
             ),
             DecoratedBox(

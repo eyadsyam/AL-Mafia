@@ -18,6 +18,7 @@ import 'council_art.dart';
 import 'economy_capabilities.dart';
 import 'mafia_coin.dart';
 import 'vault_kit.dart';
+import '../widgets/feathered_art.dart';
 
 /// What a contract asks, in the player's words.
 String contractName(AppLocalizations l, CouncilContract c) =>
@@ -740,17 +741,21 @@ class LeaderboardSheet extends ConsumerWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              RasterOr(
-                path: CouncilRaster.leaderboardHeader,
-                height: CouncilLifeTokens.emblemCard,
-                fallback: Padding(
-                  padding: EdgeInsets.only(bottom: s.xs),
-                  child: const Center(
-                    child: LampGlow(
-                      child: Icon(
-                        Icons.emoji_events_rounded,
-                        size: CouncilLifeTokens.contractIcon,
-                        color: VaultTokens.gold,
+              FeatheredArt(
+                feather: Feather.banner,
+                child: RasterOr(
+                  path: CouncilRaster.leaderboardHeader,
+                  height: FeatherTokens.bannerHeight,
+                  fit: BoxFit.cover,
+                  fallback: Padding(
+                    padding: EdgeInsets.only(bottom: s.xs),
+                    child: const Center(
+                      child: LampGlow(
+                        child: Icon(
+                          Icons.emoji_events_rounded,
+                          size: CouncilLifeTokens.contractIcon,
+                          color: VaultTokens.gold,
+                        ),
                       ),
                     ),
                   ),

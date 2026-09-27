@@ -1724,3 +1724,89 @@ abstract final class UiPolishTokens {
   static const double progressSize = 28.0;
   static const double progressStroke = 2.0;
 }
+
+/// Four Dossiers. Public/post-result geometry only; never imported by a
+/// handoff, role-reveal or live-match surface.
+abstract final class BondTokens {
+  static const double homeLineHeight = 52.0;
+  static const double portraitHeight = 148.0;
+  static const double portraitAspectRatio = 2 / 3;
+  static const double lockedOpacity = 0.34;
+  static const double tierOneOpacity = 0.62;
+  static const double tierTwoOpacity = 0.82;
+  static const double unlockedOpacity = 1.0;
+  static const double portraitBorder = 1.0;
+  static const double veteranBorder = 2.0;
+  static const double titleRuleWidth = 48.0;
+  static const int lineMaxLines = 3;
+  static const Duration inactiveAfter = Duration(days: 3);
+}
+
+/// Painted art that belongs to the screen instead of sitting in a box: every
+/// hero, portrait and banner dissolves into the backdrop through feathered
+/// edges (see `lib/ui/widgets/feathered_art.dart`). Fractions of the art's
+/// own size, so a banner and a portrait feather in proportion.
+abstract final class FeatherTokens {
+  /// Heroes: soft all round, a longer fall at the bottom where text follows.
+  static const double heroTop = 0.14;
+  static const double heroBottom = 0.34;
+  static const double heroSide = 0.12;
+
+  /// Banners across the full width: sides dissolve, top and bottom barely.
+  static const double bannerTop = 0.08;
+  static const double bannerBottom = 0.30;
+  static const double bannerSide = 0.18;
+
+  /// Portraits standing on a surface: the feet melt into it.
+  static const double portraitTop = 0.04;
+  static const double portraitBottom = 0.28;
+  static const double portraitSide = 0.06;
+
+  /// A faint warm light behind the art, so it glows out of the dark rather
+  /// than being cut out of it.
+  static const double haloOpacity = 0.10;
+  static const double haloRadius = 0.75;
+
+  /// A painted banner across a sheet's full width.
+  static const double bannerHeight = 148.0;
+}
+
+/// The Four Dossiers screen: one character per page, the portrait standing in
+/// the room it belongs to, letters beneath it.
+abstract final class DossierTokens {
+  /// The portrait's share of the page height, and its cap on tall screens.
+  static const double portraitFraction = 0.46;
+  static const double portraitMaxHeight = 420.0;
+
+  /// The character's own colour, as light behind the portrait.
+  static const double auraOpacity = 0.28;
+  static const double auraRadius = 0.62;
+
+  /// A stranger's portrait: drained and dim, but still there.
+  static const double strangerOpacity = 0.42;
+
+  /// The four seals under the name.
+  static const double seal = 12.0;
+  static const double sealGap = 8.0;
+  static const double sealStroke = 1.5;
+
+  /// Page dots.
+  static const double dot = 6.0;
+  static const double dotActive = 18.0;
+
+  /// A letter's wax mark in the margin.
+  static const double letterMark = 8.0;
+  static const double sealedOpacity = 0.5;
+
+  /// The whisper on Home: a face beside the line.
+  static const double whisperFace = 44.0;
+
+  /// Profile strip: four standing portraits.
+  static const double stripHeight = 132.0;
+
+  static const Duration pageTurn = Duration(milliseconds: 320);
+
+  /// The gallery paintings are cards with a drawn frame; zooming past the
+  /// frame leaves the figure itself to dissolve into the night.
+  static const double pastFrameZoom = 1.24;
+}

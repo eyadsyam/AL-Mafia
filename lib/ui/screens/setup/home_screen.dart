@@ -6,6 +6,8 @@ import '../../../app/l10n/app_localizations.dart';
 import '../../../platform/audio_director.dart';
 import '../../../platform/tilt_source.dart';
 import '../../l10n_ext.dart';
+import '../../fun/character_dossiers.dart';
+import '../../fun/loaded_capabilities.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
@@ -53,6 +55,9 @@ class HomeScreen extends ConsumerWidget {
   final VoidCallback onHowToPlay;
   final VoidCallback? onProfile;
 
+  /// The Four Dossiers; the character's line on Home opens them.
+  final VoidCallback? onCharacters;
+
   /// The store's corner control, or null where the build has no server.
   final Widget? store;
 
@@ -71,6 +76,7 @@ class HomeScreen extends ConsumerWidget {
     required this.onSettings,
     required this.onHowToPlay,
     this.onProfile,
+    this.onCharacters,
     this.store,
     this.banner,
     this.tiltSource = defaultTiltSource,
@@ -93,6 +99,7 @@ class HomeScreen extends ConsumerWidget {
     final radii = context.radii;
     final type = context.typography;
     final l10n = context.l10n;
+    final bondsEnabled = loadedCapabilities(ref)?.fun.characterBonds == true;
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
@@ -129,6 +136,7 @@ class HomeScreen extends ConsumerWidget {
                       radii: radii,
                       type: type,
                       l10n: l10n,
+                      bondsEnabled: bondsEnabled,
                     ),
                   ],
                 ),
@@ -204,6 +212,7 @@ class HomeScreen extends ConsumerWidget {
     required MafiaRadii radii,
     required MafiaTypography type,
     required AppLocalizations l10n,
+    required bool bondsEnabled,
   }) {
     return Align(
       alignment: Alignment.bottomCenter,
@@ -221,6 +230,7 @@ class HomeScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ?banner,
+              if (bondsEnabled) BondHomeLine(onTap: onCharacters),
               Text(
                 l10n.appTitle,
                 style: type.display.copyWith(color: colors.textPrimary),

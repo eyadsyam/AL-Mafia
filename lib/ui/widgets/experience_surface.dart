@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../platform/reduce_motion.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
+import 'feathered_art.dart';
 import 'textured_surface.dart';
 
 abstract final class ExperienceArt {
@@ -48,8 +49,9 @@ class ExperienceHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(context.radii.card),
+    // Feathered, not clipped: the painting dissolves into the room around it
+    // instead of sitting in a rounded box on top of it.
+    child: FeatheredArt(
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxHeight: compact

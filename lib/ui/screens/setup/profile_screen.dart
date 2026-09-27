@@ -1,4 +1,6 @@
 import '../../fun/founder_badge.dart';
+import '../../fun/character_dossiers.dart';
+import '../../fun/loaded_capabilities.dart';
 import '../../widgets/setup_entrance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +21,15 @@ class ProfileScreen extends ConsumerStatefulWidget {
   /// Where back goes. Null only where there is nowhere to go back to (the
   /// online door asking for a profile it does not have yet).
   final VoidCallback? onBack;
-  const ProfileScreen({super.key, this.onSaved, this.onBack});
+
+  /// Opens the Four Dossiers from the portrait strip.
+  final VoidCallback? onCharacters;
+  const ProfileScreen({
+    super.key,
+    this.onSaved,
+    this.onBack,
+    this.onCharacters,
+  });
 
   static const Key nameKey = ValueKey('profile_name');
   static const Key saveKey = ValueKey('profile_save');
@@ -82,6 +92,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final s = context.spacing;
     final l = context.l10n;
     final existing = ref.watch(playerProfileProvider).valueOrNull != null;
+    final bondsEnabled = loadedCapabilities(ref)?.fun.characterBonds == true;
     final ready =
         !_saving &&
         _name.text.trim().isNotEmpty &&
@@ -165,6 +176,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             // Phase 107: the player's leaderboard choice,
                             // shown only while the board exists.
                             const LeaderboardVisibilitySwitch(),
+                            if (widget.onBack != null && bondsEnabled)
+                              CharacterDossiers(onOpen: widget.onCharacters),
                             if (_failed)
                               Text(
                                 l.profileSaveFailed,

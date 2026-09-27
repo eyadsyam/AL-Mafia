@@ -44,18 +44,21 @@ void main() {
     expect(manifest, contains('android:scheme="${RoomInvite.scheme}"'));
   });
 
-  test('the asset-links file names this package and one fingerprint', () {
+  test('the asset-links file names this package, the Play signing key and the upload key', () {
     final target = (assetLinks.single as Map)['target'] as Map;
     expect(target['namespace'], 'android_app');
     expect(target['package_name'], 'com.mafiamaster.mafia_master');
     final fingerprints = target['sha256_cert_fingerprints'] as List;
-    expect(fingerprints, hasLength(1));
+    // Play re-signs what it installs, so the Play app-signing key must be
+    // listed or no store install ever verifies; the upload key keeps
+    // sideloaded release builds working too.
+    expect(fingerprints, hasLength(2));
+    expect(fingerprints.toSet(), hasLength(2));
     // 32 bytes, colon-separated, uppercase hex — the shape Android compares
     // against. A truncated or lowercase value verifies against nothing.
-    expect(
-      fingerprints.single,
-      matches(RegExp(r'^([0-9A-F]{2}:){31}[0-9A-F]{2}$')),
-    );
+    for (final fingerprint in fingerprints) {
+      expect(fingerprint, matches(RegExp(r'^([0-9A-F]{2}:){31}[0-9A-F]{2}$')));
+    }
   });
 
   test('the invite text carries the code in words as well as in the link', () {

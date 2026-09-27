@@ -6775,6 +6775,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This order has no screenshot.'**
   String get adminErrorProof;
+
+  /// No description provided for @bondDossiersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Four Dossiers'**
+  String get bondDossiersTitle;
+
+  /// No description provided for @bondDossiersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They remember. You are in it.'**
+  String get bondDossiersHint;
+
+  /// No description provided for @bondCaseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Cases {count}'**
+  String bondCaseCount(int count);
+
+  /// No description provided for @bondVictoryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Victories {count}'**
+  String bondVictoryCount(int count);
+
+  /// No description provided for @bondWitnessCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Witnesses {count}'**
+  String bondWitnessCount(int count);
+
+  /// No description provided for @bondPersonalCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal {count}'**
+  String bondPersonalCount(int count);
+
+  /// No description provided for @bondLockedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish a case with this character at the table.'**
+  String get bondLockedLine;
+
+  /// No description provided for @bondMafiaTier1.
+  ///
+  /// In en, this message translates to:
+  /// **'I remember this table. It knew when to keep quiet.'**
+  String get bondMafiaTier1;
+
+  /// No description provided for @bondMafiaTier2.
+  ///
+  /// In en, this message translates to:
+  /// **'A clean story needs fewer words than a nervous one.'**
+  String get bondMafiaTier2;
+
+  /// No description provided for @bondMafiaTier3.
+  ///
+  /// In en, this message translates to:
+  /// **'You have learned that patience can look like innocence.'**
+  String get bondMafiaTier3;
+
+  /// No description provided for @bondMafiaTier4.
+  ///
+  /// In en, this message translates to:
+  /// **'The room changes when you enter. That is influence.'**
+  String get bondMafiaTier4;
+
+  /// No description provided for @bondDoctorTier1.
+  ///
+  /// In en, this message translates to:
+  /// **'Not every rescue is seen. It still counts.'**
+  String get bondDoctorTier1;
+
+  /// No description provided for @bondDoctorTier2.
+  ///
+  /// In en, this message translates to:
+  /// **'You are beginning to hear danger before it knocks.'**
+  String get bondDoctorTier2;
+
+  /// No description provided for @bondDoctorTier3.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving the right moment matters more than saving face.'**
+  String get bondDoctorTier3;
+
+  /// No description provided for @bondDoctorTier4.
+  ///
+  /// In en, this message translates to:
+  /// **'The table breathes easier when you keep watch.'**
+  String get bondDoctorTier4;
+
+  /// No description provided for @bondDetectiveTier1.
+  ///
+  /// In en, this message translates to:
+  /// **'One case is enough to teach the value of doubt.'**
+  String get bondDetectiveTier1;
+
+  /// No description provided for @bondDetectiveTier2.
+  ///
+  /// In en, this message translates to:
+  /// **'A changed story leaves a clearer print than a loud one.'**
+  String get bondDetectiveTier2;
+
+  /// No description provided for @bondDetectiveTier3.
+  ///
+  /// In en, this message translates to:
+  /// **'You notice the pause before the answer now.'**
+  String get bondDetectiveTier3;
+
+  /// No description provided for @bondDetectiveTier4.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing escapes you except what has not happened yet.'**
+  String get bondDetectiveTier4;
+
+  /// No description provided for @bondCitizenTier1.
+  ///
+  /// In en, this message translates to:
+  /// **'A town survives because somebody keeps listening.'**
+  String get bondCitizenTier1;
+
+  /// No description provided for @bondCitizenTier2.
+  ///
+  /// In en, this message translates to:
+  /// **'You have learned when the simple question is strongest.'**
+  String get bondCitizenTier2;
+
+  /// No description provided for @bondCitizenTier3.
+  ///
+  /// In en, this message translates to:
+  /// **'The table follows facts when you hold your ground.'**
+  String get bondCitizenTier3;
+
+  /// No description provided for @bondCitizenTier4.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the memory of every room you leave behind.'**
+  String get bondCitizenTier4;
+
+  /// No description provided for @bondHomeMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'The Mafia remembers a victory nobody could stop.'**
+  String get bondHomeMafia;
+
+  /// No description provided for @bondHomeDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'The Doctor remembers the night everyone came home.'**
+  String get bondHomeDoctor;
+
+  /// No description provided for @bondHomeDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'The Detective has kept your files. It has been a while.'**
+  String get bondHomeDetective;
+
+  /// No description provided for @bondHomeCitizen.
+  ///
+  /// In en, this message translates to:
+  /// **'The Citizen is waiting for the table to gather again.'**
+  String get bondHomeCitizen;
+
+  /// No description provided for @bondMomentMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'The Mafia closes this file with a quiet smile.'**
+  String get bondMomentMafia;
+
+  /// No description provided for @bondMomentDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'The Doctor counts who remained standing.'**
+  String get bondMomentDoctor;
+
+  /// No description provided for @bondMomentDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'The Detective writes the last fact in the margin.'**
+  String get bondMomentDetective;
+
+  /// No description provided for @bondMomentCitizen.
+  ///
+  /// In en, this message translates to:
+  /// **'The Citizen keeps this case for the next gathering.'**
+  String get bondMomentCitizen;
+
+  /// No description provided for @bondTitleMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeper of the Quiet Room'**
+  String get bondTitleMafia;
+
+  /// No description provided for @bondTitleDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Guardian of the Last Lamp'**
+  String get bondTitleDoctor;
+
+  /// No description provided for @bondTitleDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'Reader of the Unsaid'**
+  String get bondTitleDetective;
+
+  /// No description provided for @bondTitleCitizen.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory of the Table'**
+  String get bondTitleCitizen;
+
+  /// No description provided for @bondScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'They remember. You are in it.'**
+  String get bondScreenSubtitle;
+
+  /// No description provided for @bondSealedLetter.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed letter · opens in {count} cases'**
+  String bondSealedLetter(int count);
+
+  /// No description provided for @bondLettersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Letters to you'**
+  String get bondLettersTitle;
+
+  /// No description provided for @bondOpenAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All dossiers'**
+  String get bondOpenAll;
+
+  /// No description provided for @bondNewLetter.
+  ///
+  /// In en, this message translates to:
+  /// **'A new letter from {name}'**
+  String bondNewLetter(String name);
+
+  /// No description provided for @bondStrangerLine.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not sat at this table yet.'**
+  String get bondStrangerLine;
 }
 
 class _AppLocalizationsDelegate

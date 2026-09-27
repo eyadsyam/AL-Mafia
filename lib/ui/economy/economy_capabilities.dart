@@ -74,6 +74,7 @@ class FunCapabilities {
   final bool awards;
   final bool reactions;
   final bool founder;
+  final bool characterBonds;
 
   /// The server answers the phase-109 actions at all (it sent the key).
   final bool known;
@@ -81,6 +82,7 @@ class FunCapabilities {
     this.awards = false,
     this.reactions = false,
     this.founder = false,
+    this.characterBonds = false,
     this.known = false,
   });
 
@@ -92,6 +94,7 @@ class FunCapabilities {
       awards: json['awards'] == true,
       reactions: json['reactions'] == true,
       founder: json['founder'] == true,
+      characterBonds: json['characterBonds'] == true,
       known: true,
     );
   }

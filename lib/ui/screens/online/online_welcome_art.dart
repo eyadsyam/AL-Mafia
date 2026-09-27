@@ -4,6 +4,7 @@ import '../../../platform/reduce_motion.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
+import '../../widgets/feathered_art.dart';
 
 /// A public doorway flourish, never shown on a private role surface.
 class OnlineWelcomeArt extends StatelessWidget {
@@ -16,8 +17,9 @@ class OnlineWelcomeArt extends StatelessWidget {
     }
     return SizedBox(
       height: CouncilTokens.welcomeArtHeight,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(context.radii.card),
+      // No box: the table melts into the room, and the words sit on it.
+      child: Padding(
+        padding: EdgeInsets.zero,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -35,11 +37,13 @@ class OnlineWelcomeArt extends StatelessWidget {
               builder: (_, scale, child) =>
                   Transform.scale(scale: scale, child: child),
               child: RepaintBoundary(
-                child: Image.asset(
-                  AppCouncilArt.onlineWelcome,
-                  fit: BoxFit.cover,
-                  excludeFromSemantics: true,
-                  errorBuilder: (_, _, _) => const SizedBox.expand(),
+                child: FeatheredArt(
+                  child: Image.asset(
+                    AppCouncilArt.onlineWelcome,
+                    fit: BoxFit.cover,
+                    excludeFromSemantics: true,
+                    errorBuilder: (_, _, _) => const SizedBox.expand(),
+                  ),
                 ),
               ),
             ),

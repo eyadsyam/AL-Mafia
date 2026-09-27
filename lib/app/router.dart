@@ -35,11 +35,13 @@ import '../ui/screens/setup/how_to_play_screen.dart';
 import '../ui/screens/setup/roles_screen.dart';
 import '../ui/screens/setup/settings_screen.dart';
 import '../ui/screens/setup/setup_draft.dart';
+import '../ui/fun/characters_screen.dart';
 
 /// Route paths, in one place so navigation calls cannot drift from the table.
 abstract final class Routes {
   static const home = '/';
   static const profile = '/profile';
+  static const characters = '/characters';
   static const mode = '/mode';
   static const groups = '/setup/groups';
   static const players = '/setup/players';
@@ -93,6 +95,7 @@ String? systemBackTarget(String location, {bool hasGroups = true}) {
   if (location == Routes.lobby) return Routes.online;
   if (RegExp(r'^/join/[^/]+$').hasMatch(location)) return Routes.online;
   if (location == Routes.profile ||
+      location == Routes.characters ||
       location == Routes.defaults ||
       location == Routes.history ||
       location == Routes.analytics ||
@@ -270,6 +273,7 @@ GoRouter buildRouter(
             onSettings: () => forwardTo(context, Routes.defaults),
             onHowToPlay: () => context.go(Routes.onboarding),
             onProfile: () => forwardTo(context, Routes.profile),
+            onCharacters: () => forwardTo(context, Routes.characters),
             store: SupabaseConfig.isConfigured
                 ? const CoinStoreButton(compact: true)
                 : null,
@@ -279,11 +283,17 @@ GoRouter buildRouter(
       ),
       GoRoute(
         path: Routes.profile,
+        builder: (context, state) => ProfileScreen(
+          onSaved: () => context.go(Routes.home),
+          onBack: () => context.go(Routes.home),
+          onCharacters: () => forwardTo(context, Routes.characters),
+        ),
+      ),
+      // The Four Dossiers (1.1.0): public, outside any match.
+      GoRoute(
+        path: Routes.characters,
         builder: (context, state) =>
-            ProfileScreen(
-              onSaved: () => context.go(Routes.home),
-              onBack: () => context.go(Routes.home),
-            ),
+            CharactersScreen(onBack: () => context.go(Routes.home)),
       ),
       // S-01a. Both answers are the same size, and online is offered whether
       // or not this build has a project — a card that explains itself is

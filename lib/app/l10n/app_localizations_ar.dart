@@ -3875,4 +3875,141 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminErrorProof => 'الطلب ده مفيهوش صورة.';
+
+  @override
+  String get bondDossiersTitle => 'الملفات الأربعة';
+
+  @override
+  String get bondDossiersHint => 'ليهم ذاكرة. وإنت فيها.';
+
+  @override
+  String bondCaseCount(int count) {
+    return 'قضايا $count';
+  }
+
+  @override
+  String bondVictoryCount(int count) {
+    return 'انتصارات $count';
+  }
+
+  @override
+  String bondWitnessCount(int count) {
+    return 'شهادات $count';
+  }
+
+  @override
+  String bondPersonalCount(int count) {
+    return 'لقاءات شخصية $count';
+  }
+
+  @override
+  String get bondLockedLine => 'خلّص قضية والشخصية دي موجودة على الترابيزة.';
+
+  @override
+  String get bondMafiaTier1 => 'فاكر الترابيزة دي. كانت عارفة إمتى تسكت.';
+
+  @override
+  String get bondMafiaTier2 =>
+      'الحكاية المظبوطة كلامها أقل من الحكاية الخايفة.';
+
+  @override
+  String get bondMafiaTier3 => 'اتعلمت إن الصبر ساعات بيبان براءة.';
+
+  @override
+  String get bondMafiaTier4 => 'الأوضة بتتغير لما تدخل. دي اسمها هيبة.';
+
+  @override
+  String get bondDoctorTier1 => 'مش كل نجدة بتتشاف، بس كلها بتتحسب.';
+
+  @override
+  String get bondDoctorTier2 => 'بقيت تسمع الخطر قبل ما يخبط.';
+
+  @override
+  String get bondDoctorTier3 => 'إنقاذ اللحظة الصح أهم من إنقاذ الشكل.';
+
+  @override
+  String get bondDoctorTier4 => 'الترابيزة بتتنفس أهدى وإنت صاحي لها.';
+
+  @override
+  String get bondDetectiveTier1 => 'قضية واحدة كفاية تعرفك قيمة الشك.';
+
+  @override
+  String get bondDetectiveTier2 =>
+      'الكلام اللي اتغير بيسيب أثر أوضح من الصوت العالي.';
+
+  @override
+  String get bondDetectiveTier3 => 'دلوقتي بتلاحظ السكتة اللي قبل الإجابة.';
+
+  @override
+  String get bondDetectiveTier4 => 'مفيش حاجة بتفوتك غير اللي لسه ما حصلتش.';
+
+  @override
+  String get bondCitizenTier1 => 'البلد بتعيش عشان فيه حد لسه بيسمع.';
+
+  @override
+  String get bondCitizenTier2 => 'اتعلمت إمتى السؤال البسيط يبقى هو الأقوى.';
+
+  @override
+  String get bondCitizenTier3 => 'الترابيزة بتمشي ورا الحقيقة لما تثبت مكانك.';
+
+  @override
+  String get bondCitizenTier4 => 'إنت ذاكرة كل أوضة بتسيبها وراك.';
+
+  @override
+  String get bondHomeMafia => 'المافيا لسه فاكرة فوز محدش عرف يوقفه.';
+
+  @override
+  String get bondHomeDoctor => 'الدكتور فاكر الليلة اللي الكل رجع منها.';
+
+  @override
+  String get bondHomeDetective => 'المحقق محتفظ بملفاتك. غبت شوية.';
+
+  @override
+  String get bondHomeCitizen => 'المواطن مستني الترابيزة تتلم من جديد.';
+
+  @override
+  String get bondMomentMafia => 'المافيا بتقفل الملف بابتسامة هادية.';
+
+  @override
+  String get bondMomentDoctor => 'الدكتور بيعدّ مين فضل واقف.';
+
+  @override
+  String get bondMomentDetective => 'المحقق بيكتب آخر حقيقة على الهامش.';
+
+  @override
+  String get bondMomentCitizen => 'المواطن شايل القضية دي للقعدة الجاية.';
+
+  @override
+  String get bondTitleMafia => 'حارس الأوضة الساكتة';
+
+  @override
+  String get bondTitleDoctor => 'حارس آخر نور';
+
+  @override
+  String get bondTitleDetective => 'قارئ الكلام اللي ما اتقالش';
+
+  @override
+  String get bondTitleCitizen => 'ذاكرة الترابيزة';
+
+  @override
+  String get bondScreenSubtitle => 'ليهم ذاكرة. وإنت فيها.';
+
+  @override
+  String bondSealedLetter(int count) {
+    return 'رسالة مختومة · تتفتح بعد $count قضايا';
+  }
+
+  @override
+  String get bondLettersTitle => 'رسايلها ليك';
+
+  @override
+  String get bondOpenAll => 'كل الملفات';
+
+  @override
+  String bondNewLetter(String name) {
+    return 'رسالة جديدة من $name';
+  }
+
+  @override
+  String get bondStrangerLine => 'لسه ما قعدتش على ترابيزتها.';
 }

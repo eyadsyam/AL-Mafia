@@ -19,7 +19,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'dart:convert';
+
+import 'package:mafia_master/data/character_bonds.dart';
 import 'package:mafia_master/data/memory_match_repository.dart';
+import 'package:mafia_master/engine/models/enums.dart' as engine;
+import 'package:mafia_master/ui/fun/character_dossiers.dart';
+import 'package:mafia_master/ui/fun/characters_screen.dart';
 import 'package:mafia_master/data/online_match_history.dart';
 import 'package:mafia_master/data/repository_provider.dart';
 import 'package:mafia_master/ui/screens/postgame/history_screen.dart';
@@ -135,6 +141,60 @@ void main() {
       tester,
       'mode_ar',
       ModeScreen(onBack: () {}, onPlayOnline: () {}, onPlayOffline: () {}),
+    );
+  });
+
+  String ledgerJson() {
+    var ledger = CharacterBondLedger.empty;
+    for (var i = 0; i < 9; i++) {
+      ledger = progressCharacterBonds(
+        ledger,
+        CharacterBondCase(
+          receiptId: 'local-$i',
+          completedAt: DateTime.utc(2026, 9, 1 + i),
+          winner: i.isEven ? engine.Alignment.town : engine.Alignment.mafia,
+          roles: i < 2
+              ? {engine.Role.mafia, engine.Role.detective, engine.Role.citizen}
+              : engine.Role.values.toSet(),
+          survivingRoles: {engine.Role.citizen, engine.Role.doctor},
+          momentRole: engine.Role.detective,
+        ),
+      );
+    }
+    return jsonEncode(ledger.toJson());
+  }
+
+  for (final role in [engine.Role.mafia, engine.Role.detective]) {
+    testWidgets('characters — ${role.name}', (tester) async {
+      SharedPreferences.setMockInitialValues({
+        CharacterBondStore.storageKey: ledgerJson(),
+      });
+      await shoot(
+        tester,
+        'characters_${role.name}_ar',
+        CharactersScreen(onBack: () {}, initial: role),
+      );
+    });
+  }
+
+  testWidgets('dossier strip + home whisper', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      CharacterBondStore.storageKey: ledgerJson(),
+    });
+    await shoot(
+      tester,
+      'dossier_strip_ar',
+      Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              BondHomeLine(onTap: () {}),
+              CharacterDossiers(onOpen: () {}),
+            ],
+          ),
+        ),
+      ),
     );
   });
 }
