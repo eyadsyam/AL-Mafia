@@ -4734,4 +4734,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String lobbyReadyCount(int ready, int total) {
     return '$ready of $total ready';
   }
+
+  @override
+  String get witnessSeatQuiet => 'Nothing has touched this seat yet';
+
+  @override
+  String get witnessNightTitle => 'At night';
+
+  @override
+  String get witnessWhisperReported => 'Report received';
+
+  @override
+  String get witnessManageSeat => 'Manage seat';
+
+  @override
+  String get witnessLetterOpen => 'Open the whisper';
 }

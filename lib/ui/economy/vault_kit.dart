@@ -40,6 +40,10 @@ class VaultCard extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final CrossAxisAlignment crossAxisAlignment;
 
+  /// [MainAxisSize.min] for a card that should hug its content inside a
+  /// bounded box (a popup), rather than fill it.
+  final MainAxisSize mainAxisSize;
+
   const VaultCard({
     super.key,
     required this.children,
@@ -48,6 +52,7 @@ class VaultCard extends StatelessWidget {
     this.tagOxblood = false,
     this.padding,
     this.crossAxisAlignment = CrossAxisAlignment.stretch,
+    this.mainAxisSize = MainAxisSize.max,
   });
 
   @override
@@ -105,6 +110,7 @@ class VaultCard extends StatelessWidget {
               ),
           child: Column(
             crossAxisAlignment: crossAxisAlignment,
+            mainAxisSize: mainAxisSize,
             children: children,
           ),
         ),

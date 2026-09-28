@@ -8005,6 +8005,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{ready} of {total} ready'**
   String lobbyReadyCount(int ready, int total);
+
+  /// No description provided for @witnessSeatQuiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has touched this seat yet'**
+  String get witnessSeatQuiet;
+
+  /// No description provided for @witnessNightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'At night'**
+  String get witnessNightTitle;
+
+  /// No description provided for @witnessWhisperReported.
+  ///
+  /// In en, this message translates to:
+  /// **'Report received'**
+  String get witnessWhisperReported;
+
+  /// No description provided for @witnessManageSeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage seat'**
+  String get witnessManageSeat;
+
+  /// No description provided for @witnessLetterOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the whisper'**
+  String get witnessLetterOpen;
 }
 
 class _AppLocalizationsDelegate

@@ -1823,5 +1823,10 @@
   "lobbyReadyAction": "أنا جاهز",
   "lobbyUnreadyAction": "مش جاهز",
   "lobbyReadyCount": "{ready} من {total} جاهزين",
-  "@lobbyReadyCount": {"placeholders": {"ready": {"type": "int"}, "total": {"type": "int"}}}
+  "@lobbyReadyCount": {"placeholders": {"ready": {"type": "int"}, "total": {"type": "int"}}},
+  "witnessSeatQuiet": "لسه محدش عمل حاجة مع الكرسي ده",
+  "witnessNightTitle": "بالليل",
+  "witnessWhisperReported": "وصلنا البلاغ",
+  "witnessManageSeat": "إدارة الكرسي",
+  "witnessLetterOpen": "افتح الهمسة"
 }

@@ -479,6 +479,21 @@ abstract final class CouncilTokens {
   static const double witnessActionThumb = 22;
   static const double witnessOutOpacity = 0.45;
 
+  /// The dead watch from the table itself (owner, 2026-09-28): a mark on a
+  /// seat that something happened to, the faces on a news line, the portrait
+  /// in a seat's dossier, and the seal on a whisper letter.
+  static const double witnessBadge = 26;
+
+  /// Where a seat's mark sits: the box it is centred in, and how far toward
+  /// the seat's upper shoulder its centre is, as a fraction of the diameter.
+  static const double seatMarkSize = 32;
+  static const double seatMarkOffset = 0.36;
+  static const double witnessBadgeIcon = 15;
+  static const double witnessNewsFace = 34;
+  static const double witnessDossierFace = 88;
+  static const double witnessSeal = 44;
+  static const double witnessPopupMaxHeight = 0.62;
+
   /// Diameter of the confrontation timer ring.
   static const double timerRingSize = 96;
 
@@ -977,6 +992,9 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// How often an eliminated player's open table is read again. Night choices
   /// arrive on no stream the witness can see, so they are polled.
   static const witnessRefresh = Duration(seconds: 4);
+
+  /// How long one line of the dead's news stays over the table.
+  static const witnessNewsHold = Duration(milliseconds: 2800);
 
   /// How long «{name} بقى الهوست» stays on screen after a host migration.
   static const hostHandover = Duration(seconds: 3);

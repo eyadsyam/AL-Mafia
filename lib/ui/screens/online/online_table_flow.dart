@@ -35,7 +35,7 @@ import 'scene_sheet.dart';
 import 'online_session.dart';
 import 'rewarded_reward_button.dart';
 import '../../economy/council_hub.dart' show CouncilResultStrip;
-import '../../economy/vault_kit.dart' show ScrollFadeEdge;
+import '../../economy/vault_kit.dart' show ScrollFadeEdge, VaultCard;
 import 'result_share_button.dart';
 import '../../fun/award_ribbon.dart' show OnlineAwardsStrip;
 import '../../fun/reactions.dart';
@@ -49,7 +49,7 @@ import 'witness/own_record.dart';
 import 'witness/witness_panel.dart';
 import '../../widgets/card_art.dart';
 import 'witness/kill_jumpscare.dart';
-import 'witness/witness_side_sheet.dart';
+import 'witness/witness_layer.dart';
 import '../../../transport/witness_channel.dart';
 
 /// The online match, as one table that changes state (doc 12 §2.1, §3).
@@ -254,8 +254,20 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   /// choice. Null for the living, always — the server refuses them.
   WitnessTable? _witnessTable;
 
-  /// Whether the witness side sheet is pulled out.
-  bool _witnessOpen = false;
+  /// The dead's news (owner, 2026-09-28): what is waiting, what is showing,
+  /// and the clock that takes it down.
+  final List<WitnessNews> _newsQueue = [];
+  WitnessNews? _news;
+  Timer? _newsTimer;
+
+  /// The witness's popups: an opened whisper, a seat's dossier, or one of the
+  /// dock's pages. At most one is open.
+  WitnessWhisper? _letter;
+  int? _dossier;
+  WitnessPanelTab? _witnessPage;
+
+  /// Whispers this witness has opened, so their seals stop breathing.
+  final Set<String> _openedLetters = <String>{};
 
   /// Keeps the table the same element while the witness grey is put on it.
   final GlobalKey _tableKey = GlobalKey();
@@ -325,6 +337,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   void dispose() {
     _privateRetry?.cancel();
     _witnessPoll?.cancel();
+    _newsTimer?.cancel();
     _warning?.cancel();
     _tear.dispose();
     _sparkFlight.dispose();
@@ -687,12 +700,47 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     if (_witnessPoll != null) return;
     Future<void> pull() async {
       final table = await channel.table();
-      if (mounted && table != null) setState(() => _witnessTable = table);
+      if (!mounted || table == null) return;
+      final news = witnessNewsSince(_witnessTable, table);
+      setState(() {
+        _witnessTable = table;
+        _newsQueue.addAll(news);
+      });
+      _nextNews();
     }
 
     unawaited(pull());
     _witnessPoll = Timer.periodic(MafiaTiming.witnessRefresh, (_) => pull());
   }
+
+  /// Puts the next line of the dead's news over the table, and flies a night
+  /// choice from the seat that made it to the seat it chose. Whispers already
+  /// fly for everybody from the snapshot's whisper graph.
+  void _nextNews() {
+    if (_news != null || _newsQueue.isEmpty || !mounted) return;
+    final news = _newsQueue.removeAt(0);
+    setState(() => _news = news);
+    if (news.action != null && _spark == null) {
+      _flyWhisper(news.fromSeat, news.toSeat);
+    }
+    _newsTimer?.cancel();
+    _newsTimer = Timer(MafiaTiming.witnessNewsHold, () {
+      if (!mounted) return;
+      setState(() => _news = null);
+      _nextNews();
+    });
+  }
+
+  void _openLetter(WitnessWhisper whisper) => setState(() {
+    _openedLetters.add(whisper.id);
+    _dossier = null;
+    _witnessPage = null;
+    _letter = whisper;
+  });
+
+  Map<int, String> _names(GameSnapshot snapshot) => {
+    for (final player in snapshot.public.players) player.seat: player.name,
+  };
 
   /// Every other seat has left the room while the match is still running.
   bool _abandoned(GameSnapshot snapshot) {
@@ -940,9 +988,19 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 
     _syncWitness(dead && _mourned && !_matchOver(snapshot));
 
+    final witnessing = dead && _mourned && !_matchOver(snapshot);
     final table = TableScene(
       snapshot: snapshot,
       witnessRoles: _witnessTable?.roles ?? const {},
+      seatMarks: witnessing
+          ? witnessSeatMarks(
+              snapshot: snapshot,
+              table: _witnessTable,
+              opened: _openedLetters,
+              onOpenLetter: _openLetter,
+              onOpenSeat: (seat) => setState(() => _dossier = seat),
+            )
+          : const {},
       speakingLevels: voice?.speakingLevels ?? const {},
       selectedSeat: _selected,
       selectableSeats: _selectable(snapshot, state),
@@ -961,7 +1019,11 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       onCloseRoom: snapshot.canAdvance
           ? () => setState(() => _closing = true)
           : null,
-      onSeatInspect: snapshot.canAdvance
+      // A witness taps a seat to open its dossier; a dead host manages the
+      // seat from inside it.
+      onSeatInspect: witnessing && _witnessTable != null
+          ? (seat) => setState(() => _dossier = seat)
+          : snapshot.canAdvance
           ? (seat) => setState(() => _inspect = seat)
           : null,
       revealProgress: _turn.value,
@@ -976,8 +1038,19 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       // no «الرئيسية» to press.
       // The witness panel is a side sheet now (see below); the hand is empty
       // for a witness so the table keeps the room.
-      footer: dead && _mourned && !_matchOver(snapshot)
-          ? null
+      footer: witnessing
+          ? WitnessDock(
+              onChat: () => setState(() {
+                _letter = null;
+                _dossier = null;
+                _witnessPage = WitnessPanelTab.chat;
+              }),
+              onRecord: () => setState(() {
+                _letter = null;
+                _dossier = null;
+                _witnessPage = WitnessPanelTab.record;
+              }),
+            )
           : _footer(context, snapshot, state),
     );
 
@@ -988,8 +1061,12 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     // The grey drains in over the beat rather than arriving in one frame, and
     // the table keeps its identity while the filter goes on: without the key,
     // wrapping it re-created every seat and restarted every animation on it.
+    //
+    // Owner, 2026-09-28: the grey is the beat, not the state. Once it has
+    // played, the colour comes back and the witness watches the table they
+    // were playing at, every seat wearing its character's face.
     final grey =
-        dead && (_mourned || (_mourning && _sting == null && !_scaring));
+        dead && !_mourned && _mourning && _sting == null && !_scaring;
     final ground = TweenAnimationBuilder<double>(
       tween: Tween<double>(end: grey ? 1 : 0),
       duration: ReduceMotion.of(context)
@@ -1062,14 +1139,77 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
             ),
           // Above the curtain and the verdict: an open sheet is where the
           // witness is looking, and a title drawn across it read as clutter.
-          if (dead && _mourned && !_matchOver(snapshot))
-            WitnessSideSheet(
-              open: _witnessOpen,
-              onOpenChanged: (open) => setState(() => _witnessOpen = open),
-              child: WitnessPanel(
-                snapshot: snapshot,
-                channel: _controller.transport.witness,
-                table: _witnessTable,
+          if (witnessing && _witnessTable != null) ...[
+            if (_news case final news?)
+              PositionedDirectional(
+                top:
+                    MediaQuery.paddingOf(context).top +
+                    CouncilTokens.headerHeight +
+                    context.spacing.sm,
+                start: context.spacing.screenMargin,
+                end: context.spacing.screenMargin,
+                child: AnimatedSwitcher(
+                  duration: ReduceMotion.of(context)
+                      ? Duration.zero
+                      : context.motion.band,
+                  transitionBuilder: bandTransition,
+                  child: WitnessNewsLine(
+                    key: ValueKey(news.id),
+                    news: news,
+                    table: _witnessTable!,
+                    names: _names(snapshot),
+                    onTap: switch (news.whisper) {
+                      final whisper? => () => _openLetter(whisper),
+                      null => () => setState(() => _dossier = news.toSeat),
+                    },
+                  ),
+                ),
+              ),
+            if (_dossier case final seat?)
+              WitnessPopup(
+                onDismiss: () => setState(() => _dossier = null),
+                child: WitnessDossier(
+                  seat: seat,
+                  snapshot: snapshot,
+                  table: _witnessTable!,
+                  onOpenLetter: _openLetter,
+                  onManage: snapshot.canAdvance
+                      ? () => setState(() {
+                          _dossier = null;
+                          _inspect = seat;
+                        })
+                      : null,
+                ),
+              ),
+            if (_letter case final letter?)
+              WitnessPopup(
+                onDismiss: () => setState(() => _letter = null),
+                child: WitnessLetter(
+                  key: ValueKey('letter-${letter.id}'),
+                  whisper: letter,
+                  table: _witnessTable!,
+                  names: _names(snapshot),
+                  channel: _controller.transport.witness,
+                ),
+              ),
+          ],
+          if (witnessing && _witnessPage != null)
+            WitnessPopup(
+              fill: true,
+              onDismiss: () => setState(() => _witnessPage = null),
+              child: VaultCard(
+                lit: true,
+                padding: EdgeInsets.zero,
+                children: [
+                  Expanded(
+                    child: WitnessPanel(
+                      only: _witnessPage,
+                      snapshot: snapshot,
+                      channel: _controller.transport.witness,
+                      table: _witnessTable,
+                    ),
+                  ),
+                ],
               ),
             ),
           if (_composing) _composer(context, snapshot),

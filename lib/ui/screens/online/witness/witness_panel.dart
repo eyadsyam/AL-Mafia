@@ -19,8 +19,15 @@ import 'own_record.dart';
 /// *"spectate the table — full view of every phase, live"*, and a chat that
 /// covered the game they are still watching would defeat the row above it. The
 /// sheet is a third of the screen and the table keeps the rest.
+/// One of the panel's three pages.
+enum WitnessPanelTab { table, chat, record }
+
 class WitnessPanel extends ConsumerStatefulWidget {
   final GameSnapshot snapshot;
+
+  /// Just this page, with no tabs: how the table's dock opens the graveyard
+  /// chat and the record as popups (owner, 2026-09-28). Null for all three.
+  final WitnessPanelTab? only;
 
   /// The graveyard, or null when this transport has none — offline, where an
   /// eliminated player is still at the table and this panel never appears.
@@ -37,6 +44,7 @@ class WitnessPanel extends ConsumerStatefulWidget {
     required this.snapshot,
     this.channel,
     this.table,
+    this.only,
   });
 
   static const Key tabs = ValueKey('witness_tabs');
@@ -49,7 +57,9 @@ class WitnessPanel extends ConsumerStatefulWidget {
 
 class _WitnessPanelState extends ConsumerState<WitnessPanel>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabs = TabController(length: 3, vsync: this);
+  // Made in initState, not lazily: in single-page mode nothing reads it until
+  // dispose, where a lazy one would look up its ticker on a dead element.
+  late final TabController _tabs;
 
   final TextEditingController _draft = TextEditingController();
   final ScrollController _scroll = ScrollController();
@@ -62,6 +72,7 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
   @override
   void initState() {
     super.initState();
+    _tabs = TabController(length: 3, vsync: this);
     final channel = widget.channel;
     if (channel == null) return;
 
@@ -113,6 +124,15 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
     final spacing = context.spacing;
     final radii = context.radii;
     final l10n = context.l10n;
+
+    final only = widget.only;
+    if (only != null) {
+      return switch (only) {
+        WitnessPanelTab.table => _table(context),
+        WitnessPanelTab.chat => _chat(context),
+        WitnessPanelTab.record => _record(context),
+      };
+    }
 
     return Container(
       decoration: BoxDecoration(

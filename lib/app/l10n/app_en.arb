@@ -2818,5 +2818,10 @@
   "lobbyReadyAction": "Ready",
   "lobbyUnreadyAction": "Not ready",
   "lobbyReadyCount": "{ready} of {total} ready",
-  "@lobbyReadyCount": {"placeholders": {"ready": {"type": "int"}, "total": {"type": "int"}}}
+  "@lobbyReadyCount": {"placeholders": {"ready": {"type": "int"}, "total": {"type": "int"}}},
+  "witnessSeatQuiet": "Nothing has touched this seat yet",
+  "witnessNightTitle": "At night",
+  "witnessWhisperReported": "Report received",
+  "witnessManageSeat": "Manage seat",
+  "witnessLetterOpen": "Open the whisper"
 }

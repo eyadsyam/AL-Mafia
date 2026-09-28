@@ -261,6 +261,11 @@ class CouncilBand extends StatefulWidget {
   /// painter has no `BuildContext` and no business having one.
   final String? leftLabel;
 
+  /// A small mark on a seat's shoulder, by seat. Drawn above the seat's hit
+  /// area so it takes its own taps. Only the witness layer fills it: the band
+  /// never learns what a mark means.
+  final Map<int, Widget> seatMarks;
+
   const CouncilBand({
     super.key,
     required this.seats,
@@ -277,6 +282,7 @@ class CouncilBand extends StatefulWidget {
     this.joinProgress = const {},
     this.youLabel,
     this.leftLabel,
+    this.seatMarks = const {},
   });
 
   static Key seatKey(int seat) => ValueKey('council_seat_$seat');
@@ -505,6 +511,21 @@ class _CouncilBandState extends State<CouncilBand>
                   ),
                 ),
               ),
+            for (var index = 0; index < positions.length; index++)
+              if (widget.seatMarks[widget.seats[index].seat] case final mark?)
+                Positioned(
+                  left:
+                      positions[index].centre.dx +
+                      positions[index].diameter * CouncilTokens.seatMarkOffset -
+                      CouncilTokens.seatMarkSize / 2,
+                  top:
+                      positions[index].centre.dy -
+                      positions[index].diameter * CouncilTokens.seatMarkOffset -
+                      CouncilTokens.seatMarkSize / 2,
+                  width: CouncilTokens.seatMarkSize,
+                  height: CouncilTokens.seatMarkSize,
+                  child: Center(child: mark),
+                ),
           ],
         );
       },

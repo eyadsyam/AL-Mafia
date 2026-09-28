@@ -4647,4 +4647,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String lobbyReadyCount(int ready, int total) {
     return '$ready من $total جاهزين';
   }
+
+  @override
+  String get witnessSeatQuiet => 'لسه محدش عمل حاجة مع الكرسي ده';
+
+  @override
+  String get witnessNightTitle => 'بالليل';
+
+  @override
+  String get witnessWhisperReported => 'وصلنا البلاغ';
+
+  @override
+  String get witnessManageSeat => 'إدارة الكرسي';
+
+  @override
+  String get witnessLetterOpen => 'افتح الهمسة';
 }

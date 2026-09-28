@@ -86,6 +86,9 @@ class TableScene extends StatelessWidget {
   /// `witness_view` answered. Empty for every living player, always.
   final Map<int, engine.Role> witnessRoles;
 
+  /// Marks on seats, for an eliminated viewer only (see `witness_layer.dart`).
+  final Map<int, Widget> seatMarks;
+
   const TableScene({
     super.key,
     required this.snapshot,
@@ -103,6 +106,7 @@ class TableScene extends StatelessWidget {
     this.onCloseRoom,
     this.onSeatInspect,
     this.witnessRoles = const {},
+    this.seatMarks = const {},
   });
 
   static const Key surface = ValueKey('table_scene');
@@ -279,6 +283,7 @@ class TableScene extends StatelessWidget {
                       spotlight: spotlight,
                       revealProgress: revealProgress,
                       leftLabel: context.l10n.onlineLeftRoom,
+                      seatMarks: seatMarks,
                     ),
                   ),
                   Expanded(
