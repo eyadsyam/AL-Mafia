@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../app/asset_constants.dart';
@@ -67,12 +69,39 @@ enum TableWeather {
   };
 }
 
+/// How long the weather has lasted (1.1 F8): a wobble is not an outage.
+enum WeatherStage {
+  /// The first [MafiaTiming.reconnectStrip]: one neutral line, no fog. The
+  /// table stays exactly as it was, because most wobbles end here.
+  strip,
+
+  /// Past that: the fog and the drained colour, persistent.
+  surface,
+
+  /// Past [MafiaTiming.reconnectRetry]: the same, plus a way to try now.
+  retry;
+
+  static WeatherStage after(Duration elapsed) =>
+      elapsed >= MafiaTiming.reconnectRetry
+      ? retry
+      : elapsed >= MafiaTiming.reconnectStrip
+      ? surface
+      : strip;
+}
+
 /// Fog, desaturation and one line of copy over the table.
 ///
 /// Everything below the fog stays visible in every state. Doc 12 §5: *"a
 /// frozen, foggy table is far better than an error screen."*
-class ConnectionWeather extends StatelessWidget {
+///
+/// 1.1 F8: the weather is staged by how long it has lasted, the same for
+/// every role and every phase (a stage that depended on either would be a
+/// channel), and it never gives up the room on its own.
+class ConnectionWeather extends StatefulWidget {
   final TableWeather weather;
+
+  /// Offered from [WeatherStage.retry]: reads the room again now.
+  final VoidCallback? onRetry;
 
   /// Offered only when the weather is [TableWeather.unreachable] and the caller
   /// has somewhere to send them. Null hides the affordance rather than showing
@@ -86,8 +115,10 @@ class ConnectionWeather extends StatelessWidget {
     required this.weather,
     required this.child,
     this.onPlayOffline,
+    this.onRetry,
   });
 
+  static const Key retryKey = ValueKey('table_weather_retry');
   static const Key fogKey = ValueKey('table_weather_fog');
   static const Key messageKey = ValueKey('table_weather_message');
   static const Key playOfflineKey = ValueKey('table_weather_play_offline');
@@ -124,14 +155,72 @@ class ConnectionWeather extends StatelessWidget {
   }
 
   @override
+  State<ConnectionWeather> createState() => _ConnectionWeatherState();
+}
+
+class _ConnectionWeatherState extends State<ConnectionWeather> {
+  /// How far the current spell of weather has got. Advanced by timers rather
+  /// than read off a clock, so it follows the same time the rest of the
+  /// table's clocks do.
+  WeatherStage _stage = WeatherStage.strip;
+  final List<Timer> _steps = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _track();
+  }
+
+  @override
+  void didUpdateWidget(ConnectionWeather old) {
+    super.didUpdateWidget(old);
+    if ((old.weather == TableWeather.clear) !=
+        (widget.weather == TableWeather.clear)) {
+      _track();
+    }
+  }
+
+  void _track() {
+    for (final t in _steps) {
+      t.cancel();
+    }
+    _steps.clear();
+    _stage = WeatherStage.strip;
+    if (widget.weather == TableWeather.clear) return;
+    for (final (at, stage) in [
+      (MafiaTiming.reconnectStrip, WeatherStage.surface),
+      (MafiaTiming.reconnectRetry, WeatherStage.retry),
+    ]) {
+      _steps.add(
+        Timer(at, () {
+          if (mounted) setState(() => _stage = stage);
+        }),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final t in _steps) {
+      t.cancel();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final type = context.typography;
     final spacing = context.spacing;
     final motion = context.motion;
     final l10n = context.l10n;
+    final weather = widget.weather;
+    final child = widget.child;
+    final onPlayOffline = widget.onPlayOffline;
 
     if (weather == TableWeather.clear) return child;
+    final stage = _stage;
+    final strip = stage == WeatherStage.strip;
 
     final message = switch (weather) {
       TableWeather.clear => '',
@@ -148,12 +237,17 @@ class ConnectionWeather extends StatelessWidget {
         // frame of a match played on a bad train.
         ColorFiltered(
           colorFilter: ColorFilter.matrix(
-            saturationMatrix(weather.desaturation),
+            ConnectionWeather.saturationMatrix(
+              strip ? 0 : weather.desaturation,
+            ),
           ),
           child: IgnorePointer(ignoring: weather.freezesInput, child: child),
         ),
         IgnorePointer(
-          child: _Fog(key: fogKey, density: weather.fog),
+          child: _Fog(
+            key: ConnectionWeather.fogKey,
+            density: strip ? 0 : weather.fog,
+          ),
         ),
         // The words. Positioned at the top so they never sit over the centre,
         // which is where the phase's own content lives.
@@ -176,17 +270,31 @@ class ConnectionWeather extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      key: messageKey,
+                      key: ConnectionWeather.messageKey,
                       message,
                       textAlign: TextAlign.center,
                       // Muted, not crimson. See the enum's doc comment.
                       style: type.caption.copyWith(color: colors.textSecondary),
                     ),
+                    if (stage == WeatherStage.retry &&
+                        widget.onRetry != null) ...[
+                      SizedBox(height: spacing.xs),
+                      TextButton(
+                        key: ConnectionWeather.retryKey,
+                        onPressed: widget.onRetry,
+                        child: Text(
+                          l10n.onlineWeatherRetry,
+                          style: type.caption.copyWith(
+                            color: colors.accentGold,
+                          ),
+                        ),
+                      ),
+                    ],
                     if (weather == TableWeather.unreachable &&
                         onPlayOffline != null) ...[
                       SizedBox(height: spacing.xs),
                       TextButton(
-                        key: playOfflineKey,
+                        key: ConnectionWeather.playOfflineKey,
                         onPressed: onPlayOffline,
                         child: Text(
                           l10n.onlinePlayOffline,

@@ -8035,6 +8035,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open the whisper'**
   String get witnessLetterOpen;
+
+  /// No description provided for @onlineWeatherRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try now'**
+  String get onlineWeatherRetry;
 }
 
 class _AppLocalizationsDelegate

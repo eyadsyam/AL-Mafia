@@ -4662,4 +4662,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get witnessLetterOpen => 'افتح الهمسة';
+
+  @override
+  String get onlineWeatherRetry => 'جرّب دلوقتي';
 }

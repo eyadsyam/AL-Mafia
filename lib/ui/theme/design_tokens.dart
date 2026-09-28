@@ -1004,6 +1004,11 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// arrive on no stream the witness can see, so they are polled.
   static const witnessRefresh = Duration(seconds: 4);
 
+  /// 1.1 F8 reconnect: a neutral strip until the first, the persistent
+  /// surface after it, a manual retry after the second.
+  static const reconnectStrip = Duration(seconds: 6);
+  static const reconnectRetry = Duration(seconds: 15);
+
   /// How long one line of the dead's news stays over the table.
   static const witnessNewsHold = Duration(milliseconds: 2800);
 

@@ -4749,4 +4749,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get witnessLetterOpen => 'Open the whisper';
+
+  @override
+  String get onlineWeatherRetry => 'Try now';
 }

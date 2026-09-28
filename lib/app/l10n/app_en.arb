@@ -2823,5 +2823,6 @@
   "witnessNightTitle": "At night",
   "witnessWhisperReported": "Report received",
   "witnessManageSeat": "Manage seat",
-  "witnessLetterOpen": "Open the whisper"
+  "witnessLetterOpen": "Open the whisper",
+  "onlineWeatherRetry": "Try now"
 }

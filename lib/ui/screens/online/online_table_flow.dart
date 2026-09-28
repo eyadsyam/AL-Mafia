@@ -1086,6 +1086,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     return ConnectionWeather(
       weather: TableWeather.of(snapshot.connection),
       onPlayOffline: widget.onExit,
+      onRetry: () => unawaited(_controller.transport.resync()),
       child: Stack(
         fit: StackFit.expand,
         children: [
