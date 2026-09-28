@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,12 +7,14 @@ import 'package:mafia_master/transport/account_auth.dart';
 import 'package:mafia_master/transport/account_service.dart';
 import 'package:mafia_master/ui/account/account_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' show AuthException;
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthException, AuthState;
 
 import '../support/localized.dart';
 
 class _FakeAuth extends AccountAuth {
-  _FakeAuth() : super(() => throw UnimplementedError(), ensureSession: () async {});
+  _FakeAuth()
+    : super(() => throw UnimplementedError(), ensureSession: () async {});
 
   final calls = <String>[];
   String? failWith;
@@ -44,6 +48,8 @@ class _FakeAuth extends AccountAuth {
       _step('finishReset:$code', _signed);
   @override
   Future<void> google() => _step('google', null);
+  @override
+  Future<void> googleSignIn() => _step('googleSignIn', null);
 }
 
 void main() {
@@ -112,7 +118,9 @@ void main() {
     expect(find.textContaining('eyad@example.com'), findsOneWidget);
     expect(find.byKey(AccountSheet.codeKey), findsOneWidget);
     // Resend waits out its cooldown.
-    final resend = tester.widget<TextButton>(find.byKey(AccountSheet.resendKey));
+    final resend = tester.widget<TextButton>(
+      find.byKey(AccountSheet.resendKey),
+    );
     expect(resend.onPressed, isNull);
 
     await type(tester, AccountSheet.codeKey, '123456');
@@ -188,6 +196,66 @@ void main() {
     expect(code('manual_linking_disabled'), 'PROVIDER_OFF');
     expect(code('something_else'), 'UNAVAILABLE');
   });
+
+  // D1 — a Google return that failed arrives on the auth stream, not from the
+  // call that opened the browser.
+  test('a refusal on the auth stream becomes the failure the sheet reads', () {
+    final states = StreamController<AuthState>();
+    addTearDown(states.close);
+    final profiles = AccountAuth.profileChanges(states.stream, () => null);
+    expect(
+      profiles,
+      emitsError(
+        isA<AccountFailure>().having((f) => f.code, 'code', 'EMAIL_TAKEN'),
+      ),
+    );
+    states.addError(
+      const AuthException(
+        'Identity is already linked to another user',
+        code: 'identity_already_exists',
+      ),
+    );
+  });
+
+  testWidgets(
+    "a Google account that is another player's is said, and offered",
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      auth = _FakeAuth();
+      final profiles = StreamController<AccountProfile>();
+      addTearDown(profiles.close);
+      await tester.binding.setSurfaceSize(const Size(360, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            accountAuthProvider.overrideWithValue(auth),
+            accountProfileProvider.overrideWith((ref) => profiles.stream),
+          ],
+          child: localizedApp(const Scaffold(body: AccountSheet())),
+        ),
+      );
+      profiles.add(AccountProfile.guest);
+      await tester.pumpAndSettle();
+      expect(find.byKey(AccountSheet.googleExistingKey), findsNothing);
+
+      profiles.addError(const AccountFailure('EMAIL_TAKEN'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(AccountSheet.errorKey), findsOneWidget);
+      expect(
+        find.byKey(AccountSheet.googleKey),
+        findsOneWidget,
+        reason: 'the guest hub is still there, not an empty sheet',
+      );
+
+      await tester.ensureVisible(find.byKey(AccountSheet.googleExistingKey));
+      await tester.tap(find.byKey(AccountSheet.googleExistingKey));
+      await tester.pumpAndSettle();
+      expect(auth.calls, ['googleSignIn']);
+      expect(find.byKey(AccountSheet.googleExistingKey), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   test('passwords shorter than eight are refused before any request', () {
     expect(

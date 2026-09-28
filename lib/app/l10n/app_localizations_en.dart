@@ -4242,6 +4242,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authGoogleContinue => 'Finish in the browser, then come back.';
 
   @override
+  String get authGoogleTaken =>
+      'That Google account already belongs to another player. Signing in to it leaves the guest profile on this device.';
+
+  @override
+  String get authGoogleUseExisting => 'Sign in with that Google account';
+
+  @override
   String get authGuestTitle => 'Keep your account with you';
 
   @override

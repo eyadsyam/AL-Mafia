@@ -58,6 +58,7 @@ class AccountSheet extends ConsumerStatefulWidget {
   const AccountSheet({super.key, this.initial = AccountStep.hub});
 
   static const googleKey = ValueKey('account_google');
+  static const googleExistingKey = ValueKey('account_google_existing');
   static const createKey = ValueKey('account_create');
   static const haveKey = ValueKey('account_have');
   static const emailKey = ValueKey('account_email_field');
@@ -86,6 +87,10 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
   bool _remember = true;
   String? _error;
   String? _notice;
+
+  /// A Google return said the account is already another player's; the sheet
+  /// offers to sign in to it instead (D1).
+  bool _googleTaken = false;
   int _cooldown = 0;
   Timer? _timer;
 
@@ -115,6 +120,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     _step = step;
     _error = null;
     _notice = null;
+    _googleTaken = false;
   });
 
   void _startCooldown() {
@@ -176,6 +182,19 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
 
   @override
   Widget build(BuildContext context) {
+    // A refusal that came back with the browser (D1) is said like any other.
+    ref.listen<AsyncValue<AccountProfile>>(accountProfileProvider, (_, next) {
+      final failure = next.error;
+      if (!next.hasError || failure is! AccountFailure) return;
+      setState(() {
+        _busy = false;
+        _notice = null;
+        _googleTaken = failure.code == 'EMAIL_TAKEN';
+        _error = _googleTaken
+            ? context.l10n.authGoogleTaken
+            : _message(failure.code);
+      });
+    });
     final profile =
         ref.watch(accountProfileProvider).valueOrNull ?? AccountProfile.guest;
     final s = context.spacing;
@@ -205,6 +224,24 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
                 color: context.colors.accentCrimson,
               ),
             ),
+            if (_googleTaken) ...[
+              SizedBox(height: s.sm),
+              OutlinedButton(
+                key: AccountSheet.googleExistingKey,
+                onPressed: _busy
+                    ? null
+                    : () => _run((auth) async {
+                        await auth.googleSignIn();
+                        if (!mounted) return;
+                        setState(() {
+                          _googleTaken = false;
+                          _error = null;
+                          _notice = context.l10n.authGoogleContinue;
+                        });
+                      }),
+                child: Text(context.l10n.authGoogleUseExisting),
+              ),
+            ],
           ],
           if (_notice != null) ...[
             SizedBox(height: s.sm),

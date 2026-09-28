@@ -7262,6 +7262,18 @@ abstract class AppLocalizations {
   /// **'Finish in the browser, then come back.'**
   String get authGoogleContinue;
 
+  /// No description provided for @authGoogleTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That Google account already belongs to another player. Signing in to it leaves the guest profile on this device.'**
+  String get authGoogleTaken;
+
+  /// No description provided for @authGoogleUseExisting.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with that Google account'**
+  String get authGoogleUseExisting;
+
   /// No description provided for @authGuestTitle.
   ///
   /// In en, this message translates to:

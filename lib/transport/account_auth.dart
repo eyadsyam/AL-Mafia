@@ -229,10 +229,39 @@ class AccountAuth {
     } catch (_) {
       return;
     }
-    yield* auth.onAuthStateChange.map(
-      (state) => AccountProfile.of(state.session?.user ?? auth.currentUser),
-    );
+    yield* profileChanges(auth.onAuthStateChange, () => auth.currentUser);
   }
+
+  /// Every auth change as the profile it leaves behind.
+  ///
+  /// A Google return that failed — the account is already another player's,
+  /// the link expired — arrives on this stream, not from the call that opened
+  /// the browser. It used to reach the screens as a raw SDK error, which they
+  /// could not read, so the player came back to a sheet that said nothing
+  /// (D1). It now arrives as the same [AccountFailure] a direct call throws.
+  static Stream<AccountProfile> profileChanges(
+    Stream<AuthState> states,
+    User? Function() current,
+  ) => states
+      .map((state) => AccountProfile.of(state.session?.user ?? current()))
+      .handleError((Object error) {
+        if (error is AccountFailure) throw error;
+        throw AccountFailure(
+          error is AuthException ? codeFor(error) : 'UNAVAILABLE',
+        );
+      });
+
+  /// Google, straight to sign-in: the choice a guest makes after learning the
+  /// Google account already belongs to another player. This device leaves the
+  /// guest identity for that account.
+  Future<void> googleSignIn() => _guard(() async {
+    final auth = await _auth();
+    await auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: kIsWeb ? null : oauthRedirect,
+      authScreenLaunchMode: LaunchMode.externalApplication,
+    );
+  });
 
   /// «تذكرني», on by default.
   static Future<bool> remember() async {
