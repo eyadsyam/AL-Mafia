@@ -4110,4 +4110,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bondStrangerLine => 'You have not sat at this table yet.';
+
+  @override
+  String get warmupTitle => 'Setting the table…';
+
+  @override
+  String get warmupOnce => 'Just this once. Instant from now on.';
 }

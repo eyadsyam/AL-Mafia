@@ -7021,6 +7021,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have not sat at this table yet.'**
   String get bondStrangerLine;
+
+  /// No description provided for @warmupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Setting the table…'**
+  String get warmupTitle;
+
+  /// No description provided for @warmupOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Just this once. Instant from now on.'**
+  String get warmupOnce;
 }
 
 class _AppLocalizationsDelegate

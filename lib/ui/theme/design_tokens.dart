@@ -1813,3 +1813,19 @@ abstract final class DossierTokens {
   /// The letter-arrived moment on the result screen.
   static const double arrivalHeight = 196.0;
 }
+
+/// Launch preparation (`lib/ui/widgets/warmup_gate.dart`).
+abstract final class WarmupTokens {
+  /// Preparation never holds the table longer than this.
+  static const Duration maxWait = Duration(seconds: 25);
+  static const Duration serverWait = Duration(seconds: 8);
+
+  /// First-screen paintings are decoded at phone width, a few at a time.
+  static const int decodeWidth = 1080;
+  static const int decodeBatch = 4;
+
+  static const double mask = 112.0;
+  static const double barWidth = 220.0;
+  static const double barHeight = 3.0;
+  static const double backdropOpacity = 0.35;
+}

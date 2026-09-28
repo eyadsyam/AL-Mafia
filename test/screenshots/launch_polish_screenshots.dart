@@ -26,6 +26,7 @@ import 'package:mafia_master/data/memory_match_repository.dart';
 import 'package:mafia_master/engine/models/enums.dart' as engine;
 import 'package:mafia_master/ui/fun/character_dossiers.dart';
 import 'package:mafia_master/ui/fun/characters_screen.dart';
+import 'package:mafia_master/ui/widgets/warmup_gate.dart';
 import 'package:mafia_master/data/online_match_history.dart';
 import 'package:mafia_master/data/repository_provider.dart';
 import 'package:mafia_master/ui/screens/postgame/history_screen.dart';
@@ -214,5 +215,18 @@ void main() {
         ),
       ),
     );
+  });
+
+  testWidgets('first-launch preparation', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await shoot(
+      tester,
+      'warmup_ar',
+      const WarmupGate(child: Scaffold(body: SizedBox.expand())),
+      overrides: [warmupEnabledProvider.overrideWithValue(true)],
+    );
+    // Let the preparation's give-up timer run out before the tree goes.
+    await tester.pump(const Duration(seconds: 30));
+    await tester.pumpAndSettle();
   });
 }

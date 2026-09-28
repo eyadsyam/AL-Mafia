@@ -4012,4 +4012,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get bondStrangerLine => 'لسه ما قعدتش على ترابيزتها.';
+
+  @override
+  String get warmupTitle => 'بنجهّز الترابيزة…';
+
+  @override
+  String get warmupOnce => 'مرة واحدة بس. بعد كده على طول.';
 }

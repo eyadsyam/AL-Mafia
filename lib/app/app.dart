@@ -22,6 +22,7 @@ import '../ui/economy/app_open_gate.dart';
 import '../ui/economy/economy_capabilities.dart' show retryCapabilitiesIfFailed;
 import '../ui/economy/interstitial_coordinator.dart';
 import 'locale_controller.dart';
+import '../ui/widgets/warmup_gate.dart';
 
 /// Root app widget for Mafia Master.
 ///
@@ -231,16 +232,21 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
             currentPath: () =>
                 _router.routerDelegate.currentConfiguration.uri.path,
             child: SplashGate(
-              child: ResumeGate(
-                navigatorKey: _navigatorKey,
-                // Inside the resume gate, not outside it: the resume prompt is a
-                // dialog and this is a route change, so the two are not competing
-                // for the same slot — but a first launch that also has an
-                // unfinished match must get the prompt, and `OnboardingGate` stands
-                // down on its own when it finds one.
-                child: OnboardingGate(
+              // First launch (and after an art update): read every asset and
+              // warm the server behind «بنجهّز الترابيزة». Later launches warm
+              // quietly in the background.
+              child: WarmupGate(
+                child: ResumeGate(
                   navigatorKey: _navigatorKey,
-                  child: child ?? const SizedBox.shrink(),
+                  // Inside the resume gate, not outside it: the resume prompt is a
+                  // dialog and this is a route change, so the two are not competing
+                  // for the same slot — but a first launch that also has an
+                  // unfinished match must get the prompt, and `OnboardingGate` stands
+                  // down on its own when it finds one.
+                  child: OnboardingGate(
+                    navigatorKey: _navigatorKey,
+                    child: child ?? const SizedBox.shrink(),
+                  ),
                 ),
               ),
             ),

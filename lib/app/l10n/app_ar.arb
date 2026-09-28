@@ -1630,5 +1630,7 @@
   "bondOpenAll": "كل الملفات",
   "bondNewLetter": "رسالة جديدة من {name}",
   "@bondNewLetter": {"placeholders": {"name": {"type": "String"}}},
-  "bondStrangerLine": "لسه ما قعدتش على ترابيزتها."
+  "bondStrangerLine": "لسه ما قعدتش على ترابيزتها.",
+  "warmupTitle": "بنجهّز الترابيزة…",
+  "warmupOnce": "مرة واحدة بس. بعد كده على طول."
 }

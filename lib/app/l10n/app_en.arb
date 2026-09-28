@@ -2625,5 +2625,7 @@
   "bondOpenAll": "All dossiers",
   "bondNewLetter": "A new letter from {name}",
   "@bondNewLetter": {"placeholders": {"name": {"type": "String"}}},
-  "bondStrangerLine": "You have not sat at this table yet."
+  "bondStrangerLine": "You have not sat at this table yet.",
+  "warmupTitle": "Setting the table…",
+  "warmupOnce": "Just this once. Instant from now on."
 }
