@@ -3443,3 +3443,25 @@ Files:      supabase/migrations/20260928001400_creator_entitlement.sql; supabase
 Verified:   SQL 57/57; error envelope 271 refusals / 62 files; creator unit tests 3/3; unit + server surface +100 all passed; targeted analyze of P7 files clean.
 Gate:       FAIL only on shared-tree full analyze: unrelated unused online_backend import in test/screenshots/update11_screenshots.dart; every P7 gate passed.
 Open:       Remove the unrelated update11_screenshots.dart import in its owning lane, then rerun the full analyze gate. Nothing deployed or committed.
+
+## PHASE 1.1-L3 — runtime done, voice pending (row 3: F16 narrator)
+Built:      NarratorBank (public facts only, no-repeat, family filter); AudioDirector.narrate() under play()'s in-hand/mute/switch rules at the player's voice volume; pass-and-play beats night (own announcement only when a line exists), morning, discussion, voting/revote, vote result, winner after the reveal; tool/voice/install_kratos.py (trim, -16 LUFS, --approve only); empty assets/voice/kratos/manifest.json
+Files:      lib/platform/{narrator_bank,audio_director,audio_backend}.dart, lib/app/app.dart, lib/ui/screens/match_flow.dart, tool/voice/install_kratos.py, assets/voice/kratos/manifest.json, test/platform/narrator_test.dart
+Verified:   narrator + audio isolation suites; every match-flow/audio test (287); full suite later +1465
+Gate:       PARTIAL — lines not rendered (ELEVENLABS_API_KEY not set yet); listener gate, provenance and commercial-use record still open
+Open:       owner sets the key; render → listen → install with --approve
+
+## PHASE 1.1-L5 (part) — done (F13 metrics, Install Referrer bucket, P9 review) — Codex-built, reviewed
+Verified:   metrics_v11.sql; envelope; full suite; referrer raw string never stored; review/metrics never start a capabilities fetch
+Open:       operator controls, warm-up, low-end perf budgets of row 5
+
+## PHASE 1.1-L6 (part) — done (P7 creator entitlement) — Codex-built, reviewed (see block above)
+
+## PHASE 1.1-L8 (part) — done (F19): result role figures rise (reduced motion: fade); brand motif at launch
+Open:       Partner lobby plate
+
+## PHASE 1.1-L11 — done (F21a witness whispers)
+Built:      witness_whispers/witness_member/witness_report; witness_view whispers + WITNESS_ONLY; panel whisper list with report; composer disclosure
+Verified:   witness_whispers.sql; witness_whispers_test; doc12 acceptance; full suite +1465
+Gate:       PASS locally (hosted witness_match.py updated to WITNESS_ONLY, run after deploy)
+Open:       witness_whispers_enabled OFF until owner activation
