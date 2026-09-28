@@ -1,8 +1,45 @@
 # CONTENT-SYSTEM — Mafia Master · سيد المافيا
 
-Everything creative. Strategy and numbers are in `PLAN-V3.md`, dates in
-`LAUNCH-RUNBOOK.md`, terms in `CONTEXT.md`. Rule zero: **100% of content is AI video**,
-closed by a 2–3 s real-app end card. Every video stands alone.
+Everything creative. Strategy and numbers in `PLAN-V3.md`, dates in `LAUNCH-RUNBOOK.md`,
+terms in `CONTEXT.md`. **Rule zero:** 100% of content is AI video (including animation of
+the app's own painted art); a real-app closing proof ends every feature/explainer video and
+most others, never forced onto a strong comedy loop. Every video stands alone.
+
+**The two owner principles:**
+- **P-A — every public video proves a real strength of the game.** Rewards are never the
+  headline of a video, a hook or a CTA.
+- **P-B — 1.1 is the first public release.** Never «تحديث», never "new version".
+
+**One world, one set of faces, one voice.** The Gang, the Four and the Narrator in our
+videos are the same ones the player meets in the app: the same painted art (spec S9), the
+same narrator voice (F16), the same sonic mark and reveal (F19).
+
+**The strengths we prove (all ship at L):**
+
+| Strength | Source |
+|---|---|
+| The phone is the narrator — and now it **speaks**, in Egyptian, on public beats | listing · **F16 «صوت الراوي»** |
+| After the public result, **each player's role figure rises behind them** | **F19** |
+| Up to **15 players** in «القعدة», a night in under 4 minutes | **F15** |
+| **«وضع العيلة»**: a family preset, no jumpscare, softer cues | **F17** |
+| The phone lies in the middle of the table, large type readable at 1–2 m; the Gang teaches the game in three skippable scenes | **F18** |
+| Voice rooms reunite friends in different governorates | listing |
+| The hand-off never exposes your role (same duration and light for every role) | listing |
+| Join from the browser in seconds | listing |
+| A new case every day, with one solution | listing · `/case/today` |
+| The Four remember you | listing |
+| «ليلة الخميس», the weekly night — the **only** fixed public-table ritual at L | listing |
+| Hand-painted Egyptian art · nothing in the store gives an advantage | listing |
+| After you're out, you follow the truth without affecting the living — shown calmly, never leads | listing |
+
+**Never marketed before it ships:** creator/viewer codes · streak-save · extra clue ·
+rematch vote · the Thursday letter · the witness setting · last words · same-room phones ·
+the match chronicle · «مين صوّت على مين» · scheduled public tables beyond Thursday ·
+Series/Draft · House Rules.
+
+**Fiction rule.** The Narrator's «حكايات» and our cases are fiction. They never claim to be
+in-game clues, and no video implies the app tells death stories mid-match (it doesn't).
+In app footage, the narrator is heard only on public beats — never over a private phase.
 
 **Tags:** [V] verified · [E] estimate · [A] assumption.
 
@@ -10,136 +47,116 @@ closed by a 2–3 s real-app end card. Every video stands alone.
 
 ## 1. The attachment engine
 
-The owner wants viewers to love these characters and feel they belong **before** the game
-exists. Views come from hooks; attachment comes from people who come back. This section is
-the reason anyone comes back.
+Views come from hooks. Attachment comes from people who come back — and people who come
+back become players who stay.
 
 ### 1.1 The idea in one line
 
-**The viewer is the seventh person at the table.** The characters already know them.
-Everything below makes that literally true, then hands it to the app on L-day, where the
-app's own tagline is waiting: **«ليهم ذاكرة. وإنت فيها.»**
+**The viewer is the seventh person at the table.** The characters already know them. On
+first launch the app proves it: the same faces, the same voice, the same figure rising
+behind you — and the app's own tagline, **«ليهم ذاكرة. وإنت فيها.»**
 
 ### 1.2 The cast — what each one wants, fears, and hides
 
-The Four never speak aloud. They write: a note left on the table, a line in the margin of a
-dossier, a sealed envelope. Only lines the app itself would say. Quotes below are from the
-app's own copy (`app_ar.arb`, bond lines) and obey the spoiler rule (§1.9).
+The Four never speak aloud. They write: a note on the table, a line in a dossier's margin,
+a sealed envelope. Only lines the app itself would say; quotes are from the app's own copy
+and obey the spoiler rule (§1.9).
 
 **The Reaper — المافيا**
-- **Wants:** to be understood, not caught. Admired for patience.
-- **Fears:** the loud one who talks too much and gives everyone away.
-- **Hides:** that it remembers every table it ever sat at.
+- **Wants:** to be understood, not caught. **Fears:** the loud one who gives everyone away. **Hides:** that it remembers every table it sat at.
 - **Voice:** quiet, certain, almost kind. Never threatens.
-- **Lines:** «فاكر الترابيزة دي. كانت عارفة إمتى تسكت.» · «المافيا بتقفل الملف بابتسامة هادية.» · teased, cut short on purpose: «الحكاية المظبوطة كلامها أقل…»
-- **Why people love it:** it is the one everyone secretly wants to be. The side it leads will be the biggest; the standings are normalized so it can still lose.
+- **Lines:** «فاكر الترابيزة دي. كانت عارفة إمتى تسكت.» · «المافيا بتقفل الملف بابتسامة هادية.» · cut short: «الحكاية المظبوطة كلامها أقل…»
 
 **The Doctor — الدكتور** (white coat, in shadow)
-- **Wants:** one night where nobody dies.
-- **Fears:** choosing wrong and being the reason.
-- **Hides:** that nobody ever thanks it, and it counts anyway.
+- **Wants:** one night where nobody dies. **Fears:** choosing wrong. **Hides:** that nobody thanks it, and it counts anyway.
 - **Voice:** warm, tired, protective.
 - **Lines:** «مش كل نجدة بتتشاف، بس كلها بتتحسب.» · «الدكتور بيعدّ مين فضل واقف.» · «الدكتور فاكر الليلة اللي الكل رجع منها.»
-- **Why people love it:** the viewer who protects their friends sees themselves.
 
 **The Detective — المحقق**
-- **Wants:** the truth, even when it costs them the table.
-- **Fears:** being right and not believed.
-- **Hides:** a file on you. «المحقق محتفظ بملفاتك. غبت شوية.»
-- **Voice:** dry, observant, notices silence rather than noise.
+- **Wants:** the truth, even at the table's cost. **Fears:** being right and not believed. **Hides:** a file on you: «المحقق محتفظ بملفاتك. غبت شوية.»
+- **Voice:** dry, observant; notices silence rather than noise.
 - **Lines:** «قضية واحدة كفاية تعرفك قيمة الشك.» · «المحقق بيكتب آخر حقيقة على الهامش.»
-- **Why people love it:** it is the voice of every solver in the comments. It is also the one that "misses you" — the model for every come-back message.
 
 **The Citizen — المواطن**
-- **Wants:** the table to gather again.
-- **Fears:** being forgotten, being the one nobody suspects or saves.
-- **Hides:** that it is the memory of the whole village.
+- **Wants:** the table to gather again. **Fears:** being forgotten. **Hides:** that it is the memory of the whole village.
 - **Voice:** plain, patient, the underdog.
 - **Lines:** «البلد بتعيش عشان فيه حد لسه بيسمع.» · «المواطن شايل القضية دي للقعدة الجاية.» · «المواطن مستني الترابيزة تتلم من جديد.»
-- **Why people love it:** most players are citizens most of the time. It is the side for the quiet majority.
 
 **The Narrator — الراوي** (the only voice)
-- **Wants:** to finish the story. Every night he tells it, and every night someone leaves it.
-- **Fears:** the night the table stays empty.
-- **Hides:** that he reads every comment. He proves it by reading them aloud.
-- **Voice:** Azure `ar-EG-ShakirNeural`, slowed and lowered by SSML. Low, unhurried.
-- **Signature:** «الضلمة نزلت على البلد…» — our original sound, used in every P1 and P4.
-- **Rule:** never takes a side, never jokes, never sells. When he names the CTA, it sounds like an invitation to the table.
+- **Wants:** to finish the story. **Fears:** the night the table stays empty. **Hides:** that he reads every comment — and proves it by reading them aloud.
+- **Voice:** **the app's F16 narrator voice**, the same source in every video. Viewers who hear him on TikTok hear him again at their own table.
+- **Signature:** «الضلمة نزلت على البلد…».
+- **Rule:** never takes a side, never jokes, never sells.
 
-**The Gang — الشلة** (human, comic, reaction stills, no lip-sync)
+**The Gang — الشلة** (the app's canonical painted art, spec S9; reaction stills, no lip-sync)
 
 | Character | Wants | Fears | Hides | Running gag |
 |---|---|---|---|---|
 | **حمادة** | one night alive | being first again | he's never once been the Mafia and wants it badly | dies first, every setting |
 | **كريم** | to be believed | his own face | he's innocent more often than anyone thinks | the suspicious smile |
-| **ندى** | to be right | admitting she was wrong | she's the best solver at the table on the nights she's quiet | «متأكدة ١٠٠٪» |
+| **ندى** | to be right | admitting she was wrong | she's the best solver on the nights she's quiet | «متأكدة ١٠٠٪» |
 | **الدكتور سيد** | to survive | risk | he'd save a friend if he were brave | saves himself every night |
 | **عم رضا** | nothing, apparently | nothing, apparently | everything | says nothing; sometimes he's the Mafia |
 
-Each Gang member has one canonical Soul 2 sheet (front + 3 expressions). Motion is always
-image-to-video from that sheet, never text-to-video.
+The same five teach the game in the app's F18 how-to scenes, so a viewer who met them in a
+video meets them again in onboarding. Expressions are edited from the canonical art; motion
+is always image-to-video from it, never text-to-video. The **S0 test** proves the five faces
+and four silhouettes survive every model before Phase A starts.
 
 ### 1.3 Rituals — fixed times people come back for
 
-| Ritual | When (Cairo) | Pillar | What happens | Metric that says it works |
+| Ritual | When (Cairo) | Pillar | What happens | It works if |
 |---|---|---|---|---|
-| **The case** | daily 21:00 | P4 | a fair-play case; the answer tomorrow | comments per 1k views ≥ 10 [A]; returning viewers ≥ 25% of views |
-| **The answer** | next episode's first 4 s | P4 | yesterday's answer + the funniest comment read aloud | share of commenters who comment again within 7 days ≥ 20% [A] |
-| **«لوحة المحققين»** (the solvers board) | Sunday 20:00 | P6 | the Narrator reads the week's correct solvers by first name/handle | comments that include a guess rise week over week |
-| **The letter** | weekly, rotating writer | P6 | one of the Four writes to the viewers | saves per 1k views ≥ 15 [A] |
-| **The standings** | Sunday, with the board | P6 | cases solved per side, normalized by side size | side declarations in comments per week |
-| **«ليلة الخميس»** | Thursday 21:00 (from L) | P2 + live | a page-hosted room and creator rooms | rooms opened Thursday vs other days |
+| **The case** | Sun · Tue · Thu 21:00 before L; from L teasers for the app's daily case | P4 | a fair-play case; the answer at the start of the next | returning viewers ≥ 25% of views; comments/1k ≥ 10 [A] |
+| **Yesterday's answer** | first 4 s of every case | P4 | the answer + the best theory read aloud | commenters who comment again within 7 days ≥ 20% [A] |
+| **«لوحة المحققين»** | Sunday 20:00 | P6 | the Narrator reads the week's correct solvers (handles only) | guesses per case rise week over week |
+| **The letter episode** (a video, not an app feature) | weekly, rotating writer | P6 | one of the Four writes to the viewers | saves per 1k ≥ 15 [A] |
+| **The standings** | Sunday, with the board | P6 | cases solved per side ÷ side size | side declarations per week |
+| **«ليلة الخميس»** | Thursday 21:00 (from L) | P2 + live | the page room + creator tables | rooms opened Thursday vs other days |
 
-Fixed times matter more than frequency. A viewer should be able to say "the case is at
-nine" the way they say when a series airs.
+A **pinned weekly schedule** post on every profile. Thursday is the only fixed public-table
+ritual; nothing suggests other scheduled public tables.
 
 ### 1.4 The audience inside the story
 
-- **Names on the board.** Only first names or handles from public comments on our own posts. Read aloud by the Narrator.
-- **The comment that becomes the episode.** Once a week the best theory in the comments is written into the next case: a red herring built on it, or the real answer if it deserves it. The pinned reply: «نظريتك دخلت الحكاية.»
-- **The empty seventh chair.** From Season 1 episode ~20 the table has a seventh chair nobody sits in. The Narrator never explains it. On L it's filled by the viewer inside the app.
-- **Replies with video.** Three a week (§6): a still, the Narrator, and a viewer's comment on screen.
+- **«حط نظريتك في القضية».** Once a week the best theory becomes a real clue or a red herring in the next case; pinned reply «نظريتك دخلت الحكاية.»
+- **Polls choose the branch** between two pre-authored outcomes for which fictional Gang member disappears next. Estimate: comments +15–30% [E].
+- **Viewers are never characters.** No viewer's name is ever a suspect, a victim or the Mafia. Names appear only on the solvers board, as handles, removed on request.
+- **The empty seventh chair** appears midway through Season 1. Never explained; in the app it's the player's.
+- **Replies with video:** three a week (§11).
 
 ### 1.5 Tribal identity — «شريكك»
 
-- Every P4 episode ends with two asks: the guess, and «شريكك مين؟ اكتبه».
-- Four sides; in copy always «شريكك», never "team".
-- **Standings** each Sunday: cases solved per side ÷ side size, so the small side can win.
-- The Citizen's pitch is the underdog one. The Reaper's side is big; make it earn its wins.
-- Four sticker packs, one per side (distributed with the app and the WhatsApp channel).
-- Four Play links, one per side. On first launch the app asks «شريكك مين؟»; if the link carried a side, that partner is pre-selected.
-- **Metric:** share of comments that declare a side ≥ 15% on P4 by L-14 [A]; each side ≥ 10% of declarations.
+- Every case ends with two asks: the theory, and «شريكك مين؟ اكتبه».
+- Four sides; always «شريكك», never "team". Sunday standings normalized by side size.
+- Four sticker packs, one per character. Four links, `/p/<character>`; the app asks «شريكك مين؟» at first launch.
+- The web quiz (§8.2) is the easiest door into a side.
+- **It works if:** ≥ 15% of case comments declare a side by L-14 [A], each side ≥ 10%.
 
 ### 1.6 The serialized mystery (Phase B → «القضية الأولى»)
 
-Season 1 runs **L-30 → L**, daily. Each episode is a standalone case; the arc is a bonus
-layer for regulars.
+**Season 1 = ~15 episodes, Sun · Tue · Thu 21:00, L-35 → L.** Each episode stands alone;
+the arc is a bonus for regulars.
 
-1. The village goes dark. Every night someone at the Gang's table dies; every episode asks who among them is tonight's Mafia.
+1. The village goes dark. Every night someone at the Gang's table dies; who among them is tonight's Mafia?
 2. A pattern forms: **each victim solved the previous case.**
-3. The Four's notes turn personal. Someone is hunting the solvers — and the viewers are the solvers.
-4. Around episode 20 the **empty seventh chair** appears. It is the viewer's.
-5. The finale (L 20:00) shows three clues and withholds the fourth: «الدليل الرابع جوه اللعبة». The season's Mafia is revealed only by solving **«القضية الأولى»** in the app. Founder-seal holders open a letter with an extra clue: «سجّل بدري وخد دليل محدش عنده».
+3. The Four's notes turn personal: someone is hunting the solvers — and the viewers are the solvers.
+4. Midway, the **empty seventh chair** appears.
+5. The finale (L 20:00) shows three clues and withholds the fourth: «الدليل الرابع جوه اللعبة». The season's answer lives in **«القضية الأولى»**, the app's Case of the Day on L — a showcase of its puzzle design.
 
-Season 2 episode 1 (L+1 20:00) opens with the real solve rate from the server, e.g.
-«٤٢٪ عرفوها». If 1.1 slips, the arc waits and cold cases run (`LAUNCH-RUNBOOK.md` §7).
+The founder letter is lore only and never mentioned as an advantage. After L, a solve rate
+appears only at **≥ 50 solves, rounded to 5%**; «آلاف دخلوا القضية» only if true.
 
-**Metric:** completion of arc episodes vs cold cases; pre-registrations per 1k views on
-arc episodes ≥ 1.0 [E].
+### 1.7 Milestones — quiet product operations
 
-### 1.7 Milestones the audience unlocks together
-
-- Rungs: **500 / 2,000 / 5,000 / 10,000** pre-registrations. Each unlocks a gift for every player at launch (server grant).
-- Announced in the story: «لما نوصل ٢٠٠٠… الراوي هيفتح درج جديد.» Worded as a goal, submitted to the store before we reach it.
-- The hit is announced only on our own channels, the same day, as a P6 short.
-- **Metric:** pre-registrations per day in the 72 h after each rung announcement vs the 72 h before.
+Pre-registration rungs run inside the product and at most one line on the store listing.
+No milestone shorts, gift headlines or counters in videos.
 
 ### 1.8 The line that carries into the app
 
-**«ليهم ذاكرة. وإنت فيها.»** closes every P6 and the finale. It is the app's own subtitle
-on the dossiers screen, so the first thing an installer reads is the thing they already
-believe. The viewer who spent a month as a solver opens the app, picks the partner they
-defended, and finds that partner has a dossier waiting.
+**«ليهم ذاكرة. وإنت فيها.»** closes every P6 and the finale. The viewer who spent weeks as
+a solver opens the app, hears the same Narrator, picks the partner they defended, and at the
+end of their first match watches their own figure rise behind them.
 
 ### 1.9 The spoiler rule
 
@@ -152,193 +169,223 @@ defended, and finds that partner has a dossier waiting.
 
 ---
 
-## 2. Pillars and the mix by phase
+## 2. Recognition kit — known in the first half-second
 
-| Pillar | Phase A · 1.5/day | Phase B early · 2/day | Phase B L-30→L-4 · 2.5/day | L-week (L-3→L+7) · 3/day | L+8→L+30 · 2.5/day |
-|---|---|---|---|---|---|
-| **P1 «اعرف اللعبة»** — recognition hook → roles in ≤ 10 s → now online | 35% | 25% | 12% | 10% | 8% |
-| **P2 feature spotlight** — one feature per short | 10% | 25% | 20% | 35% | **40%** |
-| **P3 «مواقف»** — Gang situations, the figure behind you | 30% | 25% | 20% | 15% | 20% |
-| **P4 «مين المافيا؟»** — the daily case | 15% (3 cold cases/week) | 15% | **40%** (Season 1 daily) | 30% (finale + Season 2) | 32% (daily teaser «الحل جوه اللعبة») |
-| **P5 trend-jack** | 10% | 8% | 5% | 0–5% | 6% |
-| **P6 attachment** | 0% | 2% | 3% | 5% | 2% |
-
-**Where the daily case sits:** before L it is the comment game and the arc; from L it is the
-daily reminder that brings players back into the app's Case of the Day.
-
-**CTA by phase** (typed on screen; the Narrator says it in P1 and P4 only):
-
-| Phase | CTA |
+| Element | Spec |
 |---|---|
-| A | «تابع — الحل بكرة» · «نازلة قريب» |
-| B | «سجّل من جوجل بلاي — اللينك في البايو» |
-| From L | «نزّلها ببلاش» · P4: «الحل جوه اللعبة» |
+| **Sonic mark** | the app's own F19 sound — lamp click + card flip — at 0.0–0.4 s of every video, and again under the reveal |
+| **The reveal** | the F19 shot — a role figure rising behind a player — as the recurring closing shot of «مواقف» and the default end card |
+| **Voice** | the F16 narrator voice, the same as in the app |
+| **Faces** | the five painted Gang faces and four silhouettes from the app's canonical art |
+| **Composition** | the round table from a high three-quarter angle, the lamp top-left, the empty chair bottom-right; for «القعدة», the phone flat in the middle of the table (F18 layout) |
+| **Order** | yesterday's answer before today's case |
+| **Portfolio** | ≥ 70% recurring franchises, ≤ 30% experiments |
 
-**Features for P2**, mapped to 1.1: الأوضة بالصوت · القعدة (الموبايل هو الراوي) ·
-قضية اليوم · شريكك والرسايل (teased) · ليلة الخميس · سهرة من ٣ (Series & Draft) ·
-قوانين البيت · كروت النتيجة · رماتش ورجوع بعد ما النت يفصل · اللعب كضيف ·
-اللينك بيفتح اللعبة · Season Pass cosmetics (after L only).
+**Measure:** follows per 1k views and returning-viewer share, not only completion.
 
 ---
 
-## 3. The six templates
+## 3. Pillars and the weekly mix
 
-**Specs for all:** 1080×1920, 30 fps. Hailuo 768p upscaled (lanczos) + 3% grain. One LUT
-on every clip. Text inside the safe zone (nothing in the bottom 20% or right 15%).
-−14 LUFS integrated. **Frame 0 already shows the hook** — no black frame, no logo intro.
-Last frame loops into frame 0.
+**Volume: 7–10 primary shorts a week**, each with a different hook re-cut per platform (§7).
+Clean masters to TikTok, Reels, Facebook, Shorts. Clone only proven winners. From L, the best
+creator-session clips join the feed (with clip rights) as extra posts, not as primaries.
+
+| Pillar | What it is |
+|---|---|
+| **P1 «اعرف اللعبة»** | recognition hook → the four roles in ≤ 10 s → the phone narrates, out loud → now online |
+| **P2 strength proof** | one real strength per short, closed by the real app showing it |
+| **P3 «مواقف»** | Gang situations; closes on the reveal |
+| **P4 «مين المافيا؟»** | the fair-play case |
+| **P5 trend-jack / reply remix** | within 24 h; or a reply-with-video |
+| **P6 ritual** | the letter episode, the solvers board, the standings |
+
+| Phase | P4 case / story | P3 situations | P1 + P2 strength proofs | P6 ritual | P5 trend / reply | Total |
+|---|---|---|---|---|---|---|
+| **A** | 2 cold cases | 2 | 2 | 1 | 0–1 | 7–8 |
+| **B early** | 3 cold cases | 2 | 2 | 1 | 0–2 | 8–10 |
+| **B, L-35 → L-4** | 3 (Season 1) | 2 | 2 | 1 | 0–2 | 8–10 |
+| **L-week** | 3 (finale + Season 2) | 2 | 3 | 1 | 0–1 | 9–10 |
+| **L+8 → L+30** | 3 (case teasers) | 2 | 2 | 1 | 0–2 | 8–10 (+ creator clips) |
+
+**Phase A leads with, in order:** (1) the phone is the narrator — and it speaks; (2) the
+figure rising behind the liar → the privacy-safe hand-off; (3) voice rooms across
+governorates. Then the case and the Four. Big-table and trips content leads organiser
+placements; family night is held for Ramadan and family audiences.
+
+**CTAs** (typed; the Narrator says them in P1 and P4 only):
+
+| Phase | Serialized (P4, P6) | Everything else |
+|---|---|---|
+| A | «تابع — الحل الحلقة الجاية» | «تابع · نازلة قريب على جوجل بلاي» |
+| B | «تابع… والعبها أول ما تنزل» | «سجّل من جوجل بلاي، والعبها أول ما تنزل» |
+| From L | «الحل جوه اللعبة» | «نزّلها ببلاش» |
+
+**WhatsApp forward CTA** «ابعتها لشلتك على واتساب» on one in three situation/case posts and on
+every lobby-shortage moment — never on every short.
+
+---
+
+## 4. The six templates
+
+**Specs:** 1080×1920, 30 fps; Hailuo 768p upscaled (lanczos) + 3% grain; one LUT; text in the
+safe zone (nothing in the bottom 20% or right 15%); −14 LUFS. **Frame 0 = the recurring
+composition + the hook; the sonic mark at 0.0–0.4 s.** The last frame loops into frame 0.
 
 ### T1 · P1 «اعرف اللعبة» (22 s)
 
 | s | Picture | Text / voice | Tool |
 |---|---|---|---|
-| 0–1.5 | push-in on a huge painted round table (a homage, not anyone's set) | hook typed; Narrator speaks it | library |
-| 1.5–3.5 | four cards dealt face down | Narrator: «كل واحد بياخد كارت.» · card-flip SFX | still + 1 library shot |
-| 3.5–11.5 | the four roles, 2 s each | «المافيا بيقتل بالليل» · «الدكتور بينقذ واحد» · «المحقق بيكشف واحد» · «المواطن بيصوّت الصبح» | Kling hero loops |
-| 11.5–15 | four homes, phones lighting faces | «ومفيش راوي… الموبايل هو الراوي.» → «ودلوقتي أونلاين، بالصوت، كل واحد من بيته.» · sting | library |
-| 15–18 | **real-app end card** (the lobby) | — | app |
-| 18–22 | CTA card | phase CTA | typeset |
+| 0–1.5 | the round table | sonic mark; hook typed; Narrator speaks it | library |
+| 1.5–3.5 | four cards dealt face down | «كل واحد بياخد كارت.» · card flip | still + library |
+| 3.5–11.5 | the four roles, 2 s each | «المافيا بتختار ضحيتها بالليل» · «الدكتور بينقذ» · «المحقق بيكشف» · «المواطنين لازم يعرفوا مين القاتل» | Kling hero loops |
+| 11.5–15 | the phone flat in the middle of the table, then four homes with phones lit | «ومفيش راوي… الموبايل هو الراوي.» → «وأونلاين بالصوت، كل واحد من بيته.» | library |
+| 15–18 | **real app: the phone narrating a public beat in the F16 voice** («الضلمة نزلت…») | — | app |
+| 18–22 | CTA | phase CTA | typeset |
 
-Score bed throughout; stings at 0 s and 11.5 s.
-
-### T2 · P2 feature spotlight (17 s)
+### T2 · P2 strength proof (17 s)
 
 | s | Picture | Text / voice |
 |---|---|---|
-| 0–1.5 | the problem, dramatised | hook as a problem, e.g. «صحابك كل واحد في محافظة؟» |
-| 1.5–8 | 2 library shots: problem → the fix | at most one Narrator line |
-| 8–10 | feature name card | name + one benefit, ≤ 6 words · UI-tick SFX |
-| 10–14 | **real-app segment showing that exact feature** (2–3 s; 4–5 s if the owner allows) | — |
+| 0–1.5 | the problem, dramatised | hook as a problem |
+| 1.5–8 | 2 library shots: problem → the strength | at most one Narrator line |
+| 8–10 | strength card | ≤ 6 words · UI tick |
+| 10–14 | **real-app segment of that exact strength** (4–5 s if allowed, else 2–3 s) | app audio only on public beats |
 | 14–17 | CTA | phase CTA |
 
 ### T3 · P3 «مواقف» (17 s)
 
 | s | Picture | Text / voice |
 |---|---|---|
-| 0–1.5 | Gang still | observational hook typed, e.g. «في كل قعدة فيه واحد بيحلف إنه مواطن…» |
-| 1.5–8 | 2–3 reaction beats: stills with small Hailuo motion, cut on the beat | typed beats |
-| 8–11 | **the role figure fades in behind him** (library reveal) | low boom |
+| 0–1.5 | Gang still | observational hook typed |
+| 1.5–8 | 2–3 reaction beats | typed beats |
+| 8–11 | the role figure fades in behind him | sonic mark under it |
 | 11–14 | punchline | typed |
-| 14–17 | real-app reveal screen (2 s) → CTA | «في اللعبة، محدش بيشوف اللي وراك.» |
-
-The end line turns the gag into the game's hard promise: nobody can tell your role.
+| 14–17 | **real app: the F19 reveal** — the figure rising behind the player after the result — with «في اللعبة، الكارت بيبان بعد النتيجة بس.» → CTA | skip the app beat if the loop is stronger without it |
 
 ### T4 · P4 «مين المافيا؟» (30 s)
 
 | s | Beat | Source |
 |---|---|---|
-| 0–1.5 | hard-cut question over an empty chair, e.g. «مين قتل حمادة؟» | still |
-| 1.5–4 | Narrator sting «الضلمة نزلت على البلد…» | voice |
-| 4–8 | table plate: six reaction stills → lights out | stills + library |
-| 8–12 | **a card comes alive** | Kling hero loop (reused) |
-| 12–14 | dawn: who's gone | library |
-| 14–23 | three clue cards, 3 s each, a Gang reaction under each | typeset (libass) + stills |
-| 23–26 | one of the Four's typed notes on the table | typeset over still |
-| 26–30 | «اكتب اسم اللي شاكك فيه · الحل بكرة» (from L: «الحل جوه اللعبة») → 2–3 s end card | typeset + app |
+| 0–4 | yesterday's answer + the best theory, read aloud | stills + voice |
+| 4–5.5 | hard-cut question over the empty chair | still |
+| 5.5–8 | «الضلمة نزلت على البلد…» | voice |
+| 8–11 | six reaction stills → lights out | stills + library |
+| 11–14 | a card comes alive | Kling hero loop |
+| 14–15.5 | dawn: who's gone (implied, never shown) | library |
+| 15.5–24.5 | three clue cards, 3 s each | libass + stills |
+| 24.5–27 | one of the Four's typed notes | typeset |
+| 27–30 | «حط نظريتك في القضية · شريكك مين؟» + CTA → 2 s end card | typeset + app |
 
-Next episode opens with a 4 s prefix: yesterday's answer, then the funniest comment read
-aloud. New AI footage per episode ≈ 10 s.
+A season's first episode drops the answer prefix. Clue grammar matches the app's Case of the
+Day («كريم مش المافيا» · «المافيا قاعد جنب ندى» · «بين المافيا والدكتور كرسيين بالظبط»);
+every case is solvable from its clues, checked by hand. Cases are fiction, never presented
+as in-game clues.
 
-**Clue grammar** matches the app's Case of the Day: «كريم مش المافيا» · «المافيا قاعد
-جنب ندى» · «بين المافيا والدكتور كرسيين بالظبط». Every case is solvable from the three
-clues (fair play), checked by hand before approval.
-
-### T5 · P5 trend-jack (13 s)
+### T5 · P5 trend-jack / reply (13 s)
 
 | s | Beat |
 |---|---|
-| 0–1.5 | the trend named in plain words; no logos, no real people |
-| 1.5–8 | a Gang reaction, or one of the Four's noir notes placing the trend in a Mafia frame (stills + ≤ 1 new Hailuo shot) |
+| 0–1.5 | the trend in plain words, or the viewer's comment on screen |
+| 1.5–8 | a Gang reaction or one of the Four's notes (stills + ≤ 1 new Hailuo shot) |
 | 8–10 | punch |
-| 10–13 | end card + CTA |
+| 10–13 | end card (the reveal) + CTA |
 
-Turnaround ≤ 24 h, or skip.
+≤ 24 h or skip.
 
-### T6 · P6 attachment (20 s)
+### T6 · P6 ritual (20 s)
 
 | s | Beat |
 |---|---|
 | 0–1.5 | hook, e.g. «الكروت دي فاكرة كل ترابيزة قعدت عليها.» |
-| 1.5–14 | stills of the Four with typed tier-1 / home lines; or the Narrator reading solvers / standings |
+| 1.5–14 | the Four with typed tier-1 / home lines; or the Narrator reading the board / standings |
 | 14–17 | «ليهم ذاكرة. وإنت فيها.» |
-| 17–20 | end card: the dossiers screen with **no tier lines visible** → CTA |
+| 17–20 | real app: the dossiers screen with no tier lines visible → CTA |
 
 ---
 
-## 4. The first 20 videos (posting order)
+## 5. The first 20 videos (posting order)
 
-Three P5 trend-jacks slot in opportunistically; they can't be pre-written.
+### Phase A — CTA «تابع»
 
-### Phase A (CTA «تابع»)
-
-| # | Pillar | Title | Opening line | Core beat |
+| # | Pillar | Title | Opening line | Strength proved |
 |---|---|---|---|---|
-| 1 | P1 | ١٤ على ترابيزة | «فاكر لعبة المافيا اللي اليوتيوبرز لعبوها، ١٤ واحد على ترابيزة واحدة؟» | roles in 8 s → no narrator → now online · «نازلة قريب» |
-| 2 | P3 | وحياة أمي مواطن | «في كل قعدة فيه واحد بيحلف إنه مواطن…» | he swears three times; the Reaper rises behind him |
-| 3 | P1 | الراوي المظلوم | «إنت دايمًا اللي بيطلع عليك الدور تبقى الراوي؟» | nobody wants to narrate → «خلاص… الموبايل هيبقى الراوي» |
-| 4 | P4 | مين قتل حمادة؟ | «مين قتل حمادة؟ عندك ٣ أدلة.» | cold case 1 · «الحل بكرة — تابع» |
-| 5 | P3 | الدكتور الأناني | «الدكتور لما يختار ينقذ مين:» | five nights, he saves himself five times; the figure behind him doesn't move |
-| 6 | P2 | مفيش راوي | «الراوي في شلتكم بيغش؟» | «القعدة»: the phone narrates; nobody knows anyone's role |
-| 7 | P4 | متأكدة ١٠٠٪ | «ندى متأكدة ١٠٠٪… تاني.» | cold case 2 |
-| 8 | P3 | المحقق وأخوه | «المحقق لما يطلع عليه أخوه:» | he suspects his own brother, and he's right. Awkward dinner. |
-| 9 | P2 | كل واحد في محافظة | «صحابك كل واحد في محافظة؟» | voice rooms: one link, the table is complete |
-| 10 | P6 | الكروت فاكرة | «الكروت دي فاكرة كل ترابيزة قعدت عليها.» | the Four's tier-1 lines; letters teased as sealed |
+| 1 | P1 | ١٤ على ترابيزة | «فاكر لعبة المافيا اللي اليوتيوبرز لعبوها، ١٤ واحد على ترابيزة واحدة؟» | roles in 8 s → **the phone narrates, out loud** → online with voice |
+| 2 | P3 | وحياة أمي مواطن | «في كل قعدة فيه واحد بيحلف إنه مواطن…» | he swears three times; the figure rises behind him → the **F19 reveal** in the app |
+| 3 | P2 | نور الشاشة | «صاحبك بيعرف دورك من نور الشاشة على وشك؟» | **the hand-off looks the same for every role** |
+| 4 | P2 | كل واحد في محافظة | «صحابك كل واحد في محافظة؟» | **voice rooms**: one link, the table is complete |
+| 5 | P2 | الراوي بقى بيتكلم | «إنت دايمًا اللي بيطلع عليك الدور تبقى الراوي؟ خلاص… الراوي بقى بيتكلم.» | **F16**: the phone announces night, morning, the vote — in Egyptian |
+| 6 | P4 | مين قتل حمادة؟ | «مين قتل حمادة؟ عندك ٣ أدلة.» | cold case 1 (one-solution puzzle design) |
+| 7 | P3 | حمادة | «حمادة في أي قعدة مافيا:» | the running gag; closes on the reveal |
+| 8 | P4 | متأكدة ١٠٠٪ | «ندى متأكدة ١٠٠٪… تاني.» | cold case 2; case 1 answered first |
+| 9 | P2 | من المتصفح | «ابعت اللينك… وصاحبك داخل من المتصفح في ثواني.» | **browser join** |
+| 10 | P6 | الكروت فاكرة | «الكروت دي فاكرة كل ترابيزة قعدت عليها.» | **the Four remember you** |
 
-### Phase B (CTA «سجّل من جوجل بلاي»)
+### Phase B — CTA «سجّل من جوجل بلاي، والعبها أول ما تنزل»
 
-| # | Pillar | Title | Opening line | Core beat |
+| # | Pillar | Title | Opening line | Strength proved |
 |---|---|---|---|---|
-| 11 | P1 | المافيا بقت أونلاين | «لعبة المافيا بقت على الموبايل… وبالصوت.» | the explainer → pre-registration + the founder seal |
-| 12 | P2 | الختم الأول | «اللي هيسجّل بدري هياخد دليل محدش عنده.» | a sealed envelope, a wax seal, the Narrator |
-| 13 | P3 | حمادة | «حمادة في أي قعدة مافيا:» | he dies first in every setting; seeds the Season 1 gag |
-| 14 | P2 | قضية اليوم | «لغز جديد كل يوم… هتحله في كام محاولة؟» | a typeset grid + a streak · «الحل جوه اللعبة» |
+| 11 | P1 | المافيا على الموبايل | «لعبة المافيا جاية على جوجل بلاي… والموبايل هو الراوي.» | the explainer; first release |
+| 12 | P2 | كل واحد ودوره وراه | «بعد النتيجة… كل واحد دوره بيقوم وراه.» | **F19** as a proof: the whole table's figures rise at the result |
+| 13 | P2 | رايحين رحلة؟ | «رايحين رحلة؟ الموبايل هو الراوي، ولحد ١٥ واحد.» | **F15** big table, a night in under 4 minutes; the phone flat on the table (F18) |
+| 14 | P2 | قضية اليوم | «لغز مافيا جديد كل يوم… وليه حل واحد بس.» | **daily case design** |
 | 15 | P4 | S1E1 الضلمة نزلت | «الضلمة نزلت على البلد… وحمادة أول واحد.» | the arc begins |
-| 16 | P3 | لو الأدوار بتبان | «لو الأدوار كانت بتبان ورا كل واحد…» | every figure appears at once, chaos → «عشان كده محدش بيشوف دور حد» |
-| 17 | P2 | ليلة الخميس | «الخميس ٩ بالليل. الترابيزة مفتوحة.» | the weekly event |
+| 16 | P2 | شريكك فاكرك | «اختار شريكك… وهو هيفتكر كل قضية حليتها.» | **the Partner's memory**: «المحقق محتفظ بملفاتك. غبت شوية.» |
+| 17 | P3 | أنا ساكت عشان بفكر | «اللي بيقول "أنا ساكت عشان بفكر":» | Uncle Reda's silence; closes on the reveal |
 | 18 | P4 | S1E2 أنا تاني؟! | «حمادة رجع… وماتش تاني.» | case 2 |
-| 19 | P2 | سهرة من ٣ | «ماتش واحد مش كفاية؟ خليها سهرة من ٣.» | Series & Draft with the `/series/` link |
-| 20 | P6 | ٥٠٠ | «٥٠٠ واحد سجّلوا… والراوي عنده هدية.» | milestone rung 1 — posted only after it's hit |
+| 19 | P2 | ليلة الخميس | «الخميس ٩ بالليل. الترابيزة مفتوحة.» | **the weekly night** |
+| 20 | P6 | لوحة المحققين | «دول اللي عرفوا مين المافيا الأسبوع ده.» | the first solvers board + standings |
+
+### Next up (queued strength proofs)
+
+| Title | Opening line | Strength | When |
+|---|---|---|---|
+| الشلة بتعلمك | «أول مرة تلعب؟ الشلة هتوريك في دقيقة.» | **F18** how-to scenes | Phase B / L-week |
+| سهرة العيلة | «سهرة مع العيلة؟ فيه وضع للعيلة، من غير خضة.» | **F17** family preset | before Ramadan; family audiences |
+| الترابيزة كلها | «١٥ واحد وموبايل واحد في النص.» | **F15** + F18 layout | organiser placements |
+| بعد خروجك | «خرجت من أول ليلة؟ الحكاية لسه ما خلصتش ليك.» | following the truth after you're out — calm, never a lead | after L |
+| ما يفضحش دورك | «نفس المدة، نفس النور… لكل الأدوار.» | the hand-off, second angle | anytime |
 
 ---
 
-## 5. Hook bank (first 1.5 s)
+## 6. Hook bank (first 1.5 s)
 
-The owner, as a native speaker, checks all 30 once, at the first 11:00 approval.
+The owner checks all 30 once, at the first 11:00 approval. No hook leads with a reward.
 
 **P1 · the game**
 1. «فاكر لعبة المافيا اللي كل اليوتيوبرز لعبوها؟»
 2. «إنت دايمًا اللي بيطلع عليك الدور تبقى الراوي؟»
 3. «لعبة المافيا في ١٠ ثواني. ركّز.»
 4. «لو عمرك ما لعبت مافيا، الفيديو ده ليك.»
-5. «أحلى لعبة في أي قعدة… ومحدش عايز يبقى الراوي.»
-6. «المافيا كانت محتاجة ترابيزة. دلوقتي محتاجة لينك.»
+5. «المافيا كانت محتاجة ترابيزة. دلوقتي محتاجة لينك.»
 
-**P2 · features**
+**P2 · strength proofs**
 
-7. «الراوي في شلتكم بيغش؟»
-8. «صحابك كل واحد في محافظة؟»
-9. «النت فصل في نص الماتش؟ ارجع مكانك.»
-10. «عندكم قوانين مافيا بتاعتكم؟ اكتبوها وابعتوها.»
-11. «لغز واحد كل يوم. محدش بيحله من أول مرة.»
-12. «ماتش واحد مش كفاية؟ خليها سهرة من ٣.»
-13. «الخميس ٩ بالليل. الترابيزة مفتوحة.»
+6. «الراوي في شلتكم بيغش؟»
+7. «الراوي بقى بيتكلم… وبالمصري.»
+8. «بعد النتيجة… كل واحد دوره بيقوم وراه.»
+9. «رايحين رحلة؟ الموبايل هو الراوي، ولحد ١٥ واحد.»
+10. «سهرة مع العيلة؟ فيه وضع للعيلة، من غير خضة.»
+11. «صحابك كل واحد في محافظة؟»
+12. «صاحبك بيعرف دورك من نور الشاشة على وشك؟»
+13. «ابعت اللينك… وصاحبك داخل من المتصفح في ثواني.»
+14. «النت فصل في نص الماتش؟ ارجع مكانك.»
+15. «لغز واحد كل يوم. وليه حل واحد بس.»
+16. «الخميس ٩ بالليل. الترابيزة مفتوحة.»
 
 **P3 · situations**
 
-14. «في كل قعدة فيه واحد بيحلف إنه مواطن…»
-15. «الدكتور لما يختار ينقذ مين:»
-16. «المحقق لما يطلع عليه أخوه:»
-17. «حمادة في أي قعدة مافيا:»
-18. «اللي بيقول "أنا ساكت عشان بفكر":»
-19. «لما المافيا يبقى أكتر واحد بيتّهم الناس:»
-20. «لو الأدوار كانت بتبان ورا كل واحد…»
+17. «في كل قعدة فيه واحد بيحلف إنه مواطن…»
+18. «حمادة في أي قعدة مافيا:»
+19. «اللي بيقول "أنا ساكت عشان بفكر":»
+20. «لما المافيا يبقى أكتر واحد بيتّهم الناس:»
 21. «أول ليلة، وإنت المافيا، وصاحبك بيدافع عنك:»
 
 **P4 · the case**
 
 22. «مين قتل حمادة؟ عندك ٣ أدلة.»
 23. «واحد من الستة دول بيكدب.»
-24. «امبارح ٧٠٪ منكم غلطوا. النهاردة أصعب.»
+24. «امبارح أغلبكم غلطوا. النهاردة أصعب.»
 25. «الكرسي السابع لسه فاضي…»
 
 **P5 · trend-jack patterns**
@@ -347,132 +394,188 @@ The owner, as a native speaker, checks all 30 once, at the first 11:00 approval.
 27. «[الحدث] النهاردة؟ الترابيزة ليها رأي.»
 28. «الكل شايف [الترند]. المحقق شايف حاجة تانية.»
 
-**P6 · attachment**
+**P6 · rituals**
 
 29. «الكروت دي فاكرة كل ترابيزة قعدت عليها.»
 30. «المحقق محتفظ بملفاتك. غبت شوية.»
 
 ---
 
-## 6. Hook A/B
+## 7. Hook re-cuts and A/B
 
-Posting one body twice on the same account is suppressed as duplicate content, and the same
-body on different platforms mixes platform effects with hook effects. So:
-
-1. **Instagram Trial Reels** (if the account has them): shown only to non-followers, so two hooks on one body test cleanly.
-2. **Hook families** on TikTok, Facebook and Shorts: compare families (question, observation, number, "لو…") across *different* bodies in the same pillar, normalized to the account's rolling 14-day median.
-3. **The log**, one row per post: pillar · hook family · hook text · platform · 3-second hold · completion · shares per 1k · follows per 1k · comments per 1k.
-4. After ~3 uses per family, drop the bottom third; winners get new variants written into §5.
+1. **One body, one hook per platform**, from the same family set; a clean master per platform.
+2. **Instagram Trial Reels** (if available): two hooks on one body, non-followers only.
+3. **Hook families** (question · observation · number · «لو…» · problem) compared across bodies in a pillar, normalized to each account's rolling 14-day median.
+4. **The log:** pillar · family · hook · platform · 3-second hold · completion · shares/1k · follows/1k · returning-viewer share.
+5. After ~3 uses per family, drop the bottom third; winners get new variants in §6.
+6. **Clone only proven winners:** above 2× the 14-day median on follows or shares → a new body in the same format within 24–48 h.
 
 ---
 
-## 7. The quality bar
+## 8. Growth assets (built after «ابدأ»)
+
+### 8.1 UGC template «كل واحد وكارته»
+
+- **CapCut template first:** the user films themselves; one of the Four rises behind them with the lamp light, the app's sonic mark and «ورا كل واحد كارت… ومحدش شايفه.»
+- The character stands behind the user **without implying their real personality or role**.
+- #كل_واحد_وكارته + #لعبة_المافيا.
+- **Effect House** only after 10 creators agree or ≥ 100 organic uses.
+- Estimate: 20k–100k views, 50–250 pre-registrations [E].
+
+### 8.2 Web quiz «إنت أنهي واحد من الأربعة؟»
+
+- Six questions; answers map A = المافيا · B = الدكتور · C = المحقق · D = المواطن. Most answers wins; ties go to the Q6 answer. Deterministic.
+- The name is rendered **locally only**, through a profanity filter. **Nothing is stored.**
+- The result routes to `/p/<character>` → pre-registration (after L: install).
+- Estimate: share rate 5–15%; 100–500 pre-registrations per 10k visits [E].
+
+| # | Question | A (المافيا) | B (الدكتور) | C (المحقق) | D (المواطن) |
+|---|---|---|---|---|---|
+| 1 | «أول ما القعدة تبدأ، إنت:» | «بسيب الكل يتكلم وأختار إمتى أدخل» | «بطمن إن الكل مبسوط» | «بلاحظ مين صوته اتغيّر» | «بفتكر آخر مرة اتقابلنا حصل إيه» |
+| 2 | «صاحبك اتهموه ظلم:» | «أستنى، الوقت هيبيّن» | «أدافع عنه على طول» | «أطلب دليل من اللي اتهمه» | «أسأل سؤال بسيط يفك الموضوع» |
+| 3 | «أكتر حاجة بتضايقك:» | «اللي بيتكلم كتير» | «إن حد يتأذي وأنا واقف» | «الكلام اللي مش راكب على بعضه» | «إن الشلة تتفرق» |
+| 4 | «في الخروجة إنت اللي:» | «محدش عارف بيفكر في إيه» | «معاه الشاحن والمية» | «بيعرف مين بيكدب من أول جملة» | «بيجمع الكل في جروب واحد» |
+| 5 | «لو معاك سر:» | «هيفضل سر» | «هقوله لو هيحمي حد» | «هعرف مين غيري عارفه» | «هشيله وأفتكره بعد سنين» |
+| 6 | «اختار جملة:» | «فاكر الترابيزة دي. كانت عارفة إمتى تسكت.» | «مش كل نجدة بتتشاف، بس كلها بتتحسب.» | «قضية واحدة كفاية تعرفك قيمة الشك.» | «البلد بتعيش عشان فيه حد لسه بيسمع.» |
+
+| Result | Line |
+|---|---|
+| المافيا | «{name}، إنت أقرب للي بيعرف إمتى يسكت.» |
+| الدكتور | «{name}، إنت أقرب للي بيحرس آخر نور.» |
+| المحقق | «{name}، إنت أقرب للي بيقرا الكلام اللي ما اتقالش.» |
+| المواطن | «{name}، إنت ذاكرة الترابيزة.» |
+
+Share line: «طلعت أقرب لـ{character}… وإنت؟» + link. CTA: «شريكك مستنيك جوه اللعبة.»
+
+### 8.3 Meme kit
+
+- 12 six-second looping AI reaction clips of the painted Gang (Karim's smile, Nada pointing, Hamada's «أنا تاني؟!», Uncle Reda's silence, the Doctor saving himself, a card coming alive).
+- Transparent reveals, blank caption zones; a small corner mark only.
+- Free credited reposts only.
+
+### 8.4 Organiser host card and host page (N2)
+
+- **Host card** (printable A6, and as an image for WhatsApp): the phone flat on the table, the line **«رايحين رحلة؟ الموبايل هو الراوي، ولحد ١٥ واحد.»**, three steps («نزّل · حط الموبايل في النص · الراوي هيبدأ»), a QR to the organiser's dedicated link.
+- **Host page** (a short web page per organiser link): what the game is in 3 lines, how to run a 15-player night, family mode for mixed groups, the install button.
+- Dedicated links with Install Referrer per organiser. Report installs, never "people reached".
+
+---
+
+## 9. The quality bar
 
 ### What "not naive" means
-1. **The joke is a true, specific observation**, never a premise. "The friend who swears three times" works; "Mafia is funny" doesn't.
-2. **One idea per video**; the punch lands in the last 3 seconds.
-3. **Never explain the joke.** No emoji carrying the laugh, no «😂», no «هههه» captions.
-4. **Never punch down:** no jokes about women, Upper Egyptians, regions, bodies or class. The target is a table behaviour, never a group of people.
-5. **No dead formats:** stale POV setups, recycled meme captions, screaming reactions, puns on our own name.
-6. **Egyptian lives in the rhythm, not in slang density.** One strong phrase beats five.
-7. **The Four never joke.** The Gang is funny; the Four are restrained; the Narrator is the bridge.
+1. The joke is a true, specific observation, never a premise.
+2. One idea per video; the punch in the last 3 seconds.
+3. Never explain the joke; no emoji carrying the laugh.
+4. Never punch down: no jokes about women, Upper Egyptians, regions, bodies or class.
+5. No dead formats: stale POV setups, recycled meme captions, screaming reactions, puns on our name.
+6. Egyptian lives in the rhythm, not in slang density.
+7. The Four never joke; the Gang is funny; the Narrator is the bridge.
+8. Every video proves a strength (P-A); a joke without one is an experiment, capped at 30%.
 
 ### Visual grade
-- Charcoal, graphite and bone; ~85% desaturated; warm highlights only near the lamp.
-- Crimson only on death beats, ≤ 5% of the frame. No neon, no purple, no glow, no confetti.
-- One shared LUT → vignette → 3% grain.
-- Melting hands or faces, flicker, text-like garbage: crop or discard.
+- The app's painted look: charcoal, graphite and bone; ~85% desaturated; warm only near the lamp. Crimson only on death beats, ≤ 5% of the frame. No neon, purple, glow or confetti.
+- One shared LUT → vignette → 3% grain. Melting hands or faces, flicker, garbage text: crop or discard.
 
 ### Typography
-- The app's Arabic display face (per `BRAND_KIT.md`) for titles; a clean Arabic sans for captions; all set through **libass** so letters join correctly. Arabic is never generated by a model.
-- Captions ≥ 64 px at 1080 wide, bone on a 60% charcoal plate.
-- ≤ 7 words per card, ≤ 2 lines, never over a face or a card.
+- The app's Arabic display face (per `BRAND_KIT.md`) for titles; a clean Arabic sans for captions; all through **libass**. Arabic is never generated by a model.
+- Captions ≥ 64 px at 1080 wide, bone on a 60% charcoal plate; ≤ 7 words per card, ≤ 2 lines.
 
 ### Sound
-- The game's score as the bed (~−24 LUFS under voice); the Narrator on top; mix −14 LUFS integrated.
-- Fixed SFX palette: card flip, lamp hiss, low boom, chair scrape, UI tick.
-- No laugh tracks, no whoosh on every cut. Music only from our score or TikTok's Commercial Music Library.
+- The app's sonic mark at 0.0 s and under the reveal. The game's score as the bed (~−24 LUFS); the F16 narrator voice on top; mix −14 LUFS.
+- SFX palette: card flip, lamp click, lamp hiss, low boom, chair scrape, UI tick. No laugh tracks.
+- Music only from our score or TikTok's Commercial Music Library.
 
 ### Pacing
-- A cut or new text card every 1.5–2.5 s.
-- Readable with sound off within 3 s.
-- ≤ 22 s, except P4 (30 s).
+- A cut or text card every 1.5–2.5 s; readable with sound off within 3 s; ≤ 22 s except P4 (30 s).
 
 ### Rejection checklist (11:00 approval)
-1. Hook readable at frame 0 with sound off?
-2. Any real person, name, logo, club crest, footage or trademark? → reject.
-3. Any banned topic (§8)? → reject.
-4. Joke needs explaining, relies on emoji, or punches down? → reject.
-5. Arabic correct: letters joined, no MSA slips, no English, inside the safe zone?
-6. AI artefacts (hands, faces, flicker, garbage text)? → reject or crop.
-7. Characters match their canonical sheets?
-8. Do the Four speak aloud, or are tier-3/4 lines or letters shown? → reject.
-9. Real-app end card present, correct screen, correct length, correct CTA for the phase?
-10. AI label ticked; music from our score or the Commercial Music Library?
-11. Loudness correct, no clipping, captions clear of mouths and cards?
-12. Length within template; end loops to start?
-13. Findable: «لعبة المافيا» in the caption and on screen or spoken (§10)?
+1. Sonic mark and recurring composition present; hook readable at frame 0 with sound off?
+2. **Which strength does it prove?** None → experiment (≤ 30% of the week) or reject.
+3. A reward, gift, code, coin or milestone leading the hook, headline or CTA? → reject.
+4. Anything on the "never marketed before it ships" list? → reject.
+5. «تحديث» or "new version"? → reject.
+6. Any real person, name, logo, club crest, footage or trademark? → reject.
+7. A viewer's name used as a suspect, victim or Mafia? → reject.
+8. A banned topic (§10)? → reject.
+9. Joke needs explaining, relies on emoji, or punches down? → reject.
+10. Arabic correct: letters joined, no MSA slips, no English, inside the safe zone?
+11. AI artefacts? → reject or crop. Faces match the app's canonical art?
+12. The Four speaking aloud, or tier-3/4 lines or letters shown? → reject.
+13. App narrator audible over a private phase? A fictional story presented as an in-game clue, or implying mid-match death stories in the app? → reject.
+14. Closing proof present where required, correct screen and CTA for the phase?
+15. A solve rate below 50 solves, or not rounded to 5%? → reject.
+16. AI label ticked; music from our score or the Commercial Music Library; loudness correct?
+17. Findable: «لعبة المافيا» in the caption and on screen or spoken (§13)?
 
 ---
 
-## 8. Trend radar
+## 10. Trend radar
 
-**Sources, scanned daily 09:00 (the marketing session):** TikTok Creative Center (Egypt
-hashtags and videos) · Google Trends Egypt, last 24 h · X trends Egypt · trending Facebook
-pages in our niche · the calendar: football fixtures, exams and results days, Egyptian
-holidays, Eid, Ramadan, weather extremes, big TV finales (referred to generically).
+**Sources, daily 09:00 (marketing session):** TikTok Creative Center (Egypt) · Google Trends
+Egypt, last 24 h · X trends Egypt · trending Facebook pages in our niche · the calendar
+(football, exams and results days, holidays, Eid, Ramadan, school trips season, weather
+extremes, big TV finales referred to generically).
 
-**24-hour pipeline:** 09:00 scan → 09:30 pick at most one, written against T5 → 10:30
-built from stills + ≤ 1 Hailuo shot → **11:00 approval** → post 13:00 or 21:00. A trend
-found after 11:00 goes to the **21:30** window and posts next morning. **Not doable in
-24 h → skip.** Business accounts use the Commercial Music Library only, so trends are
-formats and topics, never sounds.
+**Pipeline:** 09:00 scan → 09:30 pick at most one (T5) → 10:30 built → **11:00 approval** →
+post 13:00 or 21:00. Found after 11:00 → the **21:30** window. **Not doable in 24 h → skip.**
+Trends are formats and topics, never sounds.
 
-**Football:** never club names, crests or player likeness; «الماتش» only; derby jokes hit
-both sides equally or don't run.
+**Football:** never club names, crests or player likeness; derby jokes hit both sides or don't run.
 
-**Banned:**
-- Politics, government, military, police.
-- Religion (topics, figures, rulings); everyday «والله» is fine.
-- Tragedies, deaths, accidents, disasters, Gaza and other conflicts.
-- Real people: celebrities, creators, politicians, series actors.
-- Economy and prices.
-- Thanaweya Amma results day (exam humour the week before is fine).
-- Sectarian, gender and regional stereotypes.
-- Anything involving minors.
-- Graphic violence: deaths implied, never shown.
+**Banned:** politics, government, military, police · religion (topics, figures, rulings) ·
+tragedies, deaths, accidents, disasters, Gaza and other conflicts · real people · the economy
+and prices · Thanaweya Amma results day · sectarian, gender and regional stereotypes ·
+anything involving minors · graphic violence.
 
 ---
 
-## 9. Community management
+## 11. Community management
 
-- **The Narrator replies** in text, drafted by the marketing session, approved at **21:30**, landing within ~2 h of the evening peak.
-- **Three reply-with-video shorts a week:** a still, the Narrator's voice, the viewer's comment on screen. Cost ≈ 0.
-- **"Is this AI?"** — always the same honest answer: «أيوه الفيديو AI، واللعبة حقيقية ومصرية.»
-- **«لوحة المحققين»:** Sunday's P6 reads the week's correct solvers (first names / handles from public comments on our own posts only).
-- **Moderation:** abusive comments are hidden (approved in the 21:30 batch), never deleted; no arguing; no replies on banned topics; spam and links from strangers hidden.
-- **Pinned comment** on every post: the phase CTA + the WhatsApp channel.
+- **Narrator replies** in text, drafted by the marketing session, approved at **21:30**.
+- **Three reply-with-video shorts a week** (T5).
+- **"Is this AI?"** — always: «أيوه الفيديو AI، واللعبة حقيقية ومصرية.»
+- **«لوحة المحققين»:** Sunday; handles from public comments on our own posts, removed on request.
+- **Moderation:** abusive comments hidden (21:30 batch), never deleted; no arguing; no replies on banned topics.
+- **Pinned comment:** the phase CTA; the WhatsApp channel on serialized posts.
 
 ---
 
-## 10. Social search — every video findable by «لعبة المافيا»
+## 12. The creator network — the pitch is the game
 
-TikTok and YouTube search are major discovery engines in Egypt [E]. Every video carries
-the core phrase in **three places**: the caption's first line, on-screen text, and — for
-P1 and P4 — the Narrator's first spoken line.
+The controllable lever (`PLAN-V3.md` §3.1): **~25 creator-hosted sessions in month 1**,
+measured by **completed matches**.
 
-**Caption formula:** first line = a natural sentence with the core phrase; second line =
-the pillar's keyword; then 3–5 hashtags. Example: «لعبة المافيا بقت أونلاين بالصوت… مين
-المافيا في شلتك؟»
+- **Who:** Egyptian micro-creators (10k–150k) who go live with group games or Just Chatting; plus Gulf creators who stream in Arabic, on the same pitch.
+- **The pitch (never reward-first):** «ترابيزة مافيا لمتابعينك: الموبايل هو الراوي وبيتكلم بالمصري، متابعينك بيدخلوا من المتصفح في ثواني، وفي الآخر كل واحد دوره بيقوم وراه.» At L creators simply play; no codes or special access are promised.
+- **Host kit** (one page + files):
+  1. run sheet: open the room → share the per-creator link → 4 matches minimum → capture the reveal at each result;
+  2. browser-join test script (5 people, 10 minutes);
+  3. a moderation brief for the creator's own moderator (our house rules: no slurs, no real-life accusations, kick flow);
+  4. clip-rights agreement for our posts;
+  5. a per-creator link and QR overlay (Install Referrer attribution);
+  6. two ready lines for the stream: «اللينك في البايو» · «ادخلوا من المتصفح».
+- **Rehearsal:** 15 minutes before a creator's first session, with the room, a browser join and the run sheet.
+- **Safety host:** our side (the owner) sits in Thursday creator tables; other sessions use the creator's own briefed moderator.
+- **Clips:** every session's best moments (the reveal, an accusation, a big-table night) are cut by the marketing session within 24 h, labelled, credited, and fed into the content system as extra posts.
+- **YouTuber reference** in our own posts stays generic («اليوتيوبرز», «١٤ على ترابيزة واحدة»); cold Creator-room DMs to the big creators' teams.
 
-| Pillar | Caption keywords | Hashtags (3–5) |
+---
+
+## 13. Social search — every video findable by «لعبة المافيا»
+
+The core phrase in the caption's first line, in on-screen text, and — for P1 and P4 — spoken
+by the Narrator.
+
+| Pillar | Caption keywords | Hashtags |
 |---|---|---|
-| P1 | لعبة المافيا، ازاي تلعب مافيا، لعبة مافيا اونلاين | #لعبة_المافيا #مافيا #العاب_جماعية #سيد_المافيا |
-| P2 | لعبة مافيا بالصوت، العاب اونلاين مع الاصحاب، [feature name] | #لعبة_المافيا #العاب_اونلاين #العاب_صحاب #سيد_المافيا |
-| P3 | قعدة مافيا، العاب قعدات، لعبة سهرة | #مافيا #قعدة_صحاب #العاب_سهرات #سيد_المافيا |
-| P4 | مين المافيا، مين القاتل، لغز، لعبة تحقيق | #مين_المافيا #لغز #مين_القاتل #لعبة_المافيا |
-| P5 | the trend's own words + لعبة المافيا | #لعبة_المافيا + one trend tag (if safe) |
-| P6 | الراوي، الملفات الأربعة، شريكك | #سيد_المافيا #مين_المافيا #لعبة_المافيا |
+| P1 | لعبة المافيا · ازاي تلعب مافيا · لعبة مافيا اونلاين | #لعبة_المافيا #مافيا #العاب_جماعية #سيد_المافيا |
+| P2 | لعبة مافيا بالصوت · العاب اونلاين مع الاصحاب · العاب رحلات · [the strength] | #لعبة_المافيا #العاب_اونلاين #العاب_صحاب #سيد_المافيا |
+| P3 | قعدة مافيا · العاب قعدات · لعبة سهرة | #مافيا #قعدة_صحاب #العاب_سهرات #سيد_المافيا |
+| P4 | مين المافيا · مين القاتل · لغز · لعبة تحقيق | #مين_المافيا #لغز #مين_القاتل #لعبة_المافيا |
+| P5 | the trend's own words + لعبة المافيا | #لعبة_المافيا + one safe trend tag |
+| P6 | الراوي · الملفات الأربعة · شريكك | #سيد_المافيا #مين_المافيا #لعبة_المافيا |
+| UGC | كل واحد وكارته | #كل_واحد_وكارته #لعبة_المافيا |
 
-Seasonal adds: #العاب_رمضان and «لعبة لسهرة رمضان» from Ramadan only. Never real
-people's names as tags.
+No Gulf hashtags on every post; the same feed serves the Gulf. From Ramadan: #العاب_رمضان.
+Never real people's names as tags.
