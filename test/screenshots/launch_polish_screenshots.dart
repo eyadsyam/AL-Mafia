@@ -27,6 +27,9 @@ import 'package:mafia_master/engine/models/enums.dart' as engine;
 import 'package:mafia_master/ui/fun/character_dossiers.dart';
 import 'package:mafia_master/ui/fun/characters_screen.dart';
 import 'package:mafia_master/ui/widgets/warmup_gate.dart';
+import 'package:mafia_master/ui/account/account_sheet.dart';
+import 'package:mafia_master/transport/account_auth.dart';
+import 'package:mafia_master/ui/social/friends.dart';
 import 'package:mafia_master/data/online_match_history.dart';
 import 'package:mafia_master/data/repository_provider.dart';
 import 'package:mafia_master/ui/screens/postgame/history_screen.dart';
@@ -229,4 +232,58 @@ void main() {
     await tester.pump(const Duration(seconds: 30));
     await tester.pumpAndSettle();
   });
+
+  testWidgets('account sheet — guest', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await shoot(
+      tester,
+      'account_guest_ar',
+      const Scaffold(body: AccountSheet()),
+      overrides: [
+        accountProfileProvider.overrideWith(
+          (ref) => Stream.value(AccountProfile.guest),
+        ),
+      ],
+    );
+  });
+
+  testWidgets('account sheet — sign up', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await shoot(
+      tester,
+      'account_signup_ar',
+      const Scaffold(body: AccountSheet(initial: AccountStep.signUp)),
+      overrides: [
+        accountProfileProvider.overrideWith(
+          (ref) => Stream.value(AccountProfile.guest),
+        ),
+      ],
+    );
+  });
+
+  testWidgets('friends sheet', (tester) async {
+    await shoot(
+      tester,
+      'friends_ar',
+      Scaffold(body: FriendsSheet(onJoin: (_) {})),
+      overrides: [friendsProvider.overrideWith(_ShotFriends.new)],
+    );
+  });
+}
+
+class _ShotFriends extends FriendsController {
+  @override
+  Future<FriendsState?> build() async => FriendsState.fromJson({
+    'friends': [
+      {'id': 'a', 'name': 'ليلى', 'gender': 'female',
+       'presence': {'state': 'lobby', 'code': 'K7M2QP', 'players': 4}},
+      {'id': 'b', 'name': 'كريم', 'gender': 'male', 'presence': {'state': 'playing'}},
+      {'id': 'f', 'name': 'يوسف', 'gender': 'male'},
+    ],
+    'incoming': [{'id': 'c', 'name': 'سارة', 'gender': 'female'}],
+    'recent': [{'id': 'e', 'name': 'نور', 'gender': 'female', 'matches': 3}],
+    'invites': [{'roomId': 'r', 'code': 'ABCDEF', 'name': 'ليلى'}],
+  });
+  @override
+  Future<void> refresh() async {}
 }

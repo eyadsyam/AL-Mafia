@@ -14,6 +14,7 @@ import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
 import '../../widgets/profile_identity.dart';
 import '../../economy/waiting_banner.dart';
+import '../../account/profile_panels.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final VoidCallback? onSaved;
@@ -155,6 +156,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 padding: EdgeInsets.only(top: s.sm),
                                 child: const Center(child: FounderBadge()),
                               ),
+                            // The full profile, editing only: the account,
+                            // the record, then the identity form below.
+                            if (widget.onBack != null) ...[
+                              const AccountCard(),
+                              const ProfileStats(),
+                            ],
                             SizedBox(height: s.lg),
                             ProfileIdentityFields(
                               name: _name,

@@ -125,6 +125,8 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="mafiamaster" android:host="online"/>
+                <!-- Google sign-in and password-reset links return here. -->
+                <data android:scheme="mafiamaster" android:host="login-callback"/>
             </intent-filter>
         </activity>
         <!-- The launcher icon's name follows the in-game language (Settings).

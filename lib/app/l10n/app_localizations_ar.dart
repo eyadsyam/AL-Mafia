@@ -4098,4 +4098,162 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get friendsInviteToRoom => 'اعزم أصحابك';
+
+  @override
+  String get authEmail => 'الإيميل';
+
+  @override
+  String get authPassword => 'كلمة السر';
+
+  @override
+  String get authPasswordAgain => 'كلمة السر تاني';
+
+  @override
+  String get authNewPassword => 'كلمة السر الجديدة';
+
+  @override
+  String get authPasswordRule => '8 حروف على الأقل';
+
+  @override
+  String get authShow => 'إظهار';
+
+  @override
+  String get authHide => 'إخفاء';
+
+  @override
+  String get authCode => 'الكود';
+
+  @override
+  String get authGoogle => 'كمّل بحساب جوجل';
+
+  @override
+  String get authGoogleContinue => 'كمّل في المتصفح وارجع للعبة.';
+
+  @override
+  String get authGuestTitle => 'خلّي حسابك معاك';
+
+  @override
+  String get authGuestBody =>
+      'عملاتك وحاجاتك ورتبتك وأصحابك يفضلوا معاك على أي موبايل. تقدر تكمل كضيف عادي.';
+
+  @override
+  String get authCreate => 'إنشاء حساب';
+
+  @override
+  String get authCreateBody => 'نفس تقدّمك الحالي هيتنقل للحساب زي ما هو.';
+
+  @override
+  String get authHaveAccount => 'عندي حساب · دخول';
+
+  @override
+  String get authSendCode => 'ابعت الكود';
+
+  @override
+  String get authVerifyTitle => 'أكّد الإيميل';
+
+  @override
+  String authVerifyBody(String email) {
+    return 'بعتنا كود من 6 أرقام لـ $email. اكتبه هنا أو افتح اللينك اللي في الإيميل.';
+  }
+
+  @override
+  String get authVerify => 'تأكيد';
+
+  @override
+  String get authResend => 'ابعت الكود تاني';
+
+  @override
+  String authResendIn(int seconds) {
+    return 'ابعته تاني بعد $seconds ث';
+  }
+
+  @override
+  String get authResent => 'اتبعت تاني.';
+
+  @override
+  String get authWelcome => 'أهلًا بيك. حسابك جاهز.';
+
+  @override
+  String get authSignIn => 'دخول';
+
+  @override
+  String get authSignInBody =>
+      'هتدخل على حسابك، والتقدّم اللي على الجهاز ده كضيف مش هيتنقل له.';
+
+  @override
+  String get authRemember => 'تذكّرني';
+
+  @override
+  String get authForgot => 'نسيت كلمة السر؟';
+
+  @override
+  String get authForgotBody =>
+      'اكتب إيميل حسابك وهنبعتلك كود تعمل بيه كلمة سر جديدة.';
+
+  @override
+  String get authResetTitle => 'كلمة سر جديدة';
+
+  @override
+  String get authResetSave => 'حفظ';
+
+  @override
+  String get authPasswordChanged => 'كلمة السر اتغيرت.';
+
+  @override
+  String get authChangePassword => 'تغيير كلمة السر';
+
+  @override
+  String get authSetPassword => 'اعمل كلمة سر';
+
+  @override
+  String get authSignOut => 'خروج';
+
+  @override
+  String get authVerified => 'إيميل متأكد';
+
+  @override
+  String get authViaGoogle => 'جوجل';
+
+  @override
+  String get authViaPassword => 'كلمة سر';
+
+  @override
+  String get authSafe =>
+      'حسابك محفوظ. لو غيرت موبايلك ادخل بنفس الحساب وكل حاجة هترجع.';
+
+  @override
+  String get authWeakPassword => 'كلمة السر لازم تبقى 8 حروف على الأقل.';
+
+  @override
+  String get authWrongPassword => 'الإيميل أو كلمة السر مش مظبوطين.';
+
+  @override
+  String get authNotConfirmed => 'الإيميل لسه متأكدش. شوف الكود اللي وصلك.';
+
+  @override
+  String get authSamePassword => 'دي نفس كلمة السر القديمة.';
+
+  @override
+  String get authMismatch => 'كلمتين السر مش زي بعض.';
+
+  @override
+  String get authProviderOff => 'الطريقة دي مش متاحة دلوقتي.';
+
+  @override
+  String get authAccount => 'الحساب';
+
+  @override
+  String get authGuestBadge => 'ضيف';
+
+  @override
+  String get authManage => 'إدارة';
+
+  @override
+  String get profileStatMatches => 'ماتشات';
+
+  @override
+  String get profileStatOnline => 'أونلاين';
+
+  @override
+  String get profileStatLetters => 'رسايل الشخصيات';
 }

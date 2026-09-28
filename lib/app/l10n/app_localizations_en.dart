@@ -4197,4 +4197,164 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get friendsInviteToRoom => 'Invite friends';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authPassword => 'Password';
+
+  @override
+  String get authPasswordAgain => 'Password again';
+
+  @override
+  String get authNewPassword => 'New password';
+
+  @override
+  String get authPasswordRule => 'At least 8 characters';
+
+  @override
+  String get authShow => 'Show';
+
+  @override
+  String get authHide => 'Hide';
+
+  @override
+  String get authCode => 'Code';
+
+  @override
+  String get authGoogle => 'Continue with Google';
+
+  @override
+  String get authGoogleContinue => 'Finish in the browser, then come back.';
+
+  @override
+  String get authGuestTitle => 'Keep your account with you';
+
+  @override
+  String get authGuestBody =>
+      'Your coins, items, rank and friends follow you to any phone. You can keep playing as a guest.';
+
+  @override
+  String get authCreate => 'Create account';
+
+  @override
+  String get authCreateBody =>
+      'Everything you have now moves into the account as it is.';
+
+  @override
+  String get authHaveAccount => 'I have an account · Sign in';
+
+  @override
+  String get authSendCode => 'Send code';
+
+  @override
+  String get authVerifyTitle => 'Confirm your email';
+
+  @override
+  String authVerifyBody(String email) {
+    return 'We sent a 6-digit code to $email. Type it here or open the link in the email.';
+  }
+
+  @override
+  String get authVerify => 'Confirm';
+
+  @override
+  String get authResend => 'Send the code again';
+
+  @override
+  String authResendIn(int seconds) {
+    return 'Send again in ${seconds}s';
+  }
+
+  @override
+  String get authResent => 'Sent again.';
+
+  @override
+  String get authWelcome => 'Welcome. Your account is ready.';
+
+  @override
+  String get authSignIn => 'Sign in';
+
+  @override
+  String get authSignInBody =>
+      'You will be in your account; this device\'s guest progress does not move to it.';
+
+  @override
+  String get authRemember => 'Remember me';
+
+  @override
+  String get authForgot => 'Forgot password?';
+
+  @override
+  String get authForgotBody =>
+      'Enter your account email and we\'ll send a code to set a new password.';
+
+  @override
+  String get authResetTitle => 'New password';
+
+  @override
+  String get authResetSave => 'Save';
+
+  @override
+  String get authPasswordChanged => 'Password changed.';
+
+  @override
+  String get authChangePassword => 'Change password';
+
+  @override
+  String get authSetPassword => 'Set a password';
+
+  @override
+  String get authSignOut => 'Sign out';
+
+  @override
+  String get authVerified => 'Email confirmed';
+
+  @override
+  String get authViaGoogle => 'Google';
+
+  @override
+  String get authViaPassword => 'Password';
+
+  @override
+  String get authSafe =>
+      'Your account is saved. On a new phone, sign in and everything comes back.';
+
+  @override
+  String get authWeakPassword => 'The password needs at least 8 characters.';
+
+  @override
+  String get authWrongPassword => 'Email or password is not right.';
+
+  @override
+  String get authNotConfirmed =>
+      'That email isn\'t confirmed yet. Check the code we sent.';
+
+  @override
+  String get authSamePassword => 'That is the same password as before.';
+
+  @override
+  String get authMismatch => 'The two passwords don\'t match.';
+
+  @override
+  String get authProviderOff => 'That way in isn\'t available right now.';
+
+  @override
+  String get authAccount => 'Account';
+
+  @override
+  String get authGuestBadge => 'Guest';
+
+  @override
+  String get authManage => 'Manage';
+
+  @override
+  String get profileStatMatches => 'Matches';
+
+  @override
+  String get profileStatOnline => 'Online';
+
+  @override
+  String get profileStatLetters => 'Character letters';
 }

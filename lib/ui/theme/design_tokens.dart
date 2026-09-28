@@ -1836,3 +1836,18 @@ abstract final class FriendsTokens {
   static const double heroHeight = 120.0;
   static const double avatar = 44.0;
 }
+
+/// Accounts (`lib/ui/account/account_sheet.dart`).
+abstract final class AccountTokens {
+  static const double sheetHeight = 0.92;
+  static const double heroHeight = 96.0;
+  static const double progress = 20.0;
+  static const double progressStroke = 2.0;
+  static const int resendSeconds = 60;
+  static const int codeLength = 6;
+}
+
+/// The full profile (`lib/ui/account/profile_panels.dart`).
+abstract final class ProfileTokens {
+  static const double statArt = 56.0;
+}

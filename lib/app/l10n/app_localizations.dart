@@ -7177,6 +7177,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invite friends'**
   String get friendsInviteToRoom;
+
+  /// No description provided for @authEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmail;
+
+  /// No description provided for @authPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPassword;
+
+  /// No description provided for @authPasswordAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Password again'**
+  String get authPasswordAgain;
+
+  /// No description provided for @authNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get authNewPassword;
+
+  /// No description provided for @authPasswordRule.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 8 characters'**
+  String get authPasswordRule;
+
+  /// No description provided for @authShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get authShow;
+
+  /// No description provided for @authHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get authHide;
+
+  /// No description provided for @authCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get authCode;
+
+  /// No description provided for @authGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get authGoogle;
+
+  /// No description provided for @authGoogleContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish in the browser, then come back.'**
+  String get authGoogleContinue;
+
+  /// No description provided for @authGuestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your account with you'**
+  String get authGuestTitle;
+
+  /// No description provided for @authGuestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your coins, items, rank and friends follow you to any phone. You can keep playing as a guest.'**
+  String get authGuestBody;
+
+  /// No description provided for @authCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get authCreate;
+
+  /// No description provided for @authCreateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you have now moves into the account as it is.'**
+  String get authCreateBody;
+
+  /// No description provided for @authHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'I have an account · Sign in'**
+  String get authHaveAccount;
+
+  /// No description provided for @authSendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get authSendCode;
+
+  /// No description provided for @authVerifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your email'**
+  String get authVerifyTitle;
+
+  /// No description provided for @authVerifyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to {email}. Type it here or open the link in the email.'**
+  String authVerifyBody(String email);
+
+  /// No description provided for @authVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get authVerify;
+
+  /// No description provided for @authResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the code again'**
+  String get authResend;
+
+  /// No description provided for @authResendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Send again in {seconds}s'**
+  String authResendIn(int seconds);
+
+  /// No description provided for @authResent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent again.'**
+  String get authResent;
+
+  /// No description provided for @authWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome. Your account is ready.'**
+  String get authWelcome;
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignIn;
+
+  /// No description provided for @authSignInBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be in your account; this device\'s guest progress does not move to it.'**
+  String get authSignInBody;
+
+  /// No description provided for @authRemember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember me'**
+  String get authRemember;
+
+  /// No description provided for @authForgot.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get authForgot;
+
+  /// No description provided for @authForgotBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your account email and we\'ll send a code to set a new password.'**
+  String get authForgotBody;
+
+  /// No description provided for @authResetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get authResetTitle;
+
+  /// No description provided for @authResetSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get authResetSave;
+
+  /// No description provided for @authPasswordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed.'**
+  String get authPasswordChanged;
+
+  /// No description provided for @authChangePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get authChangePassword;
+
+  /// No description provided for @authSetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a password'**
+  String get authSetPassword;
+
+  /// No description provided for @authSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get authSignOut;
+
+  /// No description provided for @authVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Email confirmed'**
+  String get authVerified;
+
+  /// No description provided for @authViaGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Google'**
+  String get authViaGoogle;
+
+  /// No description provided for @authViaPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authViaPassword;
+
+  /// No description provided for @authSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is saved. On a new phone, sign in and everything comes back.'**
+  String get authSafe;
+
+  /// No description provided for @authWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The password needs at least 8 characters.'**
+  String get authWeakPassword;
+
+  /// No description provided for @authWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Email or password is not right.'**
+  String get authWrongPassword;
+
+  /// No description provided for @authNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'That email isn\'t confirmed yet. Check the code we sent.'**
+  String get authNotConfirmed;
+
+  /// No description provided for @authSamePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'That is the same password as before.'**
+  String get authSamePassword;
+
+  /// No description provided for @authMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The two passwords don\'t match.'**
+  String get authMismatch;
+
+  /// No description provided for @authProviderOff.
+  ///
+  /// In en, this message translates to:
+  /// **'That way in isn\'t available right now.'**
+  String get authProviderOff;
+
+  /// No description provided for @authAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get authAccount;
+
+  /// No description provided for @authGuestBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest'**
+  String get authGuestBadge;
+
+  /// No description provided for @authManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get authManage;
+
+  /// No description provided for @profileStatMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches'**
+  String get profileStatMatches;
+
+  /// No description provided for @profileStatOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get profileStatOnline;
+
+  /// No description provided for @profileStatLetters.
+  ///
+  /// In en, this message translates to:
+  /// **'Character letters'**
+  String get profileStatLetters;
 }
 
 class _AppLocalizationsDelegate

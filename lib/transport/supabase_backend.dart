@@ -1,3 +1,4 @@
+import 'account_auth.dart';
 import 'dart:async';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -58,6 +59,8 @@ class SupabaseBackend implements OnlineBackend {
     required String publishableKey,
   }) async {
     await Supabase.initialize(url: url, publishableKey: publishableKey);
+    // «تذكرني» off: an account (never a guest) is signed out at launch.
+    await AccountAuth.applyRemember(Supabase.instance.client.auth);
     return SupabaseBackend(Supabase.instance.client);
   }
 
