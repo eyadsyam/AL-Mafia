@@ -36,6 +36,7 @@ Deno.serve(handler(async (req, userId, db) => {
       p_pick: puzzleRequest.pick,
       p_correct: puzzleRequest.pick === puzzle.answer,
       p_answer_hash: caseAnswerHash(utcDay, salt, puzzle.answer),
+      p_request: puzzleRequest.requestId ?? null,
     });
     if (error) throw error;
     const result = data as Record<string, unknown>;

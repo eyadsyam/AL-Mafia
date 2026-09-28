@@ -22,7 +22,7 @@ const CASEBOOK_CODE = /^[a-z0-9_]{3,60}$/;
 export type EconomyCall = { rpc: string; args: Record<string, unknown> };
 export type CasePuzzleRequest =
   | { kind: "read" }
-  | { kind: "solve"; day: string; pick: string };
+  | { kind: "solve"; day: string; pick: string; requestId?: string };
 
 /** The server day a daily request was made for. Required: a retry without
  * one could otherwise land on the next UTC day as a fresh claim. */
@@ -39,8 +39,14 @@ export function casePuzzleRequest(
   if (body.action === "casePuzzle") return { kind: "read" };
   if (body.action !== "casePuzzleSolve") return undefined;
   const d = day(body.day);
-  return d !== undefined && typeof body.pick === "string" && /^s[0-6]$/.test(body.pick)
-    ? { kind: "solve", day: d, pick: body.pick }
+  if (d === undefined || typeof body.pick !== "string" || !/^s[0-6]$/.test(body.pick)) {
+    return null;
+  }
+  // D2 — the id that makes a retried pick the same pick. Optional for older
+  // clients; malformed is a malformed request, never silently dropped.
+  if (body.requestId === undefined) return { kind: "solve", day: d, pick: body.pick };
+  return typeof body.requestId === "string" && UUID.test(body.requestId)
+    ? { kind: "solve", day: d, pick: body.pick, requestId: body.requestId.toLowerCase() }
     : null;
 }
 

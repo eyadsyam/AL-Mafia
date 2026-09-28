@@ -68,6 +68,14 @@ assert.deepEqual(casePuzzleRequest({
 }), { kind: 'solve', day: '2026-09-28', pick: 's3' });
 assert.equal(casePuzzleRequest({ action: 'casePuzzleSolve', day: '28-09-2026', pick: 's3' }), null);
 assert.equal(casePuzzleRequest({ action: 'casePuzzleSolve', day: '2026-09-28', pick: 's7' }), null);
+// D2 — a request id travels with the pick; a malformed one is refused.
+assert.deepEqual(casePuzzleRequest({
+  action: 'casePuzzleSolve', day: '2026-09-28', pick: 's3',
+  requestId: '6F1C2A4E-9B7D-4C3A-8E21-0D5F6A7B8C9D',
+}), { kind: 'solve', day: '2026-09-28', pick: 's3', requestId: '6f1c2a4e-9b7d-4c3a-8e21-0d5f6a7b8c9d' });
+assert.equal(casePuzzleRequest({
+  action: 'casePuzzleSolve', day: '2026-09-28', pick: 's3', requestId: 'retry-1',
+}), null);
 assert.equal(casePuzzleRequest({ action: 'missionHub' }), undefined);
 for (const code of ['DISABLED', 'DAY_CHANGED', 'NO_ATTEMPTS', 'ALREADY_SOLVED', 'BAD_REQUEST']) {
   assert.equal(refusalOf(`P0001: ${code}`), code);
