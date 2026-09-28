@@ -197,7 +197,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tieNoElimination => 'محدش يخرج';
 
   @override
-  String get narrationEnabledLabel => 'صوت بداية النهار';
+  String get narrationEnabledLabel => 'صوت الراوي';
 
   @override
   String get abstainAllowedLabel => 'السماح بعدم التصويت';

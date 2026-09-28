@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../data/motion_preference.dart';
 import '../data/player_group_provider.dart';
 import '../platform/audio_director.dart';
+import '../platform/narrator_bank.dart';
 import '../platform/optional_service.dart';
 import '../ui/screens/setup/setup_draft.dart';
 import '../ui/screens/setup/scenario_store.dart';
@@ -92,6 +94,7 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     // session is configured while nothing is sounding. Configuring it *after* a
     // player exists is how the two ended up fighting over audio focus.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadNarrator();
       await _audio.warmUp();
       if (!mounted) return;
       _syncScore();
@@ -149,6 +152,15 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
 
   bool get _settingsScoreEnabled =>
       ref.read(setupDraftProvider).settings.scoreEnabled;
+
+  /// F16: the installed narrator pack, if any. A missing or unreadable
+  /// manifest leaves the narrator silent; nothing else depends on it.
+  Future<void> _loadNarrator() async {
+    try {
+      final source = await rootBundle.loadString(narratorManifest);
+      _audio.narrator = NarratorBank.fromJson(source);
+    } catch (_) {}
+  }
 
   void _syncScore() {
     final settings = ref.read(setupDraftProvider).settings;

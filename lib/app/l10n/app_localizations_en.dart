@@ -198,7 +198,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tieNoElimination => 'No elimination';
 
   @override
-  String get narrationEnabledLabel => 'Enable narration';
+  String get narrationEnabledLabel => 'Narrator voice';
 
   @override
   String get abstainAllowedLabel => 'Allow abstaining';

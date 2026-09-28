@@ -49,7 +49,11 @@ abstract class AudioBackend {
   /// nothing else. Everything else plays at 1.0 and must keep doing so: a cue
   /// whose pitch tracked anything about the game would be a channel that every
   /// player at the table hears.
-  Future<void> play(String assetKey, {double rate = 1.0});
+  ///
+  /// [volume] (0..1) is the player's own voice-volume setting for a narrator
+  /// line (F16), and 1.0 for every cue. It is a preference, never a function
+  /// of the game.
+  Future<void> play(String assetKey, {double rate = 1.0, double volume = 1.0});
 
   /// Cuts every *cue* currently sounding. Used when the phone is picked up.
   ///
@@ -86,7 +90,11 @@ class SilentAudioBackend implements AudioBackend {
   Future<void> warmUp(Iterable<String> assetKeys) async {}
 
   @override
-  Future<void> play(String assetKey, {double rate = 1.0}) async {}
+  Future<void> play(
+    String assetKey, {
+    double rate = 1.0,
+    double volume = 1.0,
+  }) async {}
 
   @override
   Future<void> stopAll() async {}
@@ -236,11 +244,16 @@ class PluginAudioBackend implements AudioBackend {
   }
 
   @override
-  Future<void> play(String assetKey, {double rate = 1.0}) async {
+  Future<void> play(
+    String assetKey, {
+    double rate = 1.0,
+    double volume = 1.0,
+  }) async {
     final generation = _cueGeneration;
     try {
       final warmed = _players[assetKey];
       if (warmed != null) {
+        await _setVolume(warmed, volume);
         // Set before the retrigger, and reset on every call rather than only
         // when it changes: a player left at last night's rate would play the
         // next match's first chime sharp.
@@ -269,6 +282,7 @@ class PluginAudioBackend implements AudioBackend {
       final player = _players.putIfAbsent(assetKey, AudioPlayer.new);
       await player.stop();
       await _setRate(player, rate);
+      await _setVolume(player, volume);
       if (generation != _cueGeneration) return;
       await player.play(AssetSource(assetKey));
       if (generation != _cueGeneration) await player.stop();
@@ -281,6 +295,15 @@ class PluginAudioBackend implements AudioBackend {
         debugPrintStack(stackTrace: stack, label: 'audio');
         return true;
       }());
+    }
+  }
+
+  /// Best-effort, like the rate.
+  Future<void> _setVolume(AudioPlayer player, double volume) async {
+    try {
+      await player.setVolume(volume.clamp(0.0, 1.0));
+    } catch (error) {
+      debugPrint('audio: could not set the volume — $error');
     }
   }
 

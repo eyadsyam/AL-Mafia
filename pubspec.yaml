@@ -131,6 +131,7 @@ flutter:
     - assets/images/launch/
     - assets/icons/
     - assets/audio/
+    - assets/voice/kratos/
     # Ambient loops + their Reduce Motion stills. On-table surfaces only.
     - assets/video/
     - assets/fonts/OFL.txt

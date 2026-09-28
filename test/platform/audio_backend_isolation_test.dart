@@ -289,9 +289,17 @@ class _RecordingBackend implements AudioBackend {
   Future<void> warmUp(Iterable<String> assetKeys) async =>
       warmed.addAll(assetKeys);
 
+  final List<double> volumes = [];
+
   @override
-  Future<void> play(String assetKey, {double rate = 1.0}) async =>
-      played.add(assetKey);
+  Future<void> play(
+    String assetKey, {
+    double rate = 1.0,
+    double volume = 1.0,
+  }) async {
+    played.add(assetKey);
+    volumes.add(volume);
+  }
 
   @override
   Future<void> stopAll() async => stops++;

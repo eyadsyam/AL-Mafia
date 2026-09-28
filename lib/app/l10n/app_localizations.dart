@@ -443,7 +443,7 @@ abstract class AppLocalizations {
   /// No description provided for @narrationEnabledLabel.
   ///
   /// In en, this message translates to:
-  /// **'Enable narration'**
+  /// **'Narrator voice'**
   String get narrationEnabledLabel;
 
   /// No description provided for @abstainAllowedLabel.

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'audio_backend.dart';
+import 'narrator_bank.dart';
 
 /// Where the phone is right now.
 ///
@@ -167,6 +168,20 @@ class AudioDirector {
   /// registering them here is the only step needed to add voice narration.
   final Map<AudioCue, String> narratorLines = {};
 
+  /// F16 — the spoken narrator's lines, loaded once at start-up from
+  /// `assets/voice/<pack>/manifest.json`. Empty until a pack has passed the
+  /// listener gate and been installed; an empty bank narrates nothing.
+  NarratorBank narrator = NarratorBank.empty;
+
+  /// The player's voice volume (0..1), separate from every cue's level.
+  double narratorVolume = 1.0;
+
+  /// Family mode (F17) plays only the lines marked gentle enough for it.
+  bool familyNarration = false;
+
+  /// Lines spoken so far, by clip id. For tests, like [emitted].
+  final List<String> emittedNarration = [];
+
   /// Whether the continuous score is switched on for this match.
   bool scoreEnabled = true;
 
@@ -255,6 +270,7 @@ class AudioDirector {
     for (final cue in AudioCue.values)
       if (cue.sound != null) _assetKey(cue.sound!),
     for (final line in narratorLines.values) _assetKey(line),
+    for (final clip in narrator.clips) _assetKey(clip.file),
   });
 
   PhoneLocation get location => _location;
@@ -378,6 +394,39 @@ class AudioDirector {
     final sound = cue.sound;
     if (sound != null) _emit(sound);
   }
+
+  /// Speaks one public-table beat (F16), or nothing.
+  ///
+  /// Held to exactly the rules of [play]: it throws if the phone is in a
+  /// hand — a line that started under a private turn would mark it — and it
+  /// is silenced by [muted] and by the host's narration switch. [facts] are
+  /// what the screen is announcing at this instant (see [NarrationFacts]);
+  /// the caller builds them from the public view and nothing else.
+  void narrate(
+    NarratorBeat beat, [
+    NarrationFacts facts = NarrationFacts.none,
+  ]) {
+    if (_location == PhoneLocation.inHand) {
+      throw StateError(
+        'Narration must never play while the phone is in hand '
+        '(anti-leakage FR-026): $beat',
+      );
+    }
+    if (muted || !narrationEnabled) return;
+    final clip = narrator.pick(beat, facts, familyOnly: familyNarration);
+    if (clip == null) return;
+    emittedNarration.add(clip.id);
+    unawaited(backend.play(_assetKey(clip.file), volume: narratorVolume));
+  }
+
+  /// Whether a beat would be spoken right now — used to decide whether a
+  /// narrated moment needs its own announcement at all.
+  bool canNarrate(NarratorBeat beat) =>
+      !muted &&
+      narrationEnabled &&
+      narrator.clips.any(
+        (c) => c.beat == beat && (!familyNarration || c.family),
+      );
 
   /// Presentation accents the host's room pack or narrator adds (docs/
   /// CLAUDE-UX-ECONOMY-NEXT.md §89), and the store's previews of them.

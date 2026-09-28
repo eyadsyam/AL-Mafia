@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../engine/models/enums.dart' show GamePhase, PlayerStatus;
+import '../../engine/models/enums.dart'
+    show DayTieRule, GamePhase, PlayerStatus;
 import '../../engine/models/player.dart' show PhaseRef;
 import '../../engine/pressure.dart';
 import '../../app/asset_constants.dart';
 import '../../platform/audio_director.dart';
+import '../../platform/narrator_bank.dart';
 import '../../transport/game_snapshot.dart' show ConnectionQuality;
 import '../information_text.dart';
 import '../l10n_ext.dart';
@@ -86,15 +88,25 @@ enum _Moment {
     AudioCue.morning,
     AppImages.outcomeDeath,
     AppVideo.outcomeDeathLoop,
+    NarratorBeat.morning,
   ),
   morningQuiet(
     AudioCue.morning,
     AppImages.outcomeSaved,
     AppVideo.outcomeSavedLoop,
+    NarratorBeat.morning,
   ),
-  voting(null, AppImages.bgVote, AppVideo.bgVoteLoop);
+  voting(null, AppImages.bgVote, AppVideo.bgVoteLoop, NarratorBeat.voting),
 
-  const _Moment(this.cue, this.backdrop, this.loop);
+  /// F16: shown only when the narrator has a night line to speak, so the
+  /// line plays on a flat phone before the first hand-off, never under it.
+  night(null, AppImages.bgNight, AppVideo.bgNightLoop, NarratorBeat.night);
+
+  const _Moment(this.cue, this.backdrop, this.loop, this.beat);
+
+  /// The narrator's beat for this moment (F16). The line plays over the words
+  /// and the bed, on the table, and only if a pack is installed.
+  final NarratorBeat? beat;
 
   /// The cue to fire as the words appear, or null for an announcement that has
   /// no sound yet. A recorded narrator line for the cue plays over its ambient
@@ -172,6 +184,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       _Moment.morningDeath => l10n.phaseMorningSomeoneDied,
       _Moment.morningQuiet => l10n.phaseMorningNobodyDied,
       _Moment.voting => l10n.phaseVoting,
+      _Moment.night => l10n.phaseNightFalls,
     };
   }
 
@@ -243,6 +256,30 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     }
   }
 
+  /// Speaks a public beat (F16) under the same rule as [_cue]: never in a
+  /// hand, and a late call is dropped rather than crashing the table.
+  void _narrate(
+    NarratorBeat beat, [
+    NarrationFacts facts = NarrationFacts.none,
+  ]) {
+    try {
+      _audio.narrate(beat, facts);
+    } on StateError {
+      // Suppressed deliberately — see [_cue].
+    }
+  }
+
+  /// The next voting announcement is a revote (a tie under the revote rule).
+  bool _revoteNext = false;
+
+  /// The facts a moment's line may depend on — each one on screen already.
+  NarrationFacts _momentFacts(_Moment moment) => switch (moment) {
+    _Moment.morningDeath => const NarrationFacts(nightEliminated: 1),
+    _Moment.morningQuiet => const NarrationFacts(nightEliminated: 0),
+    _Moment.voting => NarrationFacts(revote: _revoteNext),
+    _Moment.night => NarrationFacts.none,
+  };
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(matchControllerProvider);
@@ -256,7 +293,14 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       return VictoryReveal(
         winner: outcome.winner,
         onStart: () => _cue(AudioCue.win),
-        onComplete: () => setState(() => _victorySeen = true),
+        onComplete: () {
+          // Spoken after the reveal has shown the winner, never before it.
+          _narrate(
+            NarratorBeat.win,
+            NarrationFacts(winner: outcome.winner.name),
+          );
+          setState(() => _victorySeen = true);
+        },
       );
     }
 
@@ -298,6 +342,9 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         onStart: () {
           final cue = moment.cue;
           if (cue != null) _cue(cue);
+          final beat = moment.beat;
+          if (beat != null) _narrate(beat, _momentFacts(moment));
+          if (moment == _Moment.voting) _revoteNext = false;
         },
         onComplete: _momentFinished,
       );
@@ -364,9 +411,19 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
   // ---------------------------------------------------------------------------
 
   void _beginNight() {
-    _controller.beginNight();
-    _controller.openActorTurn();
-    _commit();
+    void begin() {
+      _controller.beginNight();
+      _controller.openActorTurn();
+      _commit();
+    }
+
+    // With a night line to speak, the night gets its own announcement so the
+    // voice finishes on a flat phone; without one the table goes straight in.
+    if (_audio.canNarrate(NarratorBeat.night)) {
+      _announce(_Moment.night, begin);
+    } else {
+      begin();
+    }
   }
 
   void _resolveNight() {
@@ -402,6 +459,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     // everywhere else.
     _controller.beginDay();
     _commit();
+    _narrate(NarratorBeat.discussion);
   }
 
   void _startVoting() {
@@ -419,6 +477,17 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     if (result.eliminatedSeat != null) {
       _audio.setLocation(PhoneLocation.onTable);
       _cue(AudioCue.eliminationReveal);
+    }
+    // A tie under the revote rule is not a result yet: the next announcement
+    // is the revote, and the result line waits for it.
+    _revoteNext =
+        result.tie && _controller.settings.dayTieRule == DayTieRule.revote;
+    if (!_revoteNext) {
+      _audio.setLocation(PhoneLocation.onTable);
+      _narrate(
+        NarratorBeat.result,
+        NarrationFacts(dayEliminated: result.eliminatedSeat == null ? 0 : 1),
+      );
     }
     _commit();
   }
