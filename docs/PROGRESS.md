@@ -3479,3 +3479,10 @@ Files:      supabase/migrations/20260929000100_economy_v3.sql, supabase/tests/ec
 Verified:   economy_v3.sql (flag off = old 100/25 and no receipt; caps; fingerprint order/kick/salt/collision; replay; ordinal races; ineligible cases; XP from receipt; every settlement edge); SQL 61/61; node suites; unit tests
 Gate:       PASS
 Open:       Store catalogue, prices and ad policy untouched (out of scope). The invite frame unlock is recorded in `invite_unlocks` only; wiring it to a catalogue item belongs to the catalogue owner. Daily mission amounts already equal the faucet table and are read at claim time from `mission_catalog`.
+
+## PHASE 1.1-L4 (C: host continuity and hand-off reliability) — done — cloud
+Built:      interleaving tests for start/leave, start/kick and join/start in both orders; hand-off keeps configuration and readiness (no roster change) and the previous host cannot start; host leaving the lobby clears readiness and hands to the lowest seated row; hand-off in all ten server phases leaves the phase untouched; «{name} بقى الهوست» in every phase, never for the first host; process-death resume in reveal, night action (bullet stays spent, no second move) and whisper compose
+Files:      supabase/tests/host_continuity.sql, test/online/{process_death_resume,host_handover}_test.dart
+Verified:   host_continuity.sql + lobby_ready.sql; the two Flutter suites (17 tests)
+Gate:       PASS
+Open:       PGlite is one connection: true concurrent sessions stay covered by supabase/tests/concurrency_match.py on a hosted project (row 15). connection_weather.dart untouched.
