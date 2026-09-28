@@ -3436,3 +3436,10 @@ Files:      supabase/migrations/20260928001100_safety_v11.sql, supabase/tests/sa
 Verified:   SQL 54/54 (PGlite); node suites incl. error envelope 264 refusals; server_surface_test; full Flutter suite +1438 ~1 all passed; analyze clean outside the untracked case_of_day WIP
 Gate:       PASS (review drill with the owner still to run on hosted after deploy approval)
 Open:       safety_v11_enabled stays OFF; seed name list is a starter the owner extends; hosted migration/deploy waits for the owner
+
+## PHASE 1.1-L6 (part) — done | P7 creator entitlement
+Built:      Server-only, request-idempotent creator grant/revoke with an audit trail and time-bounded creator ad relief; capabilities expose creator state; all automatic interstitial, result-exit, app-open and waiting-banner decisions suppress for active creators while rewarded offers remain unchanged.
+Files:      supabase/migrations/20260928001400_creator_entitlement.sql; supabase/tests/creator_entitlement.sql; supabase/functions/coin_orders/index.ts; lib/ui/economy/{economy_capabilities,interstitial_coordinator,app_open_gate,waiting_banner}.dart; test/unit/creator_entitlement_test.dart; docs/PROGRESS.md
+Verified:   SQL 57/57; error envelope 271 refusals / 62 files; creator unit tests 3/3; unit + server surface +100 all passed; targeted analyze of P7 files clean.
+Gate:       FAIL only on shared-tree full analyze: unrelated unused online_backend import in test/screenshots/update11_screenshots.dart; every P7 gate passed.
+Open:       Remove the unrelated update11_screenshots.dart import in its owning lane, then rerun the full analyze gate. Nothing deployed or committed.

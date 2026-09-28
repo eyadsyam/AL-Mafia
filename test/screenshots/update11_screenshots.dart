@@ -20,7 +20,6 @@ import 'package:mafia_master/engine/views.dart' hide VoteTally;
 import 'package:mafia_master/engine/models/player.dart';
 import 'package:mafia_master/transport/account_service.dart';
 import 'package:mafia_master/transport/game_snapshot.dart';
-import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/transport/witness_channel.dart';
 import 'package:mafia_master/ui/economy/account_protection.dart';
 import 'package:mafia_master/ui/screens/admin/safety_admin_screen.dart';

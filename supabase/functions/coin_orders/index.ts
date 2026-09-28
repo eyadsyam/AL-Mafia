@@ -4,8 +4,8 @@
  *
  * Player actions: `shop`, `create`, `submit` (proof: screenshot + sender name),
  * `cancel`. Admin actions (server-enforced via commerce_admins): `admin_whoami`,
- * `admin_list`, `admin_approve`, `admin_reject`, `admin_refund`, and the older
- * `admin_review`.
+ * `admin_list`, `admin_approve`, `admin_reject`, `admin_refund`, creator
+ * entitlement grant/revoke, and the older `admin_review`.
  *
  * No gateway, no webhook, no automatic confirmation. `submit` stores the
  * screenshot in a private bucket and moves the order into review; it never
@@ -200,6 +200,36 @@ Deno.serve(handler(async (req, userId, db) => {
       });
       if (error) return refuse(error);
       return ok({ order: data });
+    }
+    case "admin_creator_grant": {
+      if (typeof body.creatorId !== "string" || !UUID.test(body.creatorId) ||
+        typeof body.campaign !== "string" || body.campaign.length < 1 || body.campaign.length > 60 ||
+        typeof body.startsAt !== "string" || Number.isNaN(Date.parse(body.startsAt)) ||
+        (body.endsAt !== null && body.endsAt !== undefined &&
+          (typeof body.endsAt !== "string" || Number.isNaN(Date.parse(body.endsAt)))) ||
+        typeof body.requestId !== "string" || !UUID.test(body.requestId)) {
+        return fail("BAD_REQUEST", "invalid creator entitlement grant");
+      }
+      const { data, error } = await db.rpc("operator_creator_entitlement_grant", {
+        p_admin: userId, p_creator: body.creatorId, p_campaign: body.campaign,
+        p_starts: body.startsAt, p_ends: body.endsAt ?? null, p_request: body.requestId,
+      });
+      if (error) return refuse(error);
+      return ok({ entitlement: data });
+    }
+    case "admin_creator_revoke": {
+      if (typeof body.creatorId !== "string" || !UUID.test(body.creatorId) ||
+        typeof body.reason !== "string" || body.reason.trim().length < 1 ||
+        body.reason.trim().length > 500 || typeof body.requestId !== "string" ||
+        !UUID.test(body.requestId)) {
+        return fail("BAD_REQUEST", "invalid creator entitlement revoke");
+      }
+      const { data, error } = await db.rpc("operator_creator_entitlement_revoke", {
+        p_admin: userId, p_creator: body.creatorId, p_reason: body.reason.trim(),
+        p_request: body.requestId,
+      });
+      if (error) return refuse(error);
+      return ok({ entitlement: data });
     }
     default:
       return fail("BAD_REQUEST", "invalid coin order request");

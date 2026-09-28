@@ -74,7 +74,10 @@ class AppOpenCoordinator {
     if (caps.failed) return;
     final ledger = await _load();
     await _save(
-      ledger.known(enabled: caps.ads.appOpen.enabled, adFree: caps.adFree),
+      ledger.known(
+        enabled: caps.ads.appOpen.enabled,
+        adFree: caps.automaticAdsDisabled,
+      ),
     );
   }
 
@@ -155,7 +158,7 @@ class AppOpenCoordinator {
               fullScreen: fullScreen,
               nowMs: _now(),
               trigger: trigger,
-              adFree: caps.adFree,
+              adFree: caps.automaticAdsDisabled,
               onboarded: true,
               busy: false,
               canRequestAds: consent,

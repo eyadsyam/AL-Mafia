@@ -98,7 +98,7 @@ class InterstitialCoordinator {
   /// one. Never shows a consent form (see [InterstitialAds.preload]).
   void _warm(EconomyCapabilities? caps) {
     final ads = _ref.read(interstitialAdsProvider);
-    if (caps == null || !ads.configured || caps.adFree) return;
+    if (caps == null || !ads.configured || caps.automaticAdsDisabled) return;
     if (!caps.interstitial.anyPlacement || ads.ready) return;
     unawaited(ads.preload());
   }
@@ -259,7 +259,7 @@ class InterstitialCoordinator {
         nowMs: _now(),
         placement: placement,
         exit: exit,
-        adFree: caps.adFree,
+        adFree: caps.automaticAdsDisabled,
         loaded: ads.ready,
         canRequestAds: consent,
         firstMatchOfLaunch: firstMatchOfLaunch,

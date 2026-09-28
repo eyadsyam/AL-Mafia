@@ -253,6 +253,7 @@ void main() {
           AudioCue.voteTick,
           AudioCue.deathTear,
           AudioCue.confrontationSwell,
+          AudioCue.brandMotif, // F19: the sonic mark, at launch only
         }),
       );
 

@@ -4,9 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../platform/monetization/ad_formats.dart';
 import '../fun/loaded_capabilities.dart';
+import 'economy_capabilities.dart';
 import '../l10n_ext.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
+
+bool shouldShowWaitingBanner(EconomyCapabilities? caps) =>
+    caps != null && caps.ads.banner && !caps.automaticAdsDisabled;
 
 /// The one banner (phase 108), for non-gameplay waiting surfaces only: the
 /// online lobby, the online hub, match history, the vault and the profile.
@@ -45,7 +49,7 @@ class _WaitingBannerState extends ConsumerState<WaitingBanner> {
     // Once something else has asked, the answer is watched.
     final caps = loadedCapabilities(ref);
     if (caps == null) recheckCapabilitiesAfterFrame(this);
-    if (caps == null || !caps.ads.banner || caps.adFree) {
+    if (!shouldShowWaitingBanner(caps)) {
       return const SizedBox.shrink();
     }
     return ads.slot(

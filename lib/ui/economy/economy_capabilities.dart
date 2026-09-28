@@ -146,6 +146,7 @@ class EconomyCapabilities {
   final bool daily;
   final bool dailyAd;
   final bool adFree;
+  final bool creator;
   final bool recoverable;
   final String? accountTag;
   final InterstitialRules interstitial;
@@ -193,6 +194,7 @@ class EconomyCapabilities {
     this.daily = false,
     this.dailyAd = false,
     this.adFree = false,
+    this.creator = false,
     this.recoverable = false,
     this.accountTag,
     this.interstitial = InterstitialRules.off,
@@ -224,6 +226,7 @@ class EconomyCapabilities {
       daily: flag('daily'),
       dailyAd: flag('dailyAd'),
       adFree: flag('adFree'),
+      creator: flag('creator'),
       recoverable: flag('recoverable'),
       accountTag: json['accountTag'] is String
           ? json['accountTag'] as String
@@ -263,6 +266,10 @@ class EconomyCapabilities {
       ],
     );
   }
+
+  /// Quiet Pass and an active creator grant suppress the same automatic ads.
+  /// Rewarded offers intentionally continue to use their own capability flags.
+  bool get automaticAdsDisabled => adFree || creator;
 }
 
 /// Off on any failure: no network, no online configuration, an old server.
