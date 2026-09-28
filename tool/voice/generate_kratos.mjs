@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Renders the F16 narrator line bank with the owner's ElevenLabs voice.
 //
-// The API key is read only from ELEVENLABS_API_KEY and is never printed,
-// logged or written anywhere. Nothing ships from this script: it writes
+// The API key is read from ELEVENLABS_API_KEY, else from the first line of
+// ~/.mafia-master/elevenlabs.key (outside the repo, so it can never be
+// committed). It is never printed, logged or written anywhere. Nothing ships from this script: it writes
 // candidate audio plus a provenance record for the F16 listener gate.
 //
 //   node tool/voice/generate_kratos.mjs --probe            voice name + category only
@@ -16,6 +17,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
+import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -54,9 +56,15 @@ if (flag("dry-run")) {
   process.exit(0);
 }
 
-const key = process.env.ELEVENLABS_API_KEY;
+function keyFromFile() {
+  const file = join(homedir(), ".mafia-master", "elevenlabs.key");
+  if (!existsSync(file)) return "";
+  const line = readFileSync(file, "utf8").split(/\r?\n/).map((l) => l.trim()).find((l) => l && !l.startsWith("#"));
+  return line && !line.includes(" ") ? line : "";
+}
+const key = process.env.ELEVENLABS_API_KEY || keyFromFile();
 if (!key) {
-  console.error("ELEVENLABS_API_KEY is not set in this environment.");
+  console.error("No ElevenLabs key: set ELEVENLABS_API_KEY or paste it into ~/.mafia-master/elevenlabs.key.");
   process.exit(2);
 }
 
