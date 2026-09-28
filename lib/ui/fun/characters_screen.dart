@@ -6,7 +6,6 @@ import '../../data/character_bonds.dart';
 import '../../engine/models/enums.dart';
 import '../../platform/reduce_motion.dart';
 import '../l10n_ext.dart';
-import '../screens/postgame/result_screen.dart' show RoleGalleryPortrait;
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/back_action.dart';

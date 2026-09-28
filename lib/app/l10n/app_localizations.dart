@@ -7477,6 +7477,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Character letters'**
   String get profileStatLetters;
+
+  /// No description provided for @casebookTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Casebook'**
+  String get casebookTitle;
+
+  /// No description provided for @casebookTonight.
+  ///
+  /// In en, this message translates to:
+  /// **'Tonight'**
+  String get casebookTonight;
+
+  /// No description provided for @casebookSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'Season'**
+  String get casebookSeason;
+
+  /// No description provided for @casebookLegacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy'**
+  String get casebookLegacy;
+
+  /// No description provided for @casebookDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{The season closes today} =1{1 day left in the season} other{{n} days left in the season}}'**
+  String casebookDaysLeft(int n);
+
+  /// No description provided for @casebookWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Case of the week'**
+  String get casebookWeekly;
+
+  /// No description provided for @casebookBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Close all three for more'**
+  String get casebookBonus;
+
+  /// No description provided for @casebookBonusTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Every case closed today'**
+  String get casebookBonusTaken;
+
+  /// No description provided for @casebookFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From the {name}'**
+  String casebookFrom(String name);
+
+  /// No description provided for @casebookClaim.
+  ///
+  /// In en, this message translates to:
+  /// **'Take it'**
+  String get casebookClaim;
+
+  /// No description provided for @casebookClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get casebookClaimed;
+
+  /// No description provided for @casebookClaimError.
+  ///
+  /// In en, this message translates to:
+  /// **'That didn\'t go through. Try again'**
+  String get casebookClaimError;
+
+  /// No description provided for @casebookLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {n}'**
+  String casebookLevel(int n);
+
+  /// No description provided for @casebookXp.
+  ///
+  /// In en, this message translates to:
+  /// **'{xp} / {next}'**
+  String casebookXp(int xp, int next);
+
+  /// No description provided for @casebookXpGain.
+  ///
+  /// In en, this message translates to:
+  /// **'+{n} XP'**
+  String casebookXpGain(int n);
+
+  /// No description provided for @casebookSeasonDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Season complete'**
+  String get casebookSeasonDone;
+
+  /// No description provided for @casebookTitleReward.
+  ///
+  /// In en, this message translates to:
+  /// **'New title'**
+  String get casebookTitleReward;
+
+  /// No description provided for @casebookItemReward.
+  ///
+  /// In en, this message translates to:
+  /// **'New cosmetic'**
+  String get casebookItemReward;
+
+  /// No description provided for @casebookRank.
+  ///
+  /// In en, this message translates to:
+  /// **'Council rank {n}'**
+  String casebookRank(int n);
+
+  /// No description provided for @casebookAchievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get casebookAchievements;
+
+  /// No description provided for @casebookReady.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 reward to take} other{{n} rewards to take}}'**
+  String casebookReady(int n);
+
+  /// No description provided for @casebookFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The casebook can\'t open right now'**
+  String get casebookFailed;
+
+  /// No description provided for @casebookRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get casebookRetry;
+
+  /// No description provided for @casebookResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Your casebook moved · open it'**
+  String get casebookResult;
+
+  /// No description provided for @caseFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Finish an online match} other{Finish {n} online matches}}'**
+  String caseFinish(int n);
+
+  /// No description provided for @caseWin.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Win a match} other{Win {n} matches}}'**
+  String caseWin(int n);
+
+  /// No description provided for @caseHost.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Host a table to the end} other{Host {n} tables to the end}}'**
+  String caseHost(int n);
+
+  /// No description provided for @caseReunion.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Play again with someone you\'ve sat with} other{Play again with {n} people you\'ve sat with}}'**
+  String caseReunion(int n);
+
+  /// No description provided for @casePublic.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Sit at a public table} other{Sit at {n} public tables}}'**
+  String casePublic(int n);
+
+  /// No description provided for @caseInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Bring a friend to play} other{Bring {n} friends to play}}'**
+  String caseInvite(int n);
+
+  /// No description provided for @caseStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Play today} other{Play {n} days in a row}}'**
+  String caseStreak(int n);
+
+  /// No description provided for @caseDailies.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Close a full day of cases} other{Close {n} full days of cases}}'**
+  String caseDailies(int n);
+
+  /// No description provided for @caseLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach season level {n}'**
+  String caseLevel(int n);
+
+  /// No description provided for @casebookProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{progress} of {target}'**
+  String casebookProgress(int progress, int target);
 }
 
 class _AppLocalizationsDelegate

@@ -159,6 +159,10 @@ class EconomyCapabilities {
   /// «أصحابك»: friends, presence and lobby invites (`social.friends`).
   final bool friends;
 
+  /// «ملف القضايا»: missions, the season track and achievements
+  /// (`missions`, or `social.missions`).
+  final bool missions;
+
   /// Purchased coins still owed after an earlier refund; the next coin pack
   /// pays this first. Disclosed before Buy.
   final int purchaseDebt;
@@ -180,6 +184,7 @@ class EconomyCapabilities {
     this.ads = AdsCapabilities.off,
     this.fun = FunCapabilities.off,
     this.friends = false,
+    this.missions = false,
     this.purchaseDebt = 0,
     this.failed = false,
   });
@@ -206,6 +211,10 @@ class EconomyCapabilities {
       ads: AdsCapabilities.fromJson(json['ads']),
       fun: FunCapabilities.fromJson(json['fun']),
       friends: json['social'] is Map && (json['social'] as Map)['friends'] == true,
+      missions:
+          flag('missions') ||
+          (json['social'] is Map &&
+              (json['social'] as Map)['missions'] == true),
       interstitial: rules is Map
           ? InterstitialRules.fromJson(Map<String, dynamic>.from(rules))
           : InterstitialRules.off,

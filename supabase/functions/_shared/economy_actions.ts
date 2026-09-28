@@ -16,6 +16,8 @@ const WEEK = /^\d{4}-W\d{2}$/;
 const INVITE = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{7}$/;
 /** The eight quick reactions (phase 109). */
 const REACTION = /^(laugh|shock|suspicious|applause|rose|skull|coffee|crown)$/;
+/** Server-owned catalogue identifiers, never free-form copy. */
+const CASEBOOK_CODE = /^[a-z0-9_]{3,60}$/;
 
 export type EconomyCall = { rpc: string; args: Record<string, unknown> };
 
@@ -138,6 +140,38 @@ export function economyCall(
         : null;
     case "fun_profile":
       return { rpc: "fun_profile", args: { p_user: userId } };
+    // 1.1 Casebook ------------------------------------------------------------
+    case "missionHub":
+      return { rpc: "mission_hub", args: { p_user: userId } };
+    case "missionClaim": {
+      const layer = body.layer;
+      const period = body.period;
+      const slot = body.slot;
+      const validPeriod = layer === "daily"
+        ? typeof period === "string" && DAY.test(period)
+        : layer === "weekly" && typeof period === "string" && WEEK.test(period);
+      const validSlot = layer === "daily"
+        ? slot === 0 || slot === 1 || slot === 2
+        : layer === "weekly" && slot === 0;
+      return validPeriod && validSlot
+        ? {
+          rpc: "claim_mission",
+          args: { p_user: userId, p_layer: layer, p_period: period, p_slot: slot },
+        }
+        : null;
+    }
+    case "seasonClaim":
+      return typeof body.season === "string" && CASEBOOK_CODE.test(body.season) &&
+          Number.isInteger(body.level) && (body.level as number) >= 1 && (body.level as number) <= 20
+        ? {
+          rpc: "claim_season_reward",
+          args: { p_user: userId, p_season: body.season, p_level: body.level },
+        }
+        : null;
+    case "achievementClaim":
+      return typeof body.code === "string" && CASEBOOK_CODE.test(body.code)
+        ? { rpc: "claim_achievement", args: { p_user: userId, p_code: body.code } }
+        : null;
     default:
       return null;
   }
@@ -151,7 +185,8 @@ export const ECONOMY_REFUSALS = [
   "CONTRACT_INCOMPLETE", "WEEK_CHANGED", "WEEK_REQUIRED", "INVITE_SELF", "INVITE_EXPIRED",
   "INVITE_NOT_NEW", "INVITE_ALREADY", "INVITE_LOOP", "INVITE_LIMIT", "INVITE_RATE_LIMIT",
   "REACTION_RATE_LIMIT", "REACTION_CLOSED", "REACTION_UNKNOWN", "NOT_MEMBER",
-  "EXTRA_NOT_READY",
+  "EXTRA_NOT_READY", "DISABLED", "NOT_READY", "PERIOD_CHANGED", "SEASON_CLOSED",
+  "NOT_FOUND", "ALREADY_CLAIMED", "BAD_REQUEST",
 ] as const;
 
 export function refusalOf(message: string | undefined): string | null {

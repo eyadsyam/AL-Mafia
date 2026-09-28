@@ -4256,4 +4256,217 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileStatLetters => 'رسايل الشخصيات';
+
+  @override
+  String get casebookTitle => 'ملف القضايا';
+
+  @override
+  String get casebookTonight => 'الليلة';
+
+  @override
+  String get casebookSeason => 'الموسم';
+
+  @override
+  String get casebookLegacy => 'السجل';
+
+  @override
+  String casebookDaysLeft(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'باقي $n يوم على قفلة الموسم',
+      few: 'باقي $n أيام على قفلة الموسم',
+      two: 'باقي يومين على قفلة الموسم',
+      one: 'باقي يوم على قفلة الموسم',
+      zero: 'الموسم بيقفل النهارده',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get casebookWeekly => 'قضية الأسبوع';
+
+  @override
+  String get casebookBonus => 'اقفل التلات قضايا وخد كمان';
+
+  @override
+  String get casebookBonusTaken => 'قفلت قضايا النهارده كلها';
+
+  @override
+  String casebookFrom(String name) {
+    return 'من ال$name';
+  }
+
+  @override
+  String get casebookClaim => 'استلم';
+
+  @override
+  String get casebookClaimed => 'اتقفلت';
+
+  @override
+  String get casebookClaimError => 'ماستلمناش، جرّب تاني';
+
+  @override
+  String casebookLevel(int n) {
+    return 'المستوى $n';
+  }
+
+  @override
+  String casebookXp(int xp, int next) {
+    return '$xp / $next';
+  }
+
+  @override
+  String casebookXpGain(int n) {
+    return '+$n نقطة';
+  }
+
+  @override
+  String get casebookSeasonDone => 'قفلت الموسم كله';
+
+  @override
+  String get casebookTitleReward => 'لقب جديد';
+
+  @override
+  String get casebookItemReward => 'زينة جديدة';
+
+  @override
+  String casebookRank(int n) {
+    return 'رتبة المجلس $n';
+  }
+
+  @override
+  String get casebookAchievements => 'الإنجازات';
+
+  @override
+  String casebookReady(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n حاجة جاهزة تستلمها',
+      few: '$n حاجات جاهزة تستلمها',
+      two: 'حاجتين جاهزين تستلمهم',
+      one: 'حاجة جاهزة تستلمها',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get casebookFailed => 'مقدرناش نفتح الملف دلوقتي';
+
+  @override
+  String get casebookRetry => 'جرّب تاني';
+
+  @override
+  String get casebookResult => 'ملف القضايا اتحرّك · افتحه';
+
+  @override
+  String caseFinish(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'العب $n ماتش أونلاين للآخر',
+      few: 'العب $n ماتشات أونلاين للآخر',
+      two: 'العب ماتشين أونلاين للآخر',
+      one: 'العب ماتش أونلاين للآخر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseWin(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'اكسب $n ماتش',
+      few: 'اكسب $n ماتشات',
+      two: 'اكسب ماتشين',
+      one: 'اكسب ماتش',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseHost(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'افتح $n ترابيزة واقفلهم للآخر',
+      few: 'افتح $n ترابيزات واقفلهم للآخر',
+      two: 'افتح ترابيزتين واقفلهم للآخر',
+      one: 'افتح ترابيزة واقفلها للآخر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseReunion(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'العب تاني مع $n ناس قعدت معاهم قبل كده',
+      one: 'العب تاني مع حد قعدت معاه قبل كده',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String casePublic(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'اقعد على $n ترابيزة عامة',
+      few: 'اقعد على $n ترابيزات عامة',
+      two: 'اقعد على ترابيزتين عامين',
+      one: 'اقعد على ترابيزة عامة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseInvite(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'اعزم $n أصحاب يلعبوا معاك',
+      one: 'اعزم صاحب يلعب معاك',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseStreak(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'العب $n يوم ورا بعض',
+      few: 'العب $n أيام ورا بعض',
+      two: 'العب يومين ورا بعض',
+      one: 'العب النهارده',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseDailies(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'اقفل قضايا $n يوم كامل',
+      few: 'اقفل قضايا $n أيام كاملة',
+      two: 'اقفل قضايا يومين كاملين',
+      one: 'اقفل قضايا يوم كامل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseLevel(int n) {
+    return 'وصّل للمستوى $n في الموسم';
+  }
+
+  @override
+  String casebookProgress(int progress, int target) {
+    return '$progress من $target';
+  }
 }

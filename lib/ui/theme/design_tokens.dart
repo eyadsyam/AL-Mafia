@@ -1851,3 +1851,48 @@ abstract final class AccountTokens {
 abstract final class ProfileTokens {
   static const double statArt = 56.0;
 }
+
+/// «ملف القضايا» (`lib/ui/missions/casebook_sheet.dart`): case slips pinned
+/// with red string, the season thread, medals.
+abstract final class CasebookTokens {
+  static const double sheetHeight = 0.94;
+  static const double heroHeight = 132.0;
+  static const Duration pageTurn = Duration(milliseconds: 260);
+  static const double tabRule = 28.0;
+  static const double waxDot = 9.0;
+
+  /// A case slip and the character standing half inside it.
+  static const double portraitWidth = 84.0;
+  static const double portraitRise = 18.0;
+
+  /// The gallery paintings carry a drawn frame and a caption at the top;
+  /// a crop just below them keeps the face and loses the card.
+  static const Alignment faceFocus = Alignment(0, -0.35);
+  static const double slipInset = 28.0;
+  static const double slipTintAlpha = 0.16;
+  static const double stripe = 3.0;
+  static const double doneOpacity = 0.6;
+  static const double stamp = 18.0;
+
+  /// The red string.
+  static const double stringWidth = 2.0;
+  static const double knot = 8.0;
+  static const double sag = 0.35;
+
+  /// The season thread: one stop per row, winding across the page.
+  static const double stopHeight = 76.0;
+  static const double seal = 36.0;
+  static const double windFrequency = 0.9;
+  static const double windAmplitude = 0.26;
+  static const double glowAlpha = 0.45;
+  static const double glowBlur = 14.0;
+
+  /// Achievement medals.
+  static const double medal = 64.0;
+  static const double medalInset = 6.0;
+  static const double medalWidth = 96.0;
+
+  /// The door on Online.
+  static const double entryHeight = 92.0;
+  static const double entryFacesWidth = 150.0;
+}

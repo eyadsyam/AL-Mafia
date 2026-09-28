@@ -19,6 +19,8 @@ import 'economy_capabilities.dart';
 import 'mafia_coin.dart';
 import 'vault_kit.dart';
 import '../widgets/feathered_art.dart';
+import '../missions/casebook_data.dart';
+import '../missions/casebook_sheet.dart';
 
 /// What a contract asks, in the player's words.
 String contractName(AppLocalizations l, CouncilContract c) =>
@@ -262,6 +264,8 @@ class _CouncilHubTabState extends ConsumerState<CouncilHubTab> {
     final caps =
         ref.watch(economyCapabilitiesProvider).valueOrNull?.council ??
         CouncilCapabilities.off;
+    final missions =
+        ref.watch(economyCapabilitiesProvider).valueOrNull?.missions ?? false;
     final council = ref.watch(councilProvider);
     final value = council.valueOrNull;
     if (value == null) {
@@ -289,7 +293,8 @@ class _CouncilHubTabState extends ConsumerState<CouncilHubTab> {
                 _RankCard(rank: value.rank, leaderboard: caps.leaderboard),
                 SizedBox(height: s.md),
               ],
-              if (value.contracts.enabled) ...[
+              if (missions) const CasebookEntry(),
+              if (value.contracts.enabled && !missions) ...[
                 _ContractsCard(
                   contracts: value.contracts,
                   busy: _busy,
@@ -1315,6 +1320,7 @@ class CouncilResultStrip extends ConsumerStatefulWidget {
   const CouncilResultStrip({super.key, required this.roomId});
 
   static const Key stripKey = ValueKey('council_result_strip');
+  static const Key casebookKey = ValueKey('council_result_casebook');
 
   @override
   ConsumerState<CouncilResultStrip> createState() => _CouncilResultStripState();
@@ -1323,6 +1329,7 @@ class CouncilResultStrip extends ConsumerStatefulWidget {
 class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
   List<String> _lines = const [];
   bool _shown = false;
+  bool _missions = false;
 
   @override
   void initState() {
@@ -1334,6 +1341,7 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
     try {
       final caps = await ref.read(economyCapabilitiesProvider.future);
       if (!caps.council.hub || !mounted) return;
+      _missions = caps.missions;
       final before = ref.read(councilProvider).valueOrNull;
       // Records this match (idempotent), then reads what it moved.
       final backend = await ref.read(onlineBackendFactoryProvider)();
@@ -1360,12 +1368,25 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
             before.rank.enabled &&
             after.rank.xp > before.rank.xp)
           l.resultXpGained(after.rank.xp - before.rank.xp),
-        ...ready,
-        if (weekly != null &&
+        // With the Casebook on, contracts are its daily cases and it pays
+        // them on its own schedule: one line below says so instead.
+        if (!_missions) ...ready,
+        if (!_missions &&
+            weekly != null &&
             weekly.claimable &&
             !(before?.contracts.weekly?.claimable ?? false))
           l.resultWeeklyToast(weekly.coins),
       ];
+      if (_missions) {
+        // The same finished match moved the Casebook; say so once, as a
+        // door into it.
+        await ref.read(casebookProvider.notifier).refresh();
+        if (!mounted) return;
+        final book = ref.read(casebookProvider).valueOrNull;
+        if (book != null && book.enabled && (lines.isNotEmpty || book.ready > 0)) {
+          lines.add(l.casebookResult);
+        }
+      }
       setState(() {
         _lines = lines;
         _shown = true;
@@ -1397,7 +1418,14 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
                   : context.motion.standard +
                         CouncilLifeTokens.toastStagger * i,
               builder: (context, t, child) => Opacity(opacity: t, child: child),
-              child: Padding(
+              child: GestureDetector(
+                key: _missions && i == _lines.length - 1
+                    ? CouncilResultStrip.casebookKey
+                    : null,
+                onTap: _missions && i == _lines.length - 1
+                    ? () => showCasebookSheet(context)
+                    : null,
+                child: Padding(
                 padding: EdgeInsets.only(bottom: s.xs),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -1431,6 +1459,7 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
                         Expanded(
                           child: Semantics(
                             liveRegion: true,
+                            button: _missions && i == _lines.length - 1,
                             child: Text(
                               line,
                               style: context.typography.bodySmall.copyWith(
@@ -1443,6 +1472,7 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
                     ),
                   ),
                 ),
+              ),
               ),
             ),
           Text(

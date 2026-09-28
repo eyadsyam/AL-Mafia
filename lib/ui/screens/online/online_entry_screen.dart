@@ -28,6 +28,7 @@ import 'room_settings_panel.dart';
 import 'safety_center.dart';
 import '../../economy/waiting_banner.dart';
 import '../../social/friends.dart';
+import '../../missions/casebook_sheet.dart';
 
 /// Public rooms are the front door; identity belongs to the saved profile.
 ///
@@ -425,6 +426,9 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                   FriendsStrip(
                                     onJoin: (code) => _enter(code: code),
                                   ),
+                                  // «ملف القضايا»: tonight's cases and the
+                                  // season. Nothing while the feature is off.
+                                  const CasebookEntry(),
                                   // The two ways in, at equal width: create
                                   // is the lit one, join its outline.
                                   Row(

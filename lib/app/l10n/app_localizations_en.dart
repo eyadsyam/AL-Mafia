@@ -4357,4 +4357,201 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileStatLetters => 'Character letters';
+
+  @override
+  String get casebookTitle => 'The Casebook';
+
+  @override
+  String get casebookTonight => 'Tonight';
+
+  @override
+  String get casebookSeason => 'Season';
+
+  @override
+  String get casebookLegacy => 'Legacy';
+
+  @override
+  String casebookDaysLeft(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n days left in the season',
+      one: '1 day left in the season',
+      zero: 'The season closes today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get casebookWeekly => 'Case of the week';
+
+  @override
+  String get casebookBonus => 'Close all three for more';
+
+  @override
+  String get casebookBonusTaken => 'Every case closed today';
+
+  @override
+  String casebookFrom(String name) {
+    return 'From the $name';
+  }
+
+  @override
+  String get casebookClaim => 'Take it';
+
+  @override
+  String get casebookClaimed => 'Closed';
+
+  @override
+  String get casebookClaimError => 'That didn\'t go through. Try again';
+
+  @override
+  String casebookLevel(int n) {
+    return 'Level $n';
+  }
+
+  @override
+  String casebookXp(int xp, int next) {
+    return '$xp / $next';
+  }
+
+  @override
+  String casebookXpGain(int n) {
+    return '+$n XP';
+  }
+
+  @override
+  String get casebookSeasonDone => 'Season complete';
+
+  @override
+  String get casebookTitleReward => 'New title';
+
+  @override
+  String get casebookItemReward => 'New cosmetic';
+
+  @override
+  String casebookRank(int n) {
+    return 'Council rank $n';
+  }
+
+  @override
+  String get casebookAchievements => 'Achievements';
+
+  @override
+  String casebookReady(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n rewards to take',
+      one: '1 reward to take',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get casebookFailed => 'The casebook can\'t open right now';
+
+  @override
+  String get casebookRetry => 'Try again';
+
+  @override
+  String get casebookResult => 'Your casebook moved · open it';
+
+  @override
+  String caseFinish(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Finish $n online matches',
+      one: 'Finish an online match',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseWin(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Win $n matches',
+      one: 'Win a match',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseHost(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Host $n tables to the end',
+      one: 'Host a table to the end',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseReunion(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Play again with $n people you\'ve sat with',
+      one: 'Play again with someone you\'ve sat with',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String casePublic(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Sit at $n public tables',
+      one: 'Sit at a public table',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseInvite(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Bring $n friends to play',
+      one: 'Bring a friend to play',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseStreak(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Play $n days in a row',
+      one: 'Play today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseDailies(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Close $n full days of cases',
+      one: 'Close a full day of cases',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseLevel(int n) {
+    return 'Reach season level $n';
+  }
+
+  @override
+  String casebookProgress(int progress, int target) {
+    return '$progress of $target';
+  }
 }
