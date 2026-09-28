@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/platform/audio_director.dart';
+import 'package:mafia_master/ui/economy/economy_capabilities.dart';
 import 'package:mafia_master/ui/economy/pass_result_inventory.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 
@@ -48,12 +49,18 @@ void main() {
   });
 
   Future<void> pump(WidgetTester tester) async {
+    final container = ProviderContainer(
+      overrides: [
+        onlineBackendFactoryProvider.overrideWithValue(() async => backend),
+        audioDirectorProvider.overrideWithValue(AudioDirector()),
+      ],
+    );
+    addTearDown(container.dispose);
+    // The session's capabilities are already known by the time a result shows.
+    await container.read(economyCapabilitiesProvider.future);
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          onlineBackendFactoryProvider.overrideWithValue(() async => backend),
-          audioDirectorProvider.overrideWithValue(AudioDirector()),
-        ],
+      UncontrolledProviderScope(
+        container: container,
         child: localizedApp(
           const Scaffold(body: SingleChildScrollView(child: PassResultInventory())),
         ),
@@ -65,6 +72,18 @@ void main() {
   Iterable<String?> actions() => backend.calls
       .where((c) => c.function == 'economy')
       .map((c) => c.body['action'] as String?);
+
+  testWidgets('capabilities not read yet: nothing drawn, nothing fetched', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [onlineBackendFactoryProvider.overrideWithValue(() async => backend)],
+        child: localizedApp(const Scaffold(body: PassResultInventory())),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(PassResultInventory.stripKey), findsNothing);
+    expect(backend.calls, isEmpty);
+  });
 
   testWidgets('pending offers are listed; used ones are not', (tester) async {
     await pump(tester);

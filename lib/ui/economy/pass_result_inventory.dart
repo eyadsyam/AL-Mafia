@@ -78,15 +78,19 @@ class _PassResultInventoryState extends ConsumerState<PassResultInventory> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       try {
-        final caps = await ref.read(economyCapabilitiesProvider.future);
-        if (!mounted) return;
+        // Only capabilities this session already read: the result screen
+        // never starts a network call of its own just to decide this.
+        final caps = ref.exists(economyCapabilitiesProvider)
+            ? ref.read(economyCapabilitiesProvider).valueOrNull
+            : null;
+        if (caps == null || !mounted) return;
         if (caps.dailyAd) await ref.read(dailyProvider.notifier).refresh();
         if (!mounted) return;
         if (caps.ads.extras) await ref.read(adExtrasProvider.notifier).refresh();
+        if (mounted) setState(() => _asked = true);
       } catch (_) {
         // Never load-bearing for the result screen.
       }
-      if (mounted) setState(() => _asked = true);
     });
   }
 
