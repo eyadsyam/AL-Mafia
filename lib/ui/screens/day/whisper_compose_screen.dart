@@ -4,9 +4,12 @@ import '../../../core/whisper_language.dart';
 import '../../../engine/information/records.dart';
 import '../../../engine/models/enums.dart' show PlayerStatus;
 import '../../../engine/models/player.dart';
+import '../../../app/asset_constants.dart';
+import '../../economy/vault_kit.dart';
 import '../../l10n_ext.dart';
+import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
-import '../../widgets/player_tile.dart';
+import '../../widgets/player_avatar.dart';
 import '../../widgets/textured_surface.dart';
 
 /// The whisper composer (doc 14 §3).
@@ -103,7 +106,6 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final spacing = context.spacing;
-    final radii = context.radii;
     final type = context.typography;
     final l10n = context.l10n;
 
@@ -128,9 +130,14 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Image.asset(
+                    AppCouncilArt.whisperSeal,
+                    height: WhisperTokens.seal,
+                    excludeFromSemantics: true,
+                  ),
                   Text(
                     l10n.whisperCompose,
-                    style: type.headline.copyWith(color: colors.textPrimary),
+                    style: type.headline.copyWith(color: VaultTokens.goldLight),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: spacing.md),
@@ -150,14 +157,28 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
                       textAlign: TextAlign.center,
                     ),
                   SizedBox(height: spacing.md),
-                  Expanded(
-                    child: _to == null
-                        ? _seatList(
+                  // The faces stay while you write: the letter is always
+                  // addressed to somebody you can see, and changing your mind
+                  // is one tap.
+                  _to == null
+                      ? Expanded(
+                          child: _seatList(
                             recipients,
                             onPick: (seat) => setState(() => _to = seat),
-                          )
-                        : _composer(remaining),
-                  ),
+                          ),
+                        )
+                      : SizedBox(
+                          height: WhisperTokens.strip,
+                          child: _seatList(
+                            recipients,
+                            strip: true,
+                            onPick: (seat) => setState(() => _to = seat),
+                          ),
+                        ),
+                  if (_to != null) ...[
+                    SizedBox(height: spacing.sm),
+                    Expanded(child: _composer(remaining)),
+                  ],
                   SizedBox(height: spacing.md),
                   if (_languageAcknowledged &&
                       WhisperLanguage.looksAbusive(_body.text.trim()))
@@ -173,18 +194,12 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
                     ),
                   SizedBox(
                     height: spacing.xxl + spacing.sm,
-                    child: FilledButton(
-                      onPressed: _canSend ? _send : null,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: colors.accentGold,
-                        foregroundColor: colors.surfaceBase,
-                        disabledBackgroundColor: colors.surfaceOverlay,
-                        disabledForegroundColor: colors.textMuted,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(radii.button),
-                        ),
+                    child: VaultPress(
+                      child: TextButton(
+                        onPressed: _canSend ? _send : null,
+                        style: vaultGoldStyle(context),
+                        child: Text(l10n.whisperSend, style: type.title),
                       ),
-                      child: Text(l10n.whisperSend, style: type.title),
                     ),
                   ),
                   SizedBox(height: spacing.xs),
@@ -207,56 +222,101 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
   Widget _seatList(
     List<PublicPlayer> recipients, {
     required ValueChanged<int> onPick,
+    bool strip = false,
   }) {
     final spacing = context.spacing;
-    return ListView.separated(
-      itemCount: recipients.length,
-      separatorBuilder: (_, __) => SizedBox(height: spacing.xs),
-      itemBuilder: (context, index) {
-        final player = recipients[index];
-        return PlayerTile(
-          seat: player.seat,
-          name: player.name,
+    Widget face(PublicPlayer player) {
+      final picked = player.seat == _to;
+      final size = strip ? WhisperTokens.stripFace : WhisperTokens.face;
+      return Semantics(
+        button: true,
+        selected: picked,
+        child: GestureDetector(
+          key: ValueKey('whisper_to_${player.seat}'),
+          behavior: HitTestBehavior.opaque,
           onTap: () => onPick(player.seat),
-        );
-      },
+          child: AnimatedOpacity(
+            opacity: _to == null || picked ? 1 : WhisperTokens.unpickedOpacity,
+            duration: context.motion.band,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LampGlow(
+                  alpha: picked ? VaultTokens.lampAlpha : 0,
+                  child: PlayerAvatar(
+                    name: player.name,
+                    gender: player.gender,
+                    diameter: size,
+                    ringColor: picked ? VaultTokens.gold : null,
+                  ),
+                ),
+                SizedBox(height: spacing.xs),
+                Text(
+                  player.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.typography.bodySmall.copyWith(
+                    color: picked
+                        ? VaultTokens.goldLight
+                        : context.colors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (strip) {
+      return ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: recipients.length,
+        separatorBuilder: (_, _) => SizedBox(width: spacing.md),
+        itemBuilder: (context, index) => face(recipients[index]),
+      );
+    }
+    return SingleChildScrollView(
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: spacing.lg,
+        runSpacing: spacing.md,
+        children: [for (final player in recipients) face(player)],
+      ),
     );
   }
 
   Widget _composer(int remaining) {
     final colors = context.colors;
     final spacing = context.spacing;
-    final radii = context.radii;
     final type = context.typography;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: colors.surfaceRaised,
-              borderRadius: BorderRadius.circular(radii.card),
-              border: Border.all(color: colors.borderSubtle),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(spacing.sm),
-              child: TextField(
-                controller: _body,
-                // Hard-limited at the input as well as in the engine (H-E6).
-                // Never truncated silently: the counter goes negative-looking
-                // long before anybody reaches the cap.
-                maxLength: WhisperLimits.maxLength,
-                maxLines: null,
-                expands: true,
-                textAlignVertical: TextAlignVertical.top,
-                style: type.body.copyWith(color: colors.textPrimary),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  counterText: '',
+          child: VaultCard(
+            lit: true,
+            padding: EdgeInsets.all(spacing.md),
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _body,
+                  // Hard-limited at the input as well as in the engine (H-E6).
+                  // Never truncated silently: the counter goes negative-looking
+                  // long before anybody reaches the cap.
+                  maxLength: WhisperLimits.maxLength,
+                  maxLines: null,
+                  expands: true,
+                  textAlignVertical: TextAlignVertical.top,
+                  style: type.body.copyWith(color: colors.textPrimary),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    counterText: '',
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
         SizedBox(height: spacing.xs),

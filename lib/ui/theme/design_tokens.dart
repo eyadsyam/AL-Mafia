@@ -321,6 +321,17 @@ class MafiaSpacing extends ThemeExtension<MafiaSpacing> {
 }
 
 /// Fixed geometry for the portrait online council in doc 15.
+/// The whisper composer: the seal over the title, the recipients' faces
+/// (large to pick, small in the strip above the letter) and how far the
+/// faces not picked fade.
+abstract final class WhisperTokens {
+  static const double seal = 56;
+  static const double face = 72;
+  static const double stripFace = 44;
+  static const double strip = 84;
+  static const double unpickedOpacity = 0.5;
+}
+
 abstract final class CouncilTokens {
   static const double welcomeArtHeight = 124;
   static const double welcomeArtMinViewport = 600;
