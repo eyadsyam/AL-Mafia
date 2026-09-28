@@ -1,5 +1,7 @@
 -- Contract for 20260928000500_case_of_day. Rolled back by the SQL harness.
 begin;
+-- D3: seasons sleep until the operator starts them.
+select public.operator_start_season('season_zero',now()-interval '1 hour');
 
 create temp table cp_results(gate text primary key,ok boolean not null,detail text);
 create function pg_temp.cp_record(p_gate text,p_err text) returns void language sql as $$

@@ -1,5 +1,7 @@
 -- Contract for 20260928000400_casebook. Rolled back by the local harness.
 begin;
+-- D3: seasons sleep until the operator starts them.
+select public.operator_start_season('season_zero',now()-interval '1 hour');
 
 create temp table cb_results(gate text primary key,ok boolean not null,detail text);
 create function pg_temp.cb_record(p_gate text,p_err text) returns void language sql as $$

@@ -730,7 +730,9 @@ class _SeasonPage extends StatelessWidget {
         Text(
           season.complete
               ? l.casebookSeasonDone
-              : l.casebookLevel(season.level),
+              // D4 — a season just begun reads «مستوى ١», never «٠». The
+              // stops below still count the real level.
+              : l.casebookLevel(math.max(1, season.level)),
           textAlign: TextAlign.center,
           style: type.title.copyWith(color: colors.textPrimary),
         ),
@@ -1007,7 +1009,7 @@ class _LegacyPage extends StatelessWidget {
       children: [
         if (book.rank.level > 0)
           Text(
-            l.casebookRank(book.rank.level),
+            l.casebookRank(math.max(1, book.rank.level)),
             textAlign: TextAlign.center,
             style: type.title.copyWith(color: colors.accentGold),
           ),

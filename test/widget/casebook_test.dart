@@ -80,6 +80,23 @@ void main() {
     });
   }
 
+  // D4 — a season that has just begun, and a player with no rank yet, read
+  // «١» rather than «٠»; the stops still count the real level.
+  testWidgets('a fresh season and rank never read level zero', (tester) async {
+    final json = casebookJson();
+    json['season'] = {...json['season'] as Map<String, dynamic>, 'level': 0, 'xp': 0};
+    json['rank'] = {'level': 0, 'xp': 0, 'next': 100};
+    await pump(tester, locale: const Locale('en'), json: json);
+    await tester.tap(find.text(enStrings.casebookSeason));
+    await tester.pumpAndSettle();
+    expect(find.text(enStrings.casebookLevel(1)), findsOneWidget);
+    expect(find.text(enStrings.casebookLevel(0)), findsNothing);
+    await tester.tap(find.text(enStrings.casebookLegacy));
+    await tester.pumpAndSettle();
+    expect(find.text(enStrings.casebookRank(0)), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('the entry is absent while the feature is off', (tester) async {
     await pump(
       tester,
