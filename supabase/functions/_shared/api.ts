@@ -73,6 +73,7 @@ export type ErrorCode =
   | "NAME_NOT_ALLOWED"
   | "ACCOUNT_RESTRICTED"
   | "REPORT_CLOSED"
+  | "WITNESS_ONLY"
   | "BAD_REQUEST";
 
 export function ok(body: unknown = { ok: true }): Response {

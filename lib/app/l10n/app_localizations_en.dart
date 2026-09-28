@@ -4697,4 +4697,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminSafetyOpenQueue => 'Reports queue';
+
+  @override
+  String get witnessWhispersTitle => 'Whispers';
+
+  @override
+  String witnessWhisperLine(String from, String to) {
+    return '$from → $to';
+  }
+
+  @override
+  String get witnessWhisperMasked => 'Hidden: you blocked the sender.';
+
+  @override
+  String get witnessWhisperReport => 'Report this whisper';
+
+  @override
+  String get witnessWhispersDisclosure =>
+      'Players who are out can read the whispers.';
 }

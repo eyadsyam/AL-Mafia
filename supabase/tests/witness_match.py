@@ -53,9 +53,9 @@ def main():
         fn("submit_night_action", {"roomId": room_id, "action": "suspect", "targetSeat": mafia["seat"], "actionId": aid()}, c)
 
     status, alive_view = fn("witness_view", {"roomId": room_id}, mafia)
-    check("a living Mafia is refused mid-night", status == 403 and alive_view.get("error") == "NOT_ALIVE", alive_view)
+    check("a living Mafia is refused mid-night", status == 403 and alive_view.get("error") == "WITNESS_ONLY", alive_view)
     status, alive_view2 = fn("witness_view", {"roomId": room_id}, citizens[-1] if citizens[-1] is not victim else citizens[0])
-    check("a living Citizen gets the identical refusal", status == 403 and alive_view2.get("error") == "NOT_ALIVE", alive_view2)
+    check("a living Citizen gets the identical refusal", status == 403 and alive_view2.get("error") == "WITNESS_ONLY", alive_view2)
 
     status, morning = fn("resolve_night", {"roomId": room_id}, players[0])
     check("the victim died", status == 200 and morning.get("victimSeat") == victim["seat"], morning)

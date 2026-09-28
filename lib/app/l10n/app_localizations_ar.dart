@@ -4610,4 +4610,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminSafetyOpenQueue => 'طابور البلاغات';
+
+  @override
+  String get witnessWhispersTitle => 'الهمسات';
+
+  @override
+  String witnessWhisperLine(String from, String to) {
+    return '$from ← $to';
+  }
+
+  @override
+  String get witnessWhisperMasked => 'مخفية: إنت عامل بلوك للي بعتها.';
+
+  @override
+  String get witnessWhisperReport => 'بلّغ عن الهمسة دي';
+
+  @override
+  String get witnessWhispersDisclosure =>
+      'اللي خرجوا من اللعبة بيشوفوا الهمسات';
 }

@@ -7945,6 +7945,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reports queue'**
   String get adminSafetyOpenQueue;
+
+  /// No description provided for @witnessWhispersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Whispers'**
+  String get witnessWhispersTitle;
+
+  /// No description provided for @witnessWhisperLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} → {to}'**
+  String witnessWhisperLine(String from, String to);
+
+  /// No description provided for @witnessWhisperMasked.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden: you blocked the sender.'**
+  String get witnessWhisperMasked;
+
+  /// No description provided for @witnessWhisperReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this whisper'**
+  String get witnessWhisperReport;
+
+  /// No description provided for @witnessWhispersDisclosure.
+  ///
+  /// In en, this message translates to:
+  /// **'Players who are out can read the whispers.'**
+  String get witnessWhispersDisclosure;
 }
 
 class _AppLocalizationsDelegate

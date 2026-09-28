@@ -40,13 +40,20 @@ class WhisperComposeScreen extends StatefulWidget {
 
   final VoidCallback onCancel;
 
+  /// F21a: players who are out can read whispers, and every writer is told so
+  /// by one identical line.
+  final bool witnessed;
+
   const WhisperComposeScreen({
     super.key,
     required this.players,
     required this.fromSeat,
     required this.onSend,
     required this.onCancel,
+    this.witnessed = false,
   });
+
+  static const disclosure = ValueKey('whisper_witness_disclosure');
 
   @override
   State<WhisperComposeScreen> createState() => _WhisperComposeScreenState();
@@ -252,6 +259,12 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
           ),
           textAlign: TextAlign.end,
         ),
+        if (widget.witnessed)
+          Text(
+            key: WhisperComposeScreen.disclosure,
+            context.l10n.witnessWhispersDisclosure,
+            style: type.caption.copyWith(color: colors.textMuted),
+          ),
       ],
     );
   }

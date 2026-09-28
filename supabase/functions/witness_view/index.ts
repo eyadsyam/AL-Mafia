@@ -24,6 +24,11 @@
  *             progress, as seats. `skip` rows are left out: "chose nobody" is
  *             a non-event to watch, and it is what an unanswered seat defaults
  *             to anyway.
+ * `whispers` — F21a (owner, 2026-09-28): every delivered whisper, who to whom
+ *             and what it said, from `witness_whispers`, which re-checks the
+ *             caller's death from committed rows. Present only while the
+ *             global flag and the room's witness setting are on; a sender the
+ *             viewer blocked comes back masked. Never logged.
  */
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 
@@ -34,10 +39,10 @@ Deno.serve(handler(async (req, userId, db) => {
   const me = await loadMembership(db, roomId, userId);
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
   if (me.alive || me.status !== "playing") {
-    return fail("NOT_ALIVE", "only an eliminated player watches the whole table", 403);
+    return fail("WITNESS_ONLY", "only an eliminated player watches the whole table", 403);
   }
 
-  const [players, actions] = await Promise.all([
+  const [players, actions, whispers] = await Promise.all([
     db
       .from("room_players")
       .select("user_id, seat, role")
@@ -52,7 +57,9 @@ Deno.serve(handler(async (req, userId, db) => {
       .neq("action", "skip")
       .order("night")
       .order("created_at"),
+    db.rpc("witness_whispers", { p_room: roomId, p_viewer: userId }),
   ]);
+  if (whispers.error) throw whispers.error;
   if (players.error) throw players.error;
   if (actions.error) throw actions.error;
 
@@ -70,5 +77,6 @@ Deno.serve(handler(async (req, userId, db) => {
         action: a.action,
         targetSeat: seatOf.get(a.target_id),
       })),
+    ...(Array.isArray(whispers.data) ? { whispers: whispers.data } : {}),
   });
 }));

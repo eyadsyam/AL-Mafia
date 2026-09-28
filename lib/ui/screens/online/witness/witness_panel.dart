@@ -30,6 +30,8 @@ class WitnessPanel extends ConsumerStatefulWidget {
   /// been read yet. Owned by the table flow, which polls it.
   final WitnessTable? table;
 
+  static Key whisper(String id) => ValueKey('witness_whisper_$id');
+
   const WitnessPanel({
     super.key,
     required this.snapshot,
@@ -254,6 +256,9 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
     );
   }
 
+  /// Whispers reported from this panel, so the flag is not offered twice.
+  final Set<String> _reported = {};
+
   // ── the open table ───────────────────────────────────────────────────────
 
   /// Every seat as its card, then every night choice, newest night first.
@@ -339,6 +344,59 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
                       style: type.body.copyWith(color: colors.textSecondary),
                     ),
                   ),
+                ],
+              ),
+            ),
+        ],
+        // F21a: every delivered whisper, newest first. Text is plain Text, so
+        // markup in a message renders as the characters it is.
+        if (table.whispers.isNotEmpty) ...[
+          SizedBox(height: spacing.md),
+          Text(
+            l10n.witnessWhispersTitle,
+            style: type.caption.copyWith(color: colors.accentGold),
+          ),
+          SizedBox(height: spacing.xs),
+          for (final w in table.whispers.reversed)
+            Padding(
+              key: WitnessPanel.whisper(w.id),
+              padding: EdgeInsets.only(bottom: spacing.xs),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.witnessWhisperLine(
+                            names[w.fromSeat] ?? '',
+                            names[w.toSeat] ?? '',
+                          ),
+                          style: type.caption.copyWith(color: colors.textMuted),
+                        ),
+                        Text(
+                          w.masked ? l10n.witnessWhisperMasked : w.text ?? '',
+                          style: type.body.copyWith(
+                            color: w.masked
+                                ? colors.textMuted
+                                : colors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (!_reported.contains(w.id))
+                    IconButton(
+                      tooltip: l10n.witnessWhisperReport,
+                      icon: const Icon(Icons.flag_outlined),
+                      onPressed: () async {
+                        final done =
+                            await widget.channel?.reportWhisper(w.id) ?? false;
+                        if (done && mounted) {
+                          setState(() => _reported.add(w.id));
+                        }
+                      },
+                    ),
                 ],
               ),
             ),

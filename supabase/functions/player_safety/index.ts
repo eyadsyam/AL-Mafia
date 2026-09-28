@@ -14,6 +14,7 @@ const uuid = (v: unknown): string | null =>
  *   admin_list   {status?, category?, cursor?}  owner only
  *   admin_resolve {reportId, decision, durationDays?, note?, requestId}
  *   admin_purge  {requestId}
+ *   witness_report {roomId, whisperId, category, requestId}   (F21a, the dead)
  *
  * Every refusal is a fixed sentence; nothing a reporter sends comes back.
  */
@@ -94,6 +95,24 @@ async function v11(body: Record<string, unknown>, userId: string, db: any) {
       if (error) {
         if (error.message === "NOT_ADMIN") return fail("NOT_ADMIN", "not an administrator", 403);
         if (error.message === "REPORT_CLOSED") return fail("REPORT_CLOSED", "this report is already closed", 409);
+        if (error.message === "BAD_REQUEST") return fail("BAD_REQUEST", "invalid safety request");
+        throw error;
+      }
+      return ok(data);
+    }
+    case "witness_report": {
+      const room = uuid(body.roomId);
+      const whisper = uuid(body.whisperId);
+      const requestId = uuid(body.requestId);
+      if (!room || !whisper || !requestId || typeof body.category !== "string") {
+        return fail("BAD_REQUEST", "invalid safety request");
+      }
+      const { data, error } = await db.rpc("witness_report", {
+        p_user: userId, p_room: room, p_whisper: whisper,
+        p_category: body.category, p_request: requestId,
+      });
+      if (error) {
+        if (error.message === "WITNESS_ONLY") return fail("WITNESS_ONLY", "only an eliminated player reports a witnessed whisper", 403);
         if (error.message === "BAD_REQUEST") return fail("BAD_REQUEST", "invalid safety request");
         throw error;
       }

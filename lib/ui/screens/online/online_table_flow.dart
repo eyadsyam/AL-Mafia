@@ -16,6 +16,7 @@ import '../../../transport/online_backend.dart';
 import '../../../transport/online_transport.dart' show OnlineTransport;
 import '../../information_text.dart';
 import '../../l10n_ext.dart';
+import '../../economy/economy_capabilities.dart';
 import '../../economy/interstitial_coordinator.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
@@ -1911,6 +1912,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           // This device's own player. The recipient list is built from the
           // others, so there is no seat to exclude.
           fromSeat: me,
+          witnessed:
+              ref.watch(economyCapabilitiesProvider).valueOrNull?.witnessWhispers ??
+              false,
           onCancel: () => setState(() => _composing = false),
           onSend: (fromSeat, toSeat, body) {
             setState(() => _composing = false);

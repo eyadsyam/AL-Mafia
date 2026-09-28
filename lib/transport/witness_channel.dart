@@ -1,7 +1,11 @@
 import 'dart:async';
 
+import '../data/request_id.dart';
 import '../engine/models/enums.dart';
 import 'online_backend.dart';
+import 'witness_whisper.dart';
+
+export 'witness_whisper.dart';
 
 /// One night choice, as the dead see it: who chose what, about whom.
 class WitnessAction {
@@ -27,7 +31,15 @@ class WitnessTable {
   final Map<int, Role> roles;
   final List<WitnessAction> actions;
 
-  const WitnessTable({required this.roles, required this.actions});
+  /// Empty unless the server sent them (the flag and the room's witness
+  /// setting are both on). Held in memory only; never cached or logged.
+  final List<WitnessWhisper> whispers;
+
+  const WitnessTable({
+    required this.roles,
+    required this.actions,
+    this.whispers = const [],
+  });
 
   static WitnessTable fromJson(Map<String, dynamic> json) {
     Role? role(Object? name) =>
@@ -51,6 +63,7 @@ class WitnessTable {
               targetSeat: row['targetSeat'] as int,
             ),
       ],
+      whispers: WitnessWhisper.listFromJson(json['whispers']),
     );
   }
 }
@@ -128,6 +141,10 @@ abstract class WitnessChannel {
   /// Every role and every night choice so far, or null when the server
   /// refuses (this player is alive) or cannot be reached. Never throws.
   Future<WitnessTable?> table();
+
+  /// Reports a witnessed whisper by its id (F21a); the server keeps the text
+  /// as evidence, so the client sends none. False when it was not filed.
+  Future<bool> reportWhisper(String whisperId);
 
   /// Stops listening. Called when the match ends or the screen goes away.
   Future<void> dispose();
@@ -227,6 +244,22 @@ class BackendWitnessChannel implements WitnessChannel {
       // The only refusal a screen can act on: one was already lodged.
       if (e.code == 'RATE_LIMITED') return false;
       rethrow;
+    }
+  }
+
+  @override
+  Future<bool> reportWhisper(String whisperId) async {
+    try {
+      await backend.call('player_safety', {
+        'action': 'witness_report',
+        'roomId': roomId,
+        'whisperId': whisperId,
+        'category': 'other',
+        'requestId': newRequestId(),
+      });
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 
