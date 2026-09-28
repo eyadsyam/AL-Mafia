@@ -1830,5 +1830,14 @@
   "witnessManageSeat": "إدارة الكرسي",
   "witnessLetterOpen": "افتح الهمسة",
   "onlineWeatherRetry": "جرّب دلوقتي",
-  "xpUnit": "نقطة"
+  "xpUnit": "نقطة",
+  "inviteFirstMatchNotice": "{name} لعب أول ماتش — خدت {coins} عملة",
+  "@inviteFirstMatchNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
+  "inviteProgressNotice": "صاحبك لعب {count} من 3",
+  "@inviteProgressNotice": {"placeholders": {"count": {"type": "int"}}},
+  "inviteSettledNotice": "{name} كمّل التلات ماتشات — خدت {coins} عملة",
+  "@inviteSettledNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
+  "inviteSettledCounter": "دعوات كملت: {season}/{seasonCap} الموسم ده · {lifetime}/{lifetimeCap} الكل",
+  "@inviteSettledCounter": {"placeholders": {"season": {"type": "int"}, "seasonCap": {"type": "int"}, "lifetime": {"type": "int"}, "lifetimeCap": {"type": "int"}}},
+  "inviteNoticeFriend": "صاحبك"
 }

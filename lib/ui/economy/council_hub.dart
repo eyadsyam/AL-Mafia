@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../app/asset_constants.dart';
+import '../../data/request_id.dart';
 import '../../app/l10n/app_localizations.dart';
 import '../../platform/clipboard.dart';
 import '../../platform/haptics.dart';
@@ -1088,14 +1089,26 @@ class InviteCard extends ConsumerStatefulWidget {
   static const Key shareKey = ValueKey('invite_share');
   static const Key fieldKey = ValueKey('invite_field');
   static const Key redeemKey = ValueKey('invite_redeem');
+  static const Key settledKey = ValueKey('invite_settled');
 
   @override
   ConsumerState<InviteCard> createState() => _InviteCardState();
 }
 
+/// The copy for one invite line (spec §3 "Invite settlement").
+String inviteNoticeLine(AppLocalizations l, InviteNotice notice) {
+  final name = notice.name.trim().isEmpty ? l.inviteNoticeFriend : notice.name;
+  return switch (notice.kind) {
+    'first_match' => l.inviteFirstMatchNotice(name, notice.coins),
+    'settled' => l.inviteSettledNotice(name, notice.coins),
+    _ => l.inviteProgressNotice(notice.progress),
+  };
+}
+
 class _InviteCardState extends ConsumerState<InviteCard> {
   final _field = TextEditingController();
   bool _busy = false;
+  final _acknowledged = <int>{};
 
   @override
   void initState() {
@@ -1156,6 +1169,15 @@ class _InviteCardState extends ConsumerState<InviteCard> {
             );
     }
     if (!status.enabled) return const SizedBox.shrink();
+    final unread = [
+      for (final n in status.notices)
+        if (_acknowledged.add(n.id)) n.id,
+    ];
+    if (unread.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => unawaited(ref.read(inviteProvider.notifier).acknowledge(unread)),
+      );
+    }
     final code = status.code ?? '';
     return _card(context, key: InviteCard.codeKey, [
       RasterOr(
@@ -1253,11 +1275,38 @@ class _InviteCardState extends ConsumerState<InviteCard> {
         ],
       ),
       SizedBox(height: s.sm),
-      Text(
-        l.inviteCounters(status.rewarded, status.cap, status.pending),
-        textAlign: TextAlign.center,
-        style: context.typography.caption.copyWith(color: colors.textMuted),
-      ),
+      if (status.v3)
+        Text(
+          l.inviteSettledCounter(
+            status.settledSeason,
+            status.seasonCap,
+            status.settledLifetime,
+            status.lifetimeCap,
+          ),
+          key: InviteCard.settledKey,
+          textAlign: TextAlign.center,
+          style: context.typography.caption.copyWith(color: colors.textMuted),
+        )
+      else
+        Text(
+          l.inviteCounters(status.rewarded, status.cap, status.pending),
+          textAlign: TextAlign.center,
+          style: context.typography.caption.copyWith(color: colors.textMuted),
+        ),
+      // Row 6: the inviter's unread lines, shown once and then acknowledged.
+      // TODO(art): an illustrated notice row replaces this plain list.
+      for (final notice in status.notices)
+        Padding(
+          key: ValueKey('invite_notice_${notice.id}'),
+          padding: EdgeInsets.only(top: s.xs),
+          child: Text(
+            inviteNoticeLine(l, notice),
+            textAlign: TextAlign.center,
+            style: context.typography.bodySmall.copyWith(
+              color: VaultTokens.goldLight,
+            ),
+          ),
+        ),
       if (status.redeemed) ...[
         const VaultDivider(),
         Center(
@@ -1331,6 +1380,10 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
   bool _shown = false;
   bool _missions = false;
 
+  /// One id for this result's summary, reused by any retry (D7): the server
+  /// replays its first answer, so a lost response still shows the lines.
+  final String _requestId = newRequestId();
+
   @override
   void initState() {
     super.initState();
@@ -1350,6 +1403,7 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
       final summary = await backend.call('economy', {
         'action': 'resultSummary',
         'roomId': widget.roomId,
+        'requestId': _requestId,
       });
       if (!mounted) return;
       ref.read(councilProvider.notifier).absorbSummary(summary);
@@ -1366,12 +1420,16 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
             l.resultContractToast(contractName(l, c), c.coins),
       ];
       final weekly = after.contracts.weekly;
+      // The server's own delta for this room when it sends one (D7); the
+      // before/after difference only for an older server.
+      final deltas = summary['deltas'];
+      final serverXp = deltas is Map ? (deltas['councilXp'] as num?)?.toInt() : null;
+      final xpGained = serverXp ??
+          (before != null && before.rank.enabled
+              ? after.rank.xp - before.rank.xp
+              : 0);
       final lines = [
-        if (after.rank.enabled &&
-            before != null &&
-            before.rank.enabled &&
-            after.rank.xp > before.rank.xp)
-          l.resultXpGained(after.rank.xp - before.rank.xp),
+        if (after.rank.enabled && xpGained > 0) l.resultXpGained(xpGained),
         // With the Casebook on, contracts are its daily cases and it pays
         // them on its own schedule: one line below says so instead.
         if (!_missions) ...ready,

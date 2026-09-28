@@ -526,7 +526,32 @@ void main() {
       expect(economyCalls('contract_claim'), isEmpty, reason: 'nothing is claimed here');
       expect(economyCalls('resultSummary'), hasLength(1));
       expect(economyCalls('resultSummary').single['roomId'], 'room-1');
+      expect(
+        economyCalls('resultSummary').single['requestId'],
+        matches(RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$')),
+        reason: 'D7: the summary carries a request id the server replays',
+      );
       expect(economyCalls('sync'), isEmpty, reason: 'D7: no burst of separate calls');
+    });
+
+    testWidgets('the server delta wins over a before/after diff', (tester) async {
+      backend.responders['economy'] = (body) => switch (body['action']) {
+        'capabilities' => caps(invites: false),
+        // A replayed summary: rank already includes this room's XP, so a
+        // client-side diff would read zero; the server's delta says 50.
+        'resultSummary' => {
+          'ok': true,
+          'contracts': contracts(claimable: false),
+          'rank': rank(xp: 290),
+          'hub': {'enabled': false},
+          'deltas': {'coins': 60, 'councilXp': 50, 'seasonXp': 10},
+          'replayed': true,
+        },
+        _ => {'ok': true},
+      };
+      await pump(tester, const CouncilResultStrip(roomId: 'room-1'));
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.resultXpGained(50)), findsOneWidget);
     });
 
     testWidgets('council off: the result screen shows nothing new', (

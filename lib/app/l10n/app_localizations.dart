@@ -8047,6 +8047,41 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'XP'**
   String get xpUnit;
+
+  /// No description provided for @inviteFirstMatchNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} played their first match — you got {coins} coins'**
+  String inviteFirstMatchNotice(String name, int coins);
+
+  /// No description provided for @inviteProgressNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend played {count} of 3'**
+  String inviteProgressNotice(int count);
+
+  /// No description provided for @inviteSettledNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} finished three matches — you got {coins} coins'**
+  String inviteSettledNotice(String name, int coins);
+
+  /// No description provided for @inviteSettledCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled invites: {season}/{seasonCap} this season · {lifetime}/{lifetimeCap} all time'**
+  String inviteSettledCounter(
+    int season,
+    int seasonCap,
+    int lifetime,
+    int lifetimeCap,
+  );
+
+  /// No description provided for @inviteNoticeFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend'**
+  String get inviteNoticeFriend;
 }
 
 class _AppLocalizationsDelegate

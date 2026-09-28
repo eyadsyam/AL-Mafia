@@ -4668,4 +4668,32 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get xpUnit => 'نقطة';
+
+  @override
+  String inviteFirstMatchNotice(String name, int coins) {
+    return '$name لعب أول ماتش — خدت $coins عملة';
+  }
+
+  @override
+  String inviteProgressNotice(int count) {
+    return 'صاحبك لعب $count من 3';
+  }
+
+  @override
+  String inviteSettledNotice(String name, int coins) {
+    return '$name كمّل التلات ماتشات — خدت $coins عملة';
+  }
+
+  @override
+  String inviteSettledCounter(
+    int season,
+    int seasonCap,
+    int lifetime,
+    int lifetimeCap,
+  ) {
+    return 'دعوات كملت: $season/$seasonCap الموسم ده · $lifetime/$lifetimeCap الكل';
+  }
+
+  @override
+  String get inviteNoticeFriend => 'صاحبك';
 }

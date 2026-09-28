@@ -191,6 +191,11 @@ class EconomyCapabilities {
   /// pays this first. Disclosed before Buy.
   final int purchaseDebt;
 
+  /// Row 6: the reward rules the server pays by (`economy.version`). 3 means
+  /// one eligible receipt per match (25 / +10 win / +25 first of the day);
+  /// anything lower is the older table.
+  final int economyVersion;
+
   /// The server could not be asked. Read as all off, but not remembered for
   /// the session: the next store open or resume asks again.
   final bool failed;
@@ -218,6 +223,7 @@ class EconomyCapabilities {
     this.safetyV11 = false,
     this.witnessWhispers = false,
     this.purchaseDebt = 0,
+    this.economyVersion = 0,
     this.failed = false,
   });
 
@@ -240,6 +246,9 @@ class EconomyCapabilities {
           ? json['accountTag'] as String
           : null,
       purchaseDebt: (json['purchaseDebt'] as num?)?.toInt() ?? 0,
+      economyVersion: json['economy'] is Map
+          ? ((json['economy'] as Map)['version'] as num?)?.toInt() ?? 0
+          : 0,
       council: CouncilCapabilities.fromJson(json['council']),
       ads: AdsCapabilities.fromJson(json['ads']),
       fun: FunCapabilities.fromJson(json['fun']),
@@ -280,6 +289,9 @@ class EconomyCapabilities {
   /// Quiet Pass and an active creator grant suppress the same automatic ads.
   /// Rewarded offers intentionally continue to use their own capability flags.
   bool get automaticAdsDisabled => adFree || creator;
+
+  /// Economy v3 receipts are live (`economy.version=3`).
+  bool get economyV3 => economyVersion >= 3;
 }
 
 /// Off on any failure: no network, no online configuration, an old server.

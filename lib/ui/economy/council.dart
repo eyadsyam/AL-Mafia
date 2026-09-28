@@ -262,6 +262,16 @@ class InviteStatus {
   final bool redeemed;
   final bool redeemedRewarded;
   final bool canRedeem;
+
+  /// Economy v3 (row 6): settled invites against the 10/season and
+  /// 40/lifetime caps, what they unlocked, and the lines the inviter has not
+  /// read yet. Absent (zero/empty) on the older scheme.
+  final int settledSeason;
+  final int settledLifetime;
+  final int seasonCap;
+  final int lifetimeCap;
+  final List<String> unlocks;
+  final List<InviteNotice> notices;
   const InviteStatus({
     required this.enabled,
     required this.code,
@@ -273,11 +283,34 @@ class InviteStatus {
     required this.redeemed,
     required this.redeemedRewarded,
     required this.canRedeem,
+    this.settledSeason = 0,
+    this.settledLifetime = 0,
+    this.seasonCap = 0,
+    this.lifetimeCap = 0,
+    this.unlocks = const [],
+    this.notices = const [],
   });
+
+  bool get v3 => lifetimeCap > 0;
 
   factory InviteStatus.fromJson(Map<String, dynamic> j) {
     final redeemed = j['redeemed'];
+    final v3 = j['v3'] is Map ? Map<String, dynamic>.from(j['v3'] as Map) : null;
+    final caps = v3?['caps'] is Map ? v3!['caps'] as Map : const {};
     return InviteStatus(
+      settledSeason: _int(v3?['settledSeason']),
+      settledLifetime: _int(v3?['settledLifetime']),
+      seasonCap: _int(caps['season']),
+      lifetimeCap: _int(caps['lifetime']),
+      unlocks: [
+        for (final code in (v3?['unlocks'] as List?) ?? const [])
+          if (code is String) code,
+      ],
+      notices: [
+        for (final row in (v3?['notices'] as List?) ?? const [])
+          if (row is Map && InviteNotice.kinds.contains(row['kind']))
+            InviteNotice.fromJson(Map<String, dynamic>.from(row)),
+      ],
       enabled: j['enabled'] == true,
       code: j['code'] as String?,
       inviterCoins: _int(j['inviterCoins']),
@@ -290,6 +323,32 @@ class InviteStatus {
       canRedeem: j['canRedeem'] == true,
     );
   }
+}
+
+/// One unread invite line. The server keeps the kind, the invitee's display
+/// name and the count; the copy lives in the ARB files.
+class InviteNotice {
+  static const kinds = {'first_match', 'progress', 'settled'};
+  final int id;
+  final String kind;
+  final String name;
+  final int progress;
+  final int coins;
+  const InviteNotice({
+    required this.id,
+    required this.kind,
+    required this.name,
+    required this.progress,
+    required this.coins,
+  });
+
+  factory InviteNotice.fromJson(Map<String, dynamic> j) => InviteNotice(
+    id: _int(j['id']),
+    kind: j['kind'] as String,
+    name: j['name'] is String ? j['name'] as String : '',
+    progress: _int(j['progress']),
+    coins: _int(j['coins']),
+  );
 }
 
 /// Contracts and rank together: the hub's two always-present cards.
@@ -510,6 +569,15 @@ class InviteController extends AutoDisposeAsyncNotifier<InviteStatus> {
   @override
   Future<InviteStatus> build() async =>
       InviteStatus.fromJson(await _call({'action': 'invite_get'}));
+
+  /// Marks the shown invite lines read. Never load-bearing: a failure leaves
+  /// them to be shown once more on the next open.
+  Future<void> acknowledge(List<int> ids) async {
+    if (ids.isEmpty) return;
+    try {
+      await _call({'action': 'invite_ack', 'ids': ids.take(50).toList()});
+    } catch (_) {}
+  }
 
   /// Returns the server's status word (`redeemed` / `not_found`).
   Future<String> redeem(String code) async {

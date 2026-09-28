@@ -4755,4 +4755,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get xpUnit => 'XP';
+
+  @override
+  String inviteFirstMatchNotice(String name, int coins) {
+    return '$name played their first match — you got $coins coins';
+  }
+
+  @override
+  String inviteProgressNotice(int count) {
+    return 'Your friend played $count of 3';
+  }
+
+  @override
+  String inviteSettledNotice(String name, int coins) {
+    return '$name finished three matches — you got $coins coins';
+  }
+
+  @override
+  String inviteSettledCounter(
+    int season,
+    int seasonCap,
+    int lifetime,
+    int lifetimeCap,
+  ) {
+    return 'Settled invites: $season/$seasonCap this season · $lifetime/$lifetimeCap all time';
+  }
+
+  @override
+  String get inviteNoticeFriend => 'Your friend';
 }

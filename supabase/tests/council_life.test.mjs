@@ -48,6 +48,28 @@ assert.deepEqual(economyCall({ action: 'leaderboard_visibility', visible: false 
 assert.equal(economyCall({ action: 'leaderboard_visibility', visible: 'no' }, me), null);
 assert.equal(economyCall({ action: 'leaderboard_visibility' }, me), null);
 
+// Row 6: invite notice acknowledgement takes 1..50 positive integer ids.
+assert.deepEqual(economyCall({ action: 'invite_ack', ids: [3, 9] }, me),
+  { rpc: 'invite_notices_ack', args: { p_user: me, p_ids: [3, 9] } });
+assert.equal(economyCall({ action: 'invite_ack', ids: [] }, me), null, 'empty');
+assert.equal(economyCall({ action: 'invite_ack', ids: [0] }, me), null, 'zero');
+assert.equal(economyCall({ action: 'invite_ack', ids: ['1'] }, me), null, 'string id');
+assert.equal(economyCall({ action: 'invite_ack', ids: [1.5] }, me), null, 'fraction');
+assert.equal(economyCall({ action: 'invite_ack', ids: Array.from({ length: 51 }, (_, i) => i + 1) }, me),
+  null, 'more than 50');
+assert.equal(economyCall({ action: 'invite_ack', ids: 7, userId: other }, me), null, 'not a list');
+
+// D7: resultSummary{roomId,requestId} is the room summary; without a
+// request id it stays the older one; a malformed id or missing room refuses.
+const rid = '00000000-0000-4000-8000-0000000000aa';
+const req = '00000000-0000-4000-8000-0000000000BB';
+assert.deepEqual(economyCall({ action: 'resultSummary', roomId: rid, requestId: req }, me),
+  { rpc: 'result_summary_room', args: { p_user: me, p_room: rid, p_request: req.toLowerCase() } });
+assert.deepEqual(economyCall({ action: 'resultSummary', roomId: rid }, me),
+  { rpc: 'result_summary', args: { p_user: me } });
+assert.equal(economyCall({ action: 'resultSummary', requestId: req }, me), null, 'no room');
+assert.equal(economyCall({ action: 'resultSummary', roomId: rid, requestId: 'x' }, me), null, 'bad id');
+
 // Old actions are unchanged.
 assert.deepEqual(economyCall({ action: 'daily_status' }, me), { rpc: 'daily_status', args: { p_user: me } });
 console.log('council_life contracts: PASS');

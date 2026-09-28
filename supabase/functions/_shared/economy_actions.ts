@@ -137,8 +137,19 @@ export function economyCall(
     case "rank_get":
       return { rpc: "council_rank", args: { p_user: userId } };
     // D7 — the result screen's one call: sync + contracts + rank + Casebook hub.
-    case "resultSummary":
-      return { rpc: "result_summary", args: { p_user: userId } };
+    // With a request id it is the room's summary: deltas, the receipt, and
+    // the first answer replayed on retry. Without one, the 1.1.0 answer.
+    case "resultSummary": {
+      if (body.requestId === undefined) {
+        return { rpc: "result_summary", args: { p_user: userId } };
+      }
+      return room && typeof body.requestId === "string" && UUID.test(body.requestId)
+        ? {
+          rpc: "result_summary_room",
+          args: { p_user: userId, p_room: room, p_request: body.requestId.toLowerCase() },
+        }
+        : null;
+    }
     case "leaderboard_get":
       return { rpc: "council_leaderboard", args: { p_user: userId } };
     case "leaderboard_visibility":
@@ -150,6 +161,14 @@ export function economyCall(
         : null;
     case "invite_get":
       return { rpc: "council_invite", args: { p_user: userId } };
+    // Row 6: the inviter has read these notices («{name} لعب أول ماتش…»).
+    case "invite_ack": {
+      const ids = body.ids;
+      return Array.isArray(ids) && ids.length >= 1 && ids.length <= 50 &&
+          ids.every((id) => Number.isSafeInteger(id) && (id as number) > 0)
+        ? { rpc: "invite_notices_ack", args: { p_user: userId, p_ids: ids } }
+        : null;
+    }
     case "invite_redeem": {
       const code = typeof body.code === "string"
         ? body.code.trim().toUpperCase() : "";
