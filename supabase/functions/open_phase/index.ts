@@ -72,7 +72,7 @@ Deno.serve(handler(async (req, userId, db) => {
 
   const allowed = TRANSITIONS[me.phase] ?? [];
   if (!allowed.includes(phase)) {
-    return fail("PHASE_CLOSED", `cannot go from ${me.phase} to ${phase}`);
+    return fail("PHASE_CLOSED", "that phase cannot open now");
   }
 
   // The deal's gate. Never the client's word for it: `saw_role` is written by

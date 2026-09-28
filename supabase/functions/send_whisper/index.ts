@@ -23,7 +23,7 @@ Deno.serve(handler(async (req, userId, db) => {
   // H-E10 and H-E6. Never truncated: a whisper that arrives half-said is worse
   // than one that was refused, and the sender cannot tell which happened.
   if (text.length === 0) return fail("BAD_REQUEST", "an empty whisper is not a whisper");
-  if (text.length > MAX_LENGTH) return fail("BAD_REQUEST", `at most ${MAX_LENGTH} characters`);
+  if (text.length > MAX_LENGTH) return fail("BAD_REQUEST", "a whisper is at most 120 characters");
 
   const me = await loadMembership(db, roomId, userId);
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);

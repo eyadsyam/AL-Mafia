@@ -48,7 +48,8 @@ Deno.serve(handler(async (req, userId, db) => {
   // capacity could drop below a population the door had already admitted.
   let patch;
   try { patch = roomConfiguration(body, {}); }
-  catch (error) { return fail("BAD_REQUEST", (error as Error).message); }
+  // A fixed sentence: the validator's own words never leave the function.
+  catch { return fail("BAD_REQUEST", "invalid room settings"); }
   if (!await ensureScenarioAccess(db, userId, patch.settings)) {
     return fail("PURCHASE_REQUIRED", "scenario is not owned", 403);
   }

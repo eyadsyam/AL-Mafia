@@ -29,7 +29,7 @@ Deno.serve(handler(async (req, userId, db) => {
   const text = String(body ?? "").trim();
   if (text.length === 0) return fail("BAD_REQUEST", "nothing to say");
   if (text.length > MAX_LENGTH) {
-    return fail("BAD_REQUEST", `at most ${MAX_LENGTH} characters`);
+    return fail("BAD_REQUEST", "a ghost message is at most 240 characters");
   }
 
   const me = await loadMembership(db, roomId, userId);
