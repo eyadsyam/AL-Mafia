@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../economy/economy_capabilities.dart';
 import '../../economy/interstitial_coordinator.dart';
 import '../../../data/player_profile.dart';
 import '../../../data/terms_consent.dart';
@@ -57,6 +58,7 @@ class OnlineEntryScreen extends ConsumerStatefulWidget {
   static const errorText = ValueKey('online_error');
   static const leaveTableCancel = ValueKey('online_leave_table_cancel');
   static const leaveTableConfirm = ValueKey('online_leave_table_confirm');
+  static const safetyNotice = ValueKey('online_safety_notice');
   static const resumeButton = ValueKey('online_resume');
   static const discardButton = ValueKey('online_discard_resume');
   static const storageWarning = ValueKey('online_storage_warning');
@@ -115,6 +117,57 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     _lifecycle = AppLifecycleListener(onStateChange: _onLifecycle);
     _refresh();
     _loadResume();
+    unawaited(_loadSafetyNotice());
+  }
+
+  /// F11: a warning or restriction this account has not seen yet. Shown once,
+  /// inline above the tables, until the player acknowledges it.
+  Map<String, dynamic>? _safetyNotice;
+
+  Future<void> _loadSafetyNotice() async {
+    try {
+      final caps = await ref.read(economyCapabilitiesProvider.future);
+      if (!caps.safetyV11) return;
+      final backend = await ref.read(onlineBackendFactoryProvider)();
+      await backend.ensureSession();
+      final status = await backend.call('player_safety', {'action': 'status'});
+      final notices = [
+        for (final n in (status['notices'] as List? ?? const []))
+          if (n is Map && n['id'] is String) Map<String, dynamic>.from(n),
+      ];
+      if (mounted) {
+        setState(() => _safetyNotice = notices.isEmpty ? null : notices.first);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _ackSafetyNotice() async {
+    final id = _safetyNotice?['id'];
+    setState(() => _safetyNotice = null);
+    try {
+      final backend = await ref.read(onlineBackendFactoryProvider)();
+      await backend.call('player_safety', {'action': 'ack', 'noticeId': id});
+    } catch (_) {}
+    await _loadSafetyNotice();
+  }
+
+  String _safetyNoticeText(Map<String, dynamic> notice) {
+    final l = context.l10n;
+    final kind = notice['kind'];
+    final what = switch (kind) {
+      'restrict_voice' => l.safetyNoticeVoice,
+      'restrict_public' => l.safetyNoticePublic,
+      'suspend' => l.safetyNoticeSuspend,
+      _ => l.safetyNoticeWarn,
+    };
+    if (kind == 'warn') return what;
+    final ends = DateTime.tryParse(notice['endsAt'] as String? ?? '');
+    final when = ends == null
+        ? l.safetyNoticeForever
+        : l.safetyNoticeUntil(
+            MaterialLocalizations.of(context).formatMediumDate(ends.toLocal()),
+          );
+    return '$what $when';
   }
 
   void _onLifecycle(AppLifecycleState state) {
@@ -284,6 +337,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
 
   static const _listRefusals = {
     'ROOM_FULL',
+    'ROOM_UNAVAILABLE',
     'PHASE_CLOSED',
     'ROOM_FINISHED',
     'ROOM_NOT_FOUND',
@@ -337,6 +391,9 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     'PHASE_CLOSED' => context.l10n.onlineRoomStarted,
     'NOT_A_MEMBER' => context.l10n.onlineKickedByHost,
     'ALREADY_SEATED' => context.l10n.onlineAlreadySeated,
+    'ROOM_UNAVAILABLE' => context.l10n.onlineRoomUnavailable,
+    'NAME_NOT_ALLOWED' => context.l10n.onlineNameNotAllowed,
+    'ACCOUNT_RESTRICTED' => context.l10n.onlineAccountRestricted,
     'UNREACHABLE' =>
       state.projectPaused
           ? context.l10n.onlineProjectPaused
@@ -371,9 +428,31 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
               .toList()
         : _rooms;
     final error = _error(state);
+    final safetyNotice = _safetyNotice;
     final notice = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (safetyNotice != null)
+          Padding(
+            key: OnlineEntryScreen.safetyNotice,
+            padding: EdgeInsets.symmetric(vertical: s.md),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _safetyNoticeText(safetyNotice),
+                    style: context.typography.body.copyWith(
+                      color: c.accentCrimson,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: _ackSafetyNotice,
+                  child: Text(l.safetyNoticeOk),
+                ),
+              ],
+            ),
+          ),
         if (error != null)
           Padding(
             padding: EdgeInsets.symmetric(vertical: s.md),

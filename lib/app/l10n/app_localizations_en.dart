@@ -4574,4 +4574,127 @@ class AppLocalizationsEn extends AppLocalizations {
   String casebookProgress(int progress, int target) {
     return '$progress of $target';
   }
+
+  @override
+  String get onlineRoomUnavailable => 'This table isn\'t available to you.';
+
+  @override
+  String get onlineNameNotAllowed =>
+      'That name isn\'t allowed. Pick another one.';
+
+  @override
+  String get onlineAccountRestricted =>
+      'Your account can\'t join this right now.';
+
+  @override
+  String get safetyCategory => 'What happened?';
+
+  @override
+  String get safetyCatHarassment => 'Harassment';
+
+  @override
+  String get safetyCatHate => 'Hate or racism';
+
+  @override
+  String get safetyCatSexual => 'Sexual content';
+
+  @override
+  String get safetyCatThreat => 'Threat';
+
+  @override
+  String get safetyCatSpam => 'Spam';
+
+  @override
+  String get safetyCatCheating => 'Cheating';
+
+  @override
+  String get safetyCatName => 'Inappropriate name';
+
+  @override
+  String get safetyCatOther => 'Something else';
+
+  @override
+  String get safetyLimited => 'You\'ve reached today\'s limit.';
+
+  @override
+  String get safetyNoticeWarn =>
+      'You were reported and warned. Keep the table fair and kind.';
+
+  @override
+  String get safetyNoticeVoice => 'Voice is off for your account.';
+
+  @override
+  String get safetyNoticePublic => 'Public tables are closed to your account.';
+
+  @override
+  String get safetyNoticeSuspend => 'Online play is closed to your account.';
+
+  @override
+  String safetyNoticeUntil(String date) {
+    return 'Until $date.';
+  }
+
+  @override
+  String get safetyNoticeForever => 'Permanently.';
+
+  @override
+  String get safetyNoticeOk => 'OK';
+
+  @override
+  String get adminSafetyTitle => 'Reports';
+
+  @override
+  String get adminSafetyOpen => 'Open';
+
+  @override
+  String get adminSafetyActioned => 'Actioned';
+
+  @override
+  String get adminSafetyDismissed => 'Dismissed';
+
+  @override
+  String get adminSafetyCtxLobby => 'Lobby';
+
+  @override
+  String get adminSafetyCtxMatch => 'Match';
+
+  @override
+  String get adminSafetyCtxResult => 'Result';
+
+  @override
+  String get adminSafetyCtxFriends => 'Friends';
+
+  @override
+  String adminSafetyTarget(String name, int open, int actioned) {
+    return '$name · $open open · $actioned actioned';
+  }
+
+  @override
+  String get adminSafetyDismiss => 'Dismiss';
+
+  @override
+  String get adminSafetyWarn => 'Warn';
+
+  @override
+  String get adminSafetyNoVoice => 'No voice, 7 days';
+
+  @override
+  String get adminSafetyNoPublic => 'No public tables, 7 days';
+
+  @override
+  String adminSafetySuspendDays(int days) {
+    return 'Suspend $days days';
+  }
+
+  @override
+  String get adminSafetySuspendForever => 'Suspend permanently';
+
+  @override
+  String get adminSafetyPurge => 'Apply retention now';
+
+  @override
+  String get adminSafetyMore => 'Load more';
+
+  @override
+  String get adminSafetyOpenQueue => 'Reports queue';
 }

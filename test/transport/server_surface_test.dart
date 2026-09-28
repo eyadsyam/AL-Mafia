@@ -140,7 +140,13 @@ void main() {
                 source.contains('submit_player_safety') &&
                 File('supabase/migrations/20260920000200_player_safety.sql')
                     .readAsStringSync()
-                    .contains('where room_id=p_room and user_id=p_user'));
+                    .contains('where room_id=p_room and user_id=p_user') &&
+                // F11: the v11 report checks the same membership in SQL.
+                File('supabase/migrations/20260928001100_safety_v11.sql')
+                    .readAsStringSync()
+                    .contains(
+                      'from public.room_players where room_id=p_room and user_id=p_user',
+                    ));
         if (!guarded) unguarded.add(name);
       }
       expect(

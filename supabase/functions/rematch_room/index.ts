@@ -30,7 +30,8 @@ Deno.serve(handler(async (req, userId, db) => {
     });
     if (error) {
       if (error.code === "23505") continue;
-      for (const code of ["ROOM_NOT_FOUND", "PHASE_CLOSED", "NOT_HOST", "NEW_ROOMS_PAUSED"] as const) {
+      for (const code of ["ROOM_NOT_FOUND", "PHASE_CLOSED", "NOT_HOST", "NEW_ROOMS_PAUSED",
+        "ACCOUNT_RESTRICTED", "NAME_NOT_ALLOWED"] as const) {
         if (error.message?.includes(code)) {
           return fail(code, "rematch refused",
             code === "ROOM_NOT_FOUND" ? 404 : code === "NEW_ROOMS_PAUSED" ? 503 : 400);

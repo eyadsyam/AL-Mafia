@@ -66,6 +66,7 @@ Deno.serve(handler(async (req, userId, db) => {
     if (message.includes("ROOM_NOT_FOUND")) return fail("ROOM_NOT_FOUND", "no such room", 404);
     if (message.includes("NOT_HOST")) return fail("NOT_HOST", "only the host changes the room", 403);
     if (message.includes("PHASE_CLOSED")) return fail("PHASE_CLOSED", "the match has started", 409);
+    if (message.includes("NAME_NOT_ALLOWED")) return fail("NAME_NOT_ALLOWED", "that name is not allowed");
     if (message.includes("BAD_REQUEST")) return fail("BAD_REQUEST", "capacity below current player count");
     throw error;
   }

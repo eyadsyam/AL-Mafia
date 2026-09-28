@@ -69,6 +69,10 @@ export type ErrorCode =
   | "REWARD_SCHEME_V2"
   | "ACCOUNT_MISMATCH"
   | "PRODUCT_UNKNOWN"
+  | "ROOM_UNAVAILABLE"
+  | "NAME_NOT_ALLOWED"
+  | "ACCOUNT_RESTRICTED"
+  | "REPORT_CLOSED"
   | "BAD_REQUEST";
 
 export function ok(body: unknown = { ok: true }): Response {

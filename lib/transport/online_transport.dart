@@ -276,6 +276,9 @@ class OnlineTransport implements GameTransport {
   /// The room code, for the share sheet in the lobby.
   String get code => _state?.code ?? '';
 
+  /// lobby, playing or finished: where a report from this table was made.
+  String get roomStatus => _state?.status ?? 'lobby';
+
   /// The next table the host opened from this finished room (`rematch_room`),
   /// announced in the room's public data. Null until the host opens one.
   ({String roomId, String code})? get rematch {

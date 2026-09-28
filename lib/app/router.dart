@@ -17,6 +17,7 @@ import '../ui/economy/interstitial_coordinator.dart';
 import '../ui/fun/welcome_back.dart';
 import '../ui/l10n_ext.dart';
 import '../ui/screens/admin/payments_admin_screen.dart';
+import '../ui/screens/admin/safety_admin_screen.dart';
 import '../ui/screens/match_controller.dart';
 import '../ui/screens/match_route.dart';
 import '../ui/screens/onboarding/first_run_screen.dart';
@@ -63,6 +64,7 @@ abstract final class Routes {
   /// The owner's payment review page (Payments v2; web only, in no menu).
   /// The Telegram notice links to `/admin?order=<id>`.
   static const admin = '/admin';
+  static const adminSafety = '/admin/safety';
   static const online = '/online';
   static const lobby = '/online/lobby';
 
@@ -418,7 +420,13 @@ GoRouter buildRouter(
         builder: (context, state) => PaymentsAdminScreen(
           focusOrder: state.uri.queryParameters['order'],
           onBack: () => context.go(Routes.home),
+          onSafety: () => context.go(Routes.adminSafety),
         ),
+      ),
+      GoRoute(
+        path: Routes.adminSafety,
+        builder: (context, state) =>
+            SafetyAdminScreen(onBack: () => context.go(Routes.admin)),
       ),
       GoRoute(
         path: Routes.adminCoins,

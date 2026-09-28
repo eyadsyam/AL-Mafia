@@ -86,6 +86,13 @@ Deno.serve(handler(async (req, userId, db) => {
     return fail("NOT_A_MEMBER", "you are no longer in that room", 403);
   }
 
+  // F11: a voice restriction takes this account off voice, and only voice.
+  // The match does not need it (non-negotiable 5).
+  const { data: restricted } = await db.rpc("safety_restricted", { p_user: userId, p_kind: "voice" });
+  if (restricted === true) {
+    return fail("ACCOUNT_RESTRICTED", "voice is restricted for this account", 403);
+  }
+
   const key = realtimeKey();
   if (!key) {
     console.warn("METERED_REALTIME_SECRET_KEY unset — signalling over Postgres");

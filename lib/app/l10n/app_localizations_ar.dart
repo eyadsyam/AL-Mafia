@@ -4489,4 +4489,125 @@ class AppLocalizationsAr extends AppLocalizations {
   String casebookProgress(int progress, int target) {
     return '$progress من $target';
   }
+
+  @override
+  String get onlineRoomUnavailable => 'الترابيزة دي مش متاحة ليك.';
+
+  @override
+  String get onlineNameNotAllowed => 'الاسم ده مش مسموح. اختار اسم تاني.';
+
+  @override
+  String get onlineAccountRestricted => 'حسابك مش هيقدر يدخل هنا دلوقتي.';
+
+  @override
+  String get safetyCategory => 'إيه اللي حصل؟';
+
+  @override
+  String get safetyCatHarassment => 'مضايقة';
+
+  @override
+  String get safetyCatHate => 'كراهية أو عنصرية';
+
+  @override
+  String get safetyCatSexual => 'محتوى جنسي';
+
+  @override
+  String get safetyCatThreat => 'تهديد';
+
+  @override
+  String get safetyCatSpam => 'سبام';
+
+  @override
+  String get safetyCatCheating => 'غش';
+
+  @override
+  String get safetyCatName => 'اسم مش لايق';
+
+  @override
+  String get safetyCatOther => 'حاجة تانية';
+
+  @override
+  String get safetyLimited => 'وصلت للحد بتاع النهارده.';
+
+  @override
+  String get safetyNoticeWarn =>
+      'اتعملّك بلاغ ووصلك تحذير. خلّي القعدة نضيفة ومحترمة.';
+
+  @override
+  String get safetyNoticeVoice => 'الصوت مقفول لحسابك.';
+
+  @override
+  String get safetyNoticePublic => 'الترابيزات العامة مقفولة لحسابك.';
+
+  @override
+  String get safetyNoticeSuspend => 'اللعب الأونلاين مقفول لحسابك.';
+
+  @override
+  String safetyNoticeUntil(String date) {
+    return 'لحد $date.';
+  }
+
+  @override
+  String get safetyNoticeForever => 'بشكل نهائي.';
+
+  @override
+  String get safetyNoticeOk => 'تمام';
+
+  @override
+  String get adminSafetyTitle => 'البلاغات';
+
+  @override
+  String get adminSafetyOpen => 'مفتوحة';
+
+  @override
+  String get adminSafetyActioned => 'اتاخد فيها إجراء';
+
+  @override
+  String get adminSafetyDismissed => 'اترفضت';
+
+  @override
+  String get adminSafetyCtxLobby => 'اللوبي';
+
+  @override
+  String get adminSafetyCtxMatch => 'الماتش';
+
+  @override
+  String get adminSafetyCtxResult => 'النتيجة';
+
+  @override
+  String get adminSafetyCtxFriends => 'الأصحاب';
+
+  @override
+  String adminSafetyTarget(String name, int open, int actioned) {
+    return '$name · $open مفتوحة · $actioned إجراء';
+  }
+
+  @override
+  String get adminSafetyDismiss => 'رفض البلاغ';
+
+  @override
+  String get adminSafetyWarn => 'تحذير';
+
+  @override
+  String get adminSafetyNoVoice => 'منع الصوت 7 أيام';
+
+  @override
+  String get adminSafetyNoPublic => 'منع الترابيزات العامة 7 أيام';
+
+  @override
+  String adminSafetySuspendDays(int days) {
+    return 'إيقاف $days يوم';
+  }
+
+  @override
+  String get adminSafetySuspendForever => 'إيقاف نهائي';
+
+  @override
+  String get adminSafetyPurge => 'امسح القديم حسب مدة الاحتفاظ';
+
+  @override
+  String get adminSafetyMore => 'اعرض أكتر';
+
+  @override
+  String get adminSafetyOpenQueue => 'طابور البلاغات';
 }

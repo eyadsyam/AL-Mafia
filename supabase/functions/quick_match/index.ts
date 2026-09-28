@@ -13,6 +13,10 @@ Deno.serve(handler(async (req, userId, db) => {
     if (message.includes("NEW_ROOMS_PAUSED")) {
       return fail("NEW_ROOMS_PAUSED", "new rooms are temporarily paused", 503);
     }
+    if (message.includes("ACCOUNT_RESTRICTED")) {
+      return fail("ACCOUNT_RESTRICTED", "this account cannot join public tables now", 403);
+    }
+    if (message.includes("NAME_NOT_ALLOWED")) return fail("NAME_NOT_ALLOWED", "that name is not allowed");
     throw error;
   }
   return ok(data);

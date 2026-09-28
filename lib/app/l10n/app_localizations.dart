@@ -7717,6 +7717,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{progress} of {target}'**
   String casebookProgress(int progress, int target);
+
+  /// No description provided for @onlineRoomUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This table isn\'t available to you.'**
+  String get onlineRoomUnavailable;
+
+  /// No description provided for @onlineNameNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'That name isn\'t allowed. Pick another one.'**
+  String get onlineNameNotAllowed;
+
+  /// No description provided for @onlineAccountRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account can\'t join this right now.'**
+  String get onlineAccountRestricted;
+
+  /// No description provided for @safetyCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened?'**
+  String get safetyCategory;
+
+  /// No description provided for @safetyCatHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment'**
+  String get safetyCatHarassment;
+
+  /// No description provided for @safetyCatHate.
+  ///
+  /// In en, this message translates to:
+  /// **'Hate or racism'**
+  String get safetyCatHate;
+
+  /// No description provided for @safetyCatSexual.
+  ///
+  /// In en, this message translates to:
+  /// **'Sexual content'**
+  String get safetyCatSexual;
+
+  /// No description provided for @safetyCatThreat.
+  ///
+  /// In en, this message translates to:
+  /// **'Threat'**
+  String get safetyCatThreat;
+
+  /// No description provided for @safetyCatSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam'**
+  String get safetyCatSpam;
+
+  /// No description provided for @safetyCatCheating.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheating'**
+  String get safetyCatCheating;
+
+  /// No description provided for @safetyCatName.
+  ///
+  /// In en, this message translates to:
+  /// **'Inappropriate name'**
+  String get safetyCatName;
+
+  /// No description provided for @safetyCatOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get safetyCatOther;
+
+  /// No description provided for @safetyLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached today\'s limit.'**
+  String get safetyLimited;
+
+  /// No description provided for @safetyNoticeWarn.
+  ///
+  /// In en, this message translates to:
+  /// **'You were reported and warned. Keep the table fair and kind.'**
+  String get safetyNoticeWarn;
+
+  /// No description provided for @safetyNoticeVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice is off for your account.'**
+  String get safetyNoticeVoice;
+
+  /// No description provided for @safetyNoticePublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public tables are closed to your account.'**
+  String get safetyNoticePublic;
+
+  /// No description provided for @safetyNoticeSuspend.
+  ///
+  /// In en, this message translates to:
+  /// **'Online play is closed to your account.'**
+  String get safetyNoticeSuspend;
+
+  /// No description provided for @safetyNoticeUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Until {date}.'**
+  String safetyNoticeUntil(String date);
+
+  /// No description provided for @safetyNoticeForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently.'**
+  String get safetyNoticeForever;
+
+  /// No description provided for @safetyNoticeOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get safetyNoticeOk;
+
+  /// No description provided for @adminSafetyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get adminSafetyTitle;
+
+  /// No description provided for @adminSafetyOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get adminSafetyOpen;
+
+  /// No description provided for @adminSafetyActioned.
+  ///
+  /// In en, this message translates to:
+  /// **'Actioned'**
+  String get adminSafetyActioned;
+
+  /// No description provided for @adminSafetyDismissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismissed'**
+  String get adminSafetyDismissed;
+
+  /// No description provided for @adminSafetyCtxLobby.
+  ///
+  /// In en, this message translates to:
+  /// **'Lobby'**
+  String get adminSafetyCtxLobby;
+
+  /// No description provided for @adminSafetyCtxMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Match'**
+  String get adminSafetyCtxMatch;
+
+  /// No description provided for @adminSafetyCtxResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get adminSafetyCtxResult;
+
+  /// No description provided for @adminSafetyCtxFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get adminSafetyCtxFriends;
+
+  /// No description provided for @adminSafetyTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {open} open · {actioned} actioned'**
+  String adminSafetyTarget(String name, int open, int actioned);
+
+  /// No description provided for @adminSafetyDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get adminSafetyDismiss;
+
+  /// No description provided for @adminSafetyWarn.
+  ///
+  /// In en, this message translates to:
+  /// **'Warn'**
+  String get adminSafetyWarn;
+
+  /// No description provided for @adminSafetyNoVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'No voice, 7 days'**
+  String get adminSafetyNoVoice;
+
+  /// No description provided for @adminSafetyNoPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'No public tables, 7 days'**
+  String get adminSafetyNoPublic;
+
+  /// No description provided for @adminSafetySuspendDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend {days} days'**
+  String adminSafetySuspendDays(int days);
+
+  /// No description provided for @adminSafetySuspendForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend permanently'**
+  String get adminSafetySuspendForever;
+
+  /// No description provided for @adminSafetyPurge.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply retention now'**
+  String get adminSafetyPurge;
+
+  /// No description provided for @adminSafetyMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get adminSafetyMore;
+
+  /// No description provided for @adminSafetyOpenQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports queue'**
+  String get adminSafetyOpenQueue;
 }
 
 class _AppLocalizationsDelegate

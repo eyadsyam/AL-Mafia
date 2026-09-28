@@ -34,9 +34,13 @@ class PaymentsAdminScreen extends ConsumerStatefulWidget {
   /// Client-side guard: the page exists on the web build only.
   final bool web;
 
+  /// The F11 report queue, on its own page.
+  final VoidCallback? onSafety;
+
   const PaymentsAdminScreen({
     super.key,
     this.onBack,
+    this.onSafety,
     this.focusOrder,
     this.web = kIsWeb,
   });
@@ -143,7 +147,8 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
       final answer = await _call({'action': 'admin_list', 'status': _filter});
       if (!mounted) return;
       final orders = [
-        for (final o in (answer['orders'] as List? ?? const []).whereType<Map>())
+        for (final o
+            in (answer['orders'] as List? ?? const []).whereType<Map>())
           Map<String, dynamic>.from(o),
       ];
       // The deep-linked order first; otherwise newest first as served.
@@ -220,10 +225,18 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
             ? null
             : BackButton(onPressed: widget.onBack),
         actions: [
+          if (_admin == true && widget.onSafety != null)
+            IconButton(
+              onPressed: widget.onSafety,
+              tooltip: l.adminSafetyOpenQueue,
+              icon: const Icon(Icons.flag_outlined),
+            ),
           if (_admin == true)
             IconButton(
               onPressed: _busy ? null : _load,
-              tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
+              tooltip: MaterialLocalizations.of(
+                context,
+              ).refreshIndicatorSemanticLabel,
               icon: const Icon(Icons.refresh),
             ),
         ],
@@ -337,7 +350,9 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
           style: context.typography.body,
         ),
         SelectableText(
-          l.adminSender(parsed.senderName ?? order['payerHint'] as String? ?? '—'),
+          l.adminSender(
+            parsed.senderName ?? order['payerHint'] as String? ?? '—',
+          ),
           style: context.typography.body.emphasised,
         ),
         Text(
@@ -371,7 +386,9 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
             style: context.typography.caption,
           ),
         SizedBox(height: s.sm),
-        if (status == 'claimed' || status == 'needs_info' || status == 'expired') ...[
+        if (status == 'claimed' ||
+            status == 'needs_info' ||
+            status == 'expired') ...[
           TextField(
             key: PaymentsAdminScreen.reason(id),
             controller: _reason(id),

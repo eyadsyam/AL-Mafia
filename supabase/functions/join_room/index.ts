@@ -13,7 +13,8 @@ Deno.serve(handler(async (req, userId, db) => {
     p_gender: ["male", "female"].includes(body.gender) ? body.gender : "unspecified",
   });
   if (error) {
-    const expected: ErrorCode[] = ["ROOM_NOT_FOUND", "ROOM_FINISHED", "ROOM_FULL", "NOT_A_MEMBER", "PHASE_CLOSED", "BAD_REQUEST"];
+    const expected: ErrorCode[] = ["ROOM_NOT_FOUND", "ROOM_FINISHED", "ROOM_FULL", "NOT_A_MEMBER", "PHASE_CLOSED",
+      "ROOM_UNAVAILABLE", "NAME_NOT_ALLOWED", "ACCOUNT_RESTRICTED", "BAD_REQUEST"];
     const refusal = expected.find((code) => code === error.message);
     if (refusal) {
       return fail(refusal, "room entry refused", refusal === "ROOM_NOT_FOUND" ? 404 : 400);

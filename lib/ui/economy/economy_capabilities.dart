@@ -163,6 +163,10 @@ class EconomyCapabilities {
   /// (`missions`, or `social.missions`).
   final bool missions;
 
+  /// F11 Safety v11: report categories, notices and the owner's queue
+  /// (`safety.v11`).
+  final bool safetyV11;
+
   /// Purchased coins still owed after an earlier refund; the next coin pack
   /// pays this first. Disclosed before Buy.
   final int purchaseDebt;
@@ -185,6 +189,7 @@ class EconomyCapabilities {
     this.fun = FunCapabilities.off,
     this.friends = false,
     this.missions = false,
+    this.safetyV11 = false,
     this.purchaseDebt = 0,
     this.failed = false,
   });
@@ -211,6 +216,7 @@ class EconomyCapabilities {
       ads: AdsCapabilities.fromJson(json['ads']),
       fun: FunCapabilities.fromJson(json['fun']),
       friends: json['social'] is Map && (json['social'] as Map)['friends'] == true,
+      safetyV11: json['safety'] is Map && (json['safety'] as Map)['v11'] == true,
       missions:
           flag('missions') ||
           (json['social'] is Map &&

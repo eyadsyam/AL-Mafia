@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../data/request_id.dart';
 import '../../../data/terms_consent.dart';
 import '../../../transport/online_backend.dart';
+import '../../economy/economy_capabilities.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/settings_kit.dart';
@@ -106,15 +108,70 @@ class SafetyCenter extends ConsumerStatefulWidget {
   final VoidCallback? onClose;
   final bool privacy;
   const SafetyCenter({super.key, this.onClose, this.privacy = false});
+  static Key category(String name) => ValueKey('safety_category_$name');
   @override
   ConsumerState<SafetyCenter> createState() => _SafetyCenterState();
+}
+
+/// F11 report categories, in the order the form lists them.
+const safetyCategories = [
+  'harassment',
+  'hate',
+  'sexual',
+  'threat',
+  'spam',
+  'cheating',
+  'inappropriate_name',
+  'other',
+];
+
+/// The body of one report or block. A v11 report names a seat and a category,
+/// says where it was made, and carries a request id (retries reuse it);
+/// otherwise it is the original room report.
+Map<String, Object?> safetyReportBody({
+  required String action,
+  required bool v11,
+  required String? roomId,
+  required String? roomStatus,
+  required int? seat,
+  required String? category,
+  required String details,
+  required String Function() requestId,
+}) {
+  if (action == 'report' && v11 && seat != null && category != null) {
+    return {
+      'action': 'report_v11',
+      'context': switch (roomStatus) {
+        'playing' => 'match',
+        'finished' => 'result',
+        _ => 'lobby',
+      },
+      'roomId': roomId,
+      'seat': seat,
+      'category': category,
+      'details': details,
+      'requestId': requestId(),
+    };
+  }
+  return {
+    'action': action,
+    'roomId': roomId,
+    'seat': seat,
+    'reason': 'other',
+    'details': details,
+  };
 }
 
 class _SafetyCenterState extends ConsumerState<SafetyCenter> {
   final _details = TextEditingController();
   int? _seat;
+  String? _category;
   bool _busy = false;
   String? _message;
+
+  /// One per intended report: a retry after a lost answer reuses it, so the
+  /// server files the report once. Editing the report starts a new one.
+  String? _requestId;
   @override
   void dispose() {
     _details.dispose();
@@ -146,20 +203,33 @@ class _SafetyCenterState extends ConsumerState<SafetyCenter> {
       if (action == 'identity') {
         if (mounted) setState(() => _message = id);
       } else {
-        final result = await backend.call('player_safety', {
-          'action': action,
-          'roomId': session.room?.roomId,
-          'seat': _seat,
-          'reason': 'other',
-          'details': _details.text.trim(),
-        });
+        final body = safetyReportBody(
+          action: action,
+          v11: action == 'report' && _v11,
+          roomId: session.room?.roomId,
+          roomStatus: session.transport?.roomStatus,
+          seat: _seat,
+          category: _category,
+          details: _details.text.trim(),
+          requestId: () => _requestId ??= newRequestId(),
+        );
+        final result = await backend.call('player_safety', body);
         if (action == 'block') await session.transport?.refreshBlocks();
+        _requestId = null;
         if (mounted)
           setState(
             () => _message = action == 'block'
                 ? l.safetyBlocked
                 : '${l.safetyReceipt} ${result['receipt']}',
           );
+      }
+    } on BackendException catch (e) {
+      if (mounted) {
+        setState(
+          () => _message = e.code == 'RATE_LIMITED'
+              ? l.safetyLimited
+              : l.safetyFailed,
+        );
       }
     } catch (_) {
       if (mounted) setState(() => _message = l.safetyFailed);
@@ -168,11 +238,40 @@ class _SafetyCenterState extends ConsumerState<SafetyCenter> {
     }
   }
 
+  bool get _v11 =>
+      ref.read(economyCapabilitiesProvider).valueOrNull?.safetyV11 ?? false;
+
+  /// A different report is a different request.
+  void _edit(VoidCallback change) => setState(() {
+    change();
+    _requestId = null;
+  });
+
+  String _categoryLabel(String name) {
+    final l = context.l10n;
+    return switch (name) {
+      'harassment' => l.safetyCatHarassment,
+      'hate' => l.safetyCatHate,
+      'sexual' => l.safetyCatSexual,
+      'threat' => l.safetyCatThreat,
+      'spam' => l.safetyCatSpam,
+      'cheating' => l.safetyCatCheating,
+      'inappropriate_name' => l.safetyCatName,
+      _ => l.safetyCatOther,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final spacing = context.spacing;
     final transport = ref.watch(onlineSessionProvider).transport;
+    // Asked only where a report can be made: a room is open.
+    final v11 =
+        !widget.privacy &&
+        transport != null &&
+        (ref.watch(economyCapabilitiesProvider).valueOrNull?.safetyV11 ??
+            false);
     final players = transport?.safetyPlayers ?? const <RoomPlayer>[];
     return Scaffold(
       appBar: AppBar(
@@ -209,18 +308,39 @@ class _SafetyCenterState extends ConsumerState<SafetyCenter> {
                         ),
                       ),
                   ],
-                  onChanged: _busy
-                      ? null
-                      : (seat) => setState(() => _seat = seat),
+                  onChanged: _busy ? null : (seat) => _edit(() => _seat = seat),
                 ),
+                if (v11 && _seat != null) ...[
+                  SizedBox(height: spacing.sm),
+                  Text(l.safetyCategory, style: context.typography.bodySmall),
+                  Wrap(
+                    spacing: spacing.xs,
+                    runSpacing: spacing.xs,
+                    children: [
+                      for (final name in safetyCategories)
+                        ChoiceChip(
+                          key: SafetyCenter.category(name),
+                          label: Text(_categoryLabel(name)),
+                          selected: _category == name,
+                          onSelected: _busy
+                              ? null
+                              : (_) => _edit(() => _category = name),
+                        ),
+                    ],
+                  ),
+                ],
                 TextField(
                   controller: _details,
+                  onChanged: (_) => _requestId = null,
                   maxLength: 1000,
                   maxLines: 3,
                   decoration: InputDecoration(labelText: l.safetyDetails),
                 ),
                 FilledButton(
-                  onPressed: _busy ? null : () => _send('report'),
+                  onPressed:
+                      _busy || (v11 && _seat != null && _category == null)
+                      ? null
+                      : () => _send('report'),
                   child: Text(l.safetyReport),
                 ),
                 OutlinedButton(
