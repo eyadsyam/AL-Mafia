@@ -650,3 +650,36 @@ grant execute on function public.claim_council_weekly(uuid,text) to service_role
 revoke all on function public.economy_capabilities(uuid)
   from public,anon,authenticated;
 grant execute on function public.economy_capabilities(uuid) to service_role;
+
+-- Named one by one as well, so the server-surface test can read every
+-- revoke without executing the loop above.
+revoke all on function public.missions_on() from public, anon, authenticated;
+grant execute on function public.missions_on() to service_role;
+revoke all on function public.casebook_add_achievement(uuid,text,int) from public, anon, authenticated;
+grant execute on function public.casebook_add_achievement(uuid,text,int) to service_role;
+revoke all on function public.casebook_record_match(uuid,uuid) from public, anon, authenticated;
+grant execute on function public.casebook_record_match(uuid,uuid) to service_role;
+revoke all on function public.council_record_match(uuid,uuid) from public, anon, authenticated;
+grant execute on function public.council_record_match(uuid,uuid) to service_role;
+revoke all on function public.council_sync(uuid) from public, anon, authenticated;
+grant execute on function public.council_sync(uuid) to service_role;
+revoke all on function public.casebook_sync(uuid) from public, anon, authenticated;
+grant execute on function public.casebook_sync(uuid) to service_role;
+revoke all on function public.casebook_metric(uuid,text,text,text) from public, anon, authenticated;
+grant execute on function public.casebook_metric(uuid,text,text,text) to service_role;
+revoke all on function public.casebook_grant_season_xp(uuid,text,int) from public, anon, authenticated;
+grant execute on function public.casebook_grant_season_xp(uuid,text,int) to service_role;
+revoke all on function public.mission_hub(uuid) from public, anon, authenticated;
+grant execute on function public.mission_hub(uuid) to service_role;
+revoke all on function public.claim_mission(uuid,text,text,int) from public, anon, authenticated;
+grant execute on function public.claim_mission(uuid,text,text,int) to service_role;
+revoke all on function public.claim_season_reward(uuid,text,int) from public, anon, authenticated;
+grant execute on function public.claim_season_reward(uuid,text,int) to service_role;
+revoke all on function public.claim_achievement(uuid,text) from public, anon, authenticated;
+grant execute on function public.claim_achievement(uuid,text) to service_role;
+revoke all on function public.claim_council_contract(uuid,date,int) from public, anon, authenticated;
+grant execute on function public.claim_council_contract(uuid,date,int) to service_role;
+revoke all on function public.claim_council_weekly(uuid,text) from public, anon, authenticated;
+grant execute on function public.claim_council_weekly(uuid,text) to service_role;
+revoke all on function public.economy_capabilities(uuid) from public, anon, authenticated;
+grant execute on function public.economy_capabilities(uuid) to service_role;

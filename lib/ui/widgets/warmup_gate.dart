@@ -2,11 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/asset_constants.dart';
-import '../../platform/asset_warmup.dart';
+import '../../app/asset_warmup.dart';
 import '../../platform/reduce_motion.dart';
 import '../economy/economy_capabilities.dart';
 import '../l10n_ext.dart';
@@ -53,7 +52,7 @@ class _WarmupGateState extends ConsumerState<WarmupGate> {
   }
 
   Future<void> _run() async {
-    final warmup = AssetWarmup(bundle: rootBundle);
+    final warmup = AssetWarmup(bundle: DefaultAssetBundle.of(context));
     try {
       final assets = await warmup.assets();
       final signature = AssetWarmup.signature(assets);

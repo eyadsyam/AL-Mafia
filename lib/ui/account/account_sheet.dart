@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/asset_constants.dart';
@@ -16,6 +15,7 @@ import '../screens/online/online_session.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/feathered_art.dart';
+import '../../app/text_formatters.dart';
 
 final accountAuthProvider = Provider<AccountAuth>((ref) {
   final backend = ref.read(onlineBackendFactoryProvider);
@@ -585,7 +585,7 @@ class _CodeField extends StatelessWidget {
     textDirection: TextDirection.ltr,
     autofillHints: const [AutofillHints.oneTimeCode],
     maxLength: AccountTokens.codeLength,
-    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+    inputFormatters: digitsOnly,
     style: context.typography.headline.copyWith(
       color: context.colors.accentGold,
     ),

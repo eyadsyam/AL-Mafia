@@ -248,3 +248,26 @@ revoke all on function public.economy_capabilities_pre_friends(uuid) from public
 grant execute on function public.economy_capabilities_pre_friends(uuid) to service_role;
 revoke all on function public.economy_capabilities(uuid) from public, anon, authenticated;
 grant execute on function public.economy_capabilities(uuid) to service_role;
+
+-- Named one by one as well, so the server-surface test can read every
+-- revoke without executing the loop above.
+revoke all on function public.friends_on() from public, anon, authenticated;
+grant execute on function public.friends_on() to service_role;
+revoke all on function public.friends_blocked(uuid,uuid) from public, anon, authenticated;
+grant execute on function public.friends_blocked(uuid,uuid) to service_role;
+revoke all on function public.friends_tablemates(uuid,interval) from public, anon, authenticated;
+grant execute on function public.friends_tablemates(uuid,interval) to service_role;
+revoke all on function public.friends_presence(uuid) from public, anon, authenticated;
+grant execute on function public.friends_presence(uuid) to service_role;
+revoke all on function public.friends_status(uuid) from public, anon, authenticated;
+grant execute on function public.friends_status(uuid) to service_role;
+revoke all on function public.friend_request(uuid,uuid) from public, anon, authenticated;
+grant execute on function public.friend_request(uuid,uuid) to service_role;
+revoke all on function public.friend_respond(uuid,uuid,boolean) from public, anon, authenticated;
+grant execute on function public.friend_respond(uuid,uuid,boolean) to service_role;
+revoke all on function public.friend_remove(uuid,uuid) from public, anon, authenticated;
+grant execute on function public.friend_remove(uuid,uuid) to service_role;
+revoke all on function public.friend_invite(uuid,uuid,uuid) from public, anon, authenticated;
+grant execute on function public.friend_invite(uuid,uuid,uuid) to service_role;
+revoke all on function public.economy_capabilities(uuid) from public, anon, authenticated;
+grant execute on function public.economy_capabilities(uuid) to service_role;

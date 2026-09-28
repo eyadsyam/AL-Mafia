@@ -7,7 +7,7 @@
  *   invite   { userId, roomId } into the lobby the caller sits in
  * All rules live in SQL (20260928000300_friends.sql); this only routes.
  */
-import { fail, handler, ok, type ErrorCode } from "../_shared/api.ts";
+import { fail, handler, loadMembership, ok, type ErrorCode } from "../_shared/api.ts";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -37,6 +37,11 @@ Deno.serve(handler(async (req, userId, db) => {
     case "invite": {
       const roomId = String(body.roomId ?? "");
       if (!target || !uuid.test(roomId)) return fail("BAD_REQUEST", "userId and roomId required");
+      // Only someone seated in the room can bring a friend to it (SQL checks
+      // again; this refuses a stranger before any work).
+      if (!(await loadMembership(db, roomId, userId))) {
+        return fail("NOT_A_MEMBER", "not in this room", 403);
+      }
       call = { fn: "friend_invite", args: { p_user: userId, p_target: target, p_room: roomId } };
       break;
     }

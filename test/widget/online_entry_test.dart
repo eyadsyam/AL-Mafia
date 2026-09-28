@@ -219,7 +219,9 @@ void main() {
       expect(browses(), 2, reason: 'the list refreshes itself');
       expect(
         backend.calls.map((call) => call.function),
-        everyElement(isIn(['browse_rooms'])),
+        // `economy` is the Casebook door asking what the feature flags say —
+        // a read, never a seat.
+        everyElement(isIn(['browse_rooms', 'economy'])),
         reason: 'looking is not joining, and there is no quick match',
       );
       expect(container.read(onlineSessionProvider).isInRoom, isFalse);

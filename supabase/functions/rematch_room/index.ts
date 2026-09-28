@@ -6,7 +6,7 @@
  *
  * Like `create_room`, the seed is minted here and never returned.
  */
-import { fail, generateCode, handler, newMatchSeed, ok } from "../_shared/api.ts";
+import { fail, generateCode, handler, loadMembership, newMatchSeed, ok } from "../_shared/api.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const body = await req.json().catch(() => ({}));
@@ -15,6 +15,13 @@ Deno.serve(handler(async (req, userId, db) => {
   if (!/^[0-9a-f-]{36}$/i.test(roomId)) return fail("BAD_REQUEST", "roomId is required");
   if (!name || name.length > 20) return fail("BAD_REQUEST", "a display name is required");
   const gender = ["male", "female"].includes(body.gender) ? body.gender : "unspecified";
+
+  // Only the host of the old room opens the next one (SQL checks again).
+  const member = await loadMembership(db, roomId, userId);
+  if (!member) return fail("NOT_A_MEMBER", "not in this room", 403);
+  if (member.hostId !== userId) {
+    return fail("NOT_HOST", "only the host opens the next round", 403);
+  }
 
   for (let attempt = 0; attempt < 8; attempt++) {
     const { data, error } = await db.rpc("rematch_room_atomic", {
