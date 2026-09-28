@@ -94,3 +94,10 @@ launches warm in the background without blocking.
 3. Crews now or later?
 4. Which of the metrics above are safe under Doc 05, which are not?
 5. Split of work between the two agents; what ships behind which flag.
+
+## Already built since this was written (do not re-propose; build on them)
+- First-launch preparation (asset read + decode + server warm) — `lib/ui/widgets/warmup_gate.dart`.
+- Online table rematch — `rematch_room` + `20260928000200_table_rematch.sql`.
+- Friends: recent tablemates, requests, presence, lobby invites — `friends` + `20260928000300_friends.sql`, `lib/ui/social/friends.dart` (flag `friends_enabled`).
+- Full accounts: password, Google (linkIdentity for guests), forgot password, remember-me, email code confirmation, profile account card + stats — `lib/transport/account_auth.dart`, `lib/ui/account/*`, `docs/ACCOUNTS-SETUP.md`.
+- Owner taste: secondary flows open as bottom sheets; images feathered, never boxed.
