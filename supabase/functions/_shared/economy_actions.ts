@@ -20,11 +20,28 @@ const REACTION = /^(laugh|shock|suspicious|applause|rose|skull|coffee|crown)$/;
 const CASEBOOK_CODE = /^[a-z0-9_]{3,60}$/;
 
 export type EconomyCall = { rpc: string; args: Record<string, unknown> };
+export type CasePuzzleRequest =
+  | { kind: "read" }
+  | { kind: "solve"; day: string; pick: string };
 
 /** The server day a daily request was made for. Required: a retry without
  * one could otherwise land on the next UTC day as a fresh claim. */
 function day(value: unknown): string | undefined {
   return typeof value === "string" && DAY.test(value) ? value : undefined;
+}
+
+/** Case puzzles are completed in the edge function because only it may know
+ * the salted answer. Returning `undefined` means this is not a puzzle action;
+ * returning `null` means it tried to be one but its input is malformed. */
+export function casePuzzleRequest(
+  body: Record<string, unknown>,
+): CasePuzzleRequest | null | undefined {
+  if (body.action === "casePuzzle") return { kind: "read" };
+  if (body.action !== "casePuzzleSolve") return undefined;
+  const d = day(body.day);
+  return d !== undefined && typeof body.pick === "string" && /^s[0-6]$/.test(body.pick)
+    ? { kind: "solve", day: d, pick: body.pick }
+    : null;
 }
 
 export function economyCall(
@@ -186,7 +203,7 @@ export const ECONOMY_REFUSALS = [
   "INVITE_NOT_NEW", "INVITE_ALREADY", "INVITE_LOOP", "INVITE_LIMIT", "INVITE_RATE_LIMIT",
   "REACTION_RATE_LIMIT", "REACTION_CLOSED", "REACTION_UNKNOWN", "NOT_MEMBER",
   "EXTRA_NOT_READY", "DISABLED", "NOT_READY", "PERIOD_CHANGED", "SEASON_CLOSED",
-  "NOT_FOUND", "ALREADY_CLAIMED", "BAD_REQUEST",
+  "NOT_FOUND", "ALREADY_CLAIMED", "NO_ATTEMPTS", "ALREADY_SOLVED", "BAD_REQUEST",
 ] as const;
 
 export function refusalOf(message: string | undefined): string | null {
