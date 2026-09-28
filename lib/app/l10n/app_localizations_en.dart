@@ -4125,4 +4125,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rematchWaiting => 'Waiting for the host to open the next round…';
+
+  @override
+  String get friendsTitle => 'Friends';
+
+  @override
+  String friendsTitleWithOnline(int count) {
+    return 'Friends · $count at a table now';
+  }
+
+  @override
+  String friendsInvitedYou(String name) {
+    return '$name invited you · Join';
+  }
+
+  @override
+  String get friendsInvites => 'Invites for you';
+
+  @override
+  String get friendsJoin => 'Join';
+
+  @override
+  String get friendsRequests => 'Friend requests';
+
+  @override
+  String get friendsWantsYou => 'Wants to be friends';
+
+  @override
+  String get friendsDecline => 'Decline';
+
+  @override
+  String get friendsAccept => 'Accept';
+
+  @override
+  String get friendsYours => 'Your friends';
+
+  @override
+  String get friendsNone =>
+      'None yet. People you play online with appear below.';
+
+  @override
+  String friendsInLobby(int count) {
+    return 'In a room · $count at the table';
+  }
+
+  @override
+  String get friendsPlaying => 'In a match now';
+
+  @override
+  String get friendsAway => 'Not around';
+
+  @override
+  String get friendsInvited => 'Invited';
+
+  @override
+  String get friendsInvite => 'Invite';
+
+  @override
+  String get friendsRecent => 'Played with lately';
+
+  @override
+  String friendsMatchesTogether(int count) {
+    return '$count matches together';
+  }
+
+  @override
+  String get friendsPending => 'Waiting for reply';
+
+  @override
+  String get friendsAdd => 'Add';
+
+  @override
+  String get friendsInviteToRoom => 'Invite friends';
 }

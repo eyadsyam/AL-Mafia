@@ -156,6 +156,9 @@ class EconomyCapabilities {
   /// Phase 109: awards, reactions, the Founder badge.
   final FunCapabilities fun;
 
+  /// «أصحابك»: friends, presence and lobby invites (`social.friends`).
+  final bool friends;
+
   /// Purchased coins still owed after an earlier refund; the next coin pack
   /// pays this first. Disclosed before Buy.
   final int purchaseDebt;
@@ -176,6 +179,7 @@ class EconomyCapabilities {
     this.council = CouncilCapabilities.off,
     this.ads = AdsCapabilities.off,
     this.fun = FunCapabilities.off,
+    this.friends = false,
     this.purchaseDebt = 0,
     this.failed = false,
   });
@@ -201,6 +205,7 @@ class EconomyCapabilities {
       council: CouncilCapabilities.fromJson(json['council']),
       ads: AdsCapabilities.fromJson(json['ads']),
       fun: FunCapabilities.fromJson(json['fun']),
+      friends: json['social'] is Map && (json['social'] as Map)['friends'] == true,
       interstitial: rules is Map
           ? InterstitialRules.fromJson(Map<String, dynamic>.from(rules))
           : InterstitialRules.off,

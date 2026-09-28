@@ -4027,4 +4027,75 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rematchWaiting => 'مستنيين المضيف يفتح الماتش الجاي…';
+
+  @override
+  String get friendsTitle => 'أصحابك';
+
+  @override
+  String friendsTitleWithOnline(int count) {
+    return 'أصحابك · $count في روم دلوقتي';
+  }
+
+  @override
+  String friendsInvitedYou(String name) {
+    return '$name عزمك على روم · ادخل';
+  }
+
+  @override
+  String get friendsInvites => 'دعوات ليك';
+
+  @override
+  String get friendsJoin => 'ادخل';
+
+  @override
+  String get friendsRequests => 'طلبات صداقة';
+
+  @override
+  String get friendsWantsYou => 'عايز يبقى من أصحابك';
+
+  @override
+  String get friendsDecline => 'رفض';
+
+  @override
+  String get friendsAccept => 'قبول';
+
+  @override
+  String get friendsYours => 'أصحابك';
+
+  @override
+  String get friendsNone => 'لسه مفيش. اللي تلعب معاهم أونلاين هيظهروا تحت.';
+
+  @override
+  String friendsInLobby(int count) {
+    return 'في روم · $count على الترابيزة';
+  }
+
+  @override
+  String get friendsPlaying => 'في ماتش دلوقتي';
+
+  @override
+  String get friendsAway => 'مش موجود دلوقتي';
+
+  @override
+  String get friendsInvited => 'اتعزم';
+
+  @override
+  String get friendsInvite => 'اعزم';
+
+  @override
+  String get friendsRecent => 'لعبت معاهم قريب';
+
+  @override
+  String friendsMatchesTogether(int count) {
+    return '$count ماتش سوا';
+  }
+
+  @override
+  String get friendsPending => 'مستني رده';
+
+  @override
+  String get friendsAdd => 'أضف';
+
+  @override
+  String get friendsInviteToRoom => 'اعزم أصحابك';
 }

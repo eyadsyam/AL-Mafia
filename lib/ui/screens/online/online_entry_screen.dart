@@ -27,6 +27,7 @@ import 'online_session.dart';
 import 'room_settings_panel.dart';
 import 'safety_center.dart';
 import '../../economy/waiting_banner.dart';
+import '../../social/friends.dart';
 
 /// Public rooms are the front door; identity belongs to the saved profile.
 ///
@@ -419,6 +420,11 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                         : () => setState(() => _editing = true),
                                   ),
                                   SizedBox(height: s.md),
+                                  // «أصحابك»: invites waiting, friends at a
+                                  // table. Nothing while the feature is off.
+                                  FriendsStrip(
+                                    onJoin: (code) => _enter(code: code),
+                                  ),
                                   // The two ways in, at equal width: create
                                   // is the lit one, join its outline.
                                   Row(

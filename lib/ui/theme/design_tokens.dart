@@ -1829,3 +1829,10 @@ abstract final class WarmupTokens {
   static const double barHeight = 3.0;
   static const double backdropOpacity = 0.35;
 }
+
+/// «أصحابك» (`lib/ui/screens/online/friends.dart`).
+abstract final class FriendsTokens {
+  static const double sheetHeight = 0.9;
+  static const double heroHeight = 120.0;
+  static const double avatar = 44.0;
+}

@@ -41,6 +41,7 @@ import 'council/seat_status.dart';
 import 'table/table_pulse.dart';
 import 'table/table_scene.dart';
 import '../../economy/waiting_banner.dart';
+import '../../social/friends.dart';
 
 /// S-21 — the room, before it is a match (doc 12 §3.1).
 ///
@@ -112,6 +113,7 @@ class LobbyScreen extends ConsumerStatefulWidget {
   static const Key headphonesWarning = ValueKey('lobby_headphones');
   static const Key copyButton = ValueKey('lobby_copy');
   static const Key shareButton = ValueKey('lobby_share');
+  static const Key friendsButton = ValueKey('lobby_friends');
   static const Key playerCount = ValueKey('lobby_player_count');
   static const Key ghostRule = ValueKey('lobby_ghost_rule');
   static const Key storageWarning = ValueKey('lobby_storage_warning');
@@ -609,6 +611,27 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                             color: colors.textSecondary,
                                           ),
                                         ),
+                                        // «أصحابك»: invite a friend straight
+                                        // into this lobby. Absent while off.
+                                        if (session.room?.roomId != null &&
+                                            ref
+                                                    .watch(friendsProvider)
+                                                    .valueOrNull !=
+                                                null)
+                                          IconButton(
+                                            key: LobbyScreen.friendsButton,
+                                            tooltip: l10n.friendsInviteToRoom,
+                                            onPressed: () => showFriendsSheet(
+                                              context,
+                                              onJoin: (_) {},
+                                              inviteRoomId:
+                                                  session.room!.roomId,
+                                            ),
+                                            icon: Icon(
+                                              Icons.group_add_rounded,
+                                              color: colors.accentGold,
+                                            ),
+                                          ),
                                       ],
                                     ),
                                     Text(

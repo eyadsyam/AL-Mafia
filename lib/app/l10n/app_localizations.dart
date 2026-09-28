@@ -7051,6 +7051,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for the host to open the next round…'**
   String get rematchWaiting;
+
+  /// No description provided for @friendsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get friendsTitle;
+
+  /// No description provided for @friendsTitleWithOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends · {count} at a table now'**
+  String friendsTitleWithOnline(int count);
+
+  /// No description provided for @friendsInvitedYou.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} invited you · Join'**
+  String friendsInvitedYou(String name);
+
+  /// No description provided for @friendsInvites.
+  ///
+  /// In en, this message translates to:
+  /// **'Invites for you'**
+  String get friendsInvites;
+
+  /// No description provided for @friendsJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get friendsJoin;
+
+  /// No description provided for @friendsRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend requests'**
+  String get friendsRequests;
+
+  /// No description provided for @friendsWantsYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Wants to be friends'**
+  String get friendsWantsYou;
+
+  /// No description provided for @friendsDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get friendsDecline;
+
+  /// No description provided for @friendsAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get friendsAccept;
+
+  /// No description provided for @friendsYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friends'**
+  String get friendsYours;
+
+  /// No description provided for @friendsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None yet. People you play online with appear below.'**
+  String get friendsNone;
+
+  /// No description provided for @friendsInLobby.
+  ///
+  /// In en, this message translates to:
+  /// **'In a room · {count} at the table'**
+  String friendsInLobby(int count);
+
+  /// No description provided for @friendsPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'In a match now'**
+  String get friendsPlaying;
+
+  /// No description provided for @friendsAway.
+  ///
+  /// In en, this message translates to:
+  /// **'Not around'**
+  String get friendsAway;
+
+  /// No description provided for @friendsInvited.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get friendsInvited;
+
+  /// No description provided for @friendsInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get friendsInvite;
+
+  /// No description provided for @friendsRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Played with lately'**
+  String get friendsRecent;
+
+  /// No description provided for @friendsMatchesTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} matches together'**
+  String friendsMatchesTogether(int count);
+
+  /// No description provided for @friendsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for reply'**
+  String get friendsPending;
+
+  /// No description provided for @friendsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get friendsAdd;
+
+  /// No description provided for @friendsInviteToRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite friends'**
+  String get friendsInviteToRoom;
 }
 
 class _AppLocalizationsDelegate
