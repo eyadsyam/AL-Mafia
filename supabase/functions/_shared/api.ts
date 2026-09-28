@@ -18,13 +18,45 @@ import {
   createClient,
   type SupabaseClient,
 } from "jsr:@supabase/supabase-js@2";
+import { AsyncLocalStorage } from "node:async_hooks";
 
 export const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Expose-Headers": "x-request-id",
 };
+
+/**
+ * Observability (§7): every response carries the id of the request that
+ * produced it, in the body and in `x-request-id`. It is minted per request by
+ * [handler] and never derived from the caller, the room or the body, so it
+ * correlates logs without identifying anybody.
+ */
+const requestScope = new AsyncLocalStorage<{ id: string }>();
+
+/** The current request's id; a fresh one outside [handler] (tests, tools). */
+export function currentRequestId(): string {
+  return requestScope.getStore()?.id ?? crypto.randomUUID();
+}
+
+/** Latency buckets for the one log line per request. Coarse on purpose. */
+export function latencyBucket(ms: number): string {
+  if (ms < 100) return "<100ms";
+  if (ms < 300) return "<300ms";
+  if (ms < 1000) return "<1s";
+  if (ms < 3000) return "<3s";
+  return ">=3s";
+}
+
+function jsonHeaders(requestId: string): Record<string, string> {
+  return {
+    ...CORS_HEADERS,
+    "Content-Type": "application/json",
+    "x-request-id": requestId,
+  };
+}
 
 export type ErrorCode =
   | "UNAUTHENTICATED"
@@ -79,9 +111,15 @@ export type ErrorCode =
   | "BAD_REQUEST";
 
 export function ok(body: unknown = { ok: true }): Response {
-  return new Response(JSON.stringify(body), {
+  const requestId = currentRequestId();
+  // Additive: an object body gains `requestId` unless it already answers with
+  // the caller's own (a replayed mutation keeps the id it was made with).
+  const payload = body !== null && typeof body === "object" && !Array.isArray(body)
+    ? { requestId, ...(body as Record<string, unknown>) }
+    : body;
+  return new Response(JSON.stringify(payload), {
     status: 200,
-    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    headers: jsonHeaders(requestId),
   });
 }
 
@@ -94,9 +132,10 @@ export function ok(body: unknown = { ok: true }): Response {
  * whose only mistake was tapping half a second late.
  */
 export function fail(code: ErrorCode, message: string, status = 400): Response {
-  return new Response(JSON.stringify({ error: code, message }), {
+  const requestId = currentRequestId();
+  return new Response(JSON.stringify({ error: code, message, requestId }), {
     status,
-    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    headers: jsonHeaders(requestId),
   });
 }
 
@@ -294,21 +333,52 @@ export function newMatchSeed(): number {
 export function handler(
   fn: (req: Request, userId: string, db: SupabaseClient) => Promise<Response>,
 ): (req: Request) => Promise<Response> {
-  return async (req: Request) => {
+  return (req: Request) => {
     if (req.method === "OPTIONS") {
-      return new Response("ok", { headers: CORS_HEADERS });
+      return Promise.resolve(new Response("ok", { headers: CORS_HEADERS }));
     }
+    return requestScope.run({ id: crypto.randomUUID() }, () => serve(req));
+  };
+
+  async function serve(req: Request): Promise<Response> {
+    const started = Date.now();
+    let response: Response;
+    let result = "ok";
     const userId = await callerId(req);
     if (!userId) {
-      return fail("UNAUTHENTICATED", "no valid session", 401);
+      response = fail("UNAUTHENTICATED", "no valid session", 401);
+    } else {
+      try {
+        response = await fn(req, userId, serviceClient());
+      } catch (_) {
+        // Never echo the exception: a stack trace from a function that
+        // touched the role table is a leak of a different kind. A database
+        // error is the server's failure, not the caller's: a generic 500.
+        result = "exception";
+        response = fail("BAD_REQUEST", "request could not be completed", 500);
+      }
     }
-    try {
-      return await fn(req, userId, serviceClient());
-    } catch (e) {
-      // Never echo the exception: a stack trace from a function that touched
-      // the role table is a leak of a different kind.
-      console.error("request failed");
-      return fail("BAD_REQUEST", "request could not be completed", 400);
-    }
-  };
+    if (result === "ok" && response.status >= 400) result = `refused_${response.status}`;
+    logRequest(new URL(req.url).pathname, result, Date.now() - started);
+    return response;
+  }
+}
+
+/**
+ * The one log line a request leaves: function, result class, latency bucket
+ * and request id. Never a name, code, role, target, note, body or token; the
+ * room is not logged at all (hashed correlation belongs to the metrics lane).
+ */
+export function requestLogLine(path: string, result: string, ms: number): string {
+  const fn = path.split("/").filter((part) => /^[a-z_]+$/.test(part)).pop() ?? "unknown";
+  return JSON.stringify({
+    fn,
+    result: /^(ok|exception|refused_\d{3})$/.test(result) ? result : "other",
+    latency: latencyBucket(ms),
+    requestId: currentRequestId(),
+  });
+}
+
+function logRequest(path: string, result: string, ms: number): void {
+  console.log(requestLogLine(path, result, ms));
 }

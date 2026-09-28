@@ -82,13 +82,15 @@ const union = api.match(/type ErrorCode\s*=([\s\S]*?);/);
 assert.ok(union, 'ErrorCode union not found in _shared/api.ts');
 const codes = new Set([...union[1].matchAll(/"([A-Z_]+)"/g)].map((m) => m[1]));
 
-// The envelope itself: exactly {error, message}, nothing else serialised.
+// The envelope itself: exactly {error, message, requestId}, nothing else
+// serialised. The request id is minted per request (request_envelope.test.mjs
+// proves it at runtime).
 const failBody = api.match(/export function fail\([\s\S]*?JSON\.stringify\(([^)]*)\)/);
 assert.ok(failBody, 'fail() not found');
-assert.equal(failBody[1].replace(/\s+/g, ' ').trim(), '{ error: code, message }',
-  'fail() must serialise exactly { error, message }');
-// The catch-all never echoes the exception.
-assert.match(api, /return fail\("BAD_REQUEST", "request could not be completed", 400\)/);
+assert.equal(failBody[1].replace(/\s+/g, ' ').trim(), '{ error: code, message, requestId }',
+  'fail() must serialise exactly { error, message, requestId }');
+// The catch-all never echoes the exception, and a database error is a 500.
+assert.match(api, /response = fail\("BAD_REQUEST", "request could not be completed", 500\)/);
 
 // file (forward slashes) → exact argument text → why it cannot carry private data.
 const REVIEWED = {
