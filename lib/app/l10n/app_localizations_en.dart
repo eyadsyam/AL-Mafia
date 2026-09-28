@@ -4752,4 +4752,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onlineWeatherRetry => 'Try now';
+
+  @override
+  String get xpUnit => 'XP';
 }

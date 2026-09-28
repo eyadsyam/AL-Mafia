@@ -675,7 +675,7 @@ class _Rewards extends StatelessWidget {
       children: [
         if (coins > 0) RewardChip(coins, muted: muted),
         if (coins > 0 && xp > 0) SizedBox(width: context.spacing.xs),
-        if (xp > 0) RewardChip(xp, muted: muted, unit: 'XP'),
+        if (xp > 0) RewardChip(xp, muted: muted, unit: context.l10n.xpUnit),
       ],
     ),
   );

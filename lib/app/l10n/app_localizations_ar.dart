@@ -4665,4 +4665,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onlineWeatherRetry => 'جرّب دلوقتي';
+
+  @override
+  String get xpUnit => 'نقطة';
 }

@@ -2824,5 +2824,6 @@
   "witnessWhisperReported": "Report received",
   "witnessManageSeat": "Manage seat",
   "witnessLetterOpen": "Open the whisper",
-  "onlineWeatherRetry": "Try now"
+  "onlineWeatherRetry": "Try now",
+  "xpUnit": "XP"
 }

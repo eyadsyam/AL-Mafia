@@ -8041,6 +8041,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try now'**
   String get onlineWeatherRetry;
+
+  /// No description provided for @xpUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'XP'**
+  String get xpUnit;
 }
 
 class _AppLocalizationsDelegate
