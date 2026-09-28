@@ -22,6 +22,8 @@ import 'package:mafia_master/transport/account_service.dart';
 import 'package:mafia_master/transport/game_snapshot.dart';
 import 'package:mafia_master/transport/witness_channel.dart';
 import 'package:mafia_master/ui/economy/account_protection.dart';
+import 'package:mafia_master/ui/economy/economy_capabilities.dart';
+import 'package:mafia_master/ui/missions/thursday.dart';
 import 'package:mafia_master/ui/screens/admin/safety_admin_screen.dart';
 import 'package:mafia_master/ui/screens/day/whisper_compose_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
@@ -233,6 +235,39 @@ void main() {
         accountStatusProvider.overrideWith(
           (ref) async =>
               const AccountStatus(recoverable: true, email: 'owner@example.test'),
+        ),
+      ],
+    );
+  });
+
+  testWidgets('F9 — Thursday Night banner', (tester) async {
+    await shoot(
+      tester,
+      '04_thursday_banner',
+      const Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(children: [SizedBox(height: 80), ThursdayBanner()]),
+          ),
+        ),
+      ),
+      overrides: [
+        economyCapabilitiesProvider.overrideWith(
+          (ref) async => EconomyCapabilities.fromJson({
+            'version': 3,
+            'thursday': true,
+          }),
+        ),
+        thursdayEventProvider.overrideWith(
+          (ref) async => ThursdayEvent.fromJson({
+            'enabled': true,
+            'isThursday': true,
+            'inWindow': true,
+            'progress': 1,
+            'stamp': false,
+            'event': 'thursday',
+          }),
         ),
       ],
     );
