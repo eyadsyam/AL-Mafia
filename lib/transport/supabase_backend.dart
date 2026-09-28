@@ -174,7 +174,9 @@ class SupabaseBackend implements OnlineBackend {
         client.from('room_state').select().eq('room_id', roomId).maybeSingle(),
         client
             .from('rooms_public')
-            .select('code, host_id, status, settings, visibility, title')
+            .select(
+              'code, host_id, status, settings, visibility, title, lobby_revision',
+            )
             .eq('id', roomId)
             .maybeSingle(),
         client

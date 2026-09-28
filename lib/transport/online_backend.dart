@@ -100,6 +100,9 @@ class RoomState {
   /// public one whose host has not named it yet.
   final String? title;
 
+  /// Monotonic version of the pre-deal roster and rules.
+  final int lobbyRevision;
+
   final String hostId;
   final String code;
 
@@ -120,6 +123,7 @@ class RoomState {
     this.settings = const {},
     this.visibility = 'private',
     this.title,
+    this.lobbyRevision = 0,
   });
 
   factory RoomState.fromJson(Map<String, dynamic> json) => RoomState(
@@ -136,6 +140,7 @@ class RoomState {
     settings: Map<String, dynamic>.from((json['settings'] as Map?) ?? const {}),
     visibility: json['visibility'] as String? ?? 'private',
     title: json['title'] as String?,
+    lobbyRevision: (json['lobby_revision'] as num?)?.toInt() ?? 0,
     serverNow: _time(json['server_now']) ?? DateTime.now().toUtc(),
   );
 
@@ -152,6 +157,7 @@ class RoomState {
         settings: settings,
         visibility: visibility,
         title: title,
+        lobbyRevision: lobbyRevision,
         serverNow: serverNow,
       );
 
@@ -173,6 +179,7 @@ class RoomState {
     settings: rooms.settings,
     visibility: rooms.visibility,
     title: rooms.title,
+    lobbyRevision: rooms.lobbyRevision,
     serverNow: serverNow,
   );
 
@@ -224,6 +231,9 @@ class RoomPlayer {
 
   /// Frame and nameplate chosen in the store, copied at seating (§89).
   final SeatCosmetics? cosmetics;
+  final bool lobbyReady;
+  final DateTime? readyDeadline;
+  final bool readyExpired;
 
   const RoomPlayer({
     required this.userId,
@@ -239,6 +249,9 @@ class RoomPlayer {
     this.status = 'connected',
     this.muted = false,
     this.kicked = false,
+    this.lobbyReady = false,
+    this.readyDeadline,
+    this.readyExpired = false,
   });
 
   factory RoomPlayer.fromJson(Map<String, dynamic> json) => RoomPlayer(
@@ -255,6 +268,9 @@ class RoomPlayer {
     muted: json['muted'] as bool? ?? false,
     kicked: json['kicked'] as bool? ?? false,
     cosmetics: SeatCosmetics.fromJson(json['cosmetics']),
+    lobbyReady: json['lobby_ready'] as bool? ?? false,
+    readyDeadline: _time(json['ready_deadline']),
+    readyExpired: json['ready_expired'] as bool? ?? false,
   );
 
   RoomPlayer copyWith({
@@ -266,6 +282,9 @@ class RoomPlayer {
     String? status,
     bool? muted,
     bool? kicked,
+    bool? lobbyReady,
+    DateTime? readyDeadline,
+    bool? readyExpired,
     bool clearHand = false,
   }) => RoomPlayer(
     userId: userId,
@@ -285,6 +304,9 @@ class RoomPlayer {
     muted: muted ?? this.muted,
     kicked: kicked ?? this.kicked,
     cosmetics: cosmetics,
+    lobbyReady: lobbyReady ?? this.lobbyReady,
+    readyDeadline: readyDeadline ?? this.readyDeadline,
+    readyExpired: readyExpired ?? this.readyExpired,
   );
 }
 

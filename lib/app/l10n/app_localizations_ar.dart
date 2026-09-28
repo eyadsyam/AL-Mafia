@@ -4628,4 +4628,23 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get witnessWhispersDisclosure =>
       'اللي خرجوا من اللعبة بيشوفوا الهمسات';
+
+  @override
+  String get thursdayNight => 'ليلة الخميس';
+
+  @override
+  String thursdayProgress(int count) {
+    return 'الماتشات: $count/2';
+  }
+
+  @override
+  String get lobbyReadyAction => 'أنا جاهز';
+
+  @override
+  String get lobbyUnreadyAction => 'مش جاهز';
+
+  @override
+  String lobbyReadyCount(int ready, int total) {
+    return '$ready من $total جاهزين';
+  }
 }

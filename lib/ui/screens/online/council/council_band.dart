@@ -52,6 +52,10 @@ class CouncilSeatData {
   /// This device's own seat. Doc 15 §1.3: a thin cream hairline, always.
   final bool isViewer;
 
+  /// Public pre-deal confirmation. Lobby callers are the only ones that set it.
+  final bool lobbyReady;
+  final bool lobbyReadyExpired;
+
   /// Whether this seat ended the match on the winning side.
   ///
   /// Null in every phase but the result, and that is the whole safety
@@ -113,6 +117,8 @@ class CouncilSeatData {
     this.avatar,
     this.isEmpty = false,
     this.isViewer = false,
+    this.lobbyReady = false,
+    this.lobbyReadyExpired = false,
     this.winner,
     this.roleGlyph,
     this.rolePortrait,
@@ -134,6 +140,8 @@ class CouncilSeatData {
       other.avatar == avatar &&
       other.isEmpty == isEmpty &&
       other.isViewer == isViewer &&
+      other.lobbyReady == lobbyReady &&
+      other.lobbyReadyExpired == lobbyReadyExpired &&
       other.roleGlyph == roleGlyph &&
       other.rolePortrait == rolePortrait &&
       other.speakingLevel == speakingLevel &&
@@ -151,6 +159,8 @@ class CouncilSeatData {
     avatar,
     isEmpty,
     isViewer,
+    lobbyReady,
+    lobbyReadyExpired,
     winner,
     roleGlyph,
     rolePortrait,
@@ -716,7 +726,7 @@ class CouncilPainter extends CustomPainter {
         : dead || gone
         ? cracked
         : idle;
-    final tint = chosen || speaking
+    final tint = chosen || speaking || seat.lobbyReady
         ? gold
         // Cream rather than gold: gold is the colour of a choice being made,
         // and the match is over. Warmth is what is left when there is nothing
@@ -921,6 +931,33 @@ class CouncilPainter extends CustomPainter {
     // written under the name, because it is a state the room needs at a
     // glance and the space under a chair already holds two lines.
     if (seat.muted) _paintMutedMic(canvas, layout.diameter, opacity);
+    if ((seat.lobbyReady || seat.lobbyReadyExpired) &&
+        inhabited &&
+        !seat.isEmpty) {
+      final readyPainter = TextPainter(
+        text: TextSpan(
+          // An icon glyph, not '✓': the table's text fonts have no check mark.
+          text: String.fromCharCode(
+            seat.lobbyReady
+                ? Icons.check.codePoint
+                : Icons.priority_high.codePoint,
+          ),
+          style: caption.copyWith(
+            fontFamily: Icons.check.fontFamily,
+            package: Icons.check.fontPackage,
+            color: (seat.lobbyReady ? gold : secondaryColor).withValues(
+              alpha: opacity,
+            ),
+          ),
+        ),
+        textDirection: textDirection,
+      )..layout();
+      final at = layout.diameter * CouncilLifeTokens.seatBadgeOffset;
+      readyPainter.paint(
+        canvas,
+        Offset(at - readyPainter.width / 2, -at - readyPainter.height / 2),
+      );
+    }
     // Phase 107: the Council rank, a small crest on the ring's lower edge.
     final rank = seat.rank;
     if (rank != null && !seat.isEmpty && opacity * joining > 0) {

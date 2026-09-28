@@ -98,6 +98,9 @@ Deno.serve(handler(async (req, userId, db) => {
     },
   );
   if (applyError || applied !== true) {
+    if (String(applyError?.message ?? "").includes("NOT_READY")) {
+      return fail("NOT_READY", "the lobby is not ready", 409);
+    }
     return fail("BAD_REQUEST", "match could not be started", 500);
   }
 

@@ -2811,5 +2811,12 @@
   "@witnessWhisperLine": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
   "witnessWhisperMasked": "Hidden: you blocked the sender.",
   "witnessWhisperReport": "Report this whisper",
-  "witnessWhispersDisclosure": "Players who are out can read the whispers."
+  "witnessWhispersDisclosure": "Players who are out can read the whispers.",
+  "thursdayNight": "Thursday Night",
+  "thursdayProgress": "Matches: {count}/2",
+  "@thursdayProgress": {"placeholders": {"count": {"type": "int"}}},
+  "lobbyReadyAction": "Ready",
+  "lobbyUnreadyAction": "Not ready",
+  "lobbyReadyCount": "{ready} of {total} ready",
+  "@lobbyReadyCount": {"placeholders": {"ready": {"type": "int"}, "total": {"type": "int"}}}
 }

@@ -12,6 +12,7 @@ import 'package:mafia_master/ui/screens/online/voice_session.dart';
 import 'package:mafia_master/ui/screens/online/council/council_band.dart';
 import 'package:mafia_master/ui/screens/online/council/seat_status.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
+import 'package:mafia_master/ui/economy/economy_capabilities.dart';
 import 'package:mafia_master/ui/widgets/back_action.dart';
 import 'package:mafia_master/ui/widgets/connection_banner.dart';
 
@@ -35,6 +36,7 @@ void main() {
     OwnSeat? own,
     String userId = 'u0',
     BackendException? refuseJoin,
+    bool lobbyReadyEnabled = false,
   }) {
     backend = FakeBackend(
       roomId: 'room-1',
@@ -55,6 +57,10 @@ void main() {
         // pending timer, and nothing on these screens is driven by it.
         onlineHeartbeatProvider.overrideWithValue(Duration.zero),
         voiceStatsIntervalProvider.overrideWithValue(Duration.zero),
+        if (lobbyReadyEnabled)
+          economyCapabilitiesProvider.overrideWith(
+            (ref) async => const EconomyCapabilities(lobbyReady: true),
+          ),
       ],
     );
     addTearDown(container.dispose);
@@ -178,6 +184,82 @@ void main() {
       expect(find.text(arStrings.onlineLobbyHostReadyHint), findsOneWidget);
       expect(find.text(arStrings.onlineLobbyInviteHint), findsNothing);
     });
+
+    testWidgets('ready capability gates start and sends the current revision', (
+      tester,
+    ) async {
+      final players = roster(6);
+      final container = containerWith(
+        players: players,
+        state: roomState(
+          phase: 'lobby',
+          phaseNumber: 0,
+          status: 'lobby',
+          lobbyRevision: 7,
+        ),
+        lobbyReadyEnabled: true,
+      );
+      await pumpLobby(tester, container);
+      await tester.pump();
+
+      expect(find.byKey(LobbyScreen.readyButton), findsOneWidget);
+      expect(
+        tester
+            .widget<FilledButton>(find.byKey(LobbyScreen.startButton))
+            .onPressed,
+        isNull,
+      );
+      await tester.tap(find.byKey(LobbyScreen.readyButton));
+      await tester.pump();
+      expect(backend.lastCall('lobby_ready')?.body, {
+        'roomId': 'room-1',
+        'ready': true,
+        'revision': 7,
+      });
+    });
+
+    testWidgets(
+      'ready roster enables host start only when every seat confirms',
+      (tester) async {
+        final container = containerWith(
+          players: [
+            for (final player in roster(6))
+              RoomPlayer(
+                userId: player.userId,
+                seat: player.seat,
+                name: player.name,
+                lastSeen: player.lastSeen,
+                lobbyReady: true,
+              ),
+          ],
+          state: roomState(
+            phase: 'lobby',
+            phaseNumber: 0,
+            status: 'lobby',
+            lobbyRevision: 9,
+          ),
+          lobbyReadyEnabled: true,
+        );
+        await pumpLobby(tester, container);
+        await tester.pump();
+
+        expect(
+          tester
+              .widget<FilledButton>(find.byKey(LobbyScreen.startButton))
+              .onPressed,
+          isNotNull,
+        );
+        final chairs = tester
+            .widget<CouncilBand>(find.byType(CouncilBand))
+            .seats;
+        expect(
+          chairs
+              .where((seat) => !seat.isEmpty)
+              .every((seat) => seat.lobbyReady),
+          isTrue,
+        );
+      },
+    );
 
     testWidgets('a guest waits for the host and is offered nothing to press', (
       tester,

@@ -1817,4 +1817,11 @@
   "witnessWhisperMasked": "مخفية: إنت عامل بلوك للي بعتها.",
   "witnessWhisperReport": "بلّغ عن الهمسة دي",
   "witnessWhispersDisclosure": "اللي خرجوا من اللعبة بيشوفوا الهمسات"
+  ,"thursdayNight": "ليلة الخميس",
+  "thursdayProgress": "الماتشات: {count}/2",
+  "@thursdayProgress": {"placeholders": {"count": {"type": "int"}}},
+  "lobbyReadyAction": "أنا جاهز",
+  "lobbyUnreadyAction": "مش جاهز",
+  "lobbyReadyCount": "{ready} من {total} جاهزين",
+  "@lobbyReadyCount": {"placeholders": {"ready": {"type": "int"}, "total": {"type": "int"}}}
 }

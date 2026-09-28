@@ -30,6 +30,7 @@ import 'safety_center.dart';
 import '../../economy/waiting_banner.dart';
 import '../../social/friends.dart';
 import '../../missions/casebook_sheet.dart';
+import '../../missions/thursday.dart';
 
 /// Public rooms are the front door; identity belongs to the saved profile.
 ///
@@ -432,6 +433,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     final notice = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const ThursdayBanner(),
         if (safetyNotice != null)
           Padding(
             key: OnlineEntryScreen.safetyNotice,

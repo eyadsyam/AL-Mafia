@@ -430,6 +430,38 @@ class OnlineSession extends Notifier<OnlineSessionState> {
     }
   }
 
+  /// Confirms this seat against the exact roster/rules revision on screen.
+  Future<bool> setLobbyReady({
+    required bool ready,
+    required int revision,
+  }) async {
+    final room = state.room;
+    final backend = _backend;
+    if (room == null || backend == null || state.busy) return false;
+    state = state.copyWith(busy: true, clearError: true);
+    try {
+      await backend.call('lobby_ready', {
+        'roomId': room.roomId,
+        'ready': ready,
+        'revision': revision,
+      });
+      await state.transport?.resync();
+      state = state.copyWith(busy: false);
+      return true;
+    } on BackendException catch (e) {
+      state = state.copyWith(busy: false, errorCode: e.code);
+      if (e.code == 'STALE_REVISION') await state.transport?.resync();
+      return false;
+    } on BackendUnreachable {
+      state = state.copyWith(
+        busy: false,
+        errorCode: 'UNREACHABLE',
+        unreachable: true,
+      );
+      return false;
+    }
+  }
+
   /// The «أوض عامة» list: the only way a player picks a public room.
   ///
   /// Read-only on the server — looking never seats anybody. The entry screen

@@ -41,6 +41,7 @@ import 'council/seat_status.dart';
 import 'table/table_pulse.dart';
 import 'table/table_scene.dart';
 import '../../economy/waiting_banner.dart';
+import '../../economy/economy_capabilities.dart';
 import '../../social/friends.dart';
 
 /// S-21 — the room, before it is a match (doc 12 §3.1).
@@ -117,6 +118,7 @@ class LobbyScreen extends ConsumerStatefulWidget {
   static const Key playerCount = ValueKey('lobby_player_count');
   static const Key ghostRule = ValueKey('lobby_ghost_rule');
   static const Key storageWarning = ValueKey('lobby_storage_warning');
+  static const Key readyButton = ValueKey('lobby_ready_button');
 
   /// The seat a player occupies in the lobby's council.
   ///
@@ -282,6 +284,14 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     if (started && mounted) widget.onStarted();
   }
 
+  Future<void> _setReady(bool ready) async {
+    final snapshot = _snapshot;
+    if (snapshot == null) return;
+    await ref
+        .read(onlineSessionProvider.notifier)
+        .setLobbyReady(ready: ready, revision: snapshot.lobbyRevision);
+  }
+
   Future<void> _copyCode(String code) async {
     final copied = await AppClipboard.copy(code);
     if (!mounted || !copied) return;
@@ -341,8 +351,25 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     final snapshot = _snapshot;
     final code = session.transport?.code ?? session.room?.code ?? '';
     final players = snapshot?.public.players ?? const [];
-    final canStart = (snapshot?.canAdvance ?? false) && players.length >= 5;
+    final lobbyReadyEnabled =
+        ref.watch(economyCapabilitiesProvider).valueOrNull?.lobbyReady ?? false;
+    final connectedSeats = players
+        .where(
+          (player) =>
+              snapshot?.presence[player.seat] == SeatPresence.connected &&
+              snapshot?.connectedSeats[player.seat] != false,
+        )
+        .map((player) => player.seat)
+        .toSet();
+    final readySeats = snapshot?.lobbyReadySeats ?? const <int>{};
+    final readyRuleHolds =
+        connectedSeats.length >= PublicRoom.defaultMinPlayers &&
+        connectedSeats.every(readySeats.contains);
+    final canStart =
+        (snapshot?.canAdvance ?? false) &&
+        (lobbyReadyEnabled ? readyRuleHolds : players.length >= 5);
     final isHost = snapshot?.canAdvance ?? false;
+    final viewerReady = readySeats.contains(snapshot?.viewerSeat);
 
     // Task 5. The host closed it: there is no winner and no result screen, so
     // every other device goes home and says so.
@@ -676,6 +703,36 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
                                       children: [
+                                        if (lobbyReadyEnabled &&
+                                            snapshot != null)
+                                          OutlinedButton.icon(
+                                            key: LobbyScreen.readyButton,
+                                            onPressed: session.busy
+                                                ? null
+                                                : () => _setReady(!viewerReady),
+                                            icon: Icon(
+                                              viewerReady
+                                                  ? Icons.check_circle
+                                                  : Icons.circle_outlined,
+                                            ),
+                                            label: Text(
+                                              viewerReady
+                                                  ? l10n.lobbyUnreadyAction
+                                                  : l10n.lobbyReadyAction,
+                                            ),
+                                          ),
+                                        if (lobbyReadyEnabled &&
+                                            snapshot != null)
+                                          Text(
+                                            l10n.lobbyReadyCount(
+                                              readySeats.length,
+                                              connectedSeats.length,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            style: type.caption.copyWith(
+                                              color: colors.textSecondary,
+                                            ),
+                                          ),
                                         if (isHost)
                                           FilledButton(
                                             key: LobbyScreen.startButton,
@@ -885,6 +942,9 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
           frame: snapshot?.seatCosmetics[player.seat]?.frame,
           plate: snapshot?.seatCosmetics[player.seat]?.plate,
           rank: snapshot?.seatCosmetics[player.seat]?.rank,
+          lobbyReady: snapshot?.lobbyReadySeats.contains(player.seat) ?? false,
+          lobbyReadyExpired:
+              snapshot?.lobbyReadyExpiredSeats.contains(player.seat) ?? false,
         ),
       // Numbered past the last real seat rather than from the count. A player
       // who aged out to `left` without saying so leaves a hole in the seat

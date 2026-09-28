@@ -1,4 +1,10 @@
-import { fail, handler, ok } from "../_shared/api.ts";
+import {
+  fail,
+  generateCode,
+  handler,
+  newMatchSeed,
+  ok,
+} from "../_shared/api.ts";
 import {
   casePuzzleRequest,
   economyCall,
@@ -13,6 +19,47 @@ import {
 
 Deno.serve(handler(async (req, userId, db) => {
   const body = await req.json().catch(() => ({}));
+  if (body?.action === "thursdayEvent") {
+    const { data, error } = await db.rpc("thursday_event", { p_user: userId });
+    if (error) throw error;
+    return ok(data);
+  }
+  if (body?.action === "eventCreateRoom") {
+    const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (body.event !== "thursday" || typeof body.requestId !== "string" ||
+        !uuid.test(body.requestId)) {
+      return fail("BAD_REQUEST", "invalid Thursday room request");
+    }
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const { data, error } = await db.rpc("event_create_room", {
+        p_user: userId,
+        p_event: "thursday",
+        p_request: body.requestId.toLowerCase(),
+        p_code: generateCode(),
+        p_seed: newMatchSeed(),
+        p_at: new Date().toISOString(),
+      });
+      if (!error) return ok(data);
+      if (error.code === "23505") continue;
+      if (error.message?.includes("DISABLED")) {
+        return fail("FEATURE_OFF", "Thursday Night is not available", 403);
+      }
+      if (error.message?.includes("NOT_THURSDAY")) {
+        return fail("NOT_READY", "Thursday Night is not open", 409);
+      }
+      if (error.message?.includes("BAD_REQUEST")) {
+        return fail("BAD_REQUEST", "invalid Thursday room request");
+      }
+      if (error.message?.includes("NEW_ROOMS_PAUSED")) {
+        return fail("NEW_ROOMS_PAUSED", "new rooms are temporarily paused", 503);
+      }
+      if (error.message?.includes("ACCOUNT_RESTRICTED")) {
+        return fail("ACCOUNT_RESTRICTED", "this account cannot open this table now", 403);
+      }
+      throw error;
+    }
+    return fail("BAD_REQUEST", "could not allocate a room code");
+  }
   if (body?.action === "metric") {
     const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (typeof body.event !== "string" ||

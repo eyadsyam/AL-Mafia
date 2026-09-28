@@ -4715,4 +4715,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get witnessWhispersDisclosure =>
       'Players who are out can read the whispers.';
+
+  @override
+  String get thursdayNight => 'Thursday Night';
+
+  @override
+  String thursdayProgress(int count) {
+    return 'Matches: $count/2';
+  }
+
+  @override
+  String get lobbyReadyAction => 'Ready';
+
+  @override
+  String get lobbyUnreadyAction => 'Not ready';
+
+  @override
+  String lobbyReadyCount(int ready, int total) {
+    return '$ready of $total ready';
+  }
 }

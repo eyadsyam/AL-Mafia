@@ -272,6 +272,19 @@ GameSnapshot snapshotFrom({
         if (seat is int) seat,
     },
     viewerVoteRecorded: phase == GamePhase.voting && viewerVoteRecorded,
+    lobbyRevision: state.lobbyRevision,
+    lobbyReadySeats: state.phase == 'lobby'
+        ? {
+            for (final player in roster)
+              if (player.lobbyReady) player.seat,
+          }
+        : const {},
+    lobbyReadyExpiredSeats: state.phase == 'lobby'
+        ? {
+            for (final player in roster)
+              if (player.readyExpired) player.seat,
+          }
+        : const {},
     trace: traceFromJson((data['morning'] as Map?)?['trace']),
     confrontation: confrontationFromJson(data['confrontation']),
     openingAccusations: accusationsFromJson(data['openingAccusations']),

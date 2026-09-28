@@ -360,6 +360,11 @@ class GameSnapshot {
   /// and empty outside the discussion and always offline.
   final Set<int> readyToVoteSeats;
 
+  /// Public pre-deal confirmation for the current lobby revision.
+  final Set<int> lobbyReadySeats;
+  final Set<int> lobbyReadyExpiredSeats;
+  final int lobbyRevision;
+
   /// The seats the host has silenced for the whole room (task 6).
   ///
   /// Every client subtracts these from what it will play, which is the only
@@ -450,6 +455,9 @@ class GameSnapshot {
     this.activeSpeakerSeat,
     this.raisedHands = const {},
     this.readyToVoteSeats = const {},
+    this.lobbyReadySeats = const {},
+    this.lobbyReadyExpiredSeats = const {},
+    this.lobbyRevision = 0,
     this.unseenRoleSeats = const {},
     this.presence = const {},
     this.hostSeat,
@@ -489,6 +497,9 @@ class GameSnapshot {
     int? activeSpeakerSeat,
     Set<int>? raisedHands,
     Set<int>? readyToVoteSeats,
+    Set<int>? lobbyReadySeats,
+    Set<int>? lobbyReadyExpiredSeats,
+    int? lobbyRevision,
     Set<int>? unseenRoleSeats,
     Map<int, SeatPresence>? presence,
     int? hostSeat,
@@ -529,6 +540,10 @@ class GameSnapshot {
     // server's trigger does: the thing being asked for no longer exists.
     raisedHands: clearSpeaker ? const {} : (raisedHands ?? this.raisedHands),
     readyToVoteSeats: readyToVoteSeats ?? this.readyToVoteSeats,
+    lobbyReadySeats: lobbyReadySeats ?? this.lobbyReadySeats,
+    lobbyReadyExpiredSeats:
+        lobbyReadyExpiredSeats ?? this.lobbyReadyExpiredSeats,
+    lobbyRevision: lobbyRevision ?? this.lobbyRevision,
     unseenRoleSeats: unseenRoleSeats ?? this.unseenRoleSeats,
     presence: presence ?? this.presence,
     hostSeat: hostSeat ?? this.hostSeat,

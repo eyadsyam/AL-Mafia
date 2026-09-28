@@ -1402,6 +1402,13 @@ abstract final class DailyTokens {
   static const cardMaxWidth = 560.0;
 }
 
+/// F9 Thursday Night's public online-entry banner.
+abstract final class ThursdayTokens {
+  static const double bannerHeight = 104.0;
+  static const double borderWidth = 1.0;
+  static const double artOpacity = 0.56;
+}
+
 /// Council Vault public surfaces; never used to distinguish secret roles.
 abstract final class StoreTokens {
   /// Product art is 768 px square; cards and thumbnails never need more.

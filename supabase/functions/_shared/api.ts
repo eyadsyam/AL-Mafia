@@ -74,6 +74,8 @@ export type ErrorCode =
   | "ACCOUNT_RESTRICTED"
   | "REPORT_CLOSED"
   | "WITNESS_ONLY"
+  | "STALE_REVISION"
+  | "NOT_READY"
   | "BAD_REQUEST";
 
 export function ok(body: unknown = { ok: true }): Response {

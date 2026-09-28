@@ -106,6 +106,7 @@ abstract final class CouncilRaster {
     'assets/images/economy_v2/wheel_rim.webp',
     'assets/images/launch/launch_backdrop.webp',
     'assets/images/launch/launch_veil.webp',
+    'assets/images/launch/thursday_banner.webp',
     'assets/images/launch/welcome_back_card.webp',
     'assets/images/profile/badge_founder.webp',
     'assets/images/profile/profile_banner_default.webp',

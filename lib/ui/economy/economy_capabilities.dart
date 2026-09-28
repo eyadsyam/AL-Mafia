@@ -164,6 +164,9 @@ class EconomyCapabilities {
   /// (`missions`, or `social.missions`).
   final bool missions;
 
+  /// F9: the server-owned Cairo Thursday event.
+  final bool thursday;
+
   /// «قضية اليوم»: the daily deduction case (`caseOfDay`).
   final bool caseOfDay;
 
@@ -172,6 +175,9 @@ class EconomyCapabilities {
 
   /// P9 native store review prompt.
   final bool reviewPrompt;
+
+  /// F8 pre-deal ready-up, negotiated by the server.
+  final bool lobbyReady;
 
   /// F21a: the dead read whispers (`witness.whispers`); drives the one
   /// disclosure line every player sees at the composer.
@@ -204,9 +210,11 @@ class EconomyCapabilities {
     this.fun = FunCapabilities.off,
     this.friends = false,
     this.missions = false,
+    this.thursday = false,
     this.caseOfDay = false,
     this.metrics = false,
     this.reviewPrompt = false,
+    this.lobbyReady = false,
     this.safetyV11 = false,
     this.witnessWhispers = false,
     this.purchaseDebt = 0,
@@ -240,6 +248,7 @@ class EconomyCapabilities {
       caseOfDay: flag('caseOfDay'),
       metrics: flag('metrics'),
       reviewPrompt: flag('reviewPrompt'),
+      lobbyReady: flag('lobbyReady'),
       safetyV11:
           json['safety'] is Map && (json['safety'] as Map)['v11'] == true,
       witnessWhispers:
@@ -249,6 +258,7 @@ class EconomyCapabilities {
           flag('missions') ||
           (json['social'] is Map &&
               (json['social'] as Map)['missions'] == true),
+      thursday: flag('thursday'),
       interstitial: rules is Map
           ? InterstitialRules.fromJson(Map<String, dynamic>.from(rules))
           : InterstitialRules.off,

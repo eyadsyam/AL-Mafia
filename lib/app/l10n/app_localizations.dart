@@ -7975,6 +7975,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Players who are out can read the whispers.'**
   String get witnessWhispersDisclosure;
+
+  /// No description provided for @thursdayNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday Night'**
+  String get thursdayNight;
+
+  /// No description provided for @thursdayProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches: {count}/2'**
+  String thursdayProgress(int count);
+
+  /// No description provided for @lobbyReadyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get lobbyReadyAction;
+
+  /// No description provided for @lobbyUnreadyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Not ready'**
+  String get lobbyUnreadyAction;
+
+  /// No description provided for @lobbyReadyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{ready} of {total} ready'**
+  String lobbyReadyCount(int ready, int total);
 }
 
 class _AppLocalizationsDelegate

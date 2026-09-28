@@ -333,6 +333,7 @@ RoomState roomState({
   String hostId = 'u0',
   DateTime? serverNow,
   String? activeSpeaker,
+  int lobbyRevision = 0,
 }) => RoomState(
   phase: phase,
   phaseNumber: phaseNumber,
@@ -343,6 +344,7 @@ RoomState roomState({
   phaseEndsAt: endsAt,
   publicData: publicData,
   activeSpeaker: activeSpeaker,
+  lobbyRevision: lobbyRevision,
 );
 
 List<RoomPlayer> roster(

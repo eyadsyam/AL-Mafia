@@ -10,10 +10,12 @@ do $$
 declare
   expected jsonb := jsonb_build_object(
     'ghost_messages', 'author_id,body,created_at,id,room_id',
-    'room_players',   'alive,connected,cosmetics,gender,kicked,last_seen,muted,name,room_id,saw_role,seat,status,user_id',
+    -- F8 readiness is public pre-deal coordination; none of these fields
+    -- contains a role, action or private inference.
+    'room_players',   'alive,connected,cosmetics,gender,kicked,last_seen,lobby_ready,muted,name,ready_deadline,ready_deadline_revision,ready_expired,room_id,saw_role,seat,status,user_id',
     'room_reactions', 'created_at,id,kind,room_id,seat,user_id',
     'room_state',     'active_speaker,phase,phase_ends_at,phase_number,public_data,room_id,speaker_until,updated_at',
-    'rooms',          'code,created_at,ended_at,host_id,id,settings,status,title,visibility',
+    'rooms',          'code,created_at,ended_at,host_id,id,lobby_revision,settings,status,title,visibility',
     'whisper_meta',   'created_at,day,from_id,id,room_id,to_id,voided');
   actual jsonb;
   forbidden text[] := array['role','team','faction','target','target_id','seed','match_seed',
