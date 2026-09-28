@@ -327,13 +327,13 @@ Service-role-only, allowlisted, request-idempotent, immutable audit:
 
 - `operator_feature_snapshot{requestId}` → flags/products/seasons/events/versions/counts, no personal data.
 - `operator_feature_set{flag,enabled,reason,requestId}` → before/after; no dynamic column.
-- `operator_season_activate{code,startsAt,requestId}` → 28d; no backdate/overlap.
+- `operator_season_activate{code,startsAt,requestId}` → 28d; no backdate/overlap. D3's `operator_start_season` is its first form and gains the request id, audit and no-backdate rule here.
 - `operator_season_extend{code,newEndsAt,reason,requestId}` → later only, bounded/announced.
 - `operator_event_set{code,startsAt,endsAt,scenarioCode,enabled,requestId}` → Cairo window/fingerprint.
 - `operator_reward_reconcile_preview{sourceKind,sourceKey,expectedAmount,requestId}` → delta.
 - `_apply{sourceKind,sourceKey,expectedAmount,reason,requestId}` → wallet lock; add under-credit; remove only available earned over-credit; waive spent excess; original receipt immutable.
 - `operator_campaign_grant{campaign,milestone,eligibleBatch,requestId}`.
-- `operator_creator_code_mint{code,expiresAt,cap,creatorId,requestId}` / `_revoke{code,reason,requestId}`.
+- `operator_creator_entitlement_grant{creatorId,campaign,startsAt,endsAt,requestId}` / `_revoke{creatorId,reason,requestId}` (P7; viewer codes are deleted).
 
 Puzzle salt CURRENT/PREVIOUS/EFFECTIVE_DAY changes next UTC day only. Operator runbook must contain snapshot, dark deploy, activation, Season/event, salt, correction, incident pause, creator/founder and rollback. Rollback flag-first, non-destructive.
 
