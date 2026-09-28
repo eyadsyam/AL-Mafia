@@ -13,6 +13,7 @@ Status: **frozen**.
 - Every new capability, campaign and catalogue row ships OFF/inactive. Nothing is deployed, published, uploaded or enabled until the owner explicitly authorizes it.
 - A feature ships with final Arabic/English copy, approved art, sound, motion, accessibility, reduced-motion behavior, tests, observability and rollback—or it is cut from that build.
 - Arabic uses 1.6 line height, zero letter spacing and text scale 1.0. Colors, dimensions and durations are tokens.
+- During a match, narration never invents an event, cause, location, object, time, trace or action. Atmospheric fiction exists only after the public result, under «من حكايات الراوي», separate from the factual chronology.
 - Paid entitlements are cosmetic or convenience-only. No power, hidden information, better odds, extra vote, extra attempt, matchmaking priority or role advantage is sold.
 - Android and web expose the same rules and account progress. Platform-specific ad utilities may be absent on web without changing rewards earned by play.
 - **Roles (owner, 2026-09-28):** Claude implements everything: client, SQL, edge functions, generators, tests, copy and asset registration. Sol critiques plans and generates images through its Codex session with a low-cost image model. Every plan is closed before any build starts.
@@ -60,24 +61,40 @@ Status: **frozen**.
 
 ### Must exist at public launch L
 
-1. All P1 online-core blockers in §7, Safety v11, operator controls, metrics and staged preload.
-2. Economy v3, corrected catalogue, ad caps, invite hardening and zero-coin awards.
-3. Casebook/Season Zero, Daily Case, «القضية الأولى», puzzle assists, reminders and `/case/today`.
-4. Founder seal, Partner selection, invite/share loop and pass-and-play access to existing daily ad inventory.
-5. Season Pass, Quiet Pass, Starter Bundle, three corrected coin packs and final art.
-6. Ready-up, reconnect UX, host-handoff announcement and public-result «ماتش كمان؟» vote.
-7. Thursday Night, launch-reward titles, launch media, privacy/ad disclosure rewrite and the AdMob listing/review checklist.
-8. All launch assets, sounds and motion in §8–9; no placeholder art.
+The launch path is a **129-hour ceiling**, not a target to fill. Feature freeze is ≥ 14 days before the release candidate, and ≥ 20% of the schedule is reserved for integration. Any overrun cuts the lowest unfinished row; it never moves the RC.
 
-### Complete 1.1.x content builds, not launch dependencies
+| Order | Launch work | Hours | Gate |
+|---:|---|---:|---|
+| 1 | Online-core release blockers (§7) and Doc 05 payload/error hardening | 8 | targeted online/leakage suites ×3; chaos cases; publication allowlist |
+| 2 | Safety v11 and owner review queue | 8 | block across every social surface; report retention/limits; review drill |
+| 3 | Operator controls, metrics, warm-up, low-end performance | 11 | audit/idempotency; metric allowlist; F14 budgets |
+| 4 | Economy v3, invite hardening, launch catalogue, entitlement provenance | 8 | full simulation; concurrency; exact-once; OFF-by-default proof |
+| 5 | Casebook, Season Zero, titles, core Partner | 10 | inactive-season behaviour; reward math; Partner import closure |
+| 6 | Daily Case core, «القضية الأولى», reminder, `/case/today` | 9 | generator uniqueness; attempts/reveal; web route; opt-in reminder |
+| 7 | Ready-up, reconnect, host continuity, hand-off reliability (existing rematch kept) | 6 | two-client races; process death; private/public ready |
+| 8 | Thursday, pass-and-play result inventory (P6), launch events | 6 | Cairo boundaries; eligibility; public-result-only placement |
+| 9 | Required launch art and non-voice sound | 5 | alpha/crop/size/contact sheets; reduced motion; no private-role cue |
+| 10 | F15 big-table speed + F17 family mode + F18 narrated how-to scenes + F16 tabletop layout | 13 | 10/15-player timed tests; family parity; 2 m legibility; tutorial completion |
+| 11 | F16 free spoken narrator | 24 | licensing/provenance record; listener gate; noisy-room and tenth-match tests; silence in private phases |
+| 12 | F19 signature presentation (reveal, sonic mark, Partner in lobby/result) | 7 | result-only reveal; live import closure; asset-memory gate |
+| 13 | Honest listing, captures, trailer | 5 | every depicted feature enabled in RC; no private or fabricated state |
+| 14 | Full RC and device matrix | 9 | SQL/edge/analyze/full Flutter; two Android classes; Safari; offline; five-match soak |
+|  | **Total** | **129** | |
 
-- **1.1.1:** Character Chapters and four chapter seals; no later than Season Zero day 21.
-- **1.1.2:** Investigation Desk.
-- **1.1.3:** Scenario Deck + House Rules, then Series + Draft.
-- **1.1.4:** Verdict share cards and expanded Season One content.
-- **Direct premium cosmetics** (`mm_reaction_plate_pack_01`, `mm_table_scene_01`, `mm_dossier_set_01`, `mm_council_bundle_01`) with their art: the first 1.1.x build that has capacity. They're out of L because in-app purchases are ≈$13.5/month per 1,000 active devices at middle, against a large art, catalogue and QA load.
+Out of L (they keep their contracts below and ship later): the rematch vote (the existing rematch stays), creator/viewer codes, founder milestone automation, Daily Case streak-save and extra clue. The basic founder seal stays at L.
 
-Each 1.1.x item remains OFF until its full gates pass. A cut feature is absent from launch copy and screenshots; it is never shipped half-finished.
+### Roadmap after L
+
+Every row stays OFF until its full gates pass. A cut feature is absent from launch copy and screenshots; it is never shipped half-finished.
+
+- **1.1.1 — Characters and competitive choice:** Character Chapters + four chapter seals (no later than Season Zero day 21); F20 Thursday Partner letter; F21 witness-knowledge setting; F22 last words (if its atomic voice/witness gate passes); the lobby voice self-test.
+- **1.1.2 — Learning and cast:** Investigation Desk; the Gang as Academy/example characters; streak-save only if missed-day cohort data justifies it; an extra narrator personality only after F16 fatigue data.
+- **1.1.3 — Better tables:** Scenario Deck + House Rules, Series + Draft; family-pace preset; F23 same-room phones v0; table-face portraits after suspect-art consistency tests.
+- **1.1.4 — The argument after the game:** verdict sharing; F24 match chronicle + «من حكايات الراوي»; F25 settled vote timeline; post-result reactions; session-scoped local evening score; Season One content.
+- **Later 1.1.x:** additional scheduled nights (F26) only after density gates; creator/viewer codes if evidence supports them; founder milestone automation; the extra clue; the rematch vote; additional narrator packs; direct premium cosmetics (`mm_reaction_plate_pack_01`, `mm_table_scene_01`, `mm_dossier_set_01`, `mm_council_bundle_01`) with their art. Purchases are ≈$13.5/month per 1,000 active devices at middle, against a large art, catalogue and QA load.
+- **1.2 — «قعدة من غير تمرير»:** the dedicated public-display Table Link v1; the authored «بروفة مع الشلة»; Partner content set 2; Proverb Bluff and safe party modifiers; voice reliability. No full bots until simulation benchmarks pass.
+- **1.3 — Bigger public table:** public-snapshot big-screen; a delayed creator spectator pilot without chat; creator tooling; platform expansion.
+- Full bots and experimental roles come later than 1.3. The Jester and a trial phase are rejected.
 
 ## 3. Economy, entitlements, ads and planning totals
 
@@ -273,7 +290,7 @@ Tables: series, members, candidates, votes, games. Best-of-3 first 2; first-to-3
 - **Ready:** `room_players.lobby_ready`, pre-deal only. All connected + ≥5 before host starts 3s countdown. Roster/rules/preset/series changes increment revision and clear readiness; cosmetics do not. Away cannot remain ready. At five ready, each unready public-matchmaking seat gets one 45s deadline/revision; expiry removes only there. Private/invite marks expired for host action.
 - **Host handoff:** existing atomic handoff; public line; configuration/readiness survive.
 - **Reconnect:** 0–6s neutral strip; >6s persistent generic surface; >15s manual retry. Freeze duplicate submissions, preserve last safe snapshot, same urgency every role/phase, no auto-abandon.
-- **Rematch:** result-only `room_rematch_votes`. Show yes count only. Fixed connected/non-kicked roster 30s; threshold `max(3,ceil(roster×0.6))`; one receipt creates next room; lowest-seat yes voter hosts if needed; scenario/series survives.
+- **Rematch vote (later 1.1.x; the existing host rematch ships at L):** result-only `room_rematch_votes`. Show yes count only. Fixed connected/non-kicked roster 30s; threshold `max(3,ceil(roster×0.6))`; one receipt creates next room; lowest-seat yes voter hosts if needed; scenario/series survives.
 
 Gate publication/phase allowlists, revision, public/private expiry, simultaneous start/leave/kick, handoff, reconnect every private phase/process death, rematch race.
 
@@ -350,13 +367,69 @@ Decoded resident ≤48MB. First launch only: idle pass reads compressed bytes fo
 
 Gates on 2–3GB Android: first tappable p95 ≤2.5s; later ≤1.2s; update ≤1.8s; no tap delay >1.5s; warm RSS +≤35MB. Auth/capabilities/Home bootstrap parallel with non-blocking timeout.
 
+### F15 — Big-table speed for القعدة (L)
+
+The privacy barrier stays: hold-to-reveal, automatic conceal and a confirmed hidden state. «جاهز؟» never replaces it. Targets at 10 and 15 players: median hand-off ≤ 6 s, p95 ≤ 12 s; full 15-player assignment ≤ 100 s; night p90 ≤ 4 min; observer role guesses at chance in recorded trials. Gate: timed device tests at 10/15 players.
+
+### F16 — «صوت الراوي»: spoken narrator and tabletop layout (L)
+
+- **Scope:** pass-and-play public-table beats only (night falls, morning, discussion, vote open, vote result, win). Never while a player holds the phone privately; never during hand-off, reveal or night actions. Online narration waits for a proven host-broadcast/ducked design.
+- **Content:** one free voice at L. Several takes per beat, never the same line twice in a row. Text stays authoritative; independent voice/SFX volume. It is the same Narrator as the marketing videos.
+- **Production:** pre-rendered offline audio. Archive per batch the voice ID, generation date, applicable terms, authored scripts and the disclosure decision. Loudness normalisation, silence trims, ducking against SFX, interruption/resume behaviour.
+- **Listener gate:** 12 Egyptian listeners (ages 15–60, Cairo + ≥ 1 other governorate), blind. Rated separately as natural (≥ 9/12) and not cringe (≥ 9/12). No subgroup below 2/3. ≥ 75% intelligibility in a noisy room. "Would you keep this on after ten matches?" ≥ 8/12. After launch: < 20% disable it after three local matches. A voice that fails stays out, even if technically complete. The owner approves tone and pronunciation.
+- **Tabletop layout:** public-table phases only. Large design-token type (system text scale stays locked), high contrast, a timer ring readable at 1–2 m. Never persists into hand-off, reveal or night.
+- **Personalities** (later 1.1.x): authored performances. Humour lives in writing and timing, not a caricatured voice; «المذيع» never imitates a real commentator. Each pack passes the same gate.
+
+### F17 — «وضع العيلة» (L)
+
+An immutable room/session preset chosen before the deal, remembered locally per host. It disables the reaper motion, harsh cues and horror copy for everyone at the table. It is never per-role or mid-match. It does not claim the online environment is child-safe.
+
+### F18 — Narrated how-to scenes (L)
+
+Three skippable 15–20 s scenes: deal/privacy, night and public morning, discussion and vote. The Gang demonstrates; F16 narrates. The first scene is offered in context; the full guide stays in Learn. Never a forced film.
+
+### F19 — Signature presentation (L)
+
+- **Reveal:** after the public result only, each player's painted role figure rises behind their name/portrait (existing portraits + `FeatheredArt`). No role-specific loading, sound or animation before the result is published.
+- **Motif:** "the character behind you" is the non-live visual signature. It is used in the reveal, Profile, the Partner pick, share images and store screenshots. It is never used in role reveal, hand-off, night seats or any phase where art or loading could correlate with a role.
+- **Sonic mark:** one short master motif (a lamp click + card flip), shared with the marketing videos. No sound while a player privately holds the device. On web, only after user interaction. No role variants.
+- **Partner at the table:** lobby plate and post-result only. Partner assets are absent from the live-match import closure, not merely hidden.
+
+### F20 — Thursday Partner letter (1.1.1)
+
+Completed public-week aggregates only (cases solved, matches finished, titles earned). One pull a week from Home, a broad authored bank, and never shaming inactivity.
+
+### F21 — Witness-knowledge room setting (1.1.1)
+
+«الميتين يشوفوا الأدوار؟» defaults to ON (the owner's decision). It is immutable after the deal and shown in the lobby summary. OFF is enforced at the server: `witness_view` publishes no roles or night actions, and the ghost chat receives public state only. It cannot change during a series round.
+
+### F22 — «الوصية» (1.1.1)
+
+A player eliminated by vote gets 15 s of public last words, BEFORE any public role reveal and before the dead/witness state. Online, the floor closes and voice publication updates atomically before witness access exists. Pass-and-play uses a public timer. Players may pass. Night victims get none.
+
+### F23 — Same-room phones v0 (1.1.3)
+
+Voice off, QR/web join and a same-room label. One elected audio device plays F16 for **morning, discussion, voting and result only**, never night entry or any private beat. If that device backgrounds or opens an overlay, narration fails silently and play continues. It is called «موبايلات في نفس المكان»; the full «قعدة من غير تمرير» with a dedicated display is 1.2.
+
+### F24 — Match chronicle (1.1.4)
+
+Deterministic authored templates from public deaths, public votes, days and the final revealed roles. Investigations, protection targets, whispers and every other private action are never exported, even after the match. «من حكايات الراوي» follows below the factual part: atmospheric only, with no locations, weapons, witnesses, times, traces or causes. Text first; the image comes with verdict sharing.
+
+### F25 — «مين صوّت على مين» (1.1.4)
+
+A dedicated result-only projection of settled ballots per day, honest about abstentions and revotes. The normal snapshot gains no historical votes. Secret ballots stay secret until their own resolution.
+
+### F26 — Scheduled public tables (Thursday first)
+
+A 20:45–21:15 Cairo queue. The count shown is only distinct, authenticated, recently heartbeating devices that joined. Rooms form at ≥ 5; 5–15 → one room; above 15, balanced partitions (16 → 8+8, 19 → 10+9, 29 → 15+14) and never a 1–4 orphan group. At < 5 when the window closes, three honest options: a private lobby + invite, the Daily Case, or a reminder for the next table. Other nights open only after repeated windows with 12–15 arrivals and ≥ 80% match entry. Per-day flags; an automatic operator fallback to Thursday-only.
+
 ## 5. Acquisition and launch loops P1–P12
 
 Status: **frozen**, except dependencies in §12.
 
 ### P1 Founder seal — CHANGE, then freeze
 
-Founder-only deductive help would make the universal launch case unequal. The sealed Partner letter therefore contains **lore pointing to the case theme, never eliminating a suspect or changing attempts**. Eligible pre-registered accounts receive «من الأوائل» and founder frame. Cumulative milestones: 500 → 100 coins; 2,000 → reaction pack; 5,000 → nameplate; 10,000 → frame variant. Tables: campaigns, eligibility, grants. A platform-verified founder assertion exchanges once; operator releases milestone batches. `founderGrant{assertion,requestId}` never trusts a client boolean. Reuse badge/letter paper.
+Founder-only deductive help would make the universal launch case unequal. The sealed Partner letter therefore contains **lore pointing to the case theme, never eliminating a suspect or changing attempts**. Eligible pre-registered accounts receive «من الأوائل» and founder frame. Cumulative milestones (**automation in later 1.1.x; the basic seal ships at L**): 500 → 100 coins; 2,000 → reaction pack; 5,000 → nameplate; 10,000 → frame variant. Tables: campaigns, eligibility, grants. A platform-verified founder assertion exchanges once; operator releases milestone batches. `founderGrant{assertion,requestId}` never trusts a client boolean. Reuse badge/letter paper.
 
 ### P2 «القضية الأولى» — KEEP with privacy floor
 
@@ -364,7 +437,7 @@ Server timestamps authoritative; nothing about seed/suspects/clue count/art reac
 
 ### P3 Daily Case retention — KEEP with separate denominators
 
-Streak-save/extra clue follow F2. Assisted and unassisted solve rates stay separate. Reminder has no deadline, loss, streak or currency threat.
+Streak-save and extra clue follow F2 but are **not at L**. Streak-save arrives in 1.1.2 only if missed-day cohort data justifies it; the extra clue arrives in later 1.1.x. Assisted and unassisted solve rates stay separate. Reminder has no deadline, loss, streak or currency threat.
 
 ### P4 First-launch Partner — KEEP; rename attribution
 
@@ -378,7 +451,7 @@ Triggers: lobby <5, public result, Daily Case solve, founder letter. WhatsApp fi
 
 After roles carousel, pass result may surface unclaimed existing daily ad and wheel/coffer extras, then ≤1 automatic result-exit/session inside global two/day. Never before role reveal, handoff, pre-deal or between result/carousel.
 
-### P7 Creator entitlement/viewer codes — CHANGE for revocation clarity
+### P7 Creator entitlement/viewer codes — later 1.1.x, if evidence supports them
 
 `creator_entitlements(user,campaign,status,starts,ends)` removes ads/unlocks catalogue for verified production accounts; revocable/non-transferable. `viewer_codes(code_hash,creator,expires,cap,count,status)` and redemptions grant 7 days without automatic ads, once/account; rewarded unchanged. `creatorCodeRedeem{code,requestId}` rate-limited for authenticated guests. Revocation stops new use; fraud revocation may end linked grants with audit. Counts aggregate.
 
@@ -418,14 +491,14 @@ Status: **frozen**. Every row defaults OFF/inactive.
 | `council_leaderboard_enabled` | `council.leaderboard` | rank+safety | 4 |
 | `council_invites_enabled` | `council.invites` | friends+safety | 4 |
 | `lobby_ready_enabled` | `table.ready` | safe publication | 5 |
-| `rematch_vote_enabled` | `table.rematchVote` | public result | 5 |
+| `rematch_vote_enabled` | `table.rematchVote` | public result | 1.1.x |
 | `case_of_day_enabled` | `caseOfDay` | request receipts | 6 |
 | `launch_case_enabled` | `caseOfDay.launch` | case+timestamps | 6 |
-| `case_streak_save_enabled` | `caseOfDay.streakSave` | case+rewarded | 6 |
-| `case_extra_clue_enabled` | `caseOfDay.extraClue` | case+rewarded | 6 |
+| `case_streak_save_enabled` | `caseOfDay.streakSave` | case+rewarded | 1.1.x |
+| `case_extra_clue_enabled` | `caseOfDay.extraClue` | case+rewarded | 1.1.x |
 | `daily_case_reminders_enabled` | `caseOfDay.reminders` | local opt-in | 6 |
 | `founder_enabled` + window | `founder` | verified eligibility | 7 |
-| `creator_codes_enabled` | `creatorCodes` | safety+limits | 7 |
+| `creator_codes_enabled` | `creatorCodes` | safety+limits | 1.1.x |
 | Season Zero operator active | `season.active` | explicit L timestamp | 8 |
 | `missions_enabled` | `missions` | active season+contracts | 8, same operation |
 | `titles_enabled` | `titles` | inventory | 8 |
@@ -446,6 +519,12 @@ Status: **frozen**. Every row defaults OFF/inactive.
 | `pre_match_interstitial_enabled` | `interstitial.preMatch` | — | stays OFF |
 | `session_interstitial_enabled` | `interstitial.session` | — | stays OFF at L |
 | `review_prompt_enabled` | local/remote kill | §12 dependency | 12 |
+| `spoken_narrator_enabled` | `narration.voice` | listener gate passed | 9 |
+| `family_mode_enabled` | `table.familyMode` | parity tests | 9 |
+| `witness_setting_enabled` | `table.witnessSetting` | server enforcement | 1.1.1 |
+| `last_words_enabled` | `table.lastWords` | atomic floor/witness | 1.1.1 |
+| `same_room_enabled` | `table.sameRoom` | online reliability | 1.1.3 |
+| `scheduled_tables_enabled` (per day) | `table.scheduled` | density gate | later 1.1.x |
 | `character_chapters_enabled` | `chapters` | missions+titles | 1.1.1 |
 | `academy_enabled` | `academy` | claim service | 1.1.2 |
 | `scenario_deck_enabled` | `scenarioDeck` | resolver | 1.1.3 |
@@ -580,6 +659,13 @@ Common prefix: **“Premium hand-painted Egyptian noir mobile-game illustration;
 | `pass_reaction_pack` | Pass | 1024² sprite PNG→WebP | yes/icon | new | four separate restrained noir reaction seals, no faces/text | S8 | 180KB |
 | `pass_table_scene` | Pass | 1920×1080 PNG→WebP | no/backdrop | new | moonlit council room, neutral evidence, readable empty center | S8 | 420KB |
 | `pass_premium_frame` | Pass | 1024² PNG→WebP | yes/portrait | new | empty premium frame, layered brass trail, no baked particles | S8 | 180KB |
+| `gang_hamada` | F18 | 768×1024 PNG→WebP | yes/portrait | new | canonical Gang member حمادة: young Egyptian man, anxious half-smile, casual shirt; the same face in every future use | S9 | 150KB |
+| `gang_karim` | F18 | 768×1024 PNG→WebP | yes/portrait | new | canonical Gang member كريم: suspicious easy smile, dark jacket | S9 | 150KB |
+| `gang_nada` | F18 | 768×1024 PNG→WebP | yes/portrait | new | canonical Gang member ندى: confident, notebook, «متأكدة ١٠٠٪» posture | S9 | 150KB |
+| `gang_sayed` | F18 | 768×1024 PNG→WebP | yes/portrait | new | canonical Gang member الدكتور سيد: cautious, glasses, cardigan | S9 | 150KB |
+| `gang_reda` | F18 | 768×1024 PNG→WebP | yes/portrait | new | canonical Gang member عم رضا: older man, silent, calm hands around a tea glass | S9 | 150KB |
+
+The Gang sheets (S9) are the canonical reference for both the app and the marketing videos: marketing animates these stills, so the characters are one world.
 
 Reuse without regeneration: four gallery portraits; `badge_founder`; Council ranks/contracts/seals; coins; outcome paintings; awards/reactions; seat rings/spotlights; victory emblems; onboarding; `welcome_back_card.webp`; unchanged store covers.
 
@@ -589,7 +675,9 @@ Reuse without regeneration: four gallery portraits; `badge_founder`; Council ran
 
 Status: **frozen**.
 
-Synthesize with `tool/generate_audio.py`; no speech: `casebook_wax_press`, `casebook_paper_slide`, `casebook_string_pluck`, `casebook_level_sting`, `case_accuse_gavel`, `case_wrong_crack`, `case_reveal_swell`, `chapter_envelope_open`, `chapter_seal_press`, `academy_token_place`, `academy_wrong_return`, `academy_graduation`, `share_paper_eject`, `scenario_token_drop`, `series_score_peg`, `series_final_sting`, `thursday_sting`, `title_equip`, `lobby_ready_tick`, `founder_letter_open`, `partner_pick`, `invite_seal`, `season_pass_unlock`. No cue varies by live role.
+Synthesize with `tool/generate_audio.py`; no speech: `casebook_wax_press`, `casebook_paper_slide`, `casebook_string_pluck`, `casebook_level_sting`, `case_accuse_gavel`, `case_wrong_crack`, `case_reveal_swell`, `chapter_envelope_open`, `chapter_seal_press`, `academy_token_place`, `academy_wrong_return`, `academy_graduation`, `share_paper_eject`, `scenario_token_drop`, `series_score_peg`, `series_final_sting`, `thursday_sting`, `title_equip`, `lobby_ready_tick`, `founder_letter_open`, `partner_pick`, `invite_seal`, `season_pass_unlock`, and the `brand_motif` sonic mark (F19). No cue varies by live role.
+
+**Spoken narrator (F16):** pre-rendered offline speech, one free voice at L, ~30–60 mono clips per pack (the beats × takes × outcomes), loudness-normalised and trimmed, stored under `assets/voice/<pack>/`. Provenance per batch: voice ID, date, terms, scripts, disclosure decision. Family mode (F17) uses its own softer takes for the harsh beats.
 
 | Feature | Motion |
 |---|---|
@@ -632,7 +720,7 @@ Status: **frozen**.
 | 17 | 1.1.4 Verdict + Season One | 360 | pixels/privacy/share/content-expiry rehearsal |
 | 18 | 1.1.x Direct premium cosmetics + art | 300 | inventory/provenance/surfaces; no live-seat change |
 
-The launch-critical path (rows 1–13) is ≈5,600 minutes, about 94 hours of build, before device time and rollout. It spans several working sessions.
+These are per-feature estimates. The binding launch ceiling is the §2 table: 129 hours, including the game-round additions F15–F19. It spans several working sessions.
 
 Claude owns every file: `supabase/**`, generators, edge contracts and backend tests, `lib/**`, Dart tests, ARBs/l10n, tokens, routes, `pubspec`, asset constants and final Arabic. Sol critiques each plan before it is built and generates images through its Codex session with a low-cost image model. Art lands in `raw_assets/update11/**` until approval, and Claude alone registers accepted assets. Audio is isolated. Each row passes its gate before merge. No concurrent `flutter test`.
 
@@ -704,38 +792,48 @@ Share hooks: lobby shortage, public result, case grid, founder letter, Thursday 
 
 Launch-week night: 5–10 Egyptian micro-creators/board-game communities, Thursday 21:00 Cairo (inside «ليلة الخميس»), playing the game rather than presenting offers, three tables, two moderators, safety briefing, invite kit, no reward for positive reviews.
 
-### Risk register
+### Pre-mortem and kill gates
 
-| Risk | Likelihood/impact | Mitigation | Owner |
-|---|---|---|---|
-| Hidden-info regression | low/critical | Doc05 closure + payload allowlists | Claude; Sol critiques |
-| Lost/duplicate weak-network action | medium/critical | stable receipts/replay | Claude |
-| First-open jank/OOM | medium/high | staged decode/sweep/device p95 | Claude |
-| Reward abuse/inflation | medium/high | shared caps/simulation/alerts | Claude |
-| Empty rooms | high/high | invites, Thursday, honest counts | product |
-| Harassment growth | medium/high | universal block, queue/SLA | owner |
-| Season content gap | medium/high | day-14 brief/day-21 build | Claude; Sol critiques |
-| Ad density retention loss | medium/high | model-1 caps/cohorts/rollback | owner |
-| Entitlement mismatch | low/critical | provenance + drills | Claude |
-| Scope harms quality | high/high | L/1.1.x boundary; cut, never half-ship | owner |
+"It is L+30 and the game has failed." Ranked by likelihood × impact. Every gate needs a minimum sample and a mode-specific denominator; percentiles, not averages.
+
+| Rank | Failure | Gate |
+|---:|---|---|
+| 1 | Scope produces a late, inconsistent release | feature freeze ≥ 14 days before RC; ≥ 20% integration reserve; no launch copy/art before a feature's end-to-end gate; unfinished rows removed, not left visibly disabled |
+| 2 | Public rooms stay empty | at ≥ 100 queue sessions: p50 wait ≤ 3 min, p90 ≤ 6 min, ≥ 70% enter a match, ≤ 20% abandon before placement, no 1–4 orphan groups; if failed, the public queue stays secondary to invites |
+| 3 | The first large القعدة is slow or confusing | F15 targets; ≥ 30% start another local match initially |
+| 4 | A leakage defect or a credible rumour | private-payload allowlists; import-closure tests; per-role visual/timing recordings; 20 observer trials at chance; incident classification ≤ 4 h; a confirmed exploit pauses the mode |
+| 5 | Low-end jank or OOM | on two 2–3 GB devices: crash-free ≥ 99.5%, ANR < 0.5%, stage-0 p95 ≤ 1.2 s, no private-phase frame > 250 ms from asset decode, five matches without monotonic memory growth |
+| 6 | Voice connects but is unusable | connection ≥ 95%; p95 setup ≤ 8 s; unrecovered mid-match drop < 5% of matches; recovery ≤ 15 s; completion within 5 points with voice broken |
+| 7 | Toxic public rooms | reports per 1,000 public matches; median review < 24 h during rollout; zero rematch/invite/friend across a block; repeat-offender rate; severe reports triaged before wider rollout |
+| 8 | Lone installers do nothing meaningful | organic lone installs (≥ 1,000 devices): ≥ 60% complete one meaningful action on D0; Case, lobby and invite reported separately; D1 ≥ 25% is an assumption until cohorts exist |
+| 9 | Monetization pressure damages play | result-exit abandonment, next-match rate, session length and D1/D7 by actual ad exposure; investigate if exposed D7 is > 3 points below matched unexposed cohorts |
+| 10 | The Four become a decorative menu | ≥ 30% of D7 players open a dossier; ≥ 20% revisit Partner content; ≥ 4 weeks of non-repeating lines per character at launch cadence |
+| 11 | Art is polished but emotionally wrong | blind test with 12–20 target players: ≥ 75% name the intended mood; no recurring anatomy/cultural complaint; every recurring face passes side-by-side consistency |
+| 12 | Dead-to-living collusion in competitive rooms | F21 server test; setting adoption measured; competitive complaints tagged; external communication is an accepted residual risk |
+| 13 | Matches become too long | p90 ≤ 35 min for the standard 8-player preset; < 5% voluntary mid-match departure unrelated to network; one defence ritual only; last words fixed at 15 s |
+| 14 | A host/network failure leaves an unrecoverable room | chaos suite across every phase (host kill, process death, duplicate action, lost response, reconnect): zero divergent outcomes, ≥ 95% resume, no acknowledged action lost |
+| 15 | The narrator is embarrassing or exhausting | the F16 listener gate; < 20% disable after three local matches |
+| 16 | Too many options fracture comprehension | a new host makes a valid room in ≤ 45 s without help; ≥ 80% use a preset unchanged; ≤ 3 primary choices per entry screen; incompatible combinations rejected before creation |
+| 17 | Same-room mode excludes the groups it should help | lobby → five joined → match started ≥ 50%, and median setup ≤ 3 min, or it is not promoted over pass-and-play |
+
+Operational risks carried from earlier rounds: weak-network receipts (Claude), reward abuse via caps/simulation/alerts (Claude), entitlement mismatch via provenance and drills (Claude), a season content gap via the day-14 brief / day-21 build (Claude; Sol critiques).
 
 ### Roadmap
 
-| Release | Headline | Scope |
-|---|---|---|
-| 1.1.x | Complete the Casebook | Chapters, Academy, Deck/Rules, Series/Draft, verdict, Season One |
-| 1.2 | «سهرة جاهزة» candidate | Proverb Bluff, safe modifiers, whitelist Group Book, partner set 2, lobby flavour, voice reliability, Membership only with 3 months ready |
-| 1.3 | Bigger table | iOS, public-snapshot big-screen/spectating, creator tools; no local TV without proof |
-| 1.4 | Role research | limited Mayor prototype under Doc09/11; Storyteller research only |
-| 2.0 | Community at scale | moderated crews, tournaments, regional copy packs, mature live ops |
-
-No Group Book/anniversaries in 1.1, no Coffeehouse league, no fifth role before 1.4 proof.
+The ordered roadmap lives in §2 "Roadmap after L". Beyond it: 1.4, role research (a limited Mayor prototype under Doc 09/11; Storyteller research only); 2.0, community at scale (moderated crews, tournaments, regional copy packs, mature live ops). No Group Book or anniversaries in 1.1, no Coffeehouse league, no fifth role before 1.4 proof.
 
 ## 12. Owner decisions still open
 
-Status: **owner decision pending**.
+Status: **owner decision pending**. Each has a recommended default.
 
-1. **Install-referrer dependency for `/p/<character>` attribution. Recommendation: approve only if proof adds <150ms cold-start p95 and stores no raw referrer; otherwise App Links alone.** Partner selection does not depend on it.
-2. **Play in-app review dependency. Recommendation: approve.** Trigger after third clean completed match or third solved case, ≤1/90d, remote-killable and never reward-coupled.
+1. **Install-referrer dependency** for `/p/<character>` attribution. Recommendation: approve only if the proof adds < 150 ms cold-start p95 and stores no raw referrer; otherwise App Links alone. Partner selection does not depend on it.
+2. **Play in-app review dependency.** Recommendation: approve. Trigger after the third clean completed match or third solved case, ≤ 1 per 90 days, remote-killable, never reward-coupled.
+3. **Streak-save timing.** Recommendation: 1.1.2, and only if missed-day cohort data justifies it. It is not the only D7 protection.
+4. **The witness-knowledge setting (F21).** Recommendation: ship in 1.1.1, default ON (your decision stands), immutable after the deal, enforced by the server when OFF.
+5. **Family mode (F17) default.** Recommendation: the standard presentation stays the default; family mode is a one-tap preset remembered per host.
+6. **Same-room v0 naming (F23).** Recommendation: «موبايلات في نفس المكان». Promise QR entry and no hand-offs; don't promise spoken night narration.
+7. **Voice acceptance (F16).** Recommendation: approve only if it passes the naturalness, cringe, intelligibility and fatigue gates. A failed voice stays out.
+8. **The launch ceiling.** Recommendation: freeze 129 h with a 14-day feature freeze. Overruns cut the lowest unfinished row; the RC date doesn't move.
+9. **Viewer codes move out of L.** Your «one week» decision stands for when they ship (later 1.1.x). At L, creators still host private rooms and play; they just have no code to give.
 
-Local notifications, economy option C, Season Pass, Quiet Pass, P1–P8/P10–P12, ad model 1, the L/1.1.x boundary, the total-income target and the strength-first listing are frozen, not open questions. Round 10b (sign-off) closed this file.
+Frozen, not open: local notifications, economy option C, Season Pass, Quiet Pass, P1–P12 as amended, ad model 1, the total-income target, the strength-first listing, the §2 launch list and the roadmap. Game rounds 1–2 (Sol: "GAME PLAN CLOSED") closed this file.
