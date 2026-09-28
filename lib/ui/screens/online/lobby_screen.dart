@@ -27,6 +27,8 @@ import 'room_invite.dart';
 import '../../economy/cosmetic_paint.dart';
 import '../../economy/cosmetics.dart';
 import '../setup/coin_store.dart';
+import '../../economy/vault_kit.dart'
+    show ClaimedMark, VaultBar, VaultPress, vaultGoldStyle;
 import '../../theme/design_tokens.dart';
 import '../../widgets/player_avatar.dart';
 import 'council/council_band.dart';
@@ -703,26 +705,60 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
                                       children: [
+                                        // F8 Ready, in the vault's hand: a
+                                        // struck-gold press until you are
+                                        // ready, then the gold mark with a
+                                        // quiet way back; the room's count
+                                        // as a metal bar under it.
                                         if (lobbyReadyEnabled &&
-                                            snapshot != null)
-                                          OutlinedButton.icon(
-                                            key: LobbyScreen.readyButton,
-                                            onPressed: session.busy
-                                                ? null
-                                                : () => _setReady(!viewerReady),
-                                            icon: Icon(
-                                              viewerReady
-                                                  ? Icons.check_circle
-                                                  : Icons.circle_outlined,
+                                            snapshot != null) ...[
+                                          if (viewerReady)
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                ClaimedMark(
+                                                  l10n.lobbyReadyAction,
+                                                ),
+                                                SizedBox(width: spacing.sm),
+                                                TextButton(
+                                                  key: LobbyScreen.readyButton,
+                                                  onPressed: session.busy
+                                                      ? null
+                                                      : () => _setReady(false),
+                                                  child: Text(
+                                                    l10n.lobbyUnreadyAction,
+                                                    style: type.caption
+                                                        .copyWith(
+                                                          color: colors
+                                                              .textSecondary,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          else
+                                            VaultPress(
+                                              child: TextButton(
+                                                key: LobbyScreen.readyButton,
+                                                style: vaultGoldStyle(context),
+                                                onPressed: session.busy
+                                                    ? null
+                                                    : () => _setReady(true),
+                                                child: Text(
+                                                  l10n.lobbyReadyAction,
+                                                  style: type.title,
+                                                ),
+                                              ),
                                             ),
-                                            label: Text(
-                                              viewerReady
-                                                  ? l10n.lobbyUnreadyAction
-                                                  : l10n.lobbyReadyAction,
-                                            ),
+                                          SizedBox(height: spacing.sm),
+                                          VaultBar(
+                                            value: connectedSeats.isEmpty
+                                                ? 0
+                                                : readySeats.length /
+                                                      connectedSeats.length,
                                           ),
-                                        if (lobbyReadyEnabled &&
-                                            snapshot != null)
+                                          SizedBox(height: spacing.xs),
                                           Text(
                                             l10n.lobbyReadyCount(
                                               readySeats.length,
@@ -733,6 +769,8 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                               color: colors.textSecondary,
                                             ),
                                           ),
+                                          SizedBox(height: spacing.md),
+                                        ],
                                         if (isHost)
                                           FilledButton(
                                             key: LobbyScreen.startButton,
