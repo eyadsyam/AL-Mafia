@@ -262,6 +262,22 @@ class _SafetyAdminScreenState extends ConsumerState<SafetyAdminScreen> {
     };
   }
 
+  String _statusLabel(Object? status) {
+    final l = context.l10n;
+    return switch (status) {
+      'actioned' => l.adminSafetyActioned,
+      'dismissed' => l.adminSafetyDismissed,
+      _ => l.adminSafetyOpen,
+    };
+  }
+
+  String _when(Object? iso) {
+    final at = DateTime.tryParse(iso is String ? iso : '')?.toLocal();
+    if (at == null) return '';
+    final m = MaterialLocalizations.of(context);
+    return '${m.formatMediumDate(at)} ${m.formatTimeOfDay(TimeOfDay.fromDateTime(at))}';
+  }
+
   String _contextLabel(Object? name) {
     final l = context.l10n;
     return switch (name) {
@@ -321,7 +337,7 @@ class _SafetyAdminScreenState extends ConsumerState<SafetyAdminScreen> {
             style: context.typography.body,
           ),
         Text(
-          '${r['status']} · ${r['createdAt']}',
+          '${_statusLabel(r['status'])} · ${_when(r['createdAt'])}',
           style: context.typography.caption.copyWith(
             color: context.colors.textMuted,
           ),

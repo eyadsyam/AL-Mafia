@@ -4616,7 +4616,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String witnessWhisperLine(String from, String to) {
-    return '$from ← $to';
+    return '$from همس لـ$to';
   }
 
   @override

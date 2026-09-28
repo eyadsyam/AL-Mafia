@@ -2807,7 +2807,7 @@
   "adminSafetyMore": "Load more",
   "adminSafetyOpenQueue": "Reports queue",
   "witnessWhispersTitle": "Whispers",
-  "witnessWhisperLine": "{from} → {to}",
+  "witnessWhisperLine": "{from} to {to}",
   "@witnessWhisperLine": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
   "witnessWhisperMasked": "Hidden: you blocked the sender.",
   "witnessWhisperReport": "Report this whisper",

@@ -7955,7 +7955,7 @@ abstract class AppLocalizations {
   /// No description provided for @witnessWhisperLine.
   ///
   /// In en, this message translates to:
-  /// **'{from} → {to}'**
+  /// **'{from} to {to}'**
   String witnessWhisperLine(String from, String to);
 
   /// No description provided for @witnessWhisperMasked.

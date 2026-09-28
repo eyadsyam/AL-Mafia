@@ -141,6 +141,14 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
                     style: type.bodySmall.copyWith(color: colors.textMuted),
                     textAlign: TextAlign.center,
                   ),
+                  // F21a: the same line for every writer, from the first step.
+                  if (widget.witnessed)
+                    Text(
+                      key: WhisperComposeScreen.disclosure,
+                      l10n.witnessWhispersDisclosure,
+                      style: type.caption.copyWith(color: colors.accentGold),
+                      textAlign: TextAlign.center,
+                    ),
                   SizedBox(height: spacing.md),
                   Expanded(
                     child: _to == null
@@ -259,12 +267,6 @@ class _WhisperComposeScreenState extends State<WhisperComposeScreen> {
           ),
           textAlign: TextAlign.end,
         ),
-        if (widget.witnessed)
-          Text(
-            key: WhisperComposeScreen.disclosure,
-            context.l10n.witnessWhispersDisclosure,
-            style: type.caption.copyWith(color: colors.textMuted),
-          ),
       ],
     );
   }

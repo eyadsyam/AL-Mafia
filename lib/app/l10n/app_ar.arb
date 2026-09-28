@@ -1812,7 +1812,7 @@
   "adminSafetyMore": "اعرض أكتر",
   "adminSafetyOpenQueue": "طابور البلاغات",
   "witnessWhispersTitle": "الهمسات",
-  "witnessWhisperLine": "{from} ← {to}",
+  "witnessWhisperLine": "{from} همس لـ{to}",
   "@witnessWhisperLine": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
   "witnessWhisperMasked": "مخفية: إنت عامل بلوك للي بعتها.",
   "witnessWhisperReport": "بلّغ عن الهمسة دي",

@@ -4703,7 +4703,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String witnessWhisperLine(String from, String to) {
-    return '$from → $to';
+    return '$from to $to';
   }
 
   @override
