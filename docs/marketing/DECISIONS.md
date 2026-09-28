@@ -73,3 +73,32 @@ Settled in the grilling session that started 2026-09-26. Terms per `CONTEXT.md`.
 | 39 | Corner pips: the four small crosses become **small stethoscopes**, same size, place and tone. |
 
 **Frontier empty — shared understanding reached 2026-09-27.** Next: `PLAN.md`, then «ابدأ شغل».
+
+## Round 7 — the debate (2026-09-28)
+
+Four rounds between this session and the 1.1 planning session, plus owner answers
+relayed from there. Supersedes `PLAN.md` with `PLAN-V3.md`, `CONTENT-SYSTEM.md`,
+`LAUNCH-RUNBOOK.md`. "Owner" = decided by the owner; "Debate" = agreed by both sessions,
+still inside the owner's standing rules; "Open" = listed in PLAN-V3 §10.
+
+| # | Decision | Source |
+|---|---|---|
+| 4′ | **Revises 4:** the goal is month-1 income. Target = **AdMob alone ≥ $100**. DAU and online matches are the operating metrics; installs are the leading indicator. | Owner (D2 + priority message) + Debate |
+| 18′ | **Revises 18:** launch on **1.1**, the first public release. 1.0.x stays in closed testing. L-day = 1.1 live in production. | Owner (D1) |
+| 3″ | Egyptian Arabic only still holds for content. The Play listing also gets an English localization for search only. | Debate |
+| 6′ | **Hard condition:** 100% of content is AI video. The only real footage is the real-app end card (2–3 s; 4–5 s in feature spotlights, if the owner allows). | Owner |
+| 10′ | Platforms: Facebook, Instagram, TikTok; **YouTube Shorts added if the owner agrees**. | Open |
+| 21″ | **Revises 21′:** Hailuo 2.3 Standard i2v for volume, Kling 3.0 Standard for four reusable hero loops, Seedance 2.5 for the date trailer, Soul 2 for stills, Grok Imagine 2.0 edit for the Doctor card. **Azure AI Speech F0** replaces Edge TTS (licensed). Final split only after a $2 bake-off. | Debate |
+| 40 | Budget: ~$22.5 production built as a reusable **shot library**, ~$7.5 paid in two conditional tranches (Meta boosts; TikTok Promote ≤ $3/day). TikTok Ads Manager is out ($50/day minimum). | Debate (revises owner D3) |
+| 41 | Content = standalone shorts in six pillars P1–P6; the daily case is one pillar. | Owner message + Debate |
+| 42 | Cast: the Four **write, never speak**; the Narrator is the only voice; the Gang carries comedy through stills, no lip-sync. Spoiler rule: tier-3/4 bond lines and letters are app-exclusive. | Debate |
+| 43 | YouTuber reference: generic wording only («اليوتيوبرز», «١٤ على ترابيزة واحدة»). No names, footage, faces or hashtags of real people. Cold Creator-room DMs to their teams. | Debate |
+| 44 | Launch window: L = the earliest Thursday that is ≥ T+42, approved under managed publishing, and outside Jan 3–22. Ramadan is the first live event, not the launch. | Debate (owner confirms) |
+| 45 | Pre-registration opens only after production access, and only if the 1.1 ETA is ≤ 60 days away. Reward = the **founder seal** (one lifetime product, server grant, letter with an extra clue to «القضية الأولى»). Milestones 500 / 2k / 5k / 10k as server grants. | Debate (verified gate) |
+| 46 | **Publish at 16:00** on L (Thursday); finale 20:00; first «ليلة الخميس» 21:00. Never announce a date before approval. | Debate |
+| 47 | Approvals twice a day: **11:00** content, **21:30** replies and urgent trend-jacks. The 09:00 trend radar is Claude's. | Debate (extends 31/36) |
+| 35′ | **Revises 35:** the viewer code removes forced ads for **one week**. Creator accounts (#30/#34) unchanged. | Owner (D6) |
+| 48 | Additions approved by the owner: WhatsApp channel, character sticker packs, in-app «ابعت للشلة». | Owner (D4) |
+| 49 | Attribution: Play Install Referrer on every link; four side links pre-select «شريكك»; a first-launch partner prompt is the must, the pre-select a bonus. | Debate |
+| 50 | Loop counters are server-side, anonymous and aggregate; no third-party analytics SDK. | Debate |
+| 51 | Ad mediation / bidding partners parked to 1.1.x. | Debate (owner confirms) |
