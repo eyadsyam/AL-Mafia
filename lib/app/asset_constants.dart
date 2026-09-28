@@ -136,18 +136,42 @@ abstract final class AppIcons {
 
 /// Table cues. Never played while the phone is in a player's hand — see AudioDirector.
 abstract final class AppAudio {
+  static const String academyGraduation = 'assets/audio/academy_graduation.ogg';
+  static const String academyTokenPlace = 'assets/audio/academy_token_place.ogg';
+  static const String academyWrongReturn = 'assets/audio/academy_wrong_return.ogg';
+  static const String brandMotif = 'assets/audio/brand_motif.ogg';
   static const String cardFlip = 'assets/audio/card_flip.ogg';
+  static const String caseAccuseGavel = 'assets/audio/case_accuse_gavel.ogg';
+  static const String caseRevealSwell = 'assets/audio/case_reveal_swell.ogg';
+  static const String caseWrongCrack = 'assets/audio/case_wrong_crack.ogg';
+  static const String casebookLevelSting = 'assets/audio/casebook_level_sting.ogg';
+  static const String casebookPaperSlide = 'assets/audio/casebook_paper_slide.ogg';
+  static const String casebookStringPluck = 'assets/audio/casebook_string_pluck.ogg';
+  static const String casebookWaxPress = 'assets/audio/casebook_wax_press.ogg';
+  static const String chapterEnvelopeOpen = 'assets/audio/chapter_envelope_open.ogg';
+  static const String chapterSealPress = 'assets/audio/chapter_seal_press.ogg';
   static const String confrontationSwell = 'assets/audio/confrontation_swell.ogg';
   static const String deathTear = 'assets/audio/death_tear.ogg';
   static const String eliminationReveal = 'assets/audio/elimination_reveal.ogg';
+  static const String founderLetterOpen = 'assets/audio/founder_letter_open.ogg';
+  static const String inviteSeal = 'assets/audio/invite_seal.ogg';
   static const String joinChime = 'assets/audio/join_chime.ogg';
   static const String leaveChime = 'assets/audio/leave_chime.ogg';
+  static const String lobbyReadyTick = 'assets/audio/lobby_ready_tick.ogg';
   static const String morning = 'assets/audio/morning.ogg';
   static const String nightFalls = 'assets/audio/night_falls.ogg';
+  static const String partnerPick = 'assets/audio/partner_pick.ogg';
+  static const String scenarioTokenDrop = 'assets/audio/scenario_token_drop.ogg';
   static const String scoreLoop = 'assets/audio/score_loop.ogg';
+  static const String seasonPassUnlock = 'assets/audio/season_pass_unlock.ogg';
+  static const String seriesFinalSting = 'assets/audio/series_final_sting.ogg';
+  static const String seriesScorePeg = 'assets/audio/series_score_peg.ogg';
+  static const String sharePaperEject = 'assets/audio/share_paper_eject.ogg';
   static const String speakerChange = 'assets/audio/speaker_change.ogg';
+  static const String thursdaySting = 'assets/audio/thursday_sting.ogg';
   static const String timerEnd = 'assets/audio/timer_end.ogg';
   static const String timerWarning = 'assets/audio/timer_warning.ogg';
+  static const String titleEquip = 'assets/audio/title_equip.ogg';
   static const String voteTick = 'assets/audio/vote_tick.ogg';
   static const String whisperReceive = 'assets/audio/whisper_receive.ogg';
   static const String whisperSend = 'assets/audio/whisper_send.ogg';
@@ -155,18 +179,42 @@ abstract final class AppAudio {
 
   /// Every asset in this group, for preloading and for the manifest test.
   static const List<String> values = <String>[
+    academyGraduation,
+    academyTokenPlace,
+    academyWrongReturn,
+    brandMotif,
     cardFlip,
+    caseAccuseGavel,
+    caseRevealSwell,
+    caseWrongCrack,
+    casebookLevelSting,
+    casebookPaperSlide,
+    casebookStringPluck,
+    casebookWaxPress,
+    chapterEnvelopeOpen,
+    chapterSealPress,
     confrontationSwell,
     deathTear,
     eliminationReveal,
+    founderLetterOpen,
+    inviteSeal,
     joinChime,
     leaveChime,
+    lobbyReadyTick,
     morning,
     nightFalls,
+    partnerPick,
+    scenarioTokenDrop,
     scoreLoop,
+    seasonPassUnlock,
+    seriesFinalSting,
+    seriesScorePeg,
+    sharePaperEject,
     speakerChange,
+    thursdaySting,
     timerEnd,
     timerWarning,
+    titleEquip,
     voteTick,
     whisperReceive,
     whisperSend,
