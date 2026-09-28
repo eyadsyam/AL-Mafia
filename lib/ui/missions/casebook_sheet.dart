@@ -7,7 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../../app/asset_constants.dart';
 import '../../app/l10n/app_localizations.dart';
 import '../../engine/models/enums.dart' hide Alignment;
-import '../economy/mafia_coin.dart';
+import '../economy/council_art.dart';
+import '../economy/vault_kit.dart';
 import '../fun/character_dossiers.dart';
 import '../l10n_ext.dart';
 import '../theme/design_tokens.dart';
@@ -41,6 +42,18 @@ String caseLine(AppLocalizations l, String metric, int target) =>
       'season_level' || 'level' => l.caseLevel(target),
       _ => l.caseFinish(target),
     };
+
+/// The Council's contract art that stands for a case [metric] inside its
+/// seal on the record wall.
+String _sealArt(String metric) => switch (metric) {
+  'win' => 'win',
+  'host' => 'host',
+  'reunion' || 'invite_joined' || 'invite' => 'reunion',
+  'public_room' || 'public' => 'town',
+  'daily_all' || 'dailies' => 'bonus_all3',
+  'streak_days' || 'streak' || 'season_level' || 'level' => 'weekly',
+  _ => 'finish',
+};
 
 Color casebookRoleColor(BuildContext context, Role role) {
   final colors = context.colors;
@@ -99,13 +112,18 @@ class _CasebookSheetState extends ConsumerState<CasebookSheet> {
     final s = context.spacing;
     final colors = context.colors;
     final type = context.typography;
+    final reduce = MediaQuery.disableAnimationsOf(context);
     final controller = ref.read(casebookProvider.notifier);
 
     final Widget body;
     if (book == null) {
       body = async.hasError
-          ? _Failed(onRetry: controller.refresh)
-          : const Center(child: CircularProgressIndicator());
+          ? VaultRetry(
+              message: l.casebookFailed,
+              action: l.casebookRetry,
+              onRetry: controller.refresh,
+            )
+          : const VaultSkeleton();
     } else {
       body = switch (_page) {
         0 => _TonightPage(
@@ -134,54 +152,10 @@ class _CasebookSheetState extends ConsumerState<CasebookSheet> {
       };
     }
 
-    final season = book?.season;
     return SafeArea(
       child: Column(
         children: [
-          // The case room itself, dissolving into the sheet: no header bar.
-          SizedBox(
-            height: CasebookTokens.heroHeight,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                FeatheredArt(
-                  feather: Feather.banner,
-                  child: Image.asset(
-                    AppCouncilArt.backdropVerdict,
-                    fit: BoxFit.cover,
-                    excludeFromSemantics: true,
-                  ),
-                ),
-                PositionedDirectional(
-                  start: s.screenMargin,
-                  end: s.screenMargin,
-                  bottom: s.sm,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        l.casebookTitle,
-                        textAlign: TextAlign.center,
-                        style: type.headline.copyWith(
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      if (season != null && season.endsAt != null)
-                        Text(
-                          l.casebookDaysLeft(
-                            season.daysLeft(DateTime.now().toUtc()),
-                          ),
-                          textAlign: TextAlign.center,
-                          style: type.bodySmall.copyWith(
-                            color: colors.accentGold,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _Hero(season: book?.season),
           _Tabs(
             page: _page,
             ready: [
@@ -201,7 +175,7 @@ class _CasebookSheetState extends ConsumerState<CasebookSheet> {
             ),
           Expanded(
             child: AnimatedSwitcher(
-              duration: CasebookTokens.pageTurn,
+              duration: reduce ? Duration.zero : CasebookTokens.pageTurn,
               child: body,
             ),
           ),
@@ -211,28 +185,215 @@ class _CasebookSheetState extends ConsumerState<CasebookSheet> {
   }
 }
 
-class _Failed extends StatelessWidget {
-  final VoidCallback onRetry;
-  const _Failed({required this.onRetry});
+// ─── Hero ──────────────────────────────────────────────────────────────────
+
+/// The case room dissolving into the sheet, the title struck in gold, and a
+/// stamped plate: the season level on a gold disc, the days left beside it.
+class _Hero extends StatelessWidget {
+  final CaseSeason? season;
+  const _Hero({required this.season});
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+    final s = context.spacing;
+    final colors = context.colors;
+    final season = this.season;
+    return SizedBox(
+      height: CasebookTokens.heroHeight,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          Text(l.casebookFailed, style: context.typography.body),
-          SizedBox(height: context.spacing.sm),
-          OutlinedButton(onPressed: onRetry, child: Text(l.casebookRetry)),
+          FeatheredArt(
+            feather: Feather.banner,
+            child: Image.asset(
+              AppCouncilArt.backdropVerdict,
+              fit: BoxFit.cover,
+              excludeFromSemantics: true,
+            ),
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  colors.surfaceBase.withValues(alpha: 0),
+                  colors.surfaceBase.withValues(
+                    alpha: CasebookTokens.heroShade,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          PositionedDirectional(
+            start: s.screenMargin,
+            end: s.screenMargin,
+            bottom: s.sm,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Semantics(
+                  header: true,
+                  child: Text(
+                    l.casebookTitle,
+                    textAlign: TextAlign.center,
+                    style: context.typography.headline.copyWith(
+                      color: VaultTokens.goldLight,
+                    ),
+                  ),
+                ),
+                if (season != null) ...[
+                  SizedBox(height: s.xs),
+                  _SeasonPlate(season: season),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-/// Three words across the top, the open one underlined in red string, a wax
-/// dot on any page with something waiting.
+class _SeasonPlate extends StatelessWidget {
+  final CaseSeason season;
+  const _SeasonPlate({required this.season});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    // D4 — a season just begun reads «١», never «٠».
+    final level = math.max(1, season.level);
+    final ends = season.endsAt;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Semantics(
+          label: l.casebookLevel(level),
+          child: ExcludeSemantics(
+            child: LampGlow(
+              child: _GoldDisc(
+                level: level,
+                size: CasebookTokens.plateDisc,
+              ),
+            ),
+          ),
+        ),
+        if (ends != null) ...[
+          SizedBox(width: s.sm),
+          Flexible(
+            child: Container(
+              height: CasebookTokens.plateHeight,
+              padding: EdgeInsets.symmetric(horizontal: s.sm + s.xs),
+              decoration: BoxDecoration(
+                color: VaultTokens.enamel,
+                borderRadius: BorderRadius.circular(
+                  CasebookTokens.plateHeight / 2,
+                ),
+                border: Border.all(
+                  color: VaultTokens.gold.withValues(
+                    alpha: CasebookTokens.plateRimAlpha,
+                  ),
+                ),
+              ),
+              child: Align(
+                widthFactor: 1,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    l.casebookDaysLeft(
+                      season.daysLeft(DateTime.now().toUtc()),
+                    ),
+                    maxLines: 1,
+                    style: context.typography.caption.emphasised.copyWith(
+                      color: VaultTokens.goldLight,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// A struck-gold disc with a number pressed into it: the season level on
+/// the plate, a reached stop on the thread.
+class _GoldDisc extends StatelessWidget {
+  final int level;
+  final double size;
+  const _GoldDisc({required this.level, required this.size});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      gradient: const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [VaultTokens.goldLight, VaultTokens.gold, VaultTokens.goldDeep],
+      ),
+      border: Border.all(
+        color: VaultTokens.goldLight,
+        width: CasebookTokens.sealRim,
+      ),
+      boxShadow: context.elevation.level1,
+    ),
+    child: _EngravedRing(
+      color: VaultTokens.goldInk,
+      child: _Numeral(level, color: VaultTokens.goldInk),
+    ),
+  );
+}
+
+/// A hairline ring engraved just inside a disc.
+class _EngravedRing extends StatelessWidget {
+  final Color color;
+  final Widget child;
+  const _EngravedRing({required this.color, required this.child});
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.all(CasebookTokens.sealInnerInset),
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: color.withValues(alpha: CasebookTokens.sealInnerAlpha),
+          width: VaultTokens.engraveWidth,
+        ),
+      ),
+      child: Center(child: child),
+    ),
+  );
+}
+
+class _Numeral extends StatelessWidget {
+  final int value;
+  final Color color;
+  const _Numeral(this.value, {required this.color});
+
+  @override
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    child: Text(
+      '$value',
+      textDirection: TextDirection.ltr,
+      style: context.typography.title.copyWith(color: color),
+    ),
+  );
+}
+
+// ─── Tabs ──────────────────────────────────────────────────────────────────
+
+/// Three words across the top, the open one struck with a gold rule; a small
+/// gold plate counts what is waiting on each page.
 class _Tabs extends StatelessWidget {
   final int page;
   final List<int> ready;
@@ -242,79 +403,280 @@ class _Tabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final colors = context.colors;
     final type = context.typography;
+    final colors = context.colors;
     final s = context.spacing;
+    final reduce = MediaQuery.disableAnimationsOf(context);
     final labels = [l.casebookTonight, l.casebookSeason, l.casebookLegacy];
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: s.screenMargin),
-      child: Row(
-        children: [
-          for (var i = 0; i < labels.length; i++)
-            Expanded(
-              child: Semantics(
-                selected: i == page,
-                button: true,
-                child: InkWell(
-                  onTap: () => onPage(i),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minHeight: kMinInteractiveDimension,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              labels[i],
-                              style: type.title.copyWith(
-                                color: i == page
-                                    ? colors.textPrimary
-                                    : colors.textMuted,
-                              ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: VaultTokens.gold.withValues(
+                alpha: VaultTokens.engraveAlpha,
+              ),
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            for (var i = 0; i < labels.length; i++)
+              Expanded(
+                child: Semantics(
+                  selected: i == page,
+                  button: true,
+                  child: InkWell(
+                    onTap: () => onPage(i),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: kMinInteractiveDimension,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          SizedBox(height: s.sm),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  labels[i],
+                                  style: type.title.copyWith(
+                                    color: i == page
+                                        ? VaultTokens.goldLight
+                                        : colors.textMuted,
+                                  ),
+                                ),
+                                if (ready[i] > 0) ...[
+                                  SizedBox(width: s.xs),
+                                  _CountPlate(ready[i]),
+                                ],
+                              ],
                             ),
-                            if (ready[i] > 0) ...[
-                              SizedBox(width: s.xs),
-                              const _WaxDot(),
-                            ],
-                          ],
-                        ),
-                        ),
-                        SizedBox(height: s.xs),
-                        AnimatedContainer(
-                          duration: CasebookTokens.pageTurn,
-                          height: CasebookTokens.stringWidth,
-                          width: i == page ? CasebookTokens.tabRule : 0,
-                          color: colors.accentCrimson,
-                        ),
-                      ],
+                          ),
+                          SizedBox(height: s.xs),
+                          AnimatedContainer(
+                            duration: reduce
+                                ? Duration.zero
+                                : CasebookTokens.pageTurn,
+                            curve: Curves.easeOutCubic,
+                            height: CasebookTokens.tabRuleHeight,
+                            width: i == page ? CasebookTokens.tabRule : 0,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                CasebookTokens.tabRuleHeight,
+                              ),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  VaultTokens.goldDeep,
+                                  VaultTokens.goldLight,
+                                  VaultTokens.goldDeep,
+                                ],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: VaultTokens.gold.withValues(
+                                    alpha: CasebookTokens.tabGlowAlpha,
+                                  ),
+                                  blurRadius: CasebookTokens.tabGlowBlur,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class _WaxDot extends StatelessWidget {
-  const _WaxDot();
+/// «2» on a small struck-gold plate: this many things are waiting.
+class _CountPlate extends StatelessWidget {
+  final int count;
+  const _CountPlate(this.count);
 
   @override
   Widget build(BuildContext context) => Container(
-    width: CasebookTokens.waxDot,
-    height: CasebookTokens.waxDot,
-    decoration: const BoxDecoration(
-      shape: BoxShape.circle,
-      gradient: RadialGradient(
-        colors: [CouncilLifeTokens.gemLight, CouncilLifeTokens.sealOuter],
+    height: CasebookTokens.countPlate,
+    constraints: const BoxConstraints(minWidth: CasebookTokens.countPlate),
+    padding: EdgeInsets.symmetric(horizontal: context.spacing.xs),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(CasebookTokens.countPlate / 2),
+      gradient: const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [VaultTokens.goldLight, VaultTokens.gold],
       ),
+      border: Border.all(
+        color: VaultTokens.goldLight,
+        width: VaultTokens.chipRim,
+      ),
+    ),
+    alignment: Alignment.center,
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(
+        '$count',
+        textDirection: TextDirection.ltr,
+        style: context.typography.caption.emphasised.copyWith(
+          color: VaultTokens.goldInk,
+        ),
+      ),
+    ),
+  );
+}
+
+/// «3 من 5» on an enamel plate; gold once it is full.
+class _ProgressPlate extends StatelessWidget {
+  final String text;
+  final bool full;
+  const _ProgressPlate({required this.text, this.full = false});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: EdgeInsets.symmetric(horizontal: context.spacing.sm),
+    decoration: BoxDecoration(
+      color: full ? VaultTokens.gold : VaultTokens.enamel,
+      borderRadius: BorderRadius.circular(VaultTokens.chipHeight / 2),
+      border: Border.all(
+        color: full ? VaultTokens.goldLight : context.colors.borderSubtle,
+      ),
+    ),
+    child: Text(
+      text,
+      maxLines: 1,
+      style: context.typography.caption.emphasised.copyWith(
+        color: full ? VaultTokens.goldInk : context.colors.textSecondary,
+      ),
+    ),
+  );
+}
+
+// ─── Motion ────────────────────────────────────────────────────────────────
+
+/// A row rising into place once, a beat after the one above it. Still under
+/// reduced motion.
+class _Rise extends StatelessWidget {
+  final int index;
+  final Widget child;
+  const _Rise({required this.index, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return child;
+    final steps = math.min(index, CasebookTokens.riseMaxSteps);
+    final delay = CasebookTokens.riseStep * steps;
+    final total = CasebookTokens.rise + delay;
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: total,
+      curve: Interval(
+        delay.inMicroseconds / total.inMicroseconds,
+        1,
+        curve: Curves.easeOutCubic,
+      ),
+      child: child,
+      builder: (context, v, child) => Opacity(
+        opacity: v,
+        child: Transform.translate(
+          offset: Offset(0, (1 - v) * CasebookTokens.riseLift),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Claiming ──────────────────────────────────────────────────────────────
+
+/// Struck gold to take a reward; the gold check once it is taken. A case
+/// still open shows the same button as an empty slot.
+class _ClaimButton extends StatelessWidget {
+  final Key? claimKey;
+  final bool claimable;
+  final bool claimed;
+  final bool busy;
+  final bool expand;
+  final VoidCallback onClaim;
+  const _ClaimButton({
+    required this.claimKey,
+    required this.claimable,
+    required this.claimed,
+    required this.busy,
+    required this.onClaim,
+    this.expand = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    if (claimed) {
+      return SizedBox(
+        height: StoreTokens.touchTarget,
+        child: Center(child: ClaimedMark(l.casebookClaimed)),
+      );
+    }
+    final button = VaultPress(
+      child: FilledButton(
+        key: claimable ? claimKey : null,
+        style: vaultGoldStyle(
+          context,
+          minimumSize: Size(
+            expand ? 0 : CasebookTokens.claimMinWidth,
+            StoreTokens.touchTarget,
+          ),
+        ).merge(
+          FilledButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: expand ? s.xs : s.md),
+          ),
+        ),
+        onPressed: claimable && !busy ? onClaim : null,
+        child: busy
+            ? const SizedBox.square(
+                dimension: CasebookTokens.busyIndicator,
+                child: CircularProgressIndicator(
+                  strokeWidth: CasebookTokens.busyStroke,
+                  color: VaultTokens.gold,
+                ),
+              )
+            : FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(l.casebookClaim),
+              ),
+      ),
+    );
+    return expand ? SizedBox(width: double.infinity, child: button) : button;
+  }
+}
+
+class _Rewards extends StatelessWidget {
+  final int coins;
+  final int xp;
+  final bool muted;
+  const _Rewards({required this.coins, required this.xp, this.muted = false});
+
+  /// One line of chips, scaled down (never clipped) when the room is short.
+  @override
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    alignment: AlignmentDirectional.centerStart,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (coins > 0) RewardChip(coins, muted: muted),
+        if (coins > 0 && xp > 0) SizedBox(width: context.spacing.xs),
+        if (xp > 0) RewardChip(xp, muted: muted, unit: 'XP'),
+      ],
     ),
   );
 }
@@ -334,70 +696,67 @@ class _TonightPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
     final s = context.spacing;
-    final colors = context.colors;
-    final type = context.typography;
     final bonus = book.daily.bonus;
+    var row = 0;
     return ListView(
       padding: EdgeInsets.fromLTRB(
         s.screenMargin,
-        s.md,
+        s.md + CasebookTokens.portraitRise,
         s.screenMargin,
         s.xl,
       ),
       children: [
         for (final mission in book.daily.missions)
-          _CaseSlip(
-            mission: mission,
-            busy: busy == 'd${mission.slot}',
-            onClaim: () => onClaim(false, mission.slot),
+          _Rise(
+            index: row++,
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: s.sm + CasebookTokens.portraitRise,
+              ),
+              child: _CaseCard(
+                mission: mission,
+                busy: busy == 'd${mission.slot}',
+                onClaim: () => onClaim(false, mission.slot),
+              ),
+            ),
           ),
         if (bonus != null && (bonus.coins > 0 || bonus.xp > 0))
-          Padding(
-            padding: EdgeInsets.only(top: s.xs, bottom: s.md),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Text(
-                    bonus.claimed ? l.casebookBonusTaken : l.casebookBonus,
-                    style: type.bodySmall.copyWith(color: colors.textSecondary),
-                  ),
-                ),
-                SizedBox(width: s.sm),
-                _Reward(coins: bonus.coins, xp: bonus.xp),
-              ],
+          _Rise(
+            index: row++,
+            child: _BonusCard(bonus: bonus),
+          ),
+        for (final mission in book.weekly.missions)
+          _Rise(
+            index: row++,
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: s.lg + CasebookTokens.weeklyPortraitRise,
+                bottom: s.sm,
+              ),
+              child: _CaseCard(
+                mission: mission,
+                weekly: true,
+                busy: busy == 'w${mission.slot}',
+                onClaim: () => onClaim(true, mission.slot),
+              ),
             ),
           ),
-        for (final mission in book.weekly.missions) ...[
-          Padding(
-            padding: EdgeInsets.only(top: s.md, bottom: s.xs),
-            child: Text(
-              l.casebookWeekly,
-              style: type.title.copyWith(color: colors.accentGold),
-            ),
-          ),
-          _CaseSlip(
-            mission: mission,
-            weekly: true,
-            busy: busy == 'w${mission.slot}',
-            onClaim: () => onClaim(true, mission.slot),
-          ),
-        ],
       ],
     );
   }
 }
 
-/// One case: the character who hands it over stands at the edge of the
-/// slip, half inside it; the red string under the words is the progress.
-class _CaseSlip extends StatelessWidget {
+/// One case on an engraved panel: the character who hands it over stands at
+/// the edge, half inside it; the metal bar is how far; the chips are what
+/// it pays. The weekly case is lit and ribboned, its character on the other
+/// side so the ribbon has room.
+class _CaseCard extends StatelessWidget {
   final CaseMission mission;
   final bool weekly;
   final bool busy;
   final VoidCallback onClaim;
-  const _CaseSlip({
+  const _CaseCard({
     required this.mission,
     required this.busy,
     required this.onClaim,
@@ -412,295 +771,165 @@ class _CaseSlip extends StatelessWidget {
     final type = context.typography;
     final tint = casebookRoleColor(context, mission.voice);
     final done = mission.claimed;
-    return Opacity(
-      opacity: done ? CasebookTokens.doneOpacity : 1,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: s.md),
-        child: Stack(
-          clipBehavior: Clip.none,
+    final ready = mission.claimable && !done;
+    final portrait = weekly
+        ? CasebookTokens.weeklyPortraitWidth
+        : CasebookTokens.portraitWidth;
+    final rise = weekly
+        ? CasebookTokens.weeklyPortraitRise
+        : CasebookTokens.portraitRise;
+    final lift = weekly ? VaultTokens.tagLift : 0.0;
+    Widget claim({bool expand = false}) => _ClaimButton(
+      claimKey: CasebookSheet.claimKey('${weekly ? 'w' : 'd'}${mission.slot}'),
+      claimable: mission.claimable,
+      claimed: done,
+      busy: busy,
+      expand: expand,
+      onClaim: onClaim,
+    );
+    final card = VaultCard(
+      lit: ready || (weekly && !done),
+      tag: weekly ? l.casebookWeekly : null,
+      padding: EdgeInsetsDirectional.fromSTEB(
+        weekly ? s.md : portrait,
+        s.md + lift / 2,
+        weekly ? portrait : s.md,
+        s.md,
+      ),
+      children: [
+        Row(
           children: [
-            // The slip: aged paper tone, a stripe in the character's colour.
-            Container(
-              margin: const EdgeInsetsDirectional.only(
-                start: CasebookTokens.slipInset,
-              ),
-              padding: EdgeInsetsDirectional.fromSTEB(
-                CasebookTokens.portraitWidth - CasebookTokens.slipInset + s.sm,
-                s.md,
-                s.md,
-                s.md,
-              ),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: AlignmentDirectional.centerStart,
-                  end: AlignmentDirectional.centerEnd,
-                  colors: [
-                    tint.withValues(alpha: CasebookTokens.slipTintAlpha),
-                    colors.surfaceRaised,
-                  ],
-                ),
-                border: BorderDirectional(
-                  end: BorderSide(
-                    color: weekly ? colors.accentGold : tint,
-                    width: CasebookTokens.stripe,
-                  ),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l.casebookFrom(EngineCopy.roleName(l, mission.voice)),
-                    style: type.caption.copyWith(color: tint),
-                  ),
-                  Text(
-                    caseLine(l, mission.metric, mission.target),
-                    style: type.body.copyWith(color: colors.textPrimary),
-                  ),
-                  SizedBox(height: s.sm),
-                  _RedString(
-                    fraction: mission.fraction,
-                    label: l.casebookProgress(
-                      math.min(mission.progress, mission.target),
-                      mission.target,
-                    ),
-                  ),
-                  SizedBox(height: s.sm),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: _Reward(
-                              coins: mission.coins,
-                              xp: mission.xp,
-                            ),
-                          ),
-                        ),
-                      ),
-                      _ClaimSeal(
-                        key: mission.claimable
-                            ? CasebookSheet.claimKey(
-                                '${weekly ? 'w' : 'd'}${mission.slot}',
-                              )
-                            : null,
-                        claimable: mission.claimable,
-                        claimed: mission.claimed,
-                        busy: busy,
-                        onClaim: onClaim,
-                      ),
-                    ],
-                  ),
-                ],
+            Expanded(
+              child: Text(
+                l.casebookFrom(EngineCopy.roleName(l, mission.voice)),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: type.caption.emphasised.copyWith(color: tint),
               ),
             ),
-            // The character, unframed, feet melting into the slip.
-            PositionedDirectional(
-              start: 0,
-              top: -CasebookTokens.portraitRise,
-              bottom: 0,
-              width: CasebookTokens.portraitWidth,
-              child: IgnorePointer(
-                child: FeatheredArt(
-                  feather: Feather.hero,
-                  halo: false,
-                  child: BondPortraitArt(
-                    role: mission.voice,
-                    fit: BoxFit.cover,
-                    alignment: CasebookTokens.faceFocus,
-                  ),
-                ),
+            SizedBox(width: s.xs),
+            _ProgressPlate(
+              text: l.casebookProgress(
+                math.min(mission.progress, mission.target),
+                mission.target,
               ),
+              full: mission.fraction >= 1 && !done,
             ),
           ],
         ),
-      ),
+        Text(
+          caseLine(l, mission.metric, mission.target),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: (weekly ? type.title : type.body.emphasised).copyWith(
+            color: done ? colors.textSecondary : colors.textPrimary,
+          ),
+        ),
+        SizedBox(height: s.sm),
+        VaultBar(value: mission.fraction, height: CouncilLifeTokens.barHeight),
+        SizedBox(height: s.sm),
+        // The weekly case pays out under a full-width bar of gold, the way
+        // the Council's weekly contract does.
+        if (weekly) ...[
+          _Rewards(coins: mission.coins, xp: mission.xp, muted: done),
+          SizedBox(height: s.sm),
+          claim(expand: true),
+        ] else
+          Row(
+            children: [
+              Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: _Rewards(
+                    coins: mission.coins,
+                    xp: mission.xp,
+                    muted: done,
+                  ),
+                ),
+              ),
+              SizedBox(width: s.sm),
+              claim(),
+            ],
+          ),
+      ],
     );
-  }
-}
-
-/// Progress as a thread pulled taut: the done part in crimson, a knot where
-/// it stops, the rest slack and faint.
-class _RedString extends StatelessWidget {
-  final double fraction;
-  final String label;
-  const _RedString({required this.fraction, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Row(
+    return Stack(
+      clipBehavior: Clip.none,
       children: [
-        Expanded(
-          child: SizedBox(
-            height: CasebookTokens.knot,
-            child: CustomPaint(
-              painter: _StringPainter(
-                fraction: fraction,
-                done: colors.accentCrimson,
-                slack: colors.borderSubtle,
-                rtl: Directionality.of(context) == TextDirection.rtl,
+        VaultGlint(play: ready, child: card),
+        // The character, unframed, melting into the panel.
+        PositionedDirectional(
+          start: weekly ? null : 0,
+          end: weekly ? 0 : null,
+          top: lift - rise,
+          bottom: 0,
+          width: portrait,
+          child: IgnorePointer(
+            child: Opacity(
+              opacity: done ? CasebookTokens.donePortraitOpacity : 1,
+              child: FeatheredArt(
+                feather: Feather.hero,
+                halo: ready || weekly,
+                child: BondPortraitArt(
+                  role: mission.voice,
+                  fit: BoxFit.cover,
+                  alignment: CasebookTokens.faceFocus,
+                ),
               ),
             ),
           ),
         ),
-        SizedBox(width: context.spacing.sm),
-        Text(
-          label,
-          style: context.typography.caption.copyWith(
-            color: colors.textSecondary,
-          ),
-        ),
       ],
     );
   }
 }
 
-class _StringPainter extends CustomPainter {
-  final double fraction;
-  final Color done;
-  final Color slack;
-  final bool rtl;
-  const _StringPainter({
-    required this.fraction,
-    required this.done,
-    required this.slack,
-    required this.rtl,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final y = size.height / 2;
-    double x(double t) => rtl ? size.width * (1 - t) : size.width * t;
-    final slackPaint = Paint()
-      ..color = slack
-      ..strokeWidth = CasebookTokens.stringWidth / 2
-      ..style = PaintingStyle.stroke;
-    // The slack part sags a little.
-    final sag = Path()..moveTo(x(fraction), y);
-    sag.quadraticBezierTo(
-      x((fraction + 1) / 2),
-      y + size.height * CasebookTokens.sag,
-      x(1),
-      y,
-    );
-    canvas.drawPath(sag, slackPaint);
-    if (fraction <= 0) return;
-    canvas.drawLine(
-      Offset(x(0), y),
-      Offset(x(fraction), y),
-      Paint()
-        ..color = done
-        ..strokeWidth = CasebookTokens.stringWidth
-        ..strokeCap = StrokeCap.round,
-    );
-    canvas.drawCircle(
-      Offset(x(fraction), y),
-      CasebookTokens.knot / 2,
-      Paint()..color = done,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_StringPainter old) =>
-      old.fraction != fraction ||
-      old.done != done ||
-      old.slack != slack ||
-      old.rtl != rtl;
-}
-
-class _Reward extends StatelessWidget {
-  final int coins;
-  final int xp;
-  const _Reward({required this.coins, required this.xp});
-
-  @override
-  Widget build(BuildContext context) {
-    final type = context.typography;
-    final colors = context.colors;
-    return Wrap(
-      spacing: context.spacing.sm,
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        if (coins > 0)
-          CoinAmount(
-            coins,
-            style: type.bodySmall.copyWith(color: colors.accentGold),
-          ),
-        if (xp > 0)
-          Text(
-            context.l10n.casebookXpGain(xp),
-            style: type.bodySmall.copyWith(color: colors.textSecondary),
-          ),
-      ],
-    );
-  }
-}
-
-/// Take it: a wax seal to press. Taken: the seal stamped flat. Not yet:
-/// nothing — the string already says how far.
-class _ClaimSeal extends StatelessWidget {
-  final bool claimable;
-  final bool claimed;
-  final bool busy;
-  final VoidCallback onClaim;
-  const _ClaimSeal({
-    super.key,
-    required this.claimable,
-    required this.claimed,
-    required this.busy,
-    required this.onClaim,
-  });
+/// All of tonight's cases closed pays a little more: the three seals.
+class _BonusCard extends StatelessWidget {
+  final CaseBonus bonus;
+  const _BonusCard({required this.bonus});
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final colors = context.colors;
-    if (claimed) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.verified_rounded,
-            size: CasebookTokens.stamp,
-            color: colors.accentGold,
-          ),
-          SizedBox(width: context.spacing.xs),
-          Text(
-            l.casebookClaimed,
-            style: context.typography.caption.copyWith(
-              color: colors.accentGold,
-            ),
-          ),
-        ],
-      );
-    }
-    if (!claimable) return const SizedBox.shrink();
-    return FilledButton(
-      style: FilledButton.styleFrom(
-        backgroundColor: CouncilLifeTokens.sealOuter,
-        foregroundColor: CouncilLifeTokens.sealStud,
-      ),
-      onPressed: busy ? null : onClaim,
-      child: busy
-          ? const SizedBox.square(
-              dimension: CasebookTokens.stamp,
-              child: CircularProgressIndicator(
-                strokeWidth: CasebookTokens.stringWidth,
+    final s = context.spacing;
+    final icon = ContractIcon(metric: 'bonus_all3', done: bonus.claimed);
+    return VaultCard(
+      lit: bonus.claimable && !bonus.claimed,
+      children: [
+        Row(
+          children: [
+            bonus.claimable && !bonus.claimed ? LampGlow(child: icon) : icon,
+            SizedBox(width: s.sm),
+            Expanded(
+              child: Text(
+                bonus.claimed ? l.casebookBonusTaken : l.casebookBonus,
+                style: context.typography.bodySmall.copyWith(
+                  color: bonus.claimed
+                      ? VaultTokens.gold
+                      : context.colors.textSecondary,
+                ),
               ),
-            )
-          : Text(l.casebookClaim),
+            ),
+            SizedBox(width: s.sm),
+            Flexible(
+              child: _Rewards(
+                coins: bonus.coins,
+                xp: bonus.xp,
+                muted: bonus.claimed,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
 
 // ─── Season ────────────────────────────────────────────────────────────────
 
-/// Twenty stops along one red thread, winding down the page like evidence
-/// pinned to a wall. Reached stops are wax; the next one glows.
+/// Twenty stops along one gold thread, winding down the page. Walked stops
+/// are struck gold, the next one glows, the rest wait in dim metal.
 class _SeasonPage extends StatelessWidget {
   final CaseSeason season;
   final String? busy;
@@ -717,8 +946,8 @@ class _SeasonPage extends StatelessWidget {
     final l = context.l10n;
     final s = context.spacing;
     final colors = context.colors;
-    final type = context.typography;
     final levels = [for (var i = 1; i <= season.maxLevel; i++) i];
+    final waiting = season.ready > 0;
     return ListView(
       padding: EdgeInsets.fromLTRB(
         s.screenMargin,
@@ -727,65 +956,86 @@ class _SeasonPage extends StatelessWidget {
         s.xl,
       ),
       children: [
-        Text(
-          season.complete
-              ? l.casebookSeasonDone
-              // D4 — a season just begun reads «مستوى ١», never «٠». The
-              // stops below still count the real level.
-              : l.casebookLevel(math.max(1, season.level)),
-          textAlign: TextAlign.center,
-          style: type.title.copyWith(color: colors.textPrimary),
-        ),
-        if (!season.complete) ...[
-          SizedBox(height: s.xs),
-          _RedString(
-            fraction: season.levelFraction,
-            label: l.casebookProgress(season.levelXp, season.xpPerLevel),
+        _Rise(
+          index: 0,
+          child: VaultCard(
+            lit: waiting,
+            children: [
+              VaultHeading(
+                leading: const LampGlow(
+                  child: ContractIcon(metric: 'weekly', done: true),
+                ),
+                // D4 — a season just begun reads «مستوى ١», never «٠». The
+                // stops below still count the real level.
+                title: season.complete
+                    ? l.casebookSeasonDone
+                    : l.casebookLevel(math.max(1, season.level)),
+                titleColor: VaultTokens.goldLight,
+                trailing: season.complete
+                    ? null
+                    : _ProgressPlate(
+                        text: l.casebookProgress(
+                          season.levelXp,
+                          season.xpPerLevel,
+                        ),
+                      ),
+              ),
+              if (!season.complete) ...[
+                SizedBox(height: s.md),
+                VaultBar(value: season.levelFraction),
+              ],
+            ],
           ),
-        ],
+        ),
         SizedBox(height: s.lg),
-        SizedBox(
-          height: levels.length * CasebookTokens.stopHeight,
-          child: LayoutBuilder(
-            builder: (context, box) {
-              final rtl = Directionality.of(context) == TextDirection.rtl;
-              Offset centre(int index) {
-                final swing = math.sin(index * CasebookTokens.windFrequency);
-                final dx = box.maxWidth / 2 +
-                    swing * box.maxWidth * CasebookTokens.windAmplitude;
-                return Offset(
-                  rtl ? box.maxWidth - dx : dx,
-                  (index + 0.5) * CasebookTokens.stopHeight,
-                );
-              }
+        _Rise(
+          index: 1,
+          child: SizedBox(
+            height: levels.length * CasebookTokens.stopHeight,
+            child: LayoutBuilder(
+              builder: (context, box) {
+                final rtl = Directionality.of(context) == TextDirection.rtl;
+                Offset centre(int index) {
+                  final swing = math.sin(
+                    index * CasebookTokens.windFrequency,
+                  );
+                  final dx =
+                      box.maxWidth / 2 +
+                      swing * box.maxWidth * CasebookTokens.windAmplitude;
+                  return Offset(
+                    rtl ? box.maxWidth - dx : dx,
+                    (index + 0.5) * CasebookTokens.stopHeight,
+                  );
+                }
 
-              return Stack(
-                children: [
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: _TrailPainter(
-                        points: [
-                          for (var i = 0; i < levels.length; i++) centre(i),
-                        ],
-                        reached: season.level,
-                        done: colors.accentCrimson,
-                        slack: colors.borderSubtle,
+                return Stack(
+                  children: [
+                    Positioned.fill(
+                      child: CustomPaint(
+                        painter: _ThreadPainter(
+                          points: [
+                            for (var i = 0; i < levels.length; i++) centre(i),
+                          ],
+                          reached: season.level,
+                          partial: season.complete ? 0 : season.levelFraction,
+                          slack: colors.borderSubtle,
+                        ),
                       ),
                     ),
-                  ),
-                  for (var i = 0; i < levels.length; i++)
-                    _SeasonStopView(
-                      centre: centre(i),
-                      width: box.maxWidth,
-                      stop: season.stop(levels[i]),
-                      reached: levels[i] <= season.level,
-                      next: levels[i] == season.level + 1,
-                      busy: busy == 's${levels[i]}',
-                      onClaim: () => onClaim(levels[i]),
-                    ),
-                ],
-              );
-            },
+                    for (var i = 0; i < levels.length; i++)
+                      _SeasonStopView(
+                        centre: centre(i),
+                        width: box.maxWidth,
+                        stop: season.stop(levels[i]),
+                        reached: levels[i] <= season.level,
+                        next: levels[i] == season.level + 1,
+                        busy: busy == 's${levels[i]}',
+                        onClaim: () => onClaim(levels[i]),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -793,46 +1043,106 @@ class _SeasonPage extends StatelessWidget {
   }
 }
 
-class _TrailPainter extends CustomPainter {
+/// The thread: struck gold with a soft halo and a bright edge where it has
+/// been walked (and part-way into the next stop, as far as the level's
+/// points go), dashed dim metal ahead.
+class _ThreadPainter extends CustomPainter {
   final List<Offset> points;
   final int reached;
-  final Color done;
+  final double partial;
   final Color slack;
-  const _TrailPainter({
+  const _ThreadPainter({
     required this.points,
     required this.reached,
-    required this.done,
+    required this.partial,
     required this.slack,
   });
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (var i = 0; i + 1 < points.length; i++) {
-      final a = points[i];
-      final b = points[i + 1];
-      final mid = Offset((a.dx + b.dx) / 2, (a.dy + b.dy) / 2);
-      final path = Path()
-        ..moveTo(a.dx, a.dy)
-        ..quadraticBezierTo(a.dx, mid.dy, mid.dx, mid.dy)
-        ..quadraticBezierTo(b.dx, mid.dy, b.dx, b.dy);
-      final taut = i + 2 <= reached;
-      canvas.drawPath(
-        path,
-        Paint()
-          ..color = taut ? done : slack
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = taut
-              ? CasebookTokens.stringWidth
-              : CasebookTokens.stringWidth / 2,
-      );
+  Path _segment(Offset a, Offset b) {
+    final mid = Offset((a.dx + b.dx) / 2, (a.dy + b.dy) / 2);
+    return Path()
+      ..moveTo(a.dx, a.dy)
+      ..quadraticBezierTo(a.dx, mid.dy, mid.dx, mid.dy)
+      ..quadraticBezierTo(b.dx, mid.dy, b.dx, b.dy);
+  }
+
+  void _gold(Canvas canvas, Path path) {
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = CasebookTokens.threadHalo
+        ..strokeCap = StrokeCap.round
+        ..color = VaultTokens.gold.withValues(
+          alpha: CasebookTokens.threadHaloAlpha,
+        )
+        ..maskFilter = const MaskFilter.blur(
+          BlurStyle.normal,
+          CasebookTokens.threadHalo / 2,
+        ),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = CasebookTokens.threadWidth
+        ..strokeCap = StrokeCap.round
+        ..color = VaultTokens.gold,
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = CasebookTokens.threadWidth / 3
+        ..strokeCap = StrokeCap.round
+        ..color = VaultTokens.goldLight.withValues(
+          alpha: CasebookTokens.threadShineAlpha,
+        ),
+    );
+  }
+
+  void _dashed(Canvas canvas, Path path, double from) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = CasebookTokens.threadSlackWidth
+      ..strokeCap = StrokeCap.round
+      ..color = Color.lerp(
+        slack,
+        VaultTokens.goldDeep,
+        CasebookTokens.threadSlackAlpha,
+      )!;
+    for (final metric in path.computeMetrics()) {
+      var d = metric.length * from;
+      while (d < metric.length) {
+        final end = math.min(d + CasebookTokens.threadDash, metric.length);
+        canvas.drawPath(metric.extractPath(d, end), paint);
+        d = end + CasebookTokens.threadGap;
+      }
     }
   }
 
   @override
-  bool shouldRepaint(_TrailPainter old) =>
+  void paint(Canvas canvas, Size size) {
+    for (var i = 0; i + 1 < points.length; i++) {
+      final path = _segment(points[i], points[i + 1]);
+      if (i + 2 <= reached) {
+        _gold(canvas, path);
+      } else if (i + 1 == reached && partial > 0) {
+        for (final metric in path.computeMetrics()) {
+          _gold(canvas, metric.extractPath(0, metric.length * partial));
+        }
+        _dashed(canvas, path, partial);
+      } else {
+        _dashed(canvas, path, 0);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ThreadPainter old) =>
       old.reached != reached ||
+      old.partial != partial ||
       old.points.length != points.length ||
-      old.done != done ||
       old.slack != slack;
 }
 
@@ -857,65 +1167,69 @@ class _SeasonStopView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final colors = context.colors;
-    final type = context.typography;
     final s = context.spacing;
     const d = CasebookTokens.seal;
     // The reward is written on the wider side of the thread.
     final leftSide = centre.dx > width / 2;
+    Widget tag(String text) => Opacity(
+      opacity: reached ? 1 : CasebookTokens.lockedMetalAlpha,
+      child: VaultTag(text),
+    );
     final label = Column(
       crossAxisAlignment: leftSide
           ? CrossAxisAlignment.end
           : CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (stop.coins > 0)
-          CoinAmount(
-            stop.coins,
-            style: type.bodySmall.copyWith(
-              color: reached ? colors.accentGold : colors.textMuted,
-            ),
-          ),
-        if (stop.title != null)
-          Text(
-            l.casebookTitleReward,
-            style: type.caption.copyWith(color: colors.accentGold),
-          ),
-        if (stop.item != null)
-          Text(
-            l.casebookItemReward,
-            style: type.caption.copyWith(color: colors.accentGold),
-          ),
-        if (stop.claimable) ...[
+        // Waiting: the chip and the gold beside it, level with the stop.
+        if (stop.claimable)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (stop.coins > 0) ...[
+                RewardChip(stop.coins),
+                SizedBox(width: s.xs),
+              ],
+              _ClaimButton(
+                claimKey: CasebookSheet.claimKey('s${stop.level}'),
+                claimable: true,
+                claimed: false,
+                busy: busy,
+                onClaim: onClaim,
+              ),
+            ],
+          )
+        else if (stop.coins > 0)
+          RewardChip(stop.coins, muted: !reached),
+        if (stop.title != null) ...[
           SizedBox(height: s.xs),
-          _ClaimSeal(
-            key: CasebookSheet.claimKey('s${stop.level}'),
-            claimable: true,
-            claimed: false,
-            busy: busy,
-            onClaim: onClaim,
-          ),
-        ] else if (stop.claimed && !stop.empty)
-          Icon(
-            Icons.verified_rounded,
-            size: CasebookTokens.stamp,
-            color: colors.accentGold,
-          ),
+          tag(l.casebookTitleReward),
+        ],
+        if (stop.item != null) ...[
+          SizedBox(height: s.xs),
+          tag(l.casebookItemReward),
+        ],
+        if (!stop.claimable && stop.claimed && !stop.empty)
+          ClaimedMark(l.casebookClaimed),
       ],
     );
+    final seal = reached
+        ? _GoldDisc(level: stop.level, size: d)
+        : _MetalDisc(level: stop.level, next: next);
     return Positioned(
       left: 0,
       right: 0,
       top: centre.dy - CasebookTokens.stopHeight / 2,
       height: CasebookTokens.stopHeight,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Positioned(
             left: centre.dx - d / 2,
             top: (CasebookTokens.stopHeight - d) / 2,
             width: d,
             height: d,
-            child: _Seal(level: stop.level, reached: reached, next: next),
+            child: stop.claimable || next ? LampGlow(child: seal) : seal,
           ),
           if (!stop.empty)
             Positioned(
@@ -936,32 +1250,37 @@ class _SeasonStopView extends StatelessWidget {
   }
 }
 
-class _Seal extends StatelessWidget {
+/// A stop not reached yet: dark enamel in a dim metal rim; the next one's
+/// rim is gold and glows.
+class _MetalDisc extends StatelessWidget {
   final int level;
-  final bool reached;
   final bool next;
-  const _Seal({required this.level, required this.reached, required this.next});
+  const _MetalDisc({required this.level, required this.next});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final rim = next
+        ? VaultTokens.gold
+        : Color.lerp(
+            colors.borderSubtle,
+            VaultTokens.goldDeep,
+            CasebookTokens.lockedMetalAlpha,
+          )!;
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: reached
-            ? const RadialGradient(
-                colors: [CouncilLifeTokens.gemLight, CouncilLifeTokens.sealOuter],
-              )
-            : null,
-        color: reached ? null : colors.surfaceBase,
+        gradient: RadialGradient(
+          colors: [colors.surfaceRaised, VaultTokens.enamel],
+        ),
         border: Border.all(
-          color: reached || next ? CouncilLifeTokens.sealInner : colors.borderSubtle,
-          width: next ? CasebookTokens.stringWidth : CasebookTokens.stringWidth / 2,
+          color: rim,
+          width: next ? CasebookTokens.sealRimNext : CasebookTokens.sealRim,
         ),
         boxShadow: next
             ? [
                 BoxShadow(
-                  color: colors.accentGold.withValues(
+                  color: VaultTokens.gold.withValues(
                     alpha: CasebookTokens.glowAlpha,
                   ),
                   blurRadius: CasebookTokens.glowBlur,
@@ -969,11 +1288,11 @@ class _Seal extends StatelessWidget {
               ]
             : null,
       ),
-      alignment: Alignment.center,
-      child: Text(
-        '$level',
-        style: context.typography.bodySmall.copyWith(
-          color: reached ? CouncilLifeTokens.sealStud : colors.textMuted,
+      child: _EngravedRing(
+        color: next ? VaultTokens.goldLight : rim,
+        child: _Numeral(
+          level,
+          color: next ? VaultTokens.goldLight : colors.textMuted,
         ),
       ),
     );
@@ -997,8 +1316,10 @@ class _LegacyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final s = context.spacing;
-    final colors = context.colors;
-    final type = context.typography;
+    final won = book.achievements
+        .where((a) => a.unlocked || a.claimed)
+        .length;
+    final waiting = book.achievements.any((a) => a.claimable);
     return ListView(
       padding: EdgeInsets.fromLTRB(
         s.screenMargin,
@@ -1007,34 +1328,66 @@ class _LegacyPage extends StatelessWidget {
         s.xl,
       ),
       children: [
-        if (book.rank.level > 0)
-          Text(
-            l.casebookRank(math.max(1, book.rank.level)),
-            textAlign: TextAlign.center,
-            style: type.title.copyWith(color: colors.accentGold),
-          ),
-        if (book.achievements.isNotEmpty) ...[
-          Padding(
-            padding: EdgeInsets.only(top: s.lg, bottom: s.sm),
-            child: Text(
-              l.casebookAchievements,
-              style: type.title.copyWith(color: colors.textSecondary),
+        if (book.rank.level > 0) ...[
+          _Rise(
+            index: 0,
+            child: VaultCard(
+              children: [
+                VaultHeading(
+                  leading: LampGlow(
+                    child: RankEmblem(
+                      level: book.rank.level,
+                      size: CasebookTokens.rankEmblem,
+                    ),
+                  ),
+                  title: l.casebookRank(math.max(1, book.rank.level)),
+                  subtitle: rankTitle(l, rankTier(book.rank.level)),
+                  titleColor: VaultTokens.goldLight,
+                ),
+              ],
             ),
           ),
-          Wrap(
-            spacing: s.md,
-            runSpacing: s.md,
-            alignment: WrapAlignment.center,
-            children: [
-              for (final a in book.achievements)
-                _Medal(
-                  achievement: a,
-                  busy: busy == 'a${a.code}',
-                  onClaim: () => onClaim(a.code),
-                ),
-            ],
-          ),
+          SizedBox(height: s.md),
         ],
+        if (book.achievements.isNotEmpty)
+          _Rise(
+            index: 1,
+            child: VaultCard(
+              lit: waiting,
+              children: [
+                VaultHeading(
+                  title: l.casebookAchievements,
+                  trailing: _ProgressPlate(
+                    text: l.casebookProgress(won, book.achievements.length),
+                    full: won == book.achievements.length,
+                  ),
+                ),
+                SizedBox(height: s.md),
+                LayoutBuilder(
+                  builder: (context, box) {
+                    const columns = CasebookTokens.legacyColumns;
+                    final tile =
+                        (box.maxWidth - s.sm * (columns - 1)) / columns;
+                    return Wrap(
+                      spacing: s.sm,
+                      runSpacing: s.lg,
+                      children: [
+                        for (final a in book.achievements)
+                          SizedBox(
+                            width: tile,
+                            child: _SealTile(
+                              achievement: a,
+                              busy: busy == 'a${a.code}',
+                              onClaim: () => onClaim(a.code),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
         Padding(
           padding: EdgeInsets.only(top: s.xl),
           child: CharacterDossiers(
@@ -1049,13 +1402,14 @@ class _LegacyPage extends StatelessWidget {
   }
 }
 
-/// An achievement as a medal: the ring fills as it comes, the face lights
-/// when it is won.
-class _Medal extends StatelessWidget {
+/// An achievement as a seal on the wall: the Council's gold ring around the
+/// case's own emblem. Locked, it is the same seal pressed grey and dim into
+/// the page, with how far along it is under it.
+class _SealTile extends StatelessWidget {
   final CaseAchievement achievement;
   final bool busy;
   final VoidCallback onClaim;
-  const _Medal({
+  const _SealTile({
     required this.achievement,
     required this.busy,
     required this.onClaim,
@@ -1064,118 +1418,93 @@ class _Medal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final s = context.spacing;
     final colors = context.colors;
-    final type = context.typography;
-    final won = achievement.unlocked || achievement.claimed;
-    return SizedBox(
-      width: CasebookTokens.medalWidth,
-      child: Column(
+    final a = achievement;
+    final won = a.unlocked || a.claimed;
+    const size = CasebookTokens.legacySeal;
+    const g = CasebookTokens.luma;
+    Widget seal = SizedBox.square(
+      dimension: size,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          SizedBox.square(
-            dimension: CasebookTokens.medal,
-            child: CustomPaint(
-              painter: _MedalRing(
-                fraction: achievement.fraction,
-                ring: colors.accentGold,
-                track: colors.borderSubtle,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(CasebookTokens.medalInset),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: won
-                          ? const [
-                              FunTokens.medalLight,
-                              FunTokens.medalMid,
-                              FunTokens.medalDark,
-                            ]
-                          : [colors.surfaceRaised, colors.surfaceBase],
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${achievement.target}',
-                      style: type.title.copyWith(
-                        color: won ? VaultTokens.goldInk : colors.textMuted,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+          const RasterOr(
+            path: CouncilRaster.councilSeal,
+            width: size,
+            height: size,
+            fallback: CouncilSealArt(),
           ),
-          SizedBox(height: context.spacing.xs),
-          Text(
-            caseLine(l, achievement.metric, achievement.target),
-            textAlign: TextAlign.center,
-            maxLines: 3,
-            style: type.caption.copyWith(
-              color: won ? colors.textPrimary : colors.textSecondary,
-            ),
+          ContractIcon(
+            metric: _sealArt(a.metric),
+            size: size * CasebookTokens.legacyIcon,
+            done: won,
           ),
-          if (achievement.claimable)
-            _ClaimSeal(
-              key: CasebookSheet.claimKey('a${achievement.code}'),
-              claimable: true,
-              claimed: false,
-              busy: busy,
-              onClaim: onClaim,
-            )
-          else if (!won)
-            _Reward(coins: achievement.coins, xp: achievement.xp),
         ],
       ),
     );
-  }
-}
-
-class _MedalRing extends CustomPainter {
-  final double fraction;
-  final Color ring;
-  final Color track;
-  const _MedalRing({
-    required this.fraction,
-    required this.ring,
-    required this.track,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    const stroke = CasebookTokens.stringWidth;
-    final arc = rect.deflate(stroke);
-    canvas.drawOval(
-      arc,
-      Paint()
-        ..color = track
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = stroke / 2,
+    if (!won) {
+      seal = Opacity(
+        opacity: CasebookTokens.lockedSealOpacity,
+        child: ColorFiltered(
+          colorFilter: ColorFilter.matrix([
+            g[0], g[1], g[2], 0, 0, //
+            g[0], g[1], g[2], 0, 0, //
+            g[0], g[1], g[2], 0, 0, //
+            0, 0, 0, 1, 0,
+          ]),
+          child: seal,
+        ),
+      );
+    } else if (a.claimable) {
+      seal = VaultGlint(
+        borderRadius: BorderRadius.circular(size / 2),
+        child: LampGlow(child: seal),
+      );
+    }
+    return Column(
+      children: [
+        ExcludeSemantics(child: seal),
+        SizedBox(height: s.xs),
+        Text(
+          caseLine(l, a.metric, a.target),
+          textAlign: TextAlign.center,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+          style: context.typography.caption.copyWith(
+            color: won ? colors.textPrimary : colors.textSecondary,
+          ),
+        ),
+        SizedBox(height: s.xs),
+        if (a.claimable)
+          _ClaimButton(
+            claimKey: CasebookSheet.claimKey('a${a.code}'),
+            claimable: true,
+            claimed: false,
+            busy: busy,
+            expand: true,
+            onClaim: onClaim,
+          )
+        else if (a.claimed)
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: ClaimedMark(l.casebookClaimed),
+          )
+        else if (!won) ...[
+          VaultBar(value: a.fraction, height: CasebookTokens.legacyBar),
+          SizedBox(height: s.xs),
+          _Rewards(coins: a.coins, xp: a.xp, muted: true),
+        ],
+      ],
     );
-    if (fraction <= 0) return;
-    canvas.drawArc(
-      arc,
-      -math.pi / 2,
-      2 * math.pi * fraction,
-      false,
-      Paint()
-        ..color = ring
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = stroke
-        ..strokeCap = StrokeCap.round,
-    );
   }
-
-  @override
-  bool shouldRepaint(_MedalRing old) =>
-      old.fraction != fraction || old.ring != ring || old.track != track;
 }
 
 // ─── Entry ─────────────────────────────────────────────────────────────────
 
-/// The Casebook's door on Online and in the Council: the four faces on the
-/// case board, what is waiting to be taken. Nothing while the feature is off.
+/// The Casebook's door on Online and in the Council: the four faces on an
+/// engraved panel, what is waiting to be taken, the season's bar. Nothing
+/// while the feature is off.
 class CasebookEntry extends ConsumerWidget {
   const CasebookEntry({super.key});
 
@@ -1196,47 +1525,24 @@ class CasebookEntry extends ConsumerWidget {
         button: true,
         child: InkWell(
           key: entryKey,
+          borderRadius: BorderRadius.circular(context.radii.card),
           onTap: () => showCasebookSheet(context),
           child: ConstrainedBox(
             constraints: const BoxConstraints(
               minHeight: CasebookTokens.entryHeight,
             ),
             child: Stack(
-              clipBehavior: Clip.none,
               children: [
-                // Four faces pinned to the board, fading into the page.
-                PositionedDirectional(
-                  start: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: CasebookTokens.entryFacesWidth,
-                  child: FeatheredArt(
-                    feather: Feather.banner,
-                    halo: false,
-                    child: Row(
-                      children: [
-                        for (final role in casebookVoices)
-                          Expanded(
-                            child: BondPortraitArt(
-                              role: role,
-                              fit: BoxFit.cover,
-                              alignment: CasebookTokens.faceFocus,
-                            ),
-                          ),
-                      ],
+                VaultGlint(
+                  play: ready > 0,
+                  child: VaultCard(
+                    lit: ready > 0,
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                      CasebookTokens.entryFacesWidth + s.sm,
+                      s.md,
+                      s.md,
+                      s.md,
                     ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsetsDirectional.only(
-                    start: CasebookTokens.entryFacesWidth + s.sm,
-                    top: s.sm,
-                    bottom: s.sm,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
@@ -1244,32 +1550,57 @@ class CasebookEntry extends ConsumerWidget {
                             child: Text(
                               l.casebookTitle,
                               style: type.title.copyWith(
-                                color: colors.textPrimary,
+                                color: VaultTokens.goldLight,
                               ),
                             ),
                           ),
                           if (ready > 0) ...[
                             SizedBox(width: s.xs),
-                            const _WaxDot(),
+                            _CountPlate(ready),
                           ],
                         ],
                       ),
                       Text(
                         ready > 0
                             ? l.casebookReady(ready)
-                            : l.casebookLevel(book.season.level),
+                            : l.casebookLevel(math.max(1, book.season.level)),
                         style: type.bodySmall.copyWith(
                           color: ready > 0
-                              ? colors.accentGold
+                              ? VaultTokens.gold
                               : colors.textSecondary,
                         ),
                       ),
-                      SizedBox(height: s.xs),
-                      _RedString(
-                        fraction: book.season.levelFraction,
-                        label: '',
+                      SizedBox(height: s.sm),
+                      VaultBar(
+                        value: book.season.levelFraction,
+                        height: CouncilLifeTokens.barHeight,
                       ),
                     ],
+                  ),
+                ),
+                // Four faces on the panel's edge, fading into it.
+                PositionedDirectional(
+                  start: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: CasebookTokens.entryFacesWidth,
+                  child: IgnorePointer(
+                    child: FeatheredArt(
+                      feather: Feather.banner,
+                      halo: false,
+                      child: Row(
+                        children: [
+                          for (final role in casebookVoices)
+                            Expanded(
+                              child: BondPortraitArt(
+                                role: role,
+                                fit: BoxFit.cover,
+                                alignment: CasebookTokens.faceFocus,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],

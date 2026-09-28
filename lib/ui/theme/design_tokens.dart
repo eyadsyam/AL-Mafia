@@ -1909,47 +1909,85 @@ abstract final class ProfileTokens {
   static const double statArt = 56.0;
 }
 
-/// «ملف القضايا» (`lib/ui/missions/casebook_sheet.dart`): case slips pinned
-/// with red string, the season thread, medals.
+/// «ملف القضايا» (`lib/ui/missions/casebook_sheet.dart`): drawn in the
+/// vault's engraved family — lit panels, struck gold, a gold thread for the
+/// season, a wall of seals for the record.
 abstract final class CasebookTokens {
   static const double sheetHeight = 0.94;
-  static const double heroHeight = 132.0;
+  static const double heroHeight = 156.0;
   static const Duration pageTurn = Duration(milliseconds: 260);
-  static const double tabRule = 28.0;
-  static const double waxDot = 9.0;
 
-  /// A case slip and the character standing half inside it.
+  /// The hero's stamped plate: a struck-gold level disc and a gold-rimmed
+  /// enamel strip beside it.
+  static const double plateDisc = 40.0;
+  static const double plateHeight = 30.0;
+  static const double plateRimAlpha = 0.7;
+  static const double heroShade = 0.55;
+
+  /// Gold underline tabs: the struck rule under the open page, its glow, the
+  /// hairline under all three, and the small count plate.
+  static const double tabRule = 44.0;
+  static const double tabRuleHeight = 3.0;
+  static const double tabGlowAlpha = 0.45;
+  static const double tabGlowBlur = 8.0;
+  static const double tabBaseAlpha = 0.5;
+  static const double countPlate = 18.0;
+
+  /// A case card and the character standing half inside it.
   static const double portraitWidth = 84.0;
   static const double portraitRise = 18.0;
+  static const double weeklyPortraitWidth = 104.0;
+  static const double weeklyPortraitRise = 30.0;
+  static const double donePortraitOpacity = 0.45;
 
   /// The gallery paintings carry a drawn frame and a caption at the top;
   /// a crop just below them keeps the face and loses the card.
   static const Alignment faceFocus = Alignment(0, -0.35);
-  static const double slipInset = 28.0;
-  static const double slipTintAlpha = 0.16;
-  static const double stripe = 3.0;
-  static const double doneOpacity = 0.6;
-  static const double stamp = 18.0;
+  static const double claimMinWidth = 96.0;
+  static const double busyIndicator = 18.0;
+  static const double busyStroke = 2.0;
 
-  /// The red string.
-  static const double stringWidth = 2.0;
-  static const double knot = 8.0;
-  static const double sag = 0.35;
-
-  /// The season thread: one stop per row, winding across the page.
-  static const double stopHeight = 76.0;
-  static const double seal = 36.0;
+  /// The season thread: one stop per row, winding across the page. Gold
+  /// where it has been walked, dim dashed metal ahead.
+  static const double stopHeight = 84.0;
+  static const double seal = 42.0;
+  static const double sealRim = 1.5;
+  static const double sealRimNext = 2.0;
+  static const double sealInnerInset = 4.0;
+  static const double sealInnerAlpha = 0.45;
   static const double windFrequency = 0.9;
   static const double windAmplitude = 0.26;
-  static const double glowAlpha = 0.45;
-  static const double glowBlur = 14.0;
+  static const double glowAlpha = 0.55;
+  static const double glowBlur = 18.0;
+  static const double lockedMetalAlpha = 0.55;
+  static const double threadWidth = 3.0;
+  static const double threadHalo = 9.0;
+  static const double threadHaloAlpha = 0.22;
+  static const double threadShineAlpha = 0.6;
+  static const double threadSlackWidth = 1.4;
+  static const double threadSlackAlpha = 0.45;
+  static const double threadDash = 5.0;
+  static const double threadGap = 5.0;
 
-  /// Achievement medals.
-  static const double medal = 64.0;
-  static const double medalInset = 6.0;
-  static const double medalWidth = 96.0;
+  /// The record: a wall of seals, three to a row. A locked seal is its
+  /// own silhouette pressed dim into the page.
+  static const int legacyColumns = 3;
+  static const double legacySeal = 76.0;
+  static const double legacyIcon = 0.46;
+  static const double legacyBar = 6.0;
+  static const double lockedSealOpacity = 0.32;
+  static const double rankEmblem = 56.0;
+
+  /// Rec. 709 luma, for pressing a locked seal into grey.
+  static const List<double> luma = [0.2126, 0.7152, 0.0722];
+
+  /// The entrance: rows rise into place one after another, once.
+  static const Duration rise = Duration(milliseconds: 380);
+  static const Duration riseStep = Duration(milliseconds: 70);
+  static const int riseMaxSteps = 6;
+  static const double riseLift = 14.0;
 
   /// The door on Online.
-  static const double entryHeight = 92.0;
+  static const double entryHeight = 96.0;
   static const double entryFacesWidth = 150.0;
 }
