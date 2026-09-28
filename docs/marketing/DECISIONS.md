@@ -152,3 +152,23 @@ Codex's M2 verdicts on closing the month-1 gap, and the closed 1.1 game plan.
 | 79 | The Narrator's stories and our cases are fiction, never presented as in-game clues; no video implies mid-match death stories in the app; app narrator audio appears only on public beats. | 1.1 spec (constitution) |
 | 80 | PLAN-V3 §8 becomes a pointer: the product side is frozen in the 1.1 spec. | Debate |
 | 81 | Owner time: typical day ≈ 1 h; Thursday ≈ 2 h 25 because of the creator tables. The marketing session takes over all prospecting, drafts, calendar, host kit, clips and reporting; beyond ~6 sessions a week, cap sessions or the owner names a second safety host. | Debate (owner decides) |
+
+## Round 10 — owner answers 2026-09-28
+
+Round-6 recommendations not changed below are taken as accepted by the owner [A — confirm].
+
+| # | Decision | Source |
+|---|---|---|
+| 82 | **Viewer codes are killed.** Revises #35′ and #74. | Owner |
+| 83 | **Creator entitlement at L** (server-granted flag): no automatic ads on the creator's account while they play and stream; rewarded ads stay opt-in. Followers and viewers see the normal model. | Owner |
+| 84 | **Hook law:** the hook is the first frame; 0–1 s pattern interrupt + a big Arabic line; 1–3 s stakes or question; one idea; works fully muted with captions always on; 9:16, mostly ≤ 30 s; ends on a loop or the F19 shot; one CTA; comments answered with video replies. | Owner (skills `social-content`, `video-content-strategist`) |
+| 85 | **The narrator voice is the owner's ElevenLabs voice "Kratos"**, the same for F16 in the app and every video. Revises #21″ (Azure) and the "one narrator voice" decision. | Owner |
+| 86 | **Voice gates (Sol):** no Kratos audio is published until three things are on record — provenance (designed, not cloned), commercial-use authorization for the generated audio, and the F16 listener gate. Week 1 leads with real app footage, text hooks, the painted Four and the Gang stills from the marketing kit; voice-led shorts start the day the gates are on record (~Oct 6–10). | Codex (Sol) |
+| 87 | **Creators:** the marketing session prepares the list and every message; the owner only sends them (~20 min a day). The 1.1 worktree session researches and verifies the list into `CREATORS.md` §2. | Owner |
+| 88 | **The date (verified gate):** L = **Thu Oct 29, 2026**, fallback **Thu Nov 5**; pre-registration ~1 week (~Oct 22 → 28); month 1 = Oct 29 → Nov 27; social build Sep 29 → Oct 28. Revises #44 / #44′: the Dec 17 reference, the Feb 4 contingency and the 3–6-week pre-registration funnel are gone. Ramadan is not in month 1. | Owner + Play gate |
+| 89 | **P0:** 12 testers opted in by Oct 1; confirmed creators may be added to the closed test, and rehearse on it Oct 1 → 21. | Debate |
+| 54″ | **Revises 54′:** honest middle ≈ 2,990 installs → ~330 devices → **~$27**; **planning number ≈ $41** with the creator network at 20 sessions (~4,550 installs, ~503 devices). $100 total in month 1 needs two breakouts on top of the network; cumulative $100 around mid-to-late January 2027 with the network. | Debate |
+| 90 | Season 1 = ~12 episodes, Sun · Tue · Thu, Oct 4 → Oct 29 finale; card-only cases until S0 passes; Kratos narration only after the voice gates. | Debate |
+| 91 | Creator footage (real faces and voices) is never produced as our own content: we cut clips **for creators to post**; our pages only share or repost them, credited. | Debate (owner confirms — open) |
+| 92 | The C1 staged-release fallback is dropped (no window with ~7 days of production access before L). | Debate |
+| 93 | DMs and posts say «آخر أكتوبر» until 1.1 is approved; the exact date only after approval. | Debate (owner confirms — open) |

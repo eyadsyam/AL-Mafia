@@ -10,6 +10,10 @@ rewards are never the headline of a video, a hook or a CTA.
 
 **P-B (first release)** — 1.1 is the game's first public release, never called an update.
 
+**Hook law** — every video hooks in its first frame: a pattern interrupt and a big Arabic
+line at 0–1 s, the stakes by 3 s, one idea, works fully muted, one CTA, ends on a loop or
+the F19 shot.
+
 **Strength proof** — a video (usually P2) whose point is one real strength of the game,
 closed by the real app showing it.
 
@@ -37,6 +41,10 @@ partner (four sides); sides are plural, the partner is personal. Links: `/p/<cha
 plus a sealed, **lore-only** letter pointing to the case theme. It never gives a clue,
 eliminates a suspect or changes attempts, and is never a marketing headline.
 
+**Creator entitlement** — a server-granted flag on a partnered creator's account: no
+automatic ads while they play and stream; rewarded ads stay opt-in. Ships at L. There are
+no viewer codes.
+
 **F15–F19 (launch strengths)** — spec features marketing shows at L: F15 the 15-player
 table (a night in < 4 min); F16 «صوت الراوي», the spoken narrator on public beats only;
 F17 «وضع العيلة», the family preset; F18 the Gang's how-to scenes and the tabletop layout
@@ -51,8 +59,14 @@ before they ship (the list is in `PLAN-V3.md` §3).
 ## The cast
 
 **الراوي (the Narrator)** — the brand's voice and the only character who speaks aloud.
-Hosts, reads comments and names, never takes sides. In videos he uses the same voice as the
-app's spoken narrator (F16).
+Hosts, reads comments and names, never takes sides.
+
+**Kratos** — the owner's ElevenLabs voice: the Narrator in every video and the app's F16
+narrator. Deep, dramatic, the «الليل بيقرّب» register.
+
+**Voice gates** — the three things on record before any Kratos audio is published:
+provenance (designed, not cloned), commercial-use authorization for the generated audio,
+and the F16 listener gate. Target ~Oct 6–10.
 
 **The Four (the Card cast)** — the four painted role characters from the app: the Reaper
 (Mafia), the Doctor (white coat), the Detective, the Citizen. Faceless, grayscale. They
@@ -61,6 +75,9 @@ app's spoken narrator (F16).
 **الشلة (the Gang)** — the fixed cast at the table (Hamada, Karim, Nada, Doctor Sayed,
 Uncle Reda), drawn in the app's painted style (spec S9) and the same characters who teach
 the game in the app. Carry the comedy through reaction stills; no lip-sync.
+
+**Marketing kit** — the art generated for marketing in `raw_assets/update11/`:
+`gang_group_vertical`, `gang_group_wide`, `four_behind_table`, `play_feature_graphic`.
 
 **One world** — the Gang, the Four and the Narrator are identical in the app and in every
 video: the same art, the same voice, the same sonic mark and reveal.
@@ -78,6 +95,9 @@ P3 «مواقف», P4 «مين المافيا؟», P5 trend-jack / reply, P6 rit
 **Hook re-cut** — the same body with a different first 1.5 s, one per platform. The cheap
 shots on goal.
 
+**Hook audit** — the per-video check that the value is visible by second 1, the video
+works muted and it has one CTA.
+
 **Recurring franchise** — a format the audience recognises (case, «مواقف», strength
 proofs, rituals). ≥ 70% of the week; experiments ≤ 30%.
 
@@ -85,12 +105,12 @@ proofs, rituals). ≥ 70% of the week; experiments ≤ 30%.
 sonic mark (lamp click + card flip), the fixed faces and silhouettes, the recurring table
 composition, and the F19 reveal as the closing shot.
 
-**Creator network** — the repeatable set of creator-hosted sessions (~25 in month 1), the
-one controllable lever. Measured by **completed matches** per session, then attributable
-installs per creator cohort.
+**Creator network** — the repeatable set of creator-hosted sessions (20 planning / 25
+target in month 1), the one controllable lever. Measured by **completed matches** per
+session, then attributable installs per creator cohort.
 
 **Host kit** — the creator's one-page kit: run sheet, browser-join test, moderation brief,
-clip-rights agreement, per-creator link and QR.
+clip agreement, per-creator link and QR.
 
 **Organiser placement (N2)** — an admin-approved post in a trips, camps, scouts, university
 «أسر» or board-game group, with a printable host card, a host page and a dedicated link.
@@ -99,14 +119,17 @@ clip-rights agreement, per-creator link and QR.
 
 **Cold case** — a standalone P4 case with no season-arc progress; can run indefinitely.
 
-**Season 1** — the ~15-episode P4 arc, three a week from L-35 to L, whose finale is solved
-only in the app.
+**Card-only case** — a P4 case told with the Four's silhouettes and typed clues, used until
+the S0 test passes.
+
+**Season 1** — the ~12-episode P4 arc, Sun · Tue · Thu from Oct 4 to the Oct 29 finale,
+whose answer is solved only in the app.
 
 **Shot library** — the reusable set of ~80 generated motion shots every template draws
 from, built once so each post needs little new footage.
 
-**S0 (art-consistency test)** — before Phase A: the canonical faces and silhouettes run
-through each video model and must stay recognisably the same.
+**S0 (art-consistency test)** — the canonical faces and silhouettes run through each video
+model and must stay recognisably the same before any Gang-face video is published.
 
 **Closing proof / end card** — the real-app screen that closes a video: 2–3 s, 4–5 s in P2
 if allowed. Required on feature/explainer videos; never forced onto a strong comedy loop.
@@ -123,7 +146,7 @@ credited reposts.
 **Creator room** — a room a partnered content creator hosts live so their audience
 joins and plays with them. The main offer to creators.
 
-## Numbers and phases
+## Numbers and dates
 
 **Install** — a Google Play install. The leading indicator, not the goal.
 
@@ -133,13 +156,13 @@ modelled in (not players, not DAU). Web joiners who never install are not device
 **Income target** — total income from the game (ads + in-app purchases, as totals) ≥ $100
 in month 1. **Stretch:** ads alone ≥ $100.
 
+**Honest middle** — the month-1 total without the creator network: ~$27.
+
+**Planning number** — the month-1 figure the plan is run against: ~$41 with the creator
+network at 20 sessions. The target stays $100.
+
 **Gulf line** — the Gulf's devices and income, always reported as a separate line beside
 Egypt (middle share 5% of devices; ads ≈ 3× Egypt).
-
-**Planning number** — the month-1 figure the plan is run against: ~$60 total with the
-creator network at mid-range. The target stays $100.
-
-**Feb 4 contingency** — Thursday Feb 4, 2027, used only if readiness lands in late January.
 
 **K_join / K_install / K_active** — per host or installer: new match participants brought
 in / attributed installs / invited installers still active at D7. No 1/(1−K) multiplier on
@@ -148,15 +171,13 @@ installs until cohorts prove it.
 **Web-join funnel** — landing opened → seat joined → match completed → app CTA viewed →
 install attributed → D7 active.
 
-**C1 (staged-release fallback)** — only if AdMob can't link during pre-registration: the
-complete build live in one non-core country, unpromoted, with a 48 h rollback gate, so
-AdMob can link before L.
+**The gate** — for a personal Play account: 12 testers opted in for 14 continuous days, plus
+Google's review of the production-access application (up to ~7 days). Production and
+pre-registration stay locked until both are done.
 
-**T0** — the first day 12 opted-in testers are on the closed track.
+**Social build** — Sep 29 → Oct 28: the pre-launch weeks on social accounts; CTA «تابع».
 
-**Phase A** — S0 passed to production access: no store destination; CTA «تابع».
+**Pre-registration week** — ~Oct 22 → 28: pre-registration is the CTA.
 
-**Phase B** — production access to L: pre-registration is the CTA.
-
-**L-day** — launch day: 1.1 live in production on Google Play, always a Thursday. Plan
-dates are offsets (L-7, L, L+3) until the real date is known.
+**L-day** — launch day: 1.1 live in production on Google Play. **Thursday Oct 29, 2026**,
+fallback **Thursday Nov 5**. Month 1 = Oct 29 → Nov 27.

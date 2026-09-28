@@ -32,7 +32,7 @@ same narrator voice (F16), the same sonic mark and reveal (F19).
 | Hand-painted Egyptian art · nothing in the store gives an advantage | listing |
 | After you're out, you follow the truth without affecting the living — shown calmly, never leads | listing |
 
-**Never marketed before it ships:** creator/viewer codes · streak-save · extra clue ·
+**Never marketed before it ships:** streak-save · extra clue ·
 rematch vote · the Thursday letter · the witness setting · last words · same-room phones ·
 the match chronicle · «مين صوّت على مين» · scheduled public tables beyond Thursday ·
 Series/Draft · House Rules.
@@ -42,6 +42,37 @@ in-game clues, and no video implies the app tells death stories mid-match (it do
 In app footage, the narrator is heard only on public beats — never over a private phase.
 
 **Tags:** [V] verified · [E] estimate · [A] assumption.
+
+---
+
+## 0. Hook law (owner, 2026-09-28 — applies to every video, pre- and post-launch)
+
+| Rule | What it means in practice |
+|---|---|
+| **The hook is the first frame** | frame 0 already shows the strongest image and the line; no intro, no logo, no title card, no fade from black, no build-up shot |
+| **0–1 s: pattern interrupt + a big Arabic line** | the sonic mark (lamp click + card flip) and a hard visual change — a figure already risen, a lit face in the dark, a map lighting up — with a ≤ 7-word line at ≥ 90 px |
+| **1–3 s: the stakes or the question** | why keep watching: «واحد منكم مش منكم» · «عندك ٣ أدلة» · «صاحبك عارف دورك؟» |
+| **One idea per video** | one strength, one joke or one case — never two |
+| **Works fully muted** | captions always on; every spoken line is also on screen; the Kratos voice is the audio hook, **never the only carrier** of meaning |
+| **9:16, mostly ≤ 30 s** | P4 cases up to 30 s; everything else ≤ 22 s |
+| **Ends on a loop or the F19 shot** | the last frame loops into frame 0, or closes on the reveal (a role figure rising behind a player) |
+| **ONE call to action** | one line, the phase CTA (§3) — never two asks |
+| **Comments are the second hook** | the best comments are answered with video replies (T5) |
+
+**The voice — gated.** The owner's ElevenLabs voice **"Kratos"** (deep, dramatic, the «الليل
+بيقرّب» register) is the same voice as the app's F16 narrator. **No Kratos audio is published —
+in a video, or in app footage that includes the narrator — until three things are on record:**
+
+1. **provenance:** the voice was designed, not cloned from a real person;
+2. **commercial-use authorization** for the generated audio;
+3. **the F16 listener gate** has passed.
+
+Plan for the gates around **Oct 6–10**. Until then videos lead with what needs no gate: **real
+app footage** (with the narrator muted), **on-screen Arabic text hooks**, **the existing painted
+Four**, and **the Gang stills** once the S0/S9 art lands (the marketing kit in
+`raw_assets/update11/`: `gang_group_vertical`, `gang_group_wide`, `four_behind_table`,
+`play_feature_graphic`). Audio before the gates = the game's score + the sonic mark. Voice-led
+shorts start the day the three gates are on record.
 
 ---
 
@@ -84,7 +115,7 @@ and obey the spoiler rule (§1.9).
 
 **The Narrator — الراوي** (the only voice)
 - **Wants:** to finish the story. **Fears:** the night the table stays empty. **Hides:** that he reads every comment — and proves it by reading them aloud.
-- **Voice:** **the app's F16 narrator voice**, the same source in every video. Viewers who hear him on TikTok hear him again at their own table.
+- **Voice:** **"Kratos"**, the owner's ElevenLabs voice — the same voice as the app's F16 narrator. Viewers who hear him on TikTok hear him again at their own table.
 - **Signature:** «الضلمة نزلت على البلد…».
 - **Rule:** never takes a side, never jokes, never sells.
 
@@ -101,7 +132,7 @@ and obey the spoiler rule (§1.9).
 The same five teach the game in the app's F18 how-to scenes, so a viewer who met them in a
 video meets them again in onboarding. Expressions are edited from the canonical art; motion
 is always image-to-video from it, never text-to-video. The **S0 test** proves the five faces
-and four silhouettes survive every model before Phase A starts.
+and four silhouettes survive every model before any Gang-face video is published.
 
 ### 1.3 Rituals — fixed times people come back for
 
@@ -131,12 +162,14 @@ ritual; nothing suggests other scheduled public tables.
 - Four sides; always «شريكك», never "team". Sunday standings normalized by side size.
 - Four sticker packs, one per character. Four links, `/p/<character>`; the app asks «شريكك مين؟» at first launch.
 - The web quiz (§8.2) is the easiest door into a side.
-- **It works if:** ≥ 15% of case comments declare a side by L-14 [A], each side ≥ 10%.
+- **It works if:** ≥ 15% of case comments declare a side by L-14 [A], each side ≥ 10% (L-14 = Oct 15).
 
-### 1.6 The serialized mystery (Phase B → «القضية الأولى»)
+### 1.6 The serialized mystery (Oct 4 → «القضية الأولى» on Oct 29)
 
-**Season 1 = ~15 episodes, Sun · Tue · Thu 21:00, L-35 → L.** Each episode stands alone;
-the arc is a bonus for regulars.
+**Season 1 = ~12 episodes, Sun · Tue · Thu 21:00, Sun Oct 4 → Thu Oct 29 (finale).** Each
+episode stands alone; the arc is a bonus for regulars. Until the S0 test passes, episodes are
+**card-only cases**: the Four's silhouettes and typed clues, no Gang faces. Kratos narrates
+cases only after the voice gates (§0).
 
 1. The village goes dark. Every night someone at the Gang's table dies; who among them is tonight's Mafia?
 2. A pattern forms: **each victim solved the previous case.**
@@ -175,10 +208,10 @@ end of their first match watches their own figure rise behind them.
 |---|---|
 | **Sonic mark** | the app's own F19 sound — lamp click + card flip — at 0.0–0.4 s of every video, and again under the reveal |
 | **The reveal** | the F19 shot — a role figure rising behind a player — as the recurring closing shot of «مواقف» and the default end card |
-| **Voice** | the F16 narrator voice, the same as in the app |
+| **Voice** | "Kratos", the same voice as the app's F16 narrator |
 | **Faces** | the five painted Gang faces and four silhouettes from the app's canonical art |
 | **Composition** | the round table from a high three-quarter angle, the lamp top-left, the empty chair bottom-right; for «القعدة», the phone flat in the middle of the table (F18 layout) |
-| **Order** | yesterday's answer before today's case |
+| **Order** | today's question at frame 0; yesterday's answer as a strip at 1.5–4 s |
 | **Portfolio** | ≥ 70% recurring franchises, ≤ 30% experiments |
 
 **Measure:** follows per 1k views and returning-viewer share, not only completion.
@@ -188,8 +221,8 @@ end of their first match watches their own figure rise behind them.
 ## 3. Pillars and the weekly mix
 
 **Volume: 7–10 primary shorts a week**, each with a different hook re-cut per platform (§7).
-Clean masters to TikTok, Reels, Facebook, Shorts. Clone only proven winners. From L, the best
-creator-session clips join the feed (with clip rights) as extra posts, not as primaries.
+Clean masters to TikTok, Reels, Facebook, Shorts. Clone only proven winners. From L, creators'
+own posts of their sessions are shared or reposted, credited — never re-uploaded as our content.
 
 | Pillar | What it is |
 |---|---|
@@ -200,18 +233,44 @@ creator-session clips join the feed (with clip rights) as extra posts, not as pr
 | **P5 trend-jack / reply remix** | within 24 h; or a reply-with-video |
 | **P6 ritual** | the letter episode, the solvers board, the standings |
 
-| Phase | P4 case / story | P3 situations | P1 + P2 strength proofs | P6 ritual | P5 trend / reply | Total |
-|---|---|---|---|---|---|---|
-| **A** | 2 cold cases | 2 | 2 | 1 | 0–1 | 7–8 |
-| **B early** | 3 cold cases | 2 | 2 | 1 | 0–2 | 8–10 |
-| **B, L-35 → L-4** | 3 (Season 1) | 2 | 2 | 1 | 0–2 | 8–10 |
-| **L-week** | 3 (finale + Season 2) | 2 | 3 | 1 | 0–1 | 9–10 |
-| **L+8 → L+30** | 3 (case teasers) | 2 | 2 | 1 | 0–2 | 8–10 (+ creator clips) |
+### 3.1 Pre-launch vs post-launch
 
-**Phase A leads with, in order:** (1) the phone is the narrator — and it speaks; (2) the
-figure rising behind the liar → the privacy-safe hand-off; (3) voice rooms across
-governorates. Then the case and the Four. Big-table and trips content leads organiser
-placements; family night is held for Ramadan and family audiences.
+| | **Pre-launch (Sep 29 → Oct 28)** | **Post-launch (Oct 29 → Nov 28)** |
+|---|---|---|
+| Spine | **until the voice gates (~Oct 6–10):** real app footage (narrator muted), text hooks, the painted Four, Gang stills from the marketing kit; **after:** the Kratos voice leads | the real app: reveal, big table, browser join, the daily case, the spoken narrator |
+| Gang faces | **only after S0 passes**; until then silhouettes | full Gang, animated from the app's painted art |
+| Cases | card-only cases until S0, then Season 1 with the Gang | case teasers «الحل جوه اللعبة» |
+| CTA | «تابع» → from pre-registration (~Oct 22) «سجّل من جوجل بلاي، والعبها أول ما تنزل» | «نزّلها ببلاش» |
+
+### 3.2 Weekly mix
+
+| Weeks | P4 case | P3 situations | P1 + P2 proofs | P6 ritual | P5 trend / reply | Total |
+|---|---|---|---|---|---|---|
+| W1 Sep 29 → Oct 4 (warm-up, no links, **no voice**) | 1 (card-only, text, Sun) | 0 | 5 (app footage + text hooks) | 1 | 0 | 7 |
+| W2–W3 Oct 5 → 18 | 3 (Season 1) | 1–2 (after S0) | 3 | 1 | 0–1 | 8–10 |
+| W4 Oct 19 → 25 (pre-registration opens) | 3 | 2 | 3 | 1 | 0–1 | 9–10 |
+| L-week Oct 26 → Nov 1 | 3 (finale Oct 29 + Season 2) | 2 | 3 | 1 | 0–1 | 9–10 |
+| Nov 2 → Nov 28 | 3 (teasers) | 2 | 2 | 1 | 0–2 | 8–10 (+ credited shares of creator posts) |
+
+**Pre-launch leads with, in order:** (1) the recognition hook and the phone as narrator, told
+in text; (2) the figure rising behind a player → the privacy-safe hand-off; (3) voice rooms
+across governorates; then (4) the narrator that speaks, once the voice gates are on record. Then the
+case and the Four. Big-table and trips content leads organiser placements; family night
+(F17) runs on November weekends.
+
+### 3.3 Calendar, Sep 29 → Nov 28
+
+| Week | Dates | Content focus | Other |
+|---|---|---|---|
+| W1 | Sep 29 → Oct 4 | #1–#5 (app footage + text, **no voice**); #6 first card-only case Sun Oct 4 | accounts created; S0 test; marketing kit lands; creator DMs start Sep 30 |
+| W2 | Oct 5 → 11 | **#7–#8 voice-led, the day the three voice gates are on record (~Oct 6–10)**; #9; Season 1 E2–E4; Gang stills if S0/S9 passed | creator rehearsals begin on the closed build |
+| W3 | Oct 12 → 18 | #10–#12; Season 1 E5–E7; first solvers board Sun Oct 18 | production-access application (~Oct 15) |
+| W4 | Oct 19 → 25 | Season 1 E8–E10; #13 once pre-registration opens | pre-registration ~Oct 22; CTA switch; web quiz live |
+| L-week | Oct 26 → Nov 1 | #14 date announcement (only after approval); E11; **#15 finale Thu Oct 29 20:00**; #16 | **L Oct 29**; first creator tables 21:00 |
+| M1 W1 | Nov 2 → 8 | #17–#18; Season 2 | ~6 creator sessions; 2–3 organiser placements |
+| M1 W2 | Nov 9 → 15 | #19; strength proofs; creator-post shares | same |
+| M1 W3 | Nov 16 → 22 | #20 family night; re-cuts of proven winners | same |
+| M1 W4 | Nov 23 → 28 | clones of the month's winners; month-1 recap (AI + app screens) | month-1 report Nov 29 |
 
 **CTAs** (typed; the Narrator says them in P1 and P4 only):
 
@@ -240,7 +299,7 @@ composition + the hook; the sonic mark at 0.0–0.4 s.** The last frame loops in
 | 1.5–3.5 | four cards dealt face down | «كل واحد بياخد كارت.» · card flip | still + library |
 | 3.5–11.5 | the four roles, 2 s each | «المافيا بتختار ضحيتها بالليل» · «الدكتور بينقذ» · «المحقق بيكشف» · «المواطنين لازم يعرفوا مين القاتل» | Kling hero loops |
 | 11.5–15 | the phone flat in the middle of the table, then four homes with phones lit | «ومفيش راوي… الموبايل هو الراوي.» → «وأونلاين بالصوت، كل واحد من بيته.» | library |
-| 15–18 | **real app: the phone narrating a public beat in the F16 voice** («الضلمة نزلت…») | — | app |
+| 15–18 | **real app:** after the voice gates, the phone narrating a public beat in the Kratos voice («الضلمة نزلت…»); before them, the F19 reveal with the narrator muted | — | app |
 | 18–22 | CTA | phase CTA | typeset |
 
 ### T2 · P2 strength proof (17 s)
@@ -257,9 +316,9 @@ composition + the hook; the sonic mark at 0.0–0.4 s.** The last frame loops in
 
 | s | Picture | Text / voice |
 |---|---|---|
-| 0–1.5 | Gang still | observational hook typed |
-| 1.5–8 | 2–3 reaction beats | typed beats |
-| 8–11 | the role figure fades in behind him | sonic mark under it |
+| 0–1.5 | **frame 0: the peak** — the role figure already risen behind him — + the observational hook at ≥ 90 px | sonic mark |
+| 1.5–3 | «قبلها بدقيقة…» — the stakes | typed |
+| 3–11 | 2–3 reaction beats (silhouettes until S0; the Gang after) | typed beats |
 | 11–14 | punchline | typed |
 | 14–17 | **real app: the F19 reveal** — the figure rising behind the player after the result — with «في اللعبة، الكارت بيبان بعد النتيجة بس.» → CTA | skip the app beat if the loop is stronger without it |
 
@@ -267,9 +326,9 @@ composition + the hook; the sonic mark at 0.0–0.4 s.** The last frame loops in
 
 | s | Beat | Source |
 |---|---|---|
-| 0–4 | yesterday's answer + the best theory, read aloud | stills + voice |
-| 4–5.5 | hard-cut question over the empty chair | still |
-| 5.5–8 | «الضلمة نزلت على البلد…» | voice |
+| 0–1.5 | **frame 0:** the question at ≥ 90 px over the empty chair, e.g. «مين قتل حمادة؟» + sonic mark | still |
+| 1.5–4 | a strip «امبارح: …» with yesterday's answer and the best theory (read by Kratos after the voice gates) | stills (+ voice) |
+| 4–8 | «الضلمة نزلت على البلد…» | voice |
 | 8–11 | six reaction stills → lights out | stills + library |
 | 11–14 | a card comes alive | Kling hero loop |
 | 14–15.5 | dawn: who's gone (implied, never shown) | library |
@@ -277,7 +336,7 @@ composition + the hook; the sonic mark at 0.0–0.4 s.** The last frame loops in
 | 24.5–27 | one of the Four's typed notes | typeset |
 | 27–30 | «حط نظريتك في القضية · شريكك مين؟» + CTA → 2 s end card | typeset + app |
 
-A season's first episode drops the answer prefix. Clue grammar matches the app's Case of the
+A season's first episode drops the answer strip. Clue grammar matches the app's Case of the
 Day («كريم مش المافيا» · «المافيا قاعد جنب ندى» · «بين المافيا والدكتور كرسيين بالظبط»);
 every case is solvable from its clues, checked by hand. Cases are fiction, never presented
 as in-game clues.
@@ -306,45 +365,88 @@ as in-game clues.
 
 ## 5. The first 20 videos (posting order)
 
-### Phase A — CTA «تابع»
+Pre-launch #1–#6 need no gate: real app footage (narrator muted), text hooks, the painted
+Four, score + sonic mark. **#7 onward may use the Kratos voice only once the three voice gates
+are on record (§0);** if the gates slip, #7–#8 wait and #9–#12 run text-led. Gang faces appear
+from #9 only if S0/S9 has passed, otherwise silhouettes. Post-launch #15–#20 lead with the real
+app. Dates follow §3.3.
 
-| # | Pillar | Title | Opening line | Strength proved |
-|---|---|---|---|---|
-| 1 | P1 | ١٤ على ترابيزة | «فاكر لعبة المافيا اللي اليوتيوبرز لعبوها، ١٤ واحد على ترابيزة واحدة؟» | roles in 8 s → **the phone narrates, out loud** → online with voice |
-| 2 | P3 | وحياة أمي مواطن | «في كل قعدة فيه واحد بيحلف إنه مواطن…» | he swears three times; the figure rises behind him → the **F19 reveal** in the app |
-| 3 | P2 | نور الشاشة | «صاحبك بيعرف دورك من نور الشاشة على وشك؟» | **the hand-off looks the same for every role** |
-| 4 | P2 | كل واحد في محافظة | «صحابك كل واحد في محافظة؟» | **voice rooms**: one link, the table is complete |
-| 5 | P2 | الراوي بقى بيتكلم | «إنت دايمًا اللي بيطلع عليك الدور تبقى الراوي؟ خلاص… الراوي بقى بيتكلم.» | **F16**: the phone announces night, morning, the vote — in Egyptian |
-| 6 | P4 | مين قتل حمادة؟ | «مين قتل حمادة؟ عندك ٣ أدلة.» | cold case 1 (one-solution puzzle design) |
-| 7 | P3 | حمادة | «حمادة في أي قعدة مافيا:» | the running gag; closes on the reveal |
-| 8 | P4 | متأكدة ١٠٠٪ | «ندى متأكدة ١٠٠٪… تاني.» | cold case 2; case 1 answered first |
-| 9 | P2 | من المتصفح | «ابعت اللينك… وصاحبك داخل من المتصفح في ثواني.» | **browser join** |
-| 10 | P6 | الكروت فاكرة | «الكروت دي فاكرة كل ترابيزة قعدت عليها.» | **the Four remember you** |
+### Pre-launch (Sep 29 → Oct 28)
 
-### Phase B — CTA «سجّل من جوجل بلاي، والعبها أول ما تنزل»
+| # | Week | Pillar | Title | Opening line | Strength proved | CTA |
+|---|---|---|---|---|---|---|
+| 1 | W1 | P1 | ١٤ على ترابيزة | «فاكر لعبة المافيا اللي اليوتيوبرز لعبوها؟» | roles in 8 s → **the phone is the narrator** (text) → online with voice | «تابع» |
+| 2 | W1 | P2 | نور الشاشة | «صاحبك عارف دورك من نور الشاشة؟» | **the hand-off looks the same for every role** (app footage) | «تابع» |
+| 3 | W1 | P2 | ورا كل واحد كارت | «ورا كل واحد كارت… محدش شايفه.» | **F19** reveal after the result (app footage, sonic mark) | «تابع» |
+| 4 | W1 | P2 | كل واحد في محافظة | «صحابك كل واحد في محافظة؟» | **voice rooms** across governorates (app footage, no narrator) | «تابع» |
+| 5 | W1 | P2 | من المتصفح | «ابعت اللينك… وصاحبك قاعد معاكم.» | **browser join** in seconds | «تابع» |
+| 6 | W1 (Sun Oct 4) | P4 | واحد منهم بيكدب | «واحد من الأربعة دول بيكدب.» | card-only case, text only (one-solution design) | «تابع — الحل الحلقة الجاية» |
+| 7 | W2, gates on record | P1 | الليل بيقرّب | «الليل بيقرّب… وواحد منكم مش منكم.» | **first Kratos video**: the Narrator's voice is the game's voice | «تابع» |
+| 8 | W2, gates on record | P2 | الراوي بقى بيتكلم | «الراوي بقى بيتكلم… وبالمصري.» | **F16**: night, morning, the vote — spoken in the app | «تابع» |
+| 9 | W2 | P3 | بيحلف إنه مواطن | «بيحلف إنه مواطن… وده اللي وراه.» | the figure behind the liar → privacy | «تابع» |
+| 10 | W3 | P6 | الكروت فاكرة | «الكروت دي فاكرة كل ترابيزة.» | **the Four remember you** | «تابع» |
+| 11 | W3 | P2 | رايحين رحلة؟ | «رايحين رحلة؟ لحد ١٥ واحد.» | **F15** 15 players, a night in < 4 min; phone flat on the table (F18) | «تابع» |
+| 12 | W3 | P4 | مين قتل حمادة؟ | «مين قتل حمادة؟ عندك ٣ أدلة.» | Season 1 case | «تابع — الحل الحلقة الجاية» |
+| 13 | W4 | P1 | جاية على جوجل بلاي | «الموبايل هو الراوي… وجاية على جوجل بلاي.» | the explainer; first release | «سجّل من جوجل بلاي، والعبها أول ما تنزل» |
+| 14 | L-week | P2 | القضية بتبدأ | «٢٩ أكتوبر. القضية بتبدأ.» — **only after 1.1 is approved** | the 20 s trailer: narrator, voice, hand-off, reveal | same |
 
-| # | Pillar | Title | Opening line | Strength proved |
-|---|---|---|---|---|
-| 11 | P1 | المافيا على الموبايل | «لعبة المافيا جاية على جوجل بلاي… والموبايل هو الراوي.» | the explainer; first release |
-| 12 | P2 | كل واحد ودوره وراه | «بعد النتيجة… كل واحد دوره بيقوم وراه.» | **F19** as a proof: the whole table's figures rise at the result |
-| 13 | P2 | رايحين رحلة؟ | «رايحين رحلة؟ الموبايل هو الراوي، ولحد ١٥ واحد.» | **F15** big table, a night in under 4 minutes; the phone flat on the table (F18) |
-| 14 | P2 | قضية اليوم | «لغز مافيا جديد كل يوم… وليه حل واحد بس.» | **daily case design** |
-| 15 | P4 | S1E1 الضلمة نزلت | «الضلمة نزلت على البلد… وحمادة أول واحد.» | the arc begins |
-| 16 | P2 | شريكك فاكرك | «اختار شريكك… وهو هيفتكر كل قضية حليتها.» | **the Partner's memory**: «المحقق محتفظ بملفاتك. غبت شوية.» |
-| 17 | P3 | أنا ساكت عشان بفكر | «اللي بيقول "أنا ساكت عشان بفكر":» | Uncle Reda's silence; closes on the reveal |
-| 18 | P4 | S1E2 أنا تاني؟! | «حمادة رجع… وماتش تاني.» | case 2 |
-| 19 | P2 | ليلة الخميس | «الخميس ٩ بالليل. الترابيزة مفتوحة.» | **the weekly night** |
-| 20 | P6 | لوحة المحققين | «دول اللي عرفوا مين المافيا الأسبوع ده.» | the first solvers board + standings |
+### Post-launch (Oct 29 → Nov 28)
 
-### Next up (queued strength proofs)
+| # | Week | Pillar | Title | Opening line | Strength proved | CTA |
+|---|---|---|---|---|---|---|
+| 15 | **Thu Oct 29, 20:00** | P4 | الدليل الرابع | «الدليل الرابع… جوه اللعبة.» | Season 1 finale → «القضية الأولى» | «الحل جوه اللعبة» |
+| 16 | L-week | P2 | كل واحد ودوره وراه | «بعد النتيجة… كل واحد دوره ورا ضهره.» | **F19**, the whole table | «نزّلها ببلاش» |
+| 17 | Nov W1 | P2 | قضية اليوم | «لغز مافيا جديد كل يوم.» | daily case, one solution | «نزّلها ببلاش» |
+| 18 | Nov W1 | P2 | ليلة الخميس | «الخميس ٩. الترابيزة مفتوحة.» | the weekly night | «نزّلها ببلاش» |
+| 19 | Nov W2 | P3 | حمادة | «حمادة في أي قعدة مافيا:» | the running gag; closes on the reveal | «نزّلها ببلاش» |
+| 20 | Nov W3 | P2 | سهرة العيلة | «سهرة عيلة؟ فيه وضع للعيلة.» | **F17** family preset, no jumpscare | «نزّلها ببلاش» |
+
+### Hook audit (first 20)
+
+"Value by 1 s" = the viewer knows what the video is about before second 1.
+
+| # | Frame 0 (the image) | Big line at frame 0 | Hook type | Value by 1 s? | Ending |
+|---|---|---|---|---|---|
+| 1 | a huge painted round table full of silhouettes (or `four_behind_table`) | «فاكر لعبة المافيا؟» | recognition | yes | F19 end card |
+| 2 | a silhouette's face lit by a phone in the dark | «صاحبك عارف دورك؟» | problem / fear | yes | app: identical hand-off |
+| 3 | **the peak**: a figure already risen behind a player (app footage) | «ورا كل واحد كارت» | visual surprise | yes | loops |
+| 4 | a map of Egypt, five cities lighting up | «كل واحد في محافظة؟» | problem | yes | loops to the map |
+| 5 | a chat bubble with a link (no app logos) | «ابعت اللينك» | ease | yes | app: seat filling |
+| 6 | four silhouettes, clue 1 already on screen | «واحد منهم بيكدب» | puzzle | yes | vote card |
+| 7 | the Reaper card half-lit in darkness, lamp click; Kratos at 0.0 | «واحد منكم مش منكم» | mystery + voice (captioned) | yes | loops to the lamp |
+| 8 | a phone flat on a table, waveform; Kratos at 0.0 «الضلمة نزلت…» | «الراوي بقى بيتكلم» | novelty + voice (captioned) | yes | app narrating a public beat |
+| 9 | **the peak**: the Reaper behind a swearing player | «بيحلف إنه مواطن» | comedy + reveal | yes | F19 end card |
+| 10 | the Four's dossiers fanned out, one typed line | «الكروت فاكرة» | intrigue | yes | app: dossiers (no tier lines) |
+| 11 | 15 silhouettes around a phone on a camp table | «لحد ١٥ واحد» | scale | yes | app: 15-seat table |
+| 12 | the question over the empty chair | «مين قتل حمادة؟» | puzzle | yes | vote card |
+| 13 | the phone narrating, big line | «الموبايل هو الراوي» | strength | yes | CTA card |
+| 14 | the date over the Reaper | «٢٩ أكتوبر» | event | yes | trailer's last beat |
+| 15 | three clues on screen, the fourth slot empty and lit | «الدليل الرابع» | payoff | yes | «الحل جوه اللعبة» |
+| 16 | **the peak**: every figure risen behind the table | «كل واحد ودوره وراه» | spectacle | yes | loops |
+| 17 | today's case grid, one tile flipping | «لغز كل يوم» | puzzle | yes | app: the case screen |
+| 18 | the lamp lit over six empty chairs, «٩» big | «الخميس ٩» | ritual | yes | loops |
+| 19 | Hamada's empty chair, his cup still warm | «حمادة… تاني» | running gag | yes | F19 end card |
+| 20 | a painted family table, soft lamp, phone in the middle | «سهرة عيلة؟» | audience | yes | app: family preset |
+
+**Fixes made in this audit:**
+- The old «وحياة أمي مواطن» revealed the figure at 8 s; #9 now opens on that peak.
+- The old «الراوي المظلوم» spent 1.5 s on setup; its line is merged into #8, which opens on the voice.
+- Season cases moved yesterday's answer to 1.5–4 s, so the question sits at frame 0 (T4).
+- The old solvers-board video (names arrive late) left the first 20; it stays a weekly ritual.
+- The old opener was a slow push-in; #1 now opens on the full table.
+- **Voice gates (Sol):** the two Kratos-led videos moved from week 1 to #7–#8, after the gates; week 1 is app footage and text only.
+- Every video works muted: #7 and #8 carry every spoken line as on-screen text.
+- The old «شريكك فاكرك» and «أنا ساكت عشان بفكر» move to later weeks.
+
+### Next up (queued)
 
 | Title | Opening line | Strength | When |
 |---|---|---|---|
-| الشلة بتعلمك | «أول مرة تلعب؟ الشلة هتوريك في دقيقة.» | **F18** how-to scenes | Phase B / L-week |
-| سهرة العيلة | «سهرة مع العيلة؟ فيه وضع للعيلة، من غير خضة.» | **F17** family preset | before Ramadan; family audiences |
-| الترابيزة كلها | «١٥ واحد وموبايل واحد في النص.» | **F15** + F18 layout | organiser placements |
-| بعد خروجك | «خرجت من أول ليلة؟ الحكاية لسه ما خلصتش ليك.» | following the truth after you're out — calm, never a lead | after L |
-| ما يفضحش دورك | «نفس المدة، نفس النور… لكل الأدوار.» | the hand-off, second angle | anytime |
+| الشلة بتعلمك | «أول مرة تلعب؟ الشلة هتوريك.» | **F18** how-to scenes | Nov |
+| شريكك فاكرك | «شريكك فاكر كل قضية حليتها.» | the Partner's memory | Nov |
+| أنا ساكت عشان بفكر | «"أنا ساكت عشان بفكر"…» | Uncle Reda; closes on the reveal | Nov |
+| بعد خروجك | «خرجت؟ الحكاية لسه ما خلصتش ليك.» | following the truth after you're out — calm, never a lead | Nov |
+| ما يفضحش دورك | «نفس المدة، نفس النور.» | the hand-off, second angle | anytime |
 
 ---
 
@@ -482,7 +584,7 @@ Share line: «طلعت أقرب لـ{character}… وإنت؟» + link. CTA: «�
 - Captions ≥ 64 px at 1080 wide, bone on a 60% charcoal plate; ≤ 7 words per card, ≤ 2 lines.
 
 ### Sound
-- The app's sonic mark at 0.0 s and under the reveal. The game's score as the bed (~−24 LUFS); the F16 narrator voice on top; mix −14 LUFS.
+- The app's sonic mark at 0.0 s and under the reveal. The game's score as the bed (~−24 LUFS); the Kratos voice on top once the voice gates are on record (before that, score + sonic mark only); mix −14 LUFS.
 - SFX palette: card flip, lamp click, lamp hiss, low boom, chair scrape, UI tick. No laugh tracks.
 - Music only from our score or TikTok's Commercial Music Library.
 
@@ -507,6 +609,8 @@ Share line: «طلعت أقرب لـ{character}… وإنت؟» + link. CTA: «�
 15. A solve rate below 50 solves, or not rounded to 5%? → reject.
 16. AI label ticked; music from our score or the Commercial Music Library; loudness correct?
 17. Findable: «لعبة المافيا» in the caption and on screen or spoken (§13)?
+18. **Kratos audio anywhere (voice-over or app footage with the narrator) before the three voice gates are on record?** → reject.
+19. **Hook law:** is the value visible by second 1, does it work muted, and is there exactly one CTA?
 
 ---
 
@@ -543,21 +647,22 @@ anything involving minors · graphic violence.
 
 ## 12. The creator network — the pitch is the game
 
-The controllable lever (`PLAN-V3.md` §3.1): **~25 creator-hosted sessions in month 1**,
-measured by **completed matches**.
+The controllable lever (`PLAN-V3.md` §3.1): **20 planning / 25 target creator-hosted sessions
+in month 1 (Oct 29 → Nov 27)**, measured by **completed matches**. DMs start Sep 30; rehearsals
+on the closed build Oct 1 → 21; first creator tables Thu Oct 29, 21:00.
 
 - **Who:** Egyptian micro-creators (10k–150k) who go live with group games or Just Chatting; plus Gulf creators who stream in Arabic, on the same pitch.
-- **The pitch (never reward-first):** «ترابيزة مافيا لمتابعينك: الموبايل هو الراوي وبيتكلم بالمصري، متابعينك بيدخلوا من المتصفح في ثواني، وفي الآخر كل واحد دوره بيقوم وراه.» At L creators simply play; no codes or special access are promised.
+- **The pitch (never reward-first):** «ترابيزة مافيا لمتابعينك: الموبايل هو الراوي وبيتكلم بالمصري، متابعينك بيدخلوا من المتصفح في ثواني، وفي الآخر كل واحد دوره بيقوم وراه.» Creators get the **creator entitlement** at L: no automatic ads on their account while they play and stream; rewarded ads stay opt-in. There are no viewer codes. Full messages and the funnel: `CREATORS.md`.
 - **Host kit** (one page + files):
   1. run sheet: open the room → share the per-creator link → 4 matches minimum → capture the reveal at each result;
   2. browser-join test script (5 people, 10 minutes);
   3. a moderation brief for the creator's own moderator (our house rules: no slurs, no real-life accusations, kick flow);
-  4. clip-rights agreement for our posts;
+  4. clip agreement: we cut clips for the creator to post; our pages only share or repost their post, credited;
   5. a per-creator link and QR overlay (Install Referrer attribution);
   6. two ready lines for the stream: «اللينك في البايو» · «ادخلوا من المتصفح».
 - **Rehearsal:** 15 minutes before a creator's first session, with the room, a browser join and the run sheet.
 - **Safety host:** our side (the owner) sits in Thursday creator tables; other sessions use the creator's own briefed moderator.
-- **Clips:** every session's best moments (the reveal, an accusation, a big-table night) are cut by the marketing session within 24 h, labelled, credited, and fed into the content system as extra posts.
+- **Clips:** every session's best moments (the reveal, an accusation, a big-table night) are cut by the marketing session within 24 h **for the creator to post**. Our pages share or repost the creator's post, credited; our own recaps use in-app screens only — no real faces or voices in our produced content (open decision, `PLAN-V3.md` §10).
 - **YouTuber reference** in our own posts stays generic («اليوتيوبرز», «١٤ على ترابيزة واحدة»); cold Creator-room DMs to the big creators' teams.
 
 ---
