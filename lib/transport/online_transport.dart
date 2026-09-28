@@ -377,6 +377,15 @@ class OnlineTransport implements GameTransport {
     });
   }
 
+  /// D9: serverNow − localNow at the last full read. The phase deadline in
+  /// the snapshot already carries it; this is for every other server time a
+  /// screen shows as a countdown (the lobby's ready deadline).
+  Duration get serverClockOffset => _skew;
+
+  /// [serverTime] on this device's clock, so `difference(DateTime.now())` is
+  /// the same remaining time on every phone whatever its clock says.
+  DateTime? onLocalClock(DateTime? serverTime) => serverTime?.subtract(_skew);
+
   /// When this client may start driving the room, or null when the phase has
   /// no clock.
   ///

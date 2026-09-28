@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/ui/social/friends.dart';
 
+import 'package:mafia_master/ui/theme/design_tokens.dart';
+
 import '../support/localized.dart';
+
 
 final _sample = FriendsState.fromJson({
   'friends': [
@@ -41,7 +44,54 @@ class _Fixed extends FriendsController {
   Future<void> refresh() async {}
 }
 
+/// Counts refreshes; the first read has no invite, later reads have one.
+class _Counting extends FriendsController {
+  static int refreshes = 0;
+  @override
+  Future<FriendsState?> build() async => FriendsState.fromJson(const {});
+  @override
+  Future<void> refresh() async {
+    refreshes++;
+    state = AsyncData(_sample);
+  }
+}
+
 void main() {
+  testWidgets('D5: invites arrive while the door is in front, not in the background', (
+    tester,
+  ) async {
+    _Counting.refreshes = 0;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [friendsProvider.overrideWith(_Counting.new)],
+        child: localizedApp(Scaffold(body: FriendsStrip(onJoin: (_) {}))),
+      ),
+    );
+    await tester.pump();
+    expect(find.byKey(FriendsStrip.inviteKey('ABCDEF')), findsNothing);
+    await tester.pump(FriendsTokens.inviteRefresh);
+    expect(_Counting.refreshes, 1);
+    await tester.pump();
+    expect(find.byKey(FriendsStrip.inviteKey('ABCDEF')), findsOneWidget);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump(FriendsTokens.inviteRefresh * 3);
+    expect(_Counting.refreshes, 1, reason: 'nothing is asked in the background');
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    expect(_Counting.refreshes, 2, reason: 'asked at once on resume');
+    await tester.pump(FriendsTokens.inviteRefresh);
+    expect(_Counting.refreshes, 3);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(FriendsTokens.inviteRefresh * 2);
+    expect(_Counting.refreshes, 3, reason: 'the timer leaves with the strip');
+  });
+
   test('the status answer parses presence, requests and invites', () {
     expect(_sample.friends, hasLength(2));
     expect(_sample.friends.first.presence.place, FriendPlace.lobby);

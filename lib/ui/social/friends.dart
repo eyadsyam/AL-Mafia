@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -164,7 +166,12 @@ class FriendsController extends AsyncNotifier<FriendsState?> {
 
 /// On the online door: invites waiting for you, and the way into the list.
 /// Draws nothing while the feature is off.
-class FriendsStrip extends ConsumerWidget {
+///
+/// D5: while the strip is on screen and the app is in the foreground, invites
+/// are refreshed every [FriendsTokens.inviteRefresh] and at once on resume, so
+/// «فلان عزمك» arrives without leaving and re-entering the door. The timer
+/// stops in the background and when the strip leaves the tree.
+class FriendsStrip extends ConsumerStatefulWidget {
   /// Joins a lobby by code (an invite, or a friend's open lobby).
   final ValueChanged<String> onJoin;
   const FriendsStrip({super.key, required this.onJoin});
@@ -173,7 +180,54 @@ class FriendsStrip extends ConsumerWidget {
   static Key inviteKey(String code) => ValueKey('friends_invite_$code');
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FriendsStrip> createState() => _FriendsStripState();
+}
+
+class _FriendsStripState extends ConsumerState<FriendsStrip>
+    with WidgetsBindingObserver {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _start();
+  }
+
+  void _start() {
+    _timer?.cancel();
+    _timer = Timer.periodic(FriendsTokens.inviteRefresh, (_) => _refresh());
+  }
+
+  void _refresh() {
+    // Only while the feature answered: a null state is "off", not "stale".
+    if (ref.read(friendsProvider).valueOrNull == null) return;
+    ref.read(friendsProvider.notifier).refresh();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refresh();
+      _start();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.detached) {
+      _timer?.cancel();
+      _timer = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final onJoin = widget.onJoin;
     final friends = ref.watch(friendsProvider).valueOrNull;
     if (friends == null) return const SizedBox.shrink();
     final l = context.l10n;
@@ -187,14 +241,14 @@ class FriendsStrip extends ConsumerWidget {
             Padding(
               padding: EdgeInsets.only(bottom: s.sm),
               child: FilledButton.icon(
-                key: inviteKey(invite.code),
+                key: FriendsStrip.inviteKey(invite.code),
                 onPressed: () => onJoin(invite.code),
                 icon: const Icon(Icons.mail_rounded),
                 label: Text(l.friendsInvitedYou(invite.name)),
               ),
             ),
           OutlinedButton.icon(
-            key: openKey,
+            key: FriendsStrip.openKey,
             onPressed: () => showFriendsSheet(context, onJoin: onJoin),
             icon: const Icon(Icons.people_alt_rounded),
             label: Text(

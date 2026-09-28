@@ -145,6 +145,19 @@ void main() {
       },
     );
 
+    test('D9: any server time (the ready deadline) reads on the local clock', () async {
+      final serverNow = DateTime.utc(2026, 9, 2, 12);
+      localNow = serverNow.subtract(const Duration(minutes: 3)); // slow phone
+      await connect(state: roomState(serverNow: serverNow));
+      expect(transport.serverClockOffset, const Duration(minutes: 3));
+      final readyDeadline = serverNow.add(const Duration(seconds: 45));
+      expect(
+        transport.onLocalClock(readyDeadline)!.difference(localNow),
+        const Duration(seconds: 45),
+      );
+      expect(transport.onLocalClock(null), isNull);
+    });
+
     test('a phase with no deadline renders none', () async {
       await connect(state: roomState(phase: 'morning'));
       expect(transport.snapshot.phaseDeadline, isNull);

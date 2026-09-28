@@ -1892,6 +1892,10 @@ abstract final class FriendsTokens {
   static const double sheetHeight = 0.9;
   static const double heroHeight = 120.0;
   static const double avatar = 44.0;
+
+  /// D5: while the online door is on screen and the app is in front, lobby
+  /// invites are asked for this often. Nothing is asked in the background.
+  static const Duration inviteRefresh = Duration(seconds: 20);
 }
 
 /// Accounts (`lib/ui/account/account_sheet.dart`).
