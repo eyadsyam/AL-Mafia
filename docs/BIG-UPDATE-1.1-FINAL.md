@@ -1,6 +1,6 @@
 # Mafia Master 1.1 — authoritative product and release specification
 
-Status: **frozen**, except §12, whose two entries are **owner decision pending**.
+Status: **frozen**. The owner answered every open decision on 2026-09-28 (§12), and the launch recut round closed the same day (Sol: "LAUNCH RECUT CLOSED").
 
 This is the sole implementation and release contract for 1.1. Older brainstorm, round, audit and economics documents are historical evidence only; they cannot supply missing requirements or override this file.
 
@@ -17,11 +17,11 @@ Status: **frozen**.
 - Paid entitlements are cosmetic or convenience-only. No power, hidden information, better odds, extra vote, extra attempt, matchmaking priority or role advantage is sold.
 - Android and web expose the same rules and account progress. Platform-specific ad utilities may be absent on web without changing rewards earned by play.
 - **Roles (owner, 2026-09-28):** Claude implements everything: client, SQL, edge functions, generators, tests, copy and asset registration. Sol critiques plans and generates images through its Codex session with a low-cost image model. Every plan is closed before any build starts.
-- The dead-player `witness_view` remains unchanged by explicit owner decision: dead online players may see roles and night choices, while living players may not. **Owner-accepted risk:** external messaging can carry that information from dead to living players.
+- **The dead see everything (owner, 2026-09-23 and 2026-09-28).** Dead online players see every role, every night action (kill, protect, investigate, suspect) and, from L, every whisper with sender, recipient and full text (Witness v2). Living players never receive any of it. **Owner-accepted risk:** external messaging can carry that information from dead to living players. This is the owner's explicit grant of private knowledge to the dead; it changes nothing for the living, so Doc 05 still governs every living client.
 
 1.1 is the **first public release**, not an update: listing, trailer and copy never say "update".
 
-Release name: **The Night Has a Home / الليلة بقى لها بيت**. Public launch target is Thursday at 16:00 Africa/Cairo; the launch-case finale is 20:00 and «ليلة الخميس» begins at 21:00. These are operator-set timestamps, never build-time assumptions.
+Release name: **The Night Has a Home / الليلة بقى لها بيت**. Public launch target is **Thursday 2026-10-29** (fallback **Thursday 2026-11-05**) at 16:00 Africa/Cairo; the launch-case finale is 20:00 and «ليلة الخميس» begins at 21:00. These are operator-set timestamps, never build-time assumptions.
 
 ## 1. Product shape and information architecture
 
@@ -61,37 +61,44 @@ Status: **frozen**.
 
 ### Must exist at public launch L
 
-The launch path is a **129-hour ceiling**, not a target to fill. Feature freeze is ≥ 14 days before the release candidate, and ≥ 20% of the schedule is reserved for integration. Any overrun cuts the lowest unfinished row; it never moves the RC.
+The launch path is a **129-hour ceiling**, not a target to fill (launch recut, 2026-09-28).
+
+**Date rule.** L is the first Thursday ≥ 7 days after Play production access **and** after every P0 gate passes: target **Oct 29**, fallback **Nov 5**. "Never move the date" applies only to removable features; online integrity, Doc 05, safety, RC stability or a store-access delay move L.
+
+**The real critical path is Play, not code.** A personal account created after Nov 2023 keeps Production **and** Pre-registration locked until ≥ 12 testers stay opted in to the closed test for 14 continuous days, followed by Google's review of the production-access application. The 12 testers were not opted in on 2026-09-28. Closed-test builds may carry features while the clock runs; tester continuity must never be interrupted. Pre-registration therefore exists for only about one week before L.
+
+**Merge rule.** Features merge only with their gates green until **Oct 19**; Oct 19–22 is integration only; the RC reaches the closed track by **Oct 22**. If Oct 19 arrives with incomplete non-P0 work, cut **F17 family mode first**, then the **Partner lobby embellishment** (the result signature stays). Never cut online integrity, Doc 05, safety, low-end stability or RC time.
 
 | Order | Launch work | Hours | Gate |
 |---:|---|---:|---|
 | 1 | Online-core release blockers (§7) and Doc 05 payload/error hardening | 8 | targeted online/leakage suites ×3; chaos cases; publication allowlist |
 | 2 | Safety v11 and owner review queue | 8 | block across every social surface; report retention/limits; review drill |
-| 3 | Operator controls, metrics, warm-up, low-end performance | 11 | audit/idempotency; metric allowlist; F14 budgets |
-| 4 | Economy v3, invite hardening, launch catalogue, entitlement provenance | 8 | full simulation; concurrency; exact-once; OFF-by-default proof |
-| 5 | Casebook, Season Zero, titles, core Partner | 10 | inactive-season behaviour; reward math; Partner import closure |
-| 6 | Daily Case core, «القضية الأولى», reminder, `/case/today` | 9 | generator uniqueness; attempts/reveal; web route; opt-in reminder |
-| 7 | Ready-up, reconnect, host continuity, hand-off reliability (existing rematch kept) | 6 | two-client races; process death; private/public ready |
-| 8 | Thursday, pass-and-play result inventory (P6), launch events | 6 | Cairo boundaries; eligibility; public-result-only placement |
-| 9 | Required launch art and non-voice sound | 5 | alpha/crop/size/contact sheets; reduced motion; no private-role cue |
-| 10 | F15 big-table speed + F17 family mode + F18 narrated how-to scenes + F16 tabletop layout | 13 | 10/15-player timed tests; family parity; 2 m legibility; tutorial completion |
-| 11 | F16 free spoken narrator | 24 | licensing/provenance record; listener gate; noisy-room and tenth-match tests; silence in private phases |
-| 12 | F19 signature presentation (reveal, sonic mark, Partner in lobby/result) | 7 | result-only reveal; live import closure; asset-memory gate |
-| 13 | Honest listing, captures, trailer | 5 | every depicted feature enabled in RC; no private or fabricated state |
-| 14 | Full RC and device matrix | 9 | SQL/edge/analyze/full Flutter; two Android classes; Safari; offline; five-match soak |
+| 3 | F16 spoken narrator — the owner's «Kratos» voice | 18 | provenance + commercial-use record; silence in private phases; listener gate (≥ 9/12 natural and not cringe); noisy-room and tenth-match tests |
+| 4 | Ready-up, reconnect, host continuity, hand-off reliability (existing rematch kept) | 6 | two-client races; process death; phase resume |
+| 5 | Operator controls, metrics, warm-up, low-end performance, Install Referrer, Play in-app review | 13 | cold-start regression < 150 ms p95; raw referrer discarded; review remote-killable; low-end/web budgets |
+| 6 | Economy v3, invite hardening, launch catalogue, entitlement provenance, **creator entitlement** | 10 | creator gets no automatic ads; rewarded stays opt-in; revoke and ordinary-user regression tests |
+| 7 | Daily Case core, «القضية الأولى», reminder, `/case/today` | 9 | generator uniqueness; attempts/reveal; web route; opt-in reminder |
+| 8 | F19 signature presentation (reveal, sonic mark, Partner in lobby/result) | 7 | result-only reveal; private/live import closure; asset-memory gate |
+| 9 | Casebook, Season Zero, titles, core Partner | 10 | inactive-season behaviour; reward math; exact-once claims; Partner import closure |
+| 10 | F15 big-table speed + F17 family mode + F16 tabletop layout | 9 | 10/15-player timed tests; immutable family setting; 2 m legibility |
+| 11 | Witness v2: whisper contents for the dead | 6 | dead-only authorization; room isolation; masking/report tests (F21a) |
+| 12 | Thursday, pass-and-play result inventory (P6), launch events | 6 | Cairo boundaries; eligibility; public-result-only placement |
+| 13 | Required launch art and non-voice sound | 5 | alpha/crop/size/contact sheets; reduced motion; no private-role cue |
+| 14 | Honest listing, captures, trailer | 5 | every depicted feature enabled in RC; no private or fabricated state |
+| 15 | Full RC and device matrix | 9 | SQL/edge/analyze/full Flutter; two Android classes; Safari; offline; five-match soak |
 |  | **Total** | **129** | |
 
-Out of L (they keep their contracts below and ship later): the rematch vote (the existing rematch stays), creator/viewer codes, founder milestone automation, Daily Case streak-save and extra clue. The basic founder seal stays at L.
+Out of L (they keep their contracts below and ship later): F18 narrated how-to scenes (1.1.1), the rematch vote (the existing rematch stays), founder milestone automation, Daily Case streak-save and extra clue. The basic founder seal stays at L. **Viewer codes are deleted (owner, 2026-09-28), not parked.**
 
 ### Roadmap after L
 
 Every row stays OFF until its full gates pass. A cut feature is absent from launch copy and screenshots; it is never shipped half-finished.
 
-- **1.1.1 — Characters and competitive choice:** Character Chapters + four chapter seals (no later than Season Zero day 21); F20 Thursday Partner letter; F21 witness-knowledge setting; F22 last words (if its atomic voice/witness gate passes); the lobby voice self-test.
+- **1.1.1 — Characters and competitive choice:** F18 narrated how-to scenes; Character Chapters + four chapter seals (no later than Season Zero day 21); F20 Thursday Partner letter; F21 witness-knowledge setting; F22 last words (if its atomic voice/witness gate passes); the lobby voice self-test.
 - **1.1.2 — Learning and cast:** Investigation Desk; the Gang as Academy/example characters; streak-save only if missed-day cohort data justifies it; an extra narrator personality only after F16 fatigue data.
 - **1.1.3 — Better tables:** Scenario Deck + House Rules, Series + Draft; family-pace preset; F23 same-room phones v0; table-face portraits after suspect-art consistency tests.
 - **1.1.4 — The argument after the game:** verdict sharing; F24 match chronicle + «من حكايات الراوي»; F25 settled vote timeline; post-result reactions; session-scoped local evening score; Season One content.
-- **Later 1.1.x:** additional scheduled nights (F26) only after density gates; creator/viewer codes if evidence supports them; founder milestone automation; the extra clue; the rematch vote; additional narrator packs; direct premium cosmetics (`mm_reaction_plate_pack_01`, `mm_table_scene_01`, `mm_dossier_set_01`, `mm_council_bundle_01`) with their art. Purchases are ≈$13.5/month per 1,000 active devices at middle, against a large art, catalogue and QA load.
+- **Later 1.1.x:** additional scheduled nights (F26) only after density gates; founder milestone automation; the extra clue; the rematch vote; additional narrator packs; direct premium cosmetics (`mm_reaction_plate_pack_01`, `mm_table_scene_01`, `mm_dossier_set_01`, `mm_council_bundle_01`) with their art. Purchases are ≈$13.5/month per 1,000 active devices at middle, against a large art, catalogue and QA load.
 - **1.2 — «قعدة من غير تمرير»:** the dedicated public-display Table Link v1; the authored «بروفة مع الشلة»; Partner content set 2; Proverb Bluff and safe party modifiers; voice reliability. No full bots until simulation benchmarks pass.
 - **1.3 — Bigger public table:** public-snapshot big-screen; a delayed creator spectator pilot without chat; creator tooling; platform expansion.
 - Full bots and experimental roles come later than 1.3. The Jester and a trial phase are rejected.
@@ -374,9 +381,10 @@ The privacy barrier stays: hold-to-reveal, automatic conceal and a confirmed hid
 ### F16 — «صوت الراوي»: spoken narrator and tabletop layout (L)
 
 - **Scope:** pass-and-play public-table beats only (night falls, morning, discussion, vote open, vote result, win). Never while a player holds the phone privately; never during hand-off, reveal or night actions. Online narration waits for a proven host-broadcast/ducked design.
+- **Voice (owner, 2026-09-28):** the owner's own ElevenLabs voice «Kratos», voice ID `R1hq8f4mfX3N88Om3Nb7`; tone reference `assets/voiceovers/night_approaching_kratos.mp3`. Before any generated line ships or any Kratos-led video is published: (1) the owner confirms the voice was designed, not cloned from a real person; (2) a commercial-use authorization for the generated audio is on record; (3) the listener gate passes. The line bank is `tool/voice/kratos_lines.json`; the generator is `tool/voice/generate_kratos.mjs` and reads its key only from the environment.
 - **Content:** one free voice at L. Several takes per beat, never the same line twice in a row. Text stays authoritative; independent voice/SFX volume. It is the same Narrator as the marketing videos.
 - **Production:** pre-rendered offline audio. Archive per batch the voice ID, generation date, applicable terms, authored scripts and the disclosure decision. Loudness normalisation, silence trims, ducking against SFX, interruption/resume behaviour.
-- **Listener gate:** 12 Egyptian listeners (ages 15–60, Cairo + ≥ 1 other governorate), blind. Rated separately as natural (≥ 9/12) and not cringe (≥ 9/12). No subgroup below 2/3. ≥ 75% intelligibility in a noisy room. "Would you keep this on after ten matches?" ≥ 8/12. After launch: < 20% disable it after three local matches. A voice that fails stays out, even if technically complete. The owner approves tone and pronunciation.
+- **Listener gate:** 12 Egyptian listeners (ages 15–60, Cairo + ≥ 1 other governorate), blind and anonymous. The closed testers may form the panel, but ≥ 4 listeners must be uninvolved in development, and the voice is never identified as the owner's before rating. Rated separately as natural (≥ 9/12) and not cringe (≥ 9/12). No subgroup below 2/3. ≥ 75% intelligibility in a noisy room. "Would you keep this on after ten matches?" ≥ 8/12. After launch: < 20% disable it after three local matches. A voice that fails stays out, even if technically complete. The owner approves tone and pronunciation.
 - **Tabletop layout:** public-table phases only. Large design-token type (system text scale stays locked), high contrast, a timer ring readable at 1–2 m. Never persists into hand-off, reveal or night.
 - **Personalities** (later 1.1.x): authored performances. Humour lives in writing and timing, not a caricatured voice; «المذيع» never imitates a real commentator. Each pack passes the same gate.
 
@@ -384,7 +392,7 @@ The privacy barrier stays: hold-to-reveal, automatic conceal and a confirmed hid
 
 An immutable room/session preset chosen before the deal, remembered locally per host. It disables the reaper motion, harsh cues and horror copy for everyone at the table. It is never per-role or mid-match. It does not claim the online environment is child-safe.
 
-### F18 — Narrated how-to scenes (L)
+### F18 — Narrated how-to scenes (1.1.1)
 
 Three skippable 15–20 s scenes: deal/privacy, night and public morning, discussion and vote. The Gang demonstrates; F16 narrates. The first scene is offered in context; the full guide stays in Learn. Never a forced film.
 
@@ -402,6 +410,17 @@ Completed public-week aggregates only (cases solved, matches finished, titles ea
 ### F21 — Witness-knowledge room setting (1.1.1)
 
 «الميتين يشوفوا الأدوار؟» defaults to ON (the owner's decision). It is immutable after the deal and shown in the lobby summary. OFF is enforced at the server: `witness_view` publishes no roles or night actions, and the ghost chat receives public state only. It cannot change during a series round.
+
+### F21a — Witness v2: whisper contents for the dead (L)
+
+Owner decision 2026-09-28: the dead see the whole game, including who whispered what to whom.
+
+- **Server rule:** `witness_view` returns `whispers[]` (`id`, day/night index, `from_seat`, `to_seat`, `text`) only when the authenticated caller is a current member of the requested room **and** the authoritative `room_players.alive = false` **and** witness mode is enabled for that immutable room configuration. Clients never assert their own death.
+- Whisper content never enters the ordinary snapshot, Realtime publication, error bodies, analytics, client logs or a cache that survives sign-out. Direct table reads stay denied; `witness_view` is the only path.
+- **Disclosure:** one identical line for every player, in the lobby rule summary and at the whisper composer, «اللي خرجوا من اللعبة بيشوفوا الهمسات». Recipients see the same notice.
+- **Safety:** reported whispers are preserved as evidence, not removed. A sender blocked by the dead viewer has their text masked server-side for that viewer only. A dead viewer can report a witnessed whisper by its immutable ID without resubmitting the text.
+- The dead still have no in-game channel to the living; ghost chat is dead-only.
+- **Tests:** living member → `403 WITNESS_ONLY` with no roles, actions or `whispers` field; non-member and other-room member → the same non-revealing refusal; dead member receives every committed whisper up to the authoritative read point, including whispers between other players; uncommitted/failed whispers never appear; F21 OFF → public state only (no roles, actions, whisper metadata or text); blocked-sender masking; report-by-ID; Unicode, maximum length and hostile markup render inert; nothing in logs/telemetry/cache after sign-out; death/read races use committed membership only.
 
 ### F22 — «الوصية» (1.1.1)
 
@@ -451,9 +470,9 @@ Triggers: lobby <5, public result, Daily Case solve, founder letter. WhatsApp fi
 
 After roles carousel, pass result may surface unclaimed existing daily ad and wheel/coffer extras, then ≤1 automatic result-exit/session inside global two/day. Never before role reveal, handoff, pre-deal or between result/carousel.
 
-### P7 Creator entitlement/viewer codes — later 1.1.x, if evidence supports them
+### P7 Creator entitlement — L; viewer codes deleted (owner, 2026-09-28)
 
-`creator_entitlements(user,campaign,status,starts,ends)` removes ads/unlocks catalogue for verified production accounts; revocable/non-transferable. `viewer_codes(code_hash,creator,expires,cap,count,status)` and redemptions grant 7 days without automatic ads, once/account; rewarded unchanged. `creatorCodeRedeem{code,requestId}` rate-limited for authenticated guests. Revocation stops new use; fraud revocation may end linked grants with audit. Counts aggregate.
+`creator_entitlements(user,campaign,status,starts,ends)` is granted server-side by the owner to verified creator accounts: no automatic ads (interstitial/banner/result-exit) while active; rewarded ads stay opt-in and unchanged; revocable, non-transferable, audited. Followers and viewers get the ordinary ad model. `viewer_codes`, redemptions and `creatorCodeRedeem` are not built.
 
 ### P8 Loop counters — KEEP
 
@@ -461,7 +480,7 @@ Use F13 enums only. First-open attribution stores one bucket, never raw referrer
 
 ### P9 In-app review — CHANGE
 
-Do not select only winners. Eligible after third clean completed match with no reconnect/report/error **or** third solved case. ≤1/90d, never live/after loss/reward-coupled. Platform decides whether prompt appears. Dependency is §12.
+Do not select only winners. Eligible after third clean completed match with no reconnect/report/error **or** third solved case. ≤1/90d, never live/after loss/reward-coupled. Platform decides whether prompt appears. Dependency approved by the owner (2026-09-28); remote-killable.
 
 ### P10 Season Pass launch price — KEEP
 
@@ -498,7 +517,8 @@ Status: **frozen**. Every row defaults OFF/inactive.
 | `case_extra_clue_enabled` | `caseOfDay.extraClue` | case+rewarded | 1.1.x |
 | `daily_case_reminders_enabled` | `caseOfDay.reminders` | local opt-in | 6 |
 | `founder_enabled` + window | `founder` | verified eligibility | 7 |
-| `creator_codes_enabled` | `creatorCodes` | safety+limits | 1.1.x |
+| `creator_entitlement_enabled` | `creatorEntitlement` | entitlement provenance | 6 |
+| `witness_whispers_enabled` | `witness.whispers` | Safety v11 + F21a tests | 11 |
 | Season Zero operator active | `season.active` | explicit L timestamp | 8 |
 | `missions_enabled` | `missions` | active season+contracts | 8, same operation |
 | `titles_enabled` | `titles` | inventory | 8 |
@@ -809,7 +829,7 @@ Launch-week night: 5–10 Egyptian micro-creators/board-game communities, Thursd
 | 9 | Monetization pressure damages play | result-exit abandonment, next-match rate, session length and D1/D7 by actual ad exposure; investigate if exposed D7 is > 3 points below matched unexposed cohorts |
 | 10 | The Four become a decorative menu | ≥ 30% of D7 players open a dossier; ≥ 20% revisit Partner content; ≥ 4 weeks of non-repeating lines per character at launch cadence |
 | 11 | Art is polished but emotionally wrong | blind test with 12–20 target players: ≥ 75% name the intended mood; no recurring anatomy/cultural complaint; every recurring face passes side-by-side consistency |
-| 12 | Dead-to-living collusion in competitive rooms | F21 server test; setting adoption measured; competitive complaints tagged; external communication is an accepted residual risk |
+| 12 | Dead-to-living collusion in competitive rooms (now including whisper text) | F21/F21a server tests; setting adoption measured once F21 ships; competitive complaints tagged; whisper-related reports per 1,000 public matches; external communication is an accepted residual risk |
 | 13 | Matches become too long | p90 ≤ 35 min for the standard 8-player preset; < 5% voluntary mid-match departure unrelated to network; one defence ritual only; last words fixed at 15 s |
 | 14 | A host/network failure leaves an unrecoverable room | chaos suite across every phase (host kill, process death, duplicate action, lost response, reconnect): zero divergent outcomes, ≥ 95% resume, no acknowledged action lost |
 | 15 | The narrator is embarrassing or exhausting | the F16 listener gate; < 20% disable after three local matches |
@@ -822,18 +842,15 @@ Operational risks carried from earlier rounds: weak-network receipts (Claude), r
 
 The ordered roadmap lives in §2 "Roadmap after L". Beyond it: 1.4, role research (a limited Mayor prototype under Doc 09/11; Storyteller research only); 2.0, community at scale (moderated crews, tournaments, regional copy packs, mature live ops). No Group Book or anniversaries in 1.1, no Coffeehouse league, no fifth role before 1.4 proof.
 
-## 12. Owner decisions still open
+## 12. Owner decisions — answered 2026-09-28
 
-Status: **owner decision pending**. Each has a recommended default.
-
-1. **Install-referrer dependency** for `/p/<character>` attribution. Recommendation: approve only if the proof adds < 150 ms cold-start p95 and stores no raw referrer; otherwise App Links alone. Partner selection does not depend on it.
-2. **Play in-app review dependency.** Recommendation: approve. Trigger after the third clean completed match or third solved case, ≤ 1 per 90 days, remote-killable, never reward-coupled.
-3. **Streak-save timing.** Recommendation: 1.1.2, and only if missed-day cohort data justifies it. It is not the only D7 protection.
-4. **The witness-knowledge setting (F21).** Recommendation: ship in 1.1.1, default ON (your decision stands), immutable after the deal, enforced by the server when OFF.
-5. **Family mode (F17) default.** Recommendation: the standard presentation stays the default; family mode is a one-tap preset remembered per host.
-6. **Same-room v0 naming (F23).** Recommendation: «موبايلات في نفس المكان». Promise QR entry and no hand-offs; don't promise spoken night narration.
-7. **Voice acceptance (F16).** Recommendation: approve only if it passes the naturalness, cringe, intelligibility and fatigue gates. A failed voice stays out.
-8. **The launch ceiling.** Recommendation: freeze 129 h with a 14-day feature freeze. Overruns cut the lowest unfinished row; the RC date doesn't move.
-9. **Viewer codes move out of L.** Your «one week» decision stands for when they ship (later 1.1.x). At L, creators still host private rooms and play; they just have no code to give.
+1. **Install Referrer and Play in-app review:** approved («ضيف كل اللي انت عايزه»). Row 5 of §2; the < 150 ms cold-start and no-raw-referrer gates still apply.
+2. **Viewer codes:** deleted. Creators get the creator entitlement (no automatic ads; rewarded stays opt-in) at L; everyone else gets the normal ad model.
+3. **Content:** pre-launch and post-launch; every video hooks in its first second (docs/marketing).
+4. **The dead see everything:** every role, every night action and every whisper with its text (F21a at L). F21's host toggle stays 1.1.1, default ON.
+5. **Voice:** the owner's ElevenLabs «Kratos» voice replaces the Azure idea. Provenance, commercial-use authorization and the listener gate remain release blockers (F16).
+6. **Creators:** Claude prepares the Egypt + Gulf list and messages; the owner sends.
+7. **Date:** "two weeks to a month". Play's 12-tester/14-day rule makes two weeks impossible; target Thu Oct 29, fallback Thu Nov 5 (§2).
+8. **Carried defaults** (no objection raised): streak-save 1.1.2 with evidence; family mode is a one-tap preset, not the default; same-room v0 is «موبايلات في نفس المكان»; the 129 h ceiling with the §2 merge rule.
 
 Frozen, not open: local notifications, economy option C, Season Pass, Quiet Pass, P1–P12 as amended, ad model 1, the total-income target, the strength-first listing, the §2 launch list and the roadmap. Game rounds 1–2 (Sol: "GAME PLAN CLOSED") closed this file.
