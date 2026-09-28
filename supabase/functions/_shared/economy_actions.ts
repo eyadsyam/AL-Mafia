@@ -243,6 +243,11 @@ export function economyCall(
           args: { p_user: userId, p_side: body.side, p_request: body.requestId.toLowerCase() },
         }
         : null;
+    // Row 12: launch events — the public schedule, and the public-result stamp.
+    case "launchEvents":
+      return { rpc: "launch_event_state", args: { p_at: new Date().toISOString() } };
+    case "eventResult":
+      return room ? { rpc: "launch_event_result", args: { p_user: userId, p_room: room } } : null;
     default:
       return null;
   }

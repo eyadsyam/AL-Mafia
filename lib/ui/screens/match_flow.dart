@@ -23,6 +23,7 @@ import 'day/voting_screen.dart';
 import 'distribution/role_reveal_screen.dart';
 import 'match_controller.dart';
 import '../economy/interstitial_coordinator.dart';
+import '../economy/pass_result_inventory.dart';
 import 'online/online_session.dart';
 import 'online/online_table_flow.dart';
 import 'online/table/table_scene.dart' show tableIsAvailableFor;
@@ -727,6 +728,12 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
           final LocalTransport local when local.engine.hasMatch =>
             localMatchAwards(local.engine.match),
           _ => const [],
+        },
+        // P6: pass-and-play only, like the awards: the existing offers still
+        // waiting today, below the fully revealed roles.
+        inventory: switch (_controller.transport) {
+          LocalTransport() => const PassResultInventory(),
+          _ => null,
         },
         // Not a branch on the transport: `leave()` on a session that holds no
         // room does nothing, so an offline match pays nothing here. Online it

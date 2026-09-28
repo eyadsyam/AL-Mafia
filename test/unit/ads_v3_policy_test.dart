@@ -70,12 +70,21 @@ void main() {
   group('placements', () {
     test('each is shown when every rule allows it', () {
       for (final p in AdPlacement.values) {
+        if (p == AdPlacement.passAndPlayDeal) continue;
         expect(
           decide(p, menuMs: fiveMinutes),
           InterstitialVerdict.show,
           reason: '$p',
         );
       }
+    });
+
+    test('P6: never before the deal in «القعدة», whatever the rules say', () {
+      expect(decide(AdPlacement.passAndPlayDeal, menuMs: fiveMinutes), InterstitialVerdict.off);
+      expect(
+        decide(AdPlacement.passAndPlayDeal, ledger: played(50)),
+        InterstitialVerdict.off,
+      );
     });
 
     test('missing config is off, and each switch is independent', () {
@@ -105,10 +114,6 @@ void main() {
         InterstitialVerdict.grace,
       );
       expect(
-        decide(AdPlacement.passAndPlayDeal, ledger: brandNew),
-        InterstitialVerdict.grace,
-      );
-      expect(
         decide(AdPlacement.session, ledger: brandNew, menuMs: fiveMinutes),
         InterstitialVerdict.grace,
       );
@@ -129,10 +134,6 @@ void main() {
     test('the first match after a launch skips the pre-match ads', () {
       expect(
         decide(AdPlacement.preMatch, firstOfLaunch: true),
-        InterstitialVerdict.firstAfterLaunch,
-      );
-      expect(
-        decide(AdPlacement.passAndPlayDeal, firstOfLaunch: true),
         InterstitialVerdict.firstAfterLaunch,
       );
       // After-match placements are unaffected.
@@ -209,6 +210,7 @@ void main() {
 
     test('Quiet Pass removes every interstitial', () {
       for (final p in AdPlacement.values) {
+        if (p == AdPlacement.passAndPlayDeal) continue; // P6: never shown at all
         expect(
           decide(p, adFree: true, menuMs: fiveMinutes),
           InterstitialVerdict.adFree,
@@ -225,8 +227,13 @@ void main() {
   group('pass-and-play', () {
     test('never while a match (and so the phone) is in play', () {
       expect(
-        decide(AdPlacement.passAndPlayDeal, gameplay: true),
+        decide(AdPlacement.passAndPlayResult, gameplay: true),
         InterstitialVerdict.busy,
+      );
+      expect(
+        decide(AdPlacement.passAndPlayDeal, gameplay: true),
+        InterstitialVerdict.off,
+        reason: 'P6: the pre-deal placement does not exist',
       );
       expect(adSurfaceOf('/match'), AdSurface.gameplay);
       expect(adSurfaceOf('/online/lobby'), AdSurface.waiting);
@@ -358,7 +365,8 @@ void main() {
       await c.beforeOnlineMatch(); // first of launch
       await c.fullScreenShown(); // the app-open ad
       now += 60 * _second;
-      expect(await c.beforeDeal(), InterstitialVerdict.tooSoon);
+      expect(await c.beforeOnlineMatch(), InterstitialVerdict.tooSoon);
+      expect(await c.beforeDeal(), InterstitialVerdict.off, reason: 'P6');
     });
 
     test('a rematch that showed the ad pays for the next Create', () async {
@@ -466,6 +474,13 @@ void main() {
         await c.leftPassAndPlayResult('local-2'),
         InterstitialVerdict.show,
       );
+      // P6: at most one pass-and-play result-exit per app session.
+      now += 60 * _minute;
+      expect(
+        await c.leftPassAndPlayResult('local-3'),
+        InterstitialVerdict.notDue,
+      );
+      expect(ads.shows, 1);
     });
   });
 }

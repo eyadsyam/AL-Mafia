@@ -4805,4 +4805,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get titlesUnequip => 'No title';
+
+  @override
+  String get passInventoryTitle => 'You still have rewards today';
+
+  @override
+  String get passInventoryDailyAd => 'Today\'s rewarded ad';
+
+  @override
+  String get passInventoryExtraSpin => 'An extra wheel spin';
+
+  @override
+  String get passInventoryExtraCoffer => 'An extra coffer';
+
+  @override
+  String get passInventoryOpen => 'Open rewards';
 }

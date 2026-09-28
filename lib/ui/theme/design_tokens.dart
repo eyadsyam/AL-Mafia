@@ -1995,3 +1995,9 @@ abstract final class CasebookTokens {
   static const double entryHeight = 96.0;
   static const double entryFacesWidth = 150.0;
 }
+
+/// P6: the pass-and-play result inventory (`pass_result_inventory.dart`).
+abstract final class PassInventoryTokens {
+  /// The daily rewards sheet opened from the result.
+  static const double sheetHeight = 0.9;
+}

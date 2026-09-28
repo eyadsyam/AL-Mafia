@@ -82,6 +82,10 @@ class ResultScreen extends StatelessWidget {
   /// the ribbon. Safe here for the same reason the roles are: it is over.
   final List<MatchAward> awards;
 
+  /// P6: below the fully revealed roles, the existing offers still waiting
+  /// today (pass-and-play only). Null draws nothing.
+  final Widget? inventory;
+
   const ResultScreen({
     super.key,
     required this.winner,
@@ -90,6 +94,7 @@ class ResultScreen extends StatelessWidget {
     required this.onHome,
     this.coaching = const {},
     this.awards = const [],
+    this.inventory,
   });
 
   /// Key on the «كان ممكن» block for a given seat.
@@ -376,6 +381,7 @@ class ResultScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                      ?inventory,
                       SizedBox(height: spacing.lg),
 
                       // Action buttons

@@ -273,6 +273,10 @@ InterstitialVerdict decideInterstitial({
   bool gameplay = false,
   int menuMs = 0,
 }) {
+  // P6 (spec §5): nothing automatic before the role reveal, the hand-off or
+  // the deal in «القعدة». The placement is kept so old call sites compile; it
+  // never shows.
+  if (placement == AdPlacement.passAndPlayDeal) return InterstitialVerdict.off;
   if (!rules.allows(placement) || rules.maxPerDay <= 0) {
     return InterstitialVerdict.off;
   }

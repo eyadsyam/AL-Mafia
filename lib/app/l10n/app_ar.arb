@@ -1846,5 +1846,10 @@
   "partnerCitizen": "المواطن",
   "partnerBusy": "تقدر تغيّر رفيقك بعد ما الماتش يخلص",
   "titlesNone": "لسه معندكش ألقاب — الألقاب بتيجي من الموسم والدعوات",
-  "titlesUnequip": "من غير لقب"
+  "titlesUnequip": "من غير لقب",
+  "passInventoryTitle": "لسه عندك مكافآت النهارده",
+  "passInventoryDailyAd": "إعلان اليوم بمكافأته",
+  "passInventoryExtraSpin": "لفة زيادة للعجلة",
+  "passInventoryExtraCoffer": "خزنة زيادة",
+  "passInventoryOpen": "افتح المكافآت"
 }

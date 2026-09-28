@@ -8124,6 +8124,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No title'**
   String get titlesUnequip;
+
+  /// No description provided for @passInventoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You still have rewards today'**
+  String get passInventoryTitle;
+
+  /// No description provided for @passInventoryDailyAd.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s rewarded ad'**
+  String get passInventoryDailyAd;
+
+  /// No description provided for @passInventoryExtraSpin.
+  ///
+  /// In en, this message translates to:
+  /// **'An extra wheel spin'**
+  String get passInventoryExtraSpin;
+
+  /// No description provided for @passInventoryExtraCoffer.
+  ///
+  /// In en, this message translates to:
+  /// **'An extra coffer'**
+  String get passInventoryExtraCoffer;
+
+  /// No description provided for @passInventoryOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open rewards'**
+  String get passInventoryOpen;
 }
 
 class _AppLocalizationsDelegate

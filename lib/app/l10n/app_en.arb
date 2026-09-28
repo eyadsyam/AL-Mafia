@@ -2841,5 +2841,10 @@
   "partnerCitizen": "Citizen",
   "partnerBusy": "You can change your partner after the match",
   "titlesNone": "No titles yet — they come from the season and invites",
-  "titlesUnequip": "No title"
+  "titlesUnequip": "No title",
+  "passInventoryTitle": "You still have rewards today",
+  "passInventoryDailyAd": "Today's rewarded ad",
+  "passInventoryExtraSpin": "An extra wheel spin",
+  "passInventoryExtraCoffer": "An extra coffer",
+  "passInventoryOpen": "Open rewards"
 }

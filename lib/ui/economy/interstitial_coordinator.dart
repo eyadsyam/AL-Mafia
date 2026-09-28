@@ -227,6 +227,8 @@ class InterstitialCoordinator {
 
   /// The player left a completed pass-and-play result ([matchId] is that
   /// match, counted once). Home is already on screen.
+  ///
+  /// P6: at most one of these per app session, inside the global daily cap.
   Future<InterstitialVerdict> leftPassAndPlayResult(String matchId) async {
     if (!_ref.read(interstitialAdsProvider).configured) {
       return InterstitialVerdict.off;
@@ -234,8 +236,14 @@ class InterstitialCoordinator {
     try {
       await _save((await _load()).matchCompleted(matchId, _now()));
     } catch (_) {}
-    return _consider(AdPlacement.passAndPlayResult);
+    if (_passResultShown) return InterstitialVerdict.notDue;
+    final verdict = await _consider(AdPlacement.passAndPlayResult);
+    if (verdict == InterstitialVerdict.show) _passResultShown = true;
+    return verdict;
   }
+
+  /// P6: a pass-and-play result-exit ad was shown in this app session.
+  bool _passResultShown = false;
 
   Future<InterstitialVerdict> _consider(
     AdPlacement placement, {

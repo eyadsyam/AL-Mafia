@@ -4718,4 +4718,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get titlesUnequip => 'من غير لقب';
+
+  @override
+  String get passInventoryTitle => 'لسه عندك مكافآت النهارده';
+
+  @override
+  String get passInventoryDailyAd => 'إعلان اليوم بمكافأته';
+
+  @override
+  String get passInventoryExtraSpin => 'لفة زيادة للعجلة';
+
+  @override
+  String get passInventoryExtraCoffer => 'خزنة زيادة';
+
+  @override
+  String get passInventoryOpen => 'افتح المكافآت';
 }
