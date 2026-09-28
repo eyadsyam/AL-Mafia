@@ -3429,3 +3429,10 @@ Files:      supabase/migrations/20260928000600…001000 (bullet_stays_spent, cas
 Verified:   SQL 53/53 on PGlite; all node suites (error envelope: 241 refusals / 62 files); flutter test --concurrency=4 "+1429 ~1: All tests passed!"; analyze: no errors outside the untracked case_of_day WIP.
 Gate:       PASS (hosted chaos cases run with the RC matrix, row 15; nothing deployed).
 Open:       D2 client requestId (in the untracked case_of_day WIP). Next row: Safety v11 (blocks are enforced today only in friends and the Council leaderboard; join/list/quick-match/rematch/whispers/reactions still need safety_users_compatible). Art loop running (S4–S10).
+
+## PHASE 1.1-L2 — done (row 2: Safety v11 + owner queue)
+Built:      one compatibility rule on join/list/quick match/next room; block cleanup; name/title terms by trigger; v11 reports (categories, dedup, limits, public evidence); restrictions + notices; /admin/safety queue with request-id decisions and retention purge. Also row 13 sound: 24 synthesised 1.1 cues + brand motif (f61e10c).
+Files:      supabase/migrations/20260928001100_safety_v11.sql, supabase/tests/safety_v11.sql, supabase/functions/{player_safety,join_room,quick_match,create_room,rematch_room,room_settings,realtime_token,_shared/api.ts}, lib/ui/screens/{online/safety_center,online/online_entry_screen,admin/safety_admin_screen,admin/payments_admin_screen}.dart, lib/data/request_id.dart, lib/app/{router.dart,l10n/*}, test/widget/safety_v11_test.dart
+Verified:   SQL 54/54 (PGlite); node suites incl. error envelope 264 refusals; server_surface_test; full Flutter suite +1438 ~1 all passed; analyze clean outside the untracked case_of_day WIP
+Gate:       PASS (review drill with the owner still to run on hosted after deploy approval)
+Open:       safety_v11_enabled stays OFF; seed name list is a starter the owner extends; hosted migration/deploy waits for the owner
