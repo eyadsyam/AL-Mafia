@@ -2834,5 +2834,12 @@
   "@inviteSettledNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
   "inviteSettledCounter": "Settled invites: {season}/{seasonCap} this season · {lifetime}/{lifetimeCap} all time",
   "@inviteSettledCounter": {"placeholders": {"season": {"type": "int"}, "seasonCap": {"type": "int"}, "lifetime": {"type": "int"}, "lifetimeCap": {"type": "int"}}},
-  "inviteNoticeFriend": "Your friend"
+  "inviteNoticeFriend": "Your friend",
+  "partnerDetective": "Detective",
+  "partnerDoctor": "Doctor",
+  "partnerMafia": "Mafia",
+  "partnerCitizen": "Citizen",
+  "partnerBusy": "You can change your partner after the match",
+  "titlesNone": "No titles yet — they come from the season and invites",
+  "titlesUnequip": "No title"
 }

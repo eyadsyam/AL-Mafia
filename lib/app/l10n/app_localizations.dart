@@ -8082,6 +8082,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your friend'**
   String get inviteNoticeFriend;
+
+  /// No description provided for @partnerDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'Detective'**
+  String get partnerDetective;
+
+  /// No description provided for @partnerDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor'**
+  String get partnerDoctor;
+
+  /// No description provided for @partnerMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Mafia'**
+  String get partnerMafia;
+
+  /// No description provided for @partnerCitizen.
+  ///
+  /// In en, this message translates to:
+  /// **'Citizen'**
+  String get partnerCitizen;
+
+  /// No description provided for @partnerBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change your partner after the match'**
+  String get partnerBusy;
+
+  /// No description provided for @titlesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No titles yet — they come from the season and invites'**
+  String get titlesNone;
+
+  /// No description provided for @titlesUnequip.
+  ///
+  /// In en, this message translates to:
+  /// **'No title'**
+  String get titlesUnequip;
 }
 
 class _AppLocalizationsDelegate

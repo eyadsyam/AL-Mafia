@@ -3486,3 +3486,10 @@ Files:      supabase/tests/host_continuity.sql, test/online/{process_death_resum
 Verified:   host_continuity.sql + lobby_ready.sql; the two Flutter suites (17 tests)
 Gate:       PASS
 Open:       PGlite is one connection: true concurrent sessions stay covered by supabase/tests/concurrency_match.py on a hosted project (row 15). connection_weather.dart untouched.
+
+## PHASE 1.1-L9 (D: F10 titles + core Partner, data and server) — done — cloud
+Built:      `titles_enabled` / `partner_enabled` (+ character bonds), default OFF; `title_catalog` (Season titles + «كبير الشلة»), `player_titles` exact-once from claimed Season levels and the invite unlock, `player_showcase`, `titleHub`/`titleEquip{code|null,requestId}` with replay, `roomTitles{roomId}` (lobby and result only, empty while played); `player_partner`, `partnerGet`/`partnerSet{side,requestId}` free outside a live match (`IN_MATCH`); guests keep a versioned local choice; providers + minimal `TitleEquipList` / `PartnerPicker` hooks with TODO(art) slots; import-closure tests keep titles/Partner/bonds out of hand-off, reveal, night and online live-seat surfaces
+Files:      supabase/migrations/20260929000400_titles_partner.sql, supabase/tests/titles_partner.{sql,test.mjs}, supabase/functions/_shared/economy_actions.ts, lib/ui/social/titles_partner.dart, lib/ui/economy/economy_capabilities.dart, lib/app/l10n/*, test/widget/titles_partner_test.dart, test/golden/leakage/{handoff_purity,partner_title_closure}_test.dart
+Verified:   SQL 64/64; routing test; widget tests 6/6; closure tests; analyze clean
+Gate:       PASS
+Open:       Placement is the art lane's: Profile/Casebook/Home live under lib/ui/screens/setup/** and casebook_sheet.dart (not this lane). The lobby plate reads `fetchRoomTitles` from lobby_screen.dart (not this lane). Partner voice lines (Home/Casebook/result) need copy + art.

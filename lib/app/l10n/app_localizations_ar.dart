@@ -4696,4 +4696,26 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get inviteNoticeFriend => 'صاحبك';
+
+  @override
+  String get partnerDetective => 'المحقق';
+
+  @override
+  String get partnerDoctor => 'الدكتور';
+
+  @override
+  String get partnerMafia => 'المافيا';
+
+  @override
+  String get partnerCitizen => 'المواطن';
+
+  @override
+  String get partnerBusy => 'تقدر تغيّر رفيقك بعد ما الماتش يخلص';
+
+  @override
+  String get titlesNone =>
+      'لسه معندكش ألقاب — الألقاب بتيجي من الموسم والدعوات';
+
+  @override
+  String get titlesUnequip => 'من غير لقب';
 }

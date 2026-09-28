@@ -1839,5 +1839,12 @@
   "@inviteSettledNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
   "inviteSettledCounter": "دعوات كملت: {season}/{seasonCap} الموسم ده · {lifetime}/{lifetimeCap} الكل",
   "@inviteSettledCounter": {"placeholders": {"season": {"type": "int"}, "seasonCap": {"type": "int"}, "lifetime": {"type": "int"}, "lifetimeCap": {"type": "int"}}},
-  "inviteNoticeFriend": "صاحبك"
+  "inviteNoticeFriend": "صاحبك",
+  "partnerDetective": "المحقق",
+  "partnerDoctor": "الدكتور",
+  "partnerMafia": "المافيا",
+  "partnerCitizen": "المواطن",
+  "partnerBusy": "تقدر تغيّر رفيقك بعد ما الماتش يخلص",
+  "titlesNone": "لسه معندكش ألقاب — الألقاب بتيجي من الموسم والدعوات",
+  "titlesUnequip": "من غير لقب"
 }

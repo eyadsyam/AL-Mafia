@@ -191,6 +191,10 @@ class EconomyCapabilities {
   /// pays this first. Disclosed before Buy.
   final int purchaseDebt;
 
+  /// F10: titles (`titles`) and the core Partner (`partner`).
+  final bool titles;
+  final bool partner;
+
   /// Row 6: the reward rules the server pays by (`economy.version`). 3 means
   /// one eligible receipt per match (25 / +10 win / +25 first of the day);
   /// anything lower is the older table.
@@ -224,6 +228,8 @@ class EconomyCapabilities {
     this.witnessWhispers = false,
     this.purchaseDebt = 0,
     this.economyVersion = 0,
+    this.titles = false,
+    this.partner = false,
     this.failed = false,
   });
 
@@ -246,6 +252,8 @@ class EconomyCapabilities {
           ? json['accountTag'] as String
           : null,
       purchaseDebt: (json['purchaseDebt'] as num?)?.toInt() ?? 0,
+      titles: flag('titles'),
+      partner: flag('partner'),
       economyVersion: json['economy'] is Map
           ? ((json['economy'] as Map)['version'] as num?)?.toInt() ?? 0
           : 0,

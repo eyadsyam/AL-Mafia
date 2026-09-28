@@ -216,6 +216,14 @@ void main() {
       );
     });
 
+    test('titles and the Partner are outside every private closure (F10)', () {
+      expect(
+        closure,
+        isNot(contains('lib/ui/social/titles_partner.dart')),
+        reason: 'a title or Partner reached a hand-off, reveal or night surface',
+      );
+    });
+
     for (final entry in forbidden.entries) {
       test('no handoff-reachable file references ${entry.key.pattern}', () {
         final offenders = <String>[];

@@ -4783,4 +4783,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inviteNoticeFriend => 'Your friend';
+
+  @override
+  String get partnerDetective => 'Detective';
+
+  @override
+  String get partnerDoctor => 'Doctor';
+
+  @override
+  String get partnerMafia => 'Mafia';
+
+  @override
+  String get partnerCitizen => 'Citizen';
+
+  @override
+  String get partnerBusy => 'You can change your partner after the match';
+
+  @override
+  String get titlesNone =>
+      'No titles yet — they come from the season and invites';
+
+  @override
+  String get titlesUnequip => 'No title';
 }

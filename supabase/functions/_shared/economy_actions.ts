@@ -16,6 +16,8 @@ const WEEK = /^\d{4}-W\d{2}$/;
 const INVITE = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{7}$/;
 /** The eight quick reactions (phase 109). */
 const REACTION = /^(laugh|shock|suspicious|applause|rose|skull|coffee|crown)$/;
+/** F10: the four gallery portraits a Partner can be. */
+const PARTNER_SIDE = /^(detective|doctor|mafia|citizen)$/;
 /** Server-owned catalogue identifiers, never free-form copy. */
 const CASEBOOK_CODE = /^[a-z0-9_]{3,60}$/;
 
@@ -216,6 +218,30 @@ export function economyCall(
     case "achievementClaim":
       return typeof body.code === "string" && CASEBOOK_CODE.test(body.code)
         ? { rpc: "claim_achievement", args: { p_user: userId, p_code: body.code } }
+        : null;
+    // 1.1 F10: titles and the core Partner ----------------------------------------
+    case "titleHub":
+      return { rpc: "title_hub", args: { p_user: userId } };
+    case "titleEquip":
+      return (body.code === null ||
+          (typeof body.code === "string" && CASEBOOK_CODE.test(body.code))) &&
+          typeof body.requestId === "string" && UUID.test(body.requestId)
+        ? {
+          rpc: "title_equip",
+          args: { p_user: userId, p_code: body.code, p_request: body.requestId.toLowerCase() },
+        }
+        : null;
+    case "roomTitles":
+      return room ? { rpc: "room_titles", args: { p_user: userId, p_room: room } } : null;
+    case "partnerGet":
+      return { rpc: "partner_get", args: { p_user: userId } };
+    case "partnerSet":
+      return typeof body.side === "string" && PARTNER_SIDE.test(body.side) &&
+          typeof body.requestId === "string" && UUID.test(body.requestId)
+        ? {
+          rpc: "partner_set",
+          args: { p_user: userId, p_side: body.side, p_request: body.requestId.toLowerCase() },
+        }
         : null;
     default:
       return null;
