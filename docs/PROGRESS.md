@@ -3465,3 +3465,17 @@ Built:      witness_whispers/witness_member/witness_report; witness_view whisper
 Verified:   witness_whispers.sql; witness_whispers_test; doc12 acceptance; full suite +1465
 Gate:       PASS locally (hosted witness_match.py updated to WITNESS_ONLY, run after deploy)
 Open:       witness_whispers_enabled OFF until owner activation
+
+## PHASE 1.1-L1 (A: §7 verification, observability, D7 completion) — done — cloud
+Built:      request id in every Edge body and `x-request-id` header, generic 500 on exceptions, one log line per request (fn/result/latency bucket/request id; no names, codes, roles, targets); runtime S4 harness (every literal refusal × 8 caller roles, exact {error,message,requestId}, recursive private-key/UUID/name rejection); M6 replay rule extracted and tested; D7 `resultSummary{roomId,requestId}` with server deltas, receipt and replay
+Files:      supabase/functions/_shared/{api,whisper_replay,economy_actions}.ts, supabase/functions/send_whisper/index.ts, supabase/migrations/20260929000200_result_summary_v2.sql, supabase/tests/{request_envelope,whisper_replay}.test.mjs, supabase/tests/support/ts_loader.mjs, supabase/tests/{error_envelope,council_life}.test.mjs, supabase/tests/result_summary_v2.sql, lib/ui/economy/council_hub.dart, test/widget/council_life_test.dart
+Verified:   SQL 61/61; all node suites; council_life_test 26/26; analyze clean
+Gate:       PASS
+Open:       D1/M2/M3/M4/M5/D3/D4 were already landed with tests (PHASE 1.1-L1); re-verified by reading the tests, not by mutation. D2 is Daily Case (not this lane).
+
+## PHASE 1.1-L6 (B: Economy v3 authority + invite settlement) — done — cloud
+Built:      `economy_v11_enabled` (default OFF): immutable match receipts (6/day, 3 per HMACed full-roster fingerprint, unique ordinals), faucet amounts 25/+10/+25 first-of-day, Season XP 5/+5, Council XP 30/+20, receipt-driven Council/Casebook/Thursday eligibility, v1-paid rooms preserved; invite settlement 50/25/75 with every condition, 10/season + 40/lifetime caps, unlocks at 3/10, notice lines; `economy.version=3`; `invite_ack`
+Files:      supabase/migrations/20260929000100_economy_v3.sql, supabase/tests/economy_v3.sql, supabase/functions/_shared/economy_actions.ts, lib/ui/economy/{economy_capabilities,council,council_hub}.dart, lib/app/l10n/*, test/unit/economy_v3_test.dart
+Verified:   economy_v3.sql (flag off = old 100/25 and no receipt; caps; fingerprint order/kick/salt/collision; replay; ordinal races; ineligible cases; XP from receipt; every settlement edge); SQL 61/61; node suites; unit tests
+Gate:       PASS
+Open:       Store catalogue, prices and ad policy untouched (out of scope). The invite frame unlock is recorded in `invite_unlocks` only; wiring it to a catalogue item belongs to the catalogue owner. Daily mission amounts already equal the faucet table and are read at claim time from `mission_catalog`.
