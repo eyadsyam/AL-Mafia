@@ -55,6 +55,8 @@ class OnlineEntryScreen extends ConsumerStatefulWidget {
   static const browseButton = ValueKey('online_browse');
   static const browseList = ValueKey('online_browse_list');
   static const errorText = ValueKey('online_error');
+  static const leaveTableCancel = ValueKey('online_leave_table_cancel');
+  static const leaveTableConfirm = ValueKey('online_leave_table_confirm');
   static const resumeButton = ValueKey('online_resume');
   static const discardButton = ValueKey('online_discard_resume');
   static const storageWarning = ValueKey('online_storage_warning');
@@ -67,6 +69,10 @@ class OnlineEntryScreen extends ConsumerStatefulWidget {
 enum _Step { browse, join, create }
 
 class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
+  /// The code of a room the player tried to enter while still seated at an
+  /// unfinished table (M4); the screen asks before walking them out of it.
+  String? _leaveFor;
+
   late final _code = TextEditingController(
     text: widget.initialCode?.toUpperCase() ?? '',
   );
@@ -187,18 +193,24 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     bool host = false,
     String? code,
     bool resume = false,
+    bool leaveConfirmed = false,
   }) async {
     // M4 — an invite opened in the middle of a match never walks the player
-    // out of that table on its own. They are asked first, before the rules,
-    // the ad or any network, and «كمل اللعب» leaves everything as it was.
+    // out of that table on its own. They are asked first, in place on this
+    // screen (doc 12 §2.1: nothing is pushed over the online surface), before
+    // the rules, the ad or any network; «كمل اللعب» leaves everything as it was.
     var leaveCurrent = false;
     if (!host && !resume) {
-      final online = ref.read(onlineSessionProvider.notifier);
-      if (online.seatedElsewhere(code ?? _code.text)) {
-        if (await _confirmLeaveTable() != true || !mounted) return;
+      final target = code ?? _code.text;
+      if (ref.read(onlineSessionProvider.notifier).seatedElsewhere(target)) {
+        if (!leaveConfirmed) {
+          setState(() => _leaveFor = target);
+          return;
+        }
         leaveCurrent = true;
       }
     }
+    if (_leaveFor != null) setState(() => _leaveFor = null);
     if (!mounted || !await acceptCommunityRules(context) || !mounted) return;
     final profile = ref.read(playerProfileProvider).valueOrNull;
     if (profile == null) return;
@@ -248,53 +260,6 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     // The pointer may have just been proven obsolete (the room is gone, or has
     // no seat for this player any more) and dropped; the button follows it.
     if (mounted) await _loadResume();
-  }
-
-  static const leaveTableCancel = Key('online-leave-table-cancel');
-  static const leaveTableConfirm = Key('online-leave-table-confirm');
-
-  /// Asks whether to walk out of the unfinished match this device is seated
-  /// in. Staying is the first, quiet answer; leaving is the crimson one.
-  Future<bool?> _confirmLeaveTable() {
-    final colors = context.colors;
-    final type = context.typography;
-    final radii = context.radii;
-    final l10n = context.l10n;
-    return showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: colors.surfaceRaised,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radii.dialog),
-        ),
-        title: Text(
-          l10n.onlineLeaveTableTitle,
-          style: type.title.copyWith(color: colors.textPrimary),
-        ),
-        content: Text(
-          l10n.onlineLeaveTableBody,
-          style: type.body.copyWith(color: colors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            key: leaveTableCancel,
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(
-              l10n.keepPlaying,
-              style: type.body.copyWith(color: colors.textSecondary),
-            ),
-          ),
-          TextButton(
-            key: leaveTableConfirm,
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(
-              l10n.onlineLeaveTableConfirm,
-              style: type.body.copyWith(color: colors.accentCrimson),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   /// Records the setup acceptance on the server once. Never blocks play: a
@@ -416,6 +381,54 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
               error,
               key: OnlineEntryScreen.errorText,
               style: context.typography.body.copyWith(color: c.accentCrimson),
+            ),
+          ),
+        if (_leaveFor != null)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: s.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l.onlineLeaveTableTitle,
+                  style: context.typography.title.copyWith(
+                    color: c.textPrimary,
+                  ),
+                ),
+                SizedBox(height: s.xs),
+                Text(
+                  l.onlineLeaveTableBody,
+                  style: context.typography.body.copyWith(
+                    color: c.textSecondary,
+                  ),
+                ),
+                SizedBox(height: s.sm),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        key: OnlineEntryScreen.leaveTableCancel,
+                        onPressed: () => setState(() => _leaveFor = null),
+                        child: Text(l.keepPlaying),
+                      ),
+                    ),
+                    SizedBox(width: s.sm),
+                    Expanded(
+                      child: TextButton(
+                        key: OnlineEntryScreen.leaveTableConfirm,
+                        onPressed: () =>
+                            _enter(code: _leaveFor, leaveConfirmed: true),
+                        child: Text(
+                          l.onlineLeaveTableConfirm,
+                          style: context.typography.body.copyWith(
+                            color: c.accentCrimson,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         if (state.storageWarning)

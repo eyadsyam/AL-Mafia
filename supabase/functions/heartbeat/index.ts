@@ -1,8 +1,8 @@
 /**
  * `heartbeat` — a short presence beat while the client is foregrounded.
  *
- * The client uses a three-second beat so ordinary roster changes are visible
- * quickly. The server still owns the transition to away or left.
+ * The client uses a three-second beat. The beat itself is private to the
+ * server (M3); the room hears only the transitions, which the server owns.
  *
  * **The night freeze (doc 10 §6.3) is not implemented here** and must not be:
  * `connected` keeps updating, and it is the *client* that stops rendering
@@ -23,22 +23,16 @@ Deno.serve(handler(async (req, userId, db) => {
   // A beat that did not land is not a beat: the client treats a failed
   // heartbeat as weather and degrades, and a 200 for a write that failed
   // would have it believe the room still hears it.
-  const { data: updated, error } = await db
-    .from("room_players")
-    // A beat is the definition of `connected`. The ageing job walks the same
-    // column in the other direction, so this write is the only thing that
-    // stops a row sliding to `away` and then to `left`.
-    .update({
-      connected: true,
-      status: "connected",
-      last_seen: new Date().toISOString(),
-    })
-    .eq("room_id", roomId)
-    .eq("user_id", userId)
-    .eq("kicked", false)
-    .select("user_id");
+  //
+  // M3 — the beat lands in the unpublished `room_presence`. `room_players`
+  // (and so the room's Realtime stream) only changes when this seat's state
+  // does: coming back from away, or from a stale disconnect.
+  const { data: seated, error } = await db.rpc("presence_beat", {
+    p_room: roomId,
+    p_user: userId,
+  });
   if (error) throw error;
-  if (!updated?.length) return fail("NOT_A_MEMBER", "you are not in that room", 403);
+  if (seated !== true) return fail("NOT_A_MEMBER", "you are not in that room", 403);
 
   return ok();
 }));

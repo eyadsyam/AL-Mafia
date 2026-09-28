@@ -703,6 +703,8 @@ void main() {
 
   group('O1, O2 — the host left', () {
     RoomState hostedBy(String host) => roomState(hostId: host);
+    // M3: a silent seat reaches the roster as the server's `away`; beats
+    // never do, so `lastSeen` alone no longer says who is gone.
 
     test('the lowest-seat connected player claims the room', () async {
       final stale = DateTime.utc(2026, 9, 2, 11, 58);
@@ -711,7 +713,13 @@ void main() {
         players: [
           RoomPlayer(userId: 'u0', seat: 0, name: 'A', lastSeen: localNow),
           RoomPlayer(userId: 'u1', seat: 1, name: 'B', lastSeen: localNow),
-          RoomPlayer(userId: 'u2', seat: 2, name: 'C', lastSeen: stale),
+          RoomPlayer(
+            userId: 'u2',
+            seat: 2,
+            name: 'C',
+            lastSeen: stale,
+            status: 'away',
+          ),
         ],
       );
 
@@ -728,7 +736,13 @@ void main() {
         players: [
           RoomPlayer(userId: 'u0', seat: 0, name: 'A', lastSeen: localNow),
           RoomPlayer(userId: 'u1', seat: 1, name: 'B', lastSeen: localNow),
-          RoomPlayer(userId: 'u2', seat: 2, name: 'C', lastSeen: stale),
+          RoomPlayer(
+            userId: 'u2',
+            seat: 2,
+            name: 'C',
+            lastSeen: stale,
+            status: 'away',
+          ),
         ],
       );
 
@@ -747,9 +761,21 @@ void main() {
         state: hostedBy('u2'),
         own: const OwnSeat(seat: 1, role: 'citizen'),
         players: [
-          RoomPlayer(userId: 'u0', seat: 0, name: 'A', lastSeen: stale),
+          RoomPlayer(
+            userId: 'u0',
+            seat: 0,
+            name: 'A',
+            lastSeen: stale,
+            status: 'away',
+          ),
           RoomPlayer(userId: 'u1', seat: 1, name: 'B', lastSeen: localNow),
-          RoomPlayer(userId: 'u2', seat: 2, name: 'C', lastSeen: stale),
+          RoomPlayer(
+            userId: 'u2',
+            seat: 2,
+            name: 'C',
+            lastSeen: stale,
+            status: 'away',
+          ),
         ],
       );
 

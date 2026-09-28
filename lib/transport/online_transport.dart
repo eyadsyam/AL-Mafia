@@ -56,11 +56,6 @@ class OnlineTransport implements GameTransport {
   /// Injected so tests can hold a wrong clock deliberately (O8).
   final DateTime Function() now;
 
-  /// How long a player may be silent before the room treats them as gone. Doc
-  /// 10 §8.1 removes a lobby dropout after 30 seconds; the same threshold is
-  /// what makes a host "not answering" for the purposes of migration.
-  static const Duration presenceTimeout = Duration(seconds: 30);
-
   final StreamController<GameSnapshot> _controller =
       StreamController<GameSnapshot>.broadcast();
   final Random _ids = Random();
@@ -514,9 +509,9 @@ class OnlineTransport implements GameTransport {
       return;
     }
     if (push.player != null) {
-      // A roster delta is applied in place: heartbeats move `last_seen` every
-      // few seconds and a full read for each would cost more than the whole
-      // rest of the match (doc 10 §3.1).
+      // A roster delta is applied in place: a full read for each would cost
+      // more than the whole rest of the match (doc 10 §3.1). Since M3 the
+      // deltas are transitions only — beats never reach the stream.
       final incoming = push.player!;
       final next = [..._players];
       final at = next.indexWhere((p) => p.userId == incoming.userId);
@@ -762,16 +757,15 @@ class OnlineTransport implements GameTransport {
     if (state == null || me == null || state.hostId == me) return;
     if (state.status == 'finished') return;
 
-    final cutoff = now().toUtc().subtract(presenceTimeout);
-    bool fresh(RoomPlayer p) =>
-        p.connected && (p.lastSeen == null || p.lastSeen!.isAfter(cutoff));
-
-    // A host who said they were going is gone now, not in thirty seconds.
-    // A host who merely stepped away still holds the room — `away` is a
-    // person who is coming back, and taking the room off them would be a
-    // migration triggered by a notification shade.
-    bool holdsRoom(RoomPlayer p) => p.status != 'left' && fresh(p);
-    bool eligible(RoomPlayer p) => p.status == 'connected' && fresh(p);
+    // M3 — beats no longer reach the roster, so `lastSeen` is the time of the
+    // last transition, not the last beat. Freshness is the server's status,
+    // which it ages every five seconds from the beats it alone sees:
+    // `connected` means heard in the last 25 s. A host gone quiet reads `away`
+    // and this device asks; the server grants the room only once the host has
+    // been silent for its full 30 s, and until then the ask is simply refused
+    // and repeated on the next tick.
+    bool holdsRoom(RoomPlayer p) => p.status == 'connected' && p.connected;
+    bool eligible(RoomPlayer p) => p.status == 'connected' && p.connected;
 
     final host = _players.where((p) => p.userId == state.hostId).firstOrNull;
     if (host != null && holdsRoom(host)) return;

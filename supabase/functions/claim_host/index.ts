@@ -39,10 +39,10 @@ Deno.serve(handler(async (req, userId, db) => {
   // The claimant is alive on the network whatever else is true of them: they
   // just made a request. Recording it first stops a room where everybody is
   // marked stale from concluding that nobody may take over (O2's tail).
-  const { error: beatError } = await db.from("room_players")
-    .update({ connected: true, last_seen: new Date().toISOString() })
-    .eq("room_id", roomId)
-    .eq("user_id", userId);
+  const { error: beatError } = await db.rpc("presence_beat", {
+    p_room: roomId,
+    p_user: userId,
+  });
   if (beatError) throw beatError;
 
   const { data, error } = await db.rpc("migrate_host", {
