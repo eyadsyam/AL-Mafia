@@ -1074,6 +1074,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineRoomFinished => 'المباراة دي خلصت';
 
   @override
+  String get onlineAlreadySeated => 'إنت لسه في ماتش شغال';
+
+  @override
+  String get onlineLeaveTableTitle => 'تسيب ماتشك؟';
+
+  @override
+  String get onlineLeaveTableBody =>
+      'إنت لسه في ماتش شغال. لو دخلت الأوضة دي، هتخرج منه والشلة هتكمل من غيرك.';
+
+  @override
+  String get onlineLeaveTableConfirm => 'اخرج وادخل';
+
+  @override
   String get onlineRoomNotFound => 'مفيش أوضة بالكود ده';
 
   @override

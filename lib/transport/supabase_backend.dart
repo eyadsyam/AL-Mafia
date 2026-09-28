@@ -110,6 +110,9 @@ class SupabaseBackend implements OnlineBackend {
   /// it is a pure function of the exception, and the bug it replaces was
   /// invisible precisely because nothing could reach it.
   static Object refusalFor(FunctionException e) {
+    // The request never reached a function: this one really is the network,
+    // and it must leave as the type every caller already handles (M2).
+    if (e is FunctionsFetchException) return BackendUnreachable(e);
     final details = e.details;
     final map = details is Map ? details : const {};
     final code = map['error'] as String?;
@@ -768,9 +771,6 @@ class SupabaseBackend implements OnlineBackend {
     try {
       return await body();
     } on BackendException {
-      rethrow;
-    } on FunctionsFetchException {
-      // The request never reached a function. This one really is the network.
       rethrow;
     } on FunctionException catch (e) {
       throw refusalFor(e);

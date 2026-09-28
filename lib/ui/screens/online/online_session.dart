@@ -185,12 +185,43 @@ class OnlineSession extends Notifier<OnlineSessionState> {
     });
   }
 
+  /// True when this device holds a seat in a room whose story is not over and
+  /// [code] names a different room (M4). Joining it would walk out of that
+  /// table, so it is never done without the player saying so.
+  bool seatedElsewhere(String code) {
+    final room = state.room;
+    final transport = state.transport;
+    if (room == null || transport == null) return false;
+    if (room.code == code.trim().toUpperCase()) return false;
+    return transport.snapshot.outcome == null;
+  }
+
+  /// True when [code] is the room this device is already seated in.
+  bool alreadyIn(String code) =>
+      state.isInRoom && state.room!.code == code.trim().toUpperCase();
+
   /// Joins by code, or rejoins a seat this user already holds (O4).
+  ///
+  /// An invite link opened in the middle of a match used to tear the live
+  /// transport down before the new room had even answered (M4): a failed join
+  /// cost the player the table they were at, and a successful one abandoned it
+  /// without asking. Now a device already at an unfinished table is refused
+  /// with `ALREADY_SEATED` unless [leaveCurrent] says the player chose to go,
+  /// and then it leaves properly — the room hears a departure, not a silence.
   Future<void> join({
     required String code,
     required String name,
     String gender = 'unspecified',
+    bool leaveCurrent = false,
   }) async {
+    if (alreadyIn(code)) return;
+    if (seatedElsewhere(code)) {
+      if (!leaveCurrent) {
+        state = state.copyWith(errorCode: 'ALREADY_SEATED');
+        return;
+      }
+      await leave();
+    }
     await _enter((backend) async {
       final handle = await backend.joinRoom(
         code: code.trim().toUpperCase(),

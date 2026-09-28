@@ -1098,6 +1098,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineRoomFinished => 'That match has already finished';
 
   @override
+  String get onlineAlreadySeated => 'You are still in a match';
+
+  @override
+  String get onlineLeaveTableTitle => 'Leave your match?';
+
+  @override
+  String get onlineLeaveTableBody =>
+      'You are still in a match. Joining this room takes you out of it, and the table plays on without you.';
+
+  @override
+  String get onlineLeaveTableConfirm => 'Leave and join';
+
+  @override
   String get onlineRoomNotFound => 'No room with that code';
 
   @override

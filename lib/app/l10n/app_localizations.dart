@@ -1988,6 +1988,30 @@ abstract class AppLocalizations {
   /// **'That match has already finished'**
   String get onlineRoomFinished;
 
+  /// No description provided for @onlineAlreadySeated.
+  ///
+  /// In en, this message translates to:
+  /// **'You are still in a match'**
+  String get onlineAlreadySeated;
+
+  /// No description provided for @onlineLeaveTableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave your match?'**
+  String get onlineLeaveTableTitle;
+
+  /// No description provided for @onlineLeaveTableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You are still in a match. Joining this room takes you out of it, and the table plays on without you.'**
+  String get onlineLeaveTableBody;
+
+  /// No description provided for @onlineLeaveTableConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave and join'**
+  String get onlineLeaveTableConfirm;
+
   /// No description provided for @onlineRoomNotFound.
   ///
   /// In en, this message translates to:

@@ -60,4 +60,15 @@ void main() {
     expect(refusal, isA<BackendUnreachable>());
     expect((refusal as BackendUnreachable).projectPaused, isTrue);
   });
+
+  // M2 — a request that never left the phone used to escape as the raw SDK
+  // type. Nothing above the backend catches that type, so a dropped Wi-Fi
+  // became an uncaught exception instead of the reconnect path.
+  test('a request that never reached a function is the network', () {
+    final refusal = SupabaseBackend.refusalFor(
+      const FunctionsFetchException(details: 'SocketException: no route'),
+    );
+    expect(refusal, isA<BackendUnreachable>());
+    expect((refusal as BackendUnreachable).projectPaused, isFalse);
+  });
 }

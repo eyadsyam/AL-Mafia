@@ -97,6 +97,12 @@ Deno.serve(handler(async (req, userId, db) => {
   // Already spent? One query, and it is the same one the unique index enforces
   // — the index is what makes two simultaneous requests impossible to both win,
   // and this is what gives the loser a sentence instead of a constraint error.
+  //
+  // Only an *earlier* night counts (M5). This night's own row is the same move
+  // arriving again: a request that committed and lost its response on a weak
+  // network is retried with a fresh action id, and it must land on its own row
+  // like every other retry, not be told the bullet is gone and leave the
+  // player believing a move that stands was refused.
   let alreadySpent = false;
   if (wants && available) {
     const { data: prior, error: priorError } = await db
@@ -105,6 +111,7 @@ Deno.serve(handler(async (req, userId, db) => {
       .eq("room_id", roomId)
       .eq("actor_id", userId)
       .eq("used_bullet", true)
+      .lt("night", me.phaseNumber)
       .limit(1);
     if (priorError) throw priorError;
     alreadySpent = (prior ?? []).length > 0;
@@ -151,7 +158,9 @@ Deno.serve(handler(async (req, userId, db) => {
   // A retry that spends a bullet overwrites its own `used_bullet` with the same
   // `true`, which the partial unique index reads as the same row and permits. A
   // *second* night trying to spend a second one is a different row, and that is
-  // the collision the index exists to lose.
+  // the collision the index exists to lose. A same-night resubmit *without* the
+  // bullet cannot clear it either: the `night_action_keep_bullet` trigger keeps
+  // `used_bullet = existing OR requested` under the row lock (M5).
   const { error } = await db.from("night_actions").upsert({
     room_id: roomId,
     night: me.phaseNumber,

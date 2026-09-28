@@ -188,7 +188,18 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     String? code,
     bool resume = false,
   }) async {
-    if (!await acceptCommunityRules(context) || !mounted) return;
+    // M4 — an invite opened in the middle of a match never walks the player
+    // out of that table on its own. They are asked first, before the rules,
+    // the ad or any network, and «كمل اللعب» leaves everything as it was.
+    var leaveCurrent = false;
+    if (!host && !resume) {
+      final online = ref.read(onlineSessionProvider.notifier);
+      if (online.seatedElsewhere(code ?? _code.text)) {
+        if (await _confirmLeaveTable() != true || !mounted) return;
+        leaveCurrent = true;
+      }
+    }
+    if (!mounted || !await acceptCommunityRules(context) || !mounted) return;
     final profile = ref.read(playerProfileProvider).valueOrNull;
     if (profile == null) return;
     // Ads v3 (phase 110): the pre-match ad comes here, on the player's own
@@ -218,6 +229,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
         code: code ?? _code.text,
         name: profile.name,
         gender: profile.gender.name,
+        leaveCurrent: leaveCurrent,
       );
     }
     if (mounted && ref.read(onlineSessionProvider).isInRoom) {
@@ -236,6 +248,53 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     // The pointer may have just been proven obsolete (the room is gone, or has
     // no seat for this player any more) and dropped; the button follows it.
     if (mounted) await _loadResume();
+  }
+
+  static const leaveTableCancel = Key('online-leave-table-cancel');
+  static const leaveTableConfirm = Key('online-leave-table-confirm');
+
+  /// Asks whether to walk out of the unfinished match this device is seated
+  /// in. Staying is the first, quiet answer; leaving is the crimson one.
+  Future<bool?> _confirmLeaveTable() {
+    final colors = context.colors;
+    final type = context.typography;
+    final radii = context.radii;
+    final l10n = context.l10n;
+    return showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: colors.surfaceRaised,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radii.dialog),
+        ),
+        title: Text(
+          l10n.onlineLeaveTableTitle,
+          style: type.title.copyWith(color: colors.textPrimary),
+        ),
+        content: Text(
+          l10n.onlineLeaveTableBody,
+          style: type.body.copyWith(color: colors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            key: leaveTableCancel,
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(
+              l10n.keepPlaying,
+              style: type.body.copyWith(color: colors.textSecondary),
+            ),
+          ),
+          TextButton(
+            key: leaveTableConfirm,
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              l10n.onlineLeaveTableConfirm,
+              style: type.body.copyWith(color: colors.accentCrimson),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Records the setup acceptance on the server once. Never blocks play: a
@@ -312,6 +371,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     'ROOM_FINISHED' => context.l10n.onlineRoomFinished,
     'PHASE_CLOSED' => context.l10n.onlineRoomStarted,
     'NOT_A_MEMBER' => context.l10n.onlineKickedByHost,
+    'ALREADY_SEATED' => context.l10n.onlineAlreadySeated,
     'UNREACHABLE' =>
       state.projectPaused
           ? context.l10n.onlineProjectPaused

@@ -10,6 +10,7 @@
  * select. The graph goes to `whisper_meta`, which the whole room can read —
  * that asymmetry is the layer's entire design (doc 09 §3.1).
  */
+import type { SupabaseClient } from "jsr:@supabase/supabase-js@2";
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 
 const MAX_LENGTH = 120;
@@ -42,6 +43,13 @@ Deno.serve(handler(async (req, userId, db) => {
 
   if (error) {
     if (error.code === "23505") {
+      // M6 — the one whisper of the day may already be this one: a send that
+      // committed and lost its response on a weak network comes back as a
+      // retry. The same words to the same seat are the same whisper, so the
+      // retry gets the original id instead of a refusal that would tell the
+      // sender a whisper that arrived never did.
+      const original = await sameWhisper(db, roomId, userId, me.phaseNumber, toSeat, text);
+      if (original) return ok({ id: original });
       return fail("RATE_LIMITED", "you have already whispered today");
     }
     const message = String(error.message ?? "");
@@ -59,3 +67,36 @@ Deno.serve(handler(async (req, userId, db) => {
   // as a deletion, would be observable to the sender.
   return ok({ id });
 }));
+
+/** The id of today's whisper from this sender, if it is exactly this one. */
+async function sameWhisper(
+  db: SupabaseClient,
+  roomId: string,
+  senderId: string,
+  day: number,
+  toSeat: number,
+  text: string,
+): Promise<string | null> {
+  const { data: meta, error: metaError } = await db
+    .from("whisper_meta")
+    .select("id, to_id")
+    .eq("room_id", roomId)
+    .eq("day", day)
+    .eq("from_id", senderId)
+    .maybeSingle();
+  if (metaError || !meta) return null;
+  const { data: target, error: targetError } = await db
+    .from("room_players")
+    .select("user_id")
+    .eq("room_id", roomId)
+    .eq("seat", toSeat)
+    .maybeSingle();
+  if (targetError || !target || target.user_id !== meta.to_id) return null;
+  const { data: content, error: contentError } = await db
+    .from("whisper_content")
+    .select("body")
+    .eq("whisper_id", meta.id)
+    .maybeSingle();
+  if (contentError || !content || content.body !== text) return null;
+  return meta.id as string;
+}

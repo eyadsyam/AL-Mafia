@@ -271,13 +271,64 @@ void main() {
       var closed = false;
       before.watch().listen(null, onDone: () => closed = true);
 
-      await session.join(code: 'ABCDEF', name: 'A');
+      await session.join(code: 'QWERTY', name: 'A', leaveCurrent: true);
       await Future<void>.delayed(Duration.zero);
 
       final after = container.read(onlineSessionProvider);
       expect(after.room?.roomId, 'room-2');
       expect(identical(after.transport, before), isFalse);
       expect(closed, isTrue, reason: 'the first transport must be disposed');
+      expect(
+        first.called('leave_room'),
+        isTrue,
+        reason: 'the first room hears a departure, not a silence',
+      );
+    });
+
+    // M4 — an invite opened at an unfinished table used to tear that table's
+    // transport down before the new room had answered.
+    test('an invite never walks the player out of an unfinished table', () async {
+      final first = fake(roomId: 'room-1');
+      final second = fake(roomId: 'room-2');
+      var handed = 0;
+      final container = containerFor(
+        () async => handed++ == 0 ? first : second,
+      );
+      final session = container.read(onlineSessionProvider.notifier);
+      await session.host('A');
+      final before = container.read(onlineSessionProvider).transport!;
+      var closed = false;
+      before.watch().listen(null, onDone: () => closed = true);
+
+      expect(session.seatedElsewhere('qwerty'), isTrue);
+      await session.join(code: 'QWERTY', name: 'A');
+      await Future<void>.delayed(Duration.zero);
+
+      final after = container.read(onlineSessionProvider);
+      expect(after.errorCode, 'ALREADY_SEATED');
+      expect(after.room?.roomId, 'room-1');
+      expect(identical(after.transport, before), isTrue);
+      expect(closed, isFalse, reason: 'the live table keeps its transport');
+      expect(first.called('leave_room'), isFalse);
+      expect(second.called('joinRoom'), isFalse);
+      expect(handed, 1, reason: 'no second backend is even built');
+    });
+
+    test('the room this device is already in is not joined twice', () async {
+      final backend = fake();
+      final container = containerFor(() async => backend);
+      final session = container.read(onlineSessionProvider.notifier);
+      await session.host('A');
+      final code = container.read(onlineSessionProvider).room!.code;
+      final before = container.read(onlineSessionProvider).transport;
+
+      expect(session.seatedElsewhere(code.toLowerCase()), isFalse);
+      await session.join(code: code.toLowerCase(), name: 'A');
+
+      final after = container.read(onlineSessionProvider);
+      expect(identical(after.transport, before), isTrue);
+      expect(after.errorCode, isNull);
+      expect(backend.called('joinRoom'), isFalse);
     });
 
     test('a malformed answer is a sentence, not a spinner', () async {
