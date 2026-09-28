@@ -950,6 +950,15 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// P9: at most one store-review request per 90 days.
   static const reviewPromptCooldown = Duration(days: 90);
 
+  /// F19: a result-screen role figure rising behind its name, the delay
+  /// between rows, and how far (in figure heights) it rises from.
+  static const figureRise = Duration(milliseconds: 520);
+  static const figureRiseStagger = Duration(milliseconds: 90);
+  static const double figureRiseLift = 0.35;
+
+  /// §9: reduced motion is opacity-only, 120 ms.
+  static const reducedMotionFade = Duration(milliseconds: 120);
+
   /// How long an eliminated player's card stays face-up before it settles
   /// back into the council. A dramatic hold, so it survives Reduce Motion.
   static const eliminationCardDwell = Duration(milliseconds: 2800);

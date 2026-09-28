@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -100,6 +101,15 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       await _loadNarrator();
       await _audio.warmUp();
       if (!mounted) return;
+      // F19: the sonic mark as the app opens. Never on the web before a
+      // gesture (browsers would refuse it, and a refused cue is a warning).
+      if (!kIsWeb) {
+        try {
+          _audio.play(AudioCue.brandMotif);
+        } on StateError {
+          // A resumed match can open with the phone in a hand; then: silence.
+        }
+      }
       _syncScore();
     });
   }

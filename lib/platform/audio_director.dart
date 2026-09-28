@@ -94,7 +94,12 @@ enum AudioCue {
 
   /// A confrontation opening. The one cue in the app that grows over its
   /// length; everything else decays.
-  confrontationSwell(narration: false, sound: 'audio/confrontation_swell.ogg');
+  confrontationSwell(narration: false, sound: 'audio/confrontation_swell.ogg'),
+
+  /// F19 sonic mark: a desk lamp clicking on and a card turning — the same
+  /// motif as the marketing videos. Played once as the app opens, with the
+  /// phone on the table and nothing private on screen. One file, no variants.
+  brandMotif(narration: false, sound: 'audio/brand_motif.ogg');
 
   const AudioCue({required this.narration, this.sound});
 

@@ -10,6 +10,7 @@ import '../../l10n_ext.dart';
 import '../../../app/asset_constants.dart';
 import '../../economy/economy_capabilities.dart';
 import '../../theme/mafia_theme.dart';
+import '../../theme/design_tokens.dart' show MafiaTiming;
 import '../../widgets/textured_surface.dart';
 import '../../fun/award_ribbon.dart';
 import '../../fun/match_awards.dart';
@@ -275,7 +276,13 @@ class ResultScreen extends StatelessWidget {
                                       // here — the match has an outcome, every role is
                                       // already public, and nothing on this screen can
                                       // influence play.
-                                      _GalleryThumb(role: row.role),
+                                      // F19: the character behind each name
+                                      // rises into place — here, after the
+                                      // public result, and nowhere earlier.
+                                      _RisingFigure(
+                                        index: index,
+                                        child: _GalleryThumb(role: row.role),
+                                      ),
                                       SizedBox(width: spacing.md),
 
                                       // Seat number
@@ -600,6 +607,43 @@ class RoleGalleryPortrait extends StatelessWidget {
   /// The full-colour painting for [role]. The map itself stays in
   /// [_GalleryThumb], the one place that owns it.
   static String art(engine.Role role) => _GalleryThumb(role: role)._art;
+}
+
+/// F19 — "the character behind you": each role figure rises and settles,
+/// one row after another. The same motion for every role, so the movement
+/// says nothing the text beside it does not. Reduced motion: opacity only.
+class _RisingFigure extends StatelessWidget {
+  final int index;
+  final Widget child;
+  const _RisingFigure({required this.index, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    final duration = reduced
+        ? MafiaTiming.reducedMotionFade
+        : MafiaTiming.figureRise + MafiaTiming.figureRiseStagger * index;
+    // The stagger is the dead time at the start of each row's curve.
+    final start = reduced
+        ? 0.0
+        : (MafiaTiming.figureRiseStagger * index).inMilliseconds /
+              duration.inMilliseconds;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: duration,
+      curve: Interval(start, 1, curve: Curves.easeOutCubic),
+      builder: (context, t, child) => Opacity(
+        opacity: t,
+        child: reduced
+            ? child
+            : FractionalTranslation(
+                translation: Offset(0, (1 - t) * MafiaTiming.figureRiseLift),
+                child: child,
+              ),
+      ),
+      child: child,
+    );
+  }
 }
 
 class _GalleryThumb extends StatelessWidget {
