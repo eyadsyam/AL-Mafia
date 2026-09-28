@@ -15,7 +15,10 @@ Status: **frozen**.
 - Arabic uses 1.6 line height, zero letter spacing and text scale 1.0. Colors, dimensions and durations are tokens.
 - Paid entitlements are cosmetic or convenience-only. No power, hidden information, better odds, extra vote, extra attempt, matchmaking priority or role advantage is sold.
 - Android and web expose the same rules and account progress. Platform-specific ad utilities may be absent on web without changing rewards earned by play.
+- **Roles (owner, 2026-09-28):** Claude implements everything: client, SQL, edge functions, generators, tests, copy and asset registration. Sol critiques plans and generates images through its Codex session with a low-cost image model. Every plan is closed before any build starts.
 - The dead-player `witness_view` remains unchanged by explicit owner decision: dead online players may see roles and night choices, while living players may not. **Owner-accepted risk:** external messaging can carry that information from dead to living players.
+
+1.1 is the **first public release**, not an update: listing, trailer and copy never say "update".
 
 Release name: **The Night Has a Home / الليلة بقى لها بيت**. Public launch target is Thursday at 16:00 Africa/Cairo; the launch-case finale is 20:00 and «ليلة الخميس» begins at 21:00. These are operator-set timestamps, never build-time assumptions.
 
@@ -72,6 +75,7 @@ Status: **frozen**.
 - **1.1.2:** Investigation Desk.
 - **1.1.3:** Scenario Deck + House Rules, then Series + Draft.
 - **1.1.4:** Verdict share cards and expanded Season One content.
+- **Direct premium cosmetics** (`mm_reaction_plate_pack_01`, `mm_table_scene_01`, `mm_dossier_set_01`, `mm_council_bundle_01`) with their art: the first 1.1.x build that has capacity. They're out of L because in-app purchases are ≈$13.5/month per 1,000 active devices at middle, against a large art, catalogue and QA load.
 
 Each 1.1.x item remains OFF until its full gates pass. A cut feature is absent from launch copy and screenshots; it is never shipped half-finished.
 
@@ -116,7 +120,7 @@ An eligible match is a finished online room with a public outcome, a non-kicked 
 | Awards | 0 | — | — | flavour only |
 | Pass-and-play match | 0 | 0 | 0 | dossiers only |
 
-Expected payout for a highly active 50%-win player is about **19,500 coins/28 days**. The prior hard recurring maximum was about 24,600; the higher invite cap raises it to about **25,100**, excluding lifetime rewards and one-time founder grants. The 500-coin difference is acquisition-only and requires ten fully settled invitees.
+Expected earnings for a highly active 50%-win player is about **19,500 coins/28 days**. The prior hard recurring maximum was about 24,600; the higher invite cap raises it to about **25,100**, excluding lifetime rewards and one-time founder grants. The 500-coin difference is acquisition-only and requires ten fully settled invitees.
 
 ### Invite settlement
 
@@ -146,10 +150,10 @@ Expected payout for a highly active 50%-win player is about **19,500 coins/28 da
 | `mm_remove_interruptions` | EGP 199.99 | permanent Quiet Pass | launch |
 | `mm_season_pass_s0_launch` | EGP 59.99 | Season Zero premium track | L through L+14 |
 | `mm_season_pass_s0` | EGP 79.99 | same Season Zero entitlement | after L+14 |
-| `mm_reaction_plate_pack_01` | EGP 19.99 | reactions + nameplate | launch-ready |
-| `mm_table_scene_01` | EGP 39.99 | shared public table scene | launch-ready |
-| `mm_dossier_set_01` | EGP 49.99 | four dossier/profile treatments | launch-ready |
-| `mm_council_bundle_01` | EGP 119.99 | premium Council cosmetic set | launch-ready |
+| `mm_reaction_plate_pack_01` | EGP 19.99 | reactions + nameplate | 1.1.x |
+| `mm_table_scene_01` | EGP 39.99 | shared public table scene | 1.1.x |
+| `mm_dossier_set_01` | EGP 49.99 | four dossier/profile treatments | 1.1.x |
+| `mm_council_bundle_01` | EGP 119.99 | premium Council cosmetic set | 1.1.x |
 
 Starter appears after three eligible matches or deliberate store open, without countdown. Old item prices remain. New earnable sinks: reactions 600–1,200; nameplates 1,000–2,500; table ambience 2,500–5,000; narrator presentation 4,000–8,000; bundles 7,500–12,000. No second premium currency, randomized paid item, cash-out, trading, paid streak repair or paid puzzle attempt.
 
@@ -166,7 +170,7 @@ Unit: **active devices/day**, not people. Base composition: 60% local-table devi
 | 1,000 | 557 / 2,895 / 7,765 | 0 / 675 / 2,250 | cohort-dependent |
 | 10,000 | 5,570 / 28,950 / 77,650 | 0 / 6,750 / 22,500 | measurable |
 
-The month-one objective “ads alone ≥ $100” is a target, not forecast: roughly 1,730 active devices/day at middle or 9,000 at low. “Minimum infrastructure coverage” is the label for the earlier 600–700-device estimate; full operating break-even is higher due to support, moderation, creative work, observability and voice/egress. The 12-month model is monthly totals ×12 with no assumed growth; report ads and in-app purchases separately, expected and actual. Membership remains 1.2 and needs three finished months of content before launch.
+The month-one objective is **income from the game ≥ $100 (ads + in-app purchases, as totals)**. It is a target, not a forecast. At middle, 1,000 active devices/day give ≈$58 in ads + ≈$13.5 in purchases, so the target needs ≈1,400 active devices/day. **Ads alone ≥ $100** is the stretch line: ≈1,730 devices/day at middle, ≈9,000 at low. Any Gulf uplift is reported as a separate, labelled line and is never folded into the Egypt baseline. “Minimum infrastructure coverage” is the label for the earlier 600–700-device estimate; full operating break-even is higher due to support, moderation, creative work, observability and voice/egress. The 12-month model is monthly totals ×12 with no assumed growth; report ads and in-app purchases separately, expected and actual. Membership remains 1.2 and needs three finished months of content before launch.
 
 ## 4. Feature contracts
 
@@ -456,10 +460,10 @@ Status: **frozen**. Every row defaults OFF/inactive.
 | `mm_remove_interruptions.active` | product row | ad policy | 10 |
 | `mm_season_pass_s0_launch.active` | product row | pass flag+L | 10 |
 | `mm_season_pass_s0.active` | product row | pass flag+L+14 | initially OFF |
-| `mm_reaction_plate_pack_01.active` | product row | inventory | 10 |
-| `mm_table_scene_01.active` | product row | scene safety | 10 |
-| `mm_dossier_set_01.active` | product row | dossier surfaces | 10 |
-| `mm_council_bundle_01.active` | product row | inventory | 10 |
+| `mm_reaction_plate_pack_01.active` | product row | inventory | 1.1.x |
+| `mm_table_scene_01.active` | product row | scene safety | 1.1.x |
+| `mm_dossier_set_01.active` | product row | dossier surfaces | 1.1.x |
+| `mm_council_bundle_01.active` | product row | inventory | 1.1.x |
 | `transfer_enabled_web` | — | unchanged by 1.1; outside this document | unchanged |
 | `transfer_enabled_android` | — | unchanged by 1.1; outside this document | unchanged |
 
@@ -473,15 +477,16 @@ Status: **frozen**.
 |---:|---|---|---|---|---:|
 | 1 | D1 P1 | auth stream lacks callback error handling | map callback errors; existing-account choice; fake-stream test | Claude | 30 |
 | 2 | M2 P1 | raw `FunctionsFetchException` escapes guard | normalize `BackendUnreachable`; enter/start/action/heartbeat/resume tests | Claude | 25 |
-| 3 | D2 P1 | puzzle retry can consume another attempt | stable request receipt/replay | Sol | 45 |
-| 4 | M5 P1 | lost bullet response + new action id loses Detective answer | persist request id; store/replay acknowledgement | Sol 60 / Claude 35 | 95 |
+| 3 | D2 P1 | puzzle retry can consume another attempt | stable request receipt/replay | Claude | 45 |
+| 4 | M5 P1 | Only the Mafia (quiet night) and Doctor (self-protect) hold bullets. A committed bullet move whose response is lost is retried; `alreadySpent` matches this night's own row → `RATE_LIMITED` although the move stands, and a later no-bullet resubmit rewrites `used_bullet=false`, silently refunding it | `alreadySpent` counts only earlier nights; same-night upsert keeps `used_bullet = existing OR requested`; retry/race tests | Claude | 25 |
 | 5 | M4 P1 | `/join/:code` can tear down active transport pre-admission | active-session guard; preserve old transport until explicit decision | Claude | 45 |
-| 6 | M3 P1 | 10s heartbeat creates ~12k delivered roster events in 10-seat/20m | unpublished presence; publish connected/away/left only | Sol 75 / Claude 30 | 105 |
-| 7 | D7 P1 | result bursts ~5 calls/player, ~50 for 10 seats | `resultSummary{roomId,requestId}` with Council+Casebook deltas | Sol 60 / Claude 40 | 100 |
-| 8 | D3 P1 + D4 P3 | migration-time season start; display level 0 | operator start; `max(1,level)` display | Sol 30 / Claude 5 | 35 |
-| 9 | S4 P1 gap | no final publication-column invariant | exact safe-column allowlist + exhaustive error-body harness | Sol | 70 |
+| 6 | M3 P1 | 10s heartbeat creates ~12k delivered roster events in 10-seat/20m | unpublished presence; publish connected/away/left only | Claude | 105 |
+| 7 | D7 P1 | result bursts ~5 calls/player, ~50 for 10 seats | `resultSummary{roomId,requestId}` with Council+Casebook deltas | Claude | 100 |
+| 8 | D3 P1 + D4 P3 | migration-time season start; display level 0 | operator start; `max(1,level)` display | Claude | 35 |
+| 9 | S4 P1 gap | no final publication-column invariant | exact safe-column allowlist + exhaustive error-body harness | Claude | 70 |
+| 10 | M6 P2 | a committed whisper whose response is lost is retried → `RATE_LIMITED` | on 23505, return the original id when today's whisper from the sender has the same recipient and the exact stored body; otherwise keep the refusal. No schema change. Tests: concurrent identical, different recipient | Claude | 20 |
 
-D6 acceptance: series records only finished rooms with non-null public outcome. Post-launch: M6 whisper receipt (Sol45/Claude20); M7 browse/quick-match rewrite plus partial active-seat index (Sol45); D5 foreground invite subscription (Sol30/Claude35); D9 server-clock display offset (Claude20); minimum observability (Sol75/Claude45).
+D6 acceptance: series records only finished rooms with non-null public outcome. Post-launch: M7 browse/quick-match rewrite plus partial active-seat index (45m); D5 foreground invite subscription (65m); D9 server-clock display offset (20m); minimum observability (120m). All Claude.
 
 Known-safe races: join uses per-user advisory + room lock + unique seat; quick match uses pool advisory then candidate lock; start/leave lock room and recheck. Global quick-match lock is safe but later bottlenecks.
 
@@ -606,58 +611,88 @@ Reduced motion is opacity-only 120ms: no travel, rotation, burst, particles or p
 
 Status: **frozen**.
 
-| # | Deliverable | Sol | Claude | Gate |
-|---:|---|---:|---:|---|
-| 1 | Online blockers | 340m | 210m | targeted online ×3; error/publication; SQL/edge; reconnect device |
-| 2 | Safety v11 + owner queue | 300m | 180m | every block surface; evidence; admin/purge |
-| 3 | Operator RPCs/runbook | 240m | 45m | idempotency/audit/wallet/dark snapshot/rollback |
-| 4 | Metrics + warm-up/sweep | 90m | 300m | allowlist/privacy; low-end p95/RSS; web slow/saveData |
-| 5 | Economy/ad/invites/catalogue/provenance | 300m | 300m | 28-day simulation; concurrency; restore/revoke; disclosures |
-| 6 | S0/S1/S8 art + launch sounds | — | 240m | alpha/crops/360px/size/reduced motion |
-| 7 | Casebook + Season Pass | 180m | 300m | inactive/close/retro/revoke/reward math/device |
-| 8 | Daily Case + P2/P3 + route | 180m | 360m | 10-year generator; assists/reminders; Android/web |
-| 9 | Founder+Partner+invite+creator | 210m | 300m | attribution/replay/caps; deep-link; share fallbacks |
-| 10 | Ready/rematch/reconnect/handoff | 210m | 240m | two-client races; process death; private/public ready |
-| 11 | Thursday+titles+pass ad reach | 150m | 240m | Cairo DST; phase matrix; device never-list |
-| 12 | Listing, captures, trailer, consent/listing | 30m | 300m | honest media/copy; P0 checklist; switches OFF |
-| 13 | Full RC | 180m | 300m | SQL/edge/analyze/full Flutter; 360px; two Android classes; Safari/offline |
-| 14 | 1.1.1 Chapters + S4 | 180m | 480m | four paths; assisted; purity; tone/device |
-| 15 | 1.1.2 Academy + S5 | 60m | 420m | pure fixtures; offline queue; five drills |
-| 16 | 1.1.3 Deck/Rules+Series/Draft+S6/S7 | 450m | 660m | parity/hostile/two-client/link matrix |
-| 17 | 1.1.4 Verdict + Season One | 60m | 300m | pixels/privacy/share/content-expiry rehearsal |
+| # | Deliverable | Claude (min) | Gate |
+|---:|---|---:|---|
+| 1 | Online blockers (§7 rows 1–10) | 500 | targeted online ×3; error/publication; SQL/edge; reconnect device |
+| 2 | Safety v11 + owner queue | 480 | every block surface; evidence; admin/purge |
+| 3 | Operator RPCs/runbook | 285 | idempotency/audit/wallet/dark snapshot/rollback |
+| 4 | Metrics + warm-up/sweep | 390 | allowlist/privacy; low-end p95/RSS; web slow/saveData |
+| 5 | Economy/ad/invites/catalogue (L products only)/provenance | 540 | 28-day simulation; concurrency; restore/revoke; disclosures |
+| 6 | S0/S1/S8 art + launch sounds (images by Sol) | 240 | alpha/crops/360px/size/reduced motion |
+| 7 | Casebook + Season Pass | 480 | inactive/close/retro/revoke/reward math/device |
+| 8 | Daily Case + P2/P3 + route | 540 | 10-year generator; assists/reminders; Android/web |
+| 9 | Founder+Partner+invite+creator | 510 | attribution/replay/caps; deep-link; share fallbacks |
+| 10 | Ready/rematch/reconnect/handoff | 450 | two-client races; process death; private/public ready |
+| 11 | Thursday+titles+pass ad reach | 390 | Cairo DST; phase matrix; device never-list |
+| 12 | Listing, captures, trailer, consent/listing | 330 | honest media/copy; P0 checklist; switches OFF |
+| 13 | Full RC | 480 | SQL/edge/analyze/full Flutter; 360px; two Android classes; Safari/offline |
+| 14 | 1.1.1 Chapters + S4 | 660 | four paths; assisted; purity; tone/device |
+| 15 | 1.1.2 Academy + S5 | 480 | pure fixtures; offline queue; five drills |
+| 16 | 1.1.3 Deck/Rules+Series/Draft+S6/S7 | 1,110 | parity/hostile/two-client/link matrix |
+| 17 | 1.1.4 Verdict + Season One | 360 | pixels/privacy/share/content-expiry rehearsal |
+| 18 | 1.1.x Direct premium cosmetics + art | 300 | inventory/provenance/surfaces; no live-seat change |
 
-Sol owns `supabase/**`, generators, edge contracts/backend tests. Claude owns `lib/**`, Dart tests, ARBs/l10n, tokens, routes, `pubspec`, asset constants and final Arabic; Sol tone-reviews. Art touches `raw_assets/update11/**` until approval; Claude alone registers accepted assets. Audio is isolated. Each row passes before merge; no concurrent `flutter test`.
+The launch-critical path (rows 1–13) is ≈5,600 minutes, about 94 hours of build, before device time and rollout. It spans several working sessions.
+
+Claude owns every file: `supabase/**`, generators, edge contracts and backend tests, `lib/**`, Dart tests, ARBs/l10n, tokens, routes, `pubspec`, asset constants and final Arabic. Sol critiques each plan before it is built and generates images through its Codex session with a low-cost image model. Art lands in `raw_assets/update11/**` until approval, and Claude alone registers accepted assets. Audio is isolated. Each row passes its gate before merge. No concurrent `flutter test`.
 
 ## 11. Launch package, rollout, risks and roadmap
 
 Status: **frozen**.
 
-### Store copy
+### Store listing (first release; strength-first)
 
-Arabic, ≤500 characters:
+The listing sells what the game does, never offers. Rewards are not the headline of any listing element.
 
-> أكبر تحديث للمافيا: حل «قضية اليوم» و«القضية الأولى»، واختار شريكك من الشخصيات الأربع. تقدّم في ملف القضايا وموسم الصفر، لمّ الشلة برابط مباشر، وارجع للماتش بسرعة لو النت فصل. استنّوا ليلة الخميس، مهمات ومكافآت جديدة، وتجربة أسرع وأأمن بتصميم مصري نوير جديد.
+- **Title (≤ 30):** «سيد المافيا - لعبة المافيا» (26). English: "Mafia Master: Online Mafia".
+- **Short description (≤ 80):** «لعبة المافيا أونلاين بالصوت مع صحابك، أو قعدة والموبايل هو الراوي».
+- **Full description (Arabic):**
 
-English, ≤500 characters:
+> «سيد المافيا» هي لعبة المافيا اللي تعرفها من القعدات، بس المرة دي الموبايل هو الراوي. مفيش حد يقعد برا اللعب، ولا حد ينسى خطوة.
+>
+> العبها قعدة على موبايل واحد: كل واحد يشوف كارته لوحده، والموبايل يدير الليل والنهار والتصويت. أو العبها أونلاين بالصوت: ابعت رابط الأوضة للشلة على واتساب، ويدخلوا من التطبيق أو من المتصفح على طول، حتى لو كل واحد في محافظة.
+>
+> أربع أدوار: المافيا بتختار ضحيتها بالليل، الدكتور بينقذ، المحقق بيكشف، والمواطنين لازم يعرفوا مين القاتل قبل ما يفوت الأوان. لعبة جماعية ولعبة صحاب، فيها تحقيق وغموض.
+>
+> • الموبايل ما يفضحش دورك: التسليم له نفس المدة والإضاءة لكل الأدوار.
+> • بعد خروجك، تتابع الحقيقة من غير ما تأثر على الأحياء.
+> • «قضية اليوم»: لغز مافيا جديد كل يوم، ليه حل واحد بس.
+> • الأربعة فاكرينك: ملفات الشخصيات بتكبر مع كل سهرة، ورسايل مختومة مستنياك.
+> • ليلة الخميس: سهرة المافيا الأسبوعية.
+> • رسومات مصرية مرسومة باليد، وكل كارت لوحة.
+> • مفيش حاجة في المتجر بتديك أفضلية في اللعب.
+>
+> لو بتحب ألعاب زي المستذئب، دي لعبة المافيا بتاعتك، بالعربي ومن مصر.
 
-> Our biggest Mafia update yet. Solve the Daily Case and launch mystery, choose a Partner from the Four, progress through the Casebook and Season Zero, invite friends with one link, and recover smoothly when the network drops. Thursday Night, new missions and rewards, stronger safety, faster loading, and a complete Egyptian-noir art pass.
+- **English description:** the same structure and claims, translated; no keyword lists.
+- **Keywords:** the title and short description carry relevance. The description uses each phrase naturally once. Spelling variants are kept only for future measured listing experiments. «المستذئب» appears once, naturally. No competitor names, "best" or "#1".
+- **Pre-registration custom listing** (user-state targeting): the same strengths, plus «سجّل وهتوصلك أول ما تنزل».
 
 ### Eight screenshots
 
-1. Home/table — «لمّ القعدة وابدأ القضية».
-2. Online/friends — «ترابيزة مستنياك».
-3. Lobby/ready — «الكل جاهز؟».
+1. Pass-and-play hand-off — «الموبايل هو الراوي».
+2. Online voice room — «العب بالصوت مع صحابك من أي مكان».
+3. The hold pad — «الموبايل ما يفضحش دورك».
 4. Daily Case — «قضية جديدة كل يوم».
-5. Casebook — «كل سهرة بتسيب أثر».
-6. Partner/dossier — «اختار شريكك».
-7. Launch case/founder — «القضية بدأت».
-8. Thursday — «ليلة الخميس للمجلس».
+5. Partner/dossier — «الأربعة فاكرينك».
+6. Web join — «ادخل من المتصفح في ثواني».
+7. Thursday — «ليلة الخميس».
+8. Witness table — «بعد خروجك… تتابع الحقيقة».
 
-Honest 1080×1920 captures; no fabricated balance/roster/unlock. 1.1.x screens appear only after shipping.
+These are honest 1080×1920 captures, with no fabricated balance, roster or unlock. 1.1.x screens appear only after they ship.
 
 ### Trailer and share hooks
 
-0–2s Cairo night+stamp; 2–5s friends join; 5–8s safe role-card montage; 8–11s case clues; 11–14s Casebook+Partner; 14–17s ready table/reconnect; 17–19s Thursday+invite; 19–20s «القضية بدأت». No speech. Share hooks: lobby shortage, public result, case grid, founder letter, milestone/title/frame, Thursday stamp. Never chapter spoilers or private match data.
+20 s, no speech, no reward shots:
+- 0–3s the phone becomes the narrator;
+- 3–6s friends in different cities join by voice;
+- 6–9s the hand-off looks the same for every role;
+- 9–12s the reaper scare;
+- 12–15s the Daily Case clues;
+- 15–18s the Four's dossier;
+- 18–20s «القضية بدأت».
+
+Share hooks: lobby shortage, public result, case grid, founder letter, Thursday stamp. Never chapter spoilers or private match data.
 
 ### Rollout
 
@@ -667,21 +702,21 @@ Honest 1080×1920 captures; no fabricated balance/roster/unlock. 1.1.x screens a
 - **50%, ≥72h/2,000 sessions:** safety SLA; invite/share success ≥98%; case solve 45–90%; reconnect ≥95%; no abnormal faucet; Season Pass purchase/restore/revoke exact.
 - **100%:** ≥7 stable production days, D7 visible, moderation sustainable, owner approval. Only then activate Season Zero globally.
 
-Launch-week night: 5–10 Egyptian micro-creators/board-game communities, Thursday 20:30 Cairo, three tables, two moderators, safety briefing, invite kit, no reward for positive reviews.
+Launch-week night: 5–10 Egyptian micro-creators/board-game communities, Thursday 21:00 Cairo (inside «ليلة الخميس»), playing the game rather than presenting offers, three tables, two moderators, safety briefing, invite kit, no reward for positive reviews.
 
 ### Risk register
 
 | Risk | Likelihood/impact | Mitigation | Owner |
 |---|---|---|---|
-| Hidden-info regression | low/critical | Doc05 closure + payload allowlists | both |
-| Lost/duplicate weak-network action | medium/critical | stable receipts/replay | Sol |
+| Hidden-info regression | low/critical | Doc05 closure + payload allowlists | Claude; Sol critiques |
+| Lost/duplicate weak-network action | medium/critical | stable receipts/replay | Claude |
 | First-open jank/OOM | medium/high | staged decode/sweep/device p95 | Claude |
-| Reward abuse/inflation | medium/high | shared caps/simulation/alerts | Sol |
+| Reward abuse/inflation | medium/high | shared caps/simulation/alerts | Claude |
 | Empty rooms | high/high | invites, Thursday, honest counts | product |
 | Harassment growth | medium/high | universal block, queue/SLA | owner |
-| Season content gap | medium/high | day-14 brief/day-21 build | both |
+| Season content gap | medium/high | day-14 brief/day-21 build | Claude; Sol critiques |
 | Ad density retention loss | medium/high | model-1 caps/cohorts/rollback | owner |
-| Entitlement mismatch | low/critical | provenance + drills | Sol |
+| Entitlement mismatch | low/critical | provenance + drills | Claude |
 | Scope harms quality | high/high | L/1.1.x boundary; cut, never half-ship | owner |
 
 ### Roadmap
@@ -703,4 +738,4 @@ Status: **owner decision pending**.
 1. **Install-referrer dependency for `/p/<character>` attribution. Recommendation: approve only if proof adds <150ms cold-start p95 and stores no raw referrer; otherwise App Links alone.** Partner selection does not depend on it.
 2. **Play in-app review dependency. Recommendation: approve.** Trigger after third clean completed match or third solved case, ≤1/90d, remote-killable and never reward-coupled.
 
-Local notifications, economy option C, Season Pass, Quiet Pass, P1–P8/P10–P12, ad model 1 and the L/1.1.x boundary are frozen, not open questions.
+Local notifications, economy option C, Season Pass, Quiet Pass, P1–P8/P10–P12, ad model 1, the L/1.1.x boundary, the total-income target and the strength-first listing are frozen, not open questions. Round 10b (sign-off) closed this file.
