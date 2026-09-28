@@ -7033,6 +7033,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Just this once. Instant from now on.'**
   String get warmupOnce;
+
+  /// No description provided for @rematchHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Another round, same table'**
+  String get rematchHost;
+
+  /// No description provided for @rematchJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'The host opened the next round · Join'**
+  String get rematchJoin;
+
+  /// No description provided for @rematchWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the host to open the next round…'**
+  String get rematchWaiting;
 }
 
 class _AppLocalizationsDelegate

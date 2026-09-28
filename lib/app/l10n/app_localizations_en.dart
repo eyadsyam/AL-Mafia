@@ -4116,4 +4116,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get warmupOnce => 'Just this once. Instant from now on.';
+
+  @override
+  String get rematchHost => 'Another round, same table';
+
+  @override
+  String get rematchJoin => 'The host opened the next round · Join';
+
+  @override
+  String get rematchWaiting => 'Waiting for the host to open the next round…';
 }

@@ -281,6 +281,16 @@ class OnlineTransport implements GameTransport {
   /// The room code, for the share sheet in the lobby.
   String get code => _state?.code ?? '';
 
+  /// The next table the host opened from this finished room (`rematch_room`),
+  /// announced in the room's public data. Null until the host opens one.
+  ({String roomId, String code})? get rematch {
+    final next = _state?.publicData['rematch'];
+    if (next is Map && next['roomId'] is String && next['code'] is String) {
+      return (roomId: next['roomId'] as String, code: next['code'] as String);
+    }
+    return null;
+  }
+
   ConnectionQuality get connection => _connection;
 
   void _publish() {

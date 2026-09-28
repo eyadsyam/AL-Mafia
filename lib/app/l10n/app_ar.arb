@@ -1632,5 +1632,8 @@
   "@bondNewLetter": {"placeholders": {"name": {"type": "String"}}},
   "bondStrangerLine": "لسه ما قعدتش على ترابيزتها.",
   "warmupTitle": "بنجهّز الترابيزة…",
-  "warmupOnce": "مرة واحدة بس. بعد كده على طول."
+  "warmupOnce": "مرة واحدة بس. بعد كده على طول.",
+  "rematchHost": "ماتش كمان بنفس الترابيزة",
+  "rematchJoin": "المضيف فتح الماتش الجاي · ادخل",
+  "rematchWaiting": "مستنيين المضيف يفتح الماتش الجاي…"
 }

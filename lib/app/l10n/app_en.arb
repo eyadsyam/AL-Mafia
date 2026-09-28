@@ -2627,5 +2627,8 @@
   "@bondNewLetter": {"placeholders": {"name": {"type": "String"}}},
   "bondStrangerLine": "You have not sat at this table yet.",
   "warmupTitle": "Setting the table…",
-  "warmupOnce": "Just this once. Instant from now on."
+  "warmupOnce": "Just this once. Instant from now on.",
+  "rematchHost": "Another round, same table",
+  "rematchJoin": "The host opened the next round · Join",
+  "rematchWaiting": "Waiting for the host to open the next round…"
 }

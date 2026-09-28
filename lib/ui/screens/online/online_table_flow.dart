@@ -6,12 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // `Alignment` here is the engine's win side, not Flutter's layout anchor.
 import '../../../app/asset_constants.dart';
 import '../../../engine/models/enums.dart';
+import '../../../engine/models/player.dart' show PlayerGender, PublicPlayer;
 import '../../../platform/audio_director.dart';
 import '../../../platform/haptics.dart';
 import '../../../platform/monetization/interstitial_policy.dart';
 import '../../../platform/reduce_motion.dart';
 import '../../../transport/game_snapshot.dart';
 import '../../../transport/online_backend.dart';
+import '../../../transport/online_transport.dart' show OnlineTransport;
 import '../../information_text.dart';
 import '../../l10n_ext.dart';
 import '../../economy/interstitial_coordinator.dart';
@@ -1793,18 +1795,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
               SizedBox(height: spacing.xs),
               // Phase 109: keeping the group together is the loudest thing
               // left to do — ahead of the roles and ahead of home.
-              FilledButton.icon(
-                key: OnlineTableFlow.playAgain,
-                onPressed: () async {
-                  final ads = ref.read(interstitialCoordinatorProvider);
-                  await ref.read(onlineSessionProvider.notifier).leave();
-                  // Ads v3: the next match's pre-match ad, room already left
-                  // and before the online door — never in the lobby.
-                  if (mounted) await ads.beforeRematch();
-                  if (mounted) (widget.onRematch ?? widget.onExit)();
-                },
-                icon: const Icon(Icons.group_add_rounded),
-                label: Text(l10n.playAgainWithGroup),
+              _TableRematch(
+                snapshot: snapshot,
+                onGone: () => (widget.onRematch ?? widget.onExit)(),
               ),
             ],
           ),
@@ -2040,6 +2033,103 @@ class _ConfrontationClockState extends State<_ConfrontationClock> {
     return TimerRing(
       remaining: widget.total <= 0 ? 0 : left / widget.total,
       seconds: '$left',
+    );
+  }
+}
+
+/// The result's loudest action: keep the table together.
+///
+/// The host opens the next room with this room's settings; every other seat
+/// watches this finished room's public data and, the moment the code arrives,
+/// joins with one tap under the same name. Until then a guest can still take
+/// the old way — the online door — or wait for the host.
+class _TableRematch extends ConsumerStatefulWidget {
+  final GameSnapshot snapshot;
+  final VoidCallback onGone;
+  const _TableRematch({required this.snapshot, required this.onGone});
+
+  static const Key hostKey = ValueKey('online_rematch_host');
+  static const Key joinKey = ValueKey('online_rematch_join');
+
+  @override
+  ConsumerState<_TableRematch> createState() => _TableRematchState();
+}
+
+class _TableRematchState extends ConsumerState<_TableRematch> {
+  bool _busy = false;
+
+  PublicPlayer? _me(OnlineTransport transport) {
+    final seat = transport.mySeat;
+    return widget.snapshot.public.players
+        .where((p) => p.seat == seat)
+        .firstOrNull;
+  }
+
+  String _gender(PublicPlayer? me) => switch (me?.gender) {
+    PlayerGender.male => 'male',
+    PlayerGender.female => 'female',
+    _ => 'unspecified',
+  };
+
+  Future<void> _go(Future<void> Function() enter) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    final ads = ref.read(interstitialCoordinatorProvider);
+    await enter();
+    if (!mounted) return;
+    // Ads v3: the next match's pre-match ad, between rooms, never in a lobby.
+    await ads.beforeRematch();
+    if (mounted) widget.onGone();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final session = ref.read(onlineSessionProvider.notifier);
+    final transport = ref.watch(onlineSessionProvider).transport;
+    if (transport == null) return const SizedBox.shrink();
+    return StreamBuilder<GameSnapshot>(
+      stream: transport.watch(),
+      builder: (context, _) {
+        final me = _me(transport);
+        final next = transport.rematch;
+        if (next != null && !transport.isHost) {
+          return FilledButton.icon(
+            key: _TableRematch.joinKey,
+            onPressed: _busy || me == null
+                ? null
+                : () => _go(
+                    () => session.join(
+                      code: next.code,
+                      name: me.name,
+                      gender: _gender(me),
+                    ),
+                  ),
+            icon: const Icon(Icons.login_rounded),
+            label: Text(l10n.rematchJoin),
+          );
+        }
+        if (transport.isHost) {
+          return FilledButton.icon(
+            key: _TableRematch.hostKey,
+            onPressed: _busy || me == null
+                ? null
+                : () => _go(
+                    () => session.rematch(name: me.name, gender: _gender(me)),
+                  ),
+            icon: const Icon(Icons.replay_rounded),
+            label: Text(l10n.rematchHost),
+          );
+        }
+        // Until the host opens the next table, a guest can still take the
+        // old way; the moment the code arrives this becomes «ادخل».
+        return FilledButton.icon(
+          key: OnlineTableFlow.playAgain,
+          onPressed: _busy ? null : () => _go(() => session.leave()),
+          icon: const Icon(Icons.group_add_rounded),
+          label: Text(l10n.playAgainWithGroup),
+        );
+      },
     );
   }
 }

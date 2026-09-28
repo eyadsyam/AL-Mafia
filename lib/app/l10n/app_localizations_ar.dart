@@ -4018,4 +4018,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get warmupOnce => 'مرة واحدة بس. بعد كده على طول.';
+
+  @override
+  String get rematchHost => 'ماتش كمان بنفس الترابيزة';
+
+  @override
+  String get rematchJoin => 'المضيف فتح الماتش الجاي · ادخل';
+
+  @override
+  String get rematchWaiting => 'مستنيين المضيف يفتح الماتش الجاي…';
 }

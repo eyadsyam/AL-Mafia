@@ -538,7 +538,13 @@ GoRouter buildRouter(
         builder: (context, state) => MatchRoute(
           onExit: () => context.go(Routes.home),
           onAnalytics: () => context.go(Routes.analytics),
-          onRematch: () => context.go(Routes.online),
+          // A table rematch lands straight in the new lobby; leaving the
+          // table the old way lands on the online door.
+          onRematch: () => context.go(
+            ref.read(onlineSessionProvider).isInRoom
+                ? Routes.lobby
+                : Routes.online,
+          ),
         ),
       ),
       GoRoute(

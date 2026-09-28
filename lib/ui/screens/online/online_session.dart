@@ -165,6 +165,26 @@ class OnlineSession extends Notifier<OnlineSessionState> {
     return handle;
   });
 
+  /// «ماتش كمان بنفس الترابيزة»: the host of a finished room opens the next
+  /// one with the same settings. Everyone still on the result sees its code
+  /// arrive (`OnlineTransport.rematch`) and joins with one tap.
+  Future<void> rematch({required String name, String gender = 'unspecified'}) {
+    final old = state.transport?.roomId;
+    if (old == null) return Future.value();
+    return _enter((backend) async {
+      final result = await backend.call('rematch_room', {
+        'roomId': old,
+        'name': name.trim(),
+        'gender': gender,
+      });
+      return RoomHandle(
+        roomId: result['roomId'] as String,
+        code: result['code'] as String,
+        seat: 0,
+      );
+    });
+  }
+
   /// Joins by code, or rejoins a seat this user already holds (O4).
   Future<void> join({
     required String code,
