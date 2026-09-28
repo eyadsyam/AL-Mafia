@@ -11,6 +11,8 @@ import '../data/player_group_provider.dart';
 import '../platform/audio_director.dart';
 import '../platform/narrator_bank.dart';
 import '../platform/optional_service.dart';
+import '../platform/metrics.dart';
+import '../platform/review_prompt.dart';
 import '../ui/screens/setup/setup_draft.dart';
 import '../ui/screens/setup/scenario_store.dart';
 import '../ui/l10n_ext.dart';
@@ -21,7 +23,8 @@ import 'onboarding_gate.dart';
 import 'resume_gate.dart';
 import 'router.dart';
 import '../ui/economy/app_open_gate.dart';
-import '../ui/economy/economy_capabilities.dart' show retryCapabilitiesIfFailed;
+import '../ui/economy/economy_capabilities.dart'
+    show economyCapabilitiesProvider, retryCapabilitiesIfFailed;
 import '../ui/economy/interstitial_coordinator.dart';
 import 'locale_controller.dart';
 import '../ui/widgets/warmup_gate.dart';
@@ -130,6 +133,28 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     final from = _lastPath;
     _lastPath = path;
     ref.read(interstitialCoordinatorProvider).navigated(from, path);
+    if (path == Routes.home) _calmHome();
+  }
+
+  /// F13/P8 and P9 on arriving home. Both follow capabilities something else
+  /// already loaded: `exists` first, so this never starts a request of its
+  /// own and never delays a frame.
+  void _calmHome() {
+    if (!ref.exists(economyCapabilitiesProvider)) return;
+    final caps = ref.read(economyCapabilitiesProvider).valueOrNull;
+    if (caps == null) return;
+    if (caps.metrics) unawaited(ref.read(firstOpenAttributionProvider).run());
+    if (caps.reviewPrompt) _maybeAskForReview();
+  }
+
+  void _maybeAskForReview() {
+    if (_router.routerDelegate.currentConfiguration.uri.path != Routes.home) {
+      return;
+    }
+    final context = _navigatorKey.currentContext;
+    if (context != null) {
+      unawaited(ref.read(reviewPromptProvider).maybeAsk(context));
+    }
   }
 
   @override

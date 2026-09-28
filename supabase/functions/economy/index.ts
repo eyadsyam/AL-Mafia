@@ -13,6 +13,25 @@ import {
 
 Deno.serve(handler(async (req, userId, db) => {
   const body = await req.json().catch(() => ({}));
+  if (body?.action === "metric") {
+    const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (typeof body.event !== "string" ||
+        (body.prop !== undefined && typeof body.prop !== "string") ||
+        typeof body.requestId !== "string" || !uuid.test(body.requestId)) {
+      return fail("BAD_REQUEST", "invalid metric request");
+    }
+    const { data, error } = await db.rpc("metric_record", {
+      p_user: userId,
+      p_event: body.event,
+      p_prop: body.prop ?? "",
+      p_request: body.requestId.toLowerCase(),
+    });
+    if (error?.message === "BAD_REQUEST") {
+      return fail("BAD_REQUEST", "metric is not allowed");
+    }
+    if (error) throw error;
+    return ok(data);
+  }
   const puzzleRequest = casePuzzleRequest(body ?? {});
   if (puzzleRequest === null) return ok({ ok: false, code: "BAD_REQUEST" });
   if (puzzleRequest !== undefined) {

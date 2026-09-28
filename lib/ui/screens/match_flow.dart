@@ -10,6 +10,7 @@ import '../../engine/pressure.dart';
 import '../../app/asset_constants.dart';
 import '../../platform/audio_director.dart';
 import '../../platform/narrator_bank.dart';
+import '../../platform/review_prompt.dart';
 import '../../transport/game_snapshot.dart' show ConnectionQuality;
 import '../information_text.dart';
 import '../l10n_ext.dart';
@@ -299,6 +300,9 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
             NarratorBeat.win,
             NarrationFacts(winner: outcome.winner.name),
           );
+          // P9: a pass-and-play match that reached its result is a clean
+          // completed match; the prompt itself waits for a calm home screen.
+          unawaited(ref.read(reviewPromptProvider).noteCleanMatch());
           setState(() => _victorySeen = true);
         },
       );

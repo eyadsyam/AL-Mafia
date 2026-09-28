@@ -943,6 +943,13 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// One full 60-frame victory sequence at 12 fps.
   static const victoryReveal = Duration(seconds: 5);
 
+  /// First-open attribution gives up on the Play referrer after this long;
+  /// it runs after the first frame and never blocks start-up (F13/P8).
+  static const installReferrerTimeout = Duration(seconds: 3);
+
+  /// P9: at most one store-review request per 90 days.
+  static const reviewPromptCooldown = Duration(days: 90);
+
   /// How long an eliminated player's card stays face-up before it settles
   /// back into the council. A dramatic hold, so it survives Reduce Motion.
   static const eliminationCardDwell = Duration(milliseconds: 2800);

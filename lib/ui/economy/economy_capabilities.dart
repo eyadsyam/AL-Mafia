@@ -163,6 +163,19 @@ class EconomyCapabilities {
   /// (`missions`, or `social.missions`).
   final bool missions;
 
+  /// «قضية اليوم»: the daily deduction case (`caseOfDay`).
+  final bool caseOfDay;
+
+  /// Anonymous, aggregate F13 product counters.
+  final bool metrics;
+
+  /// P9 native store review prompt.
+  final bool reviewPrompt;
+
+  /// F21a: the dead read whispers (`witness.whispers`); drives the one
+  /// disclosure line every player sees at the composer.
+  final bool witnessWhispers;
+
   /// F11 Safety v11: report categories, notices and the owner's queue
   /// (`safety.v11`).
   final bool safetyV11;
@@ -189,7 +202,11 @@ class EconomyCapabilities {
     this.fun = FunCapabilities.off,
     this.friends = false,
     this.missions = false,
+    this.caseOfDay = false,
+    this.metrics = false,
+    this.reviewPrompt = false,
     this.safetyV11 = false,
+    this.witnessWhispers = false,
     this.purchaseDebt = 0,
     this.failed = false,
   });
@@ -215,8 +232,16 @@ class EconomyCapabilities {
       council: CouncilCapabilities.fromJson(json['council']),
       ads: AdsCapabilities.fromJson(json['ads']),
       fun: FunCapabilities.fromJson(json['fun']),
-      friends: json['social'] is Map && (json['social'] as Map)['friends'] == true,
-      safetyV11: json['safety'] is Map && (json['safety'] as Map)['v11'] == true,
+      friends:
+          json['social'] is Map && (json['social'] as Map)['friends'] == true,
+      caseOfDay: flag('caseOfDay'),
+      metrics: flag('metrics'),
+      reviewPrompt: flag('reviewPrompt'),
+      safetyV11:
+          json['safety'] is Map && (json['safety'] as Map)['v11'] == true,
+      witnessWhispers:
+          json['witness'] is Map &&
+          (json['witness'] as Map)['whispers'] == true,
       missions:
           flag('missions') ||
           (json['social'] is Map &&

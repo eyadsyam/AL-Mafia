@@ -68,6 +68,8 @@ dependencies:
   # <=1600px JPEG on the device before upload).
   image_picker: ^1.2.1
   image: ^4.8.0
+  play_install_referrer: ^0.5.0
+  in_app_review: ^2.0.12
 
 dev_dependencies:
   integration_test:
