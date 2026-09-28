@@ -1343,12 +1343,16 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
       if (!caps.council.hub || !mounted) return;
       _missions = caps.missions;
       final before = ref.read(councilProvider).valueOrNull;
-      // Records this match (idempotent), then reads what it moved.
+      // Records this match (idempotent) and reads what it moved, in one call
+      // (D7): a ten-seat room ending used to send forty-odd at once.
       final backend = await ref.read(onlineBackendFactoryProvider)();
       await backend.ensureSession();
-      await backend.call('economy', {'action': 'sync'});
-      await ref.read(councilProvider.notifier).refresh();
+      final summary = await backend.call('economy', {
+        'action': 'resultSummary',
+        'roomId': widget.roomId,
+      });
       if (!mounted) return;
+      ref.read(councilProvider.notifier).absorbSummary(summary);
       final after = ref.read(councilProvider).valueOrNull;
       if (after == null) return;
       final l = context.l10n;
@@ -1380,8 +1384,7 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
       if (_missions) {
         // The same finished match moved the Casebook; say so once, as a
         // door into it.
-        await ref.read(casebookProvider.notifier).refresh();
-        if (!mounted) return;
+        ref.read(casebookProvider.notifier).absorbHub(summary['hub']);
         final book = ref.read(casebookProvider).valueOrNull;
         if (book != null && book.enabled && (lines.isNotEmpty || book.ready > 0)) {
           lines.add(l.casebookResult);

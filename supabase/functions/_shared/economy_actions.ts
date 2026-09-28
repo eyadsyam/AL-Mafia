@@ -136,6 +136,9 @@ export function economyCall(
         : null;
     case "rank_get":
       return { rpc: "council_rank", args: { p_user: userId } };
+    // D7 — the result screen's one call: sync + contracts + rank + Casebook hub.
+    case "resultSummary":
+      return { rpc: "result_summary", args: { p_user: userId } };
     case "leaderboard_get":
       return { rpc: "council_leaderboard", args: { p_user: userId } };
     case "leaderboard_visibility":

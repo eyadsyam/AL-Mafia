@@ -500,15 +500,17 @@ void main() {
     testWidgets('after the match: contracts now ready and XP gained', (
       tester,
     ) async {
-      var synced = false;
       backend.responders['economy'] = (body) => switch (body['action']) {
         'capabilities' => caps(invites: false),
-        'sync' => () {
-          synced = true;
-          return {'balance': 0};
-        }(),
-        'contracts_get' => contracts(claimable: synced),
-        'rank_get' => rank(xp: synced ? 290 : 240),
+        'contracts_get' => contracts(claimable: false),
+        'rank_get' => rank(xp: 240),
+        // D7: one call records the match and reads what it moved.
+        'resultSummary' => {
+          'ok': true,
+          'contracts': contracts(claimable: true),
+          'rank': rank(xp: 290),
+          'hub': {'enabled': false},
+        },
         _ => {'ok': true},
       };
       // The hub was open before the match.
@@ -522,6 +524,9 @@ void main() {
         findsOneWidget,
       );
       expect(economyCalls('contract_claim'), isEmpty, reason: 'nothing is claimed here');
+      expect(economyCalls('resultSummary'), hasLength(1));
+      expect(economyCalls('resultSummary').single['roomId'], 'room-1');
+      expect(economyCalls('sync'), isEmpty, reason: 'D7: no burst of separate calls');
     });
 
     testWidgets('council off: the result screen shows nothing new', (

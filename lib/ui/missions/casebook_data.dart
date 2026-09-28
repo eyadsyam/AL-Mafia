@@ -349,6 +349,11 @@ class CasebookController extends AsyncNotifier<Casebook> {
     state = await AsyncValue.guard(build);
   }
 
+  /// Takes the hub a `resultSummary` already read (D7).
+  void absorbHub(Object? hub) {
+    if (hub is Map) state = AsyncData(Casebook.fromJson(_map(hub)));
+  }
+
   Future<CaseGrant> _claim(Map<String, Object?> body) async {
     Map<String, dynamic> answer;
     try {

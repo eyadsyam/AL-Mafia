@@ -375,6 +375,28 @@ class CouncilController extends AsyncNotifier<CouncilState?> {
     });
   }
 
+  /// Takes the contracts and rank a `resultSummary` already read (D7), exactly
+  /// as [refresh] would have stored them from its two calls.
+  void absorbSummary(Map<String, dynamic> summary) {
+    Map<String, dynamic> part(String key) => summary[key] is Map
+        ? Map<String, dynamic>.from(summary[key] as Map)
+        : const <String, dynamic>{};
+    final contracts = part('contracts');
+    final rank = part('rank');
+    final ups = [
+      ...LevelUp.list(contracts['levelUps']),
+      ...LevelUp.list(rank['levelUps']),
+    ];
+    if (ups.isNotEmpty) ref.invalidate(walletProvider);
+    _notePending(ref, ups);
+    state = AsyncData(
+      CouncilState(
+        contracts: CouncilContracts.fromJson(contracts),
+        rank: CouncilRank.fromJson(rank),
+      ),
+    );
+  }
+
   /// Hands the uncelebrated level-ups to exactly one caller.
   List<LevelUp> takeLevelUps() {
     final notifier = ref.read(pendingLevelUpsProvider.notifier);
