@@ -4911,7 +4911,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inviteSend => 'Invite';
 
   @override
-  String get inviteSent => 'Sent ✓';
+  String get inviteSent => 'Sent';
 
   @override
   String get inviteFailed => 'Didn\'t go through, try again';

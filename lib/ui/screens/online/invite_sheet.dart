@@ -545,10 +545,21 @@ class _InviteRow extends StatelessWidget {
           ),
           SizedBox(width: s.xs),
           switch (state) {
-            _Send.sent => Text(
-              l.inviteSent,
+            // «اتبعتت ✓»: the tick is an icon, not a glyph the Arabic face
+            // may not carry.
+            _Send.sent => Row(
               key: InviteSheet.buttonKey(id),
-              style: context.typography.body.copyWith(color: VaultTokens.gold),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l.inviteSent,
+                  style: context.typography.body.copyWith(
+                    color: VaultTokens.gold,
+                  ),
+                ),
+                SizedBox(width: s.xs),
+                const Icon(Icons.check_rounded, color: VaultTokens.gold),
+              ],
             ),
             _Send.failed => Tooltip(
               message: l.inviteFailed,

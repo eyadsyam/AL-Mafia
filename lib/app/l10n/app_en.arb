@@ -2876,7 +2876,7 @@
   "inviteTabSearch": "Search by name",
   "inviteTabNearby": "People near you",
   "inviteSend": "Invite",
-  "inviteSent": "Sent ✓",
+  "inviteSent": "Sent",
   "inviteFailed": "Didn't go through, try again",
   "inviteSearchHint": "Type a name or @username",
   "inviteSearchEmpty": "Nobody by that name",

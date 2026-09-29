@@ -4824,7 +4824,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get inviteSend => 'ادعي';
 
   @override
-  String get inviteSent => 'اتبعتت ✓';
+  String get inviteSent => 'اتبعتت';
 
   @override
   String get inviteFailed => 'ماوصلتش، جرّب تاني';

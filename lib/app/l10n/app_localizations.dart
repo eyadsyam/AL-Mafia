@@ -8314,7 +8314,7 @@ abstract class AppLocalizations {
   /// No description provided for @inviteSent.
   ///
   /// In en, this message translates to:
-  /// **'Sent ✓'**
+  /// **'Sent'**
   String get inviteSent;
 
   /// No description provided for @inviteFailed.
