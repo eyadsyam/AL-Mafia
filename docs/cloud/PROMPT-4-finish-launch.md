@@ -126,3 +126,10 @@ Server facts:
 13. **Wire the new art.** Codex is generating the 17 images from `docs/ART-NEEDED.md` into their exact paths on `claude/epic-roentgen-094f21`. Once they are there, wire each one as your table says, and remove the `TODO(art)` placeholders.
 
 Reviewer state: your 303f92c is merged into `claude/epic-roentgen-094f21` (now b6d7842+). Hosted migrations through `20260930000600` are applied. Merge from there before continuing. Final report → `docs/cloud/REPORT-4.md`.
+
+14. **Review the whole app again, three more times.** After items 8–13, run the full wiring audit from item 5 three more separate times. Each pass takes a different angle:
+    - **Pass 2: as a brand-new player on the web, then on Android.** Every screen from first launch to a finished online match and a finished «القعدة».
+    - **Pass 3: money and rewards.** Every coin in and out, every store item, ad reward, referral, daily/weekly/season claim, exact-once, and the caps.
+    - **Pass 4: Doc 05 and failure paths.** Leaks, private phases, no network, a server refusal, old-client behaviour, and deep links.
+
+    Each pass: find the problems, fix them with tests, then append a findings table to `docs/LAUNCH-AUDIT.md` under "Pass N". Keep going until a pass finds nothing new.
