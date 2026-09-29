@@ -27,6 +27,7 @@ import '../economy/pass_result_inventory.dart';
 import '../economy/cosmetics.dart' show NarrationBeat;
 import '../economy/my_cosmetics.dart';
 import '../economy/pass_table_dress.dart';
+import '../social/invite_privacy.dart';
 import 'online/table/room_presentation.dart';
 import 'online/online_session.dart';
 import 'online/online_table_flow.dart';
@@ -157,6 +158,24 @@ enum _Moment {
 class MatchFlowState extends ConsumerState<MatchFlow> {
   bool _victorySeen = false;
 
+  /// Captured once, so leaving the match can clear the privacy flag.
+  late final StateController<bool> _privacy = ref.read(
+    privateMomentProvider.notifier,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _privacy;
+  }
+
+  @override
+  void dispose() {
+    final privacy = _privacy;
+    WidgetsBinding.instance.addPostFrameCallback((_) => privacy.state = false);
+    super.dispose();
+  }
+
   /// The day whose morning briefing has been dismissed. On-table only.
   int? _morningAcknowledgedFor;
 
@@ -254,6 +273,9 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     // rather than what the engine says.
     final inHand = _moment == null && _inHandPhases.contains(phase);
     _audio.setLocation(inHand ? PhoneLocation.inHand : PhoneLocation.onTable);
+    // Invites wait while anything here is private (the stricter «القعدة»
+    // rule: only the phases everybody watches together are public).
+    reportPrivateMoment(ref, inHand || !passCosmeticsVisibleIn(phase));
   }
 
   /// Plays an on-table cue, ignoring it if the phone is in someone's hand.

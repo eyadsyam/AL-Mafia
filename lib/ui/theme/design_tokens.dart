@@ -2096,6 +2096,9 @@ abstract final class InviteTokens {
   /// (the codebase's existing short poll, as for «أصحابك»).
   static const Duration inboxPoll = Duration(seconds: 20);
 
+  /// The directory's «أونلاين دلوقتي» is refreshed at most this often.
+  static const Duration presenceBeat = Duration(minutes: 2);
+
   /// The popup rises once; reduced motion shows it at rest.
   static const Duration popupRise = Duration(milliseconds: 320);
   static const double popupLift = 24.0;

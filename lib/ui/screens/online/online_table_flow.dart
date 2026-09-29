@@ -9,6 +9,8 @@ import '../../../engine/models/enums.dart';
 import '../../../engine/models/player.dart' show PlayerGender, PublicPlayer;
 import '../../../platform/audio_director.dart';
 import '../../../platform/haptics.dart';
+import '../../economy/cosmetics.dart' show cosmeticsVisibleIn;
+import '../../social/invite_privacy.dart';
 import '../../../platform/monetization/interstitial_policy.dart';
 import '../../../platform/reduce_motion.dart';
 import '../../../transport/game_snapshot.dart';
@@ -119,6 +121,11 @@ class OnlineTableFlow extends ConsumerStatefulWidget {
 class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     with TickerProviderStateMixin {
   MatchController get _controller => ref.read(matchControllerProvider.notifier);
+
+  /// Captured once, so leaving the table can clear the privacy flag.
+  late final StateController<bool> _privacy = ref.read(
+    privateMomentProvider.notifier,
+  );
   GameSnapshot get _snapshot => _controller.snapshot;
 
   /// The seat this client currently has chosen, or null.
@@ -319,6 +326,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   @override
   void initState() {
     super.initState();
+    _privacy;
     _tear.addListener(_repaint);
     _sparkFlight.addListener(_repaint);
     _spotlight.addListener(_repaint);
@@ -335,6 +343,8 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 
   @override
   void dispose() {
+    final privacy = _privacy;
+    WidgetsBinding.instance.addPostFrameCallback((_) => privacy.state = false);
     _privateRetry?.cancel();
     _witnessPoll?.cancel();
     _newsTimer?.cancel();
@@ -354,6 +364,13 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 
   /// Notices a phase change and resets everything that was about the old one.
   void _syncPhase(GameSnapshot snapshot) {
+    // Invites wait through every phase with something private on screen
+    // (the deal, the night) and through a ballot.
+    reportPrivateMoment(
+      ref,
+      !cosmeticsVisibleIn(snapshot.phase) ||
+          snapshot.phase == GamePhase.voting,
+    );
     if (snapshot.phase == _phaseAt &&
         snapshot.dayNumber == _dayAt &&
         snapshot.ballotRound == _ballotRoundAt) {

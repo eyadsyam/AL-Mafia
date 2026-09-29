@@ -190,6 +190,7 @@ abstract final class AppAudio {
   static const String deathTear = 'assets/audio/death_tear.ogg';
   static const String eliminationReveal = 'assets/audio/elimination_reveal.ogg';
   static const String founderLetterOpen = 'assets/audio/founder_letter_open.ogg';
+  static const String inviteKnock = 'assets/audio/invite_knock.ogg';
   static const String inviteSeal = 'assets/audio/invite_seal.ogg';
   static const String joinChime = 'assets/audio/join_chime.ogg';
   static const String leaveChime = 'assets/audio/leave_chime.ogg';
@@ -233,6 +234,7 @@ abstract final class AppAudio {
     deathTear,
     eliminationReveal,
     founderLetterOpen,
+    inviteKnock,
     inviteSeal,
     joinChime,
     leaveChime,

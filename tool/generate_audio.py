@@ -708,6 +708,27 @@ def invite_seal() -> np.ndarray:
                                (0.12, 0.3 * _bell(1174.66, 0.43, 0.18))), mix=0.14))
 
 
+def invite_knock() -> np.ndarray:
+    """Someone's at the door (invites that reach the phone): two knocks on a
+    wooden door, then a short brass call on the brand motif's bare fifth,
+    D then A, the same key as `brand_motif`'s room. 1.4 s, nothing tonal
+    enough to belong to a side."""
+    knock = lambda s: (_modal(0.2, ((105.0, 0.05, 1.0), (232.0, 0.03, 0.55), (510.0, 0.014, 0.28)))
+                       + 0.25 * _click(0.2, 600.0, 4000.0, 0.004, s))
+
+    def brass(freq: float, seconds: float) -> np.ndarray:
+        t = np.arange(int(SR * seconds)) / SR
+        vib = 1.0 + 0.004 * np.sin(2 * np.pi * 5.2 * t)
+        tone = sum((0.9 ** k / k) * np.sin(2 * np.pi * freq * k * t * vib) for k in range(1, 8))
+        return tone * _swell(seconds, 0.05, 0.22)
+
+    unit = lambda x: x / (np.max(np.abs(x)) or 1.0)
+    return _tail(_room(_mix(
+        1.4, (0.0, unit(knock(221))), (0.17, 0.85 * unit(knock(222))),
+        (0.46, 0.42 * unit(brass(293.66, 0.42))), (0.66, 0.46 * unit(brass(440.0, 0.72))),
+    ), mix=0.16), 0.14)
+
+
 def season_pass_unlock() -> np.ndarray:
     """A small brass lock: two clicks of the mechanism, the latch, a shimmer."""
     click = lambda s: (_modal(0.05, ((2200.0, 0.006, 1.0), (3700.0, 0.004, 0.5), (5300.0, 0.003, 0.3)))
@@ -799,6 +820,7 @@ CUES = {
     "founder_letter_open": founder_letter_open,
     "partner_pick": partner_pick,
     "invite_seal": invite_seal,
+    "invite_knock": invite_knock,
     "season_pass_unlock": season_pass_unlock,
     "brand_motif": brand_motif,
 }

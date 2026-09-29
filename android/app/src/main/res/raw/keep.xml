@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The invite sound is named only by the push payload and the notification
+     channel (never from code), so resource shrinking must keep it. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@raw/invite_knock" />
