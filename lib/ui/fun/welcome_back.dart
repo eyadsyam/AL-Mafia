@@ -5,19 +5,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'loaded_capabilities.dart';
+import '../../platform/haptics.dart';
 import '../l10n_ext.dart';
 import '../screens/setup/coin_store.dart' show CoinStore;
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../economy/council_art.dart' show RasterOr;
+import '../economy/daily_rewards.dart';
+import '../economy/mafia_coin.dart';
+import '../economy/store_art.dart';
 import '../economy/vault_kit.dart';
+import '../widgets/motion_sprite.dart';
 import 'fun_art.dart';
 
-/// Phase 109: «وحشتنا». When a player comes back after 20 hours or more, a
-/// gentle card on Home points at the daily coffer. Navigation only: it opens
-/// the vault (Rewards is its first tab when daily rewards are on) and grants
-/// nothing itself.
+/// Home's daily strip. It exists only while today's coffer is waiting: one
+/// slim line under the corner controls that claims the coffer where it is,
+/// then offers the free wheel if it has not turned today. Dismissed, it stays
+/// away until tomorrow. «وحشتنا» is only its greeting after a long absence.
 const welcomeBackLastSeenKey = 'mafia.fun.lastSeen';
+
+/// The server day the strip was dismissed on.
+const cofferStripDismissedKey = 'mafia.fun.cofferStripDismissed';
 
 /// Overridable clock.
 final welcomeBackClockProvider = Provider<DateTime Function()>(
@@ -25,8 +33,8 @@ final welcomeBackClockProvider = Provider<DateTime Function()>(
 );
 
 /// Whether this Home visit is a return after [FunTokens.welcomeBackAfter].
-/// Read once per app run, and records "now" as the last visit, so the card
-/// greets a return once and not on every trip back to Home.
+/// Read once per app run, and records "now" as the last visit. It only picks
+/// the strip's greeting; it never makes the strip appear.
 final welcomeBackDueProvider = FutureProvider<bool>((ref) async {
   final now = ref.read(welcomeBackClockProvider)();
   try {
@@ -38,6 +46,17 @@ final welcomeBackDueProvider = FutureProvider<bool>((ref) async {
     return away >= FunTokens.welcomeBackAfter;
   } catch (_) {
     return false;
+  }
+});
+
+/// The server day the strip was last dismissed on, or null.
+final cofferStripDismissedProvider = FutureProvider<String?>((ref) async {
+  try {
+    return (await SharedPreferences.getInstance()).getString(
+      cofferStripDismissedKey,
+    );
+  } catch (_) {
+    return null;
   }
 });
 
@@ -54,7 +73,8 @@ class WelcomeBackCard extends ConsumerStatefulWidget {
   const WelcomeBackCard({super.key});
 
   static const Key cardKey = ValueKey('welcome_back_card');
-  static const Key openKey = ValueKey('welcome_back_open');
+  static const Key claimKey = ValueKey('welcome_back_claim');
+  static const Key spinKey = ValueKey('welcome_back_spin');
   static const Key dismissKey = ValueKey('welcome_back_dismiss');
 
   @override
@@ -64,6 +84,12 @@ class WelcomeBackCard extends ConsumerStatefulWidget {
 class _WelcomeBackCardState extends ConsumerState<WelcomeBackCard>
     with WidgetsBindingObserver {
   bool _dismissed = false;
+  bool _asked = false;
+  bool _busy = false;
+
+  /// What the claim granted, once it has; the strip then says so.
+  int? _got;
+  Timer? _linger;
   final _vault = OverlayPortalController();
 
   @override
@@ -74,6 +100,7 @@ class _WelcomeBackCardState extends ConsumerState<WelcomeBackCard>
 
   @override
   void dispose() {
+    _linger?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -86,19 +113,60 @@ class _WelcomeBackCardState extends ConsumerState<WelcomeBackCard>
     }
   }
 
+  Future<void> _dismiss(String day) async {
+    setState(() => _dismissed = true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(cofferStripDismissedKey, day);
+    } catch (_) {}
+  }
+
+  Future<void> _claim() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final grant = await ref.read(dailyProvider.notifier).claimCoffer();
+      if (!mounted) return;
+      Haptics.confirm();
+      showRewardFlourish(context);
+      setState(() => _got = grant.granted + grant.bonus);
+      final spun = ref.read(dailyProvider).valueOrNull?.wheelSpun ?? true;
+      // Nothing left to offer: the thanks lingers, then the strip goes.
+      if (spun) {
+        _linger = Timer(MafiaTiming.cofferStripLinger, () {
+          if (mounted) setState(() => _dismissed = true);
+        });
+      }
+    } on DailyActionFailed {
+      // The strip stays; the refreshed status decides whether it still can.
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final due = ref.watch(welcomeBackDueProvider).valueOrNull ?? false;
-    if (!due) return const SizedBox.shrink();
-    // Never starts a capabilities read from Home; uses one already made.
+    // Never starts a capabilities read from Home; uses one already made, so
+    // an offline-only player is never signed in just for this strip.
     final caps = loadedCapabilities(ref);
     if (caps == null) recheckCapabilitiesAfterFrame(this);
-    final daily = caps?.daily ?? false;
-    final l = context.l10n;
-    final s = context.spacing;
-    final colors = context.colors;
-    final type = context.typography;
-    final reduce = MediaQuery.disableAnimationsOf(context);
+    final on = caps?.daily ?? false;
+    final daily = ref.watch(dailyProvider);
+    if (on && !_asked && daily.valueOrNull == null && !daily.isLoading) {
+      _asked = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(ref.read(dailyProvider.notifier).refresh());
+      });
+    }
+    final status = daily.valueOrNull;
+    final dismissedOn = ref.watch(cofferStripDismissedProvider).valueOrNull;
+    final show =
+        on &&
+        !_dismissed &&
+        status != null &&
+        status.enabled &&
+        dismissedOn != status.day &&
+        (!status.cofferClaimed || _got != null);
 
     return OverlayPortal(
       controller: _vault,
@@ -111,87 +179,117 @@ class _WelcomeBackCardState extends ConsumerState<WelcomeBackCard>
           child: CoinStore(onClose: _vault.hide),
         ),
       ),
-      // The portal outlives the card: "open" dismisses the card and the
-      // vault it opened stays up until it is closed.
-      child: _dismissed
-          ? const SizedBox.shrink()
-          : TweenAnimationBuilder<double>(
-              tween: Tween(begin: reduce ? 1 : 0, end: 1),
-              duration: reduce ? Duration.zero : context.motion.standard,
-              builder: (context, t, child) => Padding(
-                padding: EdgeInsets.only(bottom: s.sm),
-                child: Opacity(opacity: t, child: child),
+      // The portal outlives the strip: the vault the strip opened stays up
+      // until it is closed.
+      child: AnimatedSize(
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : context.motion.standard,
+        curve: context.motion.standardCurve,
+        alignment: Alignment.topCenter,
+        child: show ? _strip(context, status) : const SizedBox.shrink(),
+      ),
+    );
+  }
+
+  Widget _strip(BuildContext context, DailyStatus status) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final colors = context.colors;
+    final type = context.typography;
+    final got = _got;
+    final greet = ref.watch(welcomeBackDueProvider).valueOrNull ?? false;
+    final Widget action;
+    if (got == null) {
+      action = VaultPress(
+        child: FilledButton(
+          key: WelcomeBackCard.claimKey,
+          style: vaultGoldStyle(context),
+          onPressed: _busy ? null : _claim,
+          child: Text(l.cofferStripClaim),
+        ),
+      );
+    } else if (!status.wheelSpun) {
+      action = VaultPress(
+        child: FilledButton(
+          key: WelcomeBackCard.spinKey,
+          style: vaultGoldStyle(context),
+          onPressed: () {
+            setState(() => _dismissed = true);
+            _vault.show();
+          },
+          child: Text(l.cofferStripSpin),
+        ),
+      );
+    } else {
+      action = const SizedBox.shrink();
+    }
+    return Padding(
+      key: WelcomeBackCard.cardKey,
+      padding: EdgeInsets.only(top: s.xs),
+      child: VaultCard(
+        lit: true,
+        mainAxisSize: MainAxisSize.min,
+        padding: EdgeInsetsDirectional.fromSTEB(s.sm, s.xs, s.xs, s.xs),
+        children: [
+          Row(
+            children: [
+              Image.asset(
+                StoreArt.dailyCoffer,
+                width: FunTokens.cofferStripArt,
+                height: FunTokens.cofferStripArt,
+                cacheWidth: StoreTokens.frameDecodeWidth,
+                excludeFromSemantics: true,
+                errorBuilder: (_, _, _) =>
+                    const MafiaCoin(size: FunTokens.cofferStripArt / 2),
               ),
-              child: VaultCard(
-                key: WelcomeBackCard.cardKey,
-                lit: true,
-                padding: EdgeInsets.all(s.sm),
-                children: [
-                  Row(
-                    children: [
-                      const LampGlow(
-                        child: SizedBox.square(
-                          dimension: FunTokens.welcomeArt,
-                          child: RasterOrWelcome(size: FunTokens.welcomeArt),
+              SizedBox(width: s.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      got != null
+                          ? l.cofferStripGot(got)
+                          : greet
+                          ? l.welcomeBackTitle
+                          : l.cofferStripReady,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: type.body.copyWith(
+                        color: VaultTokens.goldLight,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (got == null)
+                      Text(
+                        l.cofferStripBody,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: type.caption.copyWith(
+                          color: colors.textSecondary,
                         ),
                       ),
-                      SizedBox(width: s.sm),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              l.welcomeBackTitle,
-                              style: type.title.copyWith(
-                                color: VaultTokens.goldLight,
-                              ),
-                            ),
-                            Text(
-                              daily
-                                  ? l.welcomeBackBody
-                                  : l.welcomeBackBodyPlain,
-                              style: type.bodySmall.copyWith(
-                                color: colors.textSecondary,
-                              ),
-                            ),
-                            SizedBox(height: s.xs),
-                            Wrap(
-                              spacing: s.sm,
-                              runSpacing: s.xs,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                if (daily)
-                                  VaultPress(
-                                    child: FilledButton(
-                                      key: WelcomeBackCard.openKey,
-                                      style: vaultGoldStyle(context),
-                                      onPressed: () {
-                                        setState(() => _dismissed = true);
-                                        _vault.show();
-                                      },
-                                      child: Text(l.welcomeBackOpen),
-                                    ),
-                                  ),
-                                TextButton(
-                                  key: WelcomeBackCard.dismissKey,
-                                  onPressed: () =>
-                                      setState(() => _dismissed = true),
-                                  child: Text(
-                                    l.welcomeBackDismiss,
-                                    style: TextStyle(color: colors.textMuted),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+              if (got == null && status.cofferAmount > 0) ...[
+                RewardChip(status.cofferAmount),
+                SizedBox(width: s.xs),
+              ],
+              action,
+              IconButton(
+                key: WelcomeBackCard.dismissKey,
+                tooltip: l.cofferStripLater,
+                visualDensity: VisualDensity.compact,
+                onPressed: () => unawaited(_dismiss(status.day)),
+                icon: Icon(Icons.close, color: colors.textMuted),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

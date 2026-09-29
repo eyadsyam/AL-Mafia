@@ -6302,6 +6302,42 @@ abstract class AppLocalizations {
   /// **'Easy, one at a time'**
   String get reactionSlowDown;
 
+  /// No description provided for @cofferStripReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s coffer is ready'**
+  String get cofferStripReady;
+
+  /// No description provided for @cofferStripBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim it right here.'**
+  String get cofferStripBody;
+
+  /// No description provided for @cofferStripClaim.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim'**
+  String get cofferStripClaim;
+
+  /// No description provided for @cofferStripGot.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} added to your vault'**
+  String cofferStripGot(int amount);
+
+  /// No description provided for @cofferStripSpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Spin the wheel'**
+  String get cofferStripSpin;
+
+  /// No description provided for @cofferStripLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get cofferStripLater;
+
   /// No description provided for @welcomeBackTitle.
   ///
   /// In en, this message translates to:

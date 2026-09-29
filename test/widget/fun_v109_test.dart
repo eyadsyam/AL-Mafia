@@ -306,23 +306,46 @@ void main() {
     });
   });
 
-  group('welcome back', () {
+  group('daily strip', () {
     final now = DateTime(2026, 9, 26, 20);
+    const today = '2026-09-26';
+
+    Map<String, dynamic> status({bool claimed = false, bool spun = false}) => {
+      'enabled': true,
+      'day': today,
+      'coffer': {'claimed': claimed, 'amount': 20},
+      'wheel': {'spun': spun, 'prizes': const []},
+      'week': {'progress': 1, 'length': 7, 'bonus': 0},
+      'ad': {'enabled': false},
+    };
 
     Future<void> pumpHome(
       WidgetTester tester, {
       Duration? away,
       bool daily = true,
+      bool claimed = false,
+      bool spun = false,
+      String? dismissedOn,
       Locale locale = const Locale('ar'),
     }) async {
       SharedPreferences.setMockInitialValues({
         if (away != null)
           welcomeBackLastSeenKey: now.subtract(away).millisecondsSinceEpoch,
+        cofferStripDismissedKey: ?dismissedOn,
       });
+      var isClaimed = claimed;
+      backend.responders['economy'] = (body) => switch (body['action']) {
+        'daily_status' => status(claimed: isClaimed, spun: spun),
+        'daily_coffer' => () {
+          isClaimed = true;
+          return {'granted': 20, 'daily': status(claimed: true, spun: spun)};
+        }(),
+        _ => const {'ok': true},
+      };
       await pump(
         tester,
         const Align(
-          alignment: Alignment.bottomCenter,
+          alignment: Alignment.topCenter,
           child: WelcomeBackCard(),
         ),
         caps: EconomyCapabilities(daily: daily),
@@ -332,28 +355,56 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('after 20 h away: the card, pointing at the vault', (
+    testWidgets('coffer waiting: the strip claims it in place, then offers '
+        'the wheel', (tester) async {
+      await pumpHome(tester);
+      expect(find.byKey(WelcomeBackCard.cardKey), findsOneWidget);
+      expect(find.text(arStrings.cofferStripReady), findsOneWidget);
+      await tester.tap(find.byKey(WelcomeBackCard.claimKey));
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.cofferStripGot(20)), findsOneWidget);
+      expect(find.byKey(WelcomeBackCard.spinKey), findsOneWidget);
+    });
+
+    testWidgets('claimed with the wheel spun: the thanks lingers, then goes', (
       tester,
     ) async {
-      await pumpHome(tester, away: const Duration(hours: 21));
-      expect(find.byKey(WelcomeBackCard.cardKey), findsOneWidget);
-      expect(find.text(arStrings.welcomeBackTitle), findsOneWidget);
-      expect(find.byKey(WelcomeBackCard.openKey), findsOneWidget);
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getInt(welcomeBackLastSeenKey), now.millisecondsSinceEpoch);
+      await pumpHome(tester, spun: true);
+      await tester.tap(find.byKey(WelcomeBackCard.claimKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(WelcomeBackCard.spinKey), findsNothing);
+      await tester.pump(MafiaTiming.cofferStripLinger);
+      await tester.pumpAndSettle();
+      expect(find.byKey(WelcomeBackCard.cardKey), findsNothing);
+    });
+
+    testWidgets('already claimed today: no strip at all', (tester) async {
+      await pumpHome(tester, claimed: true, away: const Duration(days: 5));
+      expect(find.byKey(WelcomeBackCard.cardKey), findsNothing);
+    });
+
+    testWidgets('dismissed: gone for the rest of the day', (tester) async {
+      await pumpHome(tester);
       await tester.tap(find.byKey(WelcomeBackCard.dismissKey));
       await tester.pumpAndSettle();
       expect(find.byKey(WelcomeBackCard.cardKey), findsNothing);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(cofferStripDismissedKey), today);
+      await pumpHome(tester, dismissedOn: today);
+      expect(find.byKey(WelcomeBackCard.cardKey), findsNothing);
+    });
+
+    testWidgets('a long absence only changes the greeting', (tester) async {
+      await pumpHome(tester, away: const Duration(days: 4));
+      expect(find.text(arStrings.welcomeBackTitle), findsOneWidget);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt(welcomeBackLastSeenKey), now.millisecondsSinceEpoch);
     });
 
     testWidgets('Home never starts a capabilities read of its own', (
       tester,
     ) async {
-      SharedPreferences.setMockInitialValues({
-        welcomeBackLastSeenKey: now
-            .subtract(const Duration(hours: 30))
-            .millisecondsSinceEpoch,
-      });
+      SharedPreferences.setMockInitialValues({});
       var asked = false;
       await pump(
         tester,
@@ -368,9 +419,9 @@ void main() {
         ],
       );
       await tester.pumpAndSettle();
-      expect(find.byKey(WelcomeBackCard.cardKey), findsOneWidget);
       expect(asked, isFalse);
-      expect(find.byKey(WelcomeBackCard.openKey), findsNothing);
+      expect(backend.calls, isEmpty);
+      expect(find.byKey(WelcomeBackCard.cardKey), findsNothing);
     });
 
     testWidgets('founder badge: shown once earned, never fetched unasked', (
@@ -391,28 +442,15 @@ void main() {
       expect(find.text(arStrings.founderBadge), findsOneWidget);
     });
 
-    testWidgets('a short break or a first launch: no card', (tester) async {
-      await pumpHome(tester, away: const Duration(hours: 2));
+    testWidgets('daily off: nothing to offer, no strip', (tester) async {
+      await pumpHome(tester, away: const Duration(days: 3), daily: false);
       expect(find.byKey(WelcomeBackCard.cardKey), findsNothing);
     });
 
-    testWidgets('first launch: no card', (tester) async {
-      await pumpHome(tester);
-      expect(find.byKey(WelcomeBackCard.cardKey), findsNothing);
-    });
-
-    testWidgets('daily off: a greeting, no vault button; fits in English', (
-      tester,
-    ) async {
-      await pumpHome(
-        tester,
-        away: const Duration(days: 3),
-        daily: false,
-        locale: const Locale('en'),
-      );
+    testWidgets('fits at 320 px in English', (tester) async {
+      await pumpHome(tester, locale: const Locale('en'));
       expect(tester.takeException(), isNull);
-      expect(find.text(enStrings.welcomeBackBodyPlain), findsOneWidget);
-      expect(find.byKey(WelcomeBackCard.openKey), findsNothing);
+      expect(find.text(enStrings.cofferStripReady), findsOneWidget);
     });
   });
 }

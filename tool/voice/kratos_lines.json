@@ -4,6 +4,7 @@
   "tone_reference": "assets/voiceovers/night_approaching_kratos.mp3",
   "spec": "docs/BIG-UPDATE-1.1-FINAL.md F16",
   "rules": [
+    "text is what the app shows; speak is the same line spelled for the TTS so it sounds Egyptian (ق as hamza, ج as گ, Egyptian vowels). Same words, same meaning.",
     "Public table beats only. Never while a player holds the phone privately, never during hand-off, reveal or night actions.",
     "Every line states only the public fact of its beat. No invented event, cause, location, object, time, trace or action.",
     "Each 'when' names the exact public condition that selects the line; the app never plays a line whose condition is false.",
@@ -11,49 +12,49 @@
     "Never the same line twice in a row within a match."
   ],
   "lines": [
-    {"id": "night_01", "beat": "night", "when": "always", "family": true, "text": "الليل نزل… وكل واحد شايل سرّه."},
-    {"id": "night_02", "beat": "night", "when": "always", "family": true, "text": "الليل بيقرّب… والسكوت بقى هو الكلام."},
-    {"id": "night_03", "beat": "night", "when": "always", "family": true, "text": "جه الليل. الموبايل هيلف عليكم، واحد واحد."},
-    {"id": "night_04", "beat": "night", "when": "always", "family": true, "text": "الليل نزل… محدش يبص في موبايل حد."},
-    {"id": "night_05", "beat": "night", "when": "always", "family": true, "text": "ساعة الليل جت… وكل واحد هيقرر لوحده."},
-    {"id": "night_06", "beat": "night", "when": "always", "family": false, "text": "الليل ابتدى… وخلّي بالك، مش كل اللي حواليك زي ما هو باين."},
+    {"id": "night_01", "beat": "night", "when": "always", "family": true, "text": "الليل نزل… وكل واحد شايل سرّه.", "speak": "إلِّيل نِزِل… وِكُلّ واحِد شايِل سِرُّه."},
+    {"id": "night_02", "beat": "night", "when": "always", "family": true, "text": "الليل بيقرّب… والسكوت بقى هو الكلام.", "speak": "إلِّيل بِيْأَرَّب… وِالسُّكوت بَأَى هُوَّ الكَلام."},
+    {"id": "night_03", "beat": "night", "when": "always", "family": true, "text": "جه الليل. الموبايل هيلف عليكم، واحد واحد.", "speak": "گِه اللِّيل. إلْموبايِل هَيْلِفّ عَلِيكُم، واحِد واحِد."},
+    {"id": "night_04", "beat": "night", "when": "always", "family": true, "text": "الليل نزل… محدش يبص في موبايل حد.", "speak": "إلِّيل نِزِل… مَحَدِّش يِبُصّ في موبايِل حَدّ."},
+    {"id": "night_05", "beat": "night", "when": "always", "family": true, "text": "ساعة الليل جت… وكل واحد هيقرر لوحده.", "speak": "ساعِةْ اللِّيل گَت… وِكُلّ واحِد هَيْأَرَّر لِوَحْدُه."},
+    {"id": "night_06", "beat": "night", "when": "always", "family": false, "text": "الليل ابتدى… وخلّي بالك، مش كل اللي حواليك زي ما هو باين.", "speak": "إلِّيل إبْتَدَى… وِخَلِّي بالَك، مِش كُلّ اللِّي حَوالِيك زَيّ ما هُوَّ بايِن."},
 
-    {"id": "morning_loss_01", "beat": "morning", "when": "night_eliminated >= 1", "family": true, "text": "النهار طلع… والشلة نقصت."},
-    {"id": "morning_loss_02", "beat": "morning", "when": "night_eliminated == 1", "family": true, "text": "طلع النهار… وواحد مننا خرج من اللعبة."},
-    {"id": "morning_loss_03", "beat": "morning", "when": "night_eliminated >= 1", "family": false, "text": "صباح الخير… بس مش على الكل."},
-    {"id": "morning_loss_04", "beat": "morning", "when": "night_eliminated == 1", "family": false, "text": "النهار طلع… والليل خد معاه حد."},
+    {"id": "morning_loss_01", "beat": "morning", "when": "night_eliminated >= 1", "family": true, "text": "النهار طلع… والشلة نقصت.", "speak": "إنَّهار طِلِع… وِالشِّلَّة نِأْصِت."},
+    {"id": "morning_loss_02", "beat": "morning", "when": "night_eliminated == 1", "family": true, "text": "طلع النهار… وواحد مننا خرج من اللعبة.", "speak": "طِلِع النَّهار… وِواحِد مِنِّنا خَرَج مِن اللِّعْبَة."},
+    {"id": "morning_loss_03", "beat": "morning", "when": "night_eliminated >= 1", "family": false, "text": "صباح الخير… بس مش على الكل.", "speak": "صَباح الخِير… بَسّ مِش عَلى الكُلّ."},
+    {"id": "morning_loss_04", "beat": "morning", "when": "night_eliminated == 1", "family": false, "text": "النهار طلع… والليل خد معاه حد.", "speak": "إنَّهار طِلِع… وِاللِّيل خَد مَعاه حَدّ."},
 
-    {"id": "morning_none_01", "beat": "morning", "when": "night_eliminated == 0", "family": true, "text": "النهار طلع… والكل لسه هنا."},
-    {"id": "morning_none_02", "beat": "morning", "when": "night_eliminated == 0", "family": true, "text": "صباح الخير… الليلة عدّت على خير."},
-    {"id": "morning_none_03", "beat": "morning", "when": "night_eliminated == 0", "family": true, "text": "طلع النهار… ومحدش خرج."},
+    {"id": "morning_none_01", "beat": "morning", "when": "night_eliminated == 0", "family": true, "text": "النهار طلع… والكل لسه هنا.", "speak": "إنَّهار طِلِع… وِالكُلّ لِسَّه هِنا."},
+    {"id": "morning_none_02", "beat": "morning", "when": "night_eliminated == 0", "family": true, "text": "صباح الخير… الليلة عدّت على خير.", "speak": "صَباح الخِير… اللِّيلَة عَدِّت عَلى خِير."},
+    {"id": "morning_none_03", "beat": "morning", "when": "night_eliminated == 0", "family": true, "text": "طلع النهار… ومحدش خرج.", "speak": "طِلِع النَّهار… وِمَحَدِّش خَرَج."},
 
-    {"id": "discussion_01", "beat": "discussion", "when": "always", "family": true, "text": "دلوقتي الكلام. مين عنده حجة؟"},
-    {"id": "discussion_02", "beat": "discussion", "when": "always", "family": true, "text": "الوقت ليكم… مين شاكك في مين؟"},
-    {"id": "discussion_03", "beat": "discussion", "when": "always", "family": true, "text": "اتكلموا… المافيا قاعدة معاكم، وسامعة كل كلمة."},
-    {"id": "discussion_04", "beat": "discussion", "when": "always", "family": true, "text": "كل كلمة محسوبة عليك… ابدأوا."},
-    {"id": "discussion_05", "beat": "discussion", "when": "always", "family": true, "text": "اللي عنده حاجة يقولها… يقولها دلوقتي."},
+    {"id": "discussion_01", "beat": "discussion", "when": "always", "family": true, "text": "دلوقتي الكلام. مين عنده حجة؟", "speak": "دِلْوَأْتِي الكَلام. مِين عَنْدُه حُگَّة؟"},
+    {"id": "discussion_02", "beat": "discussion", "when": "always", "family": true, "text": "الوقت ليكم… مين شاكك في مين؟", "speak": "إلْوَأْت لِيكُم… مِين شاكِك في مِين؟"},
+    {"id": "discussion_03", "beat": "discussion", "when": "always", "family": true, "text": "اتكلموا… المافيا قاعدة معاكم، وسامعة كل كلمة.", "speak": "اتْكَلِّمُوا… المافْيا أاعْدَة مَعاكُم، وِسامْعَة كُلّ كِلْمَة."},
+    {"id": "discussion_04", "beat": "discussion", "when": "always", "family": true, "text": "كل كلمة محسوبة عليك… ابدأوا.", "speak": "كُلّ كِلْمَة مَحْسوبَة عَلِيك… إبْدَأُوا."},
+    {"id": "discussion_05", "beat": "discussion", "when": "always", "family": true, "text": "اللي عنده حاجة يقولها… يقولها دلوقتي.", "speak": "اللِّي عَنْدُه حاگَة يْأولْها… يْأولْها دِلْوَأْتِي."},
 
-    {"id": "voting_01", "beat": "voting", "when": "round == 1", "family": true, "text": "القرار في إيد الجماعة."},
-    {"id": "voting_02", "beat": "voting", "when": "round == 1", "family": true, "text": "وقت التصويت… فكّر كويس قبل ما تختار."},
-    {"id": "voting_03", "beat": "voting", "when": "round == 1", "family": true, "text": "صوّتوا… وكل صوت ليه تمن."},
-    {"id": "voting_04", "beat": "voting", "when": "round == 1", "family": true, "text": "الكلام خلص… والتصويت ابتدى."},
+    {"id": "voting_01", "beat": "voting", "when": "round == 1", "family": true, "text": "القرار في إيد الجماعة.", "speak": "إلْأَرار في إيد الگَماعَة."},
+    {"id": "voting_02", "beat": "voting", "when": "round == 1", "family": true, "text": "وقت التصويت… فكّر كويس قبل ما تختار.", "speak": "وَأْت التَّصْويت… فَكَّر كُوَيِّس أَبْل ما تِخْتار."},
+    {"id": "voting_03", "beat": "voting", "when": "round == 1", "family": true, "text": "صوّتوا… وكل صوت ليه تمن.", "speak": "صَوَّتُوا… وِكُلّ صوت لِيه تَمَن."},
+    {"id": "voting_04", "beat": "voting", "when": "round == 1", "family": true, "text": "الكلام خلص… والتصويت ابتدى.", "speak": "إلْكَلام خِلِص… وِالتَّصْويت إبْتَدَى."},
 
-    {"id": "revote_01", "beat": "voting", "when": "revote", "family": true, "text": "الأصوات اتعادلت… هنعيد التصويت بينهم."},
-    {"id": "revote_02", "beat": "voting", "when": "revote", "family": true, "text": "تعادل. فرصة تانية… بين المتعادلين بس."},
+    {"id": "revote_01", "beat": "voting", "when": "revote", "family": true, "text": "الأصوات اتعادلت… هنعيد التصويت بينهم.", "speak": "إلْأَصْوات اتْعادِلِت… هَنْعِيد التَّصْويت بِينْهُم."},
+    {"id": "revote_02", "beat": "voting", "when": "revote", "family": true, "text": "تعادل. فرصة تانية… بين المتعادلين بس.", "speak": "تَعادُل. فُرْصَة تانْيَة… بِين المِتْعادْلِين بَسّ."},
 
-    {"id": "vote_out_01", "beat": "result", "when": "day_eliminated == 1", "family": true, "text": "الجماعة قالت كلمتها."},
-    {"id": "vote_out_02", "beat": "result", "when": "day_eliminated == 1", "family": true, "text": "القرار اتاخد… وواحد خرج من اللعبة."},
-    {"id": "vote_out_03", "beat": "result", "when": "day_eliminated == 1", "family": true, "text": "اتحسمت."},
+    {"id": "vote_out_01", "beat": "result", "when": "day_eliminated == 1", "family": true, "text": "الجماعة قالت كلمتها.", "speak": "إلْگَماعَة أالِت كِلْمِتْها."},
+    {"id": "vote_out_02", "beat": "result", "when": "day_eliminated == 1", "family": true, "text": "القرار اتاخد… وواحد خرج من اللعبة.", "speak": "إلْأَرار اتَّاخِد… وِواحِد خَرَج مِن اللِّعْبَة."},
+    {"id": "vote_out_03", "beat": "result", "when": "day_eliminated == 1", "family": true, "text": "اتحسمت.", "speak": "اتْحَسَمِت."},
 
-    {"id": "vote_none_01", "beat": "result", "when": "day_eliminated == 0", "family": true, "text": "النهارده محدش خرج."},
-    {"id": "vote_none_02", "beat": "result", "when": "day_eliminated == 0", "family": true, "text": "الجماعة ما اتفقتش… ومحدش خرج."},
+    {"id": "vote_none_01", "beat": "result", "when": "day_eliminated == 0", "family": true, "text": "النهارده محدش خرج.", "speak": "إنَّهارْدَه مَحَدِّش خَرَج."},
+    {"id": "vote_none_02", "beat": "result", "when": "day_eliminated == 0", "family": true, "text": "الجماعة ما اتفقتش… ومحدش خرج.", "speak": "إلْگَماعَة مَتَّفَأْتِش… وِمَحَدِّش خَرَج."},
 
-    {"id": "win_town_01", "beat": "win", "when": "winner == town", "family": true, "text": "الشعب كسب… والمافيا اتكشفت."},
-    {"id": "win_town_02", "beat": "win", "when": "winner == town", "family": true, "text": "خلصت الحكاية… والحق بان."},
-    {"id": "win_mafia_01", "beat": "win", "when": "winner == mafia", "family": true, "text": "المافيا كسبت… والليل بقى ليهم."},
-    {"id": "win_mafia_02", "beat": "win", "when": "winner == mafia", "family": true, "text": "خلصت… والمافيا عرفت تستخبى لآخر لحظة."},
+    {"id": "win_town_01", "beat": "win", "when": "winner == town", "family": true, "text": "الشعب كسب… والمافيا اتكشفت.", "speak": "إشَّعْب كِسِب… وِالمافْيا اتْكَشَفِت."},
+    {"id": "win_town_02", "beat": "win", "when": "winner == town", "family": true, "text": "خلصت الحكاية… والحق بان.", "speak": "خِلْصِت الحِكايَة… وِالحأّ بان."},
+    {"id": "win_mafia_01", "beat": "win", "when": "winner == mafia", "family": true, "text": "المافيا كسبت… والليل بقى ليهم.", "speak": "إلْمافْيا كِسْبِت… وِاللِّيل بَأَى لِيهُم."},
+    {"id": "win_mafia_02", "beat": "win", "when": "winner == mafia", "family": true, "text": "خلصت… والمافيا عرفت تستخبى لآخر لحظة.", "speak": "خِلْصِت… وِالمافْيا عِرْفِت تِسْتَخَبَّى لِآخِر لَحْظَة."},
 
-    {"id": "brand_01", "beat": "brand", "when": "outside_match", "family": true, "text": "أنا الراوي… والليلة دي، الموبايل هو اللي بيحكي."},
-    {"id": "brand_02", "beat": "brand", "when": "outside_match", "family": true, "text": "الليلة بقى لها بيت."}
+    {"id": "brand_01", "beat": "brand", "when": "outside_match", "family": true, "text": "أنا الراوي… والليلة دي، الموبايل هو اللي بيحكي.", "speak": "أنا الرّاوي… وِاللِّيلَة دِي، إلْموبايِل هُوَّ اللِّي بِيِحْكِي."},
+    {"id": "brand_02", "beat": "brand", "when": "outside_match", "family": true, "text": "الليلة بقى لها بيت.", "speak": "إللِّيلَة بَأالْها بِيت."}
   ]
 }

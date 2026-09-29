@@ -61,8 +61,8 @@ class HomeScreen extends ConsumerWidget {
   /// The store's corner control, or null where the build has no server.
   final Widget? store;
 
-  /// Phase 109: a gentle card above the title (the «وحشتنا» welcome-back),
-  /// or null. It sizes itself to nothing when it has nothing to say.
+  /// A slim strip under the corner controls (today's coffer), or null. It
+  /// sizes itself to nothing when it has nothing to offer.
   final Widget? banner;
 
   /// Where the parallax gets its readings. Overridden in tests, and in any
@@ -158,50 +158,62 @@ class HomeScreen extends ConsumerWidget {
   void _flipSound(WidgetRef ref) =>
       ref.read(audioDirectorProvider).playCardTurn();
 
-  /// Secondary actions, small, in the top corner, out of the spread's way.
+  /// Secondary actions, small, in the top corner, out of the spread's way,
+  /// and the [banner] strip under them.
   Widget _corner(BuildContext context, AppLocalizations l10n) {
     final spacing = context.spacing;
 
     return Align(
-      alignment: AlignmentDirectional.topStart,
+      alignment: Alignment.topCenter,
       child: Padding(
         padding: EdgeInsets.all(spacing.sm),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _CornerButton(
-              buttonKey: HomeScreen.howToPlayButton,
-              // A question mark inside a circle, which is the shape the brief
-              // asks for and the one every phone already uses for "help".
-              icon: Icons.help_outline,
-              label: l10n.howToPlay,
-              onPressed: onHowToPlay,
-            ),
-            if (onProfile != null)
-              _CornerButton(
-                buttonKey: const ValueKey('home_profile'),
-                icon: Icons.person_outline,
-                label: l10n.profileEdit,
-                onPressed: onProfile!,
-              ),
-            _CornerButton(
-              buttonKey: HomeScreen.historyButton,
-              // Reads as a scroll — a sheet with ruled lines — rather than a
-              // clock, which would suggest a timer on a screen that has one.
-              icon: Icons.receipt_long,
-              label: l10n.history,
-              onPressed: onHistory,
-            ),
-            ?store,
-            _CornerButton(
-              buttonKey: HomeScreen.settingsButton,
-              icon: Icons.settings,
-              label: l10n.settings,
-              onPressed: onSettings,
-            ),
-          ],
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: spacing.maxContentWidth),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [_cornerRow(context, l10n), ?banner],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _cornerRow(BuildContext context, AppLocalizations l10n) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _CornerButton(
+          buttonKey: HomeScreen.howToPlayButton,
+          // A question mark inside a circle, which is the shape the brief
+          // asks for and the one every phone already uses for "help".
+          icon: Icons.help_outline,
+          label: l10n.howToPlay,
+          onPressed: onHowToPlay,
+        ),
+        if (onProfile != null)
+          _CornerButton(
+            buttonKey: const ValueKey('home_profile'),
+            icon: Icons.person_outline,
+            label: l10n.profileEdit,
+            onPressed: onProfile!,
+          ),
+        _CornerButton(
+          buttonKey: HomeScreen.historyButton,
+          // Reads as a scroll — a sheet with ruled lines — rather than a
+          // clock, which would suggest a timer on a screen that has one.
+          icon: Icons.receipt_long,
+          label: l10n.history,
+          onPressed: onHistory,
+        ),
+        ?store,
+        _CornerButton(
+          buttonKey: HomeScreen.settingsButton,
+          icon: Icons.settings,
+          label: l10n.settings,
+          onPressed: onSettings,
+        ),
+      ],
     );
   }
 
@@ -229,7 +241,6 @@ class HomeScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ?banner,
               if (bondsEnabled) BondHomeLine(onTap: onCharacters),
               Text(
                 l10n.appTitle,

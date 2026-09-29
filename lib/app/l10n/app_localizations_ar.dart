@@ -3589,6 +3589,26 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reactionSlowDown => 'بالراحة، واحدة واحدة';
 
   @override
+  String get cofferStripReady => 'صندوق النهارده جاهز';
+
+  @override
+  String get cofferStripBody => 'استلمه من هنا على طول.';
+
+  @override
+  String get cofferStripClaim => 'استلم';
+
+  @override
+  String cofferStripGot(int amount) {
+    return '+$amount اتضافوا لخزنتك';
+  }
+
+  @override
+  String get cofferStripSpin => 'لف العجلة';
+
+  @override
+  String get cofferStripLater => 'بعدين';
+
+  @override
   String get welcomeBackTitle => 'وحشتنا';
 
   @override

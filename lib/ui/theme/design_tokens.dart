@@ -1028,6 +1028,9 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// How long a reward's sparks and rising coin stay on screen.
   static const rewardFlourish = Duration(milliseconds: 1100);
 
+  /// How long Home's daily strip says what the coffer gave before it goes.
+  static const cofferStripLinger = Duration(seconds: 4);
+
   /// How long «{name} بقى الهوست» stays on screen after a host migration.
   static const hostHandover = Duration(seconds: 3);
 
@@ -1639,9 +1642,12 @@ abstract final class FunTokens {
   static const Duration reactionInterval = Duration(milliseconds: 1500);
   static const int reactionBurst = 3;
 
-  /// "We missed you" after this long away.
-  static const Duration welcomeBackAfter = Duration(hours: 20);
+  /// The daily strip greets with «وحشتنا» only after this long away.
+  static const Duration welcomeBackAfter = Duration(days: 3);
   static const double welcomeArt = 72.0;
+
+  /// The coffer art on Home's slim daily strip.
+  static const double cofferStripArt = 36.0;
 
   /// The Founder badge on the profile.
   static const double founderBadge = 32.0;

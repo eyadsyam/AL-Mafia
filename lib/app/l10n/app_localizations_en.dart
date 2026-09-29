@@ -3663,6 +3663,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reactionSlowDown => 'Easy, one at a time';
 
   @override
+  String get cofferStripReady => 'Today\'s coffer is ready';
+
+  @override
+  String get cofferStripBody => 'Claim it right here.';
+
+  @override
+  String get cofferStripClaim => 'Claim';
+
+  @override
+  String cofferStripGot(int amount) {
+    return '+$amount added to your vault';
+  }
+
+  @override
+  String get cofferStripSpin => 'Spin the wheel';
+
+  @override
+  String get cofferStripLater => 'Later';
+
+  @override
   String get welcomeBackTitle => 'We missed you';
 
   @override
