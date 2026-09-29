@@ -21,7 +21,34 @@ import '../../../theme/design_tokens.dart';
 /// a missing sound or a reduced-motion setting simply means less decoration.
 class RoomPresentationLayer extends ConsumerStatefulWidget {
   final GameSnapshot snapshot;
-  const RoomPresentationLayer({super.key, required this.snapshot});
+
+  /// Online: the room's packs, chosen by the host and copied to every seat.
+  const RoomPresentationLayer({super.key, required this.snapshot})
+    : _local = false,
+      packCode = null,
+      narratorCode = null,
+      visibleIn = null,
+      moment = null;
+
+  /// «القعدة» (store truth): the host phone's own equipped packs, over the
+  /// pass-and-play table. [visibleIn] names the phases the phone lies flat
+  /// for everyone (never a hand-off, a reveal or the night), and [moment] is
+  /// a public announcement on screen (night falls, the vote) whose beat the
+  /// narrator marks.
+  const RoomPresentationLayer.local({
+    super.key,
+    required this.snapshot,
+    required this.packCode,
+    required this.narratorCode,
+    required bool Function(GamePhase) this.visibleIn,
+    this.moment,
+  }) : _local = true;
+
+  final bool _local;
+  final String? packCode;
+  final String? narratorCode;
+  final bool Function(GamePhase)? visibleIn;
+  final NarrationBeat? moment;
 
   @override
   ConsumerState<RoomPresentationLayer> createState() =>
@@ -30,18 +57,44 @@ class RoomPresentationLayer extends ConsumerStatefulWidget {
 
 class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
   String? _caption;
+
+  /// The caption is the narrator pack's own line (styled in its look), not a
+  /// presentation pack's intro/outro. A night line stays neutral.
+  bool _captionIsNarrator = false;
   Timer? _hide;
   bool _introDone = false;
   bool _outroDone = false;
 
-  PresentationPack? get _pack =>
-      Cosmetics.packs[widget.snapshot.room.presentationPack];
-  NarratorPack? get _narrator =>
-      Cosmetics.narrators[widget.snapshot.room.narratorPack];
+  PresentationPack? get _pack => Cosmetics.packs[widget._local
+      ? widget.packCode
+      : widget.snapshot.room.presentationPack];
+  NarratorPack? get _narrator => Cosmetics.narrators[widget._local
+      ? widget.narratorCode
+      : widget.snapshot.room.narratorPack];
+
+  bool _visible(GamePhase phase) =>
+      widget.visibleIn?.call(phase) ?? cosmeticsVisibleIn(phase);
+
+  @override
+  void initState() {
+    super.initState();
+    // A layer that arrives with an announcement already on screen marks it.
+    final moment = widget.moment;
+    if (moment != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.moment == moment) _onMoment(moment);
+      });
+    }
+  }
 
   @override
   void didUpdateWidget(RoomPresentationLayer old) {
     super.didUpdateWidget(old);
+    final moment = widget.moment;
+    if (moment != null && moment != old.moment) {
+      _onMoment(moment);
+      return;
+    }
     final before = old.snapshot.phase;
     final now = widget.snapshot.phase;
     if (before == now && old.snapshot.dayNumber == widget.snapshot.dayNumber) {
@@ -50,10 +103,37 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
     _onPhase(now);
   }
 
+  /// A public announcement on the flat phone: the narrator marks its beat.
+  void _onMoment(NarrationBeat beat) {
+    final narrator = _narrator;
+    _hide?.cancel();
+    if (narrator == null) {
+      setState(() => _caption = null);
+      return;
+    }
+    if (beat != NarrationBeat.night) {
+      ref.read(audioDirectorProvider).playAccent(narrator.accent);
+    }
+    _captionIsNarrator = beat != NarrationBeat.night;
+    _show(narrator.line(context.l10n, beat));
+  }
+
+  void _show(String line) {
+    setState(() => _caption = line);
+    _hide = Timer(CosmeticTokens.captionHold, () {
+      if (mounted) setState(() => _caption = null);
+    });
+  }
+
   void _onPhase(GamePhase phase) {
     // A fast phase advance must not carry the preceding caption into it.
     _hide?.cancel();
     _caption = null;
+    // «القعدة»: nothing at all outside the flat, public phases.
+    if (widget._local && !_visible(phase)) {
+      setState(() {});
+      return;
+    }
     final l = context.l10n;
     final audio = ref.read(audioDirectorProvider);
     final pack = _pack;
@@ -73,18 +153,17 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
       sound = pack.outroSound;
     }
     final beat = beatFor(phase);
+    _captionIsNarrator = false;
     if (line == null && narrator != null && beat != null) {
       line = narrator.line(l, beat);
+      _captionIsNarrator = beat != NarrationBeat.night;
       // Night stays silent: the line is text only.
       if (beat != NarrationBeat.night) sound = narrator.accent;
     }
     if (line == null) return;
-    if (sound != null && cosmeticsVisibleIn(phase)) audio.playAccent(sound);
+    if (sound != null && _visible(phase)) audio.playAccent(sound);
     _hide?.cancel();
-    setState(() => _caption = line);
-    _hide = Timer(CosmeticTokens.captionHold, () {
-      if (mounted) setState(() => _caption = null);
-    });
+    _show(line);
   }
 
   @override
@@ -96,13 +175,17 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
   @override
   Widget build(BuildContext context) {
     final phase = widget.snapshot.phase;
-    final public = cosmeticsVisibleIn(phase);
+    final public = _visible(phase) || widget.moment != null;
+    // Online the one night line is text in neutral colours; «القعدة» shows
+    // nothing in the night, which is a hand-off there.
+    final captionAllowed =
+        public || (!widget._local && phase == GamePhase.night);
     return IgnorePointer(
       child: Stack(
         fit: StackFit.expand,
         children: [
           PackTransitionOverlay(
-            pack: public ? _pack : null,
+            pack: _visible(phase) ? _pack : null,
             trigger: '${phase.name}-${widget.snapshot.dayNumber}',
           ),
           Align(
@@ -111,8 +194,12 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
               padding: const EdgeInsets.only(top: CosmeticTokens.captionTop),
               // Remove the previous subtree immediately on private phases;
               // AnimatedSwitcher would otherwise retain its outgoing text.
-              child: public || phase == GamePhase.night
-                  ? NarrationCaption(key: ValueKey(public), text: _caption)
+              child: captionAllowed
+                  ? NarrationCaption(
+                      key: ValueKey(public),
+                      text: _caption,
+                      narrator: _captionIsNarrator ? _narrator : null,
+                    )
                   : const SizedBox.shrink(),
             ),
           ),

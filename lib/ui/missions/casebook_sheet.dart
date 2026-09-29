@@ -11,6 +11,7 @@ import '../economy/council_art.dart';
 import '../economy/vault_kit.dart';
 import '../fun/character_dossiers.dart';
 import '../l10n_ext.dart';
+import '../social/titles_partner.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/feathered_art.dart';
@@ -249,6 +250,8 @@ class _Hero extends StatelessWidget {
                   SizedBox(height: s.xs),
                   _SeasonPlate(season: season),
                 ],
+                // F10: the chosen Partner's line in the header.
+                const PartnerCasebookLine(),
               ],
             ),
           ),
@@ -1390,6 +1393,11 @@ class _LegacyPage extends StatelessWidget {
               ],
             ),
           ),
+        // F10: the titles this player earned, to wear from here.
+        Padding(
+          padding: EdgeInsets.only(top: s.xl),
+          child: const CasebookTitlesCard(),
+        ),
         Padding(
           padding: EdgeInsets.only(top: s.xl),
           child: CharacterDossiers(

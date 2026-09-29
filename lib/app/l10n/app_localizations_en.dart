@@ -4840,4 +4840,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passInventoryOpen => 'Open rewards';
+
+  @override
+  String get profilePlatePreview => 'Your name shows as:';
+
+  @override
+  String get storeRevealTitle => 'It\'s yours';
+
+  @override
+  String get storeEquipNow => 'Wear it now';
+
+  @override
+  String get storeEquipLater => 'Later';
+
+  @override
+  String get storeRevealDone => 'Done';
+
+  @override
+  String get storeChangesFrame =>
+      'Shows around your portrait at the table, on your profile, for your friends and on the Council board';
+
+  @override
+  String get storeChangesPlate =>
+      'Your name shows on it at the table, on your profile, for your friends and on the result';
+
+  @override
+  String get storeChangesPack =>
+      'Dresses rooms you host: the public phases\' backdrop and transitions, online and in pass-and-play';
+
+  @override
+  String get storeChangesNarrator =>
+      'The narrator\'s lines and their look at every public phase, online and in pass-and-play — written, not a voice';
+
+  @override
+  String get storeChangesBundle =>
+      'Everything in it is yours; wear any part from your collection';
+
+  @override
+  String get storeTryOn => 'Try it on';
+
+  @override
+  String get storeWearing => 'Wearing now';
+
+  @override
+  String get titlesHeading => 'Your titles';
+
+  @override
+  String partnerCasebookLine(String who) {
+    return '$who: every case you close is written here';
+  }
+
+  @override
+  String lobbyReadyCountdown(int seconds) {
+    return '${seconds}s left to confirm you\'re ready';
+  }
 }

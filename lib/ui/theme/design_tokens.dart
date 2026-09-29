@@ -672,6 +672,12 @@ abstract final class ShareCardTokens {
   static const Color gold = Color(0xFFC2AF81);
   static const Color headline = Color(0xFFFFFFFF);
   static const Color footer = Color(0xFFB7B7BA);
+
+  /// Store truth: the sharer's own seal (frame) and name (plate) on the card.
+  static const double identityAvatar = 132;
+  static const double identityTop = 0.17;
+  static const double identityNameGap = 36;
+  static const Color identitySeal = Color(0xFF2A2522);
 }
 
 /// Border radius tokens.
@@ -2033,4 +2039,39 @@ abstract final class CasebookTokens {
 abstract final class PassInventoryTokens {
   /// The daily rewards sheet opened from the result.
   static const double sheetHeight = 0.9;
+}
+
+/// Store truth: a buyer sees what they bought wherever their identity is shown.
+abstract final class StoreTruthTokens {
+  /// The Home chip and list rows: this player's own avatar.
+  static const double chipAvatar = 36.0;
+
+  /// The account sheet's identity.
+  static const double sheetAvatar = 64.0;
+
+  /// The purchase reveal: the item on the buyer's own avatar.
+  static const double revealAvatar = 96.0;
+
+  /// The reveal's rise, once; reduced motion shows it at rest.
+  static const Duration revealRise = Duration(milliseconds: 520);
+  static const double revealLift = 18.0;
+
+  /// A narrator pack's caption marker (its own glyph beside the line).
+  static const double narratorMarker = 18.0;
+  static const double narratorBorderWidth = 1.2;
+
+  /// The lobby's ready countdown redraws once a second.
+  static const Duration countdownTick = Duration(seconds: 1);
+
+  /// Each narrator pack's caption: its ground, rule and ink, so the three are
+  /// told apart at a glance at every public beat, online and in «القعدة».
+  static const Color storytellerGround = Color(0xE61E160E);
+  static const Color storytellerRule = Color(0xFFC9A45C);
+  static const Color storytellerInk = Color(0xFFF1DFA8);
+  static const Color keeperGround = Color(0xE6121820);
+  static const Color keeperRule = Color(0xFF9AA6B8);
+  static const Color keeperInk = Color(0xFFE3E8F0);
+  static const Color noirGround = Color(0xF20A0A0A);
+  static const Color noirRule = Color(0xFF7A1F24);
+  static const Color noirInk = Color(0xFFF2EBDD);
 }

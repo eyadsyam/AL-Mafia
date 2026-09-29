@@ -9,7 +9,9 @@ import '../../transport/account_service.dart' show AccountFailure;
 import '../../transport/supabase_backend.dart';
 import '../economy/account_protection.dart' show accountStatusProvider;
 import '../economy/economy_capabilities.dart';
+import '../economy/my_identity.dart';
 import '../economy/wallet.dart';
+import '../social/titles_partner.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
 import '../theme/design_tokens.dart';
@@ -213,6 +215,19 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
               ),
             ),
           ),
+          // Store truth: who this account is at the table — the frame and
+          // plate it equipped, its title, and its Partner (F10).
+          SizedBox(height: s.sm),
+          const Center(
+            child: MyIdentityBadge(
+              axis: Axis.vertical,
+              diameter: StoreTruthTokens.sheetAvatar,
+            ),
+          ),
+          const Center(child: EquippedTitleLine()),
+          const TitleEquipList(),
+          SizedBox(height: s.sm),
+          const PartnerPicker(),
           ..._body(context, profile),
           if (_error != null) ...[
             SizedBox(height: s.sm),

@@ -8,7 +8,9 @@ import '../../../transport/local_transport.dart';
 import '../../../transport/online_transport.dart';
 import '../../l10n_ext.dart';
 import '../../../app/asset_constants.dart';
+import '../../economy/cosmetic_paint.dart';
 import '../../economy/economy_capabilities.dart';
+import '../../economy/pass_table_dress.dart';
 import '../../theme/mafia_theme.dart';
 import '../../theme/design_tokens.dart' show MafiaTiming;
 import '../../widgets/textured_surface.dart';
@@ -315,14 +317,19 @@ class ResultScreen extends StatelessWidget {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              row.name,
+                                            // Store truth: the host's own
+                                            // plate on the host's row.
+                                            CosmeticNameplate(
+                                              name: row.name,
+                                              plate:
+                                                  HostIdentityScope.plateFor(
+                                                    context,
+                                                    row.name,
+                                                  ),
                                               style: type.body.emphasised
                                                   .copyWith(
                                                     color: colors.textPrimary,
                                                   ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
                                             ),
                                             if (row.eliminatedLabel !=
                                                 null) ...[

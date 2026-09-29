@@ -16,6 +16,7 @@ import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import 'council.dart';
 import 'council_art.dart';
+import 'cosmetic_paint.dart';
 import 'economy_capabilities.dart';
 import 'mafia_coin.dart';
 import 'vault_kit.dart';
@@ -941,36 +942,17 @@ class _LeaderboardRow extends StatelessWidget {
             ),
           ),
           SizedBox(width: s.sm),
-          Container(
-            padding: const EdgeInsets.all(VaultTokens.chipRim),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: podium
-                  ? VaultTokens.podium[entry.position - 1]
-                  : colors.borderSubtle,
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                entry.gender == 'female'
-                    ? AppCouncilArt.avatarFemale
-                    : AppCouncilArt.avatarMale,
-                width: CouncilLifeTokens.leaderboardAvatar,
-                height: CouncilLifeTokens.leaderboardAvatar,
-                cacheWidth: StoreTokens.frameDecodeWidth,
-                fit: BoxFit.cover,
-                excludeFromSemantics: true,
-                errorBuilder: (_, _, _) => const SizedBox.square(
-                  dimension: CouncilLifeTokens.leaderboardAvatar,
-                ),
-              ),
-            ),
+          // Store truth: the frame this player equipped wraps their seal.
+          CosmeticFrameRing(
+            frame: entry.frame,
+            diameter: CouncilLifeTokens.leaderboardAvatar,
+            child: _avatar(colors, podium),
           ),
           SizedBox(width: s.sm),
           Expanded(
-            child: Text(
-              entry.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: CosmeticNameplate(
+              name: entry.name,
+              plate: entry.plate,
               style: entry.me || podium
                   ? context.typography.body.emphasised
                   : context.typography.body,
@@ -990,6 +972,32 @@ class _LeaderboardRow extends StatelessWidget {
       ),
     );
   }
+
+  Widget _avatar(MafiaColors colors, bool podium) =>
+      Container(
+        padding: const EdgeInsets.all(VaultTokens.chipRim),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: podium
+              ? VaultTokens.podium[entry.position - 1]
+              : colors.borderSubtle,
+        ),
+        child: ClipOval(
+          child: Image.asset(
+            entry.gender == 'female'
+                ? AppCouncilArt.avatarFemale
+                : AppCouncilArt.avatarMale,
+            width: CouncilLifeTokens.leaderboardAvatar,
+            height: CouncilLifeTokens.leaderboardAvatar,
+            cacheWidth: StoreTokens.frameDecodeWidth,
+            fit: BoxFit.cover,
+            excludeFromSemantics: true,
+            errorBuilder: (_, _, _) => const SizedBox.square(
+              dimension: CouncilLifeTokens.leaderboardAvatar,
+            ),
+          ),
+        ),
+      );
 }
 
 /// «اظهر في ترتيب الأسبوع»: the player's own choice, kept by the server.

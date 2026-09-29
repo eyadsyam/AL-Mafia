@@ -2853,5 +2853,22 @@
   "passInventoryDailyAd": "Today's rewarded ad",
   "passInventoryExtraSpin": "An extra wheel spin",
   "passInventoryExtraCoffer": "An extra coffer",
-  "passInventoryOpen": "Open rewards"
+  "passInventoryOpen": "Open rewards",
+  "profilePlatePreview": "Your name shows as:",
+  "storeRevealTitle": "It's yours",
+  "storeEquipNow": "Wear it now",
+  "storeEquipLater": "Later",
+  "storeRevealDone": "Done",
+  "storeChangesFrame": "Shows around your portrait at the table, on your profile, for your friends and on the Council board",
+  "storeChangesPlate": "Your name shows on it at the table, on your profile, for your friends and on the result",
+  "storeChangesPack": "Dresses rooms you host: the public phases' backdrop and transitions, online and in pass-and-play",
+  "storeChangesNarrator": "The narrator's lines and their look at every public phase, online and in pass-and-play — written, not a voice",
+  "storeChangesBundle": "Everything in it is yours; wear any part from your collection",
+  "storeTryOn": "Try it on",
+  "storeWearing": "Wearing now",
+  "titlesHeading": "Your titles",
+  "partnerCasebookLine": "{who}: every case you close is written here",
+  "@partnerCasebookLine": {"placeholders": {"who": {"type": "String"}}},
+  "lobbyReadyCountdown": "{seconds}s left to confirm you're ready",
+  "@lobbyReadyCountdown": {"placeholders": {"seconds": {"type": "int"}}}
 }

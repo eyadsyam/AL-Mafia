@@ -7,6 +7,8 @@ import '../../../engine/models/enums.dart';
 import '../../../engine/models/player.dart';
 import '../../widgets/hint_slot.dart';
 import '../../l10n_ext.dart';
+import '../../economy/cosmetic_paint.dart';
+import '../../economy/pass_table_dress.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/phase_timer.dart';
 import '../../widgets/textured_surface.dart';
@@ -277,14 +279,18 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                               textAlign: TextAlign.center,
                             ),
                             SizedBox(height: spacing.sm),
-                            Text(
-                              currentSpeaker.name,
+                            // Store truth: the host's own plate when the host
+                            // holds the floor (public discussion only).
+                            CosmeticNameplate(
+                              name: currentSpeaker.name,
+                              plate: HostIdentityScope.plateFor(
+                                context,
+                                currentSpeaker.name,
+                              ),
                               style: type.title.emphasised.copyWith(
                                 color: colors.accentGold,
                               ),
                               textAlign: TextAlign.center,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                             SizedBox(height: spacing.sm),
                             Text(

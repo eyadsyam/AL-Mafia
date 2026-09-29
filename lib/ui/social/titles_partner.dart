@@ -8,6 +8,8 @@ import '../../data/request_id.dart';
 import '../../transport/online_backend.dart';
 import '../account/account_sheet.dart';
 import '../economy/economy_capabilities.dart';
+import '../fun/loaded_capabilities.dart';
+import '../economy/vault_kit.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
 import '../theme/design_tokens.dart';
@@ -145,6 +147,67 @@ Future<Map<int, TitleEntry>> fetchRoomTitles(
   };
 }
 
+/// The pre-deal lobby's titles (F10): each seated player's equipped title,
+/// read once per roster from `roomTitles`. Draws nothing when titles are off,
+/// none is equipped or the read fails; the server answers empty mid-match.
+class LobbyTitlesStrip extends StatefulWidget {
+  final OnlineBackend backend;
+  final String roomId;
+  final Map<int, String> names;
+  const LobbyTitlesStrip({
+    super.key,
+    required this.backend,
+    required this.roomId,
+    required this.names,
+  });
+
+  static const Key stripKey = ValueKey('lobby_titles');
+  static Key seatKey(int seat) => ValueKey('lobby_title_$seat');
+
+  @override
+  State<LobbyTitlesStrip> createState() => _LobbyTitlesStripState();
+}
+
+class _LobbyTitlesStripState extends State<LobbyTitlesStrip> {
+  late final Future<Map<int, TitleEntry>> _titles = fetchRoomTitles(
+    widget.backend,
+    widget.roomId,
+  ).catchError((Object _) => const <int, TitleEntry>{});
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<Map<int, TitleEntry>>(
+    future: _titles,
+    builder: (context, snap) {
+      final titles = snap.data ?? const <int, TitleEntry>{};
+      final shown = [
+        for (final entry in titles.entries)
+          if (widget.names[entry.key] case final name?) (entry.key, name, entry.value),
+      ]..sort((a, b) => a.$1.compareTo(b.$1));
+      if (shown.isEmpty) return const SizedBox.shrink();
+      final locale = Localizations.localeOf(context);
+      return Padding(
+        key: LobbyTitlesStrip.stripKey,
+        padding: EdgeInsets.only(bottom: context.spacing.sm),
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          spacing: context.spacing.sm,
+          runSpacing: context.spacing.xs,
+          children: [
+            for (final (seat, name, title) in shown)
+              Text(
+                '$name · ${title.name(locale)}',
+                key: LobbyTitlesStrip.seatKey(seat),
+                style: context.typography.caption.copyWith(
+                  color: VaultTokens.goldLight,
+                ),
+              ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 // ── Partner ─────────────────────────────────────────────────────────────────
 
 enum PartnerSide { detective, doctor, mafia, citizen }
@@ -260,6 +323,10 @@ class PartnerPicker extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Only once the app already asked the server (M1: Profile never does).
+    if (!(loadedCapabilities(ref)?.partner ?? false)) {
+      return const SizedBox.shrink();
+    }
     final partner = ref.watch(partnerProvider).valueOrNull;
     if (partner == null || !partner.enabled) return const SizedBox.shrink();
     final l = context.l10n;
@@ -306,6 +373,9 @@ class TitleEquipList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!(loadedCapabilities(ref)?.titles ?? false)) {
+      return const SizedBox.shrink();
+    }
     final hub = ref.watch(titleHubProvider).valueOrNull;
     if (hub == null || !hub.enabled) return const SizedBox.shrink();
     final l = context.l10n;
@@ -345,6 +415,101 @@ class TitleEquipList extends ConsumerWidget {
             onTap: () => equip(title.code),
           ),
       ],
+    );
+  }
+}
+
+/// Casebook Legacy: the titles this player earned, to wear from there.
+/// Nothing while titles are off.
+class CasebookTitlesCard extends ConsumerWidget {
+  const CasebookTitlesCard({super.key});
+
+  static const Key cardKey = ValueKey('casebook_titles');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!(loadedCapabilities(ref)?.titles ?? false)) {
+      return const SizedBox.shrink();
+    }
+    final hub = ref.watch(titleHubProvider).valueOrNull;
+    if (hub == null || !hub.enabled) return const SizedBox.shrink();
+    return VaultCard(
+      key: cardKey,
+      children: [
+        VaultHeading(
+          title: context.l10n.titlesHeading,
+          leading: const Icon(
+            Icons.workspace_premium_rounded,
+            color: VaultTokens.gold,
+          ),
+        ),
+        SizedBox(height: context.spacing.sm),
+        const TitleEquipList(),
+      ],
+    );
+  }
+}
+
+/// The Casebook header's Partner line (F10): the chosen portrait speaks one
+/// line about the book, never a clue. Nothing while Partner is off or none is
+/// chosen.
+class PartnerCasebookLine extends ConsumerWidget {
+  const PartnerCasebookLine({super.key});
+
+  static const Key lineKey = ValueKey('partner_casebook_line');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!(loadedCapabilities(ref)?.partner ?? false)) {
+      return const SizedBox.shrink();
+    }
+    final partner = ref.watch(partnerProvider).valueOrNull;
+    final side = partner?.side;
+    if (partner == null || !partner.enabled || side == null) {
+      return const SizedBox.shrink();
+    }
+    final l = context.l10n;
+    final who = switch (side) {
+      PartnerSide.detective => l.partnerDetective,
+      PartnerSide.doctor => l.partnerDoctor,
+      PartnerSide.mafia => l.partnerMafia,
+      PartnerSide.citizen => l.partnerCitizen,
+    };
+    return Padding(
+      padding: EdgeInsets.only(top: context.spacing.xs),
+      child: Text(
+        l.partnerCasebookLine(who),
+        key: lineKey,
+        textAlign: TextAlign.center,
+        style: context.typography.bodySmall.copyWith(
+          color: VaultTokens.goldLight,
+          fontStyle: FontStyle.italic,
+        ),
+      ),
+    );
+  }
+}
+
+/// The equipped title under this player's own name (Home, Profile, result).
+/// Nothing while titles are off or none is equipped.
+class EquippedTitleLine extends ConsumerWidget {
+  const EquippedTitleLine({super.key});
+
+  static const Key lineKey = ValueKey('equipped_title_line');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Read only once something already asked for the hub (Profile, the
+    // Casebook): Home never starts a network call just to draw this line.
+    if (!ref.exists(titleHubProvider)) return const SizedBox.shrink();
+    final title = ref.watch(titleHubProvider).valueOrNull?.equippedTitle;
+    if (title == null) return const SizedBox.shrink();
+    return Text(
+      title.name(Localizations.localeOf(context)),
+      key: lineKey,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: context.typography.caption.copyWith(color: VaultTokens.goldLight),
     );
   }
 }

@@ -15,6 +15,8 @@ import '../../widgets/experience_surface.dart';
 import '../../widgets/profile_identity.dart';
 import '../../economy/waiting_banner.dart';
 import '../../account/profile_panels.dart';
+import '../../economy/my_cosmetics.dart';
+import '../../social/titles_partner.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final VoidCallback? onSaved;
@@ -94,6 +96,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final l = context.l10n;
     final existing = ref.watch(playerProfileProvider).valueOrNull != null;
     final bondsEnabled = loadedCapabilities(ref)?.fun.characterBonds == true;
+    // Store truth: what this player equipped, on their own avatar and name.
+    final mine = ref.watch(myCosmeticsProvider);
     final ready =
         !_saving &&
         _name.text.trim().isNotEmpty &&
@@ -168,6 +172,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               nameKey: ProfileScreen.nameKey,
                               gender: _gender,
                               avatarDiameter: s.xl * 2,
+                              frame: mine.frame,
+                              plate: mine.plate,
                               onGender: _saving
                                   ? null
                                   : (v) => setState(() {
@@ -183,6 +189,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             // Phase 107: the player's leaderboard choice,
                             // shown only while the board exists.
                             const LeaderboardVisibilitySwitch(),
+                            // F10: titles and the Partner, editing only.
+                            if (widget.onBack != null) ...[
+                              const EquippedTitleLine(),
+                              const TitleEquipList(),
+                              SizedBox(height: s.sm),
+                              const PartnerPicker(),
+                            ],
                             if (widget.onBack != null && bondsEnabled)
                               CharacterDossiers(onOpen: widget.onCharacters),
                             if (_failed)

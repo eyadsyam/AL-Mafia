@@ -365,7 +365,7 @@ begin
     assert t !~* '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', 'uuid in leaderboard';
     for e in select * from jsonb_array_elements(s->'entries') loop
       for k in select jsonb_object_keys(e) loop
-        assert k in ('position','xp','name','gender','frame','me','level','tier','titleAr','titleEn'),
+        assert k in ('position','xp','name','gender','frame','plate','me','level','tier','titleAr','titleEn'),
           'unexpected leaderboard key '||k;
       end loop;
     end loop;

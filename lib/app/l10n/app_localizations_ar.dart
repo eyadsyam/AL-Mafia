@@ -4753,4 +4753,58 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get passInventoryOpen => 'افتح المكافآت';
+
+  @override
+  String get profilePlatePreview => 'كده اسمك بيبان:';
+
+  @override
+  String get storeRevealTitle => 'بقى بتاعك';
+
+  @override
+  String get storeEquipNow => 'البسه دلوقتي';
+
+  @override
+  String get storeEquipLater => 'بعدين';
+
+  @override
+  String get storeRevealDone => 'تمام';
+
+  @override
+  String get storeChangesFrame =>
+      'بيظهر حوالين صورتك في الترابيزة والبروفايل والأصحاب ولوحة المجلس';
+
+  @override
+  String get storeChangesPlate =>
+      'اسمك بيظهر عليه في الترابيزة والبروفايل والأصحاب والنتيجة';
+
+  @override
+  String get storeChangesPack =>
+      'بيلبّس الأوضة اللي انت هوستها: خلفية المراحل العامة وانتقالاتها، أونلاين وفي القعدة';
+
+  @override
+  String get storeChangesNarrator =>
+      'جمل الراوي وشكلها في كل مرحلة عامة، أونلاين وفي القعدة — كلام مكتوب، مش صوت';
+
+  @override
+  String get storeChangesBundle =>
+      'كل حاجة فيها بقت عندك، والبس اللي تحبه من المجموعة';
+
+  @override
+  String get storeTryOn => 'جرّبه';
+
+  @override
+  String get storeWearing => 'لابسه دلوقتي';
+
+  @override
+  String get titlesHeading => 'ألقابك';
+
+  @override
+  String partnerCasebookLine(String who) {
+    return '$who: كل قضية بتقفلها بتتكتب هنا';
+  }
+
+  @override
+  String lobbyReadyCountdown(int seconds) {
+    return 'فاضل $seconds ثانية تأكد إنك جاهز';
+  }
 }

@@ -8,6 +8,11 @@ import 'package:share_plus/share_plus.dart';
 import '../../../engine/models/enums.dart' as game;
 import '../../economy/council.dart' show councilProvider;
 import '../../economy/council_art.dart' show rankTier, rankTitle;
+import '../../economy/cosmetic_paint.dart'
+    show paintCosmeticFrame, paintCosmeticPlate, plateTextColor;
+import '../../economy/cosmetics.dart' show Cosmetics, FrameStyle, PlateStyle;
+import '../../economy/my_cosmetics.dart';
+import '../../../data/player_profile.dart';
 import '../../fun/award_ribbon.dart' show awardName, onlineAwardsProvider;
 import '../../fun/match_awards.dart';
 import '../../l10n_ext.dart';
@@ -56,6 +61,10 @@ class _ResultShareButtonState extends ConsumerState<ResultShareButton> {
           if (awards.mine.contains(kind)) awardName(l10n, kind),
       ];
       final rank = ref.read(councilProvider).valueOrNull?.rank;
+      // Store truth: the sharer's own name on the plate they equipped, inside
+      // the frame they equipped, drawn by the table's own painters.
+      final dress = ref.read(myCosmeticsProvider);
+      final myName = ref.read(playerProfileProvider).valueOrNull?.name ?? '';
       final bytes = await _cardPng(
         title: l10n.appTitle,
         winner: winner,
@@ -66,6 +75,9 @@ class _ResultShareButtonState extends ConsumerState<ResultShareButton> {
             ? rankTitle(l10n, rankTier(rank.level))
             : null,
         awards: mine.isEmpty ? null : l10n.shareCardAwards(mine.join(' · ')),
+        name: myName.trim().isEmpty ? null : myName.trim(),
+        frame: Cosmetics.frames[dress.frame],
+        plate: Cosmetics.plates[dress.plate],
       );
       if (!mounted) return;
       final box = context.findRenderObject() as RenderBox?;
@@ -112,6 +124,9 @@ Future<Uint8List> _cardPng({
   required bool rtl,
   String? rank,
   String? awards,
+  String? name,
+  FrameStyle? frame,
+  PlateStyle? plate,
 }) async {
   const size = Size(ShareCardTokens.width, ShareCardTokens.height);
   final recorder = ui.PictureRecorder();
@@ -158,6 +173,9 @@ Future<Uint8List> _cardPng({
     ShareCardTokens.titleSize,
     ShareCardTokens.gold,
   );
+  if (name != null) {
+    _paintIdentity(canvas, size, rtl, name, frame, plate);
+  }
   line(
     winner,
     size.height * 0.36,
@@ -198,4 +216,66 @@ Future<Uint8List> _cardPng({
   );
   final data = await image.toByteData(format: ui.ImageByteFormat.png);
   return data!.buffer.asUint8List();
+}
+
+/// The sharer's own seal and name on the card: their frame around it and
+/// their plate under the name, through the same painters the table uses.
+void _paintIdentity(
+  Canvas canvas,
+  Size size,
+  bool rtl,
+  String name,
+  FrameStyle? frame,
+  PlateStyle? plate,
+) {
+  const diameter = ShareCardTokens.identityAvatar;
+  final centre = Offset(
+    size.width / 2,
+    size.height * ShareCardTokens.identityTop + diameter / 2,
+  );
+  canvas.drawCircle(
+    centre,
+    diameter / 2,
+    Paint()..color = ShareCardTokens.identitySeal,
+  );
+  final direction = rtl ? TextDirection.rtl : TextDirection.ltr;
+  final initial = TextPainter(
+    text: TextSpan(
+      text: name.characters.first,
+      style: const TextStyle(
+        color: ShareCardTokens.gold,
+        fontSize: ShareCardTokens.titleSize,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+    textDirection: direction,
+  )..layout();
+  initial.paint(
+    canvas,
+    centre - Offset(initial.width / 2, initial.height / 2),
+  );
+  if (frame != null) paintCosmeticFrame(canvas, centre, diameter, frame);
+  final label = TextPainter(
+    text: TextSpan(
+      text: name,
+      style: TextStyle(
+        color: plate == null ? ShareCardTokens.headline : plateTextColor(plate),
+        fontSize: ShareCardTokens.bodySize,
+        fontWeight: FontWeight.w700,
+        height: rtl ? 1.6 : 1.2,
+        letterSpacing: rtl ? 0 : null,
+      ),
+    ),
+    textDirection: direction,
+    maxLines: 1,
+    ellipsis: '…',
+  )..layout(maxWidth: size.width - ShareCardTokens.edge * 4);
+  final origin = Offset(
+    centre.dx - label.width / 2,
+    centre.dy + diameter / 2 + ShareCardTokens.identityNameGap,
+  );
+  if (plate != null) {
+    paintCosmeticPlate(canvas, origin, Size(label.width, label.height), plate);
+  }
+  label.paint(canvas, origin);
 }

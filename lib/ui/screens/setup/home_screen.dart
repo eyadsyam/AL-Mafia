@@ -8,6 +8,8 @@ import '../../../platform/tilt_source.dart';
 import '../../l10n_ext.dart';
 import '../../fun/character_dossiers.dart';
 import '../../fun/loaded_capabilities.dart';
+import '../../economy/my_identity.dart';
+import '../../social/titles_partner.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
@@ -129,6 +131,8 @@ class HomeScreen extends ConsumerWidget {
                 child: Stack(
                   children: [
                     _corner(context, l10n),
+                    // Store truth: this player's own chip, dressed with what
+                    // they equipped; a tap opens Profile.
                     _titleAndAction(
                       context,
                       colors: colors,
@@ -158,8 +162,25 @@ class HomeScreen extends ConsumerWidget {
   void _flipSound(WidgetRef ref) =>
       ref.read(audioDirectorProvider).playCardTurn();
 
+  static const Key identityChipKey = ValueKey('home_identity_chip');
+
+  /// The player's own frame, plate and title, tappable into the profile.
+  Widget _identityChip(BuildContext context) => InkWell(
+    key: identityChipKey,
+    borderRadius: BorderRadius.circular(context.radii.button),
+    onTap: onProfile,
+    child: Padding(
+      padding: EdgeInsets.all(context.spacing.xs),
+      child: const Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [MyIdentityBadge(), EquippedTitleLine()],
+      ),
+    ),
+  );
+
   /// Secondary actions, small, in the top corner, out of the spread's way,
-  /// and the [banner] strip under them.
+  /// then the [banner] strip and the player's own identity under them.
   Widget _corner(BuildContext context, AppLocalizations l10n) {
     final spacing = context.spacing;
 
@@ -172,7 +193,11 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [_cornerRow(context, l10n), ?banner],
+            children: [
+              _cornerRow(context, l10n),
+              ?banner,
+              _identityChip(context),
+            ],
           ),
         ),
       ),

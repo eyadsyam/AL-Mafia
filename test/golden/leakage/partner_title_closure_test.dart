@@ -23,6 +23,12 @@ void main() {
     'lib/ui/social/titles_partner.dart',
     'lib/data/character_bonds.dart',
     'lib/ui/fun/character_dossiers.dart',
+    // Store truth: a buyer's own identity, the «القعدة» dressing and the
+    // purchase moment never reach a private surface either.
+    'lib/ui/economy/my_cosmetics.dart',
+    'lib/ui/economy/my_identity.dart',
+    'lib/ui/economy/pass_table_dress.dart',
+    'lib/ui/economy/purchase_reveal.dart',
   ];
 
   final importPattern = RegExp(r'''^\s*import\s+['"]([^'"]+)['"]''', multiLine: true);

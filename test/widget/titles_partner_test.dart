@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/transport/account_auth.dart';
 import 'package:mafia_master/ui/account/account_sheet.dart';
+import 'package:mafia_master/ui/economy/economy_capabilities.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/social/titles_partner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,7 +68,18 @@ void main() {
                 : AccountProfile.guest),
           ),
         ],
-        child: localizedApp(Scaffold(body: SingleChildScrollView(child: child))),
+        // An app that has already asked the server (the widgets never ask
+        // on their own: M1).
+        child: localizedApp(
+          Scaffold(
+            body: Consumer(
+              builder: (context, ref, _) {
+                ref.watch(economyCapabilitiesProvider);
+                return SingleChildScrollView(child: child);
+              },
+            ),
+          ),
+        ),
       ),
     );
     await tester.pumpAndSettle();
