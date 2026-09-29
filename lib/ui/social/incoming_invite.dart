@@ -19,6 +19,7 @@ import '../theme/mafia_theme.dart';
 import '../widgets/player_avatar.dart';
 import 'directory.dart';
 import 'invite_privacy.dart';
+import '../../platform/push/push_service.dart';
 import 'push_prompt.dart';
 
 /// The invite's knock: our sound and the long vibration. Overridden in tests.
@@ -70,19 +71,56 @@ class IncomingInviteHostState extends ConsumerState<IncomingInviteHost>
   final List<IncomingInvite> _queue = [];
   String? _rungFor;
   DateTime? _helloAt;
+  bool _roomGone = false;
+  final List<StreamSubscription<Object?>> _subs = [];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _arm();
+    final push = ref.read(pushServiceProvider);
+    _subs
+      ..add(push.opened.listen(openFromPush))
+      ..add(push.foreground.listen((_) => poll()));
+    unawaited(
+      push.initialOpen().then((open) {
+        if (open != null && mounted) openFromPush(open);
+      }),
+    );
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    for (final sub in _subs) {
+      sub.cancel();
+    }
     super.dispose();
+  }
+
+  /// A tapped notification (cold start, background or foreground): straight
+  /// into the join flow for its room, or «الأوضة بدأت أو اتقفلت» when the
+  /// room already started or closed.
+  Future<void> openFromPush(PushOpen open) async {
+    String? code = open.code;
+    final id = open.inviteId;
+    if (id != null) {
+      _seen.add(id);
+      setState(() => _queue.removeWhere((q) => q.id == id));
+      try {
+        code = await ref.read(directoryApiProvider).respond(id, accept: true);
+      } catch (_) {
+        // Cannot ask: the join flow says what it finds.
+      }
+    }
+    if (!mounted) return;
+    if (code == null) {
+      setState(() => _roomGone = true);
+    } else {
+      widget.onJoin(code);
+    }
   }
 
   @override
@@ -197,7 +235,13 @@ class IncomingInviteHostState extends ConsumerState<IncomingInviteHost>
       textDirection: Directionality.maybeOf(context) ?? TextDirection.rtl,
       children: [
         widget.child,
-        if (showing)
+        if (_roomGone)
+          Positioned.fill(
+            child: RoomGoneNotice(
+              onClose: () => setState(() => _roomGone = false),
+            ),
+          ),
+        if (showing && !_roomGone)
           Positioned.fill(
             child: IncomingInvitePopup(
               key: ValueKey('incoming_${invite.id}'),
@@ -404,6 +448,66 @@ class _IncomingInvitePopupState extends State<IncomingInvitePopup>
                     ),
                   ),
                 ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// «الأوضة بدأت أو اتقفلت» after a notification for a room that is gone.
+class RoomGoneNotice extends StatelessWidget {
+  final VoidCallback onClose;
+  const RoomGoneNotice({super.key, required this.onClose});
+
+  static const Key noticeKey = ValueKey('invite_room_gone');
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final colors = context.colors;
+    return Material(
+      type: MaterialType.transparency,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onClose,
+              child: ColoredBox(
+                color: colors.surfaceBase.withValues(
+                  alpha: InviteTokens.scrimAlpha,
+                ),
+              ),
+            ),
+          ),
+          Center(
+            child: Padding(
+              padding: EdgeInsets.all(s.md),
+              child: VaultCard(
+                key: noticeKey,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Icon(Icons.door_front_door_outlined, color: VaultTokens.gold),
+                  SizedBox(height: s.sm),
+                  Text(
+                    l.inviteRoomGone,
+                    textAlign: TextAlign.center,
+                    style: context.typography.body.copyWith(
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: s.md),
+                  FilledButton(
+                    style: vaultGoldStyle(context),
+                    onPressed: onClose,
+                    child: Text(MaterialLocalizations.of(context).okButtonLabel),
+                  ),
+                ],
               ),
             ),
           ),

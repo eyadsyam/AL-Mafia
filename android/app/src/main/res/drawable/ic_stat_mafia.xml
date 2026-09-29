@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status-bar mark for invite notifications: the hat, monochrome (Android
+     tints it; the accent colour is our gold, set by the push payload). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7,12.6 L8.2,6.5 Q9,5 10.5,5.6 L12,6.4 L13.5,5.6 Q15,5 15.8,6.5 L17,12.6 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M2,14.4 A10,2.6 0 1,0 22,14.4 A10,2.6 0 1,0 2,14.4 Z" />
+</vector>

@@ -52,6 +52,10 @@ abstract class PushService {
   /// Notifications tapped while the app was alive (background/foreground).
   Stream<PushOpen> get opened;
 
+  /// A push arrived while the app is in front (no notification is drawn
+  /// then; the in-app popup takes over).
+  Stream<void> get foreground;
+
   /// The notification that launched the app from closed, once.
   Future<PushOpen?> initialOpen();
 }
@@ -68,6 +72,8 @@ class NoPushService implements PushService {
   Future<String?> token() async => null;
   @override
   Stream<PushOpen> get opened => const Stream.empty();
+  @override
+  Stream<void> get foreground => const Stream.empty();
   @override
   Future<PushOpen?> initialOpen() async => null;
 }

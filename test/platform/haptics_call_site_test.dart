@@ -41,6 +41,9 @@ void main() {
         if (path.endsWith('platform/clipboard.dart')) continue;
         // The third: the launcher-name channel. Checked below the same way.
         if (path.endsWith('platform/launcher_label.dart')) continue;
+        // The fourth: the device time-zone channel (invites' coarse country).
+        // Checked below the same way.
+        if (path.endsWith('platform/device/time_zone.dart')) continue;
 
         // Code, not prose. `services.dart` is the only import that makes
         // `HapticFeedback` reachable, so importing it at all is the thing to
@@ -96,6 +99,14 @@ void main() {
             'pass_screen.dart calls the haptics helper; opening the pass '
             'screen must be silent',
       );
+    });
+
+    test('the time-zone exception cannot fire a haptic', () {
+      final source = File(
+        'lib/platform/device/time_zone.dart',
+      ).readAsStringSync();
+      expect(source.contains('HapticFeedback'), isFalse);
+      expect(source.contains('Haptics'), isFalse);
     });
 
     test('the clipboard exception cannot fire a haptic', () {
