@@ -21,6 +21,13 @@ enum NarratorBeat { night, morning, discussion, voting, result, win }
 /// The pack the app speaks with at launch: the owner's «Kratos».
 const narratorManifest = 'assets/voice/kratos/manifest.json';
 
+/// Store narrator manifests keyed by the catalogue/equipped code.
+const narratorPackManifests = <String, String>{
+  'narrator_storyteller': 'assets/voice/narrator_storyteller/manifest.json',
+  'narrator_keeper': 'assets/voice/narrator_keeper/manifest.json',
+  'narrator_noir': 'assets/voice/narrator_noir/manifest.json',
+};
+
 /// What the table already knows when a beat plays.
 class NarrationFacts {
   final int? nightEliminated;

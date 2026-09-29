@@ -1344,6 +1344,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get onlineReferralOffer =>
+      'ادعي صاحب جديد: انت +100 وهو +50 لما يخلّص أول ماتش';
+
+  @override
   String get onlineGhostRule => 'اللي بيخرج ما يتكلمش مع اللي لسه لاعب';
 
   @override
@@ -2366,7 +2370,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get cosmeticNarratorStorytellerDesc =>
-      'راوي بيعلّق على كل مرحلة عامة بجملة قصيرة على الشاشة، نفس الجملة لكل اللاعبين. لو الصوت مقفول بتفضل الجمل مكتوبة.';
+      'راوي بصوت حكّاء مسجّل بيعلّق على كل مرحلة عامة، بنفس الجملة لكل اللاعبين. لو الصوت مقفول بتفضل الجمل مكتوبة.';
 
   @override
   String get cosmeticBundleCouncil => 'باقة المجلس';
@@ -2869,14 +2873,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get cosmeticNarratorKeeperDesc =>
-      'راوي رزين بلغة الأرشيف: جملة قصيرة مكتوبة مع نغمة في كل مرحلة عامة، نفس الجملة لكل اللاعبين. كلام مكتوب، مش صوت متسجّل.';
+      'راوي رزين بصوت مسجّل ولغة الأرشيف في كل مرحلة عامة، بنفس الجملة لكل اللاعبين.';
 
   @override
   String get cosmeticNarratorNoir => 'راوي الظلال';
 
   @override
   String get cosmeticNarratorNoirDesc =>
-      'راوي نوار مختصر: جملة قصيرة مكتوبة مع نغمة في كل مرحلة عامة، نفس الجملة لكل اللاعبين. كلام مكتوب، مش صوت متسجّل.';
+      'راوي نوار مختصر بصوت مسجّل في كل مرحلة عامة، بنفس الجملة لكل اللاعبين.';
 
   @override
   String get cosmeticBundleNocturne => 'مجموعة الليل';
@@ -3370,6 +3374,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get inviteRewarded => 'مكافأة الدعوة وصلت.';
 
   @override
+  String inviteSettledNoCoinsNotice(String name) {
+    return '$name كمّل شروط الدعوة — اتحسبت في تقدّم دعواتك.';
+  }
+
+  @override
   String get inviteNotFound => 'الكود ده مش موجود.';
 
   @override
@@ -3482,6 +3491,13 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get cosmeticFrameSealDesc =>
       'حلقة ختم بلون الشمع الأحمر وتمن مسامير دهب — الإطار الخاص بحزمة البداية.';
+
+  @override
+  String get cosmeticFrameInvite => 'إطار الصحبة';
+
+  @override
+  String get cosmeticFrameInviteDesc =>
+      'إطار حصري بتكسبه لما عشرة أصحاب يكملوا شروط دعوتك.';
 
   @override
   String get coinPayStep =>
@@ -4790,7 +4806,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get storeChangesNarrator =>
-      'جمل الراوي وشكلها في كل مرحلة عامة، أونلاين وفي القعدة — كلام مكتوب، مش صوت';
+      'صوت الراوي المسجّل وجمله وشكلها في كل مرحلة عامة، أونلاين وفي القعدة';
 
   @override
   String get storeChangesBundle =>

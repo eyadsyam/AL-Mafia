@@ -166,7 +166,7 @@ class NarratorPreview extends ConsumerWidget {
             icon: const Icon(Icons.volume_up_outlined),
             label: Text(l.previewSound),
             onPressed: () =>
-                ref.read(audioDirectorProvider).playAccent(narrator.accent),
+                ref.read(audioDirectorProvider).previewNarrator(narrator.code),
           ),
         ),
       ],

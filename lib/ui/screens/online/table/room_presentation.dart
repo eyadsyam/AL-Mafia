@@ -56,6 +56,7 @@ class RoomPresentationLayer extends ConsumerStatefulWidget {
 }
 
 class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
+  late final AudioDirector _audio;
   String? _caption;
 
   /// The caption is the narrator pack's own line (styled in its look), not a
@@ -65,12 +66,25 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
   bool _introDone = false;
   bool _outroDone = false;
 
-  PresentationPack? get _pack => Cosmetics.packs[widget._local
-      ? widget.packCode
-      : widget.snapshot.room.presentationPack];
-  NarratorPack? get _narrator => Cosmetics.narrators[widget._local
-      ? widget.narratorCode
-      : widget.snapshot.room.narratorPack];
+  PresentationPack? get _pack =>
+      Cosmetics.packs[widget._local
+          ? widget.packCode
+          : widget.snapshot.room.presentationPack];
+  NarratorPack? get _narrator =>
+      Cosmetics.narrators[widget._local
+          ? widget.narratorCode
+          : widget.snapshot.room.narratorPack];
+
+  String? get _voiceCode {
+    final code = widget._local
+        ? widget.narratorCode
+        : widget.snapshot.room.narratorPack;
+    return code == 'classic' ? null : code;
+  }
+
+  void _syncVoice() {
+    _audio.activeVoice = _voiceCode;
+  }
 
   bool _visible(GamePhase phase) =>
       widget.visibleIn?.call(phase) ?? cosmeticsVisibleIn(phase);
@@ -78,6 +92,8 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
   @override
   void initState() {
     super.initState();
+    _audio = ref.read(audioDirectorProvider);
+    _syncVoice();
     // A layer that arrives with an announcement already on screen marks it.
     final moment = widget.moment;
     if (moment != null) {
@@ -90,6 +106,7 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
   @override
   void didUpdateWidget(RoomPresentationLayer old) {
     super.didUpdateWidget(old);
+    _syncVoice();
     final moment = widget.moment;
     if (moment != null && moment != old.moment) {
       _onMoment(moment);
@@ -169,6 +186,7 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
   @override
   void dispose() {
     _hide?.cancel();
+    if (_audio.activeVoice == _voiceCode) _audio.activeVoice = null;
     super.dispose();
   }
 

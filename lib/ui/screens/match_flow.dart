@@ -159,6 +159,7 @@ enum _Moment {
 
 class MatchFlowState extends ConsumerState<MatchFlow> {
   bool _victorySeen = false;
+  late final AudioDirector _audio;
 
   /// Captured once, so leaving the match can clear the privacy flag.
   late final StateController<bool> _privacy = ref.read(
@@ -169,10 +170,12 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
   void initState() {
     super.initState();
     _privacy;
+    _audio = ref.read(audioDirectorProvider);
   }
 
   @override
   void dispose() {
+    _audio.activeVoice = null;
     final privacy = _privacy;
     WidgetsBinding.instance.addPostFrameCallback((_) => privacy.state = false);
     super.dispose();
@@ -245,8 +248,6 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
 
   MatchController get _controller => ref.read(matchControllerProvider.notifier);
 
-  AudioDirector get _audio => ref.read(audioDirectorProvider);
-
   void _commit() => widget.onStepCommitted?.call();
 
   /// Phases during which the phone is in one player's hand.
@@ -274,9 +275,11 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
   /// ones somebody remembered to annotate.
   void _syncAudioSettings() {
     final settings = _controller.settings;
+    final narrator = ref.watch(myCosmeticsProvider).narrator;
     _audio
       ..muted = settings.muteAllAudio
       ..narrationEnabled = settings.narrationEnabled
+      ..activeVoice = narrator
       ..scoreEnabled = settings.scoreEnabled
       // Idempotent: the loop is only started or stopped when the *setting*
       // changes, never when the phase does. See [AudioDirector.syncScore].

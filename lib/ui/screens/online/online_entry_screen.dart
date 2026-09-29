@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../economy/economy_capabilities.dart';
+import '../../economy/council.dart';
 import '../../economy/interstitial_coordinator.dart';
 import '../../../data/player_profile.dart';
 import '../../../data/terms_consent.dart';
@@ -44,11 +45,13 @@ class OnlineEntryScreen extends ConsumerStatefulWidget {
   /// setup. Kept apart from any "play offline" path on purpose.
   final VoidCallback onBack;
   final String? initialCode;
+  final String? initialReferralCode;
   const OnlineEntryScreen({
     super.key,
     required this.onJoined,
     required this.onBack,
     this.initialCode,
+    this.initialReferralCode,
   });
   static const codeField = ValueKey('online_code');
   static const hostButton = ValueKey('online_host');
@@ -299,6 +302,14 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
       );
     }
     if (mounted && ref.read(onlineSessionProvider).isInRoom) {
+      final referral = widget.initialReferralCode;
+      if (!host && referral != null) {
+        try {
+          await ref.read(inviteProvider.notifier).redeem(referral);
+        } catch (_) {
+          // Joining the room is load-bearing; referral attribution is not.
+        }
+      }
       // The session exists now, so the queued acceptance can be recorded.
       unawaited(_syncTerms());
       widget.onJoined();

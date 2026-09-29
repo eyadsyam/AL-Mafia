@@ -45,6 +45,7 @@ import 'table/table_pulse.dart';
 import 'table/table_scene.dart';
 import '../../economy/waiting_banner.dart';
 import '../../economy/economy_capabilities.dart';
+import '../../economy/council.dart';
 import '../../social/friends.dart';
 import '../../social/titles_partner.dart';
 
@@ -316,12 +317,22 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
   ///
   /// The link is the https one, so a phone without the app opens the room on
   /// the site with the code already answered.
-  Future<void> _shareInvite(String code, BuildContext button) async {
+  Future<void> _shareInvite(
+    String code,
+    String? referralCode,
+    BuildContext button,
+  ) async {
     final box = button.findRenderObject() as RenderBox?;
     final outcome = await ref
         .read(inviteSharerProvider)
         .share(
-          text: RoomInvite.text(context.l10n.onlineShareInvite(code), code),
+          text: RoomInvite.text(
+            referralCode == null
+                ? context.l10n.onlineShareInvite(code)
+                : '${context.l10n.onlineShareInvite(code)}\n${context.l10n.onlineReferralOffer}',
+            code,
+            referralCode: referralCode,
+          ),
           subject: context.l10n.appTitle,
           // iPad/tablet sheets anchor to the button that opened them.
           origin: box == null || !box.hasSize
@@ -360,6 +371,12 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     final players = snapshot?.public.players ?? const [];
     final lobbyReadyEnabled =
         ref.watch(economyCapabilitiesProvider).valueOrNull?.lobbyReady ?? false;
+    final referralsEnabled =
+        ref.watch(economyCapabilitiesProvider).valueOrNull?.council.invites ??
+        false;
+    final referralCode = referralsEnabled
+        ? ref.watch(inviteProvider).valueOrNull?.code
+        : null;
     final connectedSeats = players
         .where(
           (player) =>
@@ -623,6 +640,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                                     ? null
                                                     : () => _shareInvite(
                                                         code,
+                                                        referralCode,
                                                         button,
                                                       ),
                                                 icon: const Icon(
@@ -665,6 +683,16 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                           ),
                                       ],
                                     ),
+                                    if (isHost && referralsEnabled) ...[
+                                      SizedBox(height: spacing.xs),
+                                      Text(
+                                        l10n.onlineReferralOffer,
+                                        textAlign: TextAlign.center,
+                                        style: type.caption.copyWith(
+                                          color: colors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
                                     Text(
                                       key: LobbyScreen.playerCount,
                                       l10n.onlinePlayersOfMax(
@@ -776,8 +804,9 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                             ReadyCountdown(
                                               deadline: session.transport
                                                   ?.onLocalClock(
-                                                    snapshot.lobbyReadyDeadlines[
-                                                        snapshot.viewerSeat],
+                                                    snapshot
+                                                        .lobbyReadyDeadlines[snapshot
+                                                        .viewerSeat],
                                                   ),
                                             ),
                                           SizedBox(height: spacing.sm),
@@ -936,6 +965,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
               InviteSheet(
                 visible: _inviting,
                 roomId: session.room!.roomId,
+                roomCode: code,
                 onDismiss: () => setState(() => _inviting = false),
               ),
             // Task 5 — one line, three seconds, over the lobby.

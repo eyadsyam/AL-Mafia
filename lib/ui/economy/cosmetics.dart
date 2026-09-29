@@ -198,6 +198,14 @@ abstract final class Cosmetics {
         name: (l) => l.cosmeticFrameSeal,
         description: (l) => l.cosmeticFrameSealDesc,
       ),
+      // Earned by settling ten referrals; never listed for coin purchase.
+      CosmeticItem(
+        code: 'frame_invite',
+        kind: CosmeticKind.frame,
+        slot: CosmeticSlot.frame,
+        name: (l) => l.cosmeticFrameInvite,
+        description: (l) => l.cosmeticFrameInviteDesc,
+      ),
       CosmeticItem(
         code: 'plate_noir',
         kind: CosmeticKind.nameplate,
@@ -310,6 +318,12 @@ abstract final class Cosmetics {
       CouncilLifeTokens.sealInner,
       'frame_council_seal',
       CosmeticTokens.frameCrimsonAperture,
+    ),
+    'frame_invite': FrameStyle(
+      CosmeticTokens.frameGildedOuter,
+      CosmeticTokens.frameMoonlitInner,
+      'frame_invite',
+      CosmeticTokens.frameGildedAperture,
     ),
   };
 

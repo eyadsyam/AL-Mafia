@@ -138,6 +138,9 @@ flutter:
     - assets/icons/
     - assets/audio/
     - assets/voice/kratos/
+    - assets/voice/narrator_storyteller/
+    - assets/voice/narrator_keeper/
+    - assets/voice/narrator_noir/
     # Ambient loops + their Reduce Motion stills. On-table surfaces only.
     - assets/video/
     - assets/fonts/OFL.txt

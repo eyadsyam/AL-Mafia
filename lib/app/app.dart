@@ -196,6 +196,12 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       final source = await rootBundle.loadString(narratorManifest);
       _audio.narrator = NarratorBank.fromJson(source);
     } catch (_) {}
+    for (final entry in narratorPackManifests.entries) {
+      try {
+        final source = await rootBundle.loadString(entry.value);
+        _audio.registerNarratorBank(entry.key, NarratorBank.fromJson(source));
+      } catch (_) {}
+    }
   }
 
   void _syncScore() {

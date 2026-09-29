@@ -291,7 +291,8 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   /// the day's conversation as a burst of chimes.
   final Set<String> _heardWhispers = <String>{};
 
-  AudioDirector get _audio => ref.read(audioDirectorProvider);
+  late final AudioDirector _audio;
+  String? _selectedNarrator;
 
   /// The whisper this device is currently showing, or null.
   ///
@@ -328,6 +329,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   @override
   void initState() {
     super.initState();
+    _audio = ref.read(audioDirectorProvider);
     _privacy;
     _tear.addListener(_repaint);
     _sparkFlight.addListener(_repaint);
@@ -345,6 +347,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 
   @override
   void dispose() {
+    if (_audio.activeVoice == _selectedNarrator) {
+      _audio.activeVoice = null;
+    }
     final privacy = _privacy;
     WidgetsBinding.instance.addPostFrameCallback((_) => privacy.state = false);
     _privateRetry?.cancel();
@@ -366,12 +371,15 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 
   /// Notices a phase change and resets everything that was about the old one.
   void _syncPhase(GameSnapshot snapshot) {
+    _selectedNarrator = snapshot.room.narratorPack == 'classic'
+        ? null
+        : snapshot.room.narratorPack;
+    _audio.activeVoice = _selectedNarrator;
     // Invites wait through every phase with something private on screen
     // (the deal, the night) and through a ballot.
     reportPrivateMoment(
       ref,
-      !cosmeticsVisibleIn(snapshot.phase) ||
-          snapshot.phase == GamePhase.voting,
+      !cosmeticsVisibleIn(snapshot.phase) || snapshot.phase == GamePhase.voting,
     );
     if (snapshot.phase == _phaseAt &&
         snapshot.dayNumber == _dayAt &&
@@ -1649,15 +1657,22 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         final winner = snapshot.outcome?.winner ?? snapshot.pendingOutcome;
         if (winner == null) return null;
         final mafiaWon = winner == Alignment.mafia;
-        return CouncilVoice(
-          headline: mafiaWon ? l10n.mafiaWins : l10n.townWins,
-          style: type.display,
-          support: VictoryEmblem(mafiaWon: mafiaWon),
-          background: const MotionSprite(
-            AppMotion.emberDrift,
-            width: MotionTokens.emberWidth,
-            height: MotionTokens.emberHeight,
-          ),
+        return Stack(
+          alignment: AlignmentDirectional.center,
+          children: [
+            const IgnorePointer(
+              child: MotionSprite(
+                AppMotion.emberDrift,
+                width: MotionTokens.emberWidth,
+                height: MotionTokens.emberHeight,
+              ),
+            ),
+            CouncilVoice(
+              headline: mafiaWon ? l10n.mafiaWins : l10n.townWins,
+              style: type.display,
+              support: VictoryEmblem(mafiaWon: mafiaWon),
+            ),
+          ],
         );
     }
   }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'audio_backend.dart';
@@ -176,7 +177,23 @@ class AudioDirector {
   /// F16 — the spoken narrator's lines, loaded once at start-up from
   /// `assets/voice/<pack>/manifest.json`. Empty until a pack has passed the
   /// listener gate and been installed; an empty bank narrates nothing.
-  NarratorBank narrator = NarratorBank.empty;
+  NarratorBank _defaultNarrator = NarratorBank.empty;
+
+  /// Loaded store voices. An equipped pack is authoritative: if its bank has
+  /// no line for a beat, that beat is silent instead of changing performer.
+  final Map<String, NarratorBank> narratorBanks = {};
+
+  String? activeVoice;
+
+  /// Backwards-compatible default-bank seam used by startup and unit tests.
+  NarratorBank get narrator => activeVoice == null
+      ? _defaultNarrator
+      : narratorBanks[activeVoice] ?? NarratorBank.empty;
+  set narrator(NarratorBank value) => _defaultNarrator = value;
+
+  void registerNarratorBank(String code, NarratorBank bank) {
+    narratorBanks[code] = bank;
+  }
 
   /// The player's voice volume (0..1), separate from every cue's level.
   double narratorVolume = 1.0;
@@ -275,7 +292,9 @@ class AudioDirector {
     for (final cue in AudioCue.values)
       if (cue.sound != null) _assetKey(cue.sound!),
     for (final line in narratorLines.values) _assetKey(line),
-    for (final clip in narrator.clips) _assetKey(clip.file),
+    for (final clip in _defaultNarrator.clips) _assetKey(clip.file),
+    for (final bank in narratorBanks.values)
+      for (final clip in bank.clips) _assetKey(clip.file),
   });
 
   PhoneLocation get location => _location;
@@ -433,6 +452,23 @@ class AudioDirector {
         (c) => c.beat == beat && (!familyNarration || c.family),
       );
 
+  /// Plays the selected store pack in its own preview without changing the
+  /// voice a running match has selected.
+  void previewNarrator(
+    String code, {
+    NarratorBeat beat = NarratorBeat.discussion,
+  }) {
+    if (_location == PhoneLocation.inHand || muted || !narrationEnabled) return;
+    final clip = narratorBanks[code]?.pick(
+      beat,
+      NarrationFacts.none,
+      familyOnly: familyNarration,
+    );
+    if (clip == null) return;
+    emittedNarration.add(clip.id);
+    unawaited(backend.play(_assetKey(clip.file), volume: narratorVolume));
+  }
+
   /// Presentation accents the host's room pack or narrator adds (docs/
   /// CLAUDE-UX-ECONOMY-NEXT.md §89), and the store's previews of them.
   ///
@@ -457,11 +493,18 @@ class AudioDirector {
   /// Drops the `assets/` prefix the backend does not want.
   static String _assetKey(String assetPath) {
     const prefix = 'assets/';
-    return assetPath.startsWith(prefix)
+    final key = assetPath.startsWith(prefix)
         ? assetPath.substring(prefix.length)
         : assetPath;
+    return webAudioAssetKey(key);
   }
 }
+
+/// Browser audio uses MP3 copies because Safari/iOS cannot decode Ogg assets.
+String webAudioAssetKey(String assetKey, {bool web = kIsWeb}) =>
+    web && assetKey.endsWith('.ogg')
+    ? '${assetKey.substring(0, assetKey.length - 4)}.mp3'
+    : assetKey;
 
 /// Riverpod provider for the audio director.
 ///

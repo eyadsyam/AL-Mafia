@@ -216,13 +216,6 @@ class HomeScreen extends ConsumerWidget {
           label: l10n.howToPlay,
           onPressed: onHowToPlay,
         ),
-        if (onProfile != null)
-          _CornerButton(
-            buttonKey: const ValueKey('home_profile'),
-            icon: Icons.person_outline,
-            label: l10n.profileEdit,
-            onPressed: onProfile!,
-          ),
         _CornerButton(
           buttonKey: HomeScreen.historyButton,
           // Reads as a scroll — a sheet with ruled lines — rather than a

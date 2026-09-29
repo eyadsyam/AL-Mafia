@@ -1117,7 +1117,9 @@ String inviteNoticeLine(AppLocalizations l, InviteNotice notice) {
   final name = notice.name.trim().isEmpty ? l.inviteNoticeFriend : notice.name;
   return switch (notice.kind) {
     'first_match' => l.inviteFirstMatchNotice(name, notice.coins),
-    'settled' => l.inviteSettledNotice(name, notice.coins),
+    'settled' => notice.coins > 0
+        ? l.inviteSettledNotice(name, notice.coins)
+        : l.inviteSettledNoCoinsNotice(name),
     _ => l.inviteProgressNotice(notice.progress),
   };
 }

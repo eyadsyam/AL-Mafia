@@ -25,6 +25,7 @@ import '../ui/screens/onboarding/onboarding_video_screen.dart';
 import '../ui/screens/online/lobby_screen.dart';
 import '../ui/screens/online/online_entry_screen.dart';
 import '../ui/screens/online/online_session.dart';
+import '../ui/screens/online/room_invite.dart';
 import '../ui/screens/postgame/analytics_screen.dart';
 import '../ui/screens/postgame/history_screen.dart';
 import '../ui/screens/setup/add_players_screen.dart';
@@ -108,8 +109,9 @@ String? systemBackTarget(String location, {bool hasGroups = true}) {
     return Routes.home;
   }
   if (RegExp(r'^/history/\d+$').hasMatch(location)) return Routes.history;
-  if (location == Routes.players)
+  if (location == Routes.players) {
     return hasGroups ? Routes.groups : Routes.home;
+  }
   if (location == Routes.roles) return Routes.players;
   if (location == Routes.settings) return Routes.roles;
   return null;
@@ -122,9 +124,12 @@ String? systemBackTarget(String location, {bool hasGroups = true}) {
 /// engine. Routes stay dumb; the screens they host stay reusable in tests
 /// without a router at all.
 String _safeReturn(String? route) {
-  if (route == Routes.online ||
-      (route != null && RegExp(r'^/join/[A-Za-z0-9]{6}$').hasMatch(route)))
+  final parsed = route == null ? null : Uri.tryParse(route);
+  if (parsed?.path == Routes.online ||
+      (parsed != null &&
+          RegExp(r'^/join/[A-Za-z0-9]{6}$').hasMatch(parsed.path))) {
     return route!;
+  }
   return Routes.home;
 }
 
@@ -356,6 +361,7 @@ GoRouter buildRouter(
         builder: (context, state) => SetupRequired(
           child: OnlineEntryScreen(
             initialCode: state.pathParameters['code'],
+            initialReferralCode: RoomInvite.referral(state.uri),
             onJoined: () => context.go(Routes.lobby),
             onBack: () => context.go(Routes.mode),
           ),

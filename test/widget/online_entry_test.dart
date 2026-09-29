@@ -543,6 +543,40 @@ void main() {
       expect(find.byKey(const ValueKey('profile_name')), findsNothing);
     });
 
+    testWidgets('a referral room link records the code after joining', (
+      tester,
+    ) async {
+      final container = containerWith();
+      backend.responders['economy'] = (body) =>
+          body['action'] == 'invite_redeem'
+          ? {'status': 'redeemed', 'enabled': true}
+          : const {'ok': true};
+      await container.read(playerProfileProvider.future);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: localizedApp(
+            OnlineEntryScreen(
+              initialCode: 'ABCDEF',
+              initialReferralCode: '43D4YUG',
+              onJoined: () {},
+              onBack: () {},
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(OnlineEntryScreen.joinButton));
+      await tester.pump();
+      await tester.pump();
+      final redeem = backend.calls.singleWhere(
+        (call) =>
+            call.function == 'economy' &&
+            call.body['action'] == 'invite_redeem',
+      );
+      expect(redeem.body['code'], '43D4YUG');
+    });
+
     testWidgets('an empty server says the list is empty', (tester) async {
       await pumpEntry(tester, containerWith());
 

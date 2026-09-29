@@ -75,6 +75,12 @@ void main() {
           if (entity is! File) continue;
           final path = entity.path.replaceAll(r'\', '/');
           if (path.endsWith('.gitkeep')) continue;
+          // A web twin (tool/generate_web_audio.py) of a declared .ogg: the
+          // app picks the extension at runtime, so the .ogg is the name.
+          if (path.endsWith('.mp3') &&
+              declared.contains(path.replaceFirst(RegExp(r'\.mp3$'), '.ogg'))) {
+            continue;
+          }
           if (!declared.contains(path)) orphans.add(path);
         }
       }

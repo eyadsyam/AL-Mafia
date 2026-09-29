@@ -47,16 +47,18 @@ void paintCosmeticFrame(
     // Vector by design: kept inside the same box the drawn frames respect.
     final studs = councilSealStudRadius(radius, width);
     final reach = math.max(width / 2, studs);
-    final fitted = maxSide == null ? radius : math.min(
-            radius,
-            maxSide / 2 - reach - StoreTokens.hairlineOverlap,
-          );
+    final fitted = maxSide == null
+        ? radius
+        : math.min(radius, maxSide / 2 - reach - StoreTokens.hairlineOverlap);
     paintCouncilSeal(canvas, centre, fitted, width, opacity: opacity);
     return;
   }
+  final fittedRadius = maxSide == null
+      ? radius
+      : math.min(radius, maxSide / 2 - width / 2 - StoreTokens.hairlineOverlap);
   canvas.drawCircle(
     centre,
-    radius,
+    fittedRadius,
     Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = width
@@ -64,7 +66,7 @@ void paintCosmeticFrame(
   );
   canvas.drawCircle(
     centre,
-    radius - width / 2,
+    fittedRadius - width / 2,
     Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = width / 3
@@ -506,9 +508,7 @@ class NarrationCaption extends StatelessWidget {
       duration: MediaQuery.disableAnimationsOf(context)
           ? Duration.zero
           : context.motion.standard,
-      child: line == null
-          ? const SizedBox.shrink()
-          : _line(context, line),
+      child: line == null ? const SizedBox.shrink() : _line(context, line),
     );
   }
 
@@ -599,7 +599,10 @@ class _CosmeticFrameRingState extends State<CosmeticFrameRing> {
       child: CustomPaint(
         foregroundPainter: CosmeticFramePainter(style, widget.diameter),
         child: Center(
-          child: SizedBox.square(dimension: widget.diameter, child: widget.child),
+          child: SizedBox.square(
+            dimension: widget.diameter,
+            child: widget.child,
+          ),
         ),
       ),
     );
@@ -664,7 +667,9 @@ class _CosmeticNameplateState extends State<CosmeticNameplate> {
     );
     if (style == null) return text;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: CosmeticTokens.platePadding * 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: CosmeticTokens.platePadding * 2,
+      ),
       child: CustomPaint(
         key: CosmeticNameplate.plateKey,
         painter: CosmeticPlatePainter(style),

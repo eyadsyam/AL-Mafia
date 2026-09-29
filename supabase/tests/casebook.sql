@@ -1,6 +1,11 @@
 -- Contract for 20260928000400_casebook. Rolled back by the local harness.
 begin;
--- D3: seasons sleep until the operator starts them.
+-- The 1.1 activation migration starts Season Zero idempotently. The operator
+-- call remains a replay/backward-compatibility exercise.
+do $$ begin
+  assert exists(select 1 from mission_seasons where code='season_zero' and active),
+    'Season Zero is not active at release';
+end $$;
 select public.operator_start_season('season_zero',now()-interval '1 hour');
 
 create temp table cb_results(gate text primary key,ok boolean not null,detail text);

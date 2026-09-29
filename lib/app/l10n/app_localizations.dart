@@ -2474,6 +2474,12 @@ abstract class AppLocalizations {
   /// **'Play Mafia with us. Room code: {code}'**
   String onlineShareInvite(String code);
 
+  /// No description provided for @onlineReferralOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite a new friend: you get +100 and they get +50 after their first match'**
+  String get onlineReferralOffer;
+
   /// No description provided for @onlineGhostRule.
   ///
   /// In en, this message translates to:
@@ -4253,7 +4259,7 @@ abstract class AppLocalizations {
   /// No description provided for @cosmeticNarratorStorytellerDesc.
   ///
   /// In en, this message translates to:
-  /// **'A narrator who marks every public phase with a short on-screen line, the same for every player. With sound off, the lines stay as text.'**
+  /// **'A recorded storyteller voice marks every public phase with the same short line for every player. With sound off, the lines stay as text.'**
   String get cosmeticNarratorStorytellerDesc;
 
   /// No description provided for @cosmeticBundleCouncil.
@@ -5105,7 +5111,7 @@ abstract class AppLocalizations {
   /// No description provided for @cosmeticNarratorKeeperDesc.
   ///
   /// In en, this message translates to:
-  /// **'A solemn, archival narrator: a short on-screen line with a cue at each public phase, the same for every player. Written text, not a recorded voice.'**
+  /// **'A solemn recorded keeper voice marks each public phase in an archival style, the same for every player.'**
   String get cosmeticNarratorKeeperDesc;
 
   /// No description provided for @cosmeticNarratorNoir.
@@ -5117,7 +5123,7 @@ abstract class AppLocalizations {
   /// No description provided for @cosmeticNarratorNoirDesc.
   ///
   /// In en, this message translates to:
-  /// **'A terse noir narrator: a short on-screen line with a cue at each public phase, the same for every player. Written text, not a recorded voice.'**
+  /// **'A terse recorded noir voice marks each public phase, the same for every player.'**
   String get cosmeticNarratorNoirDesc;
 
   /// No description provided for @cosmeticBundleNocturne.
@@ -5918,6 +5924,12 @@ abstract class AppLocalizations {
   /// **'Invite reward received.'**
   String get inviteRewarded;
 
+  /// No description provided for @inviteSettledNoCoinsNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} completed the invite conditions — it counts toward your invite progress.'**
+  String inviteSettledNoCoinsNotice(String name);
+
   /// No description provided for @inviteNotFound.
   ///
   /// In en, this message translates to:
@@ -6109,6 +6121,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A wax-red seal ring with eight gold studs — the Starter Bundle\'s own frame.'**
   String get cosmeticFrameSealDesc;
+
+  /// No description provided for @cosmeticFrameInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Companions Frame'**
+  String get cosmeticFrameInvite;
+
+  /// No description provided for @cosmeticFrameInviteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'An exclusive frame earned when ten friends complete your invite conditions.'**
+  String get cosmeticFrameInviteDesc;
 
   /// No description provided for @coinPayStep.
   ///
@@ -8254,7 +8278,7 @@ abstract class AppLocalizations {
   /// No description provided for @storeChangesNarrator.
   ///
   /// In en, this message translates to:
-  /// **'The narrator\'s lines and their look at every public phase, online and in pass-and-play — written, not a voice'**
+  /// **'The narrator\'s recorded voice, lines and look at every public phase, online and in pass-and-play'**
   String get storeChangesNarrator;
 
   /// No description provided for @storeChangesBundle.

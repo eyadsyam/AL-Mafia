@@ -255,6 +255,52 @@ void main() {
       await director.warmUp();
       expect(warmed, contains('voice/kratos/night_a.ogg'));
     });
+
+    test('an active store voice never falls back to the default bank', () {
+      audio.registerNarratorBank(
+        'narrator_noir',
+        NarratorBank([clip('noir_night', NarratorBeat.night)]),
+      );
+      audio.activeVoice = 'narrator_noir';
+      audio.narrate(NarratorBeat.night);
+      audio.narrate(NarratorBeat.win, const NarrationFacts(winner: 'town'));
+      expect(backend.played, ['voice/kratos/noir_night.ogg']);
+      expect(audio.canNarrate(NarratorBeat.win), isFalse);
+    });
+
+    test('store preview plays the requested bank without selecting it', () {
+      audio.registerNarratorBank(
+        'narrator_keeper',
+        NarratorBank([clip('keeper_discussion', NarratorBeat.discussion)]),
+      );
+      audio.previewNarrator('narrator_keeper');
+      expect(backend.played, ['voice/kratos/keeper_discussion.ogg']);
+      expect(audio.activeVoice, isNull);
+    });
+
+    test('web selects mp3 while native keeps ogg', () {
+      expect(webAudioAssetKey('audio/win.ogg', web: true), 'audio/win.mp3');
+      expect(webAudioAssetKey('audio/win.ogg', web: false), 'audio/win.ogg');
+      expect(
+        webAudioAssetKey('audio/already.mp3', web: true),
+        'audio/already.mp3',
+      );
+    });
+
+    test('every shipped ogg has a Safari mp3 sibling', () {
+      final oggs = [
+        ...Directory('assets/audio').listSync(recursive: true),
+        ...Directory('assets/voice').listSync(recursive: true),
+      ].whereType<File>().where((file) => file.path.endsWith('.ogg'));
+      expect(oggs, isNotEmpty);
+      for (final ogg in oggs) {
+        expect(
+          File(ogg.path.replaceFirst(RegExp(r'\.ogg$'), '.mp3')).existsSync(),
+          isTrue,
+          reason: ogg.path,
+        );
+      }
+    });
   });
 }
 

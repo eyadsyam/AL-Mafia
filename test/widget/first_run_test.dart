@@ -269,13 +269,15 @@ void main() {
     tester,
   ) async {
     final router = GoRouter(
-      initialLocation: '/join/ABCD',
+      initialLocation: '/join/ABCDEF?ref=43D4YUG',
       routes: [
         GoRoute(path: '/', builder: (_, _) => const Text('HOME')),
         GoRoute(
           path: '/join/:code',
           builder: (_, state) => SetupRequired(
-            child: Text('JOIN ${state.pathParameters['code']}'),
+            child: Text(
+              'JOIN ${state.pathParameters['code']} REF ${state.uri.queryParameters['ref']}',
+            ),
           ),
         ),
       ],
@@ -303,7 +305,7 @@ void main() {
     await _tick(tester, FirstRunScreen.termsKey);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
-    expect(find.text('JOIN ABCD'), findsOneWidget);
+    expect(find.text('JOIN ABCDEF REF 43D4YUG'), findsOneWidget);
   });
 
   testWidgets('language switches in place and keeps what was typed', (

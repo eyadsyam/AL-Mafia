@@ -1372,6 +1372,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get onlineReferralOffer =>
+      'Invite a new friend: you get +100 and they get +50 after their first match';
+
+  @override
   String get onlineGhostRule =>
       'Whoever is out does not talk to whoever is still playing';
 
@@ -2424,7 +2428,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cosmeticNarratorStorytellerDesc =>
-      'A narrator who marks every public phase with a short on-screen line, the same for every player. With sound off, the lines stay as text.';
+      'A recorded storyteller voice marks every public phase with the same short line for every player. With sound off, the lines stay as text.';
 
   @override
   String get cosmeticBundleCouncil => 'Council bundle';
@@ -2936,14 +2940,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cosmeticNarratorKeeperDesc =>
-      'A solemn, archival narrator: a short on-screen line with a cue at each public phase, the same for every player. Written text, not a recorded voice.';
+      'A solemn recorded keeper voice marks each public phase in an archival style, the same for every player.';
 
   @override
   String get cosmeticNarratorNoir => 'Noir Narrator';
 
   @override
   String get cosmeticNarratorNoirDesc =>
-      'A terse noir narrator: a short on-screen line with a cue at each public phase, the same for every player. Written text, not a recorded voice.';
+      'A terse recorded noir voice marks each public phase, the same for every player.';
 
   @override
   String get cosmeticBundleNocturne => 'Nocturne Collection';
@@ -3443,6 +3447,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inviteRewarded => 'Invite reward received.';
 
   @override
+  String inviteSettledNoCoinsNotice(String name) {
+    return '$name completed the invite conditions — it counts toward your invite progress.';
+  }
+
+  @override
   String get inviteNotFound => 'That code doesn\'t exist.';
 
   @override
@@ -3556,6 +3565,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get cosmeticFrameSealDesc =>
       'A wax-red seal ring with eight gold studs — the Starter Bundle\'s own frame.';
+
+  @override
+  String get cosmeticFrameInvite => 'Companions Frame';
+
+  @override
+  String get cosmeticFrameInviteDesc =>
+      'An exclusive frame earned when ten friends complete your invite conditions.';
 
   @override
   String get coinPayStep =>
@@ -4877,7 +4893,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storeChangesNarrator =>
-      'The narrator\'s lines and their look at every public phase, online and in pass-and-play — written, not a voice';
+      'The narrator\'s recorded voice, lines and look at every public phase, online and in pass-and-play';
 
   @override
   String get storeChangesBundle =>

@@ -265,15 +265,16 @@ begin
   st:=public.redeem_council_invite(v_invitee,v_code);
   assert st->>'status'='redeemed',st::text;
 
-  -- Match 1 (yesterday, with the v_inviter): v_invitee 50, v_inviter 25, two notices.
+  -- Match 1 (yesterday, with the v_inviter): the room-link promise settles
+  -- exactly once now: v_invitee 50 and v_inviter 100.
   r:=pg_temp.ev_room(array[v_invitee,v_inviter,pool[1],pool[2],pool[3]],pool[1],'town',y);
   perform public.sync_player_rewards(v_invitee);
   assert exists(select 1 from public.wallet_ledger where user_id=v_invitee
     and kind='council_invite_invitee' and amount=50),'v_invitee got 50';
   assert exists(select 1 from public.wallet_ledger where user_id=v_inviter
-    and kind='invite_inviter_stage' and amount=25 and source_key=v_invitee::text),'v_inviter got 25';
+    and kind='invite_inviter_stage' and amount=100 and source_key=v_invitee::text),'v_inviter got 100';
   assert (select count(*) from public.invite_notices where user_id=v_inviter
-    and kind='first_match' and name='Seat1' and coins=25)=1,'first-match notice carries the name last sat down with';
+    and kind='first_match' and name='Seat1' and coins=100)=1,'first-match notice carries the name last sat down with';
   assert (select count(*) from public.invite_notices where user_id=v_inviter
     and kind='progress' and progress=1)=1,'progress 1 of 3 notice';
   -- Replay pays nothing twice.
@@ -313,12 +314,12 @@ begin
   perform public.sync_player_rewards(v_invitee);
   assert (select settled_at is not null from public.council_invite_redemptions where invitee=v_invitee),
     'settled';
-  assert pg_temp.ev_balance(v_inviter)=bal_inviter+75,'v_inviter settlement 75';
+  assert pg_temp.ev_balance(v_inviter)=bal_inviter,'new referrals were already paid in full';
   assert exists(select 1 from public.invite_notices where user_id=v_inviter and kind='settled');
   perform public.sync_player_rewards(v_invitee);
   perform public.council_invite(v_inviter);
-  assert (select count(*) from public.wallet_ledger where user_id=v_inviter
-    and kind='invite_inviter_settlement')=1,'settlement once';
+  assert not exists(select 1 from public.wallet_ledger where user_id=v_inviter
+    and kind='invite_inviter_settlement'),'new referral was not paid twice';
 
   -- Inviter's read shows v3 progress and notices; ack clears them.
   st:=public.council_invite(v_inviter);
@@ -361,6 +362,11 @@ begin
     'settles once the season has room';
   assert (select array_agg(code order by code) from public.invite_unlocks where user_id=v_inviter)
     =array['frame_invite','title_kabir_elshella'],'three → title, ten → frame';
+  assert exists(select 1 from public.player_inventory
+    where user_id=v_inviter and item_code='frame_invite'),'invite frame enters inventory';
+  perform public.equip_reward_item(v_inviter,'frame','frame_invite');
+  assert (select item_code from public.player_equipment
+    where user_id=v_inviter and slot='frame')='frame_invite','invite frame equips';
   -- Lifetime cap forty.
   for i in 1..29 loop
     insert into public.council_invite_redemptions(invitee,inviter,code,rewarded_at,stage1_at,

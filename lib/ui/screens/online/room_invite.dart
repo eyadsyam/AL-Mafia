@@ -36,16 +36,40 @@ abstract final class RoomInvite {
   /// verifies this domain against `.well-known/assetlinks.json` and hands the
   /// link to the installed app, and a phone without the app opens the same
   /// room on the site. Nobody is asked to know which they are.
-  static String webLink(String code) => '${site}join/${code.toUpperCase()}';
+  static String webLink(String code, {String? referralCode}) => Uri.parse(
+    '${site}join/${code.toUpperCase()}',
+  ).replace(queryParameters: _referralQuery(referralCode)).toString();
 
   /// The deep link for a room code.
   ///
   /// Shaped so that `Uri.path` is the router's own path: go_router matches on
   /// the path and ignores the host, so this arrives as `/join/CODE`.
-  static String link(String code) =>
-      '$scheme://$host/join/${code.toUpperCase()}';
+  static String link(String code, {String? referralCode}) => Uri(
+    scheme: scheme,
+    host: host,
+    path: '/join/${code.toUpperCase()}',
+    queryParameters: _referralQuery(referralCode),
+  ).toString();
 
   /// The message a host sends. One line, the code in it, and the link after.
-  static String text(String invitation, String code) =>
-      '$invitation\n${webLink(code)}';
+  static String text(String invitation, String code, {String? referralCode}) =>
+      '$invitation\n${webLink(code, referralCode: referralCode)}';
+
+  static String? referral(Uri uri) {
+    final code = uri.queryParameters['ref']?.trim().toUpperCase();
+    return code != null &&
+            RegExp(r'^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{7}$').hasMatch(code)
+        ? code
+        : null;
+  }
+
+  static Map<String, String>? _referralQuery(String? code) {
+    final normalized = code?.trim().toUpperCase();
+    return normalized != null &&
+            RegExp(
+              r'^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{7}$',
+            ).hasMatch(normalized)
+        ? {'ref': normalized}
+        : null;
+  }
 }
