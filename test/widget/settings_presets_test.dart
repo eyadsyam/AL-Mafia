@@ -96,6 +96,14 @@ void main() {
     await tester.pump();
   }
 
+  testWidgets('no switch promises what nothing reads (launch audit A4)', (
+    tester,
+  ) async {
+    await pump(tester, initial: _unusual, onSave: (_) {});
+    expect(find.byKey(SettingsScreen.toggle('revealWhispers')), findsNothing);
+    expect(find.text(arStrings.settingRevealWhispers), findsNothing);
+  });
+
   testWidgets('saving without touching anything changes nothing', (
     tester,
   ) async {
@@ -163,7 +171,9 @@ void main() {
       // lost it.
       expect(
         find.textContaining(arStrings.settingsOnlineOnly),
-        findsAtLeastNWidgets(3),
+        // Two since «اكشف محتوى الهمسات» left (launch audit A4: nothing read
+        // it). Doc 14 still lists it; the owner decides whether to build it.
+        findsAtLeastNWidgets(2),
       );
     });
 
