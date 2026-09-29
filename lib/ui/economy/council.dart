@@ -199,6 +199,9 @@ class LeaderboardEntry {
   final String name;
   final String gender;
   final String? frame;
+
+  /// Store truth: the nameplate this player equipped.
+  final String? plate;
   final int level;
   final bool me;
   const LeaderboardEntry({
@@ -207,6 +210,7 @@ class LeaderboardEntry {
     required this.name,
     required this.gender,
     required this.frame,
+    this.plate,
     required this.level,
     required this.me,
   });
@@ -217,6 +221,7 @@ class LeaderboardEntry {
     name: j['name'] as String? ?? '',
     gender: j['gender'] as String? ?? 'unspecified',
     frame: j['frame'] as String?,
+    plate: j['plate'] as String?,
     level: _int(j['level'], 1),
     me: j['me'] == true,
   );

@@ -24,6 +24,10 @@ import 'distribution/role_reveal_screen.dart';
 import 'match_controller.dart';
 import '../economy/interstitial_coordinator.dart';
 import '../economy/pass_result_inventory.dart';
+import '../economy/cosmetics.dart' show NarrationBeat;
+import '../economy/my_cosmetics.dart';
+import '../economy/pass_table_dress.dart';
+import 'online/table/room_presentation.dart';
 import 'online/online_session.dart';
 import 'online/online_table_flow.dart';
 import 'online/table/table_scene.dart' show tableIsAvailableFor;
@@ -105,6 +109,13 @@ enum _Moment {
   night(null, AppImages.bgNight, AppVideo.bgNightLoop, NarratorBeat.night);
 
   const _Moment(this.cue, this.backdrop, this.loop, this.beat);
+
+  /// The public beat a narrator pack marks for this moment (store truth).
+  NarrationBeat get narration => switch (this) {
+    _Moment.morningDeath || _Moment.morningQuiet => NarrationBeat.morning,
+    _Moment.voting => NarrationBeat.voting,
+    _Moment.night => NarrationBeat.night,
+  };
 
   /// The narrator's beat for this moment (F16). The line plays over the words
   /// and the bed, on the table, and only if a pack is installed.
@@ -336,7 +347,10 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
 
     final moment = _moment;
     if (moment != null) {
-      return CinematicText(
+      return _presented(
+        state,
+        moment: moment.narration,
+        CinematicText(
         // Keyed so that two announcements in a row — a morning that resolves
         // straight into a win — really do play twice rather than the second
         // inheriting the first's finished animation.
@@ -352,6 +366,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
           if (moment == _Moment.voting) _revoteNext = false;
         },
         onComplete: _momentFinished,
+        ),
       );
     }
 
@@ -359,7 +374,8 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     // target being picked — passes straight through without a dip.
     final screen = PhaseTransition(
       phaseKey: state.phase,
-      child: _phaseScreen(state),
+      // Store truth: the host phone's pack and identity, public phases only.
+      child: PassTableDress(phase: state.phase, child: _phaseScreen(state)),
     );
 
     // The banner is one of the two widgets doc 10 §7 lets read the transport's
@@ -378,13 +394,48 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     // which the golden tests would notice if it were not.
     final voice = ref.watch(voiceStateProvider).valueOrNull;
 
-    if (!banner && voice == null) return screen;
-    return Column(
+    if (!banner && voice == null) return _presented(state, screen);
+    return _presented(
+      state,
+      Column(
+        children: [
+          if (banner)
+            SafeArea(
+              bottom: false,
+              child: ConnectionBanner(quality: connection),
+            ),
+          Expanded(child: screen),
+          if (voice != null) const SafeArea(top: false, child: VoiceControls()),
+        ],
+      ),
+    );
+  }
+
+  static const Key presentationKey = ValueKey('pass_presentation');
+
+  /// Store truth: the host phone's narrator and presentation packs over
+  /// «القعدة», the same layer the online table plays, limited to the phases
+  /// the phone lies flat for everybody. One tree for moments and screens so
+  /// the layer keeps its state across both.
+  Widget _presented(
+    MatchUiState state,
+    Widget content, {
+    NarrationBeat? moment,
+  }) {
+    final mine = ref.watch(myCosmeticsProvider);
+    if (mine.pack == null && mine.narrator == null) return content;
+    return Stack(
+      fit: StackFit.expand,
       children: [
-        if (banner)
-          SafeArea(bottom: false, child: ConnectionBanner(quality: connection)),
-        Expanded(child: screen),
-        if (voice != null) const SafeArea(top: false, child: VoiceControls()),
+        content,
+        RoomPresentationLayer.local(
+          key: presentationKey,
+          snapshot: _controller.snapshot,
+          packCode: mine.pack,
+          narratorCode: mine.narrator,
+          visibleIn: passCosmeticsVisibleIn,
+          moment: moment,
+        ),
       ],
     );
   }

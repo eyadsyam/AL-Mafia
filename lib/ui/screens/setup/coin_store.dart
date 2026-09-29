@@ -14,6 +14,7 @@ import '../../economy/council_hub.dart';
 import '../../economy/daily_rewards.dart';
 import '../../economy/economy_capabilities.dart';
 import '../../economy/play_offers.dart';
+import '../../economy/purchase_reveal.dart';
 import '../../../platform/monetization/play_billing.dart';
 import '../../economy/store_art.dart';
 import '../../economy/mafia_coin.dart';
@@ -130,6 +131,7 @@ class CoinStore extends ConsumerStatefulWidget {
   static Key item(String code) => ValueKey('store_item_$code');
   static Key buy(String code) => ValueKey('store_buy_$code');
   static Key equip(String code) => ValueKey('store_equip_$code');
+  static Key tryOn(String code) => ValueKey('store_try_on_$code');
   static Key rail(String section) => PageStorageKey('store_rail_$section');
   static Key railNext(String section) => ValueKey('store_rail_next_$section');
   static const Key confirmBuy = ValueKey('store_confirm_buy');
@@ -192,7 +194,17 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
     _busy.value = true;
     try {
       await ref.read(walletProvider.notifier).buy(item.code);
-      if (mounted) _say(l.storeBought);
+      if (mounted) {
+        _busy.value = false;
+        // Store truth: the item doing its job on the buyer, with one tap to
+        // wear it (a bundle lists its parts, all now owned).
+        final slot = Cosmetics.items[item.code]?.slot;
+        await showPurchaseReveal(
+          context,
+          code: item.code,
+          onEquip: slot == null ? null : (slot, code) => _equip(slot, code),
+        );
+      }
     } on WalletActionFailed catch (error) {
       if (!mounted) return;
       final balance = ref.read(walletProvider).valueOrNull?.balance ?? 0;
@@ -1081,10 +1093,18 @@ class _CollectionTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    // Worn first, then by kind (frames, plates, packs, narrators), then name.
     final owned = [
       for (final code in wallet.owned)
         if (Cosmetics.items[code]?.slot != null) code,
-    ]..sort();
+    ]..sort((a, b) {
+        final wa = wallet.equipped.values.contains(a) ? 0 : 1;
+        final wb = wallet.equipped.values.contains(b) ? 0 : 1;
+        if (wa != wb) return wa - wb;
+        final ka = Cosmetics.items[a]!.kind.index;
+        final kb = Cosmetics.items[b]!.kind.index;
+        return ka != kb ? ka - kb : a.compareTo(b);
+      });
     if (owned.isEmpty) {
       return Center(
         child: Text(l.storeEmptyCollection, style: context.typography.body),
@@ -1108,14 +1128,37 @@ class _CollectionTab extends StatelessWidget {
                     child: StoreProductArt(code: code),
                   ),
                   title: Text(cosmetic.name(l)),
-                  subtitle: equipped ? Text(l.storeEquipped) : null,
+                  // Store truth: where it shows, and whether it is worn.
+                  subtitle: Text(
+                    equipped
+                        ? '${l.storeWearing} · ${storeWhatItChanges(l, cosmetic.kind)}'
+                        : storeWhatItChanges(l, cosmetic.kind),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: equipped
+                        ? context.typography.caption.copyWith(
+                            color: VaultTokens.gold,
+                          )
+                        : context.typography.caption,
+                  ),
                   onTap: () => onOpen(code),
-                  trailing: TextButton(
-                    key: CoinStore.equip(code),
-                    onPressed: busy
-                        ? null
-                        : () => onEquip(slot, equipped ? null : code),
-                    child: Text(equipped ? l.storeUnequip : l.storeEquip),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        key: CoinStore.tryOn(code),
+                        tooltip: l.storeTryOn,
+                        icon: const Icon(Icons.visibility_outlined),
+                        onPressed: () => showTryOn(context, code),
+                      ),
+                      TextButton(
+                        key: CoinStore.equip(code),
+                        onPressed: busy
+                            ? null
+                            : () => onEquip(slot, equipped ? null : code),
+                        child: Text(equipped ? l.storeUnequip : l.storeEquip),
+                      ),
+                    ],
                   ),
                 ),
               );

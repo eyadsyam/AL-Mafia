@@ -8,6 +8,8 @@ import '../../../platform/tilt_source.dart';
 import '../../l10n_ext.dart';
 import '../../fun/character_dossiers.dart';
 import '../../fun/loaded_capabilities.dart';
+import '../../economy/my_identity.dart';
+import '../../social/titles_partner.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
@@ -129,6 +131,9 @@ class HomeScreen extends ConsumerWidget {
                 child: Stack(
                   children: [
                     _corner(context, l10n),
+                    // Store truth: this player's own chip, dressed with what
+                    // they equipped; a tap opens Profile.
+                    _identityChip(context),
                     _titleAndAction(
                       context,
                       colors: colors,
@@ -157,6 +162,32 @@ class HomeScreen extends ConsumerWidget {
   /// carries the argument for why this sound is allowed to exist.
   void _flipSound(WidgetRef ref) =>
       ref.read(audioDirectorProvider).playCardTurn();
+
+  static const Key identityChipKey = ValueKey('home_identity_chip');
+
+  Widget _identityChip(BuildContext context) => Align(
+    alignment: AlignmentDirectional.topStart,
+    child: Padding(
+      // Below the corner buttons, so the two never share a row on a phone.
+      padding: EdgeInsetsDirectional.only(
+        start: context.spacing.sm,
+        top: context.spacing.sm + kMinInteractiveDimension,
+      ),
+      child: InkWell(
+        key: identityChipKey,
+        borderRadius: BorderRadius.circular(context.radii.button),
+        onTap: onProfile,
+        child: Padding(
+          padding: EdgeInsets.all(context.spacing.xs),
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [MyIdentityBadge(), EquippedTitleLine()],
+          ),
+        ),
+      ),
+    ),
+  );
 
   /// Secondary actions, small, in the top corner, out of the spread's way.
   Widget _corner(BuildContext context, AppLocalizations l10n) {

@@ -8154,6 +8154,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open rewards'**
   String get passInventoryOpen;
+
+  /// No description provided for @profilePlatePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name shows as:'**
+  String get profilePlatePreview;
+
+  /// No description provided for @storeRevealTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s yours'**
+  String get storeRevealTitle;
+
+  /// No description provided for @storeEquipNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Wear it now'**
+  String get storeEquipNow;
+
+  /// No description provided for @storeEquipLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get storeEquipLater;
+
+  /// No description provided for @storeRevealDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get storeRevealDone;
+
+  /// No description provided for @storeChangesFrame.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows around your portrait at the table, on your profile, for your friends and on the Council board'**
+  String get storeChangesFrame;
+
+  /// No description provided for @storeChangesPlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name shows on it at the table, on your profile, for your friends and on the result'**
+  String get storeChangesPlate;
+
+  /// No description provided for @storeChangesPack.
+  ///
+  /// In en, this message translates to:
+  /// **'Dresses rooms you host: the public phases\' backdrop and transitions, online and in pass-and-play'**
+  String get storeChangesPack;
+
+  /// No description provided for @storeChangesNarrator.
+  ///
+  /// In en, this message translates to:
+  /// **'The narrator\'s lines and their look at every public phase, online and in pass-and-play — written, not a voice'**
+  String get storeChangesNarrator;
+
+  /// No description provided for @storeChangesBundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything in it is yours; wear any part from your collection'**
+  String get storeChangesBundle;
+
+  /// No description provided for @storeTryOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Try it on'**
+  String get storeTryOn;
+
+  /// No description provided for @storeWearing.
+  ///
+  /// In en, this message translates to:
+  /// **'Wearing now'**
+  String get storeWearing;
+
+  /// No description provided for @titlesHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Your titles'**
+  String get titlesHeading;
+
+  /// No description provided for @partnerCasebookLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{who}: every case you close is written here'**
+  String partnerCasebookLine(String who);
+
+  /// No description provided for @lobbyReadyCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds}s left to confirm you\'re ready'**
+  String lobbyReadyCountdown(int seconds);
 }
 
 class _AppLocalizationsDelegate

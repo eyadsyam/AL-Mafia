@@ -91,15 +91,36 @@ class PresentationPack {
   });
 }
 
+/// How a narrator pack's line looks: its own ground, rule, ink, type and the
+/// marker drawn beside every line. The spoken voice (F16) is one free voice
+/// for everybody; a pack is its words and this look, never a voice.
+@immutable
+class NarratorLook {
+  final Color ground;
+  final Color rule;
+  final Color ink;
+  final bool italic;
+  final IconData marker;
+  const NarratorLook({
+    required this.ground,
+    required this.rule,
+    required this.ink,
+    required this.italic,
+    required this.marker,
+  });
+}
+
 @immutable
 class NarratorPack {
   final String code;
   final String accent;
   final String Function(AppLocalizations, NarrationBeat) line;
+  final NarratorLook look;
   const NarratorPack({
     required this.code,
     required this.accent,
     required this.line,
+    required this.look,
   });
 }
 
@@ -363,16 +384,37 @@ abstract final class Cosmetics {
       code: 'narrator_storyteller',
       accent: AppAudio.speakerChange,
       line: _storyteller,
+      look: NarratorLook(
+        ground: StoreTruthTokens.storytellerGround,
+        rule: StoreTruthTokens.storytellerRule,
+        ink: StoreTruthTokens.storytellerInk,
+        italic: true,
+        marker: Icons.auto_stories_rounded,
+      ),
     ),
     'narrator_keeper': const NarratorPack(
       code: 'narrator_keeper',
       accent: AppAudio.cardFlip,
       line: _keeper,
+      look: NarratorLook(
+        ground: StoreTruthTokens.keeperGround,
+        rule: StoreTruthTokens.keeperRule,
+        ink: StoreTruthTokens.keeperInk,
+        italic: false,
+        marker: Icons.key_rounded,
+      ),
     ),
     'narrator_noir': const NarratorPack(
       code: 'narrator_noir',
       accent: AppAudio.confrontationSwell,
       line: _noir,
+      look: NarratorLook(
+        ground: StoreTruthTokens.noirGround,
+        rule: StoreTruthTokens.noirRule,
+        ink: StoreTruthTokens.noirInk,
+        italic: false,
+        marker: Icons.nightlight_round,
+      ),
     ),
   };
 

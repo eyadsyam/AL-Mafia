@@ -489,9 +489,15 @@ class _TransitionPainter extends CustomPainter {
 /// every device; nothing waits for it.
 class NarrationCaption extends StatelessWidget {
   final String? text;
-  const NarrationCaption({super.key, required this.text});
+
+  /// The narrator pack whose look the line wears (store truth): its ground,
+  /// rule, ink and marker. Null is the neutral caption (a presentation pack's
+  /// own intro/outro line, or the night line).
+  final NarratorPack? narrator;
+  const NarrationCaption({super.key, required this.text, this.narrator});
 
   static const Key captionKey = ValueKey('narration_caption');
+  static Key markerKey(String code) => ValueKey('narration_marker_$code');
 
   @override
   Widget build(BuildContext context) {
@@ -502,25 +508,51 @@ class NarrationCaption extends StatelessWidget {
           : context.motion.standard,
       child: line == null
           ? const SizedBox.shrink()
-          : Container(
-              key: ValueKey(line),
-              padding: EdgeInsets.symmetric(
-                horizontal: context.spacing.md,
-                vertical: context.spacing.sm,
+          : _line(context, line),
+    );
+  }
+
+  Widget _line(BuildContext context, String line) {
+    final look = narrator?.look;
+    final text = Text(
+      line,
+      key: captionKey,
+      textAlign: TextAlign.center,
+      style: context.typography.body.copyWith(
+        color: look?.ink ?? context.colors.textPrimary,
+        fontStyle: (look?.italic ?? true) ? FontStyle.italic : FontStyle.normal,
+      ),
+    );
+    return Container(
+      key: ValueKey(line),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.spacing.md,
+        vertical: context.spacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: look?.ground ?? context.colors.surfaceOverlay,
+        borderRadius: BorderRadius.circular(context.radii.card),
+        border: look == null
+            ? null
+            : Border.all(
+                color: look.rule,
+                width: StoreTruthTokens.narratorBorderWidth,
               ),
-              decoration: BoxDecoration(
-                color: context.colors.surfaceOverlay,
-                borderRadius: BorderRadius.circular(context.radii.card),
-              ),
-              child: Text(
-                line,
-                key: captionKey,
-                textAlign: TextAlign.center,
-                style: context.typography.body.copyWith(
-                  color: context.colors.textPrimary,
-                  fontStyle: FontStyle.italic,
+      ),
+      child: look == null
+          ? text
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  look.marker,
+                  key: markerKey(narrator!.code),
+                  size: StoreTruthTokens.narratorMarker,
+                  color: look.rule,
                 ),
-              ),
+                SizedBox(width: context.spacing.sm),
+                Flexible(child: text),
+              ],
             ),
     );
   }

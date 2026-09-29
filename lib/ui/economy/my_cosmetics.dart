@@ -76,9 +76,13 @@ class MyCosmeticsController extends Notifier<MyCosmetics> {
       final fresh = MyCosmetics.fromEquipped(wallet.equipped);
       if (fresh != state) state = fresh;
       _save(fresh);
-    }, fireImmediately: true);
+    });
     final wallet = ref.read(walletProvider).valueOrNull;
-    if (wallet != null) return MyCosmetics.fromEquipped(wallet.equipped);
+    if (wallet != null) {
+      final fresh = MyCosmetics.fromEquipped(wallet.equipped);
+      _save(fresh);
+      return fresh;
+    }
     _restore();
     return MyCosmetics.none;
   }

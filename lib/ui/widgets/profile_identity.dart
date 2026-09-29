@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../engine/models/player.dart';
+import '../economy/cosmetic_paint.dart';
 import '../l10n_ext.dart';
 import '../theme/mafia_theme.dart';
 import 'gender_picker.dart';
@@ -26,6 +27,11 @@ class ProfileIdentityFields extends StatelessWidget {
   final ValueChanged<String>? onSubmitted;
   final double avatarDiameter;
 
+  /// Store truth: the frame and nameplate this player equipped, drawn on the
+  /// avatar and on the name exactly as the table draws them. Null for none.
+  final String? frame;
+  final String? plate;
+
   const ProfileIdentityFields({
     super.key,
     required this.name,
@@ -35,7 +41,11 @@ class ProfileIdentityFields extends StatelessWidget {
     required this.avatarDiameter,
     this.onNameChanged,
     this.onSubmitted,
+    this.frame,
+    this.plate,
   });
+
+  static const Key platePreviewKey = ValueKey('profile_plate_preview');
 
   static const int maxNameLength = 20;
 
@@ -47,10 +57,14 @@ class ProfileIdentityFields extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(
-          child: PlayerAvatar(
-            name: name.text,
-            gender: gender,
+          child: CosmeticFrameRing(
+            frame: frame,
             diameter: avatarDiameter,
+            child: PlayerAvatar(
+              name: name.text,
+              gender: gender,
+              diameter: avatarDiameter,
+            ),
           ),
         ),
         SizedBox(height: s.md),
@@ -63,6 +77,30 @@ class ProfileIdentityFields extends StatelessWidget {
           onSubmitted: onSubmitted,
           decoration: InputDecoration(labelText: l.onlineYourName),
         ),
+        if (plate != null && name.text.trim().isNotEmpty)
+          Padding(
+            key: platePreviewKey,
+            padding: EdgeInsets.only(bottom: s.sm),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  l.profilePlatePreview,
+                  style: context.typography.caption.copyWith(
+                    color: context.colors.textMuted,
+                  ),
+                ),
+                SizedBox(width: s.sm),
+                Flexible(
+                  child: CosmeticNameplate(
+                    name: name.text.trim(),
+                    plate: plate,
+                    style: context.typography.body,
+                  ),
+                ),
+              ],
+            ),
+          ),
         SettingsSegments<PlayerGender>(
           label: l.profileAddressLabel,
           hint: l.profileAddressHint,

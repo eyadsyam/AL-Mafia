@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/asset_constants.dart';
+import '../economy/cosmetic_paint.dart';
 import '../economy/economy_capabilities.dart';
 import '../l10n_ext.dart';
 import '../theme/design_tokens.dart';
@@ -43,12 +44,19 @@ class FriendEntry {
   final String gender;
   final FriendPresence presence;
   final int matches;
+
+  /// Store truth: the frame and nameplate this person equipped. Public, like
+  /// the two codes every seat already shows at the table.
+  final String? frame;
+  final String? plate;
   const FriendEntry({
     required this.id,
     required this.name,
     this.gender = 'unspecified',
     this.presence = const FriendPresence(FriendPlace.away),
     this.matches = 0,
+    this.frame,
+    this.plate,
   });
 
   static FriendEntry? fromJson(Object? json) {
@@ -59,6 +67,8 @@ class FriendEntry {
       gender: (json['gender'] as String?) ?? 'unspecified',
       presence: FriendPresence.fromJson(json['presence']),
       matches: (json['matches'] as num?)?.toInt() ?? 0,
+      frame: json['frame'] is String ? json['frame'] as String : null,
+      plate: json['plate'] is String ? json['plate'] as String : null,
     );
   }
 }
@@ -365,6 +375,8 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
                 _Row(
                   name: f.name,
                   gender: f.gender,
+                  frame: f.frame,
+                  plate: f.plate,
                   line: l.friendsWantsYou,
                   action: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -392,6 +404,8 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
               _Row(
                 name: f.name,
                 gender: f.gender,
+                frame: f.frame,
+                plate: f.plate,
                 line: switch (f.presence.place) {
                   FriendPlace.lobby => l.friendsInLobby(f.presence.players),
                   FriendPlace.playing => l.friendsPlaying,
@@ -434,6 +448,8 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
                 _Row(
                   name: f.name,
                   gender: f.gender,
+                  frame: f.frame,
+                  plate: f.plate,
                   line: l.friendsMatchesTogether(f.matches),
                   action: friends.outgoing.any((o) => o.id == f.id)
                       ? Text(
@@ -459,12 +475,16 @@ class _Row extends StatelessWidget {
   final String line;
   final Widget? action;
   final bool lit;
+  final String? frame;
+  final String? plate;
   const _Row({
     required this.name,
     required this.gender,
     required this.line,
     this.action,
     this.lit = false,
+    this.frame,
+    this.plate,
   });
 
   @override
@@ -476,30 +496,19 @@ class _Row extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: s.xs),
       child: Row(
         children: [
-          SizedBox.square(
-            dimension: FriendsTokens.avatar,
-            child: FeatheredArt(
-              feather: Feather.portrait,
-              halo: lit,
-              child: Image.asset(
-                gender == 'female'
-                    ? AppCouncilArt.avatarFemale
-                    : AppCouncilArt.avatarMale,
-                fit: BoxFit.contain,
-                color: lit ? colors.accentGold : colors.textSecondary,
-                excludeFromSemantics: true,
-              ),
-            ),
+          CosmeticFrameRing(
+            frame: frame,
+            diameter: FriendsTokens.avatar,
+            child: _avatar(colors),
           ),
           SizedBox(width: s.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                CosmeticNameplate(
+                  name: name,
+                  plate: plate,
                   style: type.body.emphasised.copyWith(
                     color: colors.textPrimary,
                   ),
@@ -520,4 +529,20 @@ class _Row extends StatelessWidget {
       ),
     );
   }
+
+  Widget _avatar(MafiaColors colors) => SizedBox.square(
+    dimension: FriendsTokens.avatar,
+    child: FeatheredArt(
+      feather: Feather.portrait,
+      halo: lit,
+      child: Image.asset(
+        gender == 'female'
+            ? AppCouncilArt.avatarFemale
+            : AppCouncilArt.avatarMale,
+        fit: BoxFit.contain,
+        color: lit ? colors.accentGold : colors.textSecondary,
+        excludeFromSemantics: true,
+      ),
+    ),
+  );
 }

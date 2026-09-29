@@ -1217,6 +1217,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           if (_roster)
             RoleRoster(
               standings: snapshot.standings,
+              cosmetics: snapshot.seatCosmetics,
               onClose: () => setState(() => _roster = false),
             ),
           // Task 5 — one line, three seconds, over whatever is on screen. It

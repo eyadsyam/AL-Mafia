@@ -1851,5 +1851,22 @@
   "passInventoryDailyAd": "إعلان اليوم بمكافأته",
   "passInventoryExtraSpin": "لفة زيادة للعجلة",
   "passInventoryExtraCoffer": "خزنة زيادة",
-  "passInventoryOpen": "افتح المكافآت"
+  "passInventoryOpen": "افتح المكافآت",
+  "profilePlatePreview": "كده اسمك بيبان:",
+  "storeRevealTitle": "بقى بتاعك",
+  "storeEquipNow": "البسه دلوقتي",
+  "storeEquipLater": "بعدين",
+  "storeRevealDone": "تمام",
+  "storeChangesFrame": "بيظهر حوالين صورتك في الترابيزة والبروفايل والأصحاب ولوحة المجلس",
+  "storeChangesPlate": "اسمك بيظهر عليه في الترابيزة والبروفايل والأصحاب والنتيجة",
+  "storeChangesPack": "بيلبّس الأوضة اللي انت هوستها: خلفية المراحل العامة وانتقالاتها، أونلاين وفي القعدة",
+  "storeChangesNarrator": "جمل الراوي وشكلها في كل مرحلة عامة، أونلاين وفي القعدة — كلام مكتوب، مش صوت",
+  "storeChangesBundle": "كل حاجة فيها بقت عندك، والبس اللي تحبه من المجموعة",
+  "storeTryOn": "جرّبه",
+  "storeWearing": "لابسه دلوقتي",
+  "titlesHeading": "ألقابك",
+  "partnerCasebookLine": "{who}: كل قضية بتقفلها بتتكتب هنا",
+  "@partnerCasebookLine": {"placeholders": {"who": {"type": "String"}}},
+  "lobbyReadyCountdown": "فاضل {seconds} ثانية تأكد إنك جاهز",
+  "@lobbyReadyCountdown": {"placeholders": {"seconds": {"type": "int"}}}
 }

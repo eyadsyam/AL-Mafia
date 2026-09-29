@@ -63,13 +63,19 @@ class AppBackdrop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    // Only a surface with art may be dressed: in-hand surfaces pass no image
+    // and stay charcoal whatever an ancestor asks for.
+    final dress = image == null ? null : BackdropDressing.maybeOf(context);
 
     return DecoratedBox(
       decoration: BoxDecoration(color: colors.surfaceBase),
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (image != null) AmbientMedia(still: image!, loop: loop),
+          if (image != null)
+            dress == null
+                ? AmbientMedia(still: image!, loop: loop)
+                : dress(AmbientMedia(still: image!, loop: loop)),
           const RepaintBoundary(
             child: _CanvasWeave(opacity: _CanvasWeave.backdrop),
           ),
@@ -78,6 +84,21 @@ class AppBackdrop extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Dresses the art behind every [AppBackdrop] below it (store truth: the host
+/// phone's presentation pack over «القعدة»'s public screens). Knows nothing
+/// about cosmetics: whoever provides it decides what the dressing is and
+/// provides it only in public phases. Surfaces without art ignore it.
+class BackdropDressing extends InheritedWidget {
+  final Widget Function(Widget background) dress;
+  const BackdropDressing({super.key, required this.dress, required super.child});
+
+  static Widget Function(Widget)? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<BackdropDressing>()?.dress;
+
+  @override
+  bool updateShouldNotify(BackdropDressing old) => old.dress != dress;
 }
 
 /// Ignores pointers and semantics — it is paint, and it must never sit between

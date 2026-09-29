@@ -45,6 +45,7 @@ import 'table/table_scene.dart';
 import '../../economy/waiting_banner.dart';
 import '../../economy/economy_capabilities.dart';
 import '../../social/friends.dart';
+import '../../social/titles_partner.dart';
 
 /// S-21 — the room, before it is a match (doc 12 §3.1).
 ///
@@ -710,6 +711,22 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                         // ready, then the gold mark with a
                                         // quiet way back; the room's count
                                         // as a metal bar under it.
+                                        // F10: equipped titles on the pre-deal
+                                        // roster (the server answers only for
+                                        // a lobby or a finished room).
+                                        if (snapshot != null &&
+                                            session.transport != null)
+                                          LobbyTitlesStrip(
+                                            key: ValueKey(
+                                              'titles-${snapshot.lobbyRevision}-${players.length}',
+                                            ),
+                                            backend: session.transport!.backend,
+                                            roomId: session.transport!.roomId,
+                                            names: {
+                                              for (final p in players)
+                                                p.seat: p.name,
+                                            },
+                                          ),
                                         if (lobbyReadyEnabled &&
                                             snapshot != null) ...[
                                           if (viewerReady)
@@ -750,6 +767,17 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                                   style: type.title,
                                                 ),
                                               ),
+                                            ),
+                                          // F8 + D9: this seat's one 45 s
+                                          // deadline, on the local clock.
+                                          if (!viewerReady &&
+                                              snapshot.viewerSeat != null)
+                                            ReadyCountdown(
+                                              deadline: session.transport
+                                                  ?.onLocalClock(
+                                                    snapshot.lobbyReadyDeadlines[
+                                                        snapshot.viewerSeat],
+                                                  ),
                                             ),
                                           SizedBox(height: spacing.sm),
                                           VaultBar(
@@ -996,6 +1024,71 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
           isEmpty: true,
         ),
     ];
+  }
+}
+
+/// F8: the seconds this seat has left to confirm, already on the local clock
+/// (the transport's `onLocalClock`, D9), so every phone shows the same number
+/// whatever its own clock says. Nothing without a deadline or once it passes.
+class ReadyCountdown extends StatefulWidget {
+  final DateTime? deadline;
+  const ReadyCountdown({super.key, required this.deadline});
+
+  static const Key countdownKey = ValueKey('lobby_ready_countdown');
+
+  @override
+  State<ReadyCountdown> createState() => _ReadyCountdownState();
+}
+
+class _ReadyCountdownState extends State<ReadyCountdown> {
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    _arm();
+  }
+
+  @override
+  void didUpdateWidget(ReadyCountdown old) {
+    super.didUpdateWidget(old);
+    if (old.deadline != widget.deadline) _arm();
+  }
+
+  void _arm() {
+    _tick?.cancel();
+    if (widget.deadline == null) return;
+    _tick = Timer.periodic(StoreTruthTokens.countdownTick, (_) {
+      if (!mounted) return;
+      setState(() {});
+      final left = widget.deadline?.difference(DateTime.now());
+      if (left == null || left.isNegative) _tick?.cancel();
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final deadline = widget.deadline;
+    if (deadline == null) return const SizedBox.shrink();
+    final left = deadline.difference(DateTime.now());
+    if (left.isNegative) return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsets.only(top: context.spacing.xs),
+      child: Text(
+        context.l10n.lobbyReadyCountdown(left.inSeconds + 1),
+        key: ReadyCountdown.countdownKey,
+        textAlign: TextAlign.center,
+        style: context.typography.caption.copyWith(
+          color: context.colors.accentGold,
+        ),
+      ),
+    );
   }
 }
 

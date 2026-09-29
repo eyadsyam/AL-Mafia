@@ -363,6 +363,11 @@ class GameSnapshot {
   /// Public pre-deal confirmation for the current lobby revision.
   final Set<int> lobbyReadySeats;
   final Set<int> lobbyReadyExpiredSeats;
+
+  /// Each unready seat's one ready deadline for this revision, on the
+  /// server's clock (F8). Screens convert it with the transport's
+  /// `onLocalClock` before counting down (D9).
+  final Map<int, DateTime> lobbyReadyDeadlines;
   final int lobbyRevision;
 
   /// The seats the host has silenced for the whole room (task 6).
@@ -457,6 +462,7 @@ class GameSnapshot {
     this.readyToVoteSeats = const {},
     this.lobbyReadySeats = const {},
     this.lobbyReadyExpiredSeats = const {},
+    this.lobbyReadyDeadlines = const {},
     this.lobbyRevision = 0,
     this.unseenRoleSeats = const {},
     this.presence = const {},
@@ -499,6 +505,7 @@ class GameSnapshot {
     Set<int>? readyToVoteSeats,
     Set<int>? lobbyReadySeats,
     Set<int>? lobbyReadyExpiredSeats,
+    Map<int, DateTime>? lobbyReadyDeadlines,
     int? lobbyRevision,
     Set<int>? unseenRoleSeats,
     Map<int, SeatPresence>? presence,
@@ -543,6 +550,7 @@ class GameSnapshot {
     lobbyReadySeats: lobbyReadySeats ?? this.lobbyReadySeats,
     lobbyReadyExpiredSeats:
         lobbyReadyExpiredSeats ?? this.lobbyReadyExpiredSeats,
+    lobbyReadyDeadlines: lobbyReadyDeadlines ?? this.lobbyReadyDeadlines,
     lobbyRevision: lobbyRevision ?? this.lobbyRevision,
     unseenRoleSeats: unseenRoleSeats ?? this.unseenRoleSeats,
     presence: presence ?? this.presence,

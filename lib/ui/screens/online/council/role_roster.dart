@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../engine/models/enums.dart' hide Alignment;
-import '../../../../transport/game_snapshot.dart' show FinalStanding;
+import '../../../../transport/game_snapshot.dart' show FinalStanding, SeatCosmetics;
+import '../../../economy/cosmetic_paint.dart';
 import '../../../l10n_ext.dart';
 import '../../../theme/design_tokens.dart';
 import '../../../theme/mafia_theme.dart';
@@ -21,11 +22,16 @@ class RosterCard extends StatelessWidget {
   /// have implied an order the server does not keep (§1.4).
   final String position;
 
+  /// Store truth: this player's equipped nameplate. The result is public, so
+  /// what each player wears is shown with their card.
+  final String? plate;
+
   const RosterCard({
     super.key,
     required this.name,
     required this.role,
     required this.position,
+    this.plate,
   });
 
   @override
@@ -58,8 +64,9 @@ class RosterCard extends StatelessWidget {
           ),
         ),
         SizedBox(height: spacing.md),
-        Text(
-          name,
+        CosmeticNameplate(
+          name: name,
+          plate: plate,
           textAlign: TextAlign.center,
           style: type.title.copyWith(color: colors.textPrimary),
         ),
@@ -122,7 +129,15 @@ class RoleRoster extends StatefulWidget {
   /// Called when the player is done looking.
   final VoidCallback onClose;
 
-  const RoleRoster({super.key, required this.standings, required this.onClose});
+  /// What each seat wears (store truth), by seat.
+  final Map<int, SeatCosmetics> cosmetics;
+
+  const RoleRoster({
+    super.key,
+    required this.standings,
+    required this.onClose,
+    this.cosmetics = const {},
+  });
 
   static const Key page = ValueKey('council_role_roster');
   static const Key pager = ValueKey('council_role_roster_pager');
@@ -175,6 +190,7 @@ class _RoleRosterState extends State<RoleRoster> {
                     name: roster[index].name,
                     role: roster[index].role,
                     position: l10n.onlineRosterOf(index + 1, roster.length),
+                    plate: widget.cosmetics[roster[index].seat]?.plate,
                   ),
                 ),
               ),
