@@ -3335,7 +3335,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String inviteBody(int inviter, int invitee) {
-    return 'لما صاحبك يخلّص أول ماتش أونلاين: انت +$inviter وهو +$invitee.';
+    return '١. ابعت الكود أو لينك أوضتك لصاحب لسه منزّل اللعبة (خلال أول ٧ أيام).\n٢. يفتح اللينك، أو يكتب الكود في «معاك كود دعوة؟» في المجلس.\n٣. أول ما يخلّص أول ماتش أونلاين: انت +$inviter وهو +$invitee.';
   }
 
   @override

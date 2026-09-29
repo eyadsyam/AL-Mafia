@@ -3408,7 +3408,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String inviteBody(int inviter, int invitee) {
-    return 'When your friend finishes their first online match: you +$inviter, they +$invitee.';
+    return '1. Send your code or room link to a friend who just installed the game (within 7 days).\n2. They open the link, or type the code under «Have an invite code?» in the Council.\n3. When they finish their first online match: you +$inviter, they +$invitee.';
   }
 
   @override

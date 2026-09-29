@@ -2164,7 +2164,7 @@
   "leaderboardVisibleLabel": "Show me on the leaderboard",
   "leaderboardVisibleBody": "Your name, look and rank appear on the weekly board. Nothing about your matches is shown.",
   "inviteTitle": "Invite a friend",
-  "inviteBody": "When your friend finishes their first online match: you +{inviter}, they +{invitee}.",
+  "inviteBody": "1. Send your code or room link to a friend who just installed the game (within 7 days).\n2. They open the link, or type the code under «Have an invite code?» in the Council.\n3. When they finish their first online match: you +{inviter}, they +{invitee}.",
   "@inviteBody": {
     "placeholders": {
       "inviter": {

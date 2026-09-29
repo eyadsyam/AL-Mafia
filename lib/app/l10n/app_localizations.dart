@@ -5861,7 +5861,7 @@ abstract class AppLocalizations {
   /// No description provided for @inviteBody.
   ///
   /// In en, this message translates to:
-  /// **'When your friend finishes their first online match: you +{inviter}, they +{invitee}.'**
+  /// **'1. Send your code or room link to a friend who just installed the game (within 7 days).\n2. They open the link, or type the code under «Have an invite code?» in the Council.\n3. When they finish their first online match: you +{inviter}, they +{invitee}.'**
   String inviteBody(int inviter, int invitee);
 
   /// No description provided for @inviteCopy.
