@@ -22,7 +22,6 @@ import 'package:mafia_master/platform/tilt_source.dart';
 import 'package:mafia_master/transport/game_snapshot.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/transport/online_transport.dart';
-import 'package:mafia_master/transport/witness_channel.dart';
 import 'package:mafia_master/ui/economy/council.dart';
 import 'package:mafia_master/ui/economy/council_hub.dart';
 import 'package:mafia_master/ui/economy/daily_rewards.dart';
@@ -36,7 +35,6 @@ import 'package:mafia_master/ui/screens/day/discussion_screen.dart';
 import 'package:mafia_master/ui/screens/match_controller.dart';
 import 'package:mafia_master/ui/screens/online/online_table_flow.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
-import 'package:mafia_master/ui/screens/online/witness/witness_panel.dart';
 import 'package:mafia_master/ui/screens/postgame/result_screen.dart';
 import 'package:mafia_master/ui/screens/setup/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -117,23 +115,6 @@ List<RoomPlayer> _players({bool firstDead = false}) => [
     ),
 ];
 
-GameSnapshot _witnessSnapshot() => GameSnapshot(
-  public: PublicMatchView(
-    phase: engine.GamePhase.discussion,
-    dayNumber: 3,
-    players: [
-      for (var seat = 0; seat < _names.length; seat++)
-        PublicPlayer(
-          seat: seat,
-          name: _names[seat],
-          status: seat == 0
-              ? engine.PlayerStatus.dead
-              : engine.PlayerStatus.alive,
-        ),
-    ],
-  ),
-  viewerSeat: 0,
-);
 
 void main() {
   final out = Directory('build/store_listing')..createSync(recursive: true);
