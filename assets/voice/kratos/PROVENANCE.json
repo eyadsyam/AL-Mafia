@@ -1,0 +1,60 @@
+{
+  "pack": "kratos",
+  "voice_id": "R1hq8f4mfX3N88Om3Nb7",
+  "commercial_use_authorization": "PENDING — recorded by the owner before any line ships",
+  "voice_origin": "PENDING — designed or cloned (run --probe)",
+  "renders": [
+    {
+      "id": "win_mafia_01",
+      "text_sha256": "d0b2bf622f4ddde010abcd9c0299ab137be567136a3da34393d4c2e75f299615",
+      "model": "eleven_multilingual_v2",
+      "settings": {
+        "stability": 0.45,
+        "similarity_boost": 0.85,
+        "style": 0.35,
+        "use_speaker_boost": true
+      },
+      "rendered_at": "2026-09-29T17:15:13.359Z",
+      "bytes": 58140
+    },
+    {
+      "id": "win_mafia_02",
+      "text_sha256": "1f466335f2f28dea49d8a36cf2b14f99d041ca270fb1303f2d100d17856164ca",
+      "model": "eleven_multilingual_v2",
+      "settings": {
+        "stability": 0.45,
+        "similarity_boost": 0.85,
+        "style": 0.35,
+        "use_speaker_boost": true
+      },
+      "rendered_at": "2026-09-29T17:15:15.437Z",
+      "bytes": 74022
+    },
+    {
+      "id": "brand_01",
+      "text_sha256": "41e35c770acb5b1c8e8aa96ff8d404b9c4adcc82153a567e1e7bf6f13e43cdf3",
+      "model": "eleven_multilingual_v2",
+      "settings": {
+        "stability": 0.45,
+        "similarity_boost": 0.85,
+        "style": 0.35,
+        "use_speaker_boost": true
+      },
+      "rendered_at": "2026-09-29T17:15:17.431Z",
+      "bytes": 80710
+    },
+    {
+      "id": "brand_02",
+      "text_sha256": "9a99144d71376531719bebbdb165e6a49efa80dafecdd1a11689330e8c680674",
+      "model": "eleven_multilingual_v2",
+      "settings": {
+        "stability": 0.45,
+        "similarity_boost": 0.85,
+        "style": 0.35,
+        "use_speaker_boost": true
+      },
+      "rendered_at": "2026-09-29T17:15:18.334Z",
+      "bytes": 28465
+    }
+  ]
+}

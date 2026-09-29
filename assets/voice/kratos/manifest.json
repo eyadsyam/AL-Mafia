@@ -1,6 +1,237 @@
 {
   "voice": "kratos",
   "voiceId": "R1hq8f4mfX3N88Om3Nb7",
-  "note": "Empty until lines pass the F16 listener gate; written by tool/voice/install_kratos.py.",
-  "clips": []
+  "clips": [
+    {
+      "id": "discussion_01",
+      "beat": "discussion",
+      "when": "always",
+      "family": true,
+      "file": "voice/kratos/discussion_01.ogg"
+    },
+    {
+      "id": "discussion_02",
+      "beat": "discussion",
+      "when": "always",
+      "family": true,
+      "file": "voice/kratos/discussion_02.ogg"
+    },
+    {
+      "id": "discussion_03",
+      "beat": "discussion",
+      "when": "always",
+      "family": true,
+      "file": "voice/kratos/discussion_03.ogg"
+    },
+    {
+      "id": "discussion_04",
+      "beat": "discussion",
+      "when": "always",
+      "family": true,
+      "file": "voice/kratos/discussion_04.ogg"
+    },
+    {
+      "id": "discussion_05",
+      "beat": "discussion",
+      "when": "always",
+      "family": true,
+      "file": "voice/kratos/discussion_05.ogg"
+    },
+    {
+      "id": "morning_loss_01",
+      "beat": "morning",
+      "when": "night_eliminated >= 1",
+      "family": true,
+      "file": "voice/kratos/morning_loss_01.ogg"
+    },
+    {
+      "id": "morning_loss_02",
+      "beat": "morning",
+      "when": "night_eliminated == 1",
+      "family": true,
+      "file": "voice/kratos/morning_loss_02.ogg"
+    },
+    {
+      "id": "morning_loss_03",
+      "beat": "morning",
+      "when": "night_eliminated >= 1",
+      "family": false,
+      "file": "voice/kratos/morning_loss_03.ogg"
+    },
+    {
+      "id": "morning_loss_04",
+      "beat": "morning",
+      "when": "night_eliminated == 1",
+      "family": false,
+      "file": "voice/kratos/morning_loss_04.ogg"
+    },
+    {
+      "id": "morning_none_01",
+      "beat": "morning",
+      "when": "night_eliminated == 0",
+      "family": true,
+      "file": "voice/kratos/morning_none_01.ogg"
+    },
+    {
+      "id": "morning_none_02",
+      "beat": "morning",
+      "when": "night_eliminated == 0",
+      "family": true,
+      "file": "voice/kratos/morning_none_02.ogg"
+    },
+    {
+      "id": "morning_none_03",
+      "beat": "morning",
+      "when": "night_eliminated == 0",
+      "family": true,
+      "file": "voice/kratos/morning_none_03.ogg"
+    },
+    {
+      "id": "night_01",
+      "beat": "night",
+      "when": "always",
+      "family": true,
+      "file": "voice/kratos/night_01.ogg"
+    },
+    {
+      "id": "night_02",
+      "beat": "night",
+      "when": "always",
+      "family": true,
+      "file": "voice/kratos/night_02.ogg"
+    },
+    {
+      "id": "night_03",
+      "beat": "night",
+      "when": "always",
+      "family": true,
+      "file": "voice/kratos/night_03.ogg"
+    },
+    {
+      "id": "night_04",
+      "beat": "night",
+      "when": "always",
+      "family": true,
+      "file": "voice/kratos/night_04.ogg"
+    },
+    {
+      "id": "night_05",
+      "beat": "night",
+      "when": "always",
+      "family": true,
+      "file": "voice/kratos/night_05.ogg"
+    },
+    {
+      "id": "night_06",
+      "beat": "night",
+      "when": "always",
+      "family": false,
+      "file": "voice/kratos/night_06.ogg"
+    },
+    {
+      "id": "revote_01",
+      "beat": "voting",
+      "when": "revote",
+      "family": true,
+      "file": "voice/kratos/revote_01.ogg"
+    },
+    {
+      "id": "revote_02",
+      "beat": "voting",
+      "when": "revote",
+      "family": true,
+      "file": "voice/kratos/revote_02.ogg"
+    },
+    {
+      "id": "vote_none_01",
+      "beat": "result",
+      "when": "day_eliminated == 0",
+      "family": true,
+      "file": "voice/kratos/vote_none_01.ogg"
+    },
+    {
+      "id": "vote_none_02",
+      "beat": "result",
+      "when": "day_eliminated == 0",
+      "family": true,
+      "file": "voice/kratos/vote_none_02.ogg"
+    },
+    {
+      "id": "vote_out_01",
+      "beat": "result",
+      "when": "day_eliminated == 1",
+      "family": true,
+      "file": "voice/kratos/vote_out_01.ogg"
+    },
+    {
+      "id": "vote_out_02",
+      "beat": "result",
+      "when": "day_eliminated == 1",
+      "family": true,
+      "file": "voice/kratos/vote_out_02.ogg"
+    },
+    {
+      "id": "vote_out_03",
+      "beat": "result",
+      "when": "day_eliminated == 1",
+      "family": true,
+      "file": "voice/kratos/vote_out_03.ogg"
+    },
+    {
+      "id": "voting_01",
+      "beat": "voting",
+      "when": "round == 1",
+      "family": true,
+      "file": "voice/kratos/voting_01.ogg"
+    },
+    {
+      "id": "voting_02",
+      "beat": "voting",
+      "when": "round == 1",
+      "family": true,
+      "file": "voice/kratos/voting_02.ogg"
+    },
+    {
+      "id": "voting_03",
+      "beat": "voting",
+      "when": "round == 1",
+      "family": true,
+      "file": "voice/kratos/voting_03.ogg"
+    },
+    {
+      "id": "voting_04",
+      "beat": "voting",
+      "when": "round == 1",
+      "family": true,
+      "file": "voice/kratos/voting_04.ogg"
+    },
+    {
+      "id": "win_mafia_01",
+      "beat": "win",
+      "when": "winner == mafia",
+      "family": true,
+      "file": "voice/kratos/win_mafia_01.ogg"
+    },
+    {
+      "id": "win_mafia_02",
+      "beat": "win",
+      "when": "winner == mafia",
+      "family": true,
+      "file": "voice/kratos/win_mafia_02.ogg"
+    },
+    {
+      "id": "win_town_01",
+      "beat": "win",
+      "when": "winner == town",
+      "family": true,
+      "file": "voice/kratos/win_town_01.ogg"
+    },
+    {
+      "id": "win_town_02",
+      "beat": "win",
+      "when": "winner == town",
+      "family": true,
+      "file": "voice/kratos/win_town_02.ogg"
+    }
+  ]
 }

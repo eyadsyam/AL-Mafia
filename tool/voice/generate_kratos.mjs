@@ -52,7 +52,7 @@ if (missing.length) {
 
 if (flag("dry-run")) {
   for (const l of lines) console.log(`${l.id}\t${l.beat}\t${l.when}\t${l.text}`);
-  console.log(`${lines.length} lines, ${lines.reduce((n, l) => n + (l.speak ?? l.text).length, 0)} characters, model ${model}`);
+  console.log(`${lines.length} lines, ${lines.reduce((n, l) => n + l.text.length, 0)} characters, model ${model}`);
   process.exit(0);
 }
 
@@ -99,7 +99,7 @@ for (const l of lines) {
   const r = await fetch(url, {
     method: "POST",
     headers: { "xi-api-key": key, "content-type": "application/json", accept: "audio/mpeg" },
-    body: JSON.stringify({ text: l.speak ?? l.text, model_id: model, voice_settings: settings }),
+    body: JSON.stringify({ text: l.text, model_id: model, voice_settings: settings }),
   });
   if (!r.ok) {
     console.error(`${l.id}: HTTP ${r.status}`);
@@ -110,7 +110,7 @@ for (const l of lines) {
   writeFileSync(join(outDir, `${l.id}.mp3`), audio);
   manifest.renders.push({
     id: l.id,
-    text_sha256: createHash("sha256").update(l.speak ?? l.text).digest("hex"),
+    text_sha256: createHash("sha256").update(l.text).digest("hex"),
     model,
     settings,
     rendered_at: new Date().toISOString(),
