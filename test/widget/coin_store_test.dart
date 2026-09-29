@@ -7,6 +7,7 @@ import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/economy/cosmetic_paint.dart';
 import 'package:mafia_master/ui/economy/cosmetic_preview.dart';
 import 'package:mafia_master/ui/economy/cosmetics.dart';
+import 'package:mafia_master/ui/economy/purchase_reveal.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/setup/coin_store.dart';
 import 'package:mafia_master/ui/screens/setup/help_center.dart';
@@ -178,8 +179,23 @@ void main() {
     expect(buys, hasLength(1));
     expect(buys.single.body.keys.toSet(), {'action', 'item'});
     expect(buys.single.body['item'], 'frame_gilded');
+    // Store truth: the purchase ends on the item doing its job on the buyer,
+    // with one tap to wear it.
+    expect(find.byKey(PurchaseReveal.revealKey), findsOneWidget);
+    expect(find.byKey(CosmeticFrameRing.ringKey), findsOneWidget);
+    backend.responses['economy'] = wallet(
+      balance: 800,
+      owned: ['frame_gilded'],
+      equipped: {'frame': 'frame_gilded'},
+    );
+    await tester.tap(find.byKey(PurchaseReveal.equipNowKey));
+    await tester.pumpAndSettle();
+    final equips = economy('equip').toList();
+    expect(equips, hasLength(1));
+    expect(equips.single.body['slot'], 'frame');
+    expect(equips.single.body['item'], 'frame_gilded');
+    expect(find.byKey(PurchaseReveal.revealKey), findsNothing);
     expect(find.text('800'), findsOneWidget);
-    expect(find.text(arStrings.storeBought), findsOneWidget);
   });
 
   testWidgets('not enough coins: no buy, and how long it takes to earn', (

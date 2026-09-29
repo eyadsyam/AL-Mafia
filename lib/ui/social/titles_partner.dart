@@ -8,6 +8,7 @@ import '../../data/request_id.dart';
 import '../../transport/online_backend.dart';
 import '../account/account_sheet.dart';
 import '../economy/economy_capabilities.dart';
+import '../fun/loaded_capabilities.dart';
 import '../economy/vault_kit.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
@@ -322,6 +323,10 @@ class PartnerPicker extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Only once the app already asked the server (M1: Profile never does).
+    if (!(loadedCapabilities(ref)?.partner ?? false)) {
+      return const SizedBox.shrink();
+    }
     final partner = ref.watch(partnerProvider).valueOrNull;
     if (partner == null || !partner.enabled) return const SizedBox.shrink();
     final l = context.l10n;
@@ -368,6 +373,9 @@ class TitleEquipList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!(loadedCapabilities(ref)?.titles ?? false)) {
+      return const SizedBox.shrink();
+    }
     final hub = ref.watch(titleHubProvider).valueOrNull;
     if (hub == null || !hub.enabled) return const SizedBox.shrink();
     final l = context.l10n;
@@ -420,6 +428,9 @@ class CasebookTitlesCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!(loadedCapabilities(ref)?.titles ?? false)) {
+      return const SizedBox.shrink();
+    }
     final hub = ref.watch(titleHubProvider).valueOrNull;
     if (hub == null || !hub.enabled) return const SizedBox.shrink();
     return VaultCard(
@@ -449,6 +460,9 @@ class PartnerCasebookLine extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!(loadedCapabilities(ref)?.partner ?? false)) {
+      return const SizedBox.shrink();
+    }
     final partner = ref.watch(partnerProvider).valueOrNull;
     final side = partner?.side;
     if (partner == null || !partner.enabled || side == null) {

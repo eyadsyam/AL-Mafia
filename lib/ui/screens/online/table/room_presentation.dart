@@ -76,6 +76,18 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
       widget.visibleIn?.call(phase) ?? cosmeticsVisibleIn(phase);
 
   @override
+  void initState() {
+    super.initState();
+    // A layer that arrives with an announcement already on screen marks it.
+    final moment = widget.moment;
+    if (moment != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.moment == moment) _onMoment(moment);
+      });
+    }
+  }
+
+  @override
   void didUpdateWidget(RoomPresentationLayer old) {
     super.didUpdateWidget(old);
     final moment = widget.moment;
