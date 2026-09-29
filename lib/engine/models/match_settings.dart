@@ -196,6 +196,11 @@ class MatchSettings {
   /// one has to know about the other.
   final bool midDiscussionConfrontation;
 
+  /// Makes public pass-and-play phases readable while the phone lies flat in
+  /// the middle of the table. Private hand-off, reveal, ballot and night turns
+  /// never read this value.
+  final bool tabletopPresentation;
+
   const MatchSettings({
     this.speechSeconds = 60,
     this.discussionMode = DiscussionMode.structured,
@@ -223,6 +228,7 @@ class MatchSettings {
     this.playHintsEnabled = true,
     this.postMatchCoachingEnabled = true,
     this.midDiscussionConfrontation = false,
+    this.tabletopPresentation = true,
   });
 
   /// Default settings constructor.
@@ -252,7 +258,8 @@ class MatchSettings {
       interfaceHintsEnabled = true,
       playHintsEnabled = true,
       postMatchCoachingEnabled = true,
-      midDiscussionConfrontation = false;
+      midDiscussionConfrontation = false,
+      tabletopPresentation = true;
 
   /// Create a copy with optional field overrides.
   MatchSettings copyWith({
@@ -282,6 +289,7 @@ class MatchSettings {
     bool? playHintsEnabled,
     bool? postMatchCoachingEnabled,
     bool? midDiscussionConfrontation,
+    bool? tabletopPresentation,
   }) => MatchSettings(
     speechSeconds: speechSeconds ?? this.speechSeconds,
     discussionMode: discussionMode ?? this.discussionMode,
@@ -312,6 +320,7 @@ class MatchSettings {
         postMatchCoachingEnabled ?? this.postMatchCoachingEnabled,
     midDiscussionConfrontation:
         midDiscussionConfrontation ?? this.midDiscussionConfrontation,
+    tabletopPresentation: tabletopPresentation ?? this.tabletopPresentation,
   );
 
   @override
@@ -344,7 +353,8 @@ class MatchSettings {
           interfaceHintsEnabled == other.interfaceHintsEnabled &&
           playHintsEnabled == other.playHintsEnabled &&
           postMatchCoachingEnabled == other.postMatchCoachingEnabled &&
-          midDiscussionConfrontation == other.midDiscussionConfrontation;
+          midDiscussionConfrontation == other.midDiscussionConfrontation &&
+          tabletopPresentation == other.tabletopPresentation;
 
   @override
   int get hashCode => Object.hashAll([
@@ -374,6 +384,7 @@ class MatchSettings {
     playHintsEnabled,
     postMatchCoachingEnabled,
     midDiscussionConfrontation,
+    tabletopPresentation,
   ]);
 
   @override
@@ -387,5 +398,6 @@ class MatchSettings {
       'survivorConfrontationEnabled=$survivorConfrontationEnabled, '
       'confrontationSeconds=$confrontationSeconds, openVoting=$openVoting, '
       'discussionSeconds=$discussionSeconds, bullets=$bulletsEnabled, '
-      'pressureCurve=$pressureCurveEnabled, revealNightVictimRole=$revealNightVictimRole)';
+      'pressureCurve=$pressureCurveEnabled, revealNightVictimRole=$revealNightVictimRole, '
+      'tabletopPresentation=$tabletopPresentation)';
 }

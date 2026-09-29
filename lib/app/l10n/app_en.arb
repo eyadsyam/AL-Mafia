@@ -1081,6 +1081,8 @@
   "presetLabel": "Preset",
   "settingPressureCurve": "The pressure curve",
   "settingPressureCurveHint": "The clock closes as the table shrinks. It only ever tightens.",
+  "settingTabletopPresentation": "Phone in the middle",
+  "settingTabletopPresentationHint": "Makes public screens and timers readable from across the table.",
   "settingDiscussionSeconds": "Discussion length",
   "settingPlayHints": "Play hints",
   "settingCoaching": "«It could have gone otherwise», after the match",

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../../platform/reduce_motion.dart';
+import '../../platform/device_class.dart';
+import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import 'ambient_motion.dart';
 import 'icon_painters.dart';
@@ -55,7 +57,7 @@ class _FallingIconsState extends State<FallingIcons>
   }
 
   void _initParticles() {
-    for (int i = 0; i < 24; i++) {
+    for (int i = 0; i < DeviceClassTokens.fallingIconCount; i++) {
       _particles.add(
         _Particle(
           x: _random.nextDouble(),
@@ -99,11 +101,17 @@ class _FallingIconsState extends State<FallingIcons>
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final lowEnd = DeviceClass.isLowEnd(
+      maxPhysicalPixels: DeviceClassTokens.lowEndPhysicalPixels,
+    );
+    final visible = lowEnd
+        ? _particles.take(DeviceClassTokens.lowEndFallingIconCount).toList()
+        : _particles;
 
     return CustomPaint(
       size: Size.infinite,
       painter: _FallingIconsPainter(
-        particles: _particles,
+        particles: visible,
         elapsed: _elapsed,
         color: colors.textPrimary,
       ),

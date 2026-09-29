@@ -26,6 +26,8 @@ import '../../theme/mafia_theme.dart';
 import '../../widgets/settings_kit.dart';
 import '../../economy/waiting_banner.dart';
 import '../../widgets/feathered_art.dart';
+import '../../../app/asset_constants.dart';
+import '../../widgets/motion_sprite.dart';
 
 /// Opens the store over the current screen. Reachable from Home, Settings and
 /// an out-of-match lobby only: never from inside a match.
@@ -529,6 +531,17 @@ class _VaultHero extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
+            const Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Opacity(
+                opacity: MotionTokens.vaultEmberOpacity,
+                child: MotionSprite(
+                  AppMotion.emberDrift,
+                  width: MotionTokens.emberWidth,
+                  height: MotionTokens.emberHeight,
+                ),
+              ),
+            ),
             FeatheredArt(
               feather: Feather.banner,
               halo: false,
@@ -1094,17 +1107,18 @@ class _CollectionTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     // Worn first, then by kind (frames, plates, packs, narrators), then name.
-    final owned = [
-      for (final code in wallet.owned)
-        if (Cosmetics.items[code]?.slot != null) code,
-    ]..sort((a, b) {
-        final wa = wallet.equipped.values.contains(a) ? 0 : 1;
-        final wb = wallet.equipped.values.contains(b) ? 0 : 1;
-        if (wa != wb) return wa - wb;
-        final ka = Cosmetics.items[a]!.kind.index;
-        final kb = Cosmetics.items[b]!.kind.index;
-        return ka != kb ? ka - kb : a.compareTo(b);
-      });
+    final owned =
+        [
+          for (final code in wallet.owned)
+            if (Cosmetics.items[code]?.slot != null) code,
+        ]..sort((a, b) {
+          final wa = wallet.equipped.values.contains(a) ? 0 : 1;
+          final wb = wallet.equipped.values.contains(b) ? 0 : 1;
+          if (wa != wb) return wa - wb;
+          final ka = Cosmetics.items[a]!.kind.index;
+          final kb = Cosmetics.items[b]!.kind.index;
+          return ka != kb ? ka - kb : a.compareTo(b);
+        });
     if (owned.isEmpty) {
       return Center(
         child: Text(l.storeEmptyCollection, style: context.typography.body),

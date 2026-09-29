@@ -34,6 +34,7 @@ def main():
     settings = {"openingRoundEnabled": False, "traceEnabled": False,
                 "confrontationEnabled": False, "whisperEnabled": False}
     roles = {"mafia": 1, "doctor": 1, "detective": 1, "citizen": 2}
+    h.ready_lobby(room_id, players)
     status, started = fn("start_match", {"roomId": room_id, "roles": roles, "settings": settings}, players[0])
     check("start_match", status == 200, started)
     for p in players:

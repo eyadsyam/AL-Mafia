@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/l10n/app_localizations.dart';
 import '../../platform/audio_director.dart';
 import '../../platform/haptics.dart';
+import '../../platform/device_class.dart';
 import '../economy/economy_capabilities.dart';
 import '../economy/vault_kit.dart';
 import '../economy/wallet.dart';
@@ -366,7 +367,16 @@ class _AwardCard extends StatelessWidget {
             SizedBox.square(
               dimension: FunTokens.awardMedal,
               child: CustomPaint(
-                painter: _MotesPainter(motes, VaultTokens.goldLight),
+                painter: _MotesPainter(
+                  motes,
+                  VaultTokens.goldLight,
+                  DeviceClass.isLowEnd(
+                        maxPhysicalPixels:
+                            DeviceClassTokens.lowEndPhysicalPixels,
+                      )
+                      ? DeviceClassTokens.lowEndRewardParticleCount
+                      : FunTokens.particleCount,
+                ),
                 child: LampGlow(
                   alpha: mine
                       ? VaultTokens.lampAlpha
@@ -404,7 +414,8 @@ class _AwardCard extends StatelessWidget {
 class _MotesPainter extends CustomPainter {
   final Animation<double> t;
   final Color gold;
-  _MotesPainter(this.t, this.gold) : super(repaint: t);
+  final int count;
+  _MotesPainter(this.t, this.gold, this.count) : super(repaint: t);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -412,8 +423,8 @@ class _MotesPainter extends CustomPainter {
     if (v <= 0 || v >= 1) return;
     final fade = math.sin(v * math.pi) * FunTokens.particleOpacity;
     final paint = Paint()..color = gold.withValues(alpha: fade);
-    for (var i = 0; i < FunTokens.particleCount; i++) {
-      final angle = i / FunTokens.particleCount * 2 * math.pi;
+    for (var i = 0; i < count; i++) {
+      final angle = i / count * 2 * math.pi;
       final r = size.width * (0.35 + 0.2 * ((i * 37) % 10) / 10);
       final rise = size.height * 0.4 * v;
       final p =
@@ -424,7 +435,8 @@ class _MotesPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_MotesPainter old) => old.gold != gold;
+  bool shouldRepaint(_MotesPainter old) =>
+      old.gold != gold || old.count != count;
 }
 
 class _SkeletonCard extends StatelessWidget {

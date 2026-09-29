@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/mafia_theme.dart';
+import '../theme/design_tokens.dart';
 
 /// A reusable countdown timer widget showing mm:ss with a progress indicator.
 ///
@@ -17,7 +18,16 @@ class PhaseTimer extends StatelessWidget {
   /// Total time for this phase (used to compute progress).
   final Duration total;
 
-  const PhaseTimer({super.key, required this.remaining, required this.total});
+  /// Enlarges only the public, on-table clock. Callers in private phases keep
+  /// the standard presentation.
+  final bool tabletop;
+
+  const PhaseTimer({
+    super.key,
+    required this.remaining,
+    required this.total,
+    this.tabletop = false,
+  });
 
   /// Formats [duration] as "mm:ss" with leading zeros.
   static String _formatTime(Duration duration) {
@@ -46,7 +56,11 @@ class PhaseTimer extends StatelessWidget {
         // Time text in tabular monospace
         Text(
           _formatTime(remaining),
-          style: type.timer.copyWith(color: colors.textPrimary),
+          key: const ValueKey('phase_timer_text'),
+          style: type.timer.copyWith(
+            color: colors.textPrimary,
+            fontSize: tabletop ? TabletopTokens.timerFontSize : null,
+          ),
           textAlign: TextAlign.center,
         ),
         SizedBox(height: spacing.lg),

@@ -860,6 +860,8 @@
   "presetLabel": "نمط اللعب",
   "settingPressureCurve": "وقت أقل مع خروج اللاعبين",
   "settingPressureCurveHint": "مدة الكلام والنقاش بتقل مع عدد اللاعبين",
+  "settingTabletopPresentation": "الموبايل في النص",
+  "settingTabletopPresentationHint": "يكبّر الكلام والوقت في الشاشات العامة عشان الكل يشوفهم من بعيد",
   "settingDiscussionSeconds": "مدة النقاش",
   "settingPlayHints": "تلميحات اللعب",
   "settingCoaching": "«كان ممكن» بعد المباراة",

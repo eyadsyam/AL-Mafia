@@ -85,7 +85,18 @@ class _WarmupGateState extends ConsumerState<WarmupGate> {
   /// complete rather than filling in.
   Future<void> _decodeFirstScreens() async {
     if (!mounted) return;
-    final paths = [...AppImages.values, ...AppGallery.values];
+    final paths = [
+      AppImages.bgHome,
+      AppGallery.galleryMafia,
+      AppGallery.galleryDoctor,
+      AppGallery.galleryDetective,
+      AppGallery.galleryCitizen,
+    ];
+    final decodeWidth =
+        (MediaQuery.sizeOf(context).width *
+                MediaQuery.devicePixelRatioOf(context))
+            .ceil()
+            .clamp(1, WarmupTokens.decodeMaxWidth);
     for (var i = 0; i < paths.length; i += WarmupTokens.decodeBatch) {
       if (!mounted) return;
       final slice = paths.skip(i).take(WarmupTokens.decodeBatch);
@@ -94,7 +105,7 @@ class _WarmupGateState extends ConsumerState<WarmupGate> {
           (path) => precacheImage(
             ResizeImage(
               AssetImage(path),
-              width: WarmupTokens.decodeWidth,
+              width: decodeWidth,
               policy: ResizeImagePolicy.fit,
             ),
             context,

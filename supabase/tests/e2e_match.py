@@ -82,6 +82,27 @@ def check(name, condition, detail=""):
     return condition
 
 
+def ready_lobby(room_id, players):
+    """Readies the supplied seated clients at the lobby's current revision."""
+    if not players:
+        return
+    status, rows = rest(
+        "rooms?select=lobby_revision&id=eq." + room_id,
+        players[0],
+    )
+    revision = rows[0].get("lobby_revision") if status == 200 and rows else None
+    check("read lobby revision", isinstance(revision, int), (status, rows))
+    if not isinstance(revision, int):
+        return
+    for player in players:
+        status, ready = fn(
+            "lobby_ready",
+            {"roomId": room_id, "ready": True, "revision": revision},
+            player,
+        )
+        check("seat %s lobby ready" % player.get("seat"), status == 200, ready)
+
+
 def _admin_request(path, payload, method="POST"):
     """A call made as the service role. Only the user-minting path uses it."""
     body = None if payload is None else json.dumps(payload).encode()
@@ -203,6 +224,7 @@ def main():
         "dayTieRule": "noElimination",
     }
     roles = {"mafia": 1, "doctor": 1, "detective": 1, "citizen": 2}
+    ready_lobby(room_id, players)
     status, started = fn("start_match", {"roomId": room_id, "roles": roles, "settings": settings}, players[0])
     check("start_match", status == 200 and started.get("started") is True, started)
     check("start_match says nothing about roles", "roles" not in started and "dealt" not in started, started)

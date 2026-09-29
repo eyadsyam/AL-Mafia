@@ -1,0 +1,17 @@
+import 'dart:ui';
+
+/// A deliberately cheap launch-time classification. It performs no I/O and
+/// allocates no probes; callers provide the product's pixel budget token.
+abstract final class DeviceClass {
+  static bool? debugLowEndOverride;
+
+  static bool isLowEnd({required int maxPhysicalPixels}) {
+    final override = debugLowEndOverride;
+    if (override != null) return override;
+    final view = PlatformDispatcher.instance.implicitView;
+    if (view == null) return false;
+    final size = view.physicalSize;
+    if (size.isEmpty) return false;
+    return size.width * size.height <= maxPhysicalPixels;
+  }
+}

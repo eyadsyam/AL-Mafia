@@ -1699,6 +1699,13 @@ class AppLocalizationsAr extends AppLocalizations {
       'مدة الكلام والنقاش بتقل مع عدد اللاعبين';
 
   @override
+  String get settingTabletopPresentation => 'الموبايل في النص';
+
+  @override
+  String get settingTabletopPresentationHint =>
+      'يكبّر الكلام والوقت في الشاشات العامة عشان الكل يشوفهم من بعيد';
+
+  @override
   String get settingDiscussionSeconds => 'مدة النقاش';
 
   @override

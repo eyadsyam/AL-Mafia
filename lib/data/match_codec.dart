@@ -100,6 +100,7 @@ class MatchCodec {
     'survivorConfrontationEnabled': s.survivorConfrontationEnabled,
     'confrontationSeconds': s.confrontationSeconds,
     'openVoting': s.openVoting,
+    'tabletopPresentation': s.tabletopPresentation,
   };
 
   static MatchSettings _decodeSettings(Map<String, dynamic> json) =>
@@ -157,6 +158,9 @@ class MatchCodec {
         openVoting:
             json['openVoting'] as bool? ??
             const MatchSettings.defaults().openVoting,
+        tabletopPresentation:
+            json['tabletopPresentation'] as bool? ??
+            const MatchSettings.defaults().tabletopPresentation,
       );
 
   // ---------------------------------------------------------------------------

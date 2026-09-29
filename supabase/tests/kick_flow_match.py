@@ -18,7 +18,7 @@ import sys
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0] if "/" in __file__ else __file__.rsplit("\\", 1)[0])
 from concurrency_match import ROLES, SETTINGS, make_room, parallel, state_of  # noqa: E402
-from e2e_match import KEY, URL, PASS, FAIL, aid, anon_session, check, drop_minted_users, fn, rest  # noqa: E402
+from e2e_match import KEY, URL, PASS, FAIL, aid, anon_session, check, drop_minted_users, fn, rest, ready_lobby  # noqa: E402
 from roster_match import room_settings, roster  # noqa: E402
 
 
@@ -58,6 +58,7 @@ def main():
     players = players[:4] + [farah]
 
     # ── the start: the payload disagrees with the saved settings ─────────
+    ready_lobby(room_id, players)
     status, started = fn("start_match", {"roomId": room_id, "roles": ROLES, "settings": dict(SETTINGS, voice=True)}, host)
     check("the match starts with the five seated", status == 200 and started.get("started") is True, started)
     saved = room_settings(room_id, host).get("settings") or {}

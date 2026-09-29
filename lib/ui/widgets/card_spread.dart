@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import '../../app/asset_constants.dart';
 import '../../engine/models/enums.dart' show Role;
 import '../../platform/reduce_motion.dart';
+import '../theme/design_tokens.dart';
 import '../../platform/tilt_source.dart';
 import '../l10n_ext.dart';
 import '../theme/mafia_theme.dart';
@@ -460,6 +461,12 @@ class _SpreadCard extends StatelessWidget {
                     role: slot.role,
                     flip: flip,
                     depth: slot.depth + lift,
+                    decodeWidth:
+                        (cardSize.width *
+                                MediaQuery.devicePixelRatioOf(context) *
+                                DeviceClassTokens.cardDecodeScale)
+                            .ceil()
+                            .clamp(1, DeviceClassTokens.cardDecodeMaxWidth),
                   ),
                 ),
               ),
@@ -478,10 +485,14 @@ class _Face extends StatelessWidget {
   final Animation<double>? flip;
   final double depth;
 
-  /// See the note on `cacheWidth` below.
-  static const int _decodeWidth = 512;
+  final int decodeWidth;
 
-  const _Face({required this.role, required this.flip, required this.depth});
+  const _Face({
+    required this.role,
+    required this.flip,
+    required this.depth,
+    required this.decodeWidth,
+  });
 
   String _asset(Role role) => switch (role) {
     Role.mafia => AppGallery.galleryMafia,
@@ -524,7 +535,7 @@ class _Face extends StatelessWidget {
           // card gets is 260 logical pixels, so this still has headroom at a
           // device pixel ratio of 3 wherever the art is scaled up by tilt or
           // by a large window.
-          cacheWidth: _decodeWidth,
+          cacheWidth: decodeWidth,
           gaplessPlayback: true,
           excludeFromSemantics: true,
         ),

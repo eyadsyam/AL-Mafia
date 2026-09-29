@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
+import '../../theme/design_tokens.dart';
 import '../../widgets/textured_surface.dart';
 import '../../widgets/trace_line.dart';
 
@@ -43,6 +44,7 @@ class MorningScreen extends StatelessWidget {
   final String? victimRole;
 
   final VoidCallback onContinue;
+  final bool tabletop;
 
   const MorningScreen({
     super.key,
@@ -52,6 +54,7 @@ class MorningScreen extends StatelessWidget {
     this.traceText,
     this.victimRole,
     required this.onContinue,
+    this.tabletop = false,
   });
 
   @override
@@ -97,13 +100,23 @@ class MorningScreen extends StatelessWidget {
                   SizedBox(height: spacing.sm),
                   Text(
                     headline,
-                    style: type.display.copyWith(color: colors.textPrimary),
+                    key: const ValueKey('morning_headline'),
+                    style: type.display.copyWith(
+                      color: colors.textPrimary,
+                      fontSize: tabletop
+                          ? TabletopTokens.headlineFontSize
+                          : null,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: spacing.md),
                   Text(
                     body,
-                    style: type.body.copyWith(color: colors.textSecondary),
+                    key: const ValueKey('morning_fact'),
+                    style: type.body.copyWith(
+                      color: colors.textSecondary,
+                      fontSize: tabletop ? TabletopTokens.factFontSize : null,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   if (victimRole != null && victimName != null) ...[
@@ -127,7 +140,9 @@ class MorningScreen extends StatelessWidget {
                   ],
                   const Spacer(),
                   SizedBox(
-                    height: spacing.xxl + spacing.sm,
+                    height: tabletop
+                        ? TabletopTokens.controlHeight
+                        : spacing.xxl + spacing.sm,
                     child: FilledButton(
                       onPressed: onContinue,
                       style: FilledButton.styleFrom(

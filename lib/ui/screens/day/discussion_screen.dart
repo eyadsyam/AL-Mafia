@@ -10,6 +10,7 @@ import '../../l10n_ext.dart';
 import '../../economy/cosmetic_paint.dart';
 import '../../economy/pass_table_dress.dart';
 import '../../theme/mafia_theme.dart';
+import '../../theme/design_tokens.dart';
 import '../../widgets/phase_timer.dart';
 import '../../widgets/textured_surface.dart';
 
@@ -77,6 +78,7 @@ class DiscussionScreen extends StatefulWidget {
   /// The slot's space is reserved either way; this only decides whether
   /// anything goes in it. See [HintSlot].
   final bool interfaceHintsEnabled;
+  final bool tabletop;
 
   const DiscussionScreen({
     super.key,
@@ -91,6 +93,7 @@ class DiscussionScreen extends StatefulWidget {
     this.onSpoke,
     this.onWhisper,
     this.whisperGraph = const [],
+    this.tabletop = false,
   });
 
   @override
@@ -246,7 +249,13 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                       widget.mode == DiscussionMode.structured
                           ? l10n.discussionTitle
                           : l10n.discussionFreeTitle,
-                      style: type.display.copyWith(color: colors.textPrimary),
+                      key: const ValueKey('discussion_headline'),
+                      style: type.display.copyWith(
+                        color: colors.textPrimary,
+                        fontSize: widget.tabletop
+                            ? TabletopTokens.headlineFontSize
+                            : null,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: spacing.sm),
@@ -289,6 +298,9 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                               ),
                               style: type.title.emphasised.copyWith(
                                 color: colors.accentGold,
+                                fontSize: widget.tabletop
+                                    ? TabletopTokens.factFontSize
+                                    : null,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -312,6 +324,7 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                         child: PhaseTimer(
                           remaining: _remaining,
                           total: totalTime,
+                          tabletop: widget.tabletop,
                         ),
                       ),
                     ),

@@ -3098,6 +3098,18 @@ abstract class AppLocalizations {
   /// **'The clock closes as the table shrinks. It only ever tightens.'**
   String get settingPressureCurveHint;
 
+  /// No description provided for @settingTabletopPresentation.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone in the middle'**
+  String get settingTabletopPresentation;
+
+  /// No description provided for @settingTabletopPresentationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes public screens and timers readable from across the table.'**
+  String get settingTabletopPresentationHint;
+
   /// No description provided for @settingDiscussionSeconds.
   ///
   /// In en, this message translates to:

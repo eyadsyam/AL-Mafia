@@ -104,6 +104,10 @@ def main():
     if room_id is None:
         raise SystemExit("no roomId came back from join_room")
 
+    # The phone owns its own ready tap. The four bot seats announce readiness
+    # immediately so the host can start as soon as the phone is ready too.
+    h.ready_lobby(room_id, players)
+
     print("room %s — waiting for the phone to start the match" % room_id)
 
     seen = None

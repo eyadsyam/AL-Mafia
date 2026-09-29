@@ -1,0 +1,40 @@
+{
+  "voice": "narrator_keeper",
+  "clips": [
+    {
+      "id": "narrator_keeper_night",
+      "beat": "night",
+      "when": "always",
+      "family": true,
+      "file": "voice/narrator_keeper/night.ogg"
+    },
+    {
+      "id": "narrator_keeper_morning",
+      "beat": "morning",
+      "when": "always",
+      "family": true,
+      "file": "voice/narrator_keeper/morning.ogg"
+    },
+    {
+      "id": "narrator_keeper_discussion",
+      "beat": "discussion",
+      "when": "always",
+      "family": true,
+      "file": "voice/narrator_keeper/discussion.ogg"
+    },
+    {
+      "id": "narrator_keeper_voting",
+      "beat": "voting",
+      "when": "always",
+      "family": true,
+      "file": "voice/narrator_keeper/voting.ogg"
+    },
+    {
+      "id": "narrator_keeper_win",
+      "beat": "win",
+      "when": "always",
+      "family": true,
+      "file": "voice/narrator_keeper/win.ogg"
+    }
+  ]
+}

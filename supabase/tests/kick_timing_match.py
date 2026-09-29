@@ -17,7 +17,7 @@ import sys
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0] if "/" in __file__ else __file__.rsplit("\\", 1)[0])
 from concurrency_match import SETTINGS, make_room, parallel, state_of  # noqa: E402
-from e2e_match import KEY, URL, PASS, FAIL, aid, anon_session, check, drop_minted_users, fn, rest  # noqa: E402
+from e2e_match import KEY, URL, PASS, FAIL, aid, anon_session, check, drop_minted_users, fn, rest, ready_lobby  # noqa: E402
 from roster_match import roster  # noqa: E402
 
 ROLES_SIX = {"mafia": 1, "doctor": 1, "detective": 1, "citizen": 3}
@@ -54,6 +54,7 @@ def main():
     fn("leave_room", {"roomId": seats[0]["room_id"]}, twin) if seats else None
 
     # ── the deal ─────────────────────────────────────────────────────────
+    ready_lobby(room_id, players)
     status, started = fn("start_match", {"roomId": room_id, "roles": ROLES_SIX, "settings": SETTINGS}, host)
     check("six seats start", status == 200 and started.get("started") is True, started)
     for p in players:

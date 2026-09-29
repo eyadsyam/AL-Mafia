@@ -15,6 +15,8 @@ import '../../transport/game_snapshot.dart' show ConnectionQuality;
 import '../information_text.dart';
 import '../l10n_ext.dart';
 import '../theme/mafia_theme.dart';
+import '../theme/design_tokens.dart';
+import '../widgets/motion_sprite.dart';
 import 'day/confrontation_screen.dart';
 import 'day/discussion_screen.dart';
 import 'day/opening_round_screen.dart';
@@ -201,6 +203,27 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     };
   }
 
+  Widget _decorateMoment(_Moment moment, Widget child) {
+    if (moment != _Moment.night) return child;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        child,
+        const PositionedDirectional(
+          end: MotionTokens.smokeInset,
+          bottom: MotionTokens.smokeInset,
+          child: IgnorePointer(
+            child: MotionSprite(
+              AppMotion.smokeWisp,
+              width: MotionTokens.smokeWidth,
+              height: MotionTokens.smokeHeight,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   MatchController get _controller => ref.read(matchControllerProvider.notifier);
 
   AudioDirector get _audio => ref.read(audioDirectorProvider);
@@ -350,22 +373,25 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       return _presented(
         state,
         moment: moment.narration,
-        CinematicText(
-        // Keyed so that two announcements in a row — a morning that resolves
-        // straight into a win — really do play twice rather than the second
-        // inheriting the first's finished animation.
-        key: ValueKey('moment-${moment.name}-${state.dayNumber}'),
-        text: _momentLine(moment),
-        image: moment.backdrop,
-        loop: moment.loop,
-        onStart: () {
-          final cue = moment.cue;
-          if (cue != null) _cue(cue);
-          final beat = moment.beat;
-          if (beat != null) _narrate(beat, _momentFacts(moment));
-          if (moment == _Moment.voting) _revoteNext = false;
-        },
-        onComplete: _momentFinished,
+        _decorateMoment(
+          moment,
+          CinematicText(
+            // Keyed so that two announcements in a row — a morning that resolves
+            // straight into a win — really do play twice rather than the second
+            // inheriting the first's finished animation.
+            key: ValueKey('moment-${moment.name}-${state.dayNumber}'),
+            text: _momentLine(moment),
+            image: moment.backdrop,
+            loop: moment.loop,
+            onStart: () {
+              final cue = moment.cue;
+              if (cue != null) _cue(cue);
+              final beat = moment.beat;
+              if (beat != null) _narrate(beat, _momentFacts(moment));
+              if (moment == _Moment.voting) _revoteNext = false;
+            },
+            onComplete: _momentFinished,
+          ),
         ),
       );
     }
@@ -582,6 +608,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     final report = state.morning;
     final victimSeat = report?.victimSeat;
     return MorningScreen(
+      tabletop: _controller.settings.tabletopPresentation,
       dayNumber: state.dayNumber,
       victimName: victimSeat == null
           ? null
@@ -685,6 +712,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     // Discussion is entirely on-table, so its cues are always safe to play.
     // (The narration switch itself is applied in `build`, for every phase.)
     return DiscussionScreen(
+      tabletop: settings.tabletopPresentation,
       // Re-entering discussion on a later day must restart the speaking order.
       key: ValueKey('discussion-${state.dayNumber}'),
       interfaceHintsEnabled: settings.interfaceHintsEnabled,
@@ -727,6 +755,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     }
 
     return VoteResultScreen(
+      tabletop: _controller.settings.tabletopPresentation,
       names: {for (final p in state.public.players) p.seat: p.name},
       tally: vote.tally ?? const {},
       eliminatedSeat: vote.eliminatedSeat,
@@ -748,6 +777,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     // from a group and something about the roster actually changed.
     return GroupFollowUp(
       child: ResultScreen(
+        tabletop: _controller.settings.tabletopPresentation,
         winner: outcome.winner,
         // Doc 13 §4.4. Built from the finished match rather than from the
         // snapshot, because the notes are about roles and suspicions and the

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/asset_constants.dart';
 import '../../../engine/models/enums.dart';
 import '../../../engine/models/player.dart' show PlayerGender, PublicPlayer;
+import '../../../platform/narrator_bank.dart';
 import '../../../platform/audio_director.dart';
 import '../../../platform/haptics.dart';
 import '../../../platform/monetization/interstitial_policy.dart';
@@ -48,6 +49,7 @@ import 'witness/elimination_beat.dart';
 import 'witness/own_record.dart';
 import 'witness/witness_panel.dart';
 import '../../widgets/card_art.dart';
+import '../../widgets/motion_sprite.dart';
 import 'witness/kill_jumpscare.dart';
 import 'witness/witness_layer.dart';
 import '../../../transport/witness_channel.dart';
@@ -421,6 +423,8 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     // anything. The narrator line rides on it when narration is on.
     if (_sting == PhaseLight.dusk) _sharedCue(AudioCue.nightFalls);
     if (_sting == PhaseLight.dawn) _sharedCue(AudioCue.morning);
+    final line = _publicLine(snapshot, previous);
+    if (line != null) _sharedNarrate(line.$1, line.$2);
 
     // Doc 15 §S-O13. Beat 1 is the freeze the result phase arrives with; this
     // is beat 2, once per match. Under Reduce Motion the rings are simply
@@ -563,6 +567,67 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   /// held for something private — the director refuses that outright (FR-026),
   /// and a refused cue must cost a sound, not a frame: an uncaught refusal
   /// here once painted the whole screen grey as the night opened.
+  /// The ballot the narrator last opened, so a same-day revote is spoken
+  /// once and a rebuild never repeats a line.
+  int? _narratedBallot;
+
+  /// F16 online: the narrator line for the public beat this snapshot just
+  /// entered, built only from what every seat is shown at this moment —
+  /// how many the night took, whether the vote removed someone, whether
+  /// this ballot is a revote, and who won once the result is on screen.
+  (NarratorBeat, NarrationFacts)? _publicLine(
+    GameSnapshot snapshot,
+    GamePhase? previous,
+  ) {
+    final phase = snapshot.phase;
+    if (phase == GamePhase.voting) {
+      if (previous == GamePhase.voting &&
+          _narratedBallot == snapshot.ballotRound) {
+        return null;
+      }
+      _narratedBallot = snapshot.ballotRound;
+      return (
+        NarratorBeat.voting,
+        NarrationFacts(revote: snapshot.ballotCandidates.isNotEmpty),
+      );
+    }
+    if (phase == previous) return null;
+    return switch (phase) {
+      GamePhase.night => (NarratorBeat.night, NarrationFacts.none),
+      GamePhase.morning => (
+        NarratorBeat.morning,
+        NarrationFacts(
+          nightEliminated: snapshot.morning?.victimSeat == null ? 0 : 1,
+        ),
+      ),
+      GamePhase.discussion => (NarratorBeat.discussion, NarrationFacts.none),
+      GamePhase.reveal when snapshot.lastVote != null => (
+        NarratorBeat.result,
+        NarrationFacts(
+          dayEliminated: snapshot.lastVote!.eliminatedSeat == null ? 0 : 1,
+        ),
+      ),
+      GamePhase.result
+          when (snapshot.outcome?.winner ?? snapshot.pendingOutcome) != null =>
+        (
+          NarratorBeat.win,
+          NarrationFacts(
+            winner: (snapshot.outcome?.winner ?? snapshot.pendingOutcome)!.name,
+          ),
+        ),
+      _ => null,
+    };
+  }
+
+  /// A spoken line on every phone at the same public moment. Never while the
+  /// phone is in a hand; a voice that fails is never load-bearing.
+  void _sharedNarrate(NarratorBeat beat, NarrationFacts facts) {
+    if (_audio.location == PhoneLocation.inHand) return;
+    try {
+      _audio.narrate(beat, facts);
+    } catch (_) {}
+  }
+
   void _sharedCue(AudioCue cue) {
     if (_audio.location == PhoneLocation.inHand) return;
     try {
@@ -1065,8 +1130,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     // Owner, 2026-09-28: the grey is the beat, not the state. Once it has
     // played, the colour comes back and the witness watches the table they
     // were playing at, every seat wearing its character's face.
-    final grey =
-        dead && !_mourned && _mourning && _sting == null && !_scaring;
+    final grey = dead && !_mourned && _mourning && _sting == null && !_scaring;
     final ground = TweenAnimationBuilder<double>(
       tween: Tween<double>(end: grey ? 1 : 0),
       duration: ReduceMotion.of(context)
@@ -1572,6 +1636,11 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           headline: mafiaWon ? l10n.mafiaWins : l10n.townWins,
           style: type.display,
           support: VictoryEmblem(mafiaWon: mafiaWon),
+          background: const MotionSprite(
+            AppMotion.emberDrift,
+            width: MotionTokens.emberWidth,
+            height: MotionTokens.emberHeight,
+          ),
         );
     }
   }
@@ -2055,7 +2124,10 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           // others, so there is no seat to exclude.
           fromSeat: me,
           witnessed:
-              ref.watch(economyCapabilitiesProvider).valueOrNull?.witnessWhispers ??
+              ref
+                  .watch(economyCapabilitiesProvider)
+                  .valueOrNull
+                  ?.witnessWhispers ??
               false,
           onCancel: () => setState(() => _composing = false),
           onSend: (fromSeat, toSeat, body) {

@@ -352,6 +352,12 @@ abstract final class MotionTokens {
   /// The verdict stamp over a vote result.
   static const double stamp = 72;
   static const Duration stampLength = Duration(milliseconds: 1200);
+  static const double emberWidth = 300;
+  static const double emberHeight = 180;
+  static const double vaultEmberOpacity = 0.22;
+  static const double smokeWidth = 104;
+  static const double smokeHeight = 168;
+  static const double smokeInset = 12;
 }
 
 abstract final class WhisperTokens {
@@ -1431,6 +1437,17 @@ abstract final class ExperienceTokens {
   static const backgroundGlow = 0.07;
 }
 
+/// Public pass-and-play presentation when the phone lies in the table centre.
+/// These values are deliberately absent from private turn widgets.
+abstract final class TabletopTokens {
+  static const double headlineFontSize = 56.0;
+  static const double factFontSize = 26.0;
+  static const double timerFontSize = 72.0;
+  static const double winnerFontSize = 52.0;
+  static const double controlHeight = 64.0;
+  static const double compactBreakpoint = 360.0;
+}
+
 /// The settings kit (`lib/ui/widgets/settings_kit.dart`): the general
 /// settings and the online room settings share one look (owner, 2026-09-24).
 abstract final class SettingsTokens {
@@ -1923,13 +1940,25 @@ abstract final class WarmupTokens {
   static const Duration serverWait = Duration(seconds: 8);
 
   /// First-screen paintings are decoded at phone width, a few at a time.
-  static const int decodeWidth = 1080;
+  static const int decodeMaxWidth = 1080;
   static const int decodeBatch = 4;
 
   static const double mask = 112.0;
   static const double barWidth = 220.0;
   static const double barHeight = 3.0;
   static const double backdropOpacity = 0.35;
+}
+
+/// Decode and effect budgets used by the low-end device classification.
+abstract final class DeviceClassTokens {
+  static const int lowEndPhysicalPixels = 1800000;
+  static const int backdropDecodeMaxWidth = 1440;
+  static const int backdropDecodeMaxHeight = 2560;
+  static const double cardDecodeScale = 1.15;
+  static const int cardDecodeMaxWidth = 768;
+  static const int fallingIconCount = 24;
+  static const int lowEndFallingIconCount = 12;
+  static const int lowEndRewardParticleCount = 5;
 }
 
 /// «أصحابك» (`lib/ui/screens/online/friends.dart`).

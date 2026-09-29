@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../app/asset_constants.dart';
 import '../../../engine/models/enums.dart' show Role;
 import '../../l10n_ext.dart';
-import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/motion_sprite.dart';
 import '../../widgets/vote_bar.dart';
+import '../../theme/design_tokens.dart';
 import '../../widgets/textured_surface.dart';
 
 /// The on-table vote result (screen S-13).
@@ -35,12 +35,14 @@ class VoteResultScreen extends StatelessWidget {
   final bool revoteRequired;
 
   final VoidCallback onContinue;
+  final bool tabletop;
 
   const VoteResultScreen({
     super.key,
     required this.names,
     required this.tally,
     required this.onContinue,
+    this.tabletop = false,
     this.eliminatedSeat,
     this.eliminatedRole,
     this.tiedSeats = const [],
@@ -118,7 +120,13 @@ class VoteResultScreen extends StatelessWidget {
                   ),
                   Text(
                     headline,
-                    style: type.headline.copyWith(color: colors.textPrimary),
+                    key: const ValueKey('vote_result_headline'),
+                    style: type.headline.copyWith(
+                      color: colors.textPrimary,
+                      fontSize: tabletop
+                          ? TabletopTokens.headlineFontSize
+                          : null,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: spacing.sm),
@@ -177,7 +185,9 @@ class VoteResultScreen extends StatelessWidget {
                   ),
                   SizedBox(height: spacing.md),
                   SizedBox(
-                    height: spacing.xxl + spacing.sm,
+                    height: tabletop
+                        ? TabletopTokens.controlHeight
+                        : spacing.xxl + spacing.sm,
                     child: FilledButton(
                       onPressed: onContinue,
                       style: FilledButton.styleFrom(

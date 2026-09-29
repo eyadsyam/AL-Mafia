@@ -34,6 +34,7 @@ class CouncilVoice extends StatelessWidget {
   /// Above the headline, when a phase has something to *show* first — your
   /// own card at night.
   final Widget? leading;
+  final Widget? background;
 
   const CouncilVoice({
     super.key,
@@ -41,6 +42,7 @@ class CouncilVoice extends StatelessWidget {
     this.support,
     this.style,
     this.leading,
+    this.background,
   });
 
   static const Key body = ValueKey('council_voice_body');
@@ -51,28 +53,40 @@ class CouncilVoice extends StatelessWidget {
     final type = context.typography;
     final spacing = context.spacing;
 
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: spacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (leading != null) ...[leading!, SizedBox(height: spacing.md)],
-            Flexible(
-              child: Text(
-                headline,
-                key: body,
-                textAlign: TextAlign.center,
-                style: (style ?? type.headline).copyWith(
-                  color: colors.textPrimary,
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        if (background != null) IgnorePointer(child: background!),
+        Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: spacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (leading != null) ...[
+                  leading!,
+                  SizedBox(height: spacing.md),
+                ],
+                Flexible(
+                  child: Text(
+                    headline,
+                    key: body,
+                    textAlign: TextAlign.center,
+                    style: (style ?? type.headline).copyWith(
+                      color: colors.textPrimary,
+                    ),
+                  ),
                 ),
-              ),
+                if (support != null) ...[
+                  SizedBox(height: spacing.md),
+                  support!,
+                ],
+              ],
             ),
-            if (support != null) ...[SizedBox(height: spacing.md), support!],
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

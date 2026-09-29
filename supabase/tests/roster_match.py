@@ -20,7 +20,7 @@ import sys
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0] if "/" in __file__ else __file__.rsplit("\\", 1)[0])
 from concurrency_match import ROLES, SETTINGS, deal, make_room, parallel, state_of  # noqa: E402
-from e2e_match import KEY, URL, PASS, FAIL, aid, anon_session, check, drop_minted_users, fn, rest  # noqa: E402
+from e2e_match import KEY, URL, PASS, FAIL, aid, anon_session, check, drop_minted_users, fn, rest, ready_lobby  # noqa: E402
 
 
 def roster(room_id, player):
@@ -150,6 +150,7 @@ def main():
     # ── join racing start ────────────────────────────────────────────────
     status, changed = fn("room_settings", {"roomId": room_id, "settings": {"maxPlayers": 8}}, host)
     check("capacity raised to 8 for the race", status == 200, changed)
+    ready_lobby(room_id, players)
     results = parallel([
         lambda: fn("start_match", {"roomId": room_id, "roles": ROLES, "settings": SETTINGS}, host),
         lambda: fn("join_room", {"code": code, "name": "Racer"}, racer),
@@ -169,6 +170,7 @@ def main():
     else:
         roles = ROLES
     if worlds["join won"]:
+        ready_lobby(room_id, players)
         status, started = fn("start_match", {"roomId": room_id, "roles": roles, "settings": SETTINGS}, host)
         check("start with the roster that raced in", status == 200, started)
     before = room_settings(room_id, host).get("settings")

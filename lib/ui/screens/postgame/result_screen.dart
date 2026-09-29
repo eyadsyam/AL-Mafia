@@ -12,8 +12,9 @@ import '../../economy/cosmetic_paint.dart';
 import '../../economy/economy_capabilities.dart';
 import '../../economy/pass_table_dress.dart';
 import '../../theme/mafia_theme.dart';
-import '../../theme/design_tokens.dart' show MafiaTiming;
+import '../../theme/design_tokens.dart';
 import '../../widgets/textured_surface.dart';
+import '../../widgets/motion_sprite.dart';
 import '../../fun/award_ribbon.dart';
 import '../../fun/match_awards.dart';
 import '../../fun/character_dossiers.dart' show BondLetterArrivedCard;
@@ -87,6 +88,7 @@ class ResultScreen extends StatelessWidget {
   /// P6: below the fully revealed roles, the existing offers still waiting
   /// today (pass-and-play only). Null draws nothing.
   final Widget? inventory;
+  final bool tabletop;
 
   const ResultScreen({
     super.key,
@@ -97,6 +99,7 @@ class ResultScreen extends StatelessWidget {
     this.coaching = const {},
     this.awards = const [],
     this.inventory,
+    this.tabletop = false,
   });
 
   /// Key on the «كان ممكن» block for a given seat.
@@ -207,22 +210,40 @@ class ResultScreen extends StatelessWidget {
                                     width: 2,
                                   ),
                                 ),
-                                child: Column(
+                                child: Stack(
+                                  alignment: Alignment.center,
                                   children: [
-                                    Text(
-                                      context.l10n.gameOver,
-                                      style: type.caption.copyWith(
-                                        color: colors.textMuted,
-                                      ),
-                                      textAlign: TextAlign.center,
+                                    const MotionSprite(
+                                      AppMotion.emberDrift,
+                                      width: MotionTokens.emberWidth,
+                                      height: MotionTokens.emberHeight,
                                     ),
-                                    SizedBox(height: spacing.md),
-                                    Text(
-                                      _winnerText(context, winner),
-                                      style: type.headline.copyWith(
-                                        color: winnerColor,
-                                      ),
-                                      textAlign: TextAlign.center,
+                                    Column(
+                                      children: [
+                                        Text(
+                                          context.l10n.gameOver,
+                                          style: type.caption.copyWith(
+                                            color: colors.textMuted,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        SizedBox(height: spacing.md),
+                                        Text(
+                                          _winnerText(context, winner),
+                                          key: const ValueKey(
+                                            'result_winner_headline',
+                                          ),
+                                          style: type.headline.copyWith(
+                                            color: tabletop
+                                                ? colors.textPrimary
+                                                : winnerColor,
+                                            fontSize: tabletop
+                                                ? TabletopTokens.winnerFontSize
+                                                : null,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -292,24 +313,32 @@ class ResultScreen extends StatelessWidget {
                                       ),
                                       SizedBox(width: spacing.md),
 
-                                      // Seat number
-                                      Container(
-                                        width: spacing.lg + spacing.md,
-                                        height: spacing.lg + spacing.md,
-                                        decoration: BoxDecoration(
-                                          color: colors.surfaceOverlay,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          '${row.seat + 1}',
-                                          style: type.caption.copyWith(
-                                            color: colors.textSecondary,
+                                      // At the narrow tabletop breakpoint the
+                                      // name and revealed role are the facts
+                                      // the whole table needs; the decorative
+                                      // seat badge yields its width to them.
+                                      if (!tabletop ||
+                                          MediaQuery.sizeOf(context).width >=
+                                              TabletopTokens
+                                                  .compactBreakpoint) ...[
+                                        Container(
+                                          width: spacing.lg + spacing.md,
+                                          height: spacing.lg + spacing.md,
+                                          decoration: BoxDecoration(
+                                            color: colors.surfaceOverlay,
+                                            shape: BoxShape.circle,
                                           ),
-                                          textAlign: TextAlign.center,
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            '${row.seat + 1}',
+                                            style: type.caption.copyWith(
+                                              color: colors.textSecondary,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(width: spacing.md),
+                                        SizedBox(width: spacing.md),
+                                      ],
 
                                       // Player name
                                       Expanded(
@@ -321,11 +350,10 @@ class ResultScreen extends StatelessWidget {
                                             // plate on the host's row.
                                             CosmeticNameplate(
                                               name: row.name,
-                                              plate:
-                                                  HostIdentityScope.plateFor(
-                                                    context,
-                                                    row.name,
-                                                  ),
+                                              plate: HostIdentityScope.plateFor(
+                                                context,
+                                                row.name,
+                                              ),
                                               style: type.body.emphasised
                                                   .copyWith(
                                                     color: colors.textPrimary,

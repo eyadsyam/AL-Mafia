@@ -1744,6 +1744,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'The clock closes as the table shrinks. It only ever tightens.';
 
   @override
+  String get settingTabletopPresentation => 'Phone in the middle';
+
+  @override
+  String get settingTabletopPresentationHint =>
+      'Makes public screens and timers readable from across the table.';
+
+  @override
   String get settingDiscussionSeconds => 'Discussion length';
 
   @override

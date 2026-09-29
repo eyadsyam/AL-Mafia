@@ -25,6 +25,7 @@ from concurrent.futures import ThreadPoolExecutor
 sys.path.insert(0, __file__.rsplit("/", 1)[0] if "/" in __file__ else __file__.rsplit("\\", 1)[0])
 from e2e_match import (  # noqa: E402
     KEY, URL, PASS, FAIL, aid, anon_session, check, drop_minted_users, fn, rest,
+    ready_lobby,
 )
 
 SETTINGS = {
@@ -61,6 +62,7 @@ def make_room(names):
 
 
 def deal(players, room_id):
+    ready_lobby(room_id, players)
     status, started = fn("start_match", {"roomId": room_id, "roles": ROLES, "settings": SETTINGS}, players[0])
     check("start_match", status == 200 and started.get("started") is True, started)
     for p in players:

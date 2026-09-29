@@ -54,6 +54,7 @@ def revote_section():
         "confrontationEnabled": False, "whisperEnabled": False,
     }
     roles = {"mafia": 1, "doctor": 1, "detective": 1, "citizen": 2}
+    h.ready_lobby(room_id, players)
     status, started = fn("start_match", {"roomId": room_id, "roles": roles, "settings": settings}, players[0])
     check("start_match with the revote rule", status == 200 and started.get("started") is True, started)
 

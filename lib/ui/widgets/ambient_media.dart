@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../platform/reduce_motion.dart';
+import '../../platform/device_class.dart';
 import '../theme/design_tokens.dart';
 
 /// Silent, decorative shared media. Loading never gates a game control.
@@ -26,7 +27,18 @@ class AmbientMedia extends StatelessWidget {
     final moving =
         loop != null &&
         !ReduceMotion.of(context) &&
+        !DeviceClass.isLowEnd(
+          maxPhysicalPixels: DeviceClassTokens.lowEndPhysicalPixels,
+        ) &&
         TickerMode.valuesOf(context).enabled;
+    final media = MediaQuery.of(context);
+    final cacheWidth = (media.size.width * media.devicePixelRatio).ceil().clamp(
+      1,
+      DeviceClassTokens.backdropDecodeMaxWidth,
+    );
+    final cacheHeight = (media.size.height * media.devicePixelRatio)
+        .ceil()
+        .clamp(1, DeviceClassTokens.backdropDecodeMaxHeight);
     Widget image(String asset, {ImageFrameBuilder? frameBuilder}) =>
         Image.asset(
           asset,
@@ -35,6 +47,8 @@ class AmbientMedia extends StatelessWidget {
           height: double.infinity,
           excludeFromSemantics: true,
           gaplessPlayback: true,
+          cacheWidth: cacheWidth,
+          cacheHeight: cacheHeight,
           frameBuilder: frameBuilder,
           errorBuilder: (_, _, _) => const SizedBox.expand(),
         );

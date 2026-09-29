@@ -383,6 +383,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         value: _s.pressureCurveEnabled,
         onChanged: (v) => _edit((s) => s.copyWith(pressureCurveEnabled: v)),
       ),
+      _switch(
+        field: 'tabletopPresentation',
+        label: l10n.settingTabletopPresentation,
+        description: l10n.settingTabletopPresentationHint,
+        value: _s.tabletopPresentation,
+        onChanged: (v) => _edit((s) => s.copyWith(tabletopPresentation: v)),
+      ),
     ],
   );
 

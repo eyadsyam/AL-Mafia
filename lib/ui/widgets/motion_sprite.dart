@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/asset_constants.dart';
 import '../../platform/reduce_motion.dart';
+import '../../platform/device_class.dart';
 import '../theme/design_tokens.dart';
 
 /// One transparent animated sprite from [AppMotion], drawn on whatever is
@@ -58,7 +59,10 @@ class _MotionSpriteState extends State<MotionSprite> {
 
   @override
   Widget build(BuildContext context) {
-    if (_done || ReduceMotion.of(context)) {
+    final lowEnd = DeviceClass.isLowEnd(
+      maxPhysicalPixels: DeviceClassTokens.lowEndPhysicalPixels,
+    );
+    if (_done || ReduceMotion.of(context) || (lowEnd && widget.once == null)) {
       return widget.after ??
           SizedBox(width: widget.width, height: widget.height);
     }
