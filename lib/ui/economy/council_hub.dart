@@ -1371,6 +1371,7 @@ class CouncilResultStrip extends ConsumerStatefulWidget {
   const CouncilResultStrip({super.key, required this.roomId});
 
   static const Key stripKey = ValueKey('council_result_strip');
+  static const Key progressKey = ValueKey('council_result_progress');
   static const Key casebookKey = ValueKey('council_result_casebook');
 
   @override
@@ -1381,6 +1382,13 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
   List<String> _lines = const [];
   bool _shown = false;
   bool _missions = false;
+
+  /// What this match did to the rank: where the bar stood before (0 when the
+  /// level turned over), the rank after, and the XP it earned. Null when the
+  /// match moved nothing, which draws no progress card.
+  CouncilRank? _rank;
+  double _from = 0;
+  int _xp = 0;
 
   /// One id for this result's summary, reused by any retry (D7): the server
   /// replays its first answer, so a lost response still shows the lines.
@@ -1430,8 +1438,13 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
           (before != null && before.rank.enabled
               ? after.rank.xp - before.rank.xp
               : 0);
+      if (after.rank.enabled && xpGained > 0) {
+        _rank = after.rank;
+        _xp = xpGained;
+        final was = before?.rank;
+        _from = was != null && was.level == after.rank.level ? was.progress : 0;
+      }
       final lines = [
-        if (after.rank.enabled && xpGained > 0) l.resultXpGained(xpGained),
         // With the Casebook on, contracts are its daily cases and it pays
         // them on its own schedule: one line below says so instead.
         if (!_missions) ...ready,
@@ -1460,9 +1473,52 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
     }
   }
 
+  /// The match's spoils as progress, not as a sentence: the rank, the XP
+  /// this match earned, and the bar filling from where it stood.
+  Widget _progress(BuildContext context, CouncilRank rank, bool reduce) {
+    final l = context.l10n;
+    final s = context.spacing;
+    return Padding(
+      key: CouncilResultStrip.progressKey,
+      padding: EdgeInsets.only(bottom: s.xs),
+      child: VaultCard(
+        lit: true,
+        mainAxisSize: MainAxisSize.min,
+        padding: EdgeInsets.symmetric(horizontal: s.md, vertical: s.sm),
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  rankTitle(l, rankTier(rank.level)),
+                  style: context.typography.title.copyWith(
+                    color: VaultTokens.goldLight,
+                  ),
+                ),
+              ),
+              _LevelPill(text: l.councilLevel(rank.level)),
+              SizedBox(width: s.sm),
+              RewardChip(_xp, unit: l.xpUnit),
+            ],
+          ),
+          SizedBox(height: s.xs),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: reduce ? rank.progress : _from, end: rank.progress),
+            duration: reduce ? Duration.zero : VaultTokens.barFill * 2,
+            curve: context.motion.standardCurve,
+            builder: (context, v, _) => CouncilBar(value: v),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (!_shown || _lines.isEmpty) return const SizedBox.shrink();
+    final rank = _rank;
+    if (!_shown || (_lines.isEmpty && rank == null)) {
+      return const SizedBox.shrink();
+    }
     final s = context.spacing;
     final colors = context.colors;
     final reduce = MediaQuery.disableAnimationsOf(context);
@@ -1473,6 +1529,7 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          ?(rank == null ? null : _progress(context, rank, reduce)),
           for (final (i, line) in _lines.indexed)
             TweenAnimationBuilder<double>(
               tween: Tween(begin: reduce ? 1 : 0, end: 1),

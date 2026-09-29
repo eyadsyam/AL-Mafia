@@ -551,7 +551,9 @@ void main() {
       };
       await pump(tester, const CouncilResultStrip(roomId: 'room-1'));
       await tester.pumpAndSettle();
-      expect(find.text(arStrings.resultXpGained(50)), findsOneWidget);
+      // The XP now arrives as a progress card: rank, bar and a +50 chip.
+      expect(find.byKey(CouncilResultStrip.progressKey), findsOneWidget);
+      expect(find.textContaining('+50'), findsOneWidget);
     });
 
     testWidgets('council off: the result screen shows nothing new', (
