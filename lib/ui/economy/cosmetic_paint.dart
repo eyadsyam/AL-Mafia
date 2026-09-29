@@ -225,7 +225,7 @@ class _SeatPreviewState extends State<SeatPreview> {
         SizedBox.square(
           dimension: diameter * CosmeticTokens.previewFrameBox,
           child: CustomPaint(
-            foregroundPainter: _FramePainter(
+            foregroundPainter: CosmeticFramePainter(
               widget.frame == null ? null : Cosmetics.frames[widget.frame],
               diameter,
             ),
@@ -245,7 +245,7 @@ class _SeatPreviewState extends State<SeatPreview> {
         ),
         SizedBox(height: context.spacing.md),
         CustomPaint(
-          painter: plateStyle == null ? null : _PlatePainter(plateStyle),
+          painter: plateStyle == null ? null : CosmeticPlatePainter(plateStyle),
           child: ConstrainedBox(
             constraints: const BoxConstraints(
               maxWidth: CosmeticTokens.previewAvatar * 2,
@@ -263,10 +263,12 @@ class _SeatPreviewState extends State<SeatPreview> {
   }
 }
 
-class _FramePainter extends CustomPainter {
+/// The one frame painter: the store preview, the identity ring and the table
+/// preview all draw through [paintCosmeticFrame] here.
+class CosmeticFramePainter extends CustomPainter {
   final FrameStyle? style;
   final double diameter;
-  _FramePainter(this.style, this.diameter)
+  CosmeticFramePainter(this.style, this.diameter)
     : super(repaint: CosmeticArtCache.revision);
 
   @override
@@ -277,18 +279,19 @@ class _FramePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_FramePainter old) =>
+  bool shouldRepaint(CosmeticFramePainter old) =>
       old.style != style || old.diameter != diameter;
 }
 
-class _PlatePainter extends CustomPainter {
+/// The one plate painter behind a name, shared by every identity placement.
+class CosmeticPlatePainter extends CustomPainter {
   final PlateStyle style;
-  _PlatePainter(this.style) : super(repaint: CosmeticArtCache.revision);
+  CosmeticPlatePainter(this.style) : super(repaint: CosmeticArtCache.revision);
   @override
   void paint(Canvas canvas, Size size) =>
       paintCosmeticPlate(canvas, Offset.zero, size, style);
   @override
-  bool shouldRepaint(_PlatePainter old) => old.style != style;
+  bool shouldRepaint(CosmeticPlatePainter old) => old.style != style;
 }
 
 /// A public backdrop dressed by a presentation pack: its scene over the
@@ -519,6 +522,122 @@ class NarrationCaption extends StatelessWidget {
                 ),
               ),
             ),
+    );
+  }
+}
+
+/// A player's own avatar dressed with their equipped frame (store truth).
+///
+/// Reuses [CosmeticFramePainter], so the ring a buyer sees on Profile, Home,
+/// friends, the lobby and the result is exactly the one the table draws.
+/// [frame] null draws [child] alone. Callers pass a frame only where
+/// `cosmeticsVisibleIn` allows it; nothing here reads a phase.
+class CosmeticFrameRing extends StatefulWidget {
+  final String? frame;
+  final double diameter;
+  final Widget child;
+  const CosmeticFrameRing({
+    super.key,
+    required this.frame,
+    required this.diameter,
+    required this.child,
+  });
+
+  static const Key ringKey = ValueKey('cosmetic_frame_ring');
+
+  @override
+  State<CosmeticFrameRing> createState() => _CosmeticFrameRingState();
+}
+
+class _CosmeticFrameRingState extends State<CosmeticFrameRing> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    CosmeticArtCache.load(DefaultAssetBundle.of(context).load);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final style = widget.frame == null ? null : Cosmetics.frames[widget.frame];
+    if (style == null) return widget.child;
+    final box = widget.diameter * CosmeticTokens.previewFrameBox;
+    return SizedBox.square(
+      key: CosmeticFrameRing.ringKey,
+      dimension: box,
+      child: CustomPaint(
+        foregroundPainter: CosmeticFramePainter(style, widget.diameter),
+        child: Center(
+          child: SizedBox.square(dimension: widget.diameter, child: widget.child),
+        ),
+      ),
+    );
+  }
+}
+
+/// A player's own name dressed with their equipped nameplate, drawn by
+/// [CosmeticPlatePainter]. [plate] null is the plain [style] text.
+class CosmeticNameplate extends StatefulWidget {
+  final String name;
+  final String? plate;
+  final TextStyle style;
+  final TextAlign? textAlign;
+  const CosmeticNameplate({
+    super.key,
+    required this.name,
+    required this.plate,
+    required this.style,
+    this.textAlign,
+  });
+
+  static const Key plateKey = ValueKey('cosmetic_nameplate');
+
+  @override
+  State<CosmeticNameplate> createState() => _CosmeticNameplateState();
+}
+
+class _CosmeticNameplateState extends State<CosmeticNameplate> {
+  @override
+  void initState() {
+    super.initState();
+    CosmeticArtCache.revision.addListener(_arrived);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    CosmeticArtCache.load(DefaultAssetBundle.of(context).load);
+  }
+
+  void _arrived() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    CosmeticArtCache.revision.removeListener(_arrived);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final style = widget.plate == null ? null : Cosmetics.plates[widget.plate];
+    final text = Text(
+      widget.name,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      textAlign: widget.textAlign,
+      style: style == null
+          ? widget.style
+          : widget.style.copyWith(color: plateTextColor(style)),
+    );
+    if (style == null) return text;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: CosmeticTokens.platePadding * 2),
+      child: CustomPaint(
+        key: CosmeticNameplate.plateKey,
+        painter: CosmeticPlatePainter(style),
+        child: text,
+      ),
     );
   }
 }
