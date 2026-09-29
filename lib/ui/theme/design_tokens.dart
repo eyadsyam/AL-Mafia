@@ -2099,6 +2099,9 @@ abstract final class InviteTokens {
   /// The directory's «أونلاين دلوقتي» is refreshed at most this often.
   static const Duration presenceBeat = Duration(minutes: 2);
 
+  /// Firebase start at launch is given at most this long.
+  static const Duration pushStart = Duration(seconds: 3);
+
   /// The popup rises once; reduced motion shows it at rest.
   static const Duration popupRise = Duration(milliseconds: 320);
   static const double popupLift = 24.0;

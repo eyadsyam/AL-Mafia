@@ -14,7 +14,7 @@
  */
 import { fail, handler, loadMembership, ok, type ErrorCode } from "../_shared/api.ts";
 import { friendsCall, needsMembership } from "../_shared/friends_actions.ts";
-import { sendInvitePush, type PushTarget } from "../_shared/push.ts";
+import { sendPush, type PushDeps, type PushTarget } from "../_shared/push.ts";
 import { serviceAccountToken } from "../_shared/play_auth.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
@@ -46,22 +46,36 @@ Deno.serve(handler(async (req, userId, db) => {
     throw error;
   }
 
+  const deps: PushDeps = {
+    secret: Deno.env.get("FCM_SERVICE_ACCOUNT_B64"),
+    accessToken: (raw) => serviceAccountToken(raw, "https://www.googleapis.com/auth/firebase.messaging"),
+    fetch,
+    dropToken: async (token) => { await db.rpc("push_token_drop", { p_token: token }); },
+    log: (line) => console.log(line),
+  };
+
   // A fresh invite rings the recipient's phone. Best effort: a missing
   // secret, a dead token or FCM itself never fails the invite.
   if (call.fn === "room_invite_send" && data?.fresh === true && typeof data.inviteId === "string") {
     try {
       const { data: target } = await db.rpc("invite_push_targets", { p_invite: data.inviteId });
-      await sendInvitePush((target ?? { enabled: false }) as PushTarget, {
-        secret: Deno.env.get("FCM_SERVICE_ACCOUNT_B64"),
-        accessToken: (raw) => serviceAccountToken(raw, "https://www.googleapis.com/auth/firebase.messaging"),
-        fetch,
-        dropToken: async (token) => { await db.rpc("push_token_drop", { p_token: token }); },
-        log: (line) => console.log(line),
-      });
+      await sendPush((target ?? { enabled: false }) as PushTarget, deps);
     } catch {
       console.log("push skipped: error");
     }
     return ok({ invited: true, inviteId: data.inviteId });
+  }
+
+  // D: a friend request, or accepting one, reaches the other phone quietly.
+  if (call.fn === "friend_request" || (call.fn === "friend_respond" && call.args.p_accept === true)) {
+    try {
+      const { data: target } = await db.rpc("friend_push_targets", {
+        p_from: userId, p_to: call.args.p_target,
+      });
+      await sendPush((target ?? { enabled: false }) as PushTarget, deps);
+    } catch {
+      console.log("push skipped: error");
+    }
   }
   // The inbox is a list; every answer is an object.
   return ok(call.fn === "invites_inbox" ? { invites: data } : data);

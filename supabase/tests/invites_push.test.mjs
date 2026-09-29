@@ -5,7 +5,7 @@
 // room code, the sender's name/handle and the invite id (Doc 05).
 import assert from 'node:assert/strict';
 import { friendsCall, countryFrom, languageFrom } from '../functions/_shared/friends_actions.ts';
-import { inviteMessage, sendInvitePush } from '../functions/_shared/push.ts';
+import { inviteMessage, sendInvitePush, messageFor } from '../functions/_shared/push.ts';
 
 const me = '00000000-0000-4000-8000-000000000001';
 const other = '00000000-0000-4000-8000-000000000002';
@@ -132,5 +132,14 @@ assert.ok(calls.every((c) => c.init.headers.authorization === 'Bearer access'));
 assert.ok(logs.every((l) => !l.includes('a'.repeat(20)) && !l.includes('إياد') && !l.includes('K7M2QP')));
 // A throwing transport never throws out.
 assert.equal((await sendInvitePush(target, deps({ secret, fetch: async () => { throw new Error('net'); } }))).failed, 2);
+
+// ── D: friend events on the quiet channel ──────────────────────────────────
+const social = { enabled: true, kind: 'friend_request', fromName: 'إياد', tokens: [] };
+const sa = messageFor(social, 't'.repeat(40), 'android').message;
+assert.equal(sa.android.notification.channel_id, 'mafia_social');
+assert.equal(sa.android.notification.default_sound, true);
+assert.deepEqual(Object.keys(sa.data).sort(), ['fromName', 'kind']);
+assert.equal(messageFor({ ...social, kind: 'friend_accepted' }, 't', 'web').message.data.kind, 'friend_accepted');
+assert.equal(messageFor(target, 't', 'android').message.android.notification.channel_id, 'mafia_invites');
 
 console.log('invites/push routing and FCM step: PASS');

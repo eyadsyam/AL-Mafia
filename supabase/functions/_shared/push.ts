@@ -12,7 +12,7 @@
 
 export interface PushTarget {
   enabled: boolean;
-  kind?: "invite";
+  kind?: "invite" | "friend_request" | "friend_accepted";
   inviteId?: string;
   code?: string;
   fromName?: string;
@@ -43,6 +43,9 @@ export const INVITE_VIBRATION_MS = [0, 400, 180, 400, 180, 700];
 
 /** Our gold (design token `ShareCardTokens.gold`), for the Android accent. */
 export const INVITE_ACCENT = "#C2AF81";
+
+/** Friend requests: one short buzz (`InviteTokens.shortVibration`). */
+export const SOCIAL_VIBRATION_MS = [0, 180];
 
 const CODE = /^[A-Z0-9]{6}$/;
 
@@ -110,6 +113,58 @@ export function inviteMessage(t: PushTarget, token: string, platform: "android" 
   };
 }
 
+/**
+ * D: a friend request or an accepted request, on the quieter `mafia_social`
+ * channel (default sound, short vibration). Only the kind and the sender's
+ * display name travel.
+ */
+export function socialMessage(t: PushTarget, token: string, platform: "android" | "web") {
+  const name = String(t.fromName ?? "").slice(0, 40);
+  const accepted = t.kind === "friend_accepted";
+  const title = accepted ? "بقيتوا أصحاب" : "طلب صداقة";
+  const body = accepted ? `${name} قبل طلب الصداقة` : `${name} عايز يبقى صاحبك`;
+  const data = { kind: accepted ? "friend_accepted" : "friend_request", fromName: name };
+  const link = `${WEB_ORIGIN}/online`;
+  if (platform === "android") {
+    return {
+      message: {
+        token, data,
+        notification: { title, body },
+        android: {
+          priority: "NORMAL",
+          notification: {
+            channel_id: "mafia_social",
+            icon: "ic_stat_mafia",
+            color: INVITE_ACCENT,
+            default_sound: true,
+            default_vibrate_timings: false,
+            vibrate_timings: SOCIAL_VIBRATION_MS.slice(1).map((ms) => `${ms / 1000}s`),
+          },
+        },
+      },
+    };
+  }
+  return {
+    message: {
+      token, data,
+      webpush: {
+        notification: {
+          title, body, icon: "/icons/Icon-192.png", badge: "/icons/badge-72.png",
+          vibrate: SOCIAL_VIBRATION_MS.slice(1), dir: "rtl", lang: "ar", data: { link },
+        },
+        fcm_options: { link },
+      },
+    },
+  };
+}
+
+/** The message for one device, by kind. */
+export function messageFor(t: PushTarget, token: string, platform: "android" | "web") {
+  return t.kind === "friend_request" || t.kind === "friend_accepted"
+    ? socialMessage(t, token, platform)
+    : inviteMessage(t, token, platform);
+}
+
 function projectOf(raw: string): string | null {
   try {
     const account = JSON.parse(raw.trim().startsWith("{") ? raw : atob(raw.trim()));
@@ -119,8 +174,8 @@ function projectOf(raw: string): string | null {
   }
 }
 
-/** Sends one invite to every device of its recipient. Never throws. */
-export async function sendInvitePush(t: PushTarget, deps: PushDeps): Promise<PushOutcome> {
+/** Sends one push (an invite or a friend event) to every device of its recipient. Never throws. */
+export async function sendPush(t: PushTarget, deps: PushDeps): Promise<PushOutcome> {
   if (!t.enabled) return { result: "skipped", reason: "off" };
   const tokens = t.tokens ?? [];
   if (tokens.length === 0) return { result: "skipped", reason: "no_tokens" };
@@ -145,7 +200,7 @@ export async function sendInvitePush(t: PushTarget, deps: PushDeps): Promise<Pus
         {
           method: "POST",
           headers: { authorization: `Bearer ${access}`, "content-type": "application/json" },
-          body: JSON.stringify(inviteMessage(t, token, platform)),
+          body: JSON.stringify(messageFor(t, token, platform)),
         },
       );
       if (response.ok) { sent++; continue; }
@@ -160,6 +215,9 @@ export async function sendInvitePush(t: PushTarget, deps: PushDeps): Promise<Pus
       failed++;
     }
   }
-  deps.log(`push invite: sent=${sent} dead=${dead} failed=${failed}`);
+  deps.log(`push ${t.kind === "invite" || t.kind == null ? "invite" : "social"}: sent=${sent} dead=${dead} failed=${failed}`);
   return { result: "sent", sent, dead, failed };
 }
+
+/** The invite step, by its old name. */
+export const sendInvitePush = sendPush;
