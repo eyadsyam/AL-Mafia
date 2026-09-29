@@ -324,6 +324,19 @@ class MafiaSpacing extends ThemeExtension<MafiaSpacing> {
 /// The whisper composer: the seal over the title, the recipients' faces
 /// (large to pick, small in the strip above the letter) and how far the
 /// faces not picked fade.
+/// Transparent motion sprites (`AppMotion`): the reward burst and the coin
+/// that rises out of it, how far it rises, and how long the one-shot burst
+/// file plays (20 frames at 24 fps).
+abstract final class MotionTokens {
+  static const double burst = 220;
+  static const double coin = 64;
+  static const double coinRise = 72;
+  static const double seal = 72;
+  static const double flame = 28;
+  static const Duration burstLength = Duration(milliseconds: 830);
+  static const Duration sealLength = Duration(milliseconds: 1000);
+}
+
 abstract final class WhisperTokens {
   static const double seal = 56;
   static const double face = 72;
@@ -1011,6 +1024,9 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
 
   /// How long one line of the dead's news stays over the table.
   static const witnessNewsHold = Duration(milliseconds: 2800);
+
+  /// How long a reward's sparks and rising coin stay on screen.
+  static const rewardFlourish = Duration(milliseconds: 1100);
 
   /// How long «{name} بقى الهوست» stays on screen after a host migration.
   static const hostHandover = Duration(seconds: 3);

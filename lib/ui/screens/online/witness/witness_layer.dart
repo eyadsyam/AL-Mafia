@@ -10,6 +10,7 @@ import '../../../economy/vault_kit.dart';
 import '../../../l10n_ext.dart';
 import '../../../theme/design_tokens.dart';
 import '../../../theme/mafia_theme.dart';
+import '../../../widgets/motion_sprite.dart';
 import '../../../../platform/reduce_motion.dart';
 import '../council/role_glyph.dart';
 import 'witness_panel.dart';
@@ -450,11 +451,17 @@ class _WitnessLetterState extends State<WitnessLetter> {
           children: [
             _Face(role: widget.table.roles[w.fromSeat]),
             SizedBox(width: spacing.xs),
-            Image.asset(
-              AppCouncilArt.whisperSeal,
+            // The seal presses down as the letter opens, then stays.
+            MotionSprite(
+              AppMotion.waxSealStamp,
               width: CouncilTokens.witnessSeal,
-              height: CouncilTokens.witnessSeal,
-              excludeFromSemantics: true,
+              once: MotionTokens.sealLength,
+              after: Image.asset(
+                AppCouncilArt.whisperSeal,
+                width: CouncilTokens.witnessSeal,
+                height: CouncilTokens.witnessSeal,
+                excludeFromSemantics: true,
+              ),
             ),
             SizedBox(width: spacing.xs),
             _Face(role: widget.table.roles[w.toSeat]),

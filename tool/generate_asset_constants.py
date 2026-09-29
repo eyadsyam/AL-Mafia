@@ -37,6 +37,10 @@ GROUPS = [
      "Doc 15's council furniture: seat rings, backdrops, the timer ornament "
      "and the two victory emblems. Every one of them is a tintable alpha mask "
      "or a full-bleed ground — none carries a role, and none may."),
+    ("images/motion", "AppMotion",
+     "Transparent animated sprites (animated WebP with alpha) that play ON a "
+     "surface: sparks, a spinning coin, a wax seal, a flame. Decorative only; "
+     "hidden under reduced motion. See MotionSprite."),
     ("icons", "AppIcons", "Tintable alpha masks. These carry no colour of "
                           "their own; the widget layer supplies it."),
     ("audio", "AppAudio", "Table cues. Never played while the phone is in a "

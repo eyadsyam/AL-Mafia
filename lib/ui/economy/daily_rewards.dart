@@ -22,6 +22,7 @@ import 'store_art.dart';
 import 'vault_kit.dart';
 import 'wallet.dart';
 
+import '../widgets/motion_sprite.dart';
 class WheelPrize {
   final int slot;
   final int coins;
@@ -302,6 +303,7 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
       if (grant.granted > 0) {
         Haptics.confirm();
         setState(() => _cofferBurst = (_cofferBurst ?? 0) + 1);
+        showRewardFlourish(context);
         _say(
           grant.bonus > 0
               ? '${l.dailyCofferGranted(grant.granted)} ${l.dailyWeekBonusGranted(grant.bonus)}'

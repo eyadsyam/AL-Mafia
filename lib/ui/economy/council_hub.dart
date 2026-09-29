@@ -23,6 +23,7 @@ import '../widgets/feathered_art.dart';
 import '../missions/casebook_data.dart';
 import '../missions/casebook_sheet.dart';
 
+import '../widgets/motion_sprite.dart';
 /// What a contract asks, in the player's words.
 String contractName(AppLocalizations l, CouncilContract c) =>
     switch (c.metric) {
@@ -243,6 +244,7 @@ class _CouncilHubTabState extends ConsumerState<CouncilHubTab> {
       if (grant.granted > 0) {
         Haptics.confirm();
         setState(() => _bursts[slot] = (_bursts[slot] ?? 0) + 1);
+        showRewardFlourish(context);
         _say(
           context,
           grant.bonus > 0

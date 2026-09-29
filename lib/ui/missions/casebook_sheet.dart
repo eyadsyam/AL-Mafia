@@ -16,6 +16,7 @@ import '../theme/mafia_theme.dart';
 import '../widgets/feathered_art.dart';
 import 'casebook_data.dart';
 
+import '../widgets/motion_sprite.dart';
 /// Opens «ملف القضايا» over whatever screen asked for it.
 Future<void> showCasebookSheet(BuildContext context, {int page = 0}) =>
     showModalBottomSheet<void>(
@@ -97,6 +98,7 @@ class _CasebookSheetState extends ConsumerState<CasebookSheet> {
     });
     try {
       await run();
+      if (mounted) showRewardFlourish(context);
     } on CaseClaimFailed {
       if (mounted) setState(() => _error = context.l10n.casebookClaimError);
     } finally {

@@ -116,6 +116,22 @@ abstract final class AppCouncilArt {
   ];
 }
 
+/// Transparent animated sprites (animated WebP with alpha) that play ON a surface: sparks, a spinning coin, a wax seal, a flame. Decorative only; hidden under reduced motion. See MotionSprite.
+abstract final class AppMotion {
+  static const String candleFlame = 'assets/images/motion/candle_flame.webp';
+  static const String coinSpin = 'assets/images/motion/coin_spin.webp';
+  static const String goldBurst = 'assets/images/motion/gold_burst.webp';
+  static const String waxSealStamp = 'assets/images/motion/wax_seal_stamp.webp';
+
+  /// Every asset in this group, for preloading and for the manifest test.
+  static const List<String> values = <String>[
+    candleFlame,
+    coinSpin,
+    goldBurst,
+    waxSealStamp,
+  ];
+}
+
 /// Tintable alpha masks. These carry no colour of their own; the widget layer supplies it.
 abstract final class AppIcons {
   static const String badgeFrame = 'assets/icons/badge_frame.webp';
