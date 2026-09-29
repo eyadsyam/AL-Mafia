@@ -3,7 +3,14 @@ begin;
 do $$
 declare r jsonb; at timestamptz:=date_trunc('second',now())+interval '2 days'; s public.mission_seasons;
 begin
-  -- Asleep after migrations: no season is current, so nothing earns into it.
+  -- Release 1.1 (20260930000300) starts Season Zero at migration time.
+  select * into s from mission_seasons where code='season_zero';
+  assert s.active, 'Season Zero live after the 1.1 migrations';
+  -- The operator-start contract below still holds for a season put back to
+  -- sleep, so the test puts it back and walks it.
+  update mission_seasons set active=false,
+    starts_at=now()+interval '30 days', ends_at=now()+interval '58 days'
+   where code='season_zero';
   select * into s from mission_seasons where code='season_zero';
   assert not s.active, 'Season Zero started at migration time';
   assert not exists(select 1 from mission_seasons
