@@ -54,12 +54,16 @@ begin
     from public.metric_receipts),''))=0,'raw account id stored';
   assert (select bool_and(octet_length(subject)=32) from public.metric_receipts),'bad HMAC width';
 
-  insert into public.metric_salts(day,salt) values(current_date-3,decode(repeat('01',32),'hex'));
+  -- purge_metrics_v11() cuts salts at (now() at time zone 'utc' - 48h)::date; anchor
+  -- this probe row to that same UTC date (not the session-local current_date) so the
+  -- assertion below does not flake when the session's local day has already rolled
+  -- over past midnight UTC.
+  insert into public.metric_salts(day,salt) values(((now() at time zone 'utc')::date-3),decode(repeat('01',32),'hex'));
   insert into public.metric_receipts(subject,request_id,day,created_at)
-    values(decode(repeat('02',32),'hex'),gen_random_uuid(),current_date-3,now()-interval '49 hours');
+    values(decode(repeat('02',32),'hex'),gen_random_uuid(),((now() at time zone 'utc')::date-3),now()-interval '49 hours');
   perform public.purge_metrics_v11();
   assert not exists(select 1 from public.metric_receipts where created_at<now()-interval '48 hours');
-  assert not exists(select 1 from public.metric_salts where day=current_date-3);
+  assert not exists(select 1 from public.metric_salts where day=((now() at time zone 'utc')::date-3));
 
   assert not has_table_privilege('authenticated','public.product_metric_daily','select');
   assert not has_table_privilege('authenticated','public.metric_receipts','select');
