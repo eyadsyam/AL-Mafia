@@ -107,3 +107,22 @@ Server facts:
 9. **Web = mobile, exactly.** Every feature, screen, sound, narrator, store item, invite, reward and flow must behave the same on the web build as on Android. List every difference you find in `docs/WEB-PARITY.md` and fix each one (the only allowed gap: AdMob does not run on the web, so web shows no AdMob ads; say what the web shows in those slots instead, e.g. nothing, or the house promo — never an empty box).
 
 10. **What is still missing for a strong public launch, that nobody asked for.** Think like the owner and a Play reviewer: e.g. in-app account deletion (Play requirement) and data export, privacy policy and terms links in settings and store, a force-update / minimum-version check so old clients get told to update (the old Android client cannot start matches when `lobby_ready_enabled` is on), crash/error reporting without new dependencies, offline/no-network screens, empty states, loading states, rate-limit messages in Arabic, first-match tutorial hints. Implement what is clearly needed and cheap; list the rest in `docs/LAUNCH-GAPS.md` with a recommendation.
+
+11. **Web ads** (owner: players will move to the web to avoid ads, so the web needs ads too). Implement web ads at the same moments as mobile, with no new Dart dependencies:
+    - **Provider 1: Google AdSense H5 Games Ads** (Ad Placement API: adsbygoogle.js with data-ad-client, adConfig/adBreak). Map it like this:
+      - interstitial moments → `adBreak({type:'next'|'start'})`;
+      - rewarded buttons → `adBreak({type:'reward', beforeReward, adViewed, adDismissed})`. The reward goes through the same server path, verified server-side (a claim plus a short-lived token), with the same daily caps as mobile;
+      - lobby banner → an AdSense display unit.
+    - **Provider 2: house promo** in the same slots while AdSense isn't approved (store items, invite a friend, daily coffer). Never an empty box.
+    - **Config:** dart-define `WEB_ADSENSE_CLIENT`, plus `economy_config.web_ads_enabled` (default false) and `web_ads_provider` ('adsense_h5' | 'house').
+    - **Same pacing as Android:** InterstitialRules, the grace match, never during private phases, Doc 05.
+    - **JS interop:** `dart:js_interop` only.
+    - Add `web/ads.txt`.
+    - `docs/WEB-ADS-SETUP.md` for the owner: AdSense account, applying for H5 Games Ads, and the note that a custom domain is strongly recommended over almafia.vercel.app.
+    - Tests for pacing parity and reward verification.
+12. **Payments on Android: all three options.** Google Play Billing (first), InstaPay and Vodafone Cash. Server `transfer_enabled_android` is now ON, and `PLAY_BILLING_ENABLED` is true in the 1.1 build.
+    - Make every path work end to end: order → receipt → admin approval → coins.
+    - Keep the in-repo store/Data-safety disclosure text truthful.
+13. **Wire the new art.** Codex is generating the 17 images from `docs/ART-NEEDED.md` into their exact paths on `claude/epic-roentgen-094f21`. Once they are there, wire each one as your table says, and remove the `TODO(art)` placeholders.
+
+Reviewer state: your 303f92c is merged into `claude/epic-roentgen-094f21` (now b6d7842+). Hosted migrations through `20260930000600` are applied. Merge from there before continuing. Final report → `docs/cloud/REPORT-4.md`.
