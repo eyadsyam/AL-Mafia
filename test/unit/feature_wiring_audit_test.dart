@@ -1,66 +1,78 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/ui/economy/economy_capabilities.dart';
 
-void main() {
-  test('every release feature flag in the capability envelope is parsed', () {
-    final caps = EconomyCapabilities.fromJson({
-      'version': 2,
-      'adSteps': true,
-      'daily': true,
-      'dailyAd': true,
-      'creator': true,
-      'recoverable': true,
-      'caseOfDay': true,
-      'metrics': true,
-      'reviewPrompt': true,
-      'lobbyReady': true,
-      'missions': true,
-      'thursday': true,
-      'titles': true,
-      'partner': true,
-      'economy': {'version': 3},
-      'council': {
-        'contracts': true,
-        'rank': true,
-        'leaderboard': true,
-        'invites': true,
-        'starterBundle': true,
-      },
-      'ads': {
-        'banner': {'enabled': true},
-        'appOpen': {'enabled': true},
-        'extras': {'spin': true, 'coffer': true, 'swap': true},
-      },
-      'fun': {
-        'awards': true,
-        'reactions': true,
-        'founder': true,
-        'characterBonds': true,
-      },
-      'social': {
-        'friends': true,
-        'directory': true,
-        'pushInvites': true,
-        'missions': true,
-      },
-      'safety': {'v11': true},
-      'witness': {'whispers': true},
-    });
+/// The server's own envelope with every `economy_config.*_enabled` flag on,
+/// generated from the migrations by supabase/tests/capabilities_wiring.test.mjs
+/// (which also proves each flag changes the envelope). If the server renames
+/// a key, that test rewrites the fixture and this one fails.
+Map<String, dynamic> _allOn() =>
+    jsonDecode(File('test/fixtures/capabilities_all_on.json').readAsStringSync())
+        as Map<String, dynamic>;
 
-    expect(caps.adSteps, isTrue);
-    expect(caps.daily && caps.dailyAd, isTrue);
-    expect(caps.creator && caps.recoverable, isTrue);
-    expect(caps.caseOfDay && caps.metrics && caps.reviewPrompt, isTrue);
-    expect(caps.lobbyReady && caps.missions && caps.thursday, isTrue);
-    expect(caps.titles && caps.partner && caps.economyV3, isTrue);
-    expect(caps.council.contracts && caps.council.rank, isTrue);
-    expect(caps.council.leaderboard && caps.council.invites, isTrue);
-    expect(caps.council.starterBundle, isTrue);
-    expect(caps.ads.banner && caps.ads.extras, isTrue);
-    expect(caps.ads.appOpen.enabled, isTrue);
-    expect(caps.fun.awards && caps.fun.reactions && caps.fun.founder, isTrue);
-    expect(caps.fun.characterBonds, isTrue);
-    expect(caps.friends && caps.directory && caps.pushInvites, isTrue);
-    expect(caps.safetyV11 && caps.witnessWhispers, isTrue);
+void main() {
+  test('every server flag, all on, is on in the client', () {
+    final caps = EconomyCapabilities.fromJson(_allOn());
+    final on = <String, bool>{
+      'adSteps': caps.adSteps,
+      'daily': caps.daily,
+      'dailyAd': caps.dailyAd,
+      'caseOfDay': caps.caseOfDay,
+      'metrics': caps.metrics,
+      'reviewPrompt': caps.reviewPrompt,
+      'lobbyReady': caps.lobbyReady,
+      'missions': caps.missions,
+      'thursday': caps.thursday,
+      'titles': caps.titles,
+      'partner': caps.partner,
+      'economyV3': caps.economyV3,
+      'council.contracts': caps.council.contracts,
+      'council.rank': caps.council.rank,
+      'council.leaderboard': caps.council.leaderboard,
+      'council.invites': caps.council.invites,
+      'council.starterBundle': caps.council.starterBundle,
+      'ads.banner': caps.ads.banner,
+      'ads.extras': caps.ads.extras,
+      'ads.appOpen': caps.ads.appOpen.enabled,
+      'interstitial': caps.interstitial.enabled,
+      'fun.awards': caps.fun.awards,
+      'fun.reactions': caps.fun.reactions,
+      'fun.founder': caps.fun.founder,
+      'fun.characterBonds': caps.fun.characterBonds,
+      'social.friends': caps.friends,
+      'social.directory': caps.directory,
+      'social.pushInvites': caps.pushInvites,
+      'safety.v11': caps.safetyV11,
+      'witness.whispers': caps.witnessWhispers,
+    };
+    expect(
+      on.entries.where((e) => !e.value).map((e) => e.key),
+      isEmpty,
+      reason: 'a server flag the client never turns on',
+    );
+  });
+
+  test('every true leaf the server sends is a key the client reads', () {
+    // The envelope is parsed here, and the interstitial rules in the policy
+    // file (read only: that file is not this lane's).
+    final source = [
+      'lib/ui/economy/economy_capabilities.dart',
+      'lib/platform/monetization/interstitial_policy.dart',
+    ].map((path) => File(path).readAsStringSync()).join();
+    final unread = <String>[];
+    void walk(Map<String, dynamic> map, String path) {
+      map.forEach((key, value) {
+        if (value is Map<String, dynamic>) {
+          walk(value, '$path$key.');
+        } else if (value == true && !source.contains("'$key'")) {
+          unread.add('$path$key');
+        }
+      });
+    }
+
+    walk(_allOn(), '');
+    expect(unread, isEmpty);
   });
 }

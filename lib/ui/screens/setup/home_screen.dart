@@ -165,16 +165,20 @@ class HomeScreen extends ConsumerWidget {
   static const Key identityChipKey = ValueKey('home_identity_chip');
 
   /// The player's own frame, plate and title, tappable into the profile.
-  Widget _identityChip(BuildContext context) => InkWell(
-    key: identityChipKey,
-    borderRadius: BorderRadius.circular(context.radii.button),
-    onTap: onProfile,
-    child: Padding(
-      padding: EdgeInsets.all(context.spacing.xs),
-      child: const Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [MyIdentityBadge(), EquippedTitleLine()],
+  Widget _identityChip(BuildContext context) => Semantics(
+    button: onProfile != null,
+    label: context.l10n.profileEdit,
+    child: InkWell(
+      key: identityChipKey,
+      borderRadius: BorderRadius.circular(context.radii.button),
+      onTap: onProfile,
+      child: Padding(
+        padding: EdgeInsets.all(context.spacing.xs),
+        child: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [MyIdentityBadge(), EquippedTitleLine()],
+        ),
       ),
     ),
   );

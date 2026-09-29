@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../app/asset_constants.dart';
 import '../../data/request_id.dart';
 import '../../transport/online_backend.dart';
 import '../account/account_sheet.dart';
@@ -342,9 +343,17 @@ class PartnerPicker extends ConsumerWidget {
       runSpacing: s.sm,
       children: [
         for (final side in PartnerSide.values)
-          // TODO(art): the gallery portrait for [side] replaces the chip.
+          // The Four Dossiers' own gallery portrait, on the chip.
           ChoiceChip(
             key: optionKey(side),
+            avatar: CircleAvatar(
+              backgroundImage: AssetImage(switch (side) {
+                PartnerSide.detective => AppGallery.galleryDetective,
+                PartnerSide.doctor => AppGallery.galleryDoctor,
+                PartnerSide.mafia => AppGallery.galleryMafia,
+                PartnerSide.citizen => AppGallery.galleryCitizen,
+              }),
+            ),
             label: Text(label(side)),
             selected: partner.side == side,
             onSelected: (_) async {

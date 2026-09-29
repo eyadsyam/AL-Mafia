@@ -52,7 +52,7 @@ frames below are drawn, and revocation is covered by `store_truth.sql`), and
 |---|---|
 | Store promises | a short written line with a cue at each public phase; keeper/noir say «كلام مكتوب، مش صوت متسجّل» |
 | Before | Online captions only, all three drawn in the same neutral box — the packs were only different words. «القعدة»: nothing. |
-| Now | Each pack has its own look (`NarratorLook` in `lib/ui/economy/cosmetics.dart`: ground, rule, ink, type and marker glyph — book / key / moon) drawn by `NarrationCaption` (`cosmetic_paint.dart`) online and in «القعدة»; «القعدة» shows it at night-falls (neutral, text only), morning, discussion, the vote announcement and the result (`RoomPresentationLayer.local`, `match_flow.dart:431`). The spoken voice stays one free voice for everybody (F16); no pack claims a voice. |
+| Now | Each pack has its own look (`NarratorLook` in `lib/ui/economy/cosmetics.dart`: ground, rule, ink, type and marker glyph — book / key / moon) drawn by `NarrationCaption` (`cosmetic_paint.dart`) online and in «القعدة»; «القعدة» shows it at night-falls (neutral, text only), morning, discussion, the vote announcement and the result (`RoomPresentationLayer.local`, `match_flow.dart:431`). **1.1:** each pack now speaks with its own recorded voice (`assets/voice/narrator_*`, one clip per night/morning/discussion/voting/win): online from the room's narrator pack, in «القعدة» from the host's equipped pack, and in the store preview. A pack with no clip for a beat is silent rather than switching to the default «Kratos» voice mid-match. |
 | Should show | every public beat, visibly distinct per pack |
 | Fix | done as above. |
 

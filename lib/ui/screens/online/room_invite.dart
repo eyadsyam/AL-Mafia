@@ -55,6 +55,23 @@ abstract final class RoomInvite {
   static String text(String invitation, String code, {String? referralCode}) =>
       '$invitation\n${webLink(code, referralCode: referralCode)}';
 
+  /// The whole shared message: the invitation, the referral offer when a
+  /// referral code rides along, and the link that carries both codes.
+  static String shareText({
+    required String invitation,
+    required String code,
+    String? referralCode,
+    String? offer,
+  }) {
+    final carried = _referralQuery(referralCode) != null;
+    return text(
+      carried && offer != null ? '$invitation\n$offer' : invitation,
+      code,
+      referralCode: referralCode,
+    );
+  }
+
+  /// The referral code a room link carries, or null.
   static String? referral(Uri uri) {
     final code = uri.queryParameters['ref']?.trim().toUpperCase();
     return code != null &&

@@ -359,7 +359,7 @@ class _CouncilHeader extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            '▸ ${_label(context)}',
+            _label(context),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: type.caption.copyWith(color: colors.textSecondary),
@@ -432,17 +432,32 @@ class _HeaderTimerState extends State<HeaderTimer> {
   @override
   Widget build(BuildContext context) {
     final seconds = HeaderTimer.secondsLeft(widget.deadline, DateTime.now());
-    return Text(
-      '⏱ ${HeaderTimer.format(seconds)}',
-      key: TableScene.headerTimer,
+    final style = context.typography.title.copyWith(
+      color: context.colors.textPrimary,
+      fontFeatures: const [FontFeature.tabularFigures()],
+      fontWeight: seconds < HeaderTimer.urgentBelow
+          ? FontWeight.w900
+          : FontWeight.w600,
+    );
+    // The stopwatch is an icon: «⏱» is in none of the bundled faces and drew
+    // as an empty box wherever the system has no fallback for it.
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       textDirection: TextDirection.ltr,
-      style: context.typography.title.copyWith(
-        color: context.colors.textPrimary,
-        fontFeatures: const [FontFeature.tabularFigures()],
-        fontWeight: seconds < HeaderTimer.urgentBelow
-            ? FontWeight.w900
-            : FontWeight.w600,
-      ),
+      children: [
+        Icon(
+          Icons.timer_outlined,
+          size: style.fontSize,
+          color: context.colors.textPrimary,
+        ),
+        SizedBox(width: context.spacing.xs),
+        Text(
+          HeaderTimer.format(seconds),
+          key: TableScene.headerTimer,
+          textDirection: TextDirection.ltr,
+          style: style,
+        ),
+      ],
     );
   }
 }
@@ -506,7 +521,7 @@ class _HandBand extends StatelessWidget {
                 SizedBox(width: spacing.sm),
                 Flexible(
                   child: Text(
-                    '◈ ${viewer!.name} · ${context.l10n.onlineYou}',
+                    '${viewer!.name} · ${context.l10n.onlineYou}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: type.caption.copyWith(color: colors.textSecondary),

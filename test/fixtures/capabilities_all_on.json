@@ -1,0 +1,78 @@
+{
+  "ads": {
+    "banner": {
+      "enabled": true
+    },
+    "extras": {
+      "spin": true,
+      "swap": true,
+      "coffer": true
+    },
+    "appOpen": {
+      "enabled": true,
+      "resumeAfterSeconds": 14400
+    },
+    "fullScreen": {
+      "maxPerDay": 40,
+      "gapSeconds": 90
+    }
+  },
+  "fun": {
+    "awards": true,
+    "founder": true,
+    "reactions": true,
+    "characterBonds": true
+  },
+  "daily": true,
+  "adFree": false,
+  "safety": {
+    "v11": true
+  },
+  "social": {
+    "friends": true,
+    "directory": true,
+    "pushInvites": true
+  },
+  "titles": true,
+  "adSteps": true,
+  "council": {
+    "rank": true,
+    "invites": true,
+    "contracts": true,
+    "leaderboard": true,
+    "starterBundle": true,
+    "starterBundleOwned": false
+  },
+  "creator": false,
+  "dailyAd": true,
+  "economy": {
+    "version": 3
+  },
+  "metrics": true,
+  "partner": true,
+  "version": 2,
+  "witness": {
+    "whispers": true
+  },
+  "missions": true,
+  "products": [],
+  "thursday": true,
+  "caseOfDay": true,
+  "lobbyReady": true,
+  "adStepsMode": "multiply",
+  "recoverable": false,
+  "interstitial": {
+    "enabled": true,
+    "session": true,
+    "version": 3,
+    "preMatch": true,
+    "maxPerDay": 40,
+    "gapSeconds": 90,
+    "passAndPlay": true,
+    "graceMatches": 1,
+    "afterRewardSeconds": 180,
+    "sessionAfterSeconds": 300
+  },
+  "purchaseDebt": 0,
+  "reviewPrompt": true
+}

@@ -394,6 +394,43 @@ begin
   assert (select stage1_at from public.council_invite_redemptions where invitee=v) is null,
     'v1-paid redemption untouched';
 
+  -- 20260930000500: the inviter's first-match 100 counts toward the caps.
+  -- Ten first-match payments this season and none settled: the eleventh
+  -- friend's first match pays the friend 50 and the inviter nothing.
+  v:=pool[7];
+  for i in 1..10 loop
+    perform public.credit_earned(v,'invite_inviter_stage',100,null,gen_random_uuid()::text);
+  end loop;
+  r:=pg_temp.ev_user();
+  perform pg_temp.ev_age(r,interval '2 days');
+  insert into public.council_invite_redemptions(invitee,inviter,code)
+    values(r,v,(public.council_invite(v))->>'code');
+  perform pg_temp.ev_room(array[r,pool[1],pool[2],pool[3],pool[4]],pool[1],'town',z+interval '6 seconds');
+  perform public.sync_player_rewards(r);
+  assert exists(select 1 from public.wallet_ledger where user_id=r
+    and kind='council_invite_invitee' and amount=50),'capped: the friend still gets 50';
+  assert not exists(select 1 from public.wallet_ledger where user_id=v
+    and kind='invite_inviter_stage' and source_key=r::text),'season cap counts first-match payments';
+  perform public.sync_player_rewards(r);
+  assert (select count(*) from public.wallet_ledger where user_id=r
+    and kind='council_invite_invitee')=1,'the friend is paid once';
+  -- Nine first-match payments: the tenth is paid, exactly once.
+  v:=pool[6];
+  for i in 1..9 loop
+    perform public.credit_earned(v,'invite_inviter_stage',100,null,gen_random_uuid()::text);
+  end loop;
+  r:=pg_temp.ev_user();
+  perform pg_temp.ev_age(r,interval '2 days');
+  insert into public.council_invite_redemptions(invitee,inviter,code)
+    values(r,v,(public.council_invite(v))->>'code');
+  perform pg_temp.ev_room(array[r,pool[1],pool[2],pool[3],pool[4]],pool[1],'town',z+interval '7 seconds');
+  perform public.sync_player_rewards(r);
+  perform public.sync_player_rewards(r);
+  perform public.sync_player_rewards(v);
+  assert (select count(*) from public.wallet_ledger where user_id=v
+    and kind='invite_inviter_stage' and source_key=r::text and amount=100)=1,
+    'under the cap: 100 once';
+
   -- Flag off: council_invite is the old function's answer (no v3 key).
   update public.economy_config set economy_v11_enabled=false;
   assert not ((public.council_invite(v_inviter)) ? 'v3'),'no v3 block while off';

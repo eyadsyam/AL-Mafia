@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/online_session_store.dart';
 import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/transport/online_backend.dart';
+import 'package:mafia_master/ui/economy/room_referral.dart';
 import 'package:mafia_master/ui/screens/online/online_entry_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/online/voice_session.dart';
@@ -575,6 +576,95 @@ void main() {
             call.body['action'] == 'invite_redeem',
       );
       expect(redeem.body['code'], '43D4YUG');
+    });
+
+    Future<void> openLink(WidgetTester tester, ProviderContainer container) async {
+      await container.read(playerProfileProvider.future);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: localizedApp(
+            OnlineEntryScreen(
+              initialCode: 'ABCDEF',
+              initialReferralCode: '43D4YUG',
+              onJoined: () {},
+              onBack: () {},
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+    }
+
+    Iterable<FakeCall> redeems() => backend.calls.where(
+      (call) =>
+          call.function == 'economy' && call.body['action'] == 'invite_redeem',
+    );
+
+    testWidgets('a link referral waits through a refused join for the next room', (
+      tester,
+    ) async {
+      final container = containerWith();
+      backend.responders['economy'] = (_) => const {'status': 'redeemed'};
+      backend.refusals['joinRoom'] = const BackendException(
+        'ROOM_FULL',
+        'full',
+      );
+      await openLink(tester, container);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(RoomReferral.storageKey), '43D4YUG');
+      await tester.tap(find.byKey(OnlineEntryScreen.joinButton));
+      await tester.pump();
+      await tester.pump();
+      expect(redeems(), isEmpty, reason: 'no seat, nothing recorded');
+      expect(prefs.getString(RoomReferral.storageKey), '43D4YUG');
+      await tester.tap(find.byKey(OnlineEntryScreen.joinButton));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+      expect(redeems().single.body['code'], '43D4YUG');
+      expect(prefs.getString(RoomReferral.storageKey), isNull);
+    });
+
+    testWidgets('a referral the server refuses is forgotten, and the room kept', (
+      tester,
+    ) async {
+      final container = containerWith();
+      backend.refusals['economy'] = const BackendException(
+        'INVITE_NOT_NEW',
+        'not new',
+      );
+      await openLink(tester, container);
+      await tester.tap(find.byKey(OnlineEntryScreen.joinButton));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+      expect(redeems(), hasLength(1));
+      expect(container.read(onlineSessionProvider).isInRoom, isTrue);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(RoomReferral.storageKey), isNull);
+    });
+
+    testWidgets('an unreachable referral is kept for the next room', (
+      tester,
+    ) async {
+      await RoomReferral.remember('43D4YUG');
+      await RoomReferral.redeemAfterJoin(
+        () async => throw const BackendUnreachable('offline'),
+      );
+      expect(await RoomReferral.pending(), '43D4YUG');
+      final server = FakeBackend(
+        roomId: 'r',
+        state: roomState(phase: 'lobby', phaseNumber: 0, status: 'lobby'),
+        players: roster(3),
+        own: const OwnSeat(seat: 0),
+      )..responders['economy'] = (_) => const {'status': 'redeemed'};
+      await RoomReferral.redeemAfterJoin(() async => server);
+      expect(
+        server.calls.single.body,
+        {'action': 'invite_redeem', 'code': '43D4YUG'},
+      );
+      expect(await RoomReferral.pending(), isNull);
     });
 
     testWidgets('an empty server says the list is empty', (tester) async {

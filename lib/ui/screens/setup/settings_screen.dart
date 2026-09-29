@@ -443,14 +443,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         value: _s.revealNightVictimRole,
         onChanged: (v) => _edit((s) => s.copyWith(revealNightVictimRole: v)),
       ),
-      _switch(
-        field: 'revealWhispers',
-        label: l10n.settingRevealWhispers,
-        description: l10n.settingRevealWhispersHint,
-        value: _s.revealWhisperContent,
-        onlineOnly: true,
-        onChanged: (v) => _edit((s) => s.copyWith(revealWhisperContent: v)),
-      ),
+      // «اكشف محتوى الهمسات بعد المباراة» was here. Nothing read it — no
+      // screen, no server — so the switch promised what the game does not do
+      // (launch audit A4). The field stays in MatchSettings for old saves.
     ],
   );
 

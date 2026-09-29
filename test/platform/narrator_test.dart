@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/platform/audio_backend.dart';
 import 'package:mafia_master/platform/audio_director.dart';
 import 'package:mafia_master/platform/narrator_bank.dart';
+import 'package:mafia_master/ui/economy/cosmetics.dart';
 
 class _Recorder extends SilentAudioBackend {
   final played = <String>[];
@@ -276,6 +277,46 @@ void main() {
       audio.previewNarrator('narrator_keeper');
       expect(backend.played, ['voice/kratos/keeper_discussion.ogg']);
       expect(audio.activeVoice, isNull);
+    });
+
+    test('«classic» is the default voice, not a silent pack', () {
+      audio.activeVoice = 'classic';
+      expect(audio.activeVoice, isNull);
+      audio.narrate(NarratorBeat.night);
+      expect(backend.played, isNotEmpty);
+    });
+
+    test('every store narrator pack ships a declared, complete voice', () {
+      final pubspec = File('pubspec.yaml').readAsStringSync();
+      for (final entry in narratorPackManifests.entries) {
+        final folder = entry.value.substring(0, entry.value.lastIndexOf('/'));
+        expect(pubspec, contains('- $folder/'), reason: entry.key);
+        final bank = NarratorBank.fromJson(
+          File(entry.value).readAsStringSync(),
+        );
+        final beats = bank.clips.map((c) => c.beat).toSet();
+        expect(
+          beats,
+          containsAll(const [
+            NarratorBeat.night,
+            NarratorBeat.morning,
+            NarratorBeat.discussion,
+            NarratorBeat.voting,
+            NarratorBeat.win,
+          ]),
+          reason: entry.key,
+        );
+        for (final clip in bank.clips) {
+          expect(clip.family, isTrue, reason: clip.id);
+          expect(File('assets/${clip.file}').existsSync(), isTrue,
+              reason: clip.file);
+        }
+      }
+      expect(
+        narratorPackManifests.keys.toSet(),
+        Cosmetics.narrators.keys.toSet(),
+        reason: 'every sold narrator has a recorded voice',
+      );
     });
 
     test('web selects mp3 while native keeps ogg', () {

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../engine/models/player.dart' show PlayerGender;
-import '../../../platform/invite_share.dart';
-import '../../economy/council.dart';
 import '../../economy/cosmetic_paint.dart';
 import '../../economy/vault_kit.dart';
 import '../../l10n_ext.dart';
@@ -15,7 +13,6 @@ import '../../social/push_prompt.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/player_avatar.dart';
-import 'room_invite.dart';
 
 /// «ادعي صحابك» — invite anyone into this lobby, inside the scene (doc 12
 /// §2.1: a layer in the lobby's Stack, never a route or a dialog).
@@ -29,20 +26,28 @@ import 'room_invite.dart';
 class InviteSheet extends ConsumerStatefulWidget {
   final bool visible;
   final String roomId;
-  final String roomCode;
   final VoidCallback onDismiss;
+
+  /// The lobby's own share (room link + the sharer's referral code, with its
+  /// copied/failed feedback), offered at the top of the sheet. Null hides it.
+  final void Function(BuildContext button)? onShare;
+
+  /// The referral offer line under the share button, when referrals are on.
+  final bool referralOffer;
   const InviteSheet({
     super.key,
     required this.visible,
     required this.roomId,
-    this.roomCode = '',
     required this.onDismiss,
+    this.onShare,
+    this.referralOffer = false,
   });
 
   static const Key sheetKey = ValueKey('invite_sheet');
   static const Key scrimKey = ValueKey('invite_sheet_scrim');
   static const Key searchField = ValueKey('invite_search_field');
   static const Key shareKey = ValueKey('invite_room_share');
+  static const Key offerKey = ValueKey('invite_referral_offer');
   static Key tabKey(int i) => ValueKey('invite_tab_$i');
   static Key filterKey(DiscoverFilter f) => ValueKey('invite_filter_${f.name}');
   static Key rowKey(String id) => ValueKey('invite_row_$id');
@@ -65,28 +70,6 @@ class _InviteSheetState extends ConsumerState<InviteSheet> {
   int _nearPage = 0;
   bool _loadingNear = false;
   final Map<String, _Send> _sent = {};
-  bool _sharing = false;
-
-  Future<void> _shareRoom() async {
-    if (_sharing || widget.roomCode.isEmpty) return;
-    setState(() => _sharing = true);
-    final referral = ref.read(inviteProvider).valueOrNull?.code;
-    final l = context.l10n;
-    await ref
-        .read(inviteSharerProvider)
-        .share(
-          text: RoomInvite.text(
-            referral == null
-                ? l.onlineShareInvite(widget.roomCode)
-                : '${l.onlineShareInvite(widget.roomCode)}\n${l.onlineReferralOffer}',
-            widget.roomCode,
-            referralCode: referral,
-          ),
-          subject: l.appTitle,
-        );
-    if (mounted) setState(() => _sharing = false);
-  }
-
   @override
   void initState() {
     super.initState();
@@ -234,14 +217,27 @@ class _InviteSheetState extends ConsumerState<InviteSheet> {
                           ),
                         ),
                       ),
-                      if (widget.roomCode.isNotEmpty) ...[
+                      if (widget.onShare case final share?) ...[
                         SizedBox(height: s.xs),
-                        OutlinedButton.icon(
-                          key: InviteSheet.shareKey,
-                          onPressed: _sharing ? null : _shareRoom,
-                          icon: const Icon(Icons.ios_share_rounded),
-                          label: Text(l.onlineShare),
+                        Builder(
+                          builder: (button) => OutlinedButton.icon(
+                            key: InviteSheet.shareKey,
+                            onPressed: () => share(button),
+                            icon: const Icon(Icons.ios_share_rounded),
+                            label: Text(l.onlineShare),
+                          ),
                         ),
+                        if (widget.referralOffer) ...[
+                          SizedBox(height: s.xs),
+                          Text(
+                            l.onlineReferralOffer,
+                            key: InviteSheet.offerKey,
+                            textAlign: TextAlign.center,
+                            style: context.typography.caption.copyWith(
+                              color: colors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ],
                       SizedBox(height: s.sm),
                       _Tabs(
