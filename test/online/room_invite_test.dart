@@ -76,6 +76,39 @@ void main() {
     expect(text, contains(RoomInvite.webLink('K7M2QP')));
   });
 
+  test('the shared message carries the offer only with a referral code', () {
+    final shared = RoomInvite.shareText(
+      invitation: 'INVITE',
+      code: 'k7m2qp',
+      referralCode: '43d4yug',
+      offer: 'OFFER',
+    );
+    expect(shared.split('\n'), [
+      'INVITE',
+      'OFFER',
+      'https://almafia.vercel.app/join/K7M2QP?ref=43D4YUG',
+    ]);
+    final plain = RoomInvite.shareText(
+      invitation: 'INVITE',
+      code: 'K7M2QP',
+      offer: 'OFFER',
+    );
+    expect(plain.split('\n'), [
+      'INVITE',
+      'https://almafia.vercel.app/join/K7M2QP',
+    ]);
+    // A broken code is neither linked nor promised.
+    expect(
+      RoomInvite.shareText(
+        invitation: 'INVITE',
+        code: 'K7M2QP',
+        referralCode: 'IIIIIII',
+        offer: 'OFFER',
+      ),
+      plain,
+    );
+  });
+
   test('a room link carries and parses the sharer referral code', () {
     final link = Uri.parse(
       RoomInvite.webLink('k7m2qp', referralCode: '43d4yug'),

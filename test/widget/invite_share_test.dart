@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/platform/invite_share.dart';
 import 'package:mafia_master/transport/online_backend.dart';
+import 'package:mafia_master/ui/economy/economy_capabilities.dart';
 import 'package:mafia_master/ui/screens/online/lobby_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/online/room_invite.dart';
@@ -65,8 +66,9 @@ void main() {
 
     Future<ProviderContainer> pump(
       WidgetTester tester,
-      InviteSharer sharer,
-    ) async {
+      InviteSharer sharer, {
+      bool referrals = false,
+    }) async {
       backend = FakeBackend(
         roomId: 'room-1',
         state: roomState(phase: 'lobby', phaseNumber: 0, status: 'lobby'),
@@ -79,8 +81,19 @@ void main() {
           onlineHeartbeatProvider.overrideWithValue(Duration.zero),
           voiceStatsIntervalProvider.overrideWithValue(Duration.zero),
           inviteSharerProvider.overrideWithValue(sharer),
+          if (referrals)
+            economyCapabilitiesProvider.overrideWith(
+              (ref) async => const EconomyCapabilities(
+                council: CouncilCapabilities(invites: true),
+              ),
+            ),
         ],
       );
+      if (referrals) {
+        backend.responders['economy'] = (body) => body['action'] == 'invite_get'
+            ? const {'enabled': true, 'code': '43D4YUG'}
+            : const {'ok': true};
+      }
       addTearDown(container.dispose);
       container.read(playerProfileProvider);
       await container.read(onlineSessionProvider.notifier).host('A');
@@ -93,6 +106,33 @@ void main() {
       await tester.pump();
       return container;
     }
+
+    testWidgets('the host shares the room with their referral code and '
+        'sees the offer', (tester) async {
+      ShareParams? shared;
+      await pump(
+        tester,
+        InviteSharer(
+          share: (params) async {
+            shared = params;
+            return const ShareResult('', ShareResultStatus.success);
+          },
+          copy: (_) async => fail('no copy behind a sheet'),
+        ),
+        referrals: true,
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(find.text(arStrings.onlineReferralOffer), findsOneWidget);
+      await tester.tap(find.byKey(LobbyScreen.shareButton));
+      await tester.pump();
+      await tester.pump();
+      expect(
+        shared!.text,
+        contains(RoomInvite.webLink('ABCDEF', referralCode: '43D4YUG')),
+      );
+      expect(shared!.text, contains(arStrings.onlineReferralOffer));
+    });
 
     testWidgets(
       'dismissing the sheet returns to the same lobby, still seated',

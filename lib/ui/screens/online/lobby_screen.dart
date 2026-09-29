@@ -326,12 +326,11 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     final outcome = await ref
         .read(inviteSharerProvider)
         .share(
-          text: RoomInvite.text(
-            referralCode == null
-                ? context.l10n.onlineShareInvite(code)
-                : '${context.l10n.onlineShareInvite(code)}\n${context.l10n.onlineReferralOffer}',
-            code,
+          text: RoomInvite.shareText(
+            invitation: context.l10n.onlineShareInvite(code),
+            code: code,
             referralCode: referralCode,
+            offer: context.l10n.onlineReferralOffer,
           ),
           subject: context.l10n.appTitle,
           // iPad/tablet sheets anchor to the button that opened them.
@@ -965,8 +964,9 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
               InviteSheet(
                 visible: _inviting,
                 roomId: session.room!.roomId,
-                roomCode: code,
                 onDismiss: () => setState(() => _inviting = false),
+                onShare: (button) => _shareInvite(code, referralCode, button),
+                referralOffer: referralCode != null,
               ),
             // Task 5 — one line, three seconds, over the lobby.
             if (snapshot != null) HostHandover(snapshot: snapshot),

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../economy/economy_capabilities.dart';
-import '../../economy/council.dart';
+import '../../economy/room_referral.dart';
 import '../../economy/interstitial_coordinator.dart';
 import '../../../data/player_profile.dart';
 import '../../../data/terms_consent.dart';
@@ -122,6 +122,10 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     _refresh();
     _loadResume();
     unawaited(_loadSafetyNotice());
+    // A room link's referral survives a room that filled or started before
+    // this player got in: the next room they enter records it.
+    final referral = widget.initialReferralCode;
+    if (referral != null) unawaited(RoomReferral.remember(referral));
   }
 
   /// F11: a warning or restriction this account has not seen yet. Shown once,
@@ -302,14 +306,14 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
       );
     }
     if (mounted && ref.read(onlineSessionProvider).isInRoom) {
-      final referral = widget.initialReferralCode;
-      if (!host && referral != null) {
-        try {
-          await ref.read(inviteProvider.notifier).redeem(referral);
-        } catch (_) {
-          // Joining the room is load-bearing; referral attribution is not.
-        }
-      }
+      // Joining the room is load-bearing; referral attribution is not, so it
+      // never holds the player at the door.
+      unawaited(
+        RoomReferral.redeemAfterJoin(
+          ref.read(onlineBackendFactoryProvider),
+          fromLink: host ? null : widget.initialReferralCode,
+        ),
+      );
       // The session exists now, so the queued acceptance can be recorded.
       unawaited(_syncTerms());
       widget.onJoined();

@@ -217,6 +217,51 @@ void main() {
     }
   }
 
+  testWidgets('the sheet shares the room link with the referral offer', (
+    tester,
+  ) async {
+    var shares = 0;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: overrides(),
+        child: localizedApp(
+          Scaffold(
+            body: InviteSheet(
+              visible: true,
+              roomId: 'room-1',
+              onDismiss: () {},
+              onShare: (_) => shares++,
+              referralOffer: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(arStrings.onlineReferralOffer), findsOneWidget);
+    await tester.tap(find.byKey(InviteSheet.shareKey));
+    expect(shares, 1);
+    // Without referrals on, the share stays and the promise does not.
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: overrides(),
+        child: localizedApp(
+          Scaffold(
+            body: InviteSheet(
+              visible: true,
+              roomId: 'room-1',
+              onDismiss: () {},
+              onShare: (_) => shares++,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(InviteSheet.shareKey), findsOneWidget);
+    expect(find.byKey(InviteSheet.offerKey), findsNothing);
+  });
+
   testWidgets('permission is asked in context only, once', (tester) async {
     final key = GlobalKey<IncomingInviteHostState>();
     var open = false;

@@ -183,7 +183,13 @@ class AudioDirector {
   /// no line for a beat, that beat is silent instead of changing performer.
   final Map<String, NarratorBank> narratorBanks = {};
 
-  String? activeVoice;
+  String? _activeVoice;
+
+  /// The store pack speaking right now, or null for the default voice.
+  /// «classic» (the room setting for "no pack") is the default voice too.
+  String? get activeVoice => _activeVoice;
+  set activeVoice(String? code) =>
+      _activeVoice = code == null || code == 'classic' ? null : code;
 
   /// Backwards-compatible default-bank seam used by startup and unit tests.
   NarratorBank get narrator => activeVoice == null
