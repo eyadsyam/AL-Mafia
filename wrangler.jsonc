@@ -1,0 +1,15 @@
+// saidalmafia.com — the Flutter web build served as Cloudflare static assets.
+// Deploy: tool/web/deploy_cloudflare.ps1 (builds nothing; publishes build/web).
+{
+  "name": "saidalmafia",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./build/web",
+    "not_found_handling": "single-page-application",
+    "html_handling": "auto-trailing-slash"
+  },
+  "routes": [
+    { "pattern": "saidalmafia.com", "custom_domain": true },
+    { "pattern": "www.saidalmafia.com", "custom_domain": true }
+  ]
+}
