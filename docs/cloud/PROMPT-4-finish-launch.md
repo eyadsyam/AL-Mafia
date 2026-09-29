@@ -133,3 +133,17 @@ Reviewer state: your 303f92c is merged into `claude/epic-roentgen-094f21` (now b
     - **Pass 4: Doc 05 and failure paths.** Leaks, private phases, no network, a server refusal, old-client behaviour, and deep links.
 
     Each pass: find the problems, fix them with tests, then append a findings table to `docs/LAUNCH-AUDIT.md` under "Pass N". Keep going until a pass finds nothing new.
+
+15. **Web shows MORE ads than mobile (owner's decision).** The web must be the ad-heavy version, so that players prefer the Android app.
+    - Add a separate `WebAdRules` pacing that is clearly heavier than Android and configurable from `economy_config` (e.g. `web_interstitial_every_matches`, `web_app_open_enabled`, `web_banner_always`). Proposed defaults:
+      - an interstitial after every match plus one on entering «القعدة» and online;
+      - an ad break at app open;
+      - a persistent bottom banner on Home, lobby and results (never on the table during a match);
+      - rewarded offers available as on mobile.
+    - Private phases and Doc 05 rules still apply exactly.
+    - Add a gentle, recurring «نزّل التطبيق — إعلانات أقل» call to action on the web, with the Play Store link, at Home, after each match and in settings.
+    - Tests: the web pacing is strictly heavier than Android, and ads never appear in a private phase.
+16. **New domain `saidalamafia.com`.** The owner is buying it; the reviewer will attach it to the Vercel project. Make the app ready for it:
+    - A single `kPublicWebOrigin` constant (dart-define `PUBLIC_WEB_ORIGIN`, default `https://saidalamafia.com`) used by every share/invite/room link (`room_invite.dart` etc.), deep-link host lists, and `web/.well-known/assetlinks.json` / Android intent filters for BOTH saidalamafia.com and almafia.vercel.app (the old links keep working).
+    - `web/ads.txt` for AdSense on the new domain.
+    - Write `docs/DOMAIN-MOVE.md` listing what the reviewer changes outside the repo: Supabase Auth Site URL and redirect URLs, Firebase authorized domains, AdSense site, AdMob app-ads.txt URL, and the Play listing website.
