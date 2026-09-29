@@ -335,6 +335,17 @@ abstract final class MotionTokens {
   static const double flame = 28;
   static const Duration burstLength = Duration(milliseconds: 830);
   static const Duration sealLength = Duration(milliseconds: 1000);
+
+  /// The act between two faces on a witness news line, played once.
+  static const double newsMark = 40;
+  static const Duration newsMarkLength = Duration(milliseconds: 1200);
+
+  /// The crow that lifts off as night falls on the table.
+  static const double crow = 96;
+
+  /// The verdict stamp over a vote result.
+  static const double stamp = 72;
+  static const Duration stampLength = Duration(milliseconds: 1200);
 }
 
 abstract final class WhisperTokens {

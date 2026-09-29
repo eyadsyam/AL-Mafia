@@ -120,14 +120,34 @@ abstract final class AppCouncilArt {
 abstract final class AppMotion {
   static const String candleFlame = 'assets/images/motion/candle_flame.webp';
   static const String coinSpin = 'assets/images/motion/coin_spin.webp';
+  static const String crowTakeoff = 'assets/images/motion/crow_takeoff.webp';
+  static const String daggerStrike = 'assets/images/motion/dagger_strike.webp';
+  static const String emberDrift = 'assets/images/motion/ember_drift.webp';
   static const String goldBurst = 'assets/images/motion/gold_burst.webp';
+  static const String lanternSwing = 'assets/images/motion/lantern_swing.webp';
+  static const String letterFly = 'assets/images/motion/letter_fly.webp';
+  static const String levelUpSeal = 'assets/images/motion/level_up_seal.webp';
+  static const String magnifierSweep = 'assets/images/motion/magnifier_sweep.webp';
+  static const String shieldGlow = 'assets/images/motion/shield_glow.webp';
+  static const String smokeWisp = 'assets/images/motion/smoke_wisp.webp';
+  static const String voteStamp = 'assets/images/motion/vote_stamp.webp';
   static const String waxSealStamp = 'assets/images/motion/wax_seal_stamp.webp';
 
   /// Every asset in this group, for preloading and for the manifest test.
   static const List<String> values = <String>[
     candleFlame,
     coinSpin,
+    crowTakeoff,
+    daggerStrike,
+    emberDrift,
     goldBurst,
+    lanternSwing,
+    letterFly,
+    levelUpSeal,
+    magnifierSweep,
+    shieldGlow,
+    smokeWisp,
+    voteStamp,
     waxSealStamp,
   ];
 }

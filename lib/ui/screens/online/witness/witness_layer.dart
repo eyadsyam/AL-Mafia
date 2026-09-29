@@ -257,21 +257,7 @@ class WitnessNewsLine extends StatelessWidget {
               _Face(role: table.roles[news.fromSeat]),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: spacing.xs),
-                child: news.whisper != null
-                    ? Image.asset(
-                        AppCouncilArt.whisperSeal,
-                        width: CouncilTokens.witnessBadge,
-                        height: CouncilTokens.witnessBadge,
-                        excludeFromSemantics: true,
-                      )
-                    : Icon(
-                        Icons.east_rounded,
-                        textDirection: Directionality.of(context),
-                        size: CouncilTokens.witnessBadgeIcon,
-                        color: hostile
-                            ? VaultTokens.oxbloodLight
-                            : VaultTokens.gold,
-                      ),
+                child: _newsMark(context, news, hostile),
               ),
               _Face(role: table.roles[news.toSeat]),
               SizedBox(width: spacing.sm),
@@ -293,6 +279,45 @@ class WitnessNewsLine extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Between the two faces: the act itself plays once — a letter flies, a
+/// dagger strikes, a shield glows, a glass sweeps — and settles into the
+/// still mark (the seal, the arrow). Reduced motion shows the still at once.
+Widget _newsMark(BuildContext context, WitnessNews news, bool hostile) {
+  final Widget still = news.whisper != null
+      ? Image.asset(
+          AppCouncilArt.whisperSeal,
+          width: CouncilTokens.witnessBadge,
+          height: CouncilTokens.witnessBadge,
+          excludeFromSemantics: true,
+        )
+      : Icon(
+          Icons.east_rounded,
+          textDirection: Directionality.of(context),
+          size: CouncilTokens.witnessBadgeIcon,
+          color: hostile ? VaultTokens.oxbloodLight : VaultTokens.gold,
+        );
+  final sprite = news.whisper != null
+      ? AppMotion.letterFly
+      : switch (news.action?.action) {
+          'kill' => AppMotion.daggerStrike,
+          'protect' => AppMotion.shieldGlow,
+          'investigate' => AppMotion.magnifierSweep,
+          _ => null,
+        };
+  if (sprite == null) return still;
+  return SizedBox.square(
+    dimension: MotionTokens.newsMark,
+    child: Center(
+      child: MotionSprite(
+        sprite,
+        width: MotionTokens.newsMark,
+        once: MotionTokens.newsMarkLength,
+        after: still,
+      ),
+    ),
+  );
 }
 
 String witnessActionLine(

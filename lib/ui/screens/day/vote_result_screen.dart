@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/asset_constants.dart';
 import '../../../engine/models/enums.dart' show Role;
 import '../../l10n_ext.dart';
+import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
+import '../../widgets/motion_sprite.dart';
 import '../../widgets/vote_bar.dart';
 import '../../widgets/textured_surface.dart';
 
@@ -99,6 +102,20 @@ class VoteResultScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // The verdict is stamped. The same height with or without a
+                  // stamp, so a tie lays out exactly like an elimination.
+                  SizedBox(
+                    height: MotionTokens.stamp,
+                    child: eliminatedSeat == null
+                        ? null
+                        : const Center(
+                            child: MotionSprite(
+                              AppMotion.voteStamp,
+                              width: MotionTokens.stamp,
+                              once: MotionTokens.stampLength,
+                            ),
+                          ),
+                  ),
                   Text(
                     headline,
                     style: type.headline.copyWith(color: colors.textPrimary),

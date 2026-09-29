@@ -2,9 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../../app/asset_constants.dart';
 import '../../../../platform/reduce_motion.dart';
 import '../../../theme/design_tokens.dart';
 import '../../../theme/mafia_theme.dart';
+import '../../../widgets/motion_sprite.dart';
 
 /// Which change of light a [PhaseSting] marks.
 enum PhaseLight {
@@ -178,6 +180,14 @@ class _PhaseStingState extends State<PhaseSting>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Night falls: a crow lifts off over the words, the
+                        // same every night, so it tells nobody anything.
+                        if (widget.light == PhaseLight.dusk)
+                          const MotionSprite(
+                            AppMotion.crowTakeoff,
+                            width: MotionTokens.crow,
+                            once: MafiaTiming.phaseCurtain,
+                          ),
                         Text(
                           widget.title,
                           textAlign: TextAlign.center,
