@@ -45,8 +45,9 @@ import '../support/casebook_fixture.dart';
 import '../support/fake_backend.dart';
 import '../support/localized.dart';
 
-const _logicalPhone = Size(360, 640);
-const _pixelRatio = 3.0;
+// 1080x1920 at a common phone density (a 411 dp wide screen).
+const _pixelRatio = 2.625;
+const _logicalPhone = Size(1080 / _pixelRatio, 1920 / _pixelRatio);
 const _names = ['سلمى', 'كريم', 'نور', 'يوسف', 'ليلى', 'حسن'];
 
 class _Daily extends DailyController {
@@ -174,6 +175,14 @@ void main() {
       });
       await tester.pump(const Duration(milliseconds: 250));
     }
+    // Entrance beats (the result card, the elimination beat) run past the
+    // image warm-up; the listing shows the screen at rest.
+    for (var i = 0; i < 12; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 60)),
+      );
+      await tester.pump(const Duration(seconds: 1));
+    }
     final boundary = tester.renderObject<RenderRepaintBoundary>(
       find.byKey(const ValueKey('store_listing_shot')),
     );
@@ -222,7 +231,7 @@ void main() {
     final backend = FakeBackend(
       roomId: 'room',
       state: roomState(
-        phase: 'discussion',
+        phase: 'discuss',
         phaseNumber: 4,
         endsAt: DateTime.now().add(const Duration(minutes: 4)),
         serverNow: DateTime.now(),
@@ -257,27 +266,61 @@ void main() {
   });
 
   testWidgets('03 dead witness news', (tester) async {
-    const table = WitnessTable(
-      roles: {
-        0: engine.Role.citizen,
-        1: engine.Role.mafia,
-        2: engine.Role.doctor,
-      },
-      actions: [
-        WitnessAction(night: 2, seat: 1, action: 'kill', targetSeat: 0),
-        WitnessAction(night: 2, seat: 2, action: 'protect', targetSeat: 4),
-      ],
+    // The real witness view: the viewer was killed on night 2 and now sits
+    // at the table with every role and night choice open to them.
+    final backend = FakeBackend(
+      roomId: 'room',
+      state: roomState(
+        phase: 'discuss',
+        phaseNumber: 6,
+        endsAt: DateTime.now().add(const Duration(minutes: 3)),
+        serverNow: DateTime.now(),
+      ),
+      players: _players(firstDead: true),
+      own: const OwnSeat(seat: 0, role: 'citizen', alive: false),
     );
+    backend.responders['witness_view'] = (_) => {
+      'roles': [
+        {'seat': 0, 'role': 'citizen'},
+        {'seat': 1, 'role': 'mafia'},
+        {'seat': 2, 'role': 'doctor'},
+        {'seat': 3, 'role': 'detective'},
+        {'seat': 4, 'role': 'citizen'},
+        {'seat': 5, 'role': 'mafia'},
+      ],
+      'actions': [
+        {'night': 2, 'seat': 1, 'action': 'kill', 'targetSeat': 0},
+        {'night': 2, 'seat': 2, 'action': 'protect', 'targetSeat': 4},
+        {'night': 2, 'seat': 3, 'action': 'investigate', 'targetSeat': 5},
+      ],
+      'whispers': const [],
+    };
+    final transport = await OnlineTransport.connect(
+      backend: backend,
+      roomId: 'room',
+      heartbeatInterval: Duration.zero,
+    );
+    addTearDown(transport.dispose);
     await shoot(
       tester,
       '03_witness_news_ar',
       Scaffold(
-        body: WitnessPanel(
-          snapshot: _witnessSnapshot(),
-          table: table,
-          only: WitnessPanelTab.table,
+        body: OnlineTableFlow(
+          onExit: () {},
+          onAnalytics: () {},
+          onStepCommitted: () {},
         ),
       ),
+      overrides: [
+        gameTransportProvider.overrideWithValue(transport),
+        audioDirectorProvider.overrideWithValue(AudioDirector()),
+        economyCapabilitiesProvider.overrideWith(
+          (ref) async => const EconomyCapabilities(witnessWhispers: true),
+        ),
+      ],
+      prepare: (container) async {
+        container.read(matchControllerProvider.notifier).adoptSnapshot();
+      },
     );
   });
 
