@@ -1889,7 +1889,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingRevealWhispersHint.
   ///
   /// In en, this message translates to:
-  /// **'The graph is always revealed. This is about the words.'**
+  /// **'After the match, everyone in the room reads the whispers and what they said. Players see this in the lobby and before they whisper.'**
   String get settingRevealWhispersHint;
 
   /// No description provided for @onlineMatch.
@@ -8562,6 +8562,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Friend requests and accepted requests'**
   String get pushChannelSocialDesc;
+
+  /// No description provided for @revealWhispersNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'In this room, whispers are shown to everyone after the match'**
+  String get revealWhispersNotice;
+
+  /// No description provided for @revealWhispersButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Whispers'**
+  String get revealWhispersButton;
+
+  /// No description provided for @revealWhispersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The match\'s whispers'**
+  String get revealWhispersTitle;
+
+  /// No description provided for @revealWhispersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody whispered this match'**
+  String get revealWhispersEmpty;
+
+  /// No description provided for @revealWhispersMasked.
+  ///
+  /// In en, this message translates to:
+  /// **'A whisper from a player you blocked'**
+  String get revealWhispersMasked;
+
+  /// No description provided for @revealWhispersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the whispers'**
+  String get revealWhispersFailed;
 }
 
 class _AppLocalizationsDelegate

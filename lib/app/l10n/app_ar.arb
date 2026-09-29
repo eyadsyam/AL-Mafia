@@ -583,7 +583,7 @@
   "settingWhisper": "الهمس",
   "settingWhisperHint": "رسالة خاصة واحدة في اليوم",
   "settingRevealWhispers": "اكشف محتوى الهمسات بعد المباراة",
-  "settingRevealWhispersHint": "اظهار الرسائل في التحليلات",
+  "settingRevealWhispersHint": "بعد ما الماتش يخلص، كل اللي في الأوضة يقروا الهمسات ونصها. اللاعبين بيشوفوا ده في اللوبي وقبل ما يهمسوا.",
   "onlineMatch": "العب أونلاين",
   "onlineCreateRoom": "اعمل أوضة",
   "onlineJoinRoom": "ادخل أوضة",
@@ -1926,5 +1926,11 @@
   "pushChannelInvites": "دعوات اللعب",
   "pushChannelInvitesDesc": "لما حد يدعوك لأوضته",
   "pushChannelSocial": "الأصحاب",
-  "pushChannelSocialDesc": "طلبات الصداقة والقبول"
+  "pushChannelSocialDesc": "طلبات الصداقة والقبول",
+  "revealWhispersNotice": "في الأوضة دي الهمسات هتتكشف للكل بعد الماتش",
+  "revealWhispersButton": "الهمسات",
+  "revealWhispersTitle": "همسات الماتش",
+  "revealWhispersEmpty": "محدش همس في الماتش ده",
+  "revealWhispersMasked": "همسة من لاعب انت عامله بلوك",
+  "revealWhispersFailed": "ماقدرناش نجيب الهمسات"
 }

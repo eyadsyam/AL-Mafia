@@ -36,7 +36,9 @@ export function roomConfiguration(body: Record<string, unknown>, current: Record
       settings[key] = incoming[key];
     }
     for (const key of ["voice", "muteAllAtNight", "openVoting", "traceEnabled", "confrontationEnabled", "whisperEnabled",
-      "abstainAllowed", "openingRoundEnabled", "survivorConfrontationEnabled", "bulletsEnabled", "quietNightEnabled", "selfProtectEnabled"]) {
+      "abstainAllowed", "openingRoundEnabled", "survivorConfrontationEnabled", "bulletsEnabled", "quietNightEnabled", "selfProtectEnabled",
+      // Doc 09 §7, default off: whisper texts shown to the room after the match.
+      "revealWhisperContent"]) {
       if (incoming[key] === undefined) continue;
       if (typeof incoming[key] !== "boolean") throw new Error(`invalid ${key}`);
       settings[key] = incoming[key];

@@ -248,6 +248,9 @@ export function economyCall(
       return { rpc: "launch_event_state", args: { p_at: new Date().toISOString() } };
     case "eventResult":
       return room ? { rpc: "launch_event_result", args: { p_user: userId, p_room: room } } : null;
+    // Doc 09 §7: a finished room that chose to reveal its whispers.
+    case "matchWhispers":
+      return room ? { rpc: "match_whispers_revealed", args: { p_user: userId, p_room: room } } : null;
     default:
       return null;
   }

@@ -436,6 +436,7 @@ MatchSettings settingsFromJson(Object? value) {
     bulletsEnabled: value['bulletsEnabled'] as bool?,
     quietNightEnabled: value['quietNightEnabled'] as bool?,
     selfProtectEnabled: value['selfProtectEnabled'] as bool?,
+    revealWhisperContent: value['revealWhisperContent'] as bool?,
     dayTieRule: switch (value['dayTieRule']) {
       'revote' => DayTieRule.revote,
       'noElimination' => DayTieRule.noElimination,

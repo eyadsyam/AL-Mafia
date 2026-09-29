@@ -67,6 +67,7 @@ class RoomSettingsPanel extends ConsumerStatefulWidget {
   static const Key muteAtNightSwitch = ValueKey('room_settings_mute_at_night');
   static const Key discussionStructured = ValueKey('room_settings_structured');
   static const Key discussionFree = ValueKey('room_settings_free');
+  static const Key revealWhispersKey = ValueKey('room_settings_reveal_whispers');
 
   @override
   ConsumerState<RoomSettingsPanel> createState() => _RoomSettingsPanelState();
@@ -427,6 +428,21 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
                                 value: match.whisperEnabled,
                                 onChanged: (value) =>
                                     _send(settings: {'whisperEnabled': value}),
+                              ),
+                              // Doc 09 §7, default off. Every seat sees the
+                              // choice in the lobby and on the composer.
+                              SettingsSwitchRow(
+                                switchKey: RoomSettingsPanel.revealWhispersKey,
+                                label: l10n.settingRevealWhispers,
+                                hint: l10n.settingRevealWhispersHint,
+                                value: match.revealWhisperContent,
+                                onChanged: match.whisperEnabled
+                                    ? (value) => _send(
+                                        settings: {
+                                          'revealWhisperContent': value,
+                                        },
+                                      )
+                                    : null,
                               ),
                             ],
                           ),

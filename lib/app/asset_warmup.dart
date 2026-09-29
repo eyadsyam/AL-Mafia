@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +21,12 @@ class AssetWarmup {
   /// starve the first frames.
   final int batch;
 
-  const AssetWarmup({required this.bundle, this.batch = 6});
+  /// Whether this is the web build, which plays the .mp3 twin of every
+  /// sound (Safari cannot decode Ogg) and never the .ogg; a phone is the
+  /// reverse. Each reads only the copy it will play.
+  final bool web;
+
+  const AssetWarmup({required this.bundle, this.batch = 6, this.web = kIsWeb});
 
   /// The key under which the last fully prepared asset set is remembered.
   static const signatureKey = 'mafia.warmup.signature.v1';
@@ -30,9 +36,19 @@ class AssetWarmup {
   /// Every warmable asset in the manifest, sorted so the signature is stable.
   Future<List<String>> assets() async {
     final manifest = await AssetManifest.loadFromAssetBundle(bundle);
-    final all = manifest.listAssets().where((path) {
+    final listed = manifest.listAssets().toSet();
+    final all = listed.where((path) {
       final lower = path.toLowerCase();
-      return path.startsWith('assets/') && _warmable.any(lower.endsWith);
+      if (!path.startsWith('assets/') || !_warmable.any(lower.endsWith)) {
+        return false;
+      }
+      if (web && lower.endsWith('.ogg')) {
+        return !listed.contains('${path.substring(0, path.length - 4)}.mp3');
+      }
+      if (!web && lower.endsWith('.mp3')) {
+        return !listed.contains('${path.substring(0, path.length - 4)}.ogg');
+      }
+      return true;
     }).toList()..sort();
     return all;
   }

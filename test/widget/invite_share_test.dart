@@ -5,6 +5,7 @@ import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/platform/invite_share.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/economy/economy_capabilities.dart';
+import 'package:mafia_master/ui/screens/online/council/revealed_whispers.dart';
 import 'package:mafia_master/ui/screens/online/lobby_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/online/room_invite.dart';
@@ -68,10 +69,16 @@ void main() {
       WidgetTester tester,
       InviteSharer sharer, {
       bool referrals = false,
+      Map<String, dynamic> settings = const {},
     }) async {
       backend = FakeBackend(
         roomId: 'room-1',
-        state: roomState(phase: 'lobby', phaseNumber: 0, status: 'lobby'),
+        state: roomState(
+          phase: 'lobby',
+          phaseNumber: 0,
+          status: 'lobby',
+          settings: settings,
+        ),
         players: roster(3),
         own: const OwnSeat(seat: 0),
       );
@@ -134,6 +141,23 @@ void main() {
       expect(shared!.text, contains(arStrings.onlineReferralOffer));
     });
 
+    testWidgets('a room that reveals whispers says so in the lobby', (
+      tester,
+    ) async {
+      final sharer = InviteSharer(
+        share: (_) async => const ShareResult('', ShareResultStatus.success),
+        copy: (_) async => true,
+      );
+      // (The default room, with no notice, is every other test in this group.)
+      await pump(
+        tester,
+        sharer,
+        settings: const {'revealWhisperContent': true},
+      );
+      await tester.pump();
+      expect(find.byKey(RevealWhispersNotice.noticeKey), findsOneWidget);
+    });
+
     testWidgets(
       'dismissing the sheet returns to the same lobby, still seated',
       (tester) async {
@@ -148,6 +172,7 @@ void main() {
             copy: (_) async => fail('no copy behind a sheet'),
           ),
         );
+        expect(find.byKey(RevealWhispersNotice.noticeKey), findsNothing);
         await tester.tap(find.byKey(LobbyScreen.shareButton));
         await tester.pump();
         await tester.pump();

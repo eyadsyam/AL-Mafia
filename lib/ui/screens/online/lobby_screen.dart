@@ -48,6 +48,7 @@ import '../../economy/economy_capabilities.dart';
 import '../../economy/council.dart';
 import '../../social/friends.dart';
 import '../../social/titles_partner.dart';
+import 'council/revealed_whispers.dart' show RevealWhispersNotice;
 
 /// S-21 — the room, before it is a match (doc 12 §3.1).
 ///
@@ -691,6 +692,13 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                           color: colors.textSecondary,
                                         ),
                                       ),
+                                    ],
+                                    // Doc 09 §7: every seat is told before
+                                    // the deal that whispers will be shown.
+                                    if (snapshot?.settings.revealWhisperContent ??
+                                        false) ...[
+                                      SizedBox(height: spacing.xs),
+                                      const RevealWhispersNotice(),
                                     ],
                                     Text(
                                       key: LobbyScreen.playerCount,

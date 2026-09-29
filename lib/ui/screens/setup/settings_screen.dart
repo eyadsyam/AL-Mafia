@@ -443,9 +443,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         value: _s.revealNightVictimRole,
         onChanged: (v) => _edit((s) => s.copyWith(revealNightVictimRole: v)),
       ),
-      // «اكشف محتوى الهمسات بعد المباراة» was here. Nothing read it — no
-      // screen, no server — so the switch promised what the game does not do
-      // (launch audit A4). The field stays in MatchSettings for old saves.
+      // «اكشف محتوى الهمسات بعد المباراة» was here, online-only and read by
+      // nothing. It lives in the room settings now (RoomSettingsPanel), where
+      // the server honours it (Doc 09 §7, launch audit A4).
     ],
   );
 

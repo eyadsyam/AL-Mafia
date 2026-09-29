@@ -171,8 +171,9 @@ void main() {
       // lost it.
       expect(
         find.textContaining(arStrings.settingsOnlineOnly),
-        // Two since «اكشف محتوى الهمسات» left (launch audit A4: nothing read
-        // it). Doc 14 still lists it; the owner decides whether to build it.
+        // Two since «اكشف محتوى الهمسات» moved to the online room settings,
+        // where it now works (Doc 09 §7): pass-and-play has no whisper text
+        // to reveal from this screen.
         findsAtLeastNWidgets(2),
       );
     });

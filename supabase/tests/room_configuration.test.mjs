@@ -38,6 +38,10 @@ assert.equal(archive.presentationPack, 'pack_moonlit_archive');
 assert.equal(archive.narratorPack, 'narrator_noir');
 assert.equal(roomConfiguration({ settings: { narratorPack: 'narrator_keeper' } }).settings.narratorPack, 'narrator_keeper');
 assert.throws(() => roomConfiguration({ settings: { presentationPack: 'bundle_nocturne' } }));
+// Doc 09 §7: whisper texts after the match — a real boolean or nothing.
+assert.equal(roomConfiguration({ settings: { revealWhisperContent: true } }).settings.revealWhisperContent, true);
+assert.equal(roomConfiguration({ settings: {} }).settings.revealWhisperContent, undefined, 'off unless chosen');
+assert.throws(() => roomConfiguration({ settings: { revealWhisperContent: 'true' } }));
 const kept = roomConfiguration({ settings: { speechSeconds: 30 } }, dressed).settings;
 assert.equal(kept.presentationPack, 'pack_old_town', 'a later edit keeps the pack');
 console.log('PASS room configuration: cosmetics validated; : create, edit, preserve, scenarios, types, unknown fields, night privacy');

@@ -24,6 +24,10 @@ assert.equal(economyCall({ action: 'titleEquip', code: 'x'.repeat(61), requestId
 assert.deepEqual(economyCall({ action: 'roomTitles', roomId: room }, me),
   { rpc: 'room_titles', args: { p_user: me, p_room: room } });
 assert.equal(economyCall({ action: 'roomTitles', roomId: 'nope' }, me), null);
+// Doc 09 §7: the revealed whispers of a finished room, for the caller only.
+assert.deepEqual(economyCall({ action: 'matchWhispers', roomId: room, p_user: 'x' }, me),
+  { rpc: 'match_whispers_revealed', args: { p_user: me, p_room: room } });
+assert.equal(economyCall({ action: 'matchWhispers', roomId: 'nope' }, me), null);
 
 assert.deepEqual(economyCall({ action: 'partnerGet' }, me), { rpc: 'partner_get', args: { p_user: me } });
 for (const side of ['detective', 'doctor', 'mafia', 'citizen']) {

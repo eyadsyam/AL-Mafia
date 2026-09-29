@@ -1021,7 +1021,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingRevealWhispers => 'اكشف محتوى الهمسات بعد المباراة';
 
   @override
-  String get settingRevealWhispersHint => 'اظهار الرسائل في التحليلات';
+  String get settingRevealWhispersHint =>
+      'بعد ما الماتش يخلص، كل اللي في الأوضة يقروا الهمسات ونصها. اللاعبين بيشوفوا ده في اللوبي وقبل ما يهمسوا.';
 
   @override
   String get onlineMatch => 'العب أونلاين';
@@ -4959,4 +4960,23 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pushChannelSocialDesc => 'طلبات الصداقة والقبول';
+
+  @override
+  String get revealWhispersNotice =>
+      'في الأوضة دي الهمسات هتتكشف للكل بعد الماتش';
+
+  @override
+  String get revealWhispersButton => 'الهمسات';
+
+  @override
+  String get revealWhispersTitle => 'همسات الماتش';
+
+  @override
+  String get revealWhispersEmpty => 'محدش همس في الماتش ده';
+
+  @override
+  String get revealWhispersMasked => 'همسة من لاعب انت عامله بلوك';
+
+  @override
+  String get revealWhispersFailed => 'ماقدرناش نجيب الهمسات';
 }
