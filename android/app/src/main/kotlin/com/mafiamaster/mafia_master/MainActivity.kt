@@ -3,6 +3,10 @@ package com.mafiamaster.mafia_master
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -18,6 +22,49 @@ class MainActivity : FlutterActivity() {
                     result.notImplemented()
                 }
             }
+        // The invite's long knock (Haptics.pattern): one waveform through the
+        // platform vibrator. False when there is none; Dart then falls back.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, HAPTICS)
+            .setMethodCallHandler { call, result ->
+                if (call.method == "vibrate") {
+                    result.success(vibrate(call.arguments as? List<*>))
+                } else {
+                    result.notImplemented()
+                }
+            }
+        // The device time-zone name (e.g. Africa/Cairo) for the coarse
+        // country bucket in «ناس قريبة». Never a location.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, DEVICE)
+            .setMethodCallHandler { call, result ->
+                if (call.method == "timeZone") {
+                    result.success(java.util.TimeZone.getDefault().id)
+                } else {
+                    result.notImplemented()
+                }
+            }
+    }
+
+    private fun vibrate(raw: List<*>?): Boolean = try {
+        val timings = raw?.mapNotNull { (it as? Number)?.toLong() }?.toLongArray()
+        val vibrator: Vibrator = if (Build.VERSION.SDK_INT >= 31) {
+            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        }
+        if (timings == null || timings.size < 2 || !vibrator.hasVibrator()) {
+            false
+        } else {
+            if (Build.VERSION.SDK_INT >= 26) {
+                vibrator.vibrate(VibrationEffect.createWaveform(timings, -1))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(timings, -1)
+            }
+            true
+        }
+    } catch (e: Exception) {
+        false
     }
 
     /**
@@ -118,6 +165,8 @@ class MainActivity : FlutterActivity() {
 
     companion object {
         private const val CHANNEL = "mafia_master/launcher"
+        private const val HAPTICS = "mafia_master/haptics"
+        private const val DEVICE = "mafia_master/device"
         private const val NAMESPACE = "com.mafiamaster.mafia_master"
         private const val PREFS = "launcher_label"
         private const val PENDING_KEY = "pending_language"

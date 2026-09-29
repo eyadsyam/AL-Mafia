@@ -160,6 +160,12 @@ class EconomyCapabilities {
   /// «أصحابك»: friends, presence and lobby invites (`social.friends`).
   final bool friends;
 
+  /// Find and invite anyone: handles, search, discover (`social.directory`).
+  final bool directory;
+
+  /// Invites also arrive as a push notification (`social.pushInvites`).
+  final bool pushInvites;
+
   /// «ملف القضايا»: missions, the season track and achievements
   /// (`missions`, or `social.missions`).
   final bool missions;
@@ -218,6 +224,8 @@ class EconomyCapabilities {
     this.ads = AdsCapabilities.off,
     this.fun = FunCapabilities.off,
     this.friends = false,
+    this.directory = false,
+    this.pushInvites = false,
     this.missions = false,
     this.thursday = false,
     this.caseOfDay = false,
@@ -262,6 +270,12 @@ class EconomyCapabilities {
       fun: FunCapabilities.fromJson(json['fun']),
       friends:
           json['social'] is Map && (json['social'] as Map)['friends'] == true,
+      directory:
+          json['social'] is Map &&
+          (json['social'] as Map)['directory'] == true,
+      pushInvites:
+          json['social'] is Map &&
+          (json['social'] as Map)['pushInvites'] == true,
       caseOfDay: flag('caseOfDay'),
       metrics: flag('metrics'),
       reviewPrompt: flag('reviewPrompt'),

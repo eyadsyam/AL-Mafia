@@ -63,5 +63,6 @@ Deno.serve(handler(async (req, userId, db) => {
     }
     return ok({ invited: true, inviteId: data.inviteId });
   }
-  return ok(data);
+  // The inbox is a list; every answer is an object.
+  return ok(call.fn === "invites_inbox" ? { invites: data } : data);
 }));

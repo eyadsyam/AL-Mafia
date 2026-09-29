@@ -37,6 +37,7 @@ import '../../fun/reactions.dart';
 import 'host_handover.dart';
 import '../../widgets/voice_mic_button.dart';
 import 'host_sheet.dart';
+import 'invite_sheet.dart';
 import 'room_settings_panel.dart';
 import 'scene_sheet.dart';
 import 'council/seat_status.dart';
@@ -158,6 +159,9 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
   int? _inspect;
   bool _closing = false;
   bool _settings = false;
+
+  /// «ادعي صحابك», in the scene.
+  bool _inviting = false;
 
   /// Doc 15 §S-O3: an arriving player's dashed chair **draws itself solid**
   /// over 500ms and only then shows their initial.
@@ -651,11 +655,8 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                           IconButton(
                                             key: LobbyScreen.friendsButton,
                                             tooltip: l10n.friendsInviteToRoom,
-                                            onPressed: () => showFriendsSheet(
-                                              context,
-                                              onJoin: (_) {},
-                                              inviteRoomId:
-                                                  session.room!.roomId,
+                                            onPressed: () => setState(
+                                              () => _inviting = true,
                                             ),
                                             icon: Icon(
                                               Icons.group_add_rounded,
@@ -929,6 +930,13 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                 snapshot: snapshot,
                 transport: session.transport,
                 onClose: () => setState(() => _settings = false),
+              ),
+            // «ادعي صحابك»: friends, search by name, people near you.
+            if (session.room?.roomId != null)
+              InviteSheet(
+                visible: _inviting,
+                roomId: session.room!.roomId,
+                onDismiss: () => setState(() => _inviting = false),
               ),
             // Task 5 — one line, three seconds, over the lobby.
             if (snapshot != null) HostHandover(snapshot: snapshot),

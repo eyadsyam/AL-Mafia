@@ -2075,3 +2075,42 @@ abstract final class StoreTruthTokens {
   static const Color noirRule = Color(0xFF7A1F24);
   static const Color noirInk = Color(0xFFF2EBDD);
 }
+
+/// Invites that reach the phone (`lib/ui/screens/online/invite_sheet.dart`,
+/// `lib/ui/social/incoming_invite.dart`, `lib/platform/push/**`).
+abstract final class InviteTokens {
+  /// The «ادعي صحابك» sheet: share of the screen height at most.
+  static const double sheetHeight = 0.86;
+  static const double rowAvatar = 44.0;
+  static const double popupAvatar = 72.0;
+  static const double stateDot = 8.0;
+  static const double spinner = 16.0;
+  static const double spinnerStroke = 2.0;
+  static const double scrimAlpha = 0.72;
+  static const double chipAlpha = 0.24;
+
+  /// Typing pauses this long before a search is sent.
+  static const Duration searchDebounce = Duration(milliseconds: 350);
+
+  /// While the app is in front, pending invites are asked for this often
+  /// (the codebase's existing short poll, as for «أصحابك»).
+  static const Duration inboxPoll = Duration(seconds: 20);
+
+  /// The popup rises once; reduced motion shows it at rest.
+  static const Duration popupRise = Duration(milliseconds: 320);
+  static const double popupLift = 24.0;
+
+  /// «اتبعتت ✓» stays; a failure clears after this.
+  static const Duration failedHold = Duration(seconds: 3);
+
+  /// The long "someone's at the door" vibration, in milliseconds: wait, buzz,
+  /// pause, buzz … about two seconds. The same pattern the Android channel
+  /// and the web notification use (supabase/functions/_shared/push.ts).
+  static const List<int> longVibration = [0, 400, 180, 400, 180, 700];
+
+  /// Our gold, for the Android notification accent.
+  static const Color accent = Color(0xFFC2AF81);
+
+  /// Friend requests on the quieter channel: one short buzz.
+  static const List<int> shortVibration = [0, 180];
+}
