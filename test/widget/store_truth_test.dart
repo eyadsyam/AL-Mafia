@@ -10,6 +10,8 @@ import 'package:mafia_master/platform/audio_director.dart';
 import 'package:mafia_master/transport/game_snapshot.dart';
 import 'package:mafia_master/ui/economy/cosmetic_paint.dart';
 import 'package:mafia_master/ui/economy/cosmetics.dart';
+import 'package:mafia_master/ui/economy/council.dart';
+import 'package:mafia_master/ui/economy/council_hub.dart';
 import 'package:mafia_master/ui/economy/my_cosmetics.dart';
 import 'package:mafia_master/ui/economy/my_identity.dart';
 import 'package:mafia_master/ui/economy/pass_table_dress.dart';
@@ -42,6 +44,18 @@ class _Profile extends PlayerProfileController {
   @override
   Future<PlayerProfile?> build() async =>
       const PlayerProfile(name: 'سلمى', gender: PlayerGender.female);
+}
+
+class _Friends extends FriendsController {
+  @override
+  Future<FriendsState?> build() async => FriendsState.fromJson({
+    'friends': [
+      {'id': 'a', 'name': 'كريم', 'frame': 'frame_moonlit', 'plate': 'plate_noir'},
+      {'id': 'b', 'name': 'نور'},
+    ],
+  });
+  @override
+  Future<void> refresh() async {}
 }
 
 const _full = {
@@ -166,6 +180,66 @@ void main() {
       expect(friend.plate, 'plate_noir');
       final plain = FriendEntry.fromJson({'id': 'b', 'name': 'نور'})!;
       expect(plain.frame, isNull);
+    });
+
+    testWidgets('the friends sheet draws a friend\'s frame and plate, a plain row stays plain', (
+      tester,
+    ) async {
+      final c = ProviderContainer(
+        overrides: [friendsProvider.overrideWith(_Friends.new)],
+      );
+      addTearDown(c.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: c,
+          child: localizedApp(Scaffold(body: FriendsSheet(onJoin: (_) {}))),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(CosmeticFrameRing.ringKey), findsOneWidget);
+      expect(find.byKey(CosmeticNameplate.plateKey), findsOneWidget);
+      expect(find.text('نور'), findsOneWidget);
+    });
+
+    testWidgets('leaderboard rows carry each player\'s frame and plate', (tester) async {
+      final c = ProviderContainer(
+        overrides: [
+          leaderboardProvider.overrideWith(
+            (ref) async => Leaderboard.fromJson({
+              'enabled': true,
+              'week': '2026-W40',
+              'entries': [
+                {'position': 1, 'xp': 90, 'name': 'كريم', 'frame': 'frame_gilded',
+                  'plate': 'plate_noir', 'level': 3, 'me': false},
+                {'position': 2, 'xp': 40, 'name': 'نور', 'level': 2, 'me': true},
+              ],
+              'me': {'position': 2, 'xp': 40},
+            }),
+          ),
+        ],
+      );
+      addTearDown(c.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: c,
+          child: localizedApp(const Scaffold(body: LeaderboardSheet())),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: find.byKey(LeaderboardSheet.rowKey(1)),
+          matching: find.byKey(CosmeticFrameRing.ringKey),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(LeaderboardSheet.rowKey(2)),
+          matching: find.byKey(CosmeticFrameRing.ringKey),
+        ),
+        findsNothing,
+      );
     });
   });
 
