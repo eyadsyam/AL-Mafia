@@ -16,7 +16,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/engine/models/enums.dart' as engine;
 import 'package:mafia_master/engine/models/player.dart';
-import 'package:mafia_master/engine/views.dart';
 import 'package:mafia_master/platform/audio_director.dart';
 import 'package:mafia_master/platform/tilt_source.dart';
 import 'package:mafia_master/transport/game_snapshot.dart';
