@@ -343,6 +343,12 @@ abstract final class MotionTokens {
   /// The crow that lifts off as night falls on the table.
   static const double crow = 96;
 
+  /// The candle on the Casebook's case wall, inset from its corner.
+  static const double flameInset = 12;
+
+  /// The seal that lands behind a new rank's emblem, played once.
+  static const Duration levelUpLength = Duration(milliseconds: 1400);
+
   /// The verdict stamp over a vote result.
   static const double stamp = 72;
   static const Duration stampLength = Duration(milliseconds: 1200);

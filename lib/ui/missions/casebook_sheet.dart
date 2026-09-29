@@ -18,6 +18,7 @@ import '../widgets/feathered_art.dart';
 import 'casebook_data.dart';
 
 import '../widgets/motion_sprite.dart';
+
 /// Opens «ملف القضايا» over whatever screen asked for it.
 Future<void> showCasebookSheet(BuildContext context, {int page = 0}) =>
     showModalBottomSheet<void>(
@@ -210,9 +211,19 @@ class _Hero extends StatelessWidget {
           FeatheredArt(
             feather: Feather.banner,
             child: Image.asset(
-              AppCouncilArt.backdropVerdict,
+              AppCouncilArt.casebookHeader,
               fit: BoxFit.cover,
               excludeFromSemantics: true,
+            ),
+          ),
+          // A candle keeps burning on the case wall.
+          const PositionedDirectional(
+            end: MotionTokens.flameInset,
+            top: MotionTokens.flameInset,
+            child: MotionSprite(
+              AppMotion.candleFlame,
+              width: MotionTokens.flame,
+              height: MotionTokens.flame * 2,
             ),
           ),
           DecoratedBox(
@@ -279,10 +290,7 @@ class _SeasonPlate extends StatelessWidget {
           label: l.casebookLevel(level),
           child: ExcludeSemantics(
             child: LampGlow(
-              child: _GoldDisc(
-                level: level,
-                size: CasebookTokens.plateDisc,
-              ),
+              child: _GoldDisc(level: level, size: CasebookTokens.plateDisc),
             ),
           ),
         ),
@@ -308,9 +316,7 @@ class _SeasonPlate extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    l.casebookDaysLeft(
-                      season.daysLeft(DateTime.now().toUtc()),
-                    ),
+                    l.casebookDaysLeft(season.daysLeft(DateTime.now().toUtc())),
                     maxLines: 1,
                     style: context.typography.caption.emphasised.copyWith(
                       color: VaultTokens.goldLight,
@@ -634,17 +640,18 @@ class _ClaimButton extends StatelessWidget {
     final button = VaultPress(
       child: FilledButton(
         key: claimable ? claimKey : null,
-        style: vaultGoldStyle(
-          context,
-          minimumSize: Size(
-            expand ? 0 : CasebookTokens.claimMinWidth,
-            StoreTokens.touchTarget,
-          ),
-        ).merge(
-          FilledButton.styleFrom(
-            padding: EdgeInsets.symmetric(horizontal: expand ? s.xs : s.md),
-          ),
-        ),
+        style:
+            vaultGoldStyle(
+              context,
+              minimumSize: Size(
+                expand ? 0 : CasebookTokens.claimMinWidth,
+                StoreTokens.touchTarget,
+              ),
+            ).merge(
+              FilledButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: expand ? s.xs : s.md),
+              ),
+            ),
         onPressed: claimable && !busy ? onClaim : null,
         child: busy
             ? const SizedBox.square(
@@ -654,10 +661,7 @@ class _ClaimButton extends StatelessWidget {
                   color: VaultTokens.gold,
                 ),
               )
-            : FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(l.casebookClaim),
-              ),
+            : FittedBox(fit: BoxFit.scaleDown, child: Text(l.casebookClaim)),
       ),
     );
     return expand ? SizedBox(width: double.infinity, child: button) : button;
@@ -954,12 +958,7 @@ class _SeasonPage extends StatelessWidget {
     final levels = [for (var i = 1; i <= season.maxLevel; i++) i];
     final waiting = season.ready > 0;
     return ListView(
-      padding: EdgeInsets.fromLTRB(
-        s.screenMargin,
-        s.md,
-        s.screenMargin,
-        s.xl,
-      ),
+      padding: EdgeInsets.fromLTRB(s.screenMargin, s.md, s.screenMargin, s.xl),
       children: [
         _Rise(
           index: 0,
@@ -1001,9 +1000,7 @@ class _SeasonPage extends StatelessWidget {
               builder: (context, box) {
                 final rtl = Directionality.of(context) == TextDirection.rtl;
                 Offset centre(int index) {
-                  final swing = math.sin(
-                    index * CasebookTokens.windFrequency,
-                  );
+                  final swing = math.sin(index * CasebookTokens.windFrequency);
                   final dx =
                       box.maxWidth / 2 +
                       swing * box.maxWidth * CasebookTokens.windAmplitude;
@@ -1321,17 +1318,10 @@ class _LegacyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final s = context.spacing;
-    final won = book.achievements
-        .where((a) => a.unlocked || a.claimed)
-        .length;
+    final won = book.achievements.where((a) => a.unlocked || a.claimed).length;
     final waiting = book.achievements.any((a) => a.claimable);
     return ListView(
-      padding: EdgeInsets.fromLTRB(
-        s.screenMargin,
-        s.md,
-        s.screenMargin,
-        s.xl,
-      ),
+      padding: EdgeInsets.fromLTRB(s.screenMargin, s.md, s.screenMargin, s.xl),
       children: [
         if (book.rank.level > 0) ...[
           _Rise(

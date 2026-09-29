@@ -80,6 +80,7 @@ abstract final class AppCouncilArt {
   static const String backdropDay = 'assets/images/online/backdrop_day.webp';
   static const String backdropNight = 'assets/images/online/backdrop_night.webp';
   static const String backdropVerdict = 'assets/images/online/backdrop_verdict.webp';
+  static const String casebookHeader = 'assets/images/online/casebook_header.webp';
   static const String fogOverlay = 'assets/images/online/fog_overlay.webp';
   static const String lightMote = 'assets/images/online/light_mote.png';
   static const String onlineWelcome = 'assets/images/online/online_welcome.webp';
@@ -101,6 +102,7 @@ abstract final class AppCouncilArt {
     backdropDay,
     backdropNight,
     backdropVerdict,
+    casebookHeader,
     fogOverlay,
     lightMote,
     onlineWelcome,

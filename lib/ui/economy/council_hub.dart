@@ -25,6 +25,7 @@ import '../missions/casebook_data.dart';
 import '../missions/casebook_sheet.dart';
 
 import '../widgets/motion_sprite.dart';
+
 /// What a contract asks, in the player's words.
 String contractName(AppLocalizations l, CouncilContract c) =>
     switch (c.metric) {
@@ -142,6 +143,13 @@ class LevelUpSheet extends StatelessWidget {
                             ),
                           ),
                         ),
+                      ),
+                      const MotionSprite(
+                        AppMotion.levelUpSeal,
+                        width:
+                            CouncilLifeTokens.emblemHero *
+                            VaultTokens.raysExtent,
+                        once: MotionTokens.levelUpLength,
                       ),
                       Transform.scale(
                         scale:
@@ -973,31 +981,30 @@ class _LeaderboardRow extends StatelessWidget {
     );
   }
 
-  Widget _avatar(MafiaColors colors, bool podium) =>
-      Container(
-        padding: const EdgeInsets.all(VaultTokens.chipRim),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: podium
-              ? VaultTokens.podium[entry.position - 1]
-              : colors.borderSubtle,
+  Widget _avatar(MafiaColors colors, bool podium) => Container(
+    padding: const EdgeInsets.all(VaultTokens.chipRim),
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: podium
+          ? VaultTokens.podium[entry.position - 1]
+          : colors.borderSubtle,
+    ),
+    child: ClipOval(
+      child: Image.asset(
+        entry.gender == 'female'
+            ? AppCouncilArt.avatarFemale
+            : AppCouncilArt.avatarMale,
+        width: CouncilLifeTokens.leaderboardAvatar,
+        height: CouncilLifeTokens.leaderboardAvatar,
+        cacheWidth: StoreTokens.frameDecodeWidth,
+        fit: BoxFit.cover,
+        excludeFromSemantics: true,
+        errorBuilder: (_, _, _) => const SizedBox.square(
+          dimension: CouncilLifeTokens.leaderboardAvatar,
         ),
-        child: ClipOval(
-          child: Image.asset(
-            entry.gender == 'female'
-                ? AppCouncilArt.avatarFemale
-                : AppCouncilArt.avatarMale,
-            width: CouncilLifeTokens.leaderboardAvatar,
-            height: CouncilLifeTokens.leaderboardAvatar,
-            cacheWidth: StoreTokens.frameDecodeWidth,
-            fit: BoxFit.cover,
-            excludeFromSemantics: true,
-            errorBuilder: (_, _, _) => const SizedBox.square(
-              dimension: CouncilLifeTokens.leaderboardAvatar,
-            ),
-          ),
-        ),
-      );
+      ),
+    ),
+  );
 }
 
 /// «اظهر في ترتيب الأسبوع»: the player's own choice, kept by the server.
@@ -1441,8 +1448,11 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
       // The server's own delta for this room when it sends one (D7); the
       // before/after difference only for an older server.
       final deltas = summary['deltas'];
-      final serverXp = deltas is Map ? (deltas['councilXp'] as num?)?.toInt() : null;
-      final xpGained = serverXp ??
+      final serverXp = deltas is Map
+          ? (deltas['councilXp'] as num?)?.toInt()
+          : null;
+      final xpGained =
+          serverXp ??
           (before != null && before.rank.enabled
               ? after.rank.xp - before.rank.xp
               : 0);
@@ -1467,7 +1477,9 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
         // door into it.
         ref.read(casebookProvider.notifier).absorbHub(summary['hub']);
         final book = ref.read(casebookProvider).valueOrNull;
-        if (book != null && book.enabled && (lines.isNotEmpty || book.ready > 0)) {
+        if (book != null &&
+            book.enabled &&
+            (lines.isNotEmpty || book.ready > 0)) {
           lines.add(l.casebookResult);
         }
       }
@@ -1511,7 +1523,10 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
           ),
           SizedBox(height: s.xs),
           TweenAnimationBuilder<double>(
-            tween: Tween(begin: reduce ? rank.progress : _from, end: rank.progress),
+            tween: Tween(
+              begin: reduce ? rank.progress : _from,
+              end: rank.progress,
+            ),
             duration: reduce ? Duration.zero : VaultTokens.barFill * 2,
             curve: context.motion.standardCurve,
             builder: (context, v, _) => CouncilBar(value: v),
@@ -1554,53 +1569,53 @@ class _CouncilResultStripState extends ConsumerState<CouncilResultStrip> {
                     ? () => showCasebookSheet(context)
                     : null,
                 child: Padding(
-                padding: EdgeInsets.only(bottom: s.xs),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: AlignmentDirectional.centerStart,
-                      end: AlignmentDirectional.centerEnd,
-                      colors: [
-                        Color.alphaBlend(
-                          VaultTokens.gold.withValues(
-                            alpha: VaultTokens.lampWash * 2,
+                  padding: EdgeInsets.only(bottom: s.xs),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: AlignmentDirectional.centerStart,
+                        end: AlignmentDirectional.centerEnd,
+                        colors: [
+                          Color.alphaBlend(
+                            VaultTokens.gold.withValues(
+                              alpha: VaultTokens.lampWash * 2,
+                            ),
+                            colors.surfaceRaised,
                           ),
                           colors.surfaceRaised,
-                        ),
-                        colors.surfaceRaised,
-                      ],
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(context.radii.button),
+                      border: Border.all(
+                        color: VaultTokens.gold.withValues(alpha: 0.7),
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(context.radii.button),
-                    border: Border.all(
-                      color: VaultTokens.gold.withValues(alpha: 0.7),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: s.sm,
-                      vertical: s.xs,
-                    ),
-                    child: Row(
-                      children: [
-                        const LampGlow(child: MafiaCoin()),
-                        SizedBox(width: s.xs),
-                        Expanded(
-                          child: Semantics(
-                            liveRegion: true,
-                            button: _missions && i == _lines.length - 1,
-                            child: Text(
-                              line,
-                              style: context.typography.bodySmall.copyWith(
-                                color: colors.textPrimary,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: s.sm,
+                        vertical: s.xs,
+                      ),
+                      child: Row(
+                        children: [
+                          const LampGlow(child: MafiaCoin()),
+                          SizedBox(width: s.xs),
+                          Expanded(
+                            child: Semantics(
+                              liveRegion: true,
+                              button: _missions && i == _lines.length - 1,
+                              child: Text(
+                                line,
+                                style: context.typography.bodySmall.copyWith(
+                                  color: colors.textPrimary,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
               ),
             ),
           Text(
