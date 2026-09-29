@@ -700,7 +700,7 @@
   "settingWhisper": "The whisper",
   "settingWhisperHint": "One private message a day. Who wrote to whom is public; what they wrote is not.",
   "settingRevealWhispers": "Reveal whisper text after the match",
-  "settingRevealWhispersHint": "The graph is always revealed. This is about the words.",
+  "settingRevealWhispersHint": "After the match, everyone in the room reads the whispers and what they said. Players see this in the lobby and before they whisper.",
   "onlineMatch": "Play online",
   "onlineCreateRoom": "Create a room",
   "onlineJoinRoom": "Join a room",
@@ -2921,5 +2921,11 @@
   "pushChannelInvites": "Game invites",
   "pushChannelInvitesDesc": "When someone invites you to their room",
   "pushChannelSocial": "Friends",
-  "pushChannelSocialDesc": "Friend requests and accepted requests"
+  "pushChannelSocialDesc": "Friend requests and accepted requests",
+  "revealWhispersNotice": "In this room, whispers are shown to everyone after the match",
+  "revealWhispersButton": "Whispers",
+  "revealWhispersTitle": "The match's whispers",
+  "revealWhispersEmpty": "Nobody whispered this match",
+  "revealWhispersMasked": "A whisper from a player you blocked",
+  "revealWhispersFailed": "Couldn't load the whispers"
 }

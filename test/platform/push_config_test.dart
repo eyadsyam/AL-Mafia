@@ -64,6 +64,9 @@ void main() {
       expect(gradle, contains('resValue("string", "$name"'), reason: name);
     }
     expect(gradle, contains('file("google-services.json")'));
+    // The test-ads build (release + ".adstest") picks its own Firebase app
+    // when the file lists one.
+    expect(gradle, contains('".adstest" else ""'));
     expect(gradle, contains('resValues = true'));
   });
 

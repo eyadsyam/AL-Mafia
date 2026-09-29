@@ -104,8 +104,15 @@
    aapt2 dump resources build\app\outputs\flutter-apk\app-release.apk | Select-String "google_app_id|gcm_defaultSenderId|project_id"
    ```
    لازم التلاتة يظهروا. لو مش ظاهرين يبقى `google-services.json` مش جنب `build.gradle.kts`.
-3. نزّله على موبايل أندرويد 13 أو أحدث: `adb install -r build\app\outputs\flutter-apk\app-release.apk`
-   (نسخة `adstest` اسم الباكدج بتاعها مختلف، فمش هيوصلها إشعارات. جرّب على نسخة الـ release).
+   وكمان اتأكد إن نسخ الـ mp3 بتاعة الويب مادخلتش الـ APK (الأندرويد بيشغّل الـ ogg):
+   ```powershell
+   tar -tf build\app\outputs\flutter-apk\app-release.apk | Select-String "\.mp3$"
+   ```
+   مفروض ماتطلعش ولا سطر. لو طلعت، يبقى الـ Gradle ماطبّقش الاستثناء، والـ APK أكبر بحوالي 5 ميجا بس، وكل حاجة شغالة عادي.
+3. نزّله على موبايل أندرويد 13 أو أحدث: `adb install -r build\app\outputs\flutter-apk\app-release.apk`.
+   **نسخة الإعلانات التجريبية (`adstest`)** اسم الباكدج بتاعها `com.mafiamaster.mafia_master.adstest`. عشان يوصلها إشعارات:
+   في Firebase ← Project settings ← Add app ← أندرويد بالاسم ده بالظبط ← نزّل `google-services.json` تاني
+   (الملف الجديد فيه التطبيقين) وحطه مكان القديم. الـ Gradle بيختار تطبيق النسخة لوحده.
 4. افتح اللوج وسيبه شغال: `adb logcat -s FirebaseApp FirebaseMessaging flutter`
    وافتح التطبيق. مفروض يظهر `FirebaseApp initialization successful`.
 5. القنوات: الإعدادات ← التطبيقات ← سيد المافيا ← الإشعارات. لازم تلاقي قناتين:

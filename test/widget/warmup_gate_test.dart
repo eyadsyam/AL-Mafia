@@ -45,6 +45,17 @@ void main() {
     expect(assets.every((a) => a.startsWith('assets/')), isTrue);
   });
 
+  test('each platform reads only the sound copy it plays', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final phone = await AssetWarmup(bundle: rootBundle).assets();
+    expect(phone, contains('assets/audio/win.ogg'));
+    expect(phone.any((a) => a.endsWith('.mp3')), isFalse);
+    final web = await AssetWarmup(bundle: rootBundle, web: true).assets();
+    expect(web, contains('assets/audio/win.mp3'));
+    expect(web, isNot(contains('assets/audio/win.ogg')));
+    expect(web, contains('assets/images/bg_night.webp'));
+  });
+
   testWidgets('first launch prepares behind a veil, then lets the table through', (
     tester,
   ) async {

@@ -1045,7 +1045,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingRevealWhispersHint =>
-      'The graph is always revealed. This is about the words.';
+      'After the match, everyone in the room reads the whispers and what they said. Players see this in the lobby and before they whisper.';
 
   @override
   String get onlineMatch => 'Play online';
@@ -5047,4 +5047,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pushChannelSocialDesc => 'Friend requests and accepted requests';
+
+  @override
+  String get revealWhispersNotice =>
+      'In this room, whispers are shown to everyone after the match';
+
+  @override
+  String get revealWhispersButton => 'Whispers';
+
+  @override
+  String get revealWhispersTitle => 'The match\'s whispers';
+
+  @override
+  String get revealWhispersEmpty => 'Nobody whispered this match';
+
+  @override
+  String get revealWhispersMasked => 'A whisper from a player you blocked';
+
+  @override
+  String get revealWhispersFailed => 'Couldn\'t load the whispers';
 }

@@ -31,6 +31,7 @@ import '../match_controller.dart';
 import 'council/card_rise.dart';
 import 'council/phase_sting.dart';
 import 'council/role_roster.dart';
+import 'council/revealed_whispers.dart';
 import 'council/council_band.dart';
 import 'host_handover.dart';
 import 'host_sheet.dart';
@@ -104,6 +105,7 @@ class OnlineTableFlow extends ConsumerStatefulWidget {
   /// Phase 109: the result's primary action, a new room for the same group.
   static const Key playAgain = ValueKey('online_play_again');
   static const Key seeRoles = ValueKey('online_see_roles');
+  static const Key revealedWhispers = ValueKey('online_revealed_whispers');
 
   /// The result's scrolling part: awards, reactions, council, roles, home.
   static const Key resultScroll = ValueKey('online_result_scroll');
@@ -316,6 +318,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 
   /// Doc 15 §S-O13 beat 5: whether the roster is open over the council.
   bool _roster = false;
+
+  /// Doc 09 §7: the finished match's whispers, open over the result.
+  bool _whispers = false;
 
   /// True once this device has been told to go home and has asked to.
   bool _leaving = false;
@@ -1309,6 +1314,13 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
               cosmetics: snapshot.seatCosmetics,
               onClose: () => setState(() => _roster = false),
             ),
+          if (_whispers && _matchOver(snapshot))
+            if (ref.read(onlineSessionProvider).room?.roomId case final id?)
+              RevealedWhispers(
+                roomId: id,
+                names: _names(snapshot),
+                onClose: () => setState(() => _whispers = false),
+              ),
           // Task 5 — one line, three seconds, over whatever is on screen. It
           // is not a phase and it does not stop anything.
           // Task 6 — the host's two moderation actions, in the scene.
@@ -2017,6 +2029,21 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
                                 child: Text(l10n.onlineSeeRoles),
                               ),
                             ),
+                            // Doc 09 §7: only a room that chose it, only
+                            // once the outcome is public.
+                            if (completed &&
+                                roomId != null &&
+                                snapshot.settings.revealWhisperContent) ...[
+                              SizedBox(width: spacing.sm),
+                              Expanded(
+                                child: OutlinedButton(
+                                  key: OnlineTableFlow.revealedWhispers,
+                                  onPressed: () =>
+                                      setState(() => _whispers = true),
+                                  child: Text(l10n.revealWhispersButton),
+                                ),
+                              ),
+                            ],
                             if (snapshot.outcome?.winner != null) ...[
                               SizedBox(width: spacing.sm),
                               ResultShareButton(
@@ -2147,7 +2174,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     final me = snapshot.viewerSeat;
     if (me == null) return const SizedBox.shrink();
 
-    return ColoredBox(
+    final composer = ColoredBox(
       color: context.colors.surfaceBase.withValues(alpha: 0.72),
       child: SafeArea(
         child: WhisperComposeScreen(
@@ -2175,6 +2202,23 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           },
         ),
       ),
+    );
+    if (!snapshot.settings.revealWhisperContent) return composer;
+    // Doc 09 §7: the room's rule, on the page where the words are written.
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        composer,
+        Align(
+          alignment: AlignmentDirectional.topCenter,
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(context.spacing.sm),
+              child: const RevealWhispersNotice(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

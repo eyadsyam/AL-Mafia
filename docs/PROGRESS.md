@@ -3521,3 +3521,10 @@ Files:      supabase/migrations/20260930000{5,6}00_*.sql, supabase/tests/{econom
 Verified:   flutter test +1603 ~1 all passed; analyze no error/warning; SQL 69/69; envelope PASS; all node suites incl. capabilities wiring; flutter build web OK
 Gate:       PASS
 Open:       apply migrations 20260930000300..600 in order on hosted; Season One must be seeded before Season Zero ends (28 days); APK not built here (steps in PUSH-SETUP.md); reveal-whispers (Doc 14) not built.
+
+## PHASE FINISH-LAUNCH (follow-up: the open items) — done — cloud
+Built:      Season rollover (season_roll(): season_01, 02… back to back, hourly cron + every Casebook open, coin track copied, title levels → 50 coins, never wakes an unstarted Casebook); reveal whispers after the match (Doc 09 §7) built online: host switch in lobby room settings (default off, locked at the deal), notice to every seat in the lobby and on the composer, «الهمسات» on the result reads delivered whispers with text (voided hidden, blocked masked, nothing before the public end); mp3 twins left out of the APK (reflective ignoreAssetsPattern) and warmup reads only the copy each platform plays; adstest build picks its own Firebase app when listed.
+Files:      supabase/migrations/20260930000{7,8}00_*.sql, supabase/tests/{season_rollover,reveal_whispers}.sql, supabase/functions/_shared/{room_configuration,economy_actions}.ts, lib/ui/screens/online/{council/revealed_whispers,online_table_flow,lobby_screen,room_settings_panel}.dart, lib/transport/room_codec.dart, lib/app/asset_warmup.dart, lib/ui/screens/setup/settings_screen.dart, android/app/build.gradle.kts, l10n, tests, docs/{LAUNCH-AUDIT,PUSH-SETUP}.md
+Verified:   flutter test +1611 ~1 all passed; analyze no error/warning; SQL 71/71; envelope PASS; all node suites
+Gate:       PASS
+Open:       APK still not built: this environment's network refuses dl.google.com (no Android SDK). Deploy `economy` and `room_settings`/`create_room` (room_configuration) with migrations 000300..000800.

@@ -334,6 +334,7 @@ RoomState roomState({
   DateTime? serverNow,
   String? activeSpeaker,
   int lobbyRevision = 0,
+  Map<String, dynamic> settings = const {},
 }) => RoomState(
   phase: phase,
   phaseNumber: phaseNumber,
@@ -345,6 +346,7 @@ RoomState roomState({
   publicData: publicData,
   activeSpeaker: activeSpeaker,
   lobbyRevision: lobbyRevision,
+  settings: settings,
 );
 
 List<RoomPlayer> roster(

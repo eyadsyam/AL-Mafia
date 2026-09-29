@@ -24,6 +24,20 @@ android {
         resValues = true
     }
 
+    // The web build plays .mp3 twins of every .ogg (Safari cannot decode
+    // Ogg); Android plays the .ogg, so the twins stay out of the APK. AGP's
+    // default ignore list plus "*.mp3". Set reflectively so a Gradle plugin
+    // without the property still builds (it then only ships ~5 MB more).
+    // Check: `unzip -l app-release.apk | findstr .mp3` prints nothing.
+    runCatching {
+        androidResources.javaClass
+            .getMethod("setIgnoreAssetsPattern", String::class.java)
+            .invoke(
+                androidResources,
+                "!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~:!*.mp3",
+            )
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -65,7 +79,14 @@ android {
             fun packageOf(client: Map<String, Any?>): Any? =
                 ((client["client_info"] as Map<String, Any?>)["android_client_info"]
                     as Map<String, Any?>)["package_name"]
-            val client = clients.firstOrNull { packageOf(it) == applicationId } ?: clients.first()
+            // The test-ads build is a different package (release + ".adstest",
+            // see buildTypes); it takes its own Firebase app when the file
+            // lists one (docs/PUSH-SETUP.md), else the release app's values.
+            val installed = applicationId +
+                (if (project.findProperty("TEST_ADS_SUFFIX") == "true") ".adstest" else "")
+            val client = clients.firstOrNull { packageOf(it) == installed }
+                ?: clients.firstOrNull { packageOf(it) == applicationId }
+                ?: clients.first()
             @Suppress("UNCHECKED_CAST")
             val appId = (client["client_info"] as Map<String, Any?>)["mobilesdk_app_id"] as String
             @Suppress("UNCHECKED_CAST")
