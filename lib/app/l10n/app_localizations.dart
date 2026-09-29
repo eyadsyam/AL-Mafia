@@ -8292,6 +8292,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{seconds}s left to confirm you\'re ready'**
   String lobbyReadyCountdown(int seconds);
+
+  /// No description provided for @inviteSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite players'**
+  String get inviteSheetTitle;
+
+  /// No description provided for @inviteTabFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get inviteTabFriends;
+
+  /// No description provided for @inviteTabSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name'**
+  String get inviteTabSearch;
+
+  /// No description provided for @inviteTabNearby.
+  ///
+  /// In en, this message translates to:
+  /// **'People near you'**
+  String get inviteTabNearby;
+
+  /// No description provided for @inviteSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get inviteSend;
+
+  /// No description provided for @inviteSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get inviteSent;
+
+  /// No description provided for @inviteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t go through, try again'**
+  String get inviteFailed;
+
+  /// No description provided for @inviteSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a name or @username'**
+  String get inviteSearchHint;
+
+  /// No description provided for @inviteSearchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody by that name'**
+  String get inviteSearchEmpty;
+
+  /// No description provided for @inviteSearchShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least two letters'**
+  String get inviteSearchShort;
+
+  /// No description provided for @inviteNearbyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody here right now'**
+  String get inviteNearbyEmpty;
+
+  /// No description provided for @inviteFriendsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No friends yet — search by name'**
+  String get inviteFriendsEmpty;
+
+  /// No description provided for @inviteFilterNear.
+  ///
+  /// In en, this message translates to:
+  /// **'Near you'**
+  String get inviteFilterNear;
+
+  /// No description provided for @inviteFilterOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online now'**
+  String get inviteFilterOnline;
+
+  /// No description provided for @inviteFilterPlayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Played with'**
+  String get inviteFilterPlayed;
+
+  /// No description provided for @inviteFilterLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your level'**
+  String get inviteFilterLevel;
+
+  /// No description provided for @inviteStateOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get inviteStateOnline;
+
+  /// No description provided for @inviteStateLobby.
+  ///
+  /// In en, this message translates to:
+  /// **'In a lobby'**
+  String get inviteStateLobby;
+
+  /// No description provided for @inviteStatePlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing'**
+  String get inviteStatePlaying;
+
+  /// No description provided for @inviteStateAway.
+  ///
+  /// In en, this message translates to:
+  /// **'Away'**
+  String get inviteStateAway;
+
+  /// No description provided for @inviteLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String inviteLevel(int level);
+
+  /// No description provided for @inviteMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get inviteMore;
+
+  /// No description provided for @inviteIncomingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Game invite'**
+  String get inviteIncomingTitle;
+
+  /// No description provided for @inviteIncomingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} invites you to play together'**
+  String inviteIncomingBody(String name);
+
+  /// No description provided for @inviteIncomingCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Room {code}'**
+  String inviteIncomingCode(String code);
+
+  /// No description provided for @inviteEnter.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get inviteEnter;
+
+  /// No description provided for @inviteLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get inviteLater;
+
+  /// No description provided for @inviteRoomGone.
+  ///
+  /// In en, this message translates to:
+  /// **'That room already started or closed'**
+  String get inviteRoomGone;
+
+  /// No description provided for @profileHandleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get profileHandleLabel;
+
+  /// No description provided for @profileHandleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'3–20 letters, digits or _'**
+  String get profileHandleHint;
+
+  /// No description provided for @profileHandleSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get profileHandleSave;
+
+  /// No description provided for @profileHandleTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That username is taken'**
+  String get profileHandleTaken;
+
+  /// No description provided for @profileHandleWait.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change it again later'**
+  String get profileHandleWait;
+
+  /// No description provided for @profileHandleRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'That username isn\'t allowed'**
+  String get profileHandleRefused;
+
+  /// No description provided for @profileHandleInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Letters, digits or _ only, 3 to 20'**
+  String get profileHandleInvalid;
+
+  /// No description provided for @profileHideFromSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide me from search'**
+  String get profileHideFromSearch;
+
+  /// No description provided for @profileMuteStrangers.
+  ///
+  /// In en, this message translates to:
+  /// **'No invites from people who aren\'t friends'**
+  String get profileMuteStrangers;
+
+  /// No description provided for @pushChannelInvites.
+  ///
+  /// In en, this message translates to:
+  /// **'Game invites'**
+  String get pushChannelInvites;
+
+  /// No description provided for @pushChannelInvitesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When someone invites you to their room'**
+  String get pushChannelInvitesDesc;
+
+  /// No description provided for @pushChannelSocial.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get pushChannelSocial;
+
+  /// No description provided for @pushChannelSocialDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend requests and accepted requests'**
+  String get pushChannelSocialDesc;
 }
 
 class _AppLocalizationsDelegate

@@ -29,6 +29,7 @@ import '../ui/economy/economy_capabilities.dart'
 import '../ui/economy/interstitial_coordinator.dart';
 import 'locale_controller.dart';
 import '../ui/widgets/warmup_gate.dart';
+import '../ui/social/incoming_invite.dart';
 
 /// Root app widget for Mafia Master.
 ///
@@ -292,7 +293,12 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
                   // down on its own when it finds one.
                   child: OnboardingGate(
                     navigatorKey: _navigatorKey,
-                    child: child ?? const SizedBox.shrink(),
+                    // An invite from inside the game, wherever the player
+                    // is (never over a private phase).
+                    child: IncomingInviteHost(
+                      onJoin: (code) => _router.go(Routes.joinLink(code)),
+                      child: child ?? const SizedBox.shrink(),
+                    ),
                   ),
                 ),
               ),

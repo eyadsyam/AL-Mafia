@@ -29,6 +29,16 @@ void main() {
     'lib/ui/economy/my_identity.dart',
     'lib/ui/economy/pass_table_dress.dart',
     'lib/ui/economy/purchase_reveal.dart',
+    // Invites that reach the phone: the sheet, the popup, the directory and
+    // the push plumbing are never reachable from a private surface (the popup
+    // is drawn above the app and waits out private phases on its own).
+    'lib/ui/screens/online/invite_sheet.dart',
+    'lib/ui/social/incoming_invite.dart',
+    'lib/ui/social/directory.dart',
+    'lib/ui/social/directory_settings.dart',
+    'lib/ui/social/push_prompt.dart',
+    'lib/platform/push/push_service.dart',
+    'lib/platform/push/firebase_push_service.dart',
   ];
 
   final importPattern = RegExp(r'''^\s*import\s+['"]([^'"]+)['"]''', multiLine: true);
@@ -52,6 +62,35 @@ void main() {
     }
     return stack.join('/');
   }
+
+  // Doc 05: a push payload is a room code, the sender's name and handle and
+  // the invite id. The push and invite files cannot even name a role or read
+  // a match's private state.
+  test('the push and invite files never import a role or a private view', () {
+    const files = [
+      'lib/platform/push/push_service.dart',
+      'lib/platform/push/firebase_push_service.dart',
+      'lib/ui/social/directory.dart',
+      'lib/ui/social/incoming_invite.dart',
+      'lib/ui/social/push_prompt.dart',
+      'lib/ui/screens/online/invite_sheet.dart',
+    ];
+    for (final path in files) {
+      final source = File(path).readAsStringSync();
+      for (final m in importPattern.allMatches(source)) {
+        final target = m.group(1)!;
+        expect(
+          target.contains('engine/') &&
+              !target.endsWith("engine/models/player.dart"),
+          isFalse,
+          reason: '$path imports $target',
+        );
+        expect(target, isNot(contains('transport/game_snapshot')));
+        expect(target, isNot(contains('private')));
+      }
+      expect(RegExp(r'\brole\b').hasMatch(source), isFalse, reason: path);
+    }
+  });
 
   for (final root in privateAndLiveRoots) {
     test('$root never reaches titles, Partner or bonds', () {

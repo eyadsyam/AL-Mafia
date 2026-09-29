@@ -19,6 +19,11 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    // resValue below (invite push); off by default in newer Gradle plugins.
+    buildFeatures {
+        resValues = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -42,6 +47,34 @@ android {
                 ?: "ca-app-pub-3940256099942544~3347511713"
 
         // Keep every ABI selected by Flutter for the universal release APK.
+
+        // Invite push (docs/PUSH-SETUP.md): the four values Firebase reads at
+        // start, taken from google-services.json once the owner has put it
+        // next to this file — what the google-services plugin would generate,
+        // without the plugin (so a build without the file still builds, with
+        // push simply off).
+        val googleServices = file("google-services.json")
+        if (googleServices.exists()) {
+            @Suppress("UNCHECKED_CAST")
+            val json = groovy.json.JsonSlurper().parse(googleServices) as Map<String, Any?>
+            @Suppress("UNCHECKED_CAST")
+            val info = json["project_info"] as Map<String, Any?>
+            @Suppress("UNCHECKED_CAST")
+            val clients = json["client"] as List<Map<String, Any?>>
+            @Suppress("UNCHECKED_CAST")
+            fun packageOf(client: Map<String, Any?>): Any? =
+                ((client["client_info"] as Map<String, Any?>)["android_client_info"]
+                    as Map<String, Any?>)["package_name"]
+            val client = clients.firstOrNull { packageOf(it) == applicationId } ?: clients.first()
+            @Suppress("UNCHECKED_CAST")
+            val appId = (client["client_info"] as Map<String, Any?>)["mobilesdk_app_id"] as String
+            @Suppress("UNCHECKED_CAST")
+            val apiKey = ((client["api_key"] as List<Map<String, Any?>>).first())["current_key"] as String
+            resValue("string", "google_app_id", appId)
+            resValue("string", "google_api_key", apiKey)
+            resValue("string", "gcm_defaultSenderId", info["project_number"].toString())
+            resValue("string", "project_id", info["project_id"].toString())
+        }
     }
 
 

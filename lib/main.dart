@@ -20,6 +20,10 @@ import 'data/whisper_store.dart';
 import 'platform/frame_report.dart';
 import 'data/motion_preference.dart';
 import 'platform/launcher_label.dart';
+import 'platform/push/firebase_push_service.dart';
+import 'platform/push/push_service.dart';
+import 'app/l10n/app_localizations.dart';
+import 'ui/theme/design_tokens.dart' show InviteTokens;
 import 'ui/screens/setup/setup_draft.dart';
 
 Future<void> main() async {
@@ -82,6 +86,20 @@ Future<void> main() async {
   // Heals an interrupted switch and restores the icon name after an update.
   // A switch that would close this launch is left pending natively.
   unawaited(LauncherLabel.apply(savedLocale.languageCode));
+  // Invite push: null (push off) without Firebase configuration
+  // (docs/PUSH-SETUP.md). Never asks for permission here, and never holds the
+  // launch longer than a moment.
+  final text = lookupAppLocalizations(savedLocale);
+  final push = await FirebasePushService.start(
+    inviteVibration: InviteTokens.longVibration,
+    socialVibration: InviteTokens.shortVibration,
+    text: PushChannelText(
+      invites: text.pushChannelInvites,
+      invitesDescription: text.pushChannelInvitesDesc,
+      social: text.pushChannelSocial,
+      socialDescription: text.pushChannelSocialDesc,
+    ),
+  ).timeout(InviteTokens.pushStart, onTimeout: () => null);
   runApp(
     ProviderScope(
       overrides: [
@@ -94,6 +112,7 @@ Future<void> main() async {
           playerGroupRepositoryProvider.overrideWithValue(stores.groups),
           whisperStoreProvider.overrideWithValue(stores.whispers),
         ],
+        if (push != null) pushServiceProvider.overrideWithValue(push),
       ],
       child: const MafiaApp(),
     ),

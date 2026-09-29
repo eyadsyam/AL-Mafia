@@ -4814,4 +4814,133 @@ class AppLocalizationsAr extends AppLocalizations {
   String lobbyReadyCountdown(int seconds) {
     return 'فاضل $seconds ثانية تأكد إنك جاهز';
   }
+
+  @override
+  String get inviteSheetTitle => 'ادعي صحابك';
+
+  @override
+  String get inviteTabFriends => 'الأصحاب';
+
+  @override
+  String get inviteTabSearch => 'دوّر بالاسم';
+
+  @override
+  String get inviteTabNearby => 'ناس قريبة';
+
+  @override
+  String get inviteSend => 'ادعي';
+
+  @override
+  String get inviteSent => 'اتبعتت';
+
+  @override
+  String get inviteFailed => 'ماوصلتش، جرّب تاني';
+
+  @override
+  String get inviteSearchHint => 'اكتب الاسم أو @اليوزر';
+
+  @override
+  String get inviteSearchEmpty => 'مفيش حد بالاسم ده';
+
+  @override
+  String get inviteSearchShort => 'اكتب حرفين على الأقل';
+
+  @override
+  String get inviteNearbyEmpty => 'مفيش حد هنا دلوقتي';
+
+  @override
+  String get inviteFriendsEmpty => 'لسه معندكش أصحاب — دوّر بالاسم';
+
+  @override
+  String get inviteFilterNear => 'قريبين منك';
+
+  @override
+  String get inviteFilterOnline => 'أونلاين دلوقتي';
+
+  @override
+  String get inviteFilterPlayed => 'لعبت معاهم';
+
+  @override
+  String get inviteFilterLevel => 'نفس مستواك';
+
+  @override
+  String get inviteStateOnline => 'أونلاين';
+
+  @override
+  String get inviteStateLobby => 'في أوضة';
+
+  @override
+  String get inviteStatePlaying => 'بيلعب';
+
+  @override
+  String get inviteStateAway => 'مش موجود';
+
+  @override
+  String inviteLevel(int level) {
+    return 'مستوى $level';
+  }
+
+  @override
+  String get inviteMore => 'هات كمان';
+
+  @override
+  String get inviteIncomingTitle => 'دعوة للعب';
+
+  @override
+  String inviteIncomingBody(String name) {
+    return '$name بيدعوك تلعبوا مع بعض';
+  }
+
+  @override
+  String inviteIncomingCode(String code) {
+    return 'أوضة $code';
+  }
+
+  @override
+  String get inviteEnter => 'ادخل';
+
+  @override
+  String get inviteLater => 'بعدين';
+
+  @override
+  String get inviteRoomGone => 'الأوضة بدأت أو اتقفلت';
+
+  @override
+  String get profileHandleLabel => 'اسم المستخدم';
+
+  @override
+  String get profileHandleHint => 'من 3 لـ 20 حرف أو رقم أو _';
+
+  @override
+  String get profileHandleSave => 'غيّره';
+
+  @override
+  String get profileHandleTaken => 'الاسم ده محجوز';
+
+  @override
+  String get profileHandleWait => 'تقدر تغيّره تاني بعد أسبوع';
+
+  @override
+  String get profileHandleRefused => 'الاسم ده مش مسموح';
+
+  @override
+  String get profileHandleInvalid => 'حروف وأرقام و _ بس، من 3 لـ 20';
+
+  @override
+  String get profileHideFromSearch => 'ماتظهرنيش في البحث';
+
+  @override
+  String get profileMuteStrangers => 'ماتجيليش دعوات من ناس مش صحابي';
+
+  @override
+  String get pushChannelInvites => 'دعوات اللعب';
+
+  @override
+  String get pushChannelInvitesDesc => 'لما حد يدعوك لأوضته';
+
+  @override
+  String get pushChannelSocial => 'الأصحاب';
+
+  @override
+  String get pushChannelSocialDesc => 'طلبات الصداقة والقبول';
 }

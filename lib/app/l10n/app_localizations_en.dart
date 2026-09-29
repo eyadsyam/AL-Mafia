@@ -4901,4 +4901,134 @@ class AppLocalizationsEn extends AppLocalizations {
   String lobbyReadyCountdown(int seconds) {
     return '${seconds}s left to confirm you\'re ready';
   }
+
+  @override
+  String get inviteSheetTitle => 'Invite players';
+
+  @override
+  String get inviteTabFriends => 'Friends';
+
+  @override
+  String get inviteTabSearch => 'Search by name';
+
+  @override
+  String get inviteTabNearby => 'People near you';
+
+  @override
+  String get inviteSend => 'Invite';
+
+  @override
+  String get inviteSent => 'Sent';
+
+  @override
+  String get inviteFailed => 'Didn\'t go through, try again';
+
+  @override
+  String get inviteSearchHint => 'Type a name or @username';
+
+  @override
+  String get inviteSearchEmpty => 'Nobody by that name';
+
+  @override
+  String get inviteSearchShort => 'Type at least two letters';
+
+  @override
+  String get inviteNearbyEmpty => 'Nobody here right now';
+
+  @override
+  String get inviteFriendsEmpty => 'No friends yet — search by name';
+
+  @override
+  String get inviteFilterNear => 'Near you';
+
+  @override
+  String get inviteFilterOnline => 'Online now';
+
+  @override
+  String get inviteFilterPlayed => 'Played with';
+
+  @override
+  String get inviteFilterLevel => 'Your level';
+
+  @override
+  String get inviteStateOnline => 'Online';
+
+  @override
+  String get inviteStateLobby => 'In a lobby';
+
+  @override
+  String get inviteStatePlaying => 'Playing';
+
+  @override
+  String get inviteStateAway => 'Away';
+
+  @override
+  String inviteLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String get inviteMore => 'Load more';
+
+  @override
+  String get inviteIncomingTitle => 'Game invite';
+
+  @override
+  String inviteIncomingBody(String name) {
+    return '$name invites you to play together';
+  }
+
+  @override
+  String inviteIncomingCode(String code) {
+    return 'Room $code';
+  }
+
+  @override
+  String get inviteEnter => 'Join';
+
+  @override
+  String get inviteLater => 'Later';
+
+  @override
+  String get inviteRoomGone => 'That room already started or closed';
+
+  @override
+  String get profileHandleLabel => 'Username';
+
+  @override
+  String get profileHandleHint => '3–20 letters, digits or _';
+
+  @override
+  String get profileHandleSave => 'Change';
+
+  @override
+  String get profileHandleTaken => 'That username is taken';
+
+  @override
+  String get profileHandleWait => 'You can change it again later';
+
+  @override
+  String get profileHandleRefused => 'That username isn\'t allowed';
+
+  @override
+  String get profileHandleInvalid => 'Letters, digits or _ only, 3 to 20';
+
+  @override
+  String get profileHideFromSearch => 'Hide me from search';
+
+  @override
+  String get profileMuteStrangers =>
+      'No invites from people who aren\'t friends';
+
+  @override
+  String get pushChannelInvites => 'Game invites';
+
+  @override
+  String get pushChannelInvitesDesc => 'When someone invites you to their room';
+
+  @override
+  String get pushChannelSocial => 'Friends';
+
+  @override
+  String get pushChannelSocialDesc => 'Friend requests and accepted requests';
 }

@@ -17,6 +17,7 @@ import '../../economy/waiting_banner.dart';
 import '../../account/profile_panels.dart';
 import '../../economy/my_cosmetics.dart';
 import '../../social/titles_partner.dart';
+import '../../social/directory_settings.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final VoidCallback? onSaved;
@@ -189,6 +190,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             // Phase 107: the player's leaderboard choice,
                             // shown only while the board exists.
                             const LeaderboardVisibilitySwitch(),
+                            // Invites: the handle others search for, and the
+                            // two directory switches (after «أصحابك» loaded).
+                            if (widget.onBack != null)
+                              const DirectorySettings(),
                             // F10: titles and the Partner, editing only.
                             if (widget.onBack != null) ...[
                               const EquippedTitleLine(),

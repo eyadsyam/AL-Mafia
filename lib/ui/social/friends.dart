@@ -11,6 +11,7 @@ import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/feathered_art.dart';
 import '../screens/online/online_session.dart';
+import 'directory.dart';
 
 /// «أصحابك» — friends made at the table (`friends` edge function,
 /// 20260928000300_friends.sql). Public facts only: names, whether someone is
@@ -85,12 +86,16 @@ class FriendsState {
   final List<FriendEntry> outgoing;
   final List<FriendEntry> recent;
   final List<RoomInviteEntry> invites;
+
+  /// This player's directory entry (handle and the two switches).
+  final DirectoryMe me;
   const FriendsState({
     this.friends = const [],
     this.incoming = const [],
     this.outgoing = const [],
     this.recent = const [],
     this.invites = const [],
+    this.me = const DirectoryMe(),
   });
 
   int get inLobby =>
@@ -118,6 +123,7 @@ class FriendsState {
               name: (row['name'] as String?) ?? '?',
             ),
       ],
+      me: DirectoryMe.fromJson(json['me']),
     );
   }
 }

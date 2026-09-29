@@ -17,22 +17,33 @@ function pemBytes(pem: string): Uint8Array<ArrayBuffer> {
 export async function playAccessToken(): Promise<string> {
   const raw = Deno.env.get("GOOGLE_PLAY_SERVICE_ACCOUNT_JSON");
   if (!raw) throw new Error("PLAY_NOT_CONFIGURED");
-  // Stored as plain JSON or as base64 of it (base64 survives shells that
-  // strip quotes); anything else is a configuration error, not a crash.
+  try {
+    return await serviceAccountToken(raw, "https://www.googleapis.com/auth/androidpublisher");
+  } catch (error) {
+    throw new Error(`PLAY_${(error as Error).message}`);
+  }
+}
+
+/**
+ * An OAuth access token for [scope] from a Google service account, given as
+ * plain JSON or as base64 of it (base64 survives shells that strip quotes).
+ * Throws KEY_INVALID for anything that is not such an account, AUTH_FAILED
+ * when Google refuses it.
+ */
+export async function serviceAccountToken(raw: string, scope: string): Promise<string> {
   let account: { client_email?: string; private_key?: string };
   try {
     account = JSON.parse(raw.trim().startsWith("{") ? raw : atob(raw.trim()));
   } catch {
-    throw new Error("PLAY_KEY_INVALID");
+    throw new Error("KEY_INVALID");
   }
   if (!account.client_email || !account.private_key) {
-    throw new Error("PLAY_KEY_INVALID");
+    throw new Error("KEY_INVALID");
   }
   const now = Math.floor(Date.now() / 1000);
   const header = b64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
   const payload = b64url(JSON.stringify({
-    iss: account.client_email,
-    scope: "https://www.googleapis.com/auth/androidpublisher",
+    iss: account.client_email, scope,
     aud: "https://oauth2.googleapis.com/token", iat: now, exp: now + 3600,
   }));
   const unsigned = `${header}.${payload}`;
@@ -50,6 +61,6 @@ export async function playAccessToken(): Promise<string> {
       grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion,
     }),
   });
-  if (!response.ok) throw new Error("PLAY_AUTH_FAILED");
+  if (!response.ok) throw new Error("AUTH_FAILED");
   return (await response.json()).access_token;
 }
