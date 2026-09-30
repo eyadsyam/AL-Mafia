@@ -164,8 +164,8 @@ export function socialMessage(t: PushTarget, token: string, platform: "android" 
 /** Payment notices carry no balance, item, or transaction details. */
 export function paymentMessage(t: PushTarget, token: string, platform: "android" | "web") {
   const paid = t.kind === "order_paid";
-  const title = paid ? "وصلت عملاتك 🎉" : "تحديث طلب التحويل";
-  const body = paid ? "طلبك اتوافق عليه. افتح الخزنة وشوف رصيدك." : "طلب التحويل اترفض. افتح الخزنة وشوف السبب.";
+  const title = paid ? "طلبك اتوافق عليه 🎉" : "تحديث طلب التحويل";
+  const body = paid ? "افتح الخزنة وشوف العملات أو الحاجة اللي اشتريتها." : "طلب التحويل اترفض. افتح الخزنة وشوف السبب.";
   const link = `${WEB_ORIGIN}/`;
   const data = { kind: t.kind ?? "order_rejected" };
   if (platform === "android") return { message: {
