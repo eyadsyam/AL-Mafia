@@ -41,6 +41,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // flutter_local_notifications (invite push) needs java.time on old Android.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
@@ -153,4 +155,8 @@ tasks.matching { it.name == "preReleaseBuild" }.configureEach {
             "Release signing requires android/key.properties and the established release key."
         }
     }
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
