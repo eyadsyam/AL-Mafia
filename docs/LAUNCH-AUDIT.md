@@ -104,6 +104,6 @@ storage, and by scanning the strings. Web parity has its own table in
   tests only.
 - Online create/join by code and the invite push end to end: they need the hosted
   backend, which this pass did not touch.
-- `council_life_test` "an unread notice carries its own small emblem" fails on
-  the base commit as well (it expects one emblem `Image`; the art wiring that is
-  being finished elsewhere changed it). Left for the art work.
+- `council_life_test` "an unread notice carries its own small emblem" failed on
+  the base commit: the wired art is now wrapped in `ResizeImage`, which the test
+  did not unwrap. The test is fixed; the app was right.

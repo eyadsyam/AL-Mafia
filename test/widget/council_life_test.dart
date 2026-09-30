@@ -551,14 +551,16 @@ void main() {
       await pump(tester, const CouncilHubTab());
       await tester.pumpAndSettle();
       expect(find.text(arStrings.inviteFirstMatchNotice('نور', 25)), findsOneWidget);
-      // ignore: avoid_print
-      print(tester.widgetList<Image>(find.byType(Image)).map((i) => i.image));
+      // The emblem is decoded at a capped size, so the provider is wrapped.
+      ImageProvider unwrap(ImageProvider p) =>
+          p is ResizeImage ? unwrap(p.imageProvider) : p;
       final matches = tester
           .widgetList<Image>(find.byType(Image))
+          .map((i) => unwrap(i.image))
           .where(
-            (i) =>
-                i.image is AssetImage &&
-                (i.image as AssetImage).assetName ==
+            (p) =>
+                p is AssetImage &&
+                p.assetName ==
                     'assets/images/council/invite_notice_first_match.webp',
           );
       expect(matches, hasLength(1));
