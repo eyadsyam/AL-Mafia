@@ -8,6 +8,7 @@ import 'package:mafia_master/platform/links/external_link.dart';
 import 'package:mafia_master/transport/account_auth.dart';
 import 'package:mafia_master/transport/account_service.dart';
 import 'package:mafia_master/transport/online_backend.dart';
+import 'package:mafia_master/ui/account/account_footer.dart';
 import 'package:mafia_master/ui/account/account_sheet.dart';
 import 'package:mafia_master/ui/account/delete_account_sheet.dart';
 import 'package:mafia_master/ui/friendly_error.dart';

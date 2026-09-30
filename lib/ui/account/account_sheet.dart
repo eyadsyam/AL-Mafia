@@ -17,7 +17,7 @@ import '../screens/online/online_session.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/feathered_art.dart';
-import 'delete_account_sheet.dart';
+import 'account_footer.dart';
 import '../../app/text_formatters.dart';
 
 final accountAuthProvider = Provider<AccountAuth>((ref) {
@@ -230,7 +230,6 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
           SizedBox(height: s.sm),
           const PartnerPicker(),
           ..._body(context, profile),
-          if (_step == AccountStep.hub) const AccountFooter(),
           if (_error != null) ...[
             SizedBox(height: s.sm),
             Text(
@@ -270,6 +269,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
               ),
             ),
           ],
+          if (_step == AccountStep.hub) const AccountFooter(),
         ],
       ),
     );

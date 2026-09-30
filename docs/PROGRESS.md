@@ -3528,3 +3528,10 @@ Files:      supabase/migrations/20260930000{7,8}00_*.sql, supabase/tests/{season
 Verified:   flutter test +1611 ~1 all passed; analyze no error/warning; SQL 71/71; envelope PASS; all node suites
 Gate:       PASS
 Open:       APK still not built: this environment's network refuses dl.google.com (no Android SDK). Deploy `economy` and `room_settings`/`create_room` (room_configuration) with migrations 000300..000800.
+
+## PHASE LAUNCH-GAPS (implementer) — done (partial on 2c/2d breadth)
+Built:      onboarding sign-in choice (Google/email or guest); in-app account deletion (edge function + purge migration + confirm sheet); server-driven minimum build with blocking update sheet; offline state with retry on the online door; shared Arabic error mapper covering every server ErrorCode; terms/privacy on the account sheet
+Files:      see docs/LAUNCH-GAPS.md
+Verified:   flutter analyze, flutter test, SQL harness (incl. delete_my_account catalog sweep, min_app_build), error envelope
+Gate:       see final report
+Open:       migrations 20260930001100 and 20260930001200 and function delete_account must be deployed; other online surfaces keep their own Arabic failure lines; council_life "own small emblem" test fails from the art-wiring WIP (not this work)

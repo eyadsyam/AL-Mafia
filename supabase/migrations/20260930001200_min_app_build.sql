@@ -5,26 +5,27 @@
 -- shows a blocking update sheet. 0 means "no minimum", and that is the default,
 -- so nothing here blocks any build that exists today.
 --
---   update public.economy_config set min_build_android = 11;  -- Play build number
---   update public.economy_config set min_build_web = 11;      -- the web build's number
+--   update public.app_config set min_build_android = 11;  -- Play build number
+--   update public.app_config set min_build_web = 11;      -- the web build's number
 --
--- The app reads it through `app_min_build()`, callable with the publishable key
--- and no session, like `server_now()`: a build too old to sign in or to call the
--- capability negotiation must still be told to update. It returns two integers
--- and nothing else of the economy's configuration.
+-- It is a one-row table any signed-in client may read (every player has at
+-- least the anonymous session), not a function: no security-definer function
+-- may be callable by the client and no policy may be `to public` (see
+-- `server_surface_test.dart`). Two integers and nothing else live here; the
+-- economy's configuration stays private.
 
-alter table public.economy_config
-  add column if not exists min_build_android integer not null default 0
+create table public.app_config (
+  singleton boolean primary key default true check (singleton),
+  min_build_android integer not null default 0
     check (min_build_android between 0 and 100000),
-  add column if not exists min_build_web integer not null default 0
-    check (min_build_web between 0 and 100000);
+  min_build_web integer not null default 0
+    check (min_build_web between 0 and 100000)
+);
+insert into public.app_config default values;
 
-create or replace function public.app_min_build()
-returns jsonb language sql stable security definer set search_path = public, pg_temp as $$
-  select jsonb_build_object(
-    'android', coalesce((select min_build_android from public.economy_config limit 1), 0),
-    'web', coalesce((select min_build_web from public.economy_config limit 1), 0));
-$$;
-
-revoke all on function public.app_min_build() from public;
-grant execute on function public.app_min_build() to anon, authenticated, service_role;
+alter table public.app_config enable row level security;
+revoke all on public.app_config from public, anon, authenticated;
+grant select on public.app_config to authenticated;
+grant all on public.app_config to service_role;
+create policy app_config_read on public.app_config
+  for select to authenticated using (true);

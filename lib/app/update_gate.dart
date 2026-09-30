@@ -52,9 +52,8 @@ class MinBuild {
 
 typedef MinBuildFetch = Future<MinBuild> Function();
 
-/// Reads the minimum from the server with the publishable key and no session,
-/// like `server_now()`: a build too old to sign in must still be told to
-/// update. Every failure (no server in this build, offline, an older server
+/// Reads the minimum from the server (`public.app_config`, readable by any
+/// signed-in client, the anonymous session included). Every failure (no server in this build, offline, an older server
 /// without the function) is [MinBuild.none].
 final minBuildFetchProvider = Provider<MinBuildFetch>((ref) {
   return () async {
@@ -62,10 +61,17 @@ final minBuildFetchProvider = Provider<MinBuildFetch>((ref) {
     try {
       final backend = await ref.read(onlineBackendFactoryProvider)();
       if (backend is! SupabaseBackend) return MinBuild.none;
-      final json = await backend.client
-          .rpc('app_min_build')
+      await backend.ensureSession();
+      final row = await backend.client
+          .from('app_config')
+          .select('min_build_android, min_build_web')
+          .maybeSingle()
           .timeout(UpdateGateTokens.fetchTimeout);
-      return MinBuild.fromJson(json);
+      if (row == null) return MinBuild.none;
+      return MinBuild.fromJson({
+        'android': row['min_build_android'],
+        'web': row['min_build_web'],
+      });
     } catch (_) {
       return MinBuild.none;
     }
