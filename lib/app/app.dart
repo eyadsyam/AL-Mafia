@@ -332,9 +332,12 @@ class _MotionPreference extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!reduce) return child;
+    // Always the same wrapper: returning `child` bare while the setting is off
+    // and a MediaQuery when it is on re-created the whole app under it (every
+    // open screen lost its state) the moment the switch was flipped.
+    final media = MediaQuery.of(context);
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(disableAnimations: true),
+      data: media.copyWith(disableAnimations: media.disableAnimations || reduce),
       child: child,
     );
   }
