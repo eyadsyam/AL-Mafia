@@ -17,6 +17,7 @@ import '../screens/online/online_session.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/feathered_art.dart';
+import 'account_footer.dart';
 import '../../app/text_formatters.dart';
 
 final accountAuthProvider = Provider<AccountAuth>((ref) {
@@ -268,6 +269,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
               ),
             ),
           ],
+          if (_step == AccountStep.hub) const AccountFooter(),
         ],
       ),
     );

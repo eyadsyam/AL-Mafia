@@ -3549,3 +3549,10 @@ Files:      supabase/migrations/20260930000900_web_ads.sql, supabase/tests/web_a
 Verified:   SQL 72/72; web pacing tests; flutter test +1623 ~1; analyzer has 101 pre-existing info diagnostics (no errors/warnings, exit 1).
 Gate:       FAIL (H5 display/interstitial integration and server-verifiable browser rewards unfinished)
 Open:       H5 adViewed is a client callback, not signed reward proof; no web reward payout enabled.
+
+## PHASE LAUNCH-GAPS (implementer) — done (partial on 2c/2d breadth)
+Built:      onboarding sign-in choice (Google/email or guest); in-app account deletion (edge function + purge migration + confirm sheet); server-driven minimum build with blocking update sheet; offline state with retry on the online door; shared Arabic error mapper covering every server ErrorCode; terms/privacy on the account sheet
+Files:      see docs/LAUNCH-GAPS.md
+Verified:   flutter analyze, flutter test, SQL harness (incl. delete_my_account catalog sweep, min_app_build), error envelope
+Gate:       see final report
+Open:       migrations 20260930001100 and 20260930001200 and function delete_account must be deployed; other online surfaces keep their own Arabic failure lines; council_life emblem test is fixed in the art lane

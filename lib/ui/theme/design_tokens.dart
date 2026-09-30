@@ -2166,3 +2166,22 @@ abstract final class InviteTokens {
   /// Friend requests on the quieter channel: one short buzz.
   static const List<int> shortVibration = [0, 180];
 }
+
+/// «حدّث التطبيق» (`lib/app/update_gate.dart`): the server-driven minimum
+/// build. The sheet is drawn over the whole app, so it owns its own scrim.
+abstract final class UpdateGateTokens {
+  /// How long the start-up read may take. A slow answer is no answer: the app
+  /// is never held at the door by it.
+  static const Duration fetchTimeout = Duration(seconds: 8);
+
+  /// A build left open for days asks again after this long in the background.
+  static const Duration recheck = Duration(minutes: 30);
+
+  static const double scrimAlpha = 0.72;
+  static const double iconSize = 40.0;
+}
+
+/// The offline state on the online door (`lib/ui/widgets/connection_problem.dart`).
+abstract final class ConnectionProblemTokens {
+  static const double iconSize = 32.0;
+}
