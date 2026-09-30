@@ -1327,6 +1327,8 @@
   "publicRoomWaitingTitle": "Waiting room ready",
   "publicRoomWaitingStatus": "Empty; the first player in becomes the host",
   "onlineShareFailed": "Couldn't open sharing or copy the link. Read the room code out to players.",
+  "shareTextCopied": "Copied. Paste it anywhere to send it.",
+  "shareUnavailable": "Couldn't open sharing. Try again.",
   "coinsName": "Council Coins",
   "storeTitle": "Store",
   "storeTabShop": "Shop",

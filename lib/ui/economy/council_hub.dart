@@ -3,13 +3,13 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../app/asset_constants.dart';
 import '../../data/request_id.dart';
 import '../../app/l10n/app_localizations.dart';
 import '../../platform/clipboard.dart';
 import '../../platform/haptics.dart';
+import '../../platform/invite_share.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
 import '../theme/design_tokens.dart';
@@ -1175,6 +1175,28 @@ class _InviteCardState extends ConsumerState<InviteCard> {
     }
   }
 
+  /// The share sheet where the platform has one (Android, or the browser's Web
+  /// Share API from this tap), otherwise the text is copied. Never silent and
+  /// never an unhandled error, on any platform.
+  Future<void> _share(String code) async {
+    final l = context.l10n;
+    final outcome = await ref
+        .read(inviteSharerProvider)
+        .share(
+          text: '${l.inviteShareText(code)}\n${councilInviteLink(code)}',
+          subject: l.appTitle,
+        );
+    if (!mounted) return;
+    switch (outcome) {
+      case InviteShareOutcome.handedOver:
+        break;
+      case InviteShareOutcome.copied:
+        _say(context, l.shareTextCopied);
+      case InviteShareOutcome.failed:
+        _say(context, l.shareUnavailable);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -1285,14 +1307,7 @@ class _InviteCardState extends ConsumerState<InviteCard> {
               child: FilledButton.icon(
                 key: InviteCard.shareKey,
                 style: vaultGoldStyle(context),
-                onPressed: code.isEmpty
-                    ? null
-                    : () => SharePlus.instance.share(
-                        ShareParams(
-                          text:
-                              '${l.inviteShareText(code)}\n${councilInviteLink(code)}',
-                        ),
-                      ),
+                onPressed: code.isEmpty ? null : () => _share(code),
                 icon: const Icon(Icons.share_rounded),
                 label: Text(l.inviteShare, maxLines: 1),
               ),

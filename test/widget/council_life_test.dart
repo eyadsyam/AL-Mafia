@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/platform/audio_director.dart';
+import 'package:mafia_master/platform/invite_share.dart';
 import 'package:mafia_master/platform/monetization/play_billing.dart';
 import 'package:mafia_master/platform/monetization/purchase_store.dart';
 import 'package:mafia_master/transport/game_snapshot.dart';
@@ -183,6 +184,7 @@ void main() {
     WidgetTester tester,
     Widget child, {
     PlayBilling? billing,
+    InviteSharer? sharer,
     Size size = const Size(390, 1400),
     Locale locale = const Locale('ar'),
   }) async {
@@ -194,6 +196,7 @@ void main() {
           onlineBackendFactoryProvider.overrideWithValue(() async => backend),
           audioDirectorProvider.overrideWithValue(AudioDirector()),
           if (billing != null) playBillingProvider.overrideWithValue(billing),
+          if (sharer != null) inviteSharerProvider.overrideWithValue(sharer),
         ],
         child: localizedApp(Scaffold(body: child), locale: locale),
       ),
@@ -493,6 +496,34 @@ void main() {
       await tester.tap(redeem);
       await tester.pumpAndSettle();
       expect(find.text(arStrings.inviteSelf), findsOneWidget);
+    });
+
+    testWidgets('sharing falls back to copying where the platform has no sheet', (
+      tester,
+    ) async {
+      backend.responders['economy'] = (body) => switch (body['action']) {
+        'capabilities' => caps(contracts: false, rank: false),
+        'invite_get' => invite(canRedeem: true),
+        _ => {'ok': true},
+      };
+      final copied = <String>[];
+      await pump(
+        tester,
+        const CouncilHubTab(),
+        sharer: InviteSharer(
+          share: (_) async => throw UnsupportedError('no share sheet'),
+          copy: (text) async {
+            copied.add(text);
+            return true;
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(InviteCard.shareKey));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(copied.single, contains('K7QM2XA'));
+      expect(find.text(arStrings.shareTextCopied), findsOneWidget);
     });
 
     testWidgets('an unread notice carries its own small emblem', (
