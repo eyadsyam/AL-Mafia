@@ -3599,7 +3599,7 @@ abstract class AppLocalizations {
   /// No description provided for @coinsEarnHintV3.
   ///
   /// In en, this message translates to:
-  /// **'Complete an eligible online match with five or more players to earn 25 coins. Your team winning adds 10 more, and your first eligible match of the day adds 25. Rewards are verified by the game server and never affect votes, roles or the chance to win.'**
+  /// **'Complete an eligible online match with five or more players to earn 25 coins. Your team winning adds 10 more, and your first eligible match of the day adds 25. After the match, each award you earn also pays 5 coins, or 15 for MVP, when awards are on. The server verifies rewards; they never affect votes, roles or the chance to win.'**
   String get coinsEarnHintV3;
 
   /// No description provided for @coinsLoadFailed.

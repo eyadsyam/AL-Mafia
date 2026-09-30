@@ -81,7 +81,7 @@ them.
 | ID | Severity | Where | Failure scenario | Status |
 |---|---|---|---|---|
 | B1 | medium | `lib/ui/screens/setup/coin_store.dart` (`matchesFor`, info dialog), `app_ar.arb` `coinsEarnHint` | With `economy_v11_enabled` on (the planned launch rule) a match pays 25, +10 for a win, +25 first of the day. The store still said "100 coins a match, +25 to winners" and quoted "950 coins = about 10 matches" for what is about 38. `economyV3` was read by nothing in the UI. | **Fixed**: `coinsEarnHintV3` (AR/EN) and a per-match figure chosen from `economy.version`; widget test in `coin_store_test.dart`. |
-| B2 | medium | `20260925000600_awards_reactions.sql` `match_awards_get` | Awards paid 5 coins per award and 15 for MVP to any member of any finished room, outside the v3 receipt rules (5+ humans, 6 a day, 3 per roster). The 1.1 faucet table says awards are flavour only. | **Fixed**: `20260930000900_awards_no_coins_v3.sql` (zero coins, zero ledger rows, zero advertised coins under v3; unchanged with the switch off). Test `supabase/tests/launch_audit_b.sql` fails without the migration. |
+| B2 | owner decision | `20260925000600_awards_reactions.sql` `match_awards_get` | Awards pay 5 coins each and 15 for MVP after a finished match. | **Owner: awards keep paying.** The no-coins migration and commit were excluded. `supabase/tests/launch_audit_b.sql` proves v3 still pays once, with a ledger row. Store copy now names the award amounts. |
 | B3 | low | `lib/ui/economy/wallet.dart` `_act` | A purchase whose answer was lost (timeout after the server committed) left the store showing the old balance and "failed"; the player retried blind or believed coins were lost. | **Fixed**: best-effort `summary` read after an unknown failure (refusals are not re-read). `test/unit/wallet_reconcile_test.dart`. |
 | B4 | medium | `lib/ui/economy/play_offers.dart:85-120,237` | Play purchase events are listened to only after the store's Play tab has been opened. A payment that completes while the app is closed (pending payments) is verified, credited and consumed only on the next store visit; Play refunds unacknowledged purchases after 3 days. No coin is lost, but a player can pay and be refunded without ever seeing coins. | **Report only.** Fix is to call `playOffersProvider.notifier.start()` once capabilities are loaded (for example in `_calmHome`); not done this late because it opens the billing connection for every Android user. |
 | B5 | medium (operational) | `20260921000500_coin_economy.sql` `sync_player_rewards` (v1 path) | With `economy_v11_enabled` off, every finished match pays 100 (+25) per seat with no daily or roster cap; five anonymous accounts can farm it. | **Report only.** Turn `economy_v11_enabled` on at launch (caps are in `economy_v3.sql`). |
@@ -116,8 +116,8 @@ them.
 
 ### Deploy notes
 
-- Apply `20260930000900_awards_no_coins_v3.sql` after `…0800`. No function
-  redeploy is needed for it; the client change ships with the app/web build.
+- Do not apply `20260930000900_awards_no_coins_v3.sql`; the owner kept award
+  payouts. The v3 copy correction ships with the app/web build.
 - Secrets that must exist on the host: `ADMOB_REWARDED_ANDROID_ID` (without it
   every SSV callback is answered 400 and AdMob does not retry),
   `CASE_PUZZLE_SALT`, `PLAY_SYNC_SECRET`.
