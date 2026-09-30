@@ -8,7 +8,7 @@ begin
   update public.rooms set status='playing' where id=r;
   if (select started_at is null from public.rooms where id=r) then raise exception 'started_at missing'; end if;
   update public.rooms set status='finished',ended_at=now()+interval '2 minutes' where id=r;
-  select * into report from public.usage_month_report(date_trunc('month',now())::date);
+  select * into report from public.usage_month_report(date_trunc('month',now() at time zone 'utc')::date);
   if report.matches_started<1 or report.matches_finished<1 or report.player_matches<2 then raise exception 'usage not counted'; end if;
 
   update public.operations_control set new_rooms_enabled=false where singleton=true;

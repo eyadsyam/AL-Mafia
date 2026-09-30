@@ -1509,6 +1509,7 @@ abstract final class StoreTokens {
   /// Fallback while a submitted transfer waits for owner review, including
   /// devices where notification permission was declined.
   static const Duration orderReviewPoll = Duration(seconds: 20);
+
   /// Product art is 768 px square; cards and thumbnails never need more.
   static const decodeWidth = 512;
 
@@ -2188,6 +2189,21 @@ abstract final class UpdateGateTokens {
 
   static const double scrimAlpha = 0.72;
   static const double iconSize = 40.0;
+}
+
+/// Web display inventory. Every ad is outside the private table.
+abstract final class WebAdTokens {
+  static const bannerHeight = 88.0;
+  static const bannerArt = 56.0;
+  static const bannerGap = 12.0;
+  static const interstitialArt = 132.0;
+  static const interstitialMaxWidth = 420.0;
+  static const interstitialPad = 24.0;
+  static const closeDelay = Duration(seconds: 5);
+  static const googleBreakTimeout = Duration(seconds: 4);
+  static const googleBannerTimeout = Duration(seconds: 4);
+  static const transition = Duration.zero;
+  static const appOpenDelay = Duration(seconds: 4);
 }
 
 /// The offline state on the online door (`lib/ui/widgets/connection_problem.dart`).

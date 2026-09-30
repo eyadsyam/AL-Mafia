@@ -1974,5 +1974,13 @@
   "updateRequiredTitle": "حدّث التطبيق",
   "updateRequiredBody": "فيه نسخة أحدث من اللعبة، ولازم تحدّث علشان تكمّل. النسخة دي مش هتشتغل بعد كده.",
   "updateRequiredStore": "افتح Google Play",
-  "updateRequiredReload": "حدّث الصفحة"
+  "updateRequiredReload": "حدّث الصفحة",
+  "webAdAppCta": "نزّل التطبيق — إعلانات أقل",
+  "webAdPlayCaption": "سيد المافيا على Google Play",
+  "webAdCouncilTitle": "المجلس والخزنة مستنيينك",
+  "webAdPlayBody": "العب مع أصحابك على أندرويد بإعلانات أقل.",
+  "webAdCouncilBody": "اجمع عملاتك وافتح شكل جديد للقعدة.",
+  "webAdOpenPlay": "افتح Google Play",
+  "webAdContinue": "كمّل اللعب",
+  "webAdCountdown": "الإعلان هيخلص بعد لحظة"
 }

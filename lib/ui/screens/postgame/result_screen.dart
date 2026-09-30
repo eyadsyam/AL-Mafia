@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/character_bonds.dart';
+import '../../economy/web_ads.dart';
 import '../../../engine/models/enums.dart' as engine;
 import '../../../engine/coaching.dart';
 import '../../../transport/local_transport.dart';
@@ -179,6 +181,7 @@ class ResultScreen extends StatelessWidget {
       rows: rows,
       child: Scaffold(
         backgroundColor: colors.surfaceBase,
+        bottomNavigationBar: kIsWeb ? const WebAdBanner() : null,
         body: AppBackdrop(
           child: SafeArea(
             child: Center(

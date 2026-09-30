@@ -24,7 +24,10 @@ class WebAdRules {
     final count = (value['interstitialEveryMatches'] as num?)?.toInt() ?? 1;
     return WebAdRules(
       enabled: value['enabled'] == true,
-      provider: value['provider'] == 'adsense_h5' ? 'adsense_h5' : 'house',
+      provider:
+          value['provider'] == 'adsense' || value['provider'] == 'adsense_h5'
+          ? 'adsense'
+          : 'house',
       interstitialEveryMatches: count.clamp(1, 20),
       appOpen: value['appOpen'] != false,
       bannerAlways: value['bannerAlways'] != false,

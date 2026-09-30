@@ -38,6 +38,83 @@
       } catch (e) { /* the web game is always the fallback */ }
     })();
   </script>
+  <!-- H5 Games API: load only when the server selects AdSense. Every break
+       reports fill; Flutter paints its own house creative on no fill. -->
+  <script>
+    (function () {
+      var ready = false, loading = false, listeners = [];
+      function prepare(client, callback) {
+        if (ready) { callback(true); return; }
+        listeners.push(callback);
+        if (loading) return;
+        loading = true;
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.adBreak = window.adConfig = function (o) { window.adsbygoogle.push(o); };
+        var script = document.createElement('script');
+        script.async = true;
+        script.crossOrigin = 'anonymous';
+        script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(client);
+        script.onerror = function () { listeners.splice(0).forEach(function (f) { f(false); }); };
+        document.head.appendChild(script);
+        window.adConfig({ preloadAdBreaks: 'on', sound: 'off', onReady: function () {
+          ready = true;
+          listeners.splice(0).forEach(function (f) { f(true); });
+        } });
+      }
+      window.mafiaH5Break = function (client, type, name, done) {
+        var finished = false;
+        function complete(filled) { if (!finished) { finished = true; done(!!filled); } }
+        var wait = setTimeout(function () { complete(false); }, 2500);
+        prepare(client, function (available) {
+          if (finished) return;
+          clearTimeout(wait);
+          if (!available) { complete(false); return; }
+          try {
+            window.adBreak({ type: type, name: name,
+              beforeAd: function () { complete(true); },
+              adBreakDone: function (info) {
+              complete(!!info && info.breakStatus === 'viewed');
+            } });
+          } catch (_) { complete(false); }
+        });
+      };
+      window.mafiaH5Banner = function (client, slot, done) {
+        var finished = false;
+        function complete(filled) { if (!finished) { finished = true; done(!!filled); } }
+        var wait = setTimeout(function () { complete(false); }, 2500);
+        prepare(client, function (available) {
+          if (finished) return;
+          clearTimeout(wait);
+          if (!available || !slot) { complete(false); return; }
+          var host = document.getElementById('mafia-google-banner');
+          if (host) { complete(host.dataset.filled === 'yes'); return; }
+          host = document.createElement('div');
+          host.id = 'mafia-google-banner';
+          host.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483000;text-align:center;background:#0f0f0f';
+          var unit = document.createElement('ins');
+          unit.className = 'adsbygoogle';
+          unit.style.display = 'block';
+          unit.dataset.adClient = client;
+          unit.dataset.adSlot = slot;
+          unit.dataset.adFormat = 'auto';
+          unit.dataset.fullWidthResponsive = 'true';
+          host.appendChild(unit);
+          document.body.appendChild(host);
+          try { (window.adsbygoogle = window.adsbygoogle || []).push({}); }
+          catch (_) { host.remove(); complete(false); return; }
+          setTimeout(function () {
+            var filled = unit.dataset.adStatus === 'filled';
+            host.dataset.filled = filled ? 'yes' : 'no';
+            if (!filled) host.remove();
+            complete(filled);
+          }, 2500);
+        });
+      };
+      window.mafiaH5HideBanner = function () {
+        document.getElementById('mafia-google-banner')?.remove();
+      };
+    })();
+  </script>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="سيد المافيا">

@@ -5113,4 +5113,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get updateRequiredReload => 'حدّث الصفحة';
+
+  @override
+  String get webAdAppCta => 'نزّل التطبيق — إعلانات أقل';
+
+  @override
+  String get webAdPlayCaption => 'سيد المافيا على Google Play';
+
+  @override
+  String get webAdCouncilTitle => 'المجلس والخزنة مستنيينك';
+
+  @override
+  String get webAdPlayBody => 'العب مع أصحابك على أندرويد بإعلانات أقل.';
+
+  @override
+  String get webAdCouncilBody => 'اجمع عملاتك وافتح شكل جديد للقعدة.';
+
+  @override
+  String get webAdOpenPlay => 'افتح Google Play';
+
+  @override
+  String get webAdContinue => 'كمّل اللعب';
+
+  @override
+  String get webAdCountdown => 'الإعلان هيخلص بعد لحظة';
 }

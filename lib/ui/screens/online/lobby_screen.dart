@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/asset_constants.dart';
@@ -44,6 +45,7 @@ import 'council/seat_status.dart';
 import 'table/table_pulse.dart';
 import 'table/table_scene.dart';
 import '../../economy/waiting_banner.dart';
+import '../../economy/web_ads.dart';
 import '../../economy/economy_capabilities.dart';
 import '../../economy/council.dart';
 import '../../social/friends.dart';
@@ -418,6 +420,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
+      bottomNavigationBar: kIsWeb ? const WebAdBanner() : null,
       body: ExperienceSurface(
         child: Stack(
           children: [
@@ -695,7 +698,9 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                     ],
                                     // Doc 09 §7: every seat is told before
                                     // the deal that whispers will be shown.
-                                    if (snapshot?.settings.revealWhisperContent ??
+                                    if (snapshot
+                                            ?.settings
+                                            .revealWhisperContent ??
                                         false) ...[
                                       SizedBox(height: spacing.xs),
                                       const RevealWhispersNotice(),
@@ -917,8 +922,9 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                   // of it inside its frame; zero size unless switched on and
                   // filled. A screen too short for that clearance (a phone
                   // on its side) gets no banner at all.
-                  if (MediaQuery.sizeOf(context).height >=
-                      AdTokens.bannerMinLobbyHeight)
+                  if (!kIsWeb &&
+                      MediaQuery.sizeOf(context).height >=
+                          AdTokens.bannerMinLobbyHeight)
                     const WaitingBanner(belowPrimaryAction: true),
                 ],
               ),

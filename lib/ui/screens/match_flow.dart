@@ -25,6 +25,8 @@ import 'day/voting_screen.dart';
 import 'distribution/role_reveal_screen.dart';
 import 'match_controller.dart';
 import '../economy/interstitial_coordinator.dart';
+import '../economy/web_ads.dart';
+import '../../platform/monetization/web_ad_rules.dart';
 import '../economy/pass_result_inventory.dart';
 import '../../transport/online_transport.dart';
 import '../fun/launch_events.dart' show LaunchEventStamps;
@@ -161,6 +163,7 @@ enum _Moment {
 
 class MatchFlowState extends ConsumerState<MatchFlow> {
   bool _victorySeen = false;
+  bool _webResultQueued = false;
   late final AudioDirector _audio;
 
   /// Captured once, so leaving the match can clear the privacy flag.
@@ -796,6 +799,12 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
   Widget _result(MatchUiState state) {
     final outcome = state.public.outcome;
     if (outcome == null) return const SizedBox.shrink();
+    if (!_webResultQueued) {
+      _webResultQueued = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) requestWebAd(ref, WebAdMoment.afterMatch);
+      });
+    }
 
     final snapshot = _controller.snapshot;
     // Wrapped, not modified: the follow-up asks whether tonight's guests and

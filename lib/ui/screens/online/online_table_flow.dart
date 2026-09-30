@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart' hide Alignment;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,6 +22,8 @@ import '../../information_text.dart';
 import '../../l10n_ext.dart';
 import '../../economy/economy_capabilities.dart';
 import '../../economy/interstitial_coordinator.dart';
+import '../../economy/web_ads.dart';
+import '../../../platform/monetization/web_ad_rules.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/hold_pad.dart';
@@ -240,6 +243,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     if (_completedRoom == roomId) return;
     _completedRoom = roomId;
     unawaited(ref.read(interstitialCoordinatorProvider).matchCompleted(roomId));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) requestWebAd(ref, WebAdMoment.afterMatch);
+    });
   }
 
   /// Leaves the room first (heartbeat, channel, voice link), then goes home;
@@ -2070,6 +2076,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
                 snapshot: snapshot,
                 onGone: () => (widget.onRematch ?? widget.onExit)(),
               ),
+              if (kIsWeb) const WebAdBanner(),
             ],
           ),
         );

@@ -5204,4 +5204,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateRequiredReload => 'Reload the page';
+
+  @override
+  String get webAdAppCta => 'Download the app ? fewer ads';
+
+  @override
+  String get webAdPlayCaption => 'Mafia Master on Google Play';
+
+  @override
+  String get webAdCouncilTitle => 'The Council and vault await';
+
+  @override
+  String get webAdPlayBody => 'Play with friends on Android with fewer ads.';
+
+  @override
+  String get webAdCouncilBody =>
+      'Collect coins and unlock a new look for the table.';
+
+  @override
+  String get webAdOpenPlay => 'Open Google Play';
+
+  @override
+  String get webAdContinue => 'Continue playing';
+
+  @override
+  String get webAdCountdown => 'You can close this ad in a moment';
 }

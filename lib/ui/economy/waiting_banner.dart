@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../platform/monetization/ad_formats.dart';
 import '../fun/loaded_capabilities.dart';
 import 'economy_capabilities.dart';
+import 'web_ads.dart';
 import '../l10n_ext.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
@@ -20,7 +21,7 @@ bool shouldShowWaitingBanner(EconomyCapabilities? caps) =>
 /// `test/unit/banner_placement_test.dart` fails if this widget appears in any
 /// file outside its allowlist. It is a zero-size box unless the build has a
 /// banner unit, the server switched banners on, the player has no Quiet Pass,
-/// and an ad actually filled. Web: never.
+/// and an ad actually filled. Web uses a house creative when Google has no fill.
 class WaitingBanner extends ConsumerStatefulWidget {
   /// On a surface whose primary action sits above the banner (the lobby's
   /// Start button), the banner keeps [AdTokens.bannerActionClearance] clear
@@ -39,7 +40,7 @@ class WaitingBanner extends ConsumerStatefulWidget {
 class _WaitingBannerState extends ConsumerState<WaitingBanner> {
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb) return const SizedBox.shrink();
+    if (kIsWeb) return const WebAdBanner();
     final ads = ref.watch(bannerAdsProvider);
     // Checked before the capabilities: a build without a banner unit never
     // asks the server anything on these screens.

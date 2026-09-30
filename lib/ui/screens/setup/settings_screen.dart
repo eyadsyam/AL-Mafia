@@ -4,6 +4,7 @@ import '../../widgets/setup_entrance.dart';
 import 'help_center.dart';
 import 'coin_store.dart';
 import 'scenario_store.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../online/safety_center.dart';
 import '../online/rewarded_reward_button.dart';
@@ -17,6 +18,7 @@ import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
 import '../../widgets/settings_kit.dart';
+import '../../economy/web_ads.dart';
 
 /// Settings screen (S-04).
 ///
@@ -269,6 +271,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
+      bottomNavigationBar: kIsWeb && widget.playerCount == null
+          ? const WebAdBanner()
+          : null,
       body: ExperienceSurface(
         child: SetupEntrance(
           child: SafeArea(

@@ -8844,6 +8844,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reload the page'**
   String get updateRequiredReload;
+
+  /// No description provided for @webAdAppCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the app ? fewer ads'**
+  String get webAdAppCta;
+
+  /// No description provided for @webAdPlayCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Mafia Master on Google Play'**
+  String get webAdPlayCaption;
+
+  /// No description provided for @webAdCouncilTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Council and vault await'**
+  String get webAdCouncilTitle;
+
+  /// No description provided for @webAdPlayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Play with friends on Android with fewer ads.'**
+  String get webAdPlayBody;
+
+  /// No description provided for @webAdCouncilBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect coins and unlock a new look for the table.'**
+  String get webAdCouncilBody;
+
+  /// No description provided for @webAdOpenPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Google Play'**
+  String get webAdOpenPlay;
+
+  /// No description provided for @webAdContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue playing'**
+  String get webAdContinue;
+
+  /// No description provided for @webAdCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'You can close this ad in a moment'**
+  String get webAdCountdown;
 }
 
 class _AppLocalizationsDelegate

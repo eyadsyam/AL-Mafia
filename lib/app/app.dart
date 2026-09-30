@@ -26,11 +26,17 @@ import 'resume_gate.dart';
 import 'router.dart';
 import '../ui/economy/app_open_gate.dart';
 import '../ui/economy/economy_capabilities.dart'
-    show economyCapabilitiesProvider, retryCapabilitiesIfFailed;
+    show
+        EconomyCapabilities,
+        economyCapabilitiesProvider,
+        retryCapabilitiesIfFailed;
 import '../ui/economy/interstitial_coordinator.dart';
 import '../ui/economy/coin_packs.dart';
 import '../ui/economy/play_offers.dart';
 import '../ui/economy/wallet.dart';
+import '../ui/economy/web_ads.dart';
+import '../platform/monetization/web_ad_rules.dart';
+import '../ui/social/invite_privacy.dart';
 import '../ui/theme/design_tokens.dart';
 import '../platform/push/push_service.dart';
 import '../ui/screens/online/online_session.dart' show SupabaseConfig;
@@ -59,6 +65,64 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   StreamSubscription<void>? _paymentPush;
   Timer? _paymentPoll;
+  bool _webAdShowing = false;
+  bool _webAppOpenRequested = false;
+  int _webCompletedMatches = 0;
+
+  Future<void> _showWebAd(WebAdMoment moment) async {
+    if (!kIsWeb || _webAdShowing || !mounted) return;
+    final path = _router.routerDelegate.currentConfiguration.uri.path;
+    if (ref.read(privateMomentProvider) ||
+        (path == Routes.match && moment != WebAdMoment.afterMatch)) {
+      return;
+    }
+    final caps = await ref
+        .read(economyCapabilitiesProvider.future)
+        .catchError((_) => EconomyCapabilities.none);
+    if (!mounted || ref.read(privateMomentProvider)) return;
+    if (moment == WebAdMoment.afterMatch) _webCompletedMatches++;
+    if (!caps.webAds.allows(
+      moment,
+      privatePhase: false,
+      adFree: caps.automaticAdsDisabled,
+      completedMatches: _webCompletedMatches,
+    )) {
+      return;
+    }
+    final current = _router.routerDelegate.currentConfiguration.uri.path;
+    if (ref.read(privateMomentProvider) ||
+        (current == Routes.match && moment != WebAdMoment.afterMatch)) {
+      return;
+    }
+    final context = _navigatorKey.currentContext;
+    if (context == null || !context.mounted) return;
+    _webAdShowing = true;
+    ref.read(webBreakActiveProvider.notifier).state = true;
+    try {
+      // Hold the public screen in place while H5 decides. A player cannot tap
+      // through to a private turn while a late Google break is pending.
+      final dialog = showGeneralDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        barrierLabel: context.l10n.adBannerLabel,
+        barrierColor: Theme.of(context).colorScheme.surface,
+        transitionDuration: WebAdTokens.transition,
+        pageBuilder: (_, _, _) => HouseWebInterstitial(moment: moment),
+      );
+      final house = await needsHouseInterstitial(
+        caps.webAds,
+        moment,
+        ref.read(webBreakAttemptProvider),
+      );
+      if (!house && mounted && context.mounted) {
+        _navigatorKey.currentState?.pop();
+      }
+      await dialog;
+    } finally {
+      _webAdShowing = false;
+      if (mounted) ref.read(webBreakActiveProvider.notifier).state = false;
+    }
+  }
 
   Future<void> _refreshPayment() async {
     if (ref.exists(coinShopProvider)) {
@@ -92,13 +156,27 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     });
     _paymentPoll = Timer.periodic(StoreTokens.orderReviewPoll, (_) {
       if (ref.exists(coinShopProvider) &&
-          (ref.read(coinShopProvider).valueOrNull?.pending.isNotEmpty ?? false)) {
+          (ref.read(coinShopProvider).valueOrNull?.pending.isNotEmpty ??
+              false)) {
         unawaited(_refreshPayment());
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && SupabaseConfig.isConfigured) {
         unawaited(ref.read(playOffersProvider.notifier).start());
+      }
+      if (mounted && kIsWeb) {
+        unawaited(
+          Future<void>.delayed(WebAdTokens.appOpenDelay, () {
+            if (mounted &&
+                !_webAppOpenRequested &&
+                _router.routerDelegate.currentConfiguration.uri.path ==
+                    Routes.home) {
+              _webAppOpenRequested = true;
+              requestWebAd(ref, WebAdMoment.appOpen);
+            }
+          }),
+        );
       }
     });
     // Warm the saved groups now, while the splash is still up.
@@ -177,6 +255,14 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     final from = _lastPath;
     _lastPath = path;
     ref.read(interstitialCoordinatorProvider).navigated(from, path);
+    if (kIsWeb) {
+      if (path == Routes.mode) requestWebAd(ref, WebAdMoment.enterLocal);
+      if (path == Routes.online) requestWebAd(ref, WebAdMoment.enterOnline);
+      if (path == Routes.home && !_webAppOpenRequested) {
+        _webAppOpenRequested = true;
+        requestWebAd(ref, WebAdMoment.appOpen);
+      }
+    }
     if (path == Routes.home) _calmHome();
   }
 
@@ -264,6 +350,13 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<WebAdRequest?>(webAdRequestProvider, (_, next) {
+      if (next != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) unawaited(_showWebAd(next.moment));
+        });
+      }
+    });
     ref.listen(setupDraftProvider.select((draft) => draft.settings), (_, next) {
       _syncScore();
     });

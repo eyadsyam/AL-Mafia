@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +10,7 @@ import '../../l10n_ext.dart';
 import '../../fun/character_dossiers.dart';
 import '../../fun/loaded_capabilities.dart';
 import '../../economy/my_identity.dart';
+import '../../economy/web_ads.dart';
 import '../../social/titles_partner.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
@@ -105,6 +107,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
+      bottomNavigationBar: kIsWeb ? const WebAdBanner() : null,
       body: BulbFlicker(
         // The one screen a returning host sees every time, and the one with
         // the longest dwell. Its loop is near-featureless on purpose — the

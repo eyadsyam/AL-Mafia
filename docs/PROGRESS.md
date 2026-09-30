@@ -3568,3 +3568,10 @@ Files: tool/prod_launch_smoke.mjs, tool/verify_web_release.mjs
 Verified: Flutter 1670 passing (1 skipped); SQL 75/75; Node 20/20; error envelope PASS; production 7/7 smoke checks; Cloudflare and Vercel main.dart.js MD5 matches local.
 Gate: PASS except flutter analyze has 103 info-only lints, zero errors/warnings (nonzero strict exit).
 Open: H5 web ads and browser rewarded payouts remain disabled; Play closed-test Android build still belongs to reviewer.
+
+## PHASE 1.1 web display ads - done
+Built: Persistent web house banners on Home, lobby and results; public full-screen breaks on app open, entering setup/online, and every match; H5 AdSense attempts with house fallback; browser rewards remain off.
+Files: lib/app/app.dart, lib/platform/monetization/web_ad_bridge*.dart, lib/ui/economy/web_ads.dart, lib/ui/screens/{setup,online,postgame}/*.dart, lib/ui/theme/design_tokens.dart, lib/app/l10n/*, web/index.html, supabase/migrations/20261001000100_web_ads_provider.sql, supabase/operations/20261001_enable_web_ads.sql, docs/WEB-ADS-SETUP.md
+Verified: Flutter 1677 passed (1 skipped); SQL 76/76; error envelope PASS; Node 20/20; web pacing, private-phase, fallback, and CTA tests.
+Gate: PASS (analyze --no-fatal-infos exit 0, zero errors/warnings; 103 existing info lints)
+Open: AdSense approval and an issued display-unit slot are external prerequisites for paid Google fill. House creatives show meanwhile.
