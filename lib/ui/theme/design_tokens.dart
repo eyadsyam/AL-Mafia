@@ -1506,6 +1506,9 @@ abstract final class ThursdayTokens {
 
 /// Council Vault public surfaces; never used to distinguish secret roles.
 abstract final class StoreTokens {
+  /// Fallback while a submitted transfer waits for owner review, including
+  /// devices where notification permission was declined.
+  static const Duration orderReviewPoll = Duration(seconds: 20);
   /// Product art is 768 px square; cards and thumbnails never need more.
   static const decodeWidth = 512;
 

@@ -142,4 +142,14 @@ assert.deepEqual(Object.keys(sa.data).sort(), ['fromName', 'kind']);
 assert.equal(messageFor({ ...social, kind: 'friend_accepted' }, 't', 'web').message.data.kind, 'friend_accepted');
 assert.equal(messageFor(target, 't', 'android').message.android.notification.channel_id, 'mafia_invites');
 
+for (const kind of ['order_paid', 'order_rejected']) {
+  const android = messageFor({ enabled: true, kind }, 't', 'android').message;
+  const web = messageFor({ enabled: true, kind }, 't', 'web').message;
+  assert.equal(android.data.kind, kind);
+  assert.equal(android.android.notification.icon, 'ic_stat_mafia');
+  assert.equal(web.webpush.notification.badge, '/icons/badge-72.png');
+  assert.ok(web.webpush.notification.title.length > 0);
+  assert.ok(!JSON.stringify(android).includes('balance'));
+}
+
 console.log('invites/push routing and FCM step: PASS');

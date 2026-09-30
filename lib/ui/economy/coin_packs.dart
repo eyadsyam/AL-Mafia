@@ -10,6 +10,7 @@ import '../../platform/payment_capabilities.dart';
 import '../../platform/payment_proof.dart';
 import '../../transport/online_backend.dart';
 import '../l10n_ext.dart';
+import '../social/push_prompt.dart';
 import '../screens/online/online_session.dart';
 import '../theme/mafia_theme.dart';
 import 'account_protection.dart';
@@ -993,6 +994,8 @@ class _ProofOrderCardState extends ConsumerState<ProofOrderCard> {
     if (_busy) return;
     setState(() => _busy = true);
     try {
+      // Prompt from this tap, while a browser still considers it a gesture.
+      await ref.read(pushPromptProvider).askForPayment();
       await ref
           .read(coinShopProvider.notifier)
           .submit(widget.order.id, sender, image);

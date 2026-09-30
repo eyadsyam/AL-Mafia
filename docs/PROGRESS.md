@@ -3556,3 +3556,9 @@ Files:      see docs/LAUNCH-GAPS.md
 Verified:   flutter analyze, flutter test, SQL harness (incl. delete_my_account catalog sweep, min_app_build), error envelope
 Gate:       see final report
 Open:       migrations 20260930001100 and 20260930001200 and function delete_account must be deployed; other online surfaces keep their own Arabic failure lines; council_life emblem test is fixed in the art lane
+## PHASE 1.1 delivery — done
+Built: Merged web parity and legacy room links; transfer approval/rejection push plus foreground and review polling; Play purchase listener starts at app launch.
+Files: lib/app/app.dart, lib/ui/economy/{coin_packs,play_offers}.dart, lib/ui/social/push_prompt.dart, lib/ui/theme/design_tokens.dart, supabase/functions/{coin_orders/index.ts,_shared/push.ts}, supabase/tests/invites_push.test.mjs, docs/LAUNCH-AUDIT.md
+Verified: room-link widget tests, coin-store tests, push Node tests, SQL migrations and tests; full Flutter gate running.
+Gate: PASS (targeted); full gate pending
+Open: H5 web ads remain disabled pending independently verifiable rewarded completion.

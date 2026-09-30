@@ -17,6 +17,8 @@
  * economy_config.transfer_enabled_android / transfer_enabled_web (default off).
  */
 import { fail, handler, ok } from "../_shared/api.ts";
+import { sendPush, type PushTarget } from "../_shared/push.ts";
+import { serviceAccountToken } from "../_shared/play_auth.ts";
 import {
   parseClaim, parseCreate, parseFilter, parsePlatform, parseReject, parseReview,
   parseSubmit, paymentMethods, PROOF_BUCKET, proofPath, REFUSALS, sha256Hex,
@@ -38,6 +40,31 @@ Deno.serve(handler(async (req, userId, db) => {
   const methods = paymentMethods(env);
   // Older web clients send no platform: they are the web build.
   const platform = parsePlatform(body.platform ?? "web");
+
+  // The RPC commits wallet credit and order status in one transaction. Read
+  // the old state first so retries cannot send the same notice twice.
+  const decisionBefore = async (order: string) => {
+    const { data } = await db.from("coin_orders").select("status").eq("id", order).maybeSingle();
+    return data?.status as string | undefined;
+  };
+  const notifyDecision = async (order: string, before: string | undefined) => {
+    try {
+      const { data: row } = await db.from("coin_orders").select("user_id,status").eq("id", order).maybeSingle();
+      if (!row?.user_id || row.status === before || !["paid", "rejected"].includes(row.status)) return;
+      const { data: tokens } = await db.from("push_tokens").select("token,platform").eq("user_id", row.user_id);
+      const target: PushTarget = {
+        enabled: true, kind: row.status === "paid" ? "order_paid" : "order_rejected",
+        tokens: (tokens ?? []) as PushTarget["tokens"],
+      };
+      await sendPush(target, {
+        secret: env("FCM_SERVICE_ACCOUNT_B64"),
+        accessToken: (raw) => serviceAccountToken(raw, "https://www.googleapis.com/auth/firebase.messaging"),
+        fetch,
+        dropToken: async (token) => { await db.rpc("push_token_drop", { p_token: token }); },
+        log: (line) => console.log(line),
+      });
+    } catch { console.log("payment push skipped: error"); }
+  };
 
   switch (body.action) {
     case "shop": {
@@ -165,30 +192,36 @@ Deno.serve(handler(async (req, userId, db) => {
         return fail("BAD_REQUEST", "invalid order");
       }
       const transaction = typeof body.transaction === "string" ? body.transaction.trim().slice(0, 80) : null;
+      const before = await decisionBefore(body.order);
       const { data, error } = await db.rpc("admin_approve_coin_order", {
         p_admin: userId, p_order: body.order, p_transaction: transaction || null,
       });
       if (error) return refuse(error);
+      await notifyDecision(body.order, before);
       return ok({ order: data });
     }
     case "admin_reject": {
       const parsed = parseReject(body);
       if (!parsed.ok) return fail("BAD_REQUEST", parsed.error);
+      const before = await decisionBefore(parsed.value.order);
       const { data, error } = await db.rpc("admin_reject_coin_order", {
         p_admin: userId, p_order: parsed.value.order, p_reason: parsed.value.reason,
       });
       if (error) return refuse(error);
+      await notifyDecision(parsed.value.order, before);
       return ok({ order: data });
     }
     case "admin_review": {
       const parsed = parseReview(body);
       if (!parsed.ok) return fail("BAD_REQUEST", parsed.error);
+      const before = await decisionBefore(parsed.value.order);
       const { data, error } = await db.rpc("admin_review_coin_order", {
         p_admin: userId, p_order: parsed.value.order, p_decision: parsed.value.decision,
         p_provider_transaction: parsed.value.transaction,
         p_received_piastres: parsed.value.receivedPiastres, p_note: parsed.value.note,
       });
       if (error) return refuse(error);
+      await notifyDecision(parsed.value.order, before);
       return ok({ order: data });
     }
     case "admin_refund": {

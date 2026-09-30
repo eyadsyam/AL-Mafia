@@ -28,6 +28,12 @@ import '../ui/economy/app_open_gate.dart';
 import '../ui/economy/economy_capabilities.dart'
     show economyCapabilitiesProvider, retryCapabilitiesIfFailed;
 import '../ui/economy/interstitial_coordinator.dart';
+import '../ui/economy/coin_packs.dart';
+import '../ui/economy/play_offers.dart';
+import '../ui/economy/wallet.dart';
+import '../ui/theme/design_tokens.dart';
+import '../platform/push/push_service.dart';
+import '../ui/screens/online/online_session.dart' show SupabaseConfig;
 import 'locale_controller.dart';
 import '../ui/widgets/warmup_gate.dart';
 import '../ui/social/incoming_invite.dart';
@@ -51,6 +57,16 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   /// Owned here, not global: two app instances in one test process would
   /// otherwise fight over the same key.
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  StreamSubscription<void>? _paymentPush;
+  Timer? _paymentPoll;
+
+  Future<void> _refreshPayment() async {
+    if (ref.exists(coinShopProvider)) {
+      await ref.read(coinShopProvider.notifier).reload();
+    } else {
+      await ref.read(walletProvider.notifier).refresh();
+    }
+  }
 
   late final GoRouter _router = buildRouter(
     ref,
@@ -69,6 +85,22 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     _lastPath = _router.routerDelegate.currentConfiguration.uri.path;
     _router.routerDelegate.addListener(_routeChanged);
     ref.read(interstitialCoordinatorProvider).foreground(true);
+    _paymentPush = ref.read(pushServiceProvider).foreground.listen((_) {
+      // The push payload contains no financial data. Ask the server for its
+      // committed order and wallet state; this also refreshes owned items.
+      unawaited(_refreshPayment());
+    });
+    _paymentPoll = Timer.periodic(StoreTokens.orderReviewPoll, (_) {
+      if (ref.exists(coinShopProvider) &&
+          (ref.read(coinShopProvider).valueOrNull?.pending.isNotEmpty ?? false)) {
+        unawaited(_refreshPayment());
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && SupabaseConfig.isConfigured) {
+        unawaited(ref.read(playOffersProvider.notifier).start());
+      }
+    });
     // Warm the saved groups now, while the splash is still up.
     //
     // The choice they feed — picker, or straight to an empty roster — is made
@@ -179,6 +211,12 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       _syncScore();
       // A vault capability read that could not reach the server is retried.
       retryCapabilitiesIfFailed(ref);
+      if (SupabaseConfig.isConfigured) {
+        unawaited(ref.read(playOffersProvider.notifier).start());
+      }
+      if (ref.exists(coinShopProvider)) {
+        unawaited(ref.read(coinShopProvider.notifier).reload());
+      }
     } else if (state == AppLifecycleState.paused) {
       ref.read(interstitialCoordinatorProvider).foreground(false);
       _audio.scoreEnabled = false;
@@ -216,6 +254,8 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
 
   @override
   void dispose() {
+    _paymentPush?.cancel();
+    _paymentPoll?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _router.routerDelegate.removeListener(_routeChanged);
     _router.dispose();
@@ -340,7 +380,9 @@ class _MotionPreference extends StatelessWidget {
     // open screen lost its state) the moment the switch was flipped.
     final media = MediaQuery.of(context);
     return MediaQuery(
-      data: media.copyWith(disableAnimations: media.disableAnimations || reduce),
+      data: media.copyWith(
+        disableAnimations: media.disableAnimations || reduce,
+      ),
       child: child,
     );
   }

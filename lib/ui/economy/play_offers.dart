@@ -64,9 +64,10 @@ class PlayOffersState {
   );
 }
 
-final playOffersProvider = NotifierProvider<PlayOffersController, PlayOffersState>(
-  PlayOffersController.new,
-);
+final playOffersProvider =
+    NotifierProvider<PlayOffersController, PlayOffersState>(
+      PlayOffersController.new,
+    );
 
 /// Quiet Pass and Council Coins packs through Google Play Billing.
 ///
@@ -89,6 +90,9 @@ class PlayOffersController extends Notifier<PlayOffersState> {
     _started = true;
     state = state.copyWith(loading: true);
     try {
+      // Play may redeliver an unfinished purchase before the vault is opened.
+      _events ??= billing.events.listen(_handle);
+      await billing.start();
       final caps = await ref.read(economyCapabilitiesProvider.future);
       state = state.copyWith(adFree: caps.adFree);
       if (caps.products.isEmpty) {
@@ -97,10 +101,6 @@ class PlayOffersController extends Notifier<PlayOffersState> {
         state = state.copyWith(loading: false, offers: const []);
         return;
       }
-      // Listen first: Play redelivers unfinished purchases as soon as the
-      // store connects, and one missed here would wait for the next launch.
-      _events ??= billing.events.listen(_handle);
-      await billing.start();
       final listings = await billing.listings({
         for (final p in caps.products) p.id,
       });
@@ -160,7 +160,10 @@ class PlayOffersController extends Notifier<PlayOffersState> {
       }
       if (answer['alreadyOwned'] == true) {
         ref.invalidate(economyCapabilitiesProvider);
-        state = state.copyWith(clearBusy: true, notice: PlayNotice.alreadyOwned);
+        state = state.copyWith(
+          clearBusy: true,
+          notice: PlayNotice.alreadyOwned,
+        );
         return;
       }
       ref.invalidate(walletProvider);
@@ -259,10 +262,16 @@ class _PlayOffersTabState extends ConsumerState<PlayOffersTab> {
     final colors = context.colors;
     final offers = ref.watch(playOffersProvider);
     final notice = _noticeText(context, offers.notice);
-    final pass = offers.offers.where((o) => o.$1.kind == 'entitlement').toList();
+    final pass = offers.offers
+        .where((o) => o.$1.kind == 'entitlement')
+        .toList();
     final bundles = offers.offers.where((o) => o.$1.bundle).toList();
     final bundleOwned =
-        ref.watch(economyCapabilitiesProvider).valueOrNull?.council.starterBundleOwned ??
+        ref
+            .watch(economyCapabilitiesProvider)
+            .valueOrNull
+            ?.council
+            .starterBundleOwned ??
         false;
     final debt =
         ref.watch(economyCapabilitiesProvider).valueOrNull?.purchaseDebt ?? 0;

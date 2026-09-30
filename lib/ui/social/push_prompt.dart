@@ -29,6 +29,18 @@ class PushPrompt {
   Future<void> askInContext() async {
     final push = _ref.read(pushServiceProvider);
     if (_busy || push.platform == null || !_enabled) return;
+    await _ask(push);
+  }
+
+  /// A submitted transfer also needs a notification when the app is closed.
+  /// Payment delivery does not depend on the optional invite switch.
+  Future<void> askForPayment() async {
+    final push = _ref.read(pushServiceProvider);
+    if (_busy || push.platform == null) return;
+    await _ask(push);
+  }
+
+  Future<void> _ask(PushService push) async {
     _busy = true;
     try {
       final prefs = await SharedPreferences.getInstance();

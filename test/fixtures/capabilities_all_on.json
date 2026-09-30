@@ -34,6 +34,13 @@
     "pushInvites": true
   },
   "titles": true,
+  "webAds": {
+    "appOpen": true,
+    "enabled": true,
+    "provider": "house",
+    "bannerAlways": true,
+    "interstitialEveryMatches": 1
+  },
   "adSteps": true,
   "council": {
     "rank": true,

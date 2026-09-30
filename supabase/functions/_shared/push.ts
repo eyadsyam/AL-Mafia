@@ -12,7 +12,7 @@
 
 export interface PushTarget {
   enabled: boolean;
-  kind?: "invite" | "friend_request" | "friend_accepted";
+  kind?: "invite" | "friend_request" | "friend_accepted" | "order_paid" | "order_rejected";
   inviteId?: string;
   code?: string;
   fromName?: string;
@@ -161,8 +161,29 @@ export function socialMessage(t: PushTarget, token: string, platform: "android" 
   };
 }
 
+/** Payment notices carry no balance, item, or transaction details. */
+export function paymentMessage(t: PushTarget, token: string, platform: "android" | "web") {
+  const paid = t.kind === "order_paid";
+  const title = paid ? "وصلت عملاتك 🎉" : "تحديث طلب التحويل";
+  const body = paid ? "طلبك اتوافق عليه. افتح الخزنة وشوف رصيدك." : "طلب التحويل اترفض. افتح الخزنة وشوف السبب.";
+  const link = `${WEB_ORIGIN}/`;
+  const data = { kind: t.kind ?? "order_rejected" };
+  if (platform === "android") return { message: {
+    token, data, notification: { title, body },
+    android: { priority: "HIGH", notification: {
+      channel_id: "mafia_social", icon: "ic_stat_mafia", color: INVITE_ACCENT,
+      default_sound: true,
+    } },
+  } };
+  return { message: { token, data, webpush: {
+    notification: { title, body, icon: "/icons/Icon-192.png", badge: "/icons/badge-72.png", dir: "rtl", lang: "ar", data: { link } },
+    fcm_options: { link },
+  } } };
+}
+
 /** The message for one device, by kind. */
 export function messageFor(t: PushTarget, token: string, platform: "android" | "web") {
+  if (t.kind === "order_paid" || t.kind === "order_rejected") return paymentMessage(t, token, platform);
   return t.kind === "friend_request" || t.kind === "friend_accepted"
     ? socialMessage(t, token, platform)
     : inviteMessage(t, token, platform);
