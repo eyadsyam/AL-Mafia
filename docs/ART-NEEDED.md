@@ -51,3 +51,9 @@ is new, a one-line code change is also needed, noted in "Wire".
   and the Casebook generic header.
 - The Partner picker now shows the Four Dossiers' own gallery portraits
   (`assets/images/gallery/gallery_*.webp`) instead of plain chips.
+
+## Added 1.1 final
+
+All 17 requested assets are present at the specified paths. The 15 WebP files have the expected dimensions and alpha channels; the Android density icons and web badge are present. Foreground and FCM notification paths use the new icons.
+
+Screen audit: Home uses its painted background; setup has card art; table phases have neutral furniture; results use the event stamp and ticket; store uses the invite frame and narrator marks; Council uses all three notice emblems; Casebook selects the Season Zero cover; invites have empty and incoming art. Remaining small icons are action controls. Onboarding is being changed in another worktree and needs a visual recheck after merge. No additional illustration slot was found in this worktree.

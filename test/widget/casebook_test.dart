@@ -45,6 +45,17 @@ void main() {
         isEmpty);
   });
 
+  testWidgets('Season Zero header uses its own painted cover', (tester) async {
+    await pump(tester);
+    expect(
+      find.byWidgetPredicate((widget) => widget is Image &&
+          widget.image is AssetImage &&
+          (widget.image as AssetImage).assetName ==
+              'assets/images/casebook/season_zero_cover.webp'),
+      findsOneWidget,
+    );
+  });
+
   for (final locale in const [Locale('ar'), Locale('en')]) {
     testWidgets('tonight: a ready case is taken with one tap (${locale.languageCode})',
         (tester) async {

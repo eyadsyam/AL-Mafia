@@ -96,6 +96,7 @@ def main() -> None:
         files = sorted(f for f in os.listdir(path)
                        if f not in SKIP
                        and not f.startswith(".")
+                       and not (folder == "audio" and f.endswith(".mp3"))
                        and os.path.isfile(os.path.join(path, f)))
         if not files:
             continue

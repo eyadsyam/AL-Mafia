@@ -1,8 +1,10 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/fun/launch_events.dart';
 
 import '../support/fake_backend.dart';
+import '../support/localized.dart';
 
 void main() {
   late FakeBackend backend;
@@ -21,5 +23,17 @@ void main() {
     expect(await fetchLaunchEventStamps(backend, 'r'), isEmpty);
     backend.refusals['economy'] = const BackendException('NOT_MEMBER', 'no');
     expect(await fetchLaunchEventStamps(backend, 'r'), isEmpty);
+  });
+
+  testWidgets('public result stamp renders the painted art', (tester) async {
+    await tester.pumpWidget(localizedApp(
+      const LaunchEventStamp(code: 'launch_night'),
+    ));
+    final image = tester.widget<Image>(find.descendant(
+      of: find.byKey(LaunchEventStamp.stampKey('launch_night')),
+      matching: find.byType(Image),
+    ));
+    expect((image.image as AssetImage).assetName,
+        'assets/images/launch/event_stamp.webp');
   });
 }

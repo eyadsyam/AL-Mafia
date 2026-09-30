@@ -520,14 +520,14 @@ void main() {
       await pump(tester, const CouncilHubTab());
       await tester.pumpAndSettle();
       expect(find.text(arStrings.inviteFirstMatchNotice('نور', 25)), findsOneWidget);
-      // ignore: avoid_print
-      print(tester.widgetList<Image>(find.byType(Image)).map((i) => i.image));
       final matches = tester
           .widgetList<Image>(find.byType(Image))
           .where(
             (i) =>
-                i.image is AssetImage &&
-                (i.image as AssetImage).assetName ==
+                i.image is ResizeImage &&
+                (i.image as ResizeImage).imageProvider is AssetImage &&
+                ((i.image as ResizeImage).imageProvider as AssetImage)
+                        .assetName ==
                     'assets/images/council/invite_notice_first_match.webp',
           );
       expect(matches, hasLength(1));
