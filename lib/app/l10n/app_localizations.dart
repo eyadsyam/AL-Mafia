@@ -2561,8 +2561,8 @@ abstract class AppLocalizations {
   /// No description provided for @onlineWaitingForCards.
   ///
   /// In en, this message translates to:
-  /// **'Waiting for: {names}'**
-  String onlineWaitingForCards(String names);
+  /// **'{count, plural, =1{1 player is still looking at their card} other{{count} players are still looking at their cards}}'**
+  String onlineWaitingForCards(int count);
 
   /// No description provided for @onlineFloorOpen.
   ///

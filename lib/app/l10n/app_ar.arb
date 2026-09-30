@@ -685,7 +685,7 @@
   "onlineGhostRule": "اللي بيخرج ما يتكلمش مع اللي لسه لاعب",
   "onlineChosen": "اخترت: {name}",
   "onlineUpNext": "بعدها: {names}",
-  "onlineWaitingForCards": "مستنيين: {names}",
+  "onlineWaitingForCards": "{count, plural, =1{لسه واحد بيشوف كارته} =2{لسه اتنين بيشوفوا كروتهم} other{لسه {count} بيشوفوا كروتهم}}",
   "onlineLeftRoom": "خرج",
   "onlineNewHost": "{name} بقى الهوست",
   "onlineCloseRoom": "اقفل الأوضة",

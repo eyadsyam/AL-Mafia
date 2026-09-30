@@ -1423,8 +1423,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineKickedByHost => 'The host removed you from the room';
 
   @override
-  String onlineWaitingForCards(String names) {
-    return 'Waiting for: $names';
+  String onlineWaitingForCards(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count players are still looking at their cards',
+      one: '1 player is still looking at their card',
+    );
+    return '$_temp0';
   }
 
   @override
