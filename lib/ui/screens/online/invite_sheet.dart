@@ -463,16 +463,33 @@ class _Tabs extends StatelessWidget {
 class _Empty extends StatelessWidget {
   final String text;
   const _Empty(this.text);
+
+  static const String _art = 'assets/images/social/invite_empty.webp';
+
   @override
   Widget build(BuildContext context) => Center(
     child: Padding(
       padding: EdgeInsets.all(context.spacing.md),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: context.typography.body.copyWith(
-          color: context.colors.textSecondary,
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: InviteTokens.emptyArtWidth),
+            child: Image.asset(
+              _art,
+              excludeFromSemantics: true,
+              errorBuilder: (_, _, _) => const SizedBox.shrink(),
+            ),
+          ),
+          SizedBox(height: context.spacing.sm),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: context.typography.body.copyWith(
+              color: context.colors.textSecondary,
+            ),
+          ),
+        ],
       ),
     ),
   );

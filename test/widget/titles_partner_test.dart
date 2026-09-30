@@ -98,6 +98,22 @@ void main() {
     await pump(tester, const TitleEquipList());
     expect(find.text('كبير الشلة'), findsOneWidget);
     expect(find.text('حافظ القضايا'), findsNothing, reason: 'unowned titles are not offered');
+    final tile = tester.widget<ListTile>(
+      find.ancestor(
+        of: find.text('كبير الشلة'),
+        matching: find.byType(ListTile),
+      ),
+    );
+    final sealImage = tester.widget<Image>(
+      find.descendant(
+        of: find.byWidget(tile.leading!),
+        matching: find.byType(Image),
+      ),
+    );
+    expect(
+      (sealImage.image as AssetImage).assetName,
+      'assets/images/titles/title_seal_kabir_elshella.webp',
+    );
     await tester.tap(find.byKey(TitleEquipList.titleKey('kabir_elshella')));
     await tester.pumpAndSettle();
     final sent = calls('titleEquip').single;

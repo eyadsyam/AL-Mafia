@@ -211,9 +211,18 @@ class _Hero extends StatelessWidget {
           FeatheredArt(
             feather: Feather.banner,
             child: Image.asset(
-              AppCouncilArt.casebookHeader,
+              // Season Zero gets its own, moodier cover; every other season
+              // (and any decode failure) falls back to the generic header.
+              season?.code == 'season_zero'
+                  ? 'assets/images/casebook/season_zero_cover.webp'
+                  : AppCouncilArt.casebookHeader,
               fit: BoxFit.cover,
               excludeFromSemantics: true,
+              errorBuilder: (_, _, _) => Image.asset(
+                AppCouncilArt.casebookHeader,
+                fit: BoxFit.cover,
+                excludeFromSemantics: true,
+              ),
             ),
           ),
           // A candle keeps burning on the case wall.

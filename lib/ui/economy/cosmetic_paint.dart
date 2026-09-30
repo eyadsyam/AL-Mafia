@@ -544,11 +544,25 @@ class NarrationCaption extends StatelessWidget {
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  look.marker,
+                KeyedSubtree(
                   key: markerKey(narrator!.code),
-                  size: StoreTruthTokens.narratorMarker,
-                  color: look.rule,
+                  child: look.markerAsset == null
+                      ? Icon(
+                          look.marker,
+                          size: StoreTruthTokens.narratorMarker,
+                          color: look.rule,
+                        )
+                      : Image.asset(
+                          look.markerAsset!,
+                          width: StoreTruthTokens.narratorMarker,
+                          height: StoreTruthTokens.narratorMarker,
+                          excludeFromSemantics: true,
+                          errorBuilder: (_, _, _) => Icon(
+                            look.marker,
+                            size: StoreTruthTokens.narratorMarker,
+                            color: look.rule,
+                          ),
+                        ),
                 ),
                 SizedBox(width: context.spacing.sm),
                 Flexible(child: text),

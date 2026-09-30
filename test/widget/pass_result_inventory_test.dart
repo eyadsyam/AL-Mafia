@@ -91,6 +91,21 @@ void main() {
     expect(find.text('إعلان اليوم بمكافأته'), findsOneWidget);
     expect(find.text('خزنة زيادة'), findsOneWidget);
     expect(find.text('لفة زيادة للعجلة'), findsNothing, reason: 'already taken today');
+
+    final decoration =
+        tester
+                .widget<DecoratedBox>(
+                  find.descendant(
+                    of: find.byKey(PassResultInventory.stripKey),
+                    matching: find.byType(DecoratedBox),
+                  ).first,
+                )
+                .decoration
+            as BoxDecoration;
+    expect(
+      (decoration.image!.image as AssetImage).assetName,
+      'assets/images/economy_v2/ticket_strip.webp',
+    );
   });
 
   testWidgets('everything taken: nothing drawn', (tester) async {

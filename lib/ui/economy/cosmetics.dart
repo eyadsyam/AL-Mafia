@@ -101,12 +101,17 @@ class NarratorLook {
   final Color ink;
   final bool italic;
   final IconData marker;
+
+  /// The marker's art, once the build bundles it (see `RasterOr`); [marker]
+  /// stays the fallback (and the only option) until then.
+  final String? markerAsset;
   const NarratorLook({
     required this.ground,
     required this.rule,
     required this.ink,
     required this.italic,
     required this.marker,
+    this.markerAsset,
   });
 }
 
@@ -404,6 +409,7 @@ abstract final class Cosmetics {
         ink: StoreTruthTokens.storytellerInk,
         italic: true,
         marker: Icons.auto_stories_rounded,
+        markerAsset: 'assets/images/store_v2/narrator_mark_storyteller.webp',
       ),
     ),
     'narrator_keeper': const NarratorPack(
@@ -416,6 +422,7 @@ abstract final class Cosmetics {
         ink: StoreTruthTokens.keeperInk,
         italic: false,
         marker: Icons.key_rounded,
+        markerAsset: 'assets/images/store_v2/narrator_mark_keeper.webp',
       ),
     ),
     'narrator_noir': const NarratorPack(
@@ -428,6 +435,7 @@ abstract final class Cosmetics {
         ink: StoreTruthTokens.noirInk,
         italic: false,
         marker: Icons.nightlight_round,
+        markerAsset: 'assets/images/store_v2/narrator_mark_noir.webp',
       ),
     ),
   };

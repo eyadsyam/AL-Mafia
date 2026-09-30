@@ -375,6 +375,17 @@ void main() {
           localizedApp(NarrationCaption(text: 'سطر', narrator: narrator)),
         );
         expect(find.byKey(NarrationCaption.markerKey(narrator.code)), findsOneWidget);
+        // Every pack now has its own emblem, drawn in place of the glyph.
+        expect(narrator.look.markerAsset, isNotNull, reason: narrator.code);
+        final asset = tester
+            .widget<Image>(
+              find.descendant(
+                of: find.byKey(NarrationCaption.markerKey(narrator.code)),
+                matching: find.byType(Image),
+              ),
+            )
+            .image;
+        expect((asset as AssetImage).assetName, narrator.look.markerAsset);
       }
       expect(markers, hasLength(Cosmetics.narrators.length));
       final grounds = {for (final n in Cosmetics.narrators.values) n.look.ground};

@@ -26,6 +26,8 @@ import 'distribution/role_reveal_screen.dart';
 import 'match_controller.dart';
 import '../economy/interstitial_coordinator.dart';
 import '../economy/pass_result_inventory.dart';
+import '../../transport/online_transport.dart';
+import '../fun/launch_events.dart' show LaunchEventStamps;
 import '../economy/cosmetics.dart' show NarrationBeat;
 import '../economy/my_cosmetics.dart';
 import '../economy/pass_table_dress.dart';
@@ -839,6 +841,15 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         // waiting today, below the fully revealed roles.
         inventory: switch (_controller.transport) {
           LocalTransport() => const PassResultInventory(),
+          _ => null,
+        },
+        // Row 12: online-only, and only once the room is public (the fetch
+        // itself answers empty for anything still being played).
+        eventStamps: switch (_controller.transport) {
+          final OnlineTransport online => LaunchEventStamps(
+            backend: online.backend,
+            roomId: online.roomId,
+          ),
           _ => null,
         },
         // Not a branch on the transport: `leave()` on a session that holds no
