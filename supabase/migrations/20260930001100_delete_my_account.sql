@@ -56,6 +56,8 @@ begin
     execute format('delete from public.%I where %I = $1', target.tbl, target.col)
       using who;
   end loop;
+  -- The order trail keeps its rows (accounting) but no longer names the person.
+  update public.coin_order_events set actor_id=null where actor_id=who;
 end $$;
 
 revoke all on function public.complete_data_deletion_pre_account(uuid) from public,anon,authenticated;

@@ -22,6 +22,8 @@ import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/storage_warning_note.dart';
 import '../../widgets/back_action.dart';
+import '../../widgets/connection_problem.dart';
+import '../../friendly_error.dart';
 import '../../widgets/player_avatar.dart';
 import '../../widgets/experience_surface.dart';
 import '../setup/profile_screen.dart';
@@ -414,7 +416,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
       state.projectPaused
           ? context.l10n.onlineProjectPaused
           : context.l10n.onlineUnreachable,
-    _ => context.l10n.onlineUnreachable,
+    _ => friendlyCode(context.l10n, state.errorCode!),
   };
 
   @override
@@ -800,15 +802,26 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       l.onlineRoomsNoFilterMatches,
                                       style: context.typography.body,
                                     ),
-                                  if (_browseFailed && error == null)
+                                  if (_browseFailed &&
+                                      error == null &&
+                                      _everLoaded)
                                     Text(
-                                      _everLoaded
-                                          ? l.publicRoomsStale
-                                          : l.publicRoomsUnavailable,
+                                      l.publicRoomsStale,
                                       key: OnlineEntryScreen.staleNotice,
                                       style: context.typography.body.copyWith(
                                         color: c.textSecondary,
                                       ),
+                                    ),
+                                  // Nothing has ever loaded: a clear offline
+                                  // state with a retry, not a bare line.
+                                  if (_browseFailed &&
+                                      error == null &&
+                                      !_everLoaded)
+                                    ConnectionProblem(
+                                      message: l.errOffline,
+                                      hint: l.publicRoomsUnavailable,
+                                      hintKey: OnlineEntryScreen.staleNotice,
+                                      onRetry: _loading ? null : _refresh,
                                     ),
                                   // Only after a read that worked: an
                                   // unreachable server is not an empty one.
