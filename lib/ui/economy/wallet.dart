@@ -8,6 +8,11 @@ import 'cosmetics.dart';
 /// only to explain earning time; the server alone credits coins.
 const coinsPerFinishedMatch = 100;
 
+/// Under Economy v3 (`economy.version=3`) a finished eligible match pays 25
+/// (plus 10 for a win and 25 for the day's first); the copy must follow the
+/// contract the server is actually paying by.
+const coinsPerFinishedMatchV3 = 25;
+
 /// One row of the server catalog that this build can draw.
 class WalletItem {
   final String code;

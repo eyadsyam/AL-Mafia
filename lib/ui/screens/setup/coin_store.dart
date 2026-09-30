@@ -426,7 +426,7 @@ class _WalletStrip extends StatelessWidget {
                 context: context,
                 builder: (context) => AlertDialog(
                   title: Text(l.storeAboutCoins),
-                  content: Text(l.coinsEarnHint),
+                  content: const _EarnHint(),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
@@ -446,8 +446,25 @@ class _WalletStrip extends StatelessWidget {
 }
 
 /// Roughly how many online matches an amount takes, from the current reward
-/// contract (sync_player_rewards): a win's extra 25 is not counted.
-int matchesFor(int coins) => (coins / coinsPerFinishedMatch).ceil();
+/// contract (sync_player_rewards): a win's extra is not counted. [v3] is the
+/// server's `economy.version=3` rule (25 a match instead of 100).
+int matchesFor(int coins, {bool v3 = false}) =>
+    (coins / (v3 ? coinsPerFinishedMatchV3 : coinsPerFinishedMatch)).ceil();
+
+/// What the server pays per finished match, in words; follows the contract
+/// the capabilities negotiated.
+class _EarnHint extends ConsumerWidget {
+  final TextStyle? style;
+  const _EarnHint({this.style});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final v3 =
+        ref.watch(economyCapabilitiesProvider).valueOrNull?.economyV3 ?? false;
+    return Text(v3 ? l.coinsEarnHintV3 : l.coinsEarnHint, style: style);
+  }
+}
 
 class _ShopTab extends StatelessWidget {
   final WalletState wallet;
@@ -498,8 +515,7 @@ class _ShopTab extends StatelessWidget {
               title: l.storeAboutCoins,
               divided: false,
               children: [
-                Text(
-                  l.coinsEarnHint,
+                _EarnHint(
                   style: context.typography.bodySmall.copyWith(
                     color: context.colors.textSecondary,
                   ),
@@ -1068,7 +1084,15 @@ class _ItemSheet extends ConsumerWidget {
                           child: Text(
                             l.storeEarnTime(
                               item.charge - balance,
-                              matchesFor(item.charge - balance),
+                              matchesFor(
+                                item.charge - balance,
+                                v3:
+                                    ref
+                                        .watch(economyCapabilitiesProvider)
+                                        .valueOrNull
+                                        ?.economyV3 ??
+                                    false,
+                              ),
                             ),
                             style: context.typography.bodySmall,
                             textAlign: TextAlign.center,

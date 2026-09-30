@@ -239,6 +239,54 @@ void main() {
     expect(find.text(arStrings.storeEarnTime(950, 10)), findsOneWidget);
   });
 
+  testWidgets('under economy v3 the store quotes what the server pays', (
+    tester,
+  ) async {
+    // Audit B1: 25 coins a match, not 100. A store that keeps saying "100"
+    // tells a player a 950-coin item is ten matches away when it is thirty-eight.
+    backend.responders['economy'] = (body) => body['action'] == 'capabilities'
+        ? {
+            'version': 2,
+            'economy': {'version': 3},
+          }
+        : wallet(balance: 250);
+    await pumpStore(tester);
+    await tester.tap(find.byKey(CoinStore.earnInfo));
+    await tester.pumpAndSettle();
+    expect(find.text(arStrings.coinsEarnHintV3), findsOneWidget);
+    expect(find.text(arStrings.coinsEarnHint), findsNothing);
+    await tester.tap(find.byType(TextButton));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(CoinStore.item('narrator_storyteller')),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byKey(CoinStore.shopList),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.ensureVisible(
+      find.byKey(CoinStore.item('narrator_storyteller')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(CoinStore.item('narrator_storyteller')));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text(arStrings.storeEarnTime(950, 38)),
+      100,
+      scrollable: find
+          .descendant(
+            of: find.byKey(CoinStore.sheetList),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    expect(find.text(arStrings.storeEarnTime(950, 38)), findsOneWidget);
+    expect(find.text(arStrings.storeEarnTime(950, 10)), findsNothing);
+  });
+
   testWidgets('a bundle charges only for what is not owned yet', (
     tester,
   ) async {

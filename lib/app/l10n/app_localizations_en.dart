@@ -2038,6 +2038,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Complete an eligible online match to earn 100 coins. Players on the winning team earn 25 more. Rewards are verified by the game server and never affect votes, roles or the chance to win.';
 
   @override
+  String get coinsEarnHintV3 =>
+      'Complete an eligible online match with five or more players to earn 25 coins. Your team winning adds 10 more, and your first eligible match of the day adds 25. Rewards are verified by the game server and never affect votes, roles or the chance to win.';
+
+  @override
   String get coinsLoadFailed =>
       'Your coins could not be loaded. Nothing was spent; try again.';
 

@@ -3596,6 +3596,12 @@ abstract class AppLocalizations {
   /// **'Complete an eligible online match to earn 100 coins. Players on the winning team earn 25 more. Rewards are verified by the game server and never affect votes, roles or the chance to win.'**
   String get coinsEarnHint;
 
+  /// No description provided for @coinsEarnHintV3.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete an eligible online match with five or more players to earn 25 coins. Your team winning adds 10 more, and your first eligible match of the day adds 25. Rewards are verified by the game server and never affect votes, roles or the chance to win.'**
+  String get coinsEarnHintV3;
+
   /// No description provided for @coinsLoadFailed.
   ///
   /// In en, this message translates to:
