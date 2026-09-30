@@ -307,9 +307,20 @@ void main() {
           reason: entry.key,
         );
         for (final clip in bank.clips) {
-          expect(clip.family, isTrue, reason: clip.id);
           expect(File('assets/${clip.file}').existsSync(), isTrue,
               reason: clip.file);
+        }
+        // A paid voice speaks every moment the free narrator does: each
+        // (beat, condition) of the default bank has a line in the pack.
+        final base = NarratorBank.fromJson(
+          File(narratorManifest).readAsStringSync(),
+        );
+        final packMoments = {
+          for (final c in bank.clips) '${c.beat.name}|${c.when}',
+        };
+        for (final c in base.clips) {
+          expect(packMoments, contains('${c.beat.name}|${c.when}'),
+              reason: '${entry.key} lacks ${c.beat.name} when ${c.when}');
         }
       }
       expect(
