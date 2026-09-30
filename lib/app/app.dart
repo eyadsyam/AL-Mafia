@@ -278,32 +278,38 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       builder: (context, child) => MediaQuery.withClampedTextScaling(
         minScaleFactor: 1.0,
         maxScaleFactor: 1.0,
-        child: _MotionPreference(
-          reduce: ref.watch(reduceMotionPreferenceProvider),
-          // Phase 108: the app-open ad is considered only while the launch
-          // picture is up. A pass-through in builds without an app-open unit.
-          child: AppOpenGate(
-            currentPath: () =>
-                _router.routerDelegate.currentConfiguration.uri.path,
-            child: SplashGate(
-              // First launch (and after an art update): read every asset and
-              // warm the server behind «بنجهّز الترابيزة». Later launches warm
-              // quietly in the background.
-              child: WarmupGate(
-                child: ResumeGate(
-                  navigatorKey: _navigatorKey,
-                  // Inside the resume gate, not outside it: the resume prompt is a
-                  // dialog and this is a route change, so the two are not competing
-                  // for the same slot — but a first launch that also has an
-                  // unfinished match must get the prompt, and `OnboardingGate` stands
-                  // down on its own when it finds one.
-                  child: OnboardingGate(
+        // A browser starts no sound before a tap; every tap offers the score
+        // a second chance (`AudioBackend.unlock`, a no-op off the web).
+        child: Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerUp: (_) => unawaited(_audio.unlock()),
+          child: _MotionPreference(
+            reduce: ref.watch(reduceMotionPreferenceProvider),
+            // Phase 108: the app-open ad is considered only while the launch
+            // picture is up. A pass-through in builds without an app-open unit.
+            child: AppOpenGate(
+              currentPath: () =>
+                  _router.routerDelegate.currentConfiguration.uri.path,
+              child: SplashGate(
+                // First launch (and after an art update): read every asset and
+                // warm the server behind «بنجهّز الترابيزة». Later launches warm
+                // quietly in the background.
+                child: WarmupGate(
+                  child: ResumeGate(
                     navigatorKey: _navigatorKey,
-                    // An invite from inside the game, wherever the player
-                    // is (never over a private phase).
-                    child: IncomingInviteHost(
-                      onJoin: (code) => _router.go(Routes.joinLink(code)),
-                      child: child ?? const SizedBox.shrink(),
+                    // Inside the resume gate, not outside it: the resume prompt is a
+                    // dialog and this is a route change, so the two are not competing
+                    // for the same slot — but a first launch that also has an
+                    // unfinished match must get the prompt, and `OnboardingGate` stands
+                    // down on its own when it finds one.
+                    child: OnboardingGate(
+                      navigatorKey: _navigatorKey,
+                      // An invite from inside the game, wherever the player
+                      // is (never over a private phase).
+                      child: IncomingInviteHost(
+                        onJoin: (code) => _router.go(Routes.joinLink(code)),
+                        child: child ?? const SizedBox.shrink(),
+                      ),
                     ),
                   ),
                 ),
