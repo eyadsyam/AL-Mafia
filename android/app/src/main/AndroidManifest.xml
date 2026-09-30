@@ -36,6 +36,10 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <!-- The invite's long knock (Haptics.pattern). Install-time, no prompt. -->
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- Android 13+: the invite notification is silently dropped without it
+         (the permission prompt in push_prompt.dart also needs it declared).
+         Stated here so it never depends on a library's merged manifest. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-feature android:name="android.hardware.microphone" android:required="false"/>
     <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
 

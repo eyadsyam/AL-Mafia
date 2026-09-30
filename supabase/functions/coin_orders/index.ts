@@ -225,7 +225,8 @@ Deno.serve(handler(async (req, userId, db) => {
       return ok({ order: data });
     }
     case "admin_refund": {
-      if (typeof body.order !== "string" || typeof body.note !== "string" || body.note.trim().length < 3) {
+      if (typeof body.order !== "string" || !UUID.test(body.order) ||
+        typeof body.note !== "string" || body.note.trim().length < 3 || body.note.length > 500) {
         return fail("BAD_REQUEST", "order and note required");
       }
       const { data, error } = await db.rpc("admin_refund_coin_order", {

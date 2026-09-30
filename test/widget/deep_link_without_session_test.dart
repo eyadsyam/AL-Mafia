@@ -13,6 +13,7 @@ import 'package:mafia_master/ui/screens/online/lobby_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_entry_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/online/voice_session.dart';
+import 'package:mafia_master/ui/screens/postgame/history_screen.dart';
 import 'package:mafia_master/ui/screens/setup/home_screen.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
 
@@ -105,4 +106,19 @@ void main() {
       expect(find.byKey(OnlineEntryScreen.resumeButton), findsOneWidget);
     },
   );
+
+  testWidgets('an address with no page goes Home instead of an error page', (
+    tester,
+  ) async {
+    await launch(tester, '/no/such/page');
+    expect(find.byType(HomeScreen), findsOneWidget);
+  });
+
+  testWidgets('a stored-match address with a non-number is the history list', (
+    tester,
+  ) async {
+    await launch(tester, '/history/abc');
+    expect(tester.takeException(), isNull);
+    expect(find.byType(HistoryScreen), findsOneWidget);
+  });
 }

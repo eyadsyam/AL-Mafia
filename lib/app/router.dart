@@ -259,6 +259,10 @@ GoRouter buildRouter(
     // that is *below* the Navigator. `MaterialApp.builder` runs above it, and
     // `showDialog` from there throws.
     navigatorKey: navigatorKey,
+    // An address this table has no page for (a typed URL on the web, a
+    // half-shared link, a provider callback with an odd path) is Home, not
+    // the framework's English "Page Not Found".
+    onException: (context, state, router) => router.go(Routes.home),
     // Debug affordance so a screen can be opened directly for screenshotting:
     //   flutter run --dart-define=START_ROUTE=/history
     // `String.fromEnvironment` is resolved at compile time and defaults to
@@ -585,6 +589,11 @@ GoRouter buildRouter(
       ),
       GoRoute(
         path: '/history/:id',
+        // A typed or stale address with a non-number is the list, not a crash.
+        redirect: (context, state) =>
+            int.tryParse(state.pathParameters['id'] ?? '') == null
+            ? Routes.history
+            : null,
         builder: (context, state) => StoredAnalyticsScreen(
           matchId: int.parse(state.pathParameters['id']!),
           onClose: () => context.go(Routes.history),
