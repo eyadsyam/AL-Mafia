@@ -28,7 +28,7 @@
         var search = location.search || '';
         if (!/Android/i.test(ua) || /; wv\)/.test(ua)) return;
         if (/[?&]web=1/.test(search)) return;
-        if (!/^\/(join\/|invite\/|$)/.test(path)) return;
+        if (!/^\/(join\/|room\/|invite\/|$)/.test(path)) return;
         if (sessionStorage.getItem('mm.appTried') === path) return;
         sessionStorage.setItem('mm.appTried', path);
         var fallback = location.origin + path + (search ? search + '&' : '?') + 'web=1';

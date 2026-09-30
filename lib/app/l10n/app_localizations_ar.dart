@@ -2179,6 +2179,12 @@ class AppLocalizationsAr extends AppLocalizations {
       'ماقدرناش نفتح المشاركة ولا ننسخ اللينك. قول كود الأوضة للاعبين.';
 
   @override
+  String get shareTextCopied => 'الرسالة اتنسخت. الصقها وابعتها لأي حد.';
+
+  @override
+  String get shareUnavailable => 'ماقدرناش نفتح المشاركة. جرب تاني.';
+
+  @override
   String get coinsName => 'عملات المجلس';
 
   @override

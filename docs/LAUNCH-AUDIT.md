@@ -168,3 +168,43 @@ timing; and what happens when things fail mid-match.
 `council_life_test.dart` "an unread notice carries its own small emblem". The
 image is wrapped in `ResizeImage` by the in-progress art wiring and the test
 still matches `AssetImage`. It is in Codex's art lane and was left alone.
+## Pass A — new player (web and Android)
+
+Walked by reading the code paths a first-time player takes (first launch, name
+and avatar, Home, pass-and-play setup, a match to the result, online create and
+join by link and by code, invites, store, daily coffer, Council, Casebook,
+settings), by running the release web build in a browser at 1440 wide with empty
+storage, and by scanning the strings. Web parity has its own table in
+`docs/WEB-PARITY.md`.
+
+| ID | Severity | Where | What was wrong | Fix | Test |
+|---|---|---|---|---|---|
+| P1 | high | First launch, web and Android release builds | A new player who opened a room link (`/join/CODE`, an Android App Link, or a pasted URL) was sent to Home after the intro, and the room link was lost. `WarmupGate` returned its child bare and then a `Stack` the moment the first-launch preparation veil came up, so everything below it (resume gate, onboarding gate) was re-created. The onboarding gate ran again and wrapped its own `/onboarding?next=…` inside `next`, which `_safeReturn` then rejects. Seen live as `/onboarding?next=/onboarding?next=%2Fjoin%2FABC123`. Debug builds never show the veil (`warmupEnabledProvider` is release-only), so no test saw it. | `WarmupGate` always returns one `Stack`, so the table keeps its place; the onboarding gate also refuses to nest its own link. After the fix the same load gives `/onboarding?next=/join/ABC123`. | `warmup_gate_test.dart` counts table creations through a first launch (3 before, 1 after). |
+| P2 | medium | Settings, Reduce Motion | `_MotionPreference` returned its child bare with the setting off and a `MediaQuery` with it on, so flipping the switch re-created the whole app under it and every open screen lost its state. | One stable `MediaQuery` wrapper. | `reduce_motion_test`, `app_boots_test` still green. |
+| P3 | medium | Web, reload or closed tab | Pass-and-play state was memory only: the unfinished match was not offered for resume, saved groups, default settings, seen hints and the tutorial flag were gone. | `lib/data/prefs_stores.dart` (see WEB-PARITY 1). | `prefs_stores_test.dart` |
+| P4 | medium | Web, score | A score started before the first tap (resumed match, link into a room) stayed silent for good. | Retried on the first tap (WEB-PARITY 2). | `audio_backend_isolation_test.dart` |
+| P5 | medium | Council invite, result card | Share threw or opened a mail link where the platform has no share sheet. | Copy fallback with a message (WEB-PARITY 4, 5). | `council_life_test.dart` |
+| P6 | low | Strings | Searched every `Text`, `tooltip`, `label`, `hintText`, `title` literal in `lib/ui` and `lib/app`: no untranslated user-facing text. Arabic ARB has no Latin words except brand and address names (Google Play, AdMob, UTC, the support address). English and Arabic keys match one to one. The only English surface is the voice diagnostics dialog, which is deliberately English and only opened from the voice menu. | none | `l10n_coverage_test` already guards key parity. |
+| P7 | low | Dead controls | Searched for empty `onPressed`/`onTap`, `TODO`, `UnimplementedError`, «قريبا»: none. | none | none |
+
+### Checked and found sound
+
+- Width: the first-run, profile and Home columns stay a centred phone-width
+  column on a 1440 px browser (screenshots at 1440 x 900). The Council hub, the
+  lobby and the first-run arrival already have 320/360/430 dp tests in both
+  locales.
+- Doc 05: nothing in this pass stores or shows a role anywhere new. The web
+  store holds exactly what the Isar row holds, `loadAnalytics` still refuses an
+  unfinished match after a reload, and the haptic and unlock changes are
+  role-blind (the L-10 call-site guard passes).
+
+### Not verified here
+
+- A real Android device or a real phone browser (no device on this machine):
+  autoplay unlock, vibration and the Web Share sheet are covered by fallback
+  tests only.
+- Online create/join by code and the invite push end to end: they need the hosted
+  backend, which this pass did not touch.
+- `council_life_test` "an unread notice carries its own small emblem" failed on
+  the base commit: the wired art is now wrapped in `ResizeImage`, which the test
+  did not unwrap. The test is fixed; the app was right.

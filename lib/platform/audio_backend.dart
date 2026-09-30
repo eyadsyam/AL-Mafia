@@ -74,6 +74,16 @@ abstract class AudioBackend {
   /// Stops the loop, if one is running.
   Future<void> stopLoop();
 
+  /// Called on every tap. A browser refuses to start sound until the page has
+  /// had a user gesture, so a score started on load (a resumed match, a deep
+  /// link into a room) is silently blocked there; this starts it again on the
+  /// first tap that lands after the refusal. Everywhere else it does nothing,
+  /// and on the web it does nothing while the score is already sounding, so it
+  /// never adds a seam to the loop.
+  ///
+  /// Not a game signal: it reacts to the browser's policy, never to a role.
+  Future<void> unlock();
+
   Future<void> dispose();
 }
 
@@ -106,6 +116,9 @@ class SilentAudioBackend implements AudioBackend {
   Future<void> stopLoop() async {}
 
   @override
+  Future<void> unlock() async {}
+
+  @override
   Future<void> dispose() async {}
 }
 
@@ -124,6 +137,8 @@ class PluginAudioBackend implements AudioBackend {
   /// The score. Held separately from [_players] so [stopAll] cannot reach it.
   AudioPlayer? _loop;
   String? _loopKey;
+  double _loopVolume = 1.0;
+  bool _loopBlocked = false;
   int _loopGeneration = 0;
   int _cueGeneration = 0;
 
@@ -219,13 +234,29 @@ class PluginAudioBackend implements AudioBackend {
         ..setPlayerMode(PlayerMode.mediaPlayer);
       _loop = player;
       _loopKey = assetKey;
+      _loopVolume = volume;
+      _loopBlocked = false;
       await player.setVolume(volume);
       if (generation != _loopGeneration) return;
       await player.play(AssetSource(assetKey));
       if (generation != _loopGeneration) await player.stop();
     } catch (error) {
+      // On the web this is the browser's autoplay policy; `unlock` retries.
+      if (generation == _loopGeneration) _loopBlocked = true;
       debugPrint('audio: could not start loop $assetKey — $error');
     }
+  }
+
+  @override
+  Future<void> unlock() async {
+    if (!kIsWeb) return;
+    final player = _loop;
+    final key = _loopKey;
+    if (player == null || key == null) return;
+    if (!_loopBlocked && player.state == PlayerState.playing) return;
+    final volume = _loopVolume;
+    await stopLoop();
+    await startLoop(key, volume: volume);
   }
 
   @override

@@ -1100,6 +1100,8 @@
   "publicRoomWaitingTitle": "أوضة انتظار جاهزة",
   "publicRoomWaitingStatus": "فاضية، وأول واحد يدخل هيبقى المضيف",
   "onlineShareFailed": "ماقدرناش نفتح المشاركة ولا ننسخ اللينك. قول كود الأوضة للاعبين.",
+  "shareTextCopied": "الرسالة اتنسخت. الصقها وابعتها لأي حد.",
+  "shareUnavailable": "ماقدرناش نفتح المشاركة. جرب تاني.",
   "coinsName": "عملات المجلس",
   "storeTitle": "المتجر",
   "storeTabShop": "المتجر",

@@ -250,6 +250,9 @@ class AudioDirector {
     }
   }
 
+  /// Every tap, for the browser's autoplay policy: see [AudioBackend.unlock].
+  Future<void> unlock() => backend.unlock();
+
   /// The looping score asset, relative to `assets/`.
   ///
   /// The path is fixed and the music behind it is not. `tool/normalise_score.py`

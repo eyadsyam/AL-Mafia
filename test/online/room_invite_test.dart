@@ -41,6 +41,16 @@ void main() {
     expect(manifest, contains('android:host="saidalmafia.com"'));
   });
 
+  test('legacy room links reach both web and Android on either domain', () {
+    for (final host in ['saidalmafia.com', 'almafia.vercel.app']) {
+      expect(manifest, contains('android:host="$host" android:pathPrefix="/room/"'));
+    }
+    expect(File('web/index.html').readAsStringSync(), contains('room\\/'));
+    final router = File('lib/app/router.dart').readAsStringSync();
+    expect(router, contains("roomByLink = '/room/:code'"));
+    expect(router, contains('path: Routes.roomByLink'));
+  });
+
   test('web share metadata and sitemap use the canonical host', () {
     expect(File('web/index.html').readAsStringSync(),
         contains('https://saidalmafia.com/og-image.jpg'));

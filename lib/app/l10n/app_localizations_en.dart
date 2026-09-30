@@ -2234,6 +2234,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t open sharing or copy the link. Read the room code out to players.';
 
   @override
+  String get shareTextCopied => 'Copied. Paste it anywhere to send it.';
+
+  @override
+  String get shareUnavailable => 'Couldn\'t open sharing. Try again.';
+
+  @override
   String get coinsName => 'Council Coins';
 
   @override

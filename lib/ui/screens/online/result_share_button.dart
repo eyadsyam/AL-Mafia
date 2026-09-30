@@ -14,6 +14,7 @@ import '../../economy/cosmetic_paint.dart'
 import '../../economy/cosmetics.dart' show Cosmetics, FrameStyle, PlateStyle;
 import '../../economy/my_cosmetics.dart';
 import '../../../data/player_profile.dart';
+import '../../../platform/clipboard.dart';
 import '../../fun/award_ribbon.dart' show awardName, onlineAwardsProvider;
 import '../../fun/match_awards.dart';
 import '../../l10n_ext.dart';
@@ -85,27 +86,41 @@ class _ResultShareButtonState extends ConsumerState<ResultShareButton> {
       );
       if (!mounted) return;
       final box = context.findRenderObject() as RenderBox?;
-      await SharePlus.instance.share(
-        ShareParams(
-          title: l10n.shareResult,
-          text: message,
-          files: [
-            XFile.fromData(
-              bytes,
-              mimeType: 'image/png',
-              name: 'mafia-master-result.png',
-            ),
-          ],
-          fileNameOverrides: const ['mafia-master-result.png'],
-          sharePositionOrigin: box == null
-              ? null
-              : box.localToGlobal(Offset.zero) & box.size,
-        ),
-      );
+      try {
+        await SharePlus.instance.share(
+          ShareParams(
+            title: l10n.shareResult,
+            text: message,
+            files: [
+              XFile.fromData(
+                bytes,
+                mimeType: 'image/png',
+                name: 'mafia-master-result.png',
+              ),
+            ],
+            fileNameOverrides: const ['mafia-master-result.png'],
+            sharePositionOrigin: box == null
+                ? null
+                : box.localToGlobal(Offset.zero) & box.size,
+          ),
+        );
+      } catch (_) {
+        // A browser without the Web Share API (or one that refuses files):
+        // the sentence goes on the clipboard instead of an unhandled error.
+        final copied = await AppClipboard.copy(message);
+        if (mounted) {
+          _say(copied ? l10n.shareTextCopied : l10n.shareUnavailable);
+        }
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
+
+  void _say(String message) =>
+      ScaffoldMessenger.maybeOf(context)
+        ?..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
 
   @override
   Widget build(BuildContext context) => IconButton.outlined(

@@ -3926,6 +3926,18 @@ abstract class AppLocalizations {
   /// **'Couldn\'t open sharing or copy the link. Read the room code out to players.'**
   String get onlineShareFailed;
 
+  /// No description provided for @shareTextCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied. Paste it anywhere to send it.'**
+  String get shareTextCopied;
+
+  /// No description provided for @shareUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open sharing. Try again.'**
+  String get shareUnavailable;
+
   /// No description provided for @coinsName.
   ///
   /// In en, this message translates to:

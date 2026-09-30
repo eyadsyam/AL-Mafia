@@ -8,13 +8,34 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../support/localized.dart';
 
+class _Counting extends StatefulWidget {
+  final VoidCallback onCreate;
+  const _Counting({required this.onCreate});
+
+  @override
+  State<_Counting> createState() => _CountingState();
+}
+
+class _CountingState extends State<_Counting> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onCreate();
+  }
+
+  @override
+  Widget build(BuildContext context) => const Scaffold(body: Text('table'));
+}
+
 void main() {
+  var created = 0;
+
   Future<void> pump(WidgetTester tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [warmupEnabledProvider.overrideWithValue(true)],
         child: localizedApp(
-          const WarmupGate(child: Scaffold(body: Text('table'))),
+          WarmupGate(child: _Counting(onCreate: () => created++)),
         ),
       ),
     );
@@ -60,6 +81,7 @@ void main() {
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({});
+    created = 0;
     await pump(tester);
     await tester.pump();
     await tester.runAsync(
@@ -70,6 +92,10 @@ void main() {
     await settle(tester);
     expect(find.byKey(WarmupGate.overlayKey), findsNothing);
     expect(find.text('table'), findsOneWidget);
+    // The table keeps its place in the tree while the veil comes and goes:
+    // re-creating it restarts the onboarding gate and loses the room link a
+    // new player arrived with.
+    expect(created, 1);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString(AssetWarmup.signatureKey), isNotNull);
   });

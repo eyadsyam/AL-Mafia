@@ -114,6 +114,7 @@
                 <data android:scheme="https"
                       android:host="almafia.vercel.app"
                       android:pathPrefix="/join/"/>
+                <data android:scheme="https" android:host="almafia.vercel.app" android:pathPrefix="/room/"/>
                 <data android:scheme="https"
                       android:host="almafia.vercel.app"
                       android:pathPrefix="/invite/"/>
@@ -121,6 +122,7 @@
                       android:host="almafia.vercel.app"
                       android:path="/"/>
                 <data android:scheme="https" android:host="saidalmafia.com" android:pathPrefix="/join/"/>
+                <data android:scheme="https" android:host="saidalmafia.com" android:pathPrefix="/room/"/>
                 <data android:scheme="https" android:host="saidalmafia.com" android:pathPrefix="/invite/"/>
                 <data android:scheme="https" android:host="saidalmafia.com" android:path="/"/>
             </intent-filter>

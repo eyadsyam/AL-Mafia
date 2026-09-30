@@ -2165,6 +2165,12 @@ abstract final class InviteTokens {
 
   /// Friend requests on the quieter channel: one short buzz.
   static const List<int> shortVibration = [0, 180];
+
+  /// The browser's Vibration API has no "selection click" or "light impact",
+  /// so a web tap buzzes for this many milliseconds (Android Chrome only;
+  /// every other browser ignores it). Role-blind, as every haptic is (L-10).
+  static const List<int> webSelectTick = [8];
+  static const List<int> webConfirmTick = [16];
 }
 
 /// «حدّث التطبيق» (`lib/app/update_gate.dart`): the server-driven minimum

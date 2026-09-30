@@ -136,22 +136,32 @@ class _WarmupGateState extends ConsumerState<WarmupGate> {
   @override
   Widget build(BuildContext context) {
     final progress = _progress;
-    if (progress == null) return widget.child;
     final reduce = ReduceMotion.of(context);
+    // One Stack whether or not the veil is up. The table underneath must keep
+    // its place in the tree: returning `widget.child` bare and then a Stack
+    // re-created everything below this gate the moment preparation began (a
+    // first launch), which restarted the onboarding gate and nested its
+    // `next=` link inside itself, so a new player who opened a room link lost
+    // the room.
     return Stack(
+      fit: StackFit.passthrough,
       children: [
         widget.child,
-        IgnorePointer(
-          ignoring: _leaving,
-          child: AnimatedOpacity(
-            opacity: _leaving ? 0 : 1,
-            duration: reduce ? Duration.zero : context.motion.dramatic,
-            onEnd: () {
-              if (_leaving && mounted) setState(() => _progress = null);
-            },
-            child: _Preparation(key: WarmupGate.overlayKey, progress: progress),
+        if (progress != null)
+          IgnorePointer(
+            ignoring: _leaving,
+            child: AnimatedOpacity(
+              opacity: _leaving ? 0 : 1,
+              duration: reduce ? Duration.zero : context.motion.dramatic,
+              onEnd: () {
+                if (_leaving && mounted) setState(() => _progress = null);
+              },
+              child: _Preparation(
+                key: WarmupGate.overlayKey,
+                progress: progress,
+              ),
+            ),
           ),
-        ),
       ],
     );
   }

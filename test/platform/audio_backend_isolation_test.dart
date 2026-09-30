@@ -77,6 +77,14 @@ void main() {
       expect(director.emitted, equals([AudioCue.mafiaWake]));
     });
 
+    test('a tap is passed to the backend so a browser can start the score', () async {
+      final backend = _RecordingBackend();
+      final director = AudioDirector(backend: backend);
+      await director.unlock();
+      await director.unlock();
+      expect(backend.unlocks, 2);
+    });
+
     test('everything works with sound off', () {
       final director = AudioDirector(backend: _RecordingBackend())
         ..muted = true;
@@ -284,6 +292,11 @@ class _RecordingBackend implements AudioBackend {
 
   int stops = 0;
   int loopStops = 0;
+
+  int unlocks = 0;
+
+  @override
+  Future<void> unlock() async => unlocks++;
 
   @override
   Future<void> warmUp(Iterable<String> assetKeys) async =>

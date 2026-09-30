@@ -74,6 +74,7 @@ abstract final class Routes {
   /// The scheme's host is dropped by go_router, which matches on the path — so
   /// `mafiamaster://online/join/K7M2QP` arrives here as `/join/K7M2QP`.
   static const joinByLink = '/join/:code';
+  static const roomByLink = '/room/:code';
 
   /// That path, for a given code.
   static String joinLink(String code) => '/join/${code.toUpperCase()}';
@@ -127,7 +128,7 @@ String _safeReturn(String? route) {
   final parsed = route == null ? null : Uri.tryParse(route);
   if (parsed?.path == Routes.online ||
       (parsed != null &&
-          RegExp(r'^/join/[A-Za-z0-9]{6}$').hasMatch(parsed.path))) {
+          RegExp(r'^/(join|room)/[A-Za-z0-9]{6}$').hasMatch(parsed.path))) {
     return route!;
   }
   return Routes.home;
@@ -366,6 +367,15 @@ GoRouter buildRouter(
             onBack: () => context.go(Routes.mode),
           ),
         ),
+      ),
+      GoRoute(
+        path: Routes.roomByLink,
+        redirect: (context, state) => Uri(
+          path: '/join/${state.pathParameters['code']}',
+          queryParameters: state.uri.queryParameters.isEmpty
+              ? null
+              : state.uri.queryParameters,
+        ).toString(),
       ),
       GoRoute(
         path: Routes.lobby,
