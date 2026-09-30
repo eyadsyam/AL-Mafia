@@ -8,7 +8,7 @@ import '../../engine/models/enums.dart' show Role;
 import '../../transport/account_auth.dart';
 import '../economy/council_art.dart' show RasterOr;
 import '../l10n_ext.dart';
-import '../screens/online/online_session.dart' show SupabaseConfig;
+import 'onboarding_account_step.dart' show accountsAvailableProvider;
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/feathered_art.dart';
@@ -23,7 +23,7 @@ class AccountCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!SupabaseConfig.isConfigured) return const SizedBox.shrink();
+    if (!ref.watch(accountsAvailableProvider)) return const SizedBox.shrink();
     final profile =
         ref.watch(accountProfileProvider).valueOrNull ?? AccountProfile.guest;
     final l = context.l10n;

@@ -5066,4 +5066,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get revealWhispersFailed => 'Couldn\'t load the whispers';
+
+  @override
+  String get onboardAccountTitle => 'Keep your progress?';
+
+  @override
+  String get onboardAccountHint =>
+      'Sign in with Google or email so your coins, rank and friends follow you to any phone. Or continue without signing in; you can link an account later from your profile without losing anything.';
+
+  @override
+  String get onboardAccountSignIn => 'Sign in (Google or email)';
+
+  @override
+  String get onboardAccountGuest => 'Continue without signing in';
+
+  @override
+  String onboardAccountSignedIn(String email) {
+    return 'Signed in as $email';
+  }
+
+  @override
+  String get onboardAccountSignedInPlain => 'You are signed in';
 }

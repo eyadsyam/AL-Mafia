@@ -7,6 +7,8 @@ import '../../../data/player_profile.dart';
 import '../../../data/repository_provider.dart';
 import '../../../data/terms_consent.dart';
 import '../../../engine/models/player.dart';
+import '../../account/account_sheet.dart' show accountProfileProvider;
+import '../../account/onboarding_account_step.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/language_picker.dart';
@@ -54,9 +56,11 @@ class _Waiting extends StatelessWidget {
       const Scaffold(body: Center(child: CircularProgressIndicator()));
 }
 
-/// Language → name and avatar → preferences → 18+ and terms → continue.
+/// Language → (sign in or guest) → name and avatar → preferences → 18+ and
+/// terms → continue.
 ///
-/// Four short chapters with one decision at a time. Nothing asks for a birth date, phone or email, and the
+/// Four short chapters, five when the build can reach the server and so has an
+/// account to offer, with one decision at a time. Nothing asks for a birth date, phone or email, and the
 /// microphone is asked for only when voice is first used.
 class FirstRunScreen extends ConsumerStatefulWidget {
   /// Existing installs that have a profile: only the terms and 18+ rows.
@@ -74,12 +78,15 @@ class FirstRunScreen extends ConsumerStatefulWidget {
   static const motionKey = ValueKey('first_run_motion');
   static const continueKey = ValueKey('first_run_continue');
   static const nextKey = ValueKey('first_run_next');
+  static const guestKey = ValueKey('first_run_guest');
   static const backKey = ValueKey('first_run_back');
   static const failedKey = ValueKey('first_run_failed');
 
   @override
   ConsumerState<FirstRunScreen> createState() => _FirstRunScreenState();
 }
+
+enum _Chapter { language, account, identity, preferences, pact }
 
 class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   late final TextEditingController _name;
@@ -92,11 +99,19 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   bool _saving = false;
   bool _failed = false;
   int _step = 0;
+  late final List<_Chapter> _chapters;
   final _scroll = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    _chapters = [
+      _Chapter.language,
+      if (ref.read(accountsAvailableProvider)) _Chapter.account,
+      _Chapter.identity,
+      _Chapter.preferences,
+      _Chapter.pact,
+    ];
     final profile = ref.read(playerProfileProvider).valueOrNull;
     _name = TextEditingController(text: profile?.name ?? '');
     _gender = profile?.gender ?? PlayerGender.unspecified;
@@ -168,25 +183,31 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   Widget build(BuildContext context) {
     final s = context.spacing;
     final l = context.l10n;
-    final step = widget.termsOnly ? 3 : _step;
-    final titles = [
-      l.setupWelcomeTitle,
-      l.arrivalIdentityTitle,
-      l.setupPreferencesTitle,
-      l.arrivalPactTitle,
-    ];
-    final hints = [
-      l.arrivalWelcomeHint,
-      l.arrivalIdentityHint,
-      l.setupPreferencesHint,
-      l.setupAdultHint,
-    ];
-    final art = [
-      ExperienceArt.invitation,
-      ExperienceArt.invitation,
-      ExperienceArt.council,
-      ExperienceArt.pact,
-    ];
+    final chapter = widget.termsOnly ? _Chapter.pact : _chapters[_step];
+    final titles = {
+      _Chapter.language: l.setupWelcomeTitle,
+      _Chapter.account: l.onboardAccountTitle,
+      _Chapter.identity: l.arrivalIdentityTitle,
+      _Chapter.preferences: l.setupPreferencesTitle,
+      _Chapter.pact: l.arrivalPactTitle,
+    };
+    final hints = {
+      _Chapter.language: l.arrivalWelcomeHint,
+      _Chapter.account: l.onboardAccountHint,
+      _Chapter.identity: l.arrivalIdentityHint,
+      _Chapter.preferences: l.setupPreferencesHint,
+      _Chapter.pact: l.setupAdultHint,
+    };
+    final art = {
+      _Chapter.language: ExperienceArt.invitation,
+      _Chapter.account: ExperienceArt.invitation,
+      _Chapter.identity: ExperienceArt.invitation,
+      _Chapter.preferences: ExperienceArt.council,
+      _Chapter.pact: ExperienceArt.pact,
+    };
+    final signedIn =
+        _chapters.contains(_Chapter.account) &&
+        (ref.watch(accountProfileProvider).valueOrNull?.signedIn ?? false);
     return PopScope(
       canPop: widget.termsOnly || _step == 0,
       onPopInvokedWithResult: (didPop, _) {
@@ -218,10 +239,13 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                               ),
                             Expanded(
                               child: Semantics(
-                                label: l.arrivalStep(_step + 1, 4),
+                                label: l.arrivalStep(
+                                  _step + 1,
+                                  _chapters.length,
+                                ),
                                 child: Row(
                                   children: List.generate(
-                                    4,
+                                    _chapters.length,
                                     (i) => Expanded(
                                       child: Padding(
                                         padding: EdgeInsets.symmetric(
@@ -255,15 +279,15 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                                 ? Duration.zero
                                 : context.motion.standard,
                             child: Column(
-                              key: ValueKey(step),
+                              key: ValueKey(chapter),
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 if (!widget.termsOnly &&
                                     MediaQuery.viewInsetsOf(context).bottom ==
                                         0) ...[
                                   ExperienceHero(
-                                    asset: art[step],
-                                    compact: step != 0,
+                                    asset: art[chapter]!,
+                                    compact: chapter != _Chapter.language,
                                   ),
                                   SizedBox(height: s.lg),
                                 ],
@@ -272,7 +296,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                                   child: Text(
                                     widget.termsOnly
                                         ? l.termsUpdatedTitle
-                                        : titles[step],
+                                        : titles[chapter]!,
                                     style: context.typography.headline,
                                     textAlign: TextAlign.center,
                                   ),
@@ -281,13 +305,16 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                                 Text(
                                   widget.termsOnly
                                       ? l.termsUpdatedHint
-                                      : hints[step],
+                                      : hints[chapter]!,
                                   style: context.typography.body,
                                   textAlign: TextAlign.center,
                                 ),
                                 SizedBox(height: s.lg),
-                                if (step == 0) const LanguagePicker(),
-                                if (step == 1)
+                                if (chapter == _Chapter.language)
+                                  const LanguagePicker(),
+                                if (chapter == _Chapter.account)
+                                  const OnboardingAccountChoice(),
+                                if (chapter == _Chapter.identity)
                                   ProfileIdentityFields(
                                     name: _name,
                                     nameKey: FirstRunScreen.nameKey,
@@ -297,13 +324,13 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                                         setState(() => _gender = v),
                                     onNameChanged: (_) => setState(() {}),
                                     onSubmitted: (_) {
-                                      if (_profileReady) _move(2);
+                                      if (_profileReady) _move(_step + 1);
                                     },
                                   ),
                                 // The same rows the settings screen uses, so
                                 // the first settings a player meets look like
                                 // the ones they will find again later.
-                                if (step == 2)
+                                if (chapter == _Chapter.preferences)
                                   _PreferencesPanel(
                                     children: [
                                       SettingsSwitchRow(
@@ -330,7 +357,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                                       ),
                                     ],
                                   ),
-                                if (step == 3) ...[
+                                if (chapter == _Chapter.pact) ...[
                                   CheckboxListTile(
                                     key: FirstRunScreen.adultKey,
                                     contentPadding: EdgeInsets.zero,
@@ -379,16 +406,22 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                       child: SizedBox(
                         width: double.infinity,
                         child: FilledButton(
-                          key: step == 3
+                          key: chapter == _Chapter.pact
                               ? FirstRunScreen.continueKey
+                              : chapter == _Chapter.account && !signedIn
+                              ? FirstRunScreen.guestKey
                               : FirstRunScreen.nextKey,
-                          onPressed: step == 3
+                          onPressed: chapter == _Chapter.pact
                               ? (_ready ? _submit : null)
-                              : (step != 1 || _profileReady)
-                              ? () => _move(step + 1)
+                              : (chapter != _Chapter.identity || _profileReady)
+                              ? () => _move(_step + 1)
                               : null,
                           child: Text(
-                            _saving ? l.arrivalSaving : l.continueAction,
+                            _saving
+                                ? l.arrivalSaving
+                                : chapter == _Chapter.account && !signedIn
+                                ? l.onboardAccountGuest
+                                : l.continueAction,
                           ),
                         ),
                       ),

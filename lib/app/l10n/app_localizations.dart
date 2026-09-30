@@ -8598,6 +8598,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t load the whispers'**
   String get revealWhispersFailed;
+
+  /// No description provided for @onboardAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your progress?'**
+  String get onboardAccountTitle;
+
+  /// No description provided for @onboardAccountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google or email so your coins, rank and friends follow you to any phone. Or continue without signing in; you can link an account later from your profile without losing anything.'**
+  String get onboardAccountHint;
+
+  /// No description provided for @onboardAccountSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in (Google or email)'**
+  String get onboardAccountSignIn;
+
+  /// No description provided for @onboardAccountGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue without signing in'**
+  String get onboardAccountGuest;
+
+  /// No description provided for @onboardAccountSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {email}'**
+  String onboardAccountSignedIn(String email);
+
+  /// No description provided for @onboardAccountSignedInPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'You are signed in'**
+  String get onboardAccountSignedInPlain;
 }
 
 class _AppLocalizationsDelegate

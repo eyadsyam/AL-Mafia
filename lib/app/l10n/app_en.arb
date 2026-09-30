@@ -2927,5 +2927,12 @@
   "revealWhispersTitle": "The match's whispers",
   "revealWhispersEmpty": "Nobody whispered this match",
   "revealWhispersMasked": "A whisper from a player you blocked",
-  "revealWhispersFailed": "Couldn't load the whispers"
+  "revealWhispersFailed": "Couldn't load the whispers",
+  "onboardAccountTitle": "Keep your progress?",
+  "onboardAccountHint": "Sign in with Google or email so your coins, rank and friends follow you to any phone. Or continue without signing in; you can link an account later from your profile without losing anything.",
+  "onboardAccountSignIn": "Sign in (Google or email)",
+  "onboardAccountGuest": "Continue without signing in",
+  "onboardAccountSignedIn": "Signed in as {email}",
+  "@onboardAccountSignedIn": {"placeholders": {"email": {"type": "String"}}},
+  "onboardAccountSignedInPlain": "You are signed in"
 }

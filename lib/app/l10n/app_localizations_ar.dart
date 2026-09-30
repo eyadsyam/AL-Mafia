@@ -4979,4 +4979,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get revealWhispersFailed => 'ماقدرناش نجيب الهمسات';
+
+  @override
+  String get onboardAccountTitle => 'تحب تحفظ تقدمك؟';
+
+  @override
+  String get onboardAccountHint =>
+      'سجّل دخول بجوجل أو إيميل علشان عملاتك ورتبتك وأصحابك يفضلوا معاك على أي موبايل. أو كمّل من غير تسجيل، وتقدر تربط حسابك بعدين من البروفايل من غير ما تخسر حاجة.';
+
+  @override
+  String get onboardAccountSignIn => 'سجّل دخول (جوجل أو إيميل)';
+
+  @override
+  String get onboardAccountGuest => 'كمّل من غير تسجيل';
+
+  @override
+  String onboardAccountSignedIn(String email) {
+    return 'متسجّل بـ $email';
+  }
+
+  @override
+  String get onboardAccountSignedInPlain => 'حسابك متسجّل';
 }
