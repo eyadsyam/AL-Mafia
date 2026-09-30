@@ -375,17 +375,30 @@ class _IncomingInvitePopupState extends State<IncomingInvitePopup>
                           ),
                         ),
                         SizedBox(height: s.sm),
-                        CosmeticFrameRing(
-                          frame: invite.frame,
-                          diameter: InviteTokens.popupAvatar,
-                          child: PlayerAvatar(
-                            name: invite.name,
-                            gender: PlayerGender.values.firstWhere(
-                              (g) => g.name == invite.gender,
-                              orElse: () => PlayerGender.unspecified,
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/social/invite_knock.webp',
+                              width: InviteTokens.knockArt,
+                              height: InviteTokens.knockArt,
+                              excludeFromSemantics: true,
+                              errorBuilder: (_, _, _) =>
+                                  const SizedBox.shrink(),
                             ),
-                            diameter: InviteTokens.popupAvatar,
-                          ),
+                            CosmeticFrameRing(
+                              frame: invite.frame,
+                              diameter: InviteTokens.popupAvatar,
+                              child: PlayerAvatar(
+                                name: invite.name,
+                                gender: PlayerGender.values.firstWhere(
+                                  (g) => g.name == invite.gender,
+                                  orElse: () => PlayerGender.unspecified,
+                                ),
+                                diameter: InviteTokens.popupAvatar,
+                              ),
+                            ),
+                          ],
                         ),
                         SizedBox(height: s.sm),
                         CosmeticNameplate(

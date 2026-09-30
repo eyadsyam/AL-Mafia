@@ -88,6 +88,10 @@ class ResultScreen extends StatelessWidget {
   /// P6: below the fully revealed roles, the existing offers still waiting
   /// today (pass-and-play only). Null draws nothing.
   final Widget? inventory;
+
+  /// Row 12: the launch-event stamps this online room earned. Null draws
+  /// nothing (pass-and-play never has any).
+  final Widget? eventStamps;
   final bool tabletop;
 
   const ResultScreen({
@@ -99,6 +103,7 @@ class ResultScreen extends StatelessWidget {
     this.coaching = const {},
     this.awards = const [],
     this.inventory,
+    this.eventStamps,
     this.tabletop = false,
   });
 
@@ -417,6 +422,10 @@ class ResultScreen extends StatelessWidget {
                         ),
                       ),
                       ?inventory,
+                      if (eventStamps != null) ...[
+                        SizedBox(height: spacing.md),
+                        eventStamps!,
+                      ],
                       SizedBox(height: spacing.lg),
 
                       // Action buttons

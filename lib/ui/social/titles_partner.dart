@@ -26,6 +26,37 @@ import '../theme/mafia_theme.dart';
 
 // ── Titles ──────────────────────────────────────────────────────────────────
 
+/// The wax-seal art for a title's code, once the build bundles it. Falls
+/// back to nothing (no leading image) for any title without a seal.
+String? titleSealAsset(String code) => const {
+  'season_zero_night_scribe':
+      'assets/images/titles/title_seal_season_zero_night_scribe.webp',
+  'season_zero_casekeeper':
+      'assets/images/titles/title_seal_season_zero_casekeeper.webp',
+  'kabir_elshella': 'assets/images/titles/title_seal_kabir_elshella.webp',
+}[code];
+
+/// A small leading seal for a title row; draws nothing if [code] is null or
+/// has no seal art, so a row without one lines up exactly as before.
+class TitleSeal extends StatelessWidget {
+  final String? code;
+  const TitleSeal({super.key, this.code});
+
+  @override
+  Widget build(BuildContext context) {
+    final asset = code == null ? null : titleSealAsset(code!);
+    if (asset == null) return const SizedBox.shrink();
+    return Image.asset(
+      asset,
+      width: VaultTokens.titleSealSize,
+      height: VaultTokens.titleSealSize,
+      fit: BoxFit.contain,
+      excludeFromSemantics: true,
+      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+    );
+  }
+}
+
 class TitleEntry {
   final String code;
   final String source;
@@ -407,7 +438,6 @@ class TitleEquipList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // TODO(art): the seal/plate treatment for each title row.
         ListTile(
           key: noneKey,
           title: Text(l.titlesUnequip),
@@ -417,6 +447,7 @@ class TitleEquipList extends ConsumerWidget {
         for (final title in owned)
           ListTile(
             key: titleKey(title.code),
+            leading: TitleSeal(code: title.code),
             title: Text(title.name(locale)),
             trailing: hub.equipped == title.code
                 ? const Icon(Icons.check_rounded, color: VaultTokens.gold)

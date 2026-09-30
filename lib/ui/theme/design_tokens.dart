@@ -369,6 +369,8 @@ abstract final class WhisperTokens {
 }
 
 abstract final class CouncilTokens {
+  /// The small emblem beside an invite notice line.
+  static const double inviteNoticeArt = 24;
   static const double welcomeArtHeight = 124;
   static const double welcomeArtMinViewport = 600;
   static const double welcomeArtStartScale = 1.04;
@@ -1781,6 +1783,9 @@ abstract final class VaultTokens {
   static const double skeletonLine = 12.0;
   static const double skeletonCard = 196.0;
 
+  /// The wax seal leading a title row.
+  static const double titleSealSize = 28.0;
+
   /// The seven-day medallions.
   static const double dayMedal = 34.0;
   static const double dayMedalToday = 2.0;
@@ -2118,11 +2123,17 @@ abstract final class InviteTokens {
   static const double sheetHeight = 0.86;
   static const double rowAvatar = 44.0;
   static const double popupAvatar = 72.0;
+
+  /// The knock-on-the-door art behind the inviter's framed face.
+  static const double knockArt = 128.0;
   static const double stateDot = 8.0;
   static const double spinner = 16.0;
   static const double spinnerStroke = 2.0;
   static const double scrimAlpha = 0.72;
   static const double chipAlpha = 0.24;
+
+  /// The empty-state art above an empty tab's text.
+  static const double emptyArtWidth = 240.0;
 
   /// Typing pauses this long before a search is sent.
   static const Duration searchDebounce = Duration(milliseconds: 350);

@@ -34,6 +34,7 @@ abstract final class StoreArt {
     'frame_gilded',
     'frame_crimson',
     'frame_moonlit',
+    'frame_invite',
     'plate_noir',
     'plate_gilded',
     'plate_ember',

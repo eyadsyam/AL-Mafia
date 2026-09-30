@@ -494,6 +494,44 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(arStrings.inviteSelf), findsOneWidget);
     });
+
+    testWidgets('an unread notice carries its own small emblem', (
+      tester,
+    ) async {
+      backend.responders['economy'] = (body) => switch (body['action']) {
+        'capabilities' => caps(contracts: false, rank: false),
+        'invite_get' => {
+          ...invite(canRedeem: true),
+          'v3': {
+            'caps': {'season': 10, 'lifetime': 40},
+            'notices': [
+              {
+                'id': 1,
+                'kind': 'first_match',
+                'name': 'نور',
+                'progress': 0,
+                'coins': 25,
+              },
+            ],
+          },
+        },
+        _ => {'ok': true},
+      };
+      await pump(tester, const CouncilHubTab());
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.inviteFirstMatchNotice('نور', 25)), findsOneWidget);
+      // ignore: avoid_print
+      print(tester.widgetList<Image>(find.byType(Image)).map((i) => i.image));
+      final matches = tester
+          .widgetList<Image>(find.byType(Image))
+          .where(
+            (i) =>
+                i.image is AssetImage &&
+                (i.image as AssetImage).assetName ==
+                    'assets/images/council/invite_notice_first_match.webp',
+          );
+      expect(matches, hasLength(1));
+    });
   });
 
   group('result screen', () {

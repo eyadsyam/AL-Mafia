@@ -124,7 +124,6 @@ class _PassResultInventoryState extends ConsumerState<PassResultInventory> {
       if (pending.extraSpin) l.passInventoryExtraSpin,
       if (pending.extraCoffer) l.passInventoryExtraCoffer,
     ];
-    // TODO(art): the vault's ticket treatment for this strip.
     return Padding(
       key: PassResultInventory.stripKey,
       padding: EdgeInsets.only(top: s.md),
@@ -132,6 +131,13 @@ class _PassResultInventoryState extends ConsumerState<PassResultInventory> {
         decoration: BoxDecoration(
           color: colors.surfaceRaised,
           borderRadius: BorderRadius.circular(context.radii.card),
+          image: DecorationImage(
+            image: const AssetImage(
+              'assets/images/economy_v2/ticket_strip.webp',
+            ),
+            fit: BoxFit.cover,
+            onError: (_, _) {},
+          ),
         ),
         child: Padding(
           padding: EdgeInsets.all(s.md),

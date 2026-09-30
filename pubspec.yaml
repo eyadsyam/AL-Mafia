@@ -135,6 +135,9 @@ flutter:
     - assets/images/reactions/
     - assets/images/launch/
     - assets/images/motion/
+    - assets/images/titles/
+    - assets/images/social/
+    - assets/images/casebook/
     - assets/icons/
     - assets/audio/
     - assets/voice/kratos/

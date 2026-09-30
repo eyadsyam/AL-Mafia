@@ -1112,6 +1112,13 @@ class InviteCard extends ConsumerStatefulWidget {
   ConsumerState<InviteCard> createState() => _InviteCardState();
 }
 
+/// The small emblem beside one invite notice, by its kind.
+String inviteNoticeArt(InviteNotice notice) => switch (notice.kind) {
+  'first_match' => 'assets/images/council/invite_notice_first_match.webp',
+  'settled' => 'assets/images/council/invite_notice_settled.webp',
+  _ => 'assets/images/council/invite_notice_progress.webp',
+};
+
 /// The copy for one invite line (spec §3 "Invite settlement").
 String inviteNoticeLine(AppLocalizations l, InviteNotice notice) {
   final name = notice.name.trim().isEmpty ? l.inviteNoticeFriend : notice.name;
@@ -1313,17 +1320,32 @@ class _InviteCardState extends ConsumerState<InviteCard> {
           style: context.typography.caption.copyWith(color: colors.textMuted),
         ),
       // Row 6: the inviter's unread lines, shown once and then acknowledged.
-      // TODO(art): an illustrated notice row replaces this plain list.
       for (final notice in status.notices)
         Padding(
           key: ValueKey('invite_notice_${notice.id}'),
           padding: EdgeInsets.only(top: s.xs),
-          child: Text(
-            inviteNoticeLine(l, notice),
-            textAlign: TextAlign.center,
-            style: context.typography.bodySmall.copyWith(
-              color: VaultTokens.goldLight,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RasterOr(
+                path: inviteNoticeArt(notice),
+                width: CouncilTokens.inviteNoticeArt,
+                height: CouncilTokens.inviteNoticeArt,
+                fallback: const SizedBox.square(
+                  dimension: CouncilTokens.inviteNoticeArt,
+                ),
+              ),
+              SizedBox(width: s.xs),
+              Flexible(
+                child: Text(
+                  inviteNoticeLine(l, notice),
+                  textAlign: TextAlign.center,
+                  style: context.typography.bodySmall.copyWith(
+                    color: VaultTokens.goldLight,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       if (status.redeemed) ...[

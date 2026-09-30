@@ -85,6 +85,16 @@ class _Friends extends FriendsController {
   Future<bool> invite(String id, String roomId) async => true;
 }
 
+class _EmptyFriends extends FriendsController {
+  @override
+  Future<FriendsState?> build() async =>
+      FriendsState.fromJson({'friends': []});
+  @override
+  Future<void> refresh() async {}
+  @override
+  Future<bool> invite(String id, String roomId) async => true;
+}
+
 class _Push implements PushService {
   int asks = 0;
   PushOpen? initial;
@@ -216,6 +226,39 @@ void main() {
       });
     }
   }
+
+  testWidgets('an empty tab shows the invite-empty art above its text', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          directoryApiProvider.overrideWith((ref) => api = _Api(ref)),
+          friendsProvider.overrideWith(_EmptyFriends.new),
+          pushServiceProvider.overrideWithValue(push),
+          inviteAlertProvider.overrideWith(_Alert.new),
+          economyCapabilitiesProvider.overrideWith(
+            (ref) async => const EconomyCapabilities(
+              friends: true,
+              directory: true,
+              pushInvites: true,
+            ),
+          ),
+        ],
+        child: localizedApp(
+          Scaffold(
+            body: InviteSheet(visible: true, roomId: 'room-1', onDismiss: () {}),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final art = tester.widget<Image>(find.byType(Image));
+    expect(
+      (art.image as AssetImage).assetName,
+      'assets/images/social/invite_empty.webp',
+    );
+  });
 
   testWidgets('the sheet shares the room link with the referral offer', (
     tester,
@@ -365,6 +408,20 @@ void main() {
     expect(find.byKey(IncomingInvitePopup.popupKey), findsOneWidget);
     expect(find.text(arStrings.inviteIncomingBody('إياد')), findsOneWidget);
     expect(_Alert.rings, 1);
+    final knockImages = tester
+        .widgetList<Image>(
+          find.descendant(
+            of: find.byKey(IncomingInvitePopup.popupKey),
+            matching: find.byType(Image),
+          ),
+        )
+        .where(
+          (i) =>
+              i.image is AssetImage &&
+              (i.image as AssetImage).assetName ==
+                  'assets/images/social/invite_knock.webp',
+        );
+    expect(knockImages, hasLength(1));
 
     // A private phase coming back hides it again, without a second knock.
     container.read(privateMomentProvider.notifier).state = true;
