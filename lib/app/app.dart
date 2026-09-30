@@ -21,6 +21,7 @@ import '../ui/theme/mafia_theme.dart';
 import '../ui/widgets/splash_gate.dart';
 import 'l10n/app_localizations.dart';
 import 'onboarding_gate.dart';
+import 'update_gate.dart';
 import 'resume_gate.dart';
 import 'router.dart';
 import '../ui/economy/app_open_gate.dart';
@@ -303,7 +304,10 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
                     // is (never over a private phase).
                     child: IncomingInviteHost(
                       onJoin: (code) => _router.go(Routes.joinLink(code)),
-                      child: child ?? const SizedBox.shrink(),
+                      // A build below the server's minimum is held behind «حدّث التطبيق».
+                      child: UpdateGate(
+                        child: child ?? const SizedBox.shrink(),
+                      ),
                     ),
                   ),
                 ),
