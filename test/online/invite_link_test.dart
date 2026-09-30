@@ -10,7 +10,7 @@ void main() {
   test('the invite link is the site, /invite/, and the upper-cased code', () {
     expect(
       councilInviteLink('k7qm2xa'),
-      'https://almafia.vercel.app/invite/K7QM2XA',
+      'https://saidalmafia.com/invite/K7QM2XA',
     );
   });
 

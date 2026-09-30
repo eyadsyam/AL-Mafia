@@ -84,7 +84,7 @@ assert.equal(android.android.notification.sound, 'invite_knock');
 assert.equal(android.android.priority, 'HIGH');
 const web = inviteMessage(target, 'w'.repeat(40), 'web').message;
 assert.equal(web.webpush.notification.requireInteraction, true);
-assert.equal(web.webpush.fcm_options.link, 'https://almafia.vercel.app/join/K7M2QP');
+assert.equal(web.webpush.fcm_options.link, 'https://saidalmafia.com/join/K7M2QP');
 assert.ok(Array.isArray(web.webpush.notification.vibrate));
 const words = JSON.stringify([android, web]).toLowerCase();
 // (The brand word appears in channel and icon names; the data itself is checked below.)

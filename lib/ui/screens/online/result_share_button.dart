@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../engine/models/enums.dart' as game;
+import '../../../core/public_web_origin.dart';
 import '../../economy/council.dart' show councilProvider;
 import '../../economy/council_art.dart' show rankTier, rankTitle;
 import '../../economy/cosmetic_paint.dart'
@@ -50,7 +51,10 @@ class _ResultShareButtonState extends ConsumerState<ResultShareButton> {
       final winner = widget.winner == game.Alignment.mafia
           ? l10n.mafiaWins
           : l10n.townWins;
-      final message = l10n.shareResultText(winner, widget.days);
+      final message = l10n.shareResultText(winner, widget.days).replaceAll(
+        'https://almafia.vercel.app',
+        kPublicWebOrigin,
+      );
       final room = widget.roomId;
       final awards = room == null
           ? const OnlineAwards()
@@ -69,7 +73,7 @@ class _ResultShareButtonState extends ConsumerState<ResultShareButton> {
         title: l10n.appTitle,
         winner: winner,
         days: widget.days,
-        footer: 'almafia.vercel.app',
+        footer: Uri.parse(kPublicWebOrigin).host,
         rtl: Directionality.of(context) == TextDirection.rtl,
         rank: rank != null && rank.enabled
             ? rankTitle(l10n, rankTier(rank.level))

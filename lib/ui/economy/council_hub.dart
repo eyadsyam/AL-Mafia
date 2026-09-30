@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../app/asset_constants.dart';
+import '../../core/public_web_origin.dart';
 import '../../data/request_id.dart';
 import '../../app/l10n/app_localizations.dart';
 import '../../platform/clipboard.dart';
@@ -1094,7 +1095,7 @@ final pendingInviteCodeProvider = StateProvider<String?>((ref) => null);
 /// The link a shared invite carries. The same site as room links, so it opens
 /// the installed app first (App Links, and the web shell's hand-off).
 String councilInviteLink(String code) =>
-    'https://almafia.vercel.app/invite/${code.toUpperCase()}';
+    '$kPublicWebOrigin/invite/${code.toUpperCase()}';
 
 /// «ادعي صاحبك»: the player's code to share, and one to use if theirs is a
 /// new account.

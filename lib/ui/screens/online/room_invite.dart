@@ -1,3 +1,5 @@
+import '../../../core/public_web_origin.dart';
+
 /// The room invite (doc 12 §3.1).
 ///
 /// *"A single button producing a deep link plus a fallback text. This is the
@@ -21,14 +23,13 @@ abstract final class RoomInvite {
   static const String scheme = 'mafiamaster';
   static const String host = 'online';
 
-  /// Where the web build is published — the Vercel project `almafia`, served
-  /// from the domain root, with every unknown path rewritten to index.html.
+  /// Where the web build is published, served from the domain root.
   ///
   /// It used to be a GitHub Pages project site, which could not rewrite
   /// `/join/CODE` and so forced the router onto the hash strategy. That was
   /// also what kept the invite off App Links: Android strips the fragment
   /// before matching, so `#/join/CODE` can only ever open a browser.
-  static const String site = 'https://almafia.vercel.app/';
+  static const String site = '$kPublicWebOrigin/';
 
   /// The link a host actually shares.
   ///

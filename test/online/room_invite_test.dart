@@ -25,7 +25,7 @@ void main() {
 
   test('the shared link is an https link on the published domain', () {
     expect(invite.scheme, 'https');
-    expect(invite.host, 'almafia.vercel.app');
+    expect(invite.host, 'saidalmafia.com');
     // A path, not a fragment: Android drops everything after `#` before it
     // matches an intent filter, so a hash link can never open the app.
     expect(invite.fragment, isEmpty);
@@ -37,6 +37,19 @@ void main() {
     expect(manifest, contains('android:scheme="https"'));
     expect(manifest, contains('android:host="${invite.host}"'));
     expect(manifest, contains('android:pathPrefix="/join/"'));
+    expect(manifest, contains('android:host="almafia.vercel.app"'));
+    expect(manifest, contains('android:host="saidalmafia.com"'));
+  });
+
+  test('web share metadata and sitemap use the canonical host', () {
+    expect(File('web/index.html').readAsStringSync(),
+        contains('https://saidalmafia.com/og-image.jpg'));
+    expect(File('web/sitemap.xml').readAsStringSync(),
+        contains('https://saidalmafia.com/'));
+    expect(File('web/robots.txt').readAsStringSync(),
+        contains('https://saidalmafia.com/sitemap.xml'));
+    expect(File('web/ads.txt').readAsStringSync().trim(),
+        'google.com, pub-9179063936085117, DIRECT, f08c47fec0942fa0');
   });
 
   test('the custom scheme still resolves to the router path', () {
@@ -86,7 +99,7 @@ void main() {
     expect(shared.split('\n'), [
       'INVITE',
       'OFFER',
-      'https://almafia.vercel.app/join/K7M2QP?ref=43D4YUG',
+      'https://saidalmafia.com/join/K7M2QP?ref=43D4YUG',
     ]);
     final plain = RoomInvite.shareText(
       invitation: 'INVITE',
@@ -95,7 +108,7 @@ void main() {
     );
     expect(plain.split('\n'), [
       'INVITE',
-      'https://almafia.vercel.app/join/K7M2QP',
+      'https://saidalmafia.com/join/K7M2QP',
     ]);
     // A broken code is neither linked nor promised.
     expect(

@@ -36,7 +36,10 @@ export type PushOutcome =
   | { result: "sent"; sent: number; dead: number; failed: number };
 
 /** The web link the notification opens (the existing deep-link route). */
-export const WEB_ORIGIN = "https://almafia.vercel.app";
+export const WEB_ORIGIN = (
+  (typeof Deno === "undefined" ? undefined : Deno.env.get("PUBLIC_WEB_ORIGIN")) ||
+  "https://saidalmafia.com"
+).replace(/\/$/, "");
 
 /** Long knock pattern (ms): wait, buzz, pause, buzz … about two seconds. */
 export const INVITE_VIBRATION_MS = [0, 400, 180, 400, 180, 700];
