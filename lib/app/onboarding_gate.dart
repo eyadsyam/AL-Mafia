@@ -102,9 +102,16 @@ class _OnboardingGateState extends ConsumerState<OnboardingGate> {
     final navigatorContext = widget.navigatorKey.currentContext;
     if (navigatorContext == null || !navigatorContext.mounted) return false;
     final router = GoRouter.of(navigatorContext);
-    final next = router.routeInformationProvider.value.uri.toString();
+    final here = router.routeInformationProvider.value.uri;
+    // Already on the intro (a second run of this check): leave the address
+    // alone, or `next` would hold the intro's own link and the room link that
+    // was really asked for would be lost.
+    if (here.path == Routes.onboarding) return false;
     router.go(
-      Uri(path: Routes.onboarding, queryParameters: {'next': next}).toString(),
+      Uri(
+        path: Routes.onboarding,
+        queryParameters: {'next': here.toString()},
+      ).toString(),
     );
     return true;
   }
