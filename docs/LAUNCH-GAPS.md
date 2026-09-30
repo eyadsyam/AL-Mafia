@@ -36,7 +36,7 @@ Both migrations are additive and change nothing for current builds: the minimum 
 ## 2b. Force update: done
 
 - `public.app_config.min_build_android` / `min_build_web`, default 0. Set with `update public.app_config set min_build_android = 11;`. (A table, not a function: the server-surface test forbids client-callable security-definer functions.)
-- The app reads that row (signing in anonymously first if needed) on start and every 30 minutes on resume, and blocks behind «حدّث التطبيق» when its build is lower. Android: «افتح Google Play»; web: «حدّث الصفحة». Any failure to read = no block.
+- The app reads that row with the bare key, never signing in (migration `20261001000100`) on start and every 30 minutes on resume, and blocks behind «حدّث التطبيق» when its build is lower. Android: «افتح Google Play»; web: «حدّث الصفحة». Any failure to read = no block.
 - The app's own build number is `kAppBuildNumber` in `lib/app/app_build.dart` (no package-info plugin). A test compares it with the `+N` in `pubspec.yaml`: bump both together.
 - Tests: `supabase/tests/min_app_build.sql`, `test/widget/update_gate_test.dart`.
 

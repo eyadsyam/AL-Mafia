@@ -1509,18 +1509,12 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         return null;
 
       case GamePhase.distributing:
-        // The deal's headline is who the room is still waiting for. Names, not
-        // a count of people with something to do — the thing they have to do
-        // is look at a card, which every seat has, so no role is implied by
-        // being on the list or by being off it.
-        final waiting = [
-          for (final seat in snapshot.unseenRoleSeats.toList()..sort())
-            names[seat] ?? '',
-        ]..removeWhere((name) => name.isEmpty);
-        if (waiting.isEmpty) return null;
-        return CouncilVoice(
-          headline: l10n.onlineWaitingForCards(waiting.join(' · ')),
-        );
+        // Doc 05: a COUNT only, never a name. A Mafia card carries the
+        // teammate list, so dwell on it is a role signal; a live per-seat
+        // "still looking" indicator would hand that signal to the table.
+        final waiting = snapshot.unseenRoleSeats.length;
+        if (waiting == 0) return null;
+        return CouncilVoice(headline: l10n.onlineWaitingForCards(waiting));
 
       case GamePhase.preNightLobby:
         return CouncilVoice(headline: l10n.onlineWaitingForTheRest);

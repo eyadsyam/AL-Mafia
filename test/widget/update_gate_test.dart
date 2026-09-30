@@ -26,6 +26,24 @@ Widget _host({
 );
 
 void main() {
+  test('the gate never signs anybody in, anonymously or otherwise', () {
+    // The minimum is public config read with the bare key; a launch must not
+    // create an anonymous user to ask it (20261001000100).
+    final source = File('lib/app/update_gate.dart').readAsStringSync();
+    final code = source
+        .split('\n')
+        .where((line) => !line.trimLeft().startsWith('//'))
+        .join('\n');
+    for (final forbidden in [
+      'ensureSession',
+      'signInAnonymously',
+      'signInWith',
+      'signUp',
+    ]) {
+      expect(code.contains(forbidden), isFalse, reason: forbidden);
+    }
+  });
+
   group('the rule', () {
     test('the default blocks nothing, and the build is the pubspec one', () {
       expect(

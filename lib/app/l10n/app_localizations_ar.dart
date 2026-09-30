@@ -1394,8 +1394,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineKickedByHost => 'الهوست طردك من الأوضة';
 
   @override
-  String onlineWaitingForCards(String names) {
-    return 'مستنيين: $names';
+  String onlineWaitingForCards(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'لسه $count بيشوفوا كروتهم',
+      two: 'لسه اتنين بيشوفوا كروتهم',
+      one: 'لسه واحد بيشوف كارته',
+    );
+    return '$_temp0';
   }
 
   @override

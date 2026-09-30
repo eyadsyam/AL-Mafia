@@ -881,11 +881,11 @@
   "onlineMute": "Mute",
   "onlineUnmute": "Unmute",
   "onlineKickedByHost": "The host removed you from the room",
-  "onlineWaitingForCards": "Waiting for: {names}",
+  "onlineWaitingForCards": "{count, plural, =1{1 player is still looking at their card} other{{count} players are still looking at their cards}}",
   "@onlineWaitingForCards": {
     "placeholders": {
-      "names": {
-        "type": "String"
+      "count": {
+        "type": "int"
       }
     }
   },
