@@ -5087,4 +5087,111 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardAccountSignedInPlain => 'You are signed in';
+
+  @override
+  String get deleteAccountRow => 'Delete my account and data';
+
+  @override
+  String get deleteAccountTitle => 'Delete your account?';
+
+  @override
+  String get deleteAccountBody =>
+      'We will erase your account, coins, items, rank, friends and all your online data from the server, and it cannot be brought back. What is on your phone (old match history) stays there; clear it from the app\'s data in your phone settings.';
+
+  @override
+  String get deleteAccountKept =>
+      'Abuse reports that are still needed and payment records are kept for a limited time, no longer tied to your account.';
+
+  @override
+  String get deleteAccountConfirm => 'I understand this is final';
+
+  @override
+  String get deleteAccountAction => 'Delete for good';
+
+  @override
+  String get deleteAccountCancel => 'Not now';
+
+  @override
+  String get deleteAccountDone => 'Your account and data were deleted';
+
+  @override
+  String get deleteAccountDoneHint =>
+      'If you go online again you start as a new player.';
+
+  @override
+  String get deleteAccountInRoom =>
+      'You are still in a room. Leave it first, then delete your account.';
+
+  @override
+  String get deleteAccountOrder =>
+      'A payment of yours is still under review. Wait until it is closed, then delete your account.';
+
+  @override
+  String get deleteAccountWebTitle => 'Or ask for deletion on the website';
+
+  @override
+  String get deleteAccountWebOpen => 'Open the data deletion page';
+
+  @override
+  String get deleteAccountWebCopied => 'Link copied';
+
+  @override
+  String get accountLegalTitle => 'Terms and privacy';
+
+  @override
+  String get errOffline =>
+      'Cannot reach the server right now. Check your connection and try again.';
+
+  @override
+  String get errRetry => 'Try again';
+
+  @override
+  String get errRateLimited =>
+      'Too many requests too fast. Wait a little and try again.';
+
+  @override
+  String get errGeneric =>
+      'Something went wrong on our side. Try again in a moment.';
+
+  @override
+  String get errSession =>
+      'Your session ended. Close the game and open it again.';
+
+  @override
+  String get errCoins => 'You do not have enough coins.';
+
+  @override
+  String get errUnavailable =>
+      'This is not available right now. Try again later.';
+
+  @override
+  String get errNotAllowed => 'You cannot do that right now.';
+
+  @override
+  String get errNotHost => 'Only the host can do that.';
+
+  @override
+  String get errAlreadyOwned => 'You already have this.';
+
+  @override
+  String get errInRoom => 'You are still in a room. Leave it first.';
+
+  @override
+  String get errOrderOpen => 'You still have a payment order open.';
+
+  @override
+  String get errPurchaseRequired => 'This needs a purchase first.';
+
+  @override
+  String get updateRequiredTitle => 'Update the app';
+
+  @override
+  String get updateRequiredBody =>
+      'There is a newer version of the game and you need to update to keep playing. This version will not work any more.';
+
+  @override
+  String get updateRequiredStore => 'Open Google Play';
+
+  @override
+  String get updateRequiredReload => 'Reload the page';
 }

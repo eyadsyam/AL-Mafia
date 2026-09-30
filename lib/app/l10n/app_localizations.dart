@@ -8634,6 +8634,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You are signed in'**
   String get onboardAccountSignedInPlain;
+
+  /// No description provided for @deleteAccountRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account and data'**
+  String get deleteAccountRow;
+
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @deleteAccountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We will erase your account, coins, items, rank, friends and all your online data from the server, and it cannot be brought back. What is on your phone (old match history) stays there; clear it from the app\'s data in your phone settings.'**
+  String get deleteAccountBody;
+
+  /// No description provided for @deleteAccountKept.
+  ///
+  /// In en, this message translates to:
+  /// **'Abuse reports that are still needed and payment records are kept for a limited time, no longer tied to your account.'**
+  String get deleteAccountKept;
+
+  /// No description provided for @deleteAccountConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand this is final'**
+  String get deleteAccountConfirm;
+
+  /// No description provided for @deleteAccountAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete for good'**
+  String get deleteAccountAction;
+
+  /// No description provided for @deleteAccountCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get deleteAccountCancel;
+
+  /// No description provided for @deleteAccountDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account and data were deleted'**
+  String get deleteAccountDone;
+
+  /// No description provided for @deleteAccountDoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If you go online again you start as a new player.'**
+  String get deleteAccountDoneHint;
+
+  /// No description provided for @deleteAccountInRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'You are still in a room. Leave it first, then delete your account.'**
+  String get deleteAccountInRoom;
+
+  /// No description provided for @deleteAccountOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment of yours is still under review. Wait until it is closed, then delete your account.'**
+  String get deleteAccountOrder;
+
+  /// No description provided for @deleteAccountWebTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Or ask for deletion on the website'**
+  String get deleteAccountWebTitle;
+
+  /// No description provided for @deleteAccountWebOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the data deletion page'**
+  String get deleteAccountWebOpen;
+
+  /// No description provided for @deleteAccountWebCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get deleteAccountWebCopied;
+
+  /// No description provided for @accountLegalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and privacy'**
+  String get accountLegalTitle;
+
+  /// No description provided for @errOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot reach the server right now. Check your connection and try again.'**
+  String get errOffline;
+
+  /// No description provided for @errRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get errRetry;
+
+  /// No description provided for @errRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests too fast. Wait a little and try again.'**
+  String get errRateLimited;
+
+  /// No description provided for @errGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong on our side. Try again in a moment.'**
+  String get errGeneric;
+
+  /// No description provided for @errSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session ended. Close the game and open it again.'**
+  String get errSession;
+
+  /// No description provided for @errCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have enough coins.'**
+  String get errCoins;
+
+  /// No description provided for @errUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not available right now. Try again later.'**
+  String get errUnavailable;
+
+  /// No description provided for @errNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot do that right now.'**
+  String get errNotAllowed;
+
+  /// No description provided for @errNotHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the host can do that.'**
+  String get errNotHost;
+
+  /// No description provided for @errAlreadyOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have this.'**
+  String get errAlreadyOwned;
+
+  /// No description provided for @errInRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'You are still in a room. Leave it first.'**
+  String get errInRoom;
+
+  /// No description provided for @errOrderOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'You still have a payment order open.'**
+  String get errOrderOpen;
+
+  /// No description provided for @errPurchaseRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This needs a purchase first.'**
+  String get errPurchaseRequired;
+
+  /// No description provided for @updateRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update the app'**
+  String get updateRequiredTitle;
+
+  /// No description provided for @updateRequiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'There is a newer version of the game and you need to update to keep playing. This version will not work any more.'**
+  String get updateRequiredBody;
+
+  /// No description provided for @updateRequiredStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Google Play'**
+  String get updateRequiredStore;
+
+  /// No description provided for @updateRequiredReload.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload the page'**
+  String get updateRequiredReload;
 }
 
 class _AppLocalizationsDelegate

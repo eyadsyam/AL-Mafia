@@ -5000,4 +5000,107 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onboardAccountSignedInPlain => 'حسابك متسجّل';
+
+  @override
+  String get deleteAccountRow => 'احذف حسابي وبياناتي';
+
+  @override
+  String get deleteAccountTitle => 'تحذف حسابك؟';
+
+  @override
+  String get deleteAccountBody =>
+      'هنمسح حسابك وعملاتك وحاجاتك ورتبتك وأصحابك وكل بياناتك الأونلاين من السيرفر، ومش هنقدر نرجّعهم تاني. اللي على موبايلك (سجل الماتشات القديمة) بيفضل، وتقدر تمسحه من بيانات التطبيق في إعدادات الموبايل.';
+
+  @override
+  String get deleteAccountKept =>
+      'بلاغات الإساءة اللازمة وسجلات الدفع بتتحفظ مدة محدودة من غير ما تتربط بحسابك.';
+
+  @override
+  String get deleteAccountConfirm => 'فاهم إن ده نهائي ومفيش رجوع';
+
+  @override
+  String get deleteAccountAction => 'احذف نهائيًا';
+
+  @override
+  String get deleteAccountCancel => 'مش دلوقتي';
+
+  @override
+  String get deleteAccountDone => 'اتمسح حسابك وبياناتك';
+
+  @override
+  String get deleteAccountDoneHint =>
+      'لو دخلت الأونلاين تاني هتبدأ كلاعب جديد.';
+
+  @override
+  String get deleteAccountInRoom =>
+      'إنت لسه في أوضة. اخرج منها الأول وبعدين احذف حسابك.';
+
+  @override
+  String get deleteAccountOrder =>
+      'عندك طلب دفع لسه بيتراجع. استنى لحد ما يتقفل وبعدين احذف حسابك.';
+
+  @override
+  String get deleteAccountWebTitle => 'أو اطلب الحذف من الموقع';
+
+  @override
+  String get deleteAccountWebOpen => 'افتح صفحة حذف البيانات';
+
+  @override
+  String get deleteAccountWebCopied => 'اتنسخ اللينك';
+
+  @override
+  String get accountLegalTitle => 'الشروط والخصوصية';
+
+  @override
+  String get errOffline =>
+      'مفيش اتصال بالسيرفر دلوقتي. اتأكد إن النت شغال وجرّب تاني.';
+
+  @override
+  String get errRetry => 'جرّب تاني';
+
+  @override
+  String get errRateLimited => 'بتعمل حاجات كتير بسرعة. استنى شوية وجرّب تاني.';
+
+  @override
+  String get errGeneric => 'حصلت مشكلة عندنا. جرّب تاني كمان شوية.';
+
+  @override
+  String get errSession => 'الجلسة خلصت. اقفل اللعبة وافتحها تاني.';
+
+  @override
+  String get errCoins => 'رصيدك مش كفاية.';
+
+  @override
+  String get errUnavailable => 'ده مش متاح دلوقتي. جرّب بعدين.';
+
+  @override
+  String get errNotAllowed => 'مش مسموح ليك بالحاجة دي دلوقتي.';
+
+  @override
+  String get errNotHost => 'ده للمضيف بس.';
+
+  @override
+  String get errAlreadyOwned => 'معاك ده بالفعل.';
+
+  @override
+  String get errInRoom => 'إنت لسه في أوضة. اخرج منها الأول.';
+
+  @override
+  String get errOrderOpen => 'عندك طلب دفع لسه مفتوح.';
+
+  @override
+  String get errPurchaseRequired => 'ده محتاج شراء الأول.';
+
+  @override
+  String get updateRequiredTitle => 'حدّث التطبيق';
+
+  @override
+  String get updateRequiredBody =>
+      'فيه نسخة أحدث من اللعبة، ولازم تحدّث علشان تكمّل. النسخة دي مش هتشتغل بعد كده.';
+
+  @override
+  String get updateRequiredStore => 'افتح Google Play';
+
+  @override
+  String get updateRequiredReload => 'حدّث الصفحة';
 }

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/request_id.dart';
 import '../../../data/terms_consent.dart';
 import '../../../transport/online_backend.dart';
+import '../../account/delete_account_sheet.dart';
 import '../../economy/economy_capabilities.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
@@ -108,6 +109,7 @@ class SafetyCenter extends ConsumerStatefulWidget {
   final VoidCallback? onClose;
   final bool privacy;
   const SafetyCenter({super.key, this.onClose, this.privacy = false});
+  static const deleteAccountKey = ValueKey('safety_delete_account');
   static Key category(String name) => ValueKey('safety_category_$name');
   @override
   ConsumerState<SafetyCenter> createState() => _SafetyCenterState();
@@ -355,6 +357,13 @@ class _SafetyCenterState extends ConsumerState<SafetyCenter> {
                 OutlinedButton(
                   onPressed: _busy ? null : () => _send('identity'),
                   child: Text(l.safetyIdentity),
+                ),
+                TextButton(
+                  key: SafetyCenter.deleteAccountKey,
+                  onPressed: _busy
+                      ? null
+                      : () => showDeleteAccountSheet(context),
+                  child: Text(l.deleteAccountRow),
                 ),
                 TextButton(
                   onPressed: _busy ? null : () => _send('delete'),
