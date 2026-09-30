@@ -60,6 +60,7 @@ void main() {
     final source = [
       'lib/ui/economy/economy_capabilities.dart',
       'lib/platform/monetization/interstitial_policy.dart',
+      'lib/platform/monetization/web_ad_rules.dart',
     ].map((path) => File(path).readAsStringSync()).join();
     final unread = <String>[];
     void walk(Map<String, dynamic> map, String path) {

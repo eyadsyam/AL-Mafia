@@ -26,8 +26,8 @@ void main() {
   test('the web shell hands game links to the app, never the legal pages', () {
     final index = File('web/index.html').readAsStringSync();
     expect(index, contains('package=com.mafiamaster.mafia_master'));
-    // Only these three paths are handed over; /privacy and /delete-data
+    // Only game paths are handed over; /privacy and /delete-data
     // stay in the browser for reviewers and players alike.
-    expect(index, contains(r'/^\/(join\/|invite\/|$)/.test(path)'));
+    expect(index, contains(r'/^\/(join\/|room\/|invite\/|$)/.test(path)'));
   });
 }
