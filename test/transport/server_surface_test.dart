@@ -341,6 +341,16 @@ void main() {
           continue;
         }
         if (altered.contains(name) || dropped.contains(name)) continue;
+        // The single deliberate exception: the update gate's two-integer
+        // minimum-build row is public config, read with the bare key so a
+        // launch never has to create an anonymous user (20261001000100).
+        if (name == 'app_config_public_read' &&
+            RegExp(
+              r'\bon\s+public\.app_config\s+for\s+select\s+to\s+anon\s+using\s*\(\s*true\s*\)',
+              caseSensitive: false,
+            ).hasMatch(m.group(0)!)) {
+          continue;
+        }
         wide.add(name);
       }
 

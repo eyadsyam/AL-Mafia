@@ -28,8 +28,15 @@ begin
 
   -- Any signed-in client may read it (the anonymous session counts), and
   -- nobody but the service role may change it. The bare key reads nothing.
-  assert not has_table_privilege('anon','public.app_config','select');
+  assert has_table_privilege('anon','public.app_config','select'),
+    'the bare key reads the public config (20261001000100)';
   assert has_table_privilege('authenticated','public.app_config','select');
+  assert not has_table_privilege('anon','public.app_config','insert');
+  assert not has_table_privilege('anon','public.app_config','delete');
+  set local role anon;
+  select count(*),max(min_build_web) into n,w from public.app_config;
+  reset role;
+  assert n=1 and w=12,'the bare key reads the row';
   assert not has_table_privilege('anon','public.app_config','update');
   assert not has_table_privilege('authenticated','public.app_config','update');
   assert not has_table_privilege('authenticated','public.app_config','insert');

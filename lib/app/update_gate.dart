@@ -52,16 +52,19 @@ class MinBuild {
 
 typedef MinBuildFetch = Future<MinBuild> Function();
 
-/// Reads the minimum from the server (`public.app_config`, readable by any
-/// signed-in client, the anonymous session included). Every failure (no server in this build, offline, an older server
-/// without the function) is [MinBuild.none].
+/// Reads the minimum from the server (`public.app_config`, public config
+/// readable with the publishable key alone, migration 20261001000100).
+///
+/// It never signs anybody in: a launch must not create an anonymous user just
+/// to ask a question (per-IP sign-in limits, bot visits). With no session the
+/// request simply goes out as `anon`. Every failure (no server in this build,
+/// offline, an older server without the anon grant) is [MinBuild.none].
 final minBuildFetchProvider = Provider<MinBuildFetch>((ref) {
   return () async {
     if (!SupabaseConfig.isConfigured) return MinBuild.none;
     try {
       final backend = await ref.read(onlineBackendFactoryProvider)();
       if (backend is! SupabaseBackend) return MinBuild.none;
-      await backend.ensureSession();
       final row = await backend.client
           .from('app_config')
           .select('min_build_android, min_build_web')
