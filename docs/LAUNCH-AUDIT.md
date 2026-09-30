@@ -66,3 +66,105 @@ function, and every Edge `rpc` names an existing SQL function.
 - **The APK (still not built).** This environment's network refuses
   `dl.google.com`, so the Android SDK cannot be installed. The local steps are
   in `docs/PUSH-SETUP.md`.
+
+## Pass B — coins, rewards and store
+
+Scope: `lib/ui/economy/**`, `lib/platform/monetization/**`, `supabase/functions/**`
+and `supabase/migrations/**` for the wallet, daily coffer and wheel, rewarded
+ads (SSV), referral and invite rewards, Council, Casebook and season rewards,
+store items. Method: read every coin-granting function at its latest
+definition, every Edge action that reaches one, and the client paths that call
+them.
+
+### Findings
+
+| ID | Severity | Where | Failure scenario | Status |
+|---|---|---|---|---|
+| B1 | medium | `lib/ui/screens/setup/coin_store.dart` (`matchesFor`, info dialog), `app_ar.arb` `coinsEarnHint` | With `economy_v11_enabled` on (the planned launch rule) a match pays 25, +10 for a win, +25 first of the day. The store still said "100 coins a match, +25 to winners" and quoted "950 coins = about 10 matches" for what is about 38. `economyV3` was read by nothing in the UI. | **Fixed**: `coinsEarnHintV3` (AR/EN) and a per-match figure chosen from `economy.version`; widget test in `coin_store_test.dart`. |
+| B2 | medium | `20260925000600_awards_reactions.sql` `match_awards_get` | Awards paid 5 coins per award and 15 for MVP to any member of any finished room, outside the v3 receipt rules (5+ humans, 6 a day, 3 per roster). The 1.1 faucet table says awards are flavour only. | **Fixed**: `20260930000900_awards_no_coins_v3.sql` (zero coins, zero ledger rows, zero advertised coins under v3; unchanged with the switch off). Test `supabase/tests/launch_audit_b.sql` fails without the migration. |
+| B3 | low | `lib/ui/economy/wallet.dart` `_act` | A purchase whose answer was lost (timeout after the server committed) left the store showing the old balance and "failed"; the player retried blind or believed coins were lost. | **Fixed**: best-effort `summary` read after an unknown failure (refusals are not re-read). `test/unit/wallet_reconcile_test.dart`. |
+| B4 | medium | `lib/ui/economy/play_offers.dart:85-120,237` | Play purchase events are listened to only after the store's Play tab has been opened. A payment that completes while the app is closed (pending payments) is verified, credited and consumed only on the next store visit; Play refunds unacknowledged purchases after 3 days. No coin is lost, but a player can pay and be refunded without ever seeing coins. | **Report only.** Fix is to call `playOffersProvider.notifier.start()` once capabilities are loaded (for example in `_calmHome`); not done this late because it opens the billing connection for every Android user. |
+| B5 | medium (operational) | `20260921000500_coin_economy.sql` `sync_player_rewards` (v1 path) | With `economy_v11_enabled` off, every finished match pays 100 (+25) per seat with no daily or roster cap; five anonymous accounts can farm it. | **Report only.** Turn `economy_v11_enabled` on at launch (caps are in `economy_v3.sql`). |
+| B6 | low | `supabase/functions/economy/index.ts:89` | `CASE_PUZZLE_SALT` falls back to a salt that is in the repository. Unset on the host, the daily case answer is computable by anyone who has the source. Worth 5 coins and 20 XP a day. | **Report only.** Set the secret on deploy. |
+| B7 | low | `20260930000500_referral_caps.sql` | The per-season cap counts payments since the active season's start; with no active season it counts none (the lifetime cap of 40 still holds). | **Report only.** |
+| B8 | low | `20260927000200_payments_v2.sql:406` | The owner seed adds an admin by email without checking the email is confirmed. Only an attacker who registered that address before the owner could use it. | **Report only.** Once the owner's row is verified, make `is_commerce_admin` require a confirmed, non-anonymous email (test admins already are). Not changed here: a wrong guess locks the owner out. |
+| B9 | low | `lib/ui/economy/daily_rewards.dart:352` | After an earned daily ad whose callback has not landed yet, the button is enabled again; a second ad is watched and wasted (the server pays once). | **Report only.** |
+
+### Checked and sound
+
+- Rewarded ads: signed SSV (`admob_ssv/verify.ts`), unit allow-list per scheme,
+  one transaction pays one claim across all four schemes
+  (`register_ad_transaction`), claims immutable once awarded, step 2 needs
+  step 1, and the ledger keys make every credit once-only. The client never
+  credits; it polls the server.
+- No amount comes from a client (`economy_actions.ts`); the caller id is the
+  session. Every grant goes through `credit_earned` under the wallet lock with a
+  unique ledger key, so double taps, retries after a timeout and day rollovers
+  are idempotent (coffer, wheel, extras, missions, season levels, achievements,
+  awards, puzzle, invite stages).
+- Play coins: token bound to the account tag, credited once, consumed after the
+  credit, refunds reverse only unspent purchased coins and leave the rest as
+  debt against future purchases. Transfer orders never move a balance from a
+  client call; admin approval is once per order and per transfer.
+- Negative balances: table checks (`balance>=0`, purchased within balance).
+- Surface: all 291 public functions have a named revoke from `public`, `anon`
+  and `authenticated`; every table is RLS-on or privilege-revoked.
+- Store: all 17 catalog codes are known to `Cosmetics.items`; every narrator
+  pack has clips for both ogg (phones) and mp3 (web) and is registered in
+  `pubspec.yaml`; presentation packs, frames and plates draw through shared
+  painters (`docs/STORE-TRUTH.md`).
+
+### Deploy notes
+
+- Apply `20260930000900_awards_no_coins_v3.sql` after `…0800`. No function
+  redeploy is needed for it; the client change ships with the app/web build.
+- Secrets that must exist on the host: `ADMOB_REWARDED_ANDROID_ID` (without it
+  every SSV callback is answered 400 and AdMob does not retry),
+  `CASE_PUZZLE_SALT`, `PLAY_SYNC_SECRET`.
+
+## Pass C — Doc 05 and failure paths
+
+Scope: what a player, a modified client or an observer can learn about another
+player's role from the wire, the database, sounds, haptics, notifications and
+timing; and what happens when things fail mid-match.
+
+### Findings
+
+| ID | Severity | Where | Scenario | Status |
+|---|---|---|---|---|
+| C1 | medium (Doc 05 §3.1) | `lib/ui/screens/online/online_table_flow.dart:1511`, `room_codec.dart:396` | During the deal the headline names the seats still holding their role card, live. A Mafia card carries a teammate list, so lingering on it is a visible, per-seat, timestamped signal; the code comment argues "every seat has a card", which covers content but not dwell time. | **Report only** (owner decision): show a count, or names only after every seat passed the minimum dwell. |
+| C2 | low | `supabase/functions/advance_phase/index.ts:88` vs doc 10 §8.2 | The table says an absent Doctor's default is "no protection"; the code protects a seeded-random other living player (`skip` is refused for doctors). Not a role leak (the outcome is public), but rules and code disagree. | **Report only.** |
+| C3 | low | `migrate_host` (30 s), `online_transport.dart:772` | A host who leaves the app for more than about 30 s (sharing the room link, web tab frozen on mobile) loses the room to the lowest connected seat once someone else is in it. Safe for the game, surprising in the lobby. | **Report only.** Not testable here (no device). |
+| C4 | info | `witness_view`, `voice_controller.dart:804` | The wall between the dead (who see every role) and the living is enforced by the dead device not sending and the living device not playing their audio. A modified client can break it. Inherent to a peer-to-peer mesh. | **Report only.** |
+| C5 | info | `room_players.status` / `connected` in the Realtime allow-list | Presence changes are published during the night; the UI freezes them, a modified client can read them. Not role-linked. | **Report only.** |
+
+### Checked and sound
+
+- Realtime allow-list pinned by `publication_allowlist.sql` (no `role`, target,
+  vote, action or seed); `role` and `match_seed` have no client column grant at
+  all; a player learns their role only from `my_team`, and teammates only if
+  Mafia (same answer shape for everyone else).
+- Whisper text: parties only by RLS; revealed after the match only when the host
+  switched it on in the lobby, only at the public end, never voided, blocked
+  senders masked. Room titles are withheld while playing; reactions are refused
+  in every match phase; awards compute only at the result.
+- The Detective's answer is in the response to their own request only; night
+  submissions are readable by their author only; the ballot is hidden until
+  resolved unless the room chose open voting.
+- Logs carry function, result class and latency bucket only. Push payloads carry
+  the inviter's display name and a lobby room code, nothing about a match.
+- Sounds and haptics in a match: only the public cues (same moment on every
+  phone), selection feedback that every role has, and the morning victim's own
+  phone at the public death announcement. Invite knocks and vibration wait for a
+  non-private moment in both flows.
+- Failure paths covered by existing tests and re-read: phase expiry defaults
+  (`advance_phase`), idempotent night and vote rows, closed-phase refusals,
+  atomic kick/strike, host migration, process death (`process_death_resume_test`),
+  voice not load-bearing (`voice_not_load_bearing_test`).
+
+### Gate note
+
+`flutter test` has one failure that already exists on the base commit:
+`council_life_test.dart` "an unread notice carries its own small emblem". The
+image is wrapped in `ResizeImage` by the in-progress art wiring and the test
+still matches `AssetImage`. It is in Codex's art lane and was left alone.
