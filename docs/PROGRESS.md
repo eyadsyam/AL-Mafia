@@ -3528,3 +3528,24 @@ Files:      supabase/migrations/20260930000{7,8}00_*.sql, supabase/tests/{season
 Verified:   flutter test +1611 ~1 all passed; analyze no error/warning; SQL 71/71; envelope PASS; all node suites
 Gate:       PASS
 Open:       APK still not built: this environment's network refuses dl.google.com (no Android SDK). Deploy `economy` and `room_settings`/`create_room` (room_configuration) with migrations 000300..000800.
+
+## PHASE 1.1-IMAGES — done
+Built:      Verified and tested the 17 art placements and push icons; fixed generated asset-name collisions.
+Files:      docs/ART-NEEDED.md, tool/generate_asset_constants.py, lib/app/asset_constants.dart, art widget tests
+Verified:   15 WebP dimensions/alpha; 6 push PNGs white/transparent; targeted widgets; flutter test +1623 ~1
+Gate:       PASS (Flutter tests)
+Open:       Onboarding visual recheck after the other worktree merges; emulator unavailable (adb absent).
+
+## PHASE 1.1-DOMAIN — done
+Built:      Canonical saidalmafia.com share and push links; both hosts claimed by Android; web metadata/ads.txt; move checklist.
+Files:      lib/core/public_web_origin.dart, room_invite.dart, council_hub.dart, result_share_button.dart, AndroidManifest.xml, push.ts, web/{index.html,robots.txt,sitemap.xml,ads.txt}, docs/DOMAIN-MOVE.md, tests
+Verified:   room/invite widget tests; invites_push.test.mjs; error_envelope.test.mjs
+Gate:       PASS (targeted tests)
+Open:       Owner must update external Auth/Firebase/AdSense/Play settings and deploy friends.
+
+## PHASE 1.1-WEB-ADS — blocked
+Built:      Web-only config migration, SQL test, pure pacing and private-phase tests, setup/security notes.
+Files:      supabase/migrations/20260930000900_web_ads.sql, supabase/tests/web_ads.sql, lib/platform/monetization/web_ad_rules.dart, lib/ui/economy/economy_capabilities.dart, test/unit/web_ad_rules_test.dart, docs/WEB-ADS-SETUP.md
+Verified:   SQL 72/72; web pacing tests; flutter test +1623 ~1; analyzer has 101 pre-existing info diagnostics (no errors/warnings, exit 1).
+Gate:       FAIL (H5 display/interstitial integration and server-verifiable browser rewards unfinished)
+Open:       H5 adViewed is a client callback, not signed reward proof; no web reward payout enabled.

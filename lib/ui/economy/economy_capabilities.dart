@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../transport/online_backend.dart';
 
 import '../../platform/monetization/app_open_policy.dart';
+import '../../platform/monetization/web_ad_rules.dart';
 import '../../platform/monetization/interstitial_policy.dart';
 import '../screens/online/online_session.dart';
 
@@ -150,6 +151,7 @@ class EconomyCapabilities {
   final bool recoverable;
   final String? accountTag;
   final InterstitialRules interstitial;
+  final WebAdRules webAds;
   final List<PlayProductOffer> products;
   final CouncilCapabilities council;
   final AdsCapabilities ads;
@@ -219,6 +221,7 @@ class EconomyCapabilities {
     this.recoverable = false,
     this.accountTag,
     this.interstitial = InterstitialRules.off,
+    this.webAds = WebAdRules.off,
     this.products = const [],
     this.council = CouncilCapabilities.off,
     this.ads = AdsCapabilities.off,
@@ -293,6 +296,7 @@ class EconomyCapabilities {
       interstitial: rules is Map
           ? InterstitialRules.fromJson(Map<String, dynamic>.from(rules))
           : InterstitialRules.off,
+      webAds: WebAdRules.fromJson(json['webAds']),
       products: [
         for (final row in (json['products'] as List?) ?? const [])
           if (row is Map && row['id'] is String)
