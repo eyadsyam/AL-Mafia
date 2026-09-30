@@ -3562,3 +3562,9 @@ Files: lib/app/app.dart, lib/ui/economy/{coin_packs,play_offers}.dart, lib/ui/so
 Verified: room-link widget tests, coin-store tests, push Node tests, SQL migrations and tests; full Flutter gate running.
 Gate: PASS (targeted); full gate pending
 Open: H5 web ads remain disabled pending independently verifiable rewarded completion.
+## PHASE 1.1 production publish — done
+Built: Pushed branch, applied ordered web-ads/account/update migrations, deployed friends/coin_orders/delete_account, published both web hosts, ran production smoke checks.
+Files: tool/prod_launch_smoke.mjs, tool/verify_web_release.mjs
+Verified: Flutter 1670 passing (1 skipped); SQL 75/75; Node 20/20; error envelope PASS; production 7/7 smoke checks; Cloudflare and Vercel main.dart.js MD5 matches local.
+Gate: PASS except flutter analyze has 103 info-only lints, zero errors/warnings (nonzero strict exit).
+Open: H5 web ads and browser rewarded payouts remain disabled; Play closed-test Android build still belongs to reviewer.
