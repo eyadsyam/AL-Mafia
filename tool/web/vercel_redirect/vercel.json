@@ -1,0 +1,8 @@
+{
+  "redirects": [
+    { "source": "/((?!\\.well-known/).*)", "destination": "https://saidalmafia.com/$1", "permanent": true }
+  ],
+  "headers": [
+    { "source": "/.well-known/assetlinks.json", "headers": [ { "key": "Content-Type", "value": "application/json" } ] }
+  ]
+}
