@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../transport/online_backend.dart';
@@ -152,8 +154,22 @@ class WalletController extends AsyncNotifier<WalletState?> {
     } on BackendException catch (error) {
       throw WalletActionFailed(error.code);
     } catch (_) {
+      // The server may have applied the purchase before the answer was lost
+      // (a timeout, a dropped connection). Show its truth rather than the
+      // balance from before, so a retry is not made blind.
+      unawaited(_reconcile());
       throw const WalletActionFailed(null);
     }
+  }
+
+  /// Best effort: reads the wallet without crediting anything, and keeps the
+  /// last state if the server still cannot be reached.
+  Future<void> _reconcile() async {
+    try {
+      state = AsyncData(
+        WalletState.fromJson(await _call({'action': 'summary'})),
+      );
+    } catch (_) {}
   }
 
   /// The server charges, grants and records in one transaction. A repeated
