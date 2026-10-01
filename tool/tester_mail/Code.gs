@@ -42,17 +42,22 @@ function doPost(e) {
     verdict = {};
   }
   if (check.getResponseCode() !== 200 || verdict.valid !== true) return reply_('denied');
+  // Already mailed through the Google Form route: answer `sent` so the server
+  // records it, and send nothing twice.
+  var props = PropertiesService.getScriptProperties();
+  if (props.getProperty('sent:' + email)) return reply_('sent');
   if (MailApp.getRemainingDailyQuota() < 1) return reply_('quota');
 
   send_(email, name);
+  props.setProperty('sent:' + email, new Date().toISOString());
   return reply_('sent');
 }
 
 function send_(email, name) {
   MailApp.sendEmail({
     to: email,
-    name: 'سيد المافيا',
-    subject: 'سيد المافيا: نزّل اللعبة من هنا',
+    name: 'إياد من سيد المافيا',
+    subject: 'تسجيلك في اختبار سيد المافيا',
     body: text_(name),
     htmlBody: html_(name),
   });
@@ -79,10 +84,9 @@ function html_(name) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   var greeting = cleanName ? 'أهلاً <span dir="auto">' + safeName + '</span>،' : 'أهلاً،';
   var header = 'https://saidalmafia.com/beta/art/mail_header.png';
-  var background = 'https://saidalmafia.com/beta/art/mail_bg.jpg';
   return '<table role="presentation" dir="rtl" align="center" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0F0F0F" style="width:100%;background-color:#0F0F0F;font-family:Tahoma,Arial,sans-serif;letter-spacing:0;line-height:1.6">' +
     '<tr><td align="center" style="padding:24px 10px">' +
-    '<table role="presentation" dir="rtl" align="center" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#191816" background="' + background + '" style="width:100%;max-width:600px;background-color:#191816;background-image:url(\'' + background + '\');background-position:center top;background-repeat:no-repeat;background-size:cover;border:1px solid #3A352C;color:#EDE7DA">' +
+    '<table role="presentation" dir="rtl" align="center" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#191816" style="width:100%;max-width:600px;background-color:#191816;border:1px solid #3A352C;color:#EDE7DA">' +
     '<tr><td align="center" style="padding:0"><img src="' + header + '" width="600" height="300" alt="سيد المافيا | Mafia Master — اللعبة مستنياك" border="0" style="display:block;width:100%;max-width:600px;height:auto;border:0"></td></tr>' +
     '<tr><td dir="rtl" align="right" style="padding:26px 38px 34px;text-align:right;font-family:Tahoma,Arial,sans-serif;line-height:1.6;letter-spacing:0">' +
     '<p style="margin:0 0 22px;color:#EDE7DA;font-size:22px;font-weight:bold;line-height:1.6;letter-spacing:0">' + greeting + '</p>' +
@@ -149,16 +153,53 @@ function onTesterForm(e) {
     if (title === FORM_NAME) name = value.replace(/[<>&"]/g, '').slice(0, 40);
     if (title === FORM_EMAIL) email = value.toLowerCase();
   });
-  if (!EMAIL.test(email) || email.length > 120) return;
+  register_(name, email);
+}
+
+var SIGNUP_URL = 'https://hezjbrnveajypfqmjfnh.supabase.co/functions/v1/tester_signup';
+
+/*
+ * A form answer joins the same tester list as the site form: it goes through
+ * tester_signup, which records it and sends the welcome email through doPost
+ * above. If that route refuses (its hourly per-address limit counts Google's
+ * own servers, which many answers share), the email is sent from here instead,
+ * so nobody who answered is left without the link.
+ */
+function register_(name, email) {
+  if (!EMAIL.test(email) || email.length > 120) return 'bad';
+  var signup = UrlFetchApp.fetch(SIGNUP_URL, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({ name: name.length >= 2 ? name : 'مختبر', email: email, source: 'gform' }),
+    muteHttpExceptions: true,
+  });
+  if (signup.getResponseCode() === 200) return 'registered';
   var props = PropertiesService.getScriptProperties();
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
-    if (props.getProperty('sent:' + email)) return;
-    if (MailApp.getRemainingDailyQuota() < 1) return;
+    if (props.getProperty('sent:' + email)) return 'already mailed';
+    if (MailApp.getRemainingDailyQuota() < 1) return 'quota';
     send_(email, name);
     props.setProperty('sent:' + email, new Date().toISOString());
+    return 'mailed directly (' + signup.getResponseCode() + ')';
   } finally {
     lock.releaseLock();
   }
+}
+
+/** Run once from the editor: puts every earlier form answer on the tester list. */
+function backfillFormAnswers() {
+  var form = FormApp.openById(PropertiesService.getScriptProperties().getProperty('FORM_ID'));
+  form.getResponses().forEach(function (response) {
+    var name = '';
+    var email = '';
+    response.getItemResponses().forEach(function (r) {
+      var title = r.getItem().getTitle();
+      var value = String(r.getResponse() || '').trim();
+      if (title === FORM_NAME) name = value.replace(/[<>&"]/g, '').slice(0, 40);
+      if (title === FORM_EMAIL) email = value.toLowerCase();
+    });
+    Logger.log(register_(name, email));
+  });
 }
