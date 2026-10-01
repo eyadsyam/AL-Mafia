@@ -101,6 +101,9 @@ void main() {
         'admob_ssv': 'verifySsv(url, loadKeys)',
         'play_voided_sync': 'request.headers.get("x-sync-secret") !== secret',
         'tester_signup': 'db.rpc("tester_signup_attempt"',
+        // Answers the welcome-mail script yes/no on an HMAC only the server
+        // can mint; it reads one row and changes nothing.
+        'tester_mail_check': 'sameText(await mailToken(secret, email), token)',
       };
       final bare = <String>[];
       for (final dir in edgeFunctions()) {
