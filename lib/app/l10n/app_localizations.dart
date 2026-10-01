@@ -386,6 +386,12 @@ abstract class AppLocalizations {
   /// **'Warning: two Detectives below 11 players heavily favours the town'**
   String get balanceTwoDetectivesLowPlayerCount;
 
+  /// No description provided for @balanceOneDetectiveOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'There is only one Detective in a match'**
+  String get balanceOneDetectiveOnly;
+
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:
@@ -5027,7 +5033,7 @@ abstract class AppLocalizations {
   /// No description provided for @nightCitizenRestSupport.
   ///
   /// In en, this message translates to:
-  /// **'Nothing to do on the first night. Wait for the others to finish, and the day will come.'**
+  /// **'Nothing to do at night. Wait for the others to finish, and the day will come.'**
   String get nightCitizenRestSupport;
 
   /// No description provided for @readyToVote.

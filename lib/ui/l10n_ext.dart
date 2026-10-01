@@ -51,6 +51,7 @@ abstract final class EngineCopy {
         'recommend_three_mafia' => l10n.balanceRecommendThreeMafia,
         'two_detectives_low_player_count' =>
           l10n.balanceTwoDetectivesLowPlayerCount,
+        'one_detective_only' => l10n.balanceOneDetectiveOnly,
         _ => issue.code,
       };
 

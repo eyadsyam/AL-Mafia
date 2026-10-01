@@ -1290,7 +1290,12 @@ class OnlineTransport implements GameTransport {
       role: role,
       turn: own.actedThisNight
           ? null
-          : turnFor(seat: seat, role: role, players: _players),
+          : turnFor(
+              seat: seat,
+              role: role,
+              players: _players,
+              teammateNames: own.teammateNames,
+            ),
       whisperId: waiting?.id,
       whisperBody: body,
       whisperUndelivered: body == null && _voidedFromMe(),

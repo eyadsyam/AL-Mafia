@@ -111,19 +111,11 @@ export async function buildHistory(
 
   const nights: NightRecord[] = [];
   for (const n of [...nightNumbers].sort((a, b) => a - b)) {
+    // Online a Citizen has no night move (owner, 2026-10-01), so there is no
+    // suspicion record to read. A Mafia or Detective skip is not one either:
+    // counting those would be counting roles. Every generator that reads
+    // suspicions therefore finds none online and stays silent.
     const suspicions: Record<number, number | null> = {};
-    for (const a of actions ?? []) {
-      if (a.night !== n) continue;
-      const seat = seatOf.get(a.actor_id);
-      if (seat === undefined) continue;
-      if (a.action === "suspect") {
-        suspicions[seat] = seatOf.get(a.target_id ?? "") ?? null;
-      } else if (a.action === "skip") {
-        // A skip is a recorded choice, not a missing row — `T6` and `C10` both
-        // read the difference.
-        suspicions[seat] = null;
-      }
-    }
     const resolved = archive.resolvedNights?.[String(n)];
     nights.push({
       nightNumber: n,

@@ -169,6 +169,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Warning: two Detectives below 11 players heavily favours the town';
 
   @override
+  String get balanceOneDetectiveOnly =>
+      'There is only one Detective in a match';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override
@@ -2897,7 +2901,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nightCitizenRestSupport =>
-      'Nothing to do on the first night. Wait for the others to finish, and the day will come.';
+      'Nothing to do at night. Wait for the others to finish, and the day will come.';
 
   @override
   String readyToVote(int ready, int living) {

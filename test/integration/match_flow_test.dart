@@ -116,7 +116,15 @@ void main() {
       await hold(tester);
 
       // Any target will do; the flow is what is under test, not the strategy.
-      await tester.tap(find.byType(NightGridTile).first);
+      // The first tile that can be chosen: a Mafioso's teammates are drawn
+      // but inert.
+      await tester.tap(
+        find
+            .byWidgetPredicate(
+              (w) => w is NightGridTile && w.onTap != null,
+            )
+            .first,
+      );
       await tester.pump();
 
       await tester.pump(MafiaTiming.defaults.dwellGate);

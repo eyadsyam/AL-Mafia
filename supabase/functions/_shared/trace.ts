@@ -128,6 +128,9 @@ export function evaluateTrace(
         }
       }
       for (const target of Object.values(recorded)) seen.add(target);
+      // Nobody has suspected anybody yet (online, nobody ever does): "never
+      // suspected" would then be true of everyone and say nothing.
+      if (seen.size === 0) return null;
       const shadows = [...alive].filter((s) => !seen.has(s)).length;
       if (shadows < 1) return null;
       return candidate({ type: "t5" });

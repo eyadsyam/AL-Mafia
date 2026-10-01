@@ -131,39 +131,39 @@ void main() {
         );
       });
 
-      test('warns on 2 Detectives below 11 players', () {
-        final report = BalanceGuard.evaluate(
-          playerCount: 10,
-          roleCounts: {
-            Role.mafia: 2,
-            Role.detective: 2,
-            Role.doctor: 1,
-            Role.citizen: 5,
-          },
-        );
-        expect(report.valid, isTrue);
-        expect(
-          report.issues.where(
-            (i) => i.code == 'two_detectives_low_player_count',
-          ),
-          isNotEmpty,
-        );
+      test('blocks a second Detective at any player count', () {
+        for (final n in [10, 11, 15]) {
+          final report = BalanceGuard.evaluate(
+            playerCount: n,
+            roleCounts: {
+              Role.mafia: 3,
+              Role.detective: 2,
+              Role.doctor: 1,
+              Role.citizen: n - 6,
+            },
+          );
+          expect(report.valid, isFalse);
+          expect(
+            report.issues.where(
+              (i) => i.code == 'one_detective_only' && i.blocking,
+            ),
+            isNotEmpty,
+          );
+        }
       });
 
-      test('does not warn on 2 Detectives at 11+ players', () {
+      test('one Detective is never flagged', () {
         final report = BalanceGuard.evaluate(
           playerCount: 11,
           roleCounts: {
             Role.mafia: 3,
-            Role.detective: 2,
+            Role.detective: 1,
             Role.doctor: 1,
-            Role.citizen: 5,
+            Role.citizen: 6,
           },
         );
         expect(
-          report.issues.where(
-            (i) => i.code == 'two_detectives_low_player_count',
-          ),
+          report.issues.where((i) => i.code == 'one_detective_only'),
           isEmpty,
         );
       });

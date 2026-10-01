@@ -219,9 +219,6 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   bool _scaring = false;
   int? _scaredDay;
 
-  /// Night one's citizen has nothing to do; their "nothing" is sent for them
-  /// once, so the night can end as soon as the others are done.
-  int? _restSentDay;
   int? _heardSpeaker;
 
   /// The «last ten seconds» tick for the phase that is running, armed once
@@ -854,11 +851,12 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         others.every((seat) => snapshot.presence[seat] == SeatPresence.left);
   }
 
-  /// Night one, and this player is a Citizen: nothing has happened yet, so a
-  /// suspicion would be a guess about nothing (owner, 2026-09-23).
+  /// Online a Citizen has no night move at all: they wait while the Mafia
+  /// kill, the Doctor protects and the Detective looks (owner, 2026-10-01).
+  /// The server neither waits for nor records anything from them, so nothing
+  /// is sent from here either.
   bool _citizenRests(GameSnapshot snapshot, MatchUiState state) =>
       snapshot.phase == GamePhase.night &&
-      snapshot.dayNumber <= 1 &&
       state.actorTurn?.actorRole == Role.citizen;
 
   Widget _ownCard(BuildContext context, Role role) => SizedBox(
@@ -1057,16 +1055,6 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       _actionFailed = false;
     }
     _maybePullPrivateView(snapshot, state);
-    if (_citizenRests(snapshot, state) &&
-        !_submitted &&
-        _restSentDay != snapshot.dayNumber) {
-      _restSentDay = snapshot.dayNumber;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _attempt(() => _controller.skipNightAction(useBullet: false));
-        }
-      });
-    }
     _syncSounds(snapshot);
 
     final dead = _viewerIsDead(snapshot);

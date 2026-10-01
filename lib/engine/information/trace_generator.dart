@@ -298,6 +298,9 @@ TraceCandidate? evaluateTrace({
         for (final n in history) ...n.recordedSuspicions.values,
         ...recorded.values,
       };
+      // Nobody has suspected anybody: "never suspected" would be true of
+      // everyone and say nothing. Mirrors `trace.ts`.
+      if (everSuspected.isEmpty) return null;
       final shadows = alive.where((s) => !everSuspected.contains(s)).length;
       if (shadows < 1) return null;
       return TraceCandidate(const TraceResult(type: TraceType.t5));

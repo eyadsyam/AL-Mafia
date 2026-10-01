@@ -82,9 +82,12 @@ Deno.serve(handler(async (req, userId, db) => {
     // exactly as its whispers are (doc 09 §3.4) — a player put out of the match
     // does not go on killing or protecting from outside it.
     const alive = new Set(roster.filter((p) => p.alive).map((p) => p.user_id));
+    const mafiaIds = new Set(roster.filter((p) => p.role === "mafia").map((p) => p.user_id));
     const tally = new Map<string, number>();
     for (const a of actions ?? []) {
       if (a.action !== "kill" || !a.target_id || !alive.has(a.target_id) || !alive.has(a.actor_id)) continue;
+      // The Mafia never kill one of their own (owner, 2026-10-01).
+      if (mafiaIds.has(a.target_id)) continue;
       tally.set(a.target_id, (tally.get(a.target_id) ?? 0) + 1);
     }
     let victimId: string | null = null;
@@ -101,10 +104,26 @@ Deno.serve(handler(async (req, userId, db) => {
       ];
     }
 
-    const protectedIds = new Set(
-      (actions ?? []).filter((a) => a.action === "protect" && a.target_id && alive.has(a.actor_id))
-        .map((a) => a.target_id as string),
-    );
+    // One protected seat, never the union of every Doctor's (owner,
+    // 2026-10-01): the seat most of them chose, and on an even split one of
+    // their choices drawn on the seed, which is the Mafia's rule on a stream
+    // of its own. Mirrors `NightResolver.resolveNight`.
+    const protectTally = new Map<string, number>();
+    for (const a of actions ?? []) {
+      if (a.action !== "protect" || !a.target_id || !alive.has(a.actor_id)) continue;
+      protectTally.set(a.target_id, (protectTally.get(a.target_id) ?? 0) + 1);
+    }
+    const protectedIds = new Set<string>();
+    if (protectTally.size > 0) {
+      const top = Math.max(...protectTally.values());
+      const tied = [...protectTally.entries()]
+        .filter(([, v]) => v === top)
+        .map(([k]) => k)
+        .sort((a, b) => (seatOf.get(a) ?? 0) - (seatOf.get(b) ?? 0));
+      protectedIds.add(tied[
+        tieBreakIndex(deriveSeed(me.matchSeed, SeedSalt.doctorTieBreak, night), tied.length)
+      ]);
+    }
 
     let savedId: string | null = null;
     if (victimId && protectedIds.has(victimId)) {

@@ -404,6 +404,10 @@ List<Move> _nightMoves(Match match) {
   for (final target in match.players) {
     if (target.seat == seat) continue;
     if (target.status != PlayerStatus.alive) continue;
+    // The Mafia never choose one of their own (owner, 2026-10-01).
+    if (kind == NightActionKind.mafiaVote && target.role == Role.mafia) {
+      continue;
+    }
 
     // The doctor may not repeat last night's target, so those tiles are not
     // legal moves — they are rendered disabled (N4), not merely rejected.

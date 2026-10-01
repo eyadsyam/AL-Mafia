@@ -49,6 +49,11 @@ int _targetFor(Match match, int seat) {
     return allowed.isEmpty ? living.first : allowed.first;
   }
 
+  // The Mafia never choose one of their own; the engine refuses it.
+  if (role == Role.mafia) {
+    return living.firstWhere((s) => match.players[s].role != Role.mafia);
+  }
+
   return living.first;
 }
 

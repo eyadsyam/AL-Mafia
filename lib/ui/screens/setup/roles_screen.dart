@@ -77,7 +77,8 @@ class _RolesScreenState extends State<RolesScreen> {
   }
 
   void _incrementDetective() {
-    if (_detective < widget.playerCount) {
+    // One Detective per match, never more (owner, 2026-10-01).
+    if (_detective < 1) {
       setState(() => _detective++);
     }
   }

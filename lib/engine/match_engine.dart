@@ -325,6 +325,13 @@ class MatchEngine {
       questionText: questionText,
       targets: targets,
       teammateVotes: teammateVotes,
+      // The Mafia never choose one of their own (owner, 2026-10-01).
+      blockedTargets: role == Role.mafia
+          ? [
+              for (final t in targets)
+                if (match.players[t].role == Role.mafia) t,
+            ]
+          : const [],
     );
   }
 
@@ -397,6 +404,9 @@ class MatchEngine {
       case NightActionKind.mafiaVote:
         if (player.role != Role.mafia) {
           throw StateError('submitNightAction: non-mafia cannot mafiaVote');
+        }
+        if (match.players[targetSeat].role == Role.mafia) {
+          throw StateError('submitNightAction: mafia cannot target a mafioso');
         }
         match = match.copyWith(
           eventLog: [

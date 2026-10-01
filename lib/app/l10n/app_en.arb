@@ -85,6 +85,7 @@
   "balanceMafiaTooMany": "Mafia must be fewer than half the players",
   "balanceRecommendThreeMafia": "3 Mafia is recommended at 9 or more players",
   "balanceTwoDetectivesLowPlayerCount": "Warning: two Detectives below 11 players heavily favours the town",
+  "balanceOneDetectiveOnly": "There is only one Detective in a match",
   "settingsTitle": "Settings",
   "speechSecondsLabel": "Speaking time (seconds)",
   "secondsSuffix": "{seconds}s",
@@ -1742,7 +1743,7 @@
   "onlineAbandonedTitle": "Everyone else has left",
   "onlineAbandonedBody": "There is nobody left at the table but you, so this match is over. Head home and start a new room.",
   "nightCitizenRest": "You are a Citizen",
-  "nightCitizenRestSupport": "Nothing to do on the first night. Wait for the others to finish, and the day will come.",
+  "nightCitizenRestSupport": "Nothing to do at night. Wait for the others to finish, and the day will come.",
   "readyToVote": "Ready to vote ({ready} of {living})",
   "@readyToVote": {
     "placeholders": {

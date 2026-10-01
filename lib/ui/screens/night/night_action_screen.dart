@@ -123,7 +123,11 @@ class NightActionScreen extends ConsumerWidget {
           seat: seat,
           label: players[seat].name,
           indicatorCount: teammateVotes[seat] ?? 0,
-          selectable: players[seat].status == PlayerStatus.alive,
+          // A fellow Mafioso stays on the grid, dimmed like any tile that
+          // cannot be chosen, so the grid keeps its shape (doc 05 rule 6).
+          selectable:
+              players[seat].status == PlayerStatus.alive &&
+              !turn.blockedTargets.contains(seat),
         ),
       // The last tile, always, for every role.
       if (role == Role.doctor)

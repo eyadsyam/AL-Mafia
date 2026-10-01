@@ -151,6 +151,9 @@ export function findConfrontations(
     case "c4": {
       if (dayNumber - 1 < 3) return [];
       const suspected = everSuspected(history);
+      // With no suspicion on record at all (online, always), «الظل» would
+      // name a player for something true of everyone.
+      if (suspected.size === 0) return [];
       return [...alive]
         .filter((seat) => !suspected.has(seat))
         .map((seat) =>

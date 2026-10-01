@@ -61,7 +61,9 @@ void main() {
       await transport.submitNightAction(
         seat: seat,
         kind: secrets.role!.nightAction,
-        targetSeat: turn.targets.isEmpty ? null : turn.targets.first,
+        targetSeat: turn.targets
+            .where((t) => !turn.blockedTargets.contains(t))
+            .firstOrNull,
       );
     }
     await transport.resolveNight();

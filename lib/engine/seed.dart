@@ -137,6 +137,9 @@ class SeedSalt {
   /// Breaking a tie between the mafia's night targets.
   static const String nightTieBreak = 'night-tiebreak';
 
+  /// Choosing between two or more Doctors who protected different seats.
+  static const String doctorTieBreak = 'doctor-tiebreak';
+
   /// Breaking a tie between equally-scoring traces (doc 09 §1.5).
   static const String trace = 'trace';
 

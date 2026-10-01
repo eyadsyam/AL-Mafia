@@ -64,6 +64,7 @@ export function tieBreakIndex(seed: number, count: number): number {
 export const SeedSalt = {
   roleShuffle: "role-shuffle",
   nightTieBreak: "night-tiebreak",
+  doctorTieBreak: "doctor-tiebreak",
   trace: "trace",
   confrontation: "confrontation",
   timerDefault: "timer-default",

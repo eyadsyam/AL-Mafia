@@ -90,11 +90,34 @@ class NightResolver {
       }
     }
 
-    // Gather tonight's doctor protections
-    final protectedSeats = <int>{};
+    // Tonight's protection: one seat, never the union of every Doctor's.
+    //
+    // Two Doctors protect one player between them (owner, 2026-10-01): the
+    // seat most of them chose, and when they split evenly, one of their
+    // choices drawn on the seed - the same rule as the Mafia's kill above, on
+    // a stream of its own so the two draws never correlate.
+    final protectVotes = <int, int>{};
     for (final event in match.eventLog) {
       if (event is ProtectCast && tonight(event)) {
-        protectedSeats.add(event.targetSeat);
+        protectVotes[event.targetSeat] =
+            (protectVotes[event.targetSeat] ?? 0) + 1;
+      }
+    }
+    final protectedSeats = <int>{};
+    if (protectVotes.isNotEmpty) {
+      final top = protectVotes.values.reduce((a, b) => a > b ? a : b);
+      final tied = protectVotes.entries
+          .where((e) => e.value == top)
+          .map((e) => e.key)
+          .toList()
+        ..sort();
+      if (tied.length == 1) {
+        protectedSeats.add(tied.first);
+      } else {
+        final rng = Random(
+          deriveSeed(match.seed, SeedSalt.doctorTieBreak, match.dayNumber),
+        );
+        protectedSeats.add(tied[rng.nextInt(tied.length)]);
       }
     }
 

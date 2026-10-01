@@ -112,14 +112,12 @@ class BalanceGuard {
       );
     }
 
-    // Advisory: 2+ detectives below 11 players
+    // Blocking: there is one Detective in a match, never more (owner,
+    // 2026-10-01). The server's `start_match` refuses the same counts.
     final detectiveCount = roleCounts[Role.detective] ?? 0;
-    if (detectiveCount >= 2 && playerCount < 11) {
+    if (detectiveCount > 1) {
       issues.add(
-        const BalanceIssue(
-          code: 'two_detectives_low_player_count',
-          blocking: false,
-        ),
+        const BalanceIssue(code: 'one_detective_only', blocking: true),
       );
     }
 

@@ -93,6 +93,12 @@ void main() {
 
       engine.beginNight();
 
+      // The Citizen: a seat the Mafia may target (never one of their own) and
+      // the Doctor may cover (never themselves).
+      final target = engine.match.players
+          .firstWhere((p) => p.role == Role.citizen)
+          .seat;
+
       while (engine.match.currentActorSeat != null) {
         final seat = engine.match.currentActorSeat!;
         final role = engine.match.players[seat].role;
@@ -101,13 +107,13 @@ void main() {
           engine.submitNightAction(
             seat: seat,
             kind: NightActionKind.mafiaVote,
-            targetSeat: 2,
+            targetSeat: target,
           );
         } else if (role == Role.doctor) {
           engine.submitNightAction(
             seat: seat,
             kind: NightActionKind.protect,
-            targetSeat: 2,
+            targetSeat: target,
           );
         } else if (role == Role.detective) {
           engine.submitNightAction(

@@ -106,12 +106,18 @@ class ActorTurnView {
   final List<int> targets; // seats of other alive players
   final List<int> teammateVotes; // mafia votes this night (empty for non-mafia)
 
+  /// Seats in [targets] that are drawn but may not be chosen: a Mafioso's
+  /// fellow Mafia. Kept in [targets] so the grid has the same number of tiles
+  /// for every role (doc 05 rule 6); empty for every other role.
+  final List<int> blockedTargets;
+
   const ActorTurnView({
     required this.actorSeat,
     required this.actorRole,
     required this.questionText,
     required this.targets,
     required this.teammateVotes,
+    this.blockedTargets = const [],
   });
 
   @override
@@ -123,7 +129,8 @@ class ActorTurnView {
           actorRole == other.actorRole &&
           questionText == other.questionText &&
           targets == other.targets &&
-          teammateVotes == other.teammateVotes;
+          teammateVotes == other.teammateVotes &&
+          blockedTargets == other.blockedTargets;
 
   @override
   int get hashCode =>

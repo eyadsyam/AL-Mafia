@@ -76,6 +76,12 @@ Deno.serve(handler(async (req, userId, db) => {
   if (!me.alive) return fail("NOT_ALIVE", "the dead take no part in the night", 403);
   if (me.phase !== "night") return fail("PHASE_CLOSED", "the night is closed");
 
+  // Online a Citizen has no night move (owner, 2026-10-01): they wait while
+  // the others act. An older client that still sends a suspicion or a skip is
+  // answered as if it landed and nothing is stored, so its screen moves on and
+  // the night neither waits for it nor records it.
+  if (me.role === "citizen") return ok({ bulletSpent: false });
+
   // Skipping is legal for every role — doc 05 rules 5 and 6 make the control
   // universal, and doc 10 §8.2 needs it for three of the four expiry defaults.
   const permitted = actionForRole(me.role);
@@ -139,7 +145,7 @@ Deno.serve(handler(async (req, userId, db) => {
     if (targetSeat == null) return fail("BAD_REQUEST", "a target is required");
     const { data: target, error: targetError } = await db
       .from("room_players")
-      .select("user_id, alive")
+      .select("user_id, alive, role")
       .eq("room_id", roomId)
       .eq("seat", targetSeat)
       .maybeSingle();
@@ -148,6 +154,10 @@ Deno.serve(handler(async (req, userId, db) => {
     if (!target.alive) return fail("BAD_REQUEST", "that player is dead");
     if (target.user_id === userId && !selfProtect) {
       return fail("BAD_REQUEST", "not yourself");
+    }
+    // The Mafia never choose one of their own (owner, 2026-10-01).
+    if (action === "kill" && target.role === "mafia") {
+      return fail("BAD_REQUEST", "not a fellow mafioso");
     }
     targetId = target.user_id;
   }
@@ -233,10 +243,9 @@ Deno.serve(handler(async (req, userId, db) => {
  * the tally, so this adds no second route into the resolution — it only stops
  * the first one from being late.
  *
- * Nothing here is a tell. Every role acts every night — doc 05 rules 5 and 6
- * make the empty turn universal for exactly this reason — and the roster of
- * the living is already public, so "everybody has acted" is a fact the whole
- * table can already see and says nothing about anybody's role.
+ * Nothing here is a tell: no client is told when the night closes early, and
+ * every player's screen is their own. Citizens are not waited for, because
+ * online they have no night move (owner, 2026-10-01).
  */
 async function closeNightIfEveryoneActed(
   // deno-lint-ignore no-explicit-any
@@ -245,7 +254,7 @@ async function closeNightIfEveryoneActed(
   night: number,
 ): Promise<void> {
   const [living, acted] = await Promise.all([
-    db.from("room_players").select("user_id").eq("room_id", roomId).eq(
+    db.from("room_players").select("user_id, role").eq("room_id", roomId).eq(
       "alive",
       true,
     ),
@@ -258,8 +267,12 @@ async function closeNightIfEveryoneActed(
   // the move above was saved, and closing the night early is a courtesy this
   // call may simply not extend when it cannot see the room.
   if (living.error || acted.error) return;
+  // Citizens have no night move online, so the night waits only for the
+  // seats that do (owner, 2026-10-01).
   const alive = new Set(
-    (living.data ?? []).map((p: { user_id: string }) => p.user_id),
+    (living.data ?? [])
+      .filter((p: { role: string | null }) => p.role !== "citizen")
+      .map((p: { user_id: string }) => p.user_id),
   );
   if (alive.size === 0) return;
   const done = new Set(

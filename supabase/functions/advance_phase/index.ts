@@ -10,7 +10,7 @@
  * | Night — Mafia        | a random living non-Mafia, seeded from the seed |
  * | Night — Doctor       | no protection                                   |
  * | Night — Detective    | no investigation                               |
- * | Night — Citizen      | recorded as skipped (feeds `T6` / `C10`)       |
+ * | Night — Citizen      | nothing: online a Citizen has no night move     |
  * | Confrontation        | silence — and silence is itself information     |
  * | Vote                 | abstain                                        |
  * | Whisper              | not sent                                       |
@@ -66,6 +66,8 @@ Deno.serve(handler(async (req, userId, db) => {
 
     for (const player of roster) {
       if (done.has(player.user_id)) continue;
+      // Online a Citizen has no night move (owner, 2026-10-01).
+      if (player.role === "citizen") continue;
       const action = actionForRole(player.role);
       let row: { action: string; target_id: string | null };
       if (action === "kill" || action === "protect") {

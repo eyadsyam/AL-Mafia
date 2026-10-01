@@ -267,6 +267,9 @@ List<ConfrontationCandidate> findConfrontations({
     case ConfrontationType.c4:
       if (dayNumber - 1 < 3) return const [];
       final suspected = history.everSuspected;
+      // With no suspicion on record at all, «الظل» would name a player for
+      // something true of everyone. Mirrors `confrontation.ts`.
+      if (suspected.isEmpty) return const [];
       return [
         for (final seat in alive)
           if (!suspected.contains(seat))

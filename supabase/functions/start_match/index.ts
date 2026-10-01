@@ -71,6 +71,8 @@ Deno.serve(handler(async (req, userId, db) => {
   }
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   if (total !== roster.length) return fail("BAD_REQUEST", "roles must sum to the roster");
+  // One Detective per match, never more (owner, 2026-10-01).
+  if ((counts.detective ?? 0) > 1) return fail("BAD_REQUEST", "one detective at most");
   const mafia = counts.mafia ?? 0;
   if (mafia < 1) return fail("BAD_REQUEST", "at least one mafia");
   if (mafia * 2 >= roster.length) return fail("BAD_REQUEST", "mafia may not reach parity at the start");

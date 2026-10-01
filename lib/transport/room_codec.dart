@@ -484,10 +484,18 @@ ActorTurnView? turnFor({
   required int seat,
   required Role role,
   required List<RoomPlayer> players,
+  List<String> teammateNames = const [],
 }) {
+  // The Mafia never choose one of their own (owner, 2026-10-01). Online the
+  // targets are only the *selectable* seats - every seat is still drawn - so
+  // leaving a teammate out dims their seat without changing the table.
+  // `submit_night_action` refuses the same move.
   final targets = [
     for (final p in players)
-      if (p.seat != seat && p.alive) p.seat,
+      if (p.seat != seat &&
+          p.alive &&
+          !(role == Role.mafia && teammateNames.contains(p.name)))
+        p.seat,
   ]..sort();
   if (targets.isEmpty) return null;
 

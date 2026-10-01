@@ -428,7 +428,7 @@
         }
       ],
       "expected": {
-        "type": "t5",
+        "type": "t0",
         "subjectSeat": null,
         "targetSeat": null,
         "count": null

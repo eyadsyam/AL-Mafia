@@ -168,6 +168,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'محققين مع أقل من 11 لاعب بيقووا فريق المواطنين';
 
   @override
+  String get balanceOneDetectiveOnly => 'المحقق واحد بس في اللعبة';
+
+  @override
   String get settingsTitle => 'الإعدادات';
 
   @override
@@ -2832,7 +2835,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get nightCitizenRestSupport =>
-      'أول ليلة مفيش عليك حاجة. استنى لحد ما الباقي يخلصوا، والنهار هيطلع.';
+      'مفيش عليك حاجة بالليل. استنى لحد ما الباقي يخلصوا، والنهار هيطلع.';
 
   @override
   String readyToVote(int ready, int living) {
