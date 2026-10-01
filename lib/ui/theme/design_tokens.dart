@@ -1537,7 +1537,7 @@ abstract final class StoreTokens {
 
   /// The vault art behind the whole store, dimmed this far so cards and
   /// text keep their contrast.
-  static const backdropShade = 0.82;
+  static const backdropShade = 0.72;
 
   /// From this header width the tabs centre under the title.
   static const headerWideAt = 720.0;
