@@ -60,23 +60,33 @@ function reply_(status) {
 }
 
 function text_(name) {
-  return 'أهلاً ' + (name || '') + '،\n\n' +
-    'دوس على اللينك ده من موبايلك الأندرويد، وبنفس حساب جوجل اللي سجّلت بيه، ودوس «أصبح مختبِرًا» وبعدها «تنزيل»:\n' +
-    OPT_IN_URL + '\n\n' +
-    'لو قالك إن اللعبة مش متاحة، انضم للمختبرين الأول من هنا وجرب تاني: ' + GROUP_URL + '\n\n' +
-    'إياد — سيد المافيا\nhttps://saidalmafia.com';
+  var cleanName = String(name || '').trim();
+  return 'سيد المافيا | Mafia Master\nاللعبة مستنياك\n\n' +
+    (cleanName ? 'أهلاً ' + cleanName + '،' : 'أهلاً،') + '\n\n' +
+    'نزّل اللعبة: ' + OPT_IN_URL + '\n\n' +
+    'افتح الرابط من موبايلك الأندرويد بنفس حساب جوجل اللي سجّلت بيه، واضغط «أصبح مختبِرًا» ثم «تنزيل».\n\n' +
+    'لو ظهر إن اللعبة مش متاحة، «انضم للمختبرين» الأول: ' + GROUP_URL + '\n\n' +
+    'إياد — سيد المافيا';
 }
 
 function html_(name) {
-  return '<div dir="rtl" style="background:#0F0F0F;padding:24px 12px;font-family:Tahoma,Arial,sans-serif;line-height:1.7">' +
-    '<div style="max-width:520px;margin:0 auto;background:#191816;border:1px solid #2E2C28;border-radius:14px;padding:24px 20px;color:#C9C4B9;text-align:center">' +
-    '<div style="color:#D6B36A;font-size:14px">سيد المافيا</div>' +
-    '<h1 style="color:#EDE7DA;font-size:22px;margin:6px 0 12px">أهلاً ' + (name || '') + '، اللعبة مستنياك</h1>' +
-    '<a href="' + OPT_IN_URL + '" style="display:inline-block;background:#D6B36A;color:#17140E;text-decoration:none;font-weight:700;font-size:18px;padding:14px 28px;border-radius:10px">نزّل اللعبة</a>' +
-    '<p style="margin:16px 0 0;font-size:14px;color:#8F8A80">افتحه من موبايلك الأندرويد بنفس الحساب، ودوس «أصبح مختبِرًا» وبعدها «تنزيل».</p>' +
-    '<p style="margin:10px 0 0;font-size:13px;color:#8F8A80">لو قالك إن اللعبة مش متاحة، <a href="' + GROUP_URL + '" style="color:#D6B36A">انضم للمختبرين</a> الأول وجرب تاني.</p>' +
-    '<p style="margin:16px 0 0;color:#EDE7DA">إياد — سيد المافيا</p>' +
-    '</div></div>';
+  var cleanName = String(name || '').trim();
+  var safeName = cleanName.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  var greeting = cleanName ? 'أهلاً <span dir="auto">' + safeName + '</span>،' : 'أهلاً،';
+  var header = 'https://saidalmafia.com/beta/art/mail_header.png';
+  var background = 'https://saidalmafia.com/beta/art/mail_bg.jpg';
+  return '<table role="presentation" dir="rtl" align="center" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0F0F0F" style="width:100%;background-color:#0F0F0F;font-family:Tahoma,Arial,sans-serif;letter-spacing:0;line-height:1.6">' +
+    '<tr><td align="center" style="padding:24px 10px">' +
+    '<table role="presentation" dir="rtl" align="center" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#191816" background="' + background + '" style="width:100%;max-width:600px;background-color:#191816;background-image:url(\'' + background + '\');background-position:center top;background-repeat:no-repeat;background-size:cover;border:1px solid #3A352C;color:#EDE7DA">' +
+    '<tr><td align="center" style="padding:0"><img src="' + header + '" width="600" height="300" alt="سيد المافيا | Mafia Master — اللعبة مستنياك" border="0" style="display:block;width:100%;max-width:600px;height:auto;border:0"></td></tr>' +
+    '<tr><td dir="rtl" align="right" style="padding:26px 38px 34px;text-align:right;font-family:Tahoma,Arial,sans-serif;line-height:1.6;letter-spacing:0">' +
+    '<p style="margin:0 0 22px;color:#EDE7DA;font-size:22px;font-weight:bold;line-height:1.6;letter-spacing:0">' + greeting + '</p>' +
+    '<table role="presentation" dir="rtl" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#D6B36A" style="margin:0 auto;background-color:#D6B36A"><tr><td align="center" bgcolor="#D6B36A" style="padding:14px 42px;text-align:center"><a href="' + OPT_IN_URL + '" style="display:block;color:#17140E;text-decoration:none;font-family:Tahoma,Arial,sans-serif;font-size:20px;font-weight:bold;line-height:1.6;letter-spacing:0">نزّل اللعبة</a></td></tr></table>' +
+    '<p style="margin:20px 0 0;color:#D8D1C3;font-size:14px;line-height:1.6;letter-spacing:0">افتح الرابط من موبايلك الأندرويد بنفس حساب جوجل اللي سجّلت بيه، واضغط «أصبح مختبِرًا» ثم «تنزيل».</p>' +
+    '<p style="margin:12px 0 0;color:#D8D1C3;font-size:13px;line-height:1.6;letter-spacing:0">لو ظهر إن اللعبة مش متاحة، <a href="' + GROUP_URL + '" style="color:#D6B36A;text-decoration:underline">انضم للمختبرين</a> الأول.</p>' +
+    '<p style="margin:25px 0 0;color:#EDE7DA;font-size:15px;line-height:1.6;letter-spacing:0">إياد — سيد المافيا</p>' +
+    '</td></tr></table></td></tr></table>';
 }
 
 /** Run once from the editor to grant the mail and fetch permissions. */
