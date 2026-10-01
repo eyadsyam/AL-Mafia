@@ -9,7 +9,12 @@ const expected = [
   ['/delete-data/', 'text/html'], ['/room/ABCD', 'text/html'],
   ['/.well-known/assetlinks.json', 'application/json'],
   ['/ads.txt', 'text/plain'], ['/main.dart.js', 'javascript'],
+  // Safari and iOS load this CanvasKit, not the chromium/ one.
+  ['/canvaskit/canvaskit.wasm', 'application/wasm'],
 ];
+// Without it Safari draws the whole game one screen to the right of the
+// display (web/index.html, "Where the film went").
+const SAFARI_GUARD = 'flutter-view { direction: ltr; }';
 let failed = false;
 for (const [path, mime] of expected) {
   const response = await fetch(origin + path, { redirect: 'follow' });
@@ -17,7 +22,8 @@ for (const [path, mime] of expected) {
   const bytes = Buffer.from(await response.arrayBuffer());
   const hash = path === '/main.dart.js' ? md5(bytes) : '';
   const pass = response.status === 200 && type.includes(mime) &&
-    (path !== '/main.dart.js' || hash === local);
+    (path !== '/main.dart.js' || hash === local) &&
+    (path !== '/' || bytes.toString('utf8').includes(SAFARI_GUARD));
   failed ||= !pass;
   console.log(`${pass ? 'PASS' : 'FAIL'} ${path}: ${response.status} ${type}` +
     (hash ? ` md5=${hash} local=${local}` : ''));

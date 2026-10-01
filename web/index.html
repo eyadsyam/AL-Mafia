@@ -276,12 +276,18 @@
      * is painted by Flutter onto the canvas and was in the right place all
      * along, which is what made it look like an empty box.
      *
-     * The document stays `dir="rtl"`; only the surface Flutter composites is
-     * pinned, because Flutter paints its own text direction and never reads
-     * this one. `flt-text-editing-host` is a sibling and keeps its RTL, so
-     * typing Arabic into a field is untouched. Inherited, so it reaches the
-     * shadow tree the scene actually lives in. */
-    flt-glass-pane { direction: ltr; }
+     * The document stays `dir="rtl"`; the whole Flutter view is pinned LTR,
+     * because Flutter paints its own text direction and never reads this one.
+     * Pinning only `flt-glass-pane` was not enough on Safari: the pane is an
+     * inline, zero-width box, and in the RTL `flutter-view` it sits at the
+     * right edge. The scene canvas (no `left` either) took its static
+     * position from there, so on iPhone the whole game was drawn one screen
+     * to the right and the visitor saw only the dark ground. Chrome happened
+     * to place it at 0. `flt-text-editing-host` keeps its RTL, so typing
+     * Arabic into a field is untouched. Inherited, so it reaches the shadow
+     * tree the scene actually lives in. */
+    flutter-view { direction: ltr; }
+    flt-text-editing-host { direction: rtl; }
 
     /* Crawlable text for the canvas-only app: visually hidden, still in the
      * DOM for search crawlers, the AdSense crawler and screen readers. */
