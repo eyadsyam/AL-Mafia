@@ -44,6 +44,11 @@ function doPost(e) {
   if (check.getResponseCode() !== 200 || verdict.valid !== true) return reply_('denied');
   if (MailApp.getRemainingDailyQuota() < 1) return reply_('quota');
 
+  send_(email, name);
+  return reply_('sent');
+}
+
+function send_(email, name) {
   MailApp.sendEmail({
     to: email,
     name: 'سيد المافيا',
@@ -51,7 +56,6 @@ function doPost(e) {
     body: text_(name),
     htmlBody: html_(name),
   });
-  return reply_('sent');
 }
 
 function reply_(status) {
@@ -92,4 +96,69 @@ function html_(name) {
 /** Run once from the editor to grant the mail and fetch permissions. */
 function setup() {
   Logger.log(MailApp.getRemainingDailyQuota());
+}
+
+/*
+ * The Google Form route (for groups that trust a Google Form more than a
+ * site). Same welcome email, sent from the form's own submit trigger. Google
+ * hosts the form, so there is no token to check; each address is mailed once
+ * (remembered in the script properties) and the daily quota is shared with
+ * the site.
+ */
+var FORM_TITLE = 'سيد المافيا | Mafia Master';
+var FORM_NAME = 'اسمك';
+var FORM_EMAIL = 'إيميل حساب جوجل اللي على موبايلك الأندرويد';
+
+/** Run once from the editor: creates the form and wires it to the email. */
+function createTesterForm() {
+  var form = FormApp.create(FORM_TITLE);
+  form.setDescription(
+    'لعبة مافيا جماعية بالعربي: العبوها على موبايل واحد في القعدة، أو أونلاين بالصوت مع صحابك.\n\n' +
+    'اللعبة في الاختبار المقفول على جوجل بلاي، وبندوّر على مختبرين أندرويد (١٦ سنة أو أكتر).\n' +
+    'سجّل اسمك وإيميل حساب جوجل اللي على موبايلك، وهيوصلك إيميل على طول فيه لينك التنزيل.\n\n' +
+    'بنستخدم الاسم والإيميل بس عشان نبعتلك إيميل واحد بلينك التنزيل.');
+  form.setConfirmationMessage(
+    'اتسجّلت! هيوصلك إيميل دلوقتي فيه زرار «نزّل اللعبة». ' +
+    'لو مش لاقيه، بص في «الترويجات» أو «الرسائل غير المرغوب فيها».');
+  form.setShowLinkToRespondAgain(false);
+  form.setAllowResponseEdits(false);
+  form.addImageItem()
+    .setImage(UrlFetchApp.fetch('https://saidalmafia.com/beta/art/mail_header.png').getBlob())
+    .setAlignment(FormApp.Alignment.CENTER);
+  form.addTextItem().setTitle(FORM_NAME).setRequired(true);
+  form.addTextItem()
+    .setTitle(FORM_EMAIL)
+    .setHelpText('نفس الحساب اللي فاتح بيه جوجل بلاي على موبايلك.')
+    .setRequired(true)
+    .setValidation(FormApp.createTextValidation()
+      .setHelpText('اكتب إيميل صحيح')
+      .requireTextIsEmail()
+      .build());
+  ScriptApp.newTrigger('onTesterForm').forForm(form).onFormSubmit().create();
+  PropertiesService.getScriptProperties().setProperty('FORM_ID', form.getId());
+  Logger.log('FORM ' + form.getPublishedUrl());
+  Logger.log('EDIT ' + form.getEditUrl());
+}
+
+function onTesterForm(e) {
+  var name = '';
+  var email = '';
+  e.response.getItemResponses().forEach(function (r) {
+    var title = r.getItem().getTitle();
+    var value = String(r.getResponse() || '').trim();
+    if (title === FORM_NAME) name = value.replace(/[<>&"]/g, '').slice(0, 40);
+    if (title === FORM_EMAIL) email = value.toLowerCase();
+  });
+  if (!EMAIL.test(email) || email.length > 120) return;
+  var props = PropertiesService.getScriptProperties();
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    if (props.getProperty('sent:' + email)) return;
+    if (MailApp.getRemainingDailyQuota() < 1) return;
+    send_(email, name);
+    props.setProperty('sent:' + email, new Date().toISOString());
+  } finally {
+    lock.releaseLock();
+  }
 }
