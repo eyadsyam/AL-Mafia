@@ -7,6 +7,7 @@ import '../../../data/player_profile.dart';
 import '../../../data/repository_provider.dart';
 import '../../../data/terms_consent.dart';
 import '../../../engine/models/player.dart';
+import '../../../transport/account_auth.dart' show AccountProfile;
 import '../../account/account_sheet.dart' show accountProfileProvider;
 import '../../account/onboarding_account_step.dart';
 import '../../l10n_ext.dart';
@@ -122,6 +123,52 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     // A previous acceptance of an older version leaves the 18+ answer; the
     // terms box is always unticked.
     _adult = ref.read(termsAcceptanceProvider).valueOrNull?.adult ?? false;
+    if (!widget.termsOnly) _restore();
+  }
+
+  /// Set by the player's first move, so a slow read never drags them back.
+  bool _touched = false;
+
+  /// Back where the player was before the app was closed under them (the
+  /// Google browser trip): the chapter, and the name and gender typed.
+  Future<void> _restore() async {
+    final saved = await FirstRunProgress.load();
+    if (saved == null || _touched || !mounted) return;
+    final index = _chapters.indexWhere((c) => c.name == saved.chapter);
+    if (index <= 0) return;
+    setState(() {
+      _step = index;
+      if (_name.text.trim().isEmpty) _name.text = saved.name;
+      if (_gender == PlayerGender.unspecified) _gender = saved.gender;
+    });
+    // Came back from the browser already signed in: on to the name.
+    final profile = ref.read(accountProfileProvider).valueOrNull;
+    if (_chapters[_step] == _Chapter.account && (profile?.signedIn ?? false)) {
+      _afterSignIn(profile!);
+    }
+  }
+
+  void _saveProgress() {
+    if (widget.termsOnly) return;
+    FirstRunProgress(
+      chapter: _chapters[_step].name,
+      name: _name.text,
+      gender: _gender,
+    ).save();
+  }
+
+  /// Signed in on the account chapter: the next chapter is the name, offered
+  /// as the account knows it (still editable).
+  void _afterSignIn(AccountProfile profile) {
+    if (_chapters[_step] != _Chapter.account) return;
+    final known = profile.name;
+    if (_name.text.trim().isEmpty && known != null) {
+      _name.text = known.characters
+          .take(ProfileIdentityFields.maxNameLength)
+          .toString()
+          .trim();
+    }
+    _move(_step + 1);
   }
 
   @override
@@ -151,6 +198,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       }
       // Last, and required: the gate opens when this lands.
       await ref.read(termsAcceptanceProvider.notifier).accept(adult: _adult);
+      await FirstRunProgress.clear();
     } catch (_) {
       if (mounted) setState(() => _failed = true);
     } finally {
@@ -175,7 +223,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
 
   void _move(int step) {
     FocusManager.instance.primaryFocus?.unfocus();
+    _touched = true;
     setState(() => _step = step);
+    _saveProgress();
     if (_scroll.hasClients) _scroll.jumpTo(0);
   }
 
@@ -208,6 +258,17 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     final signedIn =
         _chapters.contains(_Chapter.account) &&
         (ref.watch(accountProfileProvider).valueOrNull?.signedIn ?? false);
+    if (_chapters.contains(_Chapter.account) && !widget.termsOnly) {
+      ref.listen<AsyncValue<AccountProfile>>(accountProfileProvider, (
+        previous,
+        next,
+      ) {
+        final now = next.valueOrNull;
+        if (next.hasError || now == null || !now.signedIn) return;
+        if (previous?.valueOrNull?.signedIn ?? false) return;
+        _afterSignIn(now);
+      });
+    }
     return PopScope(
       canPop: widget.termsOnly || _step == 0,
       onPopInvokedWithResult: (didPop, _) {
@@ -320,9 +381,16 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                                     nameKey: FirstRunScreen.nameKey,
                                     gender: _gender,
                                     avatarDiameter: s.xl * 2,
-                                    onGender: (v) =>
-                                        setState(() => _gender = v),
-                                    onNameChanged: (_) => setState(() {}),
+                                    onGender: (v) {
+                                      _touched = true;
+                                      setState(() => _gender = v);
+                                      _saveProgress();
+                                    },
+                                    onNameChanged: (_) {
+                                      _touched = true;
+                                      setState(() {});
+                                      _saveProgress();
+                                    },
                                     onSubmitted: (_) {
                                       if (_profileReady) _move(_step + 1);
                                     },

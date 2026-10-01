@@ -20,6 +20,9 @@ class _FakeAuth extends AccountAuth {
   Future<void> google() async => calls.add('google');
 
   @override
+  Future<void> googleSignIn() async => calls.add('googleSignIn');
+
+  @override
   Future<void> startSignUp(String email, String password) async =>
       calls.add('startSignUp:$email');
 }
@@ -87,7 +90,9 @@ void main() {
     expect(find.byKey(AccountSheet.haveKey), findsOneWidget);
     await tester.tap(find.byKey(AccountSheet.googleKey));
     await tester.pumpAndSettle();
-    expect(auth.calls, ['google']);
+    // First run signs in to Google (nothing to link yet; see
+    // oauth_return_test.dart).
+    expect(auth.calls, ['googleSignIn']);
     expect(tester.takeException(), isNull);
   });
 

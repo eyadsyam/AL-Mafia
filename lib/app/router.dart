@@ -117,6 +117,64 @@ String? systemBackTarget(String location, {bool hasGroups = true}) {
   return null;
 }
 
+/// The parameters an auth return carries (PKCE code, implicit tokens, or the
+/// refusal), the same set `supabase_flutter` looks for.
+const _authKeys = {
+  'code',
+  'access_token',
+  'refresh_token',
+  'expires_in',
+  'expires_at',
+  'token_type',
+  'provider_token',
+  'provider_refresh_token',
+  'type',
+  'error',
+  'error_code',
+  'error_description',
+};
+
+/// Whether [uri] is a Google / email-link return rather than a page address.
+///
+/// Android hands every intent's link to the router *and* to the auth client.
+/// `mafiamaster://login-callback?code=…` has no path, so the router used to
+/// read it as Home: a first-run screen started again at its first chapter
+/// and a profile with its account sheet open was closed under the player
+/// (owner report, 2026-10-01). The link belongs to Supabase alone.
+bool isAuthCallback(Uri uri) {
+  if (uri.host == 'login-callback') return true;
+  final fragment = uri.fragment.contains('=')
+      ? Uri.splitQueryString(uri.fragment)
+      : const <String, String>{};
+  bool has(String key) =>
+      uri.queryParameters.containsKey(key) || fragment.containsKey(key);
+  return has('code') ||
+      has('access_token') ||
+      has('error_code') ||
+      has('error_description');
+}
+
+/// Where an auth return sends the router: nowhere new.
+///
+/// While the app is running ([current] is the page on screen) the player
+/// stays exactly there, with the same page and its state. On a cold start
+/// (the app was closed while the browser was open, or the web page reloaded)
+/// the address is kept without its auth part, so `/admin?code=…` is still
+/// the admin page and the bare callback is Home. Null for any other link.
+String? authCallbackRedirect(Uri incoming, Uri? current) {
+  if (!isAuthCallback(incoming)) return null;
+  if (current != null && !isAuthCallback(current)) return current.toString();
+  final query = Map<String, String>.of(incoming.queryParameters)
+    ..removeWhere((key, _) => _authKeys.contains(key));
+  final path = incoming.host == 'login-callback' || incoming.path.isEmpty
+      ? Routes.home
+      : incoming.path;
+  return Uri(
+    path: path,
+    queryParameters: query.isEmpty ? null : query,
+  ).toString();
+}
+
 /// Builds the app's router.
 ///
 /// Takes a [WidgetRef] rather than reading providers inside each builder so
@@ -253,7 +311,17 @@ GoRouter buildRouter(
     await startMatch(context);
   }
 
-  return GoRouter(
+  GoRouter? router;
+  return router = GoRouter(
+    // An auth return (Google, an email link) is never a navigation; see
+    // [isAuthCallback].
+    redirect: (context, state) {
+      final current = router?.routerDelegate.currentConfiguration;
+      return authCallbackRedirect(
+        state.uri,
+        current == null || current.isEmpty ? null : current.uri,
+      );
+    },
     // Exposed so app-level overlays (the resume prompt) can reach a context
     // that is *below* the Navigator. `MaterialApp.builder` runs above it, and
     // `showDialog` from there throws.

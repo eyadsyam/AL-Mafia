@@ -7370,6 +7370,12 @@ abstract class AppLocalizations {
   /// **'Sign in with that Google account'**
   String get authGoogleUseExisting;
 
+  /// No description provided for @authGoogleKeepGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay a guest, keep my coins and items'**
+  String get authGoogleKeepGuest;
+
   /// No description provided for @authGuestTitle.
   ///
   /// In en, this message translates to:

@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/motion_preference.dart';
+import '../data/player_profile.dart' show playerProfileProvider;
+import '../data/terms_consent.dart' show termsAcceptanceProvider;
 import '../data/player_group_provider.dart';
 import '../engine/models/enums.dart' show GamePhase;
 import '../platform/audio_director.dart';
@@ -45,6 +47,12 @@ import '../ui/screens/online/online_session.dart'
 import 'locale_controller.dart';
 import '../ui/widgets/warmup_gate.dart';
 import '../ui/social/incoming_invite.dart';
+import '../transport/account_auth.dart' show AccountProfile;
+import '../transport/account_service.dart' show AccountFailure;
+import '../ui/account/account_sheet.dart'
+    show AccountSheet, accountProfileProvider, showAccountSheet;
+import '../ui/account/onboarding_account_step.dart'
+    show accountsAvailableProvider;
 
 /// Root app widget for Mafia Master.
 ///
@@ -249,6 +257,11 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   @override
   Future<bool> didPopRoute() async {
     if (_navigatorKey.currentState?.canPop() ?? false) return false;
+    // First run (or the terms prompt) stands in for whatever route is open,
+    // and owns back itself: one chapter at a time (its PopScope). Going to
+    // the route's logical parent instead built a new first-run screen at the
+    // first chapter, so back from the name restarted onboarding.
+    if (_setupPending()) return false;
     final location = _router.routerDelegate.currentConfiguration.uri.path;
     final target = systemBackTarget(
       location,
@@ -272,6 +285,14 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     }
     _router.go(target);
     return true;
+  }
+
+  /// Whether `SetupRequired` is showing the first-run screen over the route.
+  bool _setupPending() {
+    final profile = ref.read(playerProfileProvider);
+    final terms = ref.read(termsAcceptanceProvider);
+    if (profile.isLoading || terms.isLoading) return false;
+    return profile.valueOrNull == null || terms.valueOrNull?.current != true;
   }
 
   String _lastPath = '/';
@@ -375,8 +396,30 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     super.dispose();
   }
 
+  /// A Google return refused because that Google account is already another
+  /// player's, arriving when no account sheet is open (the app was closed
+  /// while the browser was up, and the sheet with it). Without this the guest
+  /// came back to Home, still a guest, told nothing. The sheet opens with the
+  /// two choices: sign in to that account, or stay the guest.
+  void _accountReturned(AsyncValue<AccountProfile>? _, AsyncValue<AccountProfile> next) {
+    final failure = next.error;
+    if (!next.hasError || failure is! AccountFailure) return;
+    if (failure.code != 'EMAIL_TAKEN' || AccountSheet.isOpen) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = _navigatorKey.currentContext;
+      if (context == null || !context.mounted || AccountSheet.isOpen) return;
+      unawaited(showAccountSheet(context, failure: failure.code));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (ref.watch(accountsAvailableProvider)) {
+      ref.listen<AsyncValue<AccountProfile>>(
+        accountProfileProvider,
+        _accountReturned,
+      );
+    }
     ref.listen<WebAdRequest?>(webAdRequestProvider, (_, next) {
       if (next != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

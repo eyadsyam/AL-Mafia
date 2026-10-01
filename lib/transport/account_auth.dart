@@ -8,6 +8,14 @@ import 'account_service.dart';
 /// manifest and in the project's allowed redirect URLs.
 const oauthRedirect = 'mafiamaster://login-callback';
 
+/// Where a Google sign-in returns to: the app on a phone; on the web, the
+/// site the player is on. The project's Site URL used to decide the web case,
+/// and a player on one domain returned to the other lost the PKCE verifier
+/// kept in the first one's storage — the sign-in silently failed. (Must be
+/// in the allowed redirect URLs; when it is not, Supabase falls back to the
+/// Site URL, which is the old behaviour.)
+String get _oauthReturn => kIsWeb ? '${Uri.base.origin}/' : oauthRedirect;
+
 /// A full account: password, Google, sign in and out, forgotten passwords,
 /// and «تذكرني».
 ///
@@ -159,13 +167,17 @@ class AccountAuth {
         return AccountProfile.of(response.user);
       });
 
-  /// Google. A guest links Google to the identity they already have; if that
-  /// Google account already belongs to another player, this signs in to it.
-  /// Returns once the browser has been opened; the session arrives through
-  /// [changes] when the player comes back.
+  /// Google. A guest links Google to the identity they already have (same
+  /// user id, so every coin and item stays). Returns once the browser has
+  /// been opened; the session arrives through [changes] when the player comes
+  /// back. If that Google account already belongs to another player the
+  /// refusal also arrives there, as `EMAIL_TAKEN`, and the player chooses:
+  /// [googleSignIn] to that account, or stay the guest. (The server only
+  /// refuses on the way back, so the fallback below is for an older server
+  /// that refused up front.)
   Future<void> google() => _guard(() async {
     final auth = await _auth();
-    final redirect = kIsWeb ? null : oauthRedirect;
+    final redirect = _oauthReturn;
     final user = auth.currentUser;
     if (user != null && user.isAnonymous) {
       try {
@@ -253,12 +265,13 @@ class AccountAuth {
 
   /// Google, straight to sign-in: the choice a guest makes after learning the
   /// Google account already belongs to another player. This device leaves the
-  /// guest identity for that account.
+  /// guest identity for that account. Also first run's Google (nothing to
+  /// link yet).
   Future<void> googleSignIn() => _guard(() async {
     final auth = await _auth();
     await auth.signInWithOAuth(
       OAuthProvider.google,
-      redirectTo: kIsWeb ? null : oauthRedirect,
+      redirectTo: _oauthReturn,
       authScreenLaunchMode: LaunchMode.externalApplication,
     );
   });
@@ -281,10 +294,18 @@ class AccountAuth {
     }
   }
 
+  static bool _rememberApplied = false;
+
   /// Called once per launch when the client boots: an account that asked not
   /// to be remembered is signed out. Guests are always kept (their session is
   /// their only key to their coins).
+  ///
+  /// Once per *process*: the backend factory runs this on every call, so an
+  /// account that unticked «تذكرني» used to be signed out by the next server
+  /// call after signing in — a Google return undone a second later.
   static Future<void> applyRemember(GoTrueClient auth) async {
+    if (_rememberApplied) return;
+    _rememberApplied = true;
     final user = auth.currentUser;
     if (user == null || user.isAnonymous) return;
     if (await remember()) return;
@@ -305,6 +326,10 @@ class AccountProfile {
   final bool password;
   final DateTime? since;
 
+  /// The name the sign-in provider knows (Google's full name), offered as the
+  /// first-run name. Shown to nobody else from here.
+  final String? name;
+
   const AccountProfile({
     required this.signedIn,
     this.email,
@@ -312,7 +337,12 @@ class AccountProfile {
     this.google = false,
     this.password = false,
     this.since,
+    this.name,
   });
+
+  /// Whether [other] is a different identity, not just a refreshed token.
+  bool differs(AccountProfile other) =>
+      signedIn != other.signedIn || email != other.email;
 
   static const guest = AccountProfile(signedIn: false);
 
@@ -329,6 +359,15 @@ class AccountProfile {
       google: providers.contains('google'),
       password: providers.contains('email'),
       since: DateTime.tryParse(user.createdAt),
+      name: _metadataName(user.userMetadata),
     );
+  }
+
+  static String? _metadataName(Map<String, dynamic>? metadata) {
+    for (final key in const ['full_name', 'name']) {
+      final value = metadata?[key];
+      if (value is String && value.trim().isNotEmpty) return value.trim();
+    }
+    return null;
   }
 }

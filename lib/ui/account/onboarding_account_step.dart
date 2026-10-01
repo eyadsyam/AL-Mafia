@@ -60,7 +60,7 @@ class OnboardingAccountChoice extends ConsumerWidget {
     }
     return OutlinedButton.icon(
       key: signInKey,
-      onPressed: () => showAccountSheet(context),
+      onPressed: () => showAccountSheet(context, onboarding: true),
       icon: const Icon(Icons.login_rounded),
       label: Text(l.onboardAccountSignIn),
     );

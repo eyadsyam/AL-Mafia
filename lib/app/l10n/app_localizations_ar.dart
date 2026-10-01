@@ -4214,6 +4214,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authGoogleUseExisting => 'ادخل بحساب جوجل ده';
 
   @override
+  String get authGoogleKeepGuest => 'خلّيني ضيف بعملاتي وحاجاتي';
+
+  @override
   String get authGuestTitle => 'خلّي حسابك معاك';
 
   @override
