@@ -129,7 +129,6 @@ void main() {
     backend.responses['economy'] = wallet();
     await pumpStore(tester);
     expect(find.text('1000'), findsOneWidget);
-    expect(find.text(arStrings.coinsName), findsWidgets);
     for (final code in [
       'frame_gilded',
       'plate_noir',

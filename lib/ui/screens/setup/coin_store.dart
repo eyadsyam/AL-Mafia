@@ -415,7 +415,6 @@ class _VaultHeader extends StatelessWidget {
           child: LayoutBuilder(
             builder: (context, box) {
               final wide = box.maxWidth >= StoreTokens.headerWideAt;
-              final inline = box.maxWidth >= StoreTokens.headerInlineAt;
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -448,28 +447,12 @@ class _VaultHeader extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        // Beside the title when there is room for both.
-                        if (inline)
-                          _WalletStrip(balance: balance, loading: loading),
+                        // Exactly as wide as the number; the title yields.
+                        _WalletStrip(balance: balance, loading: loading),
                       ],
                     ),
                   ),
-                  // A phone: the balance on its own line under the title.
-                  if (!inline)
-                    Padding(
-                      padding: EdgeInsetsDirectional.only(
-                        start: s.md,
-                        end: s.sm,
-                        top: s.xs,
-                      ),
-                      child: Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: _WalletStrip(
-                          balance: balance,
-                          loading: loading,
-                        ),
-                      ),
-                    ),
+
                   TabBar(
                     isScrollable: true,
                     tabAlignment: wide
@@ -499,8 +482,9 @@ class _VaultHeader extends StatelessWidget {
   }
 }
 
-/// The balance as a pill in the vault's header, on every tab. How coins are
-/// earned is one tap away rather than three lines above the catalog.
+/// The balance as a pill in the vault's header, on every tab: the coin and
+/// the number only, so the pill is exactly as wide as the digits. How coins
+/// are earned is one tap away rather than three lines above the catalog.
 class _WalletStrip extends StatelessWidget {
   final int? balance;
   final bool loading;
@@ -536,17 +520,6 @@ class _WalletStrip extends StatelessWidget {
                 style: context.typography.title.copyWith(
                   color: colors.accentGold,
                 ),
-              ),
-            ),
-            SizedBox(width: s.xs),
-            Flexible(
-              child: Text(
-                l.coinsName,
-                style: context.typography.caption.copyWith(
-                  color: colors.textSecondary,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
             if (loading)

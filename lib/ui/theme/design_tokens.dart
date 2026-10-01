@@ -1542,9 +1542,6 @@ abstract final class StoreTokens {
   /// From this header width the tabs centre under the title.
   static const headerWideAt = 720.0;
 
-  /// From this header width the balance sits beside the title.
-  static const headerInlineAt = 480.0;
-
   /// A tab with its mark above its word.
   static const tabHeight = 60.0;
 
