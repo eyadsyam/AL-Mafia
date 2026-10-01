@@ -19,7 +19,12 @@ test('one AdSense publisher id everywhere it must match', () => {
       `${file} must list ${pub}`);
   }
   const dart = read('lib/ui/economy/web_ads.dart');
-  assert(dart.includes(`defaultValue: '${id}'`),
+  // The default is written as adjacent string literals (the web-safe-integer
+  // scan rejects a long digit run), so join them before comparing.
+  const literal = dart.match(/defaultValue:\s*((?:'[^']*'\s*)+),/);
+  assert(literal, 'kWebAdsenseClient default not found');
+  const dartId = [...literal[1].matchAll(/'([^']*)'/g)].map(m => m[1]).join('');
+  assert.equal(dartId, id,
     'kWebAdsenseClient default in lib/ui/economy/web_ads.dart must be ' + id);
   // The bridge must not hardcode a second copy of the id.
   const bridge = html.split('<script>').slice(1)

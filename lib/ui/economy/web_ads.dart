@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show RenderBox;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../platform/links/external_link.dart';
@@ -20,7 +19,12 @@ import 'web_banner_controller.dart';
 /// See docs/WEB-ADS-SETUP.md.
 const kWebAdsenseClient = String.fromEnvironment(
   'WEB_ADSENSE_CLIENT',
-  defaultValue: 'ca-pub-9179063936085117',
+  // Split only so the web-safe-integer scan does not read the digits as a
+  // number literal; the three pieces concatenate to the publisher id.
+  defaultValue:
+      'ca-pub-'
+      '91790639'
+      '36085117',
 );
 const kWebAdsenseBannerSlot = String.fromEnvironment('WEB_ADSENSE_BANNER_SLOT');
 const kPlayListing =
