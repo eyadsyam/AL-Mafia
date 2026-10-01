@@ -8,6 +8,7 @@
  */
 
 import { CORS_HEADERS, fail, ok, serviceClient } from "../_shared/api.ts";
+import { readCapped } from "../_shared/body.ts";
 
 export async function mailToken(secret: string, email: string): Promise<string> {
   const key = await crypto.subtle.importKey(
@@ -35,8 +36,8 @@ if (import.meta.main) {
     try {
       const secret = Deno.env.get("TESTER_MAIL_KEY") ?? "";
       if (secret.length < 32) return fail("NOT_CONFIGURED", "mail check is off", 503);
-      const raw = await req.text();
-      if (raw.length > 1024) return fail("BAD_REQUEST", "request is too large", 413);
+      const raw = await readCapped(req, 1024);
+      if (raw === null) return fail("BAD_REQUEST", "request is too large", 413);
       const body = JSON.parse(raw || "{}");
       const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
       const token = typeof body?.token === "string" ? body.token : "";

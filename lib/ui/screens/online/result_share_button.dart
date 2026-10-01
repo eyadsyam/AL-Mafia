@@ -53,7 +53,7 @@ class _ResultShareButtonState extends ConsumerState<ResultShareButton> {
           ? l10n.mafiaWins
           : l10n.townWins;
       final message = l10n.shareResultText(winner, widget.days).replaceAll(
-        'https://almafia.vercel.app',
+        'https://saidalmafia.com',
         kPublicWebOrigin,
       );
       final room = widget.roomId;

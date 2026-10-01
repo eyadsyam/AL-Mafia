@@ -18,6 +18,7 @@
  */
 
 import { CORS_HEADERS, fail, ok, serviceClient } from "../_shared/api.ts";
+import { readCapped } from "../_shared/body.ts";
 import { mailToken } from "../tester_mail_check/index.ts";
 
 const MAX_BODY = 2048;
@@ -28,32 +29,6 @@ function clean(value: unknown, max: number): string {
   // Control and format characters: zero-width marks and bidi overrides.
   return value.replace(/[\p{Cc}\p{Cf}]/gu, "")
     .replace(/\s+/g, " ").trim().slice(0, max + 1);
-}
-
-/** The body as text, or null once it passes MAX_BODY bytes; stops reading
- * there, whatever the declared length. */
-async function readCapped(req: Request): Promise<string | null> {
-  if (!req.body) return "";
-  const reader = req.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    size += value.byteLength;
-    if (size > MAX_BODY) {
-      await reader.cancel().catch(() => {});
-      return null;
-    }
-    chunks.push(value);
-  }
-  const all = new Uint8Array(size);
-  let at = 0;
-  for (const chunk of chunks) {
-    all.set(chunk, at);
-    at += chunk.byteLength;
-  }
-  return new TextDecoder().decode(all);
 }
 
 async function addressHash(req: Request, secret: string): Promise<string> {
@@ -109,7 +84,7 @@ Deno.serve(async (req) => {
     if (Number(req.headers.get("content-length") ?? "0") > MAX_BODY) {
       return fail("BAD_REQUEST", "request is too large", 413);
     }
-    const raw = await readCapped(req);
+    const raw = await readCapped(req, MAX_BODY);
     if (raw === null) return fail("BAD_REQUEST", "request is too large", 413);
 
     const secret = Deno.env.get("TESTER_HMAC_KEY") ?? "";
