@@ -63,13 +63,25 @@ try {
   // Returning-player state exposes Home directly. This uses the same persisted
   // shared_preferences key the app writes after its first-launch deck.
   await cmd('Page.addScriptToEvaluateOnNewDocument', {
-    source: "try { localStorage.setItem('flutter.mm.store.onboardingSeen.v1', 'true'); } catch (_) {}",
+    source: "try { localStorage.setItem('flutter.mafia.introSeen.v1', 'true'); localStorage.setItem('flutter.mm.store.onboardingSeen.v1', 'true'); localStorage.setItem('flutter.mafia.playerProfile.v1', JSON.stringify(JSON.stringify({name:'Browser Check',gender:'male'}))); } catch (_) {}",
   });
   await cmd('Page.navigate', { url: 'https://saidalmafia.com/' });
   await delay(65000);
   const page = await evaluate('({url:location.href,flutter:!!document.querySelector("flt-glass-pane"),ready:document.readyState,onboarding:localStorage.getItem("flutter.mm.store.onboardingSeen.v1"),text:document.body.innerText.slice(0,500)})');
+  const clip = { x: 0, y: 0, width: 390, height: 760, scale: 420 / 760 };
+  const breakShot = await cmd('Page.captureScreenshot', {
+    format: 'png', clip,
+  });
+  await writeFile('build/web_ads_interstitial_check.png', Buffer.from(breakShot.data, 'base64'));
+  // The app-open house break unlocks its close control after five seconds.
+  for (const type of ['mousePressed', 'mouseReleased']) {
+    await cmd('Input.dispatchMouseEvent', {
+      type, x: 195, y: 480, button: 'left', clickCount: 1,
+    });
+  }
+  await delay(3000);
   const shot = await cmd('Page.captureScreenshot', {
-    format: 'png', clip: { x: 0, y: 0, width: 390, height: 760, scale: 420 / 760 },
+    format: 'png', clip,
   });
   await writeFile('build/web_ads_check.png', Buffer.from(shot.data, 'base64'));
   assert(page.url.startsWith('https://saidalmafia.com/'), page.url);
