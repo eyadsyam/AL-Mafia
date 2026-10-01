@@ -52,20 +52,24 @@ function escapeHtml(value: string): string {
 }
 
 function welcomeText(name: string): string {
-  return `سيد المافيا | Mafia Master\nاللعبة مستنياك\n\nأهلاً ${name}،\n\n` +
-    `كمّل خطوات التنزيل: ${JOIN_URL}\n\n` +
-    "افتح الرابط من موبايلك الأندرويد بنفس حساب جوجل اللي سجّلت بيه. " +
-    "انضم للجروب، وبعدها الصفحة هتوصلك لتنزيل اللعبة.\n\n" +
-    "إياد — سيد المافيا";
+  return `أهلاً ${name}،\n\n` +
+    "شكرًا لتسجيلك لتجربة سيد المافيا. تقدر تكمل خطوات الانضمام من موبايل أندرويد باستخدام حساب جوجل نفسه اللي سجلت بيه.\n\n" +
+    `افتح صفحة الانضمام: ${JOIN_URL}\n\n` +
+    "من الصفحة، انضم إلى مجموعة المختبرين أولًا. بعد قبول العضوية، ارجع للصفحة نفسها علشان تفتح رابط تنزيل اللعبة من Google Play. " +
+    "لو رابط التنزيل ما ظهرش فورًا، ارجع للصفحة بعد شوية.\n\n" +
+    "وصلتك الرسالة لأنك سجلت لتجربة سيد المافيا. لو التسجيل مش منك، تجاهلها.\n\n" +
+    "إياد\nفريق سيد المافيا";
 }
 
 function welcomeHtml(name: string): string {
   return `<div dir="rtl" lang="ar" style="font-family:Tahoma,Arial,sans-serif;line-height:1.6;letter-spacing:0;text-align:right">` +
-    `<img src="https://saidalmafia.com/beta/art/mail_header.png" alt="سيد المافيا | Mafia Master — اللعبة مستنياك" style="display:block;max-width:100%;height:auto">` +
+    `<h1>خطوات الانضمام لتجربة سيد المافيا</h1>` +
     `<p>أهلاً <span dir="auto">${escapeHtml(name)}</span>،</p>` +
-    `<p><a href="${JOIN_URL}">كمّل خطوات التنزيل</a></p>` +
-    `<p>افتح الرابط من موبايلك الأندرويد بنفس حساب جوجل اللي سجّلت بيه. انضم للجروب، وبعدها الصفحة هتوصلك لتنزيل اللعبة.</p>` +
-    `<p>إياد — سيد المافيا</p></div>`;
+    `<p>شكرًا لتسجيلك لتجربة سيد المافيا. تقدر تكمل خطوات الانضمام من موبايل أندرويد باستخدام حساب جوجل نفسه اللي سجلت بيه.</p>` +
+    `<p><a href="${JOIN_URL}">افتح صفحة الانضمام</a></p>` +
+    `<p>من الصفحة، انضم إلى مجموعة المختبرين أولًا. بعد قبول العضوية، ارجع للصفحة نفسها علشان تفتح رابط تنزيل اللعبة من Google Play. لو رابط التنزيل ما ظهرش فورًا، ارجع للصفحة بعد شوية.</p>` +
+    `<p>وصلتك الرسالة لأنك سجلت لتجربة سيد المافيا. لو التسجيل مش منك، تجاهلها.</p>` +
+    `<p>إياد<br>فريق سيد المافيا</p></div>`;
 }
 
 /** Best effort: only a provider-accepted new-row email sets mailed_at. */
@@ -88,10 +92,13 @@ async function sendWelcome(
       body: JSON.stringify({
         from: "Mafia Master <eyad@saidalmafia.com>",
         to: [email],
-        reply_to: "eyadsyam124@gmail.com",
-        subject: "Your Mafia Master tester invite",
+        subject: "خطوات الانضمام لتجربة سيد المافيا",
         html: welcomeHtml(name),
         text: welcomeText(name),
+        headers: {
+          "Message-ID": `<tester-welcome-${id}@saidalmafia.com>`,
+          "List-Unsubscribe": "<mailto:eyad@saidalmafia.com?subject=unsubscribe>",
+        },
       }),
       signal: AbortSignal.timeout(10_000),
     });
