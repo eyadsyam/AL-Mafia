@@ -4700,7 +4700,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get thursdayLine =>
-      'كل خميس من 8 بالليل لحد 1: ماتشين في أوضتها = 40 نقطة موسم وختم.';
+      'كل خميس من 8 بالليل: ماتشين هنا = 40 نقطة موسم وختم.';
 
   @override
   String get thursdayOpensLater => 'بتفتح الساعة 8 بالليل';

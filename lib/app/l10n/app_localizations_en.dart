@@ -4785,7 +4785,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thursdayLine =>
-      'Every Thursday 8 PM to 1 AM: two matches in its room = 40 season points and a stamp.';
+      'Every Thursday from 8 PM: two matches here = 40 season points and a stamp.';
 
   @override
   String get thursdayOpensLater => 'Opens at 8 PM';

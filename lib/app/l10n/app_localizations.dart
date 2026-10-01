@@ -8081,7 +8081,7 @@ abstract class AppLocalizations {
   /// No description provided for @thursdayLine.
   ///
   /// In en, this message translates to:
-  /// **'Every Thursday 8 PM to 1 AM: two matches in its room = 40 season points and a stamp.'**
+  /// **'Every Thursday from 8 PM: two matches here = 40 season points and a stamp.'**
   String get thursdayLine;
 
   /// No description provided for @thursdayOpensLater.

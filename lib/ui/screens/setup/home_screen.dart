@@ -211,10 +211,7 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _cornerRow(context, ref, l10n),
-              ?banner,
-            ],
+            children: [_cornerRow(context, ref, l10n), ?banner],
           ),
         ),
       ),

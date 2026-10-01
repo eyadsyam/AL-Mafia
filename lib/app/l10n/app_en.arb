@@ -2832,7 +2832,7 @@
   "thursdayNight": "Thursday Night",
   "thursdayProgress": "Matches: {count}/2",
   "@thursdayProgress": {"placeholders": {"count": {"type": "int"}}},
-  "thursdayLine": "Every Thursday 8 PM to 1 AM: two matches in its room = 40 season points and a stamp.",
+  "thursdayLine": "Every Thursday from 8 PM: two matches here = 40 season points and a stamp.",
   "thursdayOpensLater": "Opens at 8 PM",
   "thursdayOpenRoom": "Open a Thursday room",
   "thursdayJoinRoom": "Join the Thursday room",

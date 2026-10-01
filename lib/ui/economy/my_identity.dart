@@ -78,7 +78,11 @@ class MyIdentityBadge extends ConsumerWidget {
             )
           : Column(
               mainAxisSize: MainAxisSize.min,
-              children: [avatar, SizedBox(height: s.sm), label],
+              children: [
+                avatar,
+                SizedBox(height: s.sm),
+                label,
+              ],
             ),
     );
   }

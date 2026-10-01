@@ -1837,7 +1837,7 @@
   ,"thursdayNight": "ليلة الخميس",
   "thursdayProgress": "الماتشات: {count}/2",
   "@thursdayProgress": {"placeholders": {"count": {"type": "int"}}},
-  "thursdayLine": "كل خميس من 8 بالليل لحد 1: ماتشين في أوضتها = 40 نقطة موسم وختم.",
+  "thursdayLine": "كل خميس من 8 بالليل: ماتشين هنا = 40 نقطة موسم وختم.",
   "thursdayOpensLater": "بتفتح الساعة 8 بالليل",
   "thursdayOpenRoom": "افتح أوضة الخميس",
   "thursdayJoinRoom": "ادخل أوضة الخميس",

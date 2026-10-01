@@ -590,7 +590,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                   // icon: the door stays about rooms.
                                   Row(
                                     children: [
-                                      Expanded(
+                                      Flexible(
                                         child: _IdentityChip(
                                           name: profile.name,
                                           gender: profile.gender,
@@ -869,10 +869,8 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       : (code) => _enter(code: code),
                                   onCreate: state.busy
                                       ? null
-                                      : () => _enter(
-                                          host: true,
-                                          thursday: true,
-                                        ),
+                                      : () =>
+                                            _enter(host: true, thursday: true),
                                 ),
                               ),
                             ),
@@ -983,60 +981,57 @@ class _IdentityChip extends StatelessWidget {
     final s = context.spacing;
     final l = context.l10n;
     final radius = BorderRadius.circular(context.radii.button);
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: Material(
-        color: c.surfaceRaised,
-        shape: RoundedRectangleBorder(
-          borderRadius: radius,
-          side: BorderSide(color: c.borderSubtle),
-        ),
-        child: InkWell(
-          key: chipKey,
-          borderRadius: radius,
-          onTap: onEdit,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minHeight: kMinInteractiveDimension,
+    return Material(
+      color: c.surfaceRaised,
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: BorderSide(color: c.borderSubtle),
+      ),
+      child: InkWell(
+        key: chipKey,
+        borderRadius: radius,
+        onTap: onEdit,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minHeight: kMinInteractiveDimension,
+          ),
+          child: Padding(
+            padding: EdgeInsetsDirectional.only(
+              start: s.xs,
+              end: s.sm,
+              top: s.xs,
+              bottom: s.xs,
             ),
-            child: Padding(
-              padding: EdgeInsetsDirectional.only(
-                start: s.xs,
-                end: s.sm,
-                top: s.xs,
-                bottom: s.xs,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  PlayerAvatar(
-                    name: name,
-                    gender: gender,
-                    diameter: kListAvatarDiameter,
-                  ),
-                  SizedBox(width: s.sm),
-                  Flexible(
-                    child: Text(
-                      l.onlinePlayingAs(name),
-                      style: context.typography.body.copyWith(
-                        color: c.textPrimary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PlayerAvatar(
+                  name: name,
+                  gender: gender,
+                  diameter: kListAvatarDiameter,
+                ),
+                SizedBox(width: s.sm),
+                Flexible(
+                  child: Text(
+                    l.onlinePlayingAs(name),
+                    style: context.typography.body.copyWith(
+                      color: c.textPrimary,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(width: s.sm),
-                  Tooltip(
-                    message: l.profileEdit,
-                    child: Icon(
-                      Icons.edit_outlined,
-                      size: s.md + s.xs,
-                      color: c.accentGold,
-                      semanticLabel: l.profileEdit,
-                    ),
+                ),
+                SizedBox(width: s.sm),
+                Tooltip(
+                  message: l.profileEdit,
+                  child: Icon(
+                    Icons.edit_outlined,
+                    size: s.md + s.xs,
+                    color: c.accentGold,
+                    semanticLabel: l.profileEdit,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
