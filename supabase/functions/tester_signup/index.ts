@@ -19,7 +19,6 @@
 
 import { CORS_HEADERS, fail, ok, serviceClient } from "../_shared/api.ts";
 import { readCapped } from "../_shared/body.ts";
-import { mailToken } from "../tester_mail_check/index.ts";
 
 const MAX_BODY = 2048;
 const EMAIL = /^[^\s@<>"',;]+@[^\s@<>"',;]+\.[a-z]{2,}$/;
@@ -45,31 +44,59 @@ async function addressHash(req: Request, secret: string): Promise<string> {
   return [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/**
- * The welcome email with the three links (join the group, opt in, install),
- * sent from the owner's Gmail by an Apps Script web app (tool/tester_mail/Code.gs).
- * The script holds no secret: it asks `tester_mail_check` whether the HMAC
- * token we send is ours and the address is still unmailed. Best effort: a missing hook, a slow answer
- * or a full daily quota never fails the sign-up; `mailed_at` stays null.
- */
+const JOIN_URL = "https://saidalmafia.com/beta/join/";
+
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+function welcomeText(name: string): string {
+  return `سيد المافيا | Mafia Master\nاللعبة مستنياك\n\nأهلاً ${name}،\n\n` +
+    `كمّل خطوات التنزيل: ${JOIN_URL}\n\n` +
+    "افتح الرابط من موبايلك الأندرويد بنفس حساب جوجل اللي سجّلت بيه. " +
+    "انضم للجروب، وبعدها الصفحة هتوصلك لتنزيل اللعبة.\n\n" +
+    "إياد — سيد المافيا";
+}
+
+function welcomeHtml(name: string): string {
+  return `<div dir="rtl" lang="ar" style="font-family:Tahoma,Arial,sans-serif;line-height:1.6;letter-spacing:0;text-align:right">` +
+    `<img src="https://saidalmafia.com/beta/art/mail_header.png" alt="سيد المافيا | Mafia Master — اللعبة مستنياك" style="display:block;max-width:100%;height:auto">` +
+    `<p>أهلاً <span dir="auto">${escapeHtml(name)}</span>،</p>` +
+    `<p><a href="${JOIN_URL}">كمّل خطوات التنزيل</a></p>` +
+    `<p>افتح الرابط من موبايلك الأندرويد بنفس حساب جوجل اللي سجّلت بيه. انضم للجروب، وبعدها الصفحة هتوصلك لتنزيل اللعبة.</p>` +
+    `<p>إياد — سيد المافيا</p></div>`;
+}
+
+/** Best effort: only a provider-accepted new-row email sets mailed_at. */
 async function sendWelcome(
   db: ReturnType<typeof serviceClient>,
   id: number,
   name: string,
   email: string,
 ): Promise<void> {
-  const url = Deno.env.get("TESTER_MAIL_URL") ?? "";
-  const key = Deno.env.get("TESTER_MAIL_KEY") ?? "";
-  if (!url.startsWith("https://script.google.com/") || key.length < 32) return;
+  const key = Deno.env.get("RESEND_API_KEY") ?? "";
+  if (!key) return;
   try {
-    const res = await fetch(url, {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, token: await mailToken(key, email) }),
+      headers: {
+        "Authorization": `Bearer ${key}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": `tester-welcome-${id}`,
+      },
+      body: JSON.stringify({
+        from: "Mafia Master <eyad@saidalmafia.com>",
+        to: [email],
+        reply_to: "eyadsyam124@gmail.com",
+        subject: "Your Mafia Master tester invite",
+        html: welcomeHtml(name),
+        text: welcomeText(name),
+      }),
       signal: AbortSignal.timeout(10_000),
     });
     const answer = await res.json().catch(() => ({}));
-    if (answer?.status === "sent") {
+    if (res.ok && typeof answer?.id === "string") {
       await db.from("tester_signups").update({ mailed_at: new Date().toISOString() }).eq("id", id);
     }
   } catch (_) {

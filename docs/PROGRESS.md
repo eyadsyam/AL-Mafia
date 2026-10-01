@@ -3589,3 +3589,10 @@ Files:      web/beta/join/index.html, web/beta/index.html, tool/tester_mail/Code
 Verified:   Playwright Chromium at 390x844: screenshot reviewed, Group popup opened, session state and fallback shown, Play navigation request observed after simulated return focus; JavaScript and PowerShell parse checks passed.
 Gate:       PASS
 Open:       Publication and running setFormThankYou are pending, as requested (no deploy).
+
+## PHASE TESTER-WELCOME-DOMAIN — blocked
+Built:      Prepared Resend-backed Arabic RTL welcome email for new signups, with one join link, plain text, Reply-To, and provider-accepted mailed_at semantics; no live changes.
+Files:      supabase/functions/tester_signup/index.ts, docs/PROGRESS.md
+Verified:   Cloudflare Wrangler authenticated with email_sending(write), but Email Sending list and enable both returned Unauthorized [2036]; Node syntax and git diff checks passed.
+Gate:       FAIL
+Open:       No domain sender deployed or inbox test run. Owner must create a Resend free account on phone, add saidalmafia.com, create a sending API key, and paste it as RESEND_API_KEY in Supabase project hezjbrnveajypfqmjfnh secrets. Then add Resend DNS records through Cloudflare, deploy tester_signup with verify_jwt=false, and test delivery.
