@@ -68,6 +68,7 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   bool _webAdShowing = false;
   bool _webAppOpenRequested = false;
   int _webCompletedMatches = 0;
+  final WebBreakPacer _webPacer = WebBreakPacer(gap: WebAdTokens.minBreakGap);
 
   Future<void> _showWebAd(WebAdMoment moment) async {
     if (!kIsWeb || _webAdShowing || !mounted) return;
@@ -94,32 +95,48 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
         (current == Routes.match && moment != WebAdMoment.afterMatch)) {
       return;
     }
+    // Back-navigation through /mode and /online must not chain breaks.
+    if (!_webPacer.canStart(moment)) return;
     final context = _navigatorKey.currentContext;
     if (context == null || !context.mounted) return;
     _webAdShowing = true;
     ref.read(webBreakActiveProvider.notifier).state = true;
     try {
-      // Hold the public screen in place while H5 decides. A player cannot tap
-      // through to a private turn while a late Google break is pending.
+      // A plain hold covers the public screen while Google decides, so a
+      // player cannot tap through to a private turn and the house creative
+      // never flashes ahead of a Google break. The house creative replaces
+      // the hold only after Google reports no fill, and a Google result that
+      // arrives after that is ignored (needsHouseInterstitial has answered).
+      final houseVisible = ValueNotifier<bool>(false);
+      var closed = false;
       final dialog = showGeneralDialog<void>(
         context: context,
         barrierDismissible: false,
         barrierLabel: context.l10n.adBannerLabel,
         barrierColor: Theme.of(context).colorScheme.surface,
         transitionDuration: WebAdTokens.transition,
-        pageBuilder: (_, _, _) => HouseWebInterstitial(moment: moment),
+        pageBuilder: (_, _, _) => ValueListenableBuilder<bool>(
+          valueListenable: houseVisible,
+          builder: (_, house, _) =>
+              house ? HouseWebInterstitial(moment: moment) : const WebAdHold(),
+        ),
       );
+      unawaited(dialog.whenComplete(() => closed = true));
       final house = await needsHouseInterstitial(
         caps.webAds,
         moment,
         ref.read(webBreakAttemptProvider),
       );
-      if (!house && mounted && context.mounted) {
+      if (house) {
+        houseVisible.value = true;
+      } else if (!closed && mounted && context.mounted) {
         _navigatorKey.currentState?.pop();
       }
       await dialog;
+      houseVisible.dispose();
     } finally {
       _webAdShowing = false;
+      _webPacer.breakEnded();
       if (mounted) ref.read(webBreakActiveProvider.notifier).state = false;
     }
   }

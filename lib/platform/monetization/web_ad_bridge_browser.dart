@@ -11,13 +11,25 @@ external void _h5Break(
   JSFunction done,
 );
 
-@JS('mafiaH5Banner')
-external void _h5Banner(JSString client, JSString slot, JSFunction done);
-@JS('mafiaH5HideBanner')
-external void _hideBanner();
+@JS('mafiaBannerShow')
+external void _bannerShow(
+  JSString client,
+  JSString slot,
+  JSNumber left,
+  JSNumber top,
+  JSNumber width,
+  JSNumber height,
+  JSFunction onFilled,
+);
+
+@JS('mafiaBannerHide')
+external void _bannerHide();
+
+final _publisher = RegExp(r'^ca-pub-[0-9]{16}$');
+final _slotShape = RegExp(r'^[0-9]{5,20}$');
 
 Future<bool> tryH5Break(String client, String type, String name) async {
-  if (!RegExp(r'^ca-pub-[0-9]{16}$').hasMatch(client)) return false;
+  if (!_publisher.hasMatch(client)) return false;
   final done = Completer<bool>();
   try {
     _h5Break(
@@ -37,31 +49,37 @@ Future<bool> tryH5Break(String client, String type, String name) async {
   }
 }
 
-Future<bool> tryH5Banner(String client, String slot) async {
-  if (!RegExp(r'^ca-pub-[0-9]{16}$').hasMatch(client) ||
-      !RegExp(r'^[0-9]{5,20}$').hasMatch(slot)) {
-    return false;
+void showGoogleBanner(
+  String client,
+  String slot,
+  double left,
+  double top,
+  double width,
+  double height,
+  void Function(bool filled) onFilled,
+) {
+  if (!_publisher.hasMatch(client) || !_slotShape.hasMatch(slot)) {
+    onFilled(false);
+    return;
   }
-  final done = Completer<bool>();
   try {
-    _h5Banner(
+    _bannerShow(
       client.toJS,
       slot.toJS,
-      ((JSBoolean shown) {
-        if (!done.isCompleted) done.complete(shown.toDart);
-      }).toJS,
-    );
-    return await done.future.timeout(
-      WebAdTokens.googleBannerTimeout,
-      onTimeout: () => false,
+      left.toJS,
+      top.toJS,
+      width.toJS,
+      height.toJS,
+      ((JSBoolean filled) => onFilled(filled.toDart)).toJS,
     );
   } catch (_) {
-    return false;
+    // Blockers must leave the house slot intact.
+    onFilled(false);
   }
 }
 
-void hideH5Banner() {
+void hideGoogleBanner() {
   try {
-    _hideBanner();
+    _bannerHide();
   } catch (_) {}
 }
