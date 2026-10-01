@@ -57,7 +57,7 @@ function send_(email, name) {
   MailApp.sendEmail({
     to: email,
     name: 'إياد من سيد المافيا',
-    subject: 'تسجيلك في اختبار سيد المافيا',
+    subject: 'Your Mafia Master tester invite',
     body: text_(name),
     htmlBody: html_(name),
   });
@@ -202,4 +202,15 @@ function backfillFormAnswers() {
     });
     Logger.log(register_(name, email));
   });
+}
+
+/** Run once from the editor: the thank-you page carries both links, so nobody waits on the email. */
+function setFormThankYou() {
+  var form = FormApp.openById(PropertiesService.getScriptProperties().getProperty('FORM_ID'));
+  form.setConfirmationMessage(
+    'اتسجّلت! الخطوة الجاية من موبايلك الأندرويد، بنفس حساب جوجل اللي كتبته:\n\n' +
+    '١. انضم لمختبرين سيد المافيا: ' + GROUP_URL + '\n' +
+    '٢. نزّل اللعبة («أصبح مختبِرًا» ثم «تنزيل»): ' + OPT_IN_URL + '\n\n' +
+    'هيوصلك كمان إيميل بنفس اللينكات. لو ملقتوش، بص في Spam ودوس «ليست رسالة غير مرغوب فيها».');
+  Logger.log('confirmation updated');
 }
