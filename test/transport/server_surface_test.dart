@@ -94,9 +94,13 @@ void main() {
       // would look completely normal doing it.
       // Not player endpoints, and each proves who is calling another way:
       // Google's signed AdMob callback, and a scheduler's shared secret.
+      // `tester_signup` is the one deliberately public door: the /beta form
+      // for people with no session. It can only append a name and email, and
+      // every request passes its atomic per-address limit first.
       const ownAuth = {
         'admob_ssv': 'verifySsv(url, loadKeys)',
         'play_voided_sync': 'request.headers.get("x-sync-secret") !== secret',
+        'tester_signup': 'db.rpc("tester_signup_attempt"',
       };
       final bare = <String>[];
       for (final dir in edgeFunctions()) {

@@ -12,7 +12,7 @@
  * Abuse bounds: every request is counted before anything else, duplicates and
  * honeypot hits included, by an atomic per-hour counter
  * (`tester_signup_attempt`): five per address, three hundred in all. The
- * address exists there only as an HMAC under the service key and is deleted
+ * address exists there only as an HMAC under its own secret (TESTER_HMAC_KEY) and is deleted
  * within two hours; the sign-up row never holds it. Bodies over 2 KB are
  * refused unread. `website` is a field people never see (bots fill it).
  */
@@ -29,12 +29,12 @@ function clean(value: unknown, max: number): string {
     .replace(/\s+/g, " ").trim().slice(0, max + 1);
 }
 
-async function addressHash(req: Request): Promise<string> {
+async function addressHash(req: Request, secret: string): Promise<string> {
   const address = req.headers.get("cf-connecting-ip") ??
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const key = await crypto.subtle.importKey(
     "raw",
-    new TextEncoder().encode(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""),
+    new TextEncoder().encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"],
@@ -53,8 +53,12 @@ Deno.serve(async (req) => {
     const raw = await req.text();
     if (raw.length > MAX_BODY) return fail("BAD_REQUEST", "request is too large", 413);
 
+    const secret = Deno.env.get("TESTER_HMAC_KEY") ?? "";
+    if (secret.length < 32) return fail("NOT_CONFIGURED", "sign-ups are closed", 503);
     const db = serviceClient();
-    const allowed = await db.rpc("tester_signup_attempt", { p_address: await addressHash(req) });
+    const allowed = await db.rpc("tester_signup_attempt", {
+      p_address: await addressHash(req, secret),
+    });
     if (allowed.error) throw new Error("limit check failed");
     if (allowed.data !== true) {
       return fail("RATE_LIMITED", "too many sign-ups, try again later", 429);
