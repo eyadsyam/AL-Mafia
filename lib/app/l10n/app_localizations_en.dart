@@ -5212,7 +5212,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateRequiredReload => 'Reload the page';
 
   @override
-  String get webAdAppCta => 'Download the app ? fewer ads';
+  String get webAdAppCta => 'Download the app — fewer ads';
 
   @override
   String get webAdPlayCaption => 'Mafia Master on Google Play';

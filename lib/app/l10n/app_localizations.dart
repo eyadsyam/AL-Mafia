@@ -8848,7 +8848,7 @@ abstract class AppLocalizations {
   /// No description provided for @webAdAppCta.
   ///
   /// In en, this message translates to:
-  /// **'Download the app ? fewer ads'**
+  /// **'Download the app — fewer ads'**
   String get webAdAppCta;
 
   /// No description provided for @webAdPlayCaption.
