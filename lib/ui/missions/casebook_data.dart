@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/models/enums.dart';
@@ -373,7 +375,9 @@ class CasebookController extends AsyncNotifier<Casebook> {
     } else {
       await refresh();
     }
-    ref.invalidate(walletProvider);
+    unawaited(
+      ref.read(walletProvider.notifier).settle(credited: _int(answer['coins'])),
+    );
     return CaseGrant(_int(answer['coins']), _int(answer['xp']));
   }
 

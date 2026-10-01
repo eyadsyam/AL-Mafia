@@ -3828,6 +3828,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adExtraUsed => 'Used today';
 
   @override
+  String get adPreparing => 'Getting the ad ready…';
+
+  @override
+  String get adRewardVerifying => 'Confirming your reward…';
+
+  @override
+  String get adRewardLateCheck => 'On its way · check again';
+
+  @override
+  String get wheelAgainAd => 'Spin again? Watch an ad';
+
+  @override
+  String cofferDoubleAd(int amount) {
+    return 'Double today\'s coffer? Watch an ad · +$amount';
+  }
+
+  @override
+  String dailyAdMore(int amount) {
+    return 'Want +$amount more? Watch an ad';
+  }
+
+  @override
+  String get contractSwapAd => 'Contract not for you? Swap it with an ad';
+
+  @override
   String get vaultOneTime => 'One time only';
 
   @override

@@ -15,6 +15,7 @@ import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
+import 'ad_extras.dart' show ContractSwapOffer;
 import 'council.dart';
 import 'council_art.dart';
 import 'cosmetic_paint.dart';
@@ -532,6 +533,8 @@ class _ContractsCard extends StatelessWidget {
           ],
         ),
       ],
+      // Today's optional swap, where the contracts are (phase 108 extra).
+      ContractSwapOffer(contracts: contracts),
     ]);
   }
 }

@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../platform/audio_director.dart';
 import '../../../platform/monetization/rewarded_ads.dart';
+import '../../economy/ad_veil.dart';
 import '../../economy/economy_capabilities.dart';
-import '../../economy/interstitial_coordinator.dart';
 import '../../economy/reward_poll.dart';
 import '../../economy/vault_kit.dart';
 import '../../economy/wallet.dart';
@@ -15,44 +14,19 @@ import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/settings_kit.dart';
 import 'online_session.dart';
-import 'voice_session.dart';
 
-/// Shows a rewarded ad with the table silenced: the player's microphone would
-/// otherwise carry the ad's audio into the room, and the score would play
-/// over it. Both are put back exactly as they were, whatever the outcome.
+/// Shows a rewarded ad with the table silenced (see [showRewardedWith]).
 Future<RewardedAdOutcome> showRewardedSilenced(
   WidgetRef ref, {
   required String customData,
   required String userId,
   required RewardedPlacement placement,
-}) async {
-  final voice = ref.read(voiceControllerProvider);
-  final audio = ref.read(audioDirectorProvider);
-  final coordinator = ref.read(interstitialCoordinatorProvider);
-  final micWasOpen = voice != null && !voice.selfMuted;
-  final audioWasMuted = audio.muted;
-  try {
-    if (micWasOpen) await voice.setSelfMuted(true);
-  } catch (_) {
-    // Voice is never load-bearing; the ad still runs.
-  }
-  audio.muted = true;
-  try {
-    final outcome = await ref
-        .read(rewardedAdsProvider)
-        .show(claimId: customData, userId: userId, placement: placement);
-    if (outcome == RewardedAdOutcome.earned ||
-        outcome == RewardedAdOutcome.dismissed) {
-      unawaited(coordinator.rewardedShown());
-    }
-    return outcome;
-  } finally {
-    audio.muted = audioWasMuted;
-    try {
-      if (micWasOpen) await voice.setSelfMuted(false);
-    } catch (_) {}
-  }
-}
+}) => showRewardedWith(
+  ref.read,
+  customData: customData,
+  userId: userId,
+  placement: placement,
+);
 
 /// One post-match step as the server describes it.
 class _Step {
@@ -120,6 +94,7 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
   @override
   void dispose() {
     _epoch++;
+    _warmTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -163,6 +138,7 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
         final status = await _call('ad_steps_status_v2');
         if (!mounted) return;
         _apply(status);
+        _warm();
         if (_mode == _Mode.legacy && status['state'] == 'pending') {
           await _recoverPoll();
         }
@@ -172,6 +148,25 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
       }
     }
     await _loadLegacy();
+    _warm();
+  }
+
+  Timer? _warmTimer;
+
+  /// The offer is on screen: its ad loads in the background, so the tap
+  /// shows it at once.
+  void _warm() {
+    if (!mounted || _awarded) return;
+    _warmTimer?.cancel();
+    _warmTimer = Timer(AdTokens.rewardedPreloadAfter, () {
+      if (!mounted || _awarded) return;
+      preloadRewarded(
+        ref.read(rewardedAdsProvider),
+        _mode == _Mode.steps
+            ? RewardedPlacement.matchStep
+            : RewardedPlacement.matchLegacy,
+      );
+    });
   }
 
   Future<void> _loadLegacy() async {
@@ -287,7 +282,7 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
         _stale = !landed;
       });
     }
-    if (landed) ref.invalidate(walletProvider);
+    if (landed) unawaited(ref.read(walletProvider.notifier).settle());
     return landed;
   }
 
@@ -297,7 +292,7 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
       if (!mounted) return;
       if (landed || _mode == _Mode.steps) {
         setState(() => _stale = false);
-        ref.invalidate(walletProvider);
+        unawaited(ref.read(walletProvider.notifier).settle());
       }
     } catch (_) {}
   }

@@ -1497,6 +1497,48 @@ abstract final class DailyTokens {
   static const cardMaxWidth = 560.0;
 }
 
+/// The win in the vault: the amount counting up over the prize while coins
+/// fly out of it, then the next offer appears.
+abstract final class WinTokens {
+  static const Duration reveal = Duration(milliseconds: 1700);
+
+  /// Reduce motion: the final number, held this long, then the next offer.
+  static const Duration hold = Duration(milliseconds: 900);
+
+  /// Share of [reveal] the count takes to reach the amount.
+  static const double countShare = 0.55;
+
+  /// Share of [reveal] the number takes to pop in, and the overshoot.
+  static const double popShare = 0.3;
+  static const double popFrom = 0.6;
+  static const double popPeak = 1.18;
+
+  /// The last share of [reveal] fades it out.
+  static const double fadeShare = 0.18;
+
+  static const int coins = 10;
+  static const double coin = 18.0;
+  static const double rise = 150.0;
+  static const double spread = 80.0;
+
+  /// Each coin leaves this share of [reveal] after the one before, and takes
+  /// [flightShare] of it to fly.
+  static const double stagger = 0.045;
+  static const double flightShare = 0.5;
+
+  /// The glow behind the number.
+  static const double glowBlur = 18.0;
+  static const double glowAlpha = 0.55;
+
+  /// One full turn of the wheel while the server confirms an extra spin,
+  /// and the turns it adds before settling on the server's slot.
+  static const Duration idleTurn = Duration(milliseconds: 900);
+  static const int landTurns = 3;
+
+  /// The balance in the vault's header counting to its new value.
+  static const Duration balanceCount = Duration(milliseconds: 900);
+}
+
 /// F9 Thursday Night's public online-entry banner.
 abstract final class ThursdayTokens {
   static const double bannerHeight = 104.0;
@@ -1637,6 +1679,25 @@ abstract final class AdTokens {
   static const appOpenResumeAfter = Duration(hours: 4);
   static const appOpenExpiry = Duration(hours: 4);
   static const appOpenMaxPerDay = 3;
+
+  /// A system back that reaches the game this soon after a full-screen ad
+  /// closed was meant for the ad (pressed again while it was closing): it is
+  /// swallowed, never allowed to close a screen, leave a room or exit.
+  static const backAfterAdGrace = Duration(milliseconds: 1500);
+
+  /// A preloaded rewarded ad is shown within this or thrown away (Google
+  /// expires them after an hour).
+  static const rewardedExpiry = Duration(minutes: 55);
+
+  /// How long an offer must stay on screen before its ad is preloaded, so
+  /// scrolling past a card never starts the SDK or a request.
+  static const rewardedPreloadAfter = Duration(milliseconds: 700);
+
+  /// The light veil a tap raises while its rewarded ad is being prepared.
+  static const loadingVeilAlpha = 0.72;
+  static const loadingVeilFade = Duration(milliseconds: 120);
+  static const loadingVeilSpinner = 28.0;
+  static const loadingVeilStroke = 2.5;
 
   /// Ads v3 (phase 110): global pacing for every full-screen ad (app-open
   /// and interstitials). A safety cap the server may only lower, and a gap

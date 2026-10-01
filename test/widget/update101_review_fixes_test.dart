@@ -92,10 +92,11 @@ Map<String, dynamic> caps({
   'products': products,
 };
 
+// The coffer is open: today's ad is offered in its card from then on.
 Map<String, dynamic> daily() => {
   'enabled': true,
   'day': '2026-09-25',
-  'coffer': {'claimed': false, 'amount': 20},
+  'coffer': {'claimed': true, 'amount': 20},
   'wheel': {
     'spun': false,
     'prizes': [

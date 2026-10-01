@@ -103,8 +103,12 @@ class MainActivity : FlutterActivity() {
 
     override fun onDestroy() {
         // A configuration change recreates this activity at once; the task is
-        // still on screen, so nothing may be disabled yet.
-        val closing = !isChangingConfigurations
+        // still on screen, so nothing may be disabled yet. Nor when Android
+        // destroys this activity behind another one of ours (a full-screen ad
+        // on a low-memory phone, or "don't keep activities"): disabling the
+        // alias then would finish the whole task, ad included, and the game
+        // would vanish the moment the ad closed. Only a real close applies it.
+        val closing = isFinishing && !isChangingConfigurations
         super.onDestroy()
         if (closing) applyPending()
     }

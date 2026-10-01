@@ -111,7 +111,9 @@ class AppOpenCoordinator {
       if (trigger == AppOpenTrigger.coldStart) {
         ledger = ledger.launched(_now());
       }
-      final away = FullScreenAway.lastMs;
+      // Measured from the return, not the departure: a long rewarded ad
+      // must not count as time away (phase 108: never an ad after an ad).
+      final away = FullScreenAway.awayMs;
       if (away != null && (ledger.awayMs ?? 0) < away) {
         ledger = ledger.away(away);
       }
@@ -268,6 +270,10 @@ class _AppOpenGateState extends ConsumerState<AppOpenGate>
 
   Future<bool> _busy(AppOpenTrigger trigger) async {
     try {
+      // Another full-screen ad is up, or the player just came back from one.
+      if (FullScreenAway.adShowing || FullScreenAway.swallowsBack()) {
+        return true;
+      }
       if (ref.read(onlineSessionProvider).isInRoom) return true;
       if (appOpenBlockedPath(widget.currentPath())) return true;
       if (trigger == AppOpenTrigger.coldStart) {
@@ -300,6 +306,8 @@ class _AppOpenGateState extends ConsumerState<AppOpenGate>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
+      // Our own full-screen ad covering the game is not the player leaving.
+      if (FullScreenAway.adShowing) return;
       // Remember an answer the app already has; never start a read here
       // (that would sign in and call the server on every launch).
       if (ref.exists(economyCapabilitiesProvider)) {
@@ -313,6 +321,9 @@ class _AppOpenGateState extends ConsumerState<AppOpenGate>
   }
 
   Future<void> _resumed() async {
+    // A return from our own full-screen ad is not a return to the app: the
+    // launch picture is never raised over it.
+    if (FullScreenAway.adShowing || FullScreenAway.swallowsBack()) return;
     if (!await _coordinator.mightShowOnResume() || !mounted) return;
     if (await _busy(AppOpenTrigger.resume) || !mounted) return;
     // The branded screen is back up while the ad is considered.

@@ -6572,6 +6572,48 @@ abstract class AppLocalizations {
   /// **'Used today'**
   String get adExtraUsed;
 
+  /// No description provided for @adPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting the ad ready…'**
+  String get adPreparing;
+
+  /// No description provided for @adRewardVerifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming your reward…'**
+  String get adRewardVerifying;
+
+  /// No description provided for @adRewardLateCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way · check again'**
+  String get adRewardLateCheck;
+
+  /// No description provided for @wheelAgainAd.
+  ///
+  /// In en, this message translates to:
+  /// **'Spin again? Watch an ad'**
+  String get wheelAgainAd;
+
+  /// No description provided for @cofferDoubleAd.
+  ///
+  /// In en, this message translates to:
+  /// **'Double today\'s coffer? Watch an ad · +{amount}'**
+  String cofferDoubleAd(int amount);
+
+  /// No description provided for @dailyAdMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Want +{amount} more? Watch an ad'**
+  String dailyAdMore(int amount);
+
+  /// No description provided for @contractSwapAd.
+  ///
+  /// In en, this message translates to:
+  /// **'Contract not for you? Swap it with an ad'**
+  String get contractSwapAd;
+
   /// No description provided for @vaultOneTime.
   ///
   /// In en, this message translates to:

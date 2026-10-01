@@ -2428,6 +2428,27 @@
   "adExtraSwapDone": "Contract swapped",
   "adExtraNoneLeft": "Nothing to swap today.",
   "adExtraUsed": "Used today",
+  "adPreparing": "Getting the ad ready…",
+  "adRewardVerifying": "Confirming your reward…",
+  "adRewardLateCheck": "On its way · check again",
+  "wheelAgainAd": "Spin again? Watch an ad",
+  "cofferDoubleAd": "Double today's coffer? Watch an ad · +{amount}",
+  "@cofferDoubleAd": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyAdMore": "Want +{amount} more? Watch an ad",
+  "@dailyAdMore": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "contractSwapAd": "Contract not for you? Swap it with an ad",
   "vaultOneTime": "One time only",
   "vaultBestValue": "Best value",
   "vaultMostCoins": "Most coins",
