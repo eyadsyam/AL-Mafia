@@ -52,6 +52,48 @@ void main() {
 
   setUp(() => localNow = DateTime.utc(2026, 9, 2, 12));
 
+  group('a room deleted while background work is in flight', () {
+    test(
+      'a realtime resync closes the room without an uncaught future',
+      () async {
+        await connect();
+        backend.fetchRefusal = const BackendException(
+          'ROOM_NOT_FOUND',
+          'no such room',
+        );
+
+        backend.pushResync();
+        await Future<void>.delayed(Duration.zero);
+        await Future<void>.delayed(Duration.zero);
+
+        expect(transport.snapshot.roomClosed, isTrue);
+        backend.calls.clear();
+        await transport.tick();
+        expect(backend.called('heartbeat'), isFalse);
+      },
+    );
+
+    test('a deadline drive stops after ROOM_NOT_FOUND', () async {
+      await connect(
+        state: roomState(
+          phase: 'night',
+          endsAt: localNow.subtract(const Duration(seconds: 1)),
+        ),
+      );
+      backend.refusals['advance_phase'] = const BackendException(
+        'ROOM_NOT_FOUND',
+        'no such room',
+      );
+
+      await transport.tick();
+
+      expect(transport.snapshot.roomClosed, isTrue);
+      backend.calls.clear();
+      await transport.tick();
+      expect(backend.called('heartbeat'), isFalse);
+    });
+  });
+
   test('an unacknowledged night action remains retryable', () async {
     await connect();
     backend.unreachable = true;
@@ -145,18 +187,21 @@ void main() {
       },
     );
 
-    test('D9: any server time (the ready deadline) reads on the local clock', () async {
-      final serverNow = DateTime.utc(2026, 9, 2, 12);
-      localNow = serverNow.subtract(const Duration(minutes: 3)); // slow phone
-      await connect(state: roomState(serverNow: serverNow));
-      expect(transport.serverClockOffset, const Duration(minutes: 3));
-      final readyDeadline = serverNow.add(const Duration(seconds: 45));
-      expect(
-        transport.onLocalClock(readyDeadline)!.difference(localNow),
-        const Duration(seconds: 45),
-      );
-      expect(transport.onLocalClock(null), isNull);
-    });
+    test(
+      'D9: any server time (the ready deadline) reads on the local clock',
+      () async {
+        final serverNow = DateTime.utc(2026, 9, 2, 12);
+        localNow = serverNow.subtract(const Duration(minutes: 3)); // slow phone
+        await connect(state: roomState(serverNow: serverNow));
+        expect(transport.serverClockOffset, const Duration(minutes: 3));
+        final readyDeadline = serverNow.add(const Duration(seconds: 45));
+        expect(
+          transport.onLocalClock(readyDeadline)!.difference(localNow),
+          const Duration(seconds: 45),
+        );
+        expect(transport.onLocalClock(null), isNull);
+      },
+    );
 
     test('a phase with no deadline renders none', () async {
       await connect(state: roomState(phase: 'morning'));

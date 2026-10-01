@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import '../data/motion_preference.dart';
 import '../data/player_group_provider.dart';
+import '../engine/models/enums.dart' show GamePhase;
 import '../platform/audio_director.dart';
 import '../platform/narrator_bank.dart';
 import '../platform/optional_service.dart';
@@ -39,7 +40,8 @@ import '../platform/monetization/web_ad_rules.dart';
 import '../ui/social/invite_privacy.dart';
 import '../ui/theme/design_tokens.dart';
 import '../platform/push/push_service.dart';
-import '../ui/screens/online/online_session.dart' show SupabaseConfig;
+import '../ui/screens/online/online_session.dart'
+    show SupabaseConfig, onlineSessionProvider;
 import 'locale_controller.dart';
 import '../ui/widgets/warmup_gate.dart';
 import '../ui/social/incoming_invite.dart';
@@ -254,6 +256,20 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
           ref.read(playerGroupsProvider).valueOrNull?.isNotEmpty ?? false,
     );
     if (target == null) return false;
+    if (location == Routes.lobby) {
+      final session = ref.read(onlineSessionProvider);
+      if (session.isInRoom &&
+          session.transport!.snapshot.phase != GamePhase.setup) {
+        _router.go(Routes.match);
+        return true;
+      }
+      await ref.read(onlineSessionProvider.notifier).leave();
+      if (!mounted ||
+          _router.routerDelegate.currentConfiguration.uri.path !=
+              Routes.lobby) {
+        return true;
+      }
+    }
     _router.go(target);
     return true;
   }

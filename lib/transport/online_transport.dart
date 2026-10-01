@@ -82,6 +82,7 @@ class OnlineTransport implements GameTransport {
   /// Whether a drive is already in flight, so a push and an alarm landing
   /// together do not both advance the room.
   bool _driving = false;
+  bool _roomGone = false;
 
   RoomState? _state;
   List<RoomPlayer> _players = const [];
@@ -372,7 +373,13 @@ class OnlineTransport implements GameTransport {
       if (_driving || _earlyKey != key) return;
       _driving = true;
       unawaited(
-        advancePhase().catchError((_) {}).whenComplete(() => _driving = false),
+        advancePhase()
+            .catchError((error) {
+              if (error is BackendException && error.code == 'ROOM_NOT_FOUND') {
+                _markRoomGone();
+              }
+            })
+            .whenComplete(() => _driving = false),
       );
     });
   }
@@ -512,6 +519,7 @@ class OnlineTransport implements GameTransport {
   // ---------------------------------------------------------------------------
 
   Future<void> _onPush(RoomPush push) async {
+    if (_roomGone || _controller.isClosed) return;
     if (push.disconnected) {
       _degrade();
       return;
@@ -582,6 +590,7 @@ class OnlineTransport implements GameTransport {
   /// Reads everything again and republishes. The recovery path (doc 10 §8.4).
   @override
   Future<void> resync() async {
+    if (_roomGone || _controller.isClosed) return;
     final inFlight = _resyncInFlight;
     if (inFlight != null) {
       _resyncAgain = true;
@@ -609,13 +618,14 @@ class OnlineTransport implements GameTransport {
         discardIfSuperseded: superseded < _maxSupersededReads,
       );
       superseded = applied ? 0 : superseded + 1;
-    } while (_resyncAgain);
+    } while (_resyncAgain && !_roomGone);
   }
 
   /// False when the read was dropped because a newer row arrived meanwhile.
   Future<bool> _performResync({bool discardIfSuperseded = false}) async {
     try {
       final rows = await backend.fetchRows(roomId);
+      if (_roomGone || _controller.isClosed) return true;
       if (discardIfSuperseded && _deltaDuringRead) {
         _resyncAgain = true;
         return false;
@@ -629,8 +639,25 @@ class OnlineTransport implements GameTransport {
       _publish();
     } on BackendUnreachable {
       _degrade();
+    } on BackendException catch (e) {
+      if (e.code != 'ROOM_NOT_FOUND') rethrow;
+      _markRoomGone();
     }
     return true;
+  }
+
+  /// A deleted room cannot answer another beat or poll. Tell the current
+  /// screen it closed so its normal leave path clears the resume pointer.
+  void _markRoomGone() {
+    if (_roomGone || _controller.isClosed) return;
+    _roomGone = true;
+    _ticker?.cancel();
+    _deadlineAlarm?.cancel();
+    _earlyAlarm?.cancel();
+    _ballotPoll?.cancel();
+    _retry?.cancel();
+    _snapshot = _snapshot.copyWith(roomClosed: true);
+    _controller.add(_snapshot);
   }
 
   /// Back to connected, and the backoff forgotten.
@@ -675,17 +702,17 @@ class OnlineTransport implements GameTransport {
   bool _foreground = true;
 
   Future<void> tick() async {
-    if (!_foreground) return;
+    if (!_foreground || _roomGone || _controller.isClosed) return;
     try {
       await backend.call('heartbeat', {'roomId': roomId});
       _restore();
     } on BackendUnreachable {
       _degrade();
       return;
-    } on BackendException {
-      // A refusal to a heartbeat is not worth acting on: it means this client
-      // is no longer a member, and the screen it is on will find out from the
-      // next read.
+    } on BackendException catch (e) {
+      // A deleted room cannot answer another beat. Other refusals are left to
+      // the next full read, which still owns the room's authoritative state.
+      if (e.code == 'ROOM_NOT_FOUND') _markRoomGone();
       return;
     }
     await _claimHostIfAbandoned();
@@ -749,9 +776,10 @@ class OnlineTransport implements GameTransport {
     try {
       await backend.call('set_presence', {'roomId': roomId, 'status': status});
       _restore();
-    } on BackendException {
-      // Not a member any more, or the room is gone. The screen finds out from
-      // the next read; a presence update is not the place to say so.
+    } on BackendException catch (e) {
+      // An explicit leave is already tearing down the session. A background
+      // presence update is not, so a deleted room must close that screen.
+      if (status != 'left' && e.code == 'ROOM_NOT_FOUND') _markRoomGone();
     } on BackendUnreachable {
       _degrade();
     }
@@ -792,9 +820,10 @@ class OnlineTransport implements GameTransport {
 
     try {
       await backend.call('claim_host', {'roomId': roomId});
-    } on BackendException {
+    } on BackendException catch (e) {
       // Somebody else got there first, or the host answered after all. Either
       // way the room has a host, which is the only thing this cared about.
+      if (e.code == 'ROOM_NOT_FOUND') _markRoomGone();
     } on BackendUnreachable {
       _degrade();
     }
@@ -805,10 +834,19 @@ class OnlineTransport implements GameTransport {
   /// The deadline is the server's and the server re-checks it, so a client with
   /// a fast clock cannot end a phase early: it can only ask, and be refused.
   Future<void> _applyExpiryIfDue() async {
-    if (_state == null || _driving || !_mayDrive) return;
+    if (_state == null ||
+        _driving ||
+        _roomGone ||
+        _controller.isClosed ||
+        !_mayDrive) {
+      return;
+    }
     _driving = true;
     try {
       await advancePhase();
+    } on BackendException catch (e) {
+      if (e.code != 'ROOM_NOT_FOUND') rethrow;
+      _markRoomGone();
     } finally {
       _driving = false;
     }
@@ -1302,6 +1340,7 @@ class OnlineTransport implements GameTransport {
 
   @override
   Future<void> dispose() async {
+    _roomGone = true;
     _ticker?.cancel();
     _deadlineAlarm?.cancel();
     _earlyAlarm?.cancel();

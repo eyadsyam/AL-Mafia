@@ -86,6 +86,29 @@ void main() {
     expect(find.byType(LobbyScreen), findsOneWidget);
   });
 
+  testWidgets('system back from a waiting lobby gives up its seat', (
+    tester,
+  ) async {
+    final container = await launch(tester, Routes.online);
+    final session = container.read(onlineSessionProvider.notifier);
+    await tester.runAsync(() => session.host('A'));
+    GoRouter.of(
+      tester.element(find.byType(OnlineEntryScreen)),
+    ).go(Routes.lobby);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(LobbyScreen), findsOneWidget);
+
+    await tester.runAsync(() => tester.binding.handlePopRoute());
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(OnlineEntryScreen), findsOneWidget);
+    expect(container.read(onlineSessionProvider).isInRoom, isFalse);
+    expect(await OnlineSessionStore.load(), isNull);
+    expect(session.seatedElsewhere('ZZZZZZ'), isFalse);
+  });
+
   testWidgets('the match without a match and without a pointer goes Home', (
     tester,
   ) async {

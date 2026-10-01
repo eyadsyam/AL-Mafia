@@ -363,5 +363,26 @@ void main() {
         expect(backend.calls, isEmpty);
       },
     );
+
+    test('leaving a deleted lobby forgets it before another join', () async {
+      final backend = fake();
+      final container = containerFor(() async => backend);
+      final session = container.read(onlineSessionProvider.notifier);
+      await session.host('A');
+      backend.refusals['leave_room'] = const BackendException(
+        'ROOM_NOT_FOUND',
+        'no such room',
+      );
+      backend.refusals['set_presence'] = const BackendException(
+        'ROOM_NOT_FOUND',
+        'no such room',
+      );
+
+      await session.leave();
+
+      expect(container.read(onlineSessionProvider).isInRoom, isFalse);
+      expect(await OnlineSessionStore.load(), isNull);
+      expect(session.seatedElsewhere('ZZZZZZ'), isFalse);
+    });
   });
 }

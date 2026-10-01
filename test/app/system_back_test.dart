@@ -18,7 +18,7 @@ void main() {
       expect(systemBackTarget(Routes.settings), Routes.roles);
     });
 
-    test('leaves the lobby for the online door without leaving the room', () {
+    test('routes a lobby back to the online door', () {
       expect(systemBackTarget(Routes.lobby), Routes.online);
     });
 

@@ -53,6 +53,7 @@ class FakeBackend implements OnlineBackend {
   /// [stickyRefusals] holds the name, so a test can make one call fail and the
   /// retry succeed.
   final Map<String, BackendException> refusals = {};
+  BackendException? fetchRefusal;
   final Set<String> stickyRefusals = {};
 
   /// When true, everything throws [BackendUnreachable] — the network, gone.
@@ -209,6 +210,7 @@ class FakeBackend implements OnlineBackend {
   Future<RoomRows> fetchRows(String room) async {
     _guard();
     fetches++;
+    if (fetchRefusal case final refusal?) throw refusal;
     // The rows are read now; a slow network only delays their arrival.
     final rows = RoomRows(
       state: _state,

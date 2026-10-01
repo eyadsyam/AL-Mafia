@@ -92,9 +92,8 @@ abstract final class Routes {
 /// gesture anywhere — the mode choice, the online door, the room settings
 /// sheet's parent — used to finish the activity and drop the player on the
 /// launcher. This mirrors each screen's own back control, so the two agree.
-/// The lobby goes back to the online door *without* leaving the room: the
-/// seat is kept, and the door offers to resume it, exactly as a browser
-/// refresh does.
+/// The lobby goes back to the online door. [MafiaApp.didPopRoute] first leaves
+/// a waiting lobby, so its resume pointer cannot masquerade as a live match.
 String? systemBackTarget(String location, {bool hasGroups = true}) {
   if (location == Routes.mode) return Routes.home;
   if (location == Routes.online) return Routes.mode;
