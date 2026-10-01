@@ -31,37 +31,75 @@ final accountAuthProvider = Provider<AccountAuth>((ref) {
 
 /// The signed-in identity, refreshed on every auth change (a Google return,
 /// a sign-out, a confirmed email).
+///
+/// A Google return lands here whether or not a screen that shows the identity
+/// is open, so whatever reads the identity (the wallet, email protection, the
+/// store's capabilities) is read again here, not only by the sheet that
+/// started the sign-in — the sheet may be long gone when the browser returns.
 final accountProfileProvider = StreamProvider<AccountProfile>((ref) async* {
   final auth = ref.read(accountAuthProvider);
-  yield await auth.profile();
-  yield* auth.changes();
+  var last = await auth.profile();
+  yield last;
+  yield* auth.changes().map((now) {
+    if (last.differs(now)) {
+      ref.invalidate(accountStatusProvider);
+      ref.invalidate(economyCapabilitiesProvider);
+      ref.invalidate(walletProvider);
+    }
+    last = now;
+    return now;
+  });
 });
 
 /// Opens the account sheet: guest → create/sign in; account → manage.
-Future<void> showAccountSheet(BuildContext context) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: context.colors.surfaceBase,
-      builder: (_) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: const FractionallySizedBox(
-          heightFactor: AccountTokens.sheetHeight,
-          child: AccountSheet(),
-        ),
-      ),
-    );
+///
+/// [onboarding]: the first-run chapter's sheet. It closes itself once the
+/// player is signed in (the chapter then moves on to the name), and Google
+/// signs in rather than links: a fresh install has no progress to keep, and
+/// a returning player's Google account would otherwise be refused as
+/// «already linked» and need a second trip through the browser.
+///
+/// [failure]: a refusal that came back with the browser while no sheet was
+/// open (the app was restarted under it); the sheet opens saying it.
+Future<void> showAccountSheet(
+  BuildContext context, {
+  bool onboarding = false,
+  String? failure,
+}) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  backgroundColor: context.colors.surfaceBase,
+  builder: (_) => Padding(
+    padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+    child: FractionallySizedBox(
+      heightFactor: AccountTokens.sheetHeight,
+      child: AccountSheet(onboarding: onboarding, failure: failure),
+    ),
+  ),
+);
 
 enum AccountStep { hub, signUp, verify, signIn, forgot, forgotCode, password }
 
 class AccountSheet extends ConsumerStatefulWidget {
   final AccountStep initial;
-  const AccountSheet({super.key, this.initial = AccountStep.hub});
+  final bool onboarding;
+  final String? failure;
+  const AccountSheet({
+    super.key,
+    this.initial = AccountStep.hub,
+    this.onboarding = false,
+    this.failure,
+  });
+
+  static int _open = 0;
+
+  /// Whether an account sheet is on screen (so a refusal arriving with the
+  /// browser is already being said, and must not open a second one).
+  static bool get isOpen => _open > 0;
 
   static const googleKey = ValueKey('account_google');
   static const googleExistingKey = ValueKey('account_google_existing');
+  static const keepGuestKey = ValueKey('account_keep_guest');
   static const createKey = ValueKey('account_create');
   static const haveKey = ValueKey('account_have');
   static const emailKey = ValueKey('account_email_field');
@@ -97,16 +135,43 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
   int _cooldown = 0;
   Timer? _timer;
 
+  /// Onboarding: signed in while a step was still finishing; close after it.
+  bool _closePending = false;
+
   @override
   void initState() {
     super.initState();
+    AccountSheet._open++;
+    _googleTaken = widget.failure == 'EMAIL_TAKEN';
     AccountAuth.remember().then((v) {
       if (mounted) setState(() => _remember = v);
     });
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final failure = widget.failure;
+    if (failure != null && _error == null) {
+      _error = _googleTaken ? context.l10n.authGoogleTaken : _message(failure);
+    }
+  }
+
+  /// The onboarding sheet's job is done once the player is signed in.
+  void _closeWhenSignedIn() {
+    if (!widget.onboarding || !mounted) return;
+    if (_busy) {
+      _closePending = true;
+      return;
+    }
+    _closePending = false;
+    final route = ModalRoute.of(context);
+    if (route != null && route.isCurrent) Navigator.of(context).pop();
+  }
+
+  @override
   void dispose() {
+    AccountSheet._open--;
     _timer?.cancel();
     _email.dispose();
     _password.dispose();
@@ -166,6 +231,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       if (mounted) setState(() => _error = _message(failure.code));
     } finally {
       if (mounted) setState(() => _busy = false);
+      if (_closePending) _closeWhenSignedIn();
     }
   }
 
@@ -186,7 +252,15 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
   @override
   Widget build(BuildContext context) {
     // A refusal that came back with the browser (D1) is said like any other.
-    ref.listen<AsyncValue<AccountProfile>>(accountProfileProvider, (_, next) {
+    ref.listen<AsyncValue<AccountProfile>>(accountProfileProvider, (
+      previous,
+      next,
+    ) {
+      if (!next.hasError &&
+          (next.valueOrNull?.signedIn ?? false) &&
+          !(previous?.valueOrNull?.signedIn ?? false)) {
+        _closeWhenSignedIn();
+      }
       final failure = next.error;
       if (!next.hasError || failure is! AccountFailure) return;
       setState(() {
@@ -256,6 +330,13 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
                         });
                       }),
                 child: Text(context.l10n.authGoogleUseExisting),
+              ),
+              // The other half of the choice: nothing changes, the guest and
+              // everything on it stay on this device.
+              TextButton(
+                key: AccountSheet.keepGuestKey,
+                onPressed: _busy ? null : () => _go(AccountStep.hub),
+                child: Text(context.l10n.authGoogleKeepGuest),
               ),
             ],
           ],
@@ -365,7 +446,11 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       onPressed: _busy
           ? null
           : () => _run((auth) async {
-              await auth.google();
+              if (widget.onboarding) {
+                await auth.googleSignIn();
+              } else {
+                await auth.google();
+              }
               if (mounted) setState(() => _notice = l.authGoogleContinue);
             }),
       icon: const Icon(Icons.g_mobiledata_rounded),

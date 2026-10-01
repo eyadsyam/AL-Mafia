@@ -81,6 +81,67 @@ class ProfileStore {
   }
 }
 
+/// Where an unfinished first run was left: the chapter and the name and
+/// gender typed so far.
+///
+/// Google sign-in leaves the app for the browser. Android may close the app
+/// while it is away, and the web reloads the page on the way back; either way
+/// the first-run screen used to start again at its first chapter (owner
+/// report, 2026-10-01). Cleared once setup is saved.
+class FirstRunProgress {
+  static const key = 'mafia.firstRun.progress.v1';
+
+  final String chapter;
+  final String name;
+  final PlayerGender gender;
+
+  const FirstRunProgress({
+    required this.chapter,
+    this.name = '',
+    this.gender = PlayerGender.unspecified,
+  });
+
+  static Future<FirstRunProgress?> load() async {
+    try {
+      final raw = (await SharedPreferences.getInstance()).getString(key);
+      if (raw == null) return null;
+      final json = jsonDecode(raw) as Map<String, dynamic>;
+      final chapter = json['chapter'];
+      if (chapter is! String) return null;
+      final name = json['name'];
+      return FirstRunProgress(
+        chapter: chapter,
+        name: name is String ? name : '',
+        gender:
+            PlayerGender.values
+                .where((v) => v.name == json['gender'])
+                .firstOrNull ??
+            PlayerGender.unspecified,
+      );
+    } catch (_) {
+      // Unreadable progress is no progress: the first chapter, as before.
+      return null;
+    }
+  }
+
+  Future<void> save() async {
+    try {
+      await (await SharedPreferences.getInstance()).setString(
+        key,
+        jsonEncode({'chapter': chapter, 'name': name, 'gender': gender.name}),
+      );
+    } catch (_) {
+      /* Best effort: losing the place is the old behaviour, not a failure. */
+    }
+  }
+
+  static Future<void> clear() async {
+    try {
+      await (await SharedPreferences.getInstance()).remove(key);
+    } catch (_) {}
+  }
+}
+
 final profileStoreProvider = Provider((ref) => ProfileStore());
 
 final playerProfileProvider =

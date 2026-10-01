@@ -4312,6 +4312,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authGoogleUseExisting => 'Sign in with that Google account';
 
   @override
+  String get authGoogleKeepGuest => 'Stay a guest, keep my coins and items';
+
+  @override
   String get authGuestTitle => 'Keep your account with you';
 
   @override

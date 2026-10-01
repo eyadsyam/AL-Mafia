@@ -2690,6 +2690,7 @@
   "authGoogleContinue": "Finish in the browser, then come back.",
   "authGoogleTaken": "That Google account already belongs to another player. Signing in to it leaves the guest profile on this device.",
   "authGoogleUseExisting": "Sign in with that Google account",
+  "authGoogleKeepGuest": "Stay a guest, keep my coins and items",
   "authGuestTitle": "Keep your account with you",
   "authGuestBody": "Your coins, items, rank and friends follow you to any phone. You can keep playing as a guest.",
   "authCreate": "Create account",
