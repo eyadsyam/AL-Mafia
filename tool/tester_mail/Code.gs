@@ -4,7 +4,7 @@
  * A Google Apps Script web app on the owner's Google account. The
  * tester_signup edge function POSTs { name, email, token } after a NEW
  * sign-up on saidalmafia.com/beta; this sends one email from the owner's Gmail
- * with one link: the Play test page (become a tester, then install). The script holds no secret: before
+ * with one main link: the tester join page. The script holds no secret: before
  * sending it asks the server (tester_mail_check) whether the token is an HMAC
  * only the server can make and the address is still unmailed, so nobody else
  * can use this to send mail. Consumer Gmail allows about 100 recipients a day.
@@ -15,6 +15,7 @@
 
 var GROUP_URL = 'https://groups.google.com/g/mafia-master-testers';
 var OPT_IN_URL = 'https://play.google.com/apps/testing/com.mafiamaster.mafia_master';
+var JOIN_URL = 'https://saidalmafia.com/beta/join/';
 var STORE_URL = 'https://play.google.com/store/apps/details?id=com.mafiamaster.mafia_master';
 var CHECK_URL = 'https://hezjbrnveajypfqmjfnh.supabase.co/functions/v1/tester_mail_check';
 var EMAIL = /^[^\s@<>"',;]+@[^\s@<>"',;]+\.[a-z]{2,}$/i;
@@ -72,9 +73,9 @@ function text_(name) {
   var cleanName = String(name || '').trim();
   return 'سيد المافيا | Mafia Master\nاللعبة مستنياك\n\n' +
     (cleanName ? 'أهلاً ' + cleanName + '،' : 'أهلاً،') + '\n\n' +
-    'نزّل اللعبة: ' + OPT_IN_URL + '\n\n' +
-    'افتح الرابط من موبايلك الأندرويد بنفس حساب جوجل اللي سجّلت بيه، واضغط «أصبح مختبِرًا» ثم «تنزيل».\n\n' +
-    'لو ظهر إن اللعبة مش متاحة، «انضم للمختبرين» الأول: ' + GROUP_URL + '\n\n' +
+    'كمّل خطوات التنزيل: ' + JOIN_URL + '\n\n' +
+    'افتح الرابط من موبايلك الأندرويد بنفس حساب جوجل اللي سجّلت بيه. انضم للجروب، وبعدها الصفحة هتوصلك لتنزيل اللعبة.\n\n' +
+    'لو الرابط ما فتحش: الجروب ' + GROUP_URL + ' | صفحة Play ' + OPT_IN_URL + '\n\n' +
     'إياد — سيد المافيا';
 }
 
@@ -90,9 +91,9 @@ function html_(name) {
     '<tr><td align="center" style="padding:0"><img src="' + header + '" width="600" height="300" alt="سيد المافيا | Mafia Master — اللعبة مستنياك" border="0" style="display:block;width:100%;max-width:600px;height:auto;border:0"></td></tr>' +
     '<tr><td dir="rtl" align="right" style="padding:26px 38px 34px;text-align:right;font-family:Tahoma,Arial,sans-serif;line-height:1.6;letter-spacing:0">' +
     '<p style="margin:0 0 22px;color:#EDE7DA;font-size:22px;font-weight:bold;line-height:1.6;letter-spacing:0">' + greeting + '</p>' +
-    '<table role="presentation" dir="rtl" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#D6B36A" style="margin:0 auto;background-color:#D6B36A"><tr><td align="center" bgcolor="#D6B36A" style="padding:14px 42px;text-align:center"><a href="' + OPT_IN_URL + '" style="display:block;color:#17140E;text-decoration:none;font-family:Tahoma,Arial,sans-serif;font-size:20px;font-weight:bold;line-height:1.6;letter-spacing:0">نزّل اللعبة</a></td></tr></table>' +
-    '<p style="margin:20px 0 0;color:#D8D1C3;font-size:14px;line-height:1.6;letter-spacing:0">افتح الرابط من موبايلك الأندرويد بنفس حساب جوجل اللي سجّلت بيه، واضغط «أصبح مختبِرًا» ثم «تنزيل».</p>' +
-    '<p style="margin:12px 0 0;color:#D8D1C3;font-size:13px;line-height:1.6;letter-spacing:0">لو ظهر إن اللعبة مش متاحة، <a href="' + GROUP_URL + '" style="color:#D6B36A;text-decoration:underline">انضم للمختبرين</a> الأول.</p>' +
+    '<table role="presentation" dir="rtl" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#D6B36A" style="margin:0 auto;background-color:#D6B36A"><tr><td align="center" bgcolor="#D6B36A" style="padding:14px 42px;text-align:center"><a href="' + JOIN_URL + '" style="display:block;color:#17140E;text-decoration:none;font-family:Tahoma,Arial,sans-serif;font-size:20px;font-weight:bold;line-height:1.6;letter-spacing:0">كمّل خطوات التنزيل</a></td></tr></table>' +
+    '<p style="margin:20px 0 0;color:#D8D1C3;font-size:14px;line-height:1.6;letter-spacing:0">افتح الرابط من موبايلك الأندرويد بنفس حساب جوجل اللي سجّلت بيه. انضم للجروب، وبعدها الصفحة هتوصلك لتنزيل اللعبة.</p>' +
+    '<p style="margin:12px 0 0;color:#D8D1C3;font-size:13px;line-height:1.6;letter-spacing:0">لو الرابط ما فتحش: <a href="' + GROUP_URL + '" style="color:#D6B36A;text-decoration:underline">الجروب</a> · <a href="' + OPT_IN_URL + '" style="color:#D6B36A;text-decoration:underline">صفحة Play</a>.</p>' +
     '<p style="margin:25px 0 0;color:#EDE7DA;font-size:15px;line-height:1.6;letter-spacing:0">إياد — سيد المافيا</p>' +
     '</td></tr></table></td></tr></table>';
 }
@@ -206,13 +207,13 @@ function backfillFormAnswers() {
   });
 }
 
-/** Run once from the editor: the thank-you page carries both links, so nobody waits on the email. */
+/** Run once from the editor: the thank-you page points to the join steps. */
 function setFormThankYou() {
   var form = FormApp.openById(PropertiesService.getScriptProperties().getProperty('FORM_ID'));
   form.setConfirmationMessage(
     'اتسجّلت! الخطوة الجاية من موبايلك الأندرويد، بنفس حساب جوجل اللي كتبته:\n\n' +
-    '١. انضم لمختبرين سيد المافيا: ' + GROUP_URL + '\n' +
-    '٢. نزّل اللعبة («أصبح مختبِرًا» ثم «تنزيل»): ' + OPT_IN_URL + '\n\n' +
+    'كمّل خطوات التنزيل: ' + JOIN_URL + '\n\n' +
+    'لو الرابط ما فتحش: الجروب ' + GROUP_URL + ' | صفحة Play ' + OPT_IN_URL + '\n\n' +
     'هيوصلك كمان إيميل بنفس اللينكات. لو ملقتوش، بص في Spam ودوس «ليست رسالة غير مرغوب فيها».');
   Logger.log('confirmation updated');
 }

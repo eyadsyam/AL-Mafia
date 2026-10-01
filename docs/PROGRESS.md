@@ -3575,3 +3575,17 @@ Files: lib/app/app.dart, lib/platform/monetization/web_ad_bridge*.dart, lib/ui/e
 Verified: Flutter 1677 passed (1 skipped); SQL 76/76; error envelope PASS; Node 20/20; web pacing, private-phase, fallback, and CTA tests.
 Gate: PASS (analyze --no-fatal-infos exit 0, zero errors/warnings; 103 existing info lints)
 Open: AdSense approval and an issued display-unit slot are external prerequisites for paid Google fill. House creatives show meanwhile.
+
+## PHASE TESTER-WELCOME — blocked
+Built:      Audited production Auth SMTP and tester signup mail flow; no sender change deployed.
+Files:      docs/PROGRESS.md
+Verified:   Auth SMTP is smtp.gmail.com:465, sender eyadsyam124@gmail.com (Mafia Master); tester_signup verify_jwt=false; no mail-provider secret; no saidalmafia.com mail TXT/MX.
+Gate:       FAIL
+Open:       The existing route uses personal Gmail, whose tester mail lands in Spam. A verified-domain mail provider and sending credential are needed. Auth invite would create tester Auth users and cannot safely cover existing Auth addresses.
+
+## PHASE TESTER-JOIN — done
+Built:      Mobile-first beta join bridge that opens Google Group in a new tab, then sends returning testers to Play with a visible fallback; signup and mail point to it.
+Files:      web/beta/join/index.html, web/beta/index.html, tool/tester_mail/Code.gs, tool/web/deploy_cloudflare.ps1, tool/verify_web_release.mjs, docs/PROGRESS.md
+Verified:   Playwright Chromium at 390x844: screenshot reviewed, Group popup opened, session state and fallback shown, Play navigation request observed after simulated return focus; JavaScript and PowerShell parse checks passed.
+Gate:       PASS
+Open:       Publication and running setFormThankYou are pending, as requested (no deploy).

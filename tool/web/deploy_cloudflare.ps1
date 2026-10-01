@@ -10,6 +10,9 @@
 # --release with dart_defines.json, then stamp build/web/sw.js.
 $ErrorActionPreference = 'Stop'
 if (-not (Test-Path 'build/web/index.html')) { throw 'No build/web. Build the web release first.' }
+# Keep the beta pages and their artwork in the published release.
+New-Item -ItemType Directory -Path 'build/web/beta' -Force | Out-Null
+Copy-Item -Path 'web/beta/*' -Destination 'build/web/beta' -Recurse -Force
 # Keeps build/web/.vercel (the Vercel link) out of the upload.
 Copy-Item 'web/.assetsignore' 'build/web/.assetsignore' -Force
 npx -y wrangler@latest deploy
