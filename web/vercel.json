@@ -5,6 +5,12 @@
     { "source": "/privacy/", "destination": "/privacy/index.html" },
     { "source": "/delete-data", "destination": "/delete-data/index.html" },
     { "source": "/delete-data/", "destination": "/delete-data/index.html" },
+    { "source": "/how-to-play", "destination": "/how-to-play/index.html" },
+    { "source": "/how-to-play/", "destination": "/how-to-play/index.html" },
+    { "source": "/roles", "destination": "/roles/index.html" },
+    { "source": "/roles/", "destination": "/roles/index.html" },
+    { "source": "/about", "destination": "/about/index.html" },
+    { "source": "/about/", "destination": "/about/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
