@@ -59,6 +59,7 @@ class OnlineEntryScreen extends ConsumerStatefulWidget {
   static const hostButton = ValueKey('online_host');
   static const haveCodeButton = ValueKey('online_have_code');
   static const joinButton = ValueKey('online_join');
+  static const closeCodeButton = ValueKey('online_code_close');
   static const browseButton = ValueKey('online_browse');
   static const browseList = ValueKey('online_browse_list');
   static const errorText = ValueKey('online_error');
@@ -268,7 +269,10 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
       final target = code ?? _code.text;
       if (ref.read(onlineSessionProvider.notifier).seatedElsewhere(target)) {
         if (!leaveConfirmed) {
-          setState(() => _leaveFor = target);
+          setState(() {
+            _leaveFor = target;
+            _step = _Step.browse;
+          });
           return;
         }
         leaveCurrent = true;
@@ -474,7 +478,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
               ],
             ),
           ),
-        if (error != null)
+        if (error != null && _step != _Step.join)
           Padding(
             padding: EdgeInsets.symmetric(vertical: s.md),
             child: Text(
@@ -583,11 +587,6 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                     ],
                                   ),
                                   SizedBox(height: s.sm),
-                                  // Who the room will see, and the way to
-                                  // change it: one target, not a bare name
-                                  // under the title and an avatar elsewhere.
-                                  // «أصحابك» sits beside it as one small
-                                  // icon: the door stays about rooms.
                                   Row(
                                     children: [
                                       Flexible(
@@ -607,16 +606,6 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                     ],
                                   ),
                                   SizedBox(height: s.md),
-                                  // Invites waiting for this player, when
-                                  // there are any. Nothing while off.
-                                  FriendsStrip(
-                                    onJoin: (code) => _enter(code: code),
-                                  ),
-                                  // «ملف القضايا»: tonight's cases and the
-                                  // season. Nothing while the feature is off.
-                                  const CasebookEntry(),
-                                  // The two ways in, at equal width: create
-                                  // is the lit one, join its outline.
                                   Row(
                                     children: [
                                       Expanded(
@@ -656,7 +645,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                             ),
                                           ),
                                           icon: const Icon(Icons.login),
-                                          label: Text(l.onlineJoinRoom),
+                                          label: Text(l.onlineRoomCode),
                                           onPressed: state.busy
                                               ? null
                                               : () => _go(_Step.join),
@@ -664,75 +653,19 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       ),
                                     ],
                                   ),
-                                  if (_step == _Step.browse &&
-                                      _rooms.isEmpty &&
-                                      _everLoaded) ...[
-                                    SizedBox(height: s.md),
-                                    const ExperienceHero(
-                                      asset: ExperienceArt.council,
-                                      compact: true,
-                                    ),
-                                  ],
-                                  if (_step == _Step.join) ...[
-                                    SizedBox(height: s.lg),
-                                    TextField(
-                                      key: OnlineEntryScreen.codeField,
-                                      controller: _code,
-                                      maxLength: 6,
-                                      textCapitalization:
-                                          TextCapitalization.characters,
-                                      textDirection: TextDirection.ltr,
-                                      onChanged: (_) => setState(() {}),
-                                      decoration: InputDecoration(
-                                        labelText: l.onlineRoomCode,
-                                        hintText: l.onlineRoomCodeHint,
-                                      ),
-                                    ),
-                                    FilledButton.icon(
-                                      key: OnlineEntryScreen.joinButton,
-                                      icon: const Icon(Icons.login),
-                                      label: Text(l.onlineJoinRoom),
-                                      onPressed:
-                                          state.busy ||
-                                              !RegExp(
-                                                r'^[A-Za-z0-9]{6}$',
-                                              ).hasMatch(_code.text.trim())
-                                          ? null
-                                          : () => _enter(),
-                                    ),
-                                  ],
                                   if (_resume != null &&
                                       _step == _Step.browse &&
                                       !state.isInRoom) ...[
-                                    SizedBox(height: s.sm),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: OutlinedButton.icon(
-                                            key: OnlineEntryScreen.resumeButton,
-                                            icon: const Icon(Icons.history),
-                                            label: Text(l.resumeAction),
-                                            onPressed: state.busy
-                                                ? null
-                                                : () => _enter(
-                                                    code: _resume!.code,
-                                                    resume: true,
-                                                  ),
-                                          ),
-                                        ),
-                                        SizedBox(width: s.sm),
-                                        // The way to drop a room this device
-                                        // remembers but the player does not want
-                                        // back: the seat is given up properly and
-                                        // the pointer goes.
-                                        TextButton(
-                                          key: OnlineEntryScreen.discardButton,
-                                          onPressed: state.busy
-                                              ? null
-                                              : _discard,
-                                          child: Text(l.onlineDiscardResume),
-                                        ),
-                                      ],
+                                    SizedBox(height: s.md),
+                                    _ResumeBanner(
+                                      code: _resume!.code,
+                                      onResume: state.busy
+                                          ? null
+                                          : () => _enter(
+                                              code: _resume!.code,
+                                              resume: true,
+                                            ),
+                                      onDiscard: state.busy ? null : _discard,
                                     ),
                                   ],
                                   notice,
@@ -747,27 +680,16 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       ),
                                       IconButton(
                                         key: OnlineEntryScreen.browseButton,
-                                        tooltip: l.onlinePublicRooms,
+                                        tooltip: l.errRetry,
                                         onPressed: _loading ? null : _refresh,
                                         icon: const Icon(Icons.refresh),
                                       ),
                                     ],
                                   ),
-                                  // The slot keeps its height either way, so
-                                  // a background refresh never moves the list
-                                  // under the player's thumb.
-                                  // Determinate while hidden, so an idle
-                                  // list is not animating an invisible bar.
                                   Opacity(
                                     opacity: _loading ? 1 : 0,
                                     child: LinearProgressIndicator(
                                       value: _loading ? null : 0,
-                                    ),
-                                  ),
-                                  Text(
-                                    l.onlineRoomRefreshHint,
-                                    style: context.typography.caption.copyWith(
-                                      color: c.textSecondary,
                                     ),
                                   ),
                                   SizedBox(height: s.sm),
@@ -813,9 +735,8 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       !_browseFailed &&
                                       _nearlyReadyOnly &&
                                       visibleRooms.isEmpty)
-                                    Text(
-                                      l.onlineRoomsNoFilterMatches,
-                                      style: context.typography.body,
+                                    _EmptyRooms(
+                                      title: l.onlineRoomsNoFilterMatches,
                                     ),
                                   if (_browseFailed &&
                                       error == null &&
@@ -844,36 +765,31 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       !_browseFailed &&
                                       !_nearlyReadyOnly &&
                                       _rooms.isEmpty)
-                                    _EmptyRooms(
-                                      title: l.onlineNoPublicRooms,
-                                      hint: l.onlineNoPublicRoomsHint,
-                                    ),
+                                    _EmptyRooms(title: l.onlineNoPublicRooms),
                                 ],
                               ),
                             ),
                             // «ليلة الخميس»: the night's own row, first
                             // in the list it belongs to. Nothing on other
                             // days or while the event is off.
-                            SliverPadding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: s.screenMargin,
-                              ),
-                              sliver: SliverToBoxAdapter(
-                                child: ThursdayBanner(
-                                  rooms: [
-                                    for (final room in _rooms)
-                                      if (room.thursday) room,
-                                  ],
-                                  onJoin: state.busy
-                                      ? null
-                                      : (code) => _enter(code: code),
-                                  onCreate: state.busy
-                                      ? null
-                                      : () =>
-                                            _enter(host: true, thursday: true),
+                            if (!_rooms.any(
+                              (room) => room.thursday && !room.isFull,
+                            ))
+                              SliverPadding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: s.screenMargin,
+                                ),
+                                sliver: SliverToBoxAdapter(
+                                  child: ThursdayBanner(
+                                    onCreate: state.busy
+                                        ? null
+                                        : () => _enter(
+                                            host: true,
+                                            thursday: true,
+                                          ),
+                                  ),
                                 ),
                               ),
-                            ),
                             SliverPadding(
                               padding: EdgeInsets.symmetric(
                                 horizontal: s.screenMargin,
@@ -899,7 +815,17 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                 padding: EdgeInsets.symmetric(
                                   horizontal: s.screenMargin,
                                 ),
-                                child: const WaitingBanner(),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    FriendsStrip(
+                                      onJoin: (code) => _enter(code: code),
+                                    ),
+                                    const CasebookEntry(),
+                                    const WaitingBanner(),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -952,6 +878,110 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                       ],
                     ),
                   ),
+                  if (_step == _Step.join)
+                    Positioned.fill(
+                      child: Stack(
+                        children: [
+                          ModalBarrier(
+                            color: c.surfaceBase.withValues(
+                              alpha: OnlineEntryTokens.sheetScrimOpacity,
+                            ),
+                            dismissible: true,
+                            onDismiss: () => _go(_Step.browse),
+                          ),
+                          Align(
+                            alignment: AlignmentDirectional.bottomCenter,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: s.maxContentWidth,
+                              ),
+                              child: Material(
+                                color: c.surfaceRaised,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(context.radii.card),
+                                  ),
+                                  side: BorderSide(color: c.borderSubtle),
+                                ),
+                                child: SafeArea(
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                      s.screenMargin,
+                                      s.md,
+                                      s.screenMargin,
+                                      s.screenMargin,
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                l.onlineRoomCode,
+                                                style: context.typography.title,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              key: OnlineEntryScreen
+                                                  .closeCodeButton,
+                                              onPressed: () =>
+                                                  _go(_Step.browse),
+                                              icon: const Icon(Icons.close),
+                                              tooltip: MaterialLocalizations.of(
+                                                context,
+                                              ).closeButtonTooltip,
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: s.sm),
+                                        TextField(
+                                          key: OnlineEntryScreen.codeField,
+                                          controller: _code,
+                                          maxLength: 6,
+                                          textCapitalization:
+                                              TextCapitalization.characters,
+                                          textDirection: TextDirection.ltr,
+                                          onChanged: (_) => setState(() {}),
+                                          decoration: InputDecoration(
+                                            labelText: l.onlineRoomCode,
+                                            hintText: l.onlineRoomCodeHint,
+                                          ),
+                                        ),
+                                        SizedBox(height: s.sm),
+                                        if (error != null)
+                                          Text(
+                                            error,
+                                            key: OnlineEntryScreen.errorText,
+                                            style: context.typography.body
+                                                .copyWith(
+                                                  color: c.accentCrimson,
+                                                ),
+                                          ),
+                                        FilledButton.icon(
+                                          key: OnlineEntryScreen.joinButton,
+                                          icon: const Icon(Icons.login),
+                                          label: Text(l.onlineJoinRoom),
+                                          onPressed:
+                                              state.busy ||
+                                                  !RegExp(
+                                                    r'^[A-Za-z0-9]{6}$',
+                                                  ).hasMatch(_code.text.trim())
+                                              ? null
+                                              : () => _enter(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -1041,10 +1071,68 @@ class _IdentityChip extends StatelessWidget {
 }
 
 /// An empty list that says what to do next, instead of a bare sentence.
+class _ResumeBanner extends StatelessWidget {
+  final String code;
+  final VoidCallback? onResume;
+  final VoidCallback? onDiscard;
+
+  const _ResumeBanner({
+    required this.code,
+    required this.onResume,
+    required this.onDiscard,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final s = context.spacing;
+    final l = context.l10n;
+    return Material(
+      color: c.surfaceRaised,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(context.radii.card),
+        side: BorderSide(color: c.accentGold),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(s.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.history, color: c.accentGold),
+                SizedBox(width: s.sm),
+                Expanded(
+                  child: Text(
+                    '${l.onlineRoomCode} · $code',
+                    style: context.typography.body,
+                  ),
+                ),
+                FilledButton(
+                  key: OnlineEntryScreen.resumeButton,
+                  onPressed: onResume,
+                  child: Text(l.resumeAction),
+                ),
+              ],
+            ),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: TextButton(
+                key: OnlineEntryScreen.discardButton,
+                onPressed: onDiscard,
+                child: Text(l.onlineDiscardResume),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _EmptyRooms extends StatelessWidget {
   final String title;
-  final String hint;
-  const _EmptyRooms({required this.title, required this.hint});
+  const _EmptyRooms({required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -1059,25 +1147,10 @@ class _EmptyRooms extends StatelessWidget {
         border: Border.all(color: c.borderSubtle),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.meeting_room_outlined, color: c.accentGold),
           SizedBox(width: s.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: context.typography.body),
-                SizedBox(height: s.xs),
-                Text(
-                  hint,
-                  style: context.typography.caption.copyWith(
-                    color: c.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          Expanded(child: Text(title, style: context.typography.body)),
         ],
       ),
     );
@@ -1095,89 +1168,86 @@ class _PublicRoomTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final c = context.colors;
+    final spacing = context.spacing;
     final status = room.waiting
         ? l.publicRoomWaitingStatus
         : room.isFull
         ? l.publicRoomFullStatus
+        : room.missingToStart > 0 && room.missingToStart <= 2
+        ? l.onlineRoomsNearlyReady
         : room.missingToStart > 0
         ? l.publicRoomMissing(room.missingToStart)
         : l.publicRoomReady;
-    // Transparent Material, not decoration: the backdrop paints a background
-    // between these rows and the Scaffold, and a tile that finds that box
-    // before it finds a Material draws its press underneath it — so the one
-    // control a player taps to enter a room would answer with nothing at all.
-    final spacing = context.spacing;
-    final radius = BorderRadius.circular(context.radii.card);
     return Padding(
-      padding: EdgeInsets.only(top: spacing.sm, bottom: spacing.xs),
+      padding: EdgeInsets.only(top: spacing.sm),
       child: Material(
         color: c.surfaceRaised,
         shape: RoundedRectangleBorder(
-          borderRadius: radius,
+          borderRadius: BorderRadius.circular(context.radii.card),
           side: BorderSide(
             color: room.thursday ? c.accentGold : c.borderSubtle,
           ),
         ),
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: spacing.md,
-                vertical: spacing.xs,
-              ),
-              enabled: onTap != null,
-              title: Text(
-                room.waiting
-                    ? l.publicRoomWaitingTitle
-                    : (room.title ?? '').trim().isEmpty
-                    ? l.onlineUntitledRoom
-                    : room.title!,
-              ),
-              subtitle: Text(
-                '${l.publicRoomSeats(room.players, room.capacity)} · $status',
-                style: context.typography.caption.copyWith(
-                  color: room.isFull ? c.textSecondary : null,
+        child: ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: spacing.md),
+          enabled: onTap != null,
+          title: Text(
+            room.waiting
+                ? l.publicRoomWaitingTitle
+                : (room.title ?? '').trim().isEmpty
+                ? l.onlineUntitledRoom
+                : room.title!,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.typography.body,
+          ),
+          subtitle: Text(
+            status,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.typography.caption.copyWith(
+              color: room.isFull ? c.textMuted : c.textSecondary,
+            ),
+          ),
+          leading: Tooltip(
+            message: room.voice ? l.onlineRoomVoiceOn : l.onlineRoomVoiceOff,
+            child: Icon(
+              room.waiting
+                  ? Icons.hourglass_empty
+                  : room.voice
+                  ? Icons.mic_none
+                  : Icons.mic_off,
+              color: c.accentGold,
+            ),
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: spacing.sm,
+                  vertical: spacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: c.surfaceBase,
+                  borderRadius: BorderRadius.circular(context.radii.button),
+                  border: Border.all(color: c.borderSubtle),
+                ),
+                child: Text(
+                  '${room.players}/${room.capacity}',
+                  style: context.typography.caption.copyWith(
+                    color: c.accentGold,
+                  ),
                 ),
               ),
-              leading: Icon(
-                room.waiting
-                    ? Icons.hourglass_empty
-                    : room.voice
-                    ? Icons.mic_none
-                    : Icons.mic_off,
-              ),
-              // `chevron_right` mirrors itself in Arabic (matchTextDirection),
-              // so it points the way the row reads in both languages. Picking
-              // `chevron_left` for RTL mirrored it back to «›», pointing out
-              // of the screen (phase 99 render).
-              trailing: room.isFull ? null : const Icon(Icons.chevron_right),
-              onTap: onTap,
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                spacing.md,
-                0,
-                spacing.md,
-                spacing.sm,
-              ),
-              child: Text(
-                room.voice ? l.onlineRoomVoiceOn : l.onlineRoomVoiceOff,
-                style: context.typography.caption.copyWith(
-                  color: c.textSecondary,
-                ),
-              ),
-            ),
-            LinearProgressIndicator(
-              value: room.capacity > 0
-                  ? (room.players / room.capacity).clamp(0.0, 1.0)
-                  : 0,
-              color: room.isFull ? c.textMuted : c.accentGold,
-              backgroundColor: c.borderSubtle,
-              semanticsLabel: l.publicRoomSeats(room.players, room.capacity),
-            ),
-          ],
+              if (!room.isFull) ...[
+                SizedBox(width: spacing.xs),
+                const Icon(Icons.chevron_right),
+              ],
+            ],
+          ),
+          onTap: onTap,
         ),
       ),
     );

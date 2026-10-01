@@ -13,7 +13,6 @@ import 'package:mafia_master/ui/screens/online/council/council_band.dart';
 import 'package:mafia_master/ui/screens/online/council/seat_status.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/economy/economy_capabilities.dart';
-import 'package:mafia_master/ui/widgets/back_action.dart';
 import 'package:mafia_master/ui/widgets/connection_banner.dart';
 
 import '../support/fake_backend.dart';
@@ -484,12 +483,13 @@ void main() {
       await attemptJoin(tester);
       expect(find.text(arStrings.onlineRoomNotFound), findsOneWidget);
 
-      await tester.tap(find.byKey(BackAction.button));
+      await tester.tap(find.byKey(OnlineEntryScreen.closeCodeButton));
       await tester.pump();
 
       // A sentence about a code, over a screen with no code on it, is a
       // sentence about nothing.
       expect(find.text(arStrings.onlineRoomNotFound), findsNothing);
+      expect(find.byKey(OnlineEntryScreen.codeField), findsNothing);
       expect(find.byKey(OnlineEntryScreen.hostButton), findsOneWidget);
     });
   });

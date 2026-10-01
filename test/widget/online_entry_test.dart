@@ -1,10 +1,17 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/online_session_store.dart';
 import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/economy/room_referral.dart';
+import 'package:mafia_master/ui/economy/economy_capabilities.dart';
+import 'package:mafia_master/ui/missions/thursday.dart';
 import 'package:mafia_master/ui/screens/online/online_entry_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/online/voice_session.dart';
@@ -37,6 +44,7 @@ void main() {
     List<Map<String, dynamic>> rooms = const [],
     bool unreachable = false,
     BackendException? refuseCreate,
+    bool thursdayEvent = false,
   }) {
     backend = FakeBackend(
       roomId: 'room-1',
@@ -57,6 +65,24 @@ void main() {
         onlineBackendFactoryProvider.overrideWithValue(() async => backend),
         onlineHeartbeatProvider.overrideWithValue(Duration.zero),
         voiceStatsIntervalProvider.overrideWithValue(Duration.zero),
+        if (thursdayEvent) ...[
+          economyCapabilitiesProvider.overrideWith(
+            (ref) async => EconomyCapabilities.fromJson({
+              'version': 3,
+              'thursday': true,
+            }),
+          ),
+          thursdayEventProvider.overrideWith(
+            (ref) async => ThursdayEvent.fromJson({
+              'enabled': true,
+              'isThursday': true,
+              'inWindow': true,
+              'progress': 0,
+              'stamp': false,
+              'event': 'thursday',
+            }),
+          ),
+        ],
       ],
     );
     addTearDown(container.dispose);
@@ -95,6 +121,80 @@ void main() {
   Map<String, dynamic> createPayload() =>
       backend.calls.firstWhere((call) => call.function == 'create_room').body;
 
+  testWidgets('Arabic room list screenshot at phone size', (tester) async {
+    final path = Platform.environment['ROOMS_SCREENSHOT_PATH'];
+    if (path == null) return;
+    final container = containerWith(
+      rooms: [
+        {
+          'code': 'NEARAA',
+          'title': 'أوضة آخر الليل',
+          'players': 4,
+          'capacity': 8,
+          'min_players': 5,
+          'voice': true,
+        },
+        {
+          'code': 'READYA',
+          'title': 'مجلس المافيا',
+          'players': 5,
+          'capacity': 8,
+          'min_players': 5,
+          'voice': false,
+        },
+        {
+          'code': 'EMPTYA',
+          'players': 0,
+          'capacity': 10,
+          'waiting': true,
+          'voice': true,
+        },
+      ],
+    );
+    await tester.runAsync(() async {
+      const fonts = {
+        'Roboto': 'assets/fonts/IBMPlexSansArabic-Regular.ttf',
+        'IBM Plex Sans Arabic': 'assets/fonts/IBMPlexSansArabic-Regular.ttf',
+        'Bebas Neue': 'assets/fonts/BebasNeue-Regular.ttf',
+        'Cairo': 'assets/fonts/Cairo-Variable.ttf',
+        'MaterialIcons': 'fonts/MaterialIcons-Regular.otf',
+      };
+      for (final entry in fonts.entries) {
+        final loader = FontLoader(entry.key)
+          ..addFont(rootBundle.load(entry.value));
+        await loader.load();
+      }
+    });
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await container.read(playerProfileProvider.future);
+    const shot = ValueKey('room_list_screenshot');
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: shot,
+        child: UncontrolledProviderScope(
+          container: container,
+          child: localizedApp(
+            OnlineEntryScreen(onJoined: () {}, onBack: () {}),
+            locale: const Locale('ar'),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.byKey(shot),
+    );
+    await tester.runAsync(() async {
+      await File(path).parent.create(recursive: true);
+      final image = await boundary.toImage(pixelRatio: 1);
+      final data = await image.toByteData(format: ui.ImageByteFormat.png);
+      image.dispose();
+      await File(path).writeAsBytes(data!.buffer.asUint8List());
+    });
+  });
+
   testWidgets('nearly ready filter follows refreshed seats without joining', (
     tester,
   ) async {
@@ -124,6 +224,44 @@ void main() {
     await tester.pump();
     expect(find.byKey(const ValueKey('public_room_NEARAA')), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('code entry opens as a sheet and closes back to rooms', (
+    tester,
+  ) async {
+    await pumpEntry(tester, containerWith());
+    await tester.tap(find.byKey(OnlineEntryScreen.haveCodeButton));
+    await tester.pump();
+    expect(find.byKey(OnlineEntryScreen.codeField), findsOneWidget);
+    expect(find.byKey(OnlineEntryScreen.joinButton), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pump();
+    expect(find.byKey(OnlineEntryScreen.codeField), findsNothing);
+    expect(find.byKey(OnlineEntryScreen.browseButton), findsOneWidget);
+  });
+
+  testWidgets('Thursday never joins the first open room automatically', (
+    tester,
+  ) async {
+    final container = containerWith(
+      thursdayEvent: true,
+      rooms: [
+        {
+          'code': 'THURAA',
+          'title': 'أوضة الخميس',
+          'players': 4,
+          'capacity': 8,
+          'min_players': 5,
+          'voice': true,
+          'thursday': true,
+        },
+      ],
+    );
+    await pumpEntry(tester, container);
+    await tester.pump();
+    expect(find.byKey(ThursdayBanner.keyValue), findsNothing);
+    expect(find.byKey(const ValueKey('public_room_THURAA')), findsOneWidget);
+    expect(backend.calls.where((call) => call.function == 'joinRoom'), isEmpty);
   });
 
   testWidgets(
@@ -161,10 +299,13 @@ void main() {
           findsOneWidget,
         );
         expect(
-          find.text(
-            locale.languageCode == 'ar'
-                ? arStrings.onlineRoomVoiceOn
-                : enStrings.onlineRoomVoiceOn,
+          find.descendant(
+            of: card,
+            matching: find.byTooltip(
+              locale.languageCode == 'ar'
+                  ? arStrings.onlineRoomVoiceOn
+                  : enStrings.onlineRoomVoiceOn,
+            ),
           ),
           findsOneWidget,
         );
@@ -270,8 +411,14 @@ void main() {
         return (tile.subtitle! as Text).data!;
       }
 
-      expect(subtitle('NEEDSA'), contains('3/10'));
-      expect(subtitle('NEEDSA'), contains(arStrings.publicRoomMissing(2)));
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('public_room_NEEDSA')),
+          matching: find.text('3/10'),
+        ),
+        findsOneWidget,
+      );
+      expect(subtitle('NEEDSA'), arStrings.onlineRoomsNearlyReady);
       expect(subtitle('READYA'), contains(arStrings.publicRoomReady));
       expect(subtitle('FULLAA'), contains(arStrings.publicRoomFullStatus));
       final full = tester.widget<ListTile>(

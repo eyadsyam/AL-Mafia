@@ -2231,6 +2231,10 @@ abstract final class WebAdTokens {
 }
 
 /// The offline state on the online door (`lib/ui/widgets/connection_problem.dart`).
+abstract final class OnlineEntryTokens {
+  static const double sheetScrimOpacity = 0.78;
+}
+
 abstract final class ConnectionProblemTokens {
   static const double iconSize = 32.0;
 }

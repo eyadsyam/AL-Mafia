@@ -271,11 +271,11 @@ void main() {
       expect(create.left, greaterThan(join.left));
     });
 
-    testWidgets('an empty list says what to do next', (tester) async {
+    testWidgets('an empty list has a clear state', (tester) async {
       await pumpEntry(tester, container());
       await tester.pumpAndSettle();
       expect(find.text(arStrings.onlineNoPublicRooms), findsOneWidget);
-      expect(find.text(arStrings.onlineNoPublicRoomsHint), findsOneWidget);
+      expect(find.text(arStrings.onlineNoPublicRoomsHint), findsNothing);
     });
 
     testWidgets('the lobby invite is a labelled 48 dp button', (tester) async {
