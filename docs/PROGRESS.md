@@ -3603,3 +3603,10 @@ Files:      lib/engine/{legal_moves,match_engine,resolver,seed,views,balance_gua
 Verified:   flutter analyze (no new issues); flutter test engine/unit/leakage/golden/transport/online/app + affected integration/widget suites green except Codex's in-progress online_entry/online_lobby and pre-existing offline_video_test; deno check on changed functions; golden vectors Dart==TS (35 cases).
 Gate:       PASS (not deployed: edge functions + app build wait for owner go)
 Open:       balance harness rate assertions parked — its Mafia used to kill teammates; agent model needs recalibration. Server functions not deployed yet.
+
+## PHASE TESTER-WELCOME-DOMAIN — done
+Built:      Reused Resend's verified DKIM and sending/return-path CNAMEs; added DMARC p=none; deployed eyad@saidalmafia.com welcome sender; disabled Apps Script Gmail sending; resent 3 real signups.
+Files:      tool/tester_mail/Code.gs, docs/PROGRESS.md (tester_signup temporarily instrumented then restored and redeployed)
+Verified:   Resend domain Verified; 4 DNS records visible via 1.1.1.1; tester_signup active with verify_jwt=false; test signup HTTP 200/Resend id 01a0f8ed-b115-788e-b10b-c3e64fbf850f and test row deleted; 3 real rows accepted and mailed_at set; temporary function/key removed; source syntax/diff checks pass.
+Gate:       PASS for DNS, deployment, and provider acceptance.
+Open:       Inbox placement for claudeacount124@gmail.com was not directly observable from this account. Resend uses rsend/send CNAMEs in this region instead of a separate MX record.
