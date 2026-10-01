@@ -153,7 +153,9 @@ function onTesterForm(e) {
     if (title === FORM_NAME) name = value.replace(/[<>&"]/g, '').slice(0, 40);
     if (title === FORM_EMAIL) email = value.toLowerCase();
   });
-  register_(name, email);
+  // Google collects the address itself (responder input), which is what lets
+  // Google send the responder a copy from its own servers.
+  register_(name, email || String(e.response.getRespondentEmail() || '').trim().toLowerCase());
 }
 
 var SIGNUP_URL = 'https://hezjbrnveajypfqmjfnh.supabase.co/functions/v1/tester_signup';
@@ -200,7 +202,7 @@ function backfillFormAnswers() {
       if (title === FORM_NAME) name = value.replace(/[<>&"]/g, '').slice(0, 40);
       if (title === FORM_EMAIL) email = value.toLowerCase();
     });
-    Logger.log(register_(name, email));
+    Logger.log(register_(name, email || String(response.getRespondentEmail() || '').trim().toLowerCase()));
   });
 }
 
