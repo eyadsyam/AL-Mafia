@@ -4,224 +4,214 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>نسخة تجريبية — سيد المافيا | Test build — Mafia Master</title>
+<title>سيد المافيا | جرّبها قبل الكل</title>
+<meta name="description" content="سجّل اسمك وإيميلك وجرّب سيد المافيا على أندرويد قبل ما تنزل للناس.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="سيد المافيا">
+<meta property="og:locale" content="ar_AR">
+<meta property="og:url" content="https://saidalmafia.com/beta/">
+<meta property="og:title" content="جرّب سيد المافيا قبل ما تنزل للناس">
+<meta property="og:description" content="لعبة المافيا المصرية: الموبايل هو الراوي، وأوض أونلاين بالصوت مع صحابك. سجّل اسمك وإيميلك بس.">
+<meta property="og:image" content="https://saidalmafia.com/beta/art/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="theme-color" content="#0F0F0F">
+<link rel="icon" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* The game's own room: charcoal ground, bone type, the lamp's gold, crimson
+     only where something is wrong. One column, a phone first. */
   :root {
-    --ground:  #0F0F0F;
-    --raised:  #1A1A1A;
-    --border:  #313131;
-    --muted:   #908C83;
-    --second:  #ADA99F;
-    --gold:    #C2BDB2;
-    --bone:    #E9E4D9;
-    --crimson: #AA3D28;
+    --ground: #0F0F0F;
+    --raised: #191816;
+    --line: #2E2C28;
+    --muted: #8F8A80;
+    --text: #C9C4B9;
+    --bone: #EDE7DA;
+    --gold: #D6B36A;
+    --ink: #17140E;
+    --crimson: #B4452E;
+    --display: 'Cairo', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+    --body: 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0;
-    background:
-      radial-gradient(120% 90% at 50% -10%, #171717 0%, var(--ground) 62%);
-    background-attachment: fixed;
-    color: var(--second);
-    font-family: 'IBM Plex Sans Arabic', system-ui, -apple-system, Segoe UI, sans-serif;
-    line-height: 1.6;
-    letter-spacing: 0;
-    font-size: 16px;
-  }
-  main { max-width: 34rem; margin: 0 auto; padding: 3.5rem 1.25rem 4rem; }
-  .mark {
-    width: 74px; height: 74px; margin: 0 auto 1.5rem; display: block;
-    border: 1px solid var(--border); border-radius: 12px;
-    background: var(--raised);
-  }
-  h1 { color: var(--bone); font-size: 1.7rem; font-weight: 600; margin: 0; text-align: center; }
-  .tag { text-align: center; color: var(--muted); font-size: .88rem; margin: .4rem 0 0; }
-  .pill {
-    display: inline-block; margin: 1.4rem auto 0; padding: .3rem .8rem;
-    border: 1px solid var(--border); border-radius: 999px;
-    background: var(--raised); color: var(--gold);
-    font-size: .78rem; letter-spacing: 0;
-  }
-  .centre { text-align: center; }
-  .warn {
-    border: 1px solid var(--border); border-inline-start: 3px solid var(--crimson);
-    background: var(--raised); border-radius: 10px;
-    padding: 1rem 1.15rem; margin: 2.25rem 0;
-  }
-  .warn p { margin: 0; font-size: .93rem; }
-  .warn p + p { margin-top: .6rem; }
-  .dl {
-    display: block; margin: 2.25rem 0 .6rem;
-    background: var(--gold); color: #14120E;
-    text-decoration: none; text-align: center;
-    font-weight: 600; font-size: 1.02rem;
-    padding: 1rem 1.25rem; border-radius: 12px;
-    transition: background .15s ease;
-  }
-  .dl:hover, .dl:focus { background: var(--bone); }
-  .dl small { display: block; font-weight: 400; font-size: .78rem; opacity: .72; margin-top: .15rem; }
-  h2 {
-    color: var(--gold); font-size: 1.02rem; font-weight: 600;
-    margin: 2.75rem 0 .75rem; padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-  }
-  ol { padding-inline-start: 1.3rem; }
-  li { margin-bottom: .6rem; font-size: .94rem; }
-  strong { color: var(--bone); font-weight: 600; }
-  code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    background: var(--ground); border: 1px solid var(--border);
-    border-radius: 4px; padding: .1rem .35rem; font-size: .85em; color: var(--gold);
-    direction: ltr; display: inline-block;
-  }
-  table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
-  th, td { text-align: start; padding: .5rem .4rem; border-bottom: 1px solid var(--border); }
-  th { color: var(--muted); font-weight: 400; width: 42%; }
-  td { color: var(--bone); }
-  section[lang="en"] { direction: ltr; text-align: start; }
-  footer {
-    margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
-    color: var(--muted); font-size: .8rem; text-align: center;
+    margin: 0; background: var(--ground); color: var(--text);
+    font: 16px/1.6 var(--body); letter-spacing: 0;
   }
   a { color: var(--gold); }
-  hr.split { border: 0; border-top: 1px solid var(--border); margin: 3.5rem 0 0; }
+  .hero {
+    position: relative; min-height: 340px; display: grid; align-content: end;
+    padding: 2.5rem 1.25rem 1.75rem;
+    background:
+      linear-gradient(180deg, rgba(15,15,15,.15) 0%, rgba(15,15,15,.55) 45%, var(--ground) 100%),
+      url('art/night.webp') center 30% / cover no-repeat;
+  }
+  .hero-in { max-width: 34rem; margin: 0 auto; width: 100%; }
+  .brand { display: flex; align-items: center; gap: .6rem; color: var(--bone); font-weight: 600; }
+  .brand img { width: 40px; height: 40px; border-radius: 10px; }
+  h1 {
+    font-family: var(--display); font-weight: 800; color: var(--bone);
+    font-size: clamp(1.9rem, 7vw, 2.5rem); line-height: 1.35; margin: 1rem 0 .4rem;
+    text-wrap: balance;
+  }
+  .lede { margin: 0; color: var(--text); max-width: 32rem; }
+  main { max-width: 34rem; margin: 0 auto; padding: 0 1.25rem 3.5rem; }
+  .cards {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55rem;
+    margin: 1.25rem 0 1.75rem;
+  }
+  .cards figure { margin: 0; }
+  .cards img {
+    width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; display: block;
+    border-radius: 8px; border: 1px solid var(--line);
+  }
+  .cards figcaption { text-align: center; font-size: .8rem; color: var(--muted); margin-top: .3rem; }
+  .why { display: grid; gap: .8rem; margin: 0 0 2rem; padding: 0; list-style: none; }
+  .why li { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: .6rem; align-items: start; }
+  .why b { color: var(--bone); font-weight: 600; }
+  .dot { width: .55rem; height: .55rem; border-radius: 50%; background: var(--gold); margin: .55rem auto 0; }
+  form, .done {
+    background: var(--raised); border: 1px solid var(--line); border-radius: 14px;
+    padding: 1.35rem 1.15rem; display: grid; gap: 1rem;
+  }
+  h2 { font-family: var(--display); font-weight: 800; color: var(--bone); font-size: 1.35rem; margin: 0; }
+  label { display: grid; gap: .35rem; color: var(--bone); font-weight: 500; }
+  .hint { color: var(--muted); font-size: .85rem; font-weight: 400; }
+  input {
+    font: inherit; color: var(--bone); background: var(--ground);
+    border: 1px solid var(--line); border-radius: 10px; padding: .8rem .9rem; width: 100%;
+  }
+  input[type=email] { direction: ltr; text-align: left; }
+  input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; border-color: transparent; }
+  .trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  button {
+    font: 600 1.05rem/1 var(--body); color: var(--ink); background: var(--gold);
+    border: 0; border-radius: 10px; padding: 1rem; cursor: pointer;
+  }
+  button:focus-visible { outline: 2px solid var(--bone); outline-offset: 2px; }
+  button[disabled] { opacity: .6; cursor: progress; }
+  .err { color: var(--crimson); margin: 0; min-height: 1.2em; font-size: .92rem; }
+  .small { color: var(--muted); font-size: .82rem; margin: 0; }
+  .done ol { margin: 0; padding-inline-start: 1.25rem; display: grid; gap: .7rem; }
+  .done li::marker { color: var(--gold); font-weight: 600; }
+  .optin {
+    display: block; text-align: center; text-decoration: none; color: var(--ink);
+    background: var(--gold); border-radius: 10px; padding: .85rem; font-weight: 600; margin-top: .45rem;
+  }
+  .alt { text-align: center; margin: 1.25rem 0 0; }
+  footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 0 1.25rem 2rem; }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: no-preference) {
+    .done:not([hidden]) { animation: rise .35s ease-out; }
+    @keyframes rise { from { opacity: .4; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  }
 </style>
 </head>
 <body>
+<header class="hero">
+  <div class="hero-in">
+    <div class="brand"><img src="/icons/Icon-192.png" alt="" width="40" height="40">سيد المافيا</div>
+    <h1>جرّب سيد المافيا قبل ما تنزل للناس</h1>
+    <p class="lede">لعبة المافيا اللي تعرفها من القعدات، بس الموبايل هو الراوي. محتاجين ناس تلعبها على أندرويد قبل الإطلاق، وتقولنا رأيها بصراحة. التسجيل لسن ١٦ سنة أو أكتر.</p>
+  </div>
+</header>
+
 <main>
+  <div class="cards" aria-label="الأدوار الأربعة">
+    <figure><img src="art/mafia.webp" alt="كارت المافيا" width="260" height="390"><figcaption>المافيا</figcaption></figure>
+    <figure><img src="art/doctor.webp" alt="كارت الدكتور" width="260" height="390"><figcaption>الدكتور</figcaption></figure>
+    <figure><img src="art/detective.webp" alt="كارت المحقق" width="260" height="390"><figcaption>المحقق</figcaption></figure>
+    <figure><img src="art/citizen.webp" alt="كارت المواطن" width="260" height="390"><figcaption>المواطن</figcaption></figure>
+  </div>
 
-<img class="mark" src="../icons/Icon-192.png" alt="" width="74" height="74">
-<h1>سيد المافيا</h1>
-<p class="tag">نسخة تجريبية — مش من المتجر</p>
-<p class="centre"><span class="pill">الإصدار 1.0.0 (بناء 1) · أندرويد arm64</span></p>
+  <ul class="why">
+    <li><span class="dot"></span><span><b>الموبايل هو الراوي.</b> قعدة على موبايل واحد: كل واحد يشوف كارته لوحده، واللعبة بتدير الليل والنهار والتصويت.</span></li>
+    <li><span class="dot"></span><span><b>أونلاين بالصوت.</b> ابعت لينك الأوضة لصحابك على واتساب، حتى لو كل واحد في محافظة.</span></li>
+    <li><span class="dot"></span><span><b>دلائل الصبح.</b> لما تظهر، بتطلع من اللي حصل في الماتش نفسه.</span></li>
+    <li><span class="dot"></span><span><b>لما تخرج.</b> في الأونلاين بتفضل على الترابيزة وتتابع من وضع الشاهد، من غير ما تأثر على اللي لسه عايشين.</span></li>
+  </ul>
 
-<div class="warn">
-  <p><strong>دي نسخة اختبار.</strong> مش متنزّلة من Google Play، ومتوقّعة بمفتاح خاص —
-     يعني أندرويد هيسألك أول ما تثبّتها.</p>
-  <p>لو ثبّتها منين ما كان غير هنا، متثبّتهاش.</p>
-</div>
+  <form id="signup" novalidate>
+    <h2>سجّلني مختبِر</h2>
+    <label for="name">اسمك
+      <input id="name" name="name" type="text" autocomplete="name" minlength="2" maxlength="40" required>
+    </label>
+    <label for="email">إيميل حساب جوجل
+      <span class="hint">نفس الحساب اللي فاتح بيه جوجل بلاي على موبايلك الأندرويد (مش لازم يكون gmail).</span>
+      <input id="email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" required placeholder="name@gmail.com">
+    </label>
+    <div class="trap" aria-hidden="true">
+      <label for="website">سيبها فاضية<input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></label>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+    <button id="send" type="submit">سجّلني</button>
+    <p class="small">بنستخدم الاسم والإيميل بس عشان نضيفك لقايمة المختبرين على جوجل بلاي، ومش هنبعتلك رسايل دعاية. بنمسحهم بعد ما الاختبار المقفول يخلص، أو أول ما تطلب على <span dir="ltr">eyadsyam124@gmail.com</span>. عشان نمنع السبام بنعدّ المحاولات من كل شبكة لمدة ساعة، ومش بنحفظ عنوانك. التفاصيل في <a href="/privacy/">الخصوصية</a>.</p>
+  </form>
 
-<a class="dl" href="Mafia-Master-Beta-1.0.0-arm64.apk" download>
-  تحميل التطبيق
-  <small>ملف APK لمعمارية arm64-v8a · حوالي ٨٨ ميجابايت · أندرويد ٨ فما فوق</small>
-</a>
-<p class="centre" style="font-size:.85em;opacity:.75">
-  arm64-v8a هي معمارية كل تليفون أندرويد اتباع تقريبًا من ٢٠١٧ لحد دلوقتي.
-  لو عندك جهاز أقدم بمعمارية تانية، اطلب النسخة الموحّدة.
-</p>
+  <section class="done" id="done" hidden aria-live="polite">
+    <h2>اتسجّلت. فاضل ٣ خطوات</h2>
+    <ol>
+      <li>هنضيف إيميلك لقايمة المختبرين خلال ٢٤ ساعة.</li>
+      <li>بعدها افتح اللينك ده من موبايلك وإنت داخل بنفس الحساب، ودوس «أصبح مختبِرًا» (Become a tester).
+        <a class="optin" href="https://play.google.com/apps/testing/com.mafiamaster.mafia_master" rel="noopener">افتح صفحة الاختبار</a></li>
+      <li>نزّل اللعبة من جوجل بلاي، والعب ماتشين على الأقل مع صحابك. وخليك مشترك ١٤ يوم: ده اللي بيخلّي اللعبة تنزل للناس كلها.</li>
+    </ol>
+    <p class="small">رأيك أو أي مشكلة؟ ابعتها على <span dir="ltr">eyadsyam124@gmail.com</span>.</p>
+  </section>
 
-<h2>طريقة التثبيت</h2>
-<ol>
-  <li>افتح الصفحة دي <strong>من على التليفون نفسه</strong> واضغط «تحميل التطبيق».</li>
-  <li>المتصفح هيحذّرك إن الملف ده ممكن يضرّ بجهازك — ده تحذير عادي لأي ملف
-      <code>.apk</code>. اضغط <strong>«تحميل على أي حال»</strong>.</li>
-  <li>افتح الملف من الإشعار أو من مجلد <strong>التنزيلات</strong>.</li>
-  <li>أول مرة بس، أندرويد هيقول لك إن المتصفح ده مش مسموح له يثبّت تطبيقات.
-      اضغط <strong>«الإعدادات»</strong> وفعّل
-      <strong>«السماح من هذا المصدر»</strong> ثم ارجع.</li>
-  <li>اضغط <strong>تثبيت</strong>. لو ظهرت شاشة Play Protect، اضغط
-      <strong>«تثبيت على أي حال»</strong>.</li>
-</ol>
-<p>
-  عايز تشيلها؟ زي أي تطبيق: اضغط مطوّل على الأيقونة ← إزالة التثبيت.
-  مفيش حاجة بتفضل على الجهاز.
-</p>
-
-<h2>عايز تجربها من غير تثبيت؟</h2>
-<p>
-  فيه نسخة ويب بتلعب في المتصفح على طول: <a href="../">افتحها من هنا</a>.
-  اللعب أونلاين شغّال فيها بردو — بس النسخة المثبّتة أسرع وبتشتغل بدون إنترنت.
-</p>
-
-<h2>إيه في النسخة دي</h2>
-<table>
-  <tr><th>الإصدار</th><td>1.0.0 (بناء 1)</td></tr>
-  <tr><th>المعمارية</th><td>arm64-v8a (النسخة الموحّدة فيها كمان armeabi-v7a و x86_64)</td></tr>
-  <tr><th>أقل نسخة أندرويد</th><td>8.0 (API 26)</td></tr>
-  <tr><th>التوقيع</th><td>مفتاح الإصدار (مش مفتاح التطوير)</td></tr>
-  <tr><th>اللعب على تليفون واحد</th><td>✓ بدون إنترنت خالص</td></tr>
-  <tr><th>اللعب أونلاين</th><td>✓ من ٥ لـ ١٠ لاعبين</td></tr>
-  <tr><th>الصوت داخل المباراة</th><td>✓ ممكن يفشل ورا بعض الشبكات — المباراة بتكمّل عادي</td></tr>
-</table>
-<p>
-  <a href="../privacy/">سياسة الخصوصية</a>
-</p>
-
-<hr class="split">
-
-<section lang="en" dir="ltr">
-
-<h1 style="margin-top:3rem">Mafia Master</h1>
-<p class="tag">Test build — not from the store</p>
-<p class="centre"><span class="pill">version 1.0.0 (build 1) · Universal Android</span></p>
-
-<div class="warn">
-  <p><strong>This is a test build.</strong> It did not come from Google Play and
-     it is signed with a private key, so Android will ask you about it during
-     installation.</p>
-  <p>If you got it from anywhere other than this page, do not install it.</p>
-</div>
-
-<a class="dl" href="Mafia-Master-Beta-1.0.0-arm64.apk" download>
-  Download the app
-  <small>arm64-v8a APK · about 88&nbsp;MB · Android 8 and above</small>
-</a>
-<p class="centre" style="font-size:.85em;opacity:.75">
-  arm64-v8a is the architecture of essentially every Android phone sold since
-  2017. If you have an older device on another architecture, ask for the
-  universal build.
-</p>
-
-<h2>How to install</h2>
-<ol>
-  <li>Open this page <strong>on the phone itself</strong> and tap “Download the app”.</li>
-  <li>Your browser will warn that this kind of file can harm your device — that
-      warning appears for every <code>.apk</code>. Tap <strong>Download
-      anyway</strong>.</li>
-  <li>Open the file from the notification, or from your <strong>Downloads</strong>
-      folder.</li>
-  <li>The first time only, Android will say this browser is not allowed to
-      install apps. Tap <strong>Settings</strong>, turn on <strong>Allow from
-      this source</strong>, and come back.</li>
-  <li>Tap <strong>Install</strong>. If Play Protect appears, tap
-      <strong>Install anyway</strong>.</li>
-</ol>
-<p>
-  To remove it, uninstall it like any other app — long-press the icon,
-  Uninstall. Nothing is left behind.
-</p>
-
-<h2>Rather not install anything?</h2>
-<p>
-  There is a web build that plays in the browser:
-  <a href="../">open it here</a>. Online play works there too — the installed
-  build is just faster, and works with no network at all.
-</p>
-
-<h2>What is in this build</h2>
-<table>
-  <tr><th>Version</th><td>1.0.0 (build 1)</td></tr>
-  <tr><th>Architecture</th><td>arm64-v8a (the universal build also carries armeabi-v7a and x86_64)</td></tr>
-  <tr><th>Minimum Android</th><td>8.0 (API 26)</td></tr>
-  <tr><th>Signing</th><td>Release key, not the debug key</td></tr>
-  <tr><th>Pass-the-phone play</th><td>✓ entirely offline</td></tr>
-  <tr><th>Online play</th><td>✓ 5 to 10 players</td></tr>
-  <tr><th>In-match voice</th><td>✓ can fail behind some networks — the match completes regardless</td></tr>
-</table>
-<p>
-  <a href="../privacy/">Privacy policy</a>
-</p>
-
-</section>
-
-<footer>
-  سيد المافيا · Mafia Master · <a href="../">العودة إلى اللعبة / back to the game</a>
-</footer>
-
+  <p class="alt">سجّلت قبل كده؟ بعد ما نضيف إيميلك، اشترك من <a href="https://play.google.com/apps/testing/com.mafiamaster.mafia_master" rel="noopener">صفحة الاختبار على جوجل بلاي</a>.</p>
+  <p class="alt">مش معاك أندرويد؟ <a href="/">العبها دلوقتي من المتصفح</a></p>
 </main>
+
+<footer><a href="/privacy/">الخصوصية</a> · <a href="/how-to-play/">إزاي تلعب</a></footer>
+
+<script>
+(function () {
+  var form = document.getElementById('signup');
+  var done = document.getElementById('done');
+  var err = document.getElementById('err');
+  var send = document.getElementById('send');
+  var nameEl = document.getElementById('name');
+  var emailEl = document.getElementById('email');
+  var trapEl = document.getElementById('website');
+  var source = (new URLSearchParams(location.search).get('src') || '').slice(0, 40);
+  var EMAIL = /^[^\s@<>"',;]+@[^\s@<>"',;]+\.[a-z]{2,}$/i;
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    err.textContent = '';
+    var name = nameEl.value.trim();
+    var email = emailEl.value.trim().toLowerCase();
+    if (name.length < 2) { err.textContent = 'اكتب اسمك (حرفين على الأقل).'; nameEl.focus(); return; }
+    if (!EMAIL.test(email)) { err.textContent = 'الإيميل ده مش مظبوط. اكتبه زي name@gmail.com'; emailEl.focus(); return; }
+    send.disabled = true;
+    send.textContent = 'ثانية واحدة…';
+    fetch('https://hezjbrnveajypfqmjfnh.supabase.co/functions/v1/tester_signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, email: email, source: source, website: trapEl.value })
+    }).then(function (res) {
+      if (res.ok) {
+        form.hidden = true;
+        done.hidden = false;
+        done.scrollIntoView({ block: 'start' });
+        return;
+      }
+      err.textContent = res.status === 429
+        ? 'محاولات كتير من نفس الشبكة. جرّب كمان ساعة.'
+        : 'ماقدرناش نسجّلك. اتأكد من الاسم والإيميل وجرّب تاني.';
+    }).catch(function () {
+      err.textContent = 'النت فصل. جرّب تاني.';
+    }).then(function () {
+      send.disabled = false;
+      send.textContent = 'سجّلني';
+    });
+  });
+})();
+</script>
 </body>
 </html>
