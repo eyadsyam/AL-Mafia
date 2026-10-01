@@ -12,9 +12,15 @@ import '../l10n_ext.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import 'economy_capabilities.dart';
+import 'web_banner_controller.dart';
 
+/// Must equal the publisher id in web/index.html, web/ads.txt and
+/// web/app-ads.txt (tool/web_publisher_consistency.test.mjs enforces it).
+/// See docs/WEB-ADS-SETUP.md.
 const kWebAdsenseClient = String.fromEnvironment(
   'WEB_ADSENSE_CLIENT',
+  // Split only so the web-safe-integer scan does not read the digits as a
+  // number literal; the three pieces concatenate to the publisher id.
   defaultValue:
       'ca-pub-'
       '91790639'
@@ -26,29 +32,48 @@ const kPlayListing =
 
 typedef WebBreakAttempt =
     Future<bool> Function(String client, String type, String name);
-typedef WebBannerAttempt = Future<bool> Function(String client, String slot);
 
 final webBreakAttemptProvider = Provider<WebBreakAttempt>((_) => tryH5Break);
-final webBannerAttemptProvider = Provider<WebBannerAttempt>((_) => tryH5Banner);
 final webAdsPlatformProvider = Provider<bool>((_) => kIsWeb);
+
+/// The build-time banner slot, used when the server has none. A slot the
+/// server sends (`web_ads_banner_slot`) always wins, so a new slot needs no
+/// rebuild.
 final webBannerSlotProvider = Provider<String>((_) => kWebAdsenseBannerSlot);
 final webBreakActiveProvider = StateProvider<bool>((_) => false);
 
+String effectiveBannerSlot(WebAdRules rules, String buildTimeSlot) =>
+    rules.bannerSlot.isNotEmpty ? rules.bannerSlot : buildTimeSlot;
+
+/// Whether the house break must be shown. For Google, waits for the attempt
+/// (bounded by [timeout]) before answering, so the house creative never
+/// flashes ahead of a Google break; a Google result that arrives after the
+/// answer is ignored because nothing is listening to it any more.
 Future<bool> needsHouseInterstitial(
   WebAdRules rules,
   WebAdMoment moment,
-  WebBreakAttempt attempt,
-) async {
+  WebBreakAttempt attempt, {
+  Duration timeout = WebAdTokens.googleBreakTimeout,
+}) async {
   if (rules.provider != 'adsense') return true;
+  final answer = Completer<bool>();
+  void settle(bool shown) {
+    if (!answer.isCompleted) answer.complete(shown);
+  }
+
+  final timer = Timer(timeout, () => settle(false));
   try {
-    return !await attempt(
+    attempt(
       kWebAdsenseClient,
       moment == WebAdMoment.appOpen ? 'start' : 'next',
       moment.name,
-    );
+    ).then(settle, onError: (Object _) => settle(false));
   } catch (_) {
-    return true;
+    settle(false);
   }
+  final shown = await answer.future;
+  timer.cancel();
+  return !shown;
 }
 
 /// A visible house creative is the default inventory; Google may replace it
@@ -63,29 +88,132 @@ class WebAdBanner extends ConsumerStatefulWidget {
 }
 
 class _WebAdBannerState extends ConsumerState<WebAdBanner> {
+  final GlobalKey _boxKey = GlobalKey();
+  late final WebBannerController _controller;
+  WebBannerClaim? _claim;
+  ModalRoute<dynamic>? _route;
   bool _googleFilled = false;
-  bool _requested = false;
+  bool _syncQueued = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ref.read(webBannerControllerProvider);
+    // Everything that can change whether this banner may own the Google
+    // overlay is observed here, never from build().
+    for (final provider in <ProviderListenable<Object?>>[
+      webBreakActiveProvider,
+      privateMomentProvider,
+      economyCapabilitiesProvider,
+      webBannerSlotProvider,
+    ]) {
+      ref.listenManual<Object?>(provider, (_, _) => _queueSync());
+    }
+    _queueSync();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribing to the route also tells us when it stops being the current
+    // one (a screen or sheet opened over it).
+    final route = ModalRoute.of(context);
+    if (!identical(route, _route)) {
+      _detachRoute();
+      _route = route;
+      route?.animation?.addStatusListener(_onRouteMotion);
+      route?.secondaryAnimation?.addStatusListener(_onRouteMotion);
+    }
+    _queueSync();
+  }
+
+  void _detachRoute() {
+    _route?.animation?.removeStatusListener(_onRouteMotion);
+    _route?.secondaryAnimation?.removeStatusListener(_onRouteMotion);
+  }
+
+  void _onRouteMotion(AnimationStatus _) => _queueSync();
 
   @override
   void dispose() {
-    hideH5Banner();
+    _detachRoute();
+    final claim = _claim;
+    if (claim != null) _controller.release(claim);
+    _claim = null;
     super.dispose();
   }
 
-  Future<void> _probe() async {
-    var filled = false;
-    try {
-      filled = await ref.read(webBannerAttemptProvider)(
-        kWebAdsenseClient,
-        ref.read(webBannerSlotProvider),
+  /// Settled and on top: the slot is not sliding and nothing covers it.
+  bool get _routeReady {
+    final route = _route;
+    if (route == null) return true;
+    return route.isCurrent &&
+        (route.animation?.status ?? AnimationStatus.completed) ==
+            AnimationStatus.completed &&
+        (route.secondaryAnimation?.status ?? AnimationStatus.dismissed) ==
+            AnimationStatus.dismissed;
+  }
+
+  void _queueSync() {
+    if (_syncQueued) return;
+    _syncQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncQueued = false;
+      if (mounted) _sync();
+    });
+  }
+
+  String? _wantedSlot() {
+    if (!ref.read(webAdsPlatformProvider) ||
+        ref.read(webBreakActiveProvider) ||
+        ref.read(privateMomentProvider) ||
+        !_routeReady) {
+      return null;
+    }
+    final caps = ref.read(economyCapabilitiesProvider).valueOrNull;
+    if (caps == null ||
+        caps.webAds.provider != 'adsense' ||
+        !caps.webAds.allows(
+          WebAdMoment.banner,
+          privatePhase: false,
+          adFree: caps.automaticAdsDisabled,
+        )) {
+      return null;
+    }
+    final slot = effectiveBannerSlot(
+      caps.webAds,
+      ref.read(webBannerSlotProvider),
+    );
+    return slot.isEmpty ? null : slot;
+  }
+
+  void _sync() {
+    final slot = _wantedSlot();
+    var claim = _claim;
+    if (claim != null && claim.slot != slot) {
+      _controller.release(claim);
+      _claim = claim = null;
+      if (_googleFilled) setState(() => _googleFilled = false);
+    }
+    if (slot != null && claim == null) {
+      _claim = WebBannerClaim(
+        client: kWebAdsenseClient,
+        slot: slot,
+        rect: _slotRect,
+        onFilled: _onFilled,
       );
-    } catch (_) {
-      // Blockers and incomplete approval must leave the house slot intact.
+      _controller.claim(_claim!);
     }
-    if (!mounted || ref.read(privateMomentProvider)) {
-      hideH5Banner();
-      return;
-    }
+  }
+
+  Rect? _slotRect() {
+    final box = _boxKey.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.attached || !box.hasSize) return null;
+    return box.localToGlobal(Offset.zero) & box.size;
+  }
+
+  void _onFilled(bool filled) {
+    if (!mounted || filled == _googleFilled) return;
     setState(() => _googleFilled = filled);
   }
 
@@ -94,9 +222,6 @@ class _WebAdBannerState extends ConsumerState<WebAdBanner> {
     if (!ref.watch(webAdsPlatformProvider) ||
         ref.watch(webBreakActiveProvider) ||
         ref.watch(privateMomentProvider)) {
-      hideH5Banner();
-      _googleFilled = false;
-      _requested = false;
       return const SizedBox.shrink();
     }
     final caps = ref.watch(economyCapabilitiesProvider).valueOrNull;
@@ -106,18 +231,7 @@ class _WebAdBannerState extends ConsumerState<WebAdBanner> {
           privatePhase: false,
           adFree: caps.automaticAdsDisabled,
         )) {
-      hideH5Banner();
-      _googleFilled = false;
-      _requested = false;
       return const SizedBox.shrink();
-    }
-    if (!_requested &&
-        caps.webAds.provider == 'adsense' &&
-        ref.watch(webBannerSlotProvider).isNotEmpty) {
-      _requested = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) unawaited(_probe());
-      });
     }
     final colors = context.colors;
     final spacing = context.spacing;
@@ -127,8 +241,9 @@ class _WebAdBannerState extends ConsumerState<WebAdBanner> {
         key: WebAdBanner.slotKey,
         height: WebAdTokens.bannerHeight,
         child: _googleFilled
-            ? const SizedBox.expand()
+            ? SizedBox.expand(key: _boxKey)
             : Material(
+                key: _boxKey,
                 color: colors.surfaceRaised,
                 child: InkWell(
                   key: WebAdBanner.appCtaKey,
@@ -184,6 +299,19 @@ class HouseWebInterstitial extends StatefulWidget {
 
   @override
   State<HouseWebInterstitial> createState() => _HouseWebInterstitialState();
+}
+
+/// Shown while a Google break is being decided: the plain ground, no creative,
+/// so the public screen cannot be tapped through and the house art never
+/// flashes before a Google break. Swapped for [HouseWebInterstitial] only if
+/// Google reports no fill.
+class WebAdHold extends StatelessWidget {
+  const WebAdHold({super.key});
+  static const holdKey = ValueKey('web_ad_hold');
+
+  @override
+  Widget build(BuildContext context) =>
+      Scaffold(key: holdKey, backgroundColor: context.colors.surfaceBase);
 }
 
 class WebAdRequest {

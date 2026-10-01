@@ -1,3 +1,9 @@
+# Google AdSense's crawler must see every public page, including the
+# content pages. Listed on its own so a later rule for User-agent: * can never
+# lock it out by accident.
+User-agent: Mediapartners-Google
+Allow: /
+
 User-agent: *
 Allow: /
 Disallow: /join/

@@ -2212,7 +2212,9 @@ abstract final class UpdateGateTokens {
 
 /// Web display inventory. Every ad is outside the private table.
 abstract final class WebAdTokens {
-  static const bannerHeight = 88.0;
+  /// The reserved banner slot. 90 so a 728x90 leaderboard fits exactly; the
+  /// JS shell sizes the Google unit from the slot and never lets it exceed it.
+  static const bannerHeight = 90.0;
   static const bannerArt = 56.0;
   static const bannerGap = 12.0;
   static const interstitialArt = 132.0;
@@ -2223,6 +2225,12 @@ abstract final class WebAdTokens {
   static const googleBannerTimeout = Duration(seconds: 4);
   static const transition = Duration.zero;
   static const appOpenDelay = Duration(seconds: 4);
+
+  /// Least time between the end of one web break and the start of a
+  /// navigation-driven one (enterLocal / enterOnline), so going back and forth
+  /// between menu screens cannot chain breaks. Matches Android's gap; web is
+  /// still heavier because every completed match and app open also breaks.
+  static const minBreakGap = Duration(seconds: 90);
 }
 
 /// The offline state on the online door (`lib/ui/widgets/connection_problem.dart`).

@@ -6,7 +6,8 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="سيد المافيا — لعبة المافيا على تليفون واحد، أو على النت مع أصحابك.">
+  <meta name="description" content="سيد المافيا — لعبة مافيا جماعية بأدوار سرية بالعربي: العبوها على تليفون واحد في القعدة، أو أونلاين مع أصحابك. A hidden-role Mafia party game, Arabic-first.">
+  <link rel="canonical" href="https://saidalmafia.com/">
 
   <!-- The ground, so the browser chrome and the first paint are the same
        charcoal the app is. A white flash before the first frame on a game
@@ -38,80 +39,190 @@
       } catch (e) { /* the web game is always the fallback */ }
     })();
   </script>
-  <!-- H5 Games API: load only when the server selects AdSense. Every break
-       reports fill; Flutter paints its own house creative on no fill. -->
+  <!-- Google AdSense site ownership and the ad library, as static tags.
+       THE PUBLISHER ID IS CHANGED HERE AND ONLY HERE for the web shell: these
+       two adjacent lines. The JS bridge below reads it back from the meta tag,
+       and tool/web_publisher_consistency.test.mjs fails if these two lines,
+       web/ads.txt, web/app-ads.txt and WEB_ADSENSE_CLIENT in
+       lib/ui/economy/web_ads.dart ever disagree. Full checklist:
+       docs/WEB-ADS-SETUP.md. Keep the snippet itself unmodified: Google's
+       crawler looks for exactly this tag to verify the site. -->
+  <meta name="google-adsense-account" content="ca-pub-9179063936085117">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9179063936085117" crossorigin="anonymous"></script>
+  <!-- Ad bridge. Two independent features share the one adsbygoogle.js:
+         1. Display banner (mafiaBannerShow/Hide): a fixed-size unit placed
+            exactly over the slot Flutter reserved. Needs only an approved
+            AdSense site plus a display slot id. Does NOT need H5.
+         2. Interstitial breaks (mafiaH5Break): the H5 Games Ads adBreak API,
+            used only for between-match breaks. Reports fill; Flutter paints
+            its own house creative on no fill.
+       Colours, z-index and timeouts are named constants below; each says
+       which Dart design token (lib/ui/theme/design_tokens.dart) it mirrors,
+       because the JS shell cannot import tokens. Change them together. -->
   <script>
     (function () {
-      var ready = false, loading = false, listeners = [];
-      function prepare(client, callback) {
-        if (ready) { callback(true); return; }
-        listeners.push(callback);
-        if (loading) return;
-        loading = true;
-        window.adsbygoogle = window.adsbygoogle || [];
+      // ---- Constants (mirrors of design tokens) ----
+      var GROUND = '#0f0f0f';          // AppColors.groundBase (surfaceBase)
+      var BANNER_Z_INDEX = 2147483000; // DOM layer above the Flutter canvas; no Dart token
+      var BREAK_TIMEOUT_MS = 2500;     // inside WebAdTokens.googleBreakTimeout (4 s)
+      var STATUS_POLL_MS = 500;        // fallback when MutationObserver is missing
+      // Standard AdSense banner sizes, preferred first. The slot Flutter
+      // reserves is WebAdTokens.bannerHeight (90) tall, so 728x90 fits exactly;
+      // the unit is never allowed to be larger than the slot.
+      var BANNER_SIZES = [[728, 90], [320, 100], [468, 60], [320, 50]];
+      // ---- End constants ----
+
+      var ADS_SRC_PART = 'pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+      window.adsbygoogle = window.adsbygoogle || [];
+
+      function publisherId(fallback) {
+        var meta = document.querySelector('meta[name="google-adsense-account"]');
+        return (meta && meta.getAttribute('content')) || fallback || '';
+      }
+
+      // The library is the static tag in <head>. If something removed it,
+      // load it once ourselves so both features still work.
+      var adsBlocked = false;
+      var breakWaiters = [];
+      var adsScript = document.querySelector('script[src*="' + ADS_SRC_PART + '"]');
+      function watchBlocked() {
+        if (!adsScript || !adsScript.addEventListener) return;
+        adsScript.addEventListener('error', function () {
+          adsBlocked = true;
+          breakWaiters.splice(0).forEach(function (f) { f(false); });
+        });
+      }
+      function ensureAdsScript(client) {
+        if (adsScript) return;
+        adsScript = document.createElement('script');
+        adsScript.async = true;
+        adsScript.crossOrigin = 'anonymous';
+        adsScript.src = 'https://' + ADS_SRC_PART + '?client=' + encodeURIComponent(client);
+        document.head.appendChild(adsScript);
+        watchBlocked();
+      }
+      watchBlocked();
+
+      // ---- Interstitial breaks (H5 Games Ads) ----
+      var breaksConfigured = false, breaksReady = false;
+      function prepareBreaks(client, callback) {
+        if (breaksReady) { callback(true); return; }
+        if (adsBlocked) { callback(false); return; }
+        breakWaiters.push(callback);
+        if (breaksConfigured) return;
+        breaksConfigured = true;
+        ensureAdsScript(client);
         window.adBreak = window.adConfig = function (o) { window.adsbygoogle.push(o); };
-        var script = document.createElement('script');
-        script.async = true;
-        script.crossOrigin = 'anonymous';
-        script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(client);
-        script.onerror = function () { listeners.splice(0).forEach(function (f) { f(false); }); };
-        document.head.appendChild(script);
         window.adConfig({ preloadAdBreaks: 'on', sound: 'off', onReady: function () {
-          ready = true;
-          listeners.splice(0).forEach(function (f) { f(true); });
+          breaksReady = true;
+          breakWaiters.splice(0).forEach(function (f) { f(true); });
         } });
       }
       window.mafiaH5Break = function (client, type, name, done) {
-        var finished = false;
-        function complete(filled) { if (!finished) { finished = true; done(!!filled); } }
-        var wait = setTimeout(function () { complete(false); }, 2500);
-        prepare(client, function (available) {
+        var finished = false, wait;
+        function complete(filled) {
           if (finished) return;
+          finished = true;
           clearTimeout(wait);
+          done(!!filled);
+        }
+        // Decide within the timeout no matter what; a result that arrives
+        // later is ignored here and by Flutter, so a late break can never
+        // stack on the house dialog.
+        wait = setTimeout(function () { complete(false); }, BREAK_TIMEOUT_MS);
+        prepareBreaks(publisherId(client), function (available) {
+          if (finished) return;
           if (!available) { complete(false); return; }
           try {
             window.adBreak({ type: type, name: name,
               beforeAd: function () { complete(true); },
               adBreakDone: function (info) {
-              complete(!!info && info.breakStatus === 'viewed');
-            } });
+                complete(!!info && info.breakStatus === 'viewed');
+              } });
           } catch (_) { complete(false); }
         });
       };
-      window.mafiaH5Banner = function (client, slot, done) {
-        var finished = false;
-        function complete(filled) { if (!finished) { finished = true; done(!!filled); } }
-        var wait = setTimeout(function () { complete(false); }, 2500);
-        prepare(client, function (available) {
-          if (finished) return;
-          clearTimeout(wait);
-          if (!available || !slot) { complete(false); return; }
-          var host = document.getElementById('mafia-google-banner');
-          if (host) { complete(host.dataset.filled === 'yes'); return; }
-          host = document.createElement('div');
-          host.id = 'mafia-google-banner';
-          host.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483000;text-align:center;background:#0f0f0f';
+
+      // ---- Display banner (plain AdSense display unit) ----
+      var banner = { host: null, unit: null, key: '', callback: null, observer: null, poll: 0 };
+      function isFilled() {
+        return !!banner.unit && banner.unit.getAttribute('data-ad-status') === 'filled';
+      }
+      // House art stays visible in Flutter until Google actually fills; the
+      // overlay is inert (hidden, no pointer events) until then, and switches
+      // on whenever a late fill arrives.
+      function refresh() {
+        if (!banner.host) return;
+        var on = isFilled();
+        banner.host.style.visibility = on ? 'visible' : 'hidden';
+        banner.host.style.pointerEvents = on ? 'auto' : 'none';
+        if (banner.callback) banner.callback(on);
+      }
+      function pickSize(w, h) {
+        for (var i = 0; i < BANNER_SIZES.length; i++) {
+          if (BANNER_SIZES[i][0] <= w && BANNER_SIZES[i][1] <= h) return BANNER_SIZES[i];
+        }
+        return null;
+      }
+      function ensureHost() {
+        if (banner.host) return;
+        var host = document.createElement('div');
+        host.id = 'mafia-google-banner';
+        host.setAttribute('aria-hidden', 'true');
+        host.style.cssText = 'position:fixed;overflow:hidden;display:flex;' +
+          'align-items:center;justify-content:center;visibility:hidden;' +
+          'pointer-events:none;background:' + GROUND + ';z-index:' + BANNER_Z_INDEX;
+        document.body.appendChild(host);
+        banner.host = host;
+      }
+      function watch(unit) {
+        if (banner.observer) banner.observer.disconnect();
+        if (banner.poll) clearInterval(banner.poll);
+        banner.observer = null; banner.poll = 0;
+        if (typeof MutationObserver === 'function') {
+          banner.observer = new MutationObserver(refresh);
+          banner.observer.observe(unit, { attributes: true, attributeFilter: ['data-ad-status'] });
+        } else {
+          banner.poll = setInterval(refresh, STATUS_POLL_MS);
+        }
+      }
+      // Places (or moves) the unit over [x,y,w,h] (CSS px, the slot Flutter
+      // reserved) for the top-most Flutter banner. callback(filled) is
+      // called now and on every change.
+      window.mafiaBannerShow = function (client, slot, x, y, w, h, callback) {
+        banner.callback = callback;
+        var size = slot ? pickSize(w, h) : null;
+        if (!size) { window.mafiaBannerHide(); callback(false); return; }
+        var id = publisherId(client);
+        ensureAdsScript(id);
+        ensureHost();
+        var s = banner.host.style;
+        s.left = Math.round(x) + 'px';
+        s.top = Math.round(y) + 'px';
+        s.width = Math.round(w) + 'px';
+        s.height = Math.round(h) + 'px'; // never taller than the reserved slot
+        var key = id + '/' + slot + '/' + size[0] + 'x' + size[1];
+        if (banner.key !== key) {
+          if (banner.unit) banner.unit.remove();
           var unit = document.createElement('ins');
           unit.className = 'adsbygoogle';
-          unit.style.display = 'block';
-          unit.dataset.adClient = client;
-          unit.dataset.adSlot = slot;
-          unit.dataset.adFormat = 'auto';
-          unit.dataset.fullWidthResponsive = 'true';
-          host.appendChild(unit);
-          document.body.appendChild(host);
-          try { (window.adsbygoogle = window.adsbygoogle || []).push({}); }
-          catch (_) { host.remove(); complete(false); return; }
-          setTimeout(function () {
-            var filled = unit.dataset.adStatus === 'filled';
-            host.dataset.filled = filled ? 'yes' : 'no';
-            if (!filled) host.remove();
-            complete(filled);
-          }, 2500);
-        });
+          // Fixed size, no data-ad-format: Google must not auto-grow it.
+          unit.style.cssText = 'display:inline-block;width:' + size[0] + 'px;height:' + size[1] + 'px';
+          unit.setAttribute('data-ad-client', id);
+          unit.setAttribute('data-ad-slot', slot);
+          banner.host.appendChild(unit);
+          banner.unit = unit;
+          banner.key = key;
+          watch(unit);
+          try { window.adsbygoogle.push({}); } catch (_) { /* blocked: house stays */ }
+        }
+        refresh();
       };
-      window.mafiaH5HideBanner = function () {
-        document.getElementById('mafia-google-banner')?.remove();
+      window.mafiaBannerHide = function () {
+        banner.callback = null;
+        if (!banner.host) return;
+        banner.host.style.visibility = 'hidden';
+        banner.host.style.pointerEvents = 'none';
       };
     })();
   </script>
@@ -171,6 +282,12 @@
      * typing Arabic into a field is untouched. Inherited, so it reaches the
      * shadow tree the scene actually lives in. */
     flt-glass-pane { direction: ltr; }
+
+    /* Crawlable text for the canvas-only app: visually hidden, still in the
+     * DOM for search crawlers, the AdSense crawler and screen readers. */
+    .seo-intro { position: absolute; width: 1px; height: 1px; margin: -1px;
+      padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+      white-space: nowrap; border: 0; }
   </style>
 </head>
 <body>
@@ -178,13 +295,27 @@
   <script src="firebase-config.js"></script>
   <script src="flutter_bootstrap.js" async></script>
   <!-- What a crawler (and a browser without JavaScript) can read: the game
-       itself is drawn on a canvas and has no text of its own to index. -->
+       itself is drawn on a canvas and has no text of its own to index. The
+       same text and links as the visible pages under /how-to-play/, /roles/
+       and /about/. -->
+  <div class="seo-intro">
+    <h1>سيد المافيا — Mafia Master</h1>
+    <p>لعبة مافيا جماعية بأدوار سرية بالعربي: العبوا على تليفون واحد في القعدة، أو أونلاين كل واحد من موبايله مع أصحابه. بالليل كل لاعب بيعمل حاجته في السر، وبالنهار الكل بيتناقش ويصوّت على مين يخرج.</p>
+    <p lang="en" dir="ltr">A hidden-role Mafia party game, Arabic-first with English: pass one phone around the table, or play online with friends on their own phones.</p>
+    <nav aria-label="سيد المافيا">
+      <a href="/how-to-play/">إزاي تلعب</a>
+      <a href="/roles/">الأدوار</a>
+      <a href="/about/">عن اللعبة</a>
+      <a href="/privacy/">الخصوصية</a>
+      <a href="/delete-data/">حذف البيانات</a>
+    </nav>
+  </div>
   <noscript>
     <main style="max-width:720px;margin:auto;padding:24px;color:#eee;font:18px/1.6 system-ui,sans-serif">
       <h1>سيد المافيا — Mafia Master</h1>
       <p>لعبة مافيا جماعية بأدوار سرية: العبوا أونلاين كل واحد من موبايله مع دردشة صوتية اختيارية، أو على موبايل واحد تتعدّوه في القعدة. واجهة عربية مع دعم الإنجليزية.</p>
       <p lang="en" dir="ltr">A hidden-role Mafia party game: play online, each on your own phone with optional voice chat, or pass one phone around the table. Arabic-first, with English.</p>
-      <p>تحتاج تشغيل JavaScript لفتح اللعبة. <a href="/privacy/" style="color:#eacb87">الخصوصية</a> · <a href="/delete-data/" style="color:#eacb87">حذف البيانات</a></p>
+      <p>تحتاج تشغيل JavaScript لفتح اللعبة. <a href="/how-to-play/" style="color:#eacb87">إزاي تلعب</a> · <a href="/roles/" style="color:#eacb87">الأدوار</a> · <a href="/about/" style="color:#eacb87">عن اللعبة</a> · <a href="/privacy/" style="color:#eacb87">الخصوصية</a> · <a href="/delete-data/" style="color:#eacb87">حذف البيانات</a></p>
     </main>
   </noscript>
 </body>
