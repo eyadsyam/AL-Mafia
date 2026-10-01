@@ -70,7 +70,9 @@ void main() {
     // ended up past the right of the window and the intro was an empty panel.
     // The document stays RTL; only the surface Flutter composites is pinned.
     final html = read('web/index.html');
-    expect(html, contains('flt-glass-pane { direction: ltr; }'));
+    // Pinned on `flutter-view`, the glass pane's host, since the iOS Safari
+    // black-screen fix (2026-10-01); the pane inherits it.
+    expect(html, contains('flutter-view { direction: ltr; }'));
     expect(html, contains('dir="rtl"'));
   });
 }
