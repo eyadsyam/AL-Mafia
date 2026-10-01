@@ -3596,3 +3596,10 @@ Files:      supabase/functions/tester_signup/index.ts, docs/PROGRESS.md
 Verified:   Cloudflare Wrangler authenticated with email_sending(write), but Email Sending list and enable both returned Unauthorized [2036]; Node syntax and git diff checks passed.
 Gate:       FAIL
 Open:       No domain sender deployed or inbox test run. Owner must create a Resend free account on phone, add saidalmafia.com, create a sending API key, and paste it as RESEND_API_KEY in Supabase project hezjbrnveajypfqmjfnh secrets. Then add Resend DNS records through Cloudflare, deploy tester_signup with verify_jwt=false, and test delivery.
+
+## PHASE night-rules-2026-10-01 — done
+Built:      Mafia never target a teammate; multiple Doctors protect one seat (majority, seeded draw on a split); one Detective per match; online Citizens rest every night (no move sent/stored/waited for); T5/C4 silent with no suspicion on record.
+Files:      lib/engine/{legal_moves,match_engine,resolver,seed,views,balance_guard}.dart, lib/engine/information/{trace,confrontation}_generator.dart, lib/transport/{room_codec,online_transport}.dart, lib/ui/screens/{night/night_action_screen,online/online_table_flow,setup/roles_screen}.dart, supabase/functions/{submit_night_action,resolve_night,advance_phase,start_match}/index.ts, supabase/functions/_shared/{history,trace,confrontation,seed}.ts, golden vectors, tests.
+Verified:   flutter analyze (no new issues); flutter test engine/unit/leakage/golden/transport/online/app + affected integration/widget suites green except Codex's in-progress online_entry/online_lobby and pre-existing offline_video_test; deno check on changed functions; golden vectors Dart==TS (35 cases).
+Gate:       PASS (not deployed: edge functions + app build wait for owner go)
+Open:       balance harness rate assertions parked — its Mafia used to kill teammates; agent model needs recalibration. Server functions not deployed yet.
