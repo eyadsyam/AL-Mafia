@@ -58,8 +58,9 @@ void main() {
         contains('https://saidalmafia.com/'));
     expect(File('web/robots.txt').readAsStringSync(),
         contains('https://saidalmafia.com/sitemap.xml'));
-    expect(File('web/ads.txt').readAsStringSync().trim(),
-        'google.com, pub-9179063936085117, DIRECT, f08c47fec0942fa0');
+    // The web AdSense account first; the AdMob account stays listed.
+    expect(File('web/ads.txt').readAsStringSync(),
+        contains('google.com, pub-5174049351369803, DIRECT, f08c47fec0942fa0'));
   });
 
   test('the custom scheme still resolves to the router path', () {

@@ -23,8 +23,8 @@ const kWebAdsenseClient = String.fromEnvironment(
   // number literal; the three pieces concatenate to the publisher id.
   defaultValue:
       'ca-pub-'
-      '91790639'
-      '36085117',
+      '51740493'
+      '51369803',
 );
 const kWebAdsenseBannerSlot = String.fromEnvironment('WEB_ADSENSE_BANNER_SLOT');
 const kPlayListing =
