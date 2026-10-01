@@ -88,8 +88,9 @@ def main():
 
     roles = {"mafia": 1, "doctor": 1, "detective": 1, "citizen": 2}
     settings = {
-        "speechSeconds": 10,
-        "confrontationSeconds": 10,
+        # The server accepts 30, 45 or 60 (room_configuration.ts).
+        "speechSeconds": 30,
+        "confrontationSeconds": 30,
         "abstainAllowed": True,
         "whisperEnabled": False,
         "traceEnabled": True,
@@ -134,7 +135,12 @@ def main():
                 }, bot))
             print("NIGHT_READY", flush=True)
         elif command == "morning":
-            result = must("resolve night", call("resolve_night", {"roomId": room_id}, bots[0]))
+            # The night resolves itself once every action is in; then this
+            # answers PHASE_CLOSED and the morning is already on screen.
+            status, result = call("resolve_night", {"roomId": room_id}, bots[0])
+            if status != 200:
+                print("MORNING already resolved (%s)" % status, flush=True)
+                continue
             victim = result.get("victimSeat")
             if victim is not None:
                 alive.discard(victim)
@@ -154,8 +160,8 @@ def main():
                 }, bot))
             print("VOTE_READY target=%s" % mafia_seat, flush=True)
         elif command == "result":
-            result = must("resolve vote", call("resolve_vote", {"roomId": room_id}, bots[0]))
-            print("RESULT=" + json.dumps(result, separators=(",", ":")), flush=True)
+            status, result = call("resolve_vote", {"roomId": room_id}, bots[0])
+            print("RESULT=" + json.dumps(result, separators=(",", ":")) if status == 200 else "RESULT already resolved (%s)" % status, flush=True)
         elif command == "state":
             _, state = rest("room_state?select=phase,phase_number,public_data&room_id=eq." + room_id, bots[0])
             print("STATE=" + json.dumps(state, separators=(",", ":")), flush=True)
