@@ -125,6 +125,10 @@ class PublicRoom {
   /// to join becomes its host. Never shown as an occupied room.
   final bool waiting;
 
+  /// A Thursday Night table (`public_room_listing_v3`): marked by the server
+  /// from the room's stored preset fingerprint, never from its title.
+  final bool thursday;
+
   const PublicRoom({
     required this.code,
     required this.players,
@@ -133,6 +137,7 @@ class PublicRoom {
     this.capacity = defaultCapacity,
     this.minPlayers = defaultMinPlayers,
     this.waiting = false,
+    this.thursday = false,
   });
 
   bool get isFull => players >= capacity;
@@ -149,6 +154,7 @@ class PublicRoom {
     minPlayers: (json['min_players'] as num?)?.toInt() ?? defaultMinPlayers,
     voice: json['voice'] as bool? ?? true,
     waiting: json['waiting'] as bool? ?? false,
+    thursday: json['thursday'] as bool? ?? false,
   );
 
   /// Joinable rooms nearest to starting first; full rooms last. The server

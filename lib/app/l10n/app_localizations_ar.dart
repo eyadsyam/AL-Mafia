@@ -4699,6 +4699,22 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get thursdayLine =>
+      'كل خميس من 8 بالليل لحد 1: ماتشين في أوضتها = 40 نقطة موسم وختم.';
+
+  @override
+  String get thursdayOpensLater => 'بتفتح الساعة 8 بالليل';
+
+  @override
+  String get thursdayOpenRoom => 'افتح أوضة الخميس';
+
+  @override
+  String get thursdayJoinRoom => 'ادخل أوضة الخميس';
+
+  @override
+  String get thursdayDone => 'خدت ختم الخميس. تقدر تلعب عادي.';
+
+  @override
   String get lobbyReadyAction => 'أنا جاهز';
 
   @override

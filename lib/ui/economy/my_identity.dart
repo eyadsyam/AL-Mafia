@@ -24,12 +24,16 @@ class MyIdentityBadge extends ConsumerWidget {
   final String? name;
   final PlayerGender? gender;
 
+  /// False draws the framed avatar alone (Home's corner row).
+  final bool showName;
+
   const MyIdentityBadge({
     super.key,
     this.axis = Axis.horizontal,
     this.diameter = StoreTruthTokens.chipAvatar,
     this.name,
     this.gender,
+    this.showName = true,
   });
 
   static const Key badgeKey = ValueKey('my_identity_badge');
@@ -60,6 +64,7 @@ class MyIdentityBadge extends ConsumerWidget {
               color: context.colors.textPrimary,
             ),
           );
+    if (!showName) return KeyedSubtree(key: badgeKey, child: avatar);
     return KeyedSubtree(
       key: badgeKey,
       child: axis == Axis.horizontal

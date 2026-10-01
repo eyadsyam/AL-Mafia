@@ -66,10 +66,8 @@ void main() {
       find.descendant(of: chip, matching: find.byType(PlayerAvatar)),
       findsOneWidget,
     );
-    expect(
-      find.descendant(of: chip, matching: find.text('سلمى')),
-      findsOneWidget,
-    );
+    // Avatar only beside the corner icons; the name is its tooltip.
+    expect(find.byTooltip('سلمى'), findsOneWidget);
     final ring = tester.widget<CosmeticFrameRing>(
       find.descendant(of: chip, matching: find.byType(CosmeticFrameRing)),
     );

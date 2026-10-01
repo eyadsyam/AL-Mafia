@@ -1,6 +1,7 @@
 import 'dart:async';
 import '../../../data/online_match_history.dart';
 import '../../../data/online_session_store.dart';
+import '../../../data/request_id.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -164,6 +165,25 @@ class OnlineSession extends Notifier<OnlineSessionState> {
     final handle = await backend.createRoom(name: name.trim(), gender: gender);
     return handle;
   });
+
+  /// Opens a Thursday Night table (`economy` eventCreateRoom): public, titled
+  /// «ليلة الخميس», with the event's preset — the only room whose matches
+  /// count for the night. The server seats the creator at seat 0.
+  Future<void> hostThursday() {
+    final requestId = newRequestId();
+    return _enter((backend) async {
+      final result = await backend.call('economy', {
+        'action': 'eventCreateRoom',
+        'event': 'thursday',
+        'requestId': requestId,
+      });
+      return RoomHandle(
+        roomId: result['roomId'] as String,
+        code: result['code'] as String,
+        seat: 0,
+      );
+    });
+  }
 
   /// «ماتش كمان بنفس الترابيزة»: the host of a finished room opens the next
   /// one with the same settings. Everyone still on the result sees its code

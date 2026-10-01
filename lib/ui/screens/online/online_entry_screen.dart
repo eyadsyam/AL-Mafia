@@ -254,6 +254,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
 
   Future<void> _enter({
     bool host = false,
+    bool thursday = false,
     String? code,
     bool resume = false,
     bool leaveConfirmed = false,
@@ -289,7 +290,9 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     // reject the later remote audio element until the player taps playback.
     unawaited(primeWebPlayout());
     final online = ref.read(onlineSessionProvider.notifier);
-    if (host) {
+    if (thursday) {
+      await online.hostThursday();
+    } else if (host) {
       await online.host(
         profile.name,
         gender: profile.gender.name,
@@ -450,7 +453,6 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     final notice = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ThursdayBanner(),
         if (safetyNotice != null)
           Padding(
             key: OnlineEntryScreen.safetyNotice,
@@ -584,16 +586,29 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                   // Who the room will see, and the way to
                                   // change it: one target, not a bare name
                                   // under the title and an avatar elsewhere.
-                                  _IdentityChip(
-                                    name: profile.name,
-                                    gender: profile.gender,
-                                    onEdit: state.busy
-                                        ? null
-                                        : () => setState(() => _editing = true),
+                                  // «أصحابك» sits beside it as one small
+                                  // icon: the door stays about rooms.
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _IdentityChip(
+                                          name: profile.name,
+                                          gender: profile.gender,
+                                          onEdit: state.busy
+                                              ? null
+                                              : () => setState(
+                                                  () => _editing = true,
+                                                ),
+                                        ),
+                                      ),
+                                      FriendsButton(
+                                        onJoin: (code) => _enter(code: code),
+                                      ),
+                                    ],
                                   ),
                                   SizedBox(height: s.md),
-                                  // «أصحابك»: invites waiting, friends at a
-                                  // table. Nothing while the feature is off.
+                                  // Invites waiting for this player, when
+                                  // there are any. Nothing while off.
                                   FriendsStrip(
                                     onJoin: (code) => _enter(code: code),
                                   ),
@@ -834,6 +849,31 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       hint: l.onlineNoPublicRoomsHint,
                                     ),
                                 ],
+                              ),
+                            ),
+                            // «ليلة الخميس»: the night's own row, first
+                            // in the list it belongs to. Nothing on other
+                            // days or while the event is off.
+                            SliverPadding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: s.screenMargin,
+                              ),
+                              sliver: SliverToBoxAdapter(
+                                child: ThursdayBanner(
+                                  rooms: [
+                                    for (final room in _rooms)
+                                      if (room.thursday) room,
+                                  ],
+                                  onJoin: state.busy
+                                      ? null
+                                      : (code) => _enter(code: code),
+                                  onCreate: state.busy
+                                      ? null
+                                      : () => _enter(
+                                          host: true,
+                                          thursday: true,
+                                        ),
+                                ),
                               ),
                             ),
                             SliverPadding(
@@ -1079,7 +1119,9 @@ class _PublicRoomTile extends StatelessWidget {
         color: c.surfaceRaised,
         shape: RoundedRectangleBorder(
           borderRadius: radius,
-          side: BorderSide(color: c.borderSubtle),
+          side: BorderSide(
+            color: room.thursday ? c.accentGold : c.borderSubtle,
+          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(

@@ -21,7 +21,7 @@ void main() {
     expect(event.event, '2026-10-29');
   });
 
-  test('banner requires both capability and server Thursday', () {
+  test('banner needs the capability and Thursday night, Friday hour too', () {
     const thursday = ThursdayEvent(enabled: true, isThursday: true);
     const fridayWindow = ThursdayEvent(enabled: true, inWindow: true);
 
@@ -29,6 +29,10 @@ void main() {
     expect(thursdayBannerVisible(capability: false, event: thursday), isFalse);
     expect(
       thursdayBannerVisible(capability: true, event: fridayWindow),
+      isTrue,
+    );
+    expect(
+      thursdayBannerVisible(capability: true, event: ThursdayEvent.off),
       isFalse,
     );
   });

@@ -245,11 +245,13 @@ class _FriendsStripState extends ConsumerState<FriendsStrip>
   Widget build(BuildContext context) {
     final onJoin = widget.onJoin;
     final friends = ref.watch(friendsProvider).valueOrNull;
-    if (friends == null) return const SizedBox.shrink();
+    if (friends == null || friends.invites.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final l = context.l10n;
     final s = context.spacing;
     return Padding(
-      padding: EdgeInsets.only(bottom: s.md),
+      padding: EdgeInsets.only(bottom: s.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -263,17 +265,44 @@ class _FriendsStripState extends ConsumerState<FriendsStrip>
                 label: Text(l.friendsInvitedYou(invite.name)),
               ),
             ),
-          OutlinedButton.icon(
-            key: FriendsStrip.openKey,
-            onPressed: () => showFriendsSheet(context, onJoin: onJoin),
-            icon: const Icon(Icons.people_alt_rounded),
-            label: Text(
-              friends.inLobby > 0
-                  ? l.friendsTitleWithOnline(friends.inLobby)
-                  : l.friendsTitle,
-            ),
-          ),
         ],
+      ),
+    );
+  }
+}
+
+/// «أصحابك» as one small icon beside the player's own chip: a count of what
+/// waits for them (room invites and friend requests), a dot when a friend
+/// is at a table. Opens the full sheet. Draws nothing while the feature is
+/// off.
+class FriendsButton extends ConsumerWidget {
+  final ValueChanged<String> onJoin;
+  const FriendsButton({super.key, required this.onJoin});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final friends = ref.watch(friendsProvider).valueOrNull;
+    if (friends == null) return const SizedBox.shrink();
+    final l = context.l10n;
+    final c = context.colors;
+    final waiting = friends.invites.length + friends.incoming.length;
+    final label = friends.inLobby > 0
+        ? l.friendsTitleWithOnline(friends.inLobby)
+        : l.friendsTitle;
+    return IconButton(
+      key: FriendsStrip.openKey,
+      tooltip: label,
+      onPressed: () => showFriendsSheet(context, onJoin: onJoin),
+      icon: Badge(
+        isLabelVisible: waiting > 0 || friends.inLobby > 0,
+        label: waiting > 0 ? Text('$waiting') : null,
+        backgroundColor: waiting > 0 ? c.accentCrimson : c.accentGold,
+        smallSize: FriendsTokens.presenceDot,
+        child: Icon(
+          Icons.people_alt_rounded,
+          color: c.accentGold,
+          semanticLabel: label,
+        ),
       ),
     );
   }

@@ -1535,6 +1535,19 @@ abstract final class StoreTokens {
   /// Wide screens keep the shop to a readable column.
   static const maxContentWidth = 960.0;
 
+  /// The vault art behind the whole store, dimmed this far so cards and
+  /// text keep their contrast.
+  static const backdropShade = 0.82;
+
+  /// From this header width the tabs centre under the title.
+  static const headerWideAt = 720.0;
+
+  /// From this header width the balance sits beside the title.
+  static const headerInlineAt = 480.0;
+
+  /// A tab with its mark above its word.
+  static const tabHeight = 60.0;
+
   /// The owned/equipped mark on a card.
   static const badgeWash = 0.16;
   static const selectedBorder = 1.5;
@@ -1972,6 +1985,9 @@ abstract final class DeviceClassTokens {
 
 /// «أصحابك» (`lib/ui/screens/online/friends.dart`).
 abstract final class FriendsTokens {
+  /// The «a friend is at a table» dot on the small friends icon.
+  static const double presenceDot = 8.0;
+
   static const double sheetHeight = 0.9;
   static const double heroHeight = 120.0;
   static const double avatar = 44.0;
@@ -2089,6 +2105,9 @@ abstract final class PassInventoryTokens {
 abstract final class StoreTruthTokens {
   /// The Home chip and list rows: this player's own avatar.
   static const double chipAvatar = 36.0;
+
+  /// The framed avatar among Home's corner icons.
+  static const double cornerAvatar = 32.0;
 
   /// The account sheet's identity.
   static const double sheetAvatar = 64.0;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../transport/game_snapshot.dart';
 import '../../transport/online_backend.dart';
 import '../economy/council_art.dart';
 import '../economy/economy_capabilities.dart';
@@ -38,10 +39,12 @@ class ThursdayEvent {
   );
 }
 
+/// Thursday from midnight, and the first hour of Friday that still belongs
+/// to Thursday night (the server's 20:00–01:00 window).
 bool thursdayBannerVisible({
   required bool capability,
   required ThursdayEvent event,
-}) => capability && event.isThursday;
+}) => capability && (event.isThursday || event.inWindow);
 
 final thursdayEventProvider = FutureProvider<ThursdayEvent>((ref) async {
   final capabilities = await ref.watch(economyCapabilitiesProvider.future);
@@ -59,11 +62,25 @@ final thursdayEventProvider = FutureProvider<ThursdayEvent>((ref) async {
   }
 });
 
+/// «ليلة الخميس» as the first row of «أوض عامة»: what the night is in one
+/// line, how far this player is, and one tap — into an open Thursday table
+/// if there is one, otherwise a new one. Before 20:00 it says when it opens
+/// and does nothing: a match started earlier would not count.
 class ThursdayBanner extends ConsumerWidget {
   static const keyValue = ValueKey('thursday_banner');
   static const art = 'assets/images/launch/thursday_banner.webp';
 
-  const ThursdayBanner({super.key});
+  /// Open Thursday tables from the browse list (`PublicRoom.thursday`).
+  final List<PublicRoom> rooms;
+  final ValueChanged<String>? onJoin;
+  final VoidCallback? onCreate;
+
+  const ThursdayBanner({
+    super.key,
+    this.rooms = const [],
+    this.onJoin,
+    this.onCreate,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,57 +91,107 @@ class ThursdayBanner extends ConsumerWidget {
         !thursdayBannerVisible(capability: capability, event: event)) {
       return const SizedBox.shrink();
     }
+    final l = context.l10n;
     final spacing = context.spacing;
     final colors = context.colors;
+    final type = context.typography;
     final radius = BorderRadius.circular(context.radii.card);
     final fallback = ColoredBox(color: colors.surfaceRaised);
-    return Semantics(
-      container: true,
-      label:
-          '${context.l10n.thursdayNight}. '
-          '${context.l10n.thursdayProgress(event.progress)}',
-      child: Container(
-        key: keyValue,
-        height: ThursdayTokens.bannerHeight,
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
+    final open = rooms.where((r) => !r.isFull).toList();
+    final join = onJoin;
+    final String action;
+    final VoidCallback? onTap;
+    if (!event.inWindow) {
+      action = l.thursdayOpensLater;
+      onTap = null;
+    } else if (open.isNotEmpty) {
+      action = l.thursdayJoinRoom;
+      onTap = join == null ? null : () => join(open.first.code);
+    } else {
+      action = l.thursdayOpenRoom;
+      onTap = onCreate;
+    }
+    final status = event.progress >= 2
+        ? l.thursdayDone
+        : '${l.thursdayProgress(event.progress)} · $action';
+    return Padding(
+      padding: EdgeInsets.only(top: spacing.sm, bottom: spacing.xs),
+      child: Semantics(
+        container: true,
+        button: onTap != null,
+        label: '${l.thursdayNight}. ${l.thursdayLine} $status',
+        child: Material(
+          key: keyValue,
           color: colors.surfaceRaised,
-          borderRadius: radius,
-          border: Border.all(
-            color: colors.accentGold,
-            width: ThursdayTokens.borderWidth,
-          ),
-        ),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Opacity(
-              opacity: ThursdayTokens.artOpacity,
-              child: RasterOr(path: art, fit: BoxFit.cover, fallback: fallback),
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: radius,
+            side: BorderSide(
+              color: colors.accentGold,
+              width: ThursdayTokens.borderWidth,
             ),
-            Padding(
-              padding: EdgeInsets.all(spacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+          ),
+          child: InkWell(
+            onTap: onTap,
+            child: SizedBox(
+              height: ThursdayTokens.bannerHeight,
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Text(
-                    context.l10n.thursdayNight,
-                    style: context.typography.title.copyWith(
-                      color: colors.textPrimary,
+                  Opacity(
+                    opacity: ThursdayTokens.artOpacity,
+                    child: RasterOr(
+                      path: art,
+                      fit: BoxFit.cover,
+                      fallback: fallback,
                     ),
                   ),
-                  SizedBox(height: spacing.xs),
-                  Text(
-                    context.l10n.thursdayProgress(event.progress),
-                    style: context.typography.bodySmall.copyWith(
-                      color: colors.textSecondary,
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: spacing.md,
+                      vertical: spacing.sm,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                l.thursdayNight,
+                                style: type.title.copyWith(
+                                  color: colors.textPrimary,
+                                ),
+                              ),
+                              Text(
+                                l.thursdayLine,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: type.caption.copyWith(
+                                  color: colors.textPrimary,
+                                ),
+                              ),
+                              Text(
+                                status,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: type.caption.copyWith(
+                                  color: colors.accentGold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (onTap != null)
+                          Icon(Icons.chevron_right, color: colors.accentGold),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

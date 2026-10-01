@@ -8078,6 +8078,36 @@ abstract class AppLocalizations {
   /// **'Matches: {count}/2'**
   String thursdayProgress(int count);
 
+  /// No description provided for @thursdayLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Every Thursday 8 PM to 1 AM: two matches in its room = 40 season points and a stamp.'**
+  String get thursdayLine;
+
+  /// No description provided for @thursdayOpensLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens at 8 PM'**
+  String get thursdayOpensLater;
+
+  /// No description provided for @thursdayOpenRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a Thursday room'**
+  String get thursdayOpenRoom;
+
+  /// No description provided for @thursdayJoinRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the Thursday room'**
+  String get thursdayJoinRoom;
+
+  /// No description provided for @thursdayDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday stamp earned. Play on as usual.'**
+  String get thursdayDone;
+
   /// No description provided for @lobbyReadyAction.
   ///
   /// In en, this message translates to:

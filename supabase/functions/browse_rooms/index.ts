@@ -31,7 +31,7 @@ Deno.serve(handler(async (_req, userId, db) => {
   if (provision.error && !missing(provision.error)) {
     console.error("ensure_system_waiting_room", provision.error.code);
   }
-  for (const rpc of ["public_room_listing_v2", "public_room_listing"]) {
+  for (const rpc of ["public_room_listing_v3", "public_room_listing_v2", "public_room_listing"]) {
     const listing = await db.rpc(rpc, { p_user: userId });
     if (!listing.error) return ok({ rooms: listing.data ?? [] });
     if (!missing(listing.error)) throw listing.error;

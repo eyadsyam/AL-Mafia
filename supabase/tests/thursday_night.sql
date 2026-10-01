@@ -49,6 +49,16 @@ begin
   assert (select scenario_fingerprint=public.thursday_preset_fingerprint()
     and settings=public.thursday_preset() from public.rooms
     where id=(first_create->>'roomId')::uuid),'event preset was not canonical';
+  -- The event room is listed in «أوض عامة», marked from its fingerprint.
+  assert (select visibility='public' and title='ليلة الخميس' from public.rooms
+    where id=(first_create->>'roomId')::uuid),'event room was not public';
+  assert exists(select 1 from public.public_room_listing_v3(u) l
+    join public.rooms r on r.code=l.code
+    where r.id=(first_create->>'roomId')::uuid and l.thursday),
+    'event room not marked in the listing';
+  assert not exists(select 1 from public.public_room_listing_v3(u) l
+    where l.thursday and l.code<>(select code from public.rooms
+      where id=(first_create->>'roomId')::uuid)),'a plain room marked Thursday';
   assert (select count(*) from public.thursday_event_receipts
     where creator_id=u and request_id=request)=1,'request replay duplicated receipt';
 

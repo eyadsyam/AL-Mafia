@@ -17,6 +17,7 @@ import '../../economy/play_offers.dart';
 import '../../economy/purchase_reveal.dart';
 import '../../../platform/monetization/play_billing.dart';
 import '../../economy/store_art.dart';
+import '../../widgets/textured_surface.dart';
 import '../../economy/mafia_coin.dart';
 import '../../economy/vault_kit.dart';
 import '../../economy/wallet.dart';
@@ -274,17 +275,21 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
         !kIsWeb &&
         caps.products.isNotEmpty &&
         ref.watch(playBillingProvider).supported;
-    final tabs = <(String, Widget)>[
-      if (caps.daily) (l.storeTabRewards, const DailyRewardsTab()),
-      if (caps.council.hub) (l.storeTabCouncil, const CouncilHubTab()),
+    final tabs = <(String, IconData, Widget)>[
+      if (caps.daily)
+        (l.storeTabRewards, Icons.redeem_rounded, const DailyRewardsTab()),
+      if (caps.council.hub)
+        (l.storeTabCouncil, Icons.groups_rounded, const CouncilHubTab()),
       (
         l.storeTabShop,
+        Icons.storefront_rounded,
         value == null
             ? const SizedBox.shrink()
             : _ShopTab(wallet: value, onOpen: _open),
       ),
       (
         l.storeTabCollection,
+        Icons.checkroom_rounded,
         value == null
             ? const SizedBox.shrink()
             : ValueListenableBuilder<bool>(
@@ -299,14 +304,17 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
       ),
       (
         l.storeTabHistory,
+        Icons.receipt_long_rounded,
         value == null
             ? const SizedBox.shrink()
             : _HistoryTab(history: value.history),
       ),
-      if (play) (l.storeTabPlay, const PlayOffersTab()),
+      if (play)
+        (l.storeTabPlay, Icons.shop_rounded, const PlayOffersTab()),
       if (coins)
         (
           pay.platform == 'android' ? l.pay2TabTransfer : l.storeTabCoins,
+          Icons.add_card_rounded,
           const CoinPacksTab(),
         ),
     ];
@@ -317,54 +325,182 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
           ? council
           : 0,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(l.vaultTitle),
-          leading: widget.onClose == null
-              ? null
-              : IconButton(
-                  key: CoinStore.closeKey,
-                  onPressed: widget.onClose,
-                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-                  icon: const Icon(Icons.close),
-                ),
-          bottom: TabBar(
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            tabs: [for (final tab in tabs) Tab(text: tab.$1)],
-          ),
-        ),
-        body: Column(
-          children: [
-            _WalletStrip(balance: value?.balance, loading: wallet.isLoading),
-            if (wallet.hasError && value == null)
-              Padding(
-                padding: EdgeInsets.all(context.spacing.md),
-                child: Column(
-                  children: [
-                    Text(l.coinsLoadFailed, style: context.typography.body),
-                    TextButton(
-                      onPressed: () =>
-                          ref.read(walletProvider.notifier).refresh(),
-                      child: Text(l.videoRetry),
-                    ),
-                  ],
-                ),
+        backgroundColor: Colors.transparent,
+        // The vault's own room behind it: on a wide window the column no
+        // longer floats in a black void, and on a phone it reads as a place.
+        body: AppBackdrop(
+          image: StoreArt.hero,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: context.colors.surfaceBase.withValues(
+                alpha: StoreTokens.backdropShade,
               ),
-            Expanded(
-              child: TabBarView(children: [for (final tab in tabs) tab.$2]),
             ),
-            // Phase 108: vault browse is a waiting surface; zero size unless
-            // switched on and filled.
-            const SafeArea(top: false, child: WaitingBanner()),
-          ],
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  _VaultHeader(
+                    balance: value?.balance,
+                    loading: wallet.isLoading,
+                    onClose: widget.onClose,
+                    tabs: [for (final tab in tabs) (tab.$1, tab.$2)],
+                  ),
+                  if (wallet.hasError && value == null)
+                    Padding(
+                      padding: EdgeInsets.all(context.spacing.md),
+                      child: Column(
+                        children: [
+                          Text(
+                            l.coinsLoadFailed,
+                            style: context.typography.body,
+                          ),
+                          TextButton(
+                            onPressed: () =>
+                                ref.read(walletProvider.notifier).refresh(),
+                            child: Text(l.videoRetry),
+                          ),
+                        ],
+                      ),
+                    ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [for (final tab in tabs) tab.$3],
+                    ),
+                  ),
+                  // Phase 108: vault browse is a waiting surface; zero size
+                  // unless switched on and filled.
+                  const SafeArea(top: false, child: WaitingBanner()),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-/// The balance, on every tab, in one line. How coins are earned is one tap
-/// away rather than three lines above the catalog.
+/// The vault's head, in the same reading column as its contents: close,
+/// title and the balance on one line, the rooms (tabs) under it with a mark
+/// each. On a wide window the tabs sit centred under the title instead of
+/// running off to one edge.
+class _VaultHeader extends StatelessWidget {
+  final int? balance;
+  final bool loading;
+  final VoidCallback? onClose;
+  final List<(String, IconData)> tabs;
+  const _VaultHeader({
+    required this.balance,
+    required this.loading,
+    required this.onClose,
+    required this.tabs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final colors = context.colors;
+    final close = onClose;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: colors.borderSubtle)),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: StoreTokens.maxContentWidth,
+          ),
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final wide = box.maxWidth >= StoreTokens.headerWideAt;
+              final inline = box.maxWidth >= StoreTokens.headerInlineAt;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: EdgeInsetsDirectional.only(
+                      start: s.xs,
+                      end: s.sm,
+                      top: s.xs,
+                    ),
+                    child: Row(
+                      children: [
+                        if (close != null)
+                          IconButton(
+                            key: CoinStore.closeKey,
+                            onPressed: close,
+                            tooltip: MaterialLocalizations.of(
+                              context,
+                            ).closeButtonTooltip,
+                            icon: const Icon(Icons.close),
+                          )
+                        else
+                          SizedBox(width: s.sm),
+                        Expanded(
+                          child: Text(
+                            l.vaultTitle,
+                            style: context.typography.headline.copyWith(
+                              color: colors.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        // Beside the title when there is room for both.
+                        if (inline)
+                          _WalletStrip(balance: balance, loading: loading),
+                      ],
+                    ),
+                  ),
+                  // A phone: the balance on its own line under the title.
+                  if (!inline)
+                    Padding(
+                      padding: EdgeInsetsDirectional.only(
+                        start: s.md,
+                        end: s.sm,
+                        top: s.xs,
+                      ),
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: _WalletStrip(
+                          balance: balance,
+                          loading: loading,
+                        ),
+                      ),
+                    ),
+                  TabBar(
+                    isScrollable: true,
+                    tabAlignment: wide
+                        ? TabAlignment.center
+                        : TabAlignment.start,
+                    dividerColor: Colors.transparent,
+                    indicatorColor: colors.accentGold,
+                    labelColor: colors.accentGold,
+                    unselectedLabelColor: colors.textSecondary,
+                    tabs: [
+                      for (final (label, icon) in tabs)
+                        Tab(
+                          height: StoreTokens.tabHeight,
+                          icon: Icon(icon),
+                          iconMargin: EdgeInsets.only(bottom: s.xs),
+                          text: label,
+                        ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The balance as a pill in the vault's header, on every tab. How coins are
+/// earned is one tap away rather than three lines above the catalog.
 class _WalletStrip extends StatelessWidget {
   final int? balance;
   final bool loading;
@@ -378,17 +514,19 @@ class _WalletStrip extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colors.surfaceRaised,
-        border: Border(bottom: BorderSide(color: colors.borderSubtle)),
+        borderRadius: BorderRadius.circular(context.radii.button),
+        border: Border.all(color: colors.borderSubtle),
       ),
       child: Padding(
-        padding: EdgeInsetsDirectional.only(start: s.md, end: s.xs),
+        padding: EdgeInsetsDirectional.only(start: s.sm),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const MafiaCoin(
               size: CosmeticTokens.coinHeader / StoreTokens.walletCoinScale,
               shine: true,
             ),
-            SizedBox(width: s.sm),
+            SizedBox(width: s.xs),
             Semantics(
               label: balance == null ? null : l.storeBalance(balance!),
               excludeSemantics: balance != null,
@@ -400,8 +538,8 @@ class _WalletStrip extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: s.sm),
-            Expanded(
+            SizedBox(width: s.xs),
+            Flexible(
               child: Text(
                 l.coinsName,
                 style: context.typography.caption.copyWith(
