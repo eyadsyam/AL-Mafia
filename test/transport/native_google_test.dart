@@ -147,16 +147,16 @@ void main() {
     expect(auth.calls, ['browser']);
   });
 
-  test('a Google account that is another player\'s is EMAIL_TAKEN', () async {
+  test("a Google account that is another player's is signed in to", () async {
     final auth = _Auth(
       true,
       linkError: const AuthException('exists', code: 'identity_already_exists'),
     );
-    await expectLater(
-      _make(auth, _Picker()).google(),
-      throwsA(
-        isA<AccountFailure>().having((f) => f.code, 'code', 'EMAIL_TAKEN'),
-      ),
+    await _make(auth, _Picker()).google();
+    expect(
+      auth.calls,
+      ['link:id-token', 'signin:id-token'],
+      reason: 'the same picker answer signs in: no second picker, no browser',
     );
   });
 }

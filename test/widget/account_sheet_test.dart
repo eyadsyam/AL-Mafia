@@ -197,6 +197,32 @@ void main() {
     expect(code('something_else'), 'UNAVAILABLE');
   });
 
+  // A refusal that comes back in the return link puts the server's code in
+  // statusCode and a generic one in code. Read as UNAVAILABLE, it told a
+  // player whose Google account already exists «the service is down».
+  test('a refusal read from the return link is understood too', () {
+    expect(
+      AccountAuth.codeFor(
+        const AuthException(
+          'Identity is already linked to another user',
+          statusCode: 'identity_already_exists',
+          code: 'server_error',
+        ),
+      ),
+      'EMAIL_TAKEN',
+    );
+    expect(
+      AccountAuth.codeFor(
+        const AuthException(
+          'A user with this email address has already been registered',
+          statusCode: 'email_exists',
+          code: 'invalid_request',
+        ),
+      ),
+      'EMAIL_TAKEN',
+    );
+  });
+
   // D1 — a Google return that failed arrives on the auth stream, not from the
   // call that opened the browser.
   test('a refusal on the auth stream becomes the failure the sheet reads', () {
@@ -218,7 +244,7 @@ void main() {
   });
 
   testWidgets(
-    "a Google account that is another player's is said, and offered",
+    "a Google account that is another player's is signed in to, no question",
     (tester) async {
       SharedPreferences.setMockInitialValues({});
       auth = _FakeAuth();
@@ -237,22 +263,22 @@ void main() {
       );
       profiles.add(AccountProfile.guest);
       await tester.pumpAndSettle();
-      expect(find.byKey(AccountSheet.googleExistingKey), findsNothing);
 
       profiles.addError(const AccountFailure('EMAIL_TAKEN'));
       await tester.pumpAndSettle();
-      expect(find.byKey(AccountSheet.errorKey), findsOneWidget);
-      expect(
-        find.byKey(AccountSheet.googleKey),
-        findsOneWidget,
-        reason: 'the guest hub is still there, not an empty sheet',
-      );
+      expect(auth.calls, ['googleSignIn']);
+      expect(find.byKey(AccountSheet.googleExistingKey), findsNothing);
+      expect(find.byKey(AccountSheet.errorKey), findsNothing);
 
+      // Refused again straight away: no second trip, the choice instead.
+      profiles.addError(const AccountFailure('EMAIL_TAKEN'));
+      await tester.pumpAndSettle();
+      expect(auth.calls, ['googleSignIn']);
+      expect(find.byKey(AccountSheet.errorKey), findsOneWidget);
       await tester.ensureVisible(find.byKey(AccountSheet.googleExistingKey));
       await tester.tap(find.byKey(AccountSheet.googleExistingKey));
       await tester.pumpAndSettle();
-      expect(auth.calls, ['googleSignIn']);
-      expect(find.byKey(AccountSheet.googleExistingKey), findsNothing);
+      expect(auth.calls, ['googleSignIn', 'googleSignIn']);
       expect(tester.takeException(), isNull);
     },
   );

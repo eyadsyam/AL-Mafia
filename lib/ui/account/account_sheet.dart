@@ -242,6 +242,35 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     }
   }
 
+  /// The Google account the guest tried to link is already a player's: sign
+  /// in to it straight away. Only a second refusal in a row asks (D1).
+  Future<void> _switchToTakenGoogle() async {
+    setState(() {
+      _busy = true;
+      _notice = null;
+      _error = null;
+      _googleTaken = false;
+    });
+    var switched = false;
+    String? error;
+    try {
+      switched = await ref.read(accountAuthProvider).switchToTakenGoogle();
+    } on AccountFailure catch (failure) {
+      error = _message(failure.code);
+    }
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      if (switched) {
+        _notice = context.l10n.authGoogleContinue;
+      } else {
+        _googleTaken = error == null;
+        _error = error ?? context.l10n.authGoogleTaken;
+      }
+    });
+    if (_closePending) _closeWhenSignedIn();
+  }
+
   /// Whatever changed, every screen that shows the identity reads it again.
   Future<void> _refreshIdentity() async {
     ref.invalidate(accountStatusProvider);
@@ -270,13 +299,15 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       }
       final failure = next.error;
       if (!next.hasError || failure is! AccountFailure) return;
+      if (failure.code == 'EMAIL_TAKEN') {
+        unawaited(_switchToTakenGoogle());
+        return;
+      }
       setState(() {
         _busy = false;
         _notice = null;
-        _googleTaken = failure.code == 'EMAIL_TAKEN';
-        _error = _googleTaken
-            ? context.l10n.authGoogleTaken
-            : _message(failure.code);
+        _googleTaken = false;
+        _error = _message(failure.code);
       });
     });
     final profile =

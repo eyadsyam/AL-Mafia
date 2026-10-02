@@ -52,7 +52,11 @@ import '../ui/social/incoming_invite.dart';
 import '../transport/account_auth.dart' show AccountProfile;
 import '../transport/account_service.dart' show AccountFailure;
 import '../ui/account/account_sheet.dart'
-    show AccountSheet, accountProfileProvider, showAccountSheet;
+    show
+        AccountSheet,
+        accountAuthProvider,
+        accountProfileProvider,
+        showAccountSheet;
 import '../ui/account/onboarding_account_step.dart'
     show accountsAvailableProvider;
 
@@ -409,13 +413,19 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   /// A Google return refused because that Google account is already another
   /// player's, arriving when no account sheet is open (the app was closed
   /// while the browser was up, and the sheet with it). Without this the guest
-  /// came back to Home, still a guest, told nothing. The sheet opens with the
-  /// two choices: sign in to that account, or stay the guest.
+  /// came back to Home, still a guest, told nothing. The player tapped Google
+  /// to be that player, so it signs in to it; only a second refusal in a row
+  /// opens the sheet with the two choices: sign in, or stay the guest.
   void _accountReturned(AsyncValue<AccountProfile>? _, AsyncValue<AccountProfile> next) {
     final failure = next.error;
     if (!next.hasError || failure is! AccountFailure) return;
     if (failure.code != 'EMAIL_TAKEN' || AccountSheet.isOpen) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        if (await ref.read(accountAuthProvider).switchToTakenGoogle()) return;
+      } on AccountFailure {
+        /* Said by the sheet below. */
+      }
       final context = _navigatorKey.currentContext;
       if (context == null || !context.mounted || AccountSheet.isOpen) return;
       unawaited(showAccountSheet(context, failure: failure.code));

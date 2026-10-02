@@ -228,10 +228,22 @@ void main() {
       );
     });
 
-    testWidgets('a Google account that is taken offers switch or stay', (
+    testWidgets('a Google account that is taken is signed in to', (
       tester,
     ) async {
       await openSheetAndGoogle(tester);
+      profiles.addError(const AccountFailure('EMAIL_TAKEN'));
+      await tester.pumpAndSettle();
+      expect(auth.calls, ['google', 'googleSignIn']);
+      expect(find.byKey(AccountSheet.googleExistingKey), findsNothing);
+    });
+
+    testWidgets('taken twice in a row: switch or stay, the guest decides', (
+      tester,
+    ) async {
+      await openSheetAndGoogle(tester);
+      profiles.addError(const AccountFailure('EMAIL_TAKEN'));
+      await tester.pumpAndSettle();
       profiles.addError(const AccountFailure('EMAIL_TAKEN'));
       await tester.pumpAndSettle();
       expect(find.byKey(AccountSheet.googleExistingKey), findsOneWidget);
@@ -240,15 +252,25 @@ void main() {
       await _tap(tester, AccountSheet.keepGuestKey);
       expect(find.byKey(AccountSheet.googleExistingKey), findsNothing);
       expect(find.byKey(AccountSheet.errorKey), findsNothing);
-      expect(auth.calls, ['google'], reason: 'staying a guest changes nothing');
+      expect(
+        auth.calls,
+        ['google', 'googleSignIn'],
+        reason: 'staying a guest changes nothing',
+      );
     });
 
-    testWidgets('a refusal that arrives with no sheet open opens one', (
+    testWidgets('a refusal that arrives with no sheet open signs in', (
       tester,
     ) async {
       store = returningHostStore();
       await launch(tester, at: Routes.profile);
       await _platformOpens(tester, _callback);
+      profiles.addError(const AccountFailure('EMAIL_TAKEN'));
+      await tester.pumpAndSettle();
+      expect(auth.calls, ['googleSignIn']);
+      expect(find.byType(AccountSheet), findsNothing);
+
+      // Refused again at once: the sheet opens with the choice.
       profiles.addError(const AccountFailure('EMAIL_TAKEN'));
       await tester.pumpAndSettle();
       expect(find.byType(AccountSheet), findsOneWidget);

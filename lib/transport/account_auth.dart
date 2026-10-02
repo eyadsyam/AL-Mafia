@@ -58,18 +58,24 @@ class AccountAuth {
     }
     final user = auth.currentUser;
     if (link && user != null && user.isAnonymous) {
-      await auth.linkIdentityWithIdToken(
-        provider: OAuthProvider.google,
-        idToken: token.idToken,
-        accessToken: token.accessToken,
-      );
-    } else {
-      await auth.signInWithIdToken(
-        provider: OAuthProvider.google,
-        idToken: token.idToken,
-        accessToken: token.accessToken,
-      );
+      try {
+        await auth.linkIdentityWithIdToken(
+          provider: OAuthProvider.google,
+          idToken: token.idToken,
+          accessToken: token.accessToken,
+        );
+        return true;
+      } on AuthException catch (error) {
+        // That Google account is already a player: the player meant that
+        // account, so the same picker answer signs in to it.
+        if (codeFor(error) != 'EMAIL_TAKEN') rethrow;
+      }
     }
+    await auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: token.idToken,
+      accessToken: token.accessToken,
+    );
     return true;
   }
 
@@ -107,8 +113,13 @@ class AccountAuth {
 
   /// The failure code the UI speaks for an auth refusal. Public and pure so
   /// it can be tested without a server.
+  ///
+  /// A refusal read from a return link carries the server's code in
+  /// `statusCode` (its `error_code`) and a generic one (`server_error`) in
+  /// `code`, so both are read: reading only `code` turned «that Google
+  /// account already exists» into «the service is down».
   static String codeFor(AuthException error) {
-    final code = (error.code ?? '').toLowerCase();
+    final code = '${error.code ?? ''} ${error.statusCode ?? ''}'.toLowerCase();
     final message = error.message.toLowerCase();
     if (code.contains('invalid_credentials') ||
         message.contains('invalid login credentials')) {
@@ -120,7 +131,9 @@ class AccountAuth {
     if (code.contains('identity_already_exists') ||
         code.contains('email_exists') ||
         code.contains('user_already_exists') ||
-        code.contains('email_address_taken')) {
+        code.contains('email_address_taken') ||
+        message.contains('already linked to another user') ||
+        message.contains('already been registered')) {
       return 'EMAIL_TAKEN';
     }
     if (code.contains('otp') || code.contains('token')) return 'INVALID_CODE';
@@ -319,6 +332,33 @@ class AccountAuth {
       authScreenLaunchMode: LaunchMode.externalApplication,
     );
   });
+
+  static const switchKey = 'mafia.account.google_switch.v1';
+
+  /// How long after one automatic switch a second refusal is left to the
+  /// player instead: a server that kept refusing would otherwise bounce the
+  /// browser forever.
+  static const switchCooldown = Duration(minutes: 2);
+
+  /// A guest's Google link came back refused because that Google account is
+  /// already a player's. The player tapped Google to be that player, so this
+  /// signs in to it, no second question. `false` when it already did so a
+  /// moment ago; the caller then offers the choice (switch or stay a guest).
+  Future<bool> switchToTakenGoogle() async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final last = prefs.getInt(switchKey);
+      if (last != null && now - last < switchCooldown.inMilliseconds) {
+        return false;
+      }
+      await prefs.setInt(switchKey, now);
+    } catch (_) {
+      return false;
+    }
+    await googleSignIn();
+    return true;
+  }
 
   /// «تذكرني», on by default.
   static Future<bool> remember() async {
