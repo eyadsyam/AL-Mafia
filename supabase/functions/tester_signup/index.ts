@@ -2,6 +2,7 @@
  * `tester_signup` — the closed-test sign-up form on saidalmafia.com/beta.
  *
  *   { name, email, source?, website? }
+ *   { action: "visit", source? }   a page view, recorded in `beta_visits`
  *
  * The one public function: a visitor from a Facebook post has no session and
  * must not be made to create one, so this is deployed with JWT verification
@@ -130,8 +131,30 @@ Deno.serve(async (req) => {
     const secret = Deno.env.get("TESTER_HMAC_KEY") ?? "";
     if (secret.length < 32) return fail("NOT_CONFIGURED", "sign-ups are closed", 503);
     const db = serviceClient();
+    const visitor = await addressHash(req, secret);
+
+    // A page view: one row per visitor per day, outside the sign-up limit.
+    if (raw.includes('"visit"')) {
+      let visit: Record<string, unknown> = {};
+      try {
+        visit = JSON.parse(raw);
+      } catch (_) {
+        visit = {};
+      }
+      if (visit?.action === "visit") {
+        const source = clean(visit.source, 20).toLowerCase();
+        const day = new Date().toLocaleDateString("en-CA", { timeZone: "Africa/Cairo" });
+        const daily = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`visit:${day}:${visitor}`));
+        await db.rpc("beta_visit_record", {
+          p_visitor: [...new Uint8Array(daily)].map((b) => b.toString(16).padStart(2, "0")).join(""),
+          p_source: source,
+        });
+        return ok({ ok: true });
+      }
+    }
+
     const allowed = await db.rpc("tester_signup_attempt", {
-      p_address: await addressHash(req, secret),
+      p_address: visitor,
     });
     if (allowed.error) throw new Error("limit check failed");
     if (allowed.data !== true) {

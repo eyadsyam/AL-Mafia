@@ -5326,4 +5326,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webAdCountdown => 'You can close this ad in a moment';
+
+  @override
+  String get adminTestersTitle => 'Testers';
+
+  @override
+  String get adminTestersOpen => 'Testers';
+
+  @override
+  String get adminTestersVisitors => 'Sign-up page visitors';
+
+  @override
+  String get adminTestersToday => 'Today';
+
+  @override
+  String get adminTestersAll => 'All';
+
+  @override
+  String get adminTestersOpens => 'Opens';
+
+  @override
+  String get adminTestersBySource => 'Sources';
+
+  @override
+  String get adminTestersByDay => 'Last 14 days';
+
+  @override
+  String get adminTestersNoSource => 'No source';
+
+  @override
+  String adminTestersSignups(int count) {
+    return 'Sign-ups $count';
+  }
+
+  @override
+  String adminTestersPending(int count) {
+    return 'Waiting to be added $count';
+  }
+
+  @override
+  String get adminTestersCopyPending => 'Copy waiting emails';
+
+  @override
+  String get adminTestersCopied => 'Copied';
+
+  @override
+  String get adminTestersAdded => 'Added to the group';
+
+  @override
+  String get adminTestersMailed => 'Email delivered';
+
+  @override
+  String get adminTestersNotMailed => 'Email not delivered';
+
+  @override
+  String get adminTestersEmpty => 'No sign-ups yet.';
 }

@@ -2009,5 +2009,22 @@
   "webAdCouncilBody": "اجمع عملاتك وافتح شكل جديد للقعدة.",
   "webAdOpenPlay": "افتح Google Play",
   "webAdContinue": "كمّل اللعب",
-  "webAdCountdown": "الإعلان هيخلص بعد لحظة"
+  "webAdCountdown": "الإعلان هيخلص بعد لحظة",
+  "adminTestersTitle": "المختبرين",
+  "adminTestersOpen": "المختبرين",
+  "adminTestersVisitors": "زوار صفحة التسجيل",
+  "adminTestersToday": "النهارده",
+  "adminTestersAll": "الكل",
+  "adminTestersOpens": "مرات الفتح",
+  "adminTestersBySource": "منين جم",
+  "adminTestersByDay": "آخر 14 يوم",
+  "adminTestersNoSource": "من غير مصدر",
+  "adminTestersSignups": "المسجلين {count}",
+  "adminTestersPending": "مستنيين الإضافة {count}",
+  "adminTestersCopyPending": "انسخ إيميلات اللي مستنيين",
+  "adminTestersCopied": "اتنسخت",
+  "adminTestersAdded": "اتضاف للجروب",
+  "adminTestersMailed": "وصله الإيميل",
+  "adminTestersNotMailed": "الإيميل موصلش",
+  "adminTestersEmpty": "لسه محدش سجل."
 }

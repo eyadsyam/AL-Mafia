@@ -177,6 +177,12 @@
   var emailEl = document.getElementById('email');
   var trapEl = document.getElementById('website');
   var source = (new URLSearchParams(location.search).get('src') || '').slice(0, 40);
+  fetch('https://hezjbrnveajypfqmjfnh.supabase.co/functions/v1/tester_signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'visit', source: source.slice(0, 20) }),
+    keepalive: true
+  }).catch(function () {});
   var EMAIL = /^[^\s@<>"',;]+@[^\s@<>"',;]+\.[a-z]{2,}$/i;
   form.addEventListener('submit', function (event) {
     event.preventDefault();

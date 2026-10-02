@@ -9054,6 +9054,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can close this ad in a moment'**
   String get webAdCountdown;
+
+  /// No description provided for @adminTestersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Testers'**
+  String get adminTestersTitle;
+
+  /// No description provided for @adminTestersOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Testers'**
+  String get adminTestersOpen;
+
+  /// No description provided for @adminTestersVisitors.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-up page visitors'**
+  String get adminTestersVisitors;
+
+  /// No description provided for @adminTestersToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get adminTestersToday;
+
+  /// No description provided for @adminTestersAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get adminTestersAll;
+
+  /// No description provided for @adminTestersOpens.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens'**
+  String get adminTestersOpens;
+
+  /// No description provided for @adminTestersBySource.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources'**
+  String get adminTestersBySource;
+
+  /// No description provided for @adminTestersByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 14 days'**
+  String get adminTestersByDay;
+
+  /// No description provided for @adminTestersNoSource.
+  ///
+  /// In en, this message translates to:
+  /// **'No source'**
+  String get adminTestersNoSource;
+
+  /// No description provided for @adminTestersSignups.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-ups {count}'**
+  String adminTestersSignups(int count);
+
+  /// No description provided for @adminTestersPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to be added {count}'**
+  String adminTestersPending(int count);
+
+  /// No description provided for @adminTestersCopyPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy waiting emails'**
+  String get adminTestersCopyPending;
+
+  /// No description provided for @adminTestersCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get adminTestersCopied;
+
+  /// No description provided for @adminTestersAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to the group'**
+  String get adminTestersAdded;
+
+  /// No description provided for @adminTestersMailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Email delivered'**
+  String get adminTestersMailed;
+
+  /// No description provided for @adminTestersNotMailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Email not delivered'**
+  String get adminTestersNotMailed;
+
+  /// No description provided for @adminTestersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No sign-ups yet.'**
+  String get adminTestersEmpty;
 }
 
 class _AppLocalizationsDelegate
