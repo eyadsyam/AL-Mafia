@@ -90,9 +90,9 @@ void main() {
   }
 
   Future<void> save(WidgetTester tester) async {
-    await tester.ensureVisible(find.text(arStrings.save));
+    await tester.ensureVisible(find.byKey(SettingsScreen.saveButton));
     await tester.pump();
-    await tester.tap(find.text(arStrings.save));
+    await tester.tap(find.byKey(SettingsScreen.saveButton));
     await tester.pump();
   }
 

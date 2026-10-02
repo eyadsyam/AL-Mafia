@@ -3615,3 +3615,11 @@ Files:      docs/PROGRESS.md
 Verified:   Cloudflare DoH returned all three MX and one root SPF; Resend send subdomain still resolves; tester_signup returned ok for +mx1; newest Gmail message arrived in Spam, then Gmail confirmed Not spam on its thread and the earlier domain-sent invite.
 Gate:       FAIL
 Open:       Fresh post-training Inbox placement is unproven; Cloudflare routing status still says Syncing. Postmaster domain entry is unverified because its management page did not expose a verification TXT.
+
+## PHASE 1 UX AUDIT — done
+Built:      Ranked whole-app P0/P1/P2 audit from fresh 390/412 web walkthrough and unreachable-widget review.
+Files:      docs/ux/AUDIT-2026-10-02.md, docs/PROGRESS.md
+Verified:   flutter build web --release completed; 53 before screenshots in scratchpad/ux; code review for backend-gated flows.
+Gate:       PASS
+Open:       Native ads, configured online room, missions and Google identity require connected device review.
+

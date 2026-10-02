@@ -220,6 +220,36 @@ void main() {
 
   group('L-02 reserved detail slot', () {
     testWidgets(
+      'late confirmation stays private for three seconds and clears before pass',
+      (tester) async {
+        await TurnShellHarness.pump(
+          tester,
+          role: Role.detective,
+          prompt: neutralPrompt,
+          confirmationDetail: 'PRIVATE_VERDICT',
+        );
+        await TurnShellHarness.completeHold(tester);
+        await tester.tap(find.byKey(NightGrid.tile(1)));
+        await tester.pump(const Duration(seconds: 13));
+        await tester.tap(find.byKey(TurnShell.actionButton));
+        await tester.pump();
+        expect(find.text('PRIVATE_VERDICT'), findsOneWidget);
+        final action = tester.widget<FilledButton>(
+          find.byKey(TurnShell.actionButton),
+        );
+        expect(action.onPressed, isNull);
+        await tester.pump(const Duration(seconds: 3));
+        expect(find.text('PRIVATE_VERDICT'), findsNothing);
+        expect(
+          tester
+              .widget<FilledButton>(find.byKey(TurnShell.actionButton))
+              .onPressed,
+          isNotNull,
+        );
+      },
+    );
+
+    testWidgets(
       'detail slot occupies identical bounds whether or not it is filled',
       (tester) async {
         Future<Rect> detailRectWith(String? detail) async {

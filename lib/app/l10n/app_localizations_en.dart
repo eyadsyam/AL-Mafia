@@ -34,7 +34,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileHint =>
-      'Choose your name and character once. Saved on this device, with no sign-in.';
+      'Choose your name and character. We\'ll save them for your next game.';
 
   @override
   String get profileSaveFailed =>
@@ -108,6 +108,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noPlayersYet => 'No players added yet';
+
+  @override
+  String get minPlayersHint => 'Add at least 5 players to continue';
 
   @override
   String get next => 'Next';
@@ -354,8 +357,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String speakersRemaining(int count) {
-    return 'Remaining: $count';
+    return 'Speakers left: $count';
   }
+
+  @override
+  String get decreaseRole => 'Decrease';
+
+  @override
+  String get increaseRole => 'Increase';
+
+  @override
+  String get citizenAutoHint =>
+      'The remaining players become citizens automatically';
 
   @override
   String get skip => 'Skip';
@@ -4192,6 +4205,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bondScreenSubtitle => 'They remember. You are in it.';
+
+  @override
+  String get characterPrevious => 'Previous character';
+
+  @override
+  String get characterNext => 'Next character';
 
   @override
   String bondSealedLetter(int count) {

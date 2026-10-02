@@ -648,7 +648,7 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
         return Center(
           child: Text(
             context.l10n.swipeToReveal,
-            style: type.bodySmall.copyWith(color: colors.textMuted),
+            style: type.body.copyWith(color: colors.textSecondary),
             textAlign: TextAlign.center,
           ),
         );
@@ -681,7 +681,7 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
         return Center(
           child: Text(
             context.l10n.swipeToReveal,
-            style: type.bodySmall.copyWith(color: colors.textMuted),
+            style: type.body.copyWith(color: colors.textSecondary),
             textAlign: TextAlign.center,
           ),
         );

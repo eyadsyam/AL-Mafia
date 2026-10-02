@@ -182,6 +182,9 @@ class _OnboardingVideoScreenState extends ConsumerState<OnboardingVideoScreen> {
       child: FilledButton.icon(
         key: OnboardingVideoScreen.playButton,
         onPressed: _play,
+        style: FilledButton.styleFrom(
+          minimumSize: Size(spacing.xxl, spacing.xxl),
+        ),
         icon: const Icon(Icons.play_arrow),
         label: Text(l10n.videoPlay),
       ),

@@ -119,7 +119,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('كمل')); // roles
     await tester.pumpAndSettle();
-    await tester.tap(find.text('حفظ')); // settings → start
+    await tester.tap(find.byKey(const ValueKey('settings_save'))); // settings → start
     await tester.pumpAndSettle();
   }
 
@@ -345,7 +345,7 @@ void main() {
       expect(find.byType(RolesScreen), findsOneWidget);
       await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('حفظ'));
+      await tester.tap(find.byKey(const ValueKey('settings_save')));
       await tester.pumpAndSettle();
 
       final match = container

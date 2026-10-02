@@ -228,7 +228,7 @@ class _HoldPadState extends State<HoldPad> with SingleTickerProviderStateMixin {
             Text(
               widget.instruction,
               maxLines: 2,
-              style: type.bodySmall.copyWith(color: colors.textSecondary),
+              style: type.body.copyWith(color: colors.textPrimary),
               textAlign: TextAlign.center,
             ),
           ],

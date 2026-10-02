@@ -1009,6 +1009,17 @@ abstract final class HoldPadTokens {
   static const double markRatio = 0.4;
 }
 
+abstract final class PlayerSetupTokens {
+  static const double dragMarkWidth = 16;
+  static const double dragMarkHeight = 1.5;
+  static const double dragMarkGap = 3;
+}
+
+abstract final class ResultTokens {
+  static const double heroEmberWidth = 180;
+  static const double heroEmberHeight = 96;
+}
+
 class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// One full 60-frame victory sequence at 12 fps.
   static const victoryReveal = Duration(seconds: 5);
@@ -1141,11 +1152,13 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// Minimum dwell after reveal before Confirm becomes enabled (L-07).
   final Duration dwellGate;
 
-  /// Minimum total turn length, measured from reveal. The pass control unlocks
-  /// at exactly this offset regardless of when the action was confirmed, so a
-  /// fast actor and a slow actor produce the same observable turn length
-  /// (L-08).
+  /// Minimum total turn length, measured from reveal. Pass also waits for
+  /// [confirmationFloor] after confirmation, identically for every role.
   final Duration turnFloor;
+
+  /// Minimum private confirmation view before the phone may be passed.
+  /// The same gate applies to every night role (doc 05 L-08).
+  final Duration confirmationFloor;
 
   /// Duration of the pass-to-next-player transition (L-09).
   final Duration passTransition;
@@ -1215,6 +1228,7 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
     required this.holdToReveal,
     required this.dwellGate,
     required this.turnFloor,
+    required this.confirmationFloor,
     required this.passTransition,
     required this.revealFloor,
     required this.autoRevealDuration,
@@ -1231,6 +1245,7 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
     holdToReveal: Duration(seconds: 2),
     dwellGate: Duration(seconds: 8),
     turnFloor: Duration(seconds: 12),
+    confirmationFloor: Duration(seconds: 3),
     passTransition: Duration(milliseconds: 300),
     revealFloor: Duration(seconds: 5),
     autoRevealDuration: Duration(seconds: 5),
@@ -1248,6 +1263,7 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
     Duration? holdToReveal,
     Duration? dwellGate,
     Duration? turnFloor,
+    Duration? confirmationFloor,
     Duration? passTransition,
     Duration? revealFloor,
     Duration? autoRevealDuration,
@@ -1263,6 +1279,7 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
       holdToReveal: holdToReveal ?? this.holdToReveal,
       dwellGate: dwellGate ?? this.dwellGate,
       turnFloor: turnFloor ?? this.turnFloor,
+      confirmationFloor: confirmationFloor ?? this.confirmationFloor,
       passTransition: passTransition ?? this.passTransition,
       revealFloor: revealFloor ?? this.revealFloor,
       autoRevealDuration: autoRevealDuration ?? this.autoRevealDuration,
@@ -1995,7 +2012,7 @@ abstract final class DossierTokens {
 
   /// A letter's wax mark in the margin.
   static const double letterMark = 8.0;
-  static const double sealedOpacity = 0.5;
+  static const double sealedOpacity = 1;
 
   /// The whisper on Home: a face beside the line.
   static const double whisperFace = 44.0;

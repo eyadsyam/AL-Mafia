@@ -335,7 +335,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               borderRadius: BorderRadius.circular(radii.button),
                             ),
                           ),
-                          child: Text(l10n.save, style: type.title),
+                          child: Text(
+                            widget.playerCount == null
+                                ? l10n.save
+                                : l10n.startGame,
+                            style: type.title,
+                          ),
                         ),
                       ),
                     ),

@@ -6,6 +6,7 @@ import '../../../data/player_group.dart';
 import '../../../engine/balance_guard.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
+import '../../theme/design_tokens.dart';
 import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
 
@@ -345,6 +346,16 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
                       style: type.body.copyWith(color: colors.textSecondary),
                       textAlign: TextAlign.center,
                     ),
+                    if (!canNext) ...[
+                      SizedBox(height: spacing.xs),
+                      Text(
+                        l10n.minPlayersHint,
+                        style: type.bodySmall.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                     SizedBox(height: spacing.md),
 
                     // Reorderable list of players
@@ -359,7 +370,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
                               ),
                             )
                           : ReorderableListView.builder(
-                              buildDefaultDragHandles: true,
+                              buildDefaultDragHandles: false,
                               onReorderItem: (oldIndex, newIndex) {
                                 if (newIndex > oldIndex) newIndex -= 1;
                                 final player = _players.removeAt(oldIndex);
@@ -595,24 +606,31 @@ class _PlayerTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Drag handle (built-in by ReorderableListView)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: spacing.md),
-              // Three rules, not `Icons.drag_handle`. A drag affordance has to
-              // read as "grab here" and nothing else, and the app does not
-              // borrow glyphs — see the note on `BackAction`.
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (var i = 0; i < 3; i++) ...[
-                    if (i > 0) const SizedBox(height: 3),
-                    SizedBox(
-                      width: 16,
-                      height: 1.5,
-                      child: ColoredBox(color: colors.textMuted),
-                    ),
-                  ],
-                ],
+            // The visible leading marks are the actual reorder target.
+            ReorderableDragStartListener(
+              index: index - 1,
+              child: SizedBox(
+                width: spacing.xxl,
+                height: spacing.xxl,
+                child: Center(
+                  // Three rules, not `Icons.drag_handle`. A drag affordance has to
+                  // read as "grab here" and nothing else, and the app does not
+                  // borrow glyphs — see the note on `BackAction`.
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0)
+                          SizedBox(height: PlayerSetupTokens.dragMarkGap),
+                        SizedBox(
+                          width: PlayerSetupTokens.dragMarkWidth,
+                          height: PlayerSetupTokens.dragMarkHeight,
+                          child: ColoredBox(color: colors.textMuted),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
             ),
 
@@ -684,7 +702,7 @@ class _PlayerTile extends StatelessWidget {
                       onPressed: onToggleAttendance,
                       style: TextButton.styleFrom(
                         // Article VII's 48dp floor.
-                        minimumSize: const Size(48, 48),
+                        minimumSize: Size(spacing.xxl, spacing.xxl),
                         padding: EdgeInsets.symmetric(horizontal: spacing.sm),
                       ),
                       child: Text(
@@ -703,7 +721,7 @@ class _PlayerTile extends StatelessWidget {
                       onPressed: onDelete,
                       style: TextButton.styleFrom(
                         // Article VII's 48dp floor.
-                        minimumSize: const Size(48, 48),
+                        minimumSize: Size(spacing.xxl, spacing.xxl),
                         padding: EdgeInsets.symmetric(horizontal: spacing.sm),
                       ),
                       child: Text(

@@ -143,7 +143,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileHint.
   ///
   /// In en, this message translates to:
-  /// **'Choose your name and character once. Saved on this device, with no sign-in.'**
+  /// **'Choose your name and character. We\'ll save them for your next game.'**
   String get profileHint;
 
   /// No description provided for @profileSaveFailed.
@@ -283,6 +283,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No players added yet'**
   String get noPlayersYet;
+
+  /// No description provided for @minPlayersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least 5 players to continue'**
+  String get minPlayersHint;
 
   /// No description provided for @next.
   ///
@@ -719,8 +725,26 @@ abstract class AppLocalizations {
   /// No description provided for @speakersRemaining.
   ///
   /// In en, this message translates to:
-  /// **'Remaining: {count}'**
+  /// **'Speakers left: {count}'**
   String speakersRemaining(int count);
+
+  /// No description provided for @decreaseRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease'**
+  String get decreaseRole;
+
+  /// No description provided for @increaseRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase'**
+  String get increaseRole;
+
+  /// No description provided for @citizenAutoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The remaining players become citizens automatically'**
+  String get citizenAutoHint;
 
   /// No description provided for @skip.
   ///
@@ -7153,6 +7177,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'They remember. You are in it.'**
   String get bondScreenSubtitle;
+
+  /// No description provided for @characterPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous character'**
+  String get characterPrevious;
+
+  /// No description provided for @characterNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next character'**
+  String get characterNext;
 
   /// No description provided for @bondSealedLetter.
   ///

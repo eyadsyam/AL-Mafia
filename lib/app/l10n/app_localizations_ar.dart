@@ -33,8 +33,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileTitle => 'بروفايلك';
 
   @override
-  String get profileHint =>
-      'اختار اسمك وشخصيتك مرة واحدة. هنفتكرهم على الجهاز ده من غير تسجيل دخول.';
+  String get profileHint => 'اختار اسمك وشخصيتك. هنحفظهم عشان ترجع تلعب بسرعة.';
 
   @override
   String get profileSaveFailed =>
@@ -108,6 +107,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noPlayersYet => 'ضيف أول لاعب';
+
+  @override
+  String get minPlayersHint => 'لازم ٥ لاعبين على الأقل عشان تكمل';
 
   @override
   String get next => 'كمل';
@@ -349,8 +351,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String speakersRemaining(int count) {
-    return 'فاضل $count';
+    return 'فاضل $count يتكلموا';
   }
+
+  @override
+  String get decreaseRole => 'قلّل';
+
+  @override
+  String get increaseRole => 'زوّد';
+
+  @override
+  String get citizenAutoHint => 'الباقي بيتحسب مواطنين تلقائيًا';
 
   @override
   String get skip => 'تخطي';
@@ -4095,6 +4106,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get bondScreenSubtitle => 'ليهم ذاكرة. وإنت فيها.';
+
+  @override
+  String get characterPrevious => 'الشخصية اللي قبلها';
+
+  @override
+  String get characterNext => 'الشخصية اللي بعدها';
 
   @override
   String bondSealedLetter(int count) {

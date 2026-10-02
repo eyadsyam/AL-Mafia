@@ -210,11 +210,13 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
 
   Timer? _dwellTimer;
   Timer? _floorTimer;
+  Timer? _confirmationTimer;
 
   bool _revealed = false;
   bool _dwellElapsed = false;
   bool _floorElapsed = false;
   bool _confirmed = false;
+  bool _confirmationElapsed = false;
   int? _selectedSeat;
 
   TurnShellState? _lastReportedState;
@@ -241,6 +243,7 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
     _dwellElapsed = false;
     _floorElapsed = false;
     _confirmed = false;
+    _confirmationElapsed = false;
     _selectedSeat = null;
     _lastReportedState = null;
   }
@@ -250,6 +253,8 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
     _dwellTimer = null;
     _floorTimer?.cancel();
     _floorTimer = null;
+    _confirmationTimer?.cancel();
+    _confirmationTimer = null;
   }
 
   @override
@@ -288,7 +293,7 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
   TurnShellState get _state {
     if (!_revealed) return TurnShellState.handoff;
     if (_confirmed) {
-      return _floorElapsed
+      return _passEnabled
           ? TurnShellState.passUnlocked
           : TurnShellState.confirmed;
     }
@@ -300,7 +305,7 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
   bool get _confirmEnabled =>
       _dwellElapsed && _selectedSeat != null && !_confirmed;
 
-  bool get _passEnabled => _confirmed && _floorElapsed;
+  bool get _passEnabled => _confirmed && _floorElapsed && _confirmationElapsed;
 
   void _select(int seat) {
     if (_confirmed) return;
@@ -317,6 +322,10 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
     if (!_confirmEnabled) return;
     final seat = _selectedSeat!;
     setState(() => _confirmed = true);
+    _confirmationTimer = Timer(context.timing.confirmationFloor, () {
+      if (!mounted) return;
+      setState(() => _confirmationElapsed = true);
+    });
     widget.onConfirmed(seat);
   }
 
@@ -551,7 +560,7 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
             onPressed: widget.onNotYou,
             child: Text(
               widget.labels.notYou,
-              style: type.bodySmall.copyWith(color: colors.textMuted),
+              style: type.body.copyWith(color: colors.textSecondary),
             ),
           ),
         ],
@@ -658,10 +667,7 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
                   .where((c) => c.seat == picked)
                   .map((c) => c.label)
                   .firstOrNull);
-    final showDetail =
-        detail != null &&
-        (state == TurnShellState.confirmed ||
-            state == TurnShellState.passUnlocked);
+    final showDetail = detail != null && state == TurnShellState.confirmed;
 
     return SizedBox(
       // Unconditional. This is the part L-02 actually requires.
@@ -742,7 +748,7 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
       child: Center(
         child: Text(
           text,
-          style: type.caption.copyWith(color: colors.textMuted),
+          style: type.bodySmall.copyWith(color: colors.textSecondary),
           maxLines: 1,
           textAlign: TextAlign.center,
         ),

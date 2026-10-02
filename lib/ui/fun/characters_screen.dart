@@ -113,17 +113,28 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                   ],
                 ),
               ),
-              _PageDots(
-                count: Role.values.length,
-                index: _index,
-                colorOf: (i) => _roleColor(context, Role.values[i]),
-                onTap: (i) => _pages.animateToPage(
-                  i,
-                  duration: ReduceMotion.of(context)
-                      ? Duration.zero
-                      : DossierTokens.pageTurn,
-                  curve: Curves.easeOutCubic,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    tooltip: l.characterPrevious,
+                    onPressed: _index == 0 ? null : () => _goTo(_index - 1),
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                  _PageDots(
+                    count: Role.values.length,
+                    index: _index,
+                    colorOf: (i) => _roleColor(context, Role.values[i]),
+                    onTap: _goTo,
+                  ),
+                  IconButton(
+                    tooltip: l.characterNext,
+                    onPressed: _index == Role.values.length - 1
+                        ? null
+                        : () => _goTo(_index + 1),
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                ],
               ),
               SizedBox(height: spacing.md),
             ],
@@ -132,6 +143,12 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
       ),
     );
   }
+
+  void _goTo(int index) => _pages.animateToPage(
+    index,
+    duration: ReduceMotion.of(context) ? Duration.zero : DossierTokens.pageTurn,
+    curve: Curves.easeOutCubic,
+  );
 }
 
 Color _roleColor(BuildContext context, Role role) {
@@ -314,7 +331,9 @@ class _Letter extends StatelessWidget {
                             ? context.typography.body
                             : context.typography.bodySmall)
                         .copyWith(
-                          color: open ? colors.textPrimary : colors.textMuted,
+                          color: open
+                              ? colors.textPrimary
+                              : colors.textSecondary,
                         ),
               ),
             ),
@@ -342,20 +361,30 @@ class _PageDots extends StatelessWidget {
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       for (var i = 0; i < count; i++)
-        GestureDetector(
-          onTap: () => onTap(i),
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: EdgeInsets.all(context.spacing.xs),
-            child: AnimatedContainer(
-              duration: ReduceMotion.of(context)
-                  ? Duration.zero
-                  : DossierTokens.pageTurn,
-              width: i == index ? DossierTokens.dotActive : DossierTokens.dot,
-              height: DossierTokens.dot,
-              decoration: BoxDecoration(
-                color: i == index ? colorOf(i) : context.colors.borderSubtle,
-                borderRadius: BorderRadius.circular(DossierTokens.dot),
+        Semantics(
+          button: true,
+          label: EngineCopy.roleName(context.l10n, Role.values[i]),
+          selected: i == index,
+          child: InkWell(
+            onTap: () => onTap(i),
+            child: SizedBox.square(
+              dimension: context.spacing.xxl,
+              child: Center(
+                child: AnimatedContainer(
+                  duration: ReduceMotion.of(context)
+                      ? Duration.zero
+                      : DossierTokens.pageTurn,
+                  width: i == index
+                      ? DossierTokens.dotActive
+                      : DossierTokens.dot,
+                  height: DossierTokens.dot,
+                  decoration: BoxDecoration(
+                    color: i == index
+                        ? colorOf(i)
+                        : context.colors.borderSubtle,
+                    borderRadius: BorderRadius.circular(DossierTokens.dot),
+                  ),
+                ),
               ),
             ),
           ),

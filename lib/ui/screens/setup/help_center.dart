@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
+import '../../theme/design_tokens.dart';
 import '../../widgets/settings_kit.dart';
 
 class HelpButton extends StatefulWidget {
@@ -14,25 +15,31 @@ class HelpButton extends StatefulWidget {
 }
 
 class _HelpButtonState extends State<HelpButton> {
-  final _overlay = OverlayPortalController();
+  void _open() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: context.colors.surfaceRaised,
+      builder: (sheetContext) => FractionallySizedBox(
+        heightFactor: SheetTokens.documentInitialFraction,
+        child: HelpCenter(onClose: () => Navigator.pop(sheetContext)),
+      ),
+    );
+  }
 
   @override
-  Widget build(BuildContext context) => OverlayPortal(
-    controller: _overlay,
-    overlayChildBuilder: (_) =>
-        Positioned.fill(child: HelpCenter(onClose: _overlay.hide)),
-    child: widget.tile
-        ? SettingsLinkRow(
-            icon: Icons.help_outline,
-            label: context.l10n.helpTitle,
-            onTap: _overlay.show,
-          )
-        : TextButton.icon(
-            icon: const Icon(Icons.help_outline),
-            label: Text(context.l10n.helpTitle),
-            onPressed: _overlay.show,
-          ),
-  );
+  Widget build(BuildContext context) => widget.tile
+      ? SettingsLinkRow(
+          icon: Icons.help_outline,
+          label: context.l10n.helpTitle,
+          onTap: _open,
+        )
+      : TextButton.icon(
+          icon: const Icon(Icons.help_outline),
+          label: Text(context.l10n.helpTitle),
+          onPressed: _open,
+        );
 }
 
 class HelpCenter extends StatelessWidget {
@@ -60,6 +67,7 @@ class HelpCenter extends StatelessWidget {
       (l.helpSupportQuestion, l.helpSupportAnswer),
     ];
     return Scaffold(
+      backgroundColor: context.colors.surfaceRaised,
       appBar: AppBar(
         title: Text(l.helpTitle),
         leading: onClose == null
@@ -81,7 +89,7 @@ class HelpCenter extends StatelessWidget {
               SizedBox(height: spacing.md),
               for (final entry in entries)
                 ExpansionTile(
-                  title: Text(entry.$1, style: context.typography.title),
+                  title: Text(entry.$1, style: context.typography.body),
                   childrenPadding: EdgeInsetsDirectional.fromSTEB(
                     spacing.md,
                     0,

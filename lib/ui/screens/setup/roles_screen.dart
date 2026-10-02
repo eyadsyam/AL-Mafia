@@ -200,6 +200,13 @@ class _RolesScreenState extends State<RolesScreen> {
                                 ],
                               ),
                             ),
+                            SizedBox(height: spacing.xs),
+                            Text(
+                              l10n.citizenAutoHint,
+                              style: type.bodySmall.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -330,6 +337,7 @@ class _RoleStepper extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
+                tooltip: '${context.l10n.decreaseRole} $label',
                 icon: Icon(Icons.remove, color: colors.accentGold),
                 onPressed: onDecrement,
               ),
@@ -342,6 +350,7 @@ class _RoleStepper extends StatelessWidget {
                 ),
               ),
               IconButton(
+                tooltip: '${context.l10n.increaseRole} $label',
                 icon: Icon(Icons.add, color: colors.accentGold),
                 onPressed: onIncrement,
               ),

@@ -95,7 +95,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(SettingsScreen), findsOneWidget);
-      await tester.tap(find.text('حفظ'));
+      await tester.tap(find.byKey(SettingsScreen.saveButton));
       await tester.pumpAndSettle();
 
       // The engine now has a real match, seated in the order that was typed.
@@ -130,7 +130,7 @@ void main() {
       final chosen = container.read(setupDraftProvider).roleCounts;
       expect(chosen, isNotNull);
 
-      await tester.tap(find.text('حفظ'));
+      await tester.tap(find.byKey(SettingsScreen.saveButton));
       await tester.pumpAndSettle();
 
       final match = container
@@ -170,7 +170,7 @@ void main() {
 
       await tester.tap(find.text('حر'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('حفظ'));
+      await tester.tap(find.byKey(SettingsScreen.saveButton));
       await tester.pumpAndSettle();
 
       final match = container

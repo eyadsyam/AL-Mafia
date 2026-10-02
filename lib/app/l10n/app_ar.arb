@@ -17,7 +17,7 @@
   },
   "@@locale": "ar",
   "profileTitle": "بروفايلك",
-  "profileHint": "اختار اسمك وشخصيتك مرة واحدة. هنفتكرهم على الجهاز ده من غير تسجيل دخول.",
+  "profileHint": "اختار اسمك وشخصيتك. هنحفظهم عشان ترجع تلعب بسرعة.",
   "profileSaveFailed": "مقدرناش نحفظ البروفايل. اسمح بالتخزين في المتصفح وجرب تاني.",
   "profileEdit": "عدّل البروفايل",
   "videoPlay": "شغّل الشرح",
@@ -48,6 +48,7 @@
     }
   },
   "noPlayersYet": "ضيف أول لاعب",
+  "minPlayersHint": "لازم ٥ لاعبين على الأقل عشان تكمل",
   "next": "كمل",
   "seatNumber": "الكرسي #{seat}",
   "@seatNumber": {
@@ -176,7 +177,10 @@
   "discussionTitle": "النقاش",
   "discussionFreeTitle": "النقاش الحر",
   "currentSpeaker": "الدور على",
-  "speakersRemaining": "فاضل {count}",
+  "speakersRemaining": "فاضل {count} يتكلموا",
+  "decreaseRole": "قلّل",
+  "increaseRole": "زوّد",
+  "citizenAutoHint": "الباقي بيتحسب مواطنين تلقائيًا",
   "@speakersRemaining": {
     "placeholders": {
       "count": {
@@ -1653,6 +1657,8 @@
   "bondTitleDetective": "قارئ الكلام اللي ما اتقالش",
   "bondTitleCitizen": "ذاكرة الترابيزة",
   "bondScreenSubtitle": "ليهم ذاكرة. وإنت فيها.",
+  "characterPrevious": "الشخصية اللي قبلها",
+  "characterNext": "الشخصية اللي بعدها",
   "bondSealedLetter": "رسالة مختومة · تتفتح بعد {count} قضايا",
   "@bondSealedLetter": {"placeholders": {"count": {"type": "int"}}},
   "bondLettersTitle": "رسايلها ليك",

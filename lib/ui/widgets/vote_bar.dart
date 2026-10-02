@@ -161,7 +161,7 @@ class _VoteBarState extends State<VoteBar> with SingleTickerProviderStateMixin {
                     child: ColoredBox(
                       color: widget.highlighted
                           ? colors.accentGold
-                          : colors.textMuted,
+                          : colors.textSecondary,
                     ),
                   ),
                 ],

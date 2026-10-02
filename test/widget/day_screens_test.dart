@@ -90,7 +90,7 @@ void main() {
       // Verify the first speaker is displayed
       expect(find.text('Ahmed'), findsWidgets);
       // Verify the speaker count is displayed
-      expect(find.text('فاضل 3'), findsOneWidget);
+      expect(find.text('فاضل 3 يتكلموا'), findsOneWidget);
     });
 
     testWidgets(
@@ -127,7 +127,7 @@ void main() {
 
         // Verify Ahmed is the current speaker
         expect(find.text('Ahmed'), findsWidgets);
-        expect(find.text('فاضل 3'), findsOneWidget);
+        expect(find.text('فاضل 3 يتكلموا'), findsOneWidget);
 
         // Tap the skip button
         await tester.tap(find.text('تخطي'));
@@ -135,7 +135,7 @@ void main() {
 
         // Verify Fatima is now the current speaker
         expect(find.text('Fatima'), findsWidgets);
-        expect(find.text('فاضل 2'), findsOneWidget);
+        expect(find.text('فاضل 2 يتكلموا'), findsOneWidget);
       },
     );
 

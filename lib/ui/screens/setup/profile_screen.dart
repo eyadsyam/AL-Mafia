@@ -130,8 +130,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            if (MediaQuery.viewInsetsOf(context).bottom ==
-                                0) ...[
+                            if (widget.onBack == null &&
+                                MediaQuery.viewInsetsOf(context).bottom ==
+                                    0) ...[
                               // The first-run identity page's art: this is
                               // the same question, asked again later.
                               const ExperienceHero(
@@ -161,12 +162,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 padding: EdgeInsets.only(top: s.sm),
                                 child: const Center(child: FounderBadge()),
                               ),
-                            // The full profile, editing only: the account,
-                            // the record, then the identity form below.
-                            if (widget.onBack != null) ...[
-                              const AccountCard(),
-                              const ProfileStats(),
-                            ],
                             SizedBox(height: s.lg),
                             ProfileIdentityFields(
                               name: _name,
@@ -187,6 +182,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 if (ready) _save();
                               },
                             ),
+                            if (widget.onBack != null) ...[
+                              SizedBox(height: s.lg),
+                              const AccountCard(),
+                              const ProfileStats(),
+                            ],
                             // Phase 107: the player's leaderboard choice,
                             // shown only while the board exists.
                             const LeaderboardVisibilitySwitch(),

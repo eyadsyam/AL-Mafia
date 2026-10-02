@@ -232,16 +232,14 @@ void main() {
     );
 
     testWidgets(
-      'Pass unlock is measured from the reveal, not from the confirm — so it does '
-      'not depend on how fast the action was taken',
+      'early confirmations share the same turn floor',
       (tester) async {
-        // Three players who all confirm at different speeds, every one of them
-        // before the floor. If the floor were relative to the confirm instant,
-        // these would come out 3.5s apart.
+        // All three leave the full private confirmation floor before the
+        // common turn floor. Their public pass time must remain identical.
         const confirmTimes = [
           Duration(seconds: 8),
-          Duration(milliseconds: 9500),
-          Duration(milliseconds: 11500),
+          Duration(milliseconds: 8500),
+          Duration(seconds: 9),
         ];
 
         final measured = <Duration, Duration>{};
@@ -266,23 +264,31 @@ void main() {
     );
 
     testWidgets(
-      'a player who dawdles past the floor is not made to wait again',
+      'late confirmation keeps its private result visible for three seconds',
       (tester) async {
-        // Confirming after the floor has already passed must unlock Pass
-        // immediately: the shell adds delay, it never adds it twice.
         const lateConfirm = Duration(seconds: 15);
         for (final role in Role.values) {
-          final enabled = await probe(
-            tester,
-            role: role,
-            probeAt: lateConfirm,
-            selectAt: Duration.zero,
-            confirmAt: lateConfirm,
+          expect(
+            await probe(
+              tester,
+              role: role,
+              probeAt: lateConfirm + timing.confirmationFloor - resolution,
+              selectAt: Duration.zero,
+              confirmAt: lateConfirm,
+            ),
+            isFalse,
+            reason: '${role.name}: Pass opened before the private read floor',
           );
           expect(
-            enabled,
+            await probe(
+              tester,
+              role: role,
+              probeAt: lateConfirm + timing.confirmationFloor,
+              selectAt: Duration.zero,
+              confirmAt: lateConfirm,
+            ),
             isTrue,
-            reason: '${role.name}: Pass still locked at $lateConfirm',
+            reason: '${role.name}: Pass stayed locked beyond the private floor',
           );
         }
       },

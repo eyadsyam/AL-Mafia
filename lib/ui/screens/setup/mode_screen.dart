@@ -68,27 +68,23 @@ class ModeScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: spacing.lg),
-                    _ModeCard(
-                      cardKey: ModeScreen.onlineCard,
-                      art: AppCouncilArt.seatRingIdle,
-                      tintArt: true,
-                      title: l10n.modeOnlineTitle,
-                      body: l10n.modeOnlineBody,
-                      emphasised: true,
-                      onPressed: onPlayOnline,
-                      footnote: onPlayOnline == null ? l10n.modeNoServer : null,
-                      footnoteKey: ModeScreen.unavailableText,
-                    ),
-                    SizedBox(height: spacing.md),
+                    if (onPlayOnline != null) ...[
+                      _onlineCard(context),
+                      SizedBox(height: spacing.md),
+                    ],
                     _ModeCard(
                       cardKey: ModeScreen.offlineCard,
                       art: AppImages.cardBack,
                       tintArt: false,
                       title: l10n.modeOnePhoneTitle,
                       body: l10n.modeOnePhoneBody,
-                      emphasised: false,
+                      emphasised: onPlayOnline == null,
                       onPressed: onPlayOffline,
                     ),
+                    if (onPlayOnline == null) ...[
+                      SizedBox(height: spacing.md),
+                      _onlineCard(context),
+                    ],
                     SizedBox(height: spacing.lg),
                   ],
                 ),
@@ -99,6 +95,18 @@ class ModeScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _onlineCard(BuildContext context) => _ModeCard(
+    cardKey: ModeScreen.onlineCard,
+    art: AppCouncilArt.seatRingIdle,
+    tintArt: true,
+    title: context.l10n.modeOnlineTitle,
+    body: context.l10n.modeOnlineBody,
+    emphasised: onPlayOnline != null,
+    onPressed: onPlayOnline,
+    footnote: onPlayOnline == null ? context.l10n.modeNoServer : null,
+    footnoteKey: ModeScreen.unavailableText,
+  );
 }
 
 /// One of the two answers.
@@ -165,7 +173,7 @@ class _ModeCard extends StatelessWidget {
             child: Opacity(
               // Dimmed rather than hidden, and still readable: the point of
               // drawing it at all is that somebody can read why.
-              opacity: enabled ? 1 : 0.55,
+              opacity: 1,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -196,7 +204,7 @@ class _ModeCard extends StatelessWidget {
                             key: footnoteKey,
                             footnote!,
                             style: type.caption.copyWith(
-                              color: colors.accentCrimson,
+                              color: colors.textSecondary,
                             ),
                           ),
                         ],

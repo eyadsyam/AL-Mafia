@@ -17,7 +17,7 @@
   },
   "@@locale": "en",
   "profileTitle": "Your profile",
-  "profileHint": "Choose your name and character once. Saved on this device, with no sign-in.",
+  "profileHint": "Choose your name and character. We'll save them for your next game.",
   "profileSaveFailed": "Could not save your profile. Allow browser storage and try again.",
   "profileEdit": "Edit profile",
   "videoPlay": "Play introduction",
@@ -54,6 +54,7 @@
     }
   },
   "noPlayersYet": "No players added yet",
+  "minPlayersHint": "Add at least 5 players to continue",
   "next": "Next",
   "seatNumber": "Seat #{seat}",
   "@seatNumber": {
@@ -185,7 +186,10 @@
   "discussionTitle": "Discussion",
   "discussionFreeTitle": "Open discussion",
   "currentSpeaker": "Speaking now",
-  "speakersRemaining": "Remaining: {count}",
+  "speakersRemaining": "Speakers left: {count}",
+  "decreaseRole": "Decrease",
+  "increaseRole": "Increase",
+  "citizenAutoHint": "The remaining players become citizens automatically",
   "@speakersRemaining": {
     "placeholders": {
       "count": {
@@ -2662,6 +2666,8 @@
   "bondTitleDetective": "Reader of the Unsaid",
   "bondTitleCitizen": "Memory of the Table",
   "bondScreenSubtitle": "They remember. You are in it.",
+  "characterPrevious": "Previous character",
+  "characterNext": "Next character",
   "bondSealedLetter": "Sealed letter · opens in {count} cases",
   "@bondSealedLetter": {"placeholders": {"count": {"type": "int"}}},
   "bondLettersTitle": "Letters to you",

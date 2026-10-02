@@ -206,7 +206,7 @@ class ResultScreen extends StatelessWidget {
                               child: Container(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: spacing.md,
-                                  vertical: spacing.lg,
+                                  vertical: spacing.md,
                                 ),
                                 decoration: BoxDecoration(
                                   color: colors.surfaceRaised,
@@ -223,8 +223,8 @@ class ResultScreen extends StatelessWidget {
                                   children: [
                                     const MotionSprite(
                                       AppMotion.emberDrift,
-                                      width: MotionTokens.emberWidth,
-                                      height: MotionTokens.emberHeight,
+                                      width: ResultTokens.heroEmberWidth,
+                                      height: ResultTokens.heroEmberHeight,
                                     ),
                                     Column(
                                       children: [
@@ -235,7 +235,7 @@ class ResultScreen extends StatelessWidget {
                                           ),
                                           textAlign: TextAlign.center,
                                         ),
-                                        SizedBox(height: spacing.md),
+                                        SizedBox(height: spacing.xs),
                                         Text(
                                           _winnerText(context, winner),
                                           key: const ValueKey(
@@ -431,39 +431,26 @@ class ResultScreen extends StatelessWidget {
                       ],
                       SizedBox(height: spacing.lg),
 
-                      // Action buttons
-                      if (onAnalytics != null) ...[
-                        FilledButton(
-                          onPressed: onAnalytics,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: colors.accentGold,
-                            foregroundColor: colors.surfaceBase,
-                            padding: EdgeInsets.symmetric(vertical: spacing.lg),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(radii.button),
+                      // One shared-height action row leaves more of the public
+                      // roster visible on a phone while keeping both exits.
+                      Row(
+                        children: [
+                          if (onAnalytics != null) ...[
+                            Expanded(
+                              child: FilledButton(
+                                onPressed: onAnalytics,
+                                child: Text(context.l10n.analytics),
+                              ),
+                            ),
+                            SizedBox(width: spacing.sm),
+                          ],
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: onHome,
+                              child: Text(context.l10n.homeAction),
                             ),
                           ),
-                          child: Text(
-                            context.l10n.analytics,
-                            style: type.title,
-                          ),
-                        ),
-                        SizedBox(height: spacing.md),
-                      ],
-                      OutlinedButton(
-                        onPressed: onHome,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: colors.textPrimary,
-                          side: BorderSide(color: colors.borderSubtle),
-                          padding: EdgeInsets.symmetric(vertical: spacing.lg),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(radii.button),
-                          ),
-                        ),
-                        child: Text(
-                          context.l10n.homeAction,
-                          style: type.title.copyWith(color: colors.textPrimary),
-                        ),
+                        ],
                       ),
                     ],
                   ),

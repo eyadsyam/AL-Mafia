@@ -75,7 +75,7 @@ class MorningScreen extends StatelessWidget {
       body = l10n.someoneSavedBody;
     } else {
       headline = l10n.quietNight;
-      body = l10n.noLossesBody;
+      body = '';
     }
 
     return AppBackdrop(
@@ -109,16 +109,18 @@ class MorningScreen extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: spacing.md),
-                  Text(
-                    body,
-                    key: const ValueKey('morning_fact'),
-                    style: type.body.copyWith(
-                      color: colors.textSecondary,
-                      fontSize: tabletop ? TabletopTokens.factFontSize : null,
+                  if (body.isNotEmpty) ...[
+                    SizedBox(height: spacing.md),
+                    Text(
+                      body,
+                      key: const ValueKey('morning_fact'),
+                      style: type.body.copyWith(
+                        color: colors.textSecondary,
+                        fontSize: tabletop ? TabletopTokens.factFontSize : null,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
+                  ],
                   if (victimRole != null && victimName != null) ...[
                     SizedBox(height: spacing.sm),
                     Text(
