@@ -9,6 +9,57 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get onlineHostExitTitle => 'هتخرج من الأوضة؟';
+
+  @override
+  String get onlineHostExitBody =>
+      'الأوضة تقدر تكمل والهوست ينتقل لأول لاعب موجود. قفل الأوضة بينهيها للجميع.';
+
+  @override
+  String get onlineLeaveKeepRoom => 'اخرج والأوضة تكمل';
+
+  @override
+  String get voiceEnablePlayback => 'تشغيل الصوت';
+
+  @override
+  String get onlineHistoryLabel => 'ماتش أونلاين';
+
+  @override
+  String onlineMatchMeta(int players, int day) {
+    return '$players لاعبين · اليوم $day';
+  }
+
+  @override
+  String get profileTitle => 'بروفايلك';
+
+  @override
+  String get profileHint =>
+      'اختار اسمك وشخصيتك مرة واحدة. هنفتكرهم على الجهاز ده من غير تسجيل دخول.';
+
+  @override
+  String get profileSaveFailed =>
+      'مقدرناش نحفظ البروفايل. اسمح بالتخزين في المتصفح وجرب تاني.';
+
+  @override
+  String get profileEdit => 'عدّل البروفايل';
+
+  @override
+  String get videoPlay => 'شغّل الشرح';
+
+  @override
+  String get videoFailed => 'الشرح مش راضي يشتغل هنا.';
+
+  @override
+  String get videoRetry => 'جرّب تاني';
+
+  @override
+  String get voiceRetry => 'شغّل الصوت';
+
+  @override
+  String get onlineNightPrivacyHint =>
+      'الصوت مقفول وقت كشف الأدوار والليل لحماية سرية اللعب.';
+
+  @override
   String get appTitle => 'سيد المافيا';
 
   @override
@@ -203,7 +254,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get gotIt => 'فهمت';
 
   @override
-  String get holdToRevealRole => 'دوس عشان تشوف كارتك';
+  String get holdToRevealRole => 'دوس ثانيتين عشان تشوف كارتك';
 
   @override
   String teammatesLine(String names) {
@@ -215,7 +266,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String iAmHoldInstruction(String name) {
-    return 'أنا $name — دوس';
+    return 'أنا $name — دوس ثانيتين';
   }
 
   @override
@@ -544,7 +595,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get holdToConfirmIdentity => 'دوس عشان تشوف كارتك';
+  String get holdToConfirmIdentity => 'دوس ثانيتين عشان تشوف كارتك';
 
   @override
   String get swipeToReveal => 'اسحب الكارت في أي اتجاه عشان يتقلب';
@@ -1294,6 +1345,9 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get onlineFloorOpen => 'الكلام مفتوح، اطلب الدور';
+
+  @override
   String onlineRaisedHands(String names) {
     return 'رافعين إيدهم: $names';
   }
@@ -1710,4 +1764,279 @@ class AppLocalizationsAr extends AppLocalizations {
   String timelineSuspectFemale(String actor, String target) {
     return '$actor شكت في $target';
   }
+
+  @override
+  String get onlineDiscardResume => 'انسى الأوضة';
+
+  @override
+  String get onlineStorageWarning =>
+      'الجهاز مش قادر يحفظ. اللعبة شغالة عادي، بس ممكن ما يرجّعكش للأوضة لوحده ولا يحتفظ بالنتيجة.';
+
+  @override
+  String get safetyTitle => 'الخصوصية وحذف البيانات';
+
+  @override
+  String get safetyPolicy =>
+      'المطوّر: Eyad Syam\nالدعم: eyadsyam124@gmail.com\n\nاللعب المحلي بيفضل على جهازك. الأونلاين يستخدم معرّفًا عشوائيًا والبروفايل وأفعال الماتش والرسائل. العملات والمكافآت والمحتوى المفتوح بيتحفظوا مع الهوية دي لحد الحذف. الصوت اختياري ومشفّر أثناء النقل واللعبة مبتسجلوش. خدمات التشغيل بتعالج بيانات الاتصال اللازمة للأونلاين. مفيش إعلانات أو تتبع إعلاني.\n\nالغرف المنتهية مؤهلة للحذف بعد 24 ساعة، والهويات القديمة من غير غرف بتتحذف مع دورة التنظيف. تقدر تطلب حذف بيانات الأونلاين هنا؛ إرسال الطلب مش معناه إن الحذف اكتمل. من خارج التطبيق استخدم almafia.vercel.app/delete-data مع معرّفك أو رقم الطلب. متبعتش كلمة سر أو مفتاح وصول.\n\nممنوع التحرش والتهديد والكراهية والمحتوى الجنسي واستغلال الأطفال ومشاركة المعلومات الخاصة. بلّغ عن اللاعب أو اسم الغرفة أو الرسالة المسيئة. الحظر يخفي رسائله الخاصة ويكتم صوته عندك؛ أفعال اللعبة العامة تفضل ظاهرة. المطوّر بيراجع البلاغات وهي مش بتظهر للاعبين.';
+
+  @override
+  String get safetyAgree => 'أوافق على قواعد الاستخدام';
+
+  @override
+  String get safetyConsentTitle => 'قبل اللعب أونلاين';
+
+  @override
+  String get safetyConsentBody =>
+      'ممنوع الإساءة والتحرّش والكراهية والمحتوى الجنسي ومشاركة البيانات الخاصة. تقدر تبلغ وتحظر من زر الأمان. الصوت اختياري؛ راجع الخصوصية في الإعدادات لمعرفة البيانات المستخدمة.';
+
+  @override
+  String get safetyReport => 'إرسال بلاغ';
+
+  @override
+  String get safetyBlock => 'حظر رسائل وصوت اللاعب';
+
+  @override
+  String get safetyRoom => 'اسم الغرفة أو محتواها';
+
+  @override
+  String get safetyDetails => 'وصف الإساءة أو الرسالة (بدون أسرار الدور)';
+
+  @override
+  String get safetyReceipt => 'تم استلام الطلب. احتفظ بالرقم:';
+
+  @override
+  String get safetyFailed => 'الطلب لم يُرسل. حاول مرة أخرى أو راسل الدعم.';
+
+  @override
+  String get safetyDelete => 'طلب حذف بيانات الأونلاين';
+
+  @override
+  String get safetyDeleteConfirm =>
+      'سيتم إرسال طلب لحذف هويتك المجهولة وبيانات الأونلاين المرتبطة بها. سيُراجع المطوّر الطلب خلال 30 يومًا. نسخ اللاعبين على أجهزتهم منفصلة؛ البلاغات اللازمة لمنع الإساءة قد تُحتفظ بها لفترة محدودة. ملفاتك المحلية لا تُحذف بهذا الطلب.';
+
+  @override
+  String get safetyIdentity => 'عرض معرّف بياناتي';
+
+  @override
+  String get safetyBlocked => 'تم الحظر عندك.';
+
+  @override
+  String get safetyNoRoom => 'الإبلاغ والحظر متاحان داخل الغرفة.';
+
+  @override
+  String get safetyTools => 'الإبلاغ والحظر';
+
+  @override
+  String get onlineWelcome => 'الكراسي جاهزة. ناقصكم أنتم.';
+
+  @override
+  String get languageLabel => 'اللغة';
+
+  @override
+  String get languageNameArabic => 'العربية';
+
+  @override
+  String get languageNameEnglish => 'English';
+
+  @override
+  String get onlineNewRoomsPaused =>
+      'إنشاء الغرف متوقف مؤقتًا. ما زال بإمكانك الانضمام لغرفة موجودة أو اللعب بدون إنترنت.';
+
+  @override
+  String get helpTitle => 'المساعدة والأسئلة الشائعة';
+
+  @override
+  String get helpIntro =>
+      'إجابات سريعة عن اللعب والغرف الأونلاين والأمان وبياناتك.';
+
+  @override
+  String get helpPlayQuestion => 'الماتش بيمشي إزاي؟';
+
+  @override
+  String get helpPlayAnswer =>
+      'اللعبة بتوزع الأدوار السرية وبتدير مراحل الليل والنهار وبتحسب التصويت. أهل البلد يحاولوا يكتشفوا المافيا، والمافيا تحاول تفضل لحد ما عددها يساوي أو يزيد عن أهل البلد. الهوست يقدر يراجع القواعد قبل البداية.';
+
+  @override
+  String get helpOnlineQuestion => 'الغرف الأونلاين بتشتغل إزاي؟';
+
+  @override
+  String get helpOnlineAnswer =>
+      'اعمل غرفة وابعت الكود لصحابك، ادخل بكود، أو اختار غرفة عامة. السيرفر بيدير الماتش، ولو الهوست خرج التحكم بينتقل للاعب متصل تاني.';
+
+  @override
+  String get helpVoiceQuestion => 'الصوت إجباري؟';
+
+  @override
+  String get helpVoiceAnswer =>
+      'لا. الصوت اختياري واللعبة مبتسجلوش. لو إذن الميكروفون أو نقل الصوت فشل، الماتش يكمل بأزرار اللعبة والنص المنظم.';
+
+  @override
+  String get helpReconnectQuestion => 'أعمل إيه لو الاتصال قطع؟';
+
+  @override
+  String get helpReconnectAnswer =>
+      'افتح اللعبة تاني على نفس الجهاز واستخدم «كمّل الغرفة» لما تظهر. كرسيك بيرجع لو الغرفة لسه موجودة. متعملش بروفايل تاني عشان تسترجع كرسي في ماتش شغال.';
+
+  @override
+  String get helpSafetyQuestion => 'البلاغ والحظر بيعملوا إيه؟';
+
+  @override
+  String get helpSafetyAnswer =>
+      'جوا الغرفة استخدم علامة البلاغ للإبلاغ عن لاعب أو محتوى الغرفة. الحظر بيخفي رسائله الخاصة ويكتم صوته عندك فورًا. البلاغ دليل للمراجعة، مش حكم آلي إن اللاعب مذنب.';
+
+  @override
+  String get helpCoinsQuestion => 'إيه هي العملات؟';
+
+  @override
+  String get helpCoinsAnswer =>
+      'بتكسب العملات من ماتشات أونلاين مكتملة ومتحقق منها، وبتفتح محتوى عادل. مينفعش تسحبها أو تحولها أو تشتري بيها صوت أو معلومة سرية أو فرصة أكبر للفوز. العملات مرتبطة بهوية الأونلاين المجهولة على الجهاز ده.';
+
+  @override
+  String get helpPrivacyQuestion => 'الخصوصية وحذف البيانات فين؟';
+
+  @override
+  String get helpPrivacyAnswer =>
+      'موجودين في شاشة الإعدادات تحت «الخصوصية وحذف البيانات». تقدر تشوف معرّف بياناتك المجهول وتطلب الحذف من هناك.';
+
+  @override
+  String get helpAgeQuestion => 'اللعب الأونلاين مناسب لمين؟';
+
+  @override
+  String get helpAgeAnswer =>
+      'الصوت والغرف العامة الأونلاين موجهين للبالغين من 18 سنة. متشاركش عنوانك أو رقم تليفونك أو كلمات السر أو أي معلومات خاصة في الصوت أو الاسم أو الرسائل أو اسم الغرفة.';
+
+  @override
+  String get helpSupportQuestion => 'أتواصل مع الدعم إزاي؟';
+
+  @override
+  String get helpSupportAnswer =>
+      'ابعت على eyadsyam124@gmail.com. ضيف رقم إيصال البلاغ أو معرّف بياناتك المجهول لو له علاقة بالمشكلة، ومتبعتش كلمة سر أو مفتاح وصول.';
+
+  @override
+  String get coinsTitle => 'العملات والمكافآت';
+
+  @override
+  String coinsBalance(int count) {
+    return '$count عملة';
+  }
+
+  @override
+  String get coinsEarnHint =>
+      'كمّل ماتش أونلاين مؤهل واكسب 100 عملة، وكل لاعب في الفريق الفائز يكسب 25 زيادة. السيرفر هو اللي بيتأكد من المكافأة، ومبتغيرش التصويت أو الدور أو فرصة الفوز.';
+
+  @override
+  String get coinsLoadFailed =>
+      'مقدرناش نحمّل عملاتك. مفيش حاجة اتخصمت؛ جرّب تاني.';
+
+  @override
+  String get coinsGuideTitle => 'مذكرة العقل المدبر';
+
+  @override
+  String get coinsGuideHint =>
+      'دليل استراتيجي دائم لقراءة الترابيزة والدفاع عن قصتك، من غير ما يكشف أي معلومة سرية في ماتش شغال.';
+
+  @override
+  String coinsGuidePrice(int count) {
+    return 'افتحها مقابل $count عملة';
+  }
+
+  @override
+  String get coinsBuyGuide => 'تفتح المذكرة؟';
+
+  @override
+  String get coinsBuyConfirm =>
+      'العملات المكتسبة هتتخصم نهائيًا من هوية الأونلاين المجهولة على الجهاز ده. المذكرة مبتغيرش الماتش ولا تزود فرصتك.';
+
+  @override
+  String get coinsUnlock => 'افتح';
+
+  @override
+  String get coinsGuideOpen => 'افتح المذكرة';
+
+  @override
+  String get coinsGuideContent =>
+      'المواطن — تابع مين بيغير كلامه بعد التصويت، مش مين صوته أعلى. اطلب سبب واحد واضح وقارنه بالتصويت اللي بعده.\n\nالمافيا — خليك على موقف بسيط من بدري؛ الكذبة المعقدة بتعمل تفاصيل لازم تفتكرها. دافع عن مواطن أحيانًا، لأن الهجوم المستمر بيعمل نمط سهل.\n\nالدكتور — النجاة مش الهدف الوحيد. فكر أي حماية هتطلع معلومة مفيدة وواضحة لبكرة.\n\nالمحقق — معلومتك ملهاش قيمة لو الترابيزة مش هتعرف تستخدمها. سيب أثر منطقي قبل اتهام خطر، من غير ما تعلن دورك بدري.\n\nكل الأدوار — افصل بين اللي اللعبة أكدته واللي لاعب ادعاه. أقوى حجة هي اللي تفضل صحيحة بعد ظهور المعلومة اللي بعدها.';
+
+  @override
+  String adRewardAction(int count) {
+    return 'شاهد إعلان وخد +$count عملة';
+  }
+
+  @override
+  String get adRewardHint =>
+      'اختياري بعد النتيجة فقط. مكافأتك الأصلية محفوظة حتى لو رفضت أو الإعلان فشل.';
+
+  @override
+  String get adRewardPending =>
+      'الإعلان اكتمل. المكافأة الإضافية قيد تأكيد آمن وهتظهر تلقائيًا.';
+
+  @override
+  String adRewardGranted(int count) {
+    return 'اتضافت $count عملة إضافية.';
+  }
+
+  @override
+  String get adRewardUnavailable =>
+      'مفيش إعلان متاح دلوقتي. مكافأتك الأصلية زي ما هي.';
+
+  @override
+  String get adRewardUsed => 'خدت مكافأة الإعلان للماتش ده.';
+
+  @override
+  String get privacyChoices => 'اختيارات خصوصية الإعلانات';
+
+  @override
+  String get privacyChoicesHint =>
+      'راجع أو غيّر اختيارات الخصوصية اللي بيطلبها مزود الإعلانات.';
+
+  @override
+  String get premiumScenarioTitle => 'سيناريو مجلس الظلال';
+
+  @override
+  String get premiumScenarioHint =>
+      'حزمة دائمة للمضيف: قواعد متوازنة، همسات ومواجهة وتصويت سري. لما المضيف يختارها كل الموجودين بيلعبوا السيناريو من غير ما يشتروا.';
+
+  @override
+  String get premiumScenarioBuy => 'اشترِ الحزمة';
+
+  @override
+  String get premiumScenarioOwned => 'الحزمة عندك';
+
+  @override
+  String get premiumScenarioRestore => 'استرجع مشترياتك';
+
+  @override
+  String get premiumScenarioPending => 'الشراء لسه قيد المعالجة في المتجر.';
+
+  @override
+  String get premiumScenarioFailed =>
+      'مقدرناش نتحقق من الشراء. مفيش مبلغ هيتخصم من داخل اللعبة.';
+
+  @override
+  String get premiumScenarioUse => 'مجلس الظلال';
+
+  @override
+  String get premiumScenarioUseHint =>
+      'إعدادات سيناريو متوازنة يفتحها المضيف لكل الغرفة.';
+
+  @override
+  String get quickMatch => 'العب دلوقتي';
+
+  @override
+  String get quickMatchHint =>
+      'هندخلك أوضة عامة مناسبة، أو نفتح واحدة وقت الطلب لو مفيش مكان.';
+
+  @override
+  String get quickMatchSearching => 'بندور على أوضة…';
+
+  @override
+  String get shareResult => 'شارك النتيجة';
+
+  @override
+  String shareResultText(String winner, int days) {
+    return 'ماتش سيد المافيا انتهى بفوز $winner بعد $days يوم. افتح رومك على https://almafia.vercel.app';
+  }
+
+  @override
+  String get playAgainWithGroup => 'روم جديدة للشلة';
 }

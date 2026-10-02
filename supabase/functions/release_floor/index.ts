@@ -25,9 +25,11 @@ Deno.serve(handler(async (req, userId, db) => {
   });
   if (error) throw error;
 
-  // You have finished speaking. Leaving your own hand up afterwards would put
-  // you back in the set of people asking for a turn you just took.
-  await db.rpc("lower_hand", { p_room: roomId, p_user: userId });
+  // No hand to lower. The schema never grew a raised-hand column or a
+  // `lower_hand` routine; the call this used to make was answered with
+  // "function does not exist" and ignored, and once read errors stopped being
+  // ignored it failed every release of the floor (e2e `release_floor`,
+  // phase 64). Asking for something the server does not have is not politeness.
 
   return ok();
 }));

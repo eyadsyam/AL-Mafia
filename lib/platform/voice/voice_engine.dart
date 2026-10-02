@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../../transport/voice_link.dart' show VoicePeer;
+import 'voice_diagnostics.dart';
 
 /// [VoicePeer] is a fact about the room rather than about the call, so it is
 /// declared with the link and re-exported here for the engines that consume it.
@@ -112,6 +113,17 @@ class PeerFailed extends VoiceEngineEvent {
 /// *"never trust the client to mute itself politely"*. So the only mic method
 /// here is [setMicrophoneLive], and the only caller is [VoiceController]
 /// applying a policy it did not choose.
+abstract interface class VoicePlayout {
+  Future<bool> resumePlayout();
+  Future<void> sampleMediaStats();
+
+  /// Sanitised local and remote audio levels for the speaking ring. These are
+  /// local presentation facts only; they never enter the game snapshot or
+  /// Metered signalling.
+  Map<String, double> get speakingLevels;
+  double get localSpeakingLevel;
+}
+
 abstract class VoiceEngine {
   /// Asks the platform for the microphone.
   ///
@@ -152,6 +164,15 @@ abstract class VoiceEngine {
 
   Stream<VoiceEngineEvent> get events;
 
+  /// What the media chain actually did, for a person holding two phones.
+  ///
+  /// Read-only, and nothing in the game reads it at all. It exists because
+  /// every failure on this interface is deliberately swallowed — a call that
+  /// throws into a phase would break non-negotiable 5 — and a stack that
+  /// swallows its errors has to write them down somewhere or become
+  /// undiagnosable, which is precisely what happened.
+  VoiceDiagnostics get diagnostics;
+
   Future<void> dispose();
 }
 
@@ -164,6 +185,9 @@ abstract class VoiceEngine {
 /// match plays.
 class NullVoiceEngine implements VoiceEngine {
   final _events = StreamController<VoiceEngineEvent>.broadcast();
+
+  @override
+  final VoiceDiagnostics diagnostics = VoiceDiagnostics();
 
   @override
   Future<bool> acquireMicrophone() async => false;

@@ -26,6 +26,7 @@ import '../support/stores.dart';
 /// same trick `crash_resume_test` uses — so "the host relaunched" is modelled
 /// honestly rather than asserted about a flag.
 void main() {
+  setUp(seedReturningProfile);
   const surface = Size(390, 844);
 
   late MemoryMatchStore store;

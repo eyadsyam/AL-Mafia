@@ -25,12 +25,15 @@ Deno.serve(handler(async (req, userId, db) => {
     return fail("PHASE_CLOSED", "the deal is not open");
   }
 
-  const { error } = await db
+  const { data: updated, error } = await db
     .from("room_players")
     .update({ saw_role: true })
     .eq("room_id", roomId)
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .eq("kicked", false)
+    .select("user_id");
   if (error) throw error;
+  if (!updated?.length) return fail("NOT_A_MEMBER", "you are not in that room", 403);
 
   return ok({ sawRole: true });
 }));

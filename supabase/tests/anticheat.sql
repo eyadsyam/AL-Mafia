@@ -93,8 +93,11 @@ insert into public.rooms (id, code, host_id, status, match_seed)
 values ('11111111-1111-1111-1111-111111111111', 'ABCDEF',
         'aaaaaaaa-0000-0000-0000-000000000001', 'playing', 987654321);
 
+-- The phase guards (20260914000200) only admit a night action during that
+-- night and a ballot during that ballot round, so the fixture is written in
+-- the order a match would write it.
 insert into public.room_state (room_id, phase, phase_number)
-values ('11111111-1111-1111-1111-111111111111', 'vote', 1);
+values ('11111111-1111-1111-1111-111111111111', 'night', 1);
 
 insert into public.room_players (room_id, user_id, name, seat, role) values
   ('11111111-1111-1111-1111-111111111111','aaaaaaaa-0000-0000-0000-000000000001','A',0,'mafia'),
@@ -104,6 +107,9 @@ insert into public.room_players (room_id, user_id, name, seat, role) values
 insert into public.night_actions (room_id, night, actor_id, action, target_id) values
   ('11111111-1111-1111-1111-111111111111',1,'aaaaaaaa-0000-0000-0000-000000000001','kill','aaaaaaaa-0000-0000-0000-000000000003'),
   ('11111111-1111-1111-1111-111111111111',1,'aaaaaaaa-0000-0000-0000-000000000002','protect','aaaaaaaa-0000-0000-0000-000000000003');
+
+update public.room_state set phase = 'vote'
+ where room_id = '11111111-1111-1111-1111-111111111111';
 
 insert into public.votes (room_id, day, voter_id, target_id) values
   ('11111111-1111-1111-1111-111111111111',1,'aaaaaaaa-0000-0000-0000-000000000001','aaaaaaaa-0000-0000-0000-000000000003');
@@ -218,15 +224,23 @@ begin
       $q$insert into public.votes (room_id, day, voter_id, target_id)
          values (%L, 1, %L, null)$q$, R, C)));
 
+  -- Each write below is attempted in the phase it would belong to, so that
+  -- what refuses it is the row policy and not the phase guard.
+  update public.room_state set phase = 'vote', phase_number = 2
+   where room_id = '11111111-1111-1111-1111-111111111111';
   perform private.__expect_denied('O17 a ballot in one''s own name',
     private.__write(B, format(
       $q$insert into public.votes (room_id, day, voter_id, target_id)
          values (%L, 2, %L, null)$q$, R, B)));
 
+  update public.room_state set phase = 'night', phase_number = 2
+   where room_id = '11111111-1111-1111-1111-111111111111';
   perform private.__expect_denied('O18 a kill from a Doctor',
     private.__write(B, format(
       $q$insert into public.night_actions (room_id, night, actor_id, action, target_id)
          values (%L, 2, %L, 'kill', %L)$q$, R, B, A)));
+  update public.room_state set phase = 'vote', phase_number = 1
+   where room_id = '11111111-1111-1111-1111-111111111111';
 
   perform private.__expect_denied('rewriting a role',
     private.__write(B, format(

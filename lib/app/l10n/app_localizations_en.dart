@@ -9,6 +9,57 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get onlineHostExitTitle => 'Leave the room?';
+
+  @override
+  String get onlineHostExitBody =>
+      'Keep the room running and hand hosting to the first available player, or close it for everyone.';
+
+  @override
+  String get onlineLeaveKeepRoom => 'Leave and keep playing';
+
+  @override
+  String get voiceEnablePlayback => 'Enable audio';
+
+  @override
+  String get onlineHistoryLabel => 'Online match';
+
+  @override
+  String onlineMatchMeta(int players, int day) {
+    return '$players players · day $day';
+  }
+
+  @override
+  String get profileTitle => 'Your profile';
+
+  @override
+  String get profileHint =>
+      'Choose your name and character once. Saved on this device, with no sign-in.';
+
+  @override
+  String get profileSaveFailed =>
+      'Could not save your profile. Allow browser storage and try again.';
+
+  @override
+  String get profileEdit => 'Edit profile';
+
+  @override
+  String get videoPlay => 'Play introduction';
+
+  @override
+  String get videoFailed => 'The introduction could not play here.';
+
+  @override
+  String get videoRetry => 'Try again';
+
+  @override
+  String get voiceRetry => 'Enable audio';
+
+  @override
+  String get onlineNightPrivacyHint =>
+      'Audio stays off during role reveal and night to protect game privacy.';
+
+  @override
   String get appTitle => 'Mafia Master';
 
   @override
@@ -1325,6 +1376,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get onlineFloorOpen => 'The floor is open';
+
+  @override
   String onlineRaisedHands(String names) {
     return 'Hands up: $names';
   }
@@ -1762,4 +1816,282 @@ class AppLocalizationsEn extends AppLocalizations {
   String timelineSuspectFemale(String actor, String target) {
     return '$actor suspected $target';
   }
+
+  @override
+  String get onlineDiscardResume => 'Forget room';
+
+  @override
+  String get onlineStorageWarning =>
+      'This device could not save. The match is unaffected, but it may not bring you back to the room on its own or keep the result.';
+
+  @override
+  String get safetyTitle => 'Privacy and data deletion';
+
+  @override
+  String get safetyPolicy =>
+      'Developer: Eyad Syam\nSupport: eyadsyam124@gmail.com\n\nLocal play stays on your device. Online play uses a random identifier, profile, match actions and messages. Earned coins, rewards and unlocked items remain with that identity until deletion. Optional voice is encrypted in transit and is not recorded by the game. Service providers process connection data needed to operate online play. There are no ads or advertising trackers.\n\nFinished rooms are eligible for deletion after 24 hours. Old anonymous identities with no room membership are removed on the cleanup schedule. You can request online-data deletion below; submission is not completed deletion. Outside the app, use almafia.vercel.app/delete-data with your identifier or receipt. Never send passwords or access keys.\n\nHarassment, threats, hate, sexual content, child exploitation and sharing private information are prohibited. Report abusive players, room names or messages. Blocking hides their private messages and mutes their voice for you; public game actions remain visible. Reports are reviewed by the developer and are not visible to players.';
+
+  @override
+  String get safetyAgree => 'I accept the community rules';
+
+  @override
+  String get safetyConsentTitle => 'Before playing online';
+
+  @override
+  String get safetyConsentBody =>
+      'Abuse, harassment, hate, sexual content and sharing private information are prohibited. Use Safety to report or block. Voice is optional. Read Privacy in Settings for data practices.';
+
+  @override
+  String get safetyReport => 'Submit report';
+
+  @override
+  String get safetyBlock => 'Block player messages and voice';
+
+  @override
+  String get safetyRoom => 'Room name or content';
+
+  @override
+  String get safetyDetails =>
+      'Describe the abuse or message (no secret role information)';
+
+  @override
+  String get safetyReceipt => 'Request received. Keep this receipt:';
+
+  @override
+  String get safetyFailed => 'Request was not sent. Retry or contact support.';
+
+  @override
+  String get safetyDelete => 'Request online data deletion';
+
+  @override
+  String get safetyDeleteConfirm =>
+      'Send a request to delete your anonymous identity and associated online data. The developer will review it within 30 days. Other players’ local copies are separate; safety evidence may be retained for a limited period. This request does not delete local files.';
+
+  @override
+  String get safetyIdentity => 'Show my data identifier';
+
+  @override
+  String get safetyBlocked => 'Blocked for you.';
+
+  @override
+  String get safetyNoRoom =>
+      'Reporting and blocking are available inside a room.';
+
+  @override
+  String get safetyTools => 'Report and block';
+
+  @override
+  String get onlineWelcome => 'The table is ready. Take your seat.';
+
+  @override
+  String get languageLabel => 'Language';
+
+  @override
+  String get languageNameArabic => 'العربية';
+
+  @override
+  String get languageNameEnglish => 'English';
+
+  @override
+  String get onlineNewRoomsPaused =>
+      'New rooms are temporarily paused. You can still join an existing room or play offline.';
+
+  @override
+  String get helpTitle => 'Help and FAQ';
+
+  @override
+  String get helpIntro =>
+      'Quick answers about playing, online rooms, safety and your data.';
+
+  @override
+  String get helpPlayQuestion => 'How does a match work?';
+
+  @override
+  String get helpPlayAnswer =>
+      'The game assigns secret roles, guides every night and day phase, and counts the vote. Citizens find the Mafia; the Mafia survives until it matches or outnumbers the town. The host can review the rules before starting.';
+
+  @override
+  String get helpOnlineQuestion => 'How do online rooms work?';
+
+  @override
+  String get helpOnlineAnswer =>
+      'Create a room and share its code, join with a code, or choose a public room. The match is controlled by the game server, and host control moves to another connected player if needed.';
+
+  @override
+  String get helpVoiceQuestion => 'Is voice required?';
+
+  @override
+  String get helpVoiceAnswer =>
+      'No. Voice is optional and is not recorded by the game. If microphone access or voice relay fails, the match continues with the game controls and structured text.';
+
+  @override
+  String get helpReconnectQuestion => 'What if the connection drops?';
+
+  @override
+  String get helpReconnectAnswer =>
+      'Reopen the game on the same device and use Continue room when it appears. Your seat is restored when the room still exists. Never create a second profile to recover a live seat.';
+
+  @override
+  String get helpSafetyQuestion => 'How do reporting and blocking work?';
+
+  @override
+  String get helpSafetyAnswer =>
+      'Inside a room, use the flag button to report a player or room content. Blocking immediately hides that player\'s private messages and mutes their voice for you. A report is evidence for review, not an automatic guilty decision.';
+
+  @override
+  String get helpCoinsQuestion => 'What are coins?';
+
+  @override
+  String get helpCoinsAnswer =>
+      'Coins are earned from verified completed online matches and can unlock fair content. They cannot be withdrawn, transferred or used to buy votes, secret information or a better chance to win. Coins stay with this device\'s anonymous online identity.';
+
+  @override
+  String get helpPrivacyQuestion => 'Where are privacy and deletion controls?';
+
+  @override
+  String get helpPrivacyAnswer =>
+      'They are on the Settings screen under Privacy and data deletion. You can view your anonymous data identifier and request deletion there.';
+
+  @override
+  String get helpAgeQuestion => 'Who is online play intended for?';
+
+  @override
+  String get helpAgeAnswer =>
+      'Online voice and public rooms are intended for adults aged 18 or older. Do not share your address, phone number, passwords or other private information in voice, names, messages or room titles.';
+
+  @override
+  String get helpSupportQuestion => 'How can I contact support?';
+
+  @override
+  String get helpSupportAnswer =>
+      'Email eyadsyam124@gmail.com. Include a report receipt or your anonymous data identifier when relevant, but never send a password or access key.';
+
+  @override
+  String get coinsTitle => 'Coins and rewards';
+
+  @override
+  String coinsBalance(int count) {
+    return '$count coins';
+  }
+
+  @override
+  String get coinsEarnHint =>
+      'Complete an eligible online match to earn 100 coins. Players on the winning team earn 25 more. Rewards are verified by the game server and never affect votes, roles or the chance to win.';
+
+  @override
+  String get coinsLoadFailed =>
+      'Your coins could not be loaded. Nothing was spent; try again.';
+
+  @override
+  String get coinsGuideTitle => 'The Mastermind\'s Notebook';
+
+  @override
+  String get coinsGuideHint =>
+      'A permanent strategy guide for reading the table and defending your story. It never reveals live secret information.';
+
+  @override
+  String coinsGuidePrice(int count) {
+    return 'Unlock for $count coins';
+  }
+
+  @override
+  String get coinsBuyGuide => 'Unlock the notebook?';
+
+  @override
+  String get coinsBuyConfirm =>
+      'This permanently spends earned coins on this anonymous online identity. It cannot change a match or improve your odds.';
+
+  @override
+  String get coinsUnlock => 'Unlock';
+
+  @override
+  String get coinsGuideOpen => 'Open the notebook';
+
+  @override
+  String get coinsGuideContent =>
+      'CITIZEN — Track who changes a story after the vote, not who speaks the loudest. Ask for one clear reason and compare it with the next ballot.\n\nMAFIA — Build a simple position early. A complicated lie creates details you must remember. Defend a citizen sometimes; automatic aggression gives the table an easy pattern.\n\nDOCTOR — Survival is not the only goal. Think about which save would create the most trustworthy information for tomorrow.\n\nDETECTIVE — Your information is valuable only if the table can use it. Leave a believable trail before a risky accusation, without announcing your role too early.\n\nEVERY ROLE — Separate what the game confirmed from what a player claimed. The strongest argument is the one that survives the next revealed fact.';
+
+  @override
+  String adRewardAction(int count) {
+    return 'Watch an ad for +$count coins';
+  }
+
+  @override
+  String get adRewardHint =>
+      'Optional and shown only after the result. Your original reward stays yours if you decline or the ad fails.';
+
+  @override
+  String get adRewardPending =>
+      'Ad completed. The extra reward is being verified and will appear automatically.';
+
+  @override
+  String adRewardGranted(int count) {
+    return '$count extra coins added.';
+  }
+
+  @override
+  String get adRewardUnavailable =>
+      'No ad is available right now. Your original reward is unchanged.';
+
+  @override
+  String get adRewardUsed => 'You claimed the ad reward for this match.';
+
+  @override
+  String get privacyChoices => 'Ad privacy choices';
+
+  @override
+  String get privacyChoicesHint =>
+      'Review or change the privacy choices required by the advertising provider.';
+
+  @override
+  String get premiumScenarioTitle => 'Council of Shadows scenario';
+
+  @override
+  String get premiumScenarioHint =>
+      'A permanent host pack with balanced rules, whispers, confrontation and secret ballots. When the host selects it, everyone in the room plays without buying it.';
+
+  @override
+  String get premiumScenarioBuy => 'Buy scenario pack';
+
+  @override
+  String get premiumScenarioOwned => 'Scenario pack owned';
+
+  @override
+  String get premiumScenarioRestore => 'Restore purchases';
+
+  @override
+  String get premiumScenarioPending =>
+      'The store is still processing this purchase.';
+
+  @override
+  String get premiumScenarioFailed =>
+      'The purchase could not be verified. The game has not charged anything itself.';
+
+  @override
+  String get premiumScenarioUse => 'Council of Shadows';
+
+  @override
+  String get premiumScenarioUseHint =>
+      'A balanced scenario preset the host unlocks for the whole room.';
+
+  @override
+  String get quickMatch => 'Play now';
+
+  @override
+  String get quickMatchHint =>
+      'Join a compatible public room, or open one on demand when none has space.';
+
+  @override
+  String get quickMatchSearching => 'Finding a room…';
+
+  @override
+  String get shareResult => 'Share result';
+
+  @override
+  String shareResultText(String winner, int days) {
+    return 'A Mafia Master match ended with $winner winning after $days days. Open your room at https://almafia.vercel.app';
+  }
+
+  @override
+  String get playAgainWithGroup => 'New room for the group';
 }

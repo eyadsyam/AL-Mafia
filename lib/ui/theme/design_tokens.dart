@@ -221,22 +221,21 @@ class MafiaElevation extends ThemeExtension<MafiaElevation> {
   /// Built from the palette's shadow colour so elevation and colour cannot
   /// drift apart.
   static MafiaElevation from(Color shadow) => MafiaElevation(
-        level1: [_step(shadow, 2, 8, 0.20)],
-        level2: [_step(shadow, 4, 16, 0.28)],
-        level3: [_step(shadow, 12, 32, 0.40)],
-      );
+    level1: [_step(shadow, 2, 8, 0.20)],
+    level2: [_step(shadow, 4, 16, 0.28)],
+    level3: [_step(shadow, 12, 32, 0.40)],
+  );
 
   @override
   MafiaElevation copyWith({
     List<BoxShadow>? level1,
     List<BoxShadow>? level2,
     List<BoxShadow>? level3,
-  }) =>
-      MafiaElevation(
-        level1: level1 ?? this.level1,
-        level2: level2 ?? this.level2,
-        level3: level3 ?? this.level3,
-      );
+  }) => MafiaElevation(
+    level1: level1 ?? this.level1,
+    level2: level2 ?? this.level2,
+    level3: level3 ?? this.level3,
+  );
 
   @override
   MafiaElevation lerp(ThemeExtension<MafiaElevation>? other, double t) {
@@ -323,6 +322,9 @@ class MafiaSpacing extends ThemeExtension<MafiaSpacing> {
 
 /// Fixed geometry for the portrait online council in doc 15.
 abstract final class CouncilTokens {
+  static const double welcomeArtHeight = 124;
+  static const double welcomeArtMinViewport = 600;
+  static const double welcomeArtStartScale = 1.04;
   static const double headerHeight = 56;
   static const int councilFlex = 36;
   static const int voiceFlex = 34;
@@ -331,6 +333,9 @@ abstract final class CouncilTokens {
   static const double seatMedium = 64;
   static const double seatSmall = 56;
   static const double seatCompact = 48;
+  static const double wideCouncilBreakpoint = 768;
+  static const double wideCouncilSeatScale = 2;
+  static const double wideCouncilTargetGap = 24;
   static const double backRowScale = 0.88;
   static const double selectedScale = 1.08;
   static const double selectedOthersOpacity = 0.45;
@@ -353,7 +358,15 @@ abstract final class CouncilTokens {
   /// Task 7. How much of a seat's diameter the character art fills. The ring
   /// art paints its own margin, so the face sits inside it rather than against
   /// it — the same number `PlayerAvatar.artRatio` uses off-council.
-  static const double avatarSizeRatio = 0.72;
+  static const double avatarSizeRatio = 0.96;
+
+  /// Safe, voice-only visual feedback. The level comes from local media stats
+  /// and is never sent through the game or signalling layers.
+  static const double voicePulseThreshold = 0.025;
+  static const double voicePulseSpacingRatio = 0.045;
+  static const double voicePulseMaxRadiusRatio = 0.15;
+  static const double voicePulseWidth = 2.2;
+  static const double voicePulseAlpha = 0.72;
   static const double confrontedOthersOpacity = 0.25;
   static const double backdropOpacity = 0.12;
   static const double primaryHeight = 56;
@@ -436,6 +449,25 @@ abstract final class CouncilTokens {
 
   /// The victory emblem on the result screen.
   static const double victoryEmblemSize = 120;
+}
+
+/// Export geometry for the post-game social card. It never enters match UI.
+abstract final class ShareCardTokens {
+  static const double width = 1080;
+  static const double height = 1350;
+  static const double edge = 84;
+  static const double titleSize = 74;
+  static const double resultSize = 112;
+  static const double bodySize = 46;
+  static const double ruleWidth = 4;
+
+  /// The card is an exported image, so it keeps one fixed palette instead of
+  /// following the viewer's theme.
+  static const Color backgroundTop = Color(0xFF171719);
+  static const Color backgroundBottom = Color(0xFF09090A);
+  static const Color accent = Color(0xFFC2AF81);
+  static const Color headline = Color(0xFFFFFFFF);
+  static const Color footer = Color(0xFFB7B7BA);
 }
 
 /// Border radius tokens.
@@ -731,6 +763,35 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
 
   /// How long «{name} بقى الهوست» stays on screen after a host migration.
   static const hostHandover = Duration(seconds: 3);
+
+  /// A browser may throttle timers briefly even while its page is visible.
+  /// Ten seconds leaves enough room for one delayed beat without inventing an
+  /// `away` player, while explicit lifecycle and room events still travel
+  /// immediately through Realtime.
+  static const onlineHeartbeat = Duration(seconds: 10);
+
+  /// How long a client that is *not* the host waits past a phase deadline
+  /// before driving the room forward itself.
+  ///
+  /// Zero for the host, which is the ordinary case and stays exactly as it was.
+  /// A guest holds back so the room is not advanced out from under a host who
+  /// was half a second behind, and holds back in seat order ([onlineDriveStep])
+  /// so that five phones do not all ask in the same instant.
+  static const onlineDriveGrace = Duration(seconds: 4);
+  static const onlineDriveStep = Duration(seconds: 2);
+
+  /// A remote audio element can exist before the browser has finished binding
+  /// its MediaStream. Retry briefly; autoplay refusal still waits for a real
+  /// user gesture through the web playout bridge.
+  static const webPlayoutRetry = Duration(milliseconds: 300);
+  static const privateViewRetry = Duration(milliseconds: 500);
+
+  /// Gap between checks for a rewarded-ad grant confirmed by the server.
+  static const rewardStatusPoll = Duration(seconds: 2);
+
+  /// How often local WebRTC audio levels are sampled for the speaking ring.
+  static const voiceStatsSample = Duration(milliseconds: 250);
+
   /// How long the identity pad must be held before the turn content is shown.
   final Duration holdToReveal;
 

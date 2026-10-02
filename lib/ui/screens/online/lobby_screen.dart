@@ -15,9 +15,12 @@ import '../../../transport/game_snapshot.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/connection_banner.dart';
+import '../../widgets/storage_warning_note.dart';
 import '../../widgets/textured_surface.dart';
-import '../setup/setup_draft.dart';
+
 import 'online_session.dart';
+import 'safety_center.dart';
+import 'voice_session.dart';
 import 'room_invite.dart';
 import '../../theme/design_tokens.dart';
 import '../../widgets/player_avatar.dart';
@@ -96,7 +99,6 @@ class LobbyScreen extends ConsumerStatefulWidget {
   );
   static const Key startButton = ValueKey('lobby_start');
   static const Key leaveButton = ValueKey('lobby_leave');
-  static const Key closeRoomButton = ValueKey('lobby_close_room');
   static const Key settingsButton = ValueKey('lobby_settings');
   static const Key closeRoomConfirm = ValueKey('lobby_close_room_confirm');
   static const Key headphonesWarning = ValueKey('lobby_headphones');
@@ -104,7 +106,7 @@ class LobbyScreen extends ConsumerStatefulWidget {
   static const Key shareButton = ValueKey('lobby_share');
   static const Key playerCount = ValueKey('lobby_player_count');
   static const Key ghostRule = ValueKey('lobby_ghost_rule');
-  static const Key openVotingToggle = ValueKey('lobby_open_voting');
+  static const Key storageWarning = ValueKey('lobby_storage_warning');
 
   /// The seat a player occupies in the lobby's council.
   ///
@@ -157,10 +159,6 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
   /// Chairs already drawn solid, and the chairs the current run is drawing.
   Set<int> _settled = const {};
   Set<int> _arriving = const {};
-
-  /// Doc 12 §3.6's room setting. Default ON online, which is the position the
-  /// offline game does not have — see `MatchSettings.openVoting`.
-  bool _openVoting = true;
 
   /// Which seats were in the room at the last push, so an arrival and a
   /// departure can be heard (doc 12 §3.1, §8).
@@ -269,17 +267,14 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
         .read(onlineSessionProvider.notifier)
         .start(
           roleCounts: BalanceGuard.recommended(count),
-          settings: ref
-              .read(setupDraftProvider)
-              .settings
-              .copyWith(openVoting: _openVoting),
+          settings: snapshot.settings,
         );
     if (started && mounted) widget.onStarted();
   }
 
   Future<void> _copyCode(String code) async {
-    await AppClipboard.copy(code);
-    if (!mounted) return;
+    final copied = await AppClipboard.copy(code);
+    if (!mounted || !copied) return;
     _say(context.l10n.onlineCodeCopied);
   }
 
@@ -295,10 +290,10 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
   /// device that has never seen the app, with the code already answered — so
   /// the recipient is asked for a name and a gender and nothing else.
   Future<void> _shareInvite(String code) async {
-    await AppClipboard.copy(
+    final copied = await AppClipboard.copy(
       RoomInvite.text(context.l10n.onlineShareInvite(code), code),
     );
-    if (!mounted) return;
+    if (!mounted || !copied) return;
     _say(context.l10n.onlineLinkCopied);
   }
 
@@ -317,6 +312,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     final l10n = context.l10n;
 
     final session = ref.watch(onlineSessionProvider);
+    final voice = ref.watch(voiceStateProvider).valueOrNull;
     final snapshot = _snapshot;
     final code = session.transport?.code ?? session.room?.code ?? '';
     final players = snapshot?.public.players ?? const [];
@@ -329,9 +325,9 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
       _leaving = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) return;
-        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          SnackBar(content: Text(l10n.onlineKickedByHost)),
-        );
+        ScaffoldMessenger.maybeOf(
+          context,
+        )?.showSnackBar(SnackBar(content: Text(l10n.onlineKickedByHost)));
         await ref.read(onlineSessionProvider.notifier).leave();
         if (mounted) widget.onLeave();
       });
@@ -349,264 +345,262 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
       body: AppBackdrop(
         child: Stack(
           children: [
-        SafeArea(
-          child: Column(
-            children: [
-              ConnectionBanner(
-                quality: snapshot?.connection ?? ConnectionQuality.connected,
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: spacing.screenMargin,
+            SafeArea(
+              child: Column(
+                children: [
+                  ConnectionBanner(
+                    quality:
+                        snapshot?.connection ?? ConnectionQuality.connected,
                   ),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: spacing.maxContentWidth,
+                  if (session.storageWarning)
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.spacing.md,
+                      ),
+                      child: StorageWarningNote(
+                        key: LobbyScreen.storageWarning,
+                        onDismiss: () => ref
+                            .read(onlineSessionProvider.notifier)
+                            .dismissStorageWarning(),
+                      ),
                     ),
-                    // ## Why the lobby is the match's own four bands
-                    //
-                    // It used to be a scrolling column with an ellipse in the
-                    // middle of it, sized by an arithmetic that existed to stop
-                    // ten cards overlapping on a short phone. Doc 15 §1.1
-                    // removed the problem rather than the symptom: the room is
-                    // the council band, at the same proportion it will have all
-                    // match, so the first frame of the lobby and the first
-                    // frame of the game are the same picture with people added.
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: CouncilTokens.headerHeight,
-                          child: Row(
-                            children: [
-                              // Task 9b — the «كود الأوضة» label is gone.
-                              // The code is six gold characters in the middle
-                              // of the screen; naming it was a caption on a
-                              // thing nobody was mistaking for anything else.
-                              const Spacer(),
-                              // Task 10 — the room's rules, while everybody
-                              // watches. Host only, and the server checks that
-                              // rather than trusting this.
-                              if (isHost)
-                                IconButton(
-                                  key: LobbyScreen.settingsButton,
-                                  tooltip: l10n.onlineRoomSettings,
-                                  onPressed: () =>
-                                      setState(() => _settings = true),
-                                  icon: Icon(
-                                    Icons.tune,
-                                    color: colors.textSecondary,
-                                  ),
-                                ),
-                              // Task 5 — the host's explicit ending, and the
-                              // only one there is. Leaving does not end a
-                              // match; this does, and it says so before it
-                              // does it.
-                              if (isHost)
-                                IconButton(
-                                  key: LobbyScreen.closeRoomButton,
-                                  tooltip: l10n.onlineCloseRoom,
-                                  onPressed: () =>
-                                      setState(() => _closing = true),
-                                  icon: Icon(
-                                    Icons.lock_outline,
-                                    color: colors.textSecondary,
-                                  ),
-                                ),
-                              IconButton(
-                                key: LobbyScreen.leaveButton,
-                                tooltip: l10n.onlineLeave,
-                                onPressed: () async {
-                                  await ref
-                                      .read(onlineSessionProvider.notifier)
-                                      .leave();
-                                  if (context.mounted) widget.onLeave();
-                                },
-                                icon: Icon(
-                                  Icons.close,
-                                  color: colors.textSecondary,
-                                ),
-                              ),
-                              // Task 9a — the lobby's whole voice surface. Last
-                              // in the row, so it is the far edge of the header
-                              // once the RTL layout has run.
-                              const VoiceMicButton(),
-                            ],
-                          ),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: spacing.screenMargin,
+                      ),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: double.infinity,
                         ),
-                        const BandDivider(),
-                        Expanded(
-                          flex: CouncilTokens.councilFlex,
-                          child: TablePulse(
-                            child: CouncilBand(
-                              seats: _chairs(players, snapshot),
-                              totalPlayers: math.max(
-                                snapshot?.room.maxPlayers ??
-                                    LobbyScreen.defaultCapacity,
-                                players.length,
-                              ),
-                              joinProgress: {
-                                for (final seat in _arriving) seat: _join.value,
-                              },
-                              leftLabel: l10n.onlineLeftRoom,
-                              onSeatInspect: isHost && snapshot != null
-                                  ? (seat) => setState(() => _inspect = seat)
-                                  : null,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: CouncilTokens.voiceFlex,
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                SizedBox(height: spacing.sm),
-                                // Doc 12 §3.1: the letters stagger in on first
-                                // render. The code is public and identical on
-                                // every device in the room, so staggering it
-                                // carries nothing — which is exactly the
-                                // condition `StaggeredEntrance` exists under.
-                                GestureDetector(
-                                  onTap: code.isEmpty
-                                      ? null
-                                      : () => _copyCode(code),
-                                  child: _StaggeredCode(
-                                    key: LobbyScreen.codeText,
-                                    code: code,
-                                    style: type.display.copyWith(
-                                      color: colors.accentGold,
-                                      letterSpacing: spacing.sm,
-                                    ),
-                                  ),
-                                ),
-                                // Task 12 — two glyphs everybody already knows,
-                                // under a code that is already the loudest
-                                // thing on the screen. The words stay as
-                                // tooltips and as the labels a screen reader
-                                // reads, which is the part that was carrying
-                                // the meaning for anybody who needed it.
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
+                        // ## Why the lobby is the match's own four bands
+                        //
+                        // It used to be a scrolling column with an ellipse in the
+                        // middle of it, sized by an arithmetic that existed to stop
+                        // ten cards overlapping on a short phone. Doc 15 §1.1
+                        // removed the problem rather than the symptom: the room is
+                        // the council band, at the same proportion it will have all
+                        // match, so the first frame of the lobby and the first
+                        // frame of the game are the same picture with people added.
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: CouncilTokens.headerHeight,
+                              child: Row(
+                                children: [
+                                  // Task 9b — the «كود الأوضة» label is gone.
+                                  // The code is six gold characters in the middle
+                                  // of the screen; naming it was a caption on a
+                                  // thing nobody was mistaking for anything else.
+                                  const Spacer(),
+                                  const SafetyButton(),
+                                  // Task 10 — the room's rules, while everybody
+                                  // watches. Host only, and the server checks that
+                                  // rather than trusting this.
+                                  if (isHost)
                                     IconButton(
-                                      key: LobbyScreen.copyButton,
-                                      tooltip: l10n.onlineCopy,
-                                      onPressed: code.isEmpty
-                                          ? null
-                                          : () => _copyCode(code),
+                                      key: LobbyScreen.settingsButton,
+                                      tooltip: l10n.onlineRoomSettings,
+                                      onPressed: () =>
+                                          setState(() => _settings = true),
                                       icon: Icon(
-                                        Icons.copy_all_outlined,
+                                        Icons.tune,
                                         color: colors.textSecondary,
                                       ),
                                     ),
-                                    IconButton(
-                                      key: LobbyScreen.shareButton,
-                                      tooltip: l10n.onlineShare,
-                                      onPressed: code.isEmpty
-                                          ? null
-                                          : () => _shareInvite(code),
-                                      icon: Icon(
-                                        Icons.ios_share,
-                                        color: colors.accentGold,
-                                      ),
+                                  IconButton(
+                                    key: LobbyScreen.leaveButton,
+                                    tooltip: l10n.onlineLeave,
+                                    onPressed: () async {
+                                      if (isHost) {
+                                        setState(() => _closing = true);
+                                        return;
+                                      }
+                                      await ref
+                                          .read(onlineSessionProvider.notifier)
+                                          .leave();
+                                      if (context.mounted) widget.onLeave();
+                                    },
+                                    icon: Icon(
+                                      Icons.logout,
+                                      color: colors.textSecondary,
                                     ),
-                                  ],
-                                ),
-                                Text(
-                                  key: LobbyScreen.playerCount,
-                                  l10n.onlinePlayersOfMax(
-                                    players.length,
+                                  ),
+                                  // Task 9a — the lobby's whole voice surface. Last
+                                  // in the row, so it is the far edge of the header
+                                  // once the RTL layout has run.
+                                  const VoiceMicButton(),
+                                ],
+                              ),
+                            ),
+                            const BandDivider(),
+                            Expanded(
+                              flex: CouncilTokens.councilFlex,
+                              child: TablePulse(
+                                child: CouncilBand(
+                                  seats: _chairs(
+                                    players,
+                                    snapshot,
+                                    speakingLevels:
+                                        voice?.speakingLevels ?? const {},
+                                  ),
+                                  totalPlayers: math.max(
                                     snapshot?.room.maxPlayers ??
                                         LobbyScreen.defaultCapacity,
+                                    players.length,
                                   ),
-                                  style: type.body.copyWith(
-                                    color: colors.textSecondary,
-                                  ),
-                                  textAlign: TextAlign.center,
+                                  joinProgress: {
+                                    for (final seat in _arriving)
+                                      seat: _join.value,
+                                  },
+                                  leftLabel: l10n.onlineLeftRoom,
+                                  onSeatInspect: isHost && snapshot != null
+                                      ? (seat) =>
+                                            setState(() => _inspect = seat)
+                                      : null,
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: CouncilTokens.handFlex,
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                // A plain row rather than a `SwitchListTile`:
-                                // the tile paints its ink on the nearest
-                                // Material, and the backdrop's own DecoratedBox
-                                // sits between the two — so the splash would be
-                                // invisible and Flutter asserts about it on
-                                // every build.
-                                if (isHost)
-                                  Row(
-                                    key: LobbyScreen.openVotingToggle,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          _openVoting
-                                              ? l10n.settingOpenVoting
-                                              : l10n.settingSecretVoting,
-                                          style: type.caption.copyWith(
+                            Expanded(
+                              flex: CouncilTokens.voiceFlex,
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: spacing.sm),
+                                    // Doc 12 §3.1: the letters stagger in on first
+                                    // render. The code is public and identical on
+                                    // every device in the room, so staggering it
+                                    // carries nothing — which is exactly the
+                                    // condition `StaggeredEntrance` exists under.
+                                    GestureDetector(
+                                      onTap: code.isEmpty
+                                          ? null
+                                          : () => _copyCode(code),
+                                      child: _StaggeredCode(
+                                        key: LobbyScreen.codeText,
+                                        code: code,
+                                        style: type.display.copyWith(
+                                          color: colors.accentGold,
+                                          letterSpacing: spacing.sm,
+                                        ),
+                                      ),
+                                    ),
+                                    // Task 12 — two glyphs everybody already knows,
+                                    // under a code that is already the loudest
+                                    // thing on the screen. The words stay as
+                                    // tooltips and as the labels a screen reader
+                                    // reads, which is the part that was carrying
+                                    // the meaning for anybody who needed it.
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        IconButton(
+                                          key: LobbyScreen.copyButton,
+                                          tooltip: l10n.onlineCopy,
+                                          onPressed: code.isEmpty
+                                              ? null
+                                              : () => _copyCode(code),
+                                          icon: Icon(
+                                            Icons.copy_all_outlined,
                                             color: colors.textSecondary,
                                           ),
                                         ),
-                                      ),
-                                      Switch(
-                                        value: _openVoting,
-                                        onChanged: (value) =>
-                                            setState(() => _openVoting = value),
-                                        activeTrackColor: colors.accentGold,
-                                      ),
-                                    ],
-                                  ),
-                                if (isHost)
-                                  FilledButton(
-                                    key: LobbyScreen.startButton,
-                                    onPressed: session.busy || !canStart
-                                        ? null
-                                        : _start,
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: colors.accentGold,
-                                      foregroundColor: colors.surfaceBase,
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: spacing.md,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          radii.button,
+                                        IconButton(
+                                          key: LobbyScreen.shareButton,
+                                          tooltip: l10n.onlineShare,
+                                          onPressed: code.isEmpty
+                                              ? null
+                                              : () => _shareInvite(code),
+                                          icon: Icon(
+                                            Icons.ios_share,
+                                            color: colors.accentGold,
+                                          ),
                                         ),
+                                      ],
+                                    ),
+                                    Text(
+                                      key: LobbyScreen.playerCount,
+                                      l10n.onlinePlayersOfMax(
+                                        players.length,
+                                        snapshot?.room.maxPlayers ??
+                                            LobbyScreen.defaultCapacity,
                                       ),
+                                      style: type.body.copyWith(
+                                        color: colors.textSecondary,
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                    child: Text(
-                                      canStart
-                                          ? l10n.onlineStartMatch
-                                          : l10n.onlineNeedFivePlayers,
-                                      style: type.title,
-                                    ),
-                                  )
-                                else
-                                  Text(
-                                    l10n.onlineWaitingForHost,
-                                    style: type.body.copyWith(
-                                      color: colors.textSecondary,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                              ],
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
+                            Expanded(
+                              flex: CouncilTokens.handFlex,
+                              child: SingleChildScrollView(
+                                // The council band is as wide as the room (doc
+                                // 15's wide council); the button under it is not.
+                                // A start button 1240px wide on a desktop window
+                                // was E-4; it takes the reading column instead.
+                                child: Center(
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxWidth: spacing.maxContentWidth,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        if (isHost)
+                                          FilledButton(
+                                            key: LobbyScreen.startButton,
+                                            onPressed: session.busy || !canStart
+                                                ? null
+                                                : _start,
+                                            style: FilledButton.styleFrom(
+                                              backgroundColor:
+                                                  colors.accentGold,
+                                              foregroundColor:
+                                                  colors.surfaceBase,
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: spacing.md,
+                                              ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                      radii.button,
+                                                    ),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              canStart
+                                                  ? l10n.onlineStartMatch
+                                                  : l10n.onlineNeedFivePlayers,
+                                              style: type.title,
+                                            ),
+                                          )
+                                        else
+                                          Text(
+                                            l10n.onlineWaitingForHost,
+                                            style: type.body.copyWith(
+                                              color: colors.textSecondary,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
             // Task 6 — the host's two moderation actions, in the scene.
             if (snapshot != null)
               HostSheet(
@@ -618,13 +612,22 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
             // Task 5 — the deliberate ending, two taps apart from leaving.
             SceneSheet(
               visible: _closing,
-              title: l10n.onlineCloseRoom,
-              body: l10n.onlineCloseRoomBody,
+              title: l10n.onlineHostExitTitle,
+              body: l10n.onlineHostExitBody,
               onDismiss: () => setState(() => _closing = false),
               actions: [
                 SceneAction(
+                  key: const ValueKey('lobby_leave_keep_room'),
+                  label: l10n.onlineLeaveKeepRoom,
+                  emphasised: true,
+                  onTap: () async {
+                    setState(() => _closing = false);
+                    await ref.read(onlineSessionProvider.notifier).leave();
+                    if (mounted) widget.onLeave();
+                  },
+                ),
+                SceneAction(
                   key: LobbyScreen.closeRoomConfirm,
-                  icon: Icons.lock_outline,
                   label: l10n.onlineCloseRoomConfirm,
                   emphasised: true,
                   onTap: () {
@@ -662,8 +665,9 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
   /// `TableMood.showsPerSeatStatus`, which refuses it for the whole night.
   List<CouncilSeatData> _chairs(
     List<PublicPlayer> players,
-    GameSnapshot? snapshot,
-  ) {
+    GameSnapshot? snapshot, {
+    Map<int, double> speakingLevels = const {},
+  }) {
     // Task 4: a player who left the lobby loses their chair outright. Before
     // the deal a seat is only a place to stand — nothing has been dealt
     // against it and the server re-packs the numbers — so keeping a cracked
@@ -689,10 +693,10 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
           status: snapshot?.connectedSeats[player.seat] == false
               ? SeatStatus.disconnected
               : SeatStatus.idle,
-          presence:
-              snapshot?.presence[player.seat] ?? SeatPresence.connected,
+          presence: snapshot?.presence[player.seat] ?? SeatPresence.connected,
           muted: snapshot?.mutedSeats.contains(player.seat) ?? false,
           avatar: AvatarArt.forGender(player.gender),
+          speakingLevel: speakingLevels[player.seat] ?? 0,
         ),
       // Numbered past the last real seat rather than from the count. A player
       // who aged out to `left` without saying so leaves a hole in the seat
@@ -700,13 +704,13 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
       // collide with a real chair's key.
       for (var slot = 0; slot < capacity - here.length; slot++)
         CouncilSeatData(
-          seat: here.fold<int>(-1, (top, p) => math.max(top, p.seat)) + 1 + slot,
+          seat:
+              here.fold<int>(-1, (top, p) => math.max(top, p.seat)) + 1 + slot,
           name: null,
           isEmpty: true,
         ),
     ];
   }
-
 }
 
 /// The room code, its characters arriving one after another.

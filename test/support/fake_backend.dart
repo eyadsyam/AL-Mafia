@@ -132,11 +132,28 @@ class FakeBackend implements OnlineBackend {
     }
     final delayed = delayedResponses[function];
     if (delayed != null) return delayed;
+    // `saw_role` writes a row, and the transport now reads that row back before
+    // it will let a card leave the screen. A fake that answered 200 without
+    // writing anything would be modelling the exact failure the real one was
+    // stopped from producing, so it writes.
+    if (function == 'saw_role' && !ignoreSawRole) {
+      _players = [
+        for (final player in _players)
+          player.userId == userId ? player.copyWith(sawRole: true) : player,
+      ];
+    }
     return responses[function] ?? const {'ok': true};
   }
 
+  /// Answers `saw_role` without recording it — the server that says yes and
+  /// writes nothing.
+  bool ignoreSawRole = false;
+
   @override
-  Future<RoomHandle> createRoom({required String name, String gender = 'unspecified'}) async {
+  Future<RoomHandle> createRoom({
+    required String name,
+    String gender = 'unspecified',
+  }) async {
     _guard();
     calls.add(FakeCall('createRoom', {'name': name}));
     return RoomHandle(roomId: roomId, code: _state.code, seat: 0);
@@ -146,7 +163,8 @@ class FakeBackend implements OnlineBackend {
   Future<RoomHandle> joinRoom({
     required String code,
     required String name,
-  String gender = 'unspecified',}) async {
+    String gender = 'unspecified',
+  }) async {
     _guard();
     calls.add(FakeCall('joinRoom', {'code': code, 'name': name}));
     final refusal = refusals['joinRoom'];

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,7 +7,10 @@ import 'package:go_router/go_router.dart';
 
 import '../data/player_group_provider.dart';
 import '../platform/audio_director.dart';
+import '../platform/monetization/rewarded_ads.dart';
+import '../platform/monetization/purchase_store.dart';
 import '../ui/screens/setup/setup_draft.dart';
+import '../ui/screens/setup/scenario_store.dart';
 import '../ui/l10n_ext.dart';
 import '../ui/theme/mafia_theme.dart';
 import '../ui/widgets/splash_gate.dart';
@@ -13,13 +18,17 @@ import 'l10n/app_localizations.dart';
 import 'onboarding_gate.dart';
 import 'resume_gate.dart';
 import 'router.dart';
+import 'locale_controller.dart';
 
 /// Root app widget for Mafia Master.
 ///
 /// Arabic is the primary locale and the app is RTL-first (FR-034); English is
 /// supported but is the fallback, not the default.
 class MafiaApp extends ConsumerStatefulWidget {
-  const MafiaApp({super.key});
+  /// See [buildRouter]'s parameter of the same name. Tests only.
+  final String? initialLocation;
+
+  const MafiaApp({super.key, this.initialLocation});
 
   @override
   ConsumerState<MafiaApp> createState() => _MafiaAppState();
@@ -31,7 +40,11 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   /// otherwise fight over the same key.
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
-  late final GoRouter _router = buildRouter(ref, navigatorKey: _navigatorKey);
+  late final GoRouter _router = buildRouter(
+    ref,
+    navigatorKey: _navigatorKey,
+    initialLocation: widget.initialLocation,
+  );
 
   AudioDirector get _audio => ref.read(audioDirectorProvider);
 
@@ -48,6 +61,11 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     // that as "no groups" and behaves exactly as the app did before groups
     // existed, so the worst case is the old behaviour rather than a stall.
     ref.read(playerGroupsProvider);
+    // Consent may be mandatory before any ad request. The service is a no-op
+    // on web and in builds where monetization is not fully configured.
+    unawaited(ref.read(rewardedAdsProvider).initialize());
+    unawaited(ref.read(purchaseStoreProvider).initialize());
+    unawaited(ref.read(scenarioPurchaseProvider.notifier).start());
     // Started at the app root rather than at the match, because the score is
     // continuous across everything: it does not restart when a match begins, so
     // there is no seam at the one moment the table is paying most attention.
@@ -60,6 +78,27 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       if (!mounted) return;
       _syncScore();
     });
+  }
+
+  /// The system back control (Android's gesture or button).
+  ///
+  /// Registered in [initState], so this observer stands ahead of the router's
+  /// own dispatcher: anything the Navigator can pop — a sheet, a dialog, the
+  /// how-to-play cards — is left to it, and otherwise the screen's logical
+  /// parent is shown instead of the activity finishing (see
+  /// [systemBackTarget]).
+  @override
+  Future<bool> didPopRoute() async {
+    if (_navigatorKey.currentState?.canPop() ?? false) return false;
+    final location = _router.routerDelegate.currentConfiguration.uri.path;
+    final target = systemBackTarget(
+      location,
+      hasGroups:
+          ref.read(playerGroupsProvider).valueOrNull?.isNotEmpty ?? false,
+    );
+    if (target == null) return false;
+    _router.go(target);
+    return true;
   }
 
   @override
@@ -108,7 +147,7 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       onGenerateTitle: (context) => context.l10n.appTitle,
       theme: MafiaTheme.dark,
       routerConfig: _router,
-      locale: const Locale('ar'),
+      locale: ref.watch(localeProvider),
       supportedLocales: const <Locale>[Locale('ar'), Locale('en')],
       localizationsDelegates: const [
         AppLocalizations.delegate,

@@ -17,6 +17,7 @@ import 'day/vote_result_screen.dart';
 import 'day/voting_screen.dart';
 import 'distribution/role_reveal_screen.dart';
 import 'match_controller.dart';
+import 'online/online_session.dart';
 import 'online/online_table_flow.dart';
 import 'online/table/table_scene.dart' show tableIsAvailableFor;
 import 'night/morning_screen.dart';
@@ -51,6 +52,8 @@ class MatchFlow extends ConsumerStatefulWidget {
   /// Opens post-game analytics for the finished match.
   final VoidCallback onAnalytics;
 
+  final VoidCallback? onRematch;
+
   /// Called after every confirmed engine step, so the host can persist. Kept as
   /// a callback rather than a repository dependency so the flow stays testable
   /// without storage.
@@ -60,6 +63,7 @@ class MatchFlow extends ConsumerStatefulWidget {
     super.key,
     required this.onExit,
     required this.onAnalytics,
+    this.onRematch,
     this.onStepCommitted,
   });
 
@@ -73,10 +77,16 @@ class MatchFlow extends ConsumerStatefulWidget {
 /// narrator slot" is a property of the type, not a convention somebody has to
 /// remember at the seventh.
 enum _Moment {
-  morningDeath(AudioCue.morning, AppImages.outcomeDeath,
-      AppVideo.outcomeDeathLoop),
-  morningQuiet(AudioCue.morning, AppImages.outcomeSaved,
-      AppVideo.outcomeSavedLoop),
+  morningDeath(
+    AudioCue.morning,
+    AppImages.outcomeDeath,
+    AppVideo.outcomeDeathLoop,
+  ),
+  morningQuiet(
+    AudioCue.morning,
+    AppImages.outcomeSaved,
+    AppVideo.outcomeSavedLoop,
+  ),
   voting(null, AppImages.bgVote, AppVideo.bgVoteLoop);
 
   const _Moment(this.cue, this.backdrop, this.loop);
@@ -116,6 +126,7 @@ enum _Moment {
 
 class MatchFlowState extends ConsumerState<MatchFlow> {
   bool _victorySeen = false;
+
   /// The day whose morning briefing has been dismissed. On-table only.
   int? _morningAcknowledgedFor;
 
@@ -256,10 +267,12 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       final table = OnlineTableFlow(
         onExit: widget.onExit,
         onAnalytics: widget.onAnalytics,
+        onRematch: widget.onRematch,
         onStepCommitted: _commit,
       );
       if (call == null) return table;
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(child: table),
           const SafeArea(top: false, child: VoiceControls()),
@@ -287,15 +300,18 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
 
     // Keyed on the phase alone, so a rebuild inside a phase — a timer tick, a
     // target being picked — passes straight through without a dip.
-    final screen =
-        PhaseTransition(phaseKey: state.phase, child: _phaseScreen(state));
+    final screen = PhaseTransition(
+      phaseKey: state.phase,
+      child: _phaseScreen(state),
+    );
 
     // The banner is one of the two widgets doc 10 §7 lets read the transport's
     // state, and it reads a field rather than a type. Offline the quality is
     // `local` and it draws nothing at all, so this costs an offline match one
     // zero-height box.
     final connection = _controller.snapshot.connection;
-    final banner = connection != ConnectionQuality.local &&
+    final banner =
+        connection != ConnectionQuality.local &&
         connection != ConnectionQuality.connected;
 
     // The voice controls are the second of doc 10 §7's two exceptions, and
@@ -357,7 +373,8 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
 
     // Which morning it was is public the moment it is announced — the briefing
     // screen behind this says the same thing in more words.
-    final died = _controller.snapshot.phase == GamePhase.morning &&
+    final died =
+        _controller.snapshot.phase == GamePhase.morning &&
         ref.read(matchControllerProvider)?.morning?.victimSeat != null;
     _announce(died ? _Moment.morningDeath : _Moment.morningQuiet, () {});
   }
@@ -373,9 +390,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       return;
     }
 
-    setState(
-      () => _morningAcknowledgedFor = _controller.snapshot.dayNumber,
-    );
+    setState(() => _morningAcknowledgedFor = _controller.snapshot.dayNumber);
     // One door out of the morning. Whether that lands on the «اسم واحد» round,
     // a confrontation, or straight on the discussion is the engine's call —
     // `_phaseScreen` follows the phase it produced, exactly as it does
@@ -408,7 +423,6 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
   void _continueAfterReveal() {
     _controller.winCheck();
     _commit();
-
   }
 
   // ---------------------------------------------------------------------------
@@ -446,7 +460,8 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       // Doc 13 §5's «سريعة» row, and off everywhere else. Read from the
       // engine, which is the only thing that holds a role — the snapshot does
       // not, by construction, and that is not going to change.
-      victimRole: victimSeat == null || !_controller.settings.revealNightVictimRole
+      victimRole:
+          victimSeat == null || !_controller.settings.revealNightVictimRole
           ? null
           : EngineCopy.roleName(
               context.l10n,
@@ -465,9 +480,8 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     );
   }
 
-  int _livingCount(MatchUiState state) => state.public.players
-      .where((p) => p.status == PlayerStatus.alive)
-      .length;
+  int _livingCount(MatchUiState state) =>
+      state.public.players.where((p) => p.status == PlayerStatus.alive).length;
 
   /// The turn-change chime, pitched for the pressure band (doc 13 §3).
   ///
@@ -486,8 +500,8 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
   }
 
   Map<int, String> _seatNames(MatchUiState state) => {
-        for (final p in state.public.players) p.seat: p.name,
-      };
+    for (final p in state.public.players) p.seat: p.name,
+  };
 
   Widget _openingRound(MatchUiState state) {
     final seat = state.currentActorSeat;
@@ -528,9 +542,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       dayNumber: state.dayNumber,
       playerName: names[confrontation.targetSeat] ?? '',
       observation: observation,
-      window: Duration(
-        seconds: _controller.settings.confrontationSeconds,
-      ),
+      window: Duration(seconds: _controller.settings.confrontationSeconds),
       onFinished: ({required bool silent}) {
         _controller.endConfrontation(silent: silent);
         _commit();
@@ -631,7 +643,15 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         // has not been written to this device's database, so the autopsy would
         // open on nothing.
         onAnalytics: snapshot.analyticsAvailable ? widget.onAnalytics : null,
-        onHome: widget.onExit,
+        // Not a branch on the transport: `leave()` on a session that holds no
+        // room does nothing, so an offline match pays nothing here. Online it
+        // is what stops the heartbeat, the channel and the voice link of a
+        // match that is over — they used to outlive the result screen until
+        // the next room was entered.
+        onHome: () async {
+          await ref.read(onlineSessionProvider.notifier).leave();
+          widget.onExit();
+        },
       ),
     );
   }

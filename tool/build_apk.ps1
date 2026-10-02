@@ -1,4 +1,9 @@
-# Builds the Android release APK with online play switched on.
+﻿# Builds the Android release APK with online play switched on.
+#
+# Saved with a UTF-8 BOM on purpose. Windows PowerShell 5.1 reads a BOM-less
+# file in the machine's ANSI code page, where the em dashes in the comments
+# below decode into a smart quote, the parser takes that as the start of a
+# string, and it reports a missing terminator ninety lines further down.
 #
 # ## The bug this script exists to prevent
 #
@@ -56,6 +61,30 @@ if (-not $config.SUPABASE_URL -or $config.SUPABASE_URL -match '<' -or
     Write-Host 'dart_defines.json still holds the placeholders.' -ForegroundColor Red
     Write-Host 'Fill in SUPABASE_URL and SUPABASE_KEY from the project dashboard.'
     Write-Host ''
+    exit 1
+}
+
+$adsEnabled = "$($config.ADS_ENABLED)".ToLowerInvariant() -eq 'true'
+$adTestMode = "$($config.ADMOB_TEST_MODE)".ToLowerInvariant() -eq 'true'
+$sampleAdMobAppId = 'ca-app-pub-3940256099942544~3347511713'
+if ($adsEnabled -and -not $adTestMode) {
+    if (-not $config.ADMOB_APP_ID -or
+        $config.ADMOB_APP_ID -notmatch '^ca-app-pub-\d{16}~\d{10}$' -or
+        -not $config.ADMOB_REWARDED_ANDROID_ID -or
+        $config.ADMOB_REWARDED_ANDROID_ID -notmatch '^ca-app-pub-\d{16}/\d{10}$') {
+        Write-Host 'ADS_ENABLED requires production ADMOB_APP_ID and ADMOB_REWARDED_ANDROID_ID.'
+        exit 1
+    }
+}
+$env:ORG_GRADLE_PROJECT_ADMOB_APP_ID = if ($adsEnabled -and -not $adTestMode) {
+    $config.ADMOB_APP_ID
+} else {
+    $sampleAdMobAppId
+}
+
+$billingEnabled = "$($config.PLAY_BILLING_ENABLED)".ToLowerInvariant() -eq 'true'
+if ($billingEnabled -and -not $config.PLAY_SCENARIO_PRODUCT_ID) {
+    Write-Host 'PLAY_BILLING_ENABLED requires PLAY_SCENARIO_PRODUCT_ID.'
     exit 1
 }
 

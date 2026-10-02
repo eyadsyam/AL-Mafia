@@ -13,6 +13,7 @@ import '../../../transport/game_snapshot.dart';
 import '../../../transport/online_backend.dart';
 import '../../information_text.dart';
 import '../../l10n_ext.dart';
+import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/hold_pad.dart';
 import '../../widgets/role_card.dart';
@@ -27,6 +28,9 @@ import 'host_handover.dart';
 import 'host_sheet.dart';
 import 'scene_sheet.dart';
 import 'online_session.dart';
+import 'rewarded_reward_button.dart';
+import 'result_share_button.dart';
+import 'voice_session.dart';
 import 'council/voice_band.dart';
 import 'table/connection_weather.dart';
 import 'table/table_mood.dart';
@@ -68,11 +72,15 @@ class OnlineTableFlow extends ConsumerStatefulWidget {
   /// persist. A no-op on every client that is not the host.
   final VoidCallback onStepCommitted;
 
+  /// Returns the group to online entry after giving up the completed room.
+  final VoidCallback? onRematch;
+
   const OnlineTableFlow({
     super.key,
     required this.onExit,
     required this.onAnalytics,
     required this.onStepCommitted,
+    this.onRematch,
   });
 
   /// Doc 15 §S-O13 beat 5: the roster control.
@@ -115,7 +123,22 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   /// behalf: the role card and the night turn both have to be pulled by the
   /// client that owns the seat. See [_maybePullPrivateView].
   GameSnapshot? _privateAskedFor;
-  bool _privateHeld = false;
+
+  /// The snapshot this device was holding a private view for.
+  ///
+  /// A *snapshot*, not a flag. The flag this replaces was set the first time a
+  /// card was on screen and never cleared until the phase changed, so a card
+  /// that left the screen without the room hearing about it could never be
+  /// asked for again: the seat sat in its own waiting list with nothing to
+  /// press. A hold that expires with the fact that justified it cannot do that.
+  GameSnapshot? _privateHeldAt;
+
+  /// Whether a dismissal is in flight. It holds the card off the screen for the
+  /// one round trip between the player letting go of it and the server saying
+  /// it heard — without which an unrelated push landing in that window would
+  /// hand the card straight back.
+  bool _committing = false;
+  Timer? _privateRetry;
 
   /// The morning's tear, and the seat it belongs to.
   // Built with no duration and given one in `didChangeDependencies`, where the
@@ -227,6 +250,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 
   @override
   void dispose() {
+    _privateRetry?.cancel();
     _tear.dispose();
     _sparkFlight.dispose();
     _spotlight.dispose();
@@ -251,7 +275,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     _submitted = false;
     _actionFailed = false;
     _privateAskedFor = null;
-    _privateHeld = false;
+    _privateHeldAt = null;
+    _privateRetry?.cancel();
+    _privateRetry = null;
 
     // The morning's tear. Started here rather than in a builder so it plays
     // once per morning and not once per rebuild.
@@ -356,11 +382,17 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       // already makes. Nothing to pull, and nothing to retry.
       _ => true,
     };
-    if (held) {
-      _privateHeld = true;
+    if (held || _committing) {
+      _privateHeldAt = snapshot;
+      _privateRetry?.cancel();
+      _privateRetry = null;
       return;
     }
-    if (_privateHeld) return;
+    // Only for as long as the snapshot that justified it. The moment the server
+    // says something new and this device still owes the phase, the view is
+    // asked for again — which is the difference between a card the player put
+    // down and a card that was taken from them.
+    if (identical(_privateHeldAt, snapshot)) return;
     // Null means this device owes nothing: it has already acted tonight, or
     // it is dead, or the roster has not landed yet. Asking would answer
     // nothing.
@@ -372,11 +404,41 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     // must not be written to during a build.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      unawaited(
-        snapshot.phase == GamePhase.distributing
-            ? _controller.revealCurrentRole()
-            : _controller.openActorTurn(),
-      );
+      unawaited(_pullPrivateView(snapshot));
+    });
+  }
+
+  Future<void> _pullPrivateView(GameSnapshot requested) async {
+    try {
+      if (requested.phase == GamePhase.distributing) {
+        await _controller.revealCurrentRole();
+      } else {
+        await _controller.openActorTurn();
+      }
+    } catch (_) {
+      // A private read may race an auth refresh or a brief network loss. The
+      // retry below is the recovery; a failed voice/private request must never
+      // move or terminate the public match.
+    }
+    if (!mounted) return;
+    final current = ref.read(matchControllerProvider);
+    final latest = _snapshot;
+    final missing = switch (latest.phase) {
+      GamePhase.distributing => current?.reveal == null,
+      GamePhase.night => current?.actorTurn == null,
+      _ => false,
+    };
+    if (!missing || latest.currentActorSeat == null) return;
+
+    // A deal is several server writes. If this device caught the phase before
+    // its private row was readable, retry locally instead of requiring an
+    // unrelated Realtime event to wake it. The server still authenticates and
+    // answers every request; this timer grants no information by itself.
+    _privateRetry?.cancel();
+    _privateRetry = Timer(MafiaTiming.privateViewRetry, () {
+      if (!mounted) return;
+      _privateAskedFor = null;
+      setState(() {});
     });
   }
 
@@ -460,6 +522,11 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     }
   }
 
+  /// Whether the match has reached its result.
+  bool _matchOver(GameSnapshot snapshot) =>
+      snapshot.phase == GamePhase.result ||
+      snapshot.phase == GamePhase.analytics;
+
   /// Whether this device's own player is out of the match.
   bool _viewerIsDead(GameSnapshot snapshot) {
     final seat = snapshot.viewerSeat;
@@ -488,6 +555,18 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     try {
       await action();
       widget.onStepCommitted();
+    } on BackendUnreachable {
+      // The room was never told. Reported exactly as a refusal is, because to
+      // the player they are the same fact: the choice did not land, and it can
+      // be made again.
+      if (!mounted || _snapshot.phase != phase || _snapshot.dayNumber != day) {
+        return;
+      }
+      setState(() {
+        _submitted = false;
+        _actionFailed = true;
+        _attemptNumber++;
+      });
     } on BackendException {
       if (!mounted || _snapshot.phase != phase || _snapshot.dayNumber != day) {
         return;
@@ -583,6 +662,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(matchControllerProvider);
+    final voice = ref.watch(voiceStateProvider).valueOrNull;
     if (state == null) return const SizedBox.shrink();
 
     final snapshot = _snapshot;
@@ -594,17 +674,23 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     // home rather than sitting on a table it is not part of.
     if (snapshot.viewerKicked && !_leaving) {
       _leaving = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) return;
         ScaffoldMessenger.maybeOf(context)?.showSnackBar(
           SnackBar(content: Text(context.l10n.onlineKickedByHost)),
         );
-        widget.onExit();
+        // Through the session, not straight home: the transport, the voice
+        // link and the resume pointer all go with the seat. A removed player
+        // used to keep all three, and the pointer offered them the barred
+        // room again on the next launch.
+        await ref.read(onlineSessionProvider.notifier).leave();
+        if (mounted) widget.onExit();
       });
     }
     if (snapshot.roomClosed && !_leaving) {
       _leaving = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await ref.read(onlineSessionProvider.notifier).leave();
         if (mounted) widget.onExit();
       });
     }
@@ -619,6 +705,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 
     final table = TableScene(
       snapshot: snapshot,
+      speakingLevels: voice?.speakingLevels ?? const {},
       selectedSeat: _selected,
       selectableSeats: _selectable(snapshot, state),
       onSeatTap: _pick,
@@ -633,16 +720,23 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       tearingSeat: _tearingSeat,
       tearProgress: _tear.value,
       spotlight: _spotlight.value,
-      onCloseRoom:
-          snapshot.canAdvance ? () => setState(() => _closing = true) : null,
-      onSeatInspect:
-          snapshot.canAdvance ? (seat) => setState(() => _inspect = seat) : null,
+      onCloseRoom: snapshot.canAdvance
+          ? () => setState(() => _closing = true)
+          : null,
+      onSeatInspect: snapshot.canAdvance
+          ? (seat) => setState(() => _inspect = seat)
+          : null,
       revealProgress: _turn.value,
       // Doc 15 §S-O14: a witness keeps the four bands. Band 4 stops being the
       // one action and becomes the graveyard, the prediction and the record —
       // which is doc 12 §4's "three things to do, not none", in the place the
       // living player's control was.
-      footer: dead && _mourned
+      //
+      // Not once the match is over, though: the witness panel asks «مين
+      // هيكسب؟» of an outcome already on the table, and it stood in front of
+      // the result's own two controls — a seat put out at the last ballot had
+      // no «الرئيسية» to press.
+      footer: dead && _mourned && !_matchOver(snapshot)
           ? WitnessPanel(
               snapshot: snapshot,
               channel: _controller.transport.witness,
@@ -712,13 +806,22 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           // Task 5 — the deliberate ending, never the accidental one.
           SceneSheet(
             visible: _closing,
-            title: context.l10n.onlineCloseRoom,
-            body: context.l10n.onlineCloseRoomBody,
+            title: context.l10n.onlineHostExitTitle,
+            body: context.l10n.onlineHostExitBody,
             onDismiss: () => setState(() => _closing = false),
             actions: [
               SceneAction(
+                key: const ValueKey('table_leave_keep_room'),
+                label: context.l10n.onlineLeaveKeepRoom,
+                emphasised: true,
+                onTap: () async {
+                  setState(() => _closing = false);
+                  await ref.read(onlineSessionProvider.notifier).leave();
+                  if (mounted) widget.onExit();
+                },
+              ),
+              SceneAction(
                 key: OnlineTableFlow.closeRoomConfirm,
-                icon: Icons.lock_outline,
                 label: context.l10n.onlineCloseRoomConfirm,
                 emphasised: true,
                 onTap: () {
@@ -905,9 +1008,14 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         // their own merits, and the band never suggests otherwise.
         final speaker = names[snapshot.activeSpeakerSeat];
         final hands = _handsUp(snapshot, names);
-        final support = hands == null ? null : caption(l10n.onlineRaisedHands(hands));
+        final support = hands == null
+            ? null
+            : caption(l10n.onlineRaisedHands(hands));
+        // Nobody holding the floor is a fact of its own, not «الدور على»
+        // trailing off into a blank: the label used to dangle over an empty
+        // line for the whole discussion until somebody asked to speak.
         if (speaker == null) {
-          return CouncilVoice(headline: l10n.currentSpeaker, support: support);
+          return CouncilVoice(headline: l10n.onlineFloorOpen, support: support);
         }
         return CouncilVoice(
           headline: '« $speaker »',
@@ -938,7 +1046,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         return CouncilVoice(
           headline: names[seat] ?? '',
           style: type.display,
-          support: role == null ? null : caption(EngineCopy.roleName(l10n, role)),
+          support: role == null
+              ? null
+              : caption(EngineCopy.roleName(l10n, role)),
         );
 
       case GamePhase.result:
@@ -1132,26 +1242,55 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         );
 
       case GamePhase.discussion:
-        if (!snapshot.settings.whisperEnabled || snapshot.viewerSeat == null) {
-          return null;
+        // The host's control is «كمل», and it is here rather than nowhere
+        // because a discussion that could only end on its own clock made the
+        // room sit out the full five minutes after it had plainly finished
+        // talking. `open_phase` allows discuss → vote at any time, so the
+        // control was always legal; there simply was not one.
+        final openBallot = snapshot.canAdvance
+            ? FilledButton(
+                key: OnlineTableFlow.hostAdvance,
+                onPressed: () {
+                  _controller.beginVoting();
+                  widget.onStepCommitted();
+                },
+                child: Text(l10n.continueAction),
+              )
+            : null;
+
+        Widget? whisper;
+        if (snapshot.settings.whisperEnabled && snapshot.viewerSeat != null) {
+          final spent = snapshot.whisperGraph.any(
+            (w) => w.fromSeat == snapshot.viewerSeat && !w.voided,
+          );
+          whisper = FilledButton.icon(
+            key: OnlineTableFlow.whisperButton,
+            onPressed: spent ? null : () => setState(() => _composing = true),
+            icon: Image.asset(
+              AppCouncilArt.whisperSeal,
+              width: context.spacing.lg,
+              height: context.spacing.lg,
+              color: context.colors.textPrimary,
+              excludeFromSemantics: true,
+            ),
+            label: Text(
+              spent ? l10n.whisperAlreadySentToday : l10n.whisperCompose,
+            ),
+          );
         }
-        final spent = snapshot.whisperGraph.any(
-          (whisper) =>
-              whisper.fromSeat == snapshot.viewerSeat && !whisper.voided,
-        );
-        return FilledButton.icon(
-          key: OnlineTableFlow.whisperButton,
-          onPressed: spent ? null : () => setState(() => _composing = true),
-          icon: Image.asset(
-            AppCouncilArt.whisperSeal,
-            width: context.spacing.lg,
-            height: context.spacing.lg,
-            color: context.colors.textPrimary,
-            excludeFromSemantics: true,
-          ),
-          label: Text(
-            spent ? l10n.whisperAlreadySentToday : l10n.whisperCompose,
-          ),
+
+        if (openBallot == null) return whisper;
+        if (whisper == null) return openBallot;
+        // The second exception §1.5 makes for itself, in the phase that already
+        // takes one: on the discussion there really are two things to do.
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            whisper,
+            SizedBox(height: spacing.sm),
+            openBallot,
+          ],
         );
 
       case GamePhase.distributing:
@@ -1190,13 +1329,48 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            FilledButton(
-              key: OnlineTableFlow.seeRoles,
-              onPressed: () => setState(() => _roster = true),
-              child: Text(l10n.onlineSeeRoles),
+            if (ref.watch(onlineSessionProvider).room != null)
+              RewardedRewardButton(
+                roomId: ref.watch(onlineSessionProvider).room!.roomId,
+              ),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton(
+                    key: OnlineTableFlow.seeRoles,
+                    onPressed: () => setState(() => _roster = true),
+                    child: Text(l10n.onlineSeeRoles),
+                  ),
+                ),
+                if (snapshot.outcome?.winner != null) ...[
+                  SizedBox(width: spacing.sm),
+                  ResultShareButton(
+                    winner: snapshot.outcome!.winner,
+                    days: snapshot.dayNumber,
+                  ),
+                ],
+              ],
             ),
             SizedBox(height: spacing.sm),
-            TextButton(onPressed: widget.onExit, child: Text(l10n.homeAction)),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: widget.onExit,
+                    child: Text(l10n.homeAction),
+                  ),
+                ),
+                SizedBox(width: spacing.sm),
+                IconButton.outlined(
+                  onPressed: () async {
+                    await ref.read(onlineSessionProvider.notifier).leave();
+                    if (mounted) (widget.onRematch ?? widget.onExit)();
+                  },
+                  icon: const Icon(Icons.group_add_rounded),
+                  tooltip: l10n.playAgainWithGroup,
+                ),
+              ],
+            ),
           ],
         );
 
@@ -1236,10 +1410,11 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     return CardRise(
       key: ValueKey(stamp),
       role: role,
-      name: snapshot.public.players
-          .where((player) => player.seat == seat)
-          .map((player) => player.name)
-          .firstOrNull ??
+      name:
+          snapshot.public.players
+              .where((player) => player.seat == seat)
+              .map((player) => player.name)
+              .firstOrNull ??
           '',
       onFinished: () {
         if (mounted) setState(() => _cardShown = stamp);
@@ -1263,12 +1438,34 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           // Not «سلّم الموبايل». This phone is staying exactly where it is.
           dismissLabel: context.l10n.continueAction,
           onDismissed: () {
-            _controller.confirmRevealed();
-            widget.onStepCommitted();
+            unawaited(_confirmReveal());
           },
         ),
       ),
     );
+  }
+
+  Future<void> _confirmReveal() async {
+    if (_committing) return;
+    setState(() => _committing = true);
+    try {
+      await _controller.confirmRevealedCommitted();
+      if (mounted) widget.onStepCommitted();
+    } catch (_) {
+      // Keep the card visible. The same explicit user action can safely retry;
+      // `saw_role` is idempotent and the phase remains server-gated.
+      //
+      // And say so. A card that stays put after «كمل» is indistinguishable
+      // from a button that does not work, which is exactly what it looked like
+      // to a room where four people were waiting on each other.
+      if (mounted) {
+        ScaffoldMessenger.maybeOf(
+          context,
+        )?.showSnackBar(SnackBar(content: Text(context.l10n.actionNotSaved)));
+      }
+    } finally {
+      if (mounted) setState(() => _committing = false);
+    }
   }
 
   /// The whisper composer, over the table rather than instead of it.
@@ -1362,9 +1559,7 @@ class _AfterBeatState extends State<_AfterBeat> {
   @override
   Widget build(BuildContext context) => AnimatedOpacity(
     opacity: _shown ? 1 : 0,
-    duration: ReduceMotion.of(context)
-        ? Duration.zero
-        : context.motion.reveal,
+    duration: ReduceMotion.of(context) ? Duration.zero : context.motion.reveal,
     curve: context.motion.standardCurve,
     child: widget.child,
   );

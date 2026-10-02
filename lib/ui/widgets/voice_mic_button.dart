@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../platform/voice/voice_controller.dart';
 import '../l10n_ext.dart';
 import '../screens/online/voice_session.dart';
 import '../theme/mafia_theme.dart';
+import 'voice_controls.dart';
 
 /// The lobby's whole voice surface: one microphone, no words (task 9).
 ///
@@ -52,7 +54,8 @@ class VoiceMicButton extends ConsumerWidget {
         !state.canMuteSelf;
     final off = state.selfMuted || !state.microphoneAvailable;
 
-    return IconButton(
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      GestureDetector(onLongPress: controller == null ? null : () => showVoiceDiagnostics(context, controller), child: IconButton(
       key: micKey,
       tooltip: off ? l10n.voiceUnmuteMe : l10n.voiceMuteMe,
       onPressed: unavailable
@@ -64,6 +67,12 @@ class VoiceMicButton extends ConsumerWidget {
             ? colors.textMuted
             : (off ? colors.textMuted : colors.textSecondary),
       ),
-    );
+    )),
+      if (kIsWeb && controller != null) TextButton.icon(
+        onPressed: controller.enableAudio, icon: const Icon(Icons.volume_up_outlined),
+        label: Text(l10n.voiceEnablePlayback)),
+      if (!kIsWeb && controller != null) IconButton(tooltip: l10n.voiceRetry,
+        onPressed: controller.enableAudio, icon: const Icon(Icons.volume_up_outlined)),
+    ]);
   }
 }

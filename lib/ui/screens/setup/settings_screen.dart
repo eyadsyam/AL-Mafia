@@ -1,4 +1,11 @@
+import '../../widgets/language_picker.dart';
+import '../../widgets/setup_entrance.dart';
+import 'help_center.dart';
+import 'coin_store.dart';
+import 'scenario_store.dart';
 import 'package:flutter/material.dart';
+import '../online/safety_center.dart';
+import '../online/rewarded_reward_button.dart';
 import '../../../app/l10n/app_localizations.dart';
 import '../../../engine/models/enums.dart'
     show DiscussionMode, DayTieRule, Role;
@@ -261,58 +268,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: colors.surfaceBase,
       body: AppBackdrop(
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: spacing.maxContentWidth),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: spacing.screenMargin,
-                  vertical: spacing.lg,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ScreenHeader(
-                      title: l10n.settingsTitle,
-                      onBack: widget.onBack,
-                    ),
-                    SizedBox(height: spacing.lg),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _presetSection(context),
-                            SizedBox(height: spacing.lg),
-                            _pace(l10n),
-                            SizedBox(height: spacing.lg),
-                            _information(l10n),
-                            SizedBox(height: spacing.lg),
-                            _reveal(l10n),
-                            SizedBox(height: spacing.lg),
-                            _voting(l10n),
-                            SizedBox(height: spacing.lg),
-                            _audio(l10n),
-                          ],
+        child: SetupEntrance(
+          child: SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: spacing.maxContentWidth),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: spacing.screenMargin,
+                    vertical: spacing.lg,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ScreenHeader(
+                        title: l10n.settingsTitle,
+                        onBack: widget.onBack,
+                      ),
+                      SizedBox(height: spacing.lg),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const LanguagePicker(),
+                              SizedBox(height: spacing.lg),
+                              _presetSection(context),
+                              SizedBox(height: spacing.lg),
+                              _pace(l10n),
+                              SizedBox(height: spacing.lg),
+                              _information(l10n),
+                              SizedBox(height: spacing.lg),
+                              _reveal(l10n),
+                              SizedBox(height: spacing.lg),
+                              _voting(l10n),
+                              SizedBox(height: spacing.lg),
+                              _audio(l10n),
+                              SizedBox(height: spacing.lg),
+                              const CoinStoreButton(),
+                              const ScenarioStoreButton(),
+                              const AdPrivacyButton(),
+                              const HelpButton(),
+                              const SafetyButton(privacy: true),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: spacing.lg),
-                    FilledButton(
-                      key: SettingsScreen.saveButton,
-                      onPressed: _onSave,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: colors.accentGold,
-                        foregroundColor: colors.surfaceBase,
-                        padding: EdgeInsets.symmetric(vertical: spacing.lg),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(radii.button),
+                      SizedBox(height: spacing.lg),
+                      FilledButton(
+                        key: SettingsScreen.saveButton,
+                        onPressed: _onSave,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: colors.accentGold,
+                          foregroundColor: colors.surfaceBase,
+                          padding: EdgeInsets.symmetric(vertical: spacing.lg),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(radii.button),
+                          ),
                         ),
+                        child: Text(l10n.save, style: type.title),
                       ),
-                      child: Text(l10n.save, style: type.title),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

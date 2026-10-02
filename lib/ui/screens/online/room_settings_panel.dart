@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../transport/game_snapshot.dart';
 import '../../../transport/online_transport.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
+import '../setup/scenario_store.dart';
 
 /// The host's room settings, as a layer over the lobby (task 10).
 ///
@@ -30,11 +32,18 @@ import '../../theme/mafia_theme.dart';
 ///
 /// Every change is sent immediately and lands on the other nine screens through
 /// the `rooms` delta — which is why there is no save button to forget.
-class RoomSettingsPanel extends StatefulWidget {
+class RoomSettingsPanel extends ConsumerStatefulWidget {
   final bool visible;
   final GameSnapshot snapshot;
   final OnlineTransport? transport;
   final VoidCallback onClose;
+  final void Function({
+    String? visibility,
+    String? title,
+    Map<String, dynamic>? settings,
+  })?
+  onChanged;
+  final Widget? footer;
 
   const RoomSettingsPanel({
     super.key,
@@ -42,6 +51,8 @@ class RoomSettingsPanel extends StatefulWidget {
     required this.snapshot,
     required this.transport,
     required this.onClose,
+    this.onChanged,
+    this.footer,
   });
 
   static const Key panel = ValueKey('room_settings');
@@ -49,12 +60,15 @@ class RoomSettingsPanel extends StatefulWidget {
   static const Key visibilityPublic = ValueKey('room_settings_public');
   static const Key titleField = ValueKey('room_settings_title');
   static const Key voiceSwitch = ValueKey('room_settings_voice');
+  static const Key muteAtNightSwitch = ValueKey('room_settings_mute_at_night');
+  static const Key discussionStructured = ValueKey('room_settings_structured');
+  static const Key discussionFree = ValueKey('room_settings_free');
 
   @override
-  State<RoomSettingsPanel> createState() => _RoomSettingsPanelState();
+  ConsumerState<RoomSettingsPanel> createState() => _RoomSettingsPanelState();
 }
 
-class _RoomSettingsPanelState extends State<RoomSettingsPanel> {
+class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
   final TextEditingController _title = TextEditingController();
   String _committed = '';
 
@@ -88,6 +102,14 @@ class _RoomSettingsPanelState extends State<RoomSettingsPanel> {
     String? title,
     Map<String, dynamic>? settings,
   }) {
+    if (widget.onChanged != null) {
+      widget.onChanged!(
+        visibility: visibility,
+        title: title,
+        settings: settings,
+      );
+      return;
+    }
     widget.transport?.setRoomSettings(
       visibility: visibility,
       title: title,
@@ -109,143 +131,204 @@ class _RoomSettingsPanelState extends State<RoomSettingsPanel> {
       key: RoomSettingsPanel.panel,
       child: ColoredBox(
         color: colors.surfaceBase,
+        // The same reading column the door and the lobby keep on a wide
+        // screen: a full-screen sheet that ran the whole width of a desktop
+        // put its segments and switches a screen's breadth apart.
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: spacing.maxContentWidth),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: spacing.md),
-                      child: Text(
-                        l10n.onlineRoomSettings,
-                        style: type.title.copyWith(color: colors.textPrimary),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: spacing.md),
+                          child: Text(
+                            l10n.onlineRoomSettings,
+                            style: type.title.copyWith(
+                              color: colors.textPrimary,
+                            ),
+                          ),
+                        ),
                       ),
+                      IconButton(
+                        tooltip: MaterialLocalizations.of(
+                          context,
+                        ).closeButtonTooltip,
+                        onPressed: widget.onClose,
+                        icon: Icon(Icons.close, color: colors.textSecondary),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: ListView(
+                      padding: EdgeInsets.symmetric(horizontal: spacing.md),
+                      children: [
+                        _section(l10n.onlineSettingsRoom),
+                        if (ref.watch(scenarioPurchaseProvider).owned ||
+                            room.scenarioCode == 'shadows')
+                          _segments<String>(
+                            label: l10n.premiumScenarioUse,
+                            hint: l10n.premiumScenarioUseHint,
+                            value: room.scenarioCode,
+                            options: [
+                              ('classic', l10n.presetClassic, null),
+                              ('shadows', l10n.premiumScenarioUse, null),
+                            ],
+                            onChanged: (value) =>
+                                _send(settings: {'scenarioCode': value}),
+                          ),
+                        _segments<String>(
+                          label: l10n.onlineRoomVisibility,
+                          hint: l10n.onlineRoomVisibilityHint,
+                          value: room.visibility,
+                          options: [
+                            (
+                              'private',
+                              l10n.onlineRoomPrivate,
+                              RoomSettingsPanel.visibilityPrivate,
+                            ),
+                            (
+                              'public',
+                              l10n.onlineRoomPublic,
+                              RoomSettingsPanel.visibilityPublic,
+                            ),
+                          ],
+                          onChanged: (value) => _send(visibility: value),
+                        ),
+                        // Only a public room has a name worth typing: a private one
+                        // is never listed anywhere the name could be read.
+                        if (room.isPublic)
+                          _titleField(
+                            l10n.onlineRoomTitle,
+                            l10n.onlineRoomTitleHint,
+                          ),
+                        _segments<int>(
+                          label: l10n.onlineMaxPlayers,
+                          hint: l10n.onlineMaxPlayersHint,
+                          value: room.maxPlayers,
+                          options: const [
+                            (5, '5', null),
+                            (8, '8', null),
+                            (10, '10', null),
+                            (15, '15', null),
+                          ],
+                          onChanged: (value) =>
+                              _send(settings: {'maxPlayers': value}),
+                        ),
+                        _section(l10n.onlineSettingsVoice),
+                        _flag(
+                          key: RoomSettingsPanel.voiceSwitch,
+                          label: l10n.onlineVoiceEnabled,
+                          hint: l10n.onlineVoiceEnabledHint,
+                          value: room.voice,
+                          onChanged: (value) =>
+                              _send(settings: {'voice': value}),
+                        ),
+                        _flag(
+                          key: RoomSettingsPanel.muteAtNightSwitch,
+                          label: l10n.onlineMuteAtNight,
+                          hint: l10n.onlineNightPrivacyHint,
+                          value: room.muteAllAtNight,
+                          onChanged: (value) =>
+                              _send(settings: {'muteAllAtNight': value}),
+                        ),
+                        _section(l10n.onlineSettingsPlay),
+                        _segments<int>(
+                          label:
+                              '${l10n.onlineSpeakDuration} (${l10n.onlineSeconds})',
+                          hint: l10n.onlineSpeakDurationHint,
+                          value: match.speechSeconds,
+                          options: const [
+                            (30, '30', null),
+                            (45, '45', null),
+                            (60, '60', null),
+                          ],
+                          onChanged: (value) =>
+                              _send(settings: {'speechSeconds': value}),
+                        ),
+                        _segments<int>(
+                          label:
+                              '${l10n.onlineDiscussDuration} (${l10n.onlineMinutes})',
+                          hint: l10n.onlineDiscussDurationHint,
+                          value: match.discussionSeconds,
+                          options: const [
+                            (180, '3', null),
+                            (300, '5', null),
+                            (420, '7', null),
+                          ],
+                          onChanged: (value) =>
+                              _send(settings: {'discussionSeconds': value}),
+                        ),
+                        // Not cosmetic online: structured discussion is what lets
+                        // the mic policy hand the floor to one speaker at a time.
+                        // A host who could not choose it here would get turn-taking
+                        // they never asked for, and a table that reads two silent
+                        // players as a broken call.
+                        _segments<String>(
+                          label: l10n.discussionModeLabel,
+                          hint: l10n.settingDiscussionModeHint,
+                          value: match.discussionMode.name,
+                          options: [
+                            (
+                              'structured',
+                              l10n.discussionStructured,
+                              RoomSettingsPanel.discussionStructured,
+                            ),
+                            (
+                              'free',
+                              l10n.discussionFree,
+                              RoomSettingsPanel.discussionFree,
+                            ),
+                          ],
+                          onChanged: (value) =>
+                              _send(settings: {'discussionMode': value}),
+                        ),
+                        _flag(
+                          label: l10n.onlineOpenVoting,
+                          hint: l10n.onlineOpenVotingHint,
+                          value: match.openVoting,
+                          onChanged: (value) =>
+                              _send(settings: {'openVoting': value}),
+                        ),
+                        _section(l10n.onlineSettingsInfo),
+                        _flag(
+                          label: l10n.onlineTrace,
+                          hint: l10n.onlineTraceHint,
+                          value: match.traceEnabled,
+                          onChanged: (value) =>
+                              _send(settings: {'traceEnabled': value}),
+                        ),
+                        _flag(
+                          label: l10n.onlineConfrontation,
+                          hint: l10n.onlineConfrontationHint,
+                          value: match.confrontationEnabled,
+                          onChanged: (value) =>
+                              _send(settings: {'confrontationEnabled': value}),
+                        ),
+                        _flag(
+                          label: l10n.onlineWhispers,
+                          hint: l10n.onlineWhispersHint,
+                          value: match.whisperEnabled,
+                          onChanged: (value) =>
+                              _send(settings: {'whisperEnabled': value}),
+                        ),
+                        SizedBox(height: spacing.xl),
+                        SizedBox(height: spacing.lg),
+                      ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: widget.onClose,
-                    icon: Icon(Icons.close, color: colors.textSecondary),
-                  ),
+                  if (widget.footer != null)
+                    Padding(
+                      padding: EdgeInsets.all(spacing.md),
+                      child: widget.footer!,
+                    ),
                 ],
               ),
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.symmetric(horizontal: spacing.md),
-                  children: [
-                    _section(l10n.onlineSettingsRoom),
-                    _segments<String>(
-                      label: l10n.onlineRoomVisibility,
-                      hint: l10n.onlineRoomVisibilityHint,
-                      value: room.visibility,
-                      options: [
-                        (
-                          'private',
-                          l10n.onlineRoomPrivate,
-                          RoomSettingsPanel.visibilityPrivate,
-                        ),
-                        (
-                          'public',
-                          l10n.onlineRoomPublic,
-                          RoomSettingsPanel.visibilityPublic,
-                        ),
-                      ],
-                      onChanged: (value) => _send(visibility: value),
-                    ),
-                    // Only a public room has a name worth typing: a private one
-                    // is never listed anywhere the name could be read.
-                    if (room.isPublic)
-                      _titleField(l10n.onlineRoomTitle,
-                          l10n.onlineRoomTitleHint),
-                    _segments<int>(
-                      label: l10n.onlineMaxPlayers,
-                      hint: l10n.onlineMaxPlayersHint,
-                      value: room.maxPlayers,
-                      options: const [
-                        (5, '5', null),
-                        (8, '8', null),
-                        (10, '10', null),
-                        (15, '15', null),
-                      ],
-                      onChanged: (value) =>
-                          _send(settings: {'maxPlayers': value}),
-                    ),
-                    _section(l10n.onlineSettingsVoice),
-                    _flag(
-                      key: RoomSettingsPanel.voiceSwitch,
-                      label: l10n.onlineVoiceEnabled,
-                      hint: l10n.onlineVoiceEnabledHint,
-                      value: room.voice,
-                      onChanged: (value) => _send(settings: {'voice': value}),
-                    ),
-                    _flag(
-                      label: l10n.onlineMuteAtNight,
-                      hint: l10n.onlineMuteAtNightHint,
-                      value: room.muteAllAtNight,
-                      onChanged: (value) =>
-                          _send(settings: {'muteAllAtNight': value}),
-                    ),
-                    _section(l10n.onlineSettingsPlay),
-                    _segments<int>(
-                      label: '${l10n.onlineSpeakDuration} (${l10n.onlineSeconds})',
-                      hint: l10n.onlineSpeakDurationHint,
-                      value: match.speechSeconds,
-                      options: const [
-                        (30, '30', null),
-                        (45, '45', null),
-                        (60, '60', null),
-                      ],
-                      onChanged: (value) =>
-                          _send(settings: {'speechSeconds': value}),
-                    ),
-                    _segments<int>(
-                      label:
-                          '${l10n.onlineDiscussDuration} (${l10n.onlineMinutes})',
-                      hint: l10n.onlineDiscussDurationHint,
-                      value: match.discussionSeconds,
-                      options: const [
-                        (180, '3', null),
-                        (300, '5', null),
-                        (420, '7', null),
-                      ],
-                      onChanged: (value) =>
-                          _send(settings: {'discussionSeconds': value}),
-                    ),
-                    _flag(
-                      label: l10n.onlineOpenVoting,
-                      hint: l10n.onlineOpenVotingHint,
-                      value: match.openVoting,
-                      onChanged: (value) =>
-                          _send(settings: {'openVoting': value}),
-                    ),
-                    _section(l10n.onlineSettingsInfo),
-                    _flag(
-                      label: l10n.onlineTrace,
-                      hint: l10n.onlineTraceHint,
-                      value: match.traceEnabled,
-                      onChanged: (value) =>
-                          _send(settings: {'traceEnabled': value}),
-                    ),
-                    _flag(
-                      label: l10n.onlineConfrontation,
-                      hint: l10n.onlineConfrontationHint,
-                      value: match.confrontationEnabled,
-                      onChanged: (value) =>
-                          _send(settings: {'confrontationEnabled': value}),
-                    ),
-                    _flag(
-                      label: l10n.onlineWhispers,
-                      hint: l10n.onlineWhispersHint,
-                      value: match.whisperEnabled,
-                      onChanged: (value) =>
-                          _send(settings: {'whisperEnabled': value}),
-                    ),
-                    SizedBox(height: spacing.xl),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -266,21 +349,21 @@ class _RoomSettingsPanelState extends State<RoomSettingsPanel> {
   }
 
   Widget _hintLine(String hint) => Padding(
-        padding: EdgeInsets.only(top: context.spacing.xs),
-        child: Text(
-          hint,
-          style: context.typography.caption.copyWith(
-            color: context.colors.textMuted,
-          ),
-        ),
-      );
+    padding: EdgeInsets.only(top: context.spacing.xs),
+    child: Text(
+      hint,
+      style: context.typography.caption.copyWith(
+        color: context.colors.textMuted,
+      ),
+    ),
+  );
 
   Widget _flag({
     Key? key,
     required String label,
     required String hint,
     required bool value,
-    required ValueChanged<bool> onChanged,
+    required ValueChanged<bool>? onChanged,
   }) {
     final spacing = context.spacing;
     return Padding(
@@ -298,12 +381,12 @@ class _RoomSettingsPanelState extends State<RoomSettingsPanel> {
                   ),
                 ),
               ),
-              Switch(
-                key: key,
-                value: value,
-                onChanged: onChanged,
-                activeTrackColor: context.colors.accentGold,
-              ),
+              // Themed, not coloured here: the panel used to paint the lit
+              // track `accentGold`, the same colour the theme gives the lit
+              // thumb, so an "on" switch was one flat pill with no thumb in it
+              // (E-5). The theme's lit track is the pressed gold; the thumb
+              // reads against it.
+              Switch(key: key, value: value, onChanged: onChanged),
             ],
           ),
           _hintLine(hint),
@@ -340,8 +423,9 @@ class _RoomSettingsPanelState extends State<RoomSettingsPanel> {
                     padding: EdgeInsetsDirectional.only(end: spacing.xs),
                     child: OutlinedButton(
                       key: key,
-                      onPressed:
-                          option == value ? null : () => onChanged(option),
+                      onPressed: option == value
+                          ? null
+                          : () => onChanged(option),
                       style: OutlinedButton.styleFrom(
                         backgroundColor: option == value
                             ? colors.accentGold
@@ -391,6 +475,9 @@ class _RoomSettingsPanelState extends State<RoomSettingsPanel> {
               _committed = value.trim();
               _send(title: _committed);
             },
+            onChanged: widget.onChanged == null
+                ? null
+                : (value) => _send(title: value.trim()),
             onTapOutside: (_) {
               FocusScope.of(context).unfocus();
               final value = _title.text.trim();

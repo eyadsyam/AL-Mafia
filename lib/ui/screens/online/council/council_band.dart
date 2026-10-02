@@ -74,6 +74,10 @@ class CouncilSeatData {
   /// standings the server has already published (doc 15 §S-O13 beat 2).
   final String? roleGlyph;
 
+  /// Local audio telemetry used only for the speaking pulse. It is not game
+  /// state and is never sent to another player.
+  final double speakingLevel;
+
   const CouncilSeatData({
     required this.seat,
     required this.name,
@@ -85,6 +89,7 @@ class CouncilSeatData {
     this.isViewer = false,
     this.winner,
     this.roleGlyph,
+    this.speakingLevel = 0,
   });
 
   @override
@@ -99,7 +104,8 @@ class CouncilSeatData {
       other.avatar == avatar &&
       other.isEmpty == isEmpty &&
       other.isViewer == isViewer &&
-      other.roleGlyph == roleGlyph;
+      other.roleGlyph == roleGlyph &&
+      other.speakingLevel == speakingLevel;
 
   @override
   int get hashCode =>
@@ -114,6 +120,7 @@ class CouncilSeatData {
         isViewer,
         winner,
         roleGlyph,
+        speakingLevel,
       );
 }
 
@@ -654,6 +661,10 @@ class CouncilPainter extends CustomPainter {
         ? viewerColor
         : ringColor;
 
+    if (!seat.isEmpty && seat.presence == SeatPresence.connected) {
+      _paintVoicePulse(canvas, layout.diameter, seat.speakingLevel, opacity);
+    }
+
     if ((chosen || speaking) && emphasis > 0) {
       canvas.drawCircle(
         Offset.zero,
@@ -842,6 +853,41 @@ class CouncilPainter extends CustomPainter {
         layout.centre.dy + layout.diameter / 2 + namePainter.height,
       ),
     );
+  }
+
+  /// Draws measured speech as expanding rings around a connected seat.
+  /// [breath] is the council's one shared animation clock; the level controls
+  /// how far and how brightly the waves travel.
+  void _paintVoicePulse(
+    Canvas canvas,
+    double diameter,
+    double rawLevel,
+    double opacity,
+  ) {
+    final level = rawLevel.clamp(0.0, 1.0).toDouble();
+    if (level <= CouncilTokens.voicePulseThreshold) return;
+    final strength = ((level - CouncilTokens.voicePulseThreshold) /
+            (1 - CouncilTokens.voicePulseThreshold))
+        .clamp(0.0, 1.0)
+        .toDouble();
+    final base = diameter / 2;
+    for (var wave = 0; wave < 3; wave++) {
+      final progress = (breath + wave / 3) % 1.0;
+      final radius = base + diameter *
+          (CouncilTokens.voicePulseSpacingRatio * (wave + 1) +
+              CouncilTokens.voicePulseMaxRadiusRatio * progress * strength);
+      final alpha = opacity * CouncilTokens.voicePulseAlpha * strength *
+          (1 - progress) * (1 - wave * 0.18);
+      if (alpha <= 0) continue;
+      canvas.drawCircle(
+        Offset.zero,
+        radius,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = CouncilTokens.voicePulseWidth
+          ..color = gold.withValues(alpha: alpha),
+      );
+    }
   }
 
   /// A struck-through microphone, low on the ring.

@@ -35,6 +35,7 @@ class RoomOptions {
   /// default, because a night is the one phase where a voice carries a fact
   /// about who is awake.
   final bool muteAllAtNight;
+  final String scenarioCode;
 
   const RoomOptions({
     this.visibility = 'private',
@@ -42,6 +43,7 @@ class RoomOptions {
     this.maxPlayers = 10,
     this.voice = true,
     this.muteAllAtNight = true,
+    this.scenarioCode = 'classic',
   });
 
   bool get isPublic => visibility == 'public';
@@ -52,12 +54,14 @@ class RoomOptions {
     int? maxPlayers,
     bool? voice,
     bool? muteAllAtNight,
+    String? scenarioCode,
   }) => RoomOptions(
     visibility: visibility ?? this.visibility,
     title: title ?? this.title,
     maxPlayers: maxPlayers ?? this.maxPlayers,
     voice: voice ?? this.voice,
     muteAllAtNight: muteAllAtNight ?? this.muteAllAtNight,
+    scenarioCode: scenarioCode ?? this.scenarioCode,
   );
 }
 
@@ -84,7 +88,6 @@ class PublicRoom {
     voice: json['voice'] as bool? ?? true,
   );
 }
-
 
 /// Everything the whole table may see at one moment (doc 10 §7).
 ///
@@ -385,40 +388,38 @@ class GameSnapshot {
     bool clearVote = false,
     bool clearDeadline = false,
     bool clearSpeaker = false,
-  }) =>
-      GameSnapshot(
-        public: public ?? this.public,
-        trace: trace ?? this.trace,
-        confrontation: confrontation ?? this.confrontation,
-        openingAccusations: openingAccusations ?? this.openingAccusations,
-        whisperGraph: whisperGraph ?? this.whisperGraph,
-        morning: clearMorning ? null : (morning ?? this.morning),
-        lastVote: clearVote ? null : (lastVote ?? this.lastVote),
-        settings: settings ?? this.settings,
-        pendingOutcome: pendingOutcome ?? this.pendingOutcome,
-        standings: standings ?? this.standings,
-        analyticsAvailable: analyticsAvailable ?? this.analyticsAvailable,
-        connectedSeats: connectedSeats ?? this.connectedSeats,
-        liveBallots: liveBallots ?? this.liveBallots,
-        connection: connection ?? this.connection,
-        viewerSeat: viewerSeat ?? this.viewerSeat,
-        canAdvance: canAdvance ?? this.canAdvance,
-        phaseDeadline:
-            clearDeadline ? null : (phaseDeadline ?? this.phaseDeadline),
-        activeSpeakerSeat: clearSpeaker
-            ? null
-            : (activeSpeakerSeat ?? this.activeSpeakerSeat),
-        // A cleared floor clears the hands with it, for the same reason the
-        // server's trigger does: the thing being asked for no longer exists.
-        raisedHands: clearSpeaker ? const {} : (raisedHands ?? this.raisedHands),
-        unseenRoleSeats: unseenRoleSeats ?? this.unseenRoleSeats,
-        presence: presence ?? this.presence,
-        hostSeat: hostSeat ?? this.hostSeat,
-        roomClosed: roomClosed ?? this.roomClosed,
-        mutedSeats: mutedSeats ?? this.mutedSeats,
-        viewerKicked: viewerKicked ?? this.viewerKicked,
-        room: room ?? this.room,
-      );
+  }) => GameSnapshot(
+    public: public ?? this.public,
+    trace: trace ?? this.trace,
+    confrontation: confrontation ?? this.confrontation,
+    openingAccusations: openingAccusations ?? this.openingAccusations,
+    whisperGraph: whisperGraph ?? this.whisperGraph,
+    morning: clearMorning ? null : (morning ?? this.morning),
+    lastVote: clearVote ? null : (lastVote ?? this.lastVote),
+    settings: settings ?? this.settings,
+    pendingOutcome: pendingOutcome ?? this.pendingOutcome,
+    standings: standings ?? this.standings,
+    analyticsAvailable: analyticsAvailable ?? this.analyticsAvailable,
+    connectedSeats: connectedSeats ?? this.connectedSeats,
+    liveBallots: liveBallots ?? this.liveBallots,
+    connection: connection ?? this.connection,
+    viewerSeat: viewerSeat ?? this.viewerSeat,
+    canAdvance: canAdvance ?? this.canAdvance,
+    phaseDeadline: clearDeadline ? null : (phaseDeadline ?? this.phaseDeadline),
+    activeSpeakerSeat: clearSpeaker
+        ? null
+        : (activeSpeakerSeat ?? this.activeSpeakerSeat),
+    // A cleared floor clears the hands with it, for the same reason the
+    // server's trigger does: the thing being asked for no longer exists.
+    raisedHands: clearSpeaker ? const {} : (raisedHands ?? this.raisedHands),
+    unseenRoleSeats: unseenRoleSeats ?? this.unseenRoleSeats,
+    presence: presence ?? this.presence,
+    hostSeat: hostSeat ?? this.hostSeat,
+    roomClosed: roomClosed ?? this.roomClosed,
+    mutedSeats: mutedSeats ?? this.mutedSeats,
+    viewerKicked: viewerKicked ?? this.viewerKicked,
+    room: room ?? this.room,
+  );
 
   @override
   String toString() =>

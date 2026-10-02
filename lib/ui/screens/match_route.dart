@@ -24,11 +24,13 @@ class MatchRoute extends ConsumerWidget {
 
   /// Opens analytics for the just-finished match.
   final VoidCallback onAnalytics;
+  final VoidCallback? onRematch;
 
   const MatchRoute({
     super.key,
     required this.onExit,
     required this.onAnalytics,
+    this.onRematch,
   });
 
   static const Key endMatchButton = ValueKey('match_end_button');
@@ -102,6 +104,7 @@ class MatchRoute extends ConsumerWidget {
               child: MatchFlow(
                 onExit: onExit,
                 onAnalytics: onAnalytics,
+                onRematch: onRematch,
                 onStepCommitted: () => _persist(ref),
               ),
             ),

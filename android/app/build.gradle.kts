@@ -33,7 +33,18 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Supplied by ORG_GRADLE_PROJECT_ADMOB_APP_ID in tool/build_apk.ps1.
+        // Google's documented sample id is safe for local/test builds; the
+        // Dart layer does not load an ad without a rewarded unit id.
+        manifestPlaceholders["admobAppId"] =
+            (project.findProperty("ADMOB_APP_ID") as String?)
+                ?: "ca-app-pub-3940256099942544~3347511713"
+
+        // Keep every ABI selected by Flutter for the universal release APK.
     }
+
+
 
     signingConfigs {
         if (keystorePropertiesFile.exists()) {
@@ -49,6 +60,10 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.findByName("release")
+            if (project.findProperty("TEST_ADS_SUFFIX") == "true") {
+                applicationIdSuffix = ".adstest"
+                versionNameSuffix = "-ads-test"
+            }
         }
     }
 }

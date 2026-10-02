@@ -8,8 +8,10 @@ import 'package:flutter/services.dart'
         SystemUiMode;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_web_plugins/url_strategy.dart' show usePathUrlStrategy;
 
 import 'app/app.dart';
+import 'app/locale_controller.dart';
 import 'core/theme/app_colors.dart';
 import 'data/local_stores.dart';
 import 'data/local_stores_io.dart'
@@ -22,6 +24,15 @@ import 'ui/screens/setup/setup_draft.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // `/join/CODE`, not `#/join/CODE`.
+  //
+  // The invite is an Android App Link now, and Android matches App Links on
+  // the path: everything after `#` is stripped before the intent filter ever
+  // sees it, so a hash link can only ever open a browser. The host serves
+  // index.html for unknown paths, which is the one thing the hash strategy was
+  // working around. No-op off the web.
+  if (kIsWeb) usePathUrlStrategy();
 
   // The system bars are painted the app's own ground, so there is no lighter
   // band above the content or below it. On a screen this dark a default
@@ -64,9 +75,11 @@ Future<void> main() async {
   final LocalStores? stores = await openLocalStores();
   final savedSettings = await stores?.matches.loadDefaultSettings();
 
+  final savedLocale = await loadSavedLocale();
   runApp(
     ProviderScope(
       overrides: [
+        initialLocaleProvider.overrideWithValue(savedLocale),
         if (savedSettings != null)
           initialMatchSettingsProvider.overrideWithValue(savedSettings),
         if (stores != null) ...[

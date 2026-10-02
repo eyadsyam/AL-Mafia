@@ -80,6 +80,8 @@ abstract class WitnessChannel {
 class BackendWitnessChannel implements WitnessChannel {
   final OnlineBackend backend;
   final String roomId;
+  final Set<String> Function()? blocked;
+  List<GhostRow> _rows = const [];
 
   /// Seat and display name for a user id, re-read from the roster each time a
   /// batch arrives. A message from a player who joined after this channel was
@@ -90,6 +92,7 @@ class BackendWitnessChannel implements WitnessChannel {
     required this.backend,
     required this.roomId,
     required this.roster,
+    this.blocked,
   });
 
   StreamSubscription<List<GhostRow>>? _feed;
@@ -106,18 +109,20 @@ class BackendWitnessChannel implements WitnessChannel {
     _out = out;
     _feed = backend.ghostMessages(roomId).listen(
       (rows) {
+        _rows = rows;
         if (out.isClosed) return;
         final who = roster();
         out.add([
           for (final row in rows)
-            GhostMessage(
-              id: row.id,
-              seat: who[row.authorId]?.seat,
-              authorName: who[row.authorId]?.name ?? '',
-              body: row.body,
-              at: row.at,
-              mine: row.authorId == backend.userId,
-            ),
+            if (!(blocked?.call().contains(row.authorId) ?? false))
+              GhostMessage(
+                id: row.id,
+                seat: who[row.authorId]?.seat,
+                authorName: who[row.authorId]?.name ?? '',
+                body: row.body,
+                at: row.at,
+                mine: row.authorId == backend.userId,
+              ),
         ]);
       },
       // A graveyard that stopped updating is a quiet graveyard, not a broken
@@ -130,6 +135,24 @@ class BackendWitnessChannel implements WitnessChannel {
   @override
   Future<void> say(String body) =>
       backend.call('ghost_say', {'roomId': roomId, 'body': body}).then((_) {});
+
+  void refreshBlocks() {
+    final out = _out;
+    if (out == null || out.isClosed) return;
+    final who = roster();
+    out.add([
+      for (final row in _rows)
+        if (!(blocked?.call().contains(row.authorId) ?? false))
+          GhostMessage(
+            id: row.id,
+            seat: who[row.authorId]?.seat,
+            authorName: who[row.authorId]?.name ?? '',
+            body: row.body,
+            at: row.at,
+            mine: row.authorId == backend.userId,
+          ),
+    ]);
+  }
 
   @override
   Future<Prediction?> myPrediction() => backend.myPrediction(roomId);

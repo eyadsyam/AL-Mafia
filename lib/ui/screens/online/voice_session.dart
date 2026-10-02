@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../platform/voice/voice_controller.dart';
 import '../../../platform/voice/voice_engine.dart';
 import '../../../platform/voice/webrtc_voice_engine.dart';
+import '../../theme/design_tokens.dart';
 import 'online_session.dart';
 
 /// How a call is made.
@@ -23,22 +24,48 @@ final voiceEngineFactoryProvider = Provider<VoiceEngine Function()>(
 /// not ask for a call. Every consumer treats null as "no voice", which is the
 /// same thing they do with a call that failed — so the two cases need no
 /// separate handling anywhere above.
+/// How often the call samples local WebRTC audio levels for the speaking ring.
+///
+/// A provider for the same reason [onlineHeartbeatProvider] is one: a widget
+/// test overrides it to [Duration.zero] so no periodic timer outlives the
+/// frame it pumped.
+final voiceStatsIntervalProvider = Provider<Duration>(
+  (ref) => MafiaTiming.voiceStatsSample,
+);
+
 final voiceControllerProvider = Provider<VoiceController?>((ref) {
-  final session = ref.watch(onlineSessionProvider);
-  final transport = session.transport;
+  final transport = ref.watch(onlineSessionProvider.select((s) => s.transport));
   final link = transport?.voice;
   if (transport == null || link == null) return null;
 
   final controller = VoiceController(
     engine: ref.read(voiceEngineFactoryProvider)(),
     link: link,
+    statsInterval: ref.read(voiceStatsIntervalProvider),
   );
 
-  // The call watches the game. Nothing here is awaited by the phase flow, and
-  // a failure inside `apply` cannot reach it — see [VoiceController].
-  final subscription = transport.watch().listen(controller.apply);
-
-  unawaited(controller.start(selfSeat: transport.mySeat, peers: link.peers));
+  // Apply the room's current policy before the first climb. `watch()` does
+  // replay the snapshot, but an async stream listener does not wait for
+  // `apply` before the independently-started call reaches WebRTC. On web that
+  // race left the first mesh with the controller's default muted policy; a
+  // later room-setting toggle supplied another snapshot and appeared to
+  // "fix" voice. Skip the replay here, initialise once in order, then listen
+  // to every newer snapshot.
+  final subscription = transport.watch().skip(1).listen((snapshot) {
+    controller.blockedUsers = transport.blockedUserIds;
+    unawaited(controller.apply(snapshot));
+  });
+  unawaited(() async {
+    controller.blockedUsers = transport.blockedUserIds;
+    await controller.apply(transport.snapshot);
+    await controller.start(selfSeat: transport.mySeat, peers: link.peers);
+    // Complete the first media cycle without waiting for a settings toggle or
+    // the retry control. Native uses this to re-apply the final microphone
+    // state after negotiation; web also retries every remote audio sink and
+    // leaves the gesture bridge armed only when the browser itself blocks
+    // autoplay.
+    await controller.enableAudio();
+  }());
 
   ref.onDispose(() {
     unawaited(subscription.cancel());

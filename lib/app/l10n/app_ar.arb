@@ -1,5 +1,30 @@
 {
+  "onlineHostExitTitle": "هتخرج من الأوضة؟",
+  "onlineHostExitBody": "الأوضة تقدر تكمل والهوست ينتقل لأول لاعب موجود. قفل الأوضة بينهيها للجميع.",
+  "onlineLeaveKeepRoom": "اخرج والأوضة تكمل",
+  "voiceEnablePlayback": "تشغيل الصوت",
+  "onlineHistoryLabel": "ماتش أونلاين",
+  "onlineMatchMeta": "{players} لاعبين · اليوم {day}",
+  "@onlineMatchMeta": {
+    "placeholders": {
+      "players": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
   "@@locale": "ar",
+  "profileTitle": "بروفايلك",
+  "profileHint": "اختار اسمك وشخصيتك مرة واحدة. هنفتكرهم على الجهاز ده من غير تسجيل دخول.",
+  "profileSaveFailed": "مقدرناش نحفظ البروفايل. اسمح بالتخزين في المتصفح وجرب تاني.",
+  "profileEdit": "عدّل البروفايل",
+  "videoPlay": "شغّل الشرح",
+  "videoFailed": "الشرح مش راضي يشتغل هنا.",
+  "videoRetry": "جرّب تاني",
+  "voiceRetry": "شغّل الصوت",
+  "onlineNightPrivacyHint": "الصوت مقفول وقت كشف الأدوار والليل لحماية سرية اللعب.",
   "appTitle": "سيد المافيا",
   "actionNotSaved": "اختيارك متسجلش جرب تاني",
   "back": "رجوع",
@@ -88,7 +113,7 @@
   "roleDetectiveDescription": "كل ليلة بتكشف عن شخصية واحد من اللاعبين",
   "roleCitizenDescription": "ملاكش ميزة خاصة بتحاول تفهم ايه اللي بيحصل ",
   "gotIt": "فهمت",
-  "holdToRevealRole": "دوس عشان تشوف كارتك",
+  "holdToRevealRole": "دوس ثانيتين عشان تشوف كارتك",
   "teammatesLine": "معاك في المافيا: {names}",
   "@teammatesLine": {
     "placeholders": {
@@ -98,7 +123,7 @@
     }
   },
   "passPhoneTo": "سلم الموبايل لـ",
-  "iAmHoldInstruction": "أنا {name} — دوس",
+  "iAmHoldInstruction": "أنا {name} — دوس ثانيتين",
   "@iAmHoldInstruction": {
     "placeholders": {
       "name": {
@@ -368,7 +393,7 @@
       }
     }
   },
-  "holdToConfirmIdentity": "دوس عشان تشوف كارتك",
+  "holdToConfirmIdentity": "دوس ثانيتين عشان تشوف كارتك",
   "swipeToReveal": "اسحب الكارت في أي اتجاه عشان يتقلب",
   "passThePhone": "سلّم الموبايل",
   "phaseNightFalls": "الضلمة نزلت على البلد… كله يغمّض",
@@ -659,6 +684,7 @@
   "onlineMute": "اكتم",
   "onlineUnmute": "شيل الكتم",
   "onlineKickedByHost": "الهوست طردك من الأوضة",
+  "onlineFloorOpen": "الكلام مفتوح، اطلب الدور",
   "onlineRaisedHands": "رافعين إيدهم: {names}",
   "onlineRaiseHand": "دوري",
   "onlineHandRaised": "إيدك مرفوعة",
@@ -877,11 +903,131 @@
   "playerMale": "ولد",
   "playerFemale": "بنت",
   "timelineMafiaVoteFemale": "{actor} صوتت على {target}",
-  "@timelineMafiaVoteFemale": {"placeholders": {"actor": {"type": "String"}, "target": {"type": "String"}}},
+  "@timelineMafiaVoteFemale": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "timelineProtectFemale": "{actor} حمت {target}",
-  "@timelineProtectFemale": {"placeholders": {"actor": {"type": "String"}, "target": {"type": "String"}}},
+  "@timelineProtectFemale": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "timelineInvestigateFemale": "{actor} كشفت {target}",
-  "@timelineInvestigateFemale": {"placeholders": {"actor": {"type": "String"}, "target": {"type": "String"}}},
+  "@timelineInvestigateFemale": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "timelineSuspectFemale": "{actor} شكت في {target}",
-  "@timelineSuspectFemale": {"placeholders": {"actor": {"type": "String"}, "target": {"type": "String"}}}
+  "@timelineSuspectFemale": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineDiscardResume": "انسى الأوضة",
+  "onlineStorageWarning": "الجهاز مش قادر يحفظ. اللعبة شغالة عادي، بس ممكن ما يرجّعكش للأوضة لوحده ولا يحتفظ بالنتيجة.",
+  "safetyTitle": "الخصوصية وحذف البيانات",
+  "safetyPolicy": "المطوّر: Eyad Syam\nالدعم: eyadsyam124@gmail.com\n\nاللعب المحلي بيفضل على جهازك. الأونلاين يستخدم معرّفًا عشوائيًا والبروفايل وأفعال الماتش والرسائل. العملات والمكافآت والمحتوى المفتوح بيتحفظوا مع الهوية دي لحد الحذف. الصوت اختياري ومشفّر أثناء النقل واللعبة مبتسجلوش. خدمات التشغيل بتعالج بيانات الاتصال اللازمة للأونلاين. مفيش إعلانات أو تتبع إعلاني.\n\nالغرف المنتهية مؤهلة للحذف بعد 24 ساعة، والهويات القديمة من غير غرف بتتحذف مع دورة التنظيف. تقدر تطلب حذف بيانات الأونلاين هنا؛ إرسال الطلب مش معناه إن الحذف اكتمل. من خارج التطبيق استخدم almafia.vercel.app/delete-data مع معرّفك أو رقم الطلب. متبعتش كلمة سر أو مفتاح وصول.\n\nممنوع التحرش والتهديد والكراهية والمحتوى الجنسي واستغلال الأطفال ومشاركة المعلومات الخاصة. بلّغ عن اللاعب أو اسم الغرفة أو الرسالة المسيئة. الحظر يخفي رسائله الخاصة ويكتم صوته عندك؛ أفعال اللعبة العامة تفضل ظاهرة. المطوّر بيراجع البلاغات وهي مش بتظهر للاعبين.",
+  "safetyAgree": "أوافق على قواعد الاستخدام",
+  "safetyConsentTitle": "قبل اللعب أونلاين",
+  "safetyConsentBody": "ممنوع الإساءة والتحرّش والكراهية والمحتوى الجنسي ومشاركة البيانات الخاصة. تقدر تبلغ وتحظر من زر الأمان. الصوت اختياري؛ راجع الخصوصية في الإعدادات لمعرفة البيانات المستخدمة.",
+  "safetyReport": "إرسال بلاغ",
+  "safetyBlock": "حظر رسائل وصوت اللاعب",
+  "safetyRoom": "اسم الغرفة أو محتواها",
+  "safetyDetails": "وصف الإساءة أو الرسالة (بدون أسرار الدور)",
+  "safetyReceipt": "تم استلام الطلب. احتفظ بالرقم:",
+  "safetyFailed": "الطلب لم يُرسل. حاول مرة أخرى أو راسل الدعم.",
+  "safetyDelete": "طلب حذف بيانات الأونلاين",
+  "safetyDeleteConfirm": "سيتم إرسال طلب لحذف هويتك المجهولة وبيانات الأونلاين المرتبطة بها. سيُراجع المطوّر الطلب خلال 30 يومًا. نسخ اللاعبين على أجهزتهم منفصلة؛ البلاغات اللازمة لمنع الإساءة قد تُحتفظ بها لفترة محدودة. ملفاتك المحلية لا تُحذف بهذا الطلب.",
+  "safetyIdentity": "عرض معرّف بياناتي",
+  "safetyBlocked": "تم الحظر عندك.",
+  "safetyNoRoom": "الإبلاغ والحظر متاحان داخل الغرفة.",
+  "safetyTools": "الإبلاغ والحظر",
+  "onlineWelcome": "الكراسي جاهزة. ناقصكم أنتم.",
+  "languageLabel": "اللغة",
+  "languageNameArabic": "العربية",
+  "languageNameEnglish": "English",
+  "onlineNewRoomsPaused": "إنشاء الغرف متوقف مؤقتًا. ما زال بإمكانك الانضمام لغرفة موجودة أو اللعب بدون إنترنت.",
+  "helpTitle": "المساعدة والأسئلة الشائعة",
+  "helpIntro": "إجابات سريعة عن اللعب والغرف الأونلاين والأمان وبياناتك.",
+  "helpPlayQuestion": "الماتش بيمشي إزاي؟",
+  "helpPlayAnswer": "اللعبة بتوزع الأدوار السرية وبتدير مراحل الليل والنهار وبتحسب التصويت. أهل البلد يحاولوا يكتشفوا المافيا، والمافيا تحاول تفضل لحد ما عددها يساوي أو يزيد عن أهل البلد. الهوست يقدر يراجع القواعد قبل البداية.",
+  "helpOnlineQuestion": "الغرف الأونلاين بتشتغل إزاي؟",
+  "helpOnlineAnswer": "اعمل غرفة وابعت الكود لصحابك، ادخل بكود، أو اختار غرفة عامة. السيرفر بيدير الماتش، ولو الهوست خرج التحكم بينتقل للاعب متصل تاني.",
+  "helpVoiceQuestion": "الصوت إجباري؟",
+  "helpVoiceAnswer": "لا. الصوت اختياري واللعبة مبتسجلوش. لو إذن الميكروفون أو نقل الصوت فشل، الماتش يكمل بأزرار اللعبة والنص المنظم.",
+  "helpReconnectQuestion": "أعمل إيه لو الاتصال قطع؟",
+  "helpReconnectAnswer": "افتح اللعبة تاني على نفس الجهاز واستخدم «كمّل الغرفة» لما تظهر. كرسيك بيرجع لو الغرفة لسه موجودة. متعملش بروفايل تاني عشان تسترجع كرسي في ماتش شغال.",
+  "helpSafetyQuestion": "البلاغ والحظر بيعملوا إيه؟",
+  "helpSafetyAnswer": "جوا الغرفة استخدم علامة البلاغ للإبلاغ عن لاعب أو محتوى الغرفة. الحظر بيخفي رسائله الخاصة ويكتم صوته عندك فورًا. البلاغ دليل للمراجعة، مش حكم آلي إن اللاعب مذنب.",
+  "helpCoinsQuestion": "إيه هي العملات؟",
+  "helpCoinsAnswer": "بتكسب العملات من ماتشات أونلاين مكتملة ومتحقق منها، وبتفتح محتوى عادل. مينفعش تسحبها أو تحولها أو تشتري بيها صوت أو معلومة سرية أو فرصة أكبر للفوز. العملات مرتبطة بهوية الأونلاين المجهولة على الجهاز ده.",
+  "helpPrivacyQuestion": "الخصوصية وحذف البيانات فين؟",
+  "helpPrivacyAnswer": "موجودين في شاشة الإعدادات تحت «الخصوصية وحذف البيانات». تقدر تشوف معرّف بياناتك المجهول وتطلب الحذف من هناك.",
+  "helpAgeQuestion": "اللعب الأونلاين مناسب لمين؟",
+  "helpAgeAnswer": "الصوت والغرف العامة الأونلاين موجهين للبالغين من 18 سنة. متشاركش عنوانك أو رقم تليفونك أو كلمات السر أو أي معلومات خاصة في الصوت أو الاسم أو الرسائل أو اسم الغرفة.",
+  "helpSupportQuestion": "أتواصل مع الدعم إزاي؟",
+  "helpSupportAnswer": "ابعت على eyadsyam124@gmail.com. ضيف رقم إيصال البلاغ أو معرّف بياناتك المجهول لو له علاقة بالمشكلة، ومتبعتش كلمة سر أو مفتاح وصول.",
+  "coinsTitle": "العملات والمكافآت",
+  "coinsBalance": "{count} عملة",
+  "@coinsBalance": {"placeholders": {"count": {"type": "int"}}},
+  "coinsEarnHint": "كمّل ماتش أونلاين مؤهل واكسب 100 عملة، وكل لاعب في الفريق الفائز يكسب 25 زيادة. السيرفر هو اللي بيتأكد من المكافأة، ومبتغيرش التصويت أو الدور أو فرصة الفوز.",
+  "coinsLoadFailed": "مقدرناش نحمّل عملاتك. مفيش حاجة اتخصمت؛ جرّب تاني.",
+  "coinsGuideTitle": "مذكرة العقل المدبر",
+  "coinsGuideHint": "دليل استراتيجي دائم لقراءة الترابيزة والدفاع عن قصتك، من غير ما يكشف أي معلومة سرية في ماتش شغال.",
+  "coinsGuidePrice": "افتحها مقابل {count} عملة",
+  "@coinsGuidePrice": {"placeholders": {"count": {"type": "int"}}},
+  "coinsBuyGuide": "تفتح المذكرة؟",
+  "coinsBuyConfirm": "العملات المكتسبة هتتخصم نهائيًا من هوية الأونلاين المجهولة على الجهاز ده. المذكرة مبتغيرش الماتش ولا تزود فرصتك.",
+  "coinsUnlock": "افتح",
+  "coinsGuideOpen": "افتح المذكرة",
+  "coinsGuideContent": "المواطن — تابع مين بيغير كلامه بعد التصويت، مش مين صوته أعلى. اطلب سبب واحد واضح وقارنه بالتصويت اللي بعده.\n\nالمافيا — خليك على موقف بسيط من بدري؛ الكذبة المعقدة بتعمل تفاصيل لازم تفتكرها. دافع عن مواطن أحيانًا، لأن الهجوم المستمر بيعمل نمط سهل.\n\nالدكتور — النجاة مش الهدف الوحيد. فكر أي حماية هتطلع معلومة مفيدة وواضحة لبكرة.\n\nالمحقق — معلومتك ملهاش قيمة لو الترابيزة مش هتعرف تستخدمها. سيب أثر منطقي قبل اتهام خطر، من غير ما تعلن دورك بدري.\n\nكل الأدوار — افصل بين اللي اللعبة أكدته واللي لاعب ادعاه. أقوى حجة هي اللي تفضل صحيحة بعد ظهور المعلومة اللي بعدها.",
+  "adRewardAction": "شاهد إعلان وخد +{count} عملة",
+  "@adRewardAction": {"placeholders": {"count": {"type": "int"}}},
+  "adRewardHint": "اختياري بعد النتيجة فقط. مكافأتك الأصلية محفوظة حتى لو رفضت أو الإعلان فشل.",
+  "adRewardPending": "الإعلان اكتمل. المكافأة الإضافية قيد تأكيد آمن وهتظهر تلقائيًا.",
+  "adRewardGranted": "اتضافت {count} عملة إضافية.",
+  "@adRewardGranted": {"placeholders": {"count": {"type": "int"}}},
+  "adRewardUnavailable": "مفيش إعلان متاح دلوقتي. مكافأتك الأصلية زي ما هي.",
+  "adRewardUsed": "خدت مكافأة الإعلان للماتش ده.",
+  "privacyChoices": "اختيارات خصوصية الإعلانات",
+  "privacyChoicesHint": "راجع أو غيّر اختيارات الخصوصية اللي بيطلبها مزود الإعلانات.",
+  "premiumScenarioTitle": "سيناريو مجلس الظلال",
+  "premiumScenarioHint": "حزمة دائمة للمضيف: قواعد متوازنة، همسات ومواجهة وتصويت سري. لما المضيف يختارها كل الموجودين بيلعبوا السيناريو من غير ما يشتروا.",
+  "premiumScenarioBuy": "اشترِ الحزمة",
+  "premiumScenarioOwned": "الحزمة عندك",
+  "premiumScenarioRestore": "استرجع مشترياتك",
+  "premiumScenarioPending": "الشراء لسه قيد المعالجة في المتجر.",
+  "premiumScenarioFailed": "مقدرناش نتحقق من الشراء. مفيش مبلغ هيتخصم من داخل اللعبة.",
+  "premiumScenarioUse": "مجلس الظلال",
+  "premiumScenarioUseHint": "إعدادات سيناريو متوازنة يفتحها المضيف لكل الغرفة.",
+  "quickMatch": "العب دلوقتي",
+  "quickMatchHint": "هندخلك أوضة عامة مناسبة، أو نفتح واحدة وقت الطلب لو مفيش مكان.",
+  "quickMatchSearching": "بندور على أوضة…",
+  "shareResult": "شارك النتيجة",
+  "shareResultText": "ماتش سيد المافيا انتهى بفوز {winner} بعد {days} يوم. افتح رومك على https://almafia.vercel.app",
+  "@shareResultText": {"placeholders": {"winner": {"type": "String"}, "days": {"type": "int"}}},
+  "playAgainWithGroup": "روم جديدة للشلة"
 }

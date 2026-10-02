@@ -51,6 +51,7 @@ class HomeScreen extends ConsumerWidget {
 
   /// Callback when the rules control is tapped.
   final VoidCallback onHowToPlay;
+  final VoidCallback? onProfile;
 
   /// Where the parallax gets its readings. Overridden in tests, and in any
   /// environment with no accelerometer this is what it falls back to.
@@ -62,6 +63,7 @@ class HomeScreen extends ConsumerWidget {
     required this.onHistory,
     required this.onSettings,
     required this.onHowToPlay,
+    this.onProfile,
     this.tiltSource = defaultTiltSource,
   });
 
@@ -160,6 +162,9 @@ class HomeScreen extends ConsumerWidget {
               label: l10n.howToPlay,
               onPressed: onHowToPlay,
             ),
+            if (onProfile != null) _CornerButton(
+              buttonKey: const ValueKey('home_profile'), icon: Icons.person_outline,
+              label: l10n.profileEdit, onPressed: onProfile!),
             _CornerButton(
               buttonKey: HomeScreen.historyButton,
               // Reads as a scroll — a sheet with ruled lines — rather than a

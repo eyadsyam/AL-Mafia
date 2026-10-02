@@ -19,6 +19,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/engine/models/enums.dart' show Role;
 import 'package:mafia_master/engine/models/match_settings.dart';
@@ -61,14 +62,20 @@ void main() {
   }) async {
     await tester.binding.setSurfaceSize(const Size(390, 1600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(localizedApp(SettingsScreen(
-      initial: initial,
-      onSave: onSave,
-      onBack: () {},
-      playerCount: playerCount,
-      roleCounts: roleCounts,
-      onRoleCounts: onRoleCounts,
-    )));
+    await tester.pumpWidget(
+      ProviderScope(
+        child: localizedApp(
+          SettingsScreen(
+            initial: initial,
+            onSave: onSave,
+            onBack: () {},
+            playerCount: playerCount,
+            roleCounts: roleCounts,
+            onRoleCounts: onRoleCounts,
+          ),
+        ),
+      ),
+    );
     await tester.pump();
   }
 
@@ -88,8 +95,9 @@ void main() {
     await tester.pump();
   }
 
-  testWidgets('saving without touching anything changes nothing',
-      (tester) async {
+  testWidgets('saving without touching anything changes nothing', (
+    tester,
+  ) async {
     MatchSettings? saved;
     await pump(tester, initial: _unusual, onSave: (s) => saved = s);
     await save(tester);
@@ -98,8 +106,9 @@ void main() {
     expect(saved, _unusual);
   });
 
-  testWidgets('editing one control changes exactly that control',
-      (tester) async {
+  testWidgets('editing one control changes exactly that control', (
+    tester,
+  ) async {
     MatchSettings? saved;
     await pump(tester, initial: _unusual, onSave: (s) => saved = s);
 
@@ -123,8 +132,9 @@ void main() {
       }
     });
 
-    testWidgets('the controls doc 14 removed are not on this screen',
-        (tester) async {
+    testWidgets('the controls doc 14 removed are not on this screen', (
+      tester,
+    ) async {
       await pump(tester, initial: const MatchSettings(), onSave: (_) {});
       // The bullet master and its four per-role switches, and the hint reset.
       // Their fields survive — the round-trip test above proves it — but a host
@@ -137,8 +147,11 @@ void main() {
         'testify',
         'interfaceHints',
       ]) {
-        expect(find.byKey(SettingsScreen.toggle(field)), findsNothing,
-            reason: field);
+        expect(
+          find.byKey(SettingsScreen.toggle(field)),
+          findsNothing,
+          reason: field,
+        );
       }
     });
 
@@ -147,8 +160,10 @@ void main() {
       // Doc 14 Part 5: *"greyed with the note «في الأونلاين بس»"*. Named, not
       // hidden — a host who cannot find the whisper switch concludes the app
       // lost it.
-      expect(find.textContaining(arStrings.settingsOnlineOnly),
-          findsAtLeastNWidgets(3));
+      expect(
+        find.textContaining(arStrings.settingsOnlineOnly),
+        findsAtLeastNWidgets(3),
+      );
     });
 
     testWidgets('«اسم واحد» is off by default', (tester) async {
@@ -163,8 +178,9 @@ void main() {
   });
 
   group('doc 13 §5 — the preset chips', () {
-    testWidgets('tapping one writes its rows and leaves the rest',
-        (tester) async {
+    testWidgets('tapping one writes its rows and leaves the rest', (
+      tester,
+    ) async {
       MatchSettings? saved;
       Map<Role, int>? counts;
       await pump(
@@ -189,8 +205,10 @@ void main() {
       // And the rows «سريعة» does not speak for are untouched.
       expect(saved!.openVoting, _unusual.openVoting);
       expect(saved!.confrontationSeconds, _unusual.confrontationSeconds);
-      expect(saved!.survivorConfrontationEnabled,
-          _unusual.survivorConfrontationEnabled);
+      expect(
+        saved!.survivorConfrontationEnabled,
+        _unusual.survivorConfrontationEnabled,
+      );
 
       // The split it implies went back to the caller, not into the settings.
       expect(counts, MatchPreset.fast.roleCounts(9));
@@ -201,14 +219,19 @@ void main() {
       // the Mafia, and one Mafia in six is «كلاسيكية». There is no integer in
       // between, so the preset is simply absent at that count.
       await pump(tester, initial: _unusual, playerCount: 6, onSave: (_) {});
-      expect(find.byKey(SettingsScreen.presetChip(MatchPreset.brutal)),
-          findsNothing);
-      expect(find.byKey(SettingsScreen.presetChip(MatchPreset.classic)),
-          findsOneWidget);
+      expect(
+        find.byKey(SettingsScreen.presetChip(MatchPreset.brutal)),
+        findsNothing,
+      );
+      expect(
+        find.byKey(SettingsScreen.presetChip(MatchPreset.classic)),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('editing a row after tapping a chip puts the chip out',
-        (tester) async {
+    testWidgets('editing a row after tapping a chip puts the chip out', (
+      tester,
+    ) async {
       await pump(
         tester,
         initial: MatchPreset.classic.settings,

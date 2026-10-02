@@ -42,16 +42,20 @@ class GenderPicker extends StatelessWidget {
 
     Widget mark(PlayerGender gender, IconData icon, String label, Key key) {
       final on = value == gender;
+      // A finger's width each (E-6): the compact 32x24 marks were under
+      // any touch target a thumb can find on a phone, and they sit in a
+      // text field's suffix where a miss lands in the field instead.
       return IconButton(
         key: key,
         tooltip: label,
-        visualDensity: VisualDensity.compact,
         padding: EdgeInsets.symmetric(horizontal: spacing.xs),
-        constraints: const BoxConstraints(),
+        constraints: BoxConstraints(
+          minWidth: spacing.xxl,
+          minHeight: spacing.xxl,
+        ),
         // Tapping the chosen one clears it, which is the only way back to
         // "did not say" once something has been picked.
-        onPressed: () =>
-            onChanged(on ? PlayerGender.unspecified : gender),
+        onPressed: () => onChanged(on ? PlayerGender.unspecified : gender),
         icon: Icon(
           icon,
           size: spacing.lg,

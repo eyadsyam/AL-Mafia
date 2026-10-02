@@ -46,11 +46,13 @@ GROUPS = [
      "first-run introduction is an MP4. None may be used on an in-hand surface."),
 ]
 
-SKIP = {".gitkeep", "OFL.txt"}
+SKIP = {".gitkeep", "OFL.txt", "avatar_male.webp", "avatar_female.webp"}
 
 
 def _ident(filename: str) -> str:
     """role_detective.webp -> roleDetective"""
+    # Preserve the public avatar names and their corrected transparent artwork.
+    filename = filename.replace('_transparent.png', '.png')
     stem = os.path.splitext(filename)[0]
     parts = re.split(r"[^0-9a-zA-Z]+", stem)
     parts = [p for p in parts if p]

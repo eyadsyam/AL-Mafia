@@ -46,6 +46,11 @@ GamePhase phaseFromServer(String phase) => switch (phase) {
   'discuss' => GamePhase.discussion,
   'defense' => GamePhase.discussion,
   'vote' => GamePhase.voting,
+  // The beat after the ballot: who went, and what they were. It is
+  // `GamePhase.reveal` because that is the phase the card-rise and the
+  // «فلان كان ...» band are already written against — the offline flow has had
+  // this beat since the beginning, and online it had nowhere to happen.
+  'verdict' => GamePhase.reveal,
   'result' => GamePhase.result,
   _ => GamePhase.setup,
 };
@@ -60,7 +65,7 @@ String phaseToServer(GamePhase phase) => switch (phase) {
   GamePhase.confrontation => 'confront',
   GamePhase.discussion => 'discuss',
   GamePhase.voting || GamePhase.voteResolving => 'vote',
-  GamePhase.reveal || GamePhase.winCheck => 'vote',
+  GamePhase.reveal || GamePhase.winCheck => 'verdict',
   GamePhase.result || GamePhase.analytics => 'result',
 };
 
@@ -224,7 +229,13 @@ GameSnapshot snapshotFrom({
   final phase = phaseFromServer(state.phase);
   final data = state.publicData;
 
-  final roster = [...players]..sort((a, b) => a.seat.compareTo(b.seat));
+  // A pre-deal removal retains its notification row, not a place in the match.
+  // Once dealt, the public seat list stays fixed, including later departures.
+  final dealtSeats = data['rosterSeats'];
+  final roster = players.where((p) {
+    if (state.phase == 'lobby') return !p.kicked;
+    return dealtSeats is! List || dealtSeats.contains(p.seat);
+  }).toList()..sort((a, b) => a.seat.compareTo(b.seat));
   final public = PublicMatchView(
     phase: phase,
     dayNumber: state.phaseNumber,
@@ -266,6 +277,7 @@ GameSnapshot snapshotFrom({
       maxPlayers: (state.settings['maxPlayers'] as num?)?.toInt() ?? 10,
       voice: state.settings['voice'] as bool? ?? true,
       muteAllAtNight: state.settings['muteAllAtNight'] as bool? ?? true,
+      scenarioCode: state.settings['scenarioCode'] as String? ?? 'classic',
     ),
     pendingOutcome: switch (data['outcome']) {
       'mafia' => Alignment.mafia,
@@ -282,7 +294,7 @@ GameSnapshot snapshotFrom({
       for (final p in roster)
         if (p.muted) p.seat,
     },
-    viewerKicked: roster
+    viewerKicked: players
         .where((p) => p.seat == viewerSeat)
         .any((p) => p.kicked),
     hostSeat: roster
@@ -299,9 +311,7 @@ GameSnapshot snapshotFrom({
     // reporting on who is still deciding.
     presence:
         frozenPresence ??
-        {
-          for (final p in roster) p.seat: SeatPresence.fromServer(p.status),
-        },
+        {for (final p in roster) p.seat: SeatPresence.fromServer(p.status)},
     // Doc 12 §3.6. Empty unless the room opted into an open ballot, and empty
     // then too until somebody votes — the policy decides, not this file.
     liveBallots: liveBallots,
@@ -347,7 +357,7 @@ GameSnapshot snapshotFrom({
     unseenRoleSeats: phase == GamePhase.distributing
         ? {
             for (final player in roster)
-              if (!player.sawRole) player.seat,
+              if (!player.sawRole && !player.kicked) player.seat,
           }
         : const {},
     raisedHands: micPolicyFor(phase) == MicPolicy.muted

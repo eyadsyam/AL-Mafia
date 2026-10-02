@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../app/asset_constants.dart';
-import '../../../../engine/models/enums.dart' show GamePhase, PlayerStatus, RoleX;
+import '../../../../engine/models/enums.dart'
+    show GamePhase, PlayerStatus, RoleX;
 import '../../../../engine/models/player.dart' show PublicPlayer;
 import '../../../../platform/reduce_motion.dart';
 import '../../../../transport/game_snapshot.dart';
@@ -12,10 +13,13 @@ import '../../../theme/design_tokens.dart';
 import '../../../theme/mafia_theme.dart';
 import '../council/council_band.dart';
 import '../../../widgets/player_avatar.dart';
+import '../../../widgets/ambient_media.dart';
+import '../../../../engine/models/enums.dart' as engine;
 import '../council/role_glyph.dart';
 import '../council/seat_status.dart';
 import 'table_mood.dart';
 import 'table_pulse.dart';
+import '../safety_center.dart';
 
 /// The single four-band online council described by doc 15 §1.1.
 ///
@@ -61,6 +65,9 @@ class TableScene extends StatelessWidget {
   /// would have to add a parameter, which is the point.
   final double revealProgress;
 
+  /// Safe local voice levels by seat for the speaking pulse.
+  final Map<int, double> speakingLevels;
+
   /// The host's explicit ending (task 5), or null for everybody else.
   ///
   /// In band 1 rather than band 4, because band 4 is the one primary action of
@@ -85,6 +92,7 @@ class TableScene extends StatelessWidget {
     this.tearProgress = 0,
     this.spotlight = 0,
     this.revealProgress = 0,
+    this.speakingLevels = const {},
     this.onCloseRoom,
     this.onSeatInspect,
   });
@@ -95,7 +103,7 @@ class TableScene extends StatelessWidget {
   static const Key voice = ValueKey('council_voice');
   static const Key hand = ValueKey('council_hand');
   static const Key headerTimer = ValueKey('council_header_timer');
-  static const Key closeRoomButton = ValueKey('council_close_room');
+  static const Key exitRoomButton = ValueKey('council_exit_room');
 
   /// Your own chair, in band 4 rather than in the council (doc 15 §1.1).
   static const Key viewerSeat = ValueKey('council_viewer_seat');
@@ -132,6 +140,7 @@ class TableScene extends StatelessWidget {
   static List<CouncilSeatData> seatsFor(
     GameSnapshot snapshot, {
     required TableMood mood,
+    Map<int, double> speakingLevels = const {},
   }) {
     // Doc 15 §S-O13 beat 3, and the one line in this file that touches a role.
     //
@@ -178,6 +187,9 @@ class TableScene extends StatelessWidget {
             // exist. The band cannot read it: it is an asset path, and the
             // mapping that produced it lives in `role_glyph.dart`.
             roleGlyph: roles[player.seat],
+            speakingLevel: mood.showsPerSeatStatus
+                ? (speakingLevels[player.seat] ?? 0)
+                : 0,
           ),
     ];
   }
@@ -197,7 +209,7 @@ class TableScene extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           ColoredBox(color: colors.surfaceBase),
-          _Backdrop(mood: mood),
+          _Backdrop(mood: mood, winner: snapshot.outcome?.winner),
           if (mood.kind == TableMoodKind.morning)
             _MorningSweep(day: snapshot.dayNumber),
           SafeArea(
@@ -218,7 +230,11 @@ class TableScene extends StatelessWidget {
                     flex: CouncilTokens.councilFlex,
                     child: CouncilBand(
                       key: council,
-                      seats: seatsFor(snapshot, mood: mood),
+                      seats: seatsFor(
+                        snapshot,
+                        mood: mood,
+                        speakingLevels: speakingLevels,
+                      ),
                       totalPlayers: snapshot.public.players.length,
                       selectedSeat: selectedSeat,
                       selectableSeats: selectableSeats,
@@ -250,7 +266,13 @@ class TableScene extends StatelessWidget {
                   Expanded(
                     key: hand,
                     flex: CouncilTokens.handFlex,
-                    child: _HandBand(footer: footer, viewer: viewer),
+                    child: _HandBand(
+                      footer: footer,
+                      viewer: viewer,
+                      speakingLevel: mood.showsPerSeatStatus
+                          ? (speakingLevels[snapshot.viewerSeat] ?? 0)
+                          : 0,
+                    ),
                   ),
                 ],
               ),
@@ -271,8 +293,9 @@ class _CouncilHeader extends StatelessWidget {
   String _label(BuildContext context) {
     final l10n = context.l10n;
     return switch (snapshot.phase) {
-      GamePhase.night || GamePhase.nightResolving || GamePhase.preNightLobby =>
-        l10n.nightNumbered(snapshot.dayNumber),
+      GamePhase.night ||
+      GamePhase.nightResolving ||
+      GamePhase.preNightLobby => l10n.nightNumbered(snapshot.dayNumber),
       GamePhase.morning ||
       GamePhase.openingRound ||
       GamePhase.confrontation ||
@@ -302,12 +325,13 @@ class _CouncilHeader extends StatelessWidget {
         ),
         if (snapshot.phaseDeadline != null)
           HeaderTimer(deadline: snapshot.phaseDeadline!),
+        const SafetyButton(),
         if (onCloseRoom != null)
           IconButton(
-            key: TableScene.closeRoomButton,
-            tooltip: context.l10n.onlineCloseRoom,
+            key: TableScene.exitRoomButton,
+            tooltip: context.l10n.onlineLeave,
             onPressed: onCloseRoom,
-            icon: Icon(Icons.lock_outline, color: colors.textSecondary),
+            icon: Icon(Icons.logout, color: colors.textSecondary),
             visualDensity: VisualDensity.compact,
           ),
       ],
@@ -386,8 +410,13 @@ class _HeaderTimerState extends State<HeaderTimer> {
 class _HandBand extends StatelessWidget {
   final Widget? footer;
   final PublicPlayer? viewer;
+  final double speakingLevel;
 
-  const _HandBand({required this.footer, required this.viewer});
+  const _HandBand({
+    required this.footer,
+    required this.viewer,
+    required this.speakingLevel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -411,6 +440,7 @@ class _HandBand extends StatelessWidget {
                   gender: viewer!.gender,
                   diameter: CouncilTokens.viewerSeatSize,
                   ringColor: colors.textPrimary,
+                  speakingLevel: speakingLevel,
                 ),
                 SizedBox(width: spacing.sm),
                 Flexible(
@@ -505,36 +535,44 @@ class _MorningSweepState extends State<_MorningSweep>
 
 class _Backdrop extends StatelessWidget {
   final TableMood mood;
+  final engine.Alignment? winner;
 
-  const _Backdrop({required this.mood});
+  const _Backdrop({required this.mood, this.winner});
 
   @override
   Widget build(BuildContext context) {
-    final asset = switch (mood.kind) {
-      TableMoodKind.night || TableMoodKind.reveal =>
-        AppCouncilArt.backdropNight,
-      TableMoodKind.morning => AppCouncilArt.backdropDawn,
-      TableMoodKind.discussion || TableMoodKind.lobby =>
-        AppCouncilArt.backdropDay,
-      TableMoodKind.confrontation ||
-      TableMoodKind.vote ||
-      TableMoodKind.result => AppCouncilArt.backdropVerdict,
-    };
+    final result = mood.kind == TableMoodKind.result && winner != null;
+    final asset = result
+        ? (winner == engine.Alignment.mafia
+              ? AppImages.outcomeMafiaWin
+              : AppImages.outcomeTownWin)
+        : switch (mood.kind) {
+            TableMoodKind.night ||
+            TableMoodKind.reveal => AppCouncilArt.backdropNight,
+            TableMoodKind.morning => AppCouncilArt.backdropDawn,
+            TableMoodKind.discussion ||
+            TableMoodKind.lobby => AppCouncilArt.backdropDay,
+            TableMoodKind.confrontation ||
+            TableMoodKind.vote ||
+            TableMoodKind.result => AppCouncilArt.backdropVerdict,
+          };
+    // Only public phases gain motion. Private night/reveal surfaces keep
+    // their existing neutral ground, independent of role and action state.
+    final loop = result
+        ? (winner == engine.Alignment.mafia
+              ? AppVideo.outcomeMafiaWinLoop
+              : AppVideo.outcomeTownWinLoop)
+        : switch (mood.kind) {
+            TableMoodKind.lobby => AppVideo.bgHomeLoop,
+            TableMoodKind.vote => AppVideo.bgVoteLoop,
+            _ => null,
+          };
     return AnimatedSwitcher(
-      duration: ReduceMotion.of(context)
-          ? Duration.zero
-          : context.motion.phase,
+      duration: ReduceMotion.of(context) ? Duration.zero : context.motion.phase,
       child: Opacity(
         key: ValueKey(asset),
         opacity: CouncilTokens.backdropOpacity,
-        child: Image.asset(
-          asset,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-          gaplessPlayback: true,
-          excludeFromSemantics: true,
-        ),
+        child: AmbientMedia(still: asset, loop: loop),
       ),
     );
   }

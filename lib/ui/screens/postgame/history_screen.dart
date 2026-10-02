@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/repository_provider.dart';
+import '../../../data/online_match_history.dart';
 import '../../../data/repository_types.dart';
 // Prefixed: the engine's `Alignment` collides with Flutter's.
 import '../../../engine/models/enums.dart' as engine;
@@ -40,6 +41,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   /// row back for however long the read takes, and Flutter asserts on exactly
   /// that ("a dismissed Dismissible widget is still part of the tree").
   List<MatchSummary>? _summaries;
+  List<Map<String, dynamic>> _online = [];
 
   @override
   void initState() {
@@ -51,6 +53,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final summaries = await ref.read(matchRepositoryProvider).listHistory();
     if (!mounted) return;
     setState(() => _summaries = summaries);
+    // The online summaries come from platform storage, which is a different
+    // dependency with a different failure mode: a harness with no plugin, or a
+    // browser with site data blocked, can leave that read pending forever.
+    // Read it after the offline list is already on screen so the screen never
+    // waits on it.
+    final online = await OnlineMatchHistory.load();
+    if (!mounted || online.isEmpty) return;
+    setState(() => _online = online);
   }
 
   /// Deleting a match is not undoable, so it is confirmed before the swipe is
@@ -137,7 +147,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         builder: (context) {
           final summaries = _summaries;
           if (summaries == null) return const SizedBox.shrink();
-          if (summaries.isEmpty) {
+          if (summaries.isEmpty && _online.isEmpty) {
             return Center(
               child: Text(
                 l10n.noPastMatches,
@@ -149,10 +159,33 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           return ListView.separated(
             key: HistoryScreen.list,
             padding: EdgeInsets.all(spacing.md),
-            itemCount: summaries.length,
+            itemCount: summaries.length + _online.length,
             separatorBuilder: (_, __) => SizedBox(height: spacing.sm),
             itemBuilder: (context, index) {
-              final summary = summaries[index];
+              if (index < _online.length) {
+                final row = _online[index];
+                return Card(
+                  child: ListTile(
+                    key: ValueKey('online_history_${row['roomId']}'),
+                    leading: const Icon(Icons.public),
+                    title: Text(
+                      '${l10n.onlineHistoryLabel} · ${_winnerLabel(row['winner'] == 'mafia' ? engine.Alignment.mafia : engine.Alignment.town)}',
+                    ),
+                    subtitle: Text(
+                      (row['names'] as List).whereType<String>().join(
+                        l10n.listSeparator,
+                      ),
+                    ),
+                    trailing: Text(
+                      l10n.onlineMatchMeta(
+                        (row['names'] as List).length,
+                        row['days'] as int,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              final summary = summaries[index - _online.length];
               return Dismissible(
                 key: HistoryScreen.tileFor(summary.id),
                 direction: DismissDirection.endToStart,

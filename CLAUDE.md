@@ -71,3 +71,17 @@ flutter test 2>&1 | tail -40
 flutter run -d <id>
 adb devices
 ```
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues (`eyadsyam/AL-Mafia`, via `gh`) are canonical, mirrored locally under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five: needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.

@@ -1,5 +1,30 @@
 {
+  "onlineHostExitTitle": "Leave the room?",
+  "onlineHostExitBody": "Keep the room running and hand hosting to the first available player, or close it for everyone.",
+  "onlineLeaveKeepRoom": "Leave and keep playing",
+  "voiceEnablePlayback": "Enable audio",
+  "onlineHistoryLabel": "Online match",
+  "onlineMatchMeta": "{players} players · day {day}",
+  "@onlineMatchMeta": {
+    "placeholders": {
+      "players": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
   "@@locale": "en",
+  "profileTitle": "Your profile",
+  "profileHint": "Choose your name and character once. Saved on this device, with no sign-in.",
+  "profileSaveFailed": "Could not save your profile. Allow browser storage and try again.",
+  "profileEdit": "Edit profile",
+  "videoPlay": "Play introduction",
+  "videoFailed": "The introduction could not play here.",
+  "videoRetry": "Try again",
+  "voiceRetry": "Enable audio",
+  "onlineNightPrivacyHint": "Audio stays off during role reveal and night to protect game privacy.",
   "appTitle": "Mafia Master",
   "actionNotSaved": "Your choice was not saved. Try again.",
   "@appTitle": {
@@ -835,6 +860,7 @@
       }
     }
   },
+  "onlineFloorOpen": "The floor is open",
   "onlineRaisedHands": "Hands up: {names}",
   "@onlineRaisedHands": {
     "description": "Doc 15 §1.4. Who has asked for the floor, in seat order. Never a queue: no position numbers, and never sorted by who asked first.",
@@ -1081,11 +1107,131 @@
   "playerMale": "Male",
   "playerFemale": "Female",
   "timelineMafiaVoteFemale": "{actor} voted for {target}",
-  "@timelineMafiaVoteFemale": {"placeholders": {"actor": {"type": "String"}, "target": {"type": "String"}}},
+  "@timelineMafiaVoteFemale": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "timelineProtectFemale": "{actor} protected {target}",
-  "@timelineProtectFemale": {"placeholders": {"actor": {"type": "String"}, "target": {"type": "String"}}},
+  "@timelineProtectFemale": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "timelineInvestigateFemale": "{actor} investigated {target}",
-  "@timelineInvestigateFemale": {"placeholders": {"actor": {"type": "String"}, "target": {"type": "String"}}},
+  "@timelineInvestigateFemale": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "timelineSuspectFemale": "{actor} suspected {target}",
-  "@timelineSuspectFemale": {"placeholders": {"actor": {"type": "String"}, "target": {"type": "String"}}}
+  "@timelineSuspectFemale": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineDiscardResume": "Forget room",
+  "onlineStorageWarning": "This device could not save. The match is unaffected, but it may not bring you back to the room on its own or keep the result.",
+  "safetyTitle": "Privacy and data deletion",
+  "safetyPolicy": "Developer: Eyad Syam\nSupport: eyadsyam124@gmail.com\n\nLocal play stays on your device. Online play uses a random identifier, profile, match actions and messages. Earned coins, rewards and unlocked items remain with that identity until deletion. Optional voice is encrypted in transit and is not recorded by the game. Service providers process connection data needed to operate online play. There are no ads or advertising trackers.\n\nFinished rooms are eligible for deletion after 24 hours. Old anonymous identities with no room membership are removed on the cleanup schedule. You can request online-data deletion below; submission is not completed deletion. Outside the app, use almafia.vercel.app/delete-data with your identifier or receipt. Never send passwords or access keys.\n\nHarassment, threats, hate, sexual content, child exploitation and sharing private information are prohibited. Report abusive players, room names or messages. Blocking hides their private messages and mutes their voice for you; public game actions remain visible. Reports are reviewed by the developer and are not visible to players.",
+  "safetyAgree": "I accept the community rules",
+  "safetyConsentTitle": "Before playing online",
+  "safetyConsentBody": "Abuse, harassment, hate, sexual content and sharing private information are prohibited. Use Safety to report or block. Voice is optional. Read Privacy in Settings for data practices.",
+  "safetyReport": "Submit report",
+  "safetyBlock": "Block player messages and voice",
+  "safetyRoom": "Room name or content",
+  "safetyDetails": "Describe the abuse or message (no secret role information)",
+  "safetyReceipt": "Request received. Keep this receipt:",
+  "safetyFailed": "Request was not sent. Retry or contact support.",
+  "safetyDelete": "Request online data deletion",
+  "safetyDeleteConfirm": "Send a request to delete your anonymous identity and associated online data. The developer will review it within 30 days. Other players’ local copies are separate; safety evidence may be retained for a limited period. This request does not delete local files.",
+  "safetyIdentity": "Show my data identifier",
+  "safetyBlocked": "Blocked for you.",
+  "safetyNoRoom": "Reporting and blocking are available inside a room.",
+  "safetyTools": "Report and block",
+  "onlineWelcome": "The table is ready. Take your seat.",
+  "languageLabel": "Language",
+  "languageNameArabic": "العربية",
+  "languageNameEnglish": "English",
+  "onlineNewRoomsPaused": "New rooms are temporarily paused. You can still join an existing room or play offline.",
+  "helpTitle": "Help and FAQ",
+  "helpIntro": "Quick answers about playing, online rooms, safety and your data.",
+  "helpPlayQuestion": "How does a match work?",
+  "helpPlayAnswer": "The game assigns secret roles, guides every night and day phase, and counts the vote. Citizens find the Mafia; the Mafia survives until it matches or outnumbers the town. The host can review the rules before starting.",
+  "helpOnlineQuestion": "How do online rooms work?",
+  "helpOnlineAnswer": "Create a room and share its code, join with a code, or choose a public room. The match is controlled by the game server, and host control moves to another connected player if needed.",
+  "helpVoiceQuestion": "Is voice required?",
+  "helpVoiceAnswer": "No. Voice is optional and is not recorded by the game. If microphone access or voice relay fails, the match continues with the game controls and structured text.",
+  "helpReconnectQuestion": "What if the connection drops?",
+  "helpReconnectAnswer": "Reopen the game on the same device and use Continue room when it appears. Your seat is restored when the room still exists. Never create a second profile to recover a live seat.",
+  "helpSafetyQuestion": "How do reporting and blocking work?",
+  "helpSafetyAnswer": "Inside a room, use the flag button to report a player or room content. Blocking immediately hides that player's private messages and mutes their voice for you. A report is evidence for review, not an automatic guilty decision.",
+  "helpCoinsQuestion": "What are coins?",
+  "helpCoinsAnswer": "Coins are earned from verified completed online matches and can unlock fair content. They cannot be withdrawn, transferred or used to buy votes, secret information or a better chance to win. Coins stay with this device's anonymous online identity.",
+  "helpPrivacyQuestion": "Where are privacy and deletion controls?",
+  "helpPrivacyAnswer": "They are on the Settings screen under Privacy and data deletion. You can view your anonymous data identifier and request deletion there.",
+  "helpAgeQuestion": "Who is online play intended for?",
+  "helpAgeAnswer": "Online voice and public rooms are intended for adults aged 18 or older. Do not share your address, phone number, passwords or other private information in voice, names, messages or room titles.",
+  "helpSupportQuestion": "How can I contact support?",
+  "helpSupportAnswer": "Email eyadsyam124@gmail.com. Include a report receipt or your anonymous data identifier when relevant, but never send a password or access key.",
+  "coinsTitle": "Coins and rewards",
+  "coinsBalance": "{count} coins",
+  "@coinsBalance": {"placeholders": {"count": {"type": "int"}}},
+  "coinsEarnHint": "Complete an eligible online match to earn 100 coins. Players on the winning team earn 25 more. Rewards are verified by the game server and never affect votes, roles or the chance to win.",
+  "coinsLoadFailed": "Your coins could not be loaded. Nothing was spent; try again.",
+  "coinsGuideTitle": "The Mastermind's Notebook",
+  "coinsGuideHint": "A permanent strategy guide for reading the table and defending your story. It never reveals live secret information.",
+  "coinsGuidePrice": "Unlock for {count} coins",
+  "@coinsGuidePrice": {"placeholders": {"count": {"type": "int"}}},
+  "coinsBuyGuide": "Unlock the notebook?",
+  "coinsBuyConfirm": "This permanently spends earned coins on this anonymous online identity. It cannot change a match or improve your odds.",
+  "coinsUnlock": "Unlock",
+  "coinsGuideOpen": "Open the notebook",
+  "coinsGuideContent": "CITIZEN — Track who changes a story after the vote, not who speaks the loudest. Ask for one clear reason and compare it with the next ballot.\n\nMAFIA — Build a simple position early. A complicated lie creates details you must remember. Defend a citizen sometimes; automatic aggression gives the table an easy pattern.\n\nDOCTOR — Survival is not the only goal. Think about which save would create the most trustworthy information for tomorrow.\n\nDETECTIVE — Your information is valuable only if the table can use it. Leave a believable trail before a risky accusation, without announcing your role too early.\n\nEVERY ROLE — Separate what the game confirmed from what a player claimed. The strongest argument is the one that survives the next revealed fact.",
+  "adRewardAction": "Watch an ad for +{count} coins",
+  "@adRewardAction": {"placeholders": {"count": {"type": "int"}}},
+  "adRewardHint": "Optional and shown only after the result. Your original reward stays yours if you decline or the ad fails.",
+  "adRewardPending": "Ad completed. The extra reward is being verified and will appear automatically.",
+  "adRewardGranted": "{count} extra coins added.",
+  "@adRewardGranted": {"placeholders": {"count": {"type": "int"}}},
+  "adRewardUnavailable": "No ad is available right now. Your original reward is unchanged.",
+  "adRewardUsed": "You claimed the ad reward for this match.",
+  "privacyChoices": "Ad privacy choices",
+  "privacyChoicesHint": "Review or change the privacy choices required by the advertising provider.",
+  "premiumScenarioTitle": "Council of Shadows scenario",
+  "premiumScenarioHint": "A permanent host pack with balanced rules, whispers, confrontation and secret ballots. When the host selects it, everyone in the room plays without buying it.",
+  "premiumScenarioBuy": "Buy scenario pack",
+  "premiumScenarioOwned": "Scenario pack owned",
+  "premiumScenarioRestore": "Restore purchases",
+  "premiumScenarioPending": "The store is still processing this purchase.",
+  "premiumScenarioFailed": "The purchase could not be verified. The game has not charged anything itself.",
+  "premiumScenarioUse": "Council of Shadows",
+  "premiumScenarioUseHint": "A balanced scenario preset the host unlocks for the whole room.",
+  "quickMatch": "Play now",
+  "quickMatchHint": "Join a compatible public room, or open one on demand when none has space.",
+  "quickMatchSearching": "Finding a room…",
+  "shareResult": "Share result",
+  "shareResultText": "A Mafia Master match ended with {winner} winning after {days} days. Open your room at https://almafia.vercel.app",
+  "@shareResultText": {"placeholders": {"winner": {"type": "String"}, "days": {"type": "int"}}},
+  "playAgainWithGroup": "New room for the group"
 }

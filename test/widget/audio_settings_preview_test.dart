@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
 import 'package:mafia_master/ui/screens/setup/settings_screen.dart';
@@ -14,12 +15,14 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(390, 1600));
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(
-        localizedApp(
-          SettingsScreen(
-            initial: const MatchSettings.defaults(),
-            onAudioPreview: previews.add,
-            onSave: (value) => saved = value,
-            onBack: () {},
+        ProviderScope(
+          child: localizedApp(
+            SettingsScreen(
+              initial: const MatchSettings.defaults(),
+              onAudioPreview: previews.add,
+              onSave: (value) => saved = value,
+              onBack: () {},
+            ),
           ),
         ),
       );
