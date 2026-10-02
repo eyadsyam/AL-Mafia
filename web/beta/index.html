@@ -38,7 +38,8 @@
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+  body { overflow-x: hidden; }
   body {
     margin: 0; background: var(--ground); color: var(--text);
     font: 16px/1.6 var(--body); letter-spacing: 0;
@@ -88,7 +89,7 @@
   }
   input[type=email] { direction: ltr; text-align: left; }
   input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; border-color: transparent; }
-  .trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .trap { position: absolute; inset-inline-start: 0; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); opacity: 0; pointer-events: none; }
   button {
     font: 600 1.05rem/1 var(--body); color: var(--ink); background: var(--gold);
     border: 0; border-radius: 10px; padding: 1rem; cursor: pointer;
