@@ -3609,4 +3609,9 @@ Built:      Reused Resend's verified DKIM and sending/return-path CNAMEs; added 
 Files:      tool/tester_mail/Code.gs, docs/PROGRESS.md (tester_signup temporarily instrumented then restored and redeployed)
 Verified:   Resend domain Verified; 4 DNS records visible via 1.1.1.1; tester_signup active with verify_jwt=false; test signup HTTP 200/Resend id 01a0f8ed-b115-788e-b10b-c3e64fbf850f and test row deleted; 3 real rows accepted and mailed_at set; temporary function/key removed; source syntax/diff checks pass.
 Gate:       PASS for DNS, deployment, and provider acceptance.
-Open:       Inbox placement for claudeacount124@gmail.com was not directly observable from this account. Resend uses rsend/send CNAMEs in this region instead of a separate MX record.
+Open:       Inbox placement for claudeacount124@gmail.com was not directly observable from this account. Resend uses rsend/send CNAMEs in this region instead of a separate MX record.## PHASE TESTER-WELCOME-ROUTING — blocked
+Built:      Enabled Cloudflare Email Routing; added three root MX records and one root SPF; verified Gmail destination and activated eyad@saidalmafia.com forwarding; added saidalmafia.com to Postmaster Tools.
+Files:      docs/PROGRESS.md
+Verified:   Cloudflare DoH returned all three MX and one root SPF; Resend send subdomain still resolves; tester_signup returned ok for +mx1; newest Gmail message arrived in Spam, then Gmail confirmed Not spam on its thread and the earlier domain-sent invite.
+Gate:       FAIL
+Open:       Fresh post-training Inbox placement is unproven; Cloudflare routing status still says Syncing. Postmaster domain entry is unverified because its management page did not expose a verification TXT.
