@@ -51,25 +51,31 @@ function escapeHtml(value: string): string {
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
+const GROUP_URL = "https://groups.google.com/g/mafia-master-testers";
+const PLAY_URL = "https://play.google.com/apps/testing/com.mafiamaster.mafia_master";
+
 function welcomeText(name: string): string {
   return `أهلاً ${name}،\n\n` +
-    "شكرًا لتسجيلك لتجربة سيد المافيا. تقدر تكمل خطوات الانضمام من موبايل أندرويد باستخدام حساب جوجل نفسه اللي سجلت بيه.\n\n" +
-    `افتح صفحة الانضمام: ${JOIN_URL}\n\n` +
-    "من الصفحة، انضم إلى مجموعة المختبرين أولًا. بعد قبول العضوية، ارجع للصفحة نفسها علشان تفتح رابط تنزيل اللعبة من Google Play. " +
-    "لو رابط التنزيل ما ظهرش فورًا، ارجع للصفحة بعد شوية.\n\n" +
-    "وصلتك الرسالة لأنك سجلت لتجربة سيد المافيا. لو التسجيل مش منك، تجاهلها.\n\n" +
-    "إياد\nفريق سيد المافيا";
+    "خطوتين وتبقى جوه التجربة (من موبايل أندرويد، بنفس حساب جوجل اللي سجلت بيه):\n\n" +
+    `1) انضم لمجموعة المختبرين: ${GROUP_URL}\n` +
+    `2) نزّل اللعبة من جوجل بلاي: ${PLAY_URL}\n\n` +
+    `لو واجهتك مشكلة افتح صفحة الانضمام: ${JOIN_URL}\n\n` +
+    "لو التسجيل مش منك، تجاهل الرسالة.\n\n" +
+    "إياد - سيد المافيا";
 }
 
 function welcomeHtml(name: string): string {
-  return `<div dir="rtl" lang="ar" style="font-family:Tahoma,Arial,sans-serif;line-height:1.6;letter-spacing:0;text-align:right">` +
-    `<h1>خطوات الانضمام لتجربة سيد المافيا</h1>` +
+  const link = (href: string, label: string) =>
+    `<a href="${href}" style="color:#8a6d1f;font-weight:bold">${label}</a>`;
+  return `<div dir="rtl" lang="ar" style="font-family:Tahoma,Arial,sans-serif;line-height:1.6;letter-spacing:0;text-align:right;font-size:16px">` +
     `<p>أهلاً <span dir="auto">${escapeHtml(name)}</span>،</p>` +
-    `<p>شكرًا لتسجيلك لتجربة سيد المافيا. تقدر تكمل خطوات الانضمام من موبايل أندرويد باستخدام حساب جوجل نفسه اللي سجلت بيه.</p>` +
-    `<p><a href="${JOIN_URL}">افتح صفحة الانضمام</a></p>` +
-    `<p>من الصفحة، انضم إلى مجموعة المختبرين أولًا. بعد قبول العضوية، ارجع للصفحة نفسها علشان تفتح رابط تنزيل اللعبة من Google Play. لو رابط التنزيل ما ظهرش فورًا، ارجع للصفحة بعد شوية.</p>` +
-    `<p>وصلتك الرسالة لأنك سجلت لتجربة سيد المافيا. لو التسجيل مش منك، تجاهلها.</p>` +
-    `<p>إياد<br>فريق سيد المافيا</p></div>`;
+    `<p>خطوتين وتبقى جوه التجربة، من موبايل أندرويد وبنفس حساب جوجل اللي سجلت بيه:</p>` +
+    `<ol style="padding-right:20px;padding-left:0">` +
+    `<li>${link(GROUP_URL, "انضم لمجموعة المختبرين")}</li>` +
+    `<li>${link(PLAY_URL, "نزّل اللعبة من جوجل بلاي")}</li></ol>` +
+    `<p>لو واجهتك مشكلة، ${link(JOIN_URL, "افتح صفحة الانضمام")}.</p>` +
+    `<p style="color:#666;font-size:13px">لو التسجيل مش منك، تجاهل الرسالة.</p>` +
+    `<p>إياد - سيد المافيا</p></div>`;
 }
 
 /** Best effort: only a provider-accepted new-row email sets mailed_at. */
