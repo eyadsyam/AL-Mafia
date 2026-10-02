@@ -241,19 +241,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get roleCitizen => 'مواطن';
 
   @override
-  String get roleMafiaDescription => 'كل ليلة بتختار مين يتقتل';
+  String get roleMafiaDescription =>
+      'كل ليلة بتتفقوا على واحد يتقتل، ومينفعش تختاروا حد منكم';
 
   @override
   String get roleDoctorDescription =>
-      'كل ليلة بتحمي لاعب وحماية نفسك متاحة مرة في المباراة';
+      'كل ليلة بتحمي لاعب، ولو انتوا أكتر من دكتور بتحموا واحد بس. حماية نفسك مرة واحدة في الماتش';
 
   @override
   String get roleDetectiveDescription =>
-      'كل ليلة بتكشف عن شخصية واحد من اللاعبين';
+      'المحقق واحد بس في اللعبة. كل ليلة بتكشف شخصية لاعب واحد';
 
   @override
   String get roleCitizenDescription =>
-      'ملاكش ميزة خاصة بتحاول تفهم ايه اللي بيحصل ';
+      'ملكش ميزة خاصة، سلاحك عينك وكلامك. في الأونلاين بتستنى بالليل';
 
   @override
   String get gotIt => 'فهمت';

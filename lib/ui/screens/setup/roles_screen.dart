@@ -157,7 +157,10 @@ class _RolesScreenState extends State<RolesScreen> {
                               key: RolesScreen.stepper(Role.detective),
                               label: l10n.roleGroupDetective,
                               value: _detective,
-                              onIncrement: _incrementDetective,
+                              // Dimmed at one: there is never a second Detective.
+                              onIncrement: _detective < 1
+                                  ? _incrementDetective
+                                  : null,
                               onDecrement: _decrementDetective,
                             ),
                             SizedBox(height: spacing.lg),
@@ -293,7 +296,7 @@ class _RolesScreenState extends State<RolesScreen> {
 class _RoleStepper extends StatelessWidget {
   final String label;
   final int value;
-  final VoidCallback onIncrement;
+  final VoidCallback? onIncrement;
   final VoidCallback onDecrement;
 
   const _RoleStepper({
@@ -351,7 +354,12 @@ class _RoleStepper extends StatelessWidget {
               ),
               IconButton(
                 tooltip: '${context.l10n.increaseRole} $label',
-                icon: Icon(Icons.add, color: colors.accentGold),
+                icon: Icon(
+                  Icons.add,
+                  color: onIncrement == null
+                      ? colors.textMuted
+                      : colors.accentGold,
+                ),
                 onPressed: onIncrement,
               ),
             ],

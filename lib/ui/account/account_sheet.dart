@@ -68,6 +68,11 @@ Future<void> showAccountSheet(
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
+  // A visible handle: on a phone the sheet nearly fills the screen, and
+  // without it the only way out was the system back (emulator pass,
+  // 2026-10-02).
+  showDragHandle: true,
+  useSafeArea: true,
   backgroundColor: context.colors.surfaceBase,
   builder: (_) => Padding(
     padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),

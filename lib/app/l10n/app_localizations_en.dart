@@ -246,19 +246,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get roleMafiaDescription =>
-      'Each night you agree with the rest of the mafia on someone to kill. Let nobody find out.';
+      'Each night the mafia agree on one victim, and never one of their own.';
 
   @override
   String get roleDoctorDescription =>
-      'Each night you protect one player — and never the same person two nights running.';
+      'Each night you protect one player; several doctors protect just one between them. You may protect yourself once per match.';
 
   @override
   String get roleDetectiveDescription =>
-      'Each night you uncover one player\'s role. Only you see the result, and only once.';
+      'There is only one detective. Each night you uncover one player\'s role.';
 
   @override
   String get roleCitizenDescription =>
-      'You have no special power. Observation and argument are your weapons.';
+      'You have no special power: watch and argue. Online, you wait out the night.';
 
   @override
   String get gotIt => 'Got it';
