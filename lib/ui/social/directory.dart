@@ -239,6 +239,10 @@ class DirectoryApi {
 
   Future<void> registerPush(String token, String platform) =>
       _call({'action': 'registerPush', 'token': token, 'platform': platform});
+
+  /// The settings switch: this device stops receiving notifications.
+  Future<void> unregisterPush(String token) =>
+      _call({'action': 'unregisterPush', 'token': token});
 }
 
 final directoryApiProvider = Provider<DirectoryApi>(DirectoryApi.new);

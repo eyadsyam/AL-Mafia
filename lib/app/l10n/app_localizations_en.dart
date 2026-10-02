@@ -5132,6 +5132,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pushChannelSocialDesc => 'Friend requests and accepted requests';
 
   @override
+  String get pushChannelGame => 'Room and game';
+
+  @override
+  String get pushChannelGameDesc => 'When the room starts or the night falls';
+
+  @override
+  String get pushChannelDaily => 'Reminders';
+
+  @override
+  String get pushChannelDailyDesc =>
+      'The wheel, Thursday night and gentle reminders';
+
+  @override
+  String get pushSettingsTitle => 'Notifications';
+
+  @override
+  String get pushSettingsHint =>
+      'Invites, the room starting and daily rewards. No notification ever names a role or says what happened in the night.';
+
+  @override
+  String get pushSettingsIosHint =>
+      'On iPhone notifications only work once the site is on your Home Screen: in Safari tap Share, then Add to Home Screen, and open it from the icon.';
+
+  @override
   String get revealWhispersNotice =>
       'In this room, whispers are shown to everyone after the match';
 

@@ -7,6 +7,7 @@ import 'scenario_store.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../online/safety_center.dart';
+import '../../social/push_toggle.dart';
 import '../online/rewarded_reward_button.dart';
 import '../../../app/l10n/app_localizations.dart';
 import '../../../engine/models/enums.dart'
@@ -245,7 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SettingsPanel(
               icon: Icons.translate,
               title: l10n.settingsSectionGeneral,
-              children: const [LanguagePicker()],
+              children: const [LanguagePicker(), PushSettingsRow()],
             ),
             _audio(l10n),
             SettingsHeading(

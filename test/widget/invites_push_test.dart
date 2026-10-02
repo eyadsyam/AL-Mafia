@@ -101,6 +101,8 @@ class _Push implements PushService {
   @override
   String? get platform => 'android';
   @override
+  bool get needsInstall => false;
+  @override
   Future<void> init() async {}
   @override
   Future<bool> askPermission() async {

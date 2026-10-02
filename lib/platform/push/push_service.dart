@@ -39,6 +39,10 @@ abstract class PushService {
   /// 'android' or 'web'; null where push is not offered.
   String? get platform;
 
+  /// True on a browser that only delivers push to an installed web app (iOS
+  /// Safari, until the site is on the Home Screen).
+  bool get needsInstall => false;
+
   /// Creates the notification channels. Safe to call more than once.
   Future<void> init();
 
@@ -64,6 +68,8 @@ class NoPushService implements PushService {
   const NoPushService();
   @override
   String? get platform => null;
+  @override
+  bool get needsInstall => false;
   @override
   Future<void> init() async {}
   @override

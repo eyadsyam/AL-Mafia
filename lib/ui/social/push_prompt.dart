@@ -15,6 +15,10 @@ class PushPrompt {
   PushPrompt(this._ref);
 
   static const askedKey = 'push_permission_asked_v1';
+
+  /// The settings switch. Absent until the player decides or the in-context
+  /// prompt was answered; `false` is an explicit «no» that nothing overrides.
+  static const onKey = 'push_on_v1';
   bool _busy = false;
 
   /// Test hook: how many times the system prompt was requested.
@@ -29,7 +33,58 @@ class PushPrompt {
   Future<void> askInContext() async {
     final push = _ref.read(pushServiceProvider);
     if (_busy || push.platform == null || !_enabled) return;
+    if (await _explicitlyOff()) return;
     await _ask(push);
+  }
+
+  Future<bool> _explicitlyOff() async {
+    try {
+      return (await SharedPreferences.getInstance()).getBool(onKey) == false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// What the settings switch shows: on once permission was granted (or asked
+  /// before this switch existed), off after an explicit «no».
+  Future<bool> isOn() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(onKey) ?? (prefs.getBool(askedKey) ?? false);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// The settings switch. Turning on asks the system for permission (it only
+  /// shows its prompt when it still can) and registers this device; turning
+  /// off forgets this device on the server. Returns the resulting state.
+  Future<bool> setOn(bool on) async {
+    final push = _ref.read(pushServiceProvider);
+    if (push.platform == null) return false;
+    final prefs = await SharedPreferences.getInstance();
+    if (!on) {
+      await prefs.setBool(onKey, false);
+      try {
+        final token = await push.token();
+        if (token != null) {
+          await _ref.read(directoryApiProvider).unregisterPush(token);
+        }
+      } catch (_) {
+        // The server drops a dead token on its next send anyway.
+      }
+      return false;
+    }
+    await prefs.setBool(askedKey, true);
+    prompts++;
+    final granted = await push.askPermission();
+    await prefs.setBool(onKey, granted);
+    if (granted) {
+      try {
+        await _register(push);
+      } catch (_) {}
+    }
+    return granted;
   }
 
   /// A submitted transfer also needs a notification when the app is closed.
@@ -37,6 +92,7 @@ class PushPrompt {
   Future<void> askForPayment() async {
     final push = _ref.read(pushServiceProvider);
     if (_busy || push.platform == null) return;
+    if (await _explicitlyOff()) return;
     await _ask(push);
   }
 
@@ -47,7 +103,8 @@ class PushPrompt {
       if (!(prefs.getBool(askedKey) ?? false)) {
         await prefs.setBool(askedKey, true);
         prompts++;
-        await push.askPermission();
+        final granted = await push.askPermission();
+        await prefs.setBool(onKey, granted);
       }
       await _register(push);
     } catch (_) {
@@ -64,7 +121,9 @@ class PushPrompt {
     if (_busy || push.platform == null || !_enabled) return;
     try {
       final prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool(askedKey) ?? false) await _register(push);
+      if ((prefs.getBool(askedKey) ?? false) && prefs.getBool(onKey) != false) {
+        await _register(push);
+      }
     } catch (_) {}
   }
 

@@ -15,11 +15,19 @@ class PushChannelText {
   final String invitesDescription;
   final String social;
   final String socialDescription;
+  final String game;
+  final String gameDescription;
+  final String daily;
+  final String dailyDescription;
   const PushChannelText({
     required this.invites,
     required this.invitesDescription,
     required this.social,
     required this.socialDescription,
+    required this.game,
+    required this.gameDescription,
+    required this.daily,
+    required this.dailyDescription,
   });
 }
 
@@ -46,6 +54,12 @@ class FirebasePushService implements PushService {
   /// Our two Android channels.
   static const invitesChannel = 'mafia_invites';
   static const socialChannel = 'mafia_social';
+
+  /// The room starting, the night falling: high importance, short buzz.
+  static const gameChannel = 'mafia_game';
+
+  /// The wheel, Thursday night, comeback: default importance, no urgency.
+  static const dailyChannel = 'mafia_daily';
 
   static Future<FirebasePushService?> start({
     required List<int> inviteVibration,
@@ -118,6 +132,26 @@ class FirebasePushService implements PushService {
         vibrationPattern: Int64List.fromList(social),
       ),
     );
+    await android?.createNotificationChannel(
+      AndroidNotificationChannel(
+        gameChannel,
+        text.game,
+        description: text.gameDescription,
+        importance: Importance.high,
+        enableVibration: true,
+        vibrationPattern: Int64List.fromList(const [0, 250, 120, 250]),
+      ),
+    );
+    await android?.createNotificationChannel(
+      AndroidNotificationChannel(
+        dailyChannel,
+        text.daily,
+        description: text.dailyDescription,
+        importance: Importance.defaultImportance,
+        enableVibration: true,
+        vibrationPattern: Int64List.fromList(social),
+      ),
+    );
     _local = local;
   }
 
@@ -126,6 +160,9 @@ class FirebasePushService implements PushService {
 
   @override
   Future<void> init() async {}
+
+  @override
+  bool get needsInstall => kIsWeb && webNeedsInstall();
 
   @override
   Future<bool> askPermission() async {

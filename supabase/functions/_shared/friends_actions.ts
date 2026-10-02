@@ -103,6 +103,12 @@ export function friendsCall(body: Record<string, unknown>, userId: string): Frie
       if (token.length < 20 || token.length > 4096 || !["android", "web"].includes(platform)) return null;
       return { fn: "push_token_register", args: { p_user: userId, p_token: token, p_platform: platform } };
     }
+    case "unregisterPush": {
+      // The settings switch: this device stops receiving anything.
+      const token = typeof body.token === "string" ? body.token : "";
+      if (token.length < 20 || token.length > 4096) return null;
+      return { fn: "push_token_drop", args: { p_token: token } };
+    }
     default:
       return null;
   }

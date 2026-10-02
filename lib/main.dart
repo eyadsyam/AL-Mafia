@@ -98,6 +98,10 @@ Future<void> main() async {
       invitesDescription: text.pushChannelInvitesDesc,
       social: text.pushChannelSocial,
       socialDescription: text.pushChannelSocialDesc,
+      game: text.pushChannelGame,
+      gameDescription: text.pushChannelGameDesc,
+      daily: text.pushChannelDaily,
+      dailyDescription: text.pushChannelDailyDesc,
     ),
   ).timeout(InviteTokens.pushStart, onTimeout: () => null);
   runApp(

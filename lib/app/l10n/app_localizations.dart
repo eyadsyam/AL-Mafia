@@ -8701,6 +8701,48 @@ abstract class AppLocalizations {
   /// **'Friend requests and accepted requests'**
   String get pushChannelSocialDesc;
 
+  /// No description provided for @pushChannelGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Room and game'**
+  String get pushChannelGame;
+
+  /// No description provided for @pushChannelGameDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When the room starts or the night falls'**
+  String get pushChannelGameDesc;
+
+  /// No description provided for @pushChannelDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get pushChannelDaily;
+
+  /// No description provided for @pushChannelDailyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The wheel, Thursday night and gentle reminders'**
+  String get pushChannelDailyDesc;
+
+  /// No description provided for @pushSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get pushSettingsTitle;
+
+  /// No description provided for @pushSettingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Invites, the room starting and daily rewards. No notification ever names a role or says what happened in the night.'**
+  String get pushSettingsHint;
+
+  /// No description provided for @pushSettingsIosHint.
+  ///
+  /// In en, this message translates to:
+  /// **'On iPhone notifications only work once the site is on your Home Screen: in Safari tap Share, then Add to Home Screen, and open it from the icon.'**
+  String get pushSettingsIosHint;
+
   /// No description provided for @revealWhispersNotice.
   ///
   /// In en, this message translates to:

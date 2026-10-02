@@ -5044,6 +5044,29 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pushChannelSocialDesc => 'طلبات الصداقة والقبول';
 
   @override
+  String get pushChannelGame => 'الأوضة واللعب';
+
+  @override
+  String get pushChannelGameDesc => 'لما الأوضة تبدأ أو الليل ينزل';
+
+  @override
+  String get pushChannelDaily => 'تذكيرات';
+
+  @override
+  String get pushChannelDailyDesc => 'العجلة وليلة الخميس وتذكيرات خفيفة';
+
+  @override
+  String get pushSettingsTitle => 'الإشعارات';
+
+  @override
+  String get pushSettingsHint =>
+      'الدعوات وبداية الأوضة والمكافآت اليومية. مفيش إشعار بيقول دور حد أو اللي حصل في الليل.';
+
+  @override
+  String get pushSettingsIosHint =>
+      'على الآيفون الإشعارات بتشتغل بس لما تضيف الموقع للشاشة الرئيسية: من سفاري دوس مشاركة ثم «إضافة إلى الشاشة الرئيسية»، وافتحه من الأيقونة.';
+
+  @override
   String get revealWhispersNotice =>
       'في الأوضة دي الهمسات هتتكشف للكل بعد الماتش';
 

@@ -14,3 +14,31 @@ WebPushConfig? webPushConfig() {
     return null;
   }
 }
+
+@JS('navigator.userAgent')
+external String get _userAgent;
+
+@JS('navigator.standalone')
+external bool? get _iosStandalone;
+
+@JS('matchMedia')
+external _MediaQuery _matchMedia(String query);
+
+extension type _MediaQuery(JSObject _) implements JSObject {
+  external bool get matches;
+}
+
+/// iPhone/iPad Safari delivers web push only to an installed web app: true
+/// while the site is still a plain browser tab there.
+bool webNeedsInstall() {
+  try {
+    final ua = _userAgent;
+    final ios = RegExp(r'iPhone|iPad|iPod').hasMatch(ua);
+    if (!ios) return false;
+    final installed =
+        (_iosStandalone ?? false) || _matchMedia('(display-mode: standalone)').matches;
+    return !installed;
+  } catch (_) {
+    return false;
+  }
+}

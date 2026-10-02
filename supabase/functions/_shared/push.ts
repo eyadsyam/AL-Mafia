@@ -12,13 +12,18 @@
 
 export interface PushTarget {
   enabled: boolean;
-  kind?: "invite" | "friend_request" | "friend_accepted" | "order_paid" | "order_rejected";
+  kind?: "invite" | "friend_request" | "friend_accepted" | "order_paid" | "order_rejected" | EventKind;
+  /** Stable number that picks one of an event's wordings (the outbox row id). */
+  variant?: number;
   inviteId?: string;
   code?: string;
   fromName?: string;
   fromHandle?: string;
   tokens?: { token: string; platform: "android" | "web" }[];
 }
+
+/** Kinds written by the push outbox (20261002000100_push_outbox.sql). */
+export type EventKind = "room_start" | "night" | "daily" | "thursday" | "comeback";
 
 export interface PushDeps {
   /** The secret's value, or undefined when it is not set. */
@@ -181,9 +186,129 @@ export function paymentMessage(t: PushTarget, token: string, platform: "android"
   } } };
 }
 
+/** Short buzz for turn-like notices, a gentler one for reminders. */
+export const GAME_VIBRATION_MS = [0, 250, 120, 250];
+
+/**
+ * The wording of every outbox kind. Each says only a fact about the room's
+ * phase that every seat sees at once, or a reminder with no match content:
+ * never a role, a seat, a name or a night result (Doc 05). Several variants
+ * per kind, picked by the row id, so a daily reminder is not the same line
+ * every day.
+ */
+export const EVENT_TEXT: Record<EventKind, {
+  channel: "mafia_game" | "mafia_daily";
+  image: boolean;
+  lines: { title: string; body: string }[];
+}> = {
+  room_start: {
+    channel: "mafia_game",
+    image: false,
+    lines: [
+      { title: "الأوضة بدأت", body: "اللعب ابتدا. ارجع دلوقتي قبل ما تفوتك الجولة." },
+      { title: "يلا، اللعبة ابتدت", body: "صحابك كلهم جوه. ادخل." },
+    ],
+  },
+  night: {
+    channel: "mafia_game",
+    image: false,
+    lines: [
+      { title: "الليل نزل", body: "الليل بدأ في أوضتك. ارجع للعبة." },
+      { title: "المدينة نامت", body: "الليل بدأ عند الكل. افتح الأوضة." },
+    ],
+  },
+  daily: {
+    channel: "mafia_daily",
+    image: false,
+    lines: [
+      { title: "العجلة مستنياك", body: "لفّتك النهارده لسه ما اتاخدتش. خد مكافأتك." },
+      { title: "مكافأة النهارده جاهزة", body: "افتح اللعبة وخد عملاتك قبل ما اليوم يخلص." },
+      { title: "لفّة مجانية", body: "العجلة بتلف النهارده بلاش. جرّب حظك." },
+    ],
+  },
+  thursday: {
+    channel: "mafia_daily",
+    image: true,
+    lines: [
+      { title: "ليلة الخميس النهاردة", body: "الغرف المميزة مفتوحة الليلة. اجمع صحابك والعبوا." },
+      { title: "الخميس يعني مافيا", body: "ليلة الخميس بدأت. ادعي صحابك لأوضة." },
+    ],
+  },
+  comeback: {
+    channel: "mafia_daily",
+    image: false,
+    lines: [
+      { title: "وحشتنا الأوضة", body: "بقالك كام يوم بعيد. صحابك لسه بيلعبوا." },
+      { title: "المدينة مستنياك", body: "رجّع الشلة وابدأ جولة جديدة." },
+      { title: "جولة سريعة؟", body: "خمس دقايق مافيا تنسيك اليوم. تعالى." },
+    ],
+  },
+};
+
+/** One FCM v1 message for an outbox kind. */
+export function eventMessage(t: PushTarget, token: string, platform: "android" | "web") {
+  const kind = t.kind as EventKind;
+  const spec = EVENT_TEXT[kind];
+  const line = spec.lines[Math.abs(t.variant ?? 0) % spec.lines.length];
+  const link = `${WEB_ORIGIN}/`;
+  const image = `${WEB_ORIGIN}/og-image.jpg`;
+  const data = { kind };
+  const game = spec.channel === "mafia_game";
+  if (platform === "android") {
+    return {
+      message: {
+        token,
+        data,
+        notification: { title: line.title, body: line.body, ...(spec.image ? { image } : {}) },
+        android: {
+          priority: game ? "HIGH" : "NORMAL",
+          ttl: game ? "600s" : "21600s",
+          collapse_key: kind,
+          notification: {
+            channel_id: spec.channel,
+            icon: "ic_stat_mafia",
+            color: INVITE_ACCENT,
+            tag: kind,
+            default_sound: true,
+            default_vibrate_timings: false,
+            vibrate_timings: (game ? GAME_VIBRATION_MS : SOCIAL_VIBRATION_MS)
+              .slice(1).map((ms) => `${ms / 1000}s`),
+            ...(spec.image ? { image } : {}),
+          },
+        },
+      },
+    };
+  }
+  return {
+    message: {
+      token,
+      data,
+      webpush: {
+        headers: { Urgency: game ? "high" : "normal", TTL: game ? "600" : "21600" },
+        notification: {
+          title: line.title,
+          body: line.body,
+          icon: "/icons/Icon-192.png",
+          badge: "/icons/badge-72.png",
+          tag: kind,
+          renotify: true,
+          vibrate: (game ? GAME_VIBRATION_MS : SOCIAL_VIBRATION_MS).slice(1),
+          dir: "rtl",
+          lang: "ar",
+          ...(spec.image ? { image } : {}),
+          actions: [{ action: "open", title: "افتح اللعبة" }],
+          data: { link },
+        },
+        fcm_options: { link },
+      },
+    },
+  };
+}
+
 /** The message for one device, by kind. */
 export function messageFor(t: PushTarget, token: string, platform: "android" | "web") {
   if (t.kind === "order_paid" || t.kind === "order_rejected") return paymentMessage(t, token, platform);
+  if (t.kind && t.kind in EVENT_TEXT) return eventMessage(t, token, platform);
   return t.kind === "friend_request" || t.kind === "friend_accepted"
     ? socialMessage(t, token, platform)
     : inviteMessage(t, token, platform);
@@ -239,7 +364,7 @@ export async function sendPush(t: PushTarget, deps: PushDeps): Promise<PushOutco
       failed++;
     }
   }
-  deps.log(`push ${t.kind === "invite" || t.kind == null ? "invite" : "social"}: sent=${sent} dead=${dead} failed=${failed}`);
+  deps.log(`push ${t.kind ?? "invite"}: sent=${sent} dead=${dead} failed=${failed}`);
   return { result: "sent", sent, dead, failed };
 }
 

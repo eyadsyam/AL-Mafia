@@ -3623,3 +3623,10 @@ Verified:   flutter build web --release completed; 53 before screenshots in scra
 Gate:       PASS
 Open:       Native ads, configured online room, missions and Google identity require connected device review.
 
+
+## PHASE PUSH-EVENTS-AND-NATIVE-GOOGLE — done
+Built:      Native Google account picker (google_sign_in v7 -> signInWithIdToken / linkIdentityWithIdToken, browser fallback kept); push outbox + `send_push` drain (room started, night fell, wheel ready, Thursday night, comeback) with settings switch; tester welcome email as short RTL HTML.
+Files:      lib/transport/{native_google,account_auth}.dart, lib/ui/account/account_sheet.dart, lib/platform/push/*, lib/ui/social/{push_prompt,push_toggle,directory}.dart, supabase/migrations/20261002000100_push_outbox.sql, supabase/functions/{send_push,friends,_shared/push.ts,_shared/friends_actions.ts,tester_signup}, web/{index.html,manifest.json}
+Verified:   unit/widget tests for native Google and the push switch; node push_events + invites_push tests; migration run inside a rolled-back transaction on the live DB (enqueue/claim/cron rows OK, nothing persisted); deno check; send_push, friends and tester_signup deployed.
+Gate:       PASS (migration NOT applied; push_outbox triggers and cron are not live until `supabase db push`)
+Open:       Apply migration; register SHA-1s for Google; not tested on a device/emulator. «Your turn at night» is deliberately NOT per-role (it would reveal who has a night action): «الليل نزل» goes to every seat identically (Doc 05).
