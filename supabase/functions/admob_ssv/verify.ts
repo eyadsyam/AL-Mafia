@@ -55,7 +55,21 @@ export async function verifySsv(
   const marker = "&signature=";
   const signatureAt = rawQuery.indexOf(marker);
   if (signatureAt < 1) return "invalid";
-  const signed = new TextEncoder().encode(rawQuery.slice(0, signatureAt));
+  // Google signs the *decoded* query (its reference verifier reads Java's
+  // `URI.getQuery()`, which percent-decodes). Our custom data carries a ":"
+  // that arrives as "%3A", so checking the raw bytes refused every reward the
+  // game ever earned (2026-10-02: zero rows in ad_ssv_transactions). The raw
+  // form is still tried, for a callback with nothing to decode.
+  const rawSigned = rawQuery.slice(0, signatureAt);
+  let decodedSigned = rawSigned;
+  try {
+    decodedSigned = decodeURIComponent(rawSigned.replace(/\+/g, " "));
+  } catch {
+    // Malformed escapes: only the raw form can be checked.
+  }
+  const candidates = [...new Set([decodedSigned, rawSigned])].map((text) =>
+    new TextEncoder().encode(text)
+  );
   const signature = url.searchParams.get("signature");
   const keyId = Number(url.searchParams.get("key_id"));
   if (!signature || !Number.isSafeInteger(keyId)) return "invalid";
@@ -69,11 +83,15 @@ export async function verifySsv(
       "spki", Uint8Array.from(atob(encodedKey), (c) => c.charCodeAt(0)),
       { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"],
     );
-    const ok = await crypto.subtle.verify(
-      { name: "ECDSA", hash: "SHA-256" }, publicKey,
-      derToRaw(decodeBase64Url(signature)), signed,
-    );
-    return ok ? "valid" : "invalid";
+    const raw = derToRaw(decodeBase64Url(signature));
+    for (const signed of candidates) {
+      if (
+        await crypto.subtle.verify(
+          { name: "ECDSA", hash: "SHA-256" }, publicKey, raw, signed,
+        )
+      ) return "valid";
+    }
+    return "invalid";
   } catch {
     return "invalid";
   }

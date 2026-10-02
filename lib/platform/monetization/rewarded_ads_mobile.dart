@@ -120,21 +120,43 @@ class _AdsRuntime {
 
   Future<bool> _canRequest() async {
     try {
-      return await ConsentInformation.instance.canRequestAds();
+      return await ConsentInformation.instance.canRequestAds().timeout(
+        MafiaTiming.adConsentInfoTimeout,
+        onTimeout: () => false,
+      );
     } catch (_) {
       return false;
     }
   }
 
+  Future<void>? _initializing;
+
+  /// Starts the SDK, bounded: a start that never answers (seen on a real
+  /// emulator, 2026-10-02) used to hold the tap — and the loading veil — up
+  /// for good. The start keeps running; a later tap finds it finished.
   Future<bool> _startSdk() async {
     if (initialized) return true;
+    _initializing ??= MobileAds.instance
+        .initialize()
+        .then<void>((_) => initialized = true)
+        .catchError((Object _) {})
+        .whenComplete(() => _initializing = null);
     try {
-      await MobileAds.instance.initialize();
-      initialized = true;
-    } catch (_) {
-      initialized = false;
-    }
+      await _initializing!.timeout(MafiaTiming.adLoadTimeout);
+    } catch (_) {}
     return initialized;
+  }
+
+  /// Whether Google says a consent form must be shown before ads.
+  Future<bool> _formRequired() async {
+    try {
+      return await ConsentInformation.instance.getConsentStatus().timeout(
+            MafiaTiming.adConsentInfoTimeout,
+          ) ==
+          ConsentStatus.required;
+    } catch (_) {
+      return false;
+    }
   }
 
   /// Consent (with the form when [prompt] and Google requires it), then the
@@ -150,15 +172,23 @@ class _AdsRuntime {
       // A quiet attempt in flight finishes first; the player's own tap then
       // gets its chance at the form.
       final quiet = _quiet;
-      if (quiet != null && await quiet) return true;
+      if (quiet != null &&
+          await quiet.timeout(
+            MafiaTiming.adLoadTimeout,
+            onTimeout: () => false,
+          )) {
+        return true;
+      }
       return _start(true);
     }().whenComplete(() => _prompting = null);
   }
 
   Future<bool> _start(bool prompt) async {
     await updateInfo();
-    if (prompt) {
-      // The form is a person reading and choosing: no timeout here.
+    if (prompt && await _formRequired()) {
+      // The form is a person reading and choosing: no timeout here. Only
+      // when Google says one is due — a form that is not required answers
+      // nothing on some devices, and that used to freeze the tap.
       final shown = Completer<void>();
       try {
         ConsentForm.loadAndShowConsentFormIfRequired((_) {
@@ -270,8 +300,12 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
 
   Future<void> _loadNow(String unit) async {
     final loaded = Completer<RewardedAd?>();
+    // Not awaited: the plugin's load call can itself take as long as the
+    // SDK's own HTTP timeout (60 s), and the bound below only starts once it
+    // returns — which is how a first, slow ad held the veil up for a minute
+    // on a real emulator (2026-10-02). The callbacks complete [loaded].
     try {
-      await RewardedAd.load(
+      unawaited(RewardedAd.load(
         adUnitId: unit,
         request: const AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
@@ -288,7 +322,9 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
             if (!loaded.isCompleted) loaded.complete(null);
           },
         ),
-      );
+      ).catchError((Object _) {
+        if (!loaded.isCompleted) loaded.complete(null);
+      }));
     } catch (_) {
       if (!loaded.isCompleted) loaded.complete(null);
     }
@@ -440,7 +476,8 @@ class GoogleInterstitialAds implements InterstitialAds {
       if (!await _runtime.start(prompt: false)) return;
       if (!await _runtime.canRequestNow()) return;
       final loaded = Completer<InterstitialAd?>();
-      await InterstitialAd.load(
+      // Not awaited: see `_loadNow` — the bound must start at the call.
+      unawaited(InterstitialAd.load(
         adUnitId: _Units.interstitialUnit,
         request: const AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
@@ -455,7 +492,9 @@ class GoogleInterstitialAds implements InterstitialAds {
             if (!loaded.isCompleted) loaded.complete(null);
           },
         ),
-      );
+      ).catchError((Object _) {
+        if (!loaded.isCompleted) loaded.complete(null);
+      }));
       _ad = await loaded.future.timeout(
         MafiaTiming.interstitialLoadTimeout,
         onTimeout: () {
@@ -557,7 +596,8 @@ class GoogleAppOpenAds implements AppOpenAds {
     discard();
     final loaded = Completer<AppOpenAd?>();
     try {
-      await AppOpenAd.load(
+      // Not awaited: see `_loadNow` — the bound must start at the call.
+      unawaited(AppOpenAd.load(
         adUnitId: _Units.appOpenUnit,
         request: const AdRequest(),
         adLoadCallback: AppOpenAdLoadCallback(
@@ -573,7 +613,9 @@ class GoogleAppOpenAds implements AppOpenAds {
             if (!loaded.isCompleted) loaded.complete(null);
           },
         ),
-      );
+      ).catchError((Object _) {
+        if (!loaded.isCompleted) loaded.complete(null);
+      }));
     } catch (_) {
       if (!loaded.isCompleted) loaded.complete(null);
     }

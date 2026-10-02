@@ -27,7 +27,15 @@ Deno.serve(async (request) => {
     }
     // Malformed or wrongly signed: permanent. A 5xx here would have AdMob
     // retry an invalid callback indefinitely.
-    if (verdict !== "valid") return new Response("invalid signature", { status: 400 });
+    if (verdict !== "valid") {
+      // Shape only (names, encodings, lengths) — never the values.
+      const raw = new URL(request.url).search.slice(1);
+      console.log("ssv refused: signature", verdict, {
+        shape: raw.replace(/=([^&]*)/g, (_, v: string) => `=<${v.length}${v.includes("%") ? "%" : ""}>`),
+        host: new URL(request.url).host,
+      });
+      return new Response("invalid signature", { status: 400 });
+    }
     const customData = url.searchParams.get("custom_data");
     // AdMob's "verify URL" ping is correctly signed but carries no claim.
     // Acknowledge it; nothing is granted without a claim to commit.
@@ -40,6 +48,11 @@ Deno.serve(async (request) => {
     // A malformed user id is permanent, not a 5xx for AdMob to retry forever.
     if (!route.ok || !transaction || !isUuid(userId) ||
         !Number.isSafeInteger(rewardAmount) || rewardAmount <= 0) {
+      // No user data in the log: only which check refused it.
+      console.log("ssv refused:", route.ok ? "fields" : route.reason, {
+        unit: adUnit, hasTransaction: !!transaction, uuid: isUuid(userId),
+        reward: rewardAmount,
+      });
       return new Response("invalid reward", { status: 400 });
     }
     const db = serviceClient();
@@ -51,6 +64,7 @@ Deno.serve(async (request) => {
       // Deterministic refusals from the ledger (unknown claim, a transaction
       // already spent on another claim) will never succeed on a retry.
       if (PERMANENT.some((code) => error.message?.includes(code))) {
+        console.log("ssv refused by ledger:", error.message);
         return new Response("rejected", { status: 400 });
       }
       throw error;
