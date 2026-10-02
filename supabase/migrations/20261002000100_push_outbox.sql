@@ -215,6 +215,8 @@ revoke all on function public.push_enqueue_thursday() from public, anon, authent
 revoke all on function public.push_enqueue_comeback() from public, anon, authenticated;
 revoke all on function public.push_outbox_claim(int) from public, anon, authenticated;
 revoke all on function public.push_outbox_purge() from public, anon, authenticated;
+revoke all on function public.push_on_room_start() from public, anon, authenticated;
+revoke all on function public.push_on_night() from public, anon, authenticated;
 grant execute on function public.push_outbox_claim(int) to service_role;
 
 -- ── Schedule (UTC; Cairo is UTC+2, +3 in summer) ────────────────────────────

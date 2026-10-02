@@ -104,6 +104,9 @@ void main() {
         // Answers the welcome-mail script yes/no on an HMAC only the server
         // can mint; it reads one row and changes nothing.
         'tester_mail_check': 'sameText(await mailToken(secret, email), token)',
+        // Takes no input: it only drains rows Postgres already queued, through
+        // a service-role-only RPC. Calling it by hand just sends them sooner.
+        'send_push': 'db.rpc("push_outbox_claim"',
       };
       final bare = <String>[];
       for (final dir in edgeFunctions()) {
