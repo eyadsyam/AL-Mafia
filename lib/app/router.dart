@@ -18,7 +18,6 @@ import '../ui/fun/welcome_back.dart';
 import '../ui/l10n_ext.dart';
 import '../ui/screens/admin/payments_admin_screen.dart';
 import '../ui/screens/admin/safety_admin_screen.dart';
-import '../ui/screens/admin/testers_admin_screen.dart';
 import '../ui/screens/match_controller.dart';
 import '../ui/screens/match_route.dart';
 import '../ui/screens/onboarding/first_run_screen.dart';
@@ -67,7 +66,6 @@ abstract final class Routes {
   /// The Telegram notice links to `/admin?order=<id>`.
   static const admin = '/admin';
   static const adminSafety = '/admin/safety';
-  static const adminTesters = '/admin/testers';
   static const online = '/online';
   static const lobby = '/online/lobby';
 
@@ -510,13 +508,7 @@ GoRouter buildRouter(
           focusOrder: state.uri.queryParameters['order'],
           onBack: () => context.go(Routes.home),
           onSafety: () => context.go(Routes.adminSafety),
-          onTesters: () => context.go(Routes.adminTesters),
         ),
-      ),
-      GoRoute(
-        path: Routes.adminTesters,
-        builder: (context, state) =>
-            TestersAdminScreen(onBack: () => context.go(Routes.admin)),
       ),
       GoRoute(
         path: Routes.adminSafety,

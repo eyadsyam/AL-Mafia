@@ -36,13 +36,11 @@ class PaymentsAdminScreen extends ConsumerStatefulWidget {
 
   /// The F11 report queue, on its own page.
   final VoidCallback? onSafety;
-  final VoidCallback? onTesters;
 
   const PaymentsAdminScreen({
     super.key,
     this.onBack,
     this.onSafety,
-    this.onTesters,
     this.focusOrder,
     this.web = kIsWeb,
   });
@@ -227,12 +225,6 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
             ? null
             : BackButton(onPressed: widget.onBack),
         actions: [
-          if (_admin == true && widget.onTesters != null)
-            IconButton(
-              onPressed: widget.onTesters,
-              tooltip: l.adminTestersOpen,
-              icon: const Icon(Icons.group_add_outlined),
-            ),
           if (_admin == true && widget.onSafety != null)
             IconButton(
               onPressed: widget.onSafety,

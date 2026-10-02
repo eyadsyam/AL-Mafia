@@ -107,6 +107,10 @@ class _OnboardingGateState extends ConsumerState<OnboardingGate> {
     // alone, or `next` would hold the intro's own link and the room link that
     // was really asked for would be lost.
     if (here.path == Routes.onboarding) return false;
+    // The owner's pages are not the game: no intro in front of them.
+    if (here.path == Routes.admin || here.path.startsWith('${Routes.admin}/')) {
+      return false;
+    }
     router.go(
       Uri(
         path: Routes.onboarding,

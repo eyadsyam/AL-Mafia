@@ -13,6 +13,11 @@ if (-not (Test-Path 'build/web/index.html')) { throw 'No build/web. Build the we
 # Keep the beta pages and their artwork in the published release.
 New-Item -ItemType Directory -Path 'build/web/beta' -Force | Out-Null
 Copy-Item -Path 'web/beta/*' -Destination 'build/web/beta' -Recurse -Force
+# The tester desk (/admin/testers/) signs in with the public publishable key.
+$defines = Get-Content 'dart_defines.json' -Raw | ConvertFrom-Json
+New-Item -ItemType Directory -Path 'build/web/admin/testers' -Force | Out-Null
+Copy-Item -Path 'web/admin/testers/index.html' -Destination 'build/web/admin/testers/index.html' -Force
+Set-Content -Path 'build/web/admin/testers/config.js' -Encoding ascii -Value ("window.MAFIA_ADMIN = { key: '" + $defines.SUPABASE_KEY + "' };")
 # Keeps build/web/.vercel (the Vercel link) out of the upload.
 Copy-Item 'web/.assetsignore' 'build/web/.assetsignore' -Force
 npx -y wrangler@latest deploy
