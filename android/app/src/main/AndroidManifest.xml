@@ -63,6 +63,15 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${admobAppId}" />
+        <!-- The ad SDK's own start-up and ad loading off the main thread
+             (Google's documented flags): starting the SDK and the first ad
+             load otherwise froze the screen for a moment on a tap. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
+            android:value="true" />
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
+            android:value="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

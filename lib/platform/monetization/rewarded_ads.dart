@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'rewarded_ads_stub.dart' if (dart.library.io) 'rewarded_ads_mobile.dart';
@@ -51,6 +53,25 @@ abstract interface class RewardedAds {
     RewardedPlacement placement = RewardedPlacement.matchLegacy,
   });
   void dispose();
+}
+
+/// An ad layer that can load an ad before it is asked for, so a tap shows it
+/// at once instead of waiting on the network and the SDK. Separate from
+/// [RewardedAds] so a test double never has to implement it.
+abstract interface class RewardedPreload {
+  /// Loads one ad for [placement] in the background. Never shows a consent
+  /// form and never starts the SDK unless consent already allows ads; a
+  /// second call while one is loading or ready does nothing.
+  Future<void> preload(RewardedPlacement placement);
+}
+
+/// Warms an ad for an offer that is on screen. Never awaited by a tap and
+/// never throws.
+void preloadRewarded(RewardedAds ads, RewardedPlacement placement) {
+  if (!ads.configured || ads is! RewardedPreload) return;
+  unawaited(
+    (ads as RewardedPreload).preload(placement).catchError((Object _) {}),
+  );
 }
 
 final rewardedAdsProvider = Provider<RewardedAds>((ref) {

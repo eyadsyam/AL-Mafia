@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -18,7 +19,14 @@ BannerAds createBannerAds() => const GoogleBannerAds();
 
 abstract final class _Units {
   static const enabled = bool.fromEnvironment('ADS_ENABLED');
-  static const testMode = bool.fromEnvironment('ADMOB_TEST_MODE');
+
+  /// Google's sample units unless this is a release build with test mode
+  /// off: a debug or profile run with the production defines must never
+  /// request (or click) a live unit — that is invalid traffic on the
+  /// account. A non-release build also carries Google's sample app id in
+  /// the manifest (build.gradle.kts), which a live unit would not serve.
+  static const testMode =
+      bool.fromEnvironment('ADMOB_TEST_MODE') || !kReleaseMode;
   static const rewarded = String.fromEnvironment('ADMOB_REWARDED_ANDROID_ID');
   static const rewardedV2 = String.fromEnvironment(
     'ADMOB_REWARDED_V2_ANDROID_ID',
@@ -192,8 +200,15 @@ class _AdsRuntime {
   Future<bool> canRequestNow() => _canRequest();
 }
 
-class GoogleRewardedAds implements RewardedAds {
+class GoogleRewardedAds implements RewardedAds, RewardedPreload {
   _AdsRuntime get _runtime => _AdsRuntime.instance;
+
+  /// One loaded ad per unit, with when it loaded. A tap takes it at once.
+  final _ready = <String, (RewardedAd, int)>{};
+
+  /// A load in flight per unit, shared by a preload and a tap.
+  final _loading = <String, Future<void>>{};
+  bool _listening = false;
 
   @override
   bool get configured => _Units.rewardedConfigured;
@@ -221,25 +236,43 @@ class GoogleRewardedAds implements RewardedAds {
     await _runtime.showPrivacyOptions();
   }
 
-  @override
-  Future<RewardedAdOutcome> show({
-    required String claimId,
-    required String userId,
-    RewardedPlacement placement = RewardedPlacement.matchLegacy,
-  }) async {
-    if (!configured) return RewardedAdOutcome.unavailable;
-    final allowed = await _runtime.start(prompt: true);
-    if (!allowed) {
-      return _runtime.initialized
-          ? RewardedAdOutcome.unavailable
-          : RewardedAdOutcome.notConsented;
-    }
-    if (!await _runtime.canRequestNow()) return RewardedAdOutcome.notConsented;
+  void _listen() {
+    if (_listening) return;
+    _listening = true;
+    // Anything loaded under a consent answer that changed is thrown away.
+    _runtime.onConsentChanged(_discardAll);
+  }
 
+  void _discardAll() {
+    for (final (ad, _) in _ready.values) {
+      ad.dispose();
+    }
+    _ready.clear();
+  }
+
+  /// The ready ad for [unit], if it is still fresh. Removes it either way.
+  RewardedAd? _take(String unit) {
+    final entry = _ready.remove(unit);
+    if (entry == null) return null;
+    final (ad, loadedAt) = entry;
+    final age = DateTime.now().millisecondsSinceEpoch - loadedAt;
+    if (age >= AdTokens.rewardedExpiry.inMilliseconds) {
+      ad.dispose();
+      return null;
+    }
+    return ad;
+  }
+
+  /// Loads one ad for [unit] into [_ready]. Parallel callers share it.
+  Future<void> _load(String unit) => _loading[unit] ??= _loadNow(
+    unit,
+  ).whenComplete(() => _loading.remove(unit));
+
+  Future<void> _loadNow(String unit) async {
     final loaded = Completer<RewardedAd?>();
     try {
       await RewardedAd.load(
-        adUnitId: _Units.rewardedFor(placement),
+        adUnitId: unit,
         request: const AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (ad) {
@@ -262,27 +295,78 @@ class GoogleRewardedAds implements RewardedAds {
     final ad = await loaded.future.timeout(
       MafiaTiming.adLoadTimeout,
       onTimeout: () {
-        loaded.complete(null);
+        if (!loaded.isCompleted) loaded.complete(null);
         return null;
       },
     );
+    if (ad == null) return;
+    _ready.remove(unit)?.$1.dispose();
+    _ready[unit] = (ad, DateTime.now().millisecondsSinceEpoch);
+  }
+
+  @override
+  Future<void> preload(RewardedPlacement placement) async {
+    if (!configured) return;
+    final unit = _Units.rewardedFor(placement);
+    if (_ready.containsKey(unit) || _loading.containsKey(unit)) return;
+    _listen();
+    try {
+      // Never a consent form from a preload: only an answer already given
+      // (or a region that needs none) lets it load. Starting the SDK here,
+      // while the player is only looking at the offer, keeps that work off
+      // the tap.
+      if (!await _runtime.start(prompt: false)) return;
+      if (!await _runtime.canRequestNow()) return;
+      await _load(unit);
+    } catch (_) {}
+  }
+
+  @override
+  Future<RewardedAdOutcome> show({
+    required String claimId,
+    required String userId,
+    RewardedPlacement placement = RewardedPlacement.matchLegacy,
+  }) async {
+    if (!configured) return RewardedAdOutcome.unavailable;
+    _listen();
+    final allowed = await _runtime.start(prompt: true);
+    if (!allowed) {
+      return _runtime.initialized
+          ? RewardedAdOutcome.unavailable
+          : RewardedAdOutcome.notConsented;
+    }
+    if (!await _runtime.canRequestNow()) {
+      _discardAll();
+      return RewardedAdOutcome.notConsented;
+    }
+
+    final unit = _Units.rewardedFor(placement);
+    // A preloaded ad shows at once; otherwise this tap loads one (or joins
+    // the preload already on its way).
+    var ad = _take(unit);
+    if (ad == null) {
+      await _load(unit);
+      ad = _take(unit);
+    }
     if (ad == null) return RewardedAdOutcome.unavailable;
+    final showing = ad;
 
     try {
       // Before show: the claim id must travel in AdMob's signed callback, or
       // the view can never be credited.
-      await ad.setServerSideOptions(
+      await showing.setServerSideOptions(
         ServerSideVerificationOptions(customData: claimId, userId: userId),
       );
     } catch (_) {
-      ad.dispose();
+      showing.dispose();
       return RewardedAdOutcome.failed;
     }
     final finished = Completer<RewardedAdOutcome>();
     var earned = false;
-    ad.fullScreenContentCallback = FullScreenContentCallback(
+    showing.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (shown) {
         shown.dispose();
+        FullScreenAway.adClosed();
         if (!finished.isCompleted) {
           finished.complete(
             earned ? RewardedAdOutcome.earned : RewardedAdOutcome.dismissed,
@@ -291,29 +375,37 @@ class GoogleRewardedAds implements RewardedAds {
       },
       onAdFailedToShowFullScreenContent: (shown, _) {
         shown.dispose();
+        FullScreenAway.adClosed();
         if (!finished.isCompleted) {
           finished.complete(RewardedAdOutcome.failed);
         }
       },
     );
     try {
-      FullScreenAway.mark();
-      await ad.show(onUserEarnedReward: (_, _) => earned = true);
+      FullScreenAway.adOpened();
+      await showing.show(onUserEarnedReward: (_, _) => earned = true);
     } catch (_) {
-      ad.dispose();
+      FullScreenAway.adClosed();
+      showing.dispose();
       return RewardedAdOutcome.failed;
     }
     return finished.future.timeout(
       MafiaTiming.adShowTimeout,
       onTimeout: () {
-        ad.dispose();
-        return RewardedAdOutcome.failed;
+        FullScreenAway.adClosed();
+        showing.dispose();
+        // Earned even if the close never reached us: the server still
+        // decides, so the screen checks rather than calling it a failure.
+        return earned ? RewardedAdOutcome.earned : RewardedAdOutcome.failed;
       },
     );
   }
 
   @override
-  void dispose() {}
+  void dispose() {
+    _runtime.offConsentChanged(_discardAll);
+    _discardAll();
+  }
 }
 
 class GoogleInterstitialAds implements InterstitialAds {
@@ -402,7 +494,7 @@ class GoogleInterstitialAds implements InterstitialAds {
       },
     );
     try {
-      FullScreenAway.mark();
+      FullScreenAway.adOpened();
       await ad.show();
       return await finished.future.timeout(
         MafiaTiming.adShowTimeout,
@@ -415,6 +507,7 @@ class GoogleInterstitialAds implements InterstitialAds {
       ad.dispose();
       return false;
     } finally {
+      FullScreenAway.adClosed();
       _showing = false;
     }
   }
@@ -512,6 +605,7 @@ class GoogleAppOpenAds implements AppOpenAds {
       },
     );
     try {
+      FullScreenAway.adOpened();
       await ad.show();
       return await finished.future.timeout(
         MafiaTiming.adShowTimeout,
@@ -524,6 +618,7 @@ class GoogleAppOpenAds implements AppOpenAds {
       ad.dispose();
       return false;
     } finally {
+      FullScreenAway.adClosed();
       _showing = false;
     }
   }

@@ -3755,6 +3755,31 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adExtraUsed => 'اتستخدمت النهارده';
 
   @override
+  String get adPreparing => 'بنجهّز الإعلان…';
+
+  @override
+  String get adRewardVerifying => 'بنتأكد من مكافأتك…';
+
+  @override
+  String get adRewardLateCheck => 'في الطريق · اتأكد تاني';
+
+  @override
+  String get wheelAgainAd => 'عايز تلف تاني؟ اتفرج على إعلان';
+
+  @override
+  String cofferDoubleAd(int amount) {
+    return 'ضاعف خزنة النهارده؟ اتفرج على إعلان · +$amount';
+  }
+
+  @override
+  String dailyAdMore(int amount) {
+    return 'عايز +$amount كمان؟ اتفرج على إعلان';
+  }
+
+  @override
+  String get contractSwapAd => 'مهمة مش عاجباك؟ بدّلها بإعلان';
+
+  @override
   String get vaultOneTime => 'مرة واحدة بس';
 
   @override

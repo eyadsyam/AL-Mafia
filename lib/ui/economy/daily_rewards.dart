@@ -9,20 +9,19 @@ import '../../platform/monetization/rewarded_ads.dart';
 import '../../transport/online_backend.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
-import '../screens/online/rewarded_reward_button.dart'
-    show showRewardedSilenced;
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
-import 'economy_capabilities.dart';
-import 'council_art.dart' show CoinBurst;
-import 'mafia_coin.dart';
+import '../widgets/motion_sprite.dart';
 import 'ad_extras.dart';
-import 'reward_poll.dart';
+import 'ad_reward_flow.dart';
+import 'coin_win.dart';
+import 'council_art.dart' show CoinBurst;
+import 'economy_capabilities.dart';
+import 'mafia_coin.dart';
 import 'store_art.dart';
 import 'vault_kit.dart';
 import 'wallet.dart';
 
-import '../widgets/motion_sprite.dart';
 class WheelPrize {
   final int slot;
   final int coins;
@@ -158,32 +157,34 @@ class DailyController extends AsyncNotifier<DailyStatus?> {
     }
   }
 
-  void _absorb(Map<String, dynamic> answer) {
+  void _absorb(Map<String, dynamic> answer, {int credited = 0}) {
     final daily = answer['daily'];
     if (daily is Map) {
       state = AsyncData(DailyStatus.fromJson(Map<String, dynamic>.from(daily)));
     }
-    ref.invalidate(walletProvider);
+    unawaited(ref.read(walletProvider.notifier).settle(credited: credited));
   }
 
   Future<DailyGrant> claimCoffer() async {
     final answer = await _act('daily_coffer');
-    _absorb(answer);
-    return DailyGrant(
+    final grant = DailyGrant(
       granted: (answer['granted'] as num?)?.toInt() ?? 0,
       bonus: (answer['bonus'] as num?)?.toInt() ?? 0,
     );
+    _absorb(answer, credited: grant.granted + grant.bonus);
+    return grant;
   }
 
   /// The outcome is drawn and stored by the server before this returns; the
   /// wheel only animates to it.
   Future<DailyGrant> spin() async {
     final answer = await _act('daily_spin');
-    _absorb(answer);
-    return DailyGrant(
+    final grant = DailyGrant(
       granted: (answer['amount'] as num?)?.toInt() ?? 0,
       slot: (answer['slot'] as num?)?.toInt(),
     );
+    _absorb(answer, credited: grant.granted);
+    return grant;
   }
 
   /// The claim to show an ad for, or null when today's is already awarded —
@@ -192,7 +193,7 @@ class DailyController extends AsyncNotifier<DailyStatus?> {
     final answer = await _act('daily_ad_claim');
     if (answer['state'] == 'awarded') {
       await refresh();
-      ref.invalidate(walletProvider);
+      unawaited(ref.read(walletProvider.notifier).settle());
       return null;
     }
     final id = answer['claimId'];
@@ -200,59 +201,102 @@ class DailyController extends AsyncNotifier<DailyStatus?> {
     return id;
   }
 
+  /// Whether the server has credited today's ad. The balance is the
+  /// caller's to move (see `AdRewardFlow`), with the confirmed amount.
   Future<bool> adAwarded() async {
     await refresh();
-    final awarded = state.valueOrNull?.adState == 'awarded';
-    if (awarded) ref.invalidate(walletProvider);
-    return awarded;
+    return state.valueOrNull?.adState == 'awarded';
   }
 }
 
-/// «المكافآت»: the daily coffer, the free wheel, the seven-day card and the
-/// optional daily ad. Shown only when the server negotiated daily rewards.
+//// «المكافآت»: the daily coffer, the free wheel and the seven-day card.
+/// Shown only when the server negotiated daily rewards.
+///
+/// The optional ads are not a list at the bottom: each appears in the card
+/// it adds to, and only once the free thing there is used — the wheel's own
+/// button becomes «عايز تلف تاني؟» after today's spin, the coffer's becomes
+/// «ضاعفها» once it is open, then «+N كمان». The wheel itself is the spin
+/// button (the labelled one under it stays, for every reader).
 class DailyRewardsTab extends ConsumerStatefulWidget {
   const DailyRewardsTab({super.key});
 
   static const cofferKey = ValueKey('daily_coffer_claim');
   static const spinKey = ValueKey('daily_wheel_spin');
   static const adKey = ValueKey('daily_ad_watch');
+  static const extraSpinKey = ValueKey('ad_extra_spin');
+  static const extraCofferKey = ValueKey('ad_extra_coffer');
   static const wheelKey = ValueKey('daily_wheel');
   static const outcomeKey = ValueKey('daily_wheel_outcome');
+  static const wheelWinKey = ValueKey('daily_wheel_win');
+  static const cofferWinKey = ValueKey('daily_coffer_win');
 
   @override
   ConsumerState<DailyRewardsTab> createState() => _DailyRewardsTabState();
 }
 
 class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _spin = AnimationController(
     vsync: this,
     duration: MafiaTiming.wheelSpin,
   );
+
+  /// Turns the wheel steadily while the server confirms an extra spin.
+  late final AnimationController _idle = AnimationController(
+    vsync: this,
+    duration: WinTokens.idleTurn,
+  );
+  late final Listenable _wheelMotion = Listenable.merge([_spin, _idle]);
   double _from = 0;
   double _to = 0;
+  double _idleBase = 0;
+
+  /// A spin has been animated on this screen: the wheel rests where it
+  /// stopped rather than on the stored slot.
+  bool _spun = false;
   bool _busy = false;
 
   /// Bumped on a paid coffer, so its coins burst over the button.
   int? _cofferBurst;
 
+  /// The win being celebrated over the wheel or the coffer, and a key per
+  /// celebration so a second one starts afresh. The next offer in that card
+  /// waits until it is done.
+  int? _wheelWin;
+  int? _cofferWin;
+  int _winSeq = 0;
+
   /// The slice under the pointer while the wheel turns: a tick each time a
   /// new one passes it.
   int _tickSlice = -1;
   List<WheelPrize> _tickPrizes = const [];
-  bool _adPending = false;
-  int _epoch = 0;
 
   /// The sentence under the wheel, set only once it has stopped.
   String? _outcome;
+  late final AppLifecycleListener _life;
 
   @override
   void initState() {
     super.initState();
     _spin.addListener(_tick);
+    _idle.addListener(_tick);
+    // A reward confirmed while the player was away shows on return.
+    _life = AppLifecycleListener(
+      onResume: () => ref.read(adRewardFlowProvider.notifier).recheckLate(),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) ref.read(dailyProvider.notifier).refresh();
+      if (!mounted) return;
+      ref.read(dailyProvider.notifier).refresh();
+      _refreshExtras();
+      ref.read(adRewardFlowProvider.notifier).recheckLate();
     });
+  }
+
+  void _refreshExtras() {
+    final caps = ref.read(economyCapabilitiesProvider).valueOrNull?.ads;
+    if ((caps?.extras ?? false) && ref.read(rewardedAdsProvider).configured) {
+      ref.read(adExtrasProvider.notifier).refresh();
+    }
   }
 
   /// The angle the wheel is drawn at for a spin at [value] (0..1).
@@ -263,11 +307,14 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
   /// crawl past the pointer, and it lands exactly on the server's slot.
   static const Curve _wheelCurve = Cubic(0.12, 0.72, 0.18, 1);
 
+  double get _idleAngle => _idleBase + _idle.value * 2 * math.pi;
+
   void _tick() {
-    if (!_spin.isAnimating || _tickPrizes.isEmpty) return;
-    final slice = WheelGeometry.of(
-      _tickPrizes,
-    ).sliceUnderPointer(_angleAt(_spin.value));
+    if ((!_spin.isAnimating && !_idle.isAnimating) || _tickPrizes.isEmpty) {
+      return;
+    }
+    final angle = _idle.isAnimating ? _idleAngle : _angleAt(_spin.value);
+    final slice = WheelGeometry.of(_tickPrizes).sliceUnderPointer(angle);
     if (slice != _tickSlice) {
       if (_tickSlice >= 0) Haptics.select();
       _tickSlice = slice;
@@ -276,8 +323,9 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
 
   @override
   void dispose() {
-    _epoch++;
+    _life.dispose();
     _spin.dispose();
+    _idle.dispose();
     super.dispose();
   }
 
@@ -293,6 +341,8 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
   double _restingAngle(List<WheelPrize> prizes, int? slot) =>
       slot == null ? 0 : WheelGeometry.of(prizes).restingRotation(slot);
 
+  bool get _reduce => MediaQuery.disableAnimationsOf(context);
+
   Future<void> _claimCoffer() async {
     if (_busy) return;
     setState(() => _busy = true);
@@ -302,7 +352,11 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
       if (!mounted) return;
       if (grant.granted > 0) {
         Haptics.confirm();
-        setState(() => _cofferBurst = (_cofferBurst ?? 0) + 1);
+        setState(() {
+          _cofferBurst = (_cofferBurst ?? 0) + 1;
+          _cofferWin = grant.granted + grant.bonus;
+          _winSeq++;
+        });
         showRewardFlourish(context);
         _say(
           grant.bonus > 0
@@ -317,6 +371,44 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
     }
   }
 
+  /// Turns the wheel from where it is to the server's [slot], adding a few
+  /// full turns, then celebrates [amount].
+  Future<void> _turnTo(
+    List<WheelPrize> prizes,
+    int slot, {
+    required double from,
+    required int amount,
+    required String outcome,
+  }) async {
+    final target = WheelGeometry.of(prizes).restingRotation(slot);
+    var to = target;
+    if (_reduce) {
+      to = target;
+    } else {
+      while (to < from + WinTokens.landTurns * 2 * math.pi) {
+        to += 2 * math.pi;
+      }
+    }
+    _from = _reduce ? to : from;
+    _to = to;
+    _tickPrizes = prizes;
+    _tickSlice = -1;
+    _spun = true;
+    if (_reduce) {
+      _spin.value = 1;
+    } else {
+      await _spin.forward(from: 0);
+    }
+    if (!mounted) return;
+    Haptics.confirm();
+    setState(() {
+      _outcome = outcome;
+      _wheelWin = amount;
+      _winSeq++;
+    });
+    showRewardFlourish(context);
+  }
+
   Future<void> _spinWheel(List<WheelPrize> prizes) async {
     if (_busy) return;
     setState(() {
@@ -327,20 +419,13 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
     try {
       final grant = await ref.read(dailyProvider.notifier).spin();
       if (!mounted || grant.slot == null) return;
-      final target = WheelGeometry.of(prizes).restingRotation(grant.slot!);
-      final reduce = MediaQuery.disableAnimationsOf(context);
-      _from = 0;
-      _to = reduce ? target : target + DailyTokens.wheelTurns * 2 * math.pi;
-      _tickPrizes = prizes;
-      _tickSlice = -1;
-      if (reduce) {
-        _spin.value = 1;
-      } else {
-        await _spin.forward(from: 0);
-      }
-      if (!mounted) return;
-      Haptics.confirm();
-      setState(() => _outcome = l.dailyWheelResult(grant.granted));
+      await _turnTo(
+        prizes,
+        grant.slot!,
+        from: 0,
+        amount: grant.granted,
+        outcome: l.dailyWheelResult(grant.granted),
+      );
     } on DailyActionFailed catch (error) {
       if (mounted) _sayFailure(error);
     } finally {
@@ -348,59 +433,102 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
     }
   }
 
-  Future<void> _watchDailyAd() async {
-    if (_busy || _adPending) return;
-    setState(() => _busy = true);
+  /// The ad was watched: the wheel turns on its own while the server
+  /// confirms the view (it draws the prize at that moment).
+  void _startWaitingSpin(List<WheelPrize> prizes, double from) {
+    if (_idle.isAnimating || _reduce) return;
+    setState(() {
+      _outcome = null;
+      _idleBase = from;
+      _tickPrizes = prizes;
+      _tickSlice = -1;
+      _spun = true;
+    });
+    _idle.repeat();
+  }
+
+  /// The server's prize is in: the waiting wheel settles on it.
+  Future<void> _landExtraSpin(
+    List<WheelPrize> prizes,
+    int? slot,
+    int amount,
+  ) async {
+    final from = _idle.isAnimating ? _idleAngle : _angleAt(_spin.value);
+    _idle.stop();
     final l = context.l10n;
-    try {
-      final controller = ref.read(dailyProvider.notifier);
-      final claimId = await controller.createAdClaim();
-      if (!mounted || claimId == null) return;
-      final backend = await ref.read(onlineBackendFactoryProvider)();
-      final userId = await backend.ensureSession();
-      if (!mounted) return;
-      final outcome = await showRewardedSilenced(
-        ref,
-        customData: 'd1:$claimId',
-        userId: userId,
-        placement: RewardedPlacement.daily,
-      );
-      if (!mounted) return;
-      switch (outcome) {
-        case RewardedAdOutcome.earned:
-          final epoch = ++_epoch;
-          setState(() => _adPending = true);
-          final landed = await pollForReward(
-            awarded: controller.adAwarded,
-            alive: () => mounted && epoch == _epoch,
-          );
-          if (!mounted) return;
-          setState(() => _adPending = false);
-          _say(
-            landed
-                ? l.dailyCofferGranted(
-                    ref.read(dailyProvider).valueOrNull?.adAmount ?? 0,
-                  )
-                : l.adRewardPending,
-          );
-        case RewardedAdOutcome.notConsented:
-          _say(l.adRewardNotConsented);
-        case RewardedAdOutcome.unavailable:
-        case RewardedAdOutcome.failed:
-          _say(l.adRewardUnavailable);
-        case RewardedAdOutcome.dismissed:
-          break;
-      }
-    } on DailyActionFailed catch (error) {
-      if (!mounted) return;
-      if (error.code == 'IN_MATCH') {
-        _say(l.dailyAdInMatch);
-      } else {
-        _sayFailure(error);
-      }
-    } finally {
-      if (mounted) setState(() => _busy = false);
+    if (slot == null) {
+      setState(() {
+        _outcome = l.adExtraSpinResult(amount);
+        _wheelWin = amount;
+        _winSeq++;
+      });
+      return;
     }
+    await _turnTo(
+      prizes,
+      slot,
+      from: from,
+      amount: amount,
+      outcome: l.adExtraSpinResult(amount),
+    );
+  }
+
+  /// The confirmation did not come in time: the wheel comes to rest where
+  /// it is, without pretending to know the prize.
+  void _stopWaitingSpin() {
+    if (!_idle.isAnimating) return;
+    final at = _idleAngle;
+    _idle.stop();
+    setState(() {
+      _from = at;
+      _to = at;
+      _spin.value = 1;
+    });
+  }
+
+  void _onFlow(
+    AdRewardFlowState? previous,
+    AdRewardFlowState next,
+    List<WheelPrize> prizes,
+  ) {
+    final before = previous?.phaseOf(AdReward.extraSpin);
+    final now = next.phaseOf(AdReward.extraSpin);
+    if (now == AdRewardPhase.verifying && before == AdRewardPhase.watching) {
+      final from = _spun ? _angleAt(_spin.value) : _currentRest(prizes);
+      _startWaitingSpin(prizes, from);
+    } else if (now == AdRewardPhase.late) {
+      _stopWaitingSpin();
+    }
+    final landed = next.landed;
+    if (landed == null || landed.seq == previous?.landed?.seq) return;
+    switch (landed.kind) {
+      case AdReward.extraSpin:
+        unawaited(_landExtraSpin(prizes, landed.slot, landed.amount));
+      case AdReward.extraCoffer:
+      case AdReward.dailyAd:
+        Haptics.confirm();
+        setState(() {
+          _cofferBurst = (_cofferBurst ?? 0) + 1;
+          _cofferWin = landed.amount;
+          _winSeq++;
+        });
+      case AdReward.extraSwap:
+        break;
+    }
+  }
+
+  /// Where the wheel rests when nothing has turned on this screen: on the
+  /// latest outcome the server stored today.
+  double _currentRest(List<WheelPrize> prizes) {
+    final status = ref.read(dailyProvider).valueOrNull;
+    final extras = ref.read(adExtrasProvider).valueOrNull;
+    final extraSlot = extras?.spin.awarded ?? false ? extras?.spin.slot : null;
+    return _restingAngle(prizes, extraSlot ?? status?.wheelSlot);
+  }
+
+  Future<void> _watch(AdReward kind) async {
+    final attempt = await ref.read(adRewardFlowProvider.notifier).watch(kind);
+    if (mounted) sayAdAttempt(context, attempt, kind);
   }
 
   @override
@@ -409,6 +537,29 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
     final s = context.spacing;
     final daily = ref.watch(dailyProvider);
     final status = daily.valueOrNull;
+    // The server's answer on extras may arrive after this tab opened.
+    ref.listen(economyCapabilitiesProvider, (previous, next) {
+      final was = previous?.valueOrNull?.ads.extras ?? false;
+      if (!was && (next.valueOrNull?.ads.extras ?? false)) _refreshExtras();
+    });
+    // Opening the coffer or spinning the free wheel makes an extra ready.
+    ref.listen(dailyProvider, (previous, next) {
+      final a = previous?.valueOrNull;
+      final b = next.valueOrNull;
+      if (b != null &&
+          a != null &&
+          (a.cofferClaimed != b.cofferClaimed || a.wheelSpun != b.wheelSpun)) {
+        _refreshExtras();
+      }
+    });
+    ref.listen<AdRewardFlowState>(
+      adRewardFlowProvider,
+      (previous, next) => _onFlow(
+        previous,
+        next,
+        ref.read(dailyProvider).valueOrNull?.prizes ?? const [],
+      ),
+    );
     if (status == null) {
       return daily.hasError
           ? VaultRetry(
@@ -418,11 +569,6 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
             )
           : const VaultSkeleton();
     }
-    final caps = ref.watch(economyCapabilitiesProvider).valueOrNull;
-    final adsOffered =
-        status.adEnabled &&
-        (caps?.dailyAd ?? false) &&
-        ref.watch(rewardedAdsProvider).configured;
     return LayoutBuilder(
       builder: (context, box) {
         final side = math.max(
@@ -437,16 +583,6 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
             _wheelCard(context, status),
             SizedBox(height: s.md),
             _weekCard(context, status),
-            if (adsOffered) ...[
-              SizedBox(height: s.md),
-              _adCard(context, status),
-            ],
-            // Phase 108: the optional extras, each switched on by the
-            // server; a zero-size box otherwise.
-            if (caps?.ads.extras ?? false) ...[
-              SizedBox(height: s.md),
-              const AdExtrasPanel(),
-            ],
             SizedBox(height: s.md),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -481,6 +617,65 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
     bool lit = false,
   }) => VaultCard(lit: lit, children: children);
 
+  /// The one action under the coffer: open it; then, once it is open (and
+  /// the coins have landed), double it with an ad; then today's ad for a
+  /// little more; then nothing until tomorrow.
+  Widget _cofferAction(BuildContext context, DailyStatus status) {
+    final l = context.l10n;
+    final extras = ref.watch(adExtrasProvider).valueOrNull;
+    final caps = ref.watch(economyCapabilitiesProvider).valueOrNull;
+    final rewarded = ref.watch(rewardedAdsProvider).configured;
+    final flow = ref.watch(adRewardFlowProvider);
+    final celebrating = _cofferWin != null;
+    final doubleIt =
+        status.cofferClaimed &&
+        extras != null &&
+        extraOffered(ref, AdReward.extraCoffer) &&
+        extras.coffer.ready &&
+        !extras.coffer.awarded;
+    final dailyAd =
+        status.cofferClaimed &&
+        status.adEnabled &&
+        (caps?.dailyAd ?? false) &&
+        rewarded &&
+        status.adState != 'awarded';
+    // An offer already started keeps its button through the celebration.
+    bool started(AdReward kind) => flow.phaseOf(kind) != AdRewardPhase.idle;
+    if (doubleIt && (!celebrating || started(AdReward.extraCoffer))) {
+      return AdOfferButton(
+        key: DailyRewardsTab.extraCofferKey,
+        kind: AdReward.extraCoffer,
+        gold: true,
+        label: l.cofferDoubleAd(extras.coffer.amount ?? 0),
+        enabled: !extras.inMatch,
+      );
+    }
+    if (dailyAd && (!celebrating || started(AdReward.dailyAd))) {
+      return AdOfferButton(
+        key: DailyRewardsTab.adKey,
+        kind: AdReward.dailyAd,
+        label: status.inMatch
+            ? l.dailyAdInMatch
+            : l.dailyAdMore(status.adAmount),
+        enabled: !status.inMatch,
+      );
+    }
+    return VaultPress(
+      child: FilledButton(
+        key: DailyRewardsTab.cofferKey,
+        style: vaultGoldStyle(context),
+        onPressed: status.cofferClaimed || _busy || !status.enabled
+            ? null
+            : _claimCoffer,
+        child: Text(
+          status.cofferClaimed
+              ? l.dailyCofferClaimed
+              : l.dailyCofferClaim(status.cofferAmount),
+        ),
+      ),
+    );
+  }
+
   Widget _cofferCard(BuildContext context, DailyStatus status) {
     final l = context.l10n;
     final s = context.spacing;
@@ -494,13 +689,26 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
       errorBuilder: (_, _, _) =>
           const MafiaCoin(size: DailyTokens.cofferArt / 2),
     );
+    final win = _cofferWin;
     return VaultGlint(
       play: ready,
       child: _card(context, lit: ready, [
         VaultHeading(
-          leading: ready
-              ? LampGlow(child: art)
-              : Opacity(opacity: 0.7, child: art),
+          leading: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              ready ? LampGlow(child: art) : Opacity(opacity: 0.7, child: art),
+              if (win != null)
+                CoinWinReveal(
+                  key: ValueKey(('coffer', _winSeq)),
+                  amount: win,
+                  onDone: () {
+                    if (mounted) setState(() => _cofferWin = null);
+                  },
+                ),
+            ],
+          ),
           title: l.dailyCofferTitle,
           subtitle: status.cofferClaimed
               ? l.dailyCofferClaimed
@@ -509,18 +717,12 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
         SizedBox(height: s.md),
         CoinBurst(
           trigger: _cofferBurst,
-          child: VaultPress(
-            child: FilledButton(
-              key: DailyRewardsTab.cofferKey,
-              style: vaultGoldStyle(context),
-              onPressed: status.cofferClaimed || _busy || !status.enabled
-                  ? null
-                  : _claimCoffer,
-              child: Text(
-                status.cofferClaimed
-                    ? l.dailyCofferClaimed
-                    : l.dailyCofferClaim(status.cofferAmount),
-              ),
+          child: AnimatedSwitcher(
+            duration: _reduce ? Duration.zero : context.motion.standard,
+            transitionBuilder: _swapTransition,
+            child: KeyedSubtree(
+              key: ValueKey(_cofferActionKind(status)),
+              child: _cofferAction(context, status),
             ),
           ),
         ),
@@ -528,55 +730,135 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
     );
   }
 
+  /// A cross-fade in which the button on its way out can no longer be
+  /// pressed: a fading free claim must not be claimable twice.
+  static Widget _swapTransition(Widget child, Animation<double> animation) =>
+      FadeTransition(
+        opacity: animation,
+        child: AnimatedBuilder(
+          animation: animation,
+          child: child,
+          builder: (context, child) => IgnorePointer(
+            ignoring:
+                animation.status == AnimationStatus.reverse ||
+                animation.status == AnimationStatus.dismissed,
+            child: child,
+          ),
+        ),
+      );
+
+  /// Which button the coffer shows, so the switch between them animates.
+  String _cofferActionKind(DailyStatus status) {
+    if (!status.cofferClaimed) return 'free';
+    final extras = ref.read(adExtrasProvider).valueOrNull;
+    if (extras != null && !extras.coffer.awarded && extras.coffer.ready) {
+      return 'double';
+    }
+    return status.adState == 'awarded' ? 'done' : 'ad';
+  }
+
+  /// What a tap on the wheel (or its button) does right now, or null.
+  VoidCallback? _wheelTap(DailyStatus status, bool adSpinShown) {
+    final prizes = status.prizes;
+    if (!status.wheelSpun) {
+      return _busy || !status.enabled ? null : () => _spinWheel(prizes);
+    }
+    if (!adSpinShown) return null;
+    final flow = ref.read(adRewardFlowProvider);
+    final extras = ref.read(adExtrasProvider).valueOrNull;
+    return switch (flow.phaseOf(AdReward.extraSpin)) {
+      AdRewardPhase.idle when !flow.busy && !(extras?.inMatch ?? true) =>
+        () => _watch(AdReward.extraSpin),
+      AdRewardPhase.late => () => ref
+          .read(adRewardFlowProvider.notifier)
+          .recheck(AdReward.extraSpin),
+      _ => null,
+    };
+  }
+
   Widget _wheelCard(BuildContext context, DailyStatus status) {
     final l = context.l10n;
     final s = context.spacing;
     final prizes = status.prizes;
-    final spinning = _spin.isAnimating;
+    final extras = ref.watch(adExtrasProvider).valueOrNull;
+    final flow = ref.watch(adRewardFlowProvider);
+    final spinPhase = flow.phaseOf(AdReward.extraSpin);
+    final turning = _spin.isAnimating || _idle.isAnimating;
+    final extraAwarded = extras?.spin.awarded ?? false;
+    // The second spin, offered only after today's free one, by the wheel's
+    // own button — and only once the first win has finished landing.
+    final adSpin =
+        status.wheelSpun &&
+        extras != null &&
+        extraOffered(ref, AdReward.extraSpin) &&
+        extras.spin.ready &&
+        !extraAwarded;
+    final adSpinShown =
+        adSpin &&
+        ((_wheelWin == null && !turning && !_busy) ||
+            spinPhase != AdRewardPhase.idle);
     // Not while a spin is being requested: the stored outcome must not flash
     // into place before the wheel has started to turn.
-    final settled = status.wheelSpun && !spinning && !_busy;
-    // Reopened after today's spin: rest on the stored outcome.
-    final rest = settled && _outcome == null
-        ? _restingAngle(prizes, status.wheelSlot)
-        : null;
+    final settled = status.wheelSpun && !turning && !_busy;
+    final rest = settled && !_spun ? _currentRest(prizes) : null;
     final outcome =
         _outcome ??
-        (settled && status.wheelAmount != null
-            ? l.dailyWheelDone(status.wheelAmount!)
+        (settled && !_spun
+            ? extraAwarded && extras?.spin.amount != null
+                  ? l.adExtraSpinResult(extras!.spin.amount!)
+                  : status.wheelAmount != null
+                  ? l.dailyWheelDone(status.wheelAmount!)
+                  : null
             : null);
     final ready = !status.wheelSpun && status.enabled;
-    return _card(context, lit: ready, [
+    final tap = _wheelTap(status, adSpinShown);
+    final win = _wheelWin;
+    return _card(context, lit: ready || adSpinShown, [
       VaultHeading(title: l.dailyWheelTitle, subtitle: l.dailyWheelBody),
       SizedBox(height: s.md),
       if (prizes.isNotEmpty)
         Center(
           child: ExcludeSemantics(
-            child: SizedBox.square(
-              key: DailyRewardsTab.wheelKey,
-              dimension: DailyTokens.wheelSize,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Positioned.fill(
-                    child: AnimatedBuilder(
-                      animation: _spin,
-                      builder: (context, _) {
-                        final angle = rest ?? _angleAt(_spin.value);
-                        return CustomPaint(
-                          painter: WheelPainter(
-                            prizes: prizes,
-                            rotation: angle,
-                            colors: context.colors,
-                            label: context.typography.bodySmall,
-                            spinning: _spin.isAnimating,
-                          ),
-                        );
-                      },
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: tap,
+              child: SizedBox.square(
+                key: DailyRewardsTab.wheelKey,
+                dimension: DailyTokens.wheelSize,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned.fill(
+                      child: AnimatedBuilder(
+                        animation: _wheelMotion,
+                        builder: (context, _) {
+                          final angle = _idle.isAnimating
+                              ? _idleAngle
+                              : rest ?? _angleAt(_spin.value);
+                          return CustomPaint(
+                            painter: WheelPainter(
+                              prizes: prizes,
+                              rotation: angle,
+                              colors: context.colors,
+                              label: context.typography.bodySmall,
+                              spinning: _spin.isAnimating || _idle.isAnimating,
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  const MafiaCoin(size: VaultTokens.wheelHubCoin),
-                ],
+                    const MafiaCoin(size: VaultTokens.wheelHubCoin),
+                    if (win != null)
+                      CoinWinReveal(
+                        key: ValueKey(('wheel', _winSeq)),
+                        amount: win,
+                        onDone: () {
+                          if (mounted) setState(() => _wheelWin = null);
+                        },
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -594,16 +876,29 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
         ),
         SizedBox(height: s.sm),
       ],
-      VaultPress(
-        child: FilledButton.icon(
-          key: DailyRewardsTab.spinKey,
-          style: vaultGoldStyle(context),
-          onPressed: status.wheelSpun || _busy || !status.enabled
-              ? null
-              : () => _spinWheel(prizes),
-          icon: const Icon(Icons.casino_outlined),
-          label: Text(l.dailyWheelSpin),
-        ),
+      AnimatedSwitcher(
+        duration: _reduce ? Duration.zero : context.motion.standard,
+        transitionBuilder: _swapTransition,
+        child: adSpinShown
+            ? AdOfferButton(
+                key: DailyRewardsTab.extraSpinKey,
+                kind: AdReward.extraSpin,
+                gold: true,
+                label: l.wheelAgainAd,
+                enabled: !extras.inMatch,
+              )
+            : VaultPress(
+                key: const ValueKey('daily_wheel_free'),
+                child: FilledButton.icon(
+                  key: DailyRewardsTab.spinKey,
+                  style: vaultGoldStyle(context),
+                  onPressed: status.wheelSpun || _busy || !status.enabled
+                      ? null
+                      : () => _spinWheel(prizes),
+                  icon: const Icon(Icons.casino_outlined),
+                  label: Text(l.dailyWheelSpin),
+                ),
+              ),
       ),
       SizedBox(height: s.md),
       _OddsTable(prizes: prizes),
@@ -672,43 +967,6 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
           color: colors.textSecondary,
         ),
       ),
-    ]);
-  }
-
-  Widget _adCard(BuildContext context, DailyStatus status) {
-    final l = context.l10n;
-    final s = context.spacing;
-    final done = status.adState == 'awarded';
-    return _card(context, [
-      VaultHeading(
-        leading: Icon(
-          Icons.ondemand_video_rounded,
-          size: CouncilLifeTokens.contractIcon * 0.8,
-          color: done ? context.colors.textMuted : VaultTokens.gold,
-        ),
-        title: l.dailyAdTitle,
-        subtitle: status.inMatch
-            ? l.dailyAdInMatch
-            : l.dailyAdBody(status.adAmount),
-      ),
-      SizedBox(height: s.md),
-      done
-          ? Center(child: ClaimedMark(l.dailyAdDone))
-          : VaultPress(
-              child: OutlinedButton.icon(
-                key: DailyRewardsTab.adKey,
-                style: vaultOutlineStyle(context),
-                onPressed: _busy || _adPending || status.inMatch
-                    ? null
-                    : _watchDailyAd,
-                icon: const Icon(Icons.ondemand_video_outlined),
-                label: Text(
-                  _adPending
-                      ? l.adRewardPending
-                      : l.dailyAdAction(status.adAmount),
-                ),
-              ),
-            ),
     ]);
   }
 }

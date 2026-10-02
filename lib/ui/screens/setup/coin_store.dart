@@ -514,13 +514,30 @@ class _WalletStrip extends StatelessWidget {
             Semantics(
               label: balance == null ? null : l.storeBalance(balance!),
               excludeSemantics: balance != null,
-              child: Text(
-                balance == null ? '…' : '$balance',
-                key: CoinStore.balanceKey,
-                style: context.typography.title.copyWith(
-                  color: colors.accentGold,
-                ),
-              ),
+              child: balance == null
+                  ? Text(
+                      '…',
+                      key: CoinStore.balanceKey,
+                      style: context.typography.title.copyWith(
+                        color: colors.accentGold,
+                      ),
+                    )
+                  // Counts to a new balance (a grant, a purchase) instead
+                  // of jumping, so the player sees the coins arrive.
+                  : TweenAnimationBuilder<double>(
+                      tween: Tween(end: balance!.toDouble()),
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : WinTokens.balanceCount,
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, _) => Text(
+                        '${value.round()}',
+                        key: CoinStore.balanceKey,
+                        style: context.typography.title.copyWith(
+                          color: colors.accentGold,
+                        ),
+                      ),
+                    ),
             ),
             if (loading)
               SizedBox.square(

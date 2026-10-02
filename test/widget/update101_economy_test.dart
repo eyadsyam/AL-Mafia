@@ -300,10 +300,17 @@ void main() {
         'action': 'daily_coffer',
         'day': '2026-09-25',
       });
-      final button = tester.widget<FilledButton>(
-        find.byKey(DailyRewardsTab.cofferKey),
+      // The free claim is gone (the card moves on to its optional ad once
+      // the win has landed): even the button fading out cannot claim twice.
+      for (final button in find.byKey(DailyRewardsTab.cofferKey).evaluate()) {
+        await tester.tap(find.byWidget(button.widget), warnIfMissed: false);
+      }
+      await tester.pump();
+      expect(
+        backend.calls.where((c) => c.body['action'] == 'daily_coffer'),
+        hasLength(1),
+        reason: 'once a day',
       );
-      expect(button.onPressed, isNull, reason: 'once a day');
     });
 
     testWidgets('the wheel lands on the stored outcome; no respin', (tester) async {

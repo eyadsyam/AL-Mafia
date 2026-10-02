@@ -8,17 +8,14 @@ import '../../platform/monetization/rewarded_ads.dart';
 import '../../transport/online_backend.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
-import '../screens/online/rewarded_reward_button.dart'
-    show showRewardedSilenced;
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
+import 'ad_reward_flow.dart';
 import 'council.dart';
 import 'council_hub.dart' show contractName;
 import 'daily_rewards.dart';
 import 'economy_capabilities.dart';
-import 'reward_poll.dart';
 import 'vault_kit.dart';
-import 'wallet.dart';
 
 /// One voluntary extra as the server describes it.
 class AdExtra {
@@ -91,10 +88,6 @@ class AdExtrasStatus {
   }
 }
 
-/// "20.00" → "20", "2.50" → "2.5": the exact published number, shorter.
-String _trimPercent(String value) =>
-    value.contains('.') ? value.replaceFirst(RegExp(r'\.?0+$'), '') : value;
-
 class AdExtraFailed implements Exception {
   final String? code;
   const AdExtraFailed(this.code);
@@ -154,6 +147,8 @@ class AdExtrasController extends AsyncNotifier<AdExtrasStatus?> {
     }
   }
 
+  /// Whether the server has credited today's [kind]. The balance (and the
+  /// contracts, for a swap) are the caller's to move: see `AdRewardFlow`.
   Future<bool> awarded(String kind) async {
     await refresh();
     final status = state.valueOrNull;
@@ -162,12 +157,7 @@ class AdExtrasController extends AsyncNotifier<AdExtrasStatus?> {
       'coffer' => status?.coffer,
       _ => status?.swap,
     };
-    final done = extra?.awarded ?? false;
-    if (done) {
-      ref.invalidate(walletProvider);
-      if (kind == 'swap') ref.invalidate(councilProvider);
-    }
-    return done;
+    return extra?.awarded ?? false;
   }
 
   /// Today's contracts, for choosing which one to swap.
@@ -182,319 +172,271 @@ class AdExtrasController extends AsyncNotifier<AdExtrasStatus?> {
   }
 }
 
-/// «إضافات اختيارية» (phase 108): a second wheel spin, a doubled coffer and
-/// a swapped contract, each one optional rewarded ad once a UTC day,
-/// credited only by the server after AdMob's signed callback. Shown only
-/// when the server switched each on and the build can show rewarded ads.
-class AdExtrasPanel extends ConsumerStatefulWidget {
-  const AdExtrasPanel({super.key});
+//// Whether today's [extra] can be offered at all: switched on by the server
+/// (both the capability and today's status), and a build that can show
+/// rewarded ads.
+bool extraOffered(WidgetRef ref, AdReward kind) {
+  final caps = ref.watch(economyCapabilitiesProvider).valueOrNull?.ads;
+  final status = ref.watch(adExtrasProvider).valueOrNull;
+  if (caps == null || !caps.extras || status == null) return false;
+  if (!ref.watch(rewardedAdsProvider).configured) return false;
+  return switch (kind) {
+    AdReward.extraSpin => caps.extraSpin && status.spin.enabled,
+    AdReward.extraCoffer => caps.extraCoffer && status.coffer.enabled,
+    AdReward.extraSwap => caps.extraSwap && status.swap.enabled,
+    AdReward.dailyAd => false,
+  };
+}
 
-  static const spinKey = ValueKey('ad_extra_spin');
-  static const cofferKey = ValueKey('ad_extra_coffer');
-  static const swapKey = ValueKey('ad_extra_swap');
-  static ValueKey<String> swapSlotKey(int slot) =>
+/// One line for what a tap on an offer came to. Silence for a watched or
+/// closed ad: the button itself says what happens next.
+void sayAdAttempt(BuildContext context, AdRewardAttempt attempt, AdReward kind) {
+  final l = context.l10n;
+  final refusal = attempt.refusal;
+  final String? message = refusal != null
+      ? switch (refusal) {
+          'IN_MATCH' => l.dailyAdInMatch,
+          'DAY_CHANGED' => l.dailyDayChanged,
+          'EXTRA_NOT_READY' when kind == AdReward.extraSpin =>
+            l.adExtraSpinNotReady,
+          'EXTRA_NOT_READY' when kind == AdReward.extraCoffer =>
+            l.adExtraCofferNotReady,
+          'EXTRA_NOT_READY' => l.adExtraNoneLeft,
+          _ => l.dailyFailed,
+        }
+      : switch (attempt.outcome) {
+          RewardedAdOutcome.unavailable ||
+          RewardedAdOutcome.failed => l.adRewardUnavailable,
+          RewardedAdOutcome.notConsented => l.adRewardNotConsented,
+          _ => null,
+        };
+  if (message == null) return;
+  ScaffoldMessenger.maybeOf(
+    context,
+  )?.showSnackBar(SnackBar(content: Text(message)));
+}
+
+/// A rewarded offer's button, drawn where the offer belongs (the wheel, the
+/// coffer, the contracts) rather than in a list of ads.
+///
+/// It follows [AdRewardFlow]: the idle label, a spinner while the ad loads,
+/// «confirming» while the server checks the view, and «on its way · check
+/// again» if that takes longer than the check window — never "watch" again
+/// for an ad already watched. While the offer sits idle on screen its ad is
+/// loaded in the background, so the tap shows it at once.
+class AdOfferButton extends ConsumerStatefulWidget {
+  final AdReward kind;
+  final String label;
+  final bool gold;
+
+  /// False while the offer cannot be taken (in a match, not ready yet).
+  final bool enabled;
+
+  /// Replaces the default (watch [kind]) — the swap picks a contract first.
+  final Future<void> Function()? onTap;
+
+  const AdOfferButton({
+    super.key,
+    required this.kind,
+    required this.label,
+    this.gold = false,
+    this.enabled = true,
+    this.onTap,
+  });
+
+  @override
+  ConsumerState<AdOfferButton> createState() => _AdOfferButtonState();
+}
+
+class _AdOfferButtonState extends ConsumerState<AdOfferButton> {
+  Timer? _warm;
+  bool _warmed = false;
+
+  @override
+  void dispose() {
+    _warm?.cancel();
+    super.dispose();
+  }
+
+  void _warmSoon() {
+    if (_warmed || _warm != null) return;
+    _warm = Timer(AdTokens.rewardedPreloadAfter, () {
+      _warm = null;
+      if (!mounted) return;
+      _warmed = true;
+      preloadRewarded(ref.read(rewardedAdsProvider), widget.kind.placement);
+    });
+  }
+
+  Future<void> _watch() async {
+    final custom = widget.onTap;
+    if (custom != null) return custom();
+    final attempt = await ref
+        .read(adRewardFlowProvider.notifier)
+        .watch(widget.kind);
+    if (mounted) sayAdAttempt(context, attempt, widget.kind);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final phase = ref.watch(
+      adRewardFlowProvider.select((f) => f.phaseOf(widget.kind)),
+    );
+    final busy = ref.watch(adRewardFlowProvider.select((f) => f.busy));
+    if (phase == AdRewardPhase.idle && widget.enabled) _warmSoon();
+    final spinner = SizedBox.square(
+      dimension: s.md,
+      child: const CircularProgressIndicator(
+        strokeWidth: StoreTokens.busyStroke,
+      ),
+    );
+    final (label, icon, onPressed) = switch (phase) {
+      AdRewardPhase.idle => (
+        widget.label,
+        const Icon(Icons.ondemand_video_rounded) as Widget,
+        widget.enabled && !busy ? _watch : null,
+      ),
+      AdRewardPhase.watching => (widget.label, spinner as Widget, null),
+      AdRewardPhase.verifying => (l.adRewardVerifying, spinner as Widget, null),
+      AdRewardPhase.late => (
+        l.adRewardLateCheck,
+        const Icon(Icons.refresh_rounded) as Widget,
+        () => ref.read(adRewardFlowProvider.notifier).recheck(widget.kind),
+      ),
+    };
+    final text = Text(label, textAlign: TextAlign.center);
+    return VaultPress(
+      child: widget.gold
+          ? FilledButton.icon(
+              style: vaultGoldStyle(context),
+              onPressed: onPressed,
+              icon: icon,
+              label: text,
+            )
+          : OutlinedButton.icon(
+              style: vaultOutlineStyle(context),
+              onPressed: onPressed,
+              icon: icon,
+              label: text,
+            ),
+    );
+  }
+}
+
+/// Lets the player pick which of today's unclaimed contracts to swap.
+Future<int?> pickContractToSwap(
+  BuildContext context,
+  CouncilContracts contracts,
+) {
+  final l = context.l10n;
+  final open = [
+    for (final c in contracts.contracts)
+      if (!c.claimed) c,
+  ];
+  return showModalBottomSheet<int>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheet) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: sheet.spacing.md),
+            child: Text(
+              l.adExtraSwapPick,
+              style: sheet.typography.title.copyWith(
+                color: sheet.colors.textPrimary,
+              ),
+            ),
+          ),
+          SizedBox(height: sheet.spacing.sm),
+          for (final c in open)
+            ListTile(
+              key: ContractSwapOffer.slotKey(c.slot),
+              title: Text(contractName(l, c)),
+              subtitle: Text(l.adExtraSwapSlot(c.slot + 1)),
+              onTap: () => Navigator.of(sheet).pop(c.slot),
+            ),
+          SizedBox(height: sheet.spacing.sm),
+        ],
+      ),
+    ),
+  );
+}
+
+/// «مهمة مش عاجباك؟ بدّلها بإعلان»: under today's contracts, only while one
+/// is still open and today's swap is unused. Picks the contract in a sheet,
+/// then shows the ad; the server swaps it once the view is verified.
+class ContractSwapOffer extends ConsumerStatefulWidget {
+  final CouncilContracts contracts;
+  const ContractSwapOffer({super.key, required this.contracts});
+
+  static const actionKey = ValueKey('ad_extra_swap');
+  static ValueKey<String> slotKey(int slot) =>
       ValueKey('ad_extra_swap_slot_$slot');
 
   @override
-  ConsumerState<AdExtrasPanel> createState() => _AdExtrasPanelState();
+  ConsumerState<ContractSwapOffer> createState() => _ContractSwapOfferState();
 }
 
-class _AdExtrasPanelState extends ConsumerState<AdExtrasPanel> {
-  bool _busy = false;
-  String? _pending;
-  int _epoch = 0;
+class _ContractSwapOfferState extends ConsumerState<ContractSwapOffer> {
+  bool _asked = false;
 
-  @override
-  void initState() {
-    super.initState();
+  /// Today's extras are read once, as soon as the server says the swap is
+  /// on (the capabilities may land after this card is drawn).
+  void _askOnce(EconomyCapabilities? caps) {
+    if (_asked || !(caps?.ads.extraSwap ?? false)) return;
+    if (!ref.read(rewardedAdsProvider).configured) return;
+    _asked = true;
+    if (ref.read(adExtrasProvider).valueOrNull != null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) ref.read(adExtrasProvider.notifier).refresh();
     });
   }
 
-  @override
-  void dispose() {
-    _epoch++;
-    super.dispose();
-  }
-
-  void _say(String message) => ScaffoldMessenger.maybeOf(
-    context,
-  )?.showSnackBar(SnackBar(content: Text(message)));
-
-  Future<void> _watch(String kind, {int? slot}) async {
-    if (_busy || _pending != null) return;
-    setState(() => _busy = true);
-    final l = context.l10n;
-    final controller = ref.read(adExtrasProvider.notifier);
-    try {
-      final claimId = await controller.claim(kind, slot: slot);
-      if (!mounted || claimId == null) return;
-      final backend = await ref.read(onlineBackendFactoryProvider)();
-      final userId = await backend.ensureSession();
-      if (!mounted) return;
-      final outcome = await showRewardedSilenced(
-        ref,
-        customData: 'x1:$claimId',
-        userId: userId,
-        placement: RewardedPlacement.extra,
-      );
-      if (!mounted) return;
-      switch (outcome) {
-        case RewardedAdOutcome.earned:
-          final epoch = ++_epoch;
-          setState(() => _pending = kind);
-          final landed = await pollForReward(
-            awarded: () => controller.awarded(kind),
-            alive: () => mounted && epoch == _epoch,
-          );
-          if (!mounted) return;
-          setState(() => _pending = null);
-          if (!landed) {
-            _say(l.adRewardPending);
-            return;
-          }
-          Haptics.confirm();
-          final status = ref.read(adExtrasProvider).valueOrNull;
-          _say(switch (kind) {
-            'spin' => l.adExtraSpinResult(status?.spin.amount ?? 0),
-            'coffer' => l.adExtraCofferDone(status?.coffer.amount ?? 0),
-            _ => l.adExtraSwapDone,
-          });
-        case RewardedAdOutcome.notConsented:
-          _say(l.adRewardNotConsented);
-        case RewardedAdOutcome.unavailable:
-        case RewardedAdOutcome.failed:
-          _say(l.adRewardUnavailable);
-        case RewardedAdOutcome.dismissed:
-          break;
-      }
-    } on AdExtraFailed catch (error) {
-      if (!mounted) return;
-      _say(switch (error.code) {
-        'IN_MATCH' => l.dailyAdInMatch,
-        'DAY_CHANGED' => l.dailyDayChanged,
-        'EXTRA_NOT_READY' when kind == 'spin' => l.adExtraSpinNotReady,
-        'EXTRA_NOT_READY' when kind == 'coffer' => l.adExtraCofferNotReady,
-        'EXTRA_NOT_READY' => l.adExtraNoneLeft,
-        _ => l.dailyFailed,
-      });
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _chooseSwap() async {
-    if (_busy || _pending != null) return;
-    setState(() => _busy = true);
-    final contracts = await ref.read(adExtrasProvider.notifier).contracts();
-    if (!mounted) return;
-    setState(() => _busy = false);
-    final open = [
-      for (final c in contracts.contracts)
-        if (!c.claimed) c,
-    ];
-    final l = context.l10n;
-    if (open.isEmpty) {
-      _say(l.adExtraNoneLeft);
-      return;
-    }
-    final slot = await showModalBottomSheet<int>(
-      context: context,
-      showDragHandle: true,
-      builder: (sheet) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: sheet.spacing.md),
-              child: Text(
-                l.adExtraSwapPick,
-                style: sheet.typography.title.copyWith(
-                  color: sheet.colors.textPrimary,
-                ),
-              ),
-            ),
-            SizedBox(height: sheet.spacing.sm),
-            for (final c in open)
-              ListTile(
-                key: AdExtrasPanel.swapSlotKey(c.slot),
-                title: Text(contractName(l, c)),
-                subtitle: Text(l.adExtraSwapSlot(c.slot + 1)),
-                onTap: () => Navigator.of(sheet).pop(c.slot),
-              ),
-            SizedBox(height: sheet.spacing.sm),
-          ],
-        ),
-      ),
-    );
-    if (slot != null && mounted) await _watch('swap', slot: slot);
+  Future<void> _swap() async {
+    final slot = await pickContractToSwap(context, widget.contracts);
+    if (slot == null || !mounted) return;
+    final attempt = await ref
+        .read(adRewardFlowProvider.notifier)
+        .watch(AdReward.extraSwap, slot: slot);
+    if (mounted) sayAdAttempt(context, attempt, AdReward.extraSwap);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Opening the coffer or spinning the free wheel makes an extra ready.
-    ref.listen(dailyProvider, (previous, next) {
-      final a = previous?.valueOrNull;
-      final b = next.valueOrNull;
-      if (b != null &&
-          (a?.cofferClaimed != b.cofferClaimed ||
-              a?.wheelSpun != b.wheelSpun)) {
-        ref.read(adExtrasProvider.notifier).refresh();
+    ref.listen<AdRewardFlowState>(adRewardFlowProvider, (previous, next) {
+      final landed = next.landed;
+      if (landed != null &&
+          landed.kind == AdReward.extraSwap &&
+          landed.seq != previous?.landed?.seq) {
+        Haptics.confirm();
+        ScaffoldMessenger.maybeOf(
+          context,
+        )?.showSnackBar(SnackBar(content: Text(context.l10n.adExtraSwapDone)));
       }
     });
-    final caps = ref.watch(economyCapabilitiesProvider).valueOrNull?.ads;
+    _askOnce(ref.watch(economyCapabilitiesProvider).valueOrNull);
     final status = ref.watch(adExtrasProvider).valueOrNull;
-    if (caps == null || !caps.extras || status == null) {
+    final open = widget.contracts.contracts.any((c) => !c.claimed);
+    if (!extraOffered(ref, AdReward.extraSwap) ||
+        status == null ||
+        status.swap.awarded ||
+        !open) {
       return const SizedBox.shrink();
     }
-    if (!ref.watch(rewardedAdsProvider).configured) {
-      return const SizedBox.shrink();
-    }
-    final l = context.l10n;
-    final s = context.spacing;
-    final colors = context.colors;
-    final type = context.typography;
-    final spin = caps.extraSpin && status.spin.enabled;
-    final coffer = caps.extraCoffer && status.coffer.enabled;
-    final swap = caps.extraSwap && status.swap.enabled;
-    if (!spin && !coffer && !swap) return const SizedBox.shrink();
-    final idle = !_busy && _pending == null && !status.inMatch;
-
-    Widget row({
-      required IconData icon,
-      required String title,
-      required String body,
-      required Widget action,
-      bool first = false,
-    }) => Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        first ? SizedBox(height: s.md) : const VaultDivider(),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: CouncilLifeTokens.contractIcon,
-              height: CouncilLifeTokens.contractIcon,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: VaultTokens.enamel,
-                border: Border.all(
-                  color: VaultTokens.gold.withValues(alpha: 0.7),
-                ),
-              ),
-              child: Icon(
-                icon,
-                size: CouncilLifeTokens.contractIcon / 2,
-                color: VaultTokens.gold,
-              ),
-            ),
-            SizedBox(width: s.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: type.body.emphasised.copyWith(
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                  Text(
-                    body,
-                    style: type.bodySmall.copyWith(color: colors.textSecondary),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: s.sm),
-        VaultPress(child: action),
-      ],
-    );
-
-    String label(AdExtra extra, String kind, String ready) => extra.awarded
-        ? l.adExtraUsed
-        : _pending == kind
-        ? l.adRewardPending
-        : ready;
-
-    final odds = [
-      for (final p in status.prizes)
-        '${p.coins} · ${l.dailyWheelPercent(_trimPercent(p.percent))}',
-    ].join(l.listSeparator);
-
-    final outline = vaultOutlineStyle(context);
-    return VaultCard(
-      children: [
-        VaultHeading(
-          title: l.adExtrasTitle,
-          subtitle: status.inMatch ? l.dailyAdInMatch : l.adExtrasBody,
-        ),
-        if (spin)
-          row(
-            first: true,
-            icon: Icons.casino_outlined,
-            title: l.adExtraSpinTitle,
-            body: status.spin.ready || status.spin.awarded
-                ? '${l.adExtraSpinBody}\n${l.adExtraSpinOdds(odds)}'
-                : l.adExtraSpinNotReady,
-            action: OutlinedButton.icon(
-              key: AdExtrasPanel.spinKey,
-              style: outline,
-              onPressed: idle && status.spin.ready && !status.spin.awarded
-                  ? () => _watch('spin')
-                  : null,
-              icon: const Icon(Icons.ondemand_video_outlined),
-              label: Text(
-                status.spin.awarded
-                    ? l.adExtraSpinResult(status.spin.amount ?? 0)
-                    : label(status.spin, 'spin', l.adExtraSpinAction),
-              ),
-            ),
-          ),
-        if (coffer)
-          row(
-            first: !spin,
-            icon: Icons.inventory_2_outlined,
-            title: l.adExtraCofferTitle,
-            body: status.coffer.ready || status.coffer.awarded
-                ? l.adExtraCofferAction(status.coffer.amount ?? 0)
-                : l.adExtraCofferNotReady,
-            action: OutlinedButton.icon(
-              key: AdExtrasPanel.cofferKey,
-              style: outline,
-              onPressed: idle && status.coffer.ready && !status.coffer.awarded
-                  ? () => _watch('coffer')
-                  : null,
-              icon: const Icon(Icons.ondemand_video_outlined),
-              label: Text(
-                label(
-                  status.coffer,
-                  'coffer',
-                  l.adExtraCofferAction(status.coffer.amount ?? 0),
-                ),
-              ),
-            ),
-          ),
-        if (swap)
-          row(
-            first: !spin && !coffer,
-            icon: Icons.swap_horiz_rounded,
-            title: l.adExtraSwapTitle,
-            body: l.adExtraSwapBody,
-            action: OutlinedButton.icon(
-              key: AdExtrasPanel.swapKey,
-              style: outline,
-              onPressed: idle && !status.swap.awarded ? _chooseSwap : null,
-              icon: const Icon(Icons.swap_horiz),
-              label: Text(label(status.swap, 'swap', l.adExtraSwapAction)),
-            ),
-          ),
-      ],
+    return Padding(
+      padding: EdgeInsets.only(top: context.spacing.sm),
+      child: AdOfferButton(
+        key: ContractSwapOffer.actionKey,
+        kind: AdReward.extraSwap,
+        label: context.l10n.contractSwapAd,
+        enabled: !status.inMatch,
+        onTap: _swap,
+      ),
     );
   }
 }

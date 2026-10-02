@@ -38,7 +38,9 @@ import '../ui/economy/coin_packs.dart';
 import '../ui/economy/play_offers.dart';
 import '../ui/economy/wallet.dart';
 import '../ui/economy/web_ads.dart';
+import '../platform/monetization/full_screen_away.dart';
 import '../platform/monetization/web_ad_rules.dart';
+import '../ui/economy/ad_veil.dart';
 import '../ui/social/invite_privacy.dart';
 import '../ui/theme/design_tokens.dart';
 import '../platform/push/push_service.dart';
@@ -256,7 +258,15 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   /// [systemBackTarget]).
   @override
   Future<bool> didPopRoute() async {
-    if (_navigatorKey.currentState?.canPop() ?? false) return false;
+    // A back pressed to leave a full-screen ad (again, while it was closing)
+    // belongs to the ad: it never closes the vault, leaves a room or exits.
+    if (FullScreenAway.swallowsBack()) return true;
+    // Whatever is on top answers first: a sheet or dialog pops, and an
+    // overlay that holds its own PopScope (the vault, opened from Home, a
+    // menu or a waiting lobby) closes itself. Only then is the screen's
+    // logical parent shown — the vault's back once dropped a player out of
+    // their lobby.
+    if (await _navigatorKey.currentState?.maybePop() ?? false) return true;
     // First run (or the terms prompt) stands in for whatever route is open,
     // and owns back itself: one chapter at a time (its PopScope). Going to
     // the route's logical parent instead built a new first-run screen at the
@@ -513,7 +523,11 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
                       child: IncomingInviteHost(
                         onJoin: (code) => _router.go(Routes.joinLink(code)),
                         child: UpdateGate(
-                          child: child ?? const SizedBox.shrink(),
+                          // Over every route and overlay (the vault included):
+                          // the instant answer to a tap on a rewarded offer.
+                          child: RewardedAdVeil(
+                            child: child ?? const SizedBox.shrink(),
+                          ),
                         ),
                       ),
                     ),

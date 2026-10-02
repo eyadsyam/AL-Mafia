@@ -166,7 +166,7 @@ class PlayOffersController extends Notifier<PlayOffersState> {
         );
         return;
       }
-      ref.invalidate(walletProvider);
+      unawaited(ref.read(walletProvider.notifier).settle());
       ref.invalidate(economyCapabilitiesProvider);
       final caps = await ref.read(economyCapabilitiesProvider.future);
       state = state.copyWith(

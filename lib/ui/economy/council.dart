@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../transport/online_backend.dart';
@@ -430,7 +432,7 @@ class CouncilController extends AsyncNotifier<CouncilState?> {
         ...LevelUp.list(contracts['levelUps']),
         ...LevelUp.list(rank['levelUps']),
       ];
-      if (ups.isNotEmpty) ref.invalidate(walletProvider);
+      if (ups.isNotEmpty) unawaited(ref.read(walletProvider.notifier).settle());
       _notePending(ref, ups);
       return CouncilState(
         contracts: CouncilContracts.fromJson(contracts),
@@ -451,7 +453,7 @@ class CouncilController extends AsyncNotifier<CouncilState?> {
       ...LevelUp.list(contracts['levelUps']),
       ...LevelUp.list(rank['levelUps']),
     ];
-    if (ups.isNotEmpty) ref.invalidate(walletProvider);
+    if (ups.isNotEmpty) unawaited(ref.read(walletProvider.notifier).settle());
     _notePending(ref, ups);
     state = AsyncData(
       CouncilState(
@@ -493,7 +495,7 @@ class CouncilController extends AsyncNotifier<CouncilState?> {
               ))
           .copyWith(contracts: CouncilContracts.fromJson(answer)),
     );
-    ref.invalidate(walletProvider);
+    unawaited(ref.read(walletProvider.notifier).settle());
     ref.invalidate(councilAttentionProvider);
     // XP from a weekly claim moves the rank card.
     if (answer['xpGranted'] is num && (answer['xpGranted'] as num) > 0) {
@@ -589,7 +591,7 @@ class InviteController extends AutoDisposeAsyncNotifier<InviteStatus> {
     try {
       final answer = await _call({'action': 'invite_redeem', 'code': code});
       state = AsyncData(InviteStatus.fromJson(answer));
-      ref.invalidate(walletProvider);
+      unawaited(ref.read(walletProvider.notifier).settle());
       return answer['status'] as String? ?? 'redeemed';
     } on BackendException catch (error) {
       throw CouncilActionFailed(error.code);

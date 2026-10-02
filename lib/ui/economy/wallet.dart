@@ -110,6 +110,14 @@ class WalletState {
         .toList(),
   );
 
+  WalletState withBalance(int value) => WalletState(
+    balance: value,
+    catalog: catalog,
+    owned: owned,
+    equipped: equipped,
+    history: history,
+  );
+
   WalletItem? item(String code) =>
       catalog.where((item) => item.code == code).firstOrNull;
 
@@ -170,6 +178,28 @@ class WalletController extends AsyncNotifier<WalletState?> {
         WalletState.fromJson(await _call({'action': 'summary'})),
       );
     } catch (_) {}
+  }
+
+  /// Something credited (or charged) coins on the server: every balance on
+  /// screen follows at once, without anyone leaving and reopening the vault.
+  ///
+  /// [credited] is the server's own confirmed amount; it is shown straight
+  /// away and the server's number replaces it a moment later. A wallet no
+  /// screen has read yet stays unread — the vault reads it when it opens —
+  /// so a grant never starts a sign-in or a read of its own.
+  ///
+  /// This replaces `ref.invalidate(walletProvider)`, which reset the wallet
+  /// to "not loaded" and left an open vault blank until it was reopened.
+  Future<void> settle({int credited = 0}) async {
+    final current = state.valueOrNull;
+    // Unread, unless a read is already on its way (a refresh keeps the
+    // previous value, so it is loading *with* a value; the first build is
+    // loading without one).
+    if (current == null && !(state.isLoading && state.hasValue)) return;
+    if (current != null && credited != 0) {
+      state = AsyncData(current.withBalance(current.balance + credited));
+    }
+    await _reconcile();
   }
 
   /// The server charges, grants and records in one transaction. A repeated
