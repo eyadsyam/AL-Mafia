@@ -320,7 +320,7 @@ class CaseClaimFailed implements Exception {
   const CaseClaimFailed(this.code);
 }
 
-/// The economy actions the Casebook speaks (docs/CASEBOOK-CONTRACT.md).
+/// The economy actions the Casebook speaks (docs/specs/CASEBOOK-CONTRACT.md).
 abstract final class CasebookActions {
   static const hub = 'missionHub';
   static const mission = 'missionClaim';

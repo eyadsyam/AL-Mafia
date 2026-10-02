@@ -1,5 +1,5 @@
 -- Independent adversarial regressions for Update 1.0.1 money paths
--- (docs/UPDATE-1.0.1-SECURITY-REVIEW.md). Rolled back.
+-- (docs/reviews/UPDATE-1.0.1-SECURITY-REVIEW.md). Rolled back.
 --
 -- Every gate runs in its own subtransaction and is rolled back on exit, so a
 -- failing gate never masks or feeds the next. Failures are collected and

@@ -16,7 +16,7 @@ import 'web_banner_controller.dart';
 
 /// Must equal the publisher id in web/index.html, web/ads.txt and
 /// web/app-ads.txt (tool/web_publisher_consistency.test.mjs enforces it).
-/// See docs/WEB-ADS-SETUP.md.
+/// See docs/setup/WEB-ADS-SETUP.md.
 const kWebAdsenseClient = String.fromEnvironment(
   'WEB_ADSENSE_CLIENT',
   // Split only so the web-safe-integer scan does not read the digits as a

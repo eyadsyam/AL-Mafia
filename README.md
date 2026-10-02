@@ -8,11 +8,11 @@
 
 | File | Content |
 |---|---|
-| [01-design-system.md](01-design-system.md) | Colors, typography, spacing, component library, motion, audio direction, and Flutter/Material 3 binding |
-| [02-user-flows.md](02-user-flows.md) | 9 Mermaid flow diagrams: match lifecycle, setup, role distribution, night phase, discussion, voting, win check, analytics, edge cases |
-| [03-screens-setup-night.md](03-screens-setup-night.md) | Screen specs S-01 → S-10 with wireframes: home, players, roles, pass screen, role reveal, night action, morning |
-| [04-screens-day-postgame.md](04-screens-day-postgame.md) | Screen specs S-11 → S-17: discussion rounds, voting, reveal, result, post-game analytics, history, dialogs |
-| [05-zero-leakage-spec.md](05-zero-leakage-spec.md) | The BINDING document: threat model, ten rules, per-channel solutions, acceptance tests, trade-off log |
+| [docs/specs/01-design-system.md](docs/specs/01-design-system.md) | Colors, typography, spacing, component library, motion, audio direction, and Flutter/Material 3 binding |
+| [docs/specs/02-user-flows.md](docs/specs/02-user-flows.md) | 9 Mermaid flow diagrams: match lifecycle, setup, role distribution, night phase, discussion, voting, win check, analytics, edge cases |
+| [docs/specs/03-screens-setup-night.md](docs/specs/03-screens-setup-night.md) | Screen specs S-01 → S-10 with wireframes: home, players, roles, pass screen, role reveal, night action, morning |
+| [docs/specs/04-screens-day-postgame.md](docs/specs/04-screens-day-postgame.md) | Screen specs S-11 → S-17: discussion rounds, voting, reveal, result, post-game analytics, history, dialogs |
+| [docs/specs/05-zero-leakage-spec.md](docs/specs/05-zero-leakage-spec.md) | The BINDING document: threat model, ten rules, per-channel solutions, acceptance tests, trade-off log |
 
 ## Key Design Decisions (summary)
 

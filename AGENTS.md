@@ -4,11 +4,11 @@
 
 | File | When to read |
 |---|---|
-| `docs/05-zero-leakage-spec.md` | Before any UI or phase-flow change |
-| `docs/09-information-engine.md` | Phases 2–4 |
-| `docs/10-online-architecture.md` | Phases 5–8 |
-| `docs/11-edge-cases-and-tests.md` | When writing tests |
-| `docs/PROMPT-build-online-and-information-engine.md` | Build order + gates |
+| `docs/specs/05-zero-leakage-spec.md` | Before any UI or phase-flow change |
+| `docs/specs/09-information-engine.md` | Phases 2–4 |
+| `docs/specs/10-online-architecture.md` | Phases 5–8 |
+| `docs/specs/11-edge-cases-and-tests.md` | When writing tests |
+| `docs/specs/PROMPT-build-online-and-information-engine.md` | Build order + gates |
 | `docs/PROGRESS.md` | **First thing after any `/clear`** |
 
 Read only the section you need. Use Grep to find it, then Read with a line range. Never read a whole spec to answer one question.

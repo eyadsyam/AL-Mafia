@@ -121,3 +121,15 @@ package-lock.json
 !.dev.vars.example
 .env*
 !.env.example
+
+# Shipped builds, their symbols and mapping files, kept locally per version
+# (release/<version>/). Too large for git; back them up elsewhere.
+/release/
+
+# Scratch output from agent tools (PDF export, Python caches, browser profiles).
+/.codex-*/
+/.edge-pdf-export/
+/audit-*.diff
+
+# Rendered animation frames; the finished loops live beside them.
+raw_assets/**/motion/_work/*/

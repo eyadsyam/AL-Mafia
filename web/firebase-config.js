@@ -1,4 +1,4 @@
-// Firebase web push configuration (docs/PUSH-SETUP.md, step 5).
+// Firebase web push configuration (docs/setup/PUSH-SETUP.md, step 5).
 //
 // Left as null, push on the web is simply off: invites still arrive inside
 // the app. The owner pastes the web app's config object from the Firebase

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mafia_master/ui/missions/casebook_data.dart';
 
-/// A mid-season Casebook in the shape docs/CASEBOOK-CONTRACT.md promises.
+/// A mid-season Casebook in the shape docs/specs/CASEBOOK-CONTRACT.md promises.
 Map<String, dynamic> casebookJson({bool enabled = true}) => {
   'enabled': enabled,
   'season': {

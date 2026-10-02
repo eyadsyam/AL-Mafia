@@ -87,7 +87,7 @@ Future<void> main() async {
   // A switch that would close this launch is left pending natively.
   unawaited(LauncherLabel.apply(savedLocale.languageCode));
   // Invite push: null (push off) without Firebase configuration
-  // (docs/PUSH-SETUP.md). Never asks for permission here, and never holds the
+  // (docs/setup/PUSH-SETUP.md). Never asks for permission here, and never holds the
   // launch longer than a moment.
   final text = lookupAppLocalizations(savedLocale);
   final push = await FirebasePushService.start(

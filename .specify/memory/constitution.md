@@ -41,7 +41,7 @@ Follow-up TODOs: none — RATIFICATION_DATE set to first adoption date 2026-07-2
 
 The device MUST NOT expose any signal — visual, temporal, acoustic, haptic, or structural —
 that lets an observer distinguish one player's role from another's during play. The Ten
-Binding Rules of `05-zero-leakage-spec.md` are law:
+Binding Rules of `docs/specs/05-zero-leakage-spec.md` are law:
 
 - Two steps per role at night; no role has one step or three.
 - No sound and no haptic fires while an individual player holds the phone.
@@ -81,7 +81,7 @@ especially when cheaper models or future contributors touch the UI.
 All colors, spacing, typography, radii, and motion durations MUST come from a single
 `design_tokens.dart` (surfaced as Material 3 `ThemeExtension`s). Hardcoded literal style
 values in screens/widgets are forbidden. The theme is the custom dark `ColorScheme`
-defined in `01-design-system.md`, never Material defaults.
+defined in `docs/specs/01-design-system.md`, never Material defaults.
 
 **Rationale**: A single source of truth keeps the Luminance Budget provable and the visual
 identity consistent, and it lets `/design-sync` drive tokens end-to-end.
@@ -131,7 +131,7 @@ design is a baseline, and accessibility affordances must obey Principle I like e
 ## Development Workflow & Quality Gates
 
 Before any feature or screen merges, it MUST pass the New-Feature Checklist of
-`05-zero-leakage-spec.md` §6:
+`docs/specs/05-zero-leakage-spec.md` §6:
 
 1. Does it add a step/screen for one role but not the others? → mirror or reject.
 2. Does it emit sound/haptics while one player holds the phone? → reject.
@@ -154,7 +154,7 @@ A feature that fails any anti-leakage item does not ship, regardless of deadline
 **Amendment procedure**: proposed changes are documented with rationale, version-bumped per
 policy below, and propagated to dependent templates (`plan-template.md`, `spec-template.md`,
 `tasks-template.md`) and guidance docs in the same change. Amendments that weaken an
-anti-leakage guarantee require an explicit trade-off entry in `05-zero-leakage-spec.md` §5.
+anti-leakage guarantee require an explicit trade-off entry in `docs/specs/05-zero-leakage-spec.md` §5.
 
 **Versioning policy** (semantic):
 - MAJOR: backward-incompatible governance change or removal/redefinition of a principle.

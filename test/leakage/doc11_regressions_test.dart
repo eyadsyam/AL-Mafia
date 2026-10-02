@@ -153,7 +153,7 @@ void main() {
 
   group('the map matches the spec', () {
     test('doc 11 §8 has exactly the ten rows this file claims', () {
-      final doc = File('docs/11-edge-cases-and-tests.md').readAsStringSync();
+      final doc = File('docs/specs/11-edge-cases-and-tests.md').readAsStringSync();
       final section = doc.split('# 8. Zero-leakage regression (offline)');
       expect(
         section.length,

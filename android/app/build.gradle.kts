@@ -64,7 +64,7 @@ android {
 
         // Keep every ABI selected by Flutter for the universal release APK.
 
-        // Invite push (docs/PUSH-SETUP.md): the four values Firebase reads at
+        // Invite push (docs/setup/PUSH-SETUP.md): the four values Firebase reads at
         // start, taken from google-services.json once the owner has put it
         // next to this file — what the google-services plugin would generate,
         // without the plugin (so a build without the file still builds, with
@@ -83,7 +83,7 @@ android {
                     as Map<String, Any?>)["package_name"]
             // The test-ads build is a different package (release + ".adstest",
             // see buildTypes); it takes its own Firebase app when the file
-            // lists one (docs/PUSH-SETUP.md), else the release app's values.
+            // lists one (docs/setup/PUSH-SETUP.md), else the release app's values.
             val installed = applicationId +
                 (if (project.findProperty("TEST_ADS_SUFFIX") == "true") ".adstest" else "")
             val client = clients.firstOrNull { packageOf(it) == installed }

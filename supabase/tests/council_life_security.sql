@@ -1,5 +1,5 @@
 -- Independent adversarial regressions for 20260925000300_council_life
--- (docs/PHASE-107-SECURITY-REVIEW.md). Rolled back.
+-- (docs/reviews/PHASE-107-SECURITY-REVIEW.md). Rolled back.
 --
 -- Every gate runs in its own subtransaction and is rolled back on exit, so a
 -- failing gate never masks or feeds the next. Failures are collected and

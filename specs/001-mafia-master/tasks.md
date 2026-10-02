@@ -41,7 +41,7 @@ data-model rows without extra context.
 
 **Design system (tokens first — Principle IV) — this is the `/design-sync` handoff point**
 
-- [X] T014 Create `lib/ui/theme/design_tokens.dart` as `ThemeExtension`s (`MafiaColors`, `MafiaTypography`, `MafiaSpacing`, `MafiaRadii`, `MafiaMotion`) with EXACT hex/sizes/durations from `01-design-system.md`.
+- [X] T014 Create `lib/ui/theme/design_tokens.dart` as `ThemeExtension`s (`MafiaColors`, `MafiaTypography`, `MafiaSpacing`, `MafiaRadii`, `MafiaMotion`) with EXACT hex/sizes/durations from `docs/specs/01-design-system.md`.
 - [X] T015 Create `lib/ui/theme/mafia_theme.dart` — custom dark `ColorScheme` + text theme wired to tokens (never Material defaults); expose `MafiaTheme.dark`.
 - [X] T016 [P] Create `lib/platform/haptics.dart` (single select/confirm helper) and `lib/platform/reduce_motion.dart` (reads OS setting) — the ONLY sanctioned haptic call sites (L-10).
 - [X] T017 [P] Create `lib/platform/audio_director.dart` with a `PhoneLocation` gate that throws if asked to play while `inHand` (L-11, FR-026).

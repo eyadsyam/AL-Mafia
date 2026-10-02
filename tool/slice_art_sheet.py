@@ -2,7 +2,7 @@
 
 Image-generation credits are spent per image, so every family of small icons
 is generated as ONE sheet (a uniform grid, one object per cell) and cut here.
-See docs/ART-REQUEST-CODEX-1.0.1.md, section "توفير الكريدت".
+See docs/plans/ART-REQUEST-CODEX-1.0.1.md, section "توفير الكريدت".
 
     python tool/slice_art_sheet.py <SHEET_ID> <path/to/sheet.png>
     python tool/slice_art_sheet.py --list

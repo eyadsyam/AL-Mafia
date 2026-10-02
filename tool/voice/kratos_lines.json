@@ -2,7 +2,7 @@
   "pack": "kratos",
   "voice_id": "R1hq8f4mfX3N88Om3Nb7",
   "tone_reference": "assets/voiceovers/night_approaching_kratos.mp3",
-  "spec": "docs/BIG-UPDATE-1.1-FINAL.md F16",
+  "spec": "docs/plans/BIG-UPDATE-1.1-FINAL.md F16",
   "rules": [
     "Public table beats only. Never while a player holds the phone privately, never during hand-off, reveal or night actions.",
     "Every line states only the public fact of its beat. No invented event, cause, location, object, time, trace or action.",

@@ -16,7 +16,7 @@ import '../theme/mafia_theme.dart';
 /// not a repeal. Settings, history, help and back are universally understood,
 /// appear only on public screens, and are *never* role-informative: they render
 /// identically whatever anyone drew. Recorded as a scoped exception in
-/// `05-zero-leakage-spec.md`.
+/// `docs/specs/05-zero-leakage-spec.md`.
 ///
 /// ## Why these are Material icons and not Phosphor
 ///

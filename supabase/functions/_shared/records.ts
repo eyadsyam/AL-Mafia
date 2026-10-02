@@ -56,7 +56,7 @@ export const CONFRONTATION_ORDER: ConfrontationType[] =
  * `c3`, `c9` and `c10` all read a living player's *night suspicion record* and
  * quote it back by name. Only Citizens record suspicions, so any of them firing
  * says the named player is a Citizen — the exact inference
- * `05-zero-leakage-spec.md` exists to prevent.
+ * `docs/specs/05-zero-leakage-spec.md` exists to prevent.
  *
  * `c2` needs a record of a player defending someone, and the game has no
  * defence action to record.

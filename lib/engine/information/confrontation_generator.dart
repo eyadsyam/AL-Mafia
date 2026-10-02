@@ -12,7 +12,7 @@
 /// Only Citizens record suspicions in this game — the Mafia vote, the Doctor
 /// protects, the Detective investigates — so any of those three firing on a
 /// player announces that the player is a Citizen. That is the exact inference
-/// `05-zero-leakage-spec.md` exists to prevent, and prime directive 1 says such
+/// `docs/specs/05-zero-leakage-spec.md` exists to prevent, and prime directive 1 says such
 /// a change does not ship.
 ///
 /// They are implemented and tested below, and excluded from

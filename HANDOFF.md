@@ -12,8 +12,8 @@ commit `e531baf`): `flutter analyze` 0 errors/0 warnings, `flutter test` **1384 
 `supabase/tests/*.test.mjs` PASS. The 1.0.1 work (per-match ads v3, Play Billing +
 InstaPay/Vodafone Cash transfers with /admin review and Telegram notice, daily coffer/wheel,
 Council Life, match awards, reactions, email-link fallback) is described in `docs/PROGRESS.md`
-phases 102–113, `build/update101/status.md` (activation SQL), `docs/ADS-V2-REVENUE-MODEL.md`,
-`docs/PHASE-107-COUNCIL-LIFE.md` and `docs/EMAIL-SMTP-SETUP.md`. **All migrations and edge
+phases 102–113, `release/1.0.1/ACTIVATION-RUNBOOK.md (local only)` (activation SQL), `docs/plans/ADS-V2-REVENUE-MODEL.md`,
+`docs/plans/PHASE-107-COUNCIL-LIFE.md` and `docs/setup/EMAIL-SMTP-SETUP.md`. **All migrations and edge
 functions are deployed live; every new feature is still OFF behind `economy_config` flags.**
 Raster art is requested from Codex (paths in the art request, painted fallbacks in
 code; register delivered files in `CouncilRaster.delivered`).
@@ -36,7 +36,7 @@ drift. Onboarding, Home and the score have been looked at only through
 ## 0. The one rule that overrides everything
 
 `specs/001-mafia-master/contracts/leakage-invariants.contract.md` (and the
-`05-zero-leakage-spec.md` it encodes) beats any visual decision that conflicts with
+`docs/specs/05-zero-leakage-spec.md` it encodes) beats any visual decision that conflicts with
 it. This is a pass-the-phone social deduction game: **the person opposite you must
 not be able to infer your role from the light coming off your screen.** If a design
 choice looks better and leaks, it loses.
@@ -146,7 +146,7 @@ rung, which a neutral ramp satisfies with equality and a warm one cannot satisfy
 at all.
 
 **An earlier revision made this ground warm tanned leather (`#241C14`) and logged
-the deviation as a trade-off in `05-zero-leakage-spec.md` §5. That entry is gone
+the deviation as a trade-off in `docs/specs/05-zero-leakage-spec.md` §5. That entry is gone
 and the ground is near-black again.** The argument for it was not silly — a warm
 cast is conspicuous rather than informative — but the cost it admitted, a phone
 emitting roughly seventeen times more light from its ground onto the holder's

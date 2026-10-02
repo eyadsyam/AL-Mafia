@@ -77,9 +77,9 @@ Server facts:
    - tokens register after the in-context permission prompt;
    - tapping a notification opens the join flow.
 
-   Add a test for config presence and parsing. You cannot build the APK there, so write the exact local verification steps into `docs/PUSH-SETUP.md` for the reviewer.
+   Add a test for config presence and parsing. You cannot build the APK there, so write the exact local verification steps into `docs/setup/PUSH-SETUP.md` for the reviewer.
 
-7. **Images needed.** Some screens may still have a placeholder, a reused unrelated image, or art that doesn't match the feature (e.g. the Casebook, invite sheet, Thursday, seasons, titles/Partner, store items). Do not draw these in code. List each one in `docs/ART-NEEDED.md` with:
+7. **Images needed.** Some screens may still have a placeholder, a reused unrelated image, or art that doesn't match the feature (e.g. the Casebook, invite sheet, Thursday, seasons, titles/Partner, store items). Do not draw these in code. List each one in `docs/plans/ART-NEEDED.md` with:
    - the file path to create;
    - its size, and whether it is transparent;
    - what it should show;
@@ -98,15 +98,15 @@ Server facts:
 - The audit findings table: ID, severity, feature, what was broken, fix, test.
 - New migrations the reviewer must apply on the hosted project, in order.
 - Anything you could not do, and why.
-- A summary of `docs/ART-NEEDED.md`.
+- A summary of `docs/plans/ART-NEEDED.md`.
 
 ## Added by the owner (2026-09-30, must also be done)
 
 8. **Onboarding sign-in choice.** In onboarding, the player chooses: sign in (Google, and email with the existing 6-digit code flow) or «كمّل من غير تسجيل». A guest can link an account later from the profile without losing coins, inventory, Council rank or friends (link the anonymous user, don't create a new one). If the Google provider isn't configured on Supabase, keep the Google button behind a capability flag and write the exact console steps in `docs/AUTH-SETUP.md`; email must work now.
 
-9. **Web = mobile, exactly.** Every feature, screen, sound, narrator, store item, invite, reward and flow must behave the same on the web build as on Android. List every difference you find in `docs/WEB-PARITY.md` and fix each one (the only allowed gap: AdMob does not run on the web, so web shows no AdMob ads; say what the web shows in those slots instead, e.g. nothing, or the house promo — never an empty box).
+9. **Web = mobile, exactly.** Every feature, screen, sound, narrator, store item, invite, reward and flow must behave the same on the web build as on Android. List every difference you find in `docs/specs/WEB-PARITY.md` and fix each one (the only allowed gap: AdMob does not run on the web, so web shows no AdMob ads; say what the web shows in those slots instead, e.g. nothing, or the house promo — never an empty box).
 
-10. **What is still missing for a strong public launch, that nobody asked for.** Think like the owner and a Play reviewer: e.g. in-app account deletion (Play requirement) and data export, privacy policy and terms links in settings and store, a force-update / minimum-version check so old clients get told to update (the old Android client cannot start matches when `lobby_ready_enabled` is on), crash/error reporting without new dependencies, offline/no-network screens, empty states, loading states, rate-limit messages in Arabic, first-match tutorial hints. Implement what is clearly needed and cheap; list the rest in `docs/LAUNCH-GAPS.md` with a recommendation.
+10. **What is still missing for a strong public launch, that nobody asked for.** Think like the owner and a Play reviewer: e.g. in-app account deletion (Play requirement) and data export, privacy policy and terms links in settings and store, a force-update / minimum-version check so old clients get told to update (the old Android client cannot start matches when `lobby_ready_enabled` is on), crash/error reporting without new dependencies, offline/no-network screens, empty states, loading states, rate-limit messages in Arabic, first-match tutorial hints. Implement what is clearly needed and cheap; list the rest in `docs/reviews/LAUNCH-GAPS.md` with a recommendation.
 
 11. **Web ads** (owner: players will move to the web to avoid ads, so the web needs ads too). Implement web ads at the same moments as mobile, with no new Dart dependencies:
     - **Provider 1: Google AdSense H5 Games Ads** (Ad Placement API: adsbygoogle.js with data-ad-client, adConfig/adBreak). Map it like this:
@@ -118,12 +118,12 @@ Server facts:
     - **Same pacing as Android:** InterstitialRules, the grace match, never during private phases, Doc 05.
     - **JS interop:** `dart:js_interop` only.
     - Add `web/ads.txt`.
-    - `docs/WEB-ADS-SETUP.md` for the owner: AdSense account, applying for H5 Games Ads, and the note that a custom domain is strongly recommended over almafia.vercel.app.
+    - `docs/setup/WEB-ADS-SETUP.md` for the owner: AdSense account, applying for H5 Games Ads, and the note that a custom domain is strongly recommended over almafia.vercel.app.
     - Tests for pacing parity and reward verification.
 12. **Payments on Android: all three options.** Google Play Billing (first), InstaPay and Vodafone Cash. Server `transfer_enabled_android` is now ON, and `PLAY_BILLING_ENABLED` is true in the 1.1 build.
     - Make every path work end to end: order → receipt → admin approval → coins.
     - Keep the in-repo store/Data-safety disclosure text truthful.
-13. **Wire the new art.** Codex is generating the 17 images from `docs/ART-NEEDED.md` into their exact paths on `claude/epic-roentgen-094f21`. Once they are there, wire each one as your table says, and remove the `TODO(art)` placeholders.
+13. **Wire the new art.** Codex is generating the 17 images from `docs/plans/ART-NEEDED.md` into their exact paths on `claude/epic-roentgen-094f21`. Once they are there, wire each one as your table says, and remove the `TODO(art)` placeholders.
 
 Reviewer state: your 303f92c is merged into `claude/epic-roentgen-094f21` (now b6d7842+). Hosted migrations through `20260930000600` are applied. Merge from there before continuing. Final report → `docs/cloud/REPORT-4.md`.
 
@@ -132,7 +132,7 @@ Reviewer state: your 303f92c is merged into `claude/epic-roentgen-094f21` (now b
     - **Pass 3: money and rewards.** Every coin in and out, every store item, ad reward, referral, daily/weekly/season claim, exact-once, and the caps.
     - **Pass 4: Doc 05 and failure paths.** Leaks, private phases, no network, a server refusal, old-client behaviour, and deep links.
 
-    Each pass: find the problems, fix them with tests, then append a findings table to `docs/LAUNCH-AUDIT.md` under "Pass N". Keep going until a pass finds nothing new.
+    Each pass: find the problems, fix them with tests, then append a findings table to `docs/reviews/LAUNCH-AUDIT.md` under "Pass N". Keep going until a pass finds nothing new.
 
 15. **Web shows MORE ads than mobile (owner's decision).** The web must be the ad-heavy version, so that players prefer the Android app.
     - Add a separate `WebAdRules` pacing that is clearly heavier than Android and configurable from `economy_config` (e.g. `web_interstitial_every_matches`, `web_app_open_enabled`, `web_banner_always`). Proposed defaults:
@@ -146,4 +146,4 @@ Reviewer state: your 303f92c is merged into `claude/epic-roentgen-094f21` (now b
 16. **New domain `saidalamafia.com`.** The owner is buying it; the reviewer will attach it to the Vercel project. Make the app ready for it:
     - A single `kPublicWebOrigin` constant (dart-define `PUBLIC_WEB_ORIGIN`, default `https://saidalamafia.com`) used by every share/invite/room link (`room_invite.dart` etc.), deep-link host lists, and `web/.well-known/assetlinks.json` / Android intent filters for BOTH saidalamafia.com and almafia.vercel.app (the old links keep working).
     - `web/ads.txt` for AdSense on the new domain.
-    - Write `docs/DOMAIN-MOVE.md` listing what the reviewer changes outside the repo: Supabase Auth Site URL and redirect URLs, Firebase authorized domains, AdSense site, AdMob app-ads.txt URL, and the Play listing website.
+    - Write `docs/setup/DOMAIN-MOVE.md` listing what the reviewer changes outside the repo: Supabase Auth Site URL and redirect URLs, Firebase authorized domains, AdSense site, AdMob app-ads.txt URL, and the Play listing website.

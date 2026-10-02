@@ -36,7 +36,7 @@ class PushChannelText {
 /// Built only by [FirebasePushService.start], which returns null — push
 /// simply off — when this build has no Firebase configuration: no
 /// `android/app/google-services.json` on Android, `MAFIA_FIREBASE` still null
-/// in `web/firebase-config.js` on the web (docs/PUSH-SETUP.md).
+/// in `web/firebase-config.js` on the web (docs/setup/PUSH-SETUP.md).
 class FirebasePushService implements PushService {
   final FirebaseMessaging _messaging;
   final String? _vapidKey;

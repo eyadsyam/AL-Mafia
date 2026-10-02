@@ -76,7 +76,7 @@ strongest form the ramp can satisfy without turning back toward blue.
 
 **Previously:** this was warm tanned leather (`#241C14`, luminance 29), logged as
 a deliberate deviation from rule 3. It has been reverted and the trade-off entry
-removed from `05-zero-leakage-spec.md` §5. A ground that emits seventeen times
+removed from `docs/specs/05-zero-leakage-spec.md` §5. A ground that emits seventeen times
 more light onto the holder's face is a real cost to Article I, and the only thing
 it bought was atmosphere.
 What rule 3 actually protects is asserted directly by the byte-comparison
