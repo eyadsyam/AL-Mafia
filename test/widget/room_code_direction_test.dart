@@ -31,9 +31,13 @@ void main() {
   /// The code as the eye reads it: characters sorted by where they landed.
   List<String> asDrawn(WidgetTester tester) {
     final glyphs = <(double, String)>[];
-    for (final element in find
-        .descendant(of: find.byKey(LobbyScreen.codeText), matching: find.byType(Text))
-        .evaluate()) {
+    for (final element
+        in find
+            .descendant(
+              of: find.byKey(LobbyScreen.codeText),
+              matching: find.byType(Text),
+            )
+            .evaluate()) {
       final text = (element.widget as Text).data;
       if (text == null || text.isEmpty) continue;
       glyphs.add((tester.getTopLeft(find.byWidget(element.widget)).dx, text));
@@ -43,14 +47,14 @@ void main() {
   }
 
   testWidgets('the code reads left to right in an RTL app', (tester) async {
-    await tester.pumpWidget(localizedApp(
-      const Directionality(
-        textDirection: TextDirection.rtl,
-        child: Center(
-          child: _CodeProbe(code: 'A7K2QX'),
+    await tester.pumpWidget(
+      localizedApp(
+        const Directionality(
+          textDirection: TextDirection.rtl,
+          child: Center(child: _CodeProbe(code: 'A7K2QX')),
         ),
       ),
-    ));
+    );
     // Every character is in the tree from the first frame; only opacity moves,
     // so nothing has to be pumped for the positions to be final.
     await tester.pump();
@@ -59,12 +63,14 @@ void main() {
   });
 
   testWidgets('and the same way round in an LTR one', (tester) async {
-    await tester.pumpWidget(localizedApp(
-      const Directionality(
-        textDirection: TextDirection.ltr,
-        child: Center(child: _CodeProbe(code: 'A7K2QX')),
+    await tester.pumpWidget(
+      localizedApp(
+        const Directionality(
+          textDirection: TextDirection.ltr,
+          child: Center(child: _CodeProbe(code: 'A7K2QX')),
+        ),
       ),
-    ));
+    );
     await tester.pump();
 
     // The point of pinning the direction is that the answer stops depending on

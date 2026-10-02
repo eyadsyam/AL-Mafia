@@ -67,8 +67,9 @@ void main() {
   }
 
   Future<Uint8List> capture(WidgetTester tester) async {
-    final boundary =
-        tester.renderObject<RenderRepaintBoundary>(find.byKey(boundaryKey));
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.byKey(boundaryKey),
+    );
     final bytes = await tester.runAsync(() async {
       final ui.Image image = await boundary.toImage();
       try {
@@ -132,8 +133,11 @@ void main() {
       }
 
       for (final role in Role.values) {
-        expect(frames[role], equals(frames[Role.mafia]!),
-            reason: 'the identity gate differs for ${role.name}');
+        expect(
+          frames[role],
+          equals(frames[Role.mafia]!),
+          reason: 'the identity gate differs for ${role.name}',
+        );
       }
     });
   });
@@ -149,14 +153,19 @@ void main() {
       }
 
       for (final role in Role.values) {
-        expect(frames[role], equals(frames[Role.mafia]!),
-            reason: 'a face-down ${role.name} card is distinguishable from a '
-                'face-down mafia card');
+        expect(
+          frames[role],
+          equals(frames[Role.mafia]!),
+          reason:
+              'a face-down ${role.name} card is distinguishable from a '
+              'face-down mafia card',
+        );
       }
     });
 
-    testWidgets('a mafioso\'s back face does not hint at teammates',
-        (tester) async {
+    testWidgets('a mafioso\'s back face does not hint at teammates', (
+      tester,
+    ) async {
       // The Mafia card is the only one carrying extra data. If its presence
       // changed the back face at all, the teammate list would be inferable
       // before the card was even turned over.
@@ -172,8 +181,9 @@ void main() {
       expect(withTeam, equals(alone));
     });
 
-    testWidgets('the card conceals itself back to that same picture',
-        (tester) async {
+    testWidgets('the card conceals itself back to that same picture', (
+      tester,
+    ) async {
       // The auto-conceal is only worth having if what it returns to is the
       // shared back. A concealed card that kept any trace of the face would
       // hand the table the role a few seconds later instead of never.
@@ -188,17 +198,25 @@ void main() {
       final beforeFlip = region(await capture(tester), card);
 
       await tester.swipeToFlip();
-      expect(region(await capture(tester), card), isNot(equals(beforeFlip)),
-          reason: 'the swipe did not turn the card over');
+      expect(
+        region(await capture(tester), card),
+        isNot(equals(beforeFlip)),
+        reason: 'the swipe did not turn the card over',
+      );
 
       await tester.awaitConceal();
-      expect(region(await capture(tester), card), equals(beforeFlip),
-          reason: 'the concealed card is not the same picture as the '
-              'face-down one');
+      expect(
+        region(await capture(tester), card),
+        equals(beforeFlip),
+        reason:
+            'the concealed card is not the same picture as the '
+            'face-down one',
+      );
     });
 
-    testWidgets('the concealed screen is identical for every role',
-        (tester) async {
+    testWidgets('the concealed screen is identical for every role', (
+      tester,
+    ) async {
       // The whole screen this time, pass control included. This is the state
       // the phone is in while it is being handed on, so it is the one the next
       // player and everyone else at the table actually look at.
@@ -218,9 +236,13 @@ void main() {
       }
 
       for (final role in Role.values) {
-        expect(frames[role], equals(frames[Role.mafia]!),
-            reason: 'the concealed ${role.name} screen — the one handed across '
-                'the table — is distinguishable from the mafia one');
+        expect(
+          frames[role],
+          equals(frames[Role.mafia]!),
+          reason:
+              'the concealed ${role.name} screen — the one handed across '
+              'the table — is distinguishable from the mafia one',
+        );
       }
     });
   });
@@ -241,8 +263,9 @@ void main() {
           role: role,
           // Give Mafia the longest possible content, so if anything were going
           // to stretch the layout, this is the case that would do it.
-          teammates:
-              role == Role.mafia ? const ['Aaaa', 'Bbbb', 'Cccc'] : const [],
+          teammates: role == Role.mafia
+              ? const ['Aaaa', 'Bbbb', 'Cccc']
+              : const [],
         );
 
         await tester.confirmIdentity();
@@ -260,20 +283,40 @@ void main() {
       }
 
       for (final role in Role.values) {
-        expect(backCard[role], equals(backCard[Role.mafia]!),
-            reason: 'face-down card bounds differ for ${role.name}');
-        expect(backBottom[role], equals(backBottom[Role.mafia]!),
-            reason: 'bottom control bounds differ for ${role.name} before the '
-                'flip');
-        expect(upCard[role], equals(upCard[Role.mafia]!),
-            reason: 'face-up card bounds differ for ${role.name}');
-        expect(upBottom[role], equals(upBottom[Role.mafia]!),
-            reason: 'bottom control bounds differ for ${role.name} while '
-                'revealed');
-        expect(passCard[role], equals(passCard[Role.mafia]!),
-            reason: 'concealed card bounds differ for ${role.name}');
-        expect(passBottom[role], equals(passBottom[Role.mafia]!),
-            reason: 'pass control bounds differ for ${role.name}');
+        expect(
+          backCard[role],
+          equals(backCard[Role.mafia]!),
+          reason: 'face-down card bounds differ for ${role.name}',
+        );
+        expect(
+          backBottom[role],
+          equals(backBottom[Role.mafia]!),
+          reason:
+              'bottom control bounds differ for ${role.name} before the '
+              'flip',
+        );
+        expect(
+          upCard[role],
+          equals(upCard[Role.mafia]!),
+          reason: 'face-up card bounds differ for ${role.name}',
+        );
+        expect(
+          upBottom[role],
+          equals(upBottom[Role.mafia]!),
+          reason:
+              'bottom control bounds differ for ${role.name} while '
+              'revealed',
+        );
+        expect(
+          passCard[role],
+          equals(passCard[Role.mafia]!),
+          reason: 'concealed card bounds differ for ${role.name}',
+        );
+        expect(
+          passBottom[role],
+          equals(passBottom[Role.mafia]!),
+          reason: 'pass control bounds differ for ${role.name}',
+        );
       }
 
       // Nor may any phase resize anything. A card that changed size on reveal,
@@ -287,8 +330,9 @@ void main() {
   });
 
   group('L-04/L-08 timing', () {
-    testWidgets('the card conceals itself at the same offset for every role',
-        (tester) async {
+    testWidgets('the card conceals itself at the same offset for every role', (
+      tester,
+    ) async {
       final window = MafiaTiming.defaults.autoRevealDuration;
       const epsilon = Duration(milliseconds: 50);
 
@@ -306,18 +350,25 @@ void main() {
         await tester.swipeToFlip(settle: false);
 
         await tester.pump(window - epsilon);
-        expect(countdown, findsOneWidget,
-            reason: '${role.name} concealed itself early');
+        expect(
+          countdown,
+          findsOneWidget,
+          reason: '${role.name} concealed itself early',
+        );
 
         await tester.pump(epsilon * 2);
         await tester.pumpAndSettle();
-        expect(countdown, findsNothing,
-            reason: '${role.name} did not conceal itself on schedule');
+        expect(
+          countdown,
+          findsNothing,
+          reason: '${role.name} did not conceal itself on schedule',
+        );
       }
     });
 
-    testWidgets('the pass control unlocks at the same offset for every role',
-        (tester) async {
+    testWidgets('the pass control unlocks at the same offset for every role', (
+      tester,
+    ) async {
       // Measured, not asserted against a constant. Comparing each role to a
       // number would pass four times over even if every role were late by the
       // same amount; comparing the roles to *each other* is the invariant that
@@ -330,8 +381,11 @@ void main() {
 
       for (final role in Role.values) {
         await pumpCard(tester, role: role);
-        expect(tester.passButtonVisible, isFalse,
-            reason: 'pass must be locked at the identity gate (${role.name})');
+        expect(
+          tester.passButtonVisible,
+          isFalse,
+          reason: 'pass must be locked at the identity gate (${role.name})',
+        );
 
         await tester.confirmIdentity(settle: false);
         await tester.swipeToFlip(settle: false);
@@ -339,11 +393,15 @@ void main() {
       }
 
       for (final role in Role.values) {
-        expect(unlockedAfter[role], equals(unlockedAfter[Role.mafia]),
-            reason: 'the pass control unlocked ${unlockedAfter[role]} into a '
-                '${role.name} turn and ${unlockedAfter[Role.mafia]} into a '
-                'mafia one. Turn length is readable from across the table '
-                '(L-08).');
+        expect(
+          unlockedAfter[role],
+          equals(unlockedAfter[Role.mafia]),
+          reason:
+              'the pass control unlocked ${unlockedAfter[role]} into a '
+              '${role.name} turn and ${unlockedAfter[Role.mafia]} into a '
+              'mafia one. Turn length is readable from across the table '
+              '(L-08).',
+        );
       }
 
       // And it is a real wait, not an instant one — otherwise the equality
@@ -351,8 +409,9 @@ void main() {
       expect(unlockedAfter[Role.mafia]!.inMilliseconds, greaterThan(200));
     });
 
-    testWidgets('re-revealing does not extend or shorten the turn',
-        (tester) async {
+    testWidgets('re-revealing does not extend or shorten the turn', (
+      tester,
+    ) async {
       // The player may swipe again as often as they like. If each re-reveal
       // pushed the pass control back, a player who looked twice would take
       // longer than one who looked once — and looking twice is not evenly
@@ -367,21 +426,25 @@ void main() {
 
       // Two full reveal windows have already run — more than the turn floor —
       // so the control must be there without any further waiting at all.
-      expect(tester.passButtonVisible, isTrue,
-          reason: 'two reveals pushed the pass control past the turn floor');
+      expect(
+        tester.passButtonVisible,
+        isTrue,
+        reason: 'two reveals pushed the pass control past the turn floor',
+      );
     });
   });
 
   group('the suite is not vacuous', () {
-    testWidgets('the front faces really do differ between roles',
-        (tester) async {
+    testWidgets('the front faces really do differ between roles', (
+      tester,
+    ) async {
       // If the flip were a no-op, every assertion above would pass while the
       // card told the player nothing. The default test font renders all glyphs
       // as identical boxes, so compare the strings rather than the pixels.
       List<String> textOf(WidgetTester t) => [
-            for (final w in t.widgetList<Text>(find.byType(Text)))
-              if (w.data != null && w.data!.isNotEmpty) w.data!,
-          ]..sort();
+        for (final w in t.widgetList<Text>(find.byType(Text)))
+          if (w.data != null && w.data!.isNotEmpty) w.data!,
+      ]..sort();
 
       final copy = <Role, List<String>>{};
       for (final role in Role.values) {
@@ -393,8 +456,11 @@ void main() {
       final seen = <List<String>>[];
       for (final role in Role.values) {
         for (final other in seen) {
-          expect(copy[role], isNot(equals(other)),
-              reason: 'two roles show the same card front');
+          expect(
+            copy[role],
+            isNot(equals(other)),
+            reason: 'two roles show the same card front',
+          );
         }
         seen.add(copy[role]!);
       }
@@ -409,8 +475,9 @@ void main() {
       final faceDown = await capture(tester);
 
       final box = tester.getRect(find.byKey(RoleCard.slotCard));
-      final gesture =
-          await tester.startGesture(Offset(box.left + 20, box.center.dy));
+      final gesture = await tester.startGesture(
+        Offset(box.left + 20, box.center.dy),
+      );
       // Well under the 30% threshold, and slowly enough not to read as a flick.
       for (var i = 0; i < 3; i++) {
         await gesture.moveBy(Offset(box.width * 0.03, 0));
@@ -419,8 +486,11 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
 
-      expect(await capture(tester), equals(faceDown),
-          reason: 'a short swipe turned the card over');
+      expect(
+        await capture(tester),
+        equals(faceDown),
+        reason: 'a short swipe turned the card over',
+      );
     });
   });
 }

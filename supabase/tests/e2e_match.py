@@ -136,8 +136,23 @@ def drop_minted_users():
         _admin_request("/auth/v1/admin/users/" + user_id, None, method="DELETE")
 
 
+# The hosted anonymous provider admits a bounded number of sign-ups per hour
+# per address. A run that trips it is not a failed run and not a passed one;
+# it waits for the window and asks again, a bounded number of times, and says
+# so on stdout. Nothing under test is skipped or softened by the wait.
+SIGNUP_RETRIES = int(os.environ.get("SIGNUP_RETRIES", "20"))
+SIGNUP_WAIT_SECONDS = int(os.environ.get("SIGNUP_WAIT_SECONDS", "60"))
+
+
 def anon_session(label):
     status, data = _request("/auth/v1/signup", {})
+    attempt = 0
+    while status == 429 and attempt < SIGNUP_RETRIES and not SERVICE_KEY:
+        attempt += 1
+        print("  sign-in rate limited (429); waiting %ds for the window (%d/%d)"
+              % (SIGNUP_WAIT_SECONDS, attempt, SIGNUP_RETRIES), flush=True)
+        time.sleep(SIGNUP_WAIT_SECONDS)
+        status, data = _request("/auth/v1/signup", {})
     if status == 200 and data.get("access_token"):
         return {"label": label, "token": data["access_token"], "id": data["user"]["id"]}
     if SERVICE_KEY:
@@ -218,8 +233,42 @@ def main():
     check("a Citizen has no teammates", citizens[0]["teammates"] == [], citizens[0]["teammates"])
 
     # ── night one ────────────────────────────────────────────────────────
-    status, opened = fn("open_phase", {"roomId": room_id, "phase": "night"}, players[0])
+    # The night does not open because the host says so. It opens when every seat
+    # has said it looked at its own card, and the server is the only thing that
+    # holds that fact: a client claiming the room is ready would be a client
+    # claiming something about five other people's screens.
+    status, early = fn("open_phase", {"roomId": room_id, "phase": "night"}, players[0])
+    check("the deal will not be skipped",
+          early.get("error") == "PHASE_CLOSED", early)
+
+    # ...but it cannot hold the room for ever either. Doc 10 §8.2: *every*
+    # phase has a hard timer. The deal had none, so one seat whose card never
+    # arrived — or whose acknowledgement was lost on the way — stranded four
+    # other people with «كمل» refused and nothing else to press.
+    status, state = rest(
+        "room_state?select=phase,phase_ends_at&room_id=eq." + room_id, players[0])
+    row = state[0] if state else {}
+    check("the deal runs on a clock like every other phase",
+          row.get("phase") == "reveal" and row.get("phase_ends_at") is not None, row)
+
+    for p in players[:-1]:
+        status, ack = fn("saw_role", {"roomId": room_id}, p)
+        check("seat %d dismissed its card" % p["seat"], status == 200, ack)
+
+    status, still = fn("open_phase", {"roomId": room_id, "phase": "night"}, players[0])
+    check("one card still up holds the whole room",
+          still.get("error") == "PHASE_CLOSED", still)
+
+    status, ack = fn("saw_role", {"roomId": room_id}, players[-1])
+    check("the last card is dismissed", status == 200, ack)
+
+    # And then it opens for *anybody*: the person who dismissed the last card is
+    # whoever it is, and making the room wait for the host to notice would
+    # strand it on the one screen where every player is already looking at their
+    # own phone. A guest opens it here, which is the whole of that claim.
+    status, opened = fn("open_phase", {"roomId": room_id, "phase": "night"}, players[1])
     check("open night", status == 200 and opened.get("phase") == "night", opened)
+    check("the night carries a clock", opened.get("phaseEndsAt") is not None, opened)
 
     victim = citizens[0]
     saved = citizens[1]
@@ -325,7 +374,10 @@ def main():
               status == 200 and held.get("claimed") is False
               and held.get("hostId") == players[0]["id"], held)
 
-        go_quiet(players[0])
+        # Checked, because when it silently does not land the three assertions
+        # below fail for a reason that has nothing to do with host migration.
+        quiet_status, _quiet = go_quiet(players[0])
+        check("the host's last_seen was backdated", quiet_status in (200, 204), quiet_status)
         status, took = fn("claim_host", {"roomId": room_id}, players[1])
         check("O1 the lowest connected seat inherits",
               status == 200 and took.get("claimed") is True
@@ -409,9 +461,12 @@ def main():
 
     fn("open_phase", {"roomId": room_id, "phase": "vote"}, players[0])
     for p in living:
-        # Nobody may name themselves, so the Mafioso spends their ballot
-        # elsewhere — which is also what a Mafioso would actually do.
-        target = saved["seat"] if p is mafia else mafia["seat"]
+        # The town gets it wrong on day one, on purpose: a match that ends the
+        # first time the room votes never reaches a second night, a second
+        # verdict, the day number moving, or a confrontation — which is most of
+        # the phase machine. Nobody may name themselves, so the seat being
+        # voted out spends its ballot on the Mafioso.
+        target = mafia["seat"] if p is saved else saved["seat"]
         status, _ = fn("submit_vote", {"roomId": room_id, "targetSeat": target,
                                        "round": 1, "actionId": aid()}, p)
         check("ballot from seat %d" % p["seat"], status == 200, _)
@@ -429,11 +484,185 @@ def main():
 
     status, verdict = fn("resolve_vote", {"roomId": room_id}, players[0])
     check("resolve_vote", status == 200, verdict)
-    check("the room voted out the Mafia", verdict.get("eliminatedSeat") == mafia["seat"], verdict)
-    check("the town wins", verdict.get("outcome") == "town", verdict.get("outcome"))
+    check("the town got it wrong", verdict.get("eliminatedSeat") == saved["seat"], verdict)
+    check("nobody has won yet", verdict.get("outcome") is None, verdict.get("outcome"))
+
+    # ── the verdict (doc 15 §S-O12) ────────────────────────────────
+    #
+    # A ballot used to resolve straight into the next night, which meant the
+    # beat where the room is told who went and what they were had nowhere to
+    # happen: a player cast a vote and arrived at a dark table.
+    status, state = rest(
+        "room_state?select=phase,phase_number,phase_ends_at,public_data&room_id=eq." + room_id,
+        players[0])
+    row = state[0] if state else {}
+    check("the ballot resolves into the verdict", row.get("phase") == "verdict", row)
+    check("the day has not moved yet", row.get("phase_number") == 1, row)
+    last = (row.get("public_data") or {}).get("lastVote") or {}
+    check("the verdict names who went and what they were",
+          last.get("eliminatedSeat") == saved["seat"]
+          and last.get("eliminatedRole") == "citizen", last)
+    check("the verdict carries a clock", row.get("phase_ends_at") is not None, row)
+
+    # A guest may not close it while that clock is still running.
+    status, early = fn("open_phase", {"roomId": room_id, "phase": "night"}, detective)
+    check("a guest cannot close a verdict that is still running",
+          early.get("error") == "NOT_HOST", early)
+
+    # ── night two ────────────────────────────────────────────
+    #
+    # The day number moves *here*: a new night is what a new day actually is.
+    # `resolve_vote` used to move it, which put the room on day two before it
+    # had shown anybody the verdict of day one.
+    status, night2 = fn("open_phase", {"roomId": room_id, "phase": "night"}, players[0])
+    check("the verdict opens the night that follows", status == 200, night2)
+    status, state = rest(
+        "room_state?select=phase,phase_number,public_data&room_id=eq." + room_id, players[0])
+    row = state[0] if state else {}
+    check("the day moves when the night opens",
+          row.get("phase") == "night" and row.get("phase_number") == 2, row)
+    check("the verdict is cleared behind it",
+          (row.get("public_data") or {}).get("lastVote") is None, row.get("public_data"))
+
+    alive2 = [mafia, doctor, detective]
+
+    # «الطلقة الواحدة» — the Doctor's self-protection, the one reason a night action
+    # may ever name its own actor (doc 13 §2).
+    status, kill2 = fn("submit_night_action",
+                       {"roomId": room_id, "action": "kill",
+                        "targetSeat": doctor["seat"], "actionId": aid()}, mafia)
+    check("the Mafia goes for the Doctor", status == 200, kill2)
+    status, shield = fn("submit_night_action",
+                        {"roomId": room_id, "action": "protect",
+                         "targetSeat": doctor["seat"], "useBullet": True,
+                         "actionId": aid()}, doctor)
+    check("the Doctor spends the self-protection",
+          status == 200 and shield.get("bulletSpent") is True, shield)
+    status, look = fn("submit_night_action",
+                      {"roomId": room_id, "action": "investigate",
+                       "targetSeat": mafia["seat"], "actionId": aid()}, detective)
+    check("the Detective looks again",
+          status == 200 and look.get("revealedRole") == "mafia", look)
+
+    # Once every living player has acted, the night is over whatever the clock
+    # said. It used to run its full two minutes with the room sitting in the
+    # dark — and, worse, every one of those actions used to be refused, so the
+    # night resolved on the expiry defaults and nobody's choice counted.
+    status, state = rest("room_state?select=phase_ends_at&room_id=eq." + room_id, players[0])
+    ends = state[0]["phase_ends_at"] if state else None
+    horizon = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(time.time() + 5))
+    check("a night everybody has answered does not wait for its clock",
+          ends is not None and ends <= horizon, ends)
+
+    status, morning2 = fn("resolve_night", {"roomId": room_id}, players[0])
+    check("resolve_night (two)", status == 200, morning2)
+    check("the self-protection held", morning2.get("victimSeat") is None, morning2)
+    check("and the room is told somebody was saved, not who",
+          morning2.get("someoneSavedUnnamed") is True, morning2)
+    _, private_check = rest("room_state?select=public_data&room_id=eq." + room_id, citizens[0])
+    check("saved target is absent from live public history",
+          bool(private_check) and all("savedSeat" not in n for n in
+              private_check[0]["public_data"].get("resolvedNights", {}).values()))
+
+    # A bullet is spent once for the whole match, not once a night.
+    status, again2 = fn("submit_night_action",
+                        {"roomId": room_id, "action": "protect",
+                         "targetSeat": detective["seat"], "useBullet": True,
+                         "actionId": aid()}, doctor)
+    check("a bullet is spent once for the whole match",
+          again2.get("error") in ("PHASE_CLOSED", "RATE_LIMITED"), again2)
+
+    # ── day two: the confrontation ─────────────────────────────────
+    #
+    # Day one opens on «اسم واحد»; every later day opens on the confrontation the
+    # server chooses from the record — or on the discussion, when it finds
+    # nothing true to say. Both are correct, and the app must never invent one.
+    status, chosen = fn("generate_confrontation", {"roomId": room_id}, players[0])
+    check("the day opens on what the record supports", status == 200, chosen)
+    status, state = rest("room_state?select=phase,public_data&room_id=eq." + room_id, players[0])
+    row = state[0] if state else {}
+    check("day two is a confrontation or a discussion, never a stall",
+          row.get("phase") in ("confront", "discuss"), row)
+
+    if row.get("phase") == "confront":
+        target_seat = ((row.get("public_data") or {}).get("confrontation") or {}).get("targetSeat")
+        accused = next((p for p in alive2 if p["seat"] == target_seat), None)
+        check("the confrontation names a living seat", accused is not None, target_seat)
+        if accused is not None:
+            # The window belongs to the person in it. This used to be host-only,
+            # so unless the accused happened to be holding the room, «خلصت» did
+            # nothing and the table waited out the whole clock instead.
+            status, closed = fn("open_phase",
+                                {"roomId": room_id, "phase": "discuss", "silent": False},
+                                accused)
+            check("the confronted player closes their own window", status == 200, closed)
+    else:
+        fn("open_phase", {"roomId": room_id, "phase": "discuss"}, players[0])
+
+    status, state = rest("room_state?select=phase&room_id=eq." + room_id, players[0])
+    check("and the day reaches the discussion",
+          bool(state) and state[0]["phase"] == "discuss", state)
+
+    # ── day two: the ballot ──────────────────────────────────────
+    fn("open_phase", {"roomId": room_id, "phase": "vote"}, players[0])
+    for p in alive2:
+        target = detective["seat"] if p is mafia else mafia["seat"]
+        status, _ = fn("submit_vote", {"roomId": room_id, "targetSeat": target,
+                                       "round": 1, "actionId": aid()}, p)
+        check("day two ballot from seat %d" % p["seat"], status == 200, _)
+
+    status, verdict2 = fn("resolve_vote", {"roomId": room_id}, players[0])
+    check("resolve_vote (two)", status == 200, verdict2)
+    check("the room voted out the Mafia",
+          verdict2.get("eliminatedSeat") == mafia["seat"], verdict2)
+    check("the town wins", verdict2.get("outcome") == "town", verdict2.get("outcome"))
 
     status, finished = rest("rooms_public?select=status&id=eq." + room_id, players[0])
-    check("the room is finished", status == 200 and finished and finished[0]["status"] == "finished", finished)
+    check("the room is finished",
+          status == 200 and finished and finished[0]["status"] == "finished", finished)
+
+    status, state = rest(
+        "room_state?select=phase,phase_number,public_data&room_id=eq." + room_id, players[0])
+    row = state[0] if state else {}
+    check("the last ballot resolves into a verdict too", row.get("phase") == "verdict", row)
+    check("on the day it was cast", row.get("phase_number") == 2, row)
+
+    if SERVICE_KEY:
+        # An expired phase belongs to the room, not to the host. Doc 10 §8.2
+        # says no phase may stall, and that cannot be true while exactly one
+        # phone is allowed to end one: a host whose screen has locked is
+        # indistinguishable, from every other seat, from a broken match. The
+        # deadline is still the server's, and it is still read server-side.
+        _admin_request(
+            "/rest/v1/room_state?room_id=eq." + room_id,
+            {"phase_ends_at": time.strftime(
+                "%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - 60))},
+            method="PATCH")
+        status, closed = fn("open_phase", {"roomId": room_id, "phase": "result"}, detective)
+        check("an expired phase may be closed by anybody", status == 200, closed)
+    else:
+        status, closed = fn("open_phase", {"roomId": room_id, "phase": "result"}, players[0])
+        check("the host closes the verdict", status == 200, closed)
+
+    status, state = rest("room_state?select=phase,public_data&room_id=eq." + room_id, players[0])
+    row = state[0] if state else {}
+    check("the match ends on the result", row.get("phase") == "result", row)
+    public = row.get("public_data") or {}
+    standings = public.get("standings") or []
+    check("every role is public once the match is over",
+          len(standings) == len(players) and all(s.get("role") for s in standings),
+          standings)
+    check("and the record says when each of them went",
+          sorted((public.get("eliminations") or {}).keys()) ==
+          sorted(str(p["seat"]) for p in (victim, saved, mafia)),
+          public.get("eliminations"))
+    check("the whole archive survived two days",
+          set(["resolvedNights", "openingAccusations", "eliminations"]) <= set(public.keys()),
+          sorted(public.keys()))
+    check("public night history never contains the saved target",
+          all("savedSeat" not in night for night in public.get("resolvedNights", {}).values()))
+    private_status, _ = rest("night_resolution_private?select=*&room_id=eq." + room_id, citizens[0])
+    check("a citizen cannot read private resolution history", private_status != 200)
 
     print("\n%d passed, %d failed" % (len(PASS), len(FAIL)))
     if FAIL:

@@ -72,7 +72,9 @@ void main() {
       openNight(engine);
 
       final citizen = engine.match.players
-          .firstWhere((p) => p.role == Role.citizen && p.status == PlayerStatus.alive)
+          .firstWhere(
+            (p) => p.role == Role.citizen && p.status == PlayerStatus.alive,
+          )
           .seat;
 
       while (engine.match.currentActorSeat != null) {
@@ -90,8 +92,11 @@ void main() {
       engine.resolveNight();
 
       final night = buildHistory(engine.match).nightAt(1)!;
-      expect(night.suspicions.containsKey(citizen), isTrue,
-          reason: 'the seat took its turn; that is a fact worth keeping');
+      expect(
+        night.suspicions.containsKey(citizen),
+        isTrue,
+        reason: 'the seat took its turn; that is a fact worth keeping',
+      );
       expect(night.suspicions[citizen], isNull);
       expect(night.skipped, contains(citizen));
       expect(night.recordedSuspicions.containsKey(citizen), isFalse);
@@ -101,8 +106,9 @@ void main() {
       final engine = informationMatch(seed: 21);
       openNight(engine);
 
-      final doctor =
-          engine.match.players.firstWhere((p) => p.role == Role.doctor).seat;
+      final doctor = engine.match.players
+          .firstWhere((p) => p.role == Role.doctor)
+          .seat;
       final victim = engine.match.players
           .firstWhere((p) => p.role == Role.citizen && p.seat != doctor)
           .seat;
@@ -126,8 +132,11 @@ void main() {
       final night = buildHistory(engine.match).nightAt(1)!;
       expect(night.victim, isNull);
       expect(night.saveOccurred, isTrue);
-      expect(night.savedSeat, equals(victim),
-          reason: 'the record must be able to tell a save from a quiet night');
+      expect(
+        night.savedSeat,
+        equals(victim),
+        reason: 'the record must be able to tell a save from a quiet night',
+      );
       expect(night.mafiaTargetSeat, equals(victim));
     });
 
@@ -153,8 +162,11 @@ void main() {
       final engine = informationMatch(seed: 41);
       playQuietNight(engine);
       final night = buildHistory(engine.match).nightAt(1)!;
-      expect(night.revealedTrace, isNotNull,
-          reason: 'a resolved night always publishes something, even T0');
+      expect(
+        night.revealedTrace,
+        isNotNull,
+        reason: 'a resolved night always publishes something, even T0',
+      );
       expect(night.revealedTrace, equals(engine.currentTrace!.type));
     });
 

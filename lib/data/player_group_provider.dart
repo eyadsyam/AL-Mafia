@@ -78,5 +78,5 @@ class PlayerGroupsNotifier extends AsyncNotifier<List<PlayerGroup>> {
 
 final playerGroupsProvider =
     AsyncNotifierProvider<PlayerGroupsNotifier, List<PlayerGroup>>(
-  PlayerGroupsNotifier.new,
-);
+      PlayerGroupsNotifier.new,
+    );

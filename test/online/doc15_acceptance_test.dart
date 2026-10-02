@@ -71,7 +71,11 @@ void main() {
           continue;
         }
         await tester.pumpWidget(
-          localizedApp(Scaffold(body: TableScene(snapshot: snapshotOf(phase: phase)))),
+          localizedApp(
+            Scaffold(
+              body: TableScene(snapshot: snapshotOf(phase: phase)),
+            ),
+          ),
         );
         await tester.pump();
 
@@ -147,9 +151,9 @@ void main() {
         reason: 'band 4 stopped being one slot',
       );
       expect(
-        RegExp(r'final Widget\? footer2|final List<Widget> footer').hasMatch(
-          scene,
-        ),
+        RegExp(
+          r'final Widget\? footer2|final List<Widget> footer',
+        ).hasMatch(scene),
         isFalse,
       );
     });
@@ -182,11 +186,23 @@ void main() {
       final slots = RegExp(
         r'final (String|Widget\?|TextStyle\?) \w+;',
       ).allMatches(voice.split('class SelectionChip').first).length;
+      // Four since 2026-09-23: `leading` carries the player's own card at
+      // night (owner request). It is an image, not a third line of text, so
+      // the two-text-elements rule still holds — `headline` is the only
+      // String.
       expect(
         slots,
-        3,
-        reason: 'CouncilVoice grew a slot: headline, support, style, and no '
-            'more',
+        4,
+        reason:
+            'CouncilVoice grew a slot: headline, support, style, leading, '
+            'and no more',
+      );
+      expect(
+        RegExp(
+          r'final String \w+;',
+        ).allMatches(voice.split('class SelectionChip').first).length,
+        1,
+        reason: 'band 3 carries one headline string',
       );
     });
 
@@ -376,13 +392,16 @@ void main() {
         );
         await tester.pump();
         return tester
-            .widget<CustomPaint>(
-              find.descendant(
-                of: find.byType(CouncilBand),
-                matching: find.byType(CustomPaint),
-              ).first,
-            )
-            .painter! as CouncilPainter;
+                .widget<CustomPaint>(
+                  find
+                      .descendant(
+                        of: find.byType(CouncilBand),
+                        matching: find.byType(CustomPaint),
+                      )
+                      .first,
+                )
+                .painter!
+            as CouncilPainter;
       }
 
       final still = await painterAt(0);
@@ -423,10 +442,7 @@ void main() {
         isTrue,
         reason: 'raised hands became an ordered collection',
       );
-      expect(
-        RegExp(r'List<int> raisedHands').hasMatch(snapshot),
-        isFalse,
-      );
+      expect(RegExp(r'List<int> raisedHands').hasMatch(snapshot), isFalse);
     });
 
     test('nothing anywhere sorts a hand by when it went up', () {
@@ -439,7 +455,9 @@ void main() {
       ]) {
         final source = File(path).readAsStringSync();
         expect(
-          RegExp(r'sort.*handRaisedAt|handRaisedAt.*compareTo').hasMatch(source),
+          RegExp(
+            r'sort.*handRaisedAt|handRaisedAt.*compareTo',
+          ).hasMatch(source),
           isFalse,
           reason: '\$path sorts raised hands by request time',
         );
@@ -456,7 +474,10 @@ void main() {
       final discussion = flow.substring(
         flow.indexOf('case GamePhase.discussion:'),
       );
-      final band3 = discussion.substring(0, discussion.indexOf('case GamePhase.voting:'));
+      final band3 = discussion.substring(
+        0,
+        discussion.indexOf('case GamePhase.voting:'),
+      );
       expect(band3.contains('onlineUpNext'), isFalse);
       expect(band3.contains('onlineRaisedHands'), isTrue);
     });

@@ -51,10 +51,7 @@ void main() {
           roleCounts: {Role.citizen: 5},
         );
         expect(report.valid, isFalse);
-        expect(
-          report.issues.where((i) => i.code == 'no_mafia'),
-          isNotEmpty,
-        );
+        expect(report.issues.where((i) => i.code == 'no_mafia'), isNotEmpty);
       });
 
       test('blocks mafia >= half of players', () {
@@ -146,7 +143,9 @@ void main() {
         );
         expect(report.valid, isTrue);
         expect(
-          report.issues.where((i) => i.code == 'two_detectives_low_player_count'),
+          report.issues.where(
+            (i) => i.code == 'two_detectives_low_player_count',
+          ),
           isNotEmpty,
         );
       });
@@ -162,7 +161,9 @@ void main() {
           },
         );
         expect(
-          report.issues.where((i) => i.code == 'two_detectives_low_player_count'),
+          report.issues.where(
+            (i) => i.code == 'two_detectives_low_player_count',
+          ),
           isEmpty,
         );
       });
@@ -193,10 +194,7 @@ void main() {
         expect(dist[Role.doctor], equals(1));
         expect(dist[Role.citizen], equals(2));
 
-        final report = BalanceGuard.evaluate(
-          playerCount: 5,
-          roleCounts: dist,
-        );
+        final report = BalanceGuard.evaluate(playerCount: 5, roleCounts: dist);
         expect(report.valid, isTrue);
       });
 

@@ -136,8 +136,9 @@ class WhisperDelivery {
 /// own — `lib/engine/` may not read one (see `engine/clock.dart`) — so the
 /// production wiring hands it `DateTime.now` here, at the boundary, and tests
 /// hand it `Clocks.monotonic` instead.
-final matchEngineProvider =
-    Provider<MatchEngine>((ref) => MatchEngine(clock: DateTime.now));
+final matchEngineProvider = Provider<MatchEngine>(
+  (ref) => MatchEngine(clock: DateTime.now),
+);
 
 /// The transport every command goes through (doc 10 §7).
 ///
@@ -306,6 +307,14 @@ class MatchController extends Notifier<MatchUiState?> {
   /// role is dropped here and is not recoverable from any UI state.
   void confirmRevealed() {
     transport.confirmRevealed();
+    state = _publish(clearSecrets: true);
+  }
+
+  /// Online reveal acknowledgement must be durable before its card vanishes.
+  /// A transient failed request then leaves the card available for retry
+  /// instead of stranding this seat behind the communal server gate.
+  Future<void> confirmRevealedCommitted() async {
+    await transport.confirmRevealed();
     state = _publish(clearSecrets: true);
   }
 
@@ -499,7 +508,10 @@ class MatchController extends Notifier<MatchUiState?> {
   Future<void> submitOpeningAccusation({required int targetSeat}) async {
     final seat = transport.snapshot.currentActorSeat;
     if (seat == null) return;
-    final pending = transport.submitOpeningAccusation(seat: seat, targetSeat: targetSeat);
+    final pending = transport.submitOpeningAccusation(
+      seat: seat,
+      targetSeat: targetSeat,
+    );
     state = _publish(clearSecrets: true);
     await pending;
   }
@@ -566,6 +578,8 @@ class MatchController extends Notifier<MatchUiState?> {
     state = _publish(clearSecrets: true);
     return result;
   }
+
+  Future<void> setReadyToVote(bool ready) => transport.setReadyToVote(ready);
 
   void beginVoting() {
     transport.beginVoting();

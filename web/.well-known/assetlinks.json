@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.mafiamaster.mafia_master",
+      "sha256_cert_fingerprints": ["08:2C:07:A4:6E:F5:0B:63:F6:F1:AC:F4:40:80:6C:16:C6:14:76:2D:8D:CE:3B:4E:9B:C3:D4:1F:07:A1:9E:11"]
+    }
+  }
+]

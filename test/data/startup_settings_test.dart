@@ -8,13 +8,21 @@ void main() {
   test('saved defaults seed the first draft and survive a new match', () async {
     final store = MemoryMatchStore();
     final writer = MemoryMatchRepository(store);
-    const saved = MatchSettings(muteAllAudio: true, scoreEnabled: false,
-        speechSeconds: 45, traceEnabled: false);
+    const saved = MatchSettings(
+      muteAllAudio: true,
+      scoreEnabled: false,
+      speechSeconds: 45,
+      traceEnabled: false,
+    );
     await writer.saveDefaultSettings(saved);
     final reader = MemoryMatchRepository(store);
-    final container = ProviderContainer(overrides: [
-      initialMatchSettingsProvider.overrideWithValue(await reader.loadDefaultSettings()),
-    ]);
+    final container = ProviderContainer(
+      overrides: [
+        initialMatchSettingsProvider.overrideWithValue(
+          await reader.loadDefaultSettings(),
+        ),
+      ],
+    );
     addTearDown(container.dispose);
     expect(container.read(setupDraftProvider).settings, saved);
     container.read(setupDraftProvider.notifier)

@@ -1,4 +1,9 @@
-# Builds the web release and publishes it to the `gh-pages` branch.
+﻿# Builds the web release and publishes it to the `gh-pages` branch.
+#
+# Saved with a UTF-8 BOM on purpose. Windows PowerShell 5.1 reads a BOM-less
+# file in the machine's ANSI code page, where the em dashes in the comments
+# below decode into a smart quote, the parser takes that as the start of a
+# string, and it reports a missing terminator ninety lines further down.
 #
 # Same reason as `build_apk.ps1`: `SupabaseConfig` resolves at compile time, so
 # a build that was not handed `dart_defines.json` ships with online compiled
@@ -8,30 +13,26 @@
 #   pwsh tool/build_web.ps1              # build only
 #   pwsh tool/build_web.ps1 -Publish     # build, then force-push to gh-pages
 #
-# `--base-href` matters: the site is served from a repository subpath
-# (`/AL-Mafia/`), not from a domain root, and a build without it asks for
-# `/main.dart.js` and gets the GitHub Pages 404 page.
+# `--base-href` matters, and it is `/` because the site now lives at the root
+# of its own domain (the Vercel project `almafia`) rather than under a GitHub
+# Pages repository subpath. A build carrying the old `/AL-Mafia/` asks for
+# `/AL-Mafia/main.dart.js` on a host that has no such directory and paints
+# nothing. The root is also what made App Links possible: the host rewrites
+# unknown paths to index.html, so `/join/CODE` is a real path and the router
+# no longer needs the hash.
 #
-# MSYS2 rewrites any argument that looks like a Unix path, so `/AL-Mafia/`
-# becomes `C:/Program Files/Git/AL-Mafia/` inside a Git Bash shell. The two
+# MSYS2 rewrites any argument that looks like a Unix path, so a bare `/`
+# becomes `C:/Program Files/Git/` inside a Git Bash shell. The two
 # environment variables below switch that off. Harmless in PowerShell, and the
 # reason this is a script rather than a line in a README somebody retypes.
 
 param(
     [switch]$Publish,
-    [string]$BaseHref = '/AL-Mafia/',
-    [string]$Branch = 'gh-pages',
-    # The installable build, carried onto the site next to the web one so a
-    # phone can go straight from the link to an installed app. `web/beta/`
-    # holds the page; this is the file it points at.
-    #
-    # The arm64 split, not the universal one. The universal APK carries three
-    # native ABIs and the 51 MB introduction video and lands around 147 MB —
-    # over GitHub's hard 100 MB limit for a file in a repository, so a Pages
-    # commit holding it is a push that is refused. arm64-v8a is every Android
-    # phone shipped since about 2017, and it is the one a download link on a
-    # phone is actually for. The universal build stays a direct artifact.
-    [string]$ApkName = 'Mafia-Master-Beta-1.0.0-arm64.apk'
+    # Compiles in the web-only coin-pack tab (manual transfer review). Sales
+    # still stay off until the server's COIN_SALES_ENABLED secret is "true".
+    [switch]$CoinSales,
+    [string]$BaseHref = '/',
+    [string]$Branch = 'gh-pages'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -48,27 +49,45 @@ if (-not (Test-Path $defines)) {
 $env:MSYS2_ARG_CONV_EXCL = '*'
 $env:MSYS_NO_PATHCONV = '1'
 
-Write-Host "flutter build web --release --base-href $BaseHref" -ForegroundColor DarkGray
-& flutter build web --release --base-href $BaseHref "--dart-define-from-file=$defines"
+$extra = @()
+if ($CoinSales) { $extra += '--dart-define=WEB_COIN_SALES=true' }
+Write-Host "flutter build web --release --base-href $BaseHref $extra" -ForegroundColor DarkGray
+& flutter build web --release --base-href $BaseHref "--dart-define-from-file=$defines" @extra
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 $out = Join-Path $root 'build/web'
 
-# `web/beta/` ships with the site; the APK it links to does not live in git, so
-# it is copied in here from the last release build. Missing is not fatal — the
-# site is still correct without it — but it is worth saying out loud, because a
-# beta page whose download link 404s is worse than no beta page.
-$apkSource = Join-Path $root 'build/app/outputs/flutter-apk/app-arm64-v8a-release.apk'
-$betaDir = Join-Path $out 'beta'
-if ((Test-Path $apkSource) -and (Get-Item $apkSource).Length -lt 95MB) {
-    if (-not (Test-Path $betaDir)) { New-Item -ItemType Directory -Path $betaDir | Out-Null }
-    Copy-Item $apkSource (Join-Path $betaDir $ApkName) -Force
-    $mb = (Get-Item $apkSource).Length / 1MB
-    Write-Host ("Beta APK: {0}  ({1:N1} MB)" -f $ApkName, $mb) -ForegroundColor Green
-} else {
-    Write-Host 'The arm64 APK is absent or too large for GitHub Pages; publishing the site without embedding it.' -ForegroundColor Yellow
-    Write-Host 'Run  pwsh tool/build_apk.ps1 -Split  first, or the download link on the beta page will 404.' -ForegroundColor Yellow
-}
+# The offline cache.
+#
+# `web/flutter_bootstrap.js` registers `sw.js`; this is where that file comes
+# from. It is stamped with a build time because a service worker is only
+# reinstalled when its bytes differ, and a cache-first worker that is never
+# reinstalled pins the site to the build that installed it.
+#
+# Flutter's own `flutter_service_worker.js` is left where it is: it is a stub
+# that unregisters itself, which is exactly what an old visitor's browser needs
+# to run once before it picks this one up.
+$worker = Join-Path $root 'web/offline_service_worker.js'
+$stamp = (Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmmss')
+# `-Encoding UTF8` because 5.1 otherwise reads a BOM-less file in the machine's
+# ANSI code page and every em dash in the comments comes out as a replacement
+# character in the deployed script.
+$script = (Get-Content -Path $worker -Raw -Encoding UTF8) -replace '__BUILD_VERSION__', $stamp
+# No BOM: this is served as text/javascript and read by the browser, not by
+# PowerShell, and `Set-Content -Encoding utf8` on 5.1 writes one.
+[System.IO.File]::WriteAllText(
+    (Join-Path $out 'sw.js'),
+    $script,
+    (New-Object System.Text.UTF8Encoding($false)))
+# `web/` is copied verbatim into the build, so the source would otherwise ship
+# alongside the stamped copy.
+Remove-Item -Path (Join-Path $out 'offline_service_worker.js') -Force -ErrorAction SilentlyContinue
+Write-Host "Service worker: sw.js, offline cache, build $stamp" -ForegroundColor DarkGray
+
+# The site carries the web build and nothing else. It used to also carry a
+# `beta/` page with an APK next to it; that page went unused, and a 90 MB binary
+# in a Pages commit is a slow push and a large repository for something nobody
+# opened. The APK is a direct build artifact now.
 
 $files = (Get-ChildItem -Path $out -Recurse -File).Count
 Write-Host ''
@@ -100,8 +119,18 @@ try {
           -c user.email="$(& git -C $root config user.email)" `
           commit -q -m "Web release from $sha"
     & git remote add origin (& git -C $root remote get-url origin)
-    & git push -q --force origin $Branch
+    # Large pushes over HTTP/2 have failed here with `curl 55 Send failure`, and
+    # the script then cheerfully reported success because nothing looked at the
+    # exit code. Both halves of that are fixed: a bigger buffer and HTTP/1.1 for
+    # the transfer, and a hard stop if it still fails.
+    & git -c http.postBuffer=524288000 -c http.version=HTTP/1.1 `
+          push --force origin $Branch
+    $pushed = $LASTEXITCODE
     Pop-Location
+    if ($pushed -ne 0) {
+        Write-Host "Push failed ($pushed) — nothing was published." -ForegroundColor Red
+        exit $pushed
+    }
 
     Write-Host "Published $Branch from $sha" -ForegroundColor Green
 } finally {

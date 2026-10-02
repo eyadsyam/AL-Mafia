@@ -63,27 +63,29 @@ class RoleRevealScreen extends ConsumerWidget {
     // Doc 14 Part 6: no hint over the card. The card is the whole screen and
     // a line of teaching across the top of it was the first thing a new player
     // read on the one screen where reading anything else is a mistake.
-    return Stack(children: [
-      RoleCard(
-        // A new seat must always get a fresh, face-down card.
-        key: ValueKey('role-card-$seat'),
-        playerName: reveal.name,
-        role: reveal.role,
-        teammateNames: reveal.teammateNames,
-        identityHold: context.timing.holdToReveal,
-      // The page turn. This is the one screen in the app where a sound plays
-      // while the phone is in somebody's hand, and `playCardTurn` is the only
-      // door that allows it — see the note on the method for why this
-      // particular sound cannot say anything about the card behind it.
-        onFlip: ref.read(audioDirectorProvider).playCardTurn,
-        onDismissed: () {
-          controller.confirmRevealed();
-          if (controller.snapshot.currentActorSeat == null) {
-            onDistributionComplete();
-          }
-        },
-      ),
-    ]);
+    return Stack(
+      children: [
+        RoleCard(
+          // A new seat must always get a fresh, face-down card.
+          key: ValueKey('role-card-$seat'),
+          playerName: reveal.name,
+          role: reveal.role,
+          teammateNames: reveal.teammateNames,
+          identityHold: context.timing.holdToReveal,
+          // The page turn. This is the one screen in the app where a sound plays
+          // while the phone is in somebody's hand, and `playCardTurn` is the only
+          // door that allows it — see the note on the method for why this
+          // particular sound cannot say anything about the card behind it.
+          onFlip: ref.read(audioDirectorProvider).playCardTurn,
+          onDismissed: () {
+            controller.confirmRevealed();
+            if (controller.snapshot.currentActorSeat == null) {
+              onDistributionComplete();
+            }
+          },
+        ),
+      ],
+    );
   }
 }
 
@@ -115,7 +117,7 @@ class _DrawOnFirstFrameState extends State<_DrawOnFirstFrame> {
 
   @override
   Widget build(BuildContext context) => ColoredBox(
-        color: context.colors.surfaceBase,
-        child: const SizedBox.expand(),
-      );
+    color: context.colors.surfaceBase,
+    child: const SizedBox.expand(),
+  );
 }

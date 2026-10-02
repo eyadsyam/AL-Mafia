@@ -61,8 +61,9 @@ library engine.seed;
 /// `'confrontation'`). [index] identifies the occurrence — the night number,
 /// the day number, the phase index.
 int deriveSeed(int matchSeed, String salt, int index) =>
-    (matchSeed ^ ((_saltCode(salt) * 31) & _mask32) ^
-            ((index * 104729) & _mask32)) &
+    (matchSeed ^
+        ((_saltCode(salt) * 31) & _mask32) ^
+        ((index * 104729) & _mask32)) &
     _mask32;
 
 /// Everything here is 32-bit, on purpose.

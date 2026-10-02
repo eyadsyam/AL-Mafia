@@ -38,8 +38,14 @@ class ConnectionBanner extends StatelessWidget {
 
     final (label, tint) = switch (quality) {
       ConnectionQuality.local || ConnectionQuality.connected => (null, null),
-      ConnectionQuality.reconnecting => (l10n.onlineConnecting, colors.accentGold),
-      ConnectionQuality.offline => (l10n.onlineDisconnected, colors.accentCrimson),
+      ConnectionQuality.reconnecting => (
+        l10n.onlineConnecting,
+        colors.accentGold,
+      ),
+      ConnectionQuality.offline => (
+        l10n.onlineDisconnected,
+        colors.accentCrimson,
+      ),
     };
     if (label == null || tint == null) return const SizedBox.shrink();
 
@@ -62,7 +68,10 @@ class ConnectionBanner extends StatelessWidget {
               decoration: BoxDecoration(color: tint, shape: BoxShape.circle),
             ),
             SizedBox(width: spacing.sm),
-            Text(label, style: type.caption.copyWith(color: colors.textSecondary)),
+            Text(
+              label,
+              style: type.caption.copyWith(color: colors.textSecondary),
+            ),
           ],
         ),
       ),

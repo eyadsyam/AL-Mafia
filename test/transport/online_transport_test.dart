@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/transport/game_snapshot.dart';
@@ -59,7 +61,7 @@ void main() {
         kind: NightActionKind.investigate,
         targetSeat: 1,
       ),
-      throwsA(isA<BackendException>()),
+      throwsA(isA<BackendUnreachable>()),
     );
     expect(transport.snapshot.currentActorSeat, 0);
     backend.unreachable = false;
@@ -172,6 +174,54 @@ void main() {
         expect(backend.called('advance_phase'), isTrue);
       },
     );
+
+    test('a realtime row inside the phase keeps the corrected clock', () async {
+      final serverNow = DateTime.utc(2026, 9, 2, 12);
+      // Twenty seconds fast, the case the review found.
+      localNow = serverNow.add(const Duration(seconds: 20));
+      final endsAt = serverNow.add(const Duration(seconds: 90));
+      await connect(
+        state: roomState(
+          phase: 'discuss',
+          serverNow: serverNow,
+          endsAt: endsAt,
+        ),
+      );
+      expect(
+        transport.snapshot.phaseDeadline!.difference(localNow),
+        const Duration(seconds: 90),
+      );
+
+      // The floor changes hands. The hosted row is stamped by this device's
+      // clock on arrival, so it says nothing about the server's.
+      backend.pushStateDelta(
+        roomState(
+          phase: 'discuss',
+          serverNow: serverNow,
+          endsAt: endsAt,
+          activeSpeaker: 'u1',
+        ),
+        receivedAt: localNow,
+      );
+      await pumpEventQueue();
+
+      expect(transport.snapshot.activeSpeakerSeat, 1);
+      expect(
+        transport.snapshot.phaseDeadline!.difference(localNow),
+        const Duration(seconds: 90),
+        reason: 'the countdown must not jump 20s when the speaker changes',
+      );
+      localNow = localNow.add(const Duration(seconds: 80));
+      await transport.tick();
+      expect(
+        backend.called('advance_phase'),
+        isFalse,
+        reason: 'the host must not end the phase 20s early',
+      );
+      localNow = localNow.add(const Duration(seconds: 11));
+      await transport.tick();
+      expect(backend.called('advance_phase'), isTrue);
+    });
   });
 
   group('O7 — the phase moved while the tap was in flight', () {
@@ -212,9 +262,12 @@ void main() {
       final before = transport.snapshot;
 
       backend.unreachable = true;
+      // `BackendUnreachable`, not a refusal: the ballot did not reach the
+      // room, and saying "the server said no" about a server that said nothing
+      // is the lie this transport is no longer allowed to tell.
       await expectLater(
         transport.submitVote(seat: 0, targetSeat: 1),
-        throwsA(isA<BackendException>()),
+        throwsA(isA<BackendUnreachable>()),
       );
 
       expect(
@@ -233,7 +286,7 @@ void main() {
       backend.unreachable = true;
       await expectLater(
         transport.submitVote(seat: 0, targetSeat: 1),
-        throwsA(isA<BackendException>()),
+        throwsA(isA<BackendUnreachable>()),
       );
       expect(
         transport.snapshot.connection,
@@ -338,6 +391,252 @@ void main() {
         equals(PlayerStatus.dead),
       );
     });
+
+    test(
+      'a row that lands during a slow full read is not overwritten by it',
+      () async {
+        await connect(state: roomState(phase: 'discuss'));
+        final published = <int?>[];
+        final sub = transport.watch().listen(
+          (s) => published.add(s.activeSpeakerSeat),
+        );
+        addTearDown(sub.cancel);
+        await pumpEventQueue();
+        published.clear();
+        final before = backend.fetches;
+
+        // The phase moves; its full read leaves before the floor is taken.
+        final slow = Completer<void>();
+        backend.fetchGate = slow.future;
+        backend.pushStateDelta(roomState(phase: 'vote', phaseNumber: 2));
+        await pumpEventQueue();
+        expect(backend.fetches, before + 1);
+
+        // The floor is taken while that read is still on the wire.
+        backend.pushStateDelta(
+          roomState(phase: 'vote', phaseNumber: 2, activeSpeaker: 'u2'),
+        );
+        await pumpEventQueue();
+
+        backend.fetchGate = null;
+        slow.complete();
+        await pumpEventQueue();
+
+        expect(transport.snapshot.phase, GamePhase.voting);
+        expect(transport.snapshot.activeSpeakerSeat, 2);
+        expect(backend.fetches, before + 2, reason: 'exactly one reread');
+        expect(published, isNotEmpty);
+        expect(
+          published,
+          everyElement(2),
+          reason: 'the older read must never be shown',
+        );
+      },
+    );
+
+    test('a stream of rows during reads still converges', () async {
+      await connect(state: roomState(phase: 'discuss'));
+      final before = backend.fetches;
+      final gates = [Completer<void>(), Completer<void>(), Completer<void>()];
+
+      backend.fetchGate = gates[0].future;
+      backend.pushStateDelta(roomState(phase: 'vote', phaseNumber: 2));
+      await pumpEventQueue();
+      for (var i = 0; i < gates.length; i++) {
+        // Every read is overtaken by a newer speaker before it returns.
+        backend.pushStateDelta(
+          roomState(phase: 'vote', phaseNumber: 2, activeSpeaker: 'u${i + 1}'),
+        );
+        await pumpEventQueue();
+        backend.fetchGate = i + 1 < gates.length ? gates[i + 1].future : null;
+        gates[i].complete();
+        await pumpEventQueue();
+      }
+      await pumpEventQueue();
+
+      expect(transport.snapshot.activeSpeakerSeat, 3);
+      expect(
+        backend.fetches,
+        before + 4,
+        reason: 'one read per overtaking row, then it stops',
+      );
+    });
+  });
+
+  // Every phase that ends on a *decision* rather than on a clock has to be
+  // routed by hand, because `advance_phase` exists to apply expiry defaults and
+  // has no row for a phase with no deadline. The deal was fixed once; the
+  // morning was not, and the room sat on the morning report with «كمل» posting
+  // to a function that honestly answered it had applied nothing.
+  group('a phase that ends on a decision', () {
+    test('the morning opens day 1 rather than asking for a default', () async {
+      await connect(state: roomState(phase: 'morning', phaseNumber: 1));
+      await transport.advancePhase();
+
+      expect(backend.called('advance_phase'), isFalse);
+      final opened = backend.lastCall('open_phase');
+      expect(opened, isNotNull);
+      expect(opened!.body['phase'], equals('opening'));
+    });
+
+    test('a later morning asks for the confrontation instead', () async {
+      await connect(state: roomState(phase: 'morning', phaseNumber: 3));
+      await transport.advancePhase();
+
+      expect(backend.called('advance_phase'), isFalse);
+      expect(backend.called('generate_confrontation'), isTrue);
+    });
+
+    test('the deal still opens the night, for anybody', () async {
+      await connect(
+        state: roomState(phase: 'reveal', phaseNumber: 1, hostId: 'u4'),
+        userId: 'u0',
+      );
+      await transport.advancePhase();
+
+      final opened = backend.lastCall('open_phase');
+      expect(opened, isNotNull);
+      expect(opened!.body['phase'], equals('night'));
+    });
+
+    // The button is drawn for the *confronted player*, so gating the call on
+    // the host meant that unless the accused happened to be holding the room,
+    // «خلصت» posted nothing and the table waited out the whole window.
+    test('a confronted guest may close their own window', () async {
+      await connect(
+        state: roomState(
+          phase: 'confront',
+          phaseNumber: 2,
+          hostId: 'u4',
+          publicData: const {
+            'confrontation': {'targetSeat': 0, 'sourceSeat': 1},
+          },
+        ),
+        // Somebody else is the host. This is the case that did nothing.
+        players: roster(5),
+        userId: 'u0',
+      );
+      await transport.endConfrontation(silent: false);
+
+      final opened = backend.lastCall('open_phase');
+      expect(opened, isNotNull);
+      expect(opened!.body['phase'], equals('discuss'));
+      expect(opened.body['silent'], isFalse);
+    });
+  });
+
+  // Doc 15 §S-O12: the eliminated player's card rises and turns over. Online it
+  // had nowhere to happen — `resolve_vote` set the phase straight to `night`,
+  // and `phaseFromServer` never produced `GamePhase.reveal` — so a player cast
+  // a vote and arrived at a dark table with no idea what had happened.
+  group('the verdict', () {
+    test('the server phase reaches the screens as the reveal', () async {
+      await connect(
+        state: roomState(
+          phase: 'verdict',
+          phaseNumber: 2,
+          publicData: const {
+            'lastVote': {
+              'tally': {'1': 3},
+              'eliminatedSeat': 1,
+              'eliminatedRole': 'mafia',
+            },
+          },
+        ),
+      );
+
+      expect(transport.snapshot.phase, equals(GamePhase.reveal));
+      expect(transport.snapshot.lastVote?.eliminatedSeat, equals(1));
+      expect(transport.snapshot.lastVote?.eliminatedRole, equals(Role.mafia));
+    });
+
+    test('«كمل» opens the night that follows, not a default', () async {
+      await connect(state: roomState(phase: 'verdict', phaseNumber: 2));
+      await transport.advancePhase();
+
+      expect(backend.called('advance_phase'), isFalse);
+      expect(backend.lastCall('open_phase')?.body['phase'], equals('night'));
+    });
+
+    test('a verdict that ended the match opens the result', () async {
+      await connect(
+        state: roomState(
+          phase: 'verdict',
+          phaseNumber: 2,
+          publicData: const {'outcome': 'town'},
+        ),
+      );
+      await transport.advancePhase();
+
+      expect(backend.lastCall('open_phase')?.body['phase'], equals('result'));
+    });
+  });
+
+  // Doc 10 §8.2: no phase may stall. That is not a promise the room can keep
+  // while only the host may end a phase — a host whose screen has locked looks,
+  // from every other seat, exactly like a match that has broken.
+  group('an expired phase belongs to the room, not to the host', () {
+    test('the host drives the moment the clock runs out', () async {
+      await connect(
+        state: roomState(
+          phase: 'vote',
+          endsAt: localNow.subtract(const Duration(seconds: 1)),
+        ),
+      );
+      await transport.tick();
+
+      expect(backend.called('advance_phase'), isTrue);
+      expect(backend.called('resolve_vote'), isTrue);
+    });
+
+    test('a guest holds back while the host still might', () async {
+      await connect(
+        userId: 'u3',
+        own: const OwnSeat(seat: 3, role: 'citizen'),
+        state: roomState(
+          phase: 'vote',
+          hostId: 'u0',
+          endsAt: localNow.subtract(const Duration(seconds: 1)),
+        ),
+      );
+      await transport.tick();
+
+      expect(backend.called('advance_phase'), isFalse);
+      expect(backend.called('resolve_vote'), isFalse);
+    });
+
+    test('and drives when the host plainly did not', () async {
+      await connect(
+        userId: 'u3',
+        own: const OwnSeat(seat: 3, role: 'citizen'),
+        state: roomState(
+          phase: 'vote',
+          hostId: 'u0',
+          endsAt: localNow.subtract(const Duration(seconds: 1)),
+        ),
+      );
+      // Past the grace and past this seat's place in the stagger.
+      localNow = localNow.add(const Duration(seconds: 12));
+      await transport.tick();
+
+      expect(backend.called('advance_phase'), isTrue);
+      expect(backend.called('resolve_vote'), isTrue);
+    });
+
+    test('a phase with no clock is never driven by a guest', () async {
+      await connect(
+        userId: 'u3',
+        own: const OwnSeat(seat: 3, role: 'citizen'),
+        state: roomState(phase: 'morning', hostId: 'u0'),
+      );
+      localNow = localNow.add(const Duration(seconds: 25));
+      await transport.tick();
+
+      expect(
+        backend.calls.map((c) => c.function).where((f) => f != 'heartbeat'),
+        isEmpty,
+      );
+    });
   });
 
   group('O19 — a retried request is a no-op', () {
@@ -351,6 +650,40 @@ void main() {
       final keys = votes.map((c) => c.body['actionId']).toSet();
       expect(keys, hasLength(2));
       expect(keys.every((k) => k is String && k.isNotEmpty), isTrue);
+    });
+
+    // `night_actions.action_id` and `votes.action_id` are `uuid` columns. A key
+    // that is merely unique is not enough: Postgres refuses anything that is
+    // not RFC 4122 with `22P02`, the Edge Function turns that into a 400, and
+    // the *move the key was riding on* is refused with it. This test is the one
+    // that was missing — the old one asserted "a non-empty string", which a
+    // key of the wrong shape passes on its way to losing every vote in the
+    // match.
+    test('the key is a UUID, because the column it lands in is one', () async {
+      await connect();
+      await transport.submitVote(seat: 0, targetSeat: 1);
+      await transport.submitNightAction(
+        seat: 0,
+        kind: NightActionKind.mafiaVote,
+        targetSeat: 1,
+      );
+
+      final uuid = RegExp(
+        r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+      );
+      final keys = backend.calls
+          .where((c) => c.body.containsKey('actionId'))
+          .map((c) => c.body['actionId'])
+          .toList();
+      expect(keys, isNotEmpty);
+      for (final key in keys) {
+        expect(key, isA<String>());
+        expect(
+          uuid.hasMatch(key as String),
+          isTrue,
+          reason: 'not a UUID: $key',
+        );
+      }
     });
   });
 
@@ -504,6 +837,44 @@ void main() {
         expect(backend.called('generate_confrontation'), isTrue);
       },
     );
+  });
+
+  group('private role delivery', () {
+    test('a guest recovers its role without waiting for another push', () async {
+      await connect(
+        userId: 'u3',
+        state: roomState(phase: 'reveal', hostId: 'u0'),
+        own: const OwnSeat(seat: 3),
+      );
+      final before = backend.fetches;
+
+      // Models the production ordering race: reveal reached this client while
+      // its first full read still had the pre-deal private identity. The role
+      // exists by the time the private card asks, but no second Realtime event
+      // is required to rescue the player.
+      backend.setOwn(const OwnSeat(seat: 3, role: 'citizen'));
+      final secrets = await transport.secretsFor(3);
+
+      expect(secrets?.role, Role.citizen);
+      expect(backend.fetches, before + 1);
+    });
+
+    test('a player who already saw the role is not dealt it again', () async {
+      final players = roster(5)
+          .map(
+            (player) =>
+                player.userId == 'u3' ? player.copyWith(sawRole: true) : player,
+          )
+          .toList();
+      await connect(
+        userId: 'u3',
+        state: roomState(phase: 'reveal', hostId: 'u0'),
+        players: players,
+        own: const OwnSeat(seat: 3, role: 'citizen'),
+      );
+
+      expect(transport.snapshot.currentActorSeat, isNull);
+    });
   });
 
   group('«الطلقة الواحدة», online (doc 13 §2 / doc 14 §4)', () {
@@ -721,6 +1092,235 @@ void main() {
       final secrets = await transport.secretsFor(0);
       expect(secrets!.whisperUndelivered, isTrue);
       expect(secrets.whisperBody, isNull);
+    });
+  });
+
+  /// The two facts about presence the voice layer reads out of this transport,
+  /// and the ways each of them used to be wrong.
+  ///
+  /// Neither is load-bearing for the match (doc 10 §1.2) and both are
+  /// load-bearing for privacy, which is the awkward combination that makes
+  /// them worth stating here rather than leaving to the call to notice.
+  group('what the call is told about the room', () {
+    test(
+      'a delayed departure cannot remove a newly connected voice peer',
+      () async {
+        await connect(
+          players: [
+            ...roster(2),
+            RoomPlayer(userId: 'u2', seat: 2, name: 'C', lastSeen: localNow),
+          ],
+        );
+        backend.pushPlayer(
+          RoomPlayer(
+            userId: 'u2',
+            seat: 2,
+            name: 'C',
+            status: 'left',
+            lastSeen: localNow.subtract(const Duration(seconds: 10)),
+          ),
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(transport.voice!.peers.map((p) => p.userId), contains('u2'));
+        backend.pushPlayer(
+          RoomPlayer(
+            userId: 'u2',
+            seat: 2,
+            name: 'C',
+            status: 'left',
+            lastSeen: localNow.add(const Duration(seconds: 1)),
+          ),
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(
+          transport.voice!.peers.map((p) => p.userId),
+          isNot(contains('u2')),
+        );
+      },
+    );
+    test(
+      'the voice roster is who is at the table, not who has a row',
+      () async {
+        await connect(
+          players: [
+            ...roster(2),
+            const RoomPlayer(userId: 'u2', seat: 2, name: 'C', status: 'away'),
+            const RoomPlayer(userId: 'u3', seat: 3, name: 'D', status: 'left'),
+            const RoomPlayer(userId: 'u4', seat: 4, name: 'E', kicked: true),
+          ],
+        );
+
+        final seated = transport.voice!.peers.map((p) => p.userId).toList();
+
+        // Away is a person deciding whether to come back. Their ring is empty
+        // and their seat is not: hanging up on them would mean a player who
+        // reopens the app finds a room that cannot hear them.
+        expect(seated, containsAll(['u0', 'u1', 'u2']));
+
+        // Left and kicked are neither. The mesh dials by this list, so a row
+        // that stayed in it is a peer connection to somebody the room has
+        // already removed — and the envelope's roster check reads the same
+        // closure, so it would also start admitting their frames again.
+        expect(seated, isNot(contains('u3')));
+        expect(seated, isNot(contains('u4')));
+      },
+    );
+
+    test(
+      'the roster the call reads follows the room, not the moment it asked',
+      () async {
+        await connect(players: roster(3));
+        expect(transport.voice!.peers, hasLength(3));
+
+        // The link holds a closure rather than a copy, precisely so this works:
+        // a player who leaves stops being dialable and stops being an acceptable
+        // sender at the same instant, without anything having to remember to
+        // tell the call.
+        backend.setPlayers([
+          ...roster(2),
+          const RoomPlayer(userId: 'u2', seat: 2, name: 'C', status: 'left'),
+        ]);
+        await transport.resync();
+
+        expect(
+          transport.voice!.peers.map((p) => p.userId),
+          isNot(contains('u2')),
+        );
+      },
+    );
+  });
+
+  /// O20 — the app in the background.
+  group('a backgrounded client', () {
+    test('stops claiming to be at the table', () async {
+      await connect();
+      backend.calls.clear();
+
+      await transport.setPresence('away');
+      await transport.tick();
+
+      // The heartbeat is what keeps `last_seen` fresh, and a fresh `last_seen`
+      // is what every other device renders as a lit ring. A backgrounded
+      // client that kept beating would sit in fifteen other people's rooms
+      // looking present while its screen was off — and during a discussion
+      // that is a player who appears to be listening and is not.
+      expect(
+        backend.calls.where((c) => c.function == 'heartbeat'),
+        isEmpty,
+        reason: 'the beat stops with the foreground, not with the process',
+      );
+      expect(backend.called('set_presence'), isTrue);
+    });
+
+    test('starts again when it comes back', () async {
+      await connect();
+      await transport.setPresence('away');
+      backend.calls.clear();
+
+      await transport.setPresence('connected');
+      await transport.tick();
+
+      expect(
+        backend.calls.where((c) => c.function == 'heartbeat'),
+        hasLength(1),
+      );
+    });
+
+    test('leaving is not a background either', () async {
+      // `left` is a decision, `away` is a circumstance, and neither one beats.
+      await connect();
+      await transport.setPresence('left');
+      backend.calls.clear();
+
+      await transport.tick();
+
+      expect(backend.calls.where((c) => c.function == 'heartbeat'), isEmpty);
+    });
+  });
+
+  /// A card may only leave the screen on the room's word.
+  ///
+  /// `_send` used to answer a lost request the way it answers a delivered one:
+  /// it painted the connection weather and returned normally. `confirmRevealed`
+  /// then returned normally too, the controller cleared the card, and the screen
+  /// that was the only remaining way to try again was gone — while the server
+  /// went on listing that seat as one the room was waiting for. Everybody's
+  /// «كمل» stayed refused, the deal has no default of its own, and the match
+  /// stopped there. Four of five players in a real room, on a real evening.
+  group('a card that was never acknowledged', () {
+    late FakeBackend backend;
+    late OnlineTransport transport;
+
+    Future<void> deal({bool unreachable = false, bool ignored = false}) async {
+      backend = FakeBackend(
+        roomId: 'room-1',
+        state: roomState(phase: 'reveal', phaseNumber: 1),
+        players: roster(5),
+        own: const OwnSeat(seat: 0, role: 'citizen'),
+      );
+      backend.ignoreSawRole = ignored;
+      transport = await OnlineTransport.connect(
+        backend: backend,
+        roomId: 'room-1',
+        heartbeatInterval: Duration.zero,
+      );
+      backend.unreachable = unreachable;
+      addTearDown(transport.dispose);
+    }
+
+    test('is not dismissed when the room could not be reached', () async {
+      await deal(unreachable: true);
+      await expectLater(
+        transport.confirmRevealed(),
+        throwsA(isA<BackendUnreachable>()),
+      );
+    });
+
+    test('is not dismissed on a yes that wrote nothing', () async {
+      await deal(ignored: true);
+      await expectLater(
+        transport.confirmRevealed(),
+        throwsA(
+          isA<BackendException>().having(
+            (e) => e.code,
+            'code',
+            'NOT_ACKNOWLEDGED',
+          ),
+        ),
+      );
+    });
+
+    test('is dismissed once the room holds it', () async {
+      await deal();
+      await transport.confirmRevealed();
+      expect(backend.calls.map((c) => c.function), contains('saw_role'));
+      // And the seat is no longer one the room is waiting for, which is what
+      // lets the screen let go of the card.
+      expect(transport.snapshot.unseenRoleSeats, isNot(contains(0)));
+    });
+
+    test('a night action lost on the way is not reported as made', () async {
+      backend = FakeBackend(
+        roomId: 'room-1',
+        state: roomState(phase: 'night', phaseNumber: 1),
+        players: roster(5),
+        own: const OwnSeat(seat: 0, role: 'mafia'),
+      );
+      transport = await OnlineTransport.connect(
+        backend: backend,
+        roomId: 'room-1',
+        heartbeatInterval: Duration.zero,
+      );
+      addTearDown(transport.dispose);
+      backend.unreachable = true;
+      await expectLater(
+        transport.submitNightAction(
+          seat: 0,
+          kind: NightActionKind.mafiaVote,
+          targetSeat: 2,
+        ),
+        throwsA(isA<BackendUnreachable>()),
+      );
     });
   });
 }

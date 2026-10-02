@@ -44,36 +44,37 @@ void main() {
     int? speaker,
     Map<int, int?> ballots = const {},
     MatchSettings settings = const MatchSettings(),
-  }) =>
-      GameSnapshot(
-        public: PublicMatchView(
-          phase: phase,
-          dayNumber: 1,
-          players: [
-            for (var seat = 0; seat < players; seat++)
-              PublicPlayer(
-                seat: seat,
-                name: 'P$seat',
-                status:
-                    dead.contains(seat) ? PlayerStatus.dead : PlayerStatus.alive,
-              ),
-          ],
-        ),
-        viewerSeat: viewerSeat,
-        connectedSeats: connected,
-        activeSpeakerSeat: speaker,
-        liveBallots: ballots,
-        settings: settings,
-        connection: ConnectionQuality.connected,
-      );
+  }) => GameSnapshot(
+    public: PublicMatchView(
+      phase: phase,
+      dayNumber: 1,
+      players: [
+        for (var seat = 0; seat < players; seat++)
+          PublicPlayer(
+            seat: seat,
+            name: 'P$seat',
+            status: dead.contains(seat)
+                ? PlayerStatus.dead
+                : PlayerStatus.alive,
+          ),
+      ],
+    ),
+    viewerSeat: viewerSeat,
+    connectedSeats: connected,
+    activeSpeakerSeat: speaker,
+    liveBallots: ballots,
+    settings: settings,
+    connection: ConnectionQuality.connected,
+  );
 
   /// Every `.dart` file that makes up the online surface.
-  List<File> onlineSources() => Directory('lib/ui/screens/online')
-      .listSync(recursive: true)
-      .whereType<File>()
-      .where((f) => f.path.endsWith('.dart'))
-      .toList()
-    ..sort((a, b) => a.path.compareTo(b.path));
+  List<File> onlineSources() =>
+      Directory('lib/ui/screens/online')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.dart'))
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
 
   /// [source] with its comments blanked out, line count preserved.
   ///
@@ -112,32 +113,38 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════════
 
   group('Experience', () {
-    test('the table is one persistent scene — no route pushes between phases',
-        () {
-      // The claim is structural: nothing in the online surface may navigate.
-      // A `Navigator.push`, a `context.go`, or a `MaterialPageRoute` inside a
-      // match is the form a wizard takes, and doc 12 §2.1 is a decision not to
-      // be one. The composer and the witness panel are *layers* in the same
-      // Stack for exactly this reason.
-      final offenders = <String>[];
-      for (final file in onlineSources()) {
-        final source = file.readAsStringSync();
-        for (final pattern in const [
-          'Navigator.push',
-          'Navigator.of(context).push',
-          'MaterialPageRoute',
-          'showDialog',
-          'showModalBottomSheet',
-        ]) {
-          if (source.contains(pattern)) {
-            offenders.add('${file.path}: $pattern');
+    test(
+      'the table is one persistent scene — no route pushes between phases',
+      () {
+        // The claim is structural: nothing in the online surface may navigate.
+        // A `Navigator.push`, a `context.go`, or a `MaterialPageRoute` inside a
+        // match is the form a wizard takes, and doc 12 §2.1 is a decision not to
+        // be one. The composer and the witness panel are *layers* in the same
+        // Stack for exactly this reason.
+        final offenders = <String>[];
+        for (final file in onlineSources()) {
+          final source = file.readAsStringSync();
+          for (final pattern in const [
+            'Navigator.push',
+            'Navigator.of(context).push',
+            'MaterialPageRoute',
+            'showDialog',
+            'showModalBottomSheet',
+          ]) {
+            if (source.contains(pattern)) {
+              offenders.add('${file.path}: $pattern');
+            }
           }
         }
-      }
-      expect(offenders, isEmpty,
-          reason: 'doc 12 §2.1 — the table changes state; nothing is pushed on '
-              'top of it. Offenders: $offenders');
-    });
+        expect(
+          offenders,
+          isEmpty,
+          reason:
+              'doc 12 §2.1 — the table changes state; nothing is pushed on '
+              'top of it. Offenders: $offenders',
+        );
+      },
+    );
 
     test('every phase has a table state, and the mapping needs no role', () {
       // `TableMood.of` takes a GamePhase and nothing else, so the table cannot
@@ -145,8 +152,11 @@ void main() {
       // Totality is the compiler's job — the switch has no default arm — and
       // this asserts the other half: it answers for every phase.
       for (final phase in GamePhase.values) {
-        expect(() => TableMood.of(phase), returnsNormally,
-            reason: '$phase has no table state');
+        expect(
+          () => TableMood.of(phase),
+          returnsNormally,
+          reason: '$phase has no table state',
+        );
       }
     });
 
@@ -158,48 +168,64 @@ void main() {
       final capabilities = <String, bool>{
         // 1. Simultaneous night actions — the snapshot names the viewer's own
         //    seat rather than a passing order.
-        'simultaneous night': File('lib/transport/room_codec.dart')
-            .readAsStringSync()
-            .contains('ownTurnPending ? viewerSeat : null'),
+        'simultaneous night': File(
+          'lib/transport/room_codec.dart',
+        ).readAsStringSync().contains('ownTurnPending ? viewerSeat : null'),
         // 2. Private persistent notebook — the witness's own record.
-        'own record':
-            File('lib/ui/screens/online/witness/own_record.dart').existsSync(),
+        'own record': File(
+          'lib/ui/screens/online/witness/own_record.dart',
+        ).existsSync(),
         // 3. Live whisper — the light, and the graph it is drawn from.
         'whisper light': File(
           'lib/ui/screens/online/council/council_band.dart',
         ).readAsStringSync().contains('CouncilSpark'),
         // 4. Visible vote switching.
-        'open ballot': const MatchSettings().openVoting == false &&
-            File('supabase/migrations/20260903000100_open_voting.sql')
-                .existsSync(),
+        'open ballot':
+            const MatchSettings().openVoting == false &&
+            File(
+              'supabase/migrations/20260903000100_open_voting.sql',
+            ).existsSync(),
         // 5. Rich presence as atmosphere.
-        'connection weather':
-            File('lib/ui/screens/online/table/connection_weather.dart')
-                .existsSync(),
+        'connection weather': File(
+          'lib/ui/screens/online/table/connection_weather.dart',
+        ).existsSync(),
         // 6. Ghost mode for the dead.
-        'witness mode':
-            File('lib/ui/screens/online/witness/witness_panel.dart').existsSync(),
+        'witness mode': File(
+          'lib/ui/screens/online/witness/witness_panel.dart',
+        ).existsSync(),
         // 7. Per-player replay — the prediction, scored at the end.
-        'prediction':
-            File('supabase/functions/submit_prediction/index.ts').existsSync(),
+        'prediction': File(
+          'supabase/functions/submit_prediction/index.ts',
+        ).existsSync(),
       };
 
       final missing = [
         for (final entry in capabilities.entries)
           if (!entry.value) entry.key,
       ];
-      expect(missing, isEmpty,
-          reason: 'doc 12 §1.2 rows with nothing behind them: $missing');
+      expect(
+        missing,
+        isEmpty,
+        reason: 'doc 12 §1.2 rows with nothing behind them: $missing',
+      );
     });
 
     test('an eliminated player is given three things to do, not none', () {
-      final panel =
-          File('lib/ui/screens/online/witness/witness_panel.dart')
-              .readAsStringSync();
-      for (final tab in const ['witnessTabChat', 'witnessTabPrediction',
-        'witnessTabRecord']) {
-        expect(panel, contains(tab),
-            reason: 'doc 12 §4 — the witness panel lost $tab');
+      final panel = File(
+        'lib/ui/screens/online/witness/witness_panel.dart',
+      ).readAsStringSync();
+      // The prediction tab was replaced by the open table when the owner
+      // decided the dead see every role online (2026-09-23, doc 12 §4.1).
+      for (final tab in const [
+        'witnessTabTable',
+        'witnessTabChat',
+        'witnessTabRecord',
+      ]) {
+        expect(
+          panel,
+          contains(tab),
+          reason: 'doc 12 §4 — the witness panel lost $tab',
+        );
       }
     });
   });
@@ -237,8 +263,9 @@ void main() {
       // A *literal* is a number written into the call. A `Duration` built from
       // a value that arrived from somewhere else — a host's setting, a server's
       // answer — is not a tuned constant, and is not what the rule is about.
-      final literal =
-          RegExp(r'Duration\(\s*(milliseconds|seconds|minutes)\s*:\s*[0-9]');
+      final literal = RegExp(
+        r'Duration\(\s*(milliseconds|seconds|minutes)\s*:\s*[0-9]',
+      );
       final offenders = <String>[];
 
       // Two exemptions, both named here rather than left to be inferred:
@@ -260,8 +287,11 @@ void main() {
           offenders.add('${file.path}:${i + 1}  ${line.trim()}');
         }
       }
-      expect(offenders, isEmpty,
-          reason: 'doc 12 §6 — these are not tokens:\n${offenders.join('\n')}');
+      expect(
+        offenders,
+        isEmpty,
+        reason: 'doc 12 §6 — these are not tokens:\n${offenders.join('\n')}',
+      );
     });
 
     test('doc 12 §6\'s catalogue is in the tokens, at the stated numbers', () {
@@ -301,32 +331,32 @@ void main() {
         CouncilSeatData(seat: 1, name: 'B'),
       ];
       CouncilPainter painter({int? selected}) => CouncilPainter(
-            seats: chairs,
-            positions: positions,
-            selectedSeat: selected,
-            previousSelected: null,
-            shift: 1,
-            crackingSeat: null,
-            crackProgress: 0,
-            spark: null,
-            spotlightOpen: 0,
-            joinProgress: const {},
-            youLabel: null,
-            idle: null,
-            cracked: null,
-            empty: null,
-            mote: null,
-            spotlightArt: null,
-            textDirection: TextDirection.rtl,
-            ringColor: const Color(0xFF000000),
-            viewerColor: const Color(0xFF000000),
-            textColor: const Color(0xFF000000),
-            secondaryColor: const Color(0xFF000000),
-            gold: const Color(0xFF000000),
-            breath: 0,
-            caption: const TextStyle(),
-            initial: const TextStyle(),
-          );
+        seats: chairs,
+        positions: positions,
+        selectedSeat: selected,
+        previousSelected: null,
+        shift: 1,
+        crackingSeat: null,
+        crackProgress: 0,
+        spark: null,
+        spotlightOpen: 0,
+        joinProgress: const {},
+        youLabel: null,
+        idle: null,
+        cracked: null,
+        empty: null,
+        mote: null,
+        spotlightArt: null,
+        textDirection: TextDirection.rtl,
+        ringColor: const Color(0xFF000000),
+        viewerColor: const Color(0xFF000000),
+        textColor: const Color(0xFF000000),
+        secondaryColor: const Color(0xFF000000),
+        gold: const Color(0xFF000000),
+        breath: 0,
+        caption: const TextStyle(),
+        initial: const TextStyle(),
+      );
 
       expect(painter().shouldRepaint(painter()), isFalse);
       expect(
@@ -395,8 +425,11 @@ void main() {
         GamePhase.nightResolving,
       ];
       for (final phase in dark) {
-        expect(TableMood.of(phase).showsPerSeatStatus, isFalse,
-            reason: 'LEAK: $phase reports on who is doing what');
+        expect(
+          TableMood.of(phase).showsPerSeatStatus,
+          isFalse,
+          reason: 'LEAK: $phase reports on who is doing what',
+        );
       }
     });
 
@@ -451,7 +484,8 @@ void main() {
               chair.status,
               showsStatus: mood.showsPerSeatStatus,
             ),
-            reason: 'LEAK: a chair in $phase carries a status the phase '
+            reason:
+                'LEAK: a chair in $phase carries a status the phase '
                 'forbids',
           );
         }
@@ -461,8 +495,9 @@ void main() {
     test('a waiting state never carries a count', () {
       // The copy itself: doc 12 §3.3 wants «مستنيين الباقي…» and nothing that
       // could be read as "n of m".
-      final flow = File('lib/ui/screens/online/online_table_flow.dart')
-          .readAsStringSync();
+      final flow = File(
+        'lib/ui/screens/online/online_table_flow.dart',
+      ).readAsStringSync();
       expect(flow, contains('onlineWaitingForTheRest'));
 
       // The copy itself takes no count. A placeholder in this string is the
@@ -470,15 +505,20 @@ void main() {
       // anybody editing this file.
       for (final strings in [arStrings, enStrings]) {
         expect(strings.onlineWaitingForTheRest, isNot(contains('{')));
-        expect(RegExp(r'[0-9٠-٩]')
-            .hasMatch(strings.onlineWaitingForTheRest), isFalse);
+        expect(
+          RegExp(r'[0-9٠-٩]').hasMatch(strings.onlineWaitingForTheRest),
+          isFalse,
+        );
       }
 
       // And the counting strings the app does own stay out of the waiting
       // state. `speakersRemaining` is the discussion's queue, which is public
       // and fine where it lives; in a night it would be a completion count.
-      expect(codeLines(flow), isNot(contains(contains('speakersRemaining'))),
-          reason: 'a remaining-count reached the online flow');
+      expect(
+        codeLines(flow),
+        isNot(contains(contains('speakersRemaining'))),
+        reason: 'a remaining-count reached the online flow',
+      );
     });
 
     test('ghost chat has no channel to living players', () {
@@ -488,37 +528,50 @@ void main() {
       //   2. the write function refuses the living;
       //   3. no client role has an insert grant, so the function is the only
       //      way a row can appear.
-      final migration =
-          File('supabase/migrations/20260903000200_witness.sql')
-              .readAsStringSync();
+      final migration = File(
+        'supabase/migrations/20260903000200_witness.sql',
+      ).readAsStringSync();
 
-      expect(migration, contains('private.is_dead_member'),
-          reason: 'the read policy no longer asks whether the caller is dead');
       expect(
-        RegExp(r'create policy ghost_messages_dead_read[\s\S]*?using \(\s*private\.is_dead_member\(room_id\)\s*\)')
-            .hasMatch(migration),
+        migration,
+        contains('private.is_dead_member'),
+        reason: 'the read policy no longer asks whether the caller is dead',
+      );
+      expect(
+        RegExp(
+          r'create policy ghost_messages_dead_read[\s\S]*?using \(\s*private\.is_dead_member\(room_id\)\s*\)',
+        ).hasMatch(migration),
         isTrue,
         reason: 'ghost_messages_dead_read is not the dead-only policy any more',
       );
       expect(migration, contains('revoke all on public.ghost_messages'));
       expect(
-        RegExp(r'grant\s+(insert|update|delete)[\s\S]{0,80}ghost_messages')
-            .hasMatch(migration),
+        RegExp(
+          r'grant\s+(insert|update|delete)[\s\S]{0,80}ghost_messages',
+        ).hasMatch(migration),
         isFalse,
         reason: 'a client role was granted a write on ghost_messages',
       );
 
-      final function =
-          File('supabase/functions/ghost_say/index.ts').readAsStringSync();
-      expect(function, contains('if (me.alive)'),
-          reason: 'ghost_say stopped refusing the living');
+      final function = File(
+        'supabase/functions/ghost_say/index.ts',
+      ).readAsStringSync();
+      expect(
+        function,
+        contains('if (me.alive)'),
+        reason: 'ghost_say stopped refusing the living',
+      );
 
       // And the client offers no door either: the channel has no method that
       // could address a living player.
-      final channel =
-          File('lib/transport/witness_channel.dart').readAsStringSync();
-      expect(channel, isNot(contains('toSeat')),
-          reason: 'the witness channel grew an addressee');
+      final channel = File(
+        'lib/transport/witness_channel.dart',
+      ).readAsStringSync();
+      expect(
+        channel,
+        isNot(contains('toSeat')),
+        reason: 'the witness channel grew an addressee',
+      );
     });
   });
 
@@ -532,22 +585,28 @@ void main() {
       // scan in the Experience group already forbids `showDialog` across the
       // whole online surface; this names the reason so a future reader knows
       // the two rules are the same rule.
-      final weather =
-          File('lib/ui/screens/online/table/connection_weather.dart')
-              .readAsStringSync();
+      final weather = File(
+        'lib/ui/screens/online/table/connection_weather.dart',
+      ).readAsStringSync();
       expect(weather, isNot(contains('showDialog')));
       expect(weather, isNot(contains('AlertDialog')));
 
       // And no red. Red is elimination in this game; a red banner reads as a
       // crash.
-      expect(weather, isNot(contains('accentCrimson')),
-          reason: 'doc 12 §5 — no red in a connection state');
+      expect(
+        weather,
+        isNot(contains('accentCrimson')),
+        reason: 'doc 12 §5 — no red in a connection state',
+      );
     });
 
     test('every failure state keeps the table underneath it', () {
       for (final weather in TableWeatherFixture.all) {
-        expect(weather.$2, lessThan(1.0),
-            reason: '${weather.$1} would paint the table out entirely');
+        expect(
+          weather.$2,
+          lessThan(1.0),
+          reason: '${weather.$1} would paint the table out entirely',
+        );
       }
     });
 
@@ -559,14 +618,15 @@ void main() {
       // instance, because the property is the *type* — a non-nullable getter
       // would be the failure, and it would fail to compile somewhere else long
       // before a test could observe a null.
-      final surface =
-          File('lib/transport/game_transport.dart').readAsStringSync();
+      final surface = File(
+        'lib/transport/game_transport.dart',
+      ).readAsStringSync();
       expect(surface, contains('VoiceLink? get voice'));
       expect(surface, contains('WitnessChannel? get witness'));
 
-      final offline = File('lib/transport/local_transport.dart')
-          .readAsStringSync()
-          .replaceAll(RegExp(r'\s+'), ' ');
+      final offline = File(
+        'lib/transport/local_transport.dart',
+      ).readAsStringSync().replaceAll(RegExp(r'\s+'), ' ');
       expect(offline, contains('VoiceLink? get voice => null'));
       expect(offline, contains('WitnessChannel? get witness => null'));
     });
@@ -598,8 +658,11 @@ void main() {
         total += File(asset).lengthSync();
       }
 
-      expect(total, lessThan(1500 * 1024),
-          reason: 'the still payload is ${(total / 1024).round()}KB');
+      expect(
+        total,
+        lessThan(1500 * 1024),
+        reason: 'the still payload is ${(total / 1024).round()}KB',
+      );
     });
 
     test('every still backdrop is at 1080px on its longest edge', () {
@@ -610,8 +673,7 @@ void main() {
       for (final asset in TableMood.backdrops) {
         if (asset.startsWith('assets/video/')) continue;
         final header = File(asset).readAsBytesSync();
-        expect(header.length, greaterThan(30),
-            reason: '$asset is not a WebP');
+        expect(header.length, greaterThan(30), reason: '$asset is not a WebP');
         // 'RIFF' .... 'WEBP'
         expect(String.fromCharCodes(header.sublist(0, 4)), 'RIFF');
         expect(String.fromCharCodes(header.sublist(8, 12)), 'WEBP');
@@ -633,8 +695,11 @@ void main() {
         total += File(asset).lengthSync();
       }
 
-      expect(total, lessThan(1500 * 1024),
-          reason: 'the ambient loop payload is ${(total / 1024).round()}KB');
+      expect(
+        total,
+        lessThan(1500 * 1024),
+        reason: 'the ambient loop payload is ${(total / 1024).round()}KB',
+      );
     });
 
     test('every backdrop the table draws is one of the enumerated ones', () {
@@ -645,8 +710,11 @@ void main() {
         if (mood.backdrop != null) drawn.add(mood.backdrop!);
         if (mood.backdropLoop != null) drawn.add(mood.backdropLoop!);
       }
-      expect(drawn.difference(TableMood.backdrops.toSet()), isEmpty,
-          reason: 'a phase draws a backdrop the budget does not measure');
+      expect(
+        drawn.difference(TableMood.backdrops.toSet()),
+        isEmpty,
+        reason: 'a phase draws a backdrop the budget does not measure',
+      );
     });
 
     test('the council keeps the room in one order for every viewer', () {

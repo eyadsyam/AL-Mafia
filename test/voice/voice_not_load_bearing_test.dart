@@ -60,8 +60,14 @@ void main() {
       peers: [for (var s = 0; s < 5; s++) VoicePeer(userId: 'u$s', seat: s)],
     );
 
-    Future<void> phase(String name, {int number = 1, Map<String, dynamic> data = const {}}) async {
-      backend.setState(roomState(phase: name, phaseNumber: number, publicData: data));
+    Future<void> phase(
+      String name, {
+      int number = 1,
+      Map<String, dynamic> data = const {},
+    }) async {
+      backend.setState(
+        roomState(phase: name, phaseNumber: number, publicData: data),
+      );
       await pumpEventQueue();
     }
 
@@ -77,9 +83,12 @@ void main() {
     );
 
     // ── the morning ─────────────────────────────────────────────────────
-    await phase('morning', data: {
-      'morning': {'killedSeat': 4, 'trace': null},
-    });
+    await phase(
+      'morning',
+      data: {
+        'morning': {'killedSeat': 4, 'trace': null},
+      },
+    );
 
     // ── the day ─────────────────────────────────────────────────────────
     await phase('opening', data: {'openingSeat': 1});
@@ -95,13 +104,16 @@ void main() {
     await transport.submitVote(seat: 1, targetSeat: 0);
 
     // ── the end ─────────────────────────────────────────────────────────
-    await phase('result', data: {
-      'outcome': 'town',
-      'standings': [
-        for (var s = 0; s < 5; s++)
-          {'seat': s, 'role': s == 0 ? 'mafia' : 'citizen'},
-      ],
-    });
+    await phase(
+      'result',
+      data: {
+        'outcome': 'town',
+        'standings': [
+          for (var s = 0; s < 5; s++)
+            {'seat': s, 'role': s == 0 ? 'mafia' : 'citizen'},
+        ],
+      },
+    );
 
     expect(transport.snapshot.phase, equals(GamePhase.result));
     expect(seen, contains(GamePhase.night));

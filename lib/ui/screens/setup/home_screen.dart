@@ -51,6 +51,10 @@ class HomeScreen extends ConsumerWidget {
 
   /// Callback when the rules control is tapped.
   final VoidCallback onHowToPlay;
+  final VoidCallback? onProfile;
+
+  /// The store's corner control, or null where the build has no server.
+  final Widget? store;
 
   /// Where the parallax gets its readings. Overridden in tests, and in any
   /// environment with no accelerometer this is what it falls back to.
@@ -62,6 +66,8 @@ class HomeScreen extends ConsumerWidget {
     required this.onHistory,
     required this.onSettings,
     required this.onHowToPlay,
+    this.onProfile,
+    this.store,
     this.tiltSource = defaultTiltSource,
   });
 
@@ -87,12 +93,10 @@ class HomeScreen extends ConsumerWidget {
       backgroundColor: colors.surfaceBase,
       body: BulbFlicker(
         // The one screen a returning host sees every time, and the one with
-        // the longest dwell — people are finding chairs while it is up. It can
-        // afford the only full-screen bitmap decoded on the app's slowest
-        // frame; nothing else on this route is competing for it.
-        //
-        // `bg_home` is deliberately near-featureless: the falling icons and the
-        // card spread are drawn on top of it, and two ornaments fight.
+        // the longest dwell. Its loop is near-featureless on purpose — the
+        // falling icons and the spread are drawn over it. `AmbientMedia`
+        // keeps the still under the loop, so the backdrop is there on the
+        // very first frame of a cold start (owner, 2026-09-24).
         child: AppBackdrop(
           image: AppImages.bgHome,
           loop: AppVideo.bgHomeLoop,
@@ -160,6 +164,13 @@ class HomeScreen extends ConsumerWidget {
               label: l10n.howToPlay,
               onPressed: onHowToPlay,
             ),
+            if (onProfile != null)
+              _CornerButton(
+                buttonKey: const ValueKey('home_profile'),
+                icon: Icons.person_outline,
+                label: l10n.profileEdit,
+                onPressed: onProfile!,
+              ),
             _CornerButton(
               buttonKey: HomeScreen.historyButton,
               // Reads as a scroll — a sheet with ruled lines — rather than a
@@ -168,6 +179,7 @@ class HomeScreen extends ConsumerWidget {
               label: l10n.history,
               onPressed: onHistory,
             ),
+            ?store,
             _CornerButton(
               buttonKey: HomeScreen.settingsButton,
               icon: Icons.settings,

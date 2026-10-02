@@ -70,16 +70,16 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: localizedApp(MatchFlow(onExit: () {}, onAnalytics: () {})
-        ),
+        child: localizedApp(MatchFlow(onExit: () {}, onAnalytics: () {})),
       ),
     );
     await tester.pumpAndSettle();
   }
 
   Future<void> hold(WidgetTester tester) async {
-    final gesture =
-        await tester.startGesture(tester.getCenter(find.byType(HoldPad).first));
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.byType(HoldPad).first),
+    );
     await tester.pump();
     await tester.pump(MafiaTiming.defaults.holdToReveal);
     await gesture.up();
@@ -106,8 +106,9 @@ void main() {
   }
 
   group('phone location tracks the phase', () {
-    testWidgets('night opens directly with the in-hand audio gate closed',
-        (tester) async {
+    testWidgets('night opens directly with the in-hand audio gate closed', (
+      tester,
+    ) async {
       await pumpFlow(tester);
       expect(controller().engine.match.phase, GamePhase.night);
       expect(audio.location, equals(PhoneLocation.inHand));
@@ -115,8 +116,11 @@ void main() {
       expect(find.text('الليل يقترب'), findsNothing);
       await tester.pumpAndSettle();
       expect(controller().engine.match.phase, GamePhase.night);
-      expect(audio.location, equals(PhoneLocation.inHand),
-          reason: 'the night must close the audio gate');
+      expect(
+        audio.location,
+        equals(PhoneLocation.inHand),
+        reason: 'the night must close the audio gate',
+      );
     });
 
     testWidgets('the morning reopens the gate', (tester) async {
@@ -143,33 +147,38 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(controller().engine.match.phase, GamePhase.voting);
-      expect(audio.location, equals(PhoneLocation.inHand),
-          reason: 'a secret ballot is an in-hand phase');
+      expect(
+        audio.location,
+        equals(PhoneLocation.inHand),
+        reason: 'a secret ballot is an in-hand phase',
+      );
     });
   });
 
   group('cues land in the right phase', () {
-    testWidgets('direct night handoff plays no social narration',
-        (tester) async {
+    testWidgets('direct night handoff plays no social narration', (
+      tester,
+    ) async {
       await pumpFlow(tester);
       expect(audio.emitted, isEmpty);
 
       expect(find.text('الليل يقترب'), findsNothing);
       await tester.pumpAndSettle();
 
-      expect(audio.emitted,
-          isEmpty);
+      expect(audio.emitted, isEmpty);
     });
 
-    testWidgets('the morning cue plays once the night resolves',
-        (tester) async {
+    testWidgets('the morning cue plays once the night resolves', (
+      tester,
+    ) async {
       await pumpFlow(tester);
       await playNight(tester);
       expect(audio.emitted, contains(AudioCue.morning));
     });
 
-    testWidgets('no cue is emitted while a turn is in someone\'s hand',
-        (tester) async {
+    testWidgets('no cue is emitted while a turn is in someone\'s hand', (
+      tester,
+    ) async {
       await pumpFlow(tester);
       expect(find.text('الليل يقترب'), findsNothing);
       await tester.pumpAndSettle();
@@ -182,12 +191,16 @@ void main() {
       await tester.tap(find.byKey(TurnShell.actionButton));
       await tester.pumpAndSettle();
 
-      expect(audio.emitted, equals(beforeTurns),
-          reason: 'something played during an in-hand turn');
+      expect(
+        audio.emitted,
+        equals(beforeTurns),
+        reason: 'something played during an in-hand turn',
+      );
     });
 
-    testWidgets('turning narration off silences speech but not the chime',
-        (tester) async {
+    testWidgets('turning narration off silences speech but not the chime', (
+      tester,
+    ) async {
       await pumpFlow(tester, narrationEnabled: false);
       audio.narrationEnabled = false;
 
@@ -214,7 +227,8 @@ void main() {
       expect(
         AudioCue.values.where((c) => c.narration).toSet(),
         equals({AudioCue.nightFalls, AudioCue.mafiaWake, AudioCue.morning}),
-        reason: 'the switchable set changed: only spoken narration may be '
+        reason:
+            'the switchable set changed: only spoken narration may be '
             'switched off, because a functional cue that could vanish would '
             'make turn length depend on a setting',
       );
@@ -274,9 +288,13 @@ void main() {
       // And each has something to play. `mafiaWake` deliberately does not — it
       // is a spoken line with no ambient bed — so it is not in this set.
       for (final cue in required) {
-        expect(cue.sound, isNotNull,
-            reason: '${cue.name} has no sound file; run '
-                '`python tool/generate_audio.py`');
+        expect(
+          cue.sound,
+          isNotNull,
+          reason:
+              '${cue.name} has no sound file; run '
+              '`python tool/generate_audio.py`',
+        );
       }
     });
   });

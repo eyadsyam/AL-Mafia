@@ -33,6 +33,27 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Supplied by ORG_GRADLE_PROJECT_ADMOB_APP_ID in tool/build_apk.ps1.
+        // Google's documented sample id is safe for local/test builds; the
+        // Dart layer does not load an ad without a rewarded unit id.
+        manifestPlaceholders["admobAppId"] =
+            (project.findProperty("ADMOB_APP_ID") as String?)
+                ?: "ca-app-pub-3940256099942544~3347511713"
+
+        // Keep every ABI selected by Flutter for the universal release APK.
+    }
+
+
+
+    // Phase 100: a release built with ads switched off must not carry the ad
+    // SDK's advertising-ID / AdServices permissions (merged from
+    // google_mobile_ads), so the Play Advertising ID and Data safety answers
+    // can truthfully say the build does not use them. tool/build_apk.ps1 sets
+    // ADS_PERMISSIONS=strip whenever ADS_ENABLED is not true; the test-ad and
+    // ads-enabled builds keep them.
+    if (project.findProperty("ADS_PERMISSIONS") == "strip") {
+        sourceSets.getByName("release").manifest.srcFile("src/noAds/AndroidManifest.xml")
     }
 
     signingConfigs {
@@ -49,6 +70,15 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.findByName("release")
+            // See proguard-rules.pro: the startup crash in R8 full mode.
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+            if (project.findProperty("TEST_ADS_SUFFIX") == "true") {
+                applicationIdSuffix = ".adstest"
+                versionNameSuffix = "-ads-test"
+            }
         }
     }
 }

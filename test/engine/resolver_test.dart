@@ -12,7 +12,12 @@ void main() {
       engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
-        roleCounts: {Role.mafia: 2, Role.detective: 1, Role.doctor: 1, Role.citizen: 1},
+        roleCounts: {
+          Role.mafia: 2,
+          Role.detective: 1,
+          Role.doctor: 1,
+          Role.citizen: 1,
+        },
         settings: MatchSettings.defaults(),
         seed: 1042,
       );
@@ -30,13 +35,29 @@ void main() {
         final role = engine.match.players[seat].role;
 
         if (role == Role.mafia) {
-          engine.submitNightAction(seat: seat, kind: NightActionKind.mafiaVote, targetSeat: 2);
+          engine.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.mafiaVote,
+            targetSeat: 2,
+          );
         } else if (role == Role.doctor) {
-          engine.submitNightAction(seat: seat, kind: NightActionKind.protect, targetSeat: 3);
+          engine.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.protect,
+            targetSeat: 3,
+          );
         } else if (role == Role.detective) {
-          engine.submitNightAction(seat: seat, kind: NightActionKind.investigate, targetSeat: 0);
+          engine.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.investigate,
+            targetSeat: 0,
+          );
         } else {
-          engine.submitNightAction(seat: seat, kind: NightActionKind.suspect, targetSeat: 0);
+          engine.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.suspect,
+            targetSeat: 0,
+          );
         }
       }
 
@@ -50,7 +71,12 @@ void main() {
       engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
-        roleCounts: {Role.mafia: 2, Role.detective: 1, Role.doctor: 1, Role.citizen: 1},
+        roleCounts: {
+          Role.mafia: 2,
+          Role.detective: 1,
+          Role.doctor: 1,
+          Role.citizen: 1,
+        },
         // The save is *announced* only when the Mafia cannot buy a morning
         // that looks the same (doc 13 §2.1, §8). This test is about the
         // resolver blocking the kill, so it runs in the regime where the
@@ -72,13 +98,29 @@ void main() {
         final role = engine.match.players[seat].role;
 
         if (role == Role.mafia) {
-          engine.submitNightAction(seat: seat, kind: NightActionKind.mafiaVote, targetSeat: 2);
+          engine.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.mafiaVote,
+            targetSeat: 2,
+          );
         } else if (role == Role.doctor) {
-          engine.submitNightAction(seat: seat, kind: NightActionKind.protect, targetSeat: 2);
+          engine.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.protect,
+            targetSeat: 2,
+          );
         } else if (role == Role.detective) {
-          engine.submitNightAction(seat: seat, kind: NightActionKind.investigate, targetSeat: 0);
+          engine.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.investigate,
+            targetSeat: 0,
+          );
         } else {
-          engine.submitNightAction(seat: seat, kind: NightActionKind.suspect, targetSeat: 0);
+          engine.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.suspect,
+            targetSeat: 0,
+          );
         }
       }
 
@@ -98,7 +140,12 @@ void main() {
       MatchEngine engine1 = MatchEngine(clock: Clocks.monotonic());
       engine1.start(
         names: ['A', 'B', 'C', 'D', 'E'],
-        roleCounts: {Role.mafia: 2, Role.detective: 1, Role.doctor: 1, Role.citizen: 1},
+        roleCounts: {
+          Role.mafia: 2,
+          Role.detective: 1,
+          Role.doctor: 1,
+          Role.citizen: 1,
+        },
         settings: MatchSettings.defaults(),
         seed: testSeed,
       );
@@ -118,14 +165,30 @@ void main() {
         if (role == Role.mafia) {
           // First mafia votes for 2, second for 3 (creates tie)
           final target = mafiaCount == 0 ? 2 : 3;
-          engine1.submitNightAction(seat: seat, kind: NightActionKind.mafiaVote, targetSeat: target);
+          engine1.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.mafiaVote,
+            targetSeat: target,
+          );
           mafiaCount++;
         } else if (role == Role.doctor) {
-          engine1.submitNightAction(seat: seat, kind: NightActionKind.protect, targetSeat: 0);
+          engine1.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.protect,
+            targetSeat: 0,
+          );
         } else if (role == Role.detective) {
-          engine1.submitNightAction(seat: seat, kind: NightActionKind.investigate, targetSeat: 0);
+          engine1.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.investigate,
+            targetSeat: 0,
+          );
         } else {
-          engine1.submitNightAction(seat: seat, kind: NightActionKind.suspect, targetSeat: 0);
+          engine1.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.suspect,
+            targetSeat: 0,
+          );
         }
       }
 
@@ -136,7 +199,12 @@ void main() {
       MatchEngine engine2 = MatchEngine(clock: Clocks.monotonic());
       engine2.start(
         names: ['A', 'B', 'C', 'D', 'E'],
-        roleCounts: {Role.mafia: 2, Role.detective: 1, Role.doctor: 1, Role.citizen: 1},
+        roleCounts: {
+          Role.mafia: 2,
+          Role.detective: 1,
+          Role.doctor: 1,
+          Role.citizen: 1,
+        },
         settings: MatchSettings.defaults(),
         seed: testSeed,
       );
@@ -155,14 +223,30 @@ void main() {
 
         if (role == Role.mafia) {
           final target = mafiaCount == 0 ? 2 : 3;
-          engine2.submitNightAction(seat: seat, kind: NightActionKind.mafiaVote, targetSeat: target);
+          engine2.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.mafiaVote,
+            targetSeat: target,
+          );
           mafiaCount++;
         } else if (role == Role.doctor) {
-          engine2.submitNightAction(seat: seat, kind: NightActionKind.protect, targetSeat: 0);
+          engine2.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.protect,
+            targetSeat: 0,
+          );
         } else if (role == Role.detective) {
-          engine2.submitNightAction(seat: seat, kind: NightActionKind.investigate, targetSeat: 0);
+          engine2.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.investigate,
+            targetSeat: 0,
+          );
         } else {
-          engine2.submitNightAction(seat: seat, kind: NightActionKind.suspect, targetSeat: 0);
+          engine2.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.suspect,
+            targetSeat: 0,
+          );
         }
       }
 
@@ -177,7 +261,12 @@ void main() {
       engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
-        roleCounts: {Role.mafia: 1, Role.detective: 1, Role.doctor: 1, Role.citizen: 2},
+        roleCounts: {
+          Role.mafia: 1,
+          Role.detective: 1,
+          Role.doctor: 1,
+          Role.citizen: 2,
+        },
         settings: MatchSettings.defaults(),
         seed: 3,
       );
@@ -186,10 +275,20 @@ void main() {
         engine.confirmRevealed();
       }
 
-      final doctorSeat = [for (int i = 0; i < 5; i++) if (engine.match.players[i].role == Role.doctor) i].first;
-      final detectiveSeat = [for (int i = 0; i < 5; i++) if (engine.match.players[i].role == Role.detective) i].first;
-      final citizenSeats = [for (int i = 0; i < 5; i++) if (engine.match.players[i].role == Role.citizen) i];
-      final protectTarget = detectiveSeat; // a living town seat the doctor will re-protect
+      final doctorSeat = [
+        for (int i = 0; i < 5; i++)
+          if (engine.match.players[i].role == Role.doctor) i,
+      ].first;
+      final detectiveSeat = [
+        for (int i = 0; i < 5; i++)
+          if (engine.match.players[i].role == Role.detective) i,
+      ].first;
+      final citizenSeats = [
+        for (int i = 0; i < 5; i++)
+          if (engine.match.players[i].role == Role.citizen) i,
+      ];
+      final protectTarget =
+          detectiveSeat; // a living town seat the doctor will re-protect
 
       // --- Night 1: doctor protects the detective; mafia kills citizen[0]. ---
       engine.beginNight();
@@ -197,13 +296,29 @@ void main() {
         final seat = engine.match.currentActorSeat!;
         switch (engine.match.players[seat].role) {
           case Role.mafia:
-            engine.submitNightAction(seat: seat, kind: NightActionKind.mafiaVote, targetSeat: citizenSeats[0]);
+            engine.submitNightAction(
+              seat: seat,
+              kind: NightActionKind.mafiaVote,
+              targetSeat: citizenSeats[0],
+            );
           case Role.doctor:
-            engine.submitNightAction(seat: seat, kind: NightActionKind.protect, targetSeat: protectTarget);
+            engine.submitNightAction(
+              seat: seat,
+              kind: NightActionKind.protect,
+              targetSeat: protectTarget,
+            );
           case Role.detective:
-            engine.submitNightAction(seat: seat, kind: NightActionKind.investigate, targetSeat: (seat + 1) % 5);
+            engine.submitNightAction(
+              seat: seat,
+              kind: NightActionKind.investigate,
+              targetSeat: (seat + 1) % 5,
+            );
           case Role.citizen:
-            engine.submitNightAction(seat: seat, kind: NightActionKind.suspect, targetSeat: (seat + 1) % 5);
+            engine.submitNightAction(
+              seat: seat,
+              kind: NightActionKind.suspect,
+              targetSeat: (seat + 1) % 5,
+            );
         }
       }
       engine.resolveNight();
@@ -215,7 +330,12 @@ void main() {
       while (engine.match.currentActorSeat != null) {
         final seat = engine.match.currentActorSeat!;
         final target = seat == dayTarget
-            ? [for (int i = 0; i < 5; i++) if (engine.match.players[i].status == PlayerStatus.alive && i != seat) i].first
+            ? [
+                for (int i = 0; i < 5; i++)
+                  if (engine.match.players[i].status == PlayerStatus.alive &&
+                      i != seat)
+                    i,
+              ].first
             : dayTarget;
         engine.submitVote(seat: seat, voterSeat: seat, targetSeat: target);
       }
@@ -226,24 +346,37 @@ void main() {
 
       // --- Night 2: doctor re-protects the same seat → must throw. ---
       engine.beginNight();
-      expect(
-        () {
-          while (engine.match.currentActorSeat != null) {
-            final seat = engine.match.currentActorSeat!;
-            switch (engine.match.players[seat].role) {
-              case Role.mafia:
-                engine.submitNightAction(seat: seat, kind: NightActionKind.mafiaVote, targetSeat: doctorSeat);
-              case Role.doctor:
-                engine.submitNightAction(seat: seat, kind: NightActionKind.protect, targetSeat: protectTarget);
-              case Role.detective:
-                engine.submitNightAction(seat: seat, kind: NightActionKind.investigate, targetSeat: (seat + 1) % 5);
-              case Role.citizen:
-                engine.submitNightAction(seat: seat, kind: NightActionKind.suspect, targetSeat: (seat + 1) % 5);
-            }
+      expect(() {
+        while (engine.match.currentActorSeat != null) {
+          final seat = engine.match.currentActorSeat!;
+          switch (engine.match.players[seat].role) {
+            case Role.mafia:
+              engine.submitNightAction(
+                seat: seat,
+                kind: NightActionKind.mafiaVote,
+                targetSeat: doctorSeat,
+              );
+            case Role.doctor:
+              engine.submitNightAction(
+                seat: seat,
+                kind: NightActionKind.protect,
+                targetSeat: protectTarget,
+              );
+            case Role.detective:
+              engine.submitNightAction(
+                seat: seat,
+                kind: NightActionKind.investigate,
+                targetSeat: (seat + 1) % 5,
+              );
+            case Role.citizen:
+              engine.submitNightAction(
+                seat: seat,
+                kind: NightActionKind.suspect,
+                targetSeat: (seat + 1) % 5,
+              );
           }
-        },
-        throwsA(isA<StateError>()),
-      );
+        }
+      }, throwsA(isA<StateError>()));
     });
   });
 }

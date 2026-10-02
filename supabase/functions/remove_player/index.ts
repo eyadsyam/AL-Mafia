@@ -21,66 +21,36 @@
 
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 
-const GONE_AFTER_MS = 3 * 60 * 1000;
-
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId, seat } = await req.json();
   if (!roomId || seat == null) return fail("BAD_REQUEST", "roomId and seat required");
+  const target = Number(seat);
+  if (!Number.isInteger(target) || target < 0) return fail("BAD_REQUEST", "no such seat");
 
   const me = await loadMembership(db, roomId, userId);
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
   if (me.hostId !== userId) return fail("NOT_HOST", "only the host may remove", 403);
   if (me.status !== "playing") return fail("PHASE_CLOSED", "no match is running");
 
-  const { data: target } = await db
-    .from("room_players")
-    .select("user_id, alive, connected, last_seen")
-    .eq("room_id", roomId)
-    .eq("seat", seat)
-    .maybeSingle();
-  if (!target) return fail("BAD_REQUEST", "no such seat");
-  if (!target.alive) return fail("BAD_REQUEST", "that player is already out");
-
-  const silentFor = Date.now() - new Date(target.last_seen).getTime();
-  if (target.connected && silentFor < GONE_AFTER_MS) {
-    return fail("BAD_REQUEST", "that player is still here");
-  }
-
-  await db.from("room_players")
-    .update({ alive: false })
-    .eq("room_id", roomId)
-    .eq("user_id", target.user_id);
-
-  // Doc 09 §3.4 — anything still in flight to somebody who has left is voided,
-  // exactly as it is for a player who died.
-  await db.from("whisper_meta")
-    .update({ voided: true })
-    .eq("room_id", roomId)
-    .eq("to_id", target.user_id)
-    .eq("voided", false);
-
-  await db.rpc("set_public_path", {
-    p_room: roomId,
-    p_path: ["eliminations", String(seat)],
-    p_value: { phase: "day", number: me.phaseNumber },
+  // The silence test, the elimination, the voided whispers, the record and
+  // the win check are one statement under the room lock
+  // (`strike_absent_member`). They used to be five requests with no error
+  // checked: a roster read that failed came back empty, and an empty roster
+  // has no Mafia in it, so the town was declared the winner of a match the
+  // server had not actually looked at.
+  const { data, error } = await db.rpc("strike_absent_member", {
+    p_room: roomId, p_host: userId, p_seat: target,
   });
-
-  // W8 — the check runs after the removal is applied, never mid-resolution.
-  const { data: players } = await db
-    .from("room_players")
-    .select("user_id, role, alive")
-    .eq("room_id", roomId);
-  const living = (players ?? []).filter((p) => p.alive);
-  const mafia = living.filter((p) => p.role === "mafia").length;
-  const town = living.length - mafia;
-  const outcome = mafia === 0 ? "town" : mafia >= town ? "mafia" : null;
-
-  if (outcome) {
-    await db.rpc("merge_public_data", {
-      p_room: roomId,
-      p_patch: { outcome },
-    });
+  if (error) {
+    const message = String(error.message ?? "");
+    if (message.includes("ROOM_NOT_FOUND")) return fail("ROOM_NOT_FOUND", "no such room", 404);
+    if (message.includes("NOT_HOST")) return fail("NOT_HOST", "only the host may remove", 403);
+    if (message.includes("PHASE_CLOSED")) return fail("PHASE_CLOSED", "no match is running");
+    if (message.includes("ALREADY_OUT")) return fail("BAD_REQUEST", "that player is already out");
+    if (message.includes("STILL_HERE")) return fail("BAD_REQUEST", "that player is still here");
+    if (message.includes("BAD_REQUEST")) return fail("BAD_REQUEST", "no such seat");
+    throw error;
   }
-
-  return ok({ removed: seat, outcome });
+  const answer = (data ?? {}) as { removed?: number; outcome?: string | null };
+  return ok({ removed: answer.removed ?? target, outcome: answer.outcome ?? null });
 }));

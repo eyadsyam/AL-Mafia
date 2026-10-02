@@ -36,57 +36,45 @@ Deno.serve(handler(async (req, userId, db) => {
   if (me.phase !== "opening") return fail("PHASE_CLOSED", "not the opening round");
   if (targetSeat === me.seat) return fail("BAD_REQUEST", "not yourself");
 
-  const { data: state } = await db.from("room_state")
+  const { data: state, error: stateError } = await db.from("room_state")
     .select("public_data").eq("room_id", roomId).maybeSingle();
+  if (stateError) throw stateError;
   const data = (state?.public_data ?? {}) as Record<string, unknown>;
   if (Number(data.openingSeat) !== me.seat) {
     return fail("PHASE_CLOSED", "it is not your turn to name somebody");
   }
 
-  const { data: roster } = await db
+  const { data: roster, error: rosterError } = await db
     .from("room_players")
     .select("seat, alive")
     .eq("room_id", roomId)
     .order("seat");
+  if (rosterError) throw rosterError;
   const living = (roster ?? []).filter((p) => p.alive).map((p) => p.seat);
   if (!living.includes(targetSeat)) {
     return fail("BAD_REQUEST", "that player is not alive");
   }
 
-  await db.rpc("set_public_path", {
-    p_room: roomId,
-    p_path: ["openingAccusations", String(me.seat)],
-    p_value: targetSeat,
-  });
-
-  // Pass the round on, or close it. Day 1 has no confrontation — the
-  // generators need a day of history before they have anything true to say —
-  // so the round runs straight into the discussion (mirrors
-  // `MatchEngine._openConfrontationOrDiscussion`, which takes the same branch
-  // on `dayNumber > 1`).
   const next = living.find((seat) => seat > me.seat) ?? null;
 
-  if (next !== null) {
-    await db.rpc("merge_public_data", {
-      p_room: roomId,
-      p_patch: { openingSeat: next },
-    });
-    await db.from("room_state").update({
-      phase_ends_at: new Date(Date.now() + 10_000).toISOString(),
-      updated_at: new Date().toISOString(),
-    }).eq("room_id", roomId);
-    return ok({ next });
+  // The name, the hand-over of the floor (or the close of the round) and the
+  // clock land in one statement, and only while the floor is still this
+  // seat's. A double tap, or a retry that arrives after the floor has moved,
+  // matches nothing: the first answer stands and nothing is reset.
+  const { data: recorded, error } = await db.rpc("commit_accusation", {
+    p_room: roomId,
+    p_number: me.phaseNumber,
+    p_seat: me.seat,
+    p_target: targetSeat,
+    p_next_seat: next,
+    p_next_deadline: new Date(Date.now() + 10_000).toISOString(),
+    p_discuss_deadline: deadlineFor("discuss", me.settings),
+  });
+  if (error) throw error;
+  if (!recorded) {
+    return fail("PHASE_CLOSED", "it is not your turn to name somebody");
   }
 
-  await db.rpc("merge_public_data", {
-    p_room: roomId,
-    p_patch: { openingSeat: null },
-  });
-  await db.from("room_state").update({
-    phase: "discuss",
-    phase_ends_at: deadlineFor("discuss", me.settings),
-    updated_at: new Date().toISOString(),
-  }).eq("room_id", roomId);
-
+  if (next !== null) return ok({ next });
   return ok({ next: null, phase: "discuss" });
 }));

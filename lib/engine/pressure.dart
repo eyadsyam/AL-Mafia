@@ -102,8 +102,9 @@ abstract final class PressureCurve {
     // Two ways to get the second one, and the higher of them wins: the curve
     // gives it to a table down to four, and «قاسية» (doc 13 §5) gives it from
     // the first day. Neither has to know the other exists.
-    final fromCurve =
-        settings.pressureCurveEnabled ? bandFor(living).confrontationsPerDay : 1;
+    final fromCurve = settings.pressureCurveEnabled
+        ? bandFor(living).confrontationsPerDay
+        : 1;
     final fromPreset = settings.midDiscussionConfrontation ? 2 : 1;
     return fromCurve > fromPreset ? fromCurve : fromPreset;
   }
@@ -114,8 +115,7 @@ abstract final class PressureCurve {
   /// index into a fixed table keyed by the living count — so the pitch is a
   /// property of the timer setting, as doc 13 §8 requires, and never a reaction
   /// to anything that happened.
-  static int bandIndex(int living) =>
-      bands.indexWhere((b) => living >= b.from);
+  static int bandIndex(int living) => bands.indexWhere((b) => living >= b.from);
 }
 
 /// One row of doc 13 §3's table.
@@ -151,7 +151,8 @@ class PressureBand {
       Object.hash(from, discussionSeconds, speechSeconds, confrontationsPerDay);
 
   @override
-  String toString() => 'PressureBand(from=$from, discussion=${discussionSeconds}s, '
+  String toString() =>
+      'PressureBand(from=$from, discussion=${discussionSeconds}s, '
       'speech=${speechSeconds}s, confrontations=$confrontationsPerDay)';
 }
 
@@ -165,8 +166,7 @@ enum PressurePhase { discussion, speech }
 extension PressureFor on MatchSettings {
   /// Seconds for [phase] at [living] players.
   int pressureSeconds(PressurePhase phase, int living) => switch (phase) {
-        PressurePhase.discussion =>
-          PressureCurve.discussionSeconds(this, living),
-        PressurePhase.speech => PressureCurve.speechSeconds(this, living),
-      };
+    PressurePhase.discussion => PressureCurve.discussionSeconds(this, living),
+    PressurePhase.speech => PressureCurve.speechSeconds(this, living),
+  };
 }

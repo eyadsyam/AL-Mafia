@@ -181,15 +181,15 @@ class ConfrontationIssued extends TimelineEvent {
 
   @override
   int get hashCode => Object.hash(
-        at,
-        phaseRef,
-        targetSeat,
-        type,
-        evidenceSeat,
-        evidenceSeat2,
-        evidenceDay,
-        count,
-      );
+    at,
+    phaseRef,
+    targetSeat,
+    type,
+    evidenceSeat,
+    evidenceSeat2,
+    evidenceDay,
+    count,
+  );
 
   @override
   String toString() =>

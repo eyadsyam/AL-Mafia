@@ -191,7 +191,8 @@ class NightResolver {
     for (int i = match.eventLog.length - 1; i >= 0; i--) {
       if (match.eventLog[i] is ProtectCast) {
         final protect = match.eventLog[i] as ProtectCast;
-        if (protect.actorSeat == doctorSeat && protect.phaseRef.number == previousNight) {
+        if (protect.actorSeat == doctorSeat &&
+            protect.phaseRef.number == previousNight) {
           lastProtect = protect;
           break;
         }

@@ -10,12 +10,7 @@ const _hold = Duration(seconds: 2);
 const _frame = Duration(milliseconds: 50);
 
 double _ring(WidgetTester tester) =>
-    tester
-        .widget<CircularProgressIndicator>(
-          find.byType(CircularProgressIndicator),
-        )
-        .value ??
-    -1;
+    HoldPad.progressOf(tester.widget<CustomPaint>(find.byKey(HoldPad.ring)));
 
 Future<void> _pad(WidgetTester tester, VoidCallback onComplete) async {
   await tester.pumpWidget(

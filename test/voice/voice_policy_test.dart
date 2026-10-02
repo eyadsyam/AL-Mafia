@@ -25,9 +25,13 @@ void main() {
         GamePhase.nightResolving,
       ]) {
         expect(micPolicyFor(phase), equals(MicPolicy.muted), reason: '$phase');
-        expect(voiceTornDownIn(phase), isTrue,
-            reason: '$phase must not merely mute — the connection itself is a '
-                'per-player status indicator (doc 10 §6.3)');
+        expect(
+          voiceTornDownIn(phase),
+          isTrue,
+          reason:
+              '$phase must not merely mute — the connection itself is a '
+              'per-player status indicator (doc 10 §6.3)',
+        );
       }
     });
 
@@ -43,15 +47,22 @@ void main() {
     });
 
     test('one voice at a time where the room is pointed at one seat', () {
-      expect(micPolicyFor(GamePhase.openingRound),
-          equals(MicPolicy.activeSpeakerOnly));
-      expect(micPolicyFor(GamePhase.confrontation),
-          equals(MicPolicy.activeSpeakerOnly));
+      expect(
+        micPolicyFor(GamePhase.openingRound),
+        equals(MicPolicy.activeSpeakerOnly),
+      );
+      expect(
+        micPolicyFor(GamePhase.confrontation),
+        equals(MicPolicy.activeSpeakerOnly),
+      );
     });
 
     test('discussion follows the mode the room chose', () {
       expect(
-        micPolicyFor(GamePhase.discussion, discussion: DiscussionMode.structured),
+        micPolicyFor(
+          GamePhase.discussion,
+          discussion: DiscussionMode.structured,
+        ),
         equals(MicPolicy.activeSpeakerOnly),
       );
       expect(
@@ -98,8 +109,9 @@ void main() {
     /// table, not the language, and the table is exactly what a text read can
     /// see.
     Map<String, String> serverTable() {
-      final source =
-          File('supabase/functions/_shared/voice.ts').readAsStringSync();
+      final source = File(
+        'supabase/functions/_shared/voice.ts',
+      ).readAsStringSync();
       final body = source.substring(
         source.indexOf('export function micPolicyFor'),
         source.indexOf('export function floorOwnerSeat'),
@@ -114,8 +126,7 @@ void main() {
           pending.add(caseMatch.group(1)!);
           continue;
         }
-        final returnMatch =
-            RegExp(r'^return "(\w+)";$').firstMatch(line);
+        final returnMatch = RegExp(r'^return "(\w+)";$').firstMatch(line);
         if (returnMatch != null) {
           for (final phase in pending) {
             table[phase] = returnMatch.group(1)!;
@@ -156,9 +167,13 @@ void main() {
     test('every phase the schema allows has a policy on the server', () {
       final table = serverTable();
       for (final phase in equivalents.keys) {
-        expect(table, contains(phase),
-            reason: '$phase has no case in _shared/voice.ts, so it would fall '
-                'through to the default');
+        expect(
+          table,
+          contains(phase),
+          reason:
+              '$phase has no case in _shared/voice.ts, so it would fall '
+              'through to the default',
+        );
       }
     });
 
@@ -168,7 +183,8 @@ void main() {
         expect(
           table[entry.key],
           equals(micPolicyFor(entry.value).name),
-          reason: 'server "${entry.key}" and Dart ${entry.value} disagree — '
+          reason:
+              'server "${entry.key}" and Dart ${entry.value} disagree — '
               'one of them would leave a microphone open',
         );
       }

@@ -28,7 +28,10 @@ void main() {
     test('only platform/haptics.dart touches HapticFeedback', () {
       final offenders = <String>[];
 
-      for (final file in [...dartFilesUnder('lib/ui'), ...dartFilesUnder('lib/platform')]) {
+      for (final file in [
+        ...dartFilesUnder('lib/ui'),
+        ...dartFilesUnder('lib/platform'),
+      ]) {
         final path = normalise(file.path);
         if (path.endsWith('platform/haptics.dart')) continue;
         // The second, and only other, sanctioned door onto `services.dart`.
@@ -36,6 +39,8 @@ void main() {
         // exception is only safe while it is named here and while the file it
         // names is checked below for the thing the proxy stands in for.
         if (path.endsWith('platform/clipboard.dart')) continue;
+        // The third: the launcher-name channel. Checked below the same way.
+        if (path.endsWith('platform/launcher_label.dart')) continue;
 
         // Code, not prose. `services.dart` is the only import that makes
         // `HapticFeedback` reachable, so importing it at all is the thing to
@@ -52,9 +57,13 @@ void main() {
         if (offending.isNotEmpty) offenders.add(path);
       }
 
-      expect(offenders, isEmpty,
-          reason: 'LEAK: these files can fire a haptic directly instead of '
-              'going through platform/haptics.dart: $offenders');
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            'LEAK: these files can fire a haptic directly instead of '
+            'going through platform/haptics.dart: $offenders',
+      );
     });
 
     test('the in-hand shell emits no haptic at all', () {
@@ -62,29 +71,61 @@ void main() {
       // helper has no business being called from it: the whole turn has to be
       // silent, or the neighbours can hear a selection being made.
       final shell = File('lib/ui/widgets/turn_shell.dart').readAsStringSync();
-      expect(shell.contains('Haptics'), isFalse,
-          reason: 'turn_shell.dart calls the haptics helper; an in-hand turn '
-              'must be completely silent');
+      expect(
+        shell.contains('Haptics'),
+        isFalse,
+        reason:
+            'turn_shell.dart calls the haptics helper; an in-hand turn '
+            'must be completely silent',
+      );
 
       final pad = File('lib/ui/widgets/hold_pad.dart').readAsStringSync();
-      expect(pad.contains('Haptics'), isFalse,
-          reason: 'hold_pad.dart calls the haptics helper; the identity gate '
-              'must not announce that someone has taken the phone');
+      expect(
+        pad.contains('Haptics'),
+        isFalse,
+        reason:
+            'hold_pad.dart calls the haptics helper; the identity gate '
+            'must not announce that someone has taken the phone',
+      );
 
       final pass = File('lib/ui/widgets/pass_screen.dart').readAsStringSync();
-      expect(pass.contains('Haptics'), isFalse,
-          reason: 'pass_screen.dart calls the haptics helper; opening the pass '
-              'screen must be silent');
+      expect(
+        pass.contains('Haptics'),
+        isFalse,
+        reason:
+            'pass_screen.dart calls the haptics helper; opening the pass '
+            'screen must be silent',
+      );
     });
 
     test('the clipboard exception cannot fire a haptic', () {
       final source = File('lib/platform/clipboard.dart').readAsStringSync();
-      expect(source.contains('HapticFeedback'), isFalse,
-          reason: 'the one file exempted from the import ban must still be '
-              'incapable of the thing the ban exists to prevent');
-      expect(source.contains("show Clipboard, ClipboardData"), isTrue,
-          reason: 'a show-clause is what keeps the exemption narrow: the file '
-              'cannot reach anything else in services.dart');
+      expect(
+        source.contains('HapticFeedback'),
+        isFalse,
+        reason:
+            'the one file exempted from the import ban must still be '
+            'incapable of the thing the ban exists to prevent',
+      );
+      expect(
+        source.contains("show Clipboard, ClipboardData"),
+        isTrue,
+        reason:
+            'a show-clause is what keeps the exemption narrow: the file '
+            'cannot reach anything else in services.dart',
+      );
+    });
+
+    test('the launcher-label exception cannot fire a haptic', () {
+      final source = File(
+        'lib/platform/launcher_label.dart',
+      ).readAsStringSync();
+      expect(source.contains('HapticFeedback'), isFalse);
+      expect(
+        source.contains('show MethodChannel;'),
+        isTrue,
+        reason: 'the exemption holds only while the import is narrowed',
+      );
     });
 
     test('the helper exposes exactly the two sanctioned calls', () {
@@ -98,14 +139,19 @@ void main() {
           .map((m) => m.group(1)!)
           .where((name) => !name.startsWith('_'))
           .toSet();
-      expect(publicMethods, equals({'select', 'confirm'}),
-          reason: 'unexpected public haptic entry points: $publicMethods');
+      expect(
+        publicMethods,
+        equals({'select', 'confirm'}),
+        reason: 'unexpected public haptic entry points: $publicMethods',
+      );
     });
 
     test('the scan is not vacuous', () {
       // Prove the string being searched for is the one the helper really uses.
-      expect(File('lib/platform/haptics.dart').readAsStringSync(),
-          contains('HapticFeedback'));
+      expect(
+        File('lib/platform/haptics.dart').readAsStringSync(),
+        contains('HapticFeedback'),
+      );
       expect(helper, isNotEmpty);
     });
   });

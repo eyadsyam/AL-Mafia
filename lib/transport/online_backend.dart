@@ -22,6 +22,7 @@ library transport.online_backend;
 import 'dart:async';
 
 import '../engine/models/enums.dart' show Alignment;
+import 'game_snapshot.dart' show SeatCosmetics;
 
 /// A refusal from the server, carrying the code the client acts on.
 ///
@@ -154,6 +155,27 @@ class RoomState {
         serverNow: serverNow,
       );
 
+  /// This row's `room_state` columns with the `rooms` columns of [rooms].
+  ///
+  /// A realtime update of `room_state` carries only that table's columns. The
+  /// host, the code, the status and the rules live on `rooms`, so they are
+  /// kept from the last full read rather than replaced by blanks — a blank
+  /// host id took every host control away mid-phase.
+  RoomState withRoomFieldsFrom(RoomState rooms) => RoomState(
+    phase: phase,
+    phaseNumber: phaseNumber,
+    phaseEndsAt: phaseEndsAt,
+    activeSpeaker: activeSpeaker,
+    publicData: publicData,
+    status: rooms.status,
+    hostId: rooms.hostId,
+    code: rooms.code,
+    settings: rooms.settings,
+    visibility: rooms.visibility,
+    title: rooms.title,
+    serverNow: serverNow,
+  );
+
   @override
   String toString() =>
       'RoomState($phase#$phaseNumber, status=$status, endsAt=$phaseEndsAt)';
@@ -200,6 +222,9 @@ class RoomPlayer {
   /// consults before it will open the night.
   final bool sawRole;
 
+  /// Frame and nameplate chosen in the store, copied at seating (§89).
+  final SeatCosmetics? cosmetics;
+
   const RoomPlayer({
     required this.userId,
     this.gender = 'unspecified',
@@ -210,6 +235,7 @@ class RoomPlayer {
     this.lastSeen,
     this.handRaisedAt,
     this.sawRole = false,
+    this.cosmetics,
     this.status = 'connected',
     this.muted = false,
     this.kicked = false,
@@ -228,6 +254,7 @@ class RoomPlayer {
     status: json['status'] as String? ?? 'connected',
     muted: json['muted'] as bool? ?? false,
     kicked: json['kicked'] as bool? ?? false,
+    cosmetics: SeatCosmetics.fromJson(json['cosmetics']),
   );
 
   RoomPlayer copyWith({
@@ -241,23 +268,24 @@ class RoomPlayer {
     bool? kicked,
     bool clearHand = false,
   }) => RoomPlayer(
-        userId: userId,
-        // Carried, not defaulted. Every liveness and presence update goes
-        // through here, so dropping it would quietly reset the roster to
-        // `unspecified` the first time somebody died or reconnected — and the
-        // Arabic copy would start addressing her as him.
-        gender: gender,
-        seat: seat,
-        name: name,
-        alive: alive ?? this.alive,
-        connected: connected ?? this.connected,
-        lastSeen: lastSeen ?? this.lastSeen,
-        handRaisedAt: clearHand ? null : (handRaisedAt ?? this.handRaisedAt),
-        sawRole: sawRole ?? this.sawRole,
-        status: status ?? this.status,
-        muted: muted ?? this.muted,
-        kicked: kicked ?? this.kicked,
-      );
+    userId: userId,
+    // Carried, not defaulted. Every liveness and presence update goes
+    // through here, so dropping it would quietly reset the roster to
+    // `unspecified` the first time somebody died or reconnected — and the
+    // Arabic copy would start addressing her as him.
+    gender: gender,
+    seat: seat,
+    name: name,
+    alive: alive ?? this.alive,
+    connected: connected ?? this.connected,
+    lastSeen: lastSeen ?? this.lastSeen,
+    handRaisedAt: clearHand ? null : (handRaisedAt ?? this.handRaisedAt),
+    sawRole: sawRole ?? this.sawRole,
+    status: status ?? this.status,
+    muted: muted ?? this.muted,
+    kicked: kicked ?? this.kicked,
+    cosmetics: cosmetics,
+  );
 }
 
 /// This client's own row, including the one secret column in the schema.
@@ -440,24 +468,39 @@ class RoomPush {
   /// The link is down and retries are in progress (O10).
   final bool disconnected;
 
+  /// Whether [state] holds only the `room_state` columns. The `rooms` fields
+  /// in it are placeholders, to be taken from the last full read.
+  final bool partial;
+
   const RoomPush.state(RoomState this.state)
     : player = null,
+      partial = false,
+      resyncRequired = false,
+      disconnected = false;
+
+  /// A realtime `room_state` row: see [RoomState.withRoomFieldsFrom].
+  const RoomPush.stateDelta(RoomState this.state)
+    : player = null,
+      partial = true,
       resyncRequired = false,
       disconnected = false;
 
   const RoomPush.player(RoomPlayer this.player)
     : state = null,
+      partial = false,
       resyncRequired = false,
       disconnected = false;
 
   const RoomPush.resync()
     : state = null,
+      partial = false,
       player = null,
       resyncRequired = true,
       disconnected = false;
 
   const RoomPush.disconnected()
     : state = null,
+      partial = false,
       player = null,
       resyncRequired = false,
       disconnected = true;

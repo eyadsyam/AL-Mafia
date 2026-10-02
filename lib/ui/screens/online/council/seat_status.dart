@@ -30,10 +30,7 @@ enum SeatStatus {
 /// rendering anything: *"at night, every seat is idle or dead and nothing
 /// else."* Death is public — everybody watched it happen in the morning — so
 /// it is the one status that survives a night.
-SeatStatus effectiveSeatStatus(
-  SeatStatus status, {
-  required bool showsStatus,
-}) {
+SeatStatus effectiveSeatStatus(SeatStatus status, {required bool showsStatus}) {
   if (showsStatus || status == SeatStatus.dead) return status;
   return SeatStatus.idle;
 }

@@ -110,8 +110,10 @@ void main() {
     return stack.join('/');
   }
 
-  final importPattern = RegExp(r'''^\s*import\s+['"]([^'"]+)['"]''',
-      multiLine: true);
+  final importPattern = RegExp(
+    r'''^\s*import\s+['"]([^'"]+)['"]''',
+    multiLine: true,
+  );
 
   /// Transitive closure of `handoffRoots` over this package's own imports.
   Set<String> reachable() {
@@ -136,35 +138,43 @@ void main() {
   /// `MafiaColors.roleMafia` leaks; `AppIcons.roleMafia` does not. The negative
   /// lookbehind is what separates them.
   final forbidden = <RegExp, String>{
-    RegExp(r'(?<!AppIcons\.)(?<!l10n\.)\brole(Mafia|Doctor|Detective|Citizen)\b'):
-        'a role accent colour — role-conditional colour is a role tell. '
-            'If you meant the emblem asset, qualify it as `AppIcons.roleX`; if '
-            'you meant the colour, this surface may not have it (§2.4).',
+    RegExp(
+      r'(?<!AppIcons\.)(?<!l10n\.)\brole(Mafia|Doctor|Detective|Citizen)\b',
+    ): 'a role accent colour — role-conditional colour is a role tell. '
+        'If you meant the emblem asset, qualify it as `AppIcons.roleX`; if '
+        'you meant the colour, this surface may not have it (§2.4).',
     // Matches the generated constant class, the raw paths, and the old
     // `AppImages.gallery*` spelling the generator used before the gallery moved
     // into its own directory. A leak must not be able to sneak in through a
     // rename.
     RegExp(r'assets/images/gallery/|\bAppGallery\b|\bAppImages\.gallery'):
         'tier-2 gallery art — full-colour and deliberately NOT '
-            'luminance-matched across roles, so it leaks brightness and hue at '
-            'once and does it without tripping luminance_budget_test.dart, '
-            'which only measures card_face_*. Gallery art is post-game only.',
+        'luminance-matched across roles, so it leaks brightness and hue at '
+        'once and does it without tripping luminance_budget_test.dart, '
+        'which only measures card_face_*. Gallery art is post-game only.',
   };
 
   group('L-16 handoff purity', () {
-    final closure = reachable()
-        .where((p) => !declarationSites.contains(p) && !stringTables.contains(p))
-        .toList()
-      ..sort();
+    final closure =
+        reachable()
+            .where(
+              (p) => !declarationSites.contains(p) && !stringTables.contains(p),
+            )
+            .toList()
+          ..sort();
 
     test('every handoff root exists', () {
       // A renamed root would otherwise shrink the closure to nothing and leave
       // this whole file passing vacuously.
       for (final root in handoffRoots) {
-        expect(File(root).existsSync(), isTrue,
-            reason: '$root is a handoff entry point but does not exist. It was '
-                'probably renamed — update handoffRoots. Dropping a root '
-                'silently removes everything under it from the scan.');
+        expect(
+          File(root).existsSync(),
+          isTrue,
+          reason:
+              '$root is a handoff entry point but does not exist. It was '
+              'probably renamed — update handoffRoots. Dropping a root '
+              'silently removes everything under it from the scan.',
+        );
       }
     });
 
@@ -172,17 +182,25 @@ void main() {
       // Proves the import walk actually walked. If `resolveImport` broke, the
       // closure would collapse to the roots and every check below would pass by
       // examining almost nothing.
-      expect(closure.length, greaterThan(handoffRoots.length),
-          reason: 'the import walk found no transitive dependencies, which '
-              'cannot be right — the checks below would be nearly vacuous. '
-              'Closure: $closure');
+      expect(
+        closure.length,
+        greaterThan(handoffRoots.length),
+        reason:
+            'the import walk found no transitive dependencies, which '
+            'cannot be right — the checks below would be nearly vacuous. '
+            'Closure: $closure',
+      );
     });
 
     test('the closure reaches the shared widgets, not just the roots', () {
-      expect(closure, contains('lib/ui/widgets/hold_pad.dart'),
-          reason: 'hold_pad.dart is pulled in by turn_shell.dart and must be '
-              'inside the closure; if it is not, the walk is not following '
-              'imports correctly and the scan is much narrower than it looks.');
+      expect(
+        closure,
+        contains('lib/ui/widgets/hold_pad.dart'),
+        reason:
+            'hold_pad.dart is pulled in by turn_shell.dart and must be '
+            'inside the closure; if it is not, the walk is not following '
+            'imports correctly and the scan is much narrower than it looks.',
+      );
     });
 
     for (final entry in forbidden.entries) {
@@ -193,15 +211,20 @@ void main() {
           if (!file.existsSync()) continue;
           final source = file.readAsStringSync();
           for (final match in entry.key.allMatches(source)) {
-            final line = '\n'.allMatches(source.substring(0, match.start)).length + 1;
+            final line =
+                '\n'.allMatches(source.substring(0, match.start)).length + 1;
             offenders.add('${normalise(path)}:$line — `${match.group(0)}`');
           }
         }
 
-        expect(offenders, isEmpty,
-            reason: 'LEAK: ${entry.value}\n'
-                'Reachable from a private surface:\n  '
-                '${offenders.join('\n  ')}');
+        expect(
+          offenders,
+          isEmpty,
+          reason:
+              'LEAK: ${entry.value}\n'
+              'Reachable from a private surface:\n  '
+              '${offenders.join('\n  ')}',
+        );
       });
     }
 
@@ -211,16 +234,24 @@ void main() {
       // exactly the kind of claim that needs a test under it.
       for (final path in stringTables) {
         final file = File(path);
-        expect(file.existsSync(), isTrue,
-            reason: '$path is excluded from the role-colour scan but does not '
-                'exist. Remove the stale exclusion rather than leaving a hole '
-                'pointed at nothing.');
+        expect(
+          file.existsSync(),
+          isTrue,
+          reason:
+              '$path is excluded from the role-colour scan but does not '
+              'exist. Remove the stale exclusion rather than leaving a hole '
+              'pointed at nothing.',
+        );
 
-        expect(RegExp(r'\bColor\b').hasMatch(file.readAsStringSync()), isFalse,
-            reason: '$path is excluded from the handoff colour scan on the '
-                'grounds that a generated string table cannot carry a Color. It '
-                'now mentions one. Either the generator changed or the file was '
-                'hand-edited — do not simply drop the exclusion, work out which.');
+        expect(
+          RegExp(r'\bColor\b').hasMatch(file.readAsStringSync()),
+          isFalse,
+          reason:
+              '$path is excluded from the handoff colour scan on the '
+              'grounds that a generated string table cannot carry a Color. It '
+              'now mentions one. Either the generator changed or the file was '
+              'hand-edited — do not simply drop the exclusion, work out which.',
+        );
       }
     });
 
@@ -230,21 +261,30 @@ void main() {
       // screen is where role colour *and* gallery art are both legitimate — the
       // match is over and every role is already public — so it is the control
       // for both patterns.
-      final source = File('lib/ui/screens/postgame/result_screen.dart')
-          .readAsStringSync();
+      final source = File(
+        'lib/ui/screens/postgame/result_screen.dart',
+      ).readAsStringSync();
 
       for (final pattern in forbidden.keys) {
-        expect(pattern.hasMatch(source), isTrue,
-            reason: 'result_screen.dart no longer matches `${pattern.pattern}`, '
-                'so that pattern is no longer known to match anything at all '
-                'and the handoff checks using it are asserting nothing. Either '
-                'the post-game screen stopped doing the thing (fine — pick a '
-                'different control) or the regex has rotted (not fine).');
+        expect(
+          pattern.hasMatch(source),
+          isTrue,
+          reason:
+              'result_screen.dart no longer matches `${pattern.pattern}`, '
+              'so that pattern is no longer known to match anything at all '
+              'and the handoff checks using it are asserting nothing. Either '
+              'the post-game screen stopped doing the thing (fine — pick a '
+              'different control) or the regex has rotted (not fine).',
+        );
       }
-      expect(closure, isNot(contains('lib/ui/screens/postgame/result_screen.dart')),
-          reason: 'the control file is inside the handoff closure, which means '
-              'a private surface can reach the post-game result screen. That is '
-              'a bigger problem than the colour.');
+      expect(
+        closure,
+        isNot(contains('lib/ui/screens/postgame/result_screen.dart')),
+        reason:
+            'the control file is inside the handoff closure, which means '
+            'a private surface can reach the post-game result screen. That is '
+            'a bigger problem than the colour.',
+      );
     });
   });
 }

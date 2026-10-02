@@ -21,11 +21,11 @@ const _roleCounts = {
 };
 
 NightActionKind _kindFor(Role role) => switch (role) {
-      Role.mafia => NightActionKind.mafiaVote,
-      Role.doctor => NightActionKind.protect,
-      Role.detective => NightActionKind.investigate,
-      Role.citizen => NightActionKind.suspect,
-    };
+  Role.mafia => NightActionKind.mafiaVote,
+  Role.doctor => NightActionKind.protect,
+  Role.detective => NightActionKind.investigate,
+  Role.citizen => NightActionKind.suspect,
+};
 
 /// A legal target for [seat] this night, avoiding the doctor's no-repeat rule.
 int _targetFor(Match match, int seat) {
@@ -39,8 +39,10 @@ int _targetFor(Match match, int seat) {
     // Skip whoever this doctor protected last night, or the engine rejects it.
     final lastProtected = match.eventLog
         .whereType<ProtectCast>()
-        .where((e) =>
-            e.actorSeat == seat && e.phaseRef.number == match.dayNumber - 1)
+        .where(
+          (e) =>
+              e.actorSeat == seat && e.phaseRef.number == match.dayNumber - 1,
+        )
         .map((e) => e.targetSeat)
         .lastOrNull;
     final allowed = living.where((s) => s != lastProtected).toList();

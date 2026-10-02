@@ -16,16 +16,19 @@ import '../../tool/engine_purity.dart';
 /// ```
 void main() {
   group('engine purity', () {
-    test('lib/engine is free of Flutter, wall-clock reads and loose randomness',
-        () {
-      final violations = scanEnginePurity();
-      expect(
-        violations,
-        isEmpty,
-        reason: 'The engine must stay a pure function of its arguments.\n'
-            '${violations.join('\n')}\n\nrules:\n$purityRulesSummary',
-      );
-    });
+    test(
+      'lib/engine is free of Flutter, wall-clock reads and loose randomness',
+      () {
+        final violations = scanEnginePurity();
+        expect(
+          violations,
+          isEmpty,
+          reason:
+              'The engine must stay a pure function of its arguments.\n'
+              '${violations.join('\n')}\n\nrules:\n$purityRulesSummary',
+        );
+      },
+    );
 
     // A checker that has quietly stopped looking at anything is the failure
     // mode worth guarding: it reports success forever. These four assert the
@@ -50,18 +53,31 @@ void main() {
         });
       }
 
-      probe('catches a Flutter import',
-          "import 'package:flutter/material.dart';\n", 'no-flutter');
-      probe('catches a wall-clock read',
-          'final x = DateTime.now();\n', 'no-wall-clock');
-      probe('catches an unseeded Random',
-          'final r = Random();\n', 'no-unseeded-random');
-      probe('catches Random.secure',
-          'final r = Random.secure();\n', 'no-unseeded-random');
+      probe(
+        'catches a Flutter import',
+        "import 'package:flutter/material.dart';\n",
+        'no-flutter',
+      );
+      probe(
+        'catches a wall-clock read',
+        'final x = DateTime.now();\n',
+        'no-wall-clock',
+      );
+      probe(
+        'catches an unseeded Random',
+        'final r = Random();\n',
+        'no-unseeded-random',
+      );
+      probe(
+        'catches Random.secure',
+        'final r = Random.secure();\n',
+        'no-unseeded-random',
+      );
 
       test('does not flag a seeded Random — the whole point is to use one', () {
-        File('${sandbox.path}/probe.dart')
-            .writeAsStringSync('final r = Random(deriveSeed(s, "salt", 3));\n');
+        File(
+          '${sandbox.path}/probe.dart',
+        ).writeAsStringSync('final r = Random(deriveSeed(s, "salt", 3));\n');
         expect(scanEnginePurity(root: sandbox.path), isEmpty);
       });
 
@@ -74,7 +90,8 @@ void main() {
         expect(
           scanEnginePurity(root: sandbox.path),
           isEmpty,
-          reason: 'a checker that flags its own explanation of the rule '
+          reason:
+              'a checker that flags its own explanation of the rule '
               'gets switched off',
         );
       });

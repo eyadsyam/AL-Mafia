@@ -34,40 +34,49 @@ import 'package:mafia_master/engine/models/match_settings.dart';
 
 import 'package:mafia_master/ui/screens/night/morning_screen.dart';
 
-
 import '../support/localized.dart';
 
 void main() {
   group('doc 14 §1.5 — the morning is the victim and the trace', () {
-    testWidgets('a quiet night reads the same whoever made it quiet',
-        (tester) async {
+    testWidgets('a quiet night reads the same whoever made it quiet', (
+      tester,
+    ) async {
       // The Doctor blocking a kill and «الليلة الهادية» produce the same
       // sentence, and the engine-level proof that they produce the same
       // *report* is in `doc13_acceptance_test`. This is the screen half.
-      await tester.pumpWidget(localizedApp(MorningScreen(
-        dayNumber: 2,
-        victimName: null,
-        someoneSavedUnnamed: true,
-        onContinue: () {},
-      )));
+      await tester.pumpWidget(
+        localizedApp(
+          MorningScreen(
+            dayNumber: 2,
+            victimName: null,
+            someoneSavedUnnamed: true,
+            onContinue: () {},
+          ),
+        ),
+      );
       await tester.pump();
 
       expect(find.text(arStrings.quietNight), findsOneWidget);
       expect(find.text(arStrings.someoneSavedBody), findsOneWidget);
     });
 
-    testWidgets('nothing a bullet published appears here any more',
-        (tester) async {
+    testWidgets('nothing a bullet published appears here any more', (
+      tester,
+    ) async {
       // Doc 14 §4.1 removed «فتح الملف» and deferred «الشهادة», which were the
       // only two things that ever wrote a line into this screen. There is no
       // parameter left to pass them through.
-      await tester.pumpWidget(localizedApp(MorningScreen(
-        dayNumber: 2,
-        victimName: 'خالد',
-        someoneSavedUnnamed: false,
-        traceText: 'حد كان بيبص ناحية «سارة»',
-        onContinue: () {},
-      )));
+      await tester.pumpWidget(
+        localizedApp(
+          MorningScreen(
+            dayNumber: 2,
+            victimName: 'خالد',
+            someoneSavedUnnamed: false,
+            traceText: 'حد كان بيبص ناحية «سارة»',
+            onContinue: () {},
+          ),
+        ),
+      );
       await tester.pump();
 
       expect(find.text(arStrings.traceLabel), findsOneWidget);
@@ -84,13 +93,15 @@ void main() {
       expect(s.selfProtectEnabled, isTrue);
     });
 
-    test('whispers are off offline, which is the only mode this default sees',
-        () {
-      // Doc 14 §3.1. The online transport turns the layer on for itself; the
-      // offline flow no longer reads this flag at all, and the field survives
-      // for the transport and the codec.
-      expect(const MatchSettings().whisperEnabled, isFalse);
-    });
+    test(
+      'whispers are off offline, which is the only mode this default sees',
+      () {
+        // Doc 14 §3.1. The online transport turns the layer on for itself; the
+        // offline flow no longer reads this flag at all, and the field survives
+        // for the transport and the codec.
+        expect(const MatchSettings().whisperEnabled, isFalse);
+      },
+    );
 
     test('two roles hold an ability and two hold none', () {
       // Doc 14 §4.1 and §4.2. Asserted on the type rather than on a count, so

@@ -69,12 +69,16 @@ void main() {
         }
       }
 
-      expect(offenders, isEmpty,
-          reason: 'these surfaces reach the corner icons: $offenders.\n\n'
-              'The icons are the ones painted on the card corners, so any of '
-              'them shown near a player reads as that player\'s role whether '
-              'it was chosen that way or not. If the surface genuinely is '
-              'on-table for its whole life, add it to `allowed` and say why.');
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            'these surfaces reach the corner icons: $offenders.\n\n'
+            'The icons are the ones painted on the card corners, so any of '
+            'them shown near a player reads as that player\'s role whether '
+            'it was chosen that way or not. If the surface genuinely is '
+            'on-table for its whole life, add it to `allowed` and say why.',
+      );
     });
 
     test('no surface that shows a person can reach them', () {
@@ -82,11 +86,18 @@ void main() {
       // failure names the specific screen rather than a diff.
       for (final path in nearAPerson) {
         final file = File(path);
-        expect(file.existsSync(), isTrue,
-            reason: '$path has moved; this scan is now checking nothing');
-        expect(file.readAsStringSync().contains('FallingIcons'), isFalse,
-            reason: 'LEAK: $path draws the ambient icons, and it is a surface '
-                'that shows players by name.');
+        expect(
+          file.existsSync(),
+          isTrue,
+          reason: '$path has moved; this scan is now checking nothing',
+        );
+        expect(
+          file.readAsStringSync().contains('FallingIcons'),
+          isFalse,
+          reason:
+              'LEAK: $path draws the ambient icons, and it is a surface '
+              'that shows players by name.',
+        );
       }
     });
 
@@ -94,19 +105,29 @@ void main() {
       // One icon type per particle is fine; a *field* that happened to contain
       // only spades is not, and the difference is a single line in the
       // generator. `iconType: i % 4` is what keeps the mix even.
-      final source =
-          File('lib/ui/widgets/falling_icons.dart').readAsStringSync();
-      expect(source, contains('% 4'),
-          reason: 'the particle field no longer guarantees an even mix of all '
-              'four icons, so a run of one kind could read as a hint');
+      final source = File(
+        'lib/ui/widgets/falling_icons.dart',
+      ).readAsStringSync();
+      expect(
+        source,
+        contains('% 4'),
+        reason:
+            'the particle field no longer guarantees an even mix of all '
+            'four icons, so a run of one kind could read as a hint',
+      );
     });
 
     test('the scan is not vacuous', () {
-      final home =
-          File('lib/ui/screens/setup/home_screen.dart').readAsStringSync();
-      expect(home, contains('FallingIcons'),
-          reason: 'the home screen no longer shows the drift, so the allow '
-              'list is protecting nothing and this whole file is inert');
+      final home = File(
+        'lib/ui/screens/setup/home_screen.dart',
+      ).readAsStringSync();
+      expect(
+        home,
+        contains('FallingIcons'),
+        reason:
+            'the home screen no longer shows the drift, so the allow '
+            'list is protecting nothing and this whole file is inert',
+      );
     });
   });
 }

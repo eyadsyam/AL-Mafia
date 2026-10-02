@@ -59,10 +59,14 @@ void main() {
     for (final path in inHandSources) {
       test('$path uses no warm or role-bound token', () {
         final file = File(path);
-        expect(file.existsSync(), isTrue,
-            reason: '$path is listed as an in-hand surface but does not exist. '
-                'If it was renamed, update this list — silently dropping a '
-                'surface from the scan is how a leak gets in.');
+        expect(
+          file.existsSync(),
+          isTrue,
+          reason:
+              '$path is listed as an in-hand surface but does not exist. '
+              'If it was renamed, update this list — silently dropping a '
+              'surface from the scan is how a leak gets in.',
+        );
 
         final source = file.readAsStringSync();
         for (final entry in forbidden.entries) {
@@ -72,7 +76,9 @@ void main() {
           // colour, is a tell. A bare `contains` cannot tell the three apart and
           // was the reason role_card.dart carried a blanket exemption instead of
           // being scanned.
-          final pattern = RegExp('(?<!AppIcons\\.)(?<!l10n\\.)\\b${entry.key}\\b');
+          final pattern = RegExp(
+            '(?<!AppIcons\\.)(?<!l10n\\.)\\b${entry.key}\\b',
+          );
           expect(
             pattern.hasMatch(source),
             isFalse,
@@ -94,8 +100,11 @@ void main() {
 
       final covered = inHandSources.toSet();
       final missed = onDisk.difference(covered);
-      expect(missed, isEmpty,
-          reason: 'these night screens are not in the colour scan: $missed');
+      expect(
+        missed,
+        isEmpty,
+        reason: 'these night screens are not in the colour scan: $missed',
+      );
     });
 
     test('the scan is not vacuous', () {
@@ -104,8 +113,11 @@ void main() {
       // names still exist where they are legitimately used.
       final tokens = File('lib/ui/theme/design_tokens.dart').readAsStringSync();
       for (final name in forbidden.keys) {
-        expect(tokens.contains(name), isTrue,
-            reason: '`$name` is no longer a token; the scan list is stale');
+        expect(
+          tokens.contains(name),
+          isTrue,
+          reason: '`$name` is no longer a token; the scan list is stale',
+        );
       }
 
       // The scan's whole subtlety is the qualifier: `colors.roleMafia` is a
@@ -119,21 +131,34 @@ void main() {
       // legitimately references no role colour at all.
       final pattern = RegExp(r'(?<!AppIcons\.)(?<!l10n\.)\broleMafia\b');
 
-      final postGame =
-          File('lib/ui/screens/postgame/result_screen.dart').readAsStringSync();
-      expect(pattern.hasMatch(postGame), isTrue,
-          reason: 'result_screen.dart is post-game and legitimately paints with '
-              '`colors.roleMafia`. If the pattern no longer matches there, it '
-              'is matching on a name nothing uses and every check above is '
-              'passing on nothing.');
+      final postGame = File(
+        'lib/ui/screens/postgame/result_screen.dart',
+      ).readAsStringSync();
+      expect(
+        pattern.hasMatch(postGame),
+        isTrue,
+        reason:
+            'result_screen.dart is post-game and legitimately paints with '
+            '`colors.roleMafia`. If the pattern no longer matches there, it '
+            'is matching on a name nothing uses and every check above is '
+            'passing on nothing.',
+      );
 
       final strings = File('lib/ui/l10n_ext.dart').readAsStringSync();
-      expect(strings.contains('l10n.roleMafia'), isTrue,
-          reason: 'l10n_ext.dart no longer maps the role to its ARB string; '
-              'the negative anchor below is testing nothing');
-      expect(pattern.hasMatch(strings), isFalse,
-          reason: 'the `l10n.` lookbehind has stopped excluding string getters, '
-              'so the scan would now report the word "Mafia" as a colour leak');
+      expect(
+        strings.contains('l10n.roleMafia'),
+        isTrue,
+        reason:
+            'l10n_ext.dart no longer maps the role to its ARB string; '
+            'the negative anchor below is testing nothing',
+      );
+      expect(
+        pattern.hasMatch(strings),
+        isFalse,
+        reason:
+            'the `l10n.` lookbehind has stopped excluding string getters, '
+            'so the scan would now report the word "Mafia" as a colour leak',
+      );
     });
   });
 }

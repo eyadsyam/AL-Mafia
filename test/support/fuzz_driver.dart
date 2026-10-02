@@ -29,7 +29,6 @@ import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
 
-
 /// How one fuzzed match ended.
 class FuzzOutcome {
   final int seed;
@@ -66,8 +65,8 @@ class FuzzOutcome {
   String toString() => ok
       ? 'seed $seed: $playerCount players, $moveCount moves, completed'
       : 'seed $seed: $playerCount players, FAILED after $moveCount moves\n'
-          '  $failure\n'
-          '${trail.map((m) => '    $m').join('\n')}';
+            '  $failure\n'
+            '${trail.map((m) => '    $m').join('\n')}';
 }
 
 /// The ceiling on transitions before a match is declared stalled.
@@ -124,7 +123,8 @@ FuzzOutcome runFuzzedMatch(
         moveCount: moves,
         trail: trail,
         finished: engine.match,
-        failure: 'dead end: phase ${engine.match.phase.name}, '
+        failure:
+            'dead end: phase ${engine.match.phase.name}, '
             'day ${engine.match.dayNumber}, '
             'actor ${engine.match.currentActorSeat}, '
             '${_aliveCount(engine)} alive — no legal move and not terminal',
@@ -142,7 +142,8 @@ FuzzOutcome runFuzzedMatch(
         playerCount: playerCount,
         moveCount: moves,
         trail: trail,
-        failure: 'legal move was rejected by the engine — legalMoves and the '
+        failure:
+            'legal move was rejected by the engine — legalMoves and the '
             'engine disagree about the rules.\n  move: $move\n  threw: $e',
       );
     }
@@ -159,7 +160,8 @@ FuzzOutcome runFuzzedMatch(
         playerCount: playerCount,
         moveCount: moves,
         trail: trail,
-        failure: 'invariant violation after $move:\n'
+        failure:
+            'invariant violation after $move:\n'
             '${violations.map((v) => '      $v').join('\n')}',
       );
     }
@@ -171,7 +173,8 @@ FuzzOutcome runFuzzedMatch(
         moveCount: moves,
         trail: trail,
         finished: engine.match,
-        failure: 'did not terminate within $kStallGuard moves — '
+        failure:
+            'did not terminate within $kStallGuard moves — '
             'stuck in ${engine.match.phase.name} on day '
             '${engine.match.dayNumber} with ${_aliveCount(engine)} alive',
       );
@@ -187,7 +190,8 @@ FuzzOutcome runFuzzedMatch(
       moveCount: moves,
       trail: trail,
       finished: engine.match,
-      failure: 'reached terminal phase ${engine.match.phase.name} with no '
+      failure:
+          'reached terminal phase ${engine.match.phase.name} with no '
           'recorded outcome',
     );
   }
@@ -238,13 +242,14 @@ Map<Role, int> _randomValidConfig(int playerCount, Random rng) {
 /// hold duration — cannot affect a transition, so varying them would only slow
 /// the harness down.
 MatchSettings _randomSettings(Random rng) => MatchSettings(
-      dayTieRule: rng.nextBool() ? DayTieRule.revote : DayTieRule.noElimination,
-      abstainAllowed: rng.nextBool(),
-      discussionMode:
-          rng.nextBool() ? DiscussionMode.structured : DiscussionMode.free,
-      // Doc 14 §4.2 made this opt-in, which means the fuzzer has to opt in for
-      // some of its matches or `openingRound` becomes a phase nothing enters
-      // and nothing exercises. Random rather than always: the two shapes of
-      // Day 1 are both real, and both have to survive ten thousand matches.
-      openingRoundEnabled: rng.nextBool(),
-    );
+  dayTieRule: rng.nextBool() ? DayTieRule.revote : DayTieRule.noElimination,
+  abstainAllowed: rng.nextBool(),
+  discussionMode: rng.nextBool()
+      ? DiscussionMode.structured
+      : DiscussionMode.free,
+  // Doc 14 §4.2 made this opt-in, which means the fuzzer has to opt in for
+  // some of its matches or `openingRound` becomes a phase nothing enters
+  // and nothing exercises. Random rather than always: the two shapes of
+  // Day 1 are both real, and both have to survive ten thousand matches.
+  openingRoundEnabled: rng.nextBool(),
+);

@@ -35,8 +35,7 @@ void main() {
 
     container = ProviderContainer(
       overrides: [
-        matchRepositoryProvider
-            .overrideWithValue(MemoryMatchRepository(store)),
+        matchRepositoryProvider.overrideWithValue(MemoryMatchRepository(store)),
       ],
     );
     addTearDown(container.dispose);
@@ -62,8 +61,9 @@ void main() {
   setUp(() => store = returningHostStore());
 
   group('S-17 resume prompt', () {
-    testWidgets('no prompt appears when there is nothing to resume',
-        (tester) async {
+    testWidgets('no prompt appears when there is nothing to resume', (
+      tester,
+    ) async {
       await launch(tester);
       expect(find.byKey(ResumeGate.resumeButton), findsNothing);
       expect(find.byType(HomeScreen), findsOneWidget);
@@ -74,12 +74,16 @@ void main() {
       await MemoryMatchRepository(store).persistStep(engine.match);
 
       await launch(tester);
-      expect(find.byKey(ResumeGate.resumeButton), findsNothing,
-          reason: 'a finished match belongs in History, not on the resume path');
+      expect(
+        find.byKey(ResumeGate.resumeButton),
+        findsNothing,
+        reason: 'a finished match belongs in History, not on the resume path',
+      );
     });
 
-    testWidgets('an unfinished match offers both Resume and End',
-        (tester) async {
+    testWidgets('an unfinished match offers both Resume and End', (
+      tester,
+    ) async {
       final engine = scriptedMatch(stopAfterNightActions: 3);
       await MemoryMatchRepository(store).persistStep(engine.match);
 
@@ -89,8 +93,10 @@ void main() {
       expect(find.byKey(ResumeGate.endButton), findsOneWidget);
       // The prompt says how big the match is and where it will pick up, so the
       // host can tell which night they are about to walk back into.
-      expect(find.textContaining('${engine.match.players.length} لاعبين'),
-          findsOneWidget);
+      expect(
+        find.textContaining('${engine.match.players.length} لاعبين'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('the prompt names the person the phone goes to, not the phase '
@@ -101,8 +107,10 @@ void main() {
 
       await launch(tester);
 
-      expect(find.textContaining(engine.match.players[actorSeat].name),
-          findsOneWidget);
+      expect(
+        find.textContaining(engine.match.players[actorSeat].name),
+        findsOneWidget,
+      );
 
       // Scoped to the dialog: Home behind it is titled "سيد المافيا", which
       // contains the word for Mafia but says nothing about any player.
@@ -116,13 +124,38 @@ void main() {
           if (w.data != null) w.data!,
       ].join(' ');
       for (final roleWord in ['مافيا', 'دكتور', 'محقق', 'مواطن']) {
-        expect(dialogText.contains(roleWord), isFalse,
-            reason: 'the resume prompt leaked "$roleWord"');
+        expect(
+          dialogText.contains(roleWord),
+          isFalse,
+          reason: 'the resume prompt leaked "$roleWord"',
+        );
       }
     });
 
-    testWidgets('Resume re-enters on the pass gate, never on the night content',
-        (tester) async {
+    testWidgets(
+      'Resume re-enters on the pass gate, never on the night content',
+      (tester) async {
+        final engine = scriptedMatch(stopAfterNightActions: 3);
+        await MemoryMatchRepository(store).persistStep(engine.match);
+
+        await launch(tester);
+        await tester.tap(find.byKey(ResumeGate.resumeButton));
+        await tester.pumpAndSettle();
+
+        // The interrupted actor has to identify themselves again before anything
+        // comes back (L-13).
+        expect(find.byType(HoldPad), findsOneWidget);
+        expect(
+          find.byType(PlayerTile),
+          findsNothing,
+          reason: 'resuming restored the target list without an identity gate',
+        );
+      },
+    );
+
+    testWidgets('Resume restores the exact match that was interrupted', (
+      tester,
+    ) async {
       final engine = scriptedMatch(stopAfterNightActions: 3);
       await MemoryMatchRepository(store).persistStep(engine.match);
 
@@ -130,24 +163,10 @@ void main() {
       await tester.tap(find.byKey(ResumeGate.resumeButton));
       await tester.pumpAndSettle();
 
-      // The interrupted actor has to identify themselves again before anything
-      // comes back (L-13).
-      expect(find.byType(HoldPad), findsOneWidget);
-      expect(find.byType(PlayerTile), findsNothing,
-          reason: 'resuming restored the target list without an identity gate');
-    });
-
-    testWidgets('Resume restores the exact match that was interrupted',
-        (tester) async {
-      final engine = scriptedMatch(stopAfterNightActions: 3);
-      await MemoryMatchRepository(store).persistStep(engine.match);
-
-      await launch(tester);
-      await tester.tap(find.byKey(ResumeGate.resumeButton));
-      await tester.pumpAndSettle();
-
-      final restored =
-          container.read(matchControllerProvider.notifier).engine.match;
+      final restored = container
+          .read(matchControllerProvider.notifier)
+          .engine
+          .match;
       expect(restored, equals(engine.match));
     });
 
@@ -160,24 +179,30 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(HomeScreen), findsOneWidget);
-      expect(store.matches, isEmpty,
-          reason: 'ending the match should not leave it waiting to be resumed '
-              'again on the next launch');
+      expect(
+        store.matches,
+        isEmpty,
+        reason:
+            'ending the match should not leave it waiting to be resumed '
+            'again on the next launch',
+      );
     });
 
-    testWidgets('the prompt is offered once per launch, not on every Home visit',
-        (tester) async {
-      final engine = scriptedMatch(stopAfterNightActions: 3);
-      await MemoryMatchRepository(store).persistStep(engine.match);
+    testWidgets(
+      'the prompt is offered once per launch, not on every Home visit',
+      (tester) async {
+        final engine = scriptedMatch(stopAfterNightActions: 3);
+        await MemoryMatchRepository(store).persistStep(engine.match);
 
-      await launch(tester);
-      await tester.tap(find.byKey(ResumeGate.resumeButton));
-      await tester.pumpAndSettle();
-      expect(find.byKey(ResumeGate.resumeButton), findsNothing);
+        await launch(tester);
+        await tester.tap(find.byKey(ResumeGate.resumeButton));
+        await tester.pumpAndSettle();
+        expect(find.byKey(ResumeGate.resumeButton), findsNothing);
 
-      // Returning Home must not re-ask; the host already answered.
-      await tester.pumpAndSettle();
-      expect(find.byKey(ResumeGate.resumeButton), findsNothing);
-    });
+        // Returning Home must not re-ask; the host already answered.
+        await tester.pumpAndSettle();
+        expect(find.byKey(ResumeGate.resumeButton), findsNothing);
+      },
+    );
   });
 }

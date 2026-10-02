@@ -98,6 +98,96 @@ abstract class AppLocalizations {
     Locale('en'),
   ];
 
+  /// No description provided for @onlineHostExitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the room?'**
+  String get onlineHostExitTitle;
+
+  /// No description provided for @onlineHostExitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the room running and hand hosting to the first available player, or close it for everyone.'**
+  String get onlineHostExitBody;
+
+  /// No description provided for @onlineLeaveKeepRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave and keep playing'**
+  String get onlineLeaveKeepRoom;
+
+  /// No description provided for @voiceEnablePlayback.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable audio'**
+  String get voiceEnablePlayback;
+
+  /// No description provided for @onlineHistoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Online match'**
+  String get onlineHistoryLabel;
+
+  /// No description provided for @onlineMatchMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'{players} players · day {day}'**
+  String onlineMatchMeta(int players, int day);
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your name and character once. Saved on this device, with no sign-in.'**
+  String get profileHint;
+
+  /// No description provided for @profileSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your profile. Allow browser storage and try again.'**
+  String get profileSaveFailed;
+
+  /// No description provided for @profileEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get profileEdit;
+
+  /// No description provided for @videoPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play introduction'**
+  String get videoPlay;
+
+  /// No description provided for @videoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The introduction could not play here.'**
+  String get videoFailed;
+
+  /// No description provided for @videoRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get videoRetry;
+
+  /// No description provided for @voiceRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable audio'**
+  String get voiceRetry;
+
+  /// No description provided for @onlineNightPrivacyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio stays off during role reveal and night to protect game privacy.'**
+  String get onlineNightPrivacyHint;
+
   /// Application name, shown on Home.
   ///
   /// In en, this message translates to:
@@ -2030,6 +2120,48 @@ abstract class AppLocalizations {
   /// **'No public rooms open right now'**
   String get onlineNoPublicRooms;
 
+  /// No description provided for @publicRoomSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'{players}/{capacity} players'**
+  String publicRoomSeats(int players, int capacity);
+
+  /// No description provided for @publicRoomMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more player needed before the host can start} other{{count} more players needed before the host can start}}'**
+  String publicRoomMissing(int count);
+
+  /// No description provided for @publicRoomReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Enough players — the host decides when to start'**
+  String get publicRoomReady;
+
+  /// No description provided for @publicRoomFullStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Full'**
+  String get publicRoomFullStatus;
+
+  /// No description provided for @publicRoomsStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t refresh the list right now. This is the last list we received and it may be out of date.'**
+  String get publicRoomsStale;
+
+  /// No description provided for @publicRoomsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the server to load rooms. We\'ll keep trying.'**
+  String get publicRoomsUnavailable;
+
+  /// No description provided for @onlineRoomStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'That room has already started. Pick another one from the list.'**
+  String get onlineRoomStarted;
+
   /// No description provided for @onlinePublicRoomPlayers.
   ///
   /// In en, this message translates to:
@@ -2401,6 +2533,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for: {names}'**
   String onlineWaitingForCards(String names);
+
+  /// No description provided for @onlineFloorOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'The floor is open'**
+  String get onlineFloorOpen;
 
   /// Doc 15 §1.4. Who has asked for the floor, in seat order. Never a queue: no position numbers, and never sorted by who asked first.
   ///
@@ -3133,6 +3271,1932 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{actor} suspected {target}'**
   String timelineSuspectFemale(String actor, String target);
+
+  /// No description provided for @onlineDiscardResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Forget room'**
+  String get onlineDiscardResume;
+
+  /// No description provided for @onlineStorageWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This device could not save. The match is unaffected, but it may not bring you back to the room on its own or keep the result.'**
+  String get onlineStorageWarning;
+
+  /// No description provided for @safetyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy and data deletion'**
+  String get safetyTitle;
+
+  /// No description provided for @safetyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer: Eyad Syam\nSupport: eyadsyam124@gmail.com\n\nLocal play stays on your device. Online play uses a random identifier, profile, match actions and messages. Earned coins, rewards and unlocked items remain with that identity until deletion. Optional voice is encrypted in transit and is not recorded by the game. Service providers process connection data needed to operate online play. There are no ads or advertising trackers.\n\nFinished rooms are eligible for deletion after 24 hours. Old anonymous identities with no room membership are removed on the cleanup schedule. You can request online-data deletion below; submission is not completed deletion. Outside the app, use almafia.vercel.app/delete-data with your identifier or receipt. Never send passwords or access keys.\n\nHarassment, threats, hate, sexual content, child exploitation and sharing private information are prohibited. Report abusive players, room names or messages. Blocking hides their private messages and mutes their voice for you; public game actions remain visible. Reports are reviewed by the developer and are not visible to players.'**
+  String get safetyPolicy;
+
+  /// No description provided for @safetyAgree.
+  ///
+  /// In en, this message translates to:
+  /// **'I accept the community rules'**
+  String get safetyAgree;
+
+  /// No description provided for @safetyConsentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before playing online'**
+  String get safetyConsentTitle;
+
+  /// No description provided for @safetyConsentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Abuse, harassment, hate, sexual content and sharing private information are prohibited. Use Safety to report or block. Voice is optional. Read Privacy in Settings for data practices.'**
+  String get safetyConsentBody;
+
+  /// No description provided for @safetyReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit report'**
+  String get safetyReport;
+
+  /// No description provided for @safetyBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Block player messages and voice'**
+  String get safetyBlock;
+
+  /// No description provided for @safetyRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Room name or content'**
+  String get safetyRoom;
+
+  /// No description provided for @safetyDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the abuse or message (no secret role information)'**
+  String get safetyDetails;
+
+  /// No description provided for @safetyReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Request received. Keep this receipt:'**
+  String get safetyReceipt;
+
+  /// No description provided for @safetyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Request was not sent. Retry or contact support.'**
+  String get safetyFailed;
+
+  /// No description provided for @safetyDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Request online data deletion'**
+  String get safetyDelete;
+
+  /// No description provided for @safetyDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a request to delete your anonymous identity and associated online data. The developer will review it within 30 days. Other players’ local copies are separate; safety evidence may be retained for a limited period. This request does not delete local files.'**
+  String get safetyDeleteConfirm;
+
+  /// No description provided for @safetyIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Show my data identifier'**
+  String get safetyIdentity;
+
+  /// No description provided for @safetyBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked for you.'**
+  String get safetyBlocked;
+
+  /// No description provided for @safetyNoRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Reporting and blocking are available inside a room.'**
+  String get safetyNoRoom;
+
+  /// No description provided for @safetyTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Report and block'**
+  String get safetyTools;
+
+  /// No description provided for @onlineWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'The table is ready. Take your seat.'**
+  String get onlineWelcome;
+
+  /// No description provided for @languageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageLabel;
+
+  /// No description provided for @languageArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'العربية'**
+  String get languageArabic;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @onlineNewRoomsPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'New rooms are temporarily paused. You can still join an existing room or play offline.'**
+  String get onlineNewRoomsPaused;
+
+  /// No description provided for @helpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help and FAQ'**
+  String get helpTitle;
+
+  /// No description provided for @helpIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick answers about playing, online rooms, safety and your data.'**
+  String get helpIntro;
+
+  /// No description provided for @helpPlayQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How does a match work?'**
+  String get helpPlayQuestion;
+
+  /// No description provided for @helpPlayAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'The game assigns secret roles, guides every night and day phase, and counts the vote. Citizens find the Mafia; the Mafia survives until it matches or outnumbers the town. The host can review the rules before starting.'**
+  String get helpPlayAnswer;
+
+  /// No description provided for @helpOnlineQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How do online rooms work?'**
+  String get helpOnlineQuestion;
+
+  /// No description provided for @helpOnlineAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a room and share its code, join with a code, or choose a public room. The match is controlled by the game server, and host control moves to another connected player if needed.'**
+  String get helpOnlineAnswer;
+
+  /// No description provided for @helpVoiceQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Is voice required?'**
+  String get helpVoiceQuestion;
+
+  /// No description provided for @helpVoiceAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'No. Voice is optional and is not recorded by the game. If microphone access or voice relay fails, the match continues with the game controls and structured text.'**
+  String get helpVoiceAnswer;
+
+  /// No description provided for @helpReconnectQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'What if the connection drops?'**
+  String get helpReconnectQuestion;
+
+  /// No description provided for @helpReconnectAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen the game on the same device and use Continue room when it appears. Your seat is restored when the room still exists. Never create a second profile to recover a live seat.'**
+  String get helpReconnectAnswer;
+
+  /// No description provided for @helpSafetyQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How do reporting and blocking work?'**
+  String get helpSafetyQuestion;
+
+  /// No description provided for @helpSafetyAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Inside a room, use the flag button to report a player or room content. Blocking immediately hides that player\'s private messages and mutes their voice for you. A report is evidence for review, not an automatic guilty decision.'**
+  String get helpSafetyAnswer;
+
+  /// No description provided for @helpCoinsQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'What are coins?'**
+  String get helpCoinsQuestion;
+
+  /// No description provided for @helpCoinsAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins are earned from verified completed online matches and can unlock fair content. They cannot be withdrawn, transferred or used to buy votes, secret information or a better chance to win. Coins stay with this device\'s anonymous online identity.'**
+  String get helpCoinsAnswer;
+
+  /// No description provided for @helpPrivacyQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Where are privacy and deletion controls?'**
+  String get helpPrivacyQuestion;
+
+  /// No description provided for @helpPrivacyAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'They are on the Settings screen under Privacy and data deletion. You can view your anonymous data identifier and request deletion there.'**
+  String get helpPrivacyAnswer;
+
+  /// No description provided for @helpAgeQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is online play intended for?'**
+  String get helpAgeQuestion;
+
+  /// No description provided for @helpAgeAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Online voice and public rooms are intended for adults aged 18 or older. Do not share your address, phone number, passwords or other private information in voice, names, messages or room titles.'**
+  String get helpAgeAnswer;
+
+  /// No description provided for @helpSupportQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How can I contact support?'**
+  String get helpSupportQuestion;
+
+  /// No description provided for @helpSupportAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Email eyadsyam124@gmail.com. Include a report receipt or your anonymous data identifier when relevant, but never send a password or access key.'**
+  String get helpSupportAnswer;
+
+  /// No description provided for @coinsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins and rewards'**
+  String get coinsTitle;
+
+  /// No description provided for @coinsBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} coins'**
+  String coinsBalance(int count);
+
+  /// No description provided for @coinsEarnHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete an eligible online match to earn 100 coins. Players on the winning team earn 25 more. Rewards are verified by the game server and never affect votes, roles or the chance to win.'**
+  String get coinsEarnHint;
+
+  /// No description provided for @coinsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your coins could not be loaded. Nothing was spent; try again.'**
+  String get coinsLoadFailed;
+
+  /// No description provided for @coinsGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Mastermind\'s Notebook'**
+  String get coinsGuideTitle;
+
+  /// No description provided for @coinsGuideHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A permanent strategy guide for reading the table and defending your story. It never reveals live secret information.'**
+  String get coinsGuideHint;
+
+  /// No description provided for @coinsGuidePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock for {count} coins'**
+  String coinsGuidePrice(int count);
+
+  /// No description provided for @coinsBuyGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock the notebook?'**
+  String get coinsBuyGuide;
+
+  /// No description provided for @coinsBuyConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently spends earned coins on this anonymous online identity. It cannot change a match or improve your odds.'**
+  String get coinsBuyConfirm;
+
+  /// No description provided for @coinsUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get coinsUnlock;
+
+  /// No description provided for @coinsGuideOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the notebook'**
+  String get coinsGuideOpen;
+
+  /// No description provided for @coinsGuideContent.
+  ///
+  /// In en, this message translates to:
+  /// **'CITIZEN — Track who changes a story after the vote, not who speaks the loudest. Ask for one clear reason and compare it with the next ballot.\n\nMAFIA — Build a simple position early. A complicated lie creates details you must remember. Defend a citizen sometimes; automatic aggression gives the table an easy pattern.\n\nDOCTOR — Survival is not the only goal. Think about which save would create the most trustworthy information for tomorrow.\n\nDETECTIVE — Your information is valuable only if the table can use it. Leave a believable trail before a risky accusation, without announcing your role too early.\n\nEVERY ROLE — Separate what the game confirmed from what a player claimed. The strongest argument is the one that survives the next revealed fact.'**
+  String get coinsGuideContent;
+
+  /// No description provided for @adRewardAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad for +{count} coins'**
+  String adRewardAction(int count);
+
+  /// No description provided for @adRewardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional and shown only after the result. Your original reward stays yours if you decline or the ad fails.'**
+  String get adRewardHint;
+
+  /// No description provided for @adRewardPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad completed. The extra reward is being verified and will appear automatically.'**
+  String get adRewardPending;
+
+  /// No description provided for @adRewardGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} extra coins added.'**
+  String adRewardGranted(int count);
+
+  /// No description provided for @adRewardUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No ad is available right now. Your original reward is unchanged.'**
+  String get adRewardUnavailable;
+
+  /// No description provided for @adRewardUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'You claimed the ad reward for this match.'**
+  String get adRewardUsed;
+
+  /// No description provided for @privacyChoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad privacy choices'**
+  String get privacyChoices;
+
+  /// No description provided for @privacyChoicesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Review or change the privacy choices required by the advertising provider.'**
+  String get privacyChoicesHint;
+
+  /// No description provided for @premiumScenarioTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Council of Shadows scenario'**
+  String get premiumScenarioTitle;
+
+  /// No description provided for @premiumScenarioHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A permanent host pack with balanced rules, whispers, confrontation and secret ballots. When the host selects it, everyone in the room plays without buying it.'**
+  String get premiumScenarioHint;
+
+  /// No description provided for @premiumScenarioBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy scenario pack'**
+  String get premiumScenarioBuy;
+
+  /// No description provided for @premiumScenarioOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'Scenario pack owned'**
+  String get premiumScenarioOwned;
+
+  /// No description provided for @premiumScenarioRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get premiumScenarioRestore;
+
+  /// No description provided for @premiumScenarioPending.
+  ///
+  /// In en, this message translates to:
+  /// **'The store is still processing this purchase.'**
+  String get premiumScenarioPending;
+
+  /// No description provided for @premiumScenarioFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase could not be verified. The game has not charged anything itself.'**
+  String get premiumScenarioFailed;
+
+  /// No description provided for @premiumScenarioUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Council of Shadows'**
+  String get premiumScenarioUse;
+
+  /// No description provided for @premiumScenarioUseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A balanced scenario preset the host unlocks for the whole room.'**
+  String get premiumScenarioUseHint;
+
+  /// No description provided for @shareResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Share result'**
+  String get shareResult;
+
+  /// No description provided for @shareResultText.
+  ///
+  /// In en, this message translates to:
+  /// **'A Mafia Master match ended with {winner} winning after {days} days. Open your room at https://almafia.vercel.app'**
+  String shareResultText(String winner, int days);
+
+  /// No description provided for @playAgainWithGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'New room for the group'**
+  String get playAgainWithGroup;
+
+  /// No description provided for @setupWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Mafia Master'**
+  String get setupWelcomeTitle;
+
+  /// No description provided for @setupWelcomeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your language, name and preferences once, then play.'**
+  String get setupWelcomeHint;
+
+  /// No description provided for @setupPreferencesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get setupPreferencesTitle;
+
+  /// No description provided for @setupPreferencesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change these later in Settings.'**
+  String get setupPreferencesHint;
+
+  /// No description provided for @prefSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Game sounds'**
+  String get prefSound;
+
+  /// No description provided for @prefMusic.
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get prefMusic;
+
+  /// No description provided for @prefReduceMotion.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce motion'**
+  String get prefReduceMotion;
+
+  /// No description provided for @setupAdultConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'I am 18 or older'**
+  String get setupAdultConfirm;
+
+  /// No description provided for @setupAdultHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Online play, voice and public rooms are for adults only.'**
+  String get setupAdultHint;
+
+  /// No description provided for @termsAcceptPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'I have read and agree to the '**
+  String get termsAcceptPrefix;
+
+  /// No description provided for @termsAcceptLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and Conditions'**
+  String get termsAcceptLink;
+
+  /// No description provided for @termsAcceptSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'.'**
+  String get termsAcceptSuffix;
+
+  /// No description provided for @privacyLinkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get privacyLinkLabel;
+
+  /// No description provided for @termsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and Conditions'**
+  String get termsTitle;
+
+  /// No description provided for @termsVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String termsVersion(String version);
+
+  /// No description provided for @termsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Mafia Master is a party game for entertainment. Roles and outcomes are part of the game only.\n\n2. Online play, voice and public rooms are for people aged 18 or older.\n\n3. Abuse, harassment, threats, hate speech, sexual content and sharing anyone\'s private information are prohibited. You can report or block a player from the safety tools.\n\n4. Voice is optional and the game does not record audio. Other players hear what you say, and nobody can stop someone recording with another device.\n\n5. Mafia Coins are an in-game currency for unlocking cosmetic content only, such as frames, themes and narrator styles. They have no cash value, cannot be exchanged for money and never give an advantage in play, voting or roles.\n\n6. Buying coins with money is available on the website only. Transfers are reviewed manually and coins are added after the transfer is confirmed. Opening a payment link or a receipt screenshot is not proof of payment. A transfer that cannot be matched stays under review until it is resolved.\n\n7. We may remove a room or restrict a player who breaks these terms. You can request deletion of your data from Settings.\n\n8. If these terms change in an important way, we will ask for your agreement again before you continue.'**
+  String get termsBody;
+
+  /// No description provided for @privacySummaryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you link an email to protect your coins, it is used only to recover your account.\n\n• Coin purchase requests record the amount, payment method and transfer reference for review and to prevent duplicates.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\nFull policy: almafia.vercel.app/privacy'**
+  String get privacySummaryBody;
+
+  /// No description provided for @termsUpdatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you continue'**
+  String get termsUpdatedTitle;
+
+  /// No description provided for @termsUpdatedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and accept the terms once. Your profile and progress are kept.'**
+  String get termsUpdatedHint;
+
+  /// No description provided for @settingsLegalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and privacy'**
+  String get settingsLegalTitle;
+
+  /// No description provided for @launcherLabelPending.
+  ///
+  /// In en, this message translates to:
+  /// **'The icon name will update after you close the game.'**
+  String get launcherLabelPending;
+
+  /// No description provided for @documentClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get documentClose;
+
+  /// No description provided for @publicRoomWaitingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting room ready'**
+  String get publicRoomWaitingTitle;
+
+  /// No description provided for @publicRoomWaitingStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty; the first player in becomes the host'**
+  String get publicRoomWaitingStatus;
+
+  /// No description provided for @onlineShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open sharing or copy the link. Read the room code out to players.'**
+  String get onlineShareFailed;
+
+  /// No description provided for @coinsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Mafia Coins'**
+  String get coinsName;
+
+  /// No description provided for @storeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Store'**
+  String get storeTitle;
+
+  /// No description provided for @storeTabShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get storeTabShop;
+
+  /// No description provided for @storeTabCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection'**
+  String get storeTabCollection;
+
+  /// No description provided for @storeTabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get storeTabHistory;
+
+  /// No description provided for @storeTabCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy coins'**
+  String get storeTabCoins;
+
+  /// No description provided for @storeEarnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} coins ≈ {matches} online matches'**
+  String storeEarnTime(int count, int matches);
+
+  /// No description provided for @storeSectionIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity'**
+  String get storeSectionIdentity;
+
+  /// No description provided for @storeSectionPacks.
+  ///
+  /// In en, this message translates to:
+  /// **'Room presentation'**
+  String get storeSectionPacks;
+
+  /// No description provided for @storeSectionNarrator.
+  ///
+  /// In en, this message translates to:
+  /// **'Narration styles'**
+  String get storeSectionNarrator;
+
+  /// No description provided for @storeSectionBundles.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundles'**
+  String get storeSectionBundles;
+
+  /// No description provided for @storePermanent.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent'**
+  String get storePermanent;
+
+  /// No description provided for @storeOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned'**
+  String get storeOwned;
+
+  /// No description provided for @storeEquipped.
+  ///
+  /// In en, this message translates to:
+  /// **'In use'**
+  String get storeEquipped;
+
+  /// No description provided for @storeEquip.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get storeEquip;
+
+  /// No description provided for @storeUnequip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get storeUnequip;
+
+  /// No description provided for @storePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get storePreview;
+
+  /// No description provided for @storeBuyFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy for {count}'**
+  String storeBuyFor(int count);
+
+  /// No description provided for @storeBuyConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy {item}?'**
+  String storeBuyConfirmTitle(String item);
+
+  /// No description provided for @storeBuyConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} coins will be deducted. The content is cosmetic and permanent, and changes nothing in play.'**
+  String storeBuyConfirmBody(int count);
+
+  /// No description provided for @storeNotEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more coins needed'**
+  String storeNotEnough(int count);
+
+  /// No description provided for @storeBundleSaves.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves {count} coins'**
+  String storeBundleSaves(int count);
+
+  /// No description provided for @storeBundleOwnedAll.
+  ///
+  /// In en, this message translates to:
+  /// **'You own everything in it'**
+  String get storeBundleOwnedAll;
+
+  /// No description provided for @storeBundleContents.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes: {items}'**
+  String storeBundleContents(String items);
+
+  /// No description provided for @storeBought.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to your collection'**
+  String get storeBought;
+
+  /// No description provided for @storeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That did not go through and nothing was deducted. Try again.'**
+  String get storeFailed;
+
+  /// No description provided for @storeHostPackNote.
+  ///
+  /// In en, this message translates to:
+  /// **'When the host picks a presentation, everyone in the room sees it without buying it.'**
+  String get storeHostPackNote;
+
+  /// No description provided for @storePresentationNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Look and sound only. It never changes rules, votes or roles.'**
+  String get storePresentationNote;
+
+  /// No description provided for @storeEmptyCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet.'**
+  String get storeEmptyCollection;
+
+  /// No description provided for @storeEmptyHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet.'**
+  String get storeEmptyHistory;
+
+  /// No description provided for @historyMatchCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Online match finished'**
+  String get historyMatchCompletion;
+
+  /// No description provided for @historyMatchWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Win'**
+  String get historyMatchWin;
+
+  /// No description provided for @historyCatalogSpend.
+  ///
+  /// In en, this message translates to:
+  /// **'Bought: {item}'**
+  String historyCatalogSpend(String item);
+
+  /// No description provided for @historyCatalogRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund: {item}'**
+  String historyCatalogRefund(String item);
+
+  /// No description provided for @historyAdReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Video reward'**
+  String get historyAdReward;
+
+  /// No description provided for @historyCoinPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Coin purchase'**
+  String get historyCoinPurchase;
+
+  /// No description provided for @historyCoinPurchaseReversal.
+  ///
+  /// In en, this message translates to:
+  /// **'Coin purchase reversed'**
+  String get historyCoinPurchaseReversal;
+
+  /// No description provided for @historyAdjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment'**
+  String get historyAdjustment;
+
+  /// No description provided for @cosmeticClassic.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic'**
+  String get cosmeticClassic;
+
+  /// No description provided for @cosmeticFrameGilded.
+  ///
+  /// In en, this message translates to:
+  /// **'Gilded frame'**
+  String get cosmeticFrameGilded;
+
+  /// No description provided for @cosmeticFrameGildedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'An engraved gold frame with a small mask beneath your portrait, seen by every player.'**
+  String get cosmeticFrameGildedDesc;
+
+  /// No description provided for @cosmeticFrameCrimson.
+  ///
+  /// In en, this message translates to:
+  /// **'Crimson frame'**
+  String get cosmeticFrameCrimson;
+
+  /// No description provided for @cosmeticFrameCrimsonDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark silver with crimson enamel and a small crest below your portrait.'**
+  String get cosmeticFrameCrimsonDesc;
+
+  /// No description provided for @cosmeticFrameMoonlit.
+  ///
+  /// In en, this message translates to:
+  /// **'Moonlit frame'**
+  String get cosmeticFrameMoonlit;
+
+  /// No description provided for @cosmeticFrameMoonlitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Cool silver with a small crescent moon below your portrait.'**
+  String get cosmeticFrameMoonlitDesc;
+
+  /// No description provided for @cosmeticPlateNoir.
+  ///
+  /// In en, this message translates to:
+  /// **'Noir nameplate'**
+  String get cosmeticPlateNoir;
+
+  /// No description provided for @cosmeticPlateNoirDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name on a charcoal plate in engraved silver with medallion ends.'**
+  String get cosmeticPlateNoirDesc;
+
+  /// No description provided for @cosmeticPlateGilded.
+  ///
+  /// In en, this message translates to:
+  /// **'Gilded nameplate'**
+  String get cosmeticPlateGilded;
+
+  /// No description provided for @cosmeticPlateGildedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name on a charcoal plate with a gold edge and fan-shaped ends.'**
+  String get cosmeticPlateGildedDesc;
+
+  /// No description provided for @cosmeticPlateEmber.
+  ///
+  /// In en, this message translates to:
+  /// **'Ember nameplate'**
+  String get cosmeticPlateEmber;
+
+  /// No description provided for @cosmeticPlateEmberDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name on a charcoal plate edged in crimson and gold with pointed ends.'**
+  String get cosmeticPlateEmberDesc;
+
+  /// No description provided for @cosmeticPackManor.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight Manor'**
+  String get cosmeticPackManor;
+
+  /// No description provided for @cosmeticPackManorDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A candlelit manor hall behind the table with light fog, a candlelight transition between public phases, and an opening and closing line with sound. Everyone in the room sees it.'**
+  String get cosmeticPackManorDesc;
+
+  /// No description provided for @cosmeticPackOldTown.
+  ///
+  /// In en, this message translates to:
+  /// **'Old Town'**
+  String get cosmeticPackOldTown;
+
+  /// No description provided for @cosmeticPackOldTownDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A warm old-stone hall behind the table with drifting light, a sweeping-light transition across the table, and an opening and closing line with sound. Everyone in the room sees it.'**
+  String get cosmeticPackOldTownDesc;
+
+  /// No description provided for @cosmeticNarratorStoryteller.
+  ///
+  /// In en, this message translates to:
+  /// **'The Storyteller'**
+  String get cosmeticNarratorStoryteller;
+
+  /// No description provided for @cosmeticNarratorStorytellerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A narrator who marks every public phase with a short on-screen line, the same for every player. With sound off, the lines stay as text.'**
+  String get cosmeticNarratorStorytellerDesc;
+
+  /// No description provided for @cosmeticBundleCouncil.
+  ///
+  /// In en, this message translates to:
+  /// **'Council bundle'**
+  String get cosmeticBundleCouncil;
+
+  /// No description provided for @cosmeticBundleCouncilDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight Manor, Old Town and The Storyteller together.'**
+  String get cosmeticBundleCouncilDesc;
+
+  /// No description provided for @cosmeticBundleIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity bundle'**
+  String get cosmeticBundleIdentity;
+
+  /// No description provided for @cosmeticBundleIdentityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'All three frames and all three nameplates.'**
+  String get cosmeticBundleIdentityDesc;
+
+  /// No description provided for @packManorIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The manor doors are shut. Nobody leaves before the truth does.'**
+  String get packManorIntro;
+
+  /// No description provided for @packManorOutro.
+  ///
+  /// In en, this message translates to:
+  /// **'The candles are out, and the manor keeps its secrets.'**
+  String get packManorOutro;
+
+  /// No description provided for @packOldTownIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The old town wakes to a new secret.'**
+  String get packOldTownIntro;
+
+  /// No description provided for @packOldTownOutro.
+  ///
+  /// In en, this message translates to:
+  /// **'The streets are quiet. The story is over.'**
+  String get packOldTownOutro;
+
+  /// No description provided for @narratorNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night falls. Everyone stays where they are.'**
+  String get narratorNight;
+
+  /// No description provided for @narratorMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning comes, and something has changed.'**
+  String get narratorMorning;
+
+  /// No description provided for @narratorDiscussion.
+  ///
+  /// In en, this message translates to:
+  /// **'Now we talk. Who has a case?'**
+  String get narratorDiscussion;
+
+  /// No description provided for @narratorVoting.
+  ///
+  /// In en, this message translates to:
+  /// **'The decision belongs to the table.'**
+  String get narratorVoting;
+
+  /// No description provided for @narratorResult.
+  ///
+  /// In en, this message translates to:
+  /// **'The story ends, and the secrets are out.'**
+  String get narratorResult;
+
+  /// No description provided for @roomPackLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Room presentation'**
+  String get roomPackLabel;
+
+  /// No description provided for @roomNarratorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator'**
+  String get roomNarratorLabel;
+
+  /// No description provided for @previewTransition.
+  ///
+  /// In en, this message translates to:
+  /// **'Play transition'**
+  String get previewTransition;
+
+  /// No description provided for @previewSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Play sound'**
+  String get previewSound;
+
+  /// No description provided for @previewIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening'**
+  String get previewIntro;
+
+  /// No description provided for @previewOutro.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing'**
+  String get previewOutro;
+
+  /// No description provided for @previewSampleName.
+  ///
+  /// In en, this message translates to:
+  /// **'Sami'**
+  String get previewSampleName;
+
+  /// No description provided for @onlineRoomRefreshHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates automatically. Choose a room to join.'**
+  String get onlineRoomRefreshHint;
+
+  /// No description provided for @onlineRoomsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All rooms'**
+  String get onlineRoomsAll;
+
+  /// No description provided for @onlineRoomsNearlyReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Need 1–2 players'**
+  String get onlineRoomsNearlyReady;
+
+  /// No description provided for @onlineRoomsNoFilterMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No rooms need just 1–2 players right now. Browse all rooms or invite your friends.'**
+  String get onlineRoomsNoFilterMatches;
+
+  /// No description provided for @onlineRoomVoiceOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice enabled'**
+  String get onlineRoomVoiceOn;
+
+  /// No description provided for @onlineRoomVoiceOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice disabled'**
+  String get onlineRoomVoiceOff;
+
+  /// No description provided for @onlineLobbyInviteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the room invite to bring your friends to this table.'**
+  String get onlineLobbyInviteHint;
+
+  /// No description provided for @onlineLobbyHostReadyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your table has enough players. Start when everyone is ready.'**
+  String get onlineLobbyHostReadyHint;
+
+  /// No description provided for @onlineLobbyGuestReadyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enough players are here. Your host will start the match.'**
+  String get onlineLobbyGuestReadyHint;
+
+  /// No description provided for @onlineVoteSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending your vote…'**
+  String get onlineVoteSending;
+
+  /// No description provided for @onlineVoteReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote received. Waiting for the ballot to close.'**
+  String get onlineVoteReceived;
+
+  /// No description provided for @onlineVoteResolving.
+  ///
+  /// In en, this message translates to:
+  /// **'The ballot is closed. Waiting for the result.'**
+  String get onlineVoteResolving;
+
+  /// No description provided for @onlineVoteSelectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a player at the table, then confirm your vote.'**
+  String get onlineVoteSelectHint;
+
+  /// No description provided for @onlineConfirmSuspicion.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm suspicion'**
+  String get onlineConfirmSuspicion;
+
+  /// No description provided for @onlineBeginVoting.
+  ///
+  /// In en, this message translates to:
+  /// **'Open voting'**
+  String get onlineBeginVoting;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account protection'**
+  String get accountTitle;
+
+  /// No description provided for @accountAnonymousHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your coins and items are tied to this device only. Uninstalling or changing phones can lose them. Link an email to be able to recover them. Playing never needs an account.'**
+  String get accountAnonymousHint;
+
+  /// No description provided for @accountProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'Protected with {email}'**
+  String accountProtected(String email);
+
+  /// No description provided for @accountLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect with email'**
+  String get accountLink;
+
+  /// No description provided for @accountRecover.
+  ///
+  /// In en, this message translates to:
+  /// **'I already have a protected account'**
+  String get accountRecover;
+
+  /// No description provided for @accountEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get accountEmail;
+
+  /// No description provided for @accountSendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get accountSendCode;
+
+  /// No description provided for @accountCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code from the email'**
+  String get accountCode;
+
+  /// No description provided for @accountConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get accountConfirm;
+
+  /// No description provided for @accountCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a code to {email}. It can take a minute; check spam if you do not see it.'**
+  String accountCodeSent(String email);
+
+  /// No description provided for @accountRecoverWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'You will sign in to your protected account. Coins on this device without an account will not move to it.'**
+  String get accountRecoverWarning;
+
+  /// No description provided for @accountErrorEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'That email does not look right.'**
+  String get accountErrorEmail;
+
+  /// No description provided for @accountErrorTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That email belongs to another account. Use «I already have a protected account».'**
+  String get accountErrorTaken;
+
+  /// No description provided for @accountErrorCode.
+  ///
+  /// In en, this message translates to:
+  /// **'The code is wrong or expired. Ask for a new one.'**
+  String get accountErrorCode;
+
+  /// No description provided for @accountErrorRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Wait a little and try again.'**
+  String get accountErrorRate;
+
+  /// No description provided for @accountErrorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available right now. Try later.'**
+  String get accountErrorUnavailable;
+
+  /// No description provided for @coinPacksUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Buying coins is not available right now. Coins are still earned from online matches.'**
+  String get coinPacksUnavailable;
+
+  /// No description provided for @coinPacksNeedAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Before paying, protect your account with an email so paid coins stay with you on any device.'**
+  String get coinPacksNeedAccount;
+
+  /// No description provided for @coinPackCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} coins'**
+  String coinPackCoins(int count);
+
+  /// No description provided for @coinPackPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'EGP {amount}'**
+  String coinPackPrice(String amount);
+
+  /// No description provided for @coinPayMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment method'**
+  String get coinPayMethod;
+
+  /// No description provided for @coinPayInstapay.
+  ///
+  /// In en, this message translates to:
+  /// **'InstaPay'**
+  String get coinPayInstapay;
+
+  /// No description provided for @coinPayVodafone.
+  ///
+  /// In en, this message translates to:
+  /// **'Vodafone Cash'**
+  String get coinPayVodafone;
+
+  /// No description provided for @coinPayMethodOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available now'**
+  String get coinPayMethodOff;
+
+  /// No description provided for @coinManualNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers are reviewed by hand, and coins are added after the transfer is confirmed'**
+  String get coinManualNotice;
+
+  /// No description provided for @coinManualDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment page opens outside the game and may switch to your bank or wallet app. Transfer the exact amount shown, then come back and enter the transaction number. Opening or returning from the link adds no coins.'**
+  String get coinManualDetail;
+
+  /// No description provided for @coinCreateOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm order: EGP {amount}'**
+  String coinCreateOrder(String amount);
+
+  /// No description provided for @coinOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {reference}'**
+  String coinOrderTitle(String reference);
+
+  /// No description provided for @coinOrderSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{coins} coins for EGP {amount} via {method}'**
+  String coinOrderSummary(int coins, String amount, String method);
+
+  /// No description provided for @coinOpenPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {method}'**
+  String coinOpenPayment(String method);
+
+  /// No description provided for @coinOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The browser did not open the page. Allow pop-ups for this site and try again.'**
+  String get coinOpenFailed;
+
+  /// No description provided for @coinDesktopHint.
+  ///
+  /// In en, this message translates to:
+  /// **'On a computer with the wallet app on your phone, open this site on the phone to complete the transfer.'**
+  String get coinDesktopHint;
+
+  /// No description provided for @coinSentTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'I sent the transfer'**
+  String get coinSentTransfer;
+
+  /// No description provided for @coinTransferReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction number'**
+  String get coinTransferReference;
+
+  /// No description provided for @coinPayerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender name (optional)'**
+  String get coinPayerHint;
+
+  /// No description provided for @coinClaimNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This reports your transfer; it is not a confirmation. Nobody will ask for your PIN or a code.'**
+  String get coinClaimNote;
+
+  /// No description provided for @coinCancelOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get coinCancelOrder;
+
+  /// No description provided for @coinStatusAwaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your transfer'**
+  String get coinStatusAwaiting;
+
+  /// No description provided for @coinStatusClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Under review. Coins are added once the money is confirmed.'**
+  String get coinStatusClaimed;
+
+  /// No description provided for @coinStatusNeedsInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'We need details: {note}'**
+  String coinStatusNeedsInfo(String note);
+
+  /// No description provided for @coinStatusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'{coins} coins added'**
+  String coinStatusPaid(int coins);
+
+  /// No description provided for @coinStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Order declined: {note}'**
+  String coinStatusRejected(String note);
+
+  /// No description provided for @coinStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Order cancelled'**
+  String get coinStatusCancelled;
+
+  /// No description provided for @coinStatusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The order expired. If you already transferred, enter the transaction number and it will be reviewed.'**
+  String get coinStatusExpired;
+
+  /// No description provided for @coinStatusRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded: {note}'**
+  String coinStatusRefunded(String note);
+
+  /// No description provided for @coinOrderFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The order was not recorded. Nothing was charged; try again.'**
+  String get coinOrderFailed;
+
+  /// No description provided for @adminCoinsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer review'**
+  String get adminCoinsTitle;
+
+  /// No description provided for @adminNotAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is not an admin.'**
+  String get adminNotAdmin;
+
+  /// No description provided for @adminEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders waiting for review.'**
+  String get adminEmpty;
+
+  /// No description provided for @adminProviderTxn.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction ID in your statement'**
+  String get adminProviderTxn;
+
+  /// No description provided for @adminReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount received (EGP)'**
+  String get adminReceived;
+
+  /// No description provided for @adminNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note to player'**
+  String get adminNote;
+
+  /// No description provided for @adminApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Received: add coins'**
+  String get adminApprove;
+
+  /// No description provided for @adminNeedsInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for details'**
+  String get adminNeedsInfo;
+
+  /// No description provided for @adminReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get adminReject;
+
+  /// No description provided for @adminRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Money returned'**
+  String get adminRefund;
+
+  /// No description provided for @adminCheckFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your bank or wallet statement yourself and match amount, method and reference before approving. If unsure, leave it under review.'**
+  String get adminCheckFirst;
+
+  /// No description provided for @adminErrorAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount does not match. Ask for details or decline.'**
+  String get adminErrorAmount;
+
+  /// No description provided for @adminErrorUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'That transaction already funded another order.'**
+  String get adminErrorUsed;
+
+  /// No description provided for @adminErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Not done. Check the fields and try again.'**
+  String get adminErrorGeneric;
+
+  /// No description provided for @adminOrderLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} · {account} · EGP {amount} · {method} · player ref: {claim}'**
+  String adminOrderLine(
+    String reference,
+    String account,
+    String amount,
+    String method,
+    String claim,
+  );
+
+  /// No description provided for @adminFilterOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'To review'**
+  String get adminFilterOpen;
+
+  /// No description provided for @adminFilterPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get adminFilterPaid;
+
+  /// No description provided for @arrivalIdentityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your seat at the table'**
+  String get arrivalIdentityTitle;
+
+  /// No description provided for @arrivalIdentityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the name and face your friends will recognise.'**
+  String get arrivalIdentityHint;
+
+  /// No description provided for @arrivalWelcomeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A secret role. A room full of suspects. Your story starts here.'**
+  String get arrivalWelcomeHint;
+
+  /// No description provided for @arrivalPactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before the first night'**
+  String get arrivalPactTitle;
+
+  /// No description provided for @arrivalStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {total}'**
+  String arrivalStep(int step, int total);
+
+  /// No description provided for @arrivalSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving your seat…'**
+  String get arrivalSaving;
+
+  /// No description provided for @councilInvitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Every voice has a story. Who will you believe?'**
+  String get councilInvitation;
+
+  /// No description provided for @witnessTableLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening the table…'**
+  String get witnessTableLoading;
+
+  /// No description provided for @witnessTableNoActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody has chosen anything at night yet'**
+  String get witnessTableNoActions;
+
+  /// No description provided for @witnessActionKill.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} chose to kill {target}'**
+  String witnessActionKill(String actor, String target);
+
+  /// No description provided for @witnessActionProtect.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} is protecting {target}'**
+  String witnessActionProtect(String actor, String target);
+
+  /// No description provided for @witnessActionInvestigate.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} checked {target}'**
+  String witnessActionInvestigate(String actor, String target);
+
+  /// No description provided for @witnessActionSuspect.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} suspects {target}'**
+  String witnessActionSuspect(String actor, String target);
+
+  /// No description provided for @onlineDiscussionLive.
+  ///
+  /// In en, this message translates to:
+  /// **'The discussion is on'**
+  String get onlineDiscussionLive;
+
+  /// No description provided for @witnessEventNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night: everyone chooses in secret'**
+  String get witnessEventNight;
+
+  /// No description provided for @witnessEventOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is naming a suspect'**
+  String witnessEventOpening(String name);
+
+  /// No description provided for @witnessEventDiscussion.
+  ///
+  /// In en, this message translates to:
+  /// **'The players still in are talking'**
+  String get witnessEventDiscussion;
+
+  /// No description provided for @witnessEventVoting.
+  ///
+  /// In en, this message translates to:
+  /// **'The vote is on'**
+  String get witnessEventVoting;
+
+  /// No description provided for @onlineAbandonedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone else has left'**
+  String get onlineAbandonedTitle;
+
+  /// No description provided for @onlineAbandonedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'There is nobody left at the table but you, so this match is over. Head home and start a new room.'**
+  String get onlineAbandonedBody;
+
+  /// No description provided for @nightCitizenRest.
+  ///
+  /// In en, this message translates to:
+  /// **'You are a Citizen'**
+  String get nightCitizenRest;
+
+  /// No description provided for @nightCitizenRestSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to do on the first night. Wait for the others to finish, and the day will come.'**
+  String get nightCitizenRestSupport;
+
+  /// No description provided for @readyToVote.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to vote ({ready} of {living})'**
+  String readyToVote(int ready, int living);
+
+  /// No description provided for @readyToVoteWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the rest ({ready} of {living})'**
+  String readyToVoteWaiting(int ready, int living);
+
+  /// No description provided for @settingsSectionGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get settingsSectionGeneral;
+
+  /// No description provided for @settingsRulesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Match rules'**
+  String get settingsRulesTitle;
+
+  /// No description provided for @settingsRulesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every new match starts from these, and you can still change them before one.'**
+  String get settingsRulesHint;
+
+  /// No description provided for @settingsSectionMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & privacy'**
+  String get settingsSectionMore;
+
+  /// No description provided for @onlineRoomSettingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every change reaches everyone in the room right away.'**
+  String get onlineRoomSettingsHint;
+
+  /// No description provided for @vaultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Council Vault'**
+  String get vaultTitle;
+
+  /// No description provided for @vaultSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your signature. Your council atmosphere.'**
+  String get vaultSubtitle;
+
+  /// No description provided for @storeFrames.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar frames'**
+  String get storeFrames;
+
+  /// No description provided for @storeNameplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Nameplates'**
+  String get storeNameplates;
+
+  /// No description provided for @storeBrowseNext.
+  ///
+  /// In en, this message translates to:
+  /// **'More products'**
+  String get storeBrowseNext;
+
+  /// No description provided for @storeBrowsePrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous products'**
+  String get storeBrowsePrevious;
+
+  /// No description provided for @cosmeticPackArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Moonlit Archive'**
+  String get cosmeticPackArchive;
+
+  /// No description provided for @cosmeticPackArchiveDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A moonlit archive behind the table in quiet silver, a moonlight transition between public phases, and an opening and closing line with sound. Everyone in the room sees it.'**
+  String get cosmeticPackArchiveDesc;
+
+  /// No description provided for @cosmeticNarratorKeeper.
+  ///
+  /// In en, this message translates to:
+  /// **'Secret Keeper'**
+  String get cosmeticNarratorKeeper;
+
+  /// No description provided for @cosmeticNarratorKeeperDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A solemn, archival narrator: a short on-screen line with a cue at each public phase, the same for every player. Written text, not a recorded voice.'**
+  String get cosmeticNarratorKeeperDesc;
+
+  /// No description provided for @cosmeticNarratorNoir.
+  ///
+  /// In en, this message translates to:
+  /// **'Noir Narrator'**
+  String get cosmeticNarratorNoir;
+
+  /// No description provided for @cosmeticNarratorNoirDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A terse noir narrator: a short on-screen line with a cue at each public phase, the same for every player. Written text, not a recorded voice.'**
+  String get cosmeticNarratorNoirDesc;
+
+  /// No description provided for @cosmeticBundleNocturne.
+  ///
+  /// In en, this message translates to:
+  /// **'Nocturne Collection'**
+  String get cosmeticBundleNocturne;
+
+  /// No description provided for @cosmeticBundleNocturneDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Moonlit Archive, the Moonlit frame, the Noir nameplate and the Secret Keeper together.'**
+  String get cosmeticBundleNocturneDesc;
+
+  /// No description provided for @packArchiveIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The archive opens its doors under the moon.'**
+  String get packArchiveIntro;
+
+  /// No description provided for @packArchiveOutro.
+  ///
+  /// In en, this message translates to:
+  /// **'The moonlight withdraws, and the files return to their shelves.'**
+  String get packArchiveOutro;
+
+  /// No description provided for @narratorKeeperNight.
+  ///
+  /// In en, this message translates to:
+  /// **'The ledger closes on the night\'s page.'**
+  String get narratorKeeperNight;
+
+  /// No description provided for @narratorKeeperMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'The day\'s page is open.'**
+  String get narratorKeeperMorning;
+
+  /// No description provided for @narratorKeeperDiscussion.
+  ///
+  /// In en, this message translates to:
+  /// **'Every word carries weight. Choose yours carefully.'**
+  String get narratorKeeperDiscussion;
+
+  /// No description provided for @narratorKeeperVoting.
+  ///
+  /// In en, this message translates to:
+  /// **'The council records its decision.'**
+  String get narratorKeeperVoting;
+
+  /// No description provided for @narratorKeeperResult.
+  ///
+  /// In en, this message translates to:
+  /// **'The ledger is closed; the story joins the archive.'**
+  String get narratorKeeperResult;
+
+  /// No description provided for @narratorNoirNight.
+  ///
+  /// In en, this message translates to:
+  /// **'The city sleeps. The streets are empty.'**
+  String get narratorNoirNight;
+
+  /// No description provided for @narratorNoirMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning. Everyone is looking for the truth.'**
+  String get narratorNoirMorning;
+
+  /// No description provided for @narratorNoirDiscussion.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone has a story. Who is telling the truth?'**
+  String get narratorNoirDiscussion;
+
+  /// No description provided for @narratorNoirVoting.
+  ///
+  /// In en, this message translates to:
+  /// **'Decision time. Every vote has a price.'**
+  String get narratorNoirVoting;
+
+  /// No description provided for @narratorNoirResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Case closed.'**
+  String get narratorNoirResult;
+
+  /// No description provided for @storeAboutCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'About coins'**
+  String get storeAboutCoins;
+
+  /// No description provided for @storeInside.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s inside'**
+  String get storeInside;
+
+  /// No description provided for @storeBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Your balance: {count} coins'**
+  String storeBalance(int count);
+
+  /// No description provided for @storeRoomArtNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The scene shows faintly behind the table in public phases only, never at night.'**
+  String get storeRoomArtNote;
+
+  /// No description provided for @profileAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Address me as'**
+  String get profileAddressLabel;
+
+  /// No description provided for @profileAddressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic speaks to men and women differently, so roles and messages are written this way.'**
+  String get profileAddressHint;
+
+  /// No description provided for @onlinePlayingAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing as {name}'**
+  String onlinePlayingAs(String name);
+
+  /// No description provided for @onlineNoPublicRoomsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a room and send your friends the code, or refresh in a moment.'**
+  String get onlineNoPublicRoomsHint;
+
+  /// No description provided for @lobbyInviteFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite friends'**
+  String get lobbyInviteFriends;
 }
 
 class _AppLocalizationsDelegate

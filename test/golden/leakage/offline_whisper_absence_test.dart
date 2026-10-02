@@ -48,8 +48,9 @@ void main() {
   }
 
   group('doc 14 §3.1 — offline has no whisper layer', () {
-    testWidgets('no whisper copy reaches the night screen, in any state',
-        (tester) async {
+    testWidgets('no whisper copy reaches the night screen, in any state', (
+      tester,
+    ) async {
       final forbidden = [
         arStrings.whisperLabel,
         arStrings.whisperCompose,
@@ -65,14 +66,20 @@ void main() {
           targetList: TurnShellHarness.withSpecial(role),
         );
         for (final word in forbidden) {
-          expect(find.text(word), findsNothing,
-              reason: '$role, handoff: "$word"');
+          expect(
+            find.text(word),
+            findsNothing,
+            reason: '$role, handoff: "$word"',
+          );
         }
 
         await TurnShellHarness.completeHold(tester);
         for (final word in forbidden) {
-          expect(find.text(word), findsNothing,
-              reason: '$role, revealed: "$word"');
+          expect(
+            find.text(word),
+            findsNothing,
+            reason: '$role, revealed: "$word"',
+          );
         }
       }
     });
@@ -80,14 +87,19 @@ void main() {
     testWidgets('and none after the turn is recorded either', (tester) async {
       for (final role in Role.values) {
         await driveToConfirmed(tester, role);
-        expect(find.text(arStrings.whisperLabel), findsNothing, reason: '$role');
+        expect(
+          find.text(arStrings.whisperLabel),
+          findsNothing,
+          reason: '$role',
+        );
       }
     });
   });
 
   group('doc 14 §1.4 — the confirmation screen is one line', () {
-    testWidgets('the recorded line is there, and no panel under it',
-        (tester) async {
+    testWidgets('the recorded line is there, and no panel under it', (
+      tester,
+    ) async {
       await driveToConfirmed(tester, Role.citizen);
 
       expect(find.text(arStrings.choiceRecorded), findsOneWidget);
@@ -116,8 +128,9 @@ void main() {
       expect(find.text('مافيا'), findsOneWidget);
     });
 
-    testWidgets('the detail slot holds one rect for all four roles',
-        (tester) async {
+    testWidgets('the detail slot holds one rect for all four roles', (
+      tester,
+    ) async {
       final rects = <Role, Rect>{};
       for (final role in Role.values) {
         await driveToConfirmed(tester, role);

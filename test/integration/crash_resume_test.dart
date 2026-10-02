@@ -36,21 +36,29 @@ void main() {
       return (loaded!, await afterRelaunch.resolveResume(loaded));
     }
 
-    test('interrupted mid-night, resume targets the current actor\'s pass screen',
-        () async {
-      final engine = scriptedMatch(stopAfterNightActions: 3);
-      final interruptedActor = engine.match.currentActorSeat;
-      expect(engine.match.phase, GamePhase.night);
-      expect(interruptedActor, isNotNull);
+    test(
+      'interrupted mid-night, resume targets the current actor\'s pass screen',
+      () async {
+        final engine = scriptedMatch(stopAfterNightActions: 3);
+        final interruptedActor = engine.match.currentActorSeat;
+        expect(engine.match.phase, GamePhase.night);
+        expect(interruptedActor, isNotNull);
 
-      final (loaded, target) = await killAndRelaunch(engine.match);
+        final (loaded, target) = await killAndRelaunch(engine.match);
 
-      expect(loaded, equals(engine.match), reason: 'the match changed on reload');
-      expect(target.screen, equals(ResumeScreen.pass));
-      expect(target.seat, equals(interruptedActor));
-      expect(target.playerName,
-          equals(engine.match.players[interruptedActor!].name));
-    });
+        expect(
+          loaded,
+          equals(engine.match),
+          reason: 'the match changed on reload',
+        );
+        expect(target.screen, equals(ResumeScreen.pass));
+        expect(target.seat, equals(interruptedActor));
+        expect(
+          target.playerName,
+          equals(engine.match.players[interruptedActor!].name),
+        );
+      },
+    );
 
     test('the resume target carries no game content', () async {
       final engine = scriptedMatch(stopAfterNightActions: 3);
@@ -79,46 +87,56 @@ void main() {
       for (final phase in inHand) {
         final match = base.copyWith(phase: phase, currentActorSeat: 4);
         final target = ResumeResolver.resolve(match);
-        expect(target.screen, equals(ResumeScreen.pass),
-            reason: '$phase resumed onto ${target.screen} instead of the pass '
-                'screen');
+        expect(
+          target.screen,
+          equals(ResumeScreen.pass),
+          reason:
+              '$phase resumed onto ${target.screen} instead of the pass '
+              'screen',
+        );
         expect(target.seat, equals(4));
       }
     });
 
-    test('on-table phases resume directly, since the table already saw them',
-        () async {
-      final base = scriptedMatch(stopAfterNightActions: 2).match;
-      const expected = {
-        GamePhase.preNightLobby: ResumeScreen.preNightLobby,
-        GamePhase.morning: ResumeScreen.morning,
-        GamePhase.discussion: ResumeScreen.discussion,
-        GamePhase.reveal: ResumeScreen.voteReveal,
-        GamePhase.winCheck: ResumeScreen.voteReveal,
-      };
+    test(
+      'on-table phases resume directly, since the table already saw them',
+      () async {
+        final base = scriptedMatch(stopAfterNightActions: 2).match;
+        const expected = {
+          GamePhase.preNightLobby: ResumeScreen.preNightLobby,
+          GamePhase.morning: ResumeScreen.morning,
+          GamePhase.discussion: ResumeScreen.discussion,
+          GamePhase.reveal: ResumeScreen.voteReveal,
+          GamePhase.winCheck: ResumeScreen.voteReveal,
+        };
 
-      for (final entry in expected.entries) {
-        final target = ResumeResolver.resolve(base.copyWith(phase: entry.key));
-        expect(target.screen, equals(entry.value), reason: '${entry.key}');
-      }
-    });
+        for (final entry in expected.entries) {
+          final target = ResumeResolver.resolve(
+            base.copyWith(phase: entry.key),
+          );
+          expect(target.screen, equals(entry.value), reason: '${entry.key}');
+        }
+      },
+    );
 
-    test('a match with no living actor falls back to the lobby, not a crash',
-        () async {
-      final base = scriptedMatch(stopAfterNightActions: 2).match;
-      final allDead = base.copyWith(
-        phase: GamePhase.night,
-        players: [
-          for (final p in base.players) p.copyWith(status: PlayerStatus.dead),
-        ],
-        currentActorSeat: null,
-        clearCurrentActorSeat: true,
-      );
+    test(
+      'a match with no living actor falls back to the lobby, not a crash',
+      () async {
+        final base = scriptedMatch(stopAfterNightActions: 2).match;
+        final allDead = base.copyWith(
+          phase: GamePhase.night,
+          players: [
+            for (final p in base.players) p.copyWith(status: PlayerStatus.dead),
+          ],
+          currentActorSeat: null,
+          clearCurrentActorSeat: true,
+        );
 
-      final target = ResumeResolver.resolve(allDead);
-      expect(target.screen, equals(ResumeScreen.preNightLobby));
-      expect(target.seat, isNull);
-    });
+        final target = ResumeResolver.resolve(allDead);
+        expect(target.screen, equals(ResumeScreen.preNightLobby));
+        expect(target.seat, isNull);
+      },
+    );
 
     test('no stored match resumes to home', () async {
       expect(await MemoryMatchRepository(store).loadActiveMatch(), isNull);
@@ -134,22 +152,24 @@ void main() {
       expect(ResumeResolver.isActive(engine.match), isFalse);
     });
 
-    test('resuming preserves the rules the engine derives from the log',
-        () async {
-      // The detective's one-shot rule and the doctor's no-repeat rule are both
-      // re-derived from the event log. If the log were lossy, a resumed match
-      // would silently hand someone a second investigation.
-      final engine = scriptedMatch(stopAfterNightActions: 5);
-      final (loaded, _) = await killAndRelaunch(engine.match);
+    test(
+      'resuming preserves the rules the engine derives from the log',
+      () async {
+        // The detective's one-shot rule and the doctor's no-repeat rule are both
+        // re-derived from the event log. If the log were lossy, a resumed match
+        // would silently hand someone a second investigation.
+        final engine = scriptedMatch(stopAfterNightActions: 5);
+        final (loaded, _) = await killAndRelaunch(engine.match);
 
-      expect(
-        loaded.eventLog.whereType<InvestigateCast>().toList(),
-        equals(engine.match.eventLog.whereType<InvestigateCast>().toList()),
-      );
-      expect(
-        loaded.eventLog.whereType<ProtectCast>().toList(),
-        equals(engine.match.eventLog.whereType<ProtectCast>().toList()),
-      );
-    });
+        expect(
+          loaded.eventLog.whereType<InvestigateCast>().toList(),
+          equals(engine.match.eventLog.whereType<InvestigateCast>().toList()),
+        );
+        expect(
+          loaded.eventLog.whereType<ProtectCast>().toList(),
+          equals(engine.match.eventLog.whereType<ProtectCast>().toList()),
+        );
+      },
+    );
   });
 }

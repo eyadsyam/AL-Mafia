@@ -150,6 +150,11 @@ abstract class GameTransport {
   /// Opens the ballot.
   Future<void> beginVoting();
 
+  /// Says «جاهزين للتصويت», or takes it back. Once every living player has
+  /// said it the server opens the ballot. A no-op offline, where the table
+  /// ends its own discussion out loud.
+  Future<void> setReadyToVote(bool ready);
+
   /// One ballot. Null is an abstention.
   Future<void> submitVote({required int seat, required int? targetSeat});
 

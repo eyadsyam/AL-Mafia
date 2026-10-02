@@ -16,33 +16,32 @@ void main() {
   const settings = MatchSettings(whisperEnabled: true);
 
   List<Player> roster({Set<int> dead = const {}, int count = 7}) => [
-        for (var seat = 0; seat < count; seat++)
-          Player(
-            seat: seat,
-            name: 'P$seat',
-            role: Role.citizen,
-            status: dead.contains(seat) ? PlayerStatus.dead : PlayerStatus.alive,
-            eliminatedOn: dead.contains(seat)
-                ? const PhaseRef(phase: GamePhase.voting, number: 1)
-                : null,
-          ),
-      ];
+    for (var seat = 0; seat < count; seat++)
+      Player(
+        seat: seat,
+        name: 'P$seat',
+        role: Role.citizen,
+        status: dead.contains(seat) ? PlayerStatus.dead : PlayerStatus.alive,
+        eliminatedOn: dead.contains(seat)
+            ? const PhaseRef(phase: GamePhase.voting, number: 1)
+            : null,
+      ),
+  ];
 
   NightRecord night({
     required int number,
     Map<int, int?> suspicions = const {},
     int? victim,
     int? savedSeat,
-  }) =>
-      NightRecord(
-        nightNumber: number,
-        suspicions: suspicions,
-        reasons: const {},
-        victim: victim,
-        saveOccurred: savedSeat != null,
-        savedSeat: savedSeat,
-        resolved: true,
-      );
+  }) => NightRecord(
+    nightNumber: number,
+    suspicions: suspicions,
+    reasons: const {},
+    victim: victim,
+    saveOccurred: savedSeat != null,
+    savedSeat: savedSeat,
+    resolved: true,
+  );
 
   DayRecord day({
     required int number,
@@ -51,32 +50,30 @@ void main() {
     Confrontation? confrontation,
     Map<int, int> speaking = const {},
     List<WhisperMeta> whispers = const [],
-  }) =>
-      DayRecord(
-        dayNumber: number,
-        openingAccusations: opening,
-        votes: votes,
-        votesByRound: {1: votes},
-        confrontation: confrontation,
-        speakingSeconds: speaking,
-        whispers: whispers,
-      );
+  }) => DayRecord(
+    dayNumber: number,
+    openingAccusations: opening,
+    votes: votes,
+    votesByRound: {1: votes},
+    confrontation: confrontation,
+    speakingSeconds: speaking,
+    whispers: whispers,
+  );
 
   GameHistory history({
     List<NightRecord> nights = const [],
     List<DayRecord> days = const [],
     Set<int> dead = const {},
     int count = 7,
-  }) =>
-      GameHistory(
-        nights: nights,
-        days: days,
-        names: {for (var s = 0; s < count; s++) s: 'P$s'},
-        alive: {
-          for (var s = 0; s < count; s++)
-            if (!dead.contains(s)) s,
-        },
-      );
+  }) => GameHistory(
+    nights: nights,
+    days: days,
+    names: {for (var s = 0; s < count; s++) s: 'P$s'},
+    alive: {
+      for (var s = 0; s < count; s++)
+        if (!dead.contains(s)) s,
+    },
+  );
 
   Confrontation? select(
     GameHistory h, {
@@ -85,21 +82,28 @@ void main() {
     MatchSettings s = settings,
     int seed = 4242,
     int count = 7,
-  }) =>
-      selectConfrontation(
-        history: h,
-        players: roster(dead: dead, count: count),
-        dayNumber: dayNumber,
-        matchSeed: seed,
-        settings: s,
-      );
+  }) => selectConfrontation(
+    history: h,
+    players: roster(dead: dead, count: count),
+    dayNumber: dayNumber,
+    matchSeed: seed,
+    settings: s,
+  );
 
   group('C-E1 — day 1 has no confrontation', () {
     test('the generator refuses day 1 outright', () {
-      final h = history(days: [day(number: 1, opening: {0: 1, 1: 0})]);
-      expect(select(h, dayNumber: 1), isNull,
-          reason: 'day 1 has no behavioural history; the «اسم واحد» opener '
-              'runs instead (doc 09 §2.2)');
+      final h = history(
+        days: [
+          day(number: 1, opening: {0: 1, 1: 0}),
+        ],
+      );
+      expect(
+        select(h, dayNumber: 1),
+        isNull,
+        reason:
+            'day 1 has no behavioural history; the «اسم واحد» opener '
+            'runs instead (doc 09 §2.2)',
+      );
     });
   });
 
@@ -109,9 +113,11 @@ void main() {
     });
 
     test('a day with votes but no contradiction produces nothing', () {
-      final h = history(days: [
-        day(number: 1, opening: {0: 1}, votes: {0: 1, 1: 2}),
-      ]);
+      final h = history(
+        days: [
+          day(number: 1, opening: {0: 1}, votes: {0: 1, 1: 2}),
+        ],
+      );
       // Seat 0 named 1 and voted for 1 — consistent, so C1 has nothing to say.
       expect(select(h, dayNumber: 2)?.type, isNot(ConfrontationType.c1));
     });
@@ -119,9 +125,11 @@ void main() {
 
   group('C1 — تناقض التصويت', () {
     test('fires when the opener and the ballot disagree, naming both', () {
-      final h = history(days: [
-        day(number: 1, opening: {3: 5}, votes: {3: 2}),
-      ]);
+      final h = history(
+        days: [
+          day(number: 1, opening: {3: 5}, votes: {3: 2}),
+        ],
+      );
       final result = select(h, dayNumber: 2);
       expect(result!.type, equals(ConfrontationType.c1));
       expect(result.targetSeat, equals(3));
@@ -131,9 +139,11 @@ void main() {
     });
 
     test('an abstention is not a contradiction', () {
-      final h = history(days: [
-        day(number: 1, opening: {3: 5}, votes: {3: null}),
-      ]);
+      final h = history(
+        days: [
+          day(number: 1, opening: {3: 5}, votes: {3: null}),
+        ],
+      );
       expect(
         findConfrontations(
           type: ConfrontationType.c1,
@@ -146,10 +156,12 @@ void main() {
     });
 
     test('at most one candidate per player — the freshest', () {
-      final h = history(days: [
-        day(number: 1, opening: {3: 5}, votes: {3: 2}),
-        day(number: 2, opening: {}, votes: {3: 1}),
-      ]);
+      final h = history(
+        days: [
+          day(number: 1, opening: {3: 5}, votes: {3: 2}),
+          day(number: 2, opening: {}, votes: {3: 1}),
+        ],
+      );
       final found = findConfrontations(
         type: ConfrontationType.c1,
         history: h,
@@ -163,9 +175,11 @@ void main() {
 
   group('C5 — التوأم', () {
     test('needs three matching ballots and names the pair both ways', () {
-      final h = history(days: [
-        for (var d = 1; d <= 3; d++) day(number: d, votes: {1: 4, 2: 4}),
-      ]);
+      final h = history(
+        days: [
+          for (var d = 1; d <= 3; d++) day(number: d, votes: {1: 4, 2: 4}),
+        ],
+      );
       final found = findConfrontations(
         type: ConfrontationType.c5,
         history: h,
@@ -178,9 +192,11 @@ void main() {
     });
 
     test('two matching ballots are a coincidence, not evidence', () {
-      final h = history(days: [
-        for (var d = 1; d <= 2; d++) day(number: d, votes: {1: 4, 2: 4}),
-      ]);
+      final h = history(
+        days: [
+          for (var d = 1; d <= 2; d++) day(number: d, votes: {1: 4, 2: 4}),
+        ],
+      );
       expect(
         findConfrontations(
           type: ConfrontationType.c5,
@@ -193,10 +209,12 @@ void main() {
     });
 
     test('two abstentions are not agreement', () {
-      final h = history(days: [
-        for (var d = 1; d <= 3; d++)
-          day(number: d, votes: {1: null, 2: null}),
-      ]);
+      final h = history(
+        days: [
+          for (var d = 1; d <= 3; d++)
+            day(number: d, votes: {1: null, 2: null}),
+        ],
+      );
       expect(
         findConfrontations(
           type: ConfrontationType.c5,
@@ -211,10 +229,12 @@ void main() {
 
   group('C6 — الصامت', () {
     test('needs a single quietest player', () {
-      final h = history(days: [
-        day(number: 1, speaking: {0: 90, 1: 10, 2: 60}),
-        day(number: 2, speaking: {0: 90, 1: 5, 2: 60}),
-      ]);
+      final h = history(
+        days: [
+          day(number: 1, speaking: {0: 90, 1: 10, 2: 60}),
+          day(number: 2, speaking: {0: 90, 1: 5, 2: 60}),
+        ],
+      );
       // Seats 3–6 have no record at all, so they are all on zero and tie.
       expect(
         findConfrontations(
@@ -237,7 +257,11 @@ void main() {
     });
 
     test('needs two days elapsed', () {
-      final h = history(days: [day(number: 1, speaking: {0: 90, 1: 10})]);
+      final h = history(
+        days: [
+          day(number: 1, speaking: {0: 90, 1: 10}),
+        ],
+      );
       expect(
         findConfrontations(
           type: ConfrontationType.c6,
@@ -253,7 +277,9 @@ void main() {
   group('C7 — الميت يتكلم', () {
     test('C-E7 — the evidence names a dead player, and reads correctly', () {
       final h = history(
-        nights: [night(number: 1, victim: 6, suspicions: {6: 2})],
+        nights: [
+          night(number: 1, victim: 6, suspicions: {6: 2}),
+        ],
         dead: {6},
       );
       final found = findConfrontations(
@@ -263,14 +289,20 @@ void main() {
         dayNumber: 2,
       );
       expect(found.single.target, equals(2));
-      expect(found.single.confrontation.evidenceSeat, equals(6),
-          reason: 'the subject of the sentence is the dead player — that is '
-              'the whole conceit of «الميت يتكلم»');
+      expect(
+        found.single.confrontation.evidenceSeat,
+        equals(6),
+        reason:
+            'the subject of the sentence is the dead player — that is '
+            'the whole conceit of «الميت يتكلم»',
+      );
     });
 
     test('silent when the victim named somebody who has since died', () {
       final h = history(
-        nights: [night(number: 1, victim: 6, suspicions: {6: 5})],
+        nights: [
+          night(number: 1, victim: 6, suspicions: {6: 5}),
+        ],
         dead: {5, 6},
       );
       expect(
@@ -287,14 +319,22 @@ void main() {
 
   group('C8 — الهمّاس', () {
     test('needs the same recipient on consecutive days', () {
-      final h = history(days: [
-        day(number: 1, whispers: [
-          const WhisperMeta(id: 'w:1:0:4', day: 1, fromSeat: 0, toSeat: 4),
-        ]),
-        day(number: 2, whispers: [
-          const WhisperMeta(id: 'w:2:0:4', day: 2, fromSeat: 0, toSeat: 4),
-        ]),
-      ]);
+      final h = history(
+        days: [
+          day(
+            number: 1,
+            whispers: [
+              const WhisperMeta(id: 'w:1:0:4', day: 1, fromSeat: 0, toSeat: 4),
+            ],
+          ),
+          day(
+            number: 2,
+            whispers: [
+              const WhisperMeta(id: 'w:2:0:4', day: 2, fromSeat: 0, toSeat: 4),
+            ],
+          ),
+        ],
+      );
       final found = findConfrontations(
         type: ConfrontationType.c8,
         history: h,
@@ -312,7 +352,8 @@ void main() {
       );
       expect(
         ConfrontationCatalogue.enabledFor(
-            const MatchSettings(whisperEnabled: true)),
+          const MatchSettings(whisperEnabled: true),
+        ),
         contains(ConfrontationType.c8),
       );
     });
@@ -351,21 +392,31 @@ void main() {
         ConfrontationType.c9,
         ConfrontationType.c10,
       ]) {
-        expect(ConfrontationCatalogue.shipped, isNot(contains(type)),
-            reason: '${type.name} would announce that a living, named player '
-                'recorded a night suspicion — which is to say, that they are '
-                'a Citizen (doc 05)');
+        expect(
+          ConfrontationCatalogue.shipped,
+          isNot(contains(type)),
+          reason:
+              '${type.name} would announce that a living, named player '
+              'recorded a night suspicion — which is to say, that they are '
+              'a Citizen (doc 05)',
+        );
         expect(type.namesANightSuspicion, isTrue);
       }
     });
 
     test('C2 is absent because the game has no defence to record', () {
-      expect(ConfrontationCatalogue.shipped,
-          isNot(contains(ConfrontationType.c2)));
+      expect(
+        ConfrontationCatalogue.shipped,
+        isNot(contains(ConfrontationType.c2)),
+      );
       expect(
         findConfrontations(
           type: ConfrontationType.c2,
-          history: history(days: [day(number: 1, votes: {0: 1})]),
+          history: history(
+            days: [
+              day(number: 1, votes: {0: 1}),
+            ],
+          ),
           alive: const {0, 1, 2},
           dayNumber: 2,
         ),
@@ -386,9 +437,13 @@ void main() {
         ],
         days: [for (var d = 1; d <= 4; d++) day(number: d)],
       );
-      expect(select(h, dayNumber: 5), isNull,
-          reason: 'a match whose only record is private must produce no '
-              'confrontation at all');
+      expect(
+        select(h, dayNumber: 5),
+        isNull,
+        reason:
+            'a match whose only record is private must produce no '
+            'confrontation at all',
+      );
     });
   });
 
@@ -397,20 +452,24 @@ void main() {
         Confrontation(type: ConfrontationType.c1, targetSeat: seat);
 
     test('C-E3 — the player confronted yesterday is skipped', () {
-      final h = history(days: [
-        day(number: 1, opening: {3: 5}, votes: {3: 2}),
-        day(number: 2, confrontation: confrontationOf(3)),
-      ]);
+      final h = history(
+        days: [
+          day(number: 1, opening: {3: 5}, votes: {3: 2}),
+          day(number: 2, confrontation: confrontationOf(3)),
+        ],
+      );
       // Seat 3 is the only contradiction on the board, and it was them
       // yesterday, so today has nobody to ask.
       expect(select(h, dayNumber: 3), isNull);
     });
 
     test('the same type cannot run two days running', () {
-      final h = history(days: [
-        day(number: 1, opening: {3: 5, 4: 6}, votes: {3: 2, 4: 1}),
-        day(number: 2, confrontation: confrontationOf(3)),
-      ]);
+      final h = history(
+        days: [
+          day(number: 1, opening: {3: 5, 4: 6}, votes: {3: 2, 4: 1}),
+          day(number: 2, confrontation: confrontationOf(3)),
+        ],
+      );
       final result = select(h, dayNumber: 3);
       // Seat 4 also contradicted themselves, but C1 ran yesterday.
       expect(result, isNull);
@@ -432,41 +491,56 @@ void main() {
         Confrontation(type: type, targetSeat: seat);
 
     test('C-E6 — a third confrontation is blocked while anyone else fits', () {
-      final h = history(nights: allNamed, days: [
-        day(number: 1, opening: {3: 5, 4: 6}, votes: {3: 2, 4: 1}),
-        day(number: 2, confrontation: typed(ConfrontationType.c1, 3)),
-        day(number: 3, confrontation: typed(ConfrontationType.c7, 3)),
-        day(number: 4, confrontation: typed(ConfrontationType.c6, 6)),
-      ]);
+      final h = history(
+        nights: allNamed,
+        days: [
+          day(number: 1, opening: {3: 5, 4: 6}, votes: {3: 2, 4: 1}),
+          day(number: 2, confrontation: typed(ConfrontationType.c1, 3)),
+          day(number: 3, confrontation: typed(ConfrontationType.c7, 3)),
+          day(number: 4, confrontation: typed(ConfrontationType.c6, 6)),
+        ],
+      );
       final result = select(h, dayNumber: 5);
       expect(result, isNotNull);
-      expect(result!.targetSeat, equals(4),
-          reason: 'seat 3 has had two; the cap hands the day to somebody else');
+      expect(
+        result!.targetSeat,
+        equals(4),
+        reason: 'seat 3 has had two; the cap hands the day to somebody else',
+      );
     });
 
     test('the cap yields when there is literally nobody else', () {
-      final h = history(nights: allNamed, days: [
-        day(number: 1, opening: {3: 5}, votes: {3: 2}),
-        day(number: 2, confrontation: typed(ConfrontationType.c1, 3)),
-        day(number: 3, confrontation: typed(ConfrontationType.c7, 3)),
-        day(number: 4, confrontation: typed(ConfrontationType.c6, 6)),
-      ]);
+      final h = history(
+        nights: allNamed,
+        days: [
+          day(number: 1, opening: {3: 5}, votes: {3: 2}),
+          day(number: 2, confrontation: typed(ConfrontationType.c1, 3)),
+          day(number: 3, confrontation: typed(ConfrontationType.c7, 3)),
+          day(number: 4, confrontation: typed(ConfrontationType.c6, 6)),
+        ],
+      );
       final result = select(h, dayNumber: 5);
-      expect(result?.targetSeat, equals(3),
-          reason: 'doc 09 §2.4: "unless there are no other candidates"');
+      expect(
+        result?.targetSeat,
+        equals(3),
+        reason: 'doc 09 §2.4: "unless there are no other candidates"',
+      );
     });
 
     test('fairness scales the way the spec describes', () {
       final none = history();
       expect(fairnessFactor(none, 3), equals(1.0));
-      final once =
-          history(days: [day(number: 1, confrontation: confrontationOf(3))]);
+      final once = history(
+        days: [day(number: 1, confrontation: confrontationOf(3))],
+      );
       expect(fairnessFactor(once, 3), equals(0.5));
     });
 
     test('the dead are never confronted', () {
       final h = history(
-        days: [day(number: 1, opening: {3: 5}, votes: {3: 2})],
+        days: [
+          day(number: 1, opening: {3: 5}, votes: {3: 2}),
+        ],
         dead: {3},
       );
       expect(select(h, dayNumber: 2, dead: {3}), isNull);
@@ -474,21 +548,25 @@ void main() {
   });
 
   group('recency', () {
-    test('today and yesterday score alike; older evidence decays to a floor',
-        () {
-      expect(recencyBoost(5, 5), equals(1.0));
-      expect(recencyBoost(4, 5), equals(1.0));
-      expect(recencyBoost(3, 5), closeTo(0.85, 1e-9));
-      expect(recencyBoost(1, 20), equals(0.5));
-      expect(recencyBoost(null, 5), equals(1.0));
-    });
+    test(
+      'today and yesterday score alike; older evidence decays to a floor',
+      () {
+        expect(recencyBoost(5, 5), equals(1.0));
+        expect(recencyBoost(4, 5), equals(1.0));
+        expect(recencyBoost(3, 5), closeTo(0.85, 1e-9));
+        expect(recencyBoost(1, 20), equals(0.5));
+        expect(recencyBoost(null, 5), equals(1.0));
+      },
+    );
   });
 
   group('determinism', () {
     test('the same history and seed always give the same confrontation', () {
-      final h = history(days: [
-        day(number: 1, opening: {3: 5, 4: 6}, votes: {3: 2, 4: 1}),
-      ]);
+      final h = history(
+        days: [
+          day(number: 1, opening: {3: 5, 4: 6}, votes: {3: 2, 4: 1}),
+        ],
+      );
       final first = select(h, dayNumber: 2);
       for (var i = 0; i < 50; i++) {
         expect(select(h, dayNumber: 2), equals(first));

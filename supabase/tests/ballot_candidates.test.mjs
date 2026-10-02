@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import { ballotTargetAllowed as allowed } from '../functions/_shared/ballot_candidates.ts';
+assert.equal(allowed(1, undefined, 3), true);
+assert.equal(allowed(2, [1, 2], 2), true);
+assert.equal(allowed(2, [1, 2], 3), false);
+assert.equal(allowed(2, [1, 2], null), true);
+assert.equal(allowed(2, undefined, 2), false);
+assert.equal(allowed(2, [], 2), false);
+assert.equal(allowed(2, ['2'], 2), false);
+assert.equal(allowed(1, [], undefined), false);
+assert.equal(allowed(1, [], -1), false);
+console.log('PASS: 9 ballot candidate checks');

@@ -21,8 +21,18 @@
  * early is simply refused.
  */
 import { actionForRole, fail, handler, loadMembership, ok } from "../_shared/api.ts";
-import { deadlineFor } from "../_shared/phases.ts";
+import { clearedFor, deadlineFor } from "../_shared/phases.ts";
 import { deriveSeed, SeedSalt, tieBreakIndex } from "../_shared/seed.ts";
+
+/**
+ * The phase guard on `night_actions` / `votes` refuses a row for a phase the
+ * room has left with this message (migration `action_epoch`). Reaching it
+ * here means the night or the ballot was resolved between this caller's read
+ * and its write: not a failure, the room moved on.
+ */
+function phaseClosedBy(error: { message?: string } | null): boolean {
+  return !!error?.message && error.message.includes("PHASE_CLOSED");
+}
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId } = await req.json();
@@ -37,24 +47,27 @@ Deno.serve(handler(async (req, userId, db) => {
     return fail("PHASE_CLOSED", "the phase has not expired yet");
   }
 
-  const { data: players } = await db
+  const { data: players, error: playersError } = await db
     .from("room_players")
     .select("user_id, seat, alive, role")
     .eq("room_id", roomId)
     .order("seat");
+  if (playersError) throw playersError;
   const roster = (players ?? []).filter((p) => p.alive);
 
   if (me.phase === "night") {
-    const { data: acted } = await db
+    const { data: acted, error: actedError } = await db
       .from("night_actions")
       .select("actor_id")
       .eq("room_id", roomId)
       .eq("night", me.phaseNumber);
+    if (actedError) throw actedError;
     const done = new Set((acted ?? []).map((a) => a.actor_id));
 
     for (const player of roster) {
       if (done.has(player.user_id)) continue;
       const action = actionForRole(player.role);
+      let row: { action: string; target_id: string | null };
       if (action === "kill" || action === "protect") {
         // The one default that picks a target: a Mafia who does nothing would
         // otherwise make "the Mafia are all disconnected" strictly better for
@@ -69,63 +82,92 @@ Deno.serve(handler(async (req, userId, db) => {
             targets.length,
           )
         ];
-        await db.from("night_actions").upsert({
-          room_id: roomId,
-          night: me.phaseNumber,
-          actor_id: player.user_id,
-          action,
-          target_id: pick.user_id,
-        });
+        row = { action, target_id: pick.user_id };
       } else {
-        await db.from("night_actions").upsert({
-          room_id: roomId,
-          night: me.phaseNumber,
-          actor_id: player.user_id,
-          action: "skip",
-          target_id: null,
-        });
+        row = { action: "skip", target_id: null };
       }
+      // A default fills a seat that said nothing. It never overwrites a move
+      // the player did make — one that landed after `acted` was read is
+      // theirs, and `ignoreDuplicates` leaves it standing.
+      const { error } = await db.from("night_actions").upsert({
+        room_id: roomId,
+        night: me.phaseNumber,
+        actor_id: player.user_id,
+        ...row,
+      }, { ignoreDuplicates: true });
+      if (phaseClosedBy(error)) {
+        return fail("PHASE_CLOSED", "the night has already been resolved");
+      }
+      if (error) throw error;
     }
     return ok({ applied: "night-defaults" });
   }
 
   if (me.phase === "vote") {
-    const { data: cast } = await db
+    const { data: state, error: stateError } = await db.from("room_state")
+      .select("public_data").eq("room_id", roomId).maybeSingle();
+    if (stateError) throw stateError;
+    // The round is the room's, never inferred from whatever ballots exist: a
+    // revote that nobody has voted in yet is still round two.
+    const revote = (state?.public_data as Record<string, unknown> | null)
+      ?.revote as Record<string, unknown> | null | undefined;
+    const round = Number(revote?.round ?? 1);
+    const { data: cast, error: castError } = await db
       .from("votes")
-      .select("voter_id, round")
+      .select("voter_id")
       .eq("room_id", roomId)
-      .eq("day", me.phaseNumber);
-    const round = Math.max(1, ...(cast ?? []).map((v) => v.round));
-    const voted = new Set(
-      (cast ?? []).filter((v) => v.round === round).map((v) => v.voter_id),
-    );
+      .eq("day", me.phaseNumber)
+      .eq("round", round);
+    if (castError) throw castError;
+    const voted = new Set((cast ?? []).map((v) => v.voter_id));
     for (const player of roster) {
       if (voted.has(player.user_id)) continue;
-      await db.from("votes").upsert({
+      const { error } = await db.from("votes").upsert({
         room_id: roomId,
         day: me.phaseNumber,
         voter_id: player.user_id,
         target_id: null,
         round,
-      });
+      }, { ignoreDuplicates: true });
+      if (phaseClosedBy(error)) {
+        return fail("PHASE_CLOSED", "the ballot has already been resolved");
+      }
+      if (error) throw error;
     }
     return ok({ applied: "abstentions" });
   }
 
+  // Everything below moves the room, and every move is one compare-and-set on
+  // the phase, day and deadline this caller read (`commit_phase_open`). The
+  // payload lands in the same statement as the phase, so a second driver that
+  // asks a moment later matches nothing — it cannot re-apply the patch to a
+  // phase the room has left, and it cannot reset a clock that already moved.
+  const move = async (
+    next: string,
+    patch: Record<string, unknown>,
+    applied: string,
+    extra: Record<string, unknown> = {},
+  ) => {
+    const { data: moved, error } = await db.rpc("commit_phase_open", {
+      p_room: roomId,
+      p_expected: me.phase,
+      p_number: me.phaseNumber,
+      p_expected_deadline: me.phaseEndsAt,
+      p_next: next,
+      p_next_number: me.phaseNumber,
+      p_deadline: deadlineFor(next, me.settings),
+      p_patch: patch,
+      p_require_all_seen: false,
+    });
+    if (error) throw error;
+    if (!moved) return fail("PHASE_CLOSED", "the room has already moved on");
+    return ok({ applied, ...extra });
+  };
+
   if (me.phase === "confront") {
     // C-E5 — the window closes and the day proceeds. The silence is recorded
     // because it is information, not because something failed.
-    await db.rpc("merge_public_data", {
-      p_room: roomId,
-      p_patch: { confrontationSilent: true },
-    });
-    await db.from("room_state").update({
-      phase: "discuss",
-      phase_ends_at: deadlineFor("discuss", me.settings),
-      active_speaker: null,
-      updated_at: new Date().toISOString(),
-    }).eq("room_id", roomId);
-    return ok({ applied: "silence" });
+    return await move("discuss", { confrontationSilent: true }, "silence");
   }
 
   if (me.phase === "opening") {
@@ -140,8 +182,9 @@ Deno.serve(handler(async (req, userId, db) => {
     // said nothing looks like, and `C10` reads that silence honestly later.
     // Recording a name nobody said would put a fabricated accusation into the
     // generators' input, which is the one thing rule 4 forbids outright.
-    const { data: state } = await db.from("room_state")
+    const { data: state, error: stateError } = await db.from("room_state")
       .select("public_data").eq("room_id", roomId).maybeSingle();
+    if (stateError) throw stateError;
     const current = Number(
       (state?.public_data as Record<string, unknown> | null)?.openingSeat ?? -1,
     );
@@ -149,40 +192,16 @@ Deno.serve(handler(async (req, userId, db) => {
       .find((seat) => seat > current) ?? null;
 
     if (next !== null) {
-      await db.rpc("merge_public_data", {
-        p_room: roomId,
-        p_patch: { openingSeat: next },
-      });
-      await db.from("room_state").update({
-        phase_ends_at: deadlineFor("opening", me.settings),
-        updated_at: new Date().toISOString(),
-      }).eq("room_id", roomId);
-      return ok({ applied: "opening-skip", next });
+      return await move("opening", { openingSeat: next }, "opening-skip", { next });
     }
-
-    await db.rpc("merge_public_data", {
-      p_room: roomId,
-      p_patch: { openingSeat: null },
-    });
-    await db.from("room_state").update({
-      phase: "discuss",
-      phase_ends_at: deadlineFor("discuss", me.settings),
-      updated_at: new Date().toISOString(),
-    }).eq("room_id", roomId);
-    return ok({ applied: "opening-closed" });
+    return await move("discuss", { openingSeat: null }, "opening-closed");
   }
 
   if (me.phase === "discuss") {
     // The discussion is the one phase whose expiry is not a default for a
     // missing action — nobody owes it anything. It is simply over, and the
     // ballot opens, which is what "no phase may stall" means here.
-    await db.from("room_state").update({
-      phase: "vote",
-      phase_ends_at: deadlineFor("vote", me.settings),
-      active_speaker: null,
-      updated_at: new Date().toISOString(),
-    }).eq("room_id", roomId);
-    return ok({ applied: "ballot-opened" });
+    return await move("vote", clearedFor("vote"), "ballot-opened");
   }
 
   // Nothing to default. A phase with no expiry action is one the room advances

@@ -31,27 +31,29 @@ void main() {
 
   /// The drawn width of row [index] as a fraction of its track.
   double fillOf(WidgetTester tester, int index) {
-    final box = tester.widgetList<FractionallySizedBox>(
-      find.descendant(
-        of: find.byType(VoteBar).at(index),
-        matching: find.byType(FractionallySizedBox),
-      ),
-    ).single;
+    final box = tester
+        .widgetList<FractionallySizedBox>(
+          find.descendant(
+            of: find.byType(VoteBar).at(index),
+            matching: find.byType(FractionallySizedBox),
+          ),
+        )
+        .single;
     return box.widthFactor ?? 0.0;
   }
 
   Widget tally({bool reduceMotion = false}) => localizedApp(
-        MediaQuery(
-          data: MediaQueryData(disableAnimations: reduceMotion),
-          child: Column(
-            children: const [
-              VoteBar(name: 'A', votes: 3, maxVotes: 3, index: 0),
-              VoteBar(name: 'B', votes: 3, maxVotes: 3, index: 1),
-              VoteBar(name: 'C', votes: 3, maxVotes: 3, index: 2),
-            ],
-          ),
-        ),
-      );
+    MediaQuery(
+      data: MediaQueryData(disableAnimations: reduceMotion),
+      child: Column(
+        children: const [
+          VoteBar(name: 'A', votes: 3, maxVotes: 3, index: 0),
+          VoteBar(name: 'B', votes: 3, maxVotes: 3, index: 1),
+          VoteBar(name: 'C', votes: 3, maxVotes: 3, index: 2),
+        ],
+      ),
+    ),
+  );
 
   group('vote tally cascade', () {
     testWidgets('rows do not all start together', (tester) async {
@@ -62,12 +64,20 @@ void main() {
       // row moves in lockstep and the third fill is non-zero here.
       await tester.pump(motion.stagger);
 
-      expect(fillOf(tester, 0), greaterThan(0.0),
-          reason: 'the first row has not started a full stagger step in, so '
-              'nothing is cascading — the tally just appears late.');
-      expect(fillOf(tester, 2), 0.0,
-          reason: 'the last row started at the same time as the first, so the '
-              'stagger is not being applied per index.');
+      expect(
+        fillOf(tester, 0),
+        greaterThan(0.0),
+        reason:
+            'the first row has not started a full stagger step in, so '
+            'nothing is cascading — the tally just appears late.',
+      );
+      expect(
+        fillOf(tester, 2),
+        0.0,
+        reason:
+            'the last row started at the same time as the first, so the '
+            'stagger is not being applied per index.',
+      );
 
       await tester.pumpAndSettle();
     });
@@ -77,24 +87,33 @@ void main() {
       await tester.pumpAndSettle();
 
       for (var i = 0; i < 3; i++) {
-        expect(fillOf(tester, i), 1.0,
-            reason: 'row $i settled at ${fillOf(tester, i)} rather than its '
-                'real share of the vote. The animation is not landing on the '
-                'value, which means the bar is lying about the count printed '
-                'next to it.');
+        expect(
+          fillOf(tester, i),
+          1.0,
+          reason:
+              'row $i settled at ${fillOf(tester, i)} rather than its '
+              'real share of the vote. The animation is not landing on the '
+              'value, which means the bar is lying about the count printed '
+              'next to it.',
+        );
       }
     });
 
-    testWidgets('Reduce Motion shows the full tally immediately',
-        (tester) async {
+    testWidgets('Reduce Motion shows the full tally immediately', (
+      tester,
+    ) async {
       await tester.pumpWidget(tally(reduceMotion: true));
 
       // First frame, no pump: the numbers must already be true.
       for (var i = 0; i < 3; i++) {
-        expect(fillOf(tester, i), 1.0,
-            reason: 'row $i is at ${fillOf(tester, i)} on the first frame with '
-                'animations disabled. A player who turns on Reduce Motion is '
-                'now being shown a tally that reports the wrong result.');
+        expect(
+          fillOf(tester, i),
+          1.0,
+          reason:
+              'row $i is at ${fillOf(tester, i)} on the first frame with '
+              'animations disabled. A player who turns on Reduce Motion is '
+              'now being shown a tally that reports the wrong result.',
+        );
       }
     });
 

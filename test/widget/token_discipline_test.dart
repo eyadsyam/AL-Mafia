@@ -65,9 +65,7 @@ void main() {
       }
 
       if (violations.isNotEmpty) {
-        fail(
-          'Token discipline violations found:\n${violations.join('\n')}',
-        );
+        fail('Token discipline violations found:\n${violations.join('\n')}');
       }
     });
   });

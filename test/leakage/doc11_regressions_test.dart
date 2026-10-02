@@ -47,101 +47,105 @@ void main() {
 
   const rows =
       <int, ({String test, String criterion, Map<String, List<String>> pins})>{
-    1: (
-      test: 'Golden: all four roles, night action screen',
-      criterion: 'Structurally identical trees and dimensions',
-      pins: {
-        'test/golden/turn_shell_symmetry_test.dart': [
-          'L-01 pixel symmetry across roles',
-          'L-01/L-02 structural symmetry with role-natural copy',
-          'L-02 reserved detail slot',
-        ],
-        'test/golden/reveal_symmetry_test.dart': <String>[],
-        'test/golden/voting_symmetry_test.dart': <String>[],
-      },
-    ),
-    2: (
-      test: 'Luminance across night screens',
-      criterion: 'Within ±2%, measured after textures',
-      pins: {
-        'test/golden/leakage/luminance_budget_test.dart': <String>[],
-        'test/golden/leakage/role_accent_parity_test.dart': <String>[],
-      },
-    ),
-    3: (
-      test: 'Step count per role',
-      criterion: 'Exactly 2 for every role',
-      pins: {
-        'test/leakage/doc11_regressions_test.dart': [
-          'L3 — two steps, and only two',
-        ],
-      },
-    ),
-    4: (
-      test: 'Tap count per role',
-      criterion: 'Identical',
-      pins: {
-        'test/leakage/doc11_regressions_test.dart': [
-          'L4 — the same taps, in the same order',
-        ],
-      },
-    ),
-    5: (
-      test: 'Minimum dwell before Confirm',
-      criterion: '8s for every role',
-      pins: {
-        'test/widget/turn_shell_timing_parity_test.dart': ['L-07 dwell gate'],
-      },
-    ),
-    6: (
-      test: 'Audio/haptic events during a private turn',
-      criterion: '**Zero**',
-      pins: {
-        'test/platform/haptics_call_site_test.dart': ['L-10 haptic call sites'],
-        'test/platform/audio_backend_isolation_test.dart': <String>[],
-      },
-    ),
-    7: (
-      test: 'Whisper card shown on every turn',
-      criterion: 'Including the empty state',
-      pins: {
-        // Doc 14 §3.1 inverts this row rather than dropping it. The card
-        // was unconditional so that the *number of screens* in a turn could
-        // not say who had received a whisper; the layer is online-only now,
-        // so offline there is no card for anybody and nothing to count.
-        'test/golden/leakage/offline_whisper_absence_test.dart': [
-          'doc 14 §3.1 — offline has no whisper layer',
-        ],
-      },
-    ),
-    8: (
-      test: 'Card letterbox bars',
-      criterion: "Within 12 levels of each painting's outer edge",
-      pins: {
-        'test/platform/card_ground_matches_surface_test.dart': <String>[],
-      },
-    ),
-    9: (
-      test: 'Route transition durations per role',
-      criterion: 'Identical to the millisecond',
-      pins: {
-        'test/widget/turn_shell_timing_parity_test.dart': [
-          'L-09 no per-role timing path exists at all',
-          'L-08 pass gate',
-        ],
-        'test/widget/phase_transition_test.dart': <String>[],
-      },
-    ),
-    10: (
-      test: 'Resume after kill during a private turn',
-      criterion: 'Lands on the pass screen',
-      pins: {
-        'test/integration/crash_resume_test.dart': [
-          'L-13 resume lands on a neutral surface',
-        ],
-      },
-    ),
-  };
+        1: (
+          test: 'Golden: all four roles, night action screen',
+          criterion: 'Structurally identical trees and dimensions',
+          pins: {
+            'test/golden/turn_shell_symmetry_test.dart': [
+              'L-01 pixel symmetry across roles',
+              'L-01/L-02 structural symmetry with role-natural copy',
+              'L-02 reserved detail slot',
+            ],
+            'test/golden/reveal_symmetry_test.dart': <String>[],
+            'test/golden/voting_symmetry_test.dart': <String>[],
+          },
+        ),
+        2: (
+          test: 'Luminance across night screens',
+          criterion: 'Within ±2%, measured after textures',
+          pins: {
+            'test/golden/leakage/luminance_budget_test.dart': <String>[],
+            'test/golden/leakage/role_accent_parity_test.dart': <String>[],
+          },
+        ),
+        3: (
+          test: 'Step count per role',
+          criterion: 'Exactly 2 for every role',
+          pins: {
+            'test/leakage/doc11_regressions_test.dart': [
+              'L3 — two steps, and only two',
+            ],
+          },
+        ),
+        4: (
+          test: 'Tap count per role',
+          criterion: 'Identical',
+          pins: {
+            'test/leakage/doc11_regressions_test.dart': [
+              'L4 — the same taps, in the same order',
+            ],
+          },
+        ),
+        5: (
+          test: 'Minimum dwell before Confirm',
+          criterion: '8s for every role',
+          pins: {
+            'test/widget/turn_shell_timing_parity_test.dart': [
+              'L-07 dwell gate',
+            ],
+          },
+        ),
+        6: (
+          test: 'Audio/haptic events during a private turn',
+          criterion: '**Zero**',
+          pins: {
+            'test/platform/haptics_call_site_test.dart': [
+              'L-10 haptic call sites',
+            ],
+            'test/platform/audio_backend_isolation_test.dart': <String>[],
+          },
+        ),
+        7: (
+          test: 'Whisper card shown on every turn',
+          criterion: 'Including the empty state',
+          pins: {
+            // Doc 14 §3.1 inverts this row rather than dropping it. The card
+            // was unconditional so that the *number of screens* in a turn could
+            // not say who had received a whisper; the layer is online-only now,
+            // so offline there is no card for anybody and nothing to count.
+            'test/golden/leakage/offline_whisper_absence_test.dart': [
+              'doc 14 §3.1 — offline has no whisper layer',
+            ],
+          },
+        ),
+        8: (
+          test: 'Card letterbox bars',
+          criterion: "Within 12 levels of each painting's outer edge",
+          pins: {
+            'test/platform/card_ground_matches_surface_test.dart': <String>[],
+          },
+        ),
+        9: (
+          test: 'Route transition durations per role',
+          criterion: 'Identical to the millisecond',
+          pins: {
+            'test/widget/turn_shell_timing_parity_test.dart': [
+              'L-09 no per-role timing path exists at all',
+              'L-08 pass gate',
+            ],
+            'test/widget/phase_transition_test.dart': <String>[],
+          },
+        ),
+        10: (
+          test: 'Resume after kill during a private turn',
+          criterion: 'Lands on the pass screen',
+          pins: {
+            'test/integration/crash_resume_test.dart': [
+              'L-13 resume lands on a neutral surface',
+            ],
+          },
+        ),
+      };
 
   String squash(String s) => s.replaceAll(RegExp(r'\s+'), ' ').trim();
 
@@ -151,28 +155,47 @@ void main() {
     test('doc 11 §8 has exactly the ten rows this file claims', () {
       final doc = File('docs/11-edge-cases-and-tests.md').readAsStringSync();
       final section = doc.split('# 8. Zero-leakage regression (offline)');
-      expect(section.length, greaterThan(1),
-          reason: 'doc 11 no longer has a §8 — the release gate lost its table');
+      expect(
+        section.length,
+        greaterThan(1),
+        reason: 'doc 11 no longer has a §8 — the release gate lost its table',
+      );
 
       final table = section[1].split('# 9.').first;
       final parsed = <int, (String, String)>{};
       for (final line in table.split('\n')) {
-        final m = RegExp(r'^\|\s*L(\d+)\s*\|(.+?)\|(.+?)\|\s*$').firstMatch(line);
+        final m = RegExp(
+          r'^\|\s*L(\d+)\s*\|(.+?)\|(.+?)\|\s*$',
+        ).firstMatch(line);
         if (m == null) continue;
-        parsed[int.parse(m.group(1)!)] = (squash(m.group(2)!), squash(m.group(3)!));
+        parsed[int.parse(m.group(1)!)] = (
+          squash(m.group(2)!),
+          squash(m.group(3)!),
+        );
       }
 
-      expect(parsed.keys.toSet(), equals(rows.keys.toSet()),
-          reason: 'doc 11 §8 and this file disagree about which rows exist. '
-              'A new row needs a test before it needs a number.');
+      expect(
+        parsed.keys.toSet(),
+        equals(rows.keys.toSet()),
+        reason:
+            'doc 11 §8 and this file disagree about which rows exist. '
+            'A new row needs a test before it needs a number.',
+      );
 
       for (final entry in parsed.entries) {
         final mine = rows[entry.key]!;
-        expect(entry.value.$1, equals(squash(mine.test)),
-            reason: 'L${entry.key}: the spec renamed the test');
-        expect(entry.value.$2, equals(squash(mine.criterion)),
-            reason: 'L${entry.key}: the spec changed the pass criterion — the '
-                'test pinned to it may no longer measure the right thing');
+        expect(
+          entry.value.$1,
+          equals(squash(mine.test)),
+          reason: 'L${entry.key}: the spec renamed the test',
+        );
+        expect(
+          entry.value.$2,
+          equals(squash(mine.criterion)),
+          reason:
+              'L${entry.key}: the spec changed the pass criterion — the '
+              'test pinned to it may no longer measure the right thing',
+        );
       }
     });
   });
@@ -180,18 +203,29 @@ void main() {
   group('every row is pinned by a live test', () {
     for (final entry in rows.entries) {
       test('L${entry.key} — ${entry.value.test}', () {
-        expect(entry.value.pins, isNotEmpty, reason: 'L${entry.key} has no test');
+        expect(
+          entry.value.pins,
+          isNotEmpty,
+          reason: 'L${entry.key} has no test',
+        );
 
         for (final pin in entry.value.pins.entries) {
           final file = File(pin.key);
-          expect(file.existsSync(), isTrue,
-              reason: 'L${entry.key} points at ${pin.key}, which is gone');
+          expect(
+            file.existsSync(),
+            isTrue,
+            reason: 'L${entry.key} points at ${pin.key}, which is gone',
+          );
 
           final source = file.readAsStringSync();
           for (final name in pin.value) {
-            expect(source.contains(name), isTrue,
-                reason: 'L${entry.key}: ${pin.key} no longer declares a group '
-                    'named "$name"');
+            expect(
+              source.contains(name),
+              isTrue,
+              reason:
+                  'L${entry.key}: ${pin.key} no longer declares a group '
+                  'named "$name"',
+            );
           }
 
           // A skipped leakage test reports green, which is the one outcome
@@ -200,8 +234,15 @@ void main() {
           // The pattern is spliced rather than written whole because this file
           // is one of the files it scans: a literal would match itself and
           // report L3 and L4 as disabled.
-          expect(RegExp(r'\b' 'skip' r'\s*:').hasMatch(source), isFalse,
-              reason: 'L${entry.key}: ${pin.key} contains a skip');
+          expect(
+            RegExp(
+              r'\b'
+              'skip'
+              r'\s*:',
+            ).hasMatch(source),
+            isFalse,
+            reason: 'L${entry.key}: ${pin.key} contains a skip',
+          );
         }
       });
     }
@@ -214,22 +255,33 @@ void main() {
     // rather than only inside the suite whose result they decide.
 
     test('L2 — the luminance budget is still ±2%', () {
-      final source = File('test/golden/leakage/luminance_budget_test.dart')
-          .readAsStringSync();
-      expect(source.contains('double budget = 0.02'), isTrue,
-          reason: 'the ±2% budget of doc 11 §8 L2 has moved');
+      final source = File(
+        'test/golden/leakage/luminance_budget_test.dart',
+      ).readAsStringSync();
+      expect(
+        source.contains('double budget = 0.02'),
+        isTrue,
+        reason: 'the ±2% budget of doc 11 §8 L2 has moved',
+      );
     });
 
     test('L5 — the dwell gate is still 8 seconds', () {
-      expect(MafiaTiming.defaults.dwellGate, equals(const Duration(seconds: 8)),
-          reason: 'doc 11 §8 L5 fixes the minimum dwell at 8s for every role');
+      expect(
+        MafiaTiming.defaults.dwellGate,
+        equals(const Duration(seconds: 8)),
+        reason: 'doc 11 §8 L5 fixes the minimum dwell at 8s for every role',
+      );
     });
 
     test('L8 — the letterbox budget is still 12 levels', () {
-      final source = File('test/platform/card_ground_matches_surface_test.dart')
-          .readAsStringSync();
-      expect(source.contains('budget = 12.0'), isTrue,
-          reason: 'the 12-level budget of doc 11 §8 L8 has moved');
+      final source = File(
+        'test/platform/card_ground_matches_surface_test.dart',
+      ).readAsStringSync();
+      expect(
+        source.contains('budget = 12.0'),
+        isTrue,
+        reason: 'the 12-level budget of doc 11 §8 L8 has moved',
+      );
     });
   });
 
@@ -265,32 +317,49 @@ void main() {
     await tester.pump();
 
     final tiles = find.byType(NightGridTile);
-    expect(tiles.evaluate().length, equals(TurnShellHarness.targets.length),
-        reason: '${role.name} is offered a different number of targets');
+    expect(
+      tiles.evaluate().length,
+      equals(TurnShellHarness.targets.length),
+      reason: '${role.name} is offered a different number of targets',
+    );
 
     // Nothing is confirmable yet — for anybody. A role whose Confirm was live
     // before a choice was made would be a one-step turn.
-    expect(TurnShellHarness.actionEnabled(tester), isFalse,
-        reason: 'LEAK: ${role.name} could confirm without choosing');
+    expect(
+      TurnShellHarness.actionEnabled(tester),
+      isFalse,
+      reason: 'LEAK: ${role.name} could confirm without choosing',
+    );
 
     final taps = <String>[];
 
     // Step 1.
-    await tester.tap(find.byKey(NightGrid.tile(TurnShellHarness.targets[1].seat)));
+    await tester.tap(
+      find.byKey(NightGrid.tile(TurnShellHarness.targets[1].seat)),
+    );
     await tester.pump();
     taps.add('target');
-    expect(confirmed, isEmpty,
-        reason: 'LEAK: ${role.name} ended the turn on the first tap');
+    expect(
+      confirmed,
+      isEmpty,
+      reason: 'LEAK: ${role.name} ended the turn on the first tap',
+    );
 
     // Step 2.
-    expect(TurnShellHarness.actionEnabled(tester), isTrue,
-        reason: '${role.name} cannot confirm after choosing');
+    expect(
+      TurnShellHarness.actionEnabled(tester),
+      isTrue,
+      reason: '${role.name} cannot confirm after choosing',
+    );
     await tester.tap(find.byKey(TurnShell.actionButton));
     await tester.pump();
     taps.add('confirm');
 
-    expect(confirmed, equals([TurnShellHarness.targets[1].seat]),
-        reason: '${role.name} did not confirm the seat it was given');
+    expect(
+      confirmed,
+      equals([TurnShellHarness.targets[1].seat]),
+      reason: '${role.name} did not confirm the seat it was given',
+    );
 
     return taps;
   }
@@ -304,7 +373,9 @@ void main() {
   });
 
   group('L4 — the same taps, in the same order', () {
-    testWidgets('all four roles walk an identical tap sequence', (tester) async {
+    testWidgets('all four roles walk an identical tap sequence', (
+      tester,
+    ) async {
       final sequences = <Role, List<String>>{};
       for (final role in Role.values) {
         sequences[role] = await playTurn(tester, role);
@@ -312,9 +383,13 @@ void main() {
 
       final reference = sequences[Role.mafia]!;
       for (final role in Role.values) {
-        expect(sequences[role], orderedEquals(reference),
-            reason: 'LEAK: ${role.name} takes a different path through a turn '
-                'than mafia: ${sequences[role]} vs $reference');
+        expect(
+          sequences[role],
+          orderedEquals(reference),
+          reason:
+              'LEAK: ${role.name} takes a different path through a turn '
+              'than mafia: ${sequences[role]} vs $reference',
+        );
       }
     });
   });

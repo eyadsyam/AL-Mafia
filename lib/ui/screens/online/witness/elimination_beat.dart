@@ -74,8 +74,18 @@ class _EliminationBeatState extends State<EliminationBeat>
 
     // The hold runs from the start of the drain, not from the end of it, so the
     // whole beat takes the same time whether or not the drain animated.
+    //
+    // It then lifts the way it fell — the veil and the sentence fade back out
+    // over the table, now grey — instead of vanishing in one frame.
     Future<void>.delayed(timing.eliminationDrain + timing.eliminationHold, () {
-      if (mounted) widget.onFinished();
+      if (!mounted) return;
+      if (ReduceMotion.of(context)) {
+        widget.onFinished();
+        return;
+      }
+      _controller.reverse().whenComplete(() {
+        if (mounted) widget.onFinished();
+      });
     });
   }
 

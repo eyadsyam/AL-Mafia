@@ -97,7 +97,8 @@ class _ResumeGateState extends ConsumerState<ResumeGate> {
     final radii = navigatorContext.radii;
     final l10n = navigatorContext.l10n;
 
-    final where = target.screen == ResumeScreen.pass && target.playerName != null
+    final where =
+        target.screen == ResumeScreen.pass && target.playerName != null
         ? l10n.resumeFromPassTo(target.playerName!)
         : l10n.resumeFromDay(target.dayNumber);
 

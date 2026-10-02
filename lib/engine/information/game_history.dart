@@ -79,9 +79,8 @@ class GameHistory {
   /// The fairness cap reads this, and it is not optional: *"Without it, one
   /// unlucky player gets confronted every single day and stops enjoying the
   /// game"* (doc 09 §2.4).
-  int confrontationCountFor(int seat) => days
-      .where((d) => d.confrontation?.targetSeat == seat)
-      .length;
+  int confrontationCountFor(int seat) =>
+      days.where((d) => d.confrontation?.targetSeat == seat).length;
 
   /// Every seat that anyone has ever suspected at night, across the match.
   ///
@@ -90,9 +89,9 @@ class GameHistory {
   /// been suspected" as a private note is, and a player who was accused to
   /// their face on Day 1 is plainly not the table's blind spot.
   Set<int> get everSuspected => {
-        for (final night in nights) ...night.recordedSuspicions.values,
-        for (final day in days) ...day.openingAccusations.values,
-      };
+    for (final night in nights) ...night.recordedSuspicions.values,
+    for (final day in days) ...day.openingAccusations.values,
+  };
 
   /// Total floor time per seat across the whole match.
   Map<int, int> get totalSpeakingSeconds {
@@ -106,8 +105,9 @@ class GameHistory {
   }
 
   /// Every whisper edge in the match, oldest first.
-  List<WhisperMeta> get allWhispers =>
-      [for (final day in days) ...day.whispers];
+  List<WhisperMeta> get allWhispers => [
+    for (final day in days) ...day.whispers,
+  ];
 
   @override
   String toString() =>
@@ -172,19 +172,21 @@ GameHistory buildHistory(Match match) {
       }
     }
 
-    nights.add(NightRecord(
-      nightNumber: n,
-      suspicions: suspicions,
-      reasons: reasons,
-      mafiaTarget: mafiaTarget,
-      doctorProtect: doctorProtect,
-      detectiveCheck: detectiveCheck,
-      victim: victim,
-      saveOccurred: savedSeat != null,
-      savedSeat: savedSeat,
-      revealedTrace: trace,
-      resolved: resolved,
-    ));
+    nights.add(
+      NightRecord(
+        nightNumber: n,
+        suspicions: suspicions,
+        reasons: reasons,
+        mafiaTarget: mafiaTarget,
+        doctorProtect: doctorProtect,
+        detectiveCheck: detectiveCheck,
+        victim: victim,
+        saveOccurred: savedSeat != null,
+        savedSeat: savedSeat,
+        revealedTrace: trace,
+        resolved: resolved,
+      ),
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -264,17 +266,19 @@ GameHistory buildHistory(Match match) {
         ? 0
         : byRound.keys.reduce((a, b) => a > b ? a : b);
 
-    days.add(DayRecord(
-      dayNumber: d,
-      openingAccusations: opening,
-      confrontation: confrontation,
-      confrontationSilent: silent,
-      votes: byRound[lastRound] ?? const {},
-      votesByRound: byRound,
-      eliminated: eliminated,
-      speakingSeconds: speaking,
-      whispers: whispers.values.toList(),
-    ));
+    days.add(
+      DayRecord(
+        dayNumber: d,
+        openingAccusations: opening,
+        confrontation: confrontation,
+        confrontationSilent: silent,
+        votes: byRound[lastRound] ?? const {},
+        votesByRound: byRound,
+        eliminated: eliminated,
+        speakingSeconds: speaking,
+        whispers: whispers.values.toList(),
+      ),
+    );
   }
 
   return GameHistory(

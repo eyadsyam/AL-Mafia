@@ -114,8 +114,9 @@ void main() {
     await loadArtwork(tester);
     await tester.pumpAndSettle();
 
-    final boundary =
-        tester.renderObject<RenderRepaintBoundary>(find.byKey(boundaryKey));
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.byKey(boundaryKey),
+    );
     await tester.runAsync(() async {
       final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
       final data = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -130,8 +131,9 @@ void main() {
     await shoot(tester, 'home');
   });
 
-  testWidgets('home on a short screen, where the fan has least room',
-      (tester) async {
+  testWidgets('home on a short screen, where the fan has least room', (
+    tester,
+  ) async {
     await shoot(tester, 'home_short', surface: const Size(360, 640));
   });
 }
