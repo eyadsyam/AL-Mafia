@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/motion_preference.dart';
 import '../data/player_group_provider.dart';
 import '../platform/audio_director.dart';
+import '../platform/optional_service.dart';
 import '../ui/screens/setup/setup_draft.dart';
+import '../ui/screens/setup/scenario_store.dart';
 import '../ui/l10n_ext.dart';
 import '../ui/theme/mafia_theme.dart';
 import '../ui/widgets/splash_gate.dart';
@@ -13,13 +18,18 @@ import 'l10n/app_localizations.dart';
 import 'onboarding_gate.dart';
 import 'resume_gate.dart';
 import 'router.dart';
+import '../ui/economy/economy_capabilities.dart' show retryCapabilitiesIfFailed;
+import 'locale_controller.dart';
 
 /// Root app widget for Mafia Master.
 ///
 /// Arabic is the primary locale and the app is RTL-first (FR-034); English is
 /// supported but is the fallback, not the default.
 class MafiaApp extends ConsumerStatefulWidget {
-  const MafiaApp({super.key});
+  /// See [buildRouter]'s parameter of the same name. Tests only.
+  final String? initialLocation;
+
+  const MafiaApp({super.key, this.initialLocation});
 
   @override
   ConsumerState<MafiaApp> createState() => _MafiaAppState();
@@ -31,7 +41,11 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   /// otherwise fight over the same key.
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
-  late final GoRouter _router = buildRouter(ref, navigatorKey: _navigatorKey);
+  late final GoRouter _router = buildRouter(
+    ref,
+    navigatorKey: _navigatorKey,
+    initialLocation: widget.initialLocation,
+  );
 
   AudioDirector get _audio => ref.read(audioDirectorProvider);
 
@@ -48,6 +62,20 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     // that as "no groups" and behaves exactly as the app did before groups
     // existed, so the worst case is the old behaviour rather than a stall.
     ref.read(playerGroupsProvider);
+    // Ads are not started here (phase 100). The consent form and the ad SDK
+    // start only when a player taps the optional post-match reward (or opens
+    // the ad privacy choices), so nothing ad-related appears over first run
+    // or onboarding, and a player who never uses ads never starts the SDK.
+    //
+    // The purchase store is opened by the scenario controller, not here: it
+    // has to be listening before the store connects, because Play replays
+    // restored and unfinished purchases the moment it does.
+    unawaited(
+      runOptionalService(
+        'purchases',
+        ref.read(scenarioPurchaseProvider.notifier).start,
+      ),
+    );
     // Started at the app root rather than at the match, because the score is
     // continuous across everything: it does not restart when a match begins, so
     // there is no seam at the one moment the table is paying most attention.
@@ -62,6 +90,27 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     });
   }
 
+  /// The system back control (Android's gesture or button).
+  ///
+  /// Registered in [initState], so this observer stands ahead of the router's
+  /// own dispatcher: anything the Navigator can pop — a sheet, a dialog, the
+  /// how-to-play cards — is left to it, and otherwise the screen's logical
+  /// parent is shown instead of the activity finishing (see
+  /// [systemBackTarget]).
+  @override
+  Future<bool> didPopRoute() async {
+    if (_navigatorKey.currentState?.canPop() ?? false) return false;
+    final location = _router.routerDelegate.currentConfiguration.uri.path;
+    final target = systemBackTarget(
+      location,
+      hasGroups:
+          ref.read(playerGroupsProvider).valueOrNull?.isNotEmpty ?? false,
+    );
+    if (target == null) return false;
+    _router.go(target);
+    return true;
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // The one thing that may silence the loop besides a setting: the app going
@@ -69,6 +118,8 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     // from a pocket, and it is not information about the game either way.
     if (state == AppLifecycleState.resumed) {
       _syncScore();
+      // A vault capability read that could not reach the server is retried.
+      retryCapabilitiesIfFailed(ref);
     } else if (state == AppLifecycleState.paused) {
       _audio.scoreEnabled = false;
       _audio.syncScore();
@@ -108,7 +159,7 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       onGenerateTitle: (context) => context.l10n.appTitle,
       theme: MafiaTheme.dark,
       routerConfig: _router,
-      locale: const Locale('ar'),
+      locale: ref.watch(localeProvider),
       supportedLocales: const <Locale>[Locale('ar'), Locale('en')],
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -152,21 +203,42 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       builder: (context, child) => MediaQuery.withClampedTextScaling(
         minScaleFactor: 1.0,
         maxScaleFactor: 1.0,
-        child: SplashGate(
-          child: ResumeGate(
-            navigatorKey: _navigatorKey,
-            // Inside the resume gate, not outside it: the resume prompt is a
-            // dialog and this is a route change, so the two are not competing
-            // for the same slot — but a first launch that also has an
-            // unfinished match must get the prompt, and `OnboardingGate` stands
-            // down on its own when it finds one.
-            child: OnboardingGate(
+        child: _MotionPreference(
+          reduce: ref.watch(reduceMotionPreferenceProvider),
+          child: SplashGate(
+            child: ResumeGate(
               navigatorKey: _navigatorKey,
-              child: child ?? const SizedBox.shrink(),
+              // Inside the resume gate, not outside it: the resume prompt is a
+              // dialog and this is a route change, so the two are not competing
+              // for the same slot — but a first launch that also has an
+              // unfinished match must get the prompt, and `OnboardingGate` stands
+              // down on its own when it finds one.
+              child: OnboardingGate(
+                navigatorKey: _navigatorKey,
+                child: child ?? const SizedBox.shrink(),
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The in-game reduce-motion choice, added to the system one. Every animation
+/// already asks `MediaQuery.disableAnimationsOf`, so this is the only place
+/// that needs to know the setting exists.
+class _MotionPreference extends StatelessWidget {
+  final bool reduce;
+  final Widget child;
+  const _MotionPreference({required this.reduce, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!reduce) return child;
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(disableAnimations: true),
+      child: child,
     );
   }
 }

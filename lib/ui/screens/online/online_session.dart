@@ -1,6 +1,7 @@
 import 'dart:async';
+import '../../../data/online_match_history.dart';
+import '../../../data/online_session_store.dart';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,6 +11,7 @@ import '../../../transport/game_snapshot.dart';
 import '../../../transport/online_backend.dart';
 import '../../../transport/online_transport.dart';
 import '../../../transport/supabase_backend.dart';
+import '../../theme/design_tokens.dart';
 
 /// Where the project lives.
 ///
@@ -50,13 +52,14 @@ final onlineBackendFactoryProvider = Provider<Future<OnlineBackend> Function()>(
 );
 
 /// How often a client says it is here, checks the host still is, and applies a
-/// phase's expiry default.
+/// phase's expiry default. Ordinary roster and room events arrive immediately
+/// through Realtime; this ten-second beat is only the liveness safety net.
 ///
 /// Overridable so a widget test can set it to zero and leave no timer running
 /// behind the tree — and so a slow network can be given a longer beat without
 /// touching the transport.
 final onlineHeartbeatProvider = Provider<Duration>(
-  (ref) => const Duration(seconds: 10),
+  (ref) => MafiaTiming.onlineHeartbeat,
 );
 
 /// What the online screens are looking at.
@@ -81,6 +84,11 @@ class OnlineSessionState {
   final bool unreachable;
   final bool projectPaused;
 
+  /// Set when this device's storage refused a write the match does not depend
+  /// on — the resume pointer or the finished-match summary. The match goes on;
+  /// the player is told, once, that this device may not bring them back to the
+  /// room by itself or keep the result. Cleared by [OnlineSession.dismissStorageWarning].
+  final bool storageWarning;
   const OnlineSessionState({
     this.busy = false,
     this.room,
@@ -88,6 +96,7 @@ class OnlineSessionState {
     this.errorCode,
     this.unreachable = false,
     this.projectPaused = false,
+    this.storageWarning = false,
   });
 
   bool get isInRoom => room != null && transport != null;
@@ -99,6 +108,7 @@ class OnlineSessionState {
     String? errorCode,
     bool? unreachable,
     bool? projectPaused,
+    bool? storageWarning,
     bool clearError = false,
   }) => OnlineSessionState(
     busy: busy ?? this.busy,
@@ -107,6 +117,7 @@ class OnlineSessionState {
     errorCode: clearError ? null : (errorCode ?? this.errorCode),
     unreachable: clearError ? false : (unreachable ?? this.unreachable),
     projectPaused: clearError ? false : (projectPaused ?? this.projectPaused),
+    storageWarning: storageWarning ?? this.storageWarning,
   );
 }
 
@@ -116,11 +127,14 @@ class OnlineSessionState {
 /// once a room is joined, the transport is the state and the ordinary match
 /// screens render it, which is the whole point of the seam.
 class OnlineSession extends Notifier<OnlineSessionState> {
+  StreamSubscription<GameSnapshot>? _history;
   OnlineBackend? _backend;
 
   @override
   OnlineSessionState build() {
     ref.onDispose(() {
+      _dropLifecycle();
+      unawaited(_history?.cancel());
       unawaited(state.transport?.dispose());
     });
     return const OnlineSessionState();
@@ -130,21 +144,104 @@ class OnlineSession extends Notifier<OnlineSessionState> {
       _backend ??= await ref.read(onlineBackendFactoryProvider)();
 
   /// Hosts a new room and takes seat 0.
-  Future<void> host(String name, {String gender = 'unspecified'}) => _enter((backend) async {
+  Future<void> host(
+    String name, {
+    String gender = 'unspecified',
+    Map<String, dynamic>? configuration,
+  }) => _enter((backend) async {
+    if (configuration != null) {
+      final result = await backend.call('create_room', {
+        ...configuration,
+        'name': name.trim(),
+        'gender': gender,
+      });
+      return RoomHandle(
+        roomId: result['roomId'] as String,
+        code: result['code'] as String,
+        seat: 0,
+      );
+    }
     final handle = await backend.createRoom(name: name.trim(), gender: gender);
     return handle;
   });
 
   /// Joins by code, or rejoins a seat this user already holds (O4).
-  Future<void> join({required String code, required String name, String gender = 'unspecified'}) =>
-      _enter((backend) async {
-        final handle = await backend.joinRoom(
-          code: code.trim().toUpperCase(),
-          name: name.trim(),
-          gender: gender,
-        );
-        return handle;
-      });
+  Future<void> join({
+    required String code,
+    required String name,
+    String gender = 'unspecified',
+  }) async {
+    await _enter((backend) async {
+      final handle = await backend.joinRoom(
+        code: code.trim().toUpperCase(),
+        name: name.trim(),
+        gender: gender,
+      );
+      return handle;
+    });
+    // A pointer to a room that no longer has a seat for this player — gone,
+    // finished, closed to newcomers, or one they were removed from — is not a
+    // pointer worth offering again. Only the server can say which it is, and
+    // it just did.
+    if (_obsoleteAfter.contains(state.errorCode)) {
+      final stored = await OnlineSessionStore.load();
+      if (stored != null && stored.code == code.trim().toUpperCase()) {
+        await OnlineSessionStore.clear();
+      }
+    }
+  }
+
+  static const _obsoleteAfter = {
+    'ROOM_NOT_FOUND',
+    'ROOM_FINISHED',
+    'NOT_A_MEMBER',
+    'PHASE_CLOSED',
+  };
+
+  /// Forgets a stored room without going back into it.
+  ///
+  /// The seat is given up properly — `leave_room` frees a lobby seat and marks
+  /// a playing one `left` — so the room is not left waiting on a player who
+  /// has decided not to return. A room that refuses (already gone, already
+  /// finished) is forgotten all the same; the refusal is the answer.
+  Future<void> discardResume(OnlineRoomResume resume) async {
+    try {
+      final backend = await _ensureBackend();
+      await backend.ensureSession();
+      await backend.call('leave_room', {'roomId': resume.roomId});
+    } catch (_) {
+      // Nothing the player can act on: the pointer is what they asked to drop.
+    }
+    await OnlineSessionStore.clear();
+  }
+
+  void dismissStorageWarning() {
+    if (!state.storageWarning) return;
+    state = state.copyWith(storageWarning: false);
+  }
+
+  /// Drops a transport this session no longer stands behind. Idempotent.
+  ///
+  /// Called before a new room is entered as well as on leave: a device that
+  /// went Home from a result or was removed from a room and then joined
+  /// another used to keep the first transport alive — heartbeats to a room it
+  /// had left, a second Realtime channel, and a voice link nobody could hear.
+  Future<void> _teardown() async {
+    await _history?.cancel();
+    _history = null;
+    _dropLifecycle();
+    final transport = state.transport;
+    if (transport == null) return;
+    await transport.dispose();
+    // The transport took its backend's channels with it; the next room gets
+    // a fresh one, exactly as it would after `leave()`.
+    _backend = null;
+    // Nothing on the screens may keep rendering a transport that is gone.
+    state = OnlineSessionState(
+      busy: state.busy,
+      storageWarning: state.storageWarning,
+    );
+  }
 
   /// Puts a refusal away without doing anything else.
   ///
@@ -162,16 +259,71 @@ class OnlineSession extends Notifier<OnlineSessionState> {
   ) async {
     state = state.copyWith(busy: true, clearError: true);
     try {
+      await _teardown();
       final backend = await _ensureBackend();
       await backend.ensureSession();
       final handle = await action(backend);
+      // The server already owns the authoritative match. This pointer lets a
+      // restarted client rejoin that same membership by code without storing
+      // any role, private action, auth token, or voice credential locally.
+      var storageWarning = false;
+      try {
+        await OnlineSessionStore.save(
+          OnlineRoomResume(roomId: handle.roomId, code: handle.code),
+        );
+      } catch (_) {
+        // Losing local resume storage must never prevent a successful join —
+        // but the player is told, because the thing they lost is the way back.
+        storageWarning = true;
+      }
       final transport = await OnlineTransport.connect(
         backend: backend,
         roomId: handle.roomId,
         heartbeatInterval: ref.read(onlineHeartbeatProvider),
       );
       _watchLifecycle(transport);
-      state = OnlineSessionState(room: handle, transport: transport);
+      await _history?.cancel();
+      var saved = false;
+      var saving = false;
+      // `watch()` replays the current snapshot first, so a device that
+      // reconnects to a room already on its result still writes the summary.
+      _history = transport.watch().listen((snapshot) async {
+        if (saved ||
+            saving ||
+            snapshot.outcome == null ||
+            snapshot.phase != GamePhase.result)
+          return;
+        saving = true;
+        try {
+          await OnlineMatchHistory.save(
+            roomId: handle.roomId,
+            names: snapshot.public.players.map((p) => p.name).toList(),
+            winner: snapshot.outcome!.winner.name,
+            days: snapshot.dayNumber,
+          );
+
+          saved = true;
+        } catch (_) {
+          // History failure must never stop the match — it is over anyway —
+          // but a result this device could not keep is worth one sentence.
+          saved = true;
+          state = state.copyWith(storageWarning: true);
+        }
+        try {
+          await backend.call('economy', {'action': 'sync'});
+        } catch (_) {
+          // Rewards are idempotent and can be recovered when the player opens
+          // the coin screen. A reward service outage never blocks a result.
+        } finally {
+          await OnlineSessionStore.clear();
+          saving = false;
+        }
+      });
+      state = OnlineSessionState(
+        room: handle,
+        transport: transport,
+        storageWarning: storageWarning,
+      );
     } on BackendException catch (e) {
       state = state.copyWith(busy: false, errorCode: e.code);
     } on BackendUnreachable catch (e) {
@@ -183,6 +335,12 @@ class OnlineSession extends Notifier<OnlineSessionState> {
         unreachable: true,
         projectPaused: e.projectPaused,
       );
+    } catch (_) {
+      // A 200 whose body is not the shape this client expects — a room with no
+      // id, a snapshot that will not decode. Not a refusal and not "no
+      // server"; still a sentence and a button that works again, rather than
+      // a spinner that never stops.
+      state = state.copyWith(busy: false, errorCode: 'BAD_RESPONSE');
     }
   }
 
@@ -221,32 +379,27 @@ class OnlineSession extends Notifier<OnlineSessionState> {
     }
   }
 
-  /// Leaves the room. In the lobby that is a departure and the seats re-pack;
-  /// mid-match it is only a disconnection and the seat is kept (O4, O5).
-  /// The «أوض عامة» list (task 10).
+  /// The «أوض عامة» list: the only way a player picks a public room.
   ///
-  /// Pulled, never polled: a browse screen that refreshed itself would be a
-  /// realtime subscription to every room on the server for the sake of a
-  /// number that changes twice a minute. The person looking at the list is the
-  /// one who decides it is stale.
-  ///
-  /// Returns an empty list rather than throwing. A browse that fails is a
-  /// browse with nothing in it, and the code field on the same screen is still
-  /// there — this is never the only way into a room.
+  /// Read-only on the server — looking never seats anybody. The entry screen
+  /// re-reads it on a timer while it is visible (see `MafiaTiming`), and it
+  /// throws on failure so that screen can keep the last good list and say it
+  /// is out of date, rather than claim there are no rooms.
   Future<List<PublicRoom>> browse() async {
-    try {
-      final backend = await _ensureBackend();
-      final result = await backend.call('browse_rooms', const {});
-      return [
-        for (final row in (result['rooms'] as List? ?? const []))
-          PublicRoom.fromJson(Map<String, dynamic>.from(row as Map)),
-      ];
-    } catch (_) {
-      return const [];
-    }
+    final backend = await _ensureBackend();
+    await backend.ensureSession();
+    final result = await backend.call('browse_rooms', const {});
+    return PublicRoom.ordered([
+      for (final row in (result['rooms'] as List? ?? const []))
+        PublicRoom.fromJson(Map<String, dynamic>.from(row as Map)),
+    ]);
   }
 
+  /// Leaves the room. In the lobby that is a departure and the seats re-pack;
+  /// mid-match it is only a disconnection and the seat is kept (O4, O5).
   Future<void> leave() async {
+    await _history?.cancel();
+    _history = null;
     final room = state.room;
     final backend = _backend;
     final transport = state.transport;
@@ -260,9 +413,14 @@ class OnlineSession extends Notifier<OnlineSessionState> {
     }
     // Said before the transport goes, so the room learns it from this device
     // rather than from a clock ninety seconds later.
-    await transport?.setPresence('left');
+    try {
+      await transport?.setPresence('left');
+    } catch (_) {
+      // A transport that is already gone has nothing left to say.
+    }
     _dropLifecycle();
     await transport?.dispose();
+    await OnlineSessionStore.clear();
     _backend = null;
     state = const OnlineSessionState();
   }
@@ -295,6 +453,7 @@ class OnlineSession extends Notifier<OnlineSessionState> {
   /// think another client's are its business.
   Map<String, dynamic> _settingsJson(MatchSettings settings) => {
     'speechSeconds': settings.speechSeconds,
+    'discussionSeconds': settings.discussionSeconds,
     // The server reads this too: the mic policy for `discuss` is "one at a
     // time" in a structured discussion and "open" in a free one, and it is
     // refusing the floor against the same table the client mutes against.
@@ -339,11 +498,11 @@ class _PresenceObserver extends WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         unawaited(transport.setPresence('connected'));
+      case AppLifecycleState.hidden:
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
         unawaited(transport.setPresence('away'));
       case AppLifecycleState.inactive:
-      case AppLifecycleState.hidden:
         break;
     }
   }

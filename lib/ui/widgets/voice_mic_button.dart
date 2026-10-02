@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../platform/voice/voice_controller.dart';
 import '../l10n_ext.dart';
 import '../screens/online/voice_session.dart';
 import '../theme/mafia_theme.dart';
+import 'voice_controls.dart';
 
 /// The lobby's whole voice surface: one microphone, no words (task 9).
 ///
@@ -46,24 +48,47 @@ class VoiceMicButton extends ConsumerWidget {
 
     // A device that refused the microphone is drawn struck through and inert:
     // the state is honest and the tap would do nothing.
-    final unavailable = !state.microphoneAvailable ||
+    final unavailable =
+        !state.microphoneAvailable ||
         state.mode == VoiceMode.text ||
         controller == null ||
         !state.canMuteSelf;
     final off = state.selfMuted || !state.microphoneAvailable;
 
-    return IconButton(
-      key: micKey,
-      tooltip: off ? l10n.voiceUnmuteMe : l10n.voiceMuteMe,
-      onPressed: unavailable
-          ? null
-          : () => controller.setSelfMuted(!state.selfMuted),
-      icon: Icon(
-        off ? Icons.mic_off : Icons.mic_none,
-        color: unavailable
-            ? colors.textMuted
-            : (off ? colors.textMuted : colors.textSecondary),
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onLongPress: controller == null
+              ? null
+              : () => showVoiceDiagnostics(context, controller),
+          child: IconButton(
+            key: micKey,
+            tooltip: off ? l10n.voiceUnmuteMe : l10n.voiceMuteMe,
+            onPressed: unavailable
+                ? null
+                : () => controller.setSelfMuted(!state.selfMuted),
+            icon: Icon(
+              off ? Icons.mic_off : Icons.mic_none,
+              color: unavailable
+                  ? colors.textMuted
+                  : (off ? colors.textMuted : colors.textSecondary),
+            ),
+          ),
+        ),
+        if (kIsWeb && controller != null)
+          TextButton.icon(
+            onPressed: controller.enableAudio,
+            icon: const Icon(Icons.volume_up_outlined),
+            label: Text(l10n.voiceEnablePlayback),
+          ),
+        if (!kIsWeb && controller != null)
+          IconButton(
+            tooltip: l10n.voiceRetry,
+            onPressed: controller.enableAudio,
+            icon: const Icon(Icons.volume_up_outlined),
+          ),
+      ],
     );
   }
 }

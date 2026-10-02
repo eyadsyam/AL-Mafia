@@ -2208,3 +2208,1134 @@ Files:      supabase/migrations/2026090800{0100_saw_role,0200_presence_status,03
 Verified:   `flutter test` — **824 passed, 0 failed**. `flutter analyze lib test` — 0 errors, 0 warnings. Every migration applied and every function deployed to `hezjbrnveajypfqmjfnh` and confirmed by the API. Two doc-12 violations introduced by tasks 5–6 were found by the acceptance suite and fixed properly rather than by editing the test: the host sheet and both close-room confirmations are `SceneSheet` layers in the same Stack (§2.1 — nothing is pushed on top of the table), and the handover's three seconds is `MafiaTiming.hostHandover` (§6 — no inline `Duration` literals). The realtime publication's column list was rebuilt twice; it had been silently dropping `gender` since that column was added.
 Gate:       FAIL — the browser verification could not run.
 Open:       **The 18-item browser pass did not happen.** The Chrome window driven by the automation is hidden (`document.visibilityState === 'hidden'`) and its renderer is frozen: `requestAnimationFrame` never fires, screenshots are stale frames, and Chrome defers all media loading — a bare 187 KB `<video>` never reaches `loadedmetadata`. Nothing about the app was measurable through it. Also outstanding: **the Metered key is rejected** — `GET https://mafia-master.metered.live/api/v1/turn/credentials?apiKey=…` returns `401 {"error":"Invalid API Key"}`, so `ice_servers` serves the Google STUN fallback (`relay:false, reason:"upstream"`) and no relay candidate can exist until a valid key replaces the `METERED_API_KEY` secret. The web video fix is reasoned from how Flutter composites platform views and is **not** confirmed by watching it play.
+
+## PHASE 33 — done | TURN blocked upstream
+Built:      Metered behind one server-side module: `voice_room` mints a deterministic
+            HMAC-named room and a room-scoped token per match; `ice_servers` shares the
+            same account code; the secret moved to `METERED_SECRET_KEY` and never leaves
+            Supabase. The P2P mesh, floor control and per-ear audibility are untouched.
+Files:      supabase/functions/_shared/metered.ts (new), supabase/functions/voice_room/index.ts (new),
+            supabase/functions/ice_servers/index.ts, lib/transport/voice_link.dart,
+            test/transport/voice_ticket_test.dart (new), .gitignore
+Verified:   Deployed to hezjbrnveajypfqmjfnh. Three live anonymous sessions: both members get
+            the SAME Metered room name (reuse), tokens decode scoped to that room with distinct
+            participant ids, a non-member gets 403 NOT_A_MEMBER, and no response carries the
+            secret, a role or the match seed. flutter analyze: 0 errors, 0 warnings.
+            flutter test: 829/829 pass. Test rooms archived in Metered and deleted in Postgres.
+Gate:       PASS for room + token + auth + secret isolation. FAIL for relay.
+Open:       TURN is a separate subscription on this Metered account —
+            `POST /api/v1/turn/credential` answers "please subscribe to a TURN Server plan".
+            So `voice_room` returns public STUN with relay:false, reason:"turn-not-subscribed",
+            and the mesh still fails for pairs behind symmetric NAT. Subscribing and setting
+            METERED_TURN_API_KEY lights relay up with no code change and no redeploy.
+            No Metered client SDK exists for Flutter (metered_realtime is a different product,
+            wss://rms.metered.ca), so the minted token has no consumer in-app yet.
+            Edge function logs could not be read back: the analytics endpoint returned
+            empty then a backend error.
+
+## PHASE 34 — done | real audio NOT VERIFIED
+Built:      Voice signalling moved from Postgres to Metered Realtime. `realtime_token`
+            mints an HS256 JWT scoped to `mafia-master/match/<roomId>`, derived server-side
+            and re-checked on every reconnect. `MeteredVoiceLink` drives the SDK's
+            SignallingClient only — never MeteredPeer — so the mesh, `micPolicyFor` and
+            `setAudiblePeers` are untouched and night audibility is unchanged. TURN now
+            arrives auto-injected in the welcome frame, which is the relay this app has
+            never had.
+Files:      supabase/functions/_shared/metered_realtime.ts (new),
+            supabase/functions/realtime_token/index.ts (new),
+            supabase/functions/ice_servers/index.ts (STUN-only legacy floor),
+            lib/transport/metered_voice_link.dart (new), lib/transport/voice_link.dart,
+            lib/transport/online_transport.dart, pubspec.yaml (metered_realtime ^0.2.0),
+            test/transport/voice_ticket_test.dart, .gitignore
+Removed:    supabase/functions/voice_room/ and supabase/functions/_shared/metered.ts —
+            the Metered Video Room REST path. Superseded, never shipped in any APK, and
+            deleted from the hosted project only after the replacement passed.
+Verified:   Live, against the real service. TURN Allocate over turn/tcp returned SUCCESS
+            with XOR-RELAYED-ADDRESS — relay is genuinely obtainable, not just advertised
+            (5 servers: stun/turn/turns). Two authenticated peers connected, presence saw
+            both, direct SDP-shaped signals passed A→B and B→A. Anonymous 401; non-member
+            403; refresh after kick 403; refresh after match end 403; channels differ per
+            match; no role, name, seat, seed or secret in any token or response.
+            flutter pub get clean, flutter analyze 0 errors 0 warnings, flutter test 838/838.
+Gate:       PASS for authorization, isolation-by-channel, signalling, presence, TURN.
+Open:       Metered direct messages are addressed by peer id and are NOT scoped to the
+            JWT's `channels` claim — confirmed live: a token for match B can put a frame
+            on match A's socket. The mesh already ignored it; `MeteredVoiceLink.admit`
+            now drops it explicitly against the Supabase roster, with tests.
+            Real microphone audio, mute/unmute, ICE candidate types and network-switch
+            reconnect need two physical devices and remain NOT VERIFIED.
+            `METERED_SECRET_KEY` / `METERED_DOMAIN` (the old Video account) are still set
+            in Supabase but no code reads them.
+
+## PHASE 35 — done | real audio still NOT VERIFIED
+Built:      Signalling envelope hardening. `realtime_token` now returns an opaque
+            `sessionId` = HMAC(secret, roomId:matchSeed) — stable across reconnects,
+            different per match, never revealing the seed. `VoiceEnvelopes` wraps every
+            outbound frame as {v,s,f,r,t,ts,n,p} and validates all eight conditions on
+            receipt before anything reaches WebRtcVoiceEngine. Media architecture untouched.
+Files:      lib/transport/voice_envelope.dart (new), lib/transport/metered_voice_link.dart,
+            supabase/functions/_shared/metered_realtime.ts,
+            supabase/functions/realtime_token/index.ts,
+            test/transport/voice_envelope_test.dart (new),
+            test/transport/voice_ticket_test.dart
+Verified:   flutter analyze 0/0. flutter test 853/853. Live: sessionId is 32 hex chars,
+            two players in one match agree, stable across re-mint, differs across matches
+            for the same user in both. flutter build apk (3 ABIs) and flutter build web
+            both succeeded.
+Gate:       PASS for envelope binding, replay and staleness rejection, spoof rejection.
+Open:       Metered `send` remains app-wide at the provider; the envelope is what makes
+            that harmless, not a fix at the source. Real microphone audio, mute/unmute,
+            ICE candidate types and network-switch reconnect still need two devices.
+
+## PHASE 36 — published
+Built:      Site published to gh-pages. `web/beta/` deleted — the page went unused and a
+            90 MB APK in a Pages commit is a slow push for something nobody opened. The
+            APK is a direct build artifact now. `tool/build_web.ps1` no longer embeds it,
+            and its push now checks the exit code (it previously printed "Published" after
+            a failed push) and uses HTTP/1.1 with a larger buffer.
+Files:      web/beta/ (deleted), tool/build_web.ps1, docs/PROGRESS.md
+Verified:   gh-pages a617fb6 -> d24e368 (forced). https://eyadsyam.github.io/AL-Mafia/ 200,
+            main.dart.js / favicon.png / manifest.json / privacy/ all 200, base href
+            /AL-Mafia/. /beta/ and its APK now 404 at origin (cache-busted).
+Gate:       PASS
+Open:       Nothing committed — HEAD is still 2cfc8cd.
+
+## PHASE 37 — done
+Built:      The WebRTC media path end-to-end: Android audio session, an ICE
+            candidate queue, per-peer serialised signalling, connections created
+            on demand for an authorised peer's offer, an incremental mesh, the
+            Metered relay actually reaching RTCConfiguration, and a safe
+            per-peer diagnostic trace reachable by holding the voice status line.
+Files:      android/app/src/main/AndroidManifest.xml,
+            lib/platform/voice/voice_diagnostics.dart (new),
+            lib/platform/voice/webrtc_voice_engine.dart,
+            lib/platform/voice/voice_engine.dart,
+            lib/platform/voice/voice_controller.dart,
+            lib/transport/metered_voice_link.dart,
+            lib/ui/widgets/voice_controls.dart,
+            test/support/fake_voice_engine.dart,
+            test/voice/voice_media_path_test.dart (new),
+            test/transport/voice_ticket_test.dart
+Verified:   flutter analyze — 0 errors, 0 warnings (73 pre-existing infos).
+            flutter test — 870 passed, 0 failed (17 new).
+            aapt dump permissions on the shipped APK — MODIFY_AUDIO_SETTINGS
+            present.
+            Release APK built: build/app/outputs/flutter-apk/
+            app-arm64-v8a-release.apk (91.4 MB).
+Gate:       PASS for everything a host with no media stack can execute.
+Open:       AUDIO A→B and B→A remain NOT VERIFIED. No Android device or
+            emulator is attached to this machine (adb devices empty, no AVDs),
+            so real audio, ICE candidate types and a Wi-Fi↔cellular reconnect
+            cannot be observed here. Hold the voice status line on each phone to
+            read the trace. Nothing committed; HEAD is still 2cfc8cd.
+
+## PHASE 38 — done
+Built:      the web half of the media fix — remote tracks now reach an audio element instead of being decoded into nothing — and the site rebuilt and republished.
+Files:      lib/platform/voice/webrtc_voice_engine.dart, lib/platform/voice/voice_diagnostics.dart, test/voice/voice_media_path_test.dart, tool/build_web.ps1, tool/build_apk.ps1
+Verified:   flutter analyze 0 errors / 0 warnings (73 pre-existing infos); flutter test 871 passed; flutter build web --release --base-href /AL-Mafia/ (121 files); force-pushed gh-pages (d24e368 -> 93fdfbb) from 2cfc8cd; https://eyadsyam.github.io/AL-Mafia/ returns 200 and serves the new bundle.
+Gate:       PASS
+Open:       Two-browser audio unverified, as two-phone audio still is. The trace is in the same place on the web build: long-press the voice status line, Copy, paste it back. `playout attached` is the new line and is the one that was silently FAIL on every browser before this.
+
+## PHASE 39 — blocked (paused by user after local verification)
+Built:      Voice lifecycle/ready recovery/playout diagnostics; persistent profile and public-room entry; creation settings retained at match start; discussion duration fixed; smaller bounded onboarding video. Detailed continuation handoff in docs/ONLINE-WEB-RECOVERY-PLAN.md.
+Files:      See the handoff's numbered change inventory; all changes remain in the working tree, no commit or push.
+Verified:   flutter gen-l10n; flutter test 875 passed / 1 skipped / 0 failed; flutter analyze --no-fatal-infos 0 errors / 0 warnings / 74 infos; room_configuration Node regression PASS; 35 backend golden vectors previously passed this round.
+Gate:       FAIL for production readiness; local checks PASS. Browser WebRTC runner stalled before test execution and was cancelled, so actual audio remains NOT VERIFIED.
+Open:       Follow the handoff appendix for reconnect/streamless track/async lifecycle tests, actual runtime audio, hosted settings verification/deployment, responsive video/profile checks, then fresh single APK/web builds. Images explicitly deferred. User requested stopping here to preserve remaining usage.
+
+## PHASE 40 — done
+Built:      The three faults the handoff named as the next starting point, plus
+            the tests it asked for. (ج) `MeteredVoiceLink` now goes live again
+            on a reconnect welcome — `_live` was set in exactly one place and
+            cleared on every disconnect, so from the first network blip onward
+            every offer, answer and candidate took the Postgres path for the
+            rest of the match, silently, because the fallback works. (هـ) the
+            engine keeps remote audio tracks in their own map instead of
+            reading them out of the streams they arrived in, so a track
+            delivered bare — no `event.streams` — is re-evaluated on every
+            `setAudiblePeers` rather than being enabled once at arrival and
+            never revisited; a browser that gets one with no stream now records
+            `no-remote-stream` instead of reporting playout attached. (د) both
+            the engine and the controller carry a media-cycle counter captured
+            before the first await: `_tornDown` is a state and the night is a
+            round trip, so a climb that began before a night and woke after the
+            day had returned used to read `_tornDown == false`, publish `live`
+            for a mesh the teardown had closed, and — in the engine — carry on
+            creating peer connections *after* the night had closed them, which
+            is a V6 hole. A retired cycle now stops where it is and cleans up
+            only what it made.
+Files:      lib/transport/metered_voice_link.dart,
+            lib/platform/voice/webrtc_voice_engine.dart,
+            lib/platform/voice/voice_controller.dart,
+            test/support/fake_voice_engine.dart,
+            test/voice/voice_controller_test.dart,
+            test/transport/voice_ticket_test.dart,
+            test/transport/voice_envelope_test.dart,
+            test/transport/online_transport_test.dart
+Verified:   flutter analyze --no-fatal-infos — 0 errors / 0 warnings / 74 infos.
+            flutter test — 900 passed / 1 skipped / 0 failed (25 new: the
+            night→day race from both the mode and the microphone, a player
+            joining mid-climb, a burst of joins collapsing into one re-climb
+            with no overlapping connects, being kicked / the room closing /
+            voice switched off all landing mid-climb, the microphone asked for
+            once across every climb, socket reconnect carrying signalling
+            again, relay credentials refreshed by a reconnect welcome, a
+            welcome after dispose, nine `ready` envelope cases, the voice
+            roster excluding left/kicked, and the heartbeat stopping and
+            restarting with the foreground).
+            node supabase/tests/room_configuration.test.mjs — PASS.
+            node supabase/tests/run_golden_vectors_node.mjs — 35 cases agree.
+            Then a second sweep of the same kind, looking for what else can
+            wake up in the wrong cycle. Four more, all real: a stale `_offer`
+            and a stale answer reached the wire after the pair had been rebuilt
+            — an answer is the *end* of a negotiation, so the peer applies it
+            to whichever offer they have open, which by then is the good one;
+            `_offering` was never cleared by a teardown, so a peer left in it
+            by a negotiation the night interrupted made the day's offer a
+            silent no-op and that pair stayed dead for the match with every
+            state reporting healthy; `_restartIce` emptied `_remoteDescribed`
+            and `_pendingCandidates` after its await without checking the
+            connection was still the same one, which would strip the *new*
+            connection's queue and leave it queueing candidates for ever; and
+            `enableAudio`/`sampleDiagnostics` were the two paths in the
+            controller that could throw a media-stack exception into a caller,
+            which breaks doc 10 §1.2 on the one path a finger starts.
+Gate:       PASS for everything a host with no media stack can execute.
+Open:       Real audio is still NOT VERIFIED. The Chrome runner no longer hangs
+            — it now fails fast with "Connection closed before test suite
+            loaded" after Chrome starts and DevTools comes up, which is a
+            different and more tractable symptom than the stall recorded in
+            phase 39, but it was not chased further. Hosted deployment,
+            two-device audio and the fresh builds are all still outstanding.
+            Nothing committed; HEAD is still 2cfc8cd.
+
+## PHASE 41 — blocked | hosted voice probe stopped safely
+Built:      Isolated real WebRTC browser probe; hosted Metered/Supabase probe; fixed Metered direct signalling readiness at welcome before subscribe completion.
+Files:      tool/voice_runtime_probe.dart, tool/run_voice_runtime_probe.mjs, tool/voice_probe_hosted.dart, lib/transport/metered_voice_link.dart, test/transport/voice_ticket_test.dart, docs/ONLINE-WEB-RECOVERY-PLAN.md
+Verified:   Local Chrome probe PASS: two real engines acquired audio, attached senders, negotiated SendRecv, connected ICE/PC, received audio tracks, exchanged RTP, attached playout, and preserved receive revocation. Voice ticket tests: 17 passed / 0 failed. Hosted auth and grants succeeded for two clients; channel/session ids existed; TURN appeared in both welcome ICE lists.
+Gate:       FAIL for production audio runtime.
+Open:       Two anonymous Supabase clients in one Chrome page synchronized through GoTrue BroadcastChannel, so the hosted probe ended with the same identity and stopped before negotiation. Human A↔B audio, selected srflx/relay, reconnect on separate devices, and Android routing remain NOT VERIFIED. No commit or push.
+
+## PHASE 42 — done | handover closed, nothing new attempted
+Built:      No product code changed. The stopped hosted-probe round was closed
+            out: state re-measured, the diagnostic build output deleted, and a
+            literal continuation guide written into the recovery plan so the
+            next model does not re-derive the project.
+Files:      docs/ONLINE-WEB-RECOVERY-PLAN.md (new section "دليل الاستكمال
+            الحرفي — 2026-09-09", sections 0–11), docs/PROGRESS.md.
+Verified:   flutter analyze --no-fatal-infos → 0 errors / 0 warnings / 74
+            infos, exit 0. flutter test → 921 passed / 1 skipped / 0 failed,
+            exit 0 — so phase 41's Metered readiness fix and its ticket test
+            are green on the current tree. Supabase read-only query confirmed
+            two leftover `VoiceProbeA` lobby rooms (2026-09-08 21:13:21 and
+            21:15:19 UTC, one player each) from the aborted hosted probe.
+Gate:       PASS for the handover. Voice runtime gate is still FAIL.
+Open:       The hosted probe's identity-isolation fix (BroadcastChannel
+            partitioning in tool/run_voice_runtime_probe.mjs plus the
+            distinctIdentities assertions in tool/voice_probe_hosted.dart) is
+            written but was never run — that rerun is the first next step and
+            section 4 of the guide gives the exact commands. Human A↔B audio,
+            srflx/relay selection, reconnect, the P0.4 browser pass, hosted
+            Edge Function deployment, the five-player E2E and the fresh
+            APK/web builds all remain NOT VERIFIED. The two probe rooms were
+            left in place: deleting database rows is irreversible and is the
+            user's call. Nothing committed; HEAD is still 2cfc8cd.
+
+## PHASE 43 — done | hosted voice runtime PASS over Metered
+Built:      Nothing in lib/ or supabase/. The probe was rebuilt so that each
+            player runs in its own browser: voice_runtime_probe.dart now takes
+            a `role` query parameter and runs as one side, voice_probe_hosted
+            .dart is a single player, and the runner starts two Chrome
+            instances with two disposable user-data-dirs. The previous
+            in-page BroadcastChannel patch was removed — a probe must not fake
+            the isolation it exists to test. Three probe bugs fixed: the host
+            published the room code after waiting for the guest (deadlock), the
+            peer-connection state was compared case-sensitively against
+            RTCPeerConnectionStateConnected, and candidate pair types were read
+            after dispose.
+Files:      tool/voice_runtime_probe.dart, tool/voice_probe_hosted.dart,
+            tool/run_voice_runtime_probe.mjs, docs/ONLINE-WEB-RECOVERY-PLAN.md,
+            docs/PROGRESS.md.
+Verified:   node tool/run_voice_runtime_probe.mjs --hosted → PASS on both
+            sides, twoDistinctPlayers true. Two Supabase identities, roster of
+            two from Supabase, grant with token/channel/session carrying no
+            game state, 5 ICE servers with STUN+TURN+TURNS, real offer/answer
+            over Metered, signaling stable, ICE and PC connected, SendRecv,
+            sender 1, onTrack, ~200 RTP packets each way per side, playout
+            attached, no rejected candidates, mute/unmute keeps the sender,
+            setAudiblePeers({}) revokes listening, room cleanup true both
+            sides. Local two-engine probe still PASS. flutter gen-l10n,
+            flutter analyze --no-fatal-infos → 74 infos / 0 errors, flutter
+            test → 921 passed / 1 skipped / 0 failed, room_configuration.test
+            .mjs PASS, golden vectors 35 cases agree.
+Gate:       PASS for signalling and the media path over Metered. FAIL for
+            audible audio, which no counter can grant.
+Open:       Both browsers are on one machine, so the selected candidate pair
+            is `host`: TURN is offered but relay is NOT VERIFIED. Human A↔B
+            audio NOT VERIFIED. Reconnect and token refresh are covered by unit
+            tests but NOT VERIFIED at runtime. Android routing NOT VERIFIED. No
+            Edge Function deployment (none changed this round), no APK, no web
+            build, no commit, no push; HEAD is still 2cfc8cd. Five probe rooms
+            were deleted after verifying id, status, name and timestamp; rooms
+            with real player names were left alone. Leaving a room empty still
+            leaves a `lobby` row with zero players behind.
+
+## PHASE 44 — done
+Built:      One invite link that opens the app when it is installed and the site when it is not, with a link preview that has a picture in it.
+Files:      lib/ui/screens/online/room_invite.dart, lib/main.dart, pubspec.yaml,
+            android/app/src/main/AndroidManifest.xml, web/.well-known/assetlinks.json,
+            web/index.html, web/og-image.jpg, web/vercel.json, tool/build_web.ps1,
+            test/online/room_invite_test.dart, docs/ONLINE-WEB-RECOVERY-PLAN.md
+Verified:   flutter analyze --no-fatal-infos 0 errors / 0 warnings / 74 infos; flutter test 926 passed, 1 skipped;
+            flutter build web --release --base-href / and flutter build apk --release --target-platform android-arm64 (51.2MB, lib/arm64-v8a only);
+            deployed to Vercel project almafia (production); / and /join/K7M2QP and /.well-known/assetlinks.json and /og-image.jpg and the onboarding mp4 all answer correctly;
+            Google's Digital Asset Links API reads one valid statement with no errors; apksigner's SHA-256 equals the published fingerprint; aapt2 shows autoVerify=true with pathPrefix=/join/ inside the APK;
+            Chrome at 390x844 followed /join/K7M2QP into the app and kept the code as /onboarding?next=/join/K7M2QP; the onboarding video decodes and plays (720x1280, buffering ahead).
+Gate:       PASS
+Open:       assets/audio/join_chime.ogg fails to demux on Chrome web (PTS is not defined) — pre-existing, audio is not load-bearing, needs re-encoding.
+            The video's first frame stays dark at 1366x768 until the play control is used. Human-audible A<->B voice is still NOT VERIFIED.
+            If the app is ever signed by Play App Signing, that fingerprint must be added to assetlinks.json or verification silently reverts to opening a browser.
+
+## PHASE 45 — done
+Built:      The intro film offline and stall-free on the web, visible at last, and framed to its own edge.
+Files:      lib/platform/media/video_download{,_stub,_browser}.dart, lib/ui/screens/onboarding/onboarding_video_screen.dart, web/index.html, web/flutter_bootstrap.js, web/offline_service_worker.js, tool/build_web.ps1, test/web/offline_video_test.dart, docs/ONLINE-WEB-RECOVERY-PLAN.md
+Verified:   flutter analyze — 0 errors, 0 warnings. flutter test — 931 passed, 1 skipped. APK carries assets/flutter_assets/assets/video/onboarding.mp4 uncompressed, arm64 only, 53,653,542 bytes. Live site: second visit caches all 36 requested files with none missing; with the browser's network cut the site loaded and the film played (54s buffered, 720x1280). Layout checked at 1366x768, 390x844, 844x390.
+Gate:       PASS
+Open:       Playback not re-checked on a physical phone (no device attached). First visit still downloads from the network — offline begins with the second. join_chime.ogg still fails to decode on Chrome web.
+
+## PHASE 46 — blocked | handover saved
+Built:      Web playout recovery after browser autoplay rejection, streamless onTrack attachment, explicit web audio gesture in lobby and match, full-width responsive online screens, host leave-or-close flow with server-side host handover/default room survival, and local online match history.
+Files:      lib/platform/voice/web_playout_browser.dart, lib/platform/voice/web_playout_stub.dart, lib/platform/voice/webrtc_voice_engine.dart, lib/ui/widgets/voice_mic_button.dart, lib/ui/widgets/voice_controls.dart, lib/ui/screens/{match_flow.dart,postgame/history_screen.dart}, lib/ui/screens/online/{online_entry_screen.dart,lobby_screen.dart,online_table_flow.dart,online_session.dart,scene_sheet.dart}, lib/data/online_match_history.dart, lib/app/l10n/{app_ar.arb,app_en.arb,app_localizations*.dart}, supabase/migrations/20260909000100_host_departure.sql, test/data/online_match_history_test.dart, test/widget/online_lobby_test.dart, tool/web_playout_probe.dart, tool/run_voice_runtime_probe.mjs, docs/ONLINE-WEB-RECOVERY-PLAN.md, docs/PROGRESS.md.
+Verified:   flutter analyze exit 0 with 0 errors / 0 warnings / 74 infos; focused suite 97 passed / 1 skipped / 0 failed; lobby suite 18 passed; hosted two-browser Metered probe PASS with distinct identities, 5 ICE servers (STUN+TURN+TURNS), ICE/PC connected, SendRecv, one sender, remote track, playout and ~200 RTP packets each direction; strict autoplay probe PASS (blocked first, recovered on gesture); hosted DB transaction check PASS for lobby/match handover and empty-lobby cleanup; host_departure migration deployed.
+Gate:       FAIL — the final full suite was interrupted after reporting 930 passed / 1 skipped / 7 failed; failure names were lost in compact/truncated output and must be captured sequentially before production builds.
+Open:       First action is `flutter test --no-pub --concurrency=1 --reporter expanded`; diagnose each named failure independently. Then backend test, final analyze, production web build/deploy, one arm64 APK, delete generated build/voice-probe, and human A↔B web audio test. No final APK/web build or deploy this phase. No commit or push; HEAD remains 2cfc8cd. Detailed continuation is the final section of docs/ONLINE-WEB-RECOVERY-PLAN.md.
+
+## PHASE 47 — done
+Built:      Closed the seven failures left open by the previous round, cleaned the hosted database, and cut the deployable pair.
+Files:      lib/ui/screens/postgame/history_screen.dart
+Verified:   flutter analyze — 0 errors, 0 warnings. flutter test — 937 passed, 1 skipped, 0 failed (the whole suite, not a focus set). Supabase project hezjbrnveajypfqmjfnh: rooms/room_players/room_state emptied of 11 leftover probe rooms; all 31 edge functions ACTIVE. Web deployed to https://almafia.vercel.app.
+Gate:       PASS
+Open:       Human-audible A<->B web voice is still NOT VERIFIED — that is the user's test. No commit, no push; HEAD remains 2cfc8cd.
+
+## PHASE 48 — blocked | responsive online presence and speaking feedback
+Built:      Added safe local WebRTC audio-level sampling and shared council
+            speaking pulses, enlarged the shared character art, and changed
+            the foreground presence beat to three seconds. Added a server
+            migration for five-second ageing with away at five seconds and
+            left at fifteen seconds; explicit lifecycle and exit updates remain
+            server-authoritative.
+Files:      lib/platform/voice/{voice_engine.dart,voice_controller.dart,
+            webrtc_voice_engine.dart}, lib/ui/widgets/player_avatar.dart,
+            lib/ui/screens/online/{council/council_band.dart,
+            table/table_scene.dart,lobby_screen.dart,online_table_flow.dart,
+            online_session.dart}, lib/transport/online_transport.dart,
+            lib/ui/theme/design_tokens.dart,
+            supabase/migrations/20260909000200_fast_presence.sql,
+            assets/images/online/{avatar_male.webp,avatar_female.webp}
+Verified:   Source edits applied; regenerated avatar files have transparent
+            alpha pixels verified at the corners and background; previous
+            hosted voice probe remains PASS for WebRTC/RTP over Metered.
+Gate:       FAIL
+Open:       The fast-presence migration could not be applied because the
+            database tool hit its usage limit. Local analyze/test/build could
+            not run because the Dart tool state directory is inaccessible in
+            this environment. No commit or push was made.
+
+## PHASE 49 — done | production web deploy held
+Built:      Closed PHASE 48. The new voice stats-sampling Timer.periodic was
+            leaking into widget tests as a pending timer (10 lobby failures);
+            made its interval injectable (`statsInterval`, zero disables) behind
+            a `voiceStatsIntervalProvider`, the same shape `onlineHeartbeatProvider`
+            already uses. Applied the fast-presence migration to the hosted
+            project, cut the arm64 APK and the web release, and re-ran the
+            hosted two-browser voice probe.
+Files:      lib/platform/voice/voice_controller.dart (statsInterval param + guard),
+            lib/ui/screens/online/voice_session.dart (voiceStatsIntervalProvider),
+            lib/transport/online_transport.dart (stale "25 seconds" comment -> "few seconds"),
+            test/widget/online_lobby_test.dart, test/widget/online_entry_test.dart,
+            test/widget/profile_flow_test.dart (override the new provider to zero),
+            supabase/migrations/20260909000200_fast_presence.sql (applied, unchanged on disk),
+            docs/PROGRESS.md
+Verified:   flutter analyze --no-fatal-infos — 0 errors, 0 warnings, 73 infos.
+            flutter test — 937 passed, 1 skipped, 0 failed (was 927 / 1 / 10
+            before the timer fix; the 10 were all online_lobby_test).
+            node --test supabase/tests/room_configuration.test.mjs — 1 pass.
+            node supabase/tests/run_golden_vectors_node.mjs — 35 cases, Dart and
+            TS agree.
+            Hosted DB hezjbrnveajypfqmjfnh: age_presence() now 'away' at 5s and
+            'left' at 15s, security definer, search_path = public, pg_temp; cron
+            `age-presence` schedule '5 seconds', active; both UPDATEs exclude
+            r.status = 'finished'; trigger room_player_host_departure intact;
+            migration row rewritten to version 20260909000200 so `supabase db
+            push` stays a no-op. get_advisors(security) — only the pre-existing
+            accepted findings (anon-access policies that are the only way in,
+            leaked-password toggle); the migration added nothing.
+            Avatars: avatar_male.webp / avatar_female.webp are WEBP/RGBA 512x512,
+            four corners alpha 0, centre alpha 255, ~50% of a 43x43 sample fully
+            transparent; CouncilTokens.avatarSizeRatio 0.72 -> 0.84; PlayerAvatar
+            is the shared widget (Band 4 online + offline lists), the council
+            seat art is the one CouncilPainter.
+            Speaking pulse, read end to end in source: levels come only from
+            RTCPeerConnection.getStats() audioLevel, normalised, 0 when the
+            browser omits it (no packet-count inference); remote levels gated on
+            _live (setAudiblePeers) AND an enabled remote track; cleared on night
+            teardown and whenever mode is not live/connecting; council stays one
+            CustomPainter driving _paintVoicePulse off the shared `breath` clock,
+            no per-seat controller; the viewer avatar uses a separate stateless
+            _AvatarPulsePainter; every size/alpha/threshold is a CouncilTokens
+            constant; voice logging is counts and candidate-type names only.
+            Presence path: client heartbeat MafiaTiming.onlineHeartbeat = 3s via
+            Timer.periodic; _PresenceObserver maps app lifecycle to
+            set_presence('connected'|'away'|'left') immediately and toggles
+            _foreground so a backgrounded client stops beating at once; explicit
+            exit calls set_presence('left'); server ageing covers crashed tabs.
+            flutter build apk --release --target-platform android-arm64
+            --dart-define-from-file=dart_defines.json —
+            build/app/outputs/flutter-apk/app-release.apk, 51.6 MB, lib/arm64-v8a
+            only. Embedded Supabase key is the sb_publishable_ key; no
+            sb_secret_<payload>, no metered/TURN credential, in the APK or the
+            web bundle. The bare "sb_secret_" string in libapp.so is the
+            Supabase SDK's own reject-this-prefix guard, not a value.
+            flutter build web --release --base-href / --dart-define-from-file=
+            dart_defines.json — build/web, 60.5 MB; served from a local server,
+            every asset 200 with the right content-type, onboarding.mp4 8.99 MB,
+            main.dart.js 4.2 MB; the app boots on the web, routes to /onboarding,
+            and the intro film renders inside its frame with play and skip
+            controls (the "OGG File" browser download prompt for join_chime.ogg
+            is the pre-existing Chrome-web decode failure, audio is not
+            load-bearing). Live site https://almafia.vercel.app still serves the
+            release (flutter_bootstrap.js 200, og/twitter tags, version.json);
+            /beta/ returns the SPA index fallback byte-for-byte identical to /,
+            so there is no beta page and no APK embed at the origin.
+            node tool/run_voice_runtime_probe.mjs --hosted (fresh
+            build/voice-probe, VOICE_PROBE_HOSTED=true) — exit 0, both sides
+            status PASS: two distinct authenticated identities (A.peer == B.self
+            and vice versa), same Metered session channel, 5 ICE servers with
+            STUN + TURN + TURNS, offer/answer both legs, ICE and PC state
+            Connected, SendRecv, one sender each, remote track + playout
+            attached, ~200 RTP packets each direction, 0 rejected candidates.
+            Candidate pair type "host" on both — same machine, not srflx/relay.
+            Human audibility NOT VERIFIED (synthetic mics). build/voice-probe and
+            its browser profiles deleted afterwards; the probe deleted its own
+            rooms (none named VoiceProbe* remain on the project).
+Gate:       PASS for analyze, the full test suite, the backend tests, the hosted
+            migration, the APK, the local web build and the hosted voice probe.
+            HELD: the production web deploy to almafia.vercel.app was not pushed.
+            This run is explicitly barred from committing or pushing and HEAD
+            stays at 2cfc8cd; pushing the uncommitted working tree (57 changed
+            files) to the live public domain is not something to do without an
+            explicit go-ahead. The build is ready in build/web.
+Open:       Production web deploy awaits the user's word (build/web is ready;
+            existing process is `pwsh tool/build_web.ps1 -Publish`, a gh-pages
+            force-push, or a Vercel deploy of build/web).
+            Human-audible A<->B voice and Android audio routing remain NOT
+            VERIFIED — no device is attached and that is a physical test.
+            The real abandoned lobby N88TK2 (players اياد / نور, both 'left') was
+            left untouched; the abandoned-rooms cron will take it.
+            No commit, no push; HEAD remains 2cfc8cd.
+
+## PHASE 50 — done | verification partial
+Built:      Fixed first-load web voice startup ordering, made "mute all at
+            night" writable from the host settings UI and server allow-list,
+            restored the required 10-second client heartbeat, widened server
+            presence grace to away=25s/left=90s, and deployed create_room,
+            room_settings, and start_match with the current shared settings
+            validator.
+Files:      lib/ui/screens/online/voice_session.dart,
+            lib/ui/screens/online/room_settings_panel.dart,
+            lib/ui/theme/design_tokens.dart,
+            lib/platform/voice/webrtc_voice_engine.dart,
+            lib/ui/screens/online/online_session.dart,
+            supabase/functions/_shared/room_configuration.ts,
+            supabase/migrations/20260909000300_presence_browser_slack.sql,
+            tests and this progress record.
+Verified:   Hosted age_presence definition has away=25s and left=90s;
+            age-presence cron is active every 5 seconds; backend room
+            configuration test PASS; focused Flutter voice/settings tests
+            previously PASS (28 + 23). The hosted functions are ACTIVE at
+            the new versions. A fresh analyzer/full-suite run was blocked by
+            the local Flutter/Dart process hanging before output, and the
+            approval path for SDK cache access was unavailable.
+Gate:       PARTIAL
+Open:       Run flutter analyze and the full flutter test suite locally, then
+            build the arm64 APK and web release. No commit or push was made;
+            HEAD remains 2cfc8cd.
+
+## PHASE 51 — done | blocked
+Built:      Removed the duplicate lobby voting switch so voting is controlled
+            from Room Settings, removed the host lock button, changed the host
+            room action to a logout/exit icon that opens only the existing two
+            choices, and kept the shared transparent mobile avatar assets for
+            the web build with the current enlarged avatar ratio.
+Files:      lib/ui/screens/online/lobby_screen.dart,
+            lib/ui/screens/online/table/table_scene.dart,
+            lib/ui/theme/design_tokens.dart,
+            docs/PROGRESS.md.
+Verified:   Source search confirms no lobby voting control or lock icon remains;
+            the existing Room Settings panel still contains open voting. The
+            image assets used by both platforms are RGBA with transparent
+            corners. A fresh Flutter build could not run here because the
+            Flutter SDK requires write access to its cache lockfile outside
+            the project, which this workspace forbids; no deployment was made.
+Gate:       BLOCKED
+Open:       Run the build from a normal local shell with Flutter SDK write
+            access, then deploy the resulting build/web to the website. No
+            commit or push was made; HEAD remains 2cfc8cd.
+
+## PHASE 52 — done | verification partial
+Built:      Repaired online guest role delivery after the start-match/private
+            identity race, added self-healing private-view retries, prevented
+            already-seen roles from being requested again, and retried initial
+            voice playout automatically after the first lobby voice climb.
+Files:      lib/transport/online_transport.dart,
+            lib/transport/supabase_backend.dart,
+            lib/ui/screens/online/online_table_flow.dart,
+            lib/ui/screens/online/voice_session.dart,
+            lib/ui/theme/design_tokens.dart,
+            test/transport/online_transport_test.dart,
+            test/online/online_role_reveal_test.dart.
+Verified:   Focused role-reveal and transport tests passed before the requested
+            test stop. Web release built and published successfully. One fat
+            release APK built successfully. The live multi-client match still
+            needs the user's physical/browser confirmation.
+Gate:       PASS for the focused regression tests and both release builds;
+            PARTIAL for human two-way voice and full multi-client completion.
+Open:       Refresh all clients and start a new room. Confirm every player sees
+            their own role before the host advances, and confirm lobby audio is
+            audible without toggling the room voice setting. No commit was made;
+            HEAD remains 2cfc8cd.
+
+## PHASE 53 — done | verification partial
+Built:      Closed the concurrent-resync race that could let an older lobby
+            read overwrite a newer reveal read and remove a guest's private
+            role. Realtime-triggered full reads now serialize and coalesce a
+            follow-up read. Web room-entry now primes browser audio playback
+            during the user's join/create gesture before network signalling.
+Files:      lib/transport/online_transport.dart,
+            lib/ui/screens/online/online_entry_screen.dart,
+            lib/platform/voice/web_playout.dart,
+            lib/platform/voice/web_playout_browser.dart,
+            lib/platform/voice/web_playout_stub.dart,
+            docs/PROGRESS.md.
+Verified:   flutter analyze completed with 0 errors and 74 existing infos;
+            focused online transport and role-reveal suites passed 56/56;
+            web release built and published to the live site; one release APK
+            built successfully.
+Gate:       PASS for compilation, focused regression coverage, and releases;
+            PARTIAL for physical five-client match completion and human audio,
+            which require the user's active devices.
+Open:       Hard-refresh every browser client, install the new APK, create a
+            fresh five-player room, and test the full match from reveal through
+            result. No commit was made; HEAD remains 2cfc8cd.
+
+## PHASE 54 — done | verification partial
+Built:      Removed the root cause of partial online deals. Match start now
+            writes every private role, resets every saw_role flag, and opens
+            reveal in one atomic database transaction. A failed or incomplete
+            deal leaves the room in the lobby. Concurrent client resyncs now
+            drain through the newest read, and an online role card remains
+            visible until its saw_role acknowledgement succeeds.
+Files:      supabase/migrations/20260910000100_atomic_match_start.sql,
+            supabase/functions/start_match/index.ts,
+            lib/transport/online_transport.dart,
+            lib/ui/screens/match_controller.dart,
+            lib/ui/screens/online/online_table_flow.dart,
+            docs/PROGRESS.md.
+Verified:   Production migration applied; start_match v9 deployed ACTIVE. A
+            rolled-back production SQL probe wrote 5/5 roles and opened reveal;
+            a four-role/ five-player probe wrote 0 roles and stayed in lobby.
+            flutter analyze: 0 errors, 0 warnings, 74 existing infos. Focused
+            online suites: 57 passed. Full suite: 940 passed, 1 skipped, 0
+            failed. Web release built and published; one release APK built.
+Gate:       PASS for atomic server deal, client recovery, automated full-match
+            coverage, production deployment, and release builds. PARTIAL for
+            a physical five-client match, which remains the user's final check.
+Open:       Hard-refresh every browser, install the new APK, and create a new
+            room; old loaded clients keep their old JavaScript. Confirm all five
+            cards appear before continue unlocks, then finish one whole match.
+            No commit was made; HEAD remains 2cfc8cd.
+
+## PHASE 55 — done | verification partial
+Built:      Four defects that made an online match unplayable past night 1.
+            (1) The idempotency key was `<hex micros>-<hex salt>`, which is not
+            a UUID, and `night_actions.action_id` / `votes.action_id` are uuid
+            columns — so Postgres refused every night action and every vote with
+            22P02, the function turned that into a 400, and the player was told
+            «اختيارك متسجلش». The night then resolved entirely on `advance_phase`
+            defaults, which is why it looked like it had registered. The client
+            now emits RFC 4122 v4, and the server nulls a malformed key rather
+            than losing the move that carried it.
+            (2) The morning stalled: «كمل» posted to `advance_phase`, which
+            applies expiry defaults and has no row for a phase with no deadline.
+            The morning now opens the day, the same way the deal was fixed.
+            (3) Every Edge Function refusal was reported as a dropped
+            connection. `functions.invoke` throws on non-2xx, so the backend's
+            `if (status >= 400)` was unreachable and PHASE_CLOSED, NOT_HOST,
+            ROOM_FULL and the rest all fell through to BackendUnreachable.
+            Refusals are now decoded to their code; only a 5xx stays unreachable.
+            (4) «خلصت» did nothing unless the confronted player was also the
+            host. The server now lets the confronted seat close its own window.
+            Also: the night's clock and the ballot's clock now come to now once
+            every living player has acted or voted, so neither phase burns its
+            full timer after the room is finished with it.
+Files:      lib/transport/online_transport.dart,
+            lib/transport/supabase_backend.dart,
+            supabase/functions/_shared/api.ts,
+            supabase/functions/submit_night_action/index.ts,
+            supabase/functions/submit_vote/index.ts,
+            supabase/functions/open_phase/index.ts,
+            test/transport/online_transport_test.dart,
+            test/transport/edge_refusal_test.dart,
+            docs/PROGRESS.md.
+Verified:   Production evidence first: every `night_actions` row in the live
+            database had `action_id` null and all five were written inside 0.3 s
+            by the expiry defaults — no client-submitted action has ever been
+            saved — `votes` was empty, and the one room past the deal was stuck
+            on `morning` since 07:33. A rolled-back SQL probe returned
+            `old-key=REFUSED(22P02); new-key=ACCEPTED`. The Dart test that
+            reproduces it failed on the old key before the fix. Deployed
+            submit_vote v7, submit_night_action v8, open_phase v8, all ACTIVE.
+            flutter analyze: 0 errors, 0 warnings, 72 existing infos. Full
+            suite: 949 passed, 1 skipped, 0 failed. Web release built and
+            published to gh-pages (0b6cf11); release APK built (54.7 MB).
+Gate:       PASS for root-cause proof, automated coverage, deployment and both
+            release builds. PARTIAL for a physical multi-client match, which is
+            the user's check.
+Open:       Hard-refresh every browser and install the new APK, then play one
+            whole match. A stale client's night actions and votes will now save
+            (the server tolerates the bad key), but its morning will still
+            stall — the morning fix is client-side.
+            Still broken, not touched this phase:
+              * The elimination verdict is unreachable online. `resolve_vote`
+                sets the phase straight to `night`, and `phaseFromServer` never
+                produces `GamePhase.reveal`, so the card-rise and the "X was Y"
+                band are dead code online — a player votes and lands on the
+                next night with no announcement of who went or what they were.
+              * The discussion always runs its full 300 s: there is no host
+                control, and `advance_phase` refuses before the deadline.
+              * `defense` is in TRANSITIONS and nothing ever opens it.
+            No commit was made; HEAD remains 2cfc8cd.
+
+## PHASE 56 — done | verification full (automated), partial (human)
+Built:      The rest of the online match, and the removal of every remaining
+            way for it to stall.
+            (1) The verdict. A ballot resolved straight into the next night, so
+            the beat where the room is told who went and what they were had
+            nowhere to happen — `phaseFromServer` never produced
+            `GamePhase.reveal`, and the card-rise and the «فلان كان ...» band
+            were unreachable code. There is now a `verdict` server phase between
+            the ballot and the night: it carries `lastVote`, holds the day number
+            still, and ends on «كمل» or on its own 20-second clock. The day
+            number now moves when the *night* opens, which is the thing that is
+            actually a new day.
+            (2) No beat depends on one phone staying awake. Doc 10 §8.2 says no
+            phase may stall; that was untrue while only the host could end one.
+            `open_phase`, `resolve_night`, `resolve_vote` and
+            `generate_confrontation` now accept any member once the server's own
+            `phase_ends_at` has passed, re-read server-side. The client mirrors
+            it: the host drives at the deadline, a guest after a grace plus two
+            seconds per seat, so five phones do not all ask at once.
+            (3) Transitions land on the second. A one-shot alarm fires at the
+            deadline instead of waiting up to a full heartbeat.
+            (4) The morning carries a 45s failsafe clock, so the one beat with
+            nothing to answer can no longer strand a match.
+            (5) The host can end the discussion; it used to run its full five
+            minutes whatever the room did.
+            (6) Every phase-moving write is compare-and-set on the phase the
+            caller read, so two drivers cannot advance the room twice — and the
+            two resolvers now *read* their write's error. They did not, which is
+            how `resolve_vote` answered 200 with a correct tally while the phase
+            check constraint silently refused `verdict` and the room sat on the
+            ballot.
+Files:      supabase/migrations/20260910000200_verdict_phase.sql,
+            supabase/functions/_shared/phases.ts,
+            supabase/functions/{open_phase,resolve_vote,resolve_night,
+            generate_confrontation,advance_phase}/index.ts,
+            lib/transport/{online_transport,room_codec}.dart,
+            lib/ui/screens/online/online_table_flow.dart,
+            lib/ui/theme/design_tokens.dart,
+            supabase/tests/e2e_match.py,
+            test/transport/online_transport_test.dart,
+            test/online/online_verdict_test.dart,
+            docs/PROGRESS.md.
+Verified:   `supabase/tests/e2e_match.py` — five real anonymous sessions playing
+            a **two-day** match against the deployed production functions —
+            **94 passed, 0 failed**: the reveal gate, night one, the morning,
+            host migration and its cascade, «اسم واحد», the floor, the day-one
+            ballot, the verdict, the day number moving on the night, the
+            Doctor's self-protection, a night that ends because everybody
+            answered rather than because its clock ran out, a second bullet
+            refused, day two's confrontation closed by the confronted player,
+            the day-two ballot, the second verdict, an expired phase closed by a
+            guest, and the result with every role and every elimination public.
+            The harness itself was stale — it predated the `saw_role` reveal gate
+            and had never been run since — and now covers it.
+            Migration `verdict_phase` applied to production; all five functions
+            deployed. flutter analyze: 0 errors, 0 warnings, 72 existing infos.
+            Full suite: 961 passed, 1 skipped, 0 failed. Web published to
+            gh-pages (8368ea8); release APK built (56.3 MB).
+Gate:       PASS.
+Open:       Every browser must be hard-refreshed and the new APK installed: a
+            client one build behind does not know the `verdict` phase and will
+            not read it correctly. Nothing is known to be broken in the online
+            flow; what remains untested by machine is a human five-device match,
+            and voice, which no harness can hear.
+
+## PHASE 57 — done
+Built:      The deal. Four players in a real room were shown a card, pressed
+            «كمل», and were skipped without ever seeing their role — because a
+            `saw_role` the server never received cleared the card anyway. Three
+            causes, all fixed: the acknowledgement is now the room's word, the
+            screen can no longer be locked out of asking for the card again,
+            and the deal runs on a clock like every other phase so one stuck
+            seat cannot hold four other people there for good. The Arabic pad
+            also never said to *hold* — it said «دوس», and a mouse click is
+            thirty milliseconds.
+Files:      lib/transport/online_transport.dart (`_send(assured:)` rethrows a
+            lost move; `confirmRevealed` reads the row back before letting the
+            card go), lib/ui/screens/online/online_table_flow.dart (the private
+            hold is a snapshot, not a permanent flag; a failed dismissal says
+            so; `BackendUnreachable` is reported like a refusal),
+            lib/app/l10n/app_ar.arb + generated (holdToRevealRole,
+            holdToConfirmIdentity, iAmHoldInstruction now say «ثانيتين»),
+            supabase/functions/_shared/phases.ts (`reveal` → 90s),
+            supabase/functions/open_phase/index.ts (the card gate yields to an
+            expired deal), supabase/functions/start_match/index.ts,
+            supabase/migrations/20260910000300_reveal_deadline.sql,
+            test/support/fake_backend.dart (saw_role writes; `ignoreSawRole`),
+            test/transport/online_transport_test.dart (+4),
+            test/online/online_reveal_recovery_test.dart (new, 5),
+            supabase/tests/e2e_match.py (+1)
+Verified:   Reproduced first, on the live site, with a real browser and four
+            server-side players: a 503 on `saw_role` dismissed the card and put
+            that seat in its own waiting list permanently — the user's
+            screenshot, exactly. After the fix the same 503 leaves the card up
+            and usable. A deal left unacknowledged now opens the night by
+            itself when its clock runs out (watched in production: reveal →
+            night at 11:30:12Z with `saw_role` still false, honestly).
+            flutter test → 970 passed, 1 skipped, 0 failed.
+            flutter analyze lib test → 0 errors, 0 warnings, 72 pre-existing infos.
+            supabase/tests/e2e_match.py → 90 passed, 0 failed.
+            Deployed: migration `reveal_deadline`, functions start_match and
+            open_phase. Site published to gh-pages (f024ec1).
+Gate:       PASS
+Open:       The desktop table layout wastes most of a wide window — the seats
+            crowd into the top strip. Cosmetic, not reported, not touched.
+
+## PHASE 58 — done | browser verification pending
+Built:      Removed the full-file network download gate before web intro playback; reuse cached video blobs offline and stream on cache misses. Explicit LTR direction for the embedded video. Reviewed existing post-onboarding profile, public room browsing and pre-creation settings without removing features.
+Files:      lib/platform/media/video_download_browser.dart; lib/ui/screens/onboarding/onboarding_video_screen.dart; docs/PROGRESS.md
+Verified:   Focused Flutter tests: 29 passed (video sizing/rotation/playback, profile flow/storage, online entry/settings, offline asset wiring). Dart analyze on both modified source files: No issues found.
+Gate:       PASS for focused automated checks only.
+Open:       Real mobile-browser playback, audio/video sync, resize/compositor verification and release web build remain unverified. Broad web rendering improvements, avatar transparency visual review, and the remaining online redesign audit are still pending. Existing profile/public rooms/settings were already implemented before this phase. No deployment. Stop at this phase gate.
+
+## PHASE 59 / attachment PHASE 0 — blocked
+Built:      Partial audit of the existing online implementation; identified a private saved-target leak in public room state, plus room-creation, transition-atomicity, presence-ordering and recovery gaps. No application/backend code changed.
+Files:      docs/ONLINE-RELIABILITY-AUDIT.md; docs/PROGRESS.md; audit-current.diff (local diff capture)
+Verified:   Git status/stat/diff/log and targeted source/RLS/publication inspection. Source-proven privacy path only; no tests, hosted queries, runtime PASS, build or deployment claimed.
+Gate:       FAIL — private savedSeat is written into member-readable public_data.
+Open:       Stop-and-report under Doc 05/working agreement. Repair server-only history storage and existing public archive exposure without losing information-engine functionality, then complete the unfinished attachment Phase 0 audit. Full implementation and real Android/Web/audio verification remain pending.
+
+## PHASE 60 — implementation verified in parts; release gate open
+Built:      Closed the saved-target privacy leak with server-only night history and rolling-deployment sanitization; atomic night/vote resolution with stale-driver/round rejection and rollback; atomic room creation/join; stale presence rejection; responsive wide council; result-only history cleanup; universal Android ABI configuration. Preserved the existing engine and voice mesh.
+Files:      supabase/migrations/20260913000100_private_night_history.sql, 20260913000200_atomic_resolution.sql, 20260913000300_atomic_room_entry.sql, 20260913000400_resolution_outcome.sql; supabase/functions/_shared/{api,history}.ts; supabase/functions/{create_room,join_room,resolve_night,resolve_vote}/index.ts; supabase/tests/{private_night_history,atomic_resolution,atomic_room_entry}.sql; supabase/tests/e2e_match.py; lib/transport/online_transport.dart; lib/ui/screens/online/{online_session.dart,council/council_geometry.dart}; lib/ui/theme/design_tokens.dart; android/app/build.gradle.kts; test/transport/online_transport_test.dart; test/online/{online_reveal_recovery_test,council_geometry_responsive_test}.dart; tool/web_release_smoke.mjs.
+Verified:   Full Flutter suite before final UI adjustments: 970 passed / 1 skipped. After changes: transport 65 passed; table/lobby/entry/reveal 44 passed; responsive geometry 21 passed. Backend configuration and 35 cross-language golden vectors passed. Real hosted SQL tests passed for private history/member denial, resolution rollback/stale drivers/revote, room creation rollback/seat reuse/mid-match exclusion. Hosted full-match final run: 93 passed / 0 failed (build/phase60-backend-final.log); admin-only host scenarios not run without service credentials. Earlier E2E runs failed timing/status checks and one timed out; final run passed after status-preservation migration. Web release build succeeded with existing dependencies (--no-pub), 132 files. Male/female avatar alpha and small visual previews verified; no baked checkerboard seen.
+Gate:       OPEN — not yet ready to declare release PASS.
+Open:       APK build and real Chrome video smoke are in progress. No connected Android device; existing AVD directory lacks config.ini, emulator list empty. Human A<->B audio NOT VERIFIED. Final analyze and post-adjustment full suite pending. Complete remaining audit findings (open_phase/advance_phase side effects before CAS, action-write/read error handling, recovery warnings/discard, cross-room membership exclusion, actual concurrent-driver stress) before claiming all online paths reliable. No final web publication, commit or push. Initial pub-get hung and was interrupted; build used tested installed dependencies.
+
+Hosted deployment receipt: private_night_history, atomic_resolution, atomic_room_entry, resolution_outcome migrations applied to hezjbrnveajypfqmjfnh. resolve_night ACTIVE v10; resolve_vote ACTIVE v9; generate_confrontation ACTIVE v8; create_room ACTIVE v9; join_room ACTIVE v9. User explicitly approved source upload to this exact Supabase destination after auto-review asked; do not ask again. Usage-limit interruptions were environmental, not release verification. Preserve all pre-existing uncommitted work.
+
+## PHASE 61 — done
+Built:      Removed first-frame dependence on external font/renderer CDNs by bundling the default font family and using local CanvasKit; verified real Chrome intro playback/resizing. Tightened join_room error mapping to fixed allowlisted codes and deployed v10.
+Files:      pubspec.yaml; web/flutter_bootstrap.js; tool/web_release_smoke.mjs; test/web/offline_video_test.dart; supabase/functions/join_room/index.ts; docs/PROGRESS.md.
+Verified:   Release web build PASS. Real fresh-profile Chrome: no external renderer/font requests; decoded playback after gesture; video bounds/aspect PASS at 360x800, 390x844, 768x1024, 1280x800, 1920x1080; reviewed build/web-video-smoke.png. Full Flutter run: 991 passed, 1 skipped, 1 failed (join_room error-surface source check); corrected that finding then affected server-surface/offline-web suites: 16 passed. Analyze: 73 infos, no errors/warnings. Prior APK build success confirmed, includes arm64-v8a/armeabi-v7a/x86_64. Supabase join_room ACTIVE v10.
+Gate:       PASS for this phase; overall release remains OPEN.
+Open:       Pending atomic_phase_open migration and open_phase edits are local and NOT tested/deployed. Remaining Phase60 online audit/recovery/concurrency findings remain open. No actual Android runtime, human audio sync or A<->B voice verification. APK predates this phase font registration. Web not published, no commit/push. Logs: build/phase61-{web-build,web-final,flutter-tests,regression,analyze}.log.
+
+## PHASE 62 — done (handoff section A: server atomicity and concurrency)
+Built:      Every phase move is now one compare-and-set under the room lock, moves and ballots are guarded by phase on the table itself, resolutions commit only the moves they counted, defaults never overwrite a real move, a user holds one seat across rooms, and no phase mover turns a failed read into an empty success. Reviewed and rewrote the untested local `commit_phase_open` (adds the in-lock reveal gate, a standings-only-with-result guard, result from an outcome-finished room); added `commit_confrontation` and `commit_accusation` (generate_confrontation had no phase check and no CAS, and refused a non-host driver after the morning expired — a sleeping host stalled day ≥2; submit_accusation wrote the name, the floor and the phase in three unfiltered updates). `advance_phase`: confront/opening/discuss moves through commit_phase_open (patch and phase in one statement, deadline CAS), night/vote defaults with `ignoreDuplicates` and a server-derived revote round, every read checked. `submit_vote`: round derived server-side; `submit_night_action`/`submit_vote`: guard refusal surfaced as PHASE_CLOSED. `resolve_night`/`resolve_vote`: move fingerprint handed to `commit_resolution`, bounded re-tally when a move landed between tally and commit (round-aware for revotes). `_shared/history.ts`: all reads checked. `create_room_atomic`/`join_room_atomic`: per-user advisory lock + `vacate_other_rooms` (lobby seat freed, playing seat marked left with host handover, rejoin keeps the seat, finished rooms untouched). Old audit annotated with proven repairs.
+Files:      supabase/migrations/20260914000100_atomic_phase_open.sql (rewritten), 20260914000200_action_epoch.sql, 20260914000300_single_seat.sql, 20260914000400_result_after_outcome.sql (new); supabase/functions/{open_phase,advance_phase,generate_confrontation,submit_accusation,submit_night_action,submit_vote,resolve_night,resolve_vote}/index.ts; supabase/functions/_shared/history.ts; supabase/tests/{atomic_phase_open,action_epoch,single_seat}.sql (new), atomic_resolution.sql (new signature), anticheat.sql (phase-consistent fixture), concurrency_match.py (new); test/transport/server_surface_test.dart (+7 source-surface tests); docs/ONLINE-RELIABILITY-AUDIT.md; docs/PROGRESS.md.
+Verified:   Hosted, on hezjbrnveajypfqmjfnh: each migration dry-run inside a rolled-back transaction with its test before being applied; after applying, rollback runs of atomic_phase_open.sql, action_epoch.sql, single_seat.sql, atomic_room_entry.sql, atomic_resolution.sql, anticheat.sql all PASS (stale caller, changed deadline, double driver, check-constraint rollback, legal moves incl. same-phase clock, standings refused before result, closed room never reaches result, confrontation/accusation CAS, phase guards on moves/ballots/rounds, fingerprinted resolution, deciding ballot finishes the room, vacate across lobby/playing/finished, grants + pinned search_path). `supabase/tests/e2e_match.py` against the deployed functions: first run 92/93 (verdict->result refused on an outcome-finished room — fixed by result_after_outcome), final run 93 passed / 0 failed (build/phase62-e2e.log). New `supabase/tests/concurrency_match.py` with real simultaneous requests: 46 passed / 0 failed (build/phase62-concurrency.log) — 5 drivers on reveal->night, 3 on morning->opening / discuss->vote, 2 on verdict->result: exactly one 200 each, the rest refused with a resync code; Mafia double-tap = one row; 3 resolvers + a late move: one morning, the move acknowledged iff present for night 1; seat double-tap = one name, floor moves one step; host leaves mid-match -> lowest heartbeat-fresh seat inherits and resolves the ballot; retried ballot never lost; a user racing two joins holds one seat and a later join moves it; emptied lobby is gone. Flutter full suite: 999 passed, 1 skipped, 0 failed (build/phase62-flutter-tests.log). Analyze: 75 infos, 0 errors, 0 warnings (build/phase62-analyze.log; the 2 infos beyond phase 61 are pre-existing in test_driver/ and tool/, not touched here).
+            Deployment receipts (ACTIVE): resolve_night v11, resolve_vote v10, open_phase v11, advance_phase v8, generate_confrontation v9, submit_accusation v7, submit_night_action v9, submit_vote v8. Migrations applied: atomic_phase_open, action_epoch, single_seat, result_after_outcome. Shared files were uploaded with doc comments stripped (code identical); local copies keep the comments.
+Gate:       PASS for section A. Overall release still OPEN (sections B–F pending).
+Open:       No server-side rematch exists (start_match requires a lobby room), so "rematch epochs" means a new room; nothing to test beyond phase_number/round epochs, which are covered. Deadlock between two *different* users swapping rooms in the same instant is resolved by Postgres (one request errors and retries), not prevented. Cross-user deadline expiry of resolvers is proven only via the host path in the harness (no service key for the admin branch). Sections B (persistence/recovery warnings, discard pointer), C (full flow/error matrix), D (voice), E (visual/media), F (builds/publication) remain. No commit, no push.
+
+## PHASE 63 — blocking server repair done; broad section B gate pending
+Built:      Reviewed Claude's handoff and deployed definitions; fixed pre-deal kicked seats across capacity, atomic deal, reveal gate, public browsing and client roster. Retained removal notification rows without assigning roles or counting them alive in the match. Published public rosterSeats at deal so only real participants appear; in-match departures remain participants. start_match read errors now checked. Result standings omit never-dealt null-role rows.
+Files:      supabase/migrations/20260914000600_kicked_seats.sql, 20260914000700_public_room_active_count.sql; supabase/functions/{start_match,open_phase}/index.ts; supabase/tests/{kicked_seats.sql,recovery_match.py}; lib/transport/room_codec.dart; test/transport/kicked_roster_test.dart; docs/CLAUDE-AFTER-CODEX-63.md; docs/PROGRESS.md.
+Verified:   Hosted recovery 37 passed / 0 failed (build/phase63-codex-recovery.log). Targeted Flutter transport/session/entry: 174 passed (build/phase63-codex-targeted.log). Focused analyze: no issues (build/phase63-codex-analyze.log). Hosted rollback SQL: kicked_seats, atomic_room_entry, single_seat, atomic_kick, atomic_phase_open PASS. New migrations dry-run tested before application; final kicked_seats rerun after public count migration. Deployment: kicked_seats + public_room_active_count applied to hezjbrnveajypfqmjfnh; start_match ACTIVE v11, open_phase ACTIVE v12, verify_jwt preserved true.
+Gate:       PASS for the blocking repair; full section B and release remain OPEN. User requested split work to conserve tokens; Claude takes broader verification.
+Open:       Full Flutter, e2e_match/concurrency_match and remaining SQL regression runs pending after this fix; detailed follow-up in docs/CLAUDE-AFTER-CODEX-63.md. Newly identified room_settings check/update race remains unmodified for section C. No human voice, browser refresh/tab-close, real Android or production UI verification in this session. Current client changes not built/published. Existing kick-in-match alive semantics preserved; neutral elimination must be reviewed separately. No automatic Home resume prompt (online entry has Resume/Forget); temporary-offline browser UX not runtime verified. No commit/push.
+
+## PHASE 63b — done (section B closed; section C server gaps; sections E/F in part: browser pass, builds, production web publish)
+Built:      Section B (persistence/recovery) closed on top of Codex's kicked-seat repair. Client: web refresh / deep link on `/online/lobby` without a session now redirects to the online entry (Resume / Forget), and `/match` without a match to the entry when a resume pointer exists, else Home (they used to paint an empty lobby / an empty match flow — found in a real Chrome pass, build/review/m-14-after-reload.jpg). Server (section C findings): `room_settings` is one statement under the room lock (`commit_room_settings`: host, lobby-only, capacity ≥ seated population counted the way the door counts it, settings merged in SQL so two simultaneous switch taps both land); a removed seat is not a membership (`loadMembership` returns null for kicked rows; the phase-guard triggers on night_actions/votes and `commit_accusation` refuse kicked actors with NOT_A_MEMBER — a kicked player could still cast a ballot, keep heartbeating its own status back to `connected`, and hold the opening floor); a mid-match kick of a dealt seat is the attachment's neutral elimination applied at once (`kick_member`: alive=false, whispers voided, `eliminations[seat]` recorded, win check) instead of a living seat nobody could act for; `resolve_night` skips kill targets that are no longer alive (a removal during the night used to leave a night no resolver could commit); presence ageing gives a silent lobby seat up through `leave_room` so the door, the public list and the lobby count agree (a closed tab held a lobby seat for a day), the lobby seat re-pack survives heap order (two-step; it tripped its own unique index once a removed row sat past the leaver), a departing host never hands the lobby to a removed row, and a lobby whose only rows are removed ones is deleted. Real-browser review of video, screens, two-client voice and recovery written to docs/CLAUDE-PARALLEL-REVIEW.md (E-1…E-8). Universal release APK and web release built from current source; web published to production.
+Files:      lib/app/router.dart; test/widget/deep_link_without_session_test.dart (new, 4); supabase/functions/_shared/api.ts (kicked → null); supabase/functions/{room_settings,heartbeat,submit_vote,submit_night_action,claim_host,send_whisper,resolve_night}/index.ts; supabase/migrations/20260914000800_atomic_room_settings.sql, 20260914000900_kicked_moves.sql, 20260914001000_kick_eliminates.sql, 20260914001100_lobby_departures.sql (new); supabase/tests/{atomic_room_settings,kicked_moves,kick_eliminates,lobby_departures}.sql (new), roster_match.py (new, 48 checks), recovery_match.py (mid-match kick now a citizen; asserts the neutral elimination); docs/CLAUDE-PARALLEL-REVIEW.md (new), docs/CHATGPT-HANDOFF.md (new, continuation prompt); build/web (rebuilt, sw.js 20260914-145130), build/app/outputs/flutter-apk/app-release.apk (rebuilt).
+Verified:   Hosted, on hezjbrnveajypfqmjfnh: each of the four migrations dry-run with its test inside one rolled-back transaction, then applied (atomic_room_settings, kicked_moves, kick_eliminates, lobby_departures — all PASS); after applying, rollback runs of kicked_seats.sql, atomic_kick.sql, action_epoch.sql, atomic_phase_open.sql, single_seat.sql all PASS. Deployed (ACTIVE): room_settings v8, heartbeat v9, submit_vote v9, submit_night_action v10, claim_host v8, send_whisper v7, resolve_night v12 (verify_jwt unchanged; shared files uploaded with doc comments stripped, code identical). Hosted harnesses: roster_match.py 48/48 (build/phase63-roster.log: settings host-only/merged/capacity/off-list, sixth join ROOM_FULL, public list 5→4→5 across kick/join cycles, replacement on a fresh seat, three removed rows never counted, join-vs-start race lands in exactly one consistent world, settings refused after the deal and unchanged under the refusal, rosterSeats = seated population, removed rows not alive after the deal, a mid-match removal cannot vote / heartbeat, standings name the dealt players only, the participant removed after the deal keeps its role with a day-1 neutral elimination record, town wins); e2e_match.py 93/93 (build/phase63-e2e.log); recovery_match.py 40/40 (build/phase63-recovery.log). Flutter full suite 1018 passed / 1 skipped / 0 failed (build/phase63-flutter-tests.log, before the router change) + the 4 new deep-link tests pass; analyze 75 infos, 0 errors, 0 warnings (build/phase63-analyze.log). Real Chrome (headless=new, separate profiles, CDP): intro video decodes, gesture-starts, stays in bounds and aspect-correct through six viewports with 0 dropped frames, skip works; profile/home/mode/entry/create-sheet/lobby at 390 and 360 wide clean; public list refresh + join from list; resume after refresh rejoins the same seat; tab close/reopen → Home → entry → Resume rejoins; two fake-mic clients in one lobby: getUserMedia OK both, one RTCPeerConnection each, connected/stable, RTP flowing both ways (188/188 packets, 0 lost, 0 concealed), mute stops the peer's inbound audio energy and unmute resumes it, reload-resume and tab-close-resume both re-establish media; new bundle re-checked in Chrome: refresh on the lobby URL lands on the entry with «كمل» + «انسى الأوضة», Resume rejoins, Forget clears the pointer and gives the seat up. Builds: `flutter build web --release --no-pub` (build/phase63-web-build.log; pub.dev was unreachable so the script's pub step was skipped and its sw.js stamping replicated by hand, version 20260914-145130); `flutter build apk --release --no-pub --split-debug-info` (build/phase63-apk-build.log): 115 MB universal, arm64-v8a/armeabi-v7a/x86_64, targetSdk 36, signer SHA-256 082c07…9e11 = web/.well-known/assetlinks.json, fonts bundled. Published: `vercel deploy --prod` from build/web to project almafia (dpl_2gC19UhRJQy6FV8pXSzjmqS1QJsH READY, build/phase63-vercel-deploy.log); https://almafia.vercel.app serves the new bundle (main.dart.js md5 identical to build/web), sw.js 20260914-145130, manifest, favicon, /.well-known/assetlinks.json 200; /beta and /beta/ are the SPA fallback (same index.html, no beta page); /online/lobby deep link on production redirects to /online in Chrome with sw.js registered.
+Gate:       PASS for section B and for the section C server gaps above. Release overall still OPEN (C flow matrix, D voice, E device pass, F two-client human validation).
+Open:       concurrency_match.py PARTIAL after these changes: 41 checks passed, 0 failed, then the run was cut by the hosted anonymous sign-in rate limit (429 over_request_rate_limit, exhausted by the day's harness runs and browser clients) at the seat-race section (the last 5 checks, which mint fresh users; single_seat.sql hosted PASS covers the same rule) — build/phase63-concurrency.log; rerun in full once the window clears. Human audibility A↔B, night privacy, TURN/relay path, Android↔Web, background/resume on a phone: NOT VERIFIED (fake mics, one machine, `flutter emulators` lists none on this machine; `Pixel 9 pro (2)` not present). Real mobile browsers / slow network / offline replay: NOT VERIFIED. Not fixed (recorded in docs/CLAUDE-PARALLEL-REVIEW.md): phone-landscape lobby unusable (E-3), no desktop column on entry/lobby (E-4), on-state switch thumb invisible (E-5), 32×24 gender chips (E-6), join_chime.ogg DEMUXER error at startup in headless Chrome (E-7), one uncaught JS error after «مشاركة» in headless (E-8). Not redeployed: `set_presence`, `claim_floor`, `release_floor`, `record_speaking`, `submit_prediction`, `ghost_say`, `my_team`, `saw_role`, `mute_player`, `leave_room`, `submit_accusation` (their bundled `api.ts` still admits kicked rows; the DB guards and `commit_accusation` refuse the moves that matter and `realtime_token` already refused left seats) — redeploy with the current `_shared/api.ts` when next touched. `start_match` still replaces `rooms.settings` with the host's start payload (the client sends the current settings); by design, noted. Public room title typing not verified by hand. No launch-time online resume prompt on Home. No commit, no push.
+
+## PHASE 64 — done (hosted contract unified and redeployed; section C harnesses green incl. the full kick flow; E-3…E-8 acted on; builds and production web publish)
+Built:      Hosted contract: `resolve_night` v13 and `resolve_vote` v11 (Codex's last deploys) proved byte-identical to local, bundled `_shared/api.ts` carrying the read-error throws and the kicked→null rule, `roster_fingerprint.ts` identical; hosted `night_fingerprint`/`vote_fingerprint`/`roster_fingerprint`/`apply_match_deal`/`commit_resolution` read back and match migrations 001200/001300. Nine functions whose bundles still carried the September-8 `api.ts` redeployed from local source (byte-checked upload): set_presence v6, saw_role v7, my_team v7, claim_floor v7, release_floor v8, record_speaking v7, submit_prediction v7, ghost_say v7, remove_player v7 (all verify_jwt true, ACTIVE). Two real defects found by the reruns and fixed: (1) `release_floor` called a `lower_hand` RPC that never existed in any migration — once Codex made RPC errors throw, every release of the floor failed (e2e 92/93); the dead call is gone. (2) `remove_player` (the 3-minute-silence strike) was five unchecked requests: a failed roster read came back empty, an empty roster has no Mafia, and the town was declared the winner — an outcome invented from a read that did not happen; a night strike was recorded as a day elimination; a half-failed write left a dead seat without a record. It is now one statement under the room lock (`strike_absent_member`: host-only, playing-only, not the host's own seat, silence by the server clock, alive=false, whispers voided, elimination with the real phase, win check), mirroring `kick_member`. Harness: `anon_session` waits out the hosted sign-in rate limit with a bounded backoff instead of dying (no assertion touched); sessions are minted before lobbies exist because `lobby_departures` gives up a lobby silent for 90 s. New end-to-end case `kick_flow_match.py` (60 checks): lobby kick → replacement on a fresh seat → start with a payload that disagrees with the saved settings (saved wins) → rosterSeats without the removed seat → night with a removal racing the resolver (one 200 and exactly one of two consistent worlds) → day whisper then the whispered-to seat struck for silence (refused while beating, refused for the host's own seat, whisper voided, neutral day-1 record, never twice, no outcome invented, cannot vote) → ballot → town wins → standings name the five dealt seats only; the pre-deal removal has no record and stays barred. UI (evidence-backed only): E-3 wide council rows now fit height as well as width (sideways phone: one row of real chairs); E-4 entry screen and the lobby's code/start column in the `maxContentWidth` reading column; E-5 switch call-site colour override removed so the lit thumb shows; E-6 gender marks 48×48; E-8 `AppClipboard.copy` returns success instead of throwing, the lobby announces a copy only when it landed; E-7 checked headed (no error at launch, chime not even requested before the lobby; warm-up already tolerates a preload failure) — left as is.
+Files:      supabase/functions/{set_presence,saw_role,my_team,claim_floor,release_floor,record_speaking,submit_prediction,ghost_say,remove_player}/index.ts (release_floor and remove_player edited; the rest redeployed from local); supabase/migrations/20260914001400_strike_absent.sql (new; hosted as `strike_absent` + `strike_absent_self`); supabase/tests/strike_absent.sql (new), supabase/tests/kick_flow_match.py (new, 60 checks), supabase/tests/e2e_match.py (429 backoff), supabase/tests/{concurrency,roster}_match.py (sessions before rooms); lib/ui/screens/online/council/council_geometry.dart, lib/ui/screens/online/online_entry_screen.dart, lib/ui/screens/online/lobby_screen.dart, lib/ui/screens/online/room_settings_panel.dart, lib/ui/widgets/gender_picker.dart, lib/platform/clipboard.dart; test/online/council_geometry_responsive_test.dart (+1); docs/CLAUDE-PARALLEL-REVIEW.md (E-3…E-8 acted-on notes); build/web (rebuilt, sw.js 20260914-193905), build/app/outputs/flutter-apk/app-release.apk (rebuilt); build/review/p64-entry-1280.jpg, p64-create-1280.jpg.
+Verified:   Hosted, on hezjbrnveajypfqmjfnh, after the deploys: rollback SQL tests resolution_population, kicked_seats, atomic_room_settings, kicked_moves, kick_eliminates, lobby_departures, atomic_resolution, atomic_room_entry, atomic_kick, single_seat, atomic_phase_open, action_epoch, private_night_history, strike_absent (dry-run inside the migration's transaction, then applied, then again) — all PASS. Node: roster_fingerprint.test.mjs PASS, room_configuration.test.mjs PASS, golden vectors 35/35 Dart=TS. Harnesses after the last deploy: recovery_match 40/40 (build/phase64-recovery.log), e2e_match 91/91 (build/phase64-e2e.log; 93 in phase 63 was two data-dependent confrontation checks that did not fire this run, 0 failed), roster_match 48/48 (build/phase64-roster.log, rerun after the ordering change), concurrency_match 46/46 complete (build/phase64-concurrency.log — the phase 62 baseline count, no longer PARTIAL), kick_flow_match 60/60 (build/phase64-kick_flow.log). Flutter: 1023 passed / 1 skipped / 0 failed (build/phase64-flutter-tests.log, after every UI edit); analyze 74 infos, 0 warnings, 0 errors (build/phase64-analyze.log). Builds: web `--release --no-pub --base-href / --dart-define-from-file` (build/phase64-web-build.log, sw.js stamped 20260914-193905, no `offline_service_worker.js` copy, no JWT/service-role literal in main.dart.js); APK `--release --no-pub --split-debug-info` (build/phase64-apk-build.log): 115 MB, arm64-v8a/armeabi-v7a/x86_64, targetSdk 36, versionName 1.0.0, signer SHA-256 082c07…9e11 = web/.well-known/assetlinks.json. Published: `vercel deploy --prod --yes` from build/web (dpl_BydDREhbXCxDn4e6swS4WUct2MGZ READY, aliased almafia.vercel.app; build/phase64-vercel-deploy.log); live main.dart.js md5 = local, sw.js 20260914-193905, manifest/favicon/assetlinks 200, /online/lobby 200 (SPA), /beta and /beta/ are byte-identical to / (fallback, no beta page). Headless Chrome on production at 1280×800 with a seeded profile: the entry screen sits in a centred column (p64-entry-1280.jpg), the create sheet's lit switches show their thumb (p64-create-1280.jpg), no horizontal overflow. Headed Chrome (extension) on production: no console error at launch, no join_chime request before the lobby.
+Gate:       PASS for the hosted contract, section C harnesses (with the full kick flow), the room-settings race review (host-only, lobby-only, room lock, `not kicked` population like the door and the deal, SQL merge, PHASE_CLOSED after a start, read/write errors are refusals), the section B code review (pointer carries roomId/code only; Resume/Forget; storage warning non-blocking; history failure never blocks the pointer clear; teardown on leave/kick/new room), and E-3…E-8. Release overall still OPEN on the human/device items below.
+Open:       NOT VERIFIED (no second person, no device, no emulator on this machine): human audibility A→B and B→A, night privacy by ear, TURN/relay candidate path, Android↔Web, Android audio, background/resume on a phone, real mobile browsers, slow network, offline replay; the lobby at 844×390 in a browser after E-3 (geometry proved by unit test only — a headless lobby needs a sign-in the harnesses needed); lobby playback of join_chime headed (E-7). Still bundled with the September `api.ts` (kicked rows admitted at the membership step; every one of them is host-only or guarded by a DB trigger/CAS): mute_player v5, close_room v5, kick_player v6, start_match v11, open_phase v12, submit_accusation v7, advance_phase v8, generate_confrontation v9, send_whisper v7 (its target read also swallows the error into a "no such seat" refusal — a refusal, not a success). `RoomSettingsPanel` spans the full width on desktop (a full-screen sheet; not in E-4's scope). Public room title typing not verified by hand. No launch-time online resume prompt on Home. No commit, no push.
+
+## PHASE 65 — done (2026-09-20: release baseline reconciled)
+Built:      Read-only reconciliation found work newer than PHASE 64: all 31 hosted Edge Function bundles match current local TypeScript, normalizing line endings and outer whitespace, including every bundled shared dependency. No redeployment or application change was necessary. Confirmed whisper_graph_realtime is installed and whisper_meta is published. Pixel_9_Pro_2 now exists locally; no device was connected or emulator started.
+Files:      docs/PROGRESS.md; build/phase65-focused-tests.log; build/phase65-analyze.log.
+Verified:   169 focused Flutter tests passed (all test/transport, online session recovery, deep links, and dead-player result controls). Both Node test files passed (room_configuration and roster_fingerprint). Hosted rollback SQL tests strike_absent, resolution_population, kicked_moves, atomic_room_settings all PASS. Analyze: 0 errors, 0 warnings, 76 infos. Hosted function source comparison covered all 31 current functions; migration listing and publication read back on hezjbrnveajypfqmjfnh.
+Gate:       PASS for reconciliation and focused regression only; release overall OPEN.
+Open:       Remaining code/flow and voice review, full harness/suite after final fixes, actual emulator/browser full-match and recovery checks, audio/relay validation, final builds and release verification. Expensive gameplay testing intentionally deferred until after implementation review. No app code changes, deployment, commit, or push in this phase. Stop at the phase gate per AGENTS.md.
+
+## PHASE 66 — done (release artifacts ready; publication blocked by authentication)
+Built:      Atomic whisper delivery deployed (migration atomic_whisper, send_whisper v9); graph and private body commit together, with locked phase/day/membership/target guards. Prepared fresh release APK, AAB and web; installed/launched APK on Pixel_9_Pro_2 and inspected the home screenshot. Added forced-relay probe with nominated candidate evidence. User explicitly owns the full UI match test now. Presentation improvements recorded separately, not implemented.
+Files:      supabase/functions/send_whisper/index.ts; supabase/migrations/20260920000100_atomic_whisper.sql; supabase/tests/atomic_whisper.sql; supabase/tests/kick_flow_match.py; tool/run_voice_runtime_probe.mjs; docs/RELEASE-STATUS-2026-09-20.md; docs/ONLINE-EXPERIENCE-NEXT.md; docs/PROGRESS.md; build/release-*.log and release artifacts.
+Verified:   Atomic whisper dry-run rollback and post-deployment test PASS. Full Flutter 1027 passed/1 skipped/0 failed. Hosted e2e 93/93, recovery 40/40, roster 48/48, concurrency 46/46. Kick flow 58/60: harness assumed doctor survived; source-corrected to actual living town voters, Python compilation PASS, full rerun intentionally deferred to user. Chrome video gesture/bounds at five sizes PASS. Two isolated hosted voice clients PASS with strict autoplay and synthetic microphones; forced TURN-only test PASS with nominated relay candidates on both endpoints. APK signature matches assetlinks; all 3 ABIs; AAB/web release builds PASS. Last analyze unchanged Flutter source 0 errors/0 warnings/76 infos. Production root/bundle/manifest/favicon/assetlinks/deep link HTTP 200; deployed bundle hash differs from new local build.
+Gate:       PASS for implemented fix, builds and listed checks; production publication BLOCKED (Vercel Not authorized), release overall PARTIAL.
+Open:       Refresh Vercel authentication then publish prepared web and verify matching bundle hash. User owns complete multiplayer UI match; human audio quality/Android-Web/background-resume remain NOT VERIFIED. No Play Store submission, no commit/push, no new UX/media assets. Detailed evidence and honest limits: docs/RELEASE-STATUS-2026-09-20.md.
+
+## PHASE 67 — done (shared ambient media, room creation UX, production web)
+Built:      Shared silent WebP loops enabled on online lobby/vote/public result; offline AppBackdrop uses the same bounded decorative component with reduced-motion, inactive-route and error fallbacks. Night/private reveal unchanged. Room creation confirmation stays outside scrolling settings; localized close tooltip. Existing desktop column preserved. Vercel access restored and new web published.
+Files:      lib/ui/widgets/{ambient_media,textured_surface}.dart; lib/ui/screens/online/table/table_scene.dart; lib/ui/screens/online/room_settings_panel.dart; test/widget/{ambient_media_test,online_entry_test}.dart; docs/{PROGRESS,ONLINE-EXPERIENCE-NEXT,RELEASE-STATUS-2026-09-20}.md.
+Verified:   Online/entry/media focused run 155 passed; lobby 18 passed; final responsive/entry/media run 12 passed (overlapping suites, not additive). Changed production files analyze: no issues. Release web build PASS; real Chrome video playback/bounds at five sizes PASS. Vercel READY; almafia.vercel.app bundle SHA-256 matches local; root/sw/manifest/favicon/assetlinks/lobby HTTP 200. No full-match rerun.
+Gate:       PASS for this presentation phase and web publication.
+Open:       User owns full match and human audio/device acceptance. APK/AAB are Phase 66 artifacts, not rebuilt for these presentation changes. No newly generated assets or broad visual redesign claimed. No commit/push. Logs: build/phase67-{tests,lobby,responsive,analyze,web,video,vercel}.log.
+
+## PHASE 68 — done (Google Play upload package and user-requested presentation)
+Built:      Signed 1.0.0+1 AAB/APK and web; API 36, optional microphone/Bluetooth hardware, backup disabled, cleartext disabled. Added private reports, persistent voice/message blocks, community acceptance and deletion requests with service-only completion/retention. Privacy is accessible only from game Settings; report/block controls remain in rooms. Public copy describes data practices without implementation vendor names. Added original 95KB online doorway art, reduced-motion-aware entry transition and mute-aware card-turn navigation sound. Updated bilingual store copy, permissions, privacy/deletion pages and submission/operator guides with Eyad Syam and eyadsyam124@gmail.com.
+Files:      android/app/src/main/AndroidManifest.xml; lib/ui/screens/{online/safety_center,online/online_welcome_art,online/online_entry_screen,online/lobby_screen,online/table/table_scene,setup/settings_screen,setup/profile_screen}.dart; lib/platform/voice/voice_controller.dart; lib/ui/screens/online/voice_session.dart; lib/transport/{online_transport,supabase_backend,witness_channel}.dart; lib/app/l10n/*; lib/app/asset_constants.dart; lib/ui/theme/design_tokens.dart; tool/{generate_asset_constants,check_android_native}.py; assets/images/online/online_welcome.webp; raw_assets/online_council_generated.png; supabase/functions/player_safety/index.ts; migrations 20260920000200_player_safety, 20260920000300_safety_retention; supabase/tests/player_safety.sql; related tests; web/{privacy,delete-data}/index.html; web/vercel.json; store/*; docs/ONLINE-ART-2026-09-21.md.
+Verified:   Full suite before final presentation steering: 1032 passed, 1 skipped, 0 failed. Final changed UI/online suites: 185 passed; asset/parity suite: 7 passed. Final analyze lib/test: 0 errors, 0 warnings, 78 infos. Hosted safety SQL rollback tests before/after apply PASS; retention/completion rollback PASS; player_safety ACTIVE v1. Final AAB signature verified, 12 packaged 64-bit ELF libraries aligned >=16KB, bundle PAGE_ALIGNMENT_16K; APK zipalign 16KB PASS, 3 ABIs, targetSdk36, signer matches existing assetlinks. APK installed/launched on Pixel_9_Pro_2; emulator System UI stalled during final capture (separate from app), so no clean final device UI PASS claimed. Vercel deployment almafia-8rejlll6d READY; production bundle SHA-256 matches local; privacy/deletion pages HTTP200 with correct support contact. Initial root-directory deploy was unauthorized; deployment from the saved build/web project succeeded.
+Gate:       PASS for prepared upload artifacts and listed checks; Google Play approval is not claimed.
+Open:       User owns the final multiplayer match and human voice acceptance. Google account verification, required closed testing if applicable, Console declarations/IARC, Play pre-launch checks and Play App Signing fingerprint are account-side steps in store/GOOGLE-PLAY-SUBMISSION.md. Human moderation/deletion processing remains an ongoing developer duty. No Play submission, commit or push. Final hashes: build/phase68-release-hashes.json. Logs: build/phase68-*.log. New artwork prompt/provenance in docs/ONLINE-ART-2026-09-21.md.
+Phase 68 device addendum: the emulator System UI stall recovered after Wait; final clean home screenshot inspected (build/phase68-final-device-recovered.jpg). APK launch PASS; full UI walkthrough/match not claimed.
+
+## PHASE 69 — done (selectable language and public setup transitions)
+Built:      Arabic/English selector in onboarding profile and game Settings; saved before switching and restored before first app frame. Existing translations and RTL/LTR follow the selected locale. Profile text survives switching. Public profile/settings entrance fades use theme timing and respect reduced motion; private phase transitions unchanged.
+Files:      lib/app/{locale_controller,app}.dart; lib/main.dart; lib/app/l10n/*; lib/ui/widgets/{language_picker,setup_entrance}.dart; lib/ui/screens/setup/{profile_screen,settings_screen}.dart; test/widget/{language_picker_test,settings_presets_test,audio_settings_preview_test}.dart.
+Verified:   22 focused tests passed (language persistence/restart, input retention/direction, reduced motion, profile flow, settings and phase transitions). Changed files analysis: no issues. Logs: build/phase69-tests.log and build/phase69-analyze.log.
+Gate:       PASS for source changes and focused verification.
+Open:       Phase 68 published web and AAB/APK do not yet include Phase 69; release rebuild/publication not performed in this phase. Final multiplayer match remains user-owned. No commit/push.
+
+## PHASE 70 — done (business and monetization execution plan)
+Built:      Ordered phases 71–79 for cost measurement, audience/safety/FAQ, server wallet, rewarded Android ads, shared paid content, matchmaking, sharing, organic launch and release; 1000 EGP monthly trial ceiling and no pay-to-win.
+Files:      docs/BUSINESS-LAUNCH-PLAN.md; docs/PROGRESS.md.
+Verified:   Read current Phase 69 gate and store declarations; checked pubspec for ads/billing packages (absent); reviewed official Google audience, payments, rewarded ads, SSV and consent documentation. Documentation-only phase; no app tests applicable.
+Gate:       PASS for planning only; monetization is not implemented or deployed.
+Open:       Execute phases in dependency order; actual provider costs, AdMob/Play product setup and age suitability review remain. Phase 69 release rebuild and user-owned final match remain. No spending, commit, push or deployment.
+
+## PHASE 71 — done (privacy-safe usage metering and capacity control)
+Built:      Hosted daily operational metering for rooms, started/finished matches, abandoned lobbies, player-matches, room minutes and player minutes without player/room/role/message/voice identifiers; service-only monthly report; configurable 50/75/90/100 threshold records; conservative 3,000-started-match Free-plan proxy; operator switch that pauses only new room creation and leaves existing rooms/matches running; localized Arabic/English refusal; current-cost operations runbook. Supabase organization is currently Free ($0); historical hosted data was deliberately not backfilled. Current web-host plan/billing was not exposed by the connected project API; TURN relay remains unsubscribed per the last verified project record.
+Files:      supabase/migrations/20260921000100_usage_metering.sql, 20260921000200_usage_thresholds.sql, 20260921000300_usage_security.sql; supabase/tests/usage_metering.sql; supabase/functions/{_shared/api.ts,create_room/index.ts}; lib/ui/screens/online/online_entry_screen.dart; lib/app/l10n/*; test/widget/online_entry_test.dart; docs/OPERATIONS-COST.md; docs/PROGRESS.md.
+Verified:   Hosted migration dry-run with lifecycle/gate/threshold assertions PASS, then all three migrations applied; hosted rollback test PASS after apply; trigger functions removed from anon/authenticated execution and the resulting advisor warnings are absent; create_room ACTIVE v11 and hosted source contains the capacity refusal; monthly report returns a clean zero baseline and the gate is open; 24 focused Flutter tests PASS; room-configuration server test PASS; changed Dart/l10n analysis has no issues. Official current plan limits and cost-control docs reviewed 2026-09-21.
+Gate:       PASS for measurable launch operations and safe manual capacity control.
+Open:       Supabase Free lacks the metrics endpoint, so provider Dashboard usage remains the billing source of truth and the 3,000-match alert is a conservative proxy, not a bill. Database alerts are operational records; email delivery belongs with the moderation/operations notification work in Phase 72. Vercel Usage/Billing requires account-side review, and no TURN, advertising or purchase plan has been bought. Phase 69 release rebuild and the user-owned final match remain. No commit or push.
+
+## PHASE 72 — done (settings-only FAQ, adult launch audience and moderation workflow)
+Built:      Bilingual Help and FAQ inside game Settings only; clear online, voice, reconnect, safety, coins, privacy and deletion guidance; public rooms and voice positioned for an 18+ launch. Added a private moderation queue with pending/reviewing/actioned/dismissed states, priority, safe reviewer claiming, resolutions and a notification outbox that never copies report text. Store, safety and public privacy/deletion copy now matches the adult launch and avoids infrastructure vendor names.
+Files:      lib/ui/screens/setup/{help_center,settings_screen}.dart; lib/app/l10n/*; test/widget/help_center_test.dart; supabase/migrations/20260921000400_moderation_queue.sql; supabase/tests/moderation_queue.sql; store/{GOOGLE-PLAY-SUBMISSION,listing-ar,listing-en,SAFETY-OPERATIONS}.md; web/{privacy,delete-data}/index.html; docs/PROGRESS.md.
+Verified:   Hosted migration dry-run, apply and rollback contract test PASS; hosted moderation summary is clean; Help/Safety/Settings focused widget tests PASS; changed Dart analysis has no issues; public policy copy contains the deletion/reward/age disclosures and no infrastructure vendor names.
+Gate:       PASS for Help, policy alignment and the review queue; notification delivery is PARTIAL.
+Open:       A verified sender and email delivery provider are still required to drain the notification outbox into real emails. Eyad remains responsible for human report and deletion review. No web publication, commit or push.
+
+## PHASE 73 — done (server-authoritative earned coins and fair reward content)
+Built:      Service-only wallet, immutable reward ledger, inventory and catalog; 100 coins for an eligible completed online match plus 25 for the winning team, including eliminated players. Rewards are server-verified and idempotent. Added a 400-coin Mastermind Guide with an atomic server purchase, Settings-only bilingual coin store, automatic result sync that cannot block a match, and account-deletion/orphan cleanup. The reward contains strategy guidance only and grants no secret information or match advantage.
+Files:      supabase/migrations/20260921000500_coin_economy.sql, 20260921000600_economy_indexes.sql, 20260921000700_orphan_economy_cleanup.sql; supabase/tests/coin_economy.sql; supabase/functions/{economy/index.ts,_shared/api.ts}; lib/ui/screens/setup/{coin_store,settings_screen}.dart; lib/ui/screens/online/online_session.dart; lib/app/l10n/*; test/widget/coin_store_test.dart; test/online/online_session_recovery_test.dart; store/{GOOGLE-PLAY-SUBMISSION,listing-ar,listing-en,SAFETY-OPERATIONS}.md; web/{privacy,delete-data}/index.html; docs/PROGRESS.md.
+Verified:   Hosted migration dry-run and apply PASS; hosted rollback economy test PASS; economy function ACTIVE v1 with authentication enabled; catalog contains the active 400-coin guide; security/performance review found no new actionable warning. Combined Help/Coin/Safety/Settings/online-recovery run: 27 passed; focused changed-code analysis: no issues.
+Gate:       PASS.
+Open:       Ads and real-money purchases are not implemented; current store declarations correctly say so. The wallet follows the anonymous device identity, so account recovery must precede any paid entitlement. Current published web and Play artifacts do not include Phases 69–73. Final multiplayer match remains user-owned. No commit or push.
+
+## PHASE 78 — done (connected Arabic Google Play campaign)
+Built:      Six 1080×1920 Arabic marketing screenshots that read as one continuous dark panorama; every phone uses a real release capture and the set leads with online play, rooms, secret roles, narrator-led flow and retained local play. Replaced the first busy generated backdrop with a minimal charcoal, smoke, burgundy and gold-thread background after visual review.
+Files:      raw_assets/store/connected-play-panorama.png; tool/generate_play_screenshots.py; store/screenshots/play-ar/{01,02,03,04,05,06}.png; store/screenshots/{10-home-current,11-mode-current}.png; store/{README,GOOGLE-PLAY-SUBMISSION}.md; docs/PLAY-STORE-ART-2026-09-21.md; docs/PROGRESS.md.
+Verified:   Final contact sheet visually reviewed; all six outputs are RGB PNG at 1080×1920 and contain the latest online-enabled mode and online-entry captures. Generation is reproducible from the saved script and workspace-bound source art.
+Gate:       PASS.
+Open:       Full-match store captures remain user-owned. No invented testimonials, ratings or download numbers. No commit/push.
+
+## PHASE 79 — done (current Android upload artifact and production web)
+Built:      Rebuilt signed 1.0.0+1 APK and Play AAB from the Phase 69–73 source with online configuration included; installed the APK on Pixel_9_Pro_2 and opened the real online mode/entry. Rebuilt the web release from the same source and published it to almafia.vercel.app. Store declarations remain accurate: earned coins exist, ads and real-money purchases do not.
+Files:      build/app/outputs/{flutter-apk/app-release.apk,bundle/release/app-release.aab}; build/web; build/phase79-release-hashes.json; build/phase79-{online-home,mode-online,online-entry}.png; store/{README,GOOGLE-PLAY-SUBMISSION}.md; docs/PROGRESS.md.
+Verified:   Focused language/settings/help/coin/recovery suite: 27 passed. Focused analysis: 0 errors/warnings, 2 existing style infos. APK installed/launched on Pixel_9_Pro_2; online mode and online-entry screens visually verified. APK and AAB: package com.mafiamaster.mafia_master, versionCode 1, versionName 1.0.0, minSdk 26, targetSdk 36; 12 native libraries each pass >=16KB LOAD alignment; APK signer SHA-256 082c07…9e11; AAB JAR signature verified. Production deployment READY and aliased to almafia.vercel.app; root/privacy/deletion/online HTTP 200 and production main.dart.js hash matches local.
+Gate:       PASS for the upload artifact and production web; Google Play acceptance is NOT VERIFIED.
+Open:       User owns the final multiplayer/human-voice match. Play Console app creation, declarations, IARC, App Signing fingerprint, internal/closed testing and review are account-side. Phases 74–77 remain future monetization/growth work: no AdMob or Play Billing IDs/products exist, so ads and purchases were deliberately excluded from this honest first upload. Notification email delivery remains PARTIAL. No commit/push.
+
+## PHASE 80 — done (monetization source, growth flows and owner-test release candidates)
+Built:      Optional result-only rewarded ads with consent/privacy controls and server-side signed reward claims; permanent balanced room scenario purchase with server verification/restore/revocation; quick match that fills compatible public rooms atomically; safe post-game share card and new-room rematch. Updated bilingual privacy/store disclosures without public infrastructure names. Prepared a normal signed Android RC, a separately installable official-test-ad APK, signed Play AAB and zipped web candidate. Play/AdMob accounts were inspected only; no app record, ad unit, product or store submission was created.
+Files:      pubspec.yaml; android/app/{build.gradle.kts,src/main/AndroidManifest.xml}; dart_defines.example.json; lib/platform/monetization/*; lib/ui/screens/{online/rewarded_reward_button.dart,online/result_share_button.dart,setup/scenario_store.dart}; related online/settings/transport/l10n files; supabase/functions/{admob_ssv,economy,play_purchase,quick_match,_shared/purchase_access.ts}; supabase/migrations/20260921000800_ad_rewards.sql through 20260921001100_quick_match_random.sql; related tests; web/privacy/index.html; store/*; tool/build_test_ads.ps1; build/deliverables/*.
+Verified:   Hosted ad, purchase and quick-match migrations applied and rollback contracts passed; affected functions ACTIVE. Invalid AdMob signature now returns HTTP 400 after redeploy. Room configuration server test PASS. Focused Flutter tests 25/25 PASS; analyze 0 errors/warnings and 78 existing infos. Web release and real-Chrome startup/video bounds at five sizes PASS. Android RC, test-ad APK and AAB signed by SHA-256 082c07…9e11; 12 native libraries each pass 16KB alignment. Test-ad APK installed beside the existing app as com.mafiamaster.mafia_master.adstest and its launch screen was visually inspected.
+Gate:       PASS for source and owner-test candidates; commercial publication remains intentionally OPEN.
+Open:       Owner tests the supplied RC and owns the final multiplayer/human-voice match. Production AdMob app/unit, consent message and SSV unit secret still need account setup. Play app/product and purchase-verification service account still need setup; production ads/billing remain disabled until their real IDs exist. Rebuild the final AAB after that setup, then complete Console declarations/testing and publish. Current production web was not changed. No commit/push.
+
+## PHASE 81 — done (Android startup crash, proven and fixed)
+Built:      Reproduced the 1.0.0 RC and test-ads "keeps stopping" on a fresh emulator install (x86_64 and forced arm64): R8 full mode (AGP 9) stripped WorkDatabase_Impl.<init>() pulled in by the ads SDK's WorkManager 2.7/Room 2.2.5, so androidx.startup died before Flutter. Added keep rules, an R8-report regression check wired into both build scripts, purchase-stream listen-before-connect, retryable optional-service startup, late-ad disposal. Version 1.0.1+2.
+Files:      android/app/{proguard-rules.pro,build.gradle.kts}; tool/{check_android_r8.py,build_apk.ps1,build_test_ads.ps1}; lib/platform/{optional_service.dart,monetization/rewarded_ads_mobile.dart}; lib/app/app.dart; lib/ui/screens/setup/scenario_store.dart; test/app/optional_services_startup_test.dart; pubspec.yaml.
+Verified:   Old APKs FAIL check_android_r8 and crash on emulator; new builds PASS and launch fresh (x86_64 + arm64 translation), as an upgrade over 1.0.0, on relaunch and offline. Logcat has no FATAL.
+Gate:       PASS on emulator. User's Samsung ARM64: NOT VERIFIED.
+Open:       Owner must install 1.0.1 RC on the real device.
+
+## PHASE 82 — done (public rooms are the only choice; no auto-join)
+Built:      Removed quick match and play-offline from the online entry; list auto-refreshes every 15 s while visible and foreground, immediately on resume, backs off to 60 s on failure, keeps the last list marked stale, never overlaps requests or outlives the screen, keeps scroll. Cards show seats/capacity, players missing before the host may start, full/ready status; full rooms not tappable; refusals re-read the list without moving the player. Rooms need a human host, so a clearly labelled "new public room" suggestion card creates one only when chosen. New read-only public_room_listing(uuid) migration (not-kicked count, capacity rule, min 5, ban filter, empty lobbies hidden); browse_rooms falls back to public_rooms().
+Files:      lib/ui/screens/online/{online_entry_screen,online_session}.dart; lib/transport/game_snapshot.dart; lib/ui/theme/design_tokens.dart; lib/app/l10n/*; supabase/migrations/20260923000100_public_room_listing.sql; supabase/functions/browse_rooms/index.ts; supabase/tests/public_room_listing.sql; test/widget/{online_entry,online_lobby}_test.dart.
+Verified:   Entry/lobby widget tests PASS; emulator and local web show the new screen; web refresh measured at 11/27/43/58 s.
+Gate:       PASS (client). Server listing SQL test NOT RUN (no local Docker).
+Open:       Migration + function deploy by Codex; quick_match function now unused by 1.0.1.
+
+## PHASE 83 — done (back, language, colours, launcher name)
+Built:      Online back goes to /mode (separate from offline). Android 16 system back exited the app from the online list (predictive back never reached didPopRoute); fixed with enableOnBackInvokedCallback=false. Language picker removed from profile/onboarding (Settings only); themed SegmentedButton gold/ivory/charcoal. Launcher name follows in-game language through two activity-aliases switched enable-before-disable from MainActivity, re-asserted at every start; Pixel launcher proven not to follow per-app locale.
+Files:      lib/app/{router,locale_controller}.dart; lib/main.dart; lib/platform/launcher_label.dart; android/app/src/main/{AndroidManifest.xml,kotlin/.../MainActivity.kt}; lib/ui/{theme/mafia_theme.dart,widgets/language_picker.dart,screens/setup/profile_screen.dart}; tests.
+Verified:   Emulator: online→mode→home with system back; ar→en→ar with restarts, one launcher entry each time, drawer shows "Mafia Master"; picker screenshot gold. Tests PASS.
+Gate:       PASS.
+Open:       Upgrade from 1.0.0 may drop the old home-screen shortcut once; some launchers drop it on each language switch. Android 12/13 not tested (no image).
+
+## PHASE 84 — done (monetization gaps; production stays off)
+Built:      admob_ssv split into a testable verifier: bad/malformed signature 400, Google key fetch failure 503, rotated key id triggers one fresh fetch, permanent ledger refusals 400. Reward button: server "pending" no longer disables retry forever, late award shows on reopen, mic and game audio silenced during the ad and restored, no ref after dispose. Purchases: rebind limit 3/30 days, refund revocation via Voided Purchases API (play_voided_sync). Web privacy and store text no longer claim ads or purchases.
+Files:      supabase/functions/{admob_ssv/{index,verify}.ts,play_purchase/index.ts,play_voided_sync/index.ts,_shared/{api,play_auth}.ts}; supabase/migrations/20260923000200_play_purchase_integrity.sql; supabase/tests/{admob_ssv_verify.test.mjs,play_purchase_integrity.sql}; lib/ui/screens/online/rewarded_reward_button.dart; web/privacy/index.html; test/widget/rewarded_reward_button_test.dart; test/transport/server_surface_test.dart.
+Verified:   node SSV test PASS; reward button tests PASS; esbuild parse PASS.
+Gate:       PASS for code; activation BLOCKED.
+Open:       Paid "Council of Shadows" is only a preset of free settings — product decision required before any sale. Web ads need AdSense H5/Ad Manager eligibility (not implemented). AdMob/Play account work for Codex.
+
+## PHASE 85 — done (store data and free growth)
+Built:      Listings renamed "سيد المافيا: Mafia Master" / "Mafia Master: Online Party", rewritten with natural keywords and no ads/purchase/quick-match claims; length checker; robots.txt, sitemap.xml, indexable noscript text; new online-list capture; short free growth plan.
+Files:      store/listing-{ar,en}.md; tool/check_store_listing.py; web/{robots.txt,sitemap.xml,index.html}; store/screenshots/12-online-rooms-1.0.1.png; docs/GROWTH-FREE-PLAN.md.
+Verified:   check_store_listing PASS (ar 25/73/1414, en 26/76/1700).
+Gate:       PASS.
+Open:       Play screenshot set (play-ar/01..06) still shows the old online entry; regenerate with tool/generate_play_screenshots.py from the new capture.
+
+## PHASE 86 — done (verification, local builds, Codex handoff)
+Built:      1.0.1+2 RC APK, test-ads APK (moved out of app-release.apk), Play AAB and web zip in build/deliverables-1.0.1 with SHA256SUMS and README-AR; docs/CODEX-PUBLISH-HANDOFF.md.
+Files:      build/deliverables-1.0.1/*; docs/CODEX-PUBLISH-HANDOFF.md; docs/PROGRESS.md.
+Verified:   flutter test 1056 pass / 1 skip / 0 fail; analyze 0 errors/warnings (78 infos, unchanged); signer 082c07…9e11 on all; 16KB PASS; no test ad unit in RC/AAB Dart code; emulator and local-web checks as above.
+Gate:       PASS locally. Not publish-ready: real-device crash check, SQL tests, product decision and account setup are open.
+Open:       Work lives in worktree .claude/worktrees/crash-fixes-and-testing-b6c2f5 (main's uncommitted state copied in first); main checkout not modified. No commit/push/publish.
+
+## PHASE 87 — done (first launch, terms, language without exit)
+Built:      One compact setup before the (still skippable) film: language → name/avatar → sound/music/reduce-motion → 18+ → unticked «قرأت الشروط والأحكام وأوافق عليها» with in-app terms and privacy sheets. Acceptance saved with version + timestamp (currentTermsVersion 2026-09-23) before setup completes; failed saves retry in place. SetupRequired gate replaces ProfileRequired inline, so deep links keep their destination; existing profiles get one compact terms-only prompt; only a changed terms version asks again. Community-rules dialog before rooms is skipped after a valid acceptance. Acceptance synced to the server after room entry (never blocks). Language exit fixed: disabling the activity-alias the task was launched through finished the activity; now that switch is left pending and applied from onDestroy, with a localized note; safe switches still apply at once. Terms/privacy reachable in Settings.
+Files:      lib/data/{terms_consent,motion_preference}.dart; lib/ui/screens/onboarding/first_run_screen.dart; lib/ui/widgets/{legal_documents,language_picker}.dart; lib/ui/screens/setup/{profile_screen,settings_screen}.dart; lib/ui/screens/online/{safety_center,online_entry_screen}.dart; lib/app/{router,app,locale_controller}.dart; lib/main.dart; lib/platform/launcher_label.dart; android/.../MainActivity.kt; lib/ui/theme/design_tokens.dart (SheetTokens); l10n; supabase/migrations/20260924000100_terms_acceptance.sql; supabase/functions/player_safety/index.ts; test/widget/{first_run,profile_flow,online_entry}_test.dart; test/support/stores.dart.
+Verified:   first_run_test 12/12 (fresh install, unchecked block, document open/back, system back, save failure retry, restart, existing-profile migration, version change, community rules skip, deep link, locale switch keeps State and input, prefs saved, launcher pending note); profile_flow 4/4; language/online-entry/safety/data/app suites pass. Full suite before flow-test update: 1063 pass, 5 fail (old order, fixed).
+Gate:       PASS (widget). Emulator language switch checked in phase 91; Samsung NOT VERIFIED.
+Open:       Terms text is a draft for the owner/legal review. Server acceptance record needs migration 20260924000100 + player_safety deploy; older server: sync silently retried.
+
+## PHASE 88 — done (public list without a creation card; native invite share)
+Built:      Removed the «أوضة عامة جديدة» card, its handler and strings; top create/join actions and the normal list stay, no quick match/offline footer/auto-join. Server-owned waiting rooms: explicit system_pool state (host_id null, public lobby only, check constraint), trigger refuses any player row while unclaimed, at most one per pool (partial unique index), created only by browse_rooms when the viewer has no joinable public lobby, replaced after 2 idle hours, paused with new_rooms_enabled. First join claims host atomically under the row lock and reseeds; later joiners are ordinary players. List v2 marks it «أوضة انتظار جاهزة — فاضية، وأول واحد يدخل هيبقى المضيف», ordered after rooms with people and before full rooms. Invite share uses the OS share sheet (share_plus) with tablet anchor; web uses Web Share, else copies the link; never reports "sent", reports copy only when it happened; lobby membership/voice untouched (presence away→connected on return).
+Files:      lib/ui/screens/online/{online_entry_screen,lobby_screen}.dart; lib/transport/game_snapshot.dart; lib/platform/invite_share.dart; l10n; supabase/migrations/20260924000200_system_waiting_rooms.sql; supabase/functions/browse_rooms/index.ts; supabase/tests/system_waiting_rooms.sql; test/widget/{online_entry,invite_share}_test.dart.
+Verified:   online_entry + transport suites 174/174; invite_share 5/5 (sheet statuses, copy fallback, failure wording, dismiss keeps lobby, lifecycle away→connected without leave).
+Gate:       PASS (client). system_waiting_rooms.sql NOT RUN (no local Postgres/Docker).
+Open:       Deploy migration 20260924000200 then browse_rooms; before that, the old server simply shows no waiting room. Concurrency of two real joiners is enforced by the row lock but proven only by reading, not by a parallel SQL run.
+
+## PHASE 89a — done (resume interrupted store integration and regression repair)
+Built:      Reviewed Claude stages 87–89 in the existing worktree; fixed stale public captions crossing private phases, live reduced-motion behavior, unnecessary classic-table consumer mounting, and missing client-role revoke for seat_cosmetics. Added cosmetic SQL contract coverage and updated the economy regression for the retired guide.
+Files:      lib/ui/economy/cosmetic_paint.dart; lib/ui/screens/online/table/{room_presentation,table_scene}.dart; test/online/cosmetics_table_test.dart; supabase/migrations/20260924000300_cosmetic_catalog.sql; supabase/tests/{cosmetic_catalog,coin_economy}.sql; docs/{PROGRESS,CODEX-PUBLISH-HANDOFF}.md.
+Verified:   Focused store/presentation 20 PASS; initial full suite 1077 PASS / 1 skipped / 15 FAIL, all 15 failures covered by subsequent affected-suite rerun 62 PASS after fixes, no assertions removed. Full analyze 0 errors/warnings, 78 infos; final four changed Dart files analyze clean. Node cosmetic_access and room_configuration PASS. SQL NOT RUN: Docker daemon unavailable. Logs build/phase89-*.log.
+Gate:       PASS for regression repair only; overall stage 89 remains PARTIAL.
+Open:       Catalog currently 11 of requested 18 items; remaining real content and database execution still needed. Stage 90 manual web payment/recovery and stage 91 device checks/release builds pending. No production changes, new artifacts, merge, commit or push. Existing 1.0.1 artifacts predate these changes; final human match remains owner-owned.
+
+## PHASE 89b — done (online core experience: discovery and waiting)
+Built:      Prioritized the online game experience over catalog expansion. Public-room cards now use charcoal surfaces, gold occupancy indicators, explicit voice labels and RTL/LTR arrows. Added a live 1–2-missing-players filter and honest empty-filter state. Populated lists take priority over decorative artwork. Lobby explains exactly how many players are missing, invitation purpose and host-controlled start readiness. No automatic join or match-rule changes.
+Files:      lib/ui/screens/online/{online_entry_screen,lobby_screen}.dart; lib/app/l10n/app_{ar,en}.arb and generated localizations; test/widget/{online_entry,online_lobby}_test.dart; docs/{ONLINE-EXPERIENCE-LEVEL-UP,PROGRESS}.md.
+Verified:   Final entry/lobby/share suites 47 PASS, including filter refresh without auto-joining, Arabic/English 360px layout/directional arrows, missing-player and host readiness copy, backoff/lifecycle and share regressions. Changed Dart analysis: no issues. Logs build/online-experience-{tests,analyze}.log. No new emulator or human-match verification.
+Gate:       PASS for this local discovery/waiting increment only.
+Open:       Next: in-match comprehension/rhythm, factual result/rematch experience, backend SQL/device verification and owner playtest per ONLINE-EXPERIENCE-LEVEL-UP.md. Catalog expansion/payment stages remain open. No deploy, builds, merge, commit or push; published app and 1.0.1 deliverables unchanged.
+
+## PHASE 89c — done (in-match action clarity and truthful ballot feedback)
+Built:      Ballot UI distinguishes sending from server-acknowledged receipt, retains retry after failure, explains selecting a seat before confirmation, and removes the vote question after submission. A response arriving after a phase/day change no longer invokes the next-step callback. Opening suspicion and host discussion-to-vote controls now name their actual actions. A no-elimination verdict no longer invents a tie or promises a revote: it uses the server vote result.
+Files:      lib/ui/screens/online/online_table_flow.dart; lib/app/l10n/app_{ar,en}.arb and generated localization files; test/online/{online_action_retry,online_verdict}_test.dart; docs/PROGRESS.md.
+Verified:   71 PASS across action retry, verdict, Doc 12/15 acceptance, witness result, role reveal and reveal recovery. Delayed acknowledgement, duplicate taps, failure retry, no-elimination and tied verdicts covered; private role-reveal regressions PASS. Changed Dart analysis: no issues. Logs build/phase89c-{tests,analyze}.log.
+Gate:       PASS for local action clarity and listed regressions.
+Open:       Public-phase rhythm and factual post-match/rematch experience next; real device/multiplayer enjoyment and voice remain unverified. Backend SQL, remaining catalog/payment work and new release artifacts remain open. No engine/rule changes, deployment, commit, push or release build.
+
+## PHASE 89d — done (ballot recovery and same-day revote acknowledgement races)
+Built:      Vote receipt now follows the viewer's server-owned votedRound on recovery; a public ballotRound resets UI state for same-day revotes. Old-round success/failure cannot acknowledge or unlock a newer ballot; late transport acknowledgements do not rewrite a different phase/day/round's own-seat receipt. A phase-closed response without a receipt is not reported as a saved vote. Night rendering remains unchanged.
+Files:      lib/transport/{game_snapshot,room_codec,online_transport}.dart; lib/ui/screens/online/online_table_flow.dart; test/online/online_action_retry_test.dart; docs/PROGRESS.md.
+Verified:   142 PASS across action retry, online transport, Doc 12/15, reveal/recovery, verdict and witness-result suites. Cases include recovered receipt, same-day revote, old success, old failure, new vote acknowledged before old failure, phase-closed refusal, duplicate taps and retry. Analysis of changed files: 0 errors/warnings; pre-existing style info at online_transport.dart:456 remains. Final table-flow analysis clean after braces cleanup. Logs build/phase89d-*.log.
+Gate:       PASS for listed local regressions, not a blanket online stability certification.
+Open:       Tests use fake backend/realtime events, not physical network interruption or a human full match. Existing published web/APKs do not include these changes. Remaining public-phase/ballot edge review, result/rematch, SQL/deployment compatibility, device acceptance and release builds remain. No deployment/commit/push.
+
+## PHASE 89e — done (revote candidate integrity; database verification pending)
+Built:      Revotes now expose only server-declared tied living opponents as selectable; headline identifies a revote. Shared backend eligibility validates submit_vote and filters historical out-of-scope votes during resolution. Pending migration adds tied-seat validation to INSERT/UPDATE under the existing phase state lock, preserving phase/round/kick guards. Updated earlier test fixtures to use the real tiedSeats field.
+Files:      lib/transport/{game_snapshot,room_codec}.dart; lib/ui/screens/online/online_table_flow.dart; test/online/online_action_retry_test.dart; supabase/functions/{_shared/ballot_candidates.ts,submit_vote/index.ts,resolve_vote/index.ts}; supabase/migrations/20260924000400_revote_candidates.sql; supabase/tests/{ballot_candidates.test.mjs,revote_candidates.sql}; docs/{PROGRESS,CODEX-PUBLISH-HANDOFF}.md.
+Verified:   119 Flutter tests PASS (action/recovery/transport/surface/verdict/Doc15), 9 Node candidate checks PASS, changed Dart analysis clean. Node strip-types syntax checks PASS for three changed TS files (not Deno type verification). SQL NOT RUN: Docker daemon unavailable.
+Gate:       PASS for client/helper implementation and listed tests; database and hosted behavior NOT VERIFIED.
+Open:       Execute SQL and existing phase/round/kick regressions before applying the migration and deploying submit_vote/resolve_vote. Result/rematch UX deferred in favor of the discovered correctness defect. No deployment, artifacts, commit, merge or push; published builds unchanged.
+
+## PHASE 89 — done (Mafia Coins identity and a real cosmetic catalog)
+Built:      «عملات المافيا / Mafia Coins» identity from the owner's generated coin (raw_assets/store/economy-v1, cropped, alpha kept, 96/256 px WebP ≈6/26 KB, legible at 24 px); one shine on appear, still under reduced motion. The vault concept is NOT shipped (different mask). New store: balance header, Shop / Collection / History tabs, real previews (the seat exactly as the table paints it; pack backdrop + transition + opening/closing line + sound; narrator lines + accent; bundle contents), confirm dialog, server-owned prices/charges, "N more coins ≈ M matches" from the current 100/match contract. 11 real SKUs: 3 frames (200/250/300), 3 nameplates (150/250/300), Midnight Manor 600 and Old Town 900 presentation packs (public-phase colour grade, veil, overlay, candle/sweep transition, opening/closing lines with bundled sounds), The Storyteller narrator 1200 (a line per public beat, same on every device, text-only at night), Council bundle 2300 and Identity bundle 1200 (charge subtracts owned contents). Host's owned pack/narrator dresses the room for everyone (room settings; equipped packs default for rooms they create); ownership checked server-side on create/settings, never blocks a start. Frames/plates copied to room_players.cosmetics at seating and painted on council/lobby seats in public phases only (doc 05 rule 3: plain rings at night/distribution). Strategy guide removed from sale, free in Help, owners refunded once (idempotent unique index). Store reachable from Home, Settings and out-of-match lobby only.
+Files:      assets/images/economy/*; raw_assets/store/economy-v1/* (copied); pubspec.yaml; lib/app/asset_constants.dart; lib/ui/economy/{cosmetics,cosmetic_paint,cosmetic_preview,wallet,mafia_coin}.dart; lib/ui/screens/setup/{coin_store,home_screen,help_center}.dart; lib/ui/screens/online/{lobby_screen,room_settings_panel,online_entry_screen}.dart; lib/ui/screens/online/table/{table_scene,room_presentation}.dart; lib/ui/screens/online/council/council_band.dart; lib/transport/{game_snapshot,room_codec,online_backend}.dart; lib/platform/audio_director.dart (playAccent); lib/app/router.dart; lib/ui/theme/design_tokens.dart (CosmeticTokens); l10n; supabase/migrations/20260924000300_cosmetic_catalog.sql; supabase/functions/{economy,create_room,room_settings}/index.ts; supabase/functions/_shared/{room_configuration,purchase_access}.ts; tests.
+Verified:   coin_store_test 9/9; cosmetics_table_test 8/8 (public-phase frames, none at night, identical across viewers, codec, first-morning intro once, outro, night narration silent, classic adds nothing, muted silent); online_entry (owned pack default in create payload, unowned not offered) 25/25; node room_configuration + cosmetic_access PASS. Found and fixed a disposal bug in the transition overlay.
+Gate:       PASS (client + node). cosmetic_catalog.sql NOT RUN (no local Postgres).
+Open:       11 SKUs, not the 18 target: missing 2 standalone table themes, 2 standalone phase effects and a second narrator — not shipped as placeholders. Packs apply online only (offline pass-the-phone keeps the default look). Narrator is on-screen text + a short existing sound, not recorded voice. Deploy migration 20260924000300 before economy/create_room/room_settings; older clients keep working (catalog keys are additive).
+
+## PHASE 90 — done (web coin packs by transfer: MANUAL VERIFICATION, no gateway/webhook)
+Built:      Newest owner instruction implemented. Web-only coin packs (compiled in only with --dart-define=WEB_COIN_SALES=true and kIsWeb; Play/Android has no tab, link, QR or message, and no destination URL exists in the app, web or Android sources). Destinations come from function secrets COIN_PAY_INSTAPAY_URL / COIN_PAY_VODAFONE_CASH_URL, https only (the owner's Vodafone link is http, so it shows as unavailable until an HTTPS destination is verified). Flow: recoverable account required (optional email one-time-code linking/recovery, same user id, no password) → pick server-priced pack (EGP piastres, seeded inactive/unpriced for the owner) and method → notice «التحويل بيتراجع يدويًا، والعملات بتضاف بعد التأكد من وصوله» → server order (immutable price, one open order per player, resumed on repeat/reload, 24 h window, late claims kept) → link opened from the tap (new tab, noopener) → «أرسلت التحويل» with transaction number (claim only; no balance change). Admin queue /admin/coins: server-enforced commerce_admins; approve requires exact amount + unique provider transaction, credits once (ledger unique per order) with reviewer/time; needs_info/reject with player-visible note; refund takes back only unspent purchased coins, the rest is a debt offset against future purchased coins; earned coins untouched. Purchased coins tracked apart (purchased_balance, spent first). Audit events per order. Deletion detaches order records. Privacy page + in-app summary updated.
+Files:      supabase/migrations/20260924000500_coin_orders.sql (renumbered from 0400: a parallel session's revote_candidates holds 0400); supabase/functions/{coin_orders/index.ts,_shared/coin_payments.ts,_shared/api.ts}; supabase/tests/{coin_orders.sql,coin_payments.test.mjs,terms_acceptance.sql}; tool/test_sql_without_docker.mjs (auth.users email/confirmation/anonymous columns); lib/transport/account_service.dart; lib/platform/{payment_capabilities.dart,links/*}; lib/ui/economy/{account_protection,coin_packs}.dart; lib/ui/screens/admin/coin_review_screen.dart; lib/ui/screens/setup/coin_store.dart; lib/app/router.dart; web/privacy/index.html; l10n; test/widget/coin_purchase_test.dart.
+Verified:   coin_purchase_test 12/12 (Play: no tab/no calls/no URLs in sources; capability off outside web; sales off honest text; unprotected account blocked; order→open exact link→claim with zero balance change; reload resumes; pop-up blocked reported; paid text; email link with bad email/bad code; non-admin refused; wrong amount refused; approval payload). node coin_payments PASS. pglite: all 76 migrations + 30/30 SQL files PASS, incl. coin_orders (unauthorized approval, cross-user claim, duplicate claim/approval, one transfer for two orders, price from server, wrong amount, return without payment, expiry + late claim, refund after spending → debt → offset).
+Gate:       PASS locally (single-connection simulation). Live payment NOT VERIFIED: no transfer made; InstaPay/Vodafone Cash link behaviour on phones NOT VERIFIED; email OTP delivery needs Supabase SMTP/templates (NOT VERIFIED).
+Open:       Manual review is an operational workload and the scaling limit (every order needs a person with bank access). Owner decides EGP prices and enables packs; COIN_SALES_ENABLED stays unset until then. Payment-provider adapter left as the coin_orders boundary (no gateway built). iOS not built. Paid-wallet use inside the Play app remains a policy question for Codex (earned and purchased coins share one wallet).
+
+## PHASE 91 — done (verification, 1.1.0 artifacts, Codex handoff)
+Built:      Version 1.1.0+3. Signed RC APK, test-ads APK, Play AAB and web zip (web built with -CoinSales) from the same final source in build/deliverables-1.1.0 with SHA256SUMS and README-AR. tool/build_web.ps1 gained -CoinSales (web-only define). Coin tab's server error now says «not available» with retry. Handoff §9 appended: exact migration/function order, config names only, manual-review operations, Play policy points, rollback, hashes, tests; top of file points to it. Privacy page updated. Store captures 13-store-1.1.0.png and 14-pack-preview-1.1.0.png from the real app.
+Files:      pubspec.yaml; tool/build_web.ps1; lib/ui/economy/coin_packs.dart; test/widget/coin_purchase_test.dart; store/screenshots/{13-store,14-pack-preview}-1.1.0.png; build/deliverables-1.1.0/*; docs/{PROGRESS,CODEX-PUBLISH-HANDOFF}.md.
+Verified:   flutter test 1118 pass / 1 skip / 0 fail; analyze 0 errors/warnings (83 infos); PGlite 76 migrations + 30/30 SQL; node contracts PASS; deno check of 6 changed functions PASS (run by session al-mafia-36). All artifacts signer 082c07…9e11; 16KB PASS; R8 regression PASS ×3; no payment URL in libapp.so or main.dart.js. Emulator Pixel_9_Pro_2: upgrade 1.0.1→1.1.0 no crash, compact terms prompt, terms sheet + back, accept → Home; language ar→en in Settings kept the same PID and resumed activity with the pending-name note, alias switched on exit, relaunch via LauncherEnglish works; store loads hosted catalog; pack preview works; no coin-purchase tab on Android. Local web 375×812: terms prompt, Home, coin tab present.
+Gate:       PASS locally. NOT publish-ready: owner's Samsung, real transfers, OTP email delivery and the human full match are NOT VERIFIED; coin sales stay disabled.
+Open:       Hosted state was changed by another session at the owner's request (migrations up to 20260924000400_revote_candidates and all functions ~10:36, including coin_orders without its migration); changed functions need a redeploy and 20260924000500_coin_orders stays unapplied until the owner decides. Catalog 11/18. No commit/push/publish by this session.
+
+## PHASE 89f — done (online verification against the hosted server; realtime host/rules bug fixed)
+Built:      Finished Codex's DB pass (fixture codes PRIVAA/COSMAA contained I/O → fixed). Deno type-check clean for every function (RoomConfiguration type, Uint8Array<ArrayBuffer>, start_match settings). Owner-approved hosted rollout: 6 migrations (public_room_listing, play_purchase_integrity, terms_acceptance, system_waiting_rooms, cosmetic_catalog, revote_candidates) applied after a rolled-back dry run with all SQL tests; all 38 functions deployed (coin_orders deployed but inert: its migration 20260924000500 NOT applied, sales off). New hosted harness revote_match.py (tie → revote narrowed to tied seats, untied/stale/direct writes refused, one elimination; system waiting room double-tap → one host). recovery_match.py mints sessions before the lobby; play_with_app.py updated (presence heartbeats, role actions, reveal ack, turn-ordered accusations, revote rounds, cached sessions). FIXED a real bug found live on the emulator: realtime room_state deltas carry blank rooms fields; OnlineTransport applied them on same-phase updates → host lost every host control (no «ابدأ التصويت» while a guest held the floor) and settings reset to defaults mid-phase (also affects revotes). Now RoomPush.stateDelta + RoomState.withRoomFieldsFrom merge with the last full read.
+Files:      supabase/tests/{public_room_listing,cosmetic_catalog}.sql; supabase/tests/{revote_match,recovery_match,play_with_app}.py; supabase/functions/{_shared/room_configuration.ts,_shared/play_auth.ts,admob_ssv/verify.ts,start_match/index.ts}; lib/transport/{online_backend,supabase_backend,online_transport}.dart; test/support/fake_backend.dart; test/online/online_action_retry_test.dart; docs/PROGRESS.md.
+Verified:   Local pglite SQL 28/28. Hosted dry run 28/28, then after applying hosted SQL 28/28 (coin_orders.sql skipped). Deno check all functions PASS; Node tests 6/6; golden 35/35. Hosted harnesses on the upgraded server: e2e 93/93, roster 48/48, recovery 40/40, kick_flow 61/61, kick_timing 45/45, concurrency 46/46, revote_match 37/38 (the 1 was the harness's own over-strict assertion; the server correctly refused the second resolve with PHASE_CLOSED; assertion fixed, not re-run). Real app (release 1.1.0+3, emulator, mic denied) vs hosted: lobby, presence, start, card reveal (correct role, no leak), night actions, "nobody died" morning without naming who was saved, turn-ordered opening, single-floor discussion, vote, host eliminated → witness mode, night 2, day 2. Worktree flutter test before the fix 1104/1/0; after the fix the retry suite is 13/13, and the 2 new tests fail without the fix; the full run was killed by the OS at 980 pass / 0 fail (low memory). Analyze 0 errors/warnings.
+Gate:       PASS for server and harnesses; the client fix is unit-verified only. It still needs a full-suite rerun and an emulator rerun with a build that contains it.
+Open:       The published web/APK and deliverables-1.1.0 contain the realtime bug; rebuild before release. The live app match was cut at day 2 (harness process reaped for memory). Human voice, two real phones and bad networks still NOT VERIFIED. coin_orders function is on hosted but inert. No commit/push/publish.
+
+## PHASE 91b — done (rebuild after host-controls realtime fix)
+Built:      Rebuilt all four 1.1.0 artifacts after session al-mafia-36's fix (room_state realtime pushes now merged with the last full read instead of blanking host/code/settings). Reviewed the fix. New hashes in handoff §9.6/§9.9; earlier 1.1.0 files superseded.
+Files:      build/deliverables-1.1.0/*; docs/{PROGRESS,CODEX-PUBLISH-HANDOFF}.md (fix itself: lib/transport/{online_backend,supabase_backend,online_transport}.dart, tests — by al-mafia-36).
+Verified:   flutter test 1120 pass / 1 skip / 0 fail; analyze 0 errors/warnings (83 infos); PGlite 30/30 SQL; signer 082c07…9e11 on all; 16KB PASS; R8 PASS ×3; no payment URLs.
+Gate:       PASS locally; release still gated on owner device, OTP email, real transfers and a human match.
+Open:       Same as PHASE 91.
+
+
+## PHASE 92 — done (realtime review; late open-ballot replies guarded)
+Built:      Reviewed Claude's host/rules realtime merge; isolated open-vote polling by phaseNumber/revote round and request generation, clearing obsolete ballots on epoch changes.
+Files:      lib/transport/online_transport.dart; test/support/fake_backend.dart; test/transport/open_ballot_epoch_test.dart.
+Verified:   Core client suites78/78; hosted revote_match38/38; both new delayed-ballot regression tests passed in the focused22/22 run. No Docker or server deployment.
+Gate:       PASS for these regression checks, not a claim that every online/device scenario is verified.
+Open:       Complete human match, real two-device voice and weak networks remain unverified; full final client suite interrupted per owner request (see93).
+
+## PHASE 93 — blocked (arrival/public visual campaign; owner requested immediate stop)
+Built:      Four-step bilingual onboarding, persistent next/back/progress and legal gate, reduced-motion-aware transition; three original lightweight illustrations; calm shared public surfaces and online-first scrollable mode selector; version1.1.1+4 in source. No new binaries or publication.
+Files:      lib/ui/screens/onboarding/first_run_screen.dart; lib/ui/widgets/experience_surface.dart; lib/ui/theme/design_tokens.dart; lib/ui/screens/setup/{home,mode,add_players,group_picker,how_to_play,profile,roles,settings}_screen.dart; lib/ui/screens/online/{online_entry_screen,lobby_screen}.dart; lib/app/l10n/*; pubspec.yaml; assets/images/experience_v2/*; raw_assets/experience-v2/*; test/widget/{first_run,profile_flow,mode_screen}_test.dart; docs/{EXPERIENCE-92-93,CLAUDE-CONTINUE-92-93}.md.
+Verified:   Focused22/22 pass incl AR/EN portrait/landscape/back/acceptance. Full suite interrupted at951 passed/1skip/0failed so far. Old analyze found PaperPanel import and unused Home import, since fixed but analyze not rerun. Early widget captures had missing capture fonts; capture loader corrected but fresh captures not yet generated.
+Gate:       FAIL (incomplete verification, explicitly stopped at owner's request).
+Open:       Follow docs/CLAUDE-CONTINUE-92-93.md: rerun analyze/captures/full suite, review actual device, build signed new candidates and document hashes. Existing1.1.0 deliverables do NOT contain this campaign. No production publish/account changes. Human final-match gate remains with owner.
+
+## PHASE 93b — done (Codex source review; frozen for independent Claude verification)
+Built:      Owner resumed shared work. Finished capture font setup and visually reviewed four onboarding pages; fixed open-ballot polling starvation on slow networks by rejecting only replies older than the latest applied reply, while retaining epoch invalidation. Defined non-overlapping Claude/Codex responsibilities; source now frozen for Claude review/build.
+Files:      lib/transport/online_transport.dart; test/transport/open_ballot_epoch_test.dart; test/widget/first_run_test.dart; docs/{PARALLEL-93,CLAUDE-CONTINUE-92-93}.md; build/experience-review/*.
+Verified:   capture/focused UI suite22/22; ballot epoch/slow-network regressions3/3; analyze0errors/0warnings/83infos. Four actual widget renders inspected at reduced size. Earlier temporary timer-cleanup issue in the new test fixed using tester.runAsync.
+Gate:       PASS for Codex's focused implementation/review; full release gate remains OPEN.
+Open:       Claude independent review, full suite, new signed1.1.1+4 builds, actual emulator/browser smoke tests. Requested Claude page reached in Brave (Opus5.5 Medium), but remote control offline and device reauthentication required; task NOT transmitted and no Claude review received. Owner needs to reconnect/sign in or paste the task. No publication or account changes. See PARALLEL-93 for authoritative current state.
+
+## PHASE 93c — blocked (full takeover by Claude at owner's request)
+Built:      Latest core tests81/81. Local CLI review second attempt completed (metadata claude-opus-5-5, requested medium); saved unaltered review and authoritative full-takeover instructions. Owner cancelled further Codex-operated Claude use; Codex stopped implementation and handed all remaining work over. Images already complete.
+Files:      docs/{CLAUDE-REVIEW-93,CLAUDE-FINAL-TAKEOVER,PARALLEL-93,CLAUDE-CONTINUE-92-93}.md; docs/CLAUDE-{REVIEW,VERIFY}-93-PROMPT.txt.
+Verified:   build/phase93-core.log81/81; independent review was READ-ONLY with no tests/builds. No new release artifacts or deployment.
+Gate:       FAIL for final release completion: review surfaced two pending correctness findings, full suite/build/device gates remain.
+Open:       Claude must reproduce/fix partial-row clock-skew reset and resync-overwrites-newer-delta race; add pushStateDelta revote regression; finish complete suite, release candidates and actual device checks. Findings not independently reproduced/fixed by Codex. See CLAUDE-FINAL-TAKEOVER.md, which supersedes split ownership. Human final match remains with owner.
+
+## PHASE 94 — done (review findings fixed; 1.1.1+4 candidates built and played on device)
+Built:      Fixed CLAUDE-REVIEW-93 findings: clock skew is corrected only from full server reads (a realtime row's serverNow is the device clock); a same-phase row landing during an in-flight full read drops that stale read and rereads (capped at 2 consecutive drops so a busy room converges, never publishing the older speaker). Fake backend now stamps deltas with the device clock and can hold fetchRows. Signed 1.1.1+4 RC APK, test-ads APK, Play AAB, web zip (WEB_COIN_SALES compiled in, server sales still off) in build/deliverables-1.1.1 with SHA256SUMS and README-AR. 1.1.0 artifacts untouched.
+Files:      lib/transport/online_transport.dart; test/support/fake_backend.dart; test/transport/{online_transport_test,open_ballot_epoch_test}.dart; build/deliverables-1.1.1/*; docs/PROGRESS.md.
+Verified:   New regressions (skew survives a delta; slow read not overwriting a newer row; stream of overtaking rows converges in 4 reads; pushStateDelta revote keeps openVoting/host/code and drops round-1 ballots) — the three transport ones FAIL with the fix reverted, all PASS with it. Full suite 1131 passed / 1 skipped / 0 failed (build/phase94-full-tests.log). Analyze 0 errors / 0 warnings / 83 infos. Capture suite 24/24 with fonts; four onboarding widget renders inspected. R8 check PASS (rc, test-ads, aab); 16KB alignment 12/12 libs PASS on all three; signer SHA-256 082c07…9e11 on both APKs and AAB; versionCode 4 / 1.1.1, adstest package suffix on test-ads; web bundle has no service_role or JWT literal. Pixel_9_Pro_2: install -r over 1.1.0 kept profile/consent (no onboarding re-shown), stale room fell back to home, mode selector (online first) → back → home, online entry lists hosted public rooms. Full match on the RC vs hosted with 4 bots (build/phase94-bots.log, room QW9QRR): card reveal, night, "nobody died" morning without naming the save, opening round, single floor (other claims refused) with the host still holding «ابدأ التصويت» while Bassem spoke, host voted out → witness mode, night 2 kill, day 2 via deadline, vote, verdict, result «المافيا كسبت», roles carousel. Mic denied throughout (voice broken, match completed). Invite deep link https://almafia.vercel.app/join/H3DV58 opened entry with code filled, join → seat 1 in the bot's lobby; host close returned the guest home.
+Gate:       PASS for the review fixes and the candidate builds. NOT publish-ready.
+Open:       Build note: pub.dev unreachable; --no-pub skips release-mode plugin registrant regeneration, so the dev-only integration_test entry was removed from the generated (git-ignored) registrant before building — identical to what a release pub step generates. Not verified this phase: language switch ar→en on device, web candidate in a browser, human match, two real phones with audio, weak network. Owner requested next (see PHASE 95): online visual/motion campaign, dead-player voice, longer full-frame elimination card; dead seeing all roles conflicts with doc 12 §4.1 / doc 05 post-death channel — awaiting owner decision.
+
+## PHASE 95 — done (online redesign campaign, owner-directed; 1.1.2+5 candidates)
+Built:      Owner decisions 2026-09-23/24, each recorded where it overrides a spec: (1) the dead see every role and every night choice online (doc 12 §4.1 note; new read-only Edge Function witness_view, refused to the living with NOT_ALIVE; deployed to hosted with owner approval, no migration); (2) witness voice — living hear only living, dead hear everyone, a dead device sends only to dead peers (per-peer replaceTrack(null) in WebRtcVoiceEngine.setSendingPeers + receiver filter); this also closed a real leak where a dead player's open mic reached the living in free discussion; dead are not offered the floor; (3) no host «كمل»/«ابدأ التصويت» — the host device silently ends read-only beats early (deal once every card is seen +2s, morning +9s, verdict +9s), every client still falls back to the server deadline; (4) night shows the player's own card; night-one Citizen rests (auto skip); (5) the Mafia's night victim sees the reaper jumpscare (owner video, cropped to portrait, 305 KB, preloaded while the night resolves) before the morning beat; (6) no speaker name in band 3; witness band 3 shows event headlines; (7) result seats show character portraits, not glyphs; (8) «كل اللاعبين خرجوا» sheet when every other seat has left. Design: drawn dusk/dawn curtain replaces the grainy cover-fitted video stings (veil, delayed title, gold only at dawn), band 3 and hand-band transitions (hand swaps enter-only, so an outgoing button is never tappable), noir page transition app-wide, elimination beat fades out and waits for curtain/scare, gradual grey drain with a GlobalKey keeping the table's state, witness portraits fade in, witness panel moved to a full-height side sheet with compact face chips and a night feed, hold pad redesigned (fingerprint, single-line instruction; same for every role), elimination/roster/reveal cards drawn whole (margin cropped, no outline, swipe caught by the whole slot, 2.8 s face-up dwell), shared online cues (night falls, morning, speaker change, elimination) guarded so a refused cue can never cost a frame (it once painted a grey release-mode error frame), X over the table's exit removed.
+Files:      lib/transport/{online_transport,witness_channel}.dart; lib/platform/voice/{voice_controller,voice_engine,webrtc_voice_engine}.dart; lib/ui/screens/online/{online_table_flow,table/table_scene}.dart; lib/ui/screens/online/council/{card_rise,role_roster,council_band,phase_sting,voice_band}.dart; lib/ui/screens/online/witness/{witness_panel,witness_side_sheet,kill_jumpscare,elimination_beat}.dart; lib/ui/screens/match_route.dart; lib/ui/widgets/{hold_pad,role_card,card_art}.dart; lib/ui/theme/{design_tokens,mafia_theme}.dart; lib/app/{asset_constants.dart,l10n/*}; assets/video/kill_jumpscare.mp4; raw_assets/online-kill/; supabase/functions/witness_view/index.ts; supabase/tests/{witness_match,play_with_app}.py; tool/generate_asset_constants.py (keeps AppEconomyArt); tests: test/transport/{auto_advance,online_transport,open_ballot_epoch}_test.dart, test/voice/voice_controller_test.dart, test/widget/hold_pad_test.dart, test/online/{doc12_acceptance,doc15_acceptance,online_action_retry,online_verdict}_test.dart; docs/12-online-experience.md; pubspec.yaml (1.1.2+5).
+Verified:   Full suite 1140 passed / 1 skipped / 0 failed (build/phase95-full-tests.log); analyze 0 errors / 0 warnings / 93 infos. New regressions: witness voice wall (fails with the filter removed), auto-advance (host early clock, guest fallback only, deal waits for every card). Hosted witness_match.py 16/16 (living mafia and citizen get the identical refusal; the dead get true roles + kill/save/check). Emulator Pixel_9_Pro_2, release builds vs hosted with bots, several full matches: no host taps needed through 3 days; night card; witness portraits/side sheet/headlines/night feed; curtain; card rise whole; result portraits; night-death jumpscare sequence (recordings reviewed frame by frame). Candidates in build/deliverables-1.1.2: signer 082c07…9e11, versionCode 5, 16KB 12/12 each, R8 PASS, no service_role/JWT in web; RC installed over 1.1.1 and launches clean.
+Gate:       PASS for the campaign's automated and emulator evidence. NOT publish-ready.
+Open:       Human match on real phones (owner). Real two-device witness voice (dead↔dead audible, dead→living silent) needs two devices with microphones — only unit-tested plus code path. Build note: pub.dev unreachable; dev-only integration_test entry removed from the generated registrant before --no-pub release builds. Unused sting_*.webm assets remain in the bundle (~300 KB). Harness play_with_app now rejects cached sessions with <40 min left (expired tokens made bots look "left").
+
+## PHASE 96 — done (owner's small-items list; 1.1.3+6 candidates)
+Built:      «جاهزين للتصويت»: migration 20260924000600_ready_to_vote (security-definer mark_ready_to_vote under the room_state row lock, service_role only; readiness public in public_data.readyToVote keyed by phase_number; only living, unkicked seats count) + Edge Function ready_to_vote (records, and opens the ballot through commit_phase_open when every living seat is ready) + client (GameSnapshot.readyToVoteSeats, GameTransport.setReadyToVote — no-op offline, discussion button «جاهز للتصويت (n من m)» that toggles). Timer warning cue 10 s before a discussion/ballot closes (shared, guarded). Jumpscare drawn in the root overlay (covers the call bar), preloaded during every night for every possible victim, skipped under Reduce Motion. Unused sting webms moved to raw_assets/retired-stings. Own lint regressions fixed (analyze infos 93 → 90). Version 1.1.3+6.
+Files:      supabase/migrations/20260924000600_ready_to_vote.sql; supabase/functions/ready_to_vote/index.ts; supabase/tests/{ready_to_vote.sql,ready_match.py,play_with_app.py}; lib/transport/{game_snapshot,room_codec,game_transport,local_transport,online_transport}.dart; lib/ui/screens/match_controller.dart; lib/ui/screens/online/{online_table_flow,witness/kill_jumpscare,witness/witness_panel,council/card_rise}.dart; lib/ui/theme/design_tokens.dart; lib/app/{asset_constants.dart,l10n/*}; assets/video (stings removed); test/online/online_verdict_test.dart; pubspec.yaml.
+Verified:   Hosted: migration dry-run + SQL test in one rolled-back transaction, then applied (schema_migrations shows 000600; coin_orders 000500 still unapplied), SQL test re-run PASS against hosted; ready_to_vote deployed; ready_match.py 18/18 (outside discussion refused, dead refused NOT_ALIVE, two simultaneous taps both counted, take-back honoured, ballot opens only on the last living seat, late tap PHASE_CLOSED). PGlite 31/31. Flutter full suite 1143 passed / 1 skipped / 0 failed; analyze 0/0/90 infos. Emulator: «جاهز للتصويت (4 من 5)» with 4 bots ready, the phone's tap opened the ballot for the room; night-death run shows the reaper full screen over the call bar with ~1 frame of black. Web 1.1.3 in Chromium (Playwright, 390×844): onboarding renders, saved profile restored to the terms step, page fade completes, 0 console errors (canvas interaction not driven). Candidates build/deliverables-1.1.3: signer 082c07…9e11, versionCode 6, 16KB 12/12, R8 PASS, no service_role/JWT in web; RC installed over 1.1.2 and launches clean.
+Gate:       PASS. NOT publish-ready (human match and two-device voice remain with the owner).
+Open:       Owner: real-phone human match; two-device witness voice; weak network; a web online match in a real browser. Work is uncommitted in this worktree; main is behind it.
+
+## PHASE STORE-V2 — done (art and design handoff only)
+Built:      Council Vault identity; 18 product images across six categories of three (frames, nameplates, room atmospheres, narration styles, collections, coin packs), plus hero; RTL responsive horizontal-rail HTML preview.
+Files:      assets/images/store_v2/*; raw_assets/store-v2/*; docs/store-v2/{catalog.json,provenance.json,index.html,contact-sheet.png,CLAUDE-IMPLEMENT.md,previews/*}.
+Verified:   All 19 WebPs decode and paths resolve; six categories with three unique SKUs each; contact sheet inspected; three frames have transparent centers and real alpha, three plates real alpha; runtime assets total 1,763,522 bytes. Built-in imagegen used, PNG masters retained, ffmpeg encoding.
+Gate:       PASS for artwork delivery only.
+Open:       Claude integrates rails and equipped artwork; four proposed cosmetic SKUs need real implementation/server catalog before sale. HTML browser interaction and Flutter integration not tested. No app source/pubspec/server/payment/deployment changed. Narration covers represent text styles, not new voice recordings.
+
+## PHASE 97 — done (home loop on the first frame; one settings kit; colour work reverted)
+Built:      AmbientMedia now paints the still as the floor and fades the animated-WebP loop in over it, so a cold start never shows an empty backdrop (the reported «الفيديو مش بيبقا موجود لما بفتح اللعبة»); the home screen's AppBackdrop, dropped in the earlier redesign, is back. ExperienceSurface now wraps AppBackdrop, so the quiet public surfaces carry the same ground and weave as the painted ones instead of a flat gradient of their own. New settings_kit.dart (SettingsPanel / SettingsBadge / SettingsBadgeFrame / SettingsPill / SettingsSwitchRow / SettingsSegments / SettingsSegment / SettingsLinkRow / SettingsHeading) + SettingsTokens; the general settings screen and the online room settings panel both rebuilt on it, LanguagePicker and the six link buttons (coin store, scenario store, help, safety, ad privacy, legal) given the same row form. Five new strings. A lounge-brown ground for everything outside a match was built and then fully reverted at the owner's instruction — no colour change survives.
+Files:      lib/ui/widgets/{ambient_media,textured_surface,experience_surface,settings_kit,language_picker,legal_documents}.dart; lib/ui/screens/setup/{home_screen,settings_screen,coin_store,scenario_store,help_center}.dart; lib/ui/screens/online/{room_settings_panel,safety_center,rewarded_reward_button}.dart; lib/ui/theme/design_tokens.dart; lib/app/l10n/{app_ar.arb,app_en.arb,app_localizations*.dart}; test/widget/{ambient_media,settings_presets,language_picker}_test.dart; SESSION-CHANGELOG-2026-09-24.md. Reverted to their prior state: lib/core/theme/app_colors.dart, lib/ui/theme/mafia_theme.dart, lib/app/{app,router}.dart.
+Verified:   analyze 0 errors / 0 warnings / 90 infos (all pre-existing). 157 targeted tests passed in three batches — media+settings+language+token (22), online+first-run+profile+boot (65), stores+help+safety+accessibility+setup-flow+card_ground_matches_surface+role_accent_parity+night_color_token+luminance_budget (70); the last batch is the proof the palette is back on the neutral ladder. Emulator-5554, signed release APK installed over 1.1.3: cold start shows the home backdrop on the first painted frame of Home; general settings and the online room-settings create form both inspected by screenshot (panels, segments, the «في الأونلاين بس» pill, RTL chevrons, pinned footers).
+Gate:       PASS.
+Open:       Full suite not re-run since the settings rewrite (the background run was killed for low memory; not restarted per the standing rule). Colours deferred by the owner. Work uncommitted.
+
+## PHASE 98 — done (Council Vault art integration, reviewed implementation; local gates)
+Built:      Integrated all 19 store assets; five cosmetic categories of three client products and platform-gated illustrated coin-pack rail; compact wallet, responsive horizontal rails, fixed details action, same-sheet buy/equip, system-back close, real equipped frame/plate art and public room scenes. Four new bilingual cosmetic products plus additive local catalog migration; no live sale activation.
+Files:      See docs/PHASE98-DESIGN-REVIEW.md for the full source/test/art list and delegation review. Source stays in claude/crash-fixes-and-testing-b6c2f5; no commit/push.
+Verified:   Full Flutter 1157 passed / 1 existing skipped / 0 failed; final sizing/coin refinements 67 focused PASS; final analyze 0 errors/warnings, 89 infos; PGlite 32/32; two Node contract scripts PASS; real-font Flutter capture suite 9 PASS and final council render reviewed. No Docker. Claude hit its usage limit; Codex completed review/fixes/gates.
+Gate:       PASS for this local store/design phase; NOT a release-readiness claim.
+Open:       New catalog migration and compatible create_room/room_settings/start_match deployment remain pending; hosted catalog therefore may have fewer than three products in some categories. Latest APK/web not rebuilt; broader public-screen design campaign and owner real-phone/human-voice checks remain. Play/ads/payment setup separate; no deployment/account changes/spend.
+
+## PHASE 99 — done (public journey design: profile, onboarding identity, online door, lobby invite)
+Built:      Audited Home/mode/onboarding/profile/online door/lobby from real-font widget renders (AR/EN, 360/390/desktop) and fixed what they showed: Profile gained a back action (Home / the door), fills a saved profile that arrives after the first frame (it could show an empty name and overwrite it), says Save for an edit, uses the onboarding identity art; one shared ProfileIdentityFields (avatar, name, labelled ولد/بنت settings-kit track with why it is asked) replaces the unlabeled ♂/♀ glyphs on onboarding step 2 and Profile; onboarding preferences use the settings kit rows; online door shows one «هتلعب باسم …» identity chip instead of a stray bare name, equal 48 dp Create/Join pair, an empty-state panel with next steps, and the room chevron no longer points backwards in Arabic; lobby invite is a labelled «ادعي صحابك» button (same native share/session) with copy beside it, «٥»→«5». Home and mode reviewed and left as is. No palette, rules, timing, server or monetization change.
+Files:      lib/ui/widgets/profile_identity.dart (new); lib/ui/screens/setup/profile_screen.dart; lib/ui/screens/onboarding/first_run_screen.dart; lib/ui/screens/online/{online_entry_screen,lobby_screen}.dart; lib/app/router.dart; lib/app/l10n/*; test/widget/{journey_v99_test (new), journey_screenshots (new harness), profile_flow_test, online_entry_test}.dart; docs/PHASE99-DESIGN-REVIEW.md.
+Verified:   Focused journey suites 98 + profile_flow 4/4 after its scroll fix; new journey_v99_test 8/8; full suite once at --concurrency=2: 1166 passed / 1 skipped / 0 failed (build/phase99/full-tests.log); analyze 0 errors / 0 warnings / 89 infos (unchanged). Before/after widget renders in build/phase99/{before/,} reviewed at ≤420 px. No emulator/device attached — renders are widget captures, not device verification.
+Gate:       PASS for this local public-UI phase. NOT a release-readiness claim.
+Open:       Owner real-phone human match/two-device voice; phase-98 catalog migration + function deployment; no APK/AAB/web rebuilt. Deferred to Codex: a labelled lobby leave control; store access from the online door.
+
+## PHASE 99 (review delta) — done
+Built:      Capture harness uses the existing FakeVoiceEngine (lobby render no longer throws). Shared SettingsSegments: full-track 48 dp hit area per option (segmentHeight 44→48 token, inset on the thumb only). Late profile-load regressions; fixed a real race where saving before the first profile read finished was reverted in memory by the stale read (PlayerProfileController keeps the session's save).
+Files:      test/widget/{journey_screenshots,journey_v99_test}.dart; lib/ui/widgets/settings_kit.dart; lib/ui/theme/design_tokens.dart; lib/data/player_profile.dart; docs/{PHASE99-DESIGN-REVIEW,PROGRESS}.md.
+Verified:   journey_v99_test 12/12 (the save-race test failed before the fix: Expected 'Mona', Actual 'Karim'); journey captures 16/16 with no exceptions (build/phase99/capture-final.log), lobby/profile/onboarding checked at ≤420 px; full suite 1170 passed / 1 skipped / 0 failed (build/phase99/full-tests-delta.log); analyze 0 errors / 0 warnings / 89 infos (build/phase99/analyze-delta.log).
+Gate:       PASS for this local phase. NOT release-ready.
+Open:       Widget renders only (no emulator/device attached). Hosted catalog migration 20260924000700 + compatible functions not deployed; owner real-phone human match and two-device voice; no APK/AAB/web rebuilt. Lobby leave redesign and online-door store access are out of scope for this phase.
+
+## PHASE 100 — done (release 1.1.4 with live rewarded ads; web updated)
+Built:      AdMob wired for production on eyadsyam124@gmail.com: app ca-app-pub-9179063936085117~7320479940, Rewarded unit `rewarded_match_bonus` ca-app-pub-9179063936085117/8711609352 (1 coins, SSV → admob_ssv, verified by AdMob). admob_ssv now acknowledges a correctly signed callback that carries no claim (AdMob's verify ping) with 200 and grants nothing; deployed. Supabase secret ADMOB_REWARDED_ANDROID_ID set. dart_defines: ADS_ENABLED=true + real IDs. web/app-ads.txt (pub-9179063936085117). Version 1.1.4+7. Phase 99 working tree carried over from claude/crash-fixes-and-testing-b6c2f5 into this worktree (hook forbids cross-worktree writes).
+Files:      supabase/functions/admob_ssv/index.ts; web/app-ads.txt; pubspec.yaml; dart_defines.json (ignored); docs/PROGRESS.md.
+Verified:   Full suite 1172 passed / 1 skipped / 0 failed (pre-change baseline; the only code change since is the server function). Deployed economy function byte-identical to source; ad_reward_claims + commit_ad_reward live. APK: real App ID in manifest, versionCode 7 / 1.1.4, signer 082c07…9e11; installed on Pixel_9_Pro_2 over the previous build, launches to Home, no FATAL, "Initialized AdMob" in logcat. AAB 105.6 MB built with same key. Web: flutter build web, sw.js stamped, deployed via Vercel CLI → almafia.vercel.app; live main.dart.js md5 == local; app-ads.txt 200; Playwright 390×844 shows onboarding, 0 console errors.
+Gate:       PASS for build/config. Store publication is the owner's.
+Open:       EU/UK GDPR consent message drafted in AdMob but Publish stayed disabled — owner: Privacy & messaging → European regulations → publish. AdMob account still "requires review"; add the Play store listing to the AdMob app once live (lifts "limited ad serving"). Play Console: Ads = Yes, Advertising ID = Yes in Data safety; upload the AAB. A real rewarded view not tested (new unit takes up to 1 h; never tap own live ads — use a registered test device). Owner real-phone human match + two-device voice. Work uncommitted.
+
+## PHASE 101 — done (1.0.0 submitted to Google Play closed testing; GDPR message live; audience 16+)
+Built:      Owner chose 16+ and a clean 1.0.0: app gate/terms/help/privacy say 16 (terms version 2026-09-24 → re-consent), store listings corrected (optional post-match rewarded ad; coins cosmetic only), version 1.0.0+1. AdMob: EU/UK consent message "Mafia Master GDPR consent" published (Do-not-consent on). Play Console (eyadsyam124, dev 8516115344939721781, app 4973103045227664588) created: privacy URL, Ads=yes, App access=no login, audience 16–17+18+, Ad ID (advertising + fraud), Government/Financial/Health=none, IARC (ESRB Teen, ClassInd 10, GRAC 12, ACB PG), Data safety (approx. location, name, user IDs, other info, in-app messages, app interactions, other UGC, diagnostics, device IDs; collected not shared; encrypted; deletion URL), Arabic listing + icon + feature graphic + 6 screenshots, category Board, contact email/site. Closed testing "Alpha": 177 countries, list "Mafia Master testers" (owner only so far), release 1.0.0 (1) AAB uploaded by owner, 16 changes sent for review.
+Files:      lib/app/l10n/app_{ar,en}.arb (+ generated); lib/data/terms_consent.dart; web/privacy/index.html; store/{listing-ar,listing-en,GOOGLE-PLAY-SUBMISSION}.md; pubspec.yaml; docs/PROGRESS.md.
+Verified:   Full suite 1172 passed / 1 skipped / 0 failed after the 16+ change; APK 1.0.0 (1) real App ID, signer 082c07…; Play review page "ready to release", 43.9 MB install, API 26+/target 36; web 1.0.0 live, md5 match, app-ads.txt 200.
+Gate:       PASS — submitted; Google review pending.
+Open:       Need 12 testers opted in for 14 days before applying for production (add their Gmail addresses to the list and share the opt-in link). After production goes live: add the Play listing to the AdMob app to lift "limited ad serving". Screenshot order in listing is 01…06 as selected — confirm visually. Work still uncommitted in this worktree.
+
+## PHASE 102 — done (1.0.1 compliance + consent)
+Built:      Privacy web page AR/EN (AdMob data/purposes per Mobile Ads SDK disclosure, interstitial rules, daily rewards, Play Billing, optional email), in-app safetyPolicy + privacySummaryBody AR/EN, listings AR/EN and GOOGLE-PLAY-SUBMISSION.md rewritten to 1.0.1 truth (scenario product marked not sold; Console items listed for review, not claimed done); store-listing checker's stale "no ads" rule replaced. UMP runtime rewritten: only the consent-info network update is bounded (10 s), the form is never timed out, parallel callers share one attempt, canRequestAds governs loading, privacy-options form refreshes state and may start the SDK, SSV options awaited before show, notConsented outcome; interstitial loader never prompts.
+Files:      web/privacy/index.html; lib/app/l10n/app_{en,ar}.arb; store/{listing-ar,listing-en,GOOGLE-PLAY-SUBMISSION}.md; tool/check_store_listing.py; lib/platform/monetization/{rewarded_ads,rewarded_ads_mobile,rewarded_ads_stub,interstitial_ads}.dart; lib/ui/theme/design_tokens.dart; test fakes (placement param).
+Verified:   check_store_listing.py (lengths); Dart compile deferred to phase 104 analyze.
+Gate:       PASS (text/consent); device consent flow NOT run (no live EEA form on emulator).
+Open:       assetlinks: needs Console app-signing SHA-256 before any change (not assumed).
+
+## PHASE 103 — done (1.0.1 server economy + billing)
+Built:      Migration 20260925000100_update101_economy.sql: economy_config (checked caps), ledger kinds + source_key idempotency, global AdMob transaction registry (v1/v2/daily), two-step claims (+50%/+50%, immutable, ordered, v1/v2 mutually exclusive, v1 resumable), daily coffer 20 / wheel 10-20-35-60-100 @ 40/30/20/8/2 via gen_random_uuid rejection sampling, persisted before reveal / +60 every 7th claimed day, daily ad 25 keyed to claim day, IN_MATCH/DAY_CHANGED/DAILY_PAUSED guards; play_products (inactive seeds), commit_play_product (allowlist, account tag, pending no grant, debt offset, once per token hash), mark_play_consumed, generalized refund claw-back; economy_capabilities; deletion/orphan purge extended. Edge: admob_ssv routes by prefix+unit allowlist, economy action table, play_purchase generalized (ack/consume after durable credit, retry-safe).
+Files:      supabase/migrations/20260925000100_update101_economy.sql; supabase/functions/{_shared/ad_rewards.ts,_shared/economy_actions.ts,_shared/play_verify.ts,_shared/api.ts,admob_ssv/index.ts,economy/index.ts,play_purchase/index.ts}; supabase/tests/{update101_economy.sql,update101_contracts.test.mjs}.
+Verified:   node tool/test_sql_without_docker.mjs → 79 migrations + update101_economy.sql PASS (single-connection PGlite); related SQL contracts PASS; node update101_contracts / admob_ssv_verify / coin_payments PASS.
+Gate:       PASS locally. Hosted concurrency NOT proven (locks/unique indexes only). Edge handlers not type-checked (no Deno on host).
+Open:       Nothing deployed. Requires 20260924000500 applied first on hosted.
+
+## PHASE 103b — done (security review repairs, 1.0.1 server)
+Built:      Reviewer findings reassessed and repaired. Play: per-purchase debt_offset stored and restored on refund (owner-corrected conservation: A bought/spent/refunded → debt 500; B fully offset → credited 0; refund B → debt 500, not 0 or 1000); durable play_void_tombstones for every voided token/order incl. never-seen ones; revoked is final (tombstone or earlier revocation beats a stale "active"); Google-reported cancellation reverses on verify; coins require the account tag; global lock order purchase(sorted) → wallet(sorted) → rows in commit and voided sync; entitlement voids settle once. Manual coin orders: same debt-erasure bug verified in 20260924000500 and fixed additively in 20260925000200_coin_order_debt_offset.sql (debt_offset column, backfill coins-credited, review/refund redefined). Daily actions require p_day (DAY_REQUIRED) at SQL and edge; missing economy_config row reads as off everywhere incl. capabilities. Reviewer's provisional ad-claim deadlock: not reproduced/argued; unchanged.
+Files:      supabase/migrations/{20260925000100_update101_economy.sql,20260925000200_coin_order_debt_offset.sql}; supabase/functions/_shared/{economy_actions.ts,api.ts}; supabase/tests/{update101_economy.sql,coin_order_debt_offset.sql,update101_contracts.test.mjs}.
+Verified:   node tool/test_sql_without_docker.mjs → 80 migrations, 35/35 SQL files PASS incl. reviewer-owned update101_security_regressions.sql (expects debt 500); node update101_contracts PASS.
+Gate:       PASS locally; hosted two-connection concurrency still unproven (PGlite single connection).
+Open:       None server-side beyond deployment and hosted concurrency proof.
+
+## PHASE 104/105 — done (1.0.1 client monetization + daily/store UX)
+Built:      economy capability negotiation (off on any failure/old server); post-match reward: legacy one-ad unchanged, v2 two steps with both amounts shown first, step 1 kept, s2:/placement routing, bounded 90 s backoff + manual recheck + foreground recovery, wallet invalidation; interstitial policy (grace, 10 min gap, 3 min after reward, ≤3/day, monotonic clock, exit kinds) + coordinator (preload-or-skip, after navigation, mic/audio silenced) hooked only to Home from a completed online result; Play Billing layer (multi-product, obfuscated account tag, autoConsume off, server verify) + Play offers tab (Quiet Pass, packs, Play-localized prices, email protection required); vault Rewards tab (coffer art, vector wheel proportional to odds landing at server slot, published odds, 7-day card, daily ad); history labels; currency renamed Council Coins / عملات المجلس; AR/EN strings.
+Files:      lib/ui/economy/{economy_capabilities,interstitial_coordinator,reward_poll,daily_rewards,play_offers,store_art}.dart; lib/platform/monetization/{interstitial_policy,play_billing,play_billing_stub,play_billing_mobile}.dart; lib/ui/screens/online/{rewarded_reward_button,online_table_flow}.dart; lib/ui/screens/setup/coin_store.dart; lib/ui/theme/design_tokens.dart; lib/app/l10n/*; pubspec.yaml (economy_v2 assets); test/{unit/update101_policy_test.dart,widget/update101_economy_test.dart,support/fake_backend.dart (responders),widget/coin_store_test.dart (sticky network-down)}.
+Verified:   flutter analyze: 0 errors/0 warnings (infos only); targeted tests: update101_policy 13/13, update101_economy 10/10, store/reward/boot/purchase suites pass.
+Gate:       PASS (targeted). Full suite + device screenshots in phase 106.
+Open:       Interstitial unit id absent from dart_defines → interstitial compiled off (safe gate).
+
+## PHASE 107 — done (server half; client half pending LANE1_DONE)
+Built:      Council Life server: daily/weekly contracts, Council Rank XP/levels, weekly leaderboard, invites, Starter Bundle — all flags off
+Files:      supabase/migrations/20260925000300_council_life.sql, supabase/functions/_shared/economy_actions.ts, supabase/tests/council_life.sql, supabase/tests/council_life.test.mjs, docs/PHASE-107-COUNCIL-LIFE.md
+Verified:   node tool/test_sql_without_docker.mjs (36/36 incl. council_life 11 gates); node supabase/tests/council_life.test.mjs + update101_contracts.test.mjs PASS
+Gate:       PASS (server half)
+Open:       client half (Council tab, toasts, celebration, bundle card); art (10 emblems, 6 icons, frame_council_seal); leaderboard privacy opt-out; hosted concurrency unproven
+
+## PHASE 104c — done (third independent review repairs)
+Built:      (1) Home from a completed online result awaits leave() (≤3 s, MafiaTiming.leaveBeforeAd) before exit; the interstitial is considered only if the room was actually left. (2) economy_config defaults OFF for ad steps, daily, daily ad, interstitial; activation/rollback runbook in build/update101/status.md. (3) Refund/debt rule beside coin packs and in the Quiet Pass card; outstanding purchase_debt exposed via capabilities and shown before Buy. (4) Privacy-options form no longer timed out; a consent change discards the cached interstitial; showIfReady re-checks canRequestAds. (6) Daily ad stops when the claim is already awarded. (7) Wheel resolves slot by value; stored outcome not shown before the spin starts. (8) Capabilities: network failure marked failed and retried on vault open / app resume (old server's BAD_REQUEST stays "none"); Play controller restarts after an empty product list; a pending payment no longer blocks other buys. (9) 0.66 and strokeWidth 2 moved to tokens. Steps answer with ≠2 steps falls back to the single ad. Full-suite findings fixed: missing revoke/grant on play_is_voided/reverse_play_coins/play_token_hash (security-definer functions were executable by anon); dart:io import replaced by defaultTargetPlatform (offline guarantee). F2/F3/F4/T1/T2 confirmed already repaired in 103b.
+Files:      lib/ui/economy/{interstitial_coordinator,economy_capabilities,daily_rewards,play_offers}.dart; lib/ui/screens/online/{online_table_flow,rewarded_reward_button}.dart; lib/ui/screens/setup/coin_store.dart; lib/app/app.dart; lib/platform/monetization/{rewarded_ads_mobile,play_billing_mobile}.dart; lib/ui/theme/design_tokens.dart; lib/app/l10n/*; supabase/migrations/20260925000100_update101_economy.sql; supabase/tests/update101_economy.sql; test/widget/update101_review_fixes_test.dart; test/online/online_witness_result_test.dart (pumps to the leave bound; assertion unchanged).
+Verified:   update101_review_fixes 10/10 (incl. assertion that the daily-ad tap landed), update101_economy, update101_policy pass.
+Gate:       PASS.
+Open:       Consent-change handling is plugin code: verified by reading only.
+
+## PHASE 106 — done (verification + review candidate 1.0.1+8)
+Built:      pubspec 1.0.1+8. Signed AAB/APK (upload key 082c07…a19e11, production AdMob app id, versionCode 8), separate test-ads APK (.adstest, sample units, cannot be credited by SSV), web release build (not published), symbols per build, SHA256SUMS + SOURCE-HASHES (403 inputs, dart_defines/key excluded) + README in build/release-1.0.1. Interstitial and v2 unit ids absent → interstitial compiled off; v2/daily ads use the primary unit.
+Files:      pubspec.yaml; build/release-1.0.1/*; build/update101/{status.md,*-build.log,full-suite.log}.
+Verified:   flutter analyze 0 errors / 0 warnings / 89 infos; flutter test --concurrency=2 "+1205 ~1: All tests passed!"; node tool/test_sql_without_docker.mjs 80 migrations, 36/36 SQL (incl. reviewer-owned security suite); node update101_contracts + admob_ssv_verify PASS; aapt2 badging versionCode 8 / 1.0.1; apksigner signer 082c07…a19e11.
+Gate:       PASS for local gates. Nothing deployed/uploaded/committed.
+Open:       External gates listed in build/update101/status.md (AdMob units, Play products + service account + licence test, Console declarations, hosted deploy order, two-connection concurrency proof, device screenshots, owner human match + voice).

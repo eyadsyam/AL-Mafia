@@ -221,22 +221,21 @@ class MafiaElevation extends ThemeExtension<MafiaElevation> {
   /// Built from the palette's shadow colour so elevation and colour cannot
   /// drift apart.
   static MafiaElevation from(Color shadow) => MafiaElevation(
-        level1: [_step(shadow, 2, 8, 0.20)],
-        level2: [_step(shadow, 4, 16, 0.28)],
-        level3: [_step(shadow, 12, 32, 0.40)],
-      );
+    level1: [_step(shadow, 2, 8, 0.20)],
+    level2: [_step(shadow, 4, 16, 0.28)],
+    level3: [_step(shadow, 12, 32, 0.40)],
+  );
 
   @override
   MafiaElevation copyWith({
     List<BoxShadow>? level1,
     List<BoxShadow>? level2,
     List<BoxShadow>? level3,
-  }) =>
-      MafiaElevation(
-        level1: level1 ?? this.level1,
-        level2: level2 ?? this.level2,
-        level3: level3 ?? this.level3,
-      );
+  }) => MafiaElevation(
+    level1: level1 ?? this.level1,
+    level2: level2 ?? this.level2,
+    level3: level3 ?? this.level3,
+  );
 
   @override
   MafiaElevation lerp(ThemeExtension<MafiaElevation>? other, double t) {
@@ -323,6 +322,9 @@ class MafiaSpacing extends ThemeExtension<MafiaSpacing> {
 
 /// Fixed geometry for the portrait online council in doc 15.
 abstract final class CouncilTokens {
+  static const double welcomeArtHeight = 124;
+  static const double welcomeArtMinViewport = 600;
+  static const double welcomeArtStartScale = 1.04;
   static const double headerHeight = 56;
   static const int councilFlex = 36;
   static const int voiceFlex = 34;
@@ -331,6 +333,9 @@ abstract final class CouncilTokens {
   static const double seatMedium = 64;
   static const double seatSmall = 56;
   static const double seatCompact = 48;
+  static const double wideCouncilBreakpoint = 768;
+  static const double wideCouncilSeatScale = 2;
+  static const double wideCouncilTargetGap = 24;
   static const double backRowScale = 0.88;
   static const double selectedScale = 1.08;
   static const double selectedOthersOpacity = 0.45;
@@ -353,7 +358,15 @@ abstract final class CouncilTokens {
   /// Task 7. How much of a seat's diameter the character art fills. The ring
   /// art paints its own margin, so the face sits inside it rather than against
   /// it — the same number `PlayerAvatar.artRatio` uses off-council.
-  static const double avatarSizeRatio = 0.72;
+  static const double avatarSizeRatio = 0.96;
+
+  /// Safe, voice-only visual feedback. The level comes from local media stats
+  /// and is never sent through the game or signalling layers.
+  static const double voicePulseThreshold = 0.025;
+  static const double voicePulseSpacingRatio = 0.045;
+  static const double voicePulseMaxRadiusRatio = 0.15;
+  static const double voicePulseWidth = 2.2;
+  static const double voicePulseAlpha = 0.72;
   static const double confrontedOthersOpacity = 0.25;
   static const double backdropOpacity = 0.12;
   static const double primaryHeight = 56;
@@ -380,6 +393,25 @@ abstract final class CouncilTokens {
   /// Deliberately not opaque: the seats stay readable underneath, because the
   /// sting is a change of light rather than a cut to another screen.
   static const double stingOpacity = 0.55;
+
+  /// The drawn phase curtain (dusk and dawn): how dark the edges get at the
+  /// height of a dusk, how bright the top edge glows at dawn, and the hairline
+  /// under the title.
+  /// Band 3 and the hand re-dressing between phases: how far new content
+  /// rises into place (fraction of its own height) and the scale it settles
+  /// from.
+  static const double bandSwapRise = 0.06;
+  static const double bandSwapScale = 0.97;
+
+  /// Your own card at night, above the night's question.
+  static const double nightOwnCardHeight = 132;
+
+  static const double curtainDarkness = 0.82;
+  static const double curtainVeil = 0.82;
+  static const double curtainWordsDelay = 0.14;
+  static const double curtainDawnGlow = 0.28;
+  static const double curtainRuleWidth = 96;
+  static const double curtainRuleHeight = 1.5;
 
   /// What a losing seat drops to at the result (doc 15 §S-O13 beat 3).
   static const double loserOpacity = 0.30;
@@ -431,11 +463,165 @@ abstract final class CouncilTokens {
   /// card art never renders below 200dp, and the reveal is 280).
   static const double cardRiseSize = 280;
 
+  /// Width over height of the card art (900×1350). The frame is part of the
+  /// art, so a card is always drawn whole at this ratio — never cropped square.
+  static const double cardArtAspect = 2 / 3;
+
+  /// A card face shown inside a seat ring (witness view): how much wider than
+  /// the ring the card is drawn, and how far down the card the face sits, as
+  /// a fraction of its height. Tuned on the four faces in `assets/images`.
+  static const double portraitZoom = 1.9;
+  static const double portraitFaceY = 0.34;
+
+  /// The open table in the witness panel: one card per seat, a thumbnail per
+  /// night choice, and how far a seat that is out fades.
+  static const double witnessChipFace = 28;
+  static const double witnessActionThumb = 22;
+  static const double witnessOutOpacity = 0.45;
+
   /// Diameter of the confrontation timer ring.
   static const double timerRingSize = 96;
 
   /// The victory emblem on the result screen.
   static const double victoryEmblemSize = 120;
+}
+
+/// Export geometry for the post-game social card. It never enters match UI.
+/// Reading sheets (terms, privacy, previews): how much of the screen they
+/// open to. Fractions of the viewport, not sizes.
+abstract final class SheetTokens {
+  static const documentInitialFraction = 0.85;
+  static const previewInitialFraction = 0.9;
+}
+
+/// «عملات المافيا» and the cosmetic catalog (docs/CLAUDE-UX-ECONOMY-NEXT.md
+/// §89). Every colour, ratio and duration a purchased item draws with.
+///
+/// Doc 05 rule 3: nothing here is ever drawn on a night or reveal surface.
+/// Frames fall back to the plain seat ring and packs leave the night ground
+/// untouched (see `cosmeticsVisibleIn`).
+abstract final class CosmeticTokens {
+  // The coin.
+  static const Color coinGold = Color(0xFFC9A45C);
+  static const Color coinShine = Color(0x55FFF4D6);
+  static const double coinInline = 20;
+  static const double coinHeader = 40;
+  static const double coinHero = 96;
+  static const Duration coinShineCycle = Duration(milliseconds: 2600);
+
+  // Frames: outer ring, inner hairline, ring width as a share of the seat.
+  static const Color frameGildedOuter = Color(0xFFC9A45C);
+  static const Color frameGildedInner = Color(0xFFF1DFA8);
+  static const Color frameCrimsonOuter = Color(0xFF7A1F24);
+  static const Color frameCrimsonInner = Color(0xFFC9A45C);
+  static const Color frameMoonlitOuter = Color(0xFF9AA6B8);
+  static const Color frameMoonlitInner = Color(0xFFE3E8F0);
+  static const double frameWidthRatio = 0.07;
+  static const double frameGapRatio = 0.035;
+
+  // Nameplates: fill, border, text.
+  static const Color plateNoirFill = Color(0xE6141414);
+  static const Color plateNoirBorder = Color(0xFFC9A45C);
+  static const Color plateNoirText = Color(0xFFF2EBDD);
+  static const Color plateGildedFill = Color(0xFFC9A45C);
+  static const Color plateGildedBorder = Color(0xFFF1DFA8);
+  static const Color plateGildedText = Color(0xFF1A1512);
+  static const Color plateEmberFill = Color(0xE61C1210);
+  static const Color plateEmberBorder = Color(0xFFD9793A);
+  static const Color plateEmberText = Color(0xFFF6D9C0);
+  static const double plateBorderWidth = 1;
+
+  // The drawn art (assets/images/store_v2). A frame's aperture is its empty
+  // centre as a share of the image width, measured from the alpha channel;
+  // the frame is scaled so the aperture sits just inside the seat's rim.
+  static const double frameGildedAperture = 0.651;
+  static const double frameCrimsonAperture = 0.612;
+  static const double frameMoonlitAperture = 0.607;
+  static const double frameApertureCover = 0.9;
+  static const double tableFrameExtent = 1.12;
+  static const double avatarApertureInset = 0.98;
+
+  // A plate's ornamented ends (share of width) and its flat field (share of
+  // height). Ends keep their aspect; only the field stretches with the name.
+  static const double plateNoirCap = 0.165;
+  static const double plateNoirField = 0.401;
+  static const double plateGildedCap = 0.124;
+  static const double plateGildedField = 0.536;
+  static const double plateEmberCap = 0.15;
+  static const double plateEmberField = 0.433;
+
+  /// The centre finial of a plate, kept at its own aspect.
+  static const double plateCentre = 0.16;
+
+  /// How much of a text line's box the glyphs fill (line height 1.6).
+  static const double plateGlyphShare = 0.72;
+
+  /// Name colours on the art's charcoal field (the vector fallback keeps its
+  /// own [plateNoirText]/[plateGildedText]/[plateEmberText]).
+  static const Color plateNoirArtText = Color(0xFFE9E4DA);
+  static const Color plateGildedArtText = Color(0xFFF1DFA8);
+  static const Color plateEmberArtText = Color(0xFFF6D9C0);
+  static const double platePadding = 4;
+  static const double plateRadius = 8;
+
+  // Presentation packs: a colour grade over the public backdrops and an
+  // overlay. Matrices are 4x5 ColorFilter rows.
+  static const List<double> gradeMidnightManor = <double>[
+    0.80, 0.05, 0.10, 0, -6, //
+    0.05, 0.78, 0.12, 0, -4, //
+    0.10, 0.10, 0.95, 0, 8, //
+    0, 0, 0, 1, 0,
+  ];
+  static const List<double> gradeOldTown = <double>[
+    0.95, 0.20, 0.05, 0, 10, //
+    0.10, 0.85, 0.05, 0, 4, //
+    0.05, 0.10, 0.60, 0, -8, //
+    0, 0, 0, 1, 0,
+  ];
+  static const List<double> gradeMoonlitArchive = <double>[
+    0.78, 0.08, 0.14, 0, -6, //
+    0.06, 0.82, 0.14, 0, -4, //
+    0.08, 0.12, 0.92, 0, 4, //
+    0, 0, 0, 1, 0,
+  ];
+  static const double packOverlayOpacity = 0.35;
+
+  /// The pack's own scene over the graded phase backdrop: the phase still
+  /// reads through it, and the whole backdrop is dimmed again by the table.
+  static const double packArtOpacity = 0.72;
+  static const Color archiveVeil = Color(0x5514181F);
+  static const Color transitionMoonlight = Color(0x66C9D3E3);
+  static const Color manorVeil = Color(0x66101A33);
+  static const Color oldTownVeil = Color(0x55332414);
+  static const Color transitionCandle = Color(0x88E0B266);
+  static const Color transitionSweep = Color(0x77F2E3C4);
+  static const Duration transitionDuration = Duration(milliseconds: 1400);
+  static const Duration captionHold = Duration(milliseconds: 3200);
+  static const double previewHeight = 180;
+  static const double previewAvatar = 88;
+  static const double previewFrameBox = 1.5;
+  static const double captionTop = 84;
+  static const double sweepBand = 0.25;
+  static const double sweepTravel = 1.4;
+  static const double sweepStart = 0.2;
+}
+
+abstract final class ShareCardTokens {
+  static const double width = 1080;
+  static const double height = 1350;
+  static const double edge = 84;
+  static const double titleSize = 74;
+  static const double resultSize = 112;
+  static const double bodySize = 46;
+  static const double ruleWidth = 4;
+
+  /// The shared image is a picture, not a themed screen: it has no
+  /// BuildContext, so its palette lives here beside its geometry.
+  static const Color groundTop = Color(0xFF171719);
+  static const Color groundBottom = Color(0xFF09090A);
+  static const Color gold = Color(0xFFC2AF81);
+  static const Color headline = Color(0xFFFFFFFF);
+  static const Color footer = Color(0xFFB7B7BA);
 }
 
 /// Border radius tokens.
@@ -478,6 +664,10 @@ class MafiaRadii extends ThemeExtension<MafiaRadii> {
 
 /// Motion duration and curve tokens.
 class MafiaMotion extends ThemeExtension<MafiaMotion> {
+  /// The scale a screen settles from as it fades in (see
+  /// `NoirPageTransitionsBuilder`).
+  static const double pageEnterScale = 0.985;
+
   final Duration instant;
   final Duration quick;
   final Duration standard;
@@ -725,12 +915,126 @@ class MafiaMotion extends ThemeExtension<MafiaMotion> {
 /// (Constitution VI, leakage invariants L-07/L-08/L-09). They are global and
 /// role-agnostic by construction: nothing in the widget layer may derive a
 /// duration from a [Role].
+/// Where the card sits inside every card file (`card_back`, `card_face_*`):
+/// the files are 2:3 with a black margin, the card itself is narrower.
+/// Measured on the assets — 37/896 each side, 106/1344 top and bottom.
+abstract final class CardArtTokens {
+  static const double marginX = 0.0413;
+  static const double marginY = 0.0789;
+  static const double cardAspect = 822 / 1132;
+}
+
+/// The witness side sheet: how much of the width it takes (capped), where its
+/// edge tab sits down the screen, and how far the table dims behind it.
+abstract final class WitnessSheetTokens {
+  static const double widthFraction = 0.86;
+  static const double maxWidth = 420;
+  static const double handleTop = 0.42;
+  static const double scrimAlpha = 0.55;
+}
+
+/// The press-and-hold pad (every handoff surface, offline and online).
+abstract final class HoldPadTokens {
+  /// The fingerprint mark, as a fraction of the pad's diameter.
+  static const double markRatio = 0.4;
+}
+
 class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// One full 60-frame victory sequence at 12 fps.
   static const victoryReveal = Duration(seconds: 5);
 
+  /// How long an eliminated player's card stays face-up before it settles
+  /// back into the council. A dramatic hold, so it survives Reduce Motion.
+  static const eliminationCardDwell = Duration(milliseconds: 2800);
+
+  /// The whole dusk/dawn curtain, in, held and out — and its Reduce Motion
+  /// cross-fade, which keeps the title and drops the travelling light.
+  /// How long the night victim's scare takes to go back to black.
+  static const jumpscareFadeOut = Duration(milliseconds: 450);
+
+  /// How long before a discussion or ballot closes its warning sounds.
+  static const timerWarningLead = Duration(seconds: 10);
+
+  static const phaseCurtain = Duration(milliseconds: 2400);
+  static const phaseCurtainReduced = Duration(milliseconds: 1000);
+
+  /// How often an eliminated player's open table is read again. Night choices
+  /// arrive on no stream the witness can see, so they are polled.
+  static const witnessRefresh = Duration(seconds: 4);
+
   /// How long «{name} بقى الهوست» stays on screen after a host migration.
   static const hostHandover = Duration(seconds: 3);
+
+  /// A browser may throttle timers briefly even while its page is visible.
+  /// Ten seconds leaves enough room for one delayed beat without inventing an
+  /// `away` player, while explicit lifecycle and room events still travel
+  /// immediately through Realtime.
+  static const onlineHeartbeat = Duration(seconds: 10);
+
+  /// How long a client that is *not* the host waits past a phase deadline
+  /// before driving the room forward itself.
+  ///
+  /// Zero for the host, which is the ordinary case and stays exactly as it was.
+  /// A guest holds back so the room is not advanced out from under a host who
+  /// was half a second behind, and holds back in seat order ([onlineDriveStep])
+  /// so that five phones do not all ask in the same instant.
+  static const onlineDriveGrace = Duration(seconds: 4);
+
+  /// How long the room lingers on a beat it only reads before moving on by
+  /// itself: the deal after the last card is seen, the morning report, and
+  /// the verdict (long enough for the card to rise, hold and settle).
+  static const autoRevealSettle = Duration(seconds: 2);
+  static const autoMorningRead = Duration(seconds: 9);
+  static const autoVerdictRead = Duration(seconds: 9);
+  static const onlineDriveStep = Duration(seconds: 2);
+
+  /// A remote audio element can exist before the browser has finished binding
+  /// its MediaStream. Retry briefly; autoplay refusal still waits for a real
+  /// user gesture through the web playout bridge.
+  static const webPlayoutRetry = Duration(milliseconds: 300);
+  static const privateViewRetry = Duration(milliseconds: 500);
+
+  /// How often local WebRTC audio levels are sampled for the speaking ring.
+  static const voiceStatsSample = Duration(milliseconds: 250);
+
+  /// The public-room list re-reads itself this often while it is on screen and
+  /// the app is in the foreground. A failed read doubles the wait, up to
+  /// [publicRoomsBackoffCap], so a server that is down is not asked every
+  /// fifteen seconds by every phone looking at the list.
+  static const publicRoomsRefresh = Duration(seconds: 15);
+  static const publicRoomsBackoffCap = Duration(seconds: 60);
+
+  /// Between checks for AdMob's signed reward callback after an ad. Doubles
+  /// after each check up to [adRewardPollCap], for at most [adRewardPollWindow]
+  /// in all; after that the player gets a manual «check again».
+  static const adRewardPoll = Duration(seconds: 2);
+  static const adRewardPollCap = Duration(seconds: 16);
+  static const adRewardPollWindow = Duration(seconds: 90);
+
+  /// Reopening a result with a claim still pending: a short look only.
+  static const adRewardRecoverWindow = Duration(seconds: 6);
+
+  /// Only the consent *status* request is bounded. A consent form on screen
+  /// is a person reading; it is never timed out.
+  static const adConsentInfoTimeout = Duration(seconds: 10);
+  static const adLoadTimeout = Duration(seconds: 15);
+  static const adShowTimeout = Duration(minutes: 3);
+
+  /// An interstitial that is not loaded within this is skipped, never awaited.
+  static const interstitialLoadTimeout = Duration(seconds: 12);
+
+  /// Home from a completed result waits at most this long for the room to be
+  /// left; past it the player goes home anyway and no automatic ad follows.
+  static const leaveBeforeAd = Duration(seconds: 3);
+
+  /// Product floors for the one automatic ad; the server may only widen them.
+  static const interstitialMinGap = Duration(minutes: 10);
+  static const interstitialAfterReward = Duration(minutes: 3);
+
+  /// The wheel's spin, landing exactly on the server's outcome.
+  static const wheelSpin = Duration(milliseconds: 2600);
+  static const rewardReveal = Duration(milliseconds: 420);
+
   /// How long the identity pad must be held before the turn content is shown.
   final Duration holdToReveal;
 
@@ -1024,4 +1328,165 @@ class MafiaTypography extends ThemeExtension<MafiaTypography> {
     // TextStyle lerp exists in Flutter, but it's complex. For now, return this.
     return this;
   }
+}
+
+/// Shared public arrival artwork; never used to encode a role or phase.
+abstract final class ExperienceTokens {
+  static const heroAspect = 1.5;
+  static const heroMaxHeight = 240.0;
+  static const compactHeroMaxHeight = 144.0;
+  static const compactHeroAspect = 2.5;
+  static const backgroundGlow = 0.07;
+}
+
+/// The settings kit (`lib/ui/widgets/settings_kit.dart`): the general
+/// settings and the online room settings share one look (owner, 2026-09-24).
+abstract final class SettingsTokens {
+  /// The round badge each panel's icon sits in.
+  static const iconBadge = 38.0;
+  static const iconSize = 20.0;
+
+  /// The smaller badge on a link row.
+  static const linkBadge = 32.0;
+  static const linkIconSize = 18.0;
+
+  /// A segmented control's track — also each option's full hit area, so it
+  /// is the 48 dp minimum touch target — and the inset its lit thumb keeps.
+  static const segmentHeight = 48.0;
+  static const segmentInset = 3.0;
+
+  /// How strongly the gold washes a badge and the «online only» pill.
+  static const badgeWash = 0.14;
+
+  /// Gold lamp-light along the top edge of a panel.
+  static const panelGlow = 0.05;
+}
+
+/// Daily rewards and Play offers in the vault; never used for roles.
+abstract final class DailyTokens {
+  /// Miniatures in dense cards: readable, never full-screen pictures.
+  static const cofferArt = 88.0;
+  static const passArt = 72.0;
+  static const packArt = 96.0;
+  static const wheelSize = 232.0;
+  static const wheelRim = 3.0;
+  static const wheelHub = 22.0;
+  static const pointer = 18.0;
+
+  /// Where a slice's label sits, as a fraction of the wheel radius.
+  static const labelRadius = 0.66;
+
+  /// A slice narrower than this carries no painted label (the odds list
+  /// beside the wheel names every prize).
+  static const minLabelSweepDegrees = 24.0;
+  static const wheelTurns = 4;
+  static const weekDot = 14.0;
+  static const sliceWash = 0.55;
+  static const sliceWashAlt = 0.28;
+  static const cardMaxWidth = 560.0;
+}
+
+/// Council Vault public surfaces; never used to distinguish secret roles.
+abstract final class StoreTokens {
+  /// Product art is 768 px square; cards and thumbnails never need more.
+  static const decodeWidth = 512;
+
+  /// Frames and plates drawn on the table and in previews.
+  static const frameDecodeWidth = 384;
+  static const plateDecodeWidth = 512;
+
+  /// A card leaves the next card's edge in view at 360 dp.
+  static const cardWidth = 168.0;
+  static const railHeight = 262.0;
+  static const coinRailHeight = 200.0;
+  static const heroTextWidth = 0.64;
+  static const hairlineOverlap = 0.5;
+  static const progressStroke = 2.0;
+  static const walletCoinScale = 1.5;
+  static const artHeight = 128.0;
+  static const detailArtHeight = 176.0;
+  static const thumbnail = 52.0;
+  static const heroHeight = 124.0;
+  static const touchTarget = 48.0;
+  static const heroShade = 0.86;
+
+  /// Wide screens keep the shop to a readable column.
+  static const maxContentWidth = 960.0;
+
+  /// The owned/equipped mark on a card.
+  static const badgeWash = 0.16;
+  static const selectedBorder = 1.5;
+
+  /// The small progress ring inside a busy reward button.
+  static const busyStroke = 2.0;
+}
+
+/// Council Life (phase 107): rank emblems, contract icons, the Council Seal
+/// frame and the hub's motion. Public identity only — nothing here is ever
+/// chosen by a role, and emblems are drawn only on public surfaces.
+abstract final class CouncilLifeTokens {
+  /// Metal per tier, light → mid → dark: bronze (1–3), gold (4–6),
+  /// obsidian with gold (7–9) and the Godfather's obsidian and bright gold.
+  static const List<List<Color>> tierMetal = [
+    [Color(0xFFD9A77A), Color(0xFF9C6A42), Color(0xFF5E3B22)],
+    [Color(0xFFE3B387), Color(0xFFA8733F), Color(0xFF643D1E)],
+    [Color(0xFFF0C495), Color(0xFFB9824A), Color(0xFF6E4420)],
+    [Color(0xFFF1DFA8), Color(0xFFC9A45C), Color(0xFF7A5C26)],
+    [Color(0xFFF6E7B4), Color(0xFFD4AE5E), Color(0xFF81612A)],
+    [Color(0xFFFFF0C2), Color(0xFFE0B85E), Color(0xFF8A6624)],
+    [Color(0xFF6B6570), Color(0xFF2C2830), Color(0xFF121014)],
+    [Color(0xFF706874), Color(0xFF2A2530), Color(0xFF0E0C10)],
+    [Color(0xFF766D7A), Color(0xFF28222E), Color(0xFF0B090D)],
+    [Color(0xFF7C7280), Color(0xFF231E28), Color(0xFF08070A)],
+  ];
+
+  /// The trim on obsidian tiers, and the gem the upper tiers carry.
+  static const Color obsidianTrim = Color(0xFFE0B85E);
+  static const Color godfatherTrim = Color(0xFFFFE08A);
+  static const Color gem = Color(0xFF9E1B2A);
+  static const Color gemLight = Color(0xFFE0525E);
+  static const Color field = Color(0xFF17130F);
+  static const Color highlight = Color(0x66FFF4D6);
+
+  /// Emblem sizes: seat badge, list row, card, celebration.
+  static const double emblemSeat = 22.0;
+  static const double emblemRow = 28.0;
+  static const double emblemCard = 64.0;
+  static const double emblemHero = 112.0;
+
+  /// Where the seat badge sits, as a share of the seat diameter.
+  static const double seatBadgeOffset = 0.36;
+
+  /// Contract icon badge.
+  static const double contractIcon = 40.0;
+  static const double iconStroke = 0.075;
+
+  /// XP and contract bars.
+  static const double barHeight = 8.0;
+  static const double barRadius = 4.0;
+
+  /// Coin burst on a claim, and the newly-earned shimmer.
+  static const Duration burst = Duration(milliseconds: 900);
+  static const int burstCoins = 10;
+  static const double burstReach = 56.0;
+  static const double burstCoin = 14.0;
+  static const Duration shimmer = Duration(milliseconds: 1800);
+  static const Duration toastStagger = Duration(milliseconds: 160);
+
+  /// The Council Seal frame (vector): wax-red ring, gold hairline, studs.
+  static const Color sealOuter = Color(0xFF8E1F24);
+  static const Color sealInner = Color(0xFFE0B85E);
+  static const Color sealStud = Color(0xFFF1DFA8);
+  static const int sealStuds = 8;
+  static const double sealStudRatio = 0.045;
+
+  /// Starter Bundle cover.
+  static const double bundleArt = 96.0;
+
+  /// The attention dot on the vault button.
+  static const double attentionDot = 9.0;
+
+  /// The code in the invite card.
+  static const double inviteCodeScale = 1.6;
+  static const double leaderboardAvatar = 36.0;
 }

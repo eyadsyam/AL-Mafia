@@ -10,6 +10,10 @@ import '../../../../platform/reduce_motion.dart';
 import '../../../../transport/game_snapshot.dart' show SeatPresence;
 import '../../../theme/design_tokens.dart';
 import '../../../theme/mafia_theme.dart';
+import '../../../economy/cosmetic_paint.dart';
+import '../../../economy/cosmetic_art_cache.dart';
+import '../../../economy/cosmetics.dart';
+import '../../../economy/council_art.dart' show paintSeatRank;
 import '../table/table_pulse.dart';
 import 'seat_status.dart';
 import 'council_geometry.dart';
@@ -74,6 +78,32 @@ class CouncilSeatData {
   /// standings the server has already published (doc 15 §S-O13 beat 2).
   final String? roleGlyph;
 
+  /// The asset path of this seat's *character card*, for an eliminated viewer
+  /// only, or null.
+  ///
+  /// A path for the same reason as [roleGlyph]. Non-null only when the server's
+  /// `witness_view` has answered, which it does for the dead alone (owner
+  /// decision 2026-09-23, doc 12 §4.1). Drawn as the card's face inside the
+  /// ring, in place of the avatar or the initial.
+  final String? rolePortrait;
+
+  /// Local audio telemetry used only for the speaking pulse. It is not game
+  /// state and is never sent to another player.
+  final double speakingLevel;
+
+  /// The frame and nameplate this player chose in the store, or null.
+  ///
+  /// Codes, not styles: the painter looks them up. The caller passes null for
+  /// every seat outside the public phases (doc 05 rule 3: no purchased colour
+  /// on a night surface), so at night every ring is the plain ring again.
+  final String? frame;
+  final String? plate;
+
+  /// The Council level this player sat down with, or null (phase 107).
+  /// Public identity earned from finished matches; the caller passes null
+  /// outside the public phases, like the frame.
+  final int? rank;
+
   const CouncilSeatData({
     required this.seat,
     required this.name,
@@ -85,6 +115,11 @@ class CouncilSeatData {
     this.isViewer = false,
     this.winner,
     this.roleGlyph,
+    this.rolePortrait,
+    this.speakingLevel = 0,
+    this.frame,
+    this.plate,
+    this.rank,
   });
 
   @override
@@ -99,22 +134,31 @@ class CouncilSeatData {
       other.avatar == avatar &&
       other.isEmpty == isEmpty &&
       other.isViewer == isViewer &&
-      other.roleGlyph == roleGlyph;
+      other.roleGlyph == roleGlyph &&
+      other.rolePortrait == rolePortrait &&
+      other.speakingLevel == speakingLevel &&
+      other.frame == frame &&
+      other.plate == plate &&
+      other.rank == rank;
 
   @override
-  int get hashCode =>
-      Object.hash(
-        seat,
-        name,
-        status,
-        presence,
-        muted,
-        avatar,
-        isEmpty,
-        isViewer,
-        winner,
-        roleGlyph,
-      );
+  int get hashCode => Object.hash(
+    seat,
+    name,
+    status,
+    presence,
+    muted,
+    avatar,
+    isEmpty,
+    isViewer,
+    winner,
+    roleGlyph,
+    rolePortrait,
+    speakingLevel,
+    frame,
+    plate,
+    rank,
+  );
 }
 
 /// A light crossing the council, seat to seat (doc 15 §S-O9).
@@ -258,6 +302,7 @@ class _CouncilBandState extends State<CouncilBand>
     _shift.duration = ReduceMotion.of(context)
         ? Duration.zero
         : context.motion.quick;
+
     if (_idle == null) unawaited(_loadArt());
     _syncGlyphs();
   }
@@ -276,6 +321,9 @@ class _CouncilBandState extends State<CouncilBand>
       // fifteen — the same argument that put the role marks here.
       for (final seat in widget.seats)
         if (seat.avatar != null) seat.avatar!,
+      // Four card faces at most, whatever the table size.
+      for (final seat in widget.seats)
+        if (seat.rolePortrait != null) seat.rolePortrait!,
     };
     if (setEquals(wanted, _glyphsWanted)) return;
     _glyphsWanted = wanted;
@@ -318,6 +366,11 @@ class _CouncilBandState extends State<CouncilBand>
   }
 
   Future<void> _loadArt() async {
+    // Frame and plate art decodes alongside the ring art (not ahead of it),
+    // and the one setState below paints both.
+    final cosmetics = CosmeticArtCache.load(
+      DefaultAssetBundle.of(context).load,
+    );
     final images = await Future.wait([
       _load(AppCouncilArt.seatRingIdle),
       _load(AppCouncilArt.seatRingCracked),
@@ -325,6 +378,7 @@ class _CouncilBandState extends State<CouncilBand>
       _load(AppCouncilArt.lightMote),
       _load(AppCouncilArt.spotlight),
     ]);
+    await cosmetics;
     if (!mounted) return;
     setState(() {
       _idle = images[0];
@@ -353,41 +407,57 @@ class _CouncilBandState extends State<CouncilBand>
           fit: StackFit.expand,
           children: [
             RepaintBoundary(
-              child: AnimatedBuilder(
-                animation: Listenable.merge([breath, _shift]),
-                builder: (context, _) => CustomPaint(
-                  size: Size.infinite,
-                  painter: CouncilPainter(
-                    seats: widget.seats,
-                    positions: positions,
-                    selectedSeat: widget.selectedSeat,
-                    previousSelected: _previousSelected,
-                    shift: _shift.isAnimating || _shift.isCompleted
-                        ? _shift.value
-                        : 1.0,
-                    crackingSeat: widget.crackingSeat,
-                    crackProgress: widget.crackProgress,
-                    spark: widget.spark,
-                    spotlightOpen: widget.spotlight,
-                    revealProgress: widget.revealProgress,
-                    glyphs: _glyphs,
-                    joinProgress: widget.joinProgress,
-                    youLabel: widget.youLabel,
-                    leftLabel: widget.leftLabel,
-                    idle: _idle,
-                    cracked: _cracked,
-                    empty: _empty,
-                    mote: _mote,
-                    spotlightArt: _spotlight,
-                    textDirection: direction,
-                    ringColor: colors.borderSubtle,
-                    viewerColor: colors.textPrimary,
-                    textColor: colors.textPrimary,
-                    secondaryColor: colors.textSecondary,
-                    gold: colors.accentGold,
-                    breath: breath.value,
-                    caption: type.caption,
-                    initial: type.title,
+              child: TweenAnimationBuilder<double>(
+                // The witness's portraits fade in together the first time they
+                // arrive — outside the band's one controller (doc 15 §3).
+                tween: Tween<double>(
+                  end:
+                      widget.seats.any(
+                        (seat) => _glyphs[seat.rolePortrait] != null,
+                      )
+                      ? 1
+                      : 0,
+                ),
+                duration: ReduceMotion.of(context)
+                    ? Duration.zero
+                    : context.motion.phase,
+                builder: (context, portraitIn, _) => AnimatedBuilder(
+                  animation: Listenable.merge([breath, _shift]),
+                  builder: (context, _) => CustomPaint(
+                    size: Size.infinite,
+                    painter: CouncilPainter(
+                      seats: widget.seats,
+                      positions: positions,
+                      selectedSeat: widget.selectedSeat,
+                      previousSelected: _previousSelected,
+                      shift: _shift.isAnimating || _shift.isCompleted
+                          ? _shift.value
+                          : 1.0,
+                      crackingSeat: widget.crackingSeat,
+                      crackProgress: widget.crackProgress,
+                      spark: widget.spark,
+                      spotlightOpen: widget.spotlight,
+                      revealProgress: widget.revealProgress,
+                      portraitIn: portraitIn,
+                      glyphs: _glyphs,
+                      joinProgress: widget.joinProgress,
+                      youLabel: widget.youLabel,
+                      leftLabel: widget.leftLabel,
+                      idle: _idle,
+                      cracked: _cracked,
+                      empty: _empty,
+                      mote: _mote,
+                      spotlightArt: _spotlight,
+                      textDirection: direction,
+                      ringColor: colors.borderSubtle,
+                      viewerColor: colors.textPrimary,
+                      textColor: colors.textPrimary,
+                      secondaryColor: colors.textSecondary,
+                      gold: colors.accentGold,
+                      breath: breath.value,
+                      caption: type.caption,
+                      initial: type.title,
+                    ),
                   ),
                 ),
               ),
@@ -450,6 +520,9 @@ class CouncilPainter extends CustomPainter {
   /// 0 to 1, shared by every seat. See [CouncilBand.revealProgress].
   final double revealProgress;
 
+  /// How far the witness portraits have faded in, 0 to 1.
+  final double portraitIn;
+
   /// The decoded role marks, by the path [CouncilSeatData.roleGlyph] carries.
   final Map<String, ui.Image> glyphs;
 
@@ -484,6 +557,7 @@ class CouncilPainter extends CustomPainter {
     required this.spark,
     required this.spotlightOpen,
     this.revealProgress = 0,
+    this.portraitIn = 1,
     this.glyphs = const {},
     required this.joinProgress,
     required this.youLabel,
@@ -619,13 +693,12 @@ class CouncilPainter extends CustomPainter {
     // is a ring that vanishes for a frame, and fifteen of them vanishing
     // together reads as a dropped frame rather than as a turn.
     if (revealProgress > 0) {
-      canvas.scale(
-        math.max(math.cos(revealProgress * math.pi).abs(), 0.04),
-        1,
-      );
+      canvas.scale(math.max(math.cos(revealProgress * math.pi).abs(), 0.04), 1);
     }
     if (dead) {
-      canvas.rotate(CouncilTokens.deadTiltRadians * math.min(1, tearing == 0 ? 1 : tearing));
+      canvas.rotate(
+        CouncilTokens.deadTiltRadians * math.min(1, tearing == 0 ? 1 : tearing),
+      );
     }
 
     final rect = Rect.fromCenter(
@@ -653,6 +726,10 @@ class CouncilPainter extends CustomPainter {
         : seat.isViewer
         ? viewerColor
         : ringColor;
+
+    if (!seat.isEmpty && seat.presence == SeatPresence.connected) {
+      _paintVoicePulse(canvas, layout.diameter, seat.speakingLevel, opacity);
+    }
 
     if ((chosen || speaking) && emphasis > 0) {
       canvas.drawCircle(
@@ -693,7 +770,12 @@ class CouncilPainter extends CustomPainter {
       if (sweep < 1) {
         // Doc 15 §S-O3: the dashed ring *draws itself solid*.
         canvas.clipPath(
-          Path()..addArc(rect.inflate(rect.width), -math.pi / 2, sweep * 2 * math.pi)
+          Path()
+            ..addArc(
+              rect.inflate(rect.width),
+              -math.pi / 2,
+              sweep * 2 * math.pi,
+            )
             ..lineTo(0, 0)
             ..close(),
         );
@@ -717,6 +799,17 @@ class CouncilPainter extends CustomPainter {
       ring(idle, opacity * joining, sweep: joining);
     } else {
       ring(ringArt, opacity, sweep: joining);
+      final frame = Cosmetics.frames[seat.frame];
+      if (frame != null) {
+        paintCosmeticFrame(
+          canvas,
+          Offset.zero,
+          layout.diameter,
+          frame,
+          maxSide: layout.diameter * CosmeticTokens.tableFrameExtent,
+          opacity: opacity * joining,
+        );
+      }
     }
 
     // Past halfway the ring has turned edge-on and come back, and what it
@@ -727,17 +820,24 @@ class CouncilPainter extends CustomPainter {
     // whose player is not looking at their phone — no face, no initial, no
     // badge — because a label would answer the question the emptiness is
     // supposed to ask.
+    final frameStyle = Cosmetics.frames[seat.frame];
+    final avatarRatio =
+        frameStyle != null &&
+            CosmeticArtCache.images.containsKey(frameStyle.artCode)
+        ? math.min(
+            CouncilTokens.avatarSizeRatio,
+            frameStyle.aperture *
+                CosmeticTokens.tableFrameExtent *
+                CosmeticTokens.avatarApertureInset,
+          )
+        : CouncilTokens.avatarSizeRatio;
     final inhabited = seat.presence == SeatPresence.connected;
     final mark = revealProgress >= 0.5 ? glyphs[seat.roleGlyph] : null;
     if (mark != null) {
       final side = layout.diameter * CouncilTokens.glyphSizeRatio;
       paintImage(
         canvas: canvas,
-        rect: Rect.fromCenter(
-          center: Offset.zero,
-          width: side,
-          height: side,
-        ),
+        rect: Rect.fromCenter(center: Offset.zero, width: side, height: side),
         image: mark,
         fit: BoxFit.contain,
         colorFilter: ColorFilter.mode(
@@ -746,13 +846,44 @@ class CouncilPainter extends CustomPainter {
         ),
         filterQuality: FilterQuality.medium,
       );
+    } else if (!seat.isEmpty &&
+        glyphs[seat.rolePortrait] != null &&
+        // At the result the face waits for the ring to turn past edge-on,
+        // like the mark it replaced; a witness's faces need no turn.
+        (seat.winner == null || revealProgress >= 0.5)) {
+      // The witness's view: the character's face, lifted out of its card.
+      // The card is drawn larger than the ring and shifted so its face sits
+      // in the middle — the ornate border falls outside the clip, and what is
+      // left inside is the person the card depicts.
+      final side = layout.diameter * avatarRatio;
+      final width = side * CouncilTokens.portraitZoom;
+      final height = width / CouncilTokens.cardArtAspect;
+      canvas.save();
+      canvas.clipPath(
+        Path()..addOval(
+          Rect.fromCenter(center: Offset.zero, width: side, height: side),
+        ),
+      );
+      paintImage(
+        canvas: canvas,
+        rect: Rect.fromCenter(
+          center: Offset(0, (0.5 - CouncilTokens.portraitFaceY) * height),
+          width: width,
+          height: height,
+        ),
+        image: glyphs[seat.rolePortrait]!,
+        fit: BoxFit.fill,
+        opacity: opacity * joining * portraitIn,
+        filterQuality: FilterQuality.medium,
+      );
+      canvas.restore();
     } else if (inhabited && !seat.isEmpty && glyphs[seat.avatar] != null) {
       // Task 7 — the person, not their initial. Clipped to the ring's inner
       // circle so the art cannot spill over the ornament, and drawn without a
       // colour filter: this is the one thing on a seat that is allowed to
       // carry its own colour, because a face rendered as a silhouette is not a
       // face.
-      final side = layout.diameter * CouncilTokens.avatarSizeRatio;
+      final side = layout.diameter * avatarRatio;
       canvas.save();
       canvas.clipPath(
         Path()..addOval(
@@ -790,6 +921,21 @@ class CouncilPainter extends CustomPainter {
     // written under the name, because it is a state the room needs at a
     // glance and the space under a chair already holds two lines.
     if (seat.muted) _paintMutedMic(canvas, layout.diameter, opacity);
+    // Phase 107: the Council rank, a small crest on the ring's lower edge.
+    final rank = seat.rank;
+    if (rank != null && !seat.isEmpty && opacity * joining > 0) {
+      final side = math.min(
+        CouncilLifeTokens.emblemSeat,
+        layout.diameter * CouncilLifeTokens.seatBadgeOffset,
+      );
+      final at = layout.diameter * CouncilLifeTokens.seatBadgeOffset;
+      canvas.saveLayer(
+        null,
+        Paint()..color = Color.fromRGBO(0, 0, 0, opacity * joining),
+      );
+      paintSeatRank(canvas, Offset(at, at), side, rank);
+      canvas.restore();
+    }
 
     canvas.restore();
 
@@ -797,13 +943,16 @@ class CouncilPainter extends CustomPainter {
     final label = seat.isViewer && youLabel != null
         ? '${seat.name} · $youLabel'
         : seat.name!;
+    final plate = Cosmetics.plates[seat.plate];
     final namePainter = TextPainter(
       text: TextSpan(
         text: label,
         style: caption.copyWith(
-          color: (seat.isViewer ? viewerColor : secondaryColor).withValues(
-            alpha: opacity * joining,
-          ),
+          color:
+              (plate == null
+                      ? (seat.isViewer ? viewerColor : secondaryColor)
+                      : plateTextColor(plate))
+                  .withValues(alpha: opacity * joining),
         ),
       ),
       maxLines: 1,
@@ -811,13 +960,20 @@ class CouncilPainter extends CustomPainter {
       textDirection: textDirection,
       textAlign: TextAlign.center,
     )..layout(maxWidth: layout.diameter * CouncilTokens.nameWidthRatio);
-    namePainter.paint(
-      canvas,
-      Offset(
-        layout.centre.dx - namePainter.width / 2,
-        layout.centre.dy + layout.diameter / 2,
-      ),
+    final nameOrigin = Offset(
+      layout.centre.dx - namePainter.width / 2,
+      layout.centre.dy + layout.diameter / 2,
     );
+    if (plate != null) {
+      paintCosmeticPlate(
+        canvas,
+        nameOrigin,
+        namePainter.size,
+        plate,
+        opacity: opacity * joining,
+      );
+    }
+    namePainter.paint(canvas, nameOrigin);
 
     // The one presence state that gets a word. Leaving is final, and a room
     // that is arguing about somebody who has gone home deserves to be told
@@ -842,6 +998,48 @@ class CouncilPainter extends CustomPainter {
         layout.centre.dy + layout.diameter / 2 + namePainter.height,
       ),
     );
+  }
+
+  /// Draws measured speech as expanding rings around a connected seat.
+  /// [breath] is the council's one shared animation clock; the level controls
+  /// how far and how brightly the waves travel.
+  void _paintVoicePulse(
+    Canvas canvas,
+    double diameter,
+    double rawLevel,
+    double opacity,
+  ) {
+    final level = rawLevel.clamp(0.0, 1.0).toDouble();
+    if (level <= CouncilTokens.voicePulseThreshold) return;
+    final strength =
+        ((level - CouncilTokens.voicePulseThreshold) /
+                (1 - CouncilTokens.voicePulseThreshold))
+            .clamp(0.0, 1.0)
+            .toDouble();
+    final base = diameter / 2;
+    for (var wave = 0; wave < 3; wave++) {
+      final progress = (breath + wave / 3) % 1.0;
+      final radius =
+          base +
+          diameter *
+              (CouncilTokens.voicePulseSpacingRatio * (wave + 1) +
+                  CouncilTokens.voicePulseMaxRadiusRatio * progress * strength);
+      final alpha =
+          opacity *
+          CouncilTokens.voicePulseAlpha *
+          strength *
+          (1 - progress) *
+          (1 - wave * 0.18);
+      if (alpha <= 0) continue;
+      canvas.drawCircle(
+        Offset.zero,
+        radius,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = CouncilTokens.voicePulseWidth
+          ..color = gold.withValues(alpha: alpha),
+      );
+    }
   }
 
   /// A struck-through microphone, low on the ring.
@@ -920,7 +1118,11 @@ class CouncilPainter extends CustomPainter {
   }
 
   Offset? _centreOf(int seat) {
-    for (var index = 0; index < seats.length && index < positions.length; index++) {
+    for (
+      var index = 0;
+      index < seats.length && index < positions.length;
+      index++
+    ) {
       if (seats[index].seat == seat) return positions[index].centre;
     }
     return null;
@@ -938,6 +1140,7 @@ class CouncilPainter extends CustomPainter {
       old.spark != spark ||
       old.spotlightOpen != spotlightOpen ||
       old.revealProgress != revealProgress ||
+      old.portraitIn != portraitIn ||
       !mapEquals(old.glyphs, glyphs) ||
       !mapEquals(old.joinProgress, joinProgress) ||
       old.youLabel != youLabel ||

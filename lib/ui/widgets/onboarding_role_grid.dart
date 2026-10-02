@@ -117,8 +117,9 @@ class _RoleTileState extends State<_RoleTile>
     super.didChangeDependencies();
     // Read from the context rather than at construction: the duration depends
     // on the OS Reduce Motion setting, which can change while the app is up.
-    _flip.duration =
-        ReduceMotion.of(context) ? Duration.zero : context.motion.dramatic;
+    _flip.duration = ReduceMotion.of(context)
+        ? Duration.zero
+        : context.motion.dramatic;
   }
 
   @override
@@ -139,11 +140,11 @@ class _RoleTileState extends State<_RoleTile>
   }
 
   String get _painting => switch (widget.role) {
-        Role.mafia => AppGallery.galleryMafia,
-        Role.doctor => AppGallery.galleryDoctor,
-        Role.detective => AppGallery.galleryDetective,
-        Role.citizen => AppGallery.galleryCitizen,
-      };
+    Role.mafia => AppGallery.galleryMafia,
+    Role.doctor => AppGallery.galleryDoctor,
+    Role.detective => AppGallery.galleryDetective,
+    Role.citizen => AppGallery.galleryCitizen,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +256,9 @@ class _RoleTileState extends State<_RoleTile>
                 children: [
                   Text(
                     EngineCopy.roleName(l10n, widget.role),
-                    style: type.title.emphasised.copyWith(color: colors.textPrimary),
+                    style: type.title.emphasised.copyWith(
+                      color: colors.textPrimary,
+                    ),
                   ),
                   SizedBox(height: spacing.xs),
                   Flexible(

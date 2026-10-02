@@ -124,11 +124,7 @@ class ResultScreen extends StatelessWidget {
           for (final note in notes) ...[
             SizedBox(height: spacing.xs),
             Text(
-              EngineCopy.coaching(
-                context.l10n,
-                note,
-                (s) => nameOf[s] ?? '',
-              ),
+              EngineCopy.coaching(context.l10n, note, (s) => nameOf[s] ?? ''),
               style: type.bodySmall.copyWith(color: colors.textSecondary),
             ),
           ],

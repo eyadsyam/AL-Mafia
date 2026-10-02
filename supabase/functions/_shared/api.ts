@@ -38,6 +38,32 @@ export type ErrorCode =
   | "ROOM_NOT_FOUND"
   | "ALREADY_JOINED"
   | "RATE_LIMITED"
+  | "NEW_ROOMS_PAUSED"
+  | "INSUFFICIENT_COINS"
+  | "PURCHASE_REQUIRED"
+  | "NOT_CONFIGURED"
+  | "REBIND_LIMIT"
+  | "SALES_DISABLED"
+  | "ACCOUNT_NOT_RECOVERABLE"
+  | "PACK_UNAVAILABLE"
+  | "METHOD_UNAVAILABLE"
+  | "ORDER_NOT_FOUND"
+  | "ORDER_STATE"
+  | "ORDER_OPEN"
+  | "NOT_ADMIN"
+  | "AMOUNT_MISMATCH"
+  | "TRANSFER_ALREADY_USED"
+  | "FEATURE_OFF"
+  | "STEP_ORDER"
+  | "DAY_CHANGED"
+  | "DAY_REQUIRED"
+  | "IN_MATCH"
+  | "DAILY_PAUSED"
+  | "REWARD_NOT_ELIGIBLE"
+  | "REWARD_NOT_SYNCED"
+  | "REWARD_SCHEME_V2"
+  | "ACCOUNT_MISMATCH"
+  | "PRODUCT_UNKNOWN"
   | "BAD_REQUEST";
 
 export function ok(body: unknown = { ok: true }): Response {
@@ -145,7 +171,7 @@ export async function loadMembership(
   const [player, phase] = await Promise.all([
     db
       .from("room_players")
-      .select("seat, role, alive, rooms!inner(host_id, status, match_seed, settings)")
+      .select("seat, role, alive, kicked, rooms!inner(host_id, status, match_seed, settings)")
       .eq("room_id", roomId)
       .eq("user_id", userId)
       .maybeSingle(),
@@ -156,10 +182,19 @@ export async function loadMembership(
       .maybeSingle(),
   ]);
 
-  if (player.error || !player.data) return null;
+  if (player.error) throw player.error;
+  if (phase.error) throw phase.error;
+  if (!player.data) return null;
+  if (!phase.data) throw new Error("room state missing");
 
   // deno-lint-ignore no-explicit-any
   const data = player.data as any;
+  // A removed seat keeps its row so the removal reaches the removed client
+  // and the ban survives, but the row is not a membership: a kicked player
+  // used to keep heartbeating (flipping its own status back to `connected`,
+  // which also kept it out of `remove_player`'s three-minute silence) and
+  // could still cast a ballot into the match it was banned from.
+  if (data.kicked) return null;
   const room = data.rooms;
   // deno-lint-ignore no-explicit-any
   const state = phase.data as any;
@@ -180,6 +215,28 @@ export async function loadMembership(
     phaseNumber: state?.phase_number ?? 0,
     phaseEndsAt: state?.phase_ends_at ?? null,
   };
+}
+
+/**
+ * An idempotency key, or null if the client sent something that is not one.
+ *
+ * `night_actions.action_id` and `votes.action_id` are `uuid` columns, so a key
+ * of any other shape is refused by Postgres as `22P02` — and because the key
+ * rides along on the row carrying the move, the *move* is refused with it. A
+ * client that sends a malformed key has made a mistake about bookkeeping, not
+ * about the game, and the game is what the request was for.
+ *
+ * Dropping the key costs nothing that matters: both tables are keyed on
+ * (room, night|day, actor), so a retry overwrites its own row and O19 holds by
+ * construction. The column exists to tell a *different* second action apart
+ * from a replayed first one, which is a finer distinction than the one being
+ * given up here.
+ */
+const UUID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function asUuid(value: unknown): string | null {
+  return typeof value === "string" && UUID.test(value) ? value : null;
 }
 
 /** The night action a role is permitted to submit. Mirrors `RoleNightAction`. */
@@ -238,7 +295,7 @@ export function handler(
     } catch (e) {
       // Never echo the exception: a stack trace from a function that touched
       // the role table is a leak of a different kind.
-      console.error(e);
+      console.error("request failed");
       return fail("BAD_REQUEST", "request could not be completed", 400);
     }
   };

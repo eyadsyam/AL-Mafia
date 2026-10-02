@@ -7,7 +7,7 @@ import '../../../engine/balance_guard.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
-import '../../widgets/textured_surface.dart';
+import '../../widgets/experience_surface.dart';
 
 /// Add Players screen (S-02) — collect player names in seating order.
 ///
@@ -229,7 +229,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
-      body: AppBackdrop(
+      body: ExperienceSurface(
         child: SafeArea(
           child: Center(
             child: ConstrainedBox(
@@ -259,7 +259,6 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
                     // Input row: text field + add button. The gender marks are
                     // inside the field (task 8) rather than on a row of their
                     // own underneath it.
-
                     Row(
                       children: [
                         Expanded(

@@ -7,11 +7,12 @@
 ///
 /// `mafiamaster://` opens the app for somebody who has it and is inert for
 /// everybody else — a dead end at the one moment the room is trying to grow.
-/// The site is the same Flutter app, so [webLink] opens the room in the
-/// recipient's browser whether or not they have ever heard of it: the code is
-/// already answered and they are asked only for a name and a gender.
+/// [webLink] is an https App Link instead: the installed app is handed it
+/// directly, and a phone without the app opens the same room on the site,
+/// where the code is already answered and the visitor is asked only for a name
+/// and a gender.
 ///
-/// The custom scheme stays because the installed Android app registers it. It
+/// The custom scheme stays registered for anything that already carries it. It
 /// is simply not the thing a host sends.
 ///
 /// [text] still puts the code in words. Some chat clients strip links and
@@ -20,14 +21,22 @@ abstract final class RoomInvite {
   static const String scheme = 'mafiamaster';
   static const String host = 'online';
 
-  /// Where the web build is published — `--base-href /AL-Mafia/` in
-  /// `tool/build_web.ps1`. The hash is not decoration: GitHub Pages cannot
-  /// rewrite `/join/CODE` to `index.html`, so the router runs on the default
-  /// hash strategy and the link has to carry it.
-  static const String site = 'https://eyadsyam.github.io/AL-Mafia/';
+  /// Where the web build is published — the Vercel project `almafia`, served
+  /// from the domain root, with every unknown path rewritten to index.html.
+  ///
+  /// It used to be a GitHub Pages project site, which could not rewrite
+  /// `/join/CODE` and so forced the router onto the hash strategy. That was
+  /// also what kept the invite off App Links: Android strips the fragment
+  /// before matching, so `#/join/CODE` can only ever open a browser.
+  static const String site = 'https://almafia.vercel.app/';
 
-  /// The link a host actually shares. Opens the room anywhere.
-  static String webLink(String code) => '$site#/join/${code.toUpperCase()}';
+  /// The link a host actually shares.
+  ///
+  /// One link, two outcomes, and the recipient chooses neither: Android
+  /// verifies this domain against `.well-known/assetlinks.json` and hands the
+  /// link to the installed app, and a phone without the app opens the same
+  /// room on the site. Nobody is asked to know which they are.
+  static String webLink(String code) => '${site}join/${code.toUpperCase()}';
 
   /// The deep link for a room code.
   ///

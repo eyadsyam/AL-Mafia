@@ -27,7 +27,14 @@
  * also what a player declining to use it looks like, so the two are the same
  * request and neither is a special case.
  */
-import { actionForRole, fail, handler, loadMembership, ok } from "../_shared/api.ts";
+import {
+  actionForRole,
+  asUuid,
+  fail,
+  handler,
+  loadMembership,
+  ok,
+} from "../_shared/api.ts";
 
 /** The once-per-match move each role holds, or null for the two that hold none. */
 function bulletFor(role: string | null): "quietNight" | "selfProtect" | null {
@@ -92,13 +99,14 @@ Deno.serve(handler(async (req, userId, db) => {
   // and this is what gives the loser a sentence instead of a constraint error.
   let alreadySpent = false;
   if (wants && available) {
-    const { data: prior } = await db
+    const { data: prior, error: priorError } = await db
       .from("night_actions")
       .select("night")
       .eq("room_id", roomId)
       .eq("actor_id", userId)
       .eq("used_bullet", true)
       .limit(1);
+    if (priorError) throw priorError;
     alreadySpent = (prior ?? []).length > 0;
   }
   const spending = wants && available && !alreadySpent;
@@ -122,12 +130,13 @@ Deno.serve(handler(async (req, userId, db) => {
   let targetId: string | null = null;
   if (action !== "skip") {
     if (targetSeat == null) return fail("BAD_REQUEST", "a target is required");
-    const { data: target } = await db
+    const { data: target, error: targetError } = await db
       .from("room_players")
       .select("user_id, alive")
       .eq("room_id", roomId)
       .eq("seat", targetSeat)
       .maybeSingle();
+    if (targetError) throw targetError;
     if (!target) return fail("BAD_REQUEST", "no such seat");
     if (!target.alive) return fail("BAD_REQUEST", "that player is dead");
     if (target.user_id === userId && !selfProtect) {
@@ -150,7 +159,7 @@ Deno.serve(handler(async (req, userId, db) => {
     action,
     target_id: targetId,
     note: note ?? null,
-    action_id: actionId ?? null,
+    action_id: asUuid(actionId),
     used_bullet: spending,
   });
   if (error) {
@@ -158,8 +167,21 @@ Deno.serve(handler(async (req, userId, db) => {
     if (error.code === "23505") {
       return fail("RATE_LIMITED", "you have already used it");
     }
+    // The phase guard on the table (migration `action_epoch`): the night was
+    // resolved between this caller's read and its write. The move is not
+    // lost quietly — the caller is told the night closed and resyncs.
+    if (error.message?.includes("PHASE_CLOSED")) {
+      return fail("PHASE_CLOSED", "the night is closed");
+    }
+    // The membership guard on the same trigger (migration `kicked_moves`):
+    // the seat was removed between this caller's read and its write.
+    if (error.message?.includes("NOT_A_MEMBER")) {
+      return fail("NOT_A_MEMBER", "you are no longer in that room", 403);
+    }
     throw error;
   }
+
+  await closeNightIfEveryoneActed(db, roomId, me.phaseNumber);
 
   // The Detective's answer goes back in the response to their own request and
   // nowhere else: not into `public_data`, not into a row any other client can
@@ -172,12 +194,13 @@ Deno.serve(handler(async (req, userId, db) => {
   // narrower "mafia / not mafia" here would make the online Detective weaker
   // than the offline one, which is a rules change wearing a privacy costume.
   if (action === "investigate" && targetId) {
-    const { data: target } = await db
+    const { data: target, error: peekError } = await db
       .from("room_players")
       .select("role")
       .eq("room_id", roomId)
       .eq("user_id", targetId)
       .maybeSingle();
+    if (peekError) throw peekError;
     return ok({ revealedRole: target?.role ?? null, bulletSpent: spending });
   }
 
@@ -187,3 +210,60 @@ Deno.serve(handler(async (req, userId, db) => {
   // the server is what decides whether the move was legal at all.
   return ok({ bulletSpent: spending });
 }));
+
+/**
+ * Brings the night's clock to now once every living player has acted.
+ *
+ * The night runs 120 seconds because "a player who is thinking looks exactly
+ * like a player who has left" (doc 10 §8.2, and `phases.ts` says so). The
+ * moment the last living player acts, neither of those is true any more, and
+ * the room is being made to wait out a timer that is protecting nobody.
+ *
+ * The clock is moved rather than the phase: `advance_phase` still applies the
+ * defaults (there are none left to apply) and the host's client still asks for
+ * the tally, so this adds no second route into the resolution — it only stops
+ * the first one from being late.
+ *
+ * Nothing here is a tell. Every role acts every night — doc 05 rules 5 and 6
+ * make the empty turn universal for exactly this reason — and the roster of
+ * the living is already public, so "everybody has acted" is a fact the whole
+ * table can already see and says nothing about anybody's role.
+ */
+async function closeNightIfEveryoneActed(
+  // deno-lint-ignore no-explicit-any
+  db: any,
+  roomId: string,
+  night: number,
+): Promise<void> {
+  const [living, acted] = await Promise.all([
+    db.from("room_players").select("user_id").eq("room_id", roomId).eq(
+      "alive",
+      true,
+    ),
+    db.from("night_actions").select("actor_id").eq("room_id", roomId).eq(
+      "night",
+      night,
+    ),
+  ]);
+  // A read that failed is not "nobody is alive" and not "nobody has acted":
+  // the move above was saved, and closing the night early is a courtesy this
+  // call may simply not extend when it cannot see the room.
+  if (living.error || acted.error) return;
+  const alive = new Set(
+    (living.data ?? []).map((p: { user_id: string }) => p.user_id),
+  );
+  if (alive.size === 0) return;
+  const done = new Set(
+    (acted.data ?? []).map((a: { actor_id: string }) => a.actor_id),
+  );
+  for (const id of alive) {
+    if (!done.has(id)) return;
+  }
+  // Guarded on the phase and the night so a late write cannot pull the clock
+  // of a *different* night forward.
+  await db.from("room_state")
+    .update({ phase_ends_at: new Date().toISOString() })
+    .eq("room_id", roomId)
+    .eq("phase", "night")
+    .eq("phase_number", night);
+}

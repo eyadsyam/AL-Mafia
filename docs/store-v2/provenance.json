@@ -1,0 +1,135 @@
+[
+  {
+    "id": "frame_gilded",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-6ff7e7b0-03ff-4e7b-8f87-fc875d2122da.png",
+    "prompt": "Antique gold circular neutral mask avatar frame; charcoal ivory, transparent aperture and exterior, restrained gothic engraving, no text.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/frame_gilded.webp"
+  },
+  {
+    "id": "frame_crimson",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-a8d45919-fca2-48ad-81a3-2f1730779ea4.png",
+    "prompt": "ONE premium Mafia Master game store cosmetic asset. Circular avatar frame with burgundy enamel inset, dark oxidized metal and thin antique gold edges, two elegant swept ornamental arcs. Empty circular aperture 62%, outer silhouette 82%, true alpha both inside aperture and exterior. Small neutral mask crest bottom. No portrait. Consistent noir identity: charcoal, muted antique gold, burgundy, aged ivory silver. Frontal orthographic polished realistic 3D metal, soft upper left lighting, bold readable silhouette at small size, restrained intricate engraving only at edges inspired by ornate black gothic costumes. 1024 square. No letters, numbers, watermark, prices, background, checkerboard, role symbols or human characters.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/frame_crimson.webp"
+  },
+  {
+    "id": "frame_moonlit",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-7d6178db-5060-4494-86ac-1f4c547e13e9.png",
+    "prompt": "ONE premium Mafia Master game store cosmetic asset. Circular avatar frame made of aged silver, ivory edge and charcoal inset, delicate lunar crescent at bottom with symmetrical restrained gothic metalwork. Empty circular aperture 62%, outer silhouette 82%, true alpha inside and outside. No portrait. Consistent noir identity: charcoal, muted antique gold, burgundy, aged ivory silver. Frontal orthographic polished realistic 3D metal, soft upper left lighting, bold readable silhouette at small size, restrained intricate engraving only at edges inspired by ornate black gothic costumes. 1024 square. No letters, numbers, watermark, prices, background, checkerboard, role symbols or human characters.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/frame_moonlit.webp"
+  },
+  {
+    "id": "plate_noir",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-27fa83fa-a19d-4a00-88db-21bd8571bdd6.png",
+    "prompt": "ONE premium Mafia Master game store cosmetic asset. Wide horizontal player nameplate, black engraved metal with antique silver edge, slight gothic stepped silhouette, EMPTY dark central 70% for player name rendered later. True alpha outside object. Center object within square canvas, width86% height28%. No text. Consistent noir identity: charcoal, muted antique gold, burgundy, aged ivory silver. Frontal orthographic polished realistic 3D metal, soft upper left lighting, bold readable silhouette at small size, restrained intricate engraving only at edges inspired by ornate black gothic costumes. 1024 square. No letters, numbers, watermark, prices, background, checkerboard, role symbols or human characters.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/plate_noir.webp"
+  },
+  {
+    "id": "plate_gilded",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-59c9cc29-6d5f-4752-b421-f0d0fb70a336.png",
+    "prompt": "ONE premium Mafia Master game store cosmetic asset. Wide horizontal player nameplate, restrained antique gold rim, charcoal enamel empty central70% reserved for player name, small geometric fan flourishes at ends. True alpha exterior. Within square canvas width86% height28%. No text. Consistent noir identity: charcoal, muted antique gold, burgundy, aged ivory silver. Frontal orthographic polished realistic 3D metal, soft upper left lighting, bold readable silhouette at small size, restrained intricate engraving only at edges inspired by ornate black gothic costumes. 1024 square. No letters, numbers, watermark, prices, background, checkerboard, role symbols or human characters.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/plate_gilded.webp"
+  },
+  {
+    "id": "plate_ember",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-4de56109-35fb-4f6d-bf14-6cc119dd8c57.png",
+    "prompt": "ONE premium Mafia Master game store cosmetic asset. Wide horizontal player nameplate, burgundy enamel and burnished copper rim, charcoal EMPTY central70% for player name, tiny ember red accents at sides no flames. True alpha exterior. Within square canvas width86% height28%. No text. Consistent noir identity: charcoal, muted antique gold, burgundy, aged ivory silver. Frontal orthographic polished realistic 3D metal, soft upper left lighting, bold readable silhouette at small size, restrained intricate engraving only at edges inspired by ornate black gothic costumes. 1024 square. No letters, numbers, watermark, prices, background, checkerboard, role symbols or human characters.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/plate_ember.webp"
+  },
+  {
+    "id": "pack_midnight_manor",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-2777827c-259f-4859-9ba1-0e2fa3689533.png",
+    "prompt": "Generate ONE square 1024 premium Mafia Master store product illustration. Room atmosphere: symmetrical abandoned manor council chamber, circular ebony meeting table, six empty chairs, warm candlelight and quiet charcoal walls, no people, no text. Wide scene composed safely in square. Unified collection: cinematic near monochrome charcoal #101010, antique muted gold, burgundy accents, aged ivory silver. Ornate gothic black costume craft translated into tasteful environmental ornament. Strong clear central silhouette, soft upper-left light, luxurious realistic painterly 3D finish. Minimal details, calm background, no rainbow, no neon, no gore, no price, lettering, labels, watermark or UI. Background dark charcoal.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/pack_midnight_manor.webp"
+  },
+  {
+    "id": "pack_old_town",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-46a82a3f-2a75-4b33-94f0-508d4f2cee0a.png",
+    "prompt": "Generate ONE square 1024 premium Mafia Master store product illustration. Room atmosphere: quiet old Egyptian stone courtyard at night, central empty circular council table, carved wooden doors and single warm lantern, restrained historical detail, no people. No busy city. Unified collection: cinematic near monochrome charcoal #101010, antique muted gold, burgundy accents, aged ivory silver. Ornate gothic black costume craft translated into tasteful environmental ornament. Strong clear central silhouette, soft upper-left light, luxurious realistic painterly 3D finish. Minimal details, calm background, no rainbow, no neon, no gore, no price, lettering, labels, watermark or UI. Background dark charcoal.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/pack_old_town.webp"
+  },
+  {
+    "id": "pack_moonlit_archive",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-04ce6cf4-e61b-4835-a778-8a11cc3df779.png",
+    "prompt": "Generate ONE square 1024 premium Mafia Master store product illustration. Room atmosphere: secret moonlit archive, arched window with pale silver moonlight on empty circular ebony council table, shadowy bookshelves at edges, almost-black quiet background, no people. Unified collection: cinematic near monochrome charcoal #101010, antique muted gold, burgundy accents, aged ivory silver. Ornate gothic black costume craft translated into tasteful environmental ornament. Strong clear central silhouette, soft upper-left light, luxurious realistic painterly 3D finish. Minimal details, calm background, no rainbow, no neon, no gore, no price, lettering, labels, watermark or UI. Background dark charcoal.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/pack_moonlit_archive.webp"
+  },
+  {
+    "id": "narrator_storyteller",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-cb2931e8-122e-4d66-bee2-36d5a8477cbf.png",
+    "prompt": "Generate ONE square 1024 premium Mafia Master store product illustration. Narration STYLE collectible cover, NOT a book purchasable as advice and NOT voice recording: sculptural antique gold theatrical mask suspended over a dark stage with three restrained ribbon-like soundless smoke wisps. Small ivory stage curtains at edges. Emblem occupies central60%, no microphone, no book, no letters. Unified collection: cinematic near monochrome charcoal #101010, antique muted gold, burgundy accents, aged ivory silver. Ornate gothic black costume craft translated into tasteful environmental ornament. Strong clear central silhouette, soft upper-left light, luxurious realistic painterly 3D finish. Minimal details, calm background, no rainbow, no neon, no gore, no price, lettering, labels, watermark or UI. Background dark charcoal.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/narrator_storyteller.webp"
+  },
+  {
+    "id": "narrator_keeper",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-321e4348-750e-49b9-88c1-57bda7f2bdac.png",
+    "prompt": "Generate ONE square 1024 premium Mafia Master store product illustration. Narration STYLE collectible cover: aged silver key intertwined with circular antique clock-like ornamental ring WITHOUT numbers, dark velvet burgundy ribbon, sculptural mysterious keeper emblem centered. No microphone, no book, no letters. Unified collection: cinematic near monochrome charcoal #101010, antique muted gold, burgundy accents, aged ivory silver. Ornate gothic black costume craft translated into tasteful environmental ornament. Strong clear central silhouette, soft upper-left light, luxurious realistic painterly 3D finish. Minimal details, calm background, no rainbow, no neon, no gore, no price, lettering, labels, watermark or UI. Background dark charcoal.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/narrator_keeper.webp"
+  },
+  {
+    "id": "narrator_noir",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-bb234679-aba7-4cc0-b297-0e5010087b85.png",
+    "prompt": "Generate ONE square 1024 premium Mafia Master store product illustration. Narration STYLE collectible cover: sculptural black raven silhouette in aged silver and obsidian resting on a small antique gold crescent, thin burgundy silk folds, restrained noir mystery emblem centered. No microphone, no book, no letters. Unified collection: cinematic near monochrome charcoal #101010, antique muted gold, burgundy accents, aged ivory silver. Ornate gothic black costume craft translated into tasteful environmental ornament. Strong clear central silhouette, soft upper-left light, luxurious realistic painterly 3D finish. Minimal details, calm background, no rainbow, no neon, no gore, no price, lettering, labels, watermark or UI. Background dark charcoal.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/narrator_noir.webp"
+  },
+  {
+    "id": "bundle_council",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-84479f69-9a08-4a05-aeac-e0abcff377c2.png",
+    "prompt": "ONE premium Mafia Master Council Vault store asset. An elegant open black presentation case holding three symbolic objects: miniature antique manor doorway, tiny old stone courtyard arch and a neutral theatrical gold mask. A coherent council atmosphere collection, no coins. Closed back, objects readable. Unified visual collection: cinematic charcoal black, muted antique gold, burgundy enamel and aged ivory silver. Luxury realistic painterly 3D finish, soft upper-left studio light, restrained gothic engraving inspired by ornate black character costumes. Simple strong silhouette, quiet charcoal background fading to #101010, no busy details, no neon, no price, text, numbers, logo, watermark or UI. Square 1024 unless banner specified.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/bundle_council.webp"
+  },
+  {
+    "id": "bundle_identity",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-14a8fe37-03ef-422c-b6c1-f0eeb5d98df4.png",
+    "prompt": "ONE premium Mafia Master Council Vault store asset. An elegant black velvet presentation case displaying three miniature circular avatar frames gold burgundy silver plus three blank horizontal nameplates in matching materials. Show exactly six cosmetic objects, no portraits, no text. Unified visual collection: cinematic charcoal black, muted antique gold, burgundy enamel and aged ivory silver. Luxury realistic painterly 3D finish, soft upper-left studio light, restrained gothic engraving inspired by ornate black character costumes. Simple strong silhouette, quiet charcoal background fading to #101010, no busy details, no neon, no price, text, numbers, logo, watermark or UI. Square 1024 unless banner specified.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/bundle_identity.webp"
+  },
+  {
+    "id": "bundle_nocturne",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-00307a4e-4181-4d02-a7a3-970e33dcbcac.png",
+    "prompt": "ONE premium Mafia Master Council Vault store asset. An elegant obsidian presentation case holding a moonlit arched archive miniature, one silver circular empty avatar frame, one blank black silver nameplate, and a silver ornamental key with burgundy ribbon. Four distinct objects, premium collection. Unified visual collection: cinematic charcoal black, muted antique gold, burgundy enamel and aged ivory silver. Luxury realistic painterly 3D finish, soft upper-left studio light, restrained gothic engraving inspired by ornate black character costumes. Simple strong silhouette, quiet charcoal background fading to #101010, no busy details, no neon, no price, text, numbers, logo, watermark or UI. Square 1024 unless banner specified.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/bundle_nocturne.webp"
+  },
+  {
+    "id": "coins_500",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-2b308c6b-0d54-437f-b199-192bdc0421c2.png",
+    "prompt": "ONE premium Mafia Master Council Vault store asset. Small black velvet drawstring pouch with 5 antique gold mask coins spilling out. Match reference coin: gold theatrical mask relief and burgundy enamel inner ring, ridged gold rim. Object occupies central65%. No banknotes, no real currency. Unified visual collection: cinematic charcoal black, muted antique gold, burgundy enamel and aged ivory silver. Luxury realistic painterly 3D finish, soft upper-left studio light, restrained gothic engraving inspired by ornate black character costumes. Simple strong silhouette, quiet charcoal background fading to #101010, no busy details, no neon, no price, text, numbers, logo, watermark or UI. Square 1024 unless banner specified.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/coins_500.webp"
+  },
+  {
+    "id": "coins_1200",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-6b836fca-699e-4733-99c8-5b8ac3e95f48.png",
+    "prompt": "ONE premium Mafia Master Council Vault store asset. Medium open charcoal lacquer coin case filled with stacks of antique gold mask coins. Match reference: gold theatrical mask relief, burgundy enamel ring, ridged gold rim. Object central70%. No banknotes, no real currency. Unified visual collection: cinematic charcoal black, muted antique gold, burgundy enamel and aged ivory silver. Luxury realistic painterly 3D finish, soft upper-left studio light, restrained gothic engraving inspired by ornate black character costumes. Simple strong silhouette, quiet charcoal background fading to #101010, no busy details, no neon, no price, text, numbers, logo, watermark or UI. Square 1024 unless banner specified.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/coins_1200.webp"
+  },
+  {
+    "id": "coins_2500",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-04685890-ad5f-4b62-ab96-068ea00a5c05.png",
+    "prompt": "ONE premium Mafia Master Council Vault store asset. Large luxurious antique black strongbox open revealing abundant neatly stacked gold mask coins, small burgundy velvet lining. Match reference: gold theatrical mask relief, burgundy enamel ring, ridged gold rim. Object central75%. No banknotes or real currency. Unified visual collection: cinematic charcoal black, muted antique gold, burgundy enamel and aged ivory silver. Luxury realistic painterly 3D finish, soft upper-left studio light, restrained gothic engraving inspired by ornate black character costumes. Simple strong silhouette, quiet charcoal background fading to #101010, no busy details, no neon, no price, text, numbers, logo, watermark or UI. Square 1024 unless banner specified.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/coins_2500.webp"
+  },
+  {
+    "id": "store_hero",
+    "source": "C:\\Users\\LENOVO\\.codex\\generated_images\\01a099a8-d0c4-72f0-9275-bd5381c346a7\\exec-8648e624-c202-4c2c-860c-58cac0768448.png",
+    "prompt": "ONE premium Mafia Master Council Vault store asset. Wide 3:2 premium game store identity banner. Left third holds an open black velvet cabinet, one neutral gold theatrical mask, two mask coins and silver ornamental key. Right two thirds almost empty charcoal gradient for localized headline added later. Restrained gothic detail, subtle warm illumination. No letters, no literal storefront, no people. Unified visual collection: cinematic charcoal black, muted antique gold, burgundy enamel and aged ivory silver. Luxury realistic painterly 3D finish, soft upper-left studio light, restrained gothic engraving inspired by ornate black character costumes. Simple strong silhouette, quiet charcoal background fading to #101010, no busy details, no neon, no price, text, numbers, logo, watermark or UI. Square 1024 unless banner specified.",
+    "tool": "built-in imagegen",
+    "asset": "assets/images/store_v2/store_hero.webp"
+  }
+]

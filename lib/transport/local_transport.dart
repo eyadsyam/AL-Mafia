@@ -52,29 +52,28 @@ class LocalTransport implements GameTransport {
   DayVoteResult? _lastVote;
 
   LocalTransport({required this.engine, required this.whispers})
-      : _snapshot = engine.hasMatch
-            ? GameSnapshot(
-                public: engine.publicView(),
-                settings: engine.match.settings,
-              )
-            // The transport is built when the app is, which is before anybody
-            // has started anything. An empty table is the honest answer for
-            // that stretch, and every screen that could render it is behind a
-            // route that does not exist yet.
-            : const GameSnapshot(
-                public: PublicMatchView(
-                  phase: GamePhase.setup,
-                  dayNumber: 0,
-                  players: [],
-                ),
-              );
+    : _snapshot = engine.hasMatch
+          ? GameSnapshot(
+              public: engine.publicView(),
+              settings: engine.match.settings,
+            )
+          // The transport is built when the app is, which is before anybody
+          // has started anything. An empty table is the honest answer for
+          // that stretch, and every screen that could render it is behind a
+          // route that does not exist yet.
+          : const GameSnapshot(
+              public: PublicMatchView(
+                phase: GamePhase.setup,
+                dayNumber: 0,
+                players: [],
+              ),
+            );
 
   /// Adopts a match that has already been started or restored.
   factory LocalTransport.of(
     MatchEngine engine, {
     required WhisperStore whispers,
-  }) =>
-      LocalTransport(engine: engine, whispers: whispers);
+  }) => LocalTransport(engine: engine, whispers: whispers);
 
   /// There is no call. One phone in the middle of a table is already a room
   /// of people who can hear each other, and the software has no part in it.
@@ -126,8 +125,8 @@ class LocalTransport implements GameTransport {
       // Only once the match is over. Before that the list is empty rather than
       // filtered, so there is no code path here that has ever held a live
       // match's roles.
-      standings: match.phase == GamePhase.result ||
-              match.phase == GamePhase.analytics
+      standings:
+          match.phase == GamePhase.result || match.phase == GamePhase.analytics
           ? [
               for (final player in match.players)
                 FinalStanding(
@@ -167,8 +166,7 @@ class LocalTransport implements GameTransport {
     var undelivered = false;
     if (match.settings.whisperEnabled) {
       for (final meta in engine.pendingWhispersFor(seat)) {
-        final body =
-            await whispers.read(matchId: match.id, whisperId: meta.id);
+        final body = await whispers.read(matchId: match.id, whisperId: meta.id);
         if (body != null) {
           whisperId = meta.id;
           whisperBody = body;
@@ -284,10 +282,10 @@ class LocalTransport implements GameTransport {
   }
 
   @override
-  Future<void> recordSpeaking({
-    required int seat,
-    required int seconds,
-  }) async {
+  Future<void> setReadyToVote(bool ready) async {}
+
+  @override
+  Future<void> recordSpeaking({required int seat, required int seconds}) async {
     engine.recordSpeaking(seat: seat, seconds: seconds);
     _publish();
   }
@@ -328,10 +326,7 @@ class LocalTransport implements GameTransport {
   }
 
   @override
-  Future<void> submitVote({
-    required int seat,
-    required int? targetSeat,
-  }) async {
+  Future<void> submitVote({required int seat, required int? targetSeat}) async {
     engine.submitVote(seat: seat, voterSeat: seat, targetSeat: targetSeat);
     _publish();
   }

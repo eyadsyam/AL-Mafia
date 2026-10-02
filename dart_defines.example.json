@@ -1,4 +1,12 @@
 {
   "SUPABASE_URL": "https://<project-ref>.supabase.co",
-  "SUPABASE_KEY": "sb_publishable_..."
+  "SUPABASE_KEY": "sb_publishable_...",
+  "ADS_ENABLED": "false",
+  "ADMOB_APP_ID": "",
+  "ADMOB_REWARDED_ANDROID_ID": "",
+  "ADMOB_TEST_MODE": "false",
+  "PLAY_BILLING_ENABLED": "false",
+  "PLAY_SCENARIO_PRODUCT_ID": "mafia_scenario_mastermind",
+  "ADMOB_INTERSTITIAL_ANDROID_ID": "",
+  "ADMOB_REWARDED_V2_ANDROID_ID": ""
 }

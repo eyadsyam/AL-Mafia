@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.1+8
 
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -31,6 +31,11 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
+    sdk: flutter
+  # `usePathUrlStrategy` in main.dart. The invite link is an Android App Link,
+  # and Android matches those on the path â€” a `#/join/CODE` fragment never
+  # reaches the intent filter, so the web build cannot use the hash strategy.
+  flutter_web_plugins:
     sdk: flutter
 
   # The following adds the Cupertino Icons font to your application.
@@ -47,7 +52,18 @@ dependencies:
   supabase_flutter: ^2.17.2
   meta: ^1.18.0
   flutter_webrtc: ^1.6.1
+  # Metered Realtime: WebSocket signalling, presence and auto-injected TURN.
+  # Only its SignallingClient is used â€” the media layer stays ours, because
+  # MeteredPeer negotiates for every peer that joins and Mafia's night phases
+  # need per-peer control over who is even connected. See metered_voice_link.dart.
+  metered_realtime: ^0.2.0
   video_player: ^2.14.0
+  shared_preferences: ^2.5.5
+  web: ^1.1.1
+  google_mobile_ads: ^9.1.0
+  in_app_purchase: ^3.3.1
+  in_app_purchase_android: ^0.5.3
+  share_plus: 13.3.0
 
 dev_dependencies:
   integration_test:
@@ -55,6 +71,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   test: ^1.24.0
+  # Test-only: `test/support/fake_video_platform.dart` stands in for the video
+  # plugin, which does not exist under `flutter test`. Both arrive transitively
+  # through video_player; named here because a test imports them directly.
+  plugin_platform_interface: ^2.1.8
+  video_player_platform_interface: ^6.9.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -90,6 +111,10 @@ flutter:
     # post-game-only and must stay easy to tell apart from the in-match art.
     - assets/images/gallery/
     - assets/images/online/
+    - assets/images/economy/
+    - assets/images/experience_v2/
+    - assets/images/store_v2/
+    - assets/images/economy_v2/
     - assets/icons/
     - assets/audio/
     # Ambient loops + their Reduce Motion stills. On-table surfaces only.
@@ -104,9 +129,14 @@ flutter:
   # only. Flutter renders a variable font at its default instance unless the
   # style names an axis, so every token that wants a heavier cut sets
   # `fontVariations: [FontVariation('wght', ...)]` rather than relying on
-  # `fontWeight` alone — otherwise the platform silently synthesises a fake
+  # `fontWeight` alone â€” otherwise the platform silently synthesises a fake
   # bold, which looks muddy at display sizes.
   fonts:
+    # Flutter initializes its default family before the first frame on web.
+    # Use our bundled font so this never waits for Google's font CDN.
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/IBMPlexSansArabic-Regular.ttf
     # --- Display: Latin ---
     - family: Bebas Neue
       fonts:

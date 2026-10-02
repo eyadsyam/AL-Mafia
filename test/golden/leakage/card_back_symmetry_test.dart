@@ -32,8 +32,7 @@ void main() {
     final codec = await ui.instantiateImageCodec(bytes);
     final frame = await codec.getNextFrame();
     final image = frame.image;
-    final data =
-        await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
     final result = (
       pixels: data!.buffer.asUint8List(),
       width: image.width,
@@ -45,8 +44,7 @@ void main() {
   }
 
   /// Mean absolute per-channel difference between an image and its half turn.
-  double rotationDrift(
-      Uint8List pixels, int width, int height) {
+  double rotationDrift(Uint8List pixels, int width, int height) {
     var total = 0;
     var samples = 0;
     for (var y = 0; y < height; y++) {
@@ -73,11 +71,15 @@ void main() {
     final img = await load(AppImages.cardBack);
     final drift = rotationDrift(img.pixels, img.width, img.height);
 
-    expect(drift, lessThan(budget),
-        reason: 'card_back.webp differs from its own 180-degree rotation by '
-            '${drift.toStringAsFixed(3)} levels on average (budget $budget). A '
-            'card dealt upside down would be distinguishable from one dealt the '
-            'right way up.');
+    expect(
+      drift,
+      lessThan(budget),
+      reason:
+          'card_back.webp differs from its own 180-degree rotation by '
+          '${drift.toStringAsFixed(3)} levels on average (budget $budget). A '
+          'card dealt upside down would be distinguishable from one dealt the '
+          'right way up.',
+    );
   });
 
   test('the measurement is not vacuous', () async {
@@ -87,10 +89,14 @@ void main() {
     final img = await load(AppImages.cardFaceMafia);
     final drift = rotationDrift(img.pixels, img.width, img.height);
 
-    expect(drift, greaterThan(budget),
-        reason: 'a role card face measured only ${drift.toStringAsFixed(3)} '
-            'levels of rotation drift, so this suite would pass an asymmetric '
-            'back too. Either the face art became symmetric or the budget is too '
-            'loose to mean anything.');
+    expect(
+      drift,
+      greaterThan(budget),
+      reason:
+          'a role card face measured only ${drift.toStringAsFixed(3)} '
+          'levels of rotation drift, so this suite would pass an asymmetric '
+          'back too. Either the face art became symmetric or the budget is too '
+          'loose to mean anything.',
+    );
   });
 }

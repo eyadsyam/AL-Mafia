@@ -67,31 +67,34 @@ void main() {
   group('no two chairs share a pixel', () {
     for (final band in _bands) {
       for (final roster in _rosters) {
-        test('${band.width.toInt()}x${band.height.toInt()}, $roster players',
-            () {
-          final layout = CouncilGeometry.layout(
-            size: band,
-            seatCount: roster - 1,
-            totalPlayers: roster,
-          );
-          expect(layout, hasLength(roster - 1));
+        test(
+          '${band.width.toInt()}x${band.height.toInt()}, $roster players',
+          () {
+            final layout = CouncilGeometry.layout(
+              size: band,
+              seatCount: roster - 1,
+              totalPlayers: roster,
+            );
+            expect(layout, hasLength(roster - 1));
 
-          for (var i = 0; i < layout.length; i++) {
-            for (var j = i + 1; j < layout.length; j++) {
-              expect(
-                // Deflated by a hair: two chairs may share an edge, and a
-                // shared edge is `overlaps` returning false already — this
-                // guards against the floating-point case where it does not.
-                layout[i].hitRect.deflate(0.5).overlaps(
-                      layout[j].hitRect.deflate(0.5),
-                    ),
-                isFalse,
-                reason: 'chairs $i and $j overlap: '
-                    '${layout[i].hitRect} vs ${layout[j].hitRect}',
-              );
+            for (var i = 0; i < layout.length; i++) {
+              for (var j = i + 1; j < layout.length; j++) {
+                expect(
+                  // Deflated by a hair: two chairs may share an edge, and a
+                  // shared edge is `overlaps` returning false already — this
+                  // guards against the floating-point case where it does not.
+                  layout[i].hitRect
+                      .deflate(0.5)
+                      .overlaps(layout[j].hitRect.deflate(0.5)),
+                  isFalse,
+                  reason:
+                      'chairs $i and $j overlap: '
+                      '${layout[i].hitRect} vs ${layout[j].hitRect}',
+                );
+              }
             }
-          }
-        });
+          },
+        );
       }
     }
   });
@@ -106,13 +109,26 @@ void main() {
         );
         for (final seat in layout) {
           final rect = seat.hitRect;
-          expect(rect.left, greaterThanOrEqualTo(-0.01),
-              reason: '$band $roster');
-          expect(rect.right, lessThanOrEqualTo(band.width + 0.01),
-              reason: '$band $roster');
-          expect(rect.top, greaterThanOrEqualTo(-0.01), reason: '$band $roster');
-          expect(rect.bottom, lessThanOrEqualTo(band.height + 0.01),
-              reason: '$band $roster');
+          expect(
+            rect.left,
+            greaterThanOrEqualTo(-0.01),
+            reason: '$band $roster',
+          );
+          expect(
+            rect.right,
+            lessThanOrEqualTo(band.width + 0.01),
+            reason: '$band $roster',
+          );
+          expect(
+            rect.top,
+            greaterThanOrEqualTo(-0.01),
+            reason: '$band $roster',
+          );
+          expect(
+            rect.bottom,
+            lessThanOrEqualTo(band.height + 0.01),
+            reason: '$band $roster',
+          );
         }
       }
     }
@@ -132,35 +148,41 @@ void main() {
       );
       for (final seat in layout) {
         expect(seat.hitRect.width, greaterThanOrEqualTo(24.0), reason: '$band');
-        expect(seat.hitRect.height, greaterThanOrEqualTo(40.0),
-            reason: '$band');
+        expect(
+          seat.hitRect.height,
+          greaterThanOrEqualTo(40.0),
+          reason: '$band',
+        );
       }
     }
   });
 
-  testWidgets('the shipped band lays fourteen chairs out without overlapping',
-      (tester) async {
+  testWidgets('the shipped band lays fourteen chairs out without overlapping', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(360, 640);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(localizedApp(
-      Center(
-        child: SizedBox(
-          width: 360,
-          height: 200,
-          child: TablePulse(
-            child: CouncilBand(
-              totalPlayers: 15,
-              seats: [
-                for (var i = 1; i < 15; i++)
-                  CouncilSeatData(seat: i, name: 'لاعب رقم $i'),
-              ],
+    await tester.pumpWidget(
+      localizedApp(
+        Center(
+          child: SizedBox(
+            width: 360,
+            height: 200,
+            child: TablePulse(
+              child: CouncilBand(
+                totalPlayers: 15,
+                seats: [
+                  for (var i = 1; i < 15; i++)
+                    CouncilSeatData(seat: i, name: 'لاعب رقم $i'),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ));
+    );
     await tester.pump();
 
     final rects = <Rect>[];

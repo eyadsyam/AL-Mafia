@@ -82,8 +82,9 @@ void main() {
             // content on the card. It lives on the front face, so it must not
             // be visible before the halfway point — including it here is what
             // makes that testable rather than assumed.
-            teammateNames:
-                role == Role.mafia ? const ['Aaaa', 'Bbbb'] : const [],
+            teammateNames: role == Role.mafia
+                ? const ['Aaaa', 'Bbbb']
+                : const [],
             onDismissed: () {},
           ),
         ),
@@ -100,8 +101,9 @@ void main() {
     if (elapsed > Duration.zero) await tester.pump(elapsed);
     await loadArtwork(tester);
 
-    final boundary =
-        tester.renderObject<RenderRepaintBoundary>(find.byKey(boundaryKey));
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.byKey(boundaryKey),
+    );
     final bytes = await tester.runAsync(() async {
       final ui.Image image = await boundary.toImage();
       try {
@@ -121,9 +123,13 @@ void main() {
   /// person could see the difference, and a mean of a fraction of a level is far
   /// below that.
   double meanDelta(Uint8List a, Uint8List b) {
-    expect(a.length, b.length,
-        reason: 'frames are different sizes, so the two roles are not even '
-            'laying out to the same bounds — that is a leak on its own.');
+    expect(
+      a.length,
+      b.length,
+      reason:
+          'frames are different sizes, so the two roles are not even '
+          'laying out to the same bounds — that is a leak on its own.',
+    );
     var total = 0.0;
     for (var i = 0; i < a.length; i++) {
       total += (a[i] - b[i]).abs();
@@ -185,7 +191,8 @@ void main() {
           expect(
             delta,
             lessThan(budget),
-            reason: 'LEAK: at "${stage.key}" the ${entry.key.name} card differs '
+            reason:
+                'LEAK: at "${stage.key}" the ${entry.key.name} card differs '
                 'from the citizen card by ${delta.toStringAsFixed(3)} levels on '
                 'average. The card is still edge-on or face-down here, so the '
                 'table can see this frame and nothing in it may depend on the '
@@ -196,8 +203,9 @@ void main() {
       });
     }
 
-    testWidgets('nothing the card says is legible before it turns past edge-on',
-        (tester) async {
+    testWidgets('nothing the card says is legible before it turns past edge-on', (
+      tester,
+    ) async {
       // The stages above could pass for the wrong reason. If the front swapped
       // in early but all four fronts happened to be luminance-matched (they
       // are — see luminance_budget_test.dart), a pixel comparison could stay
@@ -206,24 +214,29 @@ void main() {
       // ever rendered for one role.
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      final before = await frameAt(tester, Role.mafia, flipDuration * (swap * 0.95));
+      final before = await frameAt(
+        tester,
+        Role.mafia,
+        flipDuration * (swap * 0.95),
+      );
       expect(
         find.text('Aaaa', skipOffstage: false).evaluate().where((e) {
           // Laid out but not painted is fine and is how the slot keeps its
           // size; what matters is whether it reaches the screen.
-          final visibility =
-              e.findAncestorWidgetOfExactType<Visibility>();
+          final visibility = e.findAncestorWidgetOfExactType<Visibility>();
           return visibility == null || visibility.visible;
         }),
         isEmpty,
-        reason: 'the mafia teammate list is visible while the card is still '
+        reason:
+            'the mafia teammate list is visible while the card is still '
             'side-on to the table. Everyone opposite can read it.',
       );
       expect(before, isNotEmpty);
     });
 
-    testWidgets('all four roles begin to differ on the same frame',
-        (tester) async {
+    testWidgets('all four roles begin to differ on the same frame', (
+      tester,
+    ) async {
       // The pair of facts that pins the reveal: identical up to the boundary,
       // different immediately after it. Without the second half, a card that
       // never revealed anything at all would satisfy every assertion in this
@@ -238,12 +251,15 @@ void main() {
 
       for (final entry in frames.entries) {
         if (entry.key == Role.citizen) continue;
-        expect(meanDelta(frames[Role.citizen]!, entry.value),
-            greaterThan(budget),
-            reason: 'one frame past edge-on the ${entry.key.name} card is '
-                'still indistinguishable from the citizen card, so either the '
-                'reveal happens later for some roles than others, or it is not '
-                'happening at all');
+        expect(
+          meanDelta(frames[Role.citizen]!, entry.value),
+          greaterThan(budget),
+          reason:
+              'one frame past edge-on the ${entry.key.name} card is '
+              'still indistinguishable from the citizen card, so either the '
+              'reveal happens later for some roles than others, or it is not '
+              'happening at all',
+        );
       }
     });
 
@@ -256,11 +272,15 @@ void main() {
       final citizen = await frameAt(tester, Role.citizen, flipDuration);
       final mafia = await frameAt(tester, Role.mafia, flipDuration);
 
-      expect(meanDelta(citizen, mafia), greaterThan(budget),
-          reason: 'the revealed mafia and citizen cards measured as identical. '
-              'They are different paintings with different text, so the frame '
-              'capture is not seeing the card at all — every "roles match" '
-              'assertion in this file is therefore vacuous.');
+      expect(
+        meanDelta(citizen, mafia),
+        greaterThan(budget),
+        reason:
+            'the revealed mafia and citizen cards measured as identical. '
+            'They are different paintings with different text, so the frame '
+            'capture is not seeing the card at all — every "roles match" '
+            'assertion in this file is therefore vacuous.',
+      );
     });
   });
 }

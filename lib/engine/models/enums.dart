@@ -3,31 +3,21 @@
 library engine.models.enums;
 
 /// Win alignment: either Mafia or Town.
-enum Alignment {
-  mafia,
-  town,
-}
+enum Alignment { mafia, town }
 
 /// A player's role determines their night action and win condition.
 /// Reference: data-model.md §3
-enum Role {
-  mafia,
-  doctor,
-  detective,
-  citizen,
-}
+enum Role { mafia, doctor, detective, citizen }
 
 extension RoleX on Role {
   /// Returns the alignment: mafia roles align with mafia; others with town.
-  Alignment get alignment => this == Role.mafia ? Alignment.mafia : Alignment.town;
+  Alignment get alignment =>
+      this == Role.mafia ? Alignment.mafia : Alignment.town;
 }
 
 /// A player's current vital status.
 /// Reference: data-model.md §2
-enum PlayerStatus {
-  alive,
-  dead,
-}
+enum PlayerStatus { alive, dead }
 
 /// The game's finite state machine phases.
 /// Reference: data-model.md §9
@@ -63,26 +53,15 @@ enum GamePhase {
 
 /// Configuration for discussion phase behavior.
 /// Reference: data-model.md §4
-enum DiscussionMode {
-  structured,
-  free,
-}
+enum DiscussionMode { structured, free }
 
 /// Tie-breaking rule for day votes.
 /// Reference: data-model.md §4
-enum DayTieRule {
-  revote,
-  noElimination,
-}
+enum DayTieRule { revote, noElimination }
 
 /// Type of night action a player may perform.
 /// Reference: data-model.md §5
-enum NightActionKind {
-  mafiaVote,
-  protect,
-  investigate,
-  suspect,
-}
+enum NightActionKind { mafiaVote, protect, investigate, suspect }
 
 /// The night action every role performs, as a total function of the role.
 ///
@@ -91,11 +70,11 @@ enum NightActionKind {
 /// answer it differently from the engine.
 extension RoleNightAction on Role {
   NightActionKind get nightAction => switch (this) {
-        Role.mafia => NightActionKind.mafiaVote,
-        Role.doctor => NightActionKind.protect,
-        Role.detective => NightActionKind.investigate,
-        Role.citizen => NightActionKind.suspect,
-      };
+    Role.mafia => NightActionKind.mafiaVote,
+    Role.doctor => NightActionKind.protect,
+    Role.detective => NightActionKind.investigate,
+    Role.citizen => NightActionKind.suspect,
+  };
 }
 
 /// «الطلقة الواحدة» — the one irreversible thing each role is holding.
@@ -114,7 +93,6 @@ enum BulletKind {
 
   /// طبيب — «حماية النفس». The one night the Doctor may cover their own seat.
   selfProtect,
-
 }
 
 /// The once-per-match ability a role is holding, or null for the two roles
@@ -133,9 +111,9 @@ enum BulletKind {
 /// tile on "choose nobody".
 extension RoleBullet on Role {
   BulletKind? get bullet => switch (this) {
-        Role.mafia => BulletKind.quietNight,
-        Role.doctor => BulletKind.selfProtect,
-        Role.detective => null,
-        Role.citizen => null,
-      };
+    Role.mafia => BulletKind.quietNight,
+    Role.doctor => BulletKind.selfProtect,
+    Role.detective => null,
+    Role.citizen => null,
+  };
 }

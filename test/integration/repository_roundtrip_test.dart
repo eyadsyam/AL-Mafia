@@ -31,8 +31,11 @@ void main() {
       expect(restored.currentActorSeat, equals(original.currentActorSeat));
       expect(restored.eventLog.length, equals(original.eventLog.length));
       for (var i = 0; i < original.eventLog.length; i++) {
-        expect(restored.eventLog[i], equals(original.eventLog[i]),
-            reason: 'event $i changed across the round trip');
+        expect(
+          restored.eventLog[i],
+          equals(original.eventLog[i]),
+          reason: 'event $i changed across the round trip',
+        );
       }
     });
 
@@ -54,8 +57,11 @@ void main() {
       final original = engine.match;
       final kinds = original.eventLog.map((e) => e.runtimeType).toSet();
 
-      expect(kinds.length, greaterThan(4),
-          reason: 'the scripted match is not exercising enough event types');
+      expect(
+        kinds.length,
+        greaterThan(4),
+        reason: 'the scripted match is not exercising enough event types',
+      );
       expect(MatchCodec.decode(MatchCodec.encode(original)), equals(original));
     });
 
@@ -78,7 +84,8 @@ void main() {
       final json = MatchCodec.encode(engine.match);
 
       expect(json['phase'], isA<String>());
-      final firstPlayer = (json['players'] as List).first as Map<String, dynamic>;
+      final firstPlayer =
+          (json['players'] as List).first as Map<String, dynamic>;
       expect(firstPlayer['role'], isA<String>());
       expect(Role.values.map((r) => r.name), contains(firstPlayer['role']));
     });
@@ -99,8 +106,11 @@ void main() {
       await repository.persistStep(engine.match);
       await repository.persistStep(engine.match);
 
-      expect(store.matches, hasLength(1),
-          reason: 'each step of one match must address the same row');
+      expect(
+        store.matches,
+        hasLength(1),
+        reason: 'each step of one match must address the same row',
+      );
     });
 
     test('loadActiveMatch returns the unfinished match', () async {
@@ -147,51 +157,63 @@ void main() {
       await repository.persistStep(newer.match);
 
       var history = await repository.listHistory();
-      expect(history.map((s) => s.id).toList(),
-          equals([newer.match.id, older.match.id]));
+      expect(
+        history.map((s) => s.id).toList(),
+        equals([newer.match.id, older.match.id]),
+      );
 
       await repository.deleteMatch(newer.match.id);
       history = await repository.listHistory();
       expect(history.map((s) => s.id).toList(), equals([older.match.id]));
     });
 
-    test('default settings round-trip, and are defaulted before any save',
-        () async {
-      expect(await repository.loadDefaultSettings(),
-          equals(const MatchSettings.defaults()));
+    test(
+      'default settings round-trip, and are defaulted before any save',
+      () async {
+        expect(
+          await repository.loadDefaultSettings(),
+          equals(const MatchSettings.defaults()),
+        );
 
-      const custom = MatchSettings(
-        speechSeconds: 45,
-        discussionMode: DiscussionMode.free,
-        dayTieRule: DayTieRule.noElimination,
-        narrationEnabled: false,
-        abstainAllowed: true,
-      );
-      await repository.saveDefaultSettings(custom);
-      expect(await repository.loadDefaultSettings(), equals(custom));
-    });
+        const custom = MatchSettings(
+          speechSeconds: 45,
+          discussionMode: DiscussionMode.free,
+          dayTieRule: DayTieRule.noElimination,
+          narrationEnabled: false,
+          abstainAllowed: true,
+        );
+        await repository.saveDefaultSettings(custom);
+        expect(await repository.loadDefaultSettings(), equals(custom));
+      },
+    );
 
-    test('a stored match cannot be mutated through the object that wrote it',
-        () async {
-      final engine = scriptedMatch(stopAfterNightActions: 1);
-      await repository.persistStep(engine.match);
-      final before = await repository.loadActiveMatch();
+    test(
+      'a stored match cannot be mutated through the object that wrote it',
+      () async {
+        final engine = scriptedMatch(stopAfterNightActions: 1);
+        await repository.persistStep(engine.match);
+        final before = await repository.loadActiveMatch();
 
-      // Keep playing without persisting; storage must not have followed along.
-      engine.submitNightAction(
-        seat: engine.match.currentActorSeat!,
-        kind: _kindFor(engine.match, engine.match.currentActorSeat!),
-        targetSeat: _anyTargetFor(engine.match, engine.match.currentActorSeat!),
-      );
+        // Keep playing without persisting; storage must not have followed along.
+        engine.submitNightAction(
+          seat: engine.match.currentActorSeat!,
+          kind: _kindFor(engine.match, engine.match.currentActorSeat!),
+          targetSeat: _anyTargetFor(
+            engine.match,
+            engine.match.currentActorSeat!,
+          ),
+        );
 
-      final after = await repository.loadActiveMatch();
-      expect(after, equals(before));
-      expect(after, isNot(equals(engine.match)));
-    });
+        final after = await repository.loadActiveMatch();
+        expect(after, equals(before));
+        expect(after, isNot(equals(engine.match)));
+      },
+    );
   });
 }
 
-NightActionKind _kindFor(Match match, int seat) => switch (match.players[seat].role) {
+NightActionKind _kindFor(Match match, int seat) =>
+    switch (match.players[seat].role) {
       Role.mafia => NightActionKind.mafiaVote,
       Role.doctor => NightActionKind.protect,
       Role.detective => NightActionKind.investigate,

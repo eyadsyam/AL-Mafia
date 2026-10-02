@@ -80,8 +80,12 @@ _Cell _measure(MatchPreset preset, int players, TownPolicy town) {
   var maxMoves = 0;
   final nights = <int>[];
   for (var seed = 0; seed < _runs; seed++) {
-    final r =
-        simulateMatch(preset: preset, players: players, seed: seed, town: town);
+    final r = simulateMatch(
+      preset: preset,
+      players: players,
+      seed: seed,
+      town: town,
+    );
     if (r.mafiaWon) mafiaWins++;
     nights.add(r.nights);
     if (r.moves > maxMoves) maxMoves = r.moves;
@@ -115,10 +119,12 @@ void main() {
 
     final table = StringBuffer('balance over $_runs matches per cell\n');
     for (final c in cells) {
-      table.writeln('  ${c.label.padRight(26)} '
-          'mafia ${(c.mafiaRate * 100).toStringAsFixed(1).padLeft(5)}%  '
-          'median ${c.medianNights} nights  max ${c.maxMoves} moves'
-          '${c.inBand ? '' : '   <- outside 40-60%'}');
+      table.writeln(
+        '  ${c.label.padRight(26)} '
+        'mafia ${(c.mafiaRate * 100).toStringAsFixed(1).padLeft(5)}%  '
+        'median ${c.medianNights} nights  max ${c.maxMoves} moves'
+        '${c.inBand ? '' : '   <- outside 40-60%'}',
+      );
     }
     // ignore: avoid_print
     print(table);
@@ -130,7 +136,8 @@ void main() {
         expect(
           c.mafiaRate,
           inInclusiveRange(0.20, 0.80),
-          reason: '${c.label} -> ${(c.mafiaRate * 100).toStringAsFixed(1)}%. '
+          reason:
+              '${c.label} -> ${(c.mafiaRate * 100).toStringAsFixed(1)}%. '
               'A cell this lopsided is not a game with a bad band, it is a '
               'configuration the app should not be offering.',
         );
@@ -143,7 +150,8 @@ void main() {
       expect(
         mean,
         inInclusiveRange(0.45, 0.55),
-        reason: 'mean mafia win rate across ${cells.length} cells is '
+        reason:
+            'mean mafia win rate across ${cells.length} cells is '
             '${(mean * 100).toStringAsFixed(1)}%',
       );
     });
@@ -154,7 +162,8 @@ void main() {
       expect(
         inBand * 3,
         greaterThanOrEqualTo(cells.length * 2),
-        reason: 'only $inBand of ${cells.length} cells are in band. '
+        reason:
+            'only $inBand of ${cells.length} cells are in band. '
             'Outside: ${outside.join(', ')}',
       );
     });
@@ -164,14 +173,14 @@ void main() {
         expect(
           c.medianNights,
           inInclusiveRange(3, 6),
-          reason: '${c.label} -> median ${c.medianNights} nights. Doc 13 §6: '
+          reason:
+              '${c.label} -> median ${c.medianNights} nights. Doc 13 §6: '
               'longer means the game drags.',
         );
       }
     });
 
-    test('fifteen players takes exactly one night longer than doc 13 wants',
-        () {
+    test('fifteen players takes exactly one night longer than doc 13 wants', () {
       // Recorded as its own assertion rather than folded into the range above,
       // because it is a deviation from doc 13 §6's *"median match length in
       // nights, per player count, must sit in 3-6"* and deviations get written
@@ -201,22 +210,25 @@ void main() {
       }
     });
 
-    test('the quiet night does not push the Mafia past 60% at any table size',
-        () {
-      // Doc 13 §6's own extra assertion, and the one that most needed making:
-      // «الليلة الهادية» takes a whole morning of information away from the
-      // town, and a mechanic that does that is exactly the kind that quietly
-      // wins the game for one side.
-      for (final n in [8, 9, 10, 12, 15]) {
-        final withQuiet = _measure(MatchPreset.classic, n, TownPolicy.trace);
-        expect(
-          withQuiet.mafiaRate,
-          lessThanOrEqualTo(0.60),
-          reason: 'classic @ $n with the quiet night on -> '
-              '${(withQuiet.mafiaRate * 100).toStringAsFixed(1)}%',
-        );
-      }
-    });
+    test(
+      'the quiet night does not push the Mafia past 60% at any table size',
+      () {
+        // Doc 13 §6's own extra assertion, and the one that most needed making:
+        // «الليلة الهادية» takes a whole morning of information away from the
+        // town, and a mechanic that does that is exactly the kind that quietly
+        // wins the game for one side.
+        for (final n in [8, 9, 10, 12, 15]) {
+          final withQuiet = _measure(MatchPreset.classic, n, TownPolicy.trace);
+          expect(
+            withQuiet.mafiaRate,
+            lessThanOrEqualTo(0.60),
+            reason:
+                'classic @ $n with the quiet night on -> '
+                '${(withQuiet.mafiaRate * 100).toStringAsFixed(1)}%',
+          );
+        }
+      },
+    );
 
     test('turning the quiet night off does not swing the game either way', () {
       // The other half of the same question. A mechanic worth having changes
@@ -246,7 +258,8 @@ void main() {
       expect(
         (withOn - withOff).abs() / 2,
         lessThan(0.10),
-        reason: 'quiet night on ${(withOn / 2 * 100).toStringAsFixed(1)}% vs '
+        reason:
+            'quiet night on ${(withOn / 2 * 100).toStringAsFixed(1)}% vs '
             'off ${(withOff / 2 * 100).toStringAsFixed(1)}% — a ten-point '
             'swing from one toggle is a mechanic that decides matches',
       );
@@ -278,44 +291,48 @@ void main() {
       expect(
         traceMean,
         lessThan(naiveMean + 0.02),
-        reason: 'trace ${(traceMean * 100).toStringAsFixed(1)}% vs naive '
+        reason:
+            'trace ${(traceMean * 100).toStringAsFixed(1)}% vs naive '
             '${(naiveMean * 100).toStringAsFixed(1)}% mafia wins — believing '
             'the published trace is costing the town matches',
       );
     });
 
-    test('a town policy that reads the trace still beats one that plays blind',
-        () {
-      // The floor doc 13 §6 calls *"`RandomPolicy` — uniform random legal
-      // move"*. Everything above it is only worth measuring if it clears it.
-      var randomWins = 0;
-      var traceWins = 0;
-      for (var seed = 0; seed < _runs; seed++) {
-        if (simulateMatch(
-                preset: MatchPreset.classic,
-                players: 9,
-                seed: seed,
-                town: TownPolicy.random)
-            .mafiaWon) {
-          randomWins++;
+    test(
+      'a town policy that reads the trace still beats one that plays blind',
+      () {
+        // The floor doc 13 §6 calls *"`RandomPolicy` — uniform random legal
+        // move"*. Everything above it is only worth measuring if it clears it.
+        var randomWins = 0;
+        var traceWins = 0;
+        for (var seed = 0; seed < _runs; seed++) {
+          if (simulateMatch(
+            preset: MatchPreset.classic,
+            players: 9,
+            seed: seed,
+            town: TownPolicy.random,
+          ).mafiaWon) {
+            randomWins++;
+          }
+          if (simulateMatch(
+            preset: MatchPreset.classic,
+            players: 9,
+            seed: seed,
+            town: TownPolicy.trace,
+          ).mafiaWon) {
+            traceWins++;
+          }
         }
-        if (simulateMatch(
-                preset: MatchPreset.classic,
-                players: 9,
-                seed: seed,
-                town: TownPolicy.trace)
-            .mafiaWon) {
-          traceWins++;
-        }
-      }
-      expect(
-        traceWins,
-        lessThan(randomWins),
-        reason: 'random town loses ${randomWins / _runs}, reading town loses '
-            '${traceWins / _runs} — if these are equal, nothing the app '
-            'publishes is being used',
-      );
-    });
+        expect(
+          traceWins,
+          lessThan(randomWins),
+          reason:
+              'random town loses ${randomWins / _runs}, reading town loses '
+              '${traceWins / _runs} — if these are equal, nothing the app '
+              'publishes is being used',
+        );
+      },
+    );
   });
 
   group('doc 13 §5 — the presets are legal configurations', () {
@@ -327,49 +344,65 @@ void main() {
           final mafia = counts[Role.mafia] ?? 0;
           final total = counts.values.reduce((a, b) => a + b);
           expect(total, n, reason: '${preset.name} @ $n loses a player');
-          expect(mafia, greaterThanOrEqualTo(1),
-              reason: '${preset.name} @ $n has no Mafia');
-          expect(mafia * 2, lessThan(n),
-              reason: '${preset.name} @ $n starts at or past parity');
+          expect(
+            mafia,
+            greaterThanOrEqualTo(1),
+            reason: '${preset.name} @ $n has no Mafia',
+          );
+          expect(
+            mafia * 2,
+            lessThan(n),
+            reason: '${preset.name} @ $n starts at or past parity',
+          );
         }
       }
     });
 
-    test('the Mafia count at five to seven cannot land in band, either way',
-        () {
-      // Why three of the cells above are outside doc 13 §6's band, stated as
-      // an assertion rather than as an excuse. At six players one Mafioso is
-      // 17% of the table and two is 33%; the first is a town walkover and the
-      // second is a Mafia one. There is no third option, and no amount of
-      // tuning the other settings moves a whole person.
-      const n = 6;
-      const one = MatchSettings(speechSeconds: 45, discussionSeconds: 300);
-      var withOne = 0;
-      var withTwo = 0;
-      for (var seed = 0; seed < _runs; seed++) {
-        withOne += simulateMatch(
+    test(
+      'the Mafia count at five to seven cannot land in band, either way',
+      () {
+        // Why three of the cells above are outside doc 13 §6's band, stated as
+        // an assertion rather than as an excuse. At six players one Mafioso is
+        // 17% of the table and two is 33%; the first is a town walkover and the
+        // second is a Mafia one. There is no third option, and no amount of
+        // tuning the other settings moves a whole person.
+        const n = 6;
+        const one = MatchSettings(speechSeconds: 45, discussionSeconds: 300);
+        var withOne = 0;
+        var withTwo = 0;
+        for (var seed = 0; seed < _runs; seed++) {
+          withOne +=
+              simulateMatch(
                 preset: MatchPreset.classic,
                 players: n,
                 seed: seed,
                 town: TownPolicy.trace,
-                settings: one)
-            .mafiaWon
-            ? 1
-            : 0;
-        withTwo += simulateMatch(
+                settings: one,
+              ).mafiaWon
+              ? 1
+              : 0;
+          withTwo +=
+              simulateMatch(
                 preset: MatchPreset.brutal,
                 players: n,
                 seed: seed,
                 town: TownPolicy.trace,
-                settings: one)
-            .mafiaWon
-            ? 1
-            : 0;
-      }
-      expect(withOne / _runs, lessThan(0.40),
-          reason: 'one Mafioso in six should be a town game');
-      expect(withTwo / _runs, greaterThan(0.60),
-          reason: 'two Mafiosi in six should be a Mafia game');
-    });
+                settings: one,
+              ).mafiaWon
+              ? 1
+              : 0;
+        }
+        expect(
+          withOne / _runs,
+          lessThan(0.40),
+          reason: 'one Mafioso in six should be a town game',
+        );
+        expect(
+          withTwo / _runs,
+          greaterThan(0.60),
+          reason: 'two Mafiosi in six should be a Mafia game',
+        );
+      },
+    );
   });
 }

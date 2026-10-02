@@ -1,17 +1,15 @@
 import 'dart:async';
 
-// `Alignment` here is the engine's win side, not Flutter's layout anchor.
-// Hidden rather than prefixed: nothing in this file positions anything.
-import 'package:flutter/material.dart' hide Alignment;
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../engine/models/enums.dart'
-    show Alignment, PlayerStatus, RoleX;
+import '../../../../engine/models/enums.dart' show PlayerStatus, Role;
 import '../../../../transport/game_snapshot.dart';
-import '../../../../transport/online_backend.dart' show Prediction;
 import '../../../../transport/witness_channel.dart';
 import '../../../l10n_ext.dart';
+import '../../../theme/design_tokens.dart';
 import '../../../theme/mafia_theme.dart';
+import '../council/card_rise.dart' show faceFor;
 import '../../../widgets/hint_slot.dart';
 import 'own_record.dart';
 
@@ -28,14 +26,20 @@ class WitnessPanel extends ConsumerStatefulWidget {
   /// eliminated player is still at the table and this panel never appears.
   final WitnessChannel? channel;
 
-  const WitnessPanel({super.key, required this.snapshot, this.channel});
+  /// The open table — every role and night choice — or null while it has not
+  /// been read yet. Owned by the table flow, which polls it.
+  final WitnessTable? table;
+
+  const WitnessPanel({
+    super.key,
+    required this.snapshot,
+    this.channel,
+    this.table,
+  });
 
   static const Key tabs = ValueKey('witness_tabs');
   static const Key chatField = ValueKey('witness_chat_field');
   static const Key chatSend = ValueKey('witness_chat_send');
-  static const Key predictionLock = ValueKey('witness_prediction_lock');
-
-  static Key predictionSeat(int seat) => ValueKey('witness_predict_seat_$seat');
 
   @override
   ConsumerState<WitnessPanel> createState() => _WitnessPanelState();
@@ -51,9 +55,6 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
   StreamSubscription<List<GhostMessage>>? _feed;
   List<GhostMessage> _messages = const [];
 
-  Prediction? _locked;
-  Alignment _winner = Alignment.town;
-  final Set<int> _named = <int>{};
   bool _sending = false;
 
   @override
@@ -73,14 +74,6 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
         _scroll.jumpTo(_scroll.position.maxScrollExtent);
       });
     });
-
-    unawaited(
-      channel.myPrediction().then((prediction) {
-        if (mounted && prediction != null) {
-          setState(() => _locked = prediction);
-        }
-      }),
-    );
   }
 
   @override
@@ -111,17 +104,6 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
     }
   }
 
-  Future<void> _lock() async {
-    final channel = widget.channel;
-    if (channel == null) return;
-    final prediction = Prediction(winner: _winner, mafiaSeats: {..._named});
-    final accepted = await channel.predict(prediction);
-    if (!mounted) return;
-    // False means one was already lodged, which is the same end state as
-    // success from this screen's point of view: it is locked either way.
-    setState(() => _locked = accepted ? prediction : _locked ?? prediction);
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -133,8 +115,8 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
     return Container(
       decoration: BoxDecoration(
         color: colors.surfaceRaised,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(radii.dialog)),
-        border: Border(top: BorderSide(color: colors.borderSubtle)),
+        borderRadius: BorderRadius.circular(radii.dialog),
+        border: Border.all(color: colors.borderSubtle),
       ),
       // Doc 15 §S-O14 put this inside the band system rather than over it, so
       // it takes the height band 4 gives it instead of naming one of its own.
@@ -165,27 +147,15 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
             indicatorColor: colors.accentGold,
             labelStyle: type.caption,
             tabs: [
+              Tab(text: l10n.witnessTabTable),
               Tab(text: l10n.witnessTabChat),
-              Tab(text: l10n.witnessTabPrediction),
               Tab(text: l10n.witnessTabRecord),
             ],
           ),
           Expanded(
             child: TabBarView(
               controller: _tabs,
-              children: [
-                _chat(context),
-                _prediction(context),
-                _record(context),
-              ],
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(spacing.md, 0, spacing.md, spacing.xs),
-            child: Text(
-              l10n.witnessChatWalled,
-              textAlign: TextAlign.center,
-              style: type.caption.copyWith(color: colors.textMuted),
+              children: [_table(context), _chat(context), _record(context)],
             ),
           ),
         ],
@@ -203,6 +173,15 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
 
     return Column(
       children: [
+        // The wall, said where it applies: under the graveyard's own words.
+        Padding(
+          padding: EdgeInsets.only(top: spacing.xs),
+          child: Text(
+            l10n.witnessChatWalled,
+            textAlign: TextAlign.center,
+            style: type.caption.copyWith(color: colors.textMuted),
+          ),
+        ),
         Expanded(
           child: _messages.isEmpty
               ? Center(
@@ -275,132 +254,96 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
     );
   }
 
-  // ── the call ─────────────────────────────────────────────────────────────
+  // ── the open table ───────────────────────────────────────────────────────
 
-  Widget _prediction(BuildContext context) {
+  /// Every seat as its card, then every night choice, newest night first.
+  /// Owner decision 2026-09-23 (doc 12 §4.1): the dead see the whole game.
+  Widget _table(BuildContext context) {
     final colors = context.colors;
     final type = context.typography;
     final spacing = context.spacing;
     final l10n = context.l10n;
 
-    final locked = _locked;
-    if (locked != null) {
-      return _lockedPrediction(context, locked);
+    final table = widget.table;
+    if (table == null) {
+      return Center(
+        child: Text(
+          l10n.witnessTableLoading,
+          style: type.caption.copyWith(color: colors.textMuted),
+        ),
+      );
     }
 
-    final living = [
-      for (final player in widget.snapshot.public.players)
-        if (player.status == PlayerStatus.alive) player,
-    ];
+    final players = [...widget.snapshot.public.players]
+      ..sort((a, b) => a.seat.compareTo(b.seat));
+    final names = {for (final p in players) p.seat: p.name};
+    final nights = {for (final a in table.actions) a.night}.toList()
+      ..sort((a, b) => b.compareTo(a));
 
-    return SingleChildScrollView(
+    String line(WitnessAction a) {
+      final actor = names[a.seat] ?? '';
+      final target = names[a.targetSeat] ?? '';
+      return switch (a.action) {
+        'kill' => l10n.witnessActionKill(actor, target),
+        'protect' => l10n.witnessActionProtect(actor, target),
+        'investigate' => l10n.witnessActionInvestigate(actor, target),
+        _ => l10n.witnessActionSuspect(actor, target),
+      };
+    }
+
+    return ListView(
       padding: EdgeInsets.all(spacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            l10n.witnessPredictionWinner,
-            style: type.caption.copyWith(color: colors.textMuted),
-          ),
-          SizedBox(height: spacing.xs),
-          SegmentedButton<Alignment>(
-            segments: [
-              ButtonSegment(value: Alignment.town, label: Text(l10n.townWins)),
-              ButtonSegment(
-                value: Alignment.mafia,
-                label: Text(l10n.mafiaWins),
+      children: [
+        Wrap(
+          spacing: spacing.sm,
+          runSpacing: spacing.xs,
+          children: [
+            for (final player in players)
+              _CastChip(
+                name: player.name,
+                role: table.roles[player.seat],
+                out: player.status != PlayerStatus.alive,
+                isViewer: player.seat == widget.snapshot.viewerSeat,
               ),
-            ],
-            selected: {_winner},
-            showSelectedIcon: false,
-            onSelectionChanged: (value) =>
-                setState(() => _winner = value.first),
-          ),
-          SizedBox(height: spacing.md),
-          Text(
-            l10n.witnessPredictionMafia,
-            style: type.caption.copyWith(color: colors.textMuted),
-          ),
-          SizedBox(height: spacing.xs),
-          Wrap(
-            spacing: spacing.xs,
-            runSpacing: spacing.xs,
-            children: [
-              for (final player in living)
-                FilterChip(
-                  key: WitnessPanel.predictionSeat(player.seat),
-                  label: Text(player.name),
-                  selected: _named.contains(player.seat),
-                  onSelected: (on) => setState(() {
-                    if (on) {
-                      _named.add(player.seat);
-                    } else {
-                      _named.remove(player.seat);
-                    }
-                  }),
-                ),
-            ],
-          ),
-          SizedBox(height: spacing.md),
-          FilledButton(
-            key: WitnessPanel.predictionLock,
-            onPressed: _named.isEmpty ? null : _lock,
-            child: Text(l10n.witnessPredictionLock),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _lockedPrediction(BuildContext context, Prediction locked) {
-    final colors = context.colors;
-    final type = context.typography;
-    final spacing = context.spacing;
-    final l10n = context.l10n;
-
-    final names = {
-      for (final player in widget.snapshot.public.players)
-        player.seat: player.name,
-    };
-
-    // Scored only once the match has actually ended, and only against the
-    // standings — which are the roles becoming public, not a peek at them.
-    final standings = widget.snapshot.standings;
-    final scored = standings.isNotEmpty;
-    final actual = {
-      for (final standing in standings)
-        if (standing.role.alignment == Alignment.mafia) standing.seat,
-    };
-
-    return Padding(
-      padding: EdgeInsets.all(spacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.witnessPredictionLocked,
-            style: type.body.copyWith(color: colors.textPrimary),
-          ),
-          SizedBox(height: spacing.sm),
-          Text(
-            [
-              locked.winner == Alignment.mafia ? l10n.mafiaWins : l10n.townWins,
-              ...locked.mafiaSeats.map((seat) => names[seat] ?? ''),
-            ].where((s) => s.isNotEmpty).join('  ·  '),
-            style: type.caption.copyWith(color: colors.textSecondary),
-          ),
-          if (scored) ...[
-            SizedBox(height: spacing.md),
-            Text(
-              l10n.witnessPredictionScore(
-                locked.correctAgainst(actual),
-                actual.length,
-              ),
-              style: type.title.copyWith(color: colors.accentGold),
-            ),
           ],
+        ),
+        SizedBox(height: spacing.md),
+        if (nights.isEmpty)
+          Text(
+            l10n.witnessTableNoActions,
+            textAlign: TextAlign.center,
+            style: type.caption.copyWith(color: colors.textMuted),
+          ),
+        for (final night in nights) ...[
+          Padding(
+            padding: EdgeInsets.only(bottom: spacing.xs),
+            child: Text(
+              l10n.nightNumbered(night),
+              style: type.caption.copyWith(color: colors.accentGold),
+            ),
+          ),
+          for (final action in table.actions.where((a) => a.night == night))
+            Padding(
+              padding: EdgeInsets.only(bottom: spacing.xs),
+              child: Row(
+                children: [
+                  if (table.roles[action.seat] != null)
+                    RoleFace(
+                      role: table.roles[action.seat]!,
+                      size: CouncilTokens.witnessActionThumb,
+                    ),
+                  SizedBox(width: spacing.sm),
+                  Expanded(
+                    child: Text(
+                      line(action),
+                      style: type.body.copyWith(color: colors.textSecondary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
-      ),
+      ],
     );
   }
 
@@ -463,6 +406,108 @@ class _WitnessPanelState extends ConsumerState<WitnessPanel>
           ),
         );
       },
+    );
+  }
+}
+
+/// One seat of the open table: the face, the name, the role.
+class _CastChip extends StatelessWidget {
+  final String name;
+  final Role? role;
+  final bool out;
+  final bool isViewer;
+
+  const _CastChip({
+    required this.name,
+    required this.role,
+    required this.out,
+    required this.isViewer,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final type = context.typography;
+    final spacing = context.spacing;
+    final radii = context.radii;
+    final role = this.role;
+
+    return Opacity(
+      opacity: out ? CouncilTokens.witnessOutOpacity : 1,
+      child: Container(
+        padding: EdgeInsetsDirectional.fromSTEB(
+          spacing.xs,
+          spacing.xs,
+          spacing.sm,
+          spacing.xs,
+        ),
+        decoration: BoxDecoration(
+          color: colors.surfaceOverlay,
+          borderRadius: BorderRadius.circular(radii.button),
+          border: Border.all(
+            color: isViewer ? colors.accentGold : colors.borderSubtle,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (role != null)
+              RoleFace(role: role, size: CouncilTokens.witnessChipFace),
+            SizedBox(width: spacing.xs),
+            Text(
+              name,
+              style: type.caption.copyWith(
+                color: colors.textPrimary,
+                decoration: out ? TextDecoration.lineThrough : null,
+              ),
+            ),
+            if (role != null) ...[
+              SizedBox(width: spacing.xs),
+              Text(
+                EngineCopy.roleName(context.l10n, role),
+                style: type.caption.copyWith(color: colors.textMuted),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A character's face, lifted out of its card and set in a circle — the same
+/// crop the council's seats use, so a face means the same thing everywhere.
+class RoleFace extends StatelessWidget {
+  final Role role;
+  final double size;
+
+  const RoleFace({super.key, required this.role, required this.size});
+
+  /// The overflow alignment that puts the card's face (at
+  /// [CouncilTokens.portraitFaceY] of its height) in the middle of the circle:
+  /// with k = card height / circle, solve (1 − k)(a + 1)/2 + f·k = ½ for a.
+  static const double _k =
+      CouncilTokens.portraitZoom / CouncilTokens.cardArtAspect;
+  static const double _faceAlignment =
+      (1 - 2 * CouncilTokens.portraitFaceY * _k) / (1 - _k) - 1;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipOval(
+      child: SizedBox.square(
+        dimension: size,
+        child: OverflowBox(
+          maxWidth: size * CouncilTokens.portraitZoom,
+          maxHeight:
+              size * CouncilTokens.portraitZoom / CouncilTokens.cardArtAspect,
+          alignment: const Alignment(0, _faceAlignment),
+          child: Image.asset(
+            faceFor(role),
+            fit: BoxFit.fill,
+            excludeFromSemantics: true,
+          ),
+        ),
+      ),
     );
   }
 }

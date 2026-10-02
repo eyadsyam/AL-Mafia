@@ -39,7 +39,6 @@ import 'models/match.dart';
 import 'models/timeline_event.dart';
 import 'win_check.dart';
 
-
 /// Every invariant violation in [match], as human-readable lines. Empty means
 /// the state is sound.
 ///
@@ -73,10 +72,14 @@ class MatchInvariantViolation implements Exception {
   final String after;
   final List<String> violations;
 
-  const MatchInvariantViolation({required this.after, required this.violations});
+  const MatchInvariantViolation({
+    required this.after,
+    required this.violations,
+  });
 
   @override
-  String toString() => 'MatchInvariantViolation after $after:\n'
+  String toString() =>
+      'MatchInvariantViolation after $after:\n'
       '${violations.map((v) => '  - $v').join('\n')}';
 }
 
@@ -86,8 +89,10 @@ class MatchInvariantViolation implements Exception {
 
 void _checkI1Roster(Match match, List<String> out) {
   if (!match.isSeatingValid) {
-    out.add('I1: seats are not contiguous 0..n-1 '
-        '(${match.players.map((p) => p.seat).toList()})');
+    out.add(
+      'I1: seats are not contiguous 0..n-1 '
+      '(${match.players.map((p) => p.seat).toList()})',
+    );
   }
 
   for (final p in match.players) {
@@ -100,8 +105,10 @@ void _checkI1Roster(Match match, List<String> out) {
       out.add('I1: seat ${p.seat} is dead with no eliminatedOn');
     }
     if (!dead && p.eliminatedOn != null) {
-      out.add('I1: seat ${p.seat} is alive but carries '
-          'eliminatedOn=${p.eliminatedOn}');
+      out.add(
+        'I1: seat ${p.seat} is alive but carries '
+        'eliminatedOn=${p.eliminatedOn}',
+      );
     }
   }
 
@@ -115,7 +122,9 @@ void _checkI1Roster(Match match, List<String> out) {
       out.add('I1: currentActorSeat $actor is off the roster');
     } else if (match.players[actor].status != PlayerStatus.alive &&
         match.phase != GamePhase.distributing) {
-      out.add('I1: currentActorSeat $actor is dead in phase ${match.phase.name}');
+      out.add(
+        'I1: currentActorSeat $actor is dead in phase ${match.phase.name}',
+      );
     }
   }
 }
@@ -125,16 +134,19 @@ void _checkI1Roster(Match match, List<String> out) {
 // ---------------------------------------------------------------------------
 
 void _checkI2Resolvable(Match match, List<String> out) {
-  final aliveCount =
-      match.players.where((p) => p.status == PlayerStatus.alive).length;
+  final aliveCount = match.players
+      .where((p) => p.status == PlayerStatus.alive)
+      .length;
   final decided = WinChecker.checkWin(match);
 
   if (match.outcome != null) {
     // A recorded outcome and a phase that is still playing is the state that
     // strands a table on a screen with no forward button.
     if (match.phase != GamePhase.result && match.phase != GamePhase.analytics) {
-      out.add('I2: outcome ${match.outcome!.winner.name} recorded but phase is '
-          '${match.phase.name}');
+      out.add(
+        'I2: outcome ${match.outcome!.winner.name} recorded but phase is '
+        '${match.phase.name}',
+      );
     }
     return;
   }
@@ -143,8 +155,10 @@ void _checkI2Resolvable(Match match, List<String> out) {
   // is one already-pending transition away from ending. Anything else is a
   // match that can neither continue nor conclude.
   if (decided == null && aliveCount < 3) {
-    out.add('I2: no winner is detectable but only $aliveCount players are alive '
-        '— a live match needs at least one mafia and two others');
+    out.add(
+      'I2: no winner is detectable but only $aliveCount players are alive '
+      '— a live match needs at least one mafia and two others',
+    );
   }
 
   // Doc 11 N14: *"Every living player is Mafia → win check fires before the
@@ -164,8 +178,10 @@ void _checkI2Resolvable(Match match, List<String> out) {
     GamePhase.discussion,
   };
   if (decided != null && playingOn.contains(match.phase)) {
-    out.add('I2: ${match.phase.name} opened with ${decided.name} '
-        'already winning');
+    out.add(
+      'I2: ${match.phase.name} opened with ${decided.name} '
+      'already winning',
+    );
   }
 }
 
@@ -176,8 +192,10 @@ void _checkI2Resolvable(Match match, List<String> out) {
 void _checkI3WayOut(Match match, List<String> out) {
   if (isTerminal(match)) return;
   if (!hasLegalMove(match)) {
-    out.add('I3: phase ${match.phase.name} has no legal move '
-        '(actor=${match.currentActorSeat}, day=${match.dayNumber}) — dead end');
+    out.add(
+      'I3: phase ${match.phase.name} has no legal move '
+      '(actor=${match.currentActorSeat}, day=${match.dayNumber}) — dead end',
+    );
   }
 }
 
@@ -210,8 +228,10 @@ void _checkI4RolesConserved(Match match, List<String> out) {
     final d = dealt[role] ?? 0;
     final h = held[role] ?? 0;
     if (d != h) {
-      out.add('I4: ${role.name} was dealt $d times but $h players hold it — '
-          'a role changed mid-match');
+      out.add(
+        'I4: ${role.name} was dealt $d times but $h players hold it — '
+        'a role changed mid-match',
+      );
     }
   }
 }

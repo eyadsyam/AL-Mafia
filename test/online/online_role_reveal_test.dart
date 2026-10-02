@@ -233,7 +233,9 @@ void main() {
     expect(find.byKey(RoleCard.holdPad), findsNothing);
 
     backend.setOwn(const OwnSeat(seat: 1, role: 'mafia'));
-    await transport.resync();
+    // No push and no manual resync. The private-view retry owns recovery from
+    // the start-match write race; otherwise a guest can wait here forever.
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.pump();
     await tester.pump();
     await tester.pump();

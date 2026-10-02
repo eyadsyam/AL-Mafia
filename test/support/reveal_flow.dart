@@ -23,9 +23,13 @@ extension RevealFlow on WidgetTester {
   /// gate will still be counting when this returns.
   Future<void> confirmIdentity({Duration? hold, bool settle = true}) async {
     final pad = find.byKey(RoleCard.holdPad);
-    expect(pad, findsOneWidget,
-        reason: 'the identity gate is not on screen; the card is already past '
-            'step 1');
+    expect(
+      pad,
+      findsOneWidget,
+      reason:
+          'the identity gate is not on screen; the card is already past '
+          'step 1',
+    );
 
     final gesture = await startGesture(getCenter(pad));
     await pump();
@@ -53,8 +57,11 @@ extension RevealFlow on WidgetTester {
   /// Pass false when measuring the reveal window itself.
   Future<void> swipeToFlip({bool settle = true}) async {
     final card = find.byKey(RoleCard.slotCard);
-    expect(card, findsOneWidget,
-        reason: 'there is no card to swipe; step 1 has not completed');
+    expect(
+      card,
+      findsOneWidget,
+      reason: 'there is no card to swipe; step 1 has not completed',
+    );
 
     final box = getRect(card);
     final start = Offset(box.left + box.width * 0.15, box.center.dy);
@@ -70,7 +77,9 @@ extension RevealFlow on WidgetTester {
     await gesture.up();
     await pump();
     if (settle) {
-      await pump(MafiaMotion.defaults.dramatic + const Duration(milliseconds: 1));
+      await pump(
+        MafiaMotion.defaults.dramatic + const Duration(milliseconds: 1),
+      );
     }
   }
 
@@ -102,8 +111,11 @@ extension RevealFlow on WidgetTester {
       await pump(step);
       waited += step;
     }
-    expect(passButtonVisible, isTrue,
-        reason: 'the pass control never unlocked within $limit');
+    expect(
+      passButtonVisible,
+      isTrue,
+      reason: 'the pass control never unlocked within $limit',
+    );
     return waited;
   }
 

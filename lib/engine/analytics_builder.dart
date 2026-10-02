@@ -42,7 +42,8 @@ class SuspicionAccuracy {
 
   /// The accuracy rate (correctSuspicions / totalSuspicions).
   /// Returns 0 if totalSuspicions is 0.
-  double get rate => totalSuspicions == 0 ? 0.0 : correctSuspicions / totalSuspicions;
+  double get rate =>
+      totalSuspicions == 0 ? 0.0 : correctSuspicions / totalSuspicions;
 
   @override
   String toString() =>
@@ -118,8 +119,16 @@ class AnalyticsBuilder {
   static MatchAnalyticsData build(Match match) {
     final finalRoles = _buildFinalRoles(match);
     final timeline = _buildTimeline(match);
-    final (suspicionMatrix, suspicionAccuracy) = _buildSuspicionData(match, finalRoles);
-    final achievements = _buildAchievements(match, finalRoles, suspicionMatrix, timeline);
+    final (suspicionMatrix, suspicionAccuracy) = _buildSuspicionData(
+      match,
+      finalRoles,
+    );
+    final achievements = _buildAchievements(
+      match,
+      finalRoles,
+      suspicionMatrix,
+      timeline,
+    );
     final nightsPlayed = _countNights(match.eventLog);
     final winner = match.outcome?.winner;
 
@@ -156,71 +165,85 @@ class AnalyticsBuilder {
       final phase = event.phaseRef.phase;
 
       if (event is MafiaVoteCast) {
-        rows.add(TimelineRowData(
-          dayNumber: dayNum,
-          phase: phase,
-          kind: 'mafiaVote',
-          actorSeat: event.actorSeat,
-          targetSeat: event.targetSeat,
-          at: event.at,
-        ));
+        rows.add(
+          TimelineRowData(
+            dayNumber: dayNum,
+            phase: phase,
+            kind: 'mafiaVote',
+            actorSeat: event.actorSeat,
+            targetSeat: event.targetSeat,
+            at: event.at,
+          ),
+        );
       } else if (event is ProtectCast) {
-        rows.add(TimelineRowData(
-          dayNumber: dayNum,
-          phase: phase,
-          kind: 'protect',
-          actorSeat: event.actorSeat,
-          targetSeat: event.targetSeat,
-          at: event.at,
-        ));
+        rows.add(
+          TimelineRowData(
+            dayNumber: dayNum,
+            phase: phase,
+            kind: 'protect',
+            actorSeat: event.actorSeat,
+            targetSeat: event.targetSeat,
+            at: event.at,
+          ),
+        );
       } else if (event is InvestigateCast) {
-        rows.add(TimelineRowData(
-          dayNumber: dayNum,
-          phase: phase,
-          kind: 'investigate',
-          actorSeat: event.actorSeat,
-          targetSeat: event.targetSeat,
-          at: event.at,
-        ));
+        rows.add(
+          TimelineRowData(
+            dayNumber: dayNum,
+            phase: phase,
+            kind: 'investigate',
+            actorSeat: event.actorSeat,
+            targetSeat: event.targetSeat,
+            at: event.at,
+          ),
+        );
       } else if (event is SuspectCast) {
-        rows.add(TimelineRowData(
-          dayNumber: dayNum,
-          phase: phase,
-          kind: 'suspect',
-          actorSeat: event.actorSeat,
-          targetSeat: event.targetSeat,
-          at: event.at,
-        ));
+        rows.add(
+          TimelineRowData(
+            dayNumber: dayNum,
+            phase: phase,
+            kind: 'suspect',
+            actorSeat: event.actorSeat,
+            targetSeat: event.targetSeat,
+            at: event.at,
+          ),
+        );
       } else if (event is NightResolved) {
         if (event.victimSeat != null) {
-          rows.add(TimelineRowData(
-            dayNumber: dayNum,
-            phase: phase,
-            kind: 'nightKill',
-            actorSeat: null,
-            targetSeat: event.victimSeat,
-            at: event.at,
-          ));
+          rows.add(
+            TimelineRowData(
+              dayNumber: dayNum,
+              phase: phase,
+              kind: 'nightKill',
+              actorSeat: null,
+              targetSeat: event.victimSeat,
+              at: event.at,
+            ),
+          );
         }
         if (event.savedSeat != null) {
-          rows.add(TimelineRowData(
-            dayNumber: dayNum,
-            phase: phase,
-            kind: 'saved',
-            actorSeat: null,
-            targetSeat: event.savedSeat,
-            at: event.at,
-          ));
+          rows.add(
+            TimelineRowData(
+              dayNumber: dayNum,
+              phase: phase,
+              kind: 'saved',
+              actorSeat: null,
+              targetSeat: event.savedSeat,
+              at: event.at,
+            ),
+          );
         }
       } else if (event is DayResolved) {
-        rows.add(TimelineRowData(
-          dayNumber: dayNum,
-          phase: phase,
-          kind: 'dayElimination',
-          actorSeat: null,
-          targetSeat: event.eliminatedSeat,
-          at: event.at,
-        ));
+        rows.add(
+          TimelineRowData(
+            dayNumber: dayNum,
+            phase: phase,
+            kind: 'dayElimination',
+            actorSeat: null,
+            targetSeat: event.eliminatedSeat,
+            at: event.at,
+          ),
+        );
       }
     }
 
@@ -247,7 +270,8 @@ class AnalyticsBuilder {
 
         // Track in matrix
         matrix.putIfAbsent(voterSeat, () => {});
-        matrix[voterSeat]![targetSeat] = (matrix[voterSeat]![targetSeat] ?? 0) + 1;
+        matrix[voterSeat]![targetSeat] =
+            (matrix[voterSeat]![targetSeat] ?? 0) + 1;
 
         // Track accuracy: a suspicion is correct iff target is mafia
         accuracy.putIfAbsent(voterSeat, () => (0, 0));
@@ -263,11 +287,13 @@ class AnalyticsBuilder {
     final seats = accuracy.keys.toList()..sort();
     for (final seat in seats) {
       final (total, correct) = accuracy[seat]!;
-      accuracyList.add(SuspicionAccuracy(
-        seat: seat,
-        totalSuspicions: total,
-        correctSuspicions: correct,
-      ));
+      accuracyList.add(
+        SuspicionAccuracy(
+          seat: seat,
+          totalSuspicions: total,
+          correctSuspicions: correct,
+        ),
+      );
     }
 
     return (SuspicionMatrix(counts: matrix), accuracyList);
@@ -303,7 +329,10 @@ class AnalyticsBuilder {
       final suspicionsByPlayer = <int, ({int total, int correct})>{};
       for (final event in match.eventLog) {
         if (event is SuspectCast) {
-          suspicionsByPlayer.putIfAbsent(event.actorSeat, () => (total: 0, correct: 0));
+          suspicionsByPlayer.putIfAbsent(
+            event.actorSeat,
+            () => (total: 0, correct: 0),
+          );
           final targetRole = finalRoles[event.targetSeat];
           final isCorrect = targetRole?.alignment == Alignment.mafia ? 1 : 0;
           final current = suspicionsByPlayer[event.actorSeat]!;
@@ -332,10 +361,9 @@ class AnalyticsBuilder {
         }
 
         if (best != null && best.totalSuspicions > 0) {
-          achievements.add(Achievement(
-            code: 'sharpest_eye',
-            seats: [best.seat],
-          ));
+          achievements.add(
+            Achievement(code: 'sharpest_eye', seats: [best.seat]),
+          );
         }
       }
     }
@@ -349,10 +377,7 @@ class AnalyticsBuilder {
     }
 
     if (survivors.isNotEmpty) {
-      achievements.add(Achievement(
-        code: 'untouchable',
-        seats: survivors,
-      ));
+      achievements.add(Achievement(code: 'untouchable', seats: survivors));
     }
 
     // 3. Guardian: doctor whose protect blocked a mafia kill
@@ -380,10 +405,7 @@ class AnalyticsBuilder {
       // written when a chosen target was protected.
       for (final event in match.eventLog) {
         if (event is NightResolved && event.savedSeat != null) {
-          achievements.add(Achievement(
-            code: 'guardian',
-            seats: [doctorSeat],
-          ));
+          achievements.add(Achievement(code: 'guardian', seats: [doctorSeat]));
           break;
         }
       }
@@ -392,20 +414,23 @@ class AnalyticsBuilder {
     // 4. First Blood: the first night victim
     for (final event in match.eventLog) {
       if (event is NightResolved && event.victimSeat != null) {
-        achievements.add(Achievement(
-          code: 'first_blood',
-          seats: [event.victimSeat!],
-        ));
+        achievements.add(
+          Achievement(code: 'first_blood', seats: [event.victimSeat!]),
+        );
         break; // Only first victim
       }
     }
 
     // Fallback: if no achievements, create a "survivors" achievement
     if (achievements.isEmpty) {
-      achievements.add(Achievement(
-        code: 'survivors',
-        seats: survivors.isNotEmpty ? survivors : match.players.map((p) => p.seat).toList(),
-      ));
+      achievements.add(
+        Achievement(
+          code: 'survivors',
+          seats: survivors.isNotEmpty
+              ? survivors
+              : match.players.map((p) => p.seat).toList(),
+        ),
+      );
     }
 
     return achievements;

@@ -46,6 +46,11 @@ GamePhase phaseFromServer(String phase) => switch (phase) {
   'discuss' => GamePhase.discussion,
   'defense' => GamePhase.discussion,
   'vote' => GamePhase.voting,
+  // The beat after the ballot: who went, and what they were. It is
+  // `GamePhase.reveal` because that is the phase the card-rise and the
+  // «فلان كان ...» band are already written against — the offline flow has had
+  // this beat since the beginning, and online it had nowhere to happen.
+  'verdict' => GamePhase.reveal,
   'result' => GamePhase.result,
   _ => GamePhase.setup,
 };
@@ -60,7 +65,7 @@ String phaseToServer(GamePhase phase) => switch (phase) {
   GamePhase.confrontation => 'confront',
   GamePhase.discussion => 'discuss',
   GamePhase.voting || GamePhase.voteResolving => 'vote',
-  GamePhase.reveal || GamePhase.winCheck => 'vote',
+  GamePhase.reveal || GamePhase.winCheck => 'verdict',
   GamePhase.result || GamePhase.analytics => 'result',
 };
 
@@ -217,6 +222,7 @@ GameSnapshot snapshotFrom({
   required Duration skew,
   List<WhisperRow> whispers = const [],
   bool ownTurnPending = false,
+  bool viewerVoteRecorded = false,
   Map<int, bool>? frozenConnected,
   Map<int, SeatPresence>? frozenPresence,
   Map<int, int?> liveBallots = const {},
@@ -224,7 +230,13 @@ GameSnapshot snapshotFrom({
   final phase = phaseFromServer(state.phase);
   final data = state.publicData;
 
-  final roster = [...players]..sort((a, b) => a.seat.compareTo(b.seat));
+  // A pre-deal removal retains its notification row, not a place in the match.
+  // Once dealt, the public seat list stays fixed, including later departures.
+  final dealtSeats = data['rosterSeats'];
+  final roster = players.where((p) {
+    if (state.phase == 'lobby') return !p.kicked;
+    return dealtSeats is! List || dealtSeats.contains(p.seat);
+  }).toList()..sort((a, b) => a.seat.compareTo(b.seat));
   final public = PublicMatchView(
     phase: phase,
     dayNumber: state.phaseNumber,
@@ -253,6 +265,13 @@ GameSnapshot snapshotFrom({
 
   return GameSnapshot(
     public: public,
+    ballotRound: ((data['revote'] as Map?)?['round'] as num?)?.toInt() ?? 1,
+    ballotCandidates: {
+      for (final seat
+          in ((data['revote'] as Map?)?['tiedSeats'] as List?) ?? const [])
+        if (seat is int) seat,
+    },
+    viewerVoteRecorded: phase == GamePhase.voting && viewerVoteRecorded,
     trace: traceFromJson((data['morning'] as Map?)?['trace']),
     confrontation: confrontationFromJson(data['confrontation']),
     openingAccusations: accusationsFromJson(data['openingAccusations']),
@@ -266,6 +285,10 @@ GameSnapshot snapshotFrom({
       maxPlayers: (state.settings['maxPlayers'] as num?)?.toInt() ?? 10,
       voice: state.settings['voice'] as bool? ?? true,
       muteAllAtNight: state.settings['muteAllAtNight'] as bool? ?? true,
+      scenarioCode: state.settings['scenarioCode'] as String? ?? 'classic',
+      presentationPack:
+          state.settings['presentationPack'] as String? ?? 'classic',
+      narratorPack: state.settings['narratorPack'] as String? ?? 'classic',
     ),
     pendingOutcome: switch (data['outcome']) {
       'mafia' => Alignment.mafia,
@@ -282,7 +305,11 @@ GameSnapshot snapshotFrom({
       for (final p in roster)
         if (p.muted) p.seat,
     },
-    viewerKicked: roster
+    seatCosmetics: {
+      for (final p in roster)
+        if (p.cosmetics != null) p.seat: p.cosmetics!,
+    },
+    viewerKicked: players
         .where((p) => p.seat == viewerSeat)
         .any((p) => p.kicked),
     hostSeat: roster
@@ -299,9 +326,7 @@ GameSnapshot snapshotFrom({
     // reporting on who is still deciding.
     presence:
         frozenPresence ??
-        {
-          for (final p in roster) p.seat: SeatPresence.fromServer(p.status),
-        },
+        {for (final p in roster) p.seat: SeatPresence.fromServer(p.status)},
     // Doc 12 §3.6. Empty unless the room opted into an open ballot, and empty
     // then too until somebody votes — the policy decides, not this file.
     liveBallots: liveBallots,
@@ -347,9 +372,10 @@ GameSnapshot snapshotFrom({
     unseenRoleSeats: phase == GamePhase.distributing
         ? {
             for (final player in roster)
-              if (!player.sawRole) player.seat,
+              if (!player.sawRole && !player.kicked) player.seat,
           }
         : const {},
+    readyToVoteSeats: _readyToVote(data, state, phase),
     raisedHands: micPolicyFor(phase) == MicPolicy.muted
         ? const {}
         : {
@@ -395,6 +421,25 @@ MatchSettings settingsFromJson(Object? value) {
       _ => null,
     },
   );
+}
+
+/// «جاهزين للتصويت» for the discussion that is running now, or nothing. The
+/// set is keyed by `phase_number` on the server, so a set left over from an
+/// earlier day reads as empty here without anything having to clear it.
+Set<int> _readyToVote(
+  Map<String, dynamic> data,
+  RoomState state,
+  GamePhase phase,
+) {
+  if (phase != GamePhase.discussion) return const {};
+  final ready = data['readyToVote'];
+  if (ready is! Map || ready['number'] != state.phaseNumber) return const {};
+  final seats = ready['seats'];
+  if (seats is! List) return const {};
+  return {
+    for (final seat in seats)
+      if (seat is int) seat,
+  };
 }
 
 MatchOutcome? _outcome(Map<String, dynamic> data, RoomState state) {

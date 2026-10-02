@@ -1,4 +1,9 @@
-# Builds the Android release APK with online play switched on.
+﻿# Builds the Android release APK with online play switched on.
+#
+# Saved with a UTF-8 BOM on purpose. Windows PowerShell 5.1 reads a BOM-less
+# file in the machine's ANSI code page, where the em dashes in the comments
+# below decode into a smart quote, the parser takes that as the start of a
+# string, and it reports a missing terminator ninety lines further down.
 #
 # ## The bug this script exists to prevent
 #
@@ -59,6 +64,35 @@ if (-not $config.SUPABASE_URL -or $config.SUPABASE_URL -match '<' -or
     exit 1
 }
 
+$adsEnabled = "$($config.ADS_ENABLED)".ToLowerInvariant() -eq 'true'
+$adTestMode = "$($config.ADMOB_TEST_MODE)".ToLowerInvariant() -eq 'true'
+$sampleAdMobAppId = 'ca-app-pub-3940256099942544~3347511713'
+if ($adsEnabled -and -not $adTestMode) {
+    if (-not $config.ADMOB_APP_ID -or
+        $config.ADMOB_APP_ID -notmatch '^ca-app-pub-\d{16}~\d{10}$' -or
+        -not $config.ADMOB_REWARDED_ANDROID_ID -or
+        $config.ADMOB_REWARDED_ANDROID_ID -notmatch '^ca-app-pub-\d{16}/\d{10}$') {
+        Write-Host 'ADS_ENABLED requires production ADMOB_APP_ID and ADMOB_REWARDED_ANDROID_ID.'
+        exit 1
+    }
+}
+$env:ORG_GRADLE_PROJECT_ADMOB_APP_ID = if ($adsEnabled -and -not $adTestMode) {
+    $config.ADMOB_APP_ID
+} else {
+    $sampleAdMobAppId
+}
+
+# Phase 100: with ads off, the release manifest drops the ad SDK's
+# advertising-ID / AdServices permissions (android/app/src/noAds), so the Play
+# Advertising ID and Data safety answers match the binary.
+$env:ORG_GRADLE_PROJECT_ADS_PERMISSIONS = if ($adsEnabled) { 'keep' } else { 'strip' }
+
+$billingEnabled = "$($config.PLAY_BILLING_ENABLED)".ToLowerInvariant() -eq 'true'
+if ($billingEnabled -and -not $config.PLAY_SCENARIO_PRODUCT_ID) {
+    Write-Host 'PLAY_BILLING_ENABLED requires PLAY_SCENARIO_PRODUCT_ID.'
+    exit 1
+}
+
 if ($Bundle) {
     $target  = 'appbundle'
     $outDir  = 'build/app/outputs/bundle/release'
@@ -81,6 +115,12 @@ if ($Split -and -not $Bundle) { $flutterArgs += '--split-per-abi' }
 
 Write-Host "flutter $($flutterArgs -join ' ')" -ForegroundColor DarkGray
 & flutter @flutterArgs
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+# R8 full mode once stripped constructors that Android reaches by reflection
+# before Dart starts, and every release build crashed on launch. The build
+# itself succeeded, so check R8's own removal report. See proguard-rules.pro.
+& python tool/check_android_r8.py
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host ''

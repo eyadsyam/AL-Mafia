@@ -13,12 +13,12 @@ import 'package:mafia_master/engine/win_check.dart';
 /// in doc 06 §2, plus the properties that table is an instance of.
 void main() {
   Player _player(int seat, Role role, {bool alive = true}) => Player(
-        seat: seat,
-        name: 'P$seat',
-        role: role,
-        status: alive ? PlayerStatus.alive : PlayerStatus.dead,
-        eliminatedOn: null,
-      );
+    seat: seat,
+    name: 'P$seat',
+    role: role,
+    status: alive ? PlayerStatus.alive : PlayerStatus.dead,
+    eliminatedOn: null,
+  );
 
   /// A roster with [mafia] living mafia and [others] living non-mafia, plus any
   /// [deadMafia] and [deadOthers] that must be ignored.
@@ -43,9 +43,19 @@ void main() {
 
   group('the state table in doc 06 §2', () {
     const table = <({int mafia, int others, Alignment? result, String note})>[
-      (mafia: 1, others: 1, result: Alignment.mafia, note: 'parity — a 1v1 vote always ties'),
+      (
+        mafia: 1,
+        others: 1,
+        result: Alignment.mafia,
+        note: 'parity — a 1v1 vote always ties',
+      ),
       (mafia: 2, others: 1, result: Alignment.mafia, note: 'majority'),
-      (mafia: 1, others: 2, result: null, note: 'decided in practice, but play it out'),
+      (
+        mafia: 1,
+        others: 2,
+        result: null,
+        note: 'decided in practice, but play it out',
+      ),
       (mafia: 2, others: 2, result: Alignment.mafia, note: 'parity'),
       (mafia: 1, others: 3, result: null, note: ''),
       (mafia: 2, others: 3, result: null, note: ''),
@@ -104,15 +114,14 @@ void main() {
       ];
       for (final roles in arrangements) {
         expect(
-          WinChecker.outcomeFor(
-              roster(mafia: 1, others: 3, otherRoles: roles)),
+          WinChecker.outcomeFor(roster(mafia: 1, others: 3, otherRoles: roles)),
           isNull,
-          reason: 'a match with $roles alive resolved differently from one '
+          reason:
+              'a match with $roles alive resolved differently from one '
               'with the same number of plain citizens — ${WinChecker.outcomeIsRoleBlind}',
         );
         expect(
-          WinChecker.outcomeFor(
-              roster(mafia: 2, others: 2, otherRoles: roles)),
+          WinChecker.outcomeFor(roster(mafia: 2, others: 2, otherRoles: roles)),
           equals(Alignment.mafia),
         );
       }
@@ -124,8 +133,10 @@ void main() {
       // Unreachable in the MVP. It must not crash the result screen at the end
       // of somebody's evening, which is the only thing this guarantees.
       expect(() => WinChecker.outcomeFor(const []), returnsNormally);
-      expect(WinChecker.outcomeFor(roster(mafia: 0, others: 0, deadOthers: 4)),
-          equals(Alignment.town));
+      expect(
+        WinChecker.outcomeFor(roster(mafia: 0, others: 0, deadOthers: 4)),
+        equals(Alignment.town),
+      );
     });
   });
 
@@ -158,22 +169,26 @@ void main() {
 
           for (var deadMafia = 0; deadMafia < deadCeiling; deadMafia++) {
             for (var deadOthers = 0; deadOthers < deadCeiling; deadOthers++) {
-              final actual = WinChecker.outcomeFor(roster(
-                mafia: mafia,
-                others: others,
-                deadMafia: deadMafia,
-                deadOthers: deadOthers,
-                otherRoles: const [Role.citizen, Role.doctor, Role.detective],
-              ));
+              final actual = WinChecker.outcomeFor(
+                roster(
+                  mafia: mafia,
+                  others: others,
+                  deadMafia: deadMafia,
+                  deadOthers: deadOthers,
+                  otherRoles: const [Role.citizen, Role.doctor, Role.detective],
+                ),
+              );
 
               // `expect` inside a loop this size spends most of its time in the
               // matcher machinery, so the comparison is done by hand and only a
               // failure pays for a report.
               if (actual != expected) {
-                fail('$mafia mafia vs $others non-mafia '
-                    '(plus $deadMafia + $deadOthers dead) gave '
-                    '${actual?.name ?? 'in progress'}, expected '
-                    '${expected?.name ?? 'in progress'}');
+                fail(
+                  '$mafia mafia vs $others non-mafia '
+                  '(plus $deadMafia + $deadOthers dead) gave '
+                  '${actual?.name ?? 'in progress'}, expected '
+                  '${expected?.name ?? 'in progress'}',
+                );
               }
               checked++;
             }
@@ -181,8 +196,11 @@ void main() {
         }
       }
 
-      expect(checked, greaterThanOrEqualTo(100000),
-          reason: 'doc 11 §10 puts the floor at 100,000 states');
+      expect(
+        checked,
+        greaterThanOrEqualTo(100000),
+        reason: 'doc 11 §10 puts the floor at 100,000 states',
+      );
     });
 
     test('the dead never change the answer', () {
@@ -194,15 +212,22 @@ void main() {
       for (var i = 0; i < 2000; i++) {
         final mafia = rng.nextInt(8);
         final others = rng.nextInt(12);
-        final bare = WinChecker.outcomeFor(roster(mafia: mafia, others: others));
-        final buried = WinChecker.outcomeFor(roster(
-          mafia: mafia,
-          others: others,
-          deadMafia: rng.nextInt(9),
-          deadOthers: rng.nextInt(9),
-        ));
-        expect(buried, equals(bare),
-            reason: '$mafia vs $others changed answer once the dead were added');
+        final bare = WinChecker.outcomeFor(
+          roster(mafia: mafia, others: others),
+        );
+        final buried = WinChecker.outcomeFor(
+          roster(
+            mafia: mafia,
+            others: others,
+            deadMafia: rng.nextInt(9),
+            deadOthers: rng.nextInt(9),
+          ),
+        );
+        expect(
+          buried,
+          equals(bare),
+          reason: '$mafia vs $others changed answer once the dead were added',
+        );
       }
     });
   });
@@ -213,10 +238,11 @@ void main() {
       // the rule is a second thing to get wrong, and the two would disagree
       // only in the states that decide a match.
       final offenders = <String>[];
-      for (final file in Directory('lib')
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((f) => f.path.endsWith('.dart'))) {
+      for (final file
+          in Directory('lib')
+              .listSync(recursive: true)
+              .whereType<File>()
+              .where((f) => f.path.endsWith('.dart'))) {
         final path = file.path.replaceAll(r'\', '/');
         if (path.endsWith('win_check.dart')) continue;
         final source = file.readAsStringSync();
@@ -225,14 +251,20 @@ void main() {
           offenders.add(path);
         }
       }
-      expect(offenders, isEmpty,
-          reason: 'these files count living mafia for themselves: $offenders. '
-              'Call WinChecker.outcomeFor instead.');
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            'these files count living mafia for themselves: $offenders. '
+            'Call WinChecker.outcomeFor instead.',
+      );
     });
 
     test('the scan is not vacuous', () {
-      expect(File('lib/engine/win_check.dart').readAsStringSync(),
-          contains('mafiaCount >= nonMafiaCount'));
+      expect(
+        File('lib/engine/win_check.dart').readAsStringSync(),
+        contains('mafiaCount >= nonMafiaCount'),
+      );
     });
   });
 }

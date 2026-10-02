@@ -19,7 +19,10 @@ export const TRANSITIONS: Record<string, string[]> = {
   confront: ["discuss"],
   discuss: ["vote"],
   defense: ["vote"],
+  // A ballot ends by being resolved, and what it resolves *into* is the
+  // verdict — the beat where the room is told who went and what they were.
   vote: [],
+  verdict: ["night", "result"],
   result: [],
 };
 
@@ -39,14 +42,32 @@ export function durationFor(
   settings: Record<string, unknown>,
 ): number | null {
   switch (phase) {
+    // The deal. It ends when the last card is dismissed, and it carries a
+    // clock anyway for the reason doc 10 s8.2 gives: *every* phase has a hard
+    // timer, because a phase that can only be ended by a person is a phase one
+    // person can end the match by not ending. A seat whose card never landed —
+    // or whose acknowledgement never did — used to hold the whole room there
+    // for good. Long, because it is the one screen a player has never seen
+    // before.
+    case "reveal":
+      return 90;
     case "night":
       return 120;
     case "opening":
       return 10;
+    // The two beats the room *reads* rather than acts on. Both are ended by
+    // the host tapping «كمل», and both carry a clock anyway: a beat with no
+    // deadline is a beat that stalls the whole match if the one phone that
+    // may end it has gone to sleep, which is the failure doc 10 §8.2 exists to
+    // forbid. Generous, because they are being read, not answered.
+    case "morning":
+      return 45;
+    case "verdict":
+      return 20;
     case "confront":
       return Number(settings.confrontationSeconds ?? 45);
     case "discuss":
-      return Number(settings.speechSeconds ?? 60) * 3;
+      return Number(settings.discussionSeconds ?? 300);
     case "vote":
       return 60;
     default:
@@ -87,6 +108,10 @@ export function clearedFor(phase: string): Record<string, unknown> {
       };
     case "opening":
       return { lastVote: null, confrontation: null, openingAccusations: {} };
+    // Nothing. The verdict *is* `lastVote`, and a phase that cleared the one
+    // thing it exists to show would be a blank card.
+    case "verdict":
+      return {};
     case "vote":
       return { lastVote: null };
     default:

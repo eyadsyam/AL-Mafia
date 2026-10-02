@@ -6,6 +6,7 @@ import '../../engine/models/enums.dart' show GamePhase;
 import '../l10n_ext.dart';
 import '../theme/mafia_theme.dart';
 import 'match_controller.dart';
+import 'online/table/table_scene.dart' show tableIsAvailableFor;
 import 'match_flow.dart';
 
 /// Hosts a live match and locks the way out of it.
@@ -24,11 +25,13 @@ class MatchRoute extends ConsumerWidget {
 
   /// Opens analytics for the just-finished match.
   final VoidCallback onAnalytics;
+  final VoidCallback? onRematch;
 
   const MatchRoute({
     super.key,
     required this.onExit,
     required this.onAnalytics,
+    this.onRematch,
   });
 
   static const Key endMatchButton = ValueKey('match_end_button');
@@ -85,6 +88,15 @@ class MatchRoute extends ConsumerWidget {
     if (confirmed == true) onExit();
   }
 
+  bool _tableShown(WidgetRef ref) {
+    final controller = ref.read(matchControllerProvider.notifier);
+    try {
+      return tableIsAvailableFor(controller.snapshot);
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final phase = ref.watch(matchControllerProvider)?.phase ?? GamePhase.setup;
@@ -102,12 +114,15 @@ class MatchRoute extends ConsumerWidget {
               child: MatchFlow(
                 onExit: onExit,
                 onAnalytics: onAnalytics,
+                onRematch: onRematch,
                 onStepCommitted: () => _persist(ref),
               ),
             ),
             // Deliberately small and in the corner: the only way out, but never
             // competing with the action the current player is meant to take.
-            if (locked)
+            // Not over a table: the table has its own way out in its header,
+            // and this cross sat right on top of it (owner, 2026-09-23).
+            if (locked && !_tableShown(ref))
               Positioned(
                 top: spacing.sm,
                 left: spacing.sm,

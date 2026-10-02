@@ -74,8 +74,7 @@ void main() {
       expect(++guard, lessThan(40));
       final seat = transport.snapshot.currentActorSeat!;
       final target = transport.snapshot.public.players
-          .firstWhere(
-              (p) => p.seat != seat && p.status == PlayerStatus.alive)
+          .firstWhere((p) => p.seat != seat && p.status == PlayerStatus.alive)
           .seat;
       await transport.submitOpeningAccusation(seat: seat, targetSeat: target);
     }
@@ -88,8 +87,7 @@ void main() {
       expect(++guard, lessThan(40));
       final seat = transport.snapshot.currentActorSeat!;
       final target = transport.snapshot.public.players
-          .firstWhere(
-              (p) => p.seat != seat && p.status == PlayerStatus.alive)
+          .firstWhere((p) => p.seat != seat && p.status == PlayerStatus.alive)
           .seat;
       await transport.submitVote(seat: seat, targetSeat: target);
     }
@@ -111,8 +109,11 @@ void main() {
       if (transport.snapshot.outcome != null) break;
       await playDay();
     }
-    expect(transport.snapshot.outcome, isNotNull,
-        reason: 'the match must reach a result inside $guard cycles');
+    expect(
+      transport.snapshot.outcome,
+      isNotNull,
+      reason: 'the match must reach a result inside $guard cycles',
+    );
   });
 
   test('the transport is authoritative and reports a local link', () {
@@ -129,8 +130,11 @@ void main() {
       // is the whole reason a snapshot can be broadcast to a room.
       final rendered = snapshot.public.players.map((p) => p.toString());
       for (final role in Role.values) {
-        expect(rendered.any((line) => line.contains(role.name)), isFalse,
-            reason: '${role.name} reachable from the public roster');
+        expect(
+          rendered.any((line) => line.contains(role.name)),
+          isFalse,
+          reason: '${role.name} reachable from the public roster',
+        );
       }
     });
   });
@@ -142,8 +146,11 @@ void main() {
       expect(await transport.secretsFor(actor), isNotNull);
       for (final other in [for (var s = 0; s < names.length; s++) s]) {
         if (other == actor) continue;
-        expect(await transport.secretsFor(other), isNull,
-            reason: 'seat $other is not holding the phone');
+        expect(
+          await transport.secretsFor(other),
+          isNull,
+          reason: 'seat $other is not holding the phone',
+        );
       }
     });
 
@@ -211,8 +218,11 @@ void main() {
       );
 
       final snapshot = transport.snapshot;
-      expect(snapshot.whisperGraph, hasLength(1),
-          reason: 'the edge is public — that is the point of the layer');
+      expect(
+        snapshot.whisperGraph,
+        hasLength(1),
+        reason: 'the edge is public — that is the point of the layer',
+      );
       expect(snapshot.toString(), isNot(contains(body)));
       expect(snapshot.whisperGraph.single.toString(), isNot(contains(body)));
 
@@ -232,8 +242,11 @@ void main() {
         if (seat == recipient) {
           expect(secrets!.whisperBody, equals(body));
         } else {
-          expect(secrets!.whisperBody, isNull,
-              reason: 'seat $seat must not be handed somebody else\'s whisper');
+          expect(
+            secrets!.whisperBody,
+            isNull,
+            reason: 'seat $seat must not be handed somebody else\'s whisper',
+          );
         }
         await transport.submitNightAction(
           seat: seat,
@@ -257,12 +270,16 @@ void main() {
               before.currentActorSeat != after.currentActorSeat ||
               before.dayNumber != after.dayNumber,
           isTrue,
-          reason: 'advancePhase left the match exactly where it was, in '
+          reason:
+              'advancePhase left the match exactly where it was, in '
               '${before.phase.name} — that is a stall',
         );
       }
-      expect(transport.snapshot.outcome, isNotNull,
-          reason: 'a match driven only by expiry defaults must still end');
+      expect(
+        transport.snapshot.outcome,
+        isNotNull,
+        reason: 'a match driven only by expiry defaults must still end',
+      );
     });
   });
 }

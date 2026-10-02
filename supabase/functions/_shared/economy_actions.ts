@@ -1,0 +1,132 @@
+/**
+ * The economy function's request surface: which RPC an action runs, with
+ * which arguments. The caller's id always comes from the verified session,
+ * never from the body; amounts never come from the client at all.
+ *
+ * 1.0.0 actions are unchanged. 1.0.1 actions are new names, so an old client
+ * never reaches them and a new client talking to an old server gets
+ * BAD_REQUEST — which it reads as "capability absent".
+ */
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+/** ISO week, as the server names it: `2026-W39`. */
+const WEEK = /^\d{4}-W\d{2}$/;
+/** Invite codes: 7 characters from the room-code alphabet. */
+const INVITE = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{7}$/;
+
+export type EconomyCall = { rpc: string; args: Record<string, unknown> };
+
+/** The server day a daily request was made for. Required: a retry without
+ * one could otherwise land on the next UTC day as a fresh claim. */
+function day(value: unknown): string | undefined {
+  return typeof value === "string" && DAY.test(value) ? value : undefined;
+}
+
+export function economyCall(
+  body: Record<string, unknown>,
+  userId: string,
+): EconomyCall | null {
+  const action = body.action;
+  const room = typeof body.roomId === "string" && UUID.test(body.roomId)
+    ? body.roomId : null;
+  switch (action) {
+    case "summary":
+      return { rpc: "wallet_snapshot", args: { p_user: userId } };
+    case "sync":
+      return { rpc: "sync_player_rewards", args: { p_user: userId } };
+    case "buy":
+      return typeof body.item === "string"
+        ? { rpc: "buy_reward_item", args: { p_user: userId, p_item: body.item } }
+        : null;
+    case "equip":
+      return typeof body.slot === "string" &&
+          (body.item === null || typeof body.item === "string")
+        ? {
+          rpc: "equip_reward_item",
+          args: { p_user: userId, p_slot: body.slot, p_item: body.item },
+        }
+        : null;
+    case "create_ad_claim":
+      return typeof body.roomId === "string"
+        ? { rpc: "create_ad_reward_claim", args: { p_user: userId, p_room: body.roomId } }
+        : null;
+    case "ad_status":
+      return typeof body.roomId === "string"
+        ? { rpc: "ad_reward_status", args: { p_user: userId, p_room: body.roomId } }
+        : null;
+    // 1.0.1 ------------------------------------------------------------------
+    case "capabilities":
+      return { rpc: "economy_capabilities", args: { p_user: userId } };
+    case "ad_steps_status_v2":
+      return room ? { rpc: "ad_steps_status_v2", args: { p_user: userId, p_room: room } } : null;
+    case "ad_step_claim_v2": {
+      const step = body.step;
+      return room && (step === 1 || step === 2)
+        ? { rpc: "create_ad_step_claim_v2", args: { p_user: userId, p_room: room, p_step: step } }
+        : null;
+    }
+    case "daily_status":
+      return { rpc: "daily_status", args: { p_user: userId } };
+    case "daily_coffer":
+    case "daily_spin":
+    case "daily_ad_claim": {
+      const d = day(body.day);
+      if (d === undefined) return null;
+      const rpc = action === "daily_coffer"
+        ? "claim_daily_coffer"
+        : action === "daily_spin" ? "spin_daily_wheel" : "create_daily_ad_claim";
+      return { rpc, args: { p_user: userId, p_day: d } };
+    }
+    // Phase 107: Council Life ---------------------------------------------------
+    case "contracts_get":
+      return { rpc: "council_contracts", args: { p_user: userId } };
+    case "contract_claim": {
+      const d = day(body.day);
+      const slot = body.slot;
+      return d !== undefined && (slot === 0 || slot === 1 || slot === 2)
+        ? { rpc: "claim_council_contract", args: { p_user: userId, p_day: d, p_slot: slot } }
+        : null;
+    }
+    case "weekly_claim":
+      return typeof body.week === "string" && WEEK.test(body.week)
+        ? { rpc: "claim_council_weekly", args: { p_user: userId, p_week: body.week } }
+        : null;
+    case "rank_get":
+      return { rpc: "council_rank", args: { p_user: userId } };
+    case "leaderboard_get":
+      return { rpc: "council_leaderboard", args: { p_user: userId } };
+    case "leaderboard_visibility":
+      return typeof body.visible === "boolean"
+        ? {
+          rpc: "set_council_leaderboard_visible",
+          args: { p_user: userId, p_visible: body.visible },
+        }
+        : null;
+    case "invite_get":
+      return { rpc: "council_invite", args: { p_user: userId } };
+    case "invite_redeem": {
+      const code = typeof body.code === "string"
+        ? body.code.trim().toUpperCase() : "";
+      return INVITE.test(code)
+        ? { rpc: "redeem_council_invite", args: { p_user: userId, p_code: code } }
+        : null;
+    }
+    default:
+      return null;
+  }
+}
+
+/** Refusals the client can act on; anything else is a generic failure. */
+export const ECONOMY_REFUSALS = [
+  "INSUFFICIENT_COINS", "ITEM_NOT_FOUND", "ITEM_NOT_OWNED", "FEATURE_OFF",
+  "STEP_ORDER", "DAY_CHANGED", "DAY_REQUIRED", "IN_MATCH", "DAILY_PAUSED", "REWARD_NOT_ELIGIBLE",
+  "REWARD_NOT_SYNCED", "REWARD_SCHEME_V2",
+  "CONTRACT_INCOMPLETE", "WEEK_CHANGED", "WEEK_REQUIRED", "INVITE_SELF", "INVITE_EXPIRED",
+  "INVITE_NOT_NEW", "INVITE_ALREADY", "INVITE_LOOP", "INVITE_LIMIT", "INVITE_RATE_LIMIT",
+] as const;
+
+export function refusalOf(message: string | undefined): string | null {
+  if (!message) return null;
+  return ECONOMY_REFUSALS.find((code) => message.includes(code)) ?? null;
+}

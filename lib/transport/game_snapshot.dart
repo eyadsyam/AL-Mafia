@@ -35,6 +35,14 @@ class RoomOptions {
   /// default, because a night is the one phase where a voice carries a fact
   /// about who is awake.
   final bool muteAllAtNight;
+  final String scenarioCode;
+
+  /// The host's presentation pack for the room ('classic' = none). Cosmetic
+  /// only: the engine never reads it, and every seat sees the same thing.
+  final String presentationPack;
+
+  /// The host's narrator pack ('classic' = none). Same rules.
+  final String narratorPack;
 
   const RoomOptions({
     this.visibility = 'private',
@@ -42,6 +50,9 @@ class RoomOptions {
     this.maxPlayers = 10,
     this.voice = true,
     this.muteAllAtNight = true,
+    this.scenarioCode = 'classic',
+    this.presentationPack = 'classic',
+    this.narratorPack = 'classic',
   });
 
   bool get isPublic => visibility == 'public';
@@ -52,39 +63,119 @@ class RoomOptions {
     int? maxPlayers,
     bool? voice,
     bool? muteAllAtNight,
+    String? scenarioCode,
+    String? presentationPack,
+    String? narratorPack,
   }) => RoomOptions(
     visibility: visibility ?? this.visibility,
     title: title ?? this.title,
     maxPlayers: maxPlayers ?? this.maxPlayers,
     voice: voice ?? this.voice,
     muteAllAtNight: muteAllAtNight ?? this.muteAllAtNight,
+    scenarioCode: scenarioCode ?? this.scenarioCode,
+    presentationPack: presentationPack ?? this.presentationPack,
+    narratorPack: narratorPack ?? this.narratorPack,
   );
+}
+
+/// A seat's chosen frame and nameplate codes. Unknown codes draw nothing.
+class SeatCosmetics {
+  final String? frame;
+  final String? plate;
+
+  /// The player's Council level when they sat down (phase 107): earned from
+  /// matches already over, fixed for this one, and never about a role.
+  final int? rank;
+  const SeatCosmetics({this.frame, this.plate, this.rank});
+
+  static SeatCosmetics? fromJson(Object? json) {
+    if (json is! Map) return null;
+    final frame = json['frame'];
+    final plate = json['nameplate'];
+    final rank = json['rank'];
+    final level = rank is num && rank >= 1 && rank <= 50 ? rank.toInt() : null;
+    if (frame is! String && plate is! String && level == null) return null;
+    return SeatCosmetics(
+      frame: frame is String ? frame : null,
+      plate: plate is String ? plate : null,
+      rank: level,
+    );
+  }
 }
 
 /// One row of the «أوض عامة» browse list. Four fields, and deliberately no
 /// room id: joining goes through the code, exactly as it does for a room
 /// somebody was told about.
 class PublicRoom {
+  /// The server defaults, used when an older server omits the fields: a room
+  /// with no valid `maxPlayers` holds ten, and start_match needs five.
+  static const defaultCapacity = 10;
+  static const defaultMinPlayers = 5;
+
   final String code;
   final String? title;
+
+  /// Seats that are not kicked — the same count admission and start use.
   final int players;
+  final int capacity;
+  final int minPlayers;
   final bool voice;
+
+  /// A server-owned empty waiting room: nobody is in it, and the first player
+  /// to join becomes its host. Never shown as an occupied room.
+  final bool waiting;
 
   const PublicRoom({
     required this.code,
     required this.players,
     required this.voice,
     this.title,
+    this.capacity = defaultCapacity,
+    this.minPlayers = defaultMinPlayers,
+    this.waiting = false,
   });
+
+  bool get isFull => players >= capacity;
+
+  /// How many more players the host needs before they may start. Zero means
+  /// the host *can* start — not that the match is starting.
+  int get missingToStart => (minPlayers - players).clamp(0, minPlayers);
 
   factory PublicRoom.fromJson(Map<String, dynamic> json) => PublicRoom(
     code: json['code'] as String? ?? '',
     title: json['title'] as String?,
     players: (json['players'] as num?)?.toInt() ?? 0,
+    capacity: (json['capacity'] as num?)?.toInt() ?? defaultCapacity,
+    minPlayers: (json['min_players'] as num?)?.toInt() ?? defaultMinPlayers,
     voice: json['voice'] as bool? ?? true,
+    waiting: json['waiting'] as bool? ?? false,
   );
-}
 
+  /// Joinable rooms nearest to starting first; full rooms last. The server
+  /// already orders this way; sorting again keeps an older server's list
+  /// (newest first) in the same order the cards describe.
+  static List<PublicRoom> ordered(Iterable<PublicRoom> rooms) {
+    final list = rooms.toList();
+    // Dart's sort is not stable; ties keep the server's order explicitly.
+    final position = {for (var i = 0; i < list.length; i++) list[i]: i};
+    // Rooms with people first, then the empty waiting room, then full ones.
+    int rank(PublicRoom r) => r.isFull
+        ? 2
+        : r.waiting
+        ? 1
+        : 0;
+    list.sort((a, b) {
+      final byFull = rank(a).compareTo(rank(b));
+      if (byFull != 0) return byFull;
+      final byMissing = a.missingToStart.compareTo(b.missingToStart);
+      if (byMissing != 0) return byMissing;
+      final byPlayers = b.players.compareTo(a.players);
+      if (byPlayers != 0) return byPlayers;
+      return position[a]!.compareTo(position[b]!);
+    });
+    return list;
+  }
+}
 
 /// Everything the whole table may see at one moment (doc 10 §7).
 ///
@@ -264,6 +355,11 @@ class GameSnapshot {
   /// Always empty offline. One phone has one microphone.
   final Set<int> raisedHands;
 
+  /// The living seats that have said «جاهزين للتصويت» in this discussion
+  /// (owner, 2026-09-24). Public by nature — it is said to the whole table —
+  /// and empty outside the discussion and always offline.
+  final Set<int> readyToVoteSeats;
+
   /// The seats the host has silenced for the whole room (task 6).
   ///
   /// Every client subtracts these from what it will play, which is the only
@@ -320,6 +416,19 @@ class GameSnapshot {
   /// defaults offline, where there is no room.
   final RoomOptions room;
 
+  /// What each seat chose to wear (frame, nameplate), copied by the server
+  /// when the seat was taken. Identity, never role; empty offline.
+  final Map<int, SeatCosmetics> seatCosmetics;
+
+  /// Public ballot iteration; changes on a same-day revote.
+  final int ballotRound;
+
+  /// Server-published tied seats for a revote; never inferred from a local tally.
+  final Set<int> ballotCandidates;
+
+  /// Only this viewer's acknowledged ballot, never another player's status.
+  final bool viewerVoteRecorded;
+
   const GameSnapshot({
     required this.public,
     this.trace,
@@ -340,6 +449,7 @@ class GameSnapshot {
     this.phaseDeadline,
     this.activeSpeakerSeat,
     this.raisedHands = const {},
+    this.readyToVoteSeats = const {},
     this.unseenRoleSeats = const {},
     this.presence = const {},
     this.hostSeat,
@@ -347,6 +457,10 @@ class GameSnapshot {
     this.mutedSeats = const {},
     this.viewerKicked = false,
     this.room = const RoomOptions(),
+    this.seatCosmetics = const {},
+    this.ballotRound = 1,
+    this.ballotCandidates = const {},
+    this.viewerVoteRecorded = false,
   });
 
   GamePhase get phase => public.phase;
@@ -374,6 +488,7 @@ class GameSnapshot {
     DateTime? phaseDeadline,
     int? activeSpeakerSeat,
     Set<int>? raisedHands,
+    Set<int>? readyToVoteSeats,
     Set<int>? unseenRoleSeats,
     Map<int, SeatPresence>? presence,
     int? hostSeat,
@@ -381,44 +496,51 @@ class GameSnapshot {
     Set<int>? mutedSeats,
     bool? viewerKicked,
     RoomOptions? room,
+    Map<int, SeatCosmetics>? seatCosmetics,
+    int? ballotRound,
+    Set<int>? ballotCandidates,
+    bool? viewerVoteRecorded,
     bool clearMorning = false,
     bool clearVote = false,
     bool clearDeadline = false,
     bool clearSpeaker = false,
-  }) =>
-      GameSnapshot(
-        public: public ?? this.public,
-        trace: trace ?? this.trace,
-        confrontation: confrontation ?? this.confrontation,
-        openingAccusations: openingAccusations ?? this.openingAccusations,
-        whisperGraph: whisperGraph ?? this.whisperGraph,
-        morning: clearMorning ? null : (morning ?? this.morning),
-        lastVote: clearVote ? null : (lastVote ?? this.lastVote),
-        settings: settings ?? this.settings,
-        pendingOutcome: pendingOutcome ?? this.pendingOutcome,
-        standings: standings ?? this.standings,
-        analyticsAvailable: analyticsAvailable ?? this.analyticsAvailable,
-        connectedSeats: connectedSeats ?? this.connectedSeats,
-        liveBallots: liveBallots ?? this.liveBallots,
-        connection: connection ?? this.connection,
-        viewerSeat: viewerSeat ?? this.viewerSeat,
-        canAdvance: canAdvance ?? this.canAdvance,
-        phaseDeadline:
-            clearDeadline ? null : (phaseDeadline ?? this.phaseDeadline),
-        activeSpeakerSeat: clearSpeaker
-            ? null
-            : (activeSpeakerSeat ?? this.activeSpeakerSeat),
-        // A cleared floor clears the hands with it, for the same reason the
-        // server's trigger does: the thing being asked for no longer exists.
-        raisedHands: clearSpeaker ? const {} : (raisedHands ?? this.raisedHands),
-        unseenRoleSeats: unseenRoleSeats ?? this.unseenRoleSeats,
-        presence: presence ?? this.presence,
-        hostSeat: hostSeat ?? this.hostSeat,
-        roomClosed: roomClosed ?? this.roomClosed,
-        mutedSeats: mutedSeats ?? this.mutedSeats,
-        viewerKicked: viewerKicked ?? this.viewerKicked,
-        room: room ?? this.room,
-      );
+  }) => GameSnapshot(
+    public: public ?? this.public,
+    trace: trace ?? this.trace,
+    confrontation: confrontation ?? this.confrontation,
+    openingAccusations: openingAccusations ?? this.openingAccusations,
+    whisperGraph: whisperGraph ?? this.whisperGraph,
+    morning: clearMorning ? null : (morning ?? this.morning),
+    lastVote: clearVote ? null : (lastVote ?? this.lastVote),
+    settings: settings ?? this.settings,
+    pendingOutcome: pendingOutcome ?? this.pendingOutcome,
+    standings: standings ?? this.standings,
+    analyticsAvailable: analyticsAvailable ?? this.analyticsAvailable,
+    connectedSeats: connectedSeats ?? this.connectedSeats,
+    liveBallots: liveBallots ?? this.liveBallots,
+    connection: connection ?? this.connection,
+    viewerSeat: viewerSeat ?? this.viewerSeat,
+    canAdvance: canAdvance ?? this.canAdvance,
+    phaseDeadline: clearDeadline ? null : (phaseDeadline ?? this.phaseDeadline),
+    activeSpeakerSeat: clearSpeaker
+        ? null
+        : (activeSpeakerSeat ?? this.activeSpeakerSeat),
+    // A cleared floor clears the hands with it, for the same reason the
+    // server's trigger does: the thing being asked for no longer exists.
+    raisedHands: clearSpeaker ? const {} : (raisedHands ?? this.raisedHands),
+    readyToVoteSeats: readyToVoteSeats ?? this.readyToVoteSeats,
+    unseenRoleSeats: unseenRoleSeats ?? this.unseenRoleSeats,
+    presence: presence ?? this.presence,
+    hostSeat: hostSeat ?? this.hostSeat,
+    roomClosed: roomClosed ?? this.roomClosed,
+    mutedSeats: mutedSeats ?? this.mutedSeats,
+    viewerKicked: viewerKicked ?? this.viewerKicked,
+    room: room ?? this.room,
+    seatCosmetics: seatCosmetics ?? this.seatCosmetics,
+    ballotRound: ballotRound ?? this.ballotRound,
+    ballotCandidates: ballotCandidates ?? this.ballotCandidates,
+    viewerVoteRecorded: viewerVoteRecorded ?? this.viewerVoteRecorded,
+  );
 
   @override
   String toString() =>

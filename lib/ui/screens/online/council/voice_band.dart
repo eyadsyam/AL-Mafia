@@ -31,11 +31,16 @@ class CouncilVoice extends StatelessWidget {
   /// (`display` for the current speaker and for the winner).
   final TextStyle? style;
 
+  /// Above the headline, when a phase has something to *show* first — your
+  /// own card at night.
+  final Widget? leading;
+
   const CouncilVoice({
     super.key,
     required this.headline,
     this.support,
     this.style,
+    this.leading,
   });
 
   static const Key body = ValueKey('council_voice_body');
@@ -53,6 +58,7 @@ class CouncilVoice extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if (leading != null) ...[leading!, SizedBox(height: spacing.md)],
             Flexible(
               child: Text(
                 headline,
@@ -63,10 +69,7 @@ class CouncilVoice extends StatelessWidget {
                 ),
               ),
             ),
-            if (support != null) ...[
-              SizedBox(height: spacing.md),
-              support!,
-            ],
+            if (support != null) ...[SizedBox(height: spacing.md), support!],
           ],
         ),
       ),

@@ -26,8 +26,12 @@ import '../support/localized.dart';
 void main() {
   const boundaryKey = ValueKey('preview_boundary');
 
-  Future<void> shoot(WidgetTester tester, String name,
-      {required Role role, required bool flipped}) async {
+  Future<void> shoot(
+    WidgetTester tester,
+    String name, {
+    required Role role,
+    required bool flipped,
+  }) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -38,7 +42,9 @@ void main() {
           RoleCard(
             playerName: 'ياسمين',
             role: role,
-            teammateNames: role == Role.mafia ? const ['كريم', 'نور'] : const [],
+            teammateNames: role == Role.mafia
+                ? const ['كريم', 'نور']
+                : const [],
             onDismissed: () {},
           ),
         ),
@@ -53,8 +59,9 @@ void main() {
     await loadArtwork(tester);
 
     if (flipped) {
-      final gesture =
-          await tester.startGesture(tester.getCenter(find.byKey(RoleCard.holdPad)));
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(RoleCard.holdPad)),
+      );
       await tester.pump();
       await tester.pump(MafiaTiming.defaults.holdToReveal);
       await gesture.up();
@@ -62,8 +69,9 @@ void main() {
       await loadArtwork(tester);
     }
 
-    final boundary =
-        tester.renderObject<RenderRepaintBoundary>(find.byKey(boundaryKey));
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.byKey(boundaryKey),
+    );
     await tester.runAsync(() async {
       final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
       final data = await image.toByteData(format: ui.ImageByteFormat.png);

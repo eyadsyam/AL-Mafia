@@ -89,7 +89,9 @@ class PlayHint {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is PlayHint && runtimeType == other.runtimeType && code == other.code;
+      other is PlayHint &&
+          runtimeType == other.runtimeType &&
+          code == other.code;
 
   @override
   int get hashCode => code.hashCode;
@@ -128,12 +130,8 @@ abstract final class PlayHints {
     // One each, because doc 14 §4.1 removed the file and §4.2 deferred the
     // testimony, and the hints that taught them taught something the game no
     // longer does.
-    Role.detective: [
-      PlayHint('hint_detective_investigate_loud'),
-    ],
-    Role.citizen: [
-      PlayHint('hint_citizen_suspicion_counts'),
-    ],
+    Role.detective: [PlayHint('hint_detective_investigate_loud')],
+    Role.citizen: [PlayHint('hint_citizen_suspicion_counts')],
   };
 
   /// The hint for this moment, or null when hints are off.
@@ -170,7 +168,7 @@ abstract final class PlayHints {
   /// a pool that grows a hint without a sentence fails at build time rather
   /// than showing a player a raw code.
   static List<PlayHint> get all => [
-        ...table,
-        for (final pool in private.values) ...pool,
-      ];
+    ...table,
+    for (final pool in private.values) ...pool,
+  ];
 }

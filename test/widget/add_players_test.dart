@@ -10,13 +10,13 @@ import '../support/localized.dart';
 /// enable/disable logic.
 void main() {
   group('AddPlayersScreen (T058)', () {
-    testWidgets('التالي button is disabled with fewer than 5 players',
-        (WidgetTester tester) async {
+    testWidgets('التالي button is disabled with fewer than 5 players', (
+      WidgetTester tester,
+    ) async {
       final names = <List<String>>[];
       await tester.pumpWidget(
-        localizedApp(AddPlayersScreen(onBack: () {}, 
-            onNext: (list) => names.add(list),
-          )
+        localizedApp(
+          AddPlayersScreen(onBack: () {}, onNext: (list) => names.add(list)),
         ),
       );
 
@@ -37,7 +37,11 @@ void main() {
           matching: find.byType(FilledButton),
         );
         final filledButton = tester.widget<FilledButton>(button);
-        expect(filledButton.onPressed, isNull, reason: 'Button should be disabled with $i players');
+        expect(
+          filledButton.onPressed,
+          isNull,
+          reason: 'Button should be disabled with $i players',
+        );
       }
 
       // Add 5th player
@@ -53,10 +57,16 @@ void main() {
         matching: find.byType(FilledButton),
       );
       final filledButton = tester.widget<FilledButton>(button);
-      expect(filledButton.onPressed, isNotNull, reason: 'Button should be enabled');
+      expect(
+        filledButton.onPressed,
+        isNotNull,
+        reason: 'Button should be enabled',
+      );
     });
 
-    testWidgets('Duplicate names are auto-suffixed', (WidgetTester tester) async {
+    testWidgets('Duplicate names are auto-suffixed', (
+      WidgetTester tester,
+    ) async {
       // A phone, not the 800×600 default. Each roster row now carries the
       // male/female choice as well as the name, so three rows no longer fit in
       // a 600pt-tall window and the third is never built — which reads as the
@@ -66,9 +76,11 @@ void main() {
 
       final capturedNames = <List<String>>[];
       await tester.pumpWidget(
-        localizedApp(AddPlayersScreen(onBack: () {}, 
+        localizedApp(
+          AddPlayersScreen(
+            onBack: () {},
             onNext: (list) => capturedNames.add(list),
-          )
+          ),
         ),
       );
 
@@ -119,9 +131,11 @@ void main() {
     testWidgets('Can reorder players', (WidgetTester tester) async {
       final capturedNames = <List<String>>[];
       await tester.pumpWidget(
-        localizedApp(AddPlayersScreen(onBack: () {}, 
+        localizedApp(
+          AddPlayersScreen(
+            onBack: () {},
             onNext: (list) => capturedNames.add(list),
-          )
+          ),
         ),
       );
 
@@ -157,9 +171,11 @@ void main() {
     testWidgets('Can delete players', (WidgetTester tester) async {
       final capturedNames = <List<String>>[];
       await tester.pumpWidget(
-        localizedApp(AddPlayersScreen(onBack: () {}, 
+        localizedApp(
+          AddPlayersScreen(
+            onBack: () {},
             onNext: (list) => capturedNames.add(list),
-          )
+          ),
         ),
       );
 

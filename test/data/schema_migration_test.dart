@@ -41,8 +41,7 @@ void main() {
   late Map<String, dynamic> oldPayload;
 
   setUp(() {
-    final file =
-        File('test/data/fixtures/match_pre_information_engine.json');
+    final file = File('test/data/fixtures/match_pre_information_engine.json');
     oldPayload = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
   });
 
@@ -60,24 +59,30 @@ void main() {
         'survivorConfrontationEnabled',
         'confrontationSeconds',
       ]) {
-        expect(settings.containsKey(key), isFalse,
-            reason: 'the fixture must predate "$key"');
+        expect(
+          settings.containsKey(key),
+          isFalse,
+          reason: 'the fixture must predate "$key"',
+        );
       }
       final kinds = {
         for (final e in oldPayload['eventLog'] as List)
           (e as Map<String, dynamic>)['k'] as String,
       };
-      expect(kinds.intersection(const {
-        'nightSkipped',
-        'trace',
-        'opening',
-        'confront',
-        'confrontEnd',
-        'spoke',
-        'whisper',
-        'whisperRead',
-        'whisperVoid',
-      }), isEmpty);
+      expect(
+        kinds.intersection(const {
+          'nightSkipped',
+          'trace',
+          'opening',
+          'confront',
+          'confrontEnd',
+          'spoke',
+          'whisper',
+          'whisperRead',
+          'whisperVoid',
+        }),
+        isEmpty,
+      );
       expect(kinds, isNotEmpty);
     });
 
@@ -85,7 +90,10 @@ void main() {
       final match = MatchCodec.decode(oldPayload);
       expect(match.players, hasLength(7));
       expect(match.seed, equals(424242));
-      expect(match.eventLog, hasLength((oldPayload['eventLog'] as List).length));
+      expect(
+        match.eventLog,
+        hasLength((oldPayload['eventLog'] as List).length),
+      );
       expect(match.phase, equals(GamePhase.reveal));
     });
 
@@ -93,15 +101,24 @@ void main() {
       final match = MatchCodec.decode(oldPayload);
       const defaults = MatchSettings.defaults();
       expect(match.settings.traceEnabled, equals(defaults.traceEnabled));
-      expect(match.settings.confrontationEnabled,
-          equals(defaults.confrontationEnabled));
+      expect(
+        match.settings.confrontationEnabled,
+        equals(defaults.confrontationEnabled),
+      );
       expect(match.settings.whisperEnabled, equals(defaults.whisperEnabled));
-      expect(match.settings.openingRoundEnabled,
-          equals(defaults.openingRoundEnabled));
-      expect(match.settings.survivorConfrontationEnabled, isFalse,
-          reason: 'C11 must not switch itself on for an adopted match');
-      expect(match.settings.confrontationSeconds,
-          equals(defaults.confrontationSeconds));
+      expect(
+        match.settings.openingRoundEnabled,
+        equals(defaults.openingRoundEnabled),
+      );
+      expect(
+        match.settings.survivorConfrontationEnabled,
+        isFalse,
+        reason: 'C11 must not switch itself on for an adopted match',
+      );
+      expect(
+        match.settings.confrontationSeconds,
+        equals(defaults.confrontationSeconds),
+      );
       // Everything it *did* carry is untouched.
       expect(match.settings.speechSeconds, equals(60));
       expect(match.settings.identityHoldSeconds, equals(5));
@@ -110,9 +127,13 @@ void main() {
     test('history opens it: the projection is empty, not broken', () {
       final history = buildHistory(MatchCodec.decode(oldPayload));
       expect(history.nights, hasLength(1));
-      expect(history.nights.single.revealedTrace, isNull,
-          reason: 'nothing was published on a night played before the layer '
-              'existed, and nothing may be invented for it now');
+      expect(
+        history.nights.single.revealedTrace,
+        isNull,
+        reason:
+            'nothing was published on a night played before the layer '
+            'existed, and nothing may be invented for it now',
+      );
       expect(history.days, hasLength(1));
       expect(history.days.single.openingAccusations, isEmpty);
       expect(history.days.single.confrontation, isNull);
@@ -170,12 +191,14 @@ void main() {
       expect(kinds, contains(SpeakingRecorded));
       expect(kinds, contains(WhisperSent));
 
-      final restored =
-          MatchCodec.decode(MatchCodec.encode(engine.match));
+      final restored = MatchCodec.decode(MatchCodec.encode(engine.match));
       expect(restored, equals(engine.match));
       for (var i = 0; i < engine.match.eventLog.length; i++) {
-        expect(restored.eventLog[i], equals(engine.match.eventLog[i]),
-            reason: 'event $i changed across the round trip');
+        expect(
+          restored.eventLog[i],
+          equals(engine.match.eventLog[i]),
+          reason: 'event $i changed across the round trip',
+        );
       }
     });
 
@@ -189,7 +212,10 @@ void main() {
       // The storage split of doc 09 §5, asserted where it can actually be
       // checked: the encoded match is what History and analytics decode, and
       // the body must not be reachable from it at all.
-      expect(jsonEncode(MatchCodec.encode(engine.match)), isNot(contains(body)));
+      expect(
+        jsonEncode(MatchCodec.encode(engine.match)),
+        isNot(contains(body)),
+      );
     });
   });
 }

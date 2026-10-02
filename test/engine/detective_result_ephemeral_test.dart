@@ -12,7 +12,12 @@ void main() {
       engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
-        roleCounts: {Role.mafia: 1, Role.doctor: 1, Role.detective: 1, Role.citizen: 2},
+        roleCounts: {
+          Role.mafia: 1,
+          Role.doctor: 1,
+          Role.detective: 1,
+          Role.citizen: 2,
+        },
         settings: MatchSettings.defaults(),
         seed: 1007,
       );
@@ -44,14 +49,27 @@ void main() {
       // Result should be returned
       expect(result, isNotNull);
       expect(result!.targetSeat, equals(0));
-      expect([Role.mafia, Role.doctor, Role.detective, Role.citizen].contains(result.revealedRole), isTrue);
+      expect(
+        [
+          Role.mafia,
+          Role.doctor,
+          Role.detective,
+          Role.citizen,
+        ].contains(result.revealedRole),
+        isTrue,
+      );
     });
 
     test('second investigate in same turn throws StateError', () {
       engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
-        roleCounts: {Role.mafia: 1, Role.doctor: 1, Role.detective: 1, Role.citizen: 2},
+        roleCounts: {
+          Role.mafia: 1,
+          Role.doctor: 1,
+          Role.detective: 1,
+          Role.citizen: 2,
+        },
         settings: MatchSettings.defaults(),
         seed: 1014,
       );
@@ -81,23 +99,25 @@ void main() {
       );
 
       // Second investigate should throw
-      expect(
-        () {
-          engine.submitNightAction(
-            seat: detectiveIdx,
-            kind: NightActionKind.investigate,
-            targetSeat: 1,
-          );
-        },
-        throwsStateError,
-      );
+      expect(() {
+        engine.submitNightAction(
+          seat: detectiveIdx,
+          kind: NightActionKind.investigate,
+          targetSeat: 1,
+        );
+      }, throwsStateError);
     });
 
     test('publicView() exposes NO role field', () {
       engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
-        roleCounts: {Role.mafia: 1, Role.doctor: 1, Role.detective: 1, Role.citizen: 2},
+        roleCounts: {
+          Role.mafia: 1,
+          Role.doctor: 1,
+          Role.detective: 1,
+          Role.citizen: 2,
+        },
         settings: MatchSettings.defaults(),
         seed: 1021,
       );
@@ -115,7 +135,11 @@ void main() {
         // PublicPlayer should not have a 'role' property
         // Use reflection or direct cast to verify this
         final props = player.runtimeType.toString();
-        expect(props.contains('role'), isFalse, reason: 'PublicPlayer should not have a role property');
+        expect(
+          props.contains('role'),
+          isFalse,
+          reason: 'PublicPlayer should not have a role property',
+        );
       }
     });
 
@@ -123,7 +147,12 @@ void main() {
       engine = MatchEngine(clock: Clocks.monotonic());
       engine.start(
         names: ['A', 'B', 'C', 'D', 'E'],
-        roleCounts: {Role.mafia: 1, Role.doctor: 1, Role.detective: 1, Role.citizen: 2},
+        roleCounts: {
+          Role.mafia: 1,
+          Role.doctor: 1,
+          Role.detective: 1,
+          Role.citizen: 2,
+        },
         settings: MatchSettings.defaults(),
         seed: 1028,
       );
