@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../social/push_prompt.dart';
 import '../../economy/economy_capabilities.dart';
 import '../../economy/room_referral.dart';
 import '../../economy/interstitial_coordinator.dart';
@@ -125,6 +126,12 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     _refresh();
     _loadResume();
     unawaited(_loadSafetyNotice());
+    // Invites reach a closed app only through a registered device: ask here,
+    // where an invite is the next thing that can happen, not only when this
+    // player first invites someone or catches one with the app open.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(ref.read(pushPromptProvider).askInContext());
+    });
     // A room link's referral survives a room that filled or started before
     // this player got in: the next room they enter records it.
     final referral = widget.initialReferralCode;
