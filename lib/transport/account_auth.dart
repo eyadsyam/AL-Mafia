@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'account_service.dart';
+import 'native_google.dart';
 
 /// Where an OAuth sign-in returns to on a phone. Registered in the Android
 /// manifest and in the project's allowed redirect URLs.
@@ -29,8 +30,48 @@ class AccountAuth {
   final Future<GoTrueClient> Function() _auth;
   final Future<void> Function() _ensureSession;
 
-  AccountAuth(this._auth, {required Future<void> Function() ensureSession})
-    : _ensureSession = ensureSession;
+  /// The native account picker; null where only the browser flow exists.
+  final NativeGoogle? _native;
+
+  AccountAuth(
+    this._auth, {
+    required Future<void> Function() ensureSession,
+    NativeGoogle? native,
+  }) : _ensureSession = ensureSession,
+       _native = native;
+
+  /// The native picker first (a bottom sheet, no browser, no redirect). `true`
+  /// when it finished — signed in or linked — or the player backed out; `false`
+  /// when it cannot be used here and the browser flow should take over.
+  /// A refusal by the server (the Google account is another player's) is
+  /// thrown, not swallowed, so the player hears it.
+  Future<bool> _nativeGoogle(GoTrueClient auth, {required bool link}) async {
+    final native = _native;
+    if (native == null) return false;
+    final NativeGoogleToken token;
+    try {
+      token = await native.pick();
+    } on NativeGoogleCancelled {
+      return true;
+    } catch (_) {
+      return false;
+    }
+    final user = auth.currentUser;
+    if (link && user != null && user.isAnonymous) {
+      await auth.linkIdentityWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: token.idToken,
+        accessToken: token.accessToken,
+      );
+    } else {
+      await auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: token.idToken,
+        accessToken: token.accessToken,
+      );
+    }
+    return true;
+  }
 
   static const rememberKey = 'mafia.account.remember.v1';
   static const minPassword = 8;
@@ -177,6 +218,8 @@ class AccountAuth {
   /// that refused up front.)
   Future<void> google() => _guard(() async {
     final auth = await _auth();
+    await _ensureSession();
+    if (await _nativeGoogle(auth, link: true)) return;
     final redirect = _oauthReturn;
     final user = auth.currentUser;
     if (user != null && user.isAnonymous) {
@@ -269,6 +312,7 @@ class AccountAuth {
   /// link yet).
   Future<void> googleSignIn() => _guard(() async {
     final auth = await _auth();
+    if (await _nativeGoogle(auth, link: false)) return;
     await auth.signInWithOAuth(
       OAuthProvider.google,
       redirectTo: _oauthReturn,

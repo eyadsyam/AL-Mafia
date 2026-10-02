@@ -18,6 +18,7 @@ import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/feathered_art.dart';
 import 'account_footer.dart';
+import '../../transport/native_google.dart';
 import '../../app/text_formatters.dart';
 
 final accountAuthProvider = Provider<AccountAuth>((ref) {
@@ -26,7 +27,8 @@ final accountAuthProvider = Provider<AccountAuth>((ref) {
     final value = await backend();
     if (value is! SupabaseBackend) throw const AccountFailure('UNAVAILABLE');
     return value.client.auth;
-  }, ensureSession: () async => (await backend()).ensureSession());
+  }, ensureSession: () async => (await backend()).ensureSession(),
+      native: NativeGoogle.forPlatform());
 });
 
 /// The signed-in identity, refreshed on every auth change (a Google return,
