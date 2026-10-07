@@ -9912,6 +9912,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Door locked'**
   String get investigateUnreachable;
+
+  /// No description provided for @storeRolesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New roles'**
+  String get storeRolesTitle;
+
+  /// No description provided for @storeRolesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy once and it unlocks in your rooms. It is still dealt at random and in secret.'**
+  String get storeRolesIntro;
 }
 
 class _AppLocalizationsDelegate

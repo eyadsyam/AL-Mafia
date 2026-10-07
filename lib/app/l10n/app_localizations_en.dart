@@ -5797,4 +5797,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get investigateUnreachable => 'Door locked';
+
+  @override
+  String get storeRolesTitle => 'New roles';
+
+  @override
+  String get storeRolesIntro =>
+      'Buy once and it unlocks in your rooms. It is still dealt at random and in secret.';
 }

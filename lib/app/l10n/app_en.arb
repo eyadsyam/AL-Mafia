@@ -3559,5 +3559,7 @@
   "toolFeedSeparator": ", ",
   "toolFeedUnknownTool": "a tool",
   "investigateUnclear": "Unclear",
-  "investigateUnreachable": "Door locked"
+  "investigateUnreachable": "Door locked",
+  "storeRolesTitle": "New roles",
+  "storeRolesIntro": "Buy once and it unlocks in your rooms. It is still dealt at random and in secret."
 }

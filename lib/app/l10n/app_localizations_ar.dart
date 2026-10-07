@@ -5692,4 +5692,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get investigateUnreachable => 'بابه مقفول';
+
+  @override
+  String get storeRolesTitle => 'الأدوار الجديدة';
+
+  @override
+  String get storeRolesIntro =>
+      'تشتريه مرة واحدة ويتفتح في الأوض بتاعتك. الدور بيتوزع عشوائي وفي السر زي أي دور.';
 }

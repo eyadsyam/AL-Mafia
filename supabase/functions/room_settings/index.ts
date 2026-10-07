@@ -28,7 +28,7 @@
  */
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { roomConfiguration } from "../_shared/room_configuration.ts";
-import { ensureCosmeticAccess, ensureScenarioAccess } from "../_shared/purchase_access.ts";
+import { ensureCosmeticAccess, ensureRoleAccess, ensureScenarioAccess } from "../_shared/purchase_access.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const body = await req.json().catch(() => ({}));
@@ -52,6 +52,9 @@ Deno.serve(handler(async (req, userId, db) => {
   catch { return fail("BAD_REQUEST", "invalid room settings"); }
   if (!await ensureScenarioAccess(db, userId, patch.settings)) {
     return fail("PURCHASE_REQUIRED", "scenario is not owned", 403);
+  }
+  if (!await ensureRoleAccess(db, userId, patch.settings)) {
+    return fail("PURCHASE_REQUIRED", "role is not owned", 403);
   }
   if (!await ensureCosmeticAccess(db, userId, patch.settings)) {
     return fail("PURCHASE_REQUIRED", "presentation pack is not owned", 403);

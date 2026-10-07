@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/asset_constants.dart';
+import '../../app/l10n/app_localizations.dart';
 import '../../transport/online_backend.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
@@ -199,6 +201,7 @@ class _TableToolsShopTabState extends ConsumerState<TableToolsShopTab> {
       padding: EdgeInsets.all(s.screenMargin),
       children: [
         Text(l.toolsIntro, style: type.body.copyWith(color: colors.textMuted)),
+        const _RolesShop(),
         for (final tier in ToolTier.values) ...[
           SizedBox(height: s.lg),
           Text(
@@ -567,3 +570,126 @@ String serverPhaseOf(String phaseName) => switch (phaseName) {
   'voting' || 'voteResolving' => 'vote',
   _ => 'discuss',
 };
+
+/// The three new roles, bought once. A role unlocks in the buyer's own rooms
+/// (the host switches it on) and is still dealt at random and in secret.
+class _RolesShop extends ConsumerWidget {
+  const _RolesShop();
+
+  static const _roles = [
+    ('role_elder', AppImages.cardFaceElder),
+    ('role_sniper', AppImages.cardFaceSniper),
+    ('role_silencer', AppImages.cardFaceSilencer),
+  ];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final type = context.typography;
+    final colors = context.colors;
+    final wallet = ref.watch(walletProvider).valueOrNull;
+    if (wallet == null) return const SizedBox.shrink();
+    final items = [
+      for (final (code, art) in _roles)
+        if (wallet.item(code) case final item?) (code, art, item.price),
+    ];
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(height: s.lg),
+        Text(
+          l.storeRolesTitle,
+          style: type.title.copyWith(color: colors.accentGold),
+        ),
+        SizedBox(height: s.xs),
+        Text(
+          l.storeRolesIntro,
+          style: type.body.copyWith(color: colors.textMuted),
+        ),
+        SizedBox(height: s.sm),
+        for (final (code, art, price) in items)
+          Card(
+            margin: EdgeInsets.only(bottom: s.sm),
+            child: Padding(
+              padding: EdgeInsets.all(s.md),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(s.sm),
+                    child: Image.asset(
+                      art,
+                      width: s.xl * 2,
+                      height: s.xl * 3,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(width: s.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(_name(l, code), style: type.title),
+                        SizedBox(height: s.xs),
+                        Text(
+                          _desc(l, code),
+                          style: type.bodySmall.copyWith(
+                            color: colors.textMuted,
+                          ),
+                        ),
+                        SizedBox(height: s.sm),
+                        wallet.owned.contains(code)
+                            ? Text(
+                                l.storeOwned,
+                                style: type.caption.copyWith(
+                                  color: colors.accentGold,
+                                ),
+                              )
+                            : OutlinedButton.icon(
+                                key: ValueKey('role_buy_$code'),
+                                onPressed: wallet.balance < price
+                                    ? null
+                                    : () => _buy(context, ref, code),
+                                icon: const MafiaCoin(),
+                                label: Text('$price'),
+                              ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  static String _name(AppLocalizations l, String code) => switch (code) {
+    'role_elder' => l.roleElder,
+    'role_sniper' => l.roleSniper,
+    _ => l.roleSilencer,
+  };
+
+  static String _desc(AppLocalizations l, String code) => switch (code) {
+    'role_elder' => l.roleElderDescription,
+    'role_sniper' => l.roleSniperDescription,
+    _ => l.roleSilencerDescription,
+  };
+
+  Future<void> _buy(BuildContext context, WidgetRef ref, String code) async {
+    final l = context.l10n;
+    try {
+      await ref.read(walletProvider.notifier).buy(code);
+    } on WalletActionFailed catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.code == 'INSUFFICIENT_COINS' ? l.toolNotEnough : l.toolBuyFailed,
+          ),
+        ),
+      );
+    }
+  }
+}
