@@ -56,7 +56,7 @@ Deno.serve(handler(async (req, userId, db) => {
   if (roster.length < 5) return fail("BAD_REQUEST", "at least five players");
   const counts = roles as Record<string, number>;
   if (!counts || Array.isArray(counts) || typeof counts !== "object" ||
-      Object.entries(counts).some(([role, n]) => !["mafia", "doctor", "detective", "citizen"].includes(role) || !Number.isInteger(n) || n < 0 || n > 15)) {
+      Object.entries(counts).some(([role, n]) => !["mafia", "silencer", "doctor", "detective", "elder", "sniper", "citizen"].includes(role) || !Number.isInteger(n) || n < 0 || n > 15)) {
     return fail("BAD_REQUEST", "invalid role counts");
   }
   let effectiveSettings;
@@ -73,9 +73,24 @@ Deno.serve(handler(async (req, userId, db) => {
   if (total !== roster.length) return fail("BAD_REQUEST", "roles must sum to the roster");
   // One Detective per match, never more (owner, 2026-10-01).
   if ((counts.detective ?? 0) > 1) return fail("BAD_REQUEST", "one detective at most");
-  const mafia = counts.mafia ?? 0;
+  const mafia = (counts.mafia ?? 0) + (counts.silencer ?? 0);
   if (mafia < 1) return fail("BAD_REQUEST", "at least one mafia");
   if (mafia * 2 >= roster.length) return fail("BAD_REQUEST", "mafia may not reach parity at the start");
+  if ((counts.silencer ?? 0) > 1 ||
+      ((counts.silencer ?? 0) === 1 && mafia < 2) ||
+      ((counts.silencer ?? 0) === 1) !== (effectiveSettings?.silencerEnabled === true)) {
+    return fail("BAD_REQUEST", "invalid silencer setup");
+  }
+  if ((counts.elder ?? 0) > 1 ||
+      ((counts.elder ?? 0) === 1) !== (effectiveSettings?.elderEnabled === true) ||
+      ((counts.elder ?? 0) === 1 && roster.length < 6)) {
+    return fail("BAD_REQUEST", "invalid elder setup");
+  }
+  if ((counts.sniper ?? 0) > 1 ||
+      ((counts.sniper ?? 0) === 1) !== (effectiveSettings?.sniperEnabled === true) ||
+      ((counts.sniper ?? 0) === 1 && roster.length < 7)) {
+    return fail("BAD_REQUEST", "invalid sniper setup");
+  }
 
   const deck: string[] = [];
   for (const [role, n] of Object.entries(counts)) {

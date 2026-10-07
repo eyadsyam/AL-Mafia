@@ -76,6 +76,8 @@ void main() {
         Role.doctor => doctorTarget,
         // Anyone will do; the investigation does not affect the resolution.
         Role.detective || Role.citizen => _firstOther(engine, seat),
+        Role.silencer || Role.elder || Role.sniper =>
+          throw StateError('new roles are off in this test'),
       };
       engine.submitNightAction(
         seat: seat,
@@ -84,6 +86,8 @@ void main() {
           Role.doctor => NightActionKind.protect,
           Role.detective => NightActionKind.investigate,
           Role.citizen => NightActionKind.suspect,
+          Role.silencer || Role.elder || Role.sniper =>
+            throw StateError('new roles are off in this test'),
         },
         targetSeat: target,
       );

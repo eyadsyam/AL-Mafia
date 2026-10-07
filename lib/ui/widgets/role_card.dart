@@ -374,10 +374,16 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
     switch (widget.role) {
       case Role.mafia:
         return AppImages.cardFaceMafia;
+      case Role.silencer:
+        return AppImages.cardFaceSilencer;
       case Role.doctor:
         return AppImages.cardFaceDoctor;
       case Role.detective:
         return AppImages.cardFaceDetective;
+      case Role.elder:
+        return AppImages.cardFaceElder;
+      case Role.sniper:
+        return AppImages.cardFaceSniper;
       case Role.citizen:
         return AppImages.cardFaceCitizen;
     }

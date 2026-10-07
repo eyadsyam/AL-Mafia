@@ -295,11 +295,15 @@ export function actionForRole(role: string | null): string | null {
   switch (role) {
     case "mafia":
       return "kill";
+    case "silencer":
+      return "silence";
     case "doctor":
       return "protect";
     case "detective":
       return "investigate";
     case "citizen":
+    case "elder":
+    case "sniper":
       return "suspect";
     default:
       return null;

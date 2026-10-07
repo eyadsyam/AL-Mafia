@@ -283,13 +283,26 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     final snapshot = _snapshot;
     if (snapshot == null) return;
     final count = snapshot.public.players.length;
+    final counts = Map<Role, int>.of(BalanceGuard.recommended(count));
+    if (snapshot.settings.silencerEnabled) {
+      counts[Role.mafia] = (counts[Role.mafia] ?? 0) - 1;
+      counts[Role.silencer] = 1;
+    }
+    if (snapshot.settings.elderEnabled) {
+      counts[Role.citizen] = (counts[Role.citizen] ?? 0) - 1;
+      counts[Role.elder] = 1;
+    }
+    if (snapshot.settings.sniperEnabled) {
+      counts[Role.citizen] = (counts[Role.citizen] ?? 0) - 1;
+      counts[Role.sniper] = 1;
+    }
     // The recommended distribution for this many players, and the host's own
     // default rules — plus the one setting that is a property of *this room*
     // rather than of this device.
     final started = await ref
         .read(onlineSessionProvider.notifier)
         .start(
-          roleCounts: BalanceGuard.recommended(count),
+          roleCounts: counts,
           settings: snapshot.settings,
         );
     if (started && mounted) widget.onStarted();

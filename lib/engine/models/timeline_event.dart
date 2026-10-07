@@ -304,15 +304,42 @@ class SuspectCast extends TimelineEvent {
       'SuspectCast(at=$at, phaseRef=$phaseRef, actorSeat=$actorSeat, targetSeat=$targetSeat, reason=$reason)';
 }
 
+/// The Silencer chose who cannot speak or vote on the following day.
+class SilenceCast extends TimelineEvent {
+  final int actorSeat;
+  final int targetSeat;
+
+  const SilenceCast({
+    required DateTime at,
+    required PhaseRef phaseRef,
+    required this.actorSeat,
+    required this.targetSeat,
+  }) : super(at: at, phaseRef: phaseRef);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SilenceCast &&
+          at == other.at &&
+          phaseRef == other.phaseRef &&
+          actorSeat == other.actorSeat &&
+          targetSeat == other.targetSeat;
+
+  @override
+  int get hashCode => Object.hash(at, phaseRef, actorSeat, targetSeat);
+}
+
 /// The night phase resolved with possible victim and save.
 class NightResolved extends TimelineEvent {
   final int? victimSeat;
+  final List<int> victimSeats;
   final int? savedSeat;
 
   const NightResolved({
     required DateTime at,
     required PhaseRef phaseRef,
     this.victimSeat,
+    this.victimSeats = const [],
     this.savedSeat,
   }) : super(at: at, phaseRef: phaseRef);
 
@@ -324,6 +351,7 @@ class NightResolved extends TimelineEvent {
           at == other.at &&
           phaseRef == other.phaseRef &&
           victimSeat == other.victimSeat &&
+          _sameSeats(victimSeats, other.victimSeats) &&
           savedSeat == other.savedSeat;
 
   @override
@@ -331,11 +359,42 @@ class NightResolved extends TimelineEvent {
       at.hashCode ^
       phaseRef.hashCode ^
       victimSeat.hashCode ^
-      savedSeat.hashCode;
+      savedSeat.hashCode ^
+      Object.hashAll(victimSeats);
+
+  static bool _sameSeats(List<int> a, List<int> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
 
   @override
   String toString() =>
-      'NightResolved(at=$at, phaseRef=$phaseRef, victimSeat=$victimSeat, savedSeat=$savedSeat)';
+      'NightResolved(at=$at, phaseRef=$phaseRef, victimSeats=$victimSeats, savedSeat=$savedSeat)';
+}
+
+/// A Sheikh revealed publicly; the fact and its vote weight last to match end.
+class ElderRevealed extends TimelineEvent {
+  final int seat;
+
+  const ElderRevealed({
+    required DateTime at,
+    required PhaseRef phaseRef,
+    required this.seat,
+  }) : super(at: at, phaseRef: phaseRef);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ElderRevealed &&
+          at == other.at &&
+          phaseRef == other.phaseRef &&
+          seat == other.seat;
+
+  @override
+  int get hashCode => Object.hash(at, phaseRef, seat);
 }
 
 /// The morning briefing has been announced.

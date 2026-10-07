@@ -21,6 +21,8 @@ class MorningScreen extends StatelessWidget {
 
   /// Name of the player who died, or null if nobody did.
   final String? victimName;
+  final List<String> victimNames;
+  final String? silencedName;
 
   /// True when the Mafia's target survived because they were protected.
   final bool someoneSavedUnnamed;
@@ -50,6 +52,8 @@ class MorningScreen extends StatelessWidget {
     super.key,
     required this.dayNumber,
     required this.victimName,
+    this.victimNames = const [],
+    this.silencedName,
     required this.someoneSavedUnnamed,
     this.traceText,
     this.victimRole,
@@ -67,9 +71,12 @@ class MorningScreen extends StatelessWidget {
 
     final String headline;
     final String body;
-    if (victimName != null) {
+    final namedVictims = victimNames.isEmpty
+        ? [if (victimName != null) victimName!]
+        : victimNames;
+    if (namedVictims.isNotEmpty) {
       headline = l10n.notEveryoneSurvived;
-      body = l10n.lostPlayerLastNight(victimName!);
+      body = l10n.lostPlayerLastNight(namedVictims.join(' · '));
     } else if (someoneSavedUnnamed) {
       headline = l10n.quietNight;
       body = l10n.someoneSavedBody;
@@ -126,6 +133,15 @@ class MorningScreen extends StatelessWidget {
                     Text(
                       l10n.victimWasRole(victimName!, victimRole!),
                       style: type.body.copyWith(color: colors.textMuted),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  if (silencedName != null) ...[
+                    SizedBox(height: spacing.sm),
+                    Text(
+                      l10n.silencedAnnouncement(silencedName!),
+                      key: const ValueKey('morning_silenced'),
+                      style: type.body.copyWith(color: colors.textSecondary),
                       textAlign: TextAlign.center,
                     ),
                   ],

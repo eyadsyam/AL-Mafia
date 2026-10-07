@@ -29,6 +29,7 @@ import '../../theme/mafia_theme.dart';
 import '../../widgets/hold_pad.dart';
 import '../../widgets/role_card.dart';
 import '../day/whisper_compose_screen.dart';
+import '../day/day_card_check.dart';
 import '../../widgets/whisper_card.dart';
 import '../match_controller.dart';
 import 'council/card_rise.dart';
@@ -840,6 +841,16 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     for (final player in snapshot.public.players) player.seat: player.name,
   };
 
+  bool _isDayPhase(GamePhase phase) => const {
+    GamePhase.morning,
+    GamePhase.openingRound,
+    GamePhase.confrontation,
+    GamePhase.discussion,
+    GamePhase.voting,
+    GamePhase.voteResolving,
+    GamePhase.reveal,
+  }.contains(phase);
+
   /// Every other seat has left the room while the match is still running.
   bool _abandoned(GameSnapshot snapshot) {
     if (_matchOver(snapshot) || snapshot.phase == GamePhase.setup) return false;
@@ -876,6 +887,10 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 
   void _pick(int seat) {
     if (_submitted) return;
+    if (_controller.snapshot.phase == GamePhase.voting &&
+        _controller.snapshot.viewerSilenced) {
+      return;
+    }
     Haptics.select();
     setState(() => _selected = _selected == seat ? null : seat);
   }
@@ -1179,6 +1194,24 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         fit: StackFit.expand,
         children: [
           ground,
+          if (_isDayPhase(snapshot.phase) && snapshot.viewerSeat != null)
+            SafeArea(
+              child: Align(
+                alignment: AlignmentDirectional.topEnd,
+                child: Padding(
+                  padding: EdgeInsets.all(context.spacing.sm),
+                  child: FilledButton.tonalIcon(
+                    onPressed: () => showDayCardCheck(
+                      context,
+                      controller: _controller,
+                      seat: snapshot.viewerSeat!,
+                    ),
+                    icon: const Icon(Icons.style_outlined),
+                    label: Text(context.l10n.myCard),
+                  ),
+                ),
+              ),
+            ),
           // After the dawn curtain, never on top of it: two overlays with two
           // sentences at once read as neither.
           if (_mourning && _sting == null && !_scaring && !_matchOver(snapshot))
@@ -1616,6 +1649,8 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
               ? (_acknowledged
                     ? l10n.onlineVoteReceived
                     : l10n.onlineVoteSending)
+              : snapshot.viewerSilenced
+              ? l10n.silencedCannotVote
               : snapshot.ballotRound > 1
               ? l10n.tieRevoteHeadline
               : l10n.whoDoYouVoteOut,
@@ -1838,6 +1873,13 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 
       case GamePhase.voting:
         if (_submitted) return null;
+        if (snapshot.viewerSilenced) {
+          return FilledButton(
+            key: OnlineTableFlow.confirmAction,
+            onPressed: null,
+            child: Text(l10n.silencedCannotVote),
+          );
+        }
         final abstainAllowed = snapshot.settings.abstainAllowed;
         final confirm = FilledButton(
           key: OnlineTableFlow.confirmAction,

@@ -7,12 +7,14 @@ enum Alignment { mafia, town }
 
 /// A player's role determines their night action and win condition.
 /// Reference: data-model.md §3
-enum Role { mafia, doctor, detective, citizen }
+enum Role { mafia, silencer, doctor, detective, elder, sniper, citizen }
 
 extension RoleX on Role {
   /// Returns the alignment: mafia roles align with mafia; others with town.
   Alignment get alignment =>
-      this == Role.mafia ? Alignment.mafia : Alignment.town;
+      this == Role.mafia || this == Role.silencer
+      ? Alignment.mafia
+      : Alignment.town;
 }
 
 /// A player's current vital status.
@@ -61,7 +63,7 @@ enum DayTieRule { revote, noElimination }
 
 /// Type of night action a player may perform.
 /// Reference: data-model.md §5
-enum NightActionKind { mafiaVote, protect, investigate, suspect }
+enum NightActionKind { mafiaVote, silence, protect, investigate, suspect }
 
 /// The night action every role performs, as a total function of the role.
 ///
@@ -71,8 +73,10 @@ enum NightActionKind { mafiaVote, protect, investigate, suspect }
 extension RoleNightAction on Role {
   NightActionKind get nightAction => switch (this) {
     Role.mafia => NightActionKind.mafiaVote,
+    Role.silencer => NightActionKind.silence,
     Role.doctor => NightActionKind.protect,
     Role.detective => NightActionKind.investigate,
+    Role.elder || Role.sniper => NightActionKind.suspect,
     Role.citizen => NightActionKind.suspect,
   };
 }
@@ -93,6 +97,9 @@ enum BulletKind {
 
   /// طبيب — «حماية النفس». The one night the Doctor may cover their own seat.
   selfProtect,
+
+  /// القناص — one shot for the whole match.
+  sniperShot,
 }
 
 /// The once-per-match ability a role is holding, or null for the two roles
@@ -112,8 +119,11 @@ enum BulletKind {
 extension RoleBullet on Role {
   BulletKind? get bullet => switch (this) {
     Role.mafia => BulletKind.quietNight,
+    Role.silencer => null,
     Role.doctor => BulletKind.selfProtect,
     Role.detective => null,
+    Role.elder => null,
+    Role.sniper => BulletKind.sniperShot,
     Role.citizen => null,
   };
 }

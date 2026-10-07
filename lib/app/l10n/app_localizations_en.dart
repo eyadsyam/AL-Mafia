@@ -176,6 +176,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'There is only one Detective in a match';
 
   @override
+  String get balanceOneSilencerOnly => 'There can only be one Silencer';
+
+  @override
+  String get balanceSilencerNeedsTwoMafia =>
+      'The Silencer needs at least two Mafia';
+
+  @override
+  String get balanceElderMinPlayers => 'The Elder needs at least 6 players';
+
+  @override
+  String get balanceSniperMinPlayers => 'The Sniper needs at least 7 players';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override
@@ -236,10 +249,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roleMafia => 'Mafia';
 
   @override
+  String get roleSilencer => 'Silencer';
+
+  @override
   String get roleDoctor => 'Doctor';
 
   @override
   String get roleDetective => 'Detective';
+
+  @override
+  String get roleElder => 'Elder';
+
+  @override
+  String get roleSniper => 'Sniper';
 
   @override
   String get roleCitizen => 'Citizen';
@@ -249,12 +271,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'Each night the mafia agree on one victim, and never one of their own.';
 
   @override
+  String get roleSilencerDescription =>
+      'Silence one living player for tomorrow. You inherit the kill after every killer is gone.';
+
+  @override
   String get roleDoctorDescription =>
       'Each night you protect one player; several doctors protect just one between them. You may protect yourself once per match.';
 
   @override
   String get roleDetectiveDescription =>
       'There is only one detective. Each night you uncover one player\'s role.';
+
+  @override
+  String get roleElderDescription =>
+      'Reveal your card during the day; your vote counts as three for the rest of the match.';
+
+  @override
+  String get roleSniperDescription =>
+      'You have one shot. A Mafia target dies; a town target takes you down too.';
 
   @override
   String get roleCitizenDescription =>
@@ -316,6 +350,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nightPromptDetective => 'Whose cards do you want to see tonight?';
+
+  @override
+  String get nightPromptSilencer => 'Who must stay quiet tomorrow?';
+
+  @override
+  String get nightPromptElder => 'Whose story feels wrong tonight?';
+
+  @override
+  String get nightPromptSniper => 'Who is in your sights tonight?';
 
   @override
   String get nightPromptCitizen => 'Whose behaviour do you doubt tonight?';
@@ -1803,13 +1846,66 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nightSpecialMafia => 'No kill tonight';
 
   @override
+  String get nightSpecialSilencer => 'Silence yourself';
+
+  @override
   String get nightSpecialDoctor => 'Protect yourself';
 
   @override
   String get nightSpecialDetective => 'No check tonight';
 
   @override
+  String get nightSpecialElder => 'No read tonight';
+
+  @override
+  String get nightSpecialSniper => 'Do not shoot';
+
+  @override
   String get nightSpecialCitizen => 'No read tonight';
+
+  @override
+  String get bulletSniper => 'the Sniper shot';
+
+  @override
+  String get silencedCannotVote => 'You are silenced today — you cannot vote';
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
+  String silencedAnnouncement(String name) {
+    return '$name is silenced today';
+  }
+
+  @override
+  String get elderRevealAction => 'Reveal to the table';
+
+  @override
+  String get elderRevealedMark => 'Revealed Elder · vote ×3';
+
+  @override
+  String get myCard => 'My card';
+
+  @override
+  String get settingSilencer => 'Silencer';
+
+  @override
+  String get settingSilencerHint =>
+      'One Mafia silences instead of killing; available with at least two Mafia.';
+
+  @override
+  String get settingElder => 'Elder';
+
+  @override
+  String get settingElderHint =>
+      'A citizen may reveal from 6 players; their vote then counts as three.';
+
+  @override
+  String get settingSniper => 'Sniper';
+
+  @override
+  String get settingSniperHint =>
+      'A citizen gets one shot from 7 players; a miss kills both players.';
 
   @override
   String get settingsSectionPace => 'Pace';

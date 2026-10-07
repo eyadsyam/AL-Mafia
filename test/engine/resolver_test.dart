@@ -325,6 +325,8 @@ void main() {
               kind: NightActionKind.suspect,
               targetSeat: (seat + 1) % 5,
             );
+          case Role.silencer || Role.elder || Role.sniper:
+            throw StateError('new roles are off in this test');
         }
       }
       engine.resolveNight();
@@ -380,6 +382,8 @@ void main() {
                 kind: NightActionKind.suspect,
                 targetSeat: (seat + 1) % 5,
               );
+            case Role.silencer || Role.elder || Role.sniper:
+              throw StateError('new roles are off in this test');
           }
         }
       }, throwsA(isA<StateError>()));

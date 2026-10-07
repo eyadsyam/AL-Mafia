@@ -24,6 +24,19 @@ Deno.serve(handler(async (req, userId, db) => {
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
   if (!me.alive) return fail("NOT_ALIVE", "the dead do not hold the floor", 403);
 
+  const { data: state, error: stateError } = await db
+    .from("room_state")
+    .select("public_data")
+    .eq("room_id", roomId)
+    .maybeSingle();
+  if (stateError) throw stateError;
+  if (!state) throw new Error("room state missing");
+  const morning = (state.public_data as Record<string, unknown> | null)
+    ?.morning as Record<string, unknown> | null | undefined;
+  if (Number(morning?.silencedSeat) === me.seat) {
+    return ok({ granted: false, policy: "muted", reason: "silenced" });
+  }
+
   const policy = micPolicyFor(me.phase, me.settings);
 
   // Nothing to grant. In an open phase every microphone is already live, and
@@ -32,14 +45,6 @@ Deno.serve(handler(async (req, userId, db) => {
 
   // The night, the reveal, the ballot. Not an error and not a negotiation.
   if (policy === "muted") return ok({ granted: false, policy });
-
-  const { data: state, error: stateError } = await db
-    .from("room_state")
-    .select("public_data")
-    .eq("room_id", roomId)
-    .maybeSingle();
-  if (stateError) throw stateError;
-  if (!state) throw new Error("room state missing");
 
   const owner = floorOwnerSeat(
     me.phase,

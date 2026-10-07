@@ -1161,6 +1161,18 @@ class OnlineTransport implements GameTransport {
   }
 
   @override
+  Future<void> revealElder(int seat) async {
+    if (seat != mySeat) return;
+    await _send('reveal_elder', const {}, assured: true);
+    await resync();
+  }
+
+  @override
+  Future<void> skipSilencedVote(int seat) async {
+    if (seat == mySeat) await resync();
+  }
+
+  @override
   Future<void> resolveDayVote() async {
     await _send('resolve_vote', const {}, hostOnly: !_mayDrive);
   }
@@ -1270,6 +1282,16 @@ class OnlineTransport implements GameTransport {
         role = roleFromServer(own.role);
       }
       if (role == null) return null;
+      return ViewerSecrets(
+        seat: seat,
+        role: role,
+        teammateNames: own.teammateNames,
+      );
+    }
+
+    if (role != null &&
+        const {'morning', 'opening', 'confront', 'discuss', 'vote', 'verdict'}
+            .contains(state.phase)) {
       return ViewerSecrets(
         seat: seat,
         role: role,

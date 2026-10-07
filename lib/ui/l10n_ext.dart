@@ -52,6 +52,10 @@ abstract final class EngineCopy {
         'two_detectives_low_player_count' =>
           l10n.balanceTwoDetectivesLowPlayerCount,
         'one_detective_only' => l10n.balanceOneDetectiveOnly,
+        'one_silencer_only' => l10n.balanceOneSilencerOnly,
+        'silencer_needs_two_mafia' => l10n.balanceSilencerNeedsTwoMafia,
+        'elder_min_players' => l10n.balanceElderMinPlayers,
+        'sniper_min_players' => l10n.balanceSniperMinPlayers,
         _ => issue.code,
       };
 
@@ -83,6 +87,7 @@ abstract final class EngineCopy {
       switch (kind) {
         BulletKind.quietNight => l10n.bulletMafia,
         BulletKind.selfProtect => l10n.bulletDoctor,
+        BulletKind.sniperShot => l10n.bulletSniper,
       };
 
   /// The words on the last tile of the night grid (doc 14 §1.3).
@@ -93,8 +98,11 @@ abstract final class EngineCopy {
   static String nightSpecial(AppLocalizations l10n, Role role) =>
       switch (role) {
         Role.mafia => l10n.nightSpecialMafia,
+        Role.silencer => l10n.nightSpecialSilencer,
         Role.doctor => l10n.nightSpecialDoctor,
         Role.detective => l10n.nightSpecialDetective,
+        Role.elder => l10n.nightSpecialElder,
+        Role.sniper => l10n.nightSpecialSniper,
         Role.citizen => l10n.nightSpecialCitizen,
       };
 
@@ -171,8 +179,11 @@ abstract final class EngineCopy {
   /// owner's own card, the day-vote reveal, and post-game analytics.
   static String roleName(AppLocalizations l10n, Role role) => switch (role) {
     Role.mafia => l10n.roleMafia,
+    Role.silencer => l10n.roleSilencer,
     Role.doctor => l10n.roleDoctor,
     Role.detective => l10n.roleDetective,
+    Role.elder => l10n.roleElder,
+    Role.sniper => l10n.roleSniper,
     Role.citizen => l10n.roleCitizen,
   };
 
@@ -180,8 +191,11 @@ abstract final class EngineCopy {
   static String roleDescription(AppLocalizations l10n, Role role) =>
       switch (role) {
         Role.mafia => l10n.roleMafiaDescription,
+        Role.silencer => l10n.roleSilencerDescription,
         Role.doctor => l10n.roleDoctorDescription,
         Role.detective => l10n.roleDetectiveDescription,
+        Role.elder => l10n.roleElderDescription,
+        Role.sniper => l10n.roleSniperDescription,
         Role.citizen => l10n.roleCitizenDescription,
       };
 
@@ -191,8 +205,11 @@ abstract final class EngineCopy {
   /// see `night_prompt_balance_test`.
   static String nightPrompt(AppLocalizations l10n, Role role) => switch (role) {
     Role.mafia => l10n.nightPromptMafia,
+    Role.silencer => l10n.nightPromptSilencer,
     Role.doctor => l10n.nightPromptDoctor,
     Role.detective => l10n.nightPromptDetective,
+    Role.elder => l10n.nightPromptElder,
+    Role.sniper => l10n.nightPromptSniper,
     Role.citizen => l10n.nightPromptCitizen,
   };
 }

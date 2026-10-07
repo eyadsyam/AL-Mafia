@@ -398,6 +398,30 @@ abstract class AppLocalizations {
   /// **'There is only one Detective in a match'**
   String get balanceOneDetectiveOnly;
 
+  /// No description provided for @balanceOneSilencerOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'There can only be one Silencer'**
+  String get balanceOneSilencerOnly;
+
+  /// No description provided for @balanceSilencerNeedsTwoMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'The Silencer needs at least two Mafia'**
+  String get balanceSilencerNeedsTwoMafia;
+
+  /// No description provided for @balanceElderMinPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'The Elder needs at least 6 players'**
+  String get balanceElderMinPlayers;
+
+  /// No description provided for @balanceSniperMinPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'The Sniper needs at least 7 players'**
+  String get balanceSniperMinPlayers;
+
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:
@@ -512,6 +536,12 @@ abstract class AppLocalizations {
   /// **'Mafia'**
   String get roleMafia;
 
+  /// No description provided for @roleSilencer.
+  ///
+  /// In en, this message translates to:
+  /// **'Silencer'**
+  String get roleSilencer;
+
   /// No description provided for @roleDoctor.
   ///
   /// In en, this message translates to:
@@ -523,6 +553,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Detective'**
   String get roleDetective;
+
+  /// No description provided for @roleElder.
+  ///
+  /// In en, this message translates to:
+  /// **'Elder'**
+  String get roleElder;
+
+  /// No description provided for @roleSniper.
+  ///
+  /// In en, this message translates to:
+  /// **'Sniper'**
+  String get roleSniper;
 
   /// No description provided for @roleCitizen.
   ///
@@ -536,6 +578,12 @@ abstract class AppLocalizations {
   /// **'Each night the mafia agree on one victim, and never one of their own.'**
   String get roleMafiaDescription;
 
+  /// No description provided for @roleSilencerDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Silence one living player for tomorrow. You inherit the kill after every killer is gone.'**
+  String get roleSilencerDescription;
+
   /// No description provided for @roleDoctorDescription.
   ///
   /// In en, this message translates to:
@@ -547,6 +595,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There is only one detective. Each night you uncover one player\'s role.'**
   String get roleDetectiveDescription;
+
+  /// No description provided for @roleElderDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal your card during the day; your vote counts as three for the rest of the match.'**
+  String get roleElderDescription;
+
+  /// No description provided for @roleSniperDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'You have one shot. A Mafia target dies; a town target takes you down too.'**
+  String get roleSniperDescription;
 
   /// No description provided for @roleCitizenDescription.
   ///
@@ -655,6 +715,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Whose cards do you want to see tonight?'**
   String get nightPromptDetective;
+
+  /// No description provided for @nightPromptSilencer.
+  ///
+  /// In en, this message translates to:
+  /// **'Who must stay quiet tomorrow?'**
+  String get nightPromptSilencer;
+
+  /// No description provided for @nightPromptElder.
+  ///
+  /// In en, this message translates to:
+  /// **'Whose story feels wrong tonight?'**
+  String get nightPromptElder;
+
+  /// No description provided for @nightPromptSniper.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is in your sights tonight?'**
+  String get nightPromptSniper;
 
   /// No description provided for @nightPromptCitizen.
   ///
@@ -3188,6 +3266,12 @@ abstract class AppLocalizations {
   /// **'No kill tonight'**
   String get nightSpecialMafia;
 
+  /// No description provided for @nightSpecialSilencer.
+  ///
+  /// In en, this message translates to:
+  /// **'Silence yourself'**
+  String get nightSpecialSilencer;
+
   /// No description provided for @nightSpecialDoctor.
   ///
   /// In en, this message translates to:
@@ -3200,11 +3284,101 @@ abstract class AppLocalizations {
   /// **'No check tonight'**
   String get nightSpecialDetective;
 
+  /// No description provided for @nightSpecialElder.
+  ///
+  /// In en, this message translates to:
+  /// **'No read tonight'**
+  String get nightSpecialElder;
+
+  /// No description provided for @nightSpecialSniper.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not shoot'**
+  String get nightSpecialSniper;
+
   /// No description provided for @nightSpecialCitizen.
   ///
   /// In en, this message translates to:
   /// **'No read tonight'**
   String get nightSpecialCitizen;
+
+  /// No description provided for @bulletSniper.
+  ///
+  /// In en, this message translates to:
+  /// **'the Sniper shot'**
+  String get bulletSniper;
+
+  /// No description provided for @silencedCannotVote.
+  ///
+  /// In en, this message translates to:
+  /// **'You are silenced today — you cannot vote'**
+  String get silencedCannotVote;
+
+  /// No description provided for @continueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
+  /// No description provided for @silencedAnnouncement.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is silenced today'**
+  String silencedAnnouncement(String name);
+
+  /// No description provided for @elderRevealAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal to the table'**
+  String get elderRevealAction;
+
+  /// No description provided for @elderRevealedMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Revealed Elder · vote ×3'**
+  String get elderRevealedMark;
+
+  /// No description provided for @myCard.
+  ///
+  /// In en, this message translates to:
+  /// **'My card'**
+  String get myCard;
+
+  /// No description provided for @settingSilencer.
+  ///
+  /// In en, this message translates to:
+  /// **'Silencer'**
+  String get settingSilencer;
+
+  /// No description provided for @settingSilencerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One Mafia silences instead of killing; available with at least two Mafia.'**
+  String get settingSilencerHint;
+
+  /// No description provided for @settingElder.
+  ///
+  /// In en, this message translates to:
+  /// **'Elder'**
+  String get settingElder;
+
+  /// No description provided for @settingElderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A citizen may reveal from 6 players; their vote then counts as three.'**
+  String get settingElderHint;
+
+  /// No description provided for @settingSniper.
+  ///
+  /// In en, this message translates to:
+  /// **'Sniper'**
+  String get settingSniper;
+
+  /// No description provided for @settingSniperHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A citizen gets one shot from 7 players; a miss kills both players.'**
+  String get settingSniperHint;
 
   /// No description provided for @settingsSectionPace.
   ///

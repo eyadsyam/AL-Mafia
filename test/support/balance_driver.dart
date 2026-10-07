@@ -562,6 +562,8 @@ Move _nightMove(
         }
       }
       return target;
+    case Role.silencer || Role.elder || Role.sniper:
+      throw StateError('new roles are off in this test');
   }
 }
 

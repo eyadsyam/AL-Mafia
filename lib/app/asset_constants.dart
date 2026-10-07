@@ -18,6 +18,9 @@ abstract final class AppImages {
   static const String cardFaceDetective = 'assets/images/card_face_detective.webp';
   static const String cardFaceDoctor = 'assets/images/card_face_doctor.webp';
   static const String cardFaceMafia = 'assets/images/card_face_mafia.webp';
+  static const String cardFaceSilencer = 'assets/images/card_face_silencer.webp';
+  static const String cardFaceElder = 'assets/images/card_face_elder.webp';
+  static const String cardFaceSniper = 'assets/images/card_face_sniper.webp';
   static const String homeBackdrop = 'assets/images/home_backdrop.webp';
   static const String onboardingDay = 'assets/images/onboarding_day.webp';
   static const String onboardingNight = 'assets/images/onboarding_night.webp';
@@ -42,6 +45,9 @@ abstract final class AppImages {
     cardFaceDetective,
     cardFaceDoctor,
     cardFaceMafia,
+    cardFaceSilencer,
+    cardFaceElder,
+    cardFaceSniper,
     homeBackdrop,
     onboardingDay,
     onboardingNight,

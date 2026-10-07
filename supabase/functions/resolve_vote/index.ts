@@ -67,6 +67,10 @@ Deno.serve(handler(async (req, userId, db) => {
     if (stateError) throw stateError;
     const revoteState = (state?.public_data as Record<string, unknown> | null)
       ?.revote as Record<string, unknown> | null | undefined;
+    const revealedElders = new Set<number>(
+      (((state?.public_data as Record<string, unknown> | null)
+        ?.elderRevealedSeats as number[] | undefined) ?? []).map(Number),
+    );
     const round = Number(revoteState?.round ?? 1);
 
     const { data: cast, error: castError } = await db
@@ -91,7 +95,11 @@ Deno.serve(handler(async (req, userId, db) => {
     for (const v of cast ?? []) {
       if (v.round !== round || !v.target_id || !alive.has(v.target_id) || !alive.has(v.voter_id)) continue;
       if (!ballotTargetAllowed(round, revoteState?.tiedSeats, seatOf.get(v.target_id))) continue;
-      tally.set(v.target_id, (tally.get(v.target_id) ?? 0) + 1);
+      const voter = roster.find((p) => p.user_id === v.voter_id);
+      const weight = voter?.role === "elder" && revealedElders.has(voter.seat)
+        ? 3
+        : 1;
+      tally.set(v.target_id, (tally.get(v.target_id) ?? 0) + weight);
     }
 
     const publicTally: Record<number, number> = {};
@@ -149,7 +157,7 @@ Deno.serve(handler(async (req, userId, db) => {
     const living = roster.filter(
       (p) => p.alive && p.user_id !== eliminatedId,
     );
-    const mafia = living.filter((p) => p.role === "mafia").length;
+    const mafia = living.filter((p) => ["mafia", "silencer"].includes(p.role)).length;
     const town = living.length - mafia;
     let outcome: string | null = null;
     if (mafia === 0) outcome = "town";

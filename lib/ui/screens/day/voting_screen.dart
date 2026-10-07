@@ -62,6 +62,16 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
     }
   }
 
+  Future<void> _skipSilenced() async {
+    final controller = ref.read(matchControllerProvider.notifier);
+    await controller.skipSilencedVote();
+    if (!mounted) return;
+    setState(() => _openedSeat = null);
+    if (controller.snapshot.currentActorSeat == null) {
+      widget.onVotingComplete();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(matchControllerProvider);
@@ -87,10 +97,11 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
 
     // On a revote the engine narrows the ballot to the tied seats (FR-020);
     // offering anything else would just produce a rejected vote.
-    final ballot = ref
-        .read(matchControllerProvider.notifier)
-        .engine
-        .currentVoteCandidates;
+    final controller = ref.read(matchControllerProvider.notifier);
+    final ballot = controller.snapshot.ballotCandidates.isEmpty
+        ? null
+        : controller.snapshot.ballotCandidates;
+    final silenced = controller.currentVoterSilenced;
     final candidates = [
       for (final p in players)
         if (p.status == PlayerStatus.alive &&
@@ -128,7 +139,9 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
                     height: spacing.xxl,
                     child: Center(
                       child: Text(
-                        context.l10n.whoDoYouVoteOut,
+                        silenced
+                            ? context.l10n.silencedCannotVote
+                            : context.l10n.whoDoYouVoteOut,
                         style: type.title.copyWith(color: colors.textPrimary),
                       ),
                     ),
@@ -147,7 +160,7 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
                           state: _selectedSeat == p.seat && !_abstaining
                               ? PlayerTileState.selected
                               : PlayerTileState.normal,
-                          onTap: () => setState(() {
+                          onTap: silenced ? null : () => setState(() {
                             _selectedSeat = p.seat;
                             _abstaining = false;
                           }),
@@ -164,7 +177,7 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
                     child: widget.allowAbstain
                         ? OutlinedButton(
                             key: VotingScreen.abstainButton,
-                            onPressed: () => setState(() {
+                            onPressed: silenced ? null : () => setState(() {
                               _abstaining = true;
                               _selectedSeat = null;
                             }),
@@ -192,7 +205,9 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
                     height: spacing.xxl + spacing.sm,
                     child: FilledButton(
                       key: VotingScreen.confirmButton,
-                      onPressed: canSubmit ? _submit : null,
+                      onPressed: silenced
+                          ? _skipSilenced
+                          : (canSubmit ? _submit : null),
                       style: FilledButton.styleFrom(
                         backgroundColor: colors.accentGold,
                         foregroundColor: colors.surfaceBase,
@@ -202,7 +217,12 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
                           borderRadius: BorderRadius.circular(radii.button),
                         ),
                       ),
-                      child: Text(context.l10n.confirmVote, style: type.title),
+                      child: Text(
+                        silenced
+                            ? context.l10n.continueLabel
+                            : context.l10n.confirmVote,
+                        style: type.title,
+                      ),
                     ),
                   ),
                 ],

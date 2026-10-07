@@ -121,11 +121,14 @@ class ResultScreen extends StatelessWidget {
     final colors = context.colors;
     switch (role) {
       case engine.Role.mafia:
+      case engine.Role.silencer:
         return colors.roleMafia;
       case engine.Role.doctor:
         return colors.roleDoctor;
       case engine.Role.detective:
         return colors.roleDetective;
+      case engine.Role.elder:
+      case engine.Role.sniper:
       case engine.Role.citizen:
         return colors.roleCitizen;
     }
@@ -603,8 +606,11 @@ class _BondResultMoment extends ConsumerWidget {
     );
     final line = switch (role) {
       engine.Role.mafia => context.l10n.bondMomentMafia,
+      engine.Role.silencer => context.l10n.bondMomentMafia,
       engine.Role.doctor => context.l10n.bondMomentDoctor,
       engine.Role.detective => context.l10n.bondMomentDetective,
+      engine.Role.elder || engine.Role.sniper =>
+        context.l10n.bondMomentCitizen,
       engine.Role.citizen => context.l10n.bondMomentCitizen,
     };
     return Text(
@@ -694,8 +700,10 @@ class _GalleryThumb extends StatelessWidget {
 
   String get _art => switch (role) {
     engine.Role.mafia => AppGallery.galleryMafia,
+    engine.Role.silencer => AppGallery.galleryMafia,
     engine.Role.doctor => AppGallery.galleryDoctor,
     engine.Role.detective => AppGallery.galleryDetective,
+    engine.Role.elder || engine.Role.sniper => AppGallery.galleryCitizen,
     engine.Role.citizen => AppGallery.galleryCitizen,
   };
 

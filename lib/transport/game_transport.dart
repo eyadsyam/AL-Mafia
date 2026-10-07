@@ -158,6 +158,12 @@ abstract class GameTransport {
   /// One ballot. Null is an abstention.
   Future<void> submitVote({required int seat, required int? targetSeat});
 
+  /// Publicly reveals the living Elder from their private card view.
+  Future<void> revealElder(int seat);
+
+  /// Advances a ballot without accepting a ballot from today's silenced seat.
+  Future<void> skipSilencedVote(int seat);
+
   /// Tallies the ballot.
   Future<void> resolveDayVote();
 

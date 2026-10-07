@@ -18,8 +18,11 @@ import '../../../theme/mafia_theme.dart';
 /// other three, and a second set would be a second thing to keep matched.
 String faceFor(Role role) => switch (role) {
   Role.mafia => AppImages.cardFaceMafia,
+  Role.silencer => AppImages.cardFaceSilencer,
   Role.doctor => AppImages.cardFaceDoctor,
   Role.detective => AppImages.cardFaceDetective,
+  Role.elder => AppImages.cardFaceElder,
+  Role.sniper => AppImages.cardFaceSniper,
   Role.citizen => AppImages.cardFaceCitizen,
 };
 
