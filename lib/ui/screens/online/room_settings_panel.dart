@@ -77,6 +77,11 @@ class RoomSettingsPanel extends ConsumerStatefulWidget {
 }
 
 class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
+  /// A new role switches on only for a host who bought it (the server
+  /// refuses otherwise); an unread wallet counts as not owned.
+  bool _ownsRole(String code) =>
+      ref.watch(walletProvider).valueOrNull?.owned.contains(code) ?? false;
+
   final TextEditingController _title = TextEditingController();
   String _committed = '';
 
@@ -413,9 +418,13 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
                               SettingsSwitchRow(
                                 switchKey: RoomSettingsPanel.silencerKey,
                                 label: l10n.settingSilencer,
-                                hint: l10n.settingSilencerHint,
+                                hint: _ownsRole('role_silencer')
+                                    ? l10n.settingSilencerHint
+                                    : l10n.roleLockedHint,
+                                pill: _ownsRole('role_silencer') ? null : l10n.roleLockedPill,
                                 value: match.silencerEnabled,
-                                onChanged: widget.snapshot.public.players.length >= 7
+                                onChanged: (_ownsRole('role_silencer') || match.silencerEnabled) &&
+                                        widget.snapshot.public.players.length >= 7
                                     ? (value) => _send(
                                         settings: {'silencerEnabled': value},
                                       )
@@ -424,9 +433,13 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
                               SettingsSwitchRow(
                                 switchKey: RoomSettingsPanel.elderKey,
                                 label: l10n.settingElder,
-                                hint: l10n.settingElderHint,
+                                hint: _ownsRole('role_elder')
+                                    ? l10n.settingElderHint
+                                    : l10n.roleLockedHint,
+                                pill: _ownsRole('role_elder') ? null : l10n.roleLockedPill,
                                 value: match.elderEnabled,
-                                onChanged: widget.snapshot.public.players.length >= 6
+                                onChanged: (_ownsRole('role_elder') || match.elderEnabled) &&
+                                        widget.snapshot.public.players.length >= 6
                                     ? (value) => _send(
                                         settings: {'elderEnabled': value},
                                       )
@@ -435,9 +448,13 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
                               SettingsSwitchRow(
                                 switchKey: RoomSettingsPanel.sniperKey,
                                 label: l10n.settingSniper,
-                                hint: l10n.settingSniperHint,
+                                hint: _ownsRole('role_sniper')
+                                    ? l10n.settingSniperHint
+                                    : l10n.roleLockedHint,
+                                pill: _ownsRole('role_sniper') ? null : l10n.roleLockedPill,
                                 value: match.sniperEnabled,
-                                onChanged: widget.snapshot.public.players.length >= 7
+                                onChanged: (_ownsRole('role_sniper') || match.sniperEnabled) &&
+                                        widget.snapshot.public.players.length >= 7
                                     ? (value) => _send(
                                         settings: {'sniperEnabled': value},
                                       )

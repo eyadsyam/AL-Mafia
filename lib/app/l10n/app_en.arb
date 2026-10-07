@@ -3561,5 +3561,7 @@
   "investigateUnclear": "Unclear",
   "investigateUnreachable": "Door locked",
   "storeRolesTitle": "New roles",
-  "storeRolesIntro": "Buy once and it unlocks in your rooms. It is still dealt at random and in secret."
+  "storeRolesIntro": "Buy once and it unlocks in your rooms. It is still dealt at random and in secret.",
+  "roleLockedHint": "Unlock this role in the store, under Tools.",
+  "roleLockedPill": "Locked"
 }

@@ -5804,4 +5804,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get storeRolesIntro =>
       'Buy once and it unlocks in your rooms. It is still dealt at random and in secret.';
+
+  @override
+  String get roleLockedHint => 'Unlock this role in the store, under Tools.';
+
+  @override
+  String get roleLockedPill => 'Locked';
 }

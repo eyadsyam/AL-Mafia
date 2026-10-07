@@ -5699,4 +5699,11 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get storeRolesIntro =>
       'تشتريه مرة واحدة ويتفتح في الأوض بتاعتك. الدور بيتوزع عشوائي وفي السر زي أي دور.';
+
+  @override
+  String get roleLockedHint =>
+      'الدور ده بيتفتح لما تشتريه من المتجر، قسم الأدوات.';
+
+  @override
+  String get roleLockedPill => 'مقفول';
 }

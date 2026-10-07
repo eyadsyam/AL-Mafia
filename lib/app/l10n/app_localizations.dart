@@ -9924,6 +9924,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Buy once and it unlocks in your rooms. It is still dealt at random and in secret.'**
   String get storeRolesIntro;
+
+  /// No description provided for @roleLockedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock this role in the store, under Tools.'**
+  String get roleLockedHint;
+
+  /// No description provided for @roleLockedPill.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get roleLockedPill;
 }
 
 class _AppLocalizationsDelegate
