@@ -238,7 +238,7 @@ class _StoryCard extends StatelessWidget {
                     children: [
                       _Tag(story.category),
                       _Tag('${story.lengthMinutes} ${l.storiesMinutes}'),
-                      _Tag('${l.storiesDifficulty} ${'★' * story.difficulty}'),
+                      _Tag('${l.storiesDifficulty} ${story.difficulty}/5'),
                     ],
                   ),
                   SizedBox(height: spacing.sm),

@@ -156,10 +156,15 @@ void main() {
       }
     });
 
-    test('answers nobody once the night has closed', () async {
+    // «كارتي» (the Elder's reveal, owner 2026-10-07): by day every seat may
+    // look at its own card again, and that is all it gets — its role and,
+    // for the Mafia, its team. Nothing from the night comes back.
+    test('by day a seat sees only its own card', () async {
       await playNight();
       for (var seat = 0; seat < names.length; seat++) {
-        expect(await transport.secretsFor(seat), isNull);
+        final secrets = await transport.secretsFor(seat);
+        expect(secrets?.seat, seat);
+        expect(secrets?.role, isNotNull);
       }
     });
 

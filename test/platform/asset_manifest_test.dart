@@ -175,7 +175,7 @@ void main() {
       );
     });
 
-    test('there is exactly one card back, and exactly four faces', () {
+    test('there is exactly one card back, and exactly one face per role', () {
       // The card *back* keeps the structural guarantee: the strongest possible
       // assurance that no role's back can differ from another's is that there is
       // only one back in the repository.
@@ -202,10 +202,13 @@ void main() {
           'card_face_citizen.webp',
           'card_face_detective.webp',
           'card_face_doctor.webp',
+          'card_face_elder.webp',
           'card_face_mafia.webp',
+          'card_face_silencer.webp',
+          'card_face_sniper.webp',
         ]),
         reason:
-            'the card asset set is not one back plus four named faces: '
+            'the card asset set is not one back plus one face per role: '
             '$cards',
       );
     });

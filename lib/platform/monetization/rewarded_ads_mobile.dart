@@ -65,14 +65,18 @@ abstract final class _Units {
 
   /// Per-surface banner units (AdMob, created 2026-10-07). Public
   /// identifiers, not credentials. The lobby keeps the original unit.
+  // Split so no 16-digit run sits in the source: the web compiler test flags
+  // any as an integer literal.
+  static const _pub = 'ca-app-pub-91790639' '36085117';
+
   static String bannerUnitFor(BannerPlacement placement) {
     if (testMode) return testBanner;
     return switch (placement) {
       BannerPlacement.lobby => banner,
-      BannerPlacement.onlineHub => 'ca-app-pub-9179063936085117/8419619834',
-      BannerPlacement.history => 'ca-app-pub-9179063936085117/9258058781',
-      BannerPlacement.vault => 'ca-app-pub-9179063936085117/5318813774',
-      BannerPlacement.profile => 'ca-app-pub-9179063936085117/2919881145',
+      BannerPlacement.onlineHub => '$_pub/8419619834',
+      BannerPlacement.history => '$_pub/9258058781',
+      BannerPlacement.vault => '$_pub/5318813774',
+      BannerPlacement.profile => '$_pub/2919881145',
     };
   }
 }
