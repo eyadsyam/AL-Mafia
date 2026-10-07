@@ -9247,6 +9247,7 @@ abstract class AppLocalizations {
   /// **'Tick the boxes above to continue.'**
   String get onboardNeedPact;
 
+<<<<<<< HEAD
   /// No description provided for @toolExtraMinuteName.
   ///
   /// In en, this message translates to:
@@ -9558,6 +9559,289 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not available right now.'**
   String get toolRefused;
+=======
+  /// No description provided for @modeStoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories'**
+  String get modeStoriesTitle;
+
+  /// No description provided for @modeStoriesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Investigation files for 1–10 players on one phone'**
+  String get modeStoriesBody;
+
+  /// No description provided for @storiesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mafia Master Files'**
+  String get storiesTitle;
+
+  /// No description provided for @storiesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every detail means something. The game never invents a fact.'**
+  String get storiesSubtitle;
+
+  /// No description provided for @storiesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The case files could not be opened.'**
+  String get storiesLoadError;
+
+  /// No description provided for @storiesRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get storiesRetry;
+
+  /// No description provided for @storiesBestScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Best score'**
+  String get storiesBestScore;
+
+  /// No description provided for @storiesNoScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Not solved yet'**
+  String get storiesNoScore;
+
+  /// No description provided for @storiesLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'File locked'**
+  String get storiesLocked;
+
+  /// No description provided for @storiesUnlockRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Solve 3 files in this category to unlock it'**
+  String get storiesUnlockRule;
+
+  /// No description provided for @storiesMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'minutes'**
+  String get storiesMinutes;
+
+  /// No description provided for @storiesDifficulty.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty'**
+  String get storiesDifficulty;
+
+  /// No description provided for @storiesStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Open file'**
+  String get storiesStart;
+
+  /// No description provided for @storiesPlayerCountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How many investigators?'**
+  String get storiesPlayerCountTitle;
+
+  /// No description provided for @storiesPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'players'**
+  String get storiesPlayers;
+
+  /// No description provided for @storiesSolo.
+  ///
+  /// In en, this message translates to:
+  /// **'Solo investigator'**
+  String get storiesSolo;
+
+  /// No description provided for @storiesGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Pass one phone'**
+  String get storiesGroup;
+
+  /// No description provided for @storiesActionsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Action points left'**
+  String get storiesActionsLeft;
+
+  /// No description provided for @storiesClues.
+  ///
+  /// In en, this message translates to:
+  /// **'Revealed clues'**
+  String get storiesClues;
+
+  /// No description provided for @storiesNoClues.
+  ///
+  /// In en, this message translates to:
+  /// **'No clue has been revealed yet'**
+  String get storiesNoClues;
+
+  /// No description provided for @storiesInvestigate.
+  ///
+  /// In en, this message translates to:
+  /// **'Take action'**
+  String get storiesInvestigate;
+
+  /// No description provided for @storiesAccuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Make accusation'**
+  String get storiesAccuse;
+
+  /// No description provided for @storiesRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Round'**
+  String get storiesRound;
+
+  /// No description provided for @storiesPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Player'**
+  String get storiesPlayer;
+
+  /// No description provided for @storiesHoldToReveal.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to reveal your secret card'**
+  String get storiesHoldToReveal;
+
+  /// No description provided for @storiesCoverAndPass.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover the card and pass the phone'**
+  String get storiesCoverAndPass;
+
+  /// No description provided for @storiesInvolved.
+  ///
+  /// In en, this message translates to:
+  /// **'You are involved in the crime'**
+  String get storiesInvolved;
+
+  /// No description provided for @storiesNotInvolved.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not involved'**
+  String get storiesNotInvolved;
+
+  /// No description provided for @storiesPrivateClue.
+  ///
+  /// In en, this message translates to:
+  /// **'Your private clue'**
+  String get storiesPrivateClue;
+
+  /// No description provided for @storiesPersonalObjective.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal objective'**
+  String get storiesPersonalObjective;
+
+  /// No description provided for @storiesDiscussion.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion time'**
+  String get storiesDiscussion;
+
+  /// No description provided for @storiesEndDiscussion.
+  ///
+  /// In en, this message translates to:
+  /// **'End discussion'**
+  String get storiesEndDiscussion;
+
+  /// No description provided for @storiesSharedPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one shared investigation action'**
+  String get storiesSharedPick;
+
+  /// No description provided for @storiesVoteHandoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Pass the phone for the secret vote'**
+  String get storiesVoteHandoff;
+
+  /// No description provided for @storiesVote.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote in secret'**
+  String get storiesVote;
+
+  /// No description provided for @storiesCulprit.
+  ///
+  /// In en, this message translates to:
+  /// **'Culprit'**
+  String get storiesCulprit;
+
+  /// No description provided for @storiesMotive.
+  ///
+  /// In en, this message translates to:
+  /// **'Motive'**
+  String get storiesMotive;
+
+  /// No description provided for @storiesMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get storiesMethod;
+
+  /// No description provided for @storiesChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get storiesChoose;
+
+  /// No description provided for @storiesConfirmAccusation.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock accusation'**
+  String get storiesConfirmAccusation;
+
+  /// No description provided for @storiesReenactment.
+  ///
+  /// In en, this message translates to:
+  /// **'Reenactment'**
+  String get storiesReenactment;
+
+  /// No description provided for @storiesNextBeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Next step'**
+  String get storiesNextBeat;
+
+  /// No description provided for @storiesFinishReveal.
+  ///
+  /// In en, this message translates to:
+  /// **'See score'**
+  String get storiesFinishReveal;
+
+  /// No description provided for @storiesScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get storiesScore;
+
+  /// No description provided for @storiesSolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Case solved'**
+  String get storiesSolved;
+
+  /// No description provided for @storiesMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'A thread slipped away'**
+  String get storiesMissed;
+
+  /// No description provided for @storiesBackToFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to files'**
+  String get storiesBackToFiles;
+>>>>>>> feat/stories
 }
 
 class _AppLocalizationsDelegate

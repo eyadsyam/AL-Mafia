@@ -140,6 +140,8 @@ flutter:
     - assets/images/titles/
     - assets/images/social/
     - assets/images/casebook/
+    - assets/images/stories/
+    - assets/stories/
     - assets/icons/
     - assets/audio/
     - assets/voice/kratos/

@@ -5338,6 +5338,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onboardNeedPact => 'علّم على المربعات اللي فوق عشان نكمّل.';
 
   @override
+<<<<<<< HEAD
   String get toolExtraMinuteName => 'دقيقة زيادة';
 
   @override
@@ -5506,4 +5507,146 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get toolRefused => 'مش متاحة دلوقتي.';
+=======
+  String get modeStoriesTitle => 'قصص';
+
+  @override
+  String get modeStoriesBody => 'ملفات تحقيق من ١ لـ١٠ لاعبين على موبايل واحد';
+
+  @override
+  String get storiesTitle => 'ملفات سيد المافيا';
+
+  @override
+  String get storiesSubtitle =>
+      'كل تفصيلة لها معنى. مفيش معلومة بتتولد من الهوا.';
+
+  @override
+  String get storiesLoadError => 'الملفات مش راضية تفتح دلوقتي.';
+
+  @override
+  String get storiesRetry => 'حاول تاني';
+
+  @override
+  String get storiesBestScore => 'أحسن نتيجة';
+
+  @override
+  String get storiesNoScore => 'لسه ماتحلّتش';
+
+  @override
+  String get storiesLocked => 'الملف مقفول';
+
+  @override
+  String get storiesUnlockRule => 'حل ٣ ملفات من نفس التصنيف عشان تفتحه';
+
+  @override
+  String get storiesMinutes => 'دقيقة';
+
+  @override
+  String get storiesDifficulty => 'الصعوبة';
+
+  @override
+  String get storiesStart => 'افتح الملف';
+
+  @override
+  String get storiesPlayerCountTitle => 'كام محقق هيلعب؟';
+
+  @override
+  String get storiesPlayers => 'لاعب';
+
+  @override
+  String get storiesSolo => 'محقق لوحده';
+
+  @override
+  String get storiesGroup => 'تمرير الموبايل';
+
+  @override
+  String get storiesActionsLeft => 'نقط التحرك الباقية';
+
+  @override
+  String get storiesClues => 'الأدلة المفتوحة';
+
+  @override
+  String get storiesNoClues => 'لسه مافيش دليل اتفتح';
+
+  @override
+  String get storiesInvestigate => 'نفّذ التحرك';
+
+  @override
+  String get storiesAccuse => 'وجّه الاتهام';
+
+  @override
+  String get storiesRound => 'الجولة';
+
+  @override
+  String get storiesPlayer => 'اللاعب';
+
+  @override
+  String get storiesHoldToReveal => 'دوس مطوّل عشان تشوف كارتك السري';
+
+  @override
+  String get storiesCoverAndPass => 'غطّي الكارت ومرّر الموبايل';
+
+  @override
+  String get storiesInvolved => 'إنت متورط في الجريمة';
+
+  @override
+  String get storiesNotInvolved => 'إنت مش متورط';
+
+  @override
+  String get storiesPrivateClue => 'دليلك السري';
+
+  @override
+  String get storiesPersonalObjective => 'هدفك الشخصي';
+
+  @override
+  String get storiesDiscussion => 'وقت النقاش';
+
+  @override
+  String get storiesEndDiscussion => 'اقفل النقاش';
+
+  @override
+  String get storiesSharedPick => 'اختاروا تحرك تحقيق واحد';
+
+  @override
+  String get storiesVoteHandoff => 'سلّم الموبايل للتصويت السري';
+
+  @override
+  String get storiesVote => 'صوّت في السر';
+
+  @override
+  String get storiesCulprit => 'المتهم';
+
+  @override
+  String get storiesMotive => 'الدافع';
+
+  @override
+  String get storiesMethod => 'الطريقة';
+
+  @override
+  String get storiesChoose => 'اختار';
+
+  @override
+  String get storiesConfirmAccusation => 'ثبّت الاتهام';
+
+  @override
+  String get storiesReenactment => 'إعادة التمثيل';
+
+  @override
+  String get storiesNextBeat => 'الخطوة اللي بعدها';
+
+  @override
+  String get storiesFinishReveal => 'شوف النتيجة';
+
+  @override
+  String get storiesScore => 'النتيجة';
+
+  @override
+  String get storiesSolved => 'الحل مظبوط';
+
+  @override
+  String get storiesMissed => 'في خيط وقع منكم';
+
+  @override
+  String get storiesBackToFiles => 'ارجع للملفات';
+>>>>>>> feat/stories
 }

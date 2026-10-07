@@ -41,11 +41,13 @@ void main() {
   testWidgets('each card leads to its own mode', (tester) async {
     var offline = 0;
     var online = 0;
+    var stories = 0;
     await tester.pumpWidget(
       localizedApp(
         ModeScreen(
           onPlayOffline: () => offline++,
           onPlayOnline: () => online++,
+          onPlayStories: () => stories++,
           onBack: () {},
         ),
       ),
@@ -54,12 +56,17 @@ void main() {
     await tester.ensureVisible(find.byKey(ModeScreen.offlineCard));
     await tester.tap(find.byKey(ModeScreen.offlineCard));
     await tester.pump();
-    expect([offline, online], [1, 0]);
+    expect([offline, online, stories], [1, 0, 0]);
 
     await tester.ensureVisible(find.byKey(ModeScreen.onlineCard));
     await tester.tap(find.byKey(ModeScreen.onlineCard));
     await tester.pump();
-    expect([offline, online], [1, 1]);
+    expect([offline, online, stories], [1, 1, 0]);
+
+    await tester.ensureVisible(find.byKey(ModeScreen.storiesCard));
+    await tester.tap(find.byKey(ModeScreen.storiesCard));
+    await tester.pump();
+    expect([offline, online, stories], [1, 1, 1]);
   });
 
   test('Home has no online action to hide', () {

@@ -2322,3 +2322,21 @@ abstract final class OnlineEntryTokens {
 abstract final class ConnectionProblemTokens {
   static const double iconSize = 32.0;
 }
+
+/// «قصص»: public case cards and the one-phone private hand-off flow.
+abstract final class StoryTokens {
+  static const double coverHeight = 164.0;
+  static const double compactCoverHeight = 116.0;
+  static const double portrait = 128.0;
+  static const double clueMinHeight = 112.0;
+  static const double timerDiameter = 104.0;
+  static const double lockedOpacity = 0.48;
+  static const double transparentAlpha = 0.0;
+  static const double featherStart = 0.56;
+  static const double featherEnd = 1.0;
+  static const int rounds = 3;
+  static const int nearImpossibleUnlocks = 3;
+  static const Duration privateHold = Duration(milliseconds: 800);
+  static const Duration timerTick = Duration(seconds: 1);
+  static const Duration reenactmentBeat = Duration(milliseconds: 420);
+}

@@ -37,6 +37,7 @@ import '../ui/screens/setup/mode_screen.dart';
 import '../ui/screens/setup/how_to_play_screen.dart';
 import '../ui/screens/setup/roles_screen.dart';
 import '../ui/screens/setup/settings_screen.dart';
+import '../ui/screens/stories/stories_screen.dart';
 import '../ui/screens/setup/setup_draft.dart';
 import '../ui/fun/characters_screen.dart';
 import '../ui/economy/council_hub.dart' show pendingInviteCodeProvider;
@@ -47,6 +48,7 @@ abstract final class Routes {
   static const profile = '/profile';
   static const characters = '/characters';
   static const mode = '/mode';
+  static const stories = '/stories';
   static const groups = '/setup/groups';
   static const players = '/setup/players';
   static const roles = '/setup/roles';
@@ -96,6 +98,7 @@ abstract final class Routes {
 /// a waiting lobby, so its resume pointer cannot masquerade as a live match.
 String? systemBackTarget(String location, {bool hasGroups = true}) {
   if (location == Routes.mode) return Routes.home;
+  if (location == Routes.stories) return Routes.mode;
   if (location == Routes.online) return Routes.mode;
   if (location == Routes.lobby) return Routes.online;
   if (RegExp(r'^/join/[^/]+$').hasMatch(location)) return Routes.online;
@@ -406,8 +409,15 @@ GoRouter buildRouter(
             onPlayOnline: SupabaseConfig.isConfigured
                 ? () => forwardTo(context, Routes.online)
                 : null,
+            onPlayStories: () => forwardTo(context, Routes.stories),
             onBack: () => context.go(Routes.home),
           ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.stories,
+        builder: (context, state) => SetupRequired(
+          child: StoriesScreen(onBack: () => context.go(Routes.mode)),
         ),
       ),
       // The online front door. Doc 12 §9's four cards used to stand in front
