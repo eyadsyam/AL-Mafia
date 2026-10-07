@@ -319,7 +319,8 @@ class _Banner implements BannerAds {
   @override
   bool get configured => true;
   @override
-  Widget slot({Key? key, required String label, required double gap}) => Padding(
+  Widget slot({Key? key, required String label, required double gap,
+    BannerPlacement placement = BannerPlacement.lobby,}) => Padding(
     padding: EdgeInsets.only(top: gap),
     child: Container(
       key: key,

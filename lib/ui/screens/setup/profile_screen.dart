@@ -123,7 +123,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ),
                     // Phase 108: only when editing (never the first-run
                     // profile), at the top, far from the Save button.
-                    if (widget.onBack != null) const WaitingBanner(),
+                    if (widget.onBack != null) const WaitingBanner(placement: BannerPlacement.profile),
                     Expanded(
                       child: SingleChildScrollView(
                         padding: EdgeInsets.all(s.screenMargin),

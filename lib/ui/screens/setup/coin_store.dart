@@ -374,7 +374,7 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
                   ),
                   // Phase 108: vault browse is a waiting surface; zero size
                   // unless switched on and filled.
-                  const SafeArea(top: false, child: WaitingBanner()),
+                  const SafeArea(top: false, child: WaitingBanner(placement: BannerPlacement.vault)),
                 ],
               ),
             ),

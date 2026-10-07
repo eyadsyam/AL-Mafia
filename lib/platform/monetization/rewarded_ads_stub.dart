@@ -72,6 +72,10 @@ class _NoBannerAds implements BannerAds {
   @override
   bool get configured => false;
   @override
-  Widget slot({Key? key, required String label, required double gap}) =>
-      SizedBox.shrink(key: key);
+  Widget slot({
+    Key? key,
+    required String label,
+    required double gap,
+    BannerPlacement placement = BannerPlacement.lobby,
+  }) => SizedBox.shrink(key: key);
 }

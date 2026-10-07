@@ -30,8 +30,17 @@ abstract interface class BannerAds {
 
   /// [gap] is kept above the banner only once it has filled, so an empty
   /// slot takes no space at all.
-  Widget slot({Key? key, required String label, required double gap});
+  Widget slot({
+    Key? key,
+    required String label,
+    required double gap,
+    BannerPlacement placement = BannerPlacement.lobby,
+  });
 }
+
+/// Where a banner sits. Each surface has its own ad unit so its earnings are
+/// reported apart; the lobby keeps the original unit.
+enum BannerPlacement { lobby, onlineHub, history, vault, profile }
 
 final appOpenAdsProvider = Provider<AppOpenAds>((ref) {
   final ads = createAppOpenAds();

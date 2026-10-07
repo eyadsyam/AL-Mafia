@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../platform/monetization/ad_formats.dart';
+export '../../platform/monetization/ad_formats.dart' show BannerPlacement;
 import '../fun/loaded_capabilities.dart';
 import 'economy_capabilities.dart';
 import 'web_ads.dart';
@@ -29,7 +30,14 @@ class WaitingBanner extends ConsumerStatefulWidget {
   /// lands on the ad.
   final bool belowPrimaryAction;
 
-  const WaitingBanner({super.key, this.belowPrimaryAction = false});
+  /// Which surface this is, for the per-surface ad unit.
+  final BannerPlacement placement;
+
+  const WaitingBanner({
+    super.key,
+    this.belowPrimaryAction = false,
+    this.placement = BannerPlacement.lobby,
+  });
 
   static const slotKey = ValueKey('waiting_banner_slot');
 
@@ -59,6 +67,7 @@ class _WaitingBannerState extends ConsumerState<WaitingBanner> {
       gap: widget.belowPrimaryAction
           ? AdTokens.bannerActionClearance
           : context.spacing.md,
+      placement: widget.placement,
     );
   }
 }

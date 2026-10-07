@@ -149,7 +149,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       ),
       // Phase 108: history is a waiting surface; zero size unless switched
       // on and filled.
-      bottomNavigationBar: const SafeArea(top: false, child: WaitingBanner()),
+      bottomNavigationBar: const SafeArea(top: false, child: WaitingBanner(placement: BannerPlacement.history)),
       body: AppBackdrop(
         image: AppImages.bgNight,
         child: Builder(

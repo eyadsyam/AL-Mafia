@@ -830,7 +830,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       onJoin: (code) => _enter(code: code),
                                     ),
                                     const CasebookEntry(),
-                                    const WaitingBanner(),
+                                    const WaitingBanner(placement: BannerPlacement.onlineHub),
                                   ],
                                 ),
                               ),

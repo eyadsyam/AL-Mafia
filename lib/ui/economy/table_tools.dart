@@ -52,7 +52,8 @@ class TableTool {
       tier: tier,
       packs: {
         for (final e in packs.entries)
-          if (int.tryParse('${e.key}') case final n?) n: (e.value as num).toInt(),
+          if (int.tryParse('${e.key}') case final n?)
+            n: (e.value as num).toInt(),
       },
       perMatch: (j['perMatch'] as num?)?.toInt() ?? 1,
       phase: j['phase'] as String? ?? 'discuss',
@@ -76,7 +77,10 @@ class TableToolsState {
     balance: (j['balance'] as num?)?.toInt() ?? 0,
   );
 
-  List<TableTool> owned() => [for (final t in tools) if (t.charges > 0) t];
+  List<TableTool> owned() => [
+    for (final t in tools)
+      if (t.charges > 0) t,
+  ];
 }
 
 /// Thrown by tool actions with the server's refusal code.
@@ -192,10 +196,7 @@ class _TableToolsShopTabState extends ConsumerState<TableToolsShopTab> {
     return ListView(
       padding: EdgeInsets.all(s.screenMargin),
       children: [
-        Text(
-          l.toolsIntro,
-          style: type.body.copyWith(color: colors.textMuted),
-        ),
+        Text(l.toolsIntro, style: type.body.copyWith(color: colors.textMuted)),
         for (final tier in ToolTier.values) ...[
           SizedBox(height: s.lg),
           Text(
@@ -260,10 +261,7 @@ class _ToolCard extends StatelessWidget {
               ],
             ),
             SizedBox(height: s.xs),
-            Text(
-              copy.$2,
-              style: type.body.copyWith(color: colors.textMuted),
-            ),
+            Text(copy.$2, style: type.body.copyWith(color: colors.textMuted)),
             SizedBox(height: s.sm),
             Wrap(
               spacing: s.sm,
@@ -303,12 +301,8 @@ Future<void> showTableToolsSheet(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (_) => _ToolsSheet(
-      roomId: roomId,
-      phase: phase,
-      alive: alive,
-      seats: seats,
-    ),
+    builder: (_) =>
+        _ToolsSheet(roomId: roomId, phase: phase, alive: alive, seats: seats),
   );
 }
 

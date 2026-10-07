@@ -62,7 +62,19 @@ abstract final class _Units {
   static bool get bannerConfigured =>
       enabled && (testMode || banner.isNotEmpty);
   static String get appOpenUnit => testMode ? testAppOpen : appOpen;
-  static String get bannerUnit => testMode ? testBanner : banner;
+
+  /// Per-surface banner units (AdMob, created 2026-10-07). Public
+  /// identifiers, not credentials. The lobby keeps the original unit.
+  static String bannerUnitFor(BannerPlacement placement) {
+    if (testMode) return testBanner;
+    return switch (placement) {
+      BannerPlacement.lobby => banner,
+      BannerPlacement.onlineHub => 'ca-app-pub-9179063936085117/8419619834',
+      BannerPlacement.history => 'ca-app-pub-9179063936085117/9258058781',
+      BannerPlacement.vault => 'ca-app-pub-9179063936085117/5318813774',
+      BannerPlacement.profile => 'ca-app-pub-9179063936085117/2919881145',
+    };
+  }
 }
 
 /// Consent and SDK start, shared by the rewarded offers and the interstitial.
@@ -305,26 +317,28 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
     // returns — which is how a first, slow ad held the veil up for a minute
     // on a real emulator (2026-10-02). The callbacks complete [loaded].
     try {
-      unawaited(RewardedAd.load(
-        adUnitId: unit,
-        request: const AdRequest(),
-        rewardedAdLoadCallback: RewardedAdLoadCallback(
-          onAdLoaded: (ad) {
-            // An ad that arrives after the timeout below has nobody to show
-            // it; left alone it holds native resources until the process dies.
-            if (loaded.isCompleted) {
-              ad.dispose();
-            } else {
-              loaded.complete(ad);
-            }
-          },
-          onAdFailedToLoad: (_) {
-            if (!loaded.isCompleted) loaded.complete(null);
-          },
-        ),
-      ).catchError((Object _) {
-        if (!loaded.isCompleted) loaded.complete(null);
-      }));
+      unawaited(
+        RewardedAd.load(
+          adUnitId: unit,
+          request: const AdRequest(),
+          rewardedAdLoadCallback: RewardedAdLoadCallback(
+            onAdLoaded: (ad) {
+              // An ad that arrives after the timeout below has nobody to show
+              // it; left alone it holds native resources until the process dies.
+              if (loaded.isCompleted) {
+                ad.dispose();
+              } else {
+                loaded.complete(ad);
+              }
+            },
+            onAdFailedToLoad: (_) {
+              if (!loaded.isCompleted) loaded.complete(null);
+            },
+          ),
+        ).catchError((Object _) {
+          if (!loaded.isCompleted) loaded.complete(null);
+        }),
+      );
     } catch (_) {
       if (!loaded.isCompleted) loaded.complete(null);
     }
@@ -477,24 +491,26 @@ class GoogleInterstitialAds implements InterstitialAds {
       if (!await _runtime.canRequestNow()) return;
       final loaded = Completer<InterstitialAd?>();
       // Not awaited: see `_loadNow` — the bound must start at the call.
-      unawaited(InterstitialAd.load(
-        adUnitId: _Units.interstitialUnit,
-        request: const AdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
-          onAdLoaded: (ad) {
-            if (loaded.isCompleted) {
-              ad.dispose();
-            } else {
-              loaded.complete(ad);
-            }
-          },
-          onAdFailedToLoad: (_) {
-            if (!loaded.isCompleted) loaded.complete(null);
-          },
-        ),
-      ).catchError((Object _) {
-        if (!loaded.isCompleted) loaded.complete(null);
-      }));
+      unawaited(
+        InterstitialAd.load(
+          adUnitId: _Units.interstitialUnit,
+          request: const AdRequest(),
+          adLoadCallback: InterstitialAdLoadCallback(
+            onAdLoaded: (ad) {
+              if (loaded.isCompleted) {
+                ad.dispose();
+              } else {
+                loaded.complete(ad);
+              }
+            },
+            onAdFailedToLoad: (_) {
+              if (!loaded.isCompleted) loaded.complete(null);
+            },
+          ),
+        ).catchError((Object _) {
+          if (!loaded.isCompleted) loaded.complete(null);
+        }),
+      );
       _ad = await loaded.future.timeout(
         MafiaTiming.interstitialLoadTimeout,
         onTimeout: () {
@@ -597,25 +613,27 @@ class GoogleAppOpenAds implements AppOpenAds {
     final loaded = Completer<AppOpenAd?>();
     try {
       // Not awaited: see `_loadNow` — the bound must start at the call.
-      unawaited(AppOpenAd.load(
-        adUnitId: _Units.appOpenUnit,
-        request: const AdRequest(),
-        adLoadCallback: AppOpenAdLoadCallback(
-          onAdLoaded: (ad) {
-            // Late: the launch screen is gone and nobody will show it.
-            if (loaded.isCompleted) {
-              ad.dispose();
-            } else {
-              loaded.complete(ad);
-            }
-          },
-          onAdFailedToLoad: (_) {
-            if (!loaded.isCompleted) loaded.complete(null);
-          },
-        ),
-      ).catchError((Object _) {
-        if (!loaded.isCompleted) loaded.complete(null);
-      }));
+      unawaited(
+        AppOpenAd.load(
+          adUnitId: _Units.appOpenUnit,
+          request: const AdRequest(),
+          adLoadCallback: AppOpenAdLoadCallback(
+            onAdLoaded: (ad) {
+              // Late: the launch screen is gone and nobody will show it.
+              if (loaded.isCompleted) {
+                ad.dispose();
+              } else {
+                loaded.complete(ad);
+              }
+            },
+            onAdFailedToLoad: (_) {
+              if (!loaded.isCompleted) loaded.complete(null);
+            },
+          ),
+        ).catchError((Object _) {
+          if (!loaded.isCompleted) loaded.complete(null);
+        }),
+      );
     } catch (_) {
       if (!loaded.isCompleted) loaded.complete(null);
     }
@@ -680,16 +698,26 @@ class GoogleBannerAds implements BannerAds {
   bool get configured => _Units.bannerConfigured;
 
   @override
-  Widget slot({Key? key, required String label, required double gap}) =>
-      configured
-      ? _BannerSlot(key: key, label: label, gap: gap)
+  Widget slot({
+    Key? key,
+    required String label,
+    required double gap,
+    BannerPlacement placement = BannerPlacement.lobby,
+  }) => configured
+      ? _BannerSlot(key: key, label: label, gap: gap, placement: placement)
       : SizedBox.shrink(key: key);
 }
 
 class _BannerSlot extends StatefulWidget {
   final String label;
   final double gap;
-  const _BannerSlot({super.key, required this.label, required this.gap});
+  final BannerPlacement placement;
+  const _BannerSlot({
+    super.key,
+    required this.label,
+    required this.gap,
+    required this.placement,
+  });
 
   @override
   State<_BannerSlot> createState() => _BannerSlotState();
@@ -762,7 +790,7 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
       if (size == null || !mounted || epoch != _epoch) return;
       final ad = BannerAd(
         size: size,
-        adUnitId: _Units.bannerUnit,
+        adUnitId: _Units.bannerUnitFor(widget.placement),
         request: const AdRequest(),
         listener: BannerAdListener(
           onAdLoaded: (_) {

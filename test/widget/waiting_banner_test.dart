@@ -31,12 +31,16 @@ class _FilledBanner implements BannerAds {
   bool get configured => true;
 
   @override
-  Widget slot({Key? key, required String label, required double gap}) =>
-      Padding(
-        key: key,
-        padding: EdgeInsets.only(top: gap),
-        child: const SizedBox(key: fill, height: 60, width: 320),
-      );
+  Widget slot({
+    Key? key,
+    required String label,
+    required double gap,
+    BannerPlacement placement = BannerPlacement.lobby,
+  }) => Padding(
+    key: key,
+    padding: EdgeInsets.only(top: gap),
+    child: const SizedBox(key: fill, height: 60, width: 320),
+  );
 }
 
 const _bannerOn = EconomyCapabilities(ads: AdsCapabilities(banner: true));
