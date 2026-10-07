@@ -355,10 +355,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nightPromptSilencer => 'Who must stay quiet tomorrow?';
 
   @override
-  String get nightPromptElder => 'Whose story feels wrong tonight?';
+  String get nightPromptElder => 'Whose word do you doubt tonight?';
 
   @override
-  String get nightPromptSniper => 'Who is in your sights tonight?';
+  String get nightPromptSniper => 'Who is lying to you tonight?';
 
   @override
   String get nightPromptCitizen => 'Whose behaviour do you doubt tonight?';

@@ -348,13 +348,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get nightPromptDetective => 'مين عايز تفحصه الليلة؟';
 
   @override
-  String get nightPromptSilencer => 'مين هتسكّته بكرة؟';
+  String get nightPromptSilencer => 'مين عايز تسكته الليلة؟';
 
   @override
-  String get nightPromptElder => 'مين كلامه مش مريحك؟';
+  String get nightPromptElder => 'مين مش مصدقه الليلة دي؟';
 
   @override
-  String get nightPromptSniper => 'مين حاطه في عينك؟';
+  String get nightPromptSniper => 'مين بيكدب عليك الليلة؟';
 
   @override
   String get nightPromptCitizen => 'مين شاكك فيه الليلة دي؟';

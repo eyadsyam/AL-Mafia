@@ -725,13 +725,13 @@ abstract class AppLocalizations {
   /// No description provided for @nightPromptElder.
   ///
   /// In en, this message translates to:
-  /// **'Whose story feels wrong tonight?'**
+  /// **'Whose word do you doubt tonight?'**
   String get nightPromptElder;
 
   /// No description provided for @nightPromptSniper.
   ///
   /// In en, this message translates to:
-  /// **'Who is in your sights tonight?'**
+  /// **'Who is lying to you tonight?'**
   String get nightPromptSniper;
 
   /// No description provided for @nightPromptCitizen.

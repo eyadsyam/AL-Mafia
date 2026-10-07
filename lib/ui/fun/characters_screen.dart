@@ -45,7 +45,7 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
   @override
   void initState() {
     super.initState();
-    _index = Role.values.indexOf(widget.initial ?? Role.values.first);
+    _index = kBondRoles.indexOf(widget.initial ?? kBondRoles.first);
     _pages = PageController(initialPage: _index);
   }
 
@@ -104,7 +104,7 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                   controller: _pages,
                   onPageChanged: (i) => setState(() => _index = i),
                   children: [
-                    for (final role in Role.values)
+                    for (final role in kBondRoles)
                       _CharacterPage(
                         key: CharactersScreen.pageFor(role),
                         role: role,
@@ -122,14 +122,14 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                     icon: const Icon(Icons.chevron_right),
                   ),
                   _PageDots(
-                    count: Role.values.length,
+                    count: kBondRoles.length,
                     index: _index,
-                    colorOf: (i) => _roleColor(context, Role.values[i]),
+                    colorOf: (i) => _roleColor(context, kBondRoles[i]),
                     onTap: _goTo,
                   ),
                   IconButton(
                     tooltip: l.characterNext,
-                    onPressed: _index == Role.values.length - 1
+                    onPressed: _index == kBondRoles.length - 1
                         ? null
                         : () => _goTo(_index + 1),
                     icon: const Icon(Icons.chevron_left),
@@ -365,7 +365,7 @@ class _PageDots extends StatelessWidget {
       for (var i = 0; i < count; i++)
         Semantics(
           button: true,
-          label: EngineCopy.roleName(context.l10n, Role.values[i]),
+          label: EngineCopy.roleName(context.l10n, kBondRoles[i]),
           selected: i == index,
           child: InkWell(
             onTap: () => onTap(i),

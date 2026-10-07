@@ -13,6 +13,11 @@ import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/feathered_art.dart';
 
+/// The four characters a player bonds with. The newer roles share a
+/// portrait with the one they grow from (silencer -> mafia, elder and sniper
+/// -> citizen), so they never get a dossier of their own.
+const kBondRoles = [Role.mafia, Role.doctor, Role.detective, Role.citizen];
+
 class CharacterDossiers extends ConsumerWidget {
   /// Opens the full dossiers screen; null keeps the strip inert.
   final VoidCallback? onOpen;
@@ -56,7 +61,7 @@ class CharacterDossiers extends ConsumerWidget {
               height: DossierTokens.stripHeight,
               child: Row(
                 children: [
-                  for (final role in Role.values)
+                  for (final role in kBondRoles)
                     Expanded(
                       child: _StandingPortrait(
                         role: role,
