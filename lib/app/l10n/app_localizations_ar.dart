@@ -5648,4 +5648,42 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get storiesBackToFiles => 'ارجع للملفات';
+
+  @override
+  String get toolAnswerYes => 'الراوي بيهمسلك: أيوه، فيه مافيا بينهم.';
+
+  @override
+  String get toolAnswerNo => 'الراوي بيهمسلك: لأ، مفيش مافيا بينهم.';
+
+  @override
+  String get toolAnswerOk => 'تمام';
+
+  @override
+  String toolFeedUsed(String who, String tool) {
+    return '$who استخدم: $tool';
+  }
+
+  @override
+  String get toolFeedSecret => 'حد استخدم أداة سرّية';
+
+  @override
+  String toolFeedTargets(String names) {
+    return 'على: $names';
+  }
+
+  @override
+  String toolFeedAnonNote(String text) {
+    return 'ورقة من غير اسم: $text';
+  }
+
+  @override
+  String toolFeedLastWill(String text) {
+    return 'وصيّة: $text';
+  }
+
+  @override
+  String get toolFeedSeparator => '، ';
+
+  @override
+  String get toolFeedUnknownTool => 'أداة';
 }

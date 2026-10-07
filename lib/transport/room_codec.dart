@@ -277,6 +277,7 @@ GameSnapshot snapshotFrom({
 
   return GameSnapshot(
     public: public,
+    toolLog: ToolLogEntry.parseList(data['toolLog']),
     ballotRound: ((data['revote'] as Map?)?['round'] as num?)?.toInt() ?? 1,
     ballotCandidates: {
       for (final seat

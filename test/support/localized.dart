@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mafia_master/app/l10n/app_localizations.dart';
 import 'package:mafia_master/ui/theme/mafia_theme.dart';
 
@@ -14,18 +15,22 @@ import 'package:mafia_master/ui/theme/mafia_theme.dart';
 /// [locale] defaults to Arabic because Arabic is the product's primary language
 /// (FR-034); pass `Locale('en')` to check the English strings.
 Widget localizedApp(Widget home, {Locale locale = const Locale('ar')}) {
-  return MaterialApp(
-    debugShowCheckedModeBanner: false,
-    theme: MafiaTheme.dark,
-    locale: locale,
-    supportedLocales: AppLocalizations.supportedLocales,
-    localizationsDelegates: const [
-      AppLocalizations.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
-    home: home,
+  // The council header reads providers (table tools); every screen under test
+  // therefore needs a scope, exactly as the real app has one.
+  return ProviderScope(
+    child: MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: MafiaTheme.dark,
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: home,
+    ),
   );
 }
 

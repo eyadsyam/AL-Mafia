@@ -375,6 +375,11 @@ abstract final class CouncilTokens {
   static const double welcomeArtMinViewport = 600;
   static const double welcomeArtStartScale = 1.04;
   static const double headerHeight = 56;
+
+  /// «أدوات القعدة» announcement feed: visible lines and how much older ones fade.
+  static const int toolFeedMax = 3;
+  static const double toolFeedOlderOpacity = 0.55;
+  static const double toolFeedOldestOpacity = 0.3;
   static const int councilFlex = 36;
   static const int voiceFlex = 34;
   static const int handFlex = 24;

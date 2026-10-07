@@ -183,6 +183,71 @@ class PublicRoom {
   }
 }
 
+/// One announced use of a «أدوات القعدة» tool, from `public_data.toolLog`.
+///
+/// [seat] is null for a secret tool: the table is told that *someone* used
+/// something, never who or what. [note] is the user's own text for
+/// `anon_note` and `last_will`. Public by construction; carries no role.
+@immutable
+class ToolLogEntry {
+  final String tool;
+  final int? seat;
+  final List<int> targets;
+  final String? note;
+  final int phaseNumber;
+
+  const ToolLogEntry({
+    required this.tool,
+    this.seat,
+    this.targets = const [],
+    this.note,
+    this.phaseNumber = 0,
+  });
+
+  /// Tolerant: null for anything that is not a usable entry.
+  static ToolLogEntry? tryParse(Object? raw) {
+    if (raw is! Map) return null;
+    final tool = raw['tool'];
+    if (tool is! String || tool.isEmpty) return null;
+    final seat = raw['seat'];
+    final note = raw['note'];
+    final targets = raw['targets'];
+    final phase = raw['phaseNumber'];
+    return ToolLogEntry(
+      tool: tool,
+      seat: seat is num ? seat.toInt() : null,
+      targets: [
+        if (targets is List)
+          for (final t in targets)
+            if (t is num) t.toInt(),
+      ],
+      note: note is String && note.trim().isNotEmpty ? note : null,
+      phaseNumber: phase is num ? phase.toInt() : 0,
+    );
+  }
+
+  static List<ToolLogEntry> parseList(Object? raw) => [
+    if (raw is List)
+      for (final e in raw)
+        if (tryParse(e) case final entry?) entry,
+  ];
+
+  @override
+  bool operator ==(Object other) =>
+      other is ToolLogEntry &&
+      other.tool == tool &&
+      other.seat == seat &&
+      other.note == note &&
+      other.phaseNumber == phaseNumber &&
+      other.targets.length == targets.length &&
+      [for (var i = 0; i < targets.length; i++) other.targets[i] == targets[i]]
+          .every((same) => same);
+
+  @override
+  int get hashCode =>
+      Object.hash(tool, seat, note, phaseNumber, Object.hashAll(targets));
+}
+
 /// Everything the whole table may see at one moment (doc 10 §7).
 ///
 /// ## The rule this type exists to make structural
@@ -448,6 +513,9 @@ class GameSnapshot {
   /// Only this viewer's acknowledged ballot, never another player's status.
   final bool viewerVoteRecorded;
 
+  /// Announced tool uses for this match, oldest first. Empty offline.
+  final List<ToolLogEntry> toolLog;
+
   const GameSnapshot({
     required this.public,
     this.trace,
@@ -485,6 +553,7 @@ class GameSnapshot {
     this.ballotRound = 1,
     this.ballotCandidates = const {},
     this.viewerVoteRecorded = false,
+    this.toolLog = const [],
   });
 
   GamePhase get phase => public.phase;
@@ -534,6 +603,7 @@ class GameSnapshot {
     int? ballotRound,
     Set<int>? ballotCandidates,
     bool? viewerVoteRecorded,
+    List<ToolLogEntry>? toolLog,
     bool clearMorning = false,
     bool clearVote = false,
     bool clearDeadline = false,
@@ -580,6 +650,7 @@ class GameSnapshot {
     ballotRound: ballotRound ?? this.ballotRound,
     ballotCandidates: ballotCandidates ?? this.ballotCandidates,
     viewerVoteRecorded: viewerVoteRecorded ?? this.viewerVoteRecorded,
+    toolLog: toolLog ?? this.toolLog,
   );
 
   @override

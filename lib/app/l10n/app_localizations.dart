@@ -9840,6 +9840,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to files'**
   String get storiesBackToFiles;
+
+  /// No description provided for @toolAnswerYes.
+  ///
+  /// In en, this message translates to:
+  /// **'The narrator whispers: yes, a mafioso is among them.'**
+  String get toolAnswerYes;
+
+  /// No description provided for @toolAnswerNo.
+  ///
+  /// In en, this message translates to:
+  /// **'The narrator whispers: no mafioso among them.'**
+  String get toolAnswerNo;
+
+  /// No description provided for @toolAnswerOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get toolAnswerOk;
+
+  /// No description provided for @toolFeedUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'{who} used: {tool}'**
+  String toolFeedUsed(String who, String tool);
+
+  /// No description provided for @toolFeedSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone used a secret tool'**
+  String get toolFeedSecret;
+
+  /// No description provided for @toolFeedTargets.
+  ///
+  /// In en, this message translates to:
+  /// **'on: {names}'**
+  String toolFeedTargets(String names);
+
+  /// No description provided for @toolFeedAnonNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsigned note: {text}'**
+  String toolFeedAnonNote(String text);
+
+  /// No description provided for @toolFeedLastWill.
+  ///
+  /// In en, this message translates to:
+  /// **'Last will: {text}'**
+  String toolFeedLastWill(String text);
+
+  /// No description provided for @toolFeedSeparator.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get toolFeedSeparator;
+
+  /// No description provided for @toolFeedUnknownTool.
+  ///
+  /// In en, this message translates to:
+  /// **'a tool'**
+  String get toolFeedUnknownTool;
 }
 
 class _AppLocalizationsDelegate

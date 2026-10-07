@@ -19,6 +19,7 @@ import '../council/card_rise.dart' show faceFor;
 import '../council/seat_status.dart';
 import 'table_mood.dart';
 import 'table_pulse.dart';
+import 'tool_feed.dart';
 import '../safety_center.dart';
 import '../../../economy/cosmetic_paint.dart';
 import '../../../economy/cosmetics.dart';
@@ -317,6 +318,19 @@ class TableScene extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: spacing.screenMargin,
+                right: spacing.screenMargin,
+                top: CouncilTokens.headerHeight + spacing.sm,
+              ),
+              child: Align(
+                alignment: AlignmentDirectional.topCenter,
+                child: ToolFeed(snapshot: snapshot),
               ),
             ),
           ),

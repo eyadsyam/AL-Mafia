@@ -119,15 +119,16 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
   }
 
   /// Spends one charge in [roomId]. The effect is applied by the match
-  /// functions from the server's record of the use.
-  Future<void> use(
+  /// functions from the server's record of the use. Returns the narrator's
+  /// private answer for the two whisper tools, null otherwise.
+  Future<bool?> use(
     String roomId,
     String code, {
     List<int> targets = const [],
     String? note,
   }) async {
     try {
-      await _call({
+      final res = await _call({
         'action': 'toolUse',
         'roomId': roomId,
         'tool': code,
@@ -135,6 +136,7 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
         'note': ?note,
       });
       ref.invalidateSelf();
+      return res['answer'] as bool?;
     } on BackendException catch (e) {
       throw ToolActionFailed(e.code);
     }
@@ -366,7 +368,7 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
     final l = context.l10n;
     setState(() => _busy = true);
     try {
-      await ref
+      final answer = await ref
           .read(tableToolsProvider.notifier)
           .use(
             widget.roomId,
@@ -374,6 +376,21 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
             targets: _targets.toList()..sort(),
             note: t.takesNote ? _note.text.trim() : _face,
           );
+      if (!mounted) return;
+      if (answer != null) {
+        await showDialog<void>(
+          context: context,
+          builder: (c) => AlertDialog(
+            content: Text(answer ? l.toolAnswerYes : l.toolAnswerNo),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(c).pop(),
+                child: Text(l.toolAnswerOk),
+              ),
+            ],
+          ),
+        );
+      }
       if (mounted) Navigator.of(context).pop();
     } on ToolActionFailed {
       if (!mounted) return;

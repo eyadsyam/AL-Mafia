@@ -3516,5 +3516,19 @@
   "storiesScore": "Score",
   "storiesSolved": "Case solved",
   "storiesMissed": "A thread slipped away",
-  "storiesBackToFiles": "Back to files"
+  "storiesBackToFiles": "Back to files",
+  "toolAnswerYes": "The narrator whispers: yes, a mafioso is among them.",
+  "toolAnswerNo": "The narrator whispers: no mafioso among them.",
+  "toolAnswerOk": "OK",
+  "toolFeedUsed": "{who} used: {tool}",
+  "@toolFeedUsed": {"placeholders": {"who": {"type": "String"}, "tool": {"type": "String"}}},
+  "toolFeedSecret": "Someone used a secret tool",
+  "toolFeedTargets": "on: {names}",
+  "@toolFeedTargets": {"placeholders": {"names": {"type": "String"}}},
+  "toolFeedAnonNote": "Unsigned note: {text}",
+  "@toolFeedAnonNote": {"placeholders": {"text": {"type": "String"}}},
+  "toolFeedLastWill": "Last will: {text}",
+  "@toolFeedLastWill": {"placeholders": {"text": {"type": "String"}}},
+  "toolFeedSeparator": ", ",
+  "toolFeedUnknownTool": "a tool"
 }

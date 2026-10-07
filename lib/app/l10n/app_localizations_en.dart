@@ -5752,4 +5752,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storiesBackToFiles => 'Back to files';
+
+  @override
+  String get toolAnswerYes =>
+      'The narrator whispers: yes, a mafioso is among them.';
+
+  @override
+  String get toolAnswerNo => 'The narrator whispers: no mafioso among them.';
+
+  @override
+  String get toolAnswerOk => 'OK';
+
+  @override
+  String toolFeedUsed(String who, String tool) {
+    return '$who used: $tool';
+  }
+
+  @override
+  String get toolFeedSecret => 'Someone used a secret tool';
+
+  @override
+  String toolFeedTargets(String names) {
+    return 'on: $names';
+  }
+
+  @override
+  String toolFeedAnonNote(String text) {
+    return 'Unsigned note: $text';
+  }
+
+  @override
+  String toolFeedLastWill(String text) {
+    return 'Last will: $text';
+  }
+
+  @override
+  String get toolFeedSeparator => ', ';
+
+  @override
+  String get toolFeedUnknownTool => 'a tool';
 }
