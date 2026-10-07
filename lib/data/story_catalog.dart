@@ -14,6 +14,10 @@ class StoryCatalog {
     'assets/stories/cinema_rivoli.json',
     'assets/stories/el_asansir.json',
     'assets/stories/el_shahed_el_a3ma.json',
+    'assets/stories/farah_el_sotouh.json',
+    'assets/stories/mahal_el_dahab.json',
+    'assets/stories/el_arousa.json',
+    'assets/stories/shoqaq_el_tamleek.json',
   ];
 
   Future<List<StoryDefinition>> load() async {
