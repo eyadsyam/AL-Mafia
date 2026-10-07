@@ -14,6 +14,7 @@
  * not done anything wrong.
  */
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
+import { floorBonusSeconds, loadToolUses } from "../_shared/tools.ts";
 import { floorOwnerSeat, floorSecondsFor, micPolicyFor } from "../_shared/voice.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
@@ -61,7 +62,9 @@ Deno.serve(handler(async (req, userId, db) => {
   const granted = await db.rpc("claim_speaking_floor", {
     p_room: roomId,
     p_user: userId,
-    p_seconds: floorSecondsFor(me.phase, me.settings),
+    // «أدوات القعدة»: extra_minute / objection add seconds to this seat only.
+    p_seconds: floorSecondsFor(me.phase, me.settings) +
+      floorBonusSeconds(await loadToolUses(db, roomId), me.phaseNumber, me.seat),
   });
 
   if (granted.error) throw granted.error;

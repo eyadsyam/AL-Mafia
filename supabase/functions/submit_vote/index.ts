@@ -7,6 +7,7 @@
  */
 import { asUuid, fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { ballotTargetAllowed } from "../_shared/ballot_candidates.ts";
+import { graveVoters, loadToolUses } from "../_shared/tools.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId, targetSeat, round, actionId } = await req.json();
@@ -14,8 +15,21 @@ Deno.serve(handler(async (req, userId, db) => {
 
   const me = await loadMembership(db, roomId, userId);
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
-  if (!me.alive) return fail("NOT_ALIVE", "the dead do not vote", 403);
   if (me.phase !== "vote") return fail("PHASE_CLOSED", "the ballot is closed");
+  // «أدوات القعدة»: a dead seat with a bought grave vote casts one ballot, on
+  // that day only; every other dead seat is refused as before.
+  let graveBallot = false;
+  if (!me.alive) {
+    const mayGrave = graveVoters(await loadToolUses(db, roomId), me.phaseNumber)
+      .has(me.seat);
+    if (!mayGrave) return fail("NOT_ALIVE", "the dead do not vote", 403);
+    const { count, error: spentError } = await db.from("votes")
+      .select("voter_id", { count: "exact", head: true })
+      .eq("room_id", roomId).eq("day", me.phaseNumber).eq("voter_id", userId);
+    if (spentError) throw spentError;
+    if ((count ?? 0) > 0) return fail("RATE_LIMITED", "the grave vote is spent");
+    graveBallot = true;
+  }
   const { data: silenceState, error: silenceError } = await db
     .from("room_state").select("public_data").eq("room_id", roomId)
     .maybeSingle();
@@ -55,6 +69,9 @@ Deno.serve(handler(async (req, userId, db) => {
   const thisRound = Number(revote?.round ?? 1);
   if (round != null && Number(round) !== thisRound) {
     return fail("PHASE_CLOSED", "that ballot round is over");
+  }
+  if (graveBallot && thisRound !== 1) {
+    return fail("PHASE_CLOSED", "the grave vote is for the opening ballot");
   }
   if (!ballotTargetAllowed(thisRound, revote?.tiedSeats, targetSeat ?? null)) {
     return fail("BAD_REQUEST", "choose one of the tied players");

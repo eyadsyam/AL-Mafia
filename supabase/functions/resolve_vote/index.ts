@@ -10,6 +10,14 @@ import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { deadlineFor } from "../_shared/phases.ts";
 import { rosterFingerprint } from "../_shared/roster_fingerprint.ts";
 import { ballotTargetAllowed } from "../_shared/ballot_candidates.ts";
+import {
+  appealed,
+  appealUpheld,
+  graveVoters,
+  loadToolUses,
+  revoteRequested,
+  toolVoteWeight,
+} from "../_shared/tools.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId } = await req.json();
@@ -72,6 +80,9 @@ Deno.serve(handler(async (req, userId, db) => {
         ?.elderRevealedSeats as number[] | undefined) ?? []).map(Number),
     );
     const round = Number(revoteState?.round ?? 1);
+    // «أدوات القعدة»: one read per request.
+    const toolUses = await loadToolUses(db, roomId);
+    const graves = graveVoters(toolUses, day);
 
     const { data: cast, error: castError } = await db
       .from("votes")
@@ -91,15 +102,19 @@ Deno.serve(handler(async (req, userId, db) => {
     // after casting it is out of the match, and a seat put out does not go on
     // deciding the town's verdict from outside it (see `resolve_night`).
     const alive = new Set(roster.filter((p) => p.alive).map((p) => p.user_id));
+    // A ballot weighs 3 for a revealed Elder, times 2 for a bought double vote.
+    const weightOf = (voter: { role: string; seat: number } | undefined) =>
+      (voter?.role === "elder" && revealedElders.has(voter.seat) ? 3 : 1) *
+      toolVoteWeight(toolUses, day, voter?.seat ?? -1);
     const tally = new Map<string, number>();
     for (const v of cast ?? []) {
-      if (v.round !== round || !v.target_id || !alive.has(v.target_id) || !alive.has(v.voter_id)) continue;
-      if (!ballotTargetAllowed(round, revoteState?.tiedSeats, seatOf.get(v.target_id))) continue;
       const voter = roster.find((p) => p.user_id === v.voter_id);
-      const weight = voter?.role === "elder" && revealedElders.has(voter.seat)
-        ? 3
-        : 1;
-      tally.set(v.target_id, (tally.get(v.target_id) ?? 0) + weight);
+      // A dead seat counts only with a bought grave vote, in the opening round.
+      const mayVote = alive.has(v.voter_id) ||
+        (!!voter && round === 1 && graves.has(voter.seat));
+      if (v.round !== round || !v.target_id || !alive.has(v.target_id) || !mayVote) continue;
+      if (!ballotTargetAllowed(round, revoteState?.tiedSeats, seatOf.get(v.target_id))) continue;
+      tally.set(v.target_id, (tally.get(v.target_id) ?? 0) + weightOf(voter));
     }
 
     const publicTally: Record<number, number> = {};
@@ -122,6 +137,25 @@ Deno.serve(handler(async (req, userId, db) => {
         // second chance.
         revote = rule === "revote" && round === 1;
       }
+      // A bought `revote`: a clear winner in round 1 is not final yet. The
+      // same bounded mechanism opens once, narrowed to the seats that drew a
+      // ballot; round 2 never re-triggers it.
+      if (eliminatedId && round === 1 && revoteRequested(toolUses, day)) {
+        tiedSeats = [...tally.keys()].map((id) => seatOf.get(id) ?? -1)
+          .filter((s) => s >= 0).sort((a, b) => a - b);
+        eliminatedId = null;
+        revote = true;
+      }
+    }
+
+    // A bought `appeal`: the elimination stands only if more than two thirds of
+    // the weighted ballots of everyone else (living voters, him excluded)
+    // confirm it. Otherwise nobody goes out today.
+    if (eliminatedId && appealed(toolUses, day).has(seatOf.get(eliminatedId) ?? -1)) {
+      const voters = roster
+        .filter((p) => p.alive && p.user_id !== eliminatedId)
+        .reduce((sum, p) => sum + weightOf(p), 0);
+      if (!appealUpheld(tally.get(eliminatedId) ?? 0, voters)) eliminatedId = null;
     }
 
     if (revote) {

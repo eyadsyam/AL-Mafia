@@ -18,6 +18,7 @@ import { deadlineFor } from "../_shared/phases.ts";
 import { buildHistory } from "../_shared/history.ts";
 import { rosterFingerprint } from "../_shared/roster_fingerprint.ts";
 import { selectTrace } from "../_shared/trace.ts";
+import { halfDoorSeats, loadToolUses, lockedSeats, unsilenceable } from "../_shared/tools.ts";
 import { deriveSeed, SeedSalt, tieBreakIndex } from "../_shared/seed.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
@@ -52,6 +53,14 @@ Deno.serve(handler(async (req, userId, db) => {
     if (playersError) throw playersError;
     const roster = players ?? [];
     const seatOf = new Map(roster.map((p) => [p.user_id, p.seat]));
+    // «أدوات القعدة»: a locked door is out of reach of the kill, the shot and
+    // the silence; a half door only of the silence.
+    const toolUses = await loadToolUses(db, roomId);
+    const locked = lockedSeats(toolUses, night);
+    const noSilence = new Set([...halfDoorSeats(toolUses, night), ...unsilenceable(toolUses, night)]);
+    const isLocked = (id: string | null | undefined) => !!id && locked.has(seatOf.get(id) ?? -1);
+    const isUnsilenceable = (id: string | null | undefined) =>
+      !!id && noSilence.has(seatOf.get(id) ?? -1);
 
     const { data: actions, error: actionsError } = await db
       .from("night_actions")
@@ -125,6 +134,8 @@ Deno.serve(handler(async (req, userId, db) => {
       ]);
     }
 
+    if (isLocked(victimId)) victimId = null;
+
     let savedId: string | null = null;
     if (victimId && protectedIds.has(victimId)) {
       savedId = victimId;
@@ -137,7 +148,8 @@ Deno.serve(handler(async (req, userId, db) => {
       const actor = roster.find((p) => p.user_id === a.actor_id);
       const target = roster.find((p) => p.user_id === a.target_id);
       if (!a.used_bullet || a.action !== "suspect" || actor?.role !== "sniper" ||
-          !target || !alive.has(actor.user_id) || !alive.has(target.user_id)) continue;
+          !target || !alive.has(actor.user_id) || !alive.has(target.user_id) ||
+          isLocked(target.user_id)) continue;
       deaths.add(target.user_id);
       if (!["mafia", "silencer"].includes(target.role)) deaths.add(actor.user_id);
     }
@@ -145,7 +157,8 @@ Deno.serve(handler(async (req, userId, db) => {
       (a, b) => (seatOf.get(a) ?? 0) - (seatOf.get(b) ?? 0),
     );
     const silencedId = (actions ?? []).find((a) =>
-      a.action === "silence" && !!a.target_id && alive.has(a.actor_id) && alive.has(a.target_id)
+      a.action === "silence" && !!a.target_id && alive.has(a.actor_id) && alive.has(a.target_id) &&
+      !isLocked(a.target_id) && !isUnsilenceable(a.target_id)
     )?.target_id ?? null;
 
     const history = await buildHistory(db, roomId);

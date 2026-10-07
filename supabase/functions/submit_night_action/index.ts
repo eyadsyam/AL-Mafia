@@ -35,6 +35,7 @@ import {
   loadMembership,
   ok,
 } from "../_shared/api.ts";
+import { detectiveSees, loadToolUses } from "../_shared/tools.ts";
 
 /** The once-per-match move each role holds, or null for the two that hold none. */
 type Bullet = "quietNight" | "selfProtect" | "sniperShot";
@@ -240,7 +241,15 @@ Deno.serve(handler(async (req, userId, db) => {
       .eq("user_id", targetId)
       .maybeSingle();
     if (peekError) throw peekError;
-    return ok({ revealedRole: target?.role ?? null, bulletSpent: spending });
+    // «أدوات القعدة»: a bought door, mask or face changes what is told; the
+    // client shows the string as it shows a role ("unclear" / "unreachable").
+    const seen = detectiveSees(
+      await loadToolUses(db, roomId),
+      me.phaseNumber,
+      Number(targetSeat),
+      target?.role ?? null,
+    );
+    return ok({ revealedRole: seen, bulletSpent: spending });
   }
 
   // The ack carries one fact about the caller and nothing about anybody else:
