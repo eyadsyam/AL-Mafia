@@ -247,8 +247,11 @@ class _WebAdBannerState extends ConsumerState<WebAdBanner> {
                 color: colors.surfaceRaised,
                 child: InkWell(
                   key: WebAdBanner.appCtaKey,
-                  onTap: () =>
-                      ref.read(externalLinkOpenerProvider)(kPlayListing),
+                  onTap: () => unawaited(
+                    Future.sync(
+                      () => ref.read(externalLinkOpenerProvider)(kPlayListing),
+                    ),
+                  ),
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: spacing.md),
                     child: Row(
@@ -403,7 +406,7 @@ class _HouseWebInterstitialState extends State<HouseWebInterstitial> {
                             listen: false,
                           ).read(externalLinkOpenerProvider);
                           Navigator.of(context).pop();
-                          open(kPlayListing);
+                          unawaited(Future.sync(() => open(kPlayListing)));
                         },
                         child: Text(context.l10n.webAdOpenPlay),
                       ),

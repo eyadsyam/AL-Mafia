@@ -234,6 +234,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     final s = context.spacing;
     final l = context.l10n;
     final chapter = widget.termsOnly ? _Chapter.pact : _chapters[_step];
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+    final compactIdentity = chapter == _Chapter.identity && keyboardOpen;
     final titles = {
       _Chapter.language: l.setupWelcomeTitle,
       _Chapter.account: l.onboardAccountTitle,
@@ -352,25 +354,27 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                                   ),
                                   SizedBox(height: s.lg),
                                 ],
-                                Semantics(
-                                  header: true,
-                                  child: Text(
+                                if (!compactIdentity) ...[
+                                  Semantics(
+                                    header: true,
+                                    child: Text(
+                                      widget.termsOnly
+                                          ? l.termsUpdatedTitle
+                                          : titles[chapter]!,
+                                      style: context.typography.headline,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  SizedBox(height: s.sm),
+                                  Text(
                                     widget.termsOnly
-                                        ? l.termsUpdatedTitle
-                                        : titles[chapter]!,
-                                    style: context.typography.headline,
+                                        ? l.termsUpdatedHint
+                                        : hints[chapter]!,
+                                    style: context.typography.body,
                                     textAlign: TextAlign.center,
                                   ),
-                                ),
-                                SizedBox(height: s.sm),
-                                Text(
-                                  widget.termsOnly
-                                      ? l.termsUpdatedHint
-                                      : hints[chapter]!,
-                                  style: context.typography.body,
-                                  textAlign: TextAlign.center,
-                                ),
-                                SizedBox(height: s.lg),
+                                  SizedBox(height: s.lg),
+                                ],
                                 if (chapter == _Chapter.language)
                                   const LanguagePicker(),
                                 if (chapter == _Chapter.account)
@@ -381,6 +385,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                                     nameKey: FirstRunScreen.nameKey,
                                     gender: _gender,
                                     avatarDiameter: s.xl * 2,
+                                    autofocusName: true,
                                     onGender: (v) {
                                       _touched = true;
                                       setState(() => _gender = v);

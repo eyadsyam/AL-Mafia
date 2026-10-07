@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -8,6 +9,14 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'push_service.dart';
 import 'web_push_config_stub.dart'
     if (dart.library.js_interop) 'web_push_config_web.dart';
+
+/// Android creates a background isolate for data delivery. Notification
+/// payloads are drawn by the OS, while this handler makes the data half safe
+/// to receive when the app process is suspended or has been recreated.
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage _) async {
+  if (Firebase.apps.isEmpty) await Firebase.initializeApp();
+}
 
 /// Channel wording, in the player's language, for the Android settings page.
 class PushChannelText {
@@ -49,6 +58,7 @@ class FirebasePushService implements PushService {
       final open = PushOpen.fromData(message.data);
       if (open != null) _opened.add(open);
     });
+    FirebaseMessaging.onMessage.listen(_showForeground);
   }
 
   /// Our two Android channels.
@@ -88,6 +98,9 @@ class FirebasePushService implements PushService {
       // Reads the values the google-services Gradle plugin generated from
       // google-services.json; throws when that file was not in the build.
       await Firebase.initializeApp();
+      FirebaseMessaging.onBackgroundMessage(
+        firebaseMessagingBackgroundHandler,
+      );
       final service = FirebasePushService._(FirebaseMessaging.instance, null)
         .._text = text;
       await service._channels(inviteVibration, socialVibration);
@@ -105,6 +118,18 @@ class FirebasePushService implements PushService {
       settings: const InitializationSettings(
         android: AndroidInitializationSettings('ic_stat_mafia'),
       ),
+      onDidReceiveNotificationResponse: (response) {
+        final payload = response.payload;
+        if (payload == null) return;
+        try {
+          final decoded = jsonDecode(payload);
+          if (decoded is! Map) return;
+          final open = PushOpen.fromData(
+            decoded.map((key, value) => MapEntry('$key', value)),
+          );
+          if (open != null) _opened.add(open);
+        } catch (_) {}
+      },
     );
     final android = local
         .resolvePlatformSpecificImplementation<
@@ -153,6 +178,37 @@ class FirebasePushService implements PushService {
       ),
     );
     _local = local;
+  }
+
+  Future<void> _showForeground(RemoteMessage message) async {
+    if (kIsWeb) return;
+    final notification = message.notification;
+    final local = _local;
+    final text = _text;
+    if (notification == null || local == null || text == null) return;
+    final kind = message.data['kind'];
+    final (channel, name, description) = switch (kind) {
+      'invite' => (invitesChannel, text.invites, text.invitesDescription),
+      'room_start' || 'night' => (gameChannel, text.game, text.gameDescription),
+      'daily' ||
+      'thursday' ||
+      'comeback' => (dailyChannel, text.daily, text.dailyDescription),
+      _ => (socialChannel, text.social, text.socialDescription),
+    };
+    await local.show(
+      id: message.messageId?.hashCode ?? message.hashCode,
+      title: notification.title,
+      body: notification.body,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          channel,
+          name,
+          channelDescription: description,
+          icon: 'ic_stat_mafia',
+        ),
+      ),
+      payload: jsonEncode(message.data),
+    );
   }
 
   @override

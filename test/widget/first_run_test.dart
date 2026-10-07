@@ -110,6 +110,53 @@ void main() {
     expect((await ProfileStore().load())!.name, 'Eyad');
   });
 
+  testWidgets('360x640 onboarding keeps the focused name above the keyboard', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(360, 640));
+    tester.view.viewInsets = const FakeViewPadding(bottom: 280);
+    addTearDown(() {
+      tester.binding.setSurfaceSize(null);
+      tester.view.resetViewInsets();
+    });
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await _tick(tester, FirstRunScreen.nextKey);
+
+    final field = find.byKey(FirstRunScreen.nameKey);
+    expect(field, findsOneWidget);
+    expect(tester.widget<TextField>(field).autofocus, isTrue);
+    expect(find.text('اسمك في اللعبة'), findsOneWidget);
+    final rect = tester.getRect(field);
+    expect(rect.top, greaterThanOrEqualTo(0));
+    expect(rect.bottom, lessThanOrEqualTo(640 - 280));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('412x915 onboarding keeps the focused name above the keyboard', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(412, 915));
+    tester.view.viewInsets = const FakeViewPadding(bottom: 320);
+    addTearDown(() {
+      tester.binding.setSurfaceSize(null);
+      tester.view.resetViewInsets();
+    });
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await _tick(tester, FirstRunScreen.nextKey);
+
+    final field = find.byKey(FirstRunScreen.nameKey);
+    expect(field, findsOneWidget);
+    expect(tester.widget<TextField>(field).autofocus, isTrue);
+    expect(tester.widget<TextField>(field).decoration?.labelText, isNotEmpty);
+    final rect = tester.getRect(field);
+    expect(rect.top, greaterThanOrEqualTo(0));
+    expect(rect.bottom, lessThanOrEqualTo(915 - 320));
+    expect(rect.height, greaterThanOrEqualTo(48));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('opening the terms and coming back keeps the form', (
     tester,
   ) async {

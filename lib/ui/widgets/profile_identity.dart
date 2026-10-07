@@ -26,6 +26,7 @@ class ProfileIdentityFields extends StatelessWidget {
   final ValueChanged<String>? onNameChanged;
   final ValueChanged<String>? onSubmitted;
   final double avatarDiameter;
+  final bool autofocusName;
 
   /// Store truth: the frame and nameplate this player equipped, drawn on the
   /// avatar and on the name exactly as the table draws them. Null for none.
@@ -39,6 +40,7 @@ class ProfileIdentityFields extends StatelessWidget {
     required this.gender,
     required this.onGender,
     required this.avatarDiameter,
+    this.autofocusName = false,
     this.onNameChanged,
     this.onSubmitted,
     this.frame,
@@ -56,6 +58,20 @@ class ProfileIdentityFields extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        TextField(
+          key: nameKey,
+          controller: name,
+          autofocus: autofocusName,
+          scrollPadding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(context).bottom + s.xl,
+          ),
+          maxLength: maxNameLength,
+          textInputAction: TextInputAction.done,
+          onChanged: onNameChanged,
+          onSubmitted: onSubmitted,
+          decoration: InputDecoration(labelText: l.onlineYourName),
+        ),
+        SizedBox(height: s.sm),
         Center(
           child: CosmeticFrameRing(
             frame: frame,
@@ -68,15 +84,6 @@ class ProfileIdentityFields extends StatelessWidget {
           ),
         ),
         SizedBox(height: s.md),
-        TextField(
-          key: nameKey,
-          controller: name,
-          maxLength: maxNameLength,
-          textInputAction: TextInputAction.done,
-          onChanged: onNameChanged,
-          onSubmitted: onSubmitted,
-          decoration: InputDecoration(labelText: l.onlineYourName),
-        ),
         if (plate != null && name.text.trim().isNotEmpty)
           Padding(
             key: platePreviewKey,

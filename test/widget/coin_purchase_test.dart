@@ -227,6 +227,7 @@ void main() {
   late FakeAccounts accounts;
   late List<String> opened;
   late bool openWorks;
+  late int cancelledReservations;
   late Uint8List? picked;
   late Uint8List? lost;
 
@@ -235,6 +236,7 @@ void main() {
     accounts = FakeAccounts();
     opened = [];
     openWorks = true;
+    cancelledReservations = 0;
     picked = jpegOf(8, 8);
     lost = null;
   });
@@ -254,6 +256,15 @@ void main() {
             opened.add(url);
             return openWorks;
           }),
+          externalLinkReserverProvider.overrideWithValue(
+            (url) => ExternalLinkReservation(
+              commit: () {
+                opened.add(url);
+                return openWorks;
+              },
+              cancel: () => cancelledReservations++,
+            ),
+          ),
         ],
         child: localizedApp(child),
       );
@@ -334,7 +345,10 @@ void main() {
       expect((back.width, back.height), (1600, 450));
       final tall = img.decodeJpg(compressProof(jpegOf(500, 2400))!)!;
       expect((tall.width, tall.height), (333, 1600));
-      expect(compressProof(Uint8List.fromList(utf8.encode('not an image'))), isNull);
+      expect(
+        compressProof(Uint8List.fromList(utf8.encode('not an image'))),
+        isNull,
+      );
     });
   });
 
@@ -381,7 +395,9 @@ void main() {
       expect(find.text(arStrings.coinPayInstapay), findsOneWidget);
       // An unconfigured method is not offered at all.
       expect(
-        find.byKey(TransferMethodButtons.button('mm_coins_500', 'vodafone_cash')),
+        find.byKey(
+          TransferMethodButtons.button('mm_coins_500', 'vodafone_cash'),
+        ),
         findsNothing,
       );
       await tester.tap(button);
@@ -424,42 +440,52 @@ void main() {
     FilledButton submit(WidgetTester tester) =>
         tester.widget<FilledButton>(find.byKey(ProofOrderCard.submitButton));
 
-    testWidgets('choose → pay in the other app → upload proof; coins only after review', (
-      tester,
-    ) async {
-      await pumpPacks(tester);
-      expect(find.text(arStrings.coinManualNotice), findsOneWidget);
-      await startOrder(tester);
-      expect(opened, [instapayUrl]);
-      expect(find.text(arStrings.coinOrderTitle('MM-ABCD0001')), findsOneWidget);
-      expect(find.text(arStrings.pay2StepPay('49.99', arStrings.coinPayInstapay)), findsOneWidget);
+    testWidgets(
+      'choose → pay in the other app → upload proof; coins only after review',
+      (tester) async {
+        await pumpPacks(tester);
+        expect(find.text(arStrings.coinManualNotice), findsOneWidget);
+        await startOrder(tester);
+        expect(opened, [instapayUrl]);
+        expect(
+          find.text(arStrings.coinOrderTitle('MM-ABCD0001')),
+          findsOneWidget,
+        );
+        expect(
+          find.text(arStrings.pay2StepPay('49.99', arStrings.coinPayInstapay)),
+          findsOneWidget,
+        );
 
-      // Coming back: the page can be opened again from the order.
-      await tester.tap(find.byKey(CoinPacksTab.openButton));
-      expect(opened, [instapayUrl, instapayUrl]);
+        // Coming back: the page can be opened again from the order.
+        await tester.tap(find.byKey(CoinPacksTab.openButton));
+        expect(opened, [instapayUrl, instapayUrl]);
 
-      await tester.tap(find.byKey(ProofOrderCard.pickButton));
-      await tester.pumpAndSettle();
-      expect(find.byKey(ProofOrderCard.imageReady), findsOneWidget);
-      await tester.enterText(find.byKey(ProofOrderCard.senderField), 'Eyad S');
-      await tester.pump();
-      await tester.tap(find.byKey(ProofOrderCard.submitButton));
-      await tester.pumpAndSettle();
+        await tester.tap(find.byKey(ProofOrderCard.pickButton));
+        await tester.pumpAndSettle();
+        expect(find.byKey(ProofOrderCard.imageReady), findsOneWidget);
+        await tester.enterText(
+          find.byKey(ProofOrderCard.senderField),
+          'Eyad S',
+        );
+        await tester.pump();
+        await tester.tap(find.byKey(ProofOrderCard.submitButton));
+        await tester.pumpAndSettle();
 
-      final sent = coinCalls('submit').single.body;
-      expect(sent['senderName'], 'Eyad S');
-      expect(base64Decode(sent['image'] as String), picked);
-      expect(sent['platform'], 'android');
-      expect(sent.keys.toSet(), {
-        'action',
-        'order',
-        'senderName',
-        'image',
-        'platform',
-      }, reason: 'no price, amount or coins from the client');
-      expect(find.text(arStrings.pay2StatusPending), findsWidgets);
-      expect(server.balance, 0, reason: 'a proof is not a payment');
-    });
+        final sent = coinCalls('submit').single.body;
+        expect(sent['senderName'], 'Eyad S');
+        expect(base64Decode(sent['image'] as String), picked);
+        expect(sent['platform'], 'android');
+        expect(sent.keys.toSet(), {
+          'action',
+          'order',
+          'senderName',
+          'image',
+          'platform',
+        }, reason: 'no price, amount or coins from the client');
+        expect(find.text(arStrings.pay2StatusPending), findsWidgets);
+        expect(server.balance, 0, reason: 'a proof is not a payment');
+      },
+    );
 
     testWidgets('the screenshot and the sender name are both required', (
       tester,
@@ -497,6 +523,7 @@ void main() {
       await startOrder(tester);
       expect(coinCalls('create'), hasLength(1));
       expect(opened, isEmpty, reason: 'nobody pays for a refused order');
+      expect(cancelledReservations, 1);
       expect(find.text(arStrings.coinPacksUnavailable), findsOneWidget);
       expect(find.byType(ProofOrderCard), findsNothing);
 
@@ -525,9 +552,16 @@ void main() {
       await startOrder(tester);
       await tester.tap(find.byKey(ProofOrderCard.pickButton));
       await tester.pumpAndSettle();
-      await tester.enterText(find.byKey(ProofOrderCard.senderField), 'Eyad <S>');
+      await tester.enterText(
+        find.byKey(ProofOrderCard.senderField),
+        'Eyad <S>',
+      );
       await tester.pump();
-      expect(submit(tester).onPressed, isNull, reason: 'the server would refuse it');
+      expect(
+        submit(tester).onPressed,
+        isNull,
+        reason: 'the server would refuse it',
+      );
 
       // Should the server still refuse the name, the player reads the proof
       // message, not a generic failure.
@@ -561,7 +595,10 @@ void main() {
       await tester.pump();
       await tester.tap(find.byKey(ProofOrderCard.submitButton));
       await tester.pumpAndSettle();
-      expect(base64Decode(coinCalls('submit').single.body['image'] as String), lost);
+      expect(
+        base64Decode(coinCalls('submit').single.body['image'] as String),
+        lost,
+      );
     });
 
     testWidgets('a reused screenshot is refused in words', (tester) async {
@@ -584,29 +621,32 @@ void main() {
       expect(find.byKey(CoinPacksTab.method('instapay')), findsNothing);
     });
 
-    testWidgets('order status list: pending, approved, rejected with reason, expired', (
-      tester,
-    ) async {
-      server.orders.addAll([
-        order('p', 'claimed'),
-        order('ok', 'paid'),
-        order('no', 'rejected', note: 'المبلغ ما وصلش'),
-        order('old', 'expired'),
-      ]);
-      await pumpPacks(tester);
-      String status(String id) => tester
-          .widget<Text>(
-            find.descendant(
-              of: find.byKey(CoinPacksTab.status(id)),
-              matching: find.byType(Text),
-            ).last,
-          )
-          .data!;
-      expect(status('p'), arStrings.pay2StatusPending);
-      expect(status('ok'), arStrings.coinStatusPaid(500));
-      expect(status('no'), arStrings.coinStatusRejected('المبلغ ما وصلش'));
-      expect(status('old'), arStrings.pay2StatusExpired);
-    });
+    testWidgets(
+      'order status list: pending, approved, rejected with reason, expired',
+      (tester) async {
+        server.orders.addAll([
+          order('p', 'claimed'),
+          order('ok', 'paid'),
+          order('no', 'rejected', note: 'المبلغ ما وصلش'),
+          order('old', 'expired'),
+        ]);
+        await pumpPacks(tester);
+        String status(String id) => tester
+            .widget<Text>(
+              find
+                  .descendant(
+                    of: find.byKey(CoinPacksTab.status(id)),
+                    matching: find.byType(Text),
+                  )
+                  .last,
+            )
+            .data!;
+        expect(status('p'), arStrings.pay2StatusPending);
+        expect(status('ok'), arStrings.coinStatusPaid(500));
+        expect(status('no'), arStrings.coinStatusRejected('المبلغ ما وصلش'));
+        expect(status('old'), arStrings.pay2StatusExpired);
+      },
+    );
 
     testWidgets('an approval refreshes the wallet when the app resumes', (
       tester,
@@ -632,7 +672,7 @@ void main() {
       expect(coinCalls('shop').first.body['platform'], 'web');
     });
 
-    testWidgets('an unprotected account must link an email first', (
+    testWidgets('a guest must sign in before a transfer purchase', (
       tester,
     ) async {
       server.recoverable = false;
@@ -654,8 +694,10 @@ void main() {
     });
   });
 
-  group('account protection', () {
-    testWidgets('link an email with a one-time code', (tester) async {
+  group('sign-in gate', () {
+    testWidgets('guest sees one clear sign-in action and reason', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         app(
           const Scaffold(
@@ -664,28 +706,15 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(AccountProtectionCard.linkButton));
-      await tester.pump();
-      await tester.enterText(
-        find.byKey(AccountProtectionCard.emailField),
-        'p@example.test',
-      );
-      await tester.tap(find.byKey(AccountProtectionCard.sendButton));
-      await tester.pumpAndSettle();
-      expect(accounts.codeSentTo, 'p@example.test');
-      await tester.enterText(
-        find.byKey(AccountProtectionCard.codeField),
-        '123456',
-      );
-      await tester.tap(find.byKey(AccountProtectionCard.confirmButton));
-      await tester.pumpAndSettle();
-      expect(
-        find.text(arStrings.accountProtected('p@example.test')),
-        findsOneWidget,
-      );
+      expect(find.text(arStrings.accountTitle), findsNWidgets(2));
+      expect(find.text(arStrings.accountAnonymousHint), findsOneWidget);
+      expect(find.byKey(AccountProtectionCard.linkButton), findsOneWidget);
+      expect(find.byKey(AccountProtectionCard.emailField), findsNothing);
+      expect(find.byKey(AccountProtectionCard.recoverButton), findsNothing);
     });
 
-    Future<void> sendFor(WidgetTester tester, Key mode) async {
+    testWidgets('signed-in state names the account clearly', (tester) async {
+      accounts.linked = true;
       await tester.pumpWidget(
         app(
           const Scaffold(
@@ -694,73 +723,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(mode));
-      await tester.pump();
-      await tester.enterText(
-        find.byKey(AccountProtectionCard.emailField),
-        'p@example.test',
-      );
-      await tester.tap(find.byKey(AccountProtectionCard.sendButton));
-      await tester.pumpAndSettle();
-    }
-
-    testWidgets('after sending: says code or link, keeps the code field', (
-      tester,
-    ) async {
-      await sendFor(tester, AccountProtectionCard.linkButton);
-      expect(
-        find.text(arStrings.accountCodeSent('p@example.test')),
-        findsOneWidget,
-      );
-      expect(find.byKey(AccountProtectionCard.codeField), findsOneWidget);
-      expect(find.text(arStrings.accountLinkOpened), findsOneWidget);
-      expect(find.byKey(AccountProtectionCard.recoverLinkNote), findsNothing);
-    });
-
-    testWidgets('link: «I opened the email link» before opening it waits', (
-      tester,
-    ) async {
-      await sendFor(tester, AccountProtectionCard.linkButton);
-      await tester.tap(find.byKey(AccountProtectionCard.linkOpenedButton));
-      await tester.pumpAndSettle();
-      expect(find.text(arStrings.accountErrorLinkPending), findsOneWidget);
-      expect(find.byKey(AccountProtectionCard.codeField), findsOneWidget);
-      expect(accounts.linked, isFalse);
-    });
-
-    testWidgets('link: the link opened elsewhere protects this account', (
-      tester,
-    ) async {
-      await sendFor(tester, AccountProtectionCard.linkButton);
-      accounts.linkOpened = true;
-      await tester.tap(find.byKey(AccountProtectionCard.linkOpenedButton));
-      await tester.pumpAndSettle();
       expect(
         find.text(arStrings.accountProtected('p@example.test')),
         findsOneWidget,
       );
-    });
-
-    testWidgets('recovery: says plainly the link cannot sign this app in', (
-      tester,
-    ) async {
-      await sendFor(tester, AccountProtectionCard.recoverButton);
-      expect(accounts.redirectTo, isNull);
-      expect(find.byKey(AccountProtectionCard.recoverLinkNote), findsOneWidget);
-      await tester.tap(find.byKey(AccountProtectionCard.linkOpenedButton));
-      await tester.pumpAndSettle();
-      expect(find.text(arStrings.accountErrorLinkElsewhere), findsOneWidget);
-      // The code path stays open.
-      await tester.enterText(
-        find.byKey(AccountProtectionCard.codeField),
-        '123456',
-      );
-      await tester.tap(find.byKey(AccountProtectionCard.confirmButton));
-      await tester.pumpAndSettle();
-      expect(
-        find.text(arStrings.accountProtected('p@example.test')),
-        findsOneWidget,
-      );
+      expect(find.byKey(AccountProtectionCard.linkButton), findsNothing);
     });
   });
 
@@ -768,9 +735,7 @@ void main() {
     Future<void> pumpAdmin(WidgetTester tester, {bool isWeb = true}) async {
       await tester.binding.setSurfaceSize(const Size(800, 2000));
       addTearDown(() => tester.binding.setSurfaceSize(null));
-      await tester.pumpWidget(
-        app(PaymentsAdminScreen(web: isWeb), caps: web),
-      );
+      await tester.pumpWidget(app(PaymentsAdminScreen(web: isWeb), caps: web));
       await tester.pumpAndSettle();
     }
 
@@ -785,7 +750,7 @@ void main() {
       expect(coinCalls('admin_list'), isEmpty);
     });
 
-    testWidgets('not signed in: the email code sign-in, nothing else', (
+    testWidgets('not signed in: the shared sign-in gate, nothing else', (
       tester,
     ) async {
       server.orders.add(order('o1', 'claimed'));
@@ -861,8 +826,16 @@ void main() {
       server
         ..admin = true
         ..orders.addAll([
-          {...order('o1', 'claimed'), 'senderName': 'Eyad S', 'proofSubmitted': true},
-          {...order('o2', 'claimed'), 'senderName': 'Other', 'proofSubmitted': true},
+          {
+            ...order('o1', 'claimed'),
+            'senderName': 'Eyad S',
+            'proofSubmitted': true,
+          },
+          {
+            ...order('o2', 'claimed'),
+            'senderName': 'Other',
+            'proofSubmitted': true,
+          },
         ]);
       await pumpAdmin(tester);
       expect(coinCalls('admin_list').last.body['status'], 'pending');

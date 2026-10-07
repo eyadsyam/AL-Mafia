@@ -321,8 +321,7 @@ class AccountAuth {
 
   /// Google, straight to sign-in: the choice a guest makes after learning the
   /// Google account already belongs to another player. This device leaves the
-  /// guest identity for that account. Also first run's Google (nothing to
-  /// link yet).
+  /// guest identity for that account.
   Future<void> googleSignIn() => _guard(() async {
     final auth = await _auth();
     if (await _nativeGoogle(auth, link: false)) return;

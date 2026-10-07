@@ -75,7 +75,7 @@ void main() {
     expect(find.byKey(OnboardingAccountChoice.signInKey), findsOneWidget);
   });
 
-  testWidgets('sign in: the choice opens the account sheet (Google, email)', (
+  testWidgets('sign in: the choice opens the full screen (Google, email)', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(390, 900));
@@ -90,9 +90,8 @@ void main() {
     expect(find.byKey(AccountSheet.haveKey), findsOneWidget);
     await tester.tap(find.byKey(AccountSheet.googleKey));
     await tester.pumpAndSettle();
-    // First run signs in to Google (nothing to link yet; see
-    // oauth_return_test.dart).
-    expect(auth.calls, ['googleSignIn']);
+    // First run links too: the anonymous user id must stay the same.
+    expect(auth.calls, ['google']);
     expect(tester.takeException(), isNull);
   });
 
@@ -151,12 +150,17 @@ void main() {
       _host(const Scaffold(body: AccountCard()), auth: auth),
     );
     await tester.pumpAndSettle();
-    expect(find.text(arStrings.authGuestTitle), findsOneWidget);
+    expect(find.text(arStrings.authGuestTitle), findsWidgets);
     await tester.tap(find.byKey(AccountCard.cardKey));
     await tester.pumpAndSettle();
-    // The same sheet, linking to the identity the guest already has.
+    // A dedicated full-screen route, with both Google and email choices.
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.byType(AppBar), findsOneWidget);
+    expect(find.text(arStrings.accountTitle), findsWidgets);
     expect(find.byKey(AccountSheet.googleKey), findsOneWidget);
     expect(find.byKey(AccountSheet.createKey), findsOneWidget);
+    expect(find.byKey(AccountSheet.haveKey), findsOneWidget);
+    expect(find.text(arStrings.authGuestBody), findsOneWidget);
     await tester.tap(find.byKey(AccountSheet.googleKey));
     await tester.pumpAndSettle();
     expect(auth.calls, ['google']);

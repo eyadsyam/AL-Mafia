@@ -23,7 +23,11 @@ Map<String, Object?>? _web() {
   final assignment = RegExp(
     r'self\.MAFIA_FIREBASE\s*=\s*(null|\{[^}]*\})\s*;',
   ).firstMatch(source);
-  expect(assignment, isNotNull, reason: 'firebase-config.js assigns the config');
+  expect(
+    assignment,
+    isNotNull,
+    reason: 'firebase-config.js assigns the config',
+  );
   if (assignment!.group(1) == 'null') return null;
   return {
     for (final m in RegExp(
@@ -107,8 +111,11 @@ void main() {
     final index = File('web/index.html').readAsStringSync();
     final config = index.indexOf('src="firebase-config.js"');
     expect(config, greaterThan(0));
-    expect(config, lessThan(index.indexOf('flutter_bootstrap.js')),
-        reason: 'the config is on the page before the app starts');
+    expect(
+      config,
+      lessThan(index.indexOf('flutter_bootstrap.js')),
+      reason: 'the config is on the page before the app starts',
+    );
     final worker = File('web/firebase-messaging-sw.js').readAsStringSync();
     expect(worker, contains("importScripts('firebase-config.js')"));
     for (final file in [
@@ -121,4 +128,48 @@ void main() {
       expect(text, isNot(contains('BEGIN PRIVATE KEY')), reason: file);
     }
   });
+
+  test('Android registers background delivery and draws foreground pushes', () {
+    final service = File(
+      'lib/platform/push/firebase_push_service.dart',
+    ).readAsStringSync();
+    expect(service, contains('@pragma(\'vm:entry-point\')'));
+    expect(service, contains('FirebaseMessaging.onBackgroundMessage('));
+    expect(service, contains('FirebaseMessaging.onMessage.listen('));
+    expect(service, contains('await local.show('));
+    expect(service, contains('AndroidNotificationDetails('));
+    final host = File('lib/ui/social/incoming_invite.dart').readAsStringSync();
+    expect(host, contains('refreshIfAsked()'));
+  });
+
+  test(
+    'outbox wakes immediately, reaches every seat, and retries promptly',
+    () {
+      final migration = File(
+        'supabase/migrations/20261002000100_push_outbox.sql',
+      ).readAsStringSync();
+      expect(migration, contains('perform public.push_wake()'));
+      expect(
+        migration,
+        contains("cron.schedule('push-sweep',    '30 seconds'"),
+      );
+      expect(migration, contains("status='processing'"));
+      expect(migration, contains('push_outbox_finish'));
+      final roomStart = migration.substring(
+        migration.indexOf(
+          'create or replace function public.push_on_room_start',
+        ),
+        migration.indexOf('create or replace function public.push_on_night'),
+      );
+      final night = migration.substring(
+        migration.indexOf('create or replace function public.push_on_night'),
+        migration.indexOf(
+          'create or replace function public.push_enqueue_daily',
+        ),
+      );
+      expect(roomStart, isNot(contains('last_seen')));
+      expect(roomStart, isNot(contains('p.user_id<>new.host_id')));
+      expect(night, isNot(contains('last_seen')));
+    },
+  );
 }

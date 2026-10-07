@@ -2,7 +2,7 @@
  * send_push: drains the push outbox (20261002000100_push_outbox.sql).
  *
  * Called by Postgres (pg_net, right after a trigger or cron job enqueued
- * rows, and a five-minute sweep) with an empty body. It takes no input and
+ * rows, and a 30-second safety sweep) with an empty body. It takes no input and
  * trusts none: it claims pending rows through a service-role-only RPC and
  * sends them over FCM HTTP v1 with the same service account the invite push
  * uses (env `FCM_SERVICE_ACCOUNT_B64`). Calling it by hand only drains the
@@ -35,6 +35,7 @@ Deno.serve(async (req) => {
     };
     let sent = 0;
     let rows = 0;
+    let retryPending = false;
     for (let round = 0; round < 5; round++) {
       const { data, error } = await db.rpc("push_outbox_claim", { p_limit: 100 });
       if (error) throw error;
@@ -46,8 +47,19 @@ Deno.serve(async (req) => {
           deps,
         );
         if (outcome.result === "sent") sent += outcome.sent;
+        // Retry only when no device received the row. Retrying a partial send
+        // would duplicate the notification on devices that already got it.
+        const delivered = outcome.result === "sent"
+          ? outcome.sent > 0 || outcome.failed === 0
+          : outcome.reason === "no_tokens";
+        retryPending = retryPending || !delivered;
+        const { error: finishError } = await db.rpc("push_outbox_finish", {
+          p_id: row.id,
+          p_sent: delivered,
+        });
+        if (finishError) throw finishError;
       }
-      if (batch.length < 100) break;
+      if (retryPending || batch.length < 100) break;
     }
     return ok({ rows, sent });
   } catch (error) {

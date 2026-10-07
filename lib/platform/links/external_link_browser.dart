@@ -1,22 +1,57 @@
 import 'package:web/web.dart' as web;
 
-/// Called synchronously inside the tap, so no popup blocker treats it as
-/// unsolicited. A real hyperlink (`<a target=_blank>`) clicked for the
-/// player, which mobile browsers open as a link rather than a pop-up.
-/// `noopener`: the payment page gets no handle on the game tab.
+import 'external_link_contract.dart';
+
+/// The explicit fallback button navigates the current tab synchronously.
+/// Same-tab navigation is not popup-gated on iOS Safari or Android Chrome.
 bool openExternal(String url) {
   final uri = Uri.tryParse(url);
   if (uri == null || uri.scheme != 'https') return false;
   try {
-    final link = web.document.createElement('a') as web.HTMLAnchorElement
-      ..href = uri.toString()
-      ..target = '_blank'
-      ..rel = 'noopener noreferrer';
-    web.document.body?.append(link);
-    link.click();
-    link.remove();
+    web.window.location.href = uri.toString();
     return true;
   } catch (_) {
     return false;
   }
+}
+
+ExternalLinkReservation reserveExternal(String url) {
+  final uri = Uri.tryParse(url);
+  if (uri == null || uri.scheme != 'https') {
+    return ExternalLinkReservation(commit: () => false, cancel: () {});
+  }
+  final reserved = (() {
+    try {
+      // This call is deliberately synchronous. iOS Safari and Android Chrome
+      // retain the handle even though the destination is assigned after the
+      // order request finishes.
+      return web.window.open('', '_blank');
+    } catch (_) {
+      return null;
+    }
+  })();
+  try {
+    reserved?.opener = null;
+  } catch (_) {}
+  return ExternalLinkReservation(
+    commit: () {
+      try {
+        if (reserved != null) {
+          reserved!.location.href = uri.toString();
+        } else {
+          // A popup blocker refused the reserved tab. Same-tab navigation is
+          // not popup-gated and guarantees the phone still reaches the page.
+          web.window.location.href = uri.toString();
+        }
+        return true;
+      } catch (_) {
+        return false;
+      }
+    },
+    cancel: () {
+      try {
+        reserved?.close();
+      } catch (_) {}
+    },
+  );
 }

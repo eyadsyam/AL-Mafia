@@ -7,7 +7,7 @@ import '../../app/asset_constants.dart';
 import '../../transport/account_auth.dart';
 import '../../transport/account_service.dart' show AccountFailure;
 import '../../transport/supabase_backend.dart';
-import '../economy/account_protection.dart' show accountStatusProvider;
+import '../economy/account_status.dart' show accountStatusProvider;
 import '../economy/economy_capabilities.dart';
 import '../economy/my_identity.dart';
 import '../economy/wallet.dart';
@@ -23,12 +23,15 @@ import '../../app/text_formatters.dart';
 
 final accountAuthProvider = Provider<AccountAuth>((ref) {
   final backend = ref.read(onlineBackendFactoryProvider);
-  return AccountAuth(() async {
-    final value = await backend();
-    if (value is! SupabaseBackend) throw const AccountFailure('UNAVAILABLE');
-    return value.client.auth;
-  }, ensureSession: () async => (await backend()).ensureSession(),
-      native: NativeGoogle.forPlatform());
+  return AccountAuth(
+    () async {
+      final value = await backend();
+      if (value is! SupabaseBackend) throw const AccountFailure('UNAVAILABLE');
+      return value.client.auth;
+    },
+    ensureSession: () async => (await backend()).ensureSession(),
+    native: NativeGoogle.forPlatform(),
+  );
 });
 
 /// The signed-in identity, refreshed on every auth change (a Google return,
@@ -53,35 +56,24 @@ final accountProfileProvider = StreamProvider<AccountProfile>((ref) async* {
   });
 });
 
-/// Opens the account sheet: guest → create/sign in; account → manage.
+/// Opens the full-screen account route: guest → create/sign in; account → manage.
 ///
-/// [onboarding]: the first-run chapter's sheet. It closes itself once the
-/// player is signed in (the chapter then moves on to the name), and Google
-/// signs in rather than links: a fresh install has no progress to keep, and
-/// a returning player's Google account would otherwise be refused as
-/// «already linked» and need a second trip through the browser.
+/// [onboarding]: the first-run chapter's route. It closes itself once the
+/// player is signed in (the chapter then moves on to the name). Google still
+/// uses the shared link-first flow, so the anonymous user id is preserved.
 ///
-/// [failure]: a refusal that came back with the browser while no sheet was
-/// open (the app was restarted under it); the sheet opens saying it.
+/// [failure]: a refusal that came back with the browser while no account route
+/// was open (the app was restarted under it); the route opens saying it.
 Future<void> showAccountSheet(
   BuildContext context, {
   bool onboarding = false,
   String? failure,
-}) => showModalBottomSheet<void>(
+}) => showGeneralDialog<void>(
   context: context,
-  isScrollControlled: true,
-  // A visible handle: on a phone the sheet nearly fills the screen, and
-  // without it the only way out was the system back (emulator pass,
-  // 2026-10-02).
-  showDragHandle: true,
-  useSafeArea: true,
-  backgroundColor: context.colors.surfaceBase,
-  builder: (_) => Padding(
-    padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-    child: FractionallySizedBox(
-      heightFactor: AccountTokens.sheetHeight,
-      child: AccountSheet(onboarding: onboarding, failure: failure),
-    ),
+  pageBuilder: (routeContext, _, _) => Scaffold(
+    backgroundColor: routeContext.colors.surfaceBase,
+    appBar: AppBar(title: Text(routeContext.l10n.accountTitle)),
+    body: AccountSheet(onboarding: onboarding, failure: failure),
   ),
 );
 
@@ -166,7 +158,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
 
   /// The onboarding sheet's job is done once the player is signed in.
   void _closeWhenSignedIn() {
-    if (!widget.onboarding || !mounted) return;
+    if (!mounted) return;
     if (_busy) {
       _closePending = true;
       return;
@@ -293,6 +285,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       next,
     ) {
       if (!next.hasError &&
+          (previous?.hasValue ?? false) &&
           (next.valueOrNull?.signedIn ?? false) &&
           !(previous?.valueOrNull?.signedIn ?? false)) {
         _closeWhenSignedIn();
@@ -313,34 +306,43 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     final profile =
         ref.watch(accountProfileProvider).valueOrNull ?? AccountProfile.guest;
     final s = context.spacing;
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
     return SafeArea(
       child: ListView(
-        padding: EdgeInsets.all(s.screenMargin),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: EdgeInsets.fromLTRB(
+          s.screenMargin,
+          s.screenMargin,
+          s.screenMargin,
+          s.screenMargin + keyboardInset,
+        ),
         children: [
-          SizedBox(
-            height: AccountTokens.heroHeight,
-            child: FeatheredArt(
-              feather: Feather.hero,
-              child: Image.asset(
-                AppImages.splashMask,
-                fit: BoxFit.contain,
-                excludeFromSemantics: true,
+          if (profile.signedIn) ...[
+            SizedBox(
+              height: AccountTokens.heroHeight,
+              child: FeatheredArt(
+                feather: Feather.hero,
+                child: Image.asset(
+                  AppImages.splashMask,
+                  fit: BoxFit.contain,
+                  excludeFromSemantics: true,
+                ),
               ),
             ),
-          ),
-          // Store truth: who this account is at the table — the frame and
-          // plate it equipped, its title, and its Partner (F10).
-          SizedBox(height: s.sm),
-          const Center(
-            child: MyIdentityBadge(
-              axis: Axis.vertical,
-              diameter: StoreTruthTokens.sheetAvatar,
+            // Store truth: who this account is at the table — the frame and
+            // plate it equipped, its title, and its Partner (F10).
+            SizedBox(height: s.sm),
+            const Center(
+              child: MyIdentityBadge(
+                axis: Axis.vertical,
+                diameter: StoreTruthTokens.sheetAvatar,
+              ),
             ),
-          ),
-          const Center(child: EquippedTitleLine()),
-          const TitleEquipList(),
-          SizedBox(height: s.sm),
-          const PartnerPicker(),
+            const Center(child: EquippedTitleLine()),
+            const TitleEquipList(),
+            SizedBox(height: s.sm),
+            const PartnerPicker(),
+          ],
           ..._body(context, profile),
           if (_error != null) ...[
             SizedBox(height: s.sm),
@@ -399,25 +401,28 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     final s = context.spacing;
     final colors = context.colors;
     final type = context.typography;
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
 
-    Widget title(String text, [String? sub]) => Column(
-      children: [
-        Text(
-          text,
-          textAlign: TextAlign.center,
-          style: type.headline.copyWith(color: colors.textPrimary),
-        ),
-        if (sub != null) ...[
-          SizedBox(height: s.xs),
-          Text(
-            sub,
-            textAlign: TextAlign.center,
-            style: type.body.copyWith(color: colors.textSecondary),
-          ),
-        ],
-        SizedBox(height: s.lg),
-      ],
-    );
+    Widget title(String text, [String? sub]) => keyboardOpen
+        ? const SizedBox.shrink()
+        : Column(
+            children: [
+              Text(
+                text,
+                textAlign: TextAlign.center,
+                style: type.headline.copyWith(color: colors.textPrimary),
+              ),
+              if (sub != null) ...[
+                SizedBox(height: s.xs),
+                Text(
+                  sub,
+                  textAlign: TextAlign.center,
+                  style: type.body.copyWith(color: colors.textSecondary),
+                ),
+              ],
+              SizedBox(height: s.lg),
+            ],
+          );
 
     Widget emailField() => TextField(
       key: AccountSheet.emailKey,
@@ -484,11 +489,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       onPressed: _busy
           ? null
           : () => _run((auth) async {
-              if (widget.onboarding) {
-                await auth.googleSignIn();
-              } else {
-                await auth.google();
-              }
+              await auth.google();
               if (mounted) setState(() => _notice = l.authGoogleContinue);
             }),
       icon: const Icon(Icons.g_mobiledata_rounded),

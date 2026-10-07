@@ -34,6 +34,10 @@ const a = messageFor({ enabled: true, kind: 'night', variant: 7 }, 'a'.repeat(20
 const b = messageFor({ enabled: true, kind: 'night', variant: 7 }, 'b'.repeat(20), 'android');
 delete a.message.token; delete b.message.token;
 assert.deepEqual(a, b);
+const night0 = messageFor({ enabled: true, kind: 'night', variant: 0 }, 'a'.repeat(20), 'android');
+const night1 = messageFor({ enabled: true, kind: 'night', variant: 1 }, 'b'.repeat(20), 'android');
+delete night0.message.token; delete night1.message.token;
+assert.deepEqual(night0, night1, 'every seat gets identical room-event wording');
 
 // Events with a big picture carry one; turn-like notices do not.
 assert.ok(messageFor({ enabled: true, kind: 'thursday' }, 'x'.repeat(20), 'android').message.notification.image);

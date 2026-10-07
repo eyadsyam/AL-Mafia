@@ -4,4 +4,16 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <application>
+        <!-- Local-only verification hook. It lets CI/adb exercise the exact
+             closed-app notification + deep-link path without production FCM
+             credentials. This receiver is absent from release builds. -->
+        <receiver
+            android:name=".A1NotificationProbeReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.mafiamaster.mafia_master.A1_NOTIFICATION_PROBE"/>
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>

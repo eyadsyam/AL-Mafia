@@ -137,9 +137,9 @@ void main() {
 
       await _platformOpens(tester, _callback);
       expect(
-        find.byKey(OnboardingAccountChoice.signInKey),
+        find.byType(AccountSheet),
         findsOneWidget,
-        reason: 'still on the account chapter, not back at the language',
+        reason: 'the full-screen sign-in survives the browser return',
       );
 
       profiles.add(_google);
@@ -147,7 +147,10 @@ void main() {
       expect(find.byType(AccountSheet), findsNothing);
       expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
       expect(
-        tester.widget<TextField>(find.byKey(FirstRunScreen.nameKey)).controller!.text,
+        tester
+            .widget<TextField>(find.byKey(FirstRunScreen.nameKey))
+            .controller!
+            .text,
         'Eyad Abdelrahman',
         reason: 'the Google name is offered, still editable',
       );
@@ -181,16 +184,14 @@ void main() {
       expect(find.byKey(OnboardingAccountChoice.signInKey), findsOneWidget);
     });
 
-    testWidgets('onboarding signs in to the Google account directly', (
+    testWidgets('onboarding links Google and keeps the anonymous id', (
       tester,
     ) async {
       await launch(tester);
       await _tap(tester, FirstRunScreen.nextKey);
       await _tap(tester, OnboardingAccountChoice.signInKey);
       await _tap(tester, AccountSheet.googleKey);
-      // A brand-new install has nothing to link; a returning player's Google
-      // account must not bounce off "already linked" and a second trip.
-      expect(auth.calls, ['googleSignIn']);
+      expect(auth.calls, ['google']);
     });
   });
 
@@ -216,9 +217,8 @@ void main() {
 
       profiles.add(_google);
       await tester.pumpAndSettle();
-      expect(find.text('eyad@example.com'), findsWidgets);
-      Navigator.of(tester.element(find.byType(AccountSheet))).pop();
-      await tester.pumpAndSettle();
+      expect(find.byType(AccountSheet), findsNothing);
+      expect(find.byType(ProfileScreen), findsOneWidget);
       expect(
         find.descendant(
           of: find.byKey(AccountCard.cardKey),
@@ -252,11 +252,10 @@ void main() {
       await _tap(tester, AccountSheet.keepGuestKey);
       expect(find.byKey(AccountSheet.googleExistingKey), findsNothing);
       expect(find.byKey(AccountSheet.errorKey), findsNothing);
-      expect(
-        auth.calls,
-        ['google', 'googleSignIn'],
-        reason: 'staying a guest changes nothing',
-      );
+      expect(auth.calls, [
+        'google',
+        'googleSignIn',
+      ], reason: 'staying a guest changes nothing');
     });
 
     testWidgets('a refusal that arrives with no sheet open signs in', (
@@ -347,7 +346,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
     expect(
-      tester.widget<TextField>(find.byKey(FirstRunScreen.nameKey)).controller!.text,
+      tester
+          .widget<TextField>(find.byKey(FirstRunScreen.nameKey))
+          .controller!
+          .text,
       'Mona',
     );
   });

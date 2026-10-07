@@ -98,6 +98,95 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final surface in const [Size(360, 640), Size(412, 915)]) {
+    testWidgets('sign-in controls stay reachable above the keyboard at '
+        '${surface.width.toInt()}x${surface.height.toInt()}', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      auth = _FakeAuth();
+      await tester.binding.setSurfaceSize(surface);
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            accountAuthProvider.overrideWithValue(auth),
+            accountProfileProvider.overrideWith(
+              (ref) => Stream.value(AccountProfile.guest),
+            ),
+          ],
+          child: localizedApp(
+            MediaQuery(
+              data: MediaQueryData(
+                size: surface,
+                viewInsets: const EdgeInsets.only(bottom: 280),
+              ),
+              child: const Scaffold(
+                body: AccountSheet(initial: AccountStep.signIn),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        Directionality.of(tester.element(find.byType(AccountSheet))),
+        TextDirection.rtl,
+      );
+      final email = find.byKey(AccountSheet.emailKey);
+      expect(tester.widget<TextField>(email).decoration?.labelText, isNotEmpty);
+      expect(
+        tester
+            .widget<TextField>(find.byKey(AccountSheet.passwordKey))
+            .decoration
+            ?.labelText,
+        isNotEmpty,
+      );
+      final listPosition = tester
+          .state<ScrollableState>(
+            find
+                .descendant(
+                  of: find.byType(ListView),
+                  matching: find.byType(Scrollable),
+                )
+                .first,
+          )
+          .position;
+
+      for (final (name, control) in [
+        ('google', find.byKey(AccountSheet.googleKey)),
+        ('email', email),
+        ('password', find.byKey(AccountSheet.passwordKey)),
+        ('remember', find.byKey(AccountSheet.rememberKey)),
+        ('submit', find.byKey(AccountSheet.submitKey)),
+      ]) {
+        final visibleBottom = surface.height - 280;
+        for (var attempt = 0; attempt < 12; attempt++) {
+          final current = tester.getRect(control);
+          if (current.top >= 0 && current.bottom <= visibleBottom) break;
+          listPosition.jumpTo(
+            (listPosition.pixels + (current.top < 0 ? -100 : 100)).clamp(
+              listPosition.minScrollExtent,
+              listPosition.maxScrollExtent,
+            ),
+          );
+          await tester.pumpAndSettle();
+        }
+        final rect = tester.getRect(control);
+        expect(rect.top, greaterThanOrEqualTo(0), reason: name);
+        expect(
+          rect.bottom,
+          lessThanOrEqualTo(visibleBottom),
+          reason:
+              '$name pixels=${listPosition.pixels} '
+              'max=${listPosition.maxScrollExtent} '
+              'inset=${MediaQuery.viewInsetsOf(tester.element(control)).bottom}',
+        );
+        expect(rect.height, greaterThanOrEqualTo(48), reason: name);
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('sign-up asks for matching passwords, then a code', (
     tester,
   ) async {

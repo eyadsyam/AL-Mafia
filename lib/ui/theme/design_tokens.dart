@@ -1366,6 +1366,7 @@ class MafiaTypography extends ThemeExtension<MafiaTypography> {
       fontFamilyFallback: <String>['Cairo'],
       fontSize: 44,
       height: 1.6,
+      letterSpacing: 0,
       fontVariations: <FontVariation>[FontVariation('wght', 900)],
       fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
     ),
@@ -1374,6 +1375,7 @@ class MafiaTypography extends ThemeExtension<MafiaTypography> {
       fontFamilyFallback: <String>['Cairo'],
       fontSize: 32,
       height: 1.6,
+      letterSpacing: 0,
       fontVariations: <FontVariation>[FontVariation('wght', 800)],
       fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
     ),
@@ -1382,6 +1384,7 @@ class MafiaTypography extends ThemeExtension<MafiaTypography> {
       fontFamilyFallback: <String>['Cairo'],
       fontSize: 22,
       height: 1.6,
+      letterSpacing: 0,
       fontVariations: <FontVariation>[FontVariation('wght', 700)],
       fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
     ),
@@ -1390,6 +1393,7 @@ class MafiaTypography extends ThemeExtension<MafiaTypography> {
       fontSize: 16,
       fontWeight: FontWeight.w400,
       height: 1.6,
+      letterSpacing: 0,
       fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
     ),
     bodySmall: TextStyle(
@@ -1397,6 +1401,7 @@ class MafiaTypography extends ThemeExtension<MafiaTypography> {
       fontSize: 14,
       fontWeight: FontWeight.w400,
       height: 1.6,
+      letterSpacing: 0,
       fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
     ),
     caption: TextStyle(
@@ -1404,6 +1409,7 @@ class MafiaTypography extends ThemeExtension<MafiaTypography> {
       fontSize: 12,
       fontWeight: FontWeight.w500,
       height: 1.6,
+      letterSpacing: 0,
       fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
     ),
     // Tabular figures are load-bearing, not a nicety: a timer whose digits

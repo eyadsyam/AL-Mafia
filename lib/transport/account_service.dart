@@ -23,7 +23,7 @@ class AccountFailure implements Exception {
   const AccountFailure(this.code);
 }
 
-/// Optional account protection (docs/CLAUDE-UX-ECONOMY-NEXT.md §90).
+/// Optional account sign-in (docs/CLAUDE-UX-ECONOMY-NEXT.md §90).
 ///
 /// Free play never needs it. Linking turns the current anonymous identity
 /// into a permanent one by confirming an email with a one-time code, keeping

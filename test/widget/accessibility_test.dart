@@ -94,6 +94,20 @@ void main() {
     });
   });
 
+  test('Arabic typography keeps 1.6 line height and zero letter spacing', () {
+    for (final style in [
+      MafiaTypography.defaults.display,
+      MafiaTypography.defaults.headline,
+      MafiaTypography.defaults.title,
+      MafiaTypography.defaults.body,
+      MafiaTypography.defaults.bodySmall,
+      MafiaTypography.defaults.caption,
+    ]) {
+      expect(style.height, 1.6);
+      expect(style.letterSpacing, 0);
+    }
+  });
+
   group('FR-035 touch targets', () {
     testWidgets('every interactive control in a turn is at least 48dp tall', (
       tester,

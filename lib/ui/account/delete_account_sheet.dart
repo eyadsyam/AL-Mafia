@@ -7,7 +7,7 @@ import '../../platform/links/external_link.dart';
 import '../../data/online_session_store.dart';
 import '../../transport/online_backend.dart';
 import '../../transport/supabase_backend.dart';
-import '../economy/account_protection.dart' show accountStatusProvider;
+import '../economy/account_status.dart' show accountStatusProvider;
 import '../economy/economy_capabilities.dart';
 import '../economy/wallet.dart';
 import '../friendly_error.dart';
@@ -108,7 +108,7 @@ class _DeleteAccountSheetState extends ConsumerState<DeleteAccountSheet> {
   /// launcher in this app) its link is copied instead.
   Future<void> _web() async {
     const url = '${RoomInvite.site}delete-data/';
-    if (ref.read(externalLinkOpenerProvider)(url)) return;
+    if (await ref.read(externalLinkOpenerProvider)(url)) return;
     final copied = await AppClipboard.copy(url);
     if (mounted && copied) {
       setState(() => _notice = context.l10n.deleteAccountWebCopied);

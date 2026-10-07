@@ -307,17 +307,23 @@ Future<void> startTransfer(
   PayMethod method, {
   bool sheet = false,
 }) async {
+  final reservation = ref.read(externalLinkReserverProvider)(method.url!);
   final CoinOrder order;
   try {
     order = await ref
         .read(coinShopProvider.notifier)
         .create(pack.code, method.code);
   } catch (error) {
+    reservation.cancel();
     if (context.mounted) _say(context, transferError(context, error));
     return;
   }
+  if (!context.mounted) {
+    reservation.cancel();
+    return;
+  }
+  final opened = await reservation.commit();
   if (!context.mounted) return;
-  final opened = ref.read(externalLinkOpenerProvider)(method.url!);
   if (!opened) _say(context, context.l10n.coinOpenFailed);
   if (sheet) {
     await showModalBottomSheet<void>(
@@ -1010,9 +1016,12 @@ class _ProofOrderCardState extends ConsumerState<ProofOrderCard> {
     }
   }
 
-  void _open() {
+  Future<void> _open() async {
     final url = widget.method?.url;
-    if (url == null || !ref.read(externalLinkOpenerProvider)(url)) {
+    final opened =
+        url != null && await ref.read(externalLinkOpenerProvider)(url);
+    if (!mounted) return;
+    if (!opened) {
       _say(context, context.l10n.coinOpenFailed);
     }
   }

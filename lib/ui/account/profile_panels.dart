@@ -77,7 +77,7 @@ class AccountCard extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  guest ? l.authCreate : l.authManage,
+                  guest ? l.accountTitle : l.authManage,
                   style: type.caption.copyWith(color: colors.accentGold),
                 ),
               ],

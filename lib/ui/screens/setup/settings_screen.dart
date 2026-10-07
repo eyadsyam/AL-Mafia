@@ -20,6 +20,7 @@ import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
 import '../../widgets/settings_kit.dart';
 import '../../economy/web_ads.dart';
+import '../../account/profile_panels.dart' show AccountCard;
 
 /// Settings screen (S-04).
 ///
@@ -246,7 +247,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SettingsPanel(
               icon: Icons.translate,
               title: l10n.settingsSectionGeneral,
-              children: const [LanguagePicker(), PushSettingsRow()],
+              children: const [
+                LanguagePicker(),
+                PushSettingsRow(),
+                AccountCard(),
+              ],
             ),
             _audio(l10n),
             SettingsHeading(

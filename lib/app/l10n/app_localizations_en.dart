@@ -1170,7 +1170,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whoAreYou => 'Who are you?';
 
   @override
-  String get onlineYourName => 'Your name';
+  String get onlineYourName => 'Your in-game name';
 
   @override
   String get onlineHostBadge => 'Host';
@@ -1911,7 +1911,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get safetyPolicy =>
-      'Developer: Eyad Syam\nSupport: eyadsyam124@gmail.com\n\nLocal play stays on your device. Online play uses a random identifier, profile, match actions and messages. Earned coins, rewards and unlocked items remain with that identity until deletion. Optional voice is encrypted in transit and is not recorded by the game. Service providers process connection data needed to operate online play. An email is collected only if you choose to protect your account.\n\nAds (Android): Google AdMob may show an app-open ad when the game launches or you come back to it after a long break; a full-screen ad between matches — before you enter a room, when you leave a finished match, before the roles are dealt and after the result of a pass-and-play game, or occasionally when you move between menus after several minutes without one (never during a match or while the phone is being passed, at most 40 a day, at least 90 seconds apart); a small labelled banner on waiting screens such as the online lobby, match history and your profile (never during play); and optional rewarded ads, only when you choose to watch one, after a completed online match (to double or triple its coins) and in the vault. To serve ads and prevent fraud, Google\'s ads SDK collects IP address, ad and app interactions, diagnostics and device identifiers such as the Advertising ID. Change ad consent in Settings, under “Ad privacy choices”. Purchases in the Play version use Google Play Billing, where we receive the order, product and purchase token to verify it, or an InstaPay / Vodafone Cash transfer, where you upload the transfer screenshot and the sender name for manual review (stored privately; the screenshot is deleted 90 days after review).\n\nFinished rooms are eligible for deletion after 24 hours. Old anonymous identities with no room membership are removed on the cleanup schedule. You can request online-data deletion below; submission is not completed deletion. Outside the app, use saidalmafia.com/delete-data with your identifier or receipt. Never send passwords or access keys.\n\nHarassment, threats, hate, sexual content, child exploitation and sharing private information are prohibited. Report abusive players, room names or messages. Blocking hides their private messages and mutes their voice for you; public game actions remain visible. Reports are reviewed by the developer and are not visible to players.';
+      'Developer: Eyad Syam\nSupport: eyadsyam124@gmail.com\n\nLocal play stays on your device. Online play uses a random identifier, profile, match actions and messages. Earned coins, rewards and unlocked items remain with that identity until deletion. Optional voice is encrypted in transit and is not recorded by the game. Service providers process connection data needed to operate online play. An email is collected only if you choose to sign in with email.\n\nAds (Android): Google AdMob may show an app-open ad when the game launches or you come back to it after a long break; a full-screen ad between matches — before you enter a room, when you leave a finished match, before the roles are dealt and after the result of a pass-and-play game, or occasionally when you move between menus after several minutes without one (never during a match or while the phone is being passed, at most 40 a day, at least 90 seconds apart); a small labelled banner on waiting screens such as the online lobby, match history and your profile (never during play); and optional rewarded ads, only when you choose to watch one, after a completed online match (to double or triple its coins) and in the vault. To serve ads and prevent fraud, Google\'s ads SDK collects IP address, ad and app interactions, diagnostics and device identifiers such as the Advertising ID. Change ad consent in Settings, under “Ad privacy choices”. Purchases in the Play version use Google Play Billing, where we receive the order, product and purchase token to verify it, or an InstaPay / Vodafone Cash transfer, where you upload the transfer screenshot and the sender name for manual review (stored privately; the screenshot is deleted 90 days after review).\n\nFinished rooms are eligible for deletion after 24 hours. Old anonymous identities with no room membership are removed on the cleanup schedule. You can request online-data deletion below; submission is not completed deletion. Outside the app, use saidalmafia.com/delete-data with your identifier or receipt. Never send passwords or access keys.\n\nHarassment, threats, hate, sexual content, child exploitation and sharing private information are prohibited. Report abusive players, room names or messages. Blocking hides their private messages and mutes their voice for you; public game actions remain visible. Reports are reviewed by the developer and are not visible to players.';
 
   @override
   String get safetyAgree => 'I accept the community rules';
@@ -2226,7 +2226,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacySummaryBody =>
-      '• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you link an email to protect your coins, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads; automatic full-screen ads only between matches — before you enter a room (Create, Join or a rematch), when you leave a finished match, before the roles are dealt and after the result in pass-and-play, occasionally when you move between menus after several minutes without one, and an app-open ad on the launch screen — never during a match, at most 40 a day, at least 90 seconds apart, and none around your first match; and small banners on waiting screens (lobby, room list, history, vault, profile) — never during play. The Quiet Pass removes all automatic ads. Google\'s ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. InstaPay / Vodafone Cash transfer orders (Android app and website) record the product, amount, method, the transfer screenshot you upload and the sender name, only to verify the payment; the screenshot is stored privately and deleted 90 days after the order is reviewed, and the order record is kept for accounting.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: saidalmafia.com/privacy';
+      '• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you sign in with email, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads; automatic full-screen ads only between matches — before you enter a room (Create, Join or a rematch), when you leave a finished match, before the roles are dealt and after the result in pass-and-play, occasionally when you move between menus after several minutes without one, and an app-open ad on the launch screen — never during a match, at most 40 a day, at least 90 seconds apart, and none around your first match; and small banners on waiting screens (lobby, room list, history, vault, profile) — never during play. The Quiet Pass removes all automatic ads. Google\'s ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. InstaPay / Vodafone Cash transfer orders (Android app and website) record the product, amount, method, the transfer screenshot you upload and the sender name, only to verify the payment; the screenshot is stored privately and deleted 90 days after the order is reviewed, and the order record is kept for accounting.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: saidalmafia.com/privacy';
 
   @override
   String get termsUpdatedTitle => 'Before you continue';
@@ -2581,22 +2581,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineBeginVoting => 'Open voting';
 
   @override
-  String get accountTitle => 'Account protection';
+  String get accountTitle => 'Sign in';
 
   @override
   String get accountAnonymousHint =>
-      'Your coins and items are tied to this device only. Uninstalling or changing phones can lose them. Link an email to be able to recover them. Playing never needs an account.';
+      'Your purchases and progress stay with you on every phone.';
 
   @override
   String accountProtected(String email) {
-    return 'Protected with $email';
+    return 'Signed in with $email';
   }
 
   @override
-  String get accountLink => 'Protect with email';
+  String get accountLink => 'Sign in';
 
   @override
-  String get accountRecover => 'I already have a protected account';
+  String get accountRecover => 'I already have an account';
 
   @override
   String get accountEmail => 'Email';
@@ -2617,14 +2617,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountRecoverWarning =>
-      'You will sign in to your protected account. Coins on this device without an account will not move to it.';
+      'You will sign in to your account. Coins on this device without a sign-in will not move to it.';
 
   @override
   String get accountErrorEmail => 'That email does not look right.';
 
   @override
   String get accountErrorTaken =>
-      'That email belongs to another account. Use «I already have a protected account».';
+      'That email belongs to another account. Use «I already have an account».';
 
   @override
   String get accountErrorCode =>
@@ -2658,7 +2658,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get coinPacksNeedAccount =>
-      'Before paying, protect your account with an email so paid coins stay with you on any device.';
+      'Sign in before paying so purchases and coins stay with you on every phone.';
 
   @override
   String coinPackCoins(int count) {
@@ -3258,7 +3258,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playNeedsProtection =>
-      'Protect your account with an email before buying, so a purchase is never lost with your phone.';
+      'Sign in before buying so your purchases and progress stay with you on every phone.';
 
   @override
   String get playRestore => 'Restore purchases';
@@ -4359,14 +4359,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authGoogleKeepGuest => 'Stay a guest, keep my coins and items';
 
   @override
-  String get authGuestTitle => 'Keep your account with you';
+  String get authGuestTitle => 'Sign in';
 
   @override
   String get authGuestBody =>
-      'Your coins, items, rank and friends follow you to any phone. You can keep playing as a guest.';
+      'Your purchases and progress stay with you on every phone.';
 
   @override
-  String get authCreate => 'Create account';
+  String get authCreate => 'Continue with email';
 
   @override
   String get authCreateBody =>

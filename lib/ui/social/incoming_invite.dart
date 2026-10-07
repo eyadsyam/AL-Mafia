@@ -199,8 +199,7 @@ class IncomingInviteHostState extends ConsumerState<IncomingInviteHost>
   }
 
   /// Test hook: puts an invite straight in the queue.
-  void enqueue(IncomingInvite invite) =>
-      setState(() => _queue.add(invite));
+  void enqueue(IncomingInvite invite) => setState(() => _queue.add(invite));
 
   void _close(IncomingInvite invite) {
     setState(() {
@@ -505,7 +504,10 @@ class RoomGoneNotice extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Icon(Icons.door_front_door_outlined, color: VaultTokens.gold),
+                  const Icon(
+                    Icons.door_front_door_outlined,
+                    color: VaultTokens.gold,
+                  ),
                   SizedBox(height: s.sm),
                   Text(
                     l.inviteRoomGone,
@@ -518,7 +520,9 @@ class RoomGoneNotice extends StatelessWidget {
                   FilledButton(
                     style: vaultGoldStyle(context),
                     onPressed: onClose,
-                    child: Text(MaterialLocalizations.of(context).okButtonLabel),
+                    child: Text(
+                      MaterialLocalizations.of(context).okButtonLabel,
+                    ),
                   ),
                 ],
               ),

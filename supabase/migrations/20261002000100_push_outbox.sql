@@ -17,6 +17,8 @@
 -- Same master switch as invites (`economy_config.push_invites_enabled`) and
 -- the same device tokens (`push_tokens`, own-rows via the friends function).
 
+create extension if not exists pg_net with schema extensions;
+
 create table if not exists public.push_outbox (
   id bigint generated always as identity primary key,
   user_id uuid not null,
@@ -25,7 +27,7 @@ create table if not exists public.push_outbox (
   payload jsonb not null default '{}'::jsonb,
   dedupe_key text unique,
   status text not null default 'pending'
-    check (status in ('pending','sent','skipped')),
+    check (status in ('pending','processing','sent','skipped')),
   created_at timestamptz not null default now(),
   claimed_at timestamptz,
   expires_at timestamptz not null default now() + interval '30 minutes'
@@ -50,7 +52,7 @@ begin
     headers := '{"content-type":"application/json"}'::jsonb,
     timeout_milliseconds := 5000);
 exception when others then
-  null;  -- the 5-minute sweep below picks the rows up
+  null;  -- the 30-second sweep below picks the rows up
 end $$;
 
 -- ── Enqueue helper ──────────────────────────────────────────────────────────
@@ -75,15 +77,16 @@ end $$;
 
 -- ── Room triggers ───────────────────────────────────────────────────────────
 
--- The host pressed start: everyone who is not looking at the app is told.
+-- The host pressed start: every seat gets the same event. FCM suppresses the
+-- system notification in the foreground; filtering on presence here loses a
+-- closed phone that still has a fresh last_seen timestamp.
 create or replace function public.push_on_room_start()
 returns trigger language plpgsql security definer set search_path=public,pg_temp as $$
 begin
   perform public.push_enqueue('room_start',
     coalesce((select array_agg(p.user_id) from public.room_players p
-       where p.room_id=new.id and p.user_id<>new.host_id
-         and (not p.connected or p.last_seen < now()-interval '25 seconds')),'{}'),
-    '{}'::jsonb, 'start:'||new.id, interval '10 minutes');
+       where p.room_id=new.id),'{}'),
+    jsonb_build_object('room',new.id), 'start:'||new.id, interval '10 minutes');
   return null;
 end $$;
 drop trigger if exists push_room_start on public.rooms;
@@ -99,7 +102,6 @@ begin
   perform public.push_enqueue('night',
     coalesce((select array_agg(p.user_id) from public.room_players p
        where p.room_id=new.room_id
-         and (not p.connected or p.last_seen < now()-interval '25 seconds')
          and not exists (select 1 from public.push_outbox o
               where o.user_id=p.user_id and o.kind='night'
                 and o.payload->>'room'=new.room_id::text
@@ -159,14 +161,20 @@ end $$;
 -- ── The drain's side of the contract ────────────────────────────────────────
 
 -- Claims up to p_limit pending rows and returns the ones to send, each with
--- the recipient's tokens. Marks the rest skipped: push off, expired, or a
--- second "gentle" notification (daily / Thursday / comeback) within 20 hours.
+-- the recipient's tokens. A crashed drain is eligible again after two minutes.
+-- Marks the rest skipped: push off, expired, or a second "gentle"
+-- notification (daily / Thursday / comeback) within 20 hours.
 create or replace function public.push_outbox_claim(p_limit int default 100)
 returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
 declare
   enabled boolean := coalesce((select push_invites_enabled from public.economy_config limit 1),false);
   out jsonb;
 begin
+  update public.push_outbox
+     set status='pending', claimed_at=null
+   where status='processing'
+     and claimed_at < now()-interval '2 minutes'
+     and expires_at >= now();
   with picked as (
     -- One gentle kind per player per batch: the rest wait for the next drain,
     -- where the 20-hour rule below sees what was just sent.
@@ -190,7 +198,7 @@ begin
            where x.user_id=o.user_id and x.id<>o.id and x.status='sent'
              and x.kind in ('daily','thursday','comeback')
              and x.claimed_at > now()-interval '20 hours') then 'skipped'
-        else 'sent' end
+        else 'processing' end
     from picked where o.id=picked.id
     returning o.id, o.user_id, o.kind, o.payload, o.status
   )
@@ -199,9 +207,19 @@ begin
       'tokens',(select coalesce(jsonb_agg(jsonb_build_object('token',t.token,'platform',t.platform)
                   order by t.updated_at desc),'[]'::jsonb)
                   from public.push_tokens t where t.user_id=u.user_id))),'[]'::jsonb)
-    into out from upd u where u.status='sent';
+    into out from upd u where u.status='processing';
   return out;
 end $$;
+
+-- A successful FCM attempt is final. A wholly transient failure goes back to
+-- pending for the 30-second safety sweep; expiry still caps retries.
+create or replace function public.push_outbox_finish(p_id bigint, p_sent boolean)
+returns void language sql security definer set search_path=public,pg_temp as $$
+  update public.push_outbox
+     set status=case when p_sent then 'sent' else 'pending' end,
+         claimed_at=case when p_sent then now() else null end
+   where id=p_id and status='processing'
+$$;
 
 create or replace function public.push_outbox_purge()
 returns void language sql security definer set search_path=public,pg_temp as $$
@@ -214,10 +232,12 @@ revoke all on function public.push_enqueue_daily() from public, anon, authentica
 revoke all on function public.push_enqueue_thursday() from public, anon, authenticated;
 revoke all on function public.push_enqueue_comeback() from public, anon, authenticated;
 revoke all on function public.push_outbox_claim(int) from public, anon, authenticated;
+revoke all on function public.push_outbox_finish(bigint,boolean) from public, anon, authenticated;
 revoke all on function public.push_outbox_purge() from public, anon, authenticated;
 revoke all on function public.push_on_room_start() from public, anon, authenticated;
 revoke all on function public.push_on_night() from public, anon, authenticated;
 grant execute on function public.push_outbox_claim(int) to service_role;
+grant execute on function public.push_outbox_finish(bigint,boolean) to service_role;
 
 -- ── Schedule (UTC; Cairo is UTC+2, +3 in summer) ────────────────────────────
 do $$
@@ -226,7 +246,7 @@ begin
     perform cron.schedule('push-daily',    '0 16 * * *', 'select public.push_enqueue_daily()');
     perform cron.schedule('push-thursday', '0 15 * * 4', 'select public.push_enqueue_thursday()');
     perform cron.schedule('push-comeback', '0 17 * * *', 'select public.push_enqueue_comeback()');
-    perform cron.schedule('push-sweep',    '*/5 * * * *',
+    perform cron.schedule('push-sweep',    '30 seconds',
       'select public.push_wake() where exists (select 1 from public.push_outbox where status=''pending'')');
     perform cron.schedule('push-purge',    '30 3 * * *', 'select public.push_outbox_purge()');
   end if;

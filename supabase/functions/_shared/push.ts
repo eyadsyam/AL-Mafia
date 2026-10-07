@@ -192,9 +192,8 @@ export const GAME_VIBRATION_MS = [0, 250, 120, 250];
 /**
  * The wording of every outbox kind. Each says only a fact about the room's
  * phase that every seat sees at once, or a reminder with no match content:
- * never a role, a seat, a name or a night result (Doc 05). Several variants
- * per kind, picked by the row id, so a daily reminder is not the same line
- * every day.
+ * never a role, a seat, a name or a night result (Doc 05). Gentle reminders
+ * vary by row id; room events use one identical line for every seat.
  */
 export const EVENT_TEXT: Record<EventKind, {
   channel: "mafia_game" | "mafia_daily";
@@ -249,11 +248,15 @@ export const EVENT_TEXT: Record<EventKind, {
 export function eventMessage(t: PushTarget, token: string, platform: "android" | "web") {
   const kind = t.kind as EventKind;
   const spec = EVENT_TEXT[kind];
-  const line = spec.lines[Math.abs(t.variant ?? 0) % spec.lines.length];
+  const game = spec.channel === "mafia_game";
+  // Outbox row ids differ per recipient. They may vary gentle reminders, but
+  // a room event must have identical wording for every seat (Doc 05).
+  const line = game
+    ? spec.lines[0]
+    : spec.lines[Math.abs(t.variant ?? 0) % spec.lines.length];
   const link = `${WEB_ORIGIN}/`;
   const image = `${WEB_ORIGIN}/og-image.jpg`;
   const data = { kind };
-  const game = spec.channel === "mafia_game";
   if (platform === "android") {
     return {
       message: {
