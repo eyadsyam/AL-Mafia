@@ -17,6 +17,9 @@ class ModeScreen extends StatelessWidget {
   /// which draws the card explained rather than absent.
   final VoidCallback? onPlayOnline;
 
+  /// One phone, one to ten players, authored investigation files.
+  final VoidCallback? onPlayStories;
+
   /// Back to Home.
   final VoidCallback onBack;
 
@@ -24,11 +27,13 @@ class ModeScreen extends StatelessWidget {
     super.key,
     required this.onPlayOffline,
     required this.onPlayOnline,
+    this.onPlayStories,
     required this.onBack,
   });
 
   static const Key offlineCard = ValueKey('mode_offline');
   static const Key onlineCard = ValueKey('mode_online');
+  static const Key storiesCard = ValueKey('mode_stories');
   static const Key unavailableText = ValueKey('mode_unavailable');
 
   @override
@@ -80,6 +85,16 @@ class ModeScreen extends StatelessWidget {
                       body: l10n.modeOnePhoneBody,
                       emphasised: onPlayOnline == null,
                       onPressed: onPlayOffline,
+                    ),
+                    SizedBox(height: spacing.md),
+                    _ModeCard(
+                      cardKey: ModeScreen.storiesCard,
+                      art: AppCouncilArt.casebookHeader,
+                      tintArt: false,
+                      title: l10n.modeStoriesTitle,
+                      body: l10n.modeStoriesBody,
+                      emphasised: true,
+                      onPressed: onPlayStories,
                     ),
                     if (onPlayOnline == null) ...[
                       SizedBox(height: spacing.md),

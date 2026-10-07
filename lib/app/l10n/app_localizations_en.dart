@@ -5335,4 +5335,147 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardNeedPact => 'Tick the boxes above to continue.';
+
+  @override
+  String get modeStoriesTitle => 'Stories';
+
+  @override
+  String get modeStoriesBody =>
+      'Investigation files for 1–10 players on one phone';
+
+  @override
+  String get storiesTitle => 'Mafia Master Files';
+
+  @override
+  String get storiesSubtitle =>
+      'Every detail means something. The game never invents a fact.';
+
+  @override
+  String get storiesLoadError => 'The case files could not be opened.';
+
+  @override
+  String get storiesRetry => 'Try again';
+
+  @override
+  String get storiesBestScore => 'Best score';
+
+  @override
+  String get storiesNoScore => 'Not solved yet';
+
+  @override
+  String get storiesLocked => 'File locked';
+
+  @override
+  String get storiesUnlockRule => 'Solve 3 files in this category to unlock it';
+
+  @override
+  String get storiesMinutes => 'minutes';
+
+  @override
+  String get storiesDifficulty => 'Difficulty';
+
+  @override
+  String get storiesStart => 'Open file';
+
+  @override
+  String get storiesPlayerCountTitle => 'How many investigators?';
+
+  @override
+  String get storiesPlayers => 'players';
+
+  @override
+  String get storiesSolo => 'Solo investigator';
+
+  @override
+  String get storiesGroup => 'Pass one phone';
+
+  @override
+  String get storiesActionsLeft => 'Action points left';
+
+  @override
+  String get storiesClues => 'Revealed clues';
+
+  @override
+  String get storiesNoClues => 'No clue has been revealed yet';
+
+  @override
+  String get storiesInvestigate => 'Take action';
+
+  @override
+  String get storiesAccuse => 'Make accusation';
+
+  @override
+  String get storiesRound => 'Round';
+
+  @override
+  String get storiesPlayer => 'Player';
+
+  @override
+  String get storiesHoldToReveal => 'Hold to reveal your secret card';
+
+  @override
+  String get storiesCoverAndPass => 'Cover the card and pass the phone';
+
+  @override
+  String get storiesInvolved => 'You are involved in the crime';
+
+  @override
+  String get storiesNotInvolved => 'You are not involved';
+
+  @override
+  String get storiesPrivateClue => 'Your private clue';
+
+  @override
+  String get storiesPersonalObjective => 'Personal objective';
+
+  @override
+  String get storiesDiscussion => 'Discussion time';
+
+  @override
+  String get storiesEndDiscussion => 'End discussion';
+
+  @override
+  String get storiesSharedPick => 'Choose one shared investigation action';
+
+  @override
+  String get storiesVoteHandoff => 'Pass the phone for the secret vote';
+
+  @override
+  String get storiesVote => 'Vote in secret';
+
+  @override
+  String get storiesCulprit => 'Culprit';
+
+  @override
+  String get storiesMotive => 'Motive';
+
+  @override
+  String get storiesMethod => 'Method';
+
+  @override
+  String get storiesChoose => 'Choose';
+
+  @override
+  String get storiesConfirmAccusation => 'Lock accusation';
+
+  @override
+  String get storiesReenactment => 'Reenactment';
+
+  @override
+  String get storiesNextBeat => 'Next step';
+
+  @override
+  String get storiesFinishReveal => 'See score';
+
+  @override
+  String get storiesScore => 'Score';
+
+  @override
+  String get storiesSolved => 'Case solved';
+
+  @override
+  String get storiesMissed => 'A thread slipped away';
+
+  @override
+  String get storiesBackToFiles => 'Back to files';
 }
