@@ -141,8 +141,10 @@ class _RoleTileState extends State<_RoleTile>
 
   String get _painting => switch (widget.role) {
     Role.mafia => AppGallery.galleryMafia,
+    Role.silencer => AppGallery.galleryMafia,
     Role.doctor => AppGallery.galleryDoctor,
     Role.detective => AppGallery.galleryDetective,
+    Role.elder || Role.sniper => AppGallery.galleryCitizen,
     Role.citizen => AppGallery.galleryCitizen,
   };
 

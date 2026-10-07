@@ -71,8 +71,11 @@ String phaseToServer(GamePhase phase) => switch (phase) {
 
 Role? roleFromServer(String? role) => switch (role) {
   'mafia' => Role.mafia,
+  'silencer' => Role.silencer,
   'doctor' => Role.doctor,
   'detective' => Role.detective,
+  'elder' => Role.elder,
+  'sniper' => Role.sniper,
   'citizen' => Role.citizen,
   _ => null,
 };
@@ -88,6 +91,7 @@ String roleToServer(Role role) => role.name;
 /// spreading.
 String nightActionToServer(NightActionKind kind) => switch (kind) {
   NightActionKind.mafiaVote => 'kill',
+  NightActionKind.silence => 'silence',
   NightActionKind.protect => 'protect',
   NightActionKind.investigate => 'investigate',
   NightActionKind.suspect => 'suspect',
@@ -129,11 +133,19 @@ Confrontation? confrontationFromJson(Object? value) {
 MorningReport? morningFromJson(Object? value) {
   if (value is! Map) return null;
   final victim = (value['victimSeat'] as num?)?.toInt();
+  final victims = [
+    for (final seat in (value['victimSeats'] as List?) ?? const [])
+      if (seat is num) seat.toInt(),
+  ];
   final saved = value['someoneSavedUnnamed'] as bool? ?? false;
   return MorningReport(
     victimSeat: victim,
+    victimSeats: victims.isEmpty
+        ? [if (victim != null) victim]
+        : victims,
+    silencedSeat: (value['silencedSeat'] as num?)?.toInt(),
     someoneSavedUnnamed: saved,
-    allSurvived: victim == null && !saved,
+    allSurvived: victim == null && victims.isEmpty && !saved,
   );
 }
 
@@ -299,6 +311,10 @@ GameSnapshot snapshotFrom({
     whisperGraph: whisperGraph(whispers, state.phaseNumber),
     morning: morningFromJson(data['morning']),
     lastVote: voteFromJson(data['lastVote']),
+    revealedElderSeats: {
+      for (final seat in (data['elderRevealedSeats'] as List?) ?? const [])
+        if (seat is num) seat.toInt(),
+    },
     settings: settingsFromJson(state.settings),
     room: RoomOptions(
       visibility: state.visibility,
@@ -436,6 +452,9 @@ MatchSettings settingsFromJson(Object? value) {
     bulletsEnabled: value['bulletsEnabled'] as bool?,
     quietNightEnabled: value['quietNightEnabled'] as bool?,
     selfProtectEnabled: value['selfProtectEnabled'] as bool?,
+    silencerEnabled: value['silencerEnabled'] as bool?,
+    elderEnabled: value['elderEnabled'] as bool?,
+    sniperEnabled: value['sniperEnabled'] as bool?,
     revealWhisperContent: value['revealWhisperContent'] as bool?,
     dayTieRule: switch (value['dayTieRule']) {
       'revote' => DayTieRule.revote,
@@ -494,15 +513,18 @@ ActorTurnView? turnFor({
     for (final p in players)
       if (p.seat != seat &&
           p.alive &&
-          !(role == Role.mafia && teammateNames.contains(p.name)))
+          !(role.alignment == Alignment.mafia &&
+              teammateNames.contains(p.name)))
         p.seat,
   ]..sort();
   if (targets.isEmpty) return null;
 
   final questionText = switch (role) {
     Role.mafia => 'Who is tonight\'s target?',
+    Role.silencer => 'Who stays silent tomorrow?',
     Role.doctor => 'Who do you protect tonight?',
     Role.detective => 'Whose identity do you investigate?',
+    Role.elder || Role.sniper => 'Who do you suspect is Mafia?',
     Role.citizen => 'Who do you suspect is Mafia?',
   };
 

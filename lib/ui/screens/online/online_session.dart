@@ -579,6 +579,9 @@ class OnlineSession extends Notifier<OnlineSessionState> {
     'bulletsEnabled': settings.bulletsEnabled,
     'quietNightEnabled': settings.quietNightEnabled,
     'selfProtectEnabled': settings.selfProtectEnabled,
+    'silencerEnabled': settings.silencerEnabled,
+    'elderEnabled': settings.elderEnabled,
+    'sniperEnabled': settings.sniperEnabled,
     'dayTieRule': settings.dayTieRule.name,
   };
 }

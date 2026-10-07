@@ -37,12 +37,15 @@ import {
 } from "../_shared/api.ts";
 
 /** The once-per-match move each role holds, or null for the two that hold none. */
-function bulletFor(role: string | null): "quietNight" | "selfProtect" | null {
+type Bullet = "quietNight" | "selfProtect" | "sniperShot";
+function bulletFor(role: string | null): Bullet | null {
   switch (role) {
     case "mafia":
       return "quietNight";
     case "doctor":
       return "selfProtect";
+    case "sniper":
+      return "sniperShot";
     default:
       return null;
   }
@@ -58,9 +61,10 @@ function bulletFor(role: string | null): "quietNight" | "selfProtect" | null {
  */
 function bulletEnabled(
   settings: Record<string, unknown>,
-  kind: "quietNight" | "selfProtect",
+  kind: Bullet,
 ): boolean {
   if (kind === "selfProtect") return true;
+  if (kind === "sniperShot") return settings.sniperEnabled === true;
   if (settings.bulletsEnabled === false) return false;
   const key = kind === "quietNight" ? "quietNightEnabled" : "selfProtectEnabled";
   return settings[key] !== false;
@@ -80,7 +84,9 @@ Deno.serve(handler(async (req, userId, db) => {
   // the others act. An older client that still sends a suspicion or a skip is
   // answered as if it landed and nothing is stored, so its screen moves on and
   // the night neither waits for it nor records it.
-  if (me.role === "citizen") return ok({ bulletSpent: false });
+  if (me.role === "citizen" || me.role === "elder") {
+    return ok({ bulletSpent: false });
+  }
 
   // Skipping is legal for every role — doc 05 rules 5 and 6 make the control
   // universal, and doc 10 §8.2 needs it for three of the four expiry defaults.
@@ -90,6 +96,17 @@ Deno.serve(handler(async (req, userId, db) => {
   }
   if (action !== "skip" && action !== permitted) {
     return fail("WRONG_ROLE", "that is not your action", 403);
+  }
+  let storedAction = String(action);
+  if (me.role === "silencer" && action === "silence") {
+    const { count, error: killersError } = await db
+      .from("room_players")
+      .select("user_id", { count: "exact", head: true })
+      .eq("room_id", roomId)
+      .eq("alive", true)
+      .eq("role", "mafia");
+    if (killersError) throw killersError;
+    if ((count ?? 0) === 0) storedAction = "kill";
   }
   if (note != null && String(note).length > 40) {
     return fail("BAD_REQUEST", "a note is at most 40 characters");
@@ -139,6 +156,9 @@ Deno.serve(handler(async (req, userId, db) => {
   if (wants && alreadySpent) {
     return fail("RATE_LIMITED", "you have already used it");
   }
+  if (wants && bullet === "sniperShot" && action !== "suspect") {
+    return fail("BAD_REQUEST", "a sniper shot needs a target");
+  }
 
   let targetId: string | null = null;
   if (action !== "skip") {
@@ -152,11 +172,11 @@ Deno.serve(handler(async (req, userId, db) => {
     if (targetError) throw targetError;
     if (!target) return fail("BAD_REQUEST", "no such seat");
     if (!target.alive) return fail("BAD_REQUEST", "that player is dead");
-    if (target.user_id === userId && !selfProtect) {
+    if (target.user_id === userId && !selfProtect && storedAction !== "silence") {
       return fail("BAD_REQUEST", "not yourself");
     }
     // The Mafia never choose one of their own (owner, 2026-10-01).
-    if (action === "kill" && target.role === "mafia") {
+    if (storedAction === "kill" && ["mafia", "silencer"].includes(target.role)) {
       return fail("BAD_REQUEST", "not a fellow mafioso");
     }
     targetId = target.user_id;
@@ -175,7 +195,7 @@ Deno.serve(handler(async (req, userId, db) => {
     room_id: roomId,
     night: me.phaseNumber,
     actor_id: userId,
-    action,
+    action: storedAction,
     target_id: targetId,
     note: note ?? null,
     action_id: asUuid(actionId),
@@ -271,7 +291,9 @@ async function closeNightIfEveryoneActed(
   // seats that do (owner, 2026-10-01).
   const alive = new Set(
     (living.data ?? [])
-      .filter((p: { role: string | null }) => p.role !== "citizen")
+      .filter((p: { role: string | null }) =>
+        !["citizen", "elder"].includes(p.role ?? "")
+      )
       .map((p: { user_id: string }) => p.user_id),
   );
   if (alive.size === 0) return;

@@ -35,10 +35,14 @@ NightActionKind nightActionFor(Role role) {
   switch (role) {
     case Role.mafia:
       return NightActionKind.mafiaVote;
+    case Role.silencer:
+      return NightActionKind.silence;
     case Role.doctor:
       return NightActionKind.protect;
     case Role.detective:
       return NightActionKind.investigate;
+    case Role.elder:
+    case Role.sniper:
     case Role.citizen:
       return NightActionKind.suspect;
   }
@@ -130,7 +134,7 @@ class NightActionScreen extends ConsumerWidget {
               !turn.blockedTargets.contains(seat),
         ),
       // The last tile, always, for every role.
-      if (role == Role.doctor)
+      if (role == Role.doctor || role == Role.silencer)
         NightChoice(
           // Their own seat, among the names. The engine reads a Doctor
           // targeting their own seat as the self-protection and refuses it
@@ -148,7 +152,7 @@ class NightActionScreen extends ConsumerWidget {
           // drift out from under it.
           label: EngineCopy.nightSpecial(l10n, role),
           special: true,
-          spent: spent,
+          spent: role == Role.doctor && spent,
         )
       else
         NightChoice(
@@ -157,7 +161,7 @@ class NightActionScreen extends ConsumerWidget {
           special: true,
           // Only the Mafia's costs anything. The Detective's and the
           // Citizen's are ordinary skips and are available every night.
-          spent: role == Role.mafia && spent,
+          spent: (role == Role.mafia || role == Role.sniper) && spent,
         ),
     ];
 
@@ -194,7 +198,9 @@ class NightActionScreen extends ConsumerWidget {
         controller.submitNightAction(
           kind: nightActionFor(role),
           targetSeat: seat,
-          useBullet: role == Role.doctor && seat == actorSeat,
+          useBullet:
+              (role == Role.doctor && seat == actorSeat) ||
+              (role == Role.sniper && hasAbility && !spent),
         );
       },
       onPass: () {

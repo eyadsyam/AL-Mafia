@@ -221,6 +221,9 @@ class GameSnapshot {
   /// The last ballot's outcome.
   final DayVoteResult? lastVote;
 
+  /// Public Sheikh reveals; each listed seat has vote weight three.
+  final Set<int> revealedElderSeats;
+
   /// The rules this match is being played under.
   ///
   /// On the snapshot because the screens need them — whether whispers are on,
@@ -453,6 +456,7 @@ class GameSnapshot {
     this.whisperGraph = const [],
     this.morning,
     this.lastVote,
+    this.revealedElderSeats = const {},
     this.settings = const MatchSettings(),
     this.pendingOutcome,
     this.standings = const [],
@@ -487,6 +491,11 @@ class GameSnapshot {
   int get dayNumber => public.dayNumber;
   int? get currentActorSeat => public.currentActorSeat;
   MatchOutcome? get outcome => public.outcome;
+  int? get silencedSeat => morning?.silencedSeat;
+  bool get viewerSilenced =>
+      viewerSeat != null && silencedSeat == viewerSeat &&
+      phase.index >= GamePhase.morning.index &&
+      phase.index <= GamePhase.reveal.index;
 
   GameSnapshot copyWith({
     PublicMatchView? public,
@@ -496,6 +505,7 @@ class GameSnapshot {
     List<WhisperMeta>? whisperGraph,
     MorningReport? morning,
     DayVoteResult? lastVote,
+    Set<int>? revealedElderSeats,
     MatchSettings? settings,
     Alignment? pendingOutcome,
     List<FinalStanding>? standings,
@@ -536,6 +546,7 @@ class GameSnapshot {
     whisperGraph: whisperGraph ?? this.whisperGraph,
     morning: clearMorning ? null : (morning ?? this.morning),
     lastVote: clearVote ? null : (lastVote ?? this.lastVote),
+    revealedElderSeats: revealedElderSeats ?? this.revealedElderSeats,
     settings: settings ?? this.settings,
     pendingOutcome: pendingOutcome ?? this.pendingOutcome,
     standings: standings ?? this.standings,

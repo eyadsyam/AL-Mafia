@@ -55,7 +55,7 @@ Deno.serve(handler(async (req, userId, db) => {
 
     const { data: actions, error: actionsError } = await db
       .from("night_actions")
-      .select("actor_id, action, target_id")
+      .select("actor_id, action, target_id, used_bullet")
       .eq("room_id", roomId)
       .eq("night", night);
     if (actionsError) throw actionsError;
@@ -67,7 +67,7 @@ Deno.serve(handler(async (req, userId, db) => {
     // of the count, and nothing is counted twice.
     const fingerprint = [...(actions ?? [])]
       .sort((a, b) => a.actor_id < b.actor_id ? -1 : a.actor_id > b.actor_id ? 1 : 0)
-      .map((a) => `${a.actor_id}|${a.action}|${a.target_id ?? "-"}`)
+      .map((a) => `${a.actor_id}|${a.action}|${a.target_id ?? "-"}|${a.used_bullet ? "1" : "0"}`)
       .join(";") + "#roster:" + rosterFingerprint(roster);
 
     // Mafia votes, tallied. A tie is broken on the seed, with no extra pass —
@@ -82,7 +82,7 @@ Deno.serve(handler(async (req, userId, db) => {
     // exactly as its whispers are (doc 09 §3.4) — a player put out of the match
     // does not go on killing or protecting from outside it.
     const alive = new Set(roster.filter((p) => p.alive).map((p) => p.user_id));
-    const mafiaIds = new Set(roster.filter((p) => p.role === "mafia").map((p) => p.user_id));
+    const mafiaIds = new Set(roster.filter((p) => ["mafia", "silencer"].includes(p.role)).map((p) => p.user_id));
     const tally = new Map<string, number>();
     for (const a of actions ?? []) {
       if (a.action !== "kill" || !a.target_id || !alive.has(a.target_id) || !alive.has(a.actor_id)) continue;
@@ -131,19 +131,38 @@ Deno.serve(handler(async (req, userId, db) => {
       victimId = null;
     }
 
+    const deaths = new Set<string>();
+    if (victimId) deaths.add(victimId);
+    for (const a of actions ?? []) {
+      const actor = roster.find((p) => p.user_id === a.actor_id);
+      const target = roster.find((p) => p.user_id === a.target_id);
+      if (!a.used_bullet || a.action !== "suspect" || actor?.role !== "sniper" ||
+          !target || !alive.has(actor.user_id) || !alive.has(target.user_id)) continue;
+      deaths.add(target.user_id);
+      if (!["mafia", "silencer"].includes(target.role)) deaths.add(actor.user_id);
+    }
+    const deathIds = [...deaths].sort(
+      (a, b) => (seatOf.get(a) ?? 0) - (seatOf.get(b) ?? 0),
+    );
+    const silencedId = (actions ?? []).find((a) =>
+      a.action === "silence" && !!a.target_id && alive.has(a.actor_id) && alive.has(a.target_id)
+    )?.target_id ?? null;
+
     const history = await buildHistory(db, roomId);
     const record = history.nights.find((n) => n.nightNumber === night);
     const trace = record
       ? selectTrace({
         night: {
           ...record,
-          victim: victimId ? seatOf.get(victimId) ?? null : null,
+          victim: deathIds[0] ? seatOf.get(deathIds[0]) ?? null : null,
           saveOccurred: savedId !== null,
           savedSeat: savedId ? seatOf.get(savedId) ?? null : null,
           resolved: true,
         },
         history: history.nights.filter((n) => n.resolved && n.nightNumber < night),
-        alive: history.alive.filter((s) => s !== (victimId ? seatOf.get(victimId) : -1)),
+        alive: history.alive.filter((s) =>
+          !deathIds.some((id) => seatOf.get(id) === s)
+        ),
         nightNumber: night,
         matchSeed: me.matchSeed,
       })
@@ -153,8 +172,8 @@ Deno.serve(handler(async (req, userId, db) => {
     // else happens. A night that reaches parity is a finished match, and the
     // room must not be able to open a day on it (the offline engine refuses the
     // same move in `beginDay`).
-    const living = roster.filter((p) => p.alive && p.user_id !== victimId);
-    const mafiaAlive = living.filter((p) => p.role === "mafia").length;
+    const living = roster.filter((p) => p.alive && !deaths.has(p.user_id));
+    const mafiaAlive = living.filter((p) => ["mafia", "silencer"].includes(p.role)).length;
     const townAlive = living.length - mafiaAlive;
     const outcome = mafiaAlive === 0
       ? "town"
@@ -163,14 +182,16 @@ Deno.serve(handler(async (req, userId, db) => {
       : null;
 
     const morning = {
-      victimSeat: victimId ? seatOf.get(victimId) ?? null : null,
+      victimSeat: deathIds[0] ? seatOf.get(deathIds[0]) ?? null : null,
+      victimSeats: deathIds.map((id) => seatOf.get(id) ?? -1).filter((seat) => seat >= 0),
+      silencedSeat: silencedId ? seatOf.get(silencedId) ?? null : null,
       someoneSavedUnnamed: savedId !== null,
       trace,
     };
 
-    const { data: committed, error } = await db.rpc("commit_resolution", {
-      p_room: roomId, p_phase: "night", p_number: night, p_round: 1,
-      p_victim: victimId, p_saved_seat: savedId ? seatOf.get(savedId) ?? null : null,
+    const { data: committed, error } = await db.rpc("commit_night_roles_resolution", {
+      p_room: roomId, p_number: night,
+      p_victims: deathIds, p_saved_seat: savedId ? seatOf.get(savedId) ?? null : null,
       p_archive: { victimSeat: morning.victimSeat, trace: trace?.type ?? null },
       p_patch: { morning, outcome }, p_next: "morning",
       p_deadline: deadlineFor("morning", me.settings),

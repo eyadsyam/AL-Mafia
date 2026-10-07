@@ -41,7 +41,9 @@ class WinChecker {
   static Alignment? outcomeFor(List<Player> players) {
     final alive = players.where((p) => p.status == PlayerStatus.alive);
     final aliveCount = alive.length;
-    final mafiaCount = alive.where((p) => p.role == Role.mafia).length;
+    final mafiaCount = alive
+        .where((p) => p.role.alignment == Alignment.mafia)
+        .length;
     final nonMafiaCount = aliveCount - mafiaCount;
 
     // Nobody left at all. Unreachable in the MVP — the balance guard keeps
@@ -65,5 +67,5 @@ class WinChecker {
   /// Marker used by the test that asserts non-mafia roles cannot affect the
   /// result. Kept here so the claim sits next to the code that has to honour it.
   static const String outcomeIsRoleBlind =
-      'only Role.mafia is counted; every other role is just a body';
+      'every mafia-aligned role is counted; every town role is just a body';
 }

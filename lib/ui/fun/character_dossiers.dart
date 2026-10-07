@@ -133,7 +133,12 @@ const List<double> bondStrangerMatrix = [
 
 String bondLetter(AppLocalizations l, Role role, int tier) {
   if (tier == 0) return l.bondLockedLine;
-  return switch ((role, tier)) {
+  final baseRole = switch (role) {
+    Role.silencer => Role.mafia,
+    Role.elder || Role.sniper => Role.citizen,
+    _ => role,
+  };
+  return switch ((baseRole, tier)) {
     (Role.mafia, 1) => l.bondMafiaTier1,
     (Role.mafia, 2) => l.bondMafiaTier2,
     (Role.mafia, 3) => l.bondMafiaTier3,
@@ -149,28 +154,34 @@ String bondLetter(AppLocalizations l, Role role, int tier) {
     (Role.citizen, 1) => l.bondCitizenTier1,
     (Role.citizen, 2) => l.bondCitizenTier2,
     (Role.citizen, 3) => l.bondCitizenTier3,
-    (Role.citizen, _) => l.bondCitizenTier4,
+    (_, _) => l.bondCitizenTier4,
   };
 }
 
 String bondTitle(AppLocalizations l, Role role) => switch (role) {
   Role.mafia => l.bondTitleMafia,
+  Role.silencer => l.bondTitleMafia,
   Role.doctor => l.bondTitleDoctor,
   Role.detective => l.bondTitleDetective,
+  Role.elder || Role.sniper => l.bondTitleCitizen,
   Role.citizen => l.bondTitleCitizen,
 };
 
 String bondHomeLine(AppLocalizations l, Role role) => switch (role) {
   Role.mafia => l.bondHomeMafia,
+  Role.silencer => l.bondHomeMafia,
   Role.doctor => l.bondHomeDoctor,
   Role.detective => l.bondHomeDetective,
+  Role.elder || Role.sniper => l.bondHomeCitizen,
   Role.citizen => l.bondHomeCitizen,
 };
 
 String bondMomentLine(AppLocalizations l, Role role) => switch (role) {
   Role.mafia => l.bondMomentMafia,
+  Role.silencer => l.bondMomentMafia,
   Role.doctor => l.bondMomentDoctor,
   Role.detective => l.bondMomentDetective,
+  Role.elder || Role.sniper => l.bondMomentCitizen,
   Role.citizen => l.bondMomentCitizen,
 };
 

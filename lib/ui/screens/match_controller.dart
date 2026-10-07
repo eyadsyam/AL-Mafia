@@ -476,7 +476,9 @@ class MatchController extends Notifier<MatchUiState?> {
   bool bulletExistsFor(Role role) {
     final kind = role.bullet;
     if (kind == null) return false;
-    if (role == Role.doctor) return transport.supportsBullets;
+    if (role == Role.doctor || role == Role.sniper) {
+      return transport.supportsBullets && Bullets.enabled(settings, kind);
+    }
     if (!bulletsAvailable) return false;
     return Bullets.enabled(settings, kind);
   }
@@ -592,6 +594,35 @@ class MatchController extends Notifier<MatchUiState?> {
     final pending = transport.submitVote(seat: seat, targetSeat: targetSeat);
     state = _publish(clearSecrets: true);
     await pending;
+  }
+
+  bool get currentVoterSilenced {
+    final seat = transport.snapshot.currentActorSeat;
+    return seat != null && transport.snapshot.silencedSeat == seat;
+  }
+
+  Future<void> skipSilencedVote() async {
+    final seat = transport.snapshot.currentActorSeat;
+    if (seat == null) return;
+    await transport.skipSilencedVote(seat);
+    state = _publish(clearSecrets: true);
+  }
+
+  Future<void> revealElder(int seat) async {
+    await transport.revealElder(seat);
+    state = _publish(clearSecrets: true);
+  }
+
+  Future<RoleRevealPayload?> cardCheck(int seat) async {
+    final secrets = await transport.secretsFor(seat);
+    final role = secrets?.role;
+    if (role == null) return null;
+    return RoleRevealPayload(
+      seat: seat,
+      name: snapshot.public.players[seat].name,
+      role: role,
+      teammateNames: secrets!.teammateNames,
+    );
   }
 
   DayVoteResult resolveDayVote() {

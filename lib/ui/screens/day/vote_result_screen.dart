@@ -53,11 +53,14 @@ class VoteResultScreen extends StatelessWidget {
     final colors = context.colors;
     switch (role) {
       case Role.mafia:
+      case Role.silencer:
         return colors.roleMafia;
       case Role.doctor:
         return colors.roleDoctor;
       case Role.detective:
         return colors.roleDetective;
+      case Role.elder:
+      case Role.sniper:
       case Role.citizen:
         return colors.roleCitizen;
     }

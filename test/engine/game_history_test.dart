@@ -56,6 +56,8 @@ void main() {
             investigated = target;
           case Role.mafia:
             break;
+          case Role.silencer || Role.elder || Role.sniper:
+            throw StateError('new roles are off in this test');
         }
       }
       engine.resolveNight();

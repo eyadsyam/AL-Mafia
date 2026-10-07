@@ -116,6 +116,9 @@ enum MatchPreset {
     midDiscussionConfrontation: settings.midDiscussionConfrontation,
     revealNightVictimRole: settings.revealNightVictimRole,
     pressureCurveEnabled: settings.pressureCurveEnabled,
+    silencerEnabled: false,
+    elderEnabled: false,
+    sniperEnabled: false,
   );
 
   /// This preset's role split for [playerCount].

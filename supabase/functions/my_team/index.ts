@@ -42,16 +42,18 @@ Deno.serve(handler(async (req, userId, db) => {
   // nowhere else for it to travel: `role` is not on the client surface at all
   // — no client role holds a column privilege for it — so this call is the
   // whole of how a player learns what they are. Null until `start_match` deals.
-  if (me.role !== "mafia") return ok({ role: me.role ?? null, teammates: [] });
+  if (!["mafia", "silencer"].includes(me.role ?? "")) {
+    return ok({ role: me.role ?? null, teammates: [] });
+  }
 
   const { data, error } = await db
     .from("room_players")
     .select("name, seat")
     .eq("room_id", roomId)
-    .eq("role", "mafia")
+    .in("role", ["mafia", "silencer"])
     .neq("user_id", userId)
     .order("seat");
   if (error) throw error;
 
-  return ok({ role: "mafia", teammates: (data ?? []).map((p) => p.name) });
+  return ok({ role: me.role, teammates: (data ?? []).map((p) => p.name) });
 }));

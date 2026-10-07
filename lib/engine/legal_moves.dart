@@ -231,6 +231,13 @@ class VoteMove extends Move {
   String toString() => 'submitVote(seat: $seat, target: ${targetSeat ?? '—'})';
 }
 
+class SkipSilencedVoteMove extends Move {
+  final int seat;
+  const SkipSilencedVoteMove(this.seat);
+  @override
+  void apply(MatchEngine engine) => engine.skipSilencedVote(seat);
+}
+
 /// Tally the ballot (`voteResolving`).
 class ResolveDayVoteMove extends Move {
   const ResolveDayVoteMove();
@@ -399,13 +406,21 @@ List<Move> _nightMoves(Match match) {
 
   final moves = <Move>[
     if (actor.role != Role.doctor) SkipNightActionMove(seat: seat),
-    if (armable) SkipNightActionMove(seat: seat, useBullet: true),
+    if (armable && actor.role != Role.sniper)
+      SkipNightActionMove(seat: seat, useBullet: true),
+    if (actor.role == Role.silencer)
+      NightActionMove(
+        seat: seat,
+        kind: NightActionKind.silence,
+        targetSeat: seat,
+      ),
   ];
   for (final target in match.players) {
     if (target.seat == seat) continue;
     if (target.status != PlayerStatus.alive) continue;
     // The Mafia never choose one of their own (owner, 2026-10-01).
-    if (kind == NightActionKind.mafiaVote && target.role == Role.mafia) {
+    if (kind == NightActionKind.mafiaVote &&
+        target.role.alignment == Alignment.mafia) {
       continue;
     }
 
@@ -489,6 +504,11 @@ List<Move> _voteMoves(Match match) {
   final seat = match.currentActorSeat;
   if (seat == null) return const [];
   if (match.players[seat].status != PlayerStatus.alive) return const [];
+  final silenced = match.eventLog.whereType<SilenceCast>().any(
+    (event) =>
+        event.phaseRef.number == match.dayNumber && event.targetSeat == seat,
+  );
+  if (silenced) return [SkipSilencedVoteMove(seat)];
 
   // On a revote the ballot is exactly the tied seats (FR-020); on the opening
   // ballot it is every other living player.

@@ -16,6 +16,15 @@ Deno.serve(handler(async (req, userId, db) => {
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
   if (!me.alive) return fail("NOT_ALIVE", "the dead do not vote", 403);
   if (me.phase !== "vote") return fail("PHASE_CLOSED", "the ballot is closed");
+  const { data: silenceState, error: silenceError } = await db
+    .from("room_state").select("public_data").eq("room_id", roomId)
+    .maybeSingle();
+  if (silenceError) throw silenceError;
+  const morning = (silenceState?.public_data as Record<string, unknown> | null)
+    ?.morning as Record<string, unknown> | null | undefined;
+  if (Number(morning?.silencedSeat) === me.seat) {
+    return fail("WRONG_ROLE", "a silenced player cannot vote today", 403);
+  }
 
   let targetId: string | null = null;
   if (targetSeat != null) {
@@ -99,8 +108,8 @@ async function closeBallotIfEveryoneVoted(
   day: number,
   round: number,
 ): Promise<void> {
-  const [living, cast] = await Promise.all([
-    db.from("room_players").select("user_id").eq("room_id", roomId).eq(
+  const [living, cast, state] = await Promise.all([
+    db.from("room_players").select("user_id, seat").eq("room_id", roomId).eq(
       "alive",
       true,
     ),
@@ -108,10 +117,17 @@ async function closeBallotIfEveryoneVoted(
       "round",
       round,
     ),
+    db.from("room_state").select("public_data").eq("room_id", roomId).maybeSingle(),
   ]);
-  if (living.error || cast.error) return;
+  if (living.error || cast.error || state.error) return;
+  const silencedSeat = Number(
+    ((state.data?.public_data as Record<string, unknown> | null)?.morning as
+      Record<string, unknown> | null | undefined)?.silencedSeat,
+  );
   const alive = new Set(
-    (living.data ?? []).map((p: { user_id: string }) => p.user_id),
+    (living.data ?? [])
+      .filter((p: { seat: number }) => p.seat !== silencedSeat)
+      .map((p: { user_id: string }) => p.user_id),
   );
   if (alive.size === 0) return;
   const voted = new Set(

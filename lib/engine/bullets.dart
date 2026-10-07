@@ -30,10 +30,12 @@ abstract final class Bullets {
   /// therefore a thing to read.
   static bool enabled(MatchSettings settings, BulletKind kind) {
     if (kind == BulletKind.selfProtect) return true;
+    if (kind == BulletKind.sniperShot) return settings.sniperEnabled;
     if (!settings.bulletsEnabled) return false;
     return switch (kind) {
       BulletKind.quietNight => settings.quietNightEnabled,
       BulletKind.selfProtect => settings.selfProtectEnabled,
+      BulletKind.sniperShot => settings.sniperEnabled,
     };
   }
 

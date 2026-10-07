@@ -25,11 +25,15 @@ class VoteTally {
 /// Report of the morning after a night phase.
 class MorningReport {
   final int? victimSeat; // null if nobody died
+  final List<int> victimSeats;
+  final int? silencedSeat;
   final bool someoneSavedUnnamed; // true if mafia target was protected
   final bool allSurvived; // true if no one died
 
   const MorningReport({
     this.victimSeat,
+    this.victimSeats = const [],
+    this.silencedSeat,
     this.someoneSavedUnnamed = false,
     this.allSurvived = false,
   });
@@ -40,16 +44,31 @@ class MorningReport {
       other is MorningReport &&
           runtimeType == other.runtimeType &&
           victimSeat == other.victimSeat &&
+          _sameSeats(victimSeats, other.victimSeats) &&
+          silencedSeat == other.silencedSeat &&
           someoneSavedUnnamed == other.someoneSavedUnnamed &&
           allSurvived == other.allSurvived;
 
   @override
   int get hashCode =>
-      victimSeat.hashCode ^ someoneSavedUnnamed.hashCode ^ allSurvived.hashCode;
+      victimSeat.hashCode ^
+      Object.hashAll(victimSeats) ^
+      silencedSeat.hashCode ^
+      someoneSavedUnnamed.hashCode ^
+      allSurvived.hashCode;
+
+  static bool _sameSeats(List<int> a, List<int> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
 
   @override
   String toString() =>
-      'MorningReport(victimSeat=$victimSeat, someoneSavedUnnamed=$someoneSavedUnnamed, allSurvived=$allSurvived)';
+      'MorningReport(victimSeats=$victimSeats, silencedSeat=$silencedSeat, '
+      'someoneSavedUnnamed=$someoneSavedUnnamed, allSurvived=$allSurvived)';
 }
 
 /// Result of a day vote resolution.

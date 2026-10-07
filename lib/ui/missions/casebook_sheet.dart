@@ -62,8 +62,10 @@ Color casebookRoleColor(BuildContext context, Role role) {
   final colors = context.colors;
   return switch (role) {
     Role.mafia => colors.roleMafia,
+    Role.silencer => colors.roleMafia,
     Role.doctor => colors.roleDoctor,
     Role.detective => colors.roleDetective,
+    Role.elder || Role.sniper => colors.roleCitizen,
     Role.citizen => colors.roleCitizen,
   };
 }

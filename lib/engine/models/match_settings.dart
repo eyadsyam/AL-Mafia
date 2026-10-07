@@ -164,6 +164,11 @@ class MatchSettings {
   /// طبيب — «حماية النفس». The single night a Doctor may cover themselves.
   final bool selfProtectEnabled;
 
+  /// Optional roles. They are dealt randomly when enabled and are off by default.
+  final bool silencerEnabled;
+  final bool elderEnabled;
+  final bool sniperEnabled;
+
   /// Doc 13 §3. The clock closes as the table shrinks.
   ///
   /// It only ever tightens: a host who set a short discussion keeps it. See
@@ -222,6 +227,9 @@ class MatchSettings {
     this.bulletsEnabled = true,
     this.quietNightEnabled = true,
     this.selfProtectEnabled = true,
+    this.silencerEnabled = false,
+    this.elderEnabled = false,
+    this.sniperEnabled = false,
     this.pressureCurveEnabled = true,
     this.revealNightVictimRole = false,
     this.interfaceHintsEnabled = true,
@@ -253,6 +261,9 @@ class MatchSettings {
       bulletsEnabled = true,
       quietNightEnabled = true,
       selfProtectEnabled = true,
+      silencerEnabled = false,
+      elderEnabled = false,
+      sniperEnabled = false,
       pressureCurveEnabled = true,
       revealNightVictimRole = false,
       interfaceHintsEnabled = true,
@@ -283,6 +294,9 @@ class MatchSettings {
     bool? bulletsEnabled,
     bool? quietNightEnabled,
     bool? selfProtectEnabled,
+    bool? silencerEnabled,
+    bool? elderEnabled,
+    bool? sniperEnabled,
     bool? pressureCurveEnabled,
     bool? revealNightVictimRole,
     bool? interfaceHintsEnabled,
@@ -312,6 +326,9 @@ class MatchSettings {
     bulletsEnabled: bulletsEnabled ?? this.bulletsEnabled,
     quietNightEnabled: quietNightEnabled ?? this.quietNightEnabled,
     selfProtectEnabled: selfProtectEnabled ?? this.selfProtectEnabled,
+    silencerEnabled: silencerEnabled ?? this.silencerEnabled,
+    elderEnabled: elderEnabled ?? this.elderEnabled,
+    sniperEnabled: sniperEnabled ?? this.sniperEnabled,
     pressureCurveEnabled: pressureCurveEnabled ?? this.pressureCurveEnabled,
     revealNightVictimRole: revealNightVictimRole ?? this.revealNightVictimRole,
     interfaceHintsEnabled: interfaceHintsEnabled ?? this.interfaceHintsEnabled,
@@ -348,6 +365,9 @@ class MatchSettings {
           bulletsEnabled == other.bulletsEnabled &&
           quietNightEnabled == other.quietNightEnabled &&
           selfProtectEnabled == other.selfProtectEnabled &&
+          silencerEnabled == other.silencerEnabled &&
+          elderEnabled == other.elderEnabled &&
+          sniperEnabled == other.sniperEnabled &&
           pressureCurveEnabled == other.pressureCurveEnabled &&
           revealNightVictimRole == other.revealNightVictimRole &&
           interfaceHintsEnabled == other.interfaceHintsEnabled &&
@@ -378,6 +398,9 @@ class MatchSettings {
     bulletsEnabled,
     quietNightEnabled,
     selfProtectEnabled,
+    silencerEnabled,
+    elderEnabled,
+    sniperEnabled,
     pressureCurveEnabled,
     revealNightVictimRole,
     interfaceHintsEnabled,
@@ -398,6 +421,7 @@ class MatchSettings {
       'survivorConfrontationEnabled=$survivorConfrontationEnabled, '
       'confrontationSeconds=$confrontationSeconds, openVoting=$openVoting, '
       'discussionSeconds=$discussionSeconds, bullets=$bulletsEnabled, '
+      'silencer=$silencerEnabled, elder=$elderEnabled, sniper=$sniperEnabled, '
       'pressureCurve=$pressureCurveEnabled, revealNightVictimRole=$revealNightVictimRole, '
       'tabletopPresentation=$tabletopPresentation)';
 }

@@ -156,7 +156,32 @@ class NightResolver {
     final quiet = Bullets.quietNightOn(match, match.dayNumber);
     if (quiet) victimSeat = null;
 
-    final bool allSurvived = victimSeat == null;
+    final deaths = <int>{if (victimSeat != null) victimSeat};
+
+    // The sniper's shot is deliberately outside protection resolution. The
+    // bullet and the target choice are already in the append-only log; pairing
+    // them here keeps the once-per-match rule in Bullets and the consequence in
+    // the resolver. A miss kills both target and sniper.
+    for (final spent in match.eventLog.whereType<BulletSpent>()) {
+      if (!tonight(spent) || spent.kind != BulletKind.sniperShot) continue;
+      SuspectCast? shot;
+      for (final event in match.eventLog.whereType<SuspectCast>()) {
+        if (tonight(event) && event.actorSeat == spent.actorSeat) shot = event;
+      }
+      if (shot == null) continue;
+      deaths.add(shot.targetSeat);
+      if (match.players[shot.targetSeat].role.alignment != Alignment.mafia) {
+        deaths.add(spent.actorSeat);
+      }
+    }
+
+    int? silencedSeat;
+    for (final event in match.eventLog.whereType<SilenceCast>()) {
+      if (tonight(event)) silencedSeat = event.targetSeat;
+    }
+
+    final orderedDeaths = deaths.toList()..sort();
+    final bool allSurvived = orderedDeaths.isEmpty;
 
     // ## Why a save can stop being announced
     //
@@ -181,7 +206,9 @@ class NightResolver {
     return NightResolution(
       savedSeat: savedSeat,
       report: MorningReport(
-        victimSeat: victimSeat,
+        victimSeat: orderedDeaths.isEmpty ? null : orderedDeaths.first,
+        victimSeats: orderedDeaths,
+        silencedSeat: silencedSeat,
         someoneSavedUnnamed: announceSave && savedSeat != null,
         allSurvived: allSurvived,
       ),

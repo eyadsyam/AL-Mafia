@@ -68,6 +68,9 @@ class RoomSettingsPanel extends ConsumerStatefulWidget {
   static const Key discussionStructured = ValueKey('room_settings_structured');
   static const Key discussionFree = ValueKey('room_settings_free');
   static const Key revealWhispersKey = ValueKey('room_settings_reveal_whispers');
+  static const Key silencerKey = ValueKey('room_settings_silencer');
+  static const Key elderKey = ValueKey('room_settings_elder');
+  static const Key sniperKey = ValueKey('room_settings_sniper');
 
   @override
   ConsumerState<RoomSettingsPanel> createState() => _RoomSettingsPanelState();
@@ -400,6 +403,45 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
                                 value: match.openVoting,
                                 onChanged: (value) =>
                                     _send(settings: {'openVoting': value}),
+                              ),
+                            ],
+                          ),
+                          SettingsPanel(
+                            icon: Icons.style_outlined,
+                            title: l10n.rolesTitle,
+                            children: [
+                              SettingsSwitchRow(
+                                switchKey: RoomSettingsPanel.silencerKey,
+                                label: l10n.settingSilencer,
+                                hint: l10n.settingSilencerHint,
+                                value: match.silencerEnabled,
+                                onChanged: widget.snapshot.public.players.length >= 7
+                                    ? (value) => _send(
+                                        settings: {'silencerEnabled': value},
+                                      )
+                                    : null,
+                              ),
+                              SettingsSwitchRow(
+                                switchKey: RoomSettingsPanel.elderKey,
+                                label: l10n.settingElder,
+                                hint: l10n.settingElderHint,
+                                value: match.elderEnabled,
+                                onChanged: widget.snapshot.public.players.length >= 6
+                                    ? (value) => _send(
+                                        settings: {'elderEnabled': value},
+                                      )
+                                    : null,
+                              ),
+                              SettingsSwitchRow(
+                                switchKey: RoomSettingsPanel.sniperKey,
+                                label: l10n.settingSniper,
+                                hint: l10n.settingSniperHint,
+                                value: match.sniperEnabled,
+                                onChanged: widget.snapshot.public.players.length >= 7
+                                    ? (value) => _send(
+                                        settings: {'sniperEnabled': value},
+                                      )
+                                    : null,
                               ),
                             ],
                           ),

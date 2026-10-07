@@ -496,8 +496,10 @@ class _Face extends StatelessWidget {
 
   String _asset(Role role) => switch (role) {
     Role.mafia => AppGallery.galleryMafia,
+    Role.silencer => AppGallery.galleryMafia,
     Role.doctor => AppGallery.galleryDoctor,
     Role.detective => AppGallery.galleryDetective,
+    Role.elder || Role.sniper => AppGallery.galleryCitizen,
     Role.citizen => AppGallery.galleryCitizen,
   };
 

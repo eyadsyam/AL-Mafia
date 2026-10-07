@@ -22,6 +22,7 @@ import 'day/discussion_screen.dart';
 import 'day/opening_round_screen.dart';
 import 'day/vote_result_screen.dart';
 import 'day/voting_screen.dart';
+import 'day/day_card_check.dart';
 import 'distribution/role_reveal_screen.dart';
 import 'match_controller.dart';
 import '../economy/interstitial_coordinator.dart';
@@ -428,10 +429,13 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
 
     // Keyed on the phase alone, so a rebuild inside a phase — a timer tick, a
     // target being picked — passes straight through without a dip.
-    final screen = PhaseTransition(
+    final screen = _withDayCard(
+      state,
+      PhaseTransition(
       phaseKey: state.phase,
       // Store truth: the host phone's pack and identity, public phases only.
-      child: PassTableDress(phase: state.phase, child: _phaseScreen(state)),
+        child: PassTableDress(phase: state.phase, child: _phaseScreen(state)),
+      ),
     );
 
     // The banner is one of the two widgets doc 10 §7 lets read the transport's
@@ -465,6 +469,57 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         ],
       ),
     );
+  }
+
+  Widget _withDayCard(MatchUiState state, Widget child) {
+    const phases = {
+      GamePhase.morning,
+      GamePhase.openingRound,
+      GamePhase.confrontation,
+      GamePhase.discussion,
+      GamePhase.voting,
+      GamePhase.voteResolving,
+      GamePhase.reveal,
+    };
+    if (!phases.contains(state.phase)) return child;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        child,
+        SafeArea(
+          child: Align(
+            alignment: AlignmentDirectional.topEnd,
+            child: Padding(
+              padding: EdgeInsets.all(context.spacing.sm),
+              child: FilledButton.tonalIcon(
+                onPressed: () => _chooseCardSeat(state),
+                icon: const Icon(Icons.style_outlined),
+                label: Text(context.l10n.myCard),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _chooseCardSeat(MatchUiState state) async {
+    final seat = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(context.l10n.myCard),
+        children: [
+          for (final player in state.public.players)
+            if (player.status == PlayerStatus.alive)
+              SimpleDialogOption(
+                onPressed: () => Navigator.of(dialogContext).pop(player.seat),
+                child: Text(player.name),
+              ),
+        ],
+      ),
+    );
+    if (seat == null || !mounted) return;
+    await showDayCardCheck(context, controller: _controller, seat: seat);
   }
 
   static const Key presentationKey = ValueKey('pass_presentation');
@@ -643,6 +698,13 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       victimName: victimSeat == null
           ? null
           : state.public.players[victimSeat].name,
+      victimNames: [
+        for (final seat in report?.victimSeats ?? const <int>[])
+          state.public.players[seat].name,
+      ],
+      silencedName: report?.silencedSeat == null
+          ? null
+          : state.public.players[report!.silencedSeat!].name,
       someoneSavedUnnamed: report?.someoneSavedUnnamed ?? false,
       // Doc 13 §5's «سريعة» row, and off everywhere else. Read from the
       // engine, which is the only thing that holds a role — the snapshot does

@@ -101,6 +101,9 @@ class MatchCodec {
     'confrontationSeconds': s.confrontationSeconds,
     'openVoting': s.openVoting,
     'tabletopPresentation': s.tabletopPresentation,
+    'silencerEnabled': s.silencerEnabled,
+    'elderEnabled': s.elderEnabled,
+    'sniperEnabled': s.sniperEnabled,
   };
 
   static MatchSettings _decodeSettings(Map<String, dynamic> json) =>
@@ -161,6 +164,9 @@ class MatchCodec {
         tabletopPresentation:
             json['tabletopPresentation'] as bool? ??
             const MatchSettings.defaults().tabletopPresentation,
+        silencerEnabled: json['silencerEnabled'] as bool? ?? false,
+        elderEnabled: json['elderEnabled'] as bool? ?? false,
+        sniperEnabled: json['sniperEnabled'] as bool? ?? false,
       );
 
   // ---------------------------------------------------------------------------
@@ -247,13 +253,21 @@ class MatchCodec {
         'target': e.targetSeat,
         'reason': e.reason,
       },
+      SilenceCast() => {
+        ...base,
+        'k': 'silence',
+        'actor': e.actorSeat,
+        'target': e.targetSeat,
+      },
       NightResolved() => {
         ...base,
         'k': 'nightResolved',
         'victim': e.victimSeat,
+        'victims': e.victimSeats,
         'saved': e.savedSeat,
       },
       MorningAnnounced() => {...base, 'k': 'morning'},
+      ElderRevealed() => {...base, 'k': 'elderRevealed', 'seat': e.seat},
       DiscussionRound() => {...base, 'k': 'discussionRound'},
       QuestionAsked() => {
         ...base,
@@ -392,15 +406,31 @@ class MatchCodec {
           targetSeat: json['target'] as int,
           reason: json['reason'] as String?,
         );
+      case 'silence':
+        return SilenceCast(
+          at: at,
+          phaseRef: ref,
+          actorSeat: json['actor'] as int,
+          targetSeat: json['target'] as int,
+        );
       case 'nightResolved':
         return NightResolved(
           at: at,
           phaseRef: ref,
           victimSeat: json['victim'] as int?,
+          victimSeats: json['victims'] == null
+              ? [if (json['victim'] != null) json['victim'] as int]
+              : [for (final s in (json['victims'] as List)) s as int],
           savedSeat: json['saved'] as int?,
         );
       case 'morning':
         return MorningAnnounced(at: at, phaseRef: ref);
+      case 'elderRevealed':
+        return ElderRevealed(
+          at: at,
+          phaseRef: ref,
+          seat: json['seat'] as int,
+        );
       case 'discussionRound':
         return DiscussionRound(at: at, phaseRef: ref);
       case 'question':

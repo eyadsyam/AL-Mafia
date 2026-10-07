@@ -173,6 +173,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get balanceOneDetectiveOnly => 'المحقق واحد بس في اللعبة';
 
   @override
+  String get balanceOneSilencerOnly => 'مافيا التسكيت واحد بس';
+
+  @override
+  String get balanceSilencerNeedsTwoMafia =>
+      'مافيا التسكيت محتاج مافيا اتنين على الأقل';
+
+  @override
+  String get balanceElderMinPlayers => 'شيخ الصالحين محتاج ٦ لاعبين على الأقل';
+
+  @override
+  String get balanceSniperMinPlayers => 'القناص محتاج ٧ لاعبين على الأقل';
+
+  @override
   String get settingsTitle => 'الإعدادات';
 
   @override
@@ -232,10 +245,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get roleMafia => 'مافيا';
 
   @override
+  String get roleSilencer => 'مافيا التسكيت';
+
+  @override
   String get roleDoctor => 'دكتور';
 
   @override
   String get roleDetective => 'محقق';
+
+  @override
+  String get roleElder => 'شيخ الصالحين';
+
+  @override
+  String get roleSniper => 'القناص';
 
   @override
   String get roleCitizen => 'مواطن';
@@ -245,12 +267,24 @@ class AppLocalizationsAr extends AppLocalizations {
       'كل ليلة بتتفقوا على واحد يتقتل، ومينفعش تختاروا حد منكم';
 
   @override
+  String get roleSilencerDescription =>
+      'كل ليلة بتسكّت لاعب لبكرة. لو مافيا القتل خرجوا كلهم، بتورث القتل من الليلة الجاية';
+
+  @override
   String get roleDoctorDescription =>
       'كل ليلة بتحمي لاعب، ولو انتوا أكتر من دكتور بتحموا واحد بس. حماية نفسك مرة واحدة في الماتش';
 
   @override
   String get roleDetectiveDescription =>
       'المحقق واحد بس في اللعبة. كل ليلة بتكشف شخصية لاعب واحد';
+
+  @override
+  String get roleElderDescription =>
+      'تكشف كارتك في أي وقت بالنهار، ومن ساعتها صوتك يتحسب بثلاثة';
+
+  @override
+  String get roleSniperDescription =>
+      'معاك طلقة واحدة. لو ضربت مافيا يموت، ولو أخطأت تموتوا إنتوا الاتنين';
 
   @override
   String get roleCitizenDescription =>
@@ -312,6 +346,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get nightPromptDetective => 'مين عايز تفحصه الليلة؟';
+
+  @override
+  String get nightPromptSilencer => 'مين هتسكّته بكرة؟';
+
+  @override
+  String get nightPromptElder => 'مين كلامه مش مريحك؟';
+
+  @override
+  String get nightPromptSniper => 'مين حاطه في عينك؟';
 
   @override
   String get nightPromptCitizen => 'مين شاكك فيه الليلة دي؟';
@@ -1756,13 +1799,66 @@ class AppLocalizationsAr extends AppLocalizations {
   String get nightSpecialMafia => 'مش هقتل الليلة';
 
   @override
+  String get nightSpecialSilencer => 'سكّت نفسك بكرة';
+
+  @override
   String get nightSpecialDoctor => 'احمي نفسك حالا';
 
   @override
   String get nightSpecialDetective => 'مش هحقق الليلة';
 
   @override
+  String get nightSpecialElder => 'مش شاكك الليلة';
+
+  @override
+  String get nightSpecialSniper => 'مش هضرب الليلة';
+
+  @override
   String get nightSpecialCitizen => 'مش شاكك الليلة';
+
+  @override
+  String get bulletSniper => 'طلقة القناص';
+
+  @override
+  String get silencedCannotVote => 'إنت متسكّت النهارده — مينفعش تصوّت';
+
+  @override
+  String get continueLabel => 'كمّل';
+
+  @override
+  String silencedAnnouncement(String name) {
+    return '$name متسكّت النهارده';
+  }
+
+  @override
+  String get elderRevealAction => 'اكشف للترابيزة';
+
+  @override
+  String get elderRevealedMark => 'شيخ مكشوف · صوته ×٣';
+
+  @override
+  String get myCard => 'كارتي';
+
+  @override
+  String get settingSilencer => 'مافيا التسكيت';
+
+  @override
+  String get settingSilencerHint =>
+      'واحد من المافيا بيسكّت بدل ما يقتل، ومحتاج مافيا اتنين على الأقل.';
+
+  @override
+  String get settingElder => 'شيخ الصالحين';
+
+  @override
+  String get settingElderHint =>
+      'مواطن يقدر يكشف من ٦ لاعبين، وبعدها صوته يتحسب بثلاثة.';
+
+  @override
+  String get settingSniper => 'القناص';
+
+  @override
+  String get settingSniperHint =>
+      'مواطن معاه طلقة واحدة من ٧ لاعبين، ولو أخطأ الاتنين بيخرجوا.';
 
   @override
   String get settingsSectionPace => 'وقت اللعب';

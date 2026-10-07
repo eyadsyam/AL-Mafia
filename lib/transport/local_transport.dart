@@ -6,7 +6,8 @@ import '../engine/bullets.dart';
 import '../engine/match_engine.dart';
 import '../engine/models/enums.dart';
 import '../engine/models/match.dart';
-import '../engine/models/timeline_event.dart' show InvestigateResult;
+import '../engine/models/timeline_event.dart'
+    show ElderRevealed, InvestigateResult;
 import '../engine/views.dart';
 import 'game_snapshot.dart';
 import 'game_transport.dart';
@@ -114,6 +115,10 @@ class LocalTransport implements GameTransport {
           : const [],
       morning: _morning,
       lastVote: _lastVote,
+      revealedElderSeats: {
+        for (final event in match.eventLog)
+          if (event is ElderRevealed) event.seat,
+      },
       settings: match.settings,
       // Computed here rather than held, because it is a question about the
       // roster and the roster is the thing that just changed. In `morning` it
@@ -155,6 +160,31 @@ class LocalTransport implements GameTransport {
         seat: seat,
         role: reveal.role,
         teammateNames: reveal.teammateNames,
+      );
+    }
+
+    const dayPhases = {
+      GamePhase.morning,
+      GamePhase.openingRound,
+      GamePhase.confrontation,
+      GamePhase.discussion,
+      GamePhase.voting,
+      GamePhase.voteResolving,
+      GamePhase.reveal,
+    };
+    if (dayPhases.contains(match.phase)) {
+      final player = match.players[seat];
+      return ViewerSecrets(
+        seat: seat,
+        role: player.role,
+        teammateNames: player.role.alignment == Alignment.mafia
+            ? [
+                for (final other in match.players)
+                  if (other.seat != seat &&
+                      other.role.alignment == Alignment.mafia)
+                    other.name,
+              ]
+            : const [],
       );
     }
 
@@ -328,6 +358,18 @@ class LocalTransport implements GameTransport {
   @override
   Future<void> submitVote({required int seat, required int? targetSeat}) async {
     engine.submitVote(seat: seat, voterSeat: seat, targetSeat: targetSeat);
+    _publish();
+  }
+
+  @override
+  Future<void> revealElder(int seat) async {
+    engine.revealElder(seat);
+    _publish();
+  }
+
+  @override
+  Future<void> skipSilencedVote(int seat) async {
+    engine.skipSilencedVote(seat);
     _publish();
   }
 

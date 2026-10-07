@@ -271,8 +271,10 @@ class _RoleRow extends StatelessWidget {
   /// coverage so no role's mark reads as louder than another's.
   String get _emblem => switch (role) {
     Role.mafia => AppIcons.roleMafia,
+    Role.silencer => AppIcons.roleMafia,
     Role.doctor => AppIcons.roleDoctor,
     Role.detective => AppIcons.roleDetective,
+    Role.elder || Role.sniper => AppIcons.roleCitizen,
     Role.citizen => AppIcons.roleCitizen,
   };
 

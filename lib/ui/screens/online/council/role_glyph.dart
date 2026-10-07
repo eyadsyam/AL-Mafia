@@ -26,7 +26,9 @@ import '../../../../engine/models/enums.dart';
 /// only ever with standings the server has already published.
 String glyphFor(Role role) => switch (role) {
   Role.mafia => AppIcons.roleMafia,
+  Role.silencer => AppIcons.roleMafia,
   Role.doctor => AppIcons.roleDoctor,
   Role.detective => AppIcons.roleDetective,
+  Role.elder || Role.sniper => AppIcons.roleCitizen,
   Role.citizen => AppIcons.roleCitizen,
 };

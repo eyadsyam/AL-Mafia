@@ -110,6 +110,8 @@ void main() {
                 kind: NightActionKind.suspect,
                 targetSeat: other,
               );
+            case Role.silencer || Role.elder || Role.sniper:
+              throw StateError('new roles are off in this test');
           }
         }
         expect(engine.match.phase, equals(GamePhase.nightResolving));

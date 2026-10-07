@@ -99,7 +99,8 @@ class MatchEngine {
     }
 
     // Validate mafia count
-    final mafiaCount = roleCounts[Role.mafia] ?? 0;
+    final mafiaCount =
+        (roleCounts[Role.mafia] ?? 0) + (roleCounts[Role.silencer] ?? 0);
     if (mafiaCount < 1) {
       throw ArgumentError('Must have at least 1 mafia, got $mafiaCount');
     }
@@ -107,6 +108,21 @@ class MatchEngine {
       throw ArgumentError(
         'Mafia must be less than half the players: got $mafiaCount, max ${names.length ~/ 2}',
       );
+    }
+    final silencerCount = roleCounts[Role.silencer] ?? 0;
+    if (silencerCount > 1 || (silencerCount == 1 && mafiaCount < 2)) {
+      throw ArgumentError('Silencer requires at least two Mafia and is unique');
+    }
+    if (silencerCount != (settings.silencerEnabled ? 1 : 0)) {
+      throw ArgumentError('Silencer role count must match its setting');
+    }
+    if ((roleCounts[Role.elder] ?? 0) != (settings.elderEnabled ? 1 : 0) ||
+        (settings.elderEnabled && names.length < 6)) {
+      throw ArgumentError('Elder requires its switch and at least 6 players');
+    }
+    if ((roleCounts[Role.sniper] ?? 0) != (settings.sniperEnabled ? 1 : 0) ||
+        (settings.sniperEnabled && names.length < 7)) {
+      throw ArgumentError('Sniper requires its switch and at least 7 players');
     }
 
     // The seed is the caller's to mint, not the engine's.
@@ -295,8 +311,10 @@ class MatchEngine {
     // Build question text based on role
     final questionText = switch (role) {
       Role.mafia => 'Who is tonight\'s target?',
+      Role.silencer => 'Who stays silent tomorrow?',
       Role.doctor => 'Who do you protect tonight?',
       Role.detective => 'Whose identity do you investigate?',
+      Role.elder || Role.sniper => 'Who do you suspect is Mafia?',
       Role.citizen => 'Who do you suspect is Mafia?',
     };
 
@@ -308,7 +326,7 @@ class MatchEngine {
 
     // Get teammate votes (only for mafia)
     final teammateVotes = <int>[];
-    if (role == Role.mafia) {
+    if (role.alignment == Alignment.mafia) {
       for (final event in match.eventLog) {
         if (event is MafiaVoteCast &&
             event.phaseRef.number == match.dayNumber) {
@@ -326,10 +344,14 @@ class MatchEngine {
       targets: targets,
       teammateVotes: teammateVotes,
       // The Mafia never choose one of their own (owner, 2026-10-01).
-      blockedTargets: role == Role.mafia
+      blockedTargets: role.alignment == Alignment.mafia &&
+              (role == Role.mafia ||
+                  !match.players.any(
+                    (p) => p.status == PlayerStatus.alive && p.role == Role.mafia,
+                  ))
           ? [
               for (final t in targets)
-                if (match.players[t].role == Role.mafia) t,
+                if (match.players[t].role.alignment == Alignment.mafia) t,
             ]
           : const [],
     );
@@ -405,7 +427,7 @@ class MatchEngine {
         if (player.role != Role.mafia) {
           throw StateError('submitNightAction: non-mafia cannot mafiaVote');
         }
-        if (match.players[targetSeat].role == Role.mafia) {
+        if (match.players[targetSeat].role.alignment == Alignment.mafia) {
           throw StateError('submitNightAction: mafia cannot target a mafioso');
         }
         match = match.copyWith(
@@ -419,6 +441,43 @@ class MatchEngine {
             ),
           ],
         );
+        break;
+
+      case NightActionKind.silence:
+        if (player.role != Role.silencer) {
+          throw StateError('submitNightAction: non-silencer cannot silence');
+        }
+        final hasLivingKiller = match.players.any(
+          (p) => p.status == PlayerStatus.alive && p.role == Role.mafia,
+        );
+        if (hasLivingKiller) {
+          match = match.copyWith(
+            eventLog: [
+              ...match.eventLog,
+              SilenceCast(
+                at: now,
+                phaseRef: phaseRef,
+                actorSeat: seat,
+                targetSeat: targetSeat,
+              ),
+            ],
+          );
+        } else {
+          if (match.players[targetSeat].role.alignment == Alignment.mafia) {
+            throw StateError('submitNightAction: mafia cannot target a mafioso');
+          }
+          match = match.copyWith(
+            eventLog: [
+              ...match.eventLog,
+              MafiaVoteCast(
+                at: now,
+                phaseRef: phaseRef,
+                actorSeat: seat,
+                targetSeat: targetSeat,
+              ),
+            ],
+          );
+        }
         break;
 
       case NightActionKind.protect:
@@ -488,8 +547,10 @@ class MatchEngine {
         break;
 
       case NightActionKind.suspect:
-        if (player.role != Role.citizen) {
-          throw StateError('submitNightAction: non-citizen cannot suspect');
+        if (player.role != Role.citizen &&
+            player.role != Role.elder &&
+            player.role != Role.sniper) {
+          throw StateError('submitNightAction: role cannot suspect');
         }
         match = match.copyWith(
           eventLog: [
@@ -674,9 +735,12 @@ class MatchEngine {
 
     // Update players if there's a victim
     List<Player> updatedPlayers = match.players;
-    if (report.victimSeat != null) {
+    final victims = report.victimSeats.isEmpty
+        ? [if (report.victimSeat != null) report.victimSeat!]
+        : report.victimSeats;
+    if (victims.isNotEmpty) {
       updatedPlayers = updatedPlayers.map((p) {
-        if (p.seat == report.victimSeat) {
+        if (victims.contains(p.seat)) {
           return p.copyWith(
             status: PlayerStatus.dead,
             eliminatedOn: PhaseRef(
@@ -698,6 +762,7 @@ class MatchEngine {
           at: now,
           phaseRef: PhaseRef(phase: GamePhase.night, number: match.dayNumber),
           victimSeat: report.victimSeat,
+          victimSeats: victims,
           // The seat comes from the resolution, not from `report.victimSeat` -
           // the report has already cleared that to null precisely because the
           // save meant nobody died, so reading it back here recorded nothing.
@@ -706,7 +771,9 @@ class MatchEngine {
       ],
     );
 
-    if (report.victimSeat != null) _voidWhispersTo(report.victimSeat!, now);
+    for (final seat in victims) {
+      _voidWhispersTo(seat, now);
+    }
     _publishTrace(now);
 
     assertMatchInvariants(match, 'resolveNight');
@@ -1055,6 +1122,54 @@ class MatchEngine {
     assertMatchInvariants(match, 'beginVoting');
   }
 
+  /// Public status created by last night's Silencer action and valid today only.
+  int? get silencedSeatToday {
+    for (final event in match.eventLog.reversed) {
+      if (event is SilenceCast && event.phaseRef.number == match.dayNumber) {
+        return event.targetSeat;
+      }
+    }
+    return null;
+  }
+
+  bool isElderRevealed(int seat) => match.eventLog.any(
+    (event) => event is ElderRevealed && event.seat == seat,
+  );
+
+  /// Reveals the Sheikh publicly from the private card view during the day.
+  void revealElder(int seat) {
+    const dayPhases = {
+      GamePhase.morning,
+      GamePhase.openingRound,
+      GamePhase.confrontation,
+      GamePhase.discussion,
+      GamePhase.voting,
+      GamePhase.voteResolving,
+      GamePhase.reveal,
+    };
+    if (!dayPhases.contains(match.phase)) {
+      throw StateError('revealElder: not a day phase');
+    }
+    final player = match.players[seat];
+    if (player.role != Role.elder || player.status != PlayerStatus.alive) {
+      throw StateError('revealElder: only the living Elder may reveal');
+    }
+    if (isElderRevealed(seat)) return;
+    match = match.copyWith(
+      eventLog: [
+        ...match.eventLog,
+        ElderRevealed(
+          at: clock(),
+          phaseRef: PhaseRef(phase: match.phase, number: match.dayNumber),
+          seat: seat,
+        ),
+      ],
+    );
+    assertMatchInvariants(match, 'revealElder');
+  }
+
+  int voteWeightFor(int seat) => isElderRevealed(seat) ? 3 : 1;
+
   /// Submit a vote during day voting.
   void submitVote({
     required int seat,
@@ -1071,6 +1186,9 @@ class MatchEngine {
 
     if (match.players[seat].status != PlayerStatus.alive) {
       throw StateError('submitVote: voter is dead');
+    }
+    if (silencedSeatToday == seat) {
+      throw StateError('submitVote: silenced player cannot vote today');
     }
 
     if (targetSeat != null) {
@@ -1117,6 +1235,25 @@ class MatchEngine {
     assertMatchInvariants(match, 'submitVote');
   }
 
+  /// Advances the public ballot past the player whose silence is already known.
+  void skipSilencedVote(int seat) {
+    if (match.phase != GamePhase.voting || match.currentActorSeat != seat) {
+      throw StateError('skipSilencedVote: not this voter');
+    }
+    if (silencedSeatToday != seat) {
+      throw StateError('skipSilencedVote: voter is not silenced');
+    }
+    final nextSeat = _findNextAliveActorSeat(seat);
+    match = nextSeat == null
+        ? match.copyWith(
+            phase: GamePhase.voteResolving,
+            currentActorSeat: null,
+            clearCurrentActorSeat: true,
+          )
+        : match.copyWith(currentActorSeat: nextSeat);
+    assertMatchInvariants(match, 'skipSilencedVote');
+  }
+
   /// Resolve day votes and eliminate someone (or not).
   DayVoteResult resolveDayVote() {
     if (match.phase != GamePhase.voteResolving) {
@@ -1133,7 +1270,8 @@ class MatchEngine {
           event.round == round) {
         final target = event.targetSeat;
         if (target != null) {
-          tally[target] = (tally[target] ?? 0) + 1;
+          tally[target] =
+              (tally[target] ?? 0) + voteWeightFor(event.voterSeat);
         }
       }
     }

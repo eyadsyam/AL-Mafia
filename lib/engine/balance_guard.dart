@@ -93,7 +93,8 @@ class BalanceGuard {
       );
     }
 
-    final mafiaCount = roleCounts[Role.mafia] ?? 0;
+    final mafiaCount =
+        (roleCounts[Role.mafia] ?? 0) + (roleCounts[Role.silencer] ?? 0);
 
     // Blocking: no mafia
     if (mafiaCount < 1) {
@@ -118,6 +119,28 @@ class BalanceGuard {
     if (detectiveCount > 1) {
       issues.add(
         const BalanceIssue(code: 'one_detective_only', blocking: true),
+      );
+    }
+
+    final silencerCount = roleCounts[Role.silencer] ?? 0;
+    if (silencerCount > 1) {
+      issues.add(
+        const BalanceIssue(code: 'one_silencer_only', blocking: true),
+      );
+    }
+    if (silencerCount == 1 && mafiaCount < 2) {
+      issues.add(
+        const BalanceIssue(code: 'silencer_needs_two_mafia', blocking: true),
+      );
+    }
+    if ((roleCounts[Role.elder] ?? 0) > 0 && playerCount < 6) {
+      issues.add(
+        const BalanceIssue(code: 'elder_min_players', blocking: true),
+      );
+    }
+    if ((roleCounts[Role.sniper] ?? 0) > 0 && playerCount < 7) {
+      issues.add(
+        const BalanceIssue(code: 'sniper_min_players', blocking: true),
       );
     }
 
