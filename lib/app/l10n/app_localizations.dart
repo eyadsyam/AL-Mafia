@@ -9900,6 +9900,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'a tool'**
   String get toolFeedUnknownTool;
+
+  /// No description provided for @investigateUnclear.
+  ///
+  /// In en, this message translates to:
+  /// **'Unclear'**
+  String get investigateUnclear;
+
+  /// No description provided for @investigateUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Door locked'**
+  String get investigateUnreachable;
 }
 
 class _AppLocalizationsDelegate

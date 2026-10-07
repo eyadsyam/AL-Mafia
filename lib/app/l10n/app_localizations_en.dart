@@ -5791,4 +5791,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get toolFeedUnknownTool => 'a tool';
+
+  @override
+  String get investigateUnclear => 'Unclear';
+
+  @override
+  String get investigateUnreachable => 'Door locked';
 }

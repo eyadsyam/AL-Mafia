@@ -3521,14 +3521,43 @@
   "toolAnswerNo": "The narrator whispers: no mafioso among them.",
   "toolAnswerOk": "OK",
   "toolFeedUsed": "{who} used: {tool}",
-  "@toolFeedUsed": {"placeholders": {"who": {"type": "String"}, "tool": {"type": "String"}}},
+  "@toolFeedUsed": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
   "toolFeedSecret": "Someone used a secret tool",
   "toolFeedTargets": "on: {names}",
-  "@toolFeedTargets": {"placeholders": {"names": {"type": "String"}}},
+  "@toolFeedTargets": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "toolFeedAnonNote": "Unsigned note: {text}",
-  "@toolFeedAnonNote": {"placeholders": {"text": {"type": "String"}}},
+  "@toolFeedAnonNote": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
   "toolFeedLastWill": "Last will: {text}",
-  "@toolFeedLastWill": {"placeholders": {"text": {"type": "String"}}},
+  "@toolFeedLastWill": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
   "toolFeedSeparator": ", ",
-  "toolFeedUnknownTool": "a tool"
+  "toolFeedUnknownTool": "a tool",
+  "investigateUnclear": "Unclear",
+  "investigateUnreachable": "Door locked"
 }

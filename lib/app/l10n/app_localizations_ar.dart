@@ -5686,4 +5686,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get toolFeedUnknownTool => 'أداة';
+
+  @override
+  String get investigateUnclear => 'مش واضح';
+
+  @override
+  String get investigateUnreachable => 'بابه مقفول';
 }

@@ -2491,14 +2491,43 @@
   "toolAnswerNo": "الراوي بيهمسلك: لأ، مفيش مافيا بينهم.",
   "toolAnswerOk": "تمام",
   "toolFeedUsed": "{who} استخدم: {tool}",
-  "@toolFeedUsed": {"placeholders": {"who": {"type": "String"}, "tool": {"type": "String"}}},
+  "@toolFeedUsed": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
   "toolFeedSecret": "حد استخدم أداة سرّية",
   "toolFeedTargets": "على: {names}",
-  "@toolFeedTargets": {"placeholders": {"names": {"type": "String"}}},
+  "@toolFeedTargets": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "toolFeedAnonNote": "ورقة من غير اسم: {text}",
-  "@toolFeedAnonNote": {"placeholders": {"text": {"type": "String"}}},
+  "@toolFeedAnonNote": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
   "toolFeedLastWill": "وصيّة: {text}",
-  "@toolFeedLastWill": {"placeholders": {"text": {"type": "String"}}},
+  "@toolFeedLastWill": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
   "toolFeedSeparator": "، ",
-  "toolFeedUnknownTool": "أداة"
+  "toolFeedUnknownTool": "أداة",
+  "investigateUnclear": "مش واضح",
+  "investigateUnreachable": "بابه مقفول"
 }

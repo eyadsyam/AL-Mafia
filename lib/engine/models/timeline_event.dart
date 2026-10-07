@@ -10,9 +10,15 @@ class InvestigateResult {
   final int targetSeat;
   final Role revealedRole;
 
+  /// Online only, when a table tool hid the target: `unclear` (camouflage)
+  /// or `unreachable` (a closed door). [revealedRole] is then meaningless and
+  /// the screen says this instead.
+  final String? obscured;
+
   const InvestigateResult({
     required this.targetSeat,
     required this.revealedRole,
+    this.obscured,
   });
 
   @override

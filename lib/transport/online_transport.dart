@@ -1015,8 +1015,19 @@ class OnlineTransport implements GameTransport {
     // client that asked, in the response to its own request. It is not in the
     // snapshot, not in the payload, and not in a table any client can read —
     // doc 05 rule 10, kept by there being nowhere else for it to be.
-    final revealed = roleFromServer(result['revealedRole'] as String?);
-    if (revealed == null || targetSeat == null) return null;
+    final raw = result['revealedRole'] as String?;
+    if (targetSeat == null) return null;
+    // A table tool can hide the answer: the Detective still gets a second
+    // screen, saying it was unclear or out of reach.
+    if (raw == 'unclear' || raw == 'unreachable') {
+      return InvestigateResult(
+        targetSeat: targetSeat,
+        revealedRole: Role.citizen,
+        obscured: raw,
+      );
+    }
+    final revealed = roleFromServer(raw);
+    if (revealed == null) return null;
     return InvestigateResult(targetSeat: targetSeat, revealedRole: revealed);
   }
 

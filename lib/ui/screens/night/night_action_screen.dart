@@ -183,7 +183,11 @@ class NightActionScreen extends ConsumerWidget {
       // whose panel it was. Doc 14 §1.4, as amended 2026-09-04.
       confirmationDetail: investigate == null
           ? null
-          : EngineCopy.roleName(l10n, investigate.revealedRole),
+          : switch (investigate.obscured) {
+              'unclear' => l10n.investigateUnclear,
+              'unreachable' => l10n.investigateUnreachable,
+              _ => EngineCopy.roleName(l10n, investigate.revealedRole),
+            },
       onNotYou: onWrongPerson,
       onConfirmed: (seat) {
         if (seat == NightChoice.skipSeat) {
