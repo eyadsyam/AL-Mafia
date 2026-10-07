@@ -5326,4 +5326,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webAdCountdown => 'You can close this ad in a moment';
+
+  @override
+  String get onboardNeedName => 'Type your name to continue.';
+
+  @override
+  String get onboardNeedGender => 'Pick how we address you to continue.';
+
+  @override
+  String get onboardNeedPact => 'Tick the boxes above to continue.';
 }

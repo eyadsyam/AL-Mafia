@@ -2009,5 +2009,8 @@
   "webAdCouncilBody": "اجمع عملاتك وافتح شكل جديد للقعدة.",
   "webAdOpenPlay": "افتح Google Play",
   "webAdContinue": "كمّل اللعب",
-  "webAdCountdown": "الإعلان هيخلص بعد لحظة"
+  "webAdCountdown": "الإعلان هيخلص بعد لحظة",
+  "onboardNeedName": "اكتب اسمك عشان نكمّل.",
+  "onboardNeedGender": "اختار «ولد» أو «بنت» عشان نكمّل.",
+  "onboardNeedPact": "علّم على المربعات اللي فوق عشان نكمّل."
 }

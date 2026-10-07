@@ -9054,6 +9054,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can close this ad in a moment'**
   String get webAdCountdown;
+
+  /// No description provided for @onboardNeedName.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your name to continue.'**
+  String get onboardNeedName;
+
+  /// No description provided for @onboardNeedGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick how we address you to continue.'**
+  String get onboardNeedGender;
+
+  /// No description provided for @onboardNeedPact.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick the boxes above to continue.'**
+  String get onboardNeedPact;
 }
 
 class _AppLocalizationsDelegate

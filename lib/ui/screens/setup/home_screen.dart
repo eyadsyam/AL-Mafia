@@ -227,7 +227,9 @@ class HomeScreen extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         // The player first, at the same size as the controls beside it.
-        _identityChip(context, ref),
+        // Every control carries its name under it: an icon alone left
+        // testers hunting for the store.
+        _Labeled(label: l10n.profileTitle, child: _identityChip(context, ref)),
         _CornerButton(
           buttonKey: HomeScreen.howToPlayButton,
           // A question mark inside a circle, which is the shape the brief
@@ -244,7 +246,7 @@ class HomeScreen extends ConsumerWidget {
           label: l10n.history,
           onPressed: onHistory,
         ),
-        ?store,
+        if (store != null) _Labeled(label: l10n.storeTitle, child: store!),
         _CornerButton(
           buttonKey: HomeScreen.settingsButton,
           icon: Icons.settings,
@@ -344,10 +346,46 @@ class _CornerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return KeyedSubtree(
       key: buttonKey,
-      child: NavIconButton(
-        icon: icon,
-        semanticLabel: label,
-        onPressed: onPressed,
+      child: _Labeled(
+        label: label,
+        child: NavIconButton(
+          icon: icon,
+          semanticLabel: label,
+          onPressed: onPressed,
+        ),
+      ),
+    );
+  }
+}
+
+/// A corner control with its name in small type under it. The name is
+/// decorative for screen readers (the control already announces it).
+class _Labeled extends StatelessWidget {
+  final String label;
+  final Widget child;
+
+  const _Labeled({required this.label, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final type = context.typography;
+    return SizedBox(
+      width: NavIconButton.touchTarget + context.spacing.md,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          child,
+          ExcludeSemantics(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: type.caption.copyWith(color: colors.textMuted),
+            ),
+          ),
+        ],
       ),
     );
   }

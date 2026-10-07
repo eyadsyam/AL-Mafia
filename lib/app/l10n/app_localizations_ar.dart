@@ -5231,4 +5231,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get webAdCountdown => 'الإعلان هيخلص بعد لحظة';
+
+  @override
+  String get onboardNeedName => 'اكتب اسمك عشان نكمّل.';
+
+  @override
+  String get onboardNeedGender => 'اختار «ولد» أو «بنت» عشان نكمّل.';
+
+  @override
+  String get onboardNeedPact => 'علّم على المربعات اللي فوق عشان نكمّل.';
 }

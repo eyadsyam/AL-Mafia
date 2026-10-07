@@ -3018,5 +3018,8 @@
   "webAdCouncilBody": "Collect coins and unlock a new look for the table.",
   "webAdOpenPlay": "Open Google Play",
   "webAdContinue": "Continue playing",
-  "webAdCountdown": "You can close this ad in a moment"
+  "webAdCountdown": "You can close this ad in a moment",
+  "onboardNeedName": "Type your name to continue.",
+  "onboardNeedGender": "Pick how we address you to continue.",
+  "onboardNeedPact": "Tick the boxes above to continue."
 }

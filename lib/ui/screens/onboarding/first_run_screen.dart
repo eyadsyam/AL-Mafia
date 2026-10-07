@@ -10,6 +10,7 @@ import '../../../engine/models/player.dart';
 import '../../../transport/account_auth.dart' show AccountProfile;
 import '../../account/account_sheet.dart' show accountProfileProvider;
 import '../../account/onboarding_account_step.dart';
+import '../../../app/l10n/app_localizations.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/language_picker.dart';
@@ -70,6 +71,7 @@ class FirstRunScreen extends ConsumerStatefulWidget {
 
   static const screenKey = ValueKey('first_run');
   static const nameKey = ValueKey('first_run_name');
+  static const missingKey = ValueKey('first_run_missing');
   static const adultKey = ValueKey('first_run_adult');
   static const termsKey = ValueKey('first_run_terms');
   static const termsLinkKey = ValueKey('first_run_terms_link');
@@ -183,6 +185,18 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       (_name.text.trim().isNotEmpty && _gender != PlayerGender.unspecified);
 
   bool get _ready => _profileReady && _adult && _terms && !_saving;
+
+  /// Why the continue button is off on [chapter], or null when it is on.
+  String? _missing(_Chapter chapter, AppLocalizations l) {
+    if (chapter == _Chapter.identity && !widget.termsOnly) {
+      if (_name.text.trim().isEmpty) return l.onboardNeedName;
+      if (_gender == PlayerGender.unspecified) return l.onboardNeedGender;
+    }
+    if (chapter == _Chapter.pact && !_saving && (!_adult || !_terms)) {
+      return l.onboardNeedPact;
+    }
+    return null;
+  }
 
   Future<void> _submit() async {
     setState(() {
@@ -474,6 +488,25 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                         ),
                       ),
                     ),
+                    // A greyed-out button never explains itself: say what
+                    // is missing right above it.
+                    if (_missing(chapter, l) case final why?)
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          s.screenMargin,
+                          s.sm,
+                          s.screenMargin,
+                          0,
+                        ),
+                        child: Text(
+                          why,
+                          key: FirstRunScreen.missingKey,
+                          textAlign: TextAlign.center,
+                          style: context.typography.caption.copyWith(
+                            color: context.colors.accentGold,
+                          ),
+                        ),
+                      ),
                     Padding(
                       padding: EdgeInsets.all(s.screenMargin),
                       child: SizedBox(
