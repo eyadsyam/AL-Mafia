@@ -20,6 +20,8 @@ const REACTION = /^(laugh|shock|suspicious|applause|rose|skull|coffee|crown)$/;
 const PARTNER_SIDE = /^(detective|doctor|mafia|citizen)$/;
 /** Server-owned catalogue identifiers, never free-form copy. */
 const CASEBOOK_CODE = /^[a-z0-9_]{3,60}$/;
+/** «أدوات القعدة»: tool codes are server catalogue identifiers. */
+const TOOL_CODE = /^[a-z_]{3,30}$/;
 
 export type EconomyCall = { rpc: string; args: Record<string, unknown> };
 export type CasePuzzleRequest =
@@ -248,6 +250,27 @@ export function economyCall(
       return { rpc: "launch_event_state", args: { p_at: new Date().toISOString() } };
     case "eventResult":
       return room ? { rpc: "launch_event_result", args: { p_user: userId, p_room: room } } : null;
+    // «أدوات القعدة» (plan v3): the catalogue with the caller's charges, a
+    // pack purchase, and one use inside a live match.
+    case "toolsGet":
+      return { rpc: "table_tools_snapshot", args: { p_user: userId } };
+    case "toolBuy":
+      return typeof body.tool === "string" && TOOL_CODE.test(body.tool) &&
+          (body.pack === 1 || body.pack === 3 || body.pack === 7)
+        ? { rpc: "buy_table_tool", args: { p_user: userId, p_tool: body.tool, p_pack: body.pack } }
+        : null;
+    case "toolUse": {
+      const targets = Array.isArray(body.targets) ? body.targets : [];
+      if (!room || typeof body.tool !== "string" || !TOOL_CODE.test(body.tool) ||
+          targets.length > 3 || !targets.every((t) => Number.isInteger(t) && t >= 0 && t < 40)) {
+        return null;
+      }
+      const note = typeof body.note === "string" ? body.note.slice(0, 140) : null;
+      return {
+        rpc: "use_table_tool",
+        args: { p_user: userId, p_room: room, p_tool: body.tool, p_targets: targets, p_note: note },
+      };
+    }
     // Doc 09 §7: a finished room that chose to reveal its whispers.
     case "matchWhispers":
       return room ? { rpc: "match_whispers_revealed", args: { p_user: userId, p_room: room } } : null;
@@ -266,6 +289,8 @@ export const ECONOMY_REFUSALS = [
   "REACTION_RATE_LIMIT", "REACTION_CLOSED", "REACTION_UNKNOWN", "NOT_MEMBER",
   "EXTRA_NOT_READY", "DISABLED", "NOT_READY", "PERIOD_CHANGED", "SEASON_CLOSED",
   "NOT_FOUND", "ALREADY_CLAIMED", "NO_ATTEMPTS", "ALREADY_SOLVED", "BAD_REQUEST",
+  "BAD_PACK", "NOT_A_MEMBER", "NOT_PLAYING", "NOT_ALIVE", "ALIVE", "WRONG_PHASE", "BAD_TARGETS",
+  "BAD_NOTE", "LIMIT_MATCH", "LIMIT_HEAVY", "LIMIT_TOOL", "LIMIT_PHASE", "NO_CHARGES",
 ] as const;
 
 export function refusalOf(message: string | undefined): string | null {

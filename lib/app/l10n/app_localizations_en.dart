@@ -5335,4 +5335,182 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardNeedPact => 'Tick the boxes above to continue.';
+
+  @override
+  String get toolExtraMinuteName => 'Extra minute';
+
+  @override
+  String get toolExtraMinuteDesc => '45 more seconds of speaking time.';
+
+  @override
+  String get toolAnonNoteName => 'Anonymous note';
+
+  @override
+  String get toolAnonNoteDesc =>
+      'A short message to the whole table without your name.';
+
+  @override
+  String get toolLastWillName => 'Last will';
+
+  @override
+  String get toolLastWillDesc =>
+      'If you die, leave a short message everyone reads in the morning.';
+
+  @override
+  String get toolSpotlightName => 'Spotlight';
+
+  @override
+  String get toolSpotlightDesc =>
+      'Pick a player who must speak now and answer you.';
+
+  @override
+  String get toolObjectionName => 'Objection';
+
+  @override
+  String get toolObjectionDesc =>
+      'When accused, get a guaranteed 30-second defence.';
+
+  @override
+  String get toolLastWordName => 'Last word';
+
+  @override
+  String get toolLastWordDesc =>
+      'If voted out, pick a player who must defend first tomorrow.';
+
+  @override
+  String get toolVoteShieldName => 'Vote shield';
+
+  @override
+  String get toolVoteShieldDesc =>
+      'Nobody can silence you today and your vote stands.';
+
+  @override
+  String get toolHalfDoorName => 'Half-open door';
+
+  @override
+  String get toolHalfDoorDesc =>
+      'One night: no silencing or investigation reaches you (a kill still can).';
+
+  @override
+  String get toolDoubleVoteName => 'Double vote';
+
+  @override
+  String get toolDoubleVoteDesc =>
+      'Your vote counts twice today, in plain sight.';
+
+  @override
+  String get toolCamouflageName => 'Camouflage';
+
+  @override
+  String get toolCamouflageDesc =>
+      'If the detective checks you tonight, the result reads «unclear».';
+
+  @override
+  String get toolRevoteName => 'Revote';
+
+  @override
+  String get toolRevoteDesc =>
+      'The vote is cast again once after the result shows.';
+
+  @override
+  String get toolGraveVoteName => 'Vote from the grave';
+
+  @override
+  String get toolGraveVoteDesc => 'If you die, vote once in the following day.';
+
+  @override
+  String get toolSenseName => 'Hunch';
+
+  @override
+  String get toolSenseDesc =>
+      'Pick three players; the narrator whispers whether a mafioso is among them.';
+
+  @override
+  String get toolImpersonateName => 'Impersonation';
+
+  @override
+  String get toolImpersonateDesc =>
+      'The detective sees you as citizen or mafia, as you choose.';
+
+  @override
+  String get toolNarratorWhisperName => 'Narrator whisper';
+
+  @override
+  String get toolNarratorWhisperDesc =>
+      'Pick two players; the narrator tells only you whether a mafioso is among them.';
+
+  @override
+  String get toolLockDoorName => 'Locked door';
+
+  @override
+  String get toolLockDoorDesc =>
+      'For one night nothing reaches you: no kill, silence, shot or check.';
+
+  @override
+  String get toolAppealName => 'Appeal';
+
+  @override
+  String get toolAppealDesc =>
+      'If voted out, a final vote on you alone that needs a clear majority.';
+
+  @override
+  String get storeTabTools => 'Tools';
+
+  @override
+  String get toolsIntro =>
+      'Tools that change an online match. Up to 4 per match, 2 of them heavy.';
+
+  @override
+  String get toolTierLight => 'Light';
+
+  @override
+  String get toolTierMedium => 'Medium';
+
+  @override
+  String get toolTierHeavy => 'Heavy';
+
+  @override
+  String toolCharges(int count) {
+    return 'You have $count';
+  }
+
+  @override
+  String toolPack(int count, int price) {
+    return '$count × $price';
+  }
+
+  @override
+  String get toolBuyFailed => 'The purchase did not go through. Try again.';
+
+  @override
+  String get toolNotEnough => 'Not enough coins.';
+
+  @override
+  String get toolsInMatch => 'Your tools';
+
+  @override
+  String get toolUse => 'Use';
+
+  @override
+  String get toolUsed => 'Used';
+
+  @override
+  String get toolNoneOwned => 'No tools yet. Get them in the store.';
+
+  @override
+  String toolPickTargets(int count) {
+    return 'Pick $count';
+  }
+
+  @override
+  String get toolNoteHint => 'Write your message (140 characters)';
+
+  @override
+  String get toolImpersonateCitizen => 'Appear citizen';
+
+  @override
+  String get toolImpersonateMafia => 'Appear mafia';
+
+  @override
+  String get toolRefused => 'Not available right now.';
 }

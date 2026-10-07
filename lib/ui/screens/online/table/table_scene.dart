@@ -23,6 +23,9 @@ import '../safety_center.dart';
 import '../../../economy/cosmetic_paint.dart';
 import '../../../economy/cosmetics.dart';
 import 'room_presentation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../economy/table_tools.dart';
+import '../online_session.dart';
 
 /// The single four-band online council described by doc 15 §1.1.
 ///
@@ -367,6 +370,28 @@ class _CouncilHeader extends StatelessWidget {
         ),
         if (snapshot.phaseDeadline != null)
           HeaderTimer(deadline: snapshot.phaseDeadline!),
+        Consumer(
+          builder: (context, ref, _) {
+            final room = ref.watch(
+              onlineSessionProvider.select((s) => s.room?.roomId),
+            );
+            final viewer = snapshot.viewerSeat;
+            if (room == null || viewer == null) return const SizedBox.shrink();
+            final players = snapshot.public.players;
+            return TableToolsButton(
+              roomId: room,
+              phase: serverPhaseOf(snapshot.phase.name),
+              alive: players.any(
+                (p) => p.seat == viewer && p.status == PlayerStatus.alive,
+              ),
+              seats: {
+                for (final p in players)
+                  if (p.seat != viewer && p.status == PlayerStatus.alive)
+                    p.seat: p.name,
+              },
+            );
+          },
+        ),
         const SafetyButton(),
         if (onCloseRoom != null)
           IconButton(

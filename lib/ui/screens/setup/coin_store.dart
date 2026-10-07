@@ -17,6 +17,7 @@ import '../../economy/play_offers.dart';
 import '../../economy/purchase_reveal.dart';
 import '../../../platform/monetization/play_billing.dart';
 import '../../economy/store_art.dart';
+import '../../economy/table_tools.dart';
 import '../../widgets/textured_surface.dart';
 import '../../economy/mafia_coin.dart';
 import '../../economy/vault_kit.dart';
@@ -280,6 +281,9 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
         (l.storeTabRewards, Icons.redeem_rounded, const DailyRewardsTab()),
       if (caps.council.hub)
         (l.storeTabCouncil, Icons.groups_rounded, const CouncilHubTab()),
+      // «أدوات القعدة» first among the things to buy: the testers walked past
+      // cosmetics; tools change a match.
+      (l.storeTabTools, Icons.construction_rounded, const TableToolsShopTab()),
       (
         l.storeTabShop,
         Icons.storefront_rounded,

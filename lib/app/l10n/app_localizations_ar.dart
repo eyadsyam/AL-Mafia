@@ -5240,4 +5240,174 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onboardNeedPact => 'علّم على المربعات اللي فوق عشان نكمّل.';
+
+  @override
+  String get toolExtraMinuteName => 'دقيقة زيادة';
+
+  @override
+  String get toolExtraMinuteDesc => '٤٥ ثانية زيادة على وقت كلامك.';
+
+  @override
+  String get toolAnonNoteName => 'ورقة من غير اسم';
+
+  @override
+  String get toolAnonNoteDesc => 'رسالة قصيرة للترابيزة كلها من غير اسمك.';
+
+  @override
+  String get toolLastWillName => 'وصيّة';
+
+  @override
+  String get toolLastWillDesc => 'لو مُت، تسيب رسالة قصيرة الكل يقراها الصبح.';
+
+  @override
+  String get toolSpotlightName => 'كشّاف';
+
+  @override
+  String get toolSpotlightDesc => 'تختار لاعب، ولازم يتكلم دلوقتي ويرد عليك.';
+
+  @override
+  String get toolObjectionName => 'اعتراض';
+
+  @override
+  String get toolObjectionDesc => 'لما يتّهموك، تاخد ٣٠ ثانية دفاع مضمونة.';
+
+  @override
+  String get toolLastWordName => 'كلمة أخيرة';
+
+  @override
+  String get toolLastWordDesc =>
+      'لو اتطلّعت، تختار لاعب لازم يدافع عن نفسه أول واحد بكرة.';
+
+  @override
+  String get toolVoteShieldName => 'درع الصوت';
+
+  @override
+  String get toolVoteShieldDesc => 'محدش يقدر يسكّتك اليوم ده وصوتك مايتلغيش.';
+
+  @override
+  String get toolHalfDoorName => 'باب موارب';
+
+  @override
+  String get toolHalfDoorDesc =>
+      'ليلة واحدة: لا تسكيت ولا كشف يوصلك (القتل لأ).';
+
+  @override
+  String get toolDoubleVoteName => 'صوت مضاعف';
+
+  @override
+  String get toolDoubleVoteDesc => 'صوتك بـ ٢ اليوم ده، والكل شايف.';
+
+  @override
+  String get toolCamouflageName => 'تمويه';
+
+  @override
+  String get toolCamouflageDesc => 'لو المحقق كشفك الليلة، يطلعله «مش واضح».';
+
+  @override
+  String get toolRevoteName => 'إعادة التصويت';
+
+  @override
+  String get toolRevoteDesc => 'التصويت يتعاد مرة بعد ما النتيجة تظهر.';
+
+  @override
+  String get toolGraveVoteName => 'صوت من القبر';
+
+  @override
+  String get toolGraveVoteDesc => 'لو مُت، تصوّت مرة في النهار اللي بعدها.';
+
+  @override
+  String get toolSenseName => 'إحساس';
+
+  @override
+  String get toolSenseDesc =>
+      'تختار ٣ لاعيبة، والراوي يهمسلك: فيه مافيا بينهم ولا لأ.';
+
+  @override
+  String get toolImpersonateName => 'انتحال شخصية';
+
+  @override
+  String get toolImpersonateDesc =>
+      'المحقق يشوفك «مواطن» أو «مافيا» على حسب ما تختار.';
+
+  @override
+  String get toolNarratorWhisperName => 'همسة الراوي';
+
+  @override
+  String get toolNarratorWhisperDesc =>
+      'تختار لاعبين، والراوي يقولك أنت بس: فيه مافيا بينهم؟';
+
+  @override
+  String get toolLockDoorName => 'قفل الباب';
+
+  @override
+  String get toolLockDoorDesc =>
+      'ليلة كاملة محدش يوصلك: لا قتل ولا تسكيت ولا طلقة ولا كشف.';
+
+  @override
+  String get toolAppealName => 'استئناف';
+
+  @override
+  String get toolAppealDesc =>
+      'لو اتطلّعت، تصويت أخير عليك أنت بس ولازم أغلبية واضحة.';
+
+  @override
+  String get storeTabTools => 'الأدوات';
+
+  @override
+  String get toolsIntro =>
+      'أدوات بتفرق جوّه الماتش الأونلاين. لحد ٤ أدوات في الماتش، منهم ٢ تقيلة.';
+
+  @override
+  String get toolTierLight => 'خفيفة';
+
+  @override
+  String get toolTierMedium => 'متوسطة';
+
+  @override
+  String get toolTierHeavy => 'تقيلة';
+
+  @override
+  String toolCharges(int count) {
+    return 'معاك $count';
+  }
+
+  @override
+  String toolPack(int count, int price) {
+    return '$count × $price';
+  }
+
+  @override
+  String get toolBuyFailed => 'الشرا ماتمّش. جرّب تاني.';
+
+  @override
+  String get toolNotEnough => 'الكوينز مش كفاية.';
+
+  @override
+  String get toolsInMatch => 'أدواتك';
+
+  @override
+  String get toolUse => 'استخدم';
+
+  @override
+  String get toolUsed => 'اتستخدمت';
+
+  @override
+  String get toolNoneOwned => 'معاكش أدوات لسه. هاتها من المتجر.';
+
+  @override
+  String toolPickTargets(int count) {
+    return 'اختار $count';
+  }
+
+  @override
+  String get toolNoteHint => 'اكتب رسالتك (١٤٠ حرف)';
+
+  @override
+  String get toolImpersonateCitizen => 'اظهر مواطن';
+
+  @override
+  String get toolImpersonateMafia => 'اظهر مافيا';
+
+  @override
+  String get toolRefused => 'مش متاحة دلوقتي.';
 }

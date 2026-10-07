@@ -9072,6 +9072,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tick the boxes above to continue.'**
   String get onboardNeedPact;
+
+  /// No description provided for @toolExtraMinuteName.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra minute'**
+  String get toolExtraMinuteName;
+
+  /// No description provided for @toolExtraMinuteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'45 more seconds of speaking time.'**
+  String get toolExtraMinuteDesc;
+
+  /// No description provided for @toolAnonNoteName.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous note'**
+  String get toolAnonNoteName;
+
+  /// No description provided for @toolAnonNoteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A short message to the whole table without your name.'**
+  String get toolAnonNoteDesc;
+
+  /// No description provided for @toolLastWillName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last will'**
+  String get toolLastWillName;
+
+  /// No description provided for @toolLastWillDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'If you die, leave a short message everyone reads in the morning.'**
+  String get toolLastWillDesc;
+
+  /// No description provided for @toolSpotlightName.
+  ///
+  /// In en, this message translates to:
+  /// **'Spotlight'**
+  String get toolSpotlightName;
+
+  /// No description provided for @toolSpotlightDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a player who must speak now and answer you.'**
+  String get toolSpotlightDesc;
+
+  /// No description provided for @toolObjectionName.
+  ///
+  /// In en, this message translates to:
+  /// **'Objection'**
+  String get toolObjectionName;
+
+  /// No description provided for @toolObjectionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When accused, get a guaranteed 30-second defence.'**
+  String get toolObjectionDesc;
+
+  /// No description provided for @toolLastWordName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last word'**
+  String get toolLastWordName;
+
+  /// No description provided for @toolLastWordDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'If voted out, pick a player who must defend first tomorrow.'**
+  String get toolLastWordDesc;
+
+  /// No description provided for @toolVoteShieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote shield'**
+  String get toolVoteShieldName;
+
+  /// No description provided for @toolVoteShieldDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody can silence you today and your vote stands.'**
+  String get toolVoteShieldDesc;
+
+  /// No description provided for @toolHalfDoorName.
+  ///
+  /// In en, this message translates to:
+  /// **'Half-open door'**
+  String get toolHalfDoorName;
+
+  /// No description provided for @toolHalfDoorDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'One night: no silencing or investigation reaches you (a kill still can).'**
+  String get toolHalfDoorDesc;
+
+  /// No description provided for @toolDoubleVoteName.
+  ///
+  /// In en, this message translates to:
+  /// **'Double vote'**
+  String get toolDoubleVoteName;
+
+  /// No description provided for @toolDoubleVoteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your vote counts twice today, in plain sight.'**
+  String get toolDoubleVoteDesc;
+
+  /// No description provided for @toolCamouflageName.
+  ///
+  /// In en, this message translates to:
+  /// **'Camouflage'**
+  String get toolCamouflageName;
+
+  /// No description provided for @toolCamouflageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'If the detective checks you tonight, the result reads «unclear».'**
+  String get toolCamouflageDesc;
+
+  /// No description provided for @toolRevoteName.
+  ///
+  /// In en, this message translates to:
+  /// **'Revote'**
+  String get toolRevoteName;
+
+  /// No description provided for @toolRevoteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The vote is cast again once after the result shows.'**
+  String get toolRevoteDesc;
+
+  /// No description provided for @toolGraveVoteName.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote from the grave'**
+  String get toolGraveVoteName;
+
+  /// No description provided for @toolGraveVoteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'If you die, vote once in the following day.'**
+  String get toolGraveVoteDesc;
+
+  /// No description provided for @toolSenseName.
+  ///
+  /// In en, this message translates to:
+  /// **'Hunch'**
+  String get toolSenseName;
+
+  /// No description provided for @toolSenseDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick three players; the narrator whispers whether a mafioso is among them.'**
+  String get toolSenseDesc;
+
+  /// No description provided for @toolImpersonateName.
+  ///
+  /// In en, this message translates to:
+  /// **'Impersonation'**
+  String get toolImpersonateName;
+
+  /// No description provided for @toolImpersonateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The detective sees you as citizen or mafia, as you choose.'**
+  String get toolImpersonateDesc;
+
+  /// No description provided for @toolNarratorWhisperName.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator whisper'**
+  String get toolNarratorWhisperName;
+
+  /// No description provided for @toolNarratorWhisperDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick two players; the narrator tells only you whether a mafioso is among them.'**
+  String get toolNarratorWhisperDesc;
+
+  /// No description provided for @toolLockDoorName.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked door'**
+  String get toolLockDoorName;
+
+  /// No description provided for @toolLockDoorDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'For one night nothing reaches you: no kill, silence, shot or check.'**
+  String get toolLockDoorDesc;
+
+  /// No description provided for @toolAppealName.
+  ///
+  /// In en, this message translates to:
+  /// **'Appeal'**
+  String get toolAppealName;
+
+  /// No description provided for @toolAppealDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'If voted out, a final vote on you alone that needs a clear majority.'**
+  String get toolAppealDesc;
+
+  /// No description provided for @storeTabTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get storeTabTools;
+
+  /// No description provided for @toolsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools that change an online match. Up to 4 per match, 2 of them heavy.'**
+  String get toolsIntro;
+
+  /// No description provided for @toolTierLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get toolTierLight;
+
+  /// No description provided for @toolTierMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get toolTierMedium;
+
+  /// No description provided for @toolTierHeavy.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy'**
+  String get toolTierHeavy;
+
+  /// No description provided for @toolCharges.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {count}'**
+  String toolCharges(int count);
+
+  /// No description provided for @toolPack.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} × {price}'**
+  String toolPack(int count, int price);
+
+  /// No description provided for @toolBuyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase did not go through. Try again.'**
+  String get toolBuyFailed;
+
+  /// No description provided for @toolNotEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough coins.'**
+  String get toolNotEnough;
+
+  /// No description provided for @toolsInMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Your tools'**
+  String get toolsInMatch;
+
+  /// No description provided for @toolUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get toolUse;
+
+  /// No description provided for @toolUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Used'**
+  String get toolUsed;
+
+  /// No description provided for @toolNoneOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'No tools yet. Get them in the store.'**
+  String get toolNoneOwned;
+
+  /// No description provided for @toolPickTargets.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick {count}'**
+  String toolPickTargets(int count);
+
+  /// No description provided for @toolNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your message (140 characters)'**
+  String get toolNoteHint;
+
+  /// No description provided for @toolImpersonateCitizen.
+  ///
+  /// In en, this message translates to:
+  /// **'Appear citizen'**
+  String get toolImpersonateCitizen;
+
+  /// No description provided for @toolImpersonateMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Appear mafia'**
+  String get toolImpersonateMafia;
+
+  /// No description provided for @toolRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available right now.'**
+  String get toolRefused;
 }
 
 class _AppLocalizationsDelegate
