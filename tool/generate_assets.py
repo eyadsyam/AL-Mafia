@@ -28,7 +28,7 @@ import sys
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
-# --- Palette, mirrored from lib/ui/theme/design_tokens.dart -----------------
+# --- Palette, mirrored from lib/core/theme/design_tokens.dart -----------------
 #
 # Sampled from the art-direction reference (a painterly noir playing-card set),
 # so the generated surfaces and the Dart tokens come from one source rather than

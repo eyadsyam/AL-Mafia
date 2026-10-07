@@ -1,0 +1,230 @@
+{
+  "observedOn": "2026-10-07",
+  "source": "User Chrome visible UI; read-only",
+  "admob": {
+    "emailVerified": "eyadsyam124@gmail.com",
+    "appId": "ca-app-pub-9179063936085117~7320479940",
+    "publisherId": "pub-9179063936085117",
+    "accountApproved": true,
+    "appStatus": "requires review",
+    "storeLink": null,
+    "policyCenter": "no current issues",
+    "appFrequencyCap": "none",
+    "highEngagementAds": true,
+    "europeanActiveMessages": 1,
+    "usStatesActiveMessages": 1,
+    "periodLabel": "last 7 days compared with previous 7 days",
+    "currency": "EGP",
+    "estimatedRevenueDisplayed": 0.92,
+    "estimatedRevenueTooltip": 0.922,
+    "requests": 291,
+    "impressions": 32,
+    "matchRatePercent": 46.39,
+    "ecpm": 28.8,
+    "exactPeriodDates": null,
+    "accountTimezone": "Africa/Cairo",
+    "units": [
+      {
+        "name": "app_open_launch",
+        "id": "9527218766",
+        "format": "app_open",
+        "cap": null
+      },
+      {
+        "name": "lobby_banner",
+        "id": "3131088967",
+        "format": "banner"
+      },
+      {
+        "name": "post_match_interstitial",
+        "id": "5836667020",
+        "format": "interstitial",
+        "cap": "3/user/day"
+      },
+      {
+        "name": "rewarded_match_bonus",
+        "id": "8711609352",
+        "format": "rewarded",
+        "rewardItem": "coins",
+        "rewardAmount": 1
+      },
+      {
+        "name": "rewarded_steps_v2",
+        "id": "9448608978",
+        "format": "rewarded",
+        "rewardItem": "reward_step",
+        "rewardAmount": 1
+      }
+    ],
+    "ssvUrl": "https://hezjbrnveajypfqmjfnh.supabase.co/functions/v1/admob_ssv",
+    "ssvConfiguredOnBothRewarded": true,
+    "liveSsvSettlementTested": false,
+    "impressionLevelRevenueEnabled": false
+  },
+  "adsense": {
+    "emailVerified": "g11769841@gmail.com",
+    "publisherId": "pub-5174049351369803",
+    "status": "account not approved",
+    "visibleReason": "AdSense program policy compliance",
+    "specificIssueCode": null,
+    "affectedUrl": null,
+    "resubmitClicked": false,
+    "complianceCheckboxChecked": false,
+    "h5Approval": null,
+    "cmpRuntimeVerified": false
+  },
+  "m00Refresh": {
+    "observedOn": "2026-10-07",
+    "accountUiRefreshed": true,
+    "chromeBlocker": null,
+    "accountEmailsVerified": [
+      "eyadsyam124@gmail.com",
+      "g11769841@gmail.com"
+    ],
+    "appIdVerified": "ca-app-pub-9179063936085117~7320479940",
+    "admobAppStatus": "requires review",
+    "storeLink": null,
+    "adsenseStatus": "account not approved",
+    "adsenseReason": "generic program-policy compliance",
+    "specificAdSenseIssueCode": null,
+    "publicEndpoints": {
+      "adsTxt": {
+        "url": "https://saidalmafia.com/ads.txt",
+        "status": 200,
+        "contentType": "text/plain",
+        "publisherIds": [
+          "pub-5174049351369803",
+          "pub-9179063936085117"
+        ],
+        "source": "Unauthenticated HTTPS GET using Invoke-WebRequest"
+      },
+      "appAdsTxt": {
+        "url": "https://saidalmafia.com/app-ads.txt",
+        "status": 200,
+        "contentType": "text/plain",
+        "publisherIds": [
+          "pub-9179063936085117",
+          "pub-5174049351369803"
+        ],
+        "source": "Unauthenticated HTTPS GET using Invoke-WebRequest"
+      },
+      "googleCrawlerRecognitionVerified": false
+    },
+    "report": {
+      "requestedPreset": "last 28 days",
+      "actualDateFrom": "2026-09-20",
+      "actualDateTo": "2026-10-06",
+      "historyLimit": "UI refuses dates before 20 September 2026; no full 28-day history available",
+      "currency": "USD",
+      "estimatedRevenueDisplayed": 0.02,
+      "requests": 291,
+      "matchedRequests": 135,
+      "impressions": 32,
+      "matchRatePercent": 46.39,
+      "observedEcpmDisplayed": 0.55,
+      "accountTimezone": "Africa/Cairo",
+      "reportTimezoneIndependentlyVerified": false,
+      "unitCountryRows": [
+        {
+          "unit": "rewarded_steps_v2",
+          "country": "Egypt",
+          "requests": 33,
+          "matchedRequests": 33,
+          "impressions": 11,
+          "estimatedRevenueDisplayed": 0.01,
+          "ecpmDisplayed": 1.01
+        },
+        {
+          "unit": "lobby_banner",
+          "country": "Egypt",
+          "requests": 191,
+          "matchedRequests": 35,
+          "impressions": 21,
+          "estimatedRevenueDisplayed": 0.01,
+          "ecpmDisplayed": 0.31
+        },
+        {
+          "unit": "post_match_interstitial",
+          "country": "Egypt",
+          "requests": 67,
+          "matchedRequests": 67,
+          "impressions": 0,
+          "estimatedRevenueDisplayed": 0,
+          "ecpmDisplayed": null
+        }
+      ],
+      "precision": "Rounded console display; not finalized income. Dashboard EGP values kept separately."
+    },
+    "play": {
+      "package": "com.mafiamaster.mafia_master",
+      "status": "closed testing",
+      "productionActive": false,
+      "installedUsersDisplayed": 10,
+      "currentOptedInTesters": 12,
+      "optedInDaysDisplayed": 4,
+      "requiredTesters": 12,
+      "requiredDays": 14,
+      "productionRequestButtonEnabled": false
+    },
+    "auditGate": "PASS",
+    "paidLaunchReadiness": "blocked",
+    "accountSettingsChanged": false
+  },
+  "changesMadeToAccounts": [],
+  "remainingEvidence": [
+    "full 28-day history unavailable before console minimum date",
+    "report-specific timezone if different from account",
+    "Google app-ads.txt crawler recognition",
+    "AdMob app review and store linkage",
+    "completion of Play closed-test production requirements",
+    "specific AdSense rejection detail if exposed",
+    "device consent and live SSV settlement",
+    "actual runtime configuration"
+  ],
+  "m00InitialAttempt": {
+    "observedOn": "2026-10-07",
+    "accountUiRefreshed": false,
+    "chromeBlocker": "Unable to load browser request-header policy",
+    "historicalAccountObservationsPreserved": true,
+    "publicEndpoints": {
+      "adsTxt": {
+        "url": "https://saidalmafia.com/ads.txt",
+        "status": 200,
+        "contentType": "text/plain",
+        "publisherIds": [
+          "pub-5174049351369803",
+          "pub-9179063936085117"
+        ],
+        "source": "Unauthenticated HTTPS GET using Invoke-WebRequest"
+      },
+      "appAdsTxt": {
+        "url": "https://saidalmafia.com/app-ads.txt",
+        "status": 200,
+        "contentType": "text/plain",
+        "publisherIds": [
+          "pub-9179063936085117",
+          "pub-5174049351369803"
+        ],
+        "source": "Unauthenticated HTTPS GET using Invoke-WebRequest"
+      },
+      "googleCrawlerRecognitionVerified": false
+    },
+    "playPublicLookup": {
+      "url": "https://play.google.com/store/apps/details?id=com.mafiamaster.mafia_master",
+      "source": "Web research fetch",
+      "result": "404 returned to research tool",
+      "publicationStatus": "unverified; tool response does not prove global unavailability"
+    },
+    "report28Days": null,
+    "exactReportDates": null,
+    "accountTimezone": null,
+    "specificAdSenseIssueRefreshed": false,
+    "publisherConsistencyTests": {
+      "total": 6,
+      "passed": 5,
+      "failed": 1,
+      "exitCode": 1
+    },
+    "readinessGate": "blocked"
+  }
+}

@@ -64,6 +64,7 @@ void main() {
   /// nothing they contain renders on its own.
   const declarationSites = <String>{
     'lib/ui/theme/design_tokens.dart',
+    'lib/core/theme/design_tokens.dart',
     'lib/app/asset_constants.dart',
   };
 
@@ -220,7 +221,8 @@ void main() {
       expect(
         closure,
         isNot(contains('lib/ui/social/titles_partner.dart')),
-        reason: 'a title or Partner reached a hand-off, reveal or night surface',
+        reason:
+            'a title or Partner reached a hand-off, reveal or night surface',
       );
     });
 

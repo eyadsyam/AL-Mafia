@@ -24,7 +24,7 @@
 ///
 /// ## Where these are allowed to be used
 ///
-/// Here and in `lib/ui/theme/design_tokens.dart`, nowhere else. Constitution
+/// Here and in `lib/core/theme/design_tokens.dart`, nowhere else. Constitution
 /// Article IV: screens and widgets read semantic tokens off the theme
 /// (`context.colors.surfaceBase`), never a swatch. This file is what those
 /// tokens are made of, not a second way to reach them.

@@ -151,6 +151,7 @@ class AppOpenCoordinator {
               caps = EconomyCapabilities.unreachable;
             }
             await remember(caps);
+            if (caps.adsV4Present) return AppOpenVerdict.off;
             final fresh = await _load();
             final fullScreen = await pacing.pacingLedger();
             AppOpenVerdict decide(bool consent, int? loadedAt) => decideAppOpen(

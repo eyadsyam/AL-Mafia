@@ -111,7 +111,9 @@ void main() {
       // If the token names were ever renamed, every `contains` above would
       // return false and the suite would pass while checking nothing. Prove the
       // names still exist where they are legitimately used.
-      final tokens = File('lib/ui/theme/design_tokens.dart').readAsStringSync();
+      final tokens = File(
+        'lib/core/theme/design_tokens.dart',
+      ).readAsStringSync();
       for (final name in forbidden.keys) {
         expect(
           tokens.contains(name),

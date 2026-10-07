@@ -19,7 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// show up as the app looking *almost* like the cards — which reads worse than
 /// an obvious mismatch, because the eye keeps trying to reconcile it.
 ///
-/// So every colour in `lib/ui/theme/design_tokens.dart` traces to a number
+/// So every colour in `lib/core/theme/design_tokens.dart` traces to a number
 /// printed here.
 ///
 /// # How the bands are chosen
@@ -157,7 +157,7 @@ void main() {
 
     buffer
       ..writeln('')
-      ..writeln('// paste into lib/ui/theme/design_tokens.dart');
+      ..writeln('// paste into lib/core/theme/design_tokens.dart');
     for (final band in bands.entries) {
       final c = bandColour(pooled, band.value);
       buffer.writeln('  static const Color ${band.key} = '

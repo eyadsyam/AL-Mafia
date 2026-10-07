@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../transport/online_backend.dart';
 
 import '../../platform/monetization/app_open_policy.dart';
+import '../../platform/monetization/ad_placement_registry.dart';
 import '../../platform/monetization/web_ad_rules.dart';
 import '../../platform/monetization/interstitial_policy.dart';
 import '../screens/online/online_session.dart';
@@ -143,6 +144,9 @@ class AdsCapabilities {
 /// exactly like 1.0.0: one post-match ad, no daily rewards, no automatic ad,
 /// no Play purchases.
 class EconomyCapabilities {
+  /// Present v4 payload takes ownership; malformed v4 fails closed.
+  final bool adsV4Present;
+  final AdRegistryV4 adsV4;
   final bool adSteps;
   final bool daily;
   final bool dailyAd;
@@ -213,6 +217,8 @@ class EconomyCapabilities {
   final bool failed;
 
   const EconomyCapabilities({
+    this.adsV4Present = false,
+    this.adsV4 = AdRegistryV4.off,
     this.adSteps = false,
     this.daily = false,
     this.dailyAd = false,
@@ -247,12 +253,20 @@ class EconomyCapabilities {
   static const none = EconomyCapabilities();
   static const unreachable = EconomyCapabilities(failed: true);
 
-  factory EconomyCapabilities.fromJson(Map<String, dynamic> json) {
+  factory EconomyCapabilities.fromJson(
+    Map<String, dynamic> json, {
+    int? receivedAtMs,
+  }) {
     final version = (json['version'] as num?)?.toInt() ?? 0;
     if (version < 2) return none;
     bool flag(String key) => json[key] == true;
     final rules = json['interstitial'];
     return EconomyCapabilities(
+      adsV4Present: json.containsKey('adsV4'),
+      adsV4: AdRegistryV4.fromJson(
+        json['adsV4'],
+        receivedAtMs ?? DateTime.now().millisecondsSinceEpoch,
+      ),
       adSteps: flag('adSteps'),
       daily: flag('daily'),
       dailyAd: flag('dailyAd'),
@@ -274,8 +288,7 @@ class EconomyCapabilities {
       friends:
           json['social'] is Map && (json['social'] as Map)['friends'] == true,
       directory:
-          json['social'] is Map &&
-          (json['social'] as Map)['directory'] == true,
+          json['social'] is Map && (json['social'] as Map)['directory'] == true,
       pushInvites:
           json['social'] is Map &&
           (json['social'] as Map)['pushInvites'] == true,

@@ -1,0 +1,120 @@
+{
+  "verifiedDate": "2026-10-07",
+  "publisher": "pub-9179063936085117",
+  "appId": "ca-app-pub-9179063936085117~7320479940",
+  "runtimeEnabled": false,
+  "rewardSsvConfigured": false,
+  "created": [
+    {
+      "id": "banner_home",
+      "name": "MM_ANDROID_BANNER_HOME_V4",
+      "unitId": "ca-app-pub-9179063936085117/8363779511"
+    },
+    {
+      "id": "banner_online_hub",
+      "name": "MM_ANDROID_BANNER_ONLINE_HUB_V4",
+      "unitId": "ca-app-pub-9179063936085117/8419619834"
+    },
+    {
+      "id": "banner_history",
+      "name": "MM_ANDROID_BANNER_HISTORY_V4",
+      "unitId": "ca-app-pub-9179063936085117/9258058781"
+    },
+    {
+      "id": "banner_vault",
+      "name": "MM_ANDROID_BANNER_VAULT_V4",
+      "unitId": "ca-app-pub-9179063936085117/5318813774"
+    },
+    {
+      "id": "banner_cosmetics",
+      "name": "MM_ANDROID_BANNER_COSMETICS_V4",
+      "unitId": "ca-app-pub-9179063936085117/8174795996"
+    },
+    {
+      "id": "banner_profile",
+      "name": "MM_ANDROID_BANNER_PROFILE_V4",
+      "unitId": "ca-app-pub-9179063936085117/2919881145"
+    },
+    {
+      "id": "banner_casebook",
+      "name": "MM_ANDROID_BANNER_CASEBOOK_V4",
+      "unitId": "ca-app-pub-9179063936085117/9972374654"
+    },
+    {
+      "id": "native_home",
+      "name": "MM_ANDROID_NATIVE_HOME_V4",
+      "unitId": "ca-app-pub-9179063936085117/4235550981"
+    },
+    {
+      "id": "native_online_hub",
+      "name": "MM_ANDROID_NATIVE_ONLINE_HUB_V4",
+      "unitId": "ca-app-pub-9179063936085117/2692650431"
+    },
+    {
+      "id": "native_history",
+      "name": "MM_ANDROID_NATIVE_HISTORY_V4",
+      "unitId": "ca-app-pub-9179063936085117/9293717805"
+    },
+    {
+      "id": "native_vault",
+      "name": "MM_ANDROID_NATIVE_VAULT_V4",
+      "unitId": "ca-app-pub-9179063936085117/1609387640"
+    },
+    {
+      "id": "native_characters",
+      "name": "MM_ANDROID_NATIVE_CHARACTERS_V4",
+      "unitId": "ca-app-pub-9179063936085117/4449594399"
+    },
+    {
+      "id": "native_casebook",
+      "name": "MM_ANDROID_NATIVE_CASEBOOK_V4",
+      "unitId": "ca-app-pub-9179063936085117/1243837397"
+    },
+    {
+      "id": "native_council",
+      "name": "MM_ANDROID_NATIVE_COUNCIL_V4",
+      "unitId": "ca-app-pub-9179063936085117/3136512721"
+    },
+    {
+      "id": "interstitial_online_result",
+      "name": "MM_ANDROID_INTERSTITIAL_ONLINE_RESULT_V4",
+      "unitId": "ca-app-pub-9179063936085117/9296305972"
+    },
+    {
+      "id": "interstitial_local_result",
+      "name": "MM_ANDROID_INTERSTITIAL_LOCAL_RESULT_V4",
+      "unitId": "ca-app-pub-9179063936085117/9969514385"
+    },
+    {
+      "id": "open_cold",
+      "name": "MM_ANDROID_OPEN_COLD_V4",
+      "unitId": "ca-app-pub-9179063936085117/7952715977"
+    },
+    {
+      "id": "open_resume",
+      "name": "MM_ANDROID_OPEN_RESUME_V4",
+      "unitId": "ca-app-pub-9179063936085117/7983224304"
+    },
+    {
+      "id": "reward_match_double",
+      "name": "MM_ANDROID_REWARD_MATCH_DOUBLE_V4",
+      "unitId": "ca-app-pub-9179063936085117/7753405421"
+    },
+    {
+      "id": "reward_match_triple",
+      "name": "MM_ANDROID_REWARD_MATCH_TRIPLE_V4",
+      "unitId": "ca-app-pub-9179063936085117/3404106030"
+    },
+    {
+      "id": "reward_daily",
+      "name": "MM_ANDROID_REWARD_DAILY_V4",
+      "unitId": "ca-app-pub-9179063936085117/4661347383"
+    }
+  ],
+  "pending": [
+    "reward_spin",
+    "reward_coffer",
+    "reward_swap"
+  ],
+  "blocker": "AdMob daily new ad-unit quota exceeded"
+}

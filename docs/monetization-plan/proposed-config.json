@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 4,
+  "planningOnly": true,
+  "enabled": false,
+  "platform": "android",
+  "automatic": {
+    "maxPerUtcDay": 6,
+    "maxPerRollingHour": 2,
+    "minGapSeconds": 300,
+    "afterRewardSeconds": 180,
+    "appOpenMaxPerDay": 2,
+    "appOpenMinLaunch": 3,
+    "appOpenResumeAfterSeconds": 14400,
+    "graceCompletedMatches": 1,
+    "preMatch": false,
+    "sessionInterstitial": false
+  },
+  "rewarded": {
+    "maxNewAwardsPerEconomyDay": 8,
+    "minGapSeconds": 30,
+    "claimReservationSeconds": 900,
+    "settlementRetentionDays": 30
+  },
+  "display": {
+    "maxVisible": 1,
+    "customRefresh": false,
+    "maxConcurrentLoads": 2
+  },
+  "web": {
+    "displayInGameShell": false,
+    "h5Enabled": false,
+    "rewardedPayouts": false,
+    "cmpVerified": false,
+    "accountVerified": false
+  },
+  "placements": {
+    "reward_match_double": {
+      "enabled": false,
+      "format": "rewarded",
+      "unitId": null
+    },
+    "reward_match_triple": {
+      "enabled": false,
+      "format": "rewarded",
+      "unitId": null
+    },
+    "reward_daily": {
+      "enabled": false,
+      "format": "rewarded",
+      "unitId": null
+    },
+    "reward_spin": {
+      "enabled": false,
+      "format": "rewarded",
+      "unitId": null
+    },
+    "reward_coffer": {
+      "enabled": false,
+      "format": "rewarded",
+      "unitId": null
+    },
+    "reward_swap": {
+      "enabled": false,
+      "format": "rewarded",
+      "unitId": null
+    },
+    "open_cold": {
+      "enabled": false,
+      "format": "app_open",
+      "unitId": null
+    },
+    "open_resume": {
+      "enabled": false,
+      "format": "app_open",
+      "unitId": null
+    },
+    "interstitial_online_result": {
+      "enabled": false,
+      "format": "interstitial",
+      "unitId": null
+    },
+    "interstitial_local_result": {
+      "enabled": false,
+      "format": "interstitial",
+      "unitId": null
+    },
+    "banner_home": {
+      "enabled": false,
+      "format": "banner",
+      "unitId": null
+    },
+    "banner_online_hub": {
+      "enabled": false,
+      "format": "banner",
+      "unitId": null
+    },
+    "banner_history": {
+      "enabled": false,
+      "format": "banner",
+      "unitId": null
+    },
+    "banner_vault": {
+      "enabled": false,
+      "format": "banner",
+      "unitId": null
+    },
+    "banner_cosmetics": {
+      "enabled": false,
+      "format": "banner",
+      "unitId": null
+    },
+    "banner_profile": {
+      "enabled": false,
+      "format": "banner",
+      "unitId": null
+    },
+    "banner_casebook": {
+      "enabled": false,
+      "format": "banner",
+      "unitId": null
+    },
+    "native_home": {
+      "enabled": false,
+      "format": "native",
+      "unitId": null
+    },
+    "native_online_hub": {
+      "enabled": false,
+      "format": "native",
+      "unitId": null
+    },
+    "native_history": {
+      "enabled": false,
+      "format": "native",
+      "unitId": null
+    },
+    "native_vault": {
+      "enabled": false,
+      "format": "native",
+      "unitId": null
+    },
+    "native_characters": {
+      "enabled": false,
+      "format": "native",
+      "unitId": null
+    },
+    "native_casebook": {
+      "enabled": false,
+      "format": "native",
+      "unitId": null
+    },
+    "native_council": {
+      "enabled": false,
+      "format": "native",
+      "unitId": null
+    }
+  }
+}

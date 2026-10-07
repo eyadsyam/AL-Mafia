@@ -3630,3 +3630,44 @@ Files:      lib/transport/{native_google,account_auth}.dart, lib/ui/account/acco
 Verified:   unit/widget tests for native Google and the push switch; node push_events + invites_push tests; migration run inside a rolled-back transaction on the live DB (enqueue/claim/cron rows OK, nothing persisted); deno check; send_push, friends and tester_signup deployed.
 Gate:       PASS (migration NOT applied; push_outbox triggers and cron are not live until `supabase db push`)
 Open:       Apply migration; register SHA-1s for Google; not tested on a device/emulator. «Your turn at night» is deliberately NOT per-role (it would reveal who has a night action): «الليل نزل» goes to every seat identically (Doc 05).
+
+## PHASE MONETIZATION-PLAN — done
+Built:      خطة الربح والنمو وإعلانات تطبيق أندرويد وويب الموبايل والكمبيوتر؛ 24 وحدة جديدة مخططة، بدون تنفيذ أو تعديل الحسابات.
+Files:      docs/monetization-plan/ (16 files), docs/PROGRESS.md. Entry: docs/monetization-plan/00-START-HERE.md. Handoff: docs/monetization-plan/09-IMPLEMENTER-PROMPT.md.
+Verified:   مراجعة الحسابين في Chrome؛ 102 اختبار Flutter ناجح؛ Node: 18/19؛ تحقق ملفات الخطة والروابط والحسابات.
+Gate:       PASS — planning only, not production readiness.
+Open:       تطبيق AdMob يحتاج مراجعة وربط المتجر؛ حساب AdSense مرفوض بسبب عام غير مفصّل؛ إصلاح اختبار تطابق وصف الأدوار مطلوب في التنفيذ.
+
+## PHASE M00 — blocked
+Built:      تحقق متطلبات التنفيذ؛ ads.txt وapp-ads.txt متاحان ويحملان معرّفي الناشر الصحيحين.
+Files:      docs/monetization-plan/account-evidence.json, docs/monetization-plan/implementation-status.md, docs/PROGRESS.md.
+Verified:   HTTPS: الملفان HTTP 200 وtext/plain؛ اختبار publisher consistency: 5/6 ناجحة؛ محاولات Chrome تعذرت.
+Gate:       FAIL — تعذر استكمال تحديث بيانات الحسابات.
+Open:       تقرير 28 يومًا وحالة نشر Play يحتاجان اتصال Chrome؛ وصف الأدوار يحتاج إصلاح M01. لم تبدأ مرحلة أخرى.
+
+## PHASE M00 — done (connection recovered)
+Built:      تحديث الحسابات وتقرير الوحدات والبلد؛ تأكيد الاختبار المغلق وحالة الربح الفعلية.
+Files:      docs/monetization-plan/account-evidence.json, docs/monetization-plan/implementation-status.md, docs/monetization-plan/05-ACCOUNTS-AND-POLICY.md.
+Verified:   Chrome: هويتا الحسابين، تقرير 20 سبتمبر–6 أكتوبر، 291 طلبًا/135 مطابقًا/32 ظهورًا، توقيت القاهرة؛ Play: 12 مختبرًا لمدة 4 أيام.
+Gate:       PASS — prerequisite audit; paid launch remains externally blocked.
+Open:       لا يوجد تاريخ تقرير كامل لـ28 يومًا؛ طلب إنتاج Play معطل حتى استيفاء 14 يومًا؛ AdMob يحتاج مراجعة وربط متجر؛ AdSense مرفوض بسبب عام.
+
+## PHASE M01 — done
+Built:      إصلاح وصف الأدوار والخصوصية، توحيد تعريفات التصميم، وبوابة التحويلات حسب توزيع تطبيق أندرويد.
+Files:      15 source/test/config files; docs/setup/PAYMENT-DISTRIBUTION.md; docs/monetization-plan/{account-evidence.json,implementation-status.md,05-ACCOUNTS-AND-POLICY.md,09-IMPLEMENTER-PROMPT.md}; docs/PROGRESS.md.
+Verified:   Flutter: 111 ناجح؛ Node: 19 ناجح؛ SQL محلي: 130 migration و2/2 suites؛ analyze --no-fatal-infos: exit 0 (102 info, zero errors/warnings)؛ تعريفات التصميم مطابقة وgit diff --check ناجح.
+Gate:       PASS — local M01 implementation.
+Open:       Migration لم يُنشر؛ موافقات Play/AdMob/AdSense واختبار الجهاز ما زالت مطلوبة. التالي M02؛ لم تبدأ مرحلة أخرى.
+
+## PHASE M02 + AD-INVENTORY — blocked
+Built:      Added 21 verified Android AdMob units (26 total); prepared v4 inventory/policy/session/ledger storage and additive capabilities; prevented legacy automatic hooks from owning a present v4 payload.
+Files:      lib/platform/monetization/{ad_placement_registry,ad_policy,ad_session,ad_ledger_store}.dart; lib/ui/economy/{economy_capabilities,interstitial_coordinator,app_open_gate}.dart; test/unit/{ad_policy_v4,ad_ledger_store_v4}_test.dart; docs/monetization-plan/{created-admob-units.json,ad-units.csv,admob-created-proof.png,admob-created-proof-small.jpg,implementation-status.md}; docs/PROGRESS.md.
+Verified:   Chrome success pages verified all 21 IDs; inventory UI reports 26 total. Flutter targeted v4/legacy/navigation: 51 passed; follow-up v4 tests recorded in implementation-status. No SDK/device or deployment verification.
+Gate:       FAIL — full M02/runtime rollout incomplete; account creation succeeded for 21 units.
+Open:       AdMob daily new-unit quota blocked reward_spin/coffer/swap. New inventory remains runtime disabled; new rewarded SSV unset. Route/lifecycle adapter integration, device tests, full policy matrix, server registry/SSV and deployment remain. Do not claim new ads are serving or restart completed M01.
+## PHASE MERGE-PREFLIGHT — done
+Built:      Prepared named integration checkpoint, verified old-version compatibility, centralized v4 timing tokens, fixed web integer guard and serialized ledger migration/update callbacks; final release integration remains on hold.
+Files:      lib/core/theme/design_tokens.dart; lib/platform/monetization/{ad_policy,ad_placement_registry,ad_session,ad_ledger_store}.dart; test/unit/ad_ledger_store_v4_test.dart; docs/monetization-plan/{MERGE-READINESS.md,runtime-candidate.json,implementation-status.md}; tool/verify_admob_inventory.mjs; docs/PROGRESS.md.
+Verified:   Full Flutter run: 1741 passed, 5 skipped, 1 failed; sole failure fixed and targeted rerun 11/11 passed. Latest ad/legacy subset 51 passed before final storage changes; final storage concurrency covered in 11/11 rerun. Node 19 passed; local SQL 130 migrations and 2/2 suites passed; analyze exit 0 with 111 info/no errors/warnings; manifest and diff checks passed.
+Gate:       PASS — checkpoint and compatibility audit only; NOT completed monetization rollout or final merge readiness.
+Open:       SDK/route/lifecycle integration, SSV/server registry, telemetry, native/web/performance and release gates still incomplete; 3 units quota-blocked. Branch codex/monetization-v4-foundation is a checkpoint, not an instruction to merge now. Main checkout unchanged.

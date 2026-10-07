@@ -249,6 +249,8 @@ class InterstitialCoordinator {
       // touches no storage, so a tap is never held up.
       if (!ads.configured) return InterstitialVerdict.off;
       final caps = _loadedCaps() ?? EconomyCapabilities.none;
+      // v4 owns every new automatic placement; never run a second v3 path.
+      if (caps.adsV4Present) return InterstitialVerdict.off;
       final gameplay =
           _inRoom() ||
           (placement == AdPlacement.session &&

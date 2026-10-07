@@ -286,16 +286,49 @@ void main() {
   };
 
   group('capabilities', () {
-    test('Android and web can show transfers; other platforms cannot', () {
+    test('Play Android hides transfers; mobile web keeps its channel', () {
       final a = paymentCapabilitiesFor(
         web: false,
         target: TargetPlatform.android,
       );
-      expect((a.transfer, a.platform), (true, 'android'));
+      expect((a.transfer, a.platform), (false, 'android'));
       final w = paymentCapabilitiesFor(web: true, target: TargetPlatform.iOS);
       expect((w.transfer, w.platform), (true, 'web'));
       final i = paymentCapabilitiesFor(web: false, target: TargetPlatform.iOS);
       expect(i.transfer, isFalse);
+    });
+
+    test('direct Android requires explicit approval; Play stays off', () {
+      for (final approved in [false, true]) {
+        final play = paymentCapabilitiesFor(
+          web: false,
+          target: TargetPlatform.android,
+          androidTransfersApproved: approved,
+        );
+        expect(play.transfer, isFalse);
+        final direct = paymentCapabilitiesFor(
+          web: false,
+          target: TargetPlatform.android,
+          distribution: AndroidDistribution.direct,
+          androidTransfersApproved: approved,
+        );
+        expect(direct.transfer, approved);
+        expect(direct.platform, 'android');
+      }
+    });
+
+    test('unknown distribution fails closed; native iOS stays unsupported', () {
+      for (final value in ['', 'play', 'Direct', 'other', 'approved']) {
+        expect(androidDistributionFor(value), AndroidDistribution.play);
+      }
+      expect(androidDistributionFor('direct'), AndroidDistribution.direct);
+      final ios = paymentCapabilitiesFor(
+        web: false,
+        target: TargetPlatform.iOS,
+        distribution: AndroidDistribution.direct,
+        androidTransfersApproved: true,
+      );
+      expect((ios.transfer, ios.platform), (false, null));
     });
 
     test('no payment destination or transfer URL ships in the app', () {

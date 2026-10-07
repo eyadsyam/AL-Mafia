@@ -1,0 +1,176 @@
+{
+  "version": 4,
+  "revision": 1,
+  "ttlSeconds": 86400,
+  "enabled": false,
+  "placements": [
+    {
+      "id": "reward_match_double",
+      "platform": "android",
+      "format": "rewarded",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/7753405421"
+    },
+    {
+      "id": "reward_match_triple",
+      "platform": "android",
+      "format": "rewarded",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/3404106030"
+    },
+    {
+      "id": "reward_daily",
+      "platform": "android",
+      "format": "rewarded",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/4661347383"
+    },
+    {
+      "id": "reward_spin",
+      "platform": "android",
+      "format": "rewarded",
+      "enabled": false,
+      "unitId": null
+    },
+    {
+      "id": "reward_coffer",
+      "platform": "android",
+      "format": "rewarded",
+      "enabled": false,
+      "unitId": null
+    },
+    {
+      "id": "reward_swap",
+      "platform": "android",
+      "format": "rewarded",
+      "enabled": false,
+      "unitId": null
+    },
+    {
+      "id": "open_cold",
+      "platform": "android",
+      "format": "appOpen",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/7952715977"
+    },
+    {
+      "id": "open_resume",
+      "platform": "android",
+      "format": "appOpen",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/7983224304"
+    },
+    {
+      "id": "interstitial_online_result",
+      "platform": "android",
+      "format": "interstitial",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/9296305972"
+    },
+    {
+      "id": "interstitial_local_result",
+      "platform": "android",
+      "format": "interstitial",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/9969514385"
+    },
+    {
+      "id": "banner_home",
+      "platform": "android",
+      "format": "banner",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/8363779511"
+    },
+    {
+      "id": "banner_online_hub",
+      "platform": "android",
+      "format": "banner",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/8419619834"
+    },
+    {
+      "id": "banner_history",
+      "platform": "android",
+      "format": "banner",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/9258058781"
+    },
+    {
+      "id": "banner_vault",
+      "platform": "android",
+      "format": "banner",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/5318813774"
+    },
+    {
+      "id": "banner_cosmetics",
+      "platform": "android",
+      "format": "banner",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/8174795996"
+    },
+    {
+      "id": "banner_profile",
+      "platform": "android",
+      "format": "banner",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/2919881145"
+    },
+    {
+      "id": "banner_casebook",
+      "platform": "android",
+      "format": "banner",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/9972374654"
+    },
+    {
+      "id": "native_home",
+      "platform": "android",
+      "format": "native",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/4235550981"
+    },
+    {
+      "id": "native_online_hub",
+      "platform": "android",
+      "format": "native",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/2692650431"
+    },
+    {
+      "id": "native_history",
+      "platform": "android",
+      "format": "native",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/9293717805"
+    },
+    {
+      "id": "native_vault",
+      "platform": "android",
+      "format": "native",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/1609387640"
+    },
+    {
+      "id": "native_characters",
+      "platform": "android",
+      "format": "native",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/4449594399"
+    },
+    {
+      "id": "native_casebook",
+      "platform": "android",
+      "format": "native",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/1243837397"
+    },
+    {
+      "id": "native_council",
+      "platform": "android",
+      "format": "native",
+      "enabled": false,
+      "unitId": "ca-app-pub-9179063936085117/3136512721"
+    }
+  ]
+}

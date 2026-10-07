@@ -26,7 +26,8 @@ create function pg_temp.pv_on(p_android boolean, p_web boolean) returns void
 language plpgsql as $$
 begin
   insert into public.economy_config(id) values(true) on conflict do nothing;
-  update public.economy_config set transfer_enabled_android=p_android, transfer_enabled_web=p_web;
+  update public.economy_config set transfer_enabled_android=p_android,
+    transfer_android_direct_approved=p_android, transfer_enabled_web=p_web;
 end $$;
 -- Create and submit proof; returns the order id.
 create function pg_temp.pv_order(p_user uuid, p_pack text, p_seed text) returns uuid

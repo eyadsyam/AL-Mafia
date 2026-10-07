@@ -1,0 +1,25 @@
+{
+  "observedAt": null,
+  "accountEmailVerified": null,
+  "publisherId": null,
+  "appOrSite": null,
+  "statusText": null,
+  "issueCode": null,
+  "affectedUrls": [],
+  "reviewAllowed": null,
+  "report": {
+    "dateFrom": null,
+    "dateTo": null,
+    "timezone": null,
+    "currency": null,
+    "dimensions": ["unit", "country", "appVersion"],
+    "requests": null,
+    "matchedRequests": null,
+    "impressions": null,
+    "estimatedRevenue": null,
+    "finalizedRevenue": null
+  },
+  "evidenceFiles": [],
+  "unknowns": [],
+  "writesPerformed": []
+}
