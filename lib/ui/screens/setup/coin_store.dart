@@ -281,9 +281,6 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
         (l.storeTabRewards, Icons.redeem_rounded, const DailyRewardsTab()),
       if (caps.council.hub)
         (l.storeTabCouncil, Icons.groups_rounded, const CouncilHubTab()),
-      // «أدوات القعدة» first among the things to buy: the testers walked past
-      // cosmetics; tools change a match.
-      (l.storeTabTools, Icons.construction_rounded, const TableToolsShopTab()),
       (
         l.storeTabShop,
         Icons.storefront_rounded,
@@ -291,6 +288,8 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
             ? const SizedBox.shrink()
             : _ShopTab(wallet: value, onOpen: _open),
       ),
+      // «أدوات القعدة», right beside the shop: tools change a match.
+      (l.storeTabTools, Icons.construction_rounded, const TableToolsShopTab()),
       (
         l.storeTabCollection,
         Icons.checkroom_rounded,

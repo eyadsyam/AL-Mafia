@@ -405,6 +405,9 @@ void main() {
       ],
     );
     await pumpStore(tester);
+    // A tab further along the scrolling bar since «الأدوات» joined it.
+    await tester.ensureVisible(find.text(arStrings.storeTabHistory));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(arStrings.storeTabHistory));
     await tester.pumpAndSettle();
     expect(find.text(arStrings.historyMatchCompletion), findsOneWidget);

@@ -10,6 +10,10 @@ class StoryCatalog {
   static const assetPaths = [
     'assets/stories/qahwet_el_moallem.json',
     'assets/stories/el_oda_el_mafoola.json',
+    'assets/stories/el_atr_el_akheer.json',
+    'assets/stories/cinema_rivoli.json',
+    'assets/stories/el_asansir.json',
+    'assets/stories/el_shahed_el_a3ma.json',
   ];
 
   Future<List<StoryDefinition>> load() async {
