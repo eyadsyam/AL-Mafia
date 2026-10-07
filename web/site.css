@@ -1,0 +1,67 @@
+/* Shared look of the static pages (about, rules, articles, contact).
+   Same palette as the game: near-black, warm gold accent. */
+:root {
+  --bg: #151619;
+  --surface: #1e1f23;
+  --line: #3a3b40;
+  --text: #eeeeee;
+  --muted: #b8b8bd;
+  --gold: #eacb87;
+  --ink: #0f0f0f;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+  background: var(--bg);
+  color: var(--text);
+  font: 18px/1.6 system-ui, "Segoe UI", Tahoma, sans-serif;
+  letter-spacing: 0;
+}
+a { color: var(--gold); }
+h1, h2, h3 { line-height: 1.4; }
+h1 { font-size: 1.8rem; margin: 0.6em 0; }
+h2 { color: var(--gold); margin-top: 1.6em; font-size: 1.3rem; }
+p, li { max-width: 75ch; }
+img { max-width: 100%; height: auto; }
+.skip { position: absolute; inset-inline-start: -999px; }
+.skip:focus { inset-inline-start: 16px; top: 8px; background: var(--gold); color: var(--ink); padding: 8px 12px; z-index: 9; }
+nav.site {
+  display: flex; flex-wrap: nowrap; gap: 4px 6px; overflow-x: auto;
+  scrollbar-width: none; white-space: nowrap;
+  padding: 8px 0 14px; border-bottom: 1px solid var(--line); margin-bottom: 20px;
+}
+nav.site a {
+  display: inline-flex; align-items: center; min-height: 48px; padding: 0 10px;
+  text-decoration: none; border-radius: 8px;
+}
+nav.site a:hover, nav.site a:focus-visible { background: var(--surface); }
+nav.site a[aria-current] { font-weight: 700; text-decoration: underline; }
+.crumbs { font-size: 0.9rem; color: var(--muted); }
+.meta { color: var(--muted); font-size: 0.95rem; }
+figure { margin: 16px 0; text-align: center; }
+figure img { border-radius: 12px; width: min(280px, 100%); height: auto; }
+.cta {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; margin: 8px 0; padding: 0 22px;
+  background: var(--gold); color: var(--ink); border: 0; border-radius: 8px;
+  font: inherit; font-weight: 700; text-decoration: none; cursor: pointer;
+}
+ul.cards { list-style: none; padding: 0; display: grid; gap: 14px; }
+ul.cards a {
+  display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center;
+  padding: 12px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; color: var(--text); text-decoration: none;
+}
+ul.cards img { width: 96px; height: 144px; object-fit: cover; border-radius: 8px; }
+ul.cards strong { color: var(--gold); }
+form.contact { display: grid; gap: 8px; max-width: 520px; }
+form.contact input, form.contact select, form.contact textarea {
+  font: inherit; color: var(--text); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-height: 48px;
+}
+.hint { color: var(--muted); font-size: 0.9rem; }
+footer.site { border-top: 1px solid var(--line); margin-top: 32px; padding-top: 16px; font-size: 16px; color: var(--muted); }
+footer.site a { display: inline-block; padding: 12px 2px; }
