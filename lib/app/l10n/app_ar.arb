@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {
   "onlineHostExitTitle": "هتخرج من الأوضة؟",
   "onlineHostExitBody": "الأوضة تقدر تكمل والهوست ينتقل لأول لاعب موجود. قفل الأوضة بينهيها للجميع.",
@@ -909,7 +908,13 @@
   "silencedCannotVote": "إنت متسكّت النهارده — مينفعش تصوّت",
   "continueLabel": "كمّل",
   "silencedAnnouncement": "{name} متسكّت النهارده",
-  "@silencedAnnouncement": {"placeholders": {"name": {"type": "String"}}},
+  "@silencedAnnouncement": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "elderRevealAction": "اكشف للترابيزة",
   "elderRevealedMark": "شيخ مكشوف · صوته ×٣",
   "myCard": "كارتي",
@@ -1482,7 +1487,13 @@
   "inviteRedeemed": "الدعوة اتسجلت. خلّص ماتش عشان المكافأتين يتفتحوا.",
   "inviteRewarded": "مكافأة الدعوة وصلت.",
   "inviteSettledNoCoinsNotice": "{name} كمّل شروط الدعوة — اتحسبت في تقدّم دعواتك.",
-  "@inviteSettledNoCoinsNotice": {"placeholders": {"name": {"type": "String"}}},
+  "@inviteSettledNoCoinsNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "inviteNotFound": "الكود ده مش موجود.",
   "inviteSelf": "مينفعش تستخدم الكود بتاعك.",
   "inviteExpired": "أكواد الدعوة للحسابات الجديدة بس، خلال 7 أيام.",
@@ -1555,7 +1566,13 @@
   "cofferStripBody": "استلمه من هنا على طول.",
   "cofferStripClaim": "استلم",
   "cofferStripGot": "+{amount} اتضافوا لخزنتك",
-  "@cofferStripGot": {"placeholders": {"amount": {"type": "int"}}},
+  "@cofferStripGot": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "cofferStripSpin": "لف العجلة",
   "cofferStripLater": "بعدين",
   "welcomeBackTitle": "وحشتنا",
@@ -1651,13 +1668,37 @@
   "bondDossiersTitle": "الملفات الأربعة",
   "bondDossiersHint": "ليهم ذاكرة. وإنت فيها.",
   "bondCaseCount": "قضايا {count}",
-  "@bondCaseCount": {"placeholders": {"count": {"type": "int"}}},
+  "@bondCaseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bondVictoryCount": "انتصارات {count}",
-  "@bondVictoryCount": {"placeholders": {"count": {"type": "int"}}},
+  "@bondVictoryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bondWitnessCount": "شهادات {count}",
-  "@bondWitnessCount": {"placeholders": {"count": {"type": "int"}}},
+  "@bondWitnessCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bondPersonalCount": "لقاءات شخصية {count}",
-  "@bondPersonalCount": {"placeholders": {"count": {"type": "int"}}},
+  "@bondPersonalCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bondLockedLine": "خلّص قضية والشخصية دي موجودة على الترابيزة.",
   "bondMafiaTier1": "فاكر الترابيزة دي. كانت عارفة إمتى تسكت.",
   "bondMafiaTier2": "الحكاية المظبوطة كلامها أقل من الحكاية الخايفة.",
@@ -1691,11 +1732,23 @@
   "characterPrevious": "الشخصية اللي قبلها",
   "characterNext": "الشخصية اللي بعدها",
   "bondSealedLetter": "رسالة مختومة · تتفتح بعد {count} قضايا",
-  "@bondSealedLetter": {"placeholders": {"count": {"type": "int"}}},
+  "@bondSealedLetter": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bondLettersTitle": "رسايلها ليك",
   "bondOpenAll": "كل الملفات",
   "bondNewLetter": "رسالة جديدة من {name}",
-  "@bondNewLetter": {"placeholders": {"name": {"type": "String"}}},
+  "@bondNewLetter": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "bondStrangerLine": "لسه ما قعدتش على ترابيزتها.",
   "warmupTitle": "بنجهّز الترابيزة…",
   "warmupOnce": "مرة واحدة بس. بعد كده على طول.",
@@ -1704,9 +1757,21 @@
   "rematchWaiting": "مستنيين المضيف يفتح الماتش الجاي…",
   "friendsTitle": "أصحابك",
   "friendsTitleWithOnline": "أصحابك · {count} في روم دلوقتي",
-  "@friendsTitleWithOnline": {"placeholders": {"count": {"type": "int"}}},
+  "@friendsTitleWithOnline": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "friendsInvitedYou": "{name} عزمك على روم · ادخل",
-  "@friendsInvitedYou": {"placeholders": {"name": {"type": "String"}}},
+  "@friendsInvitedYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "friendsInvites": "دعوات ليك",
   "friendsJoin": "ادخل",
   "friendsRequests": "طلبات صداقة",
@@ -1716,14 +1781,26 @@
   "friendsYours": "أصحابك",
   "friendsNone": "لسه مفيش. اللي تلعب معاهم أونلاين هيظهروا تحت.",
   "friendsInLobby": "في روم · {count} على الترابيزة",
-  "@friendsInLobby": {"placeholders": {"count": {"type": "int"}}},
+  "@friendsInLobby": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "friendsPlaying": "في ماتش دلوقتي",
   "friendsAway": "مش موجود دلوقتي",
   "friendsInvited": "اتعزم",
   "friendsInvite": "اعزم",
   "friendsRecent": "لعبت معاهم قريب",
   "friendsMatchesTogether": "{count} ماتش سوا",
-  "@friendsMatchesTogether": {"placeholders": {"count": {"type": "int"}}},
+  "@friendsMatchesTogether": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "friendsPending": "مستني رده",
   "friendsAdd": "أضف",
   "friendsInviteToRoom": "اعزم أصحابك",
@@ -1748,11 +1825,23 @@
   "authSendCode": "ابعت الكود",
   "authVerifyTitle": "أكّد الإيميل",
   "authVerifyBody": "بعتنا كود من 6 أرقام لـ {email}. اكتبه هنا أو افتح اللينك اللي في الإيميل.",
-  "@authVerifyBody": {"placeholders": {"email": {"type": "String"}}},
+  "@authVerifyBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "authVerify": "تأكيد",
   "authResend": "ابعت الكود تاني",
   "authResendIn": "ابعته تاني بعد {seconds} ث",
-  "@authResendIn": {"placeholders": {"seconds": {"type": "int"}}},
+  "@authResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "authResent": "اتبعت تاني.",
   "authWelcome": "أهلًا بيك. حسابك جاهز.",
   "authSignIn": "دخول",
@@ -1787,52 +1876,160 @@
   "casebookSeason": "الموسم",
   "casebookLegacy": "السجل",
   "casebookDaysLeft": "{n, plural, =0{الموسم بيقفل النهارده} =1{باقي يوم على قفلة الموسم} =2{باقي يومين على قفلة الموسم} few{باقي {n} أيام على قفلة الموسم} other{باقي {n} يوم على قفلة الموسم}}",
-  "@casebookDaysLeft": {"placeholders": {"n": {"type": "int"}}},
+  "@casebookDaysLeft": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookWeekly": "قضية الأسبوع",
   "casebookBonus": "اقفل التلات قضايا وخد كمان",
   "casebookBonusTaken": "قفلت قضايا النهارده كلها",
   "casebookFrom": "من ال{name}",
-  "@casebookFrom": {"placeholders": {"name": {"type": "String"}}},
+  "@casebookFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "casebookClaim": "استلم",
   "casebookClaimed": "اتقفلت",
   "casebookClaimError": "ماستلمناش، جرّب تاني",
   "casebookLevel": "المستوى {n}",
-  "@casebookLevel": {"placeholders": {"n": {"type": "int"}}},
+  "@casebookLevel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookXp": "{xp} / {next}",
-  "@casebookXp": {"placeholders": {"xp": {"type": "int"}, "next": {"type": "int"}}},
+  "@casebookXp": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      },
+      "next": {
+        "type": "int"
+      }
+    }
+  },
   "casebookXpGain": "+{n} نقطة",
-  "@casebookXpGain": {"placeholders": {"n": {"type": "int"}}},
+  "@casebookXpGain": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookSeasonDone": "قفلت الموسم كله",
   "casebookTitleReward": "لقب جديد",
   "casebookItemReward": "زينة جديدة",
   "casebookRank": "رتبة المجلس {n}",
-  "@casebookRank": {"placeholders": {"n": {"type": "int"}}},
+  "@casebookRank": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookAchievements": "الإنجازات",
   "casebookReady": "{n, plural, =1{حاجة جاهزة تستلمها} =2{حاجتين جاهزين تستلمهم} few{{n} حاجات جاهزة تستلمها} other{{n} حاجة جاهزة تستلمها}}",
-  "@casebookReady": {"placeholders": {"n": {"type": "int"}}},
+  "@casebookReady": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookFailed": "مقدرناش نفتح الملف دلوقتي",
   "casebookRetry": "جرّب تاني",
   "casebookResult": "ملف القضايا اتحرّك · افتحه",
   "caseFinish": "{n, plural, =1{العب ماتش أونلاين للآخر} =2{العب ماتشين أونلاين للآخر} few{العب {n} ماتشات أونلاين للآخر} other{العب {n} ماتش أونلاين للآخر}}",
-  "@caseFinish": {"placeholders": {"n": {"type": "int"}}},
+  "@caseFinish": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseWin": "{n, plural, =1{اكسب ماتش} =2{اكسب ماتشين} few{اكسب {n} ماتشات} other{اكسب {n} ماتش}}",
-  "@caseWin": {"placeholders": {"n": {"type": "int"}}},
+  "@caseWin": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseHost": "{n, plural, =1{افتح ترابيزة واقفلها للآخر} =2{افتح ترابيزتين واقفلهم للآخر} few{افتح {n} ترابيزات واقفلهم للآخر} other{افتح {n} ترابيزة واقفلهم للآخر}}",
-  "@caseHost": {"placeholders": {"n": {"type": "int"}}},
+  "@caseHost": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseReunion": "{n, plural, =1{العب تاني مع حد قعدت معاه قبل كده} other{العب تاني مع {n} ناس قعدت معاهم قبل كده}}",
-  "@caseReunion": {"placeholders": {"n": {"type": "int"}}},
+  "@caseReunion": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casePublic": "{n, plural, =1{اقعد على ترابيزة عامة} =2{اقعد على ترابيزتين عامين} few{اقعد على {n} ترابيزات عامة} other{اقعد على {n} ترابيزة عامة}}",
-  "@casePublic": {"placeholders": {"n": {"type": "int"}}},
+  "@casePublic": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseInvite": "{n, plural, =1{اعزم صاحب يلعب معاك} other{اعزم {n} أصحاب يلعبوا معاك}}",
-  "@caseInvite": {"placeholders": {"n": {"type": "int"}}},
+  "@caseInvite": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseStreak": "{n, plural, =1{العب النهارده} =2{العب يومين ورا بعض} few{العب {n} أيام ورا بعض} other{العب {n} يوم ورا بعض}}",
-  "@caseStreak": {"placeholders": {"n": {"type": "int"}}},
+  "@caseStreak": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseDailies": "{n, plural, =1{اقفل قضايا يوم كامل} =2{اقفل قضايا يومين كاملين} few{اقفل قضايا {n} أيام كاملة} other{اقفل قضايا {n} يوم كامل}}",
-  "@caseDailies": {"placeholders": {"n": {"type": "int"}}},
+  "@caseDailies": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseLevel": "وصّل للمستوى {n} في الموسم",
-  "@caseLevel": {"placeholders": {"n": {"type": "int"}}},
+  "@caseLevel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookProgress": "{progress} من {target}",
-  "@casebookProgress": {"placeholders": {"progress": {"type": "int"}, "target": {"type": "int"}}},
+  "@casebookProgress": {
+    "placeholders": {
+      "progress": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
   "onlineRoomUnavailable": "الترابيزة دي مش متاحة ليك.",
   "onlineNameNotAllowed": "الاسم ده مش مسموح. اختار اسم تاني.",
   "onlineAccountRestricted": "حسابك مش هيقدر يدخل هنا دلوقتي.",
@@ -1851,7 +2048,13 @@
   "safetyNoticePublic": "الترابيزات العامة مقفولة لحسابك.",
   "safetyNoticeSuspend": "اللعب الأونلاين مقفول لحسابك.",
   "safetyNoticeUntil": "لحد {date}.",
-  "@safetyNoticeUntil": {"placeholders": {"date": {"type": "String"}}},
+  "@safetyNoticeUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "safetyNoticeForever": "بشكل نهائي.",
   "safetyNoticeOk": "تمام",
   "adminSafetyTitle": "البلاغات",
@@ -1863,26 +2066,59 @@
   "adminSafetyCtxResult": "النتيجة",
   "adminSafetyCtxFriends": "الأصحاب",
   "adminSafetyTarget": "{name} · {open} مفتوحة · {actioned} إجراء",
-  "@adminSafetyTarget": {"placeholders": {"name": {"type": "String"}, "open": {"type": "int"}, "actioned": {"type": "int"}}},
+  "@adminSafetyTarget": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "open": {
+        "type": "int"
+      },
+      "actioned": {
+        "type": "int"
+      }
+    }
+  },
   "adminSafetyDismiss": "رفض البلاغ",
   "adminSafetyWarn": "تحذير",
   "adminSafetyNoVoice": "منع الصوت 7 أيام",
   "adminSafetyNoPublic": "منع الترابيزات العامة 7 أيام",
   "adminSafetySuspendDays": "إيقاف {days} يوم",
-  "@adminSafetySuspendDays": {"placeholders": {"days": {"type": "int"}}},
+  "@adminSafetySuspendDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "adminSafetySuspendForever": "إيقاف نهائي",
   "adminSafetyPurge": "امسح القديم حسب مدة الاحتفاظ",
   "adminSafetyMore": "اعرض أكتر",
   "adminSafetyOpenQueue": "طابور البلاغات",
   "witnessWhispersTitle": "الهمسات",
   "witnessWhisperLine": "{from} همس لـ{to}",
-  "@witnessWhisperLine": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "@witnessWhisperLine": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "witnessWhisperMasked": "مخفية: إنت عامل بلوك للي بعتها.",
   "witnessWhisperReport": "بلّغ عن الهمسة دي",
-  "witnessWhispersDisclosure": "اللي خرجوا من اللعبة بيشوفوا الهمسات"
-  ,"thursdayNight": "ليلة الخميس",
+  "witnessWhispersDisclosure": "اللي خرجوا من اللعبة بيشوفوا الهمسات",
+  "thursdayNight": "ليلة الخميس",
   "thursdayProgress": "الماتشات: {count}/2",
-  "@thursdayProgress": {"placeholders": {"count": {"type": "int"}}},
+  "@thursdayProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "thursdayLine": "كل خميس من 8 بالليل: ماتشين هنا = 40 نقطة موسم وختم.",
   "thursdayOpensLater": "بتفتح الساعة 8 بالليل",
   "thursdayOpenRoom": "افتح أوضة الخميس",
@@ -1891,7 +2127,16 @@
   "lobbyReadyAction": "أنا جاهز",
   "lobbyUnreadyAction": "مش جاهز",
   "lobbyReadyCount": "{ready} من {total} جاهزين",
-  "@lobbyReadyCount": {"placeholders": {"ready": {"type": "int"}, "total": {"type": "int"}}},
+  "@lobbyReadyCount": {
+    "placeholders": {
+      "ready": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "witnessSeatQuiet": "لسه محدش عمل حاجة مع الكرسي ده",
   "witnessNightTitle": "بالليل",
   "witnessWhisperReported": "وصلنا البلاغ",
@@ -1900,13 +2145,52 @@
   "onlineWeatherRetry": "جرّب دلوقتي",
   "xpUnit": "نقطة",
   "inviteFirstMatchNotice": "{name} لعب أول ماتش — خدت {coins} عملة",
-  "@inviteFirstMatchNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
+  "@inviteFirstMatchNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "coins": {
+        "type": "int"
+      }
+    }
+  },
   "inviteProgressNotice": "صاحبك لعب {count} من 3",
-  "@inviteProgressNotice": {"placeholders": {"count": {"type": "int"}}},
+  "@inviteProgressNotice": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "inviteSettledNotice": "{name} كمّل التلات ماتشات — خدت {coins} عملة",
-  "@inviteSettledNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
+  "@inviteSettledNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "coins": {
+        "type": "int"
+      }
+    }
+  },
   "inviteSettledCounter": "دعوات كملت: {season}/{seasonCap} الموسم ده · {lifetime}/{lifetimeCap} الكل",
-  "@inviteSettledCounter": {"placeholders": {"season": {"type": "int"}, "seasonCap": {"type": "int"}, "lifetime": {"type": "int"}, "lifetimeCap": {"type": "int"}}},
+  "@inviteSettledCounter": {
+    "placeholders": {
+      "season": {
+        "type": "int"
+      },
+      "seasonCap": {
+        "type": "int"
+      },
+      "lifetime": {
+        "type": "int"
+      },
+      "lifetimeCap": {
+        "type": "int"
+      }
+    }
+  },
   "inviteNoticeFriend": "صاحبك",
   "partnerDetective": "المحقق",
   "partnerDoctor": "الدكتور",
@@ -1934,9 +2218,21 @@
   "storeWearing": "لابسه دلوقتي",
   "titlesHeading": "ألقابك",
   "partnerCasebookLine": "{who}: كل قضية بتقفلها بتتكتب هنا",
-  "@partnerCasebookLine": {"placeholders": {"who": {"type": "String"}}},
+  "@partnerCasebookLine": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
   "lobbyReadyCountdown": "فاضل {seconds} ثانية تأكد إنك جاهز",
-  "@lobbyReadyCountdown": {"placeholders": {"seconds": {"type": "int"}}},
+  "@lobbyReadyCountdown": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "inviteSheetTitle": "ادعي صحابك",
   "inviteTabFriends": "الأصحاب",
   "inviteTabSearch": "دوّر بالاسم",
@@ -1958,13 +2254,31 @@
   "inviteStatePlaying": "بيلعب",
   "inviteStateAway": "مش موجود",
   "inviteLevel": "مستوى {level}",
-  "@inviteLevel": {"placeholders": {"level": {"type": "int"}}},
+  "@inviteLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "inviteMore": "هات كمان",
   "inviteIncomingTitle": "دعوة للعب",
   "inviteIncomingBody": "{name} بيدعوك تلعبوا مع بعض",
-  "@inviteIncomingBody": {"placeholders": {"name": {"type": "String"}}},
+  "@inviteIncomingBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "inviteIncomingCode": "أوضة {code}",
-  "@inviteIncomingCode": {"placeholders": {"code": {"type": "String"}}},
+  "@inviteIncomingCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "inviteEnter": "ادخل",
   "inviteLater": "بعدين",
   "inviteRoomGone": "الأوضة بدأت أو اتقفلت",
@@ -1999,7 +2313,13 @@
   "onboardAccountSignIn": "سجّل دخول (جوجل أو إيميل)",
   "onboardAccountGuest": "كمّل من غير تسجيل",
   "onboardAccountSignedIn": "متسجّل بـ {email}",
-  "@onboardAccountSignedIn": {"placeholders": {"email": {"type": "String"}}},
+  "@onboardAccountSignedIn": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "onboardAccountSignedInPlain": "حسابك متسجّل",
   "deleteAccountRow": "احذف حسابي وبياناتي",
   "deleteAccountTitle": "تحذف حسابك؟",
@@ -2084,9 +2404,24 @@
   "toolTierMedium": "متوسطة",
   "toolTierHeavy": "تقيلة",
   "toolCharges": "معاك {count}",
-  "@toolCharges": {"placeholders": {"count": {"type": "int"}}},
+  "@toolCharges": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "toolPack": "{count} × {price}",
-  "@toolPack": {"placeholders": {"count": {"type": "int"}, "price": {"type": "int"}}},
+  "@toolPack": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "toolBuyFailed": "الشرا ماتمّش. جرّب تاني.",
   "toolNotEnough": "الكوينز مش كفاية.",
   "toolsInMatch": "أدواتك",
@@ -2094,2027 +2429,17 @@
   "toolUsed": "اتستخدمت",
   "toolNoneOwned": "معاكش أدوات لسه. هاتها من المتجر.",
   "toolPickTargets": "اختار {count}",
-  "@toolPickTargets": {"placeholders": {"count": {"type": "int"}}},
+  "@toolPickTargets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "toolNoteHint": "اكتب رسالتك (١٤٠ حرف)",
   "toolImpersonateCitizen": "اظهر مواطن",
   "toolImpersonateMafia": "اظهر مافيا",
-  "toolRefused": "مش متاحة دلوقتي."
-=======
-{
-  "onlineHostExitTitle": "هتخرج من الأوضة؟",
-  "onlineHostExitBody": "الأوضة تقدر تكمل والهوست ينتقل لأول لاعب موجود. قفل الأوضة بينهيها للجميع.",
-  "onlineLeaveKeepRoom": "اخرج والأوضة تكمل",
-  "voiceEnablePlayback": "تشغيل الصوت",
-  "onlineHistoryLabel": "ماتش أونلاين",
-  "onlineMatchMeta": "{players} لاعبين · اليوم {day}",
-  "@onlineMatchMeta": {
-    "placeholders": {
-      "players": {
-        "type": "int"
-      },
-      "day": {
-        "type": "int"
-      }
-    }
-  },
-  "@@locale": "ar",
-  "profileTitle": "بروفايلك",
-  "profileHint": "اختار اسمك وشخصيتك. هنحفظهم عشان ترجع تلعب بسرعة.",
-  "profileSaveFailed": "مقدرناش نحفظ البروفايل. اسمح بالتخزين في المتصفح وجرب تاني.",
-  "profileEdit": "عدّل البروفايل",
-  "videoPlay": "شغّل الشرح",
-  "videoFailed": "الشرح مش راضي يشتغل هنا.",
-  "videoRetry": "جرّب تاني",
-  "voiceRetry": "شغّل الصوت",
-  "onlineNightPrivacyHint": "الصوت مقفول وقت كشف الأدوار والليل لحماية سرية اللعب.",
-  "appTitle": "سيد المافيا",
-  "actionNotSaved": "اختيارك متسجلش جرب تاني",
-  "back": "رجوع",
-  "cancel": "الغاء",
-  "deleteAction": "امسح",
-  "continueAction": "كمل",
-  "listSeparator": "، ",
-  "newMatch": "مباراة جديدة",
-  "history": "السجل",
-  "settings": "الإعدادات",
-  "addPlayersTitle": "ضيف اللاعبين",
-  "seatingOrderSubtitle": "اسحب الاسم عشان تغير ترتيبه",
-  "playerNameHint": "اسم اللاعب",
-  "addPlayer": "ضيف",
-  "playerCountLine": "عدد اللاعبين: {count}",
-  "@playerCountLine": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "noPlayersYet": "ضيف أول لاعب",
-  "minPlayersHint": "لازم ٥ لاعبين على الأقل عشان تكمل",
-  "next": "كمل",
-  "seatNumber": "الكرسي #{seat}",
-  "@seatNumber": {
-    "placeholders": {
-      "seat": {
-        "type": "int"
-      }
-    }
-  },
-  "rolesTitle": "توزيع الأدوار",
-  "playerCountShort": "{count} لاعب",
-  "@playerCountShort": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "roleGroupMafia": "المافيا",
-  "roleGroupDetective": "المحقق",
-  "roleGroupDoctor": "الدكتور",
-  "roleGroupCitizen": "المواطن",
-  "balanceValid": "التوزيع جاهز",
-  "balancePlayerCountTooLow": "محتاجين 5 لاعبين على الأقل",
-  "balancePlayerCountTooHigh": "الحد الأقصى 20 لاعب",
-  "balanceNegativeRoleCount": "عدد الأدوار مينفعش يبقى بالسالب",
-  "balanceRoleCountMismatch": "مجموع الأدوار لازم يساوي عدد اللاعبين",
-  "balanceNoMafia": "لازم يكون في مافيا واحد على الأقل",
-  "balanceMafiaTooMany": "عدد المافيا لازم يكون أقل من نص اللاعبين",
-  "balanceRecommendThreeMafia": "الأفضل تختار 3 مافيا لما تكونوا 9 لاعبين أو أكتر",
-  "balanceTwoDetectivesLowPlayerCount": "محققين مع أقل من 11 لاعب بيقووا فريق المواطنين",
-  "balanceOneDetectiveOnly": "المحقق واحد بس في اللعبة",
-  "settingsTitle": "الإعدادات",
-  "speechSecondsLabel": "وقت كل لاعب",
-  "secondsSuffix": "{seconds} ث",
-  "@secondsSuffix": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "discussionModeLabel": "طريقة النقاش",
-  "discussionStructured": "بالدور",
-  "discussionFree": "حر",
-  "dayTieRuleLabel": "قاعدة التعادل في النهار",
-  "tieRevote": "تصويت تاني",
-  "tieNoElimination": "محدش يخرج",
-  "narrationEnabledLabel": "صوت الراوي",
-  "abstainAllowedLabel": "السماح بعدم التصويت",
-  "save": "حفظ",
-  "nightApproaching": "الليل يقترب",
-  "nightLabel": "الليلة",
-  "aliveCountLabel": "لاعبين لسه في اللعبة",
-  "placePhoneOnTable": "ضع الهاتف على الطاولة وانتظر الإشارة",
-  "beginNight": "ابدأ الليل",
-  "distributionSubtitle": "توزيع الأدوار",
-  "roleMafia": "مافيا",
-  "roleDoctor": "دكتور",
-  "roleDetective": "محقق",
-  "roleCitizen": "مواطن",
-  "roleMafiaDescription": "كل ليلة بتتفقوا على واحد يتقتل، ومينفعش تختاروا حد منكم",
-  "roleDoctorDescription": "كل ليلة بتحمي لاعب، ولو انتوا أكتر من دكتور بتحموا واحد بس. حماية نفسك مرة واحدة في الماتش",
-  "roleDetectiveDescription": "المحقق واحد بس في اللعبة. كل ليلة بتكشف شخصية لاعب واحد",
-  "roleCitizenDescription": "ملكش ميزة خاصة، سلاحك عينك وكلامك. في الأونلاين بتستنى بالليل",
-  "gotIt": "فهمت",
-  "holdToRevealRole": "دوس ثانيتين عشان تشوف كارتك",
-  "teammatesLine": "معاك في المافيا: {names}",
-  "@teammatesLine": {
-    "placeholders": {
-      "names": {
-        "type": "String"
-      }
-    }
-  },
-  "passPhoneTo": "سلم الموبايل لـ",
-  "iAmHoldInstruction": "أنا {name} — دوس ثانيتين",
-  "@iAmHoldInstruction": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "notYouNamed": "مش {name}؟",
-  "@notYouNamed": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "yourTurn": "دورك",
-  "holdToConfirm": "دوس ثانيتين عشان تكمل",
-  "notYou": "مش انت؟",
-  "choosePlayer": "اختار لاعب",
-  "confirmAction": "أكد",
-  "choiceRecorded": "اختيارك اتسجل",
-  "passPhone": "سلم الموبايل",
-  "waitEllipsis": "استنى",
-  "nightPromptMafia": "مين عايز تقتله الليلة؟",
-  "nightPromptDoctor": "مين عايز تحميه الليلة؟",
-  "nightPromptDetective": "مين عايز تفحصه الليلة؟",
-  "nightPromptCitizen": "مين شاكك فيه الليلة دي؟",
-  "notEveryoneSurvived": "فيه لاعبين خرجوا",
-  "lostPlayerLastNight": "{name} اتقتل بالليل",
-  "@lostPlayerLastNight": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "quietNight": "محدش مات",
-  "someoneSavedBody": "حد نجا من محاولة قتل",
-  "noLossesBody": "محدش مات الليلة دي",
-  "morningOfDay": "صباح اليوم {day}",
-  "@morningOfDay": {
-    "placeholders": {
-      "day": {
-        "type": "int"
-      }
-    }
-  },
-  "startDiscussion": "ابدأ النقاش",
-  "discussionTitle": "النقاش",
-  "discussionFreeTitle": "النقاش الحر",
-  "currentSpeaker": "الدور على",
-  "speakersRemaining": "فاضل {count} يتكلموا",
-  "decreaseRole": "قلّل",
-  "increaseRole": "زوّد",
-  "citizenAutoHint": "الباقي بيتحسب مواطنين تلقائيًا",
-  "@speakersRemaining": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "skip": "تخطي",
-  "endDiscussion": "خلص النقاش",
-  "resume": "متابعة",
-  "pause": "وقف",
-  "votingSubtitle": "التصويت",
-  "whoDoYouVoteOut": "مين يخرج؟",
-  "abstain": "امتناع",
-  "confirmVote": "أكد صوتك",
-  "eliminatedHeadline": "خرج {name}",
-  "@eliminatedHeadline": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "tieRevoteHeadline": "تعادل هنصوت تاني",
-  "tieNoEliminationHeadline": "تعادل ومحدش خرج",
-  "nobodyEliminated": "محدش خرج",
-  "wasRole": "كان {role}",
-  "@wasRole": {
-    "placeholders": {
-      "role": {
-        "type": "String"
-      }
-    }
-  },
-  "revote": "صوتوا تاني",
-  "gameOver": "المباراة خلصت",
-  "mafiaWins": "المافيا كسبت",
-  "townWins": "الشعب كسب",
-  "analytics": "التحليلات",
-  "homeAction": "الرئيسية",
-  "endMatchTitle": "تنهي المباراة؟",
-  "endMatchBody": "المباراة مش هتتحفظ في السجل",
-  "keepPlaying": "كمل اللعب",
-  "endAction": "خلص",
-  "endMatchTooltip": "انهي المباراة",
-  "unfinishedMatchTitle": "فيه مباراة لسه مخلصتش",
-  "unfinishedMatchBody": "{count} لاعبين. {where}",
-  "@unfinishedMatchBody": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "where": {
-        "type": "String"
-      }
-    }
-  },
-  "resumeFromPassTo": "هنكمل من دور {name}",
-  "@resumeFromPassTo": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "resumeFromDay": "هنكمل من اليوم {day}",
-  "@resumeFromDay": {
-    "placeholders": {
-      "day": {
-        "type": "int"
-      }
-    }
-  },
-  "endMatch": "انهي المباراة",
-  "resumeAction": "كمل",
-  "nightNumbered": "الليلة {number}",
-  "@nightNumbered": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "dayNumbered": "اليوم {number}",
-  "@dayNumbered": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "analyticsTitle": "التحليلات",
-  "analyticsLoadFailed": "مش قادرين نفتح التحليلات دلوقتي",
-  "seatFallback": "مقعد {seat}",
-  "@seatFallback": {
-    "placeholders": {
-      "seat": {
-        "type": "int"
-      }
-    }
-  },
-  "tabEvents": "الأحداث",
-  "tabPlayers": "اللاعبين",
-  "tabSuspicions": "الشكوك",
-  "tabAchievements": "الإنجازات",
-  "timelineMafiaVote": "{actor} صوت على {target}",
-  "@timelineMafiaVote": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineProtect": "{actor} حمى {target}",
-  "@timelineProtect": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineInvestigate": "{actor} كشف {target}",
-  "@timelineInvestigate": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineSuspect": "{actor} شك في {target}",
-  "@timelineSuspect": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineNightKill": "{target} اتقتل بالليل",
-  "@timelineNightKill": {
-    "placeholders": {
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineSaved": "{target} نجا من القتل",
-  "@timelineSaved": {
-    "placeholders": {
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineDayElimination": "الشعب صوّت على طرد {target}",
-  "@timelineDayElimination": {
-    "placeholders": {
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "noEventsRecorded": "مفيش أحداث متسجلة",
-  "noPlayerData": "مفيش بيانات للاعبين",
-  "noSuspicionsByPlayer": "مسجلش شكوك",
-  "suspicionAccuracyLine": "شكوك صح: {correct}/{total}",
-  "@suspicionAccuracyLine": {
-    "placeholders": {
-      "correct": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "noSuspicionsRecorded": "مفيش شكوك متسجلة",
-  "noAchievements": "مفيش انجازات",
-  "achievementSharpestEye": "العين الثاقبة",
-  "achievementSharpestEyeDescription": "أعلى دقة في الشكوك",
-  "achievementUntouchable": "الناجي",
-  "achievementUntouchableDescription": "كمل للآخر",
-  "achievementGuardian": "الحامي",
-  "achievementGuardianDescription": "منع هجوم المافيا بالحماية",
-  "achievementFirstBlood": "أول ضحية",
-  "achievementFirstBloodDescription": "أول لاعب مات في الليلة الأولى",
-  "achievementSurvivors": "اللي كملوا للآخر",
-  "achievementSurvivorsDescription": "فضلوا في اللعبة لحد النهاية",
-  "historyTitle": "السجل",
-  "deleteMatchTitle": "تمسح المباراة؟",
-  "deleteMatchBody": "التحليلات هتتمسح نهائي",
-  "noPastMatches": "لسه مفيش مباريات",
-  "mafiaWon": "المافيا كسبت",
-  "townWon": "الشعب كسب",
-  "endedWithoutResult": "خلصت من غير نتيجة",
-  "matchMeta": "{players} لاعبين · {nights} ليالي",
-  "@matchMeta": {
-    "placeholders": {
-      "players": {
-        "type": "int"
-      },
-      "nights": {
-        "type": "int"
-      }
-    }
-  },
-  "holdToConfirmIdentity": "دوس ثانيتين عشان تشوف كارتك",
-  "swipeToReveal": "اسحب الكارت في أي اتجاه عشان يتقلب",
-  "passThePhone": "سلّم الموبايل",
-  "phaseNightFalls": "الضلمة نزلت على البلد… كله يغمّض",
-  "phaseMorningSomeoneDied": "نتيجة الليل",
-  "phaseMorningNobodyDied": "محدش مات الليلة دي",
-  "phaseVoting": "وقت التصويت",
-  "phaseMafiaWins": "المافيا خلصت على البلد",
-  "phaseTownWins": "الشعب انتصر",
-  "identityHoldLabel": "مدة الضغط قبل الكارت",
-  "identityHoldSuffix": "{seconds} ثانية",
-  "@identityHoldSuffix": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "startGame": "ابدأ اللعبة",
-  "howToPlay": "إزاي نلعب",
-  "tapCardHint": "دوس على أي كارت تعرف بيعمل إيه",
-  "howToPlayTitle": "إزاي نلعب",
-  "rulesTitle": "قوانين اللعبة",
-  "rulesGoalTitle": "هدف اللعبة",
-  "rulesGoalBody": "المواطنين بيحاولوا يخرجوا المافيا بالتصويت والمافيا بتحاول تقلل عدد المواطنين",
-  "rulesRolesTitle": "الأدوار",
-  "rulesDayTitle": "مرحلة النهار",
-  "rulesDayBody": "الصبح بتظهر نتيجة الليل وبعد النقاش كل لاعب بيصوت على مين يخرج",
-  "rulesNightTitle": "مرحلة الليل",
-  "rulesNightBody": "بالليل كل لاعب بيسجل اختياره: المافيا بتختار ضحية والدكتور بيحمي والمحقق بيكشف والمواطن بيسجل شكه",
-  "rulesWinTitle": "شروط الفوز",
-  "rulesWinBody": "المواطنين بيكسبوا لما كل المافيا يخرجوا والمافيا بتكسب لما عددهم يساوي باقي اللاعبين",
-  "rulesTipsTitle": "نصايح",
-  "rulesTipsBody": "— راقب ردود فعل الناس وهما بيتكلموا.\n— متكشفش دورك بسرعة لو إنت محقق أو دكتور.\n— لو إنت مافيا، حاول توجّه الشك لغيرك.\n— الدكتور مينفعش يحمي نفس الشخص مرتين ورا بعض.\n— متبصّش في موبايل حد تاني، ومتسلّمش الموبايل وهو مفتوح على كارت.",
-  "audioSettingsLabel": "الصوت",
-  "muteAllAudio": "اقفل كل الأصوات",
-  "scoreEnabledLabel": "الموسيقى",
-  "muteNarrator": "كتم الراوي",
-  "narratorPlaceholder": "صوت الراوي هيتسجّل بعدين",
-  "groupsTitle": "مين بيلعب؟",
-  "newGroupAction": "مجموعة جديدة",
-  "groupMeta": "{members} لاعبين · لعبتوا {plays} مرة",
-  "@groupMeta": {
-    "placeholders": {
-      "members": {
-        "type": "int"
-      },
-      "plays": {
-        "type": "int"
-      }
-    }
-  },
-  "groupMetaNeverPlayed": "{members} لاعبين · لسه ملعبوش",
-  "@groupMetaNeverPlayed": {
-    "placeholders": {
-      "members": {
-        "type": "int"
-      }
-    }
-  },
-  "saveGroupPrompt": "احفظ دول كمجموعة؟",
-  "saveAction": "احفظ",
-  "notNowAction": "مش دلوقتي",
-  "groupNameHint": "اسم المجموعة",
-  "groupNameDefault": "مجموعة {number}",
-  "@groupNameDefault": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "saveGroupTitle": "اسم المجموعة",
-  "renameAction": "غير الاسم",
-  "renameGroupTitle": "غير اسم المجموعة",
-  "deleteGroupTitle": "حذف المجموعة؟",
-  "deleteGroupBody": "هتتشال خالص. المباريات القديمة مش هتتأثر.",
-  "quickStartAction": "ابدأ",
-  "presentAction": "موجود",
-  "absentAction": "مش موجود",
-  "attendanceHint": "دوس على أي اسم لو مش موجود النهارده. هيفضل في المجموعة.",
-  "playingTonight": "بيلعبوا النهارده: {count}",
-  "@playingTonight": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "addGuestsToGroupTitle": "تضيفهم للمجموعة؟",
-  "addGuestsToGroupBody": "{names} لعبوا النهارده ومش في {group}.",
-  "@addGuestsToGroupBody": {
-    "placeholders": {
-      "names": {
-        "type": "String"
-      },
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "saveGroupOrderTitle": "تحفظ ترتيب اللاعبين؟",
-  "saveGroupOrderBody": "ترتيب اللاعبين في {group} اتغير",
-  "@saveGroupOrderBody": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "addAction": "ضيف",
-  "onboardingTitle": "أول جولة",
-  "onboardingNext": "كمل",
-  "onboardingStart": "ابدأ أول مباراة",
-  "onboardingReadRules": "القواعد بالتفصيل",
-  "onboardingProgress": "كارت {current} من {total}",
-  "@onboardingProgress": {
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "onboardingStoryTitle": "الحكاية",
-  "onboardingStoryBody": "لعبة أدوار سرية فريق المواطنين ضد فريق المافيا",
-  "onboardingRolesTitle": "الأدوار",
-  "onboardingRolesBody": "كل لاعب ليه كارت واحد دوس على الكارت عشان تعرف دوره",
-  "onboardingNightTitle": "الليل",
-  "onboardingNightBody": "المافيا بتختار ضحية والدكتور بيحمي والمحقق بيكشف والمواطن بيسجل شكه",
-  "onboardingDayTitle": "النهار",
-  "onboardingDayBody": "الصبح بتظهر نتيجة الليل وبعد النقاش بيبدأ التصويت",
-  "onboardingPassTitle": "الموبايل",
-  "onboardingPassBody": "دوس ثانيتين على اسمك واسحب الكارت عشان تشوفه الكارت بيتقفل لوحده قبل ما تسلم الموبايل",
-  "onboardingSecrecyTitle": "السرّ محفوظ",
-  "onboardingSecrecyBody": "لو قفلت التطبيق وقت دورك هترجع لشاشة اسمك النتيجة الخاصة مش بتظهر تاني",
-  "onboardingWinTitle": "الفوز",
-  "onboardingWinBody": "المواطنين بيكسبوا لما كل المافيا يخرجوا والمافيا بتكسب لما عددهم يساوي باقي اللاعبين",
-  "traceLabel": "الأثر",
-  "traceNone": "الليلة دي ماسابتش أي أثر",
-  "traceLastSuspicion": "آخر حاجة سجّلها {victim}: كان شاكك في «{target}»",
-  "traceSomeoneSurvived": "حد اتحمى الليلة دي… ونجا",
-  "traceAgreement": "{count} لاعبين شكّوا في نفس الشخص الليلة دي",
-  "traceShift": "{count} غيّر شكّه الليلة دي",
-  "traceShadow": "فيه لاعب لسه محدش شك فيه ولا مرة",
-  "traceSilence": "فيه لاعب رفض يسجّل شكّه الليلة دي",
-  "traceCircle": "اتنين شاكّين في بعض",
-  "traceConsensus": "أغلب الطاولة شكّت في نفس الشخص",
-  "openingRoundTitle": "اسم واحد",
-  "openingRoundBody": "اختار اسم قبل ما الوقت يخلص",
-  "openingRoundPrompt": "مين شاكك فيه، يا {name}؟",
-  "confrontationLabel": "المواجهة",
-  "confrontationExplain": "ردك",
-  "confrontationDone": "خلصت",
-  "confrontationC1": "قلت انك شاكك في {x} وصوت لـ{y}",
-  "confrontationC4": "محدش شك فيك لحد دلوقتي",
-  "confrontationC5": "انت و{x} صوتوا نفس التصويت {count} مرات",
-  "confrontationC6": "انت أقل واحد اتكلم في المباراة ردك؟",
-  "confrontationC7": "آخر واحد مات كان شاكك فيك ردك؟",
-  "confrontationC8": "بتهمس لـ{x} كل يوم ليه؟",
-  "confrontationC11": "حد حاول يوصلك وماعرفش",
-  "whisperLabel": "الهمس",
-  "whisperFrom": "من {name}",
-  "whisperCompose": "ابعت همسة",
-  "whisperPickRecipient": "لمين؟",
-  "whisperBodyHint": "لغاية ١٢٠ حرف",
-  "whisperSend": "ابعت",
-  "whisperSent": "اتبعتت",
-  "whisperAlreadySentToday": "بعت همستك النهارده",
-  "whisperUndelivered": "الهمسة ماوصلتش",
-  "whisperGraphTitle": "همسات النهار {day}",
-  "whisperGraphEmpty": "محدش همس النهارده",
-  "whisperNobodySent": "({names} مابعتوش)",
-  "whisperArrow": "‹",
-  "whisperTooLong": "زايد {count} حرف",
-  "whisperLanguageWarning": "الرسالة فيها لفظ مسيء تبعتها؟",
-  "whisperReport": "امنع همسات اللاعب",
-  "whisperReported": "مش هتوصلك همسات من اللاعب ده",
-  "informationEngineSection": "معلومات المباراة",
-  "settingTrace": "الأثر",
-  "settingTraceHint": "معلومة من أحداث المباراة لو فيه أثر متاح",
-  "settingConfrontation": "المواجهة",
-  "settingConfrontationHint": "سؤال مبني على اللي حصل في المباراة",
-  "settingOpeningRound": "اختيار اسم في أول يوم",
-  "settingOpeningRoundHint": "10 ثواني لكل لاعب",
-  "settingWhisper": "الهمس",
-  "settingWhisperHint": "رسالة خاصة واحدة في اليوم",
-  "settingRevealWhispers": "اكشف محتوى الهمسات بعد المباراة",
-  "settingRevealWhispersHint": "بعد ما الماتش يخلص، كل اللي في الأوضة يقروا الهمسات ونصها. اللاعبين بيشوفوا ده في اللوبي وقبل ما يهمسوا.",
-  "onlineMatch": "العب أونلاين",
-  "onlineCreateRoom": "اعمل أوضة",
-  "onlineJoinRoom": "ادخل أوضة",
-  "onlineCreateRoomHint": "هتاخد كود وتبعته للباقي",
-  "onlineJoinRoomHint": "معاك كود من حد؟",
-  "onlineRoomCode": "كود الأوضة",
-  "onlineRoomCodeHint": "ست خانات",
-  "onlineShareCode": "ابعت الكود",
-  "onlineWaitingForPlayers": "مستني اللاعبين",
-  "onlineStartMatch": "يلا نبدأ",
-  "onlineConnecting": "بنرجع الاتصال",
-  "onlineDisconnected": "مفيش اتصال",
-  "onlineNotConnected": "غير متصل",
-  "onlineHostLeft": "صاحب الأوضة خرج. {name} بقى هو المسؤول دلوقتي.",
-  "onlineRoomFull": "الأوضة مليانة",
-  "onlineRoomFinished": "المباراة دي خلصت",
-  "onlineAlreadySeated": "إنت لسه في ماتش شغال",
-  "onlineLeaveTableTitle": "تسيب ماتشك؟",
-  "onlineLeaveTableBody": "إنت لسه في ماتش شغال. لو دخلت الأوضة دي، هتخرج منه والشلة هتكمل من غيرك.",
-  "onlineLeaveTableConfirm": "اخرج وادخل",
-  "onlineRoomNotFound": "مفيش أوضة بالكود ده",
-  "onlineUnreachable": "مش قادرين نتصل جرب تاني",
-  "onlineProjectPaused": "الأونلاين مش متاح دلوقتي جرب كمان دقيقة",
-  "onlinePlayOffline": "العب أوفلاين",
-  "onlineHeadphonesWarning": "لو قاعدين في نفس الأوضة، استخدموا سماعات",
-  "voiceMicOff": "المايك مقفول",
-  "voiceMuteMe": "اقفل المايك",
-  "voiceUnmuteMe": "افتح المايك",
-  "voiceSelfMuted": "قافل مايكك",
-  "voiceMicOn": "المايك شغال",
-  "voiceTextMode": "الصوت مش متاح",
-  "voiceMicDenied": "اسمح بالمايك عشان تتكلم",
-  "whoAreYou": "مين فيكم؟",
-  "onlineYourName": "اسمك في اللعبة",
-  "onlineHostBadge": "المسؤول",
-  "onlineYou": "أنت",
-  "onlineNeedFivePlayers": "محتاجين 5 لاعبين على الأقل",
-  "onlineLeave": "اخرج من الأوضة",
-  "onlineCodeCopied": "الكود اتنسخ",
-  "onlinePublicRooms": "أوض عامة",
-  "onlinePublicRoomsHint": "ادخل أوضة مفتوحة من غير كود",
-  "onlineNoPublicRooms": "مفيش أوض عامة مفتوحة دلوقتي",
-  "publicRoomSeats": "{players}/{capacity} لاعب",
-  "publicRoomMissing": "{count, plural, =1{ناقص لاعب واحد عشان المضيف يقدر يبدأ} =2{ناقص لاعبين عشان المضيف يقدر يبدأ} few{ناقص {count} لاعبين عشان المضيف يقدر يبدأ} other{ناقص {count} لاعب عشان المضيف يقدر يبدأ}}",
-  "publicRoomReady": "العدد كفاية — البداية بقرار المضيف",
-  "publicRoomFullStatus": "مليانة",
-  "publicRoomsStale": "مش قادرين نحدّث القايمة دلوقتي. اللي قدامك آخر نسخة وصلتنا وممكن تكون قديمة.",
-  "publicRoomsUnavailable": "مش قادرين نوصل للسيرفر عشان نجيب الأوض. هنحاول تاني لوحدنا.",
-  "onlineRoomStarted": "الأوضة دي بدأت خلاص. اختار أوضة تانية من القايمة.",
-  "onlinePublicRoomPlayers": "{count} لاعب",
-  "onlineUntitledRoom": "أوضة من غير اسم",
-  "onlineRoomSettings": "إعدادات الأوضة",
-  "onlineSettingsRoom": "الأوضة",
-  "onlineSettingsVoice": "الصوت",
-  "onlineSettingsPlay": "اللعب",
-  "onlineSettingsInfo": "المعلومات",
-  "onlineRoomVisibility": "نوع الأوضة",
-  "onlineRoomVisibilityHint": "الخاصة بالكود بس. العامة بتظهر في القايمة لأي حد.",
-  "onlineRoomPrivate": "خاصة",
-  "onlineRoomPublic": "عامة",
-  "onlineRoomTitle": "اسم الأوضة",
-  "onlineRoomTitleHint": "الاسم اللي هيشوفه الناس في القايمة.",
-  "onlineMaxPlayers": "أقصى عدد لاعبين",
-  "onlineMaxPlayersHint": "الأوضة بتتقفل لما العدد ده يكتمل.",
-  "onlineVoiceEnabled": "الصوت",
-  "onlineVoiceEnabledHint": "من غيره المباراة شغالة عادي بالكتابة.",
-  "onlineMuteAtNight": "كتم الكل عند الليل",
-  "onlineMuteAtNightHint": "الصوت في الليل بيقول مين صاحي.",
-  "onlineSpeakDuration": "مدة الكلام",
-  "onlineSpeakDurationHint": "الوقت اللي كل واحد بيتكلم فيه لوحده.",
-  "onlineDiscussDuration": "مدة النقاش",
-  "onlineDiscussDurationHint": "الوقت المفتوح قبل التصويت.",
-  "onlineOpenVoting": "تصويت مكشوف",
-  "onlineOpenVotingHint": "الكل بيشوف صوت مين راح لمين قبل ما القفل ينزل.",
-  "onlineTrace": "الأثر",
-  "onlineTraceHint": "الصبح بيقول أثر واحد عن حركة الليل.",
-  "onlineConfrontation": "المواجهة",
-  "onlineConfrontationHint": "اتنين بيتواجهوا قدام الأوضة قبل التصويت.",
-  "onlineWhispers": "الهمسات",
-  "onlineWhispersHint": "رسالة خاصة لواحد بس، والأوضة بتعرف إنها اتبعتت.",
-  "onlineSeconds": "ثانية",
-  "onlineMinutes": "دقايق",
-  "onlineLinkCopied": "لينك الأوضة اتنسخ",
-  "onlineWaitingForHost": "مستني المسؤول",
-  "voiceTakeFloor": "اتكلم",
-  "voiceYieldFloor": "خلصت",
-  "voiceFloorTaken": "فيه لاعب بيتكلم دلوقتي",
-  "onlineWeatherConnecting": "بنتصل",
-  "onlineWeatherReconnecting": "بنرجع الاتصال",
-  "onlineWeatherUnreachable": "مفيش اتصال هنكمل لما يرجع",
-  "onlineCopy": "نسخ",
-  "onlineShare": "مشاركة",
-  "onlinePlayersOfMax": "{count} / {max} لاعبين",
-  "onlineVoiceConnecting": "الصوت: بيتصل…",
-  "onlineVoiceConnected": "الصوت: متصل",
-  "onlineVoiceUnavailable": "الصوت مش متاح والمباراة شغالة",
-  "onlineShareInvite": "العب معانا مافيا. كود الأوضة: {code}",
-  "onlineReferralOffer": "ادعي صاحب جديد: انت +100 وهو +50 لما يخلّص أول ماتش",
-  "onlineGhostRule": "اللي بيخرج ما يتكلمش مع اللي لسه لاعب",
-  "onlineChosen": "اخترت: {name}",
-  "onlineUpNext": "بعدها: {names}",
-  "onlineWaitingForCards": "{count, plural, =1{لسه واحد بيشوف كارته} =2{لسه اتنين بيشوفوا كروتهم} other{لسه {count} بيشوفوا كروتهم}}",
-  "onlineLeftRoom": "خرج",
-  "onlineNewHost": "{name} بقى الهوست",
-  "onlineCloseRoom": "اقفل الأوضة",
-  "onlineCloseRoomBody": "الأوضة هتقفل لكل اللي فيها. أكيد؟",
-  "onlineCloseRoomConfirm": "اقفل",
-  "onlineRoomClosed": "الهوست قفل الأوضة",
-  "onlineKick": "اطرد",
-  "onlineMute": "اكتم",
-  "onlineUnmute": "شيل الكتم",
-  "onlineKickedByHost": "الهوست طردك من الأوضة",
-  "onlineFloorOpen": "الكلام مفتوح، اطلب الدور",
-  "onlineRaisedHands": "رافعين إيدهم: {names}",
-  "onlineRaiseHand": "دوري",
-  "onlineHandRaised": "إيدك مرفوعة",
-  "onlineSeeRoles": "شوف الأدوار",
-  "onlineRosterOf": "{index} من {total}",
-  "onlinePickFromTable": "اختار لاعب",
-  "onlineWaitingForTheRest": "مستني باقي اللاعبين",
-  "onlineConfirmHold": "دوس ثانيتين عشان تأكد",
-  "confrontationSilent": "مفيش رد",
-  "confrontationAudience": "بتسمع",
-  "settingVoteVisibility": "التصويت",
-  "settingOpenVoting": "تصويت مكشوف",
-  "settingSecretVoting": "تصويت سري",
-  "settingOpenVotingHint": "الأصوات بتظهر للكل أول بأول",
-  "witnessTitle": "الشاهد",
-  "witnessEliminated": "خرجت من المباراة",
-  "witnessSpectating": "بتتفرج",
-  "witnessTabTable": "الترابيزة",
-  "witnessTabChat": "الخارجين",
-  "witnessTabPrediction": "توقعك",
-  "witnessTabRecord": "اختياراتك",
-  "witnessChatHint": "اكتب للخارجين…",
-  "witnessChatEmpty": "مفيش كلام لسه",
-  "witnessChatWalled": "اللي لسه لاعب مش هيشوف الكلام ده",
-  "witnessChatSend": "ابعت",
-  "witnessPredictionWinner": "مين هيكسب؟",
-  "witnessPredictionMafia": "ومين المافيا؟",
-  "witnessPredictionLock": "أكد توقعك",
-  "witnessPredictionLocked": "توقعك اتسجل",
-  "witnessPredictionScore": "توقعاتك الصح: {correct} من {total}",
-  "witnessRecordEmpty": "مفيش اختيارات متسجلة",
-  "onlineIntroPhoneTitle": "دورك على شاشتك",
-  "onlineIntroPhoneBody": "كارتك واختياراتك بيظهروا ليك بس كل واحد بيلعب من جهازه بكود الغرفة؛ الأوفلاين جهاز واحد بيتنقل بينكم ومن غير إنترنت.",
-  "onlineIntroNightTitle": "الليل للكل في نفس الوقت",
-  "onlineIntroNightBody": "اختار قبل ما العداد يخلص بالنهار تناقشوا وصوّتوا؛ المافيا تكسب لما عددها يبقى قد باقي الأحياء، والمواطنين يكسبوا بخروج كل المافيا. الصوت اختياري، واللعبة بتكمل من غيره.",
-  "onlineIntroWhisperTitle": "رسالة خاصة",
-  "onlineIntroWhisperBody": "الكل بيشوف مين بعت لمين والمستلم بس بيقرا الرسالة الرسائل الخاصة للأونلاين بس، ومش موجودة في الأوفلاين.",
-  "onlineIntroWitnessTitle": "بعد الخروج",
-  "onlineIntroWitnessBody": "تقدر تتابع المباراة وتكتب للاعبين اللي خرجوا ده متاح أونلاين؛ في الأوفلاين اللاعب اللي خرج مش بيمسك الجهاز تاني أثناء اللعب.",
-  "onlineIntroSkip": "تخطي",
-  "onlineIntroStart": "يلا",
-  "modeTitle": "اختار طريقة اللعب",
-  "modeSubtitle": "تقدروا تغيّروها المرة الجاية.",
-  "modeOnePhoneTitle": "اوفلاين",
-  "modeOnePhoneBody": "من 5 لـ15 لاعب",
-  "modeOnlineTitle": "اونلاين",
-  "modeOnlineBody": "من 5 لـ10 لاعبين",
-  "modeNoServer": "الأونلاين مش متاح في النسخة دي",
-  "bulletMafia": "الليلة الهادية",
-  "bulletDoctor": "حماية النفس مرة",
-  "testimonyGiven": "شهادة {name}: شكه كان على {suspect} الليلة اللي فاتت.",
-  "@testimonyGiven": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "suspect": {
-        "type": "String"
-      }
-    }
-  },
-  "testimonyNobody": "شهادة {name}: ماشكش في حد الليلة اللي فاتت.",
-  "@testimonyNobody": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "fileOpenedTitle": "{name} فتح الملف.",
-  "@fileOpenedTitle": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "fileOpenedEntry": "{name} — {role}",
-  "@fileOpenedEntry": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "role": {
-        "type": "String"
-      }
-    }
-  },
-  "fileOpenedEmpty": "الملف كان فاضي.",
-  "hintTalkers": "اللي بيتكلم كتير مش دايمًا اللي بيخبّي.",
-  "hintQuickAgreement": "خلي بالك مين بيوافق على طول من غير ما يفكر.",
-  "hintSilence": "الصمت مش دليل. بس هو معلومة.",
-  "hintChangesMind": "مين بيغيّر رأيه بسرعة لما يتضغط؟",
-  "hintEarlyAccuser": "المافيا الشاطرة بتتهم بدري عشان تبان بريئة.",
-  "hintMajorityComfort": "التصويت مع الأغلبية مريح. وده بالظبط اللي بيعتمدوا عليه.",
-  "hintWhoBenefited": "مين استفاد من اللي مات امبارح؟",
-  "hintMafiaSuspicionSpreads": "متقتلش اللي بيشك فيك على طول — شكه هيتنشر",
-  "hintMafiaQuietNight": "الليلة الهادية بتجوّع الطاولة من المعلومات",
-  "hintMafiaSpeak": "اتكلم. المافيا الساكتة بتموت",
-  "hintDoctorNoRepeat": "متحميش نفس الشخص مرتين ورا بعض",
-  "hintDoctorSelf": "حماية النفس معاك مرة واحدة — استناها",
-  "hintDoctorSaveReveals": "لو نجحت في الحماية، المافيا هتعرف إن فيه دكتور",
-  "hintDetectiveInvestigateLoud": "حقق في اللي بيتكلم كتير، مش في اللي ساكت",
-  "hintCitizenSuspicionCounts": "شكك مش رايح على فاضي — بيتسجّل",
-  "coachStuckOnInnocent": "شكيت في {name} {count} ليالي وهو مواطن. جرب تغيّر رأيك أسرع لما الدليل ما يجيش.",
-  "@coachStuckOnInnocent": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coachConformity": "صوّت مع الأغلبية {count} من {total}. جرب تكوّن رأيك قبل ما تسمع الباقي.",
-  "@coachConformity": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "coachUnusedBullet": "ماستخدمتش «{bullet}». كانت معاك من أول ليلة.",
-  "@coachUnusedBullet": {
-    "placeholders": {
-      "bullet": {
-        "type": "String"
-      }
-    }
-  },
-  "coachNeverWhispered": "ماهمستش ولا مرة. الهمسة بتبني تحالفات.",
-  "coachAbandonedRead": "كنت شاكك في {name} من أول الليالي وهو كان مافيا — وبعدين سبته. ثق في قراءتك الأولى.",
-  "@coachAbandonedRead": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "coachQuiet": "اتكلمت {seconds} ثانية في المباراة كلها — من أقل اللي اتكلموا. الصمت بيخلي الطاولة تشك فيك.",
-  "@coachQuiet": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "coachSurvivedAsMafia": "عشت للآخر من غير ما الطاولة تمسكك.",
-  "coachingTitle": "كان ممكن",
-  "coachingEmpty": "مفيش حاجة تتقال. لعبتها زي ما جت.",
-  "presetFast": "سريعة",
-  "presetClassic": "كلاسيكية",
-  "presetBrutal": "قاسية",
-  "presetCustom": "مخصصة",
-  "presetFastHint": "وقت أقل وقواعد أبسط",
-  "presetClassicHint": "دكتور ومحقق ووقت نقاش كامل",
-  "presetBrutalHint": "مافيا أكتر ومن غير دكتور أو همس",
-  "presetLabel": "نمط اللعب",
-  "settingPressureCurve": "وقت أقل مع خروج اللاعبين",
-  "settingPressureCurveHint": "مدة الكلام والنقاش بتقل مع عدد اللاعبين",
-  "settingTabletopPresentation": "الموبايل في النص",
-  "settingTabletopPresentationHint": "يكبّر الكلام والوقت في الشاشات العامة عشان الكل يشوفهم من بعيد",
-  "settingDiscussionSeconds": "مدة النقاش",
-  "settingPlayHints": "تلميحات اللعب",
-  "settingCoaching": "«كان ممكن» بعد المباراة",
-  "settingRevealVictimRole": "دور ضحية الليل",
-  "settingRevealVictimRoleHint": "اظهار دور اللاعب اللي مات بالليل",
-  "victimWasRole": "{name} كان {role}.",
-  "@victimWasRole": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "role": {
-        "type": "String"
-      }
-    }
-  },
-  "nightSpecialMafia": "مش هقتل الليلة",
-  "nightSpecialDoctor": "احمي نفسك حالا",
-  "nightSpecialDetective": "مش هحقق الليلة",
-  "nightSpecialCitizen": "مش شاكك الليلة",
-  "settingsSectionPace": "وقت اللعب",
-  "settingsSectionInformation": "قواعد ومعلومات",
-  "settingsSectionReveal": "اظهار الأدوار والرسائل",
-  "settingsSectionVoting": "التصويت",
-  "settingsSectionAudio": "الصوت",
-  "settingsOnlineOnly": "في الأونلاين بس",
-  "settingSpeechSecondsHint": "في النقاش بالدور",
-  "settingDiscussionSecondsHint": "في النقاش الحر",
-  "settingIdentityHoldHint": "نفس المدة لكل لاعب، عشان طول الدور ميقولش على الدور.",
-  "settingDiscussionModeHint": "بالدور لكل لاعب وقت محدد",
-  "settingAbstainHint": "تقدر تعدي من غير ما تصوت لحد",
-  "settingPlayHintsHint": "سطر قصير في اللوبي والإعدادات بس. ولا حاجة جوه المباراة.",
-  "settingCoachingHint": "بعد ما تخلصوا، التطبيق بيقول لكل واحد كان ممكن يعمل إيه.",
-  "settingMuteAllHint": "الموسيقى والمؤثرات",
-  "minutesSuffix": "{minutes} د",
-  "@minutesSuffix": {
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
-  "whisperFromTitle": "همسة من «{name}»",
-  "@whisperFromTitle": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "whisperDismiss": "تمام",
-  "playerMale": "ولد",
-  "playerFemale": "بنت",
-  "timelineMafiaVoteFemale": "{actor} صوتت على {target}",
-  "@timelineMafiaVoteFemale": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineProtectFemale": "{actor} حمت {target}",
-  "@timelineProtectFemale": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineInvestigateFemale": "{actor} كشفت {target}",
-  "@timelineInvestigateFemale": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineSuspectFemale": "{actor} شكت في {target}",
-  "@timelineSuspectFemale": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineDiscardResume": "انسى الأوضة",
-  "onlineStorageWarning": "الجهاز مش قادر يحفظ. اللعبة شغالة عادي، بس ممكن ما يرجّعكش للأوضة لوحده ولا يحتفظ بالنتيجة.",
-  "safetyTitle": "الخصوصية وحذف البيانات",
-  "safetyPolicy": "المطوّر: Eyad Syam\nالدعم: eyadsyam124@gmail.com\n\nاللعب المحلي بيفضل على جهازك. الأونلاين يستخدم معرّفًا عشوائيًا والبروفايل وأفعال الماتش والرسائل. العملات والمكافآت والمحتوى المفتوح بيتحفظوا مع الهوية دي لحد الحذف. الصوت اختياري ومشفّر أثناء النقل واللعبة مبتسجلوش. خدمات التشغيل بتعالج بيانات الاتصال اللازمة للأونلاين. الإيميل بيتجمع بس لو اخترت تسجّل دخول بالإيميل.\n\nالإعلانات (أندرويد): Google AdMob ممكن يعرض إعلان عند فتح اللعبة أو لما ترجعلها بعد غياب طويل، وإعلان بملء الشاشة بين الماتشات — قبل ما تدخل أوضة، ولما تسيب ماتش خلص، وقبل توزيع الأدوار وبعد النتيجة في اللعب على موبايل واحد، أو أحيانًا وإنت بتتنقل بين القوايم بعد كام دقيقة من غير إعلان (أبدًا في نص الماتش ولا والموبايل بيتلف، بحد أقصى 40 في اليوم وبينهم 90 ثانية على الأقل)، وبانر صغير عليه علامة إعلان في شاشات الانتظار زي لوبي الأونلاين وسجل الماتشات والبروفايل (أبدًا أثناء اللعب)، وإعلانات مكافأة اختيارية بس لما تختار تتفرج عليها، بعد ماتش أونلاين مكتمل (عشان تضاعف عملاته أو تخليها 3 أضعاف) وفي الخزنة. عشان يعرض الإعلانات ويمنع الاحتيال، مكتبة إعلانات Google بتجمع عنوان الإنترنت والتفاعل مع الإعلانات والتطبيق وبيانات الأعطال ومعرّفات الجهاز زي Advertising ID. تقدر تغيّر موافقة الإعلانات من الإعدادات، من «اختيارات خصوصية الإعلانات». الشراء في نسخة Play بيتم عن طريق Google Play Billing، وبنستلم رقم الطلب والمنتج ورمز الشراء عشان نتحقق منه، أو بتحويل إنستا باي / فودافون كاش، وفيه بترفع صورة التحويل واسم المحوِّل للمراجعة اليدوية (بيتخزنوا بشكل خاص، والصورة بتتمسح بعد 90 يوم من المراجعة).\n\nالغرف المنتهية مؤهلة للحذف بعد 24 ساعة، والهويات القديمة من غير غرف بتتحذف مع دورة التنظيف. تقدر تطلب حذف بيانات الأونلاين هنا؛ إرسال الطلب مش معناه إن الحذف اكتمل. من خارج التطبيق استخدم saidalmafia.com/delete-data مع معرّفك أو رقم الطلب. متبعتش كلمة سر أو مفتاح وصول.\n\nممنوع التحرش والتهديد والكراهية والمحتوى الجنسي واستغلال الأطفال ومشاركة المعلومات الخاصة. بلّغ عن اللاعب أو اسم الغرفة أو الرسالة المسيئة. الحظر يخفي رسائله الخاصة ويكتم صوته عندك؛ أفعال اللعبة العامة تفضل ظاهرة. المطوّر بيراجع البلاغات وهي مش بتظهر للاعبين.",
-  "safetyAgree": "أوافق على قواعد الاستخدام",
-  "safetyConsentTitle": "قبل اللعب أونلاين",
-  "safetyConsentBody": "ممنوع الإساءة والتحرّش والكراهية والمحتوى الجنسي ومشاركة البيانات الخاصة. تقدر تبلغ وتحظر من زر الأمان. الصوت اختياري؛ راجع الخصوصية في الإعدادات لمعرفة البيانات المستخدمة.",
-  "safetyReport": "إرسال بلاغ",
-  "safetyBlock": "حظر رسائل وصوت اللاعب",
-  "safetyRoom": "اسم الغرفة أو محتواها",
-  "safetyDetails": "وصف الإساءة أو الرسالة (بدون أسرار الدور)",
-  "safetyReceipt": "تم استلام الطلب. احتفظ بالرقم:",
-  "safetyFailed": "الطلب لم يُرسل. حاول مرة أخرى أو راسل الدعم.",
-  "safetyDelete": "طلب حذف بيانات الأونلاين",
-  "safetyDeleteConfirm": "سيتم إرسال طلب لحذف هويتك المجهولة وبيانات الأونلاين المرتبطة بها. سيُراجع المطوّر الطلب خلال 30 يومًا. نسخ اللاعبين على أجهزتهم منفصلة؛ البلاغات اللازمة لمنع الإساءة قد تُحتفظ بها لفترة محدودة. ملفاتك المحلية لا تُحذف بهذا الطلب.",
-  "safetyIdentity": "عرض معرّف بياناتي",
-  "safetyBlocked": "تم الحظر عندك.",
-  "safetyNoRoom": "الإبلاغ والحظر متاحان داخل الغرفة.",
-  "safetyTools": "الإبلاغ والحظر",
-  "onlineWelcome": "الكراسي جاهزة. ناقصكم أنتم.",
-  "languageLabel": "اللغة",
-  "languageArabic": "العربية",
-  "languageEnglish": "English",
-  "onlineNewRoomsPaused": "إنشاء الغرف متوقف مؤقتًا. ما زال بإمكانك الانضمام لغرفة موجودة أو اللعب بدون إنترنت.",
-  "helpTitle": "المساعدة والأسئلة الشائعة",
-  "helpIntro": "إجابات سريعة عن اللعب والغرف الأونلاين والأمان وبياناتك.",
-  "helpPlayQuestion": "الماتش بيمشي إزاي؟",
-  "helpPlayAnswer": "اللعبة بتوزع الأدوار السرية وبتدير مراحل الليل والنهار وبتحسب التصويت. أهل البلد يحاولوا يكتشفوا المافيا، والمافيا تحاول تفضل لحد ما عددها يساوي أو يزيد عن أهل البلد. الهوست يقدر يراجع القواعد قبل البداية.",
-  "helpOnlineQuestion": "الغرف الأونلاين بتشتغل إزاي؟",
-  "helpOnlineAnswer": "اعمل غرفة وابعت الكود لصحابك، ادخل بكود، أو اختار غرفة عامة. السيرفر بيدير الماتش، ولو الهوست خرج التحكم بينتقل للاعب متصل تاني.",
-  "helpVoiceQuestion": "الصوت إجباري؟",
-  "helpVoiceAnswer": "لا. الصوت اختياري واللعبة مبتسجلوش. لو إذن الميكروفون أو نقل الصوت فشل، الماتش يكمل بأزرار اللعبة والنص المنظم.",
-  "helpReconnectQuestion": "أعمل إيه لو الاتصال قطع؟",
-  "helpReconnectAnswer": "افتح اللعبة تاني على نفس الجهاز واستخدم «كمّل الغرفة» لما تظهر. كرسيك بيرجع لو الغرفة لسه موجودة. متعملش بروفايل تاني عشان تسترجع كرسي في ماتش شغال.",
-  "helpSafetyQuestion": "البلاغ والحظر بيعملوا إيه؟",
-  "helpSafetyAnswer": "جوا الغرفة استخدم علامة البلاغ للإبلاغ عن لاعب أو محتوى الغرفة. الحظر بيخفي رسائله الخاصة ويكتم صوته عندك فورًا. البلاغ دليل للمراجعة، مش حكم آلي إن اللاعب مذنب.",
-  "helpCoinsQuestion": "إيه هي العملات؟",
-  "helpCoinsAnswer": "بتكسب العملات من ماتشات أونلاين مكتملة ومتحقق منها، وبتفتح محتوى عادل. مينفعش تسحبها أو تحولها أو تشتري بيها صوت أو معلومة سرية أو فرصة أكبر للفوز. العملات مرتبطة بهوية الأونلاين المجهولة على الجهاز ده.",
-  "helpPrivacyQuestion": "الخصوصية وحذف البيانات فين؟",
-  "helpPrivacyAnswer": "موجودين في شاشة الإعدادات تحت «الخصوصية وحذف البيانات». تقدر تشوف معرّف بياناتك المجهول وتطلب الحذف من هناك.",
-  "helpAgeQuestion": "اللعب الأونلاين مناسب لمين؟",
-  "helpAgeAnswer": "الصوت والغرف العامة الأونلاين موجهين لسن 16 سنة فأكتر. متشاركش عنوانك أو رقم تليفونك أو كلمات السر أو أي معلومات خاصة في الصوت أو الاسم أو الرسائل أو اسم الغرفة.",
-  "helpSupportQuestion": "أتواصل مع الدعم إزاي؟",
-  "helpSupportAnswer": "ابعت على eyadsyam124@gmail.com. ضيف رقم إيصال البلاغ أو معرّف بياناتك المجهول لو له علاقة بالمشكلة، ومتبعتش كلمة سر أو مفتاح وصول.",
-  "coinsTitle": "العملات والمكافآت",
-  "coinsBalance": "{count} عملة",
-  "@coinsBalance": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coinsEarnHint": "كمّل ماتش أونلاين مؤهل واكسب 100 عملة، وكل لاعب في الفريق الفائز يكسب 25 زيادة. السيرفر هو اللي بيتأكد من المكافأة، ومبتغيرش التصويت أو الدور أو فرصة الفوز.",
-  "coinsEarnHintV3": "كمّل ماتش أونلاين مؤهل (5 لاعبين أو أكتر) واكسب 25 عملة، و10 زيادة لو فريقك كسب، و25 زيادة على أول ماتش مؤهل في اليوم. بعد الماتش، كل جايزة تكسبها بتديك 5 عملات، أو 15 لجايزة أفضل لاعب، لما الجوايز تكون شغالة. السيرفر بيتأكد من المكافآت، ومبتغيرش التصويت أو الدور أو فرصة الفوز.",
-  "coinsLoadFailed": "مقدرناش نحمّل عملاتك. مفيش حاجة اتخصمت؛ جرّب تاني.",
-  "coinsGuideTitle": "مذكرة العقل المدبر",
-  "coinsGuideHint": "دليل استراتيجي دائم لقراءة الترابيزة والدفاع عن قصتك، من غير ما يكشف أي معلومة سرية في ماتش شغال.",
-  "coinsGuidePrice": "افتحها مقابل {count} عملة",
-  "@coinsGuidePrice": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coinsBuyGuide": "تفتح المذكرة؟",
-  "coinsBuyConfirm": "العملات المكتسبة هتتخصم نهائيًا من هوية الأونلاين المجهولة على الجهاز ده. المذكرة مبتغيرش الماتش ولا تزود فرصتك.",
-  "coinsUnlock": "افتح",
-  "coinsGuideOpen": "افتح المذكرة",
-  "coinsGuideContent": "المواطن — تابع مين بيغير كلامه بعد التصويت، مش مين صوته أعلى. اطلب سبب واحد واضح وقارنه بالتصويت اللي بعده.\n\nالمافيا — خليك على موقف بسيط من بدري؛ الكذبة المعقدة بتعمل تفاصيل لازم تفتكرها. دافع عن مواطن أحيانًا، لأن الهجوم المستمر بيعمل نمط سهل.\n\nالدكتور — النجاة مش الهدف الوحيد. فكر أي حماية هتطلع معلومة مفيدة وواضحة لبكرة.\n\nالمحقق — معلومتك ملهاش قيمة لو الترابيزة مش هتعرف تستخدمها. سيب أثر منطقي قبل اتهام خطر، من غير ما تعلن دورك بدري.\n\nكل الأدوار — افصل بين اللي اللعبة أكدته واللي لاعب ادعاه. أقوى حجة هي اللي تفضل صحيحة بعد ظهور المعلومة اللي بعدها.",
-  "adRewardAction": "شاهد إعلان وخد +{count} عملة",
-  "@adRewardAction": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "adRewardHint": "اختياري بعد النتيجة فقط. مكافأتك الأصلية محفوظة حتى لو رفضت أو الإعلان فشل.",
-  "adRewardPending": "الإعلان اكتمل. المكافأة الإضافية قيد تأكيد آمن وهتظهر تلقائيًا.",
-  "adRewardGranted": "اتضافت {count} عملة إضافية.",
-  "@adRewardGranted": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "adRewardUnavailable": "مفيش إعلان متاح دلوقتي. مكافأتك الأصلية زي ما هي.",
-  "adRewardUsed": "خدت مكافأة الإعلان للماتش ده.",
-  "privacyChoices": "اختيارات خصوصية الإعلانات",
-  "privacyChoicesHint": "راجع أو غيّر اختيارات الخصوصية اللي بيطلبها مزود الإعلانات.",
-  "premiumScenarioTitle": "سيناريو مجلس الظلال",
-  "premiumScenarioHint": "حزمة دائمة للمضيف: قواعد متوازنة، همسات ومواجهة وتصويت سري. لما المضيف يختارها كل الموجودين بيلعبوا السيناريو من غير ما يشتروا.",
-  "premiumScenarioBuy": "اشترِ الحزمة",
-  "premiumScenarioOwned": "الحزمة عندك",
-  "premiumScenarioRestore": "استرجع مشترياتك",
-  "premiumScenarioPending": "الشراء لسه قيد المعالجة في المتجر.",
-  "premiumScenarioFailed": "مقدرناش نتحقق من الشراء. مفيش مبلغ هيتخصم من داخل اللعبة.",
-  "premiumScenarioUse": "مجلس الظلال",
-  "premiumScenarioUseHint": "إعدادات سيناريو متوازنة يفتحها المضيف لكل الغرفة.",
-  "shareResult": "شارك النتيجة",
-  "shareResultText": "ماتش سيد المافيا انتهى بفوز {winner} بعد {days} يوم. افتح رومك على https://saidalmafia.com",
-  "@shareResultText": {
-    "placeholders": {
-      "winner": {
-        "type": "String"
-      },
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "playAgainWithGroup": "روم جديدة للشلة",
-  "setupWelcomeTitle": "أهلاً بيك في سيد المافيا",
-  "setupWelcomeHint": "اختار لغتك واسمك وتفضيلاتك مرة واحدة، وبعدها تلعب على طول.",
-  "setupPreferencesTitle": "التفضيلات",
-  "setupPreferencesHint": "تقدر تغيّرها بعدين من الإعدادات.",
-  "prefSound": "أصوات اللعبة",
-  "prefMusic": "الموسيقى",
-  "prefReduceMotion": "تقليل الحركة",
-  "setupAdultConfirm": "عمري 16 سنة أو أكتر",
-  "setupAdultHint": "الأونلاين والصوت والأوض العامة لسن 16 سنة فأكتر.",
-  "termsAcceptPrefix": "قرأت ",
-  "termsAcceptLink": "الشروط والأحكام",
-  "termsAcceptSuffix": " وأوافق عليها",
-  "privacyLinkLabel": "سياسة الخصوصية",
-  "termsTitle": "الشروط والأحكام",
-  "termsVersion": "إصدار {version}",
-  "termsBody": "1. سيد المافيا لعبة جماعية للتسلية. الأدوار والنتائج جزء من اللعبة وبس.\n\n2. اللعب الأونلاين والصوت والأوض العامة لمن عمرهم 16 سنة أو أكتر.\n\n3. ممنوع الإساءة والتحرش والتهديد وخطاب الكراهية والمحتوى الجنسي ونشر معلومات خاصة بأي حد. تقدر تبلّغ عن لاعب أو تحظره من أدوات الأمان.\n\n4. الصوت اختياري، واللعبة ما بتسجّلش الصوت. اللي بتقوله بيسمعه اللاعبين معاك، وما نقدرش نمنع حد من التسجيل بجهاز تاني.\n\n5. عملات المافيا عملة داخل اللعبة لفتح محتوى شكلي بس، زي الإطارات والثيمات وأسلوب الراوي. ملهاش قيمة نقدية، وما بتتحوّلش لفلوس، وما بتدّيش أي ميزة في اللعب أو التصويت أو الأدوار.\n\n6. تقدر تشتري العملات وممر الهدوء وحزمة البداية بالفلوس: في تطبيق أندرويد عن طريق Google Play Billing، وفي تطبيق أندرويد والموقع بتحويل إنستا باي أو فودافون كاش بنفس السعر. التحويل بيتراجع يدويًا خلال 72 ساعة؛ بترفع صورة التحويل واسم المحوِّل، والشراء بيتضاف بعد التأكد من وصول الفلوس بس. الصورة الواحدة تنفع لطلب واحد بس. الطلب المرفوض بيظهر سببه، والطلب اللي ما يتراجعش خلال 72 ساعة بينتهي.\n\n7. ممكن نوقف أوضة أو لاعب بيخالف الشروط. تقدر تطلب مسح بياناتك من الإعدادات.\n\n8. لو الشروط اتغيّرت تغيير مهم، هنطلب موافقتك تاني قبل ما تكمل.",
-  "privacySummaryBody": "• اللعبة بتستخدم معرّف مجهول للأونلاين، ومش محتاجة رقم تليفون ولا تاريخ ميلاد عشان تلعب.\n\n• اسمك في اللعبة ونوع الصورة بيظهروا للاعبين معاك في الأوضة.\n\n• الصوت اختياري ومشفّر أثناء النقل، واللعبة ما بتسجّلهوش.\n\n• لو سجّلت دخول بإيميل، الإيميل بيستخدم لاستعادة الحساب بس.\n\n• نسخة أندرويد فيها إعلانات Google AdMob: إعلانات مكافأة اختيارية؛ وإعلانات تلقائية بملء الشاشة بين الماتشات بس — قبل ما تدخل أوضة (إنشاء، انضمام، أو روم جديدة للشلة)، ولما تسيب ماتش خلص، وقبل توزيع الأدوار وبعد النتيجة في اللعب على موبايل واحد، وأحيانًا وإنت بتتنقل بين القوايم بعد كام دقيقة من غير إعلان، وإعلان فتح على شاشة البداية — أبدًا أثناء الماتش، بحد أقصى 40 في اليوم وبينهم 90 ثانية على الأقل، ومفيش ولا واحد حوالين أول ماتش ليك؛ وبانرات صغيرة في شاشات الانتظار (اللوبي، قايمة الأوض، السجل، الخزنة، البروفايل) — أبدًا مش أثناء اللعب. ممر الهدوء بيشيل كل الإعلانات التلقائية. مكتبة إعلانات Google بتجمع عنوان الإنترنت والتفاعل وبيانات الأعطال ومعرّفات الجهاز زي Advertising ID.\n\n• الشراء في نسخة Play بيتم عن طريق Google Play Billing، وبنحتفظ برقم الطلب والمنتج ورمز الشراء عشان نتحقق منه. طلبات تحويل إنستا باي وفودافون كاش (في تطبيق أندرويد والموقع) بتتسجل بالمنتج والمبلغ والوسيلة وصورة التحويل اللي بترفعها واسم المحوِّل، للتحقق من الدفع بس؛ الصورة بتتخزن بشكل خاص وبتتمسح بعد 90 يوم من مراجعة الطلب، وسجل الطلب نفسه بيتحفظ للحسابات.\n\n• الأوض المنتهية بتتمسح بشكل دوري، وتقدر تطلب مسح بياناتك من الإعدادات.\n\n• رتبة المجلس وترتيب الأسبوع: مستواك بيظهر على كرسيك، واسمك في اللعبة ونوع الصورة والإطار ومستواك ونقط خبرة الأسبوع ممكن يظهروا في ترتيب الأسبوع العام. تقدر تخفي نفسك من الترتيب من صفحة البروفايل. سجل الماتشات اللي وراهم بيتحفظ 21 يوم.\n\nالسياسة الكاملة: saidalmafia.com/privacy",
-  "termsUpdatedTitle": "قبل ما تكمل",
-  "termsUpdatedHint": "راجع الشروط ووافق عليها مرة واحدة. بياناتك وتقدمك محفوظين.",
-  "settingsLegalTitle": "الشروط والخصوصية",
-  "launcherLabelPending": "اسم الأيقونة هيتغير بعد ما تقفل اللعبة.",
-  "documentClose": "رجوع",
-  "publicRoomWaitingTitle": "أوضة انتظار جاهزة",
-  "publicRoomWaitingStatus": "فاضية، وأول واحد يدخل هيبقى المضيف",
-  "onlineShareFailed": "ماقدرناش نفتح المشاركة ولا ننسخ اللينك. قول كود الأوضة للاعبين.",
-  "shareTextCopied": "الرسالة اتنسخت. الصقها وابعتها لأي حد.",
-  "shareUnavailable": "ماقدرناش نفتح المشاركة. جرب تاني.",
-  "coinsName": "عملات المجلس",
-  "storeTitle": "المتجر",
-  "storeTabShop": "المتجر",
-  "storeTabCollection": "مجموعتي",
-  "storeTabHistory": "السجل",
-  "storeTabCoins": "شراء عملات",
-  "storeEarnTime": "{count} عملة = حوالي {matches} ماتش أونلاين",
-  "storeSectionIdentity": "الهوية",
-  "storeSectionPacks": "أجواء الأوضة",
-  "storeSectionNarrator": "أساليب الحكاية",
-  "storeSectionBundles": "الباقات",
-  "storePermanent": "دائم",
-  "storeOwned": "عندك",
-  "storeEquipped": "مستخدم",
-  "storeEquip": "استخدم",
-  "storeUnequip": "شيل",
-  "storePreview": "معاينة",
-  "storeBuyFor": "اشتري بـ {count}",
-  "storeBuyConfirmTitle": "تشتري {item}؟",
-  "storeBuyConfirmBody": "هيتخصم {count} عملة. المحتوى شكلي ودائم، وما بيغيّرش أي حاجة في اللعب.",
-  "storeNotEnough": "ناقصك {count} عملة",
-  "storeBundleSaves": "بتوفّر {count} عملة",
-  "storeBundleOwnedAll": "كل اللي فيها عندك",
-  "storeBundleContents": "فيها: {items}",
-  "storeBought": "اتضاف لمجموعتك",
-  "storeFailed": "العملية ما تمّتش، ومفيش حاجة اتخصمت. جرّب تاني.",
-  "storeHostPackNote": "لما المضيف يختار الأجواء، بتظهر لكل اللي في الأوضة من غير ما حد تاني يشتريها.",
-  "storePresentationNote": "شكل وصوت بس. ما بيغيّرش القواعد ولا التصويت ولا الأدوار.",
-  "storeEmptyCollection": "لسه ما اشتريتش حاجة.",
-  "storeEmptyHistory": "لسه مفيش حركة.",
-  "historyMatchCompletion": "ماتش أونلاين خلص",
-  "historyMatchWin": "فوز",
-  "historyCatalogSpend": "شراء: {item}",
-  "historyCatalogRefund": "استرجاع: {item}",
-  "historyAdReward": "مكافأة فيديو",
-  "historyCoinPurchase": "شراء عملات",
-  "historyCoinPurchaseReversal": "إلغاء شراء عملات",
-  "historyAdjustment": "تعديل من الإدارة",
-  "cosmeticClassic": "الكلاسيكي",
-  "cosmeticFrameGilded": "إطار مذهّب",
-  "cosmeticFrameGildedDesc": "إطار دهب منقوش بقناع صغير تحت صورتك، يشوفه كل اللاعبين.",
-  "cosmeticFrameCrimson": "إطار قرمزي",
-  "cosmeticFrameCrimsonDesc": "إطار فضي غامق بمينا قرمزي ودرع صغير تحت الصورة.",
-  "cosmeticFrameMoonlit": "إطار ضوء القمر",
-  "cosmeticFrameMoonlitDesc": "إطار فضي بارد بهلال صغير تحت الصورة.",
-  "cosmeticPlateNoir": "لافتة نوار",
-  "cosmeticPlateNoirDesc": "اسمك على لافتة فحمي بإطار فضي منقوش وطرفين دايريين.",
-  "cosmeticPlateGilded": "لافتة مذهّبة",
-  "cosmeticPlateGildedDesc": "اسمك على لافتة فحمي بحافة دهب وطرفين زي المروحة.",
-  "cosmeticPlateEmber": "لافتة الجمر",
-  "cosmeticPlateEmberDesc": "اسمك على لافتة فحمي بحافة قرمزي ودهب وطرفين مدببين.",
-  "cosmeticPackManor": "القصر الليلي",
-  "cosmeticPackManorDesc": "قاعة القصر بالشموع خلف الترابيزة مع ضباب خفيف، وانتقال ضوء شمعة بين المراحل العامة، وجملة افتتاح وختام مع صوت. بيظهر لكل اللي في الأوضة.",
-  "cosmeticPackOldTown": "المدينة القديمة",
-  "cosmeticPackOldTownDesc": "قاعة المدينة القديمة بلون حجر دافي خلف الترابيزة مع ضوء متطاير، وانتقال شعاع بيعدّي على الترابيزة، وجملة افتتاح وختام مع صوت. بيظهر لكل اللي في الأوضة.",
-  "cosmeticNarratorStoryteller": "الحكّاء",
-  "cosmeticNarratorStorytellerDesc": "راوي بصوت حكّاء مسجّل بيعلّق على كل مرحلة عامة، بنفس الجملة لكل اللاعبين. لو الصوت مقفول بتفضل الجمل مكتوبة.",
-  "cosmeticBundleCouncil": "باقة المجلس",
-  "cosmeticBundleCouncilDesc": "القصر الليلي والمدينة القديمة والحكّاء مع بعض.",
-  "cosmeticBundleIdentity": "باقة الهوية",
-  "cosmeticBundleIdentityDesc": "الإطارات التلاتة واللافتات التلاتة.",
-  "packManorIntro": "أبواب القصر اتقفلت. محدش هيخرج قبل ما الحقيقة تبان.",
-  "packManorOutro": "الشموع طفت، والقصر احتفظ بأسراره.",
-  "packOldTownIntro": "المدينة القديمة صحيت على سر جديد.",
-  "packOldTownOutro": "الشوارع هديت، والحكاية خلصت.",
-  "narratorNight": "الليل نزل، وكل واحد في مكانه.",
-  "narratorMorning": "النهار طلع، وفيه حاجات اتغيّرت.",
-  "narratorDiscussion": "دلوقتي الكلام. مين عنده حجة؟",
-  "narratorVoting": "القرار في إيد الجماعة.",
-  "narratorResult": "الحكاية خلصت، والأسرار بانت.",
-  "roomPackLabel": "أجواء الأوضة",
-  "roomNarratorLabel": "الراوي",
-  "previewTransition": "شوف الانتقال",
-  "previewSound": "اسمع الصوت",
-  "previewIntro": "الافتتاح",
-  "previewOutro": "الختام",
-  "previewSampleName": "سامي",
-  "onlineRoomRefreshHint": "الأوض بتتحدّث تلقائيًا. اختار الأوضة اللي تناسبك.",
-  "onlineRoomsAll": "كل الأوض",
-  "onlineRoomsNearlyReady": "ناقص لاعب أو اتنين",
-  "onlineRoomsNoFilterMatches": "مفيش أوض ناقصها لاعب أو اتنين دلوقتي. شوف كل الأوض أو اعزم صحابك.",
-  "onlineRoomVoiceOn": "الصوت متاح",
-  "onlineRoomVoiceOff": "الصوت مقفول",
-  "onlineLobbyInviteHint": "شارك دعوة الأوضة مع صحابك عشان ينضمّوا لنفس الطاولة.",
-  "onlineLobbyHostReadyHint": "العدد كافي. ابدأ لما الكل يبقى مستعد.",
-  "onlineLobbyGuestReadyHint": "العدد كافي. مستنيين المضيف يبدأ الماتش.",
-  "onlineVoteSending": "جاري إرسال صوتك…",
-  "onlineVoteReceived": "صوتك اتسجّل. مستنيين التصويت يقفل.",
-  "onlineVoteResolving": "التصويت اتقفل. مستنيين النتيجة.",
-  "onlineVoteSelectHint": "اختار لاعب من الطاولة، وبعدها أكّد صوتك.",
-  "onlineConfirmSuspicion": "تأكيد الاتهام",
-  "onlineBeginVoting": "ابدأ التصويت",
-  "accountTitle": "سجّل دخول",
-  "accountAnonymousHint": "مشترياتك وتقدّمك يفضلوا معاك على أي موبايل.",
-  "accountProtected": "مسجّل دخول بـ {email}",
-  "accountLink": "سجّل دخول",
-  "accountRecover": "عندي حساب بالفعل",
-  "accountEmail": "الإيميل",
-  "accountSendCode": "ابعت الكود",
-  "accountCode": "الكود اللي وصلك على الإيميل",
-  "accountConfirm": "تأكيد",
-  "accountCodeSent": "بعتنا إيميل لـ {email}. فيه يا كود من 6 أرقام (اكتبه تحت) يا لينك (افتحه وبعدين دوس «فتحت اللينك من الإيميل»). ممكن ياخد دقيقة، وبص في السبام لو ما لقيتوش.",
-  "accountRecoverWarning": "هتدخل على حسابك. العملات اللي على الجهاز ده من غير تسجيل مش هتتنقل له.",
-  "accountErrorEmail": "الإيميل ده مش مكتوب صح.",
-  "accountErrorTaken": "الإيميل ده مربوط بحساب تاني. استخدم «عندي حساب بالفعل».",
-  "accountErrorCode": "الكود مش صح أو خلص وقته. اطلب كود جديد.",
-  "accountErrorRate": "طلبات كتير. استنى شوية وجرّب تاني.",
-  "accountErrorUnavailable": "الخدمة مش متاحة دلوقتي. جرّب بعدين.",
-  "accountLinkOpened": "فتحت اللينك من الإيميل",
-  "accountErrorLinkPending": "الإيميل لسه ما اتأكدش. افتح اللينك اللي في الإيميل وبعدين دوس تاني.",
-  "accountErrorLinkElsewhere": "اللينك بيدخّل المتصفح اللي فتحه، مش التطبيق ده. استخدم الكود اللي في الإيميل.",
-  "accountRecoverLinkNote": "على جهاز جديد، الكود اللي من 6 أرقام بس هو اللي يدخّل التطبيق، واللينك مش هيدخّله. لو الإيميل مفيهوش كود، الاسترجاع بالكود هيشتغل أول ما نحدّث إيميلاتنا.",
-  "coinPacksUnavailable": "شراء العملات مش متاح دلوقتي. العملات بتتكسب من الماتشات الأونلاين زي ما هي.",
-  "coinPacksNeedAccount": "سجّل دخول قبل الدفع عشان مشترياتك وعملاتك يفضلوا معاك على أي موبايل.",
-  "coinPackCoins": "{count} عملة",
-  "coinPackPrice": "{amount} جنيه",
-  "coinPayMethod": "طريقة الدفع",
-  "coinPayInstapay": "إنستا باي",
-  "coinPayVodafone": "فودافون كاش",
-  "coinPayMethodOff": "مش متاحة دلوقتي",
-  "coinManualNotice": "التحويل بيتراجع يدويًا، والعملات بتضاف بعد التأكد من وصوله",
-  "coinManualDetail": "هتفتح صفحة الدفع برّه اللعبة، وممكن يفتح تطبيق البنك أو المحفظة. حوّل المبلغ المكتوب بالظبط، وارجع هنا اكتب رقم العملية. فتح الرابط أو الرجوع منه مش بيضيف عملات.",
-  "coinCreateOrder": "أكّد الطلب بـ {amount} جنيه",
-  "coinOrderTitle": "طلب {reference}",
-  "coinOrderSummary": "{coins} عملة مقابل {amount} جنيه عن طريق {method}",
-  "coinOpenPayment": "افتح {method}",
-  "coinOpenFailed": "المتصفح ما فتحش الصفحة. اسمح بالنوافذ الجديدة للموقع وجرّب تاني.",
-  "coinDesktopHint": "لو على كمبيوتر وتطبيق المحفظة على موبايلك، افتح الموقع من الموبايل عشان تكمل التحويل.",
-  "coinSentTransfer": "أرسلت التحويل",
-  "coinTransferReference": "رقم العملية",
-  "coinPayerHint": "اسم المحوِّل (اختياري)",
-  "coinClaimNote": "ده بلاغ بإنك حوّلت، مش تأكيد. محدش هيطلب منك رقم سري أو كود.",
-  "coinCancelOrder": "إلغاء الطلب",
-  "coinStatusAwaiting": "مستني التحويل",
-  "coinStatusClaimed": "تحت المراجعة. العملات هتتضاف بعد التأكد من وصول المبلغ.",
-  "coinStatusNeedsInfo": "محتاجين توضيح: {note}",
-  "coinStatusPaid": "اتضافت {coins} عملة",
-  "coinStatusRejected": "الطلب اترفض: {note}",
-  "coinStatusCancelled": "الطلب اتلغى",
-  "coinStatusExpired": "الطلب خلص وقته. لو كنت حوّلت بالفعل، اكتب رقم العملية وهيتراجع.",
-  "coinStatusRefunded": "المبلغ اترجع: {note}",
-  "coinOrderFailed": "الطلب ما اتسجلش. مفيش حاجة اتخصمت؛ جرّب تاني.",
-  "adminCoinsTitle": "مراجعة التحويلات",
-  "adminNotAdmin": "الحساب ده مش من حسابات الإدارة.",
-  "adminEmpty": "مفيش طلبات مستنية مراجعة.",
-  "adminProviderTxn": "رقم العملية في كشف الحساب",
-  "adminReceived": "المبلغ اللي وصل (جنيه)",
-  "adminNote": "ملاحظة للاعب",
-  "adminApprove": "وصل، ضيف العملات",
-  "adminNeedsInfo": "اطلب توضيح",
-  "adminReject": "ارفض",
-  "adminRefund": "رجّعت الفلوس",
-  "adminCheckFirst": "راجع كشف البنك أو المحفظة بنفسك وطابق المبلغ والطريقة ورقم العملية قبل الموافقة. لو مش متأكد سيبه تحت المراجعة.",
-  "adminErrorAmount": "المبلغ مش مطابق. اطلب توضيح أو ارفض.",
-  "adminErrorUsed": "رقم العملية ده اتستخدم في طلب تاني.",
-  "adminErrorGeneric": "ما اتنفذش. راجع الحقول وجرّب تاني.",
-  "adminOrderLine": "{reference} · {account} · {amount} جنيه · {method} · مرجع اللاعب: {claim}",
-  "adminFilterOpen": "للمراجعة",
-  "adminFilterPaid": "المدفوعة",
-  "arrivalIdentityTitle": "كرسيك وسط الحكاية",
-  "arrivalIdentityHint": "اختار الاسم والشكل اللي أصحابك هيعرفوك بيهم.",
-  "arrivalWelcomeHint": "دور سرّي. وشكوك حوالين الترابيزة. حكايتك بتبدأ هنا.",
-  "arrivalPactTitle": "قبل أول ليلة",
-  "arrivalStep": "الخطوة {step} من {total}",
-  "arrivalSaving": "بنجهّز كرسيك…",
-  "councilInvitation": "كل واحد عنده حكاية. هتصدّق مين؟",
-  "@arrivalStep": {
-    "placeholders": {
-      "step": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "witnessTableLoading": "بنفتحلك الترابيزة…",
-  "witnessTableNoActions": "لسه محدش اختار حاجة بالليل",
-  "witnessActionKill": "{actor} اختار يقتل {target}",
-  "witnessActionProtect": "{actor} بيحمي {target}",
-  "witnessActionInvestigate": "{actor} كشف على {target}",
-  "witnessActionSuspect": "{actor} شاكك في {target}",
-  "onlineDiscussionLive": "النقاش شغّال",
-  "witnessEventNight": "الليل: كل واحد بيختار في السر",
-  "witnessEventOpening": "{name} بيقول هو شاكك في مين",
-  "witnessEventDiscussion": "اللي لسه لاعبين بيتناقشوا",
-  "witnessEventVoting": "التصويت شغّال",
-  "onlineAbandonedTitle": "كل اللاعبين خرجوا",
-  "onlineAbandonedBody": "مفيش حد فاضل على الترابيزة غيرك، فالماتش ده خلص. ارجع للرئيسية وابدأ أوضة جديدة.",
-  "nightCitizenRest": "انت مواطن",
-  "nightCitizenRestSupport": "مفيش عليك حاجة بالليل. استنى لحد ما الباقي يخلصوا، والنهار هيطلع.",
-  "readyToVote": "جاهز للتصويت ({ready} من {living})",
-  "readyToVoteWaiting": "مستني الباقي ({ready} من {living})",
-  "settingsSectionGeneral": "عام",
-  "settingsRulesTitle": "قواعد اللعب",
-  "settingsRulesHint": "كل ماتش جديد بيبدأ بيها، وتقدر تغيّرها قبل أي ماتش.",
-  "settingsSectionMore": "المساعدة والخصوصية",
-  "onlineRoomSettingsHint": "أي تغيير بيوصل لكل اللي في الأوضة على طول.",
-  "vaultTitle": "خزنة المجلس",
-  "vaultSubtitle": "بصمتك في المجلس. أجواء على ذوقك.",
-  "storeFrames": "إطارات الهوية",
-  "storeNameplates": "لوحات الأسماء",
-  "storeBrowseNext": "المزيد من المنتجات",
-  "storeBrowsePrevious": "المنتجات السابقة",
-  "cosmeticPackArchive": "أرشيف القمر",
-  "cosmeticPackArchiveDesc": "أرشيف تحت ضوء القمر خلف الترابيزة بلون فضي هادي، وانتقال ضوء قمر بين المراحل العامة، وجملة افتتاح وختام مع صوت. بيظهر لكل اللي في الأوضة.",
-  "cosmeticNarratorKeeper": "حارس الأسرار",
-  "cosmeticNarratorKeeperDesc": "راوي رزين بصوت مسجّل ولغة الأرشيف في كل مرحلة عامة، بنفس الجملة لكل اللاعبين.",
-  "cosmeticNarratorNoir": "راوي الظلال",
-  "cosmeticNarratorNoirDesc": "راوي نوار مختصر بصوت مسجّل في كل مرحلة عامة، بنفس الجملة لكل اللاعبين.",
-  "cosmeticBundleNocturne": "مجموعة الليل",
-  "cosmeticBundleNocturneDesc": "أرشيف القمر وإطار ضوء القمر ولافتة نوار وحارس الأسرار مع بعض.",
-  "packArchiveIntro": "الأرشيف فتح أبوابه تحت ضوء القمر.",
-  "packArchiveOutro": "ضوء القمر انسحب، والملفات رجعت لرفوفها.",
-  "narratorKeeperNight": "الدفتر اتقفل على صفحة الليل.",
-  "narratorKeeperMorning": "صفحة النهار اتفتحت.",
-  "narratorKeeperDiscussion": "كل كلمة ليها وزن. اتكلموا بحساب.",
-  "narratorKeeperVoting": "المجلس هيسجّل قراره.",
-  "narratorKeeperResult": "الدفتر اتقفل، والحكاية دخلت الأرشيف.",
-  "narratorNoirNight": "المدينة نامت. الشوارع فاضية.",
-  "narratorNoirMorning": "الصبح طلع. وكل واحد بيدوّر على الحقيقة.",
-  "narratorNoirDiscussion": "كل واحد عنده حكاية. مين اللي بيقول الحق؟",
-  "narratorNoirVoting": "لحظة القرار. كل صوت له تمن.",
-  "narratorNoirResult": "القضية اتقفلت.",
-  "storeAboutCoins": "عن العملات",
-  "storeInside": "اللي جوّه",
-  "storeBalance": "رصيدك {count} عملة",
-  "storeRoomArtNote": "المشهد بيظهر خفيف ورا الترابيزة في المراحل العامة بس، وعمره ما بيظهر بالليل.",
-  "profileAddressLabel": "نكلّمك بصيغة",
-  "profileAddressHint": "العربي بيفرّق بين الولد والبنت، فبنكتب لك الأدوار والرسايل بالصيغة دي.",
-  "onlinePlayingAs": "هتلعب باسم {name}",
-  "onlineNoPublicRoomsHint": "اعمل أوضة وابعت الكود لصحابك، أو حدّث القائمة بعد شوية.",
-  "lobbyInviteFriends": "ادعي صحابك",
-  "adStepsTitle": "مكافأة اختيارية: لحد إعلانين",
-  "adStepsDisclosure": "كل إعلان تكمّله بيتأكد وبيضيف عملاته، ولو وقفت بعد الأول بتفضل مكافأته ليك. الإعلانين مع بعض بيضيفوا +{total}. مكافأة الماتش نفسها بتاعتك في كل الأحوال.",
-  "adStepAction": "إعلان {step} من 2 · +{amount}",
-  "adStepDone": "إعلان {step} من 2 · اتضاف +{amount}",
-  "adStepsComplete": "اتضافت +{total} عملة مكافأة للماتش ده.",
-  "adRewardCheckAgain": "اتأكد تاني",
-  "adRewardNotConsented": "الإعلانات محتاجة موافقتك الأول. تقدر تغيّرها من الإعدادات، من «اختيارات خصوصية الإعلانات».",
-  "storeTabRewards": "المكافآت",
-  "dailyTitle": "مكافآت اليوم",
-  "dailyResetNote": "اليوم الجديد بيبدأ الساعة 00:00 بتوقيت UTC.",
-  "dailyCofferTitle": "صندوق اليوم",
-  "dailyCofferBody": "مجاني مرة كل يوم: +{amount} من عملات المجلس.",
-  "dailyCofferClaim": "افتح · +{amount}",
-  "dailyCofferClaimed": "اتفتح النهارده. ارجع بكرة.",
-  "dailyCofferGranted": "اتضاف +{amount} لعملاتك.",
-  "dailyWeekBonusGranted": "اليوم السابع! +{amount} مكافأة.",
-  "dailyWheelTitle": "العجلة المجانية",
-  "dailyWheelBody": "لفة مجانية كل يوم. مابتكلفش حاجة وملهاش قيمة نقدية.",
-  "dailyWheelSpin": "لف مجانًا",
-  "dailyWheelResult": "العجلة وقفت على +{amount}.",
-  "dailyWheelDone": "لفة النهارده: +{amount}. اللفة الجاية بكرة.",
-  "dailyWheelOdds": "الاحتمالات بالظبط",
-  "dailyWheelOddsRow": "+{coins} عملة",
-  "dailyWheelPercent": "{percent}٪",
-  "dailyWeekTitle": "كارت السبع أيام",
-  "dailyWeekBody": "فتحت {progress} من 7. كل يوم سابع تفتحه بيضيف +{bonus}. اليوم اللي يفوتك مابيصفّرش حاجة.",
-  "dailyAdTitle": "إعلان اليوم (اختياري)",
-  "dailyAdBody": "إعلان اختياري واحد في اليوم مقابل +{amount} عملة بالظبط.",
-  "dailyAdAction": "اتفرج · +{amount}",
-  "dailyAdDone": "خدت مكافأة إعلان النهارده.",
-  "dailyAdInMatch": "متاح برّه الماتش.",
-  "dailyFailed": "مقدرناش نوصل للخزنة. جرّب تاني.",
-  "dailyDayChanged": "يوم جديد بدأ. اتحدّثت.",
-  "historyAdStep": "إعلان مكافأة",
-  "historyDailyCoffer": "صندوق اليوم",
-  "historyDailyWheel": "العجلة المجانية",
-  "historyDailyWeek": "مكافأة اليوم السابع",
-  "historyDailyAd": "إعلان اليوم",
-  "historyPlayCoins": "عملات اتشرت من Google Play",
-  "historyPlayReversal": "استرداد Google Play",
-  "storeTabPlay": "العملات والممر",
-  "quietPassTitle": "ممر الهدوء",
-  "quietPassBody": "دائم. بيشيل كل الإعلانات التلقائية: إعلان الفتح، والإعلانات قبل وبعد الماتشات وبين القوايم، وبانرات شاشات الانتظار. إعلانات المكافأة الاختيارية بتفضل موجودة لو عايزها. مفيش أي ميزة في اللعب.",
-  "quietPassOwned": "ممر الهدوء مفعّل",
-  "playPackTitle": "{coins} من عملات المجلس",
-  "playBuy": "اشتري · {price}",
-  "playUnavailable": "الشراء مش متاح على الجهاز ده دلوقتي.",
-  "playPending": "الدفع قيد الانتظار. هيتضاف لما Google تأكده.",
-  "playVerified": "الشراء اتأكد.",
-  "playFailed": "الشراء ماكملش.",
-  "playAccountMismatch": "الشراء ده تابع لحساب تاني.",
-  "playNeedsProtection": "سجّل دخول قبل الشراء عشان مشترياتك وتقدّمك يفضلوا معاك على أي موبايل.",
-  "playRestore": "استرجاع المشتريات",
-  "playCoinsNote": "عملات المجلس بتشتري حاجات شكلية بس. ملهاش قيمة نقدية ومابتدّيش أي ميزة.",
-  "playRefundRule": "لو باقة عملات اترجع تمنها، عملاتها اللي ماتصرفتش بتتشال. اللي اتصرف منها بيبقى مبلغ الباقة الجاية بتسدّده الأول؛ العملات المكتسبة والحاجات اللي عندك ماحدش بياخدها.",
-  "playDebtNotice": "فيه استرداد قديم لسه مفتوح: أول {coins} عملة تشتريها بتسدّده الأول.",
-  "quietPassRefundRule": "لو تمن الممر اترجع، الممر بيتشال؛ عملاتك وحاجاتك بتفضل زي ما هي.",
-  "storeTabCouncil": "المجلس",
-  "councilRankTitle": "رتبتك في المجلس",
-  "councilLevel": "المستوى {level}",
-  "councilXpProgress": "{xp} / {next} نقطة خبرة",
-  "councilXpTotal": "{xp} نقطة خبرة",
-  "councilMaxLevel": "قمة المجلس",
-  "councilNextLevel": "المستوى الجاي: +{coins}",
-  "councilWeekXp": "{xp} نقطة خبرة الأسبوع ده",
-  "councilHowXp": "كل ماتش أونلاين بتخلّصه بيجيبلك نقط خبرة، والفوز بيجيب أكتر.",
-  "councilFailed": "مقدرناش نوصل للمجلس. جرّب تاني.",
-  "councilAttention": "في حاجة مستنياك في الخزنة",
-  "contractsTitle": "عقود النهارده",
-  "contractsReset": "بتتجدد الساعة 00:00 بتوقيت UTC",
-  "contractFinishOne": "خلّص ماتش",
-  "contractFinishMany": "خلّص {count} ماتشات",
-  "contractTown": "خلّص ماتش في صف المدينة",
-  "contractMafia": "خلّص ماتش في صف المافيا",
-  "contractWinOne": "اكسب ماتش",
-  "contractWinMany": "اكسب {count} ماتشات",
-  "contractHost": "استضيف ماتش لحد آخره",
-  "contractReunion": "العب تاني مع حد لعبت معاه قبل كده",
-  "contractProgress": "{done}/{target}",
-  "contractClaim": "استلم +{coins}",
-  "contractClaimed": "اتستلم",
-  "contractsBonus": "خلّص التلاتة: +{coins}",
-  "contractsBonusDone": "التلاتة خلصوا",
-  "contractBonusGranted": "التلاتة! +{coins} مكافأة.",
-  "contractIncomplete": "لسه — خلّص الماتش الأول.",
-  "weeklyTitle": "عقد الأسبوع",
-  "weeklyBody": "خلّص {target} ماتشات أونلاين الأسبوع ده",
-  "weeklyReward": "+{coins} عملة و{xp} نقطة خبرة",
-  "weeklyRewardCoins": "+{coins} عملة",
-  "weeklyReset": "بيتجدد يوم الاتنين 00:00 بتوقيت UTC",
-  "leaderboardTitle": "الأعلى الأسبوع ده",
-  "leaderboardOpen": "ترتيب الأسبوع",
-  "leaderboardYou": "ترتيبك: {position}",
-  "leaderboardNone": "العب ماتش عشان تدخل الترتيب",
-  "leaderboardEmpty": "لسه محدش جاب نقط خبرة الأسبوع ده.",
-  "leaderboardHidden": "انت مخفي من الترتيب؛ ترتيبك بيظهر ليك انت بس.",
-  "leaderboardVisibleLabel": "اظهر في ترتيب الأسبوع",
-  "leaderboardVisibleBody": "اسمك وشكلك ورتبتك بيظهروا في ترتيب الأسبوع. مفيش أي حاجة عن ماتشاتك بتظهر.",
-  "inviteTitle": "ادعي صاحبك",
-  "inviteBody": "١. ابعت الكود أو لينك أوضتك لصاحب لسه منزّل اللعبة (خلال أول ٧ أيام).\n٢. يفتح اللينك، أو يكتب الكود في «معاك كود دعوة؟» في المجلس.\n٣. أول ما يخلّص أول ماتش أونلاين: انت +{inviter} وهو +{invitee}.",
-  "inviteCopy": "انسخ الكود",
-  "inviteCopied": "الكود اتنسخ",
-  "inviteShare": "شارك",
-  "inviteShareText": "تعالى العب معايا مافيا! استخدم كود الدعوة {code} من تبويب المجلس في الخزنة.",
-  "inviteCounters": "مكافآت: {rewarded}/{cap} · مستنيين: {pending}",
-  "inviteHaveCode": "معاك كود دعوة؟",
-  "inviteField": "كود الدعوة",
-  "inviteRedeem": "استخدم الكود",
-  "inviteRedeemed": "الدعوة اتسجلت. خلّص ماتش عشان المكافأتين يتفتحوا.",
-  "inviteRewarded": "مكافأة الدعوة وصلت.",
-  "inviteSettledNoCoinsNotice": "{name} كمّل شروط الدعوة — اتحسبت في تقدّم دعواتك.",
-  "@inviteSettledNoCoinsNotice": {"placeholders": {"name": {"type": "String"}}},
-  "inviteNotFound": "الكود ده مش موجود.",
-  "inviteSelf": "مينفعش تستخدم الكود بتاعك.",
-  "inviteExpired": "أكواد الدعوة للحسابات الجديدة بس، خلال 7 أيام.",
-  "inviteNotNew": "أكواد الدعوة بتشتغل قبل أول ماتش ليك.",
-  "inviteAlready": "انت استخدمت كود دعوة قبل كده.",
-  "inviteLoop": "انت اللي دعيت اللاعب ده، مينفعش تستخدم الكود بتاعه.",
-  "inviteLimit": "الكود ده وصل للحد الأقصى.",
-  "inviteRateLimit": "محاولات كتير. جرّب بكرة.",
-  "resultContractToast": "عقد خلص: {name} +{coins}",
-  "resultWeeklyToast": "عقد الأسبوع خلص: +{coins}",
-  "resultXpGained": "+{xp} نقطة خبرة",
-  "resultClaimHint": "استلمهم من تبويب المجلس في الخزنة.",
-  "levelUpTitle": "بقيت {title}",
-  "levelUpBody": "المستوى {level} · +{coins} عملة",
-  "rankTier1": "مبتدئ",
-  "rankTier2": "مخبر",
-  "rankTier3": "حارس الليل",
-  "rankTier4": "محقق",
-  "rankTier5": "وجيه",
-  "rankTier6": "عضو المجلس",
-  "rankTier7": "كابو",
-  "rankTier8": "مستشار",
-  "rankTier9": "شيخ المجلس",
-  "rankTier10": "عرّاب",
-  "rankSemantics": "{title}، المستوى {level}",
-  "bundleTitle": "حزمة البداية",
-  "bundleBody": "{coins} عملة + إطار ختم المجلس، مش موجود في أي مكان تاني. مرة واحدة لكل حساب.",
-  "bundleOwned": "حزمة البداية عندك",
-  "bundleRefundRule": "لو اترجعت فلوسها، العملات بتتحسب زي باقات العملات وإطار ختم المجلس بيتشال.",
-  "bundleAlreadyOwned": "الحساب ده عنده حزمة البداية بالفعل؛ الشراء الزيادة Google Play بترجّع فلوسه.",
-  "cosmeticFrameSeal": "ختم المجلس",
-  "cosmeticFrameSealDesc": "حلقة ختم بلون الشمع الأحمر وتمن مسامير دهب — الإطار الخاص بحزمة البداية.",
-  "cosmeticFrameInvite": "إطار الصحبة",
-  "cosmeticFrameInviteDesc": "إطار حصري بتكسبه لما عشرة أصحاب يكملوا شروط دعوتك.",
-  "coinPayStep": "اختار الباقة، وبعدين دوس على طريقة الدفع: صفحتها هتفتح. ارجع هنا برقم العملية.",
-  "coinPayWith": "ادفع بـ{method}",
-  "webPassTitle": "ممر الهدوء لتطبيق أندرويد",
-  "webPassBody": "الموقع مفيهوش إعلانات. الممر بيشيل كل الإعلانات التلقائية في تطبيق أندرويد (إعلان الفتح، وبعد الماتش، والبانرات) على نفس الحساب المربوط. إعلانات المكافأة الاختيارية بتفضل موجودة.",
-  "webPassOwned": "ممر الهدوء شغال على الحساب ده",
-  "coinOrderPassSummary": "ممر الهدوء · {price} جنيه · {method}",
-  "awardsTitle": "جوايز الماتش",
-  "awardMvp": "نجم الماتش",
-  "awardSharpEye": "العين الحادة",
-  "awardSurvivor": "الناجي",
-  "awardSilverTongue": "اللسان الذهبي",
-  "awardLifesaver": "المنقذ",
-  "awardPerfectCrime": "الجريمة الكاملة",
-  "awardFirstBlood": "أول كشف",
-  "awardMvpBody": "أحسن لاعب في الفريق الكسبان",
-  "awardSharpEyeBody": "أكتر واحد صوّت على المافيا",
-  "awardSurvivorBody": "فضل لحد الآخر",
-  "awardSilverTongueBody": "أقنع الترابيزة معاه",
-  "awardLifesaverBody": "الدكتور أنقذ حد",
-  "awardPerfectCrimeBody": "المافيا كسبت من غير ما حد يتكشف",
-  "awardFirstBloodBody": "أول صوت كشف المافيا",
-  "awardsYouEarned": "جوايزك: +{coins} عملة",
-  "awardsLoading": "بنحسب الجوايز",
-  "reactionsLabel": "ريأكشنز",
-  "reactionLaugh": "ضحك",
-  "reactionShock": "صدمة",
-  "reactionSuspicious": "شاكك",
-  "reactionApplause": "تسقيف",
-  "reactionRose": "وردة",
-  "reactionSkull": "جمجمة",
-  "reactionCoffee": "قهوة",
-  "reactionCrown": "تاج",
-  "reactionFrom": "{name}: {reaction}",
-  "reactionSlowDown": "بالراحة، واحدة واحدة",
-  "cofferStripReady": "صندوق النهارده جاهز",
-  "cofferStripBody": "استلمه من هنا على طول.",
-  "cofferStripClaim": "استلم",
-  "cofferStripGot": "+{amount} اتضافوا لخزنتك",
-  "@cofferStripGot": {"placeholders": {"amount": {"type": "int"}}},
-  "cofferStripSpin": "لف العجلة",
-  "cofferStripLater": "بعدين",
-  "welcomeBackTitle": "وحشتنا",
-  "welcomeBackBody": "صندوقك اليومي مستنيك في الخزنة.",
-  "welcomeBackBodyPlain": "الترابيزة جاهزة وقت ما تحب.",
-  "welcomeBackOpen": "افتح الخزنة",
-  "welcomeBackDismiss": "بعدين",
-  "founderBadge": "مؤسس",
-  "founderBadgeBody": "من أوائل لاعبين المجلس",
-  "shareCardAwards": "الجوايز: {awards}",
-  "adBannerLabel": "إعلان",
-  "adExtrasTitle": "إضافات اختيارية",
-  "adExtrasBody": "كل واحدة إعلان اختياري واحد، مرة في اليوم. مفيش حاجة هنا بتأثر على اللعب.",
-  "adExtraSpinTitle": "لفة تانية",
-  "adExtraSpinBody": "بعد لفة النهارده المجانية: لفة كمان، بنفس الاحتمالات، والسيرفر هو اللي بيختار.",
-  "adExtraSpinOdds": "الاحتمالات: {odds}",
-  "adExtraSpinAction": "اتفرج · لف تاني",
-  "adExtraSpinNotReady": "لف العجلة المجانية بتاعة النهارده الأول.",
-  "adExtraSpinResult": "اللفة التانية: +{amount} عملة.",
-  "adExtraCofferTitle": "ضاعف خزنة النهارده",
-  "adExtraCofferAction": "اتفرج · +{amount}",
-  "adExtraCofferNotReady": "افتح خزنة النهارده الأول.",
-  "adExtraCofferDone": "الخزنة اتضاعفت: +{amount}",
-  "adExtraSwapTitle": "بدّل عقد",
-  "adExtraSwapBody": "بدّل عقد من عقود النهارده اللي لسه ما خدتش مكافأته بعقد تاني.",
-  "adExtraSwapAction": "اختار · اتفرج",
-  "adExtraSwapPick": "تبدّل أنهي عقد؟",
-  "adExtraSwapSlot": "العقد {number}",
-  "adExtraSwapDone": "العقد اتبدّل",
-  "adExtraNoneLeft": "مفيش حاجة تتبدّل النهارده.",
-  "adExtraUsed": "اتستخدمت النهارده",
-  "adPreparing": "بنجهّز الإعلان…",
-  "adRewardVerifying": "بنتأكد من مكافأتك…",
-  "adRewardLateCheck": "في الطريق · اتأكد تاني",
-  "wheelAgainAd": "عايز تلف تاني؟ اتفرج على إعلان",
-  "cofferDoubleAd": "ضاعف خزنة النهارده؟ اتفرج على إعلان · +{amount}",
-  "dailyAdMore": "عايز +{amount} كمان؟ اتفرج على إعلان",
-  "contractSwapAd": "مهمة مش عاجباك؟ بدّلها بإعلان",
-  "vaultOneTime": "مرة واحدة بس",
-  "vaultBestValue": "الأوفر",
-  "vaultMostCoins": "أكبر باقة",
-  "coinPickPackFirst": "اختار باقة من فوق الأول، وبعدين طريقة الدفع.",
-  "adDoubleTitle": "مكافأة اختيارية: ضاعف الماتش ده أو خليه 3 أضعاف",
-  "adDoubleAction": "اتفرج على إعلان · ضاعفها لـ {total}",
-  "adTripleAction": "إعلان كمان · 3 أضعاف لـ {total}",
-  "adDoubleDone": "اتضاعفت · {total} عملة",
-  "adTripleDone": "بقت 3 أضعاف · {total} عملة",
-  "adTripleComplete": "الماتش ده بقى بـ {total} عملة.",
-  "adDoubleDisclosure": "الماتش ده جابلك {base}. إعلان واحد يتأكد يخليها {doubled}، والتاني يخليها {tripled}. لو وقفت بعد الأول الضعف بيفضل ليك. مكافأة الماتش نفسها بتاعتك في كل الأحوال.",
-  "payWithGoogle": "ادفع بجوجل · {price}",
-  "pay2TabTransfer": "إنستا باي / فودافون كاش",
-  "pay2AlreadyOwned": "الحساب ده عنده ده بالفعل.",
-  "pay2TooMany": "عندك طلبين مستنيين المراجعة. تقدر تعمل طلب جديد لما واحد فيهم يتراجع.",
-  "pay2Duplicate": "الصورة دي اتستخدمت في طلب قبل كده. ارفع صورة التحويل ده بالذات.",
-  "pay2ProofRequired": "لازم صورة التحويل واسم المحوِّل الاتنين.",
-  "pay2StepChoose": "اختار المنتج وطريقة الدفع",
-  "pay2StepPayHint": "لما تدوس على طريقة الدفع هتفتح برّه اللعبة. حوّل المبلغ بالظبط وارجع هنا.",
-  "pay2StepPay": "حوّل {amount} جنيه بالظبط من {method}",
-  "pay2StepProof": "ارجع هنا وارفع صورة التحويل",
-  "pay2PickImage": "اختار صورة التحويل",
-  "pay2ImageChosen": "الصورة جاهزة · غيّرها",
-  "pay2ImageFailed": "ما قدرناش نقرأ الصورة دي. جرّب صورة تانية.",
-  "pay2SenderName": "اسم المحوِّل زي ما ظاهر في {method} بالظبط",
-  "pay2Submit": "ابعت للمراجعة",
-  "pay2Sent": "اتبعت. بنراجعه بإيدينا، والعملات بتتضاف بعد التأكد من وصول المبلغ.",
-  "pay2OrderSummary": "{product} · {amount} جنيه · {method}",
-  "pay2StatusAwaiting": "مستني صورة التحويل",
-  "pay2StatusPending": "تحت المراجعة",
-  "pay2StatusApproved": "اتقبل",
-  "pay2StatusExpired": "انتهت مهلته: ما اتراجعش خلال 72 ساعة. لو كنت دفعت، كلّم الدعم برقم الطلب.",
-  "pay2OrdersTitle": "طلباتك",
-  "pay2ReviewDetail": "نفس سعر جوجل بلاي. الطلبات بتتراجع بإيد خلال 72 ساعة، ولو اترفض الطلب السبب بيظهر هنا.",
-  "pay2ProofPrivacy": "الصورة واسم المحوِّل بيتخزنوا بشكل خاص للتحقق من الطلب بس، والصورة بتتمسح بعد 90 يوم من المراجعة. محدش هيطلب منك رقم سري أو كود.",
-  "adminPaymentsTitle": "طلبات الدفع",
-  "adminSignInHint": "سجّل دخول بإيميل الإدارة. الإيميل فيه يا كود لمرة واحدة يا لينك؛ لو فتحت اللينك في المتصفح ده الصفحة هتدخل لوحدها.",
-  "adminSignedInAs": "داخل باسم {email}",
-  "adminWebOnly": "صفحة الإدارة متاحة على الموقع بس.",
-  "adminFilterPending": "للمراجعة",
-  "adminFilterApproved": "المقبولة",
-  "adminFilterRejected": "المرفوضة",
-  "adminFilterExpired": "المنتهية",
-  "adminRejectReason": "سبب الرفض (هيظهر للاعب)",
-  "adminReasonRequired": "اكتب السبب الأول.",
-  "adminProofGone": "الصورة اتمسحت (مدة الاحتفاظ)",
-  "adminApproveShort": "قبول",
-  "adminRejectShort": "رفض",
-  "adminRefundShort": "استرجاع",
-  "adminOrderMeta": "{product} · {amount} جنيه · {method}",
-  "adminSender": "المحوِّل: {name}",
-  "adminPlayer": "اللاعب: {name}",
-  "adminErrorOwned": "اللاعب عنده ده بالفعل. ارفض ورجّع الفلوس.",
-  "adminErrorProof": "الطلب ده مفيهوش صورة.",
-  "bondDossiersTitle": "الملفات الأربعة",
-  "bondDossiersHint": "ليهم ذاكرة. وإنت فيها.",
-  "bondCaseCount": "قضايا {count}",
-  "@bondCaseCount": {"placeholders": {"count": {"type": "int"}}},
-  "bondVictoryCount": "انتصارات {count}",
-  "@bondVictoryCount": {"placeholders": {"count": {"type": "int"}}},
-  "bondWitnessCount": "شهادات {count}",
-  "@bondWitnessCount": {"placeholders": {"count": {"type": "int"}}},
-  "bondPersonalCount": "لقاءات شخصية {count}",
-  "@bondPersonalCount": {"placeholders": {"count": {"type": "int"}}},
-  "bondLockedLine": "خلّص قضية والشخصية دي موجودة على الترابيزة.",
-  "bondMafiaTier1": "فاكر الترابيزة دي. كانت عارفة إمتى تسكت.",
-  "bondMafiaTier2": "الحكاية المظبوطة كلامها أقل من الحكاية الخايفة.",
-  "bondMafiaTier3": "اتعلمت إن الصبر ساعات بيبان براءة.",
-  "bondMafiaTier4": "الأوضة بتتغير لما تدخل. دي اسمها هيبة.",
-  "bondDoctorTier1": "مش كل نجدة بتتشاف، بس كلها بتتحسب.",
-  "bondDoctorTier2": "بقيت تسمع الخطر قبل ما يخبط.",
-  "bondDoctorTier3": "إنقاذ اللحظة الصح أهم من إنقاذ الشكل.",
-  "bondDoctorTier4": "الترابيزة بتتنفس أهدى وإنت صاحي لها.",
-  "bondDetectiveTier1": "قضية واحدة كفاية تعرفك قيمة الشك.",
-  "bondDetectiveTier2": "الكلام اللي اتغير بيسيب أثر أوضح من الصوت العالي.",
-  "bondDetectiveTier3": "دلوقتي بتلاحظ السكتة اللي قبل الإجابة.",
-  "bondDetectiveTier4": "مفيش حاجة بتفوتك غير اللي لسه ما حصلتش.",
-  "bondCitizenTier1": "البلد بتعيش عشان فيه حد لسه بيسمع.",
-  "bondCitizenTier2": "اتعلمت إمتى السؤال البسيط يبقى هو الأقوى.",
-  "bondCitizenTier3": "الترابيزة بتمشي ورا الحقيقة لما تثبت مكانك.",
-  "bondCitizenTier4": "إنت ذاكرة كل أوضة بتسيبها وراك.",
-  "bondHomeMafia": "المافيا لسه فاكرة فوز محدش عرف يوقفه.",
-  "bondHomeDoctor": "الدكتور فاكر الليلة اللي الكل رجع منها.",
-  "bondHomeDetective": "المحقق محتفظ بملفاتك. غبت شوية.",
-  "bondHomeCitizen": "المواطن مستني الترابيزة تتلم من جديد.",
-  "bondMomentMafia": "المافيا بتقفل الملف بابتسامة هادية.",
-  "bondMomentDoctor": "الدكتور بيعدّ مين فضل واقف.",
-  "bondMomentDetective": "المحقق بيكتب آخر حقيقة على الهامش.",
-  "bondMomentCitizen": "المواطن شايل القضية دي للقعدة الجاية.",
-  "bondTitleMafia": "حارس الأوضة الساكتة",
-  "bondTitleDoctor": "حارس آخر نور",
-  "bondTitleDetective": "قارئ الكلام اللي ما اتقالش",
-  "bondTitleCitizen": "ذاكرة الترابيزة",
-  "bondScreenSubtitle": "ليهم ذاكرة. وإنت فيها.",
-  "characterPrevious": "الشخصية اللي قبلها",
-  "characterNext": "الشخصية اللي بعدها",
-  "bondSealedLetter": "رسالة مختومة · تتفتح بعد {count} قضايا",
-  "@bondSealedLetter": {"placeholders": {"count": {"type": "int"}}},
-  "bondLettersTitle": "رسايلها ليك",
-  "bondOpenAll": "كل الملفات",
-  "bondNewLetter": "رسالة جديدة من {name}",
-  "@bondNewLetter": {"placeholders": {"name": {"type": "String"}}},
-  "bondStrangerLine": "لسه ما قعدتش على ترابيزتها.",
-  "warmupTitle": "بنجهّز الترابيزة…",
-  "warmupOnce": "مرة واحدة بس. بعد كده على طول.",
-  "rematchHost": "ماتش كمان بنفس الترابيزة",
-  "rematchJoin": "المضيف فتح الماتش الجاي · ادخل",
-  "rematchWaiting": "مستنيين المضيف يفتح الماتش الجاي…",
-  "friendsTitle": "أصحابك",
-  "friendsTitleWithOnline": "أصحابك · {count} في روم دلوقتي",
-  "@friendsTitleWithOnline": {"placeholders": {"count": {"type": "int"}}},
-  "friendsInvitedYou": "{name} عزمك على روم · ادخل",
-  "@friendsInvitedYou": {"placeholders": {"name": {"type": "String"}}},
-  "friendsInvites": "دعوات ليك",
-  "friendsJoin": "ادخل",
-  "friendsRequests": "طلبات صداقة",
-  "friendsWantsYou": "عايز يبقى من أصحابك",
-  "friendsDecline": "رفض",
-  "friendsAccept": "قبول",
-  "friendsYours": "أصحابك",
-  "friendsNone": "لسه مفيش. اللي تلعب معاهم أونلاين هيظهروا تحت.",
-  "friendsInLobby": "في روم · {count} على الترابيزة",
-  "@friendsInLobby": {"placeholders": {"count": {"type": "int"}}},
-  "friendsPlaying": "في ماتش دلوقتي",
-  "friendsAway": "مش موجود دلوقتي",
-  "friendsInvited": "اتعزم",
-  "friendsInvite": "اعزم",
-  "friendsRecent": "لعبت معاهم قريب",
-  "friendsMatchesTogether": "{count} ماتش سوا",
-  "@friendsMatchesTogether": {"placeholders": {"count": {"type": "int"}}},
-  "friendsPending": "مستني رده",
-  "friendsAdd": "أضف",
-  "friendsInviteToRoom": "اعزم أصحابك",
-  "authEmail": "الإيميل",
-  "authPassword": "كلمة السر",
-  "authPasswordAgain": "كلمة السر تاني",
-  "authNewPassword": "كلمة السر الجديدة",
-  "authPasswordRule": "8 حروف على الأقل",
-  "authShow": "إظهار",
-  "authHide": "إخفاء",
-  "authCode": "الكود",
-  "authGoogle": "كمّل بحساب جوجل",
-  "authGoogleContinue": "كمّل في المتصفح وارجع للعبة.",
-  "authGoogleTaken": "حساب جوجل ده مربوط بحساب تاني في اللعبة. لو دخلت عليه، الموبايل ده هيسيب حساب الضيف.",
-  "authGoogleUseExisting": "ادخل بحساب جوجل ده",
-  "authGoogleKeepGuest": "خلّيني ضيف بعملاتي وحاجاتي",
-  "authGuestTitle": "سجّل دخول",
-  "authGuestBody": "مشترياتك وتقدّمك يفضلوا معاك على أي موبايل.",
-  "authCreate": "كمّل بالإيميل",
-  "authCreateBody": "نفس تقدّمك الحالي هيتنقل للحساب زي ما هو.",
-  "authHaveAccount": "عندي حساب · دخول",
-  "authSendCode": "ابعت الكود",
-  "authVerifyTitle": "أكّد الإيميل",
-  "authVerifyBody": "بعتنا كود من 6 أرقام لـ {email}. اكتبه هنا أو افتح اللينك اللي في الإيميل.",
-  "@authVerifyBody": {"placeholders": {"email": {"type": "String"}}},
-  "authVerify": "تأكيد",
-  "authResend": "ابعت الكود تاني",
-  "authResendIn": "ابعته تاني بعد {seconds} ث",
-  "@authResendIn": {"placeholders": {"seconds": {"type": "int"}}},
-  "authResent": "اتبعت تاني.",
-  "authWelcome": "أهلًا بيك. حسابك جاهز.",
-  "authSignIn": "دخول",
-  "authSignInBody": "هتدخل على حسابك، والتقدّم اللي على الجهاز ده كضيف مش هيتنقل له.",
-  "authRemember": "تذكّرني",
-  "authForgot": "نسيت كلمة السر؟",
-  "authForgotBody": "اكتب إيميل حسابك وهنبعتلك كود تعمل بيه كلمة سر جديدة.",
-  "authResetTitle": "كلمة سر جديدة",
-  "authResetSave": "حفظ",
-  "authPasswordChanged": "كلمة السر اتغيرت.",
-  "authChangePassword": "تغيير كلمة السر",
-  "authSetPassword": "اعمل كلمة سر",
-  "authSignOut": "خروج",
-  "authVerified": "إيميل متأكد",
-  "authViaGoogle": "جوجل",
-  "authViaPassword": "كلمة سر",
-  "authSafe": "حسابك محفوظ. لو غيرت موبايلك ادخل بنفس الحساب وكل حاجة هترجع.",
-  "authWeakPassword": "كلمة السر لازم تبقى 8 حروف على الأقل.",
-  "authWrongPassword": "الإيميل أو كلمة السر مش مظبوطين.",
-  "authNotConfirmed": "الإيميل لسه متأكدش. شوف الكود اللي وصلك.",
-  "authSamePassword": "دي نفس كلمة السر القديمة.",
-  "authMismatch": "كلمتين السر مش زي بعض.",
-  "authProviderOff": "الطريقة دي مش متاحة دلوقتي.",
-  "authAccount": "الحساب",
-  "authGuestBadge": "ضيف",
-  "authManage": "إدارة",
-  "profileStatMatches": "ماتشات",
-  "profileStatOnline": "أونلاين",
-  "profileStatLetters": "رسايل الشخصيات",
-  "casebookTitle": "ملف القضايا",
-  "casebookTonight": "الليلة",
-  "casebookSeason": "الموسم",
-  "casebookLegacy": "السجل",
-  "casebookDaysLeft": "{n, plural, =0{الموسم بيقفل النهارده} =1{باقي يوم على قفلة الموسم} =2{باقي يومين على قفلة الموسم} few{باقي {n} أيام على قفلة الموسم} other{باقي {n} يوم على قفلة الموسم}}",
-  "@casebookDaysLeft": {"placeholders": {"n": {"type": "int"}}},
-  "casebookWeekly": "قضية الأسبوع",
-  "casebookBonus": "اقفل التلات قضايا وخد كمان",
-  "casebookBonusTaken": "قفلت قضايا النهارده كلها",
-  "casebookFrom": "من ال{name}",
-  "@casebookFrom": {"placeholders": {"name": {"type": "String"}}},
-  "casebookClaim": "استلم",
-  "casebookClaimed": "اتقفلت",
-  "casebookClaimError": "ماستلمناش، جرّب تاني",
-  "casebookLevel": "المستوى {n}",
-  "@casebookLevel": {"placeholders": {"n": {"type": "int"}}},
-  "casebookXp": "{xp} / {next}",
-  "@casebookXp": {"placeholders": {"xp": {"type": "int"}, "next": {"type": "int"}}},
-  "casebookXpGain": "+{n} نقطة",
-  "@casebookXpGain": {"placeholders": {"n": {"type": "int"}}},
-  "casebookSeasonDone": "قفلت الموسم كله",
-  "casebookTitleReward": "لقب جديد",
-  "casebookItemReward": "زينة جديدة",
-  "casebookRank": "رتبة المجلس {n}",
-  "@casebookRank": {"placeholders": {"n": {"type": "int"}}},
-  "casebookAchievements": "الإنجازات",
-  "casebookReady": "{n, plural, =1{حاجة جاهزة تستلمها} =2{حاجتين جاهزين تستلمهم} few{{n} حاجات جاهزة تستلمها} other{{n} حاجة جاهزة تستلمها}}",
-  "@casebookReady": {"placeholders": {"n": {"type": "int"}}},
-  "casebookFailed": "مقدرناش نفتح الملف دلوقتي",
-  "casebookRetry": "جرّب تاني",
-  "casebookResult": "ملف القضايا اتحرّك · افتحه",
-  "caseFinish": "{n, plural, =1{العب ماتش أونلاين للآخر} =2{العب ماتشين أونلاين للآخر} few{العب {n} ماتشات أونلاين للآخر} other{العب {n} ماتش أونلاين للآخر}}",
-  "@caseFinish": {"placeholders": {"n": {"type": "int"}}},
-  "caseWin": "{n, plural, =1{اكسب ماتش} =2{اكسب ماتشين} few{اكسب {n} ماتشات} other{اكسب {n} ماتش}}",
-  "@caseWin": {"placeholders": {"n": {"type": "int"}}},
-  "caseHost": "{n, plural, =1{افتح ترابيزة واقفلها للآخر} =2{افتح ترابيزتين واقفلهم للآخر} few{افتح {n} ترابيزات واقفلهم للآخر} other{افتح {n} ترابيزة واقفلهم للآخر}}",
-  "@caseHost": {"placeholders": {"n": {"type": "int"}}},
-  "caseReunion": "{n, plural, =1{العب تاني مع حد قعدت معاه قبل كده} other{العب تاني مع {n} ناس قعدت معاهم قبل كده}}",
-  "@caseReunion": {"placeholders": {"n": {"type": "int"}}},
-  "casePublic": "{n, plural, =1{اقعد على ترابيزة عامة} =2{اقعد على ترابيزتين عامين} few{اقعد على {n} ترابيزات عامة} other{اقعد على {n} ترابيزة عامة}}",
-  "@casePublic": {"placeholders": {"n": {"type": "int"}}},
-  "caseInvite": "{n, plural, =1{اعزم صاحب يلعب معاك} other{اعزم {n} أصحاب يلعبوا معاك}}",
-  "@caseInvite": {"placeholders": {"n": {"type": "int"}}},
-  "caseStreak": "{n, plural, =1{العب النهارده} =2{العب يومين ورا بعض} few{العب {n} أيام ورا بعض} other{العب {n} يوم ورا بعض}}",
-  "@caseStreak": {"placeholders": {"n": {"type": "int"}}},
-  "caseDailies": "{n, plural, =1{اقفل قضايا يوم كامل} =2{اقفل قضايا يومين كاملين} few{اقفل قضايا {n} أيام كاملة} other{اقفل قضايا {n} يوم كامل}}",
-  "@caseDailies": {"placeholders": {"n": {"type": "int"}}},
-  "caseLevel": "وصّل للمستوى {n} في الموسم",
-  "@caseLevel": {"placeholders": {"n": {"type": "int"}}},
-  "casebookProgress": "{progress} من {target}",
-  "@casebookProgress": {"placeholders": {"progress": {"type": "int"}, "target": {"type": "int"}}},
-  "onlineRoomUnavailable": "الترابيزة دي مش متاحة ليك.",
-  "onlineNameNotAllowed": "الاسم ده مش مسموح. اختار اسم تاني.",
-  "onlineAccountRestricted": "حسابك مش هيقدر يدخل هنا دلوقتي.",
-  "safetyCategory": "إيه اللي حصل؟",
-  "safetyCatHarassment": "مضايقة",
-  "safetyCatHate": "كراهية أو عنصرية",
-  "safetyCatSexual": "محتوى جنسي",
-  "safetyCatThreat": "تهديد",
-  "safetyCatSpam": "سبام",
-  "safetyCatCheating": "غش",
-  "safetyCatName": "اسم مش لايق",
-  "safetyCatOther": "حاجة تانية",
-  "safetyLimited": "وصلت للحد بتاع النهارده.",
-  "safetyNoticeWarn": "اتعملّك بلاغ ووصلك تحذير. خلّي القعدة نضيفة ومحترمة.",
-  "safetyNoticeVoice": "الصوت مقفول لحسابك.",
-  "safetyNoticePublic": "الترابيزات العامة مقفولة لحسابك.",
-  "safetyNoticeSuspend": "اللعب الأونلاين مقفول لحسابك.",
-  "safetyNoticeUntil": "لحد {date}.",
-  "@safetyNoticeUntil": {"placeholders": {"date": {"type": "String"}}},
-  "safetyNoticeForever": "بشكل نهائي.",
-  "safetyNoticeOk": "تمام",
-  "adminSafetyTitle": "البلاغات",
-  "adminSafetyOpen": "مفتوحة",
-  "adminSafetyActioned": "اتاخد فيها إجراء",
-  "adminSafetyDismissed": "اترفضت",
-  "adminSafetyCtxLobby": "اللوبي",
-  "adminSafetyCtxMatch": "الماتش",
-  "adminSafetyCtxResult": "النتيجة",
-  "adminSafetyCtxFriends": "الأصحاب",
-  "adminSafetyTarget": "{name} · {open} مفتوحة · {actioned} إجراء",
-  "@adminSafetyTarget": {"placeholders": {"name": {"type": "String"}, "open": {"type": "int"}, "actioned": {"type": "int"}}},
-  "adminSafetyDismiss": "رفض البلاغ",
-  "adminSafetyWarn": "تحذير",
-  "adminSafetyNoVoice": "منع الصوت 7 أيام",
-  "adminSafetyNoPublic": "منع الترابيزات العامة 7 أيام",
-  "adminSafetySuspendDays": "إيقاف {days} يوم",
-  "@adminSafetySuspendDays": {"placeholders": {"days": {"type": "int"}}},
-  "adminSafetySuspendForever": "إيقاف نهائي",
-  "adminSafetyPurge": "امسح القديم حسب مدة الاحتفاظ",
-  "adminSafetyMore": "اعرض أكتر",
-  "adminSafetyOpenQueue": "طابور البلاغات",
-  "witnessWhispersTitle": "الهمسات",
-  "witnessWhisperLine": "{from} همس لـ{to}",
-  "@witnessWhisperLine": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
-  "witnessWhisperMasked": "مخفية: إنت عامل بلوك للي بعتها.",
-  "witnessWhisperReport": "بلّغ عن الهمسة دي",
-  "witnessWhispersDisclosure": "اللي خرجوا من اللعبة بيشوفوا الهمسات"
-  ,"thursdayNight": "ليلة الخميس",
-  "thursdayProgress": "الماتشات: {count}/2",
-  "@thursdayProgress": {"placeholders": {"count": {"type": "int"}}},
-  "thursdayLine": "كل خميس من 8 بالليل: ماتشين هنا = 40 نقطة موسم وختم.",
-  "thursdayOpensLater": "بتفتح الساعة 8 بالليل",
-  "thursdayOpenRoom": "افتح أوضة الخميس",
-  "thursdayJoinRoom": "ادخل أوضة الخميس",
-  "thursdayDone": "خدت ختم الخميس. تقدر تلعب عادي.",
-  "lobbyReadyAction": "أنا جاهز",
-  "lobbyUnreadyAction": "مش جاهز",
-  "lobbyReadyCount": "{ready} من {total} جاهزين",
-  "@lobbyReadyCount": {"placeholders": {"ready": {"type": "int"}, "total": {"type": "int"}}},
-  "witnessSeatQuiet": "لسه محدش عمل حاجة مع الكرسي ده",
-  "witnessNightTitle": "بالليل",
-  "witnessWhisperReported": "وصلنا البلاغ",
-  "witnessManageSeat": "إدارة الكرسي",
-  "witnessLetterOpen": "افتح الهمسة",
-  "onlineWeatherRetry": "جرّب دلوقتي",
-  "xpUnit": "نقطة",
-  "inviteFirstMatchNotice": "{name} لعب أول ماتش — خدت {coins} عملة",
-  "@inviteFirstMatchNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
-  "inviteProgressNotice": "صاحبك لعب {count} من 3",
-  "@inviteProgressNotice": {"placeholders": {"count": {"type": "int"}}},
-  "inviteSettledNotice": "{name} كمّل التلات ماتشات — خدت {coins} عملة",
-  "@inviteSettledNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
-  "inviteSettledCounter": "دعوات كملت: {season}/{seasonCap} الموسم ده · {lifetime}/{lifetimeCap} الكل",
-  "@inviteSettledCounter": {"placeholders": {"season": {"type": "int"}, "seasonCap": {"type": "int"}, "lifetime": {"type": "int"}, "lifetimeCap": {"type": "int"}}},
-  "inviteNoticeFriend": "صاحبك",
-  "partnerDetective": "المحقق",
-  "partnerDoctor": "الدكتور",
-  "partnerMafia": "المافيا",
-  "partnerCitizen": "المواطن",
-  "partnerBusy": "تقدر تغيّر رفيقك بعد ما الماتش يخلص",
-  "titlesNone": "لسه معندكش ألقاب — الألقاب بتيجي من الموسم والدعوات",
-  "titlesUnequip": "من غير لقب",
-  "passInventoryTitle": "لسه عندك مكافآت النهارده",
-  "passInventoryDailyAd": "إعلان اليوم بمكافأته",
-  "passInventoryExtraSpin": "لفة زيادة للعجلة",
-  "passInventoryExtraCoffer": "خزنة زيادة",
-  "passInventoryOpen": "افتح المكافآت",
-  "profilePlatePreview": "كده اسمك بيبان:",
-  "storeRevealTitle": "بقى بتاعك",
-  "storeEquipNow": "البسه دلوقتي",
-  "storeEquipLater": "بعدين",
-  "storeRevealDone": "تمام",
-  "storeChangesFrame": "بيظهر حوالين صورتك في الترابيزة والبروفايل والأصحاب ولوحة المجلس",
-  "storeChangesPlate": "اسمك بيظهر عليه في الترابيزة والبروفايل والأصحاب والنتيجة",
-  "storeChangesPack": "بيلبّس الأوضة اللي انت هوستها: خلفية المراحل العامة وانتقالاتها، أونلاين وفي القعدة",
-  "storeChangesNarrator": "صوت الراوي المسجّل وجمله وشكلها في كل مرحلة عامة، أونلاين وفي القعدة",
-  "storeChangesBundle": "كل حاجة فيها بقت عندك، والبس اللي تحبه من المجموعة",
-  "storeTryOn": "جرّبه",
-  "storeWearing": "لابسه دلوقتي",
-  "titlesHeading": "ألقابك",
-  "partnerCasebookLine": "{who}: كل قضية بتقفلها بتتكتب هنا",
-  "@partnerCasebookLine": {"placeholders": {"who": {"type": "String"}}},
-  "lobbyReadyCountdown": "فاضل {seconds} ثانية تأكد إنك جاهز",
-  "@lobbyReadyCountdown": {"placeholders": {"seconds": {"type": "int"}}},
-  "inviteSheetTitle": "ادعي صحابك",
-  "inviteTabFriends": "الأصحاب",
-  "inviteTabSearch": "دوّر بالاسم",
-  "inviteTabNearby": "ناس قريبة",
-  "inviteSend": "ادعي",
-  "inviteSent": "اتبعتت",
-  "inviteFailed": "ماوصلتش، جرّب تاني",
-  "inviteSearchHint": "اكتب الاسم أو @اليوزر",
-  "inviteSearchEmpty": "مفيش حد بالاسم ده",
-  "inviteSearchShort": "اكتب حرفين على الأقل",
-  "inviteNearbyEmpty": "مفيش حد هنا دلوقتي",
-  "inviteFriendsEmpty": "لسه معندكش أصحاب — دوّر بالاسم",
-  "inviteFilterNear": "قريبين منك",
-  "inviteFilterOnline": "أونلاين دلوقتي",
-  "inviteFilterPlayed": "لعبت معاهم",
-  "inviteFilterLevel": "نفس مستواك",
-  "inviteStateOnline": "أونلاين",
-  "inviteStateLobby": "في أوضة",
-  "inviteStatePlaying": "بيلعب",
-  "inviteStateAway": "مش موجود",
-  "inviteLevel": "مستوى {level}",
-  "@inviteLevel": {"placeholders": {"level": {"type": "int"}}},
-  "inviteMore": "هات كمان",
-  "inviteIncomingTitle": "دعوة للعب",
-  "inviteIncomingBody": "{name} بيدعوك تلعبوا مع بعض",
-  "@inviteIncomingBody": {"placeholders": {"name": {"type": "String"}}},
-  "inviteIncomingCode": "أوضة {code}",
-  "@inviteIncomingCode": {"placeholders": {"code": {"type": "String"}}},
-  "inviteEnter": "ادخل",
-  "inviteLater": "بعدين",
-  "inviteRoomGone": "الأوضة بدأت أو اتقفلت",
-  "profileHandleLabel": "اسم المستخدم",
-  "profileHandleHint": "من 3 لـ 20 حرف أو رقم أو _",
-  "profileHandleSave": "غيّره",
-  "profileHandleTaken": "الاسم ده محجوز",
-  "profileHandleWait": "تقدر تغيّره تاني بعد أسبوع",
-  "profileHandleRefused": "الاسم ده مش مسموح",
-  "profileHandleInvalid": "حروف وأرقام و _ بس، من 3 لـ 20",
-  "profileHideFromSearch": "ماتظهرنيش في البحث",
-  "profileMuteStrangers": "ماتجيليش دعوات من ناس مش صحابي",
-  "pushChannelInvites": "دعوات اللعب",
-  "pushChannelInvitesDesc": "لما حد يدعوك لأوضته",
-  "pushChannelSocial": "الأصحاب",
-  "pushChannelSocialDesc": "طلبات الصداقة والقبول",
-  "pushChannelGame": "الأوضة واللعب",
-  "pushChannelGameDesc": "لما الأوضة تبدأ أو الليل ينزل",
-  "pushChannelDaily": "تذكيرات",
-  "pushChannelDailyDesc": "العجلة وليلة الخميس وتذكيرات خفيفة",
-  "pushSettingsTitle": "الإشعارات",
-  "pushSettingsHint": "الدعوات وبداية الأوضة والمكافآت اليومية. مفيش إشعار بيقول دور حد أو اللي حصل في الليل.",
-  "pushSettingsIosHint": "على الآيفون الإشعارات بتشتغل بس لما تضيف الموقع للشاشة الرئيسية: من سفاري دوس مشاركة ثم «إضافة إلى الشاشة الرئيسية»، وافتحه من الأيقونة.",
-  "revealWhispersNotice": "في الأوضة دي الهمسات هتتكشف للكل بعد الماتش",
-  "revealWhispersButton": "الهمسات",
-  "revealWhispersTitle": "همسات الماتش",
-  "revealWhispersEmpty": "محدش همس في الماتش ده",
-  "revealWhispersMasked": "همسة من لاعب انت عامله بلوك",
-  "revealWhispersFailed": "ماقدرناش نجيب الهمسات",
-  "onboardAccountTitle": "تحب تحفظ تقدمك؟",
-  "onboardAccountHint": "سجّل دخول بجوجل أو إيميل علشان عملاتك ورتبتك وأصحابك يفضلوا معاك على أي موبايل. أو كمّل من غير تسجيل، وتقدر تربط حسابك بعدين من البروفايل من غير ما تخسر حاجة.",
-  "onboardAccountSignIn": "سجّل دخول (جوجل أو إيميل)",
-  "onboardAccountGuest": "كمّل من غير تسجيل",
-  "onboardAccountSignedIn": "متسجّل بـ {email}",
-  "@onboardAccountSignedIn": {"placeholders": {"email": {"type": "String"}}},
-  "onboardAccountSignedInPlain": "حسابك متسجّل",
-  "deleteAccountRow": "احذف حسابي وبياناتي",
-  "deleteAccountTitle": "تحذف حسابك؟",
-  "deleteAccountBody": "هنمسح حسابك وعملاتك وحاجاتك ورتبتك وأصحابك وكل بياناتك الأونلاين من السيرفر، ومش هنقدر نرجّعهم تاني. اللي على موبايلك (سجل الماتشات القديمة) بيفضل، وتقدر تمسحه من بيانات التطبيق في إعدادات الموبايل.",
-  "deleteAccountKept": "بلاغات الإساءة اللازمة وسجلات الدفع بتتحفظ مدة محدودة من غير ما تتربط بحسابك.",
-  "deleteAccountConfirm": "فاهم إن ده نهائي ومفيش رجوع",
-  "deleteAccountAction": "احذف نهائيًا",
-  "deleteAccountCancel": "مش دلوقتي",
-  "deleteAccountDone": "اتمسح حسابك وبياناتك",
-  "deleteAccountDoneHint": "لو دخلت الأونلاين تاني هتبدأ كلاعب جديد.",
-  "deleteAccountInRoom": "إنت لسه في أوضة. اخرج منها الأول وبعدين احذف حسابك.",
-  "deleteAccountOrder": "عندك طلب دفع لسه بيتراجع. استنى لحد ما يتقفل وبعدين احذف حسابك.",
-  "deleteAccountWebTitle": "أو اطلب الحذف من الموقع",
-  "deleteAccountWebOpen": "افتح صفحة حذف البيانات",
-  "deleteAccountWebCopied": "اتنسخ اللينك",
-  "accountLegalTitle": "الشروط والخصوصية",
-  "errOffline": "مفيش اتصال بالسيرفر دلوقتي. اتأكد إن النت شغال وجرّب تاني.",
-  "errRetry": "جرّب تاني",
-  "errRateLimited": "بتعمل حاجات كتير بسرعة. استنى شوية وجرّب تاني.",
-  "errGeneric": "حصلت مشكلة عندنا. جرّب تاني كمان شوية.",
-  "errSession": "الجلسة خلصت. اقفل اللعبة وافتحها تاني.",
-  "errCoins": "رصيدك مش كفاية.",
-  "errUnavailable": "ده مش متاح دلوقتي. جرّب بعدين.",
-  "errNotAllowed": "مش مسموح ليك بالحاجة دي دلوقتي.",
-  "errNotHost": "ده للمضيف بس.",
-  "errAlreadyOwned": "معاك ده بالفعل.",
-  "errInRoom": "إنت لسه في أوضة. اخرج منها الأول.",
-  "errOrderOpen": "عندك طلب دفع لسه مفتوح.",
-  "errPurchaseRequired": "ده محتاج شراء الأول.",
-  "updateRequiredTitle": "حدّث التطبيق",
-  "updateRequiredBody": "فيه نسخة أحدث من اللعبة، ولازم تحدّث علشان تكمّل. النسخة دي مش هتشتغل بعد كده.",
-  "updateRequiredStore": "افتح Google Play",
-  "updateRequiredReload": "حدّث الصفحة",
-  "webAdAppCta": "نزّل التطبيق — إعلانات أقل",
-  "webAdPlayCaption": "سيد المافيا على Google Play",
-  "webAdCouncilTitle": "المجلس والخزنة مستنيينك",
-  "webAdPlayBody": "العب مع أصحابك على أندرويد بإعلانات أقل.",
-  "webAdCouncilBody": "اجمع عملاتك وافتح شكل جديد للقعدة.",
-  "webAdOpenPlay": "افتح Google Play",
-  "webAdContinue": "كمّل اللعب",
-  "webAdCountdown": "الإعلان هيخلص بعد لحظة",
-  "onboardNeedName": "اكتب اسمك عشان نكمّل.",
-  "onboardNeedGender": "اختار «ولد» أو «بنت» عشان نكمّل.",
-  "onboardNeedPact": "علّم على المربعات اللي فوق عشان نكمّل.",
+  "toolRefused": "مش متاحة دلوقتي.",
   "modeStoriesTitle": "قصص",
   "modeStoriesBody": "ملفات تحقيق من ١ لـ١٠ لاعبين على موبايل واحد",
   "storiesTitle": "ملفات سيد المافيا",
@@ -4162,5 +2487,4 @@
   "storiesSolved": "الحل مظبوط",
   "storiesMissed": "في خيط وقع منكم",
   "storiesBackToFiles": "ارجع للملفات"
->>>>>>> feat/stories
 }

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {
   "onlineHostExitTitle": "Leave the room?",
   "onlineHostExitBody": "Keep the room running and hand hosting to the first available player, or close it for everyone.",
@@ -1130,7 +1129,13 @@
   "silencedCannotVote": "You are silenced today — you cannot vote",
   "continueLabel": "Continue",
   "silencedAnnouncement": "{name} is silenced today",
-  "@silencedAnnouncement": {"placeholders": {"name": {"type": "String"}}},
+  "@silencedAnnouncement": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "elderRevealAction": "Reveal to the table",
   "elderRevealedMark": "Revealed Elder · vote ×3",
   "myCard": "My card",
@@ -2245,7 +2250,13 @@
   "inviteRedeemed": "Invite saved. Finish a match to unlock both rewards.",
   "inviteRewarded": "Invite reward received.",
   "inviteSettledNoCoinsNotice": "{name} completed the invite conditions — it counts toward your invite progress.",
-  "@inviteSettledNoCoinsNotice": {"placeholders": {"name": {"type": "String"}}},
+  "@inviteSettledNoCoinsNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "inviteNotFound": "That code doesn't exist.",
   "inviteSelf": "You can't use your own code.",
   "inviteExpired": "Invite codes are for new accounts, within 7 days.",
@@ -2377,7 +2388,13 @@
   "awardPerfectCrimeBody": "The Mafia won untouched",
   "awardFirstBloodBody": "First vote that caught the Mafia",
   "awardsYouEarned": "Your awards: +{coins} coins",
-  "@awardsYouEarned": {"placeholders": {"coins": {"type": "int"}}},
+  "@awardsYouEarned": {
+    "placeholders": {
+      "coins": {
+        "type": "int"
+      }
+    }
+  },
   "awardsLoading": "Counting the awards",
   "reactionsLabel": "Reactions",
   "reactionLaugh": "Laugh",
@@ -2389,13 +2406,28 @@
   "reactionCoffee": "Coffee",
   "reactionCrown": "Crown",
   "reactionFrom": "{name}: {reaction}",
-  "@reactionFrom": {"placeholders": {"name": {"type": "String"}, "reaction": {"type": "String"}}},
+  "@reactionFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reaction": {
+        "type": "String"
+      }
+    }
+  },
   "reactionSlowDown": "Easy, one at a time",
   "cofferStripReady": "Today's coffer is ready",
   "cofferStripBody": "Claim it right here.",
   "cofferStripClaim": "Claim",
   "cofferStripGot": "+{amount} added to your vault",
-  "@cofferStripGot": {"placeholders": {"amount": {"type": "int"}}},
+  "@cofferStripGot": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "cofferStripSpin": "Spin the wheel",
   "cofferStripLater": "Later",
   "welcomeBackTitle": "We missed you",
@@ -2406,7 +2438,13 @@
   "founderBadge": "Founder",
   "founderBadgeBody": "One of the council's first players",
   "shareCardAwards": "Awards: {awards}",
-  "@shareCardAwards": {"placeholders": {"awards": {"type": "String"}}},
+  "@shareCardAwards": {
+    "placeholders": {
+      "awards": {
+        "type": "String"
+      }
+    }
+  },
   "adBannerLabel": "Advertisement",
   "adExtrasTitle": "Optional extras",
   "adExtrasBody": "Each is one optional ad, once a day. Nothing here affects play.",
@@ -2660,13 +2698,37 @@
   "bondDossiersTitle": "The Four Dossiers",
   "bondDossiersHint": "They remember. You are in it.",
   "bondCaseCount": "Cases {count}",
-  "@bondCaseCount": {"placeholders": {"count": {"type": "int"}}},
+  "@bondCaseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bondVictoryCount": "Victories {count}",
-  "@bondVictoryCount": {"placeholders": {"count": {"type": "int"}}},
+  "@bondVictoryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bondWitnessCount": "Witnesses {count}",
-  "@bondWitnessCount": {"placeholders": {"count": {"type": "int"}}},
+  "@bondWitnessCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bondPersonalCount": "Personal {count}",
-  "@bondPersonalCount": {"placeholders": {"count": {"type": "int"}}},
+  "@bondPersonalCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bondLockedLine": "Finish a case with this character at the table.",
   "bondMafiaTier1": "I remember this table. It knew when to keep quiet.",
   "bondMafiaTier2": "A clean story needs fewer words than a nervous one.",
@@ -2700,11 +2762,23 @@
   "characterPrevious": "Previous character",
   "characterNext": "Next character",
   "bondSealedLetter": "Sealed letter · opens in {count} cases",
-  "@bondSealedLetter": {"placeholders": {"count": {"type": "int"}}},
+  "@bondSealedLetter": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bondLettersTitle": "Letters to you",
   "bondOpenAll": "All dossiers",
   "bondNewLetter": "A new letter from {name}",
-  "@bondNewLetter": {"placeholders": {"name": {"type": "String"}}},
+  "@bondNewLetter": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "bondStrangerLine": "You have not sat at this table yet.",
   "warmupTitle": "Setting the table…",
   "warmupOnce": "Just this once. Instant from now on.",
@@ -2713,9 +2787,21 @@
   "rematchWaiting": "Waiting for the host to open the next round…",
   "friendsTitle": "Friends",
   "friendsTitleWithOnline": "Friends · {count} at a table now",
-  "@friendsTitleWithOnline": {"placeholders": {"count": {"type": "int"}}},
+  "@friendsTitleWithOnline": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "friendsInvitedYou": "{name} invited you · Join",
-  "@friendsInvitedYou": {"placeholders": {"name": {"type": "String"}}},
+  "@friendsInvitedYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "friendsInvites": "Invites for you",
   "friendsJoin": "Join",
   "friendsRequests": "Friend requests",
@@ -2725,14 +2811,26 @@
   "friendsYours": "Your friends",
   "friendsNone": "None yet. People you play online with appear below.",
   "friendsInLobby": "In a room · {count} at the table",
-  "@friendsInLobby": {"placeholders": {"count": {"type": "int"}}},
+  "@friendsInLobby": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "friendsPlaying": "In a match now",
   "friendsAway": "Not around",
   "friendsInvited": "Invited",
   "friendsInvite": "Invite",
   "friendsRecent": "Played with lately",
   "friendsMatchesTogether": "{count} matches together",
-  "@friendsMatchesTogether": {"placeholders": {"count": {"type": "int"}}},
+  "@friendsMatchesTogether": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "friendsPending": "Waiting for reply",
   "friendsAdd": "Add",
   "friendsInviteToRoom": "Invite friends",
@@ -2757,11 +2855,23 @@
   "authSendCode": "Send code",
   "authVerifyTitle": "Confirm your email",
   "authVerifyBody": "We sent a 6-digit code to {email}. Type it here or open the link in the email.",
-  "@authVerifyBody": {"placeholders": {"email": {"type": "String"}}},
+  "@authVerifyBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "authVerify": "Confirm",
   "authResend": "Send the code again",
   "authResendIn": "Send again in {seconds}s",
-  "@authResendIn": {"placeholders": {"seconds": {"type": "int"}}},
+  "@authResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "authResent": "Sent again.",
   "authWelcome": "Welcome. Your account is ready.",
   "authSignIn": "Sign in",
@@ -2796,52 +2906,160 @@
   "casebookSeason": "Season",
   "casebookLegacy": "Legacy",
   "casebookDaysLeft": "{n, plural, =0{The season closes today} =1{1 day left in the season} other{{n} days left in the season}}",
-  "@casebookDaysLeft": {"placeholders": {"n": {"type": "int"}}},
+  "@casebookDaysLeft": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookWeekly": "Case of the week",
   "casebookBonus": "Close all three for more",
   "casebookBonusTaken": "Every case closed today",
   "casebookFrom": "From the {name}",
-  "@casebookFrom": {"placeholders": {"name": {"type": "String"}}},
+  "@casebookFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "casebookClaim": "Take it",
   "casebookClaimed": "Closed",
   "casebookClaimError": "That didn't go through. Try again",
   "casebookLevel": "Level {n}",
-  "@casebookLevel": {"placeholders": {"n": {"type": "int"}}},
+  "@casebookLevel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookXp": "{xp} / {next}",
-  "@casebookXp": {"placeholders": {"xp": {"type": "int"}, "next": {"type": "int"}}},
+  "@casebookXp": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      },
+      "next": {
+        "type": "int"
+      }
+    }
+  },
   "casebookXpGain": "+{n} XP",
-  "@casebookXpGain": {"placeholders": {"n": {"type": "int"}}},
+  "@casebookXpGain": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookSeasonDone": "Season complete",
   "casebookTitleReward": "New title",
   "casebookItemReward": "New cosmetic",
   "casebookRank": "Council rank {n}",
-  "@casebookRank": {"placeholders": {"n": {"type": "int"}}},
+  "@casebookRank": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookAchievements": "Achievements",
   "casebookReady": "{n, plural, =1{1 reward to take} other{{n} rewards to take}}",
-  "@casebookReady": {"placeholders": {"n": {"type": "int"}}},
+  "@casebookReady": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookFailed": "The casebook can't open right now",
   "casebookRetry": "Try again",
   "casebookResult": "Your casebook moved · open it",
   "caseFinish": "{n, plural, =1{Finish an online match} other{Finish {n} online matches}}",
-  "@caseFinish": {"placeholders": {"n": {"type": "int"}}},
+  "@caseFinish": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseWin": "{n, plural, =1{Win a match} other{Win {n} matches}}",
-  "@caseWin": {"placeholders": {"n": {"type": "int"}}},
+  "@caseWin": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseHost": "{n, plural, =1{Host a table to the end} other{Host {n} tables to the end}}",
-  "@caseHost": {"placeholders": {"n": {"type": "int"}}},
+  "@caseHost": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseReunion": "{n, plural, =1{Play again with someone you've sat with} other{Play again with {n} people you've sat with}}",
-  "@caseReunion": {"placeholders": {"n": {"type": "int"}}},
+  "@caseReunion": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casePublic": "{n, plural, =1{Sit at a public table} other{Sit at {n} public tables}}",
-  "@casePublic": {"placeholders": {"n": {"type": "int"}}},
+  "@casePublic": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseInvite": "{n, plural, =1{Bring a friend to play} other{Bring {n} friends to play}}",
-  "@caseInvite": {"placeholders": {"n": {"type": "int"}}},
+  "@caseInvite": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseStreak": "{n, plural, =1{Play today} other{Play {n} days in a row}}",
-  "@caseStreak": {"placeholders": {"n": {"type": "int"}}},
+  "@caseStreak": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseDailies": "{n, plural, =1{Close a full day of cases} other{Close {n} full days of cases}}",
-  "@caseDailies": {"placeholders": {"n": {"type": "int"}}},
+  "@caseDailies": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "caseLevel": "Reach season level {n}",
-  "@caseLevel": {"placeholders": {"n": {"type": "int"}}},
+  "@caseLevel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "casebookProgress": "{progress} of {target}",
-  "@casebookProgress": {"placeholders": {"progress": {"type": "int"}, "target": {"type": "int"}}},
+  "@casebookProgress": {
+    "placeholders": {
+      "progress": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
   "onlineRoomUnavailable": "This table isn't available to you.",
   "onlineNameNotAllowed": "That name isn't allowed. Pick another one.",
   "onlineAccountRestricted": "Your account can't join this right now.",
@@ -2860,7 +3078,13 @@
   "safetyNoticePublic": "Public tables are closed to your account.",
   "safetyNoticeSuspend": "Online play is closed to your account.",
   "safetyNoticeUntil": "Until {date}.",
-  "@safetyNoticeUntil": {"placeholders": {"date": {"type": "String"}}},
+  "@safetyNoticeUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "safetyNoticeForever": "Permanently.",
   "safetyNoticeOk": "OK",
   "adminSafetyTitle": "Reports",
@@ -2872,26 +3096,59 @@
   "adminSafetyCtxResult": "Result",
   "adminSafetyCtxFriends": "Friends",
   "adminSafetyTarget": "{name} · {open} open · {actioned} actioned",
-  "@adminSafetyTarget": {"placeholders": {"name": {"type": "String"}, "open": {"type": "int"}, "actioned": {"type": "int"}}},
+  "@adminSafetyTarget": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "open": {
+        "type": "int"
+      },
+      "actioned": {
+        "type": "int"
+      }
+    }
+  },
   "adminSafetyDismiss": "Dismiss",
   "adminSafetyWarn": "Warn",
   "adminSafetyNoVoice": "No voice, 7 days",
   "adminSafetyNoPublic": "No public tables, 7 days",
   "adminSafetySuspendDays": "Suspend {days} days",
-  "@adminSafetySuspendDays": {"placeholders": {"days": {"type": "int"}}},
+  "@adminSafetySuspendDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "adminSafetySuspendForever": "Suspend permanently",
   "adminSafetyPurge": "Apply retention now",
   "adminSafetyMore": "Load more",
   "adminSafetyOpenQueue": "Reports queue",
   "witnessWhispersTitle": "Whispers",
   "witnessWhisperLine": "{from} to {to}",
-  "@witnessWhisperLine": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "@witnessWhisperLine": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "witnessWhisperMasked": "Hidden: you blocked the sender.",
   "witnessWhisperReport": "Report this whisper",
   "witnessWhispersDisclosure": "Players who are out can read the whispers.",
   "thursdayNight": "Thursday Night",
   "thursdayProgress": "Matches: {count}/2",
-  "@thursdayProgress": {"placeholders": {"count": {"type": "int"}}},
+  "@thursdayProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "thursdayLine": "Every Thursday from 8 PM: two matches here = 40 season points and a stamp.",
   "thursdayOpensLater": "Opens at 8 PM",
   "thursdayOpenRoom": "Open a Thursday room",
@@ -2900,7 +3157,16 @@
   "lobbyReadyAction": "Ready",
   "lobbyUnreadyAction": "Not ready",
   "lobbyReadyCount": "{ready} of {total} ready",
-  "@lobbyReadyCount": {"placeholders": {"ready": {"type": "int"}, "total": {"type": "int"}}},
+  "@lobbyReadyCount": {
+    "placeholders": {
+      "ready": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "witnessSeatQuiet": "Nothing has touched this seat yet",
   "witnessNightTitle": "At night",
   "witnessWhisperReported": "Report received",
@@ -2909,13 +3175,52 @@
   "onlineWeatherRetry": "Try now",
   "xpUnit": "XP",
   "inviteFirstMatchNotice": "{name} played their first match — you got {coins} coins",
-  "@inviteFirstMatchNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
+  "@inviteFirstMatchNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "coins": {
+        "type": "int"
+      }
+    }
+  },
   "inviteProgressNotice": "Your friend played {count} of 3",
-  "@inviteProgressNotice": {"placeholders": {"count": {"type": "int"}}},
+  "@inviteProgressNotice": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "inviteSettledNotice": "{name} finished three matches — you got {coins} coins",
-  "@inviteSettledNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
+  "@inviteSettledNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "coins": {
+        "type": "int"
+      }
+    }
+  },
   "inviteSettledCounter": "Settled invites: {season}/{seasonCap} this season · {lifetime}/{lifetimeCap} all time",
-  "@inviteSettledCounter": {"placeholders": {"season": {"type": "int"}, "seasonCap": {"type": "int"}, "lifetime": {"type": "int"}, "lifetimeCap": {"type": "int"}}},
+  "@inviteSettledCounter": {
+    "placeholders": {
+      "season": {
+        "type": "int"
+      },
+      "seasonCap": {
+        "type": "int"
+      },
+      "lifetime": {
+        "type": "int"
+      },
+      "lifetimeCap": {
+        "type": "int"
+      }
+    }
+  },
   "inviteNoticeFriend": "Your friend",
   "partnerDetective": "Detective",
   "partnerDoctor": "Doctor",
@@ -2943,9 +3248,21 @@
   "storeWearing": "Wearing now",
   "titlesHeading": "Your titles",
   "partnerCasebookLine": "{who}: every case you close is written here",
-  "@partnerCasebookLine": {"placeholders": {"who": {"type": "String"}}},
+  "@partnerCasebookLine": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
   "lobbyReadyCountdown": "{seconds}s left to confirm you're ready",
-  "@lobbyReadyCountdown": {"placeholders": {"seconds": {"type": "int"}}},
+  "@lobbyReadyCountdown": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "inviteSheetTitle": "Invite players",
   "inviteTabFriends": "Friends",
   "inviteTabSearch": "Search by name",
@@ -2967,13 +3284,31 @@
   "inviteStatePlaying": "Playing",
   "inviteStateAway": "Away",
   "inviteLevel": "Level {level}",
-  "@inviteLevel": {"placeholders": {"level": {"type": "int"}}},
+  "@inviteLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "inviteMore": "Load more",
   "inviteIncomingTitle": "Game invite",
   "inviteIncomingBody": "{name} invites you to play together",
-  "@inviteIncomingBody": {"placeholders": {"name": {"type": "String"}}},
+  "@inviteIncomingBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "inviteIncomingCode": "Room {code}",
-  "@inviteIncomingCode": {"placeholders": {"code": {"type": "String"}}},
+  "@inviteIncomingCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "inviteEnter": "Join",
   "inviteLater": "Later",
   "inviteRoomGone": "That room already started or closed",
@@ -3008,7 +3343,13 @@
   "onboardAccountSignIn": "Sign in (Google or email)",
   "onboardAccountGuest": "Continue without signing in",
   "onboardAccountSignedIn": "Signed in as {email}",
-  "@onboardAccountSignedIn": {"placeholders": {"email": {"type": "String"}}},
+  "@onboardAccountSignedIn": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "onboardAccountSignedInPlain": "You are signed in",
   "deleteAccountRow": "Delete my account and data",
   "deleteAccountTitle": "Delete your account?",
@@ -3093,9 +3434,24 @@
   "toolTierMedium": "Medium",
   "toolTierHeavy": "Heavy",
   "toolCharges": "You have {count}",
-  "@toolCharges": {"placeholders": {"count": {"type": "int"}}},
+  "@toolCharges": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "toolPack": "{count} × {price}",
-  "@toolPack": {"placeholders": {"count": {"type": "int"}, "price": {"type": "int"}}},
+  "@toolPack": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "toolBuyFailed": "The purchase did not go through. Try again.",
   "toolNotEnough": "Not enough coins.",
   "toolsInMatch": "Your tools",
@@ -3103,3036 +3459,17 @@
   "toolUsed": "Used",
   "toolNoneOwned": "No tools yet. Get them in the store.",
   "toolPickTargets": "Pick {count}",
-  "@toolPickTargets": {"placeholders": {"count": {"type": "int"}}},
+  "@toolPickTargets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "toolNoteHint": "Write your message (140 characters)",
   "toolImpersonateCitizen": "Appear citizen",
   "toolImpersonateMafia": "Appear mafia",
-  "toolRefused": "Not available right now."
-=======
-{
-  "onlineHostExitTitle": "Leave the room?",
-  "onlineHostExitBody": "Keep the room running and hand hosting to the first available player, or close it for everyone.",
-  "onlineLeaveKeepRoom": "Leave and keep playing",
-  "voiceEnablePlayback": "Enable audio",
-  "onlineHistoryLabel": "Online match",
-  "onlineMatchMeta": "{players} players · day {day}",
-  "@onlineMatchMeta": {
-    "placeholders": {
-      "players": {
-        "type": "int"
-      },
-      "day": {
-        "type": "int"
-      }
-    }
-  },
-  "@@locale": "en",
-  "profileTitle": "Your profile",
-  "profileHint": "Choose your name and character. We'll save them for your next game.",
-  "profileSaveFailed": "Could not save your profile. Allow browser storage and try again.",
-  "profileEdit": "Edit profile",
-  "videoPlay": "Play introduction",
-  "videoFailed": "The introduction could not play here.",
-  "videoRetry": "Try again",
-  "voiceRetry": "Enable audio",
-  "onlineNightPrivacyHint": "Audio stays off during role reveal and night to protect game privacy.",
-  "appTitle": "Mafia Master",
-  "actionNotSaved": "Your choice was not saved. Try again.",
-  "@appTitle": {
-    "description": "Application name, shown on Home."
-  },
-  "back": "Back",
-  "cancel": "Cancel",
-  "deleteAction": "Delete",
-  "continueAction": "Continue",
-  "listSeparator": ", ",
-  "@listSeparator": {
-    "description": "Joins names in a list. Arabic uses an Arabic comma, so this is translated rather than hardcoded."
-  },
-  "newMatch": "New match",
-  "history": "History",
-  "settings": "Settings",
-  "addPlayersTitle": "Add players",
-  "seatingOrderSubtitle": "In seating order",
-  "playerNameHint": "Player name",
-  "addPlayer": "Add",
-  "playerCountLine": "Players: {count}",
-  "@playerCountLine": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "noPlayersYet": "No players added yet",
-  "minPlayersHint": "Add at least 5 players to continue",
-  "next": "Next",
-  "seatNumber": "Seat #{seat}",
-  "@seatNumber": {
-    "placeholders": {
-      "seat": {
-        "type": "int"
-      }
-    }
-  },
-  "rolesTitle": "Role setup",
-  "playerCountShort": "{count} players",
-  "@playerCountShort": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "roleGroupMafia": "Mafia",
-  "roleGroupDetective": "Detective",
-  "roleGroupDoctor": "Doctor",
-  "roleGroupCitizen": "Citizen",
-  "balanceValid": "Balanced setup",
-  "balancePlayerCountTooLow": "You need at least 5 players",
-  "balancePlayerCountTooHigh": "You cannot have more than 20 players",
-  "balanceNegativeRoleCount": "A role count cannot be negative",
-  "balanceRoleCountMismatch": "Role counts must add up to the number of players",
-  "balanceNoMafia": "There must be at least one Mafia",
-  "balanceMafiaTooMany": "Mafia must be fewer than half the players",
-  "balanceRecommendThreeMafia": "3 Mafia is recommended at 9 or more players",
-  "balanceTwoDetectivesLowPlayerCount": "Warning: two Detectives below 11 players heavily favours the town",
-  "balanceOneDetectiveOnly": "There is only one Detective in a match",
-  "settingsTitle": "Settings",
-  "speechSecondsLabel": "Speaking time (seconds)",
-  "secondsSuffix": "{seconds}s",
-  "@secondsSuffix": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "discussionModeLabel": "Discussion mode",
-  "discussionStructured": "Structured (turn by turn)",
-  "discussionFree": "Free (no turns)",
-  "dayTieRuleLabel": "Day tie rule",
-  "tieRevote": "Revote",
-  "tieNoElimination": "No elimination",
-  "narrationEnabledLabel": "Narrator voice",
-  "abstainAllowedLabel": "Allow abstaining",
-  "save": "Save",
-  "nightApproaching": "Night is falling",
-  "nightLabel": "Night",
-  "aliveCountLabel": "Players alive",
-  "placePhoneOnTable": "Put the phone on the table and wait for the signal",
-  "beginNight": "Begin night",
-  "distributionSubtitle": "Role distribution",
-  "roleMafia": "Mafia",
-  "roleDoctor": "Doctor",
-  "roleDetective": "Detective",
-  "roleCitizen": "Citizen",
-  "roleMafiaDescription": "Each night the mafia agree on one victim, and never one of their own.",
-  "roleDoctorDescription": "Each night you protect one player; several doctors protect just one between them. You may protect yourself once per match.",
-  "roleDetectiveDescription": "There is only one detective. Each night you uncover one player's role.",
-  "roleCitizenDescription": "You have no special power: watch and argue. Online, you wait out the night.",
-  "gotIt": "Got it",
-  "holdToRevealRole": "Hold for 2 seconds to see your card",
-  "teammatesLine": "With you in the mafia: {names}",
-  "@teammatesLine": {
-    "placeholders": {
-      "names": {
-        "type": "String"
-      }
-    }
-  },
-  "passPhoneTo": "Pass the phone to",
-  "iAmHoldInstruction": "I am {name} — press and hold",
-  "@iAmHoldInstruction": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "notYouNamed": "Not {name}?",
-  "@notYouNamed": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "yourTurn": "Your turn",
-  "holdToConfirm": "Hold for 2 seconds to continue",
-  "notYou": "Not you?",
-  "choosePlayer": "Choose a player",
-  "confirmAction": "Confirm",
-  "choiceRecorded": "Your choice is recorded",
-  "passPhone": "Pass the phone",
-  "waitEllipsis": "Wait…",
-  "nightPromptMafia": "Who do you kill tonight?",
-  "@nightPromptMafia": {
-    "description": "MUST NOT name any role — a screen reader says this aloud (Constitution VII). Keep all four night prompts the same rendered length so no role's screen is brighter (L-05)."
-  },
-  "nightPromptDoctor": "Who do you want to protect tonight?",
-  "nightPromptDetective": "Whose cards do you want to see tonight?",
-  "nightPromptCitizen": "Whose behaviour do you doubt tonight?",
-  "notEveryoneSurvived": "Not everyone made it",
-  "lostPlayerLastNight": "{name} was killed last night.",
-  "@lostPlayerLastNight": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "quietNight": "A quiet night",
-  "someoneSavedBody": "The mafia tried to kill, but someone survived. We will not say who.",
-  "noLossesBody": "The night passed without losses.",
-  "morningOfDay": "Morning of day {day}",
-  "@morningOfDay": {
-    "placeholders": {
-      "day": {
-        "type": "int"
-      }
-    }
-  },
-  "startDiscussion": "Start discussion",
-  "discussionTitle": "Discussion",
-  "discussionFreeTitle": "Open discussion",
-  "currentSpeaker": "Speaking now",
-  "speakersRemaining": "Speakers left: {count}",
-  "decreaseRole": "Decrease",
-  "increaseRole": "Increase",
-  "citizenAutoHint": "The remaining players become citizens automatically",
-  "@speakersRemaining": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "skip": "Skip",
-  "endDiscussion": "End discussion",
-  "resume": "Resume",
-  "pause": "Pause",
-  "votingSubtitle": "Voting",
-  "whoDoYouVoteOut": "Who do you vote out?",
-  "abstain": "Abstain",
-  "confirmVote": "Confirm vote",
-  "eliminatedHeadline": "{name} is out",
-  "@eliminatedHeadline": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "tieRevoteHeadline": "Tied — revote",
-  "tieNoEliminationHeadline": "Tied — nobody is out",
-  "nobodyEliminated": "Nobody is out",
-  "wasRole": "Was {role}",
-  "@wasRole": {
-    "placeholders": {
-      "role": {
-        "type": "String"
-      }
-    }
-  },
-  "revote": "Revote",
-  "gameOver": "Game over",
-  "mafiaWins": "The Mafia wins",
-  "townWins": "The town wins",
-  "analytics": "Analytics",
-  "homeAction": "Home",
-  "endMatchTitle": "End the match?",
-  "endMatchBody": "You will lose this match's progress and it will not appear in History.",
-  "keepPlaying": "Keep playing",
-  "endAction": "End",
-  "endMatchTooltip": "End the match",
-  "unfinishedMatchTitle": "You have an unfinished match",
-  "unfinishedMatchBody": "{count} players. {where}",
-  "@unfinishedMatchBody": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "where": {
-        "type": "String"
-      }
-    }
-  },
-  "resumeFromPassTo": "It will resume by passing the phone to {name}.",
-  "@resumeFromPassTo": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "resumeFromDay": "It will resume from day {day}.",
-  "@resumeFromDay": {
-    "placeholders": {
-      "day": {
-        "type": "int"
-      }
-    }
-  },
-  "endMatch": "End the match",
-  "resumeAction": "Resume",
-  "nightNumbered": "Night {number}",
-  "@nightNumbered": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "dayNumbered": "Day {number}",
-  "@dayNumbered": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "analyticsTitle": "Analytics",
-  "analyticsLoadFailed": "Could not open this match's analytics",
-  "seatFallback": "Seat {seat}",
-  "@seatFallback": {
-    "placeholders": {
-      "seat": {
-        "type": "int"
-      }
-    }
-  },
-  "tabEvents": "Events",
-  "tabPlayers": "Players",
-  "tabSuspicions": "Suspicions",
-  "tabAchievements": "Achievements",
-  "timelineMafiaVote": "{actor} voted for {target}",
-  "@timelineMafiaVote": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineProtect": "{actor} protected {target}",
-  "@timelineProtect": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineInvestigate": "{actor} investigated {target}",
-  "@timelineInvestigate": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineSuspect": "{actor} suspected {target}",
-  "@timelineSuspect": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineNightKill": "{target} was killed in the night",
-  "@timelineNightKill": {
-    "placeholders": {
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineSaved": "{target} survived an attempt",
-  "@timelineSaved": {
-    "placeholders": {
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineDayElimination": "The town voted {target} out",
-  "@timelineDayElimination": {
-    "placeholders": {
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "noEventsRecorded": "No events recorded",
-  "noPlayerData": "No player data",
-  "noSuspicionsByPlayer": "Recorded no suspicions",
-  "suspicionAccuracyLine": "Suspicion accuracy: {correct}/{total}",
-  "@suspicionAccuracyLine": {
-    "placeholders": {
-      "correct": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "noSuspicionsRecorded": "No suspicions were recorded",
-  "noAchievements": "No achievements",
-  "achievementSharpestEye": "Sharpest Eye",
-  "achievementSharpestEyeDescription": "Highest suspicion accuracy through the nights",
-  "achievementUntouchable": "Survivor",
-  "achievementUntouchableDescription": "Survived to the end of the game",
-  "achievementGuardian": "Guardian",
-  "achievementGuardianDescription": "Blocked a Mafia attack with a protection",
-  "achievementFirstBlood": "First Blood",
-  "achievementFirstBloodDescription": "The first player lost in the night",
-  "achievementSurvivors": "Survivors",
-  "achievementSurvivorsDescription": "The game is over",
-  "historyTitle": "History",
-  "deleteMatchTitle": "Delete this match?",
-  "deleteMatchBody": "Its analytics will be permanently removed.",
-  "noPastMatches": "No past matches",
-  "mafiaWon": "Mafia won",
-  "townWon": "Town won",
-  "endedWithoutResult": "Ended without a result",
-  "matchMeta": "{players} players · {nights} nights",
-  "@matchMeta": {
-    "placeholders": {
-      "players": {
-        "type": "int"
-      },
-      "nights": {
-        "type": "int"
-      }
-    }
-  },
-  "holdToConfirmIdentity": "Hold for 2 seconds to see your card",
-  "swipeToReveal": "Swipe the card any way to flip it",
-  "passThePhone": "Pass the phone",
-  "phaseNightFalls": "Darkness falls on the town… everyone close your eyes",
-  "phaseMorningSomeoneDied": "Morning has come… and the town woke to bad news",
-  "phaseMorningNobodyDied": "Morning has come… nobody died today",
-  "phaseVoting": "The people will decide… and there is no going back",
-  "phaseMafiaWins": "The Mafia took over the town",
-  "phaseTownWins": "The people have won",
-  "identityHoldLabel": "Hold time before the card",
-  "identityHoldSuffix": "{seconds}s",
-  "@identityHoldSuffix": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "startGame": "Start the game",
-  "howToPlay": "How to play",
-  "tapCardHint": "Tap any card to see what it does",
-  "howToPlayTitle": "How to play",
-  "rulesTitle": "Game rules",
-  "rulesGoalTitle": "The goal",
-  "rulesGoalBody": "The townspeople look for the mafia and vote them out.\nThe mafia kill one person a night until the town is finished.",
-  "rulesRolesTitle": "The roles",
-  "rulesDayTitle": "Day phase",
-  "rulesDayBody": "1. Discussion: everyone speaks and defends themselves.\n2. Accusation: everyone points their suspicion at someone.\n3. Vote: the group decides who goes.",
-  "rulesNightTitle": "Night phase",
-  "rulesNightBody": "Each player takes the phone alone and does their part:\n— Mafia: agree on someone to kill.\n— Detective: choose someone to check.\n— Doctor: choose someone to protect.\n— Citizen: pass the phone on without doing anything.",
-  "rulesWinTitle": "Winning",
-  "rulesWinBody": "The town wins if every mafia is voted out.\nThe mafia win once they equal the number of townspeople.",
-  "rulesTipsTitle": "Tips",
-  "rulesTipsBody": "— Watch how people react while they talk.\n— Do not reveal yourself early if you are the detective or the doctor.\n— If you are mafia, steer suspicion elsewhere.\n— The doctor may not protect the same person twice running.\n— Never look at anyone else's screen, and never hand the phone on with a card showing.",
-  "audioSettingsLabel": "Audio",
-  "muteAllAudio": "Mute all sounds",
-  "scoreEnabledLabel": "Background score",
-  "muteNarrator": "Mute narrator",
-  "narratorPlaceholder": "Voice will be recorded later",
-  "groupsTitle": "Who is playing?",
-  "newGroupAction": "New group",
-  "groupMeta": "{members} players · played {plays} times",
-  "@groupMeta": {
-    "placeholders": {
-      "members": {
-        "type": "int"
-      },
-      "plays": {
-        "type": "int"
-      }
-    }
-  },
-  "groupMetaNeverPlayed": "{members} players · not played yet",
-  "@groupMetaNeverPlayed": {
-    "placeholders": {
-      "members": {
-        "type": "int"
-      }
-    }
-  },
-  "saveGroupPrompt": "Save these as a group?",
-  "saveAction": "Save",
-  "notNowAction": "Not now",
-  "groupNameHint": "Group name",
-  "groupNameDefault": "Group {number}",
-  "@groupNameDefault": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "saveGroupTitle": "Name this group",
-  "renameAction": "Rename",
-  "renameGroupTitle": "Rename group",
-  "deleteGroupTitle": "Delete group?",
-  "deleteGroupBody": "The roster is removed. Past matches are not affected.",
-  "quickStartAction": "Start now",
-  "presentAction": "Here",
-  "absentAction": "Away",
-  "attendanceHint": "Tap a name to mark them away tonight. They stay in the group.",
-  "playingTonight": "Playing tonight: {count}",
-  "@playingTonight": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "addGuestsToGroupTitle": "Add to the group?",
-  "addGuestsToGroupBody": "{names} played tonight but are not in {group}.",
-  "@addGuestsToGroupBody": {
-    "placeholders": {
-      "names": {
-        "type": "String"
-      },
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "saveGroupOrderTitle": "Save the new seating order?",
-  "saveGroupOrderBody": "Tonight {group} sat in a different order.",
-  "@saveGroupOrderBody": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      }
-    }
-  },
-  "addAction": "Add",
-  "onboardingTitle": "First round",
-  "@onboardingTitle": {
-    "description": "Title of the onboarding deck screen."
-  },
-  "onboardingNext": "Next",
-  "@onboardingNext": {
-    "description": "Advance to the next onboarding card."
-  },
-  "onboardingStart": "Start your first match",
-  "@onboardingStart": {
-    "description": "Primary action on the last onboarding card."
-  },
-  "onboardingReadRules": "Read the full rules",
-  "@onboardingReadRules": {
-    "description": "Secondary action on the last onboarding card; opens the rules screen."
-  },
-  "onboardingProgress": "Card {current} of {total}",
-  "@onboardingProgress": {
-    "description": "Screen-reader label for the onboarding progress pips.",
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "onboardingStoryTitle": "The story",
-  "onboardingStoryBody": "A small town goes to sleep every night and wakes up one person short.\nSome of the people at this table are not who they say they are — and the rest have to find them before the town is gone.",
-  "onboardingRolesTitle": "The roles",
-  "onboardingRolesBody": "Four cards. Everyone gets exactly one, and nobody sees anyone else's.\nTap any card below to see what it does.",
-  "onboardingNightTitle": "The night",
-  "onboardingNightBody": "The phone goes round the table one person at a time. Each player opens it alone, takes their turn, closes it and passes it on.\nThe mafia pick someone, the doctor protects someone, the detective checks someone.",
-  "onboardingDayTitle": "The day",
-  "onboardingDayBody": "In the morning the phone goes in the middle of the table and says who is gone.\nThen the talking is open, on a timer, and it ends in a vote — the app does the counting.",
-  "onboardingPassTitle": "The phone",
-  "onboardingPassBody": "This is the part that is won and lost in your hands, not on the screen:\n— Hold the phone tilted towards you, with its back to the rest of the table.\n— Never look at the phone while someone else is holding it.\n— Do not change your face while your card is showing.\n— Never hand the phone on with anything open on it.",
-  "onboardingSecrecyTitle": "Nothing leaks",
-  "@onboardingSecrecyTitle": {
-    "description": "Heading of the onboarding card about what the app itself keeps secret."
-  },
-  "onboardingSecrecyBody": "The app has one job while a match is running: give nothing away. The only way to cheat at this game is to learn something nobody told you.\n— Every turn takes the same time, holds the same screen brightness and shows the same layout, whatever card you drew.\n— The phone makes no sound at all while it is in somebody's hand.\n— Your card hides itself after a few seconds, and the phone never passes on with anything still open.\n— A saved group remembers names and seating order. It never remembers who was what.",
-  "@onboardingSecrecyBody": {
-    "description": "Body of the onboarding card about what the app itself keeps secret."
-  },
-  "onboardingWinTitle": "Winning",
-  "onboardingWinBody": "The town wins when the last mafia is voted out.\nThe mafia win once there are as many of them as there are townspeople.\nThat is all of it — the rest is talk and suspicion.",
-  "traceLabel": "The trace",
-  "@traceLabel": {
-    "description": "Divider caption above the morning's forensic observation (doc 09 S-10)."
-  },
-  "traceNone": "This night left no trace",
-  "traceLastSuspicion": "The last thing {victim} recorded: they suspected «{target}»",
-  "@traceLastSuspicion": {
-    "placeholders": {
-      "victim": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "traceSomeoneSurvived": "Somebody was covered tonight… and lived",
-  "traceAgreement": "{count} players suspected the same person tonight",
-  "@traceAgreement": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "traceShift": "{count} changed who they suspect tonight",
-  "@traceShift": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "traceShadow": "There is a player nobody has ever suspected",
-  "traceSilence": "Somebody refused to record a suspicion tonight",
-  "traceCircle": "Two of you suspect each other",
-  "traceConsensus": "Most of the table suspected the same person",
-  "openingRoundTitle": "One name",
-  "openingRoundBody": "One name each, in seating order. No explaining.",
-  "openingRoundPrompt": "Who do you suspect, {name}?",
-  "@openingRoundPrompt": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "confrontationLabel": "The confrontation",
-  "confrontationExplain": "Explain.",
-  "confrontationDone": "Done",
-  "confrontationC1": "You said you suspected {x}, and you voted for {y}.",
-  "@confrontationC1": {
-    "placeholders": {
-      "x": {
-        "type": "String"
-      },
-      "y": {
-        "type": "String"
-      }
-    }
-  },
-  "confrontationC4": "Nobody has suspected you once. Why do you think that is?",
-  "confrontationC5": "You and {x} voted the same way {count} times. Coincidence?",
-  "@confrontationC5": {
-    "placeholders": {
-      "x": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "confrontationC6": "You have talked the least of anyone. Anything to say?",
-  "confrontationC7": "The last person to die suspected you. Your answer?",
-  "confrontationC8": "You whisper to {x} every day. Why him in particular?",
-  "@confrontationC8": {
-    "placeholders": {
-      "x": {
-        "type": "String"
-      }
-    }
-  },
-  "confrontationC11": "Somebody tried to reach you and failed. Who would protect you?",
-  "whisperLabel": "Whisper",
-  "whisperFrom": "From {name}",
-  "@whisperFrom": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "whisperCompose": "Send a whisper",
-  "whisperPickRecipient": "To whom?",
-  "whisperBodyHint": "Up to 120 characters",
-  "whisperSend": "Send",
-  "whisperSent": "Sent",
-  "whisperAlreadySentToday": "You have already whispered today",
-  "whisperUndelivered": "Your whisper never arrived",
-  "whisperGraphTitle": "Whispers, day {day}",
-  "@whisperGraphTitle": {
-    "placeholders": {
-      "day": {
-        "type": "int"
-      }
-    }
-  },
-  "whisperGraphEmpty": "Nobody whispered today",
-  "whisperNobodySent": "({names} did not send one)",
-  "whisperArrow": "›",
-  "@whisperNobodySent": {
-    "placeholders": {
-      "names": {
-        "type": "String"
-      }
-    }
-  },
-  "whisperTooLong": "Too long by {count}",
-  "@whisperTooLong": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "whisperLanguageWarning": "That reads harsher than you may mean. Send anyway?",
-  "whisperReport": "Report",
-  "whisperReported": "Reported. You will not see whispers from them again.",
-  "informationEngineSection": "Information engine",
-  "settingTrace": "The trace",
-  "settingTraceHint": "One true observation each morning. Off restores classic Mafia.",
-  "settingConfrontation": "The confrontation",
-  "settingConfrontationHint": "One player answers for their own behaviour, once a day.",
-  "settingOpeningRound": "«One name» on day 1",
-  "settingOpeningRoundHint": "Ten seconds each, in seating order, to name one suspect.",
-  "settingWhisper": "The whisper",
-  "settingWhisperHint": "One private message a day. Who wrote to whom is public; what they wrote is not.",
-  "settingRevealWhispers": "Reveal whisper text after the match",
-  "settingRevealWhispersHint": "After the match, everyone in the room reads the whispers and what they said. Players see this in the lobby and before they whisper.",
-  "onlineMatch": "Play online",
-  "onlineCreateRoom": "Create a room",
-  "onlineJoinRoom": "Join a room",
-  "onlineCreateRoomHint": "You get a code to send the others",
-  "onlineJoinRoomHint": "Somebody sent you a code?",
-  "onlineRoomCode": "Room code",
-  "onlineRoomCodeHint": "Six characters",
-  "onlineShareCode": "Share the code",
-  "onlineWaitingForPlayers": "Waiting for players…",
-  "onlineStartMatch": "Start",
-  "onlineConnecting": "Reconnecting…",
-  "onlineDisconnected": "No connection",
-  "onlineNotConnected": "Offline",
-  "onlineHostLeft": "The host left. {name} is hosting now.",
-  "@onlineHostLeft": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineRoomFull": "That room is full",
-  "onlineRoomFinished": "That match has already finished",
-  "onlineAlreadySeated": "You are still in a match",
-  "onlineLeaveTableTitle": "Leave your match?",
-  "onlineLeaveTableBody": "You are still in a match. Joining this room takes you out of it, and the table plays on without you.",
-  "onlineLeaveTableConfirm": "Leave and join",
-  "onlineRoomNotFound": "No room with that code",
-  "onlineUnreachable": "Cannot reach the server. Play offline instead?",
-  "onlineProjectPaused": "The server is asleep. Try again in a minute.",
-  "onlinePlayOffline": "Play offline",
-  "onlineHeadphonesWarning": "If you are in the same room, use headphones",
-  "voiceMicOff": "Microphone off",
-  "voiceMuteMe": "Mute me",
-  "voiceUnmuteMe": "Unmute me",
-  "voiceSelfMuted": "You are muted",
-  "voiceMicOn": "Microphone on",
-  "voiceTextMode": "Voice unavailable — text mode",
-  "voiceMicDenied": "No microphone. You can still hear everyone.",
-  "whoAreYou": "Who are you?",
-  "onlineYourName": "Your in-game name",
-  "onlineHostBadge": "Host",
-  "onlineYou": "You",
-  "onlineNeedFivePlayers": "At least five players",
-  "onlineLeave": "Leave the room",
-  "onlineCodeCopied": "Code copied",
-  "onlinePublicRooms": "Public rooms",
-  "onlinePublicRoomsHint": "Join an open room without a code",
-  "onlineNoPublicRooms": "No public rooms open right now",
-  "publicRoomSeats": "{players}/{capacity} players",
-  "@publicRoomSeats": {
-    "placeholders": {
-      "players": {
-        "type": "int"
-      },
-      "capacity": {
-        "type": "int"
-      }
-    }
-  },
-  "publicRoomMissing": "{count, plural, =1{1 more player needed before the host can start} other{{count} more players needed before the host can start}}",
-  "@publicRoomMissing": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "publicRoomReady": "Enough players — the host decides when to start",
-  "publicRoomFullStatus": "Full",
-  "publicRoomsStale": "Can't refresh the list right now. This is the last list we received and it may be out of date.",
-  "publicRoomsUnavailable": "Can't reach the server to load rooms. We'll keep trying.",
-  "onlineRoomStarted": "That room has already started. Pick another one from the list.",
-  "onlinePublicRoomPlayers": "{count} players",
-  "@onlinePublicRoomPlayers": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "onlineUntitledRoom": "Unnamed room",
-  "onlineRoomSettings": "Room settings",
-  "onlineSettingsRoom": "Room",
-  "onlineSettingsVoice": "Voice",
-  "onlineSettingsPlay": "Play",
-  "onlineSettingsInfo": "Information",
-  "onlineRoomVisibility": "Room type",
-  "onlineRoomVisibilityHint": "Private rooms take a code. Public ones are listed for anybody.",
-  "onlineRoomPrivate": "Private",
-  "onlineRoomPublic": "Public",
-  "onlineRoomTitle": "Room name",
-  "onlineRoomTitleHint": "What people see in the list.",
-  "onlineMaxPlayers": "Maximum players",
-  "onlineMaxPlayersHint": "The room closes once it is this full.",
-  "onlineVoiceEnabled": "Voice",
-  "onlineVoiceEnabledHint": "The match plays fine without it.",
-  "onlineMuteAtNight": "Mute everyone at night",
-  "onlineMuteAtNightHint": "A voice at night says who is awake.",
-  "onlineSpeakDuration": "Speaking time",
-  "onlineSpeakDurationHint": "How long each player holds the floor alone.",
-  "onlineDiscussDuration": "Discussion time",
-  "onlineDiscussDurationHint": "The open argument before the vote.",
-  "onlineOpenVoting": "Open voting",
-  "onlineOpenVotingHint": "Everyone sees who voted for whom until the ballot locks.",
-  "onlineTrace": "Trace",
-  "onlineTraceHint": "The morning names one trace of the night's movement.",
-  "onlineConfrontation": "Confrontation",
-  "onlineConfrontationHint": "Two players face each other before the vote.",
-  "onlineWhispers": "Whispers",
-  "onlineWhispersHint": "A private line to one player; the room knows it was sent.",
-  "onlineSeconds": "seconds",
-  "onlineMinutes": "minutes",
-  "onlineLinkCopied": "Room link copied",
-  "onlineWaitingForHost": "Waiting for the host…",
-  "voiceTakeFloor": "Speak",
-  "voiceYieldFloor": "Done",
-  "voiceFloorTaken": "Someone else has the floor",
-  "onlineWeatherConnecting": "Connecting…",
-  "onlineWeatherReconnecting": "Weak connection — trying",
-  "onlineWeatherUnreachable": "No connection. The match is saved.",
-  "onlineCopy": "Copy",
-  "onlineShare": "Share",
-  "onlinePlayersOfMax": "{count} / {max} players",
-  "@onlinePlayersOfMax": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "max": {
-        "type": "int"
-      }
-    }
-  },
-  "onlineVoiceConnecting": "Voice: connecting…",
-  "onlineVoiceConnected": "Voice: connected",
-  "onlineVoiceUnavailable": "Voice is unavailable — the game plays normally",
-  "onlineShareInvite": "Play Mafia with us. Room code: {code}",
-  "onlineReferralOffer": "Invite a new friend: you get +100 and they get +50 after their first match",
-  "@onlineShareInvite": {
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineGhostRule": "Whoever is out does not talk to whoever is still playing",
-  "onlineChosen": "Chosen: {name}",
-  "@onlineChosen": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineUpNext": "Up next: {names}",
-  "@onlineUpNext": {
-    "placeholders": {
-      "names": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineLeftRoom": "Left",
-  "onlineNewHost": "{name} is the host now",
-  "@onlineNewHost": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineCloseRoom": "Close the room",
-  "onlineCloseRoomBody": "This ends the match for everyone in the room. Are you sure?",
-  "onlineCloseRoomConfirm": "Close",
-  "onlineRoomClosed": "The host closed the room",
-  "onlineKick": "Remove",
-  "onlineMute": "Mute",
-  "onlineUnmute": "Unmute",
-  "onlineKickedByHost": "The host removed you from the room",
-  "onlineWaitingForCards": "{count, plural, =1{1 player is still looking at their card} other{{count} players are still looking at their cards}}",
-  "@onlineWaitingForCards": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "onlineFloorOpen": "The floor is open",
-  "onlineRaisedHands": "Hands up: {names}",
-  "@onlineRaisedHands": {
-    "description": "Doc 15 §1.4. Who has asked for the floor, in seat order. Never a queue: no position numbers, and never sorted by who asked first.",
-    "placeholders": {
-      "names": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineRaiseHand": "My turn",
-  "onlineHandRaised": "Hand up",
-  "onlineSeeRoles": "See the roles",
-  "onlineRosterOf": "{index} of {total}",
-  "@onlineRosterOf": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "onlinePickFromTable": "Choose from the table",
-  "onlineWaitingForTheRest": "Done. Waiting for the rest…",
-  "onlineConfirmHold": "Confirm — press and hold",
-  "confrontationSilent": "Silence.",
-  "confrontationAudience": "Listening",
-  "settingVoteVisibility": "Voting",
-  "settingOpenVoting": "Open voting",
-  "settingSecretVoting": "Secret ballot",
-  "settingOpenVotingHint": "You watch each vote land, and you see who changes their mind",
-  "witnessTitle": "The Witness",
-  "witnessEliminated": "You are out of the game. But you are still watching.",
-  "witnessSpectating": "Watching",
-  "witnessTabTable": "The table",
-  "witnessTabChat": "Those who are out",
-  "witnessTabPrediction": "Your call",
-  "witnessTabRecord": "Your record",
-  "witnessChatHint": "Write to the others who are out…",
-  "witnessChatEmpty": "Nothing said yet",
-  "witnessChatWalled": "Nobody still playing can see this",
-  "witnessChatSend": "Send",
-  "witnessPredictionWinner": "Who wins?",
-  "witnessPredictionMafia": "And who is Mafia?",
-  "witnessPredictionLock": "Lock it in",
-  "witnessPredictionLocked": "Locked. We will see at the end.",
-  "witnessPredictionScore": "Your call: {correct} of {total}",
-  "@witnessPredictionScore": {
-    "placeholders": {
-      "correct": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "witnessRecordEmpty": "You did not write anything down",
-  "onlineIntroPhoneTitle": "Your phone is your turn",
-  "onlineIntroPhoneBody": "Nothing is passed around. Everything you do, you do here. Each player uses a device and a room code. Offline uses one shared phone and needs no internet.",
-  "onlineIntroNightTitle": "The night happens all at once",
-  "onlineIntroNightBody": "Everybody acts together, on their own screen. It takes under a minute. Discuss and vote by day. Town wins by eliminating all Mafia; Mafia wins at parity with the remaining town. Voice is optional; play continues without it.",
-  "onlineIntroWhisperTitle": "A whisper shows who, never what",
-  "onlineIntroWhisperBody": "The table sees a light cross it. Only one person reads the words. Private messages are online only, unavailable offline.",
-  "onlineIntroWitnessTitle": "If you are out, you are still watching",
-  "onlineIntroWitnessBody": "You keep the table, you talk to the others who are out, and you call the ending. This spectator area is online only. Offline, eliminated players stop taking private turns.",
-  "onlineIntroSkip": "Skip",
-  "onlineIntroStart": "Let's go",
-  "modeTitle": "How are you playing?",
-  "modeSubtitle": "You can change this next time.",
-  "modeOnePhoneTitle": "One phone, passed around",
-  "modeOnePhoneBody": "Everybody in the same room. The phone goes from hand to hand.",
-  "modeOnlineTitle": "Everybody on their own phone",
-  "modeOnlineBody": "Same room or anywhere. Nothing is passed, and nobody waits their turn to look.",
-  "modeNoServer": "This build has no server. Rebuild it with a project configured.",
-  "bulletMafia": "The quiet night",
-  "bulletDoctor": "Cover yourself, once",
-  "testimonyGiven": "{name} testifies: their suspicion last night was {suspect}.",
-  "@testimonyGiven": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "suspect": {
-        "type": "String"
-      }
-    }
-  },
-  "testimonyNobody": "{name} testifies: they suspected nobody last night.",
-  "@testimonyNobody": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "fileOpenedTitle": "{name} opened the file.",
-  "@fileOpenedTitle": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "fileOpenedEntry": "{name} — {role}",
-  "@fileOpenedEntry": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "role": {
-        "type": "String"
-      }
-    }
-  },
-  "fileOpenedEmpty": "The file was empty.",
-  "hintTalkers": "Whoever talks most is not always whoever is hiding.",
-  "hintQuickAgreement": "Watch who agrees immediately without thinking.",
-  "hintSilence": "Silence is not evidence. But it is information.",
-  "hintChangesMind": "Who changes their mind fast under pressure?",
-  "hintEarlyAccuser": "Good mafia accuse early so they look innocent.",
-  "hintMajorityComfort": "Voting with the majority is comfortable. That is exactly what they count on.",
-  "hintWhoBenefited": "Who gained from whoever died last night?",
-  "hintMafiaSuspicionSpreads": "Do not kill whoever suspects you straight away — their suspicion gets published.",
-  "hintMafiaQuietNight": "The quiet night starves the table of information.",
-  "hintMafiaSpeak": "Talk. Silent mafia die.",
-  "hintDoctorNoRepeat": "Do not cover the same person two nights running.",
-  "hintDoctorSelf": "You get to cover yourself once — save it.",
-  "hintDoctorSaveReveals": "If a save lands, the mafia learn there is a doctor.",
-  "hintDetectiveInvestigateLoud": "Investigate whoever talks most, not whoever is quiet.",
-  "hintCitizenSuspicionCounts": "Your suspicion is not going nowhere — it gets recorded.",
-  "coachStuckOnInnocent": "You suspected {name} on {count} nights and they were a citizen. Try changing your mind faster when the evidence does not arrive.",
-  "@coachStuckOnInnocent": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coachConformity": "You voted with the majority {count} times out of {total}. Try forming your own view before you hear everybody else's.",
-  "@coachConformity": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "coachUnusedBullet": "You never used «{bullet}». It was there from the first night.",
-  "@coachUnusedBullet": {
-    "placeholders": {
-      "bullet": {
-        "type": "String"
-      }
-    }
-  },
-  "coachNeverWhispered": "You never whispered once. A whisper builds alliances.",
-  "coachAbandonedRead": "You suspected {name} on the first nights and they were mafia — then you let it go. Trust your first read.",
-  "@coachAbandonedRead": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "coachQuiet": "You spoke for {seconds} seconds all match — among the least at the table. Silence makes a table suspect you.",
-  "@coachQuiet": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "coachSurvivedAsMafia": "You lived to the end without the table catching you.",
-  "coachingTitle": "It could have gone otherwise",
-  "coachingEmpty": "Nothing to add. You played it as it came.",
-  "presetFast": "Quick",
-  "presetClassic": "Classic",
-  "presetBrutal": "Brutal",
-  "presetCustom": "Custom",
-  "presetFastHint": "Around fifteen minutes, fewer rules. Best for a group's first match.",
-  "presetClassicHint": "Everything on, at the pace it was designed at.",
-  "presetBrutalHint": "No doctor, more mafia, no whispers, a brutal clock.",
-  "presetLabel": "Preset",
-  "settingPressureCurve": "The pressure curve",
-  "settingPressureCurveHint": "The clock closes as the table shrinks. It only ever tightens.",
-  "settingTabletopPresentation": "Phone in the middle",
-  "settingTabletopPresentationHint": "Makes public screens and timers readable from across the table.",
-  "settingDiscussionSeconds": "Discussion length",
-  "settingPlayHints": "Play hints",
-  "settingCoaching": "«It could have gone otherwise», after the match",
-  "settingRevealVictimRole": "The night victim's role",
-  "settingRevealVictimRoleHint": "A day elimination is always public. This is about the night.",
-  "victimWasRole": "{name} was {role}.",
-  "@victimWasRole": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "role": {
-        "type": "String"
-      }
-    }
-  },
-  "nightSpecialMafia": "No kill tonight",
-  "nightSpecialDoctor": "Protect yourself",
-  "nightSpecialDetective": "No check tonight",
-  "nightSpecialCitizen": "No read tonight",
-  "settingsSectionPace": "Pace",
-  "settingsSectionInformation": "Information",
-  "settingsSectionReveal": "Reveals",
-  "settingsSectionVoting": "Voting",
-  "settingsSectionAudio": "Sound and motion",
-  "settingsOnlineOnly": "Online only",
-  "settingSpeechSecondsHint": "How long one player speaks in a structured discussion.",
-  "settingDiscussionSecondsHint": "How long the whole discussion runs when it is free.",
-  "settingIdentityHoldHint": "The same for every player, so turn length says nothing about a role.",
-  "settingDiscussionModeHint": "Structured: one at a time, in order. Free: everyone at once.",
-  "settingAbstainHint": "A player may cast no vote at all.",
-  "settingPlayHintsHint": "One line, in the lobby and settings only. Never inside a match.",
-  "settingCoachingHint": "After the match, one honest note per player.",
-  "settingMuteAllHint": "No sound at all. Nothing in the game depends on hearing it.",
-  "minutesSuffix": "{minutes} min",
-  "@minutesSuffix": {
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
-  "whisperFromTitle": "Whisper from {name}",
-  "@whisperFromTitle": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "whisperDismiss": "Got it",
-  "playerMale": "Male",
-  "playerFemale": "Female",
-  "timelineMafiaVoteFemale": "{actor} voted for {target}",
-  "@timelineMafiaVoteFemale": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineProtectFemale": "{actor} protected {target}",
-  "@timelineProtectFemale": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineInvestigateFemale": "{actor} investigated {target}",
-  "@timelineInvestigateFemale": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "timelineSuspectFemale": "{actor} suspected {target}",
-  "@timelineSuspectFemale": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineDiscardResume": "Forget room",
-  "onlineStorageWarning": "This device could not save. The match is unaffected, but it may not bring you back to the room on its own or keep the result.",
-  "safetyTitle": "Privacy and data deletion",
-  "safetyPolicy": "Developer: Eyad Syam\nSupport: eyadsyam124@gmail.com\n\nLocal play stays on your device. Online play uses a random identifier, profile, match actions and messages. Earned coins, rewards and unlocked items remain with that identity until deletion. Optional voice is encrypted in transit and is not recorded by the game. Service providers process connection data needed to operate online play. An email is collected only if you choose to sign in with email.\n\nAds (Android): Google AdMob may show an app-open ad when the game launches or you come back to it after a long break; a full-screen ad between matches — before you enter a room, when you leave a finished match, before the roles are dealt and after the result of a pass-and-play game, or occasionally when you move between menus after several minutes without one (never during a match or while the phone is being passed, at most 40 a day, at least 90 seconds apart); a small labelled banner on waiting screens such as the online lobby, match history and your profile (never during play); and optional rewarded ads, only when you choose to watch one, after a completed online match (to double or triple its coins) and in the vault. To serve ads and prevent fraud, Google's ads SDK collects IP address, ad and app interactions, diagnostics and device identifiers such as the Advertising ID. Change ad consent in Settings, under “Ad privacy choices”. Purchases in the Play version use Google Play Billing, where we receive the order, product and purchase token to verify it, or an InstaPay / Vodafone Cash transfer, where you upload the transfer screenshot and the sender name for manual review (stored privately; the screenshot is deleted 90 days after review).\n\nFinished rooms are eligible for deletion after 24 hours. Old anonymous identities with no room membership are removed on the cleanup schedule. You can request online-data deletion below; submission is not completed deletion. Outside the app, use saidalmafia.com/delete-data with your identifier or receipt. Never send passwords or access keys.\n\nHarassment, threats, hate, sexual content, child exploitation and sharing private information are prohibited. Report abusive players, room names or messages. Blocking hides their private messages and mutes their voice for you; public game actions remain visible. Reports are reviewed by the developer and are not visible to players.",
-  "safetyAgree": "I accept the community rules",
-  "safetyConsentTitle": "Before playing online",
-  "safetyConsentBody": "Abuse, harassment, hate, sexual content and sharing private information are prohibited. Use Safety to report or block. Voice is optional. Read Privacy in Settings for data practices.",
-  "safetyReport": "Submit report",
-  "safetyBlock": "Block player messages and voice",
-  "safetyRoom": "Room name or content",
-  "safetyDetails": "Describe the abuse or message (no secret role information)",
-  "safetyReceipt": "Request received. Keep this receipt:",
-  "safetyFailed": "Request was not sent. Retry or contact support.",
-  "safetyDelete": "Request online data deletion",
-  "safetyDeleteConfirm": "Send a request to delete your anonymous identity and associated online data. The developer will review it within 30 days. Other players’ local copies are separate; safety evidence may be retained for a limited period. This request does not delete local files.",
-  "safetyIdentity": "Show my data identifier",
-  "safetyBlocked": "Blocked for you.",
-  "safetyNoRoom": "Reporting and blocking are available inside a room.",
-  "safetyTools": "Report and block",
-  "onlineWelcome": "The table is ready. Take your seat.",
-  "languageLabel": "Language",
-  "languageArabic": "العربية",
-  "languageEnglish": "English",
-  "onlineNewRoomsPaused": "New rooms are temporarily paused. You can still join an existing room or play offline.",
-  "helpTitle": "Help and FAQ",
-  "helpIntro": "Quick answers about playing, online rooms, safety and your data.",
-  "helpPlayQuestion": "How does a match work?",
-  "helpPlayAnswer": "The game assigns secret roles, guides every night and day phase, and counts the vote. Citizens find the Mafia; the Mafia survives until it matches or outnumbers the town. The host can review the rules before starting.",
-  "helpOnlineQuestion": "How do online rooms work?",
-  "helpOnlineAnswer": "Create a room and share its code, join with a code, or choose a public room. The match is controlled by the game server, and host control moves to another connected player if needed.",
-  "helpVoiceQuestion": "Is voice required?",
-  "helpVoiceAnswer": "No. Voice is optional and is not recorded by the game. If microphone access or voice relay fails, the match continues with the game controls and structured text.",
-  "helpReconnectQuestion": "What if the connection drops?",
-  "helpReconnectAnswer": "Reopen the game on the same device and use Continue room when it appears. Your seat is restored when the room still exists. Never create a second profile to recover a live seat.",
-  "helpSafetyQuestion": "How do reporting and blocking work?",
-  "helpSafetyAnswer": "Inside a room, use the flag button to report a player or room content. Blocking immediately hides that player's private messages and mutes their voice for you. A report is evidence for review, not an automatic guilty decision.",
-  "helpCoinsQuestion": "What are coins?",
-  "helpCoinsAnswer": "Coins are earned from verified completed online matches and can unlock fair content. They cannot be withdrawn, transferred or used to buy votes, secret information or a better chance to win. Coins stay with this device's anonymous online identity.",
-  "helpPrivacyQuestion": "Where are privacy and deletion controls?",
-  "helpPrivacyAnswer": "They are on the Settings screen under Privacy and data deletion. You can view your anonymous data identifier and request deletion there.",
-  "helpAgeQuestion": "Who is online play intended for?",
-  "helpAgeAnswer": "Online voice and public rooms are intended for players aged 16 or older. Do not share your address, phone number, passwords or other private information in voice, names, messages or room titles.",
-  "helpSupportQuestion": "How can I contact support?",
-  "helpSupportAnswer": "Email eyadsyam124@gmail.com. Include a report receipt or your anonymous data identifier when relevant, but never send a password or access key.",
-  "coinsTitle": "Coins and rewards",
-  "coinsBalance": "{count} coins",
-  "@coinsBalance": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coinsEarnHint": "Complete an eligible online match to earn 100 coins. Players on the winning team earn 25 more. Rewards are verified by the game server and never affect votes, roles or the chance to win.",
-  "coinsEarnHintV3": "Complete an eligible online match with five or more players to earn 25 coins. Your team winning adds 10 more, and your first eligible match of the day adds 25. After the match, each award you earn also pays 5 coins, or 15 for MVP, when awards are on. The server verifies rewards; they never affect votes, roles or the chance to win.",
-  "coinsLoadFailed": "Your coins could not be loaded. Nothing was spent; try again.",
-  "coinsGuideTitle": "The Mastermind's Notebook",
-  "coinsGuideHint": "A permanent strategy guide for reading the table and defending your story. It never reveals live secret information.",
-  "coinsGuidePrice": "Unlock for {count} coins",
-  "@coinsGuidePrice": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coinsBuyGuide": "Unlock the notebook?",
-  "coinsBuyConfirm": "This permanently spends earned coins on this anonymous online identity. It cannot change a match or improve your odds.",
-  "coinsUnlock": "Unlock",
-  "coinsGuideOpen": "Open the notebook",
-  "coinsGuideContent": "CITIZEN — Track who changes a story after the vote, not who speaks the loudest. Ask for one clear reason and compare it with the next ballot.\n\nMAFIA — Build a simple position early. A complicated lie creates details you must remember. Defend a citizen sometimes; automatic aggression gives the table an easy pattern.\n\nDOCTOR — Survival is not the only goal. Think about which save would create the most trustworthy information for tomorrow.\n\nDETECTIVE — Your information is valuable only if the table can use it. Leave a believable trail before a risky accusation, without announcing your role too early.\n\nEVERY ROLE — Separate what the game confirmed from what a player claimed. The strongest argument is the one that survives the next revealed fact.",
-  "adRewardAction": "Watch an ad for +{count} coins",
-  "@adRewardAction": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "adRewardHint": "Optional and shown only after the result. Your original reward stays yours if you decline or the ad fails.",
-  "adRewardPending": "Ad completed. The extra reward is being verified and will appear automatically.",
-  "adRewardGranted": "{count} extra coins added.",
-  "@adRewardGranted": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "adRewardUnavailable": "No ad is available right now. Your original reward is unchanged.",
-  "adRewardUsed": "You claimed the ad reward for this match.",
-  "privacyChoices": "Ad privacy choices",
-  "privacyChoicesHint": "Review or change the privacy choices required by the advertising provider.",
-  "premiumScenarioTitle": "Council of Shadows scenario",
-  "premiumScenarioHint": "A permanent host pack with balanced rules, whispers, confrontation and secret ballots. When the host selects it, everyone in the room plays without buying it.",
-  "premiumScenarioBuy": "Buy scenario pack",
-  "premiumScenarioOwned": "Scenario pack owned",
-  "premiumScenarioRestore": "Restore purchases",
-  "premiumScenarioPending": "The store is still processing this purchase.",
-  "premiumScenarioFailed": "The purchase could not be verified. The game has not charged anything itself.",
-  "premiumScenarioUse": "Council of Shadows",
-  "premiumScenarioUseHint": "A balanced scenario preset the host unlocks for the whole room.",
-  "shareResult": "Share result",
-  "shareResultText": "A Mafia Master match ended with {winner} winning after {days} days. Open your room at https://saidalmafia.com",
-  "@shareResultText": {
-    "placeholders": {
-      "winner": {
-        "type": "String"
-      },
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "playAgainWithGroup": "New room for the group",
-  "setupWelcomeTitle": "Welcome to Mafia Master",
-  "setupWelcomeHint": "Choose your language, name and preferences once, then play.",
-  "setupPreferencesTitle": "Preferences",
-  "setupPreferencesHint": "You can change these later in Settings.",
-  "prefSound": "Game sounds",
-  "prefMusic": "Music",
-  "prefReduceMotion": "Reduce motion",
-  "setupAdultConfirm": "I am 16 or older",
-  "setupAdultHint": "Online play, voice and public rooms are for ages 16 and up.",
-  "termsAcceptPrefix": "I have read and agree to the ",
-  "termsAcceptLink": "Terms and Conditions",
-  "termsAcceptSuffix": ".",
-  "privacyLinkLabel": "Privacy policy",
-  "termsTitle": "Terms and Conditions",
-  "termsVersion": "Version {version}",
-  "@termsVersion": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "termsBody": "1. Mafia Master is a party game for entertainment. Roles and outcomes are part of the game only.\n\n2. Online play, voice and public rooms are for people aged 16 or older.\n\n3. Abuse, harassment, threats, hate speech, sexual content and sharing anyone's private information are prohibited. You can report or block a player from the safety tools.\n\n4. Voice is optional and the game does not record audio. Other players hear what you say, and nobody can stop someone recording with another device.\n\n5. Mafia Coins are an in-game currency for unlocking cosmetic content only, such as frames, themes and narrator styles. They have no cash value, cannot be exchanged for money and never give an advantage in play, voting or roles.\n\n6. Coins, the Quiet Pass and the Starter Bundle can be bought with money: in the Android app through Google Play Billing, and in the Android app and on the website by InstaPay or Vodafone Cash transfer at the same price. Transfers are reviewed manually within 72 hours; you upload the transfer screenshot and the sender name, and the purchase is added only after the money is confirmed. A screenshot can be used for one order only. A rejected order shows its reason; an order not reviewed within 72 hours expires.\n\n7. We may remove a room or restrict a player who breaks these terms. You can request deletion of your data from Settings.\n\n8. If these terms change in an important way, we will ask for your agreement again before you continue.",
-  "privacySummaryBody": "• The game uses an anonymous identifier for online play and needs no phone number or birth date to play.\n\n• Your in-game name and avatar type are shown to the players in your room.\n\n• Voice is optional, encrypted in transit and never recorded by the game.\n\n• If you sign in with email, it is used only to recover your account.\n\n• Android shows Google AdMob ads: optional rewarded ads; automatic full-screen ads only between matches — before you enter a room (Create, Join or a rematch), when you leave a finished match, before the roles are dealt and after the result in pass-and-play, occasionally when you move between menus after several minutes without one, and an app-open ad on the launch screen — never during a match, at most 40 a day, at least 90 seconds apart, and none around your first match; and small banners on waiting screens (lobby, room list, history, vault, profile) — never during play. The Quiet Pass removes all automatic ads. Google's ads SDK collects IP address, interactions, diagnostics and device identifiers such as the Advertising ID.\n\n• Play purchases go through Google Play Billing; we keep the order, product and purchase token to verify them. InstaPay / Vodafone Cash transfer orders (Android app and website) record the product, amount, method, the transfer screenshot you upload and the sender name, only to verify the payment; the screenshot is stored privately and deleted 90 days after the order is reviewed, and the order record is kept for accounting.\n\n• Finished rooms are deleted periodically, and you can request deletion of your data from Settings.\n\n• Council rank and the weekly leaderboard: your level shows on your seat, and your in-game name, avatar type, equipped frame, level and weekly XP can appear on the public weekly leaderboard. You can hide yourself from the leaderboard in your profile. Match history behind them is kept 21 days.\n\nFull policy: saidalmafia.com/privacy",
-  "termsUpdatedTitle": "Before you continue",
-  "termsUpdatedHint": "Review and accept the terms once. Your profile and progress are kept.",
-  "settingsLegalTitle": "Terms and privacy",
-  "launcherLabelPending": "The icon name will update after you close the game.",
-  "documentClose": "Back",
-  "publicRoomWaitingTitle": "Waiting room ready",
-  "publicRoomWaitingStatus": "Empty; the first player in becomes the host",
-  "onlineShareFailed": "Couldn't open sharing or copy the link. Read the room code out to players.",
-  "shareTextCopied": "Copied. Paste it anywhere to send it.",
-  "shareUnavailable": "Couldn't open sharing. Try again.",
-  "coinsName": "Council Coins",
-  "storeTitle": "Store",
-  "storeTabShop": "Shop",
-  "storeTabCollection": "Collection",
-  "storeTabHistory": "History",
-  "storeTabCoins": "Buy coins",
-  "storeEarnTime": "{count} coins, about {matches} online matches",
-  "@storeEarnTime": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "matches": {
-        "type": "int"
-      }
-    }
-  },
-  "storeSectionIdentity": "Identity",
-  "storeSectionPacks": "Room presentation",
-  "storeSectionNarrator": "Narration styles",
-  "storeSectionBundles": "Bundles",
-  "storePermanent": "Permanent",
-  "storeOwned": "Owned",
-  "storeEquipped": "In use",
-  "storeEquip": "Use",
-  "storeUnequip": "Remove",
-  "storePreview": "Preview",
-  "storeBuyFor": "Buy for {count}",
-  "@storeBuyFor": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "storeBuyConfirmTitle": "Buy {item}?",
-  "@storeBuyConfirmTitle": {
-    "placeholders": {
-      "item": {
-        "type": "String"
-      }
-    }
-  },
-  "storeBuyConfirmBody": "{count} coins will be deducted. The content is cosmetic and permanent, and changes nothing in play.",
-  "@storeBuyConfirmBody": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "storeNotEnough": "{count} more coins needed",
-  "@storeNotEnough": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "storeBundleSaves": "Saves {count} coins",
-  "@storeBundleSaves": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "storeBundleOwnedAll": "You own everything in it",
-  "storeBundleContents": "Includes: {items}",
-  "@storeBundleContents": {
-    "placeholders": {
-      "items": {
-        "type": "String"
-      }
-    }
-  },
-  "storeBought": "Added to your collection",
-  "storeFailed": "That did not go through and nothing was deducted. Try again.",
-  "storeHostPackNote": "When the host picks a presentation, everyone in the room sees it without buying it.",
-  "storePresentationNote": "Look and sound only. It never changes rules, votes or roles.",
-  "storeEmptyCollection": "Nothing here yet.",
-  "storeEmptyHistory": "No activity yet.",
-  "historyMatchCompletion": "Online match finished",
-  "historyMatchWin": "Win",
-  "historyCatalogSpend": "Bought: {item}",
-  "@historyCatalogSpend": {
-    "placeholders": {
-      "item": {
-        "type": "String"
-      }
-    }
-  },
-  "historyCatalogRefund": "Refund: {item}",
-  "@historyCatalogRefund": {
-    "placeholders": {
-      "item": {
-        "type": "String"
-      }
-    }
-  },
-  "historyAdReward": "Video reward",
-  "historyCoinPurchase": "Coin purchase",
-  "historyCoinPurchaseReversal": "Coin purchase reversed",
-  "historyAdjustment": "Adjustment",
-  "cosmeticClassic": "Classic",
-  "cosmeticFrameGilded": "Gilded frame",
-  "cosmeticFrameGildedDesc": "An engraved gold frame with a small mask beneath your portrait, seen by every player.",
-  "cosmeticFrameCrimson": "Crimson frame",
-  "cosmeticFrameCrimsonDesc": "Dark silver with crimson enamel and a small crest below your portrait.",
-  "cosmeticFrameMoonlit": "Moonlit frame",
-  "cosmeticFrameMoonlitDesc": "Cool silver with a small crescent moon below your portrait.",
-  "cosmeticPlateNoir": "Noir nameplate",
-  "cosmeticPlateNoirDesc": "Your name on a charcoal plate in engraved silver with medallion ends.",
-  "cosmeticPlateGilded": "Gilded nameplate",
-  "cosmeticPlateGildedDesc": "Your name on a charcoal plate with a gold edge and fan-shaped ends.",
-  "cosmeticPlateEmber": "Ember nameplate",
-  "cosmeticPlateEmberDesc": "Your name on a charcoal plate edged in crimson and gold with pointed ends.",
-  "cosmeticPackManor": "Midnight Manor",
-  "cosmeticPackManorDesc": "A candlelit manor hall behind the table with light fog, a candlelight transition between public phases, and an opening and closing line with sound. Everyone in the room sees it.",
-  "cosmeticPackOldTown": "Old Town",
-  "cosmeticPackOldTownDesc": "A warm old-stone hall behind the table with drifting light, a sweeping-light transition across the table, and an opening and closing line with sound. Everyone in the room sees it.",
-  "cosmeticNarratorStoryteller": "The Storyteller",
-  "cosmeticNarratorStorytellerDesc": "A recorded storyteller voice marks every public phase with the same short line for every player. With sound off, the lines stay as text.",
-  "cosmeticBundleCouncil": "Council bundle",
-  "cosmeticBundleCouncilDesc": "Midnight Manor, Old Town and The Storyteller together.",
-  "cosmeticBundleIdentity": "Identity bundle",
-  "cosmeticBundleIdentityDesc": "All three frames and all three nameplates.",
-  "packManorIntro": "The manor doors are shut. Nobody leaves before the truth does.",
-  "packManorOutro": "The candles are out, and the manor keeps its secrets.",
-  "packOldTownIntro": "The old town wakes to a new secret.",
-  "packOldTownOutro": "The streets are quiet. The story is over.",
-  "narratorNight": "Night falls. Everyone stays where they are.",
-  "narratorMorning": "Morning comes, and something has changed.",
-  "narratorDiscussion": "Now we talk. Who has a case?",
-  "narratorVoting": "The decision belongs to the table.",
-  "narratorResult": "The story ends, and the secrets are out.",
-  "roomPackLabel": "Room presentation",
-  "roomNarratorLabel": "Narrator",
-  "previewTransition": "Play transition",
-  "previewSound": "Play sound",
-  "previewIntro": "Opening",
-  "previewOutro": "Closing",
-  "previewSampleName": "Sami",
-  "onlineRoomRefreshHint": "Updates automatically. Choose a room to join.",
-  "onlineRoomsAll": "All rooms",
-  "onlineRoomsNearlyReady": "Need 1–2 players",
-  "onlineRoomsNoFilterMatches": "No rooms need just 1–2 players right now. Browse all rooms or invite your friends.",
-  "onlineRoomVoiceOn": "Voice enabled",
-  "onlineRoomVoiceOff": "Voice disabled",
-  "onlineLobbyInviteHint": "Share the room invite to bring your friends to this table.",
-  "onlineLobbyHostReadyHint": "Your table has enough players. Start when everyone is ready.",
-  "onlineLobbyGuestReadyHint": "Enough players are here. Your host will start the match.",
-  "onlineVoteSending": "Sending your vote…",
-  "onlineVoteReceived": "Vote received. Waiting for the ballot to close.",
-  "onlineVoteResolving": "The ballot is closed. Waiting for the result.",
-  "onlineVoteSelectHint": "Tap a player at the table, then confirm your vote.",
-  "onlineConfirmSuspicion": "Confirm suspicion",
-  "onlineBeginVoting": "Open voting",
-  "accountTitle": "Sign in",
-  "accountAnonymousHint": "Your purchases and progress stay with you on every phone.",
-  "accountProtected": "Signed in with {email}",
-  "@accountProtected": {
-    "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
-  },
-  "accountLink": "Sign in",
-  "accountRecover": "I already have an account",
-  "accountEmail": "Email",
-  "accountSendCode": "Send code",
-  "accountCode": "Code from the email",
-  "accountConfirm": "Confirm",
-  "accountCodeSent": "We sent an email to {email}. It holds either a 6-digit code (type it below) or a link (open it, then tap «I opened the email link»). It can take a minute; check spam if you do not see it.",
-  "@accountCodeSent": {
-    "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
-  },
-  "accountRecoverWarning": "You will sign in to your account. Coins on this device without a sign-in will not move to it.",
-  "accountErrorEmail": "That email does not look right.",
-  "accountErrorTaken": "That email belongs to another account. Use «I already have an account».",
-  "accountErrorCode": "The code is wrong or expired. Ask for a new one.",
-  "accountErrorRate": "Too many requests. Wait a little and try again.",
-  "accountErrorUnavailable": "Not available right now. Try later.",
-  "accountLinkOpened": "I opened the email link",
-  "accountErrorLinkPending": "The email is not confirmed yet. Open the link in the email, then tap again.",
-  "accountErrorLinkElsewhere": "The link signs in the browser that opened it, not this app. Use the code from the email.",
-  "accountRecoverLinkNote": "On a new device only the 6-digit code can sign this app in; the email link cannot. If your email has no code, recovery by code will work once our emails are updated.",
-  "coinPacksUnavailable": "Buying coins is not available right now. Coins are still earned from online matches.",
-  "coinPacksNeedAccount": "Sign in before paying so purchases and coins stay with you on every phone.",
-  "coinPackCoins": "{count} coins",
-  "@coinPackCoins": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coinPackPrice": "EGP {amount}",
-  "@coinPackPrice": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "coinPayMethod": "Payment method",
-  "coinPayInstapay": "InstaPay",
-  "coinPayVodafone": "Vodafone Cash",
-  "coinPayMethodOff": "Not available now",
-  "coinManualNotice": "Transfers are reviewed by hand, and coins are added after the transfer is confirmed",
-  "coinManualDetail": "The payment page opens outside the game and may switch to your bank or wallet app. Transfer the exact amount shown, then come back and enter the transaction number. Opening or returning from the link adds no coins.",
-  "coinCreateOrder": "Confirm order: EGP {amount}",
-  "@coinCreateOrder": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "coinOrderTitle": "Order {reference}",
-  "@coinOrderTitle": {
-    "placeholders": {
-      "reference": {
-        "type": "String"
-      }
-    }
-  },
-  "coinOrderSummary": "{coins} coins for EGP {amount} via {method}",
-  "@coinOrderSummary": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      },
-      "amount": {
-        "type": "String"
-      },
-      "method": {
-        "type": "String"
-      }
-    }
-  },
-  "coinOpenPayment": "Open {method}",
-  "@coinOpenPayment": {
-    "placeholders": {
-      "method": {
-        "type": "String"
-      }
-    }
-  },
-  "coinOpenFailed": "The browser did not open the page. Allow pop-ups for this site and try again.",
-  "coinDesktopHint": "On a computer with the wallet app on your phone, open this site on the phone to complete the transfer.",
-  "coinSentTransfer": "I sent the transfer",
-  "coinTransferReference": "Transaction number",
-  "coinPayerHint": "Sender name (optional)",
-  "coinClaimNote": "This reports your transfer; it is not a confirmation. Nobody will ask for your PIN or a code.",
-  "coinCancelOrder": "Cancel order",
-  "coinStatusAwaiting": "Waiting for your transfer",
-  "coinStatusClaimed": "Under review. Coins are added once the money is confirmed.",
-  "coinStatusNeedsInfo": "We need details: {note}",
-  "@coinStatusNeedsInfo": {
-    "placeholders": {
-      "note": {
-        "type": "String"
-      }
-    }
-  },
-  "coinStatusPaid": "{coins} coins added",
-  "@coinStatusPaid": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "coinStatusRejected": "Order declined: {note}",
-  "@coinStatusRejected": {
-    "placeholders": {
-      "note": {
-        "type": "String"
-      }
-    }
-  },
-  "coinStatusCancelled": "Order cancelled",
-  "coinStatusExpired": "The order expired. If you already transferred, enter the transaction number and it will be reviewed.",
-  "coinStatusRefunded": "Refunded: {note}",
-  "@coinStatusRefunded": {
-    "placeholders": {
-      "note": {
-        "type": "String"
-      }
-    }
-  },
-  "coinOrderFailed": "The order was not recorded. Nothing was charged; try again.",
-  "adminCoinsTitle": "Transfer review",
-  "adminNotAdmin": "This account is not an admin.",
-  "adminEmpty": "No orders waiting for review.",
-  "adminProviderTxn": "Transaction ID in your statement",
-  "adminReceived": "Amount received (EGP)",
-  "adminNote": "Note to player",
-  "adminApprove": "Received: add coins",
-  "adminNeedsInfo": "Ask for details",
-  "adminReject": "Decline",
-  "adminRefund": "Money returned",
-  "adminCheckFirst": "Check your bank or wallet statement yourself and match amount, method and reference before approving. If unsure, leave it under review.",
-  "adminErrorAmount": "Amount does not match. Ask for details or decline.",
-  "adminErrorUsed": "That transaction already funded another order.",
-  "adminErrorGeneric": "Not done. Check the fields and try again.",
-  "adminOrderLine": "{reference} · {account} · EGP {amount} · {method} · player ref: {claim}",
-  "@adminOrderLine": {
-    "placeholders": {
-      "reference": {
-        "type": "String"
-      },
-      "account": {
-        "type": "String"
-      },
-      "amount": {
-        "type": "String"
-      },
-      "method": {
-        "type": "String"
-      },
-      "claim": {
-        "type": "String"
-      }
-    }
-  },
-  "adminFilterOpen": "To review",
-  "adminFilterPaid": "Paid",
-  "arrivalIdentityTitle": "Your seat at the table",
-  "arrivalIdentityHint": "Choose the name and face your friends will recognise.",
-  "arrivalWelcomeHint": "A secret role. A room full of suspects. Your story starts here.",
-  "arrivalPactTitle": "Before the first night",
-  "arrivalStep": "Step {step} of {total}",
-  "arrivalSaving": "Saving your seat…",
-  "councilInvitation": "Every voice has a story. Who will you believe?",
-  "@arrivalStep": {
-    "placeholders": {
-      "step": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "witnessTableLoading": "Opening the table…",
-  "witnessTableNoActions": "Nobody has chosen anything at night yet",
-  "witnessActionKill": "{actor} chose to kill {target}",
-  "@witnessActionKill": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "witnessActionProtect": "{actor} is protecting {target}",
-  "@witnessActionProtect": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "witnessActionInvestigate": "{actor} checked {target}",
-  "@witnessActionInvestigate": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "witnessActionSuspect": "{actor} suspects {target}",
-  "@witnessActionSuspect": {
-    "placeholders": {
-      "actor": {
-        "type": "String"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineDiscussionLive": "The discussion is on",
-  "witnessEventNight": "Night: everyone chooses in secret",
-  "witnessEventOpening": "{name} is naming a suspect",
-  "@witnessEventOpening": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "witnessEventDiscussion": "The players still in are talking",
-  "witnessEventVoting": "The vote is on",
-  "onlineAbandonedTitle": "Everyone else has left",
-  "onlineAbandonedBody": "There is nobody left at the table but you, so this match is over. Head home and start a new room.",
-  "nightCitizenRest": "You are a Citizen",
-  "nightCitizenRestSupport": "Nothing to do at night. Wait for the others to finish, and the day will come.",
-  "readyToVote": "Ready to vote ({ready} of {living})",
-  "@readyToVote": {
-    "placeholders": {
-      "ready": {
-        "type": "int"
-      },
-      "living": {
-        "type": "int"
-      }
-    }
-  },
-  "readyToVoteWaiting": "Waiting for the rest ({ready} of {living})",
-  "@readyToVoteWaiting": {
-    "placeholders": {
-      "ready": {
-        "type": "int"
-      },
-      "living": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsSectionGeneral": "General",
-  "settingsRulesTitle": "Match rules",
-  "settingsRulesHint": "Every new match starts from these, and you can still change them before one.",
-  "settingsSectionMore": "Help & privacy",
-  "onlineRoomSettingsHint": "Every change reaches everyone in the room right away.",
-  "vaultTitle": "The Council Vault",
-  "vaultSubtitle": "Your signature. Your council atmosphere.",
-  "storeFrames": "Avatar frames",
-  "storeNameplates": "Nameplates",
-  "storeBrowseNext": "More products",
-  "storeBrowsePrevious": "Previous products",
-  "cosmeticPackArchive": "Moonlit Archive",
-  "cosmeticPackArchiveDesc": "A moonlit archive behind the table in quiet silver, a moonlight transition between public phases, and an opening and closing line with sound. Everyone in the room sees it.",
-  "cosmeticNarratorKeeper": "Secret Keeper",
-  "cosmeticNarratorKeeperDesc": "A solemn recorded keeper voice marks each public phase in an archival style, the same for every player.",
-  "cosmeticNarratorNoir": "Noir Narrator",
-  "cosmeticNarratorNoirDesc": "A terse recorded noir voice marks each public phase, the same for every player.",
-  "cosmeticBundleNocturne": "Nocturne Collection",
-  "cosmeticBundleNocturneDesc": "Moonlit Archive, the Moonlit frame, the Noir nameplate and the Secret Keeper together.",
-  "packArchiveIntro": "The archive opens its doors under the moon.",
-  "packArchiveOutro": "The moonlight withdraws, and the files return to their shelves.",
-  "narratorKeeperNight": "The ledger closes on the night's page.",
-  "narratorKeeperMorning": "The day's page is open.",
-  "narratorKeeperDiscussion": "Every word carries weight. Choose yours carefully.",
-  "narratorKeeperVoting": "The council records its decision.",
-  "narratorKeeperResult": "The ledger is closed; the story joins the archive.",
-  "narratorNoirNight": "The city sleeps. The streets are empty.",
-  "narratorNoirMorning": "Morning. Everyone is looking for the truth.",
-  "narratorNoirDiscussion": "Everyone has a story. Who is telling the truth?",
-  "narratorNoirVoting": "Decision time. Every vote has a price.",
-  "narratorNoirResult": "Case closed.",
-  "storeAboutCoins": "About coins",
-  "storeInside": "What's inside",
-  "storeBalance": "Your balance: {count} coins",
-  "@storeBalance": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "storeRoomArtNote": "The scene shows faintly behind the table in public phases only, never at night.",
-  "profileAddressLabel": "Address me as",
-  "profileAddressHint": "Arabic speaks to men and women differently, so roles and messages are written this way.",
-  "onlinePlayingAs": "Playing as {name}",
-  "@onlinePlayingAs": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "onlineNoPublicRoomsHint": "Create a room and send your friends the code, or refresh in a moment.",
-  "lobbyInviteFriends": "Invite friends",
-  "adStepsTitle": "Optional bonus: up to 2 ads",
-  "adStepsDisclosure": "Each ad you finish is verified and adds its coins; stopping after the first keeps it. Both ads together add +{total}. Your match reward stays yours either way.",
-  "@adStepsDisclosure": {
-    "placeholders": {
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "adStepAction": "Ad {step} of 2 · +{amount}",
-  "@adStepAction": {
-    "placeholders": {
-      "step": {
-        "type": "int"
-      },
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "adStepDone": "Ad {step} of 2 · +{amount} added",
-  "@adStepDone": {
-    "placeholders": {
-      "step": {
-        "type": "int"
-      },
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "adStepsComplete": "+{total} bonus coins added for this match.",
-  "@adStepsComplete": {
-    "placeholders": {
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "adRewardCheckAgain": "Check again",
-  "adRewardNotConsented": "Ads need your consent first. You can change it in Settings, under “Ad privacy choices”.",
-  "storeTabRewards": "Rewards",
-  "dailyTitle": "Daily rewards",
-  "dailyResetNote": "A new day starts at 00:00 UTC.",
-  "dailyCofferTitle": "Daily coffer",
-  "dailyCofferBody": "Free once a day: +{amount} Council Coins.",
-  "@dailyCofferBody": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyCofferClaim": "Open · +{amount}",
-  "@dailyCofferClaim": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyCofferClaimed": "Opened today. Come back tomorrow.",
-  "dailyCofferGranted": "+{amount} added to your coins.",
-  "@dailyCofferGranted": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyWeekBonusGranted": "Seventh day! +{amount} bonus.",
-  "@dailyWeekBonusGranted": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyWheelTitle": "Free wheel",
-  "dailyWheelBody": "One free spin each day. It costs nothing and has no cash value.",
-  "dailyWheelSpin": "Spin free",
-  "dailyWheelResult": "The wheel landed on +{amount}.",
-  "@dailyWheelResult": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyWheelDone": "Today's spin: +{amount}. Next spin tomorrow.",
-  "@dailyWheelDone": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyWheelOdds": "Exact odds",
-  "dailyWheelOddsRow": "+{coins} coins",
-  "@dailyWheelOddsRow": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyWheelPercent": "{percent}%",
-  "@dailyWheelPercent": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
-  "dailyWeekTitle": "Seven-day card",
-  "dailyWeekBody": "{progress} of 7 opened. Every seventh day you open adds +{bonus}. A missed day resets nothing.",
-  "@dailyWeekBody": {
-    "placeholders": {
-      "progress": {
-        "type": "int"
-      },
-      "bonus": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyAdTitle": "Daily ad (optional)",
-  "dailyAdBody": "One optional ad per day for exactly +{amount} coins.",
-  "@dailyAdBody": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyAdAction": "Watch · +{amount}",
-  "@dailyAdAction": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyAdDone": "Today's ad reward is collected.",
-  "dailyAdInMatch": "Available outside a match.",
-  "dailyFailed": "Couldn't reach the vault. Try again.",
-  "dailyDayChanged": "A new day started. Refreshed.",
-  "historyAdStep": "Bonus ad",
-  "historyDailyCoffer": "Daily coffer",
-  "historyDailyWheel": "Free wheel",
-  "historyDailyWeek": "Seventh-day bonus",
-  "historyDailyAd": "Daily ad",
-  "historyPlayCoins": "Coins bought on Google Play",
-  "historyPlayReversal": "Google Play refund",
-  "storeTabPlay": "Coins & pass",
-  "quietPassTitle": "Quiet Pass",
-  "quietPassBody": "Permanent. Removes every automatic ad: the app-open ad, the ads before and after matches and between menus, and the waiting-room banners. Optional reward ads stay available if you want them. No gameplay advantage.",
-  "quietPassOwned": "Quiet Pass active",
-  "playPackTitle": "{coins} Council Coins",
-  "@playPackTitle": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "playBuy": "Buy · {price}",
-  "@playBuy": {
-    "placeholders": {
-      "price": {
-        "type": "String"
-      }
-    }
-  },
-  "playUnavailable": "Purchases aren't available on this device right now.",
-  "playPending": "Payment pending. It is added when Google confirms it.",
-  "playVerified": "Purchase confirmed.",
-  "playFailed": "The purchase was not completed.",
-  "playAccountMismatch": "This purchase belongs to another account.",
-  "playNeedsProtection": "Sign in before buying so your purchases and progress stay with you on every phone.",
-  "playRestore": "Restore purchases",
-  "playCoinsNote": "Council Coins buy cosmetics only. They have no cash value and give no advantage.",
-  "playRefundRule": "If a coin pack is refunded, its unspent coins are removed. Coins already spent become an amount your next coin pack pays first; earned coins and owned items are never taken.",
-  "playDebtNotice": "An earlier refund is still open: your next {coins} purchased coins settle it first.",
-  "@playDebtNotice": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "quietPassRefundRule": "If the pass is refunded, it is removed; your coins and items stay.",
-  "storeTabCouncil": "Council",
-  "councilRankTitle": "Your Council rank",
-  "councilLevel": "Level {level}",
-  "@councilLevel": {
-    "placeholders": {
-      "level": {
-        "type": "int"
-      }
-    }
-  },
-  "councilXpProgress": "{xp} / {next} XP",
-  "@councilXpProgress": {
-    "placeholders": {
-      "xp": {
-        "type": "int"
-      },
-      "next": {
-        "type": "int"
-      }
-    }
-  },
-  "councilXpTotal": "{xp} XP",
-  "@councilXpTotal": {
-    "placeholders": {
-      "xp": {
-        "type": "int"
-      }
-    }
-  },
-  "councilMaxLevel": "The top of the Council",
-  "councilNextLevel": "Next level: +{coins}",
-  "@councilNextLevel": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "councilWeekXp": "{xp} XP this week",
-  "@councilWeekXp": {
-    "placeholders": {
-      "xp": {
-        "type": "int"
-      }
-    }
-  },
-  "councilHowXp": "Every finished online match earns XP — a win earns more.",
-  "councilFailed": "Couldn't reach the Council. Try again.",
-  "councilAttention": "Something is waiting for you in the vault",
-  "contractsTitle": "Today's contracts",
-  "contractsReset": "Renews at 00:00 UTC",
-  "contractFinishOne": "Finish a match",
-  "contractFinishMany": "Finish {count} matches",
-  "@contractFinishMany": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "contractTown": "Finish a match on the town side",
-  "contractMafia": "Finish a match on the mafia side",
-  "contractWinOne": "Win a match",
-  "contractWinMany": "Win {count} matches",
-  "@contractWinMany": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "contractHost": "Host a match to the end",
-  "contractReunion": "Play again with someone you've played with",
-  "contractProgress": "{done}/{target}",
-  "@contractProgress": {
-    "placeholders": {
-      "done": {
-        "type": "int"
-      },
-      "target": {
-        "type": "int"
-      }
-    }
-  },
-  "contractClaim": "Claim +{coins}",
-  "@contractClaim": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "contractClaimed": "Claimed",
-  "contractsBonus": "Complete all three: +{coins}",
-  "@contractsBonus": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "contractsBonusDone": "All three done",
-  "contractBonusGranted": "All three! +{coins} bonus.",
-  "@contractBonusGranted": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "contractIncomplete": "Not yet — finish the match first.",
-  "weeklyTitle": "This week's contract",
-  "weeklyBody": "Finish {target} online matches this week",
-  "@weeklyBody": {
-    "placeholders": {
-      "target": {
-        "type": "int"
-      }
-    }
-  },
-  "weeklyReward": "+{coins} coins and {xp} XP",
-  "@weeklyReward": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      },
-      "xp": {
-        "type": "int"
-      }
-    }
-  },
-  "weeklyRewardCoins": "+{coins} coins",
-  "@weeklyRewardCoins": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "weeklyReset": "Renews Monday 00:00 UTC",
-  "leaderboardTitle": "Top this week",
-  "leaderboardOpen": "This week's board",
-  "leaderboardYou": "Your position: {position}",
-  "@leaderboardYou": {
-    "placeholders": {
-      "position": {
-        "type": "int"
-      }
-    }
-  },
-  "leaderboardNone": "Play a match to enter the board",
-  "leaderboardEmpty": "Nobody has earned XP this week yet.",
-  "leaderboardHidden": "You're hidden from the board; only you see your position.",
-  "leaderboardVisibleLabel": "Show me on the leaderboard",
-  "leaderboardVisibleBody": "Your name, look and rank appear on the weekly board. Nothing about your matches is shown.",
-  "inviteTitle": "Invite a friend",
-  "inviteBody": "1. Send your code or room link to a friend who just installed the game (within 7 days).\n2. They open the link, or type the code under «Have an invite code?» in the Council.\n3. When they finish their first online match: you +{inviter}, they +{invitee}.",
-  "@inviteBody": {
-    "placeholders": {
-      "inviter": {
-        "type": "int"
-      },
-      "invitee": {
-        "type": "int"
-      }
-    }
-  },
-  "inviteCopy": "Copy code",
-  "inviteCopied": "Code copied",
-  "inviteShare": "Share",
-  "inviteShareText": "Join me in Mafia Master! Use my invite code {code} in the Council tab of the vault.",
-  "@inviteShareText": {
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
-  "inviteCounters": "Rewarded: {rewarded}/{cap} · Waiting: {pending}",
-  "@inviteCounters": {
-    "placeholders": {
-      "rewarded": {
-        "type": "int"
-      },
-      "cap": {
-        "type": "int"
-      },
-      "pending": {
-        "type": "int"
-      }
-    }
-  },
-  "inviteHaveCode": "Have an invite code?",
-  "inviteField": "Invite code",
-  "inviteRedeem": "Use code",
-  "inviteRedeemed": "Invite saved. Finish a match to unlock both rewards.",
-  "inviteRewarded": "Invite reward received.",
-  "inviteSettledNoCoinsNotice": "{name} completed the invite conditions — it counts toward your invite progress.",
-  "@inviteSettledNoCoinsNotice": {"placeholders": {"name": {"type": "String"}}},
-  "inviteNotFound": "That code doesn't exist.",
-  "inviteSelf": "You can't use your own code.",
-  "inviteExpired": "Invite codes are for new accounts, within 7 days.",
-  "inviteNotNew": "Invite codes work before your first match.",
-  "inviteAlready": "You've already used an invite code.",
-  "inviteLoop": "You invited this player — you can't use their code.",
-  "inviteLimit": "This code has reached its limit.",
-  "inviteRateLimit": "Too many tries. Try again tomorrow.",
-  "resultContractToast": "Contract complete: {name} +{coins}",
-  "@resultContractToast": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "resultWeeklyToast": "Weekly contract complete: +{coins}",
-  "@resultWeeklyToast": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "resultXpGained": "+{xp} XP",
-  "@resultXpGained": {
-    "placeholders": {
-      "xp": {
-        "type": "int"
-      }
-    }
-  },
-  "resultClaimHint": "Claim them in the vault's Council tab.",
-  "levelUpTitle": "You rose to {title}",
-  "@levelUpTitle": {
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "levelUpBody": "Level {level} · +{coins} coins",
-  "@levelUpBody": {
-    "placeholders": {
-      "level": {
-        "type": "int"
-      },
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "rankTier1": "Newcomer",
-  "rankTier2": "Informant",
-  "rankTier3": "Night Watch",
-  "rankTier4": "Investigator",
-  "rankTier5": "Notable",
-  "rankTier6": "Councillor",
-  "rankTier7": "Capo",
-  "rankTier8": "Consigliere",
-  "rankTier9": "Council Elder",
-  "rankTier10": "Godfather",
-  "rankSemantics": "{title}, level {level}",
-  "@rankSemantics": {
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "level": {
-        "type": "int"
-      }
-    }
-  },
-  "bundleTitle": "Starter Bundle",
-  "bundleBody": "{coins} coins + the Council Seal frame, sold nowhere else. Once per account.",
-  "@bundleBody": {
-    "placeholders": {
-      "coins": {
-        "type": "int"
-      }
-    }
-  },
-  "bundleOwned": "You own the Starter Bundle",
-  "bundleRefundRule": "If it is refunded, its coins are settled like a coin pack and the Council Seal frame is removed.",
-  "bundleAlreadyOwned": "This account already has the Starter Bundle; the extra purchase is refunded by Google Play.",
-  "cosmeticFrameSeal": "Council Seal",
-  "cosmeticFrameSealDesc": "A wax-red seal ring with eight gold studs — the Starter Bundle's own frame.",
-  "cosmeticFrameInvite": "Companions Frame",
-  "cosmeticFrameInviteDesc": "An exclusive frame earned when ten friends complete your invite conditions.",
-  "coinPayStep": "Choose a pack, then tap a payment method: its page opens. Come back here with the transfer reference.",
-  "coinPayWith": "Pay with {method}",
-  "@coinPayWith": {
-    "placeholders": {
-      "method": {
-        "type": "String"
-      }
-    }
-  },
-  "webPassTitle": "Quiet Pass for the Android app",
-  "webPassBody": "The website shows no ads. The pass removes every automatic ad in the Android app (app-open, after-match and banners) on this same linked account. Optional reward ads stay available.",
-  "webPassOwned": "Quiet Pass active on this account",
-  "coinOrderPassSummary": "Quiet Pass · EGP {price} · {method}",
-  "@coinOrderPassSummary": {
-    "placeholders": {
-      "price": {
-        "type": "String"
-      },
-      "method": {
-        "type": "String"
-      }
-    }
-  },
-  "awardsTitle": "Match awards",
-  "awardMvp": "MVP",
-  "awardSharpEye": "Sharp Eye",
-  "awardSurvivor": "Survivor",
-  "awardSilverTongue": "Silver Tongue",
-  "awardLifesaver": "Lifesaver",
-  "awardPerfectCrime": "Perfect Crime",
-  "awardFirstBlood": "First Blood",
-  "awardMvpBody": "The winning side's standout",
-  "awardSharpEyeBody": "Most votes on the Mafia",
-  "awardSurvivorBody": "Still standing at the end",
-  "awardSilverTongueBody": "Brought the table along",
-  "awardLifesaverBody": "The Doctor's save held",
-  "awardPerfectCrimeBody": "The Mafia won untouched",
-  "awardFirstBloodBody": "First vote that caught the Mafia",
-  "awardsYouEarned": "Your awards: +{coins} coins",
-  "@awardsYouEarned": {"placeholders": {"coins": {"type": "int"}}},
-  "awardsLoading": "Counting the awards",
-  "reactionsLabel": "Reactions",
-  "reactionLaugh": "Laugh",
-  "reactionShock": "Shock",
-  "reactionSuspicious": "Suspicious",
-  "reactionApplause": "Applause",
-  "reactionRose": "Rose",
-  "reactionSkull": "Skull",
-  "reactionCoffee": "Coffee",
-  "reactionCrown": "Crown",
-  "reactionFrom": "{name}: {reaction}",
-  "@reactionFrom": {"placeholders": {"name": {"type": "String"}, "reaction": {"type": "String"}}},
-  "reactionSlowDown": "Easy, one at a time",
-  "cofferStripReady": "Today's coffer is ready",
-  "cofferStripBody": "Claim it right here.",
-  "cofferStripClaim": "Claim",
-  "cofferStripGot": "+{amount} added to your vault",
-  "@cofferStripGot": {"placeholders": {"amount": {"type": "int"}}},
-  "cofferStripSpin": "Spin the wheel",
-  "cofferStripLater": "Later",
-  "welcomeBackTitle": "We missed you",
-  "welcomeBackBody": "Your daily coffer is waiting in the vault.",
-  "welcomeBackBodyPlain": "The table is ready when you are.",
-  "welcomeBackOpen": "Open the vault",
-  "welcomeBackDismiss": "Later",
-  "founderBadge": "Founder",
-  "founderBadgeBody": "One of the council's first players",
-  "shareCardAwards": "Awards: {awards}",
-  "@shareCardAwards": {"placeholders": {"awards": {"type": "String"}}},
-  "adBannerLabel": "Advertisement",
-  "adExtrasTitle": "Optional extras",
-  "adExtrasBody": "Each is one optional ad, once a day. Nothing here affects play.",
-  "adExtraSpinTitle": "Second spin",
-  "adExtraSpinBody": "After today's free spin: one more, same odds, drawn by the server.",
-  "adExtraSpinOdds": "Odds: {odds}",
-  "@adExtraSpinOdds": {
-    "placeholders": {
-      "odds": {
-        "type": "String"
-      }
-    }
-  },
-  "adExtraSpinAction": "Watch · spin again",
-  "adExtraSpinNotReady": "Spin today's free wheel first.",
-  "adExtraSpinResult": "Second spin: +{amount} coins.",
-  "@adExtraSpinResult": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "adExtraCofferTitle": "Double today's coffer",
-  "adExtraCofferAction": "Watch · +{amount}",
-  "@adExtraCofferAction": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "adExtraCofferNotReady": "Open today's coffer first.",
-  "adExtraCofferDone": "Coffer doubled: +{amount}",
-  "@adExtraCofferDone": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "adExtraSwapTitle": "Swap a contract",
-  "adExtraSwapBody": "Replace one of today's unclaimed contracts with another.",
-  "adExtraSwapAction": "Choose · watch",
-  "adExtraSwapPick": "Which contract to swap?",
-  "adExtraSwapSlot": "Contract {number}",
-  "@adExtraSwapSlot": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "adExtraSwapDone": "Contract swapped",
-  "adExtraNoneLeft": "Nothing to swap today.",
-  "adExtraUsed": "Used today",
-  "adPreparing": "Getting the ad ready…",
-  "adRewardVerifying": "Confirming your reward…",
-  "adRewardLateCheck": "On its way · check again",
-  "wheelAgainAd": "Spin again? Watch an ad",
-  "cofferDoubleAd": "Double today's coffer? Watch an ad · +{amount}",
-  "@cofferDoubleAd": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "dailyAdMore": "Want +{amount} more? Watch an ad",
-  "@dailyAdMore": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "contractSwapAd": "Contract not for you? Swap it with an ad",
-  "vaultOneTime": "One time only",
-  "vaultBestValue": "Best value",
-  "vaultMostCoins": "Most coins",
-  "coinPickPackFirst": "Pick a pack above first, then how you'll pay.",
-  "adDoubleTitle": "Optional bonus: double or triple this match",
-  "adDoubleAction": "Watch an ad · double to {total}",
-  "@adDoubleAction": {
-    "placeholders": {
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "adTripleAction": "Another ad · triple to {total}",
-  "@adTripleAction": {
-    "placeholders": {
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "adDoubleDone": "Doubled · {total} coins",
-  "@adDoubleDone": {
-    "placeholders": {
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "adTripleDone": "Tripled · {total} coins",
-  "@adTripleDone": {
-    "placeholders": {
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "adTripleComplete": "This match now pays {total} coins.",
-  "@adTripleComplete": {
-    "placeholders": {
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "adDoubleDisclosure": "This match paid {base}. One verified ad makes it {doubled}; a second makes it {tripled}. Stopping after the first keeps the double. Your match reward stays yours either way.",
-  "@adDoubleDisclosure": {
-    "placeholders": {
-      "base": {
-        "type": "int"
-      },
-      "doubled": {
-        "type": "int"
-      },
-      "tripled": {
-        "type": "int"
-      }
-    }
-  },
-  "payWithGoogle": "Pay with Google · {price}",
-  "@payWithGoogle": {
-    "placeholders": {
-      "price": {
-        "type": "String"
-      }
-    }
-  },
-  "pay2TabTransfer": "InstaPay / Vodafone Cash",
-  "pay2AlreadyOwned": "This account already has it.",
-  "pay2TooMany": "You have two orders waiting for review. A new one opens when one is reviewed.",
-  "pay2Duplicate": "This screenshot was already used for an order. Upload the screenshot of this transfer.",
-  "pay2ProofRequired": "The transfer screenshot and the sender name are both required.",
-  "pay2StepChoose": "Choose the item and how to pay",
-  "pay2StepPayHint": "Tapping a method opens it outside the game. Send the exact amount, then come back here.",
-  "pay2StepPay": "Send exactly EGP {amount} with {method}",
-  "@pay2StepPay": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      },
-      "method": {
-        "type": "String"
-      }
-    }
-  },
-  "pay2StepProof": "Come back and upload the transfer screenshot",
-  "pay2PickImage": "Choose the transfer screenshot",
-  "pay2ImageChosen": "Screenshot ready · change",
-  "pay2ImageFailed": "That image could not be read. Try another screenshot.",
-  "pay2SenderName": "Sender name exactly as shown in {method}",
-  "@pay2SenderName": {
-    "placeholders": {
-      "method": {
-        "type": "String"
-      }
-    }
-  },
-  "pay2Submit": "Send for review",
-  "pay2Sent": "Sent. We review it by hand; coins are added once the money is confirmed.",
-  "pay2OrderSummary": "{product} · EGP {amount} · {method}",
-  "@pay2OrderSummary": {
-    "placeholders": {
-      "product": {
-        "type": "String"
-      },
-      "amount": {
-        "type": "String"
-      },
-      "method": {
-        "type": "String"
-      }
-    }
-  },
-  "pay2StatusAwaiting": "Waiting for your transfer screenshot",
-  "pay2StatusPending": "Under review",
-  "pay2StatusApproved": "Approved",
-  "pay2StatusExpired": "Expired: not reviewed within 72 hours. If you paid, contact support with the order number.",
-  "pay2OrdersTitle": "Your orders",
-  "pay2ReviewDetail": "Same price as Google Play. Orders are reviewed by hand within 72 hours; a rejected order shows the reason here.",
-  "pay2ProofPrivacy": "The screenshot and sender name are stored privately, only to verify the order, and the screenshot is deleted 90 days after review. Nobody will ask for a PIN or code.",
-  "adminPaymentsTitle": "Payment orders",
-  "adminSignInHint": "Sign in with the admin email. The email holds a one-time code or a link; opening the link in this browser signs this page in.",
-  "adminSignedInAs": "Signed in as {email}",
-  "@adminSignedInAs": {
-    "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
-  },
-  "adminWebOnly": "The admin page is available on the website only.",
-  "adminFilterPending": "Pending",
-  "adminFilterApproved": "Approved",
-  "adminFilterRejected": "Rejected",
-  "adminFilterExpired": "Expired",
-  "adminRejectReason": "Reason (shown to the player)",
-  "adminReasonRequired": "Write a reason first.",
-  "adminProofGone": "Screenshot deleted (retention)",
-  "adminApproveShort": "Approve",
-  "adminRejectShort": "Reject",
-  "adminRefundShort": "Refund",
-  "adminOrderMeta": "{product} · EGP {amount} · {method}",
-  "@adminOrderMeta": {
-    "placeholders": {
-      "product": {
-        "type": "String"
-      },
-      "amount": {
-        "type": "String"
-      },
-      "method": {
-        "type": "String"
-      }
-    }
-  },
-  "adminSender": "Sender: {name}",
-  "@adminSender": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "adminPlayer": "Player: {name}",
-  "@adminPlayer": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "adminErrorOwned": "The player already owns this. Reject and return the money.",
-  "adminErrorProof": "This order has no screenshot.",
-  "bondDossiersTitle": "The Four Dossiers",
-  "bondDossiersHint": "They remember. You are in it.",
-  "bondCaseCount": "Cases {count}",
-  "@bondCaseCount": {"placeholders": {"count": {"type": "int"}}},
-  "bondVictoryCount": "Victories {count}",
-  "@bondVictoryCount": {"placeholders": {"count": {"type": "int"}}},
-  "bondWitnessCount": "Witnesses {count}",
-  "@bondWitnessCount": {"placeholders": {"count": {"type": "int"}}},
-  "bondPersonalCount": "Personal {count}",
-  "@bondPersonalCount": {"placeholders": {"count": {"type": "int"}}},
-  "bondLockedLine": "Finish a case with this character at the table.",
-  "bondMafiaTier1": "I remember this table. It knew when to keep quiet.",
-  "bondMafiaTier2": "A clean story needs fewer words than a nervous one.",
-  "bondMafiaTier3": "You have learned that patience can look like innocence.",
-  "bondMafiaTier4": "The room changes when you enter. That is influence.",
-  "bondDoctorTier1": "Not every rescue is seen. It still counts.",
-  "bondDoctorTier2": "You are beginning to hear danger before it knocks.",
-  "bondDoctorTier3": "Saving the right moment matters more than saving face.",
-  "bondDoctorTier4": "The table breathes easier when you keep watch.",
-  "bondDetectiveTier1": "One case is enough to teach the value of doubt.",
-  "bondDetectiveTier2": "A changed story leaves a clearer print than a loud one.",
-  "bondDetectiveTier3": "You notice the pause before the answer now.",
-  "bondDetectiveTier4": "Nothing escapes you except what has not happened yet.",
-  "bondCitizenTier1": "A town survives because somebody keeps listening.",
-  "bondCitizenTier2": "You have learned when the simple question is strongest.",
-  "bondCitizenTier3": "The table follows facts when you hold your ground.",
-  "bondCitizenTier4": "You are the memory of every room you leave behind.",
-  "bondHomeMafia": "The Mafia remembers a victory nobody could stop.",
-  "bondHomeDoctor": "The Doctor remembers the night everyone came home.",
-  "bondHomeDetective": "The Detective has kept your files. It has been a while.",
-  "bondHomeCitizen": "The Citizen is waiting for the table to gather again.",
-  "bondMomentMafia": "The Mafia closes this file with a quiet smile.",
-  "bondMomentDoctor": "The Doctor counts who remained standing.",
-  "bondMomentDetective": "The Detective writes the last fact in the margin.",
-  "bondMomentCitizen": "The Citizen keeps this case for the next gathering.",
-  "bondTitleMafia": "Keeper of the Quiet Room",
-  "bondTitleDoctor": "Guardian of the Last Lamp",
-  "bondTitleDetective": "Reader of the Unsaid",
-  "bondTitleCitizen": "Memory of the Table",
-  "bondScreenSubtitle": "They remember. You are in it.",
-  "characterPrevious": "Previous character",
-  "characterNext": "Next character",
-  "bondSealedLetter": "Sealed letter · opens in {count} cases",
-  "@bondSealedLetter": {"placeholders": {"count": {"type": "int"}}},
-  "bondLettersTitle": "Letters to you",
-  "bondOpenAll": "All dossiers",
-  "bondNewLetter": "A new letter from {name}",
-  "@bondNewLetter": {"placeholders": {"name": {"type": "String"}}},
-  "bondStrangerLine": "You have not sat at this table yet.",
-  "warmupTitle": "Setting the table…",
-  "warmupOnce": "Just this once. Instant from now on.",
-  "rematchHost": "Another round, same table",
-  "rematchJoin": "The host opened the next round · Join",
-  "rematchWaiting": "Waiting for the host to open the next round…",
-  "friendsTitle": "Friends",
-  "friendsTitleWithOnline": "Friends · {count} at a table now",
-  "@friendsTitleWithOnline": {"placeholders": {"count": {"type": "int"}}},
-  "friendsInvitedYou": "{name} invited you · Join",
-  "@friendsInvitedYou": {"placeholders": {"name": {"type": "String"}}},
-  "friendsInvites": "Invites for you",
-  "friendsJoin": "Join",
-  "friendsRequests": "Friend requests",
-  "friendsWantsYou": "Wants to be friends",
-  "friendsDecline": "Decline",
-  "friendsAccept": "Accept",
-  "friendsYours": "Your friends",
-  "friendsNone": "None yet. People you play online with appear below.",
-  "friendsInLobby": "In a room · {count} at the table",
-  "@friendsInLobby": {"placeholders": {"count": {"type": "int"}}},
-  "friendsPlaying": "In a match now",
-  "friendsAway": "Not around",
-  "friendsInvited": "Invited",
-  "friendsInvite": "Invite",
-  "friendsRecent": "Played with lately",
-  "friendsMatchesTogether": "{count} matches together",
-  "@friendsMatchesTogether": {"placeholders": {"count": {"type": "int"}}},
-  "friendsPending": "Waiting for reply",
-  "friendsAdd": "Add",
-  "friendsInviteToRoom": "Invite friends",
-  "authEmail": "Email",
-  "authPassword": "Password",
-  "authPasswordAgain": "Password again",
-  "authNewPassword": "New password",
-  "authPasswordRule": "At least 8 characters",
-  "authShow": "Show",
-  "authHide": "Hide",
-  "authCode": "Code",
-  "authGoogle": "Continue with Google",
-  "authGoogleContinue": "Finish in the browser, then come back.",
-  "authGoogleTaken": "That Google account already belongs to another player. Signing in to it leaves the guest profile on this device.",
-  "authGoogleUseExisting": "Sign in with that Google account",
-  "authGoogleKeepGuest": "Stay a guest, keep my coins and items",
-  "authGuestTitle": "Sign in",
-  "authGuestBody": "Your purchases and progress stay with you on every phone.",
-  "authCreate": "Continue with email",
-  "authCreateBody": "Everything you have now moves into the account as it is.",
-  "authHaveAccount": "I have an account · Sign in",
-  "authSendCode": "Send code",
-  "authVerifyTitle": "Confirm your email",
-  "authVerifyBody": "We sent a 6-digit code to {email}. Type it here or open the link in the email.",
-  "@authVerifyBody": {"placeholders": {"email": {"type": "String"}}},
-  "authVerify": "Confirm",
-  "authResend": "Send the code again",
-  "authResendIn": "Send again in {seconds}s",
-  "@authResendIn": {"placeholders": {"seconds": {"type": "int"}}},
-  "authResent": "Sent again.",
-  "authWelcome": "Welcome. Your account is ready.",
-  "authSignIn": "Sign in",
-  "authSignInBody": "You will be in your account; this device's guest progress does not move to it.",
-  "authRemember": "Remember me",
-  "authForgot": "Forgot password?",
-  "authForgotBody": "Enter your account email and we'll send a code to set a new password.",
-  "authResetTitle": "New password",
-  "authResetSave": "Save",
-  "authPasswordChanged": "Password changed.",
-  "authChangePassword": "Change password",
-  "authSetPassword": "Set a password",
-  "authSignOut": "Sign out",
-  "authVerified": "Email confirmed",
-  "authViaGoogle": "Google",
-  "authViaPassword": "Password",
-  "authSafe": "Your account is saved. On a new phone, sign in and everything comes back.",
-  "authWeakPassword": "The password needs at least 8 characters.",
-  "authWrongPassword": "Email or password is not right.",
-  "authNotConfirmed": "That email isn't confirmed yet. Check the code we sent.",
-  "authSamePassword": "That is the same password as before.",
-  "authMismatch": "The two passwords don't match.",
-  "authProviderOff": "That way in isn't available right now.",
-  "authAccount": "Account",
-  "authGuestBadge": "Guest",
-  "authManage": "Manage",
-  "profileStatMatches": "Matches",
-  "profileStatOnline": "Online",
-  "profileStatLetters": "Character letters",
-  "casebookTitle": "The Casebook",
-  "casebookTonight": "Tonight",
-  "casebookSeason": "Season",
-  "casebookLegacy": "Legacy",
-  "casebookDaysLeft": "{n, plural, =0{The season closes today} =1{1 day left in the season} other{{n} days left in the season}}",
-  "@casebookDaysLeft": {"placeholders": {"n": {"type": "int"}}},
-  "casebookWeekly": "Case of the week",
-  "casebookBonus": "Close all three for more",
-  "casebookBonusTaken": "Every case closed today",
-  "casebookFrom": "From the {name}",
-  "@casebookFrom": {"placeholders": {"name": {"type": "String"}}},
-  "casebookClaim": "Take it",
-  "casebookClaimed": "Closed",
-  "casebookClaimError": "That didn't go through. Try again",
-  "casebookLevel": "Level {n}",
-  "@casebookLevel": {"placeholders": {"n": {"type": "int"}}},
-  "casebookXp": "{xp} / {next}",
-  "@casebookXp": {"placeholders": {"xp": {"type": "int"}, "next": {"type": "int"}}},
-  "casebookXpGain": "+{n} XP",
-  "@casebookXpGain": {"placeholders": {"n": {"type": "int"}}},
-  "casebookSeasonDone": "Season complete",
-  "casebookTitleReward": "New title",
-  "casebookItemReward": "New cosmetic",
-  "casebookRank": "Council rank {n}",
-  "@casebookRank": {"placeholders": {"n": {"type": "int"}}},
-  "casebookAchievements": "Achievements",
-  "casebookReady": "{n, plural, =1{1 reward to take} other{{n} rewards to take}}",
-  "@casebookReady": {"placeholders": {"n": {"type": "int"}}},
-  "casebookFailed": "The casebook can't open right now",
-  "casebookRetry": "Try again",
-  "casebookResult": "Your casebook moved · open it",
-  "caseFinish": "{n, plural, =1{Finish an online match} other{Finish {n} online matches}}",
-  "@caseFinish": {"placeholders": {"n": {"type": "int"}}},
-  "caseWin": "{n, plural, =1{Win a match} other{Win {n} matches}}",
-  "@caseWin": {"placeholders": {"n": {"type": "int"}}},
-  "caseHost": "{n, plural, =1{Host a table to the end} other{Host {n} tables to the end}}",
-  "@caseHost": {"placeholders": {"n": {"type": "int"}}},
-  "caseReunion": "{n, plural, =1{Play again with someone you've sat with} other{Play again with {n} people you've sat with}}",
-  "@caseReunion": {"placeholders": {"n": {"type": "int"}}},
-  "casePublic": "{n, plural, =1{Sit at a public table} other{Sit at {n} public tables}}",
-  "@casePublic": {"placeholders": {"n": {"type": "int"}}},
-  "caseInvite": "{n, plural, =1{Bring a friend to play} other{Bring {n} friends to play}}",
-  "@caseInvite": {"placeholders": {"n": {"type": "int"}}},
-  "caseStreak": "{n, plural, =1{Play today} other{Play {n} days in a row}}",
-  "@caseStreak": {"placeholders": {"n": {"type": "int"}}},
-  "caseDailies": "{n, plural, =1{Close a full day of cases} other{Close {n} full days of cases}}",
-  "@caseDailies": {"placeholders": {"n": {"type": "int"}}},
-  "caseLevel": "Reach season level {n}",
-  "@caseLevel": {"placeholders": {"n": {"type": "int"}}},
-  "casebookProgress": "{progress} of {target}",
-  "@casebookProgress": {"placeholders": {"progress": {"type": "int"}, "target": {"type": "int"}}},
-  "onlineRoomUnavailable": "This table isn't available to you.",
-  "onlineNameNotAllowed": "That name isn't allowed. Pick another one.",
-  "onlineAccountRestricted": "Your account can't join this right now.",
-  "safetyCategory": "What happened?",
-  "safetyCatHarassment": "Harassment",
-  "safetyCatHate": "Hate or racism",
-  "safetyCatSexual": "Sexual content",
-  "safetyCatThreat": "Threat",
-  "safetyCatSpam": "Spam",
-  "safetyCatCheating": "Cheating",
-  "safetyCatName": "Inappropriate name",
-  "safetyCatOther": "Something else",
-  "safetyLimited": "You've reached today's limit.",
-  "safetyNoticeWarn": "You were reported and warned. Keep the table fair and kind.",
-  "safetyNoticeVoice": "Voice is off for your account.",
-  "safetyNoticePublic": "Public tables are closed to your account.",
-  "safetyNoticeSuspend": "Online play is closed to your account.",
-  "safetyNoticeUntil": "Until {date}.",
-  "@safetyNoticeUntil": {"placeholders": {"date": {"type": "String"}}},
-  "safetyNoticeForever": "Permanently.",
-  "safetyNoticeOk": "OK",
-  "adminSafetyTitle": "Reports",
-  "adminSafetyOpen": "Open",
-  "adminSafetyActioned": "Actioned",
-  "adminSafetyDismissed": "Dismissed",
-  "adminSafetyCtxLobby": "Lobby",
-  "adminSafetyCtxMatch": "Match",
-  "adminSafetyCtxResult": "Result",
-  "adminSafetyCtxFriends": "Friends",
-  "adminSafetyTarget": "{name} · {open} open · {actioned} actioned",
-  "@adminSafetyTarget": {"placeholders": {"name": {"type": "String"}, "open": {"type": "int"}, "actioned": {"type": "int"}}},
-  "adminSafetyDismiss": "Dismiss",
-  "adminSafetyWarn": "Warn",
-  "adminSafetyNoVoice": "No voice, 7 days",
-  "adminSafetyNoPublic": "No public tables, 7 days",
-  "adminSafetySuspendDays": "Suspend {days} days",
-  "@adminSafetySuspendDays": {"placeholders": {"days": {"type": "int"}}},
-  "adminSafetySuspendForever": "Suspend permanently",
-  "adminSafetyPurge": "Apply retention now",
-  "adminSafetyMore": "Load more",
-  "adminSafetyOpenQueue": "Reports queue",
-  "witnessWhispersTitle": "Whispers",
-  "witnessWhisperLine": "{from} to {to}",
-  "@witnessWhisperLine": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
-  "witnessWhisperMasked": "Hidden: you blocked the sender.",
-  "witnessWhisperReport": "Report this whisper",
-  "witnessWhispersDisclosure": "Players who are out can read the whispers.",
-  "thursdayNight": "Thursday Night",
-  "thursdayProgress": "Matches: {count}/2",
-  "@thursdayProgress": {"placeholders": {"count": {"type": "int"}}},
-  "thursdayLine": "Every Thursday from 8 PM: two matches here = 40 season points and a stamp.",
-  "thursdayOpensLater": "Opens at 8 PM",
-  "thursdayOpenRoom": "Open a Thursday room",
-  "thursdayJoinRoom": "Join the Thursday room",
-  "thursdayDone": "Thursday stamp earned. Play on as usual.",
-  "lobbyReadyAction": "Ready",
-  "lobbyUnreadyAction": "Not ready",
-  "lobbyReadyCount": "{ready} of {total} ready",
-  "@lobbyReadyCount": {"placeholders": {"ready": {"type": "int"}, "total": {"type": "int"}}},
-  "witnessSeatQuiet": "Nothing has touched this seat yet",
-  "witnessNightTitle": "At night",
-  "witnessWhisperReported": "Report received",
-  "witnessManageSeat": "Manage seat",
-  "witnessLetterOpen": "Open the whisper",
-  "onlineWeatherRetry": "Try now",
-  "xpUnit": "XP",
-  "inviteFirstMatchNotice": "{name} played their first match — you got {coins} coins",
-  "@inviteFirstMatchNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
-  "inviteProgressNotice": "Your friend played {count} of 3",
-  "@inviteProgressNotice": {"placeholders": {"count": {"type": "int"}}},
-  "inviteSettledNotice": "{name} finished three matches — you got {coins} coins",
-  "@inviteSettledNotice": {"placeholders": {"name": {"type": "String"}, "coins": {"type": "int"}}},
-  "inviteSettledCounter": "Settled invites: {season}/{seasonCap} this season · {lifetime}/{lifetimeCap} all time",
-  "@inviteSettledCounter": {"placeholders": {"season": {"type": "int"}, "seasonCap": {"type": "int"}, "lifetime": {"type": "int"}, "lifetimeCap": {"type": "int"}}},
-  "inviteNoticeFriend": "Your friend",
-  "partnerDetective": "Detective",
-  "partnerDoctor": "Doctor",
-  "partnerMafia": "Mafia",
-  "partnerCitizen": "Citizen",
-  "partnerBusy": "You can change your partner after the match",
-  "titlesNone": "No titles yet — they come from the season and invites",
-  "titlesUnequip": "No title",
-  "passInventoryTitle": "You still have rewards today",
-  "passInventoryDailyAd": "Today's rewarded ad",
-  "passInventoryExtraSpin": "An extra wheel spin",
-  "passInventoryExtraCoffer": "An extra coffer",
-  "passInventoryOpen": "Open rewards",
-  "profilePlatePreview": "Your name shows as:",
-  "storeRevealTitle": "It's yours",
-  "storeEquipNow": "Wear it now",
-  "storeEquipLater": "Later",
-  "storeRevealDone": "Done",
-  "storeChangesFrame": "Shows around your portrait at the table, on your profile, for your friends and on the Council board",
-  "storeChangesPlate": "Your name shows on it at the table, on your profile, for your friends and on the result",
-  "storeChangesPack": "Dresses rooms you host: the public phases' backdrop and transitions, online and in pass-and-play",
-  "storeChangesNarrator": "The narrator's recorded voice, lines and look at every public phase, online and in pass-and-play",
-  "storeChangesBundle": "Everything in it is yours; wear any part from your collection",
-  "storeTryOn": "Try it on",
-  "storeWearing": "Wearing now",
-  "titlesHeading": "Your titles",
-  "partnerCasebookLine": "{who}: every case you close is written here",
-  "@partnerCasebookLine": {"placeholders": {"who": {"type": "String"}}},
-  "lobbyReadyCountdown": "{seconds}s left to confirm you're ready",
-  "@lobbyReadyCountdown": {"placeholders": {"seconds": {"type": "int"}}},
-  "inviteSheetTitle": "Invite players",
-  "inviteTabFriends": "Friends",
-  "inviteTabSearch": "Search by name",
-  "inviteTabNearby": "People near you",
-  "inviteSend": "Invite",
-  "inviteSent": "Sent",
-  "inviteFailed": "Didn't go through, try again",
-  "inviteSearchHint": "Type a name or @username",
-  "inviteSearchEmpty": "Nobody by that name",
-  "inviteSearchShort": "Type at least two letters",
-  "inviteNearbyEmpty": "Nobody here right now",
-  "inviteFriendsEmpty": "No friends yet — search by name",
-  "inviteFilterNear": "Near you",
-  "inviteFilterOnline": "Online now",
-  "inviteFilterPlayed": "Played with",
-  "inviteFilterLevel": "Your level",
-  "inviteStateOnline": "Online",
-  "inviteStateLobby": "In a lobby",
-  "inviteStatePlaying": "Playing",
-  "inviteStateAway": "Away",
-  "inviteLevel": "Level {level}",
-  "@inviteLevel": {"placeholders": {"level": {"type": "int"}}},
-  "inviteMore": "Load more",
-  "inviteIncomingTitle": "Game invite",
-  "inviteIncomingBody": "{name} invites you to play together",
-  "@inviteIncomingBody": {"placeholders": {"name": {"type": "String"}}},
-  "inviteIncomingCode": "Room {code}",
-  "@inviteIncomingCode": {"placeholders": {"code": {"type": "String"}}},
-  "inviteEnter": "Join",
-  "inviteLater": "Later",
-  "inviteRoomGone": "That room already started or closed",
-  "profileHandleLabel": "Username",
-  "profileHandleHint": "3–20 letters, digits or _",
-  "profileHandleSave": "Change",
-  "profileHandleTaken": "That username is taken",
-  "profileHandleWait": "You can change it again later",
-  "profileHandleRefused": "That username isn't allowed",
-  "profileHandleInvalid": "Letters, digits or _ only, 3 to 20",
-  "profileHideFromSearch": "Hide me from search",
-  "profileMuteStrangers": "No invites from people who aren't friends",
-  "pushChannelInvites": "Game invites",
-  "pushChannelInvitesDesc": "When someone invites you to their room",
-  "pushChannelSocial": "Friends",
-  "pushChannelSocialDesc": "Friend requests and accepted requests",
-  "pushChannelGame": "Room and game",
-  "pushChannelGameDesc": "When the room starts or the night falls",
-  "pushChannelDaily": "Reminders",
-  "pushChannelDailyDesc": "The wheel, Thursday night and gentle reminders",
-  "pushSettingsTitle": "Notifications",
-  "pushSettingsHint": "Invites, the room starting and daily rewards. No notification ever names a role or says what happened in the night.",
-  "pushSettingsIosHint": "On iPhone notifications only work once the site is on your Home Screen: in Safari tap Share, then Add to Home Screen, and open it from the icon.",
-  "revealWhispersNotice": "In this room, whispers are shown to everyone after the match",
-  "revealWhispersButton": "Whispers",
-  "revealWhispersTitle": "The match's whispers",
-  "revealWhispersEmpty": "Nobody whispered this match",
-  "revealWhispersMasked": "A whisper from a player you blocked",
-  "revealWhispersFailed": "Couldn't load the whispers",
-  "onboardAccountTitle": "Keep your progress?",
-  "onboardAccountHint": "Sign in with Google or email so your coins, rank and friends follow you to any phone. Or continue without signing in; you can link an account later from your profile without losing anything.",
-  "onboardAccountSignIn": "Sign in (Google or email)",
-  "onboardAccountGuest": "Continue without signing in",
-  "onboardAccountSignedIn": "Signed in as {email}",
-  "@onboardAccountSignedIn": {"placeholders": {"email": {"type": "String"}}},
-  "onboardAccountSignedInPlain": "You are signed in",
-  "deleteAccountRow": "Delete my account and data",
-  "deleteAccountTitle": "Delete your account?",
-  "deleteAccountBody": "We will erase your account, coins, items, rank, friends and all your online data from the server, and it cannot be brought back. What is on your phone (old match history) stays there; clear it from the app's data in your phone settings.",
-  "deleteAccountKept": "Abuse reports that are still needed and payment records are kept for a limited time, no longer tied to your account.",
-  "deleteAccountConfirm": "I understand this is final",
-  "deleteAccountAction": "Delete for good",
-  "deleteAccountCancel": "Not now",
-  "deleteAccountDone": "Your account and data were deleted",
-  "deleteAccountDoneHint": "If you go online again you start as a new player.",
-  "deleteAccountInRoom": "You are still in a room. Leave it first, then delete your account.",
-  "deleteAccountOrder": "A payment of yours is still under review. Wait until it is closed, then delete your account.",
-  "deleteAccountWebTitle": "Or ask for deletion on the website",
-  "deleteAccountWebOpen": "Open the data deletion page",
-  "deleteAccountWebCopied": "Link copied",
-  "accountLegalTitle": "Terms and privacy",
-  "errOffline": "Cannot reach the server right now. Check your connection and try again.",
-  "errRetry": "Try again",
-  "errRateLimited": "Too many requests too fast. Wait a little and try again.",
-  "errGeneric": "Something went wrong on our side. Try again in a moment.",
-  "errSession": "Your session ended. Close the game and open it again.",
-  "errCoins": "You do not have enough coins.",
-  "errUnavailable": "This is not available right now. Try again later.",
-  "errNotAllowed": "You cannot do that right now.",
-  "errNotHost": "Only the host can do that.",
-  "errAlreadyOwned": "You already have this.",
-  "errInRoom": "You are still in a room. Leave it first.",
-  "errOrderOpen": "You still have a payment order open.",
-  "errPurchaseRequired": "This needs a purchase first.",
-  "updateRequiredTitle": "Update the app",
-  "updateRequiredBody": "There is a newer version of the game and you need to update to keep playing. This version will not work any more.",
-  "updateRequiredStore": "Open Google Play",
-  "updateRequiredReload": "Reload the page",
-  "webAdAppCta": "Download the app — fewer ads",
-  "webAdPlayCaption": "Mafia Master on Google Play",
-  "webAdCouncilTitle": "The Council and vault await",
-  "webAdPlayBody": "Play with friends on Android with fewer ads.",
-  "webAdCouncilBody": "Collect coins and unlock a new look for the table.",
-  "webAdOpenPlay": "Open Google Play",
-  "webAdContinue": "Continue playing",
-  "webAdCountdown": "You can close this ad in a moment",
-  "onboardNeedName": "Type your name to continue.",
-  "onboardNeedGender": "Pick how we address you to continue.",
-  "onboardNeedPact": "Tick the boxes above to continue.",
+  "toolRefused": "Not available right now.",
   "modeStoriesTitle": "Stories",
   "modeStoriesBody": "Investigation files for 1–10 players on one phone",
   "storiesTitle": "Mafia Master Files",
@@ -6180,5 +3517,4 @@
   "storiesSolved": "Case solved",
   "storiesMissed": "A thread slipped away",
   "storiesBackToFiles": "Back to files"
->>>>>>> feat/stories
 }

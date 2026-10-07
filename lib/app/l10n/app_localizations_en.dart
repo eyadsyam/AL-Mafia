@@ -5433,7 +5433,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardNeedPact => 'Tick the boxes above to continue.';
 
   @override
-<<<<<<< HEAD
   String get toolExtraMinuteName => 'Extra minute';
 
   @override
@@ -5610,7 +5609,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get toolRefused => 'Not available right now.';
-=======
+
+  @override
   String get modeStoriesTitle => 'Stories';
 
   @override
@@ -5752,5 +5752,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storiesBackToFiles => 'Back to files';
->>>>>>> feat/stories
 }

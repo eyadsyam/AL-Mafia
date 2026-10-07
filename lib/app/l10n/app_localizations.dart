@@ -9247,7 +9247,6 @@ abstract class AppLocalizations {
   /// **'Tick the boxes above to continue.'**
   String get onboardNeedPact;
 
-<<<<<<< HEAD
   /// No description provided for @toolExtraMinuteName.
   ///
   /// In en, this message translates to:
@@ -9559,7 +9558,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not available right now.'**
   String get toolRefused;
-=======
+
   /// No description provided for @modeStoriesTitle.
   ///
   /// In en, this message translates to:
@@ -9841,7 +9840,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to files'**
   String get storiesBackToFiles;
->>>>>>> feat/stories
 }
 
 class _AppLocalizationsDelegate

@@ -5338,7 +5338,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onboardNeedPact => 'علّم على المربعات اللي فوق عشان نكمّل.';
 
   @override
-<<<<<<< HEAD
   String get toolExtraMinuteName => 'دقيقة زيادة';
 
   @override
@@ -5507,7 +5506,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get toolRefused => 'مش متاحة دلوقتي.';
-=======
+
+  @override
   String get modeStoriesTitle => 'قصص';
 
   @override
@@ -5648,5 +5648,4 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get storiesBackToFiles => 'ارجع للملفات';
->>>>>>> feat/stories
 }
