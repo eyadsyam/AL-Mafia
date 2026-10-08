@@ -74,6 +74,10 @@ const args = process.argv.slice(2);
 const check = args.includes("--check");
 const i = args.indexOf("--only");
 const only = i >= 0 ? args[i + 1].split(",") : [...Object.keys(PACKS), "stories"];
+// --ids night_01,voting_03 re-renders just those lines of the main pack (or
+// those story ids), keeping every other file and the manifest as they are.
+const j = args.indexOf("--ids");
+const ids = j >= 0 ? new Set(args[j + 1].split(",")) : null;
 
 function keyFromFile() {
   const file = join(homedir(), ".mafia-master", "elevenlabs.key");
@@ -158,6 +162,10 @@ for (const code of only) {
     ? Object.entries(pack.keys).map(([beat, k]) => ({ id: `${code}_${beat}`, beat, when: "always", family: true, text: arb[k], file: `${beat}.ogg` }))
     : bank.lines.map((l) => ({ ...l, file: `${l.id}.ogg` }));
   for (const line of lines) {
+    if (ids && !ids.has(line.id)) {
+      clips.push({ id: line.id, beat: line.beat, when: line.when, family: line.family, file: `voice/${dir}/${line.file}` });
+      continue;
+    }
     install(await speak(pack.voice, line.text, pack.settings), pack.effect, join(out, line.file));
     clips.push({ id: line.id, beat: line.beat, when: line.when, family: line.family, file: `voice/${dir}/${line.file}` });
     console.log(`${dir}/${line.file}`);
@@ -172,6 +180,7 @@ if (only.includes("stories")) {
     const path = join(root, "assets", "stories", f);
     const raw = readFileSync(path, "utf8");
     const story = JSON.parse(raw);
+    if (ids && !ids.has(story.id)) continue;
     const text = `${story.title}. ${story.synopsis}`;
     const ogg = join(out, `${story.id}.ogg`);
     install(await speak(STORY_VOICE(story.difficulty), text, STORY_SETTINGS), "", ogg);
