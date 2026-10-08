@@ -5875,4 +5875,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get botLevelHard => 'Hard';
+
+  @override
+  String get botHintOffer => 'Watch an ad to learn if one player is Mafia';
+
+  @override
+  String get botHintPick => 'Who do you want to know about?';
+
+  @override
+  String botHintMafia(String name) {
+    return '$name is Mafia.';
+  }
+
+  @override
+  String botHintTown(String name) {
+    return '$name is not Mafia.';
+  }
 }

@@ -10044,6 +10044,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hard'**
   String get botLevelHard;
+
+  /// No description provided for @botHintOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad to learn if one player is Mafia'**
+  String get botHintOffer;
+
+  /// No description provided for @botHintPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Who do you want to know about?'**
+  String get botHintPick;
+
+  /// No description provided for @botHintMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is Mafia.'**
+  String botHintMafia(String name);
+
+  /// No description provided for @botHintTown.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is not Mafia.'**
+  String botHintTown(String name);
 }
 
 class _AppLocalizationsDelegate

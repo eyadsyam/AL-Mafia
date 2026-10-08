@@ -52,6 +52,8 @@ import '../widgets/voice_controls.dart';
 import '../widgets/victory_reveal.dart';
 import 'online/voice_session.dart';
 import '../economy/bot_rewards.dart';
+import '../economy/ad_veil.dart';
+import '../../platform/monetization/rewarded_ads.dart';
 
 /// Drives a whole match from role distribution to the result screen.
 ///
@@ -861,7 +863,68 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
             t.variant,
           ),
       ],
+      onTalkHint:
+          _controller.playingWithBots &&
+              !_hintUsed &&
+              ref.read(rewardedAdsProvider).configured
+          ? () => _adHint(state)
+          : null,
       onFinished: _startVoting,
+    );
+  }
+
+  bool _hintUsed = false;
+
+  /// Once a match at a bot table: pick a player, watch an ad, learn whether
+  /// they are Mafia.
+  Future<void> _adHint(MatchUiState state) async {
+    final l = context.l10n;
+    final living = [
+      for (final p in state.public.players)
+        if (p.seat != 0 && p.status == PlayerStatus.alive) p,
+    ];
+    final seat = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheet) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            ListTile(title: Text(l.botHintPick)),
+            for (final p in living)
+              ListTile(
+                title: Text(p.name),
+                onTap: () => Navigator.of(sheet).pop(p.seat),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (seat == null || !mounted) return;
+    final outcome = await showRewardedWith(
+      ref.read,
+      customData: 'l1:bot_hint',
+      userId: '',
+      placement: RewardedPlacement.extra,
+    );
+    if (outcome != RewardedAdOutcome.earned || !mounted) return;
+    setState(() => _hintUsed = true);
+    final name = state.public.players[seat].name;
+    await showDialog<void>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        content: Text(
+          _controller.botIsMafia(seat)
+              ? l.botHintMafia(name)
+              : l.botHintTown(name),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialog).pop(),
+            child: Text(l.gotIt),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1018,6 +1081,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       _morningAcknowledgedFor = null;
       _revoteNext = false;
       _botRewardAsked = false;
+      _hintUsed = false;
     });
   }
 

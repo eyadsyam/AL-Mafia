@@ -5771,4 +5771,20 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get botLevelHard => 'صعب';
+
+  @override
+  String get botHintOffer => 'شوف إعلان واعرف لاعب واحد مافيا ولا لأ';
+
+  @override
+  String get botHintPick => 'عايز تعرف مين؟';
+
+  @override
+  String botHintMafia(String name) {
+    return '$name من المافيا.';
+  }
+
+  @override
+  String botHintTown(String name) {
+    return '$name مش من المافيا.';
+  }
 }

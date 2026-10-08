@@ -2595,5 +2595,23 @@
   "botSheetLevel": "مستوى البوتات",
   "botLevelEasy": "سهل",
   "botLevelNormal": "عادي",
-  "botLevelHard": "صعب"
+  "botLevelHard": "صعب",
+  "botHintOffer": "شوف إعلان واعرف لاعب واحد مافيا ولا لأ",
+  "botHintPick": "عايز تعرف مين؟",
+  "botHintMafia": "{name} من المافيا.",
+  "@botHintMafia": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "botHintTown": "{name} مش من المافيا.",
+  "@botHintTown": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

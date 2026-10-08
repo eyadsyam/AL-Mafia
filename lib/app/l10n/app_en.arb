@@ -3625,5 +3625,23 @@
   "botSheetLevel": "Bot level",
   "botLevelEasy": "Easy",
   "botLevelNormal": "Normal",
-  "botLevelHard": "Hard"
+  "botLevelHard": "Hard",
+  "botHintOffer": "Watch an ad to learn if one player is Mafia",
+  "botHintPick": "Who do you want to know about?",
+  "botHintMafia": "{name} is Mafia.",
+  "@botHintMafia": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "botHintTown": "{name} is not Mafia.",
+  "@botHintTown": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -81,6 +81,9 @@ class DiscussionScreen extends StatefulWidget {
 
   /// «العب ضد البوتات»: what the computer players are saying, one line each.
   final List<String> tableTalk;
+
+  /// At a bot table: watch an ad to learn whether one player is Mafia.
+  final VoidCallback? onTalkHint;
   final bool tabletop;
 
   const DiscussionScreen({
@@ -96,6 +99,7 @@ class DiscussionScreen extends StatefulWidget {
     this.onSpoke,
     this.onWhisper,
     this.tableTalk = const [],
+    this.onTalkHint,
     this.whisperGraph = const [],
     this.tabletop = false,
   });
@@ -270,7 +274,10 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                     SizedBox(height: HintSlot.reservedHeight(context)),
                     SizedBox(height: spacing.sm),
                     if (widget.tableTalk.isNotEmpty) ...[
-                      _TableTalk(lines: widget.tableTalk),
+                      _TableTalk(
+                        lines: widget.tableTalk,
+                        onHint: widget.onTalkHint,
+                      ),
                       SizedBox(height: spacing.md),
                     ],
 
@@ -430,7 +437,10 @@ class _DiscussionScreenState extends State<DiscussionScreen>
 /// The bots' spoken lines, in a short scrolling card.
 class _TableTalk extends StatelessWidget {
   final List<String> lines;
-  const _TableTalk({required this.lines});
+  final VoidCallback? onHint;
+  const _TableTalk({required this.lines, this.onHint});
+
+  static const hintKey = ValueKey('discussion_ad_hint');
 
   static const talkKey = ValueKey('discussion_table_talk');
 
@@ -461,6 +471,13 @@ class _TableTalk extends StatelessWidget {
                 line,
                 style: type.bodySmall.copyWith(color: colors.textSecondary),
               ),
+            ),
+          if (onHint != null)
+            TextButton.icon(
+              key: hintKey,
+              onPressed: onHint,
+              icon: const Icon(Icons.ondemand_video_rounded),
+              label: Text(context.l10n.botHintOffer),
             ),
         ],
       ),

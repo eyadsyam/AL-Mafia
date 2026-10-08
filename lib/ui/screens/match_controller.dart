@@ -315,6 +315,13 @@ class MatchController extends Notifier<MatchUiState?> {
     return true;
   }
 
+  /// The ad hint at a bot table: whether [seat] is on the Mafia side. Only
+  /// ever asked for a bot seat, and only at a bot table.
+  bool botIsMafia(int seat) =>
+      playingWithBots &&
+      seat != 0 &&
+      engine.match.players[seat].role.alignment == Alignment.mafia;
+
   /// Whether the human at a bot table (seat 0) is on the winning side.
   bool get humanWonBotMatch {
     if (!playingWithBots || !engine.hasMatch) return false;
