@@ -18,9 +18,9 @@ import 'dart:math';
 /// from the public view. There is no field for a role, a target or an actor.
 enum NarratorBeat { night, morning, discussion, voting, result, win }
 
-/// The pack the app speaks with at launch: «Haytham» (tool/voice/haytham.mjs)
+/// The pack the app speaks with at launch: the Cairene narrator (tool/voice/render_v2.mjs)
 /// once installed, else the owner's «Kratos».
-const narratorManifest = 'assets/voice/haytham/manifest.json';
+const narratorManifest = 'assets/voice/narrator/manifest.json';
 const narratorFallbackManifest = 'assets/voice/kratos/manifest.json';
 
 /// Store narrator manifests keyed by the catalogue/equipped code.
