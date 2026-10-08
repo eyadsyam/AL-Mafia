@@ -12,6 +12,7 @@ import '../widgets/back_action.dart';
 import '../widgets/feathered_art.dart';
 import '../widgets/textured_surface.dart';
 import 'character_dossiers.dart';
+import '../economy/waiting_banner.dart';
 
 /// The Four Dossiers, one character to a page.
 ///
@@ -65,6 +66,10 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
     final l = context.l10n;
     return Scaffold(
       backgroundColor: colors.surfaceBase,
+      bottomNavigationBar: const SafeArea(
+        top: false,
+        child: WaitingBanner(placement: BannerPlacement.characters),
+      ),
       body: AppBackdrop(
         image: AppImages.bgNight,
         child: SafeArea(

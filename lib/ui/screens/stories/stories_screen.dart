@@ -10,6 +10,7 @@ import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
 import 'story_flow_screen.dart';
+import '../../economy/waiting_banner.dart';
 
 class StoriesScreen extends StatefulWidget {
   const StoriesScreen({
@@ -158,6 +159,10 @@ class StoriesHub extends StatelessWidget {
     return Scaffold(
       key: hubKey,
       backgroundColor: colors.surfaceBase,
+      bottomNavigationBar: const SafeArea(
+        top: false,
+        child: WaitingBanner(placement: BannerPlacement.stories),
+      ),
       body: ExperienceSurface(
         child: SafeArea(
           child: ListView(

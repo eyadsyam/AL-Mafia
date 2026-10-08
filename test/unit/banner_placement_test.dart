@@ -13,6 +13,11 @@ void main() {
     'lib/ui/screens/postgame/history_screen.dart',
     'lib/ui/screens/setup/coin_store.dart',
     'lib/ui/screens/setup/profile_screen.dart',
+    // Owner, 2026-10-08: every menu surface carries a banner.
+    'lib/ui/screens/setup/home_screen.dart',
+    'lib/ui/screens/setup/mode_screen.dart',
+    'lib/ui/screens/stories/stories_screen.dart',
+    'lib/ui/fun/characters_screen.dart',
   };
 
   // Screens a banner must never touch, whatever the allowlist says later.

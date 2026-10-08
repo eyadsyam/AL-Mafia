@@ -19,6 +19,7 @@ import '../../widgets/card_spread.dart';
 import '../../widgets/falling_icons.dart';
 import '../../widgets/room_atmosphere.dart';
 import '../../widgets/textured_surface.dart';
+import '../../economy/waiting_banner.dart';
 
 /// Home screen (S-01) â€” the spread.
 ///
@@ -107,7 +108,12 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
-      bottomNavigationBar: kIsWeb ? const WebAdBanner() : null,
+      bottomNavigationBar: kIsWeb
+          ? const WebAdBanner()
+          : const SafeArea(
+              top: false,
+              child: WaitingBanner(placement: BannerPlacement.home),
+            ),
       body: BulbFlicker(
         // The one screen a returning host sees every time, and the one with
         // the longest dwell. Its loop is near-featureless on purpose â€” the

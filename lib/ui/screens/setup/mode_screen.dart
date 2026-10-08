@@ -6,6 +6,7 @@ import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
+import '../../economy/waiting_banner.dart';
 
 /// Public mode selection. Online leads the visual hierarchy; both modes
 /// remain visible even when online is unavailable in the build.
@@ -45,6 +46,10 @@ class ModeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colors.surfaceBase,
+      bottomNavigationBar: const SafeArea(
+        top: false,
+        child: WaitingBanner(placement: BannerPlacement.home),
+      ),
       body: ExperienceSurface(
         child: SafeArea(
           child: Center(
