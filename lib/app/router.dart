@@ -262,6 +262,7 @@ GoRouter buildRouter(
             discussionMode: DiscussionMode.free,
           ),
           botSeats: {for (var i = 1; i < pick.players; i++) i},
+          botLevel: pick.level,
         );
     context.go(Routes.match);
   }

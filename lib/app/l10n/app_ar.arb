@@ -2591,5 +2591,9 @@
         "type": "int"
       }
     }
-  }
+  },
+  "botSheetLevel": "مستوى البوتات",
+  "botLevelEasy": "سهل",
+  "botLevelNormal": "عادي",
+  "botLevelHard": "صعب"
 }

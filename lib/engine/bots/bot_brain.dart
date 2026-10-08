@@ -26,6 +26,17 @@ const _botPhases = {
   GamePhase.voting,
 };
 
+/// How well the bots read the table: the nudge their impressions get toward
+/// the real Mafia (0-1000 scale). Easy bots barely read anyone.
+enum BotLevel {
+  easy(15),
+  normal(60),
+  hard(140);
+
+  const BotLevel(this.readBias);
+  final int readBias;
+}
+
 class BotBrain {
   final Set<int> botSeats;
   final Random _rng;
@@ -35,29 +46,31 @@ class BotBrain {
   final Map<int, Set<int>> _knownMafia = {};
   final Map<int, Set<int>> _knownClear = {};
 
-  /// How far a Mafioso's impression is nudged upward (0-1000 scale), as in
-  /// the balance harness: a top pick is Mafia more often than chance, and
-  /// nowhere near always.
-  static const int readBias = 60;
   static const int _sharedWeight = 7;
   static const int _traceWeight = 1000;
 
-  BotBrain({required Match match, required this.botSeats, required int seed})
-    : _rng = Random(seed),
-      _mafia = {
-        for (final p in match.players)
-          if (p.role.alignment == Alignment.mafia) p.seat,
-      } {
+  BotBrain({
+    required Match match,
+    required this.botSeats,
+    required int seed,
+    BotLevel level = BotLevel.normal,
+  }) : _rng = Random(seed),
+       _mafia = {
+         for (final p in match.players)
+           if (p.role.alignment == Alignment.mafia) p.seat,
+       } {
     final shared = {
       for (final p in match.players)
-        p.seat: _rng.nextInt(1000) + (_mafia.contains(p.seat) ? readBias : 0),
+        p.seat:
+            _rng.nextInt(1000) + (_mafia.contains(p.seat) ? level.readBias : 0),
     };
     for (final observer in match.players) {
       final row = <int, int>{};
       for (final target in match.players) {
         if (target.seat == observer.seat) continue;
         final private =
-            _rng.nextInt(1000) + (_mafia.contains(target.seat) ? readBias : 0);
+            _rng.nextInt(1000) +
+            (_mafia.contains(target.seat) ? level.readBias : 0);
         row[target.seat] =
             (shared[target.seat]! * _sharedWeight +
                 private * (10 - _sharedWeight)) ~/
@@ -164,7 +177,8 @@ class BotBrain {
     final plain = acts.where((m) => !m.useBullet).toList();
     final skips = options.whereType<SkipNightActionMove>().toList();
     final armedSkip = skips.where((m) => m.useBullet).firstOrNull;
-    Move skip() => skips.firstWhere((m) => !m.useBullet, orElse: () => skips.first);
+    Move skip() =>
+        skips.firstWhere((m) => !m.useBullet, orElse: () => skips.first);
 
     switch (role) {
       case Role.mafia || Role.silencer:

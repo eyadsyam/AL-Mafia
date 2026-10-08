@@ -10020,6 +10020,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You beat the bots: +{coins} coins'**
   String botWinReward(int coins);
+
+  /// No description provided for @botSheetLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot level'**
+  String get botSheetLevel;
+
+  /// No description provided for @botLevelEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get botLevelEasy;
+
+  /// No description provided for @botLevelNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get botLevelNormal;
+
+  /// No description provided for @botLevelHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get botLevelHard;
 }
 
 class _AppLocalizationsDelegate

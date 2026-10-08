@@ -5863,4 +5863,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String botWinReward(int coins) {
     return 'You beat the bots: +$coins coins';
   }
+
+  @override
+  String get botSheetLevel => 'Bot level';
+
+  @override
+  String get botLevelEasy => 'Easy';
+
+  @override
+  String get botLevelNormal => 'Normal';
+
+  @override
+  String get botLevelHard => 'Hard';
 }

@@ -5759,4 +5759,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String botWinReward(int coins) {
     return 'فزت على البوتات: +$coins كوينز';
   }
+
+  @override
+  String get botSheetLevel => 'مستوى البوتات';
+
+  @override
+  String get botLevelEasy => 'سهل';
+
+  @override
+  String get botLevelNormal => 'عادي';
+
+  @override
+  String get botLevelHard => 'صعب';
 }

@@ -253,6 +253,7 @@ class MatchController extends Notifier<MatchUiState?> {
     required MatchSettings settings,
     int? seed,
     Set<int> botSeats = const {},
+    BotLevel botLevel = BotLevel.normal,
   }) {
     engine.start(
       names: names,
@@ -272,6 +273,7 @@ class MatchController extends Notifier<MatchUiState?> {
             roleCounts: roleCounts,
             settings: settings,
             botSeats: botSeats,
+            botLevel: botLevel,
           );
     if (transport case final LocalTransport local) {
       local.bots = botSeats.isEmpty
@@ -280,6 +282,7 @@ class MatchController extends Notifier<MatchUiState?> {
               match: engine.match,
               botSeats: botSeats,
               seed: engine.match.seed ^ 0x5eed,
+              level: botLevel,
             );
     }
     // The engine was written to directly, so the transport's snapshot is a
@@ -293,6 +296,7 @@ class MatchController extends Notifier<MatchUiState?> {
     Map<Role, int> roleCounts,
     MatchSettings settings,
     Set<int> botSeats,
+    BotLevel botLevel,
   })?
   _lastBotTable;
 
@@ -306,6 +310,7 @@ class MatchController extends Notifier<MatchUiState?> {
       roleCounts: table.roleCounts,
       settings: table.settings,
       botSeats: table.botSeats,
+      botLevel: table.botLevel,
     );
     return true;
   }

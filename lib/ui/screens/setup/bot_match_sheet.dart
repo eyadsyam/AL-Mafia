@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../engine/bots/bot_brain.dart';
 import '../../../engine/presets.dart';
 export '../../../data/bot_names.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 
 /// What the player picked for a table against bots.
-typedef BotMatchPick = ({int players, MatchPreset preset});
+typedef BotMatchPick = ({int players, MatchPreset preset, BotLevel level});
 
 const _minPlayers = 5;
 const _maxPlayers = 12;
@@ -30,6 +31,7 @@ class _BotMatchSheet extends StatefulWidget {
 class _BotMatchSheetState extends State<_BotMatchSheet> {
   int _players = 8;
   MatchPreset _preset = MatchPreset.classic;
+  BotLevel _level = BotLevel.normal;
 
   static const startKey = ValueKey('bot_match_start');
 
@@ -85,12 +87,31 @@ class _BotMatchSheetState extends State<_BotMatchSheet> {
             ),
             SizedBox(height: s.xs),
             Text(EngineCopy.presetHint(l, _preset), style: type.caption),
+            SizedBox(height: s.md),
+            Text(l.botSheetLevel, style: type.title),
+            SizedBox(height: s.sm),
+            Wrap(
+              spacing: s.sm,
+              runSpacing: s.sm,
+              children: [
+                for (final v in BotLevel.values)
+                  ChoiceChip(
+                    label: Text(switch (v) {
+                      BotLevel.easy => l.botLevelEasy,
+                      BotLevel.normal => l.botLevelNormal,
+                      BotLevel.hard => l.botLevelHard,
+                    }),
+                    selected: _level == v,
+                    onSelected: (_) => setState(() => _level = v),
+                  ),
+              ],
+            ),
             SizedBox(height: s.lg),
             FilledButton(
               key: startKey,
               onPressed: () => Navigator.of(
                 context,
-              ).pop((players: _players, preset: _preset)),
+              ).pop((players: _players, preset: _preset, level: _level)),
               child: Text(l.botSheetStart),
             ),
           ],

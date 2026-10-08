@@ -3621,5 +3621,9 @@
         "type": "int"
       }
     }
-  }
+  },
+  "botSheetLevel": "Bot level",
+  "botLevelEasy": "Easy",
+  "botLevelNormal": "Normal",
+  "botLevelHard": "Hard"
 }
