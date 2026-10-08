@@ -475,6 +475,20 @@ class _StoryHeading extends StatelessWidget {
       Text(story.title, style: context.typography.headline),
       SizedBox(height: context.spacing.xs),
       Text(story.synopsis, style: context.typography.body),
+      if (story.evidenceImage case final image?) ...[
+        SizedBox(height: context.spacing.sm),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(context.radii.card),
+          child: Image.asset(
+            image,
+            height: StoryTokens.compactCoverHeight,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            excludeFromSemantics: true,
+            errorBuilder: (_, _, _) => const SizedBox.shrink(),
+          ),
+        ),
+      ],
     ],
   );
 }

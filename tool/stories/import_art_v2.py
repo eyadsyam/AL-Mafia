@@ -18,6 +18,7 @@ SRC = 'raw_assets/art-v2'
 COVERS = 'assets/images/stories/covers'
 TOOLS = 'assets/images/tools'
 LOCATIONS = 'assets/images/stories/locations'
+EVIDENCE = 'assets/images/stories/evidence'
 # The painted location behind each story that has one, by story number.
 SCENES = {
     1: 'cafe_alley', 2: 'rooftop_wedding', 3: 'butcher_shop', 4: 'family_house',
@@ -35,7 +36,7 @@ def save(src, dst, size, quality):
 
 
 def main():
-    for d in (COVERS, TOOLS, LOCATIONS):
+    for d in (COVERS, TOOLS, LOCATIONS, EVIDENCE):
         os.makedirs(d, exist_ok=True)
     missing = []
 
@@ -56,6 +57,12 @@ def main():
             loc = f'{LOCATIONS}/loc_{scene}.webp'
             changed = changed or story.get('sceneImage') != loc
             story['sceneImage'] = loc
+        evidence = f'raw_assets/art-v3/evidence_{n}.png'
+        if os.path.exists(evidence):
+            ev = f'{EVIDENCE}/evidence_{n}.webp'
+            save(evidence, ev, (768, 768), 80)
+            changed = changed or story.get('evidenceImage') != ev
+            story['evidenceImage'] = ev
         if changed:
             out = json.dumps(story, ensure_ascii=False, indent=2) + '\n'
             if b'\r\n' in raw:
