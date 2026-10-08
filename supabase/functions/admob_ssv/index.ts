@@ -40,6 +40,8 @@ Deno.serve(async (request) => {
     // AdMob's "verify URL" ping is correctly signed but carries no claim.
     // Acknowledge it; nothing is granted without a claim to commit.
     if (!customData) return new Response("ok (no claim)", { status: 200 });
+    // «l1:» rewards are paid on the device (a story step): nothing to settle.
+    if (customData.startsWith("l1:")) return new Response("ok (local)", { status: 200 });
     const transaction = url.searchParams.get("transaction_id");
     const adUnit = url.searchParams.get("ad_unit");
     const userId = url.searchParams.get("user_id");

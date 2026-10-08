@@ -9954,6 +9954,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Silenced'**
   String get silencedMark;
+
+  /// No description provided for @storiesBonusStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad for one more step'**
+  String get storiesBonusStep;
 }
 
 class _AppLocalizationsDelegate

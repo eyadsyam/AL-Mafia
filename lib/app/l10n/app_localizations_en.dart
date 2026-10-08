@@ -5821,4 +5821,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get silencedMark => 'Silenced';
+
+  @override
+  String get storiesBonusStep => 'Watch an ad for one more step';
 }

@@ -3573,5 +3573,6 @@
     }
   },
   "elderVoteMark": "×3",
-  "silencedMark": "Silenced"
+  "silencedMark": "Silenced",
+  "storiesBonusStep": "Watch an ad for one more step"
 }

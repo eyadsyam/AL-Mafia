@@ -42,6 +42,8 @@ import '../ui/screens/stories/story_rewards.dart';
 import '../ui/screens/setup/setup_draft.dart';
 import '../ui/fun/characters_screen.dart';
 import '../ui/economy/council_hub.dart' show pendingInviteCodeProvider;
+import '../ui/economy/ad_veil.dart';
+import '../platform/monetization/rewarded_ads.dart';
 
 /// Route paths, in one place so navigation calls cannot drift from the table.
 abstract final class Routes {
@@ -422,6 +424,24 @@ GoRouter buildRouter(
             onBack: () => context.go(Routes.mode),
             claimReward: (id) =>
                 claimStoryReward(ProviderScope.containerOf(context), id),
+            beforeStory: () async {
+              await ref.read(interstitialCoordinatorProvider).beforeDeal();
+            },
+            afterStory: (id) async {
+              await ref
+                  .read(interstitialCoordinatorProvider)
+                  .leftPassAndPlayResult(
+                    'story:$id:${DateTime.now().millisecondsSinceEpoch}',
+                  );
+            },
+            watchAdForStep: () async =>
+                await showRewardedWith(
+                  ref.read,
+                  customData: 'l1:story_step',
+                  userId: '',
+                  placement: RewardedPlacement.extra,
+                ) ==
+                RewardedAdOutcome.earned,
           ),
         ),
       ),

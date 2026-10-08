@@ -2350,6 +2350,9 @@ abstract final class StoryTokens {
   static const double featherEnd = 1.0;
   static const int rounds = 3;
   static const int nearImpossibleUnlocks = 3;
+
+  /// Extra investigation steps a case may buy with rewarded ads.
+  static const int bonusSteps = 2;
   static const Duration privateHold = Duration(milliseconds: 800);
   static const Duration timerTick = Duration(seconds: 1);
   static const Duration reenactmentBeat = Duration(milliseconds: 420);

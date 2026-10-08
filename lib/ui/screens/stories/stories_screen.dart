@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../data/story_catalog.dart';
@@ -19,7 +21,17 @@ class StoriesScreen extends StatefulWidget {
     this.catalog = const StoryCatalog(),
     this.progressStore = const SharedPreferencesStoryProgressStore(),
     this.claimReward,
+    this.beforeStory,
+    this.afterStory,
+    this.watchAdForStep,
   });
+
+  /// Full-screen ad moments around a case (pass-and-play pacing rules).
+  final Future<void> Function()? beforeStory;
+  final Future<void> Function(String storyId)? afterStory;
+
+  /// A rewarded ad that buys one more investigation step.
+  final Future<bool> Function()? watchAdForStep;
 
   final VoidCallback onBack;
   final StoryCatalog catalog;
@@ -77,6 +89,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
       _launch = null;
     });
     await widget.progressStore.save(next);
+    unawaited(widget.afterStory?.call(completion.story.id));
     final claim = widget.claimReward;
     if (!firstSolve || claim == null) return;
     final granted = await claim(completion.story.id);
@@ -95,6 +108,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
         playerCount: launch.playerCount,
         onExit: () => setState(() => _launch = null),
         onComplete: _record,
+        watchAdForStep: widget.watchAdForStep,
       );
     }
     if (_error != null) {
@@ -108,9 +122,13 @@ class _StoriesScreenState extends State<StoriesScreen> {
       stories: stories,
       progress: _progress,
       onBack: widget.onBack,
-      onStart: (story, count) => setState(
-        () => _launch = StorySessionLaunch(story: story, playerCount: count),
-      ),
+      onStart: (story, count) async {
+        await widget.beforeStory?.call();
+        if (!mounted) return;
+        setState(
+          () => _launch = StorySessionLaunch(story: story, playerCount: count),
+        );
+      },
     );
   }
 }

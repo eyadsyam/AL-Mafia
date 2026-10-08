@@ -5717,4 +5717,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get silencedMark => 'متسكّت';
+
+  @override
+  String get storiesBonusStep => 'شوف إعلان وخد خطوة تحقيق زيادة';
 }

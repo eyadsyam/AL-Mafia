@@ -31,9 +31,15 @@ class StoryFlowScreen extends StatefulWidget {
     required this.playerCount,
     required this.onExit,
     required this.onComplete,
+    this.watchAdForStep,
   });
 
+  /// Shows a rewarded ad; true when it was watched to the end. Absent in
+  /// tests and builds without ads. At most [StoryTokens.bonusSteps] a case.
+  final Future<bool> Function()? watchAdForStep;
+
   static const soloBoardKey = ValueKey('story_solo_board');
+  static const bonusStepKey = ValueKey('story_bonus_step');
   static const handoffKey = ValueKey('story_group_handoff');
   static const privateCardKey = ValueKey('story_private_card');
   static const discussionKey = ValueKey('story_discussion');
@@ -188,6 +194,32 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     );
   }
 
+  int _bonusSteps = 0;
+  bool _watchingAd = false;
+
+  /// The cost of one more step, when an ad may pay for it: the player can
+  /// no longer afford any open step and has bonus steps left.
+  int? get _bonusOffer {
+    if (widget.watchAdForStep == null) return null;
+    if (_bonusSteps >= StoryTokens.bonusSteps) return null;
+    final cost = _session.cheapestOpenCost;
+    if (cost == null || _session.remainingBudget >= cost) return null;
+    return cost - _session.remainingBudget;
+  }
+
+  Future<void> _watchForStep(int cost) async {
+    setState(() => _watchingAd = true);
+    final watched = await widget.watchAdForStep!();
+    if (!mounted) return;
+    setState(() {
+      _watchingAd = false;
+      if (watched) {
+        _bonusSteps++;
+        _session = _session.grantExtraBudget(cost);
+      }
+    });
+  }
+
   Widget _solo(BuildContext context) {
     final l = context.l10n;
     final spacing = context.spacing;
@@ -209,6 +241,13 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
           ),
           SizedBox(height: spacing.sm),
         ],
+        if (_bonusOffer case final cost?)
+          OutlinedButton.icon(
+            key: StoryFlowScreen.bonusStepKey,
+            onPressed: _watchingAd ? null : () => _watchForStep(cost),
+            icon: const Icon(Icons.ondemand_video_rounded),
+            label: Text(l.storiesBonusStep),
+          ),
         SizedBox(height: spacing.md),
         _ClueBoard(clues: _session.revealedClues),
         SizedBox(height: spacing.lg),

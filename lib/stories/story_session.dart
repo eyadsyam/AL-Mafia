@@ -132,6 +132,23 @@ class StorySession {
     );
   }
 
+  /// The cheapest step still open, or null when every step was taken.
+  int? get cheapestOpenCost {
+    int? best;
+    for (final a in story.actions) {
+      if (usedActionIds.contains(a.id)) continue;
+      if (best == null || a.cost < best) best = a.cost;
+    }
+    return best;
+  }
+
+  /// Extra budget for one more step (a watched rewarded ad).
+  StorySession grantExtraBudget(int amount) {
+    _expect(StoryPhase.soloInvestigation);
+    if (amount <= 0) throw ArgumentError.value(amount, 'amount');
+    return _copy(remainingBudget: remainingBudget + amount);
+  }
+
   StorySession submitSoloAccusation(StoryAccusation accusation) {
     _expect(StoryPhase.soloInvestigation);
     final result = _score(accusation, remainingBudget);
