@@ -149,6 +149,8 @@ flutter:
     - assets/icons/
     - assets/audio/
     - assets/voice/kratos/
+    - assets/voice/narrator/
+    - assets/voice/stories/
     - assets/voice/narrator_storyteller/
     - assets/voice/narrator_keeper/
     - assets/voice/narrator_noir/
@@ -181,6 +183,12 @@ flutter:
     - family: Cairo
       fonts:
         - asset: assets/fonts/Cairo-Variable.ttf
+
+    # --- Stories: the cases' headings ---
+    - family: Aref Ruqaa
+      fonts:
+        - asset: assets/fonts/ArefRuqaa-Bold.ttf
+          weight: 700
 
     # --- Body: covers both Latin and Arabic from one family ---
     - family: IBM Plex Sans Arabic

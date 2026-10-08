@@ -752,5 +752,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_bank_vault.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_08.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_08.webp",
+  "narrationAudio": "assets/voice/stories/khaznet_el_bank.ogg"
 }

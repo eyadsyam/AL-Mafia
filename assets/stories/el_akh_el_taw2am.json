@@ -733,5 +733,6 @@
       ]
     }
   ],
-  "evidenceImage": "assets/images/stories/evidence/evidence_12.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_12.webp",
+  "narrationAudio": "assets/voice/stories/el_akh_el_taw2am.ogg"
 }

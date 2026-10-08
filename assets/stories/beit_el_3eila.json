@@ -733,5 +733,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_family_house.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_04.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_04.webp",
+  "narrationAudio": "assets/voice/stories/beit_el_3eila.ogg"
 }

@@ -605,5 +605,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_rooftop_wedding.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_02.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_02.webp",
+  "narrationAudio": "assets/voice/stories/farah_el_sotouh.ogg"
 }

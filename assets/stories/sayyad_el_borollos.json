@@ -623,5 +623,6 @@
       ]
     }
   ],
-  "evidenceImage": "assets/images/stories/evidence/evidence_10.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_10.webp",
+  "narrationAudio": "assets/voice/stories/sayyad_el_borollos.ogg"
 }

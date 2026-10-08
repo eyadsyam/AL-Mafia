@@ -651,5 +651,6 @@
       ]
     }
   ],
-  "evidenceImage": "assets/images/stories/evidence/evidence_14.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_14.webp",
+  "narrationAudio": "assets/voice/stories/el_sheikh_el_mo3aleg.ogg"
 }

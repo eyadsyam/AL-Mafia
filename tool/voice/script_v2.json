@@ -1,5 +1,5 @@
 {
-  "rules": "Cairene Egyptian Arabic as spoken. No diacritics except a shadda where it changes the word. A ق that Cairo says as a glottal stop is written as a hamza (أهوة، يئول، أبل، آعد، اتأتل، الحئيئة). Bracketed English is eleven_v3 delivery direction and is not spoken. Numbers are written as said.",
+  "rules": "Cairene Egyptian Arabic as spoken, spelled the ordinary way (ق stays ق): eleven_v4 with a 'strong Egyptian accent' tag says it the Cairo way. Few ق-words, and only everyday ones (قبل، قال، قاعد، وقت، بقى، يقول). No diacritics except a shadda where it changes the word. Bracketed English is delivery direction and is not spoken. Numbers are written as said.",
   "voices": {
     "main": {
       "name": "Adam - Deep, Rich and Expressive",
@@ -38,7 +38,7 @@
       "id": "night_02",
       "beat": "night",
       "when": "always",
-      "text": "[low, tense] الليل بيأرّب… [pause] ومن دلوقتي، السكوت هو الكلام."
+      "text": "[low, tense] النور طفى… [pause] ومن هنا ورايح، محدش يتكلم."
     },
     {
       "id": "night_03",
@@ -56,7 +56,7 @@
       "id": "night_05",
       "beat": "night",
       "when": "always",
-      "text": "[slowly] ساعة الليل جت… [pause] وكل واحد هياخد أراره لوحده."
+      "text": "[slowly] ساعة الليل جت… [pause] وكل واحد هيعمل اللي عليه… لوحده."
     },
     {
       "id": "night_06",
@@ -68,7 +68,7 @@
       "id": "morning_loss_01",
       "beat": "morning",
       "when": "night_eliminated >= 1",
-      "text": "[grave] النهار طلع… [pause] والشلة نأصت."
+      "text": "[grave] النهار طلع… [pause] والترابيزة فيها كرسي فاضي."
     },
     {
       "id": "morning_loss_02",
@@ -110,19 +110,19 @@
       "id": "discussion_01",
       "beat": "discussion",
       "when": "always",
-      "text": "[firm] دلوقتي وأت الكلام. [pause] مين عنده حاجة يئولها؟"
+      "text": "[firm] دلوقتي وقت الكلام. [pause] مين عنده حاجة يقولها؟"
     },
     {
       "id": "discussion_02",
       "beat": "discussion",
       "when": "always",
-      "text": "[teasing, low] الوأت ليكو… [pause] مين شاكك في مين؟"
+      "text": "[teasing, low] الوقت ليكو… [pause] مين شاكك في مين؟"
     },
     {
       "id": "discussion_03",
       "beat": "discussion",
       "when": "always",
-      "text": "[low, menacing] اتكلموا… [pause] المافيا آعدة معاكو، وسامعة كل كلمة."
+      "text": "[low, menacing] اتكلموا… [pause] المافيا قاعدة معاكو، وسامعة كل كلمة."
     },
     {
       "id": "discussion_04",
@@ -134,19 +134,19 @@
       "id": "discussion_05",
       "beat": "discussion",
       "when": "always",
-      "text": "[firm] اللي عنده حاجة… [pause] يئولها دلوقتي، أبل ما يبأى متأخر."
+      "text": "[firm] اللي عنده حاجة… [pause] يقولها دلوقتي، بكرة ممكن ميكونش هنا."
     },
     {
       "id": "voting_01",
       "beat": "voting",
       "when": "round == 1",
-      "text": "[serious] خلاص… [pause] الكلام خلص، والأرار في إيدكو."
+      "text": "[serious] خلاص… [pause] الكلام خلص، والدور عليكو."
     },
     {
       "id": "voting_02",
       "beat": "voting",
       "when": "round == 1",
-      "text": "[slowly] وأت التصويت… [pause] فكّر كويس أبل ما تختار."
+      "text": "[slowly] وقت التصويت… [pause] فكّر كويس قبل ما تختار."
     },
     {
       "id": "voting_03",
@@ -176,13 +176,13 @@
       "id": "vote_out_01",
       "beat": "result",
       "when": "day_eliminated == 1",
-      "text": "[grave] الجماعة آلت كلمتها."
+      "text": "[grave] الجماعة قالت كلمتها."
     },
     {
       "id": "vote_out_02",
       "beat": "result",
       "when": "day_eliminated == 1",
-      "text": "[grave] الأرار اتاخد… [pause] وواحد خرج من اللعبة."
+      "text": "[grave] الأصوات اتعدّت… [pause] وواحد خرج من اللعبة."
     },
     {
       "id": "vote_out_03",
@@ -200,7 +200,7 @@
       "id": "vote_none_02",
       "beat": "result",
       "when": "day_eliminated == 0",
-      "text": "[disappointed, low] الجماعة ماتفأتش… [pause] ومحدش خرج."
+      "text": "[disappointed, low] الأصوات اتفرّقت… [pause] ومحدش خرج."
     },
     {
       "id": "win_town_01",
@@ -212,13 +212,13 @@
       "id": "win_town_02",
       "beat": "win",
       "when": "winner == town",
-      "text": "[warm, satisfied] الحكاية خلصت… [pause] والحأ بان."
+      "text": "[warm, satisfied] الحكاية خلصت… [pause] واللي كان مستخبي بان."
     },
     {
       "id": "win_mafia_01",
       "beat": "win",
       "when": "winner == mafia",
-      "text": "[dark, slow, menacing] المافيا كسبت… [pause] والليل بأى بتاعهم."
+      "text": "[dark, slow, menacing] المافيا كسبت… [pause] والليل بقى بتاعهم."
     },
     {
       "id": "win_mafia_02",
@@ -236,7 +236,7 @@
       "id": "brand_02",
       "beat": "brand",
       "when": "outside_match",
-      "text": "[slow] الليلة… [pause] بأى ليها بيت."
+      "text": "[slow] جمّع صحابك… [pause] والليلة هتبقى حكاية."
     }
   ],
   "packs": {
@@ -257,13 +257,13 @@
         "id": "discussion",
         "beat": "discussion",
         "when": "always",
-        "text": "[warm, playful] يلا بينا يا جماعة… كل واحد يئول اللي في دماغه. [teasing, lower] بس خلي بالك… الكدب هنا بيبان من أول كلمة."
+        "text": "[warm, playful] يلا بينا يا جماعة… كل واحد يقول اللي في دماغه. [teasing, lower] بس خلي بالك… الكدب هنا بيبان من أول كلمة."
       },
       {
         "id": "voting",
         "beat": "voting",
         "when": "always",
-        "text": "[warm, serious] دلوقتي… [pause] الأرار في إيد الجماعة."
+        "text": "[warm, serious] دلوقتي… [pause] الكلمة للجماعة."
       },
       {
         "id": "win",
@@ -277,7 +277,7 @@
         "id": "night",
         "beat": "night",
         "when": "always",
-        "text": "[calm, low] الدفتر اتأفل… [pause] على صفحة الليل."
+        "text": "[calm, low] الليل جه… [pause] وكل حاجة هتتكتب."
       },
       {
         "id": "morning",
@@ -295,13 +295,13 @@
         "id": "voting",
         "beat": "voting",
         "when": "always",
-        "text": "[calm, serious] خلاص… الكلام خلص. [softly] كل واحد يختار دلوقتي… بس فكّر كويس أبل ما تشاور، [grave] عشان صوتك ده ممكن يطلّع واحد بريء."
+        "text": "[calm, serious] خلاص… الكلام خلص. [softly] كل واحد يحط صوته دلوقتي… بس فكّر كويس قبل ما تختار، [grave] عشان صوتك ده ممكن يطلّع واحد بريء."
       },
       {
         "id": "win",
         "beat": "win",
         "when": "always",
-        "text": "[calm, final] الدفتر اتأفل… [pause] والحكاية دخلت الأرشيف."
+        "text": "[calm, final] آخر صفحة… [pause] اتكتبت."
       }
     ],
     "narrator_noir": [
@@ -315,7 +315,7 @@
         "id": "morning_loss",
         "beat": "morning",
         "when": "night_eliminated >= 1",
-        "text": "[tired, cold] صحينا على خبر وحش… [pause] واحد مننا مش هيصحى تاني. [low, menacing] واللي عملها… لسه آعد معانا على نفس الترابيزة."
+        "text": "[tired, cold] صحينا على خبر وحش… [pause] واحد مننا مش هيصحى تاني. [low, menacing] واللي عملها… لسه قاعد معانا على نفس الترابيزة."
       },
       {
         "id": "morning_none",
@@ -327,122 +327,46 @@
         "id": "discussion",
         "beat": "discussion",
         "when": "always",
-        "text": "[cold, low] كل واحد عنده حكاية… [pause] بس مين فيكو اللي بيئول الحئيئة؟"
+        "text": "[cold, low] كل واحد عنده حكاية… [pause] بس مين فيكو اللي بيقول الحقيقة؟"
       },
       {
         "id": "voting",
         "beat": "voting",
         "when": "always",
-        "text": "[low] لحظة الأرار… [pause] وكل صوت ليه تمن."
+        "text": "[low] جه وقت الحساب… [pause] وكل صوت ليه تمن."
       },
       {
         "id": "win",
         "beat": "win",
         "when": "always",
-        "text": "[tired, final] الأضية… [pause] اتأفلت."
+        "text": "[tired, final] الملف… [pause] اتقفل."
       }
     ]
   },
   "stories": {
-    "qahwet_el_moallem": "[conversational, low] المعلم صابر اتأتل… [pause] وهو آعد على كرسيه في الأهوة، والناس حواليه بيلعبوا ومحدش واخد باله. [suspicious] الشاي كان سليم… بس الشيشة؟ حد ظبّطهاله من أبل ما يولّعها.",
-    "farah_el_sotouh": "[conversational, low] العريس تامر وئع من على حرف السطوح… [pause] أول ما الطبل ابتدا. [suspicious] وفي فيديو الفرح، كل المعازيم بيرأصوا في نفس الوأت… بس كاميرا الفرح نفسها كانت متأخرة عشر دأايق.",
-    "el_gazzar": "[conversational, low] الحاج عبد الغني الجزار، لأوه ميت الساعة ستة وعشرة الصبح… جوه تلاجة المحل. [pause] الدكتور بيئول مات بالليل، وساعتها كان في فرح كبير في الحارة. [suspicious] بس التلاجة… بتخلي الجتة تكدب في الوأت.",
-    "beit_el_3eila": "[conversational, grave] الحاج إبراهيم، أربعة وتمانين سنة، لأوه ميت في سريره الساعة عشرة بالليل… والعيلة كلها في البيت. [pause] الدكتور كتب سكتة ألبية… بس حفيدته المحامية رفضت. [suspicious] كل واحد عنده حجة… واتنين منهم حجتهم مظبوطة بزيادة.",
-    "mahal_el_dahab": "[conversational, intrigued] الكيس الأزرأ اختفى من خزنة المعلم عبد الستار في الصاغة… [pause] الشاتر سليم، والإفل سليم، والكاميرا ماجابتش حاجة. [suspicious] بس اللي بيدوّروا على حرامي جه بالليل… بيدوّروا في المكان الغلط.",
-    "el_atr_el_akheer": "[conversational, low] الحاج درويش نام في عربية النوم، والشنطة تحت السرير… [pause] وصحي الفجر لأى الشنطة راحت. [suspicious] الكمساري حالف إن محدش فتح باب… والأطر ماوأفش في أي حتة.",
-    "mat7af_el_zamalek": "[conversational, intrigued] في متحف صغير في الزمالك… لأوا البرواز فاضي، والسأف الإزاز مكسور. [pause] اللوحة متأمّن عليها باتناشر مليون… [suspicious] بس اللي اتسرأ مش اللي الكل فاكره.",
-    "khaznet_el_bank": "[conversational, tense] خزنة بنك في شارع طلعت حرب… اتأفلت يوم الخميس، واتفتحت يوم الحد صح من أول مرة. [pause] ولأوها ناأصة اتنين مليون ونص. [suspicious] مفيش كسر… ومفيش غلطة. يبأى مين؟",
-    "el_arousa": "[conversational, worried] نورهان خرجت من الصالون بفستان الفرح… وماوصلتش الأاعة. [pause] أمها وخالتها والمصوّر وصاحبة الصالون… كل واحد آل حاجة مش مظبوطة. [suspicious] بس مش كل كدبة… ليها علاأة بالعروسة.",
-    "sayyad_el_borollos": "[conversational, low] الريّس عبد الحميد طلع بالمركب العصرية… [pause] ورجعت الفجر لوحدها، مربوطة وفاضية. [suspicious] الكل بيئول النوّة خدته… بس مين اللي ربط المركب؟",
-    "el_madina_el_gam3eya": "[conversational, concerned] ياسين، طالب في تالتة هندسة… اختفى يوم الخميس بالليل، وساب أوضته مترتبة. [pause] المدينة كلها متعلّأ فيها ورأ «مفأود»… [suspicious] بس في واحد بس… عايز يلاأيه أبل البوليس.",
-    "el_akh_el_taw2am": "[conversational, uneasy] عادل غاب عشر أيام… ورجع يوم الجمعة يئول إنه تاه في الصحرا. [pause] مراته آلت «ده هو»… والتحليل آل «ده هو». [suspicious] بس متأكدين… عن مين بالظبط؟",
-    "shoqaq_el_tamleek": "[conversational, sly] شأة واحدة… اتباعت لتلات ناس. [pause] كل واحد دفع مية وخمسين ألف مأدّم. [suspicious] والكل بيشاور على السمسار… بس ولا جنيه من الفلوس دي عدّى في إيده.",
-    "el_sheikh_el_mo3aleg": "[conversational, low, eerie] الشيخ عبد العليم بيئول لكل زبون سر… عمره ما آله لحد. [pause] وبعدها يطلب دهب عشان «يفك العمل». [suspicious] الحارة بتئول جن… بس هو في حد تاني سامع؟",
-    "mazad_el_3arabeyat": "[conversational, intrigued] مزاد عربيات أديمة في مصر الجديدة… مرسيدس عاجي اتباعت بستمية وتسعين ألف. [pause] وبعد نص ساعة، اللي اشتراها بيئول اتضحك عليه. [suspicious] خمسة زايدوا معاه… أربعة منهم شغالين لنفس الشخص.",
-    "waraqet_el_yanaseeb": "[conversational, warm] الحاجة نوال كسبت نص مليون في اليانصيب… [pause] [suspicious] وبالليل لأت الورأة اللي في علبة البسكوت… مألّدة. الورأة اتبدّلت مرتين في نفس اليوم… وكل مرة كان في حد آعد جنبها بيشرب شاي.",
-    "cinema_rivoli": "[conversational, storytelling] سينما ريفولي، سنة خمسة وخمسين… حفلة تسعة، والصالة مليانة. [pause] الفرّاش نوّر الكشّاف… لأى الأستاذ زكي مأتول في اللوج. [suspicious] والصالة كلها حالفة… إنها ماسمعتش غير مدافع الفيلم.",
-    "fondo2_shepheard": "[conversational, storytelling] فندق شبرد، سنة واحد وخمسين… رفعت بيه اتلأى ميت في الجنينة تحت البلكونة. [pause] وعلى مكتبه جواب: «سامحوني… ماعدتش أادر أكمّل». [suspicious] البوليس آل انتحار… بس اللي كتب الجواب كان أشول، ومحدش في الفندق بيكتب بشماله.",
-    "matba3et_el_gornal": "[conversational, tense] مطبعة جورنال في الفجالة… الطبعة الأولى نزلت وفيها خبر إن رئيس التحرير اتأتل. [pause] بس الجتة اتلأت بعدها بساعة… والوفاة نفسها حصلت بعد ما الجورنال اتطبع. [suspicious] يعني الخبر سبأ الجريمة… مين كان عارف؟",
-    "2asr_garden_city": "[conversational, grave] أصر في جاردن سيتي… الباشا اتلأى ميت الصبح على الكنبة. [pause] الدكتور آل جلطة… بس بنت الطباخ جابت دفتر أبوها. [suspicious] تلات ليالي في تلاتين سنة… وجنب كل ليلة نفس الجملة.",
-    "el_oda_el_mafoola": "[conversational, low] المفتاح جوه… والشباك مأفول… والباب مااتفتحش. [pause] [suspicious] بس كلمة «جوه» دي… يمكن مش أصدها الأوضة اللي في دماغك.",
-    "el_asansir": "[conversational, tense] الأستاذ فوزي ركب الأسانسير لوحده… والبواب شافه. [pause] الكهربا أطعت، والأسانسير وأف بين الدورين. [suspicious] ولما اتفتح… كان مطعون. والكل بيئول محدش دخل عنده.",
-    "el_shahed_el_a3ma": "[conversational, low] الحاج بدوي اتلأى ميت في مكتبه… [pause] وأأوى شاهد عندنا راجل مابيشوفش. [suspicious] بس حالف إنه سمع تلات حاجات… ورا بعض، بالترتيب.",
-    "el_gareema_elly_ma7asaletsh": "[conversational, eerie] باب الشأة مفتوح سنة… وريحة حديد طالعة منه. [pause] جوه: دم على الأرض، كرسي مألوب، وسكينة. [suspicious] كل حاجة بتئول جريمة أتل… بس مفيش جتة."
-  },
-  "ipa": {
-    "اتأتل": "etʔatal",
-    "آعد": "ʔaːʕed",
-    "آعدة": "ʔaʕda",
-    "الأهوة": "elʔahwa",
-    "أهوة": "ʔahwet",
-    "يئول": "yeʔuːl",
-    "بيئول": "beyʔuːl",
-    "بتئول": "betʔuːl",
-    "أبل": "ʔabl",
-    "أراره": "ʔaraːro",
-    "الأرار": "elʔaraːr",
-    "نأصت": "neʔsˤet",
-    "وأت": "waʔt",
-    "الوأت": "elwaʔt",
-    "بيأرّب": "beyʔarrab",
-    "يبأى": "yebʔa",
-    "بأى": "baʔa",
-    "ماتفأتش": "mattafaʔetʃ",
-    "آلت": "ʔaːlet",
-    "آل": "ʔaːl",
-    "الحأ": "elħaʔ",
-    "الأضية": "elʔadˤeyya",
-    "اتأفل": "etʔafal",
-    "اتأفلت": "etʔafalet",
-    "مأفول": "maʔfuːl",
-    "الإفل": "elʔefl",
-    "الأزرأ": "elʔazraʔ",
-    "لأوه": "laʔuːh",
-    "لأوا": "laʔu",
-    "لأى": "laʔa",
-    "لأت": "laʔet",
-    "اتلأى": "etlaʔa",
-    "اتلأت": "etlaʔet",
-    "الأطر": "elʔatˤr",
-    "ماوأفش": "mawʔefʃ",
-    "وأف": "weʔef",
-    "وئع": "weʔeʕ",
-    "دأايق": "daʔaːyeʔ",
-    "بيرأصوا": "beyorʔosˤu",
-    "السأف": "essaʔf",
-    "اتسرأ": "etsaraʔ",
-    "ناأصة": "naʔsˤa",
-    "الأاعة": "elʔaːʕa",
-    "علاأة": "ʕalaːʔa",
-    "متعلّأ": "metʕallaʔ",
-    "ورأ": "waraʔ",
-    "مفأود": "mafʔuːd",
-    "يلاأيه": "yelaʔiːh",
-    "شأة": "ʃaʔʔa",
-    "الشأة": "eʃʃaʔʔa",
-    "مأدّم": "moʔaddam",
-    "أديمة": "ʔadiːma",
-    "الورأة": "elwaraʔa",
-    "مألّدة": "meʔalleda",
-    "مأتول": "maʔtuːl",
-    "أادر": "ʔaːder",
-    "سبأ": "sabaʔ",
-    "أصر": "ʔasˤr",
-    "أصدها": "ʔasˤdaha",
-    "أطعت": "ʔatˤaʕet",
-    "أأوى": "ʔaʔwa",
-    "مألوب": "maʔluːb",
-    "أتل": "ʔatl",
-    "ألبية": "ʔalbeyya",
-    "الحئيئة": "elħaʔiːʔa",
-    "آله": "ʔaːlo",
-    "وأأوى": "weʔaʔwa",
-    "والأرار": "welʔaraːr",
-    "والأطر": "welʔatˤr",
-    "والإفل": "welʔefl",
-    "والحأ": "welħaʔ",
-    "والسأف": "wessaʔf",
-    "ولأوها": "welaʔuːha",
-    "يئولها": "yeʔulha"
+    "qahwet_el_moallem": "[conversational, low] المعلم صابر اتقتل… [pause] وهو قاعد على كرسيه في القهوة، والناس حواليه بيلعبوا ومحدش واخد باله. [suspicious] الشاي كان سليم… بس الشيشة؟ حد ظبّطهاله من قبل ما يولّعها.",
+    "farah_el_sotouh": "[conversational, low] العريس تامر وقع من فوق السطوح… [pause] أول ما الطبل ابتدا. [suspicious] وفي فيديو الفرح، الكل باين بيرقص… بس ساعة الكاميرا كانت متأخرة عشر دقايق.",
+    "el_gazzar": "[conversational, low] الساعة ستة وعشرة الصبح… الحاج عبد الغني الجزار كان ميت جوه تلاجة المحل. [pause] الدكتور بيقول مات بالليل، وساعتها كان في فرح كبير في الحارة. [suspicious] بس التلاجة… بتخلي الجتة تكدب في الساعة.",
+    "beit_el_3eila": "[conversational, grave] الحاج إبراهيم، أربعة وتمانين سنة، مات في سريره الساعة عشرة بالليل… والعيلة كلها في البيت. [pause] الدكتور كتب موتة طبيعية… بس حفيدته المحامية رفضت. [suspicious] كل واحد عنده حجة… واتنين منهم حجتهم مظبوطة بزيادة.",
+    "mahal_el_dahab": "[conversational, intrigued] الكيس الأزرق اختفى من خزنة المعلم عبد الستار في الصاغة… [pause] الشاتر سليم، والقفل سليم، والكاميرا ماجابتش حاجة. [suspicious] بس اللي بيدوّروا على حرامي جه بالليل… بيدوّروا في المكان الغلط.",
+    "el_atr_el_akheer": "[conversational, low] الحاج درويش نام في عربية النوم، والشنطة تحت السرير… [pause] وصحي الفجر، الشنطة مش موجودة. [suspicious] الكمساري حالف إن محدش فتح باب… والقطر فضل ماشي طول الليل.",
+    "mat7af_el_zamalek": "[conversational, intrigued] في متحف صغير في الزمالك… البرواز طلع فاضي، وإزاز السقف مكسور. [pause] اللوحة متأمّن عليها باتناشر مليون… [suspicious] بس اللي اتسرق مش اللي الكل فاكره.",
+    "khaznet_el_bank": "[conversational, tense] خزنة بنك في شارع طلعت حرب… اتقفلت يوم الخميس، واتفتحت يوم الحد من أول محاولة. [pause] وطلع ناقص منها اتنين مليون ونص. [suspicious] مفيش كسر… ومفيش غلطة. يبقى مين؟",
+    "el_arousa": "[conversational, worried] نورهان خرجت من الصالون بفستان الفرح… وماوصلتش الفرح أبدا. [pause] أمها وخالتها والمصوّر وصاحبة الصالون… كل واحد قال حاجة مش مظبوطة. [suspicious] بس مش كل كدبة… تخص العروسة.",
+    "sayyad_el_borollos": "[conversational, low] الريّس عبد الحميد طلع بالمركب العصر… [pause] ورجعت الفجر لوحدها، مربوطة وفاضية. [suspicious] الكل بيقول النوّة خدته… بس مين اللي ربط المركب؟",
+    "el_madina_el_gam3eya": "[conversational, concerned] ياسين، طالب في تالتة هندسة… اختفى يوم الخميس بالليل، وساب أوضته مترتبة. [pause] المدينة كلها مليانة صوره… [suspicious] بس في واحد… عايز يوصله قبل البوليس.",
+    "el_akh_el_taw2am": "[conversational, uneasy] عادل غاب عشر أيام… ورجع يوم الجمعة يقول إنه تاه في الصحرا. [pause] مراته قالت «ده هو»… والتحليل قال «ده هو». [suspicious] بس هو مين… بالظبط؟",
+    "shoqaq_el_tamleek": "[conversational, sly] شقة واحدة… اتباعت لتلات ناس. [pause] كل واحد دفع مية وخمسين ألف مقدّم. [suspicious] والكل بيتهم السمسار… بس ولا جنيه من الفلوس دي عدّى على إيده.",
+    "el_sheikh_el_mo3aleg": "[conversational, low, eerie] الشيخ عبد العليم بيقول لكل زبون سر… عمره ما قاله لحد. [pause] وبعدها يطلب دهب عشان «يفك العمل». [suspicious] الحارة بتقول جن… بس هو في حد تاني سامع؟",
+    "mazad_el_3arabeyat": "[conversational, intrigued] مزاد عربيات أنتيكة في مصر الجديدة… مرسيدس عاجي اتباعت بستمية وتسعين ألف. [pause] وبعد نص ساعة، اللي اشتراها بيقول اتضحك عليه. [suspicious] خمسة زايدوا معاه… أربعة منهم شغالين لنفس الشخص.",
+    "waraqet_el_yanaseeb": "[conversational, warm] الحاجة نوال كسبت نص مليون في اليانصيب… [pause] [suspicious] وبالليل فتحت علبة البسكوت… الورقة اللي جواها مضروبة. اتبدّلت مرتين في نفس اليوم… وكل مرة كان في حد جنبها بيشرب شاي.",
+    "cinema_rivoli": "[conversational, storytelling] سينما ريفولي، سنة خمسة وخمسين… حفلة تسعة، والصالة مليانة. [pause] الفرّاش نوّر الكشّاف… والأستاذ زكي مقتول في اللوج. [suspicious] والصالة كلها حالفة… إنها ماسمعتش غير ضرب النار بتاع الفيلم.",
+    "fondo2_shepheard": "[conversational, storytelling] فندق شبرد، سنة واحد وخمسين… رفعت بيه طلع ميت في الجنينة تحت البلكونة. [pause] وعلى مكتبه جواب: «سامحوني… ماعدتش مستحمل». [suspicious] البوليس قال انتحار… بس اللي كتب الجواب كان أشول، ومحدش في الفندق بيكتب بشماله.",
+    "matba3et_el_gornal": "[conversational, tense] مطبعة جورنال في الفجالة… الطبعة الأولى نزلت وفيها خبر إن رئيس التحرير اتقتل. [pause] بس الجتة ظهرت بعدها بساعة… وهو مات أصلا بعد ما الجورنال اتطبع. [suspicious] يعني الخبر نزل قبل الجريمة… مين كان عارف؟",
+    "2asr_garden_city": "[conversational, grave] سرايا في جاردن سيتي… الباشا كان ميت الصبح على الكنبة. [pause] الدكتور قال جلطة… بس بنت الطباخ جابت دفتر أبوها. [suspicious] تلات ليالي في تلاتين سنة… وجنب كل ليلة نفس الجملة.",
+    "el_oda_el_mafoola": "[conversational, low] المفتاح جوه… والشباك مقفول… والباب مااتفتحش. [pause] [suspicious] بس كلمة «جوه» دي… يمكن مش معناها الأوضة اللي في دماغك.",
+    "el_asansir": "[conversational, tense] الأستاذ فوزي ركب الأسانسير لوحده… والبواب شافه. [pause] النور راح، والأسانسير علّق بين الدورين. [suspicious] ولما اتفتح… كان مطعون. والكل بيقول محدش دخل عنده.",
+    "el_shahed_el_a3ma": "[conversational, low] الحاج بدوي مات في مكتبه… [pause] وأهم شاهد عندنا راجل مابيشوفش. [suspicious] بس حالف إنه سمع تلات حاجات… ورا بعض، بالترتيب.",
+    "el_gareema_elly_ma7asaletsh": "[conversational, eerie] باب الشقة مفتوح سنّة… وريحة حديد طالعة منه. [pause] جوه: دم على الأرض، كرسي واقع، وسكينة. [suspicious] كل حاجة بتقول جريمة قتل… بس مفيش جتة."
   }
 }

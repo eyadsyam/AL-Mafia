@@ -623,5 +623,6 @@
       ]
     }
   ],
-  "evidenceImage": "assets/images/stories/evidence/evidence_11.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_11.webp",
+  "narrationAudio": "assets/voice/stories/el_madina_el_gam3eya.ogg"
 }

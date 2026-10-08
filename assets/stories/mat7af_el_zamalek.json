@@ -659,5 +659,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_zamalek_museum.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_07.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_07.webp",
+  "narrationAudio": "assets/voice/stories/mat7af_el_zamalek.ogg"
 }

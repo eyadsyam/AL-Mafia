@@ -749,5 +749,6 @@
       ]
     }
   ],
-  "evidenceImage": "assets/images/stories/evidence/evidence_24.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_24.webp",
+  "narrationAudio": "assets/voice/stories/el_gareema_elly_ma7asaletsh.ogg"
 }

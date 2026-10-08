@@ -547,5 +547,6 @@
       ]
     }
   ],
-  "evidenceImage": "assets/images/stories/evidence/evidence_15.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_15.webp",
+  "narrationAudio": "assets/voice/stories/mazad_el_3arabeyat.ogg"
 }

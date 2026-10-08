@@ -297,7 +297,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
         Text(
           vote ? l.storiesVoteHandoff : '${l.storiesRound} ${_session.round}',
           textAlign: TextAlign.center,
-          style: context.typography.headline,
+          style: StoryTokens.ruqaa(context.typography.headline),
         ),
         SizedBox(height: spacing.sm),
         Text(
@@ -343,7 +343,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
         Text(
           character.name,
           textAlign: TextAlign.center,
-          style: context.typography.headline,
+          style: StoryTokens.ruqaa(context.typography.headline),
         ),
         SizedBox(height: spacing.xs),
         Text(
@@ -387,7 +387,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
         Text(
           context.l10n.storiesDiscussion,
           textAlign: TextAlign.center,
-          style: context.typography.headline,
+          style: StoryTokens.ruqaa(context.typography.headline),
         ),
         SizedBox(height: spacing.lg),
         Center(
@@ -418,7 +418,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
       children: [
         Text(
           context.l10n.storiesSharedPick,
-          style: context.typography.headline,
+          style: StoryTokens.ruqaa(context.typography.headline),
         ),
         SizedBox(height: spacing.md),
         for (final action in actions) ...[
@@ -443,7 +443,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
       Text(
         '${context.l10n.storiesPlayer} ${_session.currentPlayer + 1}',
         textAlign: TextAlign.center,
-        style: context.typography.headline,
+        style: StoryTokens.ruqaa(context.typography.headline),
       ),
       SizedBox(height: context.spacing.lg),
       FilledButton(
@@ -464,7 +464,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
         Text(
           context.l10n.storiesReenactment,
           textAlign: TextAlign.center,
-          style: context.typography.headline,
+          style: StoryTokens.ruqaa(context.typography.headline),
         ),
         SizedBox(height: spacing.md),
         ClipRRect(
@@ -509,7 +509,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
         Text(
           solved ? context.l10n.storiesSolved : context.l10n.storiesMissed,
           textAlign: TextAlign.center,
-          style: context.typography.headline,
+          style: StoryTokens.ruqaa(context.typography.headline),
         ),
         SizedBox(height: spacing.md),
         Text(
@@ -544,7 +544,7 @@ class _StoryHeading extends StatelessWidget {
       Row(
         children: [
           Expanded(
-            child: Text(story.title, style: context.typography.headline),
+            child: Text(story.title, style: StoryTokens.ruqaa(context.typography.headline)),
           ),
           if (onListen != null)
             IconButton(
@@ -771,7 +771,7 @@ class _AccusationSheetState extends State<_AccusationSheet> {
         children: [
           Text(
             widget.vote ? context.l10n.storiesVote : context.l10n.storiesAccuse,
-            style: context.typography.headline,
+            style: StoryTokens.ruqaa(context.typography.headline),
           ),
           SizedBox(height: spacing.md),
           _Picker(

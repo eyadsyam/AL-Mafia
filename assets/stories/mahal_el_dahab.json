@@ -635,5 +635,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_gold_souq.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_05.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_05.webp",
+  "narrationAudio": "assets/voice/stories/mahal_el_dahab.ogg"
 }

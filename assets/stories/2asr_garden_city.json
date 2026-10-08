@@ -798,5 +798,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_garden_city_palace.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_20.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_20.webp",
+  "narrationAudio": "assets/voice/stories/2asr_garden_city.ogg"
 }

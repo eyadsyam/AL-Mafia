@@ -3665,3 +3665,10 @@ Files:      lib/engine/bots/bot_brain.dart, lib/transport/local_transport.dart, 
 Verified:   full flutter test 1806 pass; bot_brain_test (every preset 5-12), bot_match_test (6 seeds through the widget tree + rematch); pacing and bot_wins applied live; economy and admob_ssv deployed.
 Gate:       PASS
 Open:       narrator voices (owner picks); live multi-phone online test; native ads need a real device check.
+
+## PHASE voices-v3 — done
+Built:      Final Cairene voices on eleven_v4 (ordinary ق spelling + "strong Egyptian accent" tag, the owner's pick #3), fewer ق-words, «تشاور» dropped; main narrator (Adam Deep, heavy filters), three store packs covering every match moment, 24 story openings with mp3 web twins; story headings in Aref Ruqaa.
+Files:      tool/voice/script_v2.json, tool/voice/render_v2.mjs, assets/voice/**, assets/stories/*.json, assets/fonts/ArefRuqaa-Bold.ttf, pubspec.yaml, lib/ui/theme/design_tokens.dart, lib/ui/screens/stories/*, test/screenshots/v15_screenshots.dart
+Verified:   full flutter test (narrator/twins failures fixed, test/platform all pass), analyze no errors, screenshots in build/screens_v15
+Gate:       PASS
+Open:       owner listens to https://claude.ai/artifact/Fyftx7BDmLpXVmjahf5Ure; no build/deploy until told

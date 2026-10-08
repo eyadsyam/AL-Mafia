@@ -531,5 +531,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_cinema_1955.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_17.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_17.webp",
+  "narrationAudio": "assets/voice/stories/cinema_rivoli.ogg"
 }

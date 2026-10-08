@@ -9,12 +9,12 @@
 //                                                     and `narrationAudio` in
 //                                                     assets/stories/<id>.json
 //
-//   node tool/voice/render_v2.mjs --mode ipa            every line
-//   node tool/voice/render_v2.mjs --mode ipa --only main --ids night_01
+//   node tool/voice/render_v2.mjs                       every line
+//   node tool/voice/render_v2.mjs --only main --ids night_01
 //
-// --mode picks how a Cairene ق-word reaches eleven_v4: `ipa` swaps each word
-// of the script's `ipa` table for /its IPA/, `accent` keeps the hamza
-// spelling, `plain` writes it with ق; all three add a Cairene accent tag.
+// The script is spelled the ordinary way (ق stays ق) and every line gains a
+// "strong Egyptian accent" tag: the owner's ear picked that over hamza
+// spelling and IPA, because eleven_v4 then says the word the Cairo way.
 // The key is read like the other voice tools and is never printed.
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
@@ -32,7 +32,6 @@ const opt = (name, fallback) => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? args[i + 1] : fallback;
 };
-const mode = opt("mode", "ipa");
 const only = new Set(opt("only", "main,narrator_storyteller,narrator_keeper,narrator_noir,stories").split(","));
 const ids = opt("ids", null) ? new Set(opt("ids").split(",")) : null;
 const model = opt("model", "eleven_v4");
@@ -48,21 +47,12 @@ const headers = { "xi-api-key": key, "content-type": "application/json" };
 
 const HEAVY = "asetrate=44100*0.95,aresample=44100,bass=g=4:f=110,acompressor=threshold=0.125:ratio=3:attack=5:release=90,aecho=0.8:0.35:60:0.1";
 const FILTER = "adelay=120|120,silenceremove=start_periods=1:start_threshold=-60dB:start_silence=0.25,areverse,silenceremove=start_periods=1:start_threshold=-55dB:start_silence=0.3,areverse,loudnorm=I=-16:TP=-1.5:LRA=7";
-const ACCENT = "strong Cairene Egyptian accent";
-
-// Spelling the hamza back as ق, for `plain`.
-const toQaf = (w) => w.replace(/^(ال|وال|و|ات|بي|بت|ي|ما)?[أإآئ]/, (m, p = "") => p + "ق");
+const ACCENT = "strong Egyptian accent";
 
 function prepare(text) {
-  // Every leading direction gains the accent; later ones stay as written.
-  let out = text.replace(/^\[([^\]]*)\]/, (m, d) => `[${ACCENT}, ${d}]`);
-  if (!out.startsWith("[")) out = `[${ACCENT}] ${out}`;
-  if (mode === "accent") return out;
-  return out.replace(/[ء-يّ]+/g, (w) => {
-    const ipa = script.ipa[w];
-    if (!ipa) return w;
-    return mode === "ipa" ? `/${ipa}/` : toQaf(w);
-  });
+  // The leading direction gains the accent; later ones stay as written.
+  const out = text.replace(/^\[([^\]]*)\]/, (m, d) => `[${ACCENT}, ${d}]`);
+  return out.startsWith("[") ? out : `[${ACCENT}] ${out}`;
 }
 
 async function ensureVoices() {
@@ -79,6 +69,10 @@ async function ensureVoices() {
     have.add(v.id);
   }
 }
+
+// Safari plays no ogg: the web build loads this twin instead.
+const mp3Twin = (ogg) =>
+  execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", ogg, "-c:a", "libmp3lame", "-b:a", "96k", ogg.replace(/\.ogg$/, ".mp3")]);
 
 let chars = 0;
 async function render(voice, text, ogg) {
@@ -97,6 +91,7 @@ async function render(voice, text, ogg) {
   writeFileSync(mp3, Buffer.from(await r.arrayBuffer()));
   const af = voice.heavy ? `${HEAVY},${FILTER}` : FILTER;
   execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", mp3, "-af", af, "-ac", "1", "-ar", "44100", "-c:a", "libvorbis", "-q:a", "4", ogg]);
+  mp3Twin(ogg);
   chars += spoken.length;
 }
 
@@ -109,15 +104,21 @@ for (const [code, dir, lines] of groups) {
   const out = join(root, "assets", "voice", dir);
   mkdirSync(out, { recursive: true });
   const clips = [];
-  for (const l of lines) {
+  // A store voice speaks every moment the main narrator does: each main
+  // moment the pack has no line of its own for is read in the pack's voice.
+  const own = new Set(lines.map((l) => `${l.beat}|${l.when}`));
+  const full = code === "main" ? [] : script.main.filter((l) => !own.has(`${l.beat}|${l.when}`)).map((l) => ({ ...l, id: `full_${l.id}` }));
+  for (const l of [...lines, ...full]) {
     const ogg = join(out, `${l.id}.ogg`);
     if (!ids || ids.has(l.id)) {
       await render(voice, l.text, ogg);
       console.log(`${dir}/${l.id}.ogg`);
+    } else if (existsSync(ogg)) {
+      mp3Twin(ogg);
     }
     clips.push({ id: code === "main" ? l.id : `${code}_${l.id}`, beat: l.beat, when: l.when, family: true, file: `voice/${dir}/${l.id}.ogg` });
   }
-  writeFileSync(join(out, "manifest.json"), JSON.stringify({ voice: dir, voiceId: voice.id, model, mode, clips }, null, 2) + "\n");
+  writeFileSync(join(out, "manifest.json"), JSON.stringify({ voice: dir, voiceId: voice.id, model, clips }, null, 2) + "\n");
 }
 
 if (only.has("stories")) {

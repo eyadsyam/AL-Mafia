@@ -625,5 +625,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_butcher_shop.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_03.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_03.webp",
+  "narrationAudio": "assets/voice/stories/el_gazzar.ogg"
 }

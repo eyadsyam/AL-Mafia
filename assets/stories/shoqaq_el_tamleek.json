@@ -638,5 +638,6 @@
       ]
     }
   ],
-  "evidenceImage": "assets/images/stories/evidence/evidence_13.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_13.webp",
+  "narrationAudio": "assets/voice/stories/shoqaq_el_tamleek.ogg"
 }

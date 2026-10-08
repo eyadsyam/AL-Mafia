@@ -2361,6 +2361,17 @@ abstract final class StoryTokens {
   static const Duration privateHold = Duration(milliseconds: 800);
   static const Duration timerTick = Duration(seconds: 1);
   static const Duration reenactmentBeat = Duration(milliseconds: 420);
+
+  /// The cases' headings are set in Ruqaa, the hand of old Cairo signs and
+  /// police ledgers; body text stays in the app's reading face.
+  static const String displayFont = 'Aref Ruqaa';
+
+  static TextStyle ruqaa(TextStyle base) => base.copyWith(
+        fontFamily: displayFont,
+        fontFamilyFallback: const <String>['Cairo'],
+        fontVariations: const <FontVariation>[],
+        fontWeight: FontWeight.w700,
+      );
 }
 
 /// The discussion screen's extras.

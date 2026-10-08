@@ -506,5 +506,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_cafe_alley.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_01.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_01.webp",
+  "narrationAudio": "assets/voice/stories/qahwet_el_moallem.ogg"
 }

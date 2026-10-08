@@ -574,5 +574,6 @@
       ]
     }
   ],
-  "evidenceImage": "assets/images/stories/evidence/evidence_16.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_16.webp",
+  "narrationAudio": "assets/voice/stories/waraqet_el_yanaseeb.ogg"
 }

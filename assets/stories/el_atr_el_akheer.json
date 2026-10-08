@@ -531,5 +531,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_sleeper_train.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_06.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_06.webp",
+  "narrationAudio": "assets/voice/stories/el_atr_el_akheer.ogg"
 }

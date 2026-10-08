@@ -1,5 +1,7 @@
 {
   "voice": "narrator_noir",
+  "voiceId": "68MRVrnQAt8vLbu0FCzw",
+  "model": "eleven_v4",
   "clips": [
     {
       "id": "narrator_noir_night",
@@ -9,11 +11,18 @@
       "file": "voice/narrator_noir/night.ogg"
     },
     {
-      "id": "narrator_noir_morning",
+      "id": "narrator_noir_morning_loss",
       "beat": "morning",
-      "when": "always",
+      "when": "night_eliminated >= 1",
       "family": true,
-      "file": "voice/narrator_noir/morning.ogg"
+      "file": "voice/narrator_noir/morning_loss.ogg"
+    },
+    {
+      "id": "narrator_noir_morning_none",
+      "beat": "morning",
+      "when": "night_eliminated == 0",
+      "family": true,
+      "file": "voice/narrator_noir/morning_none.ogg"
     },
     {
       "id": "narrator_noir_discussion",
@@ -37,48 +46,6 @@
       "file": "voice/narrator_noir/win.ogg"
     },
     {
-      "id": "narrator_noir_full_discussion_01",
-      "beat": "discussion",
-      "when": "always",
-      "family": true,
-      "file": "voice/narrator_noir/full_discussion_01.ogg"
-    },
-    {
-      "id": "narrator_noir_full_discussion_02",
-      "beat": "discussion",
-      "when": "always",
-      "family": true,
-      "file": "voice/narrator_noir/full_discussion_02.ogg"
-    },
-    {
-      "id": "narrator_noir_full_discussion_03",
-      "beat": "discussion",
-      "when": "always",
-      "family": true,
-      "file": "voice/narrator_noir/full_discussion_03.ogg"
-    },
-    {
-      "id": "narrator_noir_full_discussion_04",
-      "beat": "discussion",
-      "when": "always",
-      "family": true,
-      "file": "voice/narrator_noir/full_discussion_04.ogg"
-    },
-    {
-      "id": "narrator_noir_full_discussion_05",
-      "beat": "discussion",
-      "when": "always",
-      "family": true,
-      "file": "voice/narrator_noir/full_discussion_05.ogg"
-    },
-    {
-      "id": "narrator_noir_full_morning_loss_01",
-      "beat": "morning",
-      "when": "night_eliminated >= 1",
-      "family": true,
-      "file": "voice/narrator_noir/full_morning_loss_01.ogg"
-    },
-    {
       "id": "narrator_noir_full_morning_loss_02",
       "beat": "morning",
       "when": "night_eliminated == 1",
@@ -86,130 +53,11 @@
       "file": "voice/narrator_noir/full_morning_loss_02.ogg"
     },
     {
-      "id": "narrator_noir_full_morning_loss_03",
-      "beat": "morning",
-      "when": "night_eliminated >= 1",
-      "family": false,
-      "file": "voice/narrator_noir/full_morning_loss_03.ogg"
-    },
-    {
       "id": "narrator_noir_full_morning_loss_04",
       "beat": "morning",
       "when": "night_eliminated == 1",
-      "family": false,
+      "family": true,
       "file": "voice/narrator_noir/full_morning_loss_04.ogg"
-    },
-    {
-      "id": "narrator_noir_full_morning_none_01",
-      "beat": "morning",
-      "when": "night_eliminated == 0",
-      "family": true,
-      "file": "voice/narrator_noir/full_morning_none_01.ogg"
-    },
-    {
-      "id": "narrator_noir_full_morning_none_02",
-      "beat": "morning",
-      "when": "night_eliminated == 0",
-      "family": true,
-      "file": "voice/narrator_noir/full_morning_none_02.ogg"
-    },
-    {
-      "id": "narrator_noir_full_morning_none_03",
-      "beat": "morning",
-      "when": "night_eliminated == 0",
-      "family": true,
-      "file": "voice/narrator_noir/full_morning_none_03.ogg"
-    },
-    {
-      "id": "narrator_noir_full_night_01",
-      "beat": "night",
-      "when": "always",
-      "family": true,
-      "file": "voice/narrator_noir/full_night_01.ogg"
-    },
-    {
-      "id": "narrator_noir_full_night_02",
-      "beat": "night",
-      "when": "always",
-      "family": true,
-      "file": "voice/narrator_noir/full_night_02.ogg"
-    },
-    {
-      "id": "narrator_noir_full_night_03",
-      "beat": "night",
-      "when": "always",
-      "family": true,
-      "file": "voice/narrator_noir/full_night_03.ogg"
-    },
-    {
-      "id": "narrator_noir_full_night_04",
-      "beat": "night",
-      "when": "always",
-      "family": true,
-      "file": "voice/narrator_noir/full_night_04.ogg"
-    },
-    {
-      "id": "narrator_noir_full_night_05",
-      "beat": "night",
-      "when": "always",
-      "family": true,
-      "file": "voice/narrator_noir/full_night_05.ogg"
-    },
-    {
-      "id": "narrator_noir_full_night_06",
-      "beat": "night",
-      "when": "always",
-      "family": false,
-      "file": "voice/narrator_noir/full_night_06.ogg"
-    },
-    {
-      "id": "narrator_noir_full_revote_01",
-      "beat": "voting",
-      "when": "revote",
-      "family": true,
-      "file": "voice/narrator_noir/full_revote_01.ogg"
-    },
-    {
-      "id": "narrator_noir_full_revote_02",
-      "beat": "voting",
-      "when": "revote",
-      "family": true,
-      "file": "voice/narrator_noir/full_revote_02.ogg"
-    },
-    {
-      "id": "narrator_noir_full_vote_none_01",
-      "beat": "result",
-      "when": "day_eliminated == 0",
-      "family": true,
-      "file": "voice/narrator_noir/full_vote_none_01.ogg"
-    },
-    {
-      "id": "narrator_noir_full_vote_none_02",
-      "beat": "result",
-      "when": "day_eliminated == 0",
-      "family": true,
-      "file": "voice/narrator_noir/full_vote_none_02.ogg"
-    },
-    {
-      "id": "narrator_noir_full_vote_out_01",
-      "beat": "result",
-      "when": "day_eliminated == 1",
-      "family": true,
-      "file": "voice/narrator_noir/full_vote_out_01.ogg"
-    },
-    {
-      "id": "narrator_noir_full_vote_out_02",
-      "beat": "result",
-      "when": "day_eliminated == 1",
-      "family": true,
-      "file": "voice/narrator_noir/full_vote_out_02.ogg"
-    },
-    {
-      "id": "narrator_noir_full_vote_out_03",
-      "beat": "result",
-      "when": "day_eliminated == 1",
-      "family": true,
-      "file": "voice/narrator_noir/full_vote_out_03.ogg"
     },
     {
       "id": "narrator_noir_full_voting_01",
@@ -240,18 +88,53 @@
       "file": "voice/narrator_noir/full_voting_04.ogg"
     },
     {
-      "id": "narrator_noir_full_win_mafia_01",
-      "beat": "win",
-      "when": "winner == mafia",
+      "id": "narrator_noir_full_revote_01",
+      "beat": "voting",
+      "when": "revote",
       "family": true,
-      "file": "voice/narrator_noir/full_win_mafia_01.ogg"
+      "file": "voice/narrator_noir/full_revote_01.ogg"
     },
     {
-      "id": "narrator_noir_full_win_mafia_02",
-      "beat": "win",
-      "when": "winner == mafia",
+      "id": "narrator_noir_full_revote_02",
+      "beat": "voting",
+      "when": "revote",
       "family": true,
-      "file": "voice/narrator_noir/full_win_mafia_02.ogg"
+      "file": "voice/narrator_noir/full_revote_02.ogg"
+    },
+    {
+      "id": "narrator_noir_full_vote_out_01",
+      "beat": "result",
+      "when": "day_eliminated == 1",
+      "family": true,
+      "file": "voice/narrator_noir/full_vote_out_01.ogg"
+    },
+    {
+      "id": "narrator_noir_full_vote_out_02",
+      "beat": "result",
+      "when": "day_eliminated == 1",
+      "family": true,
+      "file": "voice/narrator_noir/full_vote_out_02.ogg"
+    },
+    {
+      "id": "narrator_noir_full_vote_out_03",
+      "beat": "result",
+      "when": "day_eliminated == 1",
+      "family": true,
+      "file": "voice/narrator_noir/full_vote_out_03.ogg"
+    },
+    {
+      "id": "narrator_noir_full_vote_none_01",
+      "beat": "result",
+      "when": "day_eliminated == 0",
+      "family": true,
+      "file": "voice/narrator_noir/full_vote_none_01.ogg"
+    },
+    {
+      "id": "narrator_noir_full_vote_none_02",
+      "beat": "result",
+      "when": "day_eliminated == 0",
+      "family": true,
+      "file": "voice/narrator_noir/full_vote_none_02.ogg"
     },
     {
       "id": "narrator_noir_full_win_town_01",
@@ -266,6 +149,34 @@
       "when": "winner == town",
       "family": true,
       "file": "voice/narrator_noir/full_win_town_02.ogg"
+    },
+    {
+      "id": "narrator_noir_full_win_mafia_01",
+      "beat": "win",
+      "when": "winner == mafia",
+      "family": true,
+      "file": "voice/narrator_noir/full_win_mafia_01.ogg"
+    },
+    {
+      "id": "narrator_noir_full_win_mafia_02",
+      "beat": "win",
+      "when": "winner == mafia",
+      "family": true,
+      "file": "voice/narrator_noir/full_win_mafia_02.ogg"
+    },
+    {
+      "id": "narrator_noir_full_brand_01",
+      "beat": "brand",
+      "when": "outside_match",
+      "family": true,
+      "file": "voice/narrator_noir/full_brand_01.ogg"
+    },
+    {
+      "id": "narrator_noir_full_brand_02",
+      "beat": "brand",
+      "when": "outside_match",
+      "family": true,
+      "file": "voice/narrator_noir/full_brand_02.ogg"
     }
   ]
 }

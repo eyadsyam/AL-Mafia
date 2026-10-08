@@ -746,5 +746,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_newspaper_press.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_19.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_19.webp",
+  "narrationAudio": "assets/voice/stories/matba3et_el_gornal.ogg"
 }

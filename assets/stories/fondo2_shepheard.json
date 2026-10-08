@@ -575,5 +575,6 @@
     }
   ],
   "sceneImage": "assets/images/stories/locations/loc_shepheard_hotel.webp",
-  "evidenceImage": "assets/images/stories/evidence/evidence_18.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_18.webp",
+  "narrationAudio": "assets/voice/stories/fondo2_shepheard.ogg"
 }

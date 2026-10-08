@@ -508,5 +508,6 @@
       ]
     }
   ],
-  "evidenceImage": "assets/images/stories/evidence/evidence_23.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_23.webp",
+  "narrationAudio": "assets/voice/stories/el_shahed_el_a3ma.ogg"
 }

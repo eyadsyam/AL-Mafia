@@ -563,5 +563,6 @@
       ]
     }
   ],
-  "evidenceImage": "assets/images/stories/evidence/evidence_09.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_09.webp",
+  "narrationAudio": "assets/voice/stories/el_arousa.ogg"
 }

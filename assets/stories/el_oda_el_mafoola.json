@@ -505,5 +505,6 @@
       ]
     }
   ],
-  "evidenceImage": "assets/images/stories/evidence/evidence_21.webp"
+  "evidenceImage": "assets/images/stories/evidence/evidence_21.webp",
+  "narrationAudio": "assets/voice/stories/el_oda_el_mafoola.ogg"
 }

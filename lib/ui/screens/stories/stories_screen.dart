@@ -199,7 +199,7 @@ class StoriesHub extends StatelessWidget {
               SizedBox(height: spacing.md),
               Text(
                 l.storiesTitle,
-                style: type.headline.copyWith(color: colors.textPrimary),
+                style: StoryTokens.ruqaa(type.headline).copyWith(color: colors.textPrimary),
               ),
               SizedBox(height: spacing.xs),
               Text(
@@ -270,7 +270,7 @@ class _StoryCard extends StatelessWidget {
                 children: [
                   Text(
                     '${story.number}. ${story.title}',
-                    style: type.title.copyWith(color: colors.textPrimary),
+                    style: StoryTokens.ruqaa(type.title).copyWith(color: colors.textPrimary),
                   ),
                   SizedBox(height: spacing.xs),
                   Text(
