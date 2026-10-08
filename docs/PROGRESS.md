@@ -3658,3 +3658,10 @@ Files:      lib/platform/monetization/*, lib/ui/economy/{interstitial_coordinato
 Verified:   full flutter test (1798 pass), analyze clean of errors/warnings, ads_v2 server test, story_rewards seeded live (24 rows), SSV URL saved on all three new rewarded units.
 Gate:       PASS so far
 Open:       art import (Codex), no build/publish until the owner's whole list is done; home banner and native units not placed (banner allowlist rule); narrator voices last.
+
+## PHASE revenue-and-playtime — done (2026-10-08)
+Built:      ads everywhere outside a match (banners on home/mode/stories/characters, native cards in stories/history/council/dossiers, app-open on return after 15 min, interstitials 60 s apart up to 60 a day, story ads before/after and a rewarded extra step); «العب ضد البوتات» (pure bot brain, three levels, bots speak in the discussion, ماتش تاني, 25 coins a win ×5/day, rewarded Mafia hint once a match); art v3 (30 faces, 24 evidence) wired.
+Files:      lib/engine/bots/bot_brain.dart, lib/transport/local_transport.dart, lib/ui/screens/{match_flow,match_controller}.dart, lib/ui/screens/setup/{bot_match_sheet,mode_screen}.dart, lib/ui/economy/{native_ad_card,bot_rewards}.dart, lib/platform/monetization/*, supabase/migrations/20261008000{2,3}00_*.sql, tool/stories/assign_faces.py
+Verified:   full flutter test 1806 pass; bot_brain_test (every preset 5-12), bot_match_test (6 seeds through the widget tree + rematch); pacing and bot_wins applied live; economy and admob_ssv deployed.
+Gate:       PASS
+Open:       narrator voices (owner picks); live multi-phone online test; native ads need a real device check.
