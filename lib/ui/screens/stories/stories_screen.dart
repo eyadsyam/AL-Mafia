@@ -13,6 +13,7 @@ import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
 import 'story_flow_screen.dart';
 import '../../economy/waiting_banner.dart';
+import '../../economy/native_ad_card.dart';
 
 class StoriesScreen extends StatefulWidget {
   const StoriesScreen({
@@ -201,7 +202,9 @@ class StoriesHub extends StatelessWidget {
                 style: type.body.copyWith(color: colors.textSecondary),
               ),
               SizedBox(height: spacing.lg),
-              for (final story in stories) ...[
+              for (final (i, story) in stories.indexed) ...[
+                if (i > 0 && i % 4 == 0)
+                  const NativeAdCard(placement: NativePlacement.stories),
                 _StoryCard(
                   key: storyKey(story.id),
                   story: story,

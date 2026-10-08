@@ -12,6 +12,7 @@ import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/textured_surface.dart';
 import '../../economy/waiting_banner.dart';
+import '../../economy/native_ad_card.dart';
 
 /// Finished matches, newest first (S-16).
 ///
@@ -198,7 +199,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               key: HistoryScreen.list,
               padding: EdgeInsets.all(spacing.md),
               itemCount: summaries.length + _online.length,
-              separatorBuilder: (_, __) => SizedBox(height: spacing.sm),
+              separatorBuilder: (_, i) => i % 6 == 2
+                  ? const NativeAdCard(placement: NativePlacement.history)
+                  : SizedBox(height: spacing.sm),
               itemBuilder: (context, index) {
                 if (index < _online.length) {
                   final row = _online[index];

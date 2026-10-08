@@ -52,6 +52,25 @@ enum BannerPlacement {
   characters,
 }
 
+/// Where a native ad card sits inside a menu list (its own unit each).
+enum NativePlacement {
+  home,
+  history,
+  onlineHub,
+  vault,
+  council,
+  characters,
+  stories,
+}
+
+/// A native ad card in a menu list. A zero-size box until an ad has filled.
+abstract interface class NativeAds {
+  bool get configured;
+  Widget slot({Key? key, required NativePlacement placement});
+}
+
+final nativeAdsProvider = Provider<NativeAds>((ref) => createNativeAds());
+
 final appOpenAdsProvider = Provider<AppOpenAds>((ref) {
   final ads = createAppOpenAds();
   ref.onDispose(ads.discard);

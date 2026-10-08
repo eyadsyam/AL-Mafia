@@ -27,6 +27,7 @@ import '../missions/casebook_data.dart';
 import '../missions/casebook_sheet.dart';
 
 import '../widgets/motion_sprite.dart';
+import 'native_ad_card.dart';
 
 /// What a contract asks, in the player's words.
 String contractName(AppLocalizations l, CouncilContract c) =>
@@ -308,6 +309,7 @@ class _CouncilHubTabState extends ConsumerState<CouncilHubTab> {
                 SizedBox(height: s.md),
               ],
               if (missions) const CasebookEntry(),
+              const NativeAdCard(placement: NativePlacement.council),
               if (value.contracts.enabled && !missions) ...[
                 _ContractsCard(
                   contracts: value.contracts,

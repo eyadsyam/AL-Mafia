@@ -18,6 +18,8 @@ void main() {
     'lib/ui/screens/setup/mode_screen.dart',
     'lib/ui/screens/stories/stories_screen.dart',
     'lib/ui/fun/characters_screen.dart',
+    // Native cards share the banner's gate (shouldShowWaitingBanner).
+    'lib/ui/economy/native_ad_card.dart',
   };
 
   // Screens a banner must never touch, whatever the allowlist says later.

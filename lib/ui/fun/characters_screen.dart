@@ -13,6 +13,7 @@ import '../widgets/feathered_art.dart';
 import '../widgets/textured_surface.dart';
 import 'character_dossiers.dart';
 import '../economy/waiting_banner.dart';
+import '../economy/native_ad_card.dart';
 
 /// The Four Dossiers, one character to a page.
 ///
@@ -265,6 +266,7 @@ class _CharacterPage extends StatelessWidget {
             tint: tint,
           ),
         SizedBox(height: spacing.lg),
+        const NativeAdCard(placement: NativePlacement.characters),
       ],
     );
   }

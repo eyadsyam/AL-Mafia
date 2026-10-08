@@ -1751,6 +1751,11 @@ abstract final class AdTokens {
   static const bannerLabelGap = 2.0;
   static const bannerMaxWidth = 728.0;
 
+  /// The native ad card (Google's small template: 90-120 dp tall).
+  static const double nativeMinHeight = 90.0;
+  static const double nativeMaxHeight = 120.0;
+  static const double nativeCorner = 12.0;
+
   /// Kept clear between a surface's primary action and a banner below it
   /// (the lobby's Start button): well past a thumb's slip, so a tap meant
   /// for the button never lands on the ad.

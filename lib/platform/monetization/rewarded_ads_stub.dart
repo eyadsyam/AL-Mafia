@@ -8,6 +8,16 @@ RewardedAds createRewardedAds() => _NoRewardedAds();
 InterstitialAds createInterstitialAds() => const _NoInterstitialAds();
 AppOpenAds createAppOpenAds() => const _NoAppOpenAds();
 BannerAds createBannerAds() => const _NoBannerAds();
+NativeAds createNativeAds() => const _NoNativeAds();
+
+class _NoNativeAds implements NativeAds {
+  const _NoNativeAds();
+  @override
+  bool get configured => false;
+  @override
+  Widget slot({Key? key, required NativePlacement placement}) =>
+      SizedBox.shrink(key: key);
+}
 
 class _NoRewardedAds implements RewardedAds {
   @override

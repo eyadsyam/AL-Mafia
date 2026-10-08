@@ -16,6 +16,7 @@ RewardedAds createRewardedAds() => GoogleRewardedAds();
 InterstitialAds createInterstitialAds() => GoogleInterstitialAds();
 AppOpenAds createAppOpenAds() => GoogleAppOpenAds();
 BannerAds createBannerAds() => const GoogleBannerAds();
+NativeAds createNativeAds() => const GoogleNativeAds();
 
 abstract final class _Units {
   static const enabled = bool.fromEnvironment('ADS_ENABLED');
@@ -42,6 +43,7 @@ abstract final class _Units {
   static const testInterstitial = 'ca-app-pub-3940256099942544/1033173712';
   static const testAppOpen = 'ca-app-pub-3940256099942544/9257395921';
   static const testBanner = 'ca-app-pub-3940256099942544/9214589741';
+  static const testNative = 'ca-app-pub-3940256099942544/2247696110';
 
   static bool get rewardedConfigured =>
       enabled && (testMode || rewarded.isNotEmpty);
@@ -79,6 +81,21 @@ abstract final class _Units {
   // Split so no 16-digit run sits in the source: the web compiler test flags
   // any as an integer literal.
   static const _pub = 'ca-app-pub-91790639' '36085117';
+
+  static bool get nativeConfigured => enabled;
+
+  static String nativeUnitFor(NativePlacement placement) {
+    if (testMode) return testNative;
+    return switch (placement) {
+      NativePlacement.home => '$_pub/4235550981',
+      NativePlacement.history => '$_pub/9293717805',
+      NativePlacement.onlineHub => '$_pub/2692650431',
+      NativePlacement.vault => '$_pub/1609387640',
+      NativePlacement.council => '$_pub/3136512721',
+      NativePlacement.characters => '$_pub/4449594399',
+      NativePlacement.stories => '$_pub/1243837397',
+    };
+  }
 
   static String bannerUnitFor(BannerPlacement placement) {
     if (testMode) return testBanner;
@@ -883,6 +900,122 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class GoogleNativeAds implements NativeAds {
+  const GoogleNativeAds();
+
+  @override
+  bool get configured => _Units.nativeConfigured;
+
+  @override
+  Widget slot({Key? key, required NativePlacement placement}) => configured
+      ? _NativeSlot(key: key, placement: placement)
+      : SizedBox.shrink(key: key);
+}
+
+class _NativeSlot extends StatefulWidget {
+  final NativePlacement placement;
+  const _NativeSlot({super.key, required this.placement});
+
+  @override
+  State<_NativeSlot> createState() => _NativeSlotState();
+}
+
+class _NativeSlotState extends State<_NativeSlot> {
+  NativeAd? _ad;
+  bool _filled = false;
+  bool _asked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _AdsRuntime.instance.onConsentChanged(_drop);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_asked) return;
+    _asked = true;
+    // The template takes its colours from the theme, read here once.
+    final colors = context.colors;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _load(colors);
+    });
+  }
+
+  void _drop() {
+    _ad?.dispose();
+    _ad = null;
+    if (mounted && _filled) setState(() => _filled = false);
+  }
+
+  Future<void> _load(MafiaColors colors) async {
+    try {
+      if (!await _AdsRuntime.instance.start(prompt: false)) return;
+      if (!await _AdsRuntime.instance.canRequestNow()) return;
+      if (!mounted) return;
+      final ad = NativeAd(
+        adUnitId: _Units.nativeUnitFor(widget.placement),
+        request: const AdRequest(),
+        nativeTemplateStyle: NativeTemplateStyle(
+          templateType: TemplateType.small,
+          mainBackgroundColor: colors.surfaceRaised,
+          cornerRadius: AdTokens.nativeCorner,
+          callToActionTextStyle: NativeTemplateTextStyle(
+            textColor: colors.surfaceBase,
+            backgroundColor: colors.accentGold,
+          ),
+          primaryTextStyle: NativeTemplateTextStyle(
+            textColor: colors.textPrimary,
+          ),
+          secondaryTextStyle: NativeTemplateTextStyle(
+            textColor: colors.textSecondary,
+          ),
+          tertiaryTextStyle: NativeTemplateTextStyle(
+            textColor: colors.textMuted,
+          ),
+        ),
+        listener: NativeAdListener(
+          onAdLoaded: (_) {
+            if (mounted) setState(() => _filled = true);
+          },
+          onAdFailedToLoad: (failed, _) {
+            failed.dispose();
+            if (identical(_ad, failed)) _ad = null;
+          },
+        ),
+      );
+      _ad = ad;
+      await ad.load();
+    } catch (_) {
+      _drop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _AdsRuntime.instance.offConsentChanged(_drop);
+    _ad?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ad = _ad;
+    if (!_filled || ad == null) return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: context.spacing.sm),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: AdTokens.nativeMinHeight,
+          maxHeight: AdTokens.nativeMaxHeight,
+        ),
+        child: AdWidget(ad: ad),
       ),
     );
   }
