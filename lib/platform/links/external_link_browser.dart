@@ -37,7 +37,7 @@ ExternalLinkReservation reserveExternal(String url) {
     commit: () {
       try {
         if (reserved != null) {
-          reserved!.location.href = uri.toString();
+          reserved.location.href = uri.toString();
         } else {
           // A popup blocker refused the reserved tab. Same-tab navigation is
           // not popup-gated and guarantees the phone still reaches the page.
