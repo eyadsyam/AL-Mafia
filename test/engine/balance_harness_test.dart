@@ -53,18 +53,20 @@ const int _runs = int.fromEnvironment('BALANCE_RUNS', defaultValue: 400);
 
 const List<int> _counts = [5, 6, 7, 8, 9, 10, 12, 15];
 
-/// Why four of the rate assertions are parked (2026-10-01).
+/// Why four of the rate assertions are parked (re-measured 2026-10-08).
 ///
-/// The driver's Mafia picked the lowest-numbered safe seat, which was often a
-/// fellow Mafioso, so the old rates measured a team that killed its own. The
-/// engine now refuses that move (owner, 2026-10-01), and with it gone the
-/// Mafia win 56-99% across the cells. Sweeping the read bias from 60 to 150
-/// moves classic @ 9 only from 62% to 56%, so this is not a refit; the town
-/// agents need a stronger model before the band means anything again. The
-/// table is still printed on every run.
+/// The driver now plays the trade a real table plays: a Detective who finds a
+/// Mafioso says so, the town follows the claim, the Doctor covers the
+/// Detective and the Mafia kill them first; the read bias was refitted to 160
+/// on the anchor alone (classic @ 9, about 50%). With that, five to ten
+/// players sit near the band, and what stays outside is not the model: at
+/// twelve and fifteen the same model gives the Mafia 70-85%, and «قاسية»
+/// (no Doctor) gives them 80-97% from nine players up. Those are preset
+/// questions for the owner (more protection at big tables), so the four
+/// assertions wait for that decision instead of being widened to pass.
 const String _parked =
-    'Mafia no longer kill their own; the agent model needs recalibrating '
-    '(see _parked).';
+    'Big tables and the brutal preset favour the Mafia under the refitted '
+    'model; waiting on the owner preset decision (see _parked).';
 
 class _Cell {
   final MatchPreset preset;

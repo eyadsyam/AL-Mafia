@@ -210,7 +210,7 @@ class _Reads {
   /// player counts times three presets, and one degree of freedom spent: if
   /// the rules are lopsided at twelve players, or the quiet night is worth
   /// more than doc 13 thinks, this cannot hide it.
-  static const int defaultBias = 60;
+  static const int defaultBias = 160;
 
   final int _readBias;
 
@@ -285,6 +285,24 @@ class _Memory {
   final Map<int, Set<int>> knownMafia = {};
   final Map<int, Set<int>> knownClear = {};
 
+  /// What a living Detective has said out loud: «أنا المحقق، وفلان مافيا».
+  ///
+  /// # Why the Detective talks, and why the harness was wrong without it
+  ///
+  /// The first model kept every result private: the Detective voted what they
+  /// knew and told nobody. Once the engine stopped Mafia killing their own
+  /// (2026-10-01) that town lost 60-99% of every cell, which is not a
+  /// statement about the rules — at a real table a Detective who finds a
+  /// Mafioso says so, the table mostly believes them, and the Mafia answer by
+  /// killing the Detective that night. That trade is the centre of the game
+  /// and the harness was not playing it. The claim is speech, not the app
+  /// leaking anything: it reaches the town through the same ballot channel as
+  /// any accusation.
+  final Set<int> claimedMafia = {};
+
+  /// The seat that made the claim, once it has; the Mafia's first target.
+  int? claimant;
+
   void record(int seat, int target, bool isMafia) =>
       (isMafia ? knownMafia : knownClear)
           .putIfAbsent(seat, () => <int>{})
@@ -333,6 +351,8 @@ BalanceResult simulateMatch({
       );
     }
 
+    if (engine.match.phase == GamePhase.voting) _claim(engine.match, memory);
+
     final move = _choose(
       match: engine.match,
       options: options,
@@ -358,6 +378,7 @@ BalanceResult simulateMatch({
           result.revealedRole == Role.mafia,
         );
       }
+
     } else {
       move.apply(engine);
     }
@@ -381,6 +402,24 @@ BalanceResult simulateMatch({
     moves: moves,
   );
 }
+
+/// A living Detective who has found a Mafioso says so before the ballot.
+void _claim(Match match, _Memory memory) {
+  for (final p in match.players) {
+    if (p.role != Role.detective || p.status != PlayerStatus.alive) continue;
+    final found = memory.mafiaKnownTo(p.seat).where(
+      (s) => match.players[s].status == PlayerStatus.alive,
+    );
+    if (found.isEmpty) continue;
+    memory.claimedMafia.addAll(found);
+    memory.claimant = p.seat;
+  }
+}
+
+/// What a claim is worth on the ballot: more than five public votes, so the
+/// table follows it unless it is already committed elsewhere, and less than a
+/// Detective's own certainty.
+const int _claimWeight = 5000;
 
 // ---------------------------------------------------------------------------
 // Move choice
@@ -501,6 +540,13 @@ Move _nightMove(
       }
       if (plain.isEmpty) return skips.first;
       final dangerous = view.accusersOf(mafiaSeats);
+      final claimant = memory.claimant;
+      if (claimant != null &&
+          match.players[claimant].status == PlayerStatus.alive) {
+        for (final m in plain) {
+          if (m.targetSeat == claimant) return m;
+        }
+      }
       // Kill somebody who has *not* moved against us: their suspicion is what
       // the trace would publish tomorrow, and publishing it is worse than
       // leaving them alive. Coordinated by the same seat tie-break as the
@@ -517,6 +563,13 @@ Move _nightMove(
       // and knew it.
       if (armedSkip != null && view.heatOn({seat})) return armedSkip;
       if (plain.isEmpty) return skips.first;
+      // Cover the Detective who has just told the table who they found.
+      final claimant = memory.claimant;
+      if (claimant != null && claimant != seat) {
+        for (final m in plain) {
+          if (m.targetSeat == claimant) return m;
+        }
+      }
       // Cover the loudest voice at the table.
       final suspicion = view.publicSuspicion;
       return _pick<NightActionMove>(
@@ -629,6 +682,7 @@ int _ballotScore(
 
   var score =
       (view.publicSuspicion[target] ?? 0) * 1000 + reads.spokenBy(seat, target);
+  if (memory.claimedMafia.contains(target)) score += _claimWeight;
   // The one line that separates the two town policies: believe the trace.
   if (town == TownPolicy.trace && view.lastTraceTarget == target) {
     score += _traceWeight;
