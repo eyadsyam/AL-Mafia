@@ -463,6 +463,8 @@ GoRouter buildRouter(
                     'story:$id:${DateTime.now().millisecondsSinceEpoch}',
                   );
             },
+            playNarration: (asset) =>
+                ref.read(audioDirectorProvider).playAccent(asset),
             watchAdForStep: () async =>
                 await showRewardedWith(
                   ref.read,

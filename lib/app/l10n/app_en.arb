@@ -3643,5 +3643,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "storiesListen": "Listen to the case"
 }

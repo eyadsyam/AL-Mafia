@@ -211,6 +211,7 @@ class StoryDefinition {
     required this.coverImage,
     this.sceneImage,
     this.evidenceImage,
+    this.narrationAudio,
     required this.actionBudget,
     required this.discussionSeconds,
     required this.characters,
@@ -236,6 +237,9 @@ class StoryDefinition {
 
   /// A still-life of the case's central object (never the answer); optional.
   final String? evidenceImage;
+
+  /// The case's opening read aloud (title and synopsis); optional.
+  final String? narrationAudio;
   final int actionBudget;
   final int discussionSeconds;
   final List<StoryCharacter> characters;
@@ -292,6 +296,7 @@ class StoryDefinition {
     coverImage: json['coverImage']! as String,
     sceneImage: json['sceneImage'] as String?,
     evidenceImage: json['evidenceImage'] as String?,
+    narrationAudio: json['narrationAudio'] as String?,
     actionBudget: json['actionBudget']! as int,
     discussionSeconds: json['discussionSeconds']! as int,
     characters: _maps(json['characters']).map(StoryCharacter.fromJson).toList(),

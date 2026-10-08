@@ -32,7 +32,11 @@ class StoryFlowScreen extends StatefulWidget {
     required this.onExit,
     required this.onComplete,
     this.watchAdForStep,
+    this.playNarration,
   });
+
+  /// Plays an audio asset at the table (the case's opening). Absent in tests.
+  final void Function(String asset)? playNarration;
 
   /// Shows a rewarded ad; true when it was watched to the end. Absent in
   /// tests and builds without ads. At most [StoryTokens.bonusSteps] a case.
@@ -194,6 +198,26 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     );
   }
 
+  String? get _narration =>
+      widget.playNarration == null ? null : widget.story.narrationAudio;
+  bool _narrated = false;
+
+  void _listen() {
+    final asset = _narration;
+    if (asset != null) widget.playNarration!(asset);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // The opening is read once, as the case is opened.
+    if (_narrated || _narration == null) return;
+    _narrated = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _listen();
+    });
+  }
+
   int _bonusSteps = 0;
   bool _watchingAd = false;
 
@@ -226,7 +250,10 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     return _shell(
       key: StoryFlowScreen.soloBoardKey,
       children: [
-        _StoryHeading(story: widget.story),
+        _StoryHeading(
+          story: widget.story,
+          onListen: _narration == null ? null : _listen,
+        ),
         SizedBox(height: spacing.md),
         _StatusLine(
           label: l.storiesActionsLeft,
@@ -503,15 +530,31 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
 }
 
 class _StoryHeading extends StatelessWidget {
-  const _StoryHeading({required this.story});
+  const _StoryHeading({required this.story, this.onListen});
 
   final StoryDefinition story;
+  final VoidCallback? onListen;
+
+  static const listenKey = ValueKey('story_listen');
 
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(story.title, style: context.typography.headline),
+      Row(
+        children: [
+          Expanded(
+            child: Text(story.title, style: context.typography.headline),
+          ),
+          if (onListen != null)
+            IconButton(
+              key: listenKey,
+              tooltip: context.l10n.storiesListen,
+              onPressed: onListen,
+              icon: const Icon(Icons.volume_up_rounded),
+            ),
+        ],
+      ),
       SizedBox(height: context.spacing.xs),
       Text(story.synopsis, style: context.typography.body),
       if (story.evidenceImage case final image?) ...[

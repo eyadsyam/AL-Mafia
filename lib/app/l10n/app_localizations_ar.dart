@@ -5787,4 +5787,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String botHintTown(String name) {
     return '$name مش من المافيا.';
   }
+
+  @override
+  String get storiesListen => 'اسمع القصة';
 }

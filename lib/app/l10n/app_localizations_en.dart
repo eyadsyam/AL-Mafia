@@ -5891,4 +5891,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String botHintTown(String name) {
     return '$name is not Mafia.';
   }
+
+  @override
+  String get storiesListen => 'Listen to the case';
 }

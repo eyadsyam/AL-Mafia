@@ -10068,6 +10068,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} is not Mafia.'**
   String botHintTown(String name);
+
+  /// No description provided for @storiesListen.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to the case'**
+  String get storiesListen;
 }
 
 class _AppLocalizationsDelegate

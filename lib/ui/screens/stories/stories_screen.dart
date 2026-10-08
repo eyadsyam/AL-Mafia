@@ -25,7 +25,11 @@ class StoriesScreen extends StatefulWidget {
     this.beforeStory,
     this.afterStory,
     this.watchAdForStep,
+    this.playNarration,
   });
+
+  /// Plays a case's read-aloud opening.
+  final void Function(String asset)? playNarration;
 
   /// Full-screen ad moments around a case (pass-and-play pacing rules).
   final Future<void> Function()? beforeStory;
@@ -110,6 +114,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
         onExit: () => setState(() => _launch = null),
         onComplete: _record,
         watchAdForStep: widget.watchAdForStep,
+        playNarration: widget.playNarration,
       );
     }
     if (_error != null) {

@@ -379,10 +379,15 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   /// F16: the installed narrator pack, if any. A missing or unreadable
   /// manifest leaves the narrator silent; nothing else depends on it.
   Future<void> _loadNarrator() async {
-    try {
-      final source = await rootBundle.loadString(narratorManifest);
-      _audio.narrator = NarratorBank.fromJson(source);
-    } catch (_) {}
+    for (final manifest in [narratorManifest, narratorFallbackManifest]) {
+      try {
+        final source = await rootBundle.loadString(manifest);
+        final bank = NarratorBank.fromJson(source);
+        if (bank.isEmpty) continue;
+        _audio.narrator = bank;
+        break;
+      } catch (_) {}
+    }
     for (final entry in narratorPackManifests.entries) {
       try {
         final source = await rootBundle.loadString(entry.value);

@@ -2613,5 +2613,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "storiesListen": "اسمع القصة"
 }
