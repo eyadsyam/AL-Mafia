@@ -3672,3 +3672,17 @@ Files:      tool/voice/script_v2.json, tool/voice/render_v2.mjs, assets/voice/**
 Verified:   full flutter test (narrator/twins failures fixed, test/platform all pass), analyze no errors, screenshots in build/screens_v15
 Gate:       PASS
 Open:       owner listens to https://claude.ai/artifact/Fyftx7BDmLpXVmjahf5Ure; no build/deploy until told
+
+## PHASE STORE-IDENTITY ? blocked
+Built:      Shared vault implementation, public scaffold/button/sheet theme, unified settings/setup/story/history/account panels and headers, calmer mode list, scrolling bot sheet, expanded screenshot harness; source audit in docs/ux/IDENTITY-2026-10-08.md.
+Files:      lib/ui/widgets/{mafia_kit,mafia_public,settings_kit,back_action,onboarding_card}.dart; lib/ui/economy/vault_kit.dart; lib/ui/theme/design_tokens.dart; public lib/ui/screens/**, account/**, fun/characters_screen.dart, social/friends.dart, missions/casebook_sheet.dart; test/screenshots/identity_screenshots.dart; docs/ux/IDENTITY*.md; docs/PROGRESS.md.
+Verified:   Scoped Dart analysis: No issues found; Dart formatting parsed shared components/harness; own-file CRLF-aware diff check passed; static token literal scan: 0 violations. Required Flutter analyze/test/screenshots attempted but blocked by SDK cache write and Pub cache read permissions; local SDK-cache fallback failed dependency bootstrap. No PNGs generated.
+Gate:       FAIL
+Open:       Run full Flutter analyze, test/golden/leakage suites and before/after screenshots with accessible dependencies; inspect 390/360 px renders and finish any remaining visual alignment. No commit/build/deploy. Launcher timeout cleanup was denied by sandbox process permissions.
+
+## PHASE identity-and-push — done
+Built:      One public identity from the store (lib/ui/widgets/mafia_kit.dart + mafia_public.dart: gold primary, gold-rim secondary, engraved panels, pills, empty/loading/error, MafiaScaffold with headline-size header, showMafiaSheet) across home, setup, stories, characters, account, onboarding, online entry/lobby, settings, help, history, results; in-match surfaces untouched (Doc 05). Push reach fixed: devices that already allow notifications now register silently, Android asks once from the second session (never the first), web stays tap-only — before this no device had ever registered (0 tokens), so invites could not reach a closed app.
+Files:      lib/ui/widgets/{mafia_kit,mafia_public}.dart, lib/ui/** (public screens), lib/ui/theme/design_tokens.dart, lib/platform/push/*, lib/ui/social/{push_prompt,incoming_invite}.dart, test/platform/push_ready_test.dart, test/screenshots/identity_screenshots.dart, docs/ux/IDENTITY-*.md
+Verified:   flutter analyze lib test (0 errors/warnings); flutter test +1810 ~5 all passed; before/after renders in build/identity_compare
+Gate:       PASS
+Open:       push needs a new build to reach players; big-table/brutal preset decision; no build/deploy until the owner says

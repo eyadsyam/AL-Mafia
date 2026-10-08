@@ -34,6 +34,8 @@ class _Push implements PushService {
   @override
   Future<bool> askPermission() async => grant;
   @override
+  Future<bool> isGranted() async => false;
+  @override
   Future<String?> token() async => 'tok-${'x' * 30}';
   @override
   Stream<PushOpen> get opened => const Stream.empty();

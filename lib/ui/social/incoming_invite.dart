@@ -192,7 +192,7 @@ class IncomingInviteHostState extends ConsumerState<IncomingInviteHost>
         tz: await deviceTimeZone(),
         locale: deviceLocaleTag(),
       );
-      unawaited(ref.read(pushPromptProvider).refreshIfAsked());
+      unawaited(ref.read(pushPromptProvider).onPlayerReady());
     } catch (_) {
       _helloAt = null;
     }

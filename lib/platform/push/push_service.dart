@@ -46,9 +46,14 @@ abstract class PushService {
   /// Creates the notification channels. Safe to call more than once.
   Future<void> init();
 
-  /// The runtime permission prompt (Android 13+, the browser). Only ever
-  /// called in context: opening the invite sheet or receiving an invite.
+  /// The runtime permission prompt (Android 13+, the browser). Never on the
+  /// first launch: from the second session on Android, or in context
+  /// (opening the invite sheet, receiving an invite).
   Future<bool> askPermission();
+
+  /// Whether notifications are already allowed, without prompting: Android
+  /// below 13 always, or a player who allowed them in the system settings.
+  Future<bool> isGranted();
 
   /// This device's push token, or null.
   Future<String?> token();
@@ -74,6 +79,8 @@ class NoPushService implements PushService {
   Future<void> init() async {}
   @override
   Future<bool> askPermission() async => false;
+  @override
+  Future<bool> isGranted() async => false;
   @override
   Future<String?> token() async => null;
   @override

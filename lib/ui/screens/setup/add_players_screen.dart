@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 import '../../../engine/models/player.dart';
 import '../../widgets/gender_picker.dart';
@@ -228,7 +229,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
     final canNext = _canNext;
     final canQuickStart = _canQuickStart;
 
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
       body: ExperienceSurface(
         child: SafeArea(
@@ -504,20 +505,14 @@ class _SaveGroupPrompt extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final spacing = context.spacing;
-    final radii = context.radii;
     final type = context.typography;
     final l10n = context.l10n;
 
-    return Container(
+    return MafiaPanel(
       key: AddPlayersScreen.saveGroupPrompt,
       padding: EdgeInsets.symmetric(
         horizontal: spacing.md,
         vertical: spacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: colors.surfaceRaised,
-        borderRadius: BorderRadius.circular(radii.card),
-        border: Border.all(color: colors.borderSubtle),
       ),
       child: Row(
         children: [

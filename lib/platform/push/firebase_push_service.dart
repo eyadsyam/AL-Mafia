@@ -239,6 +239,24 @@ class FirebasePushService implements PushService {
   }
 
   @override
+  Future<bool> isGranted() async {
+    try {
+      final android = _local
+          ?.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      if (android != null) {
+        return await android.areNotificationsEnabled() ?? false;
+      }
+      final settings = await _messaging.getNotificationSettings();
+      return settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
   Future<String?> token() async {
     try {
       return await _messaging.getToken(vapidKey: _vapidKey);

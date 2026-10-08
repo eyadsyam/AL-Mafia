@@ -124,6 +124,7 @@ void main() {
       expect(find.byKey(StoryFlowScreen.privateCardKey), findsOneWidget);
 
       await tester.ensureVisible(find.text(arStrings.storiesCoverAndPass));
+      await tester.pumpAndSettle();
       await tester.tap(find.text(arStrings.storiesCoverAndPass));
       await tester.pumpAndSettle();
       expect(find.byKey(StoryFlowScreen.handoffKey), findsOneWidget);

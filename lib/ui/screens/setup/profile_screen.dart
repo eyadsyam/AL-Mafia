@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import '../../fun/founder_badge.dart';
 import '../../fun/character_dossiers.dart';
 import '../../fun/loaded_capabilities.dart';
@@ -103,7 +104,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         !_saving &&
         _name.text.trim().isNotEmpty &&
         _gender != PlayerGender.unspecified;
-    return Scaffold(
+    return MafiaScaffold(
       body: ExperienceSurface(
         child: SetupEntrance(
           child: SafeArea(

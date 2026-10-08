@@ -1,3 +1,4 @@
+import '../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show SignOutScope;
@@ -46,7 +47,7 @@ final deleteAccountActionProvider = Provider<DeleteAccountAction>((ref) {
 
 /// The confirm sheet. Closing it (scrim, back, «مش دلوقتي») deletes nothing.
 Future<void> showDeleteAccountSheet(BuildContext context) =>
-    showModalBottomSheet<void>(
+    showMafiaSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

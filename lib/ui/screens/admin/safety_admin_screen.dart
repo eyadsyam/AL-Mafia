@@ -132,7 +132,7 @@ class _SafetyAdminScreenState extends ConsumerState<SafetyAdminScreen> {
         if (mounted && _admin == null && _error == null) _load();
       });
     }
-    return Scaffold(
+    return MafiaScaffold(
       appBar: AppBar(
         title: Text(l.adminSafetyTitle),
         leading: widget.onBack == null

@@ -2,6 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 
+/// Shared public identity geometry; private turn geometry stays unchanged.
+abstract final class IdentityTokens {
+  static const double target = 48;
+  static const double buttonWidth = 64;
+
+  /// A public screen's header carries its title at headline size.
+  static const double headerHeight = 72;
+  static const double flat = 0;
+  static const transparent = Colors.transparent;
+}
+
 /// Color palette tokens for Mafia Master.
 class MafiaColors extends ThemeExtension<MafiaColors> {
   final Color surfaceBase;

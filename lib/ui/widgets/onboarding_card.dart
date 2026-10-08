@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/mafia_theme.dart';
-import 'textured_surface.dart';
+import 'mafia_kit.dart';
 import 'feathered_art.dart';
 
 /// One face of the onboarding deck.
@@ -71,7 +71,7 @@ class OnboardingCard extends StatelessWidget {
     final spacing = context.spacing;
     final type = context.typography;
 
-    return PaperPanel(
+    return MafiaPanel(
       child: Stack(
         children: [
           Positioned.fill(child: _Watermark(numeral: numeral)),

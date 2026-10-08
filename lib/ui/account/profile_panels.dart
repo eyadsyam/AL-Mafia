@@ -1,3 +1,4 @@
+import '../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -42,14 +43,8 @@ class AccountCard extends ConsumerWidget {
           key: cardKey,
           borderRadius: BorderRadius.circular(context.radii.card),
           onTap: () => showAccountSheet(context),
-          child: Container(
+          child: MafiaPanel(
             padding: EdgeInsets.all(s.md),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(context.radii.card),
-              border: Border.all(
-                color: guest ? colors.accentGold : colors.borderSubtle,
-              ),
-            ),
             child: Row(
               children: [
                 Icon(

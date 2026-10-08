@@ -1,3 +1,4 @@
+import 'mafia_kit.dart';
 import 'package:flutter/material.dart';
 
 import '../../platform/reduce_motion.dart';
@@ -41,71 +42,31 @@ class SettingsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final spacing = context.spacing;
-    final radii = context.radii;
-    final type = context.typography;
-
-    return Container(
-      margin: EdgeInsets.only(bottom: spacing.md),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radii.card),
-        border: Border.all(color: colors.borderSubtle),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color.alphaBlend(
-              colors.accentGold.withValues(alpha: SettingsTokens.panelGlow),
-              colors.surfaceRaised,
-            ),
-            colors.surfaceRaised,
-          ],
-        ),
-        boxShadow: context.elevation.level1,
-      ),
-      padding: EdgeInsets.fromLTRB(
-        spacing.md,
-        spacing.md,
-        spacing.md,
-        spacing.sm,
-      ),
-      // The rows' ink belongs on the panel, not on a Material under it.
-      child: Material(
-        type: MaterialType.transparency,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
+    return Padding(
+      padding: EdgeInsets.only(bottom: spacing.md),
+      child: VaultCard(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VaultHeading(
+            title: title,
+            subtitle: subtitle,
+            leading: SettingsBadge(icon: icon),
+          ),
+          SizedBox(height: spacing.sm),
+          Material(
+            type: MaterialType.transparency,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SettingsBadge(icon: icon),
-                SizedBox(width: spacing.sm + spacing.xs),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: type.title.copyWith(color: colors.textPrimary),
-                      ),
-                      if (subtitle != null)
-                        Text(
-                          subtitle!,
-                          style: type.caption.copyWith(color: colors.textMuted),
-                        ),
-                    ],
-                  ),
-                ),
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0 && divided) const VaultDivider(),
+                  children[i],
+                ],
               ],
             ),
-            SizedBox(height: spacing.sm),
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0 && divided)
-                Divider(color: colors.borderSubtle, height: spacing.sm + 1),
-              children[i],
-            ],
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -470,25 +431,14 @@ class SettingsLinkRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    return InkWell(
-      borderRadius: BorderRadius.circular(context.radii.button),
+    return MafiaListRow(
+      title: label,
+      subtitle: hint,
+      leading:
+          leading ??
+          SettingsBadge(icon: icon ?? Icons.circle_outlined, small: true),
+      trailing: Icon(Icons.chevron_right, color: context.colors.textMuted),
       onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: spacing.sm),
-        child: Row(
-          children: [
-            leading ??
-                SettingsBadge(icon: icon ?? Icons.circle_outlined, small: true),
-            SizedBox(width: spacing.sm + spacing.xs),
-            Expanded(
-              child: _Label(label: label, hint: hint),
-            ),
-            Icon(Icons.chevron_right, color: colors.textMuted),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -502,28 +452,9 @@ class SettingsHeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final type = context.typography;
     return Padding(
-      padding: EdgeInsets.only(
-        top: spacing.sm,
-        bottom: spacing.sm + spacing.xs,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: type.headline.copyWith(color: colors.accentGold)),
-          if (subtitle != null)
-            Padding(
-              padding: EdgeInsets.only(top: spacing.xs),
-              child: Text(
-                subtitle!,
-                style: type.caption.copyWith(color: colors.textMuted),
-              ),
-            ),
-        ],
-      ),
+      padding: EdgeInsets.symmetric(vertical: context.spacing.sm),
+      child: VaultHeading(title: title, subtitle: subtitle),
     );
   }
 }

@@ -1,3 +1,4 @@
+import '../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -65,7 +66,7 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
     final colors = context.colors;
     final spacing = context.spacing;
     final l = context.l10n;
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
       bottomNavigationBar: const SafeArea(
         top: false,

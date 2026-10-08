@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 
 import '../../../engine/bots/bot_brain.dart';
@@ -14,7 +15,7 @@ const _maxPlayers = 12;
 
 /// «العب ضد البوتات»: table size and preset, in a sheet.
 Future<BotMatchPick?> showBotMatchSheet(BuildContext context) =>
-    showModalBottomSheet<BotMatchPick>(
+    showMafiaSheet<BotMatchPick>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -41,7 +42,7 @@ class _BotMatchSheetState extends State<_BotMatchSheet> {
     final s = context.spacing;
     final type = context.typography;
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           s.screenMargin,
           0,
@@ -56,7 +57,7 @@ class _BotMatchSheetState extends State<_BotMatchSheet> {
             SizedBox(height: s.xs),
             Text(l.modeBotsBody, style: type.bodySmall),
             SizedBox(height: s.md),
-            Text(l.botSheetPlayers, style: type.title),
+            VaultHeading(title: l.botSheetPlayers, compact: true),
             SizedBox(height: s.sm),
             Wrap(
               spacing: s.sm,
@@ -71,7 +72,7 @@ class _BotMatchSheetState extends State<_BotMatchSheet> {
               ],
             ),
             SizedBox(height: s.md),
-            Text(l.presetLabel, style: type.title),
+            VaultHeading(title: l.presetLabel, compact: true),
             SizedBox(height: s.sm),
             Wrap(
               spacing: s.sm,
@@ -88,7 +89,7 @@ class _BotMatchSheetState extends State<_BotMatchSheet> {
             SizedBox(height: s.xs),
             Text(EngineCopy.presetHint(l, _preset), style: type.caption),
             SizedBox(height: s.md),
-            Text(l.botSheetLevel, style: type.title),
+            VaultHeading(title: l.botSheetLevel, compact: true),
             SizedBox(height: s.sm),
             Wrap(
               spacing: s.sm,

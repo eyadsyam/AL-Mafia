@@ -235,7 +235,7 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
   }
 
   Future<void> _open(String code) async {
-    await showModalBottomSheet<void>(
+    await showMafiaSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -327,7 +327,7 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
       initialIndex: ref.read(pendingInviteCodeProvider) != null && council >= 0
           ? council
           : 0,
-      child: Scaffold(
+      child: MafiaScaffold(
         backgroundColor: Colors.transparent,
         // The vault's own room behind it: on a wide window the column no
         // longer floats in a black void, and on a phone it reads as a place.

@@ -1,3 +1,4 @@
+import '../widgets/mafia_kit.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -70,7 +71,7 @@ Future<void> showAccountSheet(
   String? failure,
 }) => showGeneralDialog<void>(
   context: context,
-  pageBuilder: (routeContext, _, _) => Scaffold(
+  pageBuilder: (routeContext, _, _) => MafiaScaffold(
     backgroundColor: routeContext.colors.surfaceBase,
     appBar: AppBar(title: Text(routeContext.l10n.accountTitle)),
     body: AccountSheet(onboarding: onboarding, failure: failure),

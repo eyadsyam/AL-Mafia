@@ -218,7 +218,7 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
       });
     }
     final orders = _orders;
-    return Scaffold(
+    return MafiaScaffold(
       appBar: AppBar(
         title: Text(l.adminPaymentsTitle),
         leading: widget.onBack == null

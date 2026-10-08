@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import '../../../engine/models/player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -105,7 +106,7 @@ class AnalyticsView extends StatelessWidget {
 
     return DefaultTabController(
       length: 4,
-      child: Scaffold(
+      child: MafiaScaffold(
         backgroundColor: colors.surfaceBase,
         appBar: AppBar(
           backgroundColor: colors.surfaceBase,
@@ -497,7 +498,7 @@ class _Message extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final spacing = context.spacing;
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
       body: AppBackdrop(
         child: SafeArea(

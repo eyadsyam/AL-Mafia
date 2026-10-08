@@ -21,7 +21,7 @@ import '../widgets/motion_sprite.dart';
 
 /// Opens «ملف القضايا» over whatever screen asked for it.
 Future<void> showCasebookSheet(BuildContext context, {int page = 0}) =>
-    showModalBottomSheet<void>(
+    showMafiaSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: context.colors.surfaceBase,

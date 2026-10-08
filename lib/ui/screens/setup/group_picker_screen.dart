@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -81,7 +82,7 @@ class GroupPickerScreen extends ConsumerWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) => onEmpty());
     }
 
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
       body: ExperienceSurface(
         child: SafeArea(
@@ -305,7 +306,7 @@ class _GroupTile extends StatelessWidget {
         onTap: onTap,
         onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(radii.card),
-        child: Container(
+        child: MafiaPanel(
           // Not a fixed height: the two lines plus generous padding is what
           // sets it, so a long Arabic name wraps to the ellipsis rather than
           // being clipped by a hard box.
@@ -314,11 +315,7 @@ class _GroupTile extends StatelessWidget {
             horizontal: spacing.md,
             vertical: spacing.md,
           ),
-          decoration: BoxDecoration(
-            color: colors.surfaceRaised,
-            borderRadius: BorderRadius.circular(radii.card),
-            border: Border.all(color: colors.borderSubtle),
-          ),
+
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,

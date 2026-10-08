@@ -111,6 +111,8 @@ class _Push implements PushService {
   }
 
   @override
+  Future<bool> isGranted() async => false;
+  @override
   Future<String?> token() async => 'token-${'x' * 30}';
   @override
   Stream<PushOpen> get opened => const Stream.empty();

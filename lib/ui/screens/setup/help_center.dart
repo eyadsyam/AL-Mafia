@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 
 import '../../l10n_ext.dart';
@@ -16,7 +17,7 @@ class HelpButton extends StatefulWidget {
 
 class _HelpButtonState extends State<HelpButton> {
   void _open() {
-    showModalBottomSheet<void>(
+    showMafiaSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -66,7 +67,7 @@ class HelpCenter extends StatelessWidget {
       (l.helpAgeQuestion, l.helpAgeAnswer),
       (l.helpSupportQuestion, l.helpSupportAnswer),
     ];
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: context.colors.surfaceRaised,
       appBar: AppBar(
         title: Text(l.helpTitle),

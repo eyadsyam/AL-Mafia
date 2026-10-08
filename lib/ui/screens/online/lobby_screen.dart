@@ -20,6 +20,7 @@ import '../../theme/mafia_theme.dart';
 import '../../widgets/connection_banner.dart';
 import '../../widgets/storage_warning_note.dart';
 import '../../widgets/experience_surface.dart';
+import '../../widgets/mafia_public.dart';
 
 import 'online_session.dart';
 import 'safety_center.dart';
@@ -431,7 +432,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
       });
     }
 
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
       bottomNavigationBar: kIsWeb ? const WebAdBanner() : null,
       body: ExperienceSurface(

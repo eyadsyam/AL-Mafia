@@ -139,7 +139,7 @@ void main() {
     expect(service, contains('await local.show('));
     expect(service, contains('AndroidNotificationDetails('));
     final host = File('lib/ui/social/incoming_invite.dart').readAsStringSync();
-    expect(host, contains('refreshIfAsked()'));
+    expect(host, contains('onPlayerReady()'));
   });
 
   test(

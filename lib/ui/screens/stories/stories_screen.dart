@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -122,7 +123,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
     }
     final stories = _stories;
     if (stories == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const MafiaScaffold(body: SafeArea(child: MafiaLoading(cards: 1)));
     }
     return StoriesHub(
       stories: stories,
@@ -165,7 +166,7 @@ class StoriesHub extends StatelessWidget {
   final void Function(StoryDefinition story, int playerCount) onStart;
 
   Future<void> _pickPlayers(BuildContext context, StoryDefinition story) async {
-    final count = await showModalBottomSheet<int>(
+    final count = await showMafiaSheet<int>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -180,7 +181,7 @@ class StoriesHub extends StatelessWidget {
     final colors = context.colors;
     final type = context.typography;
     final l = context.l10n;
-    return Scaffold(
+    return MafiaScaffold(
       key: hubKey,
       backgroundColor: colors.surfaceBase,
       bottomNavigationBar: const SafeArea(
@@ -246,16 +247,12 @@ class _StoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
-    final radii = context.radii;
     final colors = context.colors;
     final type = context.typography;
     final l = context.l10n;
     return Opacity(
       opacity: locked ? StoryTokens.lockedOpacity : 1,
-      child: Material(
-        color: colors.surfaceRaised,
-        borderRadius: BorderRadius.circular(radii.card),
-        clipBehavior: Clip.antiAlias,
+      child: MafiaPanel(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -360,19 +357,7 @@ class _Tag extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      color: context.colors.surfaceOverlay,
-      borderRadius: BorderRadius.circular(context.radii.button),
-    ),
-    child: Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: context.spacing.sm,
-        vertical: context.spacing.xs,
-      ),
-      child: Text(text, style: context.typography.caption),
-    ),
-  );
+  Widget build(BuildContext context) => MafiaPill(text);
 }
 
 class _PlayerCountSheet extends StatelessWidget {
@@ -421,7 +406,7 @@ class _StoryLoadError extends StatelessWidget {
   final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => MafiaScaffold(
     body: SafeArea(
       child: Padding(
         padding: EdgeInsets.all(context.spacing.screenMargin),
@@ -433,15 +418,10 @@ class _StoryLoadError extends StatelessWidget {
               child: BackAction(onPressed: onBack),
             ),
             const Spacer(),
-            Text(
-              context.l10n.storiesLoadError,
-              textAlign: TextAlign.center,
-              style: context.typography.title,
-            ),
-            SizedBox(height: context.spacing.md),
-            FilledButton(
-              onPressed: onRetry,
-              child: Text(context.l10n.storiesRetry),
+            MafiaError(
+              message: context.l10n.storiesLoadError,
+              action: context.l10n.storiesRetry,
+              onRetry: onRetry,
             ),
             const Spacer(),
           ],

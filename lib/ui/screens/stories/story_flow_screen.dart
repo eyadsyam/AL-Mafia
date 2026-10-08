@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -114,7 +115,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
   }
 
   Future<void> _openAccusation({required bool vote}) async {
-    final accusation = await showModalBottomSheet<StoryAccusation>(
+    final accusation = await showMafiaSheet<StoryAccusation>(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
@@ -155,7 +156,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     onPopInvokedWithResult: (didPop, result) {
       if (!didPop && !_privatePhase) widget.onExit();
     },
-    child: Scaffold(
+    child: MafiaScaffold(
       backgroundColor: context.colors.surfaceBase,
       body: ExperienceSurface(
         image: widget.story.sceneImage,
@@ -677,12 +678,8 @@ class _PrivateBlock extends StatelessWidget {
   final String body;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => MafiaPanel(
     padding: EdgeInsets.all(context.spacing.md),
-    decoration: BoxDecoration(
-      color: context.colors.surfaceRaised,
-      borderRadius: BorderRadius.circular(context.radii.card),
-    ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -700,12 +697,8 @@ class _TimelineBeat extends StatelessWidget {
   final StoryTimelineBeat beat;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => MafiaPanel(
     padding: EdgeInsets.all(context.spacing.md),
-    decoration: BoxDecoration(
-      color: context.colors.surfaceRaised,
-      borderRadius: BorderRadius.circular(context.radii.card),
-    ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

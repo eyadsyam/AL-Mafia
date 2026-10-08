@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -188,7 +189,7 @@ class ResultScreen extends StatelessWidget {
     return _BondResultRecorder(
       winner: winner,
       rows: rows,
-      child: Scaffold(
+      child: MafiaScaffold(
         backgroundColor: colors.surfaceBase,
         bottomNavigationBar: kIsWeb ? const WebAdBanner() : null,
         body: AppBackdrop(

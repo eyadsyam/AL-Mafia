@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -220,7 +221,7 @@ class ScenarioStore extends ConsumerWidget {
     final state = ref.watch(scenarioPurchaseProvider);
     final l = context.l10n;
     final spacing = context.spacing;
-    return Scaffold(
+    return MafiaScaffold(
       appBar: AppBar(
         title: Text(l.premiumScenarioTitle),
         leading: IconButton(onPressed: onClose, icon: const Icon(Icons.close)),

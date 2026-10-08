@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -55,7 +56,7 @@ class _Waiting extends StatelessWidget {
   const _Waiting();
   @override
   Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: CircularProgressIndicator()));
+      const MafiaScaffold(body: Center(child: CircularProgressIndicator()));
 }
 
 /// Language → (sign in or guest) → name and avatar → preferences → 18+ and
@@ -290,7 +291,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop && !_saving && _step > 0) _move(_step - 1);
       },
-      child: Scaffold(
+      child: MafiaScaffold(
         body: ExperienceSurface(
           child: SafeArea(
             child: Center(

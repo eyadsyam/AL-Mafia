@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -551,7 +552,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
           ),
       ],
     );
-    return Scaffold(
+    return MafiaScaffold(
       body: ExperienceSurface(
         child: SafeArea(
           child: Center(
@@ -1145,14 +1146,9 @@ class _EmptyRooms extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final s = context.spacing;
-    return Container(
+    return MafiaPanel(
       margin: EdgeInsets.only(top: s.md),
       padding: EdgeInsets.all(s.md),
-      decoration: BoxDecoration(
-        color: c.surfaceRaised,
-        borderRadius: BorderRadius.circular(context.radii.card),
-        border: Border.all(color: c.borderSubtle),
-      ),
       child: Row(
         children: [
           Icon(Icons.meeting_room_outlined, color: c.accentGold),
@@ -1188,15 +1184,8 @@ class _PublicRoomTile extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: spacing.sm),
       child: Material(
-        color: c.surfaceRaised,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(context.radii.card),
-          side: BorderSide(
-            color: room.thursday ? c.accentGold : c.borderSubtle,
-          ),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: ListTile(
+        type: MaterialType.transparency,
+        child: MafiaPanel(child: ListTile(
           contentPadding: EdgeInsets.symmetric(horizontal: spacing.md),
           enabled: onTap != null,
           title: Text(
@@ -1255,7 +1244,7 @@ class _PublicRoomTile extends StatelessWidget {
             ],
           ),
           onTap: onTap,
-        ),
+        )),
       ),
     );
   }

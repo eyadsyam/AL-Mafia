@@ -1,3 +1,4 @@
+import '../widgets/mafia_kit.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -312,7 +313,7 @@ Future<void> showFriendsSheet(
   BuildContext context, {
   required ValueChanged<String> onJoin,
   String? inviteRoomId,
-}) => showModalBottomSheet<void>(
+}) => showMafiaSheet<void>(
   context: context,
   isScrollControlled: true,
   backgroundColor: context.colors.surfaceBase,

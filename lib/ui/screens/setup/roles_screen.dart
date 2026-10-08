@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 import '../../../engine/balance_guard.dart';
 import '../../../engine/models/enums.dart' show Role;
@@ -114,7 +115,7 @@ class _RolesScreenState extends State<RolesScreen> {
     final l10n = context.l10n;
     final report = _report;
 
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
       body: ExperienceSurface(
         child: SafeArea(
@@ -311,17 +312,11 @@ class _RoleStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final spacing = context.spacing;
-    final radii = context.radii;
     final type = context.typography;
 
-    return Container(
+    return MafiaPanel(
       height: spacing.xxl + spacing.md,
       padding: EdgeInsets.symmetric(horizontal: spacing.md),
-      decoration: BoxDecoration(
-        color: colors.surfaceRaised,
-        borderRadius: BorderRadius.circular(radii.card),
-        border: Border.all(color: colors.borderSubtle),
-      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -106,7 +107,7 @@ class HomeScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final bondsEnabled = loadedCapabilities(ref)?.fun.characterBonds == true;
 
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
       bottomNavigationBar: kIsWeb
           ? const WebAdBanner()

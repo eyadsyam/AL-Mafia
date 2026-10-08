@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -131,7 +132,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final type = context.typography;
     final l10n = context.l10n;
 
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
       appBar: AppBar(
         backgroundColor: colors.surfaceBase,
@@ -184,11 +185,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         excludeFromSemantics: true,
                       ),
                       SizedBox(height: spacing.lg),
-                      Text(
-                        l10n.noPastMatches,
-                        textAlign: TextAlign.center,
-                        style: type.title.copyWith(color: colors.textSecondary),
-                      ),
+                      MafiaEmpty(title: l10n.noPastMatches),
                     ],
                   ),
                 ),
@@ -307,12 +304,7 @@ class _CaseFile extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            border: BorderDirectional(
-              start: BorderSide(color: tint, width: UiPolishTokens.caseStripe),
-            ),
-          ),
+        child: MafiaPanel(
           padding: EdgeInsets.all(spacing.md),
           child: Row(
             children: [

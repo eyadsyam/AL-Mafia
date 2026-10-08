@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -337,7 +338,7 @@ class _OnboardingVideoScreenState extends ConsumerState<OnboardingVideoScreen> {
     final spacing = context.spacing;
     final controller = _controller;
 
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
       body: Stack(
         fit: StackFit.expand,

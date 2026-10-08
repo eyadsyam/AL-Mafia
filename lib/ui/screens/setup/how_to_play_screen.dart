@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 
 import '../../../app/asset_constants.dart';
@@ -6,7 +7,6 @@ import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
-import '../../widgets/textured_surface.dart' show PaperPanel;
 
 /// The rules, short enough to actually be read.
 ///
@@ -47,7 +47,7 @@ class HowToPlayScreen extends StatelessWidget {
     final spacing = context.spacing;
     final l10n = context.l10n;
 
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
       body: ExperienceSurface(
         child: SafeArea(
@@ -70,7 +70,7 @@ class HowToPlayScreen extends StatelessWidget {
                         spacing.xxl,
                       ),
                       children: [
-                        PaperPanel(
+                        MafiaPanel(
                           child: Padding(
                             padding: EdgeInsets.all(spacing.lg),
                             child: Column(
@@ -205,7 +205,7 @@ class _Section extends StatelessWidget {
         children: [
           _Heading(title: title),
           SizedBox(height: spacing.sm),
-          PaperPanel(
+          MafiaPanel(
             child: Padding(
               padding: EdgeInsets.all(spacing.md),
               child: Text(
@@ -243,7 +243,7 @@ class _RolesSection extends StatelessWidget {
         children: [
           _Heading(title: title),
           SizedBox(height: spacing.sm),
-          PaperPanel(
+          MafiaPanel(
             child: Padding(
               padding: EdgeInsets.all(spacing.md),
               child: Column(
@@ -335,20 +335,6 @@ class _Heading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final type = context.typography;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: type.title.copyWith(color: colors.textPrimary)),
-        SizedBox(height: spacing.xs),
-        SizedBox(
-          width: spacing.xl,
-          child: Divider(color: colors.accentGold, height: 1, thickness: 1),
-        ),
-      ],
-    );
+    return VaultHeading(title: title);
   }
 }

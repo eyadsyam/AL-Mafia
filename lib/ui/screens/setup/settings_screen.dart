@@ -1,3 +1,4 @@
+import '../../widgets/mafia_kit.dart';
 import '../../widgets/language_picker.dart';
 import '../../widgets/legal_documents.dart';
 import '../../widgets/setup_entrance.dart';
@@ -276,7 +277,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ]
         : [...rules, _audio(l10n)];
 
-    return Scaffold(
+    return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
       bottomNavigationBar: kIsWeb && widget.playerCount == null
           ? const WebAdBanner()

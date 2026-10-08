@@ -1,3 +1,4 @@
+import 'mafia_kit.dart' show VaultHeading;
 import 'package:flutter/material.dart';
 
 import '../l10n_ext.dart';
@@ -175,59 +176,13 @@ class ScreenHeader extends StatelessWidget {
     this.trailing,
   });
 
-  /// Width reserved either side of the title, so the title stays optically
-  /// centred whether or not there is a back control or a trailing widget.
-  ///
-  /// Matches the icon control's touch target. It was 88 — sized for a word in a
-  /// box — and that reservation is most of why the titles had no room.
-  static const double _sideSlot = NavIconButton.touchTarget;
-
   @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final type = context.typography;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: spacing.sm,
-        vertical: spacing.sm,
-      ),
-      child: Row(
-        children: [
-          if (onBack != null)
-            BackAction(onPressed: onBack!)
-          else
-            // Keeps the title in the same place whether or not there is a way
-            // back, so stepping through setup does not make the heading jump.
-            const SizedBox(width: _sideSlot),
-          Expanded(
-            // # Why this is a FittedBox and not just an ellipsis
-            //
-            // It was an ellipsis, and the players screen shipped reading
-            // "أضف اللاع…". The gutters take 88dp a side out of a 390dp screen,
-            // which left about 158dp for a 32dp headline — not enough, at any
-            // OS font setting, for a title that is simply long.
-            //
-            // Truncating a *screen title* is the one place an ellipsis is
-            // never acceptable: it is the label that tells someone which screen
-            // they are on. `scaleDown` shrinks the type only when it has to and
-            // never enlarges it, so short titles are untouched and long ones
-            // stay whole. The narrower icon back control gives back most of the
-            // room that caused this, and this is what guarantees it.
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                title,
-                style: type.headline.copyWith(color: colors.textPrimary),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-              ),
-            ),
-          ),
-          SizedBox(width: _sideSlot, child: trailing),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.symmetric(vertical: context.spacing.sm),
+    child: VaultHeading(
+      title: title,
+      leading: onBack == null ? null : BackAction(onPressed: onBack!),
+      trailing: trailing,
+    ),
+  );
 }
