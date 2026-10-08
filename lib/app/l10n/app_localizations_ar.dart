@@ -5720,4 +5720,20 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get storiesBonusStep => 'شوف إعلان وخد خطوة تحقيق زيادة';
+
+  @override
+  String get modeBotsTitle => 'العب ضد البوتات';
+
+  @override
+  String get modeBotsBody =>
+      'ماتش كامل في أي وقت: إنت ولاعيبة بيشكّوا ويتهموا ويصوّتوا. مش محتاج تستنى حد.';
+
+  @override
+  String get botSheetPlayers => 'عدد اللاعيبة';
+
+  @override
+  String get botSheetStart => 'ابدأ الماتش';
+
+  @override
+  String get botYou => 'إنت';
 }

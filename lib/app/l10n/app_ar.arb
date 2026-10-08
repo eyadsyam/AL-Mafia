@@ -2544,5 +2544,10 @@
   },
   "elderVoteMark": "×٣",
   "silencedMark": "متسكّت",
-  "storiesBonusStep": "شوف إعلان وخد خطوة تحقيق زيادة"
+  "storiesBonusStep": "شوف إعلان وخد خطوة تحقيق زيادة",
+  "modeBotsTitle": "العب ضد البوتات",
+  "modeBotsBody": "ماتش كامل في أي وقت: إنت ولاعيبة بيشكّوا ويتهموا ويصوّتوا. مش محتاج تستنى حد.",
+  "botSheetPlayers": "عدد اللاعيبة",
+  "botSheetStart": "ابدأ الماتش",
+  "botYou": "إنت"
 }

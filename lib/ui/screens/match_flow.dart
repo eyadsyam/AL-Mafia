@@ -564,6 +564,14 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       GamePhase.openingRound => _openingRound(state),
       GamePhase.confrontation => _confrontation(state),
       GamePhase.discussion => _discussion(state),
+      // Every ballot already in (the last ones a bot's): nobody holds the
+      // phone, so the tally follows on its own.
+      GamePhase.voting || GamePhase.voteResolving
+          when _controller.playingWithBots && state.currentActorSeat == null =>
+        _AutoAdvance(
+          key: ValueKey('tally_${state.dayNumber}_${state.phase.name}'),
+          onReady: _resolveDayVote,
+        ),
       GamePhase.voting || GamePhase.voteResolving => VotingScreen(
         allowAbstain: _controller.settings.abstainAllowed,
         onVotingComplete: _resolveDayVote,
@@ -678,6 +686,15 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     // still has to identify themselves before anything appears (L-13).
     if (state.actorTurn == null && state.currentActorSeat != null) {
       return _AutoAdvance(onReady: _controller.openActorTurn);
+    }
+    // Every night turn already taken (the last ones a bot's).
+    if (_controller.playingWithBots &&
+        state.actorTurn == null &&
+        state.currentActorSeat == null) {
+      return _AutoAdvance(
+        key: ValueKey('night_done_${state.dayNumber}'),
+        onReady: _resolveNight,
+      );
     }
     return NightActionScreen(onNightComplete: _resolveNight);
   }
@@ -964,7 +981,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
 class _AutoAdvance extends StatefulWidget {
   final VoidCallback onReady;
 
-  const _AutoAdvance({required this.onReady});
+  const _AutoAdvance({super.key, required this.onReady});
 
   @override
   State<_AutoAdvance> createState() => _AutoAdvanceState();

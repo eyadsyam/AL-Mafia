@@ -9960,6 +9960,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Watch an ad for one more step'**
   String get storiesBonusStep;
+
+  /// No description provided for @modeBotsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Play against bots'**
+  String get modeBotsTitle;
+
+  /// No description provided for @modeBotsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A whole match any time: you and players who suspect, accuse and vote. No one to wait for.'**
+  String get modeBotsBody;
+
+  /// No description provided for @botSheetPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get botSheetPlayers;
+
+  /// No description provided for @botSheetStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the match'**
+  String get botSheetStart;
+
+  /// No description provided for @botYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get botYou;
 }
 
 class _AppLocalizationsDelegate

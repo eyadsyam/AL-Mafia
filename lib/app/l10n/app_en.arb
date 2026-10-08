@@ -3574,5 +3574,10 @@
   },
   "elderVoteMark": "×3",
   "silencedMark": "Silenced",
-  "storiesBonusStep": "Watch an ad for one more step"
+  "storiesBonusStep": "Watch an ad for one more step",
+  "modeBotsTitle": "Play against bots",
+  "modeBotsBody": "A whole match any time: you and players who suspect, accuse and vote. No one to wait for.",
+  "botSheetPlayers": "Players",
+  "botSheetStart": "Start the match",
+  "botYou": "You"
 }

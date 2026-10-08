@@ -5824,4 +5824,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storiesBonusStep => 'Watch an ad for one more step';
+
+  @override
+  String get modeBotsTitle => 'Play against bots';
+
+  @override
+  String get modeBotsBody =>
+      'A whole match any time: you and players who suspect, accuse and vote. No one to wait for.';
+
+  @override
+  String get botSheetPlayers => 'Players';
+
+  @override
+  String get botSheetStart => 'Start the match';
+
+  @override
+  String get botYou => 'You';
 }

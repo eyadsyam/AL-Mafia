@@ -44,6 +44,7 @@ import '../ui/fun/characters_screen.dart';
 import '../ui/economy/council_hub.dart' show pendingInviteCodeProvider;
 import '../ui/economy/ad_veil.dart';
 import '../platform/monetization/rewarded_ads.dart';
+import '../ui/screens/setup/bot_match_sheet.dart';
 
 /// Route paths, in one place so navigation calls cannot drift from the table.
 abstract final class Routes {
@@ -239,6 +240,29 @@ GoRouter buildRouter(
     context.go(to);
   }
 
+  /// «العب ضد البوتات»: seat 0 is the player, every other seat a bot.
+  Future<void> startBotMatch(BuildContext context) async {
+    final pick = await showBotMatchSheet(context);
+    if (pick == null || dealing || !context.mounted) return;
+    final you = context.l10n.botYou;
+    dealing = true;
+    try {
+      await ref.read(interstitialCoordinatorProvider).beforeDeal();
+    } finally {
+      dealing = false;
+    }
+    if (!context.mounted) return;
+    ref
+        .read(matchControllerProvider.notifier)
+        .startMatch(
+          names: [you, ...kBotNames.take(pick.players - 1)],
+          roleCounts: pick.preset.roleCounts(pick.players),
+          settings: pick.preset.settings.copyWith(whisperEnabled: false),
+          botSeats: {for (var i = 1; i < pick.players; i++) i},
+        );
+    context.go(Routes.match);
+  }
+
   Future<void> startMatch(BuildContext context) async {
     final draft = ref.read(setupDraftProvider);
     final roleCounts = draft.roleCounts;
@@ -413,6 +437,7 @@ GoRouter buildRouter(
                 ? () => forwardTo(context, Routes.online)
                 : null,
             onPlayStories: () => forwardTo(context, Routes.stories),
+            onPlayBots: () => startBotMatch(context),
             onBack: () => context.go(Routes.home),
           ),
         ),

@@ -9,6 +9,7 @@ import '../../data/whisper_store.dart';
 import '../../transport/game_snapshot.dart';
 import '../../transport/game_transport.dart';
 import '../../transport/local_transport.dart';
+import '../../engine/bots/bot_brain.dart';
 import '../../engine/bullets.dart';
 import '../../engine/match_engine.dart';
 import '../../engine/models/enums.dart';
@@ -251,6 +252,7 @@ class MatchController extends Notifier<MatchUiState?> {
     required Map<Role, int> roleCounts,
     required MatchSettings settings,
     int? seed,
+    Set<int> botSeats = const {},
   }) {
     engine.start(
       names: names,
@@ -262,11 +264,25 @@ class MatchController extends Notifier<MatchUiState?> {
       // replay - gets exactly that match back.
       seed: seed ?? newMatchSeed(),
     );
+    // «العب ضد البوتات»: the computer seats play inside the local transport.
+    if (transport case final LocalTransport local) {
+      local.bots = botSeats.isEmpty
+          ? null
+          : BotBrain(
+              match: engine.match,
+              botSeats: botSeats,
+              seed: engine.match.seed ^ 0x5eed,
+            );
+    }
     // The engine was written to directly, so the transport's snapshot is a
     // match behind. Everything the screens read comes off that snapshot now.
     transport.resync();
     state = MatchUiState(public: transport.snapshot.public);
   }
+
+  /// Whether the computer plays some seats («العب ضد البوتات»).
+  bool get playingWithBots =>
+      transport is LocalTransport && (transport as LocalTransport).bots != null;
 
   /// Loads a match that was restored from storage.
   ///

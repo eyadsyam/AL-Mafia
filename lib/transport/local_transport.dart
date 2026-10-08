@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../data/whisper_store.dart';
+import '../engine/bots/bot_brain.dart';
 import '../engine/legal_moves.dart';
 import '../engine/bullets.dart';
 import '../engine/match_engine.dart';
@@ -101,9 +102,33 @@ class LocalTransport implements GameTransport {
     yield* _controller.stream;
   }
 
+  /// «العب ضد البوتات»: the computer seats. They play inside every publish,
+  /// so a screen only ever sees a human's turn. Null at an all-human table.
+  BotBrain? bots;
+
+  void _driveBots() {
+    final brain = bots;
+    if (brain == null) return;
+    for (var guard = 0; guard < 1000 && brain.controls(engine.match); guard++) {
+      final move = brain.choose(engine.match);
+      if (move is NightActionMove) {
+        final result = engine.submitNightAction(
+          seat: move.seat,
+          kind: move.kind,
+          targetSeat: move.targetSeat,
+          useBullet: move.useBullet,
+        );
+        if (result != null) brain.observe(move.seat, result);
+      } else {
+        move.apply(engine);
+      }
+    }
+  }
+
   /// Rebuilds and publishes the snapshot. Called after every command.
   void _publish() {
     if (!engine.hasMatch) return;
+    _driveBots();
     final match = engine.match;
     _snapshot = GameSnapshot(
       public: engine.publicView(),

@@ -21,6 +21,10 @@ class ModeScreen extends StatelessWidget {
   /// One phone, one to ten players, authored investigation files.
   final VoidCallback? onPlayStories;
 
+  /// «العب ضد البوتات»: a whole match alone, the other seats played by the
+  /// computer.
+  final VoidCallback? onPlayBots;
+
   /// Back to Home.
   final VoidCallback onBack;
 
@@ -29,12 +33,14 @@ class ModeScreen extends StatelessWidget {
     required this.onPlayOffline,
     required this.onPlayOnline,
     this.onPlayStories,
+    this.onPlayBots,
     required this.onBack,
   });
 
   static const Key offlineCard = ValueKey('mode_offline');
   static const Key onlineCard = ValueKey('mode_online');
   static const Key storiesCard = ValueKey('mode_stories');
+  static const Key botsCard = ValueKey('mode_bots');
   static const Key unavailableText = ValueKey('mode_unavailable');
 
   @override
@@ -91,6 +97,18 @@ class ModeScreen extends StatelessWidget {
                       emphasised: onPlayOnline == null,
                       onPressed: onPlayOffline,
                     ),
+                    if (onPlayBots != null) ...[
+                      SizedBox(height: spacing.md),
+                      _ModeCard(
+                        cardKey: ModeScreen.botsCard,
+                        art: AppCouncilArt.seatRingIdle,
+                        tintArt: true,
+                        title: l10n.modeBotsTitle,
+                        body: l10n.modeBotsBody,
+                        emphasised: true,
+                        onPressed: onPlayBots,
+                      ),
+                    ],
                     SizedBox(height: spacing.md),
                     _ModeCard(
                       cardKey: ModeScreen.storiesCard,
