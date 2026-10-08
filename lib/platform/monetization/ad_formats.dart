@@ -41,7 +41,7 @@ abstract interface class BannerAds {
 
 /// Where a banner sits. Each surface has its own ad unit so its earnings are
 /// reported apart; the lobby keeps the original unit.
-enum BannerPlacement { lobby, onlineHub, history, vault, profile, home }
+enum BannerPlacement { lobby, onlineHub, history, vault, profile }
 
 final appOpenAdsProvider = Provider<AppOpenAds>((ref) {
   final ads = createAppOpenAds();

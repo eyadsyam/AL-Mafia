@@ -88,7 +88,6 @@ abstract final class _Units {
       BannerPlacement.history => '$_pub/9258058781',
       BannerPlacement.vault => '$_pub/5318813774',
       BannerPlacement.profile => '$_pub/2919881145',
-      BannerPlacement.home => '$_pub/8363779511',
     };
   }
 }
