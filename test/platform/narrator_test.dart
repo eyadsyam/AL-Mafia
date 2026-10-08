@@ -36,6 +36,12 @@ NarratorClip clip(
 );
 
 /// F16 — the spoken narrator.
+/// The default narrator the app will load: Haytham once installed, else
+/// the Kratos fallback (see `_loadNarrator`).
+final _installedManifest = File(narratorManifest).existsSync()
+    ? narratorManifest
+    : narratorFallbackManifest;
+
 void main() {
   group('conditions read only what the table can see', () {
     const died = NarrationFacts(nightEliminated: 1);
@@ -172,7 +178,7 @@ void main() {
 
     test('the shipped manifest parses, and skips what it does not know', () {
       final shipped = NarratorBank.fromJson(
-        File(narratorManifest).readAsStringSync(),
+        File(_installedManifest).readAsStringSync(),
       );
       expect(shipped.clips, isA<List<NarratorClip>>());
       final mixed = NarratorBank.fromJson(
@@ -313,7 +319,7 @@ void main() {
         // A paid voice speaks every moment the free narrator does: each
         // (beat, condition) of the default bank has a line in the pack.
         final base = NarratorBank.fromJson(
-          File(narratorManifest).readAsStringSync(),
+          File(_installedManifest).readAsStringSync(),
         );
         final packMoments = {
           for (final c in bank.clips) '${c.beat.name}|${c.when}',
