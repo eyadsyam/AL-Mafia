@@ -334,6 +334,15 @@ abstract final class MotionTokens {
   static const double seal = 72;
   static const double flame = 28;
   static const Duration burstLength = Duration(milliseconds: 830);
+
+  /// A stamp («×٣» for a revealed Elder) lands from this scale down to 1.
+  static const double stampFromScale = 1.6;
+
+  /// A card flipping in (a new story clue) starts edge-on: a quarter turn.
+  static const double flipFromRadians = 1.5708;
+
+  /// Perspective for the flip, as the 3D matrix entry (row 3, column 2).
+  static const double flipPerspective = 0.0015;
   static const Duration sealLength = Duration(milliseconds: 1000);
 
   /// The act between two faces on a witness news line, played once.

@@ -5711,4 +5711,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String storyRewardGranted(int coins) {
     return 'أول حل للقصة: +$coins كوينز';
   }
+
+  @override
+  String get elderVoteMark => '×٣';
+
+  @override
+  String get silencedMark => 'متسكّت';
 }

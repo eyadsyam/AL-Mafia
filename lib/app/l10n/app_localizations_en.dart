@@ -5815,4 +5815,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String storyRewardGranted(int coins) {
     return 'First solve: +$coins coins';
   }
+
+  @override
+  String get elderVoteMark => '×3';
+
+  @override
+  String get silencedMark => 'Silenced';
 }

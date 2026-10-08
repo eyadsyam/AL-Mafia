@@ -3571,5 +3571,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "elderVoteMark": "×3",
+  "silencedMark": "Silenced"
 }

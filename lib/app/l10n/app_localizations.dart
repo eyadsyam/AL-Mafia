@@ -9942,6 +9942,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'First solve: +{coins} coins'**
   String storyRewardGranted(int coins);
+
+  /// No description provided for @elderVoteMark.
+  ///
+  /// In en, this message translates to:
+  /// **'×3'**
+  String get elderVoteMark;
+
+  /// No description provided for @silencedMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Silenced'**
+  String get silencedMark;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/mafia_theme.dart';
+import 'reveal_motion.dart';
 
 /// The visual states a [PlayerTile] can be in. These are *game* states, never
 /// role states: nothing here may be reachable only for one role.
@@ -36,6 +37,10 @@ class PlayerTile extends StatelessWidget {
 
   final VoidCallback? onTap;
 
+  /// A public fact about the seat everyone at the table already knows (a
+  /// revealed Elder's «×٣», a silenced player). Same for every viewer.
+  final String? publicMark;
+
   const PlayerTile({
     super.key,
     required this.seat,
@@ -43,6 +48,7 @@ class PlayerTile extends StatelessWidget {
     this.state = PlayerTileState.normal,
     this.indicatorCount = 0,
     this.onTap,
+    this.publicMark,
   });
 
   bool get _selectable =>
@@ -105,6 +111,10 @@ class PlayerTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            if (publicMark case final mark?) ...[
+              SizedBox(width: spacing.sm),
+              SeatMark(label: mark),
+            ],
             SizedBox(width: spacing.md),
             SizedBox(
               width: spacing.lg,

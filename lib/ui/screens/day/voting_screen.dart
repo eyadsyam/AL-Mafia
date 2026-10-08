@@ -154,16 +154,24 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
                       separatorBuilder: (_, __) => SizedBox(height: spacing.sm),
                       itemBuilder: (context, index) {
                         final p = candidates[index];
+                        final snap = controller.snapshot;
                         return PlayerTile(
                           seat: p.seat,
                           name: p.name,
+                          publicMark: snap.revealedElderSeats.contains(p.seat)
+                              ? context.l10n.elderVoteMark
+                              : snap.silencedSeat == p.seat
+                              ? context.l10n.silencedMark
+                              : null,
                           state: _selectedSeat == p.seat && !_abstaining
                               ? PlayerTileState.selected
                               : PlayerTileState.normal,
-                          onTap: silenced ? null : () => setState(() {
-                            _selectedSeat = p.seat;
-                            _abstaining = false;
-                          }),
+                          onTap: silenced
+                              ? null
+                              : () => setState(() {
+                                  _selectedSeat = p.seat;
+                                  _abstaining = false;
+                                }),
                         );
                       },
                     ),
@@ -177,10 +185,12 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
                     child: widget.allowAbstain
                         ? OutlinedButton(
                             key: VotingScreen.abstainButton,
-                            onPressed: silenced ? null : () => setState(() {
-                              _abstaining = true;
-                              _selectedSeat = null;
-                            }),
+                            onPressed: silenced
+                                ? null
+                                : () => setState(() {
+                                    _abstaining = true;
+                                    _selectedSeat = null;
+                                  }),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: _abstaining
                                   ? colors.accentGold

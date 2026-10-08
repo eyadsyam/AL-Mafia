@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../stories/story_model.dart';
 import '../../../stories/story_session.dart';
 import '../../l10n_ext.dart';
+import '../../widgets/reveal_motion.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
@@ -544,22 +545,25 @@ class _ClueBoard extends StatelessWidget {
           Text(context.l10n.storiesNoClues, style: context.typography.bodySmall)
         else
           for (final clue in clues) ...[
-            Container(
-              constraints: const BoxConstraints(
-                minHeight: StoryTokens.clueMinHeight,
-              ),
-              padding: EdgeInsets.all(spacing.md),
-              decoration: BoxDecoration(
-                color: context.colors.surfaceRaised,
-                borderRadius: BorderRadius.circular(context.radii.card),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(clue.title, style: context.typography.title),
-                  SizedBox(height: spacing.xs),
-                  Text(clue.body, style: context.typography.bodySmall),
-                ],
+            FlipIn(
+              key: ValueKey(clue.id),
+              child: Container(
+                constraints: const BoxConstraints(
+                  minHeight: StoryTokens.clueMinHeight,
+                ),
+                padding: EdgeInsets.all(spacing.md),
+                decoration: BoxDecoration(
+                  color: context.colors.surfaceRaised,
+                  borderRadius: BorderRadius.circular(context.radii.card),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(clue.title, style: context.typography.title),
+                    SizedBox(height: spacing.xs),
+                    Text(clue.body, style: context.typography.bodySmall),
+                  ],
+                ),
               ),
             ),
             SizedBox(height: spacing.sm),
