@@ -148,6 +148,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     child: Scaffold(
       backgroundColor: context.colors.surfaceBase,
       body: ExperienceSurface(
+        image: widget.story.sceneImage,
         child: SafeArea(
           child: AnimatedSwitcher(
             duration: context.motion.standard,

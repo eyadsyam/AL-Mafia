@@ -209,6 +209,7 @@ class StoryDefinition {
     required this.difficulty,
     required this.lengthMinutes,
     required this.coverImage,
+    this.sceneImage,
     required this.actionBudget,
     required this.discussionSeconds,
     required this.characters,
@@ -228,6 +229,9 @@ class StoryDefinition {
   final int difficulty;
   final int lengthMinutes;
   final String coverImage;
+
+  /// The painted location the story plays in, behind its screens; optional.
+  final String? sceneImage;
   final int actionBudget;
   final int discussionSeconds;
   final List<StoryCharacter> characters;
@@ -282,6 +286,7 @@ class StoryDefinition {
     difficulty: json['difficulty']! as int,
     lengthMinutes: json['lengthMinutes']! as int,
     coverImage: json['coverImage']! as String,
+    sceneImage: json['sceneImage'] as String?,
     actionBudget: json['actionBudget']! as int,
     discussionSeconds: json['discussionSeconds']! as int,
     characters: _maps(json['characters']).map(StoryCharacter.fromJson).toList(),

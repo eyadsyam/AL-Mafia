@@ -222,6 +222,23 @@ class _TableToolsShopTabState extends ConsumerState<TableToolsShopTab> {
   }
 }
 
+/// The tool's engraved icon (assets/images/tools/tool_<code>.webp); nothing
+/// when a tool has no art yet.
+class ToolIcon extends StatelessWidget {
+  final String code;
+  final double size;
+  const ToolIcon({super.key, required this.code, required this.size});
+
+  @override
+  Widget build(BuildContext context) => Image.asset(
+    'assets/images/tools/tool_$code.webp',
+    width: size,
+    height: size,
+    excludeFromSemantics: true,
+    errorBuilder: (_, _, _) => SizedBox(width: size, height: size),
+  );
+}
+
 class _ToolCard extends StatelessWidget {
   final TableTool tool;
   final String? busy;
@@ -252,6 +269,8 @@ class _ToolCard extends StatelessWidget {
           children: [
             Row(
               children: [
+                ToolIcon(code: tool.code, size: s.xxl),
+                SizedBox(width: s.sm),
                 Expanded(
                   child: Text(
                     copy.$1,
@@ -445,6 +464,7 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
                   children: [
                     for (final t in usable)
                       ChoiceChip(
+                        avatar: ToolIcon(code: t.code, size: s.lg),
                         label: Text(
                           '${tableToolCopy(l, t.code)?.$1 ?? t.code} · ${t.charges}',
                         ),

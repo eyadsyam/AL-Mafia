@@ -20,10 +20,14 @@ abstract final class ExperienceArt {
 /// to the textured ones (owner, 2026-09-24: one ground, everywhere).
 class ExperienceSurface extends StatelessWidget {
   final Widget child;
-  const ExperienceSurface({super.key, required this.child});
+
+  /// An optional painted scene under the glow (a story's location).
+  final String? image;
+  const ExperienceSurface({super.key, required this.child, this.image});
 
   @override
   Widget build(BuildContext context) => AppBackdrop(
+    image: image,
     child: DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
