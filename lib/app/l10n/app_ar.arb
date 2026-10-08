@@ -2549,5 +2549,38 @@
   "modeBotsBody": "ماتش كامل في أي وقت: إنت ولاعيبة بيشكّوا ويتهموا ويصوّتوا. مش محتاج تستنى حد.",
   "botSheetPlayers": "عدد اللاعيبة",
   "botSheetStart": "ابدأ الماتش",
-  "botYou": "إنت"
+  "botYou": "إنت",
+  "botSaysSuspect": "{speaker}: «أنا شاكك في {target}.»",
+  "@botSaysSuspect": {
+    "placeholders": {
+      "speaker": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "botSaysDoubt": "{speaker}: «كلام {target} مش داخل دماغي.»",
+  "@botSaysDoubt": {
+    "placeholders": {
+      "speaker": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "botSaysWatch": "{speaker}: «خلّوا بالكم من {target} النهارده.»",
+  "@botSaysWatch": {
+    "placeholders": {
+      "speaker": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  }
 }

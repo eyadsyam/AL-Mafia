@@ -9990,6 +9990,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You'**
   String get botYou;
+
+  /// No description provided for @botSaysSuspect.
+  ///
+  /// In en, this message translates to:
+  /// **'{speaker}: “I suspect {target}.”'**
+  String botSaysSuspect(String speaker, String target);
+
+  /// No description provided for @botSaysDoubt.
+  ///
+  /// In en, this message translates to:
+  /// **'{speaker}: “I don’t buy what {target} says.”'**
+  String botSaysDoubt(String speaker, String target);
+
+  /// No description provided for @botSaysWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'{speaker}: “Keep an eye on {target} today.”'**
+  String botSaysWatch(String speaker, String target);
 }
 
 class _AppLocalizationsDelegate

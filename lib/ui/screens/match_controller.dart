@@ -284,6 +284,24 @@ class MatchController extends Notifier<MatchUiState?> {
   bool get playingWithBots =>
       transport is LocalTransport && (transport as LocalTransport).bots != null;
 
+  /// What each living bot says out loud in today's discussion: who it
+  /// suspects, as an opinion (never a fact the app knows). Empty at an
+  /// all-human table.
+  List<({int speaker, int target, int variant})> botTalk() {
+    final local = transport;
+    if (local is! LocalTransport) return const [];
+    final brain = local.bots;
+    if (brain == null || !engine.hasMatch) return const [];
+    final match = engine.match;
+    return [
+      for (final p in match.players)
+        if (brain.botSeats.contains(p.seat) &&
+            p.status == PlayerStatus.alive)
+          if (brain.suspectOf(match, p.seat) case final target?)
+            (speaker: p.seat, target: target, variant: (p.seat + match.dayNumber) % 3),
+    ];
+  }
+
   /// Loads a match that was restored from storage.
   ///
   /// Only the public view is published: every secret field starts null, so a

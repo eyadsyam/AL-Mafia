@@ -2362,3 +2362,9 @@ abstract final class StoryTokens {
   static const Duration timerTick = Duration(seconds: 1);
   static const Duration reenactmentBeat = Duration(milliseconds: 420);
 }
+
+/// The discussion screen's extras.
+abstract final class DiscussionTokens {
+  /// The bots' lines card stops growing here and scrolls.
+  static const double tableTalkMaxHeight = 160.0;
+}

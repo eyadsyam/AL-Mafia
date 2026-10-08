@@ -78,6 +78,9 @@ class DiscussionScreen extends StatefulWidget {
   /// The slot's space is reserved either way; this only decides whether
   /// anything goes in it. See [HintSlot].
   final bool interfaceHintsEnabled;
+
+  /// «العب ضد البوتات»: what the computer players are saying, one line each.
+  final List<String> tableTalk;
   final bool tabletop;
 
   const DiscussionScreen({
@@ -92,6 +95,7 @@ class DiscussionScreen extends StatefulWidget {
     this.onTimerEnded,
     this.onSpoke,
     this.onWhisper,
+    this.tableTalk = const [],
     this.whisperGraph = const [],
     this.tabletop = false,
   });
@@ -265,6 +269,10 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                     // it was, so the timer under it does not jump.
                     SizedBox(height: HintSlot.reservedHeight(context)),
                     SizedBox(height: spacing.sm),
+                    if (widget.tableTalk.isNotEmpty) ...[
+                      _TableTalk(lines: widget.tableTalk),
+                      SizedBox(height: spacing.md),
+                    ],
 
                     // Speaker info (structured mode only)
                     if (widget.mode == DiscussionMode.structured) ...[
@@ -419,6 +427,47 @@ class _DiscussionScreenState extends State<DiscussionScreen>
 /// Shows the day's edges — «أحمد ← سارة» — and the control that opens the
 /// composer. It never shows a body, and it has no way to reach one: the graph
 /// arrives as display names and the store is not wired into this widget at all.
+/// The bots' spoken lines, in a short scrolling card.
+class _TableTalk extends StatelessWidget {
+  final List<String> lines;
+  const _TableTalk({required this.lines});
+
+  static const talkKey = ValueKey('discussion_table_talk');
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final spacing = context.spacing;
+    final type = context.typography;
+    return Container(
+      key: talkKey,
+      constraints: const BoxConstraints(
+        maxHeight: DiscussionTokens.tableTalkMaxHeight,
+      ),
+      padding: EdgeInsets.all(spacing.md),
+      decoration: BoxDecoration(
+        color: colors.surfaceRaised,
+        borderRadius: BorderRadius.circular(context.radii.card),
+        border: Border.all(color: colors.borderSubtle),
+      ),
+      child: ListView(
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        children: [
+          for (final line in lines)
+            Padding(
+              padding: EdgeInsets.only(bottom: spacing.xs),
+              child: Text(
+                line,
+                style: type.bodySmall.copyWith(color: colors.textSecondary),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _WhisperPanel extends StatelessWidget {
   final List<(String, String)> graph;
   final VoidCallback onCompose;

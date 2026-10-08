@@ -852,8 +852,25 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       // online-only now, and offline there is nothing to hide behind a flag —
       // the button is not built and the graph is not drawn.
       onWhisper: null,
+      tableTalk: [
+        for (final t in _controller.botTalk())
+          _botLine(
+            state.public.players[t.speaker].name,
+            state.public.players[t.target].name,
+            t.variant,
+          ),
+      ],
       onFinished: _startVoting,
     );
+  }
+
+  String _botLine(String speaker, String target, int variant) {
+    final l = context.l10n;
+    return switch (variant) {
+      0 => l.botSaysSuspect(speaker, target),
+      1 => l.botSaysDoubt(speaker, target),
+      _ => l.botSaysWatch(speaker, target),
+    };
   }
 
   Widget _voteResult(MatchUiState state) {

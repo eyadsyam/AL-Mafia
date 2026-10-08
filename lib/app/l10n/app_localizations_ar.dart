@@ -5736,4 +5736,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get botYou => 'إنت';
+
+  @override
+  String botSaysSuspect(String speaker, String target) {
+    return '$speaker: «أنا شاكك في $target.»';
+  }
+
+  @override
+  String botSaysDoubt(String speaker, String target) {
+    return '$speaker: «كلام $target مش داخل دماغي.»';
+  }
+
+  @override
+  String botSaysWatch(String speaker, String target) {
+    return '$speaker: «خلّوا بالكم من $target النهارده.»';
+  }
 }

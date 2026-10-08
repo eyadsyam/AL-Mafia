@@ -3579,5 +3579,38 @@
   "modeBotsBody": "A whole match any time: you and players who suspect, accuse and vote. No one to wait for.",
   "botSheetPlayers": "Players",
   "botSheetStart": "Start the match",
-  "botYou": "You"
+  "botYou": "You",
+  "botSaysSuspect": "{speaker}: “I suspect {target}.”",
+  "@botSaysSuspect": {
+    "placeholders": {
+      "speaker": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "botSaysDoubt": "{speaker}: “I don’t buy what {target} says.”",
+  "@botSaysDoubt": {
+    "placeholders": {
+      "speaker": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "botSaysWatch": "{speaker}: “Keep an eye on {target} today.”",
+  "@botSaysWatch": {
+    "placeholders": {
+      "speaker": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  }
 }

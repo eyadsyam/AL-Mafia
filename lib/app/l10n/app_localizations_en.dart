@@ -5840,4 +5840,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get botYou => 'You';
+
+  @override
+  String botSaysSuspect(String speaker, String target) {
+    return '$speaker: “I suspect $target.”';
+  }
+
+  @override
+  String botSaysDoubt(String speaker, String target) {
+    return '$speaker: “I don’t buy what $target says.”';
+  }
+
+  @override
+  String botSaysWatch(String speaker, String target) {
+    return '$speaker: “Keep an eye on $target today.”';
+  }
 }

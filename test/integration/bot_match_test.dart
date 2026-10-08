@@ -120,6 +120,11 @@ void main() {
           case GamePhase.confrontation:
             await tester.tap(find.text('خلصت'));
           case GamePhase.discussion:
+            // The bots say who they suspect.
+            expect(
+              find.byKey(const ValueKey('discussion_table_talk')),
+              findsOneWidget,
+            );
             await tester.tap(find.text('خلص النقاش'));
             await tester.pump();
             await settle(tester);

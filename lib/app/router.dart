@@ -10,7 +10,7 @@ import '../data/player_group_provider.dart';
 import '../data/repository_provider.dart';
 import '../data/online_session_store.dart';
 import '../data/player_profile.dart';
-import '../engine/models/enums.dart' show Role;
+import '../engine/models/enums.dart' show DiscussionMode, Role;
 import '../engine/models/match_settings.dart';
 import '../platform/audio_director.dart';
 import '../ui/economy/interstitial_coordinator.dart';
@@ -257,7 +257,10 @@ GoRouter buildRouter(
         .startMatch(
           names: [you, ...kBotNames.take(pick.players - 1)],
           roleCounts: pick.preset.roleCounts(pick.players),
-          settings: pick.preset.settings.copyWith(whisperEnabled: false),
+          settings: pick.preset.settings.copyWith(
+            whisperEnabled: false,
+            discussionMode: DiscussionMode.free,
+          ),
           botSeats: {for (var i = 1; i < pick.players; i++) i},
         );
     context.go(Routes.match);
