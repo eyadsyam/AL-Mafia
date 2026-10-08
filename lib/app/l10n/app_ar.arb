@@ -2533,5 +2533,13 @@
   "storeRolesTitle": "الأدوار الجديدة",
   "storeRolesIntro": "تشتريه مرة واحدة ويتفتح في الأوض بتاعتك. الدور بيتوزع عشوائي وفي السر زي أي دور.",
   "roleLockedHint": "الدور ده بيتفتح لما تشتريه من المتجر، قسم الأدوات.",
-  "roleLockedPill": "مقفول"
+  "roleLockedPill": "مقفول",
+  "storyRewardGranted": "أول حل للقصة: +{coins} كوينز",
+  "@storyRewardGranted": {
+    "placeholders": {
+      "coins": {
+        "type": "int"
+      }
+    }
+  }
 }

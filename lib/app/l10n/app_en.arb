@@ -3563,5 +3563,13 @@
   "storeRolesTitle": "New roles",
   "storeRolesIntro": "Buy once and it unlocks in your rooms. It is still dealt at random and in secret.",
   "roleLockedHint": "Unlock this role in the store, under Tools.",
-  "roleLockedPill": "Locked"
+  "roleLockedPill": "Locked",
+  "storyRewardGranted": "First solve: +{coins} coins",
+  "@storyRewardGranted": {
+    "placeholders": {
+      "coins": {
+        "type": "int"
+      }
+    }
+  }
 }

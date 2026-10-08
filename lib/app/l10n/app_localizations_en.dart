@@ -5810,4 +5810,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get roleLockedPill => 'Locked';
+
+  @override
+  String storyRewardGranted(int coins) {
+    return 'First solve: +$coins coins';
+  }
 }

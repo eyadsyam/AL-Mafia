@@ -17,11 +17,16 @@ class StoriesScreen extends StatefulWidget {
     required this.onBack,
     this.catalog = const StoryCatalog(),
     this.progressStore = const SharedPreferencesStoryProgressStore(),
+    this.claimReward,
   });
 
   final VoidCallback onBack;
   final StoryCatalog catalog;
   final StoryProgressStore progressStore;
+
+  /// Pays the first solve of a story; returns the coins granted (0 when
+  /// none). Absent in tests and builds without a server.
+  final Future<int> Function(String storyId)? claimReward;
 
   @override
   State<StoriesScreen> createState() => _StoriesScreenState();
@@ -57,6 +62,9 @@ class _StoriesScreenState extends State<StoriesScreen> {
   }
 
   Future<void> _record(StoryCompletion completion) async {
+    final firstSolve =
+        completion.solved &&
+        !_progress.solvedStoryIds.contains(completion.story.id);
     final next = _progress.record(
       storyId: completion.story.id,
       category: completion.story.category,
@@ -68,6 +76,13 @@ class _StoriesScreenState extends State<StoriesScreen> {
       _launch = null;
     });
     await widget.progressStore.save(next);
+    final claim = widget.claimReward;
+    if (!firstSolve || claim == null) return;
+    final granted = await claim(completion.story.id);
+    if (granted <= 0 || !mounted) return;
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      SnackBar(content: Text(context.l10n.storyRewardGranted(granted))),
+    );
   }
 
   @override

@@ -5706,4 +5706,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get roleLockedPill => 'مقفول';
+
+  @override
+  String storyRewardGranted(int coins) {
+    return 'أول حل للقصة: +$coins كوينز';
+  }
 }

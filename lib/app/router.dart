@@ -38,6 +38,7 @@ import '../ui/screens/setup/how_to_play_screen.dart';
 import '../ui/screens/setup/roles_screen.dart';
 import '../ui/screens/setup/settings_screen.dart';
 import '../ui/screens/stories/stories_screen.dart';
+import '../ui/screens/stories/story_rewards.dart';
 import '../ui/screens/setup/setup_draft.dart';
 import '../ui/fun/characters_screen.dart';
 import '../ui/economy/council_hub.dart' show pendingInviteCodeProvider;
@@ -417,7 +418,11 @@ GoRouter buildRouter(
       GoRoute(
         path: Routes.stories,
         builder: (context, state) => SetupRequired(
-          child: StoriesScreen(onBack: () => context.go(Routes.mode)),
+          child: StoriesScreen(
+            onBack: () => context.go(Routes.mode),
+            claimReward: (id) =>
+                claimStoryReward(ProviderScope.containerOf(context), id),
+          ),
         ),
       ),
       // The online front door. Doc 12 §9's four cards used to stand in front

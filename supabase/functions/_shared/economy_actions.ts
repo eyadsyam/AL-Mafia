@@ -22,6 +22,8 @@ const PARTNER_SIDE = /^(detective|doctor|mafia|citizen)$/;
 const CASEBOOK_CODE = /^[a-z0-9_]{3,60}$/;
 /** «أدوات القعدة»: tool codes are server catalogue identifiers. */
 const TOOL_CODE = /^[a-z_]{3,30}$/;
+/** «قصص»: story ids as the bundled catalogue names them. */
+const STORY_ID = /^[a-z0-9_]{3,40}$/;
 
 export type EconomyCall = { rpc: string; args: Record<string, unknown> };
 export type CasePuzzleRequest =
@@ -252,6 +254,11 @@ export function economyCall(
       return room ? { rpc: "launch_event_result", args: { p_user: userId, p_room: room } } : null;
     // «أدوات القعدة» (plan v3): the catalogue with the caller's charges, a
     // pack purchase, and one use inside a live match.
+    // «قصص»: the first solve of a story pays once; the amount is the server's.
+    case "storySolved":
+      return typeof body.story === "string" && STORY_ID.test(body.story)
+        ? { rpc: "claim_story_reward", args: { p_user: userId, p_story: body.story } }
+        : null;
     case "toolsGet":
       return { rpc: "table_tools_snapshot", args: { p_user: userId } };
     case "toolBuy":

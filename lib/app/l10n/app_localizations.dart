@@ -9936,6 +9936,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Locked'**
   String get roleLockedPill;
+
+  /// No description provided for @storyRewardGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'First solve: +{coins} coins'**
+  String storyRewardGranted(int coins);
 }
 
 class _AppLocalizationsDelegate
