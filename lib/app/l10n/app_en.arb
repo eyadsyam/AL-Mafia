@@ -3613,5 +3613,13 @@
       }
     }
   },
-  "botPlayAgain": "Play again"
+  "botPlayAgain": "Play again",
+  "botWinReward": "You beat the bots: +{coins} coins",
+  "@botWinReward": {
+    "placeholders": {
+      "coins": {
+        "type": "int"
+      }
+    }
+  }
 }

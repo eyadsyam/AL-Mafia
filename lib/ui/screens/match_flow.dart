@@ -51,6 +51,7 @@ import '../widgets/phase_transition.dart';
 import '../widgets/voice_controls.dart';
 import '../widgets/victory_reveal.dart';
 import 'online/voice_session.dart';
+import '../economy/bot_rewards.dart';
 
 /// Drives a whole match from role distribution to the result screen.
 ///
@@ -892,9 +893,23 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     );
   }
 
+  bool _botRewardAsked = false;
+
   Widget _result(MatchUiState state) {
     final outcome = state.public.outcome;
     if (outcome == null) return const SizedBox.shrink();
+    if (!_botRewardAsked && _controller.humanWonBotMatch) {
+      _botRewardAsked = true;
+      final container = ProviderScope.containerOf(context);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final granted = await claimBotWin(container);
+        if (granted > 0 && mounted) {
+          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            SnackBar(content: Text(context.l10n.botWinReward(granted))),
+          );
+        }
+      });
+    }
     if (!_webResultQueued) {
       _webResultQueued = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1002,6 +1017,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       _webResultQueued = false;
       _morningAcknowledgedFor = null;
       _revoteNext = false;
+      _botRewardAsked = false;
     });
   }
 

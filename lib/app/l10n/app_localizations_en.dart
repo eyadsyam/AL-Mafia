@@ -5858,4 +5858,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get botPlayAgain => 'Play again';
+
+  @override
+  String botWinReward(int coins) {
+    return 'You beat the bots: +$coins coins';
+  }
 }

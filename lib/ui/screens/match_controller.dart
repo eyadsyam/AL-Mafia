@@ -310,6 +310,13 @@ class MatchController extends Notifier<MatchUiState?> {
     return true;
   }
 
+  /// Whether the human at a bot table (seat 0) is on the winning side.
+  bool get humanWonBotMatch {
+    if (!playingWithBots || !engine.hasMatch) return false;
+    final winner = engine.match.outcome?.winner;
+    return winner != null && engine.match.players[0].role.alignment == winner;
+  }
+
   /// Whether the computer plays some seats («العب ضد البوتات»).
   bool get playingWithBots =>
       transport is LocalTransport && (transport as LocalTransport).bots != null;

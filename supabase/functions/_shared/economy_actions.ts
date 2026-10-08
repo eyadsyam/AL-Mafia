@@ -259,6 +259,9 @@ export function economyCall(
       return typeof body.story === "string" && STORY_ID.test(body.story)
         ? { rpc: "claim_story_reward", args: { p_user: userId, p_story: body.story } }
         : null;
+    // «العب ضد البوتات»: a win pays, capped per day by the server.
+    case "botWin":
+      return { rpc: "claim_bot_win", args: { p_user: userId } };
     case "toolsGet":
       return { rpc: "table_tools_snapshot", args: { p_user: userId } };
     case "toolBuy":

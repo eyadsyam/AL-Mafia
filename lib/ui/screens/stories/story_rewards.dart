@@ -7,6 +7,7 @@ import '../../economy/wallet.dart';
 /// coins granted: 0 when it was already paid, or on any failure. The amount
 /// is the server's; a story played offline simply earns nothing.
 Future<int> claimStoryReward(ProviderContainer container, String storyId) async {
+  if (!SupabaseConfig.isConfigured) return 0;
   try {
     final backend = await container.read(onlineBackendFactoryProvider)();
     await backend.ensureSession();

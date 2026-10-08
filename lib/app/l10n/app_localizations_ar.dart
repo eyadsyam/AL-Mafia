@@ -5754,4 +5754,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get botPlayAgain => 'ماتش تاني';
+
+  @override
+  String botWinReward(int coins) {
+    return 'فزت على البوتات: +$coins كوينز';
+  }
 }

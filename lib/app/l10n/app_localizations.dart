@@ -10014,6 +10014,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Play again'**
   String get botPlayAgain;
+
+  /// No description provided for @botWinReward.
+  ///
+  /// In en, this message translates to:
+  /// **'You beat the bots: +{coins} coins'**
+  String botWinReward(int coins);
 }
 
 class _AppLocalizationsDelegate

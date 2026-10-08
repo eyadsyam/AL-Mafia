@@ -2583,5 +2583,13 @@
       }
     }
   },
-  "botPlayAgain": "ماتش تاني"
+  "botPlayAgain": "ماتش تاني",
+  "botWinReward": "فزت على البوتات: +{coins} كوينز",
+  "@botWinReward": {
+    "placeholders": {
+      "coins": {
+        "type": "int"
+      }
+    }
+  }
 }
