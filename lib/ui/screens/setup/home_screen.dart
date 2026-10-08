@@ -65,9 +65,6 @@ class HomeScreen extends ConsumerWidget {
   /// The Four Dossiers; the character's line on Home opens them.
   final VoidCallback? onCharacters;
 
-  /// «قصص وتحقيقات», the one door under the primary. Null hides it.
-  final VoidCallback? onStories;
-
   /// The store's corner control, or null where the build has no server.
   final Widget? store;
 
@@ -87,7 +84,6 @@ class HomeScreen extends ConsumerWidget {
     required this.onHowToPlay,
     this.onProfile,
     this.onCharacters,
-    this.onStories,
     this.store,
     this.banner,
     this.tiltSource = defaultTiltSource,
@@ -103,7 +99,6 @@ class HomeScreen extends ConsumerWidget {
   static const Key settingsButton = ValueKey('home_settings');
   static const Key howToPlayButton = ValueKey('home_how_to_play');
   static const Key casebookButton = ValueKey('home_casebook');
-  static const Key storiesButton = ValueKey('home_stories');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -325,14 +320,6 @@ class HomeScreen extends ConsumerWidget {
                 label: l10n.startGame,
                 onPressed: onNewMatch,
               ),
-              if (onStories != null) ...[
-                SizedBox(height: spacing.sm),
-                RimButton(
-                  key: HomeScreen.storiesButton,
-                  label: l10n.homeStoriesButton,
-                  onPressed: onStories,
-                ),
-              ],
               // There is no second button here any more. Online used to sit
               // under this one as a quiet text link, offered only when the
               // build had a project — two modes at two weights, one of them

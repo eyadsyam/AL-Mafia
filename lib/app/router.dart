@@ -390,7 +390,6 @@ GoRouter buildRouter(
             onHowToPlay: () => context.go(Routes.onboarding),
             onProfile: () => forwardTo(context, Routes.profile),
             onCharacters: () => forwardTo(context, Routes.characters),
-            onStories: () => forwardTo(context, Routes.stories),
             store: SupabaseConfig.isConfigured
                 ? const CoinStoreButton(compact: true, pill: true)
                 : null,
@@ -443,6 +442,7 @@ GoRouter buildRouter(
                 ? () => forwardTo(context, Routes.online)
                 : null,
             onPlayBots: () => startBotMatch(context),
+            onPlayStories: () => forwardTo(context, Routes.stories),
             onBack: () => context.go(Routes.home),
           ),
         ),
@@ -451,7 +451,7 @@ GoRouter buildRouter(
         path: Routes.stories,
         builder: (context, state) => SetupRequired(
           child: WarmPalette(child: StoriesScreen(
-            onBack: () => context.go(Routes.home),
+            onBack: () => context.go(Routes.mode),
             claimReward: (id) =>
                 claimStoryReward(ProviderScope.containerOf(context), id),
             beforeStory: () async {

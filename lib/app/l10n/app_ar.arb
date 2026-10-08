@@ -2615,7 +2615,8 @@
   },
   "storiesListen": "اسمع القصة",
   "modeBotsCardTitle": "ضد الكمبيوتر",
-  "homeStoriesButton": "قصص وتحقيقات",
+  "modeStoriesCardTitle": "قصص وتحقيقات",
+  "modeStoriesCardBody": "حل القضية لوحدك، دليل ورا دليل",
   "botSheetBody": "ماتش كامل في أي وقت: إنت ولاعيبة بيشكّوا ويتهموا ويصوّتوا. مش محتاج تستنى حد.",
   "sheetClose": "اقفل"
 }

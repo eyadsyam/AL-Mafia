@@ -128,6 +128,7 @@ void main() {
       onPlayOffline: () {},
       onPlayOnline: () {},
       onPlayBots: () {},
+      onPlayStories: () {},
       onBack: () {},
     ),
     '15_help': HowToPlayScreen(onBack: () {}, onStartMatch: () {}),
@@ -138,7 +139,6 @@ void main() {
       onHistory: () {},
       onSettings: () {},
       onHowToPlay: () {},
-      onStories: () {},
     ),
     '09_settings': SettingsScreen(
       initial: const MatchSettings(),
@@ -205,6 +205,7 @@ void main() {
         onPlayOffline: () {},
         onPlayOnline: () {},
         onPlayBots: () {},
+        onPlayStories: () {},
         onBack: () {},
       ),
     );

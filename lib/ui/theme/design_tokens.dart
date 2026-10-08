@@ -90,12 +90,19 @@ abstract final class DeckTokens {
 
   // Cards and rows.
   static const Size windowList = Size(64, 88);
+
+  /// The same window on a short phone, so a whole hand still fits.
+  static const Size windowCompact = Size(48, 64);
+
+  /// Below this height a list of cards draws them compact.
+  static const double compactBelow = 700;
   static const double windowArch = 32;
   static const Size windowRole = Size(48, 64);
   static const Size narrator = Size(120, 160);
   static const Size narratorSmall = Size(88, 120);
   static const double narratorLineWidth = 280;
   static const double artMin = 112;
+  static const double artMinCompact = 80;
   static const double rowOne = 56;
   static const double rowTwo = 72;
   static const double rowInset = 56;
@@ -129,6 +136,21 @@ abstract final class DeckTokens {
   static const Duration slide = Duration(milliseconds: 260);
   static const Duration seamFade = Duration(milliseconds: 400);
   static const Duration reduced = Duration(milliseconds: 150);
+
+
+  /// Cards arrive once: each rises [enterRise] dp and fades in over [enter],
+  /// the next one [enterStagger] later. Only transform and opacity move, so
+  /// nothing is laid out again while it plays.
+  static const Duration enter = Duration(milliseconds: 420);
+  static const Duration enterStagger = Duration(milliseconds: 70);
+  static const double enterRise = 24;
+
+  /// Only the first few of a list arrive in turn; the rest are simply there.
+  static const int enterStaggered = 4;
+
+  /// How much sharper than the window an art image is decoded, so a zoomed
+  /// face still reads crisp while the texture stays small.
+  static const double artDecodeHeadroom = 1.5;
 
   // Type, derived from the shared scale so the in-match goldens never move.
   static TextStyle title(MafiaTypography t) =>

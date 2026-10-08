@@ -5791,7 +5791,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get modeBotsCardTitle => 'ضد الكمبيوتر';
 
   @override
-  String get homeStoriesButton => 'قصص وتحقيقات';
+  String get modeStoriesCardTitle => 'قصص وتحقيقات';
+
+  @override
+  String get modeStoriesCardBody => 'حل القضية لوحدك، دليل ورا دليل';
 
   @override
   String get botSheetBody =>

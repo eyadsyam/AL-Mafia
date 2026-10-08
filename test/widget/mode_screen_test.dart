@@ -43,36 +43,34 @@ void main() {
     var offline = 0;
     var online = 0;
     var bots = 0;
+    var stories = 0;
     await tester.pumpWidget(
       localizedApp(
         ModeScreen(
           onPlayOffline: () => offline++,
           onPlayOnline: () => online++,
           onPlayBots: () => bots++,
+          onPlayStories: () => stories++,
           onBack: () {},
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.byKey(ModeScreen.offlineCard));
-    await tester.tap(find.byKey(ModeScreen.offlineCard));
-    await tester.pump();
-    expect([offline, online, bots], [1, 0, 0]);
-
-    await tester.ensureVisible(find.byKey(ModeScreen.onlineCard));
-    await tester.tap(find.byKey(ModeScreen.onlineCard));
-    await tester.pump();
-    expect([offline, online, bots], [1, 1, 0]);
-
-    await tester.ensureVisible(find.byKey(ModeScreen.botsCard));
-    await tester.tap(find.byKey(ModeScreen.botsCard));
-    await tester.pump();
-    expect([offline, online, bots], [1, 1, 1]);
+    for (final (key, want) in [
+      (ModeScreen.offlineCard, [1, 0, 0, 0]),
+      (ModeScreen.onlineCard, [1, 1, 0, 0]),
+      (ModeScreen.botsCard, [1, 1, 1, 0]),
+      (ModeScreen.storiesCard, [1, 1, 1, 1]),
+    ]) {
+      await tester.ensureVisible(find.byKey(key));
+      await tester.tap(find.byKey(key));
+      await tester.pumpAndSettle();
+      expect([offline, online, bots, stories], want, reason: '$key');
+    }
   });
 
-  testWidgets('three ways to play fit a small phone, stories live on Home', (
-    tester,
-  ) async {
+  testWidgets('all four ways to play fit a small phone', (tester) async {
     await tester.binding.setSurfaceSize(const Size(360, 640));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
@@ -81,6 +79,7 @@ void main() {
           onPlayOffline: () {},
           onPlayOnline: () {},
           onPlayBots: () {},
+          onPlayStories: () {},
           onBack: () {},
         ),
       ),
@@ -90,11 +89,32 @@ void main() {
       ModeScreen.offlineCard,
       ModeScreen.onlineCard,
       ModeScreen.botsCard,
+      ModeScreen.storiesCard,
     ]) {
       final rect = tester.getRect(find.byKey(key));
       expect(rect.bottom, lessThanOrEqualTo(640), reason: '$key below the fold');
     }
     expect(find.textContaining('بوت'), findsNothing);
+  });
+
+  testWidgets('the cards deal in once, then stay put', (tester) async {
+    await tester.pumpWidget(
+      localizedApp(
+        ModeScreen(
+          onPlayOffline: () {},
+          onPlayOnline: () {},
+          onPlayBots: () {},
+          onPlayStories: () {},
+          onBack: () {},
+        ),
+      ),
+    );
+    final start = tester.getRect(find.byKey(ModeScreen.storiesCard)).top;
+    await tester.pumpAndSettle();
+    final rest = tester.getRect(find.byKey(ModeScreen.storiesCard)).top;
+    expect(start, greaterThan(rest));
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.getRect(find.byKey(ModeScreen.storiesCard)).top, rest);
   });
 
   test('Home has no online action to hide', () {

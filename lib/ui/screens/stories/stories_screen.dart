@@ -3,7 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../widgets/deck/deck_public.dart' show BoneButton, DeckPill;
+import '../../widgets/deck/deck_public.dart' show BoneButton, DeckPill, DeckRise;
 
 import '../../../data/story_catalog.dart';
 import '../../../data/story_progress_store.dart';
@@ -214,7 +214,9 @@ class StoriesHub extends StatelessWidget {
                 // Never in the first screenful, at most one per four cases.
                 if (i >= 4 && i % 4 == 0)
                   const NativeAdCard(placement: NativePlacement.stories),
-                _StoryCard(
+                DeckRise(
+                  index: i,
+                  child: _StoryCard(
                   key: storyKey(story.id),
                   story: story,
                   bestScore: progress.bestFor(story.id),
@@ -222,6 +224,7 @@ class StoriesHub extends StatelessWidget {
                       story.isNearImpossible &&
                       !progress.isNearImpossibleUnlocked(story.category),
                   onStart: () => _pickPlayers(context, story),
+                  ),
                 ),
                 SizedBox(height: spacing.md),
               ],

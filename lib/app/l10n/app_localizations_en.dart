@@ -5892,7 +5892,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modeBotsCardTitle => 'Against the computer';
 
   @override
-  String get homeStoriesButton => 'Stories & cases';
+  String get modeStoriesCardTitle => 'Stories & cases';
+
+  @override
+  String get modeStoriesCardBody => 'Crack a case on your own, clue by clue';
 
   @override
   String get botSheetBody =>

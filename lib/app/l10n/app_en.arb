@@ -3645,7 +3645,8 @@
   },
   "storiesListen": "Listen to the case",
   "modeBotsCardTitle": "Against the computer",
-  "homeStoriesButton": "Stories & cases",
+  "modeStoriesCardTitle": "Stories & cases",
+  "modeStoriesCardBody": "Crack a case on your own, clue by clue",
   "botSheetBody": "A whole match any time: you and players who suspect, accuse and vote. No one to wait for.",
   "sheetClose": "Close"
 }

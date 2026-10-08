@@ -3693,3 +3693,10 @@ Files:      lib/ui/theme/design_tokens.dart, lib/ui/widgets/deck/*, lib/ui/widge
 Verified:   flutter analyze lib test (0 errors/warnings); flutter test +1817 ~5 all passed; renders checked at 390 and 360
 Gate:       PASS
 Open:       phases 4–11 (players/roles, online tabs, profile tabs incl. السجل, store/casebook gold, result, sheets, first run, in-match aids); no build/deploy until the owner says
+
+## PHASE deck-3b — done
+Built:      Home is one door again («ابدأ اللعبة» + the corner row); «قصص وتحقيقات» is the fourth card on «اختار طريقة اللعب» (back from stories returns there). Motion: DeckRise deals cards in (rise 24 dp + fade, 70 ms stagger, first 4 only, transform/opacity over a RepaintBoundary), DeckPress sinks pressed cards and bone/rim buttons to 0.98 and springs back (lets go on scroll); both off under reduced motion. ArtWindow decodes art near its drawn size (ResizeImage fit). Short phones (<700 dp) get compact cards so all four fit 360×640.
+Files:      lib/ui/screens/setup/{home_screen,mode_screen}.dart, lib/app/router.dart, lib/ui/widgets/deck/{deck_buttons,deck_public}.dart, lib/ui/screens/stories/stories_screen.dart, lib/ui/theme/design_tokens.dart, ARB (modeStoriesCardTitle/Body replace homeStoriesButton), test/widget/mode_screen_test.dart, screenshot harnesses
+Verified:   flutter analyze (no errors/warnings); mode_screen, deck_kit, stories, handoff_purity, banner_placement, group_rematch tests 42/42; identity screenshots read
+Gate:       PASS
+Open:       real-device frame check once a build is allowed

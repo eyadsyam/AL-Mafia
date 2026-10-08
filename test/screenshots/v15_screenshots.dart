@@ -144,6 +144,7 @@ void main() {
         onPlayOffline: () {},
         onPlayOnline: () {},
         onPlayBots: () {},
+        onPlayStories: () {},
         onBack: () {},
       ),
     );

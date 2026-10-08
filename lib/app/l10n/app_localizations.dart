@@ -10075,11 +10075,17 @@ abstract class AppLocalizations {
   /// **'Against the computer'**
   String get modeBotsCardTitle;
 
-  /// No description provided for @homeStoriesButton.
+  /// No description provided for @modeStoriesCardTitle.
   ///
   /// In en, this message translates to:
   /// **'Stories & cases'**
-  String get homeStoriesButton;
+  String get modeStoriesCardTitle;
+
+  /// No description provided for @modeStoriesCardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Crack a case on your own, clue by clue'**
+  String get modeStoriesCardBody;
 
   /// No description provided for @botSheetBody.
   ///

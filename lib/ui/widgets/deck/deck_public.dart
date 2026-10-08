@@ -105,6 +105,21 @@ class ArtWindow extends StatelessWidget {
     this.dimmed = false,
   });
 
+  /// The asset decoded to fit a square a little larger than the window
+  /// needs at this zoom, whichever way the source is oriented: a fraction of
+  /// the source's pixels, so the texture is small and the first frame quick.
+  ImageProvider _decoded(BuildContext context) {
+    final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;
+    final side = (size.longestSide * zoom * dpr * DeckTokens.artDecodeHeadroom)
+        .round();
+    return ResizeImage(
+      AssetImage(asset),
+      width: side,
+      height: side,
+      policy: ResizeImagePolicy.fit,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final arch = BorderRadius.vertical(
@@ -130,10 +145,11 @@ class ArtWindow extends StatelessWidget {
                 Transform.scale(
                   scale: zoom,
                   alignment: focus,
-                  child: Image.asset(
-                    asset,
+                  child: Image(
+                    image: _decoded(context),
                     fit: BoxFit.cover,
                     alignment: focus,
+                    gaplessPlayback: true,
                   ),
                 ),
                 DecoratedBox(
@@ -165,6 +181,9 @@ class ArtCard extends StatelessWidget {
   final bool selected;
   final String? lockedReason;
 
+  /// A shorter card — smaller window, one line of meta — for short phones.
+  final bool compact;
+
   /// Key on the locked line, for tests that read it.
   final Key? lockedKey;
   final String? heroArt;
@@ -182,6 +201,7 @@ class ArtCard extends StatelessWidget {
     this.selected = false,
     this.lockedReason,
     this.lockedKey,
+    this.compact = false,
   }) : heroArt = null,
        heroTitle = null,
        body = null,
@@ -203,7 +223,8 @@ class ArtCard extends StatelessWidget {
        art = null,
        selected = false,
        lockedReason = null,
-       lockedKey = null;
+       lockedKey = null,
+       compact = false;
 
   @override
   Widget build(BuildContext context) {
@@ -214,18 +235,21 @@ class ArtCard extends StatelessWidget {
         : Border.all(
             color: DeckTokens.bone.withValues(alpha: DeckTokens.hairlineAlpha),
           );
-    return Material(
-      color: colors.surfaceRaised,
-      shape: RoundedRectangleBorder(borderRadius: radius),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        highlightColor: colors.surfaceOverlay,
-        splashColor: IdentityTokens.transparent,
-        child: DecoratedBox(
-          position: DecorationPosition.foreground,
-          decoration: BoxDecoration(borderRadius: radius, border: border),
-          child: heroArt == null ? _list(context) : _hero(context),
+    return DeckPress(
+      enabled: onTap != null && lockedReason == null,
+      child: Material(
+        color: colors.surfaceRaised,
+        shape: RoundedRectangleBorder(borderRadius: radius),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          highlightColor: colors.surfaceOverlay,
+          splashColor: IdentityTokens.transparent,
+          child: DecoratedBox(
+            position: DecorationPosition.foreground,
+            decoration: BoxDecoration(borderRadius: radius, border: border),
+            child: heroArt == null ? _list(context) : _hero(context),
+          ),
         ),
       ),
     );
@@ -237,9 +261,11 @@ class ArtCard extends StatelessWidget {
     final s = context.spacing;
     final reason = lockedReason;
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: DeckTokens.artMin),
+      constraints: BoxConstraints(
+        minHeight: compact ? DeckTokens.artMinCompact : DeckTokens.artMin,
+      ),
       child: Padding(
-        padding: EdgeInsets.all(s.md),
+        padding: EdgeInsets.all(compact ? s.sm : s.md),
         child: Row(
           children: [
             Stack(
@@ -247,7 +273,7 @@ class ArtCard extends StatelessWidget {
               children: [
                 ArtWindow(
                   asset: art!.asset,
-                  size: art!.size,
+                  size: compact ? DeckTokens.windowCompact : art!.size,
                   focus: art!.focus,
                   zoom: art!.zoom,
                   dimmed: reason != null,
@@ -288,7 +314,7 @@ class ArtCard extends StatelessWidget {
                   if (meta != null)
                     Text(
                       meta!,
-                      maxLines: 2,
+                      maxLines: compact ? 1 : 2,
                       overflow: TextOverflow.ellipsis,
                       style: DeckTokens.meta(
                         type,
@@ -900,6 +926,78 @@ class DeckScaffold extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// A card's arrival, once, when its screen opens: it rises a little and
+/// fades in, [index] beats after the first, so a list deals itself like a
+/// hand of cards. Transform and opacity only, over a repaint boundary — the
+/// card is painted once and the compositor moves it. Past
+/// [DeckTokens.enterStaggered] cards, and with animations switched off, it
+/// is simply there.
+class DeckRise extends StatefulWidget {
+  final int index;
+  final Widget child;
+
+  const DeckRise({super.key, required this.index, required this.child});
+
+  @override
+  State<DeckRise> createState() => _DeckRiseState();
+}
+
+class _DeckRiseState extends State<DeckRise>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration:
+        DeckTokens.enter +
+        DeckTokens.enterStagger * widget.index.clamp(0, DeckTokens.enterStaggered),
+  );
+  late final Animation<double> _t = CurvedAnimation(
+    parent: _controller,
+    curve: Interval(
+      1 -
+          DeckTokens.enter.inMicroseconds /
+              _controller.duration!.inMicroseconds,
+      1,
+      curve: Curves.easeOutCubic,
+    ),
+  );
+  bool _started = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (still || widget.index >= DeckTokens.enterStaggered) {
+      _controller.value = 1;
+    } else {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final child = RepaintBoundary(child: widget.child);
+    return FadeTransition(
+      opacity: _t,
+      child: AnimatedBuilder(
+        animation: _t,
+        builder: (context, child) => Transform.translate(
+          offset: Offset(0, DeckTokens.enterRise * (1 - _t.value)),
+          child: child,
+        ),
+        child: child,
       ),
     );
   }

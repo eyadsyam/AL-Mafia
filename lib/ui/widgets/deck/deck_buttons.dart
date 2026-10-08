@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/material.dart';
 
 import '../../theme/design_tokens.dart';
@@ -70,7 +71,7 @@ class BoneButton extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         enabled
-            ? button
+            ? DeckPress(child: button)
             : Opacity(opacity: DeckTokens.disabledAlpha, child: button),
         if (!enabled && reason != null) ...[
           SizedBox(height: context.spacing.sm),
@@ -143,6 +144,57 @@ class RimButton extends StatelessWidget {
     );
     return onPressed == null
         ? Opacity(opacity: DeckTokens.disabledAlpha, child: button)
-        : button;
+        : DeckPress(child: button);
+  }
+}
+
+/// A press you can feel: whatever is under the finger sinks a little and
+/// springs back on release. Only a scale moves — no layout, no colour — so it
+/// costs one composited layer and reads the same for every player, in a match
+/// or out of one. Dragging past the touch slop (a scroll) lets go at once;
+/// with animations switched off it is the plain child.
+class DeckPress extends StatefulWidget {
+  final Widget child;
+  final bool enabled;
+
+  const DeckPress({super.key, required this.child, this.enabled = true});
+
+  @override
+  State<DeckPress> createState() => _DeckPressState();
+}
+
+class _DeckPressState extends State<DeckPress> {
+  Offset? _origin;
+  bool _down = false;
+
+  void _set(bool down) {
+    if (_down != down) setState(() => _down = down);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (!widget.enabled || still) return widget.child;
+    return Listener(
+      onPointerDown: (e) {
+        _origin = e.position;
+        _set(true);
+      },
+      onPointerMove: (e) {
+        final origin = _origin;
+        if (origin != null && (e.position - origin).distance > kTouchSlop) {
+          _origin = null;
+          _set(false);
+        }
+      },
+      onPointerUp: (_) => _set(false),
+      onPointerCancel: (_) => _set(false),
+      child: AnimatedScale(
+        scale: _down ? DeckTokens.pressScale : 1,
+        duration: DeckTokens.press,
+        curve: _down ? Curves.easeOutCubic : Curves.easeOutBack,
+        child: widget.child,
+      ),
+    );
   }
 }
