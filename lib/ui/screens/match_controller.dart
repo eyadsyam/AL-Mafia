@@ -265,6 +265,14 @@ class MatchController extends Notifier<MatchUiState?> {
       seed: seed ?? newMatchSeed(),
     );
     // «العب ضد البوتات»: the computer seats play inside the local transport.
+    _lastBotTable = botSeats.isEmpty
+        ? null
+        : (
+            names: names,
+            roleCounts: roleCounts,
+            settings: settings,
+            botSeats: botSeats,
+          );
     if (transport case final LocalTransport local) {
       local.bots = botSeats.isEmpty
           ? null
@@ -278,6 +286,28 @@ class MatchController extends Notifier<MatchUiState?> {
     // match behind. Everything the screens read comes off that snapshot now.
     transport.resync();
     state = MatchUiState(public: transport.snapshot.public);
+  }
+
+  ({
+    List<String> names,
+    Map<Role, int> roleCounts,
+    MatchSettings settings,
+    Set<int> botSeats,
+  })?
+  _lastBotTable;
+
+  /// «ماتش تاني»: the same bot table, a new deal. False when the last match
+  /// was not against bots.
+  bool restartBotMatch() {
+    final table = _lastBotTable;
+    if (table == null) return false;
+    startMatch(
+      names: table.names,
+      roleCounts: table.roleCounts,
+      settings: table.settings,
+      botSeats: table.botSeats,
+    );
+    return true;
   }
 
   /// Whether the computer plays some seats («العب ضد البوتات»).
@@ -295,10 +325,13 @@ class MatchController extends Notifier<MatchUiState?> {
     final match = engine.match;
     return [
       for (final p in match.players)
-        if (brain.botSeats.contains(p.seat) &&
-            p.status == PlayerStatus.alive)
+        if (brain.botSeats.contains(p.seat) && p.status == PlayerStatus.alive)
           if (brain.suspectOf(match, p.seat) case final target?)
-            (speaker: p.seat, target: target, variant: (p.seat + match.dayNumber) % 3),
+            (
+              speaker: p.seat,
+              target: target,
+              variant: (p.seat + match.dayNumber) % 3,
+            ),
     ];
   }
 

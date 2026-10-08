@@ -10008,6 +10008,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{speaker}: “Keep an eye on {target} today.”'**
   String botSaysWatch(String speaker, String target);
+
+  /// No description provided for @botPlayAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Play again'**
+  String get botPlayAgain;
 }
 
 class _AppLocalizationsDelegate

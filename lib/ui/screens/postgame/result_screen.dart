@@ -66,6 +66,11 @@ class ResultScreen extends StatelessWidget {
   /// Callback when "الرئيسية" is tapped.
   final VoidCallback onHome;
 
+  /// «ماتش تاني»: a fresh match at the same bot table. Null elsewhere.
+  final VoidCallback? onPlayAgain;
+
+  static const playAgainKey = ValueKey('result_play_again');
+
   /// Doc 13 §4.4's «كان ممكن», by seat.
   ///
   /// # Why this tier is safe when the other two are not
@@ -102,6 +107,7 @@ class ResultScreen extends StatelessWidget {
     required this.rows,
     this.onAnalytics,
     required this.onHome,
+    this.onPlayAgain,
     this.coaching = const {},
     this.awards = const [],
     this.inventory,
@@ -436,6 +442,14 @@ class ResultScreen extends StatelessWidget {
 
                       // One shared-height action row leaves more of the public
                       // roster visible on a phone while keeping both exits.
+                      if (onPlayAgain != null) ...[
+                        FilledButton(
+                          key: playAgainKey,
+                          onPressed: onPlayAgain,
+                          child: Text(context.l10n.botPlayAgain),
+                        ),
+                        SizedBox(height: spacing.sm),
+                      ],
                       Row(
                         children: [
                           if (onAnalytics != null) ...[

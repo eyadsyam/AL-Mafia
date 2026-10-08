@@ -432,8 +432,8 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     final screen = _withDayCard(
       state,
       PhaseTransition(
-      phaseKey: state.phase,
-      // Store truth: the host phone's pack and identity, public phases only.
+        phaseKey: state.phase,
+        // Store truth: the host phone's pack and identity, public phases only.
         child: PassTableDress(phase: state.phase, child: _phaseScreen(state)),
       ),
     );
@@ -962,6 +962,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         // is what stops the heartbeat, the channel and the voice link of a
         // match that is over — they used to outlive the result screen until
         // the next room was entered.
+        onPlayAgain: _controller.playingWithBots ? _playAgainVsBots : null,
         onHome: () async {
           // Ads v3 (phase 110): a finished pass-and-play match is counted and
           // may be followed by one ad, after Home is already on screen —
@@ -980,6 +981,28 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         },
       ),
     );
+  }
+
+  /// «ماتش تاني» at a bot table: the finished match is counted (and may be
+  /// followed by its one ad), then a new deal starts on this same screen.
+  Future<void> _playAgainVsBots() async {
+    final localId = switch (_controller.transport) {
+      final LocalTransport local when local.engine.hasMatch =>
+        'local-${local.engine.match.seed}',
+      _ => null,
+    };
+    if (localId != null) {
+      await ref
+          .read(interstitialCoordinatorProvider)
+          .leftPassAndPlayResult(localId);
+    }
+    if (!mounted || !_controller.restartBotMatch()) return;
+    setState(() {
+      _victorySeen = false;
+      _webResultQueued = false;
+      _morningAcknowledgedFor = null;
+      _revoteNext = false;
+    });
   }
 
   String? _eliminationLabel(PhaseRef? eliminatedOn) {

@@ -5855,4 +5855,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String botSaysWatch(String speaker, String target) {
     return '$speaker: “Keep an eye on $target today.”';
   }
+
+  @override
+  String get botPlayAgain => 'Play again';
 }

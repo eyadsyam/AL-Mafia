@@ -5,6 +5,7 @@ import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
 import 'package:mafia_master/ui/screens/match_controller.dart';
 import 'package:mafia_master/ui/screens/match_flow.dart';
+import 'package:mafia_master/ui/screens/postgame/result_screen.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
 import 'package:mafia_master/ui/widgets/night_grid.dart';
@@ -141,6 +142,17 @@ void main() {
       }
       expect(phase(), GamePhase.result, reason: 'stuck in ${phase()}');
       expect(controller().engine.match.outcome, isNotNull);
+
+      // «ماتش تاني»: a new deal at the same table, on the same screen.
+      await tester.pump();
+      await tester.pump(MafiaTiming.victoryReveal);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(ResultScreen.playAgainKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(ResultScreen.playAgainKey));
+      await tester.pumpAndSettle();
+      expect(phase(), GamePhase.distributing);
+      expect(controller().playingWithBots, isTrue);
     });
   }
 }
