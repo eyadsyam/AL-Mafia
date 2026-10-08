@@ -79,10 +79,9 @@ void main() {
 
   for (final id in const ['qahwet_el_moallem', 'el_oda_el_mafoola']) {
     testWidgets('solo board $id', (tester) async {
-      final source = await tester.runAsync(
-        () => rootBundle.loadString('assets/stories/$id.json'),
+      final story = StoryDefinition.decode(
+        File('assets/stories/$id.json').readAsStringSync(),
       );
-      final story = StoryDefinition.decode(source!);
       await shoot(
         tester,
         'solo_$id',
