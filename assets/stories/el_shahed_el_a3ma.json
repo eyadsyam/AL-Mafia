@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "نبيل الشرقاوي",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n27.webp",
       "background": "ابن أخو الحاج ومدير مخزن الحديد والأسمنت في المنطقة الصناعية؛ معاه نسخة مفتاح شقة عمه من سنين.",
       "objective": "فسّر ليه جيت الشقة الليلة، ومتتكلمش عن فرق جرد الحديد.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "سعدية عبد الحليم",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n28.webp",
       "background": "الشغالة اللي ماسكة الشقة من ١٤ سنة؛ معاها مفتاح، ووزنها ٥١ كيلو على الميزان.",
       "objective": "وضّحي إنك كنتي في المطبخ قبل التمانية ونص، ومتخبّيش إنك شفتي ضيف ناقص.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "شريف الشرقاوي",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n02.webp",
       "background": "ابن الحاج الكبير، ٩٥ كيلو؛ معاه مفتاح الشقة، وكان بيقف بعربيته عند بنزينة المحور.",
       "objective": "اثبت من كاميرا البنزينة إنك ماقربتش من العمارة بعد ٨:٣٠.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "رباب",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n30.webp",
       "background": "ممرضة الحاج الخاصة، ٥٨ كيلو؛ معاها مفتاح عشان تدخل وقت الإبرة.",
       "objective": "وضّحي ليه جيتي بدري ٢٠ دقيقة عن ميعادك العادي.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "كمال السباك",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n05.webp",
       "background": "سباك العمارة، جه يشوف تسريب في حمام الشقة قبل الجرس بربع ساعة.",
       "objective": "اثبت إن أنت اتفتحلك الباب ومحدش سلّمك مفتاح.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "هالة الشرقاوي",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n01.webp",
       "background": "بنت الحاج الصغيرة، ٥٥ كيلو، طالبة هندسة؛ معاها مفتاح شقة بابا من أول ماتسلّمت.",
       "objective": "وضّحي إنك اتخانقتي مع أبوكي على السفر مش على الفلوس.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "منصور مندوب المصنع",
-      "image": "assets/images/stories/suspect_n11.webp",
+      "image": "assets/images/stories/suspect_n09.webp",
       "background": "مندوب مبيعات في مخزن الحاج؛ جاب له كشف الجرد المبدئي بس ماعندوش مفتاح.",
       "objective": "فسّر المكالمة اللي رنّت التليفون الأرضي بعد الجريمة.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "دكتور ممدوح",
-      "image": "assets/images/stories/suspect_n12.webp",
+      "image": "assets/images/stories/suspect_n21.webp",
       "background": "دكتور الحاج الخاص ٨٨ كيلو؛ معاه مفتاح للطوارئ، وكان بيكشف على مريض في عيادته.",
       "objective": "اثبت من دفتر الحجز إنك كنت في العيادة ٨:٢٥–٨:٥٠.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "عم جابر البواب",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n25.webp",
       "background": "بواب العمارة، ٨٠ كيلو؛ معاه مفتاح الشقة لحالات الطوارئ، ومن عادته يقفل البوابة الحديد بالزنبرك بنفسه.",
       "objective": "اثبت إنك كنت في درس الجامع وقت قفلة البوابة، ومحدش قفلها غيرك قبل كده بالقوة دي.",
       "privateClueIds": [
@@ -507,5 +507,6 @@
         "culprit_key"
       ]
     }
-  ]
+  ],
+  "evidenceImage": "assets/images/stories/evidence/evidence_23.webp"
 }

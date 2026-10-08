@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "رجاء مفتشة الأوقاف",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n06.webp",
       "background": "مفتشة متخفية حضرت ٣ جلسات بكاميرا زرار ودفعت رمزي بإيصال في ملفها.",
       "objective": "ماتكشفيش إنك مفتشة غير لما حد يسألك عن الكاميرا.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "مصطفى صاحب محل الموبايلات",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n11.webp",
       "background": "دفع ٦٠ ألف «عشان يتفك سحر مأخّر شغله»؛ وأخته دينا بتتظبط في صالون سوزان كل أسبوع.",
       "objective": "قول الرقم اللي قاله الشيخ عنك وإنت ما قلتهوش لأي إنسان.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "مدام ليلى",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n10.webp",
       "background": "موظفة بنك، جوزها اتجوز عرفي من جارتهم، والشيخ قالها اسم الجارة قبل ما تقوله.",
       "objective": "اشرحي ليه صدقتي الشيخ من غير ما تحكي اللي قلتيه في أي مكان قبل كده.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "الشيخ عبد العليم",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n29.webp",
       "background": "ديوانه في عمارة جنب الجامع، بيقرا قرآن ٤٥ دقيقة قبل كل جلسة وفي إيده مسبحة ٩٩ وعنده دولاب حديد بقفلين.",
       "objective": "اثبت إنك ماخدتش مليم لنفسك وإن الدهب «نذر» لله.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n06",
       "name": "سوزان صاحبة الصالون",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n08.webp",
       "background": "صالون «سوزي» بيحجز نسوان الحارة بمواعيد، وكل ست بتفضفض فيه تحت السشوار.",
       "objective": "قولي إنك ماتعرفيش الشيخ غير إنه زبون حنّة وبخور.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n07",
       "name": "عم صالح",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n04.webp",
       "background": "قهوجي الديوان من ١٠ سنين، بيعمل الشاي للزباين وبيستنى برا.",
       "objective": "ثبّت إنك ما دخلتش أوضة الدولاب ولا مرة وقت التسليم.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n08",
       "name": "ريم العروسة",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n15.webp",
       "background": "اتجوزت من ٤٠ يوم والشيخ قالها «العمل ماسك فرحك» وخد منها خاتم وسلسلة.",
       "objective": "اشرحي ليه سلّمتي الدهب من غير ما تبلّغي حد من أهلك.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n09",
       "name": "سلطان السواق",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n16.webp",
       "background": "بيوصّل الشيخ بالميكروباص ويستناه برا، وبيسجل ماتشات كورة على موبايله.",
       "objective": "ثبّت إنك مابتدخلش الأوضة وإن تطبيق التسجيل على موبايلك للماتشات بس.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n10",
       "name": "الحاجة نعمات",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n26.webp",
       "background": "اتبرعت بـ٣٥ جرام دهب وكانت بتسأل الشيخ عن قطعة أرضها في المنيب.",
       "objective": "قولي إن الأرض كانت سؤال مش طلب من الشيخ.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n11",
       "name": "هشام ابن أخو الشيخ",
-      "image": "assets/images/stories/suspect_n11.webp",
+      "image": "assets/images/stories/suspect_n19.webp",
       "background": "بيجيب الحنة والبخور من صالون سوزان كل صباح في ظرف مقفول بدبوس، وبيقرا ببطء.",
       "objective": "ثبّت إنك ماتعرفش إيه جوه الظرف وماتعرفش تقراه.",
       "privateClueIds": [
@@ -650,5 +650,6 @@
         "fl_ceiling"
       ]
     }
-  ]
+  ],
+  "evidenceImage": "assets/images/stories/evidence/evidence_14.webp"
 }

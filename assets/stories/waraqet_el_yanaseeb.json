@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "الحاجة نوال",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n13.webp",
       "background": "أرملة ٦٨ سنة في الدور التالت في شارع الترعة البولاقية بشبرا؛ عملت عملية مياه بيضا من أسبوع وبتتحرك بمرافق.",
       "objective": "فسّري ليه الورقة اللي لقيتيها بالليل رقمها صح، ومتخافيش من الكلام عن التزوير.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "هنان بنت الحاجة نوال",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n23.webp",
       "background": "ممرضة في مستشفى الدمرداش، وردية من ٦ لـ١٠ بالليل؛ هي اللي صوّرت الورقة ٢:٤٢ قبل ما تنزل.",
       "objective": "اثبتي إن صورتك كانت للورقة الأصلية، وإنك ماكنتيش في العمارة وقت الورقة التانية.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "أشرف جوز هنان",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n28.webp",
       "background": "سواق تاكسي على شيكات تلاتة لتاجر عربيات قيمتهم ٨٥ ألف؛ كان في الشقة ٧:١٢ ياخد سلفة.",
       "objective": "فسّر ليه جيت تستلف تاني، ومتخبّيش الشيكات.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "مازن حفيد الحاجة",
-      "image": "assets/images/stories/suspect_n11.webp",
+      "image": "assets/images/stories/suspect_n05.webp",
       "background": "طالب تصميم جرافيك في كلية الفنون التطبيقية؛ عنده لابتوب وطابعة ليزر، وجه ٣:٠٦ ياخد شنطة الغسيل.",
       "objective": "اثبت إن ملف تصميم التذكرة كان لمشروع التخرج، مش للتزوير.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "الأسطى عبد العال",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n09.webp",
       "background": "صاحب كشك اليانصيب عند ناصية شارع خلوصي؛ عادته يكتب ساعة البيع بالقلم الأزرق على ضهر كل ورقة.",
       "objective": "طلّع دفتر المبيعات ووضّح مين اشترى أرقام قريبة من الورقة الكسبانة بعد السحب.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "أم سامي الجارة",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n26.webp",
       "background": "جارة الحاجة نوال من ٣٠ سنة؛ بتجيب لها أكل وبتروح معاها الدرس في المسجد بالليل.",
       "objective": "قولي اللي شفتيه من الدور التالت من غير ما تحكمي على حد.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "خالد الكهربائي",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n11.webp",
       "background": "كهربائي في العمارة اللي جنبها؛ ركّب الإنتركوم في شقة الحاجة نوال من سنتين وعارف مكان المفتاح الاحتياطي.",
       "objective": "فسّر ليه جيت العمارة ٧:٠٨ ومحدش طلبك، من غير ما تفتح كلام عن فلوسك.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "أستاذ وجيه",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n16.webp",
       "background": "مطبعجي معاش من مطبعة قديمة في الأزبكية؛ ساكن في العمارة المقابلة وفي درج مكتبه عجلة خياطة وخرامة قديمة.",
       "objective": "فسّر ليه عندك عدّة تخريم الورق، واثبت إنك مالمستش ورق الحاجة.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "عم جابر البواب",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n21.webp",
       "background": "بواب العمارة من ١٩٩٨؛ بيكتب دفتر الزوار بنفسه وعلى مكتبه المفتاح الاحتياطي لكل شقة في علبة.",
       "objective": "طلّع دفتر الزوار بدقة وقول مين طلع ومين نزل، ومتغيّرش كلمة.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "أستاذة سلوى موظفة اليانصيب",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n30.webp",
       "background": "موظفة في مكتب اليانصيب في وسط البلد؛ هي اللي فحصت الورقة وقالت إنها مقلدة.",
       "objective": "وضّحي بدقة ليه الورقة مقلدة، وإنك كنتي بعيدة عن الموضوع يوم الخميس.",
       "privateClueIds": [
@@ -573,5 +573,6 @@
         "motive_clean"
       ]
     }
-  ]
+  ],
+  "evidenceImage": "assets/images/stories/evidence/evidence_16.webp"
 }

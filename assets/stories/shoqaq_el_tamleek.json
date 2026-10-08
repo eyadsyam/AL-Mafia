@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "م. أميرة المشرفة",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n08.webp",
       "background": "مهندسة الموقع، شايلة مخطط الدور وبتفتح الشقق للمعاينة. بتكره الورق المكتبي وبتسيب المكتب على نهى.",
       "objective": "اشرحي ترقيم الشقق بدقة، وماتتهميش حد في المكتب.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "وليد المشتري التالت",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n27.webp",
       "background": "مهندس صيانة، دفع شيك ١٥٠ ألف السبت ١٢ سبتمبر الساعة ١١ الصبح. بيتجوز بعد شهرين.",
       "objective": "اثبت إنك مشتري وضحية، وماتتجاهلش الإيصال.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "أستاذة وفاء مديرة المبيعات",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n15.webp",
       "background": "بتستقبل المشترين وبتدخل الدرج بمفتاحها. كانت في إجازة مرضية الأحد ٦ سبتمبر.",
       "objective": "اثبتي إنك ماكنتيش في المكتب الأحد، وماتحكيش عن عجز المبيعات.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "الحاج جمال السمسار",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n07.webp",
       "background": "دلّ المشترين الاتنين الأولانيين على المشروع. في عمرة من ٣٠ أغسطس لـ١٣ سبتمبر.",
       "objective": "اثبت إنك في السعودية وقت البيع، من غير ما تهاجم المشترين.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "مصطفى المشتري التاني",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n02.webp",
       "background": "مصور مناسبات، دفع ١٥٠ ألف انستاباي الأربعاء ٩ سبتمبر ٦:١٥ بالليل. بيدور على شقة قريبة من شغله.",
       "objective": "وضّح إنك اتنصب عليك، وطلّع إيصالك من غير ما تتصرف كمتهم.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "أستاذة غادة محامية الشركة",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n20.webp",
       "background": "بتصيغ العقود الأصلية وعندها نسخة المفتاح في ظرف. كانت في جلسة محكمة السبت ١٢ سبتمبر.",
       "objective": "اثبتي مكانك في المحكمة، وماتقوليش على اتفاقك مع المالك.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "عم سعد بواب العمارة",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n12.webp",
       "background": "بواب العمارة وشايل مفتاح بوابة الموقع. أمي، بيمضي ببصمة إبهامه.",
       "objective": "قول اللي شفته من البوابة، وماتحاولش تتفاخر بالقراية.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "نهى محاسبة الشركة",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n22.webp",
       "background": "محاسبة الشركة وأمينة العهدة. مفتاحها بيفتح الدرج وبتكتب الإيصالات.",
       "objective": "وضّحي شغلك على الدفاتر بدون ما تتأخري في الرد على أي سؤال.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "المعلم عطية مقاول التشطيب",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n14.webp",
       "background": "قايم بتشطيب الدور التالت. كان في فرح بنته الأربعاء ٩ سبتمبر بالليل.",
       "objective": "احكي إنك ماعدّيتش على المكتب، وماتكرهش المشترين.",
       "privateClueIds": [
@@ -637,5 +637,6 @@
         "f_broker_commission"
       ]
     }
-  ]
+  ],
+  "evidenceImage": "assets/images/stories/evidence/evidence_13.webp"
 }

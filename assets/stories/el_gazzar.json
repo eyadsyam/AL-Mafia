@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "د. مها الشافعي",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n10.webp",
       "background": "مفتشة صحة وتموين الحي؛ سلّمت الحاج إنذار قبل الحادثة بيومين على تواريخ لحمة مجمّدة.",
       "objective": "اثبتي مكانك الفجر بختم المجزر، ومتحكيش في تفاصيل الإنذار غير لما حد يسألك عن الكراتين.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "طارق ابن الحاج",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n16.webp",
       "background": "طالب تجارة ساكن فوق المحل مع أبوه؛ كل شوية يقول إنه عايز يبيع الجزارة ويسافر الخليج.",
       "objective": "فسّر ليه سهرت أونلاين للفجر، وخلّيهم يفتحوا سجل الحساب قبل ما يتهموك.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "الحاج توفيق أخو القتيل",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n14.webp",
       "background": "أخو الحاج الأكبر؛ بيصلّي الفجر في زاوية الحارة وبعدين بيقف في طابور العيش.",
       "objective": "وضّح إنك كنت في طابور الفرن، ومتنساش إن أخوك خد منك ٤٠ ألف السنة اللي فاتت.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "بلال مصوّر الأفراح",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n19.webp",
       "background": "صوّر فرح بنت الحاج عطية للصبح، وبيدّي كورس مونتاج أونلاين بالفجر عشان الفرق في التوقيت مع طلبته في كندا.",
       "objective": "طلّع تسجيل الكورس، وانتبه إن فيديو الفرح اللي معاك شاهد على ناس كتير.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "نهى مندوبة النيل للمجمّدات",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n22.webp",
       "background": "بتورّد المجمّدات للمحل بقالها ٦ سنين؛ عندها عربية ربع نقل بيضا بتلف بيها على التجار.",
       "objective": "اثبتي إنك كنتي في مخزن ٦ أكتوبر الليل، ومتجيبيش سيرة الكراتين الأخيرة.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "الأسطى فرغلي",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n24.webp",
       "background": "أقدم صنايعي في المحل، بيفصّل اللحمة بإيده من ٢٥ سنة؛ مدين للحاج بسلفة بيسدّدها ٢٠٠ جنيه كل شهر.",
       "objective": "اثبت إنك ركبت العربية للمجزر قبل التالتة، وخلّي حد يفتح دفتر البوابة.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "سلمى بنت الحاج",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n23.webp",
       "background": "كاشيرة المحل وبتكتب الحسابات في كراسة؛ خطيبها مسافر وبتكلمه بالليل.",
       "objective": "فرّقي بين مكالمتك مع خطيبك وبين سهر أخوكي، واسكتي عن إن أبوكي زعق لك أول امبارح.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "عم شحتة السواق",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n04.webp",
       "background": "سواق عربية التوزيع من ٢٠١٠؛ هو اللي بيجيب اللحمة من المجزر كل فجر قبل المحل بنص ساعة.",
       "objective": "أكّد إنك ما سبتش العربية ولا دخلت الحارة بعد التالتة، واطلب بون السلفة الأخيرة.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "أم حسن بتاعة الخضار",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n13.webp",
       "background": "بتفرش قدّام المحل من قبل ما الحاج يفتح؛ عارفة مين بيعدّي ومين بيقف.",
       "objective": "افتكري مين شفتي في طابور العيش، ومتفضحيش إنك كنتي بتسلّفي الحاج فلوس.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "ياسر صبي الجزارة",
-      "image": "assets/images/stories/suspect_n11.webp",
+      "image": "assets/images/stories/suspect_n27.webp",
       "background": "صبي جديد من شهرين؛ هو اللي فتح باب الثلاجة ٦:١٠ ولقى الحاج.",
       "objective": "قول إيه اللي شفته بالظبط لما فتحت الباب، وإن إيدك ما لمست الجثة.",
       "privateClueIds": [
@@ -624,5 +624,6 @@
       ]
     }
   ],
-  "sceneImage": "assets/images/stories/locations/loc_butcher_shop.webp"
+  "sceneImage": "assets/images/stories/locations/loc_butcher_shop.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_03.webp"
 }

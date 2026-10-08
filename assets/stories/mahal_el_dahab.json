@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "م. هالة مهندسة الكاميرات",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n20.webp",
       "background": "ركّبت كاميرات المحل ونظام الإنذار من سنتين وبتيجي كل ٦ شهور تعمل صيانة. جت الأحد ٤:٣٠ وخرجت ٥:٤٠.",
       "objective": "اشرحي الكاميرات بثقة، وماتحددش مين يعرف باسورد الـDVR غير لو اتسألتي.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "ياسر صبي المحل",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n27.webp",
       "background": "صبي المحل من تلات سنين، بيمسح الفاترينة ويودّع كاش البنك. خاطب من أسبوعين.",
       "objective": "اثبت إنك كنت في البنك، وماتحكيش عن الشبكة اللي بتدخرها.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "مدام نجوى",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n13.webp",
       "background": "مرات المعلم، بتقعد على الكاشير بعد العصر وعارفة الكود الاحتياطي للخزنة.",
       "objective": "وضّحي إنك ماسبتيش الكاشير ولا دقيقة، من غير ما تتهمي حد.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "المعلم عبد الستار",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n12.webp",
       "background": "صاحب المحل وأمين شعبة الذهب. عدّ الخزنة ٥:٣١ بنفسه وقفلها بالكود.",
       "objective": "ادافع عن المحل وعن الكاميرات، وخبّي إن البوليصة ما بتغطيش اللي حصل.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "حمادة مصوراتي السياح",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n02.webp",
       "background": "بيصور السياح قدام جامع الحسين ويبعت لهم الصورة على الإيميل في ثانيتها. صاحب المعلم من أيام الأب.",
       "objective": "أثبت مكانك من صورك، وماتفتحش سيرة الفلوس اللي بتستلفها من المعلم.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "أستاذة سلمى مفتشة الدمغة",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n22.webp",
       "background": "مفتشة الدمغة والموازين. جت ٥:٤٥ تجرد الفاترينة، وبتشيل شنطة جلد فيها الموازين والأختام.",
       "objective": "اثبتي إنك ماقربتيش من الخزنة، والشنطة دي كلها موازين.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "عم رمضان القهوجي",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n14.webp",
       "background": "بيوزع الشاي على محلات الصاغة من تلاتين سنة، ودخل المحل من الباب الخلفي مرتين النهارده.",
       "objective": "اثبت مواعيد الشاي بدفتره، من غير ما تقول مين كان مستعجل عليه.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "رحاب مندوبة التأمين",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n23.webp",
       "background": "جت تجدد بوليصة التأمين وعاينت الخزنة ٣:٤٥. معاها قايمة بمحتويات الكيس الأزرق.",
       "objective": "وضّحي إنك سافرتي بدري، وماتفتحيش ملف التأمين بدون سبب.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "سيد فني التكييف",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n05.webp",
       "background": "بيغيّر فريون وحدة التكييف فوق المحل ومحل الشرقاوي. طلع السقف الكاذب الصبح.",
       "objective": "اثبت إنك مالقيتش سبب تقرب من الخزنة، وماتخفيش إنك شفت الكابلات فوق.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "الحاجة سنية",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n26.webp",
       "background": "زبونة المحل من سنين، اشترت خاتم فيروز وبتجهز شبكة بنتها بالتقسيط.",
       "objective": "اثبتي إنك كنتي قدام الكاونتر، وماتقوليش على الدبلة قبل ما حد يسأل.",
       "privateClueIds": [
@@ -634,5 +634,6 @@
       ]
     }
   ],
-  "sceneImage": "assets/images/stories/locations/loc_gold_souq.webp"
+  "sceneImage": "assets/images/stories/locations/loc_gold_souq.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_05.webp"
 }

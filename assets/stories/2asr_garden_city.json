@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "مدام ماريكا مدبرة القصر",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n01.webp",
       "background": "يونانية من الإسكندرية، بتدير القصر من ١٩٣٨ وبتحتفظ بمفاتيح الغسيل والخزين. كانت عند أختها في أثينا في ديسمبر ورجعت بعد الجنازة.",
       "objective": "فسّري ليه سبتي القصر ٩ ديسمبر، وقولي إنك مالمستيش مفتاح مكتب الباشا من سنين.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "الأستاذ شكري السكرتير",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n05.webp",
       "background": "سكرتير الباشا ومدير حساباته من ١٩٤٥. هادي وبيلبس بدلة رمادي واحدة، ومعاه ٣ نسخ مفاتيح: خزنة الحسابات ومكتب الباشا والمكتبة.",
       "objective": "قول إنك سهرت في الحسابات لحد ١١:٤٠ ومحدش شافك، وإن الباشا قال لك «تصبح على خير» ١٠:٣٠.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "د. فتحي طبيب القصر",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n07.webp",
       "background": "طبيب القصر من ١٩٤٠ وكاتب وصفة الديجيتالين للباشا من ١٩٦٠. بيحب العسل الفيومي وبيهدي جراير منه كل سنة.",
       "objective": "اثبت إنك ماوصفتش جرعة زيادة، وإن العسل ده بتوزعه على نص القصر.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "نادية هانم",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n03.webp",
       "background": "زوجة الباشا التانية من ١٩٥٠، أصغر منه بـ٢٢ سنة. بتاخد فيرونال بالليل ولها أوضة منفصلة. المدفأة في أوضتها بتشتغل لحد الفجر.",
       "objective": "فسّري ليه الباشا كان بيرجع يتخانق معاكي على الورثة، ومتتجاهليش الفيرونال.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "د. مجدي رضوان",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n09.webp",
       "background": "ابن فريد بك، دكتور قلب، عنده وصفة الديجيتالين في شنطته. خرج من القصر ١٠:١٥ بعد خناقة مع عمه على الورث.",
       "objective": "اثبت إنك خرجت قبل ما الينسون يطلع، واحكي الخناقة بدقة.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "سنية بنت الطباخ",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n06.webp",
       "background": "٢٢ سنة، بنت عم عبد الحميد الطباخ الراحل، شغالة معاون مطبخ. لقت دفتر أبوها في صندوق قديم في أكتوبر وسلّمته للباشا ١٣ ديسمبر.",
       "objective": "اثبتي إنك ماكتبتيش في الدفتر حاجة جديدة، وإن إدريس كان معاكي في المطبخ ١٠:٣٠ لـ١١:٢٠.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "عم حسانين الجنايني",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n12.webp",
       "background": "جنايني القصر من ١٩٣٥ لحد ما اتقاعد ١٩٦٣، بس بيزور القصر بالعيد. بيزرع في الجنينة الشتوية نباتات من بلده.",
       "objective": "فسّر ليه في ركن الجنينة الشتوية نبات إصبع العدرا، واثبت إنك سكنت في بني سويف من ٦٣.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "الأستاذ عدلي المحامي",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n16.webp",
       "background": "محامي الباشا من ١٩٥٢، بيحتفظ بالوصية وبأوراق قضية ١٩٥٧. معاه نسخة من خطاب فريد بك المختوم.",
       "objective": "قول إنك جيت الباشا ١٣ ديسمبر ٥:٣٠، وإنه طلب منك تقابله الخميس ٩ الصبح.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "اللواء عمّار صديق الباشا",
-      "image": "assets/images/stories/suspect_n12.webp",
+      "image": "assets/images/stories/suspect_n14.webp",
       "background": "لواء متقاعد، ساكن الفيلا اللي جنب القصر من ١٩٤٩، بيلعب طاولة مع الباشا كل أربعاء.",
       "objective": "اثبت إنك لعبت طاولة لحد ٩:٥٠ وخرجت، واحكي اللي سمعته عن الدفتر.",
       "privateClueIds": [
@@ -797,5 +797,6 @@
       ]
     }
   ],
-  "sceneImage": "assets/images/stories/locations/loc_garden_city_palace.webp"
+  "sceneImage": "assets/images/stories/locations/loc_garden_city_palace.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_20.webp"
 }

@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "نادية السيد",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n30.webp",
       "background": "أمينة جمعية الصيادين؛ بتختم تصاريح الخروج وكانت قاعدة في اجتماع الجمعية العمومية لحد ٩:٣٠ بليل.",
       "objective": "ثبّتي إن المحضر اتمضى قدام ١٢ عضو، ومتقوليش على خناقة التصريح غير لما حد يسألك.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "سالم عبد الحميد",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n16.webp",
       "background": "ابن الريّس الكبير، بيشتغل معاه على المركب وعليه دين موتوسيكل للحاج سعد.",
       "objective": "اشرح ليه ماكنتش معاه على المركب الخميس من غير ما تتلخبط في الدين.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "حنان أم سالم",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n01.webp",
       "background": "مرات الريّس من ٣٠ سنة، خياطة في البيت، وبتتصل بيه كل ساعة لما يغيب.",
       "objective": "وضّحي ليه اتصلتي ٧ مرات وهو مابيردش.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "الحاج سعد",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n29.webp",
       "background": "تاجر الحلقة والمشتري الأساسي لسمك الريّس، بيمسك مسبحته بإيده الشمال.",
       "objective": "اشرح ليه دفعت عربون الريّس العصر وإنت عارف إنه عليه دين.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "كريم المصوّر",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n19.webp",
       "background": "مصوّر طيور بيقعد في مخبأ قصب على بعد ٦٠٠ متر من المرسى بالكاميرا والترايبود.",
       "objective": "قدّم لقطاتك بالتوقيت وما تقولش إن الضوء كان بيخونك.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "رشا مفتشة المسطحات",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n03.webp",
       "background": "مفتشة المسطحات المائية، ماسكة بلاغات الصيد بالكهرباء، وواقفة في نقطة البوغاز الخميس.",
       "objective": "اكشفي الكابل اللي لقيتيه تحت الجزيرة ٣ من غير ما تقولي مين سلّمك التلميح.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "عم فتحي",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n04.webp",
       "background": "قهوجي المرسى من ٢٠ سنة، شايف كل واحد بيربط حبل مركبه بأنهي إيد.",
       "objective": "ثبّت إن القهوة قفلت ١٠ بليل وإنك ماسيبتش الكرسي.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "دعاء الباحثة",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n06.webp",
       "background": "باحثة في كلية العلوم بكفر الشيخ، حاطة جهاز لقياس الرياح والملوحة على عوامة الجنوب.",
       "objective": "اثبتي إن أجهزتك كانت شغالة وقت النوّة من غير ما تتهمي حد.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "بخيت الميكانيكي",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n24.webp",
       "background": "ميكانيكي موتورات المراكب؛ هو اللي ضبط موتور الأمل الأحد، وبيمسك المفتاح الإنجليزي بشماله.",
       "objective": "فسّر ليه موتور الأمل لقيناه سليم رغم النوّة، ومتقولش اسم حد غير لما يتسألك.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "أم هاشم",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n26.webp",
       "background": "بياعة سمك على الرصيف، إيدها اليمين في جبس من تلات أسابيع بعد وقعة.",
       "objective": "اشرحي إنك ماكنتيش على الرصيف بعد العصر ولسه بتتعالجي.",
       "privateClueIds": [
@@ -622,5 +622,6 @@
         "fl_cable"
       ]
     }
-  ]
+  ],
+  "evidenceImage": "assets/images/stories/evidence/evidence_10.webp"
 }

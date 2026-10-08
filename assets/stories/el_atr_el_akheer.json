@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "ماهر السيد",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n16.webp",
       "background": "سواق الحاج درويش من أحد عشر سنة؛ وصّلهم رمسيس ٧:٤٥ وقال إنه ركّن الفان في الجراج وراح ينام.",
       "objective": "اثبت إنك كنت في سريرك طول الليل، ومتجيبش سيرة الفان ولا طريق الصحراوي.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "سلوى الصاوي",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n30.webp",
       "background": "بنت الحاج؛ سافرت معاه في كابينة ٦ جنب كابينته، ومعاها مفتاح احتياطي للتانية.",
       "objective": "وضّحي إنك كنتي في كابينة ٣ عند الطفل المحموم، وماتخبّيش الخناقة اللي بينك وبين أبوكي على الأرض.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "جمال المحصل",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n19.webp",
       "background": "كمساري عربية ٤؛ معاه علبة المفاتيح العمومية بختم الرصاص، وعليه جزاء لو فارق العربية.",
       "objective": "ثبّت إنك مافارقتش البوفيه غير بعد الوقفة، واتكلم عن الوقفة اللي كل الركاب قالوا إنها ماحصلتش.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "عم رمضان الشيال",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n07.webp",
       "background": "شيّال رصيف ٩ في رمسيس؛ شال شنط الحاج ٧:٣٥ وفاكر البنية بحبلها الأحمر.",
       "objective": "قول مين لمس الشنطة على الرصيف، ومتسيبش حد يقول إنك لحقت القطر.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "د. فاروق عبد النبي",
-      "image": "assets/images/stories/suspect_n12.webp",
+      "image": "assets/images/stories/suspect_n21.webp",
       "background": "طبيب باطنة رايح أسوان، قاعد في كابينة ٣ جنب الطفل ويدّيله الخافض بنفسه.",
       "objective": "ثبّت أوقات قياس الحرارة، ومتسمحش لحد يشكك في ساعة إيدك.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "كارم البوفيه",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n24.webp",
       "background": "عامل بوفيه عربية ٧؛ بيطبع الإيصال بالدقيقة ويكتب اسم اللي شرب الشاي في دفتره.",
       "objective": "طلّع إيصال ٣:٠٩ وفرّق بين اللي شرب شاي واللي اتفرج بس.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "أسامة الشناوي",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n27.webp",
       "background": "سمسار أراضي في أسوان؛ باع للحاج القطعة وفاضل له باقي العمولة ٢٤ ألف.",
       "objective": "خبّي إن العمولة مش مضمونة لو الصفقة وقفت.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "نادية السويفي",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n01.webp",
       "background": "مدرّسة رايحة أسوان بابنها يزن ٤ سنين؛ كابينة ٣ هي كابينتها.",
       "objective": "وضّحي إن يزن كان محموم وإنك ماسبتيش الكابينة غير للمية.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "حسن الصاوي",
-      "image": "assets/images/stories/suspect_n11.webp",
+      "image": "assets/images/stories/suspect_n02.webp",
       "background": "ابن الحاج الصغير، عازف عود؛ عليه دين ستين ألف لصاحب عربية.",
       "objective": "اثبت إن الدين اتسدد بشيك، وإنك ماحتجتش الفلوس الكاش.",
       "privateClueIds": [
@@ -530,5 +530,6 @@
       ]
     }
   ],
-  "sceneImage": "assets/images/stories/locations/loc_sleeper_train.webp"
+  "sceneImage": "assets/images/stories/locations/loc_sleeper_train.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_06.webp"
 }

@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "رباب المرمّمة",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n28.webp",
       "background": "مرمّمة مستقلة مرسمها في الدقي؛ رمّمت «صبية الغيط» ٣ أسابيع السنة اللي فاتت وكتبت تقرير الحالة.",
       "objective": "اثبتي إنك كنتي في إسكندرية الليلة، وافتحي تقرير الأشعة بتاعك قبل ما يلبسوكي التبديل.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "إسلام مساعد المرمّمة",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n09.webp",
       "background": "طالب فنون جميلة بيساعد رباب في المرسم؛ بيجيب الشاي وبيشيل اللوحات من وإلى العربية.",
       "objective": "قول إنك ماتعرفش حاجة عن الفحص بالأشعة، وافتكر مين كان بيستلم اللوحات من المرسم.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "مدام ماري",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n10.webp",
       "background": "موظفة الاستقبال وبيع التذاكر من يناير؛ بتقعد في أوضة الشباك قدّام باب الجاليري.",
       "objective": "وضّحي إنك مش هنا من سنة، وماتجيبيش سيرة إن كود الإنذار مكتوب على ورقة في دولاب الحراسة.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "الأستاذ منصور مدير المتحف",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n21.webp",
       "background": "ابن أخو الفنان ومدير المتحف؛ عنده قرض بنكي كبير زوّد التأمين عشانه في يوليو.",
       "objective": "اثبت إنك كنت في المستشفى، وفسّر ليه زوّدت مبلغ التأمين السنة دي.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "بلال مصوّر الكتالوج",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n11.webp",
       "background": "مصوّر أرشيف المتحف؛ صوّر اللوحة بالأشعة تحت الحمراء في المرسم، وصوّر افتتاح الموسم.",
       "objective": "طلّع صورك بالتواريخ، وفسّر ليه ملفاتك بدقة عالية اتفتحت بالليل من حساب الأدمن.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "نهال أمينة السجل",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n30.webp",
       "background": "مسؤولة عهدة اللوحات والتأمين والنقل؛ ختمت على استلام اللوحة وتسليمها في كل مرة.",
       "objective": "قولي إن اللوحة وصلت سليمة وفي معادها، وخلّي الكل يركز في كود الإنذار وفي الحارس.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "عم كامل كبير الحرّاس",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n25.webp",
       "background": "حارس المتحف من ١٩٩٨؛ بيشرب شاي أم أحمد كل ليلة ١١ ويصحى ٧ الصبح.",
       "objective": "افتكر الشاي وإنت نايم، وأصرّ إن إنت عمرك ما خدت منوّم.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "سلمى الباحثة",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n01.webp",
       "background": "باحثة دكتوراه بتجرد مقتنيات المتحف في كراسة من مايو، وقاست اللوحة بالمتر مرة في الربيع.",
       "objective": "افتحي كراسة الجرد وحاولي تفهمي ليه المقاس مش مظبوط، ومتتهميش حد من غير دليل.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "الأسطى ممدوح فني الإنذار",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n16.webp",
       "background": "فني شركة الإنذار والتكييف من يونيو؛ عارف كود الصيانة لأنه بيغيّر البطاريات كل أسبوعين.",
       "objective": "فسّر ليه كود الصيانة اللي اتفتح بيه الإنذار هو بتاعك، وإنك مش معاك دولاب الحراسة.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "أم أحمد عاملة النضافة",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n13.webp",
       "background": "بتنضّف المتحف من ٢٠١٥ وبتعمل الشاي للحرّاس كل ليلة ١١؛ لقت عم كامل نايم على المكتب الصبح.",
       "objective": "قولي اللي شفتيه الصبح من غير ما تحلفي على حاجة ماشفتيهاش، وفسّري الشاي.",
       "privateClueIds": [
@@ -658,5 +658,6 @@
       ]
     }
   ],
-  "sceneImage": "assets/images/stories/locations/loc_zamalek_museum.webp"
+  "sceneImage": "assets/images/stories/locations/loc_zamalek_museum.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_07.webp"
 }

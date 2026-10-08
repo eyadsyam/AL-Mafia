@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "منى بنت الحاج",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n08.webp",
       "background": "بنت الحاج الكبيرة ومهندسة مدنية؛ عقدها مع شركة تطوير على أرض البيت متوقّع بشرط إن الوصية القديمة تفضل زي ما هي.",
       "objective": "قولي إنك كنتي مع أخوكي أيمن من ٨:٣٥ لـ٩:٤٠ وماتحدّديش مكان غير لما حد يضغط عليكي.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "مرفت الممرضة",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n15.webp",
       "background": "ممرضة الحاج الخاصة من ٣ سنين؛ بتجهّز صينية أدويته بالليل وبتصوّرها وبتكتب ميعاد حمامه في ورقة.",
       "objective": "اثبتي إنك ما قربتيش من الأوضة بعد ٨:٣٠، وافتكري إيه اللي كان على الصينية بالظبط.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "عم فتحي أخو الحاج",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n21.webp",
       "background": "أخو الحاج الأصغر، ٧٨ سنة، ساكن الدور الأول؛ بياخد ديجوكسين زي أخوه ومعاه شريط أدوية في درج السفرة.",
       "objective": "قول إنك قاعد على السفرة، ومتجيبش سيرة إن أخوك سلّفك ٤٠ ألف الشهر اللي فات.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "أيمن ابن الحاج",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n11.webp",
       "background": "مصوّر محترف، ابن الحاج الأوسط؛ ركّب كاميرتين الليلة: واحدة على السفرة وواحدة على السطح لتصوير القمر.",
       "objective": "قول إنك كنت مع أختك منى من ٨:٣٥ لـ٩:٤٠ فوق السطح، وماتسمحش لحد يشوف كاميرا السطح قبل ما تتأكد منها.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "ندى بنت منى",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n20.webp",
       "background": "محامية، حفيدة الحاج؛ هي اللي كتبت مسودة الوصية الجديدة بإملاء جدها وشايلة نسختها.",
       "objective": "فسّري ليه مسحتي الملف بعد الوفاة، واطلبي تحليل الدم قبل ما حد يدفن.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "عم صابر السفرجي",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n25.webp",
       "background": "شغّال في البيت من أيام الحاج الشاب؛ هو اللي بيطلع الصينية للدور التالت، وعنده ضهر تعبان وبيمسك في السلم.",
       "objective": "قول إنك سيبت الصينية سليمة على الكومودينو، واطلب شهادة أم سيد معاك في الأنابيب.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "هبة مرات أيمن",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n22.webp",
       "background": "بتمسك حسابات البيت في كراسة وبتسلّم الدفتر للمحاسب كل خميس؛ قامت من السفرة دقيقتين.",
       "objective": "وضّحي إنك قمتي تجيبي مية بس، وحافظي على الدفتر لحد ما المحاسب يراجعه.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "عادل ابن الحاج الأصغر",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n19.webp",
       "background": "صاحب ورشة سيارات في عين شمس؛ قرضه من البنك لسه بيسدّده بالقسط.",
       "objective": "افتكر وقت ما نزلت الكشك، وخبّي إن رقمك القديم لسه مبرمج على قلادة الحاج.",
       "privateClueIds": [
@@ -732,5 +732,6 @@
       ]
     }
   ],
-  "sceneImage": "assets/images/stories/locations/loc_family_house.webp"
+  "sceneImage": "assets/images/stories/locations/loc_family_house.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_04.webp"
 }

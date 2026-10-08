@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "مدام سناء الجارة",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n06.webp",
       "background": "ساكنة الشقة ٤ من ١٥ سنة، أرملة ونومها خفيف. هي اللي بلّغت ٦:١٠ بعد ما لقت باب شقة ٥ مفتوح.",
       "objective": "قولي اللي سمعتيه بالضبط ومتخمنيش، وقولي إنك ماشفتيش حد ماسك مفتاح.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "ياسر ابن عم ممدوح",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n05.webp",
       "background": "طويل ١٩٣ سم، اشترى أرض الهرم من ممدوح. اتخانق معاه الخميس قدام ١٥ واحد وقال له «هاخلّص عليك».",
       "objective": "فسّر جملة الخناقة، وأكّد إنكم اتصالحتوا، وإنك ماعندكش مفتاح للشقة.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "سلوى طليقة ممدوح",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n08.webp",
       "background": "عايشة في المنصورة من ٣ سنين مع جوزها الجديد وبنتها شيماء بتيجي عند أبوها في الأجازة. لسه معاها نسخة مفتاح قديمة محدش طلبها منها.",
       "objective": "اثبتي إنك كنتي في المنصورة السبت بالليل، وإن النسخة القديمة اتغيّرت فيها السيلندر من سنتين.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "د. نبيل الطرزي",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n25.webp",
       "background": "طبيب باطنة وصاحب معمل تحاليل في أول شارع بين السرايات. صديق ممدوح من الجامعة، بيزوره كل سبت يقيس السكر والضغط، ومعاه مفتاح الشقة من يوم عملية الركبة.",
       "objective": "قول إنك خلصت الزيارة ١٠:٤٠ وخرجت، وإن مفيش حد غيرك دخل الشقة بعدك.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "عم فتحي البواب",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n12.webp",
       "background": "بواب العمارة، ٦٥ سنة وبيعرج، عنده نسخة طوارئ من مفتاح كل شقة في علبة معدن بيقفلها بالقفل.",
       "objective": "اثبت إن العلبة مقفولة ومحدش فتحها، وإنك نايم من ١٠:٣٠ في أوضة البواب.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "الأستاذ هشام المحامي",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n29.webp",
       "background": "محامي ممدوح من ٦ سنين، وهو اللي رتّب وثيقة التأمين. مرشّح ضمن الأسماء اللي ممكن المحكمة تعيّنها وصي.",
       "objective": "اثبت إنك كنت في قطر إسكندرية ٩:٣٠ بالليل ومعاك تذكرة وحجز فندق.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "أسامة السمسار",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n09.webp",
       "background": "سمسار أراضي قصير ١٦٠ سم، لسه بيحاول يقنع ممدوح يبيع الورشة. اتصل بيه ٣ مرات بعد ١١ بالليل.",
       "objective": "فسّر المكالمات، واثبت إنك مادخلتش الشقة بعد ١٠:٠٥.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "هالة الممرضة",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n15.webp",
       "background": "ممرضة في طوارئ مستشفى الدقي، بتيجي لممدوح مرتين في الأسبوع تغيّر على الركبة. بتتحرك في بنك الدم بالمستشفى.",
       "objective": "اثبتي إنك بدأتي شيفت ١٠ م وماسبتيش المستشفى لحد ٧ ص، وقولي إن مفيش مفتاح معاكي.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "شيماء بنت ممدوح",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n20.webp",
       "background": "١٧ سنة، موجودة عند أمها في المنصورة. هي المستفيدة من التأمين لو حصل لأبوها حاجة.",
       "objective": "قولي إنك آخر مرة كلمتي بابا السبت ٩:٢٠ وكان بيضحك، وإنك مالكيش أي علاقة بأي ورق.",
       "privateClueIds": [
@@ -748,5 +748,6 @@
         "f_policy"
       ]
     }
-  ]
+  ],
+  "evidenceImage": "assets/images/stories/evidence/evidence_24.webp"
 }

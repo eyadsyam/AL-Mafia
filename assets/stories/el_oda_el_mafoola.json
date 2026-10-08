@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "بدر النقاش",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n09.webp",
       "background": "اشتغل في تقسيم الشقة من ١٢ سنة ودهَن البابين الأخضر بنفس البوية.",
       "objective": "ما تقولش إنك نسيت ترقم الباب الداخلي غير لما حد يسألك عن حرف «ب». ",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "داليا مهندسة الترميم",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n08.webp",
       "background": "مسؤولة عن رفع الشقة قبل تسجيلها أثر؛ معاها نسخة من المخطط ومفتاح الباب الخارجي.",
       "objective": "خلّي كلمة «الأوضة» تفضل مبهمة، وادفعهم يركزوا في الشباك.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "حازم ابن القتيل",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n11.webp",
       "background": "وصل من المنصورة بعد مكالمة قصيرة، وعايز يبيع الشقة قبل قرار الحصر.",
       "objective": "اثبت ببوابة الطريق إنك وصلت بعد توقف ساعة الحائط.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "سميحة البوابّة",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n15.webp",
       "background": "شايفة باب الشقة من كرسيها، لكن باب العداد الجانبي ورا ضهرها.",
       "objective": "فرّق بين اللي شفته بعينك وصوت المزلاج اللي سمعته.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "مراد المصور",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n16.webp",
       "background": "حوّل المخزن الداخلي لمعمل تحميض، وعلّق ستارة سوداء على بابه.",
       "objective": "فسّر ليه صورة المفتاح مقصوصة من عند بطاقة الرقم.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "ليلى الباحثة",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n20.webp",
       "background": "بتفهرس دفاتر البيت وكتبت كلمة «جوه» مرتين بمعنيين في ملاحظاتها.",
       "objective": "ما تخلطش بين داخل الشقة وداخل معمل التحميض.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "عادل السمكري",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n19.webp",
       "background": "صلّح شباك الصالة الصبح وترك مسمار نحاس تحت الحلق.",
       "objective": "اثبت إن الشباك اتقفل قبل الوفاة ومحدش خرج منه.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "نجلاء المحامية",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n22.webp",
       "background": "كانت جاية بصورة عقد حدود الملكية، والصفحة التانية ناقص منها سنتيمتر.",
       "objective": "اكشف النقص في العقد من غير ما تسلم الأصل لأي حد.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "وجيه جامع التحف",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n24.webp",
       "background": "ساوم القتيل على ساعة حائط وميزان خيط نحاس من صندوق المهندس القديم.",
       "objective": "حدد آخر مرة شفت فيها ميزان الخيط كامل.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "بسمة فنية المعمل",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n23.webp",
       "background": "تعرف بقع المثبت من الدم، وبتقيس الصور من علامات التحميض على الحواف.",
       "objective": "صحح تقرير المعمل الأول من غير ما تدافع عن صاحبه.",
       "privateClueIds": [
@@ -504,5 +504,6 @@
         "flavor_latch"
       ]
     }
-  ]
+  ],
+  "evidenceImage": "assets/images/stories/evidence/evidence_21.webp"
 }

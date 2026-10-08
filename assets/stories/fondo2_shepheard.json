@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "الأستاذ فؤاد موظف الاستقبال",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n21.webp",
       "background": "بيختم استمارات النزلاء ويسلّم المفاتيح؛ هو اللي طلّع رفعت بك مفتاح ٣٠٧ الساعة ١٠:١٠.",
       "objective": "اثبت إن مفتاح ٣٠٧ ماطلعش من تحت إيدك تاني بعد ١٠:١٠.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "مدام لوسيل",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n10.webp",
       "background": "مغنية فرنسية نازلة في الجناح ٣٠٦ جنب رفعت بك؛ سمعت خبطة ١١:٠٥ وخرجت الطرقة.",
       "objective": "قولي اللي سمعتيه من الجناح ٣٠٧ وماتحكيش عن عشاء ١٩٥٠ إلا لو سألوكي.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "عم عوض الجرسون",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n14.webp",
       "background": "كبير الجرسونات في اللونج بار والجريل روم؛ خدم رفعت بك العشا ٨:٣٠ وكتب الساعة على كل طلب بخطه.",
       "objective": "طلّع ورقة الطلبات وقول مين قعد معاه على الترابيزة.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "اليوزباشي ممدوح",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n05.webp",
       "background": "ضابط جيش نازل في الفندق؛ دراعه اليمين في الجبس من ٥ نوفمبر، وكان متخانق مع رفعت بك على المعاهدة.",
       "objective": "فسّر ليه اتخانقت معاه، وقول إنك ماتقدرش تكتب بإيدك الشمال.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "الأستاذ لطفي المحاسب",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n25.webp",
       "background": "محاسب شركة الأقطان اللي رفعت بك مديرها؛ ساكن في الجناح ٣٠٤ وكلم رفعت بك على العشا ٨:٣٠.",
       "objective": "قول إنك اتعشيت مع رفعت بك وساب لوحده، وماتفتحش كلام الدفاتر.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "دكتور فاروق",
-      "image": "assets/images/stories/suspect_n12.webp",
+      "image": "assets/images/stories/suspect_n29.webp",
       "background": "طبيب أمراض باطنة نازل ٣ أيام للمؤتمر؛ كشف على الجثة ١١:٣٠ قبل ما الشرطة توصل.",
       "objective": "وضّح إيه اللي شفته على الجثة، وماتتجاهلش إنك كنت في اللونج بار لحد ١٠:٣٠.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "الست سميحة هانم",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n01.webp",
       "background": "أرملة باشا نازلة في الفندق من سنة؛ شمالها مشلول من جلطة ١٩٤٨ وماشية بعصاية.",
       "objective": "قولي اللي شفتيه من الشرفة قدام وماتتكلميش في حاجة ماتعرفيهاش.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "مستر هاريسون",
-      "image": "assets/images/stories/suspect_n11.webp",
+      "image": "assets/images/stories/suspect_n09.webp",
       "background": "مراسل جريدة إنجليزية بيغطي توتر القنال؛ كان قاعد في اللونج بار وبيكتب بالقلم الرصاص.",
       "objective": "قول إنك كنت قاعد في اللونج بار ومعاك مصور، واطلع بالصورة.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "صبرية بتاعة الورد",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n03.webp",
       "background": "بتبيع ورد في اللوبي من ١٠ سنين؛ مابتعرفش تقرا ولا تكتب وبتبصم، وسلّمت ورد للجناح ٣٠٧ الساعة ١٠:٣٠.",
       "objective": "قولي مين فتح لك باب ٣٠٧ ومين كان جواه.",
       "privateClueIds": [
@@ -574,5 +574,6 @@
       ]
     }
   ],
-  "sceneImage": "assets/images/stories/locations/loc_shepheard_hotel.webp"
+  "sceneImage": "assets/images/stories/locations/loc_shepheard_hotel.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_18.webp"
 }

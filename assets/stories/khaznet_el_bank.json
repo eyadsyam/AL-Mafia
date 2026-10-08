@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "م. منال مسؤولة الأنظمة",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n06.webp",
       "background": "مهندسة أنظمة الأمان والكاميرات في الفرع؛ هي اللي مركّبة ساعة الصالة الرئيسية وبتديرها من أوضة السيرفر.",
       "objective": "اثبتي إنك كنتي في البوفيه، وماتقوليش إنك عارفة إن الساعة الرئيسية متقدمة غير لما حد يسأل.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "كريم الصراف المتدرّب",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n11.webp",
       "background": "صراف تحت التمرين من ٣ شهور؛ صوّر فيديو عيد ميلاد زميله ليلة الخميس بموبايله.",
       "objective": "اثبت بفيديوك إنك كنت في البوفيه من ١٨:٥٤، واسأل مين حطّ الساعة الرئيسية بتتقدّم.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "فادية رئيسة الخزينة",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n08.webp",
       "background": "مسؤولة عن الخزنة من ١٢ سنة وصاحبة المفتاح التاني؛ بتعدّ النقدية كل يوم وبتمضي على ورقة الجرد.",
       "objective": "فسّري إنك مشيتي مع المدير ١٨:٥٢ بالتاكسي، وافتكري مين كان واقف في الممر ساعتها.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "بلال مسؤول التسجيلات",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n16.webp",
       "background": "مسؤول تسجيلات الكاميرات والـDVR، ووردية شغله بتخلص ١٨:٣٠؛ كان في المترو ساعة الحادثة.",
       "objective": "اثبت إنك سبت الأوضة ١٨:٤١، وفسّر فجوة الـ٢ دقيقة و٣٠ ثانية في تسجيل الممر.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "هالة المراجعة الداخلية",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n15.webp",
       "background": "مراجعة داخلية في الإدارة العامة بتزور الفرع كل شهر؛ معاها كارت دخول الباب الجانبي وعربية جرد بتفتحها بمفتاح.",
       "objective": "قولي إنك جيتي ١٩:٠٠ بساعة الصالة، وخلّيهم يركّزوا على الحارس والمدير.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "الأسطى جمعة فني الخزن",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n19.webp",
       "background": "فني من الشركة المصنّعة للخزنة والقفل الزمني؛ كتب تقرير من ٣ شهور إن الساعة الرئيسية للبنك متقدمة.",
       "objective": "طلّع تقريرك وإيصال الصيانة، وافتكر إنك مضيت ورقة الخروج ١٨:٣٤.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "أم محمد عاملة البوفيه",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n26.webp",
       "background": "بتعمل الشاي وتنضّف الدور الأرضي من ١٥ سنة؛ كانت بتقسّم التورتة في البوفيه.",
       "objective": "قولي مين كان معاكي في البوفيه ساعة ما غنّيتوا، ومتحلفيش على الساعة.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "ياسر الحارس الليلي",
-      "image": "assets/images/stories/suspect_n11.webp",
+      "image": "assets/images/stories/suspect_n24.webp",
       "background": "حارس الوردية الليلية من ٦ شهور؛ حضوره بيتسجّل بالبصمة وبيمضي على ورقة التسليم بساعة الصالة.",
       "objective": "اشرح ليه اتأخرت ٧ دقايق بالورقة وإنت في معادك بالبصمة، وافتكر الكوباية اللي شربتها على الرصيف.",
       "privateClueIds": [
@@ -751,5 +751,6 @@
       ]
     }
   ],
-  "sceneImage": "assets/images/stories/locations/loc_bank_vault.webp"
+  "sceneImage": "assets/images/stories/locations/loc_bank_vault.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_08.webp"
 }

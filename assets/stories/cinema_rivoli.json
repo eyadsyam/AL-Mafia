@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "الأسطى سيد المشغّل",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n24.webp",
       "background": "مشغّل ماكينتين العرض في الكابينة من ١٩٤٦؛ بيغيّر اللفة على علامة الدايرة في ركن الشاشة.",
       "objective": "طلّع كشف تغيير اللفات، وحدد مين كان واقف جنبك والمدافع بتضرب.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "مدام فيكتوريا",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n13.webp",
       "background": "كاشيرة شباك التذاكر؛ بتقفل الدرج وتعدّ الإيراد أول ما الفيلم يبدأ.",
       "objective": "فرّقي بين التذاكر اللي اتقطعت في الحفلة اللي فاتت واللي اتباعت الليلة.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "الأستاذ عادل مرزوق",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n27.webp",
       "background": "مدير السينما؛ في درج مكتبه مسدس براوننج مرخّص باسمه.",
       "objective": "اثبت إنك كنت في الكابينة ٩:٢٢ ومتخليش حد يفتّش في الدرج قبل ما تتفرد تفاصيل المسدس.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "عم عبده الفراش",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n29.webp",
       "background": "فراش اللوجات؛ ماسك كشاف بطارية، وهو اللي نوّر على الجثة وصرخ ٩:٤٧.",
       "objective": "أكّد إنك سمعت الطلقة ٩:٤٦ في المشهد الهادي، وإنك ماسبتش باب اللوجات.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "بهجت المصوّر",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n02.webp",
       "background": "مصوّر مجلة، جاي يصوّر الأفيش في الطرقة؛ اشترى قهوة وسجاير من البوفيه قبل الاستراحة.",
       "objective": "طلّع إيصال البوفيه وافصل بين صورك قبل المدافع وبعدها.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "دكتور ممدوح",
-      "image": "assets/images/stories/suspect_n12.webp",
+      "image": "assets/images/stories/suspect_n04.webp",
       "background": "دكتور أسنان وجاره في لوج ٣؛ بيشخّص موت زكي بالنظر.",
       "objective": "وضّح شغل إيدك على الجثة، ومتتجاهلش إنك كنت قاعد في لوج ٣ لحد ما اتعلّى الصوت.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "مدام إيفون",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n28.webp",
       "background": "ممثلة قديمة من أيام الأفلام الصامتة؛ قاعدة في لوج ٣ ومعاها ورقة بخطها لقوها في جيب القتيل.",
       "objective": "فسّري الورقة اللي في جيب القتيل من غير ما تفضحي سرك.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "فتحية بتاعة الترمس",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n23.webp",
       "background": "بتبيع ترمس وسجاير كليوباترا في الطرقة؛ عارفة مين دخل من كل باب.",
       "objective": "حدّدي مين اشترى منك سجاير في المدافع ومين طلب نص علبة.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "الخواجة نيقولا",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n05.webp",
       "background": "موزّع أفلام يوناني؛ جاي يراقب جودة النسخة اللي أجّرها للسينما.",
       "objective": "اثبت إنك كنت في الكابينة وقت اللفة التانية، واسكت عن دين نسخة الفيلم القديمة.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "سامي رسّام الأفيشات",
-      "image": "assets/images/stories/suspect_n11.webp",
+      "image": "assets/images/stories/suspect_n09.webp",
       "background": "شاب بيرسم أفيشات الفيلم بالألوان على القماش؛ قاعد في لوج ٢ لأنه ماعندوش فلوس للصالة.",
       "objective": "وضّح إنك كنت بترسم في دفترك وقت الانفجار، مش بتبص على لوج ٤.",
       "privateClueIds": [
@@ -530,5 +530,6 @@
       ]
     }
   ],
-  "sceneImage": "assets/images/stories/locations/loc_cinema_1955.webp"
+  "sceneImage": "assets/images/stories/locations/loc_cinema_1955.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_17.webp"
 }

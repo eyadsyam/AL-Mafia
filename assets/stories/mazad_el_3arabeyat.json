@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "الحاج فتحي العطار",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n14.webp",
       "background": "تاجر قطع غيار قديم في الحمزاوي؛ بيحضر المزاد كل شهر ومعاه اللوحة رقم ٩ والعربية دي وقف عندها على ٤٢٠ ألف.",
       "objective": "اثبت إنك كنت بتزايد بفلوسك الحقيقية، وإنك وقفت لما السعر عدّى قيمة العربية.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "دكتور صلاح الجمل",
-      "image": "assets/images/stories/suspect_n12.webp",
+      "image": "assets/images/stories/suspect_n21.webp",
       "background": "دكتور عظام من إسكندرية؛ أول مرة يحضر مزاد في القاهرة، وكسب اللوت ٧ بـ٦٩٠ ألف.",
       "objective": "افتكر مين رفع قدامك في كل مرة، وإزاي حسيت إن السعر بيجرّك.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "م. حسين نبيل",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n09.webp",
       "background": "مهندس ميكانيكا وخبير فحص العربيات القديمة؛ هو اللي وقّع تقرير أصالة اللوت ٧ الصبح.",
       "objective": "دافع عن تقريرك، وماتخليش حد يعرف إنت كنت واقف فين وقت المزايدة.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "الأستاذ سمير المنادي",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n25.webp",
       "background": "منادي المزاد من عشرين سنة؛ بيمسك المطرقة وورقة العروض ومابيبصّش غير على اللوحات اللي بترفع.",
       "objective": "وضّح إن كل رقم قلته كان وراه لوحة مرفوعة، وإن مكالمة ٧:١٢ ماكانتش شغل.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "مدام ماجدة الشناوي",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n06.webp",
       "background": "صاحبة المرسيدس؛ ورثتها عن جوزها الباشمهندس وسلّمتها للمزاد بسعر احتياطي ٢٥٠ ألف.",
       "objective": "اثبتي إنك ماتفقتيش مع حد على السعر، وإنك ماعرفتيش مين اللي رفع.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "زغلول تاجر الخردة",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n11.webp",
       "background": "تاجر خردة من السيدة زينب؛ اللوحة رقم ١٤، وكان أول واحد رفع على العربية ٧:١٤.",
       "objective": "فسّر ليه دخلت المزاد بفلوس مش بتاعتك، وماتحكيش مين إداهالك.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "نبيل سمسار الشقق",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n16.webp",
       "background": "سمسار شقق في مدينة نصر؛ اللوحة رقم ١٧، وكان قاعد في الصف التالت جنب العمود الأيمن.",
       "objective": "فسّر ليه سلّمت على صاحبة العربية ٦:٥٥ وإنت ماتعرفهاش، من غير ما تتورط.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "كابتن ياسر الطيار",
-      "image": "assets/images/stories/suspect_n11.webp",
+      "image": "assets/images/stories/suspect_n19.webp",
       "background": "طيار سابق بيحب العربيات الكلاسيك؛ اللوحة رقم ٢١ وجاي من أول الأسبوع بيسأل عن اللوت ٧.",
       "objective": "اثبت إنك مهتم بالعربية فعلاً، وفسّر ليه رفعت وإنت عارف إنها مش بتاعتك.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "زينات بتاعة الشاي",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n15.webp",
       "background": "بتبيع شاي وسجاير على ترابيزة عند بوابة الجراج؛ شافت الداخل والخارج كله.",
       "objective": "قولي كل اللي شفتيه عند البوابة قبل المزاد وبعده، من غير ما تفتري على حد.",
       "privateClueIds": [
@@ -546,5 +546,6 @@
         "method_papers"
       ]
     }
-  ]
+  ],
+  "evidenceImage": "assets/images/stories/evidence/evidence_15.webp"
 }

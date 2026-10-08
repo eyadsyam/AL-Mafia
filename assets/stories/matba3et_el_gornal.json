@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "الأستاذ فؤاد المصحّح",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n29.webp",
       "background": "مصحّح الجورنال من ٢٢ سنة، نظره ضعيف ونضارته سميكة. قفل فورمة الصفحة الأولى بتوقيعه الساعة ٩:٣٠ وكان لوحده في أوضة البروفات.",
       "objective": "وضّح إنك قفلت الفورمة ٩:٣٠ والركن اللي نزل فيه الخبر كان فيه إعلان ملغي، ومتسيبش حد يتهمك إنك كتبت الخبر.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "الأسطى حسنين رئيس الصفّافين",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n19.webp",
       "background": "رئيس صفّافين اللينوتايب في الورديّة الليلية، وساعده الأيمن في الروتاتيف. بيحمل مفتاح الماكينات كلها.",
       "objective": "طلّع كشف تجهيز الروتاتيف بتوقيعك، وقول إنك ماسبتش الماكينة غير للحمّام.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "عبده الصفّاف التاني",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n24.webp",
       "background": "صفّاف شاب بيشتغل على ماكينة ٢ وأحياناً ٣، بيحب القهوة وبيهرب لها كل ما حسنين يدوّر عليه.",
       "objective": "اثبت إنك كنت على القهوة ٩:٠٥ لـ٩:٥٠ وماقربتش من الماكينة ٣ في الوقت ده.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "الأستاذ وجيه المحرر القضائي",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n04.webp",
       "background": "محرر صفحة الحوادث؛ مستني ورقة النيابة بتاعة قضية الليلة ومعاه ٣ دفاتر مليانة بالأرقام.",
       "objective": "اثبت إنك حضرت اجتماع التحرير كله، واسأل ليه الخبر اتكتب من غير مصدر.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "الخواجة ديمتري تاجر الورق",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n27.webp",
       "background": "تاجر ورق من الجمّالية، بيشتري بكر الورق الزايد من الجورنال من سنين وبيدفع نقدي.",
       "objective": "افصل بين شغلك مع الجورنال وبين الجريمة، ولا تنسى إنك دافع حساب القهوة ٩:٠٥.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "عم توفيق أمين المخزن",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n07.webp",
       "background": "كان صفّاف لحد ١٩٥٠ وبعدها اتنقل أمين مخزن بعد ما نظره ضعف. بيعدّ بكر الورق كل ليلة وبيمضي إيصالات الصرف.",
       "objective": "اثبت إنك كنت في المخزن ثم في محطة مصر ١١:٠٥، وقول إن مفتاح الماكينة ٣ بقى معاك من أيام زمان ومبتلمسوش.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "الأسطى رمضان مشغّل الروتاتيف",
-      "image": "assets/images/stories/suspect_n12.webp",
+      "image": "assets/images/stories/suspect_n02.webp",
       "background": "مشغّل الماكينة الكبيرة؛ بيحب يلمّع حديدها بزيت السيارات وبيكتب كشف كل ورديّة بخط كبير.",
       "objective": "وضّح إنك ماسبتش الروتاتيف ٩:١٠ لـ٩:٥٥، وفسّر خبطة صندوق الحروف ١١:٠٣.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "مسعود موزّع الطبعة الأولى",
-      "image": "assets/images/stories/suspect_n11.webp",
+      "image": "assets/images/stories/suspect_n05.webp",
       "background": "بيحمّل لوري التوزيع بالطبعة الأولى لقطر الصعيد ١١:٢٠. عارف مين شاف الخبر في الأول.",
       "objective": "قول مين شاف الخبر قبل ١٠:٣٠، واثبت إنك كنت مع حسنين ورمضان على الماكينة.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "أبو الفتوح الزنكوغرافي",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n12.webp",
       "background": "بيعمل كليشيهات الزنك للصور، إيده دايماً بحمض وبيتجادل مع ديمتري على سعر الورق.",
       "objective": "وضّح إنك كنت على قهوة الفجر مع عبده وديمتري، وإن مفيش كليشيه جديد للصفحة ٣ الليلة.",
       "privateClueIds": [
@@ -745,5 +745,6 @@
       ]
     }
   ],
-  "sceneImage": "assets/images/stories/locations/loc_newspaper_press.webp"
+  "sceneImage": "assets/images/stories/locations/loc_newspaper_press.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_19.webp"
 }

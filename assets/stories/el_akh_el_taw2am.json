@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "م. سلمى الحداد",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n30.webp",
       "background": "مهندسة موقع المصنع الجديد في العاشر، وهي اللي طلبت صبّة القاعدة الخميس ٦:٤٠ الصبح.",
       "objective": "فسّري ليه كتبتي «زيادة ١ م³» على وصل الصبّة من غير ما تقولي إنك شكيتي في حاجة.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "«عادل» اللي رجع",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n11.webp",
       "background": "رجع الجمعة بجبيرة على إبهامه الشمال وقال إنه ضاع في الصحرا عشرة أيام ومش فاكر غير ٣ أيام.",
       "objective": "خليهم يصدقوا إنك عادل، وارفض أي تحليل أو سجل يخصك غير بحضور الحاج منصور.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "وفاء مرات عادل",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n01.webp",
       "background": "اتجوزت عادل من ٧ سنين، وكانت في طنطا ليلة الاختفاء عند أختها، وهي اللي طلبت تحليل الـDNA.",
       "objective": "اشرحي ليه فرحتي بالتحليل وهو الوحيد اللي ماسألتيش عنه سؤال تاني.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "الحاج منصور",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n07.webp",
       "background": "شريك عادل في مصنع الرخام من ١٢ سنة، وعنده ٣ كروت للبوابة ومعاه توكيل بيع كان محتاج توقيع عادل عليه.",
       "objective": "اثبت إن كارتك كان مع سيد ليلة الأربع، وإنك ماكنتش في الورشة.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "طارق مصوّر الكتالوج",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n16.webp",
       "background": "بيصوّر كاتالوج الرخام وصور المصنع الجديد، وصوّر الراجع الجمعة وهو بيشرب الشاي.",
       "objective": "قدّم صور الجمعة بالتوقيت، وما تقولش إنك لاحظت حاجة في الإيدين غير لو سألوك.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "أستاذة داليا",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n03.webp",
       "background": "موظفة التوثيق في الشهر العقاري؛ ميعاد توقيع تنازل عادل معاها الإتنين ١١ الصبح.",
       "objective": "اشرحي إنك مش هتوثقي من غير حضور وبصمة وإنك مش بتحكمي على الوش.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "عم حسني",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n12.webp",
       "background": "قهوجي الورشة، بيقفل الساعة ٩ كل يوم ويسلّم مفتاح الكهربا لابنه.",
       "objective": "ثبّت إنك قفلت ٩ ومالقتش حد بيشرب شاي بعدها.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "نهى المحاسبة",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n06.webp",
       "background": "محاسبة المصنع، سحبت سلفة ٤٠ ألف على سنتين بموافقة عادل، وكلمته ٩:١٠ م ليلة الأربع.",
       "objective": "اثبتي إن السلفة بموافقة مكتوبة وإن المكالمة كانت على مرتب شهر.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "سيد المشغّل",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n19.webp",
       "background": "مشغّل ماكينة قطع الرخام الكبيرة ورديّة الليل، وهو اللي ماسك مفتاح الأمان لما تتشغل.",
       "objective": "اشرح ليه الماكينة كانت شغالة ١١:١٥ للـ١:٣٠ من غير ما تتقال وقفة طوارئ.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "الحاجة سعاد",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n26.webp",
       "background": "أم عادل وعمرو، عندها ٦٩ سنة وبتفرق ولادها من صوت خطوتهم على السلم.",
       "objective": "قولي اللي حسيتيه من غير ما تتهمي ابنك اللي رجع.",
       "privateClueIds": [
@@ -732,5 +732,6 @@
         "fl_card_lent"
       ]
     }
-  ]
+  ],
+  "evidenceImage": "assets/images/stories/evidence/evidence_12.webp"
 }

@@ -13,7 +13,7 @@
     {
       "id": "n01",
       "name": "ميرفت أخت العروسة",
-      "image": "assets/images/stories/suspect_n01.webp",
+      "image": "assets/images/stories/suspect_n20.webp",
       "background": "مهندسة ديكور، هي اللي رسمت الكوشة والمخطط بتاع السطوح. اتخانقت مع العريس ٨:٣٠ على لون الطرحة.",
       "objective": "اثبتي إنك كنتي جنب سماعة المسرح وقت الزفة، وماتحكيش الخناقة قبل ما حد يسأل عنها.",
       "privateClueIds": [
@@ -25,7 +25,7 @@
     {
       "id": "n02",
       "name": "ويزو الدي جي",
-      "image": "assets/images/stories/suspect_n02.webp",
+      "image": "assets/images/stories/suspect_n22.webp",
       "background": "دي جي الفرح من شارع الترعة البولاقية. كان مخطوب للعروسة من تلات سنين وفسخوا، وهي اللي شغلته في الفرح بإيدها.",
       "objective": "أخفِ الدبلة القديمة اللي في جيبك من غير ما تتناقض في تسجيل المايك.",
       "privateClueIds": [
@@ -37,7 +37,7 @@
     {
       "id": "n03",
       "name": "سلوى أم العريس",
-      "image": "assets/images/stories/suspect_n03.webp",
+      "image": "assets/images/stories/suspect_n23.webp",
       "background": "أم تامر. سمعت الخناقة ورا باب الشقة، وهي اللي وقّعت على تنازل أرض المنوفية لابنها الأصغر.",
       "objective": "وجّهي الشك لأي حد غير ولادك، وماتجيبيش سيرة الأرض غير لو اتسألتي.",
       "privateClueIds": [
@@ -49,7 +49,7 @@
     {
       "id": "n04",
       "name": "الحاج حسنين",
-      "image": "assets/images/stories/suspect_n04.webp",
+      "image": "assets/images/stories/suspect_n07.webp",
       "background": "عم العريس وصاحب العمارة، سلّم السطوح للفرح بشرط الأمان. كان عايز حصة من الأرض اللي في المنوفية.",
       "objective": "دافع عن سلامة السور قدام الجيران، ولا تدّي تفاصيل عن الأرض.",
       "privateClueIds": [
@@ -61,7 +61,7 @@
     {
       "id": "n05",
       "name": "مصطفى مصور الفرح",
-      "image": "assets/images/stories/suspect_n05.webp",
+      "image": "assets/images/stories/suspect_n24.webp",
       "background": "صور الفرح بكاميرتين: واحدة على ترايبود عند البوفيه وواحدة على كتفه. ظبط ساعة الكاميرا على موبايل أخوه.",
       "objective": "وضّح فين كنت بالظبط بدون ما تعترف بإنك ماراجعتش ساعة الكاميرا.",
       "privateClueIds": [
@@ -73,7 +73,7 @@
     {
       "id": "n06",
       "name": "دعاء منظمة الفرح",
-      "image": "assets/images/stories/suspect_n06.webp",
+      "image": "assets/images/stories/suspect_n28.webp",
       "background": "نظمت الفرح كله: الموردين والمواعيد والفلوس. شايلة كراسة جدول وقلم أزرق ما بتسيبهمش.",
       "objective": "خلّي الكل يصدق إنك كنتي ماسكة الكراسة جنب الباب طول الزفة.",
       "privateClueIds": [
@@ -85,7 +85,7 @@
     {
       "id": "n07",
       "name": "عم فتحي الشربات",
-      "image": "assets/images/stories/suspect_n07.webp",
+      "image": "assets/images/stories/suspect_n12.webp",
       "background": "بيجهز الشربات بتاع الزفة بنفسه من ٣٠ سنة، ١٢٠ كوباية مغطاة بغطا فضي.",
       "objective": "اثبت إن الشربات سليم، من أول كوباية لآخر كوباية.",
       "privateClueIds": [
@@ -97,7 +97,7 @@
     {
       "id": "n08",
       "name": "دينا وصيفة العروسة",
-      "image": "assets/images/stories/suspect_n08.webp",
+      "image": "assets/images/stories/suspect_n30.webp",
       "background": "وصيفة العروسة وصاحبتها، وكانت ماسكة الطرحة والدبابيس في أوضة العروسة بالدور الخامس.",
       "objective": "قولي إنك سيبتي العروسة لحظة، من غير ما تحددي أنهي لحظة.",
       "privateClueIds": [
@@ -109,7 +109,7 @@
     {
       "id": "n09",
       "name": "الأسطى شوقي",
-      "image": "assets/images/stories/suspect_n09.webp",
+      "image": "assets/images/stories/suspect_n27.webp",
       "background": "كهربائي لمبات الزينة والجنراتور. علّق اللمبات على سور السطوح ٦ المغرب، ولسه واخد ٢٠٠٠ من ٦٠٠٠ بس.",
       "objective": "اطلب فلوسك بس من غير ما يبان إنك زعلان من العريس.",
       "privateClueIds": [
@@ -121,7 +121,7 @@
     {
       "id": "n10",
       "name": "أم هاني الجارة",
-      "image": "assets/images/stories/suspect_n10.webp",
+      "image": "assets/images/stories/suspect_n13.webp",
       "background": "جارة الدور الرابع، بتلم الأطباق الفاضية من البوفيه لأن ابنها بيشتغل مع الموردين.",
       "objective": "احكي اللي شفتيه بالظبط، حتى لو شككت في حد قريب.",
       "privateClueIds": [
@@ -604,5 +604,6 @@
       ]
     }
   ],
-  "sceneImage": "assets/images/stories/locations/loc_rooftop_wedding.webp"
+  "sceneImage": "assets/images/stories/locations/loc_rooftop_wedding.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_02.webp"
 }
