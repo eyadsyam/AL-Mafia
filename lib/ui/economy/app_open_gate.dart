@@ -170,7 +170,10 @@ class AppOpenCoordinator {
             final before = decide(consent, _now());
             if (before != AppOpenVerdict.show) return before;
             if (timedOut) return AppOpenVerdict.notLoaded;
-            loading = ads.load(AdTokens.appOpenLoadTimeout);
+            loading = ads.load(
+              AdTokens.appOpenLoadTimeout,
+              resume: trigger == AppOpenTrigger.resume,
+            );
             return decide(consent, await loading);
           }().timeout(
             AdTokens.appOpenLoadTimeout,

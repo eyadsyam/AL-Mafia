@@ -12,7 +12,9 @@ abstract interface class InterstitialAds {
 
   /// An ad is loaded and not yet shown.
   bool get ready;
-  Future<void> preload();
+  /// [online] picks the unit, so online and pass-and-play results report
+  /// apart.
+  Future<void> preload({bool online = true});
 
   /// Shows a loaded ad and completes when it is dismissed (or failed).
   /// Returns whether an ad was actually shown. False at once when none is

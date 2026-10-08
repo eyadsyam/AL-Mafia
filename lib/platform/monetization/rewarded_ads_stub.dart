@@ -43,7 +43,7 @@ class _NoInterstitialAds implements InterstitialAds {
   @override
   bool get ready => false;
   @override
-  Future<void> preload() async {}
+  Future<void> preload({bool online = true}) async {}
   @override
   Future<bool> showIfReady() async => false;
   @override
@@ -60,7 +60,7 @@ class _NoAppOpenAds implements AppOpenAds {
   @override
   Future<bool> canRequestAds() async => false;
   @override
-  Future<int?> load(Duration timeout) async => null;
+  Future<int?> load(Duration timeout, {bool resume = false}) async => null;
   @override
   Future<bool> show() async => false;
   @override

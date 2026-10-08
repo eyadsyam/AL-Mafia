@@ -54,14 +54,19 @@ abstract final class _Units {
     return rewardedV2.isNotEmpty ? rewardedV2 : rewarded;
   }
 
-  static String get interstitialUnit =>
-      testMode ? testInterstitial : interstitial;
+  static String interstitialUnit({required bool online}) {
+    if (testMode) return testInterstitial;
+    return online ? '$_pub/9296305972' : '$_pub/9969514385';
+  }
 
   static bool get appOpenConfigured =>
       enabled && (testMode || appOpen.isNotEmpty);
   static bool get bannerConfigured =>
       enabled && (testMode || banner.isNotEmpty);
-  static String get appOpenUnit => testMode ? testAppOpen : appOpen;
+  static String appOpenUnit({required bool resume}) {
+    if (testMode) return testAppOpen;
+    return resume ? '$_pub/7983224304' : '$_pub/7952715977';
+  }
 
   /// Per-surface banner units (AdMob, created 2026-10-07). Public
   /// identifiers, not credentials. The lobby keeps the original unit.
@@ -481,7 +486,7 @@ class GoogleInterstitialAds implements InterstitialAds {
   }
 
   @override
-  Future<void> preload() async {
+  Future<void> preload({bool online = true}) async {
     if (!configured || _ad != null || _loading || _showing) return;
     if (!_listening) {
       _listening = true;
@@ -497,7 +502,7 @@ class GoogleInterstitialAds implements InterstitialAds {
       // Not awaited: see `_loadNow` — the bound must start at the call.
       unawaited(
         InterstitialAd.load(
-          adUnitId: _Units.interstitialUnit,
+          adUnitId: _Units.interstitialUnit(online: online),
           request: const AdRequest(),
           adLoadCallback: InterstitialAdLoadCallback(
             onAdLoaded: (ad) {
@@ -607,7 +612,7 @@ class GoogleAppOpenAds implements AppOpenAds {
   }
 
   @override
-  Future<int?> load(Duration timeout) async {
+  Future<int?> load(Duration timeout, {bool resume = false}) async {
     if (!configured || _showing) return null;
     if (!_listening) {
       _listening = true;
@@ -619,7 +624,7 @@ class GoogleAppOpenAds implements AppOpenAds {
       // Not awaited: see `_loadNow` — the bound must start at the call.
       unawaited(
         AppOpenAd.load(
-          adUnitId: _Units.appOpenUnit,
+          adUnitId: _Units.appOpenUnit(resume: resume),
           request: const AdRequest(),
           adLoadCallback: AppOpenAdLoadCallback(
             onAdLoaded: (ad) {

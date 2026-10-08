@@ -106,7 +106,7 @@ class _Ads implements InterstitialAds {
   bool get ready => true;
 
   @override
-  Future<void> preload() async {}
+  Future<void> preload({bool online = true}) async {}
 
   @override
   Future<bool> showIfReady() async {

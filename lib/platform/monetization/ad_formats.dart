@@ -16,7 +16,8 @@ abstract interface class AppOpenAds {
 
   /// Loads one ad within [timeout]. Returns the load time (epoch ms) of a
   /// ready ad, or null when none arrived in time.
-  Future<int?> load(Duration timeout);
+  /// [resume] picks the return-to-app unit instead of the cold-start one.
+  Future<int?> load(Duration timeout, {bool resume = false});
 
   /// Shows the loaded ad and completes when it is dismissed or failed.
   Future<bool> show();

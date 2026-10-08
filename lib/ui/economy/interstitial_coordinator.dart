@@ -96,18 +96,18 @@ class InterstitialCoordinator {
 
   /// Starts loading an ad in the background when some placement could use
   /// one. Never shows a consent form (see [InterstitialAds.preload]).
-  void _warm(EconomyCapabilities? caps) {
+  void _warm(EconomyCapabilities? caps, {bool online = true}) {
     final ads = _ref.read(interstitialAdsProvider);
     if (caps == null || !ads.configured || caps.automaticAdsDisabled) return;
     if (!caps.interstitial.anyPlacement || ads.ready) return;
-    unawaited(ads.preload());
+    unawaited(ads.preload(online: online));
   }
 
   /// The result of a completed match is on screen (online room id, or a
   /// pass-and-play match id). Counts it once and warms an ad.
   Future<void> matchCompleted(String matchId, {bool online = true}) async {
     await _save((await _load()).matchCompleted(matchId, _now()));
-    _warm(online ? await _caps() : _loadedCaps());
+    _warm(online ? await _caps() : _loadedCaps(), online: online);
   }
 
   /// Any rewarded ad was shown: the automatic ones keep their distance.
