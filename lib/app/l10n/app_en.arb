@@ -979,10 +979,10 @@
   "onlineIntroStart": "Let's go",
   "modeTitle": "How are you playing?",
   "modeSubtitle": "You can change this next time.",
-  "modeOnePhoneTitle": "One phone, passed around",
-  "modeOnePhoneBody": "Everybody in the same room. The phone goes from hand to hand.",
-  "modeOnlineTitle": "Everybody on their own phone",
-  "modeOnlineBody": "Same room or anywhere. Nothing is passed, and nobody waits their turn to look.",
+  "modeOnePhoneTitle": "With friends",
+  "modeOnePhoneBody": "One phone, 5 to 15 players",
+  "modeOnlineTitle": "Online",
+  "modeOnlineBody": "Everyone on their own phone, 5 to 10",
   "modeNoServer": "This build has no server. Rebuild it with a project configured.",
   "bulletMafia": "The quiet night",
   "bulletDoctor": "Cover yourself, once",
@@ -3471,8 +3471,7 @@
   "toolImpersonateMafia": "Appear mafia",
   "toolRefused": "Not available right now.",
   "modeStoriesTitle": "Stories",
-  "modeStoriesBody": "Investigation files for 1–10 players on one phone",
-  "storiesTitle": "Mafia Master Files",
+  "storiesTitle": "Stories & cases",
   "storiesSubtitle": "Every detail means something. The game never invents a fact.",
   "storiesLoadError": "The case files could not be opened.",
   "storiesRetry": "Try again",
@@ -3482,7 +3481,7 @@
   "storiesUnlockRule": "Solve 3 files in this category to unlock it",
   "storiesMinutes": "minutes",
   "storiesDifficulty": "Difficulty",
-  "storiesStart": "Open file",
+  "storiesStart": "Open the case",
   "storiesPlayerCountTitle": "How many investigators?",
   "storiesPlayers": "players",
   "storiesSolo": "Solo investigator",
@@ -3575,8 +3574,8 @@
   "elderVoteMark": "×3",
   "silencedMark": "Silenced",
   "storiesBonusStep": "Watch an ad for one more step",
-  "modeBotsTitle": "Play against bots",
-  "modeBotsBody": "A whole match any time: you and players who suspect, accuse and vote. No one to wait for.",
+  "modeBotsTitle": "Play against the computer",
+  "modeBotsBody": "On your own, any time",
   "botSheetPlayers": "Players",
   "botSheetStart": "Start the match",
   "botYou": "You",
@@ -3614,7 +3613,7 @@
     }
   },
   "botPlayAgain": "Play again",
-  "botWinReward": "You beat the bots: +{coins} coins",
+  "botWinReward": "You beat the computer: +{coins} coins",
   "@botWinReward": {
     "placeholders": {
       "coins": {
@@ -3622,7 +3621,7 @@
       }
     }
   },
-  "botSheetLevel": "Bot level",
+  "botSheetLevel": "Computer level",
   "botLevelEasy": "Easy",
   "botLevelNormal": "Normal",
   "botLevelHard": "Hard",
@@ -3644,5 +3643,9 @@
       }
     }
   },
-  "storiesListen": "Listen to the case"
+  "storiesListen": "Listen to the case",
+  "modeBotsCardTitle": "Against the computer",
+  "homeStoriesButton": "Stories & cases",
+  "botSheetBody": "A whole match any time: you and players who suspect, accuse and vote. No one to wait for.",
+  "sheetClose": "Close"
 }

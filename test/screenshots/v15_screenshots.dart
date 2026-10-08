@@ -34,6 +34,7 @@ import 'package:mafia_master/ui/widgets/night_grid.dart';
 import 'package:mafia_master/ui/widgets/player_tile.dart';
 import 'package:mafia_master/ui/widgets/role_card.dart';
 import 'package:mafia_master/ui/widgets/turn_shell.dart';
+import 'package:mafia_master/ui/widgets/warm_palette.dart';
 
 import '../support/artwork.dart';
 import '../support/localized.dart';
@@ -106,7 +107,11 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   testWidgets('stories hub', (tester) async {
-    await shoot(tester, '01_stories_hub', StoriesScreen(onBack: () {}));
+    await shoot(
+      tester,
+      '01_stories_hub',
+      WarmPalette(child: StoriesScreen(onBack: () {})),
+    );
   });
 
   for (final (n, id) in const [
@@ -120,13 +125,13 @@ void main() {
       await shoot(
         tester,
         '0${n}_story_$id',
-        StoryFlowScreen(
+        WarmPalette(child: StoryFlowScreen(
           story: story,
           playerCount: 1,
           onExit: () {},
           onComplete: (_) async {},
           playNarration: (_) async {},
-        ),
+        )),
       );
     });
   }
@@ -138,7 +143,6 @@ void main() {
       ModeScreen(
         onPlayOffline: () {},
         onPlayOnline: () {},
-        onPlayStories: () {},
         onPlayBots: () {},
         onBack: () {},
       ),

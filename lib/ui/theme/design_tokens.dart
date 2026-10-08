@@ -11,6 +11,134 @@ abstract final class IdentityTokens {
   static const double headerHeight = 72;
   static const double flat = 0;
   static const transparent = Colors.transparent;
+
+  /// The public screens' palette, the owner's pick (2026-10-08, the voice
+  /// review pages): ink brown ground, warm panels, parchment text, lamp gold.
+  /// In-match surfaces keep the neutral palette, whose luminance is budgeted
+  /// so no role reads differently (Doc 05).
+  static const Color ink = Color(0xFF140F0C);
+  static const Color panel = Color(0xFF1F1813);
+  static const Color panelOverlay = Color(0xFF2A2019);
+  static const Color line = Color(0xFF3A2D23);
+  static const Color text = Color(0xFFF1E6D2);
+  static const Color muted = Color(0xFFB3A189);
+  static const Color faint = Color(0xFF8A7A66);
+}
+
+/// «نظام الكوتشينة» — the deck the whole public app is dealt from
+/// (docs/design/DECK-SYSTEM.md). Built on the home screen's cards: ink black,
+/// aged bone paper, engraved silver, and the characters in their arched
+/// windows.
+///
+/// * **Silver is structure** (frames, dividers, icons).
+/// * **Gold is value only** (coins, rewards, a purchase, something to claim).
+/// * **Bone is the one primary action**, pixel-identical to home's
+///   «ابدأ اللعبة», which is also the neutral in-match fill — so the button
+///   is the same for every role and Doc 05 has nothing to say about it.
+///
+/// The warm ground and panels are for public screens only; in-match private
+/// surfaces keep the neutral palette, whose luminance is budgeted (Doc 05).
+/// The mode screen's faces: cropped to the head and shoulders in the window.
+abstract final class ModeTokens {
+  static const Alignment faceFocus = Alignment(0, -0.3);
+  static const double faceZoom = 1.7;
+}
+
+/// Home's own thresholds.
+abstract final class HomeTokens {
+  /// Below this height the «دوس على أي كارت» hint gives its room to the fan.
+  static const double hintMinHeight = 700;
+}
+
+abstract final class DeckTokens {
+  // Colour.
+  static const Color ground = IdentityTokens.ink;
+  static const Color panel = IdentityTokens.panel;
+  static const Color raised = IdentityTokens.panelOverlay;
+  static const Color line = IdentityTokens.line;
+  static const Color text = IdentityTokens.text;
+  static const Color text2 = Color(0xFFC2BBB3);
+  static const Color muted = Color(0xFF9B978E);
+  static const Color silver = Color(0xFF67635F);
+  static const Color silverLight = Color(0xFF9E9891);
+  static const Color bone = AppColors.agedParchment;
+  static const Color bonePressed = Color(0xFF8D8169);
+  static const Color gold = VaultTokens.gold;
+  static const Color goldLight = VaultTokens.goldLight;
+  static const Color goldDeep = VaultTokens.goldDeep;
+  static const Color ink = Color(0xFF1A120C);
+
+  /// The darkest point the warm and the neutral grounds share; the curtain
+  /// crosses through it so the palette never jumps.
+  static const Color seam = Color(0xFF0E0807);
+  static const double hairlineAlpha = 0.4;
+  static const List<double> goldStops = [0, 0.45, 1];
+  static const Alignment narratorFocus = Alignment(0, -0.2);
+  static const double narratorZoom = 1.4;
+  static const double narratorCompactBelow = 360;
+  static const double disabledAlpha = 0.4;
+  static const double lockedArtAlpha = 0.4;
+  static const double scrimAlpha = 0.6;
+
+  // Buttons.
+  static const double primaryHeight = 56;
+  static const double rim = 48;
+  static const double goldInRow = 48;
+  static const double adCta = 40;
+  static const double rimBorder = 1.5;
+  static const double pressScale = 0.98;
+
+  // Cards and rows.
+  static const Size windowList = Size(64, 88);
+  static const double windowArch = 32;
+  static const Size windowRole = Size(48, 64);
+  static const Size narrator = Size(120, 160);
+  static const Size narratorSmall = Size(88, 120);
+  static const double narratorLineWidth = 280;
+  static const double artMin = 112;
+  static const double rowOne = 56;
+  static const double rowTwo = 72;
+  static const double rowInset = 56;
+  static const double rowIconSlot = 40;
+  static const double icon = 24;
+  static const double chevron = 20;
+  static const double selectedRim = 2;
+  static const double check = 20;
+  static const double lock = 16;
+
+  // Pills, chips, dots.
+  static const double pill = 32;
+  static const double chip = 48;
+  static const double dot = 8;
+  static const double coinGlyph = 18;
+  static const double coinGlyphSmall = 16;
+
+  // Feather, sheet, footer, fan.
+  static const double featherFraction = 0.4;
+  static const double heroFeather = 48;
+  static const double heroAspect = 16 / 9;
+  static const double sheetMax = 0.9;
+  static const Size sheetHandle = Size(36, 4);
+  static const double footerGap = 16;
+  static const double fanMinStage = 200;
+  static const double header = 72;
+
+  // Motion.
+  static const Duration press = Duration(milliseconds: 160);
+  static const Duration sheet = Duration(milliseconds: 260);
+  static const Duration slide = Duration(milliseconds: 260);
+  static const Duration seamFade = Duration(milliseconds: 400);
+  static const Duration reduced = Duration(milliseconds: 150);
+
+  // Type, derived from the shared scale so the in-match goldens never move.
+  static TextStyle title(MafiaTypography t) =>
+      t.headline.copyWith(fontSize: 28, height: 1.6, letterSpacing: 0);
+  static TextStyle card(MafiaTypography t) =>
+      t.title.copyWith(fontSize: 20, height: 1.6, letterSpacing: 0);
+  static TextStyle body(MafiaTypography t) =>
+      t.body.copyWith(fontSize: 17, height: 1.6, letterSpacing: 0);
+  static TextStyle meta(MafiaTypography t) =>
+      t.bodySmall.copyWith(fontSize: 15, height: 1.6, letterSpacing: 0);
 }
 
 /// Color palette tokens for Mafia Master.

@@ -3686,3 +3686,10 @@ Files:      lib/ui/widgets/{mafia_kit,mafia_public}.dart, lib/ui/** (public scre
 Verified:   flutter analyze lib test (0 errors/warnings); flutter test +1810 ~5 all passed; before/after renders in build/identity_compare
 Gate:       PASS
 Open:       push needs a new build to reach players; big-table/brutal preset decision; no build/deploy until the owner says
+
+## PHASE deck-1-3 — done
+Built:      «نظام الكوتشينة» phases 1–3 (docs/design/DECK-SYSTEM.md, DECK-PHASES-1-3.md, agreed in 6 rounds with an independent critic): DeckTokens (silver structure, gold = value only, bone primary identical to home's «ابدأ اللعبة»), kit in lib/ui/widgets/deck/ (BoneButton, RimButton — match-safe; GoldButton, ArtWindow/ArtCard, DeckRow, showDeckSheet, DeckPill, CoinPill, DeckChip, NarratorEmpty, DeckHeader, DeckScaffold — public only); Home keeps its composition + «قصص وتحقيقات» rim door, «ملف القضايا» replaces «السجل» in the top row (gold dot when claimable, «السجل» fallback without a server), store control becomes the coin pill after the first match; mode screen = three ArtCards with faces («مع صحابك» / «أونلاين» / «ضد الكمبيوتر»), stories moved to Home; bots sheet = deck sheet with Ruqaa title, 48 dp chips, bone start, «بوتات» gone from copy; stories hub on the web palette with bone «افتح القضية», pills, locked dims art only, ads from the 5th case.
+Files:      lib/ui/theme/design_tokens.dart, lib/ui/widgets/deck/*, lib/ui/widgets/warm_palette.dart, lib/ui/screens/setup/{home_screen,mode_screen,bot_match_sheet,coin_store}.dart, lib/ui/missions/casebook_sheet.dart, lib/ui/screens/stories/stories_screen.dart, lib/app/router.dart, ARBs, tests (deck_kit, mode_screen, handoff_purity deck guard, banner allowlist), screenshots
+Verified:   flutter analyze lib test (0 errors/warnings); flutter test +1817 ~5 all passed; renders checked at 390 and 360
+Gate:       PASS
+Open:       phases 4–11 (players/roles, online tabs, profile tabs incl. السجل, store/casebook gold, result, sheets, first run, in-match aids); no build/deploy until the owner says

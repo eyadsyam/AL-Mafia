@@ -216,6 +216,30 @@ void main() {
       );
     });
 
+    test('the deck public kit and warm palette stay out of the match', () {
+      // docs/design/DECK-SYSTEM.md: the warm palette, the character windows
+      // and the narrator are public. Only the two buttons may reach an in-hand
+      // surface, and they draw from the neutral palette there.
+      for (final path in const [
+        'lib/ui/widgets/deck/deck_public.dart',
+        'lib/ui/widgets/warm_palette.dart',
+      ]) {
+        expect(closure, isNot(contains(path)), reason: '$path reached a hand-off, reveal or night surface');
+      }
+      final warm = RegExp(
+        r'DeckTokens|WarmPalette|IdentityTokens\.(ink|panel|text)',
+      );
+      for (final path in closure) {
+        if (path == 'lib/ui/widgets/deck/deck_buttons.dart') continue;
+        if (path == 'lib/ui/theme/design_tokens.dart') continue;
+        expect(
+          warm.hasMatch(File(path).readAsStringSync()),
+          isFalse,
+          reason: '$path uses the public deck palette inside the match',
+        );
+      }
+    });
+
     test('titles and the Partner are outside every private closure (F10)', () {
       expect(
         closure,

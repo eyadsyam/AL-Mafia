@@ -16,6 +16,8 @@ import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/feathered_art.dart';
 import 'casebook_data.dart';
+import '../screens/online/online_session.dart' show SupabaseConfig;
+import '../widgets/back_action.dart' show NavIconButton;
 
 import '../widgets/motion_sprite.dart';
 
@@ -1617,6 +1619,62 @@ class CasebookEntry extends ConsumerWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Home's «ملف القضايا» control: the book icon with a gold dot while
+/// something waits to be claimed. Where this build has no casebook (no
+/// server, or the server has it off) it is [fallback] — «السجل».
+class HomeCasebookButton extends ConsumerWidget {
+  final Key casebookKey;
+  final Widget fallback;
+
+  /// Home's own label-under-icon wrapper.
+  final Widget Function(Widget child) label;
+
+  const HomeCasebookButton({
+    super.key,
+    required this.casebookKey,
+    required this.fallback,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // No server, no casebook: its provider is never even built.
+    final book = SupabaseConfig.isConfigured
+        ? ref.watch(casebookProvider).valueOrNull
+        : null;
+    if (book == null || !book.enabled) return fallback;
+    final l = context.l10n;
+    return KeyedSubtree(
+      key: casebookKey,
+      child: label(
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            NavIconButton(
+              icon: Icons.menu_book,
+              semanticLabel: l.casebookTitle,
+              onPressed: () => showCasebookSheet(context),
+            ),
+            if (book.ready > 0)
+              PositionedDirectional(
+                top: context.spacing.sm,
+                end: context.spacing.sm,
+                child: Container(
+                  width: DeckTokens.dot,
+                  height: DeckTokens.dot,
+                  decoration: const BoxDecoration(
+                    color: DeckTokens.gold,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

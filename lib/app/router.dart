@@ -13,6 +13,7 @@ import '../data/player_profile.dart';
 import '../engine/models/enums.dart' show DiscussionMode, Role;
 import '../engine/models/match_settings.dart';
 import '../platform/audio_director.dart';
+import '../ui/widgets/warm_palette.dart';
 import '../ui/economy/interstitial_coordinator.dart';
 import '../ui/fun/welcome_back.dart';
 import '../ui/l10n_ext.dart';
@@ -389,8 +390,9 @@ GoRouter buildRouter(
             onHowToPlay: () => context.go(Routes.onboarding),
             onProfile: () => forwardTo(context, Routes.profile),
             onCharacters: () => forwardTo(context, Routes.characters),
+            onStories: () => forwardTo(context, Routes.stories),
             store: SupabaseConfig.isConfigured
-                ? const CoinStoreButton(compact: true)
+                ? const CoinStoreButton(compact: true, pill: true)
                 : null,
             banner: const WelcomeBackCard(),
           ),
@@ -440,7 +442,6 @@ GoRouter buildRouter(
             onPlayOnline: SupabaseConfig.isConfigured
                 ? () => forwardTo(context, Routes.online)
                 : null,
-            onPlayStories: () => forwardTo(context, Routes.stories),
             onPlayBots: () => startBotMatch(context),
             onBack: () => context.go(Routes.home),
           ),
@@ -449,8 +450,8 @@ GoRouter buildRouter(
       GoRoute(
         path: Routes.stories,
         builder: (context, state) => SetupRequired(
-          child: StoriesScreen(
-            onBack: () => context.go(Routes.mode),
+          child: WarmPalette(child: StoriesScreen(
+            onBack: () => context.go(Routes.home),
             claimReward: (id) =>
                 claimStoryReward(ProviderScope.containerOf(context), id),
             beforeStory: () async {
@@ -473,7 +474,7 @@ GoRouter buildRouter(
                   placement: RewardedPlacement.extra,
                 ) ==
                 RewardedAdOutcome.earned,
-          ),
+          )),
         ),
       ),
       // The online front door. Doc 12 §9's four cards used to stand in front

@@ -758,10 +758,10 @@
   "onlineIntroStart": "يلا",
   "modeTitle": "اختار طريقة اللعب",
   "modeSubtitle": "تقدروا تغيّروها المرة الجاية.",
-  "modeOnePhoneTitle": "اوفلاين",
-  "modeOnePhoneBody": "من 5 لـ15 لاعب",
-  "modeOnlineTitle": "اونلاين",
-  "modeOnlineBody": "من 5 لـ10 لاعبين",
+  "modeOnePhoneTitle": "مع صحابك",
+  "modeOnePhoneBody": "موبايل واحد، من 5 لـ15 لاعب",
+  "modeOnlineTitle": "أونلاين",
+  "modeOnlineBody": "كل واحد من موبايله، من 5 لـ10",
   "modeNoServer": "الأونلاين مش متاح في النسخة دي",
   "bulletMafia": "الليلة الهادية",
   "bulletDoctor": "حماية النفس مرة",
@@ -1144,7 +1144,7 @@
   "shareTextCopied": "الرسالة اتنسخت. الصقها وابعتها لأي حد.",
   "shareUnavailable": "ماقدرناش نفتح المشاركة. جرب تاني.",
   "coinsName": "عملات المجلس",
-  "storeTitle": "المتجر",
+  "storeTitle": "المحل",
   "storeTabShop": "المتجر",
   "storeTabCollection": "مجموعتي",
   "storeTabHistory": "السجل",
@@ -2441,8 +2441,7 @@
   "toolImpersonateMafia": "اظهر مافيا",
   "toolRefused": "مش متاحة دلوقتي.",
   "modeStoriesTitle": "قصص",
-  "modeStoriesBody": "ملفات تحقيق من ١ لـ١٠ لاعبين على موبايل واحد",
-  "storiesTitle": "ملفات سيد المافيا",
+  "storiesTitle": "قصص وتحقيقات",
   "storiesSubtitle": "كل تفصيلة لها معنى. مفيش معلومة بتتولد من الهوا.",
   "storiesLoadError": "الملفات مش راضية تفتح دلوقتي.",
   "storiesRetry": "حاول تاني",
@@ -2452,7 +2451,7 @@
   "storiesUnlockRule": "حل ٣ ملفات من نفس التصنيف عشان تفتحه",
   "storiesMinutes": "دقيقة",
   "storiesDifficulty": "الصعوبة",
-  "storiesStart": "افتح الملف",
+  "storiesStart": "افتح القضية",
   "storiesPlayerCountTitle": "كام محقق هيلعب؟",
   "storiesPlayers": "لاعب",
   "storiesSolo": "محقق لوحده",
@@ -2545,8 +2544,8 @@
   "elderVoteMark": "×٣",
   "silencedMark": "متسكّت",
   "storiesBonusStep": "شوف إعلان وخد خطوة تحقيق زيادة",
-  "modeBotsTitle": "العب ضد البوتات",
-  "modeBotsBody": "ماتش كامل في أي وقت: إنت ولاعيبة بيشكّوا ويتهموا ويصوّتوا. مش محتاج تستنى حد.",
+  "modeBotsTitle": "العب ضد الكمبيوتر",
+  "modeBotsBody": "لوحدك، في أي وقت",
   "botSheetPlayers": "عدد اللاعيبة",
   "botSheetStart": "ابدأ الماتش",
   "botYou": "إنت",
@@ -2584,7 +2583,7 @@
     }
   },
   "botPlayAgain": "ماتش تاني",
-  "botWinReward": "فزت على البوتات: +{coins} كوينز",
+  "botWinReward": "فزت على الكمبيوتر: +{coins} كوينز",
   "@botWinReward": {
     "placeholders": {
       "coins": {
@@ -2592,7 +2591,7 @@
       }
     }
   },
-  "botSheetLevel": "مستوى البوتات",
+  "botSheetLevel": "مستوى الكمبيوتر",
   "botLevelEasy": "سهل",
   "botLevelNormal": "عادي",
   "botLevelHard": "صعب",
@@ -2614,5 +2613,9 @@
       }
     }
   },
-  "storiesListen": "اسمع القصة"
+  "storiesListen": "اسمع القصة",
+  "modeBotsCardTitle": "ضد الكمبيوتر",
+  "homeStoriesButton": "قصص وتحقيقات",
+  "botSheetBody": "ماتش كامل في أي وقت: إنت ولاعيبة بيشكّوا ويتهموا ويصوّتوا. مش محتاج تستنى حد.",
+  "sheetClose": "اقفل"
 }

@@ -1,11 +1,13 @@
-import '../../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 
 import '../../../engine/bots/bot_brain.dart';
 import '../../../engine/presets.dart';
 export '../../../data/bot_names.dart';
 import '../../l10n_ext.dart';
+import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
+import '../../widgets/deck/deck_public.dart';
+import '../../widgets/mafia_kit.dart';
 
 /// What the player picked for a table against bots.
 typedef BotMatchPick = ({int players, MatchPreset preset, BotLevel level});
@@ -13,13 +15,13 @@ typedef BotMatchPick = ({int players, MatchPreset preset, BotLevel level});
 const _minPlayers = 5;
 const _maxPlayers = 12;
 
-/// «العب ضد البوتات»: table size and preset, in a sheet.
+/// «العب ضد الكمبيوتر»: table size, preset and level, in a dealt sheet.
 Future<BotMatchPick?> showBotMatchSheet(BuildContext context) =>
-    showMafiaSheet<BotMatchPick>(
+    showDeckSheet<BotMatchPick>(
       context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) => const _BotMatchSheet(),
+      title: context.l10n.modeBotsTitle,
+      ruqaa: true,
+      body: (_) => const _BotMatchSheet(),
     );
 
 class _BotMatchSheet extends StatefulWidget {
@@ -41,21 +43,16 @@ class _BotMatchSheetState extends State<_BotMatchSheet> {
     final l = context.l10n;
     final s = context.spacing;
     final type = context.typography;
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          s.screenMargin,
-          0,
-          s.screenMargin,
-          s.screenMargin,
-        ),
-        child: Column(
+    return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l.modeBotsTitle, style: type.headline),
-            SizedBox(height: s.xs),
-            Text(l.modeBotsBody, style: type.bodySmall),
+            Text(
+              l.botSheetBody,
+              style: DeckTokens.meta(
+                type,
+              ).copyWith(color: context.colors.textSecondary),
+            ),
             SizedBox(height: s.md),
             VaultHeading(title: l.botSheetPlayers, compact: true),
             SizedBox(height: s.sm),
@@ -64,8 +61,8 @@ class _BotMatchSheetState extends State<_BotMatchSheet> {
               runSpacing: s.sm,
               children: [
                 for (var n = _minPlayers; n <= _maxPlayers; n++)
-                  ChoiceChip(
-                    label: Text('$n'),
+                  DeckChip(
+                    label: '$n',
                     selected: _players == n,
                     onSelected: (_) => setState(() => _players = n),
                   ),
@@ -79,8 +76,8 @@ class _BotMatchSheetState extends State<_BotMatchSheet> {
               runSpacing: s.sm,
               children: [
                 for (final p in MatchPreset.values)
-                  ChoiceChip(
-                    label: Text(EngineCopy.presetName(l, p)),
+                  DeckChip(
+                    label: EngineCopy.presetName(l, p),
                     selected: _preset == p,
                     onSelected: (_) => setState(() => _preset = p),
                   ),
@@ -96,28 +93,26 @@ class _BotMatchSheetState extends State<_BotMatchSheet> {
               runSpacing: s.sm,
               children: [
                 for (final v in BotLevel.values)
-                  ChoiceChip(
-                    label: Text(switch (v) {
+                  DeckChip(
+                    label: switch (v) {
                       BotLevel.easy => l.botLevelEasy,
                       BotLevel.normal => l.botLevelNormal,
                       BotLevel.hard => l.botLevelHard,
-                    }),
+                    },
                     selected: _level == v,
                     onSelected: (_) => setState(() => _level = v),
                   ),
               ],
             ),
             SizedBox(height: s.lg),
-            FilledButton(
+            BoneButton(
               key: startKey,
+              label: l.botSheetStart,
               onPressed: () => Navigator.of(
                 context,
               ).pop((players: _players, preset: _preset, level: _level)),
-              child: Text(l.botSheetStart),
             ),
           ],
-        ),
-      ),
-    );
+        );
   }
 }

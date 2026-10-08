@@ -26,6 +26,8 @@ import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/settings_kit.dart';
+import '../../widgets/deck/deck_public.dart' show CoinPill;
+import '../../account/profile_panels.dart' show profileStatsProvider;
 import '../../economy/waiting_banner.dart';
 import '../../widgets/feathered_art.dart';
 import '../../../app/asset_constants.dart';
@@ -38,7 +40,16 @@ class CoinStoreButton extends StatefulWidget {
 
   /// Drawn as a settings row (the general settings' «أكتر» panel).
   final bool tile;
-  const CoinStoreButton({super.key, this.compact = false, this.tile = false});
+
+  /// Home's store control in the deck: the balance as a gold pill, once the
+  /// player has finished a match (before that, the plain coin). Compact only.
+  final bool pill;
+  const CoinStoreButton({
+    super.key,
+    this.compact = false,
+    this.tile = false,
+    this.pill = false,
+  });
 
   static const Key buttonKey = ValueKey('coin_store_open');
 
@@ -105,6 +116,33 @@ class _CoinStoreButtonState extends State<CoinStoreButton> {
             ),
             label: context.l10n.storeTitle,
             onTap: _show,
+          )
+        : widget.compact && widget.pill
+        ? Consumer(
+            builder: (context, ref, _) {
+              final wallet = ref.watch(walletProvider).valueOrNull;
+              final played = ref.watch(profileStatsProvider).valueOrNull;
+              final hasPlayed = played != null && played.$1 + played.$2 > 0;
+              if (wallet == null || !hasPlayed) {
+                return IconButton(
+                  key: CoinStoreButton.buttonKey,
+                  tooltip: context.l10n.storeTitle,
+                  icon: const CouncilAttentionBadge(
+                    child: MafiaCoin(size: CosmeticTokens.coinInline),
+                  ),
+                  onPressed: _show,
+                );
+              }
+              return Semantics(
+                button: true,
+                label: context.l10n.storeTitle,
+                child: CoinPill(
+                  key: CoinStoreButton.buttonKey,
+                  balance: wallet.balance,
+                  onTap: _show,
+                ),
+              );
+            },
           )
         : widget.compact
         ? IconButton(

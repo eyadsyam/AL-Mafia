@@ -1606,16 +1606,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get modeSubtitle => 'تقدروا تغيّروها المرة الجاية.';
 
   @override
-  String get modeOnePhoneTitle => 'اوفلاين';
+  String get modeOnePhoneTitle => 'مع صحابك';
 
   @override
-  String get modeOnePhoneBody => 'من 5 لـ15 لاعب';
+  String get modeOnePhoneBody => 'موبايل واحد، من 5 لـ15 لاعب';
 
   @override
-  String get modeOnlineTitle => 'اونلاين';
+  String get modeOnlineTitle => 'أونلاين';
 
   @override
-  String get modeOnlineBody => 'من 5 لـ10 لاعبين';
+  String get modeOnlineBody => 'كل واحد من موبايله، من 5 لـ10';
 
   @override
   String get modeNoServer => 'الأونلاين مش متاح في النسخة دي';
@@ -2306,7 +2306,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get coinsName => 'عملات المجلس';
 
   @override
-  String get storeTitle => 'المتجر';
+  String get storeTitle => 'المحل';
 
   @override
   String get storeTabShop => 'المتجر';
@@ -5511,10 +5511,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get modeStoriesTitle => 'قصص';
 
   @override
-  String get modeStoriesBody => 'ملفات تحقيق من ١ لـ١٠ لاعبين على موبايل واحد';
-
-  @override
-  String get storiesTitle => 'ملفات سيد المافيا';
+  String get storiesTitle => 'قصص وتحقيقات';
 
   @override
   String get storiesSubtitle =>
@@ -5545,7 +5542,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get storiesDifficulty => 'الصعوبة';
 
   @override
-  String get storiesStart => 'افتح الملف';
+  String get storiesStart => 'افتح القضية';
 
   @override
   String get storiesPlayerCountTitle => 'كام محقق هيلعب؟';
@@ -5722,11 +5719,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get storiesBonusStep => 'شوف إعلان وخد خطوة تحقيق زيادة';
 
   @override
-  String get modeBotsTitle => 'العب ضد البوتات';
+  String get modeBotsTitle => 'العب ضد الكمبيوتر';
 
   @override
-  String get modeBotsBody =>
-      'ماتش كامل في أي وقت: إنت ولاعيبة بيشكّوا ويتهموا ويصوّتوا. مش محتاج تستنى حد.';
+  String get modeBotsBody => 'لوحدك، في أي وقت';
 
   @override
   String get botSheetPlayers => 'عدد اللاعيبة';
@@ -5757,11 +5753,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String botWinReward(int coins) {
-    return 'فزت على البوتات: +$coins كوينز';
+    return 'فزت على الكمبيوتر: +$coins كوينز';
   }
 
   @override
-  String get botSheetLevel => 'مستوى البوتات';
+  String get botSheetLevel => 'مستوى الكمبيوتر';
 
   @override
   String get botLevelEasy => 'سهل';
@@ -5790,4 +5786,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get storiesListen => 'اسمع القصة';
+
+  @override
+  String get modeBotsCardTitle => 'ضد الكمبيوتر';
+
+  @override
+  String get homeStoriesButton => 'قصص وتحقيقات';
+
+  @override
+  String get botSheetBody =>
+      'ماتش كامل في أي وقت: إنت ولاعيبة بيشكّوا ويتهموا ويصوّتوا. مش محتاج تستنى حد.';
+
+  @override
+  String get sheetClose => 'اقفل';
 }

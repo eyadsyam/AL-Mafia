@@ -2939,25 +2939,25 @@ abstract class AppLocalizations {
   /// No description provided for @modeOnePhoneTitle.
   ///
   /// In en, this message translates to:
-  /// **'One phone, passed around'**
+  /// **'With friends'**
   String get modeOnePhoneTitle;
 
   /// No description provided for @modeOnePhoneBody.
   ///
   /// In en, this message translates to:
-  /// **'Everybody in the same room. The phone goes from hand to hand.'**
+  /// **'One phone, 5 to 15 players'**
   String get modeOnePhoneBody;
 
   /// No description provided for @modeOnlineTitle.
   ///
   /// In en, this message translates to:
-  /// **'Everybody on their own phone'**
+  /// **'Online'**
   String get modeOnlineTitle;
 
   /// No description provided for @modeOnlineBody.
   ///
   /// In en, this message translates to:
-  /// **'Same room or anywhere. Nothing is passed, and nobody waits their turn to look.'**
+  /// **'Everyone on their own phone, 5 to 10'**
   String get modeOnlineBody;
 
   /// No description provided for @modeNoServer.
@@ -9565,16 +9565,10 @@ abstract class AppLocalizations {
   /// **'Stories'**
   String get modeStoriesTitle;
 
-  /// No description provided for @modeStoriesBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Investigation files for 1–10 players on one phone'**
-  String get modeStoriesBody;
-
   /// No description provided for @storiesTitle.
   ///
   /// In en, this message translates to:
-  /// **'Mafia Master Files'**
+  /// **'Stories & cases'**
   String get storiesTitle;
 
   /// No description provided for @storiesSubtitle.
@@ -9634,7 +9628,7 @@ abstract class AppLocalizations {
   /// No description provided for @storiesStart.
   ///
   /// In en, this message translates to:
-  /// **'Open file'**
+  /// **'Open the case'**
   String get storiesStart;
 
   /// No description provided for @storiesPlayerCountTitle.
@@ -9964,13 +9958,13 @@ abstract class AppLocalizations {
   /// No description provided for @modeBotsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Play against bots'**
+  /// **'Play against the computer'**
   String get modeBotsTitle;
 
   /// No description provided for @modeBotsBody.
   ///
   /// In en, this message translates to:
-  /// **'A whole match any time: you and players who suspect, accuse and vote. No one to wait for.'**
+  /// **'On your own, any time'**
   String get modeBotsBody;
 
   /// No description provided for @botSheetPlayers.
@@ -10018,13 +10012,13 @@ abstract class AppLocalizations {
   /// No description provided for @botWinReward.
   ///
   /// In en, this message translates to:
-  /// **'You beat the bots: +{coins} coins'**
+  /// **'You beat the computer: +{coins} coins'**
   String botWinReward(int coins);
 
   /// No description provided for @botSheetLevel.
   ///
   /// In en, this message translates to:
-  /// **'Bot level'**
+  /// **'Computer level'**
   String get botSheetLevel;
 
   /// No description provided for @botLevelEasy.
@@ -10074,6 +10068,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Listen to the case'**
   String get storiesListen;
+
+  /// No description provided for @modeBotsCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Against the computer'**
+  String get modeBotsCardTitle;
+
+  /// No description provided for @homeStoriesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories & cases'**
+  String get homeStoriesButton;
+
+  /// No description provided for @botSheetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A whole match any time: you and players who suspect, accuse and vote. No one to wait for.'**
+  String get botSheetBody;
+
+  /// No description provided for @sheetClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get sheetClose;
 }
 
 class _AppLocalizationsDelegate

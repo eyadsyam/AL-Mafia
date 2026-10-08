@@ -3,6 +3,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../widgets/deck/deck_public.dart' show BoneButton, DeckPill;
+
 import '../../../data/story_catalog.dart';
 import '../../../data/story_progress_store.dart';
 import '../../../stories/story_model.dart';
@@ -209,7 +211,8 @@ class StoriesHub extends StatelessWidget {
               ),
               SizedBox(height: spacing.lg),
               for (final (i, story) in stories.indexed) ...[
-                if (i > 0 && i % 4 == 0)
+                // Never in the first screenful, at most one per four cases.
+                if (i >= 4 && i % 4 == 0)
                   const NativeAdCard(placement: NativePlacement.stories),
                 _StoryCard(
                   key: storyKey(story.id),
@@ -250,15 +253,17 @@ class _StoryCard extends StatelessWidget {
     final colors = context.colors;
     final type = context.typography;
     final l = context.l10n;
-    return Opacity(
-      opacity: locked ? StoryTokens.lockedOpacity : 1,
-      child: MafiaPanel(
+    // Locked dims the art only: the title and what unlocks it stay readable.
+    return MafiaPanel(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _FeatheredStoryArt(
-              image: story.coverImage,
-              height: StoryTokens.coverHeight,
+            Opacity(
+              opacity: locked ? StoryTokens.lockedOpacity : 1,
+              child: _FeatheredStoryArt(
+                image: story.coverImage,
+                height: StoryTokens.coverHeight,
+              ),
             ),
             Padding(
               padding: EdgeInsets.all(spacing.md),
@@ -279,9 +284,9 @@ class _StoryCard extends StatelessWidget {
                     spacing: spacing.sm,
                     runSpacing: spacing.xs,
                     children: [
-                      _Tag(story.category),
-                      _Tag('${story.lengthMinutes} ${l.storiesMinutes}'),
-                      _Tag('${l.storiesDifficulty} ${story.difficulty}/5'),
+                      DeckPill(story.category),
+                      DeckPill('${story.lengthMinutes} ${l.storiesMinutes}'),
+                      DeckPill('${l.storiesDifficulty} ${story.difficulty}/5'),
                     ],
                   ),
                   SizedBox(height: spacing.sm),
@@ -301,10 +306,10 @@ class _StoryCard extends StatelessWidget {
                     ),
                   ] else ...[
                     SizedBox(height: spacing.md),
-                    FilledButton(
+                    BoneButton(
                       key: StoriesHub.startKey(story.id),
+                      label: l.storiesStart,
                       onPressed: onStart,
-                      child: Text(l.storiesStart),
                     ),
                   ],
                 ],
@@ -312,7 +317,6 @@ class _StoryCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }
@@ -349,15 +353,6 @@ class _FeatheredStoryArt extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Tag extends StatelessWidget {
-  const _Tag(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => MafiaPill(text);
 }
 
 class _PlayerCountSheet extends StatelessWidget {

@@ -15,7 +15,9 @@ void main() {
     'lib/ui/screens/setup/profile_screen.dart',
     // Owner, 2026-10-08: every menu surface carries a banner.
     'lib/ui/screens/setup/home_screen.dart',
-    'lib/ui/screens/setup/mode_screen.dart',
+    // The deck's scaffold carries it for every screen built on it (the
+    // mode screen passes `banner:`).
+    'lib/ui/widgets/deck/deck_public.dart',
     'lib/ui/screens/stories/stories_screen.dart',
     'lib/ui/fun/characters_screen.dart',
     // Native cards share the banner's gate (shouldShowWaitingBanner).

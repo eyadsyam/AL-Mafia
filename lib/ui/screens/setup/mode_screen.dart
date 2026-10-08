@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+
 import '../../../app/asset_constants.dart';
-import '../../theme/design_tokens.dart';
-
+import '../../../platform/monetization/ad_formats.dart' show BannerPlacement;
 import '../../l10n_ext.dart';
+import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
-import '../../widgets/back_action.dart';
+import '../../widgets/deck/deck_public.dart';
 import '../../widgets/experience_surface.dart';
-import '../../economy/waiting_banner.dart';
 
-/// Public mode selection. Online leads the visual hierarchy; both modes
-/// remain visible even when online is unavailable in the build.
+/// «اختار طريقة اللعب»: three ways to play, each named after the player's
+/// situation rather than the technology — with friends on one phone, online
+/// on everyone's own phone, alone against the computer. Stories have their
+/// own door on Home, so this screen is one decision, all above the fold.
+///
+/// Every card is the deck's ArtCard with a face in its arched window
+/// (docs/design/DECK-SYSTEM.md). Online without a server stays on screen,
+/// explained, rather than vanishing.
 class ModeScreen extends StatelessWidget {
   /// One phone, passed around. The existing setup flow.
   final VoidCallback onPlayOffline;
@@ -18,11 +24,7 @@ class ModeScreen extends StatelessWidget {
   /// which draws the card explained rather than absent.
   final VoidCallback? onPlayOnline;
 
-  /// One phone, one to ten players, authored investigation files.
-  final VoidCallback? onPlayStories;
-
-  /// «العب ضد البوتات»: a whole match alone, the other seats played by the
-  /// computer.
+  /// Alone, the other seats played by the computer.
   final VoidCallback? onPlayBots;
 
   /// Back to Home.
@@ -32,228 +34,62 @@ class ModeScreen extends StatelessWidget {
     super.key,
     required this.onPlayOffline,
     required this.onPlayOnline,
-    this.onPlayStories,
     this.onPlayBots,
     required this.onBack,
   });
 
   static const Key offlineCard = ValueKey('mode_offline');
   static const Key onlineCard = ValueKey('mode_online');
-  static const Key storiesCard = ValueKey('mode_stories');
   static const Key botsCard = ValueKey('mode_bots');
   static const Key unavailableText = ValueKey('mode_unavailable');
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final type = context.typography;
     final l10n = context.l10n;
-
-    return Scaffold(
-      backgroundColor: colors.surfaceBase,
-      bottomNavigationBar: const SafeArea(
-        top: false,
-        child: WaitingBanner(placement: BannerPlacement.home),
-      ),
-      body: ExperienceSurface(
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(spacing.screenMargin),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: spacing.maxContentWidth),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: BackAction(onPressed: onBack),
-                    ),
-                    SizedBox(height: spacing.lg),
-                    Text(
-                      l10n.modeTitle,
-                      style: type.headline.copyWith(color: colors.textPrimary),
-                    ),
-                    SizedBox(height: spacing.lg),
-                    const ExperienceHero(asset: ExperienceArt.council),
-                    SizedBox(height: spacing.md),
-                    Text(
-                      l10n.councilInvitation,
-                      style: type.body,
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: spacing.lg),
-                    if (onPlayOnline != null) ...[
-                      _onlineCard(context),
-                      SizedBox(height: spacing.md),
-                    ],
-                    _ModeCard(
-                      cardKey: ModeScreen.offlineCard,
-                      art: AppImages.cardBack,
-                      tintArt: false,
-                      title: l10n.modeOnePhoneTitle,
-                      body: l10n.modeOnePhoneBody,
-                      emphasised: onPlayOnline == null,
-                      onPressed: onPlayOffline,
-                    ),
-                    if (onPlayBots != null) ...[
-                      SizedBox(height: spacing.md),
-                      _ModeCard(
-                        cardKey: ModeScreen.botsCard,
-                        art: AppCouncilArt.seatRingIdle,
-                        tintArt: true,
-                        title: l10n.modeBotsTitle,
-                        body: l10n.modeBotsBody,
-                        emphasised: true,
-                        onPressed: onPlayBots,
-                      ),
-                    ],
-                    SizedBox(height: spacing.md),
-                    _ModeCard(
-                      cardKey: ModeScreen.storiesCard,
-                      art: AppCouncilArt.casebookHeader,
-                      tintArt: false,
-                      title: l10n.modeStoriesTitle,
-                      body: l10n.modeStoriesBody,
-                      emphasised: true,
-                      onPressed: onPlayStories,
-                    ),
-                    if (onPlayOnline == null) ...[
-                      SizedBox(height: spacing.md),
-                      _onlineCard(context),
-                    ],
-                    SizedBox(height: spacing.lg),
-                  ],
-                ),
-              ),
-            ),
+    final s = context.spacing;
+    return DeckScaffold(
+      title: l10n.modeTitle,
+      onBack: onBack,
+      banner: BannerPlacement.home,
+      body: ListView(
+        padding: EdgeInsets.only(bottom: s.lg),
+        children: [
+          ArtCard.list(
+            key: offlineCard,
+            title: l10n.modeOnePhoneTitle,
+            meta: l10n.modeOnePhoneBody,
+            art: const ArtWindow(asset: ExperienceArt.council),
+            onTap: onPlayOffline,
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _onlineCard(BuildContext context) => _ModeCard(
-    cardKey: ModeScreen.onlineCard,
-    art: AppCouncilArt.seatRingIdle,
-    tintArt: true,
-    title: context.l10n.modeOnlineTitle,
-    body: context.l10n.modeOnlineBody,
-    emphasised: onPlayOnline != null,
-    onPressed: onPlayOnline,
-    footnote: onPlayOnline == null ? context.l10n.modeNoServer : null,
-    footnoteKey: ModeScreen.unavailableText,
-  );
-}
-
-/// One of the two answers.
-///
-/// Both cards are built by the same widget with the same padding and the same
-/// three lines, so neither reads as the real option and the other as a
-/// concession. The only difference between them is the border and the label
-/// colour.
-class _ModeCard extends StatelessWidget {
-  final Key cardKey;
-
-  /// A painted mark instead of a stock glyph: the council's seat ring for the
-  /// online table, the card back for the phone that goes round the room.
-  final String art;
-  final bool tintArt;
-  final String title;
-  final String body;
-  final bool emphasised;
-  final VoidCallback? onPressed;
-  final String? footnote;
-  final Key? footnoteKey;
-
-  const _ModeCard({
-    required this.cardKey,
-    required this.art,
-    required this.tintArt,
-    required this.title,
-    required this.body,
-    required this.emphasised,
-    required this.onPressed,
-    this.footnote,
-    this.footnoteKey,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final radii = context.radii;
-    final type = context.typography;
-
-    final enabled = onPressed != null;
-    final accent = emphasised ? colors.accentGold : colors.textSecondary;
-
-    return Semantics(
-      button: true,
-      enabled: enabled,
-      label: title,
-      child: Material(
-        color: colors.surfaceRaised,
-        borderRadius: BorderRadius.circular(radii.card),
-        child: InkWell(
-          key: cardKey,
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(radii.card),
-          child: Container(
-            padding: EdgeInsets.all(spacing.md),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(radii.card),
-              border: Border.all(
-                color: emphasised ? colors.accentGold : colors.borderSubtle,
-              ),
+          SizedBox(height: s.md),
+          ArtCard.list(
+            key: onlineCard,
+            title: l10n.modeOnlineTitle,
+            meta: l10n.modeOnlineBody,
+            art: const ArtWindow(
+              asset: AppImages.cardFaceDoctor,
+              focus: ModeTokens.faceFocus,
+              zoom: ModeTokens.faceZoom,
             ),
-            child: Opacity(
-              // Dimmed rather than hidden, and still readable: the point of
-              // drawing it at all is that somebody can read why.
-              opacity: 1,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Image.asset(
-                    art,
-                    width: UiPolishTokens.caseEmblem,
-                    height: UiPolishTokens.caseEmblem,
-                    color: tintArt ? accent : null,
-                    excludeFromSemantics: true,
-                  ),
-                  SizedBox(width: spacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: type.title.copyWith(color: colors.textPrimary),
-                        ),
-                        SizedBox(height: spacing.xs),
-                        Text(
-                          body,
-                          style: type.caption.copyWith(color: colors.textMuted),
-                        ),
-                        if (footnote != null) ...[
-                          SizedBox(height: spacing.xs),
-                          Text(
-                            key: footnoteKey,
-                            footnote!,
-                            style: type.caption.copyWith(
-                              color: colors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            onTap: onPlayOnline,
+            lockedReason: onPlayOnline == null ? l10n.modeNoServer : null,
+            lockedKey: unavailableText,
           ),
-        ),
+          if (onPlayBots != null) ...[
+            SizedBox(height: s.md),
+            ArtCard.list(
+              key: botsCard,
+              title: l10n.modeBotsCardTitle,
+              meta: l10n.modeBotsBody,
+              art: const ArtWindow(
+                asset: AppImages.cardFaceCitizen,
+                focus: ModeTokens.faceFocus,
+                zoom: ModeTokens.faceZoom,
+              ),
+              onTap: onPlayBots,
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -1,4 +1,3 @@
-import '../../widgets/mafia_kit.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,15 +20,17 @@ import '../../widgets/falling_icons.dart';
 import '../../widgets/room_atmosphere.dart';
 import '../../widgets/textured_surface.dart';
 import '../../economy/waiting_banner.dart';
+import '../../missions/casebook_sheet.dart';
+import '../../widgets/deck/deck_buttons.dart';
 
-/// Home screen (S-01) â€” the spread.
+/// Home screen (S-01) — the spread.
 ///
 /// ## The deck is the screen
 ///
 /// There is no illustration behind this menu; the four role cards *are* the
 /// background, dealt across the table and slowly breathing. Tapping one turns
 /// it over to say what that role does, which is why there is no separate roles
-/// reference â€” the answer is already on the thing you are pointing at.
+/// reference — the answer is already on the thing you are pointing at.
 ///
 /// This is the one screen in the app where all four faces may appear together.
 /// Everything the leakage suite protects is about what one player learns about
@@ -40,7 +41,7 @@ import '../../economy/waiting_banner.dart';
 /// ## Layering, bottom to top
 ///
 /// 1. the textured backdrop and its warm ambient art;
-/// 2. the drifting corner icons, at the same 4â€“8% they use everywhere;
+/// 2. the drifting corner icons, at the same 4–8% they use everywhere;
 /// 3. the spread, which owns the deal, the float, the parallax and the flip;
 /// 4. haze along the bottom edge, so the cards sit on something;
 /// 5. the title, the primary action and the corner controls.
@@ -64,6 +65,9 @@ class HomeScreen extends ConsumerWidget {
   /// The Four Dossiers; the character's line on Home opens them.
   final VoidCallback? onCharacters;
 
+  /// «قصص وتحقيقات», the one door under the primary. Null hides it.
+  final VoidCallback? onStories;
+
   /// The store's corner control, or null where the build has no server.
   final Widget? store;
 
@@ -83,6 +87,7 @@ class HomeScreen extends ConsumerWidget {
     required this.onHowToPlay,
     this.onProfile,
     this.onCharacters,
+    this.onStories,
     this.store,
     this.banner,
     this.tiltSource = defaultTiltSource,
@@ -97,6 +102,8 @@ class HomeScreen extends ConsumerWidget {
   static const Key historyButton = ValueKey('home_history');
   static const Key settingsButton = ValueKey('home_settings');
   static const Key howToPlayButton = ValueKey('home_how_to_play');
+  static const Key casebookButton = ValueKey('home_casebook');
+  static const Key storiesButton = ValueKey('home_stories');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -107,7 +114,7 @@ class HomeScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final bondsEnabled = loadedCapabilities(ref)?.fun.characterBonds == true;
 
-    return MafiaScaffold(
+    return Scaffold(
       backgroundColor: colors.surfaceBase,
       bottomNavigationBar: kIsWeb
           ? const WebAdBanner()
@@ -117,7 +124,7 @@ class HomeScreen extends ConsumerWidget {
             ),
       body: BulbFlicker(
         // The one screen a returning host sees every time, and the one with
-        // the longest dwell. Its loop is near-featureless on purpose â€” the
+        // the longest dwell. Its loop is near-featureless on purpose — the
         // falling icons and the spread are drawn over it. `AmbientMedia`
         // keeps the still under the loop, so the backdrop is there on the
         // very first frame of a cold start (owner, 2026-09-24).
@@ -130,8 +137,8 @@ class HomeScreen extends ConsumerWidget {
               const FallingIcons(),
               CardSpread(
                 tiltSource: tiltSource,
-                // The deal is on-table by definition â€” this screen is the one
-                // moment nobody is holding anything private â€” so a sound here
+                // The deal is on-table by definition — this screen is the one
+                // moment nobody is holding anything private — so a sound here
                 // is safe in a way one during a turn never is.
                 onDealStarted: () => _flipSound(ref),
                 onFlip: () => _flipSound(ref),
@@ -166,7 +173,7 @@ class HomeScreen extends ConsumerWidget {
   ///
   /// Goes through `playCardTurn` rather than `play`, even though this screen is
   /// as on-table as a screen gets. One path for one sound: if the card turn
-  /// ever needs to change â€” level, file, whether it plays at all â€” there should
+  /// ever needs to change — level, file, whether it plays at all — there should
   /// be a single place that decides, and it should be the one that already
   /// carries the argument for why this sound is allowed to exist.
   void _flipSound(WidgetRef ref) =>
@@ -180,7 +187,7 @@ class HomeScreen extends ConsumerWidget {
     final name = ref.watch(playerProfileProvider).valueOrNull?.name ?? '';
     final label = name.isEmpty
         ? context.l10n.profileEdit
-        : '${context.l10n.profileEdit} Â· $name';
+        : '${context.l10n.profileEdit} · $name';
     return Semantics(
       button: onProfile != null,
       label: label,
@@ -237,6 +244,22 @@ class HomeScreen extends ConsumerWidget {
         // Every control carries its name under it: an icon alone left
         // testers hunting for the store.
         _Labeled(label: l10n.profileTitle, child: _identityChip(context, ref)),
+        // «ملف القضايا» is the daily habit, so it takes history's place in
+        // the row (history lives in the profile now). A build without the
+        // casebook keeps «السجل» here.
+        HomeCasebookButton(
+          casebookKey: HomeScreen.casebookButton,
+          fallback: _CornerButton(
+            buttonKey: HomeScreen.historyButton,
+            // Reads as a scroll — a sheet with ruled lines — rather than a
+            // clock, which would suggest a timer on a screen that has one.
+            icon: Icons.receipt_long,
+            label: l10n.history,
+            onPressed: onHistory,
+          ),
+          label: (child) => _Labeled(label: l10n.casebookTitle, child: child),
+        ),
+        if (store != null) _Labeled(label: l10n.storeTitle, child: store!),
         _CornerButton(
           buttonKey: HomeScreen.howToPlayButton,
           // A question mark inside a circle, which is the shape the brief
@@ -245,15 +268,6 @@ class HomeScreen extends ConsumerWidget {
           label: l10n.howToPlay,
           onPressed: onHowToPlay,
         ),
-        _CornerButton(
-          buttonKey: HomeScreen.historyButton,
-          // Reads as a scroll â€” a sheet with ruled lines â€” rather than a
-          // clock, which would suggest a timer on a screen that has one.
-          icon: Icons.receipt_long,
-          label: l10n.history,
-          onPressed: onHistory,
-        ),
-        if (store != null) _Labeled(label: l10n.storeTitle, child: store!),
         _CornerButton(
           buttonKey: HomeScreen.settingsButton,
           icon: Icons.settings,
@@ -295,28 +309,33 @@ class HomeScreen extends ConsumerWidget {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: spacing.xs),
-              Text(
-                l10n.tapCardHint,
-                style: type.caption.copyWith(color: colors.textMuted),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: spacing.lg),
-              FilledButton(
-                key: HomeScreen.startButton,
-                onPressed: onNewMatch,
-                style: FilledButton.styleFrom(
-                  backgroundColor: colors.accentGold,
-                  foregroundColor: colors.surfaceBase,
-                  padding: EdgeInsets.symmetric(vertical: spacing.md),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(radii.button),
-                  ),
+              // On a short phone the hint is the first thing to go, so the
+              // fan keeps its stage and both doors stay.
+              if (MediaQuery.sizeOf(context).height >= HomeTokens.hintMinHeight)
+                Text(
+                  l10n.tapCardHint,
+                  style: DeckTokens.meta(
+                    type,
+                  ).copyWith(color: colors.textSecondary),
+                  textAlign: TextAlign.center,
                 ),
-                child: Text(l10n.startGame, style: type.title),
+              SizedBox(height: spacing.lg),
+              BoneButton(
+                key: HomeScreen.startButton,
+                label: l10n.startGame,
+                onPressed: onNewMatch,
               ),
+              if (onStories != null) ...[
+                SizedBox(height: spacing.sm),
+                RimButton(
+                  key: HomeScreen.storiesButton,
+                  label: l10n.homeStoriesButton,
+                  onPressed: onStories,
+                ),
+              ],
               // There is no second button here any more. Online used to sit
               // under this one as a quiet text link, offered only when the
-              // build had a project â€” two modes at two weights, one of them
+              // build had a project — two modes at two weights, one of them
               // invisible in half the builds. Both questions are now asked
               // once, at the same size, on the screen behind this button.
             ],
@@ -327,10 +346,10 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-/// One of the three corner controls: help, history, settings.
+/// One of the corner controls: help, history, settings.
 ///
 /// These were words in boxes. They are now bare icons, under the scoped
-/// navigation exception documented on [NavIconButton] â€” standard chrome on a
+/// navigation exception documented on [NavIconButton] — standard chrome on a
 /// public screen, never role-informative, and a row of three bordered boxes was
 /// competing with the deck that is supposed to *be* this screen.
 ///

@@ -1639,18 +1639,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modeSubtitle => 'You can change this next time.';
 
   @override
-  String get modeOnePhoneTitle => 'One phone, passed around';
+  String get modeOnePhoneTitle => 'With friends';
 
   @override
-  String get modeOnePhoneBody =>
-      'Everybody in the same room. The phone goes from hand to hand.';
+  String get modeOnePhoneBody => 'One phone, 5 to 15 players';
 
   @override
-  String get modeOnlineTitle => 'Everybody on their own phone';
+  String get modeOnlineTitle => 'Online';
 
   @override
-  String get modeOnlineBody =>
-      'Same room or anywhere. Nothing is passed, and nobody waits their turn to look.';
+  String get modeOnlineBody => 'Everyone on their own phone, 5 to 10';
 
   @override
   String get modeNoServer =>
@@ -5614,11 +5612,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modeStoriesTitle => 'Stories';
 
   @override
-  String get modeStoriesBody =>
-      'Investigation files for 1–10 players on one phone';
-
-  @override
-  String get storiesTitle => 'Mafia Master Files';
+  String get storiesTitle => 'Stories & cases';
 
   @override
   String get storiesSubtitle =>
@@ -5649,7 +5643,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storiesDifficulty => 'Difficulty';
 
   @override
-  String get storiesStart => 'Open file';
+  String get storiesStart => 'Open the case';
 
   @override
   String get storiesPlayerCountTitle => 'How many investigators?';
@@ -5826,11 +5820,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storiesBonusStep => 'Watch an ad for one more step';
 
   @override
-  String get modeBotsTitle => 'Play against bots';
+  String get modeBotsTitle => 'Play against the computer';
 
   @override
-  String get modeBotsBody =>
-      'A whole match any time: you and players who suspect, accuse and vote. No one to wait for.';
+  String get modeBotsBody => 'On your own, any time';
 
   @override
   String get botSheetPlayers => 'Players';
@@ -5861,11 +5854,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String botWinReward(int coins) {
-    return 'You beat the bots: +$coins coins';
+    return 'You beat the computer: +$coins coins';
   }
 
   @override
-  String get botSheetLevel => 'Bot level';
+  String get botSheetLevel => 'Computer level';
 
   @override
   String get botLevelEasy => 'Easy';
@@ -5894,4 +5887,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storiesListen => 'Listen to the case';
+
+  @override
+  String get modeBotsCardTitle => 'Against the computer';
+
+  @override
+  String get homeStoriesButton => 'Stories & cases';
+
+  @override
+  String get botSheetBody =>
+      'A whole match any time: you and players who suspect, accuse and vote. No one to wait for.';
+
+  @override
+  String get sheetClose => 'Close';
 }

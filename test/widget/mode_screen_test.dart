@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/ui/screens/setup/mode_screen.dart';
 
@@ -41,13 +42,13 @@ void main() {
   testWidgets('each card leads to its own mode', (tester) async {
     var offline = 0;
     var online = 0;
-    var stories = 0;
+    var bots = 0;
     await tester.pumpWidget(
       localizedApp(
         ModeScreen(
           onPlayOffline: () => offline++,
           onPlayOnline: () => online++,
-          onPlayStories: () => stories++,
+          onPlayBots: () => bots++,
           onBack: () {},
         ),
       ),
@@ -56,17 +57,44 @@ void main() {
     await tester.ensureVisible(find.byKey(ModeScreen.offlineCard));
     await tester.tap(find.byKey(ModeScreen.offlineCard));
     await tester.pump();
-    expect([offline, online, stories], [1, 0, 0]);
+    expect([offline, online, bots], [1, 0, 0]);
 
     await tester.ensureVisible(find.byKey(ModeScreen.onlineCard));
     await tester.tap(find.byKey(ModeScreen.onlineCard));
     await tester.pump();
-    expect([offline, online, stories], [1, 1, 0]);
+    expect([offline, online, bots], [1, 1, 0]);
 
-    await tester.ensureVisible(find.byKey(ModeScreen.storiesCard));
-    await tester.tap(find.byKey(ModeScreen.storiesCard));
+    await tester.ensureVisible(find.byKey(ModeScreen.botsCard));
+    await tester.tap(find.byKey(ModeScreen.botsCard));
     await tester.pump();
-    expect([offline, online, stories], [1, 1, 1]);
+    expect([offline, online, bots], [1, 1, 1]);
+  });
+
+  testWidgets('three ways to play fit a small phone, stories live on Home', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(360, 640));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      localizedApp(
+        ModeScreen(
+          onPlayOffline: () {},
+          onPlayOnline: () {},
+          onPlayBots: () {},
+          onBack: () {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    for (final key in [
+      ModeScreen.offlineCard,
+      ModeScreen.onlineCard,
+      ModeScreen.botsCard,
+    ]) {
+      final rect = tester.getRect(find.byKey(key));
+      expect(rect.bottom, lessThanOrEqualTo(640), reason: '$key below the fold');
+    }
+    expect(find.textContaining('بوت'), findsNothing);
   });
 
   test('Home has no online action to hide', () {
