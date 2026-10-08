@@ -6,71 +6,503 @@
   "synopsis": "مفتاح جوه، شباك مقفول، وباب ما اتفتحش. بس كلمة «جوه» في المحضر راجعة لأوضة غير اللي كل الشهود رسموها في دماغهم.",
   "difficulty": 5,
   "lengthMinutes": 75,
-  "coverImage": "assets/images/stories/evidence_desk.webp",
+  "coverImage": "assets/images/stories/covers/cover_21.webp",
   "actionBudget": 14,
   "discussionSeconds": 210,
   "characters": [
-    {"id":"n01","name":"بدر النقاش","image":"assets/images/stories/suspect_n01.webp","background":"اشتغل في تقسيم الشقة من ١٢ سنة ودهَن البابين الأخضر بنفس البوية.","objective":"ما تقولش إنك نسيت ترقم الباب الداخلي غير لما حد يسألك عن حرف «ب». ","privateClueIds":["culprit_plan","motive_margin","method_clock"]},
-    {"id":"n02","name":"داليا مهندسة الترميم","image":"assets/images/stories/suspect_n02.webp","background":"مسؤولة عن رفع الشقة قبل تسجيلها أثر؛ معاها نسخة من المخطط ومفتاح الباب الخارجي.","objective":"خلّي كلمة «الأوضة» تفضل مبهمة، وادفعهم يركزوا في الشباك.","privateClueIds":["culprit_key","motive_notebook","method_blood_arc"]},
-    {"id":"n03","name":"حازم ابن القتيل","image":"assets/images/stories/suspect_n03.webp","background":"وصل من المنصورة بعد مكالمة قصيرة، وعايز يبيع الشقة قبل قرار الحصر.","objective":"اثبت ببوابة الطريق إنك وصلت بعد توقف ساعة الحائط.","privateClueIds":["culprit_dust","motive_margin","method_blood_arc"]},
-    {"id":"n04","name":"سميحة البوابّة","image":"assets/images/stories/suspect_n04.webp","background":"شايفة باب الشقة من كرسيها، لكن باب العداد الجانبي ورا ضهرها.","objective":"فرّق بين اللي شفته بعينك وصوت المزلاج اللي سمعته.","privateClueIds":["culprit_plan","motive_notebook","method_clock"]},
-    {"id":"n05","name":"مراد المصور","image":"assets/images/stories/suspect_n05.webp","background":"حوّل المخزن الداخلي لمعمل تحميض، وعلّق ستارة سوداء على بابه.","objective":"فسّر ليه صورة المفتاح مقصوصة من عند بطاقة الرقم.","privateClueIds":["culprit_key","motive_margin","method_clock"]},
-    {"id":"n06","name":"ليلى الباحثة","image":"assets/images/stories/suspect_n06.webp","background":"بتفهرس دفاتر البيت وكتبت كلمة «جوه» مرتين بمعنيين في ملاحظاتها.","objective":"ما تخلطش بين داخل الشقة وداخل معمل التحميض.","privateClueIds":["culprit_dust","motive_notebook","method_blood_arc"]},
-    {"id":"n07","name":"عادل السمكري","image":"assets/images/stories/suspect_n07.webp","background":"صلّح شباك الصالة الصبح وترك مسمار نحاس تحت الحلق.","objective":"اثبت إن الشباك اتقفل قبل الوفاة ومحدش خرج منه.","privateClueIds":["culprit_plan","motive_margin","method_blood_arc"]},
-    {"id":"n08","name":"نجلاء المحامية","image":"assets/images/stories/suspect_n08.webp","background":"كانت جاية بصورة عقد حدود الملكية، والصفحة التانية ناقص منها سنتيمتر.","objective":"اكشف النقص في العقد من غير ما تسلم الأصل لأي حد.","privateClueIds":["culprit_key","motive_notebook","method_clock"]},
-    {"id":"n09","name":"وجيه جامع التحف","image":"assets/images/stories/suspect_n09.webp","background":"ساوم القتيل على ساعة حائط وميزان خيط نحاس من صندوق المهندس القديم.","objective":"حدد آخر مرة شفت فيها ميزان الخيط كامل.","privateClueIds":["culprit_dust","motive_margin","method_clock"]},
-    {"id":"n10","name":"بسمة فنية المعمل","image":"assets/images/stories/suspect_n10.webp","background":"تعرف بقع المثبت من الدم، وبتقيس الصور من علامات التحميض على الحواف.","objective":"صحح تقرير المعمل الأول من غير ما تدافع عن صاحبه.","privateClueIds":["culprit_plan","motive_notebook","method_blood_arc"]}
+    {
+      "id": "n01",
+      "name": "بدر النقاش",
+      "image": "assets/images/stories/suspect_n01.webp",
+      "background": "اشتغل في تقسيم الشقة من ١٢ سنة ودهَن البابين الأخضر بنفس البوية.",
+      "objective": "ما تقولش إنك نسيت ترقم الباب الداخلي غير لما حد يسألك عن حرف «ب». ",
+      "privateClueIds": [
+        "culprit_plan",
+        "motive_margin",
+        "method_clock"
+      ]
+    },
+    {
+      "id": "n02",
+      "name": "داليا مهندسة الترميم",
+      "image": "assets/images/stories/suspect_n02.webp",
+      "background": "مسؤولة عن رفع الشقة قبل تسجيلها أثر؛ معاها نسخة من المخطط ومفتاح الباب الخارجي.",
+      "objective": "خلّي كلمة «الأوضة» تفضل مبهمة، وادفعهم يركزوا في الشباك.",
+      "privateClueIds": [
+        "culprit_key",
+        "motive_notebook",
+        "method_blood_arc"
+      ]
+    },
+    {
+      "id": "n03",
+      "name": "حازم ابن القتيل",
+      "image": "assets/images/stories/suspect_n03.webp",
+      "background": "وصل من المنصورة بعد مكالمة قصيرة، وعايز يبيع الشقة قبل قرار الحصر.",
+      "objective": "اثبت ببوابة الطريق إنك وصلت بعد توقف ساعة الحائط.",
+      "privateClueIds": [
+        "culprit_dust",
+        "motive_margin",
+        "method_blood_arc"
+      ]
+    },
+    {
+      "id": "n04",
+      "name": "سميحة البوابّة",
+      "image": "assets/images/stories/suspect_n04.webp",
+      "background": "شايفة باب الشقة من كرسيها، لكن باب العداد الجانبي ورا ضهرها.",
+      "objective": "فرّق بين اللي شفته بعينك وصوت المزلاج اللي سمعته.",
+      "privateClueIds": [
+        "culprit_plan",
+        "motive_notebook",
+        "method_clock"
+      ]
+    },
+    {
+      "id": "n05",
+      "name": "مراد المصور",
+      "image": "assets/images/stories/suspect_n05.webp",
+      "background": "حوّل المخزن الداخلي لمعمل تحميض، وعلّق ستارة سوداء على بابه.",
+      "objective": "فسّر ليه صورة المفتاح مقصوصة من عند بطاقة الرقم.",
+      "privateClueIds": [
+        "culprit_key",
+        "motive_margin",
+        "method_clock"
+      ]
+    },
+    {
+      "id": "n06",
+      "name": "ليلى الباحثة",
+      "image": "assets/images/stories/suspect_n06.webp",
+      "background": "بتفهرس دفاتر البيت وكتبت كلمة «جوه» مرتين بمعنيين في ملاحظاتها.",
+      "objective": "ما تخلطش بين داخل الشقة وداخل معمل التحميض.",
+      "privateClueIds": [
+        "culprit_dust",
+        "motive_notebook",
+        "method_blood_arc"
+      ]
+    },
+    {
+      "id": "n07",
+      "name": "عادل السمكري",
+      "image": "assets/images/stories/suspect_n07.webp",
+      "background": "صلّح شباك الصالة الصبح وترك مسمار نحاس تحت الحلق.",
+      "objective": "اثبت إن الشباك اتقفل قبل الوفاة ومحدش خرج منه.",
+      "privateClueIds": [
+        "culprit_plan",
+        "motive_margin",
+        "method_blood_arc"
+      ]
+    },
+    {
+      "id": "n08",
+      "name": "نجلاء المحامية",
+      "image": "assets/images/stories/suspect_n08.webp",
+      "background": "كانت جاية بصورة عقد حدود الملكية، والصفحة التانية ناقص منها سنتيمتر.",
+      "objective": "اكشف النقص في العقد من غير ما تسلم الأصل لأي حد.",
+      "privateClueIds": [
+        "culprit_key",
+        "motive_notebook",
+        "method_clock"
+      ]
+    },
+    {
+      "id": "n09",
+      "name": "وجيه جامع التحف",
+      "image": "assets/images/stories/suspect_n09.webp",
+      "background": "ساوم القتيل على ساعة حائط وميزان خيط نحاس من صندوق المهندس القديم.",
+      "objective": "حدد آخر مرة شفت فيها ميزان الخيط كامل.",
+      "privateClueIds": [
+        "culprit_dust",
+        "motive_margin",
+        "method_clock"
+      ]
+    },
+    {
+      "id": "n10",
+      "name": "بسمة فنية المعمل",
+      "image": "assets/images/stories/suspect_n10.webp",
+      "background": "تعرف بقع المثبت من الدم، وبتقيس الصور من علامات التحميض على الحواف.",
+      "objective": "صحح تقرير المعمل الأول من غير ما تدافع عن صاحبه.",
+      "privateClueIds": [
+        "culprit_plan",
+        "motive_notebook",
+        "method_blood_arc"
+      ]
+    }
   ],
   "locations": [
-    {"id":"outer_flat","name":"الشقة ٧/أ","description":"باب أخضر على السلم، شباك صالة مقفول، وممر يوصل للمطبخ ومعمل التحميض."},
-    {"id":"darkroom","name":"الأوضة ٧/ب","description":"مخزن اتحول لمعمل تحميض؛ بابه الأخضر مستخبي ورا ستارة سوداء."},
-    {"id":"meter_corridor","name":"طرقة العدادات","description":"طرقة خدمة ضيقة بباب عادي يفتح على بسطة السلم تحت الدور."},
-    {"id":"archive_table","name":"ترابيزة الرفع","description":"عليها مخطط ١٩٦٤، دفتر طبّاخ قديم، ومسطرة مهندس نحاس."}
+    {
+      "id": "outer_flat",
+      "name": "الشقة ٧/أ",
+      "description": "باب أخضر على السلم، شباك صالة مقفول، وممر يوصل للمطبخ ومعمل التحميض."
+    },
+    {
+      "id": "darkroom",
+      "name": "الأوضة ٧/ب",
+      "description": "مخزن اتحول لمعمل تحميض؛ بابه الأخضر مستخبي ورا ستارة سوداء."
+    },
+    {
+      "id": "meter_corridor",
+      "name": "طرقة العدادات",
+      "description": "طرقة خدمة ضيقة بباب عادي يفتح على بسطة السلم تحت الدور."
+    },
+    {
+      "id": "archive_table",
+      "name": "ترابيزة الرفع",
+      "description": "عليها مخطط ١٩٦٤، دفتر طبّاخ قديم، ومسطرة مهندس نحاس."
+    }
   ],
   "motives": [
-    {"id":"hide_boundary_forgery","label":"إخفاء تزوير حدود الشقة قبل تسجيلها أثر"},
-    {"id":"inherit_flat","label":"تعجيل ميراث الشقة وبيعها"},
-    {"id":"steal_clock","label":"سرقة ساعة الحائط النادرة"},
-    {"id":"academic_credit","label":"الاستيلاء على بحث القتيل المنشور"}
+    {
+      "id": "hide_boundary_forgery",
+      "label": "إخفاء تزوير حدود الشقة قبل تسجيلها أثر"
+    },
+    {
+      "id": "inherit_flat",
+      "label": "تعجيل ميراث الشقة وبيعها"
+    },
+    {
+      "id": "steal_clock",
+      "label": "سرقة ساعة الحائط النادرة"
+    },
+    {
+      "id": "academic_credit",
+      "label": "الاستيلاء على بحث القتيل المنشور"
+    }
   ],
   "methods": [
-    {"id":"plumb_bob","label":"ضربة بميزان خيط نحاس من صندوق الرفع"},
-    {"id":"window_wire","label":"خنق بسلك دخل من الشباك"},
-    {"id":"delayed_poison","label":"سم بطيء في قهوة اتشربت قبل القفل"},
-    {"id":"falling_clock","label":"إسقاط ساعة الحائط على رأسه"}
+    {
+      "id": "plumb_bob",
+      "label": "ضربة بميزان خيط نحاس من صندوق الرفع"
+    },
+    {
+      "id": "window_wire",
+      "label": "خنق بسلك دخل من الشباك"
+    },
+    {
+      "id": "delayed_poison",
+      "label": "سم بطيء في قهوة اتشربت قبل القفل"
+    },
+    {
+      "id": "falling_clock",
+      "label": "إسقاط ساعة الحائط على رأسه"
+    }
   ],
   "truth": {
-    "culprits":["n02","n01"],
-    "primaryCulprit":"n02",
-    "involvedCharacters":["n02","n01"],
-    "motive":"hide_boundary_forgery",
-    "method":"plumb_bob",
-    "timeline":[
-      {"time":"٦:١٢","text":"القتيل فتح الشقة ٧/أ لداليا وبدر عشان يراجعوا مخطط التقسيم."},
-      {"time":"٦:٢٧","text":"لقى تحت كشط الحبر إن حد نقل حد الملكية ٨٦ سنتيمتر ناحية طرقة العدادات."},
-      {"time":"٦:٣٤","text":"داليا ضربته بميزان الخيط داخل معمل التحميض ٧/ب، وبدر سحب الستارة على الباب."},
-      {"time":"٦:٣٨","text":"الاتنين خرجوا من باب المعمل إلى ممر الشقة، ثم من باب ٧/أ بمفتاح نسخة الرفع."},
-      {"time":"٦:٤١","text":"داليا قفلت ٧/أ من الخارج. مفتاح ٧/ب فضل جنب الجثة، فبان في الصورة كأنه مفتاح الشقة."},
-      {"time":"٧:٠٥","text":"لما الباب الخارجي اتكسر، أول جملة في المحضر قالت «المفتاح جوه» من غير رقم الباب."}
+    "culprits": [
+      "n02",
+      "n01"
+    ],
+    "primaryCulprit": "n02",
+    "involvedCharacters": [
+      "n02",
+      "n01"
+    ],
+    "motive": "hide_boundary_forgery",
+    "method": "plumb_bob",
+    "timeline": [
+      {
+        "time": "٦:١٢",
+        "text": "القتيل فتح الشقة ٧/أ لداليا وبدر عشان يراجعوا مخطط التقسيم."
+      },
+      {
+        "time": "٦:٢٧",
+        "text": "لقى تحت كشط الحبر إن حد نقل حد الملكية ٨٦ سنتيمتر ناحية طرقة العدادات."
+      },
+      {
+        "time": "٦:٣٤",
+        "text": "داليا ضربته بميزان الخيط داخل معمل التحميض ٧/ب، وبدر سحب الستارة على الباب."
+      },
+      {
+        "time": "٦:٣٨",
+        "text": "الاتنين خرجوا من باب المعمل إلى ممر الشقة، ثم من باب ٧/أ بمفتاح نسخة الرفع."
+      },
+      {
+        "time": "٦:٤١",
+        "text": "داليا قفلت ٧/أ من الخارج. مفتاح ٧/ب فضل جنب الجثة، فبان في الصورة كأنه مفتاح الشقة."
+      },
+      {
+        "time": "٧:٠٥",
+        "text": "لما الباب الخارجي اتكسر، أول جملة في المحضر قالت «المفتاح جوه» من غير رقم الباب."
+      }
     ]
   },
   "clues": [
-    {"id":"culprit_plan","title":"طيّة المخطط المقلوبة","body":"النسخة اتفتحت على ترابيزة الرفع وهي مقلوبة ناحية اللي واقف عند باب المعمل. بصمات حازم وسميحة ومراد على الوش التاني ومقفولة تحت الطية.","proves":["الفاعل قرأ المخطط من ناحية باب المعمل أثناء الرفع"],"excludes":{"culprits":["n03","n04","n05"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"culprit_key","title":"سن مفتاح عليه بوية طرية","body":"المفتاح اللي مع الجثة سنه عليه أخضر فاتح من قفل ٧/ب. مفاتيح عادل ونجلاء ووجيه اتجربت: أسنانها أعرض ومابتدخلش القفل الداخلي أصلًا.","proves":["المفتاح المصوّر يخص باب المعمل ٧/ب لا باب الشقة ٧/أ"],"excludes":{"culprits":["n07","n08","n09"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"culprit_dust","title":"غبار أزرق تحت الحذاء","body":"غبار صبغة المخطط موجود على ممر الخروج وعلى نعل داليا. بدر كان واقف عند الستارة، وبسمة وليلى دخلوا بعد كسر الباب؛ مافيش غبار حديث على نعالهم.","proves":["اللي خرج بعد الضربة داس فوق كشط المخطط الأزرق"],"excludes":{"culprits":["n01","n06","n10"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"motive_margin","title":"الـ٨٦ سنتيمتر","body":"ورق الكربون تحت مخطط ١٩٦٤ حافظ الحد الأصلي. النقل الحديث زوّد مساحة الشقة على حساب طرقة الخدمة؛ مالوش علاقة ببيع الساعة ولا ببحث الجامعة.","proves":["في تزوير حديث لحد الملكية ناحية طرقة العدادات"],"excludes":{"motives":["steal_clock","academic_credit"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"motive_notebook","title":"موعد التسجيل بالقلم الأحمر","body":"القتيل كتب: «بكرة ٩ الصبح — أسلّم الأصل للجنة قبل ما حازم يبيع». البيع كان هيتوقف في كل الأحوال؛ الخطر الليلة كان انكشاف الحد المتزحزح.","proves":["مهلة الفاعل انتهت صباح اليوم التالي عند تسليم أصل المخطط"],"excludes":{"motives":["inherit_flat"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"method_clock","title":"مسمار الساعة السليم","body":"مسمارا الساعة لسه شايلين وزنها، والزجاج ماعليهوش دم. تحليل القهوة سالب، ومفيش أثر سم في الدم.","proves":["الساعة ماوقعتش والقهوة مش مسمومة"],"excludes":{"methods":["delayed_poison","falling_clock"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"method_blood_arc","title":"قوس الدم وفتلة النحاس","body":"الرذاذ عامل قوس قصير من اليمين، وفي الجرح فتلة نحاس عليها بودرة طباشير رفع. سلك الشباك حديد مجلفن وماعليهوش دم.","proves":["الضربة جت بأداة نحاس متأرجحة من مسافة ذراع"],"excludes":{"methods":["window_wire"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"flavor_photo_edge","title":"الحرف اللي اتقص من الصورة","body":"علامة مشبك التحميض تثبت إن يمين الصورة ناقص ١٫٨ سم. في السالب الأصلي ظاهر طرف بطاقة «٧/ب» مربوط بحلقة المفتاح.","proves":["صورة المعاينة أخفت رقم الباب بسبب قص الحافة"],"excludes":{"culprits":[],"motives":[],"methods":[]},"buckets":["3-4","5-6","7-8","9-10"]},
-    {"id":"flavor_two_greens","title":"درجتان من الأخضر","body":"باب ٧/أ أخضر زيتي فوق طبقة بنية؛ باب ٧/ب أخضر فاتح فوق رمادي. الفلاش ساوى اللونين في الصورة، لكن قشرة الدهان كشفت الفرق.","proves":["المحضر جمع بابين متشابهين تحت وصف باب أخضر واحد"],"excludes":{"culprits":[],"motives":[],"methods":[]},"buckets":["5-6","7-8","9-10"]},
-    {"id":"flavor_latch","title":"صوت المزلاج مرتين","body":"سميحة سمعت تكة خفيفة ٦:٣٧ وتكة تقيلة ٦:٤١. الخفيفة مزلاج ٧/ب الداخلي؛ التقيلة كالون ٧/أ على السلم.","proves":["باب المعمل اتفتح قبل قفل باب الشقة بأربع دقايق"],"excludes":{"culprits":[],"motives":[],"methods":[]},"buckets":["7-8","9-10"]},
-    {"id":"flavor_door_shadow","title":"ظل من غير شخص","body":"أسفل صورة الممر فيه مستطيل ضوء بعرض ٧/ب، مش ظل جسم. الباب كان مفتوح وقت الفلاش ثم اتغطى بالستارة السوداء.","proves":["باب داخلي مفتوح اختفى بصريًا خلف الستارة"],"excludes":{"culprits":[],"motives":[],"methods":[]},"buckets":["9-10"]}
+    {
+      "id": "culprit_plan",
+      "title": "طيّة المخطط المقلوبة",
+      "body": "النسخة اتفتحت على ترابيزة الرفع وهي مقلوبة ناحية اللي واقف عند باب المعمل. بصمات حازم وسميحة ومراد على الوش التاني ومقفولة تحت الطية.",
+      "proves": [
+        "الفاعل قرأ المخطط من ناحية باب المعمل أثناء الرفع"
+      ],
+      "excludes": {
+        "culprits": [
+          "n03",
+          "n04",
+          "n05"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "culprit_key",
+      "title": "سن مفتاح عليه بوية طرية",
+      "body": "المفتاح اللي مع الجثة سنه عليه أخضر فاتح من قفل ٧/ب. مفاتيح عادل ونجلاء ووجيه اتجربت: أسنانها أعرض ومابتدخلش القفل الداخلي أصلًا.",
+      "proves": [
+        "المفتاح المصوّر يخص باب المعمل ٧/ب لا باب الشقة ٧/أ"
+      ],
+      "excludes": {
+        "culprits": [
+          "n07",
+          "n08",
+          "n09"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "culprit_dust",
+      "title": "غبار أزرق تحت الحذاء",
+      "body": "غبار صبغة المخطط موجود على ممر الخروج وعلى نعل داليا. بدر كان واقف عند الستارة، وبسمة وليلى دخلوا بعد كسر الباب؛ مافيش غبار حديث على نعالهم.",
+      "proves": [
+        "اللي خرج بعد الضربة داس فوق كشط المخطط الأزرق"
+      ],
+      "excludes": {
+        "culprits": [
+          "n01",
+          "n06",
+          "n10"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "motive_margin",
+      "title": "الـ٨٦ سنتيمتر",
+      "body": "ورق الكربون تحت مخطط ١٩٦٤ حافظ الحد الأصلي. النقل الحديث زوّد مساحة الشقة على حساب طرقة الخدمة؛ مالوش علاقة ببيع الساعة ولا ببحث الجامعة.",
+      "proves": [
+        "في تزوير حديث لحد الملكية ناحية طرقة العدادات"
+      ],
+      "excludes": {
+        "motives": [
+          "steal_clock",
+          "academic_credit"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "motive_notebook",
+      "title": "موعد التسجيل بالقلم الأحمر",
+      "body": "القتيل كتب: «بكرة ٩ الصبح — أسلّم الأصل للجنة قبل ما حازم يبيع». البيع كان هيتوقف في كل الأحوال؛ الخطر الليلة كان انكشاف الحد المتزحزح.",
+      "proves": [
+        "مهلة الفاعل انتهت صباح اليوم التالي عند تسليم أصل المخطط"
+      ],
+      "excludes": {
+        "motives": [
+          "inherit_flat"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "method_clock",
+      "title": "مسمار الساعة السليم",
+      "body": "مسمارا الساعة لسه شايلين وزنها، والزجاج ماعليهوش دم. تحليل القهوة سالب، ومفيش أثر سم في الدم.",
+      "proves": [
+        "الساعة ماوقعتش والقهوة مش مسمومة"
+      ],
+      "excludes": {
+        "methods": [
+          "delayed_poison",
+          "falling_clock"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "method_blood_arc",
+      "title": "قوس الدم وفتلة النحاس",
+      "body": "الرذاذ عامل قوس قصير من اليمين، وفي الجرح فتلة نحاس عليها بودرة طباشير رفع. سلك الشباك حديد مجلفن وماعليهوش دم.",
+      "proves": [
+        "الضربة جت بأداة نحاس متأرجحة من مسافة ذراع"
+      ],
+      "excludes": {
+        "methods": [
+          "window_wire"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "flavor_photo_edge",
+      "title": "الحرف اللي اتقص من الصورة",
+      "body": "علامة مشبك التحميض تثبت إن يمين الصورة ناقص ١٫٨ سم. في السالب الأصلي ظاهر طرف بطاقة «٧/ب» مربوط بحلقة المفتاح.",
+      "proves": [
+        "صورة المعاينة أخفت رقم الباب بسبب قص الحافة"
+      ],
+      "excludes": {
+        "culprits": [],
+        "motives": [],
+        "methods": []
+      },
+      "buckets": [
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "flavor_two_greens",
+      "title": "درجتان من الأخضر",
+      "body": "باب ٧/أ أخضر زيتي فوق طبقة بنية؛ باب ٧/ب أخضر فاتح فوق رمادي. الفلاش ساوى اللونين في الصورة، لكن قشرة الدهان كشفت الفرق.",
+      "proves": [
+        "المحضر جمع بابين متشابهين تحت وصف باب أخضر واحد"
+      ],
+      "excludes": {
+        "culprits": [],
+        "motives": [],
+        "methods": []
+      },
+      "buckets": [
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "flavor_latch",
+      "title": "صوت المزلاج مرتين",
+      "body": "سميحة سمعت تكة خفيفة ٦:٣٧ وتكة تقيلة ٦:٤١. الخفيفة مزلاج ٧/ب الداخلي؛ التقيلة كالون ٧/أ على السلم.",
+      "proves": [
+        "باب المعمل اتفتح قبل قفل باب الشقة بأربع دقايق"
+      ],
+      "excludes": {
+        "culprits": [],
+        "motives": [],
+        "methods": []
+      },
+      "buckets": [
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "flavor_door_shadow",
+      "title": "ظل من غير شخص",
+      "body": "أسفل صورة الممر فيه مستطيل ضوء بعرض ٧/ب، مش ظل جسم. الباب كان مفتوح وقت الفلاش ثم اتغطى بالستارة السوداء.",
+      "proves": [
+        "باب داخلي مفتوح اختفى بصريًا خلف الستارة"
+      ],
+      "excludes": {
+        "culprits": [],
+        "motives": [],
+        "methods": []
+      },
+      "buckets": [
+        "9-10"
+      ]
+    }
   ],
   "actions": [
-    {"id":"rebuild_plan","title":"إعادة رسم الشقة","description":"طابق مخطط ١٩٦٤ مع البابين وطرقة العدادات.","cost":4,"clueIds":["culprit_plan","culprit_dust","motive_margin","flavor_two_greens","flavor_door_shadow"]},
-    {"id":"inspect_key","title":"فحص المفتاح والقفلين","description":"قارن الأسنان وبقايا الدهان ورقم البطاقة في السالب.","cost":3,"clueIds":["culprit_key","culprit_dust","motive_notebook","flavor_photo_edge"]},
-    {"id":"forensics","title":"تشريح مسرح الضربة","description":"افصل الدم عن المثبت، وحدد معدن الأداة ومسارها.","cost":4,"clueIds":["culprit_dust","method_clock","method_blood_arc"]},
-    {"id":"hear_witnesses","title":"تركيب الأصوات على الخط الزمني","description":"راجع تكتي المزلاج وساعة الحائط ووقت كسر الباب.","cost":3,"clueIds":["culprit_plan","culprit_key","culprit_dust","flavor_latch"]}
+    {
+      "id": "rebuild_plan",
+      "title": "إعادة رسم الشقة",
+      "description": "طابق مخطط ١٩٦٤ مع البابين وطرقة العدادات.",
+      "cost": 4,
+      "clueIds": [
+        "culprit_plan",
+        "culprit_dust",
+        "motive_margin",
+        "flavor_two_greens",
+        "flavor_door_shadow"
+      ]
+    },
+    {
+      "id": "inspect_key",
+      "title": "فحص المفتاح والقفلين",
+      "description": "قارن الأسنان وبقايا الدهان ورقم البطاقة في السالب.",
+      "cost": 3,
+      "clueIds": [
+        "culprit_key",
+        "culprit_dust",
+        "motive_notebook",
+        "flavor_photo_edge"
+      ]
+    },
+    {
+      "id": "forensics",
+      "title": "تشريح مسرح الضربة",
+      "description": "افصل الدم عن المثبت، وحدد معدن الأداة ومسارها.",
+      "cost": 4,
+      "clueIds": [
+        "culprit_dust",
+        "method_clock",
+        "method_blood_arc"
+      ]
+    },
+    {
+      "id": "hear_witnesses",
+      "title": "تركيب الأصوات على الخط الزمني",
+      "description": "راجع تكتي المزلاج وساعة الحائط ووقت كسر الباب.",
+      "cost": 3,
+      "clueIds": [
+        "culprit_plan",
+        "culprit_key",
+        "culprit_dust",
+        "flavor_latch"
+      ]
+    }
   ]
 }

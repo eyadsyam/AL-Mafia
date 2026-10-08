@@ -6,71 +6,504 @@
   "synopsis": "المعلم صابر مات على كرسيه وسط دوشة الدومنة. الشاي سليم، لكن حجر الشيشة وصل له متجهز قبل ما الفحم ينور.",
   "difficulty": 3,
   "lengthMinutes": 35,
-  "coverImage": "assets/images/stories/cafe.webp",
+  "coverImage": "assets/images/stories/covers/cover_01.webp",
   "actionBudget": 12,
   "discussionSeconds": 150,
   "characters": [
-    {"id":"n01","name":"رضا المكوجي","image":"assets/images/stories/suspect_n01.webp","background":"مكوجي أول الحارة، شايل للمعلم صابر حساب توصيلات وفحم من تلات شهور.","objective":"خلّي الناس تصدق إنك ماقربتش من ترابيزة المعلم بعد المغرب.","privateClueIds":["culprit_lane","motive_ledger","method_bowl_residue"]},
-    {"id":"n02","name":"سامح صابر","image":"assets/images/stories/suspect_n02.webp","background":"ابن أخو المعلم ومدير الوردية الليلية؛ حافظ درج الحساب ومفتاح دولاب المعسل.","objective":"وجّه الكلام ناحية زحمة القهوة من غير ما تتناقض في ميعاد وصول الحجر.","privateClueIds":["culprit_shift","motive_voice_note","method_clean_cup"]},
-    {"id":"n03","name":"عزة بائعة الورد","image":"assets/images/stories/suspect_n03.webp","background":"فرشتها قدام القهوة، وبتشوف الداخل والخارج من غير ما حد ياخد باله.","objective":"اثبت إنك كنت عند الإشارة وقت تجهيز الشيشة.","privateClueIds":["culprit_coal","motive_ledger","method_clean_cup"]},
-    {"id":"n04","name":"عماد الساعاتي","image":"assets/images/stories/suspect_n04.webp","background":"محله لازق في القهوة وساعته المعلقة بتدق قبل ميعادها بدقيقتين.","objective":"صحّح توقيتك من غير ما تكشف سر الساعة المعطلة بدري.","privateClueIds":["culprit_lane","motive_voice_note","method_bowl_residue"]},
-    {"id":"n05","name":"هدى الممرضة","image":"assets/images/stories/suspect_n05.webp","background":"قامت تقيس نبض المعلم أول ما وقع، وكانت عارفة دواء الضغط اللي بياخده.","objective":"امنع اتهام الدوا قبل ما تقرير المعمل يطلع.","privateClueIds":["culprit_shift","motive_ledger","method_bowl_residue"]},
-    {"id":"n06","name":"فوزي القهوجي","image":"assets/images/stories/suspect_n06.webp","background":"صب الشاي وغيّر مية الشيشة، لكنه ماجهزش الحجر الليلة دي.","objective":"فرّق بوضوح بين اللي حضّر الشيشة واللي قدمها.","privateClueIds":["culprit_coal","motive_voice_note","method_clean_cup"]},
-    {"id":"n07","name":"منير المقاول","image":"assets/images/stories/suspect_n07.webp","background":"كان بيزن على المعلم يبيع عقد إيجار القهوة قبل إزالة العمارة المجاورة.","objective":"اخفِ قيمة عرض الشراء، مش وجود العرض نفسه.","privateClueIds":["culprit_lane","motive_ledger","method_clean_cup"]},
-    {"id":"n08","name":"صفاء صاحبة الكشك","image":"assets/images/stories/suspect_n08.webp","background":"باعت ولاعة طويلة وعلبة نعناع قبل الواقعة بنص ساعة.","objective":"حدد مين اشترى الولاعة من غير ما تخمّن.","privateClueIds":["culprit_shift","motive_voice_note","method_bowl_residue"]},
-    {"id":"n09","name":"شعبان سواق التاكسي","image":"assets/images/stories/suspect_n09.webp","background":"ركن قدام باب القهوة لحد ما عربية نقل سدت عليه الشارع.","objective":"اثبت من العداد إنك ما نزلتش من العربية.","privateClueIds":["culprit_coal","motive_ledger","method_bowl_residue"]},
-    {"id":"n10","name":"نورا مدرسة الحساب","image":"assets/images/stories/suspect_n10.webp","background":"كانت بتراجع للمعلم دفتر الجمعية الأسبوعي قبل ما تبدأ الدومنة.","objective":"بيّن الفرق بين كشط قديم وتعديل اتعمل ليلة الجريمة.","privateClueIds":["culprit_lane","motive_voice_note","method_clean_cup"]}
+    {
+      "id": "n01",
+      "name": "رضا المكوجي",
+      "image": "assets/images/stories/suspect_n01.webp",
+      "background": "مكوجي أول الحارة، شايل للمعلم صابر حساب توصيلات وفحم من تلات شهور.",
+      "objective": "خلّي الناس تصدق إنك ماقربتش من ترابيزة المعلم بعد المغرب.",
+      "privateClueIds": [
+        "culprit_lane",
+        "motive_ledger",
+        "method_bowl_residue"
+      ]
+    },
+    {
+      "id": "n02",
+      "name": "سامح صابر",
+      "image": "assets/images/stories/suspect_n02.webp",
+      "background": "ابن أخو المعلم ومدير الوردية الليلية؛ حافظ درج الحساب ومفتاح دولاب المعسل.",
+      "objective": "وجّه الكلام ناحية زحمة القهوة من غير ما تتناقض في ميعاد وصول الحجر.",
+      "privateClueIds": [
+        "culprit_shift",
+        "motive_voice_note",
+        "method_clean_cup"
+      ]
+    },
+    {
+      "id": "n03",
+      "name": "عزة بائعة الورد",
+      "image": "assets/images/stories/suspect_n03.webp",
+      "background": "فرشتها قدام القهوة، وبتشوف الداخل والخارج من غير ما حد ياخد باله.",
+      "objective": "اثبت إنك كنت عند الإشارة وقت تجهيز الشيشة.",
+      "privateClueIds": [
+        "culprit_coal",
+        "motive_ledger",
+        "method_clean_cup"
+      ]
+    },
+    {
+      "id": "n04",
+      "name": "عماد الساعاتي",
+      "image": "assets/images/stories/suspect_n04.webp",
+      "background": "محله لازق في القهوة وساعته المعلقة بتدق قبل ميعادها بدقيقتين.",
+      "objective": "صحّح توقيتك من غير ما تكشف سر الساعة المعطلة بدري.",
+      "privateClueIds": [
+        "culprit_lane",
+        "motive_voice_note",
+        "method_bowl_residue"
+      ]
+    },
+    {
+      "id": "n05",
+      "name": "هدى الممرضة",
+      "image": "assets/images/stories/suspect_n05.webp",
+      "background": "قامت تقيس نبض المعلم أول ما وقع، وكانت عارفة دواء الضغط اللي بياخده.",
+      "objective": "امنع اتهام الدوا قبل ما تقرير المعمل يطلع.",
+      "privateClueIds": [
+        "culprit_shift",
+        "motive_ledger",
+        "method_bowl_residue"
+      ]
+    },
+    {
+      "id": "n06",
+      "name": "فوزي القهوجي",
+      "image": "assets/images/stories/suspect_n06.webp",
+      "background": "صب الشاي وغيّر مية الشيشة، لكنه ماجهزش الحجر الليلة دي.",
+      "objective": "فرّق بوضوح بين اللي حضّر الشيشة واللي قدمها.",
+      "privateClueIds": [
+        "culprit_coal",
+        "motive_voice_note",
+        "method_clean_cup"
+      ]
+    },
+    {
+      "id": "n07",
+      "name": "منير المقاول",
+      "image": "assets/images/stories/suspect_n07.webp",
+      "background": "كان بيزن على المعلم يبيع عقد إيجار القهوة قبل إزالة العمارة المجاورة.",
+      "objective": "اخفِ قيمة عرض الشراء، مش وجود العرض نفسه.",
+      "privateClueIds": [
+        "culprit_lane",
+        "motive_ledger",
+        "method_clean_cup"
+      ]
+    },
+    {
+      "id": "n08",
+      "name": "صفاء صاحبة الكشك",
+      "image": "assets/images/stories/suspect_n08.webp",
+      "background": "باعت ولاعة طويلة وعلبة نعناع قبل الواقعة بنص ساعة.",
+      "objective": "حدد مين اشترى الولاعة من غير ما تخمّن.",
+      "privateClueIds": [
+        "culprit_shift",
+        "motive_voice_note",
+        "method_bowl_residue"
+      ]
+    },
+    {
+      "id": "n09",
+      "name": "شعبان سواق التاكسي",
+      "image": "assets/images/stories/suspect_n09.webp",
+      "background": "ركن قدام باب القهوة لحد ما عربية نقل سدت عليه الشارع.",
+      "objective": "اثبت من العداد إنك ما نزلتش من العربية.",
+      "privateClueIds": [
+        "culprit_coal",
+        "motive_ledger",
+        "method_bowl_residue"
+      ]
+    },
+    {
+      "id": "n10",
+      "name": "نورا مدرسة الحساب",
+      "image": "assets/images/stories/suspect_n10.webp",
+      "background": "كانت بتراجع للمعلم دفتر الجمعية الأسبوعي قبل ما تبدأ الدومنة.",
+      "objective": "بيّن الفرق بين كشط قديم وتعديل اتعمل ليلة الجريمة.",
+      "privateClueIds": [
+        "culprit_lane",
+        "motive_voice_note",
+        "method_clean_cup"
+      ]
+    }
   ],
   "locations": [
-    {"id":"cafe_floor","name":"صالة القهوة","description":"ست ترابيزات، مراية طويلة، ومروحة سقف بتغطي صوت باب المخزن."},
-    {"id":"molasses_cabinet","name":"دولاب المعسل","description":"دولاب صاج ورا الكونتر؛ مفتاحه مربوط بسلسلة وردية الليل."},
-    {"id":"coal_alley","name":"حوش الفحم","description":"ممر ضيق له باب على الزقاق، وأرضه مغطاة بتراب فحم ناعم."},
-    {"id":"office","name":"أوضة الحساب","description":"درج خشب فيه دفتر الدين وكربون إيصالات قديمة."}
+    {
+      "id": "cafe_floor",
+      "name": "صالة القهوة",
+      "description": "ست ترابيزات، مراية طويلة، ومروحة سقف بتغطي صوت باب المخزن."
+    },
+    {
+      "id": "molasses_cabinet",
+      "name": "دولاب المعسل",
+      "description": "دولاب صاج ورا الكونتر؛ مفتاحه مربوط بسلسلة وردية الليل."
+    },
+    {
+      "id": "coal_alley",
+      "name": "حوش الفحم",
+      "description": "ممر ضيق له باب على الزقاق، وأرضه مغطاة بتراب فحم ناعم."
+    },
+    {
+      "id": "office",
+      "name": "أوضة الحساب",
+      "description": "درج خشب فيه دفتر الدين وكربون إيصالات قديمة."
+    }
   ],
   "motives": [
-    {"id":"inherit_debt","label":"تزوير دين يخلّي سامح يسيطر على القهوة"},
-    {"id":"gambling","label":"خناقة على دين قمار قديم"},
-    {"id":"revenge","label":"انتقام من طرد عامل سابق"},
-    {"id":"silence_sale","label":"إسكاته قبل ما يفضح صفقة بيع المحل"}
+    {
+      "id": "inherit_debt",
+      "label": "تزوير دين يخلّي سامح يسيطر على القهوة"
+    },
+    {
+      "id": "gambling",
+      "label": "خناقة على دين قمار قديم"
+    },
+    {
+      "id": "revenge",
+      "label": "انتقام من طرد عامل سابق"
+    },
+    {
+      "id": "silence_sale",
+      "label": "إسكاته قبل ما يفضح صفقة بيع المحل"
+    }
   ],
   "methods": [
-    {"id":"poisoned_bowl","label":"مبيد نيكوتيني مركز في معسل حجر الشيشة"},
-    {"id":"poisoned_tea","label":"سم مذاب في كباية الشاي"},
-    {"id":"carbon_monoxide","label":"اختناق بأول أكسيد الكربون من الفحم"},
-    {"id":"heart_pills","label":"تبديل برشام القلب بجرعة قاتلة"}
+    {
+      "id": "poisoned_bowl",
+      "label": "مبيد نيكوتيني مركز في معسل حجر الشيشة"
+    },
+    {
+      "id": "poisoned_tea",
+      "label": "سم مذاب في كباية الشاي"
+    },
+    {
+      "id": "carbon_monoxide",
+      "label": "اختناق بأول أكسيد الكربون من الفحم"
+    },
+    {
+      "id": "heart_pills",
+      "label": "تبديل برشام القلب بجرعة قاتلة"
+    }
   ],
   "truth": {
-    "culprits":["n02","n01"],
-    "primaryCulprit":"n02",
-    "involvedCharacters":["n02","n01"],
-    "motive":"inherit_debt",
-    "method":"poisoned_bowl",
-    "timeline":[
-      {"time":"٨:٣٢","text":"سامح فتح وردية الليل وأخذ مفتاح دولاب المعسل من المسمار."},
-      {"time":"٨:٣٨","text":"رضا استلم من صفاء الولاعة الطويلة ولف من باب حوش الفحم."},
-      {"time":"٨:٤٣","text":"سامح حقن نقطتين من المبيد في كيس معسل تفاحتين مخصوص للمعلم."},
-      {"time":"٨:٤٧","text":"رضا ولّع الحجر بعيد عن الكونتر، وسلمه لسامح عند الممر."},
-      {"time":"٨:٥٠","text":"فوزي قدم الشاي السادة النظيف؛ سامح حط الحجر على الشيشة بنفسه."},
-      {"time":"٨:٥٦","text":"المعلم أخذ النفس الرابع، وقع حجر الدومنة من إيده، وبعدها وقع هو."}
+    "culprits": [
+      "n02",
+      "n01"
+    ],
+    "primaryCulprit": "n02",
+    "involvedCharacters": [
+      "n02",
+      "n01"
+    ],
+    "motive": "inherit_debt",
+    "method": "poisoned_bowl",
+    "timeline": [
+      {
+        "time": "٨:٣٢",
+        "text": "سامح فتح وردية الليل وأخذ مفتاح دولاب المعسل من المسمار."
+      },
+      {
+        "time": "٨:٣٨",
+        "text": "رضا استلم من صفاء الولاعة الطويلة ولف من باب حوش الفحم."
+      },
+      {
+        "time": "٨:٤٣",
+        "text": "سامح حقن نقطتين من المبيد في كيس معسل تفاحتين مخصوص للمعلم."
+      },
+      {
+        "time": "٨:٤٧",
+        "text": "رضا ولّع الحجر بعيد عن الكونتر، وسلمه لسامح عند الممر."
+      },
+      {
+        "time": "٨:٥٠",
+        "text": "فوزي قدم الشاي السادة النظيف؛ سامح حط الحجر على الشيشة بنفسه."
+      },
+      {
+        "time": "٨:٥٦",
+        "text": "المعلم أخذ النفس الرابع، وقع حجر الدومنة من إيده، وبعدها وقع هو."
+      }
     ]
   },
   "clues": [
-    {"id":"culprit_lane","title":"خطوة على تراب الفحم","body":"الطبعة الكاملة مقاس ٤٣ وبنعل متآكل من الناحية الشمال. جزم عزة وعماد وهدى اتصورت في المحضر: ولا واحدة بالمقاس أو التآكل ده.","proves":["اللي دخل حوش الفحم كان لابس جزمة ٤٣ بنعل شمال متآكل"],"excludes":{"culprits":["n03","n04","n05"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"culprit_shift","title":"بصمة مفتاح الوردية","body":"سلسلة مفتاح دولاب المعسل عليها طبقة نحاس جديدة. بصمات فوزي ومنير وصفاء فوقها تراب قديم؛ محدش فيهم لمسها بعد تلميعها العصر.","proves":["المفتاح اتلمس بعد التلميع بواسطة شخص غير فوزي ومنير وصفاء"],"excludes":{"culprits":["n06","n07","n08"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"culprit_coal","title":"دقيقة في تسجيل الراديو","body":"برنامج الثمانية ونص باين في انعكاس المراية. رضا كان في الحوش، وشعبان جوه التاكسي، ونورا قدام الدفتر وقت خروج الحجر. الشخص الوحيد اللي اختفى من الانعكاس ٧٤ ثانية هو سامح.","proves":["تجهيز الحجر تم في نافذة غياب مدتها ٧٤ ثانية"],"excludes":{"culprits":["n01","n09","n10"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"motive_ledger","title":"كربونة تحت صفحة الدين","body":"الضغط بالقلم سايب على ورقة الكربون جملة «المبلغ يُستحق عند وفاة صاحب القهوة». صيغة الجمعية القديمة مافيهاش الجملة دي، وخطها مش خط منير ولا خط شعبان.","proves":["شرط الوفاة اتضاف على دين مزور لخدمة مستفيد من القهوة"],"excludes":{"motives":["gambling","revenge"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"motive_voice_note","title":"آخر فويس للمعلم","body":"قبل موته بساعة قال لنورا: «مش هبيع ولا هفضح حد؛ بكرة همزق الورقة اللي سامح عاملها وأرجّع المفتاح لفوزي». الكلام يقفل حكاية صفقة الإسكات.","proves":["الخطر الفوري كان تمزيق ورقة الدين وفقدان سامح للمفتاح"],"excludes":{"motives":["silence_sale"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"method_clean_cup","title":"الرواسب في قاع الكوباية","body":"المعمل لقى شاي وسكر بس، ومفيش سم ولا بودرة دوا. غسيل المعدة كمان مافيهوش بقايا أقراص.","proves":["السم مادخلش مع الشاي ولا مع برشام القلب"],"excludes":{"methods":["poisoned_tea","heart_pills"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"method_bowl_residue","title":"المسحة اللي تحت الحجر","body":"فلتر الخرطوم فيه نيكوتين أعلى ٣١ مرة من تبغ القهوة، وجهاز الدفاع المدني سجل هواء الصالة طبيعي. التركيز طالع من أول نفس، مش من الفحم.","proves":["مصدر الجرعة في المعسل داخل الحجر لا في هواء الصالة"],"excludes":{"methods":["carbon_monoxide"]},"buckets":["1","2","3-4","5-6","7-8","9-10"]},
-    {"id":"flavor_torn_label","title":"نص استيكر في البالوعة","body":"نص استيكر مبيد زراعي مستورد ماسك في مصفاة حوض المخزن؛ رقم التشغيلة مطابق لعبوة فاضية في شنطة توصيلات المكوجي.","proves":["عبوة المبيد مرت من المخزن واتغسلت بعد تجهيز الحجر"],"excludes":{"culprits":[],"motives":[],"methods":[]},"buckets":["3-4","5-6","7-8","9-10"]},
-    {"id":"flavor_domino","title":"حجر الدومنة المقلوب","body":"المعلم كان ماسك الدوبل ستة، لكنه وقع ووشه لتحت قبل ما النوبة تكمل. ده يثبت إن التعب بدأ فجأة بعد الشيشة، مش خلال الخناقة اللي قبلها.","proves":["الانهيار بدأ بين ٨:٥٥ و٨:٥٦"],"excludes":{"culprits":[],"motives":[],"methods":[]},"buckets":["5-6","7-8","9-10"]},
-    {"id":"flavor_lighter","title":"ولاعة بسلك محروق","body":"طرف الولاعة الطويلة عليه سكر معسل تفاحتين وبقعة نحاس من سلسلة المفتاح؛ حاجتين ما بيتقابلوش عادة إلا عند الممر الضيق.","proves":["الولاعة والحجر ومفتاح الوردية اتجمعوا في الممر"],"excludes":{"culprits":[],"motives":[],"methods":[]},"buckets":["7-8","9-10"]},
-    {"id":"flavor_receipt","title":"إيصال الساعة ٨:٤١","body":"إيصال الكشك مطبوع ٨:٣٩ لكن كاميرا الصيدلية بتبين إن صفاء قدمته ٨:٤١؛ ساعة الكشك متأخرة دقيقتين، وساعة عماد متقدمة دقيقتين.","proves":["كل شهادات الحارة لازم تتظبط على ساعة الراديو"],"excludes":{"culprits":[],"motives":[],"methods":[]},"buckets":["9-10"]}
+    {
+      "id": "culprit_lane",
+      "title": "خطوة على تراب الفحم",
+      "body": "الطبعة الكاملة مقاس ٤٣ وبنعل متآكل من الناحية الشمال. جزم عزة وعماد وهدى اتصورت في المحضر: ولا واحدة بالمقاس أو التآكل ده.",
+      "proves": [
+        "اللي دخل حوش الفحم كان لابس جزمة ٤٣ بنعل شمال متآكل"
+      ],
+      "excludes": {
+        "culprits": [
+          "n03",
+          "n04",
+          "n05"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "culprit_shift",
+      "title": "بصمة مفتاح الوردية",
+      "body": "سلسلة مفتاح دولاب المعسل عليها طبقة نحاس جديدة. بصمات فوزي ومنير وصفاء فوقها تراب قديم؛ محدش فيهم لمسها بعد تلميعها العصر.",
+      "proves": [
+        "المفتاح اتلمس بعد التلميع بواسطة شخص غير فوزي ومنير وصفاء"
+      ],
+      "excludes": {
+        "culprits": [
+          "n06",
+          "n07",
+          "n08"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "culprit_coal",
+      "title": "دقيقة في تسجيل الراديو",
+      "body": "برنامج الثمانية ونص باين في انعكاس المراية. رضا كان في الحوش، وشعبان جوه التاكسي، ونورا قدام الدفتر وقت خروج الحجر. الشخص الوحيد اللي اختفى من الانعكاس ٧٤ ثانية هو سامح.",
+      "proves": [
+        "تجهيز الحجر تم في نافذة غياب مدتها ٧٤ ثانية"
+      ],
+      "excludes": {
+        "culprits": [
+          "n01",
+          "n09",
+          "n10"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "motive_ledger",
+      "title": "كربونة تحت صفحة الدين",
+      "body": "الضغط بالقلم سايب على ورقة الكربون جملة «المبلغ يُستحق عند وفاة صاحب القهوة». صيغة الجمعية القديمة مافيهاش الجملة دي، وخطها مش خط منير ولا خط شعبان.",
+      "proves": [
+        "شرط الوفاة اتضاف على دين مزور لخدمة مستفيد من القهوة"
+      ],
+      "excludes": {
+        "motives": [
+          "gambling",
+          "revenge"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "motive_voice_note",
+      "title": "آخر فويس للمعلم",
+      "body": "قبل موته بساعة قال لنورا: «مش هبيع ولا هفضح حد؛ بكرة همزق الورقة اللي سامح عاملها وأرجّع المفتاح لفوزي». الكلام يقفل حكاية صفقة الإسكات.",
+      "proves": [
+        "الخطر الفوري كان تمزيق ورقة الدين وفقدان سامح للمفتاح"
+      ],
+      "excludes": {
+        "motives": [
+          "silence_sale"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "method_clean_cup",
+      "title": "الرواسب في قاع الكوباية",
+      "body": "المعمل لقى شاي وسكر بس، ومفيش سم ولا بودرة دوا. غسيل المعدة كمان مافيهوش بقايا أقراص.",
+      "proves": [
+        "السم مادخلش مع الشاي ولا مع برشام القلب"
+      ],
+      "excludes": {
+        "methods": [
+          "poisoned_tea",
+          "heart_pills"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "method_bowl_residue",
+      "title": "المسحة اللي تحت الحجر",
+      "body": "فلتر الخرطوم فيه نيكوتين أعلى ٣١ مرة من تبغ القهوة، وجهاز الدفاع المدني سجل هواء الصالة طبيعي. التركيز طالع من أول نفس، مش من الفحم.",
+      "proves": [
+        "مصدر الجرعة في المعسل داخل الحجر لا في هواء الصالة"
+      ],
+      "excludes": {
+        "methods": [
+          "carbon_monoxide"
+        ]
+      },
+      "buckets": [
+        "1",
+        "2",
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "flavor_torn_label",
+      "title": "نص استيكر في البالوعة",
+      "body": "نص استيكر مبيد زراعي مستورد ماسك في مصفاة حوض المخزن؛ رقم التشغيلة مطابق لعبوة فاضية في شنطة توصيلات المكوجي.",
+      "proves": [
+        "عبوة المبيد مرت من المخزن واتغسلت بعد تجهيز الحجر"
+      ],
+      "excludes": {
+        "culprits": [],
+        "motives": [],
+        "methods": []
+      },
+      "buckets": [
+        "3-4",
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "flavor_domino",
+      "title": "حجر الدومنة المقلوب",
+      "body": "المعلم كان ماسك الدوبل ستة، لكنه وقع ووشه لتحت قبل ما النوبة تكمل. ده يثبت إن التعب بدأ فجأة بعد الشيشة، مش خلال الخناقة اللي قبلها.",
+      "proves": [
+        "الانهيار بدأ بين ٨:٥٥ و٨:٥٦"
+      ],
+      "excludes": {
+        "culprits": [],
+        "motives": [],
+        "methods": []
+      },
+      "buckets": [
+        "5-6",
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "flavor_lighter",
+      "title": "ولاعة بسلك محروق",
+      "body": "طرف الولاعة الطويلة عليه سكر معسل تفاحتين وبقعة نحاس من سلسلة المفتاح؛ حاجتين ما بيتقابلوش عادة إلا عند الممر الضيق.",
+      "proves": [
+        "الولاعة والحجر ومفتاح الوردية اتجمعوا في الممر"
+      ],
+      "excludes": {
+        "culprits": [],
+        "motives": [],
+        "methods": []
+      },
+      "buckets": [
+        "7-8",
+        "9-10"
+      ]
+    },
+    {
+      "id": "flavor_receipt",
+      "title": "إيصال الساعة ٨:٤١",
+      "body": "إيصال الكشك مطبوع ٨:٣٩ لكن كاميرا الصيدلية بتبين إن صفاء قدمته ٨:٤١؛ ساعة الكشك متأخرة دقيقتين، وساعة عماد متقدمة دقيقتين.",
+      "proves": [
+        "كل شهادات الحارة لازم تتظبط على ساعة الراديو"
+      ],
+      "excludes": {
+        "culprits": [],
+        "motives": [],
+        "methods": []
+      },
+      "buckets": [
+        "9-10"
+      ]
+    }
   ],
   "actions": [
-    {"id":"interview","title":"استجواب اللي كانوا في الصالة","description":"قارن كلام الترابيزات بانعكاس مراية القهوة.","cost":2,"clueIds":["culprit_lane","culprit_coal","motive_voice_note","flavor_domino"]},
-    {"id":"search_cafe","title":"تفتيش المخزن وحوش الفحم","description":"فتش السلسلة والحوض ومسار الحجر من الباب للترابيزة.","cost":3,"clueIds":["culprit_shift","culprit_coal","motive_ledger","flavor_torn_label","flavor_lighter"]},
-    {"id":"lab","title":"طلب تقرير السموم","description":"افصل بين الكوباية والدواء والهواء والمعسل.","cost":4,"clueIds":["culprit_coal","method_clean_cup","method_bowl_residue"]},
-    {"id":"timeline","title":"مراجعة التسجيلات والساعات","description":"وحّد توقيت الراديو والكشك ومحل الساعات.","cost":3,"clueIds":["culprit_lane","culprit_shift","culprit_coal","flavor_receipt"]}
-  ]
+    {
+      "id": "interview",
+      "title": "استجواب اللي كانوا في الصالة",
+      "description": "قارن كلام الترابيزات بانعكاس مراية القهوة.",
+      "cost": 2,
+      "clueIds": [
+        "culprit_lane",
+        "culprit_coal",
+        "motive_voice_note",
+        "flavor_domino"
+      ]
+    },
+    {
+      "id": "search_cafe",
+      "title": "تفتيش المخزن وحوش الفحم",
+      "description": "فتش السلسلة والحوض ومسار الحجر من الباب للترابيزة.",
+      "cost": 3,
+      "clueIds": [
+        "culprit_shift",
+        "culprit_coal",
+        "motive_ledger",
+        "flavor_torn_label",
+        "flavor_lighter"
+      ]
+    },
+    {
+      "id": "lab",
+      "title": "طلب تقرير السموم",
+      "description": "افصل بين الكوباية والدواء والهواء والمعسل.",
+      "cost": 4,
+      "clueIds": [
+        "culprit_coal",
+        "method_clean_cup",
+        "method_bowl_residue"
+      ]
+    },
+    {
+      "id": "timeline",
+      "title": "مراجعة التسجيلات والساعات",
+      "description": "وحّد توقيت الراديو والكشك ومحل الساعات.",
+      "cost": 3,
+      "clueIds": [
+        "culprit_lane",
+        "culprit_shift",
+        "culprit_coal",
+        "flavor_receipt"
+      ]
+    }
+  ],
+  "sceneImage": "assets/images/stories/locations/loc_cafe_alley.webp"
 }

@@ -141,6 +141,10 @@ flutter:
     - assets/images/social/
     - assets/images/casebook/
     - assets/images/stories/
+    - assets/images/stories/covers/
+    - assets/images/stories/locations/
+    - assets/images/stories/evidence/
+    - assets/images/tools/
     - assets/stories/
     - assets/icons/
     - assets/audio/
