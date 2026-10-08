@@ -65,7 +65,7 @@ void main() {
     menuMs: menuMs,
   );
 
-  const fiveMinutes = 5 * _minute;
+  const fiveMinutes = 3 * _minute; // AdTokens.sessionInterstitialAfter
 
   group('placements', () {
     test('each is shown when every rule allows it', () {
@@ -144,23 +144,23 @@ void main() {
   });
 
   group('global pacing', () {
-    test('at least 90 s between any two full-screen ads', () {
+    test('at least 60 s between any two full-screen ads', () {
       final ledger = played(3).shown(noon);
       for (final p in [AdPlacement.preMatch, AdPlacement.postMatch]) {
         expect(
-          decide(p, ledger: ledger, now: noon + 89 * _second),
+          decide(p, ledger: ledger, now: noon + 59 * _second),
           InterstitialVerdict.tooSoon,
         );
         expect(
-          decide(p, ledger: ledger, now: noon + 90 * _second),
+          decide(p, ledger: ledger, now: noon + 60 * _second),
           InterstitialVerdict.show,
         );
       }
     });
 
-    test('no practical daily cap: the safety cap is 40', () {
+    test('no practical daily cap: the safety cap is 60', () {
       var ledger = played(3);
-      for (var i = 0; i < 39; i++) {
+      for (var i = 0; i < 59; i++) {
         ledger = ledger.shown(noon - 10 * 60 * _minute + i * 2 * _minute);
       }
       expect(decide(AdPlacement.postMatch, ledger: ledger), InterstitialVerdict.show);
@@ -176,7 +176,7 @@ void main() {
       );
     });
 
-    test('server numbers: cap never above 40, gap never below 90 s', () {
+    test('server numbers: cap never above 60, gap never below 60 s', () {
       final wild = InterstitialRules.fromJson(const {
         'maxPerDay': 500,
         'gapSeconds': 10,
@@ -348,7 +348,7 @@ void main() {
       now += 2 * _minute;
       expect(await c.beforeOnlineMatch(), InterstitialVerdict.show);
       expect(ads.shows, 1);
-      // Straight into another: the 90 s gap holds.
+      // Straight into another: the 60 s gap holds.
       now += 30 * _second;
       expect(await c.beforeOnlineMatch(), InterstitialVerdict.tooSoon);
     });
@@ -357,7 +357,7 @@ void main() {
       final c = await ready();
       await c.beforeOnlineMatch(); // first of launch
       await c.fullScreenShown(); // the app-open ad
-      now += 60 * _second;
+      now += 30 * _second;
       expect(await c.beforeDeal(), InterstitialVerdict.tooSoon);
     });
 
@@ -401,11 +401,11 @@ void main() {
       expect(ads.preloads, 0);
     });
 
-    test('session: five menu minutes, then only before a forward menu move', () async {
+    test('session: three menu minutes, then only before a forward menu move', () async {
       final c = await ready();
       c.foreground(true);
       c.navigated('/', '/history');
-      now += 4 * _minute;
+      now += 2 * _minute;
       expect(await c.beforeMenuNavigation('/profile'), InterstitialVerdict.notDue);
       c.navigated('/history', '/');
       // A match pauses the clock: ten minutes in play add nothing.

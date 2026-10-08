@@ -1154,7 +1154,7 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
 
   /// Product floors for the one automatic ad; the server may only widen them.
   static const interstitialMinGap = Duration(minutes: 10);
-  static const interstitialAfterReward = Duration(minutes: 3);
+  static const interstitialAfterReward = Duration(minutes: 2);
 
   /// The wheel's spin, landing exactly on the server's outcome.
   static const wheelSpin = Duration(milliseconds: 2600);
@@ -1709,13 +1709,13 @@ abstract final class AdTokens {
   /// kept waiting on the launch screen for an ad.
   static const appOpenLoadTimeout = Duration(seconds: 3);
 
-  /// Floors the server may only widen: four hours between app-open ads, four
-  /// hours away before a return may show one, and a loaded ad is stale
+  /// Floors the server may only widen: 20 minutes between app-open ads, 15
+  /// minutes away before a return may show one, and a loaded ad is stale
   /// (Google's guidance) four hours after it loaded.
-  static const appOpenMinGap = Duration(hours: 4);
-  static const appOpenResumeAfter = Duration(hours: 4);
+  static const appOpenMinGap = Duration(minutes: 20);
+  static const appOpenResumeAfter = Duration(minutes: 15);
   static const appOpenExpiry = Duration(hours: 4);
-  static const appOpenMaxPerDay = 3;
+  static const appOpenMaxPerDay = 10;
 
   /// A system back that reaches the game this soon after a full-screen ad
   /// closed was meant for the ad (pressed again while it was closing): it is
@@ -1739,12 +1739,12 @@ abstract final class AdTokens {
   /// Ads v3 (phase 110): global pacing for every full-screen ad (app-open
   /// and interstitials). A safety cap the server may only lower, and a gap
   /// it may only widen.
-  static const fullScreenMaxPerDay = 40;
-  static const fullScreenMinGap = Duration(seconds: 90);
+  static const fullScreenMaxPerDay = 60;
+  static const fullScreenMinGap = Duration(seconds: 60);
 
   /// Menu time without any full-screen ad before a session interstitial may
   /// follow a navigation between menus; the server may only lengthen it.
-  static const sessionInterstitialAfter = Duration(minutes: 5);
+  static const sessionInterstitialAfter = Duration(minutes: 3);
 
   /// The banner's thin frame and the gap that keeps it clear of any button.
   static const bannerFrame = 1.0;

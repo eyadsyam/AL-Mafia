@@ -94,8 +94,8 @@ void main() {
     expect(decide(ledger: longAgo), AppOpenVerdict.show);
   });
 
-  test('on resume only after four hours in the background', () {
-    final shortBreak = before((l) => l.backgrounded(noon - 30 * 60 * 1000));
+  test('on resume only after fifteen minutes in the background', () {
+    final shortBreak = before((l) => l.backgrounded(noon - 10 * 60 * 1000));
     expect(
       decide(ledger: shortBreak, trigger: AppOpenTrigger.resume),
       AppOpenVerdict.notLongAway,
@@ -121,13 +121,13 @@ void main() {
           .shown(noon - 4 * hour - 1),
     );
     expect(decide(ledger: ledger), AppOpenVerdict.show);
-    // The global full-screen gap (90 s) counts interstitials too.
-    final justShown = InterstitialLedger.empty.shown(noon - 60 * 1000);
+    // The global full-screen gap (60 s) counts interstitials too.
+    final justShown = InterstitialLedger.empty.shown(noon - 30 * 1000);
     expect(decide(fullScreen: justShown), AppOpenVerdict.tooSoon);
     expect(
       decide(fullScreen: justShown, now: noon + 30 * 1000),
       AppOpenVerdict.show,
-      reason: '90 s after the interstitial',
+      reason: '60 s after the interstitial',
     );
     // The global safety cap of 40 a day.
     var capped = InterstitialLedger.empty;
