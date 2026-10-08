@@ -35,6 +35,12 @@ export function unitNumber(configured: string | undefined): string | null {
   return /^\d{6,}$/.test(last) ? last : null;
 }
 
+/** Per-offer rewarded units (AdMob, 2026-10-07): numeric ids only. */
+export const OFFER_UNITS: Partial<Record<RewardScheme, string[]>> = {
+  step: ["7753405421", "3404106030"],
+  daily: ["4661347383"],
+};
+
 export type Route =
   | { ok: true; scheme: RewardScheme; claimId: string }
   | { ok: false; reason: "bad_claim" | "unit_not_accepted" | "not_configured" };
@@ -66,8 +72,11 @@ export function routeReward(
   }
   if (!UUID.test(claimId)) return { ok: false, reason: "bad_claim" };
 
-  // 1.0.0 only ever used the primary unit; the new offers may use either.
-  const accepted = scheme === "v1" ? [primary] : [primary, second];
+  // 1.0.0 only ever used the primary unit; the new offers may use either,
+  // plus the per-offer units of 2026-10-07 (each with SSV to this function).
+  const accepted = scheme === "v1"
+    ? [primary]
+    : [primary, second, ...(OFFER_UNITS[scheme] ?? [])];
   if (!adUnit || !accepted.includes(adUnit)) {
     return { ok: false, reason: "unit_not_accepted" };
   }

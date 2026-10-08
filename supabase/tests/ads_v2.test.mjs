@@ -59,3 +59,10 @@ assert.equal(refusalOf('EXTRA_NOT_READY'), 'EXTRA_NOT_READY');
 assert.equal(refusalOf('IN_MATCH'), 'IN_MATCH');
 
 console.log('PASS ads_v2 contracts: x1 SSV route, extras surface, earlier schemes unchanged');
+
+// Per-offer units: accepted for their own offer only.
+assert.equal(routeReward(`s2:${claim}`, '7753405421', both).ok, true, 'match double unit');
+assert.equal(routeReward(`s2:${claim}`, '3404106030', both).ok, true, 'match triple unit');
+assert.equal(routeReward(`d1:${claim}`, '4661347383', both).ok, true, 'daily unit');
+assert.equal(routeReward(`x1:${claim}`, '4661347383', both).reason, 'unit_not_accepted');
+assert.equal(routeReward(claim, '7753405421', both).reason, 'unit_not_accepted');

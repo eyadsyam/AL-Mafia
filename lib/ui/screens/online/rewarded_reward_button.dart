@@ -371,7 +371,9 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
         ref,
         customData: 's2:${claim['claimId']}',
         userId: userId,
-        placement: RewardedPlacement.matchStep,
+        placement: step == 1
+            ? RewardedPlacement.matchStep
+            : RewardedPlacement.matchStepTwo,
       );
       if (!mounted) return;
       if (outcome == RewardedAdOutcome.earned) {

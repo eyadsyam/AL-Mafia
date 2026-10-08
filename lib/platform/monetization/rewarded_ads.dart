@@ -21,8 +21,11 @@ enum RewardedPlacement {
   /// The 1.0.0 one-ad post-match offer (primary unit).
   matchLegacy,
 
-  /// The two post-match steps (v2 unit when configured, else primary).
+  /// The first post-match step (its own unit, «match double»).
   matchStep,
+
+  /// The second post-match step (its own unit, «match triple»).
+  matchStepTwo,
 
   /// The one fixed daily vault ad (v2 unit when configured, else primary).
   daily,

@@ -50,8 +50,14 @@ abstract final class _Units {
 
   static String rewardedFor(RewardedPlacement placement) {
     if (testMode) return testRewarded;
-    if (placement == RewardedPlacement.matchLegacy) return rewarded;
-    return rewardedV2.isNotEmpty ? rewardedV2 : rewarded;
+    return switch (placement) {
+      RewardedPlacement.matchLegacy => rewarded,
+      // Per-offer units (2026-10-07), each with SSV to admob_ssv.
+      RewardedPlacement.matchStep => '$_pub/7753405421',
+      RewardedPlacement.matchStepTwo => '$_pub/3404106030',
+      RewardedPlacement.daily => '$_pub/4661347383',
+      RewardedPlacement.extra => rewardedV2.isNotEmpty ? rewardedV2 : rewarded,
+    };
   }
 
   static String interstitialUnit({required bool online}) {
