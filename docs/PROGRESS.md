@@ -3651,3 +3651,10 @@ Files:      lib/ui/economy/table_tools.dart, lib/ui/screens/online/table/tool_fe
 Verified:   flutter test (full suite) and analyze; deno check of every deployed function; dart run tool/stories/check.dart (24 PASS); migrations applied live; functions deployed; web published (md5 matched).
 Gate:       PASS (see final run in the session report)
 Open:       Art from Codex (24 story covers, 17 tool icons, 12 locations — brief ready, scheduled); narrator voices (ElevenLabs, owner picks voices) last; interstitial/app-open/rewarded v4 units not wired (rewarded need SSV); a live multi-phone online match with the new tools and roles not yet played; owner to read the stories (story 9 has a sympathetic culprit).
+
+## PHASE store-roles-stories (finish) — in progress (2026-10-08)
+Built:      ad units per surface (interstitial online/local, app-open cold/resume, rewarded daily/step1/step2 with SSV set in AdMob); story first-solve rewards (server-priced, once per story); clue flip-in, Elder ×3 and silenced seat marks on the ballot; tool icons, story scene and evidence images wired (art via Codex, in progress).
+Files:      lib/platform/monetization/*, lib/ui/economy/{interstitial_coordinator,app_open_gate,table_tools}.dart, lib/ui/screens/stories/*, lib/ui/widgets/{reveal_motion,player_tile,experience_surface}.dart, supabase/migrations/20261008000100_story_rewards.sql, supabase/functions/_shared/{economy_actions,ad_rewards}.ts, tool/stories/import_art_v2.py
+Verified:   full flutter test (1798 pass), analyze clean of errors/warnings, ads_v2 server test, story_rewards seeded live (24 rows), SSV URL saved on all three new rewarded units.
+Gate:       PASS so far
+Open:       art import (Codex), no build/publish until the owner's whole list is done; home banner and native units not placed (banner allowlist rule); narrator voices last.
