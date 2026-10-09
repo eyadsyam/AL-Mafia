@@ -1,4 +1,3 @@
-import '../../widgets/mafia_kit.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -6,12 +5,14 @@ import 'package:flutter/material.dart';
 import '../../../stories/story_model.dart';
 import '../../../stories/story_session.dart';
 import '../../l10n_ext.dart';
-import '../../widgets/reveal_motion.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
-import '../../widgets/back_action.dart';
-import '../../widgets/experience_surface.dart';
+import '../../widgets/case_file.dart';
+import '../../widgets/deck/deck_public.dart' show BoneButton, RimButton;
 import '../../widgets/hold_pad.dart';
+import '../../widgets/mafia_kit.dart';
+import '../../widgets/warm_palette.dart';
+import 'story_case_widgets.dart';
 
 class StoryCompletion {
   const StoryCompletion({
@@ -32,12 +33,20 @@ class StoryFlowScreen extends StatefulWidget {
     required this.playerCount,
     required this.onExit,
     required this.onComplete,
+    this.onHome,
     this.watchAdForStep,
     this.playNarration,
+    this.stopNarration,
   });
 
   /// Plays an audio asset at the table (the case's opening). Absent in tests.
   final void Function(String asset)? playNarration;
+
+  /// Stops the narrator again.
+  final VoidCallback? stopNarration;
+
+  /// Leaves for the home screen once the case is recorded.
+  final VoidCallback? onHome;
 
   /// Shows a rewarded ad; true when it was watched to the end. Absent in
   /// tests and builds without ads. At most [StoryTokens.bonusSteps] a case.
@@ -45,6 +54,8 @@ class StoryFlowScreen extends StatefulWidget {
 
   static const soloBoardKey = ValueKey('story_solo_board');
   static const bonusStepKey = ValueKey('story_bonus_step');
+  static const castKey = ValueKey('story_cast');
+  static const dealKey = ValueKey('story_deal');
   static const handoffKey = ValueKey('story_group_handoff');
   static const privateCardKey = ValueKey('story_private_card');
   static const discussionKey = ValueKey('story_discussion');
@@ -53,6 +64,8 @@ class StoryFlowScreen extends StatefulWidget {
   static const reenactmentKey = ValueKey('story_reenactment');
   static const resultKey = ValueKey('story_result');
   static const accusationButtonKey = ValueKey('story_accuse');
+  static const closeCaseKey = ValueKey('story_close_case');
+  static const hideFileKey = ValueKey('story_hide_file');
 
   final StoryDefinition story;
   final int playerCount;
@@ -66,8 +79,20 @@ class StoryFlowScreen extends StatefulWidget {
 class _StoryFlowScreenState extends State<StoryFlowScreen> {
   late StorySession _session;
   Timer? _timer;
+  Timer? _dossierTimer;
   int _seconds = 0;
+  int _dossierLeft = 0;
   int _reenactmentStep = 0;
+
+  /// The group has seen the cast and dealt the files.
+  bool _dealt = false;
+
+  /// The secret ballot being filled in; cleared the moment it is handed in.
+  String? _bCulprit;
+  String? _bMotive;
+  String? _bMethod;
+
+  bool get _group => widget.playerCount > 1;
 
   bool get _privatePhase => switch (_session.phase) {
     StoryPhase.groupHandoff ||
@@ -90,16 +115,23 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _dossierTimer?.cancel();
     super.dispose();
   }
 
   void _setSession(StorySession next) {
     _timer?.cancel();
+    _dossierTimer?.cancel();
     if (next.phase == StoryPhase.groupDiscussion) {
       _seconds = widget.story.discussionSeconds;
     }
+    if (next.phase == StoryPhase.groupPrivateClue) {
+      _dossierLeft = StoryTokens.dossierHold.inSeconds;
+    }
+    _bCulprit = _bMotive = _bMethod = null;
     setState(() => _session = next);
     if (next.phase == StoryPhase.groupDiscussion) _startDiscussion();
+    if (next.phase == StoryPhase.groupPrivateClue) _startDossier();
   }
 
   void _startDiscussion() {
@@ -114,29 +146,41 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     });
   }
 
-  Future<void> _openAccusation({required bool vote}) async {
+  /// The same count for every seat: a file hides after the same seconds,
+  /// whoever holds it.
+  void _startDossier() {
+    _dossierTimer = Timer.periodic(StoryTokens.timerTick, (timer) {
+      if (!mounted) return;
+      if (_dossierLeft <= 1) {
+        timer.cancel();
+        setState(() => _dossierLeft = 0);
+      } else {
+        setState(() => _dossierLeft--);
+      }
+    });
+  }
+
+  Future<void> _openAccusation() async {
     final accusation = await showMafiaSheet<StoryAccusation>(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (context) => _AccusationSheet(story: widget.story, vote: vote),
+      backgroundColor: CaseFileTokens.desk,
+      builder: (context) => _AccusationSheet(story: widget.story),
     );
     if (accusation == null || !mounted) return;
-    _setSession(
-      vote
-          ? _session.submitSecretVote(accusation)
-          : _session.submitSoloAccusation(accusation),
-    );
+    _setSession(_session.submitSoloAccusation(accusation));
   }
 
+  bool _correct(StoryAccusation value) =>
+      value.culprit == widget.story.truth.primaryCulprit &&
+      value.motive == widget.story.truth.motive &&
+      value.method == widget.story.truth.method;
+
   bool _isSolved() {
-    bool correct(StoryAccusation value) =>
-        value.culprit == widget.story.truth.primaryCulprit &&
-        value.motive == widget.story.truth.motive &&
-        value.method == widget.story.truth.method;
     final solo = _session.soloAccusation;
-    if (solo != null) return correct(solo);
-    final correctVotes = _session.votes.where(correct).length;
+    if (solo != null) return _correct(solo);
+    final correctVotes = _session.votes.where(_correct).length;
     return correctVotes * 2 >= widget.playerCount;
   }
 
@@ -150,29 +194,33 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     );
   }
 
+  Future<void> _completeAndHome() async {
+    final home = widget.onHome;
+    await _complete();
+    home?.call();
+  }
+
   @override
-  Widget build(BuildContext context) => PopScope(
-    canPop: false,
-    onPopInvokedWithResult: (didPop, result) {
-      if (!didPop && !_privatePhase) widget.onExit();
-    },
-    child: MafiaScaffold(
-      backgroundColor: context.colors.surfaceBase,
-      body: ExperienceSurface(
-        image: widget.story.sceneImage,
-        child: SafeArea(
-          child: AnimatedSwitcher(
-            duration: context.motion.standard,
-            child: _phase(context),
-          ),
-        ),
+  Widget build(BuildContext context) => WarmPalette(
+    child: PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && !_privatePhase) widget.onExit();
+      },
+      child: AnimatedSwitcher(
+        // A private page leaves at once: nothing of a file or a ballot
+        // lingers while the next screen fades in.
+        duration: _privatePhase ? Duration.zero : context.motion.standard,
+        reverseDuration: Duration.zero,
+        child: _phase(context),
       ),
     ),
   );
 
   Widget _phase(BuildContext context) => switch (_session.phase) {
     StoryPhase.soloInvestigation => _solo(context),
-    StoryPhase.groupHandoff => _handoff(context, vote: false),
+    StoryPhase.groupHandoff =>
+      _dealt ? _handoff(context, vote: false) : _cast(context),
     StoryPhase.groupPrivateClue => _privateClue(context),
     StoryPhase.groupDiscussion => _discussion(context),
     StoryPhase.groupInvestigation => _sharedInvestigation(context),
@@ -181,23 +229,6 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     StoryPhase.reenactment => _reenactment(context),
     StoryPhase.complete => _result(context),
   };
-
-  Widget _shell({required Key key, required List<Widget> children}) {
-    final spacing = context.spacing;
-    return ListView(
-      key: key,
-      padding: EdgeInsets.all(spacing.screenMargin),
-      children: [
-        if (!_privatePhase)
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: BackAction(onPressed: widget.onExit),
-          ),
-        if (!_privatePhase) SizedBox(height: spacing.md),
-        ...children,
-      ],
-    );
-  }
 
   String? get _narration =>
       widget.playNarration == null ? null : widget.story.narrationAudio;
@@ -245,499 +276,948 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     });
   }
 
+  Widget _narratorBar(
+    BuildContext context, {
+    required String title,
+    required String playingText,
+    required bool startsPlaying,
+  }) {
+    final l = context.l10n;
+    return StoryNarratorBar(
+      title: title,
+      playingText: playingText,
+      idleText: l.storiesNarratorIdle,
+      stopTooltip: l.storiesNarratorStop,
+      playTooltip: title,
+      startsPlaying: startsPlaying,
+      onPlay: _listen,
+      onStop: widget.stopNarration,
+    );
+  }
+
+  Widget _notes(BuildContext context) {
+    final s = context.spacing;
+    final type = context.typography;
+    final clues = _session.revealedClues.reversed.toList();
+    if (clues.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: s.sm),
+        child: Text(
+          context.l10n.storiesFoundEmpty,
+          style: type.bodySmall.copyWith(color: CaseFileTokens.inkMuted),
+        ),
+      );
+    }
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      clipBehavior: Clip.none,
+      padding: EdgeInsets.only(top: s.sm, bottom: s.md),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final (i, clue) in clues.indexed) ...[
+            StoryPinned(
+              key: ValueKey(clue.id),
+              delay: StoryTokens.noteStagger * (i < 2 ? i : 0),
+              child: StoryNote(
+                title: clue.title,
+                body: clue.body,
+                width: StoryTokens.noteWidth,
+                turn: i.isEven ? -0.03 : 0.04,
+              ),
+            ),
+            SizedBox(width: s.md),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _solo(BuildContext context) {
     final l = context.l10n;
-    final spacing = context.spacing;
-    return _shell(
+    final s = context.spacing;
+    final type = context.typography;
+    final story = widget.story;
+    final total = story.actionBudget > _session.remainingBudget
+        ? story.actionBudget
+        : _session.remainingBudget;
+    return StoryDesk(
       key: StoryFlowScreen.soloBoardKey,
-      children: [
-        _StoryHeading(
-          story: widget.story,
-          onListen: _narration == null ? null : _listen,
-        ),
-        SizedBox(height: spacing.md),
-        _StatusLine(
-          label: l.storiesActionsLeft,
-          value: '${_session.remainingBudget}',
-        ),
-        SizedBox(height: spacing.md),
-        for (final action in widget.story.actions) ...[
-          _ActionCard(
-            action: action,
-            enabled: _session.canPerform(action),
-            onPressed: () => _setSession(_session.performSoloAction(action.id)),
+      title: story.title,
+      onBack: widget.onExit,
+      footer: BoneButton(
+        key: StoryFlowScreen.accusationButtonKey,
+        label: l.storiesIKnowWho,
+        onPressed: _openAccusation,
+      ),
+      body: StoryScroll(
+        children: [
+          CaseFilePaper(
+            padding: EdgeInsets.all(s.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_narration != null) ...[
+                  _narratorBar(
+                    context,
+                    title: l.storiesNarratorTitle,
+                    playingText: l.storiesNarratorPlaying,
+                    startsPlaying: true,
+                  ),
+                  SizedBox(height: s.sm),
+                  Divider(
+                    height: 1,
+                    color: DeckTokens.bone.withValues(
+                      alpha: StoryTokens.dashAlpha,
+                    ),
+                  ),
+                  SizedBox(height: s.sm),
+                ],
+                Text(
+                  story.synopsis,
+                  style: type.bodySmall.copyWith(color: DeckTokens.text2),
+                ),
+                if (story.evidenceImage case final image?) ...[
+                  SizedBox(height: s.sm),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(context.radii.card),
+                    child: Image.asset(
+                      image,
+                      height: StoryTokens.compactCoverHeight,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      excludeFromSemantics: true,
+                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
-          SizedBox(height: spacing.sm),
+          SizedBox(height: s.md),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${l.storiesMoves}: ${l.storiesMovesOf(_session.remainingBudget, total)}',
+                  style: type.bodySmall.copyWith(
+                    color: CaseFileTokens.inkMuted,
+                  ),
+                ),
+              ),
+              StoryPips(total: total, left: _session.remainingBudget),
+            ],
+          ),
+          SizedBox(height: s.sm),
+          Text(
+            l.storiesFound,
+            style: type.bodySmall.copyWith(color: CaseFileTokens.inkMuted),
+          ),
+          _notes(context),
+          Text(
+            l.storiesWhereTo,
+            style: type.bodySmall.copyWith(color: CaseFileTokens.inkMuted),
+          ),
+          SizedBox(height: s.sm),
+          for (final action in story.actions) ...[
+            StoryMoveCard(
+              title: action.title,
+              description: action.description,
+              cost: action.cost,
+              unit: l.storiesMoveUnit,
+              enabled: _session.canPerform(action),
+              done: _session.usedActionIds.contains(action.id),
+              onPressed: () =>
+                  _setSession(_session.performSoloAction(action.id)),
+            ),
+            SizedBox(height: s.sm),
+          ],
+          if (_bonusOffer case final cost?)
+            OutlinedButton.icon(
+              key: StoryFlowScreen.bonusStepKey,
+              onPressed: _watchingAd ? null : () => _watchForStep(cost),
+              icon: const Icon(Icons.ondemand_video_rounded),
+              label: Text(l.storiesBonusStep),
+            ),
         ],
-        if (_bonusOffer case final cost?)
-          OutlinedButton.icon(
-            key: StoryFlowScreen.bonusStepKey,
-            onPressed: _watchingAd ? null : () => _watchForStep(cost),
-            icon: const Icon(Icons.ondemand_video_rounded),
-            label: Text(l.storiesBonusStep),
+      ),
+    );
+  }
+
+  // ---- With friends -------------------------------------------------
+
+  /// The case and who is playing; nobody has a file yet.
+  Widget _cast(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final type = context.typography;
+    final story = widget.story;
+    return StoryDesk(
+      key: StoryFlowScreen.castKey,
+      onBack: widget.onExit,
+      footer: BoneButton(
+        key: StoryFlowScreen.dealKey,
+        label: l.storiesDealFiles,
+        onPressed: () => setState(() => _dealt = true),
+      ),
+      body: StoryScroll(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(CaseFileTokens.radius),
+            child: SizedBox(
+              height: StoryTokens.heroHeight,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    story.coverImage,
+                    fit: BoxFit.cover,
+                    excludeFromSemantics: true,
+                    errorBuilder: (_, _, _) =>
+                        const ColoredBox(color: StoryTokens.photoShade),
+                  ),
+                  const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [StoryTokens.transparentColor, CaseFileTokens.desk],
+                      ),
+                    ),
+                  ),
+                  PositionedDirectional(
+                    bottom: s.sm,
+                    start: s.md,
+                    end: s.md,
+                    child: Text(
+                      story.title,
+                      style: StoryTokens.ruqaa(
+                        type.headline,
+                      ).copyWith(color: CaseFileTokens.ink),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        SizedBox(height: spacing.md),
-        _ClueBoard(clues: _session.revealedClues),
-        SizedBox(height: spacing.lg),
-        FilledButton(
-          key: StoryFlowScreen.accusationButtonKey,
-          onPressed: () => _openAccusation(vote: false),
-          child: Text(l.storiesAccuse),
-        ),
-      ],
+          SizedBox(height: s.sm),
+          Text(
+            story.synopsis,
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+            style: type.bodySmall.copyWith(color: DeckTokens.text2),
+          ),
+          SizedBox(height: s.md),
+          Text(
+            l.storiesCastTitle(widget.playerCount),
+            style: type.bodySmall.copyWith(color: CaseFileTokens.inkMuted),
+          ),
+          SizedBox(height: s.sm),
+          for (var i = 0; i < widget.playerCount; i++) ...[
+            CaseFilePaper(
+              padding: EdgeInsets.all(s.sm),
+              child: Row(
+                children: [
+                  Container(
+                    width: StoryTokens.castPhotoWidth,
+                    height: StoryTokens.castPhotoHeight,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: DeckTokens.silver,
+                        width: StoryTokens.dossierDash,
+                      ),
+                      borderRadius: BorderRadius.circular(
+                        CaseFileTokens.stampRadius,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.question_mark_rounded,
+                      color: CaseFileTokens.inkMuted,
+                    ),
+                  ),
+                  SizedBox(width: s.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${l.storiesPlayer} ${i + 1}',
+                          style: type.body.copyWith(
+                            color: CaseFileTokens.ink,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          l.storiesCastRole,
+                          style: type.caption.copyWith(
+                            color: CaseFileTokens.inkMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: s.sm),
+          ],
+        ],
+      ),
     );
   }
 
   Widget _handoff(BuildContext context, {required bool vote}) {
     final l = context.l10n;
-    final spacing = context.spacing;
-    return _shell(
+    final s = context.spacing;
+    final type = context.typography;
+    final seat = _session.currentPlayer + 1;
+    final line = vote
+        ? l.storiesVoteLine(seat, widget.playerCount)
+        : _session.round == 1
+        ? l.storiesDealLine(seat, widget.playerCount)
+        : '${l.storiesRound} ${_session.round} · $seat/${widget.playerCount}';
+    return StoryDesk(
       key: StoryFlowScreen.handoffKey,
-      children: [
-        SizedBox(height: spacing.xl),
-        Text(
-          vote ? l.storiesVoteHandoff : '${l.storiesRound} ${_session.round}',
-          textAlign: TextAlign.center,
-          style: StoryTokens.ruqaa(context.typography.headline),
-        ),
-        SizedBox(height: spacing.sm),
-        Text(
-          '${l.storiesPlayer} ${_session.currentPlayer + 1}',
-          textAlign: TextAlign.center,
-          style: context.typography.title,
-        ),
-        SizedBox(height: spacing.xl),
-        HoldPad(
-          holdDuration: StoryTokens.privateHold,
-          instruction: l.storiesHoldToReveal,
-          onHoldComplete: () => _setSession(
-            vote ? _session.revealVoteCard() : _session.revealPrivateCard(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _privateClue(BuildContext context) {
-    final character = _session.currentCharacter;
-    final clue = _session.currentPrivateClue;
-    final involved = _session.playerCount >= 6
-        ? widget.story.truth.involvedCharacters.contains(character.id)
-        : character.id == widget.story.truth.primaryCulprit;
-    final l = context.l10n;
-    final spacing = context.spacing;
-    final colors = context.colors;
-    return _shell(
-      key: StoryFlowScreen.privateCardKey,
-      children: [
-        Center(
-          child: ClipOval(
-            child: Image.asset(
-              character.image,
-              width: StoryTokens.portrait,
-              height: StoryTokens.portrait,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        SizedBox(height: spacing.md),
-        Text(
-          character.name,
-          textAlign: TextAlign.center,
-          style: StoryTokens.ruqaa(context.typography.headline),
-        ),
-        SizedBox(height: spacing.xs),
-        Text(
-          involved ? l.storiesInvolved : l.storiesNotInvolved,
-          textAlign: TextAlign.center,
-          style: context.typography.title.copyWith(color: colors.textSecondary),
-        ),
-        SizedBox(height: spacing.md),
-        _PrivateBlock(
-          title: l.storiesPersonalObjective,
-          body: character.objective,
-        ),
-        SizedBox(height: spacing.sm),
-        _PrivateBlock(
-          title: '${l.storiesPrivateClue}: ${clue.title}',
-          body: clue.body,
-        ),
-        SizedBox(height: spacing.lg),
-        FilledButton(
-          onPressed: () => _setSession(_session.coverPrivateCard()),
-          child: Text(l.storiesCoverAndPass),
-        ),
-      ],
-    );
-  }
-
-  Widget _discussion(BuildContext context) {
-    final spacing = context.spacing;
-    final minutes = _seconds ~/ 60;
-    final seconds = (_seconds % 60).toString().padLeft(2, '0');
-    return _shell(
-      key: StoryFlowScreen.discussionKey,
-      children: [
-        SizedBox(height: spacing.xl),
-        Text(
-          '${context.l10n.storiesRound} ${_session.round} / ${StoryTokens.rounds}',
-          textAlign: TextAlign.center,
-          style: context.typography.title,
-        ),
-        SizedBox(height: spacing.md),
-        Text(
-          context.l10n.storiesDiscussion,
-          textAlign: TextAlign.center,
-          style: StoryTokens.ruqaa(context.typography.headline),
-        ),
-        SizedBox(height: spacing.lg),
-        Center(
-          child: SizedBox(
-            width: StoryTokens.timerDiameter,
-            height: StoryTokens.timerDiameter,
-            child: Center(
-              child: Text('$minutes:$seconds', style: context.typography.timer),
-            ),
-          ),
-        ),
-        SizedBox(height: spacing.lg),
-        FilledButton(
-          onPressed: () => _setSession(_session.finishDiscussion()),
-          child: Text(context.l10n.storiesEndDiscussion),
-        ),
-      ],
-    );
-  }
-
-  Widget _sharedInvestigation(BuildContext context) {
-    final spacing = context.spacing;
-    final actions = widget.story.actions.where(
-      (action) => !_session.usedActionIds.contains(action.id),
-    );
-    return _shell(
-      key: StoryFlowScreen.investigationKey,
-      children: [
-        Text(
-          context.l10n.storiesSharedPick,
-          style: StoryTokens.ruqaa(context.typography.headline),
-        ),
-        SizedBox(height: spacing.md),
-        for (final action in actions) ...[
-          _ActionCard(
-            action: action,
-            enabled: true,
-            onPressed: () =>
-                _setSession(_session.pickSharedInvestigation(action.id)),
-          ),
-          SizedBox(height: spacing.sm),
-        ],
-        SizedBox(height: spacing.md),
-        _ClueBoard(clues: _session.revealedClues),
-      ],
-    );
-  }
-
-  Widget _vote(BuildContext context) => _shell(
-    key: StoryFlowScreen.voteKey,
-    children: [
-      SizedBox(height: context.spacing.xl),
-      Text(
-        '${context.l10n.storiesPlayer} ${_session.currentPlayer + 1}',
-        textAlign: TextAlign.center,
-        style: StoryTokens.ruqaa(context.typography.headline),
-      ),
-      SizedBox(height: context.spacing.lg),
-      FilledButton(
-        onPressed: () => _openAccusation(vote: true),
-        child: Text(context.l10n.storiesVote),
-      ),
-    ],
-  );
-
-  Widget _reenactment(BuildContext context) {
-    final beats = widget.story.truth.timeline;
-    final beat = beats[_reenactmentStep];
-    final last = _reenactmentStep == beats.length - 1;
-    final spacing = context.spacing;
-    return _shell(
-      key: StoryFlowScreen.reenactmentKey,
-      children: [
-        Text(
-          context.l10n.storiesReenactment,
-          textAlign: TextAlign.center,
-          style: StoryTokens.ruqaa(context.typography.headline),
-        ),
-        SizedBox(height: spacing.md),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(context.radii.card),
-          child: Image.asset(
-            widget.story.coverImage,
-            height: StoryTokens.coverHeight,
-            fit: BoxFit.cover,
-          ),
-        ),
-        SizedBox(height: spacing.lg),
-        AnimatedSwitcher(
-          duration: StoryTokens.reenactmentBeat,
-          child: _TimelineBeat(key: ValueKey(_reenactmentStep), beat: beat),
-        ),
-        SizedBox(height: spacing.lg),
-        FilledButton(
-          onPressed: () {
-            if (last) {
-              _setSession(_session.finishReenactment());
-            } else {
-              setState(() => _reenactmentStep++);
-            }
-          },
-          child: Text(
-            last
-                ? context.l10n.storiesFinishReveal
-                : context.l10n.storiesNextBeat,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _result(BuildContext context) {
-    final solved = _isSolved();
-    final spacing = context.spacing;
-    return _shell(
-      key: StoryFlowScreen.resultKey,
-      children: [
-        SizedBox(height: spacing.xl),
-        Text(
-          solved ? context.l10n.storiesSolved : context.l10n.storiesMissed,
-          textAlign: TextAlign.center,
-          style: StoryTokens.ruqaa(context.typography.headline),
-        ),
-        SizedBox(height: spacing.md),
-        Text(
-          '${context.l10n.storiesScore}: ${_session.score?.total ?? 0}',
-          textAlign: TextAlign.center,
-          style: context.typography.title,
-        ),
-        SizedBox(height: spacing.lg),
-        _TruthSummary(story: widget.story),
-        SizedBox(height: spacing.lg),
-        FilledButton(
-          onPressed: _complete,
-          child: Text(context.l10n.storiesBackToFiles),
-        ),
-      ],
-    );
-  }
-}
-
-class _StoryHeading extends StatelessWidget {
-  const _StoryHeading({required this.story, this.onListen});
-
-  final StoryDefinition story;
-  final VoidCallback? onListen;
-
-  static const listenKey = ValueKey('story_listen');
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
+      body: Column(
         children: [
+          Container(
+            height: DeckTokens.primaryHeight,
+            alignment: Alignment.center,
+            child: Text(
+              line,
+              style: type.bodySmall.copyWith(color: DeckTokens.text2),
+            ),
+          ),
           Expanded(
-            child: Text(story.title, style: StoryTokens.ruqaa(context.typography.headline)),
-          ),
-          if (onListen != null)
-            IconButton(
-              key: listenKey,
-              tooltip: context.l10n.storiesListen,
-              onPressed: onListen,
-              icon: const Icon(Icons.volume_up_rounded),
-            ),
-        ],
-      ),
-      SizedBox(height: context.spacing.xs),
-      Text(story.synopsis, style: context.typography.body),
-      if (story.evidenceImage case final image?) ...[
-        SizedBox(height: context.spacing.sm),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(context.radii.card),
-          child: Image.asset(
-            image,
-            height: StoryTokens.compactCoverHeight,
-            width: double.infinity,
-            fit: BoxFit.cover,
-            excludeFromSemantics: true,
-            errorBuilder: (_, _, _) => const SizedBox.shrink(),
-          ),
-        ),
-      ],
-    ],
-  );
-}
-
-class _StatusLine extends StatelessWidget {
-  const _StatusLine({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(label, style: context.typography.body),
-      Text(value, style: context.typography.title),
-    ],
-  );
-}
-
-class _ActionCard extends StatelessWidget {
-  const _ActionCard({
-    required this.action,
-    required this.enabled,
-    required this.onPressed,
-  });
-
-  final StoryInvestigationAction action;
-  final bool enabled;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) => Material(
-    color: context.colors.surfaceRaised,
-    borderRadius: BorderRadius.circular(context.radii.card),
-    child: Padding(
-      padding: EdgeInsets.all(context.spacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(action.title, style: context.typography.title),
-          SizedBox(height: context.spacing.xs),
-          Text(action.description, style: context.typography.bodySmall),
-          SizedBox(height: context.spacing.sm),
-          OutlinedButton(
-            onPressed: enabled ? onPressed : null,
-            child: Text('${context.l10n.storiesInvestigate} — ${action.cost}'),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-class _ClueBoard extends StatelessWidget {
-  const _ClueBoard({required this.clues});
-
-  final List<StoryClue> clues;
-
-  @override
-  Widget build(BuildContext context) {
-    final spacing = context.spacing;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(context.l10n.storiesClues, style: context.typography.title),
-        SizedBox(height: spacing.sm),
-        if (clues.isEmpty)
-          Text(context.l10n.storiesNoClues, style: context.typography.bodySmall)
-        else
-          for (final clue in clues) ...[
-            FlipIn(
-              key: ValueKey(clue.id),
-              child: Container(
-                constraints: const BoxConstraints(
-                  minHeight: StoryTokens.clueMinHeight,
-                ),
-                padding: EdgeInsets.all(spacing.md),
-                decoration: BoxDecoration(
-                  color: context.colors.surfaceRaised,
-                  borderRadius: BorderRadius.circular(context.radii.card),
-                ),
+            child: Center(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(s.screenMargin),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(clue.title, style: context.typography.title),
-                    SizedBox(height: spacing.xs),
-                    Text(clue.body, style: context.typography.bodySmall),
+                    Text(
+                      vote ? l.storiesSecretVotePass : l.storiesThisFileFor,
+                      textAlign: TextAlign.center,
+                      style: type.body.copyWith(color: DeckTokens.text2),
+                    ),
+                    Text(
+                      '${l.storiesPlayer} $seat',
+                      textAlign: TextAlign.center,
+                      style: StoryTokens.ruqaa(type.display).copyWith(
+                        color: CaseFileTokens.ink,
+                        fontSize: StoryTokens.passName,
+                      ),
+                    ),
+                    Text(
+                      l.storiesOthersLookAway,
+                      textAlign: TextAlign.center,
+                      style: type.caption.copyWith(
+                        color: CaseFileTokens.inkMuted,
+                      ),
+                    ),
+                    SizedBox(height: s.xl),
+                    HoldPad(
+                      holdDuration: StoryTokens.privateHold,
+                      instruction: l.storiesHoldToReveal,
+                      onHoldComplete: () => _setSession(
+                        vote
+                            ? _session.revealVoteCard()
+                            : _session.revealPrivateCard(),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: spacing.sm),
-          ],
-      ],
+          ),
+        ],
+      ),
     );
   }
-}
 
-class _PrivateBlock extends StatelessWidget {
-  const _PrivateBlock({required this.title, required this.body});
+  /// The private file. Built from the same pieces, in the same order and
+  /// with the same timing, for every seat; nothing in it asks who holds it.
+  Widget _privateClue(BuildContext context) {
+    final character = _session.currentCharacter;
+    final clues = [
+      for (var i = 0; i < _session.round; i++)
+        widget.story.clue(character.privateClueIds[i]),
+    ];
+    final l = context.l10n;
+    final s = context.spacing;
+    final type = context.typography;
+    return StoryDesk(
+      key: StoryFlowScreen.privateCardKey,
+      title: l.storiesYourFile,
+      footer: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          BoneButton(
+            key: StoryFlowScreen.hideFileKey,
+            label: l.storiesCoverAndPass2,
+            onPressed: _dossierLeft == 0
+                ? () => _setSession(_session.coverPrivateCard())
+                : null,
+          ),
+          SizedBox(height: s.xs),
+          SizedBox(
+            height: type.caption.fontSize! * 1.6,
+            child: Text(
+              _dossierLeft == 0 ? '' : l.storiesHideIn(_dossierLeft),
+              textAlign: TextAlign.center,
+              style: type.caption.copyWith(color: CaseFileTokens.inkMuted),
+            ),
+          ),
+        ],
+      ),
+      body: StoryScroll(
+        children: [
+          StoryDossier(
+            character: character,
+            clues: clues,
+            youAre: l.storiesYouAre,
+            mustDo: l.storiesMustDo,
+          ),
+          SizedBox(height: s.sm),
+          Text(
+            l.storiesMemorise,
+            textAlign: TextAlign.center,
+            style: type.caption.copyWith(color: CaseFileTokens.inkMuted),
+          ),
+        ],
+      ),
+    );
+  }
 
-  final String title;
-  final String body;
+  Widget _lineup(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final type = context.typography;
+    final seated = widget.story.characters.take(widget.playerCount).toList();
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final (i, c) in seated.indexed) ...[
+            SizedBox(
+              width: StoryTokens.lineupWidth,
+              child: Column(
+                children: [
+                  StoryPhoto(
+                    image: c.image,
+                    width: StoryTokens.lineupWidth,
+                    height: StoryTokens.lineupHeight,
+                    focusTop: true,
+                  ),
+                  SizedBox(height: s.xs),
+                  Text(
+                    c.name,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: type.caption.copyWith(color: CaseFileTokens.ink),
+                  ),
+                  Text(
+                    '${l.storiesPlayer} ${i + 1}',
+                    style: type.caption.copyWith(
+                      color: CaseFileTokens.inkMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: s.sm),
+          ],
+        ],
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) => MafiaPanel(
-    padding: EdgeInsets.all(context.spacing.md),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: context.typography.title),
-        SizedBox(height: context.spacing.xs),
-        Text(body, style: context.typography.body),
-      ],
-    ),
-  );
-}
+  Widget _discussion(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final type = context.typography;
+    final minutes = _seconds ~/ 60;
+    final seconds = (_seconds % 60).toString().padLeft(2, '0');
+    final total = widget.story.discussionSeconds;
+    return StoryDesk(
+      key: StoryFlowScreen.discussionKey,
+      title: '${l.storiesDiscussionLine} · ${l.storiesRound} ${_session.round} / ${StoryTokens.rounds}',
+      onBack: widget.onExit,
+      footer: BoneButton(
+        label: l.storiesSearchTogether,
+        onPressed: () => _setSession(_session.finishDiscussion()),
+      ),
+      body: StoryScroll(
+        children: [
+          Center(
+            child: StoryTimerRing(
+              fraction: total == 0 ? 0 : _seconds / total,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '$minutes:$seconds',
+                    style: type.timer.copyWith(color: CaseFileTokens.ink),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: s.lg),
+                    child: Text(
+                      l.storiesDiscussionHint,
+                      textAlign: TextAlign.center,
+                      style: type.caption.copyWith(
+                        color: CaseFileTokens.inkMuted,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_narration != null) ...[
+            SizedBox(height: s.md),
+            CaseFilePaper(
+              padding: EdgeInsets.all(s.sm),
+              child: _narratorBar(
+                context,
+                title: l.storiesHearAgain,
+                playingText: l.storiesNarratorTable,
+                startsPlaying: false,
+              ),
+            ),
+          ],
+          SizedBox(height: s.md),
+          Text(
+            l.storiesCastOnTable,
+            style: type.bodySmall.copyWith(color: CaseFileTokens.inkMuted),
+          ),
+          SizedBox(height: s.sm),
+          _lineup(context),
+        ],
+      ),
+    );
+  }
 
-class _TimelineBeat extends StatelessWidget {
-  const _TimelineBeat({super.key, required this.beat});
+  Widget _sharedInvestigation(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final type = context.typography;
+    final left = StoryTokens.rounds - (_session.round - 1);
+    final turn = (_session.round - 1) % widget.playerCount + 1;
+    final actions = widget.story.actions.where(
+      (action) => !_session.usedActionIds.contains(action.id),
+    );
+    return StoryDesk(
+      key: StoryFlowScreen.investigationKey,
+      title: l.storiesSearchLine,
+      onBack: widget.onExit,
+      body: StoryScroll(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${l.storiesTableMoves}: ${l.storiesMovesOf(left, StoryTokens.rounds)}',
+                  style: type.bodySmall.copyWith(
+                    color: CaseFileTokens.inkMuted,
+                  ),
+                ),
+              ),
+              StoryPips(total: StoryTokens.rounds, left: left),
+            ],
+          ),
+          SizedBox(height: s.sm),
+          Text(
+            l.storiesTurnOf('${l.storiesPlayer} $turn'),
+            textAlign: TextAlign.center,
+            style: type.bodySmall.copyWith(color: DeckTokens.text2),
+          ),
+          SizedBox(height: s.sm),
+          Text(
+            l.storiesFound,
+            style: type.bodySmall.copyWith(color: CaseFileTokens.inkMuted),
+          ),
+          _notes(context),
+          for (final action in actions) ...[
+            StoryMoveCard(
+              title: action.title,
+              description: action.description,
+              cost: null,
+              unit: l.storiesMoveUnit,
+              enabled: true,
+              done: false,
+              onPressed: () =>
+                  _setSession(_session.pickSharedInvestigation(action.id)),
+            ),
+            SizedBox(height: s.sm),
+          ],
+        ],
+      ),
+    );
+  }
 
-  final StoryTimelineBeat beat;
+  /// The secret ballot: the same three questions, then a held press.
+  Widget _vote(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final ready = _bCulprit != null && _bMotive != null && _bMethod != null;
+    return StoryDesk(
+      key: StoryFlowScreen.voteKey,
+      title: l.storiesVoteLine(_session.currentPlayer + 1, widget.playerCount),
+      footer: StoryHoldButton(
+        label: l.storiesHoldConfirm,
+        doneLabel: l.storiesVoteRecorded,
+        duration: StoryTokens.ballotHold,
+        enabled: ready,
+        onConfirmed: () => _setSession(
+          _session.submitSecretVote(
+            StoryAccusation(
+              culprit: _bCulprit!,
+              motive: _bMotive!,
+              method: _bMethod!,
+            ),
+          ),
+        ),
+      ),
+      body: ListView(
+        padding: EdgeInsets.fromLTRB(
+          s.screenMargin,
+          s.sm,
+          s.screenMargin,
+          s.md,
+        ),
+        children: [
+          StoryAccusationForm(
+            story: widget.story,
+            culprit: _bCulprit,
+            motive: _bMotive,
+            method: _bMethod,
+            questionWho: l.storiesQWho,
+            questionWhy: l.storiesQWhy,
+            questionHow: l.storiesQHow,
+            onCulprit: (v) => setState(() => _bCulprit = v),
+            onMotive: (v) => setState(() => _bMotive = v),
+            onMethod: (v) => setState(() => _bMethod = v),
+          ),
+        ],
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) => MafiaPanel(
-    padding: EdgeInsets.all(context.spacing.md),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(beat.time, style: context.typography.title),
-        SizedBox(height: context.spacing.xs),
-        Text(beat.text, style: context.typography.body),
-      ],
-    ),
-  );
-}
+  Widget _reenactment(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final type = context.typography;
+    final beats = widget.story.truth.timeline;
+    final last = _reenactmentStep == beats.length - 1;
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    return StoryDesk(
+      key: StoryFlowScreen.reenactmentKey,
+      title: _group ? l.storiesWhatHappened : l.storiesReenactment,
+      footer: BoneButton(
+        label: last
+            ? (_group ? l.storiesWhoKnew : l.storiesFinishReveal)
+            : l.storiesNextBeat,
+        onPressed: () {
+          if (last) {
+            _setSession(_session.finishReenactment());
+          } else {
+            setState(() => _reenactmentStep++);
+          }
+        },
+      ),
+      body: StoryScroll(
+        children: [
+          if (_narration != null) ...[
+            CaseFilePaper(
+              padding: EdgeInsets.all(s.sm),
+              child: _narratorBar(
+                context,
+                title: l.storiesNarratorActs,
+                playingText: l.storiesNarratorTable,
+                startsPlaying: false,
+              ),
+            ),
+            SizedBox(height: s.md),
+          ],
+          Stack(
+            children: [
+              PositionedDirectional(
+                start: StoryTokens.timelineDot / 2,
+                top: s.xs,
+                bottom: s.xs,
+                child: Container(
+                  width: StoryTokens.timelineLine,
+                  color: DeckTokens.bone.withValues(
+                    alpha: StoryTokens.dashAlpha,
+                  ),
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final (i, beat) in beats.indexed)
+                    AnimatedOpacity(
+                      key: ValueKey('story_beat_$i'),
+                      opacity: i <= _reenactmentStep
+                          ? 1
+                          : StoryTokens.reenactDim,
+                      duration: still ? Duration.zero : StoryTokens.reenactFade,
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.only(
+                          start: StoryTokens.timelineGutter,
+                          bottom: s.md,
+                        ),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            PositionedDirectional(
+                              start: -StoryTokens.timelineGutter,
+                              top: s.xs,
+                              child: Container(
+                                width: StoryTokens.timelineDot,
+                                height: StoryTokens.timelineDot,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: i <= _reenactmentStep
+                                      ? DeckTokens.bone
+                                      : CaseFileTokens.desk,
+                                  border: Border.all(
+                                    color: i <= _reenactmentStep
+                                        ? DeckTokens.bone
+                                        : DeckTokens.silverLight,
+                                    width: StoryTokens.costStroke,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  beat.time,
+                                  style: type.bodySmall.copyWith(
+                                    color: DeckTokens.bone,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                Text(
+                                  beat.text,
+                                  style: type.bodySmall.copyWith(
+                                    color: DeckTokens.text2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
-class _TruthSummary extends StatelessWidget {
-  const _TruthSummary({required this.story});
-
-  final StoryDefinition story;
-
-  @override
-  Widget build(BuildContext context) {
-    final culprit = story.character(story.truth.primaryCulprit).name;
+  Widget _result(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final type = context.typography;
+    final story = widget.story;
+    final solved = _isSolved();
+    final score = _session.score?.total ?? 0;
+    final culprit = story.character(story.truth.primaryCulprit);
     final motive = story.motives
         .firstWhere((v) => v.id == story.truth.motive)
         .label;
     final method = story.methods
         .firstWhere((v) => v.id == story.truth.method)
         .label;
-    return _PrivateBlock(
-      title: '${context.l10n.storiesCulprit}: $culprit',
-      body:
-          '${context.l10n.storiesMotive}: $motive\n'
-          '${context.l10n.storiesMethod}: $method',
+    final votes = _session.votes;
+    final knew = votes.where(_correct).length;
+    return StoryDesk(
+      key: StoryFlowScreen.resultKey,
+      footer: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          BoneButton(
+            label: _group ? l.storiesAnotherCase : l.storiesBackToFiles,
+            onPressed: _complete,
+          ),
+          SizedBox(height: s.sm),
+          RimButton(label: l.storiesHome, onPressed: _completeAndHome),
+        ],
+      ),
+      body: StoryScroll(
+        children: [
+          Text(
+            story.title,
+            textAlign: TextAlign.center,
+            style: type.bodySmall.copyWith(color: CaseFileTokens.inkMuted),
+          ),
+          SizedBox(height: s.sm),
+          Center(
+            child: StoryStampLanding(
+              text: solved ? l.storiesStampSolved : l.storiesStampMissed,
+              detail: _group
+                  ? l.storiesKnewCount(knew, widget.playerCount)
+                  : l.storiesStampScore(score),
+              color: solved ? CaseFileTokens.sage : CaseFileTokens.stamp,
+            ),
+          ),
+          SizedBox(height: s.md),
+          Text(
+            solved ? l.storiesSolved : l.storiesMissed,
+            textAlign: TextAlign.center,
+            style: StoryTokens.ruqaa(
+              type.headline,
+            ).copyWith(color: CaseFileTokens.ink),
+          ),
+          SizedBox(height: s.xs),
+          Text(
+            '${l.storiesScore}: $score',
+            textAlign: TextAlign.center,
+            style: type.body.copyWith(color: DeckTokens.text2),
+          ),
+          SizedBox(height: s.md),
+          if (_group) ..._seatRows(context, culprit.id),
+          CaseFilePaper(
+            padding: EdgeInsets.all(s.md),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StoryPhoto(
+                  image: culprit.image,
+                  width: StoryTokens.castPhotoWidth * 1.5,
+                  height: StoryTokens.castPhotoHeight * 1.5,
+                  focusTop: true,
+                ),
+                SizedBox(width: s.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${l.storiesCulprit}: ${culprit.name}',
+                        style: StoryTokens.ruqaa(
+                          type.title,
+                        ).copyWith(color: CaseFileTokens.ink),
+                      ),
+                      SizedBox(height: s.xs),
+                      Text(
+                        '${l.storiesMotive}: $motive\n'
+                        '${l.storiesMethod}: $method',
+                        style: type.bodySmall.copyWith(color: DeckTokens.text2),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  /// Who knew, and whether the one who did it hid well. Only facts the
+  /// votes hold: nobody is starred unless a seat really played the culprit.
+  List<Widget> _seatRows(BuildContext context, String culpritId) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final type = context.typography;
+    final votes = _session.votes;
+    final seated = widget.story.characters.take(widget.playerCount).toList();
+    final culpritSeat = seated.indexWhere((c) => c.id == culpritId);
+    var hidFrom = 0;
+    for (var i = 0; i < votes.length; i++) {
+      if (i != culpritSeat && votes[i].culprit != culpritId) hidFrom++;
+    }
+    return [
+      for (final (i, c) in seated.indexed) ...[
+        CaseFilePaper(
+          padding: EdgeInsets.symmetric(horizontal: s.md, vertical: s.sm),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${l.storiesPlayer} ${i + 1}',
+                      style: type.body.copyWith(
+                        color: CaseFileTokens.ink,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      c.name,
+                      style: type.caption.copyWith(
+                        color: CaseFileTokens.inkMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (i == culpritSeat && hidFrom > 0)
+                const Icon(
+                  Icons.star_rounded,
+                  color: DeckTokens.bone,
+                ),
+              if (i == culpritSeat)
+                Text(
+                  hidFrom > 0 ? l.storiesHidWell : l.storiesGotCaught,
+                  style: type.bodySmall.copyWith(
+                    color: hidFrom > 0
+                        ? DeckTokens.bone
+                        : CaseFileTokens.inkMuted,
+                  ),
+                )
+              else if (i < votes.length && _correct(votes[i]))
+                Text(
+                  l.storiesKnew,
+                  style: type.bodySmall.copyWith(
+                    color: CaseFileTokens.sage,
+                    fontWeight: FontWeight.w700,
+                  ),
+                )
+              else
+                Text(
+                  l.storiesConfused,
+                  style: type.bodySmall.copyWith(
+                    color: CaseFileTokens.inkMuted,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        SizedBox(height: s.sm),
+      ],
+      if (culpritSeat >= 0)
+        Padding(
+          padding: EdgeInsets.only(bottom: s.md),
+          child: Text(
+            l.storiesCulpritHid(seated[culpritSeat].name, hidFrom),
+            textAlign: TextAlign.center,
+            style: type.caption.copyWith(color: CaseFileTokens.inkMuted),
+          ),
+        ),
+    ];
   }
 }
 
+/// The solo accusation: three Ruqaa questions and «اقفل القضية».
 class _AccusationSheet extends StatefulWidget {
-  const _AccusationSheet({required this.story, required this.vote});
+  const _AccusationSheet({required this.story});
 
   final StoryDefinition story;
-  final bool vote;
 
   @override
   State<_AccusationSheet> createState() => _AccusationSheetState();
@@ -751,88 +1231,69 @@ class _AccusationSheetState extends State<_AccusationSheet> {
   @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
+    final l = context.l10n;
     final ready = culprit != null && motive != null && method != null;
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(
-        spacing.screenMargin,
-        spacing.lg,
-        spacing.screenMargin,
-        spacing.xl + MediaQuery.viewInsetsOf(context).bottom,
-      ),
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            widget.vote ? context.l10n.storiesVote : context.l10n.storiesAccuse,
-            style: StoryTokens.ruqaa(context.typography.headline),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              spacing.screenMargin,
+              spacing.md,
+              spacing.screenMargin,
+              spacing.sm,
+            ),
+            child: Text(
+              l.storiesAccuse,
+              style: StoryTokens.ruqaa(
+                context.typography.headline,
+              ).copyWith(color: CaseFileTokens.ink),
+            ),
           ),
-          SizedBox(height: spacing.md),
-          _Picker(
-            label: context.l10n.storiesCulprit,
-            value: culprit,
-            values: [
-              for (final value in widget.story.characters)
-                StoryOption(id: value.id, label: value.name),
-            ],
-            onChanged: (value) => setState(() => culprit = value),
+          Flexible(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: spacing.screenMargin),
+              child: StoryAccusationForm(
+                story: widget.story,
+                culprit: culprit,
+                motive: motive,
+                method: method,
+                questionWho: l.storiesQWho,
+                questionWhy: l.storiesQWhy,
+                questionHow: l.storiesQHow,
+                onCulprit: (v) => setState(() => culprit = v),
+                onMotive: (v) => setState(() => motive = v),
+                onMethod: (v) => setState(() => method = v),
+              ),
+            ),
           ),
-          SizedBox(height: spacing.sm),
-          _Picker(
-            label: context.l10n.storiesMotive,
-            value: motive,
-            values: widget.story.motives,
-            onChanged: (value) => setState(() => motive = value),
-          ),
-          SizedBox(height: spacing.sm),
-          _Picker(
-            label: context.l10n.storiesMethod,
-            value: method,
-            values: widget.story.methods,
-            onChanged: (value) => setState(() => method = value),
-          ),
-          SizedBox(height: spacing.lg),
-          FilledButton(
-            onPressed: ready
-                ? () => Navigator.pop(
-                    context,
-                    StoryAccusation(
-                      culprit: culprit!,
-                      motive: motive!,
-                      method: method!,
-                    ),
-                  )
-                : null,
-            child: Text(context.l10n.storiesConfirmAccusation),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              spacing.screenMargin,
+              spacing.sm,
+              spacing.screenMargin,
+              spacing.md,
+            ),
+            child: BoneButton(
+              key: StoryFlowScreen.closeCaseKey,
+              label: l.storiesCloseCase,
+              onPressed: ready
+                  ? () => Navigator.pop(
+                      context,
+                      StoryAccusation(
+                        culprit: culprit!,
+                        motive: motive!,
+                        method: method!,
+                      ),
+                    )
+                  : null,
+            ),
           ),
         ],
       ),
     );
   }
-}
-
-class _Picker extends StatelessWidget {
-  const _Picker({
-    required this.label,
-    required this.value,
-    required this.values,
-    required this.onChanged,
-  });
-
-  final String label;
-  final String? value;
-  final List<StoryOption> values;
-  final ValueChanged<String?> onChanged;
-
-  @override
-  Widget build(BuildContext context) => DropdownButtonFormField<String>(
-    initialValue: value,
-    isExpanded: true,
-    decoration: InputDecoration(labelText: label),
-    hint: Text(context.l10n.storiesChoose),
-    items: [
-      for (final option in values)
-        DropdownMenuItem(value: option.id, child: Text(option.label)),
-    ],
-    onChanged: onChanged,
-  );
 }

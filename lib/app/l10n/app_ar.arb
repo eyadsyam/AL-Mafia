@@ -2875,5 +2875,156 @@
         "type": "String"
       }
     }
-  }
+  },
+  "storiesArchiveTitle": "أرشيف القضايا",
+  "storiesCaseNo": "قضية {n}",
+  "@storiesCaseNo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesFilterAll": "الكل",
+  "storiesStampOpen": "لسه مفتوحة",
+  "storiesStampSolved": "اتحلّت",
+  "storiesStampSolvedScore": "اتحلّت · {score}",
+  "@storiesStampSolvedScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesNarratorTitle": "اسمع القضية",
+  "storiesNarratorPlaying": "الراوي بيحكيها",
+  "storiesNarratorIdle": "دوس تشغيل وتسمعها بصوت الراوي",
+  "storiesMoves": "تحرّكاتك",
+  "storiesMovesOf": "{left} من {total}",
+  "@storiesMovesOf": {
+    "placeholders": {
+      "left": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesFound": "اللي لقيته",
+  "storiesFoundEmpty": "لسه مفيش. اختار تحرّك من تحت.",
+  "storiesWhereTo": "تتحرّك فين؟",
+  "storiesMoveUnit": "تحرّك",
+  "storiesIKnowWho": "أنا عرفت مين",
+  "storiesQWho": "مين عملها؟",
+  "storiesQWhy": "ليه؟",
+  "storiesQHow": "إزاي؟",
+  "storiesCloseCase": "اقفل القضية",
+  "storiesStampMissed": "اتقفلت",
+  "storiesStampScore": "{score} نقطة",
+  "@storiesStampScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesCastTitle": "القضية دي لـ {n} لاعيبة، كل واحد هياخد شخصية",
+  "@storiesCastTitle": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesCastRole": "هيلعب دور",
+  "storiesDealFiles": "وزّع الشخصيات",
+  "storiesDealLine": "توزيع الملفات · {i} من {n}",
+  "@storiesDealLine": {
+    "placeholders": {
+      "i": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesThisFileFor": "الملف ده لـ",
+  "storiesOthersLookAway": "والباقي يبصّوا بعيد",
+  "storiesYourFile": "ملفك السري",
+  "storiesYouAre": "انت",
+  "storiesMustDo": "اللي لازم تعمله",
+  "storiesMemorise": "احفظها، الملف مش هيظهر تاني",
+  "storiesHideIn": "تقدر تخبّيه بعد {n} ثواني، لكل الناس",
+  "@storiesHideIn": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesDiscussionLine": "النقاش",
+  "storiesDiscussionHint": "كل واحد يحكي هو كان فين",
+  "storiesHearAgain": "اسمع القضية تاني",
+  "storiesNarratorTable": "الراوي بيحكيها للكل",
+  "storiesCastOnTable": "الشخصيات على الترابيزة",
+  "storiesSearchTogether": "نفتّش مع بعض",
+  "storiesSearchLine": "التفتيش",
+  "storiesTableMoves": "تحرّكات الترابيزة",
+  "storiesTurnOf": "الدور على {name} تختار تتحرّك فين",
+  "@storiesTurnOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "storiesVoteLine": "التصويت · {i} من {n}",
+  "@storiesVoteLine": {
+    "placeholders": {
+      "i": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesSecretVotePass": "التصويت السري: ادّي الموبايل لـ",
+  "storiesHoldConfirm": "دوس مطوّل عشان تأكد",
+  "storiesVoteRecorded": "اتسجّل",
+  "storiesWhatHappened": "اللي حصل بجد",
+  "storiesNarratorActs": "الراوي بيمثّلها",
+  "storiesWhoKnew": "مين عرف؟",
+  "storiesKnew": "عرف",
+  "storiesConfused": "اتلخبط",
+  "storiesHidWell": "خبّى نفسه صح",
+  "storiesGotCaught": "اتكشف",
+  "storiesKnewCount": "{k} من {n} عرفوا",
+  "@storiesKnewCount": {
+    "placeholders": {
+      "k": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesCulpritHid": "اللي عملها: {name}، وخبّى ده عن {k}",
+  "@storiesCulpritHid": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "k": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesAnotherCase": "قضية تانية",
+  "storiesHome": "الرئيسية",
+  "storiesNarratorStop": "وقّف الراوي",
+  "storiesCoverAndPass2": "حفظتها، خبّي الملف"
 }

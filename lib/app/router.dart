@@ -473,6 +473,8 @@ GoRouter buildRouter(
             },
             playNarration: (asset) =>
                 ref.read(audioDirectorProvider).playAccent(asset),
+            stopNarration: () =>
+                ref.read(audioDirectorProvider).backend.stopAll(),
             watchAdForStep: () async =>
                 await showRewardedWith(
                   ref.read,

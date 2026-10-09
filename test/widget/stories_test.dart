@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/stories/story_model.dart';
 import 'package:mafia_master/stories/story_progress.dart';
 import 'package:mafia_master/ui/screens/stories/stories_screen.dart';
+import 'package:mafia_master/ui/screens/stories/story_case_widgets.dart';
 import 'package:mafia_master/ui/screens/stories/story_flow_screen.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
@@ -47,6 +48,7 @@ void main() {
     await tester.scrollUntilVisible(
       find.byKey(StoriesHub.storyKey(lockedRoom.id)),
       StoryTokens.coverHeight,
+      scrollable: find.byType(Scrollable).first,
     );
     expect(find.byKey(StoriesHub.startKey(lockedRoom.id)), findsNothing);
   });
@@ -73,18 +75,10 @@ void main() {
     );
     await tester.tap(find.byKey(StoryFlowScreen.accusationButtonKey));
     await tester.pumpAndSettle();
-    await _pick(tester, 0, cafe.character(cafe.truth.primaryCulprit).name);
-    await _pick(
-      tester,
-      1,
-      cafe.motives.firstWhere((value) => value.id == cafe.truth.motive).label,
-    );
-    await _pick(
-      tester,
-      2,
-      cafe.methods.firstWhere((value) => value.id == cafe.truth.method).label,
-    );
-    await tester.tap(find.text(arStrings.storiesConfirmAccusation));
+    await _pick(tester, StoryAccusationForm.suspectKey(cafe.truth.primaryCulprit));
+    await _pick(tester, StoryAccusationForm.motiveKey(cafe.truth.motive));
+    await _pick(tester, StoryAccusationForm.methodKey(cafe.truth.method));
+    await tester.tap(find.byKey(StoryFlowScreen.closeCaseKey));
     await tester.pumpAndSettle();
 
     expect(find.byKey(StoryFlowScreen.reenactmentKey), findsOneWidget);
@@ -113,6 +107,9 @@ void main() {
         ),
       );
       await tester.pump();
+      expect(find.byKey(StoryFlowScreen.castKey), findsOneWidget);
+      await tester.tap(find.byKey(StoryFlowScreen.dealKey));
+      await tester.pump();
       expect(find.byKey(StoryFlowScreen.handoffKey), findsOneWidget);
 
       final gesture = await tester.startGesture(
@@ -123,9 +120,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(StoryFlowScreen.privateCardKey), findsOneWidget);
 
-      await tester.ensureVisible(find.text(arStrings.storiesCoverAndPass));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(arStrings.storiesCoverAndPass));
+      await tester.pump(StoryTokens.dossierHold);
+      await tester.tap(find.byKey(StoryFlowScreen.hideFileKey));
       await tester.pumpAndSettle();
       expect(find.byKey(StoryFlowScreen.handoffKey), findsOneWidget);
       expect(find.text('${arStrings.storiesPlayer} 2'), findsOneWidget);
@@ -154,7 +150,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
 
-    await tester.drag(find.byType(ListView), const Offset(0, -600));
+    await tester.drag(find.byType(ListView).first, const Offset(0, -600));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(StoriesHub.startKey(cafe.id)));
     await tester.pumpAndSettle();
@@ -171,10 +167,9 @@ void main() {
   });
 }
 
-Future<void> _pick(WidgetTester tester, int index, String label) async {
-  final dropdowns = find.byType(DropdownButtonFormField<String>);
-  await tester.tap(dropdowns.at(index));
+Future<void> _pick(WidgetTester tester, Key key) async {
+  await tester.ensureVisible(find.byKey(key));
   await tester.pumpAndSettle();
-  await tester.tap(find.text(label).last);
+  await tester.tap(find.byKey(key));
   await tester.pumpAndSettle();
 }

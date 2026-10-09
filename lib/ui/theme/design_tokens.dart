@@ -2808,6 +2808,104 @@ abstract final class StoryTokens {
   static const Duration timerTick = Duration(seconds: 1);
   static const Duration reenactmentBeat = Duration(milliseconds: 420);
 
+  // --- The dark case file (P12): folders, paper notes, pips, ballots. ---
+  static const Color note = Color(0xFFD9CDB4);
+  static const Color noteInk = Color(0xFF2A1D14);
+  static const Color noteShadow = Color(0xAA000000);
+  static const Color sealTop = Color(0xFFD0645A);
+  static const Color sealBottom = Color(0xFF7D2A23);
+  static const Color sealGlyph = Color(0xFFF2D6CF);
+  static const Color stampOpen = Color(0xFF9E9891);
+  static const Color photoShade = Color(0xFF1A130E);
+  static const Color scrim = Color(0xAA0D0907);
+  static const Color ringTrack = Color(0xFF3A2D23);
+  static const Color transparentColor = Color(0x00000000);
+
+  /// The archive: a folder is a paper with a numbered tab and a clipped photo.
+  static const double folderTabHeight = 22.0;
+  static const double folderTabInset = 14.0;
+  static const double folderPhotoWidth = 104.0;
+  static const double folderPhotoHeight = 132.0;
+  static const double folderPhotoTilt = -0.052; // -3 degrees
+  static const double photoMat = 5.0;
+  static const double photoMatBottom = 18.0;
+  static const double clipWidth = 22.0;
+  static const double clipHeight = 16.0;
+  static const double clipStroke = 3.0;
+  static const double sealSize = 44.0;
+  static const double stampInset = 12.0;
+  static const double stampFolderTilt = -0.17; // -10 degrees
+  static const double sepia = 0.2;
+  static const double chipHeight = 38.0;
+  static const double lockedPhotoAlpha = 0.4;
+
+  /// The narrator bar.
+  static const double playButton = 48.0;
+  static const int waveBars = 26;
+  static const double waveBarWidth = 3.0;
+  static const double waveBarMin = 6.0;
+  static const double waveBarMax = 26.0;
+  static const Duration waveTick = Duration(milliseconds: 140);
+
+  /// Move pips and the cost dot.
+  static const double pip = 11.0;
+  static const double pipSpent = 0.7;
+  static const double pipsMaxWidth = 200.0;
+  static const double costDot = 46.0;
+  static const double costStroke = 1.5;
+  static const Duration pipFade = Duration(milliseconds: 300);
+  static const double poorOpacity = 0.4;
+  static const double doneOpacity = 0.45;
+
+  /// Paper notes pinned on «اللي لقيته».
+  static const double noteWidth = 150.0;
+  static const double noteLift = 30.0;
+  static const double noteTurn = 0.2;
+  static const double pinSize = 10.0;
+  static const Duration notePin = Duration(milliseconds: 500);
+  static const Duration noteStagger = Duration(milliseconds: 120);
+
+  /// Suspect photos, on the accusation and the ballot.
+  static const double suspectWidth = 86.0;
+  static const double suspectHeight = 112.0;
+  static const double suspectLift = 6.0;
+  static const double suspectTurn = -0.035;
+  static const double suspectRing = 2.0;
+  static const double suspectRingGap = 2.0;
+  static const Duration suspectLiftTime = Duration(milliseconds: 250);
+  static const double optionDot = 20.0;
+  static const double optionDotStroke = 1.5;
+
+  /// The private dossier: one frame, one length of time, for every seat.
+  static const Duration dossierHold = Duration(seconds: 5);
+  static const double dossierPhotoWidth = 96.0;
+  static const double dossierPhotoHeight = 124.0;
+  static const int dossierNotes = 3;
+  static const double dossierDash = 1.5;
+  static const double dashAlpha = 0.33;
+
+  /// The cast, the table and the line-up.
+  static const double castPhotoWidth = 44.0;
+  static const double castPhotoHeight = 56.0;
+  static const double lineupWidth = 70.0;
+  static const double lineupHeight = 88.0;
+  static const double heroHeight = 150.0;
+  static const double timerRing = 170.0;
+  static const double timerStroke = 6.0;
+  static const double passName = 44.0;
+
+  /// The secret ballot and the reenactment.
+  static const Duration ballotHold = Duration(seconds: 2);
+  static const Duration reenactStep = Duration(milliseconds: 1300);
+  static const Duration reenactFade = Duration(milliseconds: 500);
+  static const double reenactDim = 0.15;
+  static const double timelineDot = 10.0;
+  static const double timelineLine = 1.0;
+  static const double timelineGutter = 22.0;
+  static const double stampBig = 34.0;
+  static const double stampBigBorder = 5.0;
+  static const Duration stampDrop = Duration(milliseconds: 500);
+
   /// The cases' headings are set in Ruqaa, the hand of old Cairo signs and
   /// police ledgers; body text stays in the app's reading face.
   static const String displayFont = 'Aref Ruqaa';

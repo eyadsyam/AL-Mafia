@@ -6341,4 +6341,203 @@ class AppLocalizationsAr extends AppLocalizations {
   String fileMostPlayed(String role) {
     return 'أكتر دور: $role';
   }
+
+  @override
+  String get storiesArchiveTitle => 'أرشيف القضايا';
+
+  @override
+  String storiesCaseNo(int n) {
+    return 'قضية $n';
+  }
+
+  @override
+  String get storiesFilterAll => 'الكل';
+
+  @override
+  String get storiesStampOpen => 'لسه مفتوحة';
+
+  @override
+  String get storiesStampSolved => 'اتحلّت';
+
+  @override
+  String storiesStampSolvedScore(int score) {
+    return 'اتحلّت · $score';
+  }
+
+  @override
+  String get storiesNarratorTitle => 'اسمع القضية';
+
+  @override
+  String get storiesNarratorPlaying => 'الراوي بيحكيها';
+
+  @override
+  String get storiesNarratorIdle => 'دوس تشغيل وتسمعها بصوت الراوي';
+
+  @override
+  String get storiesMoves => 'تحرّكاتك';
+
+  @override
+  String storiesMovesOf(int left, int total) {
+    return '$left من $total';
+  }
+
+  @override
+  String get storiesFound => 'اللي لقيته';
+
+  @override
+  String get storiesFoundEmpty => 'لسه مفيش. اختار تحرّك من تحت.';
+
+  @override
+  String get storiesWhereTo => 'تتحرّك فين؟';
+
+  @override
+  String get storiesMoveUnit => 'تحرّك';
+
+  @override
+  String get storiesIKnowWho => 'أنا عرفت مين';
+
+  @override
+  String get storiesQWho => 'مين عملها؟';
+
+  @override
+  String get storiesQWhy => 'ليه؟';
+
+  @override
+  String get storiesQHow => 'إزاي؟';
+
+  @override
+  String get storiesCloseCase => 'اقفل القضية';
+
+  @override
+  String get storiesStampMissed => 'اتقفلت';
+
+  @override
+  String storiesStampScore(int score) {
+    return '$score نقطة';
+  }
+
+  @override
+  String storiesCastTitle(int n) {
+    return 'القضية دي لـ $n لاعيبة، كل واحد هياخد شخصية';
+  }
+
+  @override
+  String get storiesCastRole => 'هيلعب دور';
+
+  @override
+  String get storiesDealFiles => 'وزّع الشخصيات';
+
+  @override
+  String storiesDealLine(int i, int n) {
+    return 'توزيع الملفات · $i من $n';
+  }
+
+  @override
+  String get storiesThisFileFor => 'الملف ده لـ';
+
+  @override
+  String get storiesOthersLookAway => 'والباقي يبصّوا بعيد';
+
+  @override
+  String get storiesYourFile => 'ملفك السري';
+
+  @override
+  String get storiesYouAre => 'انت';
+
+  @override
+  String get storiesMustDo => 'اللي لازم تعمله';
+
+  @override
+  String get storiesMemorise => 'احفظها، الملف مش هيظهر تاني';
+
+  @override
+  String storiesHideIn(int n) {
+    return 'تقدر تخبّيه بعد $n ثواني، لكل الناس';
+  }
+
+  @override
+  String get storiesDiscussionLine => 'النقاش';
+
+  @override
+  String get storiesDiscussionHint => 'كل واحد يحكي هو كان فين';
+
+  @override
+  String get storiesHearAgain => 'اسمع القضية تاني';
+
+  @override
+  String get storiesNarratorTable => 'الراوي بيحكيها للكل';
+
+  @override
+  String get storiesCastOnTable => 'الشخصيات على الترابيزة';
+
+  @override
+  String get storiesSearchTogether => 'نفتّش مع بعض';
+
+  @override
+  String get storiesSearchLine => 'التفتيش';
+
+  @override
+  String get storiesTableMoves => 'تحرّكات الترابيزة';
+
+  @override
+  String storiesTurnOf(String name) {
+    return 'الدور على $name تختار تتحرّك فين';
+  }
+
+  @override
+  String storiesVoteLine(int i, int n) {
+    return 'التصويت · $i من $n';
+  }
+
+  @override
+  String get storiesSecretVotePass => 'التصويت السري: ادّي الموبايل لـ';
+
+  @override
+  String get storiesHoldConfirm => 'دوس مطوّل عشان تأكد';
+
+  @override
+  String get storiesVoteRecorded => 'اتسجّل';
+
+  @override
+  String get storiesWhatHappened => 'اللي حصل بجد';
+
+  @override
+  String get storiesNarratorActs => 'الراوي بيمثّلها';
+
+  @override
+  String get storiesWhoKnew => 'مين عرف؟';
+
+  @override
+  String get storiesKnew => 'عرف';
+
+  @override
+  String get storiesConfused => 'اتلخبط';
+
+  @override
+  String get storiesHidWell => 'خبّى نفسه صح';
+
+  @override
+  String get storiesGotCaught => 'اتكشف';
+
+  @override
+  String storiesKnewCount(int k, int n) {
+    return '$k من $n عرفوا';
+  }
+
+  @override
+  String storiesCulpritHid(String name, int k) {
+    return 'اللي عملها: $name، وخبّى ده عن $k';
+  }
+
+  @override
+  String get storiesAnotherCase => 'قضية تانية';
+
+  @override
+  String get storiesHome => 'الرئيسية';
+
+  @override
+  String get storiesNarratorStop => 'وقّف الراوي';
+
+  @override
+  String get storiesCoverAndPass2 => 'حفظتها، خبّي الملف';
 }

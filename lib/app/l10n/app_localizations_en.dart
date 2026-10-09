@@ -6452,4 +6452,203 @@ class AppLocalizationsEn extends AppLocalizations {
   String fileMostPlayed(String role) {
     return 'Most played: $role';
   }
+
+  @override
+  String get storiesArchiveTitle => 'Case archive';
+
+  @override
+  String storiesCaseNo(int n) {
+    return 'Case $n';
+  }
+
+  @override
+  String get storiesFilterAll => 'All';
+
+  @override
+  String get storiesStampOpen => 'Still open';
+
+  @override
+  String get storiesStampSolved => 'Solved';
+
+  @override
+  String storiesStampSolvedScore(int score) {
+    return 'Solved · $score';
+  }
+
+  @override
+  String get storiesNarratorTitle => 'Hear the case';
+
+  @override
+  String get storiesNarratorPlaying => 'The narrator is telling it';
+
+  @override
+  String get storiesNarratorIdle => 'Press play to hear it';
+
+  @override
+  String get storiesMoves => 'Your moves';
+
+  @override
+  String storiesMovesOf(int left, int total) {
+    return '$left of $total';
+  }
+
+  @override
+  String get storiesFound => 'What you found';
+
+  @override
+  String get storiesFoundEmpty => 'Nothing yet. Pick a move below.';
+
+  @override
+  String get storiesWhereTo => 'Where to?';
+
+  @override
+  String get storiesMoveUnit => 'moves';
+
+  @override
+  String get storiesIKnowWho => 'I know who';
+
+  @override
+  String get storiesQWho => 'Who did it?';
+
+  @override
+  String get storiesQWhy => 'Why?';
+
+  @override
+  String get storiesQHow => 'How?';
+
+  @override
+  String get storiesCloseCase => 'Close the case';
+
+  @override
+  String get storiesStampMissed => 'Closed';
+
+  @override
+  String storiesStampScore(int score) {
+    return '$score points';
+  }
+
+  @override
+  String storiesCastTitle(int n) {
+    return 'This case is for $n players, each takes a suspect';
+  }
+
+  @override
+  String get storiesCastRole => 'will play';
+
+  @override
+  String get storiesDealFiles => 'Deal the files';
+
+  @override
+  String storiesDealLine(int i, int n) {
+    return 'Dealing files · $i of $n';
+  }
+
+  @override
+  String get storiesThisFileFor => 'This file is for';
+
+  @override
+  String get storiesOthersLookAway => 'Everyone else look away';
+
+  @override
+  String get storiesYourFile => 'Your secret file';
+
+  @override
+  String get storiesYouAre => 'You are';
+
+  @override
+  String get storiesMustDo => 'What you must do';
+
+  @override
+  String get storiesMemorise => 'Memorise it, the file will not show again';
+
+  @override
+  String storiesHideIn(int n) {
+    return 'You can hide it in $n seconds, same for everyone';
+  }
+
+  @override
+  String get storiesDiscussionLine => 'Discussion';
+
+  @override
+  String get storiesDiscussionHint => 'Each one says where they were';
+
+  @override
+  String get storiesHearAgain => 'Hear the case again';
+
+  @override
+  String get storiesNarratorTable => 'The narrator tells it to everyone';
+
+  @override
+  String get storiesCastOnTable => 'The suspects at the table';
+
+  @override
+  String get storiesSearchTogether => 'Search together';
+
+  @override
+  String get storiesSearchLine => 'Search';
+
+  @override
+  String get storiesTableMoves => 'Table moves';
+
+  @override
+  String storiesTurnOf(String name) {
+    return '$name, your turn to pick where to go';
+  }
+
+  @override
+  String storiesVoteLine(int i, int n) {
+    return 'Voting · $i of $n';
+  }
+
+  @override
+  String get storiesSecretVotePass => 'Secret vote: hand the phone to';
+
+  @override
+  String get storiesHoldConfirm => 'Press and hold to confirm';
+
+  @override
+  String get storiesVoteRecorded => 'Recorded';
+
+  @override
+  String get storiesWhatHappened => 'What really happened';
+
+  @override
+  String get storiesNarratorActs => 'The narrator acts it out';
+
+  @override
+  String get storiesWhoKnew => 'Who knew?';
+
+  @override
+  String get storiesKnew => 'Knew';
+
+  @override
+  String get storiesConfused => 'Got it wrong';
+
+  @override
+  String get storiesHidWell => 'Hid well';
+
+  @override
+  String get storiesGotCaught => 'Was caught';
+
+  @override
+  String storiesKnewCount(int k, int n) {
+    return '$k of $n knew';
+  }
+
+  @override
+  String storiesCulpritHid(String name, int k) {
+    return 'The culprit: $name, hid it from $k';
+  }
+
+  @override
+  String get storiesAnotherCase => 'Another case';
+
+  @override
+  String get storiesHome => 'Home';
+
+  @override
+  String get storiesNarratorStop => 'Stop the narrator';
+
+  @override
+  String get storiesCoverAndPass2 => 'Saved it, hide the file';
 }

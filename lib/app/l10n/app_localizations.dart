@@ -11088,6 +11088,360 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Most played: {role}'**
   String fileMostPlayed(String role);
+
+  /// No description provided for @storiesArchiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Case archive'**
+  String get storiesArchiveTitle;
+
+  /// No description provided for @storiesCaseNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Case {n}'**
+  String storiesCaseNo(int n);
+
+  /// No description provided for @storiesFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get storiesFilterAll;
+
+  /// No description provided for @storiesStampOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Still open'**
+  String get storiesStampOpen;
+
+  /// No description provided for @storiesStampSolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Solved'**
+  String get storiesStampSolved;
+
+  /// No description provided for @storiesStampSolvedScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Solved · {score}'**
+  String storiesStampSolvedScore(int score);
+
+  /// No description provided for @storiesNarratorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hear the case'**
+  String get storiesNarratorTitle;
+
+  /// No description provided for @storiesNarratorPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'The narrator is telling it'**
+  String get storiesNarratorPlaying;
+
+  /// No description provided for @storiesNarratorIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Press play to hear it'**
+  String get storiesNarratorIdle;
+
+  /// No description provided for @storiesMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'Your moves'**
+  String get storiesMoves;
+
+  /// No description provided for @storiesMovesOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} of {total}'**
+  String storiesMovesOf(int left, int total);
+
+  /// No description provided for @storiesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'What you found'**
+  String get storiesFound;
+
+  /// No description provided for @storiesFoundEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet. Pick a move below.'**
+  String get storiesFoundEmpty;
+
+  /// No description provided for @storiesWhereTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to?'**
+  String get storiesWhereTo;
+
+  /// No description provided for @storiesMoveUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'moves'**
+  String get storiesMoveUnit;
+
+  /// No description provided for @storiesIKnowWho.
+  ///
+  /// In en, this message translates to:
+  /// **'I know who'**
+  String get storiesIKnowWho;
+
+  /// No description provided for @storiesQWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Who did it?'**
+  String get storiesQWho;
+
+  /// No description provided for @storiesQWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why?'**
+  String get storiesQWhy;
+
+  /// No description provided for @storiesQHow.
+  ///
+  /// In en, this message translates to:
+  /// **'How?'**
+  String get storiesQHow;
+
+  /// No description provided for @storiesCloseCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the case'**
+  String get storiesCloseCase;
+
+  /// No description provided for @storiesStampMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get storiesStampMissed;
+
+  /// No description provided for @storiesStampScore.
+  ///
+  /// In en, this message translates to:
+  /// **'{score} points'**
+  String storiesStampScore(int score);
+
+  /// No description provided for @storiesCastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This case is for {n} players, each takes a suspect'**
+  String storiesCastTitle(int n);
+
+  /// No description provided for @storiesCastRole.
+  ///
+  /// In en, this message translates to:
+  /// **'will play'**
+  String get storiesCastRole;
+
+  /// No description provided for @storiesDealFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Deal the files'**
+  String get storiesDealFiles;
+
+  /// No description provided for @storiesDealLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Dealing files · {i} of {n}'**
+  String storiesDealLine(int i, int n);
+
+  /// No description provided for @storiesThisFileFor.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is for'**
+  String get storiesThisFileFor;
+
+  /// No description provided for @storiesOthersLookAway.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone else look away'**
+  String get storiesOthersLookAway;
+
+  /// No description provided for @storiesYourFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Your secret file'**
+  String get storiesYourFile;
+
+  /// No description provided for @storiesYouAre.
+  ///
+  /// In en, this message translates to:
+  /// **'You are'**
+  String get storiesYouAre;
+
+  /// No description provided for @storiesMustDo.
+  ///
+  /// In en, this message translates to:
+  /// **'What you must do'**
+  String get storiesMustDo;
+
+  /// No description provided for @storiesMemorise.
+  ///
+  /// In en, this message translates to:
+  /// **'Memorise it, the file will not show again'**
+  String get storiesMemorise;
+
+  /// No description provided for @storiesHideIn.
+  ///
+  /// In en, this message translates to:
+  /// **'You can hide it in {n} seconds, same for everyone'**
+  String storiesHideIn(int n);
+
+  /// No description provided for @storiesDiscussionLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion'**
+  String get storiesDiscussionLine;
+
+  /// No description provided for @storiesDiscussionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each one says where they were'**
+  String get storiesDiscussionHint;
+
+  /// No description provided for @storiesHearAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Hear the case again'**
+  String get storiesHearAgain;
+
+  /// No description provided for @storiesNarratorTable.
+  ///
+  /// In en, this message translates to:
+  /// **'The narrator tells it to everyone'**
+  String get storiesNarratorTable;
+
+  /// No description provided for @storiesCastOnTable.
+  ///
+  /// In en, this message translates to:
+  /// **'The suspects at the table'**
+  String get storiesCastOnTable;
+
+  /// No description provided for @storiesSearchTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'Search together'**
+  String get storiesSearchTogether;
+
+  /// No description provided for @storiesSearchLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get storiesSearchLine;
+
+  /// No description provided for @storiesTableMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'Table moves'**
+  String get storiesTableMoves;
+
+  /// No description provided for @storiesTurnOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, your turn to pick where to go'**
+  String storiesTurnOf(String name);
+
+  /// No description provided for @storiesVoteLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Voting · {i} of {n}'**
+  String storiesVoteLine(int i, int n);
+
+  /// No description provided for @storiesSecretVotePass.
+  ///
+  /// In en, this message translates to:
+  /// **'Secret vote: hand the phone to'**
+  String get storiesSecretVotePass;
+
+  /// No description provided for @storiesHoldConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Press and hold to confirm'**
+  String get storiesHoldConfirm;
+
+  /// No description provided for @storiesVoteRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded'**
+  String get storiesVoteRecorded;
+
+  /// No description provided for @storiesWhatHappened.
+  ///
+  /// In en, this message translates to:
+  /// **'What really happened'**
+  String get storiesWhatHappened;
+
+  /// No description provided for @storiesNarratorActs.
+  ///
+  /// In en, this message translates to:
+  /// **'The narrator acts it out'**
+  String get storiesNarratorActs;
+
+  /// No description provided for @storiesWhoKnew.
+  ///
+  /// In en, this message translates to:
+  /// **'Who knew?'**
+  String get storiesWhoKnew;
+
+  /// No description provided for @storiesKnew.
+  ///
+  /// In en, this message translates to:
+  /// **'Knew'**
+  String get storiesKnew;
+
+  /// No description provided for @storiesConfused.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it wrong'**
+  String get storiesConfused;
+
+  /// No description provided for @storiesHidWell.
+  ///
+  /// In en, this message translates to:
+  /// **'Hid well'**
+  String get storiesHidWell;
+
+  /// No description provided for @storiesGotCaught.
+  ///
+  /// In en, this message translates to:
+  /// **'Was caught'**
+  String get storiesGotCaught;
+
+  /// No description provided for @storiesKnewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{k} of {n} knew'**
+  String storiesKnewCount(int k, int n);
+
+  /// No description provided for @storiesCulpritHid.
+  ///
+  /// In en, this message translates to:
+  /// **'The culprit: {name}, hid it from {k}'**
+  String storiesCulpritHid(String name, int k);
+
+  /// No description provided for @storiesAnotherCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Another case'**
+  String get storiesAnotherCase;
+
+  /// No description provided for @storiesHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get storiesHome;
+
+  /// No description provided for @storiesNarratorStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the narrator'**
+  String get storiesNarratorStop;
+
+  /// No description provided for @storiesCoverAndPass2.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved it, hide the file'**
+  String get storiesCoverAndPass2;
 }
 
 class _AppLocalizationsDelegate

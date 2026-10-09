@@ -3926,5 +3926,156 @@
         "type": "String"
       }
     }
-  }
+  },
+  "storiesArchiveTitle": "Case archive",
+  "storiesCaseNo": "Case {n}",
+  "@storiesCaseNo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesFilterAll": "All",
+  "storiesStampOpen": "Still open",
+  "storiesStampSolved": "Solved",
+  "storiesStampSolvedScore": "Solved · {score}",
+  "@storiesStampSolvedScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesNarratorTitle": "Hear the case",
+  "storiesNarratorPlaying": "The narrator is telling it",
+  "storiesNarratorIdle": "Press play to hear it",
+  "storiesMoves": "Your moves",
+  "storiesMovesOf": "{left} of {total}",
+  "@storiesMovesOf": {
+    "placeholders": {
+      "left": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesFound": "What you found",
+  "storiesFoundEmpty": "Nothing yet. Pick a move below.",
+  "storiesWhereTo": "Where to?",
+  "storiesMoveUnit": "moves",
+  "storiesIKnowWho": "I know who",
+  "storiesQWho": "Who did it?",
+  "storiesQWhy": "Why?",
+  "storiesQHow": "How?",
+  "storiesCloseCase": "Close the case",
+  "storiesStampMissed": "Closed",
+  "storiesStampScore": "{score} points",
+  "@storiesStampScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesCastTitle": "This case is for {n} players, each takes a suspect",
+  "@storiesCastTitle": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesCastRole": "will play",
+  "storiesDealFiles": "Deal the files",
+  "storiesDealLine": "Dealing files · {i} of {n}",
+  "@storiesDealLine": {
+    "placeholders": {
+      "i": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesThisFileFor": "This file is for",
+  "storiesOthersLookAway": "Everyone else look away",
+  "storiesYourFile": "Your secret file",
+  "storiesYouAre": "You are",
+  "storiesMustDo": "What you must do",
+  "storiesMemorise": "Memorise it, the file will not show again",
+  "storiesHideIn": "You can hide it in {n} seconds, same for everyone",
+  "@storiesHideIn": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesDiscussionLine": "Discussion",
+  "storiesDiscussionHint": "Each one says where they were",
+  "storiesHearAgain": "Hear the case again",
+  "storiesNarratorTable": "The narrator tells it to everyone",
+  "storiesCastOnTable": "The suspects at the table",
+  "storiesSearchTogether": "Search together",
+  "storiesSearchLine": "Search",
+  "storiesTableMoves": "Table moves",
+  "storiesTurnOf": "{name}, your turn to pick where to go",
+  "@storiesTurnOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "storiesVoteLine": "Voting · {i} of {n}",
+  "@storiesVoteLine": {
+    "placeholders": {
+      "i": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesSecretVotePass": "Secret vote: hand the phone to",
+  "storiesHoldConfirm": "Press and hold to confirm",
+  "storiesVoteRecorded": "Recorded",
+  "storiesWhatHappened": "What really happened",
+  "storiesNarratorActs": "The narrator acts it out",
+  "storiesWhoKnew": "Who knew?",
+  "storiesKnew": "Knew",
+  "storiesConfused": "Got it wrong",
+  "storiesHidWell": "Hid well",
+  "storiesGotCaught": "Was caught",
+  "storiesKnewCount": "{k} of {n} knew",
+  "@storiesKnewCount": {
+    "placeholders": {
+      "k": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesCulpritHid": "The culprit: {name}, hid it from {k}",
+  "@storiesCulpritHid": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "k": {
+        "type": "int"
+      }
+    }
+  },
+  "storiesAnotherCase": "Another case",
+  "storiesHome": "Home",
+  "storiesNarratorStop": "Stop the narrator",
+  "storiesCoverAndPass2": "Saved it, hide the file"
 }

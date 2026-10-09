@@ -30,6 +30,7 @@ import 'package:mafia_master/ui/screens/postgame/result_screen.dart';
 import 'package:mafia_master/ui/screens/setup/bot_match_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/mode_screen.dart';
 import 'package:mafia_master/ui/screens/stories/stories_screen.dart';
+import 'package:mafia_master/ui/screens/stories/story_case_widgets.dart';
 import 'package:mafia_master/ui/screens/stories/story_flow_screen.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
@@ -262,6 +263,87 @@ void main() {
       );
     });
   }
+
+  testWidgets('story solo: notes pinned, accusation', (tester) async {
+    final story = StoryDefinition.decode(
+      File('assets/stories/qahwet_el_moallem.json').readAsStringSync(),
+    );
+    await shoot(
+      tester,
+      '02_story_solo_moves',
+      StoryFlowScreen(
+        story: story,
+        playerCount: 1,
+        onExit: () {},
+        onComplete: (_) async {},
+      ),
+    );
+    await tester.tap(find.text(story.actions.first.title));
+    await tester.pump(const Duration(seconds: 1));
+    await capture(tester, '02_story_solo_pinned');
+    await tester.tap(find.byKey(StoryFlowScreen.accusationButtonKey));
+    await tester.pumpAndSettle();
+    await capture(tester, '02_story_solo_accusation');
+  });
+
+  testWidgets('story with friends: cast, files, table, ballot', (tester) async {
+    final story = StoryDefinition.decode(
+      File('assets/stories/qahwet_el_moallem.json').readAsStringSync(),
+    );
+    Future<void> hold() async {
+      final g = await tester.startGesture(
+        tester.getCenter(find.byType(HoldPad)),
+      );
+      await tester.pump(StoryTokens.privateHold);
+      await g.up();
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    await shoot(
+      tester,
+      '07_group_cast',
+      StoryFlowScreen(
+        story: story,
+        playerCount: 2,
+        onExit: () {},
+        onComplete: (_) async {},
+      ),
+    );
+    await tester.tap(find.byKey(StoryFlowScreen.dealKey));
+    await tester.pump(const Duration(milliseconds: 100));
+    await capture(tester, '07_group_pass');
+    // Seat 1 (innocent) and seat 2 (the culprit): the same page.
+    for (final name in const ['innocent', 'culprit']) {
+      await hold();
+      await capture(tester, '07_group_dossier_$name');
+      await tester.pump(StoryTokens.dossierHold);
+      await tester.tap(find.byKey(StoryFlowScreen.hideFileKey));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await capture(tester, '07_group_table');
+    await tester.tap(find.text(arStrings.storiesSearchTogether));
+    await tester.pump(const Duration(milliseconds: 100));
+    await capture(tester, '07_group_search');
+    for (var round = 1; round <= StoryTokens.rounds; round++) {
+      await tester.tap(find.text(story.actions[round - 1].title));
+      await tester.pump(const Duration(milliseconds: 100));
+      if (round == StoryTokens.rounds) break;
+      for (var seat = 0; seat < 2; seat++) {
+        await hold();
+        await tester.pump(StoryTokens.dossierHold);
+        await tester.tap(find.byKey(StoryFlowScreen.hideFileKey));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      await tester.tap(find.text(arStrings.storiesSearchTogether));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await hold();
+    await tester.tap(
+      find.byKey(StoryAccusationForm.suspectKey(story.truth.primaryCulprit)),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    await capture(tester, '07_group_ballot');
+  });
 
   testWidgets('mode screen', (tester) async {
     await shoot(

@@ -1,9 +1,11 @@
-import '../../widgets/mafia_kit.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../widgets/deck/deck_public.dart' show BoneButton, DeckPill, DeckRise;
+import '../../widgets/deck/deck_public.dart' show DeckChip, DeckRise;
+import '../../widgets/mafia_kit.dart';
+import '../../widgets/warm_palette.dart';
+import 'story_case_widgets.dart';
 
 import '../../../data/story_catalog.dart';
 import '../../../data/story_progress_store.dart';
@@ -13,7 +15,6 @@ import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
-import '../../widgets/experience_surface.dart';
 import 'story_flow_screen.dart';
 import '../../economy/waiting_banner.dart';
 import '../../economy/native_ad_card.dart';
@@ -29,10 +30,14 @@ class StoriesScreen extends StatefulWidget {
     this.afterStory,
     this.watchAdForStep,
     this.playNarration,
+    this.stopNarration,
   });
 
   /// Plays a case's read-aloud opening.
   final void Function(String asset)? playNarration;
+
+  /// Stops it again (the narrator bar's pause).
+  final VoidCallback? stopNarration;
 
   /// Full-screen ad moments around a case (pass-and-play pacing rules).
   final Future<void> Function()? beforeStory;
@@ -118,6 +123,8 @@ class _StoriesScreenState extends State<StoriesScreen> {
         onComplete: _record,
         watchAdForStep: widget.watchAdForStep,
         playNarration: widget.playNarration,
+        stopNarration: widget.stopNarration,
+        onHome: widget.onBack,
       );
     }
     if (_error != null) {
@@ -149,7 +156,7 @@ class StorySessionLaunch {
   final int playerCount;
 }
 
-class StoriesHub extends StatelessWidget {
+class StoriesHub extends StatefulWidget {
   const StoriesHub({
     super.key,
     required this.stories,
@@ -161,11 +168,20 @@ class StoriesHub extends StatelessWidget {
   static const hubKey = ValueKey('stories_hub');
   static Key storyKey(String id) => ValueKey('story_card_$id');
   static Key startKey(String id) => ValueKey('story_start_$id');
+  static Key chipKey(String category) => ValueKey('story_chip_$category');
 
   final List<StoryDefinition> stories;
   final StoryProgress progress;
   final VoidCallback onBack;
   final void Function(StoryDefinition story, int playerCount) onStart;
+
+  @override
+  State<StoriesHub> createState() => _StoriesHubState();
+}
+
+class _StoriesHubState extends State<StoriesHub> {
+  /// null = all categories.
+  String? _category;
 
   Future<void> _pickPlayers(BuildContext context, StoryDefinition story) async {
     final count = await showMafiaSheet<int>(
@@ -174,185 +190,110 @@ class StoriesHub extends StatelessWidget {
       useSafeArea: true,
       builder: (context) => const _PlayerCountSheet(),
     );
-    if (count != null && context.mounted) onStart(story, count);
+    if (count != null && context.mounted) widget.onStart(story, count);
   }
 
   @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
-    final colors = context.colors;
     final type = context.typography;
     final l = context.l10n;
-    return MafiaScaffold(
-      key: hubKey,
-      backgroundColor: colors.surfaceBase,
-      bottomNavigationBar: const SafeArea(
-        top: false,
-        child: WaitingBanner(placement: BannerPlacement.stories),
-      ),
-      body: ExperienceSurface(
-        child: SafeArea(
-          child: ListView(
-            padding: EdgeInsets.all(spacing.screenMargin),
-            children: [
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: BackAction(onPressed: onBack),
-              ),
-              SizedBox(height: spacing.md),
-              Text(
-                l.storiesTitle,
-                style: StoryTokens.ruqaa(type.headline).copyWith(color: colors.textPrimary),
-              ),
-              SizedBox(height: spacing.xs),
-              Text(
-                l.storiesSubtitle,
-                style: type.body.copyWith(color: colors.textSecondary),
-              ),
-              SizedBox(height: spacing.lg),
-              for (final (i, story) in stories.indexed) ...[
-                // Never in the first screenful, at most one per four cases.
-                if (i >= 4 && i % 4 == 0)
-                  const NativeAdCard(placement: NativePlacement.stories),
-                DeckRise(
-                  index: i,
-                  child: _StoryCard(
-                  key: storyKey(story.id),
-                  story: story,
-                  bestScore: progress.bestFor(story.id),
-                  locked:
-                      story.isNearImpossible &&
-                      !progress.isNearImpossibleUnlocked(story.category),
-                  onStart: () => _pickPlayers(context, story),
-                  ),
-                ),
-                SizedBox(height: spacing.md),
-              ],
-            ],
-          ),
+    final categories = <String>[];
+    for (final s in widget.stories) {
+      if (!categories.contains(s.category)) categories.add(s.category);
+    }
+    final shown = [
+      for (final s in widget.stories)
+        if (_category == null || s.category == _category) s,
+    ];
+    return WarmPalette(
+      child: StoryDesk(
+        key: StoriesHub.hubKey,
+        title: l.storiesArchiveTitle,
+        onBack: widget.onBack,
+        bottom: const SafeArea(
+          top: false,
+          child: WaitingBanner(placement: BannerPlacement.stories),
         ),
-      ),
-    );
-  }
-}
-
-class _StoryCard extends StatelessWidget {
-  const _StoryCard({
-    super.key,
-    required this.story,
-    required this.bestScore,
-    required this.locked,
-    required this.onStart,
-  });
-
-  final StoryDefinition story;
-  final int bestScore;
-  final bool locked;
-  final VoidCallback onStart;
-
-  @override
-  Widget build(BuildContext context) {
-    final spacing = context.spacing;
-    final colors = context.colors;
-    final type = context.typography;
-    final l = context.l10n;
-    // Locked dims the art only: the title and what unlocks it stay readable.
-    return MafiaPanel(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        body: ListView(
+          padding: EdgeInsets.fromLTRB(
+            spacing.screenMargin,
+            spacing.sm,
+            spacing.screenMargin,
+            spacing.lg,
+          ),
           children: [
-            Opacity(
-              opacity: locked ? StoryTokens.lockedOpacity : 1,
-              child: _FeatheredStoryArt(
-                image: story.coverImage,
-                height: StoryTokens.coverHeight,
-              ),
+            Text(
+              l.storiesSubtitle,
+              style: type.bodySmall.copyWith(color: CaseFileTokens.inkMuted),
             ),
-            Padding(
-              padding: EdgeInsets.all(spacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    '${story.number}. ${story.title}',
-                    style: StoryTokens.ruqaa(type.title).copyWith(color: colors.textPrimary),
-                  ),
-                  SizedBox(height: spacing.xs),
-                  Text(
-                    story.synopsis,
-                    style: type.bodySmall.copyWith(color: colors.textSecondary),
-                  ),
-                  SizedBox(height: spacing.sm),
-                  Wrap(
-                    spacing: spacing.sm,
-                    runSpacing: spacing.xs,
-                    children: [
-                      DeckPill(story.category),
-                      DeckPill('${story.lengthMinutes} ${l.storiesMinutes}'),
-                      DeckPill('${l.storiesDifficulty} ${story.difficulty}/5'),
-                    ],
-                  ),
-                  SizedBox(height: spacing.sm),
-                  Text(
-                    bestScore == 0
-                        ? l.storiesNoScore
-                        : '${l.storiesBestScore}: $bestScore',
-                    style: type.caption.copyWith(color: colors.textMuted),
-                  ),
-                  if (locked) ...[
-                    SizedBox(height: spacing.sm),
-                    Text(
-                      '${l.storiesLocked} — ${l.storiesUnlockRule}',
-                      style: type.bodySmall.copyWith(
-                        color: colors.textSecondary,
+            SizedBox(height: spacing.md),
+            SizedBox(
+              height: StoryTokens.chipHeight,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    DeckChip(
+                      key: StoriesHub.chipKey(''),
+                      label: l.storiesFilterAll,
+                      selected: _category == null,
+                      onSelected: (_) => setState(() => _category = null),
+                    ),
+                    for (final c in categories) ...[
+                      SizedBox(width: spacing.sm),
+                      DeckChip(
+                        key: StoriesHub.chipKey(c),
+                        label: c,
+                        selected: _category == c,
+                        onSelected: (_) => setState(() => _category = c),
                       ),
-                    ),
-                  ] else ...[
-                    SizedBox(height: spacing.md),
-                    BoneButton(
-                      key: StoriesHub.startKey(story.id),
-                      label: l.storiesStart,
-                      onPressed: onStart,
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
+            SizedBox(height: spacing.sm),
+            for (final (i, story) in shown.indexed) ...[
+              // Never in the first screenful, at most one per four cases.
+              if (i >= 4 && i % 4 == 0)
+                const NativeAdCard(placement: NativePlacement.stories),
+              DeckRise(index: i, child: _folder(context, story)),
+              SizedBox(height: spacing.md),
+            ],
           ],
         ),
+      ),
     );
   }
-}
 
-class _FeatheredStoryArt extends StatelessWidget {
-  const _FeatheredStoryArt({required this.image, required this.height});
-
-  final String image;
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final surface = context.colors.surfaceRaised;
-    return SizedBox(
-      height: height,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(image, fit: BoxFit.cover, excludeFromSemantics: true),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  surface.withValues(alpha: StoryTokens.transparentAlpha),
-                  surface,
-                ],
-                stops: const [StoryTokens.featherStart, StoryTokens.featherEnd],
-              ),
-            ),
-          ),
+  Widget _folder(BuildContext context, StoryDefinition story) {
+    final l = context.l10n;
+    final locked =
+        story.isNearImpossible &&
+        !widget.progress.isNearImpossibleUnlocked(story.category);
+    final solved = widget.progress.solvedStoryIds.contains(story.id);
+    final best = widget.progress.bestFor(story.id);
+    return KeyedSubtree(
+      key: StoriesHub.storyKey(story.id),
+      child: StoryFolder(
+        key: locked ? null : StoriesHub.startKey(story.id),
+        numberLabel: l.storiesCaseNo(story.number),
+        title: story.title,
+        category: story.category,
+        synopsis: story.synopsis,
+        facts: [
+          '${story.lengthMinutes} ${l.storiesMinutes}',
+          '${l.storiesDifficulty} ${story.difficulty}/5',
         ],
+        image: story.coverImage,
+        stampText: solved
+            ? (best > 0 ? l.storiesStampSolvedScore(best) : l.storiesStampSolved)
+            : l.storiesStampOpen,
+        stampColor: solved ? CaseFileTokens.sage : StoryTokens.stampOpen,
+        sealed: locked,
+        unlockText: '${l.storiesLocked} — ${l.storiesUnlockRule}',
+        onTap: locked ? null : () => _pickPlayers(context, story),
       ),
     );
   }
