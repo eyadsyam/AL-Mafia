@@ -152,11 +152,14 @@ class SeatCard extends StatelessWidget {
                   PositionedDirectional(
                     start: SeatTokens.plateInset + SeatTokens.inset,
                     top: SeatTokens.plateInset + 1,
-                    child: Text(
-                      '$seat',
-                      style: meta.copyWith(
-                        color: DeckTokens.ground,
-                        fontWeight: FontWeight.w700,
+                    child: _Badge(
+                      child: Text(
+                        '$seat',
+                        style: meta.copyWith(
+                          color: DeckTokens.bone,
+                          fontWeight: FontWeight.w700,
+                          height: 1,
+                        ),
                       ),
                     ),
                   ),
@@ -219,10 +222,12 @@ class SeatCard extends StatelessWidget {
                                 padding: EdgeInsets.all(
                                   context.spacing.sm + context.spacing.xs,
                                 ),
-                                child: Icon(
-                                  cornerIcon,
-                                  size: SeatTokens.cornerGlyph,
-                                  color: DeckTokens.ground,
+                                child: _Badge(
+                                  child: Icon(
+                                    cornerIcon,
+                                    size: SeatTokens.cornerGlyph,
+                                    color: DeckTokens.bone,
+                                  ),
                                 ),
                               ),
                             ),
@@ -316,4 +321,24 @@ class EmptySeatCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A small dark disc that keeps the seat number and the corner control
+/// readable over the card frame's bone border.
+class _Badge extends StatelessWidget {
+  final Widget child;
+
+  const _Badge({required this.child});
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: SeatTokens.badge,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: DeckTokens.ground.withValues(alpha: SeatTokens.badgeAlpha),
+      ),
+      child: Center(child: child),
+    ),
+  );
 }

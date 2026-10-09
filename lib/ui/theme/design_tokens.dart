@@ -1260,6 +1260,10 @@ abstract final class PlayerSetupTokens {
 abstract final class SeatTokens {
   /// The empty chair's art (AppOffline.cardSeatEmpty), dimmed: a place, not a player.
   static const double emptyArtAlpha = 0.55;
+
+  /// The dark disc behind the seat number and the corner control.
+  static const double badge = 22;
+  static const double badgeAlpha = 0.82;
   static const int minPlayers = 5;
   static const int maxPlayers = 20;
   static const int columns = 3;
