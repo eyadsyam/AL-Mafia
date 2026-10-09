@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/asset_constants.dart';
+import '../../economy/cosmetics.dart';
+import '../../economy/pass_table_dress.dart';
 import '../../../engine/models/player.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
@@ -16,7 +18,16 @@ class SeatCardFrame extends StatelessWidget {
   /// Lifted under a finger: a deeper shadow.
   final bool lifted;
 
-  const SeatCardFrame({super.key, required this.child, this.lifted = false});
+  /// The host's equipped frame (bought in the store), worn as a coloured rim
+  /// and glow on the host's own seat. Null for everyone else.
+  final FrameStyle? dress;
+
+  const SeatCardFrame({
+    super.key,
+    required this.child,
+    this.lifted = false,
+    this.dress,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +35,15 @@ class SeatCardFrame extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: radius,
+        border: dress == null
+            ? null
+            : Border.all(color: dress!.outer, width: SeatTokens.dressRim),
         boxShadow: [
+          if (dress != null)
+            BoxShadow(
+              color: dress!.inner.withValues(alpha: SeatTokens.dressGlowAlpha),
+              blurRadius: SeatTokens.dressGlow,
+            ),
           BoxShadow(
             color: DeckTokens.ground.withValues(alpha: SeatTokens.shadowAlpha),
             blurRadius: lifted
@@ -108,6 +127,7 @@ class SeatCard extends StatelessWidget {
       container: true,
       child: SeatCardFrame(
         lifted: lifted,
+        dress: Cosmetics.frames[HostIdentityScope.frameFor(context, name)],
         child: LayoutBuilder(
           builder: (context, box) {
             final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;

@@ -1264,6 +1264,11 @@ abstract final class SeatTokens {
   /// The dark disc behind the seat number and the corner control.
   static const double badge = 22;
   static const double badgeAlpha = 0.82;
+
+  /// The host's bought frame on their own seat: rim width and glow.
+  static const double dressRim = 2;
+  static const double dressGlow = 14;
+  static const double dressGlowAlpha = 0.55;
   static const int minPlayers = 5;
   static const int maxPlayers = 20;
   static const int columns = 3;

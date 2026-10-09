@@ -10,6 +10,7 @@ import '../data/player_group_provider.dart';
 import '../data/repository_provider.dart';
 import '../data/online_session_store.dart';
 import '../data/player_profile.dart';
+import '../ui/economy/pass_table_dress.dart';
 import '../engine/models/enums.dart' show DiscussionMode, Role;
 import '../engine/models/match_settings.dart';
 import '../platform/audio_director.dart';
@@ -615,7 +616,8 @@ GoRouter buildRouter(
         path: Routes.players,
         builder: (context, state) {
           final group = ref.read(setupDraftProvider).group;
-          return AddPlayersScreen(
+          return HostSeatScope(
+            child: AddPlayersScreen(
             // Seating order, exactly as saved. Not sorted, not deduplicated,
             // not touched.
             initialNames:
@@ -635,6 +637,7 @@ GoRouter buildRouter(
             onSaveGroup: (names) => _saveNewGroup(ref, context, names),
             onBack: () => context.go(
               loadedGroups().isEmpty ? Routes.home : Routes.groups,
+            ),
             ),
           );
         },

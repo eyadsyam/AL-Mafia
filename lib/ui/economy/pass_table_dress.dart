@@ -95,3 +95,22 @@ class PassTableDress extends ConsumerWidget {
     return dressed;
   }
 }
+
+/// The host's identity on the one-phone setup screens (public, before any
+/// card is dealt): the seat typed with the profile's name wears the frame its
+/// account equipped. Identical for every role — nobody has a role yet.
+class HostSeatScope extends ConsumerWidget {
+  final Widget child;
+  const HostSeatScope({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mine = ref.watch(myCosmeticsProvider);
+    return HostIdentityScope(
+      hostName: ref.watch(playerProfileProvider).valueOrNull?.name ?? '',
+      frame: mine.frame,
+      plate: mine.plate,
+      child: child,
+    );
+  }
+}
