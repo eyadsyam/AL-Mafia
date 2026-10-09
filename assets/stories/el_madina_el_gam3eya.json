@@ -575,37 +575,44 @@
     {
       "id": "a_room",
       "title": "تفتيش ٣١٢",
-      "description": "الدرج والمرتبة وموبايل كريم وإيصالاته.",
+      "description": "الدرج والمرتبة وموبايل كريم وإيصالاته ورسائل ياسين مع ندى وأمه.",
       "cost": 3,
       "clueIds": [
         "fl_usb",
         "me_roommate",
         "mo_debt",
-        "fl_karim_atm"
+        "fl_karim_atm",
+        "mo_romance",
+        "mo_family"
       ]
     },
     {
       "id": "a_office",
       "title": "مكتب الأمن والمشرف",
-      "description": "دفتر المفاتيح والمحضر وورقة الـDVR.",
+      "description": "دفتر المفاتيح والمحضر وورقة الـDVR ومصدر صورة المفقود وكشف مكالمات أمه.",
       "cost": 3,
       "clueIds": [
         "cu_keylog",
         "cu_police",
         "me_dvr",
-        "fl_mokhtar_clean"
+        "fl_mokhtar_clean",
+        "cu_flyer",
+        "me_mother"
       ]
     },
     {
       "id": "a_papers",
       "title": "كشف المنحة وإيميلات الإدارة",
-      "description": "الكشف وسجل الفتح وطابعة الصبح.",
+      "description": "الكشف وسجل الفتح وطابعة الصبح وصورة محضر الغياب ودفتر سحب المفتاح وورقة صيانة الكاميرات.",
       "cost": 3,
       "clueIds": [
         "mo_register",
         "me_atm",
         "cu_flyer",
-        "fl_rule"
+        "fl_rule",
+        "cu_keylog",
+        "cu_police",
+        "me_dvr"
       ]
     },
     {

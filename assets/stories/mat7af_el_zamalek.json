@@ -598,13 +598,14 @@
     {
       "id": "search_gallery",
       "title": "تفتيش الجاليري والحراسة",
-      "description": "الإطار والسقف الزجاجي وأوضة الحراسة وكوباية الشاي.",
+      "description": "قارن الإطار بصورة الافتتاح وافحص السقف الزجاجي وأوضة الحراسة وكوباية الشاي.",
       "cost": 3,
       "clueIds": [
         "x_varnish",
         "g_guard",
         "f_glass",
-        "f_alarm"
+        "f_alarm",
+        "x_opening"
       ]
     },
     {

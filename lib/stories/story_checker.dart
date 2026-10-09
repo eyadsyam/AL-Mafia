@@ -143,6 +143,21 @@ class StorySolvabilityChecker {
         }
       }
     }
+    // Analyze actual play only after validating all referenced content.
+    if (issues.isEmpty) {
+      for (final row in const StoryRealism().analyze(story)) {
+        if (row.impossible) {
+          issues.add(
+            StoryCheckIssue(
+              story.id,
+              row.playerCount,
+              'not deducible within the solo budget or three shared picks '
+              '(0/${row.total} plays)',
+            ),
+          );
+        }
+      }
+    }
     return StoryCheckReport(storyId: story.id, issues: issues);
   }
 
@@ -185,8 +200,9 @@ class StoryRealismRow {
 
 /// Realism: the exhaustive check above assumes every clue is on the table.
 /// A real player has a budget (solo) or three searches (group), so this
-/// enumerates the plays and counts which still deduce the truth. Reported,
-/// never asserted: authors decide what to do with a thin story.
+/// enumerates the plays and counts which still deduce the truth. The checker
+/// rejects impossible rows; partial rows remain diagnostic (solo includes
+/// stopping early, even without investigating).
 class StoryRealism {
   const StoryRealism();
 

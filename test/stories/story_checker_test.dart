@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -9,32 +10,88 @@ void main() {
     'assets/stories',
   ).listSync().whereType<File>().where((file) => file.path.endsWith('.json'));
 
-  // Authored stories whose JSON still has a shared search that yields no clue
-  // for a small table (the app hides such a search). Content owner: fix the
-  // data, then empty this set; a NEW offender fails the test.
-  const knownEmptySearches = {
-    '2asr_garden_city',
-    'mahal_el_dahab',
-    'matba3et_el_gornal',
-    'shoqaq_el_tamleek',
-    'waraqet_el_yanaseeb',
-  };
-  bool emptySearch(StoryCheckIssue i) => i.message.contains('yields no clue');
-
   for (final file in files) {
     test('${file.path} is uniquely solvable for player counts 1-10', () {
       final story = StoryDefinition.decode(file.readAsStringSync());
       final report = const StorySolvabilityChecker().check(story);
-      final hard = report.issues.where((i) => !emptySearch(i)).toList();
-      expect(hard, isEmpty, reason: hard.join('\n'));
-      final empty = report.issues.where(emptySearch).toList();
-      if (knownEmptySearches.contains(story.id)) {
-        expect(empty, isNotEmpty, reason: 'fixed: drop it from the list');
-      } else {
-        expect(empty, isEmpty, reason: empty.join('\n'));
-      }
+      expect(report.issues, isEmpty, reason: report.issues.join('\n'));
     });
   }
+
+  test(
+    'rejects full evidence that cannot be reached within the solo budget',
+    () {
+      final json =
+          jsonDecode(
+                File(
+                  'assets/stories/qahwet_el_moallem.json',
+                ).readAsStringSync(),
+              )
+              as Map<String, dynamic>;
+      json['actionBudget'] = 0;
+      final story = StoryDefinition.decode(jsonEncode(json));
+      final report = const StorySolvabilityChecker().check(story);
+      expect(
+        report.issues.any(
+          (i) => i.playerCount == 1 && i.message.contains('not deducible'),
+        ),
+        isTrue,
+      );
+    },
+  );
+
+  test('rejects full evidence requiring four group searches', () {
+    final json =
+        jsonDecode(
+              File('assets/stories/qahwet_el_moallem.json').readAsStringSync(),
+            )
+            as Map<String, dynamic>;
+    for (final character in json['characters'] as List) {
+      character['privateClueIds'] = [
+        'flavor_torn_label',
+        'flavor_domino',
+        'flavor_lighter',
+      ];
+    }
+    final actions = json['actions'] as List;
+    actions[0]['clueIds'] = ['culprit_lane'];
+    actions[1]['clueIds'] = ['culprit_shift'];
+    actions[2]['clueIds'] = ['culprit_coal'];
+    actions[3]['clueIds'] = [
+      'motive_ledger',
+      'motive_voice_note',
+      'method_clean_cup',
+      'method_bowl_residue',
+    ];
+    final story = StoryDefinition.decode(jsonEncode(json));
+    final rows = const StoryRealism().analyze(story);
+    expect(rows.first.impossible, isFalse);
+    expect(rows.skip(1).every((row) => row.impossible), isTrue);
+    final report = const StorySolvabilityChecker().check(story);
+    expect(report.issues, hasLength(9));
+    expect(
+      report.issues.every((i) => i.message.contains('not deducible')),
+      isTrue,
+    );
+  });
+
+  test('rejects a shared search empty in a small-table bucket', () {
+    final json =
+        jsonDecode(
+              File('assets/stories/qahwet_el_moallem.json').readAsStringSync(),
+            )
+            as Map<String, dynamic>;
+    (json['actions'] as List)[3]['clueIds'] = ['flavor_receipt'];
+    final story = StoryDefinition.decode(jsonEncode(json));
+    final report = const StorySolvabilityChecker().check(story);
+    expect(
+      report.issues.any(
+        (i) =>
+            i.message == 'shared action timeline yields no clue for bucket 2',
+      ),
+      isTrue,
+    );
+  });
 
   test('realism enumerates plays for every table size', () {
     final story = StoryDefinition.decode(

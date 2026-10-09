@@ -601,13 +601,15 @@
     {
       "id": "a_diwan",
       "title": "الديوان والدولاب",
-      "description": "الإيصالات والمفاتيح وكلام الزباين.",
+      "description": "الإيصالات والمفاتيح وكلام الزباين وشهادة الأرض ومحضر الديوان المنافس.",
       "cost": 3,
       "clueIds": [
         "cu_keys",
         "cu_receipts",
         "fl_zikr",
-        "fl_dream"
+        "fl_dream",
+        "mo_rival",
+        "mo_land"
       ]
     },
     {

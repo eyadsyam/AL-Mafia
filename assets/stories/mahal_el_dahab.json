@@ -562,6 +562,8 @@
         "methods": []
       },
       "buckets": [
+        "2",
+        "3-4",
         "5-6",
         "7-8",
         "9-10"
@@ -616,12 +618,13 @@
     {
       "id": "outside_checks",
       "title": "اسأل البنك والقطر والسياح",
-      "description": "تذكرة دور وتذكرة قطر وصور السياح.",
+      "description": "تذكرة دور وتذكرة قطر وصور السياح ودفتر الشاي وفاتورة محل الشرقاوي.",
       "cost": 4,
       "clueIds": [
         "culprit_bank",
         "culprit_photo",
-        "culprit_train"
+        "culprit_train",
+        "culprit_tea"
       ]
     },
     {

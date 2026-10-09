@@ -575,21 +575,24 @@
     {
       "id": "forensic",
       "title": "اطلب تقرير الطب الشرعي",
-      "description": "افصل بين الصعقة والمخدر والدفع.",
+      "description": "قارن تقرير الصعقة والمخدر بمعاينة السور وآثار الجاكيت.",
       "cost": 4,
       "clueIds": [
-        "method_forensic"
+        "method_forensic",
+        "method_railing"
       ]
     },
     {
       "id": "dj_and_vendors",
       "title": "استجوب الدي جي والموردين",
-      "description": "لوج المايك وورقة حساب الأسطى شوقي والدبلة.",
+      "description": "واجه الدي جي والموردين بلوج المايك وكاميرا الصيدلية وفويس العريس وورقة الحساب والدبلة.",
       "cost": 2,
       "clueIds": [
         "culprit_mic",
         "flavor_receipts",
-        "flavor_ex"
+        "flavor_ex",
+        "culprit_pharmacy",
+        "motive_voicenote"
       ]
     },
     {

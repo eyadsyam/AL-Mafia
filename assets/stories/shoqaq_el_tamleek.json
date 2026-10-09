@@ -519,6 +519,7 @@
         "methods": []
       },
       "buckets": [
+        "2",
         "3-4",
         "5-6",
         "7-8",
@@ -583,13 +584,14 @@
     {
       "id": "contracts_plan",
       "title": "راجع العقود والمخطط",
-      "description": "الأرقام والإمضاء والطابعة وخط الإيصالات.",
+      "description": "الأرقام والإمضاء والطابعة وخط الإيصالات ومسار دفعات العقود.",
       "cost": 2,
       "clueIds": [
         "f_same_flat",
         "d_hand",
         "me_signature",
-        "me_printer"
+        "me_printer",
+        "mot_flow"
       ]
     },
     {

@@ -532,12 +532,13 @@
     {
       "id": "alley_cams",
       "title": "فتش الزقاق والكاميرات",
-      "description": "كاميرا القصب وصيدلية الزقاق وآثار الباب.",
+      "description": "قارن كاميرا القصب وصيدلية الزقاق بكارت المصور وآثار الباب.",
       "cost": 3,
       "clueIds": [
         "m_alley_cam",
         "c_pharmacy",
-        "f_alley"
+        "f_alley",
+        "c_memory"
       ]
     },
     {

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -130,9 +131,17 @@ void main() {
   });
 
   test('shared searches that give a table nothing are not offered', () {
-    final s = StoryDefinition.decode(
+    // Real stories no longer have such a search (the checker forbids it), so
+    // the fixture takes one away from the two-player table.
+    final raw = jsonDecode(
       File('assets/stories/mahal_el_dahab.json').readAsStringSync(),
-    );
+    ) as Map<String, dynamic>;
+    for (final clue in raw['clues'] as List) {
+      if ((clue as Map)['id'] == 'flavor_cheque') {
+        clue['buckets'] = ['5-6', '7-8', '9-10'];
+      }
+    }
+    final s = StoryDefinition.decode(jsonEncode(raw));
     expect(
       s.sharedActions(2).map((a) => a.id),
       isNot(contains('court_papers')),

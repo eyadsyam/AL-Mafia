@@ -575,51 +575,56 @@
     {
       "id": "a_boat",
       "title": "فحص الأمل",
-      "description": "الكابينة والموتور والشبك والمجداف.",
+      "description": "الكابينة والموتور والشبك والمجداف وقارن حال المركب بتوقيت النوّة.",
       "cost": 3,
       "clueIds": [
         "me_engine",
         "me_oar",
         "me_nets",
         "fl_hanan_calls",
-        "fl_pier_mud"
+        "fl_pier_mud",
+        "me_storm_time"
       ]
     },
     {
       "id": "a_pier",
       "title": "كاميرا كريم وعم فتحي",
-      "description": "اللقطات والعقدة وكلام الرصيف.",
+      "description": "اللقطات والعقدة وكلام الرصيف وحساب الريّس مع سعد وختم الميزان.",
       "cost": 3,
       "clueIds": [
         "cu_pier_photo",
         "cu_left_knot",
         "fl_fathy_engine",
-        "fl_saad_cash"
+        "fl_saad_cash",
+        "mo_ledger"
       ]
     },
     {
       "id": "a_alibi",
       "title": "الساعات والحجج",
-      "description": "فيديو الفرح وكارنيه المعمل وجهاز الرياح.",
+      "description": "فيديو الفرح وكارنيه المعمل وجهاز الرياح وساعات الموتور وفحصه.",
       "cost": 3,
       "clueIds": [
         "cu_alibi_wedding",
         "cu_alibi_lab",
         "me_storm_time",
-        "fl_son_debt"
+        "fl_son_debt",
+        "me_engine"
       ]
     },
     {
       "id": "a_papers",
       "title": "أوراق الجمعية والكشكول",
-      "description": "اللايحة والصلح والدفتر وما اتلقى في الجيب.",
+      "description": "اللايحة والصلح والدفتر وما اتلقى في الجيب، ووثّق حجة سعد ودعاء بالفيديو وسجل المعمل.",
       "cost": 3,
       "clueIds": [
         "mo_ledger",
         "mo_licence",
         "mo_feud",
         "mo_note",
-        "fl_cable"
+        "fl_cable",
+        "cu_alibi_wedding",
+        "cu_alibi_lab"
       ]
     }
   ],
