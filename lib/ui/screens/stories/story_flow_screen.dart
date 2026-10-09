@@ -19,11 +19,13 @@ class StoryCompletion {
     required this.story,
     required this.score,
     required this.solved,
+    this.accusation,
   });
 
   final StoryDefinition story;
   final int score;
   final bool solved;
+  final StoryAccusation? accusation;
 }
 
 class StoryFlowScreen extends StatefulWidget {
@@ -238,6 +240,8 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
         story: widget.story,
         score: _session.score?.total ?? 0,
         solved: _isSolved(),
+        accusation:
+            _session.soloAccusation ?? _voters.where(_correct).firstOrNull,
       ),
     );
   }
@@ -533,7 +537,10 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [StoryTokens.transparentColor, CaseFileTokens.desk],
+                        colors: [
+                          StoryTokens.transparentColor,
+                          CaseFileTokens.desk,
+                        ],
                       ),
                     ),
                   ),
@@ -804,7 +811,8 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
     final total = widget.story.discussionSeconds;
     return StoryDesk(
       key: StoryFlowScreen.discussionKey,
-      title: '${l.storiesDiscussionLine} · ${l.storiesRound} ${_session.round} / ${StoryTokens.rounds}',
+      title:
+          '${l.storiesDiscussionLine} · ${l.storiesRound} ${_session.round} / ${StoryTokens.rounds}',
       onBack: _exit,
       footer: BoneButton(
         label: l.storiesSearchTogether,
@@ -1231,10 +1239,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
                 ),
               ),
               if (i == culpritSeat && hidFrom > 0)
-                const Icon(
-                  Icons.star_rounded,
-                  color: DeckTokens.bone,
-                ),
+                const Icon(Icons.star_rounded, color: DeckTokens.bone),
               if (i == culpritSeat)
                 Text(
                   hidFrom > 0 ? l.storiesHidWell : l.storiesGotCaught,

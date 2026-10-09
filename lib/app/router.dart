@@ -45,6 +45,7 @@ import '../ui/screens/setup/settings_screen.dart';
 import '../ui/screens/setup/settings_sheet.dart';
 import '../ui/screens/stories/stories_screen.dart';
 import '../ui/screens/stories/story_rewards.dart';
+import '../ui/economy/bot_rewards.dart';
 import '../ui/screens/setup/setup_draft.dart';
 import '../ui/fun/characters_screen.dart';
 import '../ui/economy/council_hub.dart' show pendingInviteCodeProvider;
@@ -267,6 +268,8 @@ GoRouter buildRouter(
       saved = ref.read(setupDraftProvider).settings;
     }
     if (!context.mounted) return;
+    await startBotRewardSession(ProviderScope.containerOf(context));
+    if (!context.mounted) return;
     ref
         .read(matchControllerProvider.notifier)
         .startMatch(
@@ -471,8 +474,9 @@ GoRouter buildRouter(
           child: WarmPalette(child: StoriesScreen(
             onBack: () => context.go(Routes.mode),
             newSeed: newMatchSeed,
-            claimReward: (id) =>
-                claimStoryReward(ProviderScope.containerOf(context), id),
+            claimReward: (completion) => claimStoryReward(
+              ProviderScope.containerOf(context), completion,
+            ),
             beforeStory: () async {
               await ref.read(interstitialCoordinatorProvider).beforeDeal();
             },

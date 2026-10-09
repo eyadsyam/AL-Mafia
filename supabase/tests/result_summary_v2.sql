@@ -1,6 +1,7 @@
 -- D7: resultSummary{roomId,requestId}: one call, deltas for this room, the
 -- first answer replayed on retry, request ids bound to their room.
 begin;
+alter table public.votes disable trigger vote_phase_guard;
 create function pg_temp.rs_user() returns uuid language plpgsql as $$
 declare u uuid:=gen_random_uuid();
 begin
@@ -27,6 +28,8 @@ begin
       values(rid,mates[i],i,'P'||i,case when i=1 then 'mafia' else 'citizen' end);
   end loop;
   insert into public.room_state(room_id,phase,public_data) values(rid,'result','{"outcome":"town"}');
+  insert into public.votes(room_id,day,voter_id,action_id)
+    select rid,1,unnest(array[u]||mates),gen_random_uuid();
 
   first:=public.result_summary_room(u,rid,req);
   assert first->>'roomId'=rid::text and first->>'requestId'=req::text,first::text;

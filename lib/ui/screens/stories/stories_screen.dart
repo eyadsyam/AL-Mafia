@@ -57,7 +57,7 @@ class StoriesScreen extends StatefulWidget {
 
   /// Pays the first solve of a story; returns the coins granted (0 when
   /// none). Absent in tests and builds without a server.
-  final Future<int> Function(String storyId)? claimReward;
+  final Future<int> Function(StoryCompletion completion)? claimReward;
 
   @override
   State<StoriesScreen> createState() => _StoriesScreenState();
@@ -114,7 +114,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
     unawaited(widget.afterStory?.call(completion.story.id));
     final claim = widget.claimReward;
     if (!firstSolve || claim == null) return;
-    final granted = await claim(completion.story.id);
+    final granted = await claim(completion);
     if (granted <= 0 || !mounted) return;
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
       SnackBar(content: Text(context.l10n.storyRewardGranted(granted))),
@@ -208,8 +208,7 @@ class _StoriesHubState extends State<StoriesHub> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (context) =>
-          _PlayerCountSheet(minGroup: story.minGroupPlayers),
+      builder: (context) => _PlayerCountSheet(minGroup: story.minGroupPlayers),
     );
     if (count != null && context.mounted) widget.onStart(story, count);
   }
@@ -309,7 +308,9 @@ class _StoriesHubState extends State<StoriesHub> {
         ],
         image: story.coverImage,
         stampText: solved
-            ? (best > 0 ? l.storiesStampSolvedScore(best) : l.storiesStampSolved)
+            ? (best > 0
+                  ? l.storiesStampSolvedScore(best)
+                  : l.storiesStampSolved)
             : l.storiesStampOpen,
         stampColor: solved ? CaseFileTokens.sage : StoryTokens.stampOpen,
         sealed: locked,

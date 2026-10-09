@@ -10,7 +10,7 @@ try {
   await db.exec(`
     create role anon; create role authenticated; create role service_role bypassrls;
     create schema auth; create schema extensions;
-    create table auth.users(id uuid primary key, email text,
+    create table auth.users(id uuid primary key, email text, created_at timestamptz not null default now(),
       email_confirmed_at timestamptz, is_anonymous boolean not null default false);
     create function auth.uid() returns uuid language sql stable as $$
       select coalesce(nullif(current_setting('request.jwt.claim.sub',true),''),

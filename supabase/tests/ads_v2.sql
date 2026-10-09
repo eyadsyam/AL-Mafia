@@ -235,6 +235,8 @@ begin
   begin
     update economy_config set daily_enabled=true, ad_extras_enabled=true, daily_global_cap=1;
     u := pg_temp.av_user(); v := pg_temp.av_user();
+    update auth.users set is_anonymous=false,created_at=now()-interval '3 days'
+      where id in (u,v);
     perform public.claim_daily_coffer(u,today);
     update economy_config set daily_global_cap=2;
     perform public.claim_daily_coffer(v,today);

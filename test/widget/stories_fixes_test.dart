@@ -10,6 +10,8 @@ import 'package:mafia_master/stories/story_session.dart';
 import 'package:mafia_master/ui/screens/stories/stories_screen.dart';
 import 'package:mafia_master/ui/screens/stories/story_case_widgets.dart';
 import 'package:mafia_master/ui/screens/stories/story_flow_screen.dart';
+import 'package:mafia_master/ui/screens/stories/story_rewards.dart';
+import 'package:mafia_master/ui/economy/bot_rewards.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
 
@@ -42,6 +44,42 @@ void main() {
     cafe = StoryDefinition.decode(
       File('assets/stories/qahwet_el_moallem.json').readAsStringSync(),
     );
+  });
+
+  test('economy requests include the solve picks and bot session', () {
+    final correct = StoryAccusation(
+      culprit: cafe.truth.primaryCulprit,
+      motive: cafe.truth.motive,
+      method: cafe.truth.method,
+    );
+    final completion = StoryCompletion(
+      story: cafe,
+      score: 100,
+      solved: true,
+      accusation: correct,
+    );
+    expect(storySolveRequest(completion), {
+      'action': 'storySolved',
+      'story': cafe.id,
+      'culprit': correct.culprit,
+      'motive': correct.motive,
+      'method': correct.method,
+    });
+    expect(
+      storySolveRequest(
+        StoryCompletion(
+          story: cafe,
+          score: 0,
+          solved: false,
+          accusation: correct,
+        ),
+      ),
+      isNull,
+    );
+    expect(botWinRequest('session-1'), {
+      'action': 'botWin',
+      'sessionId': 'session-1',
+    });
   });
 
   void size(WidgetTester tester, Size s) {
@@ -186,6 +224,7 @@ void main() {
     await tester.tap(find.text(arStrings.storiesAnotherCase));
     await tester.pumpAndSettle();
     expect(completion?.solved, isFalse);
+    expect(storySolveRequest(completion!), isNull);
   });
 
   testWidgets('a majority of non-culprit voters solves it', (tester) async {
@@ -197,6 +236,9 @@ void main() {
     await tester.tap(find.text(arStrings.storiesAnotherCase));
     await tester.pumpAndSettle();
     expect(completion?.solved, isTrue);
+    expect(completion?.accusation?.culprit, cafe.truth.primaryCulprit);
+    expect(completion?.accusation?.motive, cafe.truth.motive);
+    expect(completion?.accusation?.method, cafe.truth.method);
   });
 
   testWidgets('completing twice reports once', (tester) async {
@@ -254,7 +296,10 @@ void main() {
     );
     await tapKey(tester, StoryFlowScreen.accusationButtonKey);
     await tester.pumpAndSettle();
-    await tapKey(tester, StoryAccusationForm.suspectKey(cafe.truth.primaryCulprit));
+    await tapKey(
+      tester,
+      StoryAccusationForm.suspectKey(cafe.truth.primaryCulprit),
+    );
     await tapKey(tester, StoryAccusationForm.motiveKey(cafe.truth.motive));
     await tapKey(tester, StoryAccusationForm.methodKey(cafe.truth.method));
     await tester.tap(find.byKey(StoryFlowScreen.closeCaseKey));

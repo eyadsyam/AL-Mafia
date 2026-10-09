@@ -3,6 +3,7 @@
 -- invite settlement stages, conditions, caps, unlocks and notices; flag off is
 -- exactly the old behaviour.
 begin;
+alter table public.votes disable trigger vote_phase_guard;
 
 create function pg_temp.ev_user(p_age interval default interval '30 days') returns uuid
 language plpgsql as $$
@@ -36,6 +37,8 @@ begin
   end loop;
   insert into public.room_state(room_id,phase,public_data)
     values(rid,'result',jsonb_build_object('outcome',p_outcome));
+  insert into public.votes(room_id,day,voter_id,action_id)
+    select rid,1,unnest(p_seats),gen_random_uuid();
   return rid;
 end $$;
 

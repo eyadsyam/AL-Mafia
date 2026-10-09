@@ -256,12 +256,22 @@ export function economyCall(
     // pack purchase, and one use inside a live match.
     // «قصص»: the first solve of a story pays once; the amount is the server's.
     case "storySolved":
-      return typeof body.story === "string" && STORY_ID.test(body.story)
-        ? { rpc: "claim_story_reward", args: { p_user: userId, p_story: body.story } }
+      return typeof body.story === "string" && STORY_ID.test(body.story) &&
+          [body.culprit, body.motive, body.method].every(
+            (pick) => typeof pick === "string" && STORY_ID.test(pick),
+          )
+        ? { rpc: "claim_story_reward", args: {
+            p_user: userId, p_story: body.story, p_culprit: body.culprit,
+            p_motive: body.motive, p_method: body.method,
+          } }
         : null;
     // «العب ضد البوتات»: a win pays, capped per day by the server.
+    case "botStart":
+      return { rpc: "start_bot_match", args: { p_user: userId } };
     case "botWin":
-      return { rpc: "claim_bot_win", args: { p_user: userId } };
+      return typeof body.sessionId === "string" && UUID.test(body.sessionId)
+        ? { rpc: "claim_bot_win", args: { p_user: userId, p_session: body.sessionId } }
+        : null;
     case "toolsGet":
       return { rpc: "table_tools_snapshot", args: { p_user: userId } };
     case "toolBuy":

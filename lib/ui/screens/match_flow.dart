@@ -1002,8 +1002,9 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
             ),
         ],
         matchFile: switch (_controller.transport) {
-          final LocalTransport local when local.engine.hasMatch =>
-            matchFileOf(local.engine.match),
+          final LocalTransport local when local.engine.hasMatch => matchFileOf(
+            local.engine.match,
+          ),
           _ => null,
         },
         // Doc 13 §4.4. Built from the finished match rather than from the
@@ -1092,6 +1093,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
           .leftPassAndPlayResult(localId);
     }
     if (!mounted || !_controller.restartBotMatch()) return;
+    await startBotRewardSession(ProviderScope.containerOf(context));
     setState(() {
       _victorySeen = false;
       _webResultQueued = false;
