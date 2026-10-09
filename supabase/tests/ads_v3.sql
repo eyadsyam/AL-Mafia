@@ -29,21 +29,21 @@ begin
     and (caps->'interstitial'->>'preMatch')::boolean = false
     and (caps->'interstitial'->>'passAndPlay')::boolean = false
     and (caps->'interstitial'->>'session')::boolean = false, caps::text;
-  assert (caps->'interstitial'->>'maxPerDay')::int = 40
-    and (caps->'interstitial'->>'gapSeconds')::int = 90
-    and (caps->'interstitial'->>'sessionAfterSeconds')::int = 300, caps::text;
-  assert (caps->'ads'->'fullScreen'->>'maxPerDay')::int = 40, caps::text;
+  assert (caps->'interstitial'->>'maxPerDay')::int = 60
+    and (caps->'interstitial'->>'gapSeconds')::int = 60
+    and (caps->'interstitial'->>'sessionAfterSeconds')::int = 180, caps::text;
+  assert (caps->'ads'->'fullScreen'->>'maxPerDay')::int = 60, caps::text;
   assert caps->'ads' ? 'banner' and caps->'ads' ? 'extras', 'ads v2 keys lost';
   assert not (caps->'ads'->'appOpen') ? 'maxPerDay', 'app-open daily cap still reported';
   assert caps->>'adStepsMode' = 'multiply';
 
-  -- G2 Floors: the cap never above 40, the gap never below 90 s, the session
-  -- timer never below 5 minutes.
-  begin update economy_config set full_screen_max_per_day=41; assert false, 'cap 41 accepted';
+  -- G2 Floors (ads pacing v4): the cap never above 60, the gap never below
+  -- 60 s, the session timer never below 3 minutes.
+  begin update economy_config set full_screen_max_per_day=61; assert false, 'cap 61 accepted';
   exception when check_violation then null; end;
-  begin update economy_config set full_screen_min_gap_seconds=60; assert false, 'gap 60 accepted';
+  begin update economy_config set full_screen_min_gap_seconds=59; assert false, 'gap 59 accepted';
   exception when check_violation then null; end;
-  begin update economy_config set session_interstitial_after_seconds=120; assert false, 'session 120 accepted';
+  begin update economy_config set session_interstitial_after_seconds=179; assert false, 'session 179 accepted';
   exception when check_violation then null; end;
   update economy_config set full_screen_max_per_day=20, full_screen_min_gap_seconds=120,
     pre_match_interstitial_enabled=true, pass_and_play_interstitial_enabled=true,

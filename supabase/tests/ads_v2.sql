@@ -39,10 +39,11 @@ begin
     assert caps->'ads'->'banner'->>'enabled'='false', 'banner default on';
     assert caps->'ads'->'extras'->>'spin'='false' and caps->'ads'->'extras'->>'coffer'='false'
       and caps->'ads'->'extras'->>'swap'='false', 'extras default on';
-    -- Phase 110: the app-open cap/gap are replaced by the global full-screen pacing.
-    assert (caps->'ads'->'fullScreen'->>'maxPerDay')::int=40, 'full-screen cap';
-    assert (caps->'ads'->'fullScreen'->>'gapSeconds')::int=90, 'full-screen gap';
-    assert (caps->'ads'->'appOpen'->>'resumeAfterSeconds')::int=14400, 'app open resume';
+    -- Phase 110: the app-open cap/gap are replaced by the global full-screen pacing
+    -- (values from ads pacing v4, 2026-10-08).
+    assert (caps->'ads'->'fullScreen'->>'maxPerDay')::int=60, 'full-screen cap';
+    assert (caps->'ads'->'fullScreen'->>'gapSeconds')::int=60, 'full-screen gap';
+    assert (caps->'ads'->'appOpen'->>'resumeAfterSeconds')::int=900, 'app open resume';
     assert caps ? 'council' and caps ? 'interstitial' and caps ? 'products', 'earlier keys lost';
     st := public.ad_extras_status(u);
     assert st->>'enabled'='false', 'status enabled';
@@ -59,7 +60,7 @@ end $$;
 do $$
 begin
   begin
-    assert pg_temp.av_refused('update economy_config set app_open_max_per_day=4','check'), 'max 4 accepted';
+    assert pg_temp.av_refused('update economy_config set app_open_max_per_day=11','check'), 'max 11 accepted';
     assert pg_temp.av_refused('update economy_config set app_open_gap_seconds=600','check'), 'gap loosened';
     assert pg_temp.av_refused('update economy_config set app_open_resume_after_seconds=60','check'), 'resume loosened';
     update economy_config set app_open_max_per_day=1, app_open_gap_seconds=86400;
