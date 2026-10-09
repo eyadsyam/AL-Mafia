@@ -3825,3 +3825,8 @@ Files:      b1ecefa..1e3dd90
 Verified:   flutter test 2015 passed; SQL harness 78/83 (5 stale); live suites revote 39/39, kick 62/62, roles/tools 235/0; web live md5 = build; AAB contains ic_stat_mafia and 1.3.0
 Gate:       PASS
 Open:       owner uploads release/1.3.0/mafia-master-1.3.0-16.aab; AdSense account not approved (owner ticks the policy attestation and resubmits; check Policy center reason first); AdMob serves only after a production release; deferred: push English copy, blocked/muted recipients for room notices, web ad pacing (owner's call), invitee bonus cap (owner keeps it), 5 stale SQL tests
+
+## NEXT (owner, 2026-10-10)
+- 1.3.0 (16) sent for closed-testing review 2026-10-09 22:30.
+- Smoothness pass, web + Android, never touching animations: startup deferral, image decode sizes, lazy audio, repaint isolation, try --wasm. Baseline from tool/web_perf_probe.mjs on ?web=1: iPhone first frame 3.0 s, p95 61 ms; Android 8.3 s, p95 267 ms; desktop 4.3 s, p95 17 ms.
+- Shorebird over-the-air updates: the owner creates the account (console.shorebird.dev, `shorebird login`), then shorebird init/release once through Play, patches after that; in-app images can come from the server.
