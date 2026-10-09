@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The invite sound is named only by the push payload and the notification
-     channel (never from code), so resource shrinking must keep it. -->
+<!-- The invite sound and the notification icon are named only by the push
+     payload, the notification channel and the local-notifications init
+     (never from code), so resource shrinking must keep them. Without the
+     icon the push service failed to start and Android push was off. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@raw/invite_knock" />
+    tools:keep="@raw/invite_knock,@drawable/ic_stat_mafia" />
