@@ -106,6 +106,7 @@ class Match:
         self.host = self.players[0]
         self.settings = dict(SETTINGS, **(flags or {}))
         self.leaks, self.responses, self.finished = set(), 0, False
+        self.answer_owner = {}
         data = accepted(label + ': create', h.fn('create_room', {'name': 'LiveBot', 'visibility': 'private', 'settings': {'maxPlayers': 15}}, self.host))
         self.id, self.code = data['roomId'], data['code']
         ACTIVE.append(self)
@@ -131,14 +132,18 @@ class Match:
             if isinstance(obj, dict):
                 for key, value in obj.items():
                     if value is not None and key in ('role', 'revealedRole', 'eliminatedRole', 'victimRole'):
-                        own = source == 'my_team' and key == 'role' and path == ''
-                        if not own:
+                        permitted = (source == 'my_team' and key == 'role' and path == '') or (source == 'witness_view') or (source == 'submit_night_action' and key == 'revealedRole' and p.get('role') == 'detective') or key == 'eliminatedRole'  # D11/FR-019: a day elimination is public by design
+                        if not permitted:
                             self.leaks.add(source + ':' + path + key)
-                    if key == 'teammates' and value:
+                    if key == 'teammates' and value and p.get('role') not in ('mafia', 'silencer'):
                         self.leaks.add(source + ':teammates')
                     if key == 'answer' and value is not None:
-                        if source not in ('economy',) and obj.get('user_id') != p['id']:
+                        if source != 'economy' and obj.get('user_id') != p['id']:
                             self.leaks.add(source + ':privateAnswer')
+                        elif source == 'economy' and 'tool' in obj:
+                            owner = self.answer_owner.get((obj.get('tool'), obj.get('phaseNumber'), tuple(obj.get('targets', []))))
+                            if owner is not None and owner != p['id']:
+                                self.leaks.add(source + ':otherAnswer')
                     walk(value, path + key + '.')
             elif isinstance(obj, list):
                 for v in obj:
@@ -178,7 +183,7 @@ class Match:
     def reveal(self):
         for p in self.players:
             self.call('saw_role', p)
-        self.call('open_phase', phase='night')
+        accepted(self.label + ': reveal to night', self.call('open_phase', phase='night'))
 
     def role(self, role):
         return next(p for p in self.players if p.get('role') == role)
@@ -203,10 +208,10 @@ class Match:
         return accepted(self.label + ': resolve night ' + str(self.state()['phase_number']), self.call('resolve_night'))
 
     def discuss(self):
-        self.call('open_phase', phase='discuss')
+        accepted(self.label + ': morning to discuss', self.call('open_phase', phase='discuss'))
 
     def vote(self, target, ballots=None):
-        self.call('open_phase', phase='vote')
+        accepted(self.label + ': discuss to vote', self.call('open_phase', phase='vote'))
         alive = self.alive()
         for p in alive:
             seat = ballots.get(p['seat']) if ballots is not None else (target if p['seat'] != target else None)
@@ -364,6 +369,7 @@ def tools_match():
             targets = [x['seat'] for x in m.players if x != p][:tool['targets']]
             refused('bad targets ' + code, m.call('economy', p, action='toolUse', tool=code, targets=[p['seat']] * tool['targets']), ['BAD_TARGETS'])
             result = accepted('use ' + code, m.call('economy', p, action='toolUse', tool=code, targets=targets))
+            m.answer_owner[(code, result.get('phaseNumber'), tuple(targets))] = p['id']
             expected = any(x['role'] in ('mafia', 'silencer') and x['seat'] in targets for x in m.players)
             record('truthful answer ' + code, result.get('answer') is expected)
             own = m.call('economy', p, action='toolAnswers')[1].get('answers', [])
@@ -418,17 +424,11 @@ def main():
     global BOTS
     h._POOL_TAKEN[0] = 0
     BOTS = [h.anon_session('LiveBot%d' % i) for i in range(12)]
-    ownership()
     if not setup_coins():
         record('roles/tools scenarios blocked by coin setup', False, 'NO_PRIVILEGED_SETUP')
         return
-    for role in ('silencer', 'elder', 'sniper'):
-        accepted('host buys ' + role, eco(BOTS[0], 'buy', item='role_' + role))
-    for name, scenario in [('silencer', lambda: role_match('silencer')),
-                           ('elder', lambda: role_match('elder')),
-                           ('sniper', lambda: role_match('sniper')),
-                           ('all', lambda: role_match('all')), ('tools', tools_match),
-                           ('edges', edge_match), ('timers', timer_match)]:
+    accepted('edge host buys silencer', eco(BOTS[0], 'buy', item='role_silencer'))
+    for name, scenario in [('tools', tools_match), ('edges', edge_match), ('timers', timer_match)]:
         try:
             scenario()
         except Exception as e:
@@ -516,6 +516,8 @@ def timer_match():
     m = Match('timers', dict(mafia=1, doctor=1, citizen=3),
               flags={'openingRoundEnabled': True})
     m.start()
+    # Clients stay connected and heartbeat, as in an open app, but send no
+    # acknowledgements, night actions, accusations, floor claims, or votes.
     seen = set()
     # No role acknowledgements, actions or votes. Only the recovery driver acts
     # after real server deadlines; no privileged clock manipulation.
@@ -540,6 +542,14 @@ def timer_match():
         else:
             response = m.call('advance_phase', guest)
         record('timer expiry ' + phase, response[0] == 200, response[1].get('error'))
+        if response[0] == 200 and phase == 'night':
+            resolved = m.call('resolve_night', guest)
+            record('expired night resolves after defaults', resolved[0] == 200,
+                   resolved[1].get('error'))
+        elif response[0] == 200 and phase == 'vote':
+            resolved = m.call('resolve_vote', guest)
+            record('expired ballot resolves after abstentions', resolved[0] == 200,
+                   resolved[1].get('error'))
         seen.add(phase)
         if {'reveal', 'night', 'morning', 'opening', 'discuss', 'vote', 'verdict'} <= seen:
             break

@@ -3806,3 +3806,16 @@ Files:      see commits 81c8ee9..HEAD
 Verified:   flutter analyze lib test (0 errors/warnings); full flutter test +1921 ~5 all passed; identity/store screenshots read at 360 and 430
 Gate:       PASS
 Open:       table tools in one-phone/bot play (owner decision); frames on offline seats (no "me" seat); narrator progress line needs an end signal from the audio layer; no build/deploy until the owner says
+
+## RELEASE-2026-10-09 — in progress
+Built:      economy loopholes (refund takes items back, transfer reference required, puzzle salt, constant-time sync secret, confirmed-email admin) deployed; stale ads_v2/v3 tests fixed; Codex: online match edge cases + client push/ads fixes (sign-out unregister, app-open recheck, tap routing, ask after first match)
+Files:      b1ecefa, 5698c66, + Codex diffs under review
+Verified:   SQL harness 75/80 (5 pre-existing); coin_purchase_test; live push register/unregister probe 200; Firebase installations accepted for web + Android keys; release AAB 1.2.0 carries Firebase values and POST_NOTIFICATIONS
+Gate:       pending (owner priority today: online matches, mobile ads, invite push, then ship web + AAB)
+Open (deferred by owner, after release):
+- Economy review E: story solve verified by server; bot-win server session + minimum duration; receipts need real participation, exclude left seats; void rewards when a kick decided the match (owner: yes); invitee 50 shares inviter caps (conflicts with the friend's promise — ask); daily_global_cap per account class
+- Push: English copy needs a stored locale; blocked/muted recipients for room notices
+- Ads: web breaks ignore maxPerDay/gap/grace (applying them lowers web ads — owner's call); shown-ad counts are device-only; opt-in rewarded hint inside bot matches (owner's call)
+- AdSense: web provider is "house" and banner slot null live; check the AdSense site status in Chrome (extension was disconnected)
+- 5 SQL tests still stale: action_epoch, coin_order_debt_offset, cosmetic_catalog, store_truth, store_v2_catalog
+\n## PHASE live-online-simulation — blocked\nBuilt:      Live bot coverage for 17 tools, conflicts, edge cases, full connected AFK deadlines, confrontation timeout, and dead night tools; local verdict privacy and appeal abstention fixes.\nFiles:      supabase/functions/resolve_vote/index.ts, supabase/functions/_shared/{tools,vote_visibility}.ts, supabase/tests/{e2e_match,new_roles_tools_match,run_live_suite,remaining_conflicts_match,insufficient_coins_match,timer_expiry_match,confront_expiry_match,dead_night_tools_match,appeal_abstentions.test,vote_visibility.test}.\nVerified:   Live tool and match scenarios; 23/23 AFK timeout assertions; 30/31 confrontation assertions and 32/33 dead-night assertions (both only fail on known live role leak); 4/4 Node tests; Deno check; Python compile; SQL harness 75/80, five pre-existing failures.\nGate:       FAIL\nOpen:       Owner review/deploy resolve_vote edge function and shared files; rerun live appeal and zero-leakage assertions after deployment.\n

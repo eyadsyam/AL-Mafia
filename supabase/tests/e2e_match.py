@@ -215,6 +215,11 @@ def anon_session(label):
                 if st == 200 and d.get("access_token"):
                     e.update(token=d["access_token"], refresh=d.get("refresh_token", e["refresh"]))
                     _pool_save(pool)
+            if _jwt_exp(e["token"]) <= time.time() + 60:
+                fresh = _anon_session_new(label)
+                pool[i] = {"token": fresh["token"], "refresh": fresh.get("refresh"), "id": fresh["id"]}
+                _pool_save(pool)
+                return fresh
             return {"label": label, "token": e["token"], "id": e["id"]}
         fresh = _anon_session_new(label)
         pool.append({"token": fresh["token"], "refresh": fresh.get("refresh"), "id": fresh["id"]})
@@ -580,9 +585,9 @@ def main():
     check("the ballot resolves into the verdict", row.get("phase") == "verdict", row)
     check("the day has not moved yet", row.get("phase_number") == 1, row)
     last = (row.get("public_data") or {}).get("lastVote") or {}
-    check("the verdict names who went and what they were",
+    check("the verdict names who went without publishing their role",
           last.get("eliminatedSeat") == saved["seat"]
-          and last.get("eliminatedRole") == "citizen", last)
+          and "eliminatedRole" not in last, last)
     check("the verdict carries a clock", row.get("phase_ends_at") is not None, row)
 
     # A guest may not close it while that clock is still running.

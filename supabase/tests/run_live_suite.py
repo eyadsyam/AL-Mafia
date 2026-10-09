@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import time
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 config = json.loads((ROOT / 'dart_defines.json').read_text(encoding='utf-8-sig'))
@@ -80,10 +81,38 @@ def run(name):
 
 
 if __name__ == '__main__':
-    # Maximum concurrent accounts needed by any baseline, before any lobby.
-    for i in range(12):
+    if ('--confront-timer' in sys.argv or '--timers-only' in sys.argv or
+            '--dead-night-tools' in sys.argv):
+        h._POOL_TAKEN[0] = 1  # Cached seats 1-5; seat 0's refresh was consumed by a read-only probe.
+        def no_new_account(_label):
+            raise SystemExit('CACHE_REFRESH_FAILED')
+        h._anon_session_new = no_new_account
+        for i in range(5):
+            h.anon_session('CachedBot%d' % i)
+        print('5 cached bot sessions ready in memory', flush=True)
+        run('confront_expiry_match' if '--confront-timer' in sys.argv else
+            'dead_night_tools_match' if '--dead-night-tools' in sys.argv else
+            'timer_expiry_match')
+        raise SystemExit(0)
+    count = (0 if '--insufficient' in sys.argv else
+             5 if ('--conflicts' in sys.argv or '--conflicts-one' in sys.argv) else 12)
+    # Every session is minted before creating a lobby, then reused throughout.
+    for i in range(count):
         h.anon_session('LiveBot%d' % i)
-    print('12 bot sessions ready in memory', flush=True)
+    print(str(count) + ' bot sessions ready in memory', flush=True)
+    if '--insufficient' in sys.argv:
+        run('insufficient_coins_match')
+        raise SystemExit(0)
+    if '--conflicts-one' in sys.argv:
+        os.environ['LIVE_ONLY_INTERACTION'] = '1'
+        run('remaining_conflicts_match')
+        raise SystemExit(0)
+    if '--conflicts' in sys.argv:
+        run('remaining_conflicts_match')
+        raise SystemExit(0)
+    if '--remaining' in sys.argv:
+        run('new_roles_tools_match')
+        raise SystemExit(0)
     for name in ('e2e_match', 'ready_match', 'revote_match', 'recovery_match',
                  'kick_flow_match', 'kick_timing_match', 'roster_match',
                  'witness_match', 'concurrency_match'):

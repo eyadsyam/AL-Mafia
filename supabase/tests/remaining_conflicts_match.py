@@ -1,0 +1,154 @@
+"""Five reused anonymous bots: live tool interactions, vote ties, parity.
+
+Run with run_live_suite.py --conflicts. No credentials reach output or files.
+"""
+import json
+import os
+from pathlib import Path
+import subprocess
+import e2e_match as h
+import new_roles_tools_match as n
+
+
+def fund(bots):
+    # Exact authenticated anonymous bot IDs. Existing admin ledger path.
+    ids = [h.uuid.UUID(p['id']) for p in bots]
+    sql = 'begin; do $$ declare u uuid; begin foreach u in array array['
+    sql += ','.join("'%s'::uuid" % uid for uid in ids)
+    sql += "] loop if not exists(select 1 from auth.users where id=u and is_anonymous) then raise exception 'NOT_TEST_ANON'; end if; "
+    sql += "perform pg_advisory_xact_lock(hashtextextended('wallet:'||u::text,91)); "
+    sql += "perform public.credit_earned(u,'operator_adjustment',50000,null,'live-conflicts-20261009'); "
+    sql += 'end loop; end $$; commit;'
+    path = n.ROOT / 'build/live_conflict_bot_coin_setup.sql'
+    path.write_text(sql, encoding='utf-8')
+    cmd = ['npx.cmd' if os.name == 'nt' else 'npx', 'supabase', 'db', 'query', '--linked', '-f', str(path)]
+    proc = subprocess.run(cmd, cwd=n.ROOT, capture_output=True, timeout=120)
+    return n.record('conflicts bot coin setup', proc.returncode == 0, 'CLI_FAILED' if proc.returncode else None)
+
+
+def use(m, p, code, targets=None, note=None):
+    return n.accepted('conflict use ' + code, m.call('economy', p, action='toolUse', tool=code,
+                                                     targets=targets or [], note=note))
+
+
+def buy(p, code):
+    key = h.aid()
+    before = n.accepted('conflict buy ' + code, n.eco(p, 'toolBuy', tool=code, pack=3, requestId=key))
+    after = n.accepted('conflict replay buy ' + code, n.eco(p, 'toolBuy', tool=code, pack=3, requestId=key))
+    n.record('conflict idempotent buy ' + code,
+             before.get('balance') == after.get('balance') and before.get('tools') == after.get('tools'))
+
+
+def played_match():
+    m = n.Match('interactions', dict(mafia=1, doctor=1, citizen=3), realtime=True)
+    m.start()
+    mafia = m.role('mafia')
+    town = [p for p in m.players if p['role'] == 'citizen']
+    speaker, shielded, accused = town
+    for p, code in [(speaker, 'lock_door'), (speaker, 'extra_minute'),
+                    (shielded, 'vote_shield'), (mafia, 'revote'), (accused, 'appeal')]:
+        buy(p, code)
+    m.reveal()
+    m.night()
+    m.discuss()
+    use(m, speaker, 'extra_minute')
+    use(m, speaker, 'lock_door')
+    use(m, shielded, 'vote_shield')
+    use(m, mafia, 'revote')
+    use(m, accused, 'appeal')
+    n.accepted('conflict floor bonus claim', m.call('claim_floor', speaker))
+    first = m.state().get('speaker_until')
+    m.call('release_floor', speaker)
+    n.accepted('conflict floor ordinary claim', m.call('claim_floor', speaker))
+    second = m.state().get('speaker_until')
+    n.record('extra minute spent once beside lock door', bool(first and second) and first > second)
+    m.call('release_floor', speaker)
+
+    n.accepted('interaction ballot opens', m.call('open_phase', phase='vote'))
+    n.record('interaction phase before ballot', m.state()['phase'] == 'vote', m.state()['phase'])
+    # Four votes for the appellant except their own ballot. A purchased revote
+    # forces a second round despite a clear winner.
+    for p in m.alive():
+        target = accused['seat'] if p != accused else mafia['seat']
+        n.accepted('first ballot ' + str(p['seat']), m.call('submit_vote', p,
+            targetSeat=target, round=1, actionId=h.aid()))
+    verdict = n.accepted('revote + appeal first tally', m.call('resolve_vote'))
+    state = m.state()
+    n.record('revote forced second ballot', state['phase'] == 'vote' and
+             (state['public_data'].get('revote') or {}).get('round') == 2)
+    # Two votes to confirm, two abstain; the appellant's own vote is excluded.
+    voters = [p for p in m.alive() if p != accused]
+    for i, p in enumerate(voters):
+        target = accused['seat'] if i < 2 else None
+        n.accepted('appeal ballot ' + str(p['seat']), m.call('submit_vote', p,
+            targetSeat=target, round=2, actionId=h.aid()))
+    n.accepted('appellant abstains', m.call('submit_vote', accused, targetSeat=None,
+        round=2, actionId=h.aid()))
+    appealed = n.accepted('resolve appealed revote', m.call('resolve_vote'))
+    n.record('appeal blocks a weak majority', appealed.get('eliminatedSeat') is None)
+    n.accepted('interaction second night opens', m.call('open_phase', phase='night'))
+    # Both tools cover the next night: nobody may reach the locked speaker.
+    doctor = m.role('doctor')
+    n.accepted('mafia targets locked door', m.call('submit_night_action', mafia,
+        action='kill', targetSeat=speaker['seat'], actionId=h.aid()))
+    n.accepted('doctor protects elsewhere', m.call('submit_night_action', doctor,
+        action='protect', targetSeat=shielded['seat'], actionId=h.aid()))
+    morning = n.accepted('resolve locked night', m.call('resolve_night'))
+    n.record('lock door blocks kill despite extra minute', morning.get('victimSeat') is None)
+    m.discuss()
+    m.vote(mafia['seat'])
+    m.finish_town()
+    m.close()
+
+
+def tied_match():
+    m = n.Match('natural_tie', dict(mafia=1, doctor=1, citizen=3),
+                flags={'dayTieRule': 'revote'}, realtime=True)
+    m.start(); m.reveal(); m.night(); m.discuss()
+    mafia = m.role('mafia')
+    decoy = m.role('citizen')
+    n.accepted('natural tie ballot opens', m.call('open_phase', phase='vote'))
+    voters = m.alive()
+    # 2-2-1 abstention. A voter cannot vote for themselves.
+    for p in voters:
+        if p == mafia:
+            target = decoy['seat']
+        elif p == decoy:
+            target = mafia['seat']
+        else:
+            mafia_votes = sum(1 for x in voters[:voters.index(p)] if x.get('_target') == mafia['seat'])
+            decoy_votes = sum(1 for x in voters[:voters.index(p)] if x.get('_target') == decoy['seat'])
+            target = mafia['seat'] if mafia_votes < 2 else (decoy['seat'] if decoy_votes < 2 else None)
+        p['_target'] = target
+        n.accepted('tie ballot ' + str(p['seat']), m.call('submit_vote', p,
+            targetSeat=target, round=1, actionId=h.aid()))
+    n.accepted('resolve natural tie', m.call('resolve_vote'))
+    state = m.state()
+    tied = (state['public_data'].get('revote') or {}).get('tiedSeats', [])
+    n.record('natural tie opens two-candidate revote', state['phase'] == 'vote' and
+             set(tied) == {mafia['seat'], decoy['seat']})
+    for p in voters:
+        target = mafia['seat'] if p != mafia else decoy['seat']
+        n.accepted('tie second ballot ' + str(p['seat']), m.call('submit_vote', p,
+            targetSeat=target, round=2, actionId=h.aid()))
+    verdict = n.accepted('resolve natural revote', m.call('resolve_vote'))
+    n.record('natural revote removes mafia', verdict.get('eliminatedSeat') == mafia['seat'])
+    m.finish_town(); m.close()
+
+
+def main():
+    h._POOL_TAKEN[0] = 0
+    n.BOTS = [h.anon_session('ConflictBot%d' % i) for i in range(5)]
+    if not fund(n.BOTS):
+        return
+    scenarios = [('interactions_retry', played_match)] if os.environ.get('LIVE_ONLY_INTERACTION') == '1' else [('interactions', played_match), ('natural_tie', tied_match)]
+    for label, scenario in scenarios:
+        try:
+            scenario()
+        except Exception as e:
+            n.record(label + ': interrupted', False, type(e).__name__)
+        finally:
+            for m in n.ACTIVE:
+                if m.label == label:
+                    for w in m.watches:
+                        w.close()

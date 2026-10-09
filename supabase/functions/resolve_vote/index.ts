@@ -111,17 +111,21 @@ Deno.serve(handler(async (req, userId, db) => {
     const tally = new Map<string, number>();
     // The ballots the tally accepted, with their weights: the appeal reads
     // numerator and denominator from these same ballots.
-    const counted: { voter: string; target: string; weight: number }[] = [];
+    const counted: { voter: string; target: string | null; weight: number }[] = [];
     for (const v of cast ?? []) {
       const voter = roster.find((p) => p.user_id === v.voter_id);
       // A dead seat counts only with a bought grave vote, in the opening round.
       const mayVote = alive.has(v.voter_id) ||
         (!!voter && round === 1 && graves.has(voter.seat));
-      if (v.round !== round || !v.target_id || !alive.has(v.target_id) || !mayVote) continue;
-      if (!ballotTargetAllowed(round, revoteState?.tiedSeats, seatOf.get(v.target_id))) continue;
+      if (v.round !== round || !mayVote ||
+          (v.target_id !== null && !alive.has(v.target_id))) continue;
+      if (!ballotTargetAllowed(round, revoteState?.tiedSeats,
+        v.target_id === null ? null : seatOf.get(v.target_id))) continue;
       const weight = weightOf(voter);
       counted.push({ voter: v.voter_id, target: v.target_id, weight });
-      tally.set(v.target_id, (tally.get(v.target_id) ?? 0) + weight);
+      if (v.target_id !== null) {
+        tally.set(v.target_id, (tally.get(v.target_id) ?? 0) + weight);
+      }
     }
 
     const publicTally: Record<number, number> = {};

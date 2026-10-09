@@ -142,11 +142,11 @@ export function appealed(uses: ToolUse[], day: number): Set<number> {
 
 /**
  * The two sides of an appeal from the same ballots: [counted] are the ballots
- * the tally accepted (eligible voter, valid target), each with the weight the
+ * tally accepted (eligible voter, valid target or abstention), each with the weight the
  * tally gave it. The appellant's own ballot is left out of both sides.
  */
 export function appealCounts(
-  counted: { voter: string; target: string; weight: number }[],
+  counted: { voter: string; target: string | null; weight: number }[],
   appellant: string,
 ): { confirm: number; voters: number } {
   let confirm = 0;
