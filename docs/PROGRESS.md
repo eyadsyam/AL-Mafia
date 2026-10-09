@@ -3700,3 +3700,10 @@ Files:      lib/ui/screens/setup/{home_screen,mode_screen}.dart, lib/app/router.
 Verified:   flutter analyze (no errors/warnings); mode_screen, deck_kit, stories, handoff_purity, banner_placement, group_rematch tests 42/42; identity screenshots read
 Gate:       PASS
 Open:       real-device frame check once a build is allowed
+
+## PHASE deck-mode-flip — done
+Built:      «هتلعب إيه؟»: two fanned playing cards (Mafia, stories); the Mafia card lifts, flips to the back and deals «مع صحابك / أونلاين / ضد الكمبيوتر» as small cards with player counts; title cross-fades to «المافيا»; back reverses it. Transform/opacity only over repaint boundaries, art decoded at drawn size, instant under reduced motion. DECK-SYSTEM §10 records every screen agreed in the HTML mockups.
+Files:      lib/ui/screens/setup/mode_screen.dart, lib/ui/theme/design_tokens.dart (ModeTokens), lib/ui/widgets/deck/deck_public.dart (header cross-fade), ARB (modeTitle, modeMafia*, modeHint), docs/design/DECK-SYSTEM.md, tests (mode_screen, setup_flow, group_rematch, closure_offline, identity screenshots)
+Verified:   analyze clean of errors/warnings; mode_screen + setup_flow + group_rematch + deck_kit + handoff_purity + stories 45/45; screenshots closed/flipping/open read
+Gate:       PASS
+Open:       Android back while the Mafia card is open goes Home (header back closes it)

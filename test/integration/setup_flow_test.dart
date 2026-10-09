@@ -76,6 +76,9 @@ void main() {
       await tester.pumpAndSettle();
       // Play now asks which of the two games this is (S-01a). The one-phone
       // card is the offline flow's front door.
+      // The Mafia card turns over and deals the ways to play.
+      await tester.tap(find.byKey(ModeScreen.mafiaCard));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
       expect(find.byType(AddPlayersScreen), findsOneWidget);
@@ -119,6 +122,9 @@ void main() {
       await tester.pumpAndSettle();
       // Play now asks which of the two games this is (S-01a). The one-phone
       // card is the offline flow's front door.
+      // The Mafia card turns over and deals the ways to play.
+      await tester.tap(find.byKey(ModeScreen.mafiaCard));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
       await enterNames(tester, names);
@@ -160,6 +166,9 @@ void main() {
       await tester.pumpAndSettle();
       // Play now asks which of the two games this is (S-01a). The one-phone
       // card is the offline flow's front door.
+      // The Mafia card turns over and deals the ways to play.
+      await tester.tap(find.byKey(ModeScreen.mafiaCard));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
       await enterNames(tester, names);
@@ -193,6 +202,9 @@ void main() {
       await tester.pumpAndSettle();
       // Play now asks which of the two games this is (S-01a). The one-phone
       // card is the offline flow's front door.
+      // The Mafia card turns over and deals the ways to play.
+      await tester.tap(find.byKey(ModeScreen.mafiaCard));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
 
@@ -224,6 +236,9 @@ void main() {
       await tester.pumpAndSettle();
       // Play now asks which of the two games this is (S-01a). The one-phone
       // card is the offline flow's front door.
+      // The Mafia card turns over and deals the ways to play.
+      await tester.tap(find.byKey(ModeScreen.mafiaCard));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(ModeScreen.offlineCard));
       await tester.pumpAndSettle();
       // Leave without entering names, then come back to Home.

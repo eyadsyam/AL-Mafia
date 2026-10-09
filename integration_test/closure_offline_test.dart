@@ -65,6 +65,7 @@ void main() {
             .hitTestable();
         final startHome = find.byKey(HomeScreen.startButton).hitTestable();
         final playOffline = find.byKey(ModeScreen.offlineCard).hitTestable();
+        final openMafia = find.byKey(ModeScreen.mafiaCard).hitTestable();
         if (endMatch.evaluate().isNotEmpty) {
           await tap(endMatch);
         } else if (skipOnboarding.evaluate().isNotEmpty) {
@@ -73,6 +74,8 @@ void main() {
           await tap(startFromRules);
         } else if (playOffline.evaluate().isNotEmpty) {
           await tap(playOffline);
+        } else if (openMafia.evaluate().isNotEmpty) {
+          await tap(openMafia);
         } else if (find.byType(AddPlayersScreen).evaluate().isNotEmpty ||
             find.byType(GroupPickerScreen).evaluate().isNotEmpty) {
           break;

@@ -2927,7 +2927,7 @@ abstract class AppLocalizations {
   /// No description provided for @modeTitle.
   ///
   /// In en, this message translates to:
-  /// **'How are you playing?'**
+  /// **'What are we playing?'**
   String get modeTitle;
 
   /// No description provided for @modeSubtitle.
@@ -10080,6 +10080,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stories & cases'**
   String get modeStoriesCardTitle;
+
+  /// No description provided for @modeMafiaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mafia'**
+  String get modeMafiaTitle;
+
+  /// No description provided for @modeMafiaBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is the killer among you?'**
+  String get modeMafiaBody;
+
+  /// No description provided for @modeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a card'**
+  String get modeHint;
+
+  /// No description provided for @modeMafiaPick.
+  ///
+  /// In en, this message translates to:
+  /// **'How are you playing it?'**
+  String get modeMafiaPick;
 
   /// No description provided for @modeStoriesCardBody.
   ///

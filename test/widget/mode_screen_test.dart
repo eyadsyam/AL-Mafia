@@ -39,82 +39,119 @@ void main() {
     expect(find.byKey(ModeScreen.unavailableText), findsNothing);
   });
 
-  testWidgets('each card leads to its own mode', (tester) async {
+  Widget screen({
+    VoidCallback? offline,
+    VoidCallback? online,
+    VoidCallback? bots,
+    VoidCallback? stories,
+  }) => localizedApp(
+    ModeScreen(
+      onPlayOffline: offline ?? () {},
+      onPlayOnline: online ?? () {},
+      onPlayBots: bots ?? () {},
+      onPlayStories: stories ?? () {},
+      onBack: () {},
+    ),
+  );
+
+  testWidgets('two cards first: the Mafia and the stories', (tester) async {
+    var stories = 0;
+    await tester.pumpWidget(screen(stories: () => stories++));
+    await tester.pumpAndSettle();
+    expect(find.byKey(ModeScreen.mafiaCard).hitTestable(), findsOneWidget);
+    expect(find.byKey(ModeScreen.offlineCard).hitTestable(), findsNothing);
+    await tester.tap(find.byKey(ModeScreen.storiesCard));
+    await tester.pumpAndSettle();
+    expect(stories, 1);
+  });
+
+  testWidgets('the Mafia card deals each way to play, back puts it away', (
+    tester,
+  ) async {
     var offline = 0;
     var online = 0;
     var bots = 0;
-    var stories = 0;
     await tester.pumpWidget(
-      localizedApp(
-        ModeScreen(
-          onPlayOffline: () => offline++,
-          onPlayOnline: () => online++,
-          onPlayBots: () => bots++,
-          onPlayStories: () => stories++,
-          onBack: () {},
-        ),
+      screen(
+        offline: () => offline++,
+        online: () => online++,
+        bots: () => bots++,
       ),
     );
     await tester.pumpAndSettle();
-
     for (final (key, want) in [
-      (ModeScreen.offlineCard, [1, 0, 0, 0]),
-      (ModeScreen.onlineCard, [1, 1, 0, 0]),
-      (ModeScreen.botsCard, [1, 1, 1, 0]),
-      (ModeScreen.storiesCard, [1, 1, 1, 1]),
+      (ModeScreen.offlineCard, [1, 0, 0]),
+      (ModeScreen.onlineCard, [1, 1, 0]),
+      (ModeScreen.botsCard, [1, 1, 1]),
     ]) {
-      await tester.ensureVisible(find.byKey(key));
+      await tester.tap(find.byKey(ModeScreen.mafiaCard));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(key));
       await tester.pumpAndSettle();
-      expect([offline, online, bots, stories], want, reason: '$key');
+      expect([offline, online, bots], want, reason: '$key');
+      await tester.tap(find.byKey(ModeScreen.closeButton));
+      await tester.pumpAndSettle();
+      expect(find.byKey(ModeScreen.offlineCard).hitTestable(), findsNothing);
+      expect(find.byKey(ModeScreen.storiesCard).hitTestable(), findsOneWidget);
     }
   });
 
-  testWidgets('all four ways to play fit a small phone', (tester) async {
-    await tester.binding.setSurfaceSize(const Size(360, 640));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(
-      localizedApp(
-        ModeScreen(
-          onPlayOffline: () {},
-          onPlayOnline: () {},
-          onPlayBots: () {},
-          onPlayStories: () {},
-          onBack: () {},
+  for (final size in const [Size(360, 640), Size(430, 932)]) {
+    testWidgets('everything fits $size, closed and open', (tester) async {
+      await tester.binding.setSurfaceSize(size);
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(screen());
+      await tester.pumpAndSettle();
+      for (final key in [ModeScreen.mafiaCard, ModeScreen.storiesCard]) {
+        expect(
+          tester.getRect(find.byKey(key)).bottom,
+          lessThanOrEqualTo(size.height),
+        );
+      }
+      await tester.tap(find.byKey(ModeScreen.mafiaCard));
+      await tester.pumpAndSettle();
+      for (final key in [
+        ModeScreen.offlineCard,
+        ModeScreen.onlineCard,
+        ModeScreen.botsCard,
+        ModeScreen.closeButton,
+      ]) {
+        final rect = tester.getRect(find.byKey(key));
+        expect(rect.bottom, lessThanOrEqualTo(size.height), reason: '$key');
+        expect(rect.left, greaterThanOrEqualTo(0), reason: '$key');
+        expect(rect.right, lessThanOrEqualTo(size.width), reason: '$key');
+      }
+      // The small cards do not sit on top of one another or the back button.
+      final ways = [
+        ModeScreen.offlineCard,
+        ModeScreen.onlineCard,
+        ModeScreen.botsCard,
+      ].map((k) => tester.getRect(find.byKey(k))).toList();
+      expect(ways[0].overlaps(ways[1]), isFalse);
+      expect(ways[1].overlaps(ways[2]), isFalse);
+      expect(
+        ways.any(
+          (r) => r.overlaps(tester.getRect(find.byKey(ModeScreen.closeButton))),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    for (final key in [
-      ModeScreen.offlineCard,
-      ModeScreen.onlineCard,
-      ModeScreen.botsCard,
-      ModeScreen.storiesCard,
-    ]) {
-      final rect = tester.getRect(find.byKey(key));
-      expect(rect.bottom, lessThanOrEqualTo(640), reason: '$key below the fold');
-    }
-    expect(find.textContaining('بوت'), findsNothing);
-  });
+        isFalse,
+      );
+      expect(find.textContaining('بوت'), findsNothing);
+    });
+  }
 
-  testWidgets('the cards deal in once, then stay put', (tester) async {
+  testWidgets('with animations off, every state is simply there', (
+    tester,
+  ) async {
     await tester.pumpWidget(
-      localizedApp(
-        ModeScreen(
-          onPlayOffline: () {},
-          onPlayOnline: () {},
-          onPlayBots: () {},
-          onPlayStories: () {},
-          onBack: () {},
-        ),
+      MediaQuery(
+        data: const MediaQueryData(disableAnimations: true),
+        child: screen(),
       ),
     );
-    final start = tester.getRect(find.byKey(ModeScreen.storiesCard)).top;
-    await tester.pumpAndSettle();
-    final rest = tester.getRect(find.byKey(ModeScreen.storiesCard)).top;
-    expect(start, greaterThan(rest));
-    await tester.pump(const Duration(seconds: 1));
-    expect(tester.getRect(find.byKey(ModeScreen.storiesCard)).top, rest);
+    await tester.pump();
+    await tester.tap(find.byKey(ModeScreen.mafiaCard));
+    await tester.pump();
+    expect(find.byKey(ModeScreen.offlineCard).hitTestable(), findsOneWidget);
   });
 
   test('Home has no online action to hide', () {

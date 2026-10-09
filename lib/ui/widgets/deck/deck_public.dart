@@ -813,7 +813,20 @@ class DeckHeader extends StatelessWidget {
           ],
         ),
         SizedBox(height: s.sm),
-        Text(title, style: heading.copyWith(color: colors.textPrimary)),
+        // A screen that changes what it is asking (the mode screen opening
+        // the Mafia card) cross-fades its heading rather than snapping.
+        AnimatedSwitcher(
+          duration: DeckTokens.slide,
+          layoutBuilder: (current, previous) => Stack(
+            alignment: AlignmentDirectional.centerStart,
+            children: [...previous, if (current != null) current],
+          ),
+          child: Text(
+            title,
+            key: ValueKey(title),
+            style: heading.copyWith(color: colors.textPrimary),
+          ),
+        ),
         if (subtitle != null)
           Text(
             subtitle!,

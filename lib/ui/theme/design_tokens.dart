@@ -42,6 +42,64 @@ abstract final class IdentityTokens {
 abstract final class ModeTokens {
   static const Alignment faceFocus = Alignment(0, -0.3);
   static const double faceZoom = 1.7;
+
+  // «هتلعب إيه؟»: two playing cards fanned like Home's; the Mafia card lifts,
+  // flips and deals the ways to play out of itself.
+  /// The two cards arriving when the screen opens.
+  static const Duration deal = Duration(milliseconds: 700);
+
+  /// The whole open: lift, flip, then the three small cards dealt.
+  static const Duration open = Duration(milliseconds: 1100);
+
+  /// A big card's share of the width, and its height over its width.
+  static const double cardWidth = 0.47;
+
+  /// The most of the stage's height the pair may take.
+  static const double cardMaxHeight = 0.62;
+  static const double cardAspect = 1.59;
+
+  /// How far each big card sits from the centre, in card widths, and its tilt.
+  static const double fanSpread = 0.47;
+  static const double fanTilt = 0.087; // 5°
+  static const double fanDrop = 18;
+
+  /// The opened Mafia card, scaled down at the top.
+  static const double openScale = 0.66;
+
+  /// Depth of the flip.
+  static const double perspective = 0.0012;
+
+  /// The stories card leaving: sideways in card widths, down, and its tilt.
+  static const double exitSpread = 0.7;
+  static const double exitDrop = 60;
+  static const double exitTilt = 0.28; // 16°
+
+  /// The arrival: from below, turned.
+  static const double dealRise = 260;
+  static const double dealSpread = 90;
+  static const double dealTilt = 0.17; // 10°
+
+  /// The small cards: widest, height over width, gap, the middle one raised.
+  static const double wayMaxWidth = 132;
+  static const double wayAspect = 1.9;
+
+  /// The pick line under the small cards, kept clear.
+  static const double pickLine = 32;
+  static const double wayGap = 10;
+  static const double wayLift = 10;
+  static const double wayStartScale = 0.45;
+  static const double wayArt = 0.52;
+
+  /// A card's shadow.
+  static const Color shadow = Color(0xB3000000);
+  static const double shadowBlur = 32;
+  static const Offset shadowOffset = Offset(0, 14);
+  static const double wayShadowBlur = 16;
+  static const Offset wayShadowOffset = Offset(0, 7);
+
+  /// The frame inset inside a big card, and its radius.
+  static const double frameInset = 7;
+  static const double frameRadius = 9;
 }
 
 /// Home's own thresholds.

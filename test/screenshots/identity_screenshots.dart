@@ -157,6 +157,15 @@ void main() {
     });
   }
 
+  testWidgets('00_mode turned over', (tester) async {
+    await shoot(tester, '00_mode', publicScreens['00_mode']!);
+    await tester.tap(find.byKey(ModeScreen.mafiaCard));
+    await tester.pump(const Duration(milliseconds: 420));
+    await capture(tester, '00_mode_flipping');
+    await tester.pumpAndSettle();
+    await capture(tester, '00_mode_open');
+  });
+
   testWidgets('public screens fit a narrow phone', (tester) async {
     await prepare(tester);
     tester.view.physicalSize = const Size(360, 844) * 2;

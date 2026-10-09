@@ -1600,7 +1600,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineIntroStart => 'يلا';
 
   @override
-  String get modeTitle => 'اختار طريقة اللعب';
+  String get modeTitle => 'هتلعب إيه؟';
 
   @override
   String get modeSubtitle => 'تقدروا تغيّروها المرة الجاية.';
@@ -5792,6 +5792,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get modeStoriesCardTitle => 'قصص وتحقيقات';
+
+  @override
+  String get modeMafiaTitle => 'المافيا';
+
+  @override
+  String get modeMafiaBody => 'مين القاتل وسطكم؟';
+
+  @override
+  String get modeHint => 'دوس على كارت';
+
+  @override
+  String get modeMafiaPick => 'هتلعبوها إزاي؟';
 
   @override
   String get modeStoriesCardBody => 'حل القضية لوحدك، دليل ورا دليل';

@@ -1633,7 +1633,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineIntroStart => 'Let\'s go';
 
   @override
-  String get modeTitle => 'How are you playing?';
+  String get modeTitle => 'What are we playing?';
 
   @override
   String get modeSubtitle => 'You can change this next time.';
@@ -5893,6 +5893,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modeStoriesCardTitle => 'Stories & cases';
+
+  @override
+  String get modeMafiaTitle => 'Mafia';
+
+  @override
+  String get modeMafiaBody => 'Who is the killer among you?';
+
+  @override
+  String get modeHint => 'Tap a card';
+
+  @override
+  String get modeMafiaPick => 'How are you playing it?';
 
   @override
   String get modeStoriesCardBody => 'Crack a case on your own, clue by clue';
