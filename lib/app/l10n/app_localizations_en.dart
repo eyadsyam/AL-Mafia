@@ -90,7 +90,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
-  String get addPlayersTitle => 'Add players';
+  String get addPlayersTitle => 'Who is playing?';
 
   @override
   String get seatingOrderSubtitle => 'In seating order';
@@ -829,6 +829,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get attendanceHint =>
       'Tap a name to mark them away tonight. They stay in the group.';
+
+  @override
+  String playersStillNeeded(int count) {
+    return '$count to go';
+  }
+
+  @override
+  String get seatingDragHint =>
+      'Press and hold a card, then drag it to change its seat';
 
   @override
   String playingTonight(int count) {

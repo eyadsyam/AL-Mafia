@@ -3707,3 +3707,10 @@ Files:      lib/ui/screens/setup/mode_screen.dart, lib/ui/theme/design_tokens.da
 Verified:   analyze clean of errors/warnings; mode_screen + setup_flow + group_rematch + deck_kit + handoff_purity + stories 45/45; screenshots closed/flipping/open read
 Gate:       PASS
 Open:       Android back while the Mafia card is open goes Home (header back closes it)
+
+## PHASE P5 — done
+Built:      «مين بيلعب؟» as dealt Mafia cards in a 3-column grid (hooded avatar by ولد/بنت, name plate, seat number, flies out on ✕, empty-seat card focuses the field, long-press lifts and drag reorders with the others sliding, edge auto-scroll), group chips on top, «كمّل» BoneButton with «لسه N».
+Files:      lib/ui/screens/setup/add_players_screen.dart, lib/ui/widgets/deck/seat_card.dart (frame isolated in SeatCardFrame, nullable avatarAsset hook), lib/ui/theme/design_tokens.dart (SeatTokens), lib/app/l10n/app_ar.arb + app_en.arb (playersStillNeeded, seatingDragHint), test/widget/players_deal_test.dart (new), test/widget/add_players_test.dart, test/screenshots/identity_screenshots.dart
+Verified:   analyze lib test: 0 errors/warnings; players_deal, add_players, setup_flow, group_rematch, group_follow_up, saved_groups, group_picker_layout, player_gender_persistence, test/golden/leakage all green.
+Gate:       PASS (no emulator screenshot taken)
+Open:       Gender defaults to ولد (was unspecified); tapping a card flips its gender. Max 15 players enforced on this screen. Chips load a group's people locally (no navigation).

@@ -35,7 +35,7 @@
   "newMatch": "مباراة جديدة",
   "history": "السجل",
   "settings": "الإعدادات",
-  "addPlayersTitle": "ضيف اللاعبين",
+  "addPlayersTitle": "مين بيلعب؟",
   "seatingOrderSubtitle": "اسحب الاسم عشان تغير ترتيبه",
   "playerNameHint": "اسم اللاعب",
   "addPlayer": "ضيف",
@@ -492,6 +492,15 @@
   "presentAction": "موجود",
   "absentAction": "مش موجود",
   "attendanceHint": "دوس على أي اسم لو مش موجود النهارده. هيفضل في المجموعة.",
+  "playersStillNeeded": "لسه {count}",
+  "@playersStillNeeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seatingDragHint": "دوس مطوّل على الكارت واسحبه عشان تغيّر مكانه",
   "playingTonight": "بيلعبوا النهارده: {count}",
   "@playingTonight": {
     "placeholders": {

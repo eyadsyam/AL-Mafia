@@ -1,15 +1,19 @@
-import '../../widgets/mafia_kit.dart';
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
-import '../../../engine/models/player.dart';
-import '../../widgets/gender_picker.dart';
-import '../../widgets/player_avatar.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
+
 import '../../../data/player_group.dart';
 import '../../../engine/balance_guard.dart';
+import '../../../engine/models/player.dart';
 import '../../l10n_ext.dart';
-import '../../theme/mafia_theme.dart';
 import '../../theme/design_tokens.dart';
-import '../../widgets/back_action.dart';
-import '../../widgets/experience_surface.dart';
+import '../../theme/mafia_theme.dart';
+import '../../widgets/deck/deck_public.dart';
+import '../../widgets/deck/seat_card.dart';
+import '../../widgets/gender_picker.dart';
+import '../../widgets/mafia_kit.dart';
 
 /// Add Players screen (S-02) — collect player names in seating order.
 ///
@@ -103,28 +107,60 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
   /// Everyone on screen, in seating order — present and absent alike.
   late final List<String> _players = [...widget.initialNames];
   late final Map<String, PlayerGender> _genders = {...widget.initialGenders};
-  PlayerGender _gender = PlayerGender.unspecified;
+  PlayerGender _gender = PlayerGender.male;
+
+  /// The group in play: the one the host arrived with, or one picked from the
+  /// chips above the field. Null is a fresh roster.
+  late PlayerGroup? _group = widget.group;
 
   /// Members sitting tonight out. Held by name rather than by index so a
   /// reorder cannot silently mark the wrong person away.
   final Set<String> _absent = {};
 
   final TextEditingController _inputController = TextEditingController();
+  final FocusNode _inputFocus = FocusNode();
+  final ScrollController _scroll = ScrollController();
+  final GlobalKey _gridKey = GlobalKey();
+  final GlobalKey _scrollKey = GlobalKey();
 
   /// The save-group prompt is offered once. Dismissing or accepting it retires
   /// it for this visit — it is a suggestion, not a demand.
   bool _savePromptClosed = false;
 
+  /// Cards leaving, kept on screen until their exit finishes.
+  final List<_Leaving> _leaving = [];
+  int _leavingId = 0;
+
+  // Grid geometry, refreshed every build.
+  double _cardW = 0;
+  double _cardH = 0;
+  double _gap = 0;
+  double _gridW = 0;
+  bool _rtl = true;
+
+  // A card held under a finger.
+  String? _dragName;
+  Offset _dragPos = Offset.zero;
+  Offset _grab = Offset.zero;
+  int _target = 0;
+  Offset _lastGlobal = Offset.zero;
+  Timer? _edgeTimer;
+  int _edgeDir = 0;
+
   @override
   void dispose() {
+    _edgeTimer?.cancel();
     _inputController.dispose();
+    _inputFocus.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
-  bool get _groupMode => widget.group != null;
+  bool get _groupMode => _group != null;
 
-  bool _isMember(String name) =>
-      widget.group?.memberNames.contains(name) ?? false;
+  bool _isMember(String name) => _group?.memberNames.contains(name) ?? false;
+
+  bool get _still => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
   /// Seating order, present players only. This is what starts a match.
   List<String> get _present => [
@@ -132,10 +168,12 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
       if (!_absent.contains(name)) name,
   ];
 
+  bool get _full => _players.length >= SeatTokens.maxPlayers;
+
   /// Adds a player name, auto-suffixing duplicates.
   void _addPlayer() {
     final name = _inputController.text.trim();
-    if (name.isEmpty) return;
+    if (name.isEmpty || _full) return;
 
     _inputController.clear();
 
@@ -152,12 +190,27 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
       _genders[finalName] = _gender;
       widget.onGendersChanged?.call(_genders);
     });
+    // Enter submits and drops focus; the next name is one keystroke away.
+    _inputFocus.requestFocus();
   }
 
-  void _removePlayer(int index) {
+  void _removePlayer(String name) {
+    final index = _players.indexOf(name);
+    if (index < 0) return;
     setState(() {
-      final removed = _players.removeAt(index);
-      _absent.remove(removed);
+      if (!_still && _cardW > 0) {
+        _leaving.add(
+          _Leaving(
+            id: _leavingId++,
+            name: name,
+            seat: index + 1,
+            gender: _genders[name] ?? PlayerGender.unspecified,
+            at: _slotOffset(index),
+          ),
+        );
+      }
+      _players.removeAt(index);
+      _absent.remove(name);
     });
   }
 
@@ -172,7 +225,34 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
     });
   }
 
-  bool get _canNext => _present.length >= 5;
+  void _flipGender(String name) {
+    setState(() {
+      _genders[name] = _genders[name] == PlayerGender.female
+          ? PlayerGender.male
+          : PlayerGender.female;
+      widget.onGendersChanged?.call(_genders);
+    });
+  }
+
+  /// A saved group's chip: its people take the table, in their saved order.
+  void _pickGroup(PlayerGroup group, bool on) {
+    setState(() {
+      if (!on) {
+        _group = null;
+        _absent.clear();
+        return;
+      }
+      _group = group;
+      _absent.clear();
+      _players
+        ..clear()
+        ..addAll(group.memberNames);
+      _genders.addAll(group.genders);
+      widget.onGendersChanged?.call(_genders);
+    });
+  }
+
+  bool get _canNext => _present.length >= SeatTokens.minPlayers;
 
   /// Whether the group's saved configuration still describes who is here.
   ///
@@ -184,7 +264,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
   /// right place to decide who drops when the table shrinks.
   bool get _canQuickStart {
     if (widget.onQuickStart == null) return false;
-    final counts = widget.group?.lastRoleCounts;
+    final counts = _group?.lastRoleCounts;
     if (counts == null) return false;
 
     final present = _present.length;
@@ -204,7 +284,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
   bool get _showSavePrompt {
     if (widget.onSaveGroup == null) return false;
     if (_groupMode || _savePromptClosed) return false;
-    if (_present.length < 5) return false;
+    if (_present.length < SeatTokens.minPlayers) return false;
     final present = _present;
     return !widget.savedGroups.any((g) => g.hasSameMembers(present));
   }
@@ -218,273 +298,725 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
     widget.onSaveGroup!(_present);
   }
 
+  // ── Grid geometry ────────────────────────────────────────────────────────
+
+  /// Top-left of a seat, in the grid's own space. Right-to-left puts seat 1 at
+  /// the right, the way the circle is read.
+  Offset _slotOffset(int slot) {
+    final col = slot % SeatTokens.columns;
+    final row = slot ~/ SeatTokens.columns;
+    final step = _cardW + _gap;
+    final x = _rtl ? _gridW - _cardW - col * step : col * step;
+    return Offset(x, row * (_cardH + _gap));
+  }
+
+  int _slotAt(Offset point) {
+    final step = _cardW + _gap;
+    var col = (point.dx / step).floor().clamp(0, SeatTokens.columns - 1);
+    if (_rtl) col = SeatTokens.columns - 1 - col;
+    final row = (point.dy / (_cardH + _gap)).floor().clamp(0, 99);
+    return (row * SeatTokens.columns + col).clamp(0, _players.length - 1);
+  }
+
+  Offset _toGrid(Offset global) {
+    final box = _gridKey.currentContext?.findRenderObject() as RenderBox?;
+    return box == null ? global : box.globalToLocal(global);
+  }
+
+  // ── Long-press drag ──────────────────────────────────────────────────────
+
+  void _dragStart(String name, Offset global) {
+    final index = _players.indexOf(name);
+    if (index < 0 || _cardW == 0) return;
+    HapticFeedback.selectionClick();
+    final slot = _slotOffset(index);
+    setState(() {
+      _dragName = name;
+      _lastGlobal = global;
+      _grab = _toGrid(global) - slot;
+      _dragPos = slot;
+      _target = index;
+    });
+  }
+
+  void _dragMove(Offset global) {
+    if (_dragName == null) return;
+    _lastGlobal = global;
+    _followPointer();
+    _watchEdges(global);
+  }
+
+  void _followPointer() {
+    final local = _toGrid(_lastGlobal);
+    final centre = local - _grab + Offset(_cardW / 2, _cardH / 2);
+    setState(() {
+      _dragPos = local - _grab;
+      _target = _slotAt(centre);
+    });
+  }
+
+  void _watchEdges(Offset global) {
+    final box = _scrollKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    final y = box.globalToLocal(global).dy;
+    final dir = y < SeatTokens.edgeZone
+        ? -1
+        : (y > box.size.height - SeatTokens.edgeZone ? 1 : 0);
+    if (dir == _edgeDir) return;
+    _edgeDir = dir;
+    _edgeTimer?.cancel();
+    _edgeTimer = null;
+    if (dir == 0) return;
+    _edgeTimer = Timer.periodic(SeatTokens.edgeTick, (_) {
+      if (!_scroll.hasClients) return;
+      final max = _scroll.position.maxScrollExtent;
+      final next = (_scroll.offset + dir * SeatTokens.edgeStep).clamp(0.0, max);
+      if (next == _scroll.offset) return;
+      _scroll.jumpTo(next);
+      _followPointer();
+    });
+  }
+
+  void _dragEnd() {
+    _edgeTimer?.cancel();
+    _edgeTimer = null;
+    _edgeDir = 0;
+    final name = _dragName;
+    if (name == null) return;
+    setState(() {
+      final from = _players.indexOf(name);
+      if (from >= 0) {
+        _players.removeAt(from);
+        _players.insert(_target.clamp(0, _players.length), name);
+      }
+      _dragName = null;
+    });
+  }
+
+  /// The seating as it will be if the held card is let go now: the others have
+  /// already slid to make room.
+  List<String> get _order {
+    final name = _dragName;
+    if (name == null) return _players;
+    final rest = [..._players]..remove(name);
+    rest.insert(_target.clamp(0, rest.length), name);
+    return rest;
+  }
+
+  // ── Build ────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final spacing = context.spacing;
-    final radii = context.radii;
-    final type = context.typography;
     final l10n = context.l10n;
 
     final canNext = _canNext;
     final canQuickStart = _canQuickStart;
+    final present = _present.length;
 
-    return MafiaScaffold(
-      backgroundColor: colors.surfaceBase,
-      body: ExperienceSurface(
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: spacing.maxContentWidth),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: spacing.screenMargin,
-                  vertical: spacing.lg,
+    return DeckScaffold(
+      title: _group?.name ?? l10n.addPlayersTitle,
+      subtitle: _groupMode ? l10n.attendanceHint : l10n.seatingDragHint,
+      onBack: widget.onBack,
+      trailing: DeckPill('$present'),
+      body: SingleChildScrollView(
+        key: _scrollKey,
+        controller: _scroll,
+        physics: _dragName == null
+            ? const ClampingScrollPhysics()
+            : const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.only(bottom: spacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.savedGroups.isNotEmpty) ...[
+              _GroupChips(
+                groups: widget.savedGroups,
+                selectedId: _group?.id,
+                onPick: _pickGroup,
+              ),
+              SizedBox(height: spacing.md),
+            ],
+            _AddRow(
+              controller: _inputController,
+              focus: _inputFocus,
+              gender: _gender,
+              onGender: (g) => setState(() => _gender = g),
+              onAdd: _addPlayer,
+              canAdd: !_full,
+            ),
+            SizedBox(height: spacing.md),
+            _buildGrid(context),
+          ],
+        ),
+      ),
+      primary: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_showSavePrompt) ...[
+            _SaveGroupPrompt(
+              onSave: _onSaveGroup,
+              onDismiss: () => setState(() => _savePromptClosed = true),
+            ),
+            SizedBox(height: spacing.sm),
+          ],
+          if (canQuickStart) ...[
+            BoneButton(
+              key: AddPlayersScreen.quickStartButton,
+              label: l10n.quickStartAction,
+              onPressed: _onQuickStart,
+            ),
+            SizedBox(height: spacing.sm),
+            RimButton(
+              key: AddPlayersScreen.nextButton,
+              label: l10n.next,
+              onPressed: canNext ? _onNext : null,
+            ),
+          ] else
+            BoneButton(
+              key: AddPlayersScreen.nextButton,
+              label: l10n.next,
+              onPressed: canNext ? _onNext : null,
+              disabledReason: canNext
+                  ? null
+                  : l10n.playersStillNeeded(SeatTokens.minPlayers - present),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGrid(BuildContext context) {
+    final l10n = context.l10n;
+    final spacing = context.spacing;
+    return LayoutBuilder(
+      builder: (context, box) {
+        _rtl = Directionality.of(context) == TextDirection.rtl;
+        _gap = spacing.md;
+        _gridW = box.maxWidth;
+        _cardW =
+            (_gridW - _gap * (SeatTokens.columns - 1)) / SeatTokens.columns;
+        _cardH = _cardW / SeatTokens.aspect;
+
+        final n = _players.length;
+        final slots = _full ? n : n + 1;
+        final rows = math.max(1, (slots / SeatTokens.columns).ceil());
+        final height = rows * _cardH + (rows - 1) * _gap;
+        final order = _order;
+        final still = _still;
+        final need = SeatTokens.minPlayers - _present.length;
+
+        Widget glide(Offset to, Widget child, {bool instant = false}) =>
+            _Glide(offset: to, instant: instant || still, child: child);
+
+        final cards = <Widget>[];
+        // Stable child order keeps each card's state through a reorder; the
+        // held card is last so it paints above the others.
+        final names = [..._players];
+        if (_dragName != null) {
+          names
+            ..remove(_dragName)
+            ..add(_dragName!);
+        }
+        for (final name in names) {
+          final slot = order.indexOf(name);
+          final held = name == _dragName;
+          final away = _absent.contains(name);
+          final member = _groupMode && _isMember(name);
+          final seat = slot + 1;
+          cards.add(
+            Positioned(
+              key: ValueKey('seat_$name'),
+              left: 0,
+              top: 0,
+              width: _cardW,
+              height: _cardH,
+              child: glide(
+                held ? _dragPos : _slotOffset(slot),
+                instant: held,
+                _Deal(
+                  delay: _players.indexOf(name),
+                  child: AnimatedScale(
+                    scale: held ? SeatTokens.liftScale : 1,
+                    duration: still ? Duration.zero : DeckTokens.press,
+                    curve: Curves.easeOutCubic,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _flipGender(name),
+                      onLongPressStart: (d) =>
+                          _dragStart(name, d.globalPosition),
+                      onLongPressMoveUpdate: (d) => _dragMove(d.globalPosition),
+                      onLongPressEnd: (_) => _dragEnd(),
+                      onLongPressCancel: _dragEnd,
+                      child: SeatCard(
+                        name: name,
+                        seat: seat,
+                        gender: _genders[name] ?? PlayerGender.unspecified,
+                        lifted: held,
+                        away: away,
+                        // A saved member is toggled, never deleted. A guest
+                        // added just for tonight was never in the group, so
+                        // there is nothing to protect and removal is honest.
+                        cornerKey: member
+                            ? AddPlayersScreen.attendanceToggleFor(seat)
+                            : ValueKey('delete_player_$seat'),
+                        cornerIcon: member && away ? Icons.undo : Icons.close,
+                        cornerLabel: member
+                            ? (away ? l10n.absentAction : l10n.presentAction)
+                            : l10n.deleteAction,
+                        onCorner: member
+                            ? () => _toggleAttendance(name)
+                            : () => _removePlayer(name),
+                      ),
+                    ),
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ScreenHeader(
-                      title: widget.group?.name ?? l10n.addPlayersTitle,
-                      onBack: widget.onBack,
+              ),
+            ),
+          );
+        }
+        for (final gone in _leaving) {
+          cards.add(
+            Positioned(
+              key: ValueKey('leaving_${gone.id}'),
+              left: 0,
+              top: 0,
+              width: _cardW,
+              height: _cardH,
+              child: IgnorePointer(
+                child: Transform.translate(
+                  offset: gone.at,
+                  child: _Flyout(
+                    onDone: () {
+                      if (mounted) setState(() => _leaving.remove(gone));
+                    },
+                    child: SeatCard(
+                      name: gone.name,
+                      seat: gone.seat,
+                      gender: gone.gender,
                     ),
-                    SizedBox(height: spacing.md),
-                    Text(
-                      _groupMode
-                          ? l10n.attendanceHint
-                          : l10n.seatingOrderSubtitle,
-                      style: type.body.copyWith(color: colors.textSecondary),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: spacing.lg),
-
-                    // Input row: text field + add button. The gender marks are
-                    // inside the field (task 8) rather than on a row of their
-                    // own underneath it.
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _inputController,
-                            style: type.body.copyWith(
-                              color: colors.textPrimary,
-                            ),
-                            decoration: InputDecoration(
-                              suffixIcon: GenderPicker(
-                                value: _gender,
-                                onChanged: (v) => setState(() => _gender = v),
-                              ),
-                              suffixIconConstraints: const BoxConstraints(),
-                              hintText: l10n.playerNameHint,
-                              hintStyle: type.body.copyWith(
-                                color: colors.textMuted,
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: spacing.md,
-                                vertical: spacing.sm,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  radii.button,
-                                ),
-                                borderSide: BorderSide(
-                                  color: colors.borderSubtle,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  radii.button,
-                                ),
-                                borderSide: BorderSide(
-                                  color: colors.borderSubtle,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  radii.button,
-                                ),
-                                borderSide: BorderSide(
-                                  color: colors.accentGold,
-                                ),
-                              ),
-                            ),
-                            onSubmitted: (_) => _addPlayer(),
-                          ),
-                        ),
-                        SizedBox(width: spacing.sm),
-                        FilledButton(
-                          key: AddPlayersScreen.addButton,
-                          onPressed: _addPlayer,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: colors.accentGold,
-                            foregroundColor: colors.surfaceBase,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: spacing.lg,
-                              vertical: spacing.md,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(radii.button),
-                            ),
-                          ),
-                          child: Text(
-                            l10n.addPlayer,
-                            style: type.body.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: spacing.lg),
-
-                    // Player count. In group mode this counts who is actually
-                    // playing, not who is on the roster — the second number is
-                    // the one that has to match the role distribution.
-                    Text(
-                      _groupMode
-                          ? l10n.playingTonight(_present.length)
-                          : l10n.playerCountLine(_players.length),
-                      style: type.body.copyWith(color: colors.textSecondary),
-                      textAlign: TextAlign.center,
-                    ),
-                    if (!canNext) ...[
-                      SizedBox(height: spacing.xs),
-                      Text(
-                        l10n.minPlayersHint,
-                        style: type.bodySmall.copyWith(
-                          color: colors.textSecondary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                    SizedBox(height: spacing.md),
-
-                    // Reorderable list of players
-                    Expanded(
-                      child: _players.isEmpty
-                          ? Center(
-                              child: Text(
-                                l10n.noPlayersYet,
-                                style: type.body.copyWith(
-                                  color: colors.textMuted,
-                                ),
-                              ),
-                            )
-                          : ReorderableListView.builder(
-                              buildDefaultDragHandles: false,
-                              onReorderItem: (oldIndex, newIndex) {
-                                if (newIndex > oldIndex) newIndex -= 1;
-                                final player = _players.removeAt(oldIndex);
-                                _players.insert(newIndex, player);
-                                setState(() {});
-                              },
-                              itemCount: _players.length,
-                              itemBuilder: (context, index) {
-                                final name = _players[index];
-                                final absent = _absent.contains(name);
-                                return _PlayerTile(
-                                  key: ValueKey(name + index.toString()),
-                                  index: index + 1, // 1-based seating
-                                  name: name,
-                                  gender:
-                                      _genders[name] ??
-                                      PlayerGender.unspecified,
-                                  onGender: (v) => setState(() {
-                                    _genders[name] = v;
-                                    widget.onGendersChanged?.call(_genders);
-                                  }),
-                                  absent: absent,
-                                  // A saved member is toggled, never deleted.
-                                  // A guest added just for tonight was never in
-                                  // the group, so there is nothing to protect
-                                  // and delete is the honest control.
-                                  onToggleAttendance:
-                                      _groupMode && _isMember(name)
-                                      ? () => _toggleAttendance(name)
-                                      : null,
-                                  onDelete: () => _removePlayer(index),
-                                );
-                              },
-                            ),
-                    ),
-                    SizedBox(height: spacing.md),
-
-                    if (_showSavePrompt) ...[
-                      _SaveGroupPrompt(
-                        onSave: _onSaveGroup,
-                        onDismiss: () =>
-                            setState(() => _savePromptClosed = true),
-                      ),
-                      SizedBox(height: spacing.md),
-                    ],
-
-                    // Quick start, when the group's saved configuration still
-                    // fits. This is the third and last tap of a rematch.
-                    if (canQuickStart) ...[
-                      FilledButton(
-                        key: AddPlayersScreen.quickStartButton,
-                        onPressed: _onQuickStart,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: colors.accentGold,
-                          foregroundColor: colors.surfaceBase,
-                          padding: EdgeInsets.symmetric(vertical: spacing.lg),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(radii.button),
-                          ),
-                        ),
-                        child: Text(l10n.quickStartAction, style: type.title),
-                      ),
-                      SizedBox(height: spacing.sm),
-                    ],
-
-                    // Next button. Demoted to an outline when quick start is
-                    // present, so the two full-weight buttons do not compete
-                    // for the same glance.
-                    canQuickStart
-                        ? OutlinedButton(
-                            key: AddPlayersScreen.nextButton,
-                            onPressed: canNext ? _onNext : null,
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: colors.textSecondary,
-                              disabledForegroundColor: colors.textMuted,
-                              side: BorderSide(color: colors.borderSubtle),
-                              padding: EdgeInsets.symmetric(
-                                vertical: spacing.md,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  radii.button,
-                                ),
-                              ),
-                            ),
-                            child: Text(l10n.next, style: type.body),
-                          )
-                        : FilledButton(
-                            key: AddPlayersScreen.nextButton,
-                            onPressed: canNext ? _onNext : null,
-                            style: FilledButton.styleFrom(
-                              backgroundColor: colors.accentGold,
-                              foregroundColor: colors.surfaceBase,
-                              disabledBackgroundColor: colors.surfaceOverlay,
-                              disabledForegroundColor: colors.textMuted,
-                              padding: EdgeInsets.symmetric(
-                                vertical: spacing.lg,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  radii.button,
-                                ),
-                              ),
-                            ),
-                            child: Text(l10n.next, style: type.title),
-                          ),
-                  ],
+                  ),
                 ),
+              ),
+            ),
+          );
+        }
+        if (!_full) {
+          cards.add(
+            Positioned(
+              key: const ValueKey('seat_empty'),
+              left: 0,
+              top: 0,
+              width: _cardW,
+              height: _cardH,
+              child: glide(
+                _slotOffset(n),
+                EmptySeatCard(
+                  label: need > 0
+                      ? l10n.playersStillNeeded(need)
+                      : l10n.seatNumber(n + 1),
+                  onTap: _inputFocus.requestFocus,
+                ),
+              ),
+            ),
+          );
+        }
+
+        return SizedBox(
+          key: _gridKey,
+          height: height,
+          child: Stack(clipBehavior: Clip.none, children: cards),
+        );
+      },
+    );
+  }
+}
+
+class _Leaving {
+  final int id;
+  final String name;
+  final int seat;
+  final PlayerGender gender;
+  final Offset at;
+  const _Leaving({
+    required this.id,
+    required this.name,
+    required this.seat,
+    required this.gender,
+    required this.at,
+  });
+}
+
+/// Saved groups, one tap to seat their people.
+class _GroupChips extends StatelessWidget {
+  final List<PlayerGroup> groups;
+  final int? selectedId;
+  final void Function(PlayerGroup group, bool on) onPick;
+
+  const _GroupChips({
+    required this.groups,
+    required this.selectedId,
+    required this.onPick,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = context.spacing;
+    return SizedBox(
+      height: DeckTokens.chip,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: groups.length,
+        separatorBuilder: (_, _) => SizedBox(width: spacing.sm),
+        itemBuilder: (context, i) {
+          final g = groups[i];
+          return DeckChip(
+            label: '${g.name} · ${g.memberNames.length}',
+            selected: g.id == selectedId,
+            onSelected: (on) => onPick(g, on),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Name field with the ولد/بنت toggle inside it, and the «+» beside it. Enter
+/// adds too.
+class _AddRow extends StatelessWidget {
+  final TextEditingController controller;
+  final FocusNode focus;
+  final PlayerGender gender;
+  final ValueChanged<PlayerGender> onGender;
+  final VoidCallback onAdd;
+  final bool canAdd;
+
+  const _AddRow({
+    required this.controller,
+    required this.focus,
+    required this.gender,
+    required this.onGender,
+    required this.onAdd,
+    required this.canAdd,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final spacing = context.spacing;
+    final l10n = context.l10n;
+    final type = context.typography;
+    return Row(
+      children: [
+        Expanded(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: colors.surfaceRaised,
+              borderRadius: BorderRadius.circular(context.radii.button),
+              border: Border.all(color: DeckTokens.line),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: controller,
+                    focusNode: focus,
+                    textInputAction: TextInputAction.done,
+                    style: DeckTokens.body(
+                      type,
+                    ).copyWith(color: colors.textPrimary),
+                    decoration: InputDecoration(
+                      hintText: l10n.playerNameHint,
+                      hintStyle: DeckTokens.body(
+                        type,
+                      ).copyWith(color: colors.textMuted),
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: spacing.md,
+                        vertical: spacing.md,
+                      ),
+                    ),
+                    onSubmitted: (_) => onAdd(),
+                  ),
+                ),
+                _GenderToggle(value: gender, onChanged: onGender),
+                SizedBox(width: spacing.sm),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(width: spacing.sm),
+        Semantics(
+          button: true,
+          label: l10n.addPlayer,
+          child: DeckPress(
+            enabled: canAdd,
+            child: SizedBox(
+              width: DeckTokens.primaryHeight,
+              height: DeckTokens.primaryHeight,
+              child: OutlinedButton(
+                key: AddPlayersScreen.addButton,
+                onPressed: canAdd ? onAdd : null,
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  foregroundColor: colors.textPrimary,
+                  side: const BorderSide(
+                    color: DeckTokens.silverLight,
+                    width: DeckTokens.rimBorder,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(context.radii.button),
+                  ),
+                ),
+                child: const Icon(Icons.add),
               ),
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _GenderToggle extends StatelessWidget {
+  final PlayerGender value;
+  final ValueChanged<PlayerGender> onChanged;
+
+  const _GenderToggle({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final l10n = context.l10n;
+
+    Widget mark(PlayerGender g, String label, Key key) {
+      final on = (value == PlayerGender.female) == (g == PlayerGender.female);
+      return Semantics(
+        button: true,
+        selected: on,
+        child: GestureDetector(
+          key: key,
+          behavior: HitTestBehavior.opaque,
+          onTap: () => onChanged(g),
+          child: Container(
+            width: SeatTokens.genderWidth,
+            height: SeatTokens.genderHeight,
+            alignment: Alignment.center,
+            color: on ? colors.surfaceOverlay : IdentityTokens.transparent,
+            child: Text(
+              label,
+              style: DeckTokens.meta(
+                context.typography,
+              ).copyWith(color: on ? colors.textPrimary : colors.textMuted),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(SeatTokens.genderRadius),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(color: DeckTokens.line),
+          borderRadius: BorderRadius.circular(SeatTokens.genderRadius),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            mark(PlayerGender.male, l10n.playerMale, GenderPicker.maleKey),
+            mark(
+              PlayerGender.female,
+              l10n.playerFemale,
+              GenderPicker.femaleKey,
+            ),
+          ],
+        ),
       ),
+    );
+  }
+}
+
+/// Slides its child to [offset] (transform only). While [instant] — a card
+/// held under a finger — it follows without easing.
+class _Glide extends StatefulWidget {
+  final Offset offset;
+  final bool instant;
+  final Widget child;
+
+  const _Glide({
+    required this.offset,
+    required this.instant,
+    required this.child,
+  });
+
+  @override
+  State<_Glide> createState() => _GlideState();
+}
+
+class _GlideState extends State<_Glide> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: SeatTokens.slide,
+    value: 1,
+  );
+  late Offset _from = widget.offset;
+  late Offset _to = widget.offset;
+
+  Offset get _now =>
+      Offset.lerp(_from, _to, Curves.easeOutCubic.transform(_c.value))!;
+
+  @override
+  void didUpdateWidget(_Glide old) {
+    super.didUpdateWidget(old);
+    if (widget.offset == _to) return;
+    if (widget.instant) {
+      _from = _to = widget.offset;
+      _c.value = 1;
+    } else {
+      _from = _now;
+      _to = widget.offset;
+      _c.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final child = RepaintBoundary(child: widget.child);
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, child) =>
+          Transform.translate(offset: _now, child: child),
+      child: child,
+    );
+  }
+}
+
+/// A card dealt in: drops from above, turned and small, and settles.
+class _Deal extends StatefulWidget {
+  final int delay;
+  final Widget child;
+  const _Deal({required this.delay, required this.child});
+
+  @override
+  State<_Deal> createState() => _DealState();
+}
+
+class _DealState extends State<_Deal> with SingleTickerProviderStateMixin {
+  late final int _beats = widget.delay.clamp(0, SeatTokens.dealStaggered);
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: SeatTokens.dealIn + SeatTokens.dealStagger * _beats,
+  );
+  late final Animation<double> _t = CurvedAnimation(
+    parent: _c,
+    curve: Interval(
+      1 - SeatTokens.dealIn.inMicroseconds / _c.duration!.inMicroseconds,
+      1,
+      curve: Curves.easeOutCubic,
+    ),
+  );
+  bool _started = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      _c.value = 1;
+    } else {
+      _c.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final child = RepaintBoundary(child: widget.child);
+    return AnimatedBuilder(
+      animation: _t,
+      builder: (context, child) {
+        final k = 1 - _t.value;
+        return Opacity(
+          opacity: _t.value,
+          child: Transform.translate(
+            offset: Offset(0, -SeatTokens.dealRise * k),
+            child: Transform.rotate(
+              angle: -SeatTokens.dealTilt * k,
+              child: Transform.scale(
+                scale: 1 - (1 - SeatTokens.dealScale) * k,
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+}
+
+/// A removed card flying out: down, turned, small, gone.
+class _Flyout extends StatefulWidget {
+  final VoidCallback onDone;
+  final Widget child;
+  const _Flyout({required this.onDone, required this.child});
+
+  @override
+  State<_Flyout> createState() => _FlyoutState();
+}
+
+class _FlyoutState extends State<_Flyout> with SingleTickerProviderStateMixin {
+  late final AnimationController _c =
+      AnimationController(vsync: this, duration: SeatTokens.dealOut)
+        ..addStatusListener((s) {
+          if (s == AnimationStatus.completed) widget.onDone();
+        })
+        ..forward();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final child = RepaintBoundary(child: widget.child);
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, child) {
+        final t = Curves.easeOutCubic.transform(_c.value);
+        return Opacity(
+          opacity: 1 - t,
+          child: Transform.translate(
+            offset: Offset(0, SeatTokens.outDrop * t),
+            child: Transform.rotate(
+              angle: SeatTokens.dealTilt * t,
+              child: Transform.scale(
+                scale: 1 - (1 - SeatTokens.dealScale) * t,
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
+      child: child,
     );
   }
 }
@@ -549,184 +1081,6 @@ class _SaveGroupPrompt extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// A single player tile in the reorderable list.
-class _PlayerTile extends StatelessWidget {
-  final int index; // 1-based seating order
-  final String name;
-  final PlayerGender gender;
-  final ValueChanged<PlayerGender> onGender;
-
-  /// Away tonight. Dimmed, still listed, still in the group.
-  final bool absent;
-
-  /// Non-null for saved members: the row offers attendance instead of deletion.
-  final VoidCallback? onToggleAttendance;
-
-  final VoidCallback onDelete;
-
-  const _PlayerTile({
-    super.key,
-    required this.index,
-    required this.name,
-    required this.gender,
-    required this.onGender,
-    required this.absent,
-    required this.onToggleAttendance,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final radii = context.radii;
-    final type = context.typography;
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: spacing.sm),
-      child: Container(
-        height: spacing.xxl + spacing.md,
-        decoration: BoxDecoration(
-          // Dimming an absent row is done by dropping it to the ground colour
-          // rather than by lowering opacity: `Opacity` forces an offscreen
-          // buffer, and this list rebuilds on every toggle and every drag.
-          color: absent ? colors.surfaceBase : colors.surfaceRaised,
-          borderRadius: BorderRadius.circular(radii.card),
-          border: Border.all(color: colors.borderSubtle),
-        ),
-        child: Row(
-          children: [
-            // The visible leading marks are the actual reorder target.
-            ReorderableDragStartListener(
-              index: index - 1,
-              child: SizedBox(
-                width: spacing.xxl,
-                height: spacing.xxl,
-                child: Center(
-                  // Three rules, not `Icons.drag_handle`. A drag affordance has to
-                  // read as "grab here" and nothing else, and the app does not
-                  // borrow glyphs — see the note on `BackAction`.
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0)
-                          SizedBox(height: PlayerSetupTokens.dragMarkGap),
-                        SizedBox(
-                          width: PlayerSetupTokens.dragMarkWidth,
-                          height: PlayerSetupTokens.dragMarkHeight,
-                          child: ColoredBox(color: colors.textMuted),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Task 7 — the person, in the same ornamental ring the online
-            // council draws, from the same one mapping in `player_avatar.dart`.
-            // It is also the gender control: tapping the face is how you
-            // change it, which is one affordance where there used to be an
-            // icon that meant nothing on its own.
-            PopupMenuButton<PlayerGender>(
-              key: ValueKey('gender_$index'),
-              tooltip:
-                  '${context.l10n.playerMale} / ${context.l10n.playerFemale}',
-              initialValue: gender,
-              onSelected: onGender,
-              padding: EdgeInsets.zero,
-              icon: PlayerAvatar(
-                name: name,
-                gender: gender,
-                diameter: kListAvatarDiameter,
-                ringColor: absent ? colors.textMuted : colors.borderSubtle,
-              ),
-              iconSize: kListAvatarDiameter,
-              itemBuilder: (_) => [
-                PopupMenuItem(
-                  value: PlayerGender.male,
-                  child: Text(context.l10n.playerMale),
-                ),
-                PopupMenuItem(
-                  value: PlayerGender.female,
-                  child: Text(context.l10n.playerFemale),
-                ),
-              ],
-            ),
-            // Seat number and name
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: type.body.emphasised.copyWith(
-                      color: absent ? colors.textMuted : colors.textPrimary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: spacing.xs),
-                  Text(
-                    context.l10n.seatNumber(index),
-                    style: type.caption.copyWith(color: colors.textMuted),
-                    // One line, like the name above it. The row is a fixed
-                    // height and the gender control takes width off this
-                    // column, so a seat number allowed to wrap makes the tile
-                    // overflow rather than making the label longer.
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-
-            // Attendance toggle for saved members; delete for everyone else.
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: spacing.md),
-              child: onToggleAttendance != null
-                  ? TextButton(
-                      key: AddPlayersScreen.attendanceToggleFor(index),
-                      onPressed: onToggleAttendance,
-                      style: TextButton.styleFrom(
-                        // Article VII's 48dp floor.
-                        minimumSize: Size(spacing.xxl, spacing.xxl),
-                        padding: EdgeInsets.symmetric(horizontal: spacing.sm),
-                      ),
-                      child: Text(
-                        absent
-                            ? context.l10n.absentAction
-                            : context.l10n.presentAction,
-                        style: type.bodySmall.copyWith(
-                          color: absent
-                              ? colors.textMuted
-                              : colors.textSecondary,
-                        ),
-                      ),
-                    )
-                  : TextButton(
-                      key: ValueKey('delete_player_$index'),
-                      onPressed: onDelete,
-                      style: TextButton.styleFrom(
-                        // Article VII's 48dp floor.
-                        minimumSize: Size(spacing.xxl, spacing.xxl),
-                        padding: EdgeInsets.symmetric(horizontal: spacing.sm),
-                      ),
-                      child: Text(
-                        context.l10n.deleteAction,
-                        style: type.bodySmall.copyWith(color: colors.textMuted),
-                      ),
-                    ),
-            ),
-          ],
-        ),
       ),
     );
   }

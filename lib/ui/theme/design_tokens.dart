@@ -1248,6 +1248,69 @@ abstract final class PlayerSetupTokens {
   static const double dragMarkGap = 3;
 }
 
+/// «مين بيلعب؟»: each player a small Mafia card dealt into a grid.
+abstract final class SeatTokens {
+  static const int minPlayers = 5;
+  static const int maxPlayers = 20;
+  static const int columns = 3;
+
+  /// Width over height of one card.
+  static const double aspect = 0.68;
+
+  // The card's frame: a lit centre falling to dark, a bone-grey rim and an
+  // inner hairline inset from it.
+  static const Color frameLit = Color(0xFF3A3634);
+  static const Color frameDark = Color(0xFF141210);
+  static const Color rim = Color(0xFF8B877F);
+  static const double rimWidth = 1.5;
+  static const double inset = 5;
+  static const double insetRadius = 6;
+  static const double radius = 10;
+  static const double hairlineAlpha = 0.25;
+  static const double plateAlpha = 0.87;
+  static const double plateHeight = 28;
+  static const double plateInset = 6;
+  static const double shadowBlur = 18;
+  static const double shadowDrop = 8;
+  static const double shadowAlpha = 0.6;
+  static const double emptyAlpha = 0.7;
+  static const double emptyDash = 6;
+  static const double emptyGap = 5;
+  static const double emptyStroke = 1.5;
+
+  /// The portrait stands on the plate: its share of the card's height.
+  static const double avatarBottom = 0.18;
+  static const double avatarHeight = 0.8;
+  static const double awayAlpha = 0.45;
+
+  /// The corner control keeps a finger-sized target around a small glyph.
+  static const double corner = 48;
+  static const double cornerGlyph = 14;
+
+  // Motion.
+  static const Duration dealIn = Duration(milliseconds: 500);
+  static const Duration dealOut = Duration(milliseconds: 300);
+  static const Duration slide = Duration(milliseconds: 280);
+  static const Duration dealStagger = Duration(milliseconds: 60);
+  static const int dealStaggered = 6;
+  static const double dealRise = 60;
+  static const double dealTilt = 0.17; // 10°
+  static const double dealScale = 0.6;
+  static const double outDrop = 30;
+  static const double liftScale = 1.08;
+  static const double liftShadowBlur = 28;
+
+  // Dragging a card past the edge of the scroll area.
+  static const double edgeZone = 72;
+  static const double edgeStep = 10;
+  static const Duration edgeTick = Duration(milliseconds: 16);
+
+  /// Gender toggle inside the name field.
+  static const double genderWidth = 44;
+  static const double genderHeight = 36;
+  static const double genderRadius = 9;
+}
+
 abstract final class ResultTokens {
   static const double heroEmberWidth = 180;
   static const double heroEmberHeight = 96;

@@ -145,7 +145,11 @@ void main() {
       onSave: (_) {},
       onBack: () {},
     ),
-    '10_players': AddPlayersScreen(onNext: (_) {}, onBack: () {}),
+    '10_players': AddPlayersScreen(
+      onNext: (_) {},
+      onBack: () {},
+      initialNames: const ['أحمد', 'منة', 'كريم', 'سلمى', 'يوسف', 'نور', 'عمر'],
+    ),
     '11_roles': RolesScreen(playerCount: 7, onNext: (_) {}, onBack: () {}),
     '12_history_empty': HistoryScreen(onOpen: (_) {}, onBack: () {}),
     '13_characters': CharactersScreen(onBack: () {}),

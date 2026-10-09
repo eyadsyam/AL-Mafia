@@ -251,7 +251,7 @@ abstract class AppLocalizations {
   /// No description provided for @addPlayersTitle.
   ///
   /// In en, this message translates to:
-  /// **'Add players'**
+  /// **'Who is playing?'**
   String get addPlayersTitle;
 
   /// No description provided for @seatingOrderSubtitle.
@@ -1543,6 +1543,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap a name to mark them away tonight. They stay in the group.'**
   String get attendanceHint;
+
+  /// No description provided for @playersStillNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} to go'**
+  String playersStillNeeded(int count);
+
+  /// No description provided for @seatingDragHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Press and hold a card, then drag it to change its seat'**
+  String get seatingDragHint;
 
   /// No description provided for @playingTonight.
   ///

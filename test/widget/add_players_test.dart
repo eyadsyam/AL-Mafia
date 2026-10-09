@@ -24,7 +24,7 @@ void main() {
       for (int i = 1; i <= 4; i++) {
         final input = find.byType(TextField);
         await tester.enterText(input, 'Player $i');
-        await tester.tap(find.text('ضيف'));
+        await tester.tap(find.byKey(AddPlayersScreen.addButton));
         await tester.pumpAndSettle();
 
         // Find the التالي button (it's the one with the text "التالي")
@@ -47,7 +47,7 @@ void main() {
       // Add 5th player
       final input = find.byType(TextField);
       await tester.enterText(input, 'Player 5');
-      await tester.tap(find.text('ضيف'));
+      await tester.tap(find.byKey(AddPlayersScreen.addButton));
       await tester.pumpAndSettle();
 
       // Now the button should be enabled
@@ -87,13 +87,13 @@ void main() {
       // Add a player named "Ahmed"
       var input = find.byType(TextField);
       await tester.enterText(input, 'Ahmed');
-      await tester.tap(find.text('ضيف'));
+      await tester.tap(find.byKey(AddPlayersScreen.addButton));
       await tester.pumpAndSettle();
 
       // Try to add another "Ahmed" — should be suffixed to "Ahmed 2"
       input = find.byType(TextField);
       await tester.enterText(input, 'Ahmed');
-      await tester.tap(find.text('ضيف'));
+      await tester.tap(find.byKey(AddPlayersScreen.addButton));
       await tester.pumpAndSettle();
 
       // Verify the second name is "Ahmed 2"
@@ -103,7 +103,7 @@ void main() {
       // Add third "Ahmed" — should be "Ahmed 3"
       input = find.byType(TextField);
       await tester.enterText(input, 'Ahmed');
-      await tester.tap(find.text('ضيف'));
+      await tester.tap(find.byKey(AddPlayersScreen.addButton));
       await tester.pumpAndSettle();
 
       expect(find.text('Ahmed 3'), findsOneWidget);
@@ -112,7 +112,7 @@ void main() {
       for (int i = 4; i <= 5; i++) {
         input = find.byType(TextField);
         await tester.enterText(input, 'Player $i');
-        await tester.tap(find.text('ضيف'));
+        await tester.tap(find.byKey(AddPlayersScreen.addButton));
         await tester.pumpAndSettle();
       }
 
@@ -130,6 +130,8 @@ void main() {
 
     testWidgets('Can reorder players', (WidgetTester tester) async {
       final capturedNames = <List<String>>[];
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(
         localizedApp(
           AddPlayersScreen(
@@ -143,13 +145,17 @@ void main() {
       for (int i = 1; i <= 5; i++) {
         final input = find.byType(TextField);
         await tester.enterText(input, 'Player $i');
-        await tester.tap(find.text('ضيف'));
+        await tester.tap(find.byKey(AddPlayersScreen.addButton));
         await tester.pumpAndSettle();
       }
 
-      // Drag first player down past the second
-      final firstPlayer = find.text('Player 1');
-      await tester.drag(firstPlayer, const Offset(0, 100));
+      // Press and hold the first card, then drag it onto the second seat.
+      final first = tester.getCenter(find.text('Player 1'));
+      final gesture = await tester.startGesture(first);
+      await tester.pump(const Duration(milliseconds: 600));
+      await gesture.moveBy(const Offset(-160, 0));
+      await tester.pump();
+      await gesture.up();
       await tester.pumpAndSettle();
 
       // Tap التالي
@@ -162,14 +168,17 @@ void main() {
       // The exact reordering depends on ReorderableListView's behavior,
       // but we just verify it's still all 5 players
       expect(reordered.length, equals(5));
+      expect(reordered.first, isNot('Player 1'));
       expect(
         reordered.toSet(),
-        equals(['Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5']),
+        equals({'Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5'}),
       );
     });
 
     testWidgets('Can delete players', (WidgetTester tester) async {
       final capturedNames = <List<String>>[];
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(
         localizedApp(
           AddPlayersScreen(
@@ -183,7 +192,7 @@ void main() {
       for (int i = 1; i <= 5; i++) {
         final input = find.byType(TextField);
         await tester.enterText(input, 'Player $i');
-        await tester.tap(find.text('ضيف'));
+        await tester.tap(find.byKey(AddPlayersScreen.addButton));
         await tester.pumpAndSettle();
       }
 
@@ -209,7 +218,7 @@ void main() {
       // Add a new player
       var input = find.byType(TextField);
       await tester.enterText(input, 'Player 6');
-      await tester.tap(find.text('ضيف'));
+      await tester.tap(find.byKey(AddPlayersScreen.addButton));
       await tester.pumpAndSettle();
 
       // Now التالي should be enabled again

@@ -41,7 +41,7 @@
   "newMatch": "New match",
   "history": "History",
   "settings": "Settings",
-  "addPlayersTitle": "Add players",
+  "addPlayersTitle": "Who is playing?",
   "seatingOrderSubtitle": "In seating order",
   "playerNameHint": "Player name",
   "addPlayer": "Add",
@@ -501,6 +501,15 @@
   "presentAction": "Here",
   "absentAction": "Away",
   "attendanceHint": "Tap a name to mark them away tonight. They stay in the group.",
+  "playersStillNeeded": "{count} to go",
+  "@playersStillNeeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seatingDragHint": "Press and hold a card, then drag it to change its seat",
   "playingTonight": "Playing tonight: {count}",
   "@playingTonight": {
     "placeholders": {

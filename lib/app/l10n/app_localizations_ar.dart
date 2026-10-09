@@ -89,7 +89,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settings => 'الإعدادات';
 
   @override
-  String get addPlayersTitle => 'ضيف اللاعبين';
+  String get addPlayersTitle => 'مين بيلعب؟';
 
   @override
   String get seatingOrderSubtitle => 'اسحب الاسم عشان تغير ترتيبه';
@@ -815,6 +815,14 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get attendanceHint =>
       'دوس على أي اسم لو مش موجود النهارده. هيفضل في المجموعة.';
+
+  @override
+  String playersStillNeeded(int count) {
+    return 'لسه $count';
+  }
+
+  @override
+  String get seatingDragHint => 'دوس مطوّل على الكارت واسحبه عشان تغيّر مكانه';
 
   @override
   String playingTonight(int count) {
