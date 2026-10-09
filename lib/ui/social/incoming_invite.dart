@@ -227,9 +227,6 @@ class IncomingInviteHostState extends ConsumerState<IncomingInviteHost>
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<int>(matchResultReachedProvider, (_, _) {
-      unawaited(ref.read(pushPromptProvider).askAfterFirstResult());
-    });
     final private = ref.watch(privateMomentProvider);
     final invite = _queue.isEmpty ? null : _queue.first;
     final showing = invite != null && !private;

@@ -24,6 +24,7 @@ import '../../widgets/deck/seat_card.dart';
 import '../../widgets/legal_documents.dart';
 import '../../widgets/mafia_kit.dart';
 import '../../widgets/warm_palette.dart';
+import 'permissions_step.dart';
 
 /// Holds every route that needs a finished setup: a saved profile and an
 /// acceptance of the current terms.
@@ -51,8 +52,34 @@ class SetupRequired extends ConsumerWidget {
         termsOnly: true,
       );
     }
+    final permissions = ref.watch(permissionsDoneProvider);
+    if (permissions.isLoading) return const _Waiting();
+    if (permissions.valueOrNull != true) {
+      return const _ExistingPermissionsScreen();
+    }
     return child;
   }
+}
+
+class _ExistingPermissionsScreen extends ConsumerWidget {
+  const _ExistingPermissionsScreen();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => WarmPalette(
+    child: MafiaScaffold(
+      backgroundColor: DeckTokens.ground,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: context.spacing.maxContentWidth,
+            ),
+            child: PermissionsStep(onContinue: () async {}),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _Waiting extends StatelessWidget {
@@ -62,14 +89,12 @@ class _Waiting extends StatelessWidget {
       const MafiaScaffold(body: Center(child: CircularProgressIndicator()));
 }
 
-/// The first launch, in three questions with progress dots: the deck fans
+/// The first launch, with progress dots: the deck fans
 /// into the logo, «نكلّمك إزاي؟» (two big avatar cards and the one box for
 /// 18+ and the terms), «اسمك إيه؟» (the name is written on the chosen card as
 /// it is typed) and, only where the build has a server, «نحفظ لعبك؟».
 ///
-/// Nothing asks for a birth date, phone or email, and the microphone is asked
-/// for only when voice is first used. Sound, music and motion keep their
-/// defaults and live in settings.
+/// Permissions and general preferences follow the name card.
 class FirstRunScreen extends ConsumerStatefulWidget {
   /// Existing installs that have a profile: only the box.
   final bool termsOnly;
@@ -97,7 +122,7 @@ class FirstRunScreen extends ConsumerStatefulWidget {
   ConsumerState<FirstRunScreen> createState() => _FirstRunScreenState();
 }
 
-enum _Step { intro, kind, name, save }
+enum _Step { intro, kind, name, permissions, save }
 
 class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     with TickerProviderStateMixin {
@@ -134,6 +159,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       _Step.intro,
       _Step.kind,
       _Step.name,
+      _Step.permissions,
       if (ref.read(accountsAvailableProvider)) _Step.save,
     ];
     final profile = ref.read(playerProfileProvider).valueOrNull;
@@ -190,6 +216,12 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       }
       if (_gender == PlayerGender.unspecified) _gender = saved.gender;
     });
+    if (_steps[_step] == _Step.permissions &&
+        await ref.read(permissionsDoneProvider.future) &&
+        _readyToFinish) {
+      await _finish();
+      return;
+    }
     if (_steps[_step] != _Step.save) return;
     final profile = ref.read(accountProfileProvider).valueOrNull;
     if ((profile?.signedIn ?? false) && _readyToFinish) _finish();
@@ -276,10 +308,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
         await ref
             .read(playerProfileProvider.notifier)
             .save(
-              PlayerProfile(
-                name: cleanPlayerName(_name.text),
-                gender: _gender,
-              ),
+              PlayerProfile(name: cleanPlayerName(_name.text), gender: _gender),
             );
         await WelcomeGreeting.arm();
         // The first launch no longer plays the film, so the first-run
@@ -349,19 +378,31 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                                 ? Duration.zero
                                 : FirstRunTokens.stepSlide,
                             transitionBuilder: (child, animation) =>
-                                FadeTransition(opacity: animation, child: child),
+                                FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                ),
                             child: KeyedSubtree(
                               key: ValueKey(step),
                               child: switch (step) {
                                 _Step.intro => _introStep(context, l),
                                 _Step.kind => _kindStep(context, l),
                                 _Step.name => _nameStep(context, l),
+                                _Step.permissions => PermissionsStep(
+                                  failed: _failed,
+                                  onContinue: () =>
+                                      _steps.last == _Step.permissions
+                                      ? _finish()
+                                      : _move(_step + 1),
+                                ),
                                 _Step.save => _saveStep(context, l),
                               },
                             ),
                           ),
                           if (step != _Step.intro) _dots(context),
-                          if (step == _Step.name || step == _Step.save)
+                          if (step == _Step.name ||
+                              step == _Step.permissions ||
+                              step == _Step.save)
                             PositionedDirectional(
                               start: context.spacing.sm,
                               top: context.spacing.xs,
@@ -386,11 +427,11 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                                     .read(localeProvider.notifier)
                                     .select(
                                       Localizations.localeOf(
-                                            context,
-                                          ).languageCode ==
-                                          'ar'
-                                      ? 'en'
-                                      : 'ar',
+                                                context,
+                                              ).languageCode ==
+                                              'ar'
+                                          ? 'en'
+                                          : 'ar',
                                     ),
                               ),
                             ),
@@ -429,9 +470,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                       : FirstRunTokens.dot,
                   height: FirstRunTokens.dot,
                   decoration: BoxDecoration(
-                    color: i == _step - 1
-                        ? DeckTokens.bone
-                        : DeckTokens.silver,
+                    color: i == _step - 1 ? DeckTokens.bone : DeckTokens.silver,
                     borderRadius: BorderRadius.circular(FirstRunTokens.dot / 2),
                   ),
                 ),
@@ -672,12 +711,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
             final front = angle <= math.pi / 2;
             final card = RepaintBoundary(
               child: front
-                  ? SeatCard(
-                      name: label,
-                      seat: 0,
-                      gender: g,
-                      showSeat: false,
-                    )
+                  ? SeatCard(name: label, seat: 0, gender: g, showSeat: false)
                   : Transform(
                       alignment: Alignment.center,
                       transform: Matrix4.rotationY(math.pi),
@@ -785,7 +819,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                     width: FirstRunTokens.box,
                     height: FirstRunTokens.box,
                     decoration: BoxDecoration(
-                      color: _agreed ? DeckTokens.bone : IdentityTokens.transparent,
+                      color: _agreed
+                          ? DeckTokens.bone
+                          : IdentityTokens.transparent,
                       borderRadius: BorderRadius.circular(
                         FirstRunTokens.boxRadius,
                       ),
@@ -842,7 +878,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   Widget _nameStep(BuildContext context, AppLocalizations l) {
     final s = context.spacing;
     final type = context.typography;
-    final finalStep = _steps.last == _Step.name;
     return LayoutBuilder(
       builder: (context, box) {
         final roomy = box.maxHeight > FirstRunTokens.roomyAbove;
@@ -932,11 +967,10 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                           _saveProgress();
                         },
                         onSubmitted: (_) {
-                          if (_nameOk) finalStep ? _finish() : _move(_step + 1);
+                          if (_nameOk) _move(_step + 1);
                         },
                       ),
                     ),
-                    if (_failed && finalStep) _failure(context, l),
                   ],
                 ),
               ),
@@ -949,14 +983,12 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                 s.md,
               ),
               child: BoneButton(
-                key: finalStep
-                    ? FirstRunScreen.continueKey
-                    : FirstRunScreen.nextKey,
+                key: _steps.contains(_Step.save)
+                    ? FirstRunScreen.nextKey
+                    : FirstRunScreen.continueKey,
                 label: _saving ? l.arrivalSaving : l.continueAction,
                 disabledReason: l.firstRunNameNeed,
-                onPressed: _nameOk && !_saving
-                    ? () => finalStep ? _finish() : _move(_step + 1)
-                    : null,
+                onPressed: _nameOk && !_saving ? () => _move(_step + 1) : null,
               ),
             ),
           ],
@@ -1023,16 +1055,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
             ),
           ),
           SizedBox(height: s.md),
-          Text(
-            l.firstRunKeepCoins,
-            style: keep,
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            l.firstRunKeepLevel,
-            style: keep,
-            textAlign: TextAlign.center,
-          ),
+          Text(l.firstRunKeepCoins, style: keep, textAlign: TextAlign.center),
+          Text(l.firstRunKeepLevel, style: keep, textAlign: TextAlign.center),
           SizedBox(height: s.lg),
           if (signedIn)
             const Center(child: OnboardingAccountChoice())

@@ -11472,6 +11472,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved it, hide the file'**
   String get storiesCoverAndPass2;
+
+  /// No description provided for @permissionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions and settings'**
+  String get permissionsTitle;
+
+  /// No description provided for @permissionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set these how you like. You can change them later in Settings.'**
+  String get permissionsHint;
+
+  /// No description provided for @permissionMicrophone.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone'**
+  String get permissionMicrophone;
+
+  /// No description provided for @permissionMicrophoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To talk in the online room'**
+  String get permissionMicrophoneHint;
+
+  /// No description provided for @permissionAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get permissionAllowed;
+
+  /// No description provided for @permissionAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get permissionAsk;
+
+  /// No description provided for @permissionNotificationsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'So your friends\' invites reach you'**
+  String get permissionNotificationsHint;
+
+  /// No description provided for @permissionDeniedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If access is blocked, enable it in device settings.'**
+  String get permissionDeniedHint;
+
+  /// No description provided for @permissionNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not allowed'**
+  String get permissionNotAllowed;
+
+  /// No description provided for @permissionRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get permissionRetry;
 }
 
 class _AppLocalizationsDelegate

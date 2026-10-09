@@ -81,43 +81,6 @@ void main() {
     await container.read(pushPromptProvider).unregisterThisDevice();
     expect(api.dropped, isEmpty);
   });
-  test('first completed result asks once without invite capability', () async {
-    final push = _Push();
-    late _Api api;
-    final container = ProviderContainer(overrides: [
-      pushServiceProvider.overrideWithValue(push),
-      directoryApiProvider.overrideWith((ref) => api = _Api(ref)),
-    ]);
-    addTearDown(container.dispose);
-    final prompt = container.read(pushPromptProvider);
-    await prompt.askAfterFirstResult();
-    await prompt.askAfterFirstResult();
-    expect(push.asks, 1);
-    expect(api.registered, hasLength(1));
-  });
-
-  test('first result respects explicit off and Safari install requirement',
-      () async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(PushPrompt.onKey, false);
-    final off = _Push();
-    final container = ProviderContainer(overrides: [
-      pushServiceProvider.overrideWithValue(off),
-    ]);
-    addTearDown(container.dispose);
-    await container.read(pushPromptProvider).askAfterFirstResult();
-    expect(off.asks, 0);
-
-    SharedPreferences.setMockInitialValues({});
-    final safari = _Push(platformName: 'web', install: true);
-    final safariContainer = ProviderContainer(overrides: [
-      pushServiceProvider.overrideWithValue(safari),
-    ]);
-    addTearDown(safariContainer.dispose);
-    await safariContainer.read(pushPromptProvider).askAfterFirstResult();
-    expect(safari.asks, 0);
-  });
-
   testWidgets('hidden where this build has no push', (tester) async {
     await _pump(tester, _Push(platformName: null));
     expect(find.byKey(PushSettingsRow.switchKey), findsNothing);

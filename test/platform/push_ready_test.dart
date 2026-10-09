@@ -72,28 +72,31 @@ void main() {
     _Api.registered = 0;
   });
 
-  test('a device that already allows notifications registers silently', () async {
-    push = _Push(granted: true);
-    await (await session()).onPlayerReady();
-    expect(push.asks, 0);
-    expect(_Api.registered, 1);
-  });
+  test(
+    'a device that already allows notifications registers silently',
+    () async {
+      push = _Push(granted: true);
+      await (await session()).onPlayerReady();
+      expect(push.asks, 0);
+      expect(_Api.registered, 1);
+    },
+  );
 
-  test('Android asks once, from the second session, never the first', () async {
+  test('Android never asks automatically on later sessions', () async {
     push = _Push();
     final first = await session();
     await first.onPlayerReady();
     await first.onPlayerReady();
-    expect(push.asks, 0, reason: 'never on first launch');
+    expect(push.asks, 0);
     expect(_Api.registered, 0);
 
     await (await session()).onPlayerReady();
-    expect(push.asks, 1, reason: 'second session');
-    expect(_Api.registered, 1);
+    expect(push.asks, 0);
+    expect(_Api.registered, 0);
 
     await (await session()).onPlayerReady();
-    expect(push.asks, 1, reason: 'asked once');
-    expect(_Api.registered, 2, reason: 'the token is refreshed every session');
+    expect(push.asks, 0);
+    expect(_Api.registered, 0);
   });
 
   test('the web never prompts outside a tap', () async {
@@ -104,14 +107,17 @@ void main() {
     expect(_Api.registered, 0);
   });
 
-  test('an explicit «no» in settings and a server switch off both win', () async {
-    push = _Push(granted: true);
-    SharedPreferences.setMockInitialValues({PushPrompt.onKey: false});
-    await (await session()).onPlayerReady();
-    expect(_Api.registered, 0);
+  test(
+    'an explicit «no» in settings and a server switch off both win',
+    () async {
+      push = _Push(granted: true);
+      SharedPreferences.setMockInitialValues({PushPrompt.onKey: false});
+      await (await session()).onPlayerReady();
+      expect(_Api.registered, 0);
 
-    SharedPreferences.setMockInitialValues({});
-    await (await session(pushOn: false)).onPlayerReady();
-    expect(_Api.registered, 0);
-  });
+      SharedPreferences.setMockInitialValues({});
+      await (await session(pushOn: false)).onPlayerReady();
+      expect(_Api.registered, 0);
+    },
+  );
 }

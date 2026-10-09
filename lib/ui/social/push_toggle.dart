@@ -14,7 +14,8 @@ import 'push_prompt.dart';
 /// is disabled and the row explains the Home Screen step instead, since Safari
 /// delivers web push only to an installed web app.
 class PushSettingsRow extends ConsumerStatefulWidget {
-  const PushSettingsRow({super.key});
+  const PushSettingsRow({super.key, this.compact = false});
+  final bool compact;
 
   static const switchKey = Key('settings.push');
 
@@ -54,7 +55,11 @@ class _PushSettingsRowState extends ConsumerState<PushSettingsRow> {
     return SettingsSwitchRow(
       switchKey: PushSettingsRow.switchKey,
       label: l10n.pushSettingsTitle,
-      hint: install ? l10n.pushSettingsIosHint : l10n.pushSettingsHint,
+      hint: install
+          ? l10n.pushSettingsIosHint
+          : widget.compact
+          ? l10n.permissionNotificationsHint
+          : l10n.pushSettingsHint,
       value: _on && !install,
       onChanged: install || _busy ? null : _change,
     );

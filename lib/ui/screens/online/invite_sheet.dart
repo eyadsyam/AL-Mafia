@@ -22,7 +22,7 @@ import '../../widgets/player_avatar.dart';
 /// permission, with four filter chips). Each row is the person's public
 /// identity — frame, plate, level, state — and one «ادعي» that becomes
 /// «اتبعتت ✓». Opening it is the in-context moment to ask for notification
-/// permission (never on first launch).
+/// permission only when the player has not answered in onboarding.
 class InviteSheet extends ConsumerStatefulWidget {
   final bool visible;
   final String roomId;

@@ -3031,5 +3031,15 @@
   "storiesAnotherCase": "قضية تانية",
   "storiesHome": "الرئيسية",
   "storiesNarratorStop": "وقّف الراوي",
-  "storiesCoverAndPass2": "حفظتها، خبّي الملف"
+  "storiesCoverAndPass2": "حفظتها، خبّي الملف",
+  "permissionsTitle": "الأذونات والإعدادات",
+  "permissionsHint": "ظبّطها على راحتك. تقدر تغيّرها بعدين من الإعدادات.",
+  "permissionMicrophone": "الميكروفون",
+  "permissionMicrophoneHint": "عشان تتكلم في الأوضة الأونلاين",
+  "permissionAllowed": "مسموح",
+  "permissionAsk": "اسمح",
+  "permissionNotificationsHint": "عشان توصلك دعوات صحابك",
+  "permissionDeniedHint": "لو السماح مرفوض نهائي، فعّله من إعدادات الجهاز.",
+  "permissionNotAllowed": "مش مسموح",
+  "permissionRetry": "جرّب تاني"
 }

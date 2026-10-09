@@ -70,6 +70,22 @@ void main() {
     expect(engine.audiblePeers, isEmpty);
   });
 
+  test('onboarding refusal prevents another microphone request', () async {
+    final engine = FakeVoiceEngine();
+    final link = FakeVoiceLink(selfId: 'u1')..peers = peers;
+    final controller = VoiceController(
+      engine: engine,
+      link: link,
+      rungTimeout: Duration.zero,
+      microphoneReady: () async => false,
+    );
+    addTearDown(controller.dispose);
+    await controller.apply(snapshotIn(GamePhase.discussion));
+    await controller.start(selfSeat: 1, peers: peers);
+    expect(engine.microphoneRequests, 0);
+    expect(controller.state.microphoneAvailable, isFalse);
+  });
+
   test(
     'the current room policy is applied before the first voice climb',
     () async {

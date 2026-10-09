@@ -34,8 +34,14 @@ class PushOpen {
     final kind = data['kind'];
     if (kind != 'invite') {
       return switch (kind) {
-        'room_start' || 'night' || 'daily' || 'thursday' || 'comeback' ||
-        'order_paid' || 'order_rejected' || 'friend_request' ||
+        'room_start' ||
+        'night' ||
+        'daily' ||
+        'thursday' ||
+        'comeback' ||
+        'order_paid' ||
+        'order_rejected' ||
+        'friend_request' ||
         'friend_accepted' => PushOpen(kind: kind as String),
         _ => null,
       };
@@ -64,9 +70,7 @@ abstract class PushService {
   /// Creates the notification channels. Safe to call more than once.
   Future<void> init();
 
-  /// The runtime permission prompt (Android 13+, the browser). Never on the
-  /// first launch: from the second session on Android, or in context
-  /// (opening the invite sheet, receiving an invite).
+  /// The runtime permission prompt (Android 13+, the browser).
   Future<bool> askPermission();
 
   /// Whether notifications are already allowed, without prompting: Android
@@ -111,8 +115,3 @@ class NoPushService implements PushService {
 
 /// Overridden in `main.dart` when Firebase is configured.
 final pushServiceProvider = Provider<PushService>((_) => const NoPushService());
-
-/// Bumped when an online table reaches its result. The table cannot import
-/// the social layer (leakage closure), so the always-mounted invite host
-/// listens and asks for notifications after the first finished match.
-final matchResultReachedProvider = StateProvider<int>((_) => 0);

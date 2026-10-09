@@ -8,6 +8,7 @@ import 'package:mafia_master/ui/account/profile_panels.dart';
 import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/data/terms_consent.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
+import 'package:mafia_master/ui/screens/onboarding/permissions_step.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../support/first_run_steps.dart';
@@ -58,6 +59,7 @@ void main() {
     await answerKind(tester);
     await typeName(tester, 'Eyad');
     await _tap(tester, FirstRunScreen.nextKey);
+    await _tap(tester, PermissionsStep.continueKey);
   }
 
   testWidgets('guest: Google, email, and play later as a guest', (
@@ -73,7 +75,7 @@ void main() {
     expect(find.byKey(FirstRunScreen.guestKey), findsOneWidget);
     expect(find.text(arStrings.firstRunGuest), findsOneWidget);
     // Three dots with a server.
-    expect(find.bySemanticsLabel(arStrings.arrivalStep(3, 3)), findsOneWidget);
+    expect(find.bySemanticsLabel(arStrings.arrivalStep(4, 4)), findsOneWidget);
 
     // Guest keeps the anonymous session: the profile is saved, nothing signed.
     await _tap(tester, FirstRunScreen.guestKey);
@@ -142,7 +144,7 @@ void main() {
     );
     await passIntro(tester);
     await answerKind(tester);
-    expect(find.bySemanticsLabel(arStrings.arrivalStep(2, 2)), findsOneWidget);
+    expect(find.bySemanticsLabel(arStrings.arrivalStep(2, 3)), findsOneWidget);
     expect(find.byKey(FirstRunScreen.nextKey), findsNothing);
     expect(find.byKey(FirstRunScreen.continueKey), findsOneWidget);
   });

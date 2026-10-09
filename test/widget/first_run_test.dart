@@ -13,6 +13,7 @@ import 'package:mafia_master/data/terms_consent.dart';
 import 'package:mafia_master/engine/models/player.dart';
 import 'package:mafia_master/platform/launcher_label.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
+import 'package:mafia_master/ui/screens/onboarding/permissions_step.dart';
 import 'package:mafia_master/ui/screens/online/safety_center.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/theme/mafia_theme.dart';
@@ -84,6 +85,8 @@ void main() {
     expect(_continueEnabled(tester), isTrue);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
+    expect(find.byKey(PermissionsStep.continueKey), findsOneWidget);
+    await tapKey(tester, PermissionsStep.continueKey);
     expect(find.text('HOME'), findsOneWidget);
 
     final saved = await TermsStore().load();
@@ -187,8 +190,13 @@ void main() {
     expect(find.byKey(FirstRunScreen.failedKey), findsOneWidget);
     // The profile landed, so the form narrowed to the box, still ticked:
     // no loop, one more tap.
-    expect(_continueEnabled(tester), isTrue);
-    await tester.tap(find.byKey(FirstRunScreen.continueKey));
+    expect(
+      tester
+          .widget<BoneButton>(find.byKey(PermissionsStep.continueKey))
+          .onPressed,
+      isNotNull,
+    );
+    await tester.tap(find.byKey(PermissionsStep.continueKey));
     await tester.pumpAndSettle();
     expect(find.text('HOME'), findsOneWidget);
   });
@@ -201,6 +209,7 @@ void main() {
       TermsStore.versionKey: currentTermsVersion,
       TermsStore.acceptedAtKey: '2026-09-23T10:00:00.000Z',
       TermsStore.adultKey: true,
+      permissionsDoneKey: true,
     });
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
@@ -224,6 +233,7 @@ void main() {
     await tapKey(tester, FirstRunScreen.agreeKey);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
+    await tapKey(tester, PermissionsStep.continueKey);
     expect(find.text('HOME'), findsOneWidget);
     expect((await ProfileStore().load())!.name, 'Old');
     expect((await TermsStore().load())!.adult, isTrue);
@@ -326,7 +336,7 @@ void main() {
     expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
   });
 
-  testWidgets('sound, music and motion are not asked', (tester) async {
+  testWidgets('sound and motion choices follow the name', (tester) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
     await answerKind(tester);
@@ -334,6 +344,7 @@ void main() {
     expect(find.byType(Switch), findsNothing);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
+    expect(find.byType(Switch), findsWidgets);
     expect(await loadReduceMotionPreference(), isFalse);
   });
 

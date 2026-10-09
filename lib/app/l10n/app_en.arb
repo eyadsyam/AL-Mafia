@@ -4089,5 +4089,15 @@
   "storiesAnotherCase": "Another case",
   "storiesHome": "Home",
   "storiesNarratorStop": "Stop the narrator",
-  "storiesCoverAndPass2": "Saved it, hide the file"
+  "storiesCoverAndPass2": "Saved it, hide the file",
+  "permissionsTitle": "Permissions and settings",
+  "permissionsHint": "Set these how you like. You can change them later in Settings.",
+  "permissionMicrophone": "Microphone",
+  "permissionMicrophoneHint": "To talk in the online room",
+  "permissionAllowed": "Allowed",
+  "permissionAsk": "Allow",
+  "permissionNotificationsHint": "So your friends' invites reach you",
+  "permissionDeniedHint": "If access is blocked, enable it in device settings.",
+  "permissionNotAllowed": "Not allowed",
+  "permissionRetry": "Try again"
 }

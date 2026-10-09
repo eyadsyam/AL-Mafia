@@ -180,6 +180,7 @@ class VoiceController {
   /// `Duration.zero` turns the sampler off — the state that widget tests want,
   /// so a leaked periodic timer cannot outlive a pumped frame.
   final Duration statsInterval;
+  final Future<bool> Function()? microphoneReady;
 
   VoiceController({
     required this.engine,
@@ -187,6 +188,7 @@ class VoiceController {
     IceConfig? relay,
     this.rungTimeout = const Duration(seconds: 8),
     this.statsInterval = MafiaTiming.voiceStatsSample,
+    this.microphoneReady,
   }) : relay = relay ?? IceConfig.relay();
 
   final _states = StreamController<VoiceState>.broadcast();
@@ -613,7 +615,12 @@ class VoiceController {
     // reappears every time a night ends is the opposite of "told once, calmly".
     if (!_micAsked) {
       _micAsked = true;
-      _micAvailable = await _quietly(engine.acquireMicrophone) ?? false;
+      final ready = microphoneReady == null
+          ? true
+          : await _quietly(microphoneReady!) ?? false;
+      _micAvailable = ready
+          ? await _quietly(engine.acquireMicrophone) ?? false
+          : false;
       // Published even when the cycle has moved on: whether this device has a
       // microphone is a fact about the device, and V1's one calm notice is
       // owed to the player whether or not a night landed while the permission

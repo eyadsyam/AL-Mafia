@@ -5,15 +5,9 @@ import '../../platform/push/push_service.dart';
 import '../economy/economy_capabilities.dart';
 import 'directory.dart';
 
-/// Notification permission, never at first launch: asked the first time the
-/// player opens the invite sheet or receives an invite in the app, and on
-/// Android at the start of their second session — an invite only reaches a
-/// closed app on a device that registered *before* it was sent, so waiting for
-/// the player to invite somebody left every invitee unreachable. A device
-/// where notifications are already allowed registers without any prompt.
-/// Invite prompts need `social.pushInvites`; the first result can ask for
-/// reminders and room events even when invites are disabled.
-/// No prompt is shown where this build has no push configuration.
+/// The onboarding and settings notification switch, plus a fallback in an
+/// invite context for a player who has never answered. A device that already
+/// allows notifications registers silently when the player is ready.
 class PushPrompt {
   final Ref _ref;
   PushPrompt(this._ref);
@@ -24,12 +18,7 @@ class PushPrompt {
   /// prompt was answered; `false` is an explicit «no» that nothing overrides.
   static const onKey = 'push_on_v1';
 
-  /// App sessions this device has started with a name set, counted once per
-  /// process by [onPlayerReady].
-  static const sessionsKey = 'push_sessions_v1';
-  static const firstResultKey = 'push_first_result_v1';
   bool _busy = false;
-  bool _counted = false;
 
   /// Test hook: how many times the system prompt was requested.
   int prompts = 0;
@@ -51,22 +40,15 @@ class PushPrompt {
     }
   }
 
-  Future<void> askAfterFirstResult() async {
-    final push = _ref.read(pushServiceProvider);
-    if (_busy || push.platform == null || push.needsInstall) return;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool(firstResultKey) ?? false) return;
-      await prefs.setBool(firstResultKey, true);
-      if (prefs.getBool(onKey) == false) return;
-      await _ask(push);
-    } catch (_) {}
-  }
-
   Future<void> askInContext() async {
     final push = _ref.read(pushServiceProvider);
-    if (_busy || push.platform == null || !_enabled) return;
+    if (_busy || push.platform == null || push.needsInstall || !_enabled) {
+      return;
+    }
     if (await _explicitlyOff()) return;
+    if ((await SharedPreferences.getInstance()).getBool(askedKey) ?? false) {
+      return;
+    }
     await _ask(push);
   }
 
@@ -149,24 +131,16 @@ class PushPrompt {
 
   /// Called when the player is known to the directory (a name is set, once per
   /// presence beat). Registers a device that already allows notifications,
-  /// and on Android asks once from the second session on.
+  /// without asking for permission.
   Future<void> onPlayerReady() async {
     final push = _ref.read(pushServiceProvider);
     if (_busy || push.platform == null || !_enabled) return;
     if (await _explicitlyOff()) return;
     try {
       final prefs = await SharedPreferences.getInstance();
-      var sessions = prefs.getInt(sessionsKey) ?? 0;
-      if (!_counted) {
-        _counted = true;
-        sessions++;
-        await prefs.setInt(sessionsKey, sessions);
-      }
       final asked = prefs.getBool(askedKey) ?? false;
       if (asked || await push.isGranted()) {
         await _register(push);
-      } else if (push.platform == 'android' && sessions >= 2) {
-        await _ask(push);
       }
     } catch (_) {}
   }

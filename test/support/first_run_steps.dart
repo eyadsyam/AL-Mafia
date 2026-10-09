@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
+import 'package:mafia_master/ui/screens/onboarding/permissions_step.dart';
 
 /// The intro plays by itself and hands over to the first question.
 Future<void> passIntro(WidgetTester tester) => tester.pumpAndSettle();
@@ -32,4 +33,5 @@ Future<void> completeFirstRun(
   await answerKind(tester, boy: boy);
   await typeName(tester, name);
   await tapKey(tester, FirstRunScreen.continueKey);
+  await tapKey(tester, PermissionsStep.continueKey);
 }

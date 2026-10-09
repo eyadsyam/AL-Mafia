@@ -6557,4 +6557,36 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get storiesCoverAndPass2 => 'حفظتها، خبّي الملف';
+
+  @override
+  String get permissionsTitle => 'الأذونات والإعدادات';
+
+  @override
+  String get permissionsHint =>
+      'ظبّطها على راحتك. تقدر تغيّرها بعدين من الإعدادات.';
+
+  @override
+  String get permissionMicrophone => 'الميكروفون';
+
+  @override
+  String get permissionMicrophoneHint => 'عشان تتكلم في الأوضة الأونلاين';
+
+  @override
+  String get permissionAllowed => 'مسموح';
+
+  @override
+  String get permissionAsk => 'اسمح';
+
+  @override
+  String get permissionNotificationsHint => 'عشان توصلك دعوات صحابك';
+
+  @override
+  String get permissionDeniedHint =>
+      'لو السماح مرفوض نهائي، فعّله من إعدادات الجهاز.';
+
+  @override
+  String get permissionNotAllowed => 'مش مسموح';
+
+  @override
+  String get permissionRetry => 'جرّب تاني';
 }

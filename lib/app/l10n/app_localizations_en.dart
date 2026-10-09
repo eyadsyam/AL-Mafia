@@ -6669,4 +6669,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storiesCoverAndPass2 => 'Saved it, hide the file';
+
+  @override
+  String get permissionsTitle => 'Permissions and settings';
+
+  @override
+  String get permissionsHint =>
+      'Set these how you like. You can change them later in Settings.';
+
+  @override
+  String get permissionMicrophone => 'Microphone';
+
+  @override
+  String get permissionMicrophoneHint => 'To talk in the online room';
+
+  @override
+  String get permissionAllowed => 'Allowed';
+
+  @override
+  String get permissionAsk => 'Allow';
+
+  @override
+  String get permissionNotificationsHint =>
+      'So your friends\' invites reach you';
+
+  @override
+  String get permissionDeniedHint =>
+      'If access is blocked, enable it in device settings.';
+
+  @override
+  String get permissionNotAllowed => 'Not allowed';
+
+  @override
+  String get permissionRetry => 'Try again';
 }

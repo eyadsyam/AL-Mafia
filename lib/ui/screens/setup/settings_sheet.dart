@@ -11,6 +11,7 @@ import '../../account/onboarding_account_step.dart'
     show accountsAvailableProvider;
 import '../../l10n_ext.dart';
 import '../../social/push_toggle.dart';
+import '../onboarding/permissions_step.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/deck/deck_public.dart';
@@ -225,7 +226,6 @@ class _SettingsSheetBodyState extends ConsumerState<SettingsSheetBody> {
           title: l.settingsSectionGeneral,
           children: [
             const LanguagePicker(),
-            const PushSettingsRow(),
             SettingsSwitchRow(
               switchKey: SettingsSheetKeys.row('reduceMotion'),
               label: l.prefReduceMotion,
@@ -238,6 +238,10 @@ class _SettingsSheetBodyState extends ConsumerState<SettingsSheetBody> {
               },
             ),
           ],
+        ),
+        _Group(
+          title: l.permissionsTitle,
+          children: const [PushSettingsRow(), MicrophoneSettingsRow()],
         ),
         _Group(
           children: [
@@ -310,8 +314,7 @@ class _Group extends StatelessWidget {
                     ),
                   ),
                 for (var i = 0; i < children.length; i++) ...[
-                  if (i > 0)
-                    const Divider(color: DeckTokens.line, height: 1),
+                  if (i > 0) const Divider(color: DeckTokens.line, height: 1),
                   children[i],
                 ],
               ],

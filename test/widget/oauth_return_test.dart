@@ -17,6 +17,7 @@ import 'package:mafia_master/ui/account/account_sheet.dart';
 import 'package:mafia_master/ui/account/onboarding_account_step.dart';
 import 'package:mafia_master/ui/account/profile_panels.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
+import 'package:mafia_master/ui/screens/onboarding/permissions_step.dart';
 import 'package:mafia_master/ui/screens/setup/profile_screen.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -129,6 +130,7 @@ void main() {
     await answerKind(tester);
     await typeName(tester, 'Eyad');
     await _tap(tester, FirstRunScreen.nextKey);
+    await _tap(tester, PermissionsStep.continueKey);
   }
 
   group('bug 1: Google during onboarding', () {
@@ -189,7 +191,7 @@ void main() {
       // Used to `go` Home, which is a brand-new first-run screen.
       await tester.runAsync(() => tester.binding.handlePopRoute());
       await tester.pumpAndSettle();
-      expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
+      expect(find.byKey(PermissionsStep.continueKey), findsOneWidget);
     });
 
     testWidgets('onboarding links Google and keeps the anonymous id', (

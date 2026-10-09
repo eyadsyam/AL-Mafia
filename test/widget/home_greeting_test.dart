@@ -36,6 +36,7 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump();
   }
 
   testWidgets('Home greets once after first run, then never again', (

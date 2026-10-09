@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../platform/voice/voice_controller.dart';
 import '../../../platform/voice/voice_engine.dart';
 import '../../../platform/voice/webrtc_voice_engine.dart';
+import '../../../platform/voice/microphone_permission.dart';
 import '../../theme/design_tokens.dart';
 import 'online_session.dart';
 
@@ -42,6 +44,11 @@ final voiceControllerProvider = Provider<VoiceController?>((ref) {
     engine: ref.read(voiceEngineFactoryProvider)(),
     link: link,
     statsInterval: ref.read(voiceStatsIntervalProvider),
+    // Only an explicit «no» keeps the microphone closed; a player who skipped
+    // the question gets the system prompt in the room as before.
+    microphoneReady: () async =>
+        (await SharedPreferences.getInstance()).getBool(microphoneAllowedKey) !=
+        false,
   );
 
   // Apply the room's current policy before the first climb. `watch()` does
