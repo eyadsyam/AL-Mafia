@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/asset_constants.dart';
 import '../../../engine/balance_guard.dart';
 import '../../../engine/models/enums.dart' show Role;
 import '../../../engine/presets.dart';
+import '../../economy/my_cosmetics.dart' show ownedRolesProvider;
+import '../../economy/wallet.dart' show walletProvider;
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
@@ -20,7 +23,7 @@ import 'role_rows.dart';
 /// a screen where a hand is held (Doc 05).
 ///
 /// Reference: spec US4, FR-003, FR-004 (balance validation)
-class RolesScreen extends StatefulWidget {
+class RolesScreen extends ConsumerStatefulWidget {
   static const Key nextButton = ValueKey('roles_next');
   static Key stepper(Role role) => ValueKey('roles_${role.name}_stepper');
   static Key preset(String code) => ValueKey('roles_preset_$code');
@@ -42,19 +45,25 @@ class RolesScreen extends StatefulWidget {
   /// this screen, and there was no way to do it.
   final VoidCallback onBack;
 
+  /// The split the host left here (the setup draft), bought roles included,
+  /// so a Back from the settings step reopens what was chosen rather than the
+  /// classic preset. Ignored when it does not add up to [playerCount].
+  final Map<Role, int>? initialCounts;
+
   const RolesScreen({
     super.key,
     required this.playerCount,
     required this.onNext,
     required this.onBack,
     this.onOptionalRoles,
+    this.initialCounts,
   });
 
   @override
-  State<RolesScreen> createState() => _RolesScreenState();
+  ConsumerState<RolesScreen> createState() => _RolesScreenState();
 }
 
-class _RolesScreenState extends State<RolesScreen> {
+class _RolesScreenState extends ConsumerState<RolesScreen> {
   /// The preset the split still is, or null once the host has edited it.
   MatchPreset? _preset = MatchPreset.classic;
   late int _mafia;
@@ -67,7 +76,38 @@ class _RolesScreenState extends State<RolesScreen> {
   @override
   void initState() {
     super.initState();
-    _apply(MatchPreset.classic);
+    if (!_restore(widget.initialCounts)) _apply(MatchPreset.classic);
+  }
+
+  /// Reads [counts] back into the editor terms: the bought roles are the ones
+  /// present, and the base Mafia count includes a silencer seat.
+  bool _restore(Map<Role, int>? counts) {
+    if (counts == null) return false;
+    final total = counts.values.fold<int>(0, (a, b) => a + b);
+    if (total != _n) return false;
+    final on = {
+      for (final r in OptionalRole.values)
+        if ((counts[r.role] ?? 0) > 0) r,
+    };
+    final mafia =
+        (counts[Role.mafia] ?? 0) + (on.contains(OptionalRole.silencer) ? 1 : 0);
+    if (mafia < 1) return false;
+    _mafia = mafia;
+    _detective = counts[Role.detective] ?? 0;
+    _doctor = counts[Role.doctor] ?? 0;
+    _on = on;
+    _preset = null;
+    for (final preset in [MatchPreset.classic, MatchPreset.brutal]) {
+      if (!preset.availableFor(_n)) continue;
+      final p = preset.roleCounts(_n);
+      if ((p[Role.mafia] ?? 0) == _mafia &&
+          (p[Role.detective] ?? 0) == _detective &&
+          (p[Role.doctor] ?? 0) == _doctor) {
+        _preset = preset;
+        break;
+      }
+    }
+    return true;
   }
 
   void _apply(MatchPreset preset) {
@@ -104,12 +144,26 @@ class _RolesScreenState extends State<RolesScreen> {
     _preset = null;
   });
 
-  void _toggle(OptionalRole role, bool on) => _edit(() {
+  // A bought role is added on top of the split; it does not make the split
+  // the host own, so the preset chip stays lit.
+  void _toggle(OptionalRole role, bool on) => setState(() {
     _on = {..._on}..remove(role);
     if (on) _on = {..._on, role};
   });
 
   void _next() {
+    // Only roles this player owns go into the match, whatever the switches
+    // say: the wallet when it has answered, the device copy until then.
+    final wallet = ref.read(walletProvider).valueOrNull;
+    final kept = ref.read(ownedRolesProvider);
+    final owned = {
+      for (final r in OptionalRole.values)
+        if (wallet != null
+            ? wallet.owned.contains(r.code)
+            : kept.contains(r.code))
+          r,
+    };
+    if (!owned.containsAll(_on)) _on = _on.intersection(owned);
     widget.onOptionalRoles?.call(_on);
     widget.onNext(_counts);
   }

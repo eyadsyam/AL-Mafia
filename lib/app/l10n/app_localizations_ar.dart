@@ -2400,7 +2400,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get storeBought => 'اتضاف لمجموعتك';
 
   @override
-  String get storeFailed => 'العملية ما تمّتش، ومفيش حاجة اتخصمت. جرّب تاني.';
+  String get storeFailed => 'ماتمّش. شوف رصيدك وجرّب تاني.';
+
+  @override
+  String get storeBusy => 'فيه عملية شغّالة. استنى ثانية.';
 
   @override
   String get storeHostPackNote =>
@@ -2431,6 +2434,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String historyCatalogRefund(String item) {
     return 'استرجاع: $item';
   }
+
+  @override
+  String historyToolSpend(String item) {
+    return 'استخدام أداة: $item';
+  }
+
+  @override
+  String get historyBotWin => 'فوز على الكمبيوتر';
+
+  @override
+  String get historyStoryFirstSolve => 'حل قضية لأول مرة';
 
   @override
   String get historyAdReward => 'مكافأة فيديو';

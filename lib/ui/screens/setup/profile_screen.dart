@@ -1,4 +1,5 @@
 import '../../widgets/mafia_kit.dart';
+import 'player_name.dart';
 import '../../widgets/case_file.dart';
 import '../../widgets/deck/seat_card.dart';
 import '../../widgets/deck/deck_buttons.dart';
@@ -97,7 +98,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     try {
       await ref
           .read(playerProfileProvider.notifier)
-          .save(PlayerProfile(name: _name.text.trim(), gender: _gender));
+          .save(PlayerProfile(name: cleanPlayerName(_name.text), gender: _gender));
       if (mounted) widget.onSaved?.call();
     } catch (_) {
       if (mounted) setState(() => _failed = true);
@@ -173,7 +174,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             onGender: _saving ? null : _setGender,
             onNameChanged: (_) => setState(() => _edited = true),
             onSubmitted: (_) {
-              if (_name.text.trim().isNotEmpty &&
+              if (cleanPlayerName(_name.text).isNotEmpty &&
                   _gender != PlayerGender.unspecified &&
                   !_saving) {
                 _save();
@@ -256,7 +257,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final mine = ref.watch(myCosmeticsProvider);
     final ready =
         !_saving &&
-        _name.text.trim().isNotEmpty &&
+        cleanPlayerName(_name.text).isNotEmpty &&
         _gender != PlayerGender.unspecified;
     return MafiaScaffold(
       backgroundColor: widget.onBack != null ? CaseFileTokens.desk : null,

@@ -2891,6 +2891,7 @@ abstract final class StoryTokens {
   static const double dossierPhotoHeight = 124.0;
   static const int dossierNotes = 3;
   static const double dossierDash = 1.5;
+  static const double emptyClueSlot = 72;
   static const double dashAlpha = 0.33;
 
   /// The cast, the table and the line-up.

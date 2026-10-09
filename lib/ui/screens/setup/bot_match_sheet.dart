@@ -16,6 +16,7 @@ import '../../widgets/deck/card_fan.dart';
 import '../../widgets/deck/deck_public.dart';
 import '../../widgets/deck/seat_card.dart';
 import 'optional_roles.dart';
+import 'setup_draft.dart';
 import 'role_rows.dart';
 
 /// What the player picked for a table against bots.
@@ -48,6 +49,12 @@ extension BotMatchSetup on BotMatchPick {
 
   MatchSettings get settings =>
       OptionalRole.flags(preset.settings, effectiveRoles);
+
+  /// The settings the match starts with: the player saved defaults (narration,
+  /// audio, hold time, everything the preset does not speak for) with the
+  /// preset shape of the game laid on top and the bought roles switched on.
+  MatchSettings settingsOver(MatchSettings defaults) =>
+      OptionalRole.flags(preset.applyTo(defaults), effectiveRoles);
 }
 
 /// «العب ضد الكمبيوتر»: table size, level, and the roles, in a dealt sheet.
@@ -98,6 +105,13 @@ class _BotMatchBodyState extends ConsumerState<BotMatchBody> {
   bool _rolesOpen = false;
 
   BotMatchPick get _pick => widget.pick.value;
+
+  /// Whether the narrator will speak: the saved defaults decide, not the
+  /// preset, and a master mute silences it too.
+  bool _narrated(BotMatchPick pick) {
+    final s = pick.settingsOver(ref.watch(setupDraftProvider).settings);
+    return s.narrationEnabled && !s.muteAllAudio;
+  }
   void _set(BotMatchPick next) => widget.pick.value = next;
 
   /// Changes some of the pick, from what it is now (never from a stale build).
@@ -249,7 +263,7 @@ class _BotMatchBodyState extends ConsumerState<BotMatchBody> {
               children: [
                 Flexible(
                   child: Text(
-                    (pick.settings.narrationEnabled
+                    (_narrated(pick)
                         ? l.botRolesLine
                         : l.botRolesLineMuted)(
                       EngineCopy.presetName(l, pick.preset),

@@ -13,6 +13,8 @@ import '../../economy/play_offers.dart';
 import '../../economy/purchase_reveal.dart';
 import '../../../platform/monetization/play_billing.dart';
 import '../../economy/store_art.dart';
+import '../../economy/table_tool_names.g.dart' show tableToolCopy;
+import '../../economy/table_tools.dart' show tableToolsProvider;
 import 'store_shop.dart';
 import '../../widgets/textured_surface.dart';
 import '../../economy/mafia_coin.dart';
@@ -186,6 +188,10 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       retryCapabilitiesIfFailed(ref);
+      // A shelf that failed to load stays failed until it is asked again.
+      if (ref.read(tableToolsProvider).hasError) {
+        ref.invalidate(tableToolsProvider);
+      }
       ref.read(walletProvider.notifier).refresh();
     });
   }
@@ -674,13 +680,21 @@ class _HistoryTab extends StatelessWidget {
       );
     }
     final dates = MaterialLocalizations.of(context);
-    String name(String? code) =>
-        code == null ? '' : Cosmetics.items[code]?.name(l) ?? l.coinsGuideTitle;
+    String name(String? code) => code == null
+        ? ''
+        : Cosmetics.isRole(code)
+        ? storeRoleName(l, code)
+        : Cosmetics.items[code]?.name(l) ??
+              tableToolCopy(l, code)?.$1 ??
+              l.coinsGuideTitle;
     String label(LedgerEntry entry) => switch (entry.kind) {
       'match_completion' => l.historyMatchCompletion,
       'match_win' => l.historyMatchWin,
       'catalog_spend' => l.historyCatalogSpend(name(entry.item)),
       'catalog_refund' => l.historyCatalogRefund(name(entry.item)),
+      'tool_spend' => l.historyToolSpend(name(entry.item)),
+      'bot_win' => l.historyBotWin,
+      'story_first_solve' => l.historyStoryFirstSolve,
       'ad_reward' => l.historyAdReward,
       'ad_step_1' || 'ad_step_2' => l.historyAdStep,
       'daily_coffer' => l.historyDailyCoffer,

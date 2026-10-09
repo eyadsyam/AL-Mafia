@@ -14,7 +14,9 @@ import '../../theme/mafia_theme.dart';
 import '../../widgets/deck/deck_public.dart';
 import '../../widgets/deck/seat_card.dart';
 import '../../widgets/gender_picker.dart';
+import '../../economy/pass_table_dress.dart' show HostIdentityScope;
 import '../../widgets/mafia_kit.dart';
+import 'player_name.dart';
 
 /// Add Players screen (S-02) — collect player names in seating order.
 ///
@@ -55,6 +57,16 @@ class AddPlayersScreen extends StatefulWidget {
   final Map<String, PlayerGender> initialGenders;
   final ValueChanged<Map<String, PlayerGender>>? onGendersChanged;
 
+  /// Members who were sitting tonight out when the host last left this screen.
+  /// Only names that are in [initialNames] are honoured.
+  final Set<String> initialAbsent;
+
+  /// Told after every change to the roster: everyone on screen in seating
+  /// order, and who of them is away. Lets the setup draft keep guests, order
+  /// and absences across a Back from the roles step.
+  final void Function(List<String> players, Set<String> absent)?
+  onRosterChanged;
+
   /// The group these names came from, or null for a fresh roster.
   ///
   /// Its presence is what turns on attendance toggles and, if the group has a
@@ -84,6 +96,8 @@ class AddPlayersScreen extends StatefulWidget {
     this.initialNames = const [],
     this.initialGenders = const {},
     this.onGendersChanged,
+    this.initialAbsent = const {},
+    this.onRosterChanged,
     this.group,
     this.savedGroups = const [],
     this.onQuickStart,
@@ -116,7 +130,10 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
 
   /// Members sitting tonight out. Held by name rather than by index so a
   /// reorder cannot silently mark the wrong person away.
-  final Set<String> _absent = {};
+  late final Set<String> _absent = {
+    for (final name in widget.initialNames)
+      if (widget.initialAbsent.contains(name)) name,
+  };
 
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocus = FocusNode();
@@ -173,24 +190,32 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
 
   /// Adds a player name, auto-suffixing duplicates.
   void _addPlayer() {
-    final name = _inputController.text.trim();
+    // Invisible characters are stripped before the empty check: a name made
+    // of zero-width marks would otherwise seat a blank card.
+    final name = cleanPlayerName(
+      _inputController.text,
+    ).characters.take(FirstRunTokens.nameMax).toString();
     if (name.isEmpty || _full) return;
 
     _inputController.clear();
 
-    // Auto-suffix duplicates
+    // Auto-suffix duplicates, ignoring case: "Ali" and "ali" are one person
+    // to a table, and to the host-frame match that follows the name.
     var finalName = name;
     int suffix = 2;
-    while (_players.contains(finalName)) {
-      finalName = '$name $suffix';
+    while (_players.any((p) => sameNameFold(p, finalName))) {
+      final tail = ' $suffix';
+      final room = FirstRunTokens.nameMax - tail.length;
+      finalName = '${name.characters.take(room)}$tail';
       suffix++;
     }
 
     setState(() {
       _players.add(finalName);
       _genders[finalName] = _gender;
-      widget.onGendersChanged?.call(_genders);
     });
+    widget.onGendersChanged?.call(_genders);
+    _rosterChanged();
     // Enter submits and drops focus; the next name is one keystroke away.
     _inputFocus.requestFocus();
   }
@@ -212,8 +237,24 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
       }
       _players.removeAt(index);
       _absent.remove(name);
+      _genders.remove(name);
+      // A card held while its player is removed would leave the drag pointing
+      // at a seat that no longer exists.
+      _clearDrag();
     });
+    widget.onGendersChanged?.call(_genders);
+    _rosterChanged();
   }
+
+  void _clearDrag() {
+    _edgeTimer?.cancel();
+    _edgeTimer = null;
+    _edgeDir = 0;
+    _dragName = null;
+  }
+
+  void _rosterChanged() =>
+      widget.onRosterChanged?.call(List.of(_players), Set.of(_absent));
 
   /// Marks a member present or away for tonight only.
   ///
@@ -224,6 +265,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
     setState(() {
       if (!_absent.remove(name)) _absent.add(name);
     });
+    _rosterChanged();
   }
 
   void _flipGender(String name) {
@@ -238,19 +280,33 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
   /// A saved group's chip: its people take the table, in their saved order.
   void _pickGroup(PlayerGroup group, bool on) {
     setState(() {
+      _clearDrag();
       if (!on) {
+        // Un-picking a group only stops treating them as members. Who is on
+        // the table, and who is away tonight, stays as the host left it.
         _group = null;
-        _absent.clear();
         return;
       }
       _group = group;
-      _absent.clear();
+      // The group's people take the table in their saved order; anyone the
+      // host typed tonight stays, after them.
+      final members = group.memberNames;
+      final guests = [
+        for (final p in _players)
+          if (!members.any((m) => sameNameFold(m, p))) p,
+      ];
       _players
         ..clear()
-        ..addAll(group.memberNames);
+        ..addAll(members)
+        ..addAll(guests);
+      if (_players.length > SeatTokens.maxPlayers) {
+        _players.removeRange(SeatTokens.maxPlayers, _players.length);
+      }
+      _absent.removeWhere((a) => !_players.contains(a));
       _genders.addAll(group.genders);
-      widget.onGendersChanged?.call(_genders);
     });
+    widget.onGendersChanged?.call(_genders);
+    _rosterChanged();
   }
 
   bool get _canNext => _present.length >= SeatTokens.minPlayers;
@@ -392,6 +448,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
       }
       _dragName = null;
     });
+    _rosterChanged();
   }
 
   /// The seating as it will be if the held card is let go now: the others have
@@ -529,7 +586,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
           final seat = slot + 1;
           cards.add(
             Positioned(
-              key: ValueKey('seat_$name'),
+              key: ValueKey('seat_card_$name'),
               left: 0,
               top: 0,
               width: _cardW,
@@ -607,7 +664,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
         if (!_full) {
           cards.add(
             Positioned(
-              key: const ValueKey('seat_empty'),
+              key: const ValueKey('seat_slot_empty'),
               left: 0,
               top: 0,
               width: _cardW,
@@ -628,7 +685,11 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
         return SizedBox(
           key: _gridKey,
           height: height,
-          child: Stack(clipBehavior: Clip.none, children: cards),
+          child: HostIdentityScope.seated(
+            context,
+            order,
+            Stack(clipBehavior: Clip.none, children: cards),
+          ),
         );
       },
     );
@@ -724,6 +785,7 @@ class _AddRow extends StatelessWidget {
                   child: TextField(
                     controller: controller,
                     focusNode: focus,
+                    maxLength: FirstRunTokens.nameMax,
                     textInputAction: TextInputAction.done,
                     style: DeckTokens.body(
                       type,
@@ -733,6 +795,7 @@ class _AddRow extends StatelessWidget {
                       hintStyle: DeckTokens.body(
                         type,
                       ).copyWith(color: colors.textMuted),
+                      counterText: '',
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,

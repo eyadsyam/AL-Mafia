@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../data/player_group.dart';
 import '../data/player_group_provider.dart';
 import '../data/repository_provider.dart';
+import '../data/match_seed.dart';
 import '../data/online_session_store.dart';
 import '../data/player_profile.dart';
 import '../ui/economy/pass_table_dress.dart';
@@ -257,12 +258,21 @@ GoRouter buildRouter(
       dealing = false;
     }
     if (!context.mounted) return;
+    // The player saved defaults (narration, audio) are the base; the picked
+    // preset and roles go on top.
+    MatchSettings saved;
+    try {
+      saved = await ref.read(matchRepositoryProvider).loadDefaultSettings();
+    } catch (_) {
+      saved = ref.read(setupDraftProvider).settings;
+    }
+    if (!context.mounted) return;
     ref
         .read(matchControllerProvider.notifier)
         .startMatch(
           names: [you, ...kBotNames.take(pick.players - 1)],
           roleCounts: pick.roleCounts,
-          settings: pick.settings.copyWith(
+          settings: pick.settingsOver(saved).copyWith(
             whisperEnabled: false,
             discussionMode: DiscussionMode.free,
           ),
@@ -460,6 +470,7 @@ GoRouter buildRouter(
         builder: (context, state) => SetupRequired(
           child: WarmPalette(child: StoriesScreen(
             onBack: () => context.go(Routes.mode),
+            newSeed: newMatchSeed,
             claimReward: (id) =>
                 claimStoryReward(ProviderScope.containerOf(context), id),
             beforeStory: () async {
@@ -591,7 +602,7 @@ GoRouter buildRouter(
       ),
       GoRoute(
         path: Routes.groups,
-        builder: (context, state) => GroupPickerScreen(
+        builder: (context, state) => SetupRequired(child: GroupPickerScreen(
           onSelect: (group) {
             ref.read(setupDraftProvider.notifier).setGroup(group);
             context.go(Routes.players);
@@ -610,22 +621,31 @@ GoRouter buildRouter(
             ref.read(setupDraftProvider.notifier).setGroup(null);
             context.go(Routes.players);
           },
-        ),
+        )),
       ),
       GoRoute(
         path: Routes.players,
         builder: (context, state) {
-          final group = ref.read(setupDraftProvider).group;
-          return HostSeatScope(
+          final draft = ref.read(setupDraftProvider);
+          final group = draft.group;
+          // What the host left on this screen wins over the saved roster, so a
+          // Back from the roles step keeps the guests, the seating order and
+          // who was away. Only a first visit starts from the group as saved.
+          final resumed = draft.roster.isNotEmpty;
+          return SetupRequired(child: HostSeatScope(
             child: AddPlayersScreen(
             // Seating order, exactly as saved. Not sorted, not deduplicated,
             // not touched.
-            initialNames:
-                group?.memberNames ?? ref.read(setupDraftProvider).names,
-            initialGenders: {
-              ...?group?.genders,
-              ...ref.read(setupDraftProvider).genders,
-            },
+            initialNames: resumed
+                ? draft.roster
+                : (group?.memberNames ?? draft.names),
+            initialAbsent: resumed ? draft.absent : const {},
+            onRosterChanged: ref.read(setupDraftProvider.notifier).setRoster,
+            // On a first visit the saved group genders are the truth; once
+            // the host has been here, their own flips win.
+            initialGenders: resumed
+                ? {...?group?.genders, ...draft.genders}
+                : {...draft.genders, ...?group?.genders},
             onGendersChanged: ref.read(setupDraftProvider.notifier).setGenders,
             group: group,
             savedGroups: loadedGroups(),
@@ -639,7 +659,7 @@ GoRouter buildRouter(
               loadedGroups().isEmpty ? Routes.home : Routes.groups,
             ),
             ),
-          );
+          ));
         },
       ),
       GoRoute(
@@ -649,8 +669,9 @@ GoRouter buildRouter(
           // Deep-linking here without names would crash the balance guard;
           // send the host back to the step that produces them.
           if (names.length < 5) return const _RedirectHome();
-          return RolesScreen(
+          return SetupRequired(child: RolesScreen(
             playerCount: names.length,
+            initialCounts: ref.read(setupDraftProvider).roleCounts,
             // The bought roles carry their flags into the match's settings;
             // told every time, so a past match's flags never stay switched on.
             onOptionalRoles: (on) {
@@ -664,14 +685,14 @@ GoRouter buildRouter(
               context.go(Routes.settings);
             },
             onBack: () => context.go(Routes.players),
-          );
+          ));
         },
       ),
       GoRoute(
         path: Routes.settings,
         builder: (context, state) {
           final draft = ref.read(setupDraftProvider);
-          return SettingsScreen(
+          return SetupRequired(child: SettingsScreen(
             initial: draft.settings,
             onAudioPreview: (settings) => _previewAudio(ref, settings),
             // Doc 13 5. The preset row needs the table it is being picked for:
@@ -688,7 +709,7 @@ GoRouter buildRouter(
               unawaited(startMatch(context));
             },
             onBack: () => context.go(Routes.roles),
-          );
+          ));
         },
       ),
       // Settings are a sheet over Home now; an old link lands on Home.
@@ -707,7 +728,7 @@ GoRouter buildRouter(
           final resume = await OnlineSessionStore.load();
           return resume != null ? Routes.online : Routes.home;
         },
-        builder: (context, state) => MatchRoute(
+        builder: (context, state) => SetupRequired(child: MatchRoute(
           onExit: () => context.go(Routes.home),
           onAnalytics: () => context.go(Routes.analytics),
           // A table rematch lands straight in the new lobby; leaving the
@@ -717,7 +738,7 @@ GoRouter buildRouter(
                 ? Routes.lobby
                 : Routes.online,
           ),
-        ),
+        )),
       ),
       GoRoute(
         path: Routes.analytics,

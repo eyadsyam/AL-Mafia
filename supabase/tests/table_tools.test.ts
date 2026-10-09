@@ -25,7 +25,7 @@ Deno.test("detective faces: impersonate, camouflage, door", () => {
 });
 
 Deno.test("shield and weights and floor bonus", () => {
-  assertEquals(unsilenceable([use(4, "vote_shield", 3)], 3).has(4), true);
+  assertEquals(unsilenceable([use(4, "vote_shield", 3)], 4).has(4), true);
   assertEquals(toolVoteWeight([use(4, "double_vote", 3)], 3, 4), 2);
   assertEquals(toolVoteWeight([use(4, "double_vote", 3)], 4, 4), 1);
   assertEquals(floorBonusSeconds([use(5, "extra_minute", 2), use(5, "objection", 2)], 2, 5), 75);

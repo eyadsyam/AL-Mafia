@@ -260,6 +260,27 @@ class StoryDefinition {
   StoryInvestigationAction action(String id) =>
       actions.firstWhere((value) => value.id == id);
 
+  /// The smallest table a group may play: the seated cast (the first
+  /// players, as [availableClues] counts them) must leave at least two
+  /// non-culprit voters, so a majority of them can be read as "solved".
+  int get minGroupPlayers {
+    final culpritIndex = characters.indexWhere(
+      (c) => c.id == truth.primaryCulprit,
+    );
+    for (var n = 2; n < 10; n++) {
+      final culpritSeated = culpritIndex >= 0 && culpritIndex < n;
+      if (n - (culpritSeated ? 1 : 0) >= 2) return n;
+    }
+    return 10;
+  }
+
+  /// Shared searches that give this table at least one clue; a search that
+  /// would turn up nothing is never offered.
+  List<StoryInvestigationAction> sharedActions(int playerCount) => [
+    for (final action in actions)
+      if (action.clueIds.any((id) => clue(id).appearsFor(playerCount))) action,
+  ];
+
   List<StoryClue> availableClues(int playerCount) {
     final applicable = {
       for (final clue in clues)

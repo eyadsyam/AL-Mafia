@@ -53,7 +53,21 @@ class _SettingsSheetBodyState extends ConsumerState<SettingsSheetBody> {
   bool _toast = false;
   Timer? _toastTimer;
 
-  static const _discussion = [180, 300, 420];
+  // 120 is the Hard preset length; it must be a stop on the stepper.
+  static const _discussion = [120, 180, 300, 420];
+
+  /// The stop nearest to [seconds], so a value that is not a stop (an old
+  /// save, a preset) still steps both ways from where it is.
+  static int _nearestStop(int seconds) {
+    var best = 0;
+    for (var i = 1; i < _discussion.length; i++) {
+      if ((_discussion[i] - seconds).abs() <
+          (_discussion[best] - seconds).abs()) {
+        best = i;
+      }
+    }
+    return best;
+  }
 
   @override
   void initState() {
@@ -106,7 +120,7 @@ class _SettingsSheetBodyState extends ConsumerState<SettingsSheetBody> {
       return const SizedBox(height: IdentityTokens.headerHeight * 2);
     }
     final reduceMotion = ref.watch(reduceMotionPreferenceProvider);
-    final index = _discussion.indexOf(cur.discussionSeconds);
+    final index = _nearestStop(cur.discussionSeconds);
     final minutes = cur.discussionSeconds ~/ 60;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -171,7 +185,7 @@ class _SettingsSheetBodyState extends ConsumerState<SettingsSheetBody> {
                           ),
                         )
                       : null,
-                  onMore: index >= 0 && index < _discussion.length - 1
+                  onMore: index < _discussion.length - 1
                       ? () => _edit(
                           (x) => x.copyWith(
                             discussionSeconds: _discussion[index + 1],

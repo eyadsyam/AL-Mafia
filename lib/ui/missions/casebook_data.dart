@@ -364,6 +364,9 @@ class CasebookController extends AsyncNotifier<Casebook> {
       await refresh();
       throw CaseClaimFailed(error.code);
     } catch (_) {
+      // The claim may have landed before the answer was lost: show the hub as
+      // the server has it, not as it was before the tap.
+      await refresh();
       throw const CaseClaimFailed(null);
     }
     if (answer['ok'] == false) {

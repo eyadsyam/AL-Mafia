@@ -135,8 +135,13 @@ class _CasebookSheetState extends ConsumerState<CasebookSheet> {
           );
         }
       }
-    } on CaseClaimFailed {
-      if (mounted) setState(() => _error = context.l10n.casebookClaimError);
+    } on CaseClaimFailed catch (e) {
+      // Already taken (a second device, a double tap that got through): the
+      // refresh the controller just did shows the stamp; nothing to apologise
+      // for.
+      if (mounted && e.code != 'ALREADY_CLAIMED') {
+        setState(() => _error = context.l10n.casebookClaimError);
+      }
     } finally {
       if (mounted) setState(() => _busy = null);
     }

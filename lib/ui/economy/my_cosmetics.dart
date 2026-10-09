@@ -70,6 +70,8 @@ class MyCosmeticsController extends Notifier<MyCosmetics> {
 
   @override
   MyCosmetics build() {
+    // Wherever the equipped codes are kept, the owned roles are kept too.
+    ref.read(ownedRolesProvider);
     ref.listen<AsyncValue<WalletState?>>(walletProvider, (_, next) {
       final wallet = next.valueOrNull;
       if (wallet == null) return;
@@ -107,6 +109,70 @@ class MyCosmeticsController extends Notifier<MyCosmetics> {
       await (await SharedPreferences.getInstance()).setString(
         storageKey,
         jsonEncode(value.toJson()),
+      );
+    } catch (_) {}
+  }
+}
+
+/// The bought roles (`role_*` codes) this player owns, kept on the device after
+/// every wallet read like [myCosmeticsProvider]: the one-phone setup screens
+/// must still offer a bought role when the wallet has not answered (no
+/// network, a slow server, a cold start). Nothing here grants anything — the
+/// wallet replaces it the next time the server answers.
+final ownedRolesProvider = NotifierProvider<OwnedRolesController, Set<String>>(
+  OwnedRolesController.new,
+);
+
+class OwnedRolesController extends Notifier<Set<String>> {
+  static const storageKey = 'my_owned_roles_v1';
+
+  static Set<String> _rolesOf(WalletState wallet) => {
+    for (final code in wallet.owned)
+      if (Cosmetics.isRole(code)) code,
+  };
+
+  @override
+  Set<String> build() {
+    ref.listen<AsyncValue<WalletState?>>(walletProvider, (_, next) {
+      final wallet = next.valueOrNull;
+      if (wallet == null) return;
+      final fresh = _rolesOf(wallet);
+      if (!_same(fresh, state)) state = fresh;
+      _save(fresh);
+    });
+    final wallet = ref.read(walletProvider).valueOrNull;
+    if (wallet != null) {
+      final fresh = _rolesOf(wallet);
+      _save(fresh);
+      return fresh;
+    }
+    _restore();
+    return const {};
+  }
+
+  static bool _same(Set<String> a, Set<String> b) =>
+      a.length == b.length && a.containsAll(b);
+
+  Future<void> _restore() async {
+    try {
+      final raw = (await SharedPreferences.getInstance()).getString(storageKey);
+      if (raw == null) return;
+      final json = jsonDecode(raw);
+      if (json is! List) return;
+      // The wallet may have answered while the disk was being read: it wins.
+      if (ref.read(walletProvider).valueOrNull != null) return;
+      state = {
+        for (final code in json)
+          if (code is String && Cosmetics.isRole(code)) code,
+      };
+    } catch (_) {}
+  }
+
+  Future<void> _save(Set<String> value) async {
+    try {
+      await (await SharedPreferences.getInstance()).setString(
+        storageKey,
+        jsonEncode(value.toList()..sort()),
       );
     } catch (_) {}
   }

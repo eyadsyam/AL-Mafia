@@ -22,7 +22,9 @@ class StoryProgress {
     required bool solved,
   }) {
     final nextScores = Map<String, int>.of(bestScores);
-    if (score > (nextScores[storyId] ?? 0)) nextScores[storyId] = score;
+    if (solved && score > (nextScores[storyId] ?? 0)) {
+      nextScores[storyId] = score;
+    }
     final nextSolved = Set<String>.of(solvedStoryIds);
     final nextCategories = {
       for (final entry in solvedByCategory.entries)

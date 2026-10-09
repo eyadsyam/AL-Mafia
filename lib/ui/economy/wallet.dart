@@ -92,23 +92,33 @@ class WalletState {
 
   factory WalletState.fromJson(Map<String, dynamic> json) => WalletState(
     balance: (json['balance'] as num?)?.toInt() ?? 0,
-    catalog: ((json['catalog'] as List?) ?? const [])
-        .whereType<Map>()
-        .map((row) => WalletItem.fromJson(Map<String, dynamic>.from(row)))
-        // Only what this build can actually render is offered.
-        .where((item) => Cosmetics.sells(item.code))
-        .toList(),
+    // One unreadable row is skipped, never allowed to blank the whole shelf.
+    catalog: [
+      for (final row in ((json['catalog'] as List?) ?? const []))
+        if (_tryRow(row, WalletItem.fromJson) case final item?)
+          // Only what this build can actually render is offered.
+          if (Cosmetics.sells(item.code)) item,
+    ],
     owned: ((json['owned'] as List?) ?? const []).whereType<String>().toSet(),
     equipped: {
       for (final entry in ((json['equipped'] as Map?) ?? const {}).entries)
         if (entry.key is String && entry.value is String)
           entry.key as String: entry.value as String,
     },
-    history: ((json['history'] as List?) ?? const [])
-        .whereType<Map>()
-        .map((row) => LedgerEntry.fromJson(Map<String, dynamic>.from(row)))
-        .toList(),
+    history: [
+      for (final row in ((json['history'] as List?) ?? const []))
+        if (_tryRow(row, LedgerEntry.fromJson) case final entry?) entry,
+    ],
   );
+
+  static T? _tryRow<T>(Object? row, T Function(Map<String, dynamic>) parse) {
+    if (row is! Map) return null;
+    try {
+      return parse(Map<String, dynamic>.from(row));
+    } catch (_) {
+      return null;
+    }
+  }
 
   WalletState withBalance(int value) => WalletState(
     balance: value,

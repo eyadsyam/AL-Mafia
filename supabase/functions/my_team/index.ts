@@ -30,6 +30,7 @@
  */
 
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
+import { isMafiaTeam, MAFIA_TEAM_ROLES } from "../_shared/teams.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId } = await req.json();
@@ -42,7 +43,7 @@ Deno.serve(handler(async (req, userId, db) => {
   // nowhere else for it to travel: `role` is not on the client surface at all
   // — no client role holds a column privilege for it — so this call is the
   // whole of how a player learns what they are. Null until `start_match` deals.
-  if (!["mafia", "silencer"].includes(me.role ?? "")) {
+  if (!isMafiaTeam(me.role)) {
     return ok({ role: me.role ?? null, teammates: [] });
   }
 
@@ -50,7 +51,7 @@ Deno.serve(handler(async (req, userId, db) => {
     .from("room_players")
     .select("name, seat")
     .eq("room_id", roomId)
-    .in("role", ["mafia", "silencer"])
+    .in("role", [...MAFIA_TEAM_ROLES])
     .neq("user_id", userId)
     .order("seat");
   if (error) throw error;

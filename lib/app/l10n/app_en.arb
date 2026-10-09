@@ -1457,7 +1457,8 @@
     }
   },
   "storeBought": "Added to your collection",
-  "storeFailed": "That did not go through and nothing was deducted. Try again.",
+  "storeFailed": "That did not go through. Check your balance and try again.",
+  "storeBusy": "Something is still in progress. Wait a second.",
   "storeHostPackNote": "When the host picks a presentation, everyone in the room sees it without buying it.",
   "storePresentationNote": "Look and sound only. It never changes rules, votes or roles.",
   "storeEmptyCollection": "Nothing here yet.",
@@ -1473,6 +1474,16 @@
     }
   },
   "historyCatalogRefund": "Refund: {item}",
+  "historyToolSpend": "Used a tool: {item}",
+  "@historyToolSpend": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "historyBotWin": "Won against the computer",
+  "historyStoryFirstSolve": "First solve of a case",
   "@historyCatalogRefund": {
     "placeholders": {
       "item": {

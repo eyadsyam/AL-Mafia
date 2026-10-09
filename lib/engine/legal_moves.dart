@@ -404,11 +404,19 @@ List<Move> _nightMoves(Match match) {
   // transition the harnesses have to be able to reach.
   final armable = Bullets.canArm(match, seat);
 
+  // A Silencer left without a living killer silences nobody: the engine turns
+  // the move into a kill vote (match_engine), and the Mafia never kill one of
+  // their own, so a teammate or itself is not a move that can be applied.
+  final silencerKills = actor.role == Role.silencer &&
+      !match.players.any(
+        (p) => p.status == PlayerStatus.alive && p.role == Role.mafia,
+      );
+
   final moves = <Move>[
     if (actor.role != Role.doctor) SkipNightActionMove(seat: seat),
     if (armable && actor.role != Role.sniper)
       SkipNightActionMove(seat: seat, useBullet: true),
-    if (actor.role == Role.silencer)
+    if (actor.role == Role.silencer && !silencerKills)
       NightActionMove(
         seat: seat,
         kind: NightActionKind.silence,
@@ -419,7 +427,7 @@ List<Move> _nightMoves(Match match) {
     if (target.seat == seat) continue;
     if (target.status != PlayerStatus.alive) continue;
     // The Mafia never choose one of their own (owner, 2026-10-01).
-    if (kind == NightActionKind.mafiaVote &&
+    if ((kind == NightActionKind.mafiaVote || silencerKills) &&
         target.role.alignment == Alignment.mafia) {
       continue;
     }

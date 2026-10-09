@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/request_id.dart';
 import '../../transport/online_backend.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
@@ -52,13 +55,24 @@ class TableTool {
       packs: {
         for (final e in packs.entries)
           if (int.tryParse('${e.key}') case final n?)
-            n: (e.value as num).toInt(),
+            if (e.value is num) n: (e.value as num).toInt(),
       },
       perMatch: (j['perMatch'] as num?)?.toInt() ?? 1,
       phase: j['phase'] as String? ?? 'discuss',
       targets: (j['targets'] as num?)?.toInt() ?? 0,
       charges: (j['charges'] as num?)?.toInt() ?? 0,
     );
+  }
+
+  /// [fromJson] for one row of a list: a row that cannot be read is skipped,
+  /// never allowed to blank the whole shelf.
+  static TableTool? tryParse(Object? row) {
+    if (row is! Map) return null;
+    try {
+      return fromJson(Map<String, dynamic>.from(row));
+    } catch (_) {
+      return null;
+    }
   }
 }
 
@@ -70,8 +84,7 @@ class TableToolsState {
   factory TableToolsState.fromJson(Map<String, dynamic> j) => TableToolsState(
     tools: [
       for (final t in (j['tools'] as List? ?? const []))
-        if (t is Map<String, dynamic>)
-          if (TableTool.fromJson(t) case final tool?) tool,
+        if (TableTool.tryParse(t) case final tool?) tool,
     ],
     balance: (j['balance'] as num?)?.toInt() ?? 0,
   );
@@ -104,17 +117,52 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
     return backend.call('economy', body);
   }
 
-  Future<void> buy(String code, int pack) async {
+  /// Buys [pack] charges of [code]. [requestId] is the attempt's idempotency
+  /// key: pass the same one when retrying an attempt whose answer was lost, so
+  /// the server applies it once; a fresh key is minted when none is given.
+  Future<void> buy(String code, int pack, {String? requestId}) async {
     try {
       state = AsyncData(
         TableToolsState.fromJson(
-          await _call({'action': 'toolBuy', 'tool': code, 'pack': pack}),
+          await _call({
+            'action': 'toolBuy',
+            'tool': code,
+            'pack': pack,
+            'requestId': requestId ?? newRequestId(),
+          }),
         ),
       );
-      await ref.read(walletProvider.notifier).settle();
     } on BackendException catch (e) {
+      await _reconcile();
       throw ToolActionFailed(e.code);
+    } catch (_) {
+      // The server may have applied the purchase before the answer was lost.
+      // Show its truth, not the shelf from before, so a retry is not blind.
+      await _reconcile();
+      throw const ToolActionFailed(null);
     }
+    try {
+      await ref.read(walletProvider.notifier).settle();
+    } catch (_) {}
+  }
+
+  /// Best effort: re-reads the shelf and the wallet, keeping what is shown if
+  /// the server still cannot be reached.
+  Future<void> _reconcile() async {
+    try {
+      state = AsyncData(
+        TableToolsState.fromJson(await _call({'action': 'toolsGet'})),
+      );
+    } catch (_) {}
+    try {
+      await ref.read(walletProvider.notifier).settle();
+    } catch (_) {}
+  }
+
+  /// A shelf that failed to load stays failed for as long as the provider
+  /// lives; opening the store or the tools sheet calls this to try again.
+  void retryIfFailed() {
+    if (state.hasError) ref.invalidateSelf();
   }
 
   /// Spends one charge in [roomId]. The effect is applied by the match
@@ -137,8 +185,33 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
       ref.invalidateSelf();
       return res['answer'] as bool?;
     } on BackendException catch (e) {
+      unawaited(_reconcile());
       throw ToolActionFailed(e.code);
+    } catch (_) {
+      // The use may have been recorded before the answer was lost.
+      unawaited(_reconcile());
+      final kept = await _keptAnswer(roomId, code);
+      if (kept != null) return kept;
+      throw const ToolActionFailed(null);
     }
+  }
+
+  /// The narrator's answer the server kept for this caller's latest [code]
+  /// use in [roomId] (only the two whisper tools have one), or null.
+  Future<bool?> _keptAnswer(String roomId, String code) async {
+    try {
+      final res = await _call({'action': 'toolAnswers', 'roomId': roomId});
+      final rows = res['answers'];
+      if (rows is! List) return null;
+      for (final row in rows.reversed) {
+        if (row is Map && row['tool'] == code && row['answer'] is bool) {
+          return row['answer'] as bool;
+        }
+      }
+    } catch (_) {
+      // Still unreachable: the use stays unconfirmed.
+    }
+    return null;
   }
 }
 
@@ -228,6 +301,14 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
   bool _busy = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(tableToolsProvider.notifier).retryIfFailed();
+    });
+  }
+
+  @override
   void dispose() {
     _note.dispose();
     super.dispose();
@@ -271,7 +352,9 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
         );
       }
       if (mounted) Navigator.of(context).pop();
-    } on ToolActionFailed {
+    } catch (_) {
+      // Any failure, not only the server's refusal: a sheet left busy with a
+      // dead button is worse than a message.
       if (!mounted) return;
       setState(() => _busy = false);
       ScaffoldMessenger.of(

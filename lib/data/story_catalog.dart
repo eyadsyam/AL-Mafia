@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/services.dart';
 
 import '../stories/story_model.dart';
@@ -34,12 +35,25 @@ class StoryCatalog {
     'assets/stories/el_gareema_elly_ma7asaletsh.json',
   ];
 
+  /// Loads every case in parallel; one that fails to read or decode is
+  /// skipped (and logged) instead of failing the whole hub.
   Future<List<StoryDefinition>> load() async {
     final bundle = _bundle ?? rootBundle;
-    final stories = <StoryDefinition>[];
-    for (final path in assetPaths) {
-      stories.add(StoryDefinition.decode(await bundle.loadString(path)));
-    }
+    final loaded = await Future.wait([
+      for (final path in assetPaths)
+        () async {
+          try {
+            return StoryDefinition.decode(await bundle.loadString(path));
+          } on Object catch (error) {
+            debugPrint('story skipped: $path ($error)');
+            return null;
+          }
+        }(),
+    ]);
+    final stories = [
+      for (final story in loaded)
+        if (story != null) story,
+    ];
     stories.sort((a, b) => a.number.compareTo(b.number));
     return stories;
   }

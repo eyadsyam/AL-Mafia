@@ -32,37 +32,68 @@ class HostIdentityScope extends InheritedWidget {
   final String hostName;
   final String? frame;
   final String? plate;
+
+  /// The names in seating order, when the screen knows them. With it, only the
+  /// first seat carrying the host's name is dressed, so two seats that fold to
+  /// the same name never both wear the host's frame.
+  final List<String>? seating;
   const HostIdentityScope({
     super.key,
     required this.hostName,
     required this.frame,
     required this.plate,
+    this.seating,
     required super.child,
   });
+
+  /// [child] under the nearest scope, told the seating order. Without a scope
+  /// it is [child] untouched.
+  static Widget seated(
+    BuildContext context,
+    List<String> seating,
+    Widget child,
+  ) {
+    final scope = maybeOf(context);
+    if (scope == null) return child;
+    return HostIdentityScope(
+      hostName: scope.hostName,
+      frame: scope.frame,
+      plate: scope.plate,
+      seating: List.of(seating),
+      child: child,
+    );
+  }
 
   static HostIdentityScope? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<HostIdentityScope>();
 
-  bool _isHost(String name) {
+  bool _isHost(String name, [int? seat]) {
     final host = hostName.trim().toLowerCase();
-    return host.isNotEmpty && name.trim().toLowerCase() == host;
+    if (host.isEmpty || name.trim().toLowerCase() != host) return false;
+    final order = seating;
+    if (order == null || seat == null) return true;
+    final first = order.indexWhere((n) => n.trim().toLowerCase() == host);
+    return first < 0 || first + 1 == seat;
   }
 
   /// The host's plate when [name] is the host's seat, else null.
-  static String? plateFor(BuildContext context, String name) {
+  static String? plateFor(BuildContext context, String name, {int? seat}) {
     final scope = maybeOf(context);
-    return scope != null && scope._isHost(name) ? scope.plate : null;
+    return scope != null && scope._isHost(name, seat) ? scope.plate : null;
   }
 
   /// The host's frame when [name] is the host's seat, else null.
-  static String? frameFor(BuildContext context, String name) {
+  static String? frameFor(BuildContext context, String name, {int? seat}) {
     final scope = maybeOf(context);
-    return scope != null && scope._isHost(name) ? scope.frame : null;
+    return scope != null && scope._isHost(name, seat) ? scope.frame : null;
   }
 
   @override
   bool updateShouldNotify(HostIdentityScope old) =>
-      old.hostName != hostName || old.frame != frame || old.plate != plate;
+      old.hostName != hostName ||
+      old.frame != frame ||
+      old.plate != plate ||
+      old.seating?.join('|') != seating?.join('|');
 }
 
 /// Dresses a pass-and-play screen with the host phone's equipped pack (its

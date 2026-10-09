@@ -7,6 +7,7 @@ import '../../widgets/mafia_kit.dart';
 import '../../widgets/warm_palette.dart';
 import 'story_case_widgets.dart';
 
+import '../../../data/match_seed.dart';
 import '../../../data/story_catalog.dart';
 import '../../../data/story_progress_store.dart';
 import '../../../stories/story_model.dart';
@@ -31,7 +32,11 @@ class StoriesScreen extends StatefulWidget {
     this.watchAdForStep,
     this.playNarration,
     this.stopNarration,
+    this.newSeed = newMatchSeed,
   });
+
+  /// Mints the seating seed of each launch.
+  final int Function() newSeed;
 
   /// Plays a case's read-aloud opening.
   final void Function(String asset)? playNarration;
@@ -88,6 +93,10 @@ class _StoriesScreenState extends State<StoriesScreen> {
   }
 
   Future<void> _record(StoryCompletion completion) async {
+    // One record per launch: a second call (double tap, re-entry) finds the
+    // launch already closed and does nothing, so nothing is saved, counted
+    // as an ad moment or rewarded twice.
+    if (_launch == null) return;
     final firstSolve =
         completion.solved &&
         !_progress.solvedStoryIds.contains(completion.story.id);
@@ -119,6 +128,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
       return StoryFlowScreen(
         story: launch.story,
         playerCount: launch.playerCount,
+        seed: launch.seed,
         onExit: () => setState(() => _launch = null),
         onComplete: _record,
         watchAdForStep: widget.watchAdForStep,
@@ -141,8 +151,13 @@ class _StoriesScreenState extends State<StoriesScreen> {
       onStart: (story, count) async {
         await widget.beforeStory?.call();
         if (!mounted) return;
+        if (count > 1 && count < story.minGroupPlayers) return;
         setState(
-          () => _launch = StorySessionLaunch(story: story, playerCount: count),
+          () => _launch = StorySessionLaunch(
+            story: story,
+            playerCount: count,
+            seed: widget.newSeed(),
+          ),
         );
       },
     );
@@ -150,10 +165,15 @@ class _StoriesScreenState extends State<StoriesScreen> {
 }
 
 class StorySessionLaunch {
-  const StorySessionLaunch({required this.story, required this.playerCount});
+  const StorySessionLaunch({
+    required this.story,
+    required this.playerCount,
+    required this.seed,
+  });
 
   final StoryDefinition story;
   final int playerCount;
+  final int seed;
 }
 
 class StoriesHub extends StatefulWidget {
@@ -188,7 +208,8 @@ class _StoriesHubState extends State<StoriesHub> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (context) => const _PlayerCountSheet(),
+      builder: (context) =>
+          _PlayerCountSheet(minGroup: story.minGroupPlayers),
     );
     if (count != null && context.mounted) widget.onStart(story, count);
   }
@@ -300,7 +321,10 @@ class _StoriesHubState extends State<StoriesHub> {
 }
 
 class _PlayerCountSheet extends StatelessWidget {
-  const _PlayerCountSheet();
+  const _PlayerCountSheet({required this.minGroup});
+
+  /// Smallest group the case seats well; fewer is not offered.
+  final int minGroup;
 
   static Key countKey(int count) => ValueKey('story_players_$count');
 
@@ -323,7 +347,9 @@ class _PlayerCountSheet extends StatelessWidget {
           for (var count = 1; count <= 10; count++) ...[
             OutlinedButton(
               key: countKey(count),
-              onPressed: () => Navigator.pop(context, count),
+              onPressed: count > 1 && count < minGroup
+                  ? null
+                  : () => Navigator.pop(context, count),
               child: Text(
                 count == 1
                     ? '1 — ${l.storiesSolo}'

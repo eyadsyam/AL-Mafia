@@ -24,10 +24,24 @@ void main() {
   }
 
   var failed = false;
+  final realism = <String>[];
   for (final file in files) {
     try {
       final story = StoryDefinition.decode(file.readAsStringSync());
       final report = const StorySolvabilityChecker().check(story);
+      for (final row in const StoryRealism().analyze(story)) {
+        if (row.impossible) {
+          realism.add(
+            '${story.id} [${row.playerCount} players]: NOT DEDUCIBLE '
+            '(0/${row.total} plays)',
+          );
+        } else if (row.partial) {
+          realism.add(
+            '${story.id} [${row.playerCount} players]: partial '
+            '${row.deducing}/${row.total} plays',
+          );
+        }
+      }
       if (report.passed) {
         stdout.writeln(
           'PASS ${story.id}: players 1-10 uniquely deduce '
@@ -46,5 +60,10 @@ void main() {
       stderr.writeln(trace);
     }
   }
+  stdout.writeln(
+    '\nREALISM (report only, does not fail): '
+    '${realism.length} table sizes below full',
+  );
+  realism.forEach(stdout.writeln);
   if (failed) exitCode = 1;
 }

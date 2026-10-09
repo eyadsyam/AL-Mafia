@@ -10,7 +10,7 @@
 import { fail, handler, ok } from "../_shared/api.ts";
 import { roomConfiguration } from "../_shared/room_configuration.ts";
 import { deadlineFor } from "../_shared/phases.ts";
-import { ensureScenarioAccess } from "../_shared/purchase_access.ts";
+import { ensureRoleAccess, ensureScenarioAccess } from "../_shared/purchase_access.ts";
 
 /** Mirrors the Fisher–Yates in `MatchEngine.start`, seeded the same way. */
 function shuffle<T>(items: T[], seed: number): T[] {
@@ -68,6 +68,11 @@ Deno.serve(handler(async (req, userId, db) => {
   } catch { return fail("BAD_REQUEST", "invalid match settings"); }
   if (!await ensureScenarioAccess(db, userId, effectiveSettings)) {
     return fail("PURCHASE_REQUIRED", "scenario is not owned", 403);
+  }
+  // A bought role is switched on only by a host who owns it, whether the flag
+  // came from the stored room settings or from this request body.
+  if (!await ensureRoleAccess(db, userId, effectiveSettings)) {
+    return fail("PURCHASE_REQUIRED", "role is not owned", 403);
   }
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   if (total !== roster.length) return fail("BAD_REQUEST", "roles must sum to the roster");

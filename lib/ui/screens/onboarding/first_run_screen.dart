@@ -16,6 +16,7 @@ import '../../account/account_sheet.dart'
     show accountAuthProvider, accountProfileProvider, showAccountSheet;
 import '../../account/onboarding_account_step.dart';
 import '../../l10n_ext.dart';
+import '../setup/player_name.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/deck/deck_buttons.dart';
@@ -172,9 +173,16 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     final index = _steps.indexWhere((c) => c.name == saved.chapter);
     if (index <= 0) return;
     _intro.stop();
+    // A tick is replayed only if it was made under the terms in force now (or
+    // the app has already recorded the consent). A stale one is never shown
+    // pre-ticked, and the player comes back to the chapter that holds the box
+    // rather than to a later one that cannot proceed.
+    final agreed =
+        (saved.agreed && saved.termsVersion == currentTermsVersion) ||
+        ref.read(termsAcceptanceProvider).valueOrNull?.current == true;
     setState(() {
-      _step = index;
-      _agreed = saved.agreed;
+      _step = agreed ? index : math.min(index, 1);
+      _agreed = agreed;
       if (_name.text.trim().isEmpty) {
         _name.text = saved.name.characters
             .take(FirstRunTokens.nameMax)
@@ -182,12 +190,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       }
       if (_gender == PlayerGender.unspecified) _gender = saved.gender;
     });
+    if (_steps[_step] != _Step.save) return;
     final profile = ref.read(accountProfileProvider).valueOrNull;
-    if (_steps[_step] == _Step.save &&
-        (profile?.signedIn ?? false) &&
-        _readyToFinish) {
-      _finish();
-    }
+    if ((profile?.signedIn ?? false) && _readyToFinish) _finish();
   }
 
   void _saveProgress() {
@@ -197,6 +202,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       name: _name.text,
       gender: _gender,
       agreed: _agreed,
+      termsVersion: currentTermsVersion,
     ).save();
   }
 
@@ -209,7 +215,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     super.dispose();
   }
 
-  bool get _nameOk => _name.text.trim().length >= FirstRunTokens.nameMin;
+  bool get _nameOk =>
+      cleanPlayerName(_name.text).characters.length >= FirstRunTokens.nameMin;
 
   bool get _readyToFinish =>
       widget.termsOnly ||
@@ -261,10 +268,19 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       _failed = false;
     });
     try {
+      // The consent is recorded first. Saving the profile opens the gate for
+      // the screen behind this one; had the box not been recorded by then, the
+      // gate would flip to the terms-only form in the middle of this save.
+      await ref.read(termsAcceptanceProvider.notifier).accept(adult: true);
       if (!widget.termsOnly) {
         await ref
             .read(playerProfileProvider.notifier)
-            .save(PlayerProfile(name: _name.text.trim(), gender: _gender));
+            .save(
+              PlayerProfile(
+                name: cleanPlayerName(_name.text),
+                gender: _gender,
+              ),
+            );
         await WelcomeGreeting.arm();
         // The first launch no longer plays the film, so the first-run
         // markers the app-open policy reads are set here.
@@ -273,9 +289,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
           await ref.read(matchRepositoryProvider).markOnboardingSeen();
         } catch (_) {}
       }
-      // Last, and required: the gate opens when this lands. The one box
-      // answers both 18+ and the terms.
-      await ref.read(termsAcceptanceProvider.notifier).accept(adult: true);
       await FirstRunProgress.clear();
     } catch (_) {
       if (mounted) setState(() => _failed = true);
@@ -868,7 +881,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                           child: ListenableBuilder(
                             listenable: _name,
                             builder: (context, _) {
-                              final typed = _name.text.trim();
+                              final typed = cleanPlayerName(_name.text);
                               return SeatCard(
                                 name: typed.isEmpty
                                     ? l.firstRunNamePlate

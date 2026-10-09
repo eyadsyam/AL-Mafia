@@ -7,6 +7,7 @@ import '../../../engine/models/enums.dart'
     show DiscussionMode, DayTieRule, Role;
 import '../../../engine/models/match_settings.dart';
 import '../../../engine/presets.dart';
+import 'optional_roles.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
@@ -121,12 +122,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// Doc 13 §5. Sets the rows of the table and nothing else.
   void _applyPreset(MatchPreset preset) {
     final n = widget.playerCount;
-    final counts = n == null ? null : preset.roleCounts(n);
+    final base = n == null ? null : preset.roleCounts(n);
+    // The bought roles the host switched on stay on across a preset: the
+    // preset speaks for the shape of the game, not for what the host owns.
+    final bought = {
+      for (final r in OptionalRole.values)
+        if (_boughtOn(r)) r,
+    };
+    var next = preset.applyTo(_s);
+    Map<Role, int>? counts;
+    if (base != null) {
+      final keep = OptionalRole.usable(
+        bought,
+        players: n!,
+        mafia: base[Role.mafia] ?? 0,
+        citizens: base[Role.citizen] ?? 0,
+      );
+      next = OptionalRole.flags(next, keep);
+      counts = OptionalRole.apply(base, keep);
+    } else {
+      next = OptionalRole.flags(next, bought);
+    }
     setState(() {
-      _s = preset.applyTo(_s);
+      _s = next;
       if (counts != null) _counts = counts;
     });
     if (counts != null) widget.onRoleCounts?.call(counts);
+  }
+
+  bool _boughtOn(OptionalRole r) => switch (r) {
+    OptionalRole.silencer => _s.silencerEnabled,
+    OptionalRole.elder => _s.elderEnabled,
+    OptionalRole.sniper => _s.sniperEnabled,
+  };
+
+  /// [counts] with the bought roles taken back out, which is the split a
+  /// preset is compared against: owning a role is not editing the split.
+  Map<Role, int>? _withoutBought(Map<Role, int>? counts) {
+    if (counts == null) return null;
+    final out = Map<Role, int>.of(counts);
+    for (final r in OptionalRole.values) {
+      if ((out[r.role] ?? 0) <= 0) continue;
+      out.remove(r.role);
+      final back = r == OptionalRole.silencer ? Role.mafia : Role.citizen;
+      out[back] = (out[back] ?? 0) + 1;
+    }
+    return out;
   }
 
   bool _saved = false;
@@ -152,7 +193,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _presetPanel(AppLocalizations l10n) {
     final current = MatchPreset.identify(
       _s,
-      counts: _counts,
+      counts: _withoutBought(_counts),
       players: widget.playerCount,
     );
     final offered = [
@@ -336,7 +377,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _segmented(
         label: l10n.settingDiscussionSeconds,
         description: l10n.settingDiscussionSecondsHint,
-        values: const [180, 300, 420],
+        values: const [120, 180, 300, 420],
         current: _s.discussionSeconds,
         format: (v) => l10n.minutesSuffix(v ~/ 60),
         onPick: (v) => _edit((s) => s.copyWith(discussionSeconds: v)),

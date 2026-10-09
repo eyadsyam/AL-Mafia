@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/asset_constants.dart';
+import '../../economy/my_cosmetics.dart' show ownedRolesProvider;
 import '../../economy/wallet.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
@@ -240,8 +241,12 @@ class _OptionalRoleRowsState extends ConsumerState<OptionalRoleRows> {
     });
   }
 
-  bool _owns(String code) =>
-      ref.watch(walletProvider).valueOrNull?.owned.contains(code) ?? false;
+  // The wallet when it has answered, the device's last copy until then.
+  bool _owns(String code) {
+    final wallet = ref.watch(walletProvider).valueOrNull;
+    final kept = ref.watch(ownedRolesProvider);
+    return wallet != null ? wallet.owned.contains(code) : kept.contains(code);
+  }
 
   String _name(OptionalRole r) {
     final l = context.l10n;

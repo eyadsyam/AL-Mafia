@@ -106,6 +106,14 @@ class MatchCodec {
     'sniperEnabled': s.sniperEnabled,
     'discussionSeconds': s.discussionSeconds,
     'revealNightVictimRole': s.revealNightVictimRole,
+    'bulletsEnabled': s.bulletsEnabled,
+    'quietNightEnabled': s.quietNightEnabled,
+    'selfProtectEnabled': s.selfProtectEnabled,
+    'pressureCurveEnabled': s.pressureCurveEnabled,
+    'midDiscussionConfrontation': s.midDiscussionConfrontation,
+    'interfaceHintsEnabled': s.interfaceHintsEnabled,
+    'playHintsEnabled': s.playHintsEnabled,
+    'postMatchCoachingEnabled': s.postMatchCoachingEnabled,
   };
 
   static MatchSettings _decodeSettings(Map<String, dynamic> json) =>
@@ -177,6 +185,30 @@ class MatchCodec {
         revealNightVictimRole:
             json['revealNightVictimRole'] as bool? ??
             const MatchSettings.defaults().revealNightVictimRole,
+        bulletsEnabled:
+            json['bulletsEnabled'] as bool? ??
+            const MatchSettings.defaults().bulletsEnabled,
+        quietNightEnabled:
+            json['quietNightEnabled'] as bool? ??
+            const MatchSettings.defaults().quietNightEnabled,
+        selfProtectEnabled:
+            json['selfProtectEnabled'] as bool? ??
+            const MatchSettings.defaults().selfProtectEnabled,
+        pressureCurveEnabled:
+            json['pressureCurveEnabled'] as bool? ??
+            const MatchSettings.defaults().pressureCurveEnabled,
+        midDiscussionConfrontation:
+            json['midDiscussionConfrontation'] as bool? ??
+            const MatchSettings.defaults().midDiscussionConfrontation,
+        interfaceHintsEnabled:
+            json['interfaceHintsEnabled'] as bool? ??
+            const MatchSettings.defaults().interfaceHintsEnabled,
+        playHintsEnabled:
+            json['playHintsEnabled'] as bool? ??
+            const MatchSettings.defaults().playHintsEnabled,
+        postMatchCoachingEnabled:
+            json['postMatchCoachingEnabled'] as bool? ??
+            const MatchSettings.defaults().postMatchCoachingEnabled,
       );
 
   // ---------------------------------------------------------------------------

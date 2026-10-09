@@ -34,6 +34,7 @@ class StoryFlowScreen extends StatefulWidget {
     required this.onExit,
     required this.onComplete,
     this.onHome,
+    this.seed,
     this.watchAdForStep,
     this.playNarration,
     this.stopNarration,
@@ -44,6 +45,10 @@ class StoryFlowScreen extends StatefulWidget {
 
   /// Stops the narrator again.
   final VoidCallback? stopNarration;
+
+  /// Seeds the seating of the table; a fresh one per launch. Defaults to a
+  /// fixed derivation from the case and the table size (tests).
+  final int? seed;
 
   /// Leaves for the home screen once the case is recorded.
   final VoidCallback? onHome;
@@ -76,7 +81,8 @@ class StoryFlowScreen extends StatefulWidget {
   State<StoryFlowScreen> createState() => _StoryFlowScreenState();
 }
 
-class _StoryFlowScreenState extends State<StoryFlowScreen> {
+class _StoryFlowScreenState extends State<StoryFlowScreen>
+    with WidgetsBindingObserver {
   late StorySession _session;
   Timer? _timer;
   Timer? _dossierTimer;
@@ -94,8 +100,10 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
 
   bool get _group => widget.playerCount > 1;
 
+  /// A phone may be in one person's hand: nothing public (sound included)
+  /// runs. The cast page is public until the files are dealt.
   bool get _privatePhase => switch (_session.phase) {
-    StoryPhase.groupHandoff ||
+    StoryPhase.groupHandoff => _dealt,
     StoryPhase.groupPrivateClue ||
     StoryPhase.groupVoteHandoff ||
     StoryPhase.groupVote => true,
@@ -105,15 +113,36 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _session = StorySession.start(
       story: widget.story,
       playerCount: widget.playerCount,
-      seed: widget.story.number * StoryTokens.rounds + widget.playerCount,
+      seed:
+          widget.seed ??
+          widget.story.number * StoryTokens.rounds + widget.playerCount,
     );
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed || !_privatePhase) return;
+    // Backgrounded with a file or a ballot open: cover it, drop the ballot
+    // and the hold, and wait at the pass state for the same seat.
+    _stopNarration();
+    _setSession(_session.coverForInterruption());
+  }
+
+  void _stopNarration() => widget.stopNarration?.call();
+
+  void _exit() {
+    _stopNarration();
+    widget.onExit();
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _stopNarration();
     _timer?.cancel();
     _dossierTimer?.cancel();
     super.dispose();
@@ -130,6 +159,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     }
     _bCulprit = _bMotive = _bMethod = null;
     setState(() => _session = next);
+    if (_privatePhase) _stopNarration();
     if (next.phase == StoryPhase.groupDiscussion) _startDiscussion();
     if (next.phase == StoryPhase.groupPrivateClue) _startDossier();
   }
@@ -180,11 +210,29 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
   bool _isSolved() {
     final solo = _session.soloAccusation;
     if (solo != null) return _correct(solo);
-    final correctVotes = _session.votes.where(_correct).length;
-    return correctVotes * 2 >= widget.playerCount;
+    final voters = _voters;
+    if (voters.length < 2) return false;
+    return voters.where(_correct).length * 2 > voters.length;
   }
 
+  /// The seat that plays the culprit, or -1 when the culprit is not seated.
+  int get _culpritSeat => _session.seated.indexWhere(
+    (c) => c.id == widget.story.truth.primaryCulprit,
+  );
+
+  /// Votes of the seats that do not play the culprit: the culprit's own
+  /// ballot never counts towards "the table solved it".
+  List<StoryAccusation> get _voters => [
+    for (final (i, v) in _session.votes.indexed)
+      if (i != _culpritSeat) v,
+  ];
+
+  bool _completed = false;
+
   Future<void> _complete() async {
+    if (_completed) return;
+    _completed = true;
+    _stopNarration();
     await widget.onComplete(
       StoryCompletion(
         story: widget.story,
@@ -205,7 +253,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     child: PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && !_privatePhase) widget.onExit();
+        if (!didPop && !_privatePhase) _exit();
       },
       child: AnimatedSwitcher(
         // A private page leaves at once: nothing of a file or a ballot
@@ -235,6 +283,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
   bool _narrated = false;
 
   void _listen() {
+    if (_privatePhase) return;
     final asset = _narration;
     if (asset != null) widget.playNarration!(asset);
   }
@@ -344,7 +393,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     return StoryDesk(
       key: StoryFlowScreen.soloBoardKey,
       title: story.title,
-      onBack: widget.onExit,
+      onBack: _exit,
       footer: BoneButton(
         key: StoryFlowScreen.accusationButtonKey,
         label: l.storiesIKnowWho,
@@ -454,11 +503,14 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     final story = widget.story;
     return StoryDesk(
       key: StoryFlowScreen.castKey,
-      onBack: widget.onExit,
+      onBack: _exit,
       footer: BoneButton(
         key: StoryFlowScreen.dealKey,
         label: l.storiesDealFiles,
-        onPressed: () => setState(() => _dealt = true),
+        onPressed: () {
+          _stopNarration();
+          setState(() => _dealt = true);
+        },
       ),
       body: StoryScroll(
         children: [
@@ -640,9 +692,16 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
   /// with the same timing, for every seat; nothing in it asks who holds it.
   Widget _privateClue(BuildContext context) {
     final character = _session.currentCharacter;
-    final clues = [
+    // One slot per round for every seat; a clue that does not belong to this
+    // table's size leaves its slot empty rather than shortening the file.
+    final clues = <StoryClue?>[
       for (var i = 0; i < _session.round; i++)
-        widget.story.clue(character.privateClueIds[i]),
+        if (widget.story
+            .clue(character.privateClueIds[i])
+            .appearsFor(widget.playerCount))
+          widget.story.clue(character.privateClueIds[i])
+        else
+          null,
     ];
     final l = context.l10n;
     final s = context.spacing;
@@ -695,7 +754,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     final l = context.l10n;
     final s = context.spacing;
     final type = context.typography;
-    final seated = widget.story.characters.take(widget.playerCount).toList();
+    final seated = _session.seated;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -746,7 +805,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     return StoryDesk(
       key: StoryFlowScreen.discussionKey,
       title: '${l.storiesDiscussionLine} · ${l.storiesRound} ${_session.round} / ${StoryTokens.rounds}',
-      onBack: widget.onExit,
+      onBack: _exit,
       footer: BoneButton(
         label: l.storiesSearchTogether,
         onPressed: () => _setSession(_session.finishDiscussion()),
@@ -807,13 +866,14 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     final type = context.typography;
     final left = StoryTokens.rounds - (_session.round - 1);
     final turn = (_session.round - 1) % widget.playerCount + 1;
-    final actions = widget.story.actions.where(
-      (action) => !_session.usedActionIds.contains(action.id),
-    );
+    final actions = widget.story
+        .sharedActions(widget.playerCount)
+        .where((action) => !_session.usedActionIds.contains(action.id))
+        .toList();
     return StoryDesk(
       key: StoryFlowScreen.investigationKey,
       title: l.storiesSearchLine,
-      onBack: widget.onExit,
+      onBack: _exit,
       body: StoryScroll(
         children: [
           Row(
@@ -841,6 +901,11 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
             style: type.bodySmall.copyWith(color: CaseFileTokens.inkMuted),
           ),
           _notes(context),
+          if (actions.isEmpty)
+            BoneButton(
+              label: l.storiesNextBeat,
+              onPressed: () => _setSession(_session.skipSharedInvestigation()),
+            ),
           for (final action in actions) ...[
             StoryMoveCard(
               title: action.title,
@@ -1039,8 +1104,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     final method = story.methods
         .firstWhere((v) => v.id == story.truth.method)
         .label;
-    final votes = _session.votes;
-    final knew = votes.where(_correct).length;
+    final knew = _voters.where(_correct).length;
     return StoryDesk(
       key: StoryFlowScreen.resultKey,
       footer: Column(
@@ -1067,7 +1131,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
             child: StoryStampLanding(
               text: solved ? l.storiesStampSolved : l.storiesStampMissed,
               detail: _group
-                  ? l.storiesKnewCount(knew, widget.playerCount)
+                  ? l.storiesKnewCount(knew, _voters.length)
                   : l.storiesStampScore(score),
               color: solved ? CaseFileTokens.sage : CaseFileTokens.stamp,
             ),
@@ -1134,7 +1198,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen> {
     final s = context.spacing;
     final type = context.typography;
     final votes = _session.votes;
-    final seated = widget.story.characters.take(widget.playerCount).toList();
+    final seated = _session.seated;
     final culpritSeat = seated.indexWhere((c) => c.id == culpritId);
     var hidFrom = 0;
     for (var i = 0; i < votes.length; i++) {

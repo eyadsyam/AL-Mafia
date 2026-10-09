@@ -37,4 +37,28 @@ void main() {
       isTrue,
     );
   });
+
+  test('an unsolved run never sets a best score', () {
+    var progress = const StoryProgress().record(
+      storyId: 'a',
+      category: 'cat',
+      score: 500,
+      solved: false,
+    );
+    expect(progress.bestFor('a'), 0);
+    expect(progress.solvedStoryIds, isEmpty);
+    progress = progress.record(
+      storyId: 'a',
+      category: 'cat',
+      score: 900,
+      solved: true,
+    );
+    progress = progress.record(
+      storyId: 'a',
+      category: 'cat',
+      score: 950,
+      solved: false,
+    );
+    expect(progress.bestFor('a'), 900);
+  });
 }

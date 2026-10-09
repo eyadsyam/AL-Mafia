@@ -200,9 +200,9 @@ void main() {
 
         await tester.tap(find.text(arStrings.storiesBackToFiles));
         await tester.pumpAndSettle();
-        // 250 + 250 efficiency-free: motive + method right, culprit wrong.
+        // 250 + 250: motive + method right, culprit wrong; no efficiency points.
         expect(completion?.solved, isFalse);
-        expect(completion?.score, 250 + 250 + left * 25);
+        expect(completion?.score, 250 + 250);
       });
 
       testWidgets('group: the whole table, no overflow on any page', (
@@ -210,14 +210,14 @@ void main() {
       ) async {
         size(tester, s);
         StoryCompletion? completion;
-        await tester.pumpWidget(flow(cafe, 2, done: (c) => completion = c));
+        await tester.pumpWidget(flow(cafe, 3, done: (c) => completion = c));
         await tester.pump();
         expect(find.byKey(StoryFlowScreen.castKey), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tapKey(tester, StoryFlowScreen.dealKey);
 
         for (var round = 1; round <= StoryTokens.rounds; round++) {
-          for (var seat = 0; seat < 2; seat++) {
+          for (var seat = 0; seat < 3; seat++) {
             expect(find.byKey(StoryFlowScreen.handoffKey), findsOneWidget);
             expect(
               find.text('${arStrings.storiesPlayer} ${seat + 1}'),
@@ -246,7 +246,7 @@ void main() {
         _picked.clear();
 
         // Secret ballot, one seat after the other.
-        for (var seat = 0; seat < 2; seat++) {
+        for (var seat = 0; seat < 3; seat++) {
           expect(find.byKey(StoryFlowScreen.handoffKey), findsOneWidget);
           await holdPad(tester);
           expect(find.byKey(StoryFlowScreen.voteKey), findsOneWidget);

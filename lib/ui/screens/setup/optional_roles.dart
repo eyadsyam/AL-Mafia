@@ -21,6 +21,14 @@ enum OptionalRole {
 
   const OptionalRole(this.role, this.code, this.minPlayers);
 
+  /// The role whose wallet code is [code], or null for any other code.
+  static OptionalRole? byCode(String code) {
+    for (final r in OptionalRole.values) {
+      if (r.code == code) return r;
+    }
+    return null;
+  }
+
   /// Why [this] cannot be switched on for a table of [players] with [mafia]
   /// Mafia-side seats and [citizens] citizens in the base split, or null.
   /// The codes are `BalanceGuard`'s own.

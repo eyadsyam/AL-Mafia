@@ -8,9 +8,11 @@
  */
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { deadlineFor } from "../_shared/phases.ts";
+import { isMafiaTeam } from "../_shared/teams.ts";
 import { rosterFingerprint } from "../_shared/roster_fingerprint.ts";
 import { ballotTargetAllowed } from "../_shared/ballot_candidates.ts";
 import {
+  appealCounts,
   appealed,
   appealUpheld,
   graveVoters,
@@ -107,6 +109,9 @@ Deno.serve(handler(async (req, userId, db) => {
       (voter?.role === "elder" && revealedElders.has(voter.seat) ? 3 : 1) *
       toolVoteWeight(toolUses, day, voter?.seat ?? -1);
     const tally = new Map<string, number>();
+    // The ballots the tally accepted, with their weights: the appeal reads
+    // numerator and denominator from these same ballots.
+    const counted: { voter: string; target: string; weight: number }[] = [];
     for (const v of cast ?? []) {
       const voter = roster.find((p) => p.user_id === v.voter_id);
       // A dead seat counts only with a bought grave vote, in the opening round.
@@ -114,7 +119,9 @@ Deno.serve(handler(async (req, userId, db) => {
         (!!voter && round === 1 && graves.has(voter.seat));
       if (v.round !== round || !v.target_id || !alive.has(v.target_id) || !mayVote) continue;
       if (!ballotTargetAllowed(round, revoteState?.tiedSeats, seatOf.get(v.target_id))) continue;
-      tally.set(v.target_id, (tally.get(v.target_id) ?? 0) + weightOf(voter));
+      const weight = weightOf(voter);
+      counted.push({ voter: v.voter_id, target: v.target_id, weight });
+      tally.set(v.target_id, (tally.get(v.target_id) ?? 0) + weight);
     }
 
     const publicTally: Record<number, number> = {};
@@ -149,13 +156,10 @@ Deno.serve(handler(async (req, userId, db) => {
     }
 
     // A bought `appeal`: the elimination stands only if more than two thirds of
-    // the weighted ballots of everyone else (living voters, him excluded)
-    // confirm it. Otherwise nobody goes out today.
+    // the weighted ballots counted from everyone else (him excluded) confirm it. Otherwise nobody goes out today.
     if (eliminatedId && appealed(toolUses, day).has(seatOf.get(eliminatedId) ?? -1)) {
-      const voters = roster
-        .filter((p) => p.alive && p.user_id !== eliminatedId)
-        .reduce((sum, p) => sum + weightOf(p), 0);
-      if (!appealUpheld(tally.get(eliminatedId) ?? 0, voters)) eliminatedId = null;
+      const { confirm, voters } = appealCounts(counted, eliminatedId);
+      if (!appealUpheld(confirm, voters)) eliminatedId = null;
     }
 
     if (revote) {
@@ -191,7 +195,7 @@ Deno.serve(handler(async (req, userId, db) => {
     const living = roster.filter(
       (p) => p.alive && p.user_id !== eliminatedId,
     );
-    const mafia = living.filter((p) => ["mafia", "silencer"].includes(p.role)).length;
+    const mafia = living.filter((p) => isMafiaTeam(p.role)).length;
     const town = living.length - mafia;
     let outcome: string | null = null;
     if (mafia === 0) outcome = "town";

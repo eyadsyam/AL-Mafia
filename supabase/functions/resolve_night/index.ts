@@ -18,6 +18,7 @@ import { deadlineFor } from "../_shared/phases.ts";
 import { buildHistory } from "../_shared/history.ts";
 import { rosterFingerprint } from "../_shared/roster_fingerprint.ts";
 import { selectTrace } from "../_shared/trace.ts";
+import { isMafiaTeam } from "../_shared/teams.ts";
 import { halfDoorSeats, loadToolUses, lockedSeats, unsilenceable } from "../_shared/tools.ts";
 import { deriveSeed, SeedSalt, tieBreakIndex } from "../_shared/seed.ts";
 
@@ -91,7 +92,7 @@ Deno.serve(handler(async (req, userId, db) => {
     // exactly as its whispers are (doc 09 §3.4) — a player put out of the match
     // does not go on killing or protecting from outside it.
     const alive = new Set(roster.filter((p) => p.alive).map((p) => p.user_id));
-    const mafiaIds = new Set(roster.filter((p) => ["mafia", "silencer"].includes(p.role)).map((p) => p.user_id));
+    const mafiaIds = new Set(roster.filter((p) => isMafiaTeam(p.role)).map((p) => p.user_id));
     const tally = new Map<string, number>();
     for (const a of actions ?? []) {
       if (a.action !== "kill" || !a.target_id || !alive.has(a.target_id) || !alive.has(a.actor_id)) continue;
@@ -151,14 +152,14 @@ Deno.serve(handler(async (req, userId, db) => {
           !target || !alive.has(actor.user_id) || !alive.has(target.user_id) ||
           isLocked(target.user_id)) continue;
       deaths.add(target.user_id);
-      if (!["mafia", "silencer"].includes(target.role)) deaths.add(actor.user_id);
+      if (!isMafiaTeam(target.role)) deaths.add(actor.user_id);
     }
     const deathIds = [...deaths].sort(
       (a, b) => (seatOf.get(a) ?? 0) - (seatOf.get(b) ?? 0),
     );
     const silencedId = (actions ?? []).find((a) =>
       a.action === "silence" && !!a.target_id && alive.has(a.actor_id) && alive.has(a.target_id) &&
-      !isLocked(a.target_id) && !isUnsilenceable(a.target_id)
+      !isLocked(a.target_id) && !isUnsilenceable(a.target_id) && !deaths.has(a.target_id)
     )?.target_id ?? null;
 
     const history = await buildHistory(db, roomId);
@@ -186,7 +187,7 @@ Deno.serve(handler(async (req, userId, db) => {
     // room must not be able to open a day on it (the offline engine refuses the
     // same move in `beginDay`).
     const living = roster.filter((p) => p.alive && !deaths.has(p.user_id));
-    const mafiaAlive = living.filter((p) => ["mafia", "silencer"].includes(p.role)).length;
+    const mafiaAlive = living.filter((p) => isMafiaTeam(p.role)).length;
     const townAlive = living.length - mafiaAlive;
     const outcome = mafiaAlive === 0
       ? "town"

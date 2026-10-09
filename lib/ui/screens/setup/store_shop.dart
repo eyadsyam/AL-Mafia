@@ -19,6 +19,7 @@ import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/deck/deck_public.dart';
 import '../../widgets/mafia_public.dart';
+import 'optional_roles.dart';
 
 /// «السوق السودة»: the shop as drawers (docs/design/DECK-SYSTEM.md §10). The
 /// categories come from ONE list ([storeCategories]); a new category is one
@@ -114,9 +115,6 @@ final List<StoreCategory> storeCategories = [
   ),
 ];
 
-/// The one «وصل جديد» card: the newest thing on the shelf.
-const storeFeaturedCode = 'pack_moonlit_archive';
-
 /// Roughly how many online matches an amount takes, from the current reward
 /// contract (sync_player_rewards): a win's extra is not counted. [v3] is the
 /// server's `economy.version=3` rule (25 a match instead of 100).
@@ -132,23 +130,68 @@ String storeKindLabel(AppLocalizations l, StoreKind kind) => switch (kind) {
   StoreKind.bundle => l.storeKindBundle,
 };
 
-String _roleName(AppLocalizations l, String code) => switch (code) {
-  'role_elder' => l.roleElder,
-  'role_sniper' => l.roleSniper,
-  _ => l.roleSilencer,
+// The three bought roles come from one table, [OptionalRole]. A code that is
+// not in it has no name, no text and no art here: it shows its bare code and
+// no picture, rather than being dressed as the silencer.
+String storeRoleName(AppLocalizations l, String code) =>
+    switch (OptionalRole.byCode(code)) {
+      OptionalRole.silencer => l.roleSilencer,
+      OptionalRole.elder => l.roleElder,
+      OptionalRole.sniper => l.roleSniper,
+      null => code,
+    };
+
+String _roleDesc(AppLocalizations l, String code) =>
+    switch (OptionalRole.byCode(code)) {
+      OptionalRole.silencer => l.roleSilencerDescription,
+      OptionalRole.elder => l.roleElderDescription,
+      OptionalRole.sniper => l.roleSniperDescription,
+      null => '',
+    };
+
+String? _roleArt(String code) => switch (OptionalRole.byCode(code)) {
+  OptionalRole.silencer => AppImages.cardFaceSilencer,
+  OptionalRole.elder => AppImages.cardFaceElder,
+  OptionalRole.sniper => AppImages.cardFaceSniper,
+  null => null,
 };
 
-String _roleDesc(AppLocalizations l, String code) => switch (code) {
-  'role_elder' => l.roleElderDescription,
-  'role_sniper' => l.roleSniperDescription,
-  _ => l.roleSilencerDescription,
-};
+/// [text] folded for searching Arabic: diacritics and tatweel dropped, the
+/// alef forms joined, ة read as ه and ى as ي, case folded.
+String normalizeStoreSearch(String text) {
+  final out = StringBuffer();
+  for (final r in text.runes) {
+    if ((r >= 0x064B && r <= 0x065F) || r == 0x0670 || r == 0x0640) continue;
+    if (r == 0x0623 || r == 0x0625 || r == 0x0622 || r == 0x0671) {
+      out.writeCharCode(0x0627);
+    } else if (r == 0x0629) {
+      out.writeCharCode(0x0647);
+    } else if (r == 0x0649) {
+      out.writeCharCode(0x064A);
+    } else {
+      out.writeCharCode(r);
+    }
+  }
+  return out.toString().toLowerCase().trim();
+}
 
-String _roleArt(String code) => switch (code) {
-  'role_elder' => AppImages.cardFaceElder,
-  'role_sniper' => AppImages.cardFaceSniper,
-  _ => AppImages.cardFaceSilencer,
-};
+/// The one «وصل جديد» card: the newest thing on the shelf that can still be
+/// sold. The last active catalog row of a cosmetic kind, preferring one the
+/// player does not own yet; null when there is none. Never a fixed code, which
+/// goes stale the day that item is switched off.
+StoreEntry? featuredEntry(List<StoreEntry> entries) {
+  final live = [
+    for (final e in entries)
+      if (e.item != null &&
+          (e.kind == StoreKind.room ||
+              e.kind == StoreKind.narrator ||
+              e.kind == StoreKind.look ||
+              e.kind == StoreKind.bundle))
+        e,
+  ];
+  if (live.isEmpty) return null;
+  return live.where((e) => !e.owned).lastOrNull ?? live.last;
+}
 
 /// Everything for sale, in shelf order. Tools only when the tools state has
 /// loaded; roles and cosmetics only when the server lists them.
@@ -181,14 +224,15 @@ List<StoreEntry> buildStoreEntries(
   }
   for (final code in Cosmetics.roleCodes) {
     final item = wallet.item(code);
-    if (item == null) continue;
+    // A role the server no longer lists is still the player's if they own it.
+    if (item == null && !wallet.owned.contains(code)) continue;
     out.add(
       StoreEntry(
         code: code,
         kind: StoreKind.role,
-        name: _roleName(l, code),
+        name: storeRoleName(l, code),
         description: _roleDesc(l, code),
-        price: item.charge,
+        price: item?.charge ?? 0,
         owned: wallet.owned.contains(code),
         equipped: false,
         slot: null,
@@ -196,13 +240,21 @@ List<StoreEntry> buildStoreEntries(
       ),
     );
   }
-  for (final item in wallet.catalog) {
-    final cosmetic = Cosmetics.items[item.code];
+  // The catalog's rows, then anything owned that the catalog no longer lists
+  // (an item switched off for sale): owning it does not depend on the shelf.
+  final listed = {for (final item in wallet.catalog) item.code};
+  final rows = <(String, WalletItem?)>[
+    for (final item in wallet.catalog) (item.code, item),
+    for (final code in wallet.owned.toList()..sort())
+      if (!listed.contains(code) && Cosmetics.items[code] != null) (code, null),
+  ];
+  for (final (code, item) in rows) {
+    final cosmetic = Cosmetics.items[code];
     if (cosmetic == null) continue;
     final slot = cosmetic.slot;
     out.add(
       StoreEntry(
-        code: item.code,
+        code: code,
         kind: switch (cosmetic.kind) {
           CosmeticKind.frame || CosmeticKind.nameplate => StoreKind.look,
           CosmeticKind.presentationPack => StoreKind.room,
@@ -211,9 +263,9 @@ List<StoreEntry> buildStoreEntries(
         },
         name: cosmetic.name(l),
         description: cosmetic.description(l),
-        price: item.charge,
-        owned: wallet.owned.contains(item.code),
-        equipped: slot != null && wallet.equipped[slot.wire] == item.code,
+        price: item?.charge ?? 0,
+        owned: wallet.owned.contains(code),
+        equipped: slot != null && wallet.equipped[slot.wire] == code,
         slot: slot,
         item: item,
       ),
@@ -253,7 +305,7 @@ Future<String?> storeBuy({
   required StoreEntry entry,
   required int pack,
 }) async {
-  if (busy.value) return l.storeFailed;
+  if (busy.value) return l.storeBusy;
   busy.value = true;
   try {
     if (entry.tool != null) {
@@ -269,6 +321,11 @@ Future<String?> storeBuy({
     return e.code == 'INSUFFICIENT_COINS'
         ? l.storeNotEnough(entry.price - balance)
         : l.storeFailed;
+  } catch (_) {
+    // Anything else (a dropped connection, a parse error): the controllers
+    // have already re-read the server's truth; say so without claiming what
+    // did or did not happen.
+    return l.storeFailed;
   } finally {
     if (alive()) busy.value = false;
   }
@@ -356,10 +413,8 @@ class _StoreShopState extends ConsumerState<StoreShop> {
 
   bool _matches(StoreEntry e) {
     if (_ownedOnly && !e.owned) return false;
-    final q = _query.text.trim().toLowerCase();
-    return q.isEmpty ||
-        e.name.toLowerCase().contains(q) ||
-        e.description.toLowerCase().contains(q);
+    final q = normalizeStoreSearch(_query.text);
+    return q.isEmpty || normalizeStoreSearch(e.name).contains(q);
   }
 
   @override
@@ -508,15 +563,17 @@ class StoreEntryArt extends StatelessWidget {
           ),
         ),
       ),
-      StoreKind.role => RepaintBoundary(
-        child: Image.asset(
-          _roleArt(entry.code),
-          fit: fit,
-          cacheWidth: StoreTokens.decodeWidth,
-          excludeFromSemantics: true,
-          errorBuilder: (_, _, _) => const SizedBox.shrink(),
-        ),
-      ),
+      StoreKind.role => _roleArt(entry.code) == null
+          ? const SizedBox.shrink()
+          : RepaintBoundary(
+              child: Image.asset(
+                _roleArt(entry.code)!,
+                fit: fit,
+                cacheWidth: StoreTokens.decodeWidth,
+                excludeFromSemantics: true,
+                errorBuilder: (_, _, _) => const SizedBox.shrink(),
+              ),
+            ),
       _ => cover && StoreArt.forCode(entry.code) != null
           ? RepaintBoundary(
               child: Image.asset(
@@ -666,9 +723,7 @@ class _Index extends StatelessWidget {
       for (final e in entries)
         if (matches(e)) e,
     ];
-    final featured = entries
-        .where((e) => e.code == storeFeaturedCode)
-        .firstOrNull;
+    final featured = featuredEntry(entries);
     return LayoutBuilder(
       builder: (context, box) {
         final side = box.maxWidth > StoreTokens.maxContentWidth
@@ -1335,21 +1390,35 @@ class StoreItemSheet extends ConsumerStatefulWidget {
 }
 
 class _StoreItemSheetState extends ConsumerState<StoreItemSheet> {
+  /// Something was bought here: the stamp and the hint show. Only a
+  /// non-consumable then leaves the sale; a tool stays buyable (more charges
+  /// are one tap away), so the pack chips and the buy button stay.
   bool _sold = false;
+  bool _inFlight = false;
   int? _pack;
   String? _error;
 
   Future<void> _buy(StoreEntry entry, int pack) async {
+    // Set before the first await: a second tap in the same frame must find it.
+    // A one-off item already bought here is not bought again by a tap that
+    // landed on the frame before the sheet re-drew.
+    if (_inFlight || (_sold && !entry.consumable)) return;
+    _inFlight = true;
     setState(() => _error = null);
-    final error = await widget.onBuy(entry, pack);
-    if (!mounted) return;
-    setState(() {
-      if (error == null) {
-        _sold = true;
-      } else {
-        _error = error;
-      }
-    });
+    try {
+      final error = await widget.onBuy(entry, pack);
+      if (!mounted) return;
+      setState(() {
+        if (error == null) {
+          _error = null;
+          _sold = true;
+        } else {
+          _error = error;
+        }
+      });
+    } finally {
+      _inFlight = false;
+    }
   }
 
   @override
@@ -1379,7 +1448,7 @@ class _StoreItemSheetState extends ConsumerState<StoreItemSheet> {
         contents.isNotEmpty && contents.every(wallet.owned.contains);
     final cosmetic = Cosmetics.items[entry.code];
     final room = entry.kind == StoreKind.room;
-    final ownedMode = _sold || (entry.owned && !entry.consumable);
+    final ownedMode = !entry.consumable && (_sold || entry.owned);
     final enough = balance >= cost;
     final v3 =
         ref.watch(economyCapabilitiesProvider).valueOrNull?.economyV3 ?? false;

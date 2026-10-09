@@ -22,6 +22,7 @@
  */
 import { actionForRole, fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { clearedFor, deadlineFor } from "../_shared/phases.ts";
+import { isMafiaTeam } from "../_shared/teams.ts";
 import { deriveSeed, SeedSalt, tieBreakIndex } from "../_shared/seed.ts";
 
 /**
@@ -75,7 +76,7 @@ Deno.serve(handler(async (req, userId, db) => {
         // otherwise make "the Mafia are all disconnected" strictly better for
         // them than playing (N9).
         const targets = roster
-          .filter((p) => action === "kill" ? p.role !== "mafia" : p.user_id !== player.user_id)
+          .filter((p) => action === "kill" ? !isMafiaTeam(p.role) : p.user_id !== player.user_id)
           .sort((a, b) => a.seat - b.seat);
         if (targets.length === 0) continue;
         const pick = targets[

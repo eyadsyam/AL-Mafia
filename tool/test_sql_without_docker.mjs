@@ -32,7 +32,16 @@ try {
   `);
   const migrations = (await readdir('supabase/migrations')).filter(f=>f.endsWith('.sql')).sort();
   for (const file of migrations) {
-    try { await db.exec(await readFile(`supabase/migrations/${file}`, 'utf8')); }
+    try {
+      // pg_net is not bundled with PGlite: stand in a no-op net.http_post.
+      const sql = (await readFile(`supabase/migrations/${file}`, 'utf8')).replace(
+        /create extension if not exists pg_net[^;]*;/i,
+        () => `create schema if not exists net;
+         create or replace function net.http_post(url text, body jsonb default null,
+           params jsonb default null, headers jsonb default null, timeout_milliseconds int default null)
+           returns bigint language sql as $$ select 0::bigint $$;`);
+      await db.exec(sql);
+    }
     catch (error) { throw new Error(`MIGRATION ${file}: ${error.message}`); }
   }
   console.log(`PASS ${migrations.length} migrations executed unmodified`);

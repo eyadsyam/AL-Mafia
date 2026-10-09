@@ -1145,6 +1145,21 @@ class _StoryHoldButtonState extends State<StoryHoldButton>
   Timer? _timer;
   bool _done = false;
 
+  /// The pointer that owns the hold in flight (same rule as HoldPad): a
+  /// second finger can neither start nor end it.
+  int? _pointer;
+
+  @override
+  void didUpdateWidget(StoryHoldButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.enabled != widget.enabled && !_done) {
+      _timer?.cancel();
+      _timer = null;
+      _pointer = null;
+      _fill.value = 0;
+    }
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -1152,8 +1167,9 @@ class _StoryHoldButtonState extends State<StoryHoldButton>
     super.dispose();
   }
 
-  void _down() {
-    if (!widget.enabled || _done) return;
+  void _down(PointerDownEvent event) {
+    if (!widget.enabled || _done || _pointer != null) return;
+    _pointer = event.pointer;
     _fill.forward(from: 0);
     _timer?.cancel();
     _timer = Timer(widget.duration, () {
@@ -1163,7 +1179,9 @@ class _StoryHoldButtonState extends State<StoryHoldButton>
     });
   }
 
-  void _up() {
+  void _up(PointerEvent event) {
+    if (event.pointer != _pointer) return;
+    _pointer = null;
     if (_done) return;
     _timer?.cancel();
     _fill.value = 0;
@@ -1175,9 +1193,9 @@ class _StoryHoldButtonState extends State<StoryHoldButton>
     return Opacity(
       opacity: widget.enabled ? 1 : DeckTokens.disabledAlpha,
       child: Listener(
-        onPointerDown: (_) => _down(),
-        onPointerUp: (_) => _up(),
-        onPointerCancel: (_) => _up(),
+        onPointerDown: _down,
+        onPointerUp: _up,
+        onPointerCancel: _up,
         child: Semantics(
           button: true,
           enabled: widget.enabled,
@@ -1351,7 +1369,8 @@ class StoryDossier extends StatelessWidget {
   });
 
   final StoryCharacter character;
-  final List<StoryClue> clues;
+  /// One entry per round; null is an empty slot (same height for all seats).
+  final List<StoryClue?> clues;
   final String youAre;
   final String mustDo;
 
@@ -1432,11 +1451,27 @@ class StoryDossier extends StatelessWidget {
           ),
           SizedBox(height: s.md),
           for (final (i, clue) in clues.indexed) ...[
-            StoryNote(
-              title: clue.title,
-              body: clue.body,
-              turn: i.isEven ? -0.02 : 0.02,
-            ),
+            if (clue == null)
+              SizedBox(
+                height: StoryTokens.emptyClueSlot,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(CaseFileTokens.radius),
+                    border: Border.all(
+                      color: DeckTokens.bone.withValues(
+                        alpha: StoryTokens.dashAlpha,
+                      ),
+                      width: StoryTokens.dossierDash,
+                    ),
+                  ),
+                ),
+              )
+            else
+              StoryNote(
+                title: clue.title,
+                body: clue.body,
+                turn: i.isEven ? -0.02 : 0.02,
+              ),
             SizedBox(height: s.sm + s.xs),
           ],
         ],

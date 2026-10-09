@@ -36,6 +36,7 @@ import {
   ok,
 } from "../_shared/api.ts";
 import { detectiveSees, loadToolUses } from "../_shared/tools.ts";
+import { isMafiaTeam } from "../_shared/teams.ts";
 
 /** The once-per-match move each role holds, or null for the two that hold none. */
 type Bullet = "quietNight" | "selfProtect" | "sniperShot";
@@ -177,7 +178,7 @@ Deno.serve(handler(async (req, userId, db) => {
       return fail("BAD_REQUEST", "not yourself");
     }
     // The Mafia never choose one of their own (owner, 2026-10-01).
-    if (storedAction === "kill" && ["mafia", "silencer"].includes(target.role)) {
+    if (storedAction === "kill" && isMafiaTeam(target.role)) {
       return fail("BAD_REQUEST", "not a fellow mafioso");
     }
     targetId = target.user_id;

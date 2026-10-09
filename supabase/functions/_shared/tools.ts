@@ -11,7 +11,13 @@
  * follows it, N + 1.
  */
 
+import { isMafiaTeam } from "./teams.ts";
+
 export type ToolUse = {
+  /** Row id; present on rows read from the database. */
+  id?: number;
+  /** Set once a one-shot effect (the floor bonus) has been spent. */
+  consumed_at?: string | null;
   user_id: string;
   seat: number;
   tool_code: string;
@@ -27,7 +33,7 @@ type Db = any;
 export async function loadToolUses(db: Db, roomId: string): Promise<ToolUse[]> {
   const { data, error } = await db
     .from("room_tool_uses")
-    .select("user_id, seat, tool_code, phase, phase_number, target_seats, note")
+    .select("id, user_id, seat, tool_code, phase, phase_number, target_seats, note, consumed_at")
     .eq("room_id", roomId);
   if (error) throw error;
   return (data ?? []) as ToolUse[];
@@ -71,10 +77,14 @@ export function detectiveSees(
   return role;
 }
 
-/** Seats a silence cannot land on for day [day]. */
-export function unsilenceable(uses: ToolUse[], day: number): Set<number> {
-  const s = new Set(used(uses, "vote_shield", day).map((u) => u.seat));
-  for (const seat of halfDoorSeats(uses, day)) s.add(seat);
+/**
+ * Seats a silence cannot land on tonight. A `vote_shield` is bought in the
+ * day and protects the ballot of the day the night's silence would hit, so it
+ * covers night N + 1 like the doors do.
+ */
+export function unsilenceable(uses: ToolUse[], night: number): Set<number> {
+  const s = new Set(coversNight(uses, "vote_shield", night).map((u) => u.seat));
+  for (const seat of halfDoorSeats(uses, night)) s.add(seat);
   return s;
 }
 
@@ -86,23 +96,37 @@ export function toolVoteWeight(uses: ToolUse[], day: number, seat: number): numb
   return used(uses, "double_vote", day).some((u) => u.seat === seat) ? 2 : 1;
 }
 
-/** Dead seats allowed to cast one ballot on day [day]. */
+/** Dead seats allowed to cast one ballot on day [day]: the day it was bought. */
 export function graveVoters(uses: ToolUse[], day: number): Set<number> {
-  return new Set(
-    uses.filter((u) => u.tool_code === "grave_vote" &&
-      (u.phase_number === day || u.phase_number === day - 1)).map((u) => u.seat),
+  return new Set(used(uses, "grave_vote", day).map((u) => u.seat));
+}
+
+/** Unspent floor-bonus uses (extra_minute, objection) of [seat] on [phaseNumber]. */
+export function pendingFloorBonuses(
+  uses: ToolUse[],
+  phaseNumber: number,
+  seat: number,
+): ToolUse[] {
+  return uses.filter((u) =>
+    (u.tool_code === "extra_minute" || u.tool_code === "objection") &&
+    u.phase_number === phaseNumber && u.seat === seat && !u.consumed_at
   );
 }
 
-/** Extra floor seconds for [seat] in the current phase. */
+/**
+ * Extra floor seconds for [seat]: only the bonuses not yet spent. The caller
+ * marks them consumed once the claim is granted, so the bonus belongs to the
+ * first floor claim after the purchase and to no later one.
+ */
 export function floorBonusSeconds(
   uses: ToolUse[],
   phaseNumber: number,
   seat: number,
 ): number {
   let extra = 0;
-  if (used(uses, "extra_minute", phaseNumber).some((u) => u.seat === seat)) extra += 45;
-  if (used(uses, "objection", phaseNumber).some((u) => u.seat === seat)) extra += 30;
+  for (const u of pendingFloorBonuses(uses, phaseNumber, seat)) {
+    extra += u.tool_code === "extra_minute" ? 45 : 30;
+  }
   return extra;
 }
 
@@ -114,6 +138,25 @@ export function revoteRequested(uses: ToolUse[], day: number): boolean {
 /** Seats that appealed their elimination on day [day]. */
 export function appealed(uses: ToolUse[], day: number): Set<number> {
   return new Set(used(uses, "appeal", day).map((u) => u.seat));
+}
+
+/**
+ * The two sides of an appeal from the same ballots: [counted] are the ballots
+ * the tally accepted (eligible voter, valid target), each with the weight the
+ * tally gave it. The appellant's own ballot is left out of both sides.
+ */
+export function appealCounts(
+  counted: { voter: string; target: string; weight: number }[],
+  appellant: string,
+): { confirm: number; voters: number } {
+  let confirm = 0;
+  let voters = 0;
+  for (const b of counted) {
+    if (b.voter === appellant) continue;
+    voters += b.weight;
+    if (b.target === appellant) confirm += b.weight;
+  }
+  return { confirm, voters };
 }
 
 /**
@@ -133,7 +176,6 @@ export function whisperAnswer(
   roleOf: (seat: number) => string | null,
 ): boolean {
   return use.target_seats.some((s) => {
-    const r = roleOf(s);
-    return r === "mafia" || r === "silencer";
+    return isMafiaTeam(roleOf(s));
   });
 }

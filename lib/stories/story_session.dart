@@ -1,3 +1,5 @@
+import 'dart:math' show Random;
+
 import 'story_model.dart';
 
 enum StoryMode { solo, group }
@@ -62,6 +64,7 @@ class StorySession {
     required this.round,
     required this.currentPlayer,
     required this.votes,
+    required this.seating,
     this.soloAccusation,
     this.score,
   });
@@ -73,6 +76,7 @@ class StorySession {
   }) {
     StoryBucket.forPlayers(playerCount);
     return StorySession._(
+      seating: _seatingFor(playerCount, seed),
       story: story,
       playerCount: playerCount,
       seed: seed,
@@ -100,10 +104,28 @@ class StorySession {
   final int round;
   final int currentPlayer;
   final List<StoryAccusation> votes;
+
+  /// Seat -> index into `story.characters`. A seeded shuffle of the first
+  /// [playerCount] characters, so the same seed always deals the same table
+  /// and a new seed deals a new one; the set of seated characters never
+  /// changes (the checker proves exactly that set).
+  final List<int> seating;
   final StoryAccusation? soloAccusation;
   final StoryScore? score;
 
-  StoryCharacter get currentCharacter => story.characters[currentPlayer];
+  /// The characters in seat order.
+  List<StoryCharacter> get seated => [
+    for (final index in seating) story.characters[index],
+  ];
+
+  StoryCharacter get currentCharacter =>
+      story.characters[seating[currentPlayer]];
+
+  static List<int> _seatingFor(int playerCount, int seed) {
+    final order = List<int>.generate(playerCount, (i) => i);
+    if (playerCount > 1) order.shuffle(Random(seed));
+    return List.unmodifiable(order);
+  }
 
   StoryClue get currentPrivateClue =>
       story.clue(currentCharacter.privateClueIds[round - 1]);
@@ -193,7 +215,16 @@ class StorySession {
       for (final id in action.clueIds)
         if (story.clue(id).appearsFor(playerCount)) id,
     };
-    final used = {...usedActionIds, action.id};
+    return _afterSearch(clues, {...usedActionIds, action.id});
+  }
+
+  /// Moves on when no open search would yield anything for this table.
+  StorySession skipSharedInvestigation() {
+    _expect(StoryPhase.groupInvestigation);
+    return _afterSearch(revealedClueIds, usedActionIds);
+  }
+
+  StorySession _afterSearch(Set<String> clues, Set<String> used) {
     if (round == 3) {
       return _copy(
         phase: StoryPhase.groupVoteHandoff,
@@ -210,6 +241,15 @@ class StorySession {
       usedActionIds: used,
     );
   }
+
+  /// The app left the foreground while a private page was open: the page is
+  /// covered and the phone is back at its pass state for the same seat. A
+  /// half-made ballot is dropped, never kept.
+  StorySession coverForInterruption() => switch (phase) {
+    StoryPhase.groupPrivateClue => _copy(phase: StoryPhase.groupHandoff),
+    StoryPhase.groupVote => _copy(phase: StoryPhase.groupVoteHandoff),
+    _ => this,
+  };
 
   StorySession revealVoteCard() {
     _expect(StoryPhase.groupVoteHandoff);
@@ -256,7 +296,7 @@ class StorySession {
       culpritPoints: culprit,
       motivePoints: motive,
       methodPoints: method,
-      efficiencyPoints: budget * 25,
+      efficiencyPoints: solved ? budget * 25 : 0,
       solveBonus: solved ? 200 + story.difficulty * 50 : 0,
     );
   }
@@ -287,6 +327,7 @@ class StorySession {
     round: round ?? this.round,
     currentPlayer: currentPlayer ?? this.currentPlayer,
     votes: votes ?? this.votes,
+    seating: seating,
     soloAccusation: soloAccusation ?? this.soloAccusation,
     score: score ?? this.score,
   );

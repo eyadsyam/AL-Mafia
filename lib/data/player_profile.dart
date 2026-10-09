@@ -99,11 +99,18 @@ class FirstRunProgress {
   /// acceptance itself is still recorded only when setup completes.
   final bool agreed;
 
+  /// The terms version the box was ticked under. A tick saved under another
+  /// version (or by a build that did not record one) is never replayed: the
+  /// player is shown the box again rather than finding it already ticked for
+  /// words they have not seen.
+  final String termsVersion;
+
   const FirstRunProgress({
     required this.chapter,
     this.name = '',
     this.gender = PlayerGender.unspecified,
     this.agreed = false,
+    this.termsVersion = '',
   });
 
   static Future<FirstRunProgress?> load() async {
@@ -123,6 +130,7 @@ class FirstRunProgress {
                 .firstOrNull ??
             PlayerGender.unspecified,
         agreed: json['agreed'] == true,
+        termsVersion: json['terms'] is String ? json['terms'] as String : '',
       );
     } catch (_) {
       // Unreadable progress is no progress: the first chapter, as before.
@@ -139,6 +147,7 @@ class FirstRunProgress {
           'name': name,
           'gender': gender.name,
           'agreed': agreed,
+          'terms': termsVersion,
         }),
       );
     } catch (_) {

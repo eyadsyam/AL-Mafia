@@ -14,7 +14,7 @@
  * not done anything wrong.
  */
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
-import { floorBonusSeconds, loadToolUses } from "../_shared/tools.ts";
+import { floorBonusSeconds, loadToolUses, pendingFloorBonuses } from "../_shared/tools.ts";
 import { floorOwnerSeat, floorSecondsFor, micPolicyFor } from "../_shared/voice.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
@@ -59,15 +59,25 @@ Deno.serve(handler(async (req, userId, db) => {
     return ok({ granted: false, policy, owner });
   }
 
+  // «أدوات القعدة»: extra_minute / objection add seconds to this seat's first
+  // granted claim after the purchase, and to no later one.
+  const toolUses = await loadToolUses(db, roomId);
+  const bonusUses = pendingFloorBonuses(toolUses, me.phaseNumber, me.seat);
   const granted = await db.rpc("claim_speaking_floor", {
     p_room: roomId,
     p_user: userId,
-    // «أدوات القعدة»: extra_minute / objection add seconds to this seat only.
     p_seconds: floorSecondsFor(me.phase, me.settings) +
-      floorBonusSeconds(await loadToolUses(db, roomId), me.phaseNumber, me.seat),
+      floorBonusSeconds(toolUses, me.phaseNumber, me.seat),
   });
 
   if (granted.error) throw granted.error;
+  const spentIds = bonusUses.map((u) => u.id).filter((id): id is number => typeof id === "number");
+  if (granted.data === true && spentIds.length > 0) {
+    const { error: spendError } = await db.from("room_tool_uses")
+      .update({ consumed_at: new Date().toISOString() })
+      .in("id", spentIds).is("consumed_at", null);
+    if (spendError) throw spendError;
+  }
 
   return ok({ granted: granted.data === true, policy });
 }));

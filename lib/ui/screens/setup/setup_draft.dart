@@ -18,6 +18,12 @@ final initialMatchSettingsProvider = Provider<MatchSettings>(
 /// setup budget (US4) cannot afford.
 class SetupDraft {
   final List<String> names;
+
+  /// Everyone on the roster screen in seating order, present and away alike,
+  /// and who of them is away. [names] is only the present ones; these two let
+  /// a Back from the roles step reopen the roster exactly as it was left.
+  final List<String> roster;
+  final Set<String> absent;
   final Map<String, PlayerGender> genders;
   final Map<Role, int>? roleCounts;
   final MatchSettings settings;
@@ -32,6 +38,8 @@ class SetupDraft {
 
   const SetupDraft({
     this.names = const [],
+    this.roster = const [],
+    this.absent = const {},
     this.genders = const {},
     this.roleCounts,
     this.settings = const MatchSettings.defaults(),
@@ -40,6 +48,8 @@ class SetupDraft {
 
   SetupDraft copyWith({
     List<String>? names,
+    List<String>? roster,
+    Set<String>? absent,
     Map<String, PlayerGender>? genders,
     Map<Role, int>? roleCounts,
     MatchSettings? settings,
@@ -47,6 +57,8 @@ class SetupDraft {
     bool clearGroup = false,
   }) => SetupDraft(
     names: names ?? this.names,
+    roster: roster ?? this.roster,
+    absent: absent ?? this.absent,
     genders: genders ?? this.genders,
     roleCounts: roleCounts ?? this.roleCounts,
     settings: settings ?? this.settings,
@@ -110,6 +122,12 @@ class SetupDraftNotifier extends Notifier<SetupDraft> {
   void setNames(List<String> names) =>
       state = state.copyWith(names: List.unmodifiable(names));
 
+  void setRoster(List<String> roster, Set<String> absent) => state = state
+      .copyWith(
+        roster: List.unmodifiable(roster),
+        absent: Set.unmodifiable(absent),
+      );
+
   void setRoleCounts(Map<Role, int> counts) =>
       state = state.copyWith(roleCounts: Map.unmodifiable(counts));
 
@@ -117,9 +135,18 @@ class SetupDraftNotifier extends Notifier<SetupDraft> {
       state = state.copyWith(settings: settings);
 
   /// Attaches the saved roster this match is being played from.
-  void setGroup(PlayerGroup? group) => group == null
-      ? state = state.copyWith(clearGroup: true)
-      : state = state.copyWith(group: group);
+  ///
+  /// Switching to a different roster drops the remembered seating and absences:
+  /// they belonged to the old one. Re-picking the same group keeps them.
+  void setGroup(PlayerGroup? group) {
+    final changed = group?.id != state.group?.id;
+    final next = group == null
+        ? state.copyWith(clearGroup: true)
+        : state.copyWith(group: group);
+    state = changed
+        ? next.copyWith(roster: const [], absent: const {})
+        : next;
+  }
 
   /// Clears names, roles and the group but keeps settings — those are the
   /// defaults the host just chose, and the next match should inherit them

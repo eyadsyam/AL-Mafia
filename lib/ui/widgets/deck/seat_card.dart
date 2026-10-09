@@ -127,7 +127,7 @@ class SeatCard extends StatelessWidget {
       container: true,
       child: SeatCardFrame(
         lifted: lifted,
-        dress: Cosmetics.frames[HostIdentityScope.frameFor(context, name)],
+        dress: Cosmetics.frames[HostIdentityScope.frameFor(context, name, seat: seat)],
         child: LayoutBuilder(
           builder: (context, box) {
             final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;

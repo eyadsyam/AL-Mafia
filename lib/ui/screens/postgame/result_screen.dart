@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import '../../widgets/mafia_kit.dart';
@@ -21,6 +22,7 @@ import '../../economy/economy_capabilities.dart';
 import '../../economy/mafia_coin.dart';
 import '../../economy/pass_table_dress.dart';
 import '../../economy/wallet.dart';
+import '../online/online_session.dart' show SupabaseConfig;
 import '../../missions/casebook_data.dart';
 import '../../missions/casebook_sheet.dart' show caseLine;
 import '../../theme/mafia_theme.dart';
@@ -223,6 +225,8 @@ class _ResultStageState extends State<_ResultStage>
 
   ResultScreen get s => widget.screen;
   int get _coins => s.coinRows.fold(0, (a, r) => a + r.coins);
+
+  bool _walletAsked = false;
 
   @override
   void initState() {
@@ -956,6 +960,18 @@ class _ResultStageState extends State<_ResultStage>
       child: Consumer(
         builder: (context, ref, _) {
           final wallet = ref.watch(walletProvider).valueOrNull;
+          final unread = wallet == null && SupabaseConfig.isConfigured;
+          if (unread && !_walletAsked) {
+            // An unread wallet would count the pill up from nothing. Read it
+            // first; the balance stays hidden until the server has answered.
+            _walletAsked = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              try {
+                unawaited(ref.read(walletProvider.notifier).refresh());
+              } catch (_) {}
+            });
+          }
           final now = wallet?.balance ?? _coins;
           final base = math.max(0, now - _coins);
           final shown = _landed ? now : base;
@@ -973,7 +989,12 @@ class _ResultStageState extends State<_ResultStage>
             },
             child: KeyedSubtree(
               key: _pillKey,
-              child: CoinPill(balance: shown),
+              // Kept in the tree (the coins fly to it) but invisible until
+              // the wallet has been read.
+              child: Opacity(
+                opacity: unread ? 0 : 1,
+                child: CoinPill(balance: shown),
+              ),
             ),
           );
           return bump;

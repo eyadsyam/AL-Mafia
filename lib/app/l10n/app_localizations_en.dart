@@ -2456,7 +2456,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storeFailed =>
-      'That did not go through and nothing was deducted. Try again.';
+      'That did not go through. Check your balance and try again.';
+
+  @override
+  String get storeBusy => 'Something is still in progress. Wait a second.';
 
   @override
   String get storeHostPackNote =>
@@ -2487,6 +2490,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String historyCatalogRefund(String item) {
     return 'Refund: $item';
   }
+
+  @override
+  String historyToolSpend(String item) {
+    return 'Used a tool: $item';
+  }
+
+  @override
+  String get historyBotWin => 'Won against the computer';
+
+  @override
+  String get historyStoryFirstSolve => 'First solve of a case';
 
   @override
   String get historyAdReward => 'Video reward';

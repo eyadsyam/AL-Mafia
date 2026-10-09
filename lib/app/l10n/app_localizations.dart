@@ -4307,8 +4307,14 @@ abstract class AppLocalizations {
   /// No description provided for @storeFailed.
   ///
   /// In en, this message translates to:
-  /// **'That did not go through and nothing was deducted. Try again.'**
+  /// **'That did not go through. Check your balance and try again.'**
   String get storeFailed;
+
+  /// No description provided for @storeBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Something is still in progress. Wait a second.'**
+  String get storeBusy;
 
   /// No description provided for @storeHostPackNote.
   ///
@@ -4357,6 +4363,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refund: {item}'**
   String historyCatalogRefund(String item);
+
+  /// No description provided for @historyToolSpend.
+  ///
+  /// In en, this message translates to:
+  /// **'Used a tool: {item}'**
+  String historyToolSpend(String item);
+
+  /// No description provided for @historyBotWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Won against the computer'**
+  String get historyBotWin;
+
+  /// No description provided for @historyStoryFirstSolve.
+  ///
+  /// In en, this message translates to:
+  /// **'First solve of a case'**
+  String get historyStoryFirstSolve;
 
   /// No description provided for @historyAdReward.
   ///

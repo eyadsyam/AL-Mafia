@@ -1,7 +1,9 @@
 import 'package:mafia_master/engine/clock.dart';
+import 'package:mafia_master/engine/legal_moves.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
+import 'package:mafia_master/engine/models/player.dart';
 import 'package:test/test.dart';
 
 /// Owner rules for the three new roles (docs/plans/STORE-ROLES-STORIES-PLAN.md
@@ -119,6 +121,51 @@ void main() {
         return null;
       });
       expect(e.resolveNight().silencedSeat, me);
+    });
+
+    test('a lone silencer is offered only moves the engine accepts', () {
+      const gone = PhaseRef(phase: GamePhase.night, number: 1);
+      for (var seed = 1; seed <= 12; seed++) {
+        final e = start(sevenWithSilencer, silencerOn, seed: seed);
+        e.beginNight();
+        final silencer = seatOf(e, Role.silencer);
+        final mafia = seatOf(e, Role.mafia);
+        final m = e.match;
+        e.match = m.copyWith(
+          players: [
+            for (final p in m.players)
+              if (p.seat == mafia) p.copyWith(status: PlayerStatus.dead, eliminatedOn: gone) else p,
+          ],
+          currentActorSeat: silencer,
+        );
+        final moves = legalMoves(e.match);
+        final targets = [
+          for (final move in moves.whereType<NightActionMove>()) move.targetSeat,
+        ];
+        expect(targets, isNotEmpty);
+        expect(targets, isNot(contains(silencer)), reason: 'seed $seed');
+        expect(targets, isNot(contains(mafia)), reason: 'seed $seed');
+        // The timer default must apply for every phase index.
+        for (var index = 0; index < 20; index++) {
+          final copy = start(sevenWithSilencer, silencerOn, seed: seed)
+            ..beginNight();
+          final cm = copy.match;
+          copy.match = cm.copyWith(
+            players: [
+              for (final p in cm.players)
+                if (p.seat == mafia)
+                  p.copyWith(status: PlayerStatus.dead, eliminatedOn: gone)
+                else
+                  p,
+            ],
+            currentActorSeat: silencer,
+          );
+          final move = defaultMoveOnExpiry(copy.match, phaseIndex: index);
+          expect(move, isNotNull);
+          expect(() => move!.apply(copy), returnsNormally,
+              reason: 'seed $seed index $index');
+        }
+      }
     });
 
     test('silencer requires two mafia', () {

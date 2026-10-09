@@ -267,7 +267,11 @@ export function economyCall(
     case "toolBuy":
       return typeof body.tool === "string" && TOOL_CODE.test(body.tool) &&
           (body.pack === 1 || body.pack === 3 || body.pack === 7)
-        ? { rpc: "buy_table_tool", args: { p_user: userId, p_tool: body.tool, p_pack: body.pack } }
+        ? { rpc: "buy_table_tool", args: {
+            p_user: userId, p_tool: body.tool, p_pack: body.pack,
+            // Optional idempotency key: a repeated request id is a no-op.
+            p_request: typeof body.requestId === "string" && UUID.test(body.requestId) ? body.requestId : null,
+          } }
         : null;
     case "toolUse": {
       const targets = Array.isArray(body.targets) ? body.targets : [];
@@ -281,6 +285,10 @@ export function economyCall(
         args: { p_user: userId, p_room: room, p_tool: body.tool, p_targets: targets, p_note: note },
       };
     }
+    // A narrator answer («الإحساس», «همسة الراوي») is kept on the use row, so
+    // a reply lost to the network is read back: the caller's own rows only.
+    case "toolAnswers":
+      return room ? { rpc: "my_tool_answers", args: { p_user: userId, p_room: room } } : null;
     // Doc 09 §7: a finished room that chose to reveal its whispers.
     case "matchWhispers":
       return room ? { rpc: "match_whispers_revealed", args: { p_user: userId, p_room: room } } : null;
