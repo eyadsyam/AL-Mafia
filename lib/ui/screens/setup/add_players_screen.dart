@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show HapticFeedback;
 
+import '../../../app/asset_constants.dart';
 import '../../../data/player_group.dart';
+import '../../../platform/haptics.dart';
 import '../../../engine/balance_guard.dart';
 import '../../../engine/models/player.dart';
 import '../../l10n_ext.dart';
@@ -328,7 +329,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
   void _dragStart(String name, Offset global) {
     final index = _players.indexOf(name);
     if (index < 0 || _cardW == 0) return;
-    HapticFeedback.selectionClick();
+    Haptics.select();
     final slot = _slotOffset(index);
     setState(() {
       _dragName = name;
@@ -415,6 +416,7 @@ class _AddPlayersScreenState extends State<AddPlayersScreen> {
     final present = _present.length;
 
     return DeckScaffold(
+      backdrop: AppOffline.bgTableOffline,
       title: _group?.name ?? l10n.addPlayersTitle,
       subtitle: _groupMode ? l10n.attendanceHint : l10n.seatingDragHint,
       onBack: widget.onBack,

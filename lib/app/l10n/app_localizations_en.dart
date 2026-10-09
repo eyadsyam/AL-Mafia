@@ -5923,5 +5923,65 @@ class AppLocalizationsEn extends AppLocalizations {
       'A whole match any time: you and players who suspect, accuse and vote. No one to wait for.';
 
   @override
+  String get rolesDeckTitle => 'Roles';
+
+  @override
+  String get rolesPresetNormal => 'Normal';
+
+  @override
+  String get rolesPresetHard => 'Hard';
+
+  @override
+  String get rolesPresetCustom => 'Your way';
+
+  @override
+  String rolesBalanceLine(int mafia, int town) {
+    return '$mafia Mafia against $town';
+  }
+
+  @override
+  String get rolesDeal => 'Deal the cards';
+
+  @override
+  String get rolesMore => 'More roles';
+
+  @override
+  String get rolePowerMafia => 'Kill one player every night';
+
+  @override
+  String get rolePowerDetective => 'Asks about one player each night';
+
+  @override
+  String get rolePowerDoctor => 'Saves one player each night';
+
+  @override
+  String get rolePowerCitizen => 'The rest, counted for you';
+
+  @override
+  String get botTableLabel => 'At the table';
+
+  @override
+  String get botLevelEasyHint => 'They slip up and believe quickly';
+
+  @override
+  String get botLevelNormalHint => 'They suspect and ask like people do';
+
+  @override
+  String get botLevelHardHint => 'They lie well and will not let you off';
+
+  @override
+  String botRolesLine(String preset) {
+    return 'Roles: $preset, narrator on';
+  }
+
+  @override
+  String botRolesLineMuted(String preset) {
+    return 'Roles: $preset, narrator off';
+  }
+
+  @override
+  String get rolesNoCitizenLeft => 'No citizen left to swap.';
+
+  @override
   String get sheetClose => 'Close';
 }

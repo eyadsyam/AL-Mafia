@@ -6,16 +6,22 @@ import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match.dart';
 import 'package:mafia_master/engine/models/timeline_event.dart';
 import 'package:mafia_master/engine/presets.dart';
+import 'package:mafia_master/ui/screens/setup/optional_roles.dart';
 import 'package:test/test.dart';
 
 /// Plays a whole match where every seat is a bot; the table's own steps
 /// (begin night, resolve, open the vote …) take the first legal move.
-MatchOutcome playOut(MatchPreset preset, int players, int seed) {
+MatchOutcome playOut(
+  MatchPreset preset,
+  int players,
+  int seed, {
+  Set<OptionalRole> roles = const {},
+}) {
   final engine = MatchEngine(clock: Clocks.monotonic());
   engine.start(
     names: [for (var i = 0; i < players; i++) 'P$i'],
-    roleCounts: preset.roleCounts(players),
-    settings: preset.settings,
+    roleCounts: OptionalRole.apply(preset.roleCounts(players), roles),
+    settings: OptionalRole.flags(preset.settings, roles),
     seed: seed,
   );
   final brain = BotBrain(
@@ -52,6 +58,28 @@ MatchOutcome playOut(MatchPreset preset, int players, int seed) {
 }
 
 void main() {
+  // The bought roles (P7): a bot match with each one switched on, and with all
+  // three, reaches a winner at every size the engine accepts the role at.
+  for (final roles in [
+    for (final r in OptionalRole.values) {r},
+    OptionalRole.values.toSet(),
+  ]) {
+    test('bots finish a match with ${roles.map((r) => r.name).join('+')}', () {
+      for (final preset in MatchPreset.values) {
+        for (var n = 9; n <= 12; n++) {
+          if (!preset.availableFor(n)) continue;
+          for (var seed = 1; seed <= 6; seed++) {
+            expect(
+              playOut(preset, n, seed, roles: roles).winner,
+              isNotNull,
+              reason: '${preset.name} @ $n seed $seed',
+            );
+          }
+        }
+      }
+    });
+  }
+
   test('bots finish every preset at every table size', () {
     for (final preset in MatchPreset.values) {
       for (var n = 5; n <= 12; n++) {

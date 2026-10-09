@@ -145,6 +145,7 @@ flutter:
     - assets/images/stories/locations/
     - assets/images/stories/evidence/
     - assets/images/tools/
+    - assets/images/offline/
     - assets/stories/
     - assets/icons/
     - assets/audio/

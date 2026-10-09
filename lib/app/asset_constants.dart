@@ -17,9 +17,9 @@ abstract final class AppImages {
   static const String cardFaceCitizen = 'assets/images/card_face_citizen.webp';
   static const String cardFaceDetective = 'assets/images/card_face_detective.webp';
   static const String cardFaceDoctor = 'assets/images/card_face_doctor.webp';
+  static const String cardFaceElder = 'assets/images/card_face_elder.webp';
   static const String cardFaceMafia = 'assets/images/card_face_mafia.webp';
   static const String cardFaceSilencer = 'assets/images/card_face_silencer.webp';
-  static const String cardFaceElder = 'assets/images/card_face_elder.webp';
   static const String cardFaceSniper = 'assets/images/card_face_sniper.webp';
   static const String homeBackdrop = 'assets/images/home_backdrop.webp';
   static const String onboardingDay = 'assets/images/onboarding_day.webp';
@@ -44,9 +44,9 @@ abstract final class AppImages {
     cardFaceCitizen,
     cardFaceDetective,
     cardFaceDoctor,
+    cardFaceElder,
     cardFaceMafia,
     cardFaceSilencer,
-    cardFaceElder,
     cardFaceSniper,
     homeBackdrop,
     onboardingDay,
@@ -67,14 +67,20 @@ abstract final class AppGallery {
   static const String galleryCitizen = 'assets/images/gallery/gallery_citizen.webp';
   static const String galleryDetective = 'assets/images/gallery/gallery_detective.webp';
   static const String galleryDoctor = 'assets/images/gallery/gallery_doctor.webp';
+  static const String galleryElder = 'assets/images/gallery/gallery_elder.webp';
   static const String galleryMafia = 'assets/images/gallery/gallery_mafia.webp';
+  static const String gallerySilencer = 'assets/images/gallery/gallery_silencer.webp';
+  static const String gallerySniper = 'assets/images/gallery/gallery_sniper.webp';
 
   /// Every asset in this group, for preloading and for the manifest test.
   static const List<String> values = <String>[
     galleryCitizen,
     galleryDetective,
     galleryDoctor,
+    galleryElder,
     galleryMafia,
+    gallerySilencer,
+    gallerySniper,
   ];
 }
 
@@ -121,6 +127,32 @@ abstract final class AppCouncilArt {
     victoryMafia,
     victoryTown,
     whisperSeal,
+  ];
+}
+
+/// Deck identity pieces cut from the role cards (frame, corner, divider, card-back emblem and tile, name plate) and the one-phone setup grounds. Role-free: identical for every seat.
+abstract final class AppOffline {
+  static const String bgRolesFan = 'assets/images/offline/bg_roles_fan.webp';
+  static const String bgTableOffline = 'assets/images/offline/bg_table_offline.webp';
+  static const String cardSeatEmpty = 'assets/images/offline/card_seat_empty.webp';
+  static const String dividerGold = 'assets/images/offline/divider_gold.webp';
+  static const String emblemBack = 'assets/images/offline/emblem_back.webp';
+  static const String frameCard = 'assets/images/offline/frame_card.webp';
+  static const String frameCorner = 'assets/images/offline/frame_corner.webp';
+  static const String patternBackTile = 'assets/images/offline/pattern_back_tile.webp';
+  static const String plateName = 'assets/images/offline/plate_name.webp';
+
+  /// Every asset in this group, for preloading and for the manifest test.
+  static const List<String> values = <String>[
+    bgRolesFan,
+    bgTableOffline,
+    cardSeatEmpty,
+    dividerGold,
+    emblemBack,
+    frameCard,
+    frameCorner,
+    patternBackTile,
+    plateName,
   ];
 }
 

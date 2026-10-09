@@ -3714,3 +3714,17 @@ Files:      lib/ui/screens/setup/add_players_screen.dart, lib/ui/widgets/deck/se
 Verified:   analyze lib test: 0 errors/warnings; players_deal, add_players, setup_flow, group_rematch, group_follow_up, saved_groups, group_picker_layout, player_gender_persistence, test/golden/leakage all green.
 Gate:       PASS (no emulator screenshot taken)
 Open:       Gender defaults to ولد (was unspecified); tapping a card flips its gender. Max 15 players enforced on this screen. Chips load a group's people locally (no navigation).
+
+## PHASE P6 — done
+Built:      «الأدوار» rebuilt on the deck: presets عادي/صعب/على مزاجك (classic/brutal; any edit -> custom; صعب not offered under 8), a spread fan of every seat's card face that animates with the counts, one balance sentence (BalanceGuard), role rows with arched face + power + stepper, computed citizens, «أدوار تانية» (silencer/elder/sniper: owned = switch, else lock pill opening the store), bone «وزّع الكروت».
+Files:      lib/ui/screens/setup/{roles_screen,role_rows,optional_roles}.dart, lib/ui/widgets/deck/card_fan.dart, lib/ui/theme/design_tokens.dart (FanTokens, RolesTokens), lib/app/router.dart (onOptionalRoles -> draft settings flags), app_ar/app_en.arb, test/widget/roles_deck_test.dart, test/integration/{setup_flow,group_rematch}_test.dart (roles step taps RolesScreen.nextButton).
+Verified:   roles_deck_test (360x640, 430x932 at 5/8/20 players, presets, owned vs not owned via walletProvider override, store opens, reduced motion); full `flutter test` run; setup_flow + group_rematch green; analyze 0 errors/warnings; identity_screenshots 11_roles rendered and looked at (no emulator on this machine).
+Gate:       PASS
+Open:       Settings screen (next step) still has its own ungated silencer/elder/sniper switches (P9). Departing cards are not animated out (only moved/added). haptics_call_site_test fails on add_players_screen.dart (P5 leftover, not touched here).
+
+## PHASE P7 — done
+Built:      «ضد الكمبيوتر» sheet: «على الترابيزة» stepper with your avatar card (front, raised) and computer card backs fanning in, three level cards (face, name, one line), «الأدوار: …، والراوي شغال» line that opens preset chips + the same owned-role rows as P6, bone «ابدأ الماتش» pinned. No reward line: the win reward is server-set (claim_bot_win), no client source. Router starts the match from pick.roleCounts/pick.settings.
+Files:      lib/ui/screens/setup/bot_match_sheet.dart, lib/app/router.dart, test/widget/bot_sheet_test.dart, test/engine/bot_brain_test.dart (seeded bot matches with silencer, elder, sniper, and all three, presets 9-12 players: all reach a winner, no bot change needed).
+Verified:   bot_sheet_test (both phone sizes, stepper bounds, pick contents, owned/locked, role dropped when the table cannot take it, reduced motion); bot_brain_test green; 05_bot_match_sheet(_360) captures rendered and looked at.
+Gate:       PASS
+Open:       Kept the current bounds 5-12 (mockup says 5-10). Preset chips (سريعة/كلاسيكية/قاسية) live behind the roles line. identity_screenshots "a match against bots" fails on an audio plugin channel in the harness (not from this change).

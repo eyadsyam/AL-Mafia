@@ -10129,6 +10129,114 @@ abstract class AppLocalizations {
   /// **'A whole match any time: you and players who suspect, accuse and vote. No one to wait for.'**
   String get botSheetBody;
 
+  /// No description provided for @rolesDeckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles'**
+  String get rolesDeckTitle;
+
+  /// No description provided for @rolesPresetNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get rolesPresetNormal;
+
+  /// No description provided for @rolesPresetHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get rolesPresetHard;
+
+  /// No description provided for @rolesPresetCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Your way'**
+  String get rolesPresetCustom;
+
+  /// No description provided for @rolesBalanceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{mafia} Mafia against {town}'**
+  String rolesBalanceLine(int mafia, int town);
+
+  /// No description provided for @rolesDeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Deal the cards'**
+  String get rolesDeal;
+
+  /// No description provided for @rolesMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More roles'**
+  String get rolesMore;
+
+  /// No description provided for @rolePowerMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Kill one player every night'**
+  String get rolePowerMafia;
+
+  /// No description provided for @rolePowerDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'Asks about one player each night'**
+  String get rolePowerDetective;
+
+  /// No description provided for @rolePowerDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves one player each night'**
+  String get rolePowerDoctor;
+
+  /// No description provided for @rolePowerCitizen.
+  ///
+  /// In en, this message translates to:
+  /// **'The rest, counted for you'**
+  String get rolePowerCitizen;
+
+  /// No description provided for @botTableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'At the table'**
+  String get botTableLabel;
+
+  /// No description provided for @botLevelEasyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They slip up and believe quickly'**
+  String get botLevelEasyHint;
+
+  /// No description provided for @botLevelNormalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They suspect and ask like people do'**
+  String get botLevelNormalHint;
+
+  /// No description provided for @botLevelHardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They lie well and will not let you off'**
+  String get botLevelHardHint;
+
+  /// No description provided for @botRolesLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles: {preset}, narrator on'**
+  String botRolesLine(String preset);
+
+  /// No description provided for @botRolesLineMuted.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles: {preset}, narrator off'**
+  String botRolesLineMuted(String preset);
+
+  /// No description provided for @rolesNoCitizenLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'No citizen left to swap.'**
+  String get rolesNoCitizenLeft;
+
   /// No description provided for @sheetClose.
   ///
   /// In en, this message translates to:

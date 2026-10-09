@@ -1,25 +1,42 @@
-import '../../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
+
+import '../../../app/asset_constants.dart';
 import '../../../engine/balance_guard.dart';
 import '../../../engine/models/enums.dart' show Role;
+import '../../../engine/presets.dart';
 import '../../l10n_ext.dart';
+import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
-import '../../widgets/back_action.dart';
-import '../../widgets/experience_surface.dart';
+import '../../widgets/deck/card_fan.dart';
+import '../../widgets/deck/deck_public.dart';
+import 'optional_roles.dart';
+import 'role_rows.dart';
 
-/// Roles screen (S-03) — configure role distribution.
+/// «الأدوار» (S-03): who is dealt what, before the cards are.
+///
+/// Presets, the whole table fanned out above, one line on the balance, a row
+/// per role and the bought roles under «أدوار تانية». A public table screen:
+/// it shows the *split*, never who holds which card, and nothing here reaches
+/// a screen where a hand is held (Doc 05).
 ///
 /// Reference: spec US4, FR-003, FR-004 (balance validation)
-/// UI patterns: see turn_shell.dart for styling reference
 class RolesScreen extends StatefulWidget {
   static const Key nextButton = ValueKey('roles_next');
   static Key stepper(Role role) => ValueKey('roles_${role.name}_stepper');
+  static Key preset(String code) => ValueKey('roles_preset_$code');
+  static const Key fan = ValueKey('roles_fan');
+  static const Key balance = ValueKey('roles_balance');
 
   /// Number of players (from AddPlayersScreen).
   final int playerCount;
 
-  /// Callback with final role distribution when "التالي" is tapped.
+  /// Callback with the final role distribution when «وزّع الكروت» is tapped.
   final void Function(Map<Role, int>) onNext;
+
+  /// The bought roles switched on, told just before [onNext] so the match's
+  /// settings can carry their flags. Always called, with an empty set when
+  /// none is on, so an earlier match's flags never leak into this one.
+  final void Function(Set<OptionalRole>)? onOptionalRoles;
 
   /// Back to the roster. Changing who is playing is the usual reason to leave
   /// this screen, and there was no way to do it.
@@ -30,6 +47,7 @@ class RolesScreen extends StatefulWidget {
     required this.playerCount,
     required this.onNext,
     required this.onBack,
+    this.onOptionalRoles,
   });
 
   @override
@@ -37,329 +55,323 @@ class RolesScreen extends StatefulWidget {
 }
 
 class _RolesScreenState extends State<RolesScreen> {
+  /// The preset the split still is, or null once the host has edited it.
+  MatchPreset? _preset = MatchPreset.classic;
   late int _mafia;
   late int _detective;
   late int _doctor;
+  Set<OptionalRole> _on = const {};
+
+  int get _n => widget.playerCount;
 
   @override
   void initState() {
     super.initState();
-    // Initialize from recommended distribution
-    final recommended = BalanceGuard.recommended(widget.playerCount);
-    _mafia = recommended[Role.mafia] ?? 1;
-    _detective = recommended[Role.detective] ?? 1;
-    _doctor = recommended[Role.doctor] ?? 1;
+    _apply(MatchPreset.classic);
   }
 
-  int get _citizen => widget.playerCount - _mafia - _detective - _doctor;
+  void _apply(MatchPreset preset) {
+    final counts = preset.roleCounts(_n);
+    _preset = preset;
+    _mafia = counts[Role.mafia] ?? 1;
+    _detective = counts[Role.detective] ?? 0;
+    _doctor = counts[Role.doctor] ?? 0;
+    _on = OptionalRole.usable(
+      _on,
+      players: _n,
+      mafia: _mafia,
+      citizens: _baseCitizens,
+    );
+  }
 
-  Map<Role, int> get _roleCounts => {
+  int get _baseCitizens => _n - _mafia - _detective - _doctor;
+  int get _taken => _on.where((r) => r != OptionalRole.silencer).length;
+  int get _citizens => _baseCitizens - _taken;
+
+  Map<Role, int> get _counts => OptionalRole.apply({
     Role.mafia: _mafia,
     Role.detective: _detective,
     Role.doctor: _doctor,
-    Role.citizen: _citizen.clamp(0, widget.playerCount),
-  };
+    Role.citizen: _baseCitizens,
+  }, _on);
 
-  BalanceReport get _report => BalanceGuard.evaluate(
-    playerCount: widget.playerCount,
-    roleCounts: _roleCounts,
-  );
+  BalanceReport get _report =>
+      BalanceGuard.evaluate(playerCount: _n, roleCounts: _counts);
 
-  void _incrementMafia() {
-    if (_mafia < widget.playerCount) {
-      setState(() => _mafia++);
-    }
+  /// A hand edit: whatever the preset was, it is now the host's own.
+  void _edit(VoidCallback change) => setState(() {
+    change();
+    _preset = null;
+  });
+
+  void _toggle(OptionalRole role, bool on) => _edit(() {
+    _on = {..._on}..remove(role);
+    if (on) _on = {..._on, role};
+  });
+
+  void _next() {
+    widget.onOptionalRoles?.call(_on);
+    widget.onNext(_counts);
   }
 
-  void _decrementMafia() {
-    if (_mafia > 0) {
-      setState(() => _mafia--);
-    }
-  }
-
-  void _incrementDetective() {
-    // One Detective per match, never more (owner, 2026-10-01).
-    if (_detective < 1) {
-      setState(() => _detective++);
-    }
-  }
-
-  void _decrementDetective() {
-    if (_detective > 0) {
-      setState(() => _detective--);
-    }
-  }
-
-  void _incrementDoctor() {
-    if (_doctor < widget.playerCount) {
-      setState(() => _doctor++);
-    }
-  }
-
-  void _decrementDoctor() {
-    if (_doctor > 0) {
-      setState(() => _doctor--);
-    }
-  }
-
-  void _onNext() {
-    widget.onNext(_roleCounts);
+  List<FanCard> _cards() {
+    final counts = _counts;
+    FanCard card(String face, String id, int k) => FanCard(
+      id: '$id#$k',
+      child: _FaceCard(asset: face),
+    );
+    return [
+      for (var k = 0; k < (counts[Role.mafia] ?? 0); k++)
+        card(AppImages.cardFaceMafia, 'mafia', k),
+      if (_on.contains(OptionalRole.silencer))
+        card(AppImages.cardFaceSilencer, 'silencer', 0),
+      for (var k = 0; k < (counts[Role.detective] ?? 0); k++)
+        card(AppImages.cardFaceDetective, 'detective', k),
+      for (var k = 0; k < (counts[Role.doctor] ?? 0); k++)
+        card(AppImages.cardFaceDoctor, 'doctor', k),
+      if (_on.contains(OptionalRole.elder))
+        card(AppImages.cardFaceElder, 'elder', 0),
+      if (_on.contains(OptionalRole.sniper))
+        card(AppImages.cardFaceSniper, 'sniper', 0),
+      for (var k = 0; k < (counts[Role.citizen] ?? 0); k++)
+        card(AppImages.cardFaceCitizen, 'citizen', k),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final radii = context.radii;
+    final l = context.l10n;
+    final s = context.spacing;
     final type = context.typography;
-    final l10n = context.l10n;
+    final colors = context.colors;
     final report = _report;
+    final compact = MediaQuery.sizeOf(context).height < RolesTokens.fanShort;
+    final blocking = report.issues.where((i) => i.blocking).firstOrNull;
+    final note =
+        blocking ?? report.issues.firstOrNull; // blocking sorts first
+    final noteText = note == null
+        ? l.balanceValid
+        : EngineCopy.balanceIssue(l, note);
 
-    return MafiaScaffold(
-      backgroundColor: colors.surfaceBase,
-      body: ExperienceSurface(
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: spacing.maxContentWidth),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: spacing.screenMargin,
-                  vertical: spacing.lg,
+    Widget presetChip(String code, String label, MatchPreset? preset) {
+      final offered = preset == null || preset.availableFor(_n);
+      return Opacity(
+        opacity: offered ? 1 : DeckTokens.disabledAlpha,
+        child: IgnorePointer(
+          ignoring: !offered,
+          child: DeckChip(
+            key: RolesScreen.preset(code),
+            label: label,
+            selected: _preset == preset,
+            onSelected: (_) {
+              if (preset == null) {
+                setState(() => _preset = null);
+              } else {
+                setState(() => _apply(preset));
+              }
+            },
+          ),
+        ),
+      );
+    }
+
+    RoleStepper stepper(
+      Role role,
+      String label,
+      int value, {
+      required bool canMinus,
+      required bool canPlus,
+      required VoidCallback minus,
+      required VoidCallback plus,
+    }) => RoleStepper(
+      key: RolesScreen.stepper(role),
+      label: label,
+      value: value,
+      onMinus: canMinus ? minus : null,
+      onPlus: canPlus ? plus : null,
+    );
+
+    final canGrow = _citizens > 1;
+    return DeckScaffold(
+      backdrop: AppOffline.bgRolesFan,
+      title: l.rolesDeckTitle,
+      onBack: widget.onBack,
+      trailing: DeckPill(l.playerCountShort(_n)),
+      primary: BoneButton(
+        key: RolesScreen.nextButton,
+        label: l.rolesDeal,
+        onPressed: report.valid ? _next : null,
+        disabledReason: report.valid ? null : noteText,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Wrap(
+              spacing: RolesTokens.presetGap,
+              runSpacing: RolesTokens.presetGap,
+              children: [
+                presetChip('normal', l.rolesPresetNormal, MatchPreset.classic),
+                presetChip('hard', l.rolesPresetHard, MatchPreset.brutal),
+                presetChip('custom', l.rolesPresetCustom, null),
+              ],
+            ),
+            SizedBox(height: s.md),
+            KeyedSubtree(
+              key: RolesScreen.fan,
+              child: CardFan(
+                cards: _cards(),
+                cardSize: compact
+                    ? RolesTokens.fanCardCompact
+                    : RolesTokens.fanCard,
+                step: compact ? RolesTokens.fanStepCompact : RolesTokens.fanStep,
+                height: compact
+                    ? RolesTokens.fanHeightCompact
+                    : RolesTokens.fanHeight,
+              ),
+            ),
+            SizedBox(height: s.sm),
+            Column(
+              key: RolesScreen.balance,
+              children: [
+                Text(
+                  l.rolesBalanceLine(_mafia, _n - _mafia),
+                  textAlign: TextAlign.center,
+                  style: DeckTokens.body(type).copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Header
-                    ScreenHeader(title: l10n.rolesTitle, onBack: widget.onBack),
-                    SizedBox(height: spacing.md),
-                    Text(
-                      l10n.playerCountShort(widget.playerCount),
-                      style: type.body.copyWith(color: colors.textSecondary),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: spacing.lg),
-
-                    // Steppers
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _RoleStepper(
-                              key: RolesScreen.stepper(Role.mafia),
-                              label: l10n.roleGroupMafia,
-                              value: _mafia,
-                              onIncrement: _incrementMafia,
-                              onDecrement: _decrementMafia,
-                            ),
-                            SizedBox(height: spacing.lg),
-                            _RoleStepper(
-                              key: RolesScreen.stepper(Role.detective),
-                              label: l10n.roleGroupDetective,
-                              value: _detective,
-                              // Dimmed at one: there is never a second Detective.
-                              onIncrement: _detective < 1
-                                  ? _incrementDetective
-                                  : null,
-                              onDecrement: _decrementDetective,
-                            ),
-                            SizedBox(height: spacing.lg),
-                            _RoleStepper(
-                              key: RolesScreen.stepper(Role.doctor),
-                              label: l10n.roleGroupDoctor,
-                              value: _doctor,
-                              onIncrement: _incrementDoctor,
-                              onDecrement: _decrementDoctor,
-                            ),
-                            SizedBox(height: spacing.lg),
-
-                            // Citizens (read-only)
-                            Container(
-                              height: spacing.xxl + spacing.md,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: spacing.md,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colors.surfaceRaised,
-                                borderRadius: BorderRadius.circular(radii.card),
-                                border: Border.all(color: colors.borderSubtle),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    l10n.roleGroupCitizen,
-                                    style: type.body.copyWith(
-                                      color: colors.textPrimary,
-                                    ),
-                                  ),
-                                  Text(
-                                    _citizen.toString(),
-                                    style: type.title.copyWith(
-                                      color: colors.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: spacing.xs),
-                            Text(
-                              l10n.citizenAutoHint,
-                              style: type.bodySmall.copyWith(
-                                color: colors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: spacing.lg),
-
-                    // Status line (blocking issues in crimson, advisories in gold)
-                    if (report.issues.isNotEmpty)
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: spacing.md,
-                          vertical: spacing.md,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.surfaceRaised,
-                          borderRadius: BorderRadius.circular(radii.card),
-                          border: Border.all(
-                            color: report.issues.any((i) => i.blocking)
-                                ? colors.accentCrimson
-                                : colors.accentGold,
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: report.issues
-                              .map(
-                                (issue) => Padding(
-                                  padding: EdgeInsets.only(bottom: spacing.xs),
-                                  child: Text(
-                                    EngineCopy.balanceIssue(
-                                      context.l10n,
-                                      issue,
-                                    ),
-                                    style: type.bodySmall.copyWith(
-                                      color: issue.blocking
-                                          ? colors.accentCrimson
-                                          : colors.accentGold,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ),
-                    if (report.issues.isEmpty)
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: spacing.md),
-                        child: Text(
-                          l10n.balanceValid,
-                          style: type.body.copyWith(color: colors.accentSage),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    SizedBox(height: spacing.lg),
-
-                    // Next button (disabled while blocking issues exist)
-                    FilledButton(
-                      key: RolesScreen.nextButton,
-                      onPressed: report.valid ? _onNext : null,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: colors.accentGold,
-                        foregroundColor: colors.surfaceBase,
-                        disabledBackgroundColor: colors.surfaceOverlay,
-                        disabledForegroundColor: colors.textMuted,
-                        padding: EdgeInsets.symmetric(vertical: spacing.lg),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(radii.button),
-                        ),
-                      ),
-                      child: Text(l10n.next, style: type.title),
-                    ),
-                  ],
+                Text(
+                  noteText,
+                  textAlign: TextAlign.center,
+                  style: DeckTokens.meta(type).copyWith(
+                    color: blocking != null
+                        ? colors.accentCrimson
+                        : colors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: s.md),
+            RoleRow(
+              face: AppImages.cardFaceMafia,
+              name: l.roleGroupMafia,
+              power: l.rolePowerMafia,
+              trailing: stepper(
+                Role.mafia,
+                l.roleGroupMafia,
+                _mafia,
+                canMinus: _mafia > (_on.contains(OptionalRole.silencer) ? 2 : 1),
+                canPlus: canGrow && (_mafia + 1) * 2 < _n,
+                minus: () => _edit(() => _mafia--),
+                plus: () => _edit(() => _mafia++),
+              ),
+            ),
+            const SizedBox(height: RolesTokens.rowGap),
+            RoleRow(
+              face: AppImages.cardFaceDetective,
+              name: l.roleGroupDetective,
+              power: l.rolePowerDetective,
+              trailing: stepper(
+                Role.detective,
+                l.roleGroupDetective,
+                _detective,
+                canMinus: _detective > 0,
+                // One Detective per match, never more (owner, 2026-10-01).
+                canPlus: _detective < 1 && canGrow,
+                minus: () => _edit(() => _detective--),
+                plus: () => _edit(() => _detective++),
+              ),
+            ),
+            const SizedBox(height: RolesTokens.rowGap),
+            RoleRow(
+              face: AppImages.cardFaceDoctor,
+              name: l.roleGroupDoctor,
+              power: l.rolePowerDoctor,
+              trailing: stepper(
+                Role.doctor,
+                l.roleGroupDoctor,
+                _doctor,
+                canMinus: _doctor > 0,
+                canPlus: canGrow,
+                minus: () => _edit(() => _doctor--),
+                plus: () => _edit(() => _doctor++),
+              ),
+            ),
+            const SizedBox(height: RolesTokens.rowGap),
+            RoleRow(
+              face: AppImages.cardFaceCitizen,
+              name: l.roleGroupCitizen,
+              power: l.rolePowerCitizen,
+              quiet: true,
+              trailing: SizedBox(
+                width: RolesTokens.stepperButton * 2 + RolesTokens.stepperCount,
+                child: Text(
+                  '${_counts[Role.citizen] ?? 0}',
+                  key: const ValueKey('roles_citizen_count'),
+                  textAlign: TextAlign.center,
+                  style: DeckTokens.card(type).copyWith(
+                    color: colors.textSecondary,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
-          ),
+            SizedBox(height: s.lg),
+            Text(
+              l.rolesMore,
+              style: DeckTokens.meta(type).copyWith(color: DeckTokens.muted),
+            ),
+            SizedBox(height: s.sm),
+            OptionalRoleRows(
+              players: _n,
+              mafia: _mafia,
+              citizens: _baseCitizens,
+              selected: _on,
+              onChanged: _toggle,
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-/// A stepper control for a single role.
-class _RoleStepper extends StatelessWidget {
-  final String label;
-  final int value;
-  final VoidCallback? onIncrement;
-  final VoidCallback onDecrement;
-
-  const _RoleStepper({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.onIncrement,
-    required this.onDecrement,
-  });
+/// One card of the fan: the role's face on the Mafia card's frame.
+class _FaceCard extends StatelessWidget {
+  final String asset;
+  const _FaceCard({required this.asset});
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final type = context.typography;
-
-    return MafiaPanel(
-      height: spacing.xxl + spacing.md,
-      padding: EdgeInsets.symmetric(horizontal: spacing.md),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // The stepper controls are fixed-width and must never be pushed off
-          // screen, so the label is the part that yields under a long
-          // translation or a large Dynamic Type setting.
-          Expanded(
-            child: Text(
-              label,
-              style: type.body.copyWith(color: colors.textPrimary),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;
+    return LayoutBuilder(
+      builder: (context, box) => DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(FanTokens.radius),
+          border: Border.all(color: SeatTokens.rim),
+          boxShadow: [
+            BoxShadow(
+              color: DeckTokens.ground.withValues(alpha: FanTokens.shadowAlpha),
+              blurRadius: FanTokens.shadowBlur,
+              offset: const Offset(0, FanTokens.shadowDrop),
             ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(FanTokens.radius),
+          child: Image(
+            image: ResizeImage(
+              AssetImage(asset),
+              width: (box.maxWidth * dpr * DeckTokens.artDecodeHeadroom)
+                  .round(),
+              policy: ResizeImagePolicy.fit,
+            ),
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                tooltip: '${context.l10n.decreaseRole} $label',
-                icon: Icon(Icons.remove, color: colors.accentGold),
-                onPressed: onDecrement,
-              ),
-              SizedBox(
-                width: spacing.xl,
-                child: Text(
-                  value.toString(),
-                  style: type.title.copyWith(color: colors.textPrimary),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              IconButton(
-                tooltip: '${context.l10n.increaseRole} $label',
-                icon: Icon(
-                  Icons.add,
-                  color: onIncrement == null
-                      ? colors.textMuted
-                      : colors.accentGold,
-                ),
-                onPressed: onIncrement,
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

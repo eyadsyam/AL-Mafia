@@ -850,6 +850,9 @@ class DeckScaffold extends StatelessWidget {
   final BannerPlacement? banner;
   final bool ruqaa;
 
+  /// A full-bleed ground behind the body, dimmed (public screens only).
+  final String? backdrop;
+
   const DeckScaffold({
     super.key,
     required this.title,
@@ -860,6 +863,7 @@ class DeckScaffold extends StatelessWidget {
     this.primary,
     this.banner,
     this.ruqaa = false,
+    this.backdrop,
   });
 
   @override
@@ -905,7 +909,9 @@ class DeckScaffold extends StatelessWidget {
           return MafiaScaffold(
             backgroundColor: DeckTokens.ground,
             bottomNavigationBar: footer,
-            body: SafeArea(
+            body: _Backdrop(
+              asset: backdrop,
+              child: SafeArea(
               bottom: false,
               child: Center(
                 child: ConstrainedBox(
@@ -937,9 +943,48 @@ class DeckScaffold extends StatelessWidget {
                 ),
               ),
             ),
+            ),
           );
         },
       ),
+    );
+  }
+}
+
+/// A dimmed full-bleed picture behind a public screen's body, decoded at
+/// the screen's size. Nothing when [asset] is null.
+class _Backdrop extends StatelessWidget {
+  final String? asset;
+  final Widget child;
+
+  const _Backdrop({required this.asset, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final path = asset;
+    if (path == null) return child;
+    final size = MediaQuery.sizeOf(context);
+    final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        RepaintBoundary(
+          child: Opacity(
+            opacity: DeckTokens.backdropAlpha,
+            child: Image(
+              image: ResizeImage(
+                AssetImage(path),
+                width: (size.width * dpr).round(),
+                policy: ResizeImagePolicy.fit,
+              ),
+              fit: BoxFit.cover,
+              excludeFromSemantics: true,
+              gaplessPlayback: true,
+            ),
+          ),
+        ),
+        child,
+      ],
     );
   }
 }

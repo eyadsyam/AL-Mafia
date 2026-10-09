@@ -35,6 +35,7 @@ import '../ui/screens/setup/group_picker_screen.dart';
 import '../ui/screens/setup/home_screen.dart';
 import '../ui/screens/setup/profile_screen.dart';
 import '../ui/screens/setup/mode_screen.dart';
+import '../ui/screens/setup/optional_roles.dart';
 import '../ui/screens/setup/how_to_play_screen.dart';
 import '../ui/screens/setup/roles_screen.dart';
 import '../ui/screens/setup/settings_screen.dart';
@@ -257,8 +258,8 @@ GoRouter buildRouter(
         .read(matchControllerProvider.notifier)
         .startMatch(
           names: [you, ...kBotNames.take(pick.players - 1)],
-          roleCounts: pick.preset.roleCounts(pick.players),
-          settings: pick.preset.settings.copyWith(
+          roleCounts: pick.roleCounts,
+          settings: pick.settings.copyWith(
             whisperEnabled: false,
             discussionMode: DiscussionMode.free,
           ),
@@ -646,6 +647,14 @@ GoRouter buildRouter(
           if (names.length < 5) return const _RedirectHome();
           return RolesScreen(
             playerCount: names.length,
+            // The bought roles carry their flags into the match's settings;
+            // told every time, so a past match's flags never stay switched on.
+            onOptionalRoles: (on) {
+              final draft = ref.read(setupDraftProvider);
+              ref
+                  .read(setupDraftProvider.notifier)
+                  .setSettings(OptionalRole.flags(draft.settings, on));
+            },
             onNext: (counts) {
               ref.read(setupDraftProvider.notifier).setRoleCounts(counts);
               context.go(Routes.settings);

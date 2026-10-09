@@ -715,10 +715,11 @@ class _GalleryThumb extends StatelessWidget {
 
   String get _art => switch (role) {
     engine.Role.mafia => AppGallery.galleryMafia,
-    engine.Role.silencer => AppGallery.galleryMafia,
+    engine.Role.silencer => AppGallery.gallerySilencer,
     engine.Role.doctor => AppGallery.galleryDoctor,
     engine.Role.detective => AppGallery.galleryDetective,
-    engine.Role.elder || engine.Role.sniper => AppGallery.galleryCitizen,
+    engine.Role.elder => AppGallery.galleryElder,
+    engine.Role.sniper => AppGallery.gallerySniper,
     engine.Role.citizen => AppGallery.galleryCitizen,
   };
 

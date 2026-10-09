@@ -1,5 +1,3 @@
-import 'dart:ui' show PathMetric;
-
 import 'package:flutter/material.dart';
 
 import '../../../app/asset_constants.dart';
@@ -48,40 +46,7 @@ class SeatCardFrame extends StatelessWidget {
               stops: [0, 0.7],
             ),
           ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              child,
-              Padding(
-                padding: const EdgeInsets.all(SeatTokens.inset),
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        SeatTokens.insetRadius,
-                      ),
-                      border: Border.all(
-                        color: DeckTokens.bone.withValues(
-                          alpha: SeatTokens.hairlineAlpha,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              IgnorePointer(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: radius,
-                    border: Border.all(
-                      color: SeatTokens.rim,
-                      width: SeatTokens.rimWidth,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          child: child,
         ),
       ),
     );
@@ -164,12 +129,29 @@ class SeatCard extends StatelessWidget {
                       gaplessPlayback: true,
                     ),
                   ),
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Image(
+                        image: ResizeImage(
+                          const AssetImage(AppOffline.frameCard),
+                          width: (box.maxWidth * dpr).round(),
+                          policy: ResizeImagePolicy.fit,
+                        ),
+                        fit: BoxFit.fill,
+                        excludeFromSemantics: true,
+                        gaplessPlayback: true,
+                      ),
+                    ),
+                  ),
                   PositionedDirectional(
                     start: SeatTokens.plateInset + SeatTokens.inset,
                     top: SeatTokens.plateInset + 1,
                     child: Text(
                       '$seat',
-                      style: meta.copyWith(color: DeckTokens.text2),
+                      style: meta.copyWith(
+                        color: DeckTokens.ground,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   Positioned(
@@ -234,7 +216,7 @@ class SeatCard extends StatelessWidget {
                                 child: Icon(
                                   cornerIcon,
                                   size: SeatTokens.cornerGlyph,
-                                  color: DeckTokens.muted,
+                                  color: DeckTokens.ground,
                                 ),
                               ),
                             ),
@@ -267,52 +249,65 @@ class EmptySeatCard extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: CustomPaint(
-          painter: const _DashedCardPainter(DeckTokens.silver),
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.all(context.spacing.sm),
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: DeckTokens.meta(
-                  context.typography,
-                ).copyWith(color: DeckTokens.muted),
-              ),
-            ),
-          ),
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                Opacity(
+                  opacity: SeatTokens.emptyArtAlpha,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(SeatTokens.radius),
+                    child: Image(
+                      image: ResizeImage(
+                        const AssetImage(AppOffline.cardSeatEmpty),
+                        width: (box.maxWidth * dpr).round(),
+                        policy: ResizeImagePolicy.fit,
+                      ),
+                      fit: BoxFit.fill,
+                      excludeFromSemantics: true,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: SeatTokens.plateInset,
+                  right: SeatTokens.plateInset,
+                  bottom: SeatTokens.plateInset,
+                  height: SeatTokens.plateHeight,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: DeckTokens.ground.withValues(
+                        alpha: SeatTokens.plateAlpha,
+                      ),
+                      borderRadius: BorderRadius.circular(
+                        SeatTokens.insetRadius,
+                      ),
+                    ),
+                    child: Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: context.spacing.xs,
+                          ),
+                          child: Text(
+                            label,
+                            maxLines: 1,
+                            style: DeckTokens.meta(
+                              context.typography,
+                            ).copyWith(color: DeckTokens.muted),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
-}
-
-class _DashedCardPainter extends CustomPainter {
-  final Color color;
-  const _DashedCardPainter(this.color);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = SeatTokens.emptyStroke;
-    final path = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          Offset.zero & size,
-          const Radius.circular(SeatTokens.radius),
-        ),
-      );
-    for (final PathMetric m in path.computeMetrics()) {
-      var d = 0.0;
-      while (d < m.length) {
-        canvas.drawPath(m.extractPath(d, d + SeatTokens.emptyDash), paint);
-        d += SeatTokens.emptyDash + SeatTokens.emptyGap;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DashedCardPainter old) => old.color != color;
 }

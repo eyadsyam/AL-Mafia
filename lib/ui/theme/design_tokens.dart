@@ -161,6 +161,10 @@ abstract final class DeckTokens {
   static const double narratorLineWidth = 280;
   static const double artMin = 112;
   static const double artMinCompact = 80;
+
+  /// A public screen's full-bleed ground (AppOffline), held well under the
+  /// text so the cards stay the brightest thing on it.
+  static const double backdropAlpha = 0.7;
   static const double rowOne = 56;
   static const double rowTwo = 72;
   static const double rowInset = 56;
@@ -1250,6 +1254,8 @@ abstract final class PlayerSetupTokens {
 
 /// «مين بيلعب؟»: each player a small Mafia card dealt into a grid.
 abstract final class SeatTokens {
+  /// The empty chair's art (AppOffline.cardSeatEmpty), dimmed: a place, not a player.
+  static const double emptyArtAlpha = 0.55;
   static const int minPlayers = 5;
   static const int maxPlayers = 20;
   static const int columns = 3;
@@ -2660,4 +2666,58 @@ abstract final class StoryTokens {
 abstract final class DiscussionTokens {
   /// The bots' lines card stops growing here and scrolls.
   static const double tableTalkMaxHeight = 160.0;
+}
+
+/// A hand of cards fanned out (the roles screen, the computer's table).
+abstract final class FanTokens {
+  /// Each card sits this far from its neighbour, until the hand would leave
+  /// the stage; then it tightens.
+  static const double tilt = 0.105; // 6°
+
+  /// The whole hand never turns past this, however many cards it holds.
+  static const double maxSpread = 0.9;
+
+  /// The point the cards turn about, below the hand (alignment y).
+  static const double pivot = 1.6;
+
+  /// A card arriving starts small, in the middle, and spreads out.
+  static const double enterScale = 0.6;
+  static const Duration move = Duration(milliseconds: 450);
+  static const double shadowBlur = 12;
+  static const double shadowAlpha = 0.6;
+  static const double shadowDrop = 6;
+  static const double radius = 7;
+}
+
+/// «الأدوار»: presets, the big fan, role rows.
+abstract final class RolesTokens {
+  /// One card of the fan, and the same on a short phone.
+  static const Size fanCard = Size(78, 117);
+  static const Size fanCardCompact = Size(58, 87);
+  static const double fanStep = 26;
+  static const double fanStepCompact = 20;
+
+  /// Stage height for the fan; the card stands at its bottom edge.
+  static const double fanHeight = 150;
+  static const double fanHeightCompact = 112;
+  static const double fanShort = 700;
+
+  static const double rowGap = 10;
+  static const double rowPad = 8;
+  static const double stepperButton = 48;
+  static const double stepperCount = 30;
+  static const double presetGap = 8;
+  static const double lockedTextAlpha = 0.7;
+}
+
+/// «العب ضد الكمبيوتر»: the table, the levels.
+abstract final class BotTokens {
+  static const Size tableCard = Size(52, 78);
+  static const double tableStep = 30;
+  static const double tableHeight = 118;
+  static const double tableLift = 6;
+  static const double youLabel = 10;
+  static const double levelGap = 10;
+  static const double levelLift = 0.04; // of the card's height
+  static const Duration levelMove = Duration(milliseconds: 200);
 }

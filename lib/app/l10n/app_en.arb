@@ -3661,5 +3661,47 @@
   "modeMafiaPick": "How are you playing it?",
   "modeStoriesCardBody": "Crack a case on your own, clue by clue",
   "botSheetBody": "A whole match any time: you and players who suspect, accuse and vote. No one to wait for.",
+  "rolesDeckTitle": "Roles",
+  "rolesPresetNormal": "Normal",
+  "rolesPresetHard": "Hard",
+  "rolesPresetCustom": "Your way",
+  "rolesBalanceLine": "{mafia} Mafia against {town}",
+  "@rolesBalanceLine": {
+    "placeholders": {
+      "mafia": {
+        "type": "int"
+      },
+      "town": {
+        "type": "int"
+      }
+    }
+  },
+  "rolesDeal": "Deal the cards",
+  "rolesMore": "More roles",
+  "rolePowerMafia": "Kill one player every night",
+  "rolePowerDetective": "Asks about one player each night",
+  "rolePowerDoctor": "Saves one player each night",
+  "rolePowerCitizen": "The rest, counted for you",
+  "botTableLabel": "At the table",
+  "botLevelEasyHint": "They slip up and believe quickly",
+  "botLevelNormalHint": "They suspect and ask like people do",
+  "botLevelHardHint": "They lie well and will not let you off",
+  "botRolesLine": "Roles: {preset}, narrator on",
+  "@botRolesLine": {
+    "placeholders": {
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "botRolesLineMuted": "Roles: {preset}, narrator off",
+  "@botRolesLineMuted": {
+    "placeholders": {
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesNoCitizenLeft": "No citizen left to swap.",
   "sheetClose": "Close"
 }

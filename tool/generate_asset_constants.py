@@ -37,6 +37,10 @@ GROUPS = [
      "Doc 15's council furniture: seat rings, backdrops, the timer ornament "
      "and the two victory emblems. Every one of them is a tintable alpha mask "
      "or a full-bleed ground — none carries a role, and none may."),
+    ("images/offline", "AppOffline",
+     "Deck identity pieces cut from the role cards (frame, corner, divider, "
+     "card-back emblem and tile, name plate) and the one-phone setup grounds. "
+     "Role-free: identical for every seat."),
     ("images/motion", "AppMotion",
      "Transparent animated sprites (animated WebP with alpha) that play ON a "
      "surface: sparks, a spinning coin, a wax seal, a flame. Decorative only; "

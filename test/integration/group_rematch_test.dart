@@ -120,7 +120,7 @@ void main() {
 
     await tester.tap(find.byKey(AddPlayersScreen.nextButton));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('كمل')); // roles
+    await tester.tap(find.byKey(RolesScreen.nextButton)); // roles
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('settings_save'))); // settings → start
     await tester.pumpAndSettle();
@@ -361,7 +361,7 @@ void main() {
       await tester.tap(find.byKey(AddPlayersScreen.nextButton));
       await tester.pumpAndSettle();
       expect(find.byType(RolesScreen), findsOneWidget);
-      await tester.tap(find.text('كمل'));
+      await tester.tap(find.byKey(RolesScreen.nextButton));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('settings_save')));
       await tester.pumpAndSettle();

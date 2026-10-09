@@ -5821,5 +5821,65 @@ class AppLocalizationsAr extends AppLocalizations {
       'ماتش كامل في أي وقت: إنت ولاعيبة بيشكّوا ويتهموا ويصوّتوا. مش محتاج تستنى حد.';
 
   @override
+  String get rolesDeckTitle => 'الأدوار';
+
+  @override
+  String get rolesPresetNormal => 'عادي';
+
+  @override
+  String get rolesPresetHard => 'صعب';
+
+  @override
+  String get rolesPresetCustom => 'على مزاجك';
+
+  @override
+  String rolesBalanceLine(int mafia, int town) {
+    return '$mafia مافيا ضد $town';
+  }
+
+  @override
+  String get rolesDeal => 'وزّع الكروت';
+
+  @override
+  String get rolesMore => 'أدوار تانية';
+
+  @override
+  String get rolePowerMafia => 'بيقتلوا واحد كل ليلة';
+
+  @override
+  String get rolePowerDetective => 'بيسأل عن واحد كل ليلة';
+
+  @override
+  String get rolePowerDoctor => 'بينقذ واحد كل ليلة';
+
+  @override
+  String get rolePowerCitizen => 'الباقي، بيتحسبوا لوحدهم';
+
+  @override
+  String get botTableLabel => 'على الترابيزة';
+
+  @override
+  String get botLevelEasyHint => 'بيغلطوا وبيصدّقوا بسرعة';
+
+  @override
+  String get botLevelNormalHint => 'بيشكّوا ويسألوا زي الناس';
+
+  @override
+  String get botLevelHardHint => 'بيكدبوا صح ومش هيسيبوك';
+
+  @override
+  String botRolesLine(String preset) {
+    return 'الأدوار: $preset، والراوي شغال';
+  }
+
+  @override
+  String botRolesLineMuted(String preset) {
+    return 'الأدوار: $preset، والراوي مقفول';
+  }
+
+  @override
+  String get rolesNoCitizenLeft => 'مفيش مواطن فاضل يبدّله.';
+
+  @override
   String get sheetClose => 'اقفل';
 }

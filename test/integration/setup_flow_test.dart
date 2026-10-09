@@ -94,7 +94,7 @@ void main() {
         reason: 'the roster did not survive the step',
       );
 
-      await tester.tap(find.text('كمل'));
+      await tester.tap(find.byKey(RolesScreen.nextButton));
       await tester.pumpAndSettle();
 
       expect(find.byType(SettingsScreen), findsOneWidget);
@@ -130,7 +130,7 @@ void main() {
       await enterNames(tester, names);
       await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('كمل'));
+      await tester.tap(find.byKey(RolesScreen.nextButton));
       await tester.pumpAndSettle();
 
       final chosen = container.read(setupDraftProvider).roleCounts;
@@ -174,7 +174,7 @@ void main() {
       await enterNames(tester, names);
       await tester.tap(find.text('كمل'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('كمل'));
+      await tester.tap(find.byKey(RolesScreen.nextButton));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('حر'));

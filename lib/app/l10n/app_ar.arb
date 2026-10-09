@@ -2631,5 +2631,47 @@
   "modeMafiaPick": "هتلعبوها إزاي؟",
   "modeStoriesCardBody": "حل القضية لوحدك، دليل ورا دليل",
   "botSheetBody": "ماتش كامل في أي وقت: إنت ولاعيبة بيشكّوا ويتهموا ويصوّتوا. مش محتاج تستنى حد.",
+  "rolesDeckTitle": "الأدوار",
+  "rolesPresetNormal": "عادي",
+  "rolesPresetHard": "صعب",
+  "rolesPresetCustom": "على مزاجك",
+  "rolesBalanceLine": "{mafia} مافيا ضد {town}",
+  "@rolesBalanceLine": {
+    "placeholders": {
+      "mafia": {
+        "type": "int"
+      },
+      "town": {
+        "type": "int"
+      }
+    }
+  },
+  "rolesDeal": "وزّع الكروت",
+  "rolesMore": "أدوار تانية",
+  "rolePowerMafia": "بيقتلوا واحد كل ليلة",
+  "rolePowerDetective": "بيسأل عن واحد كل ليلة",
+  "rolePowerDoctor": "بينقذ واحد كل ليلة",
+  "rolePowerCitizen": "الباقي، بيتحسبوا لوحدهم",
+  "botTableLabel": "على الترابيزة",
+  "botLevelEasyHint": "بيغلطوا وبيصدّقوا بسرعة",
+  "botLevelNormalHint": "بيشكّوا ويسألوا زي الناس",
+  "botLevelHardHint": "بيكدبوا صح ومش هيسيبوك",
+  "botRolesLine": "الأدوار: {preset}، والراوي شغال",
+  "@botRolesLine": {
+    "placeholders": {
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "botRolesLineMuted": "الأدوار: {preset}، والراوي مقفول",
+  "@botRolesLineMuted": {
+    "placeholders": {
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesNoCitizenLeft": "مفيش مواطن فاضل يبدّله.",
   "sheetClose": "اقفل"
 }
