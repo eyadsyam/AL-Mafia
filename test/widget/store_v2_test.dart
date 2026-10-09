@@ -15,10 +15,13 @@ import 'package:mafia_master/ui/economy/store_art.dart';
 import 'package:mafia_master/ui/economy/wallet.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/setup/coin_store.dart';
+import 'package:mafia_master/ui/screens/setup/store_shop.dart';
+import 'package:mafia_master/ui/widgets/deck/deck_public.dart' show BoneButton;
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 
 import '../support/fake_backend.dart';
 import '../support/localized.dart';
+import '../support/store_nav.dart';
 
 /// The full store v2 catalog as the server would list it once
 /// 20260924000700_store_v2_catalog is applied.
@@ -98,13 +101,6 @@ void main() {
     await tester.pump();
     await tester.pumpAndSettle();
   }
-
-  Finder rail(String id) => find
-      .descendant(
-        of: find.byKey(CoinStore.rail(id)),
-        matching: find.byType(Scrollable),
-      )
-      .first;
 
   Iterable<FakeCall> economy(String action) => backend.calls.where(
     (call) => call.function == 'economy' && call.body['action'] == action,
@@ -277,94 +273,134 @@ void main() {
   });
 
   group('layout', () {
-    testWidgets('360 dp Arabic: the first product is on the first screen', (
+    testWidgets('360 dp Arabic: search, one new receipt and the drawers', (
       tester,
     ) async {
       backend.responses['economy'] = _wallet();
       await pumpStore(tester);
-      final card = tester.getRect(find.byKey(CoinStore.item('frame_gilded')));
-      expect(card.bottom, lessThanOrEqualTo(780));
-      // Arabic rails start on the right, and the next card's edge shows.
-      expect(card.right, closeTo(360 - 16, 1));
-      final second = tester.getRect(
-        find.byKey(CoinStore.item('frame_crimson')),
-      );
-      expect(second.right, lessThan(card.left));
-      expect(second.left, lessThan(16)); // clipped by the rail at x=16
+      expect(find.byKey(StoreShopKeys.search), findsOneWidget);
+      expect(find.byKey(StoreShopKeys.ownedFilter), findsOneWidget);
+      // One «وصل جديد» card, and the first drawer is on the first screen.
+      expect(find.byKey(StoreShopKeys.featured), findsOneWidget);
+      expect(find.text(arStrings.storeNewReceipt), findsOneWidget);
+      final first = tester.getRect(find.byKey(StoreShopKeys.drawer('narrator')));
+      expect(first.bottom, lessThanOrEqualTo(780));
+      // Drawers are full-width rows; Arabic starts on the right.
+      expect(first.right, closeTo(360 - 16, 2));
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('English rails start on the left', (tester) async {
+    testWidgets('English reads left to right', (tester) async {
       backend.responses['economy'] = _wallet();
       await pumpStore(tester, locale: const Locale('en'));
+      expect(find.text(enStrings.storeCatNarrator), findsOneWidget);
+      await openDrawer(tester, 'look');
       final card = tester.getRect(find.byKey(CoinStore.item('frame_gilded')));
       expect(card.left, closeTo(16, 1));
-      expect(find.text(enStrings.storeFrames), findsOneWidget);
-    });
-
-    testWidgets('five rails of three, each scrolling on its own', (
-      tester,
-    ) async {
-      backend.responses['economy'] = _wallet();
-      await pumpStore(tester);
-      for (final id in ['frames', 'plates', 'rooms', 'narration', 'bundles']) {
-        await tester.scrollUntilVisible(
-          find.byKey(CoinStore.railNext(id)),
-          200,
-          scrollable: find
-              .descendant(
-                of: find.byKey(CoinStore.shopList),
-                matching: find.byType(Scrollable),
-              )
-              .first,
-        );
-        await tester.ensureVisible(find.byKey(CoinStore.railNext(id)));
-        await tester.pumpAndSettle();
-        final before = tester.state<ScrollableState>(rail(id)).position.pixels;
-        expect(
-          before,
-          0,
-          reason: "an untouched rail must not inherit another rail position",
-        );
-        await tester.tap(find.byKey(CoinStore.railNext(id)));
-        await tester.pumpAndSettle();
-        final after = tester.state<ScrollableState>(rail(id)).position.pixels;
-        expect(after, greaterThan(before), reason: id);
-        // At the end «next» is disabled rather than hidden.
-        final next = tester.widget<IconButton>(
-          find.byKey(CoinStore.railNext(id)),
-        );
-        expect(next.onPressed, isNull, reason: id);
-      }
-    });
-
-    testWidgets('desktop keeps a column and hides arrows that have no use', (
-      tester,
-    ) async {
-      backend.responses['economy'] = _wallet();
-      await pumpStore(tester, size: const Size(1280, 800));
-      final card = tester.getRect(find.byKey(CoinStore.item('frame_gilded')));
-      expect(card.right, lessThanOrEqualTo(1280 - (1280 - 960) / 2 + 1));
-      expect(find.byKey(CoinStore.railNext('frames')), findsNothing);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('arrows and cards meet the 48 dp touch target', (tester) async {
+    testWidgets('every drawer counts what it holds and what is owned', (
+      tester,
+    ) async {
+      backend.responses['economy'] = _wallet(owned: ['frame_gilded']);
+      await pumpStore(tester);
+      // look = 3 frames + 3 plates; one is owned.
+      expect(
+        find.descendant(
+          of: find.byKey(StoreShopKeys.drawer('look')),
+          matching: find.text('6'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(StoreShopKeys.drawer('look')),
+          matching: find.text(arStrings.storeDrawerOwned(1)),
+        ),
+        findsOneWidget,
+      );
+      // The new drawer is marked.
+      expect(find.text(arStrings.storeDrawerNew), findsOneWidget);
+    });
+
+    testWidgets('inside a drawer: other drawers as chips, two columns', (
+      tester,
+    ) async {
       backend.responses['economy'] = _wallet();
       await pumpStore(tester);
-      final arrow = tester.getSize(find.byKey(CoinStore.railNext('frames')));
-      expect(arrow.width, greaterThanOrEqualTo(StoreTokens.touchTarget));
-      expect(arrow.height, greaterThanOrEqualTo(StoreTokens.touchTarget));
-      final info = tester.getSize(find.byKey(CoinStore.earnInfo));
-      expect(info.height, greaterThanOrEqualTo(StoreTokens.touchTarget));
-      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await openDrawer(tester, 'look');
+      expect(find.byKey(StoreShopKeys.chip('narrator')), findsOneWidget);
+      final a = tester.getRect(find.byKey(CoinStore.item('frame_gilded')));
+      final b = tester.getRect(find.byKey(CoinStore.item('frame_crimson')));
+      expect(a.top, b.top);
+      expect((a.left - b.left).abs(), greaterThan(100));
+      // Moving to another drawer without going back.
+      await tester.tap(find.byKey(StoreShopKeys.chip('narrator')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(CoinStore.item('narrator_storyteller')),
+        findsOneWidget,
+      );
+      expect(find.byKey(CoinStore.item('frame_gilded')), findsNothing);
+      // Narrators carry a ▶ to listen.
+      expect(
+        find.byKey(StoreShopKeys.listen('narrator_storyteller')),
+        findsOneWidget,
+      );
     });
+
+    testWidgets('search narrows across drawers; «اللي عندي» keeps owned', (
+      tester,
+    ) async {
+      backend.responses['economy'] = _wallet(owned: ['frame_gilded']);
+      await pumpStore(tester);
+      await tester.enterText(
+        find.byKey(StoreShopKeys.search),
+        arStrings.cosmeticFrameGilded,
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(CoinStore.item('frame_gilded')), findsOneWidget);
+      expect(find.byKey(CoinStore.item('frame_crimson')), findsNothing);
+      await tester.enterText(find.byKey(StoreShopKeys.search), 'zzzz');
+      await tester.pumpAndSettle();
+      expect(find.byKey(StoreShopKeys.noMatches), findsOneWidget);
+      await tester.enterText(find.byKey(StoreShopKeys.search), '');
+      await tester.tap(find.byKey(StoreShopKeys.ownedFilter));
+      await tester.pumpAndSettle();
+      expect(find.byKey(CoinStore.item('frame_gilded')), findsOneWidget);
+      expect(find.byKey(CoinStore.item('plate_noir')), findsNothing);
+    });
+
+    testWidgets('desktop keeps a column', (tester) async {
+      backend.responses['economy'] = _wallet();
+      await pumpStore(tester, size: const Size(1280, 800));
+      await openDrawer(tester, 'look');
+      final card = tester.getRect(find.byKey(CoinStore.item('frame_gilded')));
+      expect(card.right, lessThanOrEqualTo(1280 - (1280 - 960) / 2 + 1));
+      expect(tester.takeException(), isNull);
+    });
+
+    for (final size in const [Size(360, 640), Size(430, 932)]) {
+      testWidgets('no overflow and 48 dp targets at $size', (tester) async {
+        backend.responses['economy'] = _wallet();
+        await pumpStore(tester, size: size);
+        expect(tester.takeException(), isNull);
+        final info = tester.getSize(find.byKey(CoinStore.earnInfo));
+        expect(info.height, greaterThanOrEqualTo(StoreTokens.touchTarget));
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await openDrawer(tester, 'narrator');
+        expect(tester.takeException(), isNull);
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      });
+    }
 
     testWidgets('a keyboard can reach and open a product', (tester) async {
       backend.responses['economy'] = _wallet();
       await pumpStore(tester, size: const Size(1280, 800));
+      await openDrawer(tester, 'look');
       var reached = false;
-      for (var i = 0; i < 20 && !reached; i++) {
+      for (var i = 0; i < 30 && !reached; i++) {
         await tester.sendKeyEvent(LogicalKeyboardKey.tab);
         await tester.pump();
         final focus = FocusManager.instance.primaryFocus?.context;
@@ -384,6 +420,33 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(CoinStore.sheetList), findsOneWidget);
     });
+
+    testWidgets('reduced motion: the drawer swap and the stamp are instant', (
+      tester,
+    ) async {
+      backend.responses['economy'] = _wallet();
+      await tester.binding.setSurfaceSize(const Size(360, 780));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        scope(
+          MediaQuery(
+            data: const MediaQueryData(
+              size: Size(360, 780),
+              disableAnimations: true,
+            ),
+            child: const CoinStore(),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(StoreShopKeys.drawer('look')));
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(CoinStore.item('frame_gilded')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   });
 
   group('actions', () {
@@ -392,8 +455,7 @@ void main() {
     ) async {
       backend.responses['economy'] = _wallet();
       await pumpStore(tester);
-      await tester.tap(find.byKey(CoinStore.item('frame_gilded')));
-      await tester.pumpAndSettle();
+      await openStoreItem(tester, 'frame_gilded');
       final button = tester.getRect(find.byKey(CoinStore.buy('frame_gilded')));
       expect(button.bottom, lessThanOrEqualTo(780));
       expect(button.height, greaterThanOrEqualTo(StoreTokens.touchTarget - 8));
@@ -402,15 +464,12 @@ void main() {
     testWidgets('after buying, the same sheet offers «use»', (tester) async {
       backend.responses['economy'] = _wallet();
       await pumpStore(tester);
-      await tester.tap(find.byKey(CoinStore.item('frame_gilded')));
-      await tester.pumpAndSettle();
+      await openStoreItem(tester, 'frame_gilded');
       backend.responses['economy'] = _wallet(
         balance: 2800,
         owned: ['frame_gilded'],
       );
       await tester.tap(find.byKey(CoinStore.buy('frame_gilded')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(CoinStore.confirmBuy));
       await tester.pumpAndSettle();
       expect(economy('buy'), hasLength(1));
       expect(find.byKey(CoinStore.sheetList), findsOneWidget);
@@ -421,15 +480,14 @@ void main() {
     testWidgets('a second tap while equipping sends nothing', (tester) async {
       backend.responses['economy'] = _wallet(owned: ['frame_gilded']);
       await pumpStore(tester);
-      await tester.tap(find.byKey(CoinStore.item('frame_gilded')));
-      await tester.pumpAndSettle();
+      await openStoreItem(tester, 'frame_gilded');
       final reply = Completer<Map<String, dynamic>>();
       backend.delayedResponses['economy'] = reply.future;
       await tester.tap(find.byKey(CoinStore.equip('frame_gilded')));
       await tester.pump();
       expect(
         tester
-            .widget<FilledButton>(find.byKey(CoinStore.equip('frame_gilded')))
+            .widget<BoneButton>(find.byKey(CoinStore.equip('frame_gilded')))
             .onPressed,
         isNull,
       );
@@ -444,7 +502,8 @@ void main() {
         _wallet(owned: ['frame_gilded'], equipped: {'frame': 'frame_gilded'}),
       );
       await tester.pumpAndSettle();
-      expect(find.text(arStrings.storeUnequip), findsOneWidget);
+      // The sheet closes once the item is in its slot.
+      expect(find.byKey(CoinStore.sheetList), findsNothing);
     });
 
     testWidgets('system back closes the store, not the screen under it', (

@@ -96,7 +96,7 @@ class WalletState {
         .whereType<Map>()
         .map((row) => WalletItem.fromJson(Map<String, dynamic>.from(row)))
         // Only what this build can actually render is offered.
-        .where((item) => Cosmetics.knows(item.code))
+        .where((item) => Cosmetics.sells(item.code))
         .toList(),
     owned: ((json['owned'] as List?) ?? const []).whereType<String>().toSet(),
     equipped: {

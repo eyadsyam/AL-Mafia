@@ -1924,6 +1924,52 @@ abstract final class StoreTokens {
   static const busyStroke = 2.0;
 }
 
+/// «السوق السودة» (docs/design/DECK-SYSTEM.md §10): the drawers store. Sizes,
+/// the crimson stamp and the motion of the shop and its buy sheet.
+abstract final class StoreShopTokens {
+  static const Color stamp = Color(0xFFC4574B);
+  static const Color stampWash = Color(0xCC1A130E);
+
+  static const double searchHeight = 48;
+  static const double featHeight = 170;
+  static const double featTextWidth = 0.62;
+  static const double featShade = 0.94;
+  static const double featCorner = 44;
+  static const double featFadeAlpha = 0.2;
+  static const List<double> featStops = [0.35, 1];
+  static const double featTagTurn = -0.07;
+  static const double wellRadius = 0.9;
+  static const Alignment wellCenter = Alignment(0, -0.2);
+  static const double lineHeight = 1.6;
+
+  /// The three items peeking out of a drawer, fanned like a hand of cards.
+  static const double peekWidth = 86;
+  static const Size peekTile = Size(46, 58);
+  static const double peekStep = 20;
+  static const List<double> peekTurns = [0.105, -0.035, -0.157];
+  static const int peekCount = 3;
+
+  static const double bagHeight = 252;
+  static const double bagArt = 118;
+  static const double gridGap = 12;
+  static const double previewButton = 48;
+  static const double ownedStampTurn = -0.14;
+  static const double stampBorder = 2;
+  static const double stampBigBorder = 4;
+  static const double stampBigTurn = -0.245;
+  static const double stampBigFrom = 2.2;
+  static const double stampBigSize = 30;
+  static const double sheetArt = 190;
+  static const double sheetFraction = 0.78;
+  static const double dividerHeight = 14;
+  static const double chipsGap = 8;
+
+  static const Duration stampIn = Duration(milliseconds: 380);
+  static const Duration slide = Duration(milliseconds: 320);
+  static const double slideShift = 0.3;
+  static const double bagRise = 16;
+}
+
 /// Council Life (phase 107): rank emblems, contract icons, the Council Seal
 /// frame and the hub's motion. Public identity only — nothing here is ever
 /// chosen by a role, and emblems are drawn only on public surfaces.

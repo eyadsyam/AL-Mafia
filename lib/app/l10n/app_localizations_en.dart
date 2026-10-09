@@ -3047,7 +3047,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every change reaches everyone in the room right away.';
 
   @override
-  String get vaultTitle => 'The Council Vault';
+  String get vaultTitle => 'The Black Market';
 
   @override
   String get vaultSubtitle => 'Your signature. Your council atmosphere.';
@@ -6223,4 +6223,104 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get howRoleSniperDo => 'Fires once per match';
+
+  @override
+  String get storeSearchHint => 'Search the shop';
+
+  @override
+  String get storeOwnedFilter => 'Mine';
+
+  @override
+  String get storeNewReceipt => 'New in';
+
+  @override
+  String get storeDrawersLabel => 'Drawers';
+
+  @override
+  String storeDrawersCount(int count) {
+    return '$count drawers';
+  }
+
+  @override
+  String get storeDrawerNew => 'New';
+
+  @override
+  String get storeDrawerThings => 'items';
+
+  @override
+  String storeDrawerOwned(int count) {
+    return '$count owned';
+  }
+
+  @override
+  String get storeCatTools => 'Match tools';
+
+  @override
+  String get storeCatToolsSub => 'Tools and roles that change a match';
+
+  @override
+  String get storeCatNarrator => 'Narrator voice';
+
+  @override
+  String get storeCatNarratorSub => 'Who tells the night and the day';
+
+  @override
+  String get storeCatRooms => 'Room moods';
+
+  @override
+  String get storeCatRoomsSub => 'Backdrop, music and transitions';
+
+  @override
+  String get storeCatLook => 'Your look';
+
+  @override
+  String get storeCatLookSub => 'Frames and nameplates';
+
+  @override
+  String get storeCatBundles => 'Bundles';
+
+  @override
+  String get storeCatBundlesSub => 'Several things together';
+
+  @override
+  String get storeKindTool => 'Tool';
+
+  @override
+  String get storeKindRole => 'Role';
+
+  @override
+  String get storeKindNarrator => 'Voice';
+
+  @override
+  String get storeKindRoom => 'Mood';
+
+  @override
+  String get storeKindLook => 'Look';
+
+  @override
+  String get storeKindBundle => 'Bundle';
+
+  @override
+  String get storeOnce => 'One use';
+
+  @override
+  String get storeSold => 'Sold';
+
+  @override
+  String storeLeftAfter(int count) {
+    return 'You will keep $count';
+  }
+
+  @override
+  String get storeToolHint => 'Use it inside an online match from your tools.';
+
+  @override
+  String get storeRoleHint =>
+      'Switch it on from the extra roles when you set up a match.';
+
+  @override
+  String get storeNoMatches => 'Nothing by that name.';
+
+  @override
+  String get storeListen => 'Listen';
 }

@@ -2981,7 +2981,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'أي تغيير بيوصل لكل اللي في الأوضة على طول.';
 
   @override
-  String get vaultTitle => 'خزنة المجلس';
+  String get vaultTitle => 'السوق السودة';
 
   @override
   String get vaultSubtitle => 'بصمتك في المجلس. أجواء على ذوقك.';
@@ -6118,4 +6118,103 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get howRoleSniperDo => 'بيضرب مرة واحدة في الماتش';
+
+  @override
+  String get storeSearchHint => 'دوّر على حاجة';
+
+  @override
+  String get storeOwnedFilter => 'اللي عندي';
+
+  @override
+  String get storeNewReceipt => 'وصل جديد';
+
+  @override
+  String get storeDrawersLabel => 'الأدراج';
+
+  @override
+  String storeDrawersCount(int count) {
+    return '$count أدراج';
+  }
+
+  @override
+  String get storeDrawerNew => 'جديد';
+
+  @override
+  String get storeDrawerThings => 'حاجة';
+
+  @override
+  String storeDrawerOwned(int count) {
+    return 'عندك $count';
+  }
+
+  @override
+  String get storeCatTools => 'أدوات الماتش';
+
+  @override
+  String get storeCatToolsSub => 'أدوات وأدوار بتفرق جوه الماتش';
+
+  @override
+  String get storeCatNarrator => 'صوت الراوي';
+
+  @override
+  String get storeCatNarratorSub => 'مين بيحكي الليل والنهار';
+
+  @override
+  String get storeCatRooms => 'أجواء الأوضة';
+
+  @override
+  String get storeCatRoomsSub => 'خلفية وموسيقى وانتقالات للأوضة';
+
+  @override
+  String get storeCatLook => 'شكلك';
+
+  @override
+  String get storeCatLookSub => 'إطارات ولوحات أسماء';
+
+  @override
+  String get storeCatBundles => 'الباقات';
+
+  @override
+  String get storeCatBundlesSub => 'كذا حاجة مع بعض بسعر أحسن';
+
+  @override
+  String get storeKindTool => 'أداة';
+
+  @override
+  String get storeKindRole => 'دور';
+
+  @override
+  String get storeKindNarrator => 'صوت';
+
+  @override
+  String get storeKindRoom => 'أجواء';
+
+  @override
+  String get storeKindLook => 'شكل';
+
+  @override
+  String get storeKindBundle => 'باقة';
+
+  @override
+  String get storeOnce => 'مرة واحدة';
+
+  @override
+  String get storeSold => 'اتباع';
+
+  @override
+  String storeLeftAfter(int count) {
+    return 'هيفضل معاك $count';
+  }
+
+  @override
+  String get storeToolHint => 'بتستخدمها جوه الماتش الأونلاين من «أدواتك».';
+
+  @override
+  String get storeRoleHint => 'شغّله من «أدوار تانية» وانت بتجهّز الماتش.';
+
+  @override
+  String get storeNoMatches => 'مفيش حاجة بالاسم ده.';
+
+  @override
+  String get storeListen => 'اسمع';
 }

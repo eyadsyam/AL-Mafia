@@ -7,13 +7,15 @@ import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/economy/cosmetic_paint.dart';
 import 'package:mafia_master/ui/economy/cosmetic_preview.dart';
 import 'package:mafia_master/ui/economy/cosmetics.dart';
-import 'package:mafia_master/ui/economy/purchase_reveal.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/setup/coin_store.dart';
 import 'package:mafia_master/ui/screens/setup/help_center.dart';
+import 'package:mafia_master/ui/screens/setup/store_shop.dart';
+import 'package:mafia_master/ui/widgets/deck/deck_public.dart' show GoldButton;
 
 import '../support/fake_backend.dart';
 import '../support/localized.dart';
+import '../support/store_nav.dart';
 
 Map<String, dynamic> wallet({
   int balance = 1000,
@@ -68,6 +70,14 @@ Map<String, dynamic> wallet({
         'pack_old_town',
         'narrator_storyteller',
       ],
+    },
+    // A bought role is sold like any item, in the match-tools drawer.
+    {
+      'code': 'role_elder',
+      'price': 5000,
+      'charge': 5000,
+      'kind': 'role',
+      'slot': null,
     },
     // A code this build cannot draw is never offered.
     {
@@ -135,21 +145,14 @@ void main() {
       'pack_midnight_manor',
       'narrator_storyteller',
       'bundle_council',
+      'role_elder',
     ]) {
-      await tester.scrollUntilVisible(
-        find.byKey(CoinStore.item(code)),
-        200,
-        scrollable: find
-            .descendant(
-              of: find.byKey(CoinStore.shopList),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
-      expect(find.byKey(CoinStore.item(code)), findsOneWidget);
+      await openDrawer(tester, drawerOf(code));
+      expect(find.byKey(CoinStore.item(code)), findsOneWidget, reason: code);
+      expect(find.byKey(CoinStore.item('future_item')), findsNothing);
+      expect(find.byKey(CoinStore.item('mastermind_guide')), findsNothing);
+      await closeDrawer(tester);
     }
-    expect(find.byKey(CoinStore.item('future_item')), findsNothing);
-    expect(find.byKey(CoinStore.item('mastermind_guide')), findsNothing);
     // The Play-safe default has no coin purchase tab at all.
     expect(find.text(arStrings.storeTabCoins), findsNothing);
   });
@@ -159,10 +162,12 @@ void main() {
   ) async {
     backend.responses['economy'] = wallet();
     await pumpStore(tester);
-    await tester.tap(find.byKey(CoinStore.item('frame_gilded')));
-    await tester.pumpAndSettle();
+    await openStoreItem(tester, 'frame_gilded');
     // The real preview: a seat with the frame drawn around it.
     expect(find.byType(SeatPreview), findsOneWidget);
+    // The button says what it costs and what stays.
+    expect(find.text(arStrings.storeBuyFor(200)), findsOneWidget);
+    expect(find.text(arStrings.storeLeftAfter(800)), findsOneWidget);
 
     backend.responses['economy'] = wallet(
       balance: 800,
@@ -170,30 +175,26 @@ void main() {
     );
     await tester.tap(find.byKey(CoinStore.buy('frame_gilded')));
     await tester.pumpAndSettle();
-    expect(find.text(arStrings.storeBuyConfirmBody(200)), findsOneWidget);
-    await tester.tap(find.byKey(CoinStore.confirmBuy));
-    await tester.pumpAndSettle();
 
     final buys = economy('buy').toList();
     expect(buys, hasLength(1));
     expect(buys.single.body.keys.toSet(), {'action', 'item'});
     expect(buys.single.body['item'], 'frame_gilded');
-    // Store truth: the purchase ends on the item doing its job on the buyer,
-    // with one tap to wear it.
-    expect(find.byKey(PurchaseReveal.revealKey), findsOneWidget);
-    expect(find.byKey(CosmeticFrameRing.ringKey), findsOneWidget);
+    // «اتباع» lands on the item, and the same sheet now offers «استخدم».
+    expect(find.byKey(StoreShopKeys.sold), findsOneWidget);
+    expect(find.text(arStrings.storeSold), findsOneWidget);
     backend.responses['economy'] = wallet(
       balance: 800,
       owned: ['frame_gilded'],
       equipped: {'frame': 'frame_gilded'},
     );
-    await tester.tap(find.byKey(PurchaseReveal.equipNowKey));
+    await tester.tap(find.byKey(CoinStore.equip('frame_gilded')));
     await tester.pumpAndSettle();
     final equips = economy('equip').toList();
     expect(equips, hasLength(1));
     expect(equips.single.body['slot'], 'frame');
     expect(equips.single.body['item'], 'frame_gilded');
-    expect(find.byKey(PurchaseReveal.revealKey), findsNothing);
+    expect(find.byKey(CoinStore.sheetList), findsNothing);
     expect(find.text('800'), findsOneWidget);
   });
 
@@ -202,25 +203,8 @@ void main() {
   ) async {
     backend.responses['economy'] = wallet(balance: 250);
     await pumpStore(tester);
-    await tester.scrollUntilVisible(
-      find.byKey(CoinStore.item('narrator_storyteller')),
-      200,
-      scrollable: find
-          .descendant(
-            of: find.byKey(CoinStore.shopList),
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
-    // The rails are shorter than the old list rows: a card found in the
-    // cache extent may still be below the fold.
-    await tester.ensureVisible(
-      find.byKey(CoinStore.item('narrator_storyteller')),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(CoinStore.item('narrator_storyteller')));
-    await tester.pumpAndSettle();
-    final button = tester.widget<FilledButton>(
+    await openStoreItem(tester, 'narrator_storyteller');
+    final button = tester.widget<GoldButton>(
       find.byKey(CoinStore.buy('narrator_storyteller')),
     );
     expect(button.onPressed, isNull);
@@ -256,22 +240,7 @@ void main() {
     expect(find.text(arStrings.coinsEarnHint), findsNothing);
     await tester.tap(find.byType(TextButton));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.byKey(CoinStore.item('narrator_storyteller')),
-      200,
-      scrollable: find
-          .descendant(
-            of: find.byKey(CoinStore.shopList),
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
-    await tester.ensureVisible(
-      find.byKey(CoinStore.item('narrator_storyteller')),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(CoinStore.item('narrator_storyteller')));
-    await tester.pumpAndSettle();
+    await openStoreItem(tester, 'narrator_storyteller');
     await tester.scrollUntilVisible(
       find.text(arStrings.storeEarnTime(950, 38)),
       100,
@@ -294,20 +263,7 @@ void main() {
       owned: ['pack_midnight_manor'],
     );
     await pumpStore(tester);
-    await tester.scrollUntilVisible(
-      find.byKey(CoinStore.item('bundle_council')),
-      200,
-      scrollable: find
-          .descendant(
-            of: find.byKey(CoinStore.shopList),
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
-    await tester.ensureVisible(find.byKey(CoinStore.item('bundle_council')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(CoinStore.item('bundle_council')));
-    await tester.pumpAndSettle();
+    await openStoreItem(tester, 'bundle_council');
     await tester.scrollUntilVisible(
       find.text(arStrings.storeBuyFor(1700)),
       100,
@@ -347,24 +303,7 @@ void main() {
     (tester) async {
       backend.responses['economy'] = wallet();
       await pumpStore(tester);
-      await tester.scrollUntilVisible(
-        find.byKey(CoinStore.item('pack_midnight_manor')),
-        200,
-        scrollable: find
-            .descendant(
-              of: find.byKey(CoinStore.shopList),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
-      // The rails are shorter than the old list rows: a card found in the
-      // cache extent may still be below the fold.
-      await tester.ensureVisible(
-        find.byKey(CoinStore.item('pack_midnight_manor')),
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(CoinStore.item('pack_midnight_manor')));
-      await tester.pumpAndSettle();
+      await openStoreItem(tester, 'pack_midnight_manor');
       expect(find.byType(PackBackdrop), findsOneWidget);
       expect(find.text(arStrings.packManorIntro), findsOneWidget);
       await tester.tap(find.byKey(PackPreview.transitionButton));

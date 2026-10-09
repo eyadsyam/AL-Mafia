@@ -29,9 +29,11 @@ import 'package:mafia_master/ui/screens/online/council/council_band.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/online/table/table_scene.dart';
 import 'package:mafia_master/ui/screens/setup/coin_store.dart';
+import 'package:mafia_master/ui/screens/setup/store_shop.dart';
 
 import '../support/fake_backend.dart';
 import '../support/localized.dart';
+import '../support/store_nav.dart';
 
 const _codes = <(String, int, String, String?)>[
   ('frame_gilded', 200, 'frame', 'frame'),
@@ -147,24 +149,16 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Finder shop() => find
-      .descendant(
-        of: find.byKey(CoinStore.shopList),
-        matching: find.byType(Scrollable),
-      )
-      .first;
-
   const narrow = Size(360, 780);
 
   testWidgets('01 store ar narrow', (tester) async {
     await store(tester, narrow, const Locale('ar'));
     await save(tester, '01-store-ar-360');
-    await tester.drag(shop(), const Offset(0, -560));
+    await openDrawer(tester, 'look');
+    await save(tester, '02-store-drawer-look-ar-360');
+    await tester.tap(find.byKey(StoreShopKeys.chip('narrator')));
     await tester.pumpAndSettle();
-    await save(tester, '02-store-ar-360-scrolled');
-    await tester.drag(shop(), const Offset(0, -900));
-    await tester.pumpAndSettle();
-    await save(tester, '03-store-ar-360-bottom');
+    await save(tester, '03-store-drawer-narrator-ar-360');
   });
 
   testWidgets('04 store en narrow', (tester) async {
@@ -177,6 +171,13 @@ void main() {
     await save(tester, '05-store-ar-desktop');
   });
 
+  testWidgets('05b store ar small phone', (tester) async {
+    await store(tester, const Size(360, 640), const Locale('ar'));
+    await save(tester, '05b-store-ar-360x640');
+    await store(tester, const Size(430, 932), const Locale('ar'));
+    await save(tester, '05c-store-ar-430x932');
+  });
+
   for (final code in [
     'frame_gilded',
     'plate_ember',
@@ -187,34 +188,7 @@ void main() {
     testWidgets('detail $code', (tester) async {
       await store(tester, narrow, const Locale('ar'));
       if (StoreArt.forCode(code) == null) return;
-      final rail = switch (code.split('_').first) {
-        'frame' => 'frames',
-        'plate' => 'plates',
-        'pack' => 'rooms',
-        'narrator' => 'narration',
-        _ => 'bundles',
-      };
-      await tester.scrollUntilVisible(
-        find.byKey(CoinStore.rail(rail)),
-        200,
-        scrollable: shop(),
-      );
-      await tester.ensureVisible(find.byKey(CoinStore.rail(rail)));
-      await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        find.byKey(CoinStore.item(code)),
-        150,
-        scrollable: find
-            .descendant(
-              of: find.byKey(CoinStore.rail(rail)),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
-      await tester.ensureVisible(find.byKey(CoinStore.item(code)));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(CoinStore.item(code)));
-      await tester.pumpAndSettle();
+      await openStoreItem(tester, code);
       await save(tester, '06-detail-$code');
     });
   }

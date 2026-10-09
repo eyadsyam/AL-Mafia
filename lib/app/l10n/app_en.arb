@@ -1820,7 +1820,7 @@
   "settingsRulesHint": "Every new match starts from these, and you can still change them before one.",
   "settingsSectionMore": "Help & privacy",
   "onlineRoomSettingsHint": "Every change reaches everyone in the room right away.",
-  "vaultTitle": "The Council Vault",
+  "vaultTitle": "The Black Market",
   "vaultSubtitle": "Your signature. Your council atmosphere.",
   "storeFrames": "Avatar frames",
   "storeNameplates": "Nameplates",
@@ -3780,5 +3780,57 @@
   "howRoleSilencer": "Silencer",
   "howRoleSilencerDo": "Silences one player by day",
   "howRoleSniper": "Sniper",
-  "howRoleSniperDo": "Fires once per match"
+  "howRoleSniperDo": "Fires once per match",
+  "storeSearchHint": "Search the shop",
+  "storeOwnedFilter": "Mine",
+  "storeNewReceipt": "New in",
+  "storeDrawersLabel": "Drawers",
+  "storeDrawersCount": "{count} drawers",
+  "@storeDrawersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storeDrawerNew": "New",
+  "storeDrawerThings": "items",
+  "storeDrawerOwned": "{count} owned",
+  "@storeDrawerOwned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storeCatTools": "Match tools",
+  "storeCatToolsSub": "Tools and roles that change a match",
+  "storeCatNarrator": "Narrator voice",
+  "storeCatNarratorSub": "Who tells the night and the day",
+  "storeCatRooms": "Room moods",
+  "storeCatRoomsSub": "Backdrop, music and transitions",
+  "storeCatLook": "Your look",
+  "storeCatLookSub": "Frames and nameplates",
+  "storeCatBundles": "Bundles",
+  "storeCatBundlesSub": "Several things together",
+  "storeKindTool": "Tool",
+  "storeKindRole": "Role",
+  "storeKindNarrator": "Voice",
+  "storeKindRoom": "Mood",
+  "storeKindLook": "Look",
+  "storeKindBundle": "Bundle",
+  "storeOnce": "One use",
+  "storeSold": "Sold",
+  "storeLeftAfter": "You will keep {count}",
+  "@storeLeftAfter": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storeToolHint": "Use it inside an online match from your tools.",
+  "storeRoleHint": "Switch it on from the extra roles when you set up a match.",
+  "storeNoMatches": "Nothing by that name.",
+  "storeListen": "Listen"
 }

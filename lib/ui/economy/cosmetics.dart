@@ -463,8 +463,21 @@ abstract final class Cosmetics {
     ],
   };
 
+  /// The three bought roles (server kind `role`): sold in the store, played
+  /// from the setup screens. They have no slot and no look.
+  static const List<String> roleCodes = [
+    'role_silencer',
+    'role_elder',
+    'role_sniper',
+  ];
+
+  static bool isRole(String code) => roleCodes.contains(code);
+
   /// Whether this build can draw [code].
   static bool knows(String code) => items.containsKey(code);
+
+  /// Whether the store lists [code]: a cosmetic this build draws, or a role.
+  static bool sells(String code) => knows(code) || isRole(code);
 }
 
 /// Doc 05 rule 3: purchased colour never reaches a night or reveal surface.

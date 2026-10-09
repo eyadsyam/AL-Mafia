@@ -1,13 +1,9 @@
-import 'dart:math' as math;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../platform/payment_capabilities.dart';
-import '../../economy/account_protection.dart';
 import '../../economy/coin_packs.dart';
-import '../../economy/cosmetic_preview.dart';
 import '../../economy/cosmetics.dart';
 import '../../economy/council.dart' show councilAttentionProvider;
 import '../../economy/council_hub.dart';
@@ -17,7 +13,7 @@ import '../../economy/play_offers.dart';
 import '../../economy/purchase_reveal.dart';
 import '../../../platform/monetization/play_billing.dart';
 import '../../economy/store_art.dart';
-import '../../economy/table_tools.dart';
+import 'store_shop.dart';
 import '../../widgets/textured_surface.dart';
 import '../../economy/mafia_coin.dart';
 import '../../economy/vault_kit.dart';
@@ -29,9 +25,6 @@ import '../../widgets/settings_kit.dart';
 import '../../widgets/deck/deck_public.dart' show CoinPill;
 import '../../account/profile_panels.dart' show profileStatsProvider;
 import '../../economy/waiting_banner.dart';
-import '../../widgets/feathered_art.dart';
-import '../../../app/asset_constants.dart';
-import '../../widgets/motion_sprite.dart';
 
 /// Opens the store over the current screen. Reachable from Home, Settings and
 /// an out-of-match lobby only: never from inside a match.
@@ -170,15 +163,12 @@ class CoinStore extends ConsumerStatefulWidget {
 
   static const closeKey = ValueKey('coins_close');
   static const balanceKey = ValueKey('coins_balance');
-  static Key item(String code) => ValueKey('store_item_$code');
-  static Key buy(String code) => ValueKey('store_buy_$code');
-  static Key equip(String code) => ValueKey('store_equip_$code');
+  static Key item(String code) => StoreShopKeys.item(code);
+  static Key buy(String code) => StoreShopKeys.buy(code);
+  static Key equip(String code) => StoreShopKeys.equip(code);
   static Key tryOn(String code) => ValueKey('store_try_on_$code');
-  static Key rail(String section) => PageStorageKey('store_rail_$section');
-  static Key railNext(String section) => ValueKey('store_rail_next_$section');
-  static const Key confirmBuy = ValueKey('store_confirm_buy');
-  static const Key shopList = ValueKey('store_shop_list');
-  static const Key sheetList = ValueKey('store_item_sheet');
+  static const Key shopList = StoreShopKeys.shopList;
+  static const Key sheetList = StoreShopKeys.sheetList;
   static const Key earnInfo = ValueKey('store_earn_info');
 
   @override
@@ -210,56 +200,6 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
     context,
   )?.showSnackBar(SnackBar(content: Text(message)));
 
-  Future<void> _buy(WalletItem item) async {
-    if (_busy.value) return;
-    final l = context.l10n;
-    final name = Cosmetics.items[item.code]!.name(l);
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.storeBuyConfirmTitle(name)),
-        content: Text(l.storeBuyConfirmBody(item.charge)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-          ),
-          FilledButton(
-            key: CoinStore.confirmBuy,
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.storeBuyFor(item.charge)),
-          ),
-        ],
-      ),
-    );
-    if (ok != true || !mounted || _busy.value) return;
-    _busy.value = true;
-    try {
-      await ref.read(walletProvider.notifier).buy(item.code);
-      if (mounted) {
-        _busy.value = false;
-        // Store truth: the item doing its job on the buyer, with one tap to
-        // wear it (a bundle lists its parts, all now owned).
-        final slot = Cosmetics.items[item.code]?.slot;
-        await showPurchaseReveal(
-          context,
-          code: item.code,
-          onEquip: slot == null ? null : (slot, code) => _equip(slot, code),
-        );
-      }
-    } on WalletActionFailed catch (error) {
-      if (!mounted) return;
-      final balance = ref.read(walletProvider).valueOrNull?.balance ?? 0;
-      _say(
-        error.code == 'INSUFFICIENT_COINS'
-            ? l.storeNotEnough(item.charge - balance)
-            : l.storeFailed,
-      );
-    } finally {
-      if (mounted) _busy.value = false;
-    }
-  }
-
   Future<void> _equip(CosmeticSlot slot, String? code) async {
     if (_busy.value) return;
     _busy.value = true;
@@ -272,21 +212,14 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
     }
   }
 
-  Future<void> _open(String code) async {
-    await showMafiaSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      showDragHandle: true,
-      builder: (sheet) => _ItemSheet(
-        code: code,
-        busy: _busy,
-        // The sheet stays open: once bought, the same sheet offers «use».
-        onBuy: _buy,
-        onEquip: _equip,
-      ),
-    );
-  }
+  Future<void> _open(String code) => showStoreItemSheet(
+    context: context,
+    ref: ref,
+    code: code,
+    busy: _busy,
+    alive: () => mounted,
+    onEquip: _equip,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -324,10 +257,13 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
         Icons.storefront_rounded,
         value == null
             ? const SizedBox.shrink()
-            : _ShopTab(wallet: value, onOpen: _open),
+            : StoreShop(
+                wallet: value,
+                busy: _busy,
+                alive: () => mounted,
+                onEquip: _equip,
+              ),
       ),
-      // «أدوات القعدة», right beside the shop: tools change a match.
-      (l.storeTabTools, Icons.construction_rounded, const TableToolsShopTab()),
       (
         l.storeTabCollection,
         Icons.checkroom_rounded,
@@ -479,13 +415,18 @@ class _VaultHeader extends StatelessWidget {
                         else
                           SizedBox(width: s.sm),
                         Expanded(
-                          child: Text(
-                            l.vaultTitle,
-                            style: context.typography.headline.copyWith(
-                              color: colors.textPrimary,
+                          // The title shrinks before it is cut: it is the
+                          // shop's name.
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Text(
+                              l.vaultTitle,
+                              style: StoryTokens.ruqaa(
+                                context.typography.headline,
+                              ).copyWith(color: colors.textPrimary),
+                              maxLines: 1,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         // Exactly as wide as the number; the title yields.
@@ -614,674 +555,18 @@ class _WalletStrip extends StatelessWidget {
   }
 }
 
-/// Roughly how many online matches an amount takes, from the current reward
-/// contract (sync_player_rewards): a win's extra is not counted. [v3] is the
-/// server's `economy.version=3` rule (25 a match instead of 100).
-int matchesFor(int coins, {bool v3 = false}) =>
-    (coins / (v3 ? coinsPerFinishedMatchV3 : coinsPerFinishedMatch)).ceil();
-
 /// What the server pays per finished match, in words; follows the contract
 /// the capabilities negotiated.
 class _EarnHint extends ConsumerWidget {
-  final TextStyle? style;
-  const _EarnHint({this.style});
+  const _EarnHint();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final v3 =
         ref.watch(economyCapabilitiesProvider).valueOrNull?.economyV3 ?? false;
-    return Text(v3 ? l.coinsEarnHintV3 : l.coinsEarnHint, style: style);
+    return Text(v3 ? l.coinsEarnHintV3 : l.coinsEarnHint);
   }
-}
-
-class _ShopTab extends StatelessWidget {
-  final WalletState wallet;
-  final ValueChanged<String> onOpen;
-  const _ShopTab({required this.wallet, required this.onOpen});
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final s = context.spacing;
-    List<WalletItem> of(CosmeticKind kind) => [
-      for (final item in wallet.catalog)
-        if (Cosmetics.items[item.code]!.kind == kind) item,
-    ];
-    final sections = <(String, String, List<WalletItem>)>[
-      ('frames', l.storeFrames, of(CosmeticKind.frame)),
-      ('plates', l.storeNameplates, of(CosmeticKind.nameplate)),
-      ('rooms', l.storeSectionPacks, of(CosmeticKind.presentationPack)),
-      ('narration', l.storeSectionNarrator, of(CosmeticKind.narratorPack)),
-      ('bundles', l.storeSectionBundles, of(CosmeticKind.bundle)),
-    ];
-    return LayoutBuilder(
-      builder: (context, box) {
-        // A readable column on a wide window; edge to edge on a phone.
-        final side = math.max(
-          s.md,
-          (box.maxWidth - StoreTokens.maxContentWidth) / 2,
-        );
-        return ListView(
-          key: CoinStore.shopList,
-          padding: EdgeInsets.symmetric(horizontal: side, vertical: s.md),
-          children: [
-            const _VaultHero(),
-            for (final (id, title, items) in sections)
-              if (items.isNotEmpty) ...[
-                SizedBox(height: s.lg),
-                _ProductRail(
-                  id: id,
-                  title: title,
-                  wallet: wallet,
-                  items: items,
-                  onOpen: onOpen,
-                ),
-              ],
-            SizedBox(height: s.lg),
-            SettingsPanel(
-              icon: Icons.info_outline,
-              title: l.storeAboutCoins,
-              divided: false,
-              children: [
-                _EarnHint(
-                  style: context.typography.bodySmall.copyWith(
-                    color: context.colors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-            const AccountProtectionCard(),
-          ],
-        );
-      },
-    );
-  }
-}
-
-/// The vault's cabinet on one side, its promise on the other. The art is
-/// mirrored for left-to-right text so the words always sit on its dark half.
-class _VaultHero extends StatelessWidget {
-  const _VaultHero();
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final ltr = Directionality.of(context) == TextDirection.ltr;
-    // No box: the cabinet dissolves into the vault around it.
-    return Padding(
-      padding: EdgeInsets.zero,
-      child: SizedBox(
-        height: StoreTokens.heroHeight,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            const Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: Opacity(
-                opacity: MotionTokens.vaultEmberOpacity,
-                child: MotionSprite(
-                  AppMotion.emberDrift,
-                  width: MotionTokens.emberWidth,
-                  height: MotionTokens.emberHeight,
-                ),
-              ),
-            ),
-            FeatheredArt(
-              feather: Feather.banner,
-              halo: false,
-              child: Transform.flip(
-                flipX: ltr,
-                child: Image.asset(
-                  StoreArt.heroCover,
-                  fit: BoxFit.cover,
-                  excludeFromSemantics: true,
-                  errorBuilder: (_, _, _) =>
-                      ColoredBox(color: colors.surfaceRaised),
-                ),
-              ),
-            ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: AlignmentDirectional.centerStart,
-                  end: AlignmentDirectional.centerEnd,
-                  colors: [
-                    colors.surfaceBase.withValues(alpha: StoreTokens.heroShade),
-                    colors.surfaceBase.withValues(alpha: 0),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.spacing.md,
-                vertical: context.spacing.sm,
-              ),
-              child: FractionallySizedBox(
-                alignment: AlignmentDirectional.centerStart,
-                widthFactor: StoreTokens.heroTextWidth,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      context.l10n.vaultSubtitle,
-                      style: context.typography.body.copyWith(
-                        color: colors.textPrimary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      context.l10n.storePresentationNote,
-                      style: context.typography.caption.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// One category: a heading, arrows for a mouse or a keyboard, and a
-/// horizontal rail that starts at the reading side and shows the next card's
-/// edge. No auto-scroll.
-class _ProductRail extends StatefulWidget {
-  final String id;
-  final String title;
-  final WalletState wallet;
-  final List<WalletItem> items;
-  final ValueChanged<String> onOpen;
-  const _ProductRail({
-    required this.id,
-    required this.title,
-    required this.wallet,
-    required this.items,
-    required this.onOpen,
-  });
-
-  @override
-  State<_ProductRail> createState() => _ProductRailState();
-}
-
-class _ProductRailState extends State<_ProductRail> {
-  final _scroll = ScrollController();
-  bool _back = false;
-  bool _forward = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
-  }
-
-  @override
-  void dispose() {
-    _scroll.dispose();
-    super.dispose();
-  }
-
-  bool _measure() {
-    if (!mounted || !_scroll.hasClients) return false;
-    final p = _scroll.position;
-    if (!p.hasContentDimensions) return false;
-    final back = p.pixels > p.minScrollExtent + StoreTokens.hairlineOverlap;
-    final forward = p.pixels < p.maxScrollExtent - StoreTokens.hairlineOverlap;
-    if (back != _back || forward != _forward) {
-      setState(() {
-        _back = back;
-        _forward = forward;
-      });
-    }
-    return false;
-  }
-
-  void _move(int direction) {
-    if (!_scroll.hasClients) return;
-    final p = _scroll.position;
-    // A page is what is on screen, less one card so the context carries over.
-    final page = math.max(
-      StoreTokens.cardWidth,
-      p.viewportDimension - StoreTokens.cardWidth / 2,
-    );
-    final target = (p.pixels + direction * page).clamp(
-      p.minScrollExtent,
-      p.maxScrollExtent,
-    );
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _scroll.jumpTo(target);
-      return;
-    }
-    _scroll.animateTo(
-      target,
-      duration: context.motion.standard,
-      curve: Curves.easeOutCubic,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final s = context.spacing;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Semantics(
-                header: true,
-                child: Text(
-                  widget.title,
-                  style: context.typography.title.copyWith(
-                    color: context.colors.textPrimary,
-                  ),
-                ),
-              ),
-            ),
-            // Chevrons follow the reading direction: «next» points the way
-            // the rail continues, left in Arabic and right in English.
-            if (_back || _forward) ...[
-              IconButton(
-                tooltip: l.storeBrowsePrevious,
-                onPressed: _back ? () => _move(-1) : null,
-                icon: const Icon(Icons.chevron_left),
-              ),
-              IconButton(
-                key: CoinStore.railNext(widget.id),
-                tooltip: l.storeBrowseNext,
-                onPressed: _forward ? () => _move(1) : null,
-                icon: const Icon(Icons.chevron_right),
-              ),
-            ] else
-              const SizedBox(height: StoreTokens.touchTarget),
-          ],
-        ),
-        SizedBox(height: s.xs),
-        SizedBox(
-          height: StoreTokens.railHeight,
-          child: NotificationListener<ScrollMetricsNotification>(
-            onNotification: (_) => _measure(),
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (_) => _measure(),
-              child: ListView.separated(
-                key: CoinStore.rail(widget.id),
-                controller: _scroll,
-                scrollDirection: Axis.horizontal,
-                itemCount: widget.items.length,
-                separatorBuilder: (_, _) => SizedBox(width: s.sm),
-                itemBuilder: (context, index) {
-                  final item = widget.items[index];
-                  final slot = Cosmetics.items[item.code]!.slot;
-                  return _ProductCard(
-                    item: item,
-                    owned: widget.wallet.owned.contains(item.code),
-                    equipped:
-                        slot != null &&
-                        widget.wallet.equipped[slot.wire] == item.code,
-                    onTap: () => widget.onOpen(item.code),
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Art, name, what it does, and the server's price — or that it is yours.
-class _ProductCard extends StatelessWidget {
-  final WalletItem item;
-  final bool owned;
-  final bool equipped;
-  final VoidCallback onTap;
-  const _ProductCard({
-    required this.item,
-    required this.owned,
-    required this.equipped,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final s = context.spacing;
-    final colors = context.colors;
-    final cosmetic = Cosmetics.items[item.code]!;
-    final radius = BorderRadius.circular(context.radii.card);
-    return SizedBox(
-      width: StoreTokens.cardWidth,
-      child: VaultPress(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: radius,
-            boxShadow: [
-              ...context.elevation.level1,
-              if (equipped)
-                BoxShadow(
-                  color: VaultTokens.gold.withValues(
-                    alpha: VaultTokens.litGlowAlpha,
-                  ),
-                  blurRadius: VaultTokens.litGlowBlur,
-                ),
-            ],
-          ),
-          child: Material(
-            color: equipped
-                ? Color.alphaBlend(
-                    VaultTokens.gold.withValues(alpha: VaultTokens.lampWash),
-                    colors.surfaceRaised,
-                  )
-                : colors.surfaceRaised,
-            clipBehavior: Clip.antiAlias,
-            shape: RoundedRectangleBorder(
-              borderRadius: radius,
-              side: equipped
-                  ? const BorderSide(
-                      color: VaultTokens.gold,
-                      width: StoreTokens.selectedBorder,
-                    )
-                  : BorderSide(color: colors.borderSubtle),
-            ),
-            child: InkWell(
-              key: CoinStore.item(item.code),
-              onTap: onTap,
-              child: Padding(
-                padding: EdgeInsets.all(s.sm),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: StoreTokens.artHeight,
-                      width: double.infinity,
-                      child: DecoratedBox(
-                        // The art sits in a lit well: lamp-light from above on
-                        // the dark ground.
-                        decoration: BoxDecoration(
-                          gradient: RadialGradient(
-                            center: const Alignment(0, -0.35),
-                            radius: 0.9,
-                            colors: [
-                              Color.alphaBlend(
-                                VaultTokens.gold.withValues(
-                                  alpha: VaultTokens.lampAlpha / 2,
-                                ),
-                                colors.surfaceBase,
-                              ),
-                              colors.surfaceBase,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(
-                            context.radii.button,
-                          ),
-                          border: Border.all(
-                            color: VaultTokens.gold.withValues(
-                              alpha: VaultTokens.engraveAlpha,
-                            ),
-                          ),
-                        ),
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            StoreProductArt(code: item.code),
-                            if (owned || equipped)
-                              PositionedDirectional(
-                                top: s.xs,
-                                start: s.xs,
-                                child: SettingsPill(
-                                  text: equipped
-                                      ? l.storeEquipped
-                                      : l.storeOwned,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: s.sm),
-                    Text(
-                      cosmetic.name(l),
-                      style: context.typography.body.emphasised.copyWith(
-                        color: colors.textPrimary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      cosmetic.description(l),
-                      style: context.typography.caption.copyWith(
-                        color: colors.textMuted,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Spacer(),
-                    if (owned || equipped)
-                      Row(
-                        children: [
-                          Icon(
-                            equipped
-                                ? Icons.check_circle_rounded
-                                : Icons.check_circle_outline,
-                            size: CosmeticTokens.coinInline,
-                            color: VaultTokens.gold,
-                          ),
-                          SizedBox(width: s.xs),
-                          Text(
-                            equipped ? l.storeEquipped : l.storeOwned,
-                            style: context.typography.bodySmall.copyWith(
-                              color: equipped
-                                  ? VaultTokens.gold
-                                  : colors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      CoinAmount(
-                        item.charge,
-                        style: context.typography.title.copyWith(
-                          color: VaultTokens.goldLight,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Details, the real preview, and the one action that fits — pinned under
-/// the preview so it is reachable without scrolling on any phone.
-class _ItemSheet extends ConsumerWidget {
-  final String code;
-  final ValueListenable<bool> busy;
-  final Future<void> Function(WalletItem) onBuy;
-  final Future<void> Function(CosmeticSlot, String?) onEquip;
-  const _ItemSheet({
-    required this.code,
-    required this.busy,
-    required this.onBuy,
-    required this.onEquip,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final s = context.spacing;
-    final wallet = ref.watch(walletProvider).valueOrNull;
-    final cosmetic = Cosmetics.items[code]!;
-    final item = wallet?.item(code);
-    final owned = wallet?.owned.contains(code) ?? false;
-    final slot = cosmetic.slot;
-    final equipped = slot != null && wallet?.equipped[slot.wire] == code;
-    final balance = wallet?.balance ?? 0;
-    final bundleContents = Cosmetics.bundles[code] ?? const <String>[];
-    final ownsAllContents =
-        bundleContents.isNotEmpty &&
-        bundleContents.every((c) => wallet?.owned.contains(c) ?? false);
-    final room = cosmetic.kind == CosmeticKind.presentationPack;
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: SheetTokens.previewInitialFraction,
-      builder: (context, controller) => Column(
-        children: [
-          Expanded(
-            child: ListView(
-              key: CoinStore.sheetList,
-              controller: controller,
-              padding: EdgeInsets.fromLTRB(
-                s.screenMargin,
-                0,
-                s.screenMargin,
-                s.md,
-              ),
-              children: [
-                Text(cosmetic.name(l), style: context.typography.headline),
-                SizedBox(height: s.xs),
-                Wrap(
-                  spacing: s.sm,
-                  runSpacing: s.xs,
-                  children: [
-                    SettingsPill(text: l.storePermanent),
-                    if (owned) SettingsPill(text: l.storeOwned),
-                    if (equipped) SettingsPill(text: l.storeEquipped),
-                  ],
-                ),
-                SizedBox(height: s.md),
-                CosmeticPreview(
-                  code: code,
-                  equipped: wallet?.equipped ?? const {},
-                ),
-                SizedBox(height: s.md),
-                Text(cosmetic.description(l), style: context.typography.body),
-                if (room || cosmetic.kind == CosmeticKind.narratorPack)
-                  Padding(
-                    padding: EdgeInsets.only(top: s.xs),
-                    child: Text(
-                      l.storeHostPackNote,
-                      style: context.typography.bodySmall,
-                    ),
-                  ),
-                if (room)
-                  Padding(
-                    padding: EdgeInsets.only(top: s.xs),
-                    child: Text(
-                      l.storeRoomArtNote,
-                      style: context.typography.bodySmall,
-                    ),
-                  ),
-                if (item != null &&
-                    cosmetic.kind == CosmeticKind.bundle &&
-                    (ownsAllContents ||
-                        _sum(wallet!, bundleContents) > item.charge))
-                  Padding(
-                    padding: EdgeInsets.only(top: s.sm),
-                    child: Text(
-                      ownsAllContents
-                          ? l.storeBundleOwnedAll
-                          : l.storeBundleSaves(
-                              _sum(wallet!, bundleContents) - item.charge,
-                            ),
-                      style: context.typography.bodySmall.copyWith(
-                        color: context.colors.accentGold,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: context.colors.borderSubtle),
-              ),
-            ),
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  s.screenMargin,
-                  s.sm,
-                  s.screenMargin,
-                  s.sm,
-                ),
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: busy,
-                  builder: (context, working, _) => Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (owned && slot != null)
-                        FilledButton(
-                          key: CoinStore.equip(code),
-                          onPressed: working
-                              ? null
-                              : () => onEquip(slot, equipped ? null : code),
-                          child: Text(equipped ? l.storeUnequip : l.storeEquip),
-                        )
-                      else if (!owned && item != null && !ownsAllContents)
-                        FilledButton(
-                          key: CoinStore.buy(code),
-                          onPressed: balance >= item.charge && !working
-                              ? () => onBuy(item)
-                              : null,
-                          child: Text(
-                            balance >= item.charge
-                                ? l.storeBuyFor(item.charge)
-                                : l.storeNotEnough(item.charge - balance),
-                          ),
-                        ),
-                      if (!owned && item != null && balance < item.charge)
-                        Padding(
-                          padding: EdgeInsets.only(top: s.xs),
-                          child: Text(
-                            l.storeEarnTime(
-                              item.charge - balance,
-                              matchesFor(
-                                item.charge - balance,
-                                v3:
-                                    ref
-                                        .watch(economyCapabilitiesProvider)
-                                        .valueOrNull
-                                        ?.economyV3 ??
-                                    false,
-                              ),
-                            ),
-                            style: context.typography.bodySmall,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static int _sum(WalletState wallet, List<String> codes) => [
-    for (final c in codes)
-      if (!wallet.owned.contains(c)) wallet.item(c)?.price ?? 0,
-  ].fold(0, (a, b) => a + b);
 }
 
 class _CollectionTab extends StatelessWidget {

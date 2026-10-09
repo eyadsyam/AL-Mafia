@@ -5291,7 +5291,7 @@ abstract class AppLocalizations {
   /// No description provided for @vaultTitle.
   ///
   /// In en, this message translates to:
-  /// **'The Council Vault'**
+  /// **'The Black Market'**
   String get vaultTitle;
 
   /// No description provided for @vaultSubtitle.
@@ -10692,6 +10692,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fires once per match'**
   String get howRoleSniperDo;
+
+  /// No description provided for @storeSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the shop'**
+  String get storeSearchHint;
+
+  /// No description provided for @storeOwnedFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get storeOwnedFilter;
+
+  /// No description provided for @storeNewReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'New in'**
+  String get storeNewReceipt;
+
+  /// No description provided for @storeDrawersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawers'**
+  String get storeDrawersLabel;
+
+  /// No description provided for @storeDrawersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} drawers'**
+  String storeDrawersCount(int count);
+
+  /// No description provided for @storeDrawerNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get storeDrawerNew;
+
+  /// No description provided for @storeDrawerThings.
+  ///
+  /// In en, this message translates to:
+  /// **'items'**
+  String get storeDrawerThings;
+
+  /// No description provided for @storeDrawerOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} owned'**
+  String storeDrawerOwned(int count);
+
+  /// No description provided for @storeCatTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Match tools'**
+  String get storeCatTools;
+
+  /// No description provided for @storeCatToolsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools and roles that change a match'**
+  String get storeCatToolsSub;
+
+  /// No description provided for @storeCatNarrator.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator voice'**
+  String get storeCatNarrator;
+
+  /// No description provided for @storeCatNarratorSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Who tells the night and the day'**
+  String get storeCatNarratorSub;
+
+  /// No description provided for @storeCatRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'Room moods'**
+  String get storeCatRooms;
+
+  /// No description provided for @storeCatRoomsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Backdrop, music and transitions'**
+  String get storeCatRoomsSub;
+
+  /// No description provided for @storeCatLook.
+  ///
+  /// In en, this message translates to:
+  /// **'Your look'**
+  String get storeCatLook;
+
+  /// No description provided for @storeCatLookSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Frames and nameplates'**
+  String get storeCatLookSub;
+
+  /// No description provided for @storeCatBundles.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundles'**
+  String get storeCatBundles;
+
+  /// No description provided for @storeCatBundlesSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Several things together'**
+  String get storeCatBundlesSub;
+
+  /// No description provided for @storeKindTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Tool'**
+  String get storeKindTool;
+
+  /// No description provided for @storeKindRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get storeKindRole;
+
+  /// No description provided for @storeKindNarrator.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice'**
+  String get storeKindNarrator;
+
+  /// No description provided for @storeKindRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood'**
+  String get storeKindRoom;
+
+  /// No description provided for @storeKindLook.
+  ///
+  /// In en, this message translates to:
+  /// **'Look'**
+  String get storeKindLook;
+
+  /// No description provided for @storeKindBundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundle'**
+  String get storeKindBundle;
+
+  /// No description provided for @storeOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'One use'**
+  String get storeOnce;
+
+  /// No description provided for @storeSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get storeSold;
+
+  /// No description provided for @storeLeftAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'You will keep {count}'**
+  String storeLeftAfter(int count);
+
+  /// No description provided for @storeToolHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it inside an online match from your tools.'**
+  String get storeToolHint;
+
+  /// No description provided for @storeRoleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch it on from the extra roles when you set up a match.'**
+  String get storeRoleHint;
+
+  /// No description provided for @storeNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing by that name.'**
+  String get storeNoMatches;
+
+  /// No description provided for @storeListen.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen'**
+  String get storeListen;
 }
 
 class _AppLocalizationsDelegate
