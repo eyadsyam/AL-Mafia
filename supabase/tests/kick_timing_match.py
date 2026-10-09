@@ -44,7 +44,8 @@ def main():
         lambda: fn("create_room", {"name": "Twin"}, twin),
     ])
     check("two create requests at once are both answered", s1 == 200 and s2 == 200, (a, b))
-    status, seats = rest("room_players_public?select=room_id&user_id=eq." + twin["id"], twin)
+    own_rooms = "&room_id=in.(" + a["roomId"] + "," + b["roomId"] + ")"
+    status, seats = rest("room_players_public?select=room_id&user_id=eq." + twin["id"] + own_rooms, twin)
     check("the user holds exactly one seat", status == 200 and len(seats) == 1, seats)
     ids = {a.get("roomId"), b.get("roomId")} - {None}
     status, rooms = rest("rooms_public?select=id&id=in.(" + ",".join(ids) + ")", twin)

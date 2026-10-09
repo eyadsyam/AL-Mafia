@@ -14,8 +14,8 @@
  * not done anything wrong.
  */
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
-import { floorBonusSeconds, loadToolUses, pendingFloorBonuses } from "../_shared/tools.ts";
 import { floorOwnerSeat, floorSecondsFor, micPolicyFor } from "../_shared/voice.ts";
+import { silencedSeatOf } from "../_shared/silence.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId } = await req.json();
@@ -32,9 +32,7 @@ Deno.serve(handler(async (req, userId, db) => {
     .maybeSingle();
   if (stateError) throw stateError;
   if (!state) throw new Error("room state missing");
-  const morning = (state.public_data as Record<string, unknown> | null)
-    ?.morning as Record<string, unknown> | null | undefined;
-  if (Number(morning?.silencedSeat) === me.seat) {
+  if (silencedSeatOf(state.public_data) === me.seat) {
     return ok({ granted: false, policy: "muted", reason: "silenced" });
   }
 
@@ -61,23 +59,15 @@ Deno.serve(handler(async (req, userId, db) => {
 
   // «أدوات القعدة»: extra_minute / objection add seconds to this seat's first
   // granted claim after the purchase, and to no later one.
-  const toolUses = await loadToolUses(db, roomId);
-  const bonusUses = pendingFloorBonuses(toolUses, me.phaseNumber, me.seat);
-  const granted = await db.rpc("claim_speaking_floor", {
+  const granted = await db.rpc("claim_floor_with_tools", {
     p_room: roomId,
     p_user: userId,
-    p_seconds: floorSecondsFor(me.phase, me.settings) +
-      floorBonusSeconds(toolUses, me.phaseNumber, me.seat),
+    p_seconds: floorSecondsFor(me.phase, me.settings),
+    p_phase: me.phase,
+    p_number: me.phaseNumber,
   });
 
   if (granted.error) throw granted.error;
-  const spentIds = bonusUses.map((u) => u.id).filter((id): id is number => typeof id === "number");
-  if (granted.data === true && spentIds.length > 0) {
-    const { error: spendError } = await db.from("room_tool_uses")
-      .update({ consumed_at: new Date().toISOString() })
-      .in("id", spentIds).is("consumed_at", null);
-    if (spendError) throw spendError;
-  }
 
   return ok({ granted: granted.data === true, policy });
 }));

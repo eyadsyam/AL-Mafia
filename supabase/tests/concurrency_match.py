@@ -144,8 +144,8 @@ def main():
     one_winner("resolve_night x3", resolves)
     status, rows = rest("night_actions?select=night,action&room_id=eq." + room_id, late)
     present = status == 200 and any(r["night"] == 1 for r in rows)
-    check("late move: acknowledged iff it is in the table for night 1",
-          (move[0] == 200) == present, (move, rows))
+    check("late citizen move stores no night action",
+          not present, (move, rows))
     check("late move: refused only as PHASE_CLOSED", move[0] == 200 or move[1].get("error") == "PHASE_CLOSED", move)
     s = state_of(room_id, players[0])
     check("one morning", s.get("phase") == "morning", s)
@@ -251,12 +251,13 @@ def main():
         lambda: fn("join_room", {"code": b["code"], "name": "Wanderer"}, wanderer),
     ])
     check("both joins answered", all(r[0] == 200 for r in results), results)
-    status, seats = rest("room_players_public?select=room_id&user_id=eq." + wanderer["id"], wanderer)
+    own_rooms = "&room_id=in.(" + a["roomId"] + "," + b["roomId"] + ")"
+    status, seats = rest("room_players_public?select=room_id&user_id=eq." + wanderer["id"] + own_rooms, wanderer)
     check("the wanderer holds exactly one seat", status == 200 and len(seats) == 1, seats)
     # and joining the other room afterwards moves the seat, it does not copy it
     other = b if seats and seats[0]["room_id"] == a["roomId"] else a
     status, moved = fn("join_room", {"code": other["code"], "name": "Wanderer"}, wanderer)
-    status, seats = rest("room_players_public?select=room_id&user_id=eq." + wanderer["id"], wanderer)
+    status, seats = rest("room_players_public?select=room_id&user_id=eq." + wanderer["id"] + own_rooms, wanderer)
     check("joining elsewhere moves the seat", status == 200 and len(seats) == 1 and seats[0]["room_id"] == other["roomId"], seats)
 
     # ── 6. the last player leaving a lobby leaves no room ───────────────

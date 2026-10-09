@@ -8,6 +8,7 @@
 import { asUuid, fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { ballotTargetAllowed } from "../_shared/ballot_candidates.ts";
 import { graveVoters, loadToolUses } from "../_shared/tools.ts";
+import { silencedSeatOf } from "../_shared/silence.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId, targetSeat, round, actionId } = await req.json();
@@ -34,9 +35,7 @@ Deno.serve(handler(async (req, userId, db) => {
     .from("room_state").select("public_data").eq("room_id", roomId)
     .maybeSingle();
   if (silenceError) throw silenceError;
-  const morning = (silenceState?.public_data as Record<string, unknown> | null)
-    ?.morning as Record<string, unknown> | null | undefined;
-  if (Number(morning?.silencedSeat) === me.seat) {
+  if (silencedSeatOf(silenceState?.public_data) === me.seat) {
     return fail("WRONG_ROLE", "a silenced player cannot vote today", 403);
   }
 
@@ -137,10 +136,7 @@ async function closeBallotIfEveryoneVoted(
     db.from("room_state").select("public_data").eq("room_id", roomId).maybeSingle(),
   ]);
   if (living.error || cast.error || state.error) return;
-  const silencedSeat = Number(
-    ((state.data?.public_data as Record<string, unknown> | null)?.morning as
-      Record<string, unknown> | null | undefined)?.silencedSeat,
-  );
+  const silencedSeat = silencedSeatOf(state.data?.public_data);
   const alive = new Set(
     (living.data ?? [])
       .filter((p: { seat: number }) => p.seat !== silencedSeat)

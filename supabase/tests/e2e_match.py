@@ -100,6 +100,9 @@ def ready_lobby(room_id, players):
             {"roomId": room_id, "ready": True, "revision": revision},
             player,
         )
+        if ready.get("error") == "FEATURE_OFF":
+            print("  skip lobby ready (feature flag off on this project)")
+            return
         check("seat %s lobby ready" % player.get("seat"), status == 200, ready)
 
 
@@ -165,7 +168,62 @@ SIGNUP_RETRIES = int(os.environ.get("SIGNUP_RETRIES", "20"))
 SIGNUP_WAIT_SECONDS = int(os.environ.get("SIGNUP_WAIT_SECONDS", "60"))
 
 
+_POOL_FILE = os.environ.get("BOT_POOL", "build/bot_pool.json")
+_POOL_TAKEN = [0]
+_POOL_MEMORY = None
+
+
+def _jwt_exp(token):
+    import base64
+    try:
+        body = token.split(".")[1]
+        body += "=" * (-len(body) % 4)
+        return json.loads(base64.urlsafe_b64decode(body))["exp"]
+    except Exception:
+        return 0
+
+
+def _pool_load():
+    # Import an existing cache once; never persist credentials.
+    global _POOL_MEMORY
+    if _POOL_MEMORY is None:
+        try:
+            with open(_POOL_FILE, encoding='utf-8') as f:
+                _POOL_MEMORY = json.load(f)
+        except (OSError, ValueError):
+            _POOL_MEMORY = []
+    return _POOL_MEMORY
+
+
+def _pool_save(pool):
+    global _POOL_MEMORY
+    _POOL_MEMORY = pool
+
+
 def anon_session(label):
+    """Hands out the next cached bot account (refreshing its token) before
+    spending one of the hosted project's scarce anonymous sign-ups. Set
+    BOT_POOL=off to disable."""
+    if _POOL_FILE != "off":
+        pool = _pool_load()
+        i = _POOL_TAKEN[0]
+        _POOL_TAKEN[0] += 1
+        if i < len(pool):
+            e = pool[i]
+            if _jwt_exp(e["token"]) - time.time() < 40 * 60 and e.get("refresh"):
+                st, d = _request("/auth/v1/token?grant_type=refresh_token", {"refresh_token": e["refresh"]})
+                if st == 200 and d.get("access_token"):
+                    e.update(token=d["access_token"], refresh=d.get("refresh_token", e["refresh"]))
+                    _pool_save(pool)
+            return {"label": label, "token": e["token"], "id": e["id"]}
+        fresh = _anon_session_new(label)
+        pool.append({"token": fresh["token"], "refresh": fresh.get("refresh"), "id": fresh["id"]})
+        _pool_save(pool)
+        return fresh
+    return _anon_session_new(label)
+
+
+def _anon_session_new(label):
     status, data = _request("/auth/v1/signup", {})
     attempt = 0
     while status == 429 and attempt < SIGNUP_RETRIES and not SERVICE_KEY:
@@ -175,7 +233,8 @@ def anon_session(label):
         time.sleep(SIGNUP_WAIT_SECONDS)
         status, data = _request("/auth/v1/signup", {})
     if status == 200 and data.get("access_token"):
-        return {"label": label, "token": data["access_token"], "id": data["user"]["id"]}
+        return {"label": label, "token": data["access_token"], "id": data["user"]["id"],
+                "refresh": data.get("refresh_token")}
     if SERVICE_KEY:
         return password_session(label)
     raise SystemExit(
