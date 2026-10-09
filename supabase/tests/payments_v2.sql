@@ -172,7 +172,7 @@ begin
         and (x->>'amountPiastres')::int=4999), s::text;
     -- A proof is required before approval.
     o2 := (public.create_coin_order_v2(u,'coins_1200','instapay','android')->'order'->>'id')::uuid;
-    begin perform public.admin_approve_coin_order(admin,o2,null); assert false;
+    begin perform public.admin_approve_coin_order(admin,o2,'TXN-2001'); assert false;
     exception when others then assert sqlerrm='PROOF_REQUIRED', sqlerrm; end;
     -- Rejection needs a reason, and the player sees it.
     perform public.submit_coin_order_proof(u,o2,'Eyad',u::text||'/r.jpg',pg_temp.pv_sha('p6r'),'android');
@@ -182,10 +182,15 @@ begin
     assert exists(select 1 from jsonb_array_elements(public.coin_shop_v2(u,'android')->'orders') x
       where (x->>'id')::uuid=o2 and x->>'status'='rejected' and x->>'playerNote'='Amount not received'), 'reason hidden';
     assert (select balance from wallet_accounts where user_id=u)=100, 'rejection credited';
+    -- Approval needs the payment app's reference (not the proof hash).
+    begin perform public.admin_approve_coin_order(admin,o,null); assert false, 'no reference';
+    exception when others then assert sqlerrm='TRANSACTION_REQUIRED', sqlerrm; end;
+    begin perform public.admin_approve_coin_order(admin,o,'proof:abcdef'); assert false, 'hash as reference';
+    exception when others then assert sqlerrm='TRANSACTION_REQUIRED', sqlerrm; end;
     -- Approval credits exactly once.
-    r := public.admin_approve_coin_order(admin,o,null);
+    r := public.admin_approve_coin_order(admin,o,'TXN-0001');
     assert r->>'status'='paid', r::text;
-    begin perform public.admin_approve_coin_order(admin,o,null); assert false, 'approved twice';
+    begin perform public.admin_approve_coin_order(admin,o,'TXN-0001'); assert false, 'approved twice';
     exception when others then assert sqlerrm='ORDER_NOT_REVIEWABLE', sqlerrm; end;
     select * into w from wallet_accounts where user_id=u;
     assert w.balance=600 and w.purchased_balance=500, w::text;
@@ -221,7 +226,7 @@ begin
     -- A second bundle order while one is under review is refused.
     begin perform public.create_coin_order_v2(u,'starter_bundle','instapay','android'); assert false, 'second pending';
     exception when others then assert sqlerrm='ALREADY_OWNED', sqlerrm; end;
-    perform public.admin_approve_coin_order(admin,o,null);
+    perform public.admin_approve_coin_order(admin,o,'TXN-1001');
     assert (select balance from wallet_accounts where user_id=u)=600, 'bundle coins';
     assert exists(select 1 from player_inventory where user_id=u and item_code='frame_council_seal'), 'no frame';
     assert public.owns_starter_bundle(u), 'not owned';
@@ -235,7 +240,7 @@ begin
     o2 := pg_temp.pv_order(v,'starter_bundle','p7b');
     insert into play_purchases(purchase_token,user_id,product_id,state,granted_at)
       values('play-token-p7b',v,'mm_starter_bundle','active',now());
-    begin perform public.admin_approve_coin_order(admin,o2,null); assert false, 'double bundle';
+    begin perform public.admin_approve_coin_order(admin,o2,'TXN-2002'); assert false, 'double bundle';
     exception when others then assert sqlerrm='ALREADY_OWNED', sqlerrm; end;
     -- A refund takes the frame back.
     perform public.admin_refund_coin_order(admin,o,'returned');
@@ -251,7 +256,7 @@ begin
     insert into commerce_admins(user_id) values(admin);
     o := pg_temp.pv_order(u,'quiet_pass','p8');
     assert not public.user_owns_entitlement(u,'remove_interruptions'), 'granted on proof';
-    perform public.admin_approve_coin_order(admin,o,null);
+    perform public.admin_approve_coin_order(admin,o,'TXN-1002');
     assert public.user_owns_entitlement(u,'remove_interruptions'), 'not granted';
     assert (public.economy_capabilities(u)->>'adFree')::boolean, 'app not ad-free';
     begin perform public.create_coin_order_v2(u,'quiet_pass','instapay','android'); assert false;

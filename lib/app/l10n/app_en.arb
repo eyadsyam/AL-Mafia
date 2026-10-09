@@ -2677,6 +2677,7 @@
   "adminFilterApproved": "Approved",
   "adminFilterRejected": "Rejected",
   "adminFilterExpired": "Expired",
+  "adminTransactionRef": "Transaction reference from the payment app",
   "adminRejectReason": "Reason (shown to the player)",
   "adminReasonRequired": "Write a reason first.",
   "adminProofGone": "Screenshot deleted (retention)",

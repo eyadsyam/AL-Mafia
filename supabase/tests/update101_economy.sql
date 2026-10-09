@@ -195,10 +195,13 @@ begin
   assert w.purchased_balance=0, w::text;
   assert public.revoke_voided_play_purchases(array[t], null)=1;
   assert public.revoke_voided_play_purchases(array[t], null)=0, 'idempotent';
-  assert (select balance from wallet_accounts where user_id=u)=w.balance, 'earned untouched';
-  assert (select purchase_debt from wallet_accounts where user_id=u)=500;
-  assert exists(select 1 from player_inventory where user_id=u and item_code='narrator_storyteller'),
-    'cosmetics are not taken away';
+  -- The item bought with the refunded coins goes back; the 700 earned
+  -- coins it also cost come back, and nothing is left as debt.
+  assert (select balance from wallet_accounts where user_id=u)=w.balance+700, 'earned part returned';
+  assert (select purchase_debt from wallet_accounts where user_id=u)=0;
+  assert not exists(select 1 from player_inventory where user_id=u and item_code='narrator_storyteller'),
+    'item bought with refunded coins is taken back';
+  update wallet_accounts set balance=balance-700, purchase_debt=500 where user_id=u;
   s:=public.commit_play_product(u,t,'mm_coins_500','GPA.1','active',now(),1,tag);
   assert (select balance from wallet_accounts where user_id=u)=w.balance, 'revoked stays revoked';
   s:=public.commit_play_product(u,'play-token-coins-1200-bbbb','mm_coins_1200','GPA.2','active',now(),1,tag);

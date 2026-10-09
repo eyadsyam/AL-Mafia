@@ -47,6 +47,7 @@ class PaymentsAdminScreen extends ConsumerStatefulWidget {
 
   static Key approve(String id) => ValueKey('admin_approve_$id');
   static Key reject(String id) => ValueKey('admin_reject_$id');
+  static Key transaction(String id) => ValueKey('admin_transaction_$id');
   static Key refund(String id) => ValueKey('admin_refund_$id');
   static Key reason(String id) => ValueKey('admin_reason_$id');
   static Key order(String id) => ValueKey('admin_order_$id');
@@ -68,6 +69,7 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
   bool _busy = false;
   bool _asking = false;
   final _reasons = <String, TextEditingController>{};
+  final _transactions = <String, TextEditingController>{};
   StreamSubscription<AccountStatus>? _auth;
 
   @override
@@ -98,7 +100,7 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
   @override
   void dispose() {
     _auth?.cancel();
-    for (final c in _reasons.values) {
+    for (final c in [..._reasons.values, ..._transactions.values]) {
       c.dispose();
     }
     super.dispose();
@@ -169,6 +171,9 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
 
   TextEditingController _reason(String id) =>
       _reasons.putIfAbsent(id, TextEditingController.new);
+
+  TextEditingController _transaction(String id) =>
+      _transactions.putIfAbsent(id, TextEditingController.new);
 
   Future<void> _act(Map<String, Object?> body) async {
     if (_busy) return;
@@ -389,6 +394,14 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
         if (status == 'claimed' ||
             status == 'needs_info' ||
             status == 'expired') ...[
+          // The payment app's own reference: one real transfer can only
+          // ever be approved once, however the screenshot was re-saved.
+          TextField(
+            key: PaymentsAdminScreen.transaction(id),
+            controller: _transaction(id),
+            maxLength: 80,
+            decoration: InputDecoration(labelText: l.adminTransactionRef),
+          ),
           TextField(
             key: PaymentsAdminScreen.reason(id),
             controller: _reason(id),
@@ -398,13 +411,22 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
           Wrap(
             spacing: s.sm,
             children: [
-              FilledButton(
-                key: PaymentsAdminScreen.approve(id),
-                style: vaultGoldStyle(context),
-                onPressed: _busy || order['proofSubmitted'] != true
-                    ? null
-                    : () => _act({'action': 'admin_approve', 'order': id}),
-                child: Text(l.adminApproveShort),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _transaction(id),
+                builder: (context, value, _) => FilledButton(
+                  key: PaymentsAdminScreen.approve(id),
+                  style: vaultGoldStyle(context),
+                  onPressed: _busy ||
+                          order['proofSubmitted'] != true ||
+                          value.text.trim().length < 4
+                      ? null
+                      : () => _act({
+                            'action': 'admin_approve',
+                            'order': id,
+                            'transaction': value.text.trim(),
+                          }),
+                  child: Text(l.adminApproveShort),
+                ),
               ),
               OutlinedButton(
                 key: PaymentsAdminScreen.reject(id),

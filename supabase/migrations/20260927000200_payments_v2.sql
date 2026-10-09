@@ -406,6 +406,7 @@ end $$;
 insert into public.commerce_admins(user_id,note)
   select id,'owner' from auth.users
    where lower(email)='eyadsyam124@gmail.com' and coalesce(is_anonymous,false)=false
+     and email_confirmed_at is not null
 on conflict (user_id) do nothing;
 
 -- 11. Private proof bucket (hosted Storage only; skipped where it does not exist) -------

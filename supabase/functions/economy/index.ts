@@ -13,7 +13,6 @@ import {
 import {
   caseAnswerHash,
   casePuzzleState,
-  CASE_PUZZLE_TEST_SALT,
   generateCaseOfDay,
 } from "../_shared/case_of_day.ts";
 
@@ -86,7 +85,9 @@ Deno.serve(handler(async (req, userId, db) => {
     if (puzzleRequest.kind === "solve" && puzzleRequest.day !== utcDay) {
       return ok({ ok: false, code: "DAY_CHANGED" });
     }
-    const salt = Deno.env.get("CASE_PUZZLE_SALT") ?? CASE_PUZZLE_TEST_SALT;
+    // The repo constant would make the daily answer public: refuse instead.
+    const salt = Deno.env.get("CASE_PUZZLE_SALT");
+    if (!salt) return ok({ ok: false, code: "UNAVAILABLE" });
     const puzzle = generateCaseOfDay(utcDay, salt);
     if (puzzleRequest.kind === "read") {
       const { data, error } = await db.rpc("case_puzzle_status", { p_user: userId });

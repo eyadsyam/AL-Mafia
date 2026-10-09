@@ -15,12 +15,13 @@
  */
 import { serviceClient } from "../_shared/api.ts";
 import { playAccessToken } from "../_shared/play_auth.ts";
+import { sameSecret } from "../_shared/same_secret.ts";
 
 const packageName = "com.mafiamaster.mafia_master";
 
 Deno.serve(async (request) => {
   const secret = Deno.env.get("PLAY_SYNC_SECRET");
-  if (!secret || request.headers.get("x-sync-secret") !== secret) {
+  if (!secret || !sameSecret(request.headers.get("x-sync-secret") ?? "", secret)) {
     return new Response("forbidden", { status: 403 });
   }
   try {

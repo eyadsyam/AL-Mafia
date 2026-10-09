@@ -1667,6 +1667,7 @@
   "adminFilterApproved": "المقبولة",
   "adminFilterRejected": "المرفوضة",
   "adminFilterExpired": "المنتهية",
+  "adminTransactionRef": "رقم العملية من تطبيق الدفع",
   "adminRejectReason": "سبب الرفض (هيظهر للاعب)",
   "adminReasonRequired": "اكتب السبب الأول.",
   "adminProofGone": "الصورة اتمسحت (مدة الاحتفاظ)",

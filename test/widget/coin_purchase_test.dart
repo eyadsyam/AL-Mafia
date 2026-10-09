@@ -842,9 +842,22 @@ void main() {
       expect(find.text(arStrings.adminSender('Eyad S')), findsOneWidget);
       expect(find.text(arStrings.adminPlayer('Player One')), findsNWidgets(2));
 
+      // No approval until the payment app's reference is typed.
+      expect(
+        tester
+            .widget<FilledButton>(find.byKey(PaymentsAdminScreen.approve('o1')))
+            .onPressed,
+        isNull,
+      );
+      await tester.enterText(
+        find.byKey(PaymentsAdminScreen.transaction('o1')),
+        'TXN-77',
+      );
+      await tester.pump();
       await tester.tap(find.byKey(PaymentsAdminScreen.approve('o1')));
       await tester.pumpAndSettle();
       expect(coinCalls('admin_approve').single.body['order'], 'o1');
+      expect(coinCalls('admin_approve').single.body['transaction'], 'TXN-77');
       expect(server.balance, 500);
 
       await tester.tap(find.byKey(PaymentsAdminScreen.reject('o2')));

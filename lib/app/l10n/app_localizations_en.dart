@@ -4145,6 +4145,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminFilterExpired => 'Expired';
 
   @override
+  String get adminTransactionRef =>
+      'Transaction reference from the payment app';
+
+  @override
   String get adminRejectReason => 'Reason (shown to the player)';
 
   @override

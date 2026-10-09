@@ -7106,6 +7106,12 @@ abstract class AppLocalizations {
   /// **'Expired'**
   String get adminFilterExpired;
 
+  /// No description provided for @adminTransactionRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction reference from the payment app'**
+  String get adminTransactionRef;
+
   /// No description provided for @adminRejectReason.
   ///
   /// In en, this message translates to:

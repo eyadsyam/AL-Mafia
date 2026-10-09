@@ -4070,6 +4070,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminFilterExpired => 'المنتهية';
 
   @override
+  String get adminTransactionRef => 'رقم العملية من تطبيق الدفع';
+
+  @override
   String get adminRejectReason => 'سبب الرفض (هيظهر للاعب)';
 
   @override
