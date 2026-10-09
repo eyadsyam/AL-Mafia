@@ -104,6 +104,8 @@ class MatchCodec {
     'silencerEnabled': s.silencerEnabled,
     'elderEnabled': s.elderEnabled,
     'sniperEnabled': s.sniperEnabled,
+    'discussionSeconds': s.discussionSeconds,
+    'revealNightVictimRole': s.revealNightVictimRole,
   };
 
   static MatchSettings _decodeSettings(Map<String, dynamic> json) =>
@@ -167,6 +169,14 @@ class MatchCodec {
         silencerEnabled: json['silencerEnabled'] as bool? ?? false,
         elderEnabled: json['elderEnabled'] as bool? ?? false,
         sniperEnabled: json['sniperEnabled'] as bool? ?? false,
+        // Tolerated as missing: settings saved before the settings sheet kept
+        // these two fall back to the defaults.
+        discussionSeconds:
+            json['discussionSeconds'] as int? ??
+            const MatchSettings.defaults().discussionSeconds,
+        revealNightVictimRole:
+            json['revealNightVictimRole'] as bool? ??
+            const MatchSettings.defaults().revealNightVictimRole,
       );
 
   // ---------------------------------------------------------------------------

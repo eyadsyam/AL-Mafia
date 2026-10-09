@@ -39,7 +39,9 @@ import 'package:mafia_master/ui/widgets/role_card.dart';
 import 'package:mafia_master/ui/widgets/turn_shell.dart';
 
 import 'package:mafia_master/ui/screens/setup/home_screen.dart';
+import 'package:mafia_master/ui/screens/setup/how_to_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/settings_screen.dart';
+import 'package:mafia_master/ui/screens/setup/settings_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/add_players_screen.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/screens/postgame/history_screen.dart';
@@ -183,6 +185,50 @@ void main() {
       await capture(tester, entry.key + '_360');
     }
   });
+
+  testWidgets('first run steps', (tester) async {
+    await shoot(tester, '17_first_run_0_intro', const FirstRunScreen());
+    await tester.pump(const Duration(milliseconds: 1400));
+    await capture(tester, '17_first_run_1_fan');
+    await tester.pumpAndSettle();
+    await capture(tester, '17_first_run_2_kind');
+    await tester.tap(find.byKey(FirstRunScreen.agreeKey));
+    await tester.pumpAndSettle();
+    await capture(tester, '17_first_run_3_kind_agreed');
+    await tester.tap(find.byKey(FirstRunScreen.girlKey));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(FirstRunScreen.nameKey), 'منة');
+    await tester.pumpAndSettle();
+    await capture(tester, '17_first_run_4_name');
+  });
+
+  for (final (name, show) in <(String, Future<void> Function(BuildContext))>[
+    ('09_settings_sheet', showSettingsSheet),
+    (
+      '15_how_to_sheet',
+      (c) => showHowToSheet(c, onVideo: () {}),
+    ),
+  ]) {
+    testWidgets(name, (tester) async {
+      await shoot(
+        tester,
+        name,
+        Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: TextButton(
+                onPressed: () => show(context),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await capture(tester, name);
+    });
+  }
 
   testWidgets('stories hub', (tester) async {
     await shoot(tester, '01_stories_hub', StoriesScreen(onBack: () {}));

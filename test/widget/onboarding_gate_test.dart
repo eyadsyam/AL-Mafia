@@ -9,7 +9,9 @@ import 'package:mafia_master/data/repository_provider.dart';
 import 'package:mafia_master/app/resume_gate.dart';
 import 'package:mafia_master/ui/screens/onboarding/onboarding_video_screen.dart';
 import 'package:mafia_master/ui/screens/setup/home_screen.dart';
-import 'package:mafia_master/ui/screens/setup/how_to_play_screen.dart';
+import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
+import 'package:mafia_master/ui/screens/setup/how_to_sheet.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
 
 import '../support/scripted_match.dart';
@@ -96,91 +98,30 @@ void main() {
   });
 
   group('first launch', () {
-    testWidgets('a fresh install opens the intro video instead of Home', (
+    testWidgets('a fresh install is asked its questions, not shown the film', (
       tester,
     ) async {
+      SharedPreferences.setMockInitialValues({});
       await launch(tester);
 
-      expect(find.byType(OnboardingVideoScreen), findsOneWidget);
+      expect(find.byKey(FirstRunScreen.screenKey), findsOneWidget);
+      expect(find.byType(OnboardingVideoScreen), findsNothing);
       expect(find.byType(HomeScreen), findsNothing);
     });
 
-    testWidgets('skipping the video opens the rules and records it as seen', (
-      tester,
-    ) async {
-      await launch(tester);
-
-      await tester.tap(find.byKey(OnboardingVideoScreen.skipButton));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(HowToPlayScreen), findsOneWidget);
-      expect(
-        store.onboardingSeen,
-        isTrue,
-        reason: 'the introduction must only interrupt the first launch once',
-      );
-
-      await tester.tap(find.byKey(HowToPlayScreen.startButton));
-      await tester.pumpAndSettle();
-      expect(find.byType(HomeScreen), findsOneWidget);
-    });
-
-    testWidgets('the next launch goes straight to Home', (tester) async {
-      await launch(tester);
-      await tester.tap(find.byKey(OnboardingVideoScreen.skipButton));
-      await tester.pumpAndSettle();
-
-      // A relaunch: a brand-new repository over the same store, which is what
-      // a process restart actually looks like.
-      await launch(tester);
-
-      expect(find.byType(HomeScreen), findsOneWidget);
-      expect(find.byType(OnboardingVideoScreen), findsNothing);
-    });
-  });
-
-  group('an unfinished match outranks it', () {
-    testWidgets('a first launch mid-match offers resume, not the deck', (
-      tester,
-    ) async {
+    testWidgets('a first launch mid-match offers resume', (tester) async {
       final engine = scriptedMatch();
       await MemoryMatchRepository(store).persistStep(engine.match);
 
       await launch(tester);
 
-      expect(
-        find.byKey(ResumeGate.resumeButton),
-        findsOneWidget,
-        reason:
-            'a table that is mid-game wants its match back, not a '
-            'tutorial',
-      );
+      expect(find.byKey(ResumeGate.resumeButton), findsOneWidget);
       expect(find.byType(OnboardingVideoScreen), findsNothing);
-    });
-
-    testWidgets('and the deck is not lost — it comes up on the next clean '
-        'launch', (tester) async {
-      final engine = scriptedMatch();
-      await MemoryMatchRepository(store).persistStep(engine.match);
-      await launch(tester);
-
-      // The host ends the match rather than resuming it.
-      await tester.tap(find.byKey(ResumeGate.endButton));
-      await tester.pumpAndSettle();
-
-      await launch(tester);
-      expect(
-        find.byType(OnboardingVideoScreen),
-        findsOneWidget,
-        reason:
-            'standing down for a resume must defer the intro, not '
-            'consume it',
-      );
     });
   });
 
   group('reaching it on purpose', () {
-    testWidgets('the home help control opens the intro video', (tester) async {
+    testWidgets('the home help control opens the how-to sheet', (tester) async {
       store = returningHostStore();
       await launch(tester);
       expect(find.byType(HomeScreen), findsOneWidget);
@@ -188,7 +129,26 @@ void main() {
       await tester.tap(find.byKey(HomeScreen.howToPlayButton));
       await tester.pumpAndSettle();
 
+      expect(find.byKey(HowToKeys.sheet), findsOneWidget);
+      expect(find.byType(OnboardingVideoScreen), findsNothing);
+    });
+
+    testWidgets('the sheet plays the video; skipping it returns to Home', (
+      tester,
+    ) async {
+      store = returningHostStore();
+      await launch(tester);
+      await tester.tap(find.byKey(HomeScreen.howToPlayButton));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(HowToKeys.video));
+      await tester.tap(find.byKey(HowToKeys.video));
+      await tester.pumpAndSettle();
       expect(find.byType(OnboardingVideoScreen), findsOneWidget);
+
+      await tester.tap(find.byKey(OnboardingVideoScreen.skipButton));
+      await tester.pumpAndSettle();
+      expect(find.byType(HomeScreen), findsOneWidget);
+      expect(store.onboardingSeen, isTrue);
     });
   });
 }

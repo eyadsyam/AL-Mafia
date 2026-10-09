@@ -13,13 +13,11 @@ import 'package:mafia_master/ui/screens/online/online_entry_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/online/voice_session.dart';
 import 'package:mafia_master/ui/screens/setup/home_screen.dart';
-import 'package:mafia_master/ui/screens/setup/how_to_play_screen.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
-import 'package:mafia_master/ui/widgets/gender_picker.dart';
-import 'package:mafia_master/ui/widgets/language_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../support/fake_backend.dart';
+import '../support/first_run_steps.dart';
 
 /// P1 — setup, asked once, before anything else.
 ///
@@ -83,58 +81,26 @@ void main() {
   }
 
   Future<void> completeSetup(WidgetTester tester) async {
-    await tester.pumpAndSettle();
-    expect(find.byKey(FirstRunScreen.screenKey), findsOneWidget);
-    expect(find.byType(LanguagePicker), findsOneWidget);
-    await tester.tap(find.byKey(FirstRunScreen.nextKey));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(FirstRunScreen.nameKey), 'سامي');
-    await tester.pump();
-    // The address choice is a labelled row under the name (phase 99), below
-    // the fold of this 800x600 surface.
-    await tester.ensureVisible(find.byKey(GenderPicker.maleKey));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(GenderPicker.maleKey));
-    await tester.pump();
-    for (var i = 0; i < 2; i++) {
-      await tester.tap(find.byKey(FirstRunScreen.nextKey));
-      await tester.pumpAndSettle();
-    }
-    for (final key in [FirstRunScreen.adultKey, FirstRunScreen.termsKey]) {
-      await tester.ensureVisible(find.byKey(key));
-      await tester.tap(find.byKey(key));
-      await tester.pump();
-    }
-    await tester.ensureVisible(find.byKey(FirstRunScreen.continueKey));
-    await tester.tap(find.byKey(FirstRunScreen.continueKey));
-    await tester.pumpAndSettle();
-  }
-
-  /// Skip the film, read the rules, come out the other side.
-  Future<void> throughTheIntro(WidgetTester tester) async {
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(OnboardingVideoScreen.skipButton));
-    await tester.pumpAndSettle();
-    expect(find.byType(HowToPlayScreen), findsOneWidget);
-    await tester.tap(find.byKey(HowToPlayScreen.startButton));
-    await tester.pumpAndSettle();
+    await completeFirstRun(tester, name: 'سامي');
   }
 
   group('the first run', () {
-    testWidgets('setup comes first; the film waits behind it', (tester) async {
+    testWidgets('setup comes first and Home follows; the film is not played', (
+      tester,
+    ) async {
       await launch(tester, freshInstall());
       await tester.pumpAndSettle();
       expect(find.byType(OnboardingVideoScreen), findsNothing);
       await completeSetup(tester);
-      expect(find.byType(OnboardingVideoScreen), findsOneWidget);
+      expect(find.byType(OnboardingVideoScreen), findsNothing);
+      expect(find.byType(HomeScreen), findsOneWidget);
     });
 
-    testWidgets('skipping the film lands on Home with setup kept', (
+    testWidgets('Home after setup keeps it', (
       tester,
     ) async {
       await launch(tester, freshInstall());
       await completeSetup(tester);
-      await throughTheIntro(tester);
       expect(find.byType(HomeScreen), findsOneWidget);
       expect(find.byKey(FirstRunScreen.screenKey), findsNothing);
     });
@@ -143,7 +109,6 @@ void main() {
       final store = freshInstall();
       await launch(tester, store);
       await completeSetup(tester);
-      await throughTheIntro(tester);
 
       await launch(tester, store);
       await tester.pumpAndSettle();
@@ -160,12 +125,6 @@ void main() {
     ) async {
       await launch(tester, freshInstall(), at: Routes.joinLink('K7M2QP'));
       await completeSetup(tester);
-      expect(
-        find.byType(OnboardingVideoScreen),
-        findsOneWidget,
-        reason: 'a link is not a reason to skip the explanation',
-      );
-      await throughTheIntro(tester);
 
       expect(find.byType(OnlineEntryScreen), findsOneWidget);
       final code = tester.widget<TextField>(

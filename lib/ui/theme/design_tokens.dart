@@ -106,6 +106,10 @@ abstract final class ModeTokens {
 abstract final class HomeTokens {
   /// Below this height the «دوس على أي كارت» hint gives its room to the fan.
   static const double hintMinHeight = 700;
+
+  /// «أهلاً يا <name>» after first run: fade in, hold, fade out.
+  static const Duration greetingFade = Duration(milliseconds: 600);
+  static const Duration greetingHold = Duration(seconds: 4);
 }
 
 abstract final class DeckTokens {
@@ -2720,4 +2724,95 @@ abstract final class BotTokens {
   static const double levelGap = 10;
   static const double levelLift = 0.04; // of the card's height
   static const Duration levelMove = Duration(milliseconds: 200);
+}
+
+/// First run: the deck fans into the logo, «نكلّمك إزاي؟», «اسمك إيه؟»,
+/// «نحفظ لعبك؟».
+abstract final class FirstRunTokens {
+  /// The opening: how long the deck takes to fan, and how long the logo is
+  /// held before the first question. Reduced motion holds the end state only.
+  static const Duration fan = Duration(milliseconds: 900);
+  static const Duration intro = Duration(milliseconds: 2600);
+  static const Duration introStill = Duration(milliseconds: 900);
+  static const Duration stepSlide = Duration(milliseconds: 450);
+  static const Duration shake = Duration(milliseconds: 400);
+  static const Duration flip = Duration(milliseconds: 600);
+  static const Duration hold = Duration(milliseconds: 600);
+  static const Duration land = Duration(milliseconds: 600);
+
+  /// The fanned deck: card size, spread, tilt (radians), drop at the edges.
+  static const Size deckCard = Size(76, 114);
+  static const double deckSpread = 30;
+  static const double deckTilt = 0.1;
+  static const double deckDrop = 9;
+  static const int deckCount = 7;
+
+  /// Progress dots.
+  static const double dot = 6;
+  static const double dotWide = 20;
+  static const Duration dotMove = Duration(milliseconds: 350);
+
+  /// The two big cards.
+  static const double pickAspect = 1.5;
+  static const double pickMaxHeight = 260;
+  static const double pickGap = 12;
+  static const double dimmedAlpha = 0.5;
+  static const double shakeShift = 6;
+  static const double passedAlpha = 0.15;
+  static const double chosenLift = 8;
+
+  /// The card that carries the name.
+  static const double myCardWidth = 150;
+  static const double landRise = 40;
+  static const double landTilt = 0.1;
+  static const double myCardMin = 96;
+  static const double myCardTiny = 72;
+
+  /// Below this much room (keyboard up on a short phone) the name step
+  /// drops its hint and shrinks its card.
+  static const double roomyAbove = 420;
+  static const int nameMin = 2;
+  static const int nameMax = 20;
+
+  static const double agreeBorder = 1;
+  static const double box = 26;
+  static const double boxRadius = 7;
+
+  /// The «محفوظ» ring on the last step.
+  static const double safeRing = 118;
+  static const double safeCoin = 46;
+}
+
+/// The settings sheet over Home: groups, rows, the «اتحفظ» toast.
+abstract final class SettingsSheetTokens {
+  static const Duration toast = Duration(milliseconds: 1200);
+  static const Duration toastMove = Duration(milliseconds: 300);
+  static const double toastRise = 10;
+  static const double groupRadius = 14;
+  static const double rowMin = 56;
+  static const double linkMin = 52;
+  static const double stepperButton = 48;
+  static const double stepperValue = 72;
+}
+
+/// «إزاي نلعب»: the booklet, the flip role cards, the FAQ.
+abstract final class HowToTokens {
+  static const double pageArtHeight = 200;
+  static const double pageArtHeightCompact = 140;
+  static const double compactBelow = 700;
+  static const double pageBodyMin = 90;
+  static const double artRadius = 14;
+  static const double artFadeFrom = 0.5;
+  static const double artScrimAlpha = 0.93;
+  static const double roleDecode = 100;
+  static const double roleAspect = 0.66;
+  static const int roleColumns = 4;
+  static const double roleGap = 8;
+  static const double roleBackPad = 6;
+  static const double rolePerspective = 0.0012;
+  static const Duration flip = Duration(milliseconds: 600);
+  static const Duration page = Duration(milliseconds: 300);
+  static const Duration faq = Duration(milliseconds: 300);
+  static const double dot = 6;
+  static const double dotWide = 18;
 }

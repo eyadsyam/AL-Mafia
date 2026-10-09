@@ -1,15 +1,7 @@
 import '../../widgets/mafia_kit.dart';
-import '../../widgets/language_picker.dart';
-import '../../widgets/legal_documents.dart';
 import '../../widgets/setup_entrance.dart';
-import 'help_center.dart';
-import 'coin_store.dart';
-import 'scenario_store.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import '../online/safety_center.dart';
-import '../../social/push_toggle.dart';
-import '../online/rewarded_reward_button.dart';
 import '../../../app/l10n/app_localizations.dart';
 import '../../../engine/models/enums.dart'
     show DiscussionMode, DayTieRule, Role;
@@ -21,7 +13,6 @@ import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
 import '../../widgets/settings_kit.dart';
 import '../../economy/web_ads.dart';
-import '../../account/profile_panels.dart' show AccountCard;
 
 /// Settings screen (S-04).
 ///
@@ -221,8 +212,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     onChanged: onPick,
   );
 
-  bool get _isDefaults => widget.playerCount == null;
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -240,42 +229,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _presetPanel(l10n),
       _pace(l10n),
       _information(l10n),
-      _roles(l10n),
       _reveal(l10n),
       _voting(l10n),
     ];
-    final panels = _isDefaults
-        ? [
-            SettingsPanel(
-              icon: Icons.translate,
-              title: l10n.settingsSectionGeneral,
-              children: const [
-                LanguagePicker(),
-                PushSettingsRow(),
-                AccountCard(),
-              ],
-            ),
-            _audio(l10n),
-            SettingsHeading(
-              title: l10n.settingsRulesTitle,
-              subtitle: l10n.settingsRulesHint,
-            ),
-            ...rules,
-            SettingsPanel(
-              icon: Icons.support_agent_outlined,
-              title: l10n.settingsSectionMore,
-              divided: false,
-              children: const [
-                CoinStoreButton(tile: true),
-                ScenarioStoreButton(tile: true),
-                AdPrivacyButton(),
-                HelpButton(tile: true),
-                SafetyButton(privacy: true),
-                LegalDocuments(),
-              ],
-            ),
-          ]
-        : [...rules, _audio(l10n)];
+    final panels = [...rules, _audio(l10n)];
 
     return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
@@ -464,66 +421,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // «اكشف محتوى الهمسات بعد المباراة» was here, online-only and read by
       // nothing. It lives in the room settings now (RoomSettingsPanel), where
       // the server honours it (Doc 09 §7, launch audit A4).
-    ],
-  );
-
-  void _setOptionalRole(Role role, bool enabled) {
-    final counts = _counts;
-    if (counts == null) return;
-    final next = Map<Role, int>.of(counts);
-    final delta = enabled ? 1 : -1;
-    if (role == Role.silencer) {
-      if (enabled && (next[Role.mafia] ?? 0) < 2) return;
-      next[Role.mafia] = (next[Role.mafia] ?? 0) - delta;
-    } else {
-      if (enabled && (next[Role.citizen] ?? 0) < 1) return;
-      next[Role.citizen] = (next[Role.citizen] ?? 0) - delta;
-    }
-    next[role] = enabled ? 1 : 0;
-    setState(() {
-      _counts = next;
-      _s = switch (role) {
-        Role.silencer => _s.copyWith(silencerEnabled: enabled),
-        Role.elder => _s.copyWith(elderEnabled: enabled),
-        Role.sniper => _s.copyWith(sniperEnabled: enabled),
-        _ => _s,
-      };
-    });
-    widget.onRoleCounts?.call(next);
-  }
-
-  Widget _roles(AppLocalizations l10n) => SettingsPanel(
-    icon: Icons.style_outlined,
-    title: l10n.rolesTitle,
-    children: [
-      _switch(
-        field: 'silencer',
-        label: l10n.settingSilencer,
-        description: l10n.settingSilencerHint,
-        value: _s.silencerEnabled,
-        onChanged: _counts == null ||
-                (!_s.silencerEnabled && (_counts![Role.mafia] ?? 0) < 2)
-            ? null
-            : (v) => _setOptionalRole(Role.silencer, v),
-      ),
-      _switch(
-        field: 'elder',
-        label: l10n.settingElder,
-        description: l10n.settingElderHint,
-        value: _s.elderEnabled,
-        onChanged: _counts == null || (widget.playerCount ?? 0) < 6
-            ? null
-            : (v) => _setOptionalRole(Role.elder, v),
-      ),
-      _switch(
-        field: 'sniper',
-        label: l10n.settingSniper,
-        description: l10n.settingSniperHint,
-        value: _s.sniperEnabled,
-        onChanged: _counts == null || (widget.playerCount ?? 0) < 7
-            ? null
-            : (v) => _setOptionalRole(Role.sniper, v),
-      ),
     ],
   );
 

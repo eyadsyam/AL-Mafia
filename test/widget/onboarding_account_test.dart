@@ -5,9 +5,12 @@ import 'package:mafia_master/transport/account_auth.dart';
 import 'package:mafia_master/ui/account/account_sheet.dart';
 import 'package:mafia_master/ui/account/onboarding_account_step.dart';
 import 'package:mafia_master/ui/account/profile_panels.dart';
+import 'package:mafia_master/data/player_profile.dart';
+import 'package:mafia_master/data/terms_consent.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../support/first_run_steps.dart';
 import '../support/localized.dart';
 
 class _FakeAuth extends AccountAuth {
@@ -50,41 +53,42 @@ Future<void> _tap(WidgetTester tester, Key key) async {
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('guest: the choice offers sign-in and «كمّل من غير تسجيل»', (
+  Future<void> toSaveStep(WidgetTester tester) async {
+    await passIntro(tester);
+    await answerKind(tester);
+    await typeName(tester, 'Eyad');
+    await _tap(tester, FirstRunScreen.nextKey);
+  }
+
+  testWidgets('guest: Google, email, and play later as a guest', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(390, 900));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     final auth = _FakeAuth();
     await tester.pumpWidget(_host(const FirstRunScreen(), auth: auth));
-    await tester.pumpAndSettle();
-    // Language first, then the account chapter: five chapters in all.
-    await _tap(tester, FirstRunScreen.nextKey);
-    expect(find.byKey(OnboardingAccountChoice.signInKey), findsOneWidget);
+    await toSaveStep(tester);
+    expect(find.byKey(FirstRunScreen.googleKey), findsOneWidget);
+    expect(find.byKey(FirstRunScreen.emailKey), findsOneWidget);
     expect(find.byKey(FirstRunScreen.guestKey), findsOneWidget);
-    expect(find.text(arStrings.onboardAccountGuest), findsOneWidget);
-    expect(find.bySemanticsLabel(arStrings.arrivalStep(2, 5)), findsOneWidget);
+    expect(find.text(arStrings.firstRunGuest), findsOneWidget);
+    // Three dots with a server.
+    expect(find.bySemanticsLabel(arStrings.arrivalStep(3, 3)), findsOneWidget);
 
-    // Guest keeps the anonymous session and goes on to the name.
+    // Guest keeps the anonymous session: the profile is saved, nothing signed.
     await _tap(tester, FirstRunScreen.guestKey);
-    expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
     expect(auth.calls, isEmpty, reason: 'nothing was signed in or linked');
-
-    // Back returns to the choice; it is never a one-way door.
-    await _tap(tester, FirstRunScreen.backKey);
-    expect(find.byKey(OnboardingAccountChoice.signInKey), findsOneWidget);
+    expect((await ProfileStore().load())!.name, 'Eyad');
+    expect((await TermsStore().load())!.adult, isTrue);
   });
 
-  testWidgets('sign in: the choice opens the full screen (Google, email)', (
-    tester,
-  ) async {
+  testWidgets('email: opens the full sign-in screen', (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 900));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     final auth = _FakeAuth();
     await tester.pumpWidget(_host(const FirstRunScreen(), auth: auth));
-    await tester.pumpAndSettle();
-    await _tap(tester, FirstRunScreen.nextKey);
-    await _tap(tester, OnboardingAccountChoice.signInKey);
+    await toSaveStep(tester);
+    await _tap(tester, FirstRunScreen.emailKey);
     expect(find.byKey(AccountSheet.googleKey), findsOneWidget);
     expect(find.byKey(AccountSheet.createKey), findsOneWidget);
     expect(find.byKey(AccountSheet.haveKey), findsOneWidget);
@@ -95,7 +99,17 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('already signed in: the chapter says so and just continues', (
+  testWidgets('Google: one tap starts the link', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(390, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final auth = _FakeAuth();
+    await tester.pumpWidget(_host(const FirstRunScreen(), auth: auth));
+    await toSaveStep(tester);
+    await _tap(tester, FirstRunScreen.googleKey);
+    expect(auth.calls, ['google']);
+  });
+
+  testWidgets('already signed in: the step is skipped and setup completes', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(390, 900));
@@ -113,19 +127,12 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
-    await _tap(tester, FirstRunScreen.nextKey);
-    expect(find.byKey(OnboardingAccountChoice.signedInKey), findsOneWidget);
-    expect(
-      find.text(arStrings.onboardAccountSignedIn('eyad@example.com')),
-      findsOneWidget,
-    );
-    expect(find.byKey(FirstRunScreen.guestKey), findsNothing);
-    await _tap(tester, FirstRunScreen.nextKey);
-    expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
+    await toSaveStep(tester);
+    expect((await ProfileStore().load())!.name, 'Eyad');
+    expect((await TermsStore().load())!.adult, isTrue);
   });
 
-  testWidgets('a build with no server keeps the original four chapters', (
+  testWidgets('a build with no server has two steps and no save step', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(390, 900));
@@ -133,11 +140,11 @@ void main() {
     await tester.pumpWidget(
       _host(const FirstRunScreen(), accounts: false, auth: _FakeAuth()),
     );
-    await tester.pumpAndSettle();
-    expect(find.bySemanticsLabel(arStrings.arrivalStep(1, 4)), findsOneWidget);
-    await _tap(tester, FirstRunScreen.nextKey);
-    expect(find.byKey(OnboardingAccountChoice.signInKey), findsNothing);
-    expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
+    await passIntro(tester);
+    await answerKind(tester);
+    expect(find.bySemanticsLabel(arStrings.arrivalStep(2, 2)), findsOneWidget);
+    expect(find.byKey(FirstRunScreen.nextKey), findsNothing);
+    expect(find.byKey(FirstRunScreen.continueKey), findsOneWidget);
   });
 
   testWidgets('later: a guest links an account from the profile card', (

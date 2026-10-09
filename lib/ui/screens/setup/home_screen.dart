@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -304,6 +306,7 @@ class HomeScreen extends ConsumerWidget {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: spacing.xs),
+              const WelcomeLine(),
               // On a short phone the hint is the first thing to go, so the
               // fan keeps its stage and both doors stay.
               if (MediaQuery.sizeOf(context).height >= HomeTokens.hintMinHeight)
@@ -399,6 +402,70 @@ class _Labeled extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// «أهلاً يا <name>», once, on the first Home after first run. The flag is
+/// consumed the moment the line is shown, so a restart never repeats it.
+class WelcomeLine extends ConsumerStatefulWidget {
+  const WelcomeLine({super.key});
+
+  static const Key lineKey = ValueKey('home_welcome');
+
+  @override
+  ConsumerState<WelcomeLine> createState() => _WelcomeLineState();
+}
+
+class _WelcomeLineState extends ConsumerState<WelcomeLine> {
+  bool _show = false;
+  bool _visible = false;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _check();
+  }
+
+  Future<void> _check() async {
+    if (!await WelcomeGreeting.pending() || !mounted) return;
+    await WelcomeGreeting.consume();
+    if (!mounted) return;
+    setState(() => _show = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _visible = true);
+    });
+    _timer = Timer(HomeTokens.greetingHold, () {
+      if (mounted) setState(() => _visible = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final name = ref.watch(playerProfileProvider).valueOrNull?.name;
+    if (!_show || name == null) return const SizedBox.shrink();
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    return AnimatedOpacity(
+      opacity: _visible ? 1 : 0,
+      duration: still ? Duration.zero : HomeTokens.greetingFade,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: context.spacing.xs),
+        child: Text(
+          context.l10n.homeGreeting(name),
+          key: WelcomeLine.lineKey,
+          textAlign: TextAlign.center,
+          style: DeckTokens.meta(
+            context.typography,
+          ).copyWith(color: context.colors.textSecondary),
+        ),
       ),
     );
   }

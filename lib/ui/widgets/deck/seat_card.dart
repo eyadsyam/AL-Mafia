@@ -66,6 +66,10 @@ class SeatCard extends StatelessWidget {
   final String? avatarAsset;
   final bool lifted;
 
+  /// The seat number in the corner; off where the card is a person, not a
+  /// chair (first run).
+  final bool showSeat;
+
   /// Away tonight: dimmed, still on the table.
   final bool away;
   final Key? cornerKey;
@@ -80,6 +84,7 @@ class SeatCard extends StatelessWidget {
     required this.gender,
     this.avatarAsset,
     this.lifted = false,
+    this.showSeat = true,
     this.away = false,
     this.cornerKey,
     this.onCorner,
@@ -99,7 +104,7 @@ class SeatCard extends StatelessWidget {
     final type = context.typography;
     final meta = DeckTokens.meta(type);
     return Semantics(
-      label: '$name, $seat',
+      label: showSeat ? '$name, $seat' : name,
       container: true,
       child: SeatCardFrame(
         lifted: lifted,
@@ -143,6 +148,7 @@ class SeatCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (showSeat)
                   PositionedDirectional(
                     start: SeatTokens.plateInset + SeatTokens.inset,
                     top: SeatTokens.plateInset + 1,

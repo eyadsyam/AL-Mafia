@@ -10242,6 +10242,456 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get sheetClose;
+
+  /// No description provided for @firstRunTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is the killer among you?'**
+  String get firstRunTagline;
+
+  /// No description provided for @firstRunKindTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How should we address you?'**
+  String get firstRunKindTitle;
+
+  /// No description provided for @firstRunKindHint.
+  ///
+  /// In en, this message translates to:
+  /// **'So roles and messages read right'**
+  String get firstRunKindHint;
+
+  /// No description provided for @firstRunBoy.
+  ///
+  /// In en, this message translates to:
+  /// **'Boy'**
+  String get firstRunBoy;
+
+  /// No description provided for @firstRunGirl.
+  ///
+  /// In en, this message translates to:
+  /// **'Girl'**
+  String get firstRunGirl;
+
+  /// No description provided for @firstRunWelcomeBoy.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get firstRunWelcomeBoy;
+
+  /// No description provided for @firstRunWelcomeBoyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a seat, the table is waiting'**
+  String get firstRunWelcomeBoyHint;
+
+  /// No description provided for @firstRunWelcomeGirl.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get firstRunWelcomeGirl;
+
+  /// No description provided for @firstRunWelcomeGirlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a seat, the table is waiting'**
+  String get firstRunWelcomeGirlHint;
+
+  /// No description provided for @firstRunAgreePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'I am 18 or older, and I agree to the '**
+  String get firstRunAgreePrefix;
+
+  /// No description provided for @firstRunAgreeTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms'**
+  String get firstRunAgreeTerms;
+
+  /// No description provided for @firstRunAgreeAnd.
+  ///
+  /// In en, this message translates to:
+  /// **' and '**
+  String get firstRunAgreeAnd;
+
+  /// No description provided for @firstRunAgreePrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get firstRunAgreePrivacy;
+
+  /// No description provided for @firstRunKindNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change this later in your profile'**
+  String get firstRunKindNote;
+
+  /// No description provided for @firstRunLangOther.
+  ///
+  /// In en, this message translates to:
+  /// **'العربي'**
+  String get firstRunLangOther;
+
+  /// No description provided for @firstRunNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What is your name?'**
+  String get firstRunNameTitle;
+
+  /// No description provided for @firstRunNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'It is written on your card and friends will see it'**
+  String get firstRunNameHint;
+
+  /// No description provided for @firstRunNamePlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get firstRunNamePlate;
+
+  /// No description provided for @firstRunNameField.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your name'**
+  String get firstRunNameField;
+
+  /// No description provided for @firstRunNameNeed.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 2 letters'**
+  String get firstRunNameNeed;
+
+  /// No description provided for @firstRunSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your game?'**
+  String get firstRunSaveTitle;
+
+  /// No description provided for @firstRunSaveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'So everything stays with you if you change phones'**
+  String get firstRunSaveHint;
+
+  /// No description provided for @firstRunKeepCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Your coins and what you bought'**
+  String get firstRunKeepCoins;
+
+  /// No description provided for @firstRunKeepLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your level, titles and friends'**
+  String get firstRunKeepLevel;
+
+  /// No description provided for @firstRunGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get firstRunGoogle;
+
+  /// No description provided for @firstRunEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with email'**
+  String get firstRunEmail;
+
+  /// No description provided for @firstRunGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Later, play as a guest'**
+  String get firstRunGuest;
+
+  /// No description provided for @firstRunLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can save later from your profile'**
+  String get firstRunLater;
+
+  /// No description provided for @homeGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome, {name}'**
+  String homeGreeting(String name);
+
+  /// No description provided for @settingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get settingsSaved;
+
+  /// No description provided for @settingsGroupRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Match rules'**
+  String get settingsGroupRules;
+
+  /// No description provided for @settingsGroupRulesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every new match starts with these'**
+  String get settingsGroupRulesHint;
+
+  /// No description provided for @settingsDiscussion.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion time'**
+  String get settingsDiscussion;
+
+  /// No description provided for @settingsVoteOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get settingsVoteOpen;
+
+  /// No description provided for @settingsVoteSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Secret'**
+  String get settingsVoteSecret;
+
+  /// No description provided for @settingsVoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Voting'**
+  String get settingsVoteLabel;
+
+  /// No description provided for @settingsRevealDeath.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal the role on death'**
+  String get settingsRevealDeath;
+
+  /// No description provided for @settingsNarratorOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator voice'**
+  String get settingsNarratorOn;
+
+  /// No description provided for @settingsNarratorOnHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tells the match out loud'**
+  String get settingsNarratorOnHint;
+
+  /// No description provided for @settingsAccountLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account'**
+  String get settingsAccountLink;
+
+  /// No description provided for @howIdeaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The idea'**
+  String get howIdeaTitle;
+
+  /// No description provided for @howIdeaBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The mafia hide among you. Everyone gets a secret card and the mafia know each other. The town must find them first.'**
+  String get howIdeaBody;
+
+  /// No description provided for @howNightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get howNightTitle;
+
+  /// No description provided for @howNightBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone closes their eyes. The mafia pick a victim, the detective asks about someone, the doctor saves someone.'**
+  String get howNightBody;
+
+  /// No description provided for @howDayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get howDayTitle;
+
+  /// No description provided for @howDayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone wakes and learns who died. Talk, ask, and chase whoever gets confused.'**
+  String get howDayBody;
+
+  /// No description provided for @howVoteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Voting'**
+  String get howVoteTitle;
+
+  /// No description provided for @howVoteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone votes for who they suspect. Most votes leaves the game.'**
+  String get howVoteBody;
+
+  /// No description provided for @howWinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who wins'**
+  String get howWinTitle;
+
+  /// No description provided for @howWinBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The town wins by removing all the mafia. The mafia win when they equal the town.'**
+  String get howWinBody;
+
+  /// No description provided for @howRolesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The roles'**
+  String get howRolesTitle;
+
+  /// No description provided for @howRolesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap any card to see what it does.'**
+  String get howRolesHint;
+
+  /// No description provided for @howPageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} of {total}'**
+  String howPageOf(int n, int total);
+
+  /// No description provided for @howVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the one-minute video'**
+  String get howVideo;
+
+  /// No description provided for @howFaqTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Got a question?'**
+  String get howFaqTitle;
+
+  /// No description provided for @howFaq1Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Can we play without internet?'**
+  String get howFaq1Q;
+
+  /// No description provided for @howFaq1A.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, With friends works on one phone with no internet at all.'**
+  String get howFaq1A;
+
+  /// No description provided for @howFaq2Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How many players do we need?'**
+  String get howFaq2Q;
+
+  /// No description provided for @howFaq2A.
+  ///
+  /// In en, this message translates to:
+  /// **'5 to 15 on one phone, 5 to 10 online, or alone against the computer.'**
+  String get howFaq2A;
+
+  /// No description provided for @howFaq3Q.
+  ///
+  /// In en, this message translates to:
+  /// **'What does the narrator do?'**
+  String get howFaq3Q;
+
+  /// No description provided for @howFaq3A.
+  ///
+  /// In en, this message translates to:
+  /// **'It tells each phase out loud so nobody has to hold the phone and read.'**
+  String get howFaq3A;
+
+  /// No description provided for @howRoleMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Mafia'**
+  String get howRoleMafia;
+
+  /// No description provided for @howRoleMafiaDo.
+  ///
+  /// In en, this message translates to:
+  /// **'Kill one player each night'**
+  String get howRoleMafiaDo;
+
+  /// No description provided for @howRoleDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'Detective'**
+  String get howRoleDetective;
+
+  /// No description provided for @howRoleDetectiveDo.
+  ///
+  /// In en, this message translates to:
+  /// **'Learns whether someone is mafia'**
+  String get howRoleDetectiveDo;
+
+  /// No description provided for @howRoleDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor'**
+  String get howRoleDoctor;
+
+  /// No description provided for @howRoleDoctorDo.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves one player each night'**
+  String get howRoleDoctorDo;
+
+  /// No description provided for @howRoleCitizen.
+  ///
+  /// In en, this message translates to:
+  /// **'Citizen'**
+  String get howRoleCitizen;
+
+  /// No description provided for @howRoleCitizenDo.
+  ///
+  /// In en, this message translates to:
+  /// **'Searches and votes'**
+  String get howRoleCitizenDo;
+
+  /// No description provided for @howRoleElder.
+  ///
+  /// In en, this message translates to:
+  /// **'Elder'**
+  String get howRoleElder;
+
+  /// No description provided for @howRoleElderDo.
+  ///
+  /// In en, this message translates to:
+  /// **'Survives one attack'**
+  String get howRoleElderDo;
+
+  /// No description provided for @howRoleSilencer.
+  ///
+  /// In en, this message translates to:
+  /// **'Silencer'**
+  String get howRoleSilencer;
+
+  /// No description provided for @howRoleSilencerDo.
+  ///
+  /// In en, this message translates to:
+  /// **'Silences one player by day'**
+  String get howRoleSilencerDo;
+
+  /// No description provided for @howRoleSniper.
+  ///
+  /// In en, this message translates to:
+  /// **'Sniper'**
+  String get howRoleSniper;
+
+  /// No description provided for @howRoleSniperDo.
+  ///
+  /// In en, this message translates to:
+  /// **'Fires once per match'**
+  String get howRoleSniperDo;
 }
 
 class _AppLocalizationsDelegate

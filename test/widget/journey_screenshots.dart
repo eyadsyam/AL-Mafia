@@ -216,23 +216,14 @@ void main() {
       );
       await tester.pumpAndSettle();
       await save(tester, '$name-1');
-      Future<void> next() async {
-        await tester.ensureVisible(find.byKey(FirstRunScreen.nextKey));
-        await tester.tap(find.byKey(FirstRunScreen.nextKey));
-        await tester.pumpAndSettle();
-      }
-
-      await next();
+      await tester.tap(find.byKey(FirstRunScreen.agreeKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(FirstRunScreen.boyKey));
+      await tester.pumpAndSettle();
       await tester.enterText(find.byKey(FirstRunScreen.nameKey), 'Eyad');
       FocusManager.instance.primaryFocus?.unfocus();
       await tester.pumpAndSettle();
       await save(tester, '$name-2');
-      await tester.tap(find.byKey(const ValueKey('gender_male')));
-      await tester.pumpAndSettle();
-      await next();
-      await save(tester, '$name-3');
-      await next();
-      await save(tester, '$name-4');
     });
   }
 

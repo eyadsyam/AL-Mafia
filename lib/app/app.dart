@@ -23,7 +23,6 @@ import '../ui/l10n_ext.dart';
 import '../ui/theme/mafia_theme.dart';
 import '../ui/widgets/splash_gate.dart';
 import 'l10n/app_localizations.dart';
-import 'onboarding_gate.dart';
 import 'update_gate.dart';
 import 'resume_gate.dart';
 import 'router.dart';
@@ -527,15 +526,10 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
                   child: ResumeGate(
                     navigatorKey: _navigatorKey,
                     // Inside the resume gate, not outside it: the resume prompt is a
-                    // dialog and this is a route change, so the two are not competing
-                    // for the same slot — but a first launch that also has an
-                    // unfinished match must get the prompt, and `OnboardingGate` stands
-                    // down on its own when it finds one.
-                    child: OnboardingGate(
-                      navigatorKey: _navigatorKey,
-                      // An invite from inside the game, wherever the player
-                      // is (never over a private phase).
-                      child: IncomingInviteHost(
+                    // dialog and this is a route change.
+                    // An invite from inside the game, wherever the player
+                    // is (never over a private phase).
+                    child: IncomingInviteHost(
                         onJoin: (code) => _router.go(Routes.joinLink(code)),
                         child: UpdateGate(
                           // Over every route and overlay (the vault included):
@@ -552,7 +546,6 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
             ),
           ),
         ),
-      ),
     );
   }
 }

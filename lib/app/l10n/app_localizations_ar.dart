@@ -5882,4 +5882,240 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sheetClose => 'اقفل';
+
+  @override
+  String get firstRunTagline => 'مين القاتل وسطكم؟';
+
+  @override
+  String get firstRunKindTitle => 'نكلّمك إزاي؟';
+
+  @override
+  String get firstRunKindHint => 'عشان نكتبلك الأدوار والرسايل صح';
+
+  @override
+  String get firstRunBoy => 'ولد';
+
+  @override
+  String get firstRunGirl => 'بنت';
+
+  @override
+  String get firstRunWelcomeBoy => 'أهلاً بيك';
+
+  @override
+  String get firstRunWelcomeBoyHint => 'اتقعد، الترابيزة مستنياك';
+
+  @override
+  String get firstRunWelcomeGirl => 'أهلاً بيكي';
+
+  @override
+  String get firstRunWelcomeGirlHint => 'اتقعدي، الترابيزة مستنياكي';
+
+  @override
+  String get firstRunAgreePrefix => 'عندي 18 سنة أو أكتر، وموافق على ';
+
+  @override
+  String get firstRunAgreeTerms => 'الشروط';
+
+  @override
+  String get firstRunAgreeAnd => ' و';
+
+  @override
+  String get firstRunAgreePrivacy => 'الخصوصية';
+
+  @override
+  String get firstRunKindNote => 'تقدر تغيّر الصيغة بعدين من بروفايلك';
+
+  @override
+  String get firstRunLangOther => 'English';
+
+  @override
+  String get firstRunNameTitle => 'اسمك إيه؟';
+
+  @override
+  String get firstRunNameHint => 'ده اللي هيتكتب على كارتك وصحابك هيشوفوه';
+
+  @override
+  String get firstRunNamePlate => 'اسمك هنا';
+
+  @override
+  String get firstRunNameField => 'اكتب اسمك';
+
+  @override
+  String get firstRunNameNeed => 'حرفين على الأقل';
+
+  @override
+  String get firstRunSaveTitle => 'نحفظ لعبك؟';
+
+  @override
+  String get firstRunSaveHint => 'عشان كل حاجة تفضل معاك لو غيّرت موبايلك';
+
+  @override
+  String get firstRunKeepCoins => 'الكوينز واللي اشتريته';
+
+  @override
+  String get firstRunKeepLevel => 'مستواك وألقابك وصحابك';
+
+  @override
+  String get firstRunGoogle => 'كمّل بجوجل';
+
+  @override
+  String get firstRunEmail => 'كمّل بالإيميل';
+
+  @override
+  String get firstRunGuest => 'بعدين، العب كضيف';
+
+  @override
+  String get firstRunLater => 'تقدر تحفظ بعدين من بروفايلك';
+
+  @override
+  String homeGreeting(String name) {
+    return 'أهلاً يا $name';
+  }
+
+  @override
+  String get settingsSaved => 'اتحفظ';
+
+  @override
+  String get settingsGroupRules => 'قواعد الماتش';
+
+  @override
+  String get settingsGroupRulesHint => 'كل ماتش جديد بيبدأ بيها';
+
+  @override
+  String get settingsDiscussion => 'وقت النقاش';
+
+  @override
+  String get settingsVoteOpen => 'مكشوف';
+
+  @override
+  String get settingsVoteSecret => 'سري';
+
+  @override
+  String get settingsVoteLabel => 'التصويت';
+
+  @override
+  String get settingsRevealDeath => 'الدور يبان لما حد يموت';
+
+  @override
+  String get settingsNarratorOn => 'صوت الراوي';
+
+  @override
+  String get settingsNarratorOnHint => 'بيحكي الماتش بصوت عالي';
+
+  @override
+  String get settingsAccountLink => 'حسابك';
+
+  @override
+  String get howIdeaTitle => 'الفكرة';
+
+  @override
+  String get howIdeaBody =>
+      'المافيا مستخبية وسطكم. كل واحد بياخد كارت سري، والمافيا عارفين بعض. المدينة لازم تلاقيهم قبل ما يخلصوا عليها.';
+
+  @override
+  String get howNightTitle => 'الليل';
+
+  @override
+  String get howNightBody =>
+      'الكل يغمّض. المافيا تختار حد تقتله، والمحقق يسأل عن حد، والدكتور ينقذ حد.';
+
+  @override
+  String get howDayTitle => 'النهار';
+
+  @override
+  String get howDayBody =>
+      'الكل يفتح ويعرف مين مات. اتكلموا، اسألوا، واشتغلوا على اللي بيتلخبط.';
+
+  @override
+  String get howVoteTitle => 'التصويت';
+
+  @override
+  String get howVoteBody =>
+      'كل واحد يحط صوته على اللي شاكك فيه. اللي ياخد أكتر أصوات يطلع من اللعبة.';
+
+  @override
+  String get howWinTitle => 'مين يكسب';
+
+  @override
+  String get howWinBody =>
+      'المدينة تكسب لو طلّعت المافيا كلها. المافيا تكسب لو بقوا قد المدينة.';
+
+  @override
+  String get howRolesTitle => 'الأدوار';
+
+  @override
+  String get howRolesHint => 'دوس على أي كارت تعرف بيعمل إيه.';
+
+  @override
+  String howPageOf(int n, int total) {
+    return '$n من $total';
+  }
+
+  @override
+  String get howVideo => 'اتفرج على فيديو دقيقة';
+
+  @override
+  String get howFaqTitle => 'عندك سؤال؟';
+
+  @override
+  String get howFaq1Q => 'ينفع نلعب من غير نت؟';
+
+  @override
+  String get howFaq1A => 'آه، «مع صحابك» شغالة على موبايل واحد من غير نت خالص.';
+
+  @override
+  String get howFaq2Q => 'محتاجين كام واحد؟';
+
+  @override
+  String get howFaq2A =>
+      'من 5 لـ15 على موبايل واحد، ومن 5 لـ10 أونلاين. ولوحدك ضد الكمبيوتر.';
+
+  @override
+  String get howFaq3Q => 'الراوي بيعمل إيه؟';
+
+  @override
+  String get howFaq3A =>
+      'بيحكي كل مرحلة بصوت عالي عشان محدش يمسك الموبايل ويقرا.';
+
+  @override
+  String get howRoleMafia => 'المافيا';
+
+  @override
+  String get howRoleMafiaDo => 'بيقتلوا واحد كل ليلة';
+
+  @override
+  String get howRoleDetective => 'المحقق';
+
+  @override
+  String get howRoleDetectiveDo => 'بيعرف حد مافيا ولا لأ';
+
+  @override
+  String get howRoleDoctor => 'الدكتور';
+
+  @override
+  String get howRoleDoctorDo => 'بينقذ واحد كل ليلة';
+
+  @override
+  String get howRoleCitizen => 'المواطن';
+
+  @override
+  String get howRoleCitizenDo => 'بيدوّر ويصوّت';
+
+  @override
+  String get howRoleElder => 'الكبير';
+
+  @override
+  String get howRoleElderDo => 'بيستحمل ضربة واحدة';
+
+  @override
+  String get howRoleSilencer => 'الساكت';
+
+  @override
+  String get howRoleSilencerDo => 'بيسكّت واحد في النهار';
+
+  @override
+  String get howRoleSniper => 'القناص';
+
+  @override
+  String get howRoleSniperDo => 'بيضرب مرة واحدة في الماتش';
 }

@@ -5984,4 +5984,243 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sheetClose => 'Close';
+
+  @override
+  String get firstRunTagline => 'Who is the killer among you?';
+
+  @override
+  String get firstRunKindTitle => 'How should we address you?';
+
+  @override
+  String get firstRunKindHint => 'So roles and messages read right';
+
+  @override
+  String get firstRunBoy => 'Boy';
+
+  @override
+  String get firstRunGirl => 'Girl';
+
+  @override
+  String get firstRunWelcomeBoy => 'Welcome';
+
+  @override
+  String get firstRunWelcomeBoyHint => 'Take a seat, the table is waiting';
+
+  @override
+  String get firstRunWelcomeGirl => 'Welcome';
+
+  @override
+  String get firstRunWelcomeGirlHint => 'Take a seat, the table is waiting';
+
+  @override
+  String get firstRunAgreePrefix => 'I am 18 or older, and I agree to the ';
+
+  @override
+  String get firstRunAgreeTerms => 'Terms';
+
+  @override
+  String get firstRunAgreeAnd => ' and ';
+
+  @override
+  String get firstRunAgreePrivacy => 'Privacy';
+
+  @override
+  String get firstRunKindNote => 'You can change this later in your profile';
+
+  @override
+  String get firstRunLangOther => 'العربي';
+
+  @override
+  String get firstRunNameTitle => 'What is your name?';
+
+  @override
+  String get firstRunNameHint =>
+      'It is written on your card and friends will see it';
+
+  @override
+  String get firstRunNamePlate => 'Your name';
+
+  @override
+  String get firstRunNameField => 'Type your name';
+
+  @override
+  String get firstRunNameNeed => 'At least 2 letters';
+
+  @override
+  String get firstRunSaveTitle => 'Keep your game?';
+
+  @override
+  String get firstRunSaveHint =>
+      'So everything stays with you if you change phones';
+
+  @override
+  String get firstRunKeepCoins => 'Your coins and what you bought';
+
+  @override
+  String get firstRunKeepLevel => 'Your level, titles and friends';
+
+  @override
+  String get firstRunGoogle => 'Continue with Google';
+
+  @override
+  String get firstRunEmail => 'Continue with email';
+
+  @override
+  String get firstRunGuest => 'Later, play as a guest';
+
+  @override
+  String get firstRunLater => 'You can save later from your profile';
+
+  @override
+  String homeGreeting(String name) {
+    return 'Welcome, $name';
+  }
+
+  @override
+  String get settingsSaved => 'Saved';
+
+  @override
+  String get settingsGroupRules => 'Match rules';
+
+  @override
+  String get settingsGroupRulesHint => 'Every new match starts with these';
+
+  @override
+  String get settingsDiscussion => 'Discussion time';
+
+  @override
+  String get settingsVoteOpen => 'Open';
+
+  @override
+  String get settingsVoteSecret => 'Secret';
+
+  @override
+  String get settingsVoteLabel => 'Voting';
+
+  @override
+  String get settingsRevealDeath => 'Reveal the role on death';
+
+  @override
+  String get settingsNarratorOn => 'Narrator voice';
+
+  @override
+  String get settingsNarratorOnHint => 'Tells the match out loud';
+
+  @override
+  String get settingsAccountLink => 'Your account';
+
+  @override
+  String get howIdeaTitle => 'The idea';
+
+  @override
+  String get howIdeaBody =>
+      'The mafia hide among you. Everyone gets a secret card and the mafia know each other. The town must find them first.';
+
+  @override
+  String get howNightTitle => 'Night';
+
+  @override
+  String get howNightBody =>
+      'Everyone closes their eyes. The mafia pick a victim, the detective asks about someone, the doctor saves someone.';
+
+  @override
+  String get howDayTitle => 'Day';
+
+  @override
+  String get howDayBody =>
+      'Everyone wakes and learns who died. Talk, ask, and chase whoever gets confused.';
+
+  @override
+  String get howVoteTitle => 'Voting';
+
+  @override
+  String get howVoteBody =>
+      'Everyone votes for who they suspect. Most votes leaves the game.';
+
+  @override
+  String get howWinTitle => 'Who wins';
+
+  @override
+  String get howWinBody =>
+      'The town wins by removing all the mafia. The mafia win when they equal the town.';
+
+  @override
+  String get howRolesTitle => 'The roles';
+
+  @override
+  String get howRolesHint => 'Tap any card to see what it does.';
+
+  @override
+  String howPageOf(int n, int total) {
+    return '$n of $total';
+  }
+
+  @override
+  String get howVideo => 'Watch the one-minute video';
+
+  @override
+  String get howFaqTitle => 'Got a question?';
+
+  @override
+  String get howFaq1Q => 'Can we play without internet?';
+
+  @override
+  String get howFaq1A =>
+      'Yes, With friends works on one phone with no internet at all.';
+
+  @override
+  String get howFaq2Q => 'How many players do we need?';
+
+  @override
+  String get howFaq2A =>
+      '5 to 15 on one phone, 5 to 10 online, or alone against the computer.';
+
+  @override
+  String get howFaq3Q => 'What does the narrator do?';
+
+  @override
+  String get howFaq3A =>
+      'It tells each phase out loud so nobody has to hold the phone and read.';
+
+  @override
+  String get howRoleMafia => 'Mafia';
+
+  @override
+  String get howRoleMafiaDo => 'Kill one player each night';
+
+  @override
+  String get howRoleDetective => 'Detective';
+
+  @override
+  String get howRoleDetectiveDo => 'Learns whether someone is mafia';
+
+  @override
+  String get howRoleDoctor => 'Doctor';
+
+  @override
+  String get howRoleDoctorDo => 'Saves one player each night';
+
+  @override
+  String get howRoleCitizen => 'Citizen';
+
+  @override
+  String get howRoleCitizenDo => 'Searches and votes';
+
+  @override
+  String get howRoleElder => 'Elder';
+
+  @override
+  String get howRoleElderDo => 'Survives one attack';
+
+  @override
+  String get howRoleSilencer => 'Silencer';
+
+  @override
+  String get howRoleSilencerDo => 'Silences one player by day';
+
+  @override
+  String get howRoleSniper => 'Sniper';
+
+  @override
+  String get howRoleSniperDo => 'Fires once per match';
 }

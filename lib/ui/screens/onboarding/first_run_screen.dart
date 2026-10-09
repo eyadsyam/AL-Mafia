@@ -1,25 +1,28 @@
-import '../../widgets/mafia_kit.dart';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/intro_gate.dart';
-import '../../../data/motion_preference.dart';
+import '../../../app/asset_constants.dart';
+import '../../../app/l10n/app_localizations.dart';
+import '../../../app/locale_controller.dart';
 import '../../../data/player_profile.dart';
 import '../../../data/repository_provider.dart';
 import '../../../data/terms_consent.dart';
 import '../../../engine/models/player.dart';
 import '../../../transport/account_auth.dart' show AccountProfile;
-import '../../account/account_sheet.dart' show accountProfileProvider;
+import '../../../transport/account_service.dart' show AccountFailure;
+import '../../account/account_sheet.dart'
+    show accountAuthProvider, accountProfileProvider, showAccountSheet;
 import '../../account/onboarding_account_step.dart';
-import '../../../app/l10n/app_localizations.dart';
 import '../../l10n_ext.dart';
+import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
-import '../../widgets/language_picker.dart';
+import '../../widgets/deck/deck_buttons.dart';
+import '../../widgets/deck/seat_card.dart';
 import '../../widgets/legal_documents.dart';
-import '../../widgets/profile_identity.dart';
-import '../../widgets/settings_kit.dart';
-import '../../widgets/experience_surface.dart';
-import '../setup/setup_draft.dart';
+import '../../widgets/mafia_kit.dart';
+import '../../widgets/warm_palette.dart';
 
 /// Holds every route that needs a finished setup: a saved profile and an
 /// acceptance of the current terms.
@@ -27,7 +30,7 @@ import '../setup/setup_draft.dart';
 /// Inline rather than a redirect, so a deep link (`/join/CODE`) keeps its
 /// destination: once setup completes, the same route shows its real screen.
 /// An install that already has a profile but predates the terms gets the
-/// compact form (terms only), once. A later app build with unchanged terms
+/// compact form (the box only), once. A later app build with unchanged terms
 /// never asks again.
 class SetupRequired extends ConsumerWidget {
   final Widget child;
@@ -35,7 +38,6 @@ class SetupRequired extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (IntroGate.pendingOf(context)) return const _Waiting();
     final profile = ref.watch(playerProfileProvider);
     final terms = ref.watch(termsAcceptanceProvider);
     if (profile.isLoading || terms.isLoading) return const _Waiting();
@@ -59,160 +61,221 @@ class _Waiting extends StatelessWidget {
       const MafiaScaffold(body: Center(child: CircularProgressIndicator()));
 }
 
-/// Language → (sign in or guest) → name and avatar → preferences → 18+ and
-/// terms → continue.
+/// The first launch, in three questions with progress dots: the deck fans
+/// into the logo, «نكلّمك إزاي؟» (two big avatar cards and the one box for
+/// 18+ and the terms), «اسمك إيه؟» (the name is written on the chosen card as
+/// it is typed) and, only where the build has a server, «نحفظ لعبك؟».
 ///
-/// Four short chapters, five when the build can reach the server and so has an
-/// account to offer, with one decision at a time. Nothing asks for a birth date, phone or email, and the
-/// microphone is asked for only when voice is first used.
+/// Nothing asks for a birth date, phone or email, and the microphone is asked
+/// for only when voice is first used. Sound, music and motion keep their
+/// defaults and live in settings.
 class FirstRunScreen extends ConsumerStatefulWidget {
-  /// Existing installs that have a profile: only the terms and 18+ rows.
+  /// Existing installs that have a profile: only the box.
   final bool termsOnly;
   const FirstRunScreen({super.key, this.termsOnly = false});
 
   static const screenKey = ValueKey('first_run');
   static const nameKey = ValueKey('first_run_name');
-  static const missingKey = ValueKey('first_run_missing');
-  static const adultKey = ValueKey('first_run_adult');
-  static const termsKey = ValueKey('first_run_terms');
+  static const agreeKey = ValueKey('first_run_agree');
+  static const boyKey = ValueKey('first_run_boy');
+  static const girlKey = ValueKey('first_run_girl');
+  static const languageKey = ValueKey('first_run_language');
   static const termsLinkKey = ValueKey('first_run_terms_link');
   static const privacyLinkKey = ValueKey('first_run_privacy_link');
-  static const soundKey = ValueKey('first_run_sound');
-  static const musicKey = ValueKey('first_run_music');
-  static const motionKey = ValueKey('first_run_motion');
   static const continueKey = ValueKey('first_run_continue');
   static const nextKey = ValueKey('first_run_next');
+  static const googleKey = ValueKey('first_run_google');
+  static const emailKey = ValueKey('first_run_email');
   static const guestKey = ValueKey('first_run_guest');
   static const backKey = ValueKey('first_run_back');
   static const failedKey = ValueKey('first_run_failed');
+  static const dotsKey = ValueKey('first_run_dots');
+  static const myCardKey = ValueKey('first_run_my_card');
 
   @override
   ConsumerState<FirstRunScreen> createState() => _FirstRunScreenState();
 }
 
-enum _Chapter { language, account, identity, preferences, pact }
+enum _Step { intro, kind, name, save }
 
-class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
+class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
+    with TickerProviderStateMixin {
   late final TextEditingController _name;
   PlayerGender _gender = PlayerGender.unspecified;
-  late bool _sound;
-  late bool _music;
-  late bool _reduceMotion;
-  bool _adult = false;
-  bool _terms = false;
+  bool _agreed = false;
+  bool _highlightAgree = false;
   bool _saving = false;
   bool _failed = false;
+  bool _googleBusy = false;
   int _step = 0;
-  late final List<_Chapter> _chapters;
-  final _scroll = ScrollController();
+  late final List<_Step> _steps;
 
-  @override
-  void initState() {
-    super.initState();
-    _chapters = [
-      _Chapter.language,
-      if (ref.read(accountsAvailableProvider)) _Chapter.account,
-      _Chapter.identity,
-      _Chapter.preferences,
-      _Chapter.pact,
-    ];
-    final profile = ref.read(playerProfileProvider).valueOrNull;
-    _name = TextEditingController(text: profile?.name ?? '');
-    _gender = profile?.gender ?? PlayerGender.unspecified;
-    final settings = ref.read(setupDraftProvider).settings;
-    _sound = !settings.muteAllAudio;
-    _music = settings.scoreEnabled;
-    _reduceMotion = ref.read(reduceMotionPreferenceProvider);
-    // A previous acceptance of an older version leaves the 18+ answer; the
-    // terms box is always unticked.
-    _adult = ref.read(termsAcceptanceProvider).valueOrNull?.adult ?? false;
-    if (!widget.termsOnly) _restore();
-  }
+  late final AnimationController _intro = AnimationController(vsync: this);
+  late final AnimationController _shake = AnimationController(
+    vsync: this,
+    duration: FirstRunTokens.shake,
+  );
+  late final AnimationController _flip = AnimationController(
+    vsync: this,
+    duration: FirstRunTokens.flip + FirstRunTokens.hold,
+  );
+  bool _introStarted = false;
 
   /// Set by the player's first move, so a slow read never drags them back.
   bool _touched = false;
 
+  bool get _still => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+
+  @override
+  void initState() {
+    super.initState();
+    _steps = [
+      _Step.intro,
+      _Step.kind,
+      _Step.name,
+      if (ref.read(accountsAvailableProvider)) _Step.save,
+    ];
+    final profile = ref.read(playerProfileProvider).valueOrNull;
+    _name = TextEditingController(text: profile?.name ?? '');
+    _gender = profile?.gender ?? PlayerGender.unspecified;
+    _flip.addStatusListener((status) {
+      if (status == AnimationStatus.completed && _step == 1 && mounted) {
+        _move(2);
+      }
+    });
+    _intro.addStatusListener((status) {
+      if (status == AnimationStatus.completed &&
+          _step == 0 &&
+          !_touched &&
+          !widget.termsOnly &&
+          mounted) {
+        setState(() => _step = 1);
+      }
+    });
+    if (!widget.termsOnly) _restore();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_introStarted || widget.termsOnly) return;
+    _introStarted = true;
+    _intro.duration = _still ? FirstRunTokens.introStill : FirstRunTokens.intro;
+    if (_step == 0) _intro.forward();
+  }
+
   /// Back where the player was before the app was closed under them (the
-  /// Google browser trip): the chapter, and the name and gender typed.
+  /// Google browser trip): the step, the name and gender, and the box.
   Future<void> _restore() async {
     final saved = await FirstRunProgress.load();
     if (saved == null || _touched || !mounted) return;
-    final index = _chapters.indexWhere((c) => c.name == saved.chapter);
+    final index = _steps.indexWhere((c) => c.name == saved.chapter);
     if (index <= 0) return;
+    _intro.stop();
     setState(() {
       _step = index;
-      if (_name.text.trim().isEmpty) _name.text = saved.name;
+      _agreed = saved.agreed;
+      if (_name.text.trim().isEmpty) {
+        _name.text = saved.name.characters
+            .take(FirstRunTokens.nameMax)
+            .toString();
+      }
       if (_gender == PlayerGender.unspecified) _gender = saved.gender;
     });
-    // Came back from the browser already signed in: on to the name.
     final profile = ref.read(accountProfileProvider).valueOrNull;
-    if (_chapters[_step] == _Chapter.account && (profile?.signedIn ?? false)) {
-      _afterSignIn(profile!);
+    if (_steps[_step] == _Step.save &&
+        (profile?.signedIn ?? false) &&
+        _readyToFinish) {
+      _finish();
     }
   }
 
   void _saveProgress() {
     if (widget.termsOnly) return;
     FirstRunProgress(
-      chapter: _chapters[_step].name,
+      chapter: _steps[_step].name,
       name: _name.text,
       gender: _gender,
+      agreed: _agreed,
     ).save();
-  }
-
-  /// Signed in on the account chapter: the next chapter is the name, offered
-  /// as the account knows it (still editable).
-  void _afterSignIn(AccountProfile profile) {
-    if (_chapters[_step] != _Chapter.account) return;
-    final known = profile.name;
-    if (_name.text.trim().isEmpty && known != null) {
-      _name.text = known.characters
-          .take(ProfileIdentityFields.maxNameLength)
-          .toString()
-          .trim();
-    }
-    _move(_step + 1);
   }
 
   @override
   void dispose() {
     _name.dispose();
-    _scroll.dispose();
+    _intro.dispose();
+    _shake.dispose();
+    _flip.dispose();
     super.dispose();
   }
 
-  bool get _profileReady =>
+  bool get _nameOk => _name.text.trim().length >= FirstRunTokens.nameMin;
+
+  bool get _readyToFinish =>
       widget.termsOnly ||
-      (_name.text.trim().isNotEmpty && _gender != PlayerGender.unspecified);
+      (_nameOk && _gender != PlayerGender.unspecified && _agreed);
 
-  bool get _ready => _profileReady && _adult && _terms && !_saving;
-
-  /// Why the continue button is off on [chapter], or null when it is on.
-  String? _missing(_Chapter chapter, AppLocalizations l) {
-    if (chapter == _Chapter.identity && !widget.termsOnly) {
-      if (_name.text.trim().isEmpty) return l.onboardNeedName;
-      if (_gender == PlayerGender.unspecified) return l.onboardNeedGender;
+  void _move(int step) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    _touched = true;
+    _flip.value = 0;
+    setState(() => _step = step);
+    _saveProgress();
+    // Already signed in (the browser trip came back first): nothing to ask.
+    if (_steps[step] == _Step.save &&
+        (ref.read(accountProfileProvider).valueOrNull?.signedIn ?? false)) {
+      _finish();
     }
-    if (chapter == _Chapter.pact && !_saving && (!_adult || !_terms)) {
-      return l.onboardNeedPact;
-    }
-    return null;
   }
 
-  Future<void> _submit() async {
+  void _toggleAgree() {
+    if (_saving) return;
+    _touched = true;
+    setState(() {
+      _agreed = !_agreed;
+      _highlightAgree = false;
+    });
+    _saveProgress();
+  }
+
+  void _pick(PlayerGender gender) {
+    if (_flip.isAnimating) return;
+    if (!_agreed) {
+      setState(() => _highlightAgree = true);
+      if (!_still) _shake.forward(from: 0);
+      return;
+    }
+    _touched = true;
+    setState(() => _gender = gender);
+    if (_still) {
+      _move(2);
+    } else {
+      _flip.forward(from: 0);
+    }
+  }
+
+  Future<void> _finish() async {
+    if (_saving || !_readyToFinish) return;
     setState(() {
       _saving = true;
       _failed = false;
     });
     try {
       if (!widget.termsOnly) {
-        await _savePreferences();
         await ref
             .read(playerProfileProvider.notifier)
             .save(PlayerProfile(name: _name.text.trim(), gender: _gender));
+        await WelcomeGreeting.arm();
+        // The first launch no longer plays the film, so the first-run
+        // markers the app-open policy reads are set here.
+        try {
+          await ref.read(profileStoreProvider).markIntroSeen();
+          await ref.read(matchRepositoryProvider).markOnboardingSeen();
+        } catch (_) {}
       }
-      // Last, and required: the gate opens when this lands.
-      await ref.read(termsAcceptanceProvider.notifier).accept(adult: _adult);
+      // Last, and required: the gate opens when this lands. The one box
+      // answers both 18+ and the terms.
+      await ref.read(termsAcceptanceProvider.notifier).accept(adult: true);
       await FirstRunProgress.clear();
     } catch (_) {
       if (mounted) setState(() => _failed = true);
@@ -221,61 +284,24 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     }
   }
 
-  /// Best effort: a preference that fails to save is still editable in
-  /// Settings, and must not hold a new player at the door.
-  Future<void> _savePreferences() async {
+  Future<void> _google() async {
+    setState(() {
+      _googleBusy = true;
+      _failed = false;
+    });
     try {
-      final draft = ref.read(setupDraftProvider.notifier);
-      final settings = ref
-          .read(setupDraftProvider)
-          .settings
-          .copyWith(muteAllAudio: !_sound, scoreEnabled: _music);
-      draft.setSettings(settings);
-      await ref.read(matchRepositoryProvider).saveDefaultSettings(settings);
-    } catch (_) {}
-    await ref.read(reduceMotionPreferenceProvider.notifier).set(_reduceMotion);
-  }
-
-  void _move(int step) {
-    FocusManager.instance.primaryFocus?.unfocus();
-    _touched = true;
-    setState(() => _step = step);
-    _saveProgress();
-    if (_scroll.hasClients) _scroll.jumpTo(0);
+      await ref.read(accountAuthProvider).google();
+    } on AccountFailure {
+      if (mounted) setState(() => _failed = true);
+    } finally {
+      if (mounted) setState(() => _googleBusy = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final s = context.spacing;
     final l = context.l10n;
-    final chapter = widget.termsOnly ? _Chapter.pact : _chapters[_step];
-    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
-    final compactIdentity = chapter == _Chapter.identity && keyboardOpen;
-    final titles = {
-      _Chapter.language: l.setupWelcomeTitle,
-      _Chapter.account: l.onboardAccountTitle,
-      _Chapter.identity: l.arrivalIdentityTitle,
-      _Chapter.preferences: l.setupPreferencesTitle,
-      _Chapter.pact: l.arrivalPactTitle,
-    };
-    final hints = {
-      _Chapter.language: l.arrivalWelcomeHint,
-      _Chapter.account: l.onboardAccountHint,
-      _Chapter.identity: l.arrivalIdentityHint,
-      _Chapter.preferences: l.setupPreferencesHint,
-      _Chapter.pact: l.setupAdultHint,
-    };
-    final art = {
-      _Chapter.language: ExperienceArt.invitation,
-      _Chapter.account: ExperienceArt.invitation,
-      _Chapter.identity: ExperienceArt.invitation,
-      _Chapter.preferences: ExperienceArt.council,
-      _Chapter.pact: ExperienceArt.pact,
-    };
-    final signedIn =
-        _chapters.contains(_Chapter.account) &&
-        (ref.watch(accountProfileProvider).valueOrNull?.signedIn ?? false);
-    if (_chapters.contains(_Chapter.account) && !widget.termsOnly) {
+    if (_steps.contains(_Step.save) && !widget.termsOnly) {
       ref.listen<AsyncValue<AccountProfile>>(accountProfileProvider, (
         previous,
         next,
@@ -283,29 +309,50 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         final now = next.valueOrNull;
         if (next.hasError || now == null || !now.signedIn) return;
         if (previous?.valueOrNull?.signedIn ?? false) return;
-        _afterSignIn(now);
+        if (_steps[_step] == _Step.save) _finish();
       });
     }
+    final step = widget.termsOnly ? _Step.kind : _steps[_step];
     return PopScope(
-      canPop: widget.termsOnly || _step == 0,
+      canPop: widget.termsOnly || _step <= 1,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && !_saving && _step > 0) _move(_step - 1);
+        if (!didPop && !_saving && _step > 1) _move(_step - 1);
       },
-      child: MafiaScaffold(
-        body: ExperienceSurface(
-          child: SafeArea(
+      child: WarmPalette(
+        child: MafiaScaffold(
+          backgroundColor: DeckTokens.ground,
+          body: SafeArea(
             child: Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: s.maxContentWidth),
-                child: Column(
-                  children: [
-                    if (!widget.termsOnly)
-                      Padding(
-                        padding: EdgeInsets.all(s.md),
-                        child: Row(
-                          children: [
-                            if (_step > 0)
-                              IconButton(
+                constraints: BoxConstraints(
+                  maxWidth: context.spacing.maxContentWidth,
+                ),
+                child: widget.termsOnly
+                    ? _termsOnly(context, l)
+                    : Stack(
+                        children: [
+                          AnimatedSwitcher(
+                            duration: _still
+                                ? Duration.zero
+                                : FirstRunTokens.stepSlide,
+                            transitionBuilder: (child, animation) =>
+                                FadeTransition(opacity: animation, child: child),
+                            child: KeyedSubtree(
+                              key: ValueKey(step),
+                              child: switch (step) {
+                                _Step.intro => _introStep(context, l),
+                                _Step.kind => _kindStep(context, l),
+                                _Step.name => _nameStep(context, l),
+                                _Step.save => _saveStep(context, l),
+                              },
+                            ),
+                          ),
+                          if (step != _Step.intro) _dots(context),
+                          if (step == _Step.name || step == _Step.save)
+                            PositionedDirectional(
+                              start: context.spacing.sm,
+                              top: context.spacing.xs,
+                              child: IconButton(
                                 key: FirstRunScreen.backKey,
                                 tooltip: MaterialLocalizations.of(
                                   context,
@@ -315,226 +362,773 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                                     : () => _move(_step - 1),
                                 icon: const BackButtonIcon(),
                               ),
-                            Expanded(
-                              child: Semantics(
-                                label: l.arrivalStep(
-                                  _step + 1,
-                                  _chapters.length,
-                                ),
-                                child: Row(
-                                  children: List.generate(
-                                    _chapters.length,
-                                    (i) => Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: s.xs,
-                                        ),
-                                        child: LinearProgressIndicator(
-                                          value: i <= _step ? 1 : 0,
-                                          color: context.colors.accentGold,
-                                          backgroundColor:
-                                              context.colors.borderSubtle,
-                                        ),
-                                      ),
+                            ),
+                          if (step == _Step.kind)
+                            PositionedDirectional(
+                              end: context.spacing.md,
+                              top: context.spacing.xs,
+                              child: _LanguageChip(
+                                label: l.firstRunLangOther,
+                                onTap: () => ref
+                                    .read(localeProvider.notifier)
+                                    .select(
+                                      Localizations.localeOf(
+                                            context,
+                                          ).languageCode ==
+                                          'ar'
+                                      ? 'en'
+                                      : 'ar',
                                     ),
-                                  ),
-                                ),
                               ),
                             ),
-                          ],
-                        ),
+                        ],
                       ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        controller: _scroll,
-                        padding: EdgeInsets.all(s.screenMargin),
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: AnimatedSwitcher(
-                            duration:
-                                _reduceMotion ||
-                                    MediaQuery.disableAnimationsOf(context)
-                                ? Duration.zero
-                                : context.motion.standard,
-                            child: Column(
-                              key: ValueKey(chapter),
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                if (!widget.termsOnly &&
-                                    MediaQuery.viewInsetsOf(context).bottom ==
-                                        0) ...[
-                                  ExperienceHero(
-                                    asset: art[chapter]!,
-                                    compact: chapter != _Chapter.language,
-                                  ),
-                                  SizedBox(height: s.lg),
-                                ],
-                                if (!compactIdentity) ...[
-                                  Semantics(
-                                    header: true,
-                                    child: Text(
-                                      widget.termsOnly
-                                          ? l.termsUpdatedTitle
-                                          : titles[chapter]!,
-                                      style: context.typography.headline,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  SizedBox(height: s.sm),
-                                  Text(
-                                    widget.termsOnly
-                                        ? l.termsUpdatedHint
-                                        : hints[chapter]!,
-                                    style: context.typography.body,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  SizedBox(height: s.lg),
-                                ],
-                                if (chapter == _Chapter.language)
-                                  const LanguagePicker(),
-                                if (chapter == _Chapter.account)
-                                  const OnboardingAccountChoice(),
-                                if (chapter == _Chapter.identity)
-                                  ProfileIdentityFields(
-                                    name: _name,
-                                    nameKey: FirstRunScreen.nameKey,
-                                    gender: _gender,
-                                    avatarDiameter: s.xl * 2,
-                                    autofocusName: true,
-                                    onGender: (v) {
-                                      _touched = true;
-                                      setState(() => _gender = v);
-                                      _saveProgress();
-                                    },
-                                    onNameChanged: (_) {
-                                      _touched = true;
-                                      setState(() {});
-                                      _saveProgress();
-                                    },
-                                    onSubmitted: (_) {
-                                      if (_profileReady) _move(_step + 1);
-                                    },
-                                  ),
-                                // The same rows the settings screen uses, so
-                                // the first settings a player meets look like
-                                // the ones they will find again later.
-                                if (chapter == _Chapter.preferences)
-                                  _PreferencesPanel(
-                                    children: [
-                                      SettingsSwitchRow(
-                                        switchKey: FirstRunScreen.soundKey,
-                                        label: l.prefSound,
-                                        value: _sound,
-                                        onChanged: (v) =>
-                                            setState(() => _sound = v),
-                                      ),
-                                      SettingsSwitchRow(
-                                        switchKey: FirstRunScreen.musicKey,
-                                        label: l.prefMusic,
-                                        value: _music,
-                                        onChanged: _sound
-                                            ? (v) => setState(() => _music = v)
-                                            : null,
-                                      ),
-                                      SettingsSwitchRow(
-                                        switchKey: FirstRunScreen.motionKey,
-                                        label: l.prefReduceMotion,
-                                        value: _reduceMotion,
-                                        onChanged: (v) =>
-                                            setState(() => _reduceMotion = v),
-                                      ),
-                                    ],
-                                  ),
-                                if (chapter == _Chapter.pact) ...[
-                                  CheckboxListTile(
-                                    key: FirstRunScreen.adultKey,
-                                    contentPadding: EdgeInsets.zero,
-                                    controlAffinity:
-                                        ListTileControlAffinity.leading,
-                                    value: _adult,
-                                    onChanged: _saving
-                                        ? null
-                                        : (v) => setState(
-                                            () => _adult = v ?? false,
-                                          ),
-                                    title: Text(l.setupAdultConfirm),
-                                  ),
-                                  _TermsRow(
-                                    value: _terms,
-                                    onChanged: (v) {
-                                      if (!_saving) setState(() => _terms = v);
-                                    },
-                                  ),
-                                  Align(
-                                    alignment: AlignmentDirectional.centerStart,
-                                    child: TextButton(
-                                      key: FirstRunScreen.privacyLinkKey,
-                                      onPressed: () =>
-                                          showPrivacyDocument(context),
-                                      child: Text(l.privacyLinkLabel),
-                                    ),
-                                  ),
-                                  if (_failed)
-                                    Text(
-                                      key: FirstRunScreen.failedKey,
-                                      l.profileSaveFailed,
-                                      style: context.typography.body.copyWith(
-                                        color: context.colors.accentCrimson,
-                                      ),
-                                    ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── progress dots ──────────────────────────────────────────────────────────
+
+  Widget _dots(BuildContext context) {
+    final count = _steps.length - 1;
+    final s = context.spacing;
+    return Positioned(
+      top: s.md,
+      left: 0,
+      right: 0,
+      child: Semantics(
+        label: context.l10n.arrivalStep(_step, count),
+        child: ExcludeSemantics(
+          child: Row(
+            key: FirstRunScreen.dotsKey,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (var i = 0; i < count; i++)
+                AnimatedContainer(
+                  duration: _still ? Duration.zero : FirstRunTokens.dotMove,
+                  margin: EdgeInsets.symmetric(horizontal: s.xs / 2),
+                  width: i == _step - 1
+                      ? FirstRunTokens.dotWide
+                      : FirstRunTokens.dot,
+                  height: FirstRunTokens.dot,
+                  decoration: BoxDecoration(
+                    color: i == _step - 1
+                        ? DeckTokens.bone
+                        : DeckTokens.silver,
+                    borderRadius: BorderRadius.circular(FirstRunTokens.dot / 2),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── step 0: the deck fans into the logo ────────────────────────────────────
+
+  Widget _introStep(BuildContext context, AppLocalizations l) {
+    final type = context.typography;
+    final s = context.spacing;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        _touched = true;
+        _intro.stop();
+        setState(() => _step = 1);
+      },
+      child: AnimatedBuilder(
+        animation: _intro,
+        builder: (context, _) {
+          final total = _intro.duration!.inMilliseconds;
+          final fanT = _still
+              ? 1.0
+              : (_intro.value * total / FirstRunTokens.fan.inMilliseconds)
+                    .clamp(0.0, 1.0);
+          final logoT = _still
+              ? 1.0
+              : ((_intro.value * total - FirstRunTokens.fan.inMilliseconds) /
+                        FirstRunTokens.fan.inMilliseconds)
+                    .clamp(0.0, 1.0);
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              RepaintBoundary(
+                child: SizedBox(
+                  height: FirstRunTokens.deckCard.height * 1.4,
+                  width: double.infinity,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      for (var i = 0; i < FirstRunTokens.deckCount; i++)
+                        _deckCard(i, Curves.easeOutCubic.transform(fanT)),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: s.lg),
+              Opacity(
+                opacity: logoT,
+                child: Transform.translate(
+                  offset: Offset(0, (1 - logoT) * FirstRunTokens.landRise / 2),
+                  child: Column(
+                    children: [
+                      Text(
+                        context.l10n.appTitle,
+                        style: StoryTokens.ruqaa(
+                          type.display,
+                        ).copyWith(color: context.colors.textPrimary),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    // A greyed-out button never explains itself: say what
-                    // is missing right above it.
-                    if (_missing(chapter, l) case final why?)
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          s.screenMargin,
-                          s.sm,
-                          s.screenMargin,
-                          0,
-                        ),
-                        child: Text(
-                          why,
-                          key: FirstRunScreen.missingKey,
-                          textAlign: TextAlign.center,
-                          style: context.typography.caption.copyWith(
-                            color: context.colors.accentGold,
-                          ),
-                        ),
+                      Text(
+                        context.l10n.firstRunTagline,
+                        style: DeckTokens.meta(
+                          type,
+                        ).copyWith(color: context.colors.textMuted),
+                        textAlign: TextAlign.center,
                       ),
-                    Padding(
-                      padding: EdgeInsets.all(s.screenMargin),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          key: chapter == _Chapter.pact
-                              ? FirstRunScreen.continueKey
-                              : chapter == _Chapter.account && !signedIn
-                              ? FirstRunScreen.guestKey
-                              : FirstRunScreen.nextKey,
-                          onPressed: chapter == _Chapter.pact
-                              ? (_ready ? _submit : null)
-                              : (chapter != _Chapter.identity || _profileReady)
-                              ? () => _move(_step + 1)
-                              : null,
-                          child: Text(
-                            _saving
-                                ? l.arrivalSaving
-                                : chapter == _Chapter.account && !signedIn
-                                ? l.onboardAccountGuest
-                                : l.continueAction,
-                          ),
-                        ),
-                      ),
-                    ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  static const _deckFaces = [
+    AppImages.cardBack,
+    AppImages.cardFaceElder,
+    AppImages.cardFaceCitizen,
+    AppImages.cardFaceDoctor,
+    AppImages.cardFaceMafia,
+    AppImages.cardFaceDetective,
+    AppImages.cardBack,
+  ];
+
+  Widget _deckCard(int i, double t) {
+    const mid = (FirstRunTokens.deckCount - 1) / 2;
+    final k = i - mid;
+    const size = FirstRunTokens.deckCard;
+    final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;
+    return Transform.translate(
+      offset: Offset(
+        k * FirstRunTokens.deckSpread * t,
+        (k * k) * FirstRunTokens.deckDrop / mid * t / mid,
+      ),
+      child: Transform.rotate(
+        angle: k * FirstRunTokens.deckTilt * t,
+        child: SizedBox.fromSize(
+          size: size,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(SeatTokens.radius),
+              border: Border.all(
+                color: SeatTokens.rim,
+                width: SeatTokens.rimWidth,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(SeatTokens.radius),
+              child: Image(
+                image: ResizeImage(
+                  AssetImage(_deckFaces[i]),
+                  width: (size.width * dpr).round(),
+                  policy: ResizeImagePolicy.fit,
+                ),
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+                excludeFromSemantics: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── step 1: how do we address you ──────────────────────────────────────────
+
+  Widget _heading(BuildContext context, String title, String? hint) {
+    final type = context.typography;
+    return Column(
+      children: [
+        Semantics(
+          header: true,
+          child: Text(
+            title,
+            style: StoryTokens.ruqaa(
+              type.headline,
+            ).copyWith(color: context.colors.textPrimary),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        if (hint != null)
+          Text(
+            hint,
+            style: DeckTokens.meta(
+              type,
+            ).copyWith(color: context.colors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+      ],
+    );
+  }
+
+  Widget _kindStep(BuildContext context, AppLocalizations l) {
+    final s = context.spacing;
+    final type = context.typography;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final cardH = (box.maxHeight - 330)
+            .clamp(150.0, FirstRunTokens.pickMaxHeight)
+            .toDouble();
+        return SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            s.screenMargin,
+            s.xl + s.md,
+            s.screenMargin,
+            s.md,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _heading(context, l.firstRunKindTitle, l.firstRunKindHint),
+              SizedBox(height: s.lg),
+              SizedBox(
+                height: cardH,
+                child: Row(
+                  children: [
+                    Expanded(child: _pickCard(PlayerGender.male, cardH)),
+                    const SizedBox(width: FirstRunTokens.pickGap),
+                    Expanded(child: _pickCard(PlayerGender.female, cardH)),
                   ],
                 ),
+              ),
+              SizedBox(height: s.lg),
+              _agreeRow(context, l),
+              SizedBox(height: s.sm),
+              Text(
+                l.firstRunKindNote,
+                style: type.caption.copyWith(color: context.colors.textMuted),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _pickCard(PlayerGender g, double height) {
+    final l = context.l10n;
+    final male = g == PlayerGender.male;
+    final label = male ? l.firstRunBoy : l.firstRunGirl;
+    final chosen = _gender == g && (_flip.isAnimating || _flip.value > 0);
+    final other = !chosen && (_flip.isAnimating || _flip.value > 0);
+    return GestureDetector(
+      key: male ? FirstRunScreen.boyKey : FirstRunScreen.girlKey,
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _pick(g),
+      child: Semantics(
+        button: true,
+        label: label,
+        child: AnimatedBuilder(
+          animation: Listenable.merge([_shake, _flip]),
+          builder: (context, _) {
+            final dx = _shake.isAnimating
+                ? math.sin(_shake.value * math.pi * 4) *
+                      FirstRunTokens.shakeShift
+                : 0.0;
+            final turn = chosen
+                ? Curves.easeInOutCubic.transform(
+                    (_flip.value *
+                            (FirstRunTokens.flip + FirstRunTokens.hold)
+                                .inMilliseconds /
+                            FirstRunTokens.flip.inMilliseconds)
+                        .clamp(0.0, 1.0),
+                  )
+                : 0.0;
+            final angle = turn * math.pi;
+            final front = angle <= math.pi / 2;
+            final card = RepaintBoundary(
+              child: front
+                  ? SeatCard(
+                      name: label,
+                      seat: 0,
+                      gender: g,
+                      showSeat: false,
+                    )
+                  : Transform(
+                      alignment: Alignment.center,
+                      transform: Matrix4.rotationY(math.pi),
+                      child: _welcomeBack(male),
+                    ),
+            );
+            return Opacity(
+              opacity: other
+                  ? FirstRunTokens.passedAlpha
+                  : (_agreed ? 1 : FirstRunTokens.dimmedAlpha),
+              child: Transform.translate(
+                offset: Offset(dx, -turn * FirstRunTokens.chosenLift),
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, ModeTokens.perspective)
+                    ..rotateY(angle),
+                  child: card,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _welcomeBack(bool male) {
+    final l = context.l10n;
+    final type = context.typography;
+    return SeatCardFrame(
+      child: Padding(
+        padding: EdgeInsets.all(context.spacing.sm),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                male ? l.firstRunWelcomeBoy : l.firstRunWelcomeGirl,
+                style: DeckTokens.card(
+                  type,
+                ).copyWith(color: context.colors.textPrimary),
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                male ? l.firstRunWelcomeBoyHint : l.firstRunWelcomeGirlHint,
+                style: type.caption.copyWith(
+                  color: context.colors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _agreeRow(BuildContext context, AppLocalizations l) {
+    final s = context.spacing;
+    final colors = context.colors;
+    final body = DeckTokens.meta(
+      context.typography,
+    ).copyWith(color: colors.textSecondary);
+    final link = body.copyWith(
+      color: colors.textPrimary,
+      decoration: TextDecoration.underline,
+      decorationColor: colors.textPrimary,
+    );
+    Widget linkText(Key key, String text, VoidCallback onTap) => InkWell(
+      key: key,
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: s.xs),
+        child: Text(text, style: link),
+      ),
+    );
+    final full =
+        '${l.firstRunAgreePrefix}${l.firstRunAgreeTerms}${l.firstRunAgreeAnd}${l.firstRunAgreePrivacy}';
+    return Container(
+      padding: EdgeInsets.all(s.sm + s.xs),
+      decoration: BoxDecoration(
+        color: DeckTokens.panel,
+        borderRadius: BorderRadius.circular(context.radii.card),
+        border: Border.all(
+          width: FirstRunTokens.agreeBorder,
+          color: _highlightAgree ? colors.accentCrimson : DeckTokens.line,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Semantics(
+            key: FirstRunScreen.agreeKey,
+            checked: _agreed,
+            label: full,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _toggleAgree,
+              child: SizedBox.square(
+                dimension: IdentityTokens.target,
+                child: Center(
+                  child: AnimatedContainer(
+                    duration: _still ? Duration.zero : DeckTokens.press,
+                    width: FirstRunTokens.box,
+                    height: FirstRunTokens.box,
+                    decoration: BoxDecoration(
+                      color: _agreed ? DeckTokens.bone : IdentityTokens.transparent,
+                      borderRadius: BorderRadius.circular(
+                        FirstRunTokens.boxRadius,
+                      ),
+                      border: Border.all(
+                        width: DeckTokens.rimBorder,
+                        color: _agreed
+                            ? DeckTokens.bone
+                            : DeckTokens.silverLight,
+                      ),
+                    ),
+                    child: _agreed
+                        ? const Icon(
+                            Icons.check,
+                            size: DeckTokens.check,
+                            color: DeckTokens.ground,
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: s.xs),
+          Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _toggleAgree,
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(l.firstRunAgreePrefix, style: body),
+                  linkText(
+                    FirstRunScreen.termsLinkKey,
+                    l.firstRunAgreeTerms,
+                    () => showTermsDocument(context),
+                  ),
+                  Text(l.firstRunAgreeAnd, style: body),
+                  linkText(
+                    FirstRunScreen.privacyLinkKey,
+                    l.firstRunAgreePrivacy,
+                    () => showPrivacyDocument(context),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── step 2: your name, written on your card ────────────────────────────────
+
+  Widget _nameStep(BuildContext context, AppLocalizations l) {
+    final s = context.spacing;
+    final type = context.typography;
+    final finalStep = _steps.last == _Step.name;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final roomy = box.maxHeight > FirstRunTokens.roomyAbove;
+        final cardH = (box.maxHeight - 360)
+            .clamp(
+              roomy ? FirstRunTokens.myCardMin : FirstRunTokens.myCardTiny,
+              FirstRunTokens.myCardWidth / SeatTokens.aspect,
+            )
+            .toDouble();
+        return Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  s.screenMargin,
+                  roomy ? s.xl + s.md : s.xl,
+                  s.screenMargin,
+                  s.md,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _heading(
+                      context,
+                      l.firstRunNameTitle,
+                      roomy ? l.firstRunNameHint : null,
+                    ),
+                    SizedBox(height: s.md),
+                    Center(
+                      child: _Lander(
+                        still: _still,
+                        child: SizedBox(
+                          key: FirstRunScreen.myCardKey,
+                          width: cardH * SeatTokens.aspect,
+                          height: cardH,
+                          child: ListenableBuilder(
+                            listenable: _name,
+                            builder: (context, _) {
+                              final typed = _name.text.trim();
+                              return SeatCard(
+                                name: typed.isEmpty
+                                    ? l.firstRunNamePlate
+                                    : typed,
+                                seat: 0,
+                                gender: _gender == PlayerGender.unspecified
+                                    ? PlayerGender.male
+                                    : _gender,
+                                showSeat: false,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: s.md),
+                    Container(
+                      height: DeckTokens.primaryHeight + s.xs,
+                      padding: EdgeInsets.symmetric(horizontal: s.md),
+                      decoration: BoxDecoration(
+                        color: DeckTokens.panel,
+                        borderRadius: BorderRadius.circular(context.radii.card),
+                        border: Border.all(color: DeckTokens.line),
+                      ),
+                      child: TextField(
+                        key: FirstRunScreen.nameKey,
+                        controller: _name,
+                        autofocus: true,
+                        maxLength: FirstRunTokens.nameMax,
+                        textAlign: TextAlign.center,
+                        textInputAction: TextInputAction.done,
+                        style: type.title.copyWith(
+                          color: context.colors.textPrimary,
+                        ),
+                        decoration: InputDecoration(
+                          counterText: '',
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          hintText: l.firstRunNameField,
+                          hintStyle: type.body.copyWith(
+                            color: context.colors.textMuted,
+                          ),
+                        ),
+                        onChanged: (_) {
+                          _touched = true;
+                          setState(() {});
+                          _saveProgress();
+                        },
+                        onSubmitted: (_) {
+                          if (_nameOk) finalStep ? _finish() : _move(_step + 1);
+                        },
+                      ),
+                    ),
+                    if (_failed && finalStep) _failure(context, l),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                s.screenMargin,
+                0,
+                s.screenMargin,
+                s.md,
+              ),
+              child: BoneButton(
+                key: finalStep
+                    ? FirstRunScreen.continueKey
+                    : FirstRunScreen.nextKey,
+                label: _saving ? l.arrivalSaving : l.continueAction,
+                disabledReason: l.firstRunNameNeed,
+                onPressed: _nameOk && !_saving
+                    ? () => finalStep ? _finish() : _move(_step + 1)
+                    : null,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _failure(BuildContext context, AppLocalizations l) => Padding(
+    padding: EdgeInsets.only(top: context.spacing.sm),
+    child: Text(
+      key: FirstRunScreen.failedKey,
+      l.profileSaveFailed,
+      textAlign: TextAlign.center,
+      style: context.typography.body.copyWith(
+        color: context.colors.accentCrimson,
+      ),
+    ),
+  );
+
+  // ── step 3: keep your game ─────────────────────────────────────────────────
+
+  Widget _saveStep(BuildContext context, AppLocalizations l) {
+    final s = context.spacing;
+    final type = context.typography;
+    final signedIn =
+        ref.watch(accountProfileProvider).valueOrNull?.signedIn ?? false;
+    final keep = DeckTokens.meta(
+      type,
+    ).copyWith(color: context.colors.textSecondary);
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(
+        s.screenMargin,
+        s.xl + s.md,
+        s.screenMargin,
+        s.md,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _heading(context, l.firstRunSaveTitle, l.firstRunSaveHint),
+          SizedBox(height: s.lg),
+          Center(
+            child: Container(
+              width: FirstRunTokens.safeRing,
+              height: FirstRunTokens.safeRing,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  width: DeckTokens.rimBorder,
+                  color: DeckTokens.silverLight,
+                ),
+              ),
+              child: Image.asset(
+                AppEconomyArt.coinLarge,
+                width: FirstRunTokens.safeCoin,
+                cacheWidth:
+                    (FirstRunTokens.safeCoin *
+                            (MediaQuery.maybeDevicePixelRatioOf(context) ?? 1))
+                        .round(),
+                excludeFromSemantics: true,
+              ),
+            ),
+          ),
+          SizedBox(height: s.md),
+          Text(
+            l.firstRunKeepCoins,
+            style: keep,
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            l.firstRunKeepLevel,
+            style: keep,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: s.lg),
+          if (signedIn)
+            const Center(child: OnboardingAccountChoice())
+          else ...[
+            RimButton(
+              key: FirstRunScreen.googleKey,
+              label: l.firstRunGoogle,
+              onPressed: _googleBusy || _saving ? null : _google,
+            ),
+            SizedBox(height: s.sm),
+            RimButton(
+              key: FirstRunScreen.emailKey,
+              label: l.firstRunEmail,
+              onPressed: _saving
+                  ? null
+                  : () => showAccountSheet(context, onboarding: true),
+            ),
+          ],
+          SizedBox(height: s.sm),
+          TextButton(
+            key: FirstRunScreen.guestKey,
+            onPressed: _saving ? null : _finish,
+            child: Text(
+              _saving ? l.arrivalSaving : l.firstRunGuest,
+              style: type.body.copyWith(
+                color: context.colors.textSecondary,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+          Text(
+            l.firstRunLater,
+            style: type.caption.copyWith(color: context.colors.textMuted),
+            textAlign: TextAlign.center,
+          ),
+          if (_failed) _failure(context, l),
+        ],
+      ),
+    );
+  }
+
+  // ── the compact form for installs that predate the terms ───────────────────
+
+  Widget _termsOnly(BuildContext context, AppLocalizations l) {
+    final s = context.spacing;
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(s.screenMargin),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(height: s.xl),
+                _heading(context, l.termsUpdatedTitle, l.termsUpdatedHint),
+                SizedBox(height: s.lg),
+                _agreeRow(context, l),
+                if (_failed) _failure(context, l),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(s.screenMargin),
+          child: BoneButton(
+            key: FirstRunScreen.continueKey,
+            label: _saving ? l.arrivalSaving : l.continueAction,
+            onPressed: _agreed && !_saving ? _finish : null,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// «English» / «العربي» in the corner of the first question.
+class _LanguageChip extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _LanguageChip({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: GestureDetector(
+        key: FirstRunScreen.languageKey,
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: IdentityTokens.target,
+            minHeight: IdentityTokens.target,
+          ),
+          child: Center(
+            child: Container(
+              height: DeckTokens.pill,
+              padding: EdgeInsets.symmetric(horizontal: context.spacing.md),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(DeckTokens.pill / 2),
+                border: Border.all(color: DeckTokens.silver),
+              ),
+              child: Text(
+                label,
+                style: DeckTokens.meta(
+                  context.typography,
+                ).copyWith(color: context.colors.textSecondary),
               ),
             ),
           ),
@@ -544,82 +1138,31 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   }
 }
 
-/// A raised panel of rows, the settings kit's surface without its heading
-/// (the page title already names it).
-class _PreferencesPanel extends StatelessWidget {
-  final List<Widget> children;
-  const _PreferencesPanel({required this.children});
+/// The card arriving from above, tilted, and settling. Transform and opacity
+/// only; with animations off it is simply there.
+class _Lander extends StatelessWidget {
+  final bool still;
+  final Widget child;
+  const _Lander({required this.still, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: spacing.md),
-      decoration: BoxDecoration(
-        color: colors.surfaceRaised,
-        borderRadius: BorderRadius.circular(context.radii.card),
-        border: Border.all(color: colors.borderSubtle),
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: Column(
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0)
-                Divider(color: colors.borderSubtle, height: spacing.sm + 1),
-              children[i],
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// «قرأت الشروط والأحكام وأوافق عليها» with an unticked box. The underlined
-/// words open the document; the box is the only thing that accepts.
-class _TermsRow extends StatelessWidget {
-  final bool value;
-  final ValueChanged<bool> onChanged;
-  const _TermsRow({required this.value, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final link = context.typography.body.copyWith(
-      color: context.colors.accentGold,
-      decoration: TextDecoration.underline,
-      decorationColor: context.colors.accentGold,
-    );
-    return Row(
-      children: [
-        Checkbox(
-          key: FirstRunScreen.termsKey,
-          value: value,
-          onChanged: (v) => onChanged(v ?? false),
-        ),
-        Expanded(
-          child: Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(l.termsAcceptPrefix, style: context.typography.body),
-              Semantics(
-                link: true,
-                child: InkWell(
-                  key: FirstRunScreen.termsLinkKey,
-                  onTap: () => showTermsDocument(context),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: context.spacing.xs),
-                    child: Text(l.termsAcceptLink, style: link),
-                  ),
-                ),
-              ),
-              Text(l.termsAcceptSuffix, style: context.typography.body),
-            ],
+    if (still) return child;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: FirstRunTokens.land,
+      curve: Curves.easeOutCubic,
+      child: child,
+      builder: (context, t, child) => Opacity(
+        opacity: t,
+        child: Transform.translate(
+          offset: Offset(0, -(1 - t) * FirstRunTokens.landRise),
+          child: Transform.rotate(
+            angle: -(1 - t) * FirstRunTokens.landTilt,
+            child: child,
           ),
         ),
-      ],
+      ),
     );
   }
 }

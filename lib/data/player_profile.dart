@@ -95,10 +95,15 @@ class FirstRunProgress {
   final String name;
   final PlayerGender gender;
 
+  /// The «عندي 18 سنة… وموافق» box was ticked before the app was left. The
+  /// acceptance itself is still recorded only when setup completes.
+  final bool agreed;
+
   const FirstRunProgress({
     required this.chapter,
     this.name = '',
     this.gender = PlayerGender.unspecified,
+    this.agreed = false,
   });
 
   static Future<FirstRunProgress?> load() async {
@@ -117,6 +122,7 @@ class FirstRunProgress {
                 .where((v) => v.name == json['gender'])
                 .firstOrNull ??
             PlayerGender.unspecified,
+        agreed: json['agreed'] == true,
       );
     } catch (_) {
       // Unreadable progress is no progress: the first chapter, as before.
@@ -128,7 +134,12 @@ class FirstRunProgress {
     try {
       await (await SharedPreferences.getInstance()).setString(
         key,
-        jsonEncode({'chapter': chapter, 'name': name, 'gender': gender.name}),
+        jsonEncode({
+          'chapter': chapter,
+          'name': name,
+          'gender': gender.name,
+          'agreed': agreed,
+        }),
       );
     } catch (_) {
       /* Best effort: losing the place is the old behaviour, not a failure. */
@@ -136,6 +147,32 @@ class FirstRunProgress {
   }
 
   static Future<void> clear() async {
+    try {
+      await (await SharedPreferences.getInstance()).remove(key);
+    } catch (_) {}
+  }
+}
+
+/// «أهلاً يا <name>» on Home, once, right after first run. Armed when setup
+/// completes, consumed the first time Home shows it.
+class WelcomeGreeting {
+  static const key = 'mafia.welcome.pending.v1';
+
+  static Future<bool> pending() async {
+    try {
+      return (await SharedPreferences.getInstance()).getBool(key) ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<void> arm() async {
+    try {
+      await (await SharedPreferences.getInstance()).setBool(key, true);
+    } catch (_) {}
+  }
+
+  static Future<void> consume() async {
     try {
       await (await SharedPreferences.getInstance()).remove(key);
     } catch (_) {}

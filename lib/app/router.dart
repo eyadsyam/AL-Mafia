@@ -38,7 +38,9 @@ import '../ui/screens/setup/mode_screen.dart';
 import '../ui/screens/setup/optional_roles.dart';
 import '../ui/screens/setup/how_to_play_screen.dart';
 import '../ui/screens/setup/roles_screen.dart';
+import '../ui/screens/setup/how_to_sheet.dart';
 import '../ui/screens/setup/settings_screen.dart';
+import '../ui/screens/setup/settings_sheet.dart';
 import '../ui/screens/stories/stories_screen.dart';
 import '../ui/screens/stories/story_rewards.dart';
 import '../ui/screens/setup/setup_draft.dart';
@@ -387,8 +389,11 @@ GoRouter buildRouter(
             // one of them and offering the other in smaller type.
             onNewMatch: () => forwardTo(context, Routes.mode),
             onHistory: () => forwardTo(context, Routes.history),
-            onSettings: () => forwardTo(context, Routes.defaults),
-            onHowToPlay: () => context.go(Routes.onboarding),
+            onSettings: () => showSettingsSheet(context),
+            onHowToPlay: () => showHowToSheet(
+              context,
+              onVideo: () => context.go(Routes.onboarding),
+            ),
             onProfile: () => forwardTo(context, Routes.profile),
             onCharacters: () => forwardTo(context, Routes.characters),
             store: SupabaseConfig.isConfigured
@@ -553,14 +558,7 @@ GoRouter buildRouter(
           void finishIntro() {
             ref.read(matchRepositoryProvider).markOnboardingSeen();
             ref.read(profileStoreProvider).markIntroSeen();
-            context.go(
-              Uri(
-                path: Routes.howToPlay,
-                queryParameters: {
-                  'next': _safeReturn(state.uri.queryParameters['next']),
-                },
-              ).toString(),
-            );
+            context.go(_safeReturn(state.uri.queryParameters['next']));
           }
 
           // Setup first (language before a single word of the tutorial);
@@ -687,11 +685,8 @@ GoRouter buildRouter(
           );
         },
       ),
-      // The same screen, reached from Home, editing only the stored defaults.
-      GoRoute(
-        path: Routes.defaults,
-        builder: (context, state) => _DefaultSettingsRoute(ref: ref),
-      ),
+      // Settings are a sheet over Home now; an old link lands on Home.
+      GoRoute(path: Routes.defaults, redirect: (_, _) => Routes.home),
       GoRoute(
         path: Routes.match,
         // A match lives in memory. On the web a refresh — or a link typed
@@ -801,36 +796,6 @@ class _RedirectHomeState extends State<_RedirectHome> {
 
   @override
   Widget build(BuildContext context) => const SizedBox.shrink();
-}
-
-/// Loads the stored defaults, then lets the host edit and re-save them.
-class _DefaultSettingsRoute extends StatelessWidget {
-  final WidgetRef ref;
-
-  const _DefaultSettingsRoute({required this.ref});
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<MatchSettings>(
-      future: ref.read(matchRepositoryProvider).loadDefaultSettings(),
-      builder: (context, snapshot) {
-        final initial = snapshot.data;
-        if (initial == null) return const SizedBox.shrink();
-        return SettingsScreen(
-          initial: initial,
-          onAudioPreview: (settings) => _previewAudio(ref, settings),
-          // No table yet, so a preset here sets the shape of the game and
-          // leaves the split to the screen that asks for it.
-          onSave: (settings) {
-            ref.read(matchRepositoryProvider).saveDefaultSettings(settings);
-            ref.read(setupDraftProvider.notifier).setSettings(settings);
-            context.go(Routes.home);
-          },
-          onBack: () => context.go(Routes.home),
-        );
-      },
-    );
-  }
 }
 
 /// Scaffold that prevents back navigation during critical game phases.

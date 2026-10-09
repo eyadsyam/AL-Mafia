@@ -1,6 +1,3 @@
-import 'dart:io';
-import 'dart:ui' as ui;
-import 'package:flutter/rendering.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,14 +10,18 @@ import 'package:mafia_master/app/locale_controller.dart';
 import 'package:mafia_master/data/motion_preference.dart';
 import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/data/terms_consent.dart';
+import 'package:mafia_master/engine/models/player.dart';
 import 'package:mafia_master/platform/launcher_label.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
 import 'package:mafia_master/ui/screens/online/safety_center.dart';
+import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/theme/mafia_theme.dart';
-import 'package:mafia_master/ui/widgets/gender_picker.dart';
+import 'package:mafia_master/ui/widgets/deck/deck_buttons.dart';
 import 'package:mafia_master/ui/widgets/language_picker.dart';
 import 'package:mafia_master/ui/widgets/legal_documents.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../support/first_run_steps.dart';
 
 class _FlakyTermsStore extends TermsStore {
   int failuresLeft;
@@ -55,49 +56,31 @@ Widget _app({List<Override> overrides = const [], Widget? home}) =>
       ),
     );
 
-Future<void> _fillProfile(WidgetTester tester) async {
-  await _tick(tester, FirstRunScreen.nextKey);
-  await tester.enterText(find.byKey(FirstRunScreen.nameKey), 'Eyad');
-  await tester.ensureVisible(find.byKey(GenderPicker.maleKey));
-  await tester.tap(find.byKey(GenderPicker.maleKey));
-  await tester.pumpAndSettle();
-  await _tick(tester, FirstRunScreen.nextKey);
-  await _tick(tester, FirstRunScreen.nextKey);
-}
-
-Future<void> _tick(WidgetTester tester, Key key) async {
-  await tester.ensureVisible(find.byKey(key));
-  await tester.tap(find.byKey(key));
-  await tester.pumpAndSettle();
-}
-
 bool _continueEnabled(WidgetTester tester) =>
     tester
-        .widget<FilledButton>(find.byKey(FirstRunScreen.continueKey))
+        .widget<BoneButton>(find.byKey(FirstRunScreen.continueKey))
         .onPressed !=
     null;
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('fresh install: continue waits for profile, 18+ and the box', (
+  testWidgets('fresh install: the three steps, the record, then Home', (
     tester,
   ) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
     expect(find.byKey(FirstRunScreen.screenKey), findsOneWidget);
-    expect(find.byType(LanguagePicker), findsOneWidget);
-    expect(find.byKey(FirstRunScreen.termsKey), findsNothing);
-    await _fillProfile(tester);
-    // Nothing is prechecked.
-    expect(
-      tester.widget<Checkbox>(find.byKey(FirstRunScreen.termsKey)).value,
-      isFalse,
-    );
+    // The intro handed over to the first question (two dots: no server).
+    expect(find.byKey(FirstRunScreen.boyKey), findsOneWidget);
+    expect(find.byKey(FirstRunScreen.girlKey), findsOneWidget);
+    expect(find.byKey(FirstRunScreen.dotsKey), findsOneWidget);
+    expect(find.byKey(FirstRunScreen.languageKey), findsOneWidget);
+    await tapKey(tester, FirstRunScreen.agreeKey);
+    await tapKey(tester, FirstRunScreen.girlKey);
+    expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
     expect(_continueEnabled(tester), isFalse);
-    await _tick(tester, FirstRunScreen.adultKey);
-    expect(_continueEnabled(tester), isFalse, reason: 'terms unticked');
-    await _tick(tester, FirstRunScreen.termsKey);
+    await typeName(tester, 'Mona');
     expect(_continueEnabled(tester), isTrue);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
@@ -107,81 +90,58 @@ void main() {
     expect(saved!.version, currentTermsVersion);
     expect(saved.adult, isTrue);
     expect(saved.synced, isFalse);
-    expect((await ProfileStore().load())!.name, 'Eyad');
+    final profile = (await ProfileStore().load())!;
+    expect(profile.name, 'Mona');
+    expect(profile.gender, PlayerGender.female);
+    expect(await WelcomeGreeting.pending(), isTrue);
   });
 
-  testWidgets('360x640 onboarding keeps the focused name above the keyboard', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(360, 640));
-    tester.view.viewInsets = const FakeViewPadding(bottom: 280);
-    addTearDown(() {
-      tester.binding.setSurfaceSize(null);
-      tester.view.resetViewInsets();
-    });
-    await tester.pumpWidget(_app());
-    await tester.pumpAndSettle();
-    await _tick(tester, FirstRunScreen.nextKey);
-
-    final field = find.byKey(FirstRunScreen.nameKey);
-    expect(field, findsOneWidget);
-    expect(tester.widget<TextField>(field).autofocus, isTrue);
-    expect(find.text('اسمك في اللعبة'), findsOneWidget);
-    final rect = tester.getRect(field);
-    expect(rect.top, greaterThanOrEqualTo(0));
-    expect(rect.bottom, lessThanOrEqualTo(640 - 280));
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('412x915 onboarding keeps the focused name above the keyboard', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(412, 915));
-    tester.view.viewInsets = const FakeViewPadding(bottom: 320);
-    addTearDown(() {
-      tester.binding.setSurfaceSize(null);
-      tester.view.resetViewInsets();
-    });
-    await tester.pumpWidget(_app());
-    await tester.pumpAndSettle();
-    await _tick(tester, FirstRunScreen.nextKey);
-
-    final field = find.byKey(FirstRunScreen.nameKey);
-    expect(field, findsOneWidget);
-    expect(tester.widget<TextField>(field).autofocus, isTrue);
-    expect(tester.widget<TextField>(field).decoration?.labelText, isNotEmpty);
-    final rect = tester.getRect(field);
-    expect(rect.top, greaterThanOrEqualTo(0));
-    expect(rect.bottom, lessThanOrEqualTo(915 - 320));
-    expect(rect.height, greaterThanOrEqualTo(48));
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('opening the terms and coming back keeps the form', (
+  testWidgets('the cards stay dimmed and shake until the box is ticked', (
     tester,
   ) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    await _fillProfile(tester);
-    await _tick(tester, FirstRunScreen.adultKey);
-    await _tick(tester, FirstRunScreen.termsLinkKey);
-    expect(find.byKey(LegalDocuments.termsSheetKey), findsOneWidget);
-    // Opening the document is not acceptance.
+    await tester.tap(find.byKey(FirstRunScreen.boyKey));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byKey(FirstRunScreen.nameKey), findsNothing);
+    await tester.pumpAndSettle();
+    expect(find.byKey(FirstRunScreen.nameKey), findsNothing);
+    expect(await TermsStore().load(), isNull);
+    await tapKey(tester, FirstRunScreen.agreeKey);
+    await tapKey(tester, FirstRunScreen.boyKey);
+    expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
+  });
+
+  testWidgets('one letter is not a name; two are, and the plate follows', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await answerKind(tester);
+    expect(find.text('اسمك هنا'), findsOneWidget);
+    await typeName(tester, 'M');
+    expect(_continueEnabled(tester), isFalse);
+    await typeName(tester, 'Mo');
+    expect(_continueEnabled(tester), isTrue);
     expect(
-      tester.widget<Checkbox>(find.byKey(FirstRunScreen.termsKey)).value,
-      isFalse,
+      find.descendant(
+        of: find.byKey(FirstRunScreen.myCardKey),
+        matching: find.text('Mo'),
+      ),
+      findsOneWidget,
     );
-    await tester.tap(find.byKey(LegalDocuments.closeKey));
+  });
+
+  testWidgets('back from the name keeps the box and the typed name', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    expect(find.byKey(LegalDocuments.termsSheetKey), findsNothing);
-    await _tick(tester, FirstRunScreen.privacyLinkKey);
-    expect(find.byKey(LegalDocuments.privacySheetKey), findsOneWidget);
-    // System back closes the sheet, not the setup.
-    await tester.binding.handlePopRoute();
-    await tester.pumpAndSettle();
-    expect(find.byKey(LegalDocuments.privacySheetKey), findsNothing);
-    await _tick(tester, FirstRunScreen.backKey);
-    await _tick(tester, FirstRunScreen.backKey);
+    await answerKind(tester);
+    await typeName(tester, 'Eyad');
+    await tapKey(tester, FirstRunScreen.backKey);
+    expect(find.byKey(FirstRunScreen.boyKey), findsOneWidget);
+    await tapKey(tester, FirstRunScreen.boyKey);
     expect(
       tester
           .widget<TextField>(find.byKey(FirstRunScreen.nameKey))
@@ -189,13 +149,28 @@ void main() {
           .text,
       'Eyad',
     );
-    await _tick(tester, FirstRunScreen.nextKey);
-    await _tick(tester, FirstRunScreen.nextKey);
+  });
+
+  testWidgets('opening the terms and coming back keeps the box', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tapKey(tester, FirstRunScreen.agreeKey);
+    await tapKey(tester, FirstRunScreen.termsLinkKey);
+    expect(find.byKey(LegalDocuments.termsSheetKey), findsOneWidget);
+    await tester.tap(find.byKey(LegalDocuments.closeKey));
+    await tester.pumpAndSettle();
+    expect(find.byKey(LegalDocuments.termsSheetKey), findsNothing);
+    await tapKey(tester, FirstRunScreen.privacyLinkKey);
+    expect(find.byKey(LegalDocuments.privacySheetKey), findsOneWidget);
+    // System back closes the sheet, not the setup.
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byKey(LegalDocuments.privacySheetKey), findsNothing);
     expect(
-      tester
-          .widget<CheckboxListTile>(find.byKey(FirstRunScreen.adultKey))
-          .value,
-      isTrue,
+      tester.getSemantics(find.byKey(FirstRunScreen.agreeKey)),
+      isSemantics(hasCheckedState: true, isChecked: true),
     );
   });
 
@@ -207,19 +182,11 @@ void main() {
       _app(overrides: [termsStoreProvider.overrideWithValue(store)]),
     );
     await tester.pumpAndSettle();
-    await _fillProfile(tester);
-    await _tick(tester, FirstRunScreen.adultKey);
-    await _tick(tester, FirstRunScreen.termsKey);
-    await tester.tap(find.byKey(FirstRunScreen.continueKey));
-    await tester.pumpAndSettle();
+    await completeFirstRun(tester);
     expect(find.text('HOME'), findsNothing);
     expect(find.byKey(FirstRunScreen.failedKey), findsOneWidget);
-    // The profile landed, so the form narrowed to the terms, and the ticks
-    // the player already gave are still there: no loop, one more tap.
-    expect(
-      tester.widget<Checkbox>(find.byKey(FirstRunScreen.termsKey)).value,
-      isTrue,
-    );
+    // The profile landed, so the form narrowed to the box, still ticked:
+    // no loop, one more tap.
     expect(_continueEnabled(tester), isTrue);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
@@ -241,7 +208,7 @@ void main() {
     expect(find.byKey(FirstRunScreen.screenKey), findsNothing);
   });
 
-  testWidgets('an existing profile gets one compact terms prompt', (
+  testWidgets('an existing profile gets one compact prompt: the box', (
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({
@@ -252,13 +219,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(FirstRunScreen.screenKey), findsOneWidget);
     expect(find.byKey(FirstRunScreen.nameKey), findsNothing);
-    expect(find.byType(LanguagePicker), findsNothing);
-    await _tick(tester, FirstRunScreen.adultKey);
-    await _tick(tester, FirstRunScreen.termsKey);
+    expect(find.byKey(FirstRunScreen.boyKey), findsNothing);
+    expect(_continueEnabled(tester), isFalse);
+    await tapKey(tester, FirstRunScreen.agreeKey);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
     expect(find.text('HOME'), findsOneWidget);
     expect((await ProfileStore().load())!.name, 'Old');
+    expect((await TermsStore().load())!.adult, isTrue);
+    expect(await WelcomeGreeting.pending(), isFalse);
   });
 
   testWidgets('only a changed terms version asks again', (tester) async {
@@ -272,17 +241,8 @@ void main() {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
     expect(find.byKey(FirstRunScreen.screenKey), findsOneWidget);
-    // The 18+ answer carries over; the terms box never does.
-    expect(
-      tester
-          .widget<CheckboxListTile>(find.byKey(FirstRunScreen.adultKey))
-          .value,
-      isTrue,
-    );
-    expect(
-      tester.widget<Checkbox>(find.byKey(FirstRunScreen.termsKey)).value,
-      isFalse,
-    );
+    // The box never carries over.
+    expect(_continueEnabled(tester), isFalse);
   });
 
   testWidgets('a valid acceptance is never asked again before a room', (
@@ -346,147 +306,77 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
-    await _fillProfile(tester);
-    await _tick(tester, FirstRunScreen.adultKey);
-    await _tick(tester, FirstRunScreen.termsKey);
-    await tester.tap(find.byKey(FirstRunScreen.continueKey));
-    await tester.pumpAndSettle();
+    await completeFirstRun(tester);
     expect(find.text('JOIN ABCDEF REF 43D4YUG'), findsOneWidget);
   });
 
-  testWidgets('language switches in place and keeps what was typed', (
+  testWidgets('English switches in place and keeps what was ticked', (
     tester,
   ) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    await _fillProfile(tester);
-    await _tick(tester, FirstRunScreen.adultKey);
-    for (var i = 0; i < 3; i++) {
-      await _tick(tester, FirstRunScreen.backKey);
-    }
+    await tapKey(tester, FirstRunScreen.agreeKey);
     final state = tester.state(find.byKey(FirstRunScreen.screenKey));
-    await tester.ensureVisible(find.text('English'));
-    await tester.tap(find.text('English'));
-    await tester.pumpAndSettle();
-    expect(find.text('Welcome to Mafia Master'), findsOneWidget);
-    await _tick(tester, FirstRunScreen.nextKey);
-    final name = find.byKey(FirstRunScreen.nameKey);
-    expect(Directionality.of(tester.element(name)), TextDirection.ltr);
-    expect(tester.widget<TextField>(name).controller!.text, 'Eyad');
-    await _tick(tester, FirstRunScreen.nextKey);
-    await _tick(tester, FirstRunScreen.nextKey);
+    await tapKey(tester, FirstRunScreen.languageKey);
+    expect(find.text('How should we address you?'), findsOneWidget);
+    expect(find.text('العربي'), findsOneWidget);
     // Same State object: nothing was torn down or rebuilt from scratch.
     expect(tester.state(find.byKey(FirstRunScreen.screenKey)), same(state));
-    expect(
-      tester
-          .widget<CheckboxListTile>(find.byKey(FirstRunScreen.adultKey))
-          .value,
-      isTrue,
-    );
+    await tapKey(tester, FirstRunScreen.boyKey);
+    expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
   });
 
-  testWidgets('preferences are saved with setup', (tester) async {
+  testWidgets('sound, music and motion are not asked', (tester) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    await _fillProfile(tester);
-    await _tick(tester, FirstRunScreen.backKey);
-    await _tick(tester, FirstRunScreen.motionKey);
-    await _tick(tester, FirstRunScreen.nextKey);
-    await _tick(tester, FirstRunScreen.adultKey);
-    await _tick(tester, FirstRunScreen.termsKey);
+    await answerKind(tester);
+    await typeName(tester, 'Eyad');
+    expect(find.byType(Switch), findsNothing);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
-    expect(await loadReduceMotionPreference(), isTrue);
+    expect(await loadReduceMotionPreference(), isFalse);
   });
 
-  for (final locale in ['ar', 'en']) {
-    for (final size in [const Size(390, 844), const Size(740, 360)]) {
-      testWidgets('arrival is usable in $locale at $size', (tester) async {
-        await tester.binding.setSurfaceSize(size);
-        addTearDown(() => tester.binding.setSurfaceSize(null));
-        const capture = bool.fromEnvironment('CAPTURE_ARRIVAL');
-        const frame = ValueKey('arrival_frame');
-        if (capture) {
-          const fonts = {
-            'Roboto': 'assets/fonts/IBMPlexSansArabic-Regular.ttf',
-            'IBM Plex Sans Arabic':
-                'assets/fonts/IBMPlexSansArabic-Regular.ttf',
-            'Bebas Neue': 'assets/fonts/BebasNeue-Regular.ttf',
-            'Cairo': 'assets/fonts/Cairo-Variable.ttf',
-            'MaterialIcons': 'fonts/MaterialIcons-Regular.otf',
-          };
-          for (final entry in fonts.entries) {
-            final loader = FontLoader(entry.key)
-              ..addFont(rootBundle.load(entry.value));
-            await loader.load();
-          }
-        }
-        await tester.pumpWidget(
-          RepaintBoundary(
-            key: frame,
-            child: _app(
-              overrides: [
-                initialLocaleProvider.overrideWithValue(Locale(locale)),
-              ],
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        Future<void> photo(String name) async {
-          if (!capture || locale != 'ar' || size.width != 390) return;
-          final boundary = tester.renderObject<RenderRepaintBoundary>(
-            find.byKey(frame),
-          );
-          await tester.runAsync(() async {
-            final image = await boundary.toImage();
-            final bytes = await image.toByteData(
-              format: ui.ImageByteFormat.png,
-            );
-            final file = File('build/experience-review/$name.png');
-            await file.parent.create(recursive: true);
-            await file.writeAsBytes(bytes!.buffer.asUint8List());
-            image.dispose();
-          });
-        }
-
-        await photo('01-language');
-        await _tick(tester, FirstRunScreen.nextKey);
-        expect(
-          tester
-              .widget<FilledButton>(find.byKey(FirstRunScreen.nextKey))
-              .onPressed,
-          isNull,
-        );
-        await tester.enterText(find.byKey(FirstRunScreen.nameKey), 'Eyad');
-        await _tick(tester, GenderPicker.maleKey);
-        FocusManager.instance.primaryFocus?.unfocus();
-        await tester.pumpAndSettle();
-        await photo('02-identity');
-        await _tick(tester, FirstRunScreen.nextKey);
-        await photo('03-preferences');
-        // System back moves one chapter, preserving the entered profile.
-        await tester.binding.handlePopRoute();
-        await tester.pumpAndSettle();
-        expect(
-          tester
-              .widget<TextField>(find.byKey(FirstRunScreen.nameKey))
-              .controller!
-              .text,
-          'Eyad',
-        );
-        await _tick(tester, FirstRunScreen.nextKey);
-        await _tick(tester, FirstRunScreen.nextKey);
-        await photo('04-pact');
-        expect(_continueEnabled(tester), isFalse);
-        await _tick(tester, FirstRunScreen.adultKey);
-        await _tick(tester, FirstRunScreen.termsKey);
-        await _tick(tester, FirstRunScreen.continueKey);
-        expect(find.text('HOME'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      });
-    }
+  for (final size in [const Size(360, 640), const Size(430, 932)]) {
+    testWidgets('every step fits $size, also with the keyboard up', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(size);
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(_app());
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(tester.takeException(), isNull, reason: 'intro');
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull, reason: 'kind');
+      await answerKind(tester);
+      expect(tester.takeException(), isNull, reason: 'name');
+      tester.view.viewInsets = FakeViewPadding(
+        bottom: size.height * 0.4 * tester.view.devicePixelRatio,
+      );
+      addTearDown(tester.view.resetViewInsets);
+      await tester.pumpAndSettle();
+      final field = tester.getRect(find.byKey(FirstRunScreen.nameKey));
+      expect(field.top, greaterThanOrEqualTo(0));
+      expect(field.bottom, lessThanOrEqualTo(size.height * 0.6));
+      expect(tester.takeException(), isNull, reason: 'keyboard');
+    });
   }
+
+  testWidgets('reduced motion jumps to the end states', (tester) async {
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    await tester.pump(FirstRunTokens.introStill);
+    await tester.pump();
+    expect(find.byKey(FirstRunScreen.boyKey), findsOneWidget);
+    await tester.tap(find.byKey(FirstRunScreen.agreeKey));
+    await tester.pump();
+    await tester.tap(find.byKey(FirstRunScreen.boyKey));
+    await tester.pump();
+    expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
+  });
 
   group('launcher label', () {
     const channel = MethodChannel('mafia_master/launcher');

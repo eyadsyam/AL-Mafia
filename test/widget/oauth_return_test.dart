@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/app/app.dart';
 import 'package:mafia_master/app/router.dart';
 import 'package:mafia_master/data/memory_match_repository.dart';
+import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/data/repository_provider.dart';
 import 'package:mafia_master/platform/audio_director.dart';
 import 'package:mafia_master/transport/account_auth.dart';
@@ -20,6 +21,7 @@ import 'package:mafia_master/ui/screens/setup/profile_screen.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../support/first_run_steps.dart';
 import '../support/localized.dart';
 import '../support/stores.dart';
 
@@ -122,16 +124,23 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> toSaveStep(WidgetTester tester) async {
+    await passIntro(tester);
+    await answerKind(tester);
+    await typeName(tester, 'Eyad');
+    await _tap(tester, FirstRunScreen.nextKey);
+  }
+
   group('bug 1: Google during onboarding', () {
     setUp(() => SharedPreferences.setMockInitialValues({}));
 
-    testWidgets('the return continues to the name, never to the start', (
+    testWidgets('the return finishes setup, never restarts it', (
       tester,
     ) async {
       await launch(tester);
       expect(find.byKey(FirstRunScreen.screenKey), findsOneWidget);
-      await _tap(tester, FirstRunScreen.nextKey);
-      await _tap(tester, OnboardingAccountChoice.signInKey);
+      await toSaveStep(tester);
+      await _tap(tester, FirstRunScreen.emailKey);
       await _tap(tester, AccountSheet.googleKey);
       expect(auth.calls, hasLength(1));
 
@@ -145,52 +154,50 @@ void main() {
       profiles.add(_google);
       await tester.pumpAndSettle();
       expect(find.byType(AccountSheet), findsNothing);
-      expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
       expect(
-        tester
-            .widget<TextField>(find.byKey(FirstRunScreen.nameKey))
-            .controller!
-            .text,
-        'Eyad Abdelrahman',
-        reason: 'the Google name is offered, still editable',
+        find.byKey(FirstRunScreen.boyKey),
+        findsNothing,
+        reason: 'the first question is not asked again',
       );
+      expect((await ProfileStore().load())!.name, 'Eyad');
     });
 
-    testWidgets('a cold start from the return resumes the same chapter', (
+    testWidgets('a cold start from the return resumes the same step', (
       tester,
     ) async {
       await launch(tester);
-      await _tap(tester, FirstRunScreen.nextKey);
-      await _tap(tester, OnboardingAccountChoice.signInKey);
-      await _tap(tester, AccountSheet.googleKey);
+      await toSaveStep(tester);
+      await _tap(tester, FirstRunScreen.googleKey);
 
       // Android killed the app while the browser was open; the link starts
       // it again, already signed in.
       await launch(tester, at: _callback, initial: _google);
-      expect(find.byKey(FirstRunScreen.screenKey), findsOneWidget);
-      expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
+      expect(find.byKey(FirstRunScreen.boyKey), findsNothing);
+      expect(
+        (await ProfileStore().load())?.name,
+        'Eyad',
+        reason: 'the typed name and the ticked box came back with it',
+      );
     });
 
-    testWidgets('system back during first run steps back one chapter', (
+    testWidgets('system back during first run steps back one step', (
       tester,
     ) async {
       await launch(tester);
-      await _tap(tester, FirstRunScreen.nextKey);
-      await _tap(tester, FirstRunScreen.guestKey);
-      expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
+      await toSaveStep(tester);
+      expect(find.byKey(FirstRunScreen.guestKey), findsOneWidget);
       // Used to `go` Home, which is a brand-new first-run screen.
       await tester.runAsync(() => tester.binding.handlePopRoute());
       await tester.pumpAndSettle();
-      expect(find.byKey(OnboardingAccountChoice.signInKey), findsOneWidget);
+      expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
     });
 
     testWidgets('onboarding links Google and keeps the anonymous id', (
       tester,
     ) async {
       await launch(tester);
-      await _tap(tester, FirstRunScreen.nextKey);
-      await _tap(tester, OnboardingAccountChoice.signInKey);
-      await _tap(tester, AccountSheet.googleKey);
+      await toSaveStep(tester);
+      await _tap(tester, FirstRunScreen.googleKey);
       expect(auth.calls, ['google']);
     });
   });
@@ -324,11 +331,9 @@ void main() {
         child: localizedApp(const FirstRunScreen()),
       ),
     );
-    await tester.pumpAndSettle();
-    await _tap(tester, FirstRunScreen.nextKey);
-    await _tap(tester, FirstRunScreen.guestKey);
-    await tester.enterText(find.byKey(FirstRunScreen.nameKey), 'Mona');
-    await tester.pumpAndSettle();
+    await passIntro(tester);
+    await answerKind(tester);
+    await typeName(tester, 'Mona');
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpWidget(
