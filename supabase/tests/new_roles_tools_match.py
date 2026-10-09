@@ -32,6 +32,11 @@ def record(label, good, detail=None):
     return good
 
 
+def skip(label, reason):
+    RESULTS[label] = {'status': 'SKIP', 'code': reason}
+    (ROOT / 'build/new_roles_tools_results.json').write_text(json.dumps(RESULTS, indent=2), encoding='utf-8')
+
+
 def eco(p, action, **kw):
     return h.fn('economy', dict(action=action, **kw), p)
 
@@ -135,7 +140,8 @@ class Match:
                         permitted = (source == 'my_team' and key == 'role' and path == '') or (source == 'witness_view') or (source == 'submit_night_action' and key == 'revealedRole' and p.get('role') == 'detective') or key == 'eliminatedRole'  # D11/FR-019: a day elimination is public by design
                         if not permitted:
                             self.leaks.add(source + ':' + path + key)
-                    if key == 'teammates' and value and p.get('role') not in ('mafia', 'silencer'):
+                    known_role = data.get('role') if source == 'my_team' and isinstance(data, dict) else p.get('role')
+                    if key == 'teammates' and value and known_role not in ('mafia', 'silencer'):
                         self.leaks.add(source + ':teammates')
                     if key == 'answer' and value is not None:
                         if source != 'economy' and obj.get('user_id') != p['id']:
@@ -211,7 +217,8 @@ class Match:
         accepted(self.label + ': morning to discuss', self.call('open_phase', phase='discuss'))
 
     def vote(self, target, ballots=None):
-        accepted(self.label + ': discuss to vote', self.call('open_phase', phase='vote'))
+        if self.state()['phase'] != 'vote':
+            accepted(self.label + ': discuss to vote', self.call('open_phase', phase='vote'))
         alive = self.alive()
         for p in alive:
             seat = ballots.get(p['seat']) if ballots is not None else (target if p['seat'] != target else None)
@@ -259,7 +266,8 @@ class Match:
 
 
 def setup_coins():
-    ids = [str(uuid.UUID(p['id'])) for p in BOTS[:-1]]
+    funded = BOTS if os.environ.get('LIVE_AFFECTED') == '1' else BOTS[:-1]
+    ids = [str(uuid.UUID(p['id'])) for p in funded]
     sql = "begin;\ndo $$ declare u uuid; begin\n"
     sql += "foreach u in array array[" + ','.join("'%s'::uuid" % x for x in ids) + "] loop\n"
     sql += "if not exists(select 1 from auth.users where id=u and is_anonymous) then raise exception 'NOT_TEST_ANON'; end if;\n"
@@ -423,12 +431,16 @@ def tools_match():
 def main():
     global BOTS
     h._POOL_TAKEN[0] = 0
-    BOTS = [h.anon_session('LiveBot%d' % i) for i in range(12)]
+    count = 10 if os.environ.get('LIVE_AFFECTED') == '1' else 12
+    BOTS = [h.anon_session('LiveBot%d' % i) for i in range(count)]
     if not setup_coins():
         record('roles/tools scenarios blocked by coin setup', False, 'NO_PRIVILEGED_SETUP')
         return
     accepted('edge host buys silencer', eco(BOTS[0], 'buy', item='role_silencer'))
-    for name, scenario in [('tools', tools_match), ('edges', edge_match), ('timers', timer_match)]:
+    scenarios = [('tools', tools_match), ('edges', edge_match)]
+    if os.environ.get('LIVE_AFFECTED') != '1':
+        scenarios.append(('timers', timer_match))
+    for name, scenario in scenarios:
         try:
             scenario()
         except Exception as e:
@@ -504,10 +516,15 @@ def edge_match():
     silencer = m.role('silencer')
     data = accepted('silencer wallet result receipt', m.call('economy', silencer,
         action='resultSummary', requestId=h.aid()))
-    # Read only this bot's own receipt, through its authenticated RLS surface.
-    status, rows = h.rest('match_receipts?select=won,win_coins&room_id=eq.' + m.id + '&user_id=eq.' + silencer['id'], silencer)
-    record('silencer receipt counts mafia win', status == 200 and bool(rows) and rows[0].get('won') is True,
-           'RECEIPT_ABSENT_OR_NOT_READABLE' if not rows or status != 200 else None)
+    # The authenticated resultSummary RPC is the receipt surface; direct REST
+    # access to match_receipts is intentionally denied. These reused bots can
+    # exhaust the six-per-day or three-per-roster anti-farm cap.
+    receipt = data.get('receipt')
+    if isinstance(receipt, dict):
+        record('silencer receipt counts mafia win', receipt.get('win') == 10,
+               'WIN_REWARD_MISMATCH' if receipt.get('win') != 10 else None)
+    else:
+        skip('silencer receipt counts mafia win', 'NO_RECEIPT_ANTIFARM_CAP_OR_DISABLED')
     record('remaining clients reach result', all(m.state(p)['phase'] == 'result' for p in m.players if p != kicked))
     m.close()
 

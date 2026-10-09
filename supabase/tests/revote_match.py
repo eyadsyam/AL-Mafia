@@ -7,9 +7,9 @@ night where nobody dies, a 2–2 split with one abstention, and a revote in whic
 only the two tied seats can be chosen — by the Edge Function and, underneath
 it, by the database when a client skips the function entirely.
 
-It then covers the server-owned waiting room (migration system_waiting_rooms):
-two strangers tapping the same empty room at the same instant must produce
-exactly one host and two seats, never two hosts or a lost player.
+It also reads the server-owned waiting-room listing, then races two bot joins
+against a bot-owned lobby. A shared waiting room may contain real users and is
+not safe for this live test to mutate.
 
 Usage
 -----
@@ -162,25 +162,28 @@ def revote_section():
     check("exactly one player is dead after the day", dead == [x["seat"]], dead)
 
     fn("close_room", {"roomId": room_id}, players[0])
+    return players[:3]
 
 
-def waiting_room_section():
-    first, second = h.anon_session("W1"), h.anon_session("W2")
+def waiting_room_section(players):
+    first, second, third = players
     status, listing = fn("browse_rooms", {}, first)
     check("browse_rooms answers", status == 200 and isinstance(listing.get("rooms"), list), listing)
     waiting = [r for r in listing.get("rooms", []) if r.get("waiting")]
-    if not check("a server-owned waiting room is offered", len(waiting) >= 1, listing):
+    check("a server-owned waiting room is offered", len(waiting) >= 1, listing)
+
+    status, own = fn("create_room", {"name": "Bot join race", "visibility": "private"}, first)
+    if not check("bot-owned join race lobby created", status == 200 and bool(own.get("roomId")), own):
         return
-    code = waiting[0]["code"]
-    check("the waiting room is empty", waiting[0].get("players") == 0, waiting[0])
+    room_id, code = own["roomId"], own["code"]
 
     results = {}
 
     def tap(player, name):
         results[name] = fn("join_room", {"code": code, "name": name}, player)
 
-    threads = [threading.Thread(target=tap, args=(first, "W1")),
-               threading.Thread(target=tap, args=(second, "W2"))]
+    threads = [threading.Thread(target=tap, args=(second, "W2")),
+               threading.Thread(target=tap, args=(third, "W3"))]
     for t in threads:
         t.start()
     for t in threads:
@@ -188,19 +191,15 @@ def waiting_room_section():
 
     statuses = sorted(r[0] for r in results.values())
     check("both simultaneous taps are admitted", statuses == [200, 200], results)
-    seats = sorted(r[1].get("seat") for r in results.values())
-    check("two different seats, none shared", len(set(seats)) == 2, seats)
-    room_id = next(iter(results.values()))[1].get("roomId")
+    seats = [r[1].get("seat") for r in results.values() if r[0] == 200]
+    check("two different seats, none shared", len(seats) == 2 and len(set(seats)) == 2, seats)
     hosts = [name for name, r in results.items() if r[1].get("host") is True]
-    check("exactly one tap claimed the host", len(hosts) == 1, results)
+    check("neither guest claims the host", not hosts, results)
     status, rooms = rest("rooms_public?select=host_id&id=eq." + str(room_id), first)
     row = rooms[0] if status == 200 and rooms else {}
-    winner = first if hosts == ["W1"] else second
-    check("the room's host is the seat that claimed it",
-          row.get("host_id") == winner["id"], (status, rooms))
+    check("the bot host remains the host", row.get("host_id") == first["id"], (status, rooms))
 
-    for p in (first, second):
-        fn("leave_room", {"roomId": room_id}, p)
+    fn("close_room", {"roomId": room_id}, first)
 
 
 def main():
@@ -208,9 +207,9 @@ def main():
         raise SystemExit("set SUPABASE_ANON_KEY")
     print("server: " + h.URL)
     print("── revote ──")
-    revote_section()
+    players = revote_section()
     print("── server-owned waiting room ──")
-    waiting_room_section()
+    waiting_room_section(players)
     print("%d passed, %d failed" % (len(h.PASS), len(h.FAIL)))
     sys.exit(1 if h.FAIL else 0)
 

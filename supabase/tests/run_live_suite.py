@@ -95,6 +95,9 @@ if __name__ == '__main__':
             'timer_expiry_match')
         raise SystemExit(0)
     count = (0 if '--insufficient' in sys.argv else
+             5 if '--revote-only' in sys.argv else
+             6 if '--kick-only' in sys.argv or '--affected-baselines' in sys.argv else
+             10 if '--affected-roles' in sys.argv else
              5 if ('--conflicts' in sys.argv or '--conflicts-one' in sys.argv) else 12)
     # Every session is minted before creating a lobby, then reused throughout.
     for i in range(count):
@@ -102,6 +105,17 @@ if __name__ == '__main__':
     print(str(count) + ' bot sessions ready in memory', flush=True)
     if '--insufficient' in sys.argv:
         run('insufficient_coins_match')
+        raise SystemExit(0)
+    if '--affected-baselines' in sys.argv:
+        run('revote_match')
+        run('kick_flow_match')
+        raise SystemExit(0)
+    if '--revote-only' in sys.argv or '--kick-only' in sys.argv:
+        run('revote_match' if '--revote-only' in sys.argv else 'kick_flow_match')
+        raise SystemExit(0)
+    if '--affected-roles' in sys.argv:
+        os.environ['LIVE_AFFECTED'] = '1'
+        run('new_roles_tools_match')
         raise SystemExit(0)
     if '--conflicts-one' in sys.argv:
         os.environ['LIVE_ONLY_INTERACTION'] = '1'

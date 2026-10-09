@@ -45,8 +45,8 @@ $$;
 
 do $$
 declare
-  a uuid; b uuid; c uuid; d uuid; e uuid; f uuid; g uuid; h uuid; x uuid;
-  seats uuid[]; others uuid[]; rid uuid; r1 uuid; r2 uuid; r3 uuid; r4 uuid;
+  a uuid; b uuid; c uuid; d uuid; e uuid; f uuid; g uuid; h uuid; x uuid; z uuid;
+  seats uuid[]; others uuid[]; rid uuid; r1 uuid; r2 uuid; r3 uuid; r4 uuid; sroom uuid;
   bal bigint; bal2 bigint; rec public.match_receipts; snap jsonb; cap jsonb;
   today date:=(now() at time zone 'utc')::date; t0 timestamptz; i int; n int;
   fp1 text; fp2 text; season bigint;
@@ -97,6 +97,16 @@ begin
   assert rec.won and rec.win_coins=10 and rec.first_day_coins=0 and rec.season_xp=10
     and rec.council_xp=50 and rec.day_ordinal=2 and rec.roster_ordinal=2,row_to_json(rec)::text;
   assert pg_temp.ev_balance(x)=85,'85 after a win: '||pg_temp.ev_balance(x);
+
+  -- A fresh Silencer receives the Mafia win amount in the result-summary receipt.
+  z:=pg_temp.ev_user();
+  sroom:=pg_temp.ev_room(array[z,b,c,d,e],b,'mafia',t0+interval '3 minutes');
+  update public.room_players set role='silencer' where room_id=sroom and user_id=z;
+  perform public.sync_player_rewards(z);
+  select * into rec from public.match_receipts where user_id=z and room_id=sroom;
+  assert rec.won and rec.win_coins=10,'eligible Silencer win receipt missing';
+  assert (public.result_summary_room(z,sroom,gen_random_uuid())->'receipt'->>'win')::int=10,
+    'Silencer result summary omitted win reward';
 
   -- ── Replay: syncing again, and issuing directly, change nothing.
   perform public.sync_player_rewards(x);
