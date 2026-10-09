@@ -13,6 +13,7 @@ import '../economy/economy_capabilities.dart';
 import '../economy/my_identity.dart';
 import '../economy/wallet.dart';
 import '../social/titles_partner.dart';
+import '../social/push_prompt.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
 import '../theme/design_tokens.dart';
@@ -738,8 +739,16 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
         onPressed: _busy
             ? null
             : () => _run((auth) async {
-                await auth.signOut();
+                await ref.read(pushPromptProvider).unregisterThisDevice();
+                try {
+                  await auth.signOut();
+                } catch (_) {
+                  await ref.read(pushPromptProvider).refreshIfAsked();
+                  rethrow;
+                }
+                await auth.ensureGuestSession();
                 await _refreshIdentity();
+                await ref.read(pushPromptProvider).refreshIfAsked();
               }),
         child: Text(
           l.authSignOut,

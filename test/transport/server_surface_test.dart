@@ -99,7 +99,7 @@ void main() {
       // every request passes its atomic per-address limit first.
       const ownAuth = {
         'admob_ssv': 'verifySsv(url, loadKeys)',
-        'play_voided_sync': 'request.headers.get("x-sync-secret") !== secret',
+        'play_voided_sync': 'sameSecret(request.headers.get("x-sync-secret") ?? "", secret)',
         'tester_signup': 'db.rpc("tester_signup_attempt"',
         // Answers the welcome-mail script yes/no on an HMAC only the server
         // can mint; it reads one row and changes nothing.

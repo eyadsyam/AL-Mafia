@@ -5,15 +5,15 @@ import '../../platform/push/push_service.dart';
 import '../economy/economy_capabilities.dart';
 import 'directory.dart';
 
-/// Notification permission, never on first launch: asked the first time the
+/// Notification permission, never at first launch: asked the first time the
 /// player opens the invite sheet or receives an invite in the app, and on
 /// Android at the start of their second session — an invite only reaches a
 /// closed app on a device that registered *before* it was sent, so waiting for
 /// the player to invite somebody left every invitee unreachable. A device
 /// where notifications are already allowed registers without any prompt.
-/// Nothing happens while push is off on the server (`social.pushInvites`),
-/// before the capabilities were read by something else, or where this build
-/// has no push (no Firebase configuration).
+/// Invite prompts need `social.pushInvites`; the first result can ask for
+/// reminders and room events even when invites are disabled.
+/// No prompt is shown where this build has no push configuration.
 class PushPrompt {
   final Ref _ref;
   PushPrompt(this._ref);
@@ -27,6 +27,7 @@ class PushPrompt {
   /// App sessions this device has started with a name set, counted once per
   /// process by [onPlayerReady].
   static const sessionsKey = 'push_sessions_v1';
+  static const firstResultKey = 'push_first_result_v1';
   bool _busy = false;
   bool _counted = false;
 
@@ -37,6 +38,29 @@ class PushPrompt {
     if (!_ref.exists(economyCapabilitiesProvider)) return false;
     final caps = _ref.read(economyCapabilitiesProvider).valueOrNull;
     return caps?.pushInvites ?? false;
+  }
+
+  Future<void> unregisterThisDevice() async {
+    try {
+      final token = await _ref.read(pushServiceProvider).token();
+      if (token != null) {
+        await _ref.read(directoryApiProvider).unregisterPush(token);
+      }
+    } catch (_) {
+      // A failed cleanup must not prevent signing out or deleting an account.
+    }
+  }
+
+  Future<void> askAfterFirstResult() async {
+    final push = _ref.read(pushServiceProvider);
+    if (_busy || push.platform == null || push.needsInstall) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool(firstResultKey) ?? false) return;
+      await prefs.setBool(firstResultKey, true);
+      if (prefs.getBool(onKey) == false) return;
+      await _ask(push);
+    } catch (_) {}
   }
 
   Future<void> askInContext() async {
@@ -151,7 +175,7 @@ class PushPrompt {
   /// before (a later session, a rotated token). Never prompts.
   Future<void> refreshIfAsked() async {
     final push = _ref.read(pushServiceProvider);
-    if (_busy || push.platform == null || !_enabled) return;
+    if (_busy || push.platform == null) return;
     try {
       final prefs = await SharedPreferences.getInstance();
       if ((prefs.getBool(askedKey) ?? false) && prefs.getBool(onKey) != false) {

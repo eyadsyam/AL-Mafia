@@ -2,28 +2,46 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// What a tapped notification carries: the whole invite payload (Doc 05: a
-/// room code, the sender's name and handle, the invite id — nothing else).
+/// What a tapped notification carries. Invites keep their existing code and
+/// sender fields; every other event is routed using only its kind.
+enum PushDestination { invite, onlineRoom, onlineEntry, daily, orders, friends }
+
 class PushOpen {
+  PushDestination get destination => switch (kind) {
+    'room_start' || 'night' => PushDestination.onlineRoom,
+    'thursday' || 'comeback' => PushDestination.onlineEntry,
+    'daily' => PushDestination.daily,
+    'order_paid' || 'order_rejected' => PushDestination.orders,
+    'friend_request' || 'friend_accepted' => PushDestination.friends,
+    _ => PushDestination.invite,
+  };
   final String kind;
   final String code;
   final String? inviteId;
   final String? fromName;
   const PushOpen({
     required this.kind,
-    required this.code,
+    this.code = '',
     this.inviteId,
     this.fromName,
   });
 
   static final _code = RegExp(r'^[A-Za-z0-9]{6}$');
 
-  /// Null for anything that is not a well-formed invite payload.
+  /// Invite data is validated separately; all other supported events use
+  /// their kind alone, without carrying any match information.
   static PushOpen? fromData(Map<String, Object?> data) {
-    final code = data['code'];
-    if (data['kind'] != 'invite' || code is! String || !_code.hasMatch(code)) {
-      return null;
+    final kind = data['kind'];
+    if (kind != 'invite') {
+      return switch (kind) {
+        'room_start' || 'night' || 'daily' || 'thursday' || 'comeback' ||
+        'order_paid' || 'order_rejected' || 'friend_request' ||
+        'friend_accepted' => PushOpen(kind: kind as String),
+        _ => null,
+      };
     }
+    final code = data['code'];
+    if (code is! String || !_code.hasMatch(code)) return null;
     return PushOpen(
       kind: 'invite',
       code: code.toUpperCase(),
@@ -93,3 +111,8 @@ class NoPushService implements PushService {
 
 /// Overridden in `main.dart` when Firebase is configured.
 final pushServiceProvider = Provider<PushService>((_) => const NoPushService());
+
+/// Bumped when an online table reaches its result. The table cannot import
+/// the social layer (leakage closure), so the always-mounted invite host
+/// listens and asks for notifications after the first finished match.
+final matchResultReachedProvider = StateProvider<int>((_) => 0);

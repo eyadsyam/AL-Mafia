@@ -11,6 +11,7 @@ import '../../../engine/models/player.dart' show PlayerGender, PublicPlayer;
 import '../../../platform/narrator_bank.dart';
 import '../../../platform/audio_director.dart';
 import '../../../platform/haptics.dart';
+import '../../../platform/push/push_service.dart';
 import '../../economy/cosmetics.dart' show cosmeticsVisibleIn;
 import '../../social/invite_privacy.dart';
 import '../../../platform/monetization/interstitial_policy.dart';
@@ -465,6 +466,12 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     // carrying their marks when the result appears — there is no turn to read
     // and none is faked.
     if (snapshot.phase == GamePhase.result && previous != GamePhase.result) {
+      if (snapshot.outcome?.winner != null) {
+        // Never while this table builds: other listeners may rebuild too.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) ref.read(matchResultReachedProvider.notifier).state++;
+        });
+      }
       _audio.play(AudioCue.cardFlip);
       if (ReduceMotion.of(context)) {
         _turn.value = 1;

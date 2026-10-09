@@ -48,6 +48,9 @@ import '../ui/screens/online/online_session.dart'
 import 'locale_controller.dart';
 import '../ui/widgets/warmup_gate.dart';
 import '../ui/social/incoming_invite.dart';
+import '../ui/social/friends.dart' show showFriendsSheet;
+import '../ui/economy/daily_rewards.dart' show DailyRewardsTab;
+import '../ui/screens/setup/coin_store.dart' show CoinStore, CoinStoreStart;
 import '../transport/account_auth.dart' show AccountProfile;
 import '../transport/account_service.dart' show AccountFailure;
 import '../ui/account/account_sheet.dart'
@@ -75,6 +78,53 @@ class MafiaApp extends ConsumerStatefulWidget {
 
 class _MafiaAppState extends ConsumerState<MafiaApp>
     with WidgetsBindingObserver {
+  void _openOtherPush(PushOpen open) {
+    switch (open.destination) {
+      case PushDestination.onlineRoom:
+        _router.go(ref.read(onlineSessionProvider).isInRoom
+            ? Routes.lobby
+            : Routes.online);
+        return;
+      case PushDestination.onlineEntry:
+        _router.go(Routes.online);
+        return;
+      case PushDestination.daily:
+      case PushDestination.orders:
+      case PushDestination.friends:
+        _router.go(Routes.home);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          final context = _navigatorKey.currentContext;
+          if (context == null) return;
+          if (open.destination == PushDestination.daily) {
+            showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              builder: (_) => const FractionallySizedBox(
+                heightFactor: PassInventoryTokens.sheetHeight,
+                child: SingleChildScrollView(child: DailyRewardsTab()),
+              ),
+            );
+          } else if (open.destination == PushDestination.orders) {
+            showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              builder: (_) => const FractionallySizedBox(
+                heightFactor: PassInventoryTokens.sheetHeight,
+                child: CoinStore(start: CoinStoreStart.orders),
+              ),
+            );
+          } else {
+            showFriendsSheet(context, onJoin: (code) =>
+                _router.go(Routes.joinLink(code)));
+          }
+        });
+        return;
+      case PushDestination.invite:
+        return;
+    }
+  }
+
   /// Owned here, not global: two app instances in one test process would
   /// otherwise fight over the same key.
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
@@ -531,6 +581,7 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
                     // is (never over a private phase).
                     child: IncomingInviteHost(
                         onJoin: (code) => _router.go(Routes.joinLink(code)),
+                        onOtherPush: _openOtherPush,
                         child: UpdateGate(
                           // Over every route and overlay (the vault included):
                           // the instant answer to a tap on a rewarded offer.

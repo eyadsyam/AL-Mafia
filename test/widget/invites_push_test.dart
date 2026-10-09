@@ -517,6 +517,58 @@ void main() {
       expect(PushOpen.fromData({}), isNull);
     });
 
+    test('event kinds route without an invite payload', () {
+      const routes = {
+        'room_start': PushDestination.onlineRoom,
+        'night': PushDestination.onlineRoom,
+        'daily': PushDestination.daily,
+        'thursday': PushDestination.onlineEntry,
+        'comeback': PushDestination.onlineEntry,
+        'order_paid': PushDestination.orders,
+        'order_rejected': PushDestination.orders,
+        'friend_request': PushDestination.friends,
+        'friend_accepted': PushDestination.friends,
+      };
+      for (final entry in routes.entries) {
+        final open = PushOpen.fromData({'kind': entry.key, 'role': 'ignored'});
+        expect(open?.destination, entry.value);
+        expect(open?.code, isEmpty);
+        expect(open?.inviteId, isNull);
+      }
+      expect(PushOpen.fromData({'kind': 'unknown'}), isNull);
+    });
+
+    testWidgets('cold daily and tapped orders and friends reach their routes',
+        (tester) async {
+      final routed = <PushDestination>[];
+      final key = GlobalKey<IncomingInviteHostState>();
+      push.initial = PushOpen.fromData({'kind': 'daily'});
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: overrides(),
+          child: localizedApp(
+            IncomingInviteHost(
+              key: key,
+              onJoin: (_) {},
+              onOtherPush: (open) => routed.add(open.destination),
+              child: const Scaffold(body: Text('home')),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await key.currentState!.openFromPush(
+        PushOpen.fromData({'kind': 'order_paid'})!,
+      );
+      await key.currentState!.openFromPush(
+        PushOpen.fromData({'kind': 'friend_request'})!,
+      );
+      expect(routed, [
+        PushDestination.daily,
+        PushDestination.orders,
+        PushDestination.friends,
+      ]);
+    });
     testWidgets('a cold start from a notification goes straight to the join '
         'flow', (tester) async {
       final joined = <String>[];

@@ -53,10 +53,12 @@ class IncomingInviteHost extends ConsumerStatefulWidget {
 
   /// Opens the join flow for a room code (the router's `/join/<code>`).
   final ValueChanged<String> onJoin;
+  final ValueChanged<PushOpen>? onOtherPush;
   const IncomingInviteHost({
     super.key,
     required this.child,
     required this.onJoin,
+    this.onOtherPush,
   });
 
   @override
@@ -104,6 +106,10 @@ class IncomingInviteHostState extends ConsumerState<IncomingInviteHost>
   /// into the join flow for its room, or «الأوضة بدأت أو اتقفلت» when the
   /// room already started or closed.
   Future<void> openFromPush(PushOpen open) async {
+    if (open.kind != 'invite') {
+      widget.onOtherPush?.call(open);
+      return;
+    }
     String? code = open.code;
     final id = open.inviteId;
     if (id != null) {
@@ -221,6 +227,9 @@ class IncomingInviteHostState extends ConsumerState<IncomingInviteHost>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<int>(matchResultReachedProvider, (_, _) {
+      unawaited(ref.read(pushPromptProvider).askAfterFirstResult());
+    });
     final private = ref.watch(privateMomentProvider);
     final invite = _queue.isEmpty ? null : _queue.first;
     final showing = invite != null && !private;

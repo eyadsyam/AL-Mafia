@@ -27,5 +27,8 @@ Deno.serve(handler(async (req, userId, db) => {
     }
     throw error;
   }
+  // The account's devices stop receiving its notifications (push_tokens has
+  // no foreign key to auth.users, so nothing else removes them).
+  await db.from("push_tokens").delete().eq("user_id", userId);
   return ok(data ?? { deleted: true });
 }));

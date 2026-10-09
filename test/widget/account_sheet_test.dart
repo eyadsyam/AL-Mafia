@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/transport/account_auth.dart';
 import 'package:mafia_master/transport/account_service.dart';
 import 'package:mafia_master/ui/account/account_sheet.dart';
+import 'package:mafia_master/ui/social/push_prompt.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, AuthState;
@@ -18,6 +19,16 @@ class _FakeAuth extends AccountAuth {
 
   final calls = <String>[];
   String? failWith;
+  List<String>? trace;
+
+  @override
+  Future<void> signOut() async {
+    trace?.add('signOut');
+  }
+  @override
+  Future<void> ensureGuestSession() async {
+    trace?.add('newGuest');
+  }
 
   Future<T> _step<T>(String call, T value) async {
     calls.add(call);
@@ -50,6 +61,16 @@ class _FakeAuth extends AccountAuth {
   Future<void> google() => _step('google', null);
   @override
   Future<void> googleSignIn() => _step('googleSignIn', null);
+}
+
+class _Prompt extends PushPrompt {
+  _Prompt(Ref ref, this.trace) : super(ref);
+  final List<String> trace;
+
+  @override
+  Future<void> unregisterThisDevice() async => trace.add('unregister');
+  @override
+  Future<void> refreshIfAsked() async => trace.add('register');
 }
 
 void main() {
@@ -271,6 +292,31 @@ void main() {
     expect(find.text('eyad@example.com'), findsOneWidget);
     expect(find.byKey(AccountSheet.signOutKey), findsOneWidget);
     expect(find.byKey(AccountSheet.rememberKey), findsOneWidget);
+  });
+
+  testWidgets('sign out drops old token before a new guest registers', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final trace = <String>[];
+    auth = _FakeAuth()..trace = trace;
+    await tester.binding.setSurfaceSize(const Size(360, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        accountAuthProvider.overrideWithValue(auth),
+        pushPromptProvider.overrideWith((ref) => _Prompt(ref, trace)),
+        accountProfileProvider.overrideWith((ref) => Stream.value(
+          const AccountProfile(signedIn: true, email: 'e@example.com'),
+        )),
+      ],
+      child: localizedApp(const Scaffold(body: AccountSheet())),
+    ));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(AccountSheet.signOutKey));
+    await tester.tap(find.byKey(AccountSheet.signOutKey));
+    await tester.pumpAndSettle();
+    expect(trace, ['unregister', 'signOut', 'newGuest', 'register']);
   });
 
   test('auth refusals map to the words the sheet speaks', () {

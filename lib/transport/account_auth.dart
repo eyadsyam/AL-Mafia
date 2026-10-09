@@ -285,6 +285,10 @@ class AccountAuth {
     await auth.updateUser(UserAttributes(password: checkPassword(password)));
   });
 
+  Future<void> ensureGuestSession() => _guard(() async {
+    await _ensureSession();
+  });
+
   /// Signs out. The next online step starts a fresh guest identity.
   Future<void> signOut() => _guard(() async {
     await (await _auth()).signOut();

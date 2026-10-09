@@ -153,7 +153,7 @@ class AppOpenCoordinator {
             await remember(caps);
             final fresh = await _load();
             final fullScreen = await pacing.pacingLedger();
-            AppOpenVerdict decide(bool consent, int? loadedAt) => decideAppOpen(
+            AppOpenVerdict decide(bool consent, int? loadedAt, bool isBusy) => decideAppOpen(
               rules: caps.ads.appOpen,
               ledger: fresh,
               pacing: caps.interstitial,
@@ -162,19 +162,20 @@ class AppOpenCoordinator {
               trigger: trigger,
               adFree: caps.automaticAdsDisabled,
               onboarded: true,
-              busy: false,
+              busy: isBusy,
               canRequestAds: consent,
               loadedAtMs: loadedAt,
             );
             final consent = await ads.canRequestAds();
-            final before = decide(consent, _now());
+            final before = decide(consent, _now(), await busy());
             if (before != AppOpenVerdict.show) return before;
             if (timedOut) return AppOpenVerdict.notLoaded;
             loading = ads.load(
               AdTokens.appOpenLoadTimeout,
               resume: trigger == AppOpenTrigger.resume,
             );
-            return decide(consent, await loading);
+            final loadedAt = await loading;
+            return decide(consent, loadedAt, await busy());
           }().timeout(
             AdTokens.appOpenLoadTimeout,
             onTimeout: () {
@@ -188,14 +189,18 @@ class AppOpenCoordinator {
         ads.discard();
         return verdict;
       }
-      // Recorded before showing: a crash mid-ad must not unlock another.
-      await _save((await _load()).shown(_now()));
-      await pacing.fullScreenShown();
       final audio = _ref.read(audioDirectorProvider);
       final wasMuted = audio.muted;
       audio.muted = true;
       try {
-        await ads.show();
+        if (await busy()) {
+          ads.discard();
+          return AppOpenVerdict.busy;
+        }
+        final showing = ads.show();
+        await _save((await _load()).shown(_now()));
+        await pacing.fullScreenShown();
+        await showing;
       } finally {
         audio.muted = wasMuted;
       }
@@ -216,7 +221,9 @@ final appOpenCoordinatorProvider = Provider<AppOpenCoordinator>(
 /// Routes where a return must never be interrupted: a match (pass-and-play
 /// or online) and an online room.
 bool appOpenBlockedPath(String path) =>
-    path.startsWith('/match') || path.startsWith('/online/lobby');
+    path.startsWith('/match') ||
+    path.startsWith('/online/lobby') ||
+    path.startsWith('/setup');
 
 /// Holds the branded launch picture while an app-open ad is considered.
 ///

@@ -157,11 +157,19 @@ class _CoinStoreButtonState extends State<CoinStoreButton> {
   );
 }
 
+enum CoinStoreStart { defaultTab, orders }
+
 /// «خزنة المجلس»: wallet, catalog, collection, history and (on the web
 /// store only) coin packs.
+
 class CoinStore extends ConsumerStatefulWidget {
   final VoidCallback? onClose;
-  const CoinStore({super.key, this.onClose});
+  final CoinStoreStart start;
+  const CoinStore({
+    super.key,
+    this.onClose,
+    this.start = CoinStoreStart.defaultTab,
+  });
 
   static const closeKey = ValueKey('coins_close');
   static const balanceKey = ValueKey('coins_balance');
@@ -302,9 +310,18 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
         ),
     ];
     final council = tabs.indexWhere((t) => t.$1 == l.storeTabCouncil);
+    final requested = switch (widget.start) {
+      CoinStoreStart.orders => tabs.indexWhere(
+          (t) => t.$1 == (pay.platform == 'android' ? l.pay2TabTransfer : l.storeTabCoins),
+        ),
+      CoinStoreStart.defaultTab => -1,
+    };
     return DefaultTabController(
+      key: ValueKey((widget.start, requested, tabs.length)),
       length: tabs.length,
-      initialIndex: ref.read(pendingInviteCodeProvider) != null && council >= 0
+      initialIndex: requested >= 0
+          ? requested
+          : ref.read(pendingInviteCodeProvider) != null && council >= 0
           ? council
           : 0,
       child: MafiaScaffold(

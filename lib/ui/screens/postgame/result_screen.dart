@@ -35,6 +35,7 @@ import '../../widgets/textured_surface.dart';
 import '../../fun/award_ribbon.dart';
 import '../../fun/match_awards.dart';
 import '../../fun/character_dossiers.dart' show BondLetterArrivedCard;
+import '../../social/push_prompt.dart';
 import '../match_controller.dart';
 import 'match_file.dart';
 
@@ -227,6 +228,7 @@ class _ResultStageState extends State<_ResultStage>
   int get _coins => s.coinRows.fold(0, (a, r) => a + r.coins);
 
   bool _walletAsked = false;
+  bool _pushAsked = false;
 
   @override
   void initState() {
@@ -256,6 +258,16 @@ class _ResultStageState extends State<_ResultStage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (!_pushAsked) {
+      _pushAsked = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          unawaited(ProviderScope.containerOf(context)
+              .read(pushPromptProvider)
+              .askAfterFirstResult());
+        }
+      });
+    }
     if (_started) return;
     _started = true;
     if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
