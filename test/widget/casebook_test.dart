@@ -45,15 +45,17 @@ void main() {
         isEmpty);
   });
 
-  testWidgets('Season Zero header uses its own painted cover', (tester) async {
+  testWidgets('the case room is a dark cork board with the notes pinned', (
+    tester,
+  ) async {
     await pump(tester);
-    expect(
-      find.byWidgetPredicate((widget) => widget is Image &&
-          widget.image is AssetImage &&
-          (widget.image as AssetImage).assetName ==
-              'assets/images/casebook/season_zero_cover.webp'),
-      findsOneWidget,
-    );
+    expect(find.byKey(CasebookSheet.boardKey), findsOneWidget);
+    for (final id in ['d0', 'd1', 'd2', 'w0']) {
+      expect(find.byKey(CasebookSheet.noteKey(id)), findsOneWidget);
+    }
+    // Only the note already taken carries the stamp.
+    expect(find.byKey(CasebookSheet.stampKey('d0')), findsOneWidget);
+    expect(find.byKey(CasebookSheet.stampKey('d1')), findsNothing);
   });
 
   for (final locale in const [Locale('ar'), Locale('en')]) {

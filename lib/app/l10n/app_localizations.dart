@@ -10878,6 +10878,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Listen'**
   String get storeListen;
+
+  /// No description provided for @resultStampTown.
+  ///
+  /// In en, this message translates to:
+  /// **'Case closed'**
+  String get resultStampTown;
+
+  /// No description provided for @resultStampMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody stopped them'**
+  String get resultStampMafia;
+
+  /// No description provided for @resultWasRole.
+  ///
+  /// In en, this message translates to:
+  /// **'You were the {role}'**
+  String resultWasRole(String role);
+
+  /// No description provided for @resultYouWon.
+  ///
+  /// In en, this message translates to:
+  /// **'You won'**
+  String get resultYouWon;
+
+  /// No description provided for @resultYouLost.
+  ///
+  /// In en, this message translates to:
+  /// **'You lost'**
+  String get resultYouLost;
+
+  /// No description provided for @resultSurvived.
+  ///
+  /// In en, this message translates to:
+  /// **'You made it to the end'**
+  String get resultSurvived;
+
+  /// No description provided for @resultTable.
+  ///
+  /// In en, this message translates to:
+  /// **'The table\'s cards'**
+  String get resultTable;
+
+  /// No description provided for @resultDeadLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Killed or voted out'**
+  String get resultDeadLegend;
+
+  /// No description provided for @resultCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins'**
+  String get resultCoins;
+
+  /// No description provided for @resultCoinBotWin.
+  ///
+  /// In en, this message translates to:
+  /// **'You beat the computer'**
+  String get resultCoinBotWin;
+
+  /// No description provided for @resultCasebook.
+  ///
+  /// In en, this message translates to:
+  /// **'Casebook: “{title}”'**
+  String resultCasebook(String title);
+
+  /// No description provided for @resultLineMafiaWin.
+  ///
+  /// In en, this message translates to:
+  /// **'The Mafia smiles in the dark. Tonight was theirs.'**
+  String get resultLineMafiaWin;
+
+  /// No description provided for @resultLineMafiaLose.
+  ///
+  /// In en, this message translates to:
+  /// **'The Mafia goes quiet. Next time the plan changes.'**
+  String get resultLineMafiaLose;
+
+  /// No description provided for @resultLineDoctorWin.
+  ///
+  /// In en, this message translates to:
+  /// **'The doctor closes the bag. The town still stands.'**
+  String get resultLineDoctorWin;
+
+  /// No description provided for @resultLineDoctorLose.
+  ///
+  /// In en, this message translates to:
+  /// **'The doctor remembers everyone he could not reach.'**
+  String get resultLineDoctorLose;
+
+  /// No description provided for @resultLineDetectiveWin.
+  ///
+  /// In en, this message translates to:
+  /// **'The detective writes the last fact in the margin.'**
+  String get resultLineDetectiveWin;
+
+  /// No description provided for @resultLineDetectiveLose.
+  ///
+  /// In en, this message translates to:
+  /// **'The detective keeps the file. Next time.'**
+  String get resultLineDetectiveLose;
+
+  /// No description provided for @resultLineCitizenWin.
+  ///
+  /// In en, this message translates to:
+  /// **'The citizen turns off the light and goes home. The town is calm.'**
+  String get resultLineCitizenWin;
+
+  /// No description provided for @resultLineCitizenLose.
+  ///
+  /// In en, this message translates to:
+  /// **'The citizen looks out the window. The town has changed.'**
+  String get resultLineCitizenLose;
+
+  /// No description provided for @matchFileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Match file'**
+  String get matchFileTitle;
+
+  /// No description provided for @matchFileShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the file'**
+  String get matchFileShare;
+
+  /// No description provided for @matchFileMvp.
+  ///
+  /// In en, this message translates to:
+  /// **'Best player: {name}'**
+  String matchFileMvp(String name);
+
+  /// No description provided for @matchFileNights.
+  ///
+  /// In en, this message translates to:
+  /// **'Night by night'**
+  String get matchFileNights;
+
+  /// No description provided for @matchFileKilled.
+  ///
+  /// In en, this message translates to:
+  /// **'The Mafia killed {name}'**
+  String matchFileKilled(String name);
+
+  /// No description provided for @matchFileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'The Mafia tried to kill {name}, who was saved'**
+  String matchFileSaved(String name);
+
+  /// No description provided for @matchFileQuiet.
+  ///
+  /// In en, this message translates to:
+  /// **'The night passed with no victim'**
+  String get matchFileQuiet;
+
+  /// No description provided for @matchFileExpelled.
+  ///
+  /// In en, this message translates to:
+  /// **'The table voted out {name} with {votes} votes'**
+  String matchFileExpelled(String name, int votes);
+
+  /// No description provided for @fileNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'File no. {n}'**
+  String fileNumber(String n);
+
+  /// No description provided for @fileTabCharacters.
+  ///
+  /// In en, this message translates to:
+  /// **'My characters'**
+  String get fileTabCharacters;
+
+  /// No description provided for @fileTabTitles.
+  ///
+  /// In en, this message translates to:
+  /// **'My titles'**
+  String get fileTabTitles;
+
+  /// No description provided for @fileTabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get fileTabHistory;
+
+  /// No description provided for @fileStampSuspect.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspect'**
+  String get fileStampSuspect;
+
+  /// No description provided for @fileClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get fileClosed;
+
+  /// No description provided for @fileTapToClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to stamp and collect'**
+  String get fileTapToClose;
+
+  /// No description provided for @fileMostPlayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Most played: {role}'**
+  String fileMostPlayed(String role);
 }
 
 class _AppLocalizationsDelegate

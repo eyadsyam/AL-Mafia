@@ -1324,6 +1324,105 @@ abstract final class SeatTokens {
 abstract final class ResultTokens {
   static const double heroEmberWidth = 180;
   static const double heroEmberHeight = 96;
+
+  /// The outcome art's share of the screen height, and its floor.
+  static const double heroFraction = 0.34;
+  static const double heroMin = 200;
+  static const double heroZoom = 1.12;
+
+  /// The verdict in Ruqaa.
+  static const double verdictSize = 44;
+
+  /// The stamp: size of the border, its tilt, how far it lands from.
+  static const double stampBorder = 4;
+  static const double stampTilt = -0.245; // -14 degrees
+  static const double stampFrom = 2.4;
+  static const double stampTop = 56;
+  static const double stampRadius = 8;
+
+  /// Your portrait window in the «كنت …» card.
+  static const Size youWindow = Size(52, 72);
+  static const double youZoom = 1.55;
+
+  /// The seat cards: columns, height over width, the flip's depth.
+  static const int seatColumns = 4;
+  static const double seatAspect = 1.5;
+  static const double seatGap = 8;
+  static const double seatRadius = 7;
+  static const double seatBorder = 1;
+  static const double flipDepth = 0.0014;
+  static const double deadFade = 0.55;
+  static const double meRing = 2;
+  static const double meRingGap = 2;
+  static const double crossSize = 14;
+
+  /// The coin flight to the pill: how many coins, how long, how far each one
+  /// waits for the one before.
+  static const int flightCoins = 6;
+  static const double flightCoinSize = 20;
+  static const Duration flight = Duration(milliseconds: 700);
+  static const double flightStagger = 0.1;
+  static const double pillBump = 1.2;
+  static const Duration pillBumpFor = Duration(milliseconds: 250);
+
+  /// The story, in milliseconds from the first frame (the mockup's beats).
+  static const int verdictAt = 0;
+  static const int verdictFor = 800;
+  static const int stampAt = 1100;
+  static const int stampFor = 450;
+  static const int youAt = 1400;
+  static const int youFor = 500;
+  static const int lineAt = 1800;
+  static const int lineFor = 600;
+  static const int flipAt = 2000;
+  static const int flipStagger = 140;
+  static const int flipFor = 600;
+  static const int rowStagger = 250;
+  static const int rowFor = 400;
+  static const int countFor = 900;
+  static const int tail = 200;
+  static const double rowSlide = 10;
+  static const double riseFrom = 12;
+
+  /// The match file's timeline rail.
+  static const double railWidth = 1;
+  static const double railDot = 11;
+  static const double railDotBorder = 2;
+  static const double medal = 46;
+  static const double medalBorder = 2;
+
+  /// Small portraits are decoded to about this height.
+  static const int thumbDecode = 96;
+  static const int seatDecode = 256;
+}
+
+/// The dark case file (profile, casebook, result): dark brown paper with
+/// light ink and crimson stamps. Public surfaces only, never in a match, and
+/// never with a story's portraits (docs/design/DECK-SYSTEM.md §10).
+abstract final class CaseFileTokens {
+  static const Color paperTop = Color(0xFF30251C);
+  static const Color paperBottom = Color(0xFF241B14);
+  static const Color edge = Color(0xFF4A3A2C);
+  static const Color ink = Color(0xFFEADFC9);
+  static const Color inkMuted = Color(0xFF9B978E);
+  static const Color stamp = Color(0xFFC4574B);
+  static const Color sage = Color(0xFF8FA58A);
+  static const Color photo = Color(0xFF1A130E);
+  static const Color tabIdle = Color(0xFF1A130E);
+  static const Color tabLine = Color(0xFF3A2D23);
+  static const Color board = Color(0xFF1C140F);
+  static const Color boardDot = Color(0xFF2A1F17);
+  static const Color string = Color(0xFF9B3B32);
+  static const Color desk = Color(0xFF0D0907);
+  static const Color stampPlate = Color(0xE6241B14);
+  static const double radius = 14;
+  static const double edgeWidth = 1;
+  static const double ruleAlpha = 0.13;
+  static const double stampBorder = 3;
+  static const double stampRadius = 6;
+  static const double stampTilt = -0.21; // -12 degrees
+  static const double stampAlpha = 0.9;
+  static const List<Color> paper = [paperTop, paperBottom];
 }
 
 class MafiaTiming extends ThemeExtension<MafiaTiming> {
@@ -2448,6 +2547,15 @@ abstract final class AccountTokens {
 /// The full profile (`lib/ui/account/profile_panels.dart`).
 abstract final class ProfileTokens {
   static const double statArt = 56.0;
+
+  /// The file's photo: a Mafia seat card clipped to a portrait, slightly
+  /// turned like a print paper-clipped to the page, and the avatar inside it.
+  static const Size photo = Size(112, 144);
+  static const double photoTilt = -0.05;
+  static const double photoAvatar = 80;
+
+  /// The stamp sits over the photo's corner.
+  static const double stampTop = 4;
 }
 
 /// «ملف القضايا» (`lib/ui/missions/casebook_sheet.dart`): drawn in the
@@ -2861,4 +2969,27 @@ abstract final class HowToTokens {
   static const Duration faq = Duration(milliseconds: 300);
   static const double dot = 6;
   static const double dotWide = 18;
+}
+
+/// The casebook's dark cork board: pinned notes joined by red string.
+abstract final class CorkTokens {
+  /// A note's width as a share of the board, and how far each tilts.
+  static const double noteWidth = 0.88;
+  static const double tilt = 0.035;
+
+  /// The pin and the string between two notes.
+  static const double pin = 12;
+  static const double pinLift = 6;
+  static const double stringWidth = 2;
+  static const double stringGap = 28;
+
+  /// The cork's speckle: spacing and dot size.
+  static const double dotGap = 7;
+  static const double dotRadius = 1;
+  static const double dotAlpha = 0.5;
+
+  /// The «اتقفلت» stamp landing on a note.
+  static const Duration stampDrop = Duration(milliseconds: 380);
+  static const double noteIcon = 40;
+  static const double doneAlpha = 0.6;
 }

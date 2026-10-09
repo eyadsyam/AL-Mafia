@@ -6217,4 +6217,128 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get storeListen => 'اسمع';
+
+  @override
+  String get resultStampTown => 'القضية اتقفلت';
+
+  @override
+  String get resultStampMafia => 'محدش وقفهم';
+
+  @override
+  String resultWasRole(String role) {
+    return 'كنت $role';
+  }
+
+  @override
+  String get resultYouWon => 'كسبت';
+
+  @override
+  String get resultYouLost => 'خسرت';
+
+  @override
+  String get resultSurvived => 'فضلت للآخر';
+
+  @override
+  String get resultTable => 'كروت الترابيزة';
+
+  @override
+  String get resultDeadLegend => 'اتقتل أو اتطرد';
+
+  @override
+  String get resultCoins => 'الكوينز';
+
+  @override
+  String get resultCoinBotWin => 'فزت على الكمبيوتر';
+
+  @override
+  String resultCasebook(String title) {
+    return 'ملف القضايا: «$title»';
+  }
+
+  @override
+  String get resultLineMafiaWin =>
+      'المافيا مبتسمة في الضلمة. الليلة دي كانت ليهم.';
+
+  @override
+  String get resultLineMafiaLose => 'المافيا ساكتة. المرة الجاية الخطة تتغير.';
+
+  @override
+  String get resultLineDoctorWin => 'الدكتور بيقفل شنطته. المدينة لسه واقفة.';
+
+  @override
+  String get resultLineDoctorLose => 'الدكتور فاكر كل واحد ما قدرش يلحقه.';
+
+  @override
+  String get resultLineDetectiveWin => 'المحقق بيكتب آخر حقيقة على الهامش.';
+
+  @override
+  String get resultLineDetectiveLose => 'المحقق محتفظ بالملف. المرة الجاية.';
+
+  @override
+  String get resultLineCitizenWin =>
+      'المواطن بيطفي النور ويرجع بيته. المدينة هادية.';
+
+  @override
+  String get resultLineCitizenLose =>
+      'المواطن بيبص من الشباك. المدينة اتغيّرت.';
+
+  @override
+  String get matchFileTitle => 'ملف الماتش';
+
+  @override
+  String get matchFileShare => 'شارك الملف';
+
+  @override
+  String matchFileMvp(String name) {
+    return 'أحسن لاعب: $name';
+  }
+
+  @override
+  String get matchFileNights => 'ليلة بليلة';
+
+  @override
+  String matchFileKilled(String name) {
+    return 'المافيا قتلت $name';
+  }
+
+  @override
+  String matchFileSaved(String name) {
+    return 'المافيا حاولت تقتل $name واتنقذ';
+  }
+
+  @override
+  String get matchFileQuiet => 'الليلة عدّت من غير ضحية';
+
+  @override
+  String matchFileExpelled(String name, int votes) {
+    return 'الترابيزة طردت $name بـ $votes أصوات';
+  }
+
+  @override
+  String fileNumber(String n) {
+    return 'ملف رقم $n';
+  }
+
+  @override
+  String get fileTabCharacters => 'شخصياتي';
+
+  @override
+  String get fileTabTitles => 'ألقابي';
+
+  @override
+  String get fileTabHistory => 'السجل';
+
+  @override
+  String get fileStampSuspect => 'مشتبه فيه';
+
+  @override
+  String get fileClosed => 'اتقفلت';
+
+  @override
+  String get fileTapToClose => 'دوس تختم وتستلم';
+
+  @override
+  String fileMostPlayed(String role) {
+    return 'أكتر دور: $role';
+  }
 }

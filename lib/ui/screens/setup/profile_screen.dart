@@ -1,4 +1,9 @@
 import '../../widgets/mafia_kit.dart';
+import '../../widgets/case_file.dart';
+import '../../widgets/deck/seat_card.dart';
+import '../../widgets/deck/deck_buttons.dart';
+import '../../widgets/player_avatar.dart';
+import '../../economy/cosmetic_paint.dart' show CosmeticFrameRing;
 import '../../fun/founder_badge.dart';
 import '../../fun/character_dossiers.dart';
 import '../../fun/loaded_capabilities.dart';
@@ -10,6 +15,7 @@ import '../../../data/player_profile.dart';
 import '../../../engine/models/player.dart';
 import '../../economy/council_hub.dart' show LeaderboardVisibilitySwitch;
 import '../../l10n_ext.dart';
+import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
@@ -29,15 +35,23 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
   /// Opens the Four Dossiers from the portrait strip.
   final VoidCallback? onCharacters;
+
+  /// Opens the full match log from the «السجل» tab.
+  final VoidCallback? onHistory;
   const ProfileScreen({
     super.key,
     this.onSaved,
     this.onBack,
     this.onCharacters,
+    this.onHistory,
   });
 
   static const Key nameKey = ValueKey('profile_name');
   static const Key saveKey = ValueKey('profile_save');
+  static const Key fileKey = ValueKey('profile_file');
+  static const Key stampKey = ValueKey('profile_stamp');
+  static const Key historyKey = ValueKey('profile_history');
+  static Key tabKey(String id) => ValueKey('profile_tab_$id');
 
   @override
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
@@ -52,6 +66,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   /// Whether the player has touched the form. A saved profile that arrives
   /// after the first frame fills it only while it is untouched.
   bool _edited = false;
+
+  /// The open tab of the file: characters, titles or history.
+  String? _tab;
 
   @override
   void initState() {
@@ -89,6 +106,143 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  /// Editing sits on the case file's dark desk; the first-run question keeps
+  /// the experience backdrop.
+  Widget _surface({required Widget child}) => widget.onBack != null
+      ? ColoredBox(color: CaseFileTokens.desk, child: child)
+      : ExperienceSurface(child: child);
+
+  void _setGender(PlayerGender v) => setState(() {
+    _edited = true;
+    _gender = v;
+  });
+
+  /// The player's file: the photo (the avatar on a Mafia seat card), a stamp
+  /// over it, and the identity fields on the paper.
+  Widget _folder(BuildContext context, MyCosmetics mine) {
+    final s = context.spacing;
+    final l = context.l10n;
+    return CaseFilePaper(
+      key: ProfileScreen.fileKey,
+      padding: EdgeInsets.all(s.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              Transform.rotate(
+                angle: ProfileTokens.photoTilt,
+                child: SizedBox.fromSize(
+                  size: ProfileTokens.photo,
+                  child: SeatCardFrame(
+                    child: Center(
+                      child: CosmeticFrameRing(
+                        frame: mine.frame,
+                        diameter: ProfileTokens.photoAvatar,
+                        child: PlayerAvatar(
+                          name: _name.text,
+                          gender: _gender,
+                          diameter: ProfileTokens.photoAvatar,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              PositionedDirectional(
+                top: ProfileTokens.stampTop,
+                end: 0,
+                child: CaseStamp(
+                  l.fileStampSuspect,
+                  key: ProfileScreen.stampKey,
+                  angle: CaseFileTokens.stampTilt,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: s.md),
+          ProfileIdentityFields(
+            name: _name,
+            nameKey: ProfileScreen.nameKey,
+            gender: _gender,
+            avatarDiameter: ProfileTokens.photoAvatar,
+            showAvatar: false,
+            frame: mine.frame,
+            plate: mine.plate,
+            onGender: _saving ? null : _setGender,
+            onNameChanged: (_) => setState(() => _edited = true),
+            onSubmitted: (_) {
+              if (_name.text.trim().isNotEmpty &&
+                  _gender != PlayerGender.unspecified &&
+                  !_saving) {
+                _save();
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// «شخصياتي · ألقابي · السجل»: paper tabs, each over the content the
+  /// profile already had, now under its own divider.
+  Widget _tabs(BuildContext context, bool bondsEnabled) {
+    final l = context.l10n;
+    final ids = [if (bondsEnabled) 'characters', 'titles', 'history'];
+    final open = ids.contains(_tab) ? _tab! : ids.first;
+    final labels = {
+      'characters': l.fileTabCharacters,
+      'titles': l.fileTabTitles,
+      'history': l.fileTabHistory,
+    };
+    final s = context.spacing;
+    final Widget content = switch (open) {
+      'characters' => CharacterDossiers(onOpen: widget.onCharacters),
+      'titles' => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const EquippedTitleLine(),
+          const TitleEquipList(),
+          SizedBox(height: s.sm),
+          const PartnerPicker(),
+        ],
+      ),
+      _ => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const ProfileStats(),
+          if (widget.onHistory != null) ...[
+            SizedBox(height: s.sm),
+            RimButton(
+              key: ProfileScreen.historyKey,
+              label: l.history,
+              onPressed: widget.onHistory,
+            ),
+          ],
+        ],
+      ),
+    };
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CaseFileTabs(
+          labels: [for (final id in ids) labels[id]!],
+          selected: ids.indexOf(open),
+          tabKey: (i) => ProfileScreen.tabKey(ids[i]),
+          onSelect: (i) => setState(() => _tab = ids[i]),
+        ),
+        CaseFileSheet(
+          child: AnimatedSwitcher(
+            duration: still ? Duration.zero : DeckTokens.slide,
+            child: KeyedSubtree(key: ValueKey(open), child: content),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(playerProfileProvider, (_, next) {
@@ -105,7 +259,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         _name.text.trim().isNotEmpty &&
         _gender != PlayerGender.unspecified;
     return MafiaScaffold(
-      body: ExperienceSurface(
+      backgroundColor: widget.onBack != null ? CaseFileTokens.desk : null,
+      body: _surface(
         child: SetupEntrance(
           child: SafeArea(
             child: Center(
@@ -124,7 +279,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ),
                     // Phase 108: only when editing (never the first-run
                     // profile), at the top, far from the Save button.
-                    if (widget.onBack != null) const WaitingBanner(placement: BannerPlacement.profile),
+                    if (widget.onBack != null)
+                      const WaitingBanner(placement: BannerPlacement.profile),
                     Expanded(
                       child: SingleChildScrollView(
                         padding: EdgeInsets.all(s.screenMargin),
@@ -146,7 +302,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               header: true,
                               child: Text(
                                 l.profileTitle,
-                                style: context.typography.headline,
+                                style: widget.onBack != null
+                                    ? StoryTokens.ruqaa(
+                                        context.typography.headline,
+                                      )
+                                    : context.typography.headline,
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -164,46 +324,35 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 child: const Center(child: FounderBadge()),
                               ),
                             SizedBox(height: s.lg),
-                            ProfileIdentityFields(
-                              name: _name,
-                              nameKey: ProfileScreen.nameKey,
-                              gender: _gender,
-                              avatarDiameter: s.xl * 2,
-                              frame: mine.frame,
-                              plate: mine.plate,
-                              onGender: _saving
-                                  ? null
-                                  : (v) => setState(() {
-                                      _edited = true;
-                                      _gender = v;
-                                    }),
-                              onNameChanged: (_) =>
-                                  setState(() => _edited = true),
-                              onSubmitted: (_) {
-                                if (ready) _save();
-                              },
-                            ),
-                            if (widget.onBack != null) ...[
+                            if (widget.onBack == null) ...[
+                              ProfileIdentityFields(
+                                name: _name,
+                                nameKey: ProfileScreen.nameKey,
+                                gender: _gender,
+                                avatarDiameter: s.xl * 2,
+                                frame: mine.frame,
+                                plate: mine.plate,
+                                onGender: _saving ? null : _setGender,
+                                onNameChanged: (_) =>
+                                    setState(() => _edited = true),
+                                onSubmitted: (_) {
+                                  if (ready) _save();
+                                },
+                              ),
+                              // Phase 107: the player's leaderboard choice,
+                              // shown only while the board exists.
+                              const LeaderboardVisibilitySwitch(),
+                            ] else ...[
+                              _folder(context, mine),
+                              SizedBox(height: s.md),
+                              _tabs(context, bondsEnabled),
                               SizedBox(height: s.lg),
                               const AccountCard(),
-                              const ProfileStats(),
-                            ],
-                            // Phase 107: the player's leaderboard choice,
-                            // shown only while the board exists.
-                            const LeaderboardVisibilitySwitch(),
-                            // Invites: the handle others search for, and the
-                            // two directory switches (after «أصحابك» loaded).
-                            if (widget.onBack != null)
+                              const LeaderboardVisibilitySwitch(),
+                              // Invites: the handle others search for, and
+                              // the two directory switches.
                               const DirectorySettings(),
-                            // F10: titles and the Partner, editing only.
-                            if (widget.onBack != null) ...[
-                              const EquippedTitleLine(),
-                              const TitleEquipList(),
-                              SizedBox(height: s.sm),
-                              const PartnerPicker(),
                             ],
-                            if (widget.onBack != null && bondsEnabled)
-                              CharacterDossiers(onOpen: widget.onCharacters),
                             if (_failed)
                               Text(
                                 l.profileSaveFailed,

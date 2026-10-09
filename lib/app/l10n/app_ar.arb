@@ -2781,5 +2781,99 @@
   "storeToolHint": "بتستخدمها جوه الماتش الأونلاين من «أدواتك».",
   "storeRoleHint": "شغّله من «أدوار تانية» وانت بتجهّز الماتش.",
   "storeNoMatches": "مفيش حاجة بالاسم ده.",
-  "storeListen": "اسمع"
+  "storeListen": "اسمع",
+  "resultStampTown": "القضية اتقفلت",
+  "resultStampMafia": "محدش وقفهم",
+  "resultWasRole": "كنت {role}",
+  "@resultWasRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "resultYouWon": "كسبت",
+  "resultYouLost": "خسرت",
+  "resultSurvived": "فضلت للآخر",
+  "resultTable": "كروت الترابيزة",
+  "resultDeadLegend": "اتقتل أو اتطرد",
+  "resultCoins": "الكوينز",
+  "resultCoinBotWin": "فزت على الكمبيوتر",
+  "resultCasebook": "ملف القضايا: «{title}»",
+  "@resultCasebook": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "resultLineMafiaWin": "المافيا مبتسمة في الضلمة. الليلة دي كانت ليهم.",
+  "resultLineMafiaLose": "المافيا ساكتة. المرة الجاية الخطة تتغير.",
+  "resultLineDoctorWin": "الدكتور بيقفل شنطته. المدينة لسه واقفة.",
+  "resultLineDoctorLose": "الدكتور فاكر كل واحد ما قدرش يلحقه.",
+  "resultLineDetectiveWin": "المحقق بيكتب آخر حقيقة على الهامش.",
+  "resultLineDetectiveLose": "المحقق محتفظ بالملف. المرة الجاية.",
+  "resultLineCitizenWin": "المواطن بيطفي النور ويرجع بيته. المدينة هادية.",
+  "resultLineCitizenLose": "المواطن بيبص من الشباك. المدينة اتغيّرت.",
+  "matchFileTitle": "ملف الماتش",
+  "matchFileShare": "شارك الملف",
+  "matchFileMvp": "أحسن لاعب: {name}",
+  "@matchFileMvp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "matchFileNights": "ليلة بليلة",
+  "matchFileKilled": "المافيا قتلت {name}",
+  "@matchFileKilled": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "matchFileSaved": "المافيا حاولت تقتل {name} واتنقذ",
+  "@matchFileSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "matchFileQuiet": "الليلة عدّت من غير ضحية",
+  "matchFileExpelled": "الترابيزة طردت {name} بـ {votes} أصوات",
+  "@matchFileExpelled": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "votes": {
+        "type": "int"
+      }
+    }
+  },
+  "fileNumber": "ملف رقم {n}",
+  "@fileNumber": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fileTabCharacters": "شخصياتي",
+  "fileTabTitles": "ألقابي",
+  "fileTabHistory": "السجل",
+  "fileStampSuspect": "مشتبه فيه",
+  "fileClosed": "اتقفلت",
+  "fileTapToClose": "دوس تختم وتستلم",
+  "fileMostPlayed": "أكتر دور: {role}",
+  "@fileMostPlayed": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  }
 }

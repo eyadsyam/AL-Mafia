@@ -4,16 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../app/asset_constants.dart';
 import '../../app/l10n/app_localizations.dart';
 import '../../engine/models/enums.dart' hide Alignment;
 import '../economy/council_art.dart';
+import '../economy/wallet.dart';
 import '../economy/vault_kit.dart';
 import '../fun/character_dossiers.dart';
 import '../l10n_ext.dart';
 import '../social/titles_partner.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
+import '../widgets/case_file.dart';
+import '../widgets/deck/deck_public.dart' show CoinPill;
 import '../widgets/feathered_art.dart';
 import 'casebook_data.dart';
 import '../screens/online/online_session.dart' show SupabaseConfig;
@@ -26,7 +28,7 @@ Future<void> showCasebookSheet(BuildContext context, {int page = 0}) =>
     showMafiaSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: context.colors.surfaceBase,
+      backgroundColor: CaseFileTokens.desk,
       builder: (_) => FractionallySizedBox(
         heightFactor: CasebookTokens.sheetHeight,
         child: CasebookSheet(initialPage: page),
@@ -80,6 +82,10 @@ class CasebookSheet extends ConsumerStatefulWidget {
   static const seasonKey = ValueKey('casebook_season');
   static const legacyKey = ValueKey('casebook_legacy');
   static Key claimKey(String id) => ValueKey('casebook_claim_$id');
+  static const boardKey = ValueKey('casebook_board');
+  static const pillKey = ValueKey('casebook_pill');
+  static Key noteKey(String id) => ValueKey('casebook_note_$id');
+  static Key stampKey(String id) => ValueKey('casebook_stamp_$id');
 
   @override
   ConsumerState<CasebookSheet> createState() => _CasebookSheetState();
@@ -89,6 +95,14 @@ class _CasebookSheetState extends ConsumerState<CasebookSheet> {
   late int _page = widget.initialPage;
   String? _busy;
   String? _error;
+
+  /// A key per note, so the coins can leave the note that was just closed.
+  final Map<String, GlobalKey> _noteKeys = {};
+  final _pillTarget = GlobalKey();
+  final _flight = GlobalKey<CoinFlightLayerState>();
+  bool _bump = false;
+
+  GlobalKey _noteKey(String id) => _noteKeys.putIfAbsent(id, GlobalKey.new);
 
   @override
   void initState() {
@@ -103,8 +117,24 @@ class _CasebookSheetState extends ConsumerState<CasebookSheet> {
       _error = null;
     });
     try {
-      await run();
-      if (mounted) showRewardFlourish(context);
+      final grant = await run();
+      if (mounted) {
+        showRewardFlourish(context);
+        // The closed note's coins fly to the pill (only when it is on screen).
+        if (grant.coins > 0 && _noteKeys.containsKey(id)) {
+          _flight.currentState?.fly(
+            _noteKeys[id]!,
+            _pillTarget,
+            onLanded: () {
+              if (!mounted || MediaQuery.disableAnimationsOf(context)) return;
+              setState(() => _bump = true);
+              Future<void>.delayed(ResultTokens.pillBumpFor, () {
+                if (mounted) setState(() => _bump = false);
+              });
+            },
+          );
+        }
+      }
     } on CaseClaimFailed {
       if (mounted) setState(() => _error = context.l10n.casebookClaimError);
     } finally {
@@ -138,6 +168,7 @@ class _CasebookSheetState extends ConsumerState<CasebookSheet> {
           key: CasebookSheet.tonightKey,
           book: book,
           busy: _busy,
+          noteKey: _noteKey,
           onClaim: (weekly, slot) => _claim(
             '${weekly ? 'w' : 'd'}$slot',
             () => controller.claimMission(weekly: weekly, slot: slot),
@@ -160,125 +191,107 @@ class _CasebookSheetState extends ConsumerState<CasebookSheet> {
       };
     }
 
-    return SafeArea(
-      child: Column(
-        children: [
-          _Hero(season: book?.season),
-          _Tabs(
-            page: _page,
-            ready: [
-              (book?.daily.ready ?? 0) + (book?.weekly.ready ?? 0),
-              book?.season.ready ?? 0,
-              book?.achievements.where((a) => a.claimable).length ?? 0,
-            ],
-            onPage: (page) => setState(() => _page = page),
-          ),
-          if (_error != null)
-            Padding(
-              padding: EdgeInsets.only(top: s.sm),
-              child: Text(
-                _error!,
-                style: type.bodySmall.copyWith(color: colors.accentCrimson),
+    final balance = ref.watch(walletProvider).valueOrNull?.balance;
+    return ColoredBox(
+      color: CaseFileTokens.desk,
+      child: SafeArea(
+        child: CoinFlightLayer(
+          key: _flight,
+          child: Column(
+            children: [
+              _Header(
+                season: book?.season,
+                pill: balance == null
+                    ? null
+                    : KeyedSubtree(
+                        key: _pillTarget,
+                        child: AnimatedScale(
+                          key: CasebookSheet.pillKey,
+                          scale: _bump ? ResultTokens.pillBump : 1,
+                          duration: reduce
+                              ? Duration.zero
+                              : ResultTokens.pillBumpFor,
+                          child: CoinPill(balance: balance),
+                        ),
+                      ),
               ),
-            ),
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: reduce ? Duration.zero : CasebookTokens.pageTurn,
-              child: body,
-            ),
+              _Tabs(
+                page: _page,
+                ready: [
+                  (book?.daily.ready ?? 0) + (book?.weekly.ready ?? 0),
+                  book?.season.ready ?? 0,
+                  book?.achievements.where((a) => a.claimable).length ?? 0,
+                ],
+                onPage: (page) => setState(() => _page = page),
+              ),
+              if (_error != null)
+                Padding(
+                  padding: EdgeInsets.only(top: s.sm),
+                  child: Text(
+                    _error!,
+                    style: type.bodySmall.copyWith(color: colors.accentCrimson),
+                  ),
+                ),
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: reduce ? Duration.zero : CasebookTokens.pageTurn,
+                  child: body,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-// ─── Hero ──────────────────────────────────────────────────────────────────
+// ─── Header ────────────────────────────────────────────────────────────────
 
-/// The case room dissolving into the sheet, the title struck in gold, and a
-/// stamped plate: the season level on a gold disc, the days left beside it.
-class _Hero extends StatelessWidget {
+/// The case room's header on the dark desk: the title in Ruqaa, the coin pill
+/// the closed notes pay into, and the season plate (the level on a gold disc,
+/// the days left beside it).
+class _Header extends StatelessWidget {
   final CaseSeason? season;
-  const _Hero({required this.season});
+  final Widget? pill;
+  const _Header({required this.season, required this.pill});
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final s = context.spacing;
-    final colors = context.colors;
     final season = this.season;
-    return SizedBox(
-      height: CasebookTokens.heroHeight,
-      child: Stack(
-        fit: StackFit.expand,
+    return Padding(
+      padding: EdgeInsets.fromLTRB(s.screenMargin, s.md, s.screenMargin, s.sm),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FeatheredArt(
-            feather: Feather.banner,
-            child: Image.asset(
-              // Season Zero gets its own, moodier cover; every other season
-              // (and any decode failure) falls back to the generic header.
-              season?.code == 'season_zero'
-                  ? 'assets/images/casebook/season_zero_cover.webp'
-                  : AppCouncilArt.casebookHeader,
-              fit: BoxFit.cover,
-              excludeFromSemantics: true,
-              errorBuilder: (_, _, _) => Image.asset(
-                AppCouncilArt.casebookHeader,
-                fit: BoxFit.cover,
-                excludeFromSemantics: true,
-              ),
-            ),
-          ),
-          // A candle keeps burning on the case wall.
-          const PositionedDirectional(
-            end: MotionTokens.flameInset,
-            top: MotionTokens.flameInset,
-            child: MotionSprite(
-              AppMotion.candleFlame,
-              width: MotionTokens.flame,
-              height: MotionTokens.flame * 2,
-            ),
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  colors.surfaceBase.withValues(alpha: 0),
-                  colors.surfaceBase.withValues(
-                    alpha: CasebookTokens.heroShade,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          PositionedDirectional(
-            start: s.screenMargin,
-            end: s.screenMargin,
-            bottom: s.sm,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Semantics(
+          Row(
+            children: [
+              Expanded(
+                child: Semantics(
                   header: true,
                   child: Text(
                     l.casebookTitle,
-                    textAlign: TextAlign.center,
-                    style: context.typography.headline.copyWith(
-                      color: VaultTokens.goldLight,
-                    ),
+                    style: StoryTokens.ruqaa(
+                      context.typography.headline,
+                    ).copyWith(color: CaseFileTokens.ink),
                   ),
                 ),
-                if (season != null) ...[
-                  SizedBox(height: s.xs),
-                  _SeasonPlate(season: season),
-                ],
-                // F10: the chosen Partner's line in the header.
-                const PartnerCasebookLine(),
-              ],
-            ),
+              ),
+              ?pill,
+            ],
           ),
+          if (season != null) ...[
+            SizedBox(height: s.xs),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: _SeasonPlate(season: season),
+            ),
+          ],
+          // F10: the chosen Partner's line in the header.
+          const PartnerCasebookLine(),
         ],
       ),
     );
@@ -436,13 +449,7 @@ class _Tabs extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: s.screenMargin),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: VaultTokens.gold.withValues(
-                alpha: VaultTokens.engraveAlpha,
-              ),
-            ),
-          ),
+          border: Border(bottom: BorderSide(color: CaseFileTokens.edge)),
         ),
         child: Row(
           children: [
@@ -470,7 +477,7 @@ class _Tabs extends StatelessWidget {
                                   labels[i],
                                   style: type.title.copyWith(
                                     color: i == page
-                                        ? VaultTokens.goldLight
+                                        ? CaseFileTokens.ink
                                         : colors.textMuted,
                                   ),
                                 ),
@@ -493,21 +500,7 @@ class _Tabs extends StatelessWidget {
                               borderRadius: BorderRadius.circular(
                                 CasebookTokens.tabRuleHeight,
                               ),
-                              gradient: const LinearGradient(
-                                colors: [
-                                  VaultTokens.goldDeep,
-                                  VaultTokens.goldLight,
-                                  VaultTokens.goldDeep,
-                                ],
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: VaultTokens.gold.withValues(
-                                    alpha: CasebookTokens.tabGlowAlpha,
-                                  ),
-                                  blurRadius: CasebookTokens.tabGlowBlur,
-                                ),
-                              ],
+                              color: CaseFileTokens.stamp,
                             ),
                           ),
                         ],
@@ -708,11 +701,13 @@ class _Rewards extends StatelessWidget {
 class _TonightPage extends StatelessWidget {
   final Casebook book;
   final String? busy;
+  final GlobalKey Function(String id) noteKey;
   final void Function(bool weekly, int slot) onClaim;
   const _TonightPage({
     super.key,
     required this.book,
     required this.busy,
+    required this.noteKey,
     required this.onClaim,
   });
 
@@ -720,65 +715,196 @@ class _TonightPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = context.spacing;
     final bonus = book.daily.bonus;
-    var row = 0;
+    final notes = <Widget>[
+      for (final mission in book.daily.missions)
+        _CaseNote(
+          key: CasebookSheet.noteKey('d${mission.slot}'),
+          anchor: noteKey('d${mission.slot}'),
+          idTag: 'd${mission.slot}',
+          mission: mission,
+          busy: busy == 'd${mission.slot}',
+          onClaim: () => onClaim(false, mission.slot),
+        ),
+      if (bonus != null && (bonus.coins > 0 || bonus.xp > 0))
+        _BonusNote(bonus: bonus),
+      for (final mission in book.weekly.missions)
+        _CaseNote(
+          key: CasebookSheet.noteKey('w${mission.slot}'),
+          anchor: noteKey('w${mission.slot}'),
+          idTag: 'w${mission.slot}',
+          mission: mission,
+          weekly: true,
+          busy: busy == 'w${mission.slot}',
+          onClaim: () => onClaim(true, mission.slot),
+        ),
+    ];
     return ListView(
-      padding: EdgeInsets.fromLTRB(
-        s.screenMargin,
-        s.md + CasebookTokens.portraitRise,
-        s.screenMargin,
-        s.xl,
-      ),
+      padding: EdgeInsets.fromLTRB(s.screenMargin, s.sm, s.screenMargin, s.xl),
       children: [
-        for (final mission in book.daily.missions)
-          _Rise(
-            index: row++,
-            child: Padding(
-              padding: EdgeInsets.only(
-                bottom: s.sm + CasebookTokens.portraitRise,
-              ),
-              child: _CaseCard(
-                mission: mission,
-                busy: busy == 'd${mission.slot}',
-                onClaim: () => onClaim(false, mission.slot),
-              ),
-            ),
-          ),
-        if (bonus != null && (bonus.coins > 0 || bonus.xp > 0))
-          _Rise(
-            index: row++,
-            child: _BonusCard(bonus: bonus),
-          ),
-        for (final mission in book.weekly.missions)
-          _Rise(
-            index: row++,
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: s.lg + CasebookTokens.weeklyPortraitRise,
-                bottom: s.sm,
-              ),
-              child: _CaseCard(
-                mission: mission,
-                weekly: true,
-                busy: busy == 'w${mission.slot}',
-                onClaim: () => onClaim(true, mission.slot),
-              ),
-            ),
-          ),
+        _CorkBoard(
+          key: CasebookSheet.boardKey,
+          children: [
+            for (final (i, note) in notes.indexed) _Rise(index: i, child: note),
+          ],
+        ),
       ],
     );
   }
 }
 
-/// One case on an engraved panel: the character who hands it over stands at
-/// the edge, half inside it; the metal bar is how far; the chips are what
-/// it pays. The weekly case is lit and ribboned, its character on the other
-/// side so the ribbon has room.
-class _CaseCard extends StatelessWidget {
+/// The dark cork: speckled ground, notes pinned alternately left and right,
+/// each one slightly turned, and a red string from one pin to the next.
+class _CorkBoard extends StatelessWidget {
+  final List<Widget> children;
+  const _CorkBoard({super.key, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.spacing;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(CaseFileTokens.radius),
+      child: CustomPaint(
+        painter: const _CorkPainter(),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: s.lg, horizontal: s.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, child) in children.indexed) ...[
+                if (i > 0) _String(index: i),
+                Align(
+                  alignment: i.isEven
+                      ? AlignmentDirectional.centerStart
+                      : AlignmentDirectional.centerEnd,
+                  child: FractionallySizedBox(
+                    widthFactor: CorkTokens.noteWidth,
+                    child: Transform.rotate(
+                      angle: i.isEven ? -CorkTokens.tilt : CorkTokens.tilt,
+                      child: child,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CorkPainter extends CustomPainter {
+  const _CorkPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(Offset.zero & size, Paint()..color = CaseFileTokens.board);
+    final dot = Paint()
+      ..color = CaseFileTokens.boardDot.withValues(alpha: CorkTokens.dotAlpha);
+    for (
+      var y = CorkTokens.dotGap / 2;
+      y < size.height;
+      y += CorkTokens.dotGap
+    ) {
+      final shift = ((y / CorkTokens.dotGap).floor().isEven)
+          ? 0.0
+          : CorkTokens.dotGap / 2;
+      for (var x = shift; x < size.width; x += CorkTokens.dotGap) {
+        canvas.drawCircle(Offset(x, y), CorkTokens.dotRadius, dot);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_CorkPainter old) => false;
+}
+
+/// The string between one note and the next, drawn in the gap.
+class _String extends StatelessWidget {
+  final int index;
+  const _String({required this.index});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: CorkTokens.stringGap,
+    child: CustomPaint(
+      painter: _StringPainter(
+        rtl: Directionality.of(context) == TextDirection.rtl,
+        fromStart: index.isOdd,
+      ),
+    ),
+  );
+}
+
+class _StringPainter extends CustomPainter {
+  final bool rtl;
+  final bool fromStart;
+  const _StringPainter({required this.rtl, required this.fromStart});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Note centres: half a note's width in from each side.
+    double centre(bool start) {
+      final startX = size.width * CorkTokens.noteWidth / 2;
+      final endX = size.width - startX;
+      final physicalStart = rtl ? endX : startX;
+      final physicalEnd = rtl ? startX : endX;
+      return start ? physicalStart : physicalEnd;
+    }
+
+    final from = Offset(centre(!fromStart), 0);
+    final to = Offset(centre(fromStart), size.height);
+    canvas.drawLine(
+      from,
+      to,
+      Paint()
+        ..color = CaseFileTokens.string
+        ..strokeWidth = CorkTokens.stringWidth
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_StringPainter old) =>
+      old.rtl != rtl || old.fromStart != fromStart;
+}
+
+/// A red pin at the top of a note.
+class _Pin extends StatelessWidget {
+  const _Pin();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: CorkTokens.pin,
+    height: CorkTokens.pin,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: CaseFileTokens.string,
+      boxShadow: [
+        BoxShadow(
+          color: CaseFileTokens.desk.withValues(alpha: 0.6),
+          blurRadius: CorkTokens.pinLift / 2,
+          offset: const Offset(0, CorkTokens.pinLift / 3),
+        ),
+      ],
+    ),
+  );
+}
+
+/// One case as a note on the board: what it asks, how far, what it pays and
+/// the button to take it. A closed note carries the «اتقفلت» stamp, which
+/// drops on the moment it is taken here.
+class _CaseNote extends StatefulWidget {
+  final GlobalKey anchor;
+  final String idTag;
   final CaseMission mission;
   final bool weekly;
   final bool busy;
   final VoidCallback onClaim;
-  const _CaseCard({
+  const _CaseNote({
+    super.key,
+    required this.anchor,
+    required this.idTag,
     required this.mission,
     required this.busy,
     required this.onClaim,
@@ -786,163 +912,237 @@ class _CaseCard extends StatelessWidget {
   });
 
   @override
+  State<_CaseNote> createState() => _CaseNoteState();
+}
+
+class _CaseNoteState extends State<_CaseNote>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _stamp;
+
+  @override
+  void initState() {
+    super.initState();
+    _stamp = AnimationController(
+      vsync: this,
+      duration: CorkTokens.stampDrop,
+      value: widget.mission.claimed ? 1 : 0,
+    );
+  }
+
+  @override
+  void didUpdateWidget(_CaseNote old) {
+    super.didUpdateWidget(old);
+    if (!old.mission.claimed && widget.mission.claimed) {
+      if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+        _stamp.value = 1;
+      } else {
+        _stamp.forward();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _stamp.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final mission = widget.mission;
     final l = context.l10n;
     final s = context.spacing;
     final colors = context.colors;
     final type = context.typography;
-    final tint = casebookRoleColor(context, mission.voice);
     final done = mission.claimed;
-    final ready = mission.claimable && !done;
-    final portrait = weekly
-        ? CasebookTokens.weeklyPortraitWidth
-        : CasebookTokens.portraitWidth;
-    final rise = weekly
-        ? CasebookTokens.weeklyPortraitRise
-        : CasebookTokens.portraitRise;
-    final lift = weekly ? VaultTokens.tagLift : 0.0;
-    Widget claim({bool expand = false}) => _ClaimButton(
-      claimKey: CasebookSheet.claimKey('${weekly ? 'w' : 'd'}${mission.slot}'),
-      claimable: mission.claimable,
-      claimed: done,
-      busy: busy,
-      expand: expand,
-      onClaim: onClaim,
-    );
-    final card = VaultCard(
-      lit: ready || (weekly && !done),
-      tag: weekly ? l.casebookWeekly : null,
-      padding: EdgeInsetsDirectional.fromSTEB(
-        weekly ? s.md : portrait,
-        s.md + lift / 2,
-        weekly ? portrait : s.md,
-        s.md,
-      ),
+    final tint = casebookRoleColor(context, mission.voice);
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.topCenter,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                l.casebookFrom(EngineCopy.roleName(l, mission.voice)),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: type.caption.emphasised.copyWith(color: tint),
+        KeyedSubtree(
+          key: widget.anchor,
+          child: Opacity(
+            opacity: done ? CorkTokens.doneAlpha : 1,
+            child: CaseFilePaper(
+              padding: EdgeInsets.fromLTRB(s.md, s.md, s.md, s.sm),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (widget.weekly)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: s.xs),
+                      child: Text(
+                        l.casebookWeekly,
+                        style: type.caption.emphasised.copyWith(
+                          color: CaseFileTokens.stamp,
+                        ),
+                      ),
+                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ContractIcon(
+                        metric: mission.metric,
+                        size: CorkTokens.noteIcon,
+                        done: done,
+                      ),
+                      SizedBox(width: s.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              caseLine(l, mission.metric, mission.target),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: type.body.emphasised.copyWith(
+                                color: CaseFileTokens.ink,
+                              ),
+                            ),
+                            Text(
+                              l.casebookFrom(
+                                EngineCopy.roleName(l, mission.voice),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: type.caption.copyWith(color: tint),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: s.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(s.xs),
+                          child: LinearProgressIndicator(
+                            value: mission.fraction,
+                            minHeight: s.xs,
+                            color: DeckTokens.silverLight,
+                            backgroundColor: CaseFileTokens.tabLine,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: s.sm),
+                      Text(
+                        l.casebookProgress(
+                          math.min(mission.progress, mission.target),
+                          mission.target,
+                        ),
+                        style: type.caption.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: s.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: _Rewards(
+                            coins: mission.coins,
+                            xp: mission.xp,
+                            muted: done,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: s.sm),
+                      if (!done)
+                        _ClaimButton(
+                          claimKey: CasebookSheet.claimKey(widget.idTag),
+                          claimable: mission.claimable,
+                          claimed: false,
+                          busy: widget.busy,
+                          onClaim: widget.onClaim,
+                        )
+                      else
+                        SizedBox(height: StoreTokens.touchTarget),
+                    ],
+                  ),
+                ],
               ),
             ),
-            SizedBox(width: s.xs),
-            _ProgressPlate(
-              text: l.casebookProgress(
-                math.min(mission.progress, mission.target),
-                mission.target,
-              ),
-              full: mission.fraction >= 1 && !done,
-            ),
-          ],
-        ),
-        Text(
-          caseLine(l, mission.metric, mission.target),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: (weekly ? type.title : type.body.emphasised).copyWith(
-            color: done ? colors.textSecondary : colors.textPrimary,
           ),
         ),
-        SizedBox(height: s.sm),
-        VaultBar(value: mission.fraction, height: CouncilLifeTokens.barHeight),
-        SizedBox(height: s.sm),
-        // The weekly case pays out under a full-width bar of gold, the way
-        // the Council's weekly contract does.
-        if (weekly) ...[
-          _Rewards(coins: mission.coins, xp: mission.xp, muted: done),
-          SizedBox(height: s.sm),
-          claim(expand: true),
-        ] else
-          Row(
-            children: [
-              Expanded(
-                child: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: _Rewards(
-                    coins: mission.coins,
-                    xp: mission.xp,
-                    muted: done,
+        // The pin.
+        Positioned(top: -CorkTokens.pinLift, child: const _Pin()),
+        if (done)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Center(
+                child: CaseStampDrop(
+                  key: CasebookSheet.stampKey(widget.idTag),
+                  progress: CurvedAnimation(
+                    parent: _stamp,
+                    curve: Curves.easeOut,
+                  ),
+                  child: CaseStamp(
+                    l.fileClosed,
+                    angle: CaseFileTokens.stampTilt,
+                    style: type.title,
                   ),
                 ),
               ),
-              SizedBox(width: s.sm),
-              claim(),
-            ],
-          ),
-      ],
-    );
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        VaultGlint(play: ready, child: card),
-        // The character, unframed, melting into the panel.
-        PositionedDirectional(
-          start: weekly ? null : 0,
-          end: weekly ? 0 : null,
-          top: lift - rise,
-          bottom: 0,
-          width: portrait,
-          child: IgnorePointer(
-            child: Opacity(
-              opacity: done ? CasebookTokens.donePortraitOpacity : 1,
-              child: FeatheredArt(
-                feather: Feather.hero,
-                halo: ready || weekly,
-                child: BondPortraitArt(
-                  role: mission.voice,
-                  fit: BoxFit.cover,
-                  alignment: CasebookTokens.faceFocus,
-                ),
-              ),
             ),
           ),
-        ),
       ],
     );
   }
 }
 
 /// All of tonight's cases closed pays a little more: the three seals.
-class _BonusCard extends StatelessWidget {
+class _BonusNote extends StatelessWidget {
   final CaseBonus bonus;
-  const _BonusCard({required this.bonus});
+  const _BonusNote({required this.bonus});
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final s = context.spacing;
-    final icon = ContractIcon(metric: 'bonus_all3', done: bonus.claimed);
-    return VaultCard(
-      lit: bonus.claimable && !bonus.claimed,
+    final colors = context.colors;
+    final icon = ContractIcon(
+      metric: 'bonus_all3',
+      size: CorkTokens.noteIcon,
+      done: bonus.claimed,
+    );
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.topCenter,
       children: [
-        Row(
-          children: [
-            bonus.claimable && !bonus.claimed ? LampGlow(child: icon) : icon,
-            SizedBox(width: s.sm),
-            Expanded(
-              child: Text(
-                bonus.claimed ? l.casebookBonusTaken : l.casebookBonus,
-                style: context.typography.bodySmall.copyWith(
-                  color: bonus.claimed
-                      ? VaultTokens.gold
-                      : context.colors.textSecondary,
+        CaseFilePaper(
+          padding: EdgeInsets.all(s.md),
+          child: Row(
+            children: [
+              bonus.claimable && !bonus.claimed ? LampGlow(child: icon) : icon,
+              SizedBox(width: s.sm),
+              Expanded(
+                child: Text(
+                  bonus.claimed ? l.casebookBonusTaken : l.casebookBonus,
+                  style: context.typography.bodySmall.copyWith(
+                    color: bonus.claimed
+                        ? CaseFileTokens.stamp
+                        : colors.textSecondary,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(width: s.sm),
-            Flexible(
-              child: _Rewards(
-                coins: bonus.coins,
-                xp: bonus.xp,
-                muted: bonus.claimed,
+              SizedBox(width: s.sm),
+              Flexible(
+                child: _Rewards(
+                  coins: bonus.coins,
+                  xp: bonus.xp,
+                  muted: bonus.claimed,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        const Positioned(top: -CorkTokens.pinLift, child: _Pin()),
       ],
     );
   }

@@ -1,9 +1,14 @@
+import 'dart:math' as math;
+
 import '../../widgets/mafia_kit.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
+import '../../../core/public_web_origin.dart';
 import '../../../data/character_bonds.dart';
+import '../../../platform/clipboard.dart';
 import '../../economy/web_ads.dart';
 import '../../../engine/models/enums.dart' as engine;
 import '../../../engine/coaching.dart';
@@ -13,15 +18,23 @@ import '../../l10n_ext.dart';
 import '../../../app/asset_constants.dart';
 import '../../economy/cosmetic_paint.dart';
 import '../../economy/economy_capabilities.dart';
+import '../../economy/mafia_coin.dart';
 import '../../economy/pass_table_dress.dart';
+import '../../economy/wallet.dart';
+import '../../missions/casebook_data.dart';
+import '../../missions/casebook_sheet.dart' show caseLine;
 import '../../theme/mafia_theme.dart';
 import '../../theme/design_tokens.dart';
-import '../../widgets/textured_surface.dart';
+import '../../widgets/case_file.dart';
+import '../../widgets/deck/deck_buttons.dart';
+import '../../widgets/deck/deck_public.dart' show CoinPill;
 import '../../widgets/motion_sprite.dart';
+import '../../widgets/textured_surface.dart';
 import '../../fun/award_ribbon.dart';
 import '../../fun/match_awards.dart';
 import '../../fun/character_dossiers.dart' show BondLetterArrivedCard;
 import '../match_controller.dart';
+import 'match_file.dart';
 
 /// A single row in the result table showing a player's role and status.
 class ResultRow {
@@ -41,10 +54,18 @@ class ResultRow {
   });
 }
 
+/// One line of what the match paid: the existing reward data, never invented.
+class ResultCoinRow {
+  final String label;
+  final int coins;
+  const ResultCoinRow({required this.label, required this.coins});
+}
+
 /// Result Screen (S-14) — post-game winner reveal and role exposure.
 ///
-/// Displayed after the match ends. Shows the winning alignment prominently,
-/// then a table of all players with their true roles and elimination times.
+/// Displayed after the match ends. The deck's last page: the outcome art and
+/// verdict, a stamp, who you were, a line from that character, every seat's
+/// card turned in turn, what the match paid, and the buttons pinned below.
 /// This is the ONLY screen that reveals roles during the match (since it's
 /// after the match).
 ///
@@ -71,6 +92,14 @@ class ResultScreen extends StatelessWidget {
   final VoidCallback? onPlayAgain;
 
   static const playAgainKey = ValueKey('result_play_again');
+  static const openFileKey = ValueKey('result_open_file');
+  static const youKey = ValueKey('result_you');
+  static const coinTotalKey = ValueKey('result_coin_total');
+  static const stampKey = ValueKey('result_stamp');
+  static const casebookKey = ValueKey('result_casebook');
+
+  /// Key on a seat's card, by seat.
+  static Key seatKey(int seat) => ValueKey('result_seat_$seat');
 
   /// Doc 13 §4.4's «كان ممكن», by seat.
   ///
@@ -102,6 +131,18 @@ class ResultScreen extends StatelessWidget {
   final Widget? eventStamps;
   final bool tabletop;
 
+  /// The seat this phone plays (online, or the human at a bot table). Null at
+  /// a shared phone, where nobody is "you": the «كنت …» card is left out.
+  final int? viewerSeat;
+
+  /// What the match paid, row by row, from the existing reward data. Empty
+  /// draws no earnings card and no flight to the pill.
+  final List<ResultCoinRow> coinRows;
+
+  /// «ملف الماتش»: the night-by-night record. Null hides the entry (a match
+  /// without a local log has none).
+  final MatchFile? matchFile;
+
   const ResultScreen({
     super.key,
     required this.winner,
@@ -114,361 +155,487 @@ class ResultScreen extends StatelessWidget {
     this.inventory,
     this.eventStamps,
     this.tabletop = false,
+    this.viewerSeat,
+    this.coinRows = const [],
+    this.matchFile,
   });
 
   /// Key on the «كان ممكن» block for a given seat.
   static Key coachingKey(int seat) => ValueKey('coaching_$seat');
 
-  String _winnerText(BuildContext context, engine.Alignment alignment) =>
-      alignment == engine.Alignment.mafia
-      ? context.l10n.mafiaWins
-      : context.l10n.townWins;
-
-  Color _getRoleColor(BuildContext context, engine.Role role) {
-    final colors = context.colors;
-    switch (role) {
-      case engine.Role.mafia:
-      case engine.Role.silencer:
-        return colors.roleMafia;
-      case engine.Role.doctor:
-        return colors.roleDoctor;
-      case engine.Role.detective:
-        return colors.roleDetective;
-      case engine.Role.elder:
-      case engine.Role.sniper:
-      case engine.Role.citizen:
-        return colors.roleCitizen;
-    }
-  }
-
-  String _getRoleLabel(BuildContext context, engine.Role role) =>
-      EngineCopy.roleName(context.l10n, role);
-
-  List<Widget> _coachingLines(BuildContext context, int seat) {
-    final notes = coaching[seat] ?? const <CoachingNote>[];
-    if (notes.isEmpty) return const [];
-
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final type = context.typography;
-    final nameOf = {for (final r in rows) r.seat: r.name};
-
-    return [
-      SizedBox(height: spacing.sm),
-      Column(
-        key: ResultScreen.coachingKey(seat),
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.l10n.coachingTitle,
-            style: type.caption.copyWith(color: colors.accentGold),
-          ),
-          for (final note in notes) ...[
-            SizedBox(height: spacing.xs),
-            Text(
-              EngineCopy.coaching(context.l10n, note, (s) => nameOf[s] ?? ''),
-              style: type.bodySmall.copyWith(color: colors.textSecondary),
-            ),
-          ],
-        ],
-      ),
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final spacing = context.spacing;
-    final radii = context.radii;
-    final type = context.typography;
-
-    final winnerColor = winner == engine.Alignment.mafia
-        ? colors.roleMafia
-        : colors.roleDoctor; // Use a town-aligned color
-
     return _BondResultRecorder(
       winner: winner,
       rows: rows,
       child: MafiaScaffold(
         backgroundColor: colors.surfaceBase,
         bottomNavigationBar: kIsWeb ? const WebAdBanner() : null,
-        body: AppBackdrop(
+        body: AppBackdrop(child: _ResultStage(screen: this)),
+      ),
+    );
+  }
+}
+
+Color _roleColor(BuildContext context, engine.Role role) {
+  final colors = context.colors;
+  switch (role) {
+    case engine.Role.mafia:
+    case engine.Role.silencer:
+      return colors.roleMafia;
+    case engine.Role.doctor:
+      return colors.roleDoctor;
+    case engine.Role.detective:
+      return colors.roleDetective;
+    case engine.Role.elder:
+    case engine.Role.sniper:
+    case engine.Role.citizen:
+      return colors.roleCitizen;
+  }
+}
+
+String _roleLabel(BuildContext context, engine.Role role) =>
+    EngineCopy.roleName(context.l10n, role);
+
+class _ResultStage extends StatefulWidget {
+  final ResultScreen screen;
+  const _ResultStage({required this.screen});
+
+  @override
+  State<_ResultStage> createState() => _ResultStageState();
+}
+
+class _ResultStageState extends State<_ResultStage>
+    with TickerProviderStateMixin {
+  late final AnimationController _t;
+  late final AnimationController _pay;
+  late final AnimationController _fly;
+  late final int _totalMs;
+  bool _payStarted = false;
+  final _stackKey = GlobalKey();
+  final _totalKey = GlobalKey();
+  final _pillKey = GlobalKey();
+  bool _started = false;
+  bool _landed = false;
+  Offset? _from;
+  Offset? _to;
+
+  ResultScreen get s => widget.screen;
+  int get _coins => s.coinRows.fold(0, (a, r) => a + r.coins);
+
+  @override
+  void initState() {
+    super.initState();
+    final flipsEnd = s.rows.isEmpty
+        ? 0
+        : ResultTokens.flipAt +
+              (s.rows.length - 1) * ResultTokens.flipStagger +
+              ResultTokens.flipFor;
+    _totalMs =
+        math.max(flipsEnd, ResultTokens.lineAt + ResultTokens.lineFor) +
+        ResultTokens.tail;
+    _t = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: _totalMs),
+    )..addStatusListener((_) => _maybePay());
+    _pay = AnimationController(vsync: this, duration: _payDuration())
+      ..addStatusListener(_onPaid);
+    _fly = AnimationController(vsync: this, duration: ResultTokens.flight)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed && mounted) {
+          setState(() => _landed = true);
+        }
+      });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      _t.value = 1;
+      _pay.value = 1;
+      _fly.value = 1;
+      _payStarted = true;
+      _landed = true;
+    } else {
+      _t.forward();
+    }
+  }
+
+  Duration _payDuration() => Duration(
+    milliseconds:
+        s.coinRows.length * ResultTokens.rowStagger + ResultTokens.countFor,
+  );
+
+  @override
+  void didUpdateWidget(_ResultStage old) {
+    super.didUpdateWidget(old);
+    if (old.screen.coinRows.length != s.coinRows.length) {
+      _pay.duration = _payDuration();
+      if (_payStarted && _pay.value >= 1 && _coins > 0) {
+        // Rows that arrived after a reduced-motion jump: show them as they are.
+        _landed = true;
+      } else {
+        _maybePay();
+      }
+    }
+  }
+
+  /// The coin rows start once the cards have turned, and only when there is
+  /// something that was paid.
+  void _maybePay() {
+    if (_payStarted || _coins <= 0 || !_t.isCompleted) return;
+    _payStarted = true;
+    _pay.forward();
+  }
+
+  void _onPaid(AnimationStatus status) {
+    if (status != AnimationStatus.completed || _coins <= 0) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final stack = _stackKey.currentContext?.findRenderObject();
+      Offset? centre(GlobalKey key) {
+        final box = key.currentContext?.findRenderObject();
+        if (box is! RenderBox || !box.attached || stack is! RenderBox) {
+          return null;
+        }
+        return stack.globalToLocal(
+          box.localToGlobal(box.size.center(Offset.zero)),
+        );
+      }
+
+      final from = centre(_totalKey);
+      final to = centre(_pillKey);
+      if (from == null || to == null) {
+        setState(() => _landed = true);
+        return;
+      }
+      setState(() {
+        _from = from;
+        _to = to;
+      });
+      _fly.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _t.dispose();
+    _pay.dispose();
+    _fly.dispose();
+    super.dispose();
+  }
+
+  Animation<double> _beat(int at, int forMs, [Curve curve = Curves.easeOut]) =>
+      CurvedAnimation(
+        parent: _t,
+        curve: Interval(
+          (at / _totalMs).clamp(0.0, 1.0),
+          ((at + forMs) / _totalMs).clamp(0.0, 1.0),
+          curve: curve,
+        ),
+      );
+
+  Future<void> _shareFile() async {
+    final l10n = context.l10n;
+    final winner = s.winner == engine.Alignment.mafia
+        ? l10n.mafiaWins
+        : l10n.townWins;
+    final message = l10n
+        .shareResultText(winner, s.matchFile?.days ?? 0)
+        .replaceAll('https://saidalmafia.com', kPublicWebOrigin);
+    try {
+      await SharePlus.instance.share(
+        ShareParams(title: l10n.matchFileShare, text: message),
+      );
+    } catch (_) {
+      final copied = await AppClipboard.copy(message);
+      if (mounted) {
+        ScaffoldMessenger.maybeOf(context)
+          ?..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(
+                copied ? l10n.shareTextCopied : l10n.shareUnavailable,
+              ),
+            ),
+          );
+      }
+    }
+  }
+
+  String _lineFor(BuildContext context, engine.Role role, bool won) {
+    final l = context.l10n;
+    return switch (role) {
+      engine.Role.mafia || engine.Role.silencer =>
+        won ? l.resultLineMafiaWin : l.resultLineMafiaLose,
+      engine.Role.doctor =>
+        won ? l.resultLineDoctorWin : l.resultLineDoctorLose,
+      engine.Role.detective =>
+        won ? l.resultLineDetectiveWin : l.resultLineDetectiveLose,
+      engine.Role.elder || engine.Role.sniper || engine.Role.citizen =>
+        won ? l.resultLineCitizenWin : l.resultLineCitizenLose,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = context.spacing;
+    final colors = context.colors;
+    final screen = s;
+    final me = screen.viewerSeat == null
+        ? null
+        : screen.rows.where((r) => r.seat == screen.viewerSeat).firstOrNull;
+    final foot = Padding(
+      padding: EdgeInsets.fromLTRB(
+        spacing.screenMargin,
+        spacing.sm,
+        spacing.screenMargin,
+        spacing.sm,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (screen.onPlayAgain != null) ...[
+            BoneButton(
+              key: ResultScreen.playAgainKey,
+              label: context.l10n.botPlayAgain,
+              onPressed: screen.onPlayAgain,
+            ),
+            SizedBox(height: spacing.sm),
+          ] else ...[
+            BoneButton(
+              label: context.l10n.homeAction,
+              onPressed: screen.onHome,
+            ),
+            SizedBox(height: spacing.sm),
+          ],
+          Row(
+            children: [
+              if (screen.onAnalytics != null) ...[
+                Expanded(
+                  child: RimButton(
+                    label: context.l10n.analytics,
+                    onPressed: screen.onAnalytics,
+                  ),
+                ),
+                SizedBox(width: spacing.sm),
+              ],
+              if (screen.onPlayAgain != null)
+                Expanded(
+                  child: RimButton(
+                    label: context.l10n.homeAction,
+                    onPressed: screen.onHome,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    final content = CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(child: _hero(context)),
+        SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: spacing.screenMargin),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (me != null) ...[
+                  SizedBox(height: spacing.sm),
+                  _youCard(context, me),
+                ],
+                SizedBox(height: spacing.md),
+                _BondResultMoment(winner: screen.winner, rows: screen.rows),
+                SizedBox(height: spacing.md),
+                _tableLabel(context),
+                SizedBox(height: spacing.sm),
+                _seatGrid(context, me?.seat),
+                SizedBox(height: spacing.md),
+                if (screen.awards.isNotEmpty) ...[
+                  AwardRibbon(awards: screen.awards),
+                  SizedBox(height: spacing.md),
+                ],
+                ..._coachingBlocks(context),
+                if (screen.coinRows.isNotEmpty) ...[
+                  _earnings(context),
+                  SizedBox(height: spacing.sm),
+                ],
+                const _CasebookLine(key: ResultScreen.casebookKey),
+                if (screen.matchFile != null) ...[
+                  SizedBox(height: spacing.sm),
+                  _fileEntry(context),
+                ],
+                if (screen.inventory != null) ...[
+                  SizedBox(height: spacing.md),
+                  screen.inventory!,
+                ],
+                if (screen.eventStamps != null) ...[
+                  SizedBox(height: spacing.md),
+                  screen.eventStamps!,
+                ],
+                SizedBox(height: spacing.lg),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+
+    return Stack(
+      key: _stackKey,
+      children: [
+        Positioned.fill(
           child: SafeArea(
+            top: false,
             child: Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: spacing.maxContentWidth),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: spacing.screenMargin,
-                    vertical: spacing.lg,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // The announcement, the awards and the roster scroll as
-                      // one; only the two buttons are pinned. On a 640-high
-                      // phone the fixed stack above the roster (card + awards)
-                      // left the roster a sliver and overflowed at larger text.
-                      Expanded(
-                        child: CustomScrollView(
-                          slivers: [
-                            SliverToBoxAdapter(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: spacing.md,
-                                  vertical: spacing.md,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: colors.surfaceRaised,
-                                  borderRadius: BorderRadius.circular(
-                                    radii.card,
-                                  ),
-                                  border: Border.all(
-                                    color: winnerColor,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    const MotionSprite(
-                                      AppMotion.emberDrift,
-                                      width: ResultTokens.heroEmberWidth,
-                                      height: ResultTokens.heroEmberHeight,
-                                    ),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          context.l10n.gameOver,
-                                          style: type.caption.copyWith(
-                                            color: colors.textMuted,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        SizedBox(height: spacing.xs),
-                                        Text(
-                                          _winnerText(context, winner),
-                                          key: const ValueKey(
-                                            'result_winner_headline',
-                                          ),
-                                          style: type.headline.copyWith(
-                                            color: tabletop
-                                                ? colors.textPrimary
-                                                : winnerColor,
-                                            fontSize: tabletop
-                                                ? TabletopTokens.winnerFontSize
-                                                : null,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SliverToBoxAdapter(
-                              child: SizedBox(height: spacing.md),
-                            ),
-                            SliverToBoxAdapter(
-                              child: _BondResultMoment(
-                                winner: winner,
-                                rows: rows,
-                              ),
-                            ),
-                            SliverToBoxAdapter(
-                              child: SizedBox(height: spacing.md),
-                            ),
-                            if (awards.isNotEmpty)
-                              SliverToBoxAdapter(
-                                child: AwardRibbon(awards: awards),
-                              ),
-
-                            // Player roles table
-                            SliverList.separated(
-                              itemCount: rows.length,
-                              separatorBuilder: (_, __) =>
-                                  SizedBox(height: spacing.sm),
-                              itemBuilder: (context, index) {
-                                final row = rows[index];
-                                final roleColor = _getRoleColor(
-                                  context,
-                                  row.role,
-                                );
-
-                                return Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: spacing.md,
-                                    vertical: spacing.md,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: colors.surfaceRaised,
-                                    borderRadius: BorderRadius.circular(
-                                      radii.card,
-                                    ),
-                                    border: Border.all(
-                                      color: colors.borderSubtle,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      // The player's card, in full colour at last.
-                                      //
-                                      // This is the payoff for a whole match of
-                                      // looking at a monochrome back: the gallery art
-                                      // is the same painting the in-match face was cut
-                                      // from, without the desaturation and without the
-                                      // luminance matching. It is safe here and only
-                                      // here — the match has an outcome, every role is
-                                      // already public, and nothing on this screen can
-                                      // influence play.
-                                      // F19: the character behind each name
-                                      // rises into place — here, after the
-                                      // public result, and nowhere earlier.
-                                      _RisingFigure(
-                                        index: index,
-                                        child: _GalleryThumb(role: row.role),
-                                      ),
-                                      SizedBox(width: spacing.md),
-
-                                      // At the narrow tabletop breakpoint the
-                                      // name and revealed role are the facts
-                                      // the whole table needs; the decorative
-                                      // seat badge yields its width to them.
-                                      if (!tabletop ||
-                                          MediaQuery.sizeOf(context).width >=
-                                              TabletopTokens
-                                                  .compactBreakpoint) ...[
-                                        Container(
-                                          width: spacing.lg + spacing.md,
-                                          height: spacing.lg + spacing.md,
-                                          decoration: BoxDecoration(
-                                            color: colors.surfaceOverlay,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            '${row.seat + 1}',
-                                            style: type.caption.copyWith(
-                                              color: colors.textSecondary,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                        SizedBox(width: spacing.md),
-                                      ],
-
-                                      // Player name
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            // Store truth: the host's own
-                                            // plate on the host's row.
-                                            CosmeticNameplate(
-                                              name: row.name,
-                                              plate: HostIdentityScope.plateFor(
-                                                context,
-                                                row.name,
-                                              ),
-                                              style: type.body.emphasised
-                                                  .copyWith(
-                                                    color: colors.textPrimary,
-                                                  ),
-                                            ),
-                                            if (row.eliminatedLabel !=
-                                                null) ...[
-                                              SizedBox(height: spacing.xs),
-                                              Text(
-                                                row.eliminatedLabel!,
-                                                style: type.bodySmall.copyWith(
-                                                  color: colors.textMuted,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ],
-                                            // «كان ممكن» — doc 13 §4.4. Under the
-                                            // player's own name, because it is about
-                                            // them and about nobody else, and in
-                                            // muted body text because doc 13 asks
-                                            // for *"an observation, never a scold.
-                                            // No score, no grade, no stars."*
-                                            ..._coachingLines(
-                                              context,
-                                              row.seat,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(width: spacing.md),
-
-                                      // Role chip
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: spacing.sm,
-                                          vertical: spacing.xs,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: roleColor,
-                                          borderRadius: BorderRadius.circular(
-                                            radii.button,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          _getRoleLabel(context, row.role),
-                                          style: type.caption.copyWith(
-                                            color: colors.surfaceBase,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: content),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            colors.surfaceBase.withValues(alpha: 0),
+                            colors.surfaceBase,
                           ],
+                          stops: const [0, 0.3],
                         ),
                       ),
-                      ?inventory,
-                      if (eventStamps != null) ...[
-                        SizedBox(height: spacing.md),
-                        eventStamps!,
-                      ],
-                      SizedBox(height: spacing.lg),
+                      child: foot,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (_coins > 0) _pill(context),
+        if (_from != null && _to != null && !_landed) _flight(),
+      ],
+    );
+  }
 
-                      // One shared-height action row leaves more of the public
-                      // roster visible on a phone while keeping both exits.
-                      if (onPlayAgain != null) ...[
-                        FilledButton(
-                          key: playAgainKey,
-                          onPressed: onPlayAgain,
-                          child: Text(context.l10n.botPlayAgain),
+  // --- the verdict ---
+
+  Widget _hero(BuildContext context) {
+    final spacing = context.spacing;
+    final colors = context.colors;
+    final type = context.typography;
+    final screen = s;
+    final town = screen.winner == engine.Alignment.town;
+    final size = MediaQuery.sizeOf(context);
+    final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;
+    final decodeWidth = (size.width * dpr).round();
+    final art = AssetImage(
+      town ? AppImages.outcomeTownWin : AppImages.outcomeMafiaWin,
+    );
+    final height = math.max(
+      ResultTokens.heroMin,
+      size.height * ResultTokens.heroFraction,
+    );
+    final verdict = _beat(
+      ResultTokens.verdictAt,
+      ResultTokens.verdictFor,
+      Curves.easeOutCubic,
+    );
+    final zoom = CurvedAnimation(
+      parent: _t,
+      curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
+    );
+    final stamp = _beat(ResultTokens.stampAt, ResultTokens.stampFor);
+    return SizedBox(
+      height: height,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: zoom,
+              builder: (context, child) => Transform.scale(
+                scale:
+                    ResultTokens.heroZoom -
+                    (ResultTokens.heroZoom - 1) * zoom.value,
+                child: child,
+              ),
+              child: Image(
+                image: decodeWidth > 0
+                    ? ResizeImage(
+                        art,
+                        width: decodeWidth,
+                        policy: ResizeImagePolicy.fit,
+                      )
+                    : art,
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+                excludeFromSemantics: true,
+              ),
+            ),
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  colors.surfaceBase.withValues(alpha: 0.4),
+                  colors.surfaceBase.withValues(alpha: 0),
+                  colors.surfaceBase,
+                ],
+                stops: const [0, 0.3, 0.96],
+              ),
+            ),
+          ),
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: MotionSprite(
+              AppMotion.emberDrift,
+              width: ResultTokens.heroEmberWidth,
+              height: ResultTokens.heroEmberHeight,
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: spacing.xs),
+              child: FadeTransition(
+                opacity: verdict,
+                child: SlideTransition(
+                  position: Tween(
+                    begin: const Offset(0, 0.3),
+                    end: Offset.zero,
+                  ).animate(verdict),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        context.l10n.gameOver,
+                        style: type.caption.copyWith(
+                          color: colors.textSecondary,
                         ),
-                        SizedBox(height: spacing.sm),
-                      ],
-                      Row(
-                        children: [
-                          if (onAnalytics != null) ...[
-                            Expanded(
-                              child: FilledButton(
-                                onPressed: onAnalytics,
-                                child: Text(context.l10n.analytics),
-                              ),
-                            ),
-                            SizedBox(width: spacing.sm),
-                          ],
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: onHome,
-                              child: Text(context.l10n.homeAction),
-                            ),
-                          ),
-                        ],
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        town ? context.l10n.townWins : context.l10n.mafiaWins,
+                        key: const ValueKey('result_winner_headline'),
+                        style: StoryTokens.ruqaa(type.headline).copyWith(
+                          color: colors.textPrimary,
+                          fontSize: screen.tabletop
+                              ? TabletopTokens.winnerFontSize
+                              : ResultTokens.verdictSize,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
@@ -476,8 +643,686 @@ class ResultScreen extends StatelessWidget {
               ),
             ),
           ),
+          PositionedDirectional(
+            top: MediaQuery.paddingOf(context).top + ResultTokens.stampTop,
+            end: spacing.md,
+            child: CaseStampDrop(
+              key: ResultScreen.stampKey,
+              progress: stamp,
+              child: CaseStamp(
+                town
+                    ? context.l10n.resultStampTown
+                    : context.l10n.resultStampMafia,
+                color: town ? CaseFileTokens.sage : CaseFileTokens.stamp,
+                angle: ResultTokens.stampTilt,
+                style: type.title,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- you ---
+
+  Widget _youCard(BuildContext context, ResultRow me) {
+    final spacing = context.spacing;
+    final colors = context.colors;
+    final type = context.typography;
+    final l = context.l10n;
+    final won = me.role.alignment == s.winner;
+    final you = _beat(ResultTokens.youAt, ResultTokens.youFor);
+    final line = _beat(ResultTokens.lineAt, ResultTokens.lineFor);
+    Widget rise(Animation<double> a, Widget child) => FadeTransition(
+      opacity: a,
+      child: SlideTransition(
+        position: Tween(
+          begin: const Offset(0, ResultTokens.riseFrom / 100),
+          end: Offset.zero,
+        ).animate(a),
+        child: child,
+      ),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        rise(
+          you,
+          CaseFilePaper(
+            key: ResultScreen.youKey,
+            padding: EdgeInsets.all(spacing.md),
+            child: Row(
+              children: [
+                RoleGalleryPortrait(
+                  role: me.role,
+                  height: ResultTokens.youWindow.height,
+                ),
+                SizedBox(width: spacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.resultWasRole(_roleLabel(context, me.role)),
+                        style: type.title.copyWith(color: CaseFileTokens.ink),
+                      ),
+                      Text(
+                        me.eliminatedLabel ?? l.resultSurvived,
+                        style: type.caption.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: spacing.sm),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: won ? DeckTokens.bone : null,
+                    borderRadius: BorderRadius.circular(context.radii.button),
+                    border: won ? null : Border.all(color: DeckTokens.silver),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: spacing.sm,
+                      vertical: spacing.xs / 2,
+                    ),
+                    child: Text(
+                      won ? l.resultYouWon : l.resultYouLost,
+                      style: type.caption.emphasised.copyWith(
+                        color: won ? DeckTokens.ink : colors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: spacing.sm),
+        rise(
+          line,
+          CaseFilePaper(
+            padding: EdgeInsets.symmetric(
+              horizontal: spacing.md,
+              vertical: spacing.sm,
+            ),
+            child: Text(
+              _lineFor(context, me.role, won),
+              key: const ValueKey('result_character_line'),
+              style: type.body.copyWith(color: colors.textSecondary),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- everyone's card, turned in turn ---
+
+  Widget _tableLabel(BuildContext context) {
+    final type = context.typography;
+    final colors = context.colors;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          child: Text(
+            context.l10n.resultTable,
+            style: type.caption.copyWith(color: colors.textMuted),
+          ),
+        ),
+        Flexible(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.close_rounded,
+                size: ResultTokens.crossSize,
+                color: CaseFileTokens.stamp,
+              ),
+              Flexible(
+                child: Text(
+                  context.l10n.resultDeadLegend,
+                  style: type.caption.copyWith(color: colors.textMuted),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _seatGrid(BuildContext context, int? meSeat) {
+    final spacing = context.spacing;
+    return LayoutBuilder(
+      builder: (context, box) {
+        const gap = ResultTokens.seatGap;
+        const cols = ResultTokens.seatColumns;
+        final w = (box.maxWidth - gap * (cols - 1)) / cols;
+        return Wrap(
+          spacing: gap,
+          runSpacing: spacing.md,
+          children: [
+            for (final (i, row) in s.rows.indexed)
+              SizedBox(
+                width: w,
+                child: _SeatTile(
+                  key: ResultScreen.seatKey(row.seat),
+                  row: row,
+                  me: row.seat == meSeat,
+                  flip: _beat(
+                    ResultTokens.flipAt + i * ResultTokens.flipStagger,
+                    ResultTokens.flipFor,
+                    Curves.easeOutCubic,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  List<Widget> _coachingBlocks(BuildContext context) {
+    final spacing = context.spacing;
+    final colors = context.colors;
+    final type = context.typography;
+    final nameOf = {for (final r in s.rows) r.seat: r.name};
+    final blocks = <Widget>[];
+    for (final row in s.rows) {
+      final notes = s.coaching[row.seat] ?? const <CoachingNote>[];
+      if (notes.isEmpty) continue;
+      blocks
+        ..add(
+          CaseFilePaper(
+            key: ResultScreen.coachingKey(row.seat),
+            padding: EdgeInsets.all(spacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  row.name,
+                  style: type.bodySmall.emphasised.copyWith(
+                    color: CaseFileTokens.ink,
+                  ),
+                ),
+                Text(
+                  context.l10n.coachingTitle,
+                  style: type.caption.copyWith(color: colors.accentGold),
+                ),
+                for (final note in notes) ...[
+                  SizedBox(height: spacing.xs),
+                  Text(
+                    EngineCopy.coaching(
+                      context.l10n,
+                      note,
+                      (seat) => nameOf[seat] ?? '',
+                    ),
+                    style: type.bodySmall.copyWith(color: colors.textSecondary),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        )
+        ..add(SizedBox(height: spacing.sm));
+    }
+    if (blocks.isNotEmpty) blocks.add(SizedBox(height: spacing.sm));
+    return blocks;
+  }
+
+  // --- what the match paid ---
+
+  Widget _earnings(BuildContext context) {
+    final spacing = context.spacing;
+    final colors = context.colors;
+    final type = context.typography;
+    final payMs = _pay.duration!.inMilliseconds;
+    Animation<double> payBeat(
+      int at,
+      int forMs, [
+      Curve curve = Curves.easeOut,
+    ]) => CurvedAnimation(
+      parent: _pay,
+      curve: Interval(
+        (at / payMs).clamp(0.0, 1.0),
+        ((at + forMs) / payMs).clamp(0.0, 1.0),
+        curve: curve,
+      ),
+    );
+    final count = payBeat(
+      s.coinRows.length * ResultTokens.rowStagger,
+      ResultTokens.countFor,
+    );
+    return CaseFilePaper(
+      padding: EdgeInsets.symmetric(
+        horizontal: spacing.md,
+        vertical: spacing.sm,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (i, row) in s.coinRows.indexed)
+            _CoinRowView(
+              row: row,
+              reveal: payBeat(
+                i * ResultTokens.rowStagger,
+                ResultTokens.rowFor,
+                Curves.easeOutCubic,
+              ),
+            ),
+          Divider(
+            color: colors.textMuted.withValues(alpha: 0.3),
+            height: spacing.md,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                context.l10n.resultCoins,
+                style: type.body.emphasised.copyWith(color: CaseFileTokens.ink),
+              ),
+              Row(
+                key: _totalKey,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const MafiaCoin(size: DeckTokens.coinGlyph),
+                  SizedBox(width: spacing.xs),
+                  AnimatedBuilder(
+                    animation: count,
+                    builder: (context, _) => Text(
+                      '${(_coins * count.value).round()}',
+                      key: ResultScreen.coinTotalKey,
+                      style: type.title.copyWith(color: DeckTokens.gold),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _pill(BuildContext context) {
+    final spacing = context.spacing;
+    return PositionedDirectional(
+      top: MediaQuery.paddingOf(context).top + spacing.sm,
+      end: spacing.screenMargin,
+      child: Consumer(
+        builder: (context, ref, _) {
+          final wallet = ref.watch(walletProvider).valueOrNull;
+          final now = wallet?.balance ?? _coins;
+          final base = math.max(0, now - _coins);
+          final shown = _landed ? now : base;
+          final bump = AnimatedBuilder(
+            animation: _fly,
+            builder: (context, child) {
+              final k = _fly.value > 0.85 && _fly.value < 1
+                  ? ResultTokens.pillBump
+                  : 1.0;
+              return AnimatedScale(
+                scale: k,
+                duration: ResultTokens.pillBumpFor,
+                child: child,
+              );
+            },
+            child: KeyedSubtree(
+              key: _pillKey,
+              child: CoinPill(balance: shown),
+            ),
+          );
+          return bump;
+        },
+      ),
+    );
+  }
+
+  Widget _flight() {
+    final from = _from!;
+    final to = _to!;
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: RepaintBoundary(
+          child: AnimatedBuilder(
+            animation: _fly,
+            builder: (context, _) {
+              const n = ResultTokens.flightCoins;
+              final window = 1 - (n - 1) * ResultTokens.flightStagger;
+              return Stack(
+                children: [
+                  for (var i = 0; i < n; i++)
+                    () {
+                      final p = Curves.easeIn.transform(
+                        ((_fly.value - i * ResultTokens.flightStagger) / window)
+                            .clamp(0.0, 1.0),
+                      );
+                      final at = Offset.lerp(from, to, p)!;
+                      return Positioned(
+                        left: at.dx - ResultTokens.flightCoinSize / 2,
+                        top: at.dy - ResultTokens.flightCoinSize / 2,
+                        child: Opacity(
+                          opacity: p == 0 ? 0 : 1 - 0.8 * p,
+                          child: const MafiaCoin(
+                            size: ResultTokens.flightCoinSize,
+                          ),
+                        ),
+                      );
+                    }(),
+                ],
+              );
+            },
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _fileEntry(BuildContext context) {
+    final spacing = context.spacing;
+    final type = context.typography;
+    final screen = s;
+    return DeckPress(
+      child: InkWell(
+        key: ResultScreen.openFileKey,
+        borderRadius: BorderRadius.circular(CaseFileTokens.radius),
+        onTap: () => showMatchFile(
+          context,
+          file: screen.matchFile!,
+          rows: screen.rows,
+          awards: screen.awards,
+          onShare: _shareFile,
+        ),
+        child: CaseFilePaper(
+          padding: EdgeInsets.symmetric(
+            horizontal: spacing.md,
+            vertical: spacing.md,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.l10n.matchFileTitle,
+                  style: type.body.emphasised.copyWith(
+                    color: CaseFileTokens.ink,
+                  ),
+                ),
+              ),
+              Icon(Icons.chevron_left_rounded, color: context.colors.textMuted),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CoinRowView extends StatelessWidget {
+  final ResultCoinRow row;
+  final Animation<double> reveal;
+  const _CoinRowView({required this.row, required this.reveal});
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = context.spacing;
+    final type = context.typography;
+    final colors = context.colors;
+    return FadeTransition(
+      opacity: reveal,
+      child: SlideTransition(
+        position: Tween(
+          begin: const Offset(-ResultTokens.rowSlide / 100, 0),
+          end: Offset.zero,
+        ).animate(reveal),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: spacing.xs / 2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  row.label,
+                  style: type.bodySmall.copyWith(color: colors.textSecondary),
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const MafiaCoin(size: DeckTokens.coinGlyphSmall),
+                  SizedBox(width: spacing.xs),
+                  Text(
+                    '+${row.coins}',
+                    style: type.bodySmall.emphasised.copyWith(
+                      color: DeckTokens.gold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One seat's card: it starts face-down and turns over in its turn, with the
+/// name and the role under it. The dead carry a ✕ and a dimmed face.
+class _SeatTile extends StatelessWidget {
+  final ResultRow row;
+  final bool me;
+  final Animation<double> flip;
+  const _SeatTile({
+    super.key,
+    required this.row,
+    required this.me,
+    required this.flip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = context.spacing;
+    final type = context.typography;
+    final colors = context.colors;
+    final dead = row.eliminatedLabel != null;
+    final radius = BorderRadius.circular(ResultTokens.seatRadius);
+    Widget face() => ClipRRect(
+      borderRadius: radius,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          dead
+              ? Opacity(
+                  opacity: ResultTokens.deadFade,
+                  child: ColorFiltered(
+                    colorFilter: const ColorFilter.matrix(<double>[
+                      0.2126, 0.7152, 0.0722, 0, 0, //
+                      0.2126, 0.7152, 0.0722, 0, 0,
+                      0.2126, 0.7152, 0.0722, 0, 0,
+                      0, 0, 0, 1, 0,
+                    ]),
+                    child: _art(RoleGalleryPortrait.art(row.role)),
+                  ),
+                )
+              : _art(RoleGalleryPortrait.art(row.role)),
+          if (dead)
+            PositionedDirectional(
+              top: spacing.xs / 2,
+              start: spacing.xs,
+              child: const Icon(
+                Icons.close_rounded,
+                size: ResultTokens.crossSize,
+                color: CaseFileTokens.stamp,
+              ),
+            ),
+        ],
+      ),
+    );
+    final back = ClipRRect(
+      borderRadius: radius,
+      child: _art(AppImages.cardBack),
+    );
+    final card = AnimatedBuilder(
+      animation: flip,
+      builder: (context, _) {
+        final angle = flip.value * math.pi;
+        final showFace = angle > math.pi / 2;
+        return Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, ResultTokens.flipDepth)
+            ..rotateY(angle),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              border: Border.all(
+                color: DeckTokens.silverLight,
+                width: ResultTokens.seatBorder,
+              ),
+            ),
+            child: showFace
+                ? Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.rotationY(math.pi),
+                    child: face(),
+                  )
+                : back,
+          ),
+        );
+      },
+    );
+    return Column(
+      children: [
+        AspectRatio(
+          aspectRatio: 1 / ResultTokens.seatAspect,
+          child: RepaintBoundary(
+            child: me
+                ? DecoratedBox(
+                    position: DecorationPosition.foreground,
+                    decoration: BoxDecoration(
+                      borderRadius: radius,
+                      border: Border.all(
+                        color: DeckTokens.bone,
+                        width: ResultTokens.meRing,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(ResultTokens.meRingGap),
+                      child: card,
+                    ),
+                  )
+                : card,
+          ),
+        ),
+        SizedBox(height: spacing.xs),
+        CosmeticNameplate(
+          name: row.name,
+          plate: HostIdentityScope.plateFor(context, row.name),
+          style: type.caption.emphasised.copyWith(color: colors.textPrimary),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          _roleLabel(context, row.role),
+          style: type.caption.copyWith(color: _roleColor(context, row.role)),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+        ),
+        if (row.eliminatedLabel != null)
+          Text(
+            row.eliminatedLabel!,
+            style: type.caption.copyWith(color: colors.textMuted),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
+      ],
+    );
+  }
+
+  Widget _art(String asset) => Image.asset(
+    asset,
+    fit: BoxFit.cover,
+    gaplessPlayback: true,
+    cacheHeight: ResultTokens.seatDecode,
+    excludeFromSemantics: true,
+  );
+}
+
+/// The casebook's progress for today, from what the casebook already holds.
+/// Draws nothing when it is off, empty or not loaded: the app invents none.
+class _CasebookLine extends StatelessWidget {
+  const _CasebookLine({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    ProviderContainer container;
+    try {
+      container = ProviderScope.containerOf(context, listen: false);
+    } catch (_) {
+      return const SizedBox.shrink();
+    }
+    if (!container.exists(casebookProvider)) return const SizedBox.shrink();
+    return Consumer(
+      builder: (context, ref, _) {
+        final book = ref.watch(casebookProvider).valueOrNull;
+        if (book == null || !book.enabled) return const SizedBox.shrink();
+        final open = book.daily.missions.where((m) => !m.claimed).toList()
+          ..sort((a, b) => b.fraction.compareTo(a.fraction));
+        final mission = open.firstOrNull ?? book.daily.missions.firstOrNull;
+        if (mission == null) return const SizedBox.shrink();
+        final l = context.l10n;
+        final spacing = context.spacing;
+        final type = context.typography;
+        final colors = context.colors;
+        return CaseFilePaper(
+          padding: EdgeInsets.symmetric(
+            horizontal: spacing.md,
+            vertical: spacing.sm,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.resultCasebook(
+                        caseLine(l, mission.metric, mission.target),
+                      ),
+                      style: type.bodySmall.copyWith(color: CaseFileTokens.ink),
+                    ),
+                    SizedBox(height: spacing.xs),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(spacing.xs),
+                      child: LinearProgressIndicator(
+                        value: mission.fraction,
+                        minHeight: spacing.xs,
+                        color: DeckTokens.silverLight,
+                        backgroundColor: CaseFileTokens.tabLine,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: spacing.md),
+              Text(
+                l.casebookProgress(
+                  mission.progress < mission.target
+                      ? mission.progress
+                      : mission.target,
+                  mission.target,
+                ),
+                style: type.caption.copyWith(color: colors.textMuted),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -624,8 +1469,7 @@ class _BondResultMoment extends ConsumerWidget {
       engine.Role.silencer => context.l10n.bondMomentMafia,
       engine.Role.doctor => context.l10n.bondMomentDoctor,
       engine.Role.detective => context.l10n.bondMomentDetective,
-      engine.Role.elder || engine.Role.sniper =>
-        context.l10n.bondMomentCitizen,
+      engine.Role.elder || engine.Role.sniper => context.l10n.bondMomentCitizen,
       engine.Role.citizen => context.l10n.bondMomentCitizen,
     };
     return Text(
@@ -668,43 +1512,6 @@ class RoleGalleryPortrait extends StatelessWidget {
   /// The full-colour painting for [role]. The map itself stays in
   /// [_GalleryThumb], the one place that owns it.
   static String art(engine.Role role) => _GalleryThumb(role: role)._art;
-}
-
-/// F19 — "the character behind you": each role figure rises and settles,
-/// one row after another. The same motion for every role, so the movement
-/// says nothing the text beside it does not. Reduced motion: opacity only.
-class _RisingFigure extends StatelessWidget {
-  final int index;
-  final Widget child;
-  const _RisingFigure({required this.index, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    final reduced = MediaQuery.disableAnimationsOf(context);
-    final duration = reduced
-        ? MafiaTiming.reducedMotionFade
-        : MafiaTiming.figureRise + MafiaTiming.figureRiseStagger * index;
-    // The stagger is the dead time at the start of each row's curve.
-    final start = reduced
-        ? 0.0
-        : (MafiaTiming.figureRiseStagger * index).inMilliseconds /
-              duration.inMilliseconds;
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: duration,
-      curve: Interval(start, 1, curve: Curves.easeOutCubic),
-      builder: (context, t, child) => Opacity(
-        opacity: t,
-        child: reduced
-            ? child
-            : FractionalTranslation(
-                translation: Offset(0, (1 - t) * MafiaTiming.figureRiseLift),
-                child: child,
-              ),
-      ),
-      child: child,
-    );
-  }
 }
 
 class _GalleryThumb extends StatelessWidget {

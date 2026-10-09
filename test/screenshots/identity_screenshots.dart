@@ -50,7 +50,14 @@ import 'package:mafia_master/ui/fun/characters_screen.dart';
 import 'package:mafia_master/ui/screens/setup/how_to_play_screen.dart';
 import 'package:mafia_master/ui/screens/setup/profile_screen.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
+import 'package:mafia_master/engine/models/enums.dart' as engine;
+import 'package:mafia_master/ui/economy/wallet.dart';
+import 'package:mafia_master/ui/fun/match_awards.dart';
+import 'package:mafia_master/ui/missions/casebook_data.dart';
+import 'package:mafia_master/ui/missions/casebook_sheet.dart';
+import 'package:mafia_master/ui/screens/postgame/match_file.dart';
 import '../support/artwork.dart';
+import '../support/casebook_fixture.dart';
 import '../support/localized.dart';
 import '../support/reveal_flow.dart';
 
@@ -409,4 +416,164 @@ void main() {
     await tester.pumpAndSettle();
     await capture(tester, '07_bots_result_play_again');
   });
+
+  // P10/P11: the dark case file at both phone sizes (end state, reduced motion).
+  for (final size in const [Size(360, 640), Size(430, 932)]) {
+    final tag = '${size.width.toInt()}x${size.height.toInt()}';
+
+    Widget stills(Widget child) => Builder(
+      builder: (context) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(disableAnimations: true),
+        child: child,
+      ),
+    );
+
+    Future<void> shootAt(WidgetTester tester, String name, Widget child) async {
+      await prepare(tester);
+      tester.view.physicalSize = size * 2;
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: const ValueKey('shot'),
+          child: ProviderScope(
+            overrides: [
+              casebookProvider.overrideWith(FakeCasebookController.new),
+              walletProvider.overrideWith(_ShotWallet.new),
+            ],
+            child: localizedApp(stills(child)),
+          ),
+        ),
+      );
+      await capture(tester, '${name}_$tag');
+    }
+
+    const rows = [
+      ResultRow(seat: 0, name: 'انت', role: engine.Role.detective),
+      ResultRow(seat: 1, name: 'منة', role: engine.Role.doctor),
+      ResultRow(
+        seat: 2,
+        name: 'كريم',
+        role: engine.Role.mafia,
+        eliminatedLabel: 'اليوم 2',
+      ),
+      ResultRow(
+        seat: 3,
+        name: 'سلمى',
+        role: engine.Role.citizen,
+        eliminatedLabel: 'الليلة 1',
+      ),
+      ResultRow(
+        seat: 4,
+        name: 'يوسف',
+        role: engine.Role.silencer,
+        eliminatedLabel: 'اليوم 3',
+      ),
+      ResultRow(seat: 5, name: 'نور', role: engine.Role.elder),
+      ResultRow(
+        seat: 6,
+        name: 'عمر',
+        role: engine.Role.sniper,
+        eliminatedLabel: 'اليوم 1',
+      ),
+      ResultRow(seat: 7, name: 'هنا', role: engine.Role.citizen),
+    ];
+    const file = MatchFile(
+      days: 3,
+      nights: [
+        MatchFileNight(
+          day: false,
+          number: 1,
+          lines: [MatchFileLine(MatchFileKind.killed, seats: [3])],
+        ),
+        MatchFileNight(
+          day: true,
+          number: 1,
+          lines: [MatchFileLine(MatchFileKind.expelled, seats: [6], votes: 5)],
+        ),
+        MatchFileNight(
+          day: false,
+          number: 2,
+          lines: [MatchFileLine(MatchFileKind.saved, seats: [1])],
+        ),
+      ],
+    );
+
+    testWidgets('18_result_town $tag', (tester) async {
+      await shootAt(
+        tester,
+        '18_result_town',
+        ResultScreen(
+          winner: engine.Alignment.town,
+          rows: rows,
+          viewerSeat: 0,
+          coinRows: const [
+            ResultCoinRow(label: 'فزت على الكمبيوتر', coins: 25),
+          ],
+          matchFile: file,
+          onHome: () {},
+        ),
+      );
+    });
+
+    testWidgets('18_result_mafia $tag', (tester) async {
+      await shootAt(
+        tester,
+        '18_result_mafia',
+        ResultScreen(
+          winner: engine.Alignment.mafia,
+          rows: rows,
+          viewerSeat: 0,
+          matchFile: file,
+          onPlayAgain: () {},
+          onHome: () {},
+        ),
+      );
+    });
+
+    testWidgets('18_match_file $tag', (tester) async {
+      await shootAt(
+        tester,
+        '18_match_file',
+        Builder(
+          builder: (context) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!context.mounted) return;
+              showMatchFile(
+                context,
+                file: file,
+                rows: rows,
+                awards: const [
+                  MatchAward(kind: AwardKind.mvp, seats: [1], names: ['منة']),
+                ],
+                onShare: () {},
+              );
+            });
+            return const SizedBox.expand();
+          },
+        ),
+      );
+    });
+
+    testWidgets('19_profile_file $tag', (tester) async {
+      await shootAt(tester, '19_profile_file', ProfileScreen(onBack: () {}));
+    });
+
+    testWidgets('19_casebook_board $tag', (tester) async {
+      await shootAt(
+        tester,
+        '19_casebook_board',
+        const Scaffold(body: CasebookSheet()),
+      );
+    });
+  }
+}
+
+class _ShotWallet extends WalletController {
+  @override
+  Future<WalletState?> build() async => const WalletState(
+    balance: 340,
+    catalog: [],
+    owned: {},
+    equipped: {},
+    history: [],
+  );
 }

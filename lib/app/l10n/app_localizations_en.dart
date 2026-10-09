@@ -6323,4 +6323,133 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storeListen => 'Listen';
+
+  @override
+  String get resultStampTown => 'Case closed';
+
+  @override
+  String get resultStampMafia => 'Nobody stopped them';
+
+  @override
+  String resultWasRole(String role) {
+    return 'You were the $role';
+  }
+
+  @override
+  String get resultYouWon => 'You won';
+
+  @override
+  String get resultYouLost => 'You lost';
+
+  @override
+  String get resultSurvived => 'You made it to the end';
+
+  @override
+  String get resultTable => 'The table\'s cards';
+
+  @override
+  String get resultDeadLegend => 'Killed or voted out';
+
+  @override
+  String get resultCoins => 'Coins';
+
+  @override
+  String get resultCoinBotWin => 'You beat the computer';
+
+  @override
+  String resultCasebook(String title) {
+    return 'Casebook: “$title”';
+  }
+
+  @override
+  String get resultLineMafiaWin =>
+      'The Mafia smiles in the dark. Tonight was theirs.';
+
+  @override
+  String get resultLineMafiaLose =>
+      'The Mafia goes quiet. Next time the plan changes.';
+
+  @override
+  String get resultLineDoctorWin =>
+      'The doctor closes the bag. The town still stands.';
+
+  @override
+  String get resultLineDoctorLose =>
+      'The doctor remembers everyone he could not reach.';
+
+  @override
+  String get resultLineDetectiveWin =>
+      'The detective writes the last fact in the margin.';
+
+  @override
+  String get resultLineDetectiveLose =>
+      'The detective keeps the file. Next time.';
+
+  @override
+  String get resultLineCitizenWin =>
+      'The citizen turns off the light and goes home. The town is calm.';
+
+  @override
+  String get resultLineCitizenLose =>
+      'The citizen looks out the window. The town has changed.';
+
+  @override
+  String get matchFileTitle => 'Match file';
+
+  @override
+  String get matchFileShare => 'Share the file';
+
+  @override
+  String matchFileMvp(String name) {
+    return 'Best player: $name';
+  }
+
+  @override
+  String get matchFileNights => 'Night by night';
+
+  @override
+  String matchFileKilled(String name) {
+    return 'The Mafia killed $name';
+  }
+
+  @override
+  String matchFileSaved(String name) {
+    return 'The Mafia tried to kill $name, who was saved';
+  }
+
+  @override
+  String get matchFileQuiet => 'The night passed with no victim';
+
+  @override
+  String matchFileExpelled(String name, int votes) {
+    return 'The table voted out $name with $votes votes';
+  }
+
+  @override
+  String fileNumber(String n) {
+    return 'File no. $n';
+  }
+
+  @override
+  String get fileTabCharacters => 'My characters';
+
+  @override
+  String get fileTabTitles => 'My titles';
+
+  @override
+  String get fileTabHistory => 'History';
+
+  @override
+  String get fileStampSuspect => 'Suspect';
+
+  @override
+  String get fileClosed => 'Closed';
+
+  @override
+  String get fileTapToClose => 'Tap to stamp and collect';
+
+  @override
+  String fileMostPlayed(String role) {
+    return 'Most played: $role';
+  }
 }

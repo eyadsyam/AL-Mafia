@@ -3832,5 +3832,99 @@
   "storeToolHint": "Use it inside an online match from your tools.",
   "storeRoleHint": "Switch it on from the extra roles when you set up a match.",
   "storeNoMatches": "Nothing by that name.",
-  "storeListen": "Listen"
+  "storeListen": "Listen",
+  "resultStampTown": "Case closed",
+  "resultStampMafia": "Nobody stopped them",
+  "resultWasRole": "You were the {role}",
+  "@resultWasRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "resultYouWon": "You won",
+  "resultYouLost": "You lost",
+  "resultSurvived": "You made it to the end",
+  "resultTable": "The table's cards",
+  "resultDeadLegend": "Killed or voted out",
+  "resultCoins": "Coins",
+  "resultCoinBotWin": "You beat the computer",
+  "resultCasebook": "Casebook: “{title}”",
+  "@resultCasebook": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "resultLineMafiaWin": "The Mafia smiles in the dark. Tonight was theirs.",
+  "resultLineMafiaLose": "The Mafia goes quiet. Next time the plan changes.",
+  "resultLineDoctorWin": "The doctor closes the bag. The town still stands.",
+  "resultLineDoctorLose": "The doctor remembers everyone he could not reach.",
+  "resultLineDetectiveWin": "The detective writes the last fact in the margin.",
+  "resultLineDetectiveLose": "The detective keeps the file. Next time.",
+  "resultLineCitizenWin": "The citizen turns off the light and goes home. The town is calm.",
+  "resultLineCitizenLose": "The citizen looks out the window. The town has changed.",
+  "matchFileTitle": "Match file",
+  "matchFileShare": "Share the file",
+  "matchFileMvp": "Best player: {name}",
+  "@matchFileMvp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "matchFileNights": "Night by night",
+  "matchFileKilled": "The Mafia killed {name}",
+  "@matchFileKilled": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "matchFileSaved": "The Mafia tried to kill {name}, who was saved",
+  "@matchFileSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "matchFileQuiet": "The night passed with no victim",
+  "matchFileExpelled": "The table voted out {name} with {votes} votes",
+  "@matchFileExpelled": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "votes": {
+        "type": "int"
+      }
+    }
+  },
+  "fileNumber": "File no. {n}",
+  "@fileNumber": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fileTabCharacters": "My characters",
+  "fileTabTitles": "My titles",
+  "fileTabHistory": "History",
+  "fileStampSuspect": "Suspect",
+  "fileClosed": "Closed",
+  "fileTapToClose": "Tap to stamp and collect",
+  "fileMostPlayed": "Most played: {role}",
+  "@fileMostPlayed": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -41,6 +41,7 @@ import 'online/online_table_flow.dart';
 import 'online/table/table_scene.dart' show tableIsAvailableFor;
 import 'night/morning_screen.dart';
 import 'night/night_action_screen.dart';
+import 'postgame/match_file.dart';
 import 'postgame/result_screen.dart';
 import '../../transport/local_transport.dart' show LocalTransport;
 import '../fun/match_awards.dart' show localMatchAwards;
@@ -957,6 +958,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
   }
 
   bool _botRewardAsked = false;
+  int _botCoins = 0;
 
   Widget _result(MatchUiState state) {
     final outcome = state.public.outcome;
@@ -966,11 +968,8 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       final container = ProviderScope.containerOf(context);
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final granted = await claimBotWin(container);
-        if (granted > 0 && mounted) {
-          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-            SnackBar(content: Text(context.l10n.botWinReward(granted))),
-          );
-        }
+        // The result screen lists it as a coin row and flies it to the pill.
+        if (granted > 0 && mounted) setState(() => _botCoins = granted);
       });
     }
     if (!_webResultQueued) {
@@ -989,6 +988,24 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       child: ResultScreen(
         tabletop: _controller.settings.tabletopPresentation,
         winner: outcome.winner,
+        // The human at a bot table is seat 0; online it is this device's seat.
+        // A shared phone has no "you".
+        viewerSeat: switch (_controller.transport) {
+          LocalTransport() => _controller.playingWithBots ? 0 : null,
+          _ => snapshot.viewerSeat,
+        },
+        coinRows: [
+          if (_botCoins > 0)
+            ResultCoinRow(
+              label: context.l10n.resultCoinBotWin,
+              coins: _botCoins,
+            ),
+        ],
+        matchFile: switch (_controller.transport) {
+          final LocalTransport local when local.engine.hasMatch =>
+            matchFileOf(local.engine.match),
+          _ => null,
+        },
         // Doc 13 §4.4. Built from the finished match rather than from the
         // snapshot, because the notes are about roles and suspicions and the
         // snapshot has neither — which is exactly the property that keeps them
@@ -1081,6 +1098,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       _morningAcknowledgedFor = null;
       _revoteNext = false;
       _botRewardAsked = false;
+      _botCoins = 0;
       _hintUsed = false;
     });
   }

@@ -28,6 +28,9 @@ class ProfileIdentityFields extends StatelessWidget {
   final double avatarDiameter;
   final bool autofocusName;
 
+  /// False where the screen draws the avatar itself (the profile's file photo).
+  final bool showAvatar;
+
   /// Store truth: the frame and nameplate this player equipped, drawn on the
   /// avatar and on the name exactly as the table draws them. Null for none.
   final String? frame;
@@ -41,6 +44,7 @@ class ProfileIdentityFields extends StatelessWidget {
     required this.onGender,
     required this.avatarDiameter,
     this.autofocusName = false,
+    this.showAvatar = true,
     this.onNameChanged,
     this.onSubmitted,
     this.frame,
@@ -72,18 +76,20 @@ class ProfileIdentityFields extends StatelessWidget {
           decoration: InputDecoration(labelText: l.onlineYourName),
         ),
         SizedBox(height: s.sm),
-        Center(
-          child: CosmeticFrameRing(
-            frame: frame,
-            diameter: avatarDiameter,
-            child: PlayerAvatar(
-              name: name.text,
-              gender: gender,
+        if (showAvatar) ...[
+          Center(
+            child: CosmeticFrameRing(
+              frame: frame,
               diameter: avatarDiameter,
+              child: PlayerAvatar(
+                name: name.text,
+                gender: gender,
+                diameter: avatarDiameter,
+              ),
             ),
           ),
-        ),
-        SizedBox(height: s.md),
+          SizedBox(height: s.md),
+        ],
         if (plate != null && name.text.trim().isNotEmpty)
           Padding(
             key: platePreviewKey,
