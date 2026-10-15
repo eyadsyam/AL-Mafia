@@ -164,7 +164,7 @@ Removed: the discussion timer, round prompts, private clue passes, secret ballot
 - **The narrator only tells the story** (owner, 2026-10-15): the opening on S2 and «اسمع البداية تاني» on S9, in all modes. No reveal narration, no how-to narration.
 - Fake controller for widget tests; an adapter contract test (seek, complete, stop).
 - Web: the first play needs a tap (browser rule), so S2 shows the play button instead of autoplaying.
-- Voice: the owner liked زياد (`5REPlS2Ja1VZ7zNA0ykn`); two sample takes of the café opening are in `build/voice-samples/` (calm, tense) for him to pick. Openings are re-recorded in the chosen voice, with D16 sentences trimmed, pilot first.
+- Voice: **زياد** (`5REPlS2Ja1VZ7zNA0ykn`, eleven_v4), chosen by the owner after two sample takes of the café opening (`build/voice-samples/`, calm and tense). Openings are re-recorded in his voice, pilot first; an opening stays word for word when every version of its story agrees with it.
 
 ## 6. Identity isolation
 
@@ -240,7 +240,7 @@ P7 doesn't depend on the pilot and can start after the mockups are approved.
 | Q1 | Seats | **Answered:** 2–4 nobody knows; 5–10 one in-story detective; everyone is a character |
 | Q2 | Smallest detective table | **Answered:** 5 |
 | Q3 | Who may lie | **Answered by design:** cards never lie; in 5–10 the killer may lie out loud |
-| Q4 | Audio | **Answered:** the narrator tells the story only; try زياد (samples sent, owner picks a take) |
+| Q4 | Audio | **Answered:** the narrator tells the story only, in زياد's voice (owner, 2026-10-15) |
 | Q5 | Owner account email and ads | **Answered:** the Google account eyadsyam124@gmail.com; ads stay on |
 | Q6 | Stories look for the mockups | open; the owner wants «صورة اللعبة تتغير»; two or three directions in the mockups |
 | Q7 | Skills | **Answered:** downloaded and installed |
