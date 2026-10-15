@@ -63,10 +63,10 @@ and the draft identity in `../mafia-game-design-system-fca2a6/design-system/stor
 | Players | Mode | Who is who | Who decides |
 |---|---|---|---|
 | 1 | «لوحدك» | You play the story's **detective character**. 4 suspects on the table. | you |
-| 2–4 | «كلنا مشتبه فيهم» | Every player is a suspect character. One of the **played** characters is the culprit; **nobody knows, not even him**. At 2 players one extra suspect is read from the phone; he is never the culprit. | the table agrees on one accusation |
-| 5–10 | «المحقق بينا» | One player is the story's detective (public, known innocent). The rest are suspects; one is the **killer and knows it**; in accomplice stories at 7+ one more is the **partner** and both know each other. | the detective, alone. No vote |
+| 2–4 | «كلنا مشتبه فيهم» | Every player is a suspect character, and only they are suspects (owner: no extra suspect at 2). One of them is the culprit; **nobody knows, not even him**. | the table agrees on one accusation |
+| 5–10 | «المحقق بينا» | One player is the story's detective (public, known innocent). The rest are suspects; one is the **killer and knows it**; in accomplice stories one more is the **partner** at any size from 5 (owner: no 7-player floor) and both know each other. | the detective, alone. No vote |
 
-All three use the same loop: **case facts → the suspects' cards read aloud → 3 searches → accusation (who + why + how) → narrated reveal → result.** What differs is who reads, what is private, and who decides.
+All three use the same loop: **case facts → the suspects' cards read aloud → 3 searches → accusation (who + why + how) → the reveal on screen → result.** What differs is who reads, what is private, and who decides.
 
 ### 2.2 Cards are never lies (Codex R2-A)
 
@@ -81,7 +81,7 @@ Every public card is **true but incomplete**. The culprit's card leaves out what
 - A play = (story, player count, seed, this phone's history). The engine draws the seated suspects for the count, then the culprit **from the played characters only**, preferring one this phone has not seen as culprit in this story (falls back when the pool is exhausted, Codex R2-Q2).
 - Three today and four tomorrow: different seated cast, different culprit, different traces in the places, a different reveal.
 - The app writes nothing. It selects and assembles hand-written modules (non-negotiable 4).
-- Accomplice versions exist only where authored and only when seated suspects ≥ 6; versions with and without a played partner are both authored and checked (Codex R2-Q7).
+- Accomplice versions exist only where authored, in the 5–10 mode at any size; versions with and without a played partner are both authored and checked (Codex R2-Q7).
 
 ### 2.4 Time language (owner g)
 
@@ -104,11 +104,11 @@ No clock times, minutes or seconds anywhere. Periods only: «من فترة» · 
 3. **One pass.** Hand-off by name → the player's card fills the screen; he reads it aloud → «دوس مطوّل وشوف سرّك» → one role line → hide → next. The detective's pass has the same shape («انت المحقق — مفيش سر»). Same layout, length band, taps and hold time for every role (Doc 05). Backgrounding covers the page and returns to that player's hand-off.
 4. The detective takes the phone: case facts (read aloud; they give every seated suspect a reason to be suspected), the suspects board (he can mark «مشكوك / مستبعد»), and 3 searches. No timer, no prompts.
 5. «قراري»: who, why, how.
-6. Reveal (narrated), then the result: every player's name, character and role; detective right → detective and innocents win; wrong → killer (and partner) win; points for who/why/how.
+6. Reveal (read on screen), then the result: every player's name, character and role; detective right → detective and innocents win; wrong → killer (and partner) win; points for who/why/how.
 
 ### 2.7 The 2–4 table
 
-Story file → names → public deal → each player reads his card aloud from a public «اتعرّفوا» screen (no pass at all) → the phone sits in the middle: case facts, 3 searches the table chooses together, free talk → «اتفقنا»: one shared accusation → reveal («الجاني طلع: كريم، اللي كان بيلعب سامح») → result.
+Story file → names → public deal → each player reads his card aloud from a public «اتعرّفوا» screen (no pass at all) → the phone sits in the middle: case facts, 3 searches the table chooses together, free talk → «اتفقنا»: one shared accusation → reveal («الجاني طلع: كريم، اللي كان بيلعب سامح») → result. At two players the culprit is one of the two; the traces carry the game.
 
 ### 2.8 Solo
 
@@ -125,7 +125,7 @@ A hidden "killer wipes a trace" move: killed for V1 (a suggestion count would ex
 ## 3. Content V3 (all 24 stories)
 
 - Written with `.claude/skills/stories-case-writing` plus `humanizer`, `sepia`, `genre-craft` (fair play), `writing-principles`, `character-management`, `voice-style`, `line-editing`, `reader-sim`, `arabic-natural-writing`.
-- Per story: victim, places, a new in-story detective, 10 suspects × (card + innocent module + guilty module), base facts, the opening (kept where it gives nothing away; D16 sentences trimmed and re-recorded in the same voice).
+- Per story: victim, places, a new in-story detective, 10 suspects × (card + innocent module + guilty module), base facts, the opening (kept where it gives nothing away; D16 sentences trimmed and re-recorded in the chosen voice).
 - Structured facts beside the prose: `at(who, place, period)`, `has(who, item)`, `saw(a, b, place, period)`.
 - **Checker V3** enumerates every allowed (count, seated cast, culprit, partner) assembly and proves: consistency with base facts and between modules; the culprit's card omits something a trace exposes; every innocent has a suspicion hook and a clearing trace; the 3-search path report of §2.9. Human review reads complete assembled versions, because a linter can't tell whether «قبلها بشوية» has a clear referent (Codex R2-Q3).
 - **Linter:** unknown names, clock times, Latin letters, over-length cards (a card read aloud < 20 s), missing tags.
@@ -148,12 +148,12 @@ All in the Stories identity. «جديد» = new.
 | S8 | «اتعرّفوا» (1–4, جديد) | public | each card in turn, read aloud |
 | S9 | Detective desk / shared table (جديد) | public | case facts, board with marks, 3 searches, found traces, «اسمع البداية تاني» |
 | S10 | «قراري» / «اتفقنا» (جديد) | public | who, why, how from short lists |
-| S11 | Reveal | public | the version's reveal narration and scene |
+| S11 | Reveal | public | the version's reveal scene, read on screen (no narration: owner) |
 | S12 | Result (جديد) | public | names, characters, roles, outcome, points, what the unsearched places held |
 
 Removed: the discussion timer, round prompts, private clue passes, secret ballots (`story_flow_screen.dart:805–831, 942–949`).
 «الشخصيات» sheet on every public screen, never on S7's private half.
-**Feature parity rule:** narrator, cards sheet, how-to, reveal narration and rewards exist in all three modes.
+**Feature parity rule:** narrator, cards sheet, how-to, reveal scene and rewards exist in all three modes.
 
 ## 5. Narrator player (every mode)
 
@@ -161,10 +161,10 @@ Removed: the discussion timer, round prompts, private clue passes, secret ballot
 - One `StoryNarratorPlayer` widget: play/pause, a bar you can **tap or drag anywhere** to seek, elapsed/total, ±5 s, restart. State comes from the controller, never a local flag.
 - The end sets `ended`: the bar shows «اسمعها تاني»; never loops, never restarts by itself.
 - Stops on any private page, leaving the story, backgrounding, and starting another track.
-- Used on S2, S9 («اسمع البداية تاني») and S11, in all modes.
+- **The narrator only tells the story** (owner, 2026-10-15): the opening on S2 and «اسمع البداية تاني» on S9, in all modes. No reveal narration, no how-to narration.
 - Fake controller for widget tests; an adapter contract test (seek, complete, stop).
 - Web: the first play needs a tap (browser rule), so S2 shows the play button instead of autoplaying.
-- Audio: the openings stay (D16 lines re-recorded); reveal narration is recorded for the **actual reveal versions** after their scripts pass review, same voice (آدم), pilot first.
+- Voice: the owner liked زياد (`5REPlS2Ja1VZ7zNA0ykn`); two sample takes of the café opening are in `build/voice-samples/` (calm, tense) for him to pick. Openings are re-recorded in the chosen voice, with D16 sentences trimmed, pilot first.
 
 ## 6. Identity isolation
 
@@ -226,7 +226,7 @@ Each phase ends with the CLAUDE.md report block and a stop. Builds and deploys o
 | P3 | HTML mockups S0–S12 and the Mafia screens losing brown; polish | Claude (`impeccable`, `ui-ux-pro-max`, `design-taste-frontend`) | the owner approves every screen |
 | P4 | Engine V3, narrator, screens, story sessions — pilot story only | Sonnet medium; Opus reviews the private pass | tests; emulator; **pilot tables** |
 | P5 | The other 23 worlds, four at a time | Codex writes; checker; Claude reads | all green; the owner spot-reads two |
-| P6 | Narration audio for reveal versions and trimmed openings | Claude (ElevenLabs, after the owner's OK) | STT check |
+| P6 | Openings re-recorded in the chosen voice (زياد if approved) | Claude (ElevenLabs) | STT check |
 | P7 | Identity isolation (D13–D15) | Sonnet; Claude reviews against Home | guard test; before/after screenshots |
 | P8 | Full verification sweep (§9) | Claude + Codex | recorded in PROGRESS |
 | P9 | Build / release | only when the owner says | — |
@@ -240,13 +240,13 @@ P7 doesn't depend on the pilot and can start after the mockups are approved.
 | Q1 | Seats | **Answered:** 2–4 nobody knows; 5–10 one in-story detective; everyone is a character |
 | Q2 | Smallest detective table | **Answered:** 5 |
 | Q3 | Who may lie | **Answered by design:** cards never lie; in 5–10 the killer may lie out loud |
-| Q4 | Audio credits for reveal versions and trimmed openings | open; recommendation: yes, pilot story first |
-| Q5 | Owner account email and ads | open; recommendation: the Google account in use (eyadsyam124@gmail.com), ads stay on |
-| Q6 | Stories look for the mockups | open; the owner wants «صورة اللعبة تتغير»; recommendation: two or three directions in the mockups |
+| Q4 | Audio | **Answered:** the narrator tells the story only; try زياد (samples sent, owner picks a take) |
+| Q5 | Owner account email and ads | **Answered:** the Google account eyadsyam124@gmail.com; ads stay on |
+| Q6 | Stories look for the mockups | open; the owner wants «صورة اللعبة تتغير»; two or three directions in the mockups |
 | Q7 | Skills | **Answered:** downloaded and installed |
-| Q8 | Pilot | recommendation: «قهوة المعلم» at 1, 2, 3, 5, 7 and 10 |
-| Q9 | One extra suspect read from the phone at 2 players | open; recommendation: yes |
-| Q10 | Partner only from 7 players | open; recommendation: yes |
+| Q8 | Pilot | **Answered:** «قهوة المعلم» at 1, 2, 3, 5, 7 and 10 |
+| Q9 | Extra suspect at 2 players | **Answered:** no |
+| Q10 | Partner floor | **Answered:** no 7-player floor; any size from 5 where the story has a partner |
 
 ## 13. Debate log
 
