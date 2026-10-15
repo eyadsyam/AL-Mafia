@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:video_player/video_player.dart';
 import 'package:mafia_master/ui/screens/onboarding/onboarding_video_screen.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
 
@@ -19,8 +20,8 @@ import '../support/localized.dart';
 void main() {
   const defaultSurface = Size(390, 844);
 
-  /// The panel around the film breathes, so this screen never settles. Fixed
-  /// pumps rather than [WidgetTester.pumpAndSettle].
+  /// The waiting backdrop breathes, so this screen never settles. Fixed pumps
+  /// rather than [WidgetTester.pumpAndSettle].
   Future<void> settle(WidgetTester tester) async {
     for (var frame = 0; frame < 6; frame++) {
       await tester.pump(const Duration(milliseconds: 32));
@@ -110,7 +111,7 @@ void main() {
     expect(find.byKey(OnboardingVideoScreen.continueButton), findsOneWidget);
   });
 
-  group('the film stays inside its frame', () {
+  group('the film fills the screen', () {
     // Phone portrait, tall phone, the same phone turned over, and a laptop.
     const sizes = [
       Size(360, 640),
@@ -127,21 +128,41 @@ void main() {
         await pumpScreen(tester, surface: size);
 
         final player = tester.getRect(find.byKey(OnboardingVideoScreen.player));
-        expect(player.width, greaterThan(0));
-        expect(player.height, greaterThan(0));
+        expect(player.left, closeTo(0, 0.01));
+        expect(player.top, closeTo(0, 0.01));
+        expect(player.width, closeTo(size.width, 0.01));
+        expect(player.height, closeTo(size.height, 0.01));
+
+        // The fake film is 1280x720. Whatever the screen, the picture keeps
+        // that shape: a picture of another shape is a stretched film.
+        final picture = tester.getRect(find.byType(VideoPlayer));
+        expect(picture.width / picture.height, closeTo(1280 / 720, 0.01));
+        if (size.height >= size.width) {
+          expect(
+            picture.left <= 0.01 &&
+                picture.top <= 0.01 &&
+                picture.right >= size.width - 0.01 &&
+                picture.bottom >= size.height - 0.01,
+            isTrue,
+            reason: 'a portrait screen is covered edge to edge',
+          );
+        } else {
+          expect(
+            picture.left >= -0.01 &&
+                picture.top >= -0.01 &&
+                picture.right <= size.width + 0.01 &&
+                picture.bottom <= size.height + 0.01,
+            isTrue,
+            reason: 'a wide window shows the whole film, not a sliver of it',
+          );
+        }
+
+        final skip = find.byKey(OnboardingVideoScreen.skipButton);
+        expect(skip, findsOneWidget, reason: 'the way out is on every size');
         expect(
-          player.width / player.height,
-          closeTo(1280 / 720, 0.01),
-          reason: 'a frame of another shape is a stretched film',
-        );
-        expect(player.left, greaterThanOrEqualTo(-0.01));
-        expect(player.top, greaterThanOrEqualTo(-0.01));
-        expect(player.right, lessThanOrEqualTo(size.width + 0.01));
-        expect(player.bottom, lessThanOrEqualTo(size.height + 0.01));
-        expect(
-          find.byKey(OnboardingVideoScreen.skipButton),
-          findsOneWidget,
-          reason: 'the way out is on every size',
+          tester.getRect(skip).top,
+          lessThan(size.height * 0.2),
+          reason: 'the way out stays at the top, over the film',
         );
       });
     }
@@ -154,8 +175,8 @@ void main() {
       await settle(tester);
 
       final player = tester.getRect(find.byKey(OnboardingVideoScreen.player));
-      expect(player.right, lessThanOrEqualTo(844.01));
-      expect(player.bottom, lessThanOrEqualTo(390.01));
+      expect(player.width, closeTo(844, 0.01));
+      expect(player.height, closeTo(390, 0.01));
       expect(
         platform.playCalls,
         1,

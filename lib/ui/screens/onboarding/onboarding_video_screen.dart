@@ -202,67 +202,66 @@ class _OnboardingVideoScreenState extends ConsumerState<OnboardingVideoScreen> {
     super.dispose();
   }
 
-  /// The panel around the film.
+  /// The film, edge to edge, with nothing around it.
   ///
-  /// ## Why the web gets a different one
+  /// It used to sit in a panel in the middle of the screen. The film is drawn
+  /// for a full phone screen now (9:19.5, with everything that must be read
+  /// kept inside a safe area that survives the crop of a shorter 9:16 phone),
+  /// so the screen gives it all of the glass and only the skip control sits on
+  /// top.
+  ///
+  /// ## Cover on a phone, contain on anything wider
+  ///
+  /// A portrait screen is filled and the film's edges are cropped. A landscape
+  /// window — a laptop, a tablet turned over — cannot be filled by a portrait
+  /// film without cutting most of it away, so there the whole film is shown
+  /// with dark bars at the sides.
+  ///
+  /// ## Why the web takes no transform
   ///
   /// On the web `VideoPlayer` is a platform view — a real `<video>` element the
-  /// browser composites, not pixels Flutter painted. [PaperPanel] wraps its
-  /// child in a `ClipRRect` and stacks a texture behind it, and a platform view
-  /// under a rounded clip is the case Flutter's web compositor gets wrong: the
-  /// element ends up behind the canvas that clips it, so the sound plays and
-  /// the picture never appears.
-  ///
-  /// The `FittedBox` this replaced was the other half of it — a scale transform
-  /// on a platform view — which is why the frame changed *and* the sizing did.
-  /// `AspectRatio` asks for the same shape without transforming anything.
-  ///
-  /// So the web draws the same surface, the same border and the same radius,
-  /// and simply does not clip: the video is a rectangle inside a rectangle and
-  /// there is nothing at the corners to cut.
-  Widget _frame(Widget child) {
-    final colors = context.colors;
-    if (!kIsWeb) return PaperPanel(child: child);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.surfaceRaised,
-        borderRadius: BorderRadius.circular(context.radii.card),
-        border: Border.all(color: colors.borderSubtle),
-      ),
-      child: child,
-    );
-  }
-
-  /// The film at the largest size the window allows, and the frame around
-  /// exactly that.
-  ///
-  /// The frame used to be sized first — a panel as wide as a column of text,
-  /// with the video centred inside it — which on a desktop window drew a tall
-  /// empty box with a small portrait film floating in the middle of it and grey
-  /// margins either side. `AspectRatio` under a `Center` takes the whole of
-  /// whichever dimension runs out first and derives the other, so the border is
-  /// always on the picture's edge, at every window size, with no breakpoints.
+  /// browser composites, not pixels Flutter painted. A scale transform or a
+  /// clip on a platform view is the case Flutter's web compositor gets wrong:
+  /// the element ends up behind the canvas, so the sound plays and the picture
+  /// never appears. So on the web the element simply fills the window, and
+  /// `web/index.html` asks the browser for the same cover-in-portrait,
+  /// contain-in-landscape behaviour with `object-fit`.
   Widget _film(VideoPlayerController controller) {
-    return Center(
-      child: AspectRatio(
-        key: OnboardingVideoScreen.player,
-        aspectRatio: controller.value.aspectRatio,
-        child: _frame(
-          Stack(
-            fit: StackFit.expand,
-            children: [
-              Directionality(
-                textDirection: TextDirection.ltr,
-                child: VideoPlayer(controller),
+    final picture = Directionality(
+      textDirection: TextDirection.ltr,
+      child: VideoPlayer(controller),
+    );
+    final film = controller.value.size;
+    return Stack(
+      key: OnboardingVideoScreen.player,
+      fit: StackFit.expand,
+      children: [
+        if (kIsWeb || film.isEmpty)
+          picture
+        else
+          // The box the film actually gets, not the window: the two differ
+          // under a split screen, and the box is what has to be filled.
+          LayoutBuilder(
+            builder: (context, box) => ClipRect(
+              child: FittedBox(
+                fit: box.maxHeight >= box.maxWidth
+                    ? BoxFit.cover
+                    : BoxFit.contain,
+                child: SizedBox(
+                  width: film.width,
+                  height: film.height,
+                  child: picture,
+                ),
               ),
-              ValueListenableBuilder<VideoPlayerValue>(
-                valueListenable: controller,
-                builder: (context, value, _) => _overlay(value),
-              ),
-            ],
+            ),
+          ),
+        SafeArea(
+          child: ValueListenableBuilder<VideoPlayerValue>(
+            valueListenable: controller,
+            builder: (context, value, _) => _overlay(value),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -344,12 +343,7 @@ class _OnboardingVideoScreenState extends ConsumerState<OnboardingVideoScreen> {
         fit: StackFit.expand,
         children: [
           if (_ready && controller != null)
-            SafeArea(
-              child: Padding(
-                padding: EdgeInsets.all(spacing.screenMargin),
-                child: _film(controller),
-              ),
-            )
+            _film(controller)
           else
             AppBackdrop(child: Center(child: _waiting())),
           SafeArea(

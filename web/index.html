@@ -290,6 +290,15 @@
     flutter-view { direction: ltr; }
     flt-text-editing-host { direction: rtl; }
 
+    /* The intro film fills a portrait screen edge to edge. Flutter cannot
+     * scale or clip the <video> platform view on the web (see
+     * OnboardingVideoScreen._film), so the element fills the window and the
+     * browser crops the picture to it. In landscape the browser's default
+     * `contain` stays: a portrait film cannot cover a wide window without
+     * losing most of itself. The kill scare sizes its element to the film's
+     * own shape, so this changes nothing there. */
+    @media (orientation: portrait) { video { object-fit: cover; } }
+
     /* Crawlable text for the canvas-only app: visually hidden, still in the
      * DOM for search crawlers, the AdSense crawler and screen readers. */
     .seo-intro { position: absolute; width: 1px; height: 1px; margin: -1px;
