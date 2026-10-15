@@ -307,14 +307,33 @@ class LampFace extends StatelessWidget {
       color: StoriesLampTokens.raised,
     ),
     clipBehavior: Clip.antiAlias,
-    child: Image.asset(
-      image,
+    child: Image(
+      image: lampFaceImage(context, image),
       fit: BoxFit.cover,
       alignment: Alignment.topCenter,
       excludeFromSemantics: true,
       errorBuilder: (_, _, _) => const SizedBox.shrink(),
     ),
   );
+}
+
+/// A face as every page draws it: one decode per face at the largest size a
+/// page shows it, shared by every page (a browser decodes off the frame, so
+/// a face decoded per size came in blank for a moment on each new page).
+ImageProvider lampFaceImage(BuildContext context, String path) => ResizeImage(
+  AssetImage(path),
+  width:
+      (StoriesLampTokens.revealFaceWidth *
+              MediaQuery.devicePixelRatioOf(context))
+          .ceil(),
+);
+
+/// Decodes every face of [paths] ahead, so the cast, the cards and the
+/// decision open complete. Failures are quiet: a face just loads later.
+void precacheLampFaces(BuildContext context, Iterable<String> paths) {
+  for (final path in paths) {
+    precacheImage(lampFaceImage(context, path), context, onError: (_, _) {});
+  }
 }
 
 /// Press and hold to open a private line. The same pad, timing and light for

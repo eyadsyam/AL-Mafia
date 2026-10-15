@@ -12443,7 +12443,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Solo, or {n} to 10'**
-  String sv2HubPlayersFrom(int n);
+  String sv2HubPlayersFrom(String n);
 
   /// No description provided for @sv2LengthQ1.
   ///

@@ -4422,7 +4422,7 @@
   "@sv2HubPlayersFrom": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "String"
       }
     }
   },

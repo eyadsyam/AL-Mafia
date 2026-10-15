@@ -3141,9 +3141,10 @@ abstract final class StoriesLampTokens {
   static const double coverWidth = 64;
   static const double coverHeight = 86;
 
-  /// The hub's covers decode at three times their width, not full size.
-  static const int coverDecodeWidth = 192;
   static const double caseTitle = 22;
+
+  /// Hub covers decoded ahead of the hub: about one screenful.
+  static const int coversAhead = 6;
   static const double lockedCase = 0.6;
   static const double faceWidth = 44;
   static const double faceHeight = 54;

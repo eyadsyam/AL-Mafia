@@ -7103,7 +7103,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sv2HubPlayersAll => 'من ١ لـ١٠';
 
   @override
-  String sv2HubPlayersFrom(int n) {
+  String sv2HubPlayersFrom(String n) {
     return 'لوحدك، أو من $n لـ١٠';
   }
 

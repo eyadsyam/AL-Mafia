@@ -45,6 +45,7 @@ import '../ui/screens/setup/settings_screen.dart';
 import '../ui/screens/setup/settings_sheet.dart';
 import '../ui/screens/stories/stories_screen.dart';
 import '../ui/screens/stories/story_rewards.dart';
+import '../ui/screens/stories/v2/story_table_screen.dart' show StoryExitGuard;
 import '../ui/economy/bot_rewards.dart';
 import '../ui/screens/setup/setup_draft.dart';
 import '../ui/fun/characters_screen.dart';
@@ -212,6 +213,10 @@ void _previewAudio(WidgetRef ref, MatchSettings settings) {
     ..muted = settings.muteAllAudio
     ..syncScore();
 }
+
+/// The Stories route's question to an open table (one Stories screen at a
+/// time, so one guard).
+final _storiesExit = StoryExitGuard();
 
 GoRouter buildRouter(
   WidgetRef ref, {
@@ -470,8 +475,12 @@ GoRouter buildRouter(
       ),
       GoRoute(
         path: Routes.stories,
+        // The browser's back (and a phone browser's back gesture) asks an
+        // open Stories table first, as the app's own back does.
+        onExit: (context, state) => _storiesExit.mayLeave(),
         builder: (context, state) => SetupRequired(
           child: WarmPalette(child: StoriesScreen(
+            exitGuard: _storiesExit,
             onBack: () => context.go(Routes.mode),
             newSeed: newMatchSeed,
             claimReward: (completion) => claimStoryReward(

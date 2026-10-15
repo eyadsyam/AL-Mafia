@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../platform/links/leave_warning.dart';
 import '../../../../platform/narration_controller.dart';
 import '../../../../stories/v2/session.dart';
 import '../../../../stories/v2/table.dart';
@@ -9,6 +10,16 @@ import '../../../theme/design_tokens.dart';
 import '../../../theme/mafia_theme.dart';
 import 'lamp_kit.dart';
 import 'story_lobby_screen.dart' show StoryCastStrip;
+
+/// Lets the route ask an open table before the browser's back (or a phone
+/// browser's back gesture) leaves it. The app's own back goes through the
+/// table's PopScope instead and never reaches this.
+class StoryExitGuard {
+  Future<bool> Function()? _ask;
+
+  /// True when nothing is open or the table agreed to close.
+  Future<bool> mayLeave() async => await _ask?.call() ?? true;
+}
 
 /// One Stories V2 table from the deal to the result (plan §2.6–2.8, S5–S12).
 class StoryTableScreen extends StatefulWidget {
@@ -21,6 +32,7 @@ class StoryTableScreen extends StatefulWidget {
     required this.onPlayAgain,
     this.onFinished,
     this.watchAdForSearch,
+    this.exitGuard,
   });
 
   static const beginKey = ValueKey('sv2_begin');
@@ -52,6 +64,9 @@ class StoryTableScreen extends StatefulWidget {
   /// A rewarded ad for solo's one extra search; true when it was watched.
   final Future<bool> Function()? watchAdForSearch;
 
+  /// Asked by the route when the browser navigates away (web back).
+  final StoryExitGuard? exitGuard;
+
   @override
   State<StoryTableScreen> createState() => _StoryTableScreenState();
 }
@@ -71,12 +86,24 @@ class _StoryTableScreenState extends State<StoryTableScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    widget.exitGuard?._ask = _askToLeave;
+    setLeaveWarning(true);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    if (widget.exitGuard?._ask == _askToLeave) widget.exitGuard?._ask = null;
+    setLeaveWarning(false);
     super.dispose();
+  }
+
+  /// The browser's back: the same question as the app's own back.
+  Future<bool> _askToLeave() async {
+    if (!mounted || _session.stage == StoryStage.result) return true;
+    final leave = await _exitSheet();
+    if (leave) await widget.narration.stop();
+    return leave;
   }
 
   @override
@@ -91,10 +118,20 @@ class _StoryTableScreenState extends State<StoryTableScreen>
     final private = {StoryStage.handoff, StoryStage.card, StoryStage.secret};
     if (private.contains(next.stage)) widget.narration.stop();
     setState(() => _session = next);
-    if (next.stage == StoryStage.result) widget.onFinished?.call(next);
+    if (next.stage == StoryStage.result) {
+      setLeaveWarning(false);
+      widget.onFinished?.call(next);
+    }
   }
 
   Future<void> _confirmExit() async {
+    if (await _exitSheet()) {
+      await widget.narration.stop();
+      widget.onExit();
+    }
+  }
+
+  Future<bool> _exitSheet() async {
     final l = context.l10n;
     final leave = await showLampSheet<bool>(context, (context) {
       final s = context.spacing;
@@ -124,10 +161,7 @@ class _StoryTableScreenState extends State<StoryTableScreen>
         ),
       );
     });
-    if (leave == true) {
-      await widget.narration.stop();
-      widget.onExit();
-    }
+    return leave == true;
   }
 
   @override

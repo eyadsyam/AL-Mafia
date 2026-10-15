@@ -18,6 +18,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/story_v2_memory.dart';
 import 'package:mafia_master/platform/narration_controller.dart';
 import 'package:mafia_master/stories/story_model.dart';
+import 'package:mafia_master/stories/story_progress.dart';
+import 'package:mafia_master/ui/screens/stories/stories_screen.dart';
 import 'package:mafia_master/stories/v2/table.dart';
 import 'package:mafia_master/stories/v2/world.dart';
 import 'package:mafia_master/ui/screens/stories/v2/story_about_screen.dart';
@@ -145,6 +147,28 @@ void main() {
   testWidgets('about', (tester) async {
     await start(tester, StoryAboutScreen(onDone: () {}));
     await shot(tester, '00_about');
+  });
+
+  testWidgets('hub', (tester) async {
+    final stories = [
+      for (final f in (Directory('assets/stories').listSync()
+            ..sort((a, b) => a.path.compareTo(b.path))))
+        if (f.path.endsWith('.json'))
+          StoryDefinition.decode(File(f.path).readAsStringSync()),
+    ]..sort((a, b) => a.number.compareTo(b.number));
+    await start(
+      tester,
+      StoriesHub(
+        stories: stories,
+        progress: const StoryProgress(),
+        onBack: () {},
+        onStart: (_, _) {},
+        worldIds: {_world.id},
+        onOpenWorld: (_) {},
+        onHowTo: () {},
+      ),
+    );
+    await shot(tester, '00b_hub');
   });
 
   testWidgets('lobby', (tester) async {

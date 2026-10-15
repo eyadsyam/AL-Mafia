@@ -7224,7 +7224,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sv2HubPlayersAll => '1 to 10';
 
   @override
-  String sv2HubPlayersFrom(int n) {
+  String sv2HubPlayersFrom(String n) {
     return 'Solo, or $n to 10';
   }
 

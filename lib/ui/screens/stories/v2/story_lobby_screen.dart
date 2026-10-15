@@ -61,6 +61,15 @@ class _StoryLobbyScreenState extends State<StoryLobbyScreen> {
   @override
   void initState() {
     super.initState();
+    // While the file is read (and the opening plays), every face the table
+    // will show gets decoded.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      precacheLampFaces(context, [
+        widget.world.detective.image,
+        for (final s in widget.world.suspects) s.image,
+      ]);
+    });
     widget.memory.lastNames().then((names) {
       if (!mounted) return;
       for (final (i, name) in names.take(10).indexed) {
@@ -185,6 +194,10 @@ class _StoryLobbyScreenState extends State<StoryLobbyScreen> {
             child: Image.asset(
               widget.coverImage,
               height: StoriesLampTokens.heroHeight,
+              cacheWidth:
+                  (context.spacing.maxContentWidth *
+                          MediaQuery.devicePixelRatioOf(context))
+                      .ceil(),
               fit: BoxFit.cover,
               excludeFromSemantics: true,
               errorBuilder: (_, _, _) =>

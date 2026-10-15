@@ -1,6 +1,6 @@
 # Stories V2 — «قصص وتحقيقات» for a real table
 
-Status: **DESIGN V3, 2026-10-15.** Nothing is implemented except P1 (owner all-access), in progress locally. After the owner reads this version: HTML mockups (P3), then the pilot.
+Status: **DESIGN V3, 2026-10-15; pilot done locally.** P1 done locally (not live). P2 and P3 done (look 1 «الأباجورة» chosen). P4 done locally for «قهوة المعلم»: every mode, narrator, lamp screens and hub, story sessions (server SQL and edge action written and tested locally, not applied live), every table size played through the screens, and the web build played end to end in WebKit (iPhone), Chromium touch (Android) and desktop (`tool/web_stories_probe.mjs`). Not run on a device; nothing deployed.
 Branch: `claude/epic-roentgen-094f21`. Applies to **all 24 stories** (owner: «دا لكلوا حرفيا مش قصة وحده»).
 
 Read with: `CLAUDE.md` (non-negotiables), `docs/specs/05-zero-leakage-spec.md` (private pages),

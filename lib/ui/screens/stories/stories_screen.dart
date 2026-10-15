@@ -11,7 +11,7 @@ import '../../../data/story_catalog.dart';
 import '../../../data/story_progress_store.dart';
 import '../../../data/story_v2_memory.dart';
 import '../../../data/story_world_catalog.dart';
-import '../../../platform/audio_backend.dart' show PluginNarrationPlayer;
+import '../../../platform/narration_player.dart';
 import '../../../platform/narration_controller.dart';
 import '../../../stories/story_model.dart';
 import '../../../stories/story_progress.dart';
@@ -50,10 +50,14 @@ class StoriesScreen extends StatefulWidget {
     this.narrationFactory = _pluginNarration,
     this.startV2Session,
     this.claimV2Reward,
+    this.exitGuard,
   });
 
+  /// The route's question to an open V2 table before the browser leaves.
+  final StoryExitGuard? exitGuard;
+
   static NarrationController _pluginNarration() =>
-      NarrationController(PluginNarrationPlayer());
+      NarrationController(createNarrationPlayer());
 
   /// Stories V2: the rewritten cases, and what the phone remembers of them.
   final StoryWorldCatalog worldCatalog;
@@ -144,6 +148,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
         widget.v2Memory.aboutSeen(),
       ]);
       if (!mounted) return;
+      _precacheCovers(values[0] as List<StoryDefinition>);
       setState(() {
         _stories = values[0] as List<StoryDefinition>;
         _progress = values[1] as StoryProgress;
@@ -153,6 +158,18 @@ class _StoriesScreenState extends State<StoriesScreen> {
       });
     } on Object catch (error) {
       if (mounted) setState(() => _error = error);
+    }
+  }
+
+  /// The first screenful of hub covers decodes while the explainer (or the
+  /// load) is up, not during the hub's entrance.
+  void _precacheCovers(List<StoryDefinition> stories) {
+    for (final story in stories.take(StoriesLampTokens.coversAhead)) {
+      precacheImage(
+        StoriesHub.coverImage(context, story.coverImage),
+        context,
+        onError: (_, _) {},
+      );
     }
   }
 
@@ -327,6 +344,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
         onPlayAgain: () => _dealV2(_v2Players!),
         onFinished: _finishV2,
         watchAdForSearch: widget.watchAdForStep,
+        exitGuard: widget.exitGuard,
       );
     }
     return StoriesHub(
@@ -381,6 +399,16 @@ class StoriesHub extends ConsumerStatefulWidget {
   static Key storyKey(String id) => ValueKey('story_card_$id');
   static Key startKey(String id) => ValueKey('story_start_$id');
   static Key chipKey(String category) => ValueKey('story_chip_$category');
+
+  /// A hub cover, decoded at the size the card draws it.
+  static ImageProvider coverImage(BuildContext context, String path) =>
+      ResizeImage(
+        AssetImage(path),
+        width:
+            (StoriesLampTokens.coverWidth *
+                    MediaQuery.devicePixelRatioOf(context))
+                .ceil(),
+      );
 
   final List<StoryDefinition> stories;
   final StoryProgress progress;
@@ -511,7 +539,7 @@ class _StoriesHubState extends ConsumerState<StoriesHub> {
     final rewritten = widget.worldIds.contains(story.id);
     final players = rewritten || story.minGroupPlayers <= 2
         ? l.sv2HubPlayersAll
-        : l.sv2HubPlayersFrom(story.minGroupPlayers);
+        : l.sv2HubPlayersFrom(_digits(context, story.minGroupPlayers));
     final status = locked
         ? '${l.storiesLocked} — ${l.storiesUnlockRule}'
         : solved
@@ -529,11 +557,10 @@ class _StoriesHubState extends ConsumerState<StoriesHub> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(StoriesLampTokens.radiusPaper),
-            child: Image.asset(
-              story.coverImage,
+            child: Image(
+              image: StoriesHub.coverImage(context, story.coverImage),
               width: StoriesLampTokens.coverWidth,
               height: StoriesLampTokens.coverHeight,
-              cacheWidth: StoriesLampTokens.coverDecodeWidth,
               fit: BoxFit.cover,
               excludeFromSemantics: true,
               errorBuilder: (_, _, _) => const SizedBox(
@@ -592,6 +619,18 @@ class _StoriesHubState extends ConsumerState<StoriesHub> {
             ),
     );
   }
+
+  /// [n] in the digits of the line it sits in (the Arabic copy writes
+  /// «من ١ لـ١٠», so a number beside it is written the same way).
+  static String _digits(BuildContext context, int n) =>
+      Localizations.localeOf(context).languageCode == 'ar'
+      ? String.fromCharCodes([
+          for (final unit in '$n'.codeUnits) unit - _asciiZero + _arabicZero,
+        ])
+      : '$n';
+
+  static const _asciiZero = 0x30;
+  static const _arabicZero = 0x0660;
 
   /// A case's length in plain words, to the nearest quarter hour.
   static String _length(AppLocalizations l, int minutes) =>
