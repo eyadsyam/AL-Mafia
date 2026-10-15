@@ -66,7 +66,7 @@ and the draft identity in `../mafia-game-design-system-fca2a6/design-system/stor
 | 2–4 | «كلنا مشتبه فيهم» | Every player is a suspect character, and only they are suspects (owner: no extra suspect at 2). One of them is the culprit; **nobody knows, not even him**. | the table agrees on one accusation |
 | 5–10 | «المحقق بينا» | One player is the story's detective (public, known innocent). The rest are suspects; one is the **killer and knows it**; in accomplice stories one more is the **partner** at any size from 5 (owner: no 7-player floor) and both know each other. | the detective, alone. No vote |
 
-All three use the same loop: **case facts → the suspects' cards read aloud → 3 searches → accusation (who + why + how) → the reveal on screen → result.** What differs is who reads, what is private, and who decides.
+All three use the same loop: **case facts → the suspects' cards read aloud → 3 searches → the accusation → the reveal on screen → result.** What differs is who reads, what is private, and who decides. With friends the accusation names **who** only, and the table's talk carries the game: each suspect defends himself with the evidence that came out (owner, 2026-10-15). Solo also asks why and how.
 
 ### 2.2 Cards are never lies (Codex R2-A)
 
@@ -102,9 +102,9 @@ No clock times, minutes or seconds anywhere. Periods only: «من فترة» · 
 1. Story file (public): opening narration, victim, places, the 11 characters.
 2. Names → public deal: «أحمد = سامح، ابن أخو المعلم» … «مريم = الرائد عادل، المحقق».
 3. **One pass.** Hand-off by name → the player's card fills the screen; he reads it aloud → «دوس مطوّل وشوف سرّك» → one role line → hide → next. The detective's pass has the same shape («انت المحقق — مفيش سر»). Same layout, length band, taps and hold time for every role (Doc 05). Backgrounding covers the page and returns to that player's hand-off.
-4. The detective takes the phone: case facts (read aloud; they give every seated suspect a reason to be suspected), the suspects board (he can mark «مشكوك / مستبعد»), and 3 searches. No timer, no prompts.
-5. «قراري»: who, why, how.
-6. Reveal (read on screen), then the result: every player's name, character and role; detective right → detective and innocents win; wrong → killer (and partner) win; points for who/why/how.
+4. The detective takes the phone: case facts (read aloud; they give every seated suspect a reason to be suspected), the suspects' cards, and 3 searches. No timer, no prompts, and **no hints or marks of any kind**: who looks guilty is the detective's call, never the app's (owner, 2026-10-15).
+5. «قراري»: who. He owes nobody a reason.
+6. Reveal (read on screen), then the result: every player's name, character and role; detective right → detective and innocents win; wrong → killer (and partner) win.
 
 ### 2.7 The 2–4 table
 
@@ -112,7 +112,7 @@ Story file → names → public deal → each player reads his card aloud from a
 
 ### 2.8 Solo
 
-You are the detective character. Read the opening and four suspects' cards, pick 3 of 5 places, accuse who/why/how. No move budget and no costs. The optional rewarded ad gives a 4th search (the ad placement stays; owner rule: never reduce ads). The fairness guarantee is computed on 3 searches, so the ad is never the only way to solve (Codex R2-Q4).
+You are the detective character. Read the opening and four suspects' cards, pick 3 of 5 places, accuse who, why and how. No move budget and no costs. The optional rewarded ad gives a 4th search (the ad placement stays; owner rule: never reduce ads). The fairness guarantee is computed on 3 searches, so the ad is never the only way to solve (Codex R2-Q4).
 
 ### 2.9 Fairness, honestly (Codex R2-Q3)
 
@@ -146,8 +146,8 @@ All in the Stories identity. «جديد» = new.
 | S6 | Hand-off (5–10) | public | by name |
 | S7 | Card + role (5–10) | card public, role private | §2.6 step 3 |
 | S8 | «اتعرّفوا» (1–4, جديد) | public | each card in turn, read aloud |
-| S9 | Detective desk / shared table (جديد) | public | case facts, board with marks, 3 searches, found traces, «اسمع البداية تاني» |
-| S10 | «قراري» / «اتفقنا» (جديد) | public | who, why, how from short lists |
+| S9 | Detective desk / shared table (جديد) | public | case facts, the suspects' cards, 3 searches, found traces, «اسمع البداية تاني»; no marks or hints |
+| S10 | «قراري» / «اتفقنا» (جديد) | public | with friends: who; solo: who, why, how |
 | S11 | Reveal | public | the version's reveal scene, read on screen (no narration: owner) |
 | S12 | Result (جديد) | public | names, characters, roles, outcome, points, what the unsearched places held |
 
@@ -186,7 +186,7 @@ Removed: the discussion timer, round prompts, private clue passes, secret ballot
 
 ## 8. Backend and servers
 
-- **Story sessions (Codex R2-Q9).** `start_story_session(story, players)` picks the culprit (and partner) server-side from a published eligibility table, using this account's history; it returns `{session, seed, culprit, partner}` and the client assembles the version around them. `claim_story_reward(session, who, why, how)` checks the accusation against that session. One paid first solve per story per account stays. Offline play works with a local pick and no coins.
+- **Story sessions (Codex R2-Q9).** `start_story_session(story, players)` picks the culprit (and partner) server-side from a published eligibility table, using this account's history; it returns `{session, seed, culprit, partner}` and the client assembles the version around them. `claim_story_reward(session, who[, why, how])` checks the accusation against that session (group plays send who only). One paid first solve per story per account stays. Offline play works with a local pick and no coins.
 - `story_solutions` becomes one row per (story, guilty module): culprit, motive, method, partner.
 - P1's tables and functions.
 - No online multiplayer for Stories in V2 (one phone). The engine stays pure and seeded, so an online version stays possible.
@@ -227,6 +227,7 @@ Each phase ends with the CLAUDE.md report block and a stop. Builds and deploys o
 | P4 | Engine V3, narrator, screens, story sessions — pilot story only | Sonnet medium; Opus reviews the private pass | tests; emulator; **pilot tables** |
 | P5 | The other 23 worlds, four at a time | Codex writes; checker; Claude reads | all green; the owner spot-reads two |
 | P6 | Openings re-recorded in the chosen voice (زياد if approved) | Claude (ElevenLabs) | STT check |
+| P6b | Missing and to-fix art (detective portraits, covers, places) once characters and stories are agreed | Codex, images only (the owner's one exception to «no Codex», 2026-10-15) | owner approves each image |
 | P7 | Identity isolation (D13–D15) | Sonnet; Claude reviews against Home | guard test; before/after screenshots |
 | P8 | Full verification sweep (§9) | Claude + Codex | recorded in PROGRESS |
 | P9 | Build / release | only when the owner says | — |

@@ -62,6 +62,6 @@ One JSON file per story in `assets/stories_v2/<id>.json`. The design is `docs/pl
 
 ## How a version is assembled (engine)
 
-Seated suspects for the count → culprit (and partner) among the played ones → the case facts = `baseFacts` + each seated suspect's `hook` → every place holds its `baseTrace` + the seated innocents' traces placed there + the culprit's (and partner's) traces placed there. A search shows everything in that place. The accusation lists the seated suspects, and the motives and methods of their guilty modules.
+Seated suspects for the count → culprit (and partner) among the played ones → the case facts = `baseFacts` + each seated suspect's `hook` → every place holds its `baseTrace` + the seated innocents' traces placed there + the culprit's (and partner's) traces placed there. A search shows everything in that place. The accusation lists the seated suspects; with friends it asks **who** only, and solo also asks why and how (the motives and methods of the seated suspects' guilty modules). The app never marks or ranks anyone.
 
 **Fair** (checker, per version and per choice of 3 places): at least one of the culprit's traces is found (rule 8 makes this every path), and every found trace that points at someone points at the culprit. Strict exclusion (every other suspect ruled out) is reported too, but it is not the bar: a first pilot showed that with 3 of 5 places no world can rule out eight people one alibi at a time. The detective solves by connecting a found trace to a card; alibis clear the red herrings he happens to search.
