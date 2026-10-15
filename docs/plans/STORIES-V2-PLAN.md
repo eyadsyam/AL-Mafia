@@ -242,7 +242,7 @@ P7 doesn't depend on the pilot and can start after the mockups are approved.
 | Q3 | Who may lie | **Answered by design:** cards never lie; in 5–10 the killer may lie out loud |
 | Q4 | Audio | **Answered:** the narrator tells the story only, in زياد's voice (owner, 2026-10-15) |
 | Q5 | Owner account email and ads | **Answered:** the Google account eyadsyam124@gmail.com; ads stay on |
-| Q6 | Stories look for the mockups | open; the owner wants «صورة اللعبة تتغير»; two or three directions in the mockups |
+| Q6 | Stories look for the mockups | **Answered:** look 1 «الأباجورة» (lamp-dark ground, manila paper, amber action, Ruqaa titles) from the three-look board, 2026-10-15 |
 | Q7 | Skills | **Answered:** downloaded and installed |
 | Q8 | Pilot | **Answered:** «قهوة المعلم» at 1, 2, 3, 5, 7 and 10 |
 | Q9 | Extra suspect at 2 players | **Answered:** no |
