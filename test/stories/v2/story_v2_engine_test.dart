@@ -304,9 +304,62 @@ void main() {
           methodId: 'wrong',
         ),
       );
-      expect(done.solved, isTrue);
+      // Solo solves the case only with who, why and how all right.
+      expect(done.whoRight, isTrue);
+      expect(done.solved, isFalse);
       expect(done.motiveRight, isTrue);
       expect(done.methodRight, isFalse);
+      final full = s.accuse(
+        StoryAccusationV2(
+          suspectId: solo.culpritId,
+          motiveId: guilt.motive.id,
+          methodId: guilt.method.id,
+        ),
+      );
+      expect(full.solved, isTrue);
+    });
+
+    test('a server pick deals around its culprit and partner', () {
+      for (var players = 1; players <= 10; players++) {
+        for (final suspect in _world.suspects) {
+          for (var seed = 0; seed < 6; seed++) {
+            final partner = suspect.guilty.partner?.partnerId;
+            final withPartner = players >= 5 && partner != null && seed.isOdd;
+            final table = StoryTable.deal(
+              world: _world,
+              players: _players(players),
+              seed: seed,
+              pick: StoryCulpritPick(
+                culpritId: suspect.id,
+                partnerId: withPartner ? partner : null,
+              ),
+            );
+            expect(table.culpritId, suspect.id);
+            expect(table.suspectIds, contains(suspect.id));
+            expect(table.partnerId, withPartner ? partner : isNull);
+            if (withPartner) expect(table.suspectIds, contains(partner));
+            expect(table.suspectIds.toSet().length, table.suspectIds.length);
+          }
+        }
+      }
+      expect(
+        () => StoryTable.deal(
+          world: _world,
+          players: _players(5),
+          seed: 1,
+          pick: const StoryCulpritPick(culpritId: 'nobody'),
+        ),
+        throwsArgumentError,
+      );
+      expect(
+        () => StoryTable.deal(
+          world: _world,
+          players: _players(3),
+          seed: 1,
+          pick: const StoryCulpritPick(culpritId: 'n01', partnerId: 'n02'),
+        ),
+        throwsArgumentError,
+      );
     });
   });
 }

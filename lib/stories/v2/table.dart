@@ -23,6 +23,14 @@ StoryTableMode storyTableModeFor(int players) => players <= 1
 /// What a seat is, as the seat's own player learns it.
 enum StorySeatRole { detective, killer, partner, innocent, unknown }
 
+/// Who did it in one version, as a story session on the server chose it.
+class StoryCulpritPick {
+  const StoryCulpritPick({required this.culpritId, this.partnerId});
+
+  final String culpritId;
+  final String? partnerId;
+}
+
 class StoryTableSeat {
   const StoryTableSeat({required this.player, this.suspectId});
 
@@ -64,11 +72,16 @@ class StoryTable {
   /// Deals a version. The same world, players and seed always deal the same
   /// table; [recentCulprits] (this phone's last culprits for this story) are
   /// avoided while another seated suspect is left to choose.
+  ///
+  /// [pick] is the server's choice of who did it (story sessions): the deal
+  /// seats that suspect and plays the partner exactly when the pick names
+  /// one. A pick this world cannot play throws [ArgumentError].
   factory StoryTable.deal({
     required StoryWorld world,
     required List<String> players,
     required int seed,
     Set<String> recentCulprits = const {},
+    StoryCulpritPick? pick,
   }) {
     if (players.isEmpty || players.length > 10) {
       throw ArgumentError.value(players.length, 'players', 'must be 1–10');
@@ -83,17 +96,35 @@ class StoryTable {
     final pool = [for (final s in world.suspects) s.id]..shuffle(rng);
     final seated = pool.take(count).toList();
 
-    final fresh = [
-      for (final id in seated)
-        if (!recentCulprits.contains(id)) id,
-    ];
-    final candidates = fresh.isEmpty ? seated : fresh;
-    final culprit = candidates[rng.nextInt(candidates.length)];
+    final String culprit;
+    if (pick != null) {
+      if (!pool.contains(pick.culpritId)) {
+        throw ArgumentError.value(pick.culpritId, 'pick', 'not in this world');
+      }
+      final option = world.suspect(pick.culpritId).guilty.partner;
+      if (pick.partnerId != null &&
+          (mode != StoryTableMode.detective ||
+              option?.partnerId != pick.partnerId)) {
+        throw ArgumentError.value(pick.partnerId, 'pick', 'not a partner here');
+      }
+      culprit = pick.culpritId;
+      if (!seated.contains(culprit)) seated[rng.nextInt(count)] = culprit;
+    } else {
+      final fresh = [
+        for (final id in seated)
+          if (!recentCulprits.contains(id)) id,
+      ];
+      final candidates = fresh.isEmpty ? seated : fresh;
+      culprit = candidates[rng.nextInt(candidates.length)];
+    }
 
     String? partner;
     final option = world.suspect(culprit).guilty.partner;
-    if (mode == StoryTableMode.detective && option != null && rng.nextBool()) {
-      partner = option.partnerId;
+    final withPartner = pick != null
+        ? pick.partnerId != null
+        : mode == StoryTableMode.detective && option != null && rng.nextBool();
+    if (withPartner) {
+      partner = option!.partnerId;
       if (!seated.contains(partner)) {
         final innocents = [
           for (final id in seated)

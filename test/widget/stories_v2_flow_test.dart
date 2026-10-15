@@ -171,7 +171,7 @@ void main() {
             narration: NarrationController(_FakePlayer(), web: false),
             memory: memory,
             onExit: () {},
-            onPlay: (p) => players = p,
+            onPlay: (p) async => players = p,
           ),
         ),
       );

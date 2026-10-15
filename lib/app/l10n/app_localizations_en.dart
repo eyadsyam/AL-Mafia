@@ -7209,6 +7209,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sv2SoloLost => 'Not this time';
 
   @override
+  String get sv2SoloClose => 'So close';
+
+  @override
+  String get sv2Dealing => 'Setting up the table…';
+
+  @override
+  String get sv2HubTitle => 'Cases';
+
+  @override
+  String get sv2HubOpen => 'Not solved yet';
+
+  @override
+  String get sv2HubPlayersAll => '1 to 10';
+
+  @override
+  String sv2HubPlayersFrom(int n) {
+    return 'Solo, or $n to 10';
+  }
+
+  @override
+  String get sv2LengthQ1 => 'About a quarter of an hour';
+
+  @override
+  String get sv2LengthQ2 => 'About half an hour';
+
+  @override
+  String get sv2LengthQ3 => 'About three quarters of an hour';
+
+  @override
+  String get sv2LengthQ4 => 'About an hour';
+
+  @override
+  String get sv2LengthQ5 => 'About an hour and a quarter';
+
+  @override
+  String get sv2LengthQ6 => 'About an hour and a half';
+
+  @override
   String sv2PickRight(String name) {
     return 'The pick was $name, and it was right.';
   }

@@ -4413,6 +4413,25 @@
   "sv2TableLost": "It slipped past you",
   "sv2SoloWon": "Solved",
   "sv2SoloLost": "Not this time",
+  "sv2SoloClose": "So close",
+  "sv2Dealing": "Setting up the table…",
+  "sv2HubTitle": "Cases",
+  "sv2HubOpen": "Not solved yet",
+  "sv2HubPlayersAll": "1 to 10",
+  "sv2HubPlayersFrom": "Solo, or {n} to 10",
+  "@sv2HubPlayersFrom": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sv2LengthQ1": "About a quarter of an hour",
+  "sv2LengthQ2": "About half an hour",
+  "sv2LengthQ3": "About three quarters of an hour",
+  "sv2LengthQ4": "About an hour",
+  "sv2LengthQ5": "About an hour and a quarter",
+  "sv2LengthQ6": "About an hour and a half",
   "sv2PickRight": "The pick was {name}, and it was right.",
   "@sv2PickRight": {
     "placeholders": {

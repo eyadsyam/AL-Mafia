@@ -156,7 +156,7 @@ void main() {
         narration: narration(),
         memory: MemoryStoryV2Memory(about: true)..names = _names,
         onExit: () {},
-        onPlay: (_) {},
+        onPlay: (_) async {},
       ),
     );
     await shot(tester, '01_file');

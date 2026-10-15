@@ -4,30 +4,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../economy/all_access.dart' show allAccessProvider;
 
-import '../../widgets/deck/deck_public.dart' show DeckChip, DeckRise;
-import '../../widgets/mafia_kit.dart';
-import '../../widgets/warm_palette.dart';
-import 'story_case_widgets.dart';
+import '../../widgets/deck/deck_public.dart' show DeckRise;
 
 import '../../../data/match_seed.dart';
 import '../../../data/story_catalog.dart';
 import '../../../data/story_progress_store.dart';
 import '../../../data/story_v2_memory.dart';
 import '../../../data/story_world_catalog.dart';
+import '../../../platform/audio_backend.dart' show PluginNarrationPlayer;
 import '../../../platform/narration_controller.dart';
 import '../../../stories/story_model.dart';
 import '../../../stories/story_progress.dart';
 import '../../../stories/v2/session.dart';
 import '../../../stories/v2/table.dart';
 import '../../../stories/v2/world.dart';
+import 'v2/lamp_kit.dart';
 import 'v2/story_about_screen.dart';
 import 'v2/story_lobby_screen.dart';
 import 'v2/story_table_screen.dart';
+import '../../../app/l10n/app_localizations.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
-import '../../widgets/back_action.dart';
 import 'story_flow_screen.dart';
+import 'story_rewards.dart' show StoryServerDeal;
 import '../../economy/waiting_banner.dart';
 import '../../economy/native_ad_card.dart';
 
@@ -48,6 +48,8 @@ class StoriesScreen extends StatefulWidget {
     this.culpritHistory = const SharedPreferencesStoryCulpritHistory(),
     this.v2Memory = const SharedPreferencesStoryV2Memory(),
     this.narrationFactory = _pluginNarration,
+    this.startV2Session,
+    this.claimV2Reward,
   });
 
   static NarrationController _pluginNarration() =>
@@ -60,6 +62,19 @@ class StoriesScreen extends StatefulWidget {
 
   /// The narrator's player, made the first time a V2 case opens.
   final NarrationController Function() narrationFactory;
+
+  /// Story sessions: the server deals who did it at a V2 table (null when
+  /// it cannot: the phone deals and the table earns nothing) …
+  final Future<StoryServerDeal?> Function(
+    String storyId,
+    int players,
+    Set<String> avoid,
+  )?
+  startV2Session;
+
+  /// … and pays a right answer's first solve; returns the coins granted.
+  final Future<int> Function(String sessionId, StoryAccusationV2 accusation)?
+  claimV2Reward;
 
   /// Mints the seating seed of each launch.
   final int Function() newSeed;
@@ -102,6 +117,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
   List<String>? _v2Players;
   StoryTable? _v2Table;
   int _v2Seed = 0;
+  String? _v2Session;
   NarrationController? _narrationOrNull;
 
   NarrationController get _narration =>
@@ -144,22 +160,45 @@ class _StoriesScreenState extends State<StoriesScreen> {
     final story = _v2Story;
     final world = story == null ? null : _worlds[story.id];
     if (story == null || world == null) return;
-    await widget.beforeStory?.call();
     final recent = await widget.culpritHistory.recent(world.id);
+    // The server's deal runs while the ad moment plays, and is given up
+    // after a short wait: a table never waits on the network.
+    final asked = widget.startV2Session?.call(world.id, players.length, recent);
+    await widget.beforeStory?.call();
+    StoryServerDeal? deal;
+    try {
+      deal = await asked?.timeout(StoriesLampTokens.serverDealWait);
+    } on Object {
+      deal = null;
+    }
     if (!mounted) return;
     final seed = widget.newSeed();
-    final table = StoryTable.deal(
-      world: world,
-      players: players,
-      seed: seed,
-      recentCulprits: recent,
-    );
+    StoryTable table;
+    try {
+      table = StoryTable.deal(
+        world: world,
+        players: players,
+        seed: seed,
+        recentCulprits: recent,
+        pick: deal?.pick,
+      );
+    } on ArgumentError {
+      // A pick this build cannot play (a newer server): deal on the phone.
+      deal = null;
+      table = StoryTable.deal(
+        world: world,
+        players: players,
+        seed: seed,
+        recentCulprits: recent,
+      );
+    }
     await widget.culpritHistory.remember(world.id, table.culpritId);
     if (!mounted) return;
     setState(() {
       _v2Players = players;
       _v2Seed = seed;
       _v2Table = table;
+      _v2Session = deal?.sessionId;
     });
   }
 
@@ -172,9 +211,20 @@ class _StoriesScreenState extends State<StoriesScreen> {
       score: 0,
       solved: session.solved,
     );
-    setState(() => _progress = next);
+    final sessionId = _v2Session;
+    setState(() {
+      _progress = next;
+      _v2Session = null;
+    });
     await widget.progressStore.save(next);
     unawaited(widget.afterStory?.call(story.id));
+    final claim = widget.claimV2Reward;
+    if (!session.solved || sessionId == null || claim == null) return;
+    final granted = await claim(sessionId, session.accusation!);
+    if (granted <= 0 || !mounted) return;
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      SnackBar(content: Text(context.l10n.storyRewardGranted(granted))),
+    );
   }
 
   void _closeV2() {
@@ -183,6 +233,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
       _v2Story = null;
       _v2Players = null;
       _v2Table = null;
+      _v2Session = null;
     });
   }
 
@@ -236,7 +287,8 @@ class _StoriesScreenState extends State<StoriesScreen> {
     }
     final stories = _stories;
     if (stories == null) {
-      return const MafiaScaffold(body: SafeArea(child: MafiaLoading(cards: 1)));
+      // The lamp ground from the first frame: no other look flashes first.
+      return const LampScaffold(body: SizedBox.shrink());
     }
     if (_aboutSeen == false || _showAbout) {
       return StoryAboutScreen(
@@ -351,135 +403,206 @@ class _StoriesHubState extends ConsumerState<StoriesHub> {
   String? _category;
 
   Future<void> _pickPlayers(BuildContext context, StoryDefinition story) async {
-    final count = await showMafiaSheet<int>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) => _PlayerCountSheet(minGroup: story.minGroupPlayers),
+    final count = await showLampSheet<int>(
+      context,
+      (context) => _PlayerCountSheet(minGroup: story.minGroupPlayers),
     );
     if (count != null && context.mounted) widget.onStart(story, count);
   }
 
   @override
   Widget build(BuildContext context) {
-    final spacing = context.spacing;
-    final type = context.typography;
+    final s = context.spacing;
     final l = context.l10n;
     final categories = <String>[];
-    for (final s in widget.stories) {
-      if (!categories.contains(s.category)) categories.add(s.category);
+    for (final story in widget.stories) {
+      if (!categories.contains(story.category)) categories.add(story.category);
     }
     final shown = [
-      for (final s in widget.stories)
-        if (_category == null || s.category == _category) s,
+      for (final story in widget.stories)
+        if (_category == null || story.category == _category) story,
     ];
-    return WarmPalette(
-      child: StoryDesk(
-        key: StoriesHub.hubKey,
-        title: l.storiesArchiveTitle,
-        onBack: widget.onBack,
-        bottom: const SafeArea(
-          top: false,
-          child: WaitingBanner(placement: BannerPlacement.stories),
-        ),
-        body: ListView(
-          padding: EdgeInsets.fromLTRB(
-            spacing.screenMargin,
-            spacing.sm,
-            spacing.screenMargin,
-            spacing.lg,
+    return LampScaffold(
+      key: StoriesHub.hubKey,
+      onBack: widget.onBack,
+      trailing: widget.onHowTo == null
+          ? null
+          : TextButton(
+              key: StoriesHub.howToKey,
+              onPressed: widget.onHowTo,
+              child: Text(
+                l.sv2HowToPlay,
+                style: context.typography.bodySmall.copyWith(
+                  color: StoriesLampTokens.amberHi,
+                ),
+              ),
+            ),
+      footer: const WaitingBanner(placement: BannerPlacement.stories),
+      body: ListView(
+        // Its own scroll memory: a case opened from far down the list does
+        // not open scrolled down too.
+        key: const PageStorageKey<String>('stories_hub_list'),
+        padding: EdgeInsets.fromLTRB(s.screenMargin, 0, s.screenMargin, s.lg),
+        children: [
+          LampTitle(l.sv2HubTitle, small: true),
+          SizedBox(height: s.sm),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _chip(
+                  context,
+                  StoriesHub.chipKey(''),
+                  l.storiesFilterAll,
+                  null,
+                ),
+                for (final c in categories) ...[
+                  SizedBox(width: s.sm),
+                  _chip(context, StoriesHub.chipKey(c), c, c),
+                ],
+              ],
+            ),
           ),
-          children: [
-            Text(
-              l.storiesSubtitle,
-              style: type.bodySmall.copyWith(color: CaseFileTokens.inkMuted),
-            ),
-            if (widget.onHowTo != null)
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: TextButton(
-                  key: StoriesHub.howToKey,
-                  onPressed: widget.onHowTo,
-                  child: Text(l.sv2HowToPlay),
-                ),
-              ),
-            SizedBox(height: spacing.md),
-            SizedBox(
-              height: StoryTokens.chipHeight,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    DeckChip(
-                      key: StoriesHub.chipKey(''),
-                      label: l.storiesFilterAll,
-                      selected: _category == null,
-                      onSelected: (_) => setState(() => _category = null),
-                    ),
-                    for (final c in categories) ...[
-                      SizedBox(width: spacing.sm),
-                      DeckChip(
-                        key: StoriesHub.chipKey(c),
-                        label: c,
-                        selected: _category == c,
-                        onSelected: (_) => setState(() => _category = c),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: spacing.sm),
-            for (final (i, story) in shown.indexed) ...[
-              // Never in the first screenful, at most one per four cases.
-              if (i >= 4 && i % 4 == 0)
-                const NativeAdCard(placement: NativePlacement.stories),
-              DeckRise(index: i, child: _folder(context, story)),
-              SizedBox(height: spacing.md),
+          SizedBox(height: s.md),
+          for (final (i, story) in shown.indexed) ...[
+            // Never in the first screenful, at most one per four cases.
+            if (i >= 4 && i % 4 == 0) ...[
+              const NativeAdCard(placement: NativePlacement.stories),
+              SizedBox(height: s.sm),
             ],
+            DeckRise(index: i, child: _case(context, story)),
+            SizedBox(height: s.sm),
           ],
-        ),
+        ],
       ),
     );
   }
 
-  Widget _folder(BuildContext context, StoryDefinition story) {
+  Widget _chip(BuildContext context, Key key, String label, String? category) {
+    final on = _category == category;
+    return ChoiceChip(
+      key: key,
+      label: Text(label),
+      selected: on,
+      showCheckmark: false,
+      selectedColor: StoriesLampTokens.amber,
+      backgroundColor: StoriesLampTokens.ground,
+      side: BorderSide(
+        color: on ? StoriesLampTokens.amber : StoriesLampTokens.line,
+      ),
+      shape: const StadiumBorder(),
+      labelStyle: context.typography.bodySmall.copyWith(
+        color: on ? StoriesLampTokens.onAmber : StoriesLampTokens.text2,
+        fontWeight: on ? FontWeight.w700 : FontWeight.w400,
+      ),
+      onSelected: (_) => setState(() => _category = category),
+    );
+  }
+
+  Widget _case(BuildContext context, StoryDefinition story) {
     final l = context.l10n;
+    final s = context.spacing;
     final locked =
         story.isNearImpossible &&
         !ref.watch(allAccessProvider) &&
         !widget.progress.isNearImpossibleUnlocked(story.category);
     final solved = widget.progress.solvedStoryIds.contains(story.id);
     final best = widget.progress.bestFor(story.id);
-    return KeyedSubtree(
-      key: StoriesHub.storyKey(story.id),
-      child: StoryFolder(
-        key: locked ? null : StoriesHub.startKey(story.id),
-        numberLabel: l.storiesCaseNo(story.number),
-        title: story.title,
-        category: story.category,
-        synopsis: story.synopsis,
-        facts: [
-          '${story.lengthMinutes} ${l.storiesMinutes}',
-          '${l.storiesDifficulty} ${story.difficulty}/5',
+    final rewritten = widget.worldIds.contains(story.id);
+    final players = rewritten || story.minGroupPlayers <= 2
+        ? l.sv2HubPlayersAll
+        : l.sv2HubPlayersFrom(story.minGroupPlayers);
+    final status = locked
+        ? '${l.storiesLocked} — ${l.storiesUnlockRule}'
+        : solved
+        ? (best > 0 ? l.storiesStampSolvedScore(best) : l.storiesStampSolved)
+        : l.sv2HubOpen;
+    final card = Container(
+      padding: EdgeInsets.all(s.sm),
+      decoration: BoxDecoration(
+        color: StoriesLampTokens.panel,
+        borderRadius: BorderRadius.circular(StoriesLampTokens.radiusButton),
+        border: Border.all(color: StoriesLampTokens.line),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(StoriesLampTokens.radiusPaper),
+            child: Image.asset(
+              story.coverImage,
+              width: StoriesLampTokens.coverWidth,
+              height: StoriesLampTokens.coverHeight,
+              cacheWidth: StoriesLampTokens.coverDecodeWidth,
+              fit: BoxFit.cover,
+              excludeFromSemantics: true,
+              errorBuilder: (_, _, _) => const SizedBox(
+                width: StoriesLampTokens.coverWidth,
+                height: StoriesLampTokens.coverHeight,
+              ),
+            ),
+          ),
+          SizedBox(width: s.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  story.title,
+                  style: StoryTokens.ruqaa(context.typography.headline)
+                      .copyWith(
+                        color: StoriesLampTokens.paper,
+                        fontSize: StoriesLampTokens.caseTitle,
+                      ),
+                ),
+                LampMeta(
+                  '${story.category} · $players · '
+                  '${_length(l, story.lengthMinutes)}',
+                ),
+                LampMeta(
+                  status,
+                  color: solved || locked
+                      ? StoriesLampTokens.text2
+                      : StoriesLampTokens.amberHi,
+                ),
+              ],
+            ),
+          ),
+          if (locked)
+            const Icon(Icons.lock_rounded, color: StoriesLampTokens.muted),
         ],
-        image: story.coverImage,
-        stampText: solved
-            ? (best > 0
-                  ? l.storiesStampSolvedScore(best)
-                  : l.storiesStampSolved)
-            : l.storiesStampOpen,
-        stampColor: solved ? CaseFileTokens.sage : StoryTokens.stampOpen,
-        sealed: locked,
-        unlockText: '${l.storiesLocked} — ${l.storiesUnlockRule}',
-        onTap: locked
-            ? null
-            : widget.worldIds.contains(story.id) && widget.onOpenWorld != null
-            ? () => widget.onOpenWorld!(story)
-            : () => _pickPlayers(context, story),
       ),
     );
+    return KeyedSubtree(
+      key: StoriesHub.storyKey(story.id),
+      child: locked
+          ? Opacity(opacity: StoriesLampTokens.lockedCase, child: card)
+          : Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                key: StoriesHub.startKey(story.id),
+                borderRadius: BorderRadius.circular(
+                  StoriesLampTokens.radiusButton,
+                ),
+                onTap: rewritten && widget.onOpenWorld != null
+                    ? () => widget.onOpenWorld!(story)
+                    : () => _pickPlayers(context, story),
+                child: card,
+              ),
+            ),
+    );
   }
+
+  /// A case's length in plain words, to the nearest quarter hour.
+  static String _length(AppLocalizations l, int minutes) =>
+      switch ((minutes / 15).round()) {
+        <= 1 => l.sv2LengthQ1,
+        2 => l.sv2LengthQ2,
+        3 => l.sv2LengthQ3,
+        4 => l.sv2LengthQ4,
+        5 => l.sv2LengthQ5,
+        _ => l.sv2LengthQ6,
+      };
 }
 
 class _PlayerCountSheet extends StatelessWidget {
@@ -492,33 +615,32 @@ class _PlayerCountSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spacing = context.spacing;
+    final s = context.spacing;
     final l = context.l10n;
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
-        spacing.screenMargin,
-        spacing.lg,
-        spacing.screenMargin,
-        spacing.xl + MediaQuery.viewInsetsOf(context).bottom,
+        s.screenMargin,
+        s.lg,
+        s.screenMargin,
+        s.xl + MediaQuery.viewInsetsOf(context).bottom,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l.storiesPlayerCountTitle, style: context.typography.title),
-          SizedBox(height: spacing.md),
+          LampTitle(l.storiesPlayerCountTitle, small: true),
+          SizedBox(height: s.md),
           for (var count = 1; count <= 10; count++) ...[
-            OutlinedButton(
+            LampButton(
               key: countKey(count),
+              kind: LampButtonKind.ghost,
               onPressed: count > 1 && count < minGroup
                   ? null
                   : () => Navigator.pop(context, count),
-              child: Text(
-                count == 1
-                    ? '1 — ${l.storiesSolo}'
-                    : '$count ${l.storiesPlayers} — ${l.storiesGroup}',
-              ),
+              label: count == 1
+                  ? '1 — ${l.storiesSolo}'
+                  : '$count ${l.storiesPlayers} — ${l.storiesGroup}',
             ),
-            SizedBox(height: spacing.sm),
+            SizedBox(height: s.sm),
           ],
         ],
       ),
@@ -533,27 +655,14 @@ class _StoryLoadError extends StatelessWidget {
   final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) => MafiaScaffold(
-    body: SafeArea(
+  Widget build(BuildContext context) => LampScaffold(
+    onBack: onBack,
+    body: Center(
       child: Padding(
         padding: EdgeInsets.all(context.spacing.screenMargin),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: BackAction(onPressed: onBack),
-            ),
-            const Spacer(),
-            MafiaError(
-              message: context.l10n.storiesLoadError,
-              action: context.l10n.storiesRetry,
-              onRetry: onRetry,
-            ),
-            const Spacer(),
-          ],
-        ),
+        child: LampMeta(context.l10n.storiesLoadError, center: true),
       ),
     ),
+    footer: LampButton(label: context.l10n.storiesRetry, onPressed: onRetry),
   );
 }

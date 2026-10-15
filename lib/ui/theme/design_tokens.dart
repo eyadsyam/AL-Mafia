@@ -3140,6 +3140,11 @@ abstract final class StoriesLampTokens {
   static const double heroHeight = 180;
   static const double coverWidth = 64;
   static const double coverHeight = 86;
+
+  /// The hub's covers decode at three times their width, not full size.
+  static const int coverDecodeWidth = 192;
+  static const double caseTitle = 22;
+  static const double lockedCase = 0.6;
   static const double faceWidth = 44;
   static const double faceHeight = 54;
   static const double cardFaceWidth = 88;
@@ -3172,4 +3177,8 @@ abstract final class StoriesLampTokens {
   static const double glowHeight = 0.42;
   static const Duration hold = Duration(milliseconds: 900);
   static const Duration fade = Duration(milliseconds: 220);
+
+  /// How long a table waits for the server's deal (story sessions) before
+  /// it deals on the phone and plays without coins.
+  static const Duration serverDealWait = Duration(milliseconds: 2500);
 }

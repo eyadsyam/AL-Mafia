@@ -1,6 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
+import 'narration_controller.dart' show NarrationPlayer;
+
 /// The only file in the app that knows which audio package is installed.
 ///
 /// ## Why the seam is here and not inside the director
@@ -369,4 +371,39 @@ class PluginAudioBackend implements AudioBackend {
     }
     _players.clear();
   }
+}
+
+/// The Stories narrator's player: its own instance, separate from the cue
+/// pool and the score loop, in media mode because it seeks.
+class PluginNarrationPlayer implements NarrationPlayer {
+  final AudioPlayer _player = AudioPlayer()
+    ..setPlayerMode(PlayerMode.mediaPlayer)
+    ..setReleaseMode(ReleaseMode.stop);
+
+  @override
+  Stream<Duration> get positions => _player.onPositionChanged;
+
+  @override
+  Stream<Duration> get durations => _player.onDurationChanged;
+
+  @override
+  Stream<void> get completions => _player.onPlayerComplete;
+
+  @override
+  Future<void> start(String assetKey) => _player.play(AssetSource(assetKey));
+
+  @override
+  Future<void> pause() => _player.pause();
+
+  @override
+  Future<void> resume() => _player.resume();
+
+  @override
+  Future<void> seek(Duration to) => _player.seek(to);
+
+  @override
+  Future<void> stop() => _player.stop();
+
+  @override
+  Future<void> dispose() => _player.dispose();
 }

@@ -39,7 +39,8 @@ class StoryLobbyScreen extends StatefulWidget {
   final VoidCallback onExit;
 
   /// The table is ready: [players] in hand-off order (one blank name solo).
-  final void Function(List<String> players) onPlay;
+  /// The last how-to button waits on it (the deal may ask the server).
+  final Future<void> Function(List<String> players) onPlay;
 
   @override
   State<StoryLobbyScreen> createState() => _StoryLobbyScreenState();
@@ -55,6 +56,7 @@ class _StoryLobbyScreenState extends State<StoryLobbyScreen> {
   List<String> _players = const [];
   int _card = 0;
   bool _howToSeen = false;
+  bool _dealing = false;
 
   @override
   void initState() {
@@ -93,8 +95,14 @@ class _StoryLobbyScreenState extends State<StoryLobbyScreen> {
   }
 
   Future<void> _finishHowTo() async {
-    await widget.memory.markHowToSeen(_mode.name);
-    widget.onPlay(_players);
+    if (_dealing) return;
+    setState(() => _dealing = true);
+    try {
+      await widget.memory.markHowToSeen(_mode.name);
+      await widget.onPlay(_players);
+    } finally {
+      if (mounted) setState(() => _dealing = false);
+    }
   }
 
   void _submitNames() {
@@ -133,11 +141,14 @@ class _StoryLobbyScreenState extends State<StoryLobbyScreen> {
     onPopInvokedWithResult: (didPop, _) {
       if (!didPop) _back();
     },
-    child: switch (_page) {
-      _LobbyPage.file => _file(context),
-      _LobbyPage.names => _namesPage(context),
-      _LobbyPage.howTo => _howTo(context),
-    },
+    child: KeyedSubtree(
+      key: PageStorageKey<_LobbyPage>(_page),
+      child: switch (_page) {
+        _LobbyPage.file => _file(context),
+        _LobbyPage.names => _namesPage(context),
+        _LobbyPage.howTo => _howTo(context),
+      },
+    ),
   );
 
   Widget _file(BuildContext context) {
@@ -328,7 +339,7 @@ class _StoryLobbyScreenState extends State<StoryLobbyScreen> {
       trailing: _howToSeen
           ? TextButton(
               key: StoryLobbyScreen.skipKey,
-              onPressed: _finishHowTo,
+              onPressed: _dealing ? null : _finishHowTo,
               child: Text(
                 l.sv2GotIt,
                 style: const TextStyle(color: StoriesLampTokens.amberHi),
@@ -337,8 +348,16 @@ class _StoryLobbyScreenState extends State<StoryLobbyScreen> {
           : null,
       footer: LampButton(
         key: StoryLobbyScreen.nextKey,
-        label: last ? l.sv2LetsPlay : l.sv2Next,
-        onPressed: last ? _finishHowTo : () => setState(() => _card++),
+        label: _dealing
+            ? l.sv2Dealing
+            : last
+            ? l.sv2LetsPlay
+            : l.sv2Next,
+        onPressed: _dealing
+            ? null
+            : last
+            ? _finishHowTo
+            : () => setState(() => _card++),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: s.screenMargin),
@@ -462,7 +481,7 @@ Future<void> showStoryCard(
   final l = context.l10n;
   return SafeArea(
     top: false,
-    child: Padding(
+    child: SingleChildScrollView(
       padding: EdgeInsets.all(s.screenMargin),
       child: Column(
         mainAxisSize: MainAxisSize.min,

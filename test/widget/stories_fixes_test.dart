@@ -12,6 +12,7 @@ import 'package:mafia_master/stories/story_session.dart';
 import 'package:mafia_master/ui/screens/stories/stories_screen.dart';
 import 'package:mafia_master/ui/screens/stories/story_case_widgets.dart';
 import 'package:mafia_master/ui/screens/stories/story_flow_screen.dart';
+import 'package:mafia_master/ui/screens/stories/v2/lamp_kit.dart';
 import 'package:mafia_master/ui/screens/stories/story_rewards.dart';
 import 'package:mafia_master/ui/economy/bot_rewards.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
@@ -289,7 +290,7 @@ void main() {
       120,
       scrollable: find.byType(Scrollable).last,
     );
-    expect(tester.widget<OutlinedButton>(two).onPressed, isNull);
+    expect(tester.widget<LampButton>(two).onPressed, isNull);
     await tapKey(tester, const ValueKey('story_players_1'));
     await tester.pumpAndSettle();
     expect(seeds, 1);

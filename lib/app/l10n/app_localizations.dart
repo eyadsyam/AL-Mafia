@@ -12409,6 +12409,78 @@ abstract class AppLocalizations {
   /// **'Not this time'**
   String get sv2SoloLost;
 
+  /// No description provided for @sv2SoloClose.
+  ///
+  /// In en, this message translates to:
+  /// **'So close'**
+  String get sv2SoloClose;
+
+  /// No description provided for @sv2Dealing.
+  ///
+  /// In en, this message translates to:
+  /// **'Setting up the table…'**
+  String get sv2Dealing;
+
+  /// No description provided for @sv2HubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cases'**
+  String get sv2HubTitle;
+
+  /// No description provided for @sv2HubOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Not solved yet'**
+  String get sv2HubOpen;
+
+  /// No description provided for @sv2HubPlayersAll.
+  ///
+  /// In en, this message translates to:
+  /// **'1 to 10'**
+  String get sv2HubPlayersAll;
+
+  /// No description provided for @sv2HubPlayersFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Solo, or {n} to 10'**
+  String sv2HubPlayersFrom(int n);
+
+  /// No description provided for @sv2LengthQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'About a quarter of an hour'**
+  String get sv2LengthQ1;
+
+  /// No description provided for @sv2LengthQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'About half an hour'**
+  String get sv2LengthQ2;
+
+  /// No description provided for @sv2LengthQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'About three quarters of an hour'**
+  String get sv2LengthQ3;
+
+  /// No description provided for @sv2LengthQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'About an hour'**
+  String get sv2LengthQ4;
+
+  /// No description provided for @sv2LengthQ5.
+  ///
+  /// In en, this message translates to:
+  /// **'About an hour and a quarter'**
+  String get sv2LengthQ5;
+
+  /// No description provided for @sv2LengthQ6.
+  ///
+  /// In en, this message translates to:
+  /// **'About an hour and a half'**
+  String get sv2LengthQ6;
+
   /// No description provided for @sv2PickRight.
   ///
   /// In en, this message translates to:

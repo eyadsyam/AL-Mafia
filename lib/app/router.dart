@@ -477,6 +477,14 @@ GoRouter buildRouter(
             claimReward: (completion) => claimStoryReward(
               ProviderScope.containerOf(context), completion,
             ),
+            startV2Session: (story, players, avoid) => startStorySession(
+              ProviderScope.containerOf(context),
+              storyId: story, players: players, avoid: avoid,
+            ),
+            claimV2Reward: (session, accusation) => claimStorySession(
+              ProviderScope.containerOf(context),
+              sessionId: session, accusation: accusation,
+            ),
             beforeStory: () async {
               await ref.read(interstitialCoordinatorProvider).beforeDeal();
             },

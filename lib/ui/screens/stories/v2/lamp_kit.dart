@@ -39,50 +39,57 @@ class LampScaffold extends StatelessWidget {
             stops: [0, StoriesLampTokens.glowHeight],
           ),
         ),
+        // A phone-wide column on a tablet or a desktop browser, so lines,
+        // faces and the hold pad keep their phone proportions.
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (onBack != null || title != null || trailing != null)
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: s.sm),
-                  child: Row(
-                    children: [
-                      if (onBack != null)
-                        IconButton(
-                          onPressed: onBack,
-                          tooltip: MaterialLocalizations.of(
-                            context,
-                          ).backButtonTooltip,
-                          icon: const Icon(Icons.arrow_back_rounded),
-                          color: StoriesLampTokens.text2,
-                        ),
-                      Expanded(
-                        child: Text(
-                          title ?? '',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: type.caption.copyWith(
-                            color: StoriesLampTokens.muted,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: s.maxContentWidth),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (onBack != null || title != null || trailing != null)
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: s.sm),
+                      child: Row(
+                        children: [
+                          if (onBack != null)
+                            IconButton(
+                              onPressed: onBack,
+                              tooltip: MaterialLocalizations.of(
+                                context,
+                              ).backButtonTooltip,
+                              icon: const Icon(Icons.arrow_back_rounded),
+                              color: StoriesLampTokens.text2,
+                            ),
+                          Expanded(
+                            child: Text(
+                              title ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: type.caption.copyWith(
+                                color: StoriesLampTokens.muted,
+                              ),
+                            ),
                           ),
-                        ),
+                          ?trailing,
+                        ],
                       ),
-                      ?trailing,
-                    ],
-                  ),
-                ),
-              Expanded(child: body),
-              if (footer case final footer?)
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    s.screenMargin,
-                    s.sm,
-                    s.screenMargin,
-                    s.md,
-                  ),
-                  child: footer,
-                ),
-            ],
+                    ),
+                  Expanded(child: body),
+                  if (footer case final footer?)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        s.screenMargin,
+                        s.sm,
+                        s.screenMargin,
+                        s.md,
+                      ),
+                      child: footer,
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -632,6 +639,7 @@ Future<T?> showLampSheet<T>(BuildContext context, WidgetBuilder builder) =>
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: StoriesLampTokens.panel,
+      constraints: BoxConstraints(maxWidth: context.spacing.maxContentWidth),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(StoriesLampTokens.radiusSheet),

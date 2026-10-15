@@ -101,7 +101,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
-        expect(find.text(arStrings.storiesArchiveTitle), findsOneWidget);
+        expect(find.text(arStrings.sv2HubTitle), findsOneWidget);
         expect(find.text(arStrings.storiesStampSolvedScore(1200)), findsOneWidget);
         expect(find.byKey(StoriesHub.startKey(cafe.id)), findsOneWidget);
 

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
 import 'audio_director.dart' show webAudioAssetKey;
@@ -10,6 +9,8 @@ import 'audio_director.dart' show webAudioAssetKey;
 enum NarrationState { idle, loading, playing, paused, ended, error }
 
 /// The seam between the controller and a real player, so tests drive it.
+/// The real one is `PluginNarrationPlayer`, in `audio_backend.dart` (the one
+/// file that knows the audio package).
 abstract class NarrationPlayer {
   Stream<Duration> get positions;
   Stream<Duration> get durations;
@@ -21,41 +22,6 @@ abstract class NarrationPlayer {
   Future<void> seek(Duration to);
   Future<void> stop();
   Future<void> dispose();
-}
-
-/// The audioplayers-backed player: its own instance, separate from the cue
-/// pool and the score loop, in media mode because it seeks.
-class PluginNarrationPlayer implements NarrationPlayer {
-  final AudioPlayer _player = AudioPlayer()
-    ..setPlayerMode(PlayerMode.mediaPlayer)
-    ..setReleaseMode(ReleaseMode.stop);
-
-  @override
-  Stream<Duration> get positions => _player.onPositionChanged;
-
-  @override
-  Stream<Duration> get durations => _player.onDurationChanged;
-
-  @override
-  Stream<void> get completions => _player.onPlayerComplete;
-
-  @override
-  Future<void> start(String assetKey) => _player.play(AssetSource(assetKey));
-
-  @override
-  Future<void> pause() => _player.pause();
-
-  @override
-  Future<void> resume() => _player.resume();
-
-  @override
-  Future<void> seek(Duration to) => _player.seek(to);
-
-  @override
-  Future<void> stop() => _player.stop();
-
-  @override
-  Future<void> dispose() => _player.dispose();
 }
 
 /// One story narration with real position and duration: play, pause, seek

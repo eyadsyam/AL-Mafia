@@ -7088,6 +7088,44 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sv2SoloLost => 'المرة دي لأ';
 
   @override
+  String get sv2SoloClose => 'قرّبت';
+
+  @override
+  String get sv2Dealing => 'بنجهّز القعدة…';
+
+  @override
+  String get sv2HubTitle => 'القضايا';
+
+  @override
+  String get sv2HubOpen => 'لسه ما اتحلّتش';
+
+  @override
+  String get sv2HubPlayersAll => 'من ١ لـ١٠';
+
+  @override
+  String sv2HubPlayersFrom(int n) {
+    return 'لوحدك، أو من $n لـ١٠';
+  }
+
+  @override
+  String get sv2LengthQ1 => 'ربع ساعة تقريبًا';
+
+  @override
+  String get sv2LengthQ2 => 'نص ساعة تقريبًا';
+
+  @override
+  String get sv2LengthQ3 => 'ساعة إلا ربع تقريبًا';
+
+  @override
+  String get sv2LengthQ4 => 'ساعة تقريبًا';
+
+  @override
+  String get sv2LengthQ5 => 'ساعة وربع تقريبًا';
+
+  @override
+  String get sv2LengthQ6 => 'ساعة ونص تقريبًا';
+
+  @override
   String sv2PickRight(String name) {
     return 'الاختيار كان $name، وكان صح.';
   }

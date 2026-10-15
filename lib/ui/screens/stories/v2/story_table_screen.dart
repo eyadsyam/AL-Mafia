@@ -34,6 +34,7 @@ class StoryTableScreen extends StatefulWidget {
   static const resultKey = ValueKey('sv2_see_result');
   static const bonusKey = ValueKey('sv2_bonus_search');
   static const againKey = ValueKey('sv2_play_again');
+  static const foundBackKey = ValueKey('sv2_found_back');
   static Key placeKey(String id) => ValueKey('sv2_place_$id');
   static Key pickKey(String id) => ValueKey('sv2_pick_$id');
   static Key motiveKey(String id) => ValueKey('sv2_motive_$id');
@@ -99,7 +100,7 @@ class _StoryTableScreenState extends State<StoryTableScreen>
       final s = context.spacing;
       return SafeArea(
         top: false,
-        child: Padding(
+        child: SingleChildScrollView(
           padding: EdgeInsets.all(s.screenMargin),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -142,18 +143,32 @@ class _StoryTableScreenState extends State<StoryTableScreen>
         _confirmExit();
       }
     },
-    child: switch (_session.stage) {
-      StoryStage.cast => _cast(context),
-      StoryStage.handoff => _handoff(context),
-      StoryStage.card => _card(context),
-      StoryStage.secret => _secret(context),
-      StoryStage.introductions => _introduction(context),
-      StoryStage.desk => _desk(context),
-      StoryStage.decision => _decision(context),
-      StoryStage.reveal => _reveal(context),
-      StoryStage.result => _result(context),
-    },
+    // Each page keeps its own scroll: one ListView's offset never carries
+    // into the next page (the decision opened scrolled past its faces), and
+    // each seat's card starts at the top. The desk keeps its place.
+    child: KeyedSubtree(
+      key: PageStorageKey<String>(switch (_session.stage) {
+        StoryStage.handoff ||
+        StoryStage.card ||
+        StoryStage.secret ||
+        StoryStage.introductions => '${_session.stage.name}${_session.turn}',
+        _ => _session.stage.name,
+      }),
+      child: _page(context),
+    ),
   );
+
+  Widget _page(BuildContext context) => switch (_session.stage) {
+    StoryStage.cast => _cast(context),
+    StoryStage.handoff => _handoff(context),
+    StoryStage.card => _card(context),
+    StoryStage.secret => _secret(context),
+    StoryStage.introductions => _introduction(context),
+    StoryStage.desk => _desk(context),
+    StoryStage.decision => _decision(context),
+    StoryStage.reveal => _reveal(context),
+    StoryStage.result => _result(context),
+  };
 
   // ---- public: who plays whom -------------------------------------------
 
@@ -612,7 +627,7 @@ class _StoryTableScreenState extends State<StoryTableScreen>
       final s = context.spacing;
       return SafeArea(
         top: false,
-        child: Padding(
+        child: SingleChildScrollView(
           padding: EdgeInsets.all(s.screenMargin),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -639,7 +654,7 @@ class _StoryTableScreenState extends State<StoryTableScreen>
       final s = context.spacing;
       return SafeArea(
         top: false,
-        child: Padding(
+        child: SingleChildScrollView(
           padding: EdgeInsets.all(s.screenMargin),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -653,6 +668,7 @@ class _StoryTableScreenState extends State<StoryTableScreen>
                 SizedBox(height: s.sm),
               ],
               LampButton(
+                key: StoryTableScreen.foundBackKey,
                 label: l.sv2Back,
                 onPressed: () => Navigator.pop(context),
               ),
@@ -846,7 +862,12 @@ class _StoryTableScreenState extends State<StoryTableScreen>
       StoryTableMode.detective =>
         solved ? l.sv2DetectiveWon : l.sv2KillerEscaped,
       StoryTableMode.allSuspects => solved ? l.sv2TableWon : l.sv2TableLost,
-      StoryTableMode.solo => solved ? l.sv2SoloWon : l.sv2SoloLost,
+      StoryTableMode.solo =>
+        solved
+            ? l.sv2SoloWon
+            : _session.whoRight
+            ? l.sv2SoloClose
+            : l.sv2SoloLost,
     };
     return LampScaffold(
       footer: Column(
@@ -870,7 +891,7 @@ class _StoryTableScreenState extends State<StoryTableScreen>
         children: [
           LampTitle(title, small: true),
           LampMeta(
-            solved
+            _session.whoRight
                 ? l.sv2PickRight(picked)
                 : l.sv2PickWrong(picked, culprit.name),
           ),

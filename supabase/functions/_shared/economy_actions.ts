@@ -265,6 +265,31 @@ export function economyCall(
             p_motive: body.motive, p_method: body.method,
           } }
         : null;
+    // «قصص» V2: the server deals who did it for one table, then checks the
+    // table's answer (groups send who only) against that session.
+    case "storyStart": {
+      const avoid = body.avoid ?? [];
+      return typeof body.story === "string" && STORY_ID.test(body.story) &&
+          Number.isInteger(body.players) && (body.players as number) >= 1 &&
+          (body.players as number) <= 10 && Array.isArray(avoid) &&
+          avoid.length <= 10 &&
+          avoid.every((id) => typeof id === "string" && STORY_ID.test(id))
+        ? { rpc: "start_story_session", args: {
+            p_user: userId, p_story: body.story, p_players: body.players, p_avoid: avoid,
+          } }
+        : null;
+    }
+    case "storyClaim":
+      return typeof body.sessionId === "string" && UUID.test(body.sessionId) &&
+          typeof body.who === "string" && STORY_ID.test(body.who) &&
+          [body.why, body.how].every(
+            (pick) => pick == null || (typeof pick === "string" && STORY_ID.test(pick)),
+          )
+        ? { rpc: "claim_story_session", args: {
+            p_user: userId, p_session: body.sessionId.toLowerCase(), p_who: body.who,
+            p_why: body.why ?? null, p_how: body.how ?? null,
+          } }
+        : null;
     // «العب ضد البوتات»: a win pays, capped per day by the server.
     case "botStart":
       return { rpc: "start_bot_match", args: { p_user: userId } };
@@ -319,6 +344,7 @@ export const ECONOMY_REFUSALS = [
   "NOT_FOUND", "ALREADY_CLAIMED", "NO_ATTEMPTS", "ALREADY_SOLVED", "BAD_REQUEST",
   "BAD_PACK", "NOT_A_MEMBER", "NOT_PLAYING", "NOT_ALIVE", "ALIVE", "WRONG_PHASE", "BAD_TARGETS",
   "BAD_NOTE", "LIMIT_MATCH", "LIMIT_HEAVY", "LIMIT_TOOL", "LIMIT_PHASE", "NO_CHARGES",
+  "STORY_LIMIT",
 ] as const;
 
 export function refusalOf(message: string | undefined): string | null {

@@ -94,7 +94,15 @@ class StorySessionV2 {
       searchesLeft == 0 &&
       searched.length < table.world.places.length;
 
-  bool get solved => accusation?.suspectId == table.culpritId;
+  /// The accusation named the one who did it.
+  bool get whoRight => accusation?.suspectId == table.culpritId;
+
+  /// The case is solved: who, and solo also why and how (the story's coins
+  /// and the hub's «اتحلّت» follow this).
+  bool get solved =>
+      whoRight &&
+      (table.mode != StoryTableMode.solo ||
+          (motiveRight == true && methodRight == true));
 
   bool? get motiveRight => accusation?.motiveId == null
       ? null
