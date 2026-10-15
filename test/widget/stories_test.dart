@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/stories/story_model.dart';
 import 'package:mafia_master/stories/story_progress.dart';
 import 'package:mafia_master/ui/screens/stories/stories_screen.dart';
+import 'package:mafia_master/ui/economy/all_access.dart';
 import 'package:mafia_master/ui/screens/stories/story_case_widgets.dart';
 import 'package:mafia_master/ui/screens/stories/story_flow_screen.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
@@ -23,6 +25,24 @@ void main() {
     lockedRoom = StoryDefinition.decode(
       File('assets/stories/el_oda_el_mafoola.json').readAsStringSync(),
     );
+  });
+
+  testWidgets('all access opens a near-impossible story', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [allAccessProvider.overrideWithValue(true)],
+        child: localizedApp(
+          StoriesHub(
+            stories: [lockedRoom],
+            progress: const StoryProgress(),
+            onBack: () {},
+            onStart: (_, _) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(StoriesHub.startKey(lockedRoom.id)), findsOneWidget);
   });
 
   testWidgets('hub shows scores and enforces near-impossible lock', (
@@ -75,7 +95,10 @@ void main() {
     );
     await tester.tap(find.byKey(StoryFlowScreen.accusationButtonKey));
     await tester.pumpAndSettle();
-    await _pick(tester, StoryAccusationForm.suspectKey(cafe.truth.primaryCulprit));
+    await _pick(
+      tester,
+      StoryAccusationForm.suspectKey(cafe.truth.primaryCulprit),
+    );
     await _pick(tester, StoryAccusationForm.motiveKey(cafe.truth.motive));
     await _pick(tester, StoryAccusationForm.methodKey(cafe.truth.method));
     await tester.tap(find.byKey(StoryFlowScreen.closeCaseKey));

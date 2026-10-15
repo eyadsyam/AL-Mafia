@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../economy/all_access.dart' show allAccessProvider;
 
 import '../../widgets/deck/deck_public.dart' show DeckChip, DeckRise;
 import '../../widgets/mafia_kit.dart';
@@ -176,7 +178,7 @@ class StorySessionLaunch {
   final int seed;
 }
 
-class StoriesHub extends StatefulWidget {
+class StoriesHub extends ConsumerStatefulWidget {
   const StoriesHub({
     super.key,
     required this.stories,
@@ -196,10 +198,10 @@ class StoriesHub extends StatefulWidget {
   final void Function(StoryDefinition story, int playerCount) onStart;
 
   @override
-  State<StoriesHub> createState() => _StoriesHubState();
+  ConsumerState<StoriesHub> createState() => _StoriesHubState();
 }
 
-class _StoriesHubState extends State<StoriesHub> {
+class _StoriesHubState extends ConsumerState<StoriesHub> {
   /// null = all categories.
   String? _category;
 
@@ -291,6 +293,7 @@ class _StoriesHubState extends State<StoriesHub> {
     final l = context.l10n;
     final locked =
         story.isNearImpossible &&
+        !ref.watch(allAccessProvider) &&
         !widget.progress.isNearImpossibleUnlocked(story.category);
     final solved = widget.progress.solvedStoryIds.contains(story.id);
     final best = widget.progress.bestFor(story.id);

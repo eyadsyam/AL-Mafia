@@ -3556,13 +3556,13 @@ Files:      see docs/reviews/LAUNCH-GAPS.md
 Verified:   flutter analyze, flutter test, SQL harness (incl. delete_my_account catalog sweep, min_app_build), error envelope
 Gate:       see final report
 Open:       migrations 20260930001100 and 20260930001200 and function delete_account must be deployed; other online surfaces keep their own Arabic failure lines; council_life emblem test is fixed in the art lane
-## PHASE 1.1 delivery � done
+## PHASE 1.1 delivery � done
 Built: Merged web parity and legacy room links; transfer approval/rejection push plus foreground and review polling; Play purchase listener starts at app launch.
 Files: lib/app/app.dart, lib/ui/economy/{coin_packs,play_offers}.dart, lib/ui/social/push_prompt.dart, lib/ui/theme/design_tokens.dart, supabase/functions/{coin_orders/index.ts,_shared/push.ts}, supabase/tests/invites_push.test.mjs, docs/reviews/LAUNCH-AUDIT.md
 Verified: room-link widget tests, coin-store tests, push Node tests, SQL migrations and tests; full Flutter gate running.
 Gate: PASS (targeted); full gate pending
 Open: H5 web ads remain disabled pending independently verifiable rewarded completion.
-## PHASE 1.1 production publish � done
+## PHASE 1.1 production publish � done
 Built: Pushed branch, applied ordered web-ads/account/update migrations, deployed friends/coin_orders/delete_account, published both web hosts, ran production smoke checks.
 Files: tool/prod_launch_smoke.mjs, tool/verify_web_release.mjs
 Verified: Flutter 1670 passing (1 skipped); SQL 75/75; Node 20/20; error envelope PASS; production 7/7 smoke checks; Cloudflare and Vercel main.dart.js MD5 matches local.
@@ -3616,7 +3616,7 @@ Verified:   Cloudflare DoH returned all three MX and one root SPF; Resend send s
 Gate:       FAIL
 Open:       Fresh post-training Inbox placement is unproven; Cloudflare routing status still says Syncing. Postmaster domain entry is unverified because its management page did not expose a verification TXT.
 
-## PHASE 1 UX AUDIT � done
+## PHASE 1 UX AUDIT � done
 Built:      Ranked whole-app P0/P1/P2 audit from fresh 390/412 web walkthrough and unreachable-widget review.
 Files:      docs/ux/AUDIT-2026-10-02.md, docs/PROGRESS.md
 Verified:   flutter build web --release completed; 53 before screenshots in scratchpad/ux; code review for backend-gated flows.
@@ -3830,3 +3830,14 @@ Open:       owner uploads release/1.3.0/mafia-master-1.3.0-16.aab; AdSense accou
 - 1.3.0 (16) sent for closed-testing review 2026-10-09 22:30.
 - Smoothness pass, web + Android, never touching animations: startup deferral, image decode sizes, lazy audio, repaint isolation, try --wasm. Baseline from tool/web_perf_probe.mjs on ?web=1: iPhone first frame 3.0 s, p95 61 ms; Android 8.3 s, p95 267 ms; desktop 4.3 s, p95 17 ms.
 - Shorebird over-the-air updates: the owner creates the account (console.shorebird.dev, `shorebird login`), then shorebird init/release once through Play, patches after that; in-app images can come from the server.
+
+## PHASE owner-all-access (Stories V2 plan P1) — done locally
+Built:      Server grant `all_access_grants` + `has_all_access` OR'ed into item, entitlement (never ad removal), catalog price, buy, equip, wallet/purchase/tool snapshots, tool buy and use (charges never run out, per-match limits kept); service-role `grant_all_access_by_email` / `revoke_all_access`; `wallet_snapshot.allAccess` drives the one device-side gate (near-impossible stories). The paid starter-bundle gate and the refund paths are untouched (Claude removed Codex's changes there: they touched money code for no ownership gain). Client screens read ownership from the server snapshots, so no per-screen checks.
+Files:      supabase/migrations/20261015000100_all_access_grants.sql, supabase/tests/all_access_grants.sql, lib/ui/economy/{all_access,wallet}.dart, lib/ui/screens/stories/stories_screen.dart, test/ui/economy/all_access_test.dart, test/widget/stories_test.dart
+Verified:   `node tool/test_sql_without_docker.mjs` 79/84 (all_access_grants passes; the five known stale files fail as before); flutter analyze on changed files: no issues; flutter test over 15 files (all-access, stories, roles, store, setup, online entry, bots, rematch): 146 passed
+Gate:       PASS (local)
+Open:       Not applied live. Live apply + `select grant_all_access_by_email('<owner email>','owner')` only on the owner's word.
+
+## NEXT (owner, 2026-10-15)
+- Stories V2: `docs/plans/STORIES-V2-PLAN.md` — mockups with 2–3 looks, then the pilot «قهوة المعلم»; the owner picks a Ziad take (build/voice-samples).
+- Mafia core audit: `docs/plans/MAFIA-CORE-AUDIT-PLAN.md` — every role, tool and mode, the text shown, and Dart↔TypeScript rule parity.

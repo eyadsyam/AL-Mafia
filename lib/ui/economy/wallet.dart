@@ -82,15 +82,21 @@ class WalletState {
   final Map<String, String> equipped;
   final List<LedgerEntry> history;
 
+  /// The account holds an owner grant: the server already lists every item
+  /// as owned; this flag only opens what the device gates itself (stories).
+  final bool allAccess;
+
   const WalletState({
     required this.balance,
     required this.catalog,
     required this.owned,
     required this.equipped,
     required this.history,
+    this.allAccess = false,
   });
 
   factory WalletState.fromJson(Map<String, dynamic> json) => WalletState(
+    allAccess: json['allAccess'] == true,
     balance: (json['balance'] as num?)?.toInt() ?? 0,
     // One unreadable row is skipped, never allowed to blank the whole shelf.
     catalog: [
@@ -126,6 +132,7 @@ class WalletState {
     owned: owned,
     equipped: equipped,
     history: history,
+    allAccess: allAccess,
   );
 
   WalletItem? item(String code) =>
