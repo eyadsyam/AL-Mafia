@@ -3838,6 +3838,13 @@ Verified:   `node tool/test_sql_without_docker.mjs` 79/84 (all_access_grants pas
 Gate:       PASS (local)
 Open:       Not applied live. Live apply + `select grant_all_access_by_email('<owner email>','owner')` only on the owner's word.
 
+## PHASE stories-v2-pilot (Stories V2 plan P2+P4, pilot only) — done locally
+Built:      «قهوة المعلم» as a format-2 world written by Claude (Codex's draft discarded), plain opening narrated by Ziad (calm); pure seeded engine (deal per table size, culprit always played and avoiding recent ones, partner only at 5–10), Checker V3, session for solo / 2–4 / 5–10; narrator controller (play, pause, seek, ±5 s, restart, end); lamp-look screens S0–S12; hub routes the pilot to V2, the other 23 stay on the old flow.
+Files:      lib/stories/v2/{world,table,session,world_checker}.dart, lib/ui/screens/stories/v2/*, lib/platform/narration_controller.dart, lib/data/{story_world_catalog,story_v2_memory}.dart, lib/ui/screens/stories/stories_screen.dart, lib/ui/theme/design_tokens.dart (StoriesLampTokens), lib/app/l10n/*, assets/stories_v2/, assets/voice/stories_v2/, pubspec.yaml, tests under test/stories/v2, test/widget/stories_v2_flow_test.dart, test/platform/narration_controller_test.dart, test/screenshots/stories_v2_screenshots.dart
+Verified:   flutter analyze on all touched code: no issues; flutter test over 13 files (engine 13, narration 6, V2 flows 6, old stories, tokens, l10n coverage, glyphs, accessibility, asset manifest, all-access): 134 passed; screens rendered to build/screens_stories_v2 and looked at. Not run on a device (no build without the owner's word).
+Gate:       PASS (local)
+Open:       story coins for V2 tables (needs the story-session server work); hub restyle to the lamp look; detective portrait is a stand-in (suspect_n14) until Codex art; a real table at 1, 2, 3, 5, 7 and 10; the other 23 stories.
+
 ## NEXT (owner, 2026-10-15)
-- Stories V2: `docs/plans/STORIES-V2-PLAN.md` — mockups with 2–3 looks, then the pilot «قهوة المعلم»; the owner picks a Ziad take (build/voice-samples).
+- Stories V2: owner plays the pilot (needs a build on his word); then the hub restyle, story sessions for coins, Codex art, the other 23 stories.
 - Mafia core audit: `docs/plans/MAFIA-CORE-AUDIT-PLAN.md` — every role, tool and mode, the text shown, and Dart↔TypeScript rule parity.
