@@ -11532,6 +11532,996 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again'**
   String get permissionRetry;
+
+  /// No description provided for @sv2AboutLead.
+  ///
+  /// In en, this message translates to:
+  /// **'In every case a crime happened, and one of the characters did it.'**
+  String get sv2AboutLead;
+
+  /// No description provided for @sv2ModeSoloCount.
+  ///
+  /// In en, this message translates to:
+  /// **'1'**
+  String get sv2ModeSoloCount;
+
+  /// No description provided for @sv2ModeSoloTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On your own'**
+  String get sv2ModeSoloTitle;
+
+  /// No description provided for @sv2ModeSoloBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the detective. Read, search, and say who.'**
+  String get sv2ModeSoloBody;
+
+  /// No description provided for @sv2ModeAllCount.
+  ///
+  /// In en, this message translates to:
+  /// **'2–4'**
+  String get sv2ModeAllCount;
+
+  /// No description provided for @sv2ModeAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are all suspects'**
+  String get sv2ModeAllTitle;
+
+  /// No description provided for @sv2ModeAllBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Each of you plays a character, and one of you did it. Nobody knows who, not even them.'**
+  String get sv2ModeAllBody;
+
+  /// No description provided for @sv2ModeDetCount.
+  ///
+  /// In en, this message translates to:
+  /// **'5–10'**
+  String get sv2ModeDetCount;
+
+  /// No description provided for @sv2ModeDetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The detective among us'**
+  String get sv2ModeDetTitle;
+
+  /// No description provided for @sv2ModeDetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'One of you is the detective. The killer knows, and the detective decides at the end.'**
+  String get sv2ModeDetBody;
+
+  /// No description provided for @sv2AboutChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Every time you play, the story changes: the killer and the evidence.'**
+  String get sv2AboutChanges;
+
+  /// No description provided for @sv2AboutGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Show me the cases'**
+  String get sv2AboutGo;
+
+  /// No description provided for @sv2HowToPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'How to play?'**
+  String get sv2HowToPlay;
+
+  /// No description provided for @sv2Victim.
+  ///
+  /// In en, this message translates to:
+  /// **'Victim: {name}, {tag}'**
+  String sv2Victim(String name, String tag);
+
+  /// No description provided for @sv2PlayerRange.
+  ///
+  /// In en, this message translates to:
+  /// **'1 to 10 players'**
+  String get sv2PlayerRange;
+
+  /// No description provided for @sv2NarratorName.
+  ///
+  /// In en, this message translates to:
+  /// **'Ziad narrates'**
+  String get sv2NarratorName;
+
+  /// No description provided for @sv2Characters.
+  ///
+  /// In en, this message translates to:
+  /// **'The characters'**
+  String get sv2Characters;
+
+  /// No description provided for @sv2PlayFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Play with friends'**
+  String get sv2PlayFriends;
+
+  /// No description provided for @sv2PlaySolo.
+  ///
+  /// In en, this message translates to:
+  /// **'Play on your own'**
+  String get sv2PlaySolo;
+
+  /// No description provided for @sv2NarrRestart.
+  ///
+  /// In en, this message translates to:
+  /// **'From the start'**
+  String get sv2NarrRestart;
+
+  /// No description provided for @sv2NarrBack.
+  ///
+  /// In en, this message translates to:
+  /// **'5 seconds back'**
+  String get sv2NarrBack;
+
+  /// No description provided for @sv2NarrForward.
+  ///
+  /// In en, this message translates to:
+  /// **'5 seconds forward'**
+  String get sv2NarrForward;
+
+  /// No description provided for @sv2NarrPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get sv2NarrPlay;
+
+  /// No description provided for @sv2NarrPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get sv2NarrPause;
+
+  /// No description provided for @sv2NarrAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen again'**
+  String get sv2NarrAgain;
+
+  /// No description provided for @sv2NarrBackLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'−5'**
+  String get sv2NarrBackLabel;
+
+  /// No description provided for @sv2NarrForwardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'+5'**
+  String get sv2NarrForwardLabel;
+
+  /// No description provided for @sv2CountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How many are playing?'**
+  String get sv2CountTitle;
+
+  /// No description provided for @sv2CountSolo.
+  ///
+  /// In en, this message translates to:
+  /// **'On your own: you are the detective, with four suspects in front of you.'**
+  String get sv2CountSolo;
+
+  /// No description provided for @sv2CountAll.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} players · You are all suspects'**
+  String sv2CountAll(int n);
+
+  /// No description provided for @sv2CountAllBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Each of you plays a character, and one of you did it. Nobody knows who.'**
+  String get sv2CountAllBody;
+
+  /// No description provided for @sv2CountDet.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} players · The detective among us'**
+  String sv2CountDet(int n);
+
+  /// No description provided for @sv2CountDetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'One of you will be the detective, {k} will be suspects, and one of them is the killer.'**
+  String sv2CountDetBody(int k);
+
+  /// No description provided for @sv2NamesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your names'**
+  String get sv2NamesTitle;
+
+  /// No description provided for @sv2YourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get sv2YourName;
+
+  /// No description provided for @sv2NameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Player {n}'**
+  String sv2NameHint(int n);
+
+  /// No description provided for @sv2NamesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone writes a name'**
+  String get sv2NamesEmpty;
+
+  /// No description provided for @sv2NamesDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Two names are the same'**
+  String get sv2NamesDuplicate;
+
+  /// No description provided for @sv2Continue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get sv2Continue;
+
+  /// No description provided for @sv2Next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get sv2Next;
+
+  /// No description provided for @sv2GotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get sv2GotIt;
+
+  /// No description provided for @sv2LetsPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s play'**
+  String get sv2LetsPlay;
+
+  /// No description provided for @sv2HowDet1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'One of you is the detective'**
+  String get sv2HowDet1Title;
+
+  /// No description provided for @sv2HowDet1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'The game picks one of you to be the detective. The rest play characters from the story, and one of them did it.'**
+  String get sv2HowDet1Body;
+
+  /// No description provided for @sv2HowDet2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your card and your secret'**
+  String get sv2HowDet2Title;
+
+  /// No description provided for @sv2HowDet2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone goes round. Each of you reads their card aloud: who they are and what they did. Then they hold to see one line that is theirs alone: innocent, or the killer.'**
+  String get sv2HowDet2Body;
+
+  /// No description provided for @sv2HowDet3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Innocents and the killer'**
+  String get sv2HowDet3Title;
+
+  /// No description provided for @sv2HowDet3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Innocents say what is on their card, and say they are not sure about anything else. Only the killer may twist the truth.'**
+  String get sv2HowDet3Body;
+
+  /// No description provided for @sv2HowDet4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'The detective'**
+  String get sv2HowDet4Title;
+
+  /// No description provided for @sv2HowDet4Body.
+  ///
+  /// In en, this message translates to:
+  /// **'The detective keeps the phone to the end. He reads out what happened, picks three places to search, and reads aloud what he finds.'**
+  String get sv2HowDet4Body;
+
+  /// No description provided for @sv2HowDet5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'The decision'**
+  String get sv2HowDet5Title;
+
+  /// No description provided for @sv2HowDet5Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk as long as you like. Everyone defends themselves with the evidence. At the end the detective picks who did it. Right, and the innocents win. Wrong, and the killer wins.'**
+  String get sv2HowDet5Body;
+
+  /// No description provided for @sv2HowAll1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'You are all suspects'**
+  String get sv2HowAll1Title;
+
+  /// No description provided for @sv2HowAll1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Each of you takes a character from the story. One of you did it, and nobody knows who, not even them.'**
+  String get sv2HowAll1Body;
+
+  /// No description provided for @sv2HowAll2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Meet the characters'**
+  String get sv2HowAll2Title;
+
+  /// No description provided for @sv2HowAll2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Each of you reads their card aloud: who they are and what they did.'**
+  String get sv2HowAll2Body;
+
+  /// No description provided for @sv2HowAll3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get sv2HowAll3Title;
+
+  /// No description provided for @sv2HowAll3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'You have three searches. Choose the places together and read aloud what you find.'**
+  String get sv2HowAll3Body;
+
+  /// No description provided for @sv2HowAll4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Agree'**
+  String get sv2HowAll4Title;
+
+  /// No description provided for @sv2HowAll4Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk as long as you like, then agree on one. If you are right, you all win.'**
+  String get sv2HowAll4Body;
+
+  /// No description provided for @sv2HowSolo1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the detective'**
+  String get sv2HowSolo1Title;
+
+  /// No description provided for @sv2HowSolo1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'You play the story\'s detective. Four suspects are in front of you, and one of them did it.'**
+  String get sv2HowSolo1Body;
+
+  /// No description provided for @sv2HowSolo2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get sv2HowSolo2Title;
+
+  /// No description provided for @sv2HowSolo2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Read each card, then pick three places to search.'**
+  String get sv2HowSolo2Body;
+
+  /// No description provided for @sv2HowSolo3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your decision'**
+  String get sv2HowSolo3Title;
+
+  /// No description provided for @sv2HowSolo3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick who did it, why, and how.'**
+  String get sv2HowSolo3Body;
+
+  /// No description provided for @sv2CastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who plays whom'**
+  String get sv2CastTitle;
+
+  /// No description provided for @sv2Detective.
+  ///
+  /// In en, this message translates to:
+  /// **'The detective'**
+  String get sv2Detective;
+
+  /// No description provided for @sv2CastDetNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Who did it does not show here. Each of you finds out alone.'**
+  String get sv2CastDetNote;
+
+  /// No description provided for @sv2CastAllNote.
+  ///
+  /// In en, this message translates to:
+  /// **'One of you did it. Nobody knows who, not even them.'**
+  String get sv2CastAllNote;
+
+  /// No description provided for @sv2CastDetGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pass the phone'**
+  String get sv2CastDetGo;
+
+  /// No description provided for @sv2CastAllGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Meet the characters'**
+  String get sv2CastAllGo;
+
+  /// No description provided for @sv2PassCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{i} of {n}'**
+  String sv2PassCount(int i, int n);
+
+  /// No description provided for @sv2PassTo.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone goes to'**
+  String get sv2PassTo;
+
+  /// No description provided for @sv2LookAway.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone else looks away until they finish'**
+  String get sv2LookAway;
+
+  /// No description provided for @sv2IAm.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m {name}, open'**
+  String sv2IAm(String name);
+
+  /// No description provided for @sv2ReadAloudM.
+  ///
+  /// In en, this message translates to:
+  /// **'Read this aloud'**
+  String get sv2ReadAloudM;
+
+  /// No description provided for @sv2ReadAloudF.
+  ///
+  /// In en, this message translates to:
+  /// **'Read this aloud'**
+  String get sv2ReadAloudF;
+
+  /// No description provided for @sv2GoalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get sv2GoalLabel;
+
+  /// No description provided for @sv2HoldSecretM.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to see your secret'**
+  String get sv2HoldSecretM;
+
+  /// No description provided for @sv2HoldSecretF.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to see your secret'**
+  String get sv2HoldSecretF;
+
+  /// No description provided for @sv2HoldWhenM.
+  ///
+  /// In en, this message translates to:
+  /// **'when you have finished reading'**
+  String get sv2HoldWhenM;
+
+  /// No description provided for @sv2HoldWhenF.
+  ///
+  /// In en, this message translates to:
+  /// **'when you have finished reading'**
+  String get sv2HoldWhenF;
+
+  /// No description provided for @sv2InnocentM.
+  ///
+  /// In en, this message translates to:
+  /// **'You are innocent'**
+  String get sv2InnocentM;
+
+  /// No description provided for @sv2InnocentF.
+  ///
+  /// In en, this message translates to:
+  /// **'You are innocent'**
+  String get sv2InnocentF;
+
+  /// No description provided for @sv2InnocentSubM.
+  ///
+  /// In en, this message translates to:
+  /// **'Help the detective find who did it'**
+  String get sv2InnocentSubM;
+
+  /// No description provided for @sv2InnocentSubF.
+  ///
+  /// In en, this message translates to:
+  /// **'Help the detective find who did it'**
+  String get sv2InnocentSubF;
+
+  /// No description provided for @sv2InnocentNoteM.
+  ///
+  /// In en, this message translates to:
+  /// **'Say what is on your card. If it is not there, say you are not sure.'**
+  String get sv2InnocentNoteM;
+
+  /// No description provided for @sv2InnocentNoteF.
+  ///
+  /// In en, this message translates to:
+  /// **'Say what is on your card. If it is not there, say you are not sure.'**
+  String get sv2InnocentNoteF;
+
+  /// No description provided for @sv2KillerM.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the killer'**
+  String get sv2KillerM;
+
+  /// No description provided for @sv2KillerF.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the killer'**
+  String get sv2KillerF;
+
+  /// No description provided for @sv2KillerSubM.
+  ///
+  /// In en, this message translates to:
+  /// **'You may twist the truth'**
+  String get sv2KillerSubM;
+
+  /// No description provided for @sv2KillerSubF.
+  ///
+  /// In en, this message translates to:
+  /// **'You may twist the truth'**
+  String get sv2KillerSubF;
+
+  /// No description provided for @sv2KillerNoteM.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t let the detective reach you. If anyone asks, answer as you like.'**
+  String get sv2KillerNoteM;
+
+  /// No description provided for @sv2KillerNoteF.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t let the detective reach you. If anyone asks, answer as you like.'**
+  String get sv2KillerNoteF;
+
+  /// No description provided for @sv2PartnerIsM.
+  ///
+  /// In en, this message translates to:
+  /// **'Your partner: {name}'**
+  String sv2PartnerIsM(String name);
+
+  /// No description provided for @sv2PartnerIsF.
+  ///
+  /// In en, this message translates to:
+  /// **'Your partner: {name}'**
+  String sv2PartnerIsF(String name);
+
+  /// No description provided for @sv2PartnerM.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the partner'**
+  String get sv2PartnerM;
+
+  /// No description provided for @sv2PartnerF.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the partner'**
+  String get sv2PartnerF;
+
+  /// No description provided for @sv2KillerIsM.
+  ///
+  /// In en, this message translates to:
+  /// **'The killer: {name}'**
+  String sv2KillerIsM(String name);
+
+  /// No description provided for @sv2KillerIsF.
+  ///
+  /// In en, this message translates to:
+  /// **'The killer: {name}'**
+  String sv2KillerIsF(String name);
+
+  /// No description provided for @sv2PartnerNoteM.
+  ///
+  /// In en, this message translates to:
+  /// **'Defend yourself and the one with you without showing it.'**
+  String get sv2PartnerNoteM;
+
+  /// No description provided for @sv2PartnerNoteF.
+  ///
+  /// In en, this message translates to:
+  /// **'Defend yourself and the one with you without showing it.'**
+  String get sv2PartnerNoteF;
+
+  /// No description provided for @sv2SecretDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the detective'**
+  String get sv2SecretDetective;
+
+  /// No description provided for @sv2SecretDetectiveSub.
+  ///
+  /// In en, this message translates to:
+  /// **'No secret for you'**
+  String get sv2SecretDetectiveSub;
+
+  /// No description provided for @sv2SecretDetectiveNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait until the phone comes back to you.'**
+  String get sv2SecretDetectiveNote;
+
+  /// No description provided for @sv2HidePass.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide and pass the phone'**
+  String get sv2HidePass;
+
+  /// No description provided for @sv2HideToDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide and give the phone to the detective'**
+  String get sv2HideToDetective;
+
+  /// No description provided for @sv2IntroCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Meet them · {i} of {n}'**
+  String sv2IntroCount(int i, int n);
+
+  /// No description provided for @sv2IntroReader.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} reads'**
+  String sv2IntroReader(String name);
+
+  /// No description provided for @sv2ToTable.
+  ///
+  /// In en, this message translates to:
+  /// **'To the table'**
+  String get sv2ToTable;
+
+  /// No description provided for @sv2DeskDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'Detective\'s desk · {name}'**
+  String sv2DeskDetective(String name);
+
+  /// No description provided for @sv2DeskTable.
+  ///
+  /// In en, this message translates to:
+  /// **'The table'**
+  String get sv2DeskTable;
+
+  /// No description provided for @sv2DeskSolo.
+  ///
+  /// In en, this message translates to:
+  /// **'You are {name}'**
+  String sv2DeskSolo(String name);
+
+  /// No description provided for @sv2Replay.
+  ///
+  /// In en, this message translates to:
+  /// **'Hear the opening again'**
+  String get sv2Replay;
+
+  /// No description provided for @sv2ReadToAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Read to everyone'**
+  String get sv2ReadToAll;
+
+  /// No description provided for @sv2ReadTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'Read together'**
+  String get sv2ReadTogether;
+
+  /// No description provided for @sv2WhatYouKnow.
+  ///
+  /// In en, this message translates to:
+  /// **'What you know'**
+  String get sv2WhatYouKnow;
+
+  /// No description provided for @sv2TapToRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap anyone to read their card'**
+  String get sv2TapToRead;
+
+  /// No description provided for @sv2SearchesLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Searches · {left} of {total} left'**
+  String sv2SearchesLeft(int left, int total);
+
+  /// No description provided for @sv2Search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get sv2Search;
+
+  /// No description provided for @sv2Searched.
+  ///
+  /// In en, this message translates to:
+  /// **'Searched'**
+  String get sv2Searched;
+
+  /// No description provided for @sv2Decide.
+  ///
+  /// In en, this message translates to:
+  /// **'My decision'**
+  String get sv2Decide;
+
+  /// No description provided for @sv2Agree.
+  ///
+  /// In en, this message translates to:
+  /// **'We agree on one'**
+  String get sv2Agree;
+
+  /// No description provided for @sv2BonusSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'One more search (watch an ad)'**
+  String get sv2BonusSearch;
+
+  /// No description provided for @sv2FoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read what you found aloud'**
+  String get sv2FoundTitle;
+
+  /// No description provided for @sv2Back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get sv2Back;
+
+  /// No description provided for @sv2DecisionDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'The detective\'s decision'**
+  String get sv2DecisionDetective;
+
+  /// No description provided for @sv2DecisionTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Our decision'**
+  String get sv2DecisionTable;
+
+  /// No description provided for @sv2DecisionSolo.
+  ///
+  /// In en, this message translates to:
+  /// **'Your decision'**
+  String get sv2DecisionSolo;
+
+  /// No description provided for @sv2DecisionFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Who did it? Pick freely, no need to say why.'**
+  String get sv2DecisionFree;
+
+  /// No description provided for @sv2Who.
+  ///
+  /// In en, this message translates to:
+  /// **'Who did it?'**
+  String get sv2Who;
+
+  /// No description provided for @sv2Why.
+  ///
+  /// In en, this message translates to:
+  /// **'Why?'**
+  String get sv2Why;
+
+  /// No description provided for @sv2How.
+  ///
+  /// In en, this message translates to:
+  /// **'How?'**
+  String get sv2How;
+
+  /// No description provided for @sv2Confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm: {name}'**
+  String sv2Confirm(String name);
+
+  /// No description provided for @sv2PickSomeone.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick someone'**
+  String get sv2PickSomeone;
+
+  /// No description provided for @sv2RevealWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Who did it: {name}'**
+  String sv2RevealWho(String name);
+
+  /// No description provided for @sv2RevealPlayedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{player} was playing this character'**
+  String sv2RevealPlayedBy(String player);
+
+  /// No description provided for @sv2RevealWith.
+  ///
+  /// In en, this message translates to:
+  /// **'With them: {name}'**
+  String sv2RevealWith(String name);
+
+  /// No description provided for @sv2SeeResult.
+  ///
+  /// In en, this message translates to:
+  /// **'See the result'**
+  String get sv2SeeResult;
+
+  /// No description provided for @sv2DetectiveWon.
+  ///
+  /// In en, this message translates to:
+  /// **'The detective won'**
+  String get sv2DetectiveWon;
+
+  /// No description provided for @sv2KillerEscaped.
+  ///
+  /// In en, this message translates to:
+  /// **'The killer got away'**
+  String get sv2KillerEscaped;
+
+  /// No description provided for @sv2TableWon.
+  ///
+  /// In en, this message translates to:
+  /// **'You got it!'**
+  String get sv2TableWon;
+
+  /// No description provided for @sv2TableLost.
+  ///
+  /// In en, this message translates to:
+  /// **'It slipped past you'**
+  String get sv2TableLost;
+
+  /// No description provided for @sv2SoloWon.
+  ///
+  /// In en, this message translates to:
+  /// **'Solved'**
+  String get sv2SoloWon;
+
+  /// No description provided for @sv2SoloLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Not this time'**
+  String get sv2SoloLost;
+
+  /// No description provided for @sv2PickRight.
+  ///
+  /// In en, this message translates to:
+  /// **'The pick was {name}, and it was right.'**
+  String sv2PickRight(String name);
+
+  /// No description provided for @sv2PickWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'The pick was {name}, but it was {culprit}.'**
+  String sv2PickWrong(String name, String culprit);
+
+  /// No description provided for @sv2ResultMotive.
+  ///
+  /// In en, this message translates to:
+  /// **'Why: {label}'**
+  String sv2ResultMotive(String label);
+
+  /// No description provided for @sv2ResultMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'How: {label}'**
+  String sv2ResultMethod(String label);
+
+  /// No description provided for @sv2RoleDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'Detective'**
+  String get sv2RoleDetective;
+
+  /// No description provided for @sv2RoleKillerM.
+  ///
+  /// In en, this message translates to:
+  /// **'Killer'**
+  String get sv2RoleKillerM;
+
+  /// No description provided for @sv2RoleKillerF.
+  ///
+  /// In en, this message translates to:
+  /// **'Killer'**
+  String get sv2RoleKillerF;
+
+  /// No description provided for @sv2RolePartnerM.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner'**
+  String get sv2RolePartnerM;
+
+  /// No description provided for @sv2RolePartnerF.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner'**
+  String get sv2RolePartnerF;
+
+  /// No description provided for @sv2RoleInnocentM.
+  ///
+  /// In en, this message translates to:
+  /// **'Innocent'**
+  String get sv2RoleInnocentM;
+
+  /// No description provided for @sv2RoleInnocentF.
+  ///
+  /// In en, this message translates to:
+  /// **'Innocent'**
+  String get sv2RoleInnocentF;
+
+  /// No description provided for @sv2RoleCulpritM.
+  ///
+  /// In en, this message translates to:
+  /// **'Did it'**
+  String get sv2RoleCulpritM;
+
+  /// No description provided for @sv2RoleCulpritF.
+  ///
+  /// In en, this message translates to:
+  /// **'Did it'**
+  String get sv2RoleCulpritF;
+
+  /// No description provided for @sv2PlayAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Play again (it changes)'**
+  String get sv2PlayAgain;
+
+  /// No description provided for @sv2OtherCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Another case'**
+  String get sv2OtherCase;
+
+  /// No description provided for @sv2ExitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave this case?'**
+  String get sv2ExitTitle;
+
+  /// No description provided for @sv2ExitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This table will be lost.'**
+  String get sv2ExitBody;
+
+  /// No description provided for @sv2ExitYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get sv2ExitYes;
+
+  /// No description provided for @sv2ExitNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay'**
+  String get sv2ExitNo;
 }
 
 class _AppLocalizationsDelegate

@@ -12,8 +12,17 @@ import 'story_case_widgets.dart';
 import '../../../data/match_seed.dart';
 import '../../../data/story_catalog.dart';
 import '../../../data/story_progress_store.dart';
+import '../../../data/story_v2_memory.dart';
+import '../../../data/story_world_catalog.dart';
+import '../../../platform/narration_controller.dart';
 import '../../../stories/story_model.dart';
 import '../../../stories/story_progress.dart';
+import '../../../stories/v2/session.dart';
+import '../../../stories/v2/table.dart';
+import '../../../stories/v2/world.dart';
+import 'v2/story_about_screen.dart';
+import 'v2/story_lobby_screen.dart';
+import 'v2/story_table_screen.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
@@ -35,7 +44,22 @@ class StoriesScreen extends StatefulWidget {
     this.playNarration,
     this.stopNarration,
     this.newSeed = newMatchSeed,
+    this.worldCatalog = const StoryWorldCatalog(),
+    this.culpritHistory = const SharedPreferencesStoryCulpritHistory(),
+    this.v2Memory = const SharedPreferencesStoryV2Memory(),
+    this.narrationFactory = _pluginNarration,
   });
+
+  static NarrationController _pluginNarration() =>
+      NarrationController(PluginNarrationPlayer());
+
+  /// Stories V2: the rewritten cases, and what the phone remembers of them.
+  final StoryWorldCatalog worldCatalog;
+  final StoryCulpritHistory culpritHistory;
+  final StoryV2Memory v2Memory;
+
+  /// The narrator's player, made the first time a V2 case opens.
+  final NarrationController Function() narrationFactory;
 
   /// Mints the seating seed of each launch.
   final int Function() newSeed;
@@ -71,10 +95,28 @@ class _StoriesScreenState extends State<StoriesScreen> {
   StorySessionLaunch? _launch;
   Object? _error;
 
+  Map<String, StoryWorld> _worlds = const {};
+  bool? _aboutSeen;
+  bool _showAbout = false;
+  StoryDefinition? _v2Story;
+  List<String>? _v2Players;
+  StoryTable? _v2Table;
+  int _v2Seed = 0;
+  NarrationController? _narrationOrNull;
+
+  NarrationController get _narration =>
+      _narrationOrNull ??= widget.narrationFactory();
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _narrationOrNull?.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -82,16 +124,66 @@ class _StoriesScreenState extends State<StoriesScreen> {
       final values = await Future.wait<Object>([
         widget.catalog.load(),
         widget.progressStore.load(),
+        widget.worldCatalog.load(),
+        widget.v2Memory.aboutSeen(),
       ]);
       if (!mounted) return;
       setState(() {
         _stories = values[0] as List<StoryDefinition>;
         _progress = values[1] as StoryProgress;
+        _worlds = values[2] as Map<String, StoryWorld>;
+        _aboutSeen = values[3] as bool;
         _error = null;
       });
     } on Object catch (error) {
       if (mounted) setState(() => _error = error);
     }
+  }
+
+  Future<void> _dealV2(List<String> players) async {
+    final story = _v2Story;
+    final world = story == null ? null : _worlds[story.id];
+    if (story == null || world == null) return;
+    await widget.beforeStory?.call();
+    final recent = await widget.culpritHistory.recent(world.id);
+    if (!mounted) return;
+    final seed = widget.newSeed();
+    final table = StoryTable.deal(
+      world: world,
+      players: players,
+      seed: seed,
+      recentCulprits: recent,
+    );
+    await widget.culpritHistory.remember(world.id, table.culpritId);
+    if (!mounted) return;
+    setState(() {
+      _v2Players = players;
+      _v2Seed = seed;
+      _v2Table = table;
+    });
+  }
+
+  Future<void> _finishV2(StorySessionV2 session) async {
+    final story = _v2Story;
+    if (story == null) return;
+    final next = _progress.record(
+      storyId: story.id,
+      category: story.category,
+      score: 0,
+      solved: session.solved,
+    );
+    setState(() => _progress = next);
+    await widget.progressStore.save(next);
+    unawaited(widget.afterStory?.call(story.id));
+  }
+
+  void _closeV2() {
+    _narrationOrNull?.stop();
+    setState(() {
+      _v2Story = null;
+      _v2Players = null;
+      _v2Table = null;
+    });
   }
 
   Future<void> _record(StoryCompletion completion) async {
@@ -146,10 +238,52 @@ class _StoriesScreenState extends State<StoriesScreen> {
     if (stories == null) {
       return const MafiaScaffold(body: SafeArea(child: MafiaLoading(cards: 1)));
     }
+    if (_aboutSeen == false || _showAbout) {
+      return StoryAboutScreen(
+        onBack: _showAbout
+            ? () => setState(() => _showAbout = false)
+            : widget.onBack,
+        onDone: () {
+          widget.v2Memory.markAboutSeen();
+          setState(() {
+            _aboutSeen = true;
+            _showAbout = false;
+          });
+        },
+      );
+    }
+    final v2Story = _v2Story;
+    final v2World = v2Story == null ? null : _worlds[v2Story.id];
+    if (v2Story != null && v2World != null) {
+      final table = _v2Table;
+      if (table == null) {
+        return StoryLobbyScreen(
+          world: v2World,
+          coverImage: v2Story.coverImage,
+          narration: _narration,
+          memory: widget.v2Memory,
+          onExit: _closeV2,
+          onPlay: _dealV2,
+        );
+      }
+      return StoryTableScreen(
+        key: ValueKey(_v2Seed),
+        table: table,
+        seed: _v2Seed,
+        narration: _narration,
+        onExit: _closeV2,
+        onPlayAgain: () => _dealV2(_v2Players!),
+        onFinished: _finishV2,
+        watchAdForSearch: widget.watchAdForStep,
+      );
+    }
     return StoriesHub(
       stories: stories,
       progress: _progress,
       onBack: widget.onBack,
+      worldIds: _worlds.keys.toSet(),
+      onOpenWorld: (story) => setState(() => _v2Story = story),
+      onHowTo: () => setState(() => _showAbout = true),
       onStart: (story, count) async {
         await widget.beforeStory?.call();
         if (!mounted) return;
@@ -185,9 +319,13 @@ class StoriesHub extends ConsumerStatefulWidget {
     required this.progress,
     required this.onBack,
     required this.onStart,
+    this.worldIds = const {},
+    this.onOpenWorld,
+    this.onHowTo,
   });
 
   static const hubKey = ValueKey('stories_hub');
+  static const howToKey = ValueKey('stories_how_to');
   static Key storyKey(String id) => ValueKey('story_card_$id');
   static Key startKey(String id) => ValueKey('story_start_$id');
   static Key chipKey(String category) => ValueKey('story_chip_$category');
@@ -196,6 +334,13 @@ class StoriesHub extends ConsumerStatefulWidget {
   final StoryProgress progress;
   final VoidCallback onBack;
   final void Function(StoryDefinition story, int playerCount) onStart;
+
+  /// Stories rewritten for V2 open their own file instead of the count sheet.
+  final Set<String> worldIds;
+  final void Function(StoryDefinition story)? onOpenWorld;
+
+  /// Opens «يعني إيه قصص وتحقيقات؟» again.
+  final VoidCallback? onHowTo;
 
   @override
   ConsumerState<StoriesHub> createState() => _StoriesHubState();
@@ -249,6 +394,15 @@ class _StoriesHubState extends ConsumerState<StoriesHub> {
               l.storiesSubtitle,
               style: type.bodySmall.copyWith(color: CaseFileTokens.inkMuted),
             ),
+            if (widget.onHowTo != null)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton(
+                  key: StoriesHub.howToKey,
+                  onPressed: widget.onHowTo,
+                  child: Text(l.sv2HowToPlay),
+                ),
+              ),
             SizedBox(height: spacing.md),
             SizedBox(
               height: StoryTokens.chipHeight,
@@ -318,7 +472,11 @@ class _StoriesHubState extends ConsumerState<StoriesHub> {
         stampColor: solved ? CaseFileTokens.sage : StoryTokens.stampOpen,
         sealed: locked,
         unlockText: '${l.storiesLocked} — ${l.storiesUnlockRule}',
-        onTap: locked ? null : () => _pickPlayers(context, story),
+        onTap: locked
+            ? null
+            : widget.worldIds.contains(story.id) && widget.onOpenWorld != null
+            ? () => widget.onOpenWorld!(story)
+            : () => _pickPlayers(context, story),
       ),
     );
   }

@@ -6702,4 +6702,574 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get permissionRetry => 'Try again';
+
+  @override
+  String get sv2AboutLead =>
+      'In every case a crime happened, and one of the characters did it.';
+
+  @override
+  String get sv2ModeSoloCount => '1';
+
+  @override
+  String get sv2ModeSoloTitle => 'On your own';
+
+  @override
+  String get sv2ModeSoloBody =>
+      'You are the detective. Read, search, and say who.';
+
+  @override
+  String get sv2ModeAllCount => '2–4';
+
+  @override
+  String get sv2ModeAllTitle => 'You are all suspects';
+
+  @override
+  String get sv2ModeAllBody =>
+      'Each of you plays a character, and one of you did it. Nobody knows who, not even them.';
+
+  @override
+  String get sv2ModeDetCount => '5–10';
+
+  @override
+  String get sv2ModeDetTitle => 'The detective among us';
+
+  @override
+  String get sv2ModeDetBody =>
+      'One of you is the detective. The killer knows, and the detective decides at the end.';
+
+  @override
+  String get sv2AboutChanges =>
+      'Every time you play, the story changes: the killer and the evidence.';
+
+  @override
+  String get sv2AboutGo => 'Show me the cases';
+
+  @override
+  String get sv2HowToPlay => 'How to play?';
+
+  @override
+  String sv2Victim(String name, String tag) {
+    return 'Victim: $name, $tag';
+  }
+
+  @override
+  String get sv2PlayerRange => '1 to 10 players';
+
+  @override
+  String get sv2NarratorName => 'Ziad narrates';
+
+  @override
+  String get sv2Characters => 'The characters';
+
+  @override
+  String get sv2PlayFriends => 'Play with friends';
+
+  @override
+  String get sv2PlaySolo => 'Play on your own';
+
+  @override
+  String get sv2NarrRestart => 'From the start';
+
+  @override
+  String get sv2NarrBack => '5 seconds back';
+
+  @override
+  String get sv2NarrForward => '5 seconds forward';
+
+  @override
+  String get sv2NarrPlay => 'Play';
+
+  @override
+  String get sv2NarrPause => 'Pause';
+
+  @override
+  String get sv2NarrAgain => 'Listen again';
+
+  @override
+  String get sv2NarrBackLabel => '−5';
+
+  @override
+  String get sv2NarrForwardLabel => '+5';
+
+  @override
+  String get sv2CountTitle => 'How many are playing?';
+
+  @override
+  String get sv2CountSolo =>
+      'On your own: you are the detective, with four suspects in front of you.';
+
+  @override
+  String sv2CountAll(int n) {
+    return '$n players · You are all suspects';
+  }
+
+  @override
+  String get sv2CountAllBody =>
+      'Each of you plays a character, and one of you did it. Nobody knows who.';
+
+  @override
+  String sv2CountDet(int n) {
+    return '$n players · The detective among us';
+  }
+
+  @override
+  String sv2CountDetBody(int k) {
+    return 'One of you will be the detective, $k will be suspects, and one of them is the killer.';
+  }
+
+  @override
+  String get sv2NamesTitle => 'Write your names';
+
+  @override
+  String get sv2YourName => 'Your name';
+
+  @override
+  String sv2NameHint(int n) {
+    return 'Player $n';
+  }
+
+  @override
+  String get sv2NamesEmpty => 'Everyone writes a name';
+
+  @override
+  String get sv2NamesDuplicate => 'Two names are the same';
+
+  @override
+  String get sv2Continue => 'Continue';
+
+  @override
+  String get sv2Next => 'Next';
+
+  @override
+  String get sv2GotIt => 'Got it';
+
+  @override
+  String get sv2LetsPlay => 'Let\'s play';
+
+  @override
+  String get sv2HowDet1Title => 'One of you is the detective';
+
+  @override
+  String get sv2HowDet1Body =>
+      'The game picks one of you to be the detective. The rest play characters from the story, and one of them did it.';
+
+  @override
+  String get sv2HowDet2Title => 'Your card and your secret';
+
+  @override
+  String get sv2HowDet2Body =>
+      'The phone goes round. Each of you reads their card aloud: who they are and what they did. Then they hold to see one line that is theirs alone: innocent, or the killer.';
+
+  @override
+  String get sv2HowDet3Title => 'Innocents and the killer';
+
+  @override
+  String get sv2HowDet3Body =>
+      'Innocents say what is on their card, and say they are not sure about anything else. Only the killer may twist the truth.';
+
+  @override
+  String get sv2HowDet4Title => 'The detective';
+
+  @override
+  String get sv2HowDet4Body =>
+      'The detective keeps the phone to the end. He reads out what happened, picks three places to search, and reads aloud what he finds.';
+
+  @override
+  String get sv2HowDet5Title => 'The decision';
+
+  @override
+  String get sv2HowDet5Body =>
+      'Talk as long as you like. Everyone defends themselves with the evidence. At the end the detective picks who did it. Right, and the innocents win. Wrong, and the killer wins.';
+
+  @override
+  String get sv2HowAll1Title => 'You are all suspects';
+
+  @override
+  String get sv2HowAll1Body =>
+      'Each of you takes a character from the story. One of you did it, and nobody knows who, not even them.';
+
+  @override
+  String get sv2HowAll2Title => 'Meet the characters';
+
+  @override
+  String get sv2HowAll2Body =>
+      'Each of you reads their card aloud: who they are and what they did.';
+
+  @override
+  String get sv2HowAll3Title => 'Search';
+
+  @override
+  String get sv2HowAll3Body =>
+      'You have three searches. Choose the places together and read aloud what you find.';
+
+  @override
+  String get sv2HowAll4Title => 'Agree';
+
+  @override
+  String get sv2HowAll4Body =>
+      'Talk as long as you like, then agree on one. If you are right, you all win.';
+
+  @override
+  String get sv2HowSolo1Title => 'You are the detective';
+
+  @override
+  String get sv2HowSolo1Body =>
+      'You play the story\'s detective. Four suspects are in front of you, and one of them did it.';
+
+  @override
+  String get sv2HowSolo2Title => 'Search';
+
+  @override
+  String get sv2HowSolo2Body =>
+      'Read each card, then pick three places to search.';
+
+  @override
+  String get sv2HowSolo3Title => 'Your decision';
+
+  @override
+  String get sv2HowSolo3Body => 'Pick who did it, why, and how.';
+
+  @override
+  String get sv2CastTitle => 'Who plays whom';
+
+  @override
+  String get sv2Detective => 'The detective';
+
+  @override
+  String get sv2CastDetNote =>
+      'Who did it does not show here. Each of you finds out alone.';
+
+  @override
+  String get sv2CastAllNote =>
+      'One of you did it. Nobody knows who, not even them.';
+
+  @override
+  String get sv2CastDetGo => 'Pass the phone';
+
+  @override
+  String get sv2CastAllGo => 'Meet the characters';
+
+  @override
+  String sv2PassCount(int i, int n) {
+    return '$i of $n';
+  }
+
+  @override
+  String get sv2PassTo => 'The phone goes to';
+
+  @override
+  String get sv2LookAway => 'Everyone else looks away until they finish';
+
+  @override
+  String sv2IAm(String name) {
+    return 'I\'m $name, open';
+  }
+
+  @override
+  String get sv2ReadAloudM => 'Read this aloud';
+
+  @override
+  String get sv2ReadAloudF => 'Read this aloud';
+
+  @override
+  String get sv2GoalLabel => 'Goal';
+
+  @override
+  String get sv2HoldSecretM => 'Hold to see your secret';
+
+  @override
+  String get sv2HoldSecretF => 'Hold to see your secret';
+
+  @override
+  String get sv2HoldWhenM => 'when you have finished reading';
+
+  @override
+  String get sv2HoldWhenF => 'when you have finished reading';
+
+  @override
+  String get sv2InnocentM => 'You are innocent';
+
+  @override
+  String get sv2InnocentF => 'You are innocent';
+
+  @override
+  String get sv2InnocentSubM => 'Help the detective find who did it';
+
+  @override
+  String get sv2InnocentSubF => 'Help the detective find who did it';
+
+  @override
+  String get sv2InnocentNoteM =>
+      'Say what is on your card. If it is not there, say you are not sure.';
+
+  @override
+  String get sv2InnocentNoteF =>
+      'Say what is on your card. If it is not there, say you are not sure.';
+
+  @override
+  String get sv2KillerM => 'You are the killer';
+
+  @override
+  String get sv2KillerF => 'You are the killer';
+
+  @override
+  String get sv2KillerSubM => 'You may twist the truth';
+
+  @override
+  String get sv2KillerSubF => 'You may twist the truth';
+
+  @override
+  String get sv2KillerNoteM =>
+      'Don\'t let the detective reach you. If anyone asks, answer as you like.';
+
+  @override
+  String get sv2KillerNoteF =>
+      'Don\'t let the detective reach you. If anyone asks, answer as you like.';
+
+  @override
+  String sv2PartnerIsM(String name) {
+    return 'Your partner: $name';
+  }
+
+  @override
+  String sv2PartnerIsF(String name) {
+    return 'Your partner: $name';
+  }
+
+  @override
+  String get sv2PartnerM => 'You are the partner';
+
+  @override
+  String get sv2PartnerF => 'You are the partner';
+
+  @override
+  String sv2KillerIsM(String name) {
+    return 'The killer: $name';
+  }
+
+  @override
+  String sv2KillerIsF(String name) {
+    return 'The killer: $name';
+  }
+
+  @override
+  String get sv2PartnerNoteM =>
+      'Defend yourself and the one with you without showing it.';
+
+  @override
+  String get sv2PartnerNoteF =>
+      'Defend yourself and the one with you without showing it.';
+
+  @override
+  String get sv2SecretDetective => 'You are the detective';
+
+  @override
+  String get sv2SecretDetectiveSub => 'No secret for you';
+
+  @override
+  String get sv2SecretDetectiveNote =>
+      'Wait until the phone comes back to you.';
+
+  @override
+  String get sv2HidePass => 'Hide and pass the phone';
+
+  @override
+  String get sv2HideToDetective => 'Hide and give the phone to the detective';
+
+  @override
+  String sv2IntroCount(int i, int n) {
+    return 'Meet them · $i of $n';
+  }
+
+  @override
+  String sv2IntroReader(String name) {
+    return '$name reads';
+  }
+
+  @override
+  String get sv2ToTable => 'To the table';
+
+  @override
+  String sv2DeskDetective(String name) {
+    return 'Detective\'s desk · $name';
+  }
+
+  @override
+  String get sv2DeskTable => 'The table';
+
+  @override
+  String sv2DeskSolo(String name) {
+    return 'You are $name';
+  }
+
+  @override
+  String get sv2Replay => 'Hear the opening again';
+
+  @override
+  String get sv2ReadToAll => 'Read to everyone';
+
+  @override
+  String get sv2ReadTogether => 'Read together';
+
+  @override
+  String get sv2WhatYouKnow => 'What you know';
+
+  @override
+  String get sv2TapToRead => 'Tap anyone to read their card';
+
+  @override
+  String sv2SearchesLeft(int left, int total) {
+    return 'Searches · $left of $total left';
+  }
+
+  @override
+  String get sv2Search => 'Search';
+
+  @override
+  String get sv2Searched => 'Searched';
+
+  @override
+  String get sv2Decide => 'My decision';
+
+  @override
+  String get sv2Agree => 'We agree on one';
+
+  @override
+  String get sv2BonusSearch => 'One more search (watch an ad)';
+
+  @override
+  String get sv2FoundTitle => 'Read what you found aloud';
+
+  @override
+  String get sv2Back => 'Back';
+
+  @override
+  String get sv2DecisionDetective => 'The detective\'s decision';
+
+  @override
+  String get sv2DecisionTable => 'Our decision';
+
+  @override
+  String get sv2DecisionSolo => 'Your decision';
+
+  @override
+  String get sv2DecisionFree => 'Who did it? Pick freely, no need to say why.';
+
+  @override
+  String get sv2Who => 'Who did it?';
+
+  @override
+  String get sv2Why => 'Why?';
+
+  @override
+  String get sv2How => 'How?';
+
+  @override
+  String sv2Confirm(String name) {
+    return 'Confirm: $name';
+  }
+
+  @override
+  String get sv2PickSomeone => 'Pick someone';
+
+  @override
+  String sv2RevealWho(String name) {
+    return 'Who did it: $name';
+  }
+
+  @override
+  String sv2RevealPlayedBy(String player) {
+    return '$player was playing this character';
+  }
+
+  @override
+  String sv2RevealWith(String name) {
+    return 'With them: $name';
+  }
+
+  @override
+  String get sv2SeeResult => 'See the result';
+
+  @override
+  String get sv2DetectiveWon => 'The detective won';
+
+  @override
+  String get sv2KillerEscaped => 'The killer got away';
+
+  @override
+  String get sv2TableWon => 'You got it!';
+
+  @override
+  String get sv2TableLost => 'It slipped past you';
+
+  @override
+  String get sv2SoloWon => 'Solved';
+
+  @override
+  String get sv2SoloLost => 'Not this time';
+
+  @override
+  String sv2PickRight(String name) {
+    return 'The pick was $name, and it was right.';
+  }
+
+  @override
+  String sv2PickWrong(String name, String culprit) {
+    return 'The pick was $name, but it was $culprit.';
+  }
+
+  @override
+  String sv2ResultMotive(String label) {
+    return 'Why: $label';
+  }
+
+  @override
+  String sv2ResultMethod(String label) {
+    return 'How: $label';
+  }
+
+  @override
+  String get sv2RoleDetective => 'Detective';
+
+  @override
+  String get sv2RoleKillerM => 'Killer';
+
+  @override
+  String get sv2RoleKillerF => 'Killer';
+
+  @override
+  String get sv2RolePartnerM => 'Partner';
+
+  @override
+  String get sv2RolePartnerF => 'Partner';
+
+  @override
+  String get sv2RoleInnocentM => 'Innocent';
+
+  @override
+  String get sv2RoleInnocentF => 'Innocent';
+
+  @override
+  String get sv2RoleCulpritM => 'Did it';
+
+  @override
+  String get sv2RoleCulpritF => 'Did it';
+
+  @override
+  String get sv2PlayAgain => 'Play again (it changes)';
+
+  @override
+  String get sv2OtherCase => 'Another case';
+
+  @override
+  String get sv2ExitTitle => 'Leave this case?';
+
+  @override
+  String get sv2ExitBody => 'This table will be lost.';
+
+  @override
+  String get sv2ExitYes => 'Leave';
+
+  @override
+  String get sv2ExitNo => 'Stay';
 }

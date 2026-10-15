@@ -6589,4 +6589,566 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get permissionRetry => 'جرّب تاني';
+
+  @override
+  String get sv2AboutLead =>
+      'في كل قضية جريمة حصلت، واللي عملها واحد من الشخصيات.';
+
+  @override
+  String get sv2ModeSoloCount => '١';
+
+  @override
+  String get sv2ModeSoloTitle => 'لوحدك';
+
+  @override
+  String get sv2ModeSoloBody => 'انت المحقق. تقرا، وتفتّش، وتقول مين.';
+
+  @override
+  String get sv2ModeAllCount => '٢–٤';
+
+  @override
+  String get sv2ModeAllTitle => 'كلكم مشتبه فيهم';
+
+  @override
+  String get sv2ModeAllBody =>
+      'كل واحد شخصية، وواحد منكم هو اللي عملها. محدش عارف، ولا حتى هو.';
+
+  @override
+  String get sv2ModeDetCount => '٥–١٠';
+
+  @override
+  String get sv2ModeDetTitle => 'المحقق بينا';
+
+  @override
+  String get sv2ModeDetBody =>
+      'واحد فيكم المحقق. القاتل عارف نفسه، والمحقق بيقرر في الآخر.';
+
+  @override
+  String get sv2AboutChanges => 'وكل مرة تلعبوا، القصة بتتغير: القاتل والأدلة.';
+
+  @override
+  String get sv2AboutGo => 'يلا نشوف القضايا';
+
+  @override
+  String get sv2HowToPlay => 'إزاي نلعب؟';
+
+  @override
+  String sv2Victim(String name, String tag) {
+    return 'الضحية: $name، $tag';
+  }
+
+  @override
+  String get sv2PlayerRange => 'من ١ لـ١٠ لاعيبة';
+
+  @override
+  String get sv2NarratorName => 'زياد بيحكي';
+
+  @override
+  String get sv2Characters => 'الشخصيات';
+
+  @override
+  String get sv2PlayFriends => 'العب مع صحابك';
+
+  @override
+  String get sv2PlaySolo => 'العب لوحدك';
+
+  @override
+  String get sv2NarrRestart => 'من الأول';
+
+  @override
+  String get sv2NarrBack => '٥ ثواني لورا';
+
+  @override
+  String get sv2NarrForward => '٥ ثواني لقدام';
+
+  @override
+  String get sv2NarrPlay => 'شغّل';
+
+  @override
+  String get sv2NarrPause => 'وقّف';
+
+  @override
+  String get sv2NarrAgain => 'اسمعها تاني';
+
+  @override
+  String get sv2NarrBackLabel => '٥−';
+
+  @override
+  String get sv2NarrForwardLabel => '+٥';
+
+  @override
+  String get sv2CountTitle => 'كام واحد هيلعب؟';
+
+  @override
+  String get sv2CountSolo => 'لوحدك: انت المحقق، وقدامك ٤ مشتبه فيهم.';
+
+  @override
+  String sv2CountAll(int n) {
+    return '$n لاعيبة · كلكم مشتبه فيهم';
+  }
+
+  @override
+  String get sv2CountAllBody =>
+      'كل واحد هياخد شخصية، وواحد منكم هو اللي عملها. محدش عارف مين.';
+
+  @override
+  String sv2CountDet(int n) {
+    return '$n لاعيبة · المحقق بينا';
+  }
+
+  @override
+  String sv2CountDetBody(int k) {
+    return 'واحد فيكم هيبقى المحقق، و$k مشتبه فيهم، وواحد منهم القاتل.';
+  }
+
+  @override
+  String get sv2NamesTitle => 'اكتبوا أساميكم';
+
+  @override
+  String get sv2YourName => 'اسمك';
+
+  @override
+  String sv2NameHint(int n) {
+    return 'اللاعب $n';
+  }
+
+  @override
+  String get sv2NamesEmpty => 'كل واحد يكتب اسمه';
+
+  @override
+  String get sv2NamesDuplicate => 'في اسمين زي بعض';
+
+  @override
+  String get sv2Continue => 'كمّل';
+
+  @override
+  String get sv2Next => 'اللي بعده';
+
+  @override
+  String get sv2GotIt => 'عرفنا';
+
+  @override
+  String get sv2LetsPlay => 'يلا';
+
+  @override
+  String get sv2HowDet1Title => 'واحد فيكم المحقق';
+
+  @override
+  String get sv2HowDet1Body =>
+      'اللعبة هتختار واحد فيكم يبقى المحقق، والباقي شخصيات من القصة. واحد منهم هو اللي عملها.';
+
+  @override
+  String get sv2HowDet2Title => 'كارتك وسرّك';
+
+  @override
+  String get sv2HowDet2Body =>
+      'الموبايل هيلف عليكم. كل واحد يقرا كارته بصوت عالي: هو مين وعمل إيه. بعدها يدوس مطوّل ويشوف سطر واحد ليه هو بس: بريء، ولا القاتل.';
+
+  @override
+  String get sv2HowDet3Title => 'الأبرياء والقاتل';
+
+  @override
+  String get sv2HowDet3Body =>
+      'البريء يقول اللي في كارته، واللي مش فيه يقول مش متأكد. القاتل بس هو اللي مسموح له يلف ويدور.';
+
+  @override
+  String get sv2HowDet4Title => 'المحقق';
+
+  @override
+  String get sv2HowDet4Body =>
+      'المحقق بيمسك الموبايل لحد الآخر. بيقرا للكل اللي حصل، ويختار ٣ أماكن يفتّشها، ويقرا اللي لقاه بصوت عالي.';
+
+  @override
+  String get sv2HowDet5Title => 'القرار';
+
+  @override
+  String get sv2HowDet5Body =>
+      'اتكلموا براحتكم من غير وقت. كل واحد يدافع عن نفسه بالأدلة. وفي الآخر المحقق يختار مين اللي عملها. لو صح، الأبرياء يكسبوا. لو غلط، القاتل يكسب.';
+
+  @override
+  String get sv2HowAll1Title => 'كلكم مشتبه فيهم';
+
+  @override
+  String get sv2HowAll1Body =>
+      'كل واحد هياخد شخصية من القصة. واحد منكم هو اللي عملها، ومحدش عارف مين، ولا حتى هو.';
+
+  @override
+  String get sv2HowAll2Title => 'اتعرّفوا';
+
+  @override
+  String get sv2HowAll2Body => 'كل واحد يقرا كارته بصوت عالي: هو مين وعمل إيه.';
+
+  @override
+  String get sv2HowAll3Title => 'فتّشوا';
+
+  @override
+  String get sv2HowAll3Body =>
+      'عندكم ٣ تفتيشات. اختاروا الأماكن مع بعض، واقروا اللي تلاقوه بصوت عالي.';
+
+  @override
+  String get sv2HowAll4Title => 'اتفقوا';
+
+  @override
+  String get sv2HowAll4Body =>
+      'اتكلموا براحتكم، وفي الآخر اتفقوا على واحد. لو صح، كلكم كسبتوا.';
+
+  @override
+  String get sv2HowSolo1Title => 'انت المحقق';
+
+  @override
+  String get sv2HowSolo1Body =>
+      'انت المحقق بتاع القصة. قدامك ٤ مشتبه فيهم، وواحد منهم هو اللي عملها.';
+
+  @override
+  String get sv2HowSolo2Title => 'فتّش';
+
+  @override
+  String get sv2HowSolo2Body =>
+      'اقرا كارت كل واحد، وبعدين اختار ٣ أماكن تفتّشها.';
+
+  @override
+  String get sv2HowSolo3Title => 'قرارك';
+
+  @override
+  String get sv2HowSolo3Body => 'اختار مين اللي عملها، وليه، وإزاي.';
+
+  @override
+  String get sv2CastTitle => 'مين هيلعب مين';
+
+  @override
+  String get sv2Detective => 'المحقق';
+
+  @override
+  String get sv2CastDetNote =>
+      'مين اللي عملها مش بيظهر هنا. كل واحد هيعرف لوحده.';
+
+  @override
+  String get sv2CastAllNote =>
+      'واحد منكم هو اللي عملها. محدش عارف مين، ولا حتى هو.';
+
+  @override
+  String get sv2CastDetGo => 'يلا نلف بالموبايل';
+
+  @override
+  String get sv2CastAllGo => 'يلا نتعرّف';
+
+  @override
+  String sv2PassCount(int i, int n) {
+    return '$i من $n';
+  }
+
+  @override
+  String get sv2PassTo => 'الموبايل مع';
+
+  @override
+  String get sv2LookAway => 'الباقي يبصّوا بعيد لحد ما يخلص';
+
+  @override
+  String sv2IAm(String name) {
+    return 'أنا $name، افتح';
+  }
+
+  @override
+  String get sv2ReadAloudM => 'اقراه بصوت عالي';
+
+  @override
+  String get sv2ReadAloudF => 'اقريه بصوت عالي';
+
+  @override
+  String get sv2GoalLabel => 'الهدف';
+
+  @override
+  String get sv2HoldSecretM => 'دوس مطوّل وشوف سرّك';
+
+  @override
+  String get sv2HoldSecretF => 'دوسي مطوّل وشوفي سرّك';
+
+  @override
+  String get sv2HoldWhenM => 'لما تخلص قراية';
+
+  @override
+  String get sv2HoldWhenF => 'لما تخلصي قراية';
+
+  @override
+  String get sv2InnocentM => 'انت بريء';
+
+  @override
+  String get sv2InnocentF => 'انتِ بريئة';
+
+  @override
+  String get sv2InnocentSubM => 'ساعد المحقق يوصل للي عملها';
+
+  @override
+  String get sv2InnocentSubF => 'ساعدي المحقق يوصل للي عملها';
+
+  @override
+  String get sv2InnocentNoteM =>
+      'قول اللي في كارتك. اللي مش فيه، قول مش متأكد.';
+
+  @override
+  String get sv2InnocentNoteF =>
+      'قولي اللي في كارتك. اللي مش فيه، قولي مش متأكدة.';
+
+  @override
+  String get sv2KillerM => 'انت القاتل';
+
+  @override
+  String get sv2KillerF => 'انتِ القاتلة';
+
+  @override
+  String get sv2KillerSubM => 'مسموح لك تلف وتدور';
+
+  @override
+  String get sv2KillerSubF => 'مسموح لك تلفّي وتدوري';
+
+  @override
+  String get sv2KillerNoteM => 'متخليش المحقق يوصلك. لو حد سألك، رد براحتك.';
+
+  @override
+  String get sv2KillerNoteF => 'متخليش المحقق يوصلك. لو حد سألك، ردي براحتك.';
+
+  @override
+  String sv2PartnerIsM(String name) {
+    return 'شريكك: $name';
+  }
+
+  @override
+  String sv2PartnerIsF(String name) {
+    return 'شريكتك: $name';
+  }
+
+  @override
+  String get sv2PartnerM => 'انت الشريك';
+
+  @override
+  String get sv2PartnerF => 'انتِ الشريكة';
+
+  @override
+  String sv2KillerIsM(String name) {
+    return 'القاتل: $name';
+  }
+
+  @override
+  String sv2KillerIsF(String name) {
+    return 'القاتلة: $name';
+  }
+
+  @override
+  String get sv2PartnerNoteM => 'دافع عن نفسك وعن اللي معاك من غير ما تبان.';
+
+  @override
+  String get sv2PartnerNoteF => 'دافعي عن نفسك وعن اللي معاكي من غير ما تباني.';
+
+  @override
+  String get sv2SecretDetective => 'انت المحقق';
+
+  @override
+  String get sv2SecretDetectiveSub => 'مفيش سر عندك';
+
+  @override
+  String get sv2SecretDetectiveNote => 'استنى لحد ما الموبايل يرجعلك.';
+
+  @override
+  String get sv2HidePass => 'خبّي وعدّي الموبايل';
+
+  @override
+  String get sv2HideToDetective => 'خبّي وادّي الموبايل للمحقق';
+
+  @override
+  String sv2IntroCount(int i, int n) {
+    return 'اتعرّفوا · $i من $n';
+  }
+
+  @override
+  String sv2IntroReader(String name) {
+    return '$name بيقرا';
+  }
+
+  @override
+  String get sv2ToTable => 'يلا على الترابيزة';
+
+  @override
+  String sv2DeskDetective(String name) {
+    return 'مكتب المحقق · $name';
+  }
+
+  @override
+  String get sv2DeskTable => 'الترابيزة';
+
+  @override
+  String sv2DeskSolo(String name) {
+    return 'انت $name';
+  }
+
+  @override
+  String get sv2Replay => 'اسمع البداية تاني';
+
+  @override
+  String get sv2ReadToAll => 'اقرا للكل';
+
+  @override
+  String get sv2ReadTogether => 'اقروا مع بعض';
+
+  @override
+  String get sv2WhatYouKnow => 'اللي انت عارفه';
+
+  @override
+  String get sv2TapToRead => 'دوس على أي حد تقرا كارته';
+
+  @override
+  String sv2SearchesLeft(int left, int total) {
+    return 'التفتيش · فاضل $left من $total';
+  }
+
+  @override
+  String get sv2Search => 'فتّش';
+
+  @override
+  String get sv2Searched => 'اتفتّش';
+
+  @override
+  String get sv2Decide => 'قراري';
+
+  @override
+  String get sv2Agree => 'اتفقنا على واحد';
+
+  @override
+  String get sv2BonusSearch => 'تفتيش زيادة (اتفرج على إعلان)';
+
+  @override
+  String get sv2FoundTitle => 'اقرا اللي لقيته بصوت عالي';
+
+  @override
+  String get sv2Back => 'رجوع';
+
+  @override
+  String get sv2DecisionDetective => 'قرار المحقق';
+
+  @override
+  String get sv2DecisionTable => 'قرارنا';
+
+  @override
+  String get sv2DecisionSolo => 'قرارك';
+
+  @override
+  String get sv2DecisionFree =>
+      'مين اللي عملها؟ اختار براحتك، ومش لازم تقول ليه.';
+
+  @override
+  String get sv2Who => 'مين اللي عملها؟';
+
+  @override
+  String get sv2Why => 'ليه؟';
+
+  @override
+  String get sv2How => 'إزاي؟';
+
+  @override
+  String sv2Confirm(String name) {
+    return 'ثبّت القرار: $name';
+  }
+
+  @override
+  String get sv2PickSomeone => 'اختار حد';
+
+  @override
+  String sv2RevealWho(String name) {
+    return 'اللي عملها: $name';
+  }
+
+  @override
+  String sv2RevealPlayedBy(String player) {
+    return '$player كان بيلعب الشخصية دي';
+  }
+
+  @override
+  String sv2RevealWith(String name) {
+    return 'ومعاه: $name';
+  }
+
+  @override
+  String get sv2SeeResult => 'شوف النتيجة';
+
+  @override
+  String get sv2DetectiveWon => 'المحقق كسب';
+
+  @override
+  String get sv2KillerEscaped => 'القاتل هرب';
+
+  @override
+  String get sv2TableWon => 'عرفتوها!';
+
+  @override
+  String get sv2TableLost => 'فاتتكم';
+
+  @override
+  String get sv2SoloWon => 'حليتها';
+
+  @override
+  String get sv2SoloLost => 'المرة دي لأ';
+
+  @override
+  String sv2PickRight(String name) {
+    return 'الاختيار كان $name، وكان صح.';
+  }
+
+  @override
+  String sv2PickWrong(String name, String culprit) {
+    return 'الاختيار كان $name، بس اللي عملها كان $culprit.';
+  }
+
+  @override
+  String sv2ResultMotive(String label) {
+    return 'ليه: $label';
+  }
+
+  @override
+  String sv2ResultMethod(String label) {
+    return 'إزاي: $label';
+  }
+
+  @override
+  String get sv2RoleDetective => 'المحقق';
+
+  @override
+  String get sv2RoleKillerM => 'القاتل';
+
+  @override
+  String get sv2RoleKillerF => 'القاتلة';
+
+  @override
+  String get sv2RolePartnerM => 'الشريك';
+
+  @override
+  String get sv2RolePartnerF => 'الشريكة';
+
+  @override
+  String get sv2RoleInnocentM => 'بريء';
+
+  @override
+  String get sv2RoleInnocentF => 'بريئة';
+
+  @override
+  String get sv2RoleCulpritM => 'هو اللي عملها';
+
+  @override
+  String get sv2RoleCulpritF => 'هي اللي عملتها';
+
+  @override
+  String get sv2PlayAgain => 'العب تاني، والقصة هتتغير';
+
+  @override
+  String get sv2OtherCase => 'قضية تانية';
+
+  @override
+  String get sv2ExitTitle => 'تسيب القضية؟';
+
+  @override
+  String get sv2ExitBody => 'القعدة دي هتضيع.';
+
+  @override
+  String get sv2ExitYes => 'أسيبها';
+
+  @override
+  String get sv2ExitNo => 'خليني';
 }

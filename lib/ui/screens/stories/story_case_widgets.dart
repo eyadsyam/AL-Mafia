@@ -171,9 +171,8 @@ class StoryPhoto extends StatelessWidget {
                 : null,
             colorBlendMode: dim ? BlendMode.srcATop : null,
             excludeFromSemantics: true,
-            errorBuilder: (_, _, _) => const ColoredBox(
-              color: StoryTokens.photoShade,
-            ),
+            errorBuilder: (_, _, _) =>
+                const ColoredBox(color: StoryTokens.photoShade),
           ),
         ),
       ),
@@ -271,9 +270,7 @@ class StoryFolder extends StatelessWidget {
                 clip: true,
               ),
               if (sealed)
-                const Positioned.fill(
-                  child: Center(child: _WaxSeal()),
-                ),
+                const Positioned.fill(child: Center(child: _WaxSeal())),
             ],
           ),
           SizedBox(width: s.md),
@@ -592,9 +589,7 @@ class StoryPips extends StatelessWidget {
                 height: StoryTokens.pip,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: i < left
-                      ? DeckTokens.bone
-                      : StoryTokens.ringTrack,
+                  color: i < left ? DeckTokens.bone : StoryTokens.ringTrack,
                 ),
               ),
             ),
@@ -1369,6 +1364,7 @@ class StoryDossier extends StatelessWidget {
   });
 
   final StoryCharacter character;
+
   /// One entry per round; null is an empty slot (same height for all seats).
   final List<StoryClue?> clues;
   final String youAre;

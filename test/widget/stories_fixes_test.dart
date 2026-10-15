@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/story_catalog.dart';
 import 'package:mafia_master/data/story_progress_store.dart';
+import 'package:mafia_master/data/story_v2_memory.dart';
+import 'package:mafia_master/data/story_world_catalog.dart';
 import 'package:mafia_master/stories/story_model.dart';
 import 'package:mafia_master/stories/story_progress.dart';
 import 'package:mafia_master/stories/story_session.dart';
@@ -269,6 +271,9 @@ void main() {
           progressStore: store,
           afterStory: (_) async => afterStory++,
           newSeed: () => ++seeds,
+          // The old flow under test: no V2 world, explanation already seen.
+          worldCatalog: const StoryWorldCatalog(paths: []),
+          v2Memory: MemoryStoryV2Memory(about: true),
         ),
       ),
     );

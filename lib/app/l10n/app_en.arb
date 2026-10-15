@@ -3745,7 +3745,13 @@
   "firstRunGuest": "Later, play as a guest",
   "firstRunLater": "You can save later from your profile",
   "homeGreeting": "Welcome, {name}",
-  "@homeGreeting": {"placeholders":{"name":{"type":"String"}}},
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "settingsSaved": "Saved",
   "settingsGroupRules": "Match rules",
   "settingsGroupRulesHint": "Every new match starts with these",
@@ -3770,7 +3776,16 @@
   "howRolesTitle": "The roles",
   "howRolesHint": "Tap any card to see what it does.",
   "howPageOf": "{n} of {total}",
-  "@howPageOf": {"placeholders":{"n":{"type":"int"},"total":{"type":"int"}}},
+  "@howPageOf": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "howVideo": "Watch the one-minute video",
   "howFaqTitle": "Got a question?",
   "howFaq1Q": "Can we play without internet?",
@@ -4099,5 +4114,353 @@
   "permissionNotificationsHint": "So your friends' invites reach you",
   "permissionDeniedHint": "If access is blocked, enable it in device settings.",
   "permissionNotAllowed": "Not allowed",
-  "permissionRetry": "Try again"
+  "permissionRetry": "Try again",
+  "sv2AboutLead": "In every case a crime happened, and one of the characters did it.",
+  "sv2ModeSoloCount": "1",
+  "sv2ModeSoloTitle": "On your own",
+  "sv2ModeSoloBody": "You are the detective. Read, search, and say who.",
+  "sv2ModeAllCount": "2–4",
+  "sv2ModeAllTitle": "You are all suspects",
+  "sv2ModeAllBody": "Each of you plays a character, and one of you did it. Nobody knows who, not even them.",
+  "sv2ModeDetCount": "5–10",
+  "sv2ModeDetTitle": "The detective among us",
+  "sv2ModeDetBody": "One of you is the detective. The killer knows, and the detective decides at the end.",
+  "sv2AboutChanges": "Every time you play, the story changes: the killer and the evidence.",
+  "sv2AboutGo": "Show me the cases",
+  "sv2HowToPlay": "How to play?",
+  "sv2Victim": "Victim: {name}, {tag}",
+  "@sv2Victim": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2PlayerRange": "1 to 10 players",
+  "sv2NarratorName": "Ziad narrates",
+  "sv2Characters": "The characters",
+  "sv2PlayFriends": "Play with friends",
+  "sv2PlaySolo": "Play on your own",
+  "sv2NarrRestart": "From the start",
+  "sv2NarrBack": "5 seconds back",
+  "sv2NarrForward": "5 seconds forward",
+  "sv2NarrPlay": "Play",
+  "sv2NarrPause": "Pause",
+  "sv2NarrAgain": "Listen again",
+  "sv2NarrBackLabel": "−5",
+  "sv2NarrForwardLabel": "+5",
+  "sv2CountTitle": "How many are playing?",
+  "sv2CountSolo": "On your own: you are the detective, with four suspects in front of you.",
+  "sv2CountAll": "{n} players · You are all suspects",
+  "@sv2CountAll": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sv2CountAllBody": "Each of you plays a character, and one of you did it. Nobody knows who.",
+  "sv2CountDet": "{n} players · The detective among us",
+  "@sv2CountDet": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sv2CountDetBody": "One of you will be the detective, {k} will be suspects, and one of them is the killer.",
+  "@sv2CountDetBody": {
+    "placeholders": {
+      "k": {
+        "type": "int"
+      }
+    }
+  },
+  "sv2NamesTitle": "Write your names",
+  "sv2YourName": "Your name",
+  "sv2NameHint": "Player {n}",
+  "@sv2NameHint": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sv2NamesEmpty": "Everyone writes a name",
+  "sv2NamesDuplicate": "Two names are the same",
+  "sv2Continue": "Continue",
+  "sv2Next": "Next",
+  "sv2GotIt": "Got it",
+  "sv2LetsPlay": "Let's play",
+  "sv2HowDet1Title": "One of you is the detective",
+  "sv2HowDet1Body": "The game picks one of you to be the detective. The rest play characters from the story, and one of them did it.",
+  "sv2HowDet2Title": "Your card and your secret",
+  "sv2HowDet2Body": "The phone goes round. Each of you reads their card aloud: who they are and what they did. Then they hold to see one line that is theirs alone: innocent, or the killer.",
+  "sv2HowDet3Title": "Innocents and the killer",
+  "sv2HowDet3Body": "Innocents say what is on their card, and say they are not sure about anything else. Only the killer may twist the truth.",
+  "sv2HowDet4Title": "The detective",
+  "sv2HowDet4Body": "The detective keeps the phone to the end. He reads out what happened, picks three places to search, and reads aloud what he finds.",
+  "sv2HowDet5Title": "The decision",
+  "sv2HowDet5Body": "Talk as long as you like. Everyone defends themselves with the evidence. At the end the detective picks who did it. Right, and the innocents win. Wrong, and the killer wins.",
+  "sv2HowAll1Title": "You are all suspects",
+  "sv2HowAll1Body": "Each of you takes a character from the story. One of you did it, and nobody knows who, not even them.",
+  "sv2HowAll2Title": "Meet the characters",
+  "sv2HowAll2Body": "Each of you reads their card aloud: who they are and what they did.",
+  "sv2HowAll3Title": "Search",
+  "sv2HowAll3Body": "You have three searches. Choose the places together and read aloud what you find.",
+  "sv2HowAll4Title": "Agree",
+  "sv2HowAll4Body": "Talk as long as you like, then agree on one. If you are right, you all win.",
+  "sv2HowSolo1Title": "You are the detective",
+  "sv2HowSolo1Body": "You play the story's detective. Four suspects are in front of you, and one of them did it.",
+  "sv2HowSolo2Title": "Search",
+  "sv2HowSolo2Body": "Read each card, then pick three places to search.",
+  "sv2HowSolo3Title": "Your decision",
+  "sv2HowSolo3Body": "Pick who did it, why, and how.",
+  "sv2CastTitle": "Who plays whom",
+  "sv2Detective": "The detective",
+  "sv2CastDetNote": "Who did it does not show here. Each of you finds out alone.",
+  "sv2CastAllNote": "One of you did it. Nobody knows who, not even them.",
+  "sv2CastDetGo": "Pass the phone",
+  "sv2CastAllGo": "Meet the characters",
+  "sv2PassCount": "{i} of {n}",
+  "@sv2PassCount": {
+    "placeholders": {
+      "i": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sv2PassTo": "The phone goes to",
+  "sv2LookAway": "Everyone else looks away until they finish",
+  "sv2IAm": "I'm {name}, open",
+  "@sv2IAm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2ReadAloudM": "Read this aloud",
+  "sv2ReadAloudF": "Read this aloud",
+  "sv2GoalLabel": "Goal",
+  "sv2HoldSecretM": "Hold to see your secret",
+  "sv2HoldSecretF": "Hold to see your secret",
+  "sv2HoldWhenM": "when you have finished reading",
+  "sv2HoldWhenF": "when you have finished reading",
+  "sv2InnocentM": "You are innocent",
+  "sv2InnocentF": "You are innocent",
+  "sv2InnocentSubM": "Help the detective find who did it",
+  "sv2InnocentSubF": "Help the detective find who did it",
+  "sv2InnocentNoteM": "Say what is on your card. If it is not there, say you are not sure.",
+  "sv2InnocentNoteF": "Say what is on your card. If it is not there, say you are not sure.",
+  "sv2KillerM": "You are the killer",
+  "sv2KillerF": "You are the killer",
+  "sv2KillerSubM": "You may twist the truth",
+  "sv2KillerSubF": "You may twist the truth",
+  "sv2KillerNoteM": "Don't let the detective reach you. If anyone asks, answer as you like.",
+  "sv2KillerNoteF": "Don't let the detective reach you. If anyone asks, answer as you like.",
+  "sv2PartnerIsM": "Your partner: {name}",
+  "@sv2PartnerIsM": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2PartnerIsF": "Your partner: {name}",
+  "@sv2PartnerIsF": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2PartnerM": "You are the partner",
+  "sv2PartnerF": "You are the partner",
+  "sv2KillerIsM": "The killer: {name}",
+  "@sv2KillerIsM": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2KillerIsF": "The killer: {name}",
+  "@sv2KillerIsF": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2PartnerNoteM": "Defend yourself and the one with you without showing it.",
+  "sv2PartnerNoteF": "Defend yourself and the one with you without showing it.",
+  "sv2SecretDetective": "You are the detective",
+  "sv2SecretDetectiveSub": "No secret for you",
+  "sv2SecretDetectiveNote": "Wait until the phone comes back to you.",
+  "sv2HidePass": "Hide and pass the phone",
+  "sv2HideToDetective": "Hide and give the phone to the detective",
+  "sv2IntroCount": "Meet them · {i} of {n}",
+  "@sv2IntroCount": {
+    "placeholders": {
+      "i": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sv2IntroReader": "{name} reads",
+  "@sv2IntroReader": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2ToTable": "To the table",
+  "sv2DeskDetective": "Detective's desk · {name}",
+  "@sv2DeskDetective": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2DeskTable": "The table",
+  "sv2DeskSolo": "You are {name}",
+  "@sv2DeskSolo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2Replay": "Hear the opening again",
+  "sv2ReadToAll": "Read to everyone",
+  "sv2ReadTogether": "Read together",
+  "sv2WhatYouKnow": "What you know",
+  "sv2TapToRead": "Tap anyone to read their card",
+  "sv2SearchesLeft": "Searches · {left} of {total} left",
+  "@sv2SearchesLeft": {
+    "placeholders": {
+      "left": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "sv2Search": "Search",
+  "sv2Searched": "Searched",
+  "sv2Decide": "My decision",
+  "sv2Agree": "We agree on one",
+  "sv2BonusSearch": "One more search (watch an ad)",
+  "sv2FoundTitle": "Read what you found aloud",
+  "sv2Back": "Back",
+  "sv2DecisionDetective": "The detective's decision",
+  "sv2DecisionTable": "Our decision",
+  "sv2DecisionSolo": "Your decision",
+  "sv2DecisionFree": "Who did it? Pick freely, no need to say why.",
+  "sv2Who": "Who did it?",
+  "sv2Why": "Why?",
+  "sv2How": "How?",
+  "sv2Confirm": "Confirm: {name}",
+  "@sv2Confirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2PickSomeone": "Pick someone",
+  "sv2RevealWho": "Who did it: {name}",
+  "@sv2RevealWho": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2RevealPlayedBy": "{player} was playing this character",
+  "@sv2RevealPlayedBy": {
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2RevealWith": "With them: {name}",
+  "@sv2RevealWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2SeeResult": "See the result",
+  "sv2DetectiveWon": "The detective won",
+  "sv2KillerEscaped": "The killer got away",
+  "sv2TableWon": "You got it!",
+  "sv2TableLost": "It slipped past you",
+  "sv2SoloWon": "Solved",
+  "sv2SoloLost": "Not this time",
+  "sv2PickRight": "The pick was {name}, and it was right.",
+  "@sv2PickRight": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2PickWrong": "The pick was {name}, but it was {culprit}.",
+  "@sv2PickWrong": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "culprit": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2ResultMotive": "Why: {label}",
+  "@sv2ResultMotive": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2ResultMethod": "How: {label}",
+  "@sv2ResultMethod": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "sv2RoleDetective": "Detective",
+  "sv2RoleKillerM": "Killer",
+  "sv2RoleKillerF": "Killer",
+  "sv2RolePartnerM": "Partner",
+  "sv2RolePartnerF": "Partner",
+  "sv2RoleInnocentM": "Innocent",
+  "sv2RoleInnocentF": "Innocent",
+  "sv2RoleCulpritM": "Did it",
+  "sv2RoleCulpritF": "Did it",
+  "sv2PlayAgain": "Play again (it changes)",
+  "sv2OtherCase": "Another case",
+  "sv2ExitTitle": "Leave this case?",
+  "sv2ExitBody": "This table will be lost.",
+  "sv2ExitYes": "Leave",
+  "sv2ExitNo": "Stay"
 }

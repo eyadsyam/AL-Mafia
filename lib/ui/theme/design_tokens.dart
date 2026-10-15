@@ -203,7 +203,6 @@ abstract final class DeckTokens {
   static const Duration seamFade = Duration(milliseconds: 400);
   static const Duration reduced = Duration(milliseconds: 150);
 
-
   /// Cards arrive once: each rises [enterRise] dp and fades in over [enter],
   /// the next one [enterStagger] later. Only transform and opacity move, so
   /// nothing is laid out again while it plays.
@@ -2921,11 +2920,11 @@ abstract final class StoryTokens {
   static const String displayFont = 'Aref Ruqaa';
 
   static TextStyle ruqaa(TextStyle base) => base.copyWith(
-        fontFamily: displayFont,
-        fontFamilyFallback: const <String>['Cairo'],
-        fontVariations: const <FontVariation>[],
-        fontWeight: FontWeight.w700,
-      );
+    fontFamily: displayFont,
+    fontFamilyFallback: const <String>['Cairo'],
+    fontVariations: const <FontVariation>[],
+    fontWeight: FontWeight.w700,
+  );
 }
 
 /// The discussion screen's extras.
@@ -3100,4 +3099,77 @@ abstract final class CorkTokens {
   static const Duration stampDrop = Duration(milliseconds: 380);
   static const double noteIcon = 40;
   static const double doneAlpha = 0.6;
+}
+
+/// «الأباجورة» — the Stories V2 look the owner chose (2026-10-15), from the
+/// draft `design-system/stories/tokens.css`. Used only by
+/// `lib/ui/screens/stories/v2/`; never on a Mafia screen.
+abstract final class StoriesLampTokens {
+  // The room (lamp-dark ground).
+  static const Color night = Color(0xFF0A0402);
+  static const Color ground = Color(0xFF150B06);
+  static const Color panel = Color(0xFF20120A);
+  static const Color raised = Color(0xFF2C1A0F);
+  static const Color line = Color(0xFF3D2617);
+  static const Color text = Color(0xFFF1E3C8);
+  static const Color text2 = Color(0xFFC9B597);
+  static const Color muted = Color(0xFF8F7A62);
+
+  // The paper: the only light surface.
+  static const Color paper = Color(0xFFE1D0AC);
+  static const Color paperLine = Color(0xFFB49C70);
+  static const Color paperInk = Color(0xFF2A1A10);
+  static const Color paperInk2 = Color(0xFF5B4430);
+
+  // Lamplight is the action; velvet is the verdict.
+  static const Color amber = Color(0xFFB36E2D);
+  static const Color amberHi = Color(0xFFE0A55C);
+  static const Color amberDeep = Color(0xFF7A4519);
+  static const Color onAmber = Color(0xFF1A0C04);
+  static const Color velvet = Color(0xFF6E1A16);
+  static const Color glow = Color(0x2EE0A55C);
+  static const Color shadow = Color(0x800A0402);
+
+  /// The private role line: one colour and shape for every role (Doc 05).
+  static const Color secret = velvet;
+
+  static const double radiusPaper = 6;
+  static const double radiusButton = 10;
+  static const double radiusSheet = 16;
+  static const double buttonHeight = 48;
+  static const double heroHeight = 180;
+  static const double coverWidth = 64;
+  static const double coverHeight = 86;
+  static const double faceWidth = 44;
+  static const double faceHeight = 54;
+  static const double cardFaceWidth = 88;
+  static const double cardFaceHeight = 108;
+  static const double revealFaceWidth = 100;
+  static const double revealFaceHeight = 124;
+  static const double pickFaceWidth = 92;
+  static const double pickFaceHeight = 112;
+  static const double faceBorder = 2;
+  static const double pickedBorder = 3;
+  static const double titleSize = 30;
+  static const double titleSmall = 24;
+  static const double handoffName = 46;
+  static const double barHeight = 6;
+  static const double barTouch = 32;
+  static const double knob = 14;
+  static const double control = 44;
+  static const double controlMain = 56;
+  static const double holdPad = 84;
+  static const double holdStroke = 3;
+  static const double paperLift = 1;
+  static const double paperBlur = 18;
+  static const double secretTilt = -0.026;
+
+  /// The note under the private line: a fixed two-line box for every role,
+  /// so a longer note never makes one seat's page taller (Doc 05).
+  static const int secretNoteLines = 2;
+  static const double secretNoteHeight = 48;
+  static const double dimmed = 0.38;
+  static const double glowHeight = 0.42;
+  static const Duration hold = Duration(milliseconds: 900);
+  static const Duration fade = Duration(milliseconds: 220);
 }
