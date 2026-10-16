@@ -1,6 +1,9 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
+import 'audio_backend_browser_stub.dart'
+    if (dart.library.js_interop) 'audio_backend_browser.dart'
+    as browser;
 import 'narration_controller.dart' show NarrationPlayer;
 
 /// The only file in the app that knows which audio package is installed.
@@ -16,7 +19,8 @@ import 'narration_controller.dart' show NarrationPlayer;
 ///
 /// Replacing `audioplayers` means rewriting [PluginAudioBackend] and the import
 /// at the top of this file. Nothing else in `lib/` mentions the package, and a
-/// test enforces that (`audio_backend_isolation_test.dart`).
+/// test enforces that (`audio_backend_isolation_test.dart`). The web build
+/// does not use the package at all: see [platformAudioBackend].
 abstract class AudioBackend {
   /// Configures the audio session and warms every cue in [assetKeys].
   ///
@@ -88,6 +92,11 @@ abstract class AudioBackend {
 
   Future<void> dispose();
 }
+
+/// This platform's backend: on the web a few media elements and one Web
+/// Audio context (`audio_backend_browser.dart`), `audioplayers` elsewhere.
+AudioBackend platformAudioBackend({bool web = kIsWeb}) =>
+    web ? browser.createBrowserAudioBackend() : PluginAudioBackend();
 
 /// Plays nothing, successfully.
 ///

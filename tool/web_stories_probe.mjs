@@ -67,6 +67,20 @@ const seed = () => {
 const audioSpy = () => {
   window.__plays = [];
   window.__loads = [];
+  window.__contexts = 0;
+  window.__audioEls = 0;
+  for (const name of ['AudioContext', 'webkitAudioContext']) {
+    const Ctx = window[name];
+    if (!Ctx) continue;
+    window[name] = new Proxy(Ctx, { construct(target, args) { window.__contexts++; return new target(...args); } });
+  }
+  const create = Document.prototype.createElement;
+  Document.prototype.createElement = function (tag, ...rest) {
+    if (String(tag).toLowerCase() === 'audio') window.__audioEls++;
+    return create.call(this, tag, ...rest);
+  };
+  const Audio = window.Audio;
+  window.Audio = new Proxy(Audio, { construct(target, args) { window.__audioEls++; return new target(...args); } });
   const load = HTMLMediaElement.prototype.load;
   HTMLMediaElement.prototype.load = function (...args) {
     window.__loads.push(this);
@@ -94,7 +108,10 @@ const suspects = world.suspects.map((s) => s.name);
 const report = [];
 
 for (const [device, engine, profile, pointer] of runs) {
-  const browser = await engine.launch();
+  // STRICT_AUTOPLAY=1: Chromium refuses sound before a real gesture, as a
+  // phone's browser does (headless otherwise lets anything play).
+  const browser = await engine.launch(engine === chromium && process.env.STRICT_AUTOPLAY
+    ? { args: ['--autoplay-policy=user-gesture-required'] } : {});
   const context = await browser.newContext({ ...profile, locale: 'ar-EG' });
   await context.addInitScript(seed);
   await context.addInitScript(audioSpy);
@@ -105,6 +122,7 @@ for (const [device, engine, profile, pointer] of runs) {
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text().slice(0, 200)); });
   const steps = [];
   let shot = 0;
+  let audioCount = async () => ({});
   const log = (step, extra = {}) => { steps.push({ step, ...extra }); console.log(device, step, JSON.stringify(extra)); };
   const snap = async (name) => page.screenshot({ path: `${out}/${device}_${String(++shot).padStart(2, '0')}_${name}.png` });
 
@@ -177,6 +195,14 @@ for (const [device, engine, profile, pointer] of runs) {
     await page.getByText('بنجهّز الترابيزة').first().waitFor({ state: 'hidden', timeout: 30000 }).catch(() => {});
     await page.waitForTimeout(1500);
     log('first-launch warm-up done', { ms: Date.now() - w0 });
+    audioCount = () => page.evaluate(() => ({
+      audioContexts: window.__contexts, audioElements: window.__audioEls,
+      loaded: window.__loads.length,
+      plays: window.__plays.map((p) => [p.src.split('/').slice(-1)[0], p.ok,
+        Math.round((p.el.currentTime || 0) * 10) / 10]),
+    }));
+    await page.waitForTimeout(3000);
+    log('audio at start-up', await audioCount());
     await snap('about');
 
     await pacingStart();
@@ -213,6 +239,7 @@ for (const [device, engine, profile, pointer] of runs) {
     });
     log('narrator after +5', after ?? { missing: true });
     await snap('narrator');
+    log('audio after the narrator', await audioCount());
     if (process.env.STOP === 'narrator') throw new Error('stopped after the narrator');
 
     await tap(button('العب مع صحابك'), 'play with friends');
@@ -300,6 +327,7 @@ for (const [device, engine, profile, pointer] of runs) {
     await snap('reveal');
     await tap(button('شوف النتيجة'), 'result');
     await snap('result');
+    log('audio at the end', await audioCount());
     log('done');
   } catch (error) {
     log('FAILED', { error: String(error).split('\n')[0].slice(0, 300) });

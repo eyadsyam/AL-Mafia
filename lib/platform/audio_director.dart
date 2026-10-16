@@ -521,7 +521,7 @@ String webAudioAssetKey(String assetKey, {bool web = kIsWeb}) =>
 /// nothing gets silence and a test that wants to assert on playback overrides
 /// [AudioDirector.backend] rather than the whole director.
 final audioDirectorProvider = Provider<AudioDirector>((ref) {
-  final director = AudioDirector(backend: PluginAudioBackend());
+  final director = AudioDirector(backend: platformAudioBackend());
   ref.onDispose(director.backend.dispose);
   return director;
 });
