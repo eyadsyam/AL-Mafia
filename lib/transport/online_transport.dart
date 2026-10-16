@@ -310,6 +310,7 @@ class OnlineTransport implements GameTransport {
       state: state,
       players: _players,
       viewerSeat: _own?.seat,
+      viewerLastProtectSeat: _own?.lastProtectSeat,
       isHost: isHost,
       connection: _connection,
       skew: _skew,

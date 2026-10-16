@@ -404,6 +404,18 @@ abstract class AppLocalizations {
   /// **'The Silencer needs at least two Mafia'**
   String get balanceSilencerNeedsTwoMafia;
 
+  /// No description provided for @balanceOneElderOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'There can only be one Elder'**
+  String get balanceOneElderOnly;
+
+  /// No description provided for @balanceOneSniperOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'There can only be one Sniper'**
+  String get balanceOneSniperOnly;
+
   /// No description provided for @balanceElderMinPlayers.
   ///
   /// In en, this message translates to:
@@ -9600,6 +9612,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not available right now.'**
   String get toolRefused;
+
+  /// No description provided for @toolNeedsTurns.
+  ///
+  /// In en, this message translates to:
+  /// **'This tool only works when talk goes by turns'**
+  String get toolNeedsTurns;
+
+  /// No description provided for @toolSilencedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'A silenced player can\'t use this tool today'**
+  String get toolSilencedToday;
+
+  /// No description provided for @onlineLastWordLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s last word goes to {target}'**
+  String onlineLastWordLine(String name, String target);
 
   /// No description provided for @modeStoriesTitle.
   ///

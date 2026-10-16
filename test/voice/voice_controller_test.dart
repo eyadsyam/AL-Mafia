@@ -28,11 +28,13 @@ void main() {
     GamePhase phase, {
     int? speaker,
     DiscussionMode discussion = DiscussionMode.structured,
+    bool silenced = false,
   }) => GameSnapshot(
     public: PublicMatchView(phase: phase, dayNumber: 1, players: const []),
     settings: MatchSettings(discussionMode: discussion),
     activeSpeakerSeat: speaker,
     viewerSeat: 1,
+    morning: silenced ? const MorningReport(silencedSeat: 1) : null,
   );
 
   Future<(VoiceController, FakeVoiceEngine, FakeVoiceLink)> connected({
@@ -740,6 +742,16 @@ void main() {
   });
 
   group('the phases the table calls open', () {
+    test('silenced player hears free discussion without speaking', () async {
+      final (controller, engine, _) = await connected();
+      await controller.apply(snapshotIn(GamePhase.discussion,
+          discussion: DiscussionMode.free, silenced: true));
+      expect(engine.microphoneLive, isFalse);
+      expect(engine.audiblePeers, containsAll(['u0', 'u2']));
+      await controller.apply(snapshotIn(GamePhase.discussion,
+          discussion: DiscussionMode.free));
+      expect(engine.microphoneLive, isTrue);
+    });
     test('the lobby and the result screen are a room, not a queue', () async {
       final (controller, engine, _) = await connected();
 

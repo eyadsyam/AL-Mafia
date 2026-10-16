@@ -180,6 +180,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'The Silencer needs at least two Mafia';
 
   @override
+  String get balanceOneElderOnly => 'There can only be one Elder';
+
+  @override
+  String get balanceOneSniperOnly => 'There can only be one Sniper';
+
+  @override
   String get balanceElderMinPlayers => 'The Elder needs at least 6 players';
 
   @override
@@ -5638,6 +5644,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get toolRefused => 'Not available right now.';
+
+  @override
+  String get toolNeedsTurns => 'This tool only works when talk goes by turns';
+
+  @override
+  String get toolSilencedToday =>
+      'A silenced player can\'t use this tool today';
+
+  @override
+  String onlineLastWordLine(String name, String target) {
+    return '$name\'s last word goes to $target';
+  }
 
   @override
   String get modeStoriesTitle => 'Stories';

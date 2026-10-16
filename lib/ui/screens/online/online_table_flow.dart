@@ -61,6 +61,9 @@ import 'witness/kill_jumpscare.dart';
 import 'witness/witness_layer.dart';
 import '../../../transport/witness_channel.dart';
 
+bool doctorMaySelectNightTarget(Role role, int seat, int? lastProtectSeat) =>
+    role != Role.doctor || seat != lastProtectSeat;
+
 /// The online match, as one table that changes state (doc 12 §2.1, §3).
 ///
 /// ## What this replaces, and what it does not
@@ -966,12 +969,16 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       // For the Mafia it is also «الليلة الهادية» when they still hold it: the
       // decline *is* the move, and it is what makes the morning ambiguous. For
       // the other three it is simply declining.
-      await _controller.skipNightAction(
-        useBullet:
-            turn.actorRole == Role.mafia &&
-            _controller.bulletExistsFor(Role.mafia) &&
-            !_controller.currentBulletSpent,
-      );
+      final useBullet =
+          turn.actorRole == Role.mafia &&
+          _controller.bulletExistsFor(Role.mafia) &&
+          !_controller.currentBulletSpent;
+      try {
+        await _controller.skipNightAction(useBullet: useBullet);
+      } on BackendException catch (error) {
+        if (!useBullet || error.code != 'RATE_LIMITED') rethrow;
+        await _controller.skipNightAction(useBullet: false);
+      }
     } else {
       await _controller.submitNightAction(
         kind: turn.actorRole.nightAction,
@@ -1438,7 +1445,10 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     if (_submitted || _viewerIsDead(snapshot)) return const {};
     return switch (snapshot.phase) {
       GamePhase.night => {
-        ...?state.actorTurn?.targets,
+        for (final seat in state.actorTurn?.targets ?? const <int>[])
+          if (doctorMaySelectNightTarget(
+              state.actorTurn!.actorRole, seat, snapshot.viewerLastProtectSeat))
+            seat,
         // `turnFor` builds the target list out of the *other* living seats,
         // which is right for every role and every night but one move. The
         // Doctor's self-protection is that move, and adding the seat here
@@ -1446,7 +1456,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         // rule it would otherwise have to know about bullets.
         if (state.actorTurn != null &&
             snapshot.viewerSeat != null &&
-            _canSelfProtect(state.actorTurn!.actorRole))
+            _canSelfProtect(state.actorTurn!.actorRole) &&
+            doctorMaySelectNightTarget(state.actorTurn!.actorRole,
+                snapshot.viewerSeat!, snapshot.viewerLastProtectSeat))
           snapshot.viewerSeat!,
       },
       GamePhase.openingRound || GamePhase.voting => {
@@ -1591,7 +1603,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         ];
         return CouncilVoice(
           headline: victims.isEmpty
-              ? l10n.quietNight
+              ? morning?.someoneSavedUnnamed == true
+                  ? l10n.someoneSavedBody
+                  : l10n.quietNight
               : l10n.lostPlayerLastNight(
                   [for (final seat in victims) names[seat] ?? ''].join(' · '),
                 ),
@@ -1699,12 +1713,22 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           );
         }
         final role = vote.eliminatedRole;
+        final lastWord = snapshot.lastWord;
+        final wordLine = lastWord == null ||
+                names[lastWord.seat] == null ||
+                names[lastWord.target] == null
+            ? null
+            : caption(l10n.onlineLastWordLine(
+                names[lastWord.seat]!, names[lastWord.target]!));
         return CouncilVoice(
           headline: names[seat] ?? '',
           style: type.display,
-          support: role == null
+          support: role == null && wordLine == null
               ? null
-              : caption(EngineCopy.roleName(l10n, role)),
+              : Column(mainAxisSize: MainAxisSize.min, children: [
+                  if (role != null) caption(EngineCopy.roleName(l10n, role)),
+                  if (wordLine != null) wordLine,
+                ]),
         );
 
       case GamePhase.result:

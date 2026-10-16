@@ -7,6 +7,8 @@ import '../../data/request_id.dart';
 import '../../transport/online_backend.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
+import '../screens/match_controller.dart' show gameTransportProvider;
+import '../../engine/models/enums.dart' show DiscussionMode;
 import '../theme/mafia_theme.dart';
 import 'table_tool_names.g.dart';
 import 'wallet.dart';
@@ -174,6 +176,9 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
     List<int> targets = const [],
     String? note,
   }) async {
+    final phaseNumber = code == 'sense' || code == 'narrator_whisper'
+        ? ref.read(gameTransportProvider).snapshot.dayNumber
+        : null;
     try {
       final res = await _call({
         'action': 'toolUse',
@@ -190,7 +195,9 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
     } catch (_) {
       // The use may have been recorded before the answer was lost.
       unawaited(_reconcile());
-      final kept = await _keptAnswer(roomId, code);
+      final kept = code == 'sense' || code == 'narrator_whisper'
+          ? await _keptAnswer(roomId, code, phaseNumber!, targets)
+          : null;
       if (kept != null) return kept;
       throw const ToolActionFailed(null);
     }
@@ -198,13 +205,17 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
 
   /// The narrator's answer the server kept for this caller's latest [code]
   /// use in [roomId] (only the two whisper tools have one), or null.
-  Future<bool?> _keptAnswer(String roomId, String code) async {
+  Future<bool?> _keptAnswer(
+    String roomId, String code, int phaseNumber, List<int> targets,
+  ) async {
     try {
       final res = await _call({'action': 'toolAnswers', 'roomId': roomId});
       final rows = res['answers'];
       if (rows is! List) return null;
       for (final row in rows.reversed) {
-        if (row is Map && row['tool'] == code && row['answer'] is bool) {
+        if (row is Map &&
+            recoveredToolAnswerMatches(row, code, phaseNumber, targets) &&
+            row['answer'] is bool) {
           return row['answer'] as bool;
         }
       }
@@ -213,6 +224,20 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
     }
     return null;
   }
+}
+
+bool recoveredToolAnswerMatches(
+  Map row, String code, int phaseNumber, List<int> targets, {String? requestId}
+) {
+  final savedTargets = row['targets'];
+  if (row['tool'] != code || row['phaseNumber'] != phaseNumber ||
+      savedTargets is! List ||
+      (requestId != null && row['requestId'] != requestId)) return false;
+  final requested = [...targets]..sort();
+  final saved = [for (final target in savedTargets) if (target is int) target]..sort();
+  return saved.length == savedTargets.length &&
+      saved.length == requested.length &&
+      List.generate(saved.length, (i) => saved[i] == requested[i]).every((same) => same);
 }
 
 String toolTierLabel(BuildContext context, ToolTier tier) {
@@ -249,6 +274,7 @@ Future<void> showTableToolsSheet(
   required String roomId,
   required String phase,
   required bool alive,
+  required bool freeTalk,
   required Map<int, String> seats,
 }) {
   return showModalBottomSheet<void>(
@@ -256,11 +282,13 @@ Future<void> showTableToolsSheet(
     isScrollControlled: true,
     showDragHandle: true,
     builder: (_) =>
-        _ToolsSheet(roomId: roomId, phase: phase, alive: alive, seats: seats),
+        _ToolsSheet(roomId: roomId, phase: phase, alive: alive,
+            freeTalk: freeTalk, seats: seats),
   );
 }
 
-bool _toolFits(TableTool t, String phase, bool alive) {
+bool _toolFits(TableTool t, String phase, bool alive, bool freeTalk) {
+  if (freeTalk && const {'extra_minute', 'objection'}.contains(t.code)) return false;
   if (t.phase == 'dead') return !alive;
   if (!alive) return false;
   return switch (t.phase) {
@@ -280,12 +308,14 @@ class _ToolsSheet extends ConsumerStatefulWidget {
   final String roomId;
   final String phase;
   final bool alive;
+  final bool freeTalk;
   final Map<int, String> seats;
 
   const _ToolsSheet({
     required this.roomId,
     required this.phase,
     required this.alive,
+    required this.freeTalk,
     required this.seats,
   });
 
@@ -352,14 +382,18 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
         );
       }
       if (mounted) Navigator.of(context).pop();
-    } catch (_) {
+    } catch (error) {
       // Any failure, not only the server's refusal: a sheet left busy with a
       // dead button is worse than a message.
       if (!mounted) return;
       setState(() => _busy = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(l.toolRefused)));
+      ).showSnackBar(SnackBar(content: Text(switch (error) {
+        ToolActionFailed(code: 'NOT_THIS_ROOM') => l.toolNeedsTurns,
+        ToolActionFailed(code: 'SILENCED') => l.toolSilencedToday,
+        _ => l.toolRefused,
+      })));
     }
   }
 
@@ -372,7 +406,7 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
     final data = ref.watch(tableToolsProvider).valueOrNull;
     final usable = [
       for (final t in data?.owned() ?? const <TableTool>[])
-        if (_toolFits(t, widget.phase, widget.alive)) t,
+        if (_toolFits(t, widget.phase, widget.alive, widget.freeTalk)) t,
     ];
     final picked = _picked;
     return SafeArea(
@@ -490,7 +524,7 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
 
 /// The match header's «أدواتك» control. Shown only in an online room (the
 /// one place a [roomId] exists); it opens [showTableToolsSheet].
-class TableToolsButton extends StatelessWidget {
+class TableToolsButton extends ConsumerWidget {
   final String roomId;
   final String phase;
   final bool alive;
@@ -507,7 +541,7 @@ class TableToolsButton extends StatelessWidget {
   static const buttonKey = ValueKey('table_tools_button');
 
   @override
-  Widget build(BuildContext context) => IconButton(
+  Widget build(BuildContext context, WidgetRef ref) => IconButton(
     key: buttonKey,
     tooltip: context.l10n.toolsInMatch,
     icon: const Icon(Icons.construction_rounded),
@@ -516,6 +550,8 @@ class TableToolsButton extends StatelessWidget {
       roomId: roomId,
       phase: phase,
       alive: alive,
+      freeTalk: ref.read(gameTransportProvider).snapshot.settings.discussionMode ==
+          DiscussionMode.free,
       seats: seats,
     ),
   );

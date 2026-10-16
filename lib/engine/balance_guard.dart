@@ -145,6 +145,14 @@ class BalanceGuard {
         const BalanceIssue(code: 'silencer_needs_two_mafia', blocking: true),
       );
     }
+    // One of each sold role, as the roles screen deals them and
+    // `MatchEngine.start` demands (audit M2-109).
+    if ((roleCounts[Role.elder] ?? 0) > 1) {
+      issues.add(const BalanceIssue(code: 'one_elder_only', blocking: true));
+    }
+    if ((roleCounts[Role.sniper] ?? 0) > 1) {
+      issues.add(const BalanceIssue(code: 'one_sniper_only', blocking: true));
+    }
     if ((roleCounts[Role.elder] ?? 0) > 0 && playerCount < 6) {
       issues.add(
         const BalanceIssue(code: 'elder_min_players', blocking: true),

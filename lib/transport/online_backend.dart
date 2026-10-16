@@ -349,7 +349,9 @@ class OwnSeat {
   /// `actor_id = auth.uid()` — the same rows this client already loads to work
   /// out whether it still owes a move tonight, so the fact refreshes itself on
   /// every resync and costs no extra call.
+  /// The Mafia's bullet is the team's.
   final bool bulletSpent;
+  final int? lastProtectSeat;
 
   const OwnSeat({
     required this.seat,
@@ -359,6 +361,7 @@ class OwnSeat {
     this.actedThisNight = false,
     this.votedRound,
     this.bulletSpent = false,
+    this.lastProtectSeat,
   });
 
   OwnSeat copyWith({
@@ -369,6 +372,7 @@ class OwnSeat {
     bool? actedThisNight,
     int? votedRound,
     bool? bulletSpent,
+    int? lastProtectSeat,
   }) => OwnSeat(
     seat: seat ?? this.seat,
     role: role ?? this.role,
@@ -379,6 +383,7 @@ class OwnSeat {
     // spelled as "leave it alone". The one field that needs the escape.
     votedRound: votedRound ?? this.votedRound,
     bulletSpent: bulletSpent ?? this.bulletSpent,
+    lastProtectSeat: lastProtectSeat ?? this.lastProtectSeat,
   );
 }
 

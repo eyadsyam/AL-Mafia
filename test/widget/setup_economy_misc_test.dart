@@ -173,6 +173,53 @@ void main() {
   });
 
   group('tools sheet', () {
+    testWidgets('floor tools require turn based talk', (tester) async {
+      final backend = FakeBackend(
+        roomId: 'room',
+        state: roomState(phase: 'discuss'),
+        players: roster(5),
+      );
+      backend.responders['economy'] = (_) => {
+        'balance': 0,
+        'tools': [
+          for (final code in ['extra_minute', 'objection'])
+            {
+              'code': code,
+              'tier': 'light',
+              'packs': {'1': 40},
+              'charges': 1,
+              'perMatch': 1,
+              'phase': 'discuss',
+              'targets': 0,
+            },
+        ],
+      };
+      Future<void> open(bool freeTalk) async {
+        // A fresh tree each time: the previous sheet would cover the button.
+        await tester.pumpWidget(const SizedBox());
+        await tester.pumpWidget(ProviderScope(
+          overrides: [
+            onlineBackendFactoryProvider.overrideWithValue(() async => backend),
+          ],
+          child: localizedApp(Scaffold(body: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showTableToolsSheet(context,
+                  roomId: 'room', phase: 'discuss', alive: true,
+                  freeTalk: freeTalk, seats: const {}),
+              child: const Text('open'),
+            ),
+          ))),
+        ));
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+      }
+
+      await open(true);
+      expect(find.byType(ChoiceChip), findsNothing);
+      await open(false);
+      expect(find.byType(ChoiceChip), findsNWidgets(2));
+    });
+
     testWidgets('a failed use frees the button and says so', (tester) async {
       final backend = FakeBackend(
         roomId: 'room',
@@ -212,6 +259,7 @@ void main() {
                     roomId: 'room',
                     phase: 'discuss',
                     alive: true,
+                    freeTalk: false,
                     seats: const {1: 'A'},
                   ),
                   child: const Text('open'),

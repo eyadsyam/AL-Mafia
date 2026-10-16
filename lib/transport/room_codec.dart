@@ -168,6 +168,14 @@ DayVoteResult? voteFromJson(Object? value) {
   );
 }
 
+({int seat, int target})? lastWordFromJson(Object? value) {
+  if (value is! Map || value['lastWord'] is! Map) return null;
+  final word = value['lastWord'] as Map;
+  final seat = (word['seat'] as num?)?.toInt();
+  final target = (word['target'] as num?)?.toInt();
+  return seat == null || target == null ? null : (seat: seat, target: target);
+}
+
 Map<int, int> accusationsFromJson(Object? value) {
   if (value is! Map) return const {};
   return {
@@ -229,6 +237,7 @@ GameSnapshot snapshotFrom({
   required RoomState state,
   required List<RoomPlayer> players,
   required int? viewerSeat,
+  int? viewerLastProtectSeat,
   required bool isHost,
   required ConnectionQuality connection,
   required Duration skew,
@@ -312,6 +321,8 @@ GameSnapshot snapshotFrom({
     whisperGraph: whisperGraph(whispers, state.phaseNumber),
     morning: morningFromJson(data['morning']),
     lastVote: voteFromJson(data['lastVote']),
+    lastWord: lastWordFromJson(data['lastVote']),
+    viewerLastProtectSeat: viewerLastProtectSeat,
     revealedElderSeats: {
       for (final seat in (data['elderRevealedSeats'] as List?) ?? const [])
         if (seat is num) seat.toInt(),

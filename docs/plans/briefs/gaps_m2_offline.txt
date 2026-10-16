@@ -1,0 +1,19 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master: Flutter party game; offline engine lib/engine (pure Dart); online on Supabase (SQL migrations, TypeScript edge functions in supabase/functions, pure helpers in supabase/functions/_shared).
+YOU EXECUTE; YOU DO NOT DESIGN. No git commit, no network, no deploy, no builds. Other people edit other files right now.
+
+TASK: turn GAP rows of an audit matrix into proof. A GAP row says the code seems to do the right thing but no test proves it. For every GAP row in your scope (below):
+1. Write the smallest test that proves the row's Expected column, at the lowest evidence level that can prove it here:
+   - SQL behaviour (functions, triggers, RLS, migrations) -> a SQL test file supabase/tests/<area>_gaps.sql in the style of the existing ones (begin; do $$ ... assert ... $$; rollback;).
+   - Logic inside an edge function -> if it already lives in a pure helper in supabase/functions/_shared, a node test supabase/tests/<area>_gaps.test.mjs importing the .ts directly (Node 24 strips types). If the logic is inline in an edge function and not testable without Deno, do NOT refactor production code: mark the row `needs-live` (see 3).
+   - Offline engine / Dart -> a Dart test file test/<area>/<area>_gaps_test.dart.
+2. Update the matrix row in place: Test = file: test name, Evidence = sql-sim / unit / widget, Verdict = OK.
+3. A row that cannot be proven here (needs a running server, real concurrency, two devices, a phone): leave Verdict GAP and append ` — needs-live` to its Case cell. Collect these at the end of the Findings list under `### Needs live`.
+4. If a test shows the code is WRONG (the Expected does not happen): do NOT change production code. Keep the test but disable it (Dart: `skip: 'DEFECT: <one line>'`; SQL: wrap the failing assert in a comment block starting `-- DEFECT:`; node: `test.skip('DEFECT: ...')`), set the row's Verdict to SUSPECT with `CONFIRMED by <test>` in the Case cell, and list it first in your report.
+Never weaken an assertion to make it pass. Never edit existing tests or production code.
+
+SCOPE: every GAP row in docs/plans/audit/M2-roles.md whose Case starts with OFFLINE, plus the offline rows of 'Deal and balance'. Edit only that matrix file (only those rows and the Findings list) and one new Dart test file test/engine/roles_offline_gaps_test.dart (build matches the way test/engine/rule_matrix_test.dart does). All are Dart; you cannot run them; the orchestrator will.
+
+GATES you CAN run (one at a time, never two at once: RAM is tight): `node tool/test_sql_without_docker.mjs` (all files pass now) and `node --test supabase/tests/<file>.test.mjs` per file.
+You CANNOT run flutter in your sandbox; if you write Dart tests, grep every symbol and signature you use so they compile; the orchestrator runs them.
+
+REPORT (final message): counts (GAP rows in scope, now OK, needs-live, SUSPECT-confirmed); then every SUSPECT-confirmed row with its test; then the files you created.

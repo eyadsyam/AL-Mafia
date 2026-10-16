@@ -251,6 +251,7 @@ class VoiceController {
 
   /// Set by the player, cleared by the player, and by nothing else.
   bool _selfMuted = false;
+  bool _viewerSilenced = false;
   int _revision = 0;
   bool _disposed = false;
   Future<void>? _connecting;
@@ -329,6 +330,7 @@ class VoiceController {
   /// Reacts to a new snapshot. Never throws, and nothing awaits its result.
   Future<void> apply(GameSnapshot snapshot) async {
     if (_disposed) return;
+    _viewerSilenced = snapshot.viewerSilenced;
     final revision = ++_revision;
     final policy = micPolicyFor(
       snapshot.phase,
@@ -395,7 +397,7 @@ class VoiceController {
     if (_disposed || revision != _revision || _tornDown) return;
     final speaker = snapshot.activeSpeakerSeat;
     final maySpeak =
-        !_selfDead &&
+        !_selfDead && !_viewerSilenced &&
         switch (policy) {
           MicPolicy.open => true,
           MicPolicy.activeSpeakerOnly =>
@@ -476,13 +478,14 @@ class VoiceController {
     // The dead talk among themselves whenever the call is up; the floor is a
     // rule for the living. Who can hear them is [_sendingTo]'s business.
     final maySpeak =
-        _selfDead ||
-        switch (policy) {
-          MicPolicy.open => true,
-          MicPolicy.activeSpeakerOnly =>
-            speaker != null && speaker == _selfSeat,
-          MicPolicy.muted => false,
-        };
+        !_viewerSilenced &&
+        (_selfDead ||
+            switch (policy) {
+              MicPolicy.open => true,
+              MicPolicy.activeSpeakerOnly =>
+                speaker != null && speaker == _selfSeat,
+              MicPolicy.muted => false,
+            });
     final live =
         maySpeak &&
         _micAvailable &&

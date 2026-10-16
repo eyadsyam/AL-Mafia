@@ -2,7 +2,6 @@ import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
-import 'package:mafia_master/engine/models/player.dart';
 import 'package:test/test.dart';
 
 /// T023 — drive a full 7-player match to a definite win using ONLY engine

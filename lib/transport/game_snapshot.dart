@@ -285,6 +285,8 @@ class GameSnapshot {
 
   /// The last ballot's outcome.
   final DayVoteResult? lastVote;
+  final ({int seat, int target})? lastWord;
+  final int? viewerLastProtectSeat;
 
   /// Public Sheikh reveals; each listed seat has vote weight three.
   final Set<int> revealedElderSeats;
@@ -524,6 +526,8 @@ class GameSnapshot {
     this.whisperGraph = const [],
     this.morning,
     this.lastVote,
+    this.lastWord,
+    this.viewerLastProtectSeat,
     this.revealedElderSeats = const {},
     this.settings = const MatchSettings(),
     this.pendingOutcome,
@@ -574,6 +578,8 @@ class GameSnapshot {
     List<WhisperMeta>? whisperGraph,
     MorningReport? morning,
     DayVoteResult? lastVote,
+    ({int seat, int target})? lastWord,
+    int? viewerLastProtectSeat,
     Set<int>? revealedElderSeats,
     MatchSettings? settings,
     Alignment? pendingOutcome,
@@ -616,6 +622,8 @@ class GameSnapshot {
     whisperGraph: whisperGraph ?? this.whisperGraph,
     morning: clearMorning ? null : (morning ?? this.morning),
     lastVote: clearVote ? null : (lastVote ?? this.lastVote),
+    lastWord: clearVote ? null : (lastWord ?? this.lastWord),
+    viewerLastProtectSeat: viewerLastProtectSeat ?? this.viewerLastProtectSeat,
     revealedElderSeats: revealedElderSeats ?? this.revealedElderSeats,
     settings: settings ?? this.settings,
     pendingOutcome: pendingOutcome ?? this.pendingOutcome,

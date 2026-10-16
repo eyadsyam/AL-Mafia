@@ -177,6 +177,12 @@ class AppLocalizationsAr extends AppLocalizations {
       'مافيا التسكيت محتاج مافيا اتنين على الأقل';
 
   @override
+  String get balanceOneElderOnly => 'شيخ الصالحين واحد بس';
+
+  @override
+  String get balanceOneSniperOnly => 'القناص واحد بس';
+
+  @override
   String get balanceElderMinPlayers => 'شيخ الصالحين محتاج ٦ لاعبين على الأقل';
 
   @override
@@ -5540,6 +5546,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get toolRefused => 'مش متاحة دلوقتي.';
+
+  @override
+  String get toolNeedsTurns => 'الأداة دي بتشتغل لما الكلام يبقى بالدور بس';
+
+  @override
+  String get toolSilencedToday => 'المتسكّت مايقدرش يستخدم الأداة دي النهارده';
+
+  @override
+  String onlineLastWordLine(String name, String target) {
+    return 'الكلمة الأخيرة من $name لـ$target';
+  }
 
   @override
   String get modeStoriesTitle => 'قصص';

@@ -47,6 +47,9 @@ class SupabaseBackend implements OnlineBackend {
   /// there is no view, policy or PostgREST route that could return it instead.
   _Identity? _identity;
   String? _identityRoomId;
+  String? _teamBulletRoomId;
+  int? _teamBulletPhaseNumber;
+  bool _teamBulletSpent = false;
 
   SupabaseBackend(this.client);
 
@@ -190,7 +193,7 @@ class SupabaseBackend implements OnlineBackend {
         // seat holds a bullet at all is a fact about its role.
         client
             .from('night_actions')
-            .select('night, used_bullet')
+            .select('night, action, target_id, used_bullet')
             .eq('room_id', roomId),
         client
             .from('votes')
@@ -227,6 +230,17 @@ class SupabaseBackend implements OnlineBackend {
     OwnSeat? own;
     if (mine.isNotEmpty) {
       final identity = await _ownIdentity(roomId, state.phase);
+      var teamBulletSpent = false;
+      if (identity.role == 'mafia' && state.phase == 'night') {
+        if (_teamBulletRoomId != roomId ||
+            _teamBulletPhaseNumber != state.phaseNumber) {
+          final team = await call('my_team', {'roomId': roomId});
+          _teamBulletRoomId = roomId;
+          _teamBulletPhaseNumber = state.phaseNumber;
+          _teamBulletSpent = team['teamBulletSpent'] == true;
+        }
+        teamBulletSpent = _teamBulletSpent;
+      }
       own = OwnSeat(
         seat: mine.first.seat,
         role: identity.role,
@@ -236,7 +250,15 @@ class SupabaseBackend implements OnlineBackend {
           (row) => (row['night'] as num).toInt() == state.phaseNumber,
         ),
         // Any night, not tonight: a bullet is spent once for the whole match.
-        bulletSpent: actionRows.any((row) => row['used_bullet'] == true),
+        bulletSpent: ownBulletSpent(identity.role, actionRows, teamBulletSpent),
+        lastProtectSeat: identity.role == 'doctor'
+            ? [
+                for (final row in actionRows)
+                  if ((row['night'] as num).toInt() == state.phaseNumber - 1 &&
+                      row['action'] == 'protect')
+                    seatOf[row['target_id']],
+              ].firstOrNull
+            : null,
         votedRound: voteRows
             .where(
               (row) =>
@@ -800,3 +822,8 @@ class _Identity {
 
   const _Identity(this.role, this.teammates);
 }
+
+bool ownBulletSpent(
+  String? role, List<Map<String, dynamic>> actionRows, bool teamBulletSpent,
+) => actionRows.any((row) => row['used_bullet'] == true) ||
+    (role == 'mafia' && teamBulletSpent);

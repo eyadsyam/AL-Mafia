@@ -54,6 +54,8 @@ abstract final class EngineCopy {
         'one_detective_only' => l10n.balanceOneDetectiveOnly,
         'one_silencer_only' => l10n.balanceOneSilencerOnly,
         'silencer_needs_two_mafia' => l10n.balanceSilencerNeedsTwoMafia,
+        'one_elder_only' => l10n.balanceOneElderOnly,
+        'one_sniper_only' => l10n.balanceOneSniperOnly,
         'elder_min_players' => l10n.balanceElderMinPlayers,
         'sniper_min_players' => l10n.balanceSniperMinPlayers,
         _ => issue.code,

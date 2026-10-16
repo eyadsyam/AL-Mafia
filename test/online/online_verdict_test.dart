@@ -72,6 +72,7 @@ void main() {
     String? role = 'mafia',
     String hostId = 'u0',
     List<int> tiedSeats = const [],
+    bool lastWord = false,
   }) => roomState(
     phase: 'verdict',
     phaseNumber: 1,
@@ -82,6 +83,7 @@ void main() {
         'eliminatedSeat': eliminatedSeat,
         'eliminatedRole': role,
         'tiedSeats': tiedSeats,
+        if (lastWord) 'lastWord': {'seat': 1, 'target': 2},
       },
     },
   );
@@ -97,6 +99,22 @@ void main() {
     final card = tester.widget<CardRise>(find.byType(CardRise));
     expect(card.role, equals(Role.mafia));
     expect(card.name, equals('B'));
+  });
+
+  testWidgets('last word names its public target only when present', (tester) async {
+    await pumpTable(tester, state: verdict(lastWord: true));
+    expect(find.text(arStrings.onlineLastWordLine('B', 'C')), findsOneWidget);
+    await pumpTable(tester, state: verdict());
+    expect(find.text(arStrings.onlineLastWordLine('B', 'C')), findsNothing);
+  });
+
+  testWidgets('morning names an unnamed save instead of a quiet night', (tester) async {
+    await pumpTable(tester, state: roomState(phase: 'morning', hostId: 'u4',
+        publicData: {'morning': {'someoneSavedUnnamed': true}}));
+    expect(find.text(arStrings.someoneSavedBody), findsOneWidget);
+    await pumpTable(tester, state: roomState(phase: 'morning', hostId: 'u4',
+        publicData: {'morning': {'someoneSavedUnnamed': false}}));
+    expect(find.text(arStrings.quietNight), findsOneWidget);
   });
 
   testWidgets('a tie has no card to rise', (tester) async {
