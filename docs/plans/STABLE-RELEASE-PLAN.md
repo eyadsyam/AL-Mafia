@@ -114,7 +114,7 @@ M1: 117 rows; 20 SUSPECT. M2: 118 rows (29 OK, 76 GAP, 11 SUSPECT). Decisions:
 - [ ] Q6 Parity of the night (`briefs/parity_night.txt`): pure `resolveNightCore` in TS, Dart vector generator `tool/night_vectors.dart`, tests on both sides. Orchestrator then runs `dart run tool/night_vectors.dart`, the Dart test and the node test.
 - [x] Q7 Gendered lines: confrontation C1/C4/C5/C6/C7/C8 and «مينفعش تصوّتي» follow the addressed player's gender, offline and online (test/unit/addressed_gender_test.dart).
 - [ ] Q8 M4 store audit and fixes.
-- [ ] Q9 Full gates (§2) + local web build served on localhost for the owner (no deploy).
+- [ ] Q9 Full gates (§2), then a local look for the owner WITHOUT `flutter build` (owner rule 2026-10-08/16): `flutter run -d web-server --web-port <port>` in debug, opened in the app's browser pane. No release build, no deploy, until he says «ابني».
 - [ ] Q10 Owner: approve deploy to a staging project or live; then live suite; then device smoke; then Play.
 
 ## 6. Owner decisions pending
