@@ -1,6 +1,6 @@
 import '../../widgets/mafia_kit.dart';
 import 'player_name.dart';
-import '../../widgets/case_file.dart';
+import '../../widgets/deck/deck_paper.dart';
 import '../../widgets/deck/seat_card.dart';
 import '../../widgets/deck/deck_buttons.dart';
 import '../../widgets/player_avatar.dart';
@@ -98,7 +98,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     try {
       await ref
           .read(playerProfileProvider.notifier)
-          .save(PlayerProfile(name: cleanPlayerName(_name.text), gender: _gender));
+          .save(
+            PlayerProfile(name: cleanPlayerName(_name.text), gender: _gender),
+          );
       if (mounted) widget.onSaved?.call();
     } catch (_) {
       if (mounted) setState(() => _failed = true);
@@ -107,10 +109,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
-  /// Editing sits on the case file's dark desk; the first-run question keeps
-  /// the experience backdrop.
+  /// Editing sits on Home's ground; the first-run question keeps the
+  /// experience backdrop.
   Widget _surface({required Widget child}) => widget.onBack != null
-      ? ColoredBox(color: CaseFileTokens.desk, child: child)
+      ? ColoredBox(color: DeckTokens.ground, child: child)
       : ExperienceSurface(child: child);
 
   void _setGender(PlayerGender v) => setState(() {
@@ -118,12 +120,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _gender = v;
   });
 
-  /// The player's file: the photo (the avatar on a Mafia seat card), a stamp
-  /// over it, and the identity fields on the paper.
+  /// The player's card: the avatar on a Mafia seat card, a seal beside it,
+  /// and the identity fields on a deck panel.
   Widget _folder(BuildContext context, MyCosmetics mine) {
     final s = context.spacing;
     final l = context.l10n;
-    return CaseFilePaper(
+    return DeckPanel(
       key: ProfileScreen.fileKey,
       padding: EdgeInsets.all(s.md),
       child: Column(
@@ -132,20 +134,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           Stack(
             alignment: Alignment.topCenter,
             children: [
-              Transform.rotate(
-                angle: ProfileTokens.photoTilt,
-                child: SizedBox.fromSize(
-                  size: ProfileTokens.photo,
-                  child: SeatCardFrame(
-                    child: Center(
-                      child: CosmeticFrameRing(
-                        frame: mine.frame,
+              SizedBox.fromSize(
+                size: ProfileTokens.photo,
+                child: SeatCardFrame(
+                  child: Center(
+                    child: CosmeticFrameRing(
+                      frame: mine.frame,
+                      diameter: ProfileTokens.photoAvatar,
+                      child: PlayerAvatar(
+                        name: _name.text,
+                        gender: _gender,
                         diameter: ProfileTokens.photoAvatar,
-                        child: PlayerAvatar(
-                          name: _name.text,
-                          gender: _gender,
-                          diameter: ProfileTokens.photoAvatar,
-                        ),
                       ),
                     ),
                   ),
@@ -154,10 +153,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               PositionedDirectional(
                 top: ProfileTokens.stampTop,
                 end: 0,
-                child: CaseStamp(
+                child: DeckSeal(
                   l.fileStampSuspect,
                   key: ProfileScreen.stampKey,
-                  angle: CaseFileTokens.stampTilt,
                 ),
               ),
             ],
@@ -228,13 +226,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CaseFileTabs(
+        DeckTabs(
           labels: [for (final id in ids) labels[id]!],
           selected: ids.indexOf(open),
           tabKey: (i) => ProfileScreen.tabKey(ids[i]),
           onSelect: (i) => setState(() => _tab = ids[i]),
         ),
-        CaseFileSheet(
+        DeckTabPage(
           child: AnimatedSwitcher(
             duration: still ? Duration.zero : DeckTokens.slide,
             child: KeyedSubtree(key: ValueKey(open), child: content),
@@ -260,7 +258,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         cleanPlayerName(_name.text).isNotEmpty &&
         _gender != PlayerGender.unspecified;
     return MafiaScaffold(
-      backgroundColor: widget.onBack != null ? CaseFileTokens.desk : null,
+      backgroundColor: widget.onBack != null ? DeckTokens.ground : null,
       body: _surface(
         child: SetupEntrance(
           child: SafeArea(
@@ -303,11 +301,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               header: true,
                               child: Text(
                                 l.profileTitle,
-                                style: widget.onBack != null
-                                    ? StoryTokens.ruqaa(
-                                        context.typography.headline,
-                                      )
-                                    : context.typography.headline,
+                                style: context.typography.headline,
                                 textAlign: TextAlign.center,
                               ),
                             ),

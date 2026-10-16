@@ -27,7 +27,7 @@ import '../../missions/casebook_data.dart';
 import '../../missions/casebook_sheet.dart' show caseLine;
 import '../../theme/mafia_theme.dart';
 import '../../theme/design_tokens.dart';
-import '../../widgets/case_file.dart';
+import '../../widgets/deck/deck_paper.dart';
 import '../../widgets/deck/deck_buttons.dart';
 import '../../widgets/deck/deck_public.dart' show CoinPill;
 import '../../widgets/motion_sprite.dart';
@@ -633,7 +633,7 @@ class _ResultStageState extends State<_ResultStage>
                       Text(
                         town ? context.l10n.townWins : context.l10n.mafiaWins,
                         key: const ValueKey('result_winner_headline'),
-                        style: StoryTokens.ruqaa(type.headline).copyWith(
+                        style: type.headline.copyWith(
                           color: colors.textPrimary,
                           fontSize: screen.tabletop
                               ? TabletopTokens.winnerFontSize
@@ -650,15 +650,14 @@ class _ResultStageState extends State<_ResultStage>
           PositionedDirectional(
             top: MediaQuery.paddingOf(context).top + ResultTokens.stampTop,
             end: spacing.md,
-            child: CaseStampDrop(
+            child: DeckSealDrop(
               key: ResultScreen.stampKey,
               progress: stamp,
-              child: CaseStamp(
+              child: DeckSeal(
                 town
                     ? context.l10n.resultStampTown
                     : context.l10n.resultStampMafia,
-                color: town ? CaseFileTokens.sage : CaseFileTokens.stamp,
-                angle: ResultTokens.stampTilt,
+                color: town ? DeckTokens.verdictTown : DeckTokens.verdictMafia,
                 style: type.title,
               ),
             ),
@@ -693,7 +692,7 @@ class _ResultStageState extends State<_ResultStage>
       children: [
         rise(
           you,
-          CaseFilePaper(
+          DeckPanel(
             key: ResultScreen.youKey,
             padding: EdgeInsets.all(spacing.md),
             child: Row(
@@ -709,7 +708,7 @@ class _ResultStageState extends State<_ResultStage>
                     children: [
                       Text(
                         l.resultWasRole(_roleLabel(context, me.role)),
-                        style: type.title.copyWith(color: CaseFileTokens.ink),
+                        style: type.title.copyWith(color: DeckTokens.text),
                       ),
                       Text(
                         me.eliminatedLabel ?? l.resultSurvived,
@@ -747,7 +746,7 @@ class _ResultStageState extends State<_ResultStage>
         SizedBox(height: spacing.sm),
         rise(
           line,
-          CaseFilePaper(
+          DeckPanel(
             padding: EdgeInsets.symmetric(
               horizontal: spacing.md,
               vertical: spacing.sm,
@@ -784,7 +783,7 @@ class _ResultStageState extends State<_ResultStage>
               const Icon(
                 Icons.close_rounded,
                 size: ResultTokens.crossSize,
-                color: CaseFileTokens.stamp,
+                color: DeckTokens.verdictMafia,
               ),
               Flexible(
                 child: Text(
@@ -841,7 +840,7 @@ class _ResultStageState extends State<_ResultStage>
       if (notes.isEmpty) continue;
       blocks
         ..add(
-          CaseFilePaper(
+          DeckPanel(
             key: ResultScreen.coachingKey(row.seat),
             padding: EdgeInsets.all(spacing.md),
             child: Column(
@@ -850,7 +849,7 @@ class _ResultStageState extends State<_ResultStage>
                 Text(
                   row.name,
                   style: type.bodySmall.emphasised.copyWith(
-                    color: CaseFileTokens.ink,
+                    color: DeckTokens.text,
                   ),
                 ),
                 Text(
@@ -901,7 +900,7 @@ class _ResultStageState extends State<_ResultStage>
       s.coinRows.length * ResultTokens.rowStagger,
       ResultTokens.countFor,
     );
-    return CaseFilePaper(
+    return DeckPanel(
       padding: EdgeInsets.symmetric(
         horizontal: spacing.md,
         vertical: spacing.sm,
@@ -927,7 +926,7 @@ class _ResultStageState extends State<_ResultStage>
             children: [
               Text(
                 context.l10n.resultCoins,
-                style: type.body.emphasised.copyWith(color: CaseFileTokens.ink),
+                style: type.body.emphasised.copyWith(color: DeckTokens.text),
               ),
               Row(
                 key: _totalKey,
@@ -1050,7 +1049,7 @@ class _ResultStageState extends State<_ResultStage>
     return DeckPress(
       child: InkWell(
         key: ResultScreen.openFileKey,
-        borderRadius: BorderRadius.circular(CaseFileTokens.radius),
+        borderRadius: BorderRadius.circular(DeckTokens.panelRadius),
         onTap: () => showMatchFile(
           context,
           file: screen.matchFile!,
@@ -1058,7 +1057,7 @@ class _ResultStageState extends State<_ResultStage>
           awards: screen.awards,
           onShare: _shareFile,
         ),
-        child: CaseFilePaper(
+        child: DeckPanel(
           padding: EdgeInsets.symmetric(
             horizontal: spacing.md,
             vertical: spacing.md,
@@ -1068,9 +1067,7 @@ class _ResultStageState extends State<_ResultStage>
               Expanded(
                 child: Text(
                   context.l10n.matchFileTitle,
-                  style: type.body.emphasised.copyWith(
-                    color: CaseFileTokens.ink,
-                  ),
+                  style: type.body.emphasised.copyWith(color: DeckTokens.text),
                 ),
               ),
               Icon(Icons.chevron_left_rounded, color: context.colors.textMuted),
@@ -1177,7 +1174,7 @@ class _SeatTile extends StatelessWidget {
               child: const Icon(
                 Icons.close_rounded,
                 size: ResultTokens.crossSize,
-                color: CaseFileTokens.stamp,
+                color: DeckTokens.verdictMafia,
               ),
             ),
         ],
@@ -1300,7 +1297,7 @@ class _CasebookLine extends StatelessWidget {
         final spacing = context.spacing;
         final type = context.typography;
         final colors = context.colors;
-        return CaseFilePaper(
+        return DeckPanel(
           padding: EdgeInsets.symmetric(
             horizontal: spacing.md,
             vertical: spacing.sm,
@@ -1315,7 +1312,7 @@ class _CasebookLine extends StatelessWidget {
                       l.resultCasebook(
                         caseLine(l, mission.metric, mission.target),
                       ),
-                      style: type.bodySmall.copyWith(color: CaseFileTokens.ink),
+                      style: type.bodySmall.copyWith(color: DeckTokens.text),
                     ),
                     SizedBox(height: spacing.xs),
                     ClipRRect(
@@ -1324,7 +1321,7 @@ class _CasebookLine extends StatelessWidget {
                         value: mission.fraction,
                         minHeight: spacing.xs,
                         color: DeckTokens.silverLight,
-                        backgroundColor: CaseFileTokens.tabLine,
+                        backgroundColor: DeckTokens.line,
                       ),
                     ),
                   ],

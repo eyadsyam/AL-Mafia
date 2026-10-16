@@ -23,7 +23,6 @@ import '../../widgets/deck/deck_buttons.dart';
 import '../../widgets/deck/seat_card.dart';
 import '../../widgets/legal_documents.dart';
 import '../../widgets/mafia_kit.dart';
-import '../../widgets/warm_palette.dart';
 import 'permissions_step.dart';
 
 /// Holds every route that needs a finished setup: a saved profile and an
@@ -65,17 +64,15 @@ class _ExistingPermissionsScreen extends ConsumerWidget {
   const _ExistingPermissionsScreen();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => WarmPalette(
-    child: MafiaScaffold(
-      backgroundColor: DeckTokens.ground,
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: context.spacing.maxContentWidth,
-            ),
-            child: PermissionsStep(onContinue: () async {}),
+  Widget build(BuildContext context, WidgetRef ref) => MafiaScaffold(
+    backgroundColor: DeckTokens.ground,
+    body: SafeArea(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: context.spacing.maxContentWidth,
           ),
+          child: PermissionsStep(onContinue: () async {}),
         ),
       ),
     ),
@@ -360,84 +357,79 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop && !_saving && _step > 1) _move(_step - 1);
       },
-      child: WarmPalette(
-        child: MafiaScaffold(
-          backgroundColor: DeckTokens.ground,
-          body: SafeArea(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: context.spacing.maxContentWidth,
-                ),
-                child: widget.termsOnly
-                    ? _termsOnly(context, l)
-                    : Stack(
-                        children: [
-                          AnimatedSwitcher(
-                            duration: _still
-                                ? Duration.zero
-                                : FirstRunTokens.stepSlide,
-                            transitionBuilder: (child, animation) =>
-                                FadeTransition(
-                                  opacity: animation,
-                                  child: child,
-                                ),
-                            child: KeyedSubtree(
-                              key: ValueKey(step),
-                              child: switch (step) {
-                                _Step.intro => _introStep(context, l),
-                                _Step.kind => _kindStep(context, l),
-                                _Step.name => _nameStep(context, l),
-                                _Step.permissions => PermissionsStep(
-                                  failed: _failed,
-                                  onContinue: () =>
-                                      _steps.last == _Step.permissions
-                                      ? _finish()
-                                      : _move(_step + 1),
-                                ),
-                                _Step.save => _saveStep(context, l),
-                              },
+      child: MafiaScaffold(
+        backgroundColor: DeckTokens.ground,
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: context.spacing.maxContentWidth,
+              ),
+              child: widget.termsOnly
+                  ? _termsOnly(context, l)
+                  : Stack(
+                      children: [
+                        AnimatedSwitcher(
+                          duration: _still
+                              ? Duration.zero
+                              : FirstRunTokens.stepSlide,
+                          transitionBuilder: (child, animation) =>
+                              FadeTransition(opacity: animation, child: child),
+                          child: KeyedSubtree(
+                            key: ValueKey(step),
+                            child: switch (step) {
+                              _Step.intro => _introStep(context, l),
+                              _Step.kind => _kindStep(context, l),
+                              _Step.name => _nameStep(context, l),
+                              _Step.permissions => PermissionsStep(
+                                failed: _failed,
+                                onContinue: () =>
+                                    _steps.last == _Step.permissions
+                                    ? _finish()
+                                    : _move(_step + 1),
+                              ),
+                              _Step.save => _saveStep(context, l),
+                            },
+                          ),
+                        ),
+                        if (step != _Step.intro) _dots(context),
+                        if (step == _Step.name ||
+                            step == _Step.permissions ||
+                            step == _Step.save)
+                          PositionedDirectional(
+                            start: context.spacing.sm,
+                            top: context.spacing.xs,
+                            child: IconButton(
+                              key: FirstRunScreen.backKey,
+                              tooltip: MaterialLocalizations.of(
+                                context,
+                              ).backButtonTooltip,
+                              onPressed: _saving
+                                  ? null
+                                  : () => _move(_step - 1),
+                              icon: const BackButtonIcon(),
                             ),
                           ),
-                          if (step != _Step.intro) _dots(context),
-                          if (step == _Step.name ||
-                              step == _Step.permissions ||
-                              step == _Step.save)
-                            PositionedDirectional(
-                              start: context.spacing.sm,
-                              top: context.spacing.xs,
-                              child: IconButton(
-                                key: FirstRunScreen.backKey,
-                                tooltip: MaterialLocalizations.of(
-                                  context,
-                                ).backButtonTooltip,
-                                onPressed: _saving
-                                    ? null
-                                    : () => _move(_step - 1),
-                                icon: const BackButtonIcon(),
-                              ),
+                        if (step == _Step.kind)
+                          PositionedDirectional(
+                            end: context.spacing.md,
+                            top: context.spacing.xs,
+                            child: _LanguageChip(
+                              label: l.firstRunLangOther,
+                              onTap: () => ref
+                                  .read(localeProvider.notifier)
+                                  .select(
+                                    Localizations.localeOf(
+                                              context,
+                                            ).languageCode ==
+                                            'ar'
+                                        ? 'en'
+                                        : 'ar',
+                                  ),
                             ),
-                          if (step == _Step.kind)
-                            PositionedDirectional(
-                              end: context.spacing.md,
-                              top: context.spacing.xs,
-                              child: _LanguageChip(
-                                label: l.firstRunLangOther,
-                                onTap: () => ref
-                                    .read(localeProvider.notifier)
-                                    .select(
-                                      Localizations.localeOf(
-                                                context,
-                                              ).languageCode ==
-                                              'ar'
-                                          ? 'en'
-                                          : 'ar',
-                                    ),
-                              ),
-                            ),
-                        ],
-                      ),
-              ),
+                          ),
+                      ],
+                    ),
             ),
           ),
         ),
@@ -531,9 +523,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                     children: [
                       Text(
                         context.l10n.appTitle,
-                        style: StoryTokens.ruqaa(
-                          type.display,
-                        ).copyWith(color: context.colors.textPrimary),
+                        style: type.display.copyWith(
+                          color: context.colors.textPrimary,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       Text(
@@ -615,9 +607,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
           header: true,
           child: Text(
             title,
-            style: StoryTokens.ruqaa(
-              type.headline,
-            ).copyWith(color: context.colors.textPrimary),
+            style: type.headline.copyWith(color: context.colors.textPrimary),
             textAlign: TextAlign.center,
           ),
         ),

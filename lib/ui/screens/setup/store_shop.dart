@@ -291,7 +291,8 @@ abstract final class StoreShopKeys {
   static Key drawer(String id) => ValueKey('store_drawer_$id');
   static Key chip(String id) => ValueKey('store_chip_$id');
   static Key listen(String code) => ValueKey('store_listen_$code');
-  static Key pack(String code, int pack) => ValueKey('store_pack_${code}_$pack');
+  static Key pack(String code, int pack) =>
+      ValueKey('store_pack_${code}_$pack');
 }
 
 /// Buys [entry] through the same controllers the store always used. Null on
@@ -531,10 +532,9 @@ class _Stamp extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: context.spacing.sm),
         child: Text(
           text,
-          style: DeckTokens.meta(context.typography).copyWith(
-            color: StoreShopTokens.stamp,
-            fontWeight: FontWeight.w700,
-          ),
+          style: DeckTokens.meta(
+            context.typography,
+          ).copyWith(color: StoreShopTokens.stamp, fontWeight: FontWeight.w700),
         ),
       ),
     ),
@@ -563,27 +563,29 @@ class StoreEntryArt extends StatelessWidget {
           ),
         ),
       ),
-      StoreKind.role => _roleArt(entry.code) == null
-          ? const SizedBox.shrink()
-          : RepaintBoundary(
-              child: Image.asset(
-                _roleArt(entry.code)!,
-                fit: fit,
-                cacheWidth: StoreTokens.decodeWidth,
-                excludeFromSemantics: true,
-                errorBuilder: (_, _, _) => const SizedBox.shrink(),
+      StoreKind.role =>
+        _roleArt(entry.code) == null
+            ? const SizedBox.shrink()
+            : RepaintBoundary(
+                child: Image.asset(
+                  _roleArt(entry.code)!,
+                  fit: fit,
+                  cacheWidth: StoreTokens.decodeWidth,
+                  excludeFromSemantics: true,
+                  errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                ),
               ),
-            ),
-      _ => cover && StoreArt.forCode(entry.code) != null
-          ? RepaintBoundary(
-              child: Image.asset(
-                StoreArt.forCode(entry.code)!,
-                fit: BoxFit.cover,
-                cacheWidth: StoreTokens.decodeWidth,
-                excludeFromSemantics: true,
-              ),
-            )
-          : StoreProductArt(code: entry.code),
+      _ =>
+        cover && StoreArt.forCode(entry.code) != null
+            ? RepaintBoundary(
+                child: Image.asset(
+                  StoreArt.forCode(entry.code)!,
+                  fit: BoxFit.cover,
+                  cacheWidth: StoreTokens.decodeWidth,
+                  excludeFromSemantics: true,
+                ),
+              )
+            : StoreProductArt(code: entry.code),
     };
   }
 }
@@ -760,7 +762,10 @@ class _Index extends StatelessWidget {
                 _Grid(entries: found, onOpen: onOpen, onListen: onListen)
             else ...[
               if (featured != null) ...[
-                _FeaturedCard(entry: featured, onTap: () => onOpen(featured.code)),
+                _FeaturedCard(
+                  entry: featured,
+                  onTap: () => onOpen(featured.code),
+                ),
                 SizedBox(height: s.md),
               ],
               Image.asset(
@@ -880,7 +885,10 @@ class _FeaturedCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _Stamp(l.storeNewReceipt, turn: StoreShopTokens.featTagTurn),
+                        _Stamp(
+                          l.storeNewReceipt,
+                          turn: StoreShopTokens.featTagTurn,
+                        ),
                         SizedBox(height: s.xs),
                         Text(
                           entry.name,
@@ -1144,9 +1152,7 @@ class _DrawerView extends StatelessWidget {
                       cat.name(l),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: StoryTokens.ruqaa(
-                        type.headline,
-                      ).copyWith(color: DeckTokens.text),
+                      style: type.headline.copyWith(color: DeckTokens.text),
                     ),
                   ),
                 ),
@@ -1182,9 +1188,7 @@ class _DrawerView extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: s.sm),
               child: Text(
                 cat.sub(l),
-                style: DeckTokens.meta(
-                  type,
-                ).copyWith(color: DeckTokens.muted),
+                style: DeckTokens.meta(type).copyWith(color: DeckTokens.muted),
               ),
             ),
             if (items.isEmpty)
@@ -1481,7 +1485,10 @@ class _StoreItemSheetState extends ConsumerState<StoreItemSheet> {
                             height: StoreShopTokens.sheetArt,
                             child: StoreEntryArt(entry),
                           ),
-                    if (_sold) const IgnorePointer(child: _SoldStamp(key: StoreShopKeys.sold)),
+                    if (_sold)
+                      const IgnorePointer(
+                        child: _SoldStamp(key: StoreShopKeys.sold),
+                      ),
                   ],
                 ),
                 SizedBox(height: s.sm),
@@ -1501,9 +1508,7 @@ class _StoreItemSheetState extends ConsumerState<StoreItemSheet> {
                 SizedBox(height: s.xs),
                 Text(
                   entry.name,
-                  style: StoryTokens.ruqaa(
-                    type.headline,
-                  ).copyWith(color: DeckTokens.text),
+                  style: type.headline.copyWith(color: DeckTokens.text),
                 ),
                 Text(
                   entry.description,
@@ -1619,11 +1624,11 @@ class _StoreItemSheetState extends ConsumerState<StoreItemSheet> {
                       Text(
                         _after(l, entry, ownedMode, enough, balance, cost, v3),
                         textAlign: TextAlign.center,
-                        style: DeckTokens.meta(
-                          type,
-                        ).copyWith(color: _error != null
-                            ? StoreShopTokens.stamp
-                            : DeckTokens.muted),
+                        style: DeckTokens.meta(type).copyWith(
+                          color: _error != null
+                              ? StoreShopTokens.stamp
+                              : DeckTokens.muted,
+                        ),
                       ),
                     ],
                   ),
@@ -1681,7 +1686,8 @@ class _SoldStamp extends StatelessWidget {
           child: Transform.rotate(
             angle: StoreShopTokens.stampBigTurn,
             child: Transform.scale(
-              scale: StoreShopTokens.stampBigFrom +
+              scale:
+                  StoreShopTokens.stampBigFrom +
                   (1 - StoreShopTokens.stampBigFrom) * t,
               child: child,
             ),
@@ -1700,7 +1706,7 @@ class _SoldStamp extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: context.spacing.md),
             child: Text(
               context.l10n.storeSold,
-              style: StoryTokens.ruqaa(context.typography.headline).copyWith(
+              style: context.typography.headline.copyWith(
                 color: StoreShopTokens.stamp,
                 fontSize: StoreShopTokens.stampBigSize,
               ),

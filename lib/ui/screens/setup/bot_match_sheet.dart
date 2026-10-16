@@ -68,7 +68,6 @@ Future<BotMatchPick?> showBotMatchSheet(BuildContext context) {
   return showDeckSheet<BotMatchPick>(
     context: context,
     title: context.l10n.modeBotsTitle,
-    ruqaa: true,
     body: (_) => BotMatchBody(pick: pick),
     primary: Builder(
       builder: (context) => ValueListenableBuilder(
@@ -112,6 +111,7 @@ class _BotMatchBodyState extends ConsumerState<BotMatchBody> {
     final s = pick.settingsOver(ref.watch(setupDraftProvider).settings);
     return s.narrationEnabled && !s.muteAllAudio;
   }
+
   void _set(BotMatchPick next) => widget.pick.value = next;
 
   /// Changes some of the pick, from what it is now (never from a stale build).
@@ -225,7 +225,8 @@ class _BotMatchBodyState extends ConsumerState<BotMatchBody> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (final v in BotLevel.values) ...[
-                if (v != BotLevel.values.first) const SizedBox(width: BotTokens.levelGap),
+                if (v != BotLevel.values.first)
+                  const SizedBox(width: BotTokens.levelGap),
                 Expanded(
                   child: _LevelCard(
                     key: BotMatchBody.levelKey(v),
@@ -263,9 +264,7 @@ class _BotMatchBodyState extends ConsumerState<BotMatchBody> {
               children: [
                 Flexible(
                   child: Text(
-                    (_narrated(pick)
-                        ? l.botRolesLine
-                        : l.botRolesLineMuted)(
+                    (_narrated(pick) ? l.botRolesLine : l.botRolesLineMuted)(
                       EngineCopy.presetName(l, pick.preset),
                     ),
                     textAlign: TextAlign.center,
@@ -390,8 +389,9 @@ class _BackCard extends StatelessWidget {
       child: Image(
         image: ResizeImage(
           const AssetImage(AppImages.cardBack),
-          width: (BotTokens.tableCard.width * dpr * DeckTokens.artDecodeHeadroom)
-              .round(),
+          width:
+              (BotTokens.tableCard.width * dpr * DeckTokens.artDecodeHeadroom)
+                  .round(),
           policy: ResizeImagePolicy.fit,
         ),
         fit: BoxFit.cover,

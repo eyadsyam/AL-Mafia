@@ -7,7 +7,7 @@ import '../../../stories/story_model.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/back_action.dart';
-import '../../widgets/case_file.dart';
+import 'widgets/case_file.dart';
 
 /// The dark case file of the stories (P12). These pieces belong to the
 /// stories alone: story busts, covers and paper notes never enter a Mafia
@@ -293,7 +293,7 @@ class StoryFolder extends StatelessWidget {
                   synopsis,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: type.bodySmall.copyWith(color: DeckTokens.text2),
+                  style: type.bodySmall.copyWith(color: StoryDeckTokens.text2),
                 ),
                 SizedBox(height: s.sm),
                 Wrap(
@@ -355,7 +355,7 @@ class StoryFolder extends StatelessWidget {
               ),
               child: Text(
                 numberLabel,
-                style: type.caption.copyWith(color: DeckTokens.text2),
+                style: type.caption.copyWith(color: StoryDeckTokens.text2),
               ),
             ),
           ),
@@ -374,13 +374,15 @@ class _DashedFact extends StatelessWidget {
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(CaseFileTokens.stampRadius),
-      border: Border.all(color: DeckTokens.silver),
+      border: Border.all(color: StoryDeckTokens.silver),
     ),
     child: Padding(
       padding: EdgeInsets.symmetric(horizontal: context.spacing.xs * 2),
       child: Text(
         text,
-        style: context.typography.caption.copyWith(color: DeckTokens.text2),
+        style: context.typography.caption.copyWith(
+          color: StoryDeckTokens.text2,
+        ),
       ),
     ),
   );
@@ -589,7 +591,9 @@ class StoryPips extends StatelessWidget {
                 height: StoryTokens.pip,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: i < left ? DeckTokens.bone : StoryTokens.ringTrack,
+                  color: i < left
+                      ? StoryDeckTokens.bone
+                      : StoryTokens.ringTrack,
                 ),
               ),
             ),
@@ -625,7 +629,7 @@ class StoryMoveCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = context.spacing;
     final type = context.typography;
-    final accent = done ? CaseFileTokens.sage : DeckTokens.silverLight;
+    final accent = done ? CaseFileTokens.sage : StoryDeckTokens.silverLight;
     return Opacity(
       opacity: done
           ? StoryTokens.doneOpacity
@@ -797,11 +801,11 @@ class _StoryNarratorBarState extends State<StoryNarratorBar>
               height: StoryTokens.playButton,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: DeckTokens.bone,
+                color: StoryDeckTokens.bone,
               ),
               child: Icon(
                 _playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                color: DeckTokens.ink,
+                color: StoryDeckTokens.ink,
               ),
             ),
           ),
@@ -844,8 +848,8 @@ class _StoryNarratorBarState extends State<StoryNarratorBar>
                                 StoryTokens.waveBarWidth,
                               ),
                               color: _playing
-                                  ? DeckTokens.bone
-                                  : DeckTokens.silverLight,
+                                  ? StoryDeckTokens.bone
+                                  : StoryDeckTokens.silverLight,
                             ),
                           ),
                           const SizedBox(width: StoryTokens.waveBarWidth),
@@ -974,7 +978,9 @@ class StoryOptionRow extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(CaseFileTokens.radius),
             border: Border.all(
-              color: selected ? DeckTokens.bone : StoryTokens.transparentColor,
+              color: selected
+                  ? StoryDeckTokens.bone
+                  : StoryTokens.transparentColor,
               width: StoryTokens.costStroke,
             ),
           ),
@@ -991,10 +997,12 @@ class StoryOptionRow extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: selected
-                        ? DeckTokens.bone
+                        ? StoryDeckTokens.bone
                         : StoryTokens.transparentColor,
                     border: Border.all(
-                      color: selected ? DeckTokens.bone : DeckTokens.silver,
+                      color: selected
+                          ? StoryDeckTokens.bone
+                          : StoryDeckTokens.silver,
                       width: StoryTokens.optionDotStroke,
                     ),
                   ),
@@ -1004,7 +1012,9 @@ class StoryOptionRow extends StatelessWidget {
                   child: Text(
                     label,
                     style: context.typography.bodySmall.copyWith(
-                      color: selected ? CaseFileTokens.ink : DeckTokens.text2,
+                      color: selected
+                          ? CaseFileTokens.ink
+                          : StoryDeckTokens.text2,
                     ),
                   ),
                 ),
@@ -1186,7 +1196,7 @@ class _StoryHoldButtonState extends State<StoryHoldButton>
   Widget build(BuildContext context) {
     final r = BorderRadius.circular(context.radii.button);
     return Opacity(
-      opacity: widget.enabled ? 1 : DeckTokens.disabledAlpha,
+      opacity: widget.enabled ? 1 : StoryDeckTokens.disabledAlpha,
       child: Listener(
         onPointerDown: _down,
         onPointerUp: _up,
@@ -1198,11 +1208,11 @@ class _StoryHoldButtonState extends State<StoryHoldButton>
           child: ClipRRect(
             borderRadius: r,
             child: SizedBox(
-              height: DeckTokens.primaryHeight,
+              height: StoryDeckTokens.primaryHeight,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  const ColoredBox(color: DeckTokens.bone),
+                  const ColoredBox(color: StoryDeckTokens.bone),
                   RepaintBoundary(
                     child: AnimatedBuilder(
                       animation: _fill,
@@ -1212,7 +1222,7 @@ class _StoryHoldButtonState extends State<StoryHoldButton>
                           widthFactor: _done ? 1 : _fill.value,
                           heightFactor: 1,
                           child: const ColoredBox(
-                            color: DeckTokens.bonePressed,
+                            color: StoryDeckTokens.bonePressed,
                           ),
                         ),
                       ),
@@ -1224,7 +1234,7 @@ class _StoryHoldButtonState extends State<StoryHoldButton>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: context.typography.title.copyWith(
-                        color: DeckTokens.ink,
+                        color: StoryDeckTokens.ink,
                       ),
                     ),
                   ),
@@ -1343,7 +1353,7 @@ class _RingPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeWidth = StoryTokens.timerStroke
-      ..color = DeckTokens.bone;
+      ..color = StoryDeckTokens.bone;
     canvas.drawArc(inset, -math.pi / 2, math.pi * 2 * fraction, false, arc);
   }
 
@@ -1409,7 +1419,9 @@ class StoryDossier extends StatelessWidget {
                     ),
                     Text(
                       character.background,
-                      style: type.bodySmall.copyWith(color: DeckTokens.text2),
+                      style: type.bodySmall.copyWith(
+                        color: StoryDeckTokens.text2,
+                      ),
                     ),
                   ],
                 ),
@@ -1421,7 +1433,9 @@ class StoryDossier extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(CaseFileTokens.radius),
               border: Border.all(
-                color: DeckTokens.bone.withValues(alpha: StoryTokens.dashAlpha),
+                color: StoryDeckTokens.bone.withValues(
+                  alpha: StoryTokens.dashAlpha,
+                ),
                 width: StoryTokens.dossierDash,
               ),
             ),
@@ -1433,7 +1447,7 @@ class StoryDossier extends StatelessWidget {
                   Text(
                     mustDo,
                     style: type.bodySmall.copyWith(
-                      color: DeckTokens.bone,
+                      color: StoryDeckTokens.bone,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -1454,7 +1468,7 @@ class StoryDossier extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(CaseFileTokens.radius),
                     border: Border.all(
-                      color: DeckTokens.bone.withValues(
+                      color: StoryDeckTokens.bone.withValues(
                         alpha: StoryTokens.dashAlpha,
                       ),
                       width: StoryTokens.dossierDash,

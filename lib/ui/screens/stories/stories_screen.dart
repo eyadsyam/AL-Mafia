@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../economy/all_access.dart' show allAccessProvider;
 
-import '../../widgets/deck/deck_public.dart' show DeckRise;
+import '../../widgets/deck/deck_rise.dart';
 
 import '../../../data/match_seed.dart';
 import '../../../data/story_catalog.dart';
@@ -449,15 +449,16 @@ class _StoriesHubState extends ConsumerState<StoriesHub> {
     // Easiest first, the locked ones at the bottom (the owner, 2026-10-16);
     // equal cases keep the catalog's order.
     final order = {for (final (i, story) in widget.stories.indexed) story: i};
-    final shown = [
-      for (final story in widget.stories)
-        if (_category == null || story.category == _category) story,
-    ]..sort((a, b) {
-        final byLock = (_locked(a) ? 1 : 0) - (_locked(b) ? 1 : 0);
-        if (byLock != 0) return byLock;
-        final byDifficulty = a.difficulty - b.difficulty;
-        return byDifficulty != 0 ? byDifficulty : order[a]! - order[b]!;
-      });
+    final shown =
+        [
+          for (final story in widget.stories)
+            if (_category == null || story.category == _category) story,
+        ]..sort((a, b) {
+          final byLock = (_locked(a) ? 1 : 0) - (_locked(b) ? 1 : 0);
+          if (byLock != 0) return byLock;
+          final byDifficulty = a.difficulty - b.difficulty;
+          return byDifficulty != 0 ? byDifficulty : order[a]! - order[b]!;
+        });
     return LampScaffold(
       key: StoriesHub.hubKey,
       onBack: widget.onBack,

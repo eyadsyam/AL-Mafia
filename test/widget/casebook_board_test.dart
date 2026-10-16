@@ -5,7 +5,7 @@ import 'package:mafia_master/ui/economy/mafia_coin.dart';
 import 'package:mafia_master/ui/economy/wallet.dart';
 import 'package:mafia_master/ui/missions/casebook_data.dart';
 import 'package:mafia_master/ui/missions/casebook_sheet.dart';
-import 'package:mafia_master/ui/widgets/case_file.dart';
+import 'package:mafia_master/ui/widgets/deck/deck_paper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../support/casebook_fixture.dart';
@@ -99,7 +99,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(fake.claims, ['daily:1']);
       expect(find.byKey(CasebookSheet.stampKey('d1')), findsOneWidget);
-      expect(find.byType(CaseStamp), findsWidgets);
+      expect(find.byType(DeckSeal), findsWidgets);
       expect(tester.takeException(), isNull);
     },
   );

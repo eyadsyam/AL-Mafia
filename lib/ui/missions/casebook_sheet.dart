@@ -14,7 +14,8 @@ import '../l10n_ext.dart';
 import '../social/titles_partner.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
-import '../widgets/case_file.dart';
+import '../widgets/coin_flight.dart';
+import '../widgets/deck/deck_paper.dart';
 import '../widgets/deck/deck_public.dart' show CoinPill;
 import '../widgets/feathered_art.dart';
 import 'casebook_data.dart';
@@ -28,7 +29,7 @@ Future<void> showCasebookSheet(BuildContext context, {int page = 0}) =>
     showMafiaSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: CaseFileTokens.desk,
+      backgroundColor: DeckTokens.ground,
       builder: (_) => FractionallySizedBox(
         heightFactor: CasebookTokens.sheetHeight,
         child: CasebookSheet(initialPage: page),
@@ -198,7 +199,7 @@ class _CasebookSheetState extends ConsumerState<CasebookSheet> {
 
     final balance = ref.watch(walletProvider).valueOrNull?.balance;
     return ColoredBox(
-      color: CaseFileTokens.desk,
+      color: DeckTokens.ground,
       child: SafeArea(
         child: CoinFlightLayer(
           key: _flight,
@@ -279,9 +280,9 @@ class _Header extends StatelessWidget {
                   header: true,
                   child: Text(
                     l.casebookTitle,
-                    style: StoryTokens.ruqaa(
-                      context.typography.headline,
-                    ).copyWith(color: CaseFileTokens.ink),
+                    style: context.typography.headline.copyWith(
+                      color: DeckTokens.text,
+                    ),
                   ),
                 ),
               ),
@@ -453,8 +454,8 @@ class _Tabs extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: s.screenMargin),
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: CaseFileTokens.edge)),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: DeckTokens.line)),
         ),
         child: Row(
           children: [
@@ -482,7 +483,7 @@ class _Tabs extends StatelessWidget {
                                   labels[i],
                                   style: type.title.copyWith(
                                     color: i == page
-                                        ? CaseFileTokens.ink
+                                        ? DeckTokens.text
                                         : colors.textMuted,
                                   ),
                                 ),
@@ -505,7 +506,7 @@ class _Tabs extends StatelessWidget {
                               borderRadius: BorderRadius.circular(
                                 CasebookTokens.tabRuleHeight,
                               ),
-                              color: CaseFileTokens.stamp,
+                              color: DeckTokens.bone,
                             ),
                           ),
                         ],
@@ -746,7 +747,7 @@ class _TonightPage extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.fromLTRB(s.screenMargin, s.sm, s.screenMargin, s.xl),
       children: [
-        _CorkBoard(
+        _CaseList(
           key: CasebookSheet.boardKey,
           children: [
             for (final (i, note) in notes.indexed) _Rise(index: i, child: note),
@@ -757,148 +758,29 @@ class _TonightPage extends StatelessWidget {
   }
 }
 
-/// The dark cork: speckled ground, notes pinned alternately left and right,
-/// each one slightly turned, and a red string from one pin to the next.
-class _CorkBoard extends StatelessWidget {
+/// Tonight's cases dealt down the page, one card under the next.
+class _CaseList extends StatelessWidget {
   final List<Widget> children;
-  const _CorkBoard({super.key, required this.children});
+  const _CaseList({super.key, required this.children});
 
   @override
   Widget build(BuildContext context) {
     final s = context.spacing;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(CaseFileTokens.radius),
-      child: CustomPaint(
-        painter: const _CorkPainter(),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: s.lg, horizontal: s.sm),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final (i, child) in children.indexed) ...[
-                if (i > 0) _String(index: i),
-                Align(
-                  alignment: i.isEven
-                      ? AlignmentDirectional.centerStart
-                      : AlignmentDirectional.centerEnd,
-                  child: FractionallySizedBox(
-                    widthFactor: CorkTokens.noteWidth,
-                    child: Transform.rotate(
-                      angle: i.isEven ? -CorkTokens.tilt : CorkTokens.tilt,
-                      child: child,
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CorkPainter extends CustomPainter {
-  const _CorkPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(Offset.zero & size, Paint()..color = CaseFileTokens.board);
-    final dot = Paint()
-      ..color = CaseFileTokens.boardDot.withValues(alpha: CorkTokens.dotAlpha);
-    for (
-      var y = CorkTokens.dotGap / 2;
-      y < size.height;
-      y += CorkTokens.dotGap
-    ) {
-      final shift = ((y / CorkTokens.dotGap).floor().isEven)
-          ? 0.0
-          : CorkTokens.dotGap / 2;
-      for (var x = shift; x < size.width; x += CorkTokens.dotGap) {
-        canvas.drawCircle(Offset(x, y), CorkTokens.dotRadius, dot);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_CorkPainter old) => false;
-}
-
-/// The string between one note and the next, drawn in the gap.
-class _String extends StatelessWidget {
-  final int index;
-  const _String({required this.index});
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    height: CorkTokens.stringGap,
-    child: CustomPaint(
-      painter: _StringPainter(
-        rtl: Directionality.of(context) == TextDirection.rtl,
-        fromStart: index.isOdd,
-      ),
-    ),
-  );
-}
-
-class _StringPainter extends CustomPainter {
-  final bool rtl;
-  final bool fromStart;
-  const _StringPainter({required this.rtl, required this.fromStart});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Note centres: half a note's width in from each side.
-    double centre(bool start) {
-      final startX = size.width * CorkTokens.noteWidth / 2;
-      final endX = size.width - startX;
-      final physicalStart = rtl ? endX : startX;
-      final physicalEnd = rtl ? startX : endX;
-      return start ? physicalStart : physicalEnd;
-    }
-
-    final from = Offset(centre(!fromStart), 0);
-    final to = Offset(centre(fromStart), size.height);
-    canvas.drawLine(
-      from,
-      to,
-      Paint()
-        ..color = CaseFileTokens.string
-        ..strokeWidth = CorkTokens.stringWidth
-        ..strokeCap = StrokeCap.round,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_StringPainter old) =>
-      old.rtl != rtl || old.fromStart != fromStart;
-}
-
-/// A red pin at the top of a note.
-class _Pin extends StatelessWidget {
-  const _Pin();
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: CorkTokens.pin,
-    height: CorkTokens.pin,
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      color: CaseFileTokens.string,
-      boxShadow: [
-        BoxShadow(
-          color: CaseFileTokens.desk.withValues(alpha: 0.6),
-          blurRadius: CorkTokens.pinLift / 2,
-          offset: const Offset(0, CorkTokens.pinLift / 3),
-        ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (i, child) in children.indexed) ...[
+          if (i > 0) SizedBox(height: s.sm),
+          child,
+        ],
       ],
-    ),
-  );
+    );
+  }
 }
 
-/// One case as a note on the board: what it asks, how far, what it pays and
-/// the button to take it. A closed note carries the «اتقفلت» stamp, which
-/// drops on the moment it is taken here.
+/// One case as a card: what it asks, how far, what it pays and the button to
+/// take it. A closed card carries the «اتقفلت» seal, which settles on the
+/// moment it is taken here.
 class _CaseNote extends StatefulWidget {
   final GlobalKey anchor;
   final String idTag;
@@ -969,7 +851,7 @@ class _CaseNoteState extends State<_CaseNote>
           key: widget.anchor,
           child: Opacity(
             opacity: done ? CorkTokens.doneAlpha : 1,
-            child: CaseFilePaper(
+            child: DeckPanel(
               padding: EdgeInsets.fromLTRB(s.md, s.md, s.md, s.sm),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -980,7 +862,7 @@ class _CaseNoteState extends State<_CaseNote>
                       child: Text(
                         l.casebookWeekly,
                         style: type.caption.emphasised.copyWith(
-                          color: CaseFileTokens.stamp,
+                          color: DeckTokens.silverLight,
                         ),
                       ),
                     ),
@@ -1002,7 +884,7 @@ class _CaseNoteState extends State<_CaseNote>
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                               style: type.body.emphasised.copyWith(
-                                color: CaseFileTokens.ink,
+                                color: DeckTokens.text,
                               ),
                             ),
                             Text(
@@ -1028,7 +910,7 @@ class _CaseNoteState extends State<_CaseNote>
                             value: mission.fraction,
                             minHeight: s.xs,
                             color: DeckTokens.silverLight,
-                            backgroundColor: CaseFileTokens.tabLine,
+                            backgroundColor: DeckTokens.line,
                           ),
                         ),
                       ),
@@ -1067,7 +949,7 @@ class _CaseNoteState extends State<_CaseNote>
                           onClaim: widget.onClaim,
                         )
                       else
-                        SizedBox(height: StoreTokens.touchTarget),
+                        const SizedBox(height: StoreTokens.touchTarget),
                     ],
                   ),
                 ],
@@ -1075,23 +957,17 @@ class _CaseNoteState extends State<_CaseNote>
             ),
           ),
         ),
-        // The pin.
-        Positioned(top: -CorkTokens.pinLift, child: const _Pin()),
         if (done)
           Positioned.fill(
             child: IgnorePointer(
               child: Center(
-                child: CaseStampDrop(
+                child: DeckSealDrop(
                   key: CasebookSheet.stampKey(widget.idTag),
                   progress: CurvedAnimation(
                     parent: _stamp,
                     curve: Curves.easeOut,
                   ),
-                  child: CaseStamp(
-                    l.fileClosed,
-                    angle: CaseFileTokens.stampTilt,
-                    style: type.title,
-                  ),
+                  child: DeckSeal(l.fileClosed, style: type.title),
                 ),
               ),
             ),
@@ -1101,7 +977,7 @@ class _CaseNoteState extends State<_CaseNote>
   }
 }
 
-/// All of tonight's cases closed pays a little more: the three seals.
+/// All of tonight's cases closed pays a little more.
 class _BonusNote extends StatelessWidget {
   final CaseBonus bonus;
   const _BonusNote({required this.bonus});
@@ -1120,7 +996,7 @@ class _BonusNote extends StatelessWidget {
       clipBehavior: Clip.none,
       alignment: Alignment.topCenter,
       children: [
-        CaseFilePaper(
+        DeckPanel(
           padding: EdgeInsets.all(s.md),
           child: Row(
             children: [
@@ -1131,7 +1007,7 @@ class _BonusNote extends StatelessWidget {
                   bonus.claimed ? l.casebookBonusTaken : l.casebookBonus,
                   style: context.typography.bodySmall.copyWith(
                     color: bonus.claimed
-                        ? CaseFileTokens.stamp
+                        ? colors.textMuted
                         : colors.textSecondary,
                   ),
                 ),
@@ -1147,7 +1023,6 @@ class _BonusNote extends StatelessWidget {
             ],
           ),
         ),
-        const Positioned(top: -CorkTokens.pinLift, child: _Pin()),
       ],
     );
   }

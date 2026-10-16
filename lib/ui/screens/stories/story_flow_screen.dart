@@ -7,11 +7,11 @@ import '../../../stories/story_session.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
-import '../../widgets/case_file.dart';
-import '../../widgets/deck/deck_public.dart' show BoneButton, RimButton;
+import 'widgets/case_file.dart';
+import 'widgets/story_buttons.dart';
 import '../../widgets/hold_pad.dart';
 import '../../widgets/mafia_kit.dart';
-import '../../widgets/warm_palette.dart';
+import 'widgets/story_palette.dart';
 import 'story_case_widgets.dart';
 
 class StoryCompletion {
@@ -253,7 +253,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
   }
 
   @override
-  Widget build(BuildContext context) => WarmPalette(
+  Widget build(BuildContext context) => StoryPalette(
     child: PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -398,7 +398,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
       key: StoryFlowScreen.soloBoardKey,
       title: story.title,
       onBack: _exit,
-      footer: BoneButton(
+      footer: StoryButton(
         key: StoryFlowScreen.accusationButtonKey,
         label: l.storiesIKnowWho,
         onPressed: _openAccusation,
@@ -420,7 +420,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
                   SizedBox(height: s.sm),
                   Divider(
                     height: 1,
-                    color: DeckTokens.bone.withValues(
+                    color: StoryDeckTokens.bone.withValues(
                       alpha: StoryTokens.dashAlpha,
                     ),
                   ),
@@ -428,7 +428,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
                 ],
                 Text(
                   story.synopsis,
-                  style: type.bodySmall.copyWith(color: DeckTokens.text2),
+                  style: type.bodySmall.copyWith(color: StoryDeckTokens.text2),
                 ),
                 if (story.evidenceImage case final image?) ...[
                   SizedBox(height: s.sm),
@@ -508,7 +508,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
     return StoryDesk(
       key: StoryFlowScreen.castKey,
       onBack: _exit,
-      footer: BoneButton(
+      footer: StoryButton(
         key: StoryFlowScreen.dealKey,
         label: l.storiesDealFiles,
         onPressed: () {
@@ -564,7 +564,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
             story.synopsis,
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
-            style: type.bodySmall.copyWith(color: DeckTokens.text2),
+            style: type.bodySmall.copyWith(color: StoryDeckTokens.text2),
           ),
           SizedBox(height: s.md),
           Text(
@@ -583,7 +583,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: DeckTokens.silver,
+                        color: StoryDeckTokens.silver,
                         width: StoryTokens.dossierDash,
                       ),
                       borderRadius: BorderRadius.circular(
@@ -641,11 +641,11 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
       body: Column(
         children: [
           Container(
-            height: DeckTokens.primaryHeight,
+            height: StoryDeckTokens.primaryHeight,
             alignment: Alignment.center,
             child: Text(
               line,
-              style: type.bodySmall.copyWith(color: DeckTokens.text2),
+              style: type.bodySmall.copyWith(color: StoryDeckTokens.text2),
             ),
           ),
           Expanded(
@@ -658,7 +658,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
                     Text(
                       vote ? l.storiesSecretVotePass : l.storiesThisFileFor,
                       textAlign: TextAlign.center,
-                      style: type.body.copyWith(color: DeckTokens.text2),
+                      style: type.body.copyWith(color: StoryDeckTokens.text2),
                     ),
                     Text(
                       '${l.storiesPlayer} $seat',
@@ -720,7 +720,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          BoneButton(
+          StoryButton(
             key: StoryFlowScreen.hideFileKey,
             label: l.storiesCoverAndPass2,
             onPressed: _dossierLeft == 0
@@ -814,7 +814,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
       title:
           '${l.storiesDiscussionLine} · ${l.storiesRound} ${_session.round} / ${StoryTokens.rounds}',
       onBack: _exit,
-      footer: BoneButton(
+      footer: StoryButton(
         label: l.storiesSearchTogether,
         onPressed: () => _setSession(_session.finishDiscussion()),
       ),
@@ -901,7 +901,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
           Text(
             l.storiesTurnOf('${l.storiesPlayer} $turn'),
             textAlign: TextAlign.center,
-            style: type.bodySmall.copyWith(color: DeckTokens.text2),
+            style: type.bodySmall.copyWith(color: StoryDeckTokens.text2),
           ),
           SizedBox(height: s.sm),
           Text(
@@ -910,7 +910,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
           ),
           _notes(context),
           if (actions.isEmpty)
-            BoneButton(
+            StoryButton(
               label: l.storiesNextBeat,
               onPressed: () => _setSession(_session.skipSharedInvestigation()),
             ),
@@ -990,7 +990,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
     return StoryDesk(
       key: StoryFlowScreen.reenactmentKey,
       title: _group ? l.storiesWhatHappened : l.storiesReenactment,
-      footer: BoneButton(
+      footer: StoryButton(
         label: last
             ? (_group ? l.storiesWhoKnew : l.storiesFinishReveal)
             : l.storiesNextBeat,
@@ -1024,7 +1024,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
                 bottom: s.xs,
                 child: Container(
                   width: StoryTokens.timelineLine,
-                  color: DeckTokens.bone.withValues(
+                  color: StoryDeckTokens.bone.withValues(
                     alpha: StoryTokens.dashAlpha,
                   ),
                 ),
@@ -1056,12 +1056,12 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: i <= _reenactmentStep
-                                      ? DeckTokens.bone
+                                      ? StoryDeckTokens.bone
                                       : CaseFileTokens.desk,
                                   border: Border.all(
                                     color: i <= _reenactmentStep
-                                        ? DeckTokens.bone
-                                        : DeckTokens.silverLight,
+                                        ? StoryDeckTokens.bone
+                                        : StoryDeckTokens.silverLight,
                                     width: StoryTokens.costStroke,
                                   ),
                                 ),
@@ -1073,14 +1073,14 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
                                 Text(
                                   beat.time,
                                   style: type.bodySmall.copyWith(
-                                    color: DeckTokens.bone,
+                                    color: StoryDeckTokens.bone,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
                                 Text(
                                   beat.text,
                                   style: type.bodySmall.copyWith(
-                                    color: DeckTokens.text2,
+                                    color: StoryDeckTokens.text2,
                                   ),
                                 ),
                               ],
@@ -1119,12 +1119,12 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          BoneButton(
+          StoryButton(
             label: _group ? l.storiesAnotherCase : l.storiesBackToFiles,
             onPressed: _complete,
           ),
           SizedBox(height: s.sm),
-          RimButton(label: l.storiesHome, onPressed: _completeAndHome),
+          StoryRimButton(label: l.storiesHome, onPressed: _completeAndHome),
         ],
       ),
       body: StoryScroll(
@@ -1156,7 +1156,7 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
           Text(
             '${l.storiesScore}: $score',
             textAlign: TextAlign.center,
-            style: type.body.copyWith(color: DeckTokens.text2),
+            style: type.body.copyWith(color: StoryDeckTokens.text2),
           ),
           SizedBox(height: s.md),
           if (_group) ..._seatRows(context, culprit.id),
@@ -1186,7 +1186,9 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
                       Text(
                         '${l.storiesMotive}: $motive\n'
                         '${l.storiesMethod}: $method',
-                        style: type.bodySmall.copyWith(color: DeckTokens.text2),
+                        style: type.bodySmall.copyWith(
+                          color: StoryDeckTokens.text2,
+                        ),
                       ),
                     ],
                   ),
@@ -1239,13 +1241,13 @@ class _StoryFlowScreenState extends State<StoryFlowScreen>
                 ),
               ),
               if (i == culpritSeat && hidFrom > 0)
-                const Icon(Icons.star_rounded, color: DeckTokens.bone),
+                const Icon(Icons.star_rounded, color: StoryDeckTokens.bone),
               if (i == culpritSeat)
                 Text(
                   hidFrom > 0 ? l.storiesHidWell : l.storiesGotCaught,
                   style: type.bodySmall.copyWith(
                     color: hidFrom > 0
-                        ? DeckTokens.bone
+                        ? StoryDeckTokens.bone
                         : CaseFileTokens.inkMuted,
                   ),
                 )
@@ -1346,7 +1348,7 @@ class _AccusationSheetState extends State<_AccusationSheet> {
               spacing.screenMargin,
               spacing.md,
             ),
-            child: BoneButton(
+            child: StoryButton(
               key: StoryFlowScreen.closeCaseKey,
               label: l.storiesCloseCase,
               onPressed: ready

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/asset_constants.dart';
-import '../../../platform/monetization/ad_formats.dart' show BannerPlacement;
 import '../../economy/mafia_coin.dart';
 import '../../economy/waiting_banner.dart';
 import '../../l10n_ext.dart';
@@ -9,8 +8,9 @@ import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../back_action.dart';
 import '../mafia_public.dart';
-import '../warm_palette.dart';
 import 'deck_buttons.dart';
+
+export 'deck_rise.dart';
 
 export 'deck_buttons.dart';
 
@@ -47,7 +47,11 @@ class GoldButton extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [DeckTokens.goldLight, DeckTokens.gold, DeckTokens.goldDeep],
+            colors: [
+              DeckTokens.goldLight,
+              DeckTokens.gold,
+              DeckTokens.goldDeep,
+            ],
             stops: DeckTokens.goldStops,
           ),
         ),
@@ -498,7 +502,6 @@ class DeckRow extends StatelessWidget {
 Future<T?> showDeckSheet<T>({
   required BuildContext context,
   required String title,
-  bool ruqaa = false,
   required WidgetBuilder body,
   Widget? primary,
 }) => showMafiaSheet<T>(
@@ -506,66 +509,62 @@ Future<T?> showDeckSheet<T>({
   isScrollControlled: true,
   useSafeArea: true,
   backgroundColor: DeckTokens.panel,
-  builder: (sheetContext) => WarmPalette(
-    child: Builder(
-      builder: (context) {
-        final s = context.spacing;
-        final type = context.typography;
-        final heading = ruqaa
-            ? StoryTokens.ruqaa(type.headline)
-            : DeckTokens.title(type).copyWith(fontSize: 22);
-        return ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(context).height * DeckTokens.sheetMax,
-          ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(s.md, s.sm, s.md, s.md),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Center(
-                    child: Container(
-                      width: DeckTokens.sheetHandle.width,
-                      height: DeckTokens.sheetHandle.height,
-                      decoration: BoxDecoration(
-                        color: DeckTokens.silver,
-                        borderRadius: BorderRadius.circular(
-                          DeckTokens.sheetHandle.height,
-                        ),
+  builder: (sheetContext) => Builder(
+    builder: (context) {
+      final s = context.spacing;
+      final type = context.typography;
+      final heading = DeckTokens.title(type).copyWith(fontSize: 22);
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * DeckTokens.sheetMax,
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(s.md, s.sm, s.md, s.md),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: DeckTokens.sheetHandle.width,
+                    height: DeckTokens.sheetHandle.height,
+                    decoration: BoxDecoration(
+                      color: DeckTokens.silver,
+                      borderRadius: BorderRadius.circular(
+                        DeckTokens.sheetHandle.height,
                       ),
                     ),
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: heading.copyWith(
-                            color: context.colors.textPrimary,
-                          ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: heading.copyWith(
+                          color: context.colors.textPrimary,
                         ),
                       ),
-                      IconButton(
-                        key: DeckSheet.closeKey,
-                        tooltip: context.l10n.sheetClose,
-                        onPressed: () => Navigator.of(context).maybePop(),
-                        icon: const Icon(Icons.close, size: DeckTokens.icon),
-                        color: DeckTokens.silverLight,
-                      ),
-                    ],
-                  ),
-                  Flexible(child: SingleChildScrollView(child: body(context))),
-                  if (primary != null) ...[SizedBox(height: s.md), primary],
-                ],
-              ),
+                    ),
+                    IconButton(
+                      key: DeckSheet.closeKey,
+                      tooltip: context.l10n.sheetClose,
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      icon: const Icon(Icons.close, size: DeckTokens.icon),
+                      color: DeckTokens.silverLight,
+                    ),
+                  ],
+                ),
+                Flexible(child: SingleChildScrollView(child: body(context))),
+                if (primary != null) ...[SizedBox(height: s.md), primary],
+              ],
             ),
           ),
-        );
-      },
-    ),
+        ),
+      );
+    },
   ),
 );
 
@@ -593,11 +592,11 @@ class DeckPill extends StatelessWidget {
       child: Center(
         widthFactor: 1,
         child: Text(
-        label,
-        maxLines: 1,
-        style: DeckTokens.meta(
-          context.typography,
-        ).copyWith(color: ad ? DeckTokens.muted : DeckTokens.text2),
+          label,
+          maxLines: 1,
+          style: DeckTokens.meta(
+            context.typography,
+          ).copyWith(color: ad ? DeckTokens.muted : DeckTokens.text2),
         ),
       ),
     );
@@ -782,7 +781,6 @@ class DeckHeader extends StatelessWidget {
   final String? subtitle;
   final VoidCallback? onBack;
   final Widget? trailing;
-  final bool ruqaa;
 
   const DeckHeader({
     super.key,
@@ -790,7 +788,6 @@ class DeckHeader extends StatelessWidget {
     this.subtitle,
     this.onBack,
     this.trailing,
-    this.ruqaa = false,
   });
 
   @override
@@ -798,9 +795,9 @@ class DeckHeader extends StatelessWidget {
     final colors = context.colors;
     final type = context.typography;
     final s = context.spacing;
-    final heading = ruqaa
-        ? StoryTokens.ruqaa(type.headline)
-        : DeckTokens.title(type).copyWith(fontWeight: FontWeight.w700);
+    final heading = DeckTokens.title(
+      type,
+    ).copyWith(fontWeight: FontWeight.w700);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -837,7 +834,7 @@ class DeckHeader extends StatelessWidget {
   }
 }
 
-/// Every new public screen: the warm palette, the header, the body, and the
+/// Every new public screen: Home's ground, the header, the body, and the
 /// footer — primary on top, a ruled gap, then the banner. The banner is never
 /// between the content and the primary.
 class DeckScaffold extends StatelessWidget {
@@ -848,7 +845,6 @@ class DeckScaffold extends StatelessWidget {
   final Widget body;
   final Widget? primary;
   final BannerPlacement? banner;
-  final bool ruqaa;
 
   /// A full-bleed ground behind the body, dimmed (public screens only).
   final String? backdrop;
@@ -862,62 +858,58 @@ class DeckScaffold extends StatelessWidget {
     required this.body,
     this.primary,
     this.banner,
-    this.ruqaa = false,
     this.backdrop,
   });
 
   @override
   Widget build(BuildContext context) {
-    return WarmPalette(
-      child: Builder(
-        builder: (context) {
-          final s = context.spacing;
-          final placement = banner;
-          final footer = primary == null && placement == null
-              ? null
-              : SafeArea(
-                  top: false,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (primary != null)
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            s.screenMargin,
-                            s.sm,
-                            s.screenMargin,
-                            0,
-                          ),
-                          child: primary,
+    return Builder(
+      builder: (context) {
+        final s = context.spacing;
+        final placement = banner;
+        final footer = primary == null && placement == null
+            ? null
+            : SafeArea(
+                top: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (primary != null)
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          s.screenMargin,
+                          s.sm,
+                          s.screenMargin,
+                          0,
                         ),
-                      if (placement != null) ...[
-                        if (primary != null) ...[
-                          SizedBox(height: DeckTokens.footerGap / 2),
-                          const Divider(
-                            height: DeckTokens.footerGap / 2,
-                            thickness: 1,
-                            color: DeckTokens.line,
-                          ),
-                        ],
-                        WaitingBanner(placement: placement),
-                      ] else
-                        SizedBox(height: s.sm),
-                    ],
-                  ),
-                );
-          return MafiaScaffold(
-            backgroundColor: DeckTokens.ground,
-            bottomNavigationBar: footer,
-            body: _Backdrop(
-              asset: backdrop,
-              child: SafeArea(
+                        child: primary,
+                      ),
+                    if (placement != null) ...[
+                      if (primary != null) ...[
+                        const SizedBox(height: DeckTokens.footerGap / 2),
+                        const Divider(
+                          height: DeckTokens.footerGap / 2,
+                          thickness: 1,
+                          color: DeckTokens.line,
+                        ),
+                      ],
+                      WaitingBanner(placement: placement),
+                    ] else
+                      SizedBox(height: s.sm),
+                  ],
+                ),
+              );
+        return MafiaScaffold(
+          backgroundColor: DeckTokens.ground,
+          bottomNavigationBar: footer,
+          body: _Backdrop(
+            asset: backdrop,
+            child: SafeArea(
               bottom: false,
               child: Center(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: s.maxContentWidth,
-                  ),
+                  constraints: BoxConstraints(maxWidth: s.maxContentWidth),
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       s.screenMargin,
@@ -933,7 +925,6 @@ class DeckScaffold extends StatelessWidget {
                           subtitle: subtitle,
                           onBack: onBack,
                           trailing: trailing,
-                          ruqaa: ruqaa,
                         ),
                         SizedBox(height: s.md),
                         Expanded(child: body),
@@ -943,10 +934,9 @@ class DeckScaffold extends StatelessWidget {
                 ),
               ),
             ),
-            ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -985,78 +975,6 @@ class _Backdrop extends StatelessWidget {
         ),
         child,
       ],
-    );
-  }
-}
-
-/// A card's arrival, once, when its screen opens: it rises a little and
-/// fades in, [index] beats after the first, so a list deals itself like a
-/// hand of cards. Transform and opacity only, over a repaint boundary — the
-/// card is painted once and the compositor moves it. Past
-/// [DeckTokens.enterStaggered] cards, and with animations switched off, it
-/// is simply there.
-class DeckRise extends StatefulWidget {
-  final int index;
-  final Widget child;
-
-  const DeckRise({super.key, required this.index, required this.child});
-
-  @override
-  State<DeckRise> createState() => _DeckRiseState();
-}
-
-class _DeckRiseState extends State<DeckRise>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration:
-        DeckTokens.enter +
-        DeckTokens.enterStagger * widget.index.clamp(0, DeckTokens.enterStaggered),
-  );
-  late final Animation<double> _t = CurvedAnimation(
-    parent: _controller,
-    curve: Interval(
-      1 -
-          DeckTokens.enter.inMicroseconds /
-              _controller.duration!.inMicroseconds,
-      1,
-      curve: Curves.easeOutCubic,
-    ),
-  );
-  bool _started = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_started) return;
-    _started = true;
-    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    if (still || widget.index >= DeckTokens.enterStaggered) {
-      _controller.value = 1;
-    } else {
-      _controller.forward();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final child = RepaintBoundary(child: widget.child);
-    return FadeTransition(
-      opacity: _t,
-      child: AnimatedBuilder(
-        animation: _t,
-        builder: (context, child) => Transform.translate(
-          offset: Offset(0, DeckTokens.enterRise * (1 - _t.value)),
-          child: child,
-        ),
-        child: child,
-      ),
     );
   }
 }

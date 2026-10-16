@@ -216,35 +216,46 @@ void main() {
       );
     });
 
-    test('the deck public kit and warm palette stay out of the match', () {
-      // docs/design/DECK-SYSTEM.md: the warm palette, the character windows
-      // and the narrator are public. Only the two buttons may reach an in-hand
-      // surface, and they draw from the neutral palette there.
-      for (final path in const [
-        'lib/ui/widgets/deck/deck_public.dart',
-        'lib/ui/widgets/warm_palette.dart',
-      ]) {
-        expect(closure, isNot(contains(path)), reason: '$path reached a hand-off, reveal or night surface');
-      }
-      final warm = RegExp(
-        r'DeckTokens|WarmPalette|IdentityTokens\.(ink|panel|text)',
-      );
-      for (final path in closure) {
-        if (path == 'lib/ui/widgets/deck/deck_buttons.dart') continue;
-        if (path == 'lib/ui/theme/design_tokens.dart') continue;
-        expect(
-          warm.hasMatch(File(path).readAsStringSync()),
-          isFalse,
-          reason: '$path uses the public deck palette inside the match',
+    test(
+      'the deck public kit and the stories palette stay out of the match',
+      () {
+        // docs/design/DECK-SYSTEM.md: the public deck pieces, the character
+        // windows, the narrator and the stories' warm palette are public. Only
+        // the two buttons may reach an in-hand surface, and they draw from the
+        // neutral palette there.
+        for (final path in const [
+          'lib/ui/widgets/deck/deck_public.dart',
+          'lib/ui/widgets/deck/deck_paper.dart',
+          'lib/ui/screens/stories/widgets/story_palette.dart',
+          'lib/ui/screens/stories/widgets/case_file.dart',
+        ]) {
+          expect(
+            closure,
+            isNot(contains(path)),
+            reason: '$path reached a hand-off, reveal or night surface',
+          );
+        }
+        final warm = RegExp(
+          r'\b(DeckTokens|StoryDeckTokens|StoryPalette|CaseFileTokens)\b',
         );
-      }
-    });
+        for (final path in closure) {
+          if (path == 'lib/ui/widgets/deck/deck_buttons.dart') continue;
+          if (path == 'lib/ui/theme/design_tokens.dart') continue;
+          expect(
+            warm.hasMatch(File(path).readAsStringSync()),
+            isFalse,
+            reason: '$path uses the public deck palette inside the match',
+          );
+        }
+      },
+    );
 
     test('titles and the Partner are outside every private closure (F10)', () {
       expect(
         closure,
         isNot(contains('lib/ui/social/titles_partner.dart')),
-        reason: 'a title or Partner reached a hand-off, reveal or night surface',
+        reason:
+            'a title or Partner reached a hand-off, reveal or night surface',
       );
     });
 

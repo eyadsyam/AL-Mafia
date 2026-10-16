@@ -15,7 +15,7 @@ import '../ui/economy/pass_table_dress.dart';
 import '../engine/models/enums.dart' show DiscussionMode, Role;
 import '../engine/models/match_settings.dart';
 import '../platform/audio_director.dart';
-import '../ui/widgets/warm_palette.dart';
+import '../ui/screens/stories/widgets/story_palette.dart';
 import '../ui/economy/interstitial_coordinator.dart';
 import '../ui/fun/welcome_back.dart';
 import '../ui/l10n_ext.dart';
@@ -479,7 +479,7 @@ GoRouter buildRouter(
         // open Stories table first, as the app's own back does.
         onExit: (context, state) => _storiesExit.mayLeave(),
         builder: (context, state) => SetupRequired(
-          child: WarmPalette(child: StoriesScreen(
+          child: StoryPalette(child: StoriesScreen(
             exitGuard: _storiesExit,
             onBack: () => context.go(Routes.mode),
             newSeed: newMatchSeed,

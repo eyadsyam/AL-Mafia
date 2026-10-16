@@ -1,6 +1,6 @@
 # Mafia core audit — every role, every tool, offline and online
 
-Status: **PLANNED, 2026-10-15.** Not started. Runs as its own track beside Stories V2 (owner: «حطها في تسكاية بس انت المفروض تعملها»).
+Status: **STARTED 2026-10-16.** The owner parked Stories («خلينا نركز بقا دلوقتي علي لعبة المافيا و نرجع للقصص تاني بعدين») and asked for the whole Mafia plan, **plus the screens fixed as agreed and Stories cut off from Mafia completely** (§7, from `STORIES-V2-PLAN.md` §6, D13–D15).
 Owner's words: study every case that can happen in the Mafia game — doctor, detective, mafia, silencer, elder, every role, every tool, offline and online; check that the tools really work, that roles compose correctly offline, that each role's action really works, and that **the text shown is right**. «ده حرفيا الكور بتاع الابلكيشن كله.»
 
 Branch: `claude/epic-roentgen-094f21`. Read with `CLAUDE.md`, `docs/specs/05-zero-leakage-spec.md`, `docs/specs/09-information-engine.md`, `docs/specs/10-online-architecture.md`, `docs/specs/11-edge-cases-and-tests.md`.
@@ -83,3 +83,28 @@ Every defect is recorded as CONFIRMED / HYPOTHESIS with its evidence (USEI-X §2
 
 - Q1. Tools offline: should table tools work in pass-and-play and bot matches too, or stay online-only?
 - Q2. Every rule conflict A1 finds.
+
+## 7. Identity and screens (owner, 2026-10-16: «تظبط الشاشات زي ماتفقنا و نعزل القصص عنها خالص»)
+
+What was agreed on 2026-10-15 (`STORIES-V2-PLAN.md` §1 item 7 and §6): **the app's identity is Mafia, and Mafia is Home.** Stories' brown, paper and Ruqaa leaked into Mafia screens; every screen outside Stories gets Home's look, and Stories' look starts only after «قصص وتحقيقات» is tapped.
+
+Evidence (2026-10-16 grep):
+- **D15:** Home paints `AppColors.groundBase` #0F0F0F, but `DeckTokens.ground = IdentityTokens.ink` #140F0C and the public panels, lines and text in `IdentityTokens` are the warm brown set (`design_tokens.dart:19-25`, `:117-120`), so the mode screen, players, roles, profile, settings and the result sit on brown.
+- **D13:** Stories pieces inside Mafia: `CaseFileTokens`/`CaseFilePaper` in `missions/casebook_sheet.dart` (21), `postgame/result_screen.dart` (17), `postgame/match_file.dart`, `setup/profile_screen.dart`; Ruqaa (`StoryTokens.ruqaa`) in `result_screen`, `match_file`, `profile_screen`, `store_shop`, `coin_store`, `mode_screen`, `how_to_sheet`, `first_run_screen`, `widgets/deck/deck_public.dart`; `WarmPalette` in `router.dart`, `first_run_screen`, `deck_public`. `IdentityTokens.target/transparent` are neutral geometry and stay.
+- **D14:** Stories borrows Mafia's `DeckTokens`, `BoneButton` and `HoldPad`.
+
+| Phase | Work | Who | Gate |
+|---|---|---|---|
+| I0 | Re-render every Mafia screen (`test/screenshots/identity_screenshots.dart` + the deck/store harnesses) beside Home; list each screen that is off | Claude | contact sheet |
+| I1 | HTML mockups in Home's look for every screen that changes (result, match file, casebook, profile, store, coins, mode, how-to, first run, the deck public pieces) | Claude | **the owner approves every screen** |
+| I2 | D15 ground and panels follow Home; D13 swapped for Mafia pieces (deck paper, Cairo/Plex, no Ruqaa); Stories gets its own button, hold pad and paper (D14) keeping the hold pad's zero-leakage properties; Stories widgets move under `lib/ui/screens/stories/`; guard test `test/architecture/identity_isolation_test.dart` | Sonnet, exact brief; Claude reviews against Home and Doc 05 | guard test, full widget suite, before/after screenshots |
+| I3 | Owner looks at the before/after sheet (local web preview, no deploy) | owner | his OK |
+
+In-match private surfaces keep their budgeted neutral palette (Doc 05); I2 must not change any private-turn luminance, size or timing.
+
+## 8. Order (2026-10-16)
+
+1. A0 baseline and I0 screenshots (one test run at a time; the machine is low on memory).
+2. A1 rule book: Codex drafts `docs/specs/17-roles-and-tools.md` from code with file:line evidence and a disagreement list; Claude reviews and writes the case matrix; the owner rules on every conflict and Q1.
+3. I1 mockups to the owner while A2 runs (offline scenario tests from the matrix).
+4. I2 after the owner approves the mockups; A3 text catalogue; A4 parity; A5 live (deploys only on his word); A6 device and a real table; A7 fixes.

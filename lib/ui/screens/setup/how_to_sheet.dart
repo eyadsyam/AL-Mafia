@@ -30,7 +30,6 @@ Future<void> showHowToSheet(
 }) => showDeckSheet<void>(
   context: context,
   title: context.l10n.howToPlayTitle,
-  ruqaa: true,
   body: (sheetContext) => HowToBody(
     key: HowToKeys.sheet,
     onVideo: () {
@@ -86,28 +85,48 @@ class _HowToBodyState extends State<HowToBody> {
   ];
 
   List<_RoleCard> _roles(AppLocalizations l) => [
-    _RoleCard('mafia', AppImages.cardFaceMafia, l.howRoleMafia, l.howRoleMafiaDo),
+    _RoleCard(
+      'mafia',
+      AppImages.cardFaceMafia,
+      l.howRoleMafia,
+      l.howRoleMafiaDo,
+    ),
     _RoleCard(
       'detective',
       AppImages.cardFaceDetective,
       l.howRoleDetective,
       l.howRoleDetectiveDo,
     ),
-    _RoleCard('doctor', AppImages.cardFaceDoctor, l.howRoleDoctor, l.howRoleDoctorDo),
+    _RoleCard(
+      'doctor',
+      AppImages.cardFaceDoctor,
+      l.howRoleDoctor,
+      l.howRoleDoctorDo,
+    ),
     _RoleCard(
       'citizen',
       AppImages.cardFaceCitizen,
       l.howRoleCitizen,
       l.howRoleCitizenDo,
     ),
-    _RoleCard('elder', AppImages.cardFaceElder, l.howRoleElder, l.howRoleElderDo),
+    _RoleCard(
+      'elder',
+      AppImages.cardFaceElder,
+      l.howRoleElder,
+      l.howRoleElderDo,
+    ),
     _RoleCard(
       'silencer',
       AppImages.cardFaceSilencer,
       l.howRoleSilencer,
       l.howRoleSilencerDo,
     ),
-    _RoleCard('sniper', AppImages.cardFaceSniper, l.howRoleSniper, l.howRoleSniperDo),
+    _RoleCard(
+      'sniper',
+      AppImages.cardFaceSniper,
+      l.howRoleSniper,
+      l.howRoleSniperDo,
+    ),
   ];
 
   @override
@@ -149,9 +168,9 @@ class _HowToBodyState extends State<HowToBody> {
                     SizedBox(height: s.sm),
                     Text(
                       page.title,
-                      style: StoryTokens.ruqaa(
-                        type.headline,
-                      ).copyWith(color: context.colors.textPrimary),
+                      style: type.headline.copyWith(
+                        color: context.colors.textPrimary,
+                      ),
                     ),
                     Text(
                       page.body,
@@ -327,7 +346,9 @@ class _PageArt extends StatelessWidget {
                   stops: const [HowToTokens.artFadeFrom, 1],
                   colors: [
                     IdentityTokens.transparent,
-                    DeckTokens.ground.withValues(alpha: HowToTokens.artScrimAlpha),
+                    DeckTokens.ground.withValues(
+                      alpha: HowToTokens.artScrimAlpha,
+                    ),
                   ],
                 ),
               ),
@@ -392,7 +413,9 @@ class _FlipRoleState extends State<_FlipRole> {
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             color: DeckTokens.panel,
-                            borderRadius: BorderRadius.circular(SeatTokens.radius),
+                            borderRadius: BorderRadius.circular(
+                              SeatTokens.radius,
+                            ),
                             border: Border.all(color: SeatTokens.rim),
                           ),
                           child: Padding(
@@ -428,11 +451,15 @@ class _FlipRoleState extends State<_FlipRole> {
                       )
                     : DecoratedBox(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(SeatTokens.radius),
+                          borderRadius: BorderRadius.circular(
+                            SeatTokens.radius,
+                          ),
                           border: Border.all(color: SeatTokens.rim),
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(SeatTokens.radius),
+                          borderRadius: BorderRadius.circular(
+                            SeatTokens.radius,
+                          ),
                           child: Image(
                             image: ResizeImage(
                               AssetImage(r.face),

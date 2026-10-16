@@ -11,18 +11,6 @@ abstract final class IdentityTokens {
   static const double headerHeight = 72;
   static const double flat = 0;
   static const transparent = Colors.transparent;
-
-  /// The public screens' palette, the owner's pick (2026-10-08, the voice
-  /// review pages): ink brown ground, warm panels, parchment text, lamp gold.
-  /// In-match surfaces keep the neutral palette, whose luminance is budgeted
-  /// so no role reads differently (Doc 05).
-  static const Color ink = Color(0xFF140F0C);
-  static const Color panel = Color(0xFF1F1813);
-  static const Color panelOverlay = Color(0xFF2A2019);
-  static const Color line = Color(0xFF3A2D23);
-  static const Color text = Color(0xFFF1E6D2);
-  static const Color muted = Color(0xFFB3A189);
-  static const Color faint = Color(0xFF8A7A66);
 }
 
 /// «نظام الكوتشينة» — the deck the whole public app is dealt from
@@ -36,8 +24,8 @@ abstract final class IdentityTokens {
 ///   «ابدأ اللعبة», which is also the neutral in-match fill — so the button
 ///   is the same for every role and Doc 05 has nothing to say about it.
 ///
-/// The warm ground and panels are for public screens only; in-match private
-/// surfaces keep the neutral palette, whose luminance is budgeted (Doc 05).
+/// Public screens share Home's ground; in-match private surfaces keep the
+/// neutral palette, whose luminance is budgeted (Doc 05).
 /// The mode screen's faces: cropped to the head and shoulders in the window.
 abstract final class ModeTokens {
   static const Alignment faceFocus = Alignment(0, -0.3);
@@ -102,6 +90,28 @@ abstract final class ModeTokens {
   static const double frameRadius = 9;
 }
 
+/// «قصص وتحقيقات»' own palette: ink brown ground, warm panels, parchment
+/// text. Only `lib/ui/screens/stories/**` may use it
+/// (`test/architecture/identity_isolation_test.dart`); Mafia never does.
+abstract final class StoryDeckTokens {
+  static const Color ground = Color(0xFF140F0C);
+  static const Color panel = Color(0xFF1F1813);
+  static const Color raised = Color(0xFF2A2019);
+  static const Color line = Color(0xFF3A2D23);
+  static const Color text = Color(0xFFF1E6D2);
+  static const Color text2 = Color(0xFFC2BBB3);
+  static const Color muted = Color(0xFF9B978E);
+  static const Color silver = Color(0xFF67635F);
+  static const Color silverLight = Color(0xFF9E9891);
+  static const Color bone = Color(0xFFC2BDB2);
+  static const Color bonePressed = Color(0xFF8D8169);
+  static const Color ink = Color(0xFF1A120C);
+  static const double disabledAlpha = 0.4;
+  static const double primaryHeight = 56;
+  static const double rim = 48;
+  static const double rimBorder = 1.5;
+}
+
 /// Home's own thresholds.
 abstract final class HomeTokens {
   /// Below this height the «دوس على أي كارت» hint gives its room to the fan.
@@ -112,15 +122,18 @@ abstract final class HomeTokens {
   static const Duration greetingHold = Duration(seconds: 4);
 }
 
+/// Mafia's colours are Home's (owner, 2026-10-15/16: «البرنامج كله بهوية
+/// لعبة المافيا»): the neutral ground, raised and overlay greys, bone text.
+/// The warm brown belongs to «قصص وتحقيقات» only ([StoryDeckTokens]).
 abstract final class DeckTokens {
   // Colour.
-  static const Color ground = IdentityTokens.ink;
-  static const Color panel = IdentityTokens.panel;
-  static const Color raised = IdentityTokens.panelOverlay;
-  static const Color line = IdentityTokens.line;
-  static const Color text = IdentityTokens.text;
-  static const Color text2 = Color(0xFFC2BBB3);
-  static const Color muted = Color(0xFF9B978E);
+  static const Color ground = AppColors.groundBase;
+  static const Color panel = AppColors.groundRaised;
+  static const Color raised = AppColors.groundOverlay;
+  static const Color line = AppColors.groundBorder;
+  static const Color text = AppColors.boneWhite;
+  static const Color text2 = AppColors.secondaryGrey;
+  static const Color muted = AppColors.mutedGrey;
   static const Color silver = Color(0xFF67635F);
   static const Color silverLight = Color(0xFF9E9891);
   static const Color bone = AppColors.agedParchment;
@@ -130,10 +143,23 @@ abstract final class DeckTokens {
   static const Color goldDeep = VaultTokens.goldDeep;
   static const Color ink = Color(0xFF1A120C);
 
-  /// The darkest point the warm and the neutral grounds share; the curtain
-  /// crosses through it so the palette never jumps.
-  static const Color seam = Color(0xFF0E0807);
+  /// The darkest point of the ground; the curtain crosses through it.
+  static const Color seam = AppColors.midCharcoal;
   static const double hairlineAlpha = 0.4;
+
+  // Panels and seals (deck_paper.dart): Mafia's result, match file, profile
+  // and casebook.
+  static const double panelRadius = 14;
+  static const double sealBorder = 1.5;
+  static const double sealPlateAlpha = 0.9;
+
+  /// A seal arrives this much larger and settles to its size.
+  static const double sealFrom = 1.12;
+
+  /// The verdict's two voices on the result: the town's sage, the mafia's
+  /// crimson (also the cross on a dead seat).
+  static const Color verdictTown = Color(0xFF8FA58A);
+  static const Color verdictMafia = Color(0xFFC4574B);
   static const List<double> goldStops = [0, 0.45, 1];
   static const Alignment narratorFocus = Alignment(0, -0.2);
   static const double narratorZoom = 1.4;
@@ -2556,10 +2582,9 @@ abstract final class AccountTokens {
 abstract final class ProfileTokens {
   static const double statArt = 56.0;
 
-  /// The file's photo: a Mafia seat card clipped to a portrait, slightly
-  /// turned like a print paper-clipped to the page, and the avatar inside it.
+  /// The card's photo: a Mafia seat card clipped to a portrait, standing
+  /// straight, and the avatar inside it.
   static const Size photo = Size(112, 144);
-  static const double photoTilt = -0.05;
   static const double photoAvatar = 80;
 
   /// The stamp sits over the photo's corner.

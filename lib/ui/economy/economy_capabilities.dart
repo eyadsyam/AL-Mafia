@@ -15,7 +15,7 @@ class PlayProductOffer {
   final int? coins;
   final String? entitlement;
 
-  /// coins, entitlement or undle (the Starter Bundle: coins and a
+  /// coins, entitlement or bundle (the Starter Bundle: coins and a
   /// cosmetic, bought once and never consumed).
   final String kind;
 

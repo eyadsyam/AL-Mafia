@@ -34,7 +34,7 @@ import 'package:mafia_master/ui/widgets/night_grid.dart';
 import 'package:mafia_master/ui/widgets/player_tile.dart';
 import 'package:mafia_master/ui/widgets/role_card.dart';
 import 'package:mafia_master/ui/widgets/turn_shell.dart';
-import 'package:mafia_master/ui/widgets/warm_palette.dart';
+import 'package:mafia_master/ui/screens/stories/widgets/story_palette.dart';
 
 import '../support/artwork.dart';
 import '../support/localized.dart';
@@ -110,7 +110,7 @@ void main() {
     await shoot(
       tester,
       '01_stories_hub',
-      WarmPalette(child: StoriesScreen(onBack: () {})),
+      StoryPalette(child: StoriesScreen(onBack: () {})),
     );
   });
 
@@ -125,7 +125,7 @@ void main() {
       await shoot(
         tester,
         '0${n}_story_$id',
-        WarmPalette(child: StoryFlowScreen(
+        StoryPalette(child: StoryFlowScreen(
           story: story,
           playerCount: 1,
           onExit: () {},

@@ -214,7 +214,6 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
         width: cw,
         title: l10n.modeStoriesCardTitle,
         body: l10n.modeStoriesCardBody,
-        ruqaa: true,
       ),
     );
 
@@ -464,14 +463,12 @@ class _PlayCard extends StatelessWidget {
   final double width;
   final String title;
   final String? body;
-  final bool ruqaa;
 
   const _PlayCard({
     required this.art,
     required this.width,
     required this.title,
     this.body,
-    this.ruqaa = false,
   });
 
   @override
@@ -551,7 +548,7 @@ class _PlayCard extends StatelessWidget {
                       Text(
                         title,
                         textAlign: TextAlign.center,
-                        style: ruqaa ? StoryTokens.ruqaa(heading) : heading,
+                        style: heading,
                       ),
                       if (body != null)
                         Text(

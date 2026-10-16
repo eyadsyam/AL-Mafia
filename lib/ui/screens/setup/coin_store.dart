@@ -445,9 +445,7 @@ class _VaultHeader extends StatelessWidget {
                             alignment: AlignmentDirectional.centerStart,
                             child: Text(
                               l.vaultTitle,
-                              style: StoryTokens.ruqaa(
-                                context.typography.headline,
-                              ).copyWith(color: colors.textPrimary),
+                              style: context.typography.headline.copyWith(color: colors.textPrimary),
                               maxLines: 1,
                             ),
                           ),

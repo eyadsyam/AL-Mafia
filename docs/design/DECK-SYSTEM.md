@@ -1,4 +1,6 @@
-# «نظام الكوتشينة» — the Deck design system (draft for owner sign-off)
+# «نظام الكوتشينة» — the Deck design system
+
+> 2026-10-16: identity isolation applied (§2). Where §10 below says "dark case file", "Ruqaa" or "warm" for a Mafia screen, read Home's look with deck panels, seals and text tabs; those words now describe «قصص وتحقيقات» only.
 
 Agreed and signed 2026-10-08 after five rounds between Claude (proposer) and an independent critic. Nothing here is built yet; waiting for the owner.
 
@@ -12,20 +14,20 @@ The home screen is the source: Victorian monochrome playing cards (ink black, ag
 ## 2. Tokens
 | Token | Value | Use |
 |---|---|---|
-| ground | `#140F0C` | public screens (with home vignette + weave) |
-| panel | `#1F1813` | ArtCard, sheets |
-| raised | `#2A211A` | pressed, selected chip, native-ad rows |
-| line | `#3A2D23` | dividers |
-| text / text2 / muted | `#F1E6D2` / `#C2BBB3` / `#9B978E` | |
+| ground | `#0F0F0F` (Home's `AppColors.groundBase`) | public screens (with home vignette + weave) |
+| panel | `#1A1A1A` | ArtCard, sheets, `DeckPanel` |
+| raised | `#252525` | pressed, selected chip, native-ad rows |
+| line | `#313131` | dividers |
+| text / text2 / muted | `#E9E4D9` / `#ADA99F` / `#908C83` | |
 | silver / silverLight | `#67635F` / `#9E9891` | frames, icons, rim buttons |
 | bone | `#C2BBB3` (pressed `#A9A29A`) | primary button fill |
 | gold | `#C9A45C` (+ `#F1DFA8`, `#7A5C26` gradient only) | value only; the three old golds merge into this |
 | ink | `#1A120C` | label on bone/gold |
-| seam | `#0E0807` | crossfade point warm↔neutral |
+| seam | `#0A0A0B` | the curtain's darkest point |
 
-In-match private surfaces keep the neutral charcoal palette (Doc 05). Public pre-match screens (players, roles, lobby) and the result screen use the warm ground; the existing curtain crossfades through `seam` over 400 ms.
+In-match private surfaces keep the neutral charcoal palette (Doc 05). **Every Mafia screen is Home's look** (owner, 2026-10-15/16): the warm brown ground, the case-file paper, rubber stamps, cork board and Ruqaa belong to «قصص وتحقيقات» only (`StoryDeckTokens`, `StoryPalette`, `lib/ui/screens/stories/widgets/`), which feels like another game inside Mafia and shares only coins and rewards. Mafia's result, match file, profile and casebook use `DeckPanel`, `DeckSeal` and `DeckTabs` (`lib/ui/widgets/deck/deck_paper.dart`). Guard: `test/architecture/identity_isolation_test.dart`.
 
-Type: Plex Sans Arabic everywhere; **Aref Ruqaa only** for story/case titles, the result headline and the casebook. Sizes 28 screen title (Bold) / 20 card title / 17 body+controls / 15 meta. Line height 1.6, letter-spacing 0, scale 1.0. Western digits.
+Type: Plex Sans Arabic for body; titles in the headline cut (Cairo); **Aref Ruqaa only inside «قصص وتحقيقات»**. Sizes 28 screen title (Bold) / 20 card title / 17 body+controls / 15 meta. Line height 1.6, letter-spacing 0, scale 1.0. Western digits.
 
 Motion: press 160 ms, sheet 260 ms, area slide 260 ms, flip 320 ms; reduce-motion = 150 ms fade; never touches game timers or Doc 05 minimums.
 

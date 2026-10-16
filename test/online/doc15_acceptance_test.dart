@@ -362,7 +362,7 @@ void main() {
       final band = File(
         'lib/ui/screens/online/council/council_band.dart',
       ).readAsStringSync();
-      expect(RegExp(r'Role\.\w+').hasMatch(band), isFalse);
+      expect(RegExp(r'\bRole\.\w+').hasMatch(band), isFalse);
       expect(RegExp(r'final String\? roleGlyph;').hasMatch(band), isTrue);
     });
 

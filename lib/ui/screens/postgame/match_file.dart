@@ -8,7 +8,7 @@ import '../../fun/match_awards.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
-import '../../widgets/case_file.dart';
+import '../../widgets/deck/deck_paper.dart';
 import '../../widgets/deck/deck_public.dart';
 import 'result_screen.dart' show RoleGalleryPortrait, ResultRow;
 
@@ -98,7 +98,6 @@ Future<void> showMatchFile(
 }) => showDeckSheet<void>(
   context: context,
   title: context.l10n.matchFileTitle,
-  ruqaa: true,
   primary: RimButton(
     key: MatchFileSheet.shareKey,
     label: context.l10n.matchFileShare,
@@ -138,7 +137,7 @@ class MatchFileSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (mvp != null) ...[
-            CaseFilePaper(
+            DeckPanel(
               key: mvpKey,
               padding: EdgeInsets.all(s.md),
               child: Row(
@@ -167,7 +166,7 @@ class MatchFileSheet extends StatelessWidget {
                         Text(
                           l.matchFileMvp(mvp.names.join(' · ')),
                           style: type.body.emphasised.copyWith(
-                            color: CaseFileTokens.ink,
+                            color: DeckTokens.text,
                           ),
                         ),
                         Text(

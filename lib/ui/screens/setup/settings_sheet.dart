@@ -38,7 +38,6 @@ abstract final class SettingsSheetKeys {
 Future<void> showSettingsSheet(BuildContext context) => showDeckSheet<void>(
   context: context,
   title: context.l10n.settingsTitle,
-  ruqaa: true,
   body: (_) => const SettingsSheetBody(key: SettingsSheetKeys.sheet),
 );
 
