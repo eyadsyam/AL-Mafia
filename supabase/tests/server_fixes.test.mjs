@@ -75,7 +75,7 @@ assert.ok(!graveVoters([use(2, 'grave_vote', 3)], 2).has(2));
 
 // 11. a silence cannot land on a seat that died the same night.
 {
-  const src = readFileSync(new URL('../functions/resolve_night/index.ts', import.meta.url), 'utf8');
+  const src = readFileSync(new URL('../functions/_shared/night_core.ts', import.meta.url), 'utf8');
   assert.match(src, /!deaths\.has\(a\.target_id\)/);
 }
 

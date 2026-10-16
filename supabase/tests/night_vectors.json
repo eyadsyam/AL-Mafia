@@ -1,0 +1,5591 @@
+{
+  "version": 1,
+  "scenarios": [
+    {
+      "name": "plain kill seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          2
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "plain kill seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u6",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "plain kill seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "protected kill seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 2,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "protected kill seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 0,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "protected kill seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 0,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "doctor self protect bullet seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 0,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "doctor self protect bullet seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u1",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u1",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 1,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "doctor self protect bullet seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u1",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 1,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "quiet night seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "quiet night seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u6",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": true
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "quiet night seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "quiet night with protect seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 2,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "quiet night with protect seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": true
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 0,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "quiet night with protect seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 0,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "save with bullets disabled seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": false,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 2,
+        "saveTold": true,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "save with bullets disabled seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": false,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 0,
+        "saveTold": true,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "save with bullets disabled seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": false,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 0,
+        "saveTold": true,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "save with quiet night disabled seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": false,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 2,
+        "saveTold": true,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "save with quiet night disabled seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": false,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 0,
+        "saveTold": true,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "save with quiet night disabled seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": false,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [],
+        "savedSeat": 0,
+        "saveTold": true,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "sniper shoots mafia seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "sniper",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "suspect",
+            "target_id": "u1",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": true,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          1,
+          2
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "sniper shoots mafia seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "sniper",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "suspect",
+            "target_id": "u6",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u6",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": true,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          2,
+          6
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "sniper shoots mafia seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "sniper",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "suspect",
+            "target_id": "u2",
+            "used_bullet": true
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": true,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0,
+          2
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "sniper shoots town seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "sniper",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "suspect",
+            "target_id": "u6",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": true,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          2,
+          3,
+          6
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "sniper shoots town seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "sniper",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "suspect",
+            "target_id": "u5",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u6",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": true,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0,
+          2,
+          5
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "sniper shoots town seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "sniper",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "suspect",
+            "target_id": "u5",
+            "used_bullet": true
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": true,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0,
+          5,
+          6
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "sniper shoots protected victim seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "sniper",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "suspect",
+            "target_id": "u2",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": true,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          2,
+          3
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "sniper shoots protected victim seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "sniper",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "suspect",
+            "target_id": "u2",
+            "used_bullet": true
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": true,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0,
+          2
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "sniper shoots protected victim seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "sniper",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "suspect",
+            "target_id": "u0",
+            "used_bullet": true
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": true,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0,
+          6
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "silencer silences seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "silencer",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "silence",
+            "target_id": "u6",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "protect",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": true,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          2
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": 6
+      }
+    },
+    {
+      "name": "silencer silences seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "silencer",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u6",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "silence",
+            "target_id": "u5",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": true,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          2
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": 5
+      }
+    },
+    {
+      "name": "silencer silences seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "silencer",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "doctor",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "silence",
+            "target_id": "u5",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": true,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": 5
+      }
+    },
+    {
+      "name": "silenced target killed seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "silencer",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "silence",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "protect",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": true,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          2
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "silenced target killed seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "silencer",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u6",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "silence",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": true,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          2
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "silenced target killed seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "silencer",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "doctor",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "silence",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": true,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "silencer inherits kill seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "silencer",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": false
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "protect",
+            "target_id": "u6",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 2,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": true,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          2
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "silencer inherits kill seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "silencer",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": false
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u5",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 2,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": true,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          2
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "silencer inherits kill seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "silencer",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": false
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "doctor",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "protect",
+            "target_id": "u5",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 2,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": true,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "elder targeted seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "elder",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u3",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": true
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          3
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "elder targeted seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "elder",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u6",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": true
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "elder targeted seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "elder",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u6",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": true
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          6
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "nine seats seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u7",
+            "seat": 7,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u8",
+            "seat": 8,
+            "role": "doctor",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u7",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u8",
+            "action": "protect",
+            "target_id": "u1",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "nine seats seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u7",
+            "seat": 7,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u8",
+            "seat": 8,
+            "role": "doctor",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "kill",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u7",
+            "action": "kill",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u8",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          1
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "nine seats seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u7",
+            "seat": 7,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u8",
+            "seat": 8,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "protect",
+            "target_id": "u5",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "kill",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u7",
+            "action": "kill",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u8",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          1
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "twelve seats seed 3",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u7",
+            "seat": 7,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u8",
+            "seat": 8,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u9",
+            "seat": 9,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u10",
+            "seat": 10,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u11",
+            "seat": 11,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "kill",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "protect",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "kill",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u7",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u8",
+            "action": "kill",
+            "target_id": "u1",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u9",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u10",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u11",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 3,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          1
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "twelve seats seed 11",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u7",
+            "seat": 7,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u8",
+            "seat": 8,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u9",
+            "seat": 9,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u10",
+            "seat": 10,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u11",
+            "seat": 11,
+            "role": "mafia",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u7",
+            "action": "protect",
+            "target_id": "u2",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u8",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u9",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u10",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u11",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 11,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    },
+    {
+      "name": "twelve seats seed 29",
+      "input": {
+        "roster": [
+          {
+            "user_id": "u0",
+            "seat": 0,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u1",
+            "seat": 1,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u2",
+            "seat": 2,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u3",
+            "seat": 3,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u4",
+            "seat": 4,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u5",
+            "seat": 5,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u6",
+            "seat": 6,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u7",
+            "seat": 7,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u8",
+            "seat": 8,
+            "role": "citizen",
+            "alive": true
+          },
+          {
+            "user_id": "u9",
+            "seat": 9,
+            "role": "doctor",
+            "alive": true
+          },
+          {
+            "user_id": "u10",
+            "seat": 10,
+            "role": "mafia",
+            "alive": true
+          },
+          {
+            "user_id": "u11",
+            "seat": 11,
+            "role": "citizen",
+            "alive": true
+          }
+        ],
+        "actions": [
+          {
+            "actor_id": "u0",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u1",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u2",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u3",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u4",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u5",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u6",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u7",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u8",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u9",
+            "action": "protect",
+            "target_id": "u3",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u10",
+            "action": "kill",
+            "target_id": "u0",
+            "used_bullet": false
+          },
+          {
+            "actor_id": "u11",
+            "action": "skip",
+            "target_id": null,
+            "used_bullet": false
+          }
+        ],
+        "matchSeed": 29,
+        "night": 1,
+        "settings": {
+          "bulletsEnabled": true,
+          "quietNightEnabled": true,
+          "sniperEnabled": false,
+          "silencerEnabled": false,
+          "elderEnabled": false
+        },
+        "lockedSeatSet": [],
+        "noSilenceSeatSet": []
+      },
+      "expected": {
+        "deathSeats": [
+          0
+        ],
+        "savedSeat": null,
+        "saveTold": false,
+        "silencedSeat": null
+      }
+    }
+  ]
+}

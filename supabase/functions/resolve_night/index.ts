@@ -19,9 +19,8 @@ import { buildHistory } from "../_shared/history.ts";
 import { rosterFingerprint } from "../_shared/roster_fingerprint.ts";
 import { selectTrace } from "../_shared/trace.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
-import { mafiaWentQuiet, saveIsTold, survivingSave } from "../_shared/bullets.ts";
 import { halfDoorSeats, loadToolUses, lockedSeats, unsilenceable } from "../_shared/tools.ts";
-import { deriveSeed, SeedSalt, tieBreakIndex } from "../_shared/seed.ts";
+import { resolveNightCore } from "../_shared/night_core.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId } = await req.json();
@@ -60,9 +59,6 @@ Deno.serve(handler(async (req, userId, db) => {
     const toolUses = await loadToolUses(db, roomId);
     const locked = lockedSeats(toolUses, night);
     const noSilence = new Set([...halfDoorSeats(toolUses, night), ...unsilenceable(toolUses, night)]);
-    const isLocked = (id: string | null | undefined) => !!id && locked.has(seatOf.get(id) ?? -1);
-    const isUnsilenceable = (id: string | null | undefined) =>
-      !!id && noSilence.has(seatOf.get(id) ?? -1);
 
     const { data: actions, error: actionsError } = await db
       .from("night_actions")
@@ -81,101 +77,11 @@ Deno.serve(handler(async (req, userId, db) => {
       .map((a) => `${a.actor_id}|${a.action}|${a.target_id ?? "-"}|${a.used_bullet ? "1" : "0"}`)
       .join(";") + "#roster:" + rosterFingerprint(roster);
 
-    // Mafia votes, tallied. A tie is broken on the seed, with no extra pass —
-    // doc 05 §5 rejects an extra passing round because it "instantly leaks the
-    // Mafia count".
-    // A target that is no longer alive when the night resolves — removed by
-    // the host, or gone for three minutes and struck — is not a kill: the
-    // seat is already out, and `commit_resolution` refuses to eliminate a
-    // dead seat, which used to leave a night nobody could resolve.
-    // And a seat that is no longer alive when the night resolves has no move:
-    // a ballot or a night action it cast before the host removed it is void,
-    // exactly as its whispers are (doc 09 §3.4) — a player put out of the match
-    // does not go on killing or protecting from outside it.
-    const alive = new Set(roster.filter((p) => p.alive).map((p) => p.user_id));
-    const mafiaIds = new Set(roster.filter((p) => isMafiaTeam(p.role)).map((p) => p.user_id));
-    const tally = new Map<string, number>();
-    for (const a of actions ?? []) {
-      if (a.action !== "kill" || !a.target_id || !alive.has(a.target_id) || !alive.has(a.actor_id)) continue;
-      // The Mafia never kill one of their own (owner, 2026-10-01).
-      if (mafiaIds.has(a.target_id)) continue;
-      tally.set(a.target_id, (tally.get(a.target_id) ?? 0) + 1);
-    }
-    let victimId: string | null = null;
-    if (tally.size > 0) {
-      const top = Math.max(...tally.values());
-      const tied = [...tally.entries()]
-        .filter(([, v]) => v === top)
-        .map(([k]) => k)
-        // Sorted by seat, so the set handed to the tie-break is ordered before
-        // the seed is drawn.
-        .sort((a, b) => (seatOf.get(a) ?? 0) - (seatOf.get(b) ?? 0));
-      victimId = tied[
-        tieBreakIndex(deriveSeed(me.matchSeed, SeedSalt.nightTieBreak, night), tied.length)
-      ];
-    }
-
-    // One protected seat, never the union of every Doctor's (owner,
-    // 2026-10-01): the seat most of them chose, and on an even split one of
-    // their choices drawn on the seed, which is the Mafia's rule on a stream
-    // of its own. Mirrors `NightResolver.resolveNight`.
-    const protectTally = new Map<string, number>();
-    for (const a of actions ?? []) {
-      if (a.action !== "protect" || !a.target_id || !alive.has(a.actor_id)) continue;
-      protectTally.set(a.target_id, (protectTally.get(a.target_id) ?? 0) + 1);
-    }
-    const protectedIds = new Set<string>();
-    if (protectTally.size > 0) {
-      const top = Math.max(...protectTally.values());
-      const tied = [...protectTally.entries()]
-        .filter(([, v]) => v === top)
-        .map(([k]) => k)
-        .sort((a, b) => (seatOf.get(a) ?? 0) - (seatOf.get(b) ?? 0));
-      protectedIds.add(tied[
-        tieBreakIndex(deriveSeed(me.matchSeed, SeedSalt.doctorTieBreak, night), tied.length)
-      ]);
-    }
-
-    if (isLocked(victimId)) victimId = null;
-
-    let savedId: string | null = null;
-    if (victimId && protectedIds.has(victimId)) {
-      savedId = victimId;
-      victimId = null;
-    }
-
-    // «الليلة الهادية» (RL1, doc 13 §2.1). A living Mafioso spent the team's one
-    // bullet tonight, so the Mafia kill nobody, whatever the votes said. After
-    // the save check on purpose, as `NightResolver.resolveNight` does: a
-    // Doctor who covered the seat the Mafia had argued about still has the save
-    // in the record.
-    const mafiosoIds = new Set(roster.filter((p) => p.role === "mafia").map((p) => p.user_id));
-    if (mafiaWentQuiet(actions ?? [], mafiosoIds, alive)) victimId = null;
-
-    const deaths = new Set<string>();
-    if (victimId) deaths.add(victimId);
-    for (const a of actions ?? []) {
-      const actor = roster.find((p) => p.user_id === a.actor_id);
-      const target = roster.find((p) => p.user_id === a.target_id);
-      if (!a.used_bullet || a.action !== "suspect" || actor?.role !== "sniper" ||
-          !target || !alive.has(actor.user_id) || !alive.has(target.user_id) ||
-          isLocked(target.user_id)) continue;
-      deaths.add(target.user_id);
-      if (!isMafiaTeam(target.role)) deaths.add(actor.user_id);
-    }
-    const deathIds = [...deaths].sort(
-      (a, b) => (seatOf.get(a) ?? 0) - (seatOf.get(b) ?? 0),
-    );
-    // RL17 — a save is a save only if the covered seat sees the morning: the
-    // Sniper's shot is outside protection and can still take him, and a save
-    // recorded anyway would let T2 announce a survival that did not happen.
-    savedId = survivingSave(savedId, deaths);
-    // RL2 — told only when the room has no quiet night to hide behind.
-    const saveTold = saveIsTold({ savedSeat: savedId, deaths, settings: me.settings });
-    const silencedId = (actions ?? []).find((a) =>
-      a.action === "silence" && !!a.target_id && alive.has(a.actor_id) && alive.has(a.target_id) &&
-      !isLocked(a.target_id) && !isUnsilenceable(a.target_id) && !deaths.has(a.target_id)
-    )?.target_id ?? null;
+    const { deathIds, savedId, saveTold, silencedId } = resolveNightCore({
+      roster, actions: actions ?? [], matchSeed: me.matchSeed, night, settings: me.settings,
+      lockedSeatSet: locked, noSilenceSeatSet: noSilence,
+    });
+    const deaths = new Set(deathIds);
 
     const history = await buildHistory(db, roomId);
     const record = history.nights.find((n) => n.nightNumber === night);

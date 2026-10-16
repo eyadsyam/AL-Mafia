@@ -111,7 +111,7 @@ M1: 117 rows; 20 SUSPECT. M2: 118 rows (29 OK, 76 GAP, 11 SUSPECT). Decisions:
 - [x] Q4 Audits M1, M2, M3 (9300cc6, 7c01244); triage §4b.
 - [x] Q5a Every SUSPECT fixed or accepted: server tool guards 7c01244, engine hardening aed3e3a, decided outcome 5164053, client 537e3f0, one Elder/Sniper 537e3f0. M3-22 (one account on two devices) ACCEPTED as a design limit: one account plays on one device.
 - [ ] Q5b GAP rows into tests, one brief each, run in this order (each edits its own matrix rows): `briefs/gaps_m2_offline.txt` (16 done, resume it), `briefs/gaps_m1_tools.txt`, `briefs/gaps_m2_online.txt`, `briefs/gaps_m3_online.txt`. Never two SQL-harness runs at once.
-- [ ] Q6 Parity of the night (`briefs/parity_night.txt`): pure `resolveNightCore` in TS, Dart vector generator `tool/night_vectors.dart`, tests on both sides. Orchestrator then runs `dart run tool/night_vectors.dart`, the Dart test and the node test.
+- [x] Q6 Parity of the night: `resolveNightCore` (TS) vs the Dart engine on 48 scenarios, both sides green.
 - [x] Q7 Gendered lines: confrontation C1/C4/C5/C6/C7/C8 and «مينفعش تصوّتي» follow the addressed player's gender, offline and online (test/unit/addressed_gender_test.dart).
 - [ ] Q8 M4 store audit and fixes.
 - [ ] Q9 Full gates (§2), then a local look for the owner WITHOUT `flutter build` (owner rule 2026-10-08/16): `flutter run -d web-server --web-port <port>` in debug, opened in the app's browser pane. No release build, no deploy, until he says «ابني».

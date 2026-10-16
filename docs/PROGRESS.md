@@ -3882,3 +3882,10 @@ Built:      A0: flutter 2113/0, SQL 85/85 after fixing the five stale contracts 
 Verified:   flutter test over engine/golden/leakage/integration/unit 558 passed; online 267 passed; rule_matrix_test green; l10n + glyph coverage green.
 Gate:       pending (server half and the full case matrix still running)
 Open:       server rulings (RL1, RL2, RL3, RL5, RL8 mic, RL9, RL13, RL14 refusal, RL15, RL16) in progress locally; nothing deployed (owner: «مترفعش اي حاجه»). RL19: whisper bodies for the dead need the live flag `witness_whispers_enabled` (owner's word).
+
+## PHASE night-vectors — done
+Built:      Extracted the pure online night decision and added 48 deterministic Dart-engine night scenarios with two cross-language contract tests.
+Files:      supabase/functions/_shared/night_core.ts, supabase/functions/resolve_night/index.ts, tool/night_vectors.dart, test/engine/night_vectors_test.dart, supabase/tests/night_vectors.test.mjs, supabase/tests/server_fixes.test.mjs, docs/PROGRESS.md
+Verified:   dart run tool/night_vectors.dart (48 scenarios); flutter test test/engine/night_vectors_test.dart PASS; node --test supabase/tests/night_vectors.test.mjs 48/48; node --check on the changed edge functions; Deno type-check not available.
+Gate:       PASS
+Open:       ties excluded (D17); tool-locked seats not covered offline.
