@@ -1,5 +1,10 @@
 # HANDOFF — read this first
 
+> **2026-10-17: current work is the stable release of Mafia (online, offline, vs computer).
+> Resume from `docs/plans/STABLE-RELEASE-PLAN.md` §5 — it has the queue, the gates,
+> the invariants and the ready Codex briefs (`docs/plans/briefs/`). Nothing is uploaded
+> without the owner's word.**
+
 The checkpoint for anyone (human or AI) picking this repo up cold. It is written to
 be **cheap to read and sufficient to act on**: everything below is either a fact you
 cannot recover from the code quickly, or a decision whose *reasoning* is not obvious

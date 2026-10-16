@@ -1,0 +1,49 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master, a Flutter party game with an online mode on Supabase. The server half of six rulings is already committed (commit 882951b). You do the Flutter client half, exactly as written. YOU EXECUTE; YOU DO NOT DESIGN. No new screens, no new widgets beyond what a step names, no refactors, no renames, no reformatting of lines you do not change.
+
+HARD LIMITS
+- No git commit, no network, no deploy, no builds (no `flutter build`, no `flutter run`).
+- Edit only: lib/transport/**, lib/platform/voice/voice_controller.dart, lib/ui/screens/online/**, lib/ui/economy/table_tools.dart, lib/app/l10n/app_ar.arb, lib/app/l10n/app_en.arb (then run `flutter gen-l10n`), and tests under test/**. Never edit supabase/**, lib/engine/**, docs/**.
+- RAM is tight: one flutter process at a time.
+- Project rules (CLAUDE.md): no literal Arabic in widgets (all copy through l10n); no hardcoded colours/sizes/durations (tokens only); a player must never learn another player's role from anything you add (doc 05). Every Arabic string below is final: copy it exactly, character for character.
+- Never weaken an existing assertion. If an existing test breaks because of a step below, fix the test's input, not its assertion, and say so in the report.
+
+STEPS
+
+S1 - The Mafia team's one quiet night (ruling RL1).
+Server: `my_team` now returns, for Mafia-team callers only, a boolean `teamBulletSpent` (true once any player with role exactly `mafia` in the room has spent the quiet night, on any night).
+a) lib/transport/supabase_backend.dart: `_ownIdentity` caches the identity for the whole match, so it cannot carry a value that changes. Add a separate read: when the own role is exactly 'mafia' and the room is in a night phase, call `my_team` again at most once per (roomId, phaseNumber) and keep its `teamBulletSpent` (default false when absent). Then in the `OwnSeat(...)` construction set `bulletSpent: actionRows.any((row) => row['used_bullet'] == true) || (identity.role == 'mafia' && teamBulletSpent)`. Do not change `OwnSeat`'s fields or its doc comment beyond one added sentence saying the Mafia's bullet is the team's.
+b) lib/ui/screens/online/online_table_flow.dart, the skip path that sends `useBullet: turn.actorRole == Role.mafia && ...`: if that call throws a BackendException with code 'RATE_LIMITED' and useBullet was true, call `_controller.skipNightAction(useBullet: false)` once (a teammate spent it in the same instant; the night is quiet either way). No new copy.
+Test: a unit test that the OwnSeat built for a 'mafia' player is bulletSpent when my_team says teamBulletSpent true and the player's own rows have no used_bullet; and is not, for a 'doctor', whatever my_team says. Use the existing fakes/patterns under test/online or test/transport (search for tests that construct SupabaseBackend or fake its `call`).
+
+S2 - The Doctor cannot cover the same player two nights running (ruling RL3).
+Server refuses it with BAD_REQUEST "not the same player two nights running".
+a) Add to OwnSeat (lib/transport/online_backend.dart) a nullable `int? lastProtectSeat` (with copyWith support): the seat this player protected on night (phaseNumber - 1), read from the own `night_actions` rows already loaded in supabase_backend.dart (rows where `night == state.phaseNumber - 1` and `action == 'protect'`, mapped through `seatOf[target_id]`). If the select for those rows does not include `action` and `target_id`, add them (the read policy is actor_id = auth.uid(), so own rows are readable).
+b) In online_table_flow.dart, during the Doctor's night turn, the seat equal to `lastProtectSeat` is not selectable: tapping it does nothing, exactly as tapping a seat that is not a legal target does now (find how dead seats / illegal targets are refused at night and use the same path). The Doctor's own seat stays governed by the existing `_canSelfProtect` rule. No new copy, no hint text.
+Test: a widget or unit test that the Doctor cannot select last night's seat and can select another living seat.
+
+S3 - Last word (ruling RL15).
+Server: when seat S used the `last_word` tool on target T during a day's vote and S is eliminated by that ballot, the vote result in public data carries `lastVote.lastWord = { seat: S, target: T }` (also present in the resolve_vote response).
+a) Parse it: wherever `lastVote` is decoded (lib/transport/room_codec.dart `voteFromJson`, model `DayVoteResult`), add a nullable `({int seat, int target})? lastWord` (or two nullable ints `lastWordSeat`, `lastWordTarget`, whichever matches the model's style), decoded from `lastWord.seat` / `lastWord.target`.
+b) Show it: in the online vote-result beat (where the eliminated player's name is shown after a vote), when lastWord is present, add ONE support line under the existing ones, built from a new l10n key:
+   app_ar.arb: "onlineLastWordLine": "الكلمة الأخيرة من {name} لـ{target}"
+   app_en.arb: "onlineLastWordLine": "{name}'s last word goes to {target}"
+   with placeholders name and target (String), names taken from the seat→name map the beat already uses. Same text style as the beat's other support lines.
+Test: decode test for lastWord, and a widget test that the line appears when lastWord is present and not otherwise.
+
+S4 - Floor tools only when talk goes by turns (ruling RL14).
+Server: `extra_minute` and `objection` are refused with 'NOT_THIS_ROOM' when the room's discussion mode is free, and nothing is charged.
+a) lib/ui/economy/table_tools.dart: `_ToolsSheet` gets a required `bool freeTalk`; `_toolFits` returns false for tool codes 'extra_minute' and 'objection' when freeTalk is true. Pass `freeTalk: snapshot.settings.discussionMode == DiscussionMode.free` (or the equivalent field you find) from every place that opens the sheet (follow `TableToolsButton` and its callers).
+b) Where a tool use failure code is turned into a message, map 'NOT_THIS_ROOM' to a new key:
+   app_ar.arb: "toolNeedsTurns": "الأداة دي بتشتغل لما الكلام يبقى بالدور بس"
+   app_en.arb: "toolNeedsTurns": "This tool only works when talk goes by turns"
+Test: the sheet does not list extra_minute/objection in a free-talk room and does list them in a structured one.
+
+S5 - A silenced player's microphone stays closed all day (ruling RL8).
+lib/platform/voice/voice_controller.dart `apply(GameSnapshot snapshot)`: when `snapshot.viewerSilenced` is true, this device may not speak, under every policy including MicPolicy.open. Change ONLY the self-may-speak decision (the place that maps the policy to whether this player's mic may be live, around the `MicPolicy.open => true` switch, and any `holdsFloor` derived from it). Do NOT change the policy value used for hearing others (`_audible`): a silenced player still hears the table.
+Test: in the existing voice controller tests (search test/ for VoiceController), a case with discussion free, a day talk phase, viewerSilenced true → may not speak but still hears the open table; viewerSilenced false → may speak.
+
+GATES (run them, in this order, one at a time)
+1. `flutter gen-l10n` (after the ARB edits) and `flutter analyze` with no errors and no new warnings or infos in files you touched.
+2. `flutter test test/online` then `flutter test test/transport` (if that folder exists) then `flutter test test/platform` (if it exists) then every other test file you added or changed. All must pass.
+
+REPORT (final message): per step S1-S5: done / partial / blocked, files, tests added, gate results with numbers. List every place you had to choose between two readings and what you chose. List any existing test whose input you changed and why.

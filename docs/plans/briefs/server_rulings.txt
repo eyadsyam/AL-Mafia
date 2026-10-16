@@ -1,0 +1,60 @@
+CONTEXT FOR THIS RUN
+A previous implementer started this exact brief and stopped mid-way (it ran out of budget). Its uncommitted work is in the tree: modified supabase/functions/{_shared/economy_actions.ts,_shared/tools.ts,_shared/voice.ts,advance_phase,claim_floor,my_team,resolve_night,resolve_vote,submit_night_action,submit_vote}; new supabase/functions/_shared/{bullets.ts,night_rules.ts,vote_rules.ts}; new migrations 20261016000100..000500; new tests supabase/tests/{floor_priority.sql,floor_tools_free_room.sql,night_rules.test.mjs,one_investigation.sql,strike_voids_rewards.sql,team_bullet.sql,voice_policy.test.mjs,vote_rules.test.mjs}. Its last words were "Now advance_phase (T2 default)", so T2's timer-expiry default is the known open spot; everything else is unverified.
+YOUR JOB: build on that work (do not revert it). For each task T1-T10 below, check the code against the task text, finish or correct what is missing or wrong, add the missing tests, then run every gate. You execute; you do not redesign. If a task is ambiguous, pick the reading that matches the Dart engine in lib/engine (read-only for you) and list the call in your report. Use PowerShell or bash as you like; for node tests run every file: `node --test supabase/tests/<file>.test.mjs` for each *.test.mjs.
+
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master: a Flutter party game with an online mode on Supabase (SQL migrations in supabase/migrations, edge functions in supabase/functions as TypeScript run by Deno in production).
+
+HARD LIMITS
+- Do NOT deploy, push, run supabase CLI against any remote, call any network service, or git commit. Local files and local tests only.
+- Machine RAM is tight: never run two test processes at once; do not run `flutter test` (the orchestrator does). Node and the local SQL harness are fine, one at a time.
+- Touch only supabase/** and docs/specs/17-roles-and-tools.md (to tick rulings). No Dart, no ARB, no lib/**.
+- Add NEW migrations only (never edit an existing migration file): name them supabase/migrations/20261016000100_<slug>.sql, 20261016000200_<slug>.sql, ... in order. Each must be idempotent-friendly (create or replace / drop ... if exists) like the existing ones.
+- Follow the code style around you: comments explain why, short functions, the existing error envelope (`fail(CODE, message, status)`, `ok(...)` from `_shared/api.ts`).
+
+READ FIRST: docs/specs/17-roles-and-tools.md sections 9 (D1–D41) and 12 (rulings RL1–RL21). You implement the SERVER side of these rulings exactly as written below. Line numbers in the rule book may be a few lines off; search for the code.
+
+GATES (run them yourself; all must pass at the end)
+1. `node tool/test_sql_without_docker.mjs` (all SQL files; currently 85/85 pass, keep it so plus your new files).
+2. `node --test supabase/tests/` (every *.test.mjs; note any that failed BEFORE your change by running once first and recording it).
+3. Each new behaviour gets a test: pure TypeScript helpers → a node test in supabase/tests/*.test.mjs (they import ../functions/_shared/*.ts directly; Node 24 strips types); SQL/trigger behaviour → a SQL test file in supabase/tests/*.sql in the style of the existing ones (begin; do $$ ... assert ... $$; rollback;). Prefer extracting rule logic from an edge function into a pure helper in supabase/functions/_shared/ and testing that.
+
+TASKS (one ruling each)
+
+T1 — RL5 / D6. One investigation per night online.
+In supabase/functions/submit_night_action/index.ts, before the upsert: if the caller's action is "investigate" and a row already exists for (room, this night, this actor) with action "investigate" and a non-null target: same target → return the same answer path as now (idempotent); different target → `fail("RATE_LIMITED", "one investigation a night")` and write nothing. Also enforce it in the database so two racing requests cannot both win: a new migration adds a BEFORE UPDATE trigger on public.night_actions that raises 'ALREADY_INVESTIGATED' when OLD.action = 'investigate' and OLD.target_id is not null and (NEW.action <> 'investigate' or NEW.target_id is distinct from OLD.target_id); the function maps that error to the same RATE_LIMITED reply. SQL test: insert an investigate row, a second update to another target raises, an update to the same target passes.
+
+T2 — RL3 / D4. Doctor no-repeat online.
+In submit_night_action: a "protect" whose target equals this actor's protect target of night (N − 1) is refused `fail("BAD_REQUEST", "not the same player two nights running")`. Self-protection through the bullet is unchanged. In supabase/functions/advance_phase (timer-expiry defaults) the random protect target must skip last night's target too. Put the "last night's target" lookup in a pure helper you can test.
+
+T3 — RL1 / D1. The quiet night is the Mafia team's one bullet.
+- A Mafioso (role exactly 'mafia') spends the quiet night by sending a move with useBullet true (skip or a kill vote). Once ANY member with role 'mafia' in the room has a night_actions row with used_bullet = true (any night), no other 'mafia' member may spend one: refuse in submit_night_action with `fail("RATE_LIMITED", "the team already used it")`, and enforce in a new migration with a trigger (BEFORE INSERT OR UPDATE on night_actions, when NEW.used_bullet and the actor's room_players.role = 'mafia') raising 'BULLET_SPENT' if another 'mafia' actor of the same room already has used_bullet. Keep the existing per-actor index and keep-bullet trigger working.
+- resolve_night: if any living 'mafia' actor's action tonight has used_bullet = true, the Mafia kill nobody tonight (victim null) — applied AFTER the save check so a covered seat still records the save, exactly like lib/engine/resolver.dart (read it: `quietNightOn`).
+- The Mafia team needs to know the bullet is gone: supabase/functions/my_team/index.ts returns, for mafia-team callers only, an extra boolean `teamBulletSpent` (true once any 'mafia' member has spent it). Do not add it for anyone else.
+
+T4 — RL2 / D2 and RL17 / D38. When a save is told.
+resolve_night: `someoneSavedUnnamed` and trace T2 may be told only when (a) the room has no quiet night available — settings.bulletsEnabled === false OR settings.quietNightEnabled === false (absent means true, as `bulletEnabled` reads them) — and (b) the saved player is alive after tonight's deaths (a sniper shot can still take him). If the saved seat dies, record no save at all (`savedId` null). Mirror of the Dart rule; extract the decision into a pure helper `saveIsTold({ savedSeat, deaths, settings })` and test it. Look at supabase/functions/_shared/trace.ts for how T2 eligibility reads `saveOccurred`; pass `saveOccurred: false` when it must not be told.
+
+T5 — RL9 / D11. Abstention follows the room setting.
+submit_vote: a null target is refused (`fail("BAD_REQUEST", "abstaining is off in this room")`) when the room settings have `abstainAllowed` not true (default false, as lib/engine/models/match_settings.dart). Grave votes follow the same rule.
+
+T6 — RL13 / D19. A bought revote also reopens a tie.
+resolve_vote: in round 1, if `revoteRequested(toolUses, day)` and the ballot TIED (two or more top seats), open the revote among the tied seats even when the room's dayTieRule is "noElimination". The clear-winner behaviour stays as is. Round 2 never re-triggers. Test the decision in a pure helper.
+
+T7 — RL15 / D21. Spotlight and last word do something.
+Read supabase/functions/claim_floor, release_floor, the floor-bonus migration 20261009000600_atomic_floor_bonus.sql, and supabase/functions/_shared/voice.ts to learn how talk-by-turns ("structured") hands the floor.
+- spotlight (used by seat S on target T during a discussion): in structured discussion T is next: when the current holder releases (or the floor is free), T's claim is granted before any other raised hand, once. Implement as an ordering rule the floor-granting code reads from room_tool_uses (unconsumed spotlight rows of this phase_number); mark it consumed when T is granted (like the floor bonus uses consumed_at). In free discussion nothing changes beyond the existing public tool line.
+- last_word (used by seat S on target T in the vote window): if S is eliminated by that day's ballot, T is granted the first floor of the NEXT day's structured discussion, and the vote result payload carries `lastWord: { seat: S, target: T }` in the public data so the client can say it. If S is not eliminated, nothing happens.
+Keep both as pure helpers with node tests; keep the SQL changes in a new migration with a SQL test if you touch SQL.
+
+T8 — RL14 / D24. Floor tools are refused in free discussion.
+The SQL function that spends a tool (`use_table_tool`, latest definition in 20261015000100_all_access_grants.sql — copy the whole function into your new migration and change only this) raises 'NOT_THIS_ROOM' for extra_minute and objection when the room's discussion mode is free (find how the room stores discussionMode: rooms.settings->>'discussionMode', values 'structured' | 'free'; check room_configuration.ts). The charge is not spent. SQL test.
+
+T9 — RL16 / D37. A strike that decides the match voids rewards.
+Find `strike_absent_member` (and the remove_player function) and the kick path that voids rewards (20261009002200_receipt_participation_and_kick.sql). Apply the same voiding when the strike ends the match (the win check after the strike decides it). New migration + SQL test.
+
+T10 — RL8 / D10 (server half). A silenced player's mic is closed for the day.
+supabase/functions/_shared/voice.ts decides who may talk; make the silenced seat of the day (silencedSeatOf(public_data)) muted in every day discussion phase, free included, and test it in the existing voice tests (find them under supabase/tests).
+
+When everything passes, add under section 12 of docs/specs/17-roles-and-tools.md a short "Server status" list: each ruling you implemented, the files, the tests. Do not mark anything deployed.
+
+REPORT (final message): for each task T1–T10: done / partial / blocked, files, tests added, gate results with numbers (before and after), and any place you had to make a judgement call. List every new migration file name. List anything the CLIENT must change to use your work (exact field names, error codes), because another agent will do the Flutter side.

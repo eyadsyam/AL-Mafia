@@ -1,0 +1,21 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master: a Flutter social-deduction party game. Offline engine: lib/engine (pure Dart). Online: Supabase — SQL in supabase/migrations (later files override earlier definitions of the same function), edge functions in supabase/functions (TypeScript), Flutter client in lib/transport and lib/ui/screens/online. Tests: test/** (Dart), supabase/tests/*.sql (local SQL harness), supabase/tests/*.test.mjs (node), supabase/tests/*_match.py (live suite, cannot run here).
+
+THIS IS AN AUDIT. YOU READ AND REPORT. YOU CHANGE NO CODE.
+- Write exactly one file: the matrix file named in your task. Create no other file, edit nothing else. Other people are editing test/engine/rule_matrix_test.dart and lib/** right now: do not touch them.
+- Do not run flutter, the SQL harness, or any build (RAM is tight). Reading, grep and `git log` only.
+- No network, no git commit.
+
+THE RULES: docs/specs/17-roles-and-tools.md is the rule book; its §12 RULINGS (RL1–RL21) override anything earlier in it and anything in older docs. docs/specs/05-zero-leakage-spec.md: nothing shown to a player may let them infer another player's role. Principles: the app never states a fact that did not happen; a paid item does exactly what its description says (descriptions: lib/app/l10n/app_ar.arb keys tool*Desc, role*); offline equals online except where the rule book names an exception; tools are online-only (RL20).
+
+INVARIANTS (docs/plans/STABLE-RELEASE-PLAN.md §2b): I1 no role leak; I2 server is the authority (no out-of-phase/out-of-role/illegal/double act, refusals leave no trace); I3 paid = does what it says, charged once, only on success; I4 every match ends; I5 offline = online, all clients agree; I6 voice never load-bearing, silenced/dead never heard; I7 never state a fact that did not happen; I8 rewards once, voided when a kick/strike decided the match; I9 retries never duplicate effects, late responses never overwrite newer state. Tag each SUSPECT with the invariant it breaks.
+
+THE MATRIX FILE FORMAT (Markdown):
+- One section per subject (tool / role / flow).
+- Under it a table with columns: `#` | `Case` | `Expected (rule book ref)` | `Code (file:line)` | `Test (file: test name)` | `Evidence` | `Verdict`.
+- Evidence is the level of the test that proves the row: `unit` (Dart or node over pure code), `widget`, `sql-sim` (local PGlite harness, one connection, so it cannot prove a real race), `live` (supabase/tests/*_match.py, a real server), or `none`.
+- Verdict is exactly one of: `OK` (code does it and a test proves it), `GAP` (code seems to do it, no test proves it), `SUSPECT` (code looks wrong, missing, or contradicts the rule book or the item's description — say why in one line in the Case cell after a « — »), `N/A` (with reason).
+- Cite real file:line you opened. Never guess a line; if you cannot find the handling, the verdict is SUSPECT with "not found".
+- Think adversarially: for each subject list every case that can happen in a real match — normal use, wrong phase, dead user, dead/kicked/disconnected target, silenced user or target, used twice, two players racing, combined with each other relevant tool or role, the match ending before or during the effect, reconnect/app restart in the middle, timer expiry, the free vs by-turns discussion setting, 4-player minimum tables and 20-player tables.
+- End the file with `## Findings`: every SUSPECT first (most severe first), then every GAP, one line each: `SUSPECT M?-n [I?]: <subject> — <what is wrong> — <file:line>`.
+
+FINAL MESSAGE: only the `## Findings` list (copy of the end of the file) plus one line with counts: rows, OK, GAP, SUSPECT, N/A.

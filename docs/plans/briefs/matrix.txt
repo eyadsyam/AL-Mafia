@@ -1,0 +1,26 @@
+YOU EXECUTE; YOU DO NOT DESIGN. The rule book and its rulings are final. Write tests only. Run commands from PowerShell or bash in the repository root. Flutter is on PATH as `flutter` (its SDK path contains a space; quote paths if you call it by full path).
+
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master, a Flutter party game. The pure Dart engine is lib/engine/**.
+
+HARD LIMITS
+- Edit ONLY test/engine/rule_matrix_test.dart (append tests; keep what is there). Do not edit lib/**, other tests, ARB, docs, supabase/**. Other uncommitted work under supabase/** belongs to someone else: leave it alone.
+- No git commit, no network, no builds. RAM is tight: run ONE flutter test process at a time, and only `flutter test test/engine/rule_matrix_test.dart` (plus `flutter analyze test/engine/rule_matrix_test.dart`).
+- Never weaken an assertion to make it pass. If the engine disagrees with the RULED behaviour, keep the test, mark it `skip: 'DEFECT: <one line>'`, and list it in your report.
+
+READ FIRST
+- docs/specs/17-roles-and-tools.md: §4 (roles), §6 (day), §7 (win), §10 (CANDIDATE CASES C1–C112) and §12 (RULINGS RL1–RL21). §12 overrides anything earlier in the file.
+- test/engine/rule_matrix_test.dart (helpers `start`, `seatsOf`, `seatOf`, `night`, and the existing tests) and test/engine/new_roles_test.dart (more patterns: day voting, elder reveal, silencer inheriting the kill, sniper).
+- lib/engine/match_engine.dart public API (beginNight, submitNightAction, skipNightAction, resolveNight, beginDay…, submitVote, revealElder, winCheck, removePlayer), lib/engine/legal_moves.dart (legalMoves, defaultMoveOnExpiry), lib/engine/bullets.dart, lib/engine/win_check.dart.
+
+TASK
+For every candidate case C1–C112 that concerns the OFFLINE engine (skip pure online/tool cases — tools are online-only — but do cover the offline half of a case that has one), add one test to rule_matrix_test.dart that sets the case up, plays it through the engine's public API, and asserts the outcome the RULINGS (§12) require (for cases no ruling touches, the outcome §4–§7 state). Name each test with its case id first, e.g. `test('C14: doctor and sniper on the same player — the shot still kills', ...)`. Group them with `group(...)` by the §10 subsection (doctor, sniper, silencer, detective, elder, mafia, day/vote/win/setup).
+Seeds: if an outcome depends on a seeded draw, assert the rule, not one seed's luck (loop seeds 1–20 where needed).
+Keep tests short; add small private helpers at the bottom of main() if several tests need the same setup (e.g. playing a day to a vote).
+
+GATE
+`flutter analyze test/engine/rule_matrix_test.dart` with no errors or warnings, and `flutter test test/engine/rule_matrix_test.dart` with every non-skipped test passing.
+
+REPORT (final message)
+- How many cases covered, which C-ids were skipped as online-only, and the test count.
+- Every DEFECT-skipped test: case id, what the ruling says, what the engine did (one line each). These are the important part.
+- Anything in §10 that was ambiguous and how you read it.
