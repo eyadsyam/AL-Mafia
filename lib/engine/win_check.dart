@@ -46,8 +46,9 @@ class WinChecker {
         .length;
     final nonMafiaCount = aliveCount - mafiaCount;
 
-    // Nobody left at all. Unreachable in the MVP — the balance guard keeps
-    // mafia below half, and phases kill at most one player each — so this is a
+    // Nobody left at all. Rare rather than impossible since the Sniper: one
+    // night can take the Mafia's victim, the Sniper's target and, on a miss,
+    // the Sniper. The balance guard keeps the Mafia below half, so this is a
     // guard rather than a rule.
     //
     // It returns the town rather than throwing, and rather than modelling a

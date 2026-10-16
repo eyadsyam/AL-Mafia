@@ -65,10 +65,13 @@ class NightResolver {
     if (mafiaVotes.isNotEmpty) {
       // Find max votes
       final maxVotes = mafiaVotes.values.reduce((a, b) => a > b ? a : b);
+      // Sorted by seat, as online (`resolve_night`), so the draw below never
+      // depends on the order the votes happened to be cast in.
       final tiedTargets = mafiaVotes.entries
           .where((e) => e.value == maxVotes)
           .map((e) => e.key)
-          .toList();
+          .toList()
+        ..sort();
 
       if (tiedTargets.length == 1) {
         victimSeat = tiedTargets.first;
@@ -178,6 +181,12 @@ class NightResolver {
     int? silencedSeat;
     for (final event in match.eventLog.whereType<SilenceCast>()) {
       if (tonight(event)) silencedSeat = event.targetSeat;
+    }
+    // A seat that dies tonight is not silenced tomorrow: the morning would
+    // otherwise read out a dead player as silenced. Online drops it the same
+    // way (`resolve_night`).
+    if (silencedSeat != null && deaths.contains(silencedSeat)) {
+      silencedSeat = null;
     }
 
     final orderedDeaths = deaths.toList()..sort();

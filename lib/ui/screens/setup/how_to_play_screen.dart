@@ -1,3 +1,4 @@
+import '../../widgets/deck/deck_buttons.dart';
 import '../../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 
@@ -129,10 +130,12 @@ class HowToPlayScreen extends StatelessWidget {
                       spacing.screenMargin,
                       spacing.lg,
                     ),
-                    child: FilledButton(
+                    // Bone, like Home's «ابدأ اللعبة»: gold is for value only
+                    // (docs/design/DECK-SYSTEM.md).
+                    child: BoneButton(
                       key: startButton,
+                      label: l10n.homeAction,
                       onPressed: onStartMatch,
-                      child: Text(l10n.homeAction),
                     ),
                   ),
                 ],
