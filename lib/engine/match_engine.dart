@@ -393,6 +393,9 @@ class MatchEngine {
     required int targetSeat,
     bool useBullet = false,
   }) {
+    if (match.phase != GamePhase.night) {
+      throw StateError('submitNightAction: not in night phase');
+    }
     if (match.currentActorSeat != seat) {
       throw StateError('submitNightAction: seat $seat is not current actor');
     }
@@ -408,10 +411,6 @@ class MatchEngine {
     final player = match.players[seat];
     final now = clock();
     final phaseRef = PhaseRef(phase: GamePhase.night, number: match.dayNumber);
-
-    // Spent first, so that everything below - including the Doctor's target,
-    // which the bullet replaces - reads a log that already knows about it.
-    if (useBullet) _spendBullet(seat: seat, now: now, phaseRef: phaseRef);
 
     // «حماية النفس». The bullet *is* the target: the Doctor's grid has never
     // held their own name and doc 05 rule 6 is why it never will, so a Doctor
@@ -443,6 +442,7 @@ class MatchEngine {
         if (match.players[targetSeat].role.alignment == Alignment.mafia) {
           throw StateError('submitNightAction: mafia cannot target a mafioso');
         }
+        if (useBullet) _spendBullet(seat: seat, now: now, phaseRef: phaseRef);
         match = match.copyWith(
           eventLog: [
             ...match.eventLog,
@@ -464,6 +464,7 @@ class MatchEngine {
           (p) => p.status == PlayerStatus.alive && p.role == Role.mafia,
         );
         if (hasLivingKiller) {
+          if (useBullet) _spendBullet(seat: seat, now: now, phaseRef: phaseRef);
           match = match.copyWith(
             eventLog: [
               ...match.eventLog,
@@ -479,6 +480,7 @@ class MatchEngine {
           if (match.players[targetSeat].role.alignment == Alignment.mafia) {
             throw StateError('submitNightAction: mafia cannot target a mafioso');
           }
+          if (useBullet) _spendBullet(seat: seat, now: now, phaseRef: phaseRef);
           match = match.copyWith(
             eventLog: [
               ...match.eventLog,
@@ -513,6 +515,7 @@ class MatchEngine {
             'submitNightAction: doctor cannot protect same seat on consecutive nights',
           );
         }
+        if (useBullet) _spendBullet(seat: seat, now: now, phaseRef: phaseRef);
         match = match.copyWith(
           eventLog: [
             ...match.eventLog,
@@ -538,6 +541,7 @@ class MatchEngine {
             'submitNightAction: detective already investigated this night',
           );
         }
+        if (useBullet) _spendBullet(seat: seat, now: now, phaseRef: phaseRef);
 
         // Get the exact role of the target
         final targetRole = match.players[targetSeat].role;
@@ -565,6 +569,7 @@ class MatchEngine {
             player.role != Role.sniper) {
           throw StateError('submitNightAction: role cannot suspect');
         }
+        if (useBullet) _spendBullet(seat: seat, now: now, phaseRef: phaseRef);
         match = match.copyWith(
           eventLog: [
             ...match.eventLog,
@@ -611,6 +616,9 @@ class MatchEngine {
   /// of the Mafia's «الليلة الهادية» and of a Detective who opens a file and
   /// investigates nobody else tonight.
   void skipNightAction({required int seat, bool useBullet = false}) {
+    if (match.phase != GamePhase.night) {
+      throw StateError('skipNightAction: not in night phase');
+    }
     if (match.players[seat].role == Role.doctor && !useBullet) {
       // Expiry and legacy callers still need a deterministic action. The UI
       // requires an explicit choice; the engine's safety default protects the
@@ -631,9 +639,6 @@ class MatchEngine {
         targetSeat: target.seat,
       );
       return;
-    }
-    if (match.phase != GamePhase.night) {
-      throw StateError('skipNightAction: not in night phase');
     }
     if (match.currentActorSeat != seat) {
       throw StateError('skipNightAction: seat $seat is not current actor');

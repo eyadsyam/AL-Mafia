@@ -3,7 +3,6 @@ import 'package:mafia_master/engine/analytics_builder.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
-import 'package:mafia_master/engine/models/player.dart';
 import 'package:test/test.dart';
 
 /// T064 — Analytics builder tests.
