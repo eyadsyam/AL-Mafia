@@ -2510,6 +2510,12 @@ abstract class AppLocalizations {
   /// **'Waiting for the host…'**
   String get onlineWaitingForHost;
 
+  /// No description provided for @onlineRoleSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'{role} sits this match out: not enough players yet.'**
+  String onlineRoleSkipped(String role);
+
   /// No description provided for @voiceTakeFloor.
   ///
   /// In en, this message translates to:

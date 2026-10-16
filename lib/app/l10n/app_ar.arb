@@ -701,6 +701,14 @@
   "onlineMinutes": "دقايق",
   "onlineLinkCopied": "لينك الأوضة اتنسخ",
   "onlineWaitingForHost": "مستني المسؤول",
+  "onlineRoleSkipped": "{role} مش هيدخل الماتش ده: العدد لسه قليل.",
+  "@onlineRoleSkipped": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
   "voiceTakeFloor": "اتكلم",
   "voiceYieldFloor": "خلصت",
   "voiceFloorTaken": "فيه لاعب بيتكلم دلوقتي",

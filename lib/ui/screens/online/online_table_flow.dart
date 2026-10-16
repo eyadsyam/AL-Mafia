@@ -1570,16 +1570,36 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         );
 
       case GamePhase.morning:
-        final victim = snapshot.morning?.victimSeat;
+        final morning = snapshot.morning;
+        // Every death of the night (a Sniper's shot can add one or two to the
+        // Mafia's), named as offline does, and the silenced seat for the
+        // whole table (rulings RL10, RL8).
+        final victims = morning == null
+            ? const <int>[]
+            : morning.victimSeats.isNotEmpty
+            ? morning.victimSeats
+            : [?morning.victimSeat];
+        final silenced = morning?.silencedSeat;
         final trace = InformationText.trace(l10n, snapshot.trace, names);
-        return CouncilVoice(
-          headline: victim == null
-              ? l10n.quietNight
-              : l10n.lostPlayerLastNight(names[victim] ?? ''),
-          // The trace does not arrive with the body. Doc 15 §S-O6 beat 5: the
-          // room hears what happened, and only then hears what was left
+        final support = <Widget>[
+          if (silenced != null && names[silenced] != null)
+            caption(l10n.silencedAnnouncement(names[silenced]!)),
+          // The trace does not arrive with the body. Doc 15 §S-O6 beat 5:
+          // the room hears what happened, and only then hears what was left
           // behind.
-          support: trace == null ? null : _AfterBeat(child: caption(trace)),
+          if (trace != null) _AfterBeat(child: caption(trace)),
+        ];
+        return CouncilVoice(
+          headline: victims.isEmpty
+              ? l10n.quietNight
+              : l10n.lostPlayerLastNight(
+                  [for (final seat in victims) names[seat] ?? ''].join(' · '),
+                ),
+          support: support.isEmpty
+              ? null
+              : support.length == 1
+              ? support.single
+              : Column(mainAxisSize: MainAxisSize.min, children: support),
         );
 
       case GamePhase.openingRound:

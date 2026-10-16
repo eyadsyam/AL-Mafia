@@ -849,6 +849,14 @@
   "onlineMinutes": "minutes",
   "onlineLinkCopied": "Room link copied",
   "onlineWaitingForHost": "Waiting for the host…",
+  "onlineRoleSkipped": "{role} sits this match out: not enough players yet.",
+  "@onlineRoleSkipped": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
   "voiceTakeFloor": "Speak",
   "voiceYieldFloor": "Done",
   "voiceFloorTaken": "Someone else has the floor",

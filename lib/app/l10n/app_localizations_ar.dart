@@ -1365,6 +1365,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineWaitingForHost => 'مستني المسؤول';
 
   @override
+  String onlineRoleSkipped(String role) {
+    return '$role مش هيدخل الماتش ده: العدد لسه قليل.';
+  }
+
+  @override
   String get voiceTakeFloor => 'اتكلم';
 
   @override

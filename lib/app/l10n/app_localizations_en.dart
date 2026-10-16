@@ -1394,6 +1394,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineWaitingForHost => 'Waiting for the host…';
 
   @override
+  String onlineRoleSkipped(String role) {
+    return '$role sits this match out: not enough players yet.';
+  }
+
+  @override
   String get voiceTakeFloor => 'Speak';
 
   @override

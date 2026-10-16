@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/asset_constants.dart';
-import '../../../engine/balance_guard.dart';
 import '../../../platform/audio_director.dart';
 import '../../../platform/clipboard.dart';
 import '../../../platform/invite_share.dart';
@@ -22,6 +21,7 @@ import '../../widgets/storage_warning_note.dart';
 import '../../widgets/experience_surface.dart';
 import '../../widgets/mafia_public.dart';
 
+import 'lobby_deal.dart';
 import 'online_session.dart';
 import 'safety_center.dart';
 import 'voice_session.dart';
@@ -283,28 +283,17 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
   Future<void> _start() async {
     final snapshot = _snapshot;
     if (snapshot == null) return;
-    final count = snapshot.public.players.length;
-    final counts = Map<Role, int>.of(BalanceGuard.recommended(count));
-    if (snapshot.settings.silencerEnabled) {
-      counts[Role.mafia] = (counts[Role.mafia] ?? 0) - 1;
-      counts[Role.silencer] = 1;
-    }
-    if (snapshot.settings.elderEnabled) {
-      counts[Role.citizen] = (counts[Role.citizen] ?? 0) - 1;
-      counts[Role.elder] = 1;
-    }
-    if (snapshot.settings.sniperEnabled) {
-      counts[Role.citizen] = (counts[Role.citizen] ?? 0) - 1;
-      counts[Role.sniper] = 1;
-    }
-    // The recommended distribution for this many players, and the host's own
-    // default rules — plus the one setting that is a property of *this room*
-    // rather than of this device.
+    // The recommended distribution for this many players, with the sold
+    // roles this table is big enough for (`lobbyDeal`).
+    final deal = lobbyDeal(
+      snapshot.public.players.length,
+      snapshot.settings,
+    );
     final started = await ref
         .read(onlineSessionProvider.notifier)
         .start(
-          roleCounts: counts,
-          settings: snapshot.settings,
+          roleCounts: deal.counts,
+          settings: deal.settings,
         );
     if (started && mounted) widget.onStarted();
   }
@@ -891,6 +880,28 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                             ),
                                             textAlign: TextAlign.center,
                                           ),
+                                        if (isHost && snapshot != null)
+                                          for (final role in lobbyDeal(
+                                            players.length,
+                                            snapshot.settings,
+                                          ).skipped)
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: spacing.xs,
+                                              ),
+                                              child: Text(
+                                                l10n.onlineRoleSkipped(
+                                                  EngineCopy.roleName(
+                                                    l10n,
+                                                    role.role,
+                                                  ),
+                                                ),
+                                                style: type.bodySmall.copyWith(
+                                                  color: colors.textMuted,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
                                         SizedBox(height: spacing.sm),
                                         Text(
                                           players.length <
