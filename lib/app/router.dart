@@ -218,6 +218,10 @@ void _previewAudio(WidgetRef ref, MatchSettings settings) {
 /// time, so one guard).
 final _storiesExit = StoryExitGuard();
 
+/// Whether the mode screen offers «العب ضد الكمبيوتر». Off for the stable
+/// release; the bot match itself is untouched.
+const _offerBotMatch = false;
+
 GoRouter buildRouter(
   WidgetRef ref, {
   GlobalKey<NavigatorState>? navigatorKey,
@@ -467,7 +471,10 @@ GoRouter buildRouter(
             onPlayOnline: SupabaseConfig.isConfigured
                 ? () => forwardTo(context, Routes.online)
                 : null,
-            onPlayBots: () => startBotMatch(context),
+            // Vs computer is hidden for the stable release (owner, 2026-10-17:
+            // «مش حاسسها منطقية»). The mode and its code stay; flipping
+            // [_offerBotMatch] brings the card back.
+            onPlayBots: _offerBotMatch ? () => startBotMatch(context) : null,
             onPlayStories: () => forwardTo(context, Routes.stories),
             onBack: () => context.go(Routes.home),
           ),
