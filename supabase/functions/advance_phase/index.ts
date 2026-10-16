@@ -8,7 +8,7 @@
  * | Phase                | Default                                        |
  * |----------------------|------------------------------------------------|
  * | Night — Mafia        | a random living non-Mafia, seeded from the seed |
- * | Night — Doctor       | no protection                                   |
+ * | Night — Doctor       | a random living other, not last night's         |
  * | Night — Detective    | no investigation                               |
  * | Night — Citizen      | nothing: online a Citizen has no night move     |
  * | Confrontation        | silence — and silence is itself information     |
@@ -23,6 +23,7 @@
 import { actionForRole, fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { clearedFor, deadlineFor } from "../_shared/phases.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
+import { defaultProtectTargets, previousProtectTarget } from "../_shared/night_rules.ts";
 import { deriveSeed, SeedSalt, tieBreakIndex } from "../_shared/seed.ts";
 
 /**
@@ -65,6 +66,16 @@ Deno.serve(handler(async (req, userId, db) => {
     if (actedError) throw actedError;
     const done = new Set((acted ?? []).map((a) => a.actor_id));
 
+    // RL3 — a Doctor may not cover the same player two nights running, so the
+    // default for a Doctor who said nothing skips last night's choice too.
+    const { data: lastNight, error: lastNightError } = await db
+      .from("night_actions")
+      .select("night, actor_id, action, target_id")
+      .eq("room_id", roomId)
+      .eq("night", me.phaseNumber - 1)
+      .eq("action", "protect");
+    if (lastNightError) throw lastNightError;
+
     for (const player of roster) {
       if (done.has(player.user_id)) continue;
       // Online a Citizen has no night move (owner, 2026-10-01).
@@ -75,9 +86,13 @@ Deno.serve(handler(async (req, userId, db) => {
         // The one default that picks a target: a Mafia who does nothing would
         // otherwise make "the Mafia are all disconnected" strictly better for
         // them than playing (N9).
-        const targets = roster
-          .filter((p) => action === "kill" ? !isMafiaTeam(p.role) : p.user_id !== player.user_id)
-          .sort((a, b) => a.seat - b.seat);
+        const targets = action === "kill"
+          ? roster.filter((p) => !isMafiaTeam(p.role)).sort((a, b) => a.seat - b.seat)
+          : defaultProtectTargets(
+            roster,
+            player.user_id,
+            previousProtectTarget(lastNight ?? [], player.user_id, me.phaseNumber),
+          );
         if (targets.length === 0) continue;
         const pick = targets[
           tieBreakIndex(

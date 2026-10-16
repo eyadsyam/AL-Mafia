@@ -14,7 +14,7 @@
  * not done anything wrong.
  */
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
-import { floorOwnerSeat, floorSecondsFor, micPolicyFor } from "../_shared/voice.ts";
+import { floorOwnerSeat, floorSecondsFor, micPolicyForSeat } from "../_shared/voice.ts";
 import { silencedSeatOf } from "../_shared/silence.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
@@ -36,7 +36,12 @@ Deno.serve(handler(async (req, userId, db) => {
     return ok({ granted: false, policy: "muted", reason: "silenced" });
   }
 
-  const policy = micPolicyFor(me.phase, me.settings);
+  const policy = micPolicyForSeat(
+    me.phase,
+    me.settings,
+    (state.public_data ?? {}) as Record<string, unknown>,
+    me.seat,
+  );
 
   // Nothing to grant. In an open phase every microphone is already live, and
   // handing out a token would make the lobby quieter rather than louder.

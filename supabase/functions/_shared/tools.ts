@@ -135,6 +135,24 @@ export function revoteRequested(uses: ToolUse[], day: number): boolean {
   return used(uses, "revote", day).length > 0;
 }
 
+/**
+ * RL15 — the last word of a player voted out on day [day]: the `last_word` he
+ * used in that day's vote window names a player who speaks first the next day.
+ * Null when nobody was eliminated, or the eliminated seat bought none. The
+ * result is public by design (the table is told); it carries seats only.
+ */
+export function lastWordOf(
+  uses: ToolUse[],
+  day: number,
+  eliminatedSeat: number | null,
+): { seat: number; target: number } | null {
+  if (eliminatedSeat === null) return null;
+  const use = used(uses, "last_word", day).find((u) =>
+    u.seat === eliminatedSeat && Number.isInteger(u.target_seats?.[0])
+  );
+  return use ? { seat: eliminatedSeat, target: use.target_seats[0] } : null;
+}
+
 /** Seats that appealed their elimination on day [day]. */
 export function appealed(uses: ToolUse[], day: number): Set<number> {
   return new Set(used(uses, "appeal", day).map((u) => u.seat));

@@ -10,11 +10,11 @@
     },
     "appOpen": {
       "enabled": true,
-      "resumeAfterSeconds": 14400
+      "resumeAfterSeconds": 900
     },
     "fullScreen": {
-      "maxPerDay": 40,
-      "gapSeconds": 90
+      "maxPerDay": 60,
+      "gapSeconds": 60
     }
   },
   "fun": {
@@ -73,12 +73,12 @@
     "session": true,
     "version": 3,
     "preMatch": true,
-    "maxPerDay": 40,
-    "gapSeconds": 90,
+    "maxPerDay": 60,
+    "gapSeconds": 60,
     "passAndPlay": true,
     "graceMatches": 1,
-    "afterRewardSeconds": 180,
-    "sessionAfterSeconds": 300
+    "afterRewardSeconds": 120,
+    "sessionAfterSeconds": 180
   },
   "purchaseDebt": 0,
   "reviewPrompt": true

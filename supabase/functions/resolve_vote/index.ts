@@ -11,11 +11,13 @@ import { deadlineFor } from "../_shared/phases.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
 import { rosterFingerprint } from "../_shared/roster_fingerprint.ts";
 import { ballotTargetAllowed } from "../_shared/ballot_candidates.ts";
+import { ballotVerdict } from "../_shared/vote_rules.ts";
 import {
   appealCounts,
   appealed,
   appealUpheld,
   graveVoters,
+  lastWordOf,
   loadToolUses,
   revoteRequested,
   toolVoteWeight,
@@ -139,23 +141,29 @@ Deno.serve(handler(async (req, userId, db) => {
       const top = Math.max(...tally.values());
       const tied = [...tally.entries()].filter(([, v]) => v === top).map(([k]) => k)
         .filter((id) => roster.find((p) => p.user_id === id)?.alive);
-      if (tied.length === 1) {
-        eliminatedId = tied[0];
-      } else if (tied.length > 1) {
+      if (tied.length > 1) {
         tiedSeats = tied.map((id) => seatOf.get(id) ?? -1).sort((a, b) => a - b);
-        const rule = me.settings.dayTieRule ?? "noElimination";
-        // Round 1 is the opening ballot; anything above it has already had its
-        // second chance.
-        revote = rule === "revote" && round === 1;
       }
-      // A bought `revote`: a clear winner in round 1 is not final yet. The
-      // same bounded mechanism opens once, narrowed to the seats that drew a
-      // ballot; round 2 never re-triggers it.
-      if (eliminatedId && round === 1 && revoteRequested(toolUses, day)) {
-        tiedSeats = [...tally.keys()].map((id) => seatOf.get(id) ?? -1)
-          .filter((s) => s >= 0).sort((a, b) => a - b);
-        eliminatedId = null;
+      // Round 1 is the opening ballot; anything above it has already had its
+      // second chance. A bought `revote` (RL13) reopens the ballot in round 1
+      // whether it was won clearly or tied, even under «محدش يخرج»; round 2
+      // never re-triggers it.
+      const verdict = ballotVerdict({
+        round,
+        topSeats: tied.length,
+        dayTieRule: me.settings.dayTieRule ?? "noElimination",
+        revoteBought: revoteRequested(toolUses, day),
+      });
+      if (verdict === "eliminate") {
+        eliminatedId = tied[0];
+      } else if (verdict === "revote") {
         revote = true;
+        // Over a clear winner the bought revote narrows the ballot to the
+        // seats that drew a ballot; over a tie it is the tied seats.
+        if (tied.length === 1) {
+          tiedSeats = [...tally.keys()].map((id) => seatOf.get(id) ?? -1)
+            .filter((s) => s >= 0).sort((a, b) => a - b);
+        }
       }
     }
 
@@ -205,6 +213,11 @@ Deno.serve(handler(async (req, userId, db) => {
     if (mafia === 0) outcome = "town";
     else if (mafia >= town) outcome = "mafia";
 
+    // RL15 — the eliminated player's last word, if he bought one: the table is
+    // told (`lastVote.lastWord`) even when this ballot ends the match. A floor
+    // grant exists only if another day can follow.
+    const lastWord = lastWordOf(toolUses, day, eliminatedSeat);
+
     const { data: committed, error } = await db.rpc("commit_resolution", {
       p_room: roomId, p_phase: "vote", p_number: day, p_round: round,
       p_victim: eliminatedId, p_saved_seat: null, p_archive: {},
@@ -219,7 +232,9 @@ Deno.serve(handler(async (req, userId, db) => {
           // and it is why the reveal is never skipped.
           eliminatedRole,
           tiedSeats,
+          ...(lastWord ? { lastWord } : {}),
         },
+        ...(lastWord && !outcome ? { lastWordFloor: { ...lastWord, day } } : {}),
         outcome,
         // The next night starts clean; the archives are not in this list and so
         // survive (see `clearedFor`).
@@ -236,7 +251,13 @@ Deno.serve(handler(async (req, userId, db) => {
 
     if (error) throw error;
     if (committed) {
-      return ok({ eliminatedSeat, eliminatedRole, tally: publicTally, outcome });
+      return ok({
+        eliminatedSeat,
+        eliminatedRole,
+        tally: publicTally,
+        outcome,
+        ...(lastWord ? { lastWord } : {}),
+      });
     }
     if (!(await stillOpen(round))) return fail("PHASE_CLOSED", "ballot already resolved");
   }

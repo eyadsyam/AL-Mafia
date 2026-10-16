@@ -19,6 +19,7 @@ import { buildHistory } from "../_shared/history.ts";
 import { rosterFingerprint } from "../_shared/roster_fingerprint.ts";
 import { selectTrace } from "../_shared/trace.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
+import { mafiaWentQuiet, saveIsTold, survivingSave } from "../_shared/bullets.ts";
 import { halfDoorSeats, loadToolUses, lockedSeats, unsilenceable } from "../_shared/tools.ts";
 import { deriveSeed, SeedSalt, tieBreakIndex } from "../_shared/seed.ts";
 
@@ -143,6 +144,14 @@ Deno.serve(handler(async (req, userId, db) => {
       victimId = null;
     }
 
+    // «الليلة الهادية» (RL1, doc 13 §2.1). A living Mafioso spent the team's one
+    // bullet tonight, so the Mafia kill nobody, whatever the votes said. After
+    // the save check on purpose, as `NightResolver.resolveNight` does: a
+    // Doctor who covered the seat the Mafia had argued about still has the save
+    // in the record.
+    const mafiosoIds = new Set(roster.filter((p) => p.role === "mafia").map((p) => p.user_id));
+    if (mafiaWentQuiet(actions ?? [], mafiosoIds, alive)) victimId = null;
+
     const deaths = new Set<string>();
     if (victimId) deaths.add(victimId);
     for (const a of actions ?? []) {
@@ -157,6 +166,12 @@ Deno.serve(handler(async (req, userId, db) => {
     const deathIds = [...deaths].sort(
       (a, b) => (seatOf.get(a) ?? 0) - (seatOf.get(b) ?? 0),
     );
+    // RL17 — a save is a save only if the covered seat sees the morning: the
+    // Sniper's shot is outside protection and can still take him, and a save
+    // recorded anyway would let T2 announce a survival that did not happen.
+    savedId = survivingSave(savedId, deaths);
+    // RL2 — told only when the room has no quiet night to hide behind.
+    const saveTold = saveIsTold({ savedSeat: savedId, deaths, settings: me.settings });
     const silencedId = (actions ?? []).find((a) =>
       a.action === "silence" && !!a.target_id && alive.has(a.actor_id) && alive.has(a.target_id) &&
       !isLocked(a.target_id) && !isUnsilenceable(a.target_id) && !deaths.has(a.target_id)
@@ -169,7 +184,7 @@ Deno.serve(handler(async (req, userId, db) => {
         night: {
           ...record,
           victim: deathIds[0] ? seatOf.get(deathIds[0]) ?? null : null,
-          saveOccurred: savedId !== null,
+          saveOccurred: saveTold,
           savedSeat: savedId ? seatOf.get(savedId) ?? null : null,
           resolved: true,
         },
@@ -199,7 +214,7 @@ Deno.serve(handler(async (req, userId, db) => {
       victimSeat: deathIds[0] ? seatOf.get(deathIds[0]) ?? null : null,
       victimSeats: deathIds.map((id) => seatOf.get(id) ?? -1).filter((seat) => seat >= 0),
       silencedSeat: silencedId ? seatOf.get(silencedId) ?? null : null,
-      someoneSavedUnnamed: savedId !== null,
+      someoneSavedUnnamed: saveTold,
       trace,
     };
 

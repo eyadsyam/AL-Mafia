@@ -37,40 +37,12 @@ import {
 } from "../_shared/api.ts";
 import { detectiveSees, loadToolUses } from "../_shared/tools.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
-
-/** The once-per-match move each role holds, or null for the two that hold none. */
-type Bullet = "quietNight" | "selfProtect" | "sniperShot";
-function bulletFor(role: string | null): Bullet | null {
-  switch (role) {
-    case "mafia":
-      return "quietNight";
-    case "doctor":
-      return "selfProtect";
-    case "sniper":
-      return "sniperShot";
-    default:
-      return null;
-  }
-}
-
-/**
- * Whether the room turned this bullet on.
- *
- * Read from `rooms.settings`, never from the request — a client that lied about
- * its own settings would be spending a move the rest of the table is not
- * playing with. Absent means on, matching `MatchSettings`' defaults, because a
- * room created by an older client is playing the same game as this one.
- */
-function bulletEnabled(
-  settings: Record<string, unknown>,
-  kind: Bullet,
-): boolean {
-  if (kind === "selfProtect") return true;
-  if (kind === "sniperShot") return settings.sniperEnabled === true;
-  if (settings.bulletsEnabled === false) return false;
-  const key = kind === "quietNight" ? "quietNightEnabled" : "selfProtectEnabled";
-  return settings[key] !== false;
-}
+import { bulletEnabled, bulletFor, loadTeamBulletSpent } from "../_shared/bullets.ts";
+import {
+  investigationVerdict,
+  previousProtectTarget,
+  protectsSameTwice,
+} from "../_shared/night_rules.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId, action, targetSeat, note, actionId, useBullet } = await req
@@ -141,7 +113,16 @@ Deno.serve(handler(async (req, userId, db) => {
     if (priorError) throw priorError;
     alreadySpent = (prior ?? []).length > 0;
   }
-  const spending = wants && available && !alreadySpent;
+
+  // RL1 - the quiet night is the Mafia team's one bullet: once any Mafioso has
+  // spent it, on any night, no other may. Mafioso only (role exactly `mafia`);
+  // the unique index above guards one player, `night_action_team_bullet`
+  // guards the team so two racing requests cannot both win.
+  let teamSpent = false;
+  if (wants && available && !alreadySpent && bullet === "quietNight") {
+    teamSpent = await loadTeamBulletSpent(db, roomId, userId);
+  }
+  const spending = wants && available && !alreadySpent && !teamSpent;
 
   // The self-protection is the *only* reason a night action may name its own
   // actor, and it is narrow on purpose: the Doctor, protecting, with the
@@ -157,6 +138,9 @@ Deno.serve(handler(async (req, userId, db) => {
   }
   if (wants && alreadySpent) {
     return fail("RATE_LIMITED", "you have already used it");
+  }
+  if (wants && teamSpent) {
+    return fail("RATE_LIMITED", "the team already used it");
   }
   if (wants && bullet === "sniperShot" && action !== "suspect") {
     return fail("BAD_REQUEST", "a sniper shot needs a target");
@@ -184,6 +168,41 @@ Deno.serve(handler(async (req, userId, db) => {
     targetId = target.user_id;
   }
 
+  // RL3 - the Doctor may not cover the same player two nights running. The
+  // Doctor's own bullet (covering himself) is exempt, as it is offline.
+  if (action === "protect" && targetId !== null && me.phaseNumber > 1) {
+    const { data: lastNight, error: lastNightError } = await db
+      .from("night_actions")
+      .select("night, actor_id, action, target_id")
+      .eq("room_id", roomId)
+      .eq("actor_id", userId)
+      .eq("night", me.phaseNumber - 1)
+      .eq("action", "protect");
+    if (lastNightError) throw lastNightError;
+    const before = previousProtectTarget(lastNight ?? [], userId, me.phaseNumber);
+    if (protectsSameTwice(before, targetId, selfProtect)) {
+      return fail("BAD_REQUEST", "not the same player two nights running");
+    }
+  }
+
+  // RL5 - one investigation a night. The same target again is the same request
+  // arriving twice and is answered as before; a different one (or giving the
+  // night up after looking) is refused. `night_action_one_investigation` holds
+  // the same line for two requests that race past this read.
+  if (me.role === "detective" && (action === "investigate" || action === "skip")) {
+    const { data: tonight, error: tonightError } = await db
+      .from("night_actions")
+      .select("action, target_id")
+      .eq("room_id", roomId)
+      .eq("night", me.phaseNumber)
+      .eq("actor_id", userId)
+      .maybeSingle();
+    if (tonightError) throw tonightError;
+    if (investigationVerdict(tonight, { action, targetId }) === "refused") {
+      return fail("RATE_LIMITED", "one investigation a night");
+    }
+  }
+
   // N15/O19 — idempotent. The primary key is (room, night, actor), so a retried
   // request overwrites its own row and can never double-act.
   //
@@ -207,6 +226,16 @@ Deno.serve(handler(async (req, userId, db) => {
     // 23505 — the partial unique index. Two requests raced and this one lost.
     if (error.code === "23505") {
       return fail("RATE_LIMITED", "you have already used it");
+    }
+    // `night_action_team_bullet` (RL1): a teammate's request won the team's
+    // one bullet between this caller's read and its write.
+    if (error.message?.includes("BULLET_SPENT")) {
+      return fail("RATE_LIMITED", "the team already used it");
+    }
+    // `night_action_one_investigation` (RL5): the night's investigation was
+    // made by a request that landed first.
+    if (error.message?.includes("ALREADY_INVESTIGATED")) {
+      return fail("RATE_LIMITED", "one investigation a night");
     }
     // The phase guard on the table (migration `action_epoch`): the night was
     // resolved between this caller's read and its write. The move is not

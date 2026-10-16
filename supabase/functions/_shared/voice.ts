@@ -14,6 +14,8 @@
  * lists to prove nothing was left out of either.
  */
 
+import { silencedSeatOf } from "./silence.ts";
+
 export type MicPolicy = "open" | "activeSpeakerOnly" | "muted";
 
 /** Every phase `room_state.phase` may hold. */
@@ -73,6 +75,44 @@ export function micPolicyFor(
     default:
       return "muted";
   }
+}
+
+/** The day phases in which people talk; the silenced seat's mic is closed in all of them. */
+const DAY_TALK_PHASES: readonly string[] = ["opening", "confront", "discuss", "defense"];
+
+/** Mirrors the eligibility and order used by claim_floor_with_tools (RL15). */
+export function spotlightTarget(
+  uses: readonly { id?: number; tool_code: string; phase_number: number; target_seats: number[]; consumed_at?: string | null }[],
+  day: number,
+  livingSeats: ReadonlySet<number>,
+  silencedSeat: number | null,
+): number | null {
+  const first = uses.filter((use) => use.tool_code === "spotlight" &&
+    use.phase_number === day && !use.consumed_at &&
+    livingSeats.has(use.target_seats[0]) && use.target_seats[0] !== silencedSeat)
+    .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))[0];
+  return first?.target_seats[0] ?? null;
+}
+
+/**
+ * What the phase permits *this seat*: `micPolicyFor`, except that the seat the
+ * Silencer silenced for the day (`morning.silencedSeat`) is muted in every day
+ * discussion phase, free discussion included (RL8). In free talk the phase
+ * policy is `open` and the floor is never claimed, so the closed mic has to be
+ * part of the policy itself or the silence would only stop the vote.
+ */
+export function micPolicyForSeat(
+  phase: string,
+  settings: Record<string, unknown>,
+  publicData: Record<string, unknown> | null | undefined,
+  seat: number,
+): MicPolicy {
+  const policy = micPolicyFor(phase, settings);
+  if (policy !== "muted" && DAY_TALK_PHASES.includes(phase) &&
+      silencedSeatOf(publicData) === seat) {
+    return "muted";
+  }
+  return policy;
 }
 
 /**

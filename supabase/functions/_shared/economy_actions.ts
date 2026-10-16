@@ -345,6 +345,8 @@ export const ECONOMY_REFUSALS = [
   "BAD_PACK", "NOT_A_MEMBER", "NOT_PLAYING", "NOT_ALIVE", "ALIVE", "WRONG_PHASE", "BAD_TARGETS",
   "BAD_NOTE", "LIMIT_MATCH", "LIMIT_HEAVY", "LIMIT_TOOL", "LIMIT_PHASE", "NO_CHARGES",
   "STORY_LIMIT",
+  // RL14: extra_minute and objection are refused in a free-discussion room.
+  "NOT_THIS_ROOM",
 ] as const;
 
 export function refusalOf(message: string | undefined): string | null {

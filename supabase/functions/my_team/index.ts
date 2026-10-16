@@ -31,6 +31,7 @@
 
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { isMafiaTeam, MAFIA_TEAM_ROLES } from "../_shared/teams.ts";
+import { loadTeamBulletSpent } from "../_shared/bullets.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId } = await req.json();
@@ -56,5 +57,12 @@ Deno.serve(handler(async (req, userId, db) => {
     .order("seat");
   if (error) throw error;
 
-  return ok({ role: me.role, teammates: (data ?? []).map((p) => p.name) });
+  // RL1: the quiet night is the team's one bullet, so the team has to know
+  // when it is gone. A fact about the team, so it goes to the team only: the
+  // Mafia and the Silencer, never anybody else.
+  return ok({
+    role: me.role,
+    teammates: (data ?? []).map((p) => p.name),
+    teamBulletSpent: await loadTeamBulletSpent(db, roomId),
+  });
 }));

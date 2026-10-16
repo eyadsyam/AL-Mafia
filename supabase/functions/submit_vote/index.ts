@@ -9,6 +9,7 @@ import { asUuid, fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { ballotTargetAllowed } from "../_shared/ballot_candidates.ts";
 import { graveVoters, loadToolUses } from "../_shared/tools.ts";
 import { silencedSeatOf } from "../_shared/silence.ts";
+import { abstentionRefused } from "../_shared/vote_rules.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId, targetSeat, round, actionId } = await req.json();
@@ -37,6 +38,14 @@ Deno.serve(handler(async (req, userId, db) => {
   if (silenceError) throw silenceError;
   if (silencedSeatOf(silenceState?.public_data) === me.seat) {
     return fail("WRONG_ROLE", "a silenced player cannot vote today", 403);
+  }
+
+  // RL9 — abstention follows the room's setting: a null target is a choice only
+  // a room that turned `abstainAllowed` on offers (grave votes included). The
+  // timer default for a seat that said nothing is written by `advance_phase`,
+  // not sent through here.
+  if (abstentionRefused(targetSeat, me.settings)) {
+    return fail("BAD_REQUEST", "abstaining is off in this room");
   }
 
   let targetId: string | null = null;

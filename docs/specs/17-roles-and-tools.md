@@ -938,3 +938,17 @@ The owner handed the calls to Claude for this audit («اتعامل كأنك ا�
 | RL19 | D36 | Whisper bodies for the dead depend on the production flag `witness_whispers_enabled` (off by default). Turning it on is a live change: **owner's word**. |
 | RL20 | R6 / Q1 | Table tools stay online-only: a shared phone has no player identity to charge, and the store card says «جوه الماتش الأونلاين». Revisit for bot matches later. |
 | RL21 | D17, D34, D39, D41 | No change (cosmetic, or both sides equivalent). |
+
+### Server status (local, 2026-10-17)
+
+- RL1: team quiet-night bullet in `submit_night_action`, `resolve_night`, `my_team`, `_shared/bullets.ts`, migration `20261016000200`; tested by `night_rules.test.mjs` and `team_bullet.sql`.
+- RL2 and RL17: save announcement and survival in `resolve_night` and `_shared/bullets.ts`; tested by `night_rules.test.mjs`.
+- RL3: Doctor target and timer default in `submit_night_action`, `advance_phase`, `_shared/night_rules.ts`; tested by `night_rules.test.mjs`.
+- RL5: one investigation in `submit_night_action`, `_shared/night_rules.ts`, migration `20261016000100`; tested by `night_rules.test.mjs` and `one_investigation.sql`.
+- RL8 (server mic policy): `claim_floor` and `_shared/voice.ts`; tested by `voice_policy.test.mjs`. The client must apply the silenced-seat policy in free voice.
+- RL9 and RL13: abstention and bought revote in `submit_vote`, `resolve_vote`, `_shared/vote_rules.ts`; tested by `vote_rules.test.mjs`.
+- RL14 (free-room floor tools): migration `20261016000400`, `_shared/economy_actions.ts`; tested by `floor_tools_free_room.sql` and `vote_rules.test.mjs`.
+- RL15: spotlight and last word in `claim_floor`, `resolve_vote`, `_shared/tools.ts`, `_shared/voice.ts`, migration `20261016000300`; tested by `floor_priority.sql`, `voice_policy.test.mjs`, and `vote_rules.test.mjs`.
+- RL16: strike reward void in migration `20261016000500`; tested by `strike_voids_rewards.sql`.
+
+No server migration or function was deployed by this work.

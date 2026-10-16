@@ -18,7 +18,15 @@ const setup = harness.slice(harness.indexOf('await db.exec(`') + 15, harness.ind
 const db = new PGlite();
 await db.exec(setup);
 for (const f of (await readdir('supabase/migrations')).filter((f) => f.endsWith('.sql')).sort()) {
-  await db.exec(await readFile(`supabase/migrations/${f}`, 'utf8'));
+  // Match the SQL harness: PGlite has no pg_net extension. Its no-op shim is
+  // enough for this schema-only capability audit.
+  const sql = (await readFile(`supabase/migrations/${f}`, 'utf8')).replace(
+    /create extension if not exists pg_net[^;]*;/i,
+    () => `create schema if not exists net;
+      create or replace function net.http_post(url text, body jsonb default null,
+        params jsonb default null, headers jsonb default null, timeout_milliseconds int default null)
+        returns bigint language sql as $$ select 0::bigint $$;`);
+  await db.exec(sql);
 }
 const user = '00000000-0000-4000-8000-00000000c0de';
 await db.exec(`insert into auth.users(id,email) values('${user}','caps@test')`);
