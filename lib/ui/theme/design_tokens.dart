@@ -1364,12 +1364,11 @@ abstract final class ResultTokens {
   static const double heroMin = 200;
   static const double heroZoom = 1.12;
 
-  /// The verdict in Ruqaa.
+  /// The verdict headline.
   static const double verdictSize = 44;
 
-  /// The stamp: size of the border, its tilt, how far it lands from.
+  /// The seal: size of the border, how far it lands from.
   static const double stampBorder = 4;
-  static const double stampTilt = -0.245; // -14 degrees
   static const double stampFrom = 2.4;
   static const double stampTop = 56;
   static const double stampRadius = 8;
