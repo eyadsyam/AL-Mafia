@@ -269,7 +269,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get roleDoctorDescription =>
-      'كل ليلة بتحمي لاعب، ولو انتوا أكتر من دكتور بتحموا واحد بس. حماية نفسك مرة واحدة في الماتش';
+      'كل ليلة بتحمي لاعب، بس مش نفس اللاعب ليلتين ورا بعض. تقدر تحمي نفسك مرة واحدة في الماتش، ولو انتوا أكتر من دكتور بتحموا واحد بس';
 
   @override
   String get roleDetectiveDescription =>
@@ -434,7 +434,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get tieRevoteHeadline => 'تعادل هنصوت تاني';
+  String get tieRevoteHeadline => 'تعادل، هنصوّت تاني';
 
   @override
   String get tieNoEliminationHeadline => 'تعادل ومحدش خرج';
@@ -969,7 +969,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String confrontationC1(String x, String y) {
-    return 'قلت انك شاكك في $x وصوت لـ$y';
+    return 'قلت إنك شاكك في $x، وصوّت لـ$y';
   }
 
   @override
@@ -981,10 +981,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get confrontationC6 => 'انت أقل واحد اتكلم في المباراة ردك؟';
+  String get confrontationC6 => 'انت أقل واحد اتكلم في الماتش. ردك؟';
 
   @override
-  String get confrontationC7 => 'آخر واحد مات كان شاكك فيك ردك؟';
+  String get confrontationC7 => 'آخر واحد مات كان شاكك فيك. ردك؟';
 
   @override
   String confrontationC8(String x) {
@@ -1526,7 +1526,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get witnessTitle => 'الشاهد';
 
   @override
-  String get witnessEliminated => 'خرجت من المباراة';
+  String get witnessEliminated => 'خرجت من الماتش';
 
   @override
   String get witnessSpectating => 'بتتفرج';
@@ -5876,7 +5876,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get rolePowerDetective => 'بيسأل عن واحد كل ليلة';
 
   @override
-  String get rolePowerDoctor => 'بينقذ واحد كل ليلة';
+  String get rolePowerDoctor => 'بيحمي واحد كل ليلة';
 
   @override
   String get rolePowerCitizen => 'الباقي، بيتحسبوا لوحدهم';
