@@ -3869,3 +3869,16 @@ Files:      assets/stories_v2/qahwet_el_moallem.json, lib/stories/v2/{world,tabl
 Verified:   checker 0 problems, every 3-of-5 search path leaves only the culprit for all 10; flutter analyze stories code: no issues; flutter test 200 passed (stories, every size 1–10, leakage, l10n); SQL story_v2_sessions PASS; node contract 1/1.
 Gate:       PASS (local)
 Open:       The owner's edits on the editing page are saved (scratchpad owner_edits_v1) and go into the ARB/story on his «اعتمد»; the editing page and local web preview still show the old pilot; the other 23 stories. All parked until the owner returns to Stories.
+
+## PHASE mafia-identity (audit plan §7, I0–I3) — done locally
+Built:      Every Mafia screen in Home's look (neutral #0F0F0F ground, grey panels, bone text, Cairo headings); the stories' brown, case-file paper, stamps, cork board and Ruqaa live only inside «قصص وتحقيقات» (StoryDeckTokens, StoryPalette, stories/widgets/); result, match file, profile and casebook use DeckPanel / DeckSeal / DeckTabs; the rules screen's primary is bone. Owner: «البرنامج كله بهوية لعبة المافيا و جزء القصص تحسه لعبة تانية».
+Files:      c4000a4, a28e772 (lib/ui/theme/design_tokens.dart, lib/ui/widgets/deck/{deck_paper,deck_rise,deck_public}.dart, lib/ui/widgets/coin_flight.dart, lib/ui/screens/stories/widgets/*, the ten Mafia screens, test/architecture/identity_isolation_test.dart, docs/design/DECK-SYSTEM.md)
+Verified:   full flutter test 2113 passed / 5 skipped; identity guard green; before/after screenshots (build/identity_before, build/identity_after) read side by side. Two dead tests found and fixed on the way (regexes written with backspace bytes: the in-match palette purity check and the council role-name check).
+Gate:       PASS (local)
+Open:       none for the identity; the online match screens stay frozen as agreed.
+
+## PHASE mafia-audit A0–A3 (rule book, rulings, offline engine, copy) — in progress
+Built:      A0: flutter 2113/0, SQL 85/85 after fixing the five stale contracts (a979a6a). A1: docs/specs/17-roles-and-tools.md (every role and tool from code, 41 disagreements, 112 cases) and §12 rulings RL1–RL21 decided by Claude on the owner's word «اتعامل كأنك الرئيس». A2 (offline): F1 dead-and-silenced, F4 tie order, RL2 saves told only without a quiet night, RL6 the Mafia team knows each other at the deal, RL11 one recommended split (a quarter), RL17 no false save, RL18 engine target checks and a safe removal (a28e772, 822be99); online client: every death and the silenced player named, lobby deals only the sold roles the table fits (2311027). A3: tool cards say what each tool does; gameplay copy pass (8536e1d).
+Verified:   flutter test over engine/golden/leakage/integration/unit 558 passed; online 267 passed; rule_matrix_test green; l10n + glyph coverage green.
+Gate:       pending (server half and the full case matrix still running)
+Open:       server rulings (RL1, RL2, RL3, RL5, RL8 mic, RL9, RL13, RL14 refusal, RL15, RL16) in progress locally; nothing deployed (owner: «مترفعش اي حاجه»). RL19: whisper bodies for the dead need the live flag `witness_whispers_enabled` (owner's word).
