@@ -9,6 +9,12 @@ begin
   insert into public.wallet_accounts(user_id,balance,lifetime_earned) values
     (buyer,5000,5000),(fresh,5000,5000);
 
+  -- Store v4 (20261007000700) took bundles, nameplates and room packs off
+  -- sale; owned copies keep working. This contract is for an earlier
+  -- migration's mechanics, so those rows go back on sale inside this
+  -- rolled-back transaction.
+  update public.reward_catalog set active=true
+   where kind in ('bundle','nameplate','presentation_pack');
   -- Five cosmetic categories, three or more items each.
   assert (select count(*) from public.reward_catalog where active and released
     and kind='frame')>=3;

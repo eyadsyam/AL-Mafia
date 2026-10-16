@@ -12,6 +12,12 @@ begin
   update public.coin_packs set price_piastres=5000, active=true where code='coins_500';
   insert into public.wallet_accounts(user_id,balance,lifetime_earned) values(buyer,300,300);
 
+  -- Store v4 (20261007000700) took bundles, nameplates and room packs off
+  -- sale; owned copies keep working. This contract is for an earlier
+  -- migration's mechanics, so those rows go back on sale inside this
+  -- rolled-back transaction.
+  update public.reward_catalog set active=true
+   where kind in ('bundle','nameplate','presentation_pack');
   r:=public.create_coin_order(buyer,'coins_500','instapay'); a:=(r->'order'->>'id')::uuid;
   perform public.claim_coin_order(buyer,a,'TXN-A-1');
   perform public.admin_review_coin_order(admin,a,'approve','T-A1',5000,null);

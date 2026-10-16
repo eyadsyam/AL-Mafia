@@ -9,12 +9,22 @@ begin
   insert into public.wallet_accounts(user_id,balance,lifetime_earned) values
     (buyer,3000,3000),(poor,100,100),(host,1000,1000);
 
+  -- Store v4 (20261007000700) took bundles, nameplates and room packs off
+  -- sale; owned copies keep working. This contract is for an earlier
+  -- migration's mechanics, so those rows go back on sale inside this
+  -- rolled-back transaction.
+  update public.reward_catalog set active=true
+   where kind in ('bundle','nameplate','presentation_pack');
   -- The guide is not for sale; the new catalog is.
   snap:=public.wallet_snapshot(buyer);
   assert not (snap->'catalog') @> '[{"code":"mastermind_guide"}]';
   assert (snap->'catalog') @> '[{"code":"pack_midnight_manor","price":600,"charge":600}]';
-  -- Eleven from this migration, four more from 20260924000700_store_v2_catalog.
-  assert jsonb_array_length(snap->'catalog')=15, (snap->'catalog')::text;
+  -- Eleven from this migration, four more from 20260924000700_store_v2_catalog;
+  -- the three sold roles of store v4 (20261007000700) sit beside them.
+  assert (select count(*) from jsonb_array_elements(snap->'catalog') e
+           where e->>'kind'<>'role')=15, (snap->'catalog')::text;
+  assert (select count(*) from jsonb_array_elements(snap->'catalog') e
+           where e->>'kind'='role')=3, (snap->'catalog')::text;
 
   -- One purchase, charged once, however often it is asked.
   snap:=public.buy_reward_item(buyer,'pack_midnight_manor');

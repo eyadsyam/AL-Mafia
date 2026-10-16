@@ -41,7 +41,8 @@ begin
   update public.room_state set phase='night' where room_id=r;
   insert into public.night_actions(room_id,night,actor_id,action,target_id) values(r,1,b,'protect',c);
   fp := public.night_fingerprint(r,1);
-  if fp <> a::text||'|kill|'||c::text||';'||b::text||'|protect|'||c::text||'#roster:'||public.roster_fingerprint(r) then
+  -- Each move carries its bullet flag (`|0` / `|1`), as resolve_night builds it.
+  if fp <> a::text||'|kill|'||c::text||'|0;'||b::text||'|protect|'||c::text||'|0#roster:'||public.roster_fingerprint(r) then
     raise exception 'fingerprint shape changed: %', fp;
   end if;
   -- a driver that tallied before B acted is refused, and nothing moves

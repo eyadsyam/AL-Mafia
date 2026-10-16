@@ -11,15 +11,25 @@ begin
   insert into auth.users(id) values(a),(b);
   insert into public.wallet_accounts(user_id,balance,lifetime_earned) values(a,10000,10000),(b,500,500);
 
-  -- Every item on sale has a slot (or is a bundle of slotted items).
+  -- Every item on sale has a slot (or is a bundle of slotted items). A sold
+  -- role and a guide are unlocks, not equipment, and carry none (store v4,
+  -- 20261007000700_role_unlocks_store_v4.sql).
   for v_code in select c.code from public.reward_catalog c where c.active and c.released loop
     assert exists(select 1 from public.reward_catalog x where x.code=v_code and
       ((x.kind='bundle' and x.slot is null and cardinality(x.contents)>0 and not exists(
           select 1 from unnest(x.contents) part join public.reward_catalog y on y.code=part
-           where y.slot is null)) or (x.kind<>'bundle' and x.slot is not null))),
+           where y.slot is null))
+       or (x.kind in ('role','guide') and x.slot is null)
+       or (x.kind not in ('bundle','role','guide') and x.slot is not null))),
       'item without an effect slot: '||v_code;
   end loop;
 
+  -- Bundles, nameplates and room packs left the shop in store v4
+  -- (20261007000700); owned copies keep working, so their grant and equip
+  -- paths are still exercised here, on rows switched back on inside this
+  -- rolled-back transaction.
+  update public.reward_catalog set active=true
+   where kind in ('bundle','nameplate','presentation_pack');
   -- Bundle: grants every part, charges once, a second buy changes nothing.
   snap:=public.buy_reward_item(a,'bundle_identity');
   bal:=(snap->>'balance')::bigint;
