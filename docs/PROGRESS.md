@@ -3862,3 +3862,10 @@ Files:      lib/platform/{audio_backend,audio_backend_browser,audio_backend_brow
 Verified:   flutter test 289 (audio) and 112 (stories after the portrait) passed; screenshots re-rendered to build/screens_stories_v2; local offline web release rebuilt into build/web_stories_check and served on localhost for the owner to look at (not deployed).
 Gate:       PASS (local)
 Open:       Live server (story sessions, owner all-access) and a web deploy only on the owner's word. Not run on a phone. The other 23 stories once the owner agrees the plan.
+
+## PHASE stories-v2-format-3 (owner: the pilot was too easy and illogical) — done locally, Stories parked
+Built:      «قهوة المعلم» rewritten by Claude as a hard case (format 3): 5 hand marks, each suspect holds a unique pair, five traces per culprit so any 3 searches leave only him, one red-herring suspicion per suspect; the engine (Sonnet) reads format 3, a search lists what it finds in a seeded order so the culprit's line has no fixed place, motives/methods de-duplicated, Checker V3 enforces the format-3 rules; server rows and SQL tests follow. Owner 2026-10-16 then parked Stories for the Mafia work.
+Files:      assets/stories_v2/qahwet_el_moallem.json, lib/stories/v2/{world,table,world_checker}.dart, supabase/migrations/20261015000200_story_v2_sessions.sql, supabase/tests/story_v2_sessions.{sql,test.mjs}, test/stories/v2/story_v2_engine_test.dart, test/widget/stories_v2_flow_test.dart, test/screenshots/stories_v2_text_dump.dart, docs/plans/STORIES-WORLD-FORMAT.md, docs/stories-v2/qahwet_el_moallem.md, .claude/skills/stories-case-writing/SKILL.md
+Verified:   checker 0 problems, every 3-of-5 search path leaves only the culprit for all 10; flutter analyze stories code: no issues; flutter test 200 passed (stories, every size 1–10, leakage, l10n); SQL story_v2_sessions PASS; node contract 1/1.
+Gate:       PASS (local)
+Open:       The owner's edits on the editing page are saved (scratchpad owner_edits_v1) and go into the ARB/story on his «اعتمد»; the editing page and local web preview still show the old pilot; the other 23 stories. All parked until the owner returns to Stories.

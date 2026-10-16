@@ -20,16 +20,16 @@ revoke all on public.story_v2_suspects from public, anon, authenticated;
 grant select on public.story_v2_suspects to service_role;
 
 insert into public.story_v2_suspects(story_id,suspect_id,motive_id,method_id,partner_id) values
-  ('qahwet_el_moallem','n01','rent_eviction','roach_spray','n02'),
-  ('qahwet_el_moallem','n02','cafe_will','powder_under_tobacco','n01'),
-  ('qahwet_el_moallem','n03','stall_removal','poisoned_mint',null),
-  ('qahwet_el_moallem','n04','watch_damages','brushed_foil',null),
-  ('qahwet_el_moallem','n05','clinic_drugs','syringe_tobacco',null),
-  ('qahwet_el_moallem','n06','wages_firing','poisoned_hose',null),
-  ('qahwet_el_moallem','n07','building_deal','coated_coal',null),
-  ('qahwet_el_moallem','n08','son_fired','swapped_tobacco',null),
-  ('qahwet_el_moallem','n09','accident_witness','radiator_tobacco',null),
-  ('qahwet_el_moallem','n10','association_money','plastic_tip',null)
+  ('qahwet_el_moallem','n01','rent_eviction','sprayed_tobacco',null),
+  ('qahwet_el_moallem','n02','inheritance','sprayed_tobacco',null),
+  ('qahwet_el_moallem','n03','stall_removal','sprayed_tobacco',null),
+  ('qahwet_el_moallem','n04','denied_debt','hose_tip',null),
+  ('qahwet_el_moallem','n05','clinic_drugs','hose_tip',null),
+  ('qahwet_el_moallem','n06','wages_firing','hose_tip',null),
+  ('qahwet_el_moallem','n07','building_deal','hose_tip',null),
+  ('qahwet_el_moallem','n08','son_fired','sprayed_tobacco',null),
+  ('qahwet_el_moallem','n09','trust_receipt','sprayed_tobacco',null),
+  ('qahwet_el_moallem','n10','association_money','hose_tip',null)
 on conflict (story_id, suspect_id) do update set motive_id=excluded.motive_id,
   method_id=excluded.method_id, partner_id=excluded.partner_id;
 

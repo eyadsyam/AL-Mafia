@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -6,34 +7,178 @@ import 'package:mafia_master/stories/v2/table.dart';
 import 'package:mafia_master/stories/v2/world.dart';
 import 'package:mafia_master/stories/v2/world_checker.dart';
 
-final _world = StoryWorld.decode(
-  File('assets/stories_v2/qahwet_el_moallem.json').readAsStringSync(),
-);
+const _worldPath = 'assets/stories_v2/qahwet_el_moallem.json';
+
+final _world = StoryWorld.decode(File(_worldPath).readAsStringSync());
 
 List<String> _players(int n) => [for (var i = 1; i <= n; i++) 'لاعب $i'];
+
+typedef _Json = Map<String, Object?>;
+
+/// The pilot world with [edit] applied to its decoded JSON, to break one rule
+/// at a time (the file itself is never touched).
+StoryWorld _edited(void Function(_Json json) edit) {
+  final json = jsonDecode(File(_worldPath).readAsStringSync()) as _Json;
+  edit(json);
+  return StoryWorld.fromJson(json);
+}
+
+_Json _suspectJson(_Json json, String id) => [
+  for (final s in json['suspects']! as List) s as _Json,
+].firstWhere((s) => s['id'] == id);
+
+_Json _guiltJson(_Json json, String id) =>
+    _suspectJson(json, id)['guilty']! as _Json;
+
+List<_Json> _tracesJson(_Json json, String id) => [
+  for (final t in _guiltJson(json, id)['traces']! as List) t as _Json,
+];
+
+/// The pilot world where n01's guilt comes with n02 as his partner: the
+/// engine still deals partners, the checker refuses them in format 3.
+final _partnered = _edited((json) {
+  final n02 = _guiltJson(json, 'n02');
+  _guiltJson(json, 'n01')['partner'] = {
+    'id': 'n02',
+    'traces': n02['traces'],
+    'reveal': n02['reveal'],
+  };
+});
+
+List<String> _problems(StoryWorld world) =>
+    const StoryWorldChecker().check(world);
 
 void main() {
   group('the pilot world', () {
     test('passes every machine-checkable rule', () {
-      expect(const StoryWorldChecker().check(_world), isEmpty);
+      expect(_problems(_world), isEmpty);
     });
 
-    test('the checker catches a clock time and a trace that misses paths', () {
-      final source = File(
-        'assets/stories_v2/qahwet_el_moallem.json',
-      ).readAsStringSync();
-      final broken = StoryWorld.decode(
-        source
-            .replaceFirst('من ساعة ما وقع', 'الساعة ٨:٤٣')
-            .replaceFirst(
-              '"place": "cafe_floor",\n            "text": "واحد من اللي',
-              '"place": "coal_alley",\n            "text": "واحد من اللي',
-            ),
-      );
-      final problems = const StoryWorldChecker().check(broken);
-      expect(problems.any((p) => p.startsWith('clock time')), isTrue);
+    test('reads format 3 and nothing else', () {
+      expect(_world.marks, hasLength(5));
+      for (final suspect in _world.suspects) {
+        expect(suspect.marks, hasLength(2));
+      }
+      expect(_world.place('cafe_floor').baseTrace, isEmpty);
+      expect(_world.place('coal_yard').baseTrace, isNotEmpty);
       expect(
-        problems.any((p) => p.contains('n01: guilty version needs')),
+        () => _edited((json) => json['format'] = 2),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('the checker catches a clock time', () {
+      final broken = _edited(
+        (json) => _suspectJson(json, 'n01')['hook'] = 'الساعة ٨:٤٣',
+      );
+      expect(_problems(broken).any((p) => p.startsWith('clock time')), isTrue);
+    });
+
+    test('the checker catches two suspects with the same marks', () {
+      final broken = _edited(
+        (json) => _suspectJson(json, 'n02')['marks'] = [
+          ..._suspectJson(json, 'n01')['marks']! as List,
+        ],
+      );
+      final problems = _problems(broken);
+      expect(
+        problems.any((p) => p.contains('n02: has the same marks as n01')),
+        isTrue,
+      );
+      // The same pair then leaves both of them for the detective.
+      expect(
+        problems.any(
+          (p) => p.startsWith('n01: searching') && p.contains('leaves 2 sus'),
+        ),
+        isTrue,
+      );
+    });
+
+    test('the checker catches a trace with a mark its suspect lacks', () {
+      final broken = _edited(
+        (json) => _tracesJson(json, 'n01').first['marks'] = ['flour'],
+      );
+      expect(
+        _problems(broken).any(
+          (p) =>
+              p.startsWith('n01:') &&
+              p.contains('flour') &&
+              p.contains('not on his hands'),
+        ),
+        isTrue,
+      );
+    });
+
+    test('the checker catches a trace text that disagrees with its marks', () {
+      // n01's cafe_floor line names the oil but lists only the coal.
+      final unlisted = _edited(
+        (json) => _tracesJson(json, 'n01').first['marks'] = ['coal'],
+      );
+      expect(
+        _problems(
+          unlisted,
+        ).any((p) => p.contains('names tameya but does not list it')),
+        isTrue,
+      );
+      // n01's shisha_corner line lists the oil but never names it.
+      final unnamed = _edited(
+        (json) => _tracesJson(json, 'n01')[1]['marks'] = ['tameya'],
+      );
+      expect(
+        _problems(
+          unnamed,
+        ).any((p) => p.contains('lists tameya but its text never names it')),
+        isTrue,
+      );
+    });
+
+    test('the checker catches a path that leaves several suspects', () {
+      // Every trace of n01's carries only the coal: any three searches find
+      // one mark, which four suspects hold.
+      final broken = _edited((json) {
+        for (final t in _tracesJson(json, 'n01')) {
+          t['marks'] = ['coal'];
+        }
+      });
+      expect(
+        _problems(broken).any(
+          (p) => p.startsWith('n01: searching') && p.contains('leaves 4 sus'),
+        ),
+        isTrue,
+      );
+    });
+
+    test('the checker catches a mark word inside a suspicion and a card', () {
+      final word = _world.marks.first.words.first;
+      final suspicion = _edited(
+        (json) => (_suspectJson(json, 'n01')['suspicion']! as _Json)['text'] =
+            'في الصفيحة $word.',
+      );
+      expect(
+        _problems(
+          suspicion,
+        ).any((p) => p.startsWith('n01: suspicion names a mark')),
+        isTrue,
+      );
+      final card = _edited(
+        (json) => _suspectJson(json, 'n03')['card'] = 'أنا عزة، $word.',
+      );
+      expect(
+        _problems(card).any((p) => p.startsWith('n03: card names a mark')),
+        isTrue,
+      );
+    });
+
+    test('the checker needs one trace in each place, and no partner', () {
+      final short = _edited(
+        (json) => (_guiltJson(json, 'n01')['traces']! as List).removeLast(),
+      );
+      expect(
+        _problems(short).any((p) => p.startsWith('n01: guilty version needs')),
+        isTrue,
+      );
+      expect(
+        _problems(_partnered).any((p) => p == 'n01: format 3 has no partners'),
         isTrue,
       );
     });
@@ -67,23 +212,36 @@ void main() {
     test(
       'the culprit is always on the table, and played when friends play',
       () {
-        for (var n = 1; n <= 10; n++) {
-          for (var seed = 0; seed < 200; seed++) {
-            final table = StoryTable.deal(
-              world: _world,
-              players: _players(n),
-              seed: seed,
-            );
-            expect(table.suspectIds, contains(table.culpritId));
-            if (table.mode != StoryTableMode.solo) {
-              expect(table.seatOf(table.culpritId), isNotNull);
-            }
-            if (table.partnerId case final partner?) {
-              expect(table.mode, StoryTableMode.detective);
-              expect(table.seatOf(partner), isNotNull);
-              expect(partner, isNot(table.culpritId));
+        for (final world in [_world, _partnered]) {
+          for (var n = 1; n <= 10; n++) {
+            for (var seed = 0; seed < 200; seed++) {
+              final table = StoryTable.deal(
+                world: world,
+                players: _players(n),
+                seed: seed,
+              );
+              expect(table.suspectIds, contains(table.culpritId));
+              if (table.mode != StoryTableMode.solo) {
+                expect(table.seatOf(table.culpritId), isNotNull);
+              }
+              if (table.partnerId case final partner?) {
+                expect(table.mode, StoryTableMode.detective);
+                expect(table.seatOf(partner), isNotNull);
+                expect(partner, isNot(table.culpritId));
+              }
             }
           }
+        }
+        // The real world has no partners, whatever the table.
+        for (var seed = 0; seed < 200; seed++) {
+          expect(
+            StoryTable.deal(
+              world: _world,
+              players: _players(8),
+              seed: seed,
+            ).partnerId,
+            isNull,
+          );
         }
       },
     );
@@ -151,7 +309,67 @@ void main() {
   });
 
   group('what the table finds', () {
-    test('any three searches meet the culprit, in every version', () {
+    test('a search lists the base trace first, then each seated line', () {
+      for (var n = 2; n <= 10; n++) {
+        for (var seed = 0; seed < 40; seed++) {
+          final table = StoryTable.deal(
+            world: _world,
+            players: _players(n),
+            seed: seed,
+          );
+          final guilt = _world.suspect(table.culpritId).guilty;
+          for (final place in _world.places) {
+            final found = table.tracesAt(place.id);
+            expect(found, isNot(contains('')));
+            if (place.baseTrace.isNotEmpty) {
+              expect(found.first, place.baseTrace);
+            }
+            final expected = [
+              if (place.baseTrace.isNotEmpty) place.baseTrace,
+              for (final id in table.suspectIds)
+                if (_world.suspect(id).suspicion.placeId == place.id)
+                  _world.suspect(id).suspicion.text,
+              for (final t in guilt.traces)
+                if (t.placeId == place.id) t.text,
+            ];
+            expect(found..sort(), expected..sort(), reason: place.id);
+          }
+        }
+      }
+    });
+
+    test('the order is fixed by the table, and the culprit is not first', () {
+      final table = StoryTable.deal(
+        world: _world,
+        players: _players(10),
+        seed: 7,
+      );
+      for (final place in _world.places) {
+        expect(table.tracesAt(place.id), table.tracesAt(place.id));
+      }
+      final positions = <String, Set<int>>{};
+      for (var seed = 0; seed < 300; seed++) {
+        final dealt = StoryTable.deal(
+          world: _world,
+          players: _players(10),
+          seed: seed,
+        );
+        for (final t in _world.suspect(dealt.culpritId).guilty.traces) {
+          final lines = dealt.tracesAt(t.placeId);
+          final skipped = _world.place(t.placeId).baseTrace.isEmpty ? 0 : 1;
+          (positions[t.placeId] ??= {}).add(lines.indexOf(t.text) - skipped);
+        }
+      }
+      for (final place in _world.places) {
+        expect(
+          positions[place.id]!.length,
+          greaterThan(1),
+          reason: '${place.id}: the culprit line sat at ${positions[place.id]}',
+        );
+      }
+    });
+
+    test('any three searches show the culprit marks, and only his', () {
       final places = [for (final p in _world.places) p.id];
       for (var n = 1; n <= 10; n++) {
         for (var seed = 0; seed < 60; seed++) {
@@ -160,10 +378,7 @@ void main() {
             players: _players(n),
             seed: seed,
           );
-          final guilt = {
-            for (final t in _world.suspect(table.culpritId).guilty.traces)
-              t.text,
-          };
+          final culprit = _world.suspect(table.culpritId);
           for (var a = 0; a < 5; a++) {
             for (var b = a + 1; b < 5; b++) {
               for (var c = b + 1; c < 5; c++) {
@@ -171,7 +386,20 @@ void main() {
                   for (final p in [places[a], places[b], places[c]])
                     ...table.tracesAt(p),
                 ];
-                expect(found.any(guilt.contains), isTrue);
+                // What a player can read off the lines: the marks they name.
+                final named = {
+                  for (final m in _world.marks)
+                    if (m.words.any((w) => found.any((l) => l.contains(w))))
+                      m.id,
+                };
+                expect(named, culprit.marks.toSet());
+                expect(
+                  [
+                    for (final s in _world.suspects)
+                      if (s.marks.toSet().containsAll(named)) s.id,
+                  ],
+                  [culprit.id],
+                );
               }
             }
           }
@@ -179,23 +407,42 @@ void main() {
       }
     });
 
-    test('alibis appear only for seated innocents; facts name only them', () {
-      final table = StoryTable.deal(
-        world: _world,
-        players: _players(5),
-        seed: 9,
-      );
-      final all = [for (final p in _world.places) ...table.tracesAt(p.id)];
-      for (final s in _world.suspects) {
-        final present = all.contains(s.innocentTrace.text);
-        expect(
-          present,
-          table.suspectIds.contains(s.id) && !table.isGuilty(s.id),
+    test('what is found against a suspect appears whenever he is seated', () {
+      for (var seed = 0; seed < 40; seed++) {
+        final table = StoryTable.deal(
+          world: _world,
+          players: _players(5),
+          seed: seed,
         );
-        expect(
-          table.caseFacts.contains(s.hook),
-          table.suspectIds.contains(s.id),
-        );
+        final all = [for (final p in _world.places) ...table.tracesAt(p.id)];
+        for (final s in _world.suspects) {
+          final seated = table.suspectIds.contains(s.id);
+          expect(all.contains(s.suspicion.text), seated, reason: s.id);
+          expect(table.caseFacts.contains(s.hook), seated, reason: s.id);
+        }
+        // Guilty or not, the culprit's own suspicion is there too.
+        expect(all, contains(_world.suspect(table.culpritId).suspicion.text));
+      }
+    });
+
+    test('the why and how choices list each id once', () {
+      for (var n = 1; n <= 10; n++) {
+        for (var seed = 0; seed < 50; seed++) {
+          final table = StoryTable.deal(
+            world: _world,
+            players: _players(n),
+            seed: seed,
+          );
+          final guilt = _world.suspect(table.culpritId).guilty;
+          final motives = [for (final m in table.motives(seed)) m.id];
+          final methods = [for (final m in table.methods(seed)) m.id];
+          expect(motives.toSet(), hasLength(motives.length));
+          expect(methods.toSet(), hasLength(methods.length));
+          expect(motives, contains(guilt.motive.id));
+          expect(methods, contains(guilt.method.id));
+          // The world has two method ids, so four suspects must collapse.
+          expect(methods.length, lessThanOrEqualTo(2));
+        }
       }
     });
   });
@@ -320,25 +567,37 @@ void main() {
     });
 
     test('a server pick deals around its culprit and partner', () {
-      for (var players = 1; players <= 10; players++) {
-        for (final suspect in _world.suspects) {
-          for (var seed = 0; seed < 6; seed++) {
-            final partner = suspect.guilty.partner?.partnerId;
-            final withPartner = players >= 5 && partner != null && seed.isOdd;
-            final table = StoryTable.deal(
-              world: _world,
-              players: _players(players),
-              seed: seed,
-              pick: StoryCulpritPick(
-                culpritId: suspect.id,
-                partnerId: withPartner ? partner : null,
-              ),
-            );
-            expect(table.culpritId, suspect.id);
-            expect(table.suspectIds, contains(suspect.id));
-            expect(table.partnerId, withPartner ? partner : isNull);
-            if (withPartner) expect(table.suspectIds, contains(partner));
-            expect(table.suspectIds.toSet().length, table.suspectIds.length);
+      for (final world in [_world, _partnered]) {
+        for (var players = 1; players <= 10; players++) {
+          for (final suspect in world.suspects) {
+            for (var seed = 0; seed < 6; seed++) {
+              final partner = suspect.guilty.partner?.partnerId;
+              final withPartner = players >= 5 && partner != null && seed.isOdd;
+              final table = StoryTable.deal(
+                world: world,
+                players: _players(players),
+                seed: seed,
+                pick: StoryCulpritPick(
+                  culpritId: suspect.id,
+                  partnerId: withPartner ? partner : null,
+                ),
+              );
+              expect(table.culpritId, suspect.id);
+              expect(table.suspectIds, contains(suspect.id));
+              expect(table.partnerId, withPartner ? partner : isNull);
+              if (withPartner) {
+                expect(table.suspectIds, contains(partner));
+                // The partner's own lines are found beside the culprit's.
+                final partnerLines = {
+                  for (final t in suspect.guilty.partner!.traces) t.text,
+                };
+                final found = [
+                  for (final p in world.places) ...table.tracesAt(p.id),
+                ];
+                expect(found.where(partnerLines.contains), isNotEmpty);
+              }
+              expect(table.suspectIds.toSet().length, table.suspectIds.length);
+            }
           }
         }
       }
@@ -351,9 +610,19 @@ void main() {
         ),
         throwsArgumentError,
       );
+      // n01 has no partner in the real world, so naming one is refused.
       expect(
         () => StoryTable.deal(
           world: _world,
+          players: _players(7),
+          seed: 1,
+          pick: const StoryCulpritPick(culpritId: 'n01', partnerId: 'n02'),
+        ),
+        throwsArgumentError,
+      );
+      expect(
+        () => StoryTable.deal(
+          world: _partnered,
           players: _players(3),
           seed: 1,
           pick: const StoryCulpritPick(culpritId: 'n01', partnerId: 'n02'),

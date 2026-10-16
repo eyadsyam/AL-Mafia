@@ -53,6 +53,7 @@ class StoryTable {
     required this.suspectIds,
     required this.culpritId,
     required this.partnerId,
+    required this.seed,
   });
 
   static const soloSuspects = 4;
@@ -68,6 +69,10 @@ class StoryTable {
   final List<String> suspectIds;
   final String culpritId;
   final String? partnerId;
+
+  /// The seed this table was dealt from; the order of what a search finds
+  /// follows it.
+  final int seed;
 
   /// Deals a version. The same world, players and seed always deal the same
   /// table; [recentCulprits] (this phone's last culprits for this story) are
@@ -162,6 +167,7 @@ class StoryTable {
       suspectIds: List.unmodifiable(seated),
       culpritId: culprit,
       partnerId: partner,
+      seed: seed,
     );
   }
 
@@ -192,24 +198,38 @@ class StoryTable {
     for (final id in suspectIds) world.suspect(id).hook,
   ];
 
-  /// Everything a search of [placeId] shows in this version.
+  /// Everything a search of [placeId] shows in this version: the place's own
+  /// line when it has one, then, in an order fixed by this table's seed and
+  /// the place, what is found against every seated suspect there and the
+  /// culprit's own trace (and his partner's). The culprit's line has no fixed
+  /// position, and nothing marks it.
   List<String> tracesAt(String placeId) {
-    final found = [world.place(placeId).baseTrace];
-    for (final id in suspectIds) {
-      if (isGuilty(id)) continue;
-      final trace = world.suspect(id).innocentTrace;
-      if (trace.placeId == placeId) found.add(trace.text);
-    }
+    final place = world.place(placeId);
+    final lines = <String>[
+      for (final id in suspectIds)
+        if (world.suspect(id).suspicion.placeId == placeId)
+          world.suspect(id).suspicion.text,
+    ];
     final guilt = world.suspect(culpritId).guilty;
-    for (final trace in guilt.traces) {
-      if (trace.placeId == placeId) found.add(trace.text);
+    for (final trace in [
+      ...guilt.traces,
+      if (partnerId != null) ...guilt.partner!.traces,
+    ]) {
+      if (trace.placeId == placeId) lines.add(trace.text);
     }
-    if (partnerId != null) {
-      for (final trace in guilt.partner!.traces) {
-        if (trace.placeId == placeId) found.add(trace.text);
-      }
+    lines.shuffle(Random(_orderSeed(placeId)));
+    return [if (place.baseTrace.isNotEmpty) place.baseTrace, ...lines];
+  }
+
+  /// A seed for one place's order, from the table's seed and the place id's
+  /// code units: [String.hashCode] is not stable across platforms. Every
+  /// product stays below 2^53, so the web build computes the same number.
+  int _orderSeed(String placeId) {
+    var hash = 17;
+    for (final unit in placeId.codeUnits) {
+      hash = (hash * 31 + unit) & 0x7fffffff;
     }
-    return found;
+    return (seed & 0x7fffffff) ^ hash;
   }
 
   /// The truth of this version, shown on screen after the decision.
@@ -219,14 +239,26 @@ class StoryTable {
   }
 
   /// Solo's why and how choices: the guilty modules of the suspects on the
-  /// table, in a seeded order so the right one is not always first.
-  List<WorldLabel> motives(int seed) => _shuffled([
-    for (final id in suspectIds) world.suspect(id).guilty.motive,
-  ], seed);
+  /// table, one choice per id (suspects share methods), in a seeded order so
+  /// the right one is not always first.
+  List<WorldLabel> motives(int seed) => _shuffled(
+    _distinct([for (final id in suspectIds) world.suspect(id).guilty.motive]),
+    seed,
+  );
 
-  List<WorldLabel> methods(int seed) => _shuffled([
-    for (final id in suspectIds) world.suspect(id).guilty.method,
-  ], seed + 1);
+  List<WorldLabel> methods(int seed) => _shuffled(
+    _distinct([for (final id in suspectIds) world.suspect(id).guilty.method]),
+    seed + 1,
+  );
+
+  /// The first label of each id, in order.
+  static List<WorldLabel> _distinct(List<WorldLabel> labels) {
+    final seen = <String>{};
+    return [
+      for (final label in labels)
+        if (seen.add(label.id)) label,
+    ];
+  }
 
   static List<T> _shuffled<T>(List<T> items, int seed) =>
       List<T>.of(items)..shuffle(Random(seed));

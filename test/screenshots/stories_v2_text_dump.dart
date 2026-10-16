@@ -290,8 +290,13 @@ class _Leaf {
   /// identifier.
   bool get isText => !_notText.contains(key) && !_technical.hasMatch(value);
 
-  /// Prose the owner may still want to edit when no screen showed it.
-  bool get isEditable => isText && key != 'category';
+  /// Prose the owner may still want to edit when no screen showed it. The
+  /// world's `marks` (their names and matching words) are never shown, so
+  /// they are not offered for editing here.
+  bool get isEditable =>
+      isText &&
+      key != 'category' &&
+      (segments.isEmpty || segments[0] != 'marks');
 }
 
 List<_Leaf> _leaves(Object? node) {

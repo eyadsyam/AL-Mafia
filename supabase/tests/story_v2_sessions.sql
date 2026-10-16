@@ -1,13 +1,15 @@
 begin;
 do $$
 declare u uuid:=gen_random_uuid(); other uuid:=gen_random_uuid(); fresh uuid:=gen_random_uuid();
-  deal jsonb; s uuid;
+  deal jsonb; s uuid; pu uuid; seen_partner boolean:=false; seen_alone boolean:=false;
   truth public.story_v2_suspects; picks text[]:='{}'; i int; failed boolean;
   coins int:=(select coins from public.story_rewards where story_id='qahwet_el_moallem');
 begin
   insert into auth.users(id) values(u),(other),(fresh);
   assert (select count(*) from public.story_v2_suspects where story_id='qahwet_el_moallem')=10,
     'the pilot seeds ten suspects';
+  assert not exists(select 1 from public.story_v2_suspects where story_id='qahwet_el_moallem'
+    and partner_id is not null),'format 3 worlds have no partners';
 
   -- Refusals: unknown story, bad table size, an oversized avoid list.
   failed:=false;
@@ -37,9 +39,36 @@ begin
   deal:=public.start_story_session(fresh,'qahwet_el_moallem',5,
     array['n03','n04','n05','n06','n07','n08','n09','n10']);
   assert deal->>'culprit' in ('n01','n02'),'the phone''s avoided culprits are skipped too';
-  assert deal->>'partner' is null or deal->>'partner'=
-    (select partner_id from public.story_v2_suspects where story_id='qahwet_el_moallem'
-      and suspect_id=deal->>'culprit'),'a partner is the culprit''s own';
+  assert deal->>'partner' is null,'the pilot seeds no partner to deal';
+
+  -- Partners, on rows this test seeds itself: a partner is dealt only at five
+  -- players or more, is always the culprit's own, and is not always dealt.
+  insert into public.story_rewards(story_id,coins,xp) values('partner_test_story',60,40);
+  insert into public.story_v2_suspects(story_id,suspect_id,motive_id,method_id,partner_id) values
+    ('partner_test_story','p01','motive_one','method_one','p02'),
+    ('partner_test_story','p02','motive_two','method_one','p01'),
+    ('partner_test_story','p03','motive_three','method_two',null);
+  for i in 1..40 loop
+    pu:=gen_random_uuid();
+    insert into auth.users(id) values(pu);
+    deal:=public.start_story_session(pu,'partner_test_story',4,array['p03']);
+    assert deal->>'culprit' in ('p01','p02'),'the avoided culprit is skipped';
+    assert deal->>'partner' is null,'no partner under five players';
+    pu:=gen_random_uuid();
+    insert into auth.users(id) values(pu);
+    deal:=public.start_story_session(pu,'partner_test_story',6,array['p03']);
+    assert deal->>'culprit' in ('p01','p02'),'the avoided culprit is skipped at six';
+    assert deal->>'partner' is null or deal->>'partner'=
+      (select partner_id from public.story_v2_suspects where story_id='partner_test_story'
+        and suspect_id=deal->>'culprit'),'a partner is the culprit''s own';
+    seen_partner:=seen_partner or deal->>'partner' is not null;
+    seen_alone:=seen_alone or deal->>'partner' is null;
+    pu:=gen_random_uuid();
+    insert into auth.users(id) values(pu);
+    deal:=public.start_story_session(pu,'partner_test_story',8,array['p01','p02']);
+    assert deal->>'culprit'='p03' and deal->>'partner' is null,'a culprit without a partner deals none';
+  end loop;
+  assert seen_partner and seen_alone,'a 5–10 table plays the partner some of the time';
   deal:=public.start_story_session(u,'qahwet_el_moallem',2,
     array['n01','n02','n03','n04','n05','n06','n07','n08','n09','n10']);
   assert deal->>'culprit' is not null,'everyone avoided still deals someone';

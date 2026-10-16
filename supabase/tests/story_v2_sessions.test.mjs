@@ -37,9 +37,9 @@ assert.deepEqual(
 );
 assert.deepEqual(
   economyCall({ action: 'storyClaim', sessionId: session, who: 'n02',
-    why: 'cafe_will', how: 'powder_under_tobacco' }, user).args,
+    why: 'inheritance', how: 'sprayed_tobacco' }, user).args,
   { p_user: user, p_session: session.toLowerCase(), p_who: 'n02',
-    p_why: 'cafe_will', p_how: 'powder_under_tobacco' },
+    p_why: 'inheritance', p_how: 'sprayed_tobacco' },
 );
 for (const bad of [
   { sessionId: 'not-a-uuid', who: 'n02' },

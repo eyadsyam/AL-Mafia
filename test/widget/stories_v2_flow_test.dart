@@ -286,6 +286,35 @@ void main() {
     expect(find.text(arStrings.sv2Agree), findsOneWidget);
   });
 
+  testWidgets('a search shows every line of the place and no blank paper', (
+    tester,
+  ) async {
+    _phone(tester);
+    final table = StoryTable.deal(world: _world, players: const [''], seed: 7);
+    await tester.pumpWidget(_table(table));
+    await tester.pumpAndSettle();
+    // cafe_floor has no base trace of its own; coal_yard has one.
+    expect(_world.place('cafe_floor').baseTrace, isEmpty);
+    expect(_world.place('coal_yard').baseTrace, isNotEmpty);
+    for (final id in ['cafe_floor', 'coal_yard']) {
+      final before = find.byType(LampPaper).evaluate().length;
+      await _tap(tester, StoryTableScreen.placeKey(id));
+      final lines = table.tracesAt(id);
+      expect(lines, isNotEmpty);
+      for (final line in lines) {
+        expect(find.text(line), findsOneWidget, reason: id);
+      }
+      expect(
+        find.byType(LampPaper).evaluate().length - before,
+        lines.length,
+        reason: '$id: one paper per line',
+      );
+      expect(find.text(''), findsNothing);
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+    }
+  });
+
   testWidgets('solo: three searches, one bought with an ad, then who/why/how', (
     tester,
   ) async {

@@ -1,67 +1,60 @@
 ---
 name: stories-case-writing
-description: Write or rewrite a «قصص وتحقيقات» case for Mafia Master — the world, the suspects' public cards, the innocent and guilty modules, traces and reveal — in natural Egyptian Arabic that is read aloud at a table. Use for any story text in assets/stories, the pilot «قهوة المعلم», or a review of case writing. Enforces the owner's rules (no minutes or seconds, everyone suspects everyone, every person is a character of the story) and fair play.
+description: Write or rewrite a «قصص وتحقيقات» case for Mafia Master — the world, the suspects' public cards, their marks, the red herrings, the guilty traces and the reveal — in plain Egyptian Arabic read aloud at a table. Use for any story text in assets/stories_v2, the pilot «قهوة المعلم», or a review of case writing. Enforces the owner's rules (hard but always solvable, logical, nothing decorative, no tips, no minutes or seconds) and the format-3 logic.
 ---
 
 # Writing a «قصص وتحقيقات» case
 
-The design lives in `docs/plans/STORIES-V2-PLAN.md` (§2–§4). This skill is how the words get written.
-The reader is a group of Egyptian friends at a café table, most of them playing for the first time, reading cards **aloud** to each other. Write for the ear.
+The contract is `docs/plans/STORIES-WORLD-FORMAT.md` (format 3); the design is `docs/plans/STORIES-V2-PLAN.md`. This skill is how a case gets built and worded. The reference case is `assets/stories_v2/qahwet_el_moallem.json`.
+The reader is a group of Egyptian friends at a café table, many playing for the first time, reading cards **aloud**. We are investigating and suspecting each other; we are not telling a tale.
 
-## The owner's rules (2026-10-15) — non-negotiable
+## The owner's rules — non-negotiable
 
-1. **No clock times, no minutes, no seconds.** Never «٨:٤٣», «٧٤ ثانية», «بعد ٣ دقايق». People talking at a table say:
-   «من فترة» · «امبارح» · «امبارح بالليل» · «النهارده الصبح» · «قبلها بساعة» · «قبلها بشوية» · «ساعتها» · «بعدها على طول».
-2. **Everyone suspects everyone from the first minute.** The opening gives each seated suspect one suspicious fact («امبارح منير اتخانق مع المعلم على الإيجار»، «رضا كان شايل له فلوس»).
-3. **Every person is a character of the story.** The detective too (an in-story officer, neighbour or relative). No outsider, nobody from nowhere.
-4. **Private = only «بريء» or not** (and the partner's name). Everything else on a card is said out loud, so write it to be said out loud.
-5. **No riddles.** If a sentence needs a second read, rewrite it. The old «برنامج الثمانية ونص باين في انعكاس المراية» is the example of what never ships.
-6. The narrator's opening text may stay as it is; everything after it is rewritten.
+From 2026-10-15:
+1. **No clock times, minutes or seconds.** Say «النهارده»، «امبارح»، «قبلها بشوية»، «ساعتها».
+2. **Everyone suspects everyone.** Every seated suspect has a real motive (his hook) and a clue found against him (his suspicion).
+3. **Every person is a character of the story,** the detective too. No outsiders. Never name a character who may not be seated in a card, a hook or a suspicion.
+4. **Plain words** a first-timer at a café understands («ركن الشيش», never «الكونتر»).
+5. **The app never marks or ranks anyone.** With friends the decision is **who** only; solo adds why and how.
 
-## What you write for one story (a "world")
+From 2026-10-16 (after he played the pilot):
+6. **Hard.** No single clue may give the answer. The old pilot was easy because every clue that pointed at someone pointed at the killer; that design is dead.
+7. **Logical and real.** Every motive, method and event is something that really happens in an Egyptian alley. Ask of every sentence: could this physically happen, and would a person really do it this way? («مية القهوة نزلت على محلي» failed this; so did a contractor buying a café to enlarge a building.)
+8. **Nothing decorative.** Every sentence either gives a motive, a mark, a red herring or a trace. A detail that doesn't change who did it is cut (the taxi parked outside was cut).
+9. **No tips or advice lines** anywhere («قول اللي في كارتك»، «متخليش المحقق يوصلك»). They read as AI.
+10. **No everyday activity as a moment in time** («قبل الدومنة»، «بعد الدومنة»). Dominoes is just something people play.
+11. **Short and direct:** a card is 2–3 short sentences; a trace is one sentence.
+12. **Clues that point at someone who turns out innocent** are wanted: they are the suspicions.
 
-| Piece | Rules |
-|---|---|
-| Victim | name + one-line tag («المعلم صابر، صاحب القهوة») |
-| Places (4–5) | one line each, concrete and visual («حوش الفحم: ممر ضيق ورا القهوة، أرضه سودا من التراب») |
-| Detective (in-story) | name, tag, one-line reason he is there, public goal |
-| 10 suspects — public card | who, relation to the victim, a **public goal**, a **suspicion hook** true in every version. ≤ 3 short sentences, sayable in one breath each |
-| Innocent module (per suspect) | his account (true), one clearing trace placed in a place |
-| Guilty module (per suspect) | motive, method, his account (a lie that sounds like the innocent one), 2+ exposing traces in different places, a reveal paragraph (narrated) |
-| Base facts | events true in every version (the fight, the debt, who opened the shop) |
+## How a hard case works (format 3)
 
-Structured facts sit beside the prose: `at(who, place, period)`, `has(who, item)`, `saw(a, b, place, period)`. Prose and facts must say the same thing; the checker reads the facts, people read the prose.
-
-## Fair play (from `genre-craft` → `references/mystery-fair-play.md`)
-
-- Every fact the detective needs is on a card or a trace before he decides.
-- Motive, means and opportunity of the culprit each trace to a separate planted fact.
-- Every red herring is plausible, belongs where it appears, and is **cleared for a reason that teaches something true**.
-- The culprit's account contradicts at least one trace. The contradiction is findable by a first-timer.
-- No trace names the culprit outright. Traces show what was seen, left or found; people connect them.
+- **The method is the same kind for everyone** (one poison, one way in), so the question is **who**, not a gadget per suspect. Solo's «how» picks between 2–3 realistic variants.
+- **Marks.** Choose 5 places in the story's world (not search places) that leave something visible on a person's hands: coal, cement dust, flour from the bakery, sawdust from the carpenter, ta'meya oil. Each suspect went to exactly **2** of them tonight, for a reason his card states in plain words («جبت عيش من الفرن»), and **no two suspects share the same pair** (10 pairs of 5 = 10 suspects; each mark is held by 4).
+- **Cards never name a mark word** (they say «الفرن», never «دقيق»). The table has to make the jump from «دقيق» on the evidence to «who went to the bakery».
+- **Guilty traces:** 5 per culprit, one in each search place, on objects only the poisoner touched (under the foil, inside the mouthpiece, the tissue he wiped his hand on, the cap, the empty bottle). Pattern: mark A twice, mark B twice, A+B once, with the A+B trace in a different place for different culprits. Then **any 3 searches find both marks, and only the culprit has both** (the checker proves it for every path). Never put a mark where it is natural anyway (coal in the coal yard, cement on the pavement by the building site).
+- **Suspicions (red herrings):** one per suspect, true in every version, shown whenever he is seated, guilty or not. They point at a person and look bad (a torn rent receipt, a pesticide bottle in the flower box, syringes in the nurse's bag) but carry **no mark words** and are not the poison. Some are cleared by a fact on the table (the poison is liquid roach spray; the bottle in her box says «للزرع»).
+- **Base traces** only where they mislead or explain something real («باب الحوش اللي ورا كان مفتوح»); otherwise empty.
+- **The killer may lie aloud** at 5–10. Cards are always true.
 
 ## Egyptian Arabic, out loud
 
 - Natural Cairene, short sentences, one fact each. Follow `arabic-natural-writing`.
-- Few ق-words; spell ق normally (the voice engine handles it). No Latin letters. English words, if unavoidable, in Arabic letters.
-- No AI tells: no «مش X… ده Y» reveals, no «لا X ولا Y ولا Z» lists, no self-answered questions, no three-adjective stacks, no closing moral. Run `humanizer` and `sepia-review` on every draft.
-- Names in traces are always cast names, spelled exactly as on the cards.
-- A card read aloud takes under 20 seconds.
+- No Latin letters. Names spelled exactly as on the cards.
+- No AI tells: no «مش X… ده Y», no stacked lists, no self-answered questions, no closing moral. Run `humanizer` on every draft.
 
 ## Process
 
-1. Plan the world with `story-planning` and `plot-structure`: base facts, the 10 suspects, why each could have done it.
-2. Draft cards and modules with `creative-writing-craft` / `sepia-write`; voices per character with `voice-style` (a butcher does not talk like a teacher).
-3. Self-review: `sepia-review`, `humanizer`, then a read-aloud pass (`line-editing`).
-4. Reader test: `reader-sim` as «شاب مصري أول مرة يلعب، قاعد على قهوة» — report where he got lost.
-5. Run the checker and linter (`dart run tool/stories/check.dart`); fix until green for every table size.
-6. The owner reads the pilot before any other story is written.
+1. Build the logic first, in a table: 10 suspects × (motive, 2 marks with their plain reasons, suspicion). Check pairs are unique and each mark has 4 holders.
+2. Write each culprit's 5 traces and reveal (≤ 6 sentences: motive, the act, where he threw what).
+3. Run the format-3 checker (and the scratch check that every 3-place path leaves exactly one suspect). Fix until green.
+4. Read every card against all ten reveals: true in every version?
+5. Read-aloud pass; cut every sentence that doesn't change who did it.
+6. The owner reads and edits it on the editing page; his wording wins and becomes the reference for the next story.
 
 ## Self-check before handing in
 
-- [ ] Zero digits next to دقيقة / ثانية / ساعة, zero «:» times.
-- [ ] Every seated suspect has a suspicion hook in the opening.
-- [ ] Every name in every text is on a card.
-- [ ] Each card read aloud < 20 s; each trace ≤ 2 sentences.
-- [ ] Each guilty account has a findable contradiction; each herring is cleared.
-- [ ] No sentence needs a second read.
+- [ ] No single trace or suspicion names the killer; every path of 3 searches is solvable and leaves one person.
+- [ ] Every motive and action is something that really happens; nothing physically odd.
+- [ ] No decorative sentence, no tip, no minutes or seconds, no activity used as a clock.
+- [ ] Cards: 2–3 short sentences, both marks' places stated plainly, no mark words.
+- [ ] Every suspicion points at its owner, is true in every version, has no mark words.

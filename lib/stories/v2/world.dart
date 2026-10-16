@@ -12,6 +12,7 @@ class StoryWorld {
     required this.opening,
     required this.openingAudio,
     required this.detective,
+    required this.marks,
     required this.places,
     required this.baseFacts,
     required this.suspects,
@@ -27,6 +28,9 @@ class StoryWorld {
   final String opening;
   final String? openingAudio;
   final WorldPerson detective;
+
+  /// What can stick to a person's hands tonight; every suspect carries two.
+  final List<WorldMark> marks;
   final List<WorldPlace> places;
   final List<String> baseFacts;
   final List<WorldSuspect> suspects;
@@ -34,12 +38,17 @@ class StoryWorld {
   WorldSuspect suspect(String id) => suspects.firstWhere((s) => s.id == id);
   WorldPlace place(String id) => places.firstWhere((p) => p.id == id);
 
+  /// The only world format the engine reads (docs/plans/STORIES-WORLD-FORMAT.md).
+  static const formatVersion = 3;
+
   static StoryWorld decode(String source) =>
       StoryWorld.fromJson(_map(jsonDecode(source), 'world'));
 
   factory StoryWorld.fromJson(Map<String, Object?> json) {
-    if (json['format'] != 2) {
-      throw const FormatException('not a format 2 story world');
+    if (json['format'] != formatVersion) {
+      throw FormatException(
+        'not a format $formatVersion story world (format: ${json['format']})',
+      );
     }
     final victim = _map(json['victim'], 'victim');
     return StoryWorld(
@@ -51,6 +60,10 @@ class StoryWorld {
       opening: _str(json, 'opening'),
       openingAudio: json['openingAudio'] as String?,
       detective: WorldPerson.fromJson(_map(json['detective'], 'detective')),
+      marks: [
+        for (final m in _list(json, 'marks'))
+          WorldMark.fromJson(_map(m, 'mark')),
+      ],
       places: [
         for (final p in _list(json, 'places'))
           WorldPlace.fromJson(_map(p, 'place')),
@@ -106,14 +119,32 @@ class WorldPlace {
   final String name;
   final String line;
 
-  /// What the place shows in every version.
+  /// What the place shows in every version; empty when it shows nothing but
+  /// what the assembled version puts there.
   final String baseTrace;
 
   factory WorldPlace.fromJson(Map<String, Object?> json) => WorldPlace(
     id: _str(json, 'id'),
     name: _str(json, 'name'),
     line: _str(json, 'line'),
-    baseTrace: _str(json, 'baseTrace'),
+    baseTrace: _text(json, 'baseTrace'),
+  );
+}
+
+/// Something that sticks to a person's hands from somewhere he went tonight.
+class WorldMark {
+  const WorldMark({required this.id, required this.name, required this.words});
+
+  final String id;
+  final String name;
+
+  /// The exact phrases that name the mark inside trace texts.
+  final List<String> words;
+
+  factory WorldMark.fromJson(Map<String, Object?> json) => WorldMark(
+    id: _str(json, 'id'),
+    name: _str(json, 'name'),
+    words: _strings(json, 'words'),
   );
 }
 
@@ -121,20 +152,32 @@ class WorldTrace {
   const WorldTrace({
     required this.placeId,
     required this.text,
-    required this.excludes,
+    required this.marks,
   });
 
   final String placeId;
   final String text;
-  final List<String> excludes;
+
+  /// The mark ids this line names; a culprit's trace shows only marks he has.
+  final List<String> marks;
 
   factory WorldTrace.fromJson(Map<String, Object?> json) => WorldTrace(
     placeId: _str(json, 'place'),
     text: _str(json, 'text'),
-    excludes: [
-      for (final e in (json['excludes'] as List? ?? const [])) e as String,
-    ],
+    marks: [for (final m in (json['marks'] as List? ?? const [])) m as String],
   );
+}
+
+/// Something found against a suspect that is true in every version and
+/// appears whenever he is seated, guilty or not.
+class WorldSuspicion {
+  const WorldSuspicion({required this.placeId, required this.text});
+
+  final String placeId;
+  final String text;
+
+  factory WorldSuspicion.fromJson(Map<String, Object?> json) =>
+      WorldSuspicion(placeId: _str(json, 'place'), text: _str(json, 'text'));
 }
 
 class WorldSuspect {
@@ -147,7 +190,8 @@ class WorldSuspect {
     required this.card,
     required this.goal,
     required this.hook,
-    required this.innocentTrace,
+    required this.marks,
+    required this.suspicion,
     required this.guilty,
   });
 
@@ -164,12 +208,14 @@ class WorldSuspect {
   /// Why people suspect him, read in the case facts; true in every version.
   final String hook;
 
-  /// His alibi for the window, present only when he is innocent.
-  final WorldTrace innocentTrace;
+  /// The two mark ids on his hands tonight; his card says why in plain words.
+  final List<String> marks;
+
+  /// Found against him in every version, whether or not he did it.
+  final WorldSuspicion suspicion;
   final WorldGuilt guilty;
 
   factory WorldSuspect.fromJson(Map<String, Object?> json) {
-    final innocent = _map(json['innocent'], 'innocent');
     return WorldSuspect(
       id: _str(json, 'id'),
       name: _str(json, 'name'),
@@ -179,7 +225,8 @@ class WorldSuspect {
       card: _str(json, 'card'),
       goal: _str(json, 'goal'),
       hook: _str(json, 'hook'),
-      innocentTrace: WorldTrace.fromJson(_map(innocent['trace'], 'trace')),
+      marks: _strings(json, 'marks'),
+      suspicion: WorldSuspicion.fromJson(_map(json['suspicion'], 'suspicion')),
       guilty: WorldGuilt.fromJson(_map(json['guilty'], 'guilty')),
     );
   }
@@ -228,6 +275,7 @@ class WorldGuilt {
   }
 }
 
+/// Read so the checker can refuse it: format 3 worlds have no partners.
 class WorldPartnership {
   const WorldPartnership({
     required this.partnerId,
@@ -266,6 +314,19 @@ String _str(Map<String, Object?> json, String key) {
   if (value is String && value.isNotEmpty) return value;
   throw FormatException('$key is missing');
 }
+
+/// A string that may be empty (or absent, which reads as empty).
+String _text(Map<String, Object?> json, String key) {
+  final value = json[key];
+  if (value == null) return '';
+  if (value is String) return value;
+  throw FormatException('$key is not text');
+}
+
+List<String> _strings(Map<String, Object?> json, String key) => [
+  for (final v in _list(json, key))
+    if (v is String) v else throw FormatException('$key holds a non-text item'),
+];
 
 WorldGender _gender(Map<String, Object?> json) =>
     json['gender'] == 'f' ? WorldGender.female : WorldGender.male;

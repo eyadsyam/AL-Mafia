@@ -1,67 +1,79 @@
-# Stories V2 world format (format 2)
+# Stories V2 world format (format 3)
 
-One JSON file per story in `assets/stories_v2/<id>.json`. The design is `docs/plans/STORIES-V2-PLAN.md` §2–§3; the writing rules are `.claude/skills/stories-case-writing/SKILL.md`. This file is the contract between the writer, the engine and the checker.
+One JSON file per story in `assets/stories_v2/<id>.json`. The design is `docs/plans/STORIES-V2-PLAN.md` §2–§3; the writing rules are `.claude/skills/stories-case-writing/SKILL.md`. This file is the contract between the writer, the engine and the checker. Format 2 (alibis, `excludes`, `omits`, partners) is gone: the engine reads format 3 only and throws a `FormatException` for anything else.
+
+## The idea
+
+Nobody is ruled out by an alibi. Each suspect carries two **marks**: things that stick to his hands from places he went tonight (coal, cement, flour, sawdust, ta'meya oil). His card says why in plain words, and it is true whether or not he did it. When he is guilty, every place holds one trace of him, and each trace shows one or both of his marks. A detective who searches any three places reads marks that add up to exactly his pair, and no other suspect holds that pair. Everything else found (the suspicion lines) is true in every version and points at someone, guilty or not.
 
 ## Shape
 
 ```jsonc
 {
   "id": "qahwet_el_moallem",
-  "format": 2,
+  "format": 3,
   "title": "قهوة المعلم",
   "category": "قتل في الحارة",
   "victim": { "name": "المعلم صابر", "tag": "صاحب القهوة" },
-  "opening": "…",                 // the narrator's text; tells the story, never the method or the culprit
-  "detective": {                   // an in-story person, never an outsider
-    "name": "…", "tag": "…", "image": "assets/…",
-    "card": "…",                   // read aloud by the detective's player: who he is, why he is here
+  "opening": "…",                  // the narrator's text; tells the story, never the method or the culprit
+  "openingAudio": "assets/voice/stories_v2/qahwet_el_moallem.ogg",
+  "detective": {                    // an in-story person, never an outsider
+    "name": "…", "gender": "m", "tag": "…", "image": "assets/…",
+    "card": "…",                    // read aloud by the detective's player; ≤ 3 sentences
     "goal": "…"
   },
-  "places": [                      // 5 places; one search reveals every trace the assembled version put there
-    { "id": "cafe_floor", "name": "صالة القهوة", "line": "…", "baseTrace": "…" }   // baseTrace: neutral, true in every version
+  "marks": [                        // exactly 5
+    { "id": "coal", "name": "سواد الفحم", "words": ["سواد فحم"] }   // words: the exact phrases that name the mark inside trace texts
   ],
-  "baseFacts": ["…"],             // read by the detective at the start: what everyone knows; true in every version
-  "suspects": [                    // exactly 10
+  "places": [                       // exactly 5; one search shows every line the assembled version put there
+    { "id": "cafe_floor", "name": "…", "line": "…", "baseTrace": "" }   // baseTrace: true in every version; "" when the place shows nothing of its own
+  ],
+  "baseFacts": ["…"],              // read by the detective at the start; true in every version
+  "suspects": [                     // exactly 10
     {
-      "id": "n01", "name": "رضا المكوجي", "tag": "مكوجي أول الحارة", "image": "assets/images/stories/suspect_n24.webp",
-      "card": "…",                 // first person, read aloud by his player; TRUE IN BOTH VERSIONS; ≤ 3 short sentences
-      "goal": "…",                 // public goal, one line
-      "hook": "…",                 // third person, read in the case facts; true in both versions; why people suspect him
-      "innocent": {
-        "trace": { "place": "coal_alley", "text": "…", "excludes": ["n01"] }   // clears HIM ONLY (excludes = [own id])
-      },
+      "id": "n01", "name": "…", "gender": "m", "tag": "…", "image": "assets/…",
+      "card": "…",                  // first person, read aloud by his player; true in every version; ≤ 3 sentences; says in plain words why his hands carry the two marks
+      "goal": "…",                  // public goal, one line
+      "hook": "…",                  // third person, read in the case facts when he is seated; true in every version; one sentence
+      "marks": ["coal", "tameya"],  // exactly 2 mark ids; no other suspect has the same pair
+      "suspicion": { "place": "front_walk", "text": "…" },   // found against him in EVERY version, wherever he is seated; ≤ 2 sentences
       "guilty": {
-        "motive": { "id": "forged_debt", "label": "…" },
-        "method": { "id": "poisoned_bowl", "label": "…" },
-        "omits": "…",              // writer's note: what his card leaves out; never shown
-        "traces": [                // 2–3, in DIFFERENT places; may exclude other suspects; never name him outright
-          { "place": "molasses_cabinet", "text": "…", "excludes": ["n03", "n05"] }
+        "motive": { "id": "rent_eviction", "label": "…" },
+        "method": { "id": "sprayed_tobacco", "label": "…" },
+        "traces": [                 // exactly 5, one in each place
+          { "place": "cafe_floor", "text": "…", "marks": ["tameya"] }   // marks ⊆ his 2 marks, non-empty; ≤ 2 sentences
         ],
-        "partner": {               // optional; only where the story supports one
-          "id": "n02",
-          "traces": [ { "place": "…", "text": "…", "excludes": [] } ],
-          "reveal": "…"
-        },
-        "reveal": "…"              // the truth as a short scene, shown on screen (no narration)
+        "reveal": "…"               // the truth as a short scene shown after the decision; ≤ 6 sentences
       }
     }
   ]
 }
 ```
 
+`method` ids repeat between suspects (the pilot has two); `motive` ids are one per suspect. The server rows in `supabase/migrations/20261015000200_story_v2_sessions.sql` (`story_v2_suspects`, with `partner_id` null) must carry the same motive and method ids; `test/stories/v2/story_v2_server_rows_test.dart` fails on drift.
+
 ## Rules the checker enforces
 
-1. Exactly 10 suspects, 5 places, one detective; every `place` id exists; every id in `excludes` is a suspect.
-2. **Innocent traces exclude only their own suspect.** Base traces and base facts exclude nobody. Only a guilty module's traces may exclude others (they exist only when that suspect is guilty, so they can never contradict another version).
-3. A guilty trace never excludes its own suspect or his partner.
-4. Cards, goals, hooks, base facts and base traces are the same in every version, so they must be true whoever is guilty (human review: read each card against all ten guilty modules).
-5. No clock times, minutes or seconds; no Latin letters; every name in any text is the victim, the detective or a suspect (unnamed bystanders such as «الولد اللي بيلف بالطلبات» are fine).
-6. Lengths: card ≤ 3 sentences (read aloud < 20 s), trace ≤ 2 sentences, hook 1 sentence, reveal ≤ 6 sentences.
-7. **One window.** `baseFacts` name the moment the shisha (or whatever the story's murder hinges on) was tampered with; traces call it «ساعتها». An innocent trace is an alibi for that window with its proof, and never says anything about the method (the method changes with the culprit). Cards never say where their owner was «ساعتها».
-8. **Three places.** Every guilty module has exactly 3 traces in 3 different places, so any 3 searches out of 5 find at least one of them (pigeonhole). Every guilty trace points at its culprit through a detail of his card, trade or tools, without naming him as the one who did it.
+`lib/stories/v2/world_checker.dart`, run by `test/stories/v2/story_v2_engine_test.dart` on the real world; a world with any problem does not ship.
+
+1. Exactly 10 suspects, 5 places, 5 marks, one detective. Suspect, place and mark ids are unique; every mark has at least one non-empty word.
+2. **Hands.** Each suspect has exactly 2 distinct known marks, and no two suspects have the same pair.
+3. **Suspicion.** Its place exists. The suspicion text, the card, the hook and the goal contain none of any mark's words (a mark is read off traces only).
+4. **Guilty traces.** Exactly one trace in each of the 5 places. Each trace's marks are non-empty and a subset of the suspect's 2. A trace's text contains at least one word of every mark it lists and no word of any mark it does not list.
+5. **Fair, per choice of 3 places** (10 choices): the marks of the culprit's traces found there add up to exactly his pair, and the suspects whose marks include that union are exactly the culprit. Because pairs are unique, one trace per place and any 3 places are enough.
+6. A guilty module with a partner is a problem: format 3 has no partners. (The engine, the server pick and the screens still carry a partner type; no world uses one.)
+7. Text: no clock times, minutes or seconds; no Latin letters; card ≤ 3 sentences, trace ≤ 2, suspicion ≤ 2, hook 1, reveal ≤ 6.
+
+Not machine-checkable, read by a human against all ten guilty modules: cards, goals, hooks, suspicions, base facts and base traces are the same in every version, so each must be true whoever is guilty; every name in any text is the victim, the detective or a suspect (unnamed bystanders are fine); a card explains its owner's two marks without using a mark word; no trace names its culprit outright.
 
 ## How a version is assembled (engine)
 
-Seated suspects for the count → culprit (and partner) among the played ones → the case facts = `baseFacts` + each seated suspect's `hook` → every place holds its `baseTrace` + the seated innocents' traces placed there + the culprit's (and partner's) traces placed there. A search shows everything in that place. The accusation lists the seated suspects; with friends it asks **who** only, and solo also asks why and how (the motives and methods of the seated suspects' guilty modules). The app never marks or ranks anyone.
+Seated suspects for the count → culprit among the played ones → the case facts = `baseFacts` + each seated suspect's `hook` → a search of a place shows its `baseTrace` (when not empty), then, in an order shuffled from the table's seed and the place id (the culprit's line has no fixed position), the `suspicion` of every seated suspect placed there and the culprit's trace placed there.
 
-**Fair** (checker, per version and per choice of 3 places): at least one of the culprit's traces is found (rule 8 makes this every path), and every found trace that points at someone points at the culprit. Strict exclusion (every other suspect ruled out) is reported too, but it is not the bar: a first pilot showed that with 3 of 5 places no world can rule out eight people one alibi at a time. The detective solves by connecting a found trace to a card; alibis clear the red herrings he happens to search.
+The accusation lists the seated suspects. With friends it asks **who** only; solo also asks why and how, from the motives and methods of the seated suspects' guilty modules, one choice per id. The app never marks or ranks anyone and never writes a sentence of its own: a place with nothing to show shows nothing.
+
+**How it is solved.** The detective reads which marks the found traces name. Any three places name the culprit's pair; the suspicion lines name no mark, so they only point (and are true even for the innocent). The one suspect who carries those two marks did it.
+
+## Adding a world
+
+Pick 5 marks from the setting; give each suspect a distinct pair (10 pairs of 5 marks, so each mark sits on 4 suspects); write each card so it explains its two marks plainly; give every suspect one suspicion in some place; write 5 traces per guilty module, each of his two marks on at least 3 of them (so no 3 searches miss it); run the checker until it reports nothing; then read every card against all ten versions.
