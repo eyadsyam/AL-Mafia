@@ -2070,7 +2070,6 @@ abstract final class StoreShopTokens {
   static const double featCorner = 44;
   static const double featFadeAlpha = 0.2;
   static const List<double> featStops = [0.35, 1];
-  static const double featTagTurn = -0.07;
   static const double wellRadius = 0.9;
   static const Alignment wellCenter = Alignment(0, -0.2);
   static const double lineHeight = 1.6;
@@ -2086,10 +2085,8 @@ abstract final class StoreShopTokens {
   static const double bagArt = 118;
   static const double gridGap = 12;
   static const double previewButton = 48;
-  static const double ownedStampTurn = -0.14;
   static const double stampBorder = 2;
   static const double stampBigBorder = 4;
-  static const double stampBigTurn = -0.245;
   static const double stampBigFrom = 2.2;
   static const double stampBigSize = 30;
   static const double sheetArt = 190;

@@ -510,32 +510,29 @@ class _Price extends StatelessWidget {
   );
 }
 
-/// A crimson rubber stamp: «عندك» on a shelf item, «وصل جديد» on the card.
+/// A crimson seal standing straight: «عندك» on a shelf item, «وصل جديد» on
+/// the card. The tilted rubber stamp belongs to «قصص وتحقيقات».
 class _Stamp extends StatelessWidget {
   final String text;
-  final double turn;
-  const _Stamp(this.text, {required this.turn});
+  const _Stamp(this.text);
 
   @override
-  Widget build(BuildContext context) => Transform.rotate(
-    angle: turn,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: StoreShopTokens.stampWash,
-        borderRadius: BorderRadius.circular(context.radii.button / 3),
-        border: Border.all(
-          color: StoreShopTokens.stamp,
-          width: StoreShopTokens.stampBorder,
-        ),
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: StoreShopTokens.stampWash,
+      borderRadius: BorderRadius.circular(context.radii.button / 3),
+      border: Border.all(
+        color: StoreShopTokens.stamp,
+        width: StoreShopTokens.stampBorder,
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: context.spacing.sm),
-        child: Text(
-          text,
-          style: DeckTokens.meta(
-            context.typography,
-          ).copyWith(color: StoreShopTokens.stamp, fontWeight: FontWeight.w700),
-        ),
+    ),
+    child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: context.spacing.sm),
+      child: Text(
+        text,
+        style: DeckTokens.meta(
+          context.typography,
+        ).copyWith(color: StoreShopTokens.stamp, fontWeight: FontWeight.w700),
       ),
     ),
   );
@@ -887,7 +884,6 @@ class _FeaturedCard extends StatelessWidget {
                       children: [
                         _Stamp(
                           l.storeNewReceipt,
-                          turn: StoreShopTokens.featTagTurn,
                         ),
                         SizedBox(height: s.xs),
                         Text(
@@ -1303,7 +1299,6 @@ class _Bag extends StatelessWidget {
                                 bottom: s.xs,
                                 child: _Stamp(
                                   l.storeOwned,
-                                  turn: StoreShopTokens.ownedStampTurn,
                                 ),
                               ),
                           ],
@@ -1683,14 +1678,11 @@ class _SoldStamp extends StatelessWidget {
         curve: Curves.easeOutBack,
         builder: (context, t, child) => Opacity(
           opacity: t.clamp(0, 1),
-          child: Transform.rotate(
-            angle: StoreShopTokens.stampBigTurn,
-            child: Transform.scale(
-              scale:
-                  StoreShopTokens.stampBigFrom +
-                  (1 - StoreShopTokens.stampBigFrom) * t,
-              child: child,
-            ),
+          child: Transform.scale(
+            scale:
+                StoreShopTokens.stampBigFrom +
+                (1 - StoreShopTokens.stampBigFrom) * t,
+            child: child,
           ),
         ),
         child: DecoratedBox(
