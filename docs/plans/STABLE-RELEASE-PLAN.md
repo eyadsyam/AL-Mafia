@@ -32,7 +32,8 @@ This file is the single place to resume from. Anyone (Claude, Codex, a person) p
 | Analyzer | `flutter analyze` | clean (2026-10-16) |
 | SQL | `node tool/test_sql_without_docker.mjs` | 92/92 (2026-10-17) |
 | Node | each `supabase/tests/*.test.mjs` with `node --test <file>` | 29/29 files (2026-10-17) |
-| Parity | `node supabase/tests/run_golden_vectors_node.mjs` + `test/engine/golden_vectors_test.dart` | not rerun since rulings |
+| Parity | `node supabase/tests/run_golden_vectors_node.mjs` (35 agree) + night vectors `node --test supabase/tests/night_vectors.test.mjs` (48/48) + their Dart tests | PASS (2026-10-17) |
+| Edge type-check | `deno check supabase/functions/*/index.ts` (Deno 2.9.6 via `npm i -g deno`) | PASS except one pre-existing strictness error in `_shared/coin_payments.ts:178` (newer TS lib, not a runtime fault) |
 | Live suite | `supabase/tests/run_live_suite.py` against a server running THIS code | BLOCKED: needs deploy (owner) |
 | Device | owner plays one offline and one online match on his phone | BLOCKED: owner |
 
@@ -113,7 +114,8 @@ M1: 117 rows; 20 SUSPECT. M2: 118 rows (29 OK, 76 GAP, 11 SUSPECT). Decisions:
 - [ ] Q5b GAP rows into tests, one brief each, run in this order (each edits its own matrix rows): `briefs/gaps_m2_offline.txt` (16 done, resume it), `briefs/gaps_m1_tools.txt`, `briefs/gaps_m2_online.txt`, `briefs/gaps_m3_online.txt`. Never two SQL-harness runs at once.
 - [x] Q6 Parity of the night: `resolveNightCore` (TS) vs the Dart engine on 48 scenarios, both sides green.
 - [x] Q7 Gendered lines: confrontation C1/C4/C5/C6/C7/C8 and «مينفعش تصوّتي» follow the addressed player's gender, offline and online (test/unit/addressed_gender_test.dart).
-- [ ] Q8 M4 store audit and fixes.
+- [ ] Q8 M4 store audit done (1471b82). Triage: M4-50 returned bundle keeps its components → FIX (`briefs/server_bundle_revoke.txt`); M4-51 a pack already on a room survives its owner's return → ACCEPTED (deliberate: cosmetics never block a match, purchase_access.ts comment); M4-38 two overlapping tool packs, one returned → ACCEPTED (rare); M4-4/7/10 offline keeps a returned role until the next online refresh → ACCEPTED (offline cannot ask the server); M4-24 vote shield is cover bought in advance → ACCEPTED (as M1 conditional tools).
+- [ ] Q11 Local edge harness (`briefs/local_edge_harness.txt`): run the real edge functions on PGlite in Node to prove the ~70 `needs-live` rows without deploying. Run after gaps_m3 (both edit M3).
 - [ ] Q9 Full gates (§2), then a local look for the owner WITHOUT `flutter build` (owner rule 2026-10-08/16): `flutter run -d web-server --web-port <port>` in debug, opened in the app's browser pane. No release build, no deploy, until he says «ابني».
 - [ ] Q10 Owner: approve deploy to a staging project or live; then live suite; then device smoke; then Play.
 

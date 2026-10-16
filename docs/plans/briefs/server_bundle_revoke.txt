@@ -1,0 +1,11 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master online (Supabase SQL). YOU EXECUTE; YOU DO NOT DESIGN. No git commit, no network, no deploy. Edit only: one new migration supabase/migrations/20261017000300_bundle_revoke_components.sql and its test supabase/tests/bundle_revoke_components.sql, plus the M4-50 row of docs/plans/audit/M4-store.md.
+GATE: `node tool/test_sql_without_docker.mjs` (all files pass; 93 now). Never run two SQL-harness processes at once.
+
+THE DEFECT (audit M4-50; owner rule: a returned purchase takes the item back): the revoke path in supabase/migrations/20261009001500_refund_revokes_items.sql (line ~37; check for a newer definition of the same function in later migrations and start from the newest) deletes a returned bundle's own ownership row but leaves the component items the bundle granted (see how bundles grant components in supabase/migrations/20260924000300_cosmetic_catalog.sql around line 144, and any later bundle grant code).
+
+THE FIX: copy the newest revoke function WHOLE into the new migration (keep its grants/revokes) and change only this: when the revoked item is a bundle, also remove each component the bundle granted, EXCEPT a component the user also owns through another, unreturned purchase or grant (if ownership rows record their source, use it; if they do not, keep a component when any other ownership record or purchase of that component exists for the user). Unequip a removed component the same way the existing code unequips a revoked item.
+
+TEST (style of supabase/tests/refund_revokes_items.sql): (1) bundle bought then returned → bundle and its components gone and unequipped; (2) a component also bought on its own → stays; (3) other users untouched.
+Then set row M4-50 in docs/plans/audit/M4-store.md to Test = the new file, Evidence sql-sim, Verdict OK.
+
+REPORT (final message): done / partial, how component ownership source was decided, gate numbers before/after.
