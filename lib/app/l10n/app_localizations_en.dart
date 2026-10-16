@@ -164,12 +164,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get balanceMafiaTooMany => 'Mafia must be fewer than half the players';
 
   @override
-  String get balanceRecommendThreeMafia =>
-      '3 Mafia is recommended at 9 or more players';
-
-  @override
-  String get balanceTwoDetectivesLowPlayerCount =>
-      'Warning: two Detectives below 11 players heavily favours the town';
+  String balanceRecommendMafiaCount(int count) {
+    return '$count Mafia suit a table this size';
+  }
 
   @override
   String get balanceOneDetectiveOnly =>
@@ -5461,7 +5458,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toolExtraMinuteName => 'Extra minute';
 
   @override
-  String get toolExtraMinuteDesc => '45 more seconds of speaking time.';
+  String get toolExtraMinuteDesc =>
+      '45 more seconds on your turn when the talk goes by turns.';
 
   @override
   String get toolAnonNoteName => 'Anonymous note';
@@ -5475,69 +5473,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get toolLastWillDesc =>
-      'If you die, leave a short message everyone reads in the morning.';
+      'Once you are out, leave a short message everyone reads at once.';
 
   @override
   String get toolSpotlightName => 'Spotlight';
 
   @override
   String get toolSpotlightDesc =>
-      'Pick a player who must speak now and answer you.';
+      'Pick a player to answer you, in plain sight. When the talk goes by turns, they speak next.';
 
   @override
   String get toolObjectionName => 'Objection';
 
   @override
   String get toolObjectionDesc =>
-      'When accused, get a guaranteed 30-second defence.';
+      '30 more seconds on your turn when the talk goes by turns.';
 
   @override
   String get toolLastWordName => 'Last word';
 
   @override
   String get toolLastWordDesc =>
-      'If voted out, pick a player who must defend first tomorrow.';
+      'If voted out, the table learns your pick, and when the talk goes by turns they open tomorrow.';
 
   @override
   String get toolVoteShieldName => 'Vote shield';
 
   @override
   String get toolVoteShieldDesc =>
-      'Nobody can silence you today and your vote stands.';
+      'Nobody can silence you next night, so your vote tomorrow stands.';
 
   @override
   String get toolHalfDoorName => 'Half-open door';
 
   @override
   String get toolHalfDoorDesc =>
-      'One night: no silencing or investigation reaches you (a kill still can).';
+      'Next night no silencing or investigation reaches you; a kill still can.';
 
   @override
   String get toolDoubleVoteName => 'Double vote';
 
   @override
   String get toolDoubleVoteDesc =>
-      'Your vote counts twice today, in plain sight.';
+      'Your vote counts twice in today\'s ballot, in plain sight.';
 
   @override
   String get toolCamouflageName => 'Camouflage';
 
   @override
   String get toolCamouflageDesc =>
-      'If the detective checks you tonight, the result reads «unclear».';
+      'If the detective checks you next night, the result reads «unclear».';
 
   @override
   String get toolRevoteName => 'Revote';
 
   @override
   String get toolRevoteDesc =>
-      'The vote is cast again once after the result shows.';
+      'The vote runs once more between everyone who drew votes, whether someone was out or it tied.';
 
   @override
   String get toolGraveVoteName => 'Vote from the grave';
 
   @override
-  String get toolGraveVoteDesc => 'If you die, vote once in the following day.';
+  String get toolGraveVoteDesc =>
+      'Once you are out, vote once in the next ballot.';
 
   @override
   String get toolSenseName => 'Hunch';
@@ -5551,7 +5550,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get toolImpersonateDesc =>
-      'The detective sees you as citizen or mafia, as you choose.';
+      'Next night the detective sees you as citizen or mafia, as you choose.';
 
   @override
   String get toolNarratorWhisperName => 'Narrator whisper';
@@ -5565,14 +5564,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get toolLockDoorDesc =>
-      'For one night nothing reaches you: no kill, silence, shot or check.';
+      'Next night nothing reaches you: no kill, silence, shot or check.';
 
   @override
   String get toolAppealName => 'Appeal';
 
   @override
   String get toolAppealDesc =>
-      'If voted out, a final vote on you alone that needs a clear majority.';
+      'If voted out, you only leave if more than two thirds of the votes are on you.';
 
   @override
   String get storeTabTools => 'Tools';

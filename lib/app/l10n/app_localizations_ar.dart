@@ -162,12 +162,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get balanceMafiaTooMany => 'عدد المافيا لازم يكون أقل من نص اللاعبين';
 
   @override
-  String get balanceRecommendThreeMafia =>
-      'الأفضل تختار 3 مافيا لما تكونوا 9 لاعبين أو أكتر';
-
-  @override
-  String get balanceTwoDetectivesLowPlayerCount =>
-      'محققين مع أقل من 11 لاعب بيقووا فريق المواطنين';
+  String balanceRecommendMafiaCount(int count) {
+    return 'الأنسب لعددكم $count مافيا';
+  }
 
   @override
   String get balanceOneDetectiveOnly => 'المحقق واحد بس في اللعبة';
@@ -5366,7 +5363,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get toolExtraMinuteName => 'دقيقة زيادة';
 
   @override
-  String get toolExtraMinuteDesc => '٤٥ ثانية زيادة على وقت كلامك.';
+  String get toolExtraMinuteDesc =>
+      '٤٥ ثانية زيادة على دورك لما الكلام يبقى بالدور.';
 
   @override
   String get toolAnonNoteName => 'ورقة من غير اسم';
@@ -5378,63 +5376,69 @@ class AppLocalizationsAr extends AppLocalizations {
   String get toolLastWillName => 'وصيّة';
 
   @override
-  String get toolLastWillDesc => 'لو مُت، تسيب رسالة قصيرة الكل يقراها الصبح.';
+  String get toolLastWillDesc =>
+      'بعد ما تخرج، تسيب رسالة قصيرة الكل يقراها على طول.';
 
   @override
   String get toolSpotlightName => 'كشّاف';
 
   @override
-  String get toolSpotlightDesc => 'تختار لاعب، ولازم يتكلم دلوقتي ويرد عليك.';
+  String get toolSpotlightDesc =>
+      'تختار لاعب يرد عليك، والكل شايف. لو الكلام بالدور، هو اللي بيتكلم بعده.';
 
   @override
   String get toolObjectionName => 'اعتراض';
 
   @override
-  String get toolObjectionDesc => 'لما يتّهموك، تاخد ٣٠ ثانية دفاع مضمونة.';
+  String get toolObjectionDesc =>
+      '٣٠ ثانية زيادة على دورك لما الكلام يبقى بالدور.';
 
   @override
   String get toolLastWordName => 'كلمة أخيرة';
 
   @override
   String get toolLastWordDesc =>
-      'لو اتطلّعت، تختار لاعب لازم يدافع عن نفسه أول واحد بكرة.';
+      'لو اتطلّعت، الكل يعرف إنك اخترت لاعب، ولو الكلام بالدور هو اللي يبدأ بكرة.';
 
   @override
   String get toolVoteShieldName => 'درع الصوت';
 
   @override
-  String get toolVoteShieldDesc => 'محدش يقدر يسكّتك اليوم ده وصوتك مايتلغيش.';
+  String get toolVoteShieldDesc =>
+      'الليلة الجاية محدش يقدر يسكّتك، فصوتك بكرة محفوظ.';
 
   @override
   String get toolHalfDoorName => 'باب موارب';
 
   @override
   String get toolHalfDoorDesc =>
-      'ليلة واحدة: لا تسكيت ولا كشف يوصلك (القتل لأ).';
+      'الليلة الجاية: لا تسكيت ولا كشف يوصلك، بس القتل يوصل.';
 
   @override
   String get toolDoubleVoteName => 'صوت مضاعف';
 
   @override
-  String get toolDoubleVoteDesc => 'صوتك بـ ٢ اليوم ده، والكل شايف.';
+  String get toolDoubleVoteDesc => 'صوتك بـ ٢ في تصويت النهارده، والكل شايف.';
 
   @override
   String get toolCamouflageName => 'تمويه';
 
   @override
-  String get toolCamouflageDesc => 'لو المحقق كشفك الليلة، يطلعله «مش واضح».';
+  String get toolCamouflageDesc =>
+      'لو المحقق كشفك الليلة الجاية، يطلعله «مش واضح».';
 
   @override
   String get toolRevoteName => 'إعادة التصويت';
 
   @override
-  String get toolRevoteDesc => 'التصويت يتعاد مرة بعد ما النتيجة تظهر.';
+  String get toolRevoteDesc =>
+      'التصويت يتعاد مرة كمان بين اللي خدوا أصوات، سواء حد اتطلّع أو الأصوات اتعادلت.';
 
   @override
   String get toolGraveVoteName => 'صوت من القبر';
 
   @override
-  String get toolGraveVoteDesc => 'لو مُت، تصوّت مرة في النهار اللي بعدها.';
+  String get toolGraveVoteDesc => 'بعد ما تخرج، تصوّت مرة في أول تصويت جاي.';
 
   @override
   String get toolSenseName => 'إحساس';
@@ -5448,7 +5452,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get toolImpersonateDesc =>
-      'المحقق يشوفك «مواطن» أو «مافيا» على حسب ما تختار.';
+      'الليلة الجاية المحقق يشوفك «مواطن» أو «مافيا» على حسب ما تختار.';
 
   @override
   String get toolNarratorWhisperName => 'همسة الراوي';
@@ -5462,14 +5466,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get toolLockDoorDesc =>
-      'ليلة كاملة محدش يوصلك: لا قتل ولا تسكيت ولا طلقة ولا كشف.';
+      'الليلة الجاية محدش يوصلك: لا قتل ولا تسكيت ولا طلقة ولا كشف.';
 
   @override
   String get toolAppealName => 'استئناف';
 
   @override
   String get toolAppealDesc =>
-      'لو اتطلّعت، تصويت أخير عليك أنت بس ولازم أغلبية واضحة.';
+      'لو اتطلّعت، خروجك مايتمّش إلا لو أكتر من تلتين الأصوات عليك.';
 
   @override
   String get storeTabTools => 'الأدوات';

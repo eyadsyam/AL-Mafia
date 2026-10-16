@@ -6,6 +6,7 @@
 library engine.balance_guard;
 
 import 'models/enums.dart';
+import 'presets.dart';
 
 /// A single balance issue found during validation.
 class BalanceIssue {
@@ -21,10 +22,14 @@ class BalanceIssue {
   /// Whether this issue blocks match start.
   final bool blocking;
 
-  const BalanceIssue({required this.code, required this.blocking});
+  /// A number the message needs (the Mafia count an advisory suggests).
+  final int? value;
+
+  const BalanceIssue({required this.code, required this.blocking, this.value});
 
   @override
-  String toString() => 'BalanceIssue(code=$code, blocking=$blocking)';
+  String toString() =>
+      'BalanceIssue(code=$code, blocking=$blocking, value=$value)';
 }
 
 /// The result of balance validation.
@@ -106,10 +111,17 @@ class BalanceGuard {
       issues.add(const BalanceIssue(code: 'mafia_too_many', blocking: true));
     }
 
-    // Advisory: recommend 3 Mafia at 9+
-    if (playerCount >= 9 && mafiaCount != 3) {
+    // Advisory at 9+: the split the presets deal and the balance harness
+    // measures, a quarter of the table (ruling RL11). The old flat «3 Mafia
+    // from nine» contradicted the app's own default.
+    final suggested = recommendedMafia(playerCount);
+    if (playerCount >= 9 && mafiaCount != suggested) {
       issues.add(
-        const BalanceIssue(code: 'recommend_three_mafia', blocking: false),
+        BalanceIssue(
+          code: 'recommend_mafia_count',
+          blocking: false,
+          value: suggested,
+        ),
       );
     }
 
@@ -151,37 +163,13 @@ class BalanceGuard {
     return BalanceReport(valid: !hasBlocking, issues: issues);
   }
 
-  /// Returns a sensible default role distribution for the given player count.
-  ///
-  /// Strategy:
-  /// - Mafia: 1 (5–6), 2 (7–8), 3 (9+); never ≥ half
-  /// - Detective: 1
-  /// - Doctor: 1
-  /// - Citizen: remainder
-  ///
-  /// Result is always valid (use [evaluate] to check).
-  static Map<Role, int> recommended(int playerCount) {
-    if (playerCount < 5) playerCount = 5; // Clamp to minimum
-    if (playerCount > 20) playerCount = 20; // Clamp to maximum
+  /// The default split for [playerCount], offline and online alike: the
+  /// classic preset's quarter of the table as Mafia, one Detective, one
+  /// Doctor, the rest citizens (ruling RL11). Always valid.
+  static Map<Role, int> recommended(int playerCount) =>
+      MatchPreset.classic.roleCounts(playerCount);
 
-    late final int mafia;
-    if (playerCount <= 6) {
-      mafia = 1;
-    } else if (playerCount <= 8) {
-      mafia = 2;
-    } else {
-      mafia = 3;
-    }
-
-    const detective = 1;
-    const doctor = 1;
-    final citizen = playerCount - mafia - detective - doctor;
-
-    return {
-      Role.mafia: mafia,
-      Role.detective: detective,
-      Role.doctor: doctor,
-      Role.citizen: citizen.clamp(0, playerCount),
-    };
-  }
+  /// The Mafia count [recommended] deals at [playerCount].
+  static int recommendedMafia(int playerCount) =>
+      recommended(playerCount)[Role.mafia]!;
 }

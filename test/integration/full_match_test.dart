@@ -2,6 +2,7 @@ import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
+import 'package:mafia_master/engine/models/player.dart';
 import 'package:test/test.dart';
 
 /// T023 — drive a full 7-player match to a definite win using ONLY engine
@@ -93,7 +94,9 @@ void main() {
             case Role.detective:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,
@@ -103,7 +106,9 @@ void main() {
             case Role.citizen:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,

@@ -223,11 +223,12 @@ class MatchEngine {
     final player = match.players[seat];
     final role = player.role;
 
-    // Teammates are other mafia if this player is mafia
+    // The Mafia team (Mafia and Silencer) know each other from the deal, as
+    // online (`my_team`) and as the day-time card check already shows.
     List<String> teammates = [];
-    if (role == Role.mafia) {
+    if (role.alignment == Alignment.mafia) {
       teammates = match.players
-          .where((p) => p.role == Role.mafia && p.seat != seat)
+          .where((p) => p.role.alignment == Alignment.mafia && p.seat != seat)
           .map((p) => p.name)
           .toList();
     }
@@ -418,6 +419,18 @@ class MatchEngine {
     // highlighted. Redirected rather than refused, because refusing would mean
     // the confirm button behaves differently for one role.
     if (useBullet && player.role == Role.doctor) targetSeat = seat;
+
+    // The engine checks its own targets rather than trusting the move list
+    // (as online `submit_night_action` does): the living only, and oneself
+    // only through the Silencer's own seat or the Doctor's bullet.
+    if (match.players[targetSeat].status != PlayerStatus.alive) {
+      throw StateError('submitNightAction: target $targetSeat is dead');
+    }
+    if (targetSeat == seat &&
+        kind != NightActionKind.silence &&
+        !(useBullet && player.role == Role.doctor)) {
+      throw StateError('submitNightAction: a seat cannot target itself');
+    }
 
     InvestigateResult? result;
 
@@ -811,7 +824,10 @@ class MatchEngine {
       matchSeed: match.seed,
       // Doc 13 §8. `T2` says a kill was blocked, and a morning in which
       // nobody died has to be unreadable once the Mafia can buy one.
-      allowSaveTrace: !match.settings.quietNightEnabled,
+      allowSaveTrace: !Bullets.enabled(
+        match.settings,
+        BulletKind.quietNight,
+      ),
     );
 
     match = match.copyWith(
@@ -1402,23 +1418,7 @@ class MatchEngine {
     final result = WinChecker.checkWin(match);
 
     if (result != null) {
-      // Game over
-      final now = clock();
-      match = match.copyWith(
-        phase: GamePhase.result,
-        outcome: MatchOutcome(winner: result, completedAt: now),
-        eventLog: [
-          ...match.eventLog,
-          WinReached(
-            at: now,
-            phaseRef: PhaseRef(
-              phase: GamePhase.result,
-              number: match.dayNumber,
-            ),
-            alignment: result,
-          ),
-        ],
-      );
+      _finish(result);
       assertMatchInvariants(match, 'winCheck (match over)');
       return result;
     }
@@ -1461,12 +1461,30 @@ class MatchEngine {
 
     _voidWhispersTo(seat, now);
 
-    // Run win check. It asserts the invariants on the way out, which is why
-    // there is none between the roster edit above and this call: a removal that
-    // brings the mafia to parity leaves the match momentarily
-    // decided-but-still-playing, and that is exactly the state `winCheck`
-    // exists to clear.
-    winCheck();
+    // A removal can decide the match in any phase, so the outcome is read
+    // here directly. [winCheck] is not called: it belongs to the reveal and
+    // would refuse any other phase (and on no winner it starts the next
+    // cycle, which a removal mid-phase must not do).
+    final result = WinChecker.checkWin(match);
+    if (result != null) _finish(result);
+    assertMatchInvariants(match, 'removePlayer');
+  }
+
+  /// Ends the match with [winner] from whatever phase it is in.
+  void _finish(Alignment winner) {
+    final now = clock();
+    match = match.copyWith(
+      phase: GamePhase.result,
+      outcome: MatchOutcome(winner: winner, completedAt: now),
+      eventLog: [
+        ...match.eventLog,
+        WinReached(
+          at: now,
+          phaseRef: PhaseRef(phase: GamePhase.result, number: match.dayNumber),
+          alignment: winner,
+        ),
+      ],
+    );
   }
 
   // ---------------------------------------------------------------------------

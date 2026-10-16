@@ -50,13 +50,13 @@ void main() {
           engine.submitNightAction(
             seat: seat,
             kind: NightActionKind.investigate,
-            targetSeat: 0,
+            targetSeat: seat == 0 ? 1 : 0,
           );
         } else {
           engine.submitNightAction(
             seat: seat,
             kind: NightActionKind.suspect,
-            targetSeat: 0,
+            targetSeat: seat == 0 ? 1 : 0,
           );
         }
       }
@@ -119,13 +119,13 @@ void main() {
           engine.submitNightAction(
             seat: seat,
             kind: NightActionKind.investigate,
-            targetSeat: 0,
+            targetSeat: seat == 0 ? 1 : 0,
           );
         } else {
           engine.submitNightAction(
             seat: seat,
             kind: NightActionKind.suspect,
-            targetSeat: 0,
+            targetSeat: seat == 0 ? 1 : 0,
           );
         }
       }
@@ -181,19 +181,19 @@ void main() {
           engine1.submitNightAction(
             seat: seat,
             kind: NightActionKind.protect,
-            targetSeat: 0,
+            targetSeat: seat == 0 ? 1 : 0,
           );
         } else if (role == Role.detective) {
           engine1.submitNightAction(
             seat: seat,
             kind: NightActionKind.investigate,
-            targetSeat: 0,
+            targetSeat: seat == 0 ? 1 : 0,
           );
         } else {
           engine1.submitNightAction(
             seat: seat,
             kind: NightActionKind.suspect,
-            targetSeat: 0,
+            targetSeat: seat == 0 ? 1 : 0,
           );
         }
       }
@@ -239,19 +239,19 @@ void main() {
           engine2.submitNightAction(
             seat: seat,
             kind: NightActionKind.protect,
-            targetSeat: 0,
+            targetSeat: seat == 0 ? 1 : 0,
           );
         } else if (role == Role.detective) {
           engine2.submitNightAction(
             seat: seat,
             kind: NightActionKind.investigate,
-            targetSeat: 0,
+            targetSeat: seat == 0 ? 1 : 0,
           );
         } else {
           engine2.submitNightAction(
             seat: seat,
             kind: NightActionKind.suspect,
-            targetSeat: 0,
+            targetSeat: seat == 0 ? 1 : 0,
           );
         }
       }

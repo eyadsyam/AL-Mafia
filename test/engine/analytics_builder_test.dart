@@ -3,6 +3,7 @@ import 'package:mafia_master/engine/analytics_builder.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
+import 'package:mafia_master/engine/models/player.dart';
 import 'package:test/test.dart';
 
 /// T064 — Analytics builder tests.
@@ -84,7 +85,9 @@ void main() {
             case Role.detective:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,
@@ -94,7 +97,9 @@ void main() {
             case Role.citizen:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,
@@ -239,7 +244,9 @@ void main() {
             case Role.detective:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,
@@ -249,7 +256,9 @@ void main() {
             case Role.citizen:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,
@@ -371,7 +380,9 @@ void main() {
               case Role.detective:
                 final other = [
                   for (int i = 0; i < 7; i++)
-                    if (i != seat) i,
+                    if (i != seat &&
+                        engine.match.players[i].status == PlayerStatus.alive)
+                      i,
                 ].first;
                 engine.submitNightAction(
                   seat: seat,
@@ -381,7 +392,9 @@ void main() {
               case Role.citizen:
                 final other = [
                   for (int i = 0; i < 7; i++)
-                    if (i != seat) i,
+                    if (i != seat &&
+                        engine.match.players[i].status == PlayerStatus.alive)
+                      i,
                 ].first;
                 engine.submitNightAction(
                   seat: seat,
@@ -504,7 +517,9 @@ void main() {
             case Role.detective:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,
@@ -514,7 +529,9 @@ void main() {
             case Role.citizen:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,
@@ -650,7 +667,9 @@ void main() {
             case Role.detective:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,
@@ -660,7 +679,9 @@ void main() {
             case Role.citizen:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,
@@ -787,7 +808,9 @@ void main() {
             case Role.detective:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,
@@ -797,7 +820,9 @@ void main() {
             case Role.citizen:
               final other = [
                 for (int i = 0; i < 7; i++)
-                  if (i != seat) i,
+                  if (i != seat &&
+                      engine.match.players[i].status == PlayerStatus.alive)
+                    i,
               ].first;
               engine.submitNightAction(
                 seat: seat,

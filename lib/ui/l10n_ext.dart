@@ -48,9 +48,9 @@ abstract final class EngineCopy {
         'role_count_mismatch' => l10n.balanceRoleCountMismatch,
         'no_mafia' => l10n.balanceNoMafia,
         'mafia_too_many' => l10n.balanceMafiaTooMany,
-        'recommend_three_mafia' => l10n.balanceRecommendThreeMafia,
-        'two_detectives_low_player_count' =>
-          l10n.balanceTwoDetectivesLowPlayerCount,
+        'recommend_mafia_count' => l10n.balanceRecommendMafiaCount(
+          issue.value ?? 0,
+        ),
         'one_detective_only' => l10n.balanceOneDetectiveOnly,
         'one_silencer_only' => l10n.balanceOneSilencerOnly,
         'silencer_needs_two_mafia' => l10n.balanceSilencerNeedsTwoMafia,

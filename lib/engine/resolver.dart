@@ -189,6 +189,12 @@ class NightResolver {
       silencedSeat = null;
     }
 
+    // A save is a save only if the covered seat sees the morning: the
+    // Sniper's shot is outside protection and can still take it. Recording
+    // it anyway would let T2 announce a survival that did not happen
+    // (CLAUDE.md rule 4).
+    if (savedSeat != null && deaths.contains(savedSeat)) savedSeat = null;
+
     final orderedDeaths = deaths.toList()..sort();
     final bool allSurvived = orderedDeaths.isEmpty;
 
@@ -208,9 +214,13 @@ class NightResolver {
     // `selectTrace`), because a trace announcing a blocked kill would put back
     // exactly the sentence this line removed.
     //
-    // With [MatchSettings.quietNightEnabled] off, every one of these mornings
-    // reads precisely as it did before doc 13.
-    final announceSave = !match.settings.quietNightEnabled;
+    // With no quiet night in this match (bullets off, or the quiet night
+    // off), every one of these mornings reads precisely as it did before
+    // doc 13 — the fast preset, which has no bullets, tells its saves again.
+    final announceSave = !Bullets.enabled(
+      match.settings,
+      BulletKind.quietNight,
+    );
 
     return NightResolution(
       savedSeat: savedSeat,

@@ -2,7 +2,7 @@
 
 > The system that solves *"I have nothing to say and no reason to suspect anyone."*
 > Three layers: **Trace**, **Confrontation**, **Whisper**.
-> Works identically in offline and online mode. Pure, deterministic, testable.
+> Pure, deterministic, testable. Offline runs all of it; online citizens wait at night and record no suspicion (`docs/specs/17-roles-and-tools.md` RL4), so the suspicion-fed traces (T1, T3–T8) and confrontations are offline only.
 
 ---
 

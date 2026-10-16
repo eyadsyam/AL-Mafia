@@ -380,17 +380,11 @@ abstract class AppLocalizations {
   /// **'Mafia must be fewer than half the players'**
   String get balanceMafiaTooMany;
 
-  /// No description provided for @balanceRecommendThreeMafia.
+  /// No description provided for @balanceRecommendMafiaCount.
   ///
   /// In en, this message translates to:
-  /// **'3 Mafia is recommended at 9 or more players'**
-  String get balanceRecommendThreeMafia;
-
-  /// No description provided for @balanceTwoDetectivesLowPlayerCount.
-  ///
-  /// In en, this message translates to:
-  /// **'Warning: two Detectives below 11 players heavily favours the town'**
-  String get balanceTwoDetectivesLowPlayerCount;
+  /// **'{count} Mafia suit a table this size'**
+  String balanceRecommendMafiaCount(int count);
 
   /// No description provided for @balanceOneDetectiveOnly.
   ///
@@ -9298,7 +9292,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolExtraMinuteDesc.
   ///
   /// In en, this message translates to:
-  /// **'45 more seconds of speaking time.'**
+  /// **'45 more seconds on your turn when the talk goes by turns.'**
   String get toolExtraMinuteDesc;
 
   /// No description provided for @toolAnonNoteName.
@@ -9322,7 +9316,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolLastWillDesc.
   ///
   /// In en, this message translates to:
-  /// **'If you die, leave a short message everyone reads in the morning.'**
+  /// **'Once you are out, leave a short message everyone reads at once.'**
   String get toolLastWillDesc;
 
   /// No description provided for @toolSpotlightName.
@@ -9334,7 +9328,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolSpotlightDesc.
   ///
   /// In en, this message translates to:
-  /// **'Pick a player who must speak now and answer you.'**
+  /// **'Pick a player to answer you, in plain sight. When the talk goes by turns, they speak next.'**
   String get toolSpotlightDesc;
 
   /// No description provided for @toolObjectionName.
@@ -9346,7 +9340,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolObjectionDesc.
   ///
   /// In en, this message translates to:
-  /// **'When accused, get a guaranteed 30-second defence.'**
+  /// **'30 more seconds on your turn when the talk goes by turns.'**
   String get toolObjectionDesc;
 
   /// No description provided for @toolLastWordName.
@@ -9358,7 +9352,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolLastWordDesc.
   ///
   /// In en, this message translates to:
-  /// **'If voted out, pick a player who must defend first tomorrow.'**
+  /// **'If voted out, the table learns your pick, and when the talk goes by turns they open tomorrow.'**
   String get toolLastWordDesc;
 
   /// No description provided for @toolVoteShieldName.
@@ -9370,7 +9364,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolVoteShieldDesc.
   ///
   /// In en, this message translates to:
-  /// **'Nobody can silence you today and your vote stands.'**
+  /// **'Nobody can silence you next night, so your vote tomorrow stands.'**
   String get toolVoteShieldDesc;
 
   /// No description provided for @toolHalfDoorName.
@@ -9382,7 +9376,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolHalfDoorDesc.
   ///
   /// In en, this message translates to:
-  /// **'One night: no silencing or investigation reaches you (a kill still can).'**
+  /// **'Next night no silencing or investigation reaches you; a kill still can.'**
   String get toolHalfDoorDesc;
 
   /// No description provided for @toolDoubleVoteName.
@@ -9394,7 +9388,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolDoubleVoteDesc.
   ///
   /// In en, this message translates to:
-  /// **'Your vote counts twice today, in plain sight.'**
+  /// **'Your vote counts twice in today\'s ballot, in plain sight.'**
   String get toolDoubleVoteDesc;
 
   /// No description provided for @toolCamouflageName.
@@ -9406,7 +9400,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolCamouflageDesc.
   ///
   /// In en, this message translates to:
-  /// **'If the detective checks you tonight, the result reads «unclear».'**
+  /// **'If the detective checks you next night, the result reads «unclear».'**
   String get toolCamouflageDesc;
 
   /// No description provided for @toolRevoteName.
@@ -9418,7 +9412,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolRevoteDesc.
   ///
   /// In en, this message translates to:
-  /// **'The vote is cast again once after the result shows.'**
+  /// **'The vote runs once more between everyone who drew votes, whether someone was out or it tied.'**
   String get toolRevoteDesc;
 
   /// No description provided for @toolGraveVoteName.
@@ -9430,7 +9424,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolGraveVoteDesc.
   ///
   /// In en, this message translates to:
-  /// **'If you die, vote once in the following day.'**
+  /// **'Once you are out, vote once in the next ballot.'**
   String get toolGraveVoteDesc;
 
   /// No description provided for @toolSenseName.
@@ -9454,7 +9448,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolImpersonateDesc.
   ///
   /// In en, this message translates to:
-  /// **'The detective sees you as citizen or mafia, as you choose.'**
+  /// **'Next night the detective sees you as citizen or mafia, as you choose.'**
   String get toolImpersonateDesc;
 
   /// No description provided for @toolNarratorWhisperName.
@@ -9478,7 +9472,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolLockDoorDesc.
   ///
   /// In en, this message translates to:
-  /// **'For one night nothing reaches you: no kill, silence, shot or check.'**
+  /// **'Next night nothing reaches you: no kill, silence, shot or check.'**
   String get toolLockDoorDesc;
 
   /// No description provided for @toolAppealName.
@@ -9490,7 +9484,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolAppealDesc.
   ///
   /// In en, this message translates to:
-  /// **'If voted out, a final vote on you alone that needs a clear majority.'**
+  /// **'If voted out, you only leave if more than two thirds of the votes are on you.'**
   String get toolAppealDesc;
 
   /// No description provided for @storeTabTools.

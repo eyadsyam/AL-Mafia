@@ -94,28 +94,9 @@ void main() {
     });
 
     group('evaluate() — advisory rules', () {
-      test('recommends 3 Mafia at 9 players when configured differently', () {
-        final report = BalanceGuard.evaluate(
-          playerCount: 9,
-          roleCounts: {
-            Role.mafia: 2,
-            Role.detective: 1,
-            Role.doctor: 1,
-            Role.citizen: 5,
-          },
-        );
-        expect(report.valid, isTrue); // No blocking issues
-        expect(
-          report.issues.where((i) => i.code == 'recommend_three_mafia'),
-          isNotEmpty,
-        );
-        final advisory = report.issues.firstWhere(
-          (i) => i.code == 'recommend_three_mafia',
-        );
-        expect(advisory.blocking, isFalse);
-      });
-
-      test('does not advise when 3 Mafia at 9+ players', () {
+      // Ruling RL11 (docs/specs/17-roles-and-tools.md §12): the advisory names
+      // the quarter the presets deal, so the default split never trips it.
+      test('advises the quarter at 9+ when configured differently', () {
         final report = BalanceGuard.evaluate(
           playerCount: 9,
           roleCounts: {
@@ -125,10 +106,26 @@ void main() {
             Role.citizen: 4,
           },
         );
-        expect(
-          report.issues.where((i) => i.code == 'recommend_three_mafia'),
-          isEmpty,
+        expect(report.valid, isTrue); // No blocking issues
+        final advisory = report.issues.firstWhere(
+          (i) => i.code == 'recommend_mafia_count',
         );
+        expect(advisory.blocking, isFalse);
+        expect(advisory.value, 2);
+      });
+
+      test('the default split at every size draws no advisory', () {
+        for (var n = 5; n <= 20; n++) {
+          final report = BalanceGuard.evaluate(
+            playerCount: n,
+            roleCounts: BalanceGuard.recommended(n),
+          );
+          expect(
+            report.issues.where((i) => i.code == 'recommend_mafia_count'),
+            isEmpty,
+            reason: '$n players',
+          );
+        }
       });
 
       test('blocks a second Detective at any player count', () {
@@ -228,9 +225,9 @@ void main() {
         expect(report.valid, isTrue);
       });
 
-      test('returns valid distribution for 9 players (3 Mafia)', () {
+      test('returns valid distribution for 9 players (2 Mafia, a quarter)', () {
         final dist = BalanceGuard.recommended(9);
-        expect(dist[Role.mafia], equals(3));
+        expect(dist[Role.mafia], equals(2));
         final sum = dist.values.fold(0, (a, b) => a + b);
         expect(sum, equals(9));
 
@@ -238,9 +235,9 @@ void main() {
         expect(report.valid, isTrue);
       });
 
-      test('returns valid distribution for 20 players (3 Mafia)', () {
+      test('returns valid distribution for 20 players (5 Mafia, a quarter)', () {
         final dist = BalanceGuard.recommended(20);
-        expect(dist[Role.mafia], equals(3));
+        expect(dist[Role.mafia], equals(5));
         final sum = dist.values.fold(0, (a, b) => a + b);
         expect(sum, equals(20));
 

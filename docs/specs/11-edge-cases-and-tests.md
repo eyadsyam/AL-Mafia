@@ -41,7 +41,7 @@ The fuzz harness runs these after every single transition. This one harness catc
 | # | Case | Expected | Test |
 |---|---|---|---|
 | S1 | 4 players | Blocked at setup with a clear message | unit |
-| S2 | Exactly 5 | Allowed. Suggested: 1 Mafia, 1 Doctor, 0 Detective, 3 Citizens | unit |
+| S2 | Exactly 5 | Allowed. Suggested: 1 Mafia, 1 Doctor, 1 Detective, 2 Citizens (the quarter rule, `docs/specs/17-roles-and-tools.md` RL11) | unit |
 | S3 | 16+ players | Offline: allowed to 20. Online: **hard cap 15** (voice mesh + message volume) | unit |
 | S4 | Mafia = 0 | Blocked | unit |
 | S5 | Mafia ≥ half | Blocked — the match would end on turn 1 | unit |
@@ -57,16 +57,16 @@ The fuzz harness runs these after every single transition. This one harness catc
 
 | # | Case | Expected | Test |
 |---|---|---|---|
-| N1 | Mafia targets another Mafia | Allowed. Resolves normally. May immediately trigger Citizens win | unit |
+| N1 | Mafia targets another Mafia | Not offered and refused by both engines (owner, 2026-10-01) | unit |
 | N2 | Doctor protects the Mafia's target | No death. `saveOccurred = true`. `T2` becomes eligible | unit |
-| N3 | Doctor protects themselves | Allowed only if the setting permits **and** not on consecutive nights | unit |
-| N4 | Doctor protects the same player two nights running | **Blocked by default.** Tile renders disabled with a hint | unit + golden |
+| N3 | Doctor protects themselves | Only through the Doctor's bullet, once a match, always offered (RL3) | unit |
+| N4 | Doctor protects the same player two nights running | **Blocked in both modes** (RL3). Tile renders disabled with a hint | unit + golden |
 | N5 | Detective investigates a dead player | Dead players are not shown in the grid. Unreachable by construction | widget |
 | N6 | Detective investigates themselves | Own tile is absent from the grid | widget |
 | N7 | Multiple Mafia, tie in target votes | Resolved by the configured tie rule **with no extra phone pass** (doc 05 §5) | unit |
 | N8 | Multiple Mafia, one disconnects (online) | Remaining Mafia's votes decide. Absent Mafia contributes nothing | integration |
 | N9 | All Mafia disconnect (online) | Timer expiry → seeded random target from living non-Mafia. Match continues | integration |
-| N10 | Citizen skips their suspicion | Recorded as `null`. Feeds `T6` and `C10` | unit |
+| N10 | Citizen skips their suspicion | Offline: recorded as `null`, feeds `T6` and `C10`. Online citizens wait and record nothing (RL4) | unit |
 | N11 | Citizen writes a 41-char note | Blocked at 40 by the input, server also truncates | unit + widget |
 | N12 | Last living Doctor dies | No protection thereafter. No crash, no null deref | unit |
 | N13 | Last living Detective dies | No investigation phase. Night is shorter — **offline: parity still enforced**, other roles unaffected | unit |
@@ -84,7 +84,7 @@ The fuzz harness runs these after every single transition. This one harness catc
 |---|---|---|---|
 | D1 | All players abstain | No elimination. Proceed to night. Not a stall | unit |
 | D2 | Two-way tie | Configured rule: revote among tied only, or no elimination | unit |
-| D3 | Tie persists after revote | Hard-resolve: no elimination. **Never loop forever** — max 2 revote rounds | unit |
+| D3 | Tie persists after revote | Hard-resolve: no elimination. **Never loop forever** — one revote round | unit |
 | D4 | Three-way tie | Same path as two-way | unit |
 | D5 | Player votes for themselves | Own tile absent. Unreachable | widget |
 | D6 | Player votes for a dead player | Dead not shown. Unreachable | widget |
@@ -106,7 +106,7 @@ The fuzz harness runs these after every single transition. This one harness catc
 | W3 | 3v3 | `MAFIA_WIN` |
 | W4 | 1 Mafia vs 2 non-Mafia | `IN_PROGRESS` |
 | W5 | 0 Mafia, ≥1 alive | `CITIZENS_WIN` |
-| W6 | 0 players alive | `DRAW` — defensive only, must not throw |
+| W6 | 0 players alive | The town is returned — defensive only, must not throw (no draw is modelled; `win_check.dart`) |
 | W7 | Player quits and was the last Mafia | `CITIZENS_WIN`, annotated in the timeline as won-by-forfeit |
 | W8 | Win condition met mid-night-resolution | Check runs **after all deaths are applied**, never mid-resolution |
 
@@ -128,7 +128,7 @@ Full detail in `06-win-conditions.md`. **Property test:** for 100,000 random `(m
 | T-E6 | Two candidates score identically | Deterministic seeded tie-break. **Same result on every device** |
 | T-E7 | Night 1, all suspicions random | `T1` still fires — social value, not evidential. Documented, not a bug |
 | T-E8 | `T5` (الظل) on night 1 | Ineligible — requires ≥2 nights elapsed |
-| T-E9 | Online and offline given identical inputs | **Byte-identical trace output.** Golden-vector test in CI |
+| T-E9 | Online and offline given identical inputs | **Byte-identical trace output** for the shared traces (golden vectors). Online has no suspicions (RL4), so T1 and T3–T8 are offline only |
 
 ## 5.2 Confrontation
 
