@@ -119,3 +119,10 @@ GAP M3-54: Match end — idle archive without outcome lacks a direct test — `s
 GAP M3-55: Match end — local history and reward sync after reconnect lack integration proof — `lib/ui/screens/online/online_session.dart:359`
 GAP M3-56: Match end — receipt issuance/voiding lacks a live concurrent proof — `supabase/migrations/20261009002200_receipt_participation_and_kick.sql:110`
 GAP M3-58: Match end — result analytics facts lack behavioral proof beyond layout — `lib/ui/screens/online/online_table_flow.dart:2000`
+
+## Resolution (2026-10-17, orchestrator)
+
+| SUSPECT | Outcome |
+|---|---|
+| M3-40, M3-43 | FIXED 5164053 — a kick or strike after a decided outcome leaves it and the rewards alone (supabase/tests/decided_outcome_stands.sql) |
+| M3-22 | ACCEPTED (design limit) — one account plays on one device at a time; a second device can displace the first |

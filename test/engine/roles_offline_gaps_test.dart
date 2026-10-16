@@ -231,7 +231,9 @@ void main() {
     expect(e.match.eventLog.whereType<NightActionSkipped>()
         .any((event) => event.actorSeat == elder), isTrue);
     final citizens = seats(e, Role.citizen);
-    for (final x in citizens.take(3)) e.removePlayer(x);
+    for (final x in citizens.take(3)) {
+      e.removePlayer(x);
+    }
     expect(e.match.outcome, isNull);
     e.removePlayer(citizens.last);
     expect(e.match.outcome?.winner, Alignment.mafia);
@@ -247,7 +249,9 @@ void main() {
     expect(e.match.eventLog.whereType<NightActionSkipped>()
         .any((event) => event.actorSeat == citizens.last), isTrue);
     expect(e.match.eventLog.whereType<BulletSpent>(), isEmpty);
-    for (final x in citizens.take(3)) e.removePlayer(x);
+    for (final x in citizens.take(3)) {
+      e.removePlayer(x);
+    }
     expect(e.match.outcome?.winner, Alignment.mafia);
   });
 
@@ -315,6 +319,48 @@ void main() {
       expect(BalanceGuard.evaluate(playerCount: 7,
           roleCounts: counts).valid, isFalse);
     }
+  });
+
+  test('M2-107: each threshold table size itself is accepted', () {
+    expect(OptionalRole.silencer.blockedBy(
+        players: 5, mafia: 2, citizens: 2), isNull);
+    expect(OptionalRole.elder.blockedBy(
+        players: 6, mafia: 1, citizens: 3), isNull);
+    expect(OptionalRole.sniper.blockedBy(
+        players: 7, mafia: 1, citizens: 4), isNull);
+  });
+
+  test('M2-109: guard names every duplicate and a half-table Mafia; engine start refuses the ones it owns', () {
+    List<String> codes(int players, Map<Role, int> counts) => [
+      for (final issue in BalanceGuard.evaluate(
+          playerCount: players, roleCounts: counts).issues)
+        if (issue.blocking) issue.code,
+    ];
+    expect(codes(7, {Role.mafia: 1, Role.detective: 2, Role.citizen: 4}),
+        contains('one_detective_only'));
+    expect(codes(7, {Role.mafia: 1, Role.silencer: 2, Role.citizen: 4}),
+        contains('one_silencer_only'));
+    expect(codes(7, {Role.mafia: 1, Role.elder: 2, Role.citizen: 4}),
+        contains('one_elder_only'));
+    expect(codes(7, {Role.mafia: 1, Role.sniper: 2, Role.citizen: 4}),
+        contains('one_sniper_only'));
+    expect(codes(6, {Role.mafia: 3, Role.citizen: 3}),
+        contains('mafia_too_many'));
+    expect(BalanceGuard.evaluate(playerCount: 5,
+        roleCounts: {Role.mafia: 2, Role.citizen: 3}).valid, isTrue);
+
+    void refused(Map<Role, int> counts, MatchSettings settings) {
+      expect(() => MatchEngine(clock: Clocks.monotonic()).start(
+          names: [for (var i = 0; i < 7; i++) 'P$i'],
+          roleCounts: counts, settings: settings, seed: 1),
+          throwsArgumentError);
+    }
+    refused({Role.mafia: 1, Role.silencer: 2, Role.citizen: 4}, withSilencer);
+    refused({Role.mafia: 1, Role.elder: 2, Role.citizen: 4},
+        plain.copyWith(elderEnabled: true));
+    refused({Role.mafia: 1, Role.sniper: 2, Role.citizen: 4},
+        plain.copyWith(sniperEnabled: true));
+    refused({Role.mafia: 4, Role.citizen: 3}, plain);
   });
 
   test('M2-111: same seed deals identically and private team view excludes town', () {

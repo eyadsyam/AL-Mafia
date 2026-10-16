@@ -147,9 +147,9 @@ Read-only audit of the checked-out source, 2026-10-17. Rule authority: `docs/spe
 | M2-104 | ONLINE 4-player table rejected; five-player minimum enforced | §2.1 | `supabase/functions/start_match/index.ts:56` | — | none | GAP |
 | M2-105 | OFFLINE classic default is quarter table Mafia: 1 at five, 5 at twenty; one Doctor, one Detective | §2.2; RL11 | `lib/engine/presets.dart:145`; `lib/engine/presets.dart:147` | `test/engine/balance_guard_test.dart: returns valid distribution for 20 players (5 Mafia, a quarter)` | unit | OK |
 | M2-106 | ONLINE lobby starts from the same recommended quarter split | §2.2; RL11 | `lib/ui/screens/online/lobby_deal.dart:17`; `lib/engine/balance_guard.dart:169` | `test/online/lobby_deal_test.dart: nothing switched on deals the plain recommended split` | unit | OK |
-| M2-107 | OFFLINE bought Silencer needs two Mafia-side seats, Elder 6+, Sniper 7+; each replaces one base seat | §2.4–2.5; RL12 | `lib/ui/screens/setup/optional_roles.dart:35`; `lib/ui/screens/setup/optional_roles.dart:57` | `test/engine/roles_offline_gaps_test.dart: M2-107: optional role thresholds and seat replacements` | unit | OK |
+| M2-107 | OFFLINE bought Silencer needs two Mafia-side seats, Elder 6+, Sniper 7+; each replaces one base seat | §2.4–2.5; RL12 | `lib/ui/screens/setup/optional_roles.dart:35`; `lib/ui/screens/setup/optional_roles.dart:57` | `test/engine/roles_offline_gaps_test.dart: M2-107: optional role thresholds and seat replacements`; `M2-107: each threshold table size itself is accepted` | unit | OK |
 | M2-108 | ONLINE lobby filters impossible sold roles at table size, and server rechecks counts and ownership | §2.4–2.5; RL12; I3 | `lib/ui/screens/online/lobby_deal.dart:24`; `supabase/functions/start_match/index.ts:72`; `supabase/functions/start_match/index.ts:84` | `test/online/lobby_deal_test.dart: five players skip all three sold roles and say so` | unit | GAP |
-| M2-109 | OFFLINE at most one Detective, one Silencer, one Elder and one Sniper; Mafia-side below half — CONFIRMED by M2-109: balance guard rejects multiple Elder and Sniper | §2.4, §7 | `lib/engine/balance_guard.dart:110`; `lib/engine/balance_guard.dart:130`; `lib/engine/match_engine.dart:112` | `test/engine/roles_offline_gaps_test.dart: M2-109: balance guard rejects multiple Elder and Sniper` | unit | SUSPECT |
+| M2-109 | OFFLINE at most one Detective, one Silencer, one Elder and one Sniper; Mafia-side below half | §2.4, §7 | `lib/engine/balance_guard.dart:110`; `lib/engine/balance_guard.dart:130`; `lib/engine/match_engine.dart:112` | `test/engine/roles_offline_gaps_test.dart: M2-109: balance guard rejects multiple Elder and Sniper`; `M2-109: guard names every duplicate and a half-table Mafia; engine start refuses the ones it owns` | unit | OK |
 | M2-110 | ONLINE server rejects second Detective, duplicate sold roles, zero Mafia, start parity, role-sum mismatch | §2.4, §7; I2 | `supabase/functions/start_match/index.ts:77`; `supabase/functions/start_match/index.ts:80`; `supabase/functions/start_match/index.ts:84` | — | none | GAP |
 | M2-111 | OFFLINE deal is seeded; Mafia and Silencer privately see team; match cannot start with invalid role count | §2.4, §2.7; RL6; doc 05 | `lib/engine/match_engine.dart:90`; `lib/engine/match_engine.dart:153`; `lib/engine/match_engine.dart:229` | `test/engine/roles_offline_gaps_test.dart: M2-111: same seed deals identically and private team view excludes town` | unit | OK |
 | M2-112 | ONLINE seeded deal is atomic under room lock; no roles returned publicly; reconnect reads own role/team | §2.7; RL6; I1, I9 | `supabase/functions/start_match/index.ts:100`; `supabase/migrations/20261009000100_deal_all_roles.sql:13`; `supabase/functions/start_match/index.ts:129`; `supabase/functions/my_team/index.ts:47` | — | none | GAP |
@@ -162,7 +162,6 @@ Read-only audit of the checked-out source, 2026-10-17. Rule authority: `docs/spe
 
 ## Findings
 
-SUSPECT M2-109: Deal and balance — CONFIRMED by M2-109: balance guard rejects multiple Elder and Sniper; `BalanceGuard.evaluate` accepts both.
 SUSPECT M2-61 [I1, I2]: Detective — offline night command can reveal another role out of phase — `lib/engine/match_engine.dart:390`.
 SUSPECT M2-11 [I2, I9]: Mafia — rejected armed move can leave the team bullet spent — `lib/engine/match_engine.dart:414`.
 SUSPECT M2-89 [I2, I3, I9]: Sniper — rejected armed shot can consume the only shot — `lib/engine/match_engine.dart:414`.
@@ -237,3 +236,13 @@ GAP M2-73: Elder — offline public reveal, night privacy, shot combination unpr
 GAP M2-91: Sniper — offline death visibility unproved — `lib/ui/screens/night/morning_screen.dart:41`.
 GAP M2-101: Citizen — offline skip/death visibility unproved — `lib/engine/match_engine.dart:670`.
 GAP M2-113: Deal and balance — offline owned-role flag/deal combination unproved — `lib/ui/screens/setup/optional_roles.dart:79`.
+
+## Resolution (2026-10-17, orchestrator)
+
+| SUSPECT | Outcome |
+|---|---|
+| M2-5, M2-35, M2-61, M2-75, M2-97 | FIXED aed3e3a — night commands throw out of phase (test/engine/engine_hardening_test.dart) |
+| M2-11, M2-49, M2-89 | FIXED aed3e3a — a refused armed move spends no bullet (engine_hardening_test.dart) |
+| M2-48 | FIXED 537e3f0 — the online morning shows a told save |
+| M2-109 | FIXED 537e3f0 — one Elder, one Sniper (roles_offline_gaps_test.dart) |
+| M2-76, M2-98 | ACCEPTED — an older client's Elder/Citizen night move is acknowledged and nothing is stored (submit_night_action, deliberate) |

@@ -309,3 +309,18 @@ GAP M1-105 [I3,I5]: lock_door — pure next-night set test does not prove all re
 GAP M1-108 [I2,I5,I9]: lock_door — no live use versus day-phase closure test — supabase/functions/resolve_night/index.ts:60
 
 GAP M1-109 [I2,I5]: appeal — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
+
+## Resolution (2026-10-17, orchestrator)
+
+| SUSPECT | Outcome |
+|---|---|
+| M1-73, M1-115 | FIXED 7c01244 — the vote fingerprint covers the day's vote tools (supabase/tests/vote_fingerprint.test.mjs, tool_guards.sql) |
+| M1-71 | FIXED 7c01244 — revote refused in round 2 (tool_guards.sql) |
+| M1-78 | FIXED 7c01244 — grave vote only in discuss/defense/vote (tool_guards.sql) |
+| M1-58, M1-79 | FIXED 7c01244 — SILENCED refusal (tool_guards.sql); client line 537e3f0 |
+| M1-25 | FIXED 7c01244 — spotlight needs a living unsilenced target in a talk phase |
+| M1-18 | FIXED 7c01244 — no last will at night |
+| M1-87, M1-101 | FIXED 537e3f0 — recovered answer must match phase and targets (test/ui/economy/tool_answer_match_test.dart) |
+| M1-38, M1-45, M1-52, M1-65, M1-94, M1-107, M1-114 | ACCEPTED — conditional tools are cover bought in advance; their descriptions state the condition |
+| M1-6, M1-32 | ACCEPTED — the floor bonus waits for the holder's next turn (consumed_at), next day included |
+| M1-72 | ACCEPTED (rare) — a revote with no ballots has nothing to reopen |
