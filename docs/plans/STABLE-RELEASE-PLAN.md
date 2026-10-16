@@ -15,9 +15,10 @@ This file is the single place to resume from. Anyone (Claude, Codex, a person) p
 1. This file, §5 (the queue).
 2. `docs/PROGRESS.md` (last entries), `CLAUDE.md` (non-negotiables), `docs/specs/17-roles-and-tools.md` §9–§12 (rule book + rulings RL1–RL21, final).
 3. Work model (owner, 2026-10-17): Claude plans, writes exact briefs, reviews, runs gates, commits. Codex executes briefs to the letter and decides nothing. Sonnet only if Codex cannot run.
-4. Codex relay: from **PowerShell** (Git Bash times out on "workspace routing discovery"):
+4. Codex cannot run `flutter` in its workspace-write sandbox (SDK cache outside the tree): Dart briefs tell it so, and the orchestrator runs analyze/tests after. Do not use danger-full-access (it could reach the network).
+5. Codex relay: from **PowerShell** (Git Bash times out on "workspace routing discovery"):
    `node C:\Users\LENOVO\.claude\skills\codex-delegate\scripts\relay.mjs --brief <file> --cd . --model gpt-6-sol --timeout 2h` (add `--read-only` for audits). Briefs live in `docs/plans/briefs/`.
-5. Machine limits: about 2.6 GB free RAM; one `flutter test` or SQL-harness process at a time. Deno and Docker are not installed.
+6. Machine limits: about 2.6 GB free RAM; one `flutter test` or SQL-harness process at a time. Deno and Docker are not installed.
 
 ### Never
 - Upload anything: no deploy (web, edge functions), no live migration, no live flag flip, no Play upload, no push. Owner: «اهم حاجه مترفعش اي حاجه».
@@ -80,13 +81,35 @@ Each matrix is a file in `docs/plans/audit/`, produced read-only by Codex from t
 | M4 Store and economy | every store item does what it says in every mode (owner rule), purchase → grant → use → refund revokes, coins, rewards, ads cadence unchanged | `briefs/audit_store.txt` (write when M1–M3 are in) | `audit/M4-store.md` |
 | M5 Vs computer | bot match: does every phase complete, do bots obey the rulings, rewards | after owner decision §6 | `audit/M5-bots.md` |
 
+### 4b. Triage of M1 (tools) and M2 (roles), 2026-10-17
+
+M1: 117 rows; 20 SUSPECT. M2: 118 rows (29 OK, 76 GAP, 11 SUSPECT). Decisions:
+
+| Finding | Decision | Where |
+|---|---|---|
+| M1-73, M1-115 tool bought during resolution can be lost (I3/I9) | FIX: resolution fingerprint covers the day's tool uses | `briefs/server_tool_guards.txt` T1 |
+| M1-71 revote charged in round 2 | FIX: refused (WRONG_PHASE) | T2 |
+| M1-78 grave_vote charged outside a ballot window | FIX: same window as vote tools | T3 |
+| M1-58, M1-79 silenced player pays for double/grave vote | FIX: refused (SILENCED) | T4 |
+| M1-25 spotlight on a dead/silenced target or outside talk | FIX: refused | T5 |
+| M1-18 last will written at night unread, lost if the match ends | FIX: refused at night | T6 |
+| M1-87, M1-101 recovered sense/whisper answer from an older use | FIX: match same phase + targets | `briefs/client_rulings.txt` S7 |
+| M2-48 online morning never tells a told save | FIX | client S6 |
+| M2-5/35/61/75/97 offline night commands do not check phase | FIX: StateError out of phase | `briefs/engine_hardening.txt` E1 |
+| M2-11/49/89 refused armed move spends the bullet | FIX: validate before spending | E2 |
+| M2-76, M2-98 server acks a forged Elder/Citizen night move | ACCEPTED: deliberate (older clients); nothing stored, no effect | submit_night_action.ts:57 comment |
+| M1-38/45/52/65/94/107/114 conditional tools (last word, vote shield, half door, camouflage, impersonate, lock door, appeal) charged although the condition may never come | ACCEPTED: insurance by description («لو…», «الليلة الجاية…»); the charge buys the cover, not the event | descriptions in app_ar.arb |
+| M1-6, M1-32 extra minute / objection bought after the last turn of a discussion | ACCEPTED: the floor bonus waits for the holder's next turn (consumed_at), next day included | migration 20261009000600 |
+| M1-72 revote when nobody voted | ACCEPTED (rare): nothing to reopen; revisit if players report it | — |
+| All GAP rows | Q5: tests in batches, highest risk first (online roles, deal, tools that charge) | — |
+
 ## 5. Queue (do in order; tick when committed)
 
 - [x] Q1 Server rulings T1–T10 (882951b).
-- [ ] Q2 Offline case matrix C1–C112 as tests (`briefs/matrix.txt`, Codex running 2026-10-17). Then Claude fixes every `skip: 'DEFECT…'` in lib/engine with its test.
+- [x] Q2 Offline case matrix: 72 tests, all green, no engine defect found (9300cc6).
 - [ ] Q3 Online client half of the rulings (`briefs/client_rulings.txt`): team bullet, doctor no-repeat seat, last word line, floor tools hidden in free talk, silenced mic closed.
-- [ ] Q4 Audits M1, M2, M3 (read-only Codex, can run in parallel: no flutter processes).
-- [ ] Q5 Fix every SUSPECT, test every GAP from Q4 (briefs written by Claude per batch).
+- [ ] Q4 Audits: M1 + M2 done (9300cc6), triage §4b; M3 running.
+- [ ] Q5 Fix every SUSPECT (running: `server_tool_guards`, `engine_hardening`, client S6/S7), then test GAP rows in batches.
 - [ ] Q6 Parity: extend `tool/golden_vectors.dart` with vectors for RL1, RL2, RL3, RL5, RL17 and regenerate; both sides green.
 - [ ] Q7 Gendered lines: female variants for lines addressed to a known female player offline (silencedCannotVote, confrontationC1/C4/C5/C6/C7/C8). Exact Arabic in §7.
 - [ ] Q8 M4 store audit and fixes.

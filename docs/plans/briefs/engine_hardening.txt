@@ -1,0 +1,14 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master, a Flutter party game. YOU EXECUTE; YOU DO NOT DESIGN. Do exactly the steps; no refactors, renames, or reformatting of lines you do not change. No git commit, no network, no deploy, no builds. Other people are editing other files right now: touch only the files your task names.
+Never weaken an existing assertion; if an existing test breaks because of a step, fix the test's input and say so.
+Edit only: lib/engine/match_engine.dart and a new test file test/engine/engine_hardening_test.dart.
+YOU CANNOT RUN FLUTTER IN YOUR SANDBOX (the SDK cache is outside the writable tree). Do not try. Instead: before using any symbol, grep that it exists and read its exact signature; match imports; keep every edit compiling. The orchestrator runs `flutter analyze` and the tests after you and will send you the failures.
+
+E1 - The night commands refuse out of phase (audit M2-5, M2-35, M2-61, M2-75, M2-97).
+`MatchEngine.submitNightAction` (around line 390), `skipNightAction`, and the suspicion path around line 562 must throw StateError when `match.phase != GamePhase.night`, before reading or changing anything. Use the same StateError message style as the method's other checks.
+Test: calling each of them outside the night throws StateError and leaves match state unchanged (same eventLog length).
+
+E2 - A refused armed move spends nothing (audit M2-11, M2-49, M2-89).
+In `submitNightAction`, the bullet is recorded (around lines 414-426, and the helper near line 704) before target/role checks that can throw. Reorder so EVERY validation (target alive, not self unless allowed, doctor no-repeat, role may use this move, bullet available) runs first, and the bullet is recorded only after all checks passed. Behaviour for valid moves must not change.
+Test, one per role holding a bullet (mafia quiet night, doctor self-protect, sniper shot): an armed move that is refused (a dead target, or the doctor's no-repeat) throws, and afterwards the same seat can still make a valid armed move that spends the bullet (proving it was not spent). Build matches the way test/engine/rule_matrix_test.dart does (its `start` helper).
+
+REPORT (final message): per step: done / partial, files, tests added; any existing test input you changed.

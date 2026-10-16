@@ -36,14 +36,24 @@ a) lib/ui/economy/table_tools.dart: `_ToolsSheet` gets a required `bool freeTalk
 b) Where a tool use failure code is turned into a message, map 'NOT_THIS_ROOM' to a new key:
    app_ar.arb: "toolNeedsTurns": "الأداة دي بتشتغل لما الكلام يبقى بالدور بس"
    app_en.arb: "toolNeedsTurns": "This tool only works when talk goes by turns"
+   Also map the new server code 'SILENCED' (a silenced player tried double_vote or grave_vote) to a new key:
+   app_ar.arb: "toolSilencedToday": "المتسكّت مايقدرش يستخدم الأداة دي النهارده"
+   app_en.arb: "toolSilencedToday": "A silenced player can't use this tool today"
 Test: the sheet does not list extra_minute/objection in a free-talk room and does list them in a structured one.
+
+S6 - The online morning tells a save when the rules say so (ruling RL2, audit M2-48).
+Server: resolve_night puts `someoneSavedUnnamed: true` in the morning public data only when the room has no quiet night AND the covered player lived. The online morning (lib/ui/screens/online/online_table_flow.dart, around the `l10n.quietNight` line in the morning case) never shows it. When the morning has no deaths and `someoneSavedUnnamed` is true, show the SAME l10n line the offline morning screen shows for an unnamed save (find it in lib/ui/screens/night/morning_screen.dart; do not add a new key), in place of the quiet-night line. Parse the field in the morning model if it is not parsed yet (lib/transport/room_codec.dart / game_snapshot.dart).
+Test: widget or decode test: someoneSavedUnnamed true gives the save line; false gives today's line.
+
+S7 - A recovered tool answer must be this request's answer (audit M1-87, M1-101).
+lib/ui/economy/table_tools.dart around lines 195-210: after an ambiguous failure, `sense` and `narrator_whisper` recover the answer by looking up an earlier use with the same tool code only, so a use from an earlier phase can be shown as this attempt's answer. Accept a recovered row only when it is the same request: same tool code AND same phase number AND same target seats as the request just sent (and the same request id, if the request carries one). Otherwise surface the failure as today.
+Test: unit test of the matching rule (an older phase's row is not accepted; the same phase/targets row is).
 
 S5 - A silenced player's microphone stays closed all day (ruling RL8).
 lib/platform/voice/voice_controller.dart `apply(GameSnapshot snapshot)`: when `snapshot.viewerSilenced` is true, this device may not speak, under every policy including MicPolicy.open. Change ONLY the self-may-speak decision (the place that maps the policy to whether this player's mic may be live, around the `MicPolicy.open => true` switch, and any `holdsFloor` derived from it). Do NOT change the policy value used for hearing others (`_audible`): a silenced player still hears the table.
 Test: in the existing voice controller tests (search test/ for VoiceController), a case with discussion free, a day talk phase, viewerSilenced true → may not speak but still hears the open table; viewerSilenced false → may speak.
 
-GATES (run them, in this order, one at a time)
-1. `flutter gen-l10n` (after the ARB edits) and `flutter analyze` with no errors and no new warnings or infos in files you touched.
-2. `flutter test test/online` then `flutter test test/transport` (if that folder exists) then `flutter test test/platform` (if it exists) then every other test file you added or changed. All must pass.
+YOU CANNOT RUN FLUTTER IN YOUR SANDBOX (the SDK cache is outside the writable tree). Do not try. Instead: before using any symbol, grep that it exists and read its exact signature; match imports; keep every edit compiling. The orchestrator runs `flutter analyze` and the tests after you and will send you the failures.
+After editing the ARB files do not run gen-l10n either; the orchestrator will.
 
-REPORT (final message): per step S1-S5: done / partial / blocked, files, tests added, gate results with numbers. List every place you had to choose between two readings and what you chose. List any existing test whose input you changed and why.
+REPORT (final message): per step S1-S7: done / partial / blocked, files, tests added, gate results with numbers. List every place you had to choose between two readings and what you chose. List any existing test whose input you changed and why.

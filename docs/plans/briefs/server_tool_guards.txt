@@ -1,0 +1,26 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master, a Flutter party game. YOU EXECUTE; YOU DO NOT DESIGN. Do exactly the steps; no refactors, renames, or reformatting of lines you do not change. No git commit, no network, no deploy, no builds. Other people are editing other files right now: touch only the files your task names.
+Never weaken an existing assertion; if an existing test breaks because of a step, fix the test's input and say so.
+Edit only: supabase/** (one new migration supabase/migrations/20261017000100_tool_guards.sql, edge functions, tests in supabase/tests/). In SQL, later migrations override earlier definitions: the latest `public.use_table_tool` is in supabase/migrations/20261016000400_floor_tools_need_turns.sql; copy the WHOLE function into the new migration and change only what a step says, keeping its grants.
+GATES you CAN run (one at a time): `node tool/test_sql_without_docker.mjs` (all must pass; 90/90 now) and `node --test supabase/tests/<file>.test.mjs` for each node test file (28 files pass now). Each step gets a test.
+
+T1 - A tool bought during the vote is never lost to the resolution (audit M1-73, M1-115).
+supabase/functions/resolve_vote/index.ts reads tool uses (revote, appeal, double_vote, grave_vote, any it reads) and commits the resolution guarded by a fingerprint (around line 88). A use committed after the read but before the commit is ignored although charged. Make the fingerprint also cover the tool-use rows of this day that resolve_vote reads (e.g. their ids), so such a race fails the commit and the resolution retries exactly as it does today for a roster change. Node test of the fingerprint helper (a new use changes it).
+
+T2 - revote only when it can still happen (audit M1-71).
+In use_table_tool: `revote` raises 'WRONG_PHASE' when the day's ballot is already in round 2 or later (find where the ballot round is stored; resolve_vote reads it). SQL test.
+
+T3 - grave_vote only while a ballot can still take it (audit M1-78).
+In use_table_tool: the dead-only path for `grave_vote` gets the same phase window as the living vote-phase tools (room phase in 'discuss','defense','vote' with the ballot not yet resolved); otherwise 'WRONG_PHASE'. SQL test.
+
+T4 - A silenced player cannot pay for a vote they cannot cast (audit M1-58, M1-79).
+In use_table_tool: `double_vote` and `grave_vote` raise 'SILENCED' when the user is today's silenced seat (read it the way submit_vote and _shared/silence.ts read it: the morning public data's silencedSeat for this day). SQL test.
+
+T5 - spotlight needs a target who can answer (audit M1-25).
+In use_table_tool: `spotlight` raises 'BAD_TARGETS' when its target is dead or is today's silenced seat, and 'WRONG_PHASE' outside the day talk phases ('opening','confront','discuss','defense'). SQL test.
+
+T6 - last_will is read right away (audit M1-18; its description says everyone reads it right away).
+In use_table_tool: `last_will` raises 'WRONG_PHASE' while the room phase is 'night' (the feed hides night lines until day, so a will written at night would not be read right away, and never if the match ends that night). SQL test.
+
+Map every new error in the edge function that calls use_table_tool exactly as the existing codes are mapped (same envelope), so the client receives 'SILENCED' as the code.
+
+REPORT (final message): per step T1-T6: done / partial, files, tests, gate numbers before/after, and the exact error codes the client now receives.
