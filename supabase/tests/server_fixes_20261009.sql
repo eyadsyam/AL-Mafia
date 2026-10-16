@@ -78,6 +78,7 @@ begin
   assert (ans->0->>'tool')='sense' and (ans->0->>'answer')::boolean;
   assert public.my_tool_answers(u2,room)->'answers'='[]'::jsonb, 'another player read answers that are not theirs';
 
+  update public.room_state set phase='discuss' where room_id=room;
   assert (select targets from public.table_tools where code='grave_vote')=0;
   begin
     perform public.use_table_tool(u5,room,'grave_vote',array[2],null);

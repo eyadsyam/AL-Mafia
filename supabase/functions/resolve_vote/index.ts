@@ -9,7 +9,7 @@
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { deadlineFor } from "../_shared/phases.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
-import { rosterFingerprint } from "../_shared/roster_fingerprint.ts";
+import { voteFingerprint } from "../_shared/vote_fingerprint.ts";
 import { ballotTargetAllowed } from "../_shared/ballot_candidates.ts";
 import { ballotVerdict } from "../_shared/vote_rules.ts";
 import {
@@ -98,10 +98,7 @@ Deno.serve(handler(async (req, userId, db) => {
 
     // See `resolve_night`: the ballots this outcome counts, for the commit to
     // check against the ballots the room holds when it locks the row.
-    const fingerprint = [...(cast ?? [])]
-      .sort((a, b) => a.voter_id < b.voter_id ? -1 : a.voter_id > b.voter_id ? 1 : 0)
-      .map((v) => `${v.voter_id}|${v.target_id ?? "-"}`)
-      .join(";") + "#roster:" + rosterFingerprint(roster);
+    const fingerprint = voteFingerprint(cast ?? [], roster, toolUses, day);
     // A ballot counts only between two living seats: a voter the host removed
     // after casting it is out of the match, and a seat put out does not go on
     // deciding the town's verdict from outside it (see `resolve_night`).

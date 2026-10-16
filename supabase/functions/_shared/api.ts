@@ -64,6 +64,7 @@ export type ErrorCode =
   | "PHASE_CLOSED"
   | "WRONG_ROLE"
   | "NOT_ALIVE"
+  | "SILENCED"
   | "NOT_HOST"
   | "ROOM_FULL"
   | "ROOM_FINISHED"
