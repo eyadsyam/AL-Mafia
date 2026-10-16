@@ -6,53 +6,53 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-1 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 extra_minute; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-1 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 extra_minute; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (extra_minute; 4/20 seats) | sql-sim | OK |
 | M1-2 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 extra_minute; RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-3 | Public feed names user and tool; no role is implied because any living role can buy it | §5.2 extra_minute; RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-4 | Structured floor claim adds 45 seconds once; stacks with objection to 75 | §5.2 extra_minute; C91 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:100 | supabase/tests/live_tools_regressions.sql: bonus added exactly once | sql-sim | OK |
 | M1-5 | Free discussion refuses before decrement | RL14 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:34 | supabase/tests/floor_tools_free_room.sql: refuses before charge | sql-sim | OK |
 | M1-6 | Bought after own last floor or silenced, then timer expires — charge is spent though no floor bonus can apply | §5.2 extra_minute; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | SUSPECT |
-| M1-7 | Two users race for floor, disconnected/kicked buyer, reconnect and phase expiry; one grant should consume once | §5.2 extra_minute; I3/I9 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:36 | supabase/tests/live_tools_regressions.sql: same-holder retry changed deadline | sql-sim | GAP |
+| M1-7 | Two users race for floor, disconnected/kicked buyer, reconnect and phase expiry; one grant should consume once — needs-live | §5.2 extra_minute; I3/I9 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:36 | supabase/tests/live_tools_regressions.sql: same-holder retry changed deadline | sql-sim | GAP |
 
 ## anon_note
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-8 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 anon_note; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-8 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 anon_note; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (anon_note; 4/20 seats) | sql-sim | OK |
 | M1-9 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 anon_note; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-10 | Public note text without author; feed does not identify a role | §5.2 anon_note; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-11 | 1–140 nonblank characters posted immediately; bad note rejected without charge | §5.2 anon_note; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:59 | supabase/tests/live_tools_regressions.sql: anonymous note exposes its author / lost its text | sql-sim | OK |
 | M1-12 | Secret log stores tool code with null seat; all clients see note, no role-only capability | §5.2 anon_note; doc 05 | supabase/functions/_shared/tools.ts:33 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
-| M1-13 | Simultaneous uses and lost-response retry must not duplicate a note | §5.0; I9 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:75 | none | none | GAP |
+| M1-13 | Simultaneous uses and lost-response retry must not duplicate a note — needs-live | §5.0; I9 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:75 | none | none | GAP |
 
 ## last_will
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-14 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 last_will; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-14 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 last_will; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (last_will; 4/20 seats) | sql-sim | OK |
 | M1-15 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 last_will; RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-16 | Public will text; no role fact supplied by app | §5.2 last_will; RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
-| M1-17 | Dead user posts a short will at once; living user refused | RL14; §5.2 last_will | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: use last_will / repeat phase | live | GAP |
+| M1-17 | Dead user posts a short will at once; living user refused | RL14; §5.2 last_will | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: dead will posted immediately; living refused | sql-sim | OK |
 | M1-18 | Used at night — feed is hidden until day, or forever if match ends that night | RL14; toolLastWillDesc; I3/I7 | lib/ui/screens/online/table/tool_feed.dart:11 | test/widget/tool_feed_test.dart: absent at night | widget | SUSPECT |
-| M1-19 | Kicked dead player and ended match cannot post; no charge on refusal | §5.0 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:26 | none | none | GAP |
+| M1-19 | Kicked dead player and ended match cannot post; no charge on refusal | §5.0 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:26 | supabase/tests/tools_gaps.sql: kicked and ended will refusal preserves charge | sql-sim | OK |
 
 ## spotlight
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-20 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 spotlight; RL15; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-20 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 spotlight; RL15; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (spotlight; 4/20 seats) | sql-sim | OK |
 | M1-21 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 spotlight; RL15; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-22 | Public feed names buyer and target; free talk calls target out without role data | §5.2 spotlight; RL15; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-23 | Structured discussion gives target the next floor; last word precedes it | RL15 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:61 | supabase/tests/floor_priority.sql: spotlight and last word priority | sql-sim | OK |
 | M1-24 | Dead or silenced target, expiry, free discussion, and other phases do not hold the floor | RL15 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:73 | supabase/tests/floor_priority.sql: dead / silenced / free / other phases | sql-sim | OK |
 | M1-25 | Buyer can select an alive but already silenced target, or buy after discussion; effect cannot grant speech, charge spent | RL15; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:53 | none | none | SUSPECT |
-| M1-26 | Two users buy concurrently; floor claimant and phase timer race with priority hold | RL15; I9 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:83 | none | none | GAP |
+| M1-26 | Two users buy concurrently; floor claimant and phase timer race with priority hold — needs-live | RL15; I9 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:83 | none | none | GAP |
 
 ## objection
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-27 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 objection; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-27 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 objection; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (objection; 4/20 seats) | sql-sim | OK |
 | M1-28 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 objection; RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-29 | Public feed names user and tool; no role inference | §5.2 objection; RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-30 | Structured first floor claim adds 30 seconds, stacking with extra minute | RL14; C91 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:100 | supabase/tests/server_fixes.test.mjs: floor bonus is spent by first granted claim | unit | OK |
@@ -63,66 +63,66 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-33 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 last_word; RL15; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-33 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 last_word; RL15; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (last_word; 4/20 seats) | sql-sim | OK |
 | M1-34 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 last_word; RL15; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-35 | Public feed names buyer and target; if eliminated, verdict also names chosen seat | §5.2 last_word; RL15; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-36 | Only eliminated owner gets next-day first speaker; public verdict even if match ends | RL15 | supabase/functions/resolve_vote/index.ts:216 | supabase/tests/vote_rules.test.mjs: last word: eliminated seat's own last word names who speaks first | unit | OK |
 | M1-37 | Priority lapses after 20 seconds or if target dead/silenced; spotlight follows | RL15 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:61 | supabase/tests/floor_priority.sql: last word before spotlight / lapse | sql-sim | OK |
 | M1-38 | Owner survives, target dies overnight, or match ends — charge spent though speech never occurs | toolLastWordDesc; RL15; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | SUSPECT |
-| M1-39 | Reconnect after verdict should show who was chosen, including match-ending verdict | RL15; I5 | supabase/functions/resolve_vote/index.ts:235 | none | none | GAP |
+| M1-39 | Reconnect after verdict should show who was chosen, including match-ending verdict — needs-live | RL15; I5 | supabase/functions/resolve_vote/index.ts:235 | none | none | GAP |
 
 ## vote_shield
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-40 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 vote_shield; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-40 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 vote_shield; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (vote_shield; 4/20 seats) | sql-sim | OK |
 | M1-41 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 vote_shield; RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-42 | Public feed names owner and shield; any role can buy, so no role inference | §5.2 vote_shield; RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-43 | Day N shield blocks N+1 night silence; half/lock door redundancy | RL14; C69/C80 | supabase/functions/_shared/tools.ts:85 | supabase/tests/server_fixes.test.mjs: vote_shield bought on day N covers night N + 1 only | unit | OK |
 | M1-44 | Silencer target blocked, but cannot be silenced if dead same night | §5.2 vote_shield; RL7 | supabase/functions/resolve_night/index.ts:175 | supabase/tests/server_fixes.test.mjs: silence cannot land on seat that died same night | unit | OK |
 | M1-45 | Bought before elimination, kick, or match-ending vote — charge spent though next-night shield never activates | toolVoteShieldDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | SUSPECT |
-| M1-46 | Day-phase closure racing shield use must either record the shield or refuse without charge | I2/I9 | supabase/functions/resolve_night/index.ts:60 | none | none | GAP |
+| M1-46 | Day-phase closure racing shield use must either record the shield or refuse without charge — needs-live | I2/I9 | supabase/functions/resolve_night/index.ts:60 | none | none | GAP |
 
 ## half_door
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-47 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 half_door; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-47 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 half_door; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (half_door; 4/20 seats) | sql-sim | OK |
 | M1-48 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 half_door; RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-49 | Public feed names owner and half door; no role inference | §5.2 half_door; RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-50 | Next night blocks silence and investigation; kill/shot still land; lock dominates | §5.2 half_door; C79–C82 | supabase/functions/_shared/tools.ts:55 | supabase/tests/table_tools.test.ts: detective faces: impersonate, camouflage, door | unit | OK |
 | M1-51 | Detective sees unreachable on covered seat | §5.2 half_door | supabase/functions/_shared/tools.ts:73 | supabase/tests/table_tools.test.ts: detective faces: impersonate, camouflage, door | unit | OK |
 | M1-52 | Target (owner) eliminated/kicked before next night; paid effect lapses | toolHalfDoorDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | SUSPECT |
-| M1-53 | Actual kill plus shot plus silence combination on real server, including 4/20 seats | §5.2 half_door; C82 | supabase/functions/resolve_night/index.ts:139 | none | none | GAP |
+| M1-53 | Actual kill plus shot plus silence combination on real server, including 4/20 seats — needs-live | §5.2 half_door; C82 | supabase/functions/resolve_night/index.ts:139 | none | none | GAP |
 
 ## double_vote
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-54 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 double_vote; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-54 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 double_vote; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (double_vote; 4/20 seats) | sql-sim | OK |
 | M1-55 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 double_vote; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-56 | Public feed names owner and doubled ballot; no role inference | §5.2 double_vote; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
-| M1-57 | Own ballot counts twice today and in revote; revealed Elder multiplier makes six | §5.2 double_vote; C69 | supabase/functions/resolve_vote/index.ts:109 | supabase/tests/server_fixes.test.mjs: weighted appeal count | unit | GAP |
+| M1-57 | Own ballot counts twice today and in revote; revealed Elder multiplier makes six — needs-live | §5.2 double_vote; C69 | supabase/functions/resolve_vote/index.ts:109 | supabase/tests/server_fixes.test.mjs: weighted appeal count | unit | GAP |
 | M1-58 | Silenced buyer cannot cast; disconnected buyer may abstain; eliminated buyer never votes, but charge already spent | toolDoubleVoteDesc; I3 | supabase/functions/submit_vote/index.ts:35 | none | none | SUSPECT |
-| M1-59 | Weighted ballot appears in public tally and appeal denominator | §5.2 double_vote; C74 | supabase/functions/resolve_vote/index.ts:126 | supabase/tests/server_fixes.test.mjs: appeal numerator and denominator | unit | GAP |
+| M1-59 | Weighted ballot appears in public tally and appeal denominator — needs-live | §5.2 double_vote; C74 | supabase/functions/resolve_vote/index.ts:126 | supabase/tests/server_fixes.test.mjs: appeal numerator and denominator | unit | GAP |
 
 ## camouflage
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-60 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 camouflage; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-60 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 camouflage; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (camouflage; 4/20 seats) | sql-sim | OK |
 | M1-61 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 camouflage; RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-62 | Feed says only secret tool used; role and face are not displayed | §5.2 camouflage; RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-63 | Next night Detective sees unclear; half/lock door and impersonate take precedence | §5.2 camouflage; C79 | supabase/functions/_shared/tools.ts:73 | supabase/tests/table_tools.test.ts: detective faces: impersonate, camouflage, door | unit | OK |
-| M1-64 | Secret public payload still contains tool code, though seat and targets are null/empty; no direct role identified | §5.0; doc 05 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:102 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | GAP |
+| M1-64 | Secret public payload still contains tool code, though seat and targets are null/empty; no direct role identified | §5.0; doc 05 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:102 | supabase/tests/tools_gaps.sql: camouflage raw public payload | sql-sim | OK |
 | M1-65 | Owner dies/kicked before next night or no Detective investigates; charged with no mask encounter | toolCamouflageDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | SUSPECT |
-| M1-66 | Real Detective versus face and door, reconnecting to private answer | §5.2 camouflage; I5 | supabase/functions/submit_night_action/index.ts:276 | none | none | GAP |
+| M1-66 | Real Detective versus face and door, reconnecting to private answer — needs-live | §5.2 camouflage; I5 | supabase/functions/submit_night_action/index.ts:276 | none | none | GAP |
 
 ## revote
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-67 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 revote; RL13/RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-67 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 revote; RL13/RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (revote; 4/20 seats) | sql-sim | OK |
 | M1-68 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 revote; RL13/RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-69 | Public feed names buyer and tool; no role inference | §5.2 revote; RL13/RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-70 | Round-one winner or tie opens one restricted second ballot under either tie setting | RL13; C70–C72 | supabase/functions/resolve_vote/index.ts:147 | supabase/tests/vote_rules.test.mjs: tie under no-elimination stands unless bought / second round never reopens | unit | OK |
@@ -134,19 +134,19 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-74 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 grave_vote; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-74 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 grave_vote; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (grave_vote; 4/20 seats) | sql-sim | OK |
 | M1-75 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 grave_vote; RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-76 | Public feed names dead buyer and tool; dead status is already public, no role inference | §5.2 grave_vote; RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-77 | Dead user casts one opening ballot that day; cannot vote in round two or twice | §5.2 grave_vote; C84/C85 | supabase/functions/submit_vote/index.ts:23 | supabase/tests/new_roles_tools_match.py: grave first ballot / once per day | live | OK |
 | M1-78 | Dead user can buy after ballot has closed or during last night; no later opening ballot, charge spent | toolGraveVoteDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | none | none | SUSPECT |
 | M1-79 | Silenced dead voter is rejected; bought charge remains | §5.2 grave_vote; RL8 | supabase/functions/submit_vote/index.ts:35 | none | none | SUSPECT |
-| M1-80 | 4-seat final ballot and 20-seat early closure must count grave voter if cast; reconnect must not duplicate | §5.2 grave_vote; I5/I9 | supabase/functions/resolve_vote/index.ts:119 | none | none | GAP |
+| M1-80 | 4-seat final ballot and 20-seat early closure must count grave voter if cast; reconnect must not duplicate — needs-live | §5.2 grave_vote; I5/I9 | supabase/functions/resolve_vote/index.ts:119 | none | none | GAP |
 
 ## sense
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-81 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 sense; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-81 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 sense; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (sense; 4/20 seats) | sql-sim | OK |
 | M1-82 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 sense; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-83 | Public feed names user but hides all three targets; any role can buy, no role inference | §5.2 sense; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-84 | Immediate private yes/no uses true Mafia team including Silencer; doors/faces ignored | §5.2 sense; C77/C78 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:87 | supabase/tests/server_fixes_20261009.sql: Silencer answer and owner-only readback | sql-sim | OK |
@@ -158,19 +158,19 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-88 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 impersonate; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-88 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 impersonate; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (impersonate; 4/20 seats) | sql-sim | OK |
 | M1-89 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 impersonate; RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-90 | Feed says only secret tool; chosen citizen/mafia face remains private | §5.2 impersonate; RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-91 | Face must be citizen/mafia; next-night Detective sees it unless door overrides | §5.2 impersonate; C78 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:63 | supabase/tests/table_tools.test.ts: detective faces: impersonate, camouflage, door | unit | OK |
 | M1-92 | Sense/whisper still report true Mafia team despite face | §5.2 impersonate; C78 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:89 | supabase/tests/server_fixes_20261009.sql: true Silencer answer | sql-sim | OK |
-| M1-93 | Raw public log contains tool code despite secret UI; no explicit role leak, but public shape differs | doc 05; §5.0 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:102 | none | none | GAP |
+| M1-93 | Raw public log contains tool code despite secret UI; no explicit role leak, but public shape differs | doc 05; §5.0 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:102 | supabase/tests/tools_gaps.sql: impersonate raw public payload | sql-sim | OK |
 | M1-94 | Owner eliminated before next night or no Detective targets owner; paid chosen face never shown | toolImpersonateDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | SUSPECT |
 
 ## narrator_whisper
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-95 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 narrator_whisper; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-95 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 narrator_whisper; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (narrator_whisper; 4/20 seats) | sql-sim | OK |
 | M1-96 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 narrator_whisper; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-97 | Feed names user but hides both targets and private answer; no role inference | §5.2 narrator_whisper; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-98 | Immediate private answer from true Mafia roles; same truth with doors and impersonation | §5.2 narrator_whisper; C77/C78 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:87 | supabase/tests/server_fixes_20261009.sql: private yes/no answer | sql-sim | OK |
@@ -182,19 +182,19 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-102 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 lock_door; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-102 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 lock_door; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (lock_door; 4/20 seats) | sql-sim | OK |
 | M1-103 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 lock_door; RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-104 | Public feed names buyer and door; no role inference | §5.2 lock_door; RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
-| M1-105 | Next night blocks kill, sniper shot and sniper penalty, silence, investigation; half door dominated | §5.2 lock_door; C77/C81/C83 | supabase/functions/resolve_night/index.ts:139 | supabase/tests/table_tools.test.ts: a day lock covers next night only | unit | GAP |
+| M1-105 | Next night blocks kill, sniper shot and sniper penalty, silence, investigation; half door dominated — needs-live | §5.2 lock_door; C77/C81/C83 | supabase/functions/resolve_night/index.ts:139 | supabase/tests/table_tools.test.ts: a day lock covers next night only | unit | GAP |
 | M1-106 | Detective sees unreachable; sense/whisper still truth | §5.2 lock_door; C77 | supabase/functions/_shared/tools.ts:73 | supabase/tests/table_tools.test.ts: detective faces: impersonate, camouflage, door | unit | OK |
 | M1-107 | Buyer eliminated/kicked before next night; charge spent with no possible protection | toolLockDoorDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | SUSPECT |
-| M1-108 | Day-phase closure races a lock-door use; all clients must agree on accepted protection | I2/I5/I9 | supabase/functions/resolve_night/index.ts:60 | none | none | GAP |
+| M1-108 | Day-phase closure races a lock-door use; all clients must agree on accepted protection — needs-live | I2/I5/I9 | supabase/functions/resolve_night/index.ts:60 | none | none | GAP |
 
 ## appeal
 
 | # | Case | Expected (rule book ref) | Code (file:line) | Test (file: test name) | Evidence | Verdict |
 |---|---|---|---|---|---|---|
-| M1-109 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 appeal; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/new_roles_tools_match.py: tools_match, bad targets / dead use / repeat phase | live | GAP |
+| M1-109 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 appeal; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (appeal; 4/20 seats) | sql-sim | OK |
 | M1-110 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 appeal; RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-111 | Public feed names buyer and appeal; no role inference | §5.2 appeal; RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-112 | If buyer would be eliminated, require more than 2/3 of others' weighted counted ballots; abstentions count | RL14; C74/C75 | supabase/functions/_shared/tools.ts:166 | supabase/tests/appeal_abstentions.test.mjs: two confirming votes and two abstentions cannot uphold an appeal | unit | OK |
@@ -244,71 +244,97 @@ SUSPECT M1-107 [I3]: lock_door — prepaid full-night door can never activate af
 
 SUSPECT M1-114 [I3]: appeal — conditional appeal is charged even when buyer never faces elimination — supabase/migrations/20261016000400_floor_tools_need_turns.sql:81
 
-GAP M1-1 [I2,I5]: extra_minute — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Needs live
 
 GAP M1-7 [I3,I9]: extra_minute — single-connection test cannot prove cross-user floor race — supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:36
 
-GAP M1-8 [I2,I5]: anon_note — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
-
 GAP M1-13 [I9]: anon_note — concurrent/lost-response note use has no real-server idempotency proof — supabase/migrations/20261016000400_floor_tools_need_turns.sql:75
-
-GAP M1-14 [I2,I5]: last_will — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
-
-GAP M1-17 [I3]: last_will — live suite accepts will but does not assert immediate audience display — supabase/migrations/20261016000400_floor_tools_need_turns.sql:40
-
-GAP M1-19 [I2]: last_will — kicked/ended will refusal has no direct test — supabase/migrations/20261016000400_floor_tools_need_turns.sql:26
-
-GAP M1-20 [I2,I5]: spotlight — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
 
 GAP M1-26 [I9]: spotlight — real competing floor claims and timer expiry lack live proof — supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:83
 
-GAP M1-27 [I2,I5]: objection — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
-
-GAP M1-33 [I2,I5]: last_word — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
-
 GAP M1-39 [I5]: last_word — client verdict UI has no direct last-word announcement test — supabase/functions/resolve_vote/index.ts:235
-
-GAP M1-40 [I2,I5]: vote_shield — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
 
 GAP M1-46 [I2,I9]: vote_shield — no live test of shield use versus day-phase closure — supabase/functions/resolve_night/index.ts:60
 
-GAP M1-47 [I2,I5]: half_door — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
-
 GAP M1-53 [I5]: half_door — combined server outcome lacks live match proof — supabase/functions/resolve_night/index.ts:139
-
-GAP M1-54 [I2,I5]: double_vote — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
 
 GAP M1-57 [I3,I5]: double_vote — pure weight test does not prove real vote tally and Elder combination — supabase/functions/resolve_vote/index.ts:109
 
 GAP M1-59 [I5]: double_vote — no live test of double vote in public tally/appeal — supabase/functions/resolve_vote/index.ts:126
 
-GAP M1-60 [I2,I5]: camouflage — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
-
-GAP M1-64 [I1]: camouflage — raw public payload exposes secret tool code; no leakage test across clients — supabase/migrations/20261016000400_floor_tools_need_turns.sql:102
-
 GAP M1-66 [I5]: camouflage — no live mask plus Detective readback test — supabase/functions/submit_night_action/index.ts:276
 
-GAP M1-67 [I2,I5]: revote — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
-
-GAP M1-74 [I2,I5]: grave_vote — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
-
 GAP M1-80 [I5,I9]: grave_vote — no live early-close/large-table grave ballot proof — supabase/functions/resolve_vote/index.ts:119
-
-GAP M1-81 [I2,I5]: sense — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
-
-GAP M1-88 [I2,I5]: impersonate — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
-
-GAP M1-93 [I1]: impersonate — no raw-payload privacy test for secret impersonation — supabase/migrations/20261016000400_floor_tools_need_turns.sql:102
-
-GAP M1-95 [I2,I5]: narrator_whisper — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
-
-GAP M1-102 [I2,I5]: lock_door — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
 
 GAP M1-105 [I3,I5]: lock_door — pure next-night set test does not prove all real kill/shot interactions — supabase/functions/resolve_night/index.ts:139
 
 GAP M1-108 [I2,I5,I9]: lock_door — no live use versus day-phase closure test — supabase/functions/resolve_night/index.ts:60
-
-GAP M1-109 [I2,I5]: appeal — 10-player live suite does not prove limits or 4/20-seat behavior — supabase/migrations/20261016000400_floor_tools_need_turns.sql:67
 
 ## Resolution (2026-10-17, orchestrator)
 
