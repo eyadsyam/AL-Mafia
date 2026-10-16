@@ -60,6 +60,13 @@ class InformationText {
     }
   }
 
+  /// «مينفعش تصوّت», addressed to the silenced player as they chose to be
+  /// addressed.
+  static String silencedCannotVote(
+    AppLocalizations l10n, {
+    required bool female,
+  }) => female ? l10n.silencedCannotVoteFemale : l10n.silencedCannotVote;
+
   /// The body of today's confrontation — the observation, without the name of
   /// the player it is put to. The name is the display line above it (§2.6).
   ///
@@ -69,8 +76,9 @@ class InformationText {
   static String? confrontation(
     AppLocalizations l10n,
     Confrontation confrontation,
-    Map<int, String> names,
-  ) {
+    Map<int, String> names, {
+    bool female = false,
+  }) {
     String? name(int? seat) => seat == null ? null : names[seat];
 
     switch (confrontation.type) {
@@ -78,21 +86,28 @@ class InformationText {
         final accused = name(confrontation.evidenceSeat);
         final voted = name(confrontation.evidenceSeat2);
         if (accused == null || voted == null) return null;
-        return l10n.confrontationC1(accused, voted);
+        return female
+            ? l10n.confrontationC1Female(accused, voted)
+            : l10n.confrontationC1(accused, voted);
       case ConfrontationType.c4:
-        return l10n.confrontationC4;
+        return female ? l10n.confrontationC4Female : l10n.confrontationC4;
       case ConfrontationType.c5:
         final twin = name(confrontation.evidenceSeat);
         if (twin == null) return null;
-        return l10n.confrontationC5(twin, confrontation.count ?? 3);
+        final count = confrontation.count ?? 3;
+        return female
+            ? l10n.confrontationC5Female(twin, count)
+            : l10n.confrontationC5(twin, count);
       case ConfrontationType.c6:
-        return l10n.confrontationC6;
+        return female ? l10n.confrontationC6Female : l10n.confrontationC6;
       case ConfrontationType.c7:
-        return l10n.confrontationC7;
+        return female ? l10n.confrontationC7Female : l10n.confrontationC7;
       case ConfrontationType.c8:
         final other = name(confrontation.evidenceSeat);
         if (other == null) return null;
-        return l10n.confrontationC8(other);
+        return female
+            ? l10n.confrontationC8Female(other)
+            : l10n.confrontationC8(other);
       case ConfrontationType.c11:
         return l10n.confrontationC11;
       case ConfrontationType.c2:

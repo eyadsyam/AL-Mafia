@@ -7297,4 +7297,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sv2ExitNo => 'Stay';
+
+  @override
+  String get silencedCannotVoteFemale =>
+      'You are silenced today — you cannot vote';
+
+  @override
+  String confrontationC1Female(String x, String y) {
+    return 'You said you suspected $x, and you voted for $y.';
+  }
+
+  @override
+  String get confrontationC4Female =>
+      'Nobody has suspected you once. Why do you think that is?';
+
+  @override
+  String confrontationC5Female(String x, int count) {
+    return 'You and $x voted the same way $count times. Coincidence?';
+  }
+
+  @override
+  String get confrontationC6Female =>
+      'You have talked the least of anyone. Anything to say?';
+
+  @override
+  String get confrontationC7Female =>
+      'The last person to die suspected you. Your answer?';
+
+  @override
+  String confrontationC8Female(String x) {
+    return 'You whisper to $x every day. Why him in particular?';
+  }
 }

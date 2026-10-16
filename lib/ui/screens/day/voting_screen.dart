@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../engine/models/enums.dart' show PlayerStatus;
 import '../../l10n_ext.dart';
+import '../../information_text.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/pass_screen.dart';
 import '../../widgets/player_tile.dart';
@@ -140,7 +141,12 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
                     child: Center(
                       child: Text(
                         silenced
-                            ? context.l10n.silencedCannotVote
+                            ? InformationText.silencedCannotVote(
+                                context.l10n,
+                                female: controller.snapshot.isFemale(
+                                  controller.snapshot.currentActorSeat,
+                                ),
+                              )
                             : context.l10n.whoDoYouVoteOut,
                         style: type.title.copyWith(color: colors.textPrimary),
                       ),

@@ -28,10 +28,10 @@ This file is the single place to resume from. Anyone (Claude, Codex, a person) p
 
 | Gate | Command | Last result |
 |---|---|---|
-| Flutter tests | `flutter test` (whole suite, alone) | 2113 pass (2026-10-16, before server rulings) |
+| Flutter tests | `flutter test` (whole suite, alone) | 2222 pass, 5 skip (2026-10-17) |
 | Analyzer | `flutter analyze` | clean (2026-10-16) |
-| SQL | `node tool/test_sql_without_docker.mjs` | 90/90 (2026-10-17) |
-| Node | each `supabase/tests/*.test.mjs` with `node --test <file>` | 28/28 files (2026-10-17) |
+| SQL | `node tool/test_sql_without_docker.mjs` | 92/92 (2026-10-17) |
+| Node | each `supabase/tests/*.test.mjs` with `node --test <file>` | 29/29 files (2026-10-17) |
 | Parity | `node supabase/tests/run_golden_vectors_node.mjs` + `test/engine/golden_vectors_test.dart` | not rerun since rulings |
 | Live suite | `supabase/tests/run_live_suite.py` against a server running THIS code | BLOCKED: needs deploy (owner) |
 | Device | owner plays one offline and one online match on his phone | BLOCKED: owner |
@@ -107,11 +107,12 @@ M1: 117 rows; 20 SUSPECT. M2: 118 rows (29 OK, 76 GAP, 11 SUSPECT). Decisions:
 
 - [x] Q1 Server rulings T1–T10 (882951b).
 - [x] Q2 Offline case matrix: 72 tests, all green, no engine defect found (9300cc6).
-- [ ] Q3 Online client half of the rulings (`briefs/client_rulings.txt`): team bullet, doctor no-repeat seat, last word line, floor tools hidden in free talk, silenced mic closed.
-- [ ] Q4 Audits: M1 + M2 done (9300cc6), triage §4b; M3 running.
-- [ ] Q5 Fix every SUSPECT (running: `server_tool_guards`, `engine_hardening`, client S6/S7), then test GAP rows in batches.
+- [x] Q3 Online client half of the rulings + S6/S7 (537e3f0).
+- [x] Q4 Audits M1, M2, M3 (9300cc6, 7c01244); triage §4b.
+- [x] Q5a Every SUSPECT fixed or accepted: server tool guards 7c01244, engine hardening aed3e3a, decided outcome 5164053, client 537e3f0, one Elder/Sniper 537e3f0. M3-22 (one account on two devices) ACCEPTED as a design limit: one account plays on one device.
+- [ ] Q5b GAP rows into tests, one brief each, run in this order (each edits its own matrix rows): `briefs/gaps_m2_offline.txt` (16 done, resume it), `briefs/gaps_m1_tools.txt`, `briefs/gaps_m2_online.txt`, `briefs/gaps_m3_online.txt`. Never two SQL-harness runs at once.
 - [ ] Q6 Parity: extend `tool/golden_vectors.dart` with vectors for RL1, RL2, RL3, RL5, RL17 and regenerate; both sides green.
-- [ ] Q7 Gendered lines: female variants for lines addressed to a known female player offline (silencedCannotVote, confrontationC1/C4/C5/C6/C7/C8). Exact Arabic in §7.
+- [x] Q7 Gendered lines: confrontation C1/C4/C5/C6/C7/C8 and «مينفعش تصوّتي» follow the addressed player's gender, offline and online (test/unit/addressed_gender_test.dart).
 - [ ] Q8 M4 store audit and fixes.
 - [ ] Q9 Full gates (§2) + local web build served on localhost for the owner (no deploy).
 - [ ] Q10 Owner: approve deploy to a staging project or live; then live suite; then device smoke; then Play.

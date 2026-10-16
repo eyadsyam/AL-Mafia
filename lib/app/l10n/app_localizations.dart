@@ -12570,6 +12570,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stay'**
   String get sv2ExitNo;
+
+  /// No description provided for @silencedCannotVoteFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'You are silenced today — you cannot vote'**
+  String get silencedCannotVoteFemale;
+
+  /// No description provided for @confrontationC1Female.
+  ///
+  /// In en, this message translates to:
+  /// **'You said you suspected {x}, and you voted for {y}.'**
+  String confrontationC1Female(String x, String y);
+
+  /// No description provided for @confrontationC4Female.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody has suspected you once. Why do you think that is?'**
+  String get confrontationC4Female;
+
+  /// No description provided for @confrontationC5Female.
+  ///
+  /// In en, this message translates to:
+  /// **'You and {x} voted the same way {count} times. Coincidence?'**
+  String confrontationC5Female(String x, int count);
+
+  /// No description provided for @confrontationC6Female.
+  ///
+  /// In en, this message translates to:
+  /// **'You have talked the least of anyone. Anything to say?'**
+  String get confrontationC6Female;
+
+  /// No description provided for @confrontationC7Female.
+  ///
+  /// In en, this message translates to:
+  /// **'The last person to die suspected you. Your answer?'**
+  String get confrontationC7Female;
+
+  /// No description provided for @confrontationC8Female.
+  ///
+  /// In en, this message translates to:
+  /// **'You whisper to {x} every day. Why him in particular?'**
+  String confrontationC8Female(String x);
 }
 
 class _AppLocalizationsDelegate

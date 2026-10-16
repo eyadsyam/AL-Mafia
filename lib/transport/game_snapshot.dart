@@ -5,6 +5,7 @@ import '../engine/information/trace_generator.dart';
 import '../engine/models/enums.dart';
 import '../engine/models/match.dart';
 import '../engine/models/match_settings.dart';
+import '../engine/models/player.dart' show PlayerGender;
 import '../engine/models/timeline_event.dart' show InvestigateResult;
 import '../engine/views.dart';
 
@@ -565,6 +566,14 @@ class GameSnapshot {
   int? get currentActorSeat => public.currentActorSeat;
   MatchOutcome? get outcome => public.outcome;
   int? get silencedSeat => morning?.silencedSeat;
+  /// Whether [seat] asked to be addressed in the feminine (lines spoken to
+  /// one player: the confrontation, «مينفعش تصوّتي»).
+  bool isFemale(int? seat) =>
+      seat != null &&
+      public.players.any(
+        (p) => p.seat == seat && p.gender == PlayerGender.female,
+      );
+
   bool get viewerSilenced =>
       viewerSeat != null && silencedSeat == viewerSeat &&
       phase.index >= GamePhase.morning.index &&

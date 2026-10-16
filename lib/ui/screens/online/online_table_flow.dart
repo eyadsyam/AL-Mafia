@@ -1639,7 +1639,12 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           // two things shouting at once is the old screen's mistake.
           style: type.title,
           headline:
-              InformationText.confrontation(l10n, confrontation, names) ??
+              InformationText.confrontation(
+                l10n,
+                confrontation,
+                names,
+                female: snapshot.isFemale(confrontation.targetSeat),
+              ) ??
               l10n.confrontationExplain,
           support: deadline == null
               ? null
@@ -1684,7 +1689,10 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
                     ? l10n.onlineVoteReceived
                     : l10n.onlineVoteSending)
               : snapshot.viewerSilenced
-              ? l10n.silencedCannotVote
+              ? InformationText.silencedCannotVote(
+                  l10n,
+                  female: snapshot.isFemale(snapshot.viewerSeat),
+                )
               : snapshot.ballotRound > 1
               ? l10n.tieRevoteHeadline
               : l10n.whoDoYouVoteOut,
@@ -1921,7 +1929,12 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           return FilledButton(
             key: OnlineTableFlow.confirmAction,
             onPressed: null,
-            child: Text(l10n.silencedCannotVote),
+            child: Text(
+              InformationText.silencedCannotVote(
+                l10n,
+                female: snapshot.isFemale(snapshot.viewerSeat),
+              ),
+            ),
           );
         }
         final abstainAllowed = snapshot.settings.abstainAllowed;

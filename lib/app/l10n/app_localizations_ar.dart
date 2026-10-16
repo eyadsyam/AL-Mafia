@@ -7185,4 +7185,32 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sv2ExitNo => 'خليني';
+
+  @override
+  String get silencedCannotVoteFemale =>
+      'إنتي متسكّتة النهارده — مينفعش تصوّتي';
+
+  @override
+  String confrontationC1Female(String x, String y) {
+    return 'قلتي إنك شاكّة في $x، وصوّتي لـ$y';
+  }
+
+  @override
+  String get confrontationC4Female => 'محدش شك فيكي لحد دلوقتي';
+
+  @override
+  String confrontationC5Female(String x, int count) {
+    return 'إنتي و$x صوّتوا نفس التصويت $count مرات';
+  }
+
+  @override
+  String get confrontationC6Female => 'إنتي أقل واحدة اتكلمت في الماتش. ردّك؟';
+
+  @override
+  String get confrontationC7Female => 'آخر واحد مات كان شاكك فيكي. ردّك؟';
+
+  @override
+  String confrontationC8Female(String x) {
+    return 'بتهمسي لـ$x كل يوم ليه؟';
+  }
 }

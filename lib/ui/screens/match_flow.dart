@@ -793,7 +793,12 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     final names = _seatNames(state);
     final observation = confrontation == null
         ? null
-        : InformationText.confrontation(context.l10n, confrontation, names);
+        : InformationText.confrontation(
+            context.l10n,
+            confrontation,
+            names,
+            female: _controller.snapshot.isFemale(confrontation.targetSeat),
+          );
 
     // A confrontation the renderer cannot express is not shown at all — the
     // day simply moves on. Never a blank screen with a timer on it.

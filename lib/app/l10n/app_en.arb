@@ -4492,5 +4492,39 @@
   "sv2ExitTitle": "Leave this case?",
   "sv2ExitBody": "This table will be lost.",
   "sv2ExitYes": "Leave",
-  "sv2ExitNo": "Stay"
+  "sv2ExitNo": "Stay",
+  "silencedCannotVoteFemale": "You are silenced today — you cannot vote",
+  "confrontationC1Female": "You said you suspected {x}, and you voted for {y}.",
+  "@confrontationC1Female": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "y": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC4Female": "Nobody has suspected you once. Why do you think that is?",
+  "confrontationC5Female": "You and {x} voted the same way {count} times. Coincidence?",
+  "@confrontationC5Female": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "confrontationC6Female": "You have talked the least of anyone. Anything to say?",
+  "confrontationC7Female": "The last person to die suspected you. Your answer?",
+  "confrontationC8Female": "You whisper to {x} every day. Why him in particular?",
+  "@confrontationC8Female": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      }
+    }
+  }
 }
