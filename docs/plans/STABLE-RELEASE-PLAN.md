@@ -78,7 +78,7 @@ Each matrix is a file in `docs/plans/audit/`, produced read-only by Codex from t
 | M1 Tools | all 17 table tools online: extra_minute, anon_note, last_will, spotlight, objection, last_word, vote_shield, half_door, double_vote, camouflage, revote, grave_vote, sense, impersonate, narrator_whisper, lock_door, appeal. Per tool: when it can be used (phase, alive/dead, target rules), charge once and only on success, refused cases charge nothing, the effect really happens, what the table sees (doc 05: nothing reveals a role), interaction with the other tools and roles, match ending mid-effect, reconnect, offline availability (RL20: online only) | `briefs/audit_tools.txt` | `audit/M1-tools.md` |
 | M2 Roles | mafia, silencer, doctor, detective, elder, sniper, citizen, offline AND online: night move, timer default, bullets, death/reveal, win counting, interaction with every other role, minimum player counts, lobby deal | `briefs/audit_roles.txt` | `audit/M2-roles.md` |
 | M3 Online life | create/join/leave lobby, start, host leaves/handover, disconnect + reconnect in every phase, app killed, timer expiry defaults per role, kick, strike absent, all-mafia-disconnected, last player leaves, voice fully broken, retries/idempotency, two tabs same account, match end + rewards + receipts | `briefs/audit_online.txt` | `audit/M3-online.md` |
-| M4 Store and economy | every store item does what it says in every mode (owner rule), purchase → grant → use → refund revokes, coins, rewards, ads cadence unchanged | `briefs/audit_store.txt` (write when M1–M3 are in) | `audit/M4-store.md` |
+| M4 Store and economy | every store item does what it says in every mode (owner rule), grant → use → refund revokes, coins, rewards, ads cadence unchanged | `briefs/audit_store.txt` | `audit/M4-store.md` |
 | M5 Vs computer | bot match: does every phase complete, do bots obey the rulings, rewards | after owner decision §6 | `audit/M5-bots.md` |
 
 ### 4b. Triage of M1 (tools) and M2 (roles), 2026-10-17
@@ -111,7 +111,7 @@ M1: 117 rows; 20 SUSPECT. M2: 118 rows (29 OK, 76 GAP, 11 SUSPECT). Decisions:
 - [x] Q4 Audits M1, M2, M3 (9300cc6, 7c01244); triage §4b.
 - [x] Q5a Every SUSPECT fixed or accepted: server tool guards 7c01244, engine hardening aed3e3a, decided outcome 5164053, client 537e3f0, one Elder/Sniper 537e3f0. M3-22 (one account on two devices) ACCEPTED as a design limit: one account plays on one device.
 - [ ] Q5b GAP rows into tests, one brief each, run in this order (each edits its own matrix rows): `briefs/gaps_m2_offline.txt` (16 done, resume it), `briefs/gaps_m1_tools.txt`, `briefs/gaps_m2_online.txt`, `briefs/gaps_m3_online.txt`. Never two SQL-harness runs at once.
-- [ ] Q6 Parity: extend `tool/golden_vectors.dart` with vectors for RL1, RL2, RL3, RL5, RL17 and regenerate; both sides green.
+- [ ] Q6 Parity of the night (`briefs/parity_night.txt`): pure `resolveNightCore` in TS, Dart vector generator `tool/night_vectors.dart`, tests on both sides. Orchestrator then runs `dart run tool/night_vectors.dart`, the Dart test and the node test.
 - [x] Q7 Gendered lines: confrontation C1/C4/C5/C6/C7/C8 and «مينفعش تصوّتي» follow the addressed player's gender, offline and online (test/unit/addressed_gender_test.dart).
 - [ ] Q8 M4 store audit and fixes.
 - [ ] Q9 Full gates (§2) + local web build served on localhost for the owner (no deploy).
