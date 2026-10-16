@@ -6742,27 +6742,20 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sv2HowDet2Body =>
-      'الموبايل هيلف عليكم. كل واحد يقرا كارته بصوت عالي: هو مين وعمل إيه. بعدها يدوس مطوّل ويشوف سطر واحد ليه هو بس: بريء، ولا القاتل.';
+      'الموبايل هيلف عليكم. كل واحد يقرا كارته بصوت عالي: هو مين وعمل إيه. بعدها يدوس مطوّل ويعرف هو بريء ولا لا.';
 
   @override
-  String get sv2HowDet3Title => 'الأبرياء والقاتل';
+  String get sv2HowDet3Title => 'المحقق';
 
   @override
   String get sv2HowDet3Body =>
-      'البريء يقول اللي في كارته، واللي مش فيه يقول مش متأكد. القاتل بس هو اللي مسموح له يلف ويدور.';
+      'المحقق هو اللي ماسك الموبايل. بيحقق معاكم كلكم، ويمشّي الدور، ويفتّش الأماكن براحته.';
 
   @override
-  String get sv2HowDet4Title => 'المحقق';
+  String get sv2HowDet4Title => 'القرار';
 
   @override
   String get sv2HowDet4Body =>
-      'المحقق بيمسك الموبايل لحد الآخر. بيقرا للكل اللي حصل، ويختار ٣ أماكن يفتّشها، ويقرا اللي لقاه بصوت عالي.';
-
-  @override
-  String get sv2HowDet5Title => 'القرار';
-
-  @override
-  String get sv2HowDet5Body =>
       'اتكلموا براحتكم من غير وقت. كل واحد يدافع عن نفسه بالأدلة. وفي الآخر المحقق يختار مين اللي عملها. لو صح، الأبرياء يكسبوا. لو غلط، القاتل يكسب.';
 
   @override
@@ -6882,14 +6875,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sv2InnocentSubF => 'ساعدي المحقق يوصل للي عملها';
 
   @override
-  String get sv2InnocentNoteM =>
-      'قول اللي في كارتك. اللي مش فيه، قول مش متأكد.';
-
-  @override
-  String get sv2InnocentNoteF =>
-      'قولي اللي في كارتك. اللي مش فيه، قولي مش متأكدة.';
-
-  @override
   String get sv2KillerM => 'انت القاتل';
 
   @override
@@ -6900,12 +6885,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sv2KillerSubF => 'مسموح لك تلفّي وتدوري';
-
-  @override
-  String get sv2KillerNoteM => 'متخليش المحقق يوصلك. لو حد سألك، رد براحتك.';
-
-  @override
-  String get sv2KillerNoteF => 'متخليش المحقق يوصلك. لو حد سألك، ردي براحتك.';
 
   @override
   String sv2PartnerIsM(String name) {
@@ -6934,19 +6913,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get sv2PartnerNoteM => 'دافع عن نفسك وعن اللي معاك من غير ما تبان.';
-
-  @override
-  String get sv2PartnerNoteF => 'دافعي عن نفسك وعن اللي معاكي من غير ما تباني.';
-
-  @override
   String get sv2SecretDetective => 'انت المحقق';
 
   @override
   String get sv2SecretDetectiveSub => 'مفيش سر عندك';
-
-  @override
-  String get sv2SecretDetectiveNote => 'استنى لحد ما الموبايل يرجعلك.';
 
   @override
   String get sv2HidePass => 'خبّي وعدّي الموبايل';

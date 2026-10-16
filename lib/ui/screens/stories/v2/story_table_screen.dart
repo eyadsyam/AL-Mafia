@@ -374,7 +374,7 @@ class _StoryTableScreenState extends State<StoryTableScreen>
     final s = context.spacing;
     final type = context.typography;
     final seat = _session.currentSeat;
-    final (title, sub, note) = _secretLines(context, seat);
+    final (title, sub) = _secretLines(context, seat);
     final last = _session.turn + 1 == _t.seats.length;
     return _card(
       context,
@@ -415,17 +415,7 @@ class _StoryTableScreenState extends State<StoryTableScreen>
               ),
             ),
           ),
-          SizedBox(height: s.sm),
-          SizedBox(
-            height: StoriesLampTokens.secretNoteHeight,
-            child: Text(
-              note,
-              textAlign: TextAlign.center,
-              maxLines: StoriesLampTokens.secretNoteLines,
-              style: type.bodySmall.copyWith(color: StoriesLampTokens.text2),
-            ),
-          ),
-          SizedBox(height: s.sm),
+          SizedBox(height: s.md),
           LampButton(
             key: StoryTableScreen.hideKey,
             label: last ? l.sv2HideToDetective : l.sv2HidePass,
@@ -437,19 +427,14 @@ class _StoryTableScreenState extends State<StoryTableScreen>
     );
   }
 
-  (String, String, String) _secretLines(
-    BuildContext context,
-    StoryTableSeat seat,
-  ) {
+  /// Two lines for every role and nothing under them: no advice on how to
+  /// play it (the owner: no tips, 2026-10-16).
+  (String, String) _secretLines(BuildContext context, StoryTableSeat seat) {
     final l = context.l10n;
     final f = _female(seat);
     switch (_t.roleOf(seat)) {
       case StorySeatRole.detective:
-        return (
-          l.sv2SecretDetective,
-          l.sv2SecretDetectiveSub,
-          l.sv2SecretDetectiveNote,
-        );
+        return (l.sv2SecretDetective, l.sv2SecretDetectiveSub);
       case StorySeatRole.killer:
         final partner = _t.partnerId;
         final sub = partner == null
@@ -457,11 +442,7 @@ class _StoryTableScreenState extends State<StoryTableScreen>
             : (_w.suspect(partner).gender == WorldGender.female
                   ? l.sv2PartnerIsF(_w.suspect(partner).name)
                   : l.sv2PartnerIsM(_w.suspect(partner).name));
-        return (
-          f ? l.sv2KillerF : l.sv2KillerM,
-          sub,
-          f ? l.sv2KillerNoteF : l.sv2KillerNoteM,
-        );
+        return (f ? l.sv2KillerF : l.sv2KillerM, sub);
       case StorySeatRole.partner:
         final killer = _w.suspect(_t.culpritId);
         return (
@@ -469,14 +450,12 @@ class _StoryTableScreenState extends State<StoryTableScreen>
           killer.gender == WorldGender.female
               ? l.sv2KillerIsF(killer.name)
               : l.sv2KillerIsM(killer.name),
-          f ? l.sv2PartnerNoteF : l.sv2PartnerNoteM,
         );
       case StorySeatRole.innocent:
       case StorySeatRole.unknown:
         return (
           f ? l.sv2InnocentF : l.sv2InnocentM,
           f ? l.sv2InnocentSubF : l.sv2InnocentSubM,
-          f ? l.sv2InnocentNoteF : l.sv2InnocentNoteM,
         );
     }
   }

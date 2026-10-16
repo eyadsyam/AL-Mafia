@@ -6858,27 +6858,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sv2HowDet2Body =>
-      'The phone goes round. Each of you reads their card aloud: who they are and what they did. Then they hold to see one line that is theirs alone: innocent, or the killer.';
+      'The phone goes round. Each of you reads their card aloud: who they are and what they did. Then they hold and find out whether they are innocent or not.';
 
   @override
-  String get sv2HowDet3Title => 'Innocents and the killer';
+  String get sv2HowDet3Title => 'The detective';
 
   @override
   String get sv2HowDet3Body =>
-      'Innocents say what is on their card, and say they are not sure about anything else. Only the killer may twist the truth.';
+      'The detective holds the phone. He questions all of you, runs the turns, and searches the places at his own pace.';
 
   @override
-  String get sv2HowDet4Title => 'The detective';
+  String get sv2HowDet4Title => 'The decision';
 
   @override
   String get sv2HowDet4Body =>
-      'The detective keeps the phone to the end. He reads out what happened, picks three places to search, and reads aloud what he finds.';
-
-  @override
-  String get sv2HowDet5Title => 'The decision';
-
-  @override
-  String get sv2HowDet5Body =>
       'Talk as long as you like. Everyone defends themselves with the evidence. At the end the detective picks who did it. Right, and the innocents win. Wrong, and the killer wins.';
 
   @override
@@ -6999,14 +6992,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sv2InnocentSubF => 'Help the detective find who did it';
 
   @override
-  String get sv2InnocentNoteM =>
-      'Say what is on your card. If it is not there, say you are not sure.';
-
-  @override
-  String get sv2InnocentNoteF =>
-      'Say what is on your card. If it is not there, say you are not sure.';
-
-  @override
   String get sv2KillerM => 'You are the killer';
 
   @override
@@ -7017,14 +7002,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sv2KillerSubF => 'You may twist the truth';
-
-  @override
-  String get sv2KillerNoteM =>
-      'Don\'t let the detective reach you. If anyone asks, answer as you like.';
-
-  @override
-  String get sv2KillerNoteF =>
-      'Don\'t let the detective reach you. If anyone asks, answer as you like.';
 
   @override
   String sv2PartnerIsM(String name) {
@@ -7053,22 +7030,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sv2PartnerNoteM =>
-      'Defend yourself and the one with you without showing it.';
-
-  @override
-  String get sv2PartnerNoteF =>
-      'Defend yourself and the one with you without showing it.';
-
-  @override
   String get sv2SecretDetective => 'You are the detective';
 
   @override
   String get sv2SecretDetectiveSub => 'No secret for you';
-
-  @override
-  String get sv2SecretDetectiveNote =>
-      'Wait until the phone comes back to you.';
 
   @override
   String get sv2HidePass => 'Hide and pass the phone';

@@ -11806,44 +11806,32 @@ abstract class AppLocalizations {
   /// No description provided for @sv2HowDet2Body.
   ///
   /// In en, this message translates to:
-  /// **'The phone goes round. Each of you reads their card aloud: who they are and what they did. Then they hold to see one line that is theirs alone: innocent, or the killer.'**
+  /// **'The phone goes round. Each of you reads their card aloud: who they are and what they did. Then they hold and find out whether they are innocent or not.'**
   String get sv2HowDet2Body;
 
   /// No description provided for @sv2HowDet3Title.
   ///
   /// In en, this message translates to:
-  /// **'Innocents and the killer'**
+  /// **'The detective'**
   String get sv2HowDet3Title;
 
   /// No description provided for @sv2HowDet3Body.
   ///
   /// In en, this message translates to:
-  /// **'Innocents say what is on their card, and say they are not sure about anything else. Only the killer may twist the truth.'**
+  /// **'The detective holds the phone. He questions all of you, runs the turns, and searches the places at his own pace.'**
   String get sv2HowDet3Body;
 
   /// No description provided for @sv2HowDet4Title.
   ///
   /// In en, this message translates to:
-  /// **'The detective'**
+  /// **'The decision'**
   String get sv2HowDet4Title;
 
   /// No description provided for @sv2HowDet4Body.
   ///
   /// In en, this message translates to:
-  /// **'The detective keeps the phone to the end. He reads out what happened, picks three places to search, and reads aloud what he finds.'**
-  String get sv2HowDet4Body;
-
-  /// No description provided for @sv2HowDet5Title.
-  ///
-  /// In en, this message translates to:
-  /// **'The decision'**
-  String get sv2HowDet5Title;
-
-  /// No description provided for @sv2HowDet5Body.
-  ///
-  /// In en, this message translates to:
   /// **'Talk as long as you like. Everyone defends themselves with the evidence. At the end the detective picks who did it. Right, and the innocents win. Wrong, and the killer wins.'**
-  String get sv2HowDet5Body;
+  String get sv2HowDet4Body;
 
   /// No description provided for @sv2HowAll1Title.
   ///
@@ -12055,18 +12043,6 @@ abstract class AppLocalizations {
   /// **'Help the detective find who did it'**
   String get sv2InnocentSubF;
 
-  /// No description provided for @sv2InnocentNoteM.
-  ///
-  /// In en, this message translates to:
-  /// **'Say what is on your card. If it is not there, say you are not sure.'**
-  String get sv2InnocentNoteM;
-
-  /// No description provided for @sv2InnocentNoteF.
-  ///
-  /// In en, this message translates to:
-  /// **'Say what is on your card. If it is not there, say you are not sure.'**
-  String get sv2InnocentNoteF;
-
   /// No description provided for @sv2KillerM.
   ///
   /// In en, this message translates to:
@@ -12090,18 +12066,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You may twist the truth'**
   String get sv2KillerSubF;
-
-  /// No description provided for @sv2KillerNoteM.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t let the detective reach you. If anyone asks, answer as you like.'**
-  String get sv2KillerNoteM;
-
-  /// No description provided for @sv2KillerNoteF.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t let the detective reach you. If anyone asks, answer as you like.'**
-  String get sv2KillerNoteF;
 
   /// No description provided for @sv2PartnerIsM.
   ///
@@ -12139,18 +12103,6 @@ abstract class AppLocalizations {
   /// **'The killer: {name}'**
   String sv2KillerIsF(String name);
 
-  /// No description provided for @sv2PartnerNoteM.
-  ///
-  /// In en, this message translates to:
-  /// **'Defend yourself and the one with you without showing it.'**
-  String get sv2PartnerNoteM;
-
-  /// No description provided for @sv2PartnerNoteF.
-  ///
-  /// In en, this message translates to:
-  /// **'Defend yourself and the one with you without showing it.'**
-  String get sv2PartnerNoteF;
-
   /// No description provided for @sv2SecretDetective.
   ///
   /// In en, this message translates to:
@@ -12162,12 +12114,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No secret for you'**
   String get sv2SecretDetectiveSub;
-
-  /// No description provided for @sv2SecretDetectiveNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Wait until the phone comes back to you.'**
-  String get sv2SecretDetectiveNote;
 
   /// No description provided for @sv2HidePass.
   ///

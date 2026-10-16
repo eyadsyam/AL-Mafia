@@ -324,7 +324,6 @@ class _StoryLobbyScreenState extends State<StoryLobbyScreen> {
         (l.sv2HowDet2Title, l.sv2HowDet2Body),
         (l.sv2HowDet3Title, l.sv2HowDet3Body),
         (l.sv2HowDet4Title, l.sv2HowDet4Body),
-        (l.sv2HowDet5Title, l.sv2HowDet5Body),
       ],
       StoryTableMode.allSuspects => [
         (l.sv2HowAll1Title, l.sv2HowAll1Body),

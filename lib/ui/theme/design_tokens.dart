@@ -3170,10 +3170,6 @@ abstract final class StoriesLampTokens {
   static const double paperBlur = 18;
   static const double secretTilt = -0.026;
 
-  /// The note under the private line: a fixed two-line box for every role,
-  /// so a longer note never makes one seat's page taller (Doc 05).
-  static const int secretNoteLines = 2;
-  static const double secretNoteHeight = 48;
   static const double dimmed = 0.38;
   static const double glowHeight = 0.42;
   static const Duration hold = Duration(milliseconds: 900);
