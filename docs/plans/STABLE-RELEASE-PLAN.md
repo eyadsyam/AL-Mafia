@@ -95,7 +95,7 @@ Each matrix is a file in `docs/plans/audit/`, produced read-only by Codex from t
 
 ## 6. Owner decisions pending
 
-1. Vs computer: owner may remove it («مش حاسسها منطقية»). Recommendation: hide its entry for this release behind one flag (code kept, reversible), decide after launch. Waiting for his word.
+1. Vs computer: DECIDED 2026-10-17 («خلاص ماشي»): its card is hidden for this release (`_offerBotMatch = false` in lib/app/router.dart); code kept, one flag brings it back. M5 audit only if it returns.
 2. RL19 witness whisper flag (live value).
 3. Deploy route for testing the new server code: a staging project/branch vs live.
 
