@@ -446,10 +446,18 @@ class _StoriesHubState extends ConsumerState<StoriesHub> {
     for (final story in widget.stories) {
       if (!categories.contains(story.category)) categories.add(story.category);
     }
+    // Easiest first, the locked ones at the bottom (the owner, 2026-10-16);
+    // equal cases keep the catalog's order.
+    final order = {for (final (i, story) in widget.stories.indexed) story: i};
     final shown = [
       for (final story in widget.stories)
         if (_category == null || story.category == _category) story,
-    ];
+    ]..sort((a, b) {
+        final byLock = (_locked(a) ? 1 : 0) - (_locked(b) ? 1 : 0);
+        if (byLock != 0) return byLock;
+        final byDifficulty = a.difficulty - b.difficulty;
+        return byDifficulty != 0 ? byDifficulty : order[a]! - order[b]!;
+      });
     return LampScaffold(
       key: StoriesHub.hubKey,
       onBack: widget.onBack,
@@ -527,13 +535,15 @@ class _StoriesHubState extends ConsumerState<StoriesHub> {
     );
   }
 
+  bool _locked(StoryDefinition story) =>
+      story.isNearImpossible &&
+      !ref.watch(allAccessProvider) &&
+      !widget.progress.isNearImpossibleUnlocked(story.category);
+
   Widget _case(BuildContext context, StoryDefinition story) {
     final l = context.l10n;
     final s = context.spacing;
-    final locked =
-        story.isNearImpossible &&
-        !ref.watch(allAccessProvider) &&
-        !widget.progress.isNearImpossibleUnlocked(story.category);
+    final locked = _locked(story);
     final solved = widget.progress.solvedStoryIds.contains(story.id);
     final best = widget.progress.bestFor(story.id);
     final rewritten = widget.worldIds.contains(story.id);

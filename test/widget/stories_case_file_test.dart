@@ -82,6 +82,28 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
   }
 
+  testWidgets('the hub lists the easiest first and the locked ones last', (
+    tester,
+  ) async {
+    size(tester, _large);
+    await tester.pumpWidget(
+      localizedApp(
+        StoriesHub(
+          stories: [lockedRoom, cafe],
+          progress: const StoryProgress(),
+          onBack: () {},
+          onStart: (_, _) {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final cafeTop = tester.getTopLeft(find.byKey(StoriesHub.storyKey(cafe.id)));
+    final lockedTop = tester.getTopLeft(
+      find.byKey(StoriesHub.storyKey(lockedRoom.id)),
+    );
+    expect(cafeTop.dy, lessThan(lockedTop.dy));
+  });
+
   for (final s in [_small, _large]) {
     group('${s.width.toInt()}x${s.height.toInt()}', () {
       testWidgets('archive: stamps, wax seal, category filter', (tester) async {
