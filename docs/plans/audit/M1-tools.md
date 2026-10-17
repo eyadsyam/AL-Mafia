@@ -69,7 +69,7 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 | M1-36 | Only eliminated owner gets next-day first speaker; public verdict even if match ends | RL15 | supabase/functions/resolve_vote/index.ts:216 | supabase/tests/vote_rules.test.mjs: last word: eliminated seat's own last word names who speaks first | unit | OK |
 | M1-37 | Priority lapses after 20 seconds or if target dead/silenced; spotlight follows | RL15 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:61 | supabase/tests/floor_priority.sql: last word before spotlight / lapse | sql-sim | OK |
 | M1-38 | Owner survives, target dies overnight, or match ends — charge spent though speech never occurs | toolLastWordDesc; RL15; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | SUSPECT |
-| M1-39 | Reconnect after verdict should show who was chosen, including match-ending verdict — needs-live | RL15; I5 | supabase/functions/resolve_vote/index.ts:235 | none | none | GAP |
+| M1-39 | Reconnect after verdict should show who was chosen, including match-ending verdict | RL15; I5 | supabase/functions/resolve_vote/index.ts:235 | `supabase/tests/live_local_m1.test.mjs: M1-39: a last word names the chosen seat in the verdict a reconnecting client reads, also when the verdict ends the match` | edge-local | OK |
 
 ## vote_shield
 
@@ -93,7 +93,7 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 | M1-50 | Next night blocks silence and investigation; kill/shot still land; lock dominates | §5.2 half_door; C79–C82 | supabase/functions/_shared/tools.ts:55 | supabase/tests/table_tools.test.ts: detective faces: impersonate, camouflage, door | unit | OK |
 | M1-51 | Detective sees unreachable on covered seat | §5.2 half_door | supabase/functions/_shared/tools.ts:73 | supabase/tests/table_tools.test.ts: detective faces: impersonate, camouflage, door | unit | OK |
 | M1-52 | Target (owner) eliminated/kicked before next night; paid effect lapses | toolHalfDoorDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | SUSPECT |
-| M1-53 | Actual kill plus shot plus silence combination on real server, including 4/20 seats — needs-live | §5.2 half_door; C82 | supabase/functions/resolve_night/index.ts:139 | none | none | GAP |
+| M1-53 | Actual kill plus shot plus silence combination on real server, including 4/20 seats | §5.2 half_door; C82 | supabase/functions/resolve_night/index.ts:139 | `supabase/tests/live_local_m1.test.mjs: M1-53: kill, sniper shot and silence on one real night: a half door lets the first two through and blocks only the silence (7, 15 and 20 seats, 4 alive)` | edge-local | OK |
 
 ## double_vote
 
@@ -104,7 +104,7 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 | M1-56 | Public feed names owner and doubled ballot; no role inference | §5.2 double_vote; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-57 | Own ballot counts twice today and in revote; revealed Elder multiplier makes six | §5.2 double_vote; C69 | supabase/functions/resolve_vote/index.ts:109 | `supabase/tests/live_local_m1.test.mjs: M1-57: bought double vote combines with revealed Elder in both ballot rounds` | edge-local | OK |
 | M1-58 | Silenced buyer cannot cast; disconnected buyer may abstain; eliminated buyer never votes, but charge already spent | toolDoubleVoteDesc; I3 | supabase/functions/submit_vote/index.ts:35 | none | none | SUSPECT |
-| M1-59 | Weighted ballot appears in public tally and appeal denominator — needs-live | §5.2 double_vote; C74 | supabase/functions/resolve_vote/index.ts:126 | supabase/tests/server_fixes.test.mjs: appeal numerator and denominator | unit | GAP |
+| M1-59 | Weighted ballot appears in public tally and appeal denominator | §5.2 double_vote; C74 | supabase/functions/resolve_vote/index.ts:126 | `supabase/tests/live_local_m1.test.mjs: M1-59: a double ballot is weighted in the public tally and in both sides of an appeal` | edge-local | OK |
 
 ## camouflage
 
@@ -116,7 +116,7 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 | M1-63 | Next night Detective sees unclear; half/lock door and impersonate take precedence | §5.2 camouflage; C79 | supabase/functions/_shared/tools.ts:73 | supabase/tests/table_tools.test.ts: detective faces: impersonate, camouflage, door | unit | OK |
 | M1-64 | Secret public payload still contains tool code, though seat and targets are null/empty; no direct role identified | §5.0; doc 05 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:102 | supabase/tests/tools_gaps.sql: camouflage raw public payload | sql-sim | OK |
 | M1-65 | Owner dies/kicked before next night or no Detective investigates; charged with no mask encounter | toolCamouflageDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | SUSPECT |
-| M1-66 | Real Detective versus face and door, reconnecting to private answer — needs-live | §5.2 camouflage; I5 | supabase/functions/submit_night_action/index.ts:276 | none | none | GAP |
+| M1-66 | Real Detective versus face and door, reconnecting to private answer | §5.2 camouflage; I5 | supabase/functions/submit_night_action/index.ts:276 | `supabase/tests/live_local_m1.test.mjs: M1-66: a real Detective meets a mask, a bought face and a door, and reads the same private answer again on reconnect` | edge-local | OK |
 
 ## revote
 
@@ -140,7 +140,7 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 | M1-77 | Dead user casts one opening ballot that day; cannot vote in round two or twice | §5.2 grave_vote; C84/C85 | supabase/functions/submit_vote/index.ts:23 | supabase/tests/new_roles_tools_match.py: grave first ballot / once per day | live | OK |
 | M1-78 | Dead user can buy after ballot has closed or during last night; no later opening ballot, charge spent | toolGraveVoteDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | none | none | SUSPECT |
 | M1-79 | Silenced dead voter is rejected; bought charge remains | §5.2 grave_vote; RL8 | supabase/functions/submit_vote/index.ts:35 | none | none | SUSPECT |
-| M1-80 | 4-seat final ballot and 20-seat early closure must count grave voter if cast; reconnect must not duplicate — needs-live | §5.2 grave_vote; I5/I9 | supabase/functions/resolve_vote/index.ts:119 | none | none | GAP |
+| M1-80 | 4-seat final ballot and 20-seat early closure must count grave voter if cast; reconnect must not duplicate | §5.2 grave_vote; I5/I9 | supabase/functions/resolve_vote/index.ts:119 | `supabase/tests/live_local_m1.test.mjs: M1-80: a grave ballot is counted once at a four-seat final ballot and after the early closure of a 15- and a 20-seat ballot, and a reconnect does not repeat it` | edge-local | OK |
 
 ## sense
 
@@ -185,7 +185,7 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 | M1-102 | Authorized use, wrong phase, dead/alive gate, invalid or duplicate target, repeated use, 4-tool/2-heavy cap; 4- and 20-seat tables | §5.2 lock_door; RL14; §5.0; I2 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:40 | supabase/tests/tools_gaps.sql: per-tool guard matrix (lock_door; 4/20 seats) | sql-sim | OK |
 | M1-103 | Bought/held on account; offline activation is inapplicable (RL20 online-only) | §5.2 lock_door; RL14; RL20 | lib/ui/economy/table_tools.dart:114 | test/widget/store_shop_test.dart: tool purchase forwards to economy | widget | N/A |
 | M1-104 | Public feed names buyer and door; no role inference | §5.2 lock_door; RL14; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
-| M1-105 | Next night blocks kill, sniper shot and sniper penalty, silence, investigation; half door dominated — needs-live | §5.2 lock_door; C77/C81/C83 | supabase/functions/resolve_night/index.ts:139 | supabase/tests/table_tools.test.ts: a day lock covers next night only | unit | GAP |
+| M1-105 | Next night blocks kill, sniper shot and sniper penalty, silence, investigation; half door dominated | §5.2 lock_door; C77/C81/C83 | supabase/functions/resolve_night/index.ts:139 | `supabase/tests/live_local_m1.test.mjs: M1-105: a bought lock door blocks the kill, the sniper shot and its penalty, the silence and the investigation for the next night only` | edge-local | OK |
 | M1-106 | Detective sees unreachable; sense/whisper still truth | §5.2 lock_door; C77 | supabase/functions/_shared/tools.ts:73 | supabase/tests/table_tools.test.ts: detective faces: impersonate, camouflage, door | unit | OK |
 | M1-107 | Buyer eliminated/kicked before next night; charge spent with no possible protection | toolLockDoorDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | SUSPECT |
 | M1-108 | Day-phase closure races a lock-door use; all clients must agree on accepted protection — needs-live | I2/I5/I9 | supabase/functions/resolve_night/index.ts:60 | none | none | GAP |
