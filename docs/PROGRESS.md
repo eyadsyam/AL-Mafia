@@ -3889,3 +3889,10 @@ Files:      supabase/functions/_shared/night_core.ts, supabase/functions/resolve
 Verified:   dart run tool/night_vectors.dart (48 scenarios); flutter test test/engine/night_vectors_test.dart PASS; node --test supabase/tests/night_vectors.test.mjs 48/48; node --check on the changed edge functions; Deno type-check not available.
 Gate:       PASS
 Open:       ties excluded (D17); tool-locked seats not covered offline.
+
+## PHASE edge-local-audit  done locally
+Built:      PGlite Edge Function harness with Node TypeScript imports, local Supabase client, auth aliases and real migrations; seven-player night/vote smoke and M1/M2/M3 matrix tests.
+Files:      tool/edge_harness/{index.mjs,resolve.mjs,supabase.mjs}; supabase/tests/{edge_harness_smoke.test.mjs,edge_local_fixture.mjs,live_local_m1.test.mjs,live_local_m2.test.mjs,live_local_m3.test.mjs}; docs/plans/audit/{M1-tools.md,M2-roles.md,M3-online.md}; docs/PROGRESS.md
+Verified:   Node edge smoke 1/1, M1 2/2, M2 4/4, M3 1/1; SQL probe 95/95 files; single PGlite process at a time.
+Gate:       PASS (local; no deployment)
+Open:       72 needs-live rows remain (M1 11, M2 47, M3 14); including additional locally testable cases plus true concurrency, device, voice/media and external-service cases. No SUSPECT-confirmed rows.
