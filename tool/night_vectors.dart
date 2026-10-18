@@ -12,7 +12,6 @@ import 'package:mafia_master/engine/clock.dart';
 import 'package:mafia_master/engine/match_engine.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
-import 'package:mafia_master/engine/models/player.dart';
 import 'package:mafia_master/engine/models/timeline_event.dart';
 
 const outputPath = 'supabase/tests/night_vectors.json';

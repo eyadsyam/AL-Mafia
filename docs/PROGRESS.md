@@ -3896,3 +3896,10 @@ Files:      tool/edge_harness/{index.mjs,resolve.mjs,supabase.mjs}; supabase/tes
 Verified:   Node edge smoke 1/1, M1 2/2, M2 4/4, M3 1/1; SQL probe 95/95 files; single PGlite process at a time.
 Gate:       PASS (local; no deployment)
 Open:       72 needs-live rows remain (M1 11, M2 47, M3 14); including additional locally testable cases plus true concurrency, device, voice/media and external-service cases. No SUSPECT-confirmed rows.
+
+## PHASE store-narrator-verification — done locally (2026-10-18)
+Built:      اختبارات الراوي اتراجعت واتوسعت للحزم التلاتة عند ٤ و٢٠ لاعب، مع النص والكتم واختيار التسجيل ووجود ملفه؛ جدول المتجر والخطة اتحدثوا بحدود الدليل. اتشال استيراد قديم مش مستخدم من مولّد حالات الليل.
+Files:      test/online/narrator_packs_beats_test.dart; tool/night_vectors.dart; docs/plans/audit/M4-store.md; docs/plans/STABLE-RELEASE-PLAN.md; docs/plans/briefs/gaps_m4_store_finish.txt; docs/PROGRESS.md
+Verified:   flutter test --no-pub test/online/narrator_packs_beats_test.dart test/widget/online_narrator_test.dart test/online/cosmetics_table_test.dart test/platform/narrator_test.dart: 36 PASS. flutter analyze --no-pub: 0 errors, 1 pre-existing unused-import warning, 113 infos, exit 1. After removing that import: dart analyze test/online/narrator_packs_beats_test.dart tool/night_vectors.dart: no issues, exit 0. Formatting check passed. Matrix: 56 unique rows; media/concurrency limits retained. Windows host tests with fake transport; no actual audio playback/device/live verification.
+Gate:       PASS (focused local phase only; full analyzer was not rerun after import removal)
+Open:       تشغيل اختبارات التطبيق الكاملة والمعاينة المحلية لسه باقيين؛ M4-16 محتاجة تحقق بين عملاء، وM4-36/39/43/46 محتاجة تزامن حقيقي. سماع التسجيلات وتطابق محتواها مع النص على جهاز فعلي لسه متجربش. نتيجة التصويت النصية متجربة عبر العرض المحلي، واختيار تسجيلها عبر الأونلاين. لا بناء إصدار ولا رفع. الوقوف عند نهاية المرحلة حسب اتفاق الشغل.

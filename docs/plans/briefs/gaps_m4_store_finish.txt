@@ -1,0 +1,21 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master (Flutter app + Supabase). YOU EXECUTE; YOU DO NOT DESIGN. No git commit, no network, no deploy. Never change production code (lib/**, supabase/functions/**, supabase/migrations/**).
+Edit only: docs/plans/audit/M4-store.md (the rows named below, nothing else) and one new test file test/online/narrator_packs_beats_test.dart.
+You cannot run flutter or dart in your sandbox; the orchestrator will run `flutter test test/online/narrator_packs_beats_test.dart` and `flutter analyze`. So write the Dart carefully and copy setup helpers exactly from the existing tests named below.
+
+PART A — matrix rows for tests that already exist and pass (committed 601f2ba):
+supabase/tests/store_gaps.sql (SQL comment headings `-- M4-n …`), supabase/tests/store_gaps.test.mjs (test names start `M4-n:`), supabase/tests/store_gaps_edge.test.mjs (test names start `M4-n:`).
+Rows: M4-2 3 5 6 8 9 19 20 23 25 26 27 28 29 30 31 32 33 34 36 37 39 40 43 44 45 46 48 49 56.
+For each row: Test = `<file>: <test name or SQL heading, shortened>` (several allowed, separated by `; `); Evidence = edge-local if any edge test covers it, else sql-sim if the .sql covers it, else unit; Verdict = OK.
+Exception, rows M4-36, M4-39, M4-43, M4-46 (their SQL headings say the row stays needs-live for real concurrency): fill Test and Evidence the same way, keep Verdict GAP, and end the Case cell with ` — needs-live (concurrency)`.
+Change no other column, no other row. Keep the file's line endings (CRLF if it has them).
+
+PART B — rows M4-14, M4-16, M4-17 (narrator packs: storyteller, keeper, noir). Read those three rows first.
+Read: test/online/cosmetics_table_test.dart (around lines 233 and 275), test/widget/store_truth_test.dart (around 370), lib/platform/narrator_bank.dart, lib/ui/economy/cosmetics.dart (around 257–271), lib/ui/screens/online/table/room_presentation.dart (around 174), lib/ui/screens/online/online_table_flow.dart (around 664).
+Write test/online/narrator_packs_beats_test.dart: for each of the three packs, drive every public beat the existing tests already know how to drive (night falls, morning, vote result, match end, and free/by-turns talk where offered) and assert:
+ 1. the text line for the beat is shown, also when the room is muted;
+ 2. the recorded clip asked for is that pack's clip, through a seam that ALREADY exists (an injectable bank, player, provider override or fake used by other tests). If no such seam exists, do not add one: test text only and say so in the report;
+ 3. no shown line names another seat's role (doc 05).
+Use the app's l10n lookups the existing tests use, never hard-coded Arabic strings.
+Then set rows M4-14, M4-16, M4-17: Test = `test/online/narrator_packs_beats_test.dart: <test name>`, Evidence = widget, Verdict = OK if the clip is checked, else keep GAP and add `no audio seam` to the Test cell.
+
+REPORT (final message): rows changed in part A with the evidence chosen; for part B the seam used (or why none), the test names, and anything you were unsure of.
