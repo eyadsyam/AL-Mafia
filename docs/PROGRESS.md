@@ -3903,3 +3903,10 @@ Files:      test/online/narrator_packs_beats_test.dart; tool/night_vectors.dart;
 Verified:   flutter test --no-pub test/online/narrator_packs_beats_test.dart test/widget/online_narrator_test.dart test/online/cosmetics_table_test.dart test/platform/narrator_test.dart: 36 PASS. flutter analyze --no-pub: 0 errors, 1 pre-existing unused-import warning, 113 infos, exit 1. After removing that import: dart analyze test/online/narrator_packs_beats_test.dart tool/night_vectors.dart: no issues, exit 0. Formatting check passed. Matrix: 56 unique rows; media/concurrency limits retained. Windows host tests with fake transport; no actual audio playback/device/live verification.
 Gate:       PASS (focused local phase only; full analyzer was not rerun after import removal)
 Open:       تشغيل اختبارات التطبيق الكاملة والمعاينة المحلية لسه باقيين؛ M4-16 محتاجة تحقق بين عملاء، وM4-36/39/43/46 محتاجة تزامن حقيقي. سماع التسجيلات وتطابق محتواها مع النص على جهاز فعلي لسه متجربش. نتيجة التصويت النصية متجربة عبر العرض المحلي، واختيار تسجيلها عبر الأونلاين. لا بناء إصدار ولا رفع. الوقوف عند نهاية المرحلة حسب اتفاق الشغل.
+
+## PHASE full-client-gates — done locally (2026-10-18)
+Built:      تشغيل فحوص التطبيق الكاملة بعد 5ce8c2e، وتحديث جدول النتائج وأسباب الاختبارات المتخطّاة ونقطة الاستكمال. مفيش تعديل في كود التطبيق.
+Files:      docs/PROGRESS.md; docs/plans/STABLE-RELEASE-PLAN.md
+Verified:   Windows host: flutter test --no-pub, alone: 2233 passed, 5 skipped, 0 failed, exit 0 (4m38s test time). flutter analyze --no-pub --no-fatal-infos, after tests: 0 errors, 0 warnings, 113 infos, exit 0 (123.7s). Log severity counts checked. Server results in the plan are prior-run evidence, not rerun today.
+Gate:       PASS (local client checks; skipped tests and 113 informational diagnostics remain)
+Open:       أربعة اختبارات نسب فوز متوقفة مسبقًا في balance_harness_test.dart بسبب إعدادات الترابيزات الكبيرة والوضع القاسي؛ اختبار voice_web_runtime_test.dart محتاج متصفح. المعاينة المحلية، الصوت الفعلي، الأجهزة والتزامن الحقيقي لسه باقيين؛ نجاح الاختبارات مش إعلان جاهزية إصدار. مفيش بناء إصدار أو رفع. المرحلة التالية Q9: المعاينة المحلية، بعد توجيه المالك.

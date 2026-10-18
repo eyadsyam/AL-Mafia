@@ -28,16 +28,18 @@ This file is the single place to resume from. Anyone (Claude, Codex, a person) p
 
 | Gate | Command | Last result |
 |---|---|---|
-| Flutter tests | `flutter test` (whole suite, alone) | 2222 pass, 5 skip (2026-10-17) |
-| Analyzer | `flutter analyze` | clean (2026-10-16) |
-| SQL | `node tool/test_sql_without_docker.mjs` | 92/92 (2026-10-17) |
-| Node | each `supabase/tests/*.test.mjs` with `node --test <file>` | 29/29 files (2026-10-17) |
+| Flutter tests | `flutter test --no-pub` (whole suite, alone) | 2233 pass, 5 skip, 0 fail (2026-10-18; source 5ce8c2e) |
+| Analyzer | `flutter analyze --no-pub --no-fatal-infos` | 0 errors, 0 warnings, 113 infos; exit 0 (2026-10-18; source 5ce8c2e) |
+| SQL | `node tool/test_sql_without_docker.mjs` | 96/96 (previous run, 2026-10-17; not rerun in the 2026-10-18 client gate) |
+| Node | each `supabase/tests/*.test.mjs` with `node --test <file>` | 37/37 files (previous run, 2026-10-17; not rerun in the 2026-10-18 client gate) |
 | Parity | `node supabase/tests/run_golden_vectors_node.mjs` (35 agree) + night vectors `node --test supabase/tests/night_vectors.test.mjs` (48/48) + their Dart tests | PASS (2026-10-17) |
-| Edge type-check | `deno check supabase/functions/*/index.ts` (Deno 2.9.6 via `npm i -g deno`) | PASS except one pre-existing strictness error in `_shared/coin_payments.ts:178` (newer TS lib, not a runtime fault) |
+| Edge type-check | `deno check supabase/functions/*/index.ts` | PASS in previous run after c54d994; not rerun in the 2026-10-18 client gate |
 | Live suite | `supabase/tests/run_live_suite.py` against a server running THIS code | BLOCKED: needs deploy (owner) |
 | Device | owner plays one offline and one online match on his phone | BLOCKED: owner |
 
 Stable = every gate green, every audit matrix row in §4 either covered by a test or fixed, owner smoke test passed.
+
+**تخطّي معروف في اختبارات ٢٠٢٦-١٠-١٨:** أربعة اختبارات نسب فوز في `test/engine/balance_harness_test.dart` متوقفة من قبل التعديلات ومستنية قرار إعدادات الترابيزات الكبيرة؛ المحاكاة الحالية بتشير لانحياز للمافيا في بعض الإعدادات. اختبار `test/voice/voice_web_runtime_test.dart` بيتخطّى خارج المتصفح. الخمسة مش دليل نجاح، ولا نجاح باقي الاختبارات يثبت التوازن أو الصوت الحقيقي.
 
 ## 2b. Invariants (USEI-X §3–§6, module H multiplayer, module I voice)
 
@@ -116,7 +118,7 @@ M1: 117 rows; 20 SUSPECT. M2: 118 rows (29 OK, 76 GAP, 11 SUSPECT). Decisions:
 - [x] Q7 Gendered lines: confrontation C1/C4/C5/C6/C7/C8 and «مينفعش تصوّتي» follow the addressed player's gender, offline and online (test/unit/addressed_gender_test.dart).
 - [x] Q8 M4 store audit done (1471b82). Triage: M4-50 returned bundle keeps its components → FIXED 197e29a (`bundle_revoke_components.sql`); M4-51 a pack already on a room survives its owner's return → ACCEPTED (deliberate: cosmetics never block a match, purchase_access.ts comment); M4-38 two overlapping tool packs, one returned → ACCEPTED (rare); M4-4/7/10 offline keeps a returned role until the next online refresh → ACCEPTED (offline cannot ask the server); M4-24 vote shield is cover bought in advance → ACCEPTED (as M1 conditional tools).
 - [ ] Q11 Local edge harness: BUILT and used (e3aa83e, 3e6d746, 3bf4d2b; `tool/edge_harness/`, `supabase/tests/live_local_m1/m2/m3.test.mjs`). Still needs-live: M1 5 (true concurrency), M2 11, M3 8 (concurrency, voice, device, client). Optional next: M2's offline-engine rows as Dart tests, M3's client rows as widget tests. The rest is the owner's live suite and device test.
-- [ ] Q9 Full gates (§2), then a local look for the owner WITHOUT `flutter build` (owner rule 2026-10-08/16): `flutter run -d web-server --web-port <port>` in debug, opened in the app's browser pane. No release build, no deploy, until he says «ابني».
+- [ ] Q9 فحوص التطبيق الكاملة نجحت يوم ٢٠٢٦-١٠-١٨ على `5ce8c2e`: ٢٢٣٣ اختبار ناجح، ٥ متخطّيين، صفر فشل؛ التحليل صفر أخطاء وتحذيرات و١١٣ ملاحظة إرشادية. المتبقي: معاينة محلية باستخدام `flutter run -d web-server --web-port <port>` في وضع التصحيح، من غير `flutter build` أو رفع. باقي دليل الأجهزة والتزامن والصوت الحقيقي منفصل عن نجاح الفحوص المحلية.
 - [ ] Q10 Owner: approve deploy to a staging project or live; then live suite; then device smoke; then Play.
 
 ## 6. Owner decisions pending
