@@ -36,14 +36,16 @@ class MorningScreen extends StatelessWidget {
   /// trace type through here without building an engine.
   final String? traceText;
 
-  /// What the night victim turned out to be, or null.
+  /// What each night victim turned out to be, in the order of [victimNames].
   ///
-  /// Null in every match that has not turned [MatchSettings.revealNightVictimRole]
+  /// Empty in every match that has not turned [MatchSettings.revealNightVictimRole]
   /// on — which is every match by default, and «سريعة» is the one preset that
   /// does. A day elimination's role is always public because the table chose
   /// it (FR-019); a night victim's is a gift nobody paid for, and doc 13 §5
-  /// hands it only to the preset whose job is to be easy to follow.
-  final String? victimRole;
+  /// hands it only to the preset whose job is to be easy to follow. Every
+  /// death of the night is told, not only the Mafia's victim: a Sniper's
+  /// shot is a night death like any other.
+  final List<String> victimRoles;
 
   final VoidCallback onContinue;
   final bool tabletop;
@@ -56,7 +58,7 @@ class MorningScreen extends StatelessWidget {
     this.silencedName,
     required this.someoneSavedUnnamed,
     this.traceText,
-    this.victimRole,
+    this.victimRoles = const [],
     required this.onContinue,
     this.tabletop = false,
   });
@@ -128,10 +130,14 @@ class MorningScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                   ],
-                  if (victimRole != null && victimName != null) ...[
+                  for (
+                    var i = 0;
+                    i < victimRoles.length && i < namedVictims.length;
+                    i++
+                  ) ...[
                     SizedBox(height: spacing.sm),
                     Text(
-                      l10n.victimWasRole(victimName!, victimRole!),
+                      l10n.victimWasRole(namedVictims[i], victimRoles[i]),
                       style: type.body.copyWith(color: colors.textMuted),
                       textAlign: TextAlign.center,
                     ),

@@ -713,6 +713,9 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
 
     final report = state.morning;
     final victimSeat = report?.victimSeat;
+    final nightDeaths = (report?.victimSeats.isNotEmpty ?? false)
+        ? report!.victimSeats
+        : [if (victimSeat != null) victimSeat];
     return MorningScreen(
       tabletop: _controller.settings.tabletopPresentation,
       dayNumber: state.dayNumber,
@@ -730,13 +733,14 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       // Doc 13 §5's «سريعة» row, and off everywhere else. Read from the
       // engine, which is the only thing that holds a role — the snapshot does
       // not, by construction, and that is not going to change.
-      victimRole:
-          victimSeat == null || !_controller.settings.revealNightVictimRole
-          ? null
-          : EngineCopy.roleName(
+      victimRoles: [
+        if (_controller.settings.revealNightVictimRole)
+          for (final seat in nightDeaths)
+            EngineCopy.roleName(
               context.l10n,
-              _controller.engine.match.players[victimSeat].role,
+              _controller.engine.match.players[seat].role,
             ),
+      ],
       // Read from the engine rather than recomputed here. The trace was
       // decided when the night resolved and written to the log; asking the
       // generator again on every rebuild could produce a different sentence

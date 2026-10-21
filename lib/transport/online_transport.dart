@@ -551,6 +551,12 @@ class OnlineTransport implements GameTransport {
       if (incoming.userId == backend.userId && _own != null) {
         _own = _own!.copyWith(alive: incoming.alive);
       }
+      // A read already on the wire predates this delta: applied as is, it
+      // would put the roster back (a seat that died by push alive again).
+      if (_resyncInFlight != null) {
+        _deltaDuringRead = true;
+        _resyncAgain = true;
+      }
       _restore();
       _publish();
       return;

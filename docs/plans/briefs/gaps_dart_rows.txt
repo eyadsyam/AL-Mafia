@@ -1,0 +1,26 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master (Flutter app + Supabase). YOU EXECUTE; YOU DO NOT DESIGN. No git commit, no network, no deploy.
+Never change production code (lib/**, supabase/**). Do NOT edit docs/plans/audit/*.md (another run is editing them). Create only the two NEW test files named below; touch nothing else.
+You cannot run flutter or dart in your sandbox; the orchestrator runs `flutter test <file>` and `flutter analyze`. So write the Dart carefully: copy imports, setup helpers and fakes EXACTLY from the existing tests named below; never guess an API — open the class and read its signature first.
+
+RULES THAT BIND EVERY TEST (CLAUDE.md): lib/engine is pure; no hard-coded Arabic in assertions — use the app's l10n lookups the way the existing tests do (see test/support/localized.dart); doc 05 zero leakage: a public screen never lets a player infer another seat's role. Seeded randomness only.
+
+FILE 1: test/engine/roles_offline_rows_test.dart — offline engine/UI rows from docs/plans/audit/M2-roles.md. Read each row first (Case, Expected, Code columns). One `group` per row, named by the row id, e.g. `group('M2-17', ...)`. Patterns to copy: test/engine/rule_matrix_test.dart, test/engine/roles_offline_gaps_test.dart, test/engine/engine_hardening_test.dart, test/support/scripted_match.dart. For morning-screen assertions copy the pumping pattern of an existing widget test that renders lib/ui/screens/night/morning_screen.dart (grep test/ for MorningScreen).
+ - M2-17: one night with two deaths (kill + sniper shot): the morning lists every death; the night role of each is hidden unless the preset is fast (revealNightVictimRole); parity/win is checked only after all deaths are applied.
+ - M2-65: the Detective's death counts for the town in win_check; a vote death reveals the role, a night death does not (classic).
+ - M2-73: the Elder's reveal is public; a night death normally hides the role; the Sniper shooting the Elder kills both (the Elder and the Sniper), per rule_matrix C62's ruling — read C62 first and assert the same rule, do not invent one.
+ - M2-91: the Sniper's night death is hidden except under the fast preset; a vote death reveals the Sniper.
+ - M2-101: a Citizen has no night timer and an explicit skip; a vote death reveals the Citizen; a night death does not (classic).
+ - M2-113: the sold-role switches (lib/ui/screens/setup/optional_roles.dart) and the dealt roles match: a role switched on is dealt with its count; a role not owned/not switched on is never dealt. Use the same owned-role fakes as test/widget/store_roles_everywhere_test.dart.
+If a row's Expected contradicts what the code does, do not change code and do not weaken the assertion to pass: write the test for the Expected rule, mark it `skip: 'SUSPECT: <one line>'` and report it.
+
+FILE 2: test/online/online_client_rows_test.dart — online client rows from docs/plans/audit/M3-online.md and the client half of two M2 rows. Use the fakes the online tests already use (open test/online/online_action_retry_test.dart, online_session_recovery_test.dart, process_death_resume_test.dart, online_result_layout_test.dart, test/transport/online_transport_test.dart and test/support/fake_backend.dart first; reuse their fake backend/transport exactly). One group per row id.
+ - M3-19: after a reconnect in each of morning, confrontation, discussion, vote, verdict and result, the client shows the server's authoritative phase (the fake backend answers the reread with that phase).
+ - M3-21: app killed during a PAID write (a tool use): on restart the client rereads the receipt before any retry and never sends the paid write twice (ballot receipt is already covered at online_action_retry_test.dart:106 — copy that shape for the paid write).
+ - M3-23: a network loss backs off, rereads, and drops an older read that a newer push has overtaken (state never goes backwards).
+ - M3-55: a finished result survives a reconnect; local history is written once and the reward sync is attempted once.
+ - M3-58: the result/analytics copy comes from the committed outcome, including a silenced seat and a kicked seat; no line names another seat's role beyond what the outcome reveals.
+ - M2-34 (client half): the online morning names the silenced seat (find the morning silenced line in lib/ui/screens/online/online_table_flow.dart around 1585).
+ - M2-100 (client half): a silenced Citizen gets no ballot control that day but stays in the roster as eligible next day.
+If a row needs a seam that does not exist (you would have to change lib/** to test it), skip that row entirely and say so in the report. Do not add seams.
+
+REPORT (final message): per row id: the test names written, the seam/fake used, or `not written: <reason>`. Plus anything you were unsure of (APIs you could not confirm).
