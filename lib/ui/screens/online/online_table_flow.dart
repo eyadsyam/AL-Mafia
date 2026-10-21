@@ -461,7 +461,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     if (_sting == PhaseLight.dusk) _sharedCue(AudioCue.nightFalls);
     if (_sting == PhaseLight.dawn) _sharedCue(AudioCue.morning);
     final line = _publicLine(snapshot, previous);
-    if (line != null) _sharedNarrate(line.$1, line.$2);
+    if (line != null) _sharedNarrate(line.$1, line.$2, snapshot);
 
     // Doc 15 §S-O13. Beat 1 is the freeze the result phase arrives with; this
     // is beat 2, once per match. Under Reduce Motion the rings are simply
@@ -658,10 +658,22 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 
   /// A spoken line on every phone at the same public moment. Never while the
   /// phone is in a hand; a voice that fails is never load-bearing.
-  void _sharedNarrate(NarratorBeat beat, NarrationFacts facts) {
+  ///
+  /// The recording is the same on every phone: the variant comes from the
+  /// room, the day, the ballot and the beat, which every seat shares, rather
+  /// than from each phone's own dice.
+  void _sharedNarrate(
+    NarratorBeat beat,
+    NarrationFacts facts,
+    GameSnapshot snapshot,
+  ) {
     if (_audio.location == PhoneLocation.inHand) return;
+    final room = ref.read(onlineSessionProvider).room?.roomId ?? '';
+    final variant = NarratorBank.variantFor(
+      '$room/${snapshot.dayNumber}/${snapshot.ballotRound}/${beat.name}',
+    );
     try {
-      _audio.narrate(beat, facts);
+      _audio.narrate(beat, facts, variant);
     } catch (_) {}
   }
 

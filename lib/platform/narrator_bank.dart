@@ -112,10 +112,15 @@ class NarratorBank {
 
   /// A clip for [beat] whose condition holds, never the same clip twice in a
   /// row for a beat when another would do. Null when nothing fits.
+  ///
+  /// With [variant], the choice is that number's clip among those that fit,
+  /// so every phone given the same number speaks the same recording: an
+  /// online table hears one narrator, not one per phone (see [variantFor]).
   NarratorClip? pick(
     NarratorBeat beat,
     NarrationFacts facts, {
     bool familyOnly = false,
+    int? variant,
   }) {
     final fits = [
       for (final c in clips)
@@ -125,12 +130,27 @@ class NarratorBank {
           c,
     ];
     if (fits.isEmpty) return null;
+    if (variant != null) {
+      final chosen = fits[variant % fits.length];
+      _last[beat] = chosen.id;
+      return chosen;
+    }
     final fresh = fits.length > 1
         ? fits.where((c) => c.id != _last[beat]).toList()
         : fits;
     final chosen = fresh[_random.nextInt(fresh.length)];
     _last[beat] = chosen.id;
     return chosen;
+  }
+
+  /// A variant number every phone computes alike from [key] (FNV-1a over its
+  /// UTF-16 units: `String.hashCode` differs between the web and the VM).
+  static int variantFor(String key) {
+    var hash = 0x811c9dc5;
+    for (final unit in key.codeUnits) {
+      hash = ((hash ^ unit) * 0x01000193) & 0x7fffffff;
+    }
+    return hash;
   }
 
   /// The line bank's small condition language: `always`, `revote`,

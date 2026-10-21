@@ -90,6 +90,30 @@ void main() {
         );
         expect(trace.sentPackets, greaterThan(0));
       }
+      // A silenced seat (audit M2-34, M2-100): the controller turns its
+      // microphone off, and the table then hears nothing from it.
+      Future<double> loudestFromA() async {
+        var loudest = 0.0;
+        for (var i = 0; i < 8; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 300));
+          await b.sampleMediaStats();
+          final level = b.speakingLevels['a'] ?? 0;
+          if (level > loudest) loudest = level;
+        }
+        return loudest;
+      }
+
+      expect(await loudestFromA(), greaterThan(0), reason: 'A is heard first');
+      await a.setMicrophoneLive(false);
+      expect(a.diagnostics.localTrackEnabled, isFalse);
+      await Future<void>.delayed(const Duration(seconds: 1));
+      expect(
+        await loudestFromA(),
+        lessThan(0.001),
+        reason: b.diagnostics.report(),
+      );
+      await a.setMicrophoneLive(true);
+
       await a.setAudiblePeers({});
       expect(a.diagnostics.peers.values.single.remoteTrackEnabled, isFalse);
       await a.teardown();

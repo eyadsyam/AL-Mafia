@@ -1,0 +1,25 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master (Flutter + Supabase). YOU EXECUTE; YOU DO NOT DESIGN. No git commit, no network, no deploy, never touch a hosted project.
+Never change production code (lib/**, supabase/functions/**, supabase/migrations/**). Do not edit docs/plans/audit/*.md. Edit only tool/real_pg/races.mjs (append tests; keep the two existing ones as they are).
+
+WHAT EXISTS
+- tool/real_pg/harness.mjs: freshDatabase() creates a throwaway database inside the LOCAL docker container supabase_db_AL_Mafia (real PostgreSQL 17), applies all 161 migrations, and gives db.sql(text) (one psql session, resolves {ok,out,err}), holding(text, seconds) (wraps text in begin; ...; pg_sleep; commit so the session keeps its locks), after(ms, db, text) (starts a second session later so it lands inside the held window). Read it first.
+- tool/real_pg/races.mjs: two passing M4-46 races. Copy their shape exactly.
+- Run: node --test tool/real_pg/races.mjs   (about 1 minute; Docker Desktop is already running). Never run two at once.
+
+TASK: one test (or two) per row below, named `<row id>: <what it proves>`. Each test: commit its own setup in plain sessions (fresh gen_random_uuid() users inserted into auth.users; rooms/room_players/room_state rows inserted directly, the way the existing supabase/tests/*.sql files set them up — copy column lists from those files), then race the exact SQL the server runs. Find that SQL by reading the edge function named in the row (supabase/functions/<name>/index.ts: the db.rpc(...) call or the insert/upsert it does) and call the same function or statement with the same arguments. Then assert the end state with plain queries.
+Prove the overlap: measure the second session's duration (Date.now() around after(...)) and assert it waited at least 1000 ms whenever the code takes a lock (advisory lock, for update, unique index); if it did not wait, say so in the report rather than weakening anything.
+
+ROWS (read each row in docs/plans/audit/M1-tools.md, M2-roles.md, M4-store.md first: Case + Code columns)
+- M4-36: buy_table_tool twice at once with the SAME p_request: granted once, charged once. Then two different requests with coins for one pack: one succeeds, the other INSUFFICIENT_COINS, balance >= 0.
+- M4-43: economy_v3_issue_receipt for the same user and room from two sessions at once: one match_receipts row, same values back. (Set up like supabase/tests/online_retry_rows.sql's M3-56 block; economy_config.economy_v11_enabled=true.)
+- M2-62: the Detective's investigation written twice at once with two different targets, through the same write submit_night_action does: exactly one investigation stored; the loser gets ALREADY_INVESTIGATED or the unique conflict, nothing else changes.
+- M2-12: two Mafiosi send an armed (team bullet) night action at once, through the same write submit_night_action does: the guard_team_bullet trigger lets one through and refuses the other with BULLET_SPENT; one bullet spent.
+- M2-112: apply_match_deal (or whatever start_match calls) twice at once for the same lobby: one deal, every seat exactly one role, the second call refused or a no-op.
+- M1-7 and M1-26: two players claim the floor at once through claim_floor_with_tools (see supabase/functions/claim_floor/index.ts): one holder; any paid floor tool consumed at most once.
+- M1-13: the same anonymous-note use sent twice at once (same attempt/request id if the function takes one): one note.
+- M1-46 and M1-108: a vote_shield / lock_door use racing the phase resolution commit (find what resolve_night/resolve_vote commit and the fingerprint check from migration 20261017000100_tool_guards.sql T1): either the use is recorded and the resolution sees it, or the use is refused and charges nothing. Never charged-and-ignored.
+- M4-39: a tool use racing the match ending (outcome written): refused without a trace, or recorded before the end; never a charge after the end.
+
+If a row's real SQL cannot be raced without changing production code, write nothing for it and say why. If a race shows a real defect (double grant, negative balance, charged-and-ignored), keep the failing test, mark it `{ skip: 'DEFECT: <one line>' }` and describe it exactly in the report; do not fix it.
+
+REPORT (final message): per row: test names, the SQL you raced (function + where you found it), whether the second session waited (ms), pass/skip; final `node --test tool/real_pg/races.mjs` counts; anything unsure.

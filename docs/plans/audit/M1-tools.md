@@ -12,7 +12,7 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 | M1-4 | Structured floor claim adds 45 seconds once; stacks with objection to 75 | §5.2 extra_minute; C91 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:100 | supabase/tests/live_tools_regressions.sql: bonus added exactly once | sql-sim | OK |
 | M1-5 | Free discussion refuses before decrement | RL14 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:34 | supabase/tests/floor_tools_free_room.sql: refuses before charge | sql-sim | OK |
 | M1-6 | Bought after own last floor or silenced, then timer expires — charge is spent though no floor bonus can apply | §5.2 extra_minute; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | ACCEPTED — the floor bonus waits for the holder's next turn (consumed_at), next day included |
-| M1-7 | Two users race for floor, disconnected/kicked buyer, reconnect and phase expiry; one grant should consume once — needs-live | §5.2 extra_minute; I3/I9 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:36 | supabase/tests/live_tools_regressions.sql: same-holder retry changed deadline | sql-sim | GAP |
+| M1-7 | Two users race for floor, disconnected/kicked buyer, reconnect and phase expiry; one grant should consume once | §5.2 extra_minute; I3/I9 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:36 | supabase/tests/live_tools_regressions.sql: same-holder retry changed deadline; `tool/real_pg/races.mjs: M1-7 two claimants / a double tap: one holder, extra minute spent once` | pg-local | OK |
 
 ## anon_note
 
@@ -23,7 +23,7 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 | M1-10 | Public note text without author; feed does not identify a role | §5.2 anon_note; §5.0; doc 05 I1/I7 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:100 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
 | M1-11 | 1–140 nonblank characters posted immediately; bad note rejected without charge | §5.2 anon_note; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:59 | supabase/tests/live_tools_regressions.sql: anonymous note exposes its author / lost its text | sql-sim | OK |
 | M1-12 | Secret log stores tool code with null seat; all clients see note, no role-only capability | §5.2 anon_note; doc 05 | supabase/functions/_shared/tools.ts:33 | test/widget/tool_feed_test.dart: renders max 3 newest-first in Arabic without overflow | widget | OK |
-| M1-13 | Simultaneous uses and lost-response retry must not duplicate a note — needs-live | §5.0; I9 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:75 | none | none | GAP |
+| M1-13 | Simultaneous uses and lost-response retry must not duplicate a note | §5.0; I9 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:75 | `tool/real_pg/races.mjs: M1-13 the same note twice at once: stored, announced and charged once` | pg-local | OK |
 
 ## last_will
 
@@ -46,7 +46,7 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 | M1-23 | Structured discussion gives target the next floor; last word precedes it | RL15 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:61 | supabase/tests/floor_priority.sql: spotlight and last word priority | sql-sim | OK |
 | M1-24 | Dead or silenced target, expiry, free discussion, and other phases do not hold the floor | RL15 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:73 | supabase/tests/floor_priority.sql: dead / silenced / free / other phases | sql-sim | OK |
 | M1-25 | Buyer can select an alive but already silenced target, or buy after discussion; effect cannot grant speech, charge spent | RL15; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:53 | `supabase/tests/tool_guards.sql: T5 spotlight requires an alive, speaking target and a talk phase` | sql-sim | FIXED 7c01244 — spotlight needs a living unsilenced target in a talk phase |
-| M1-26 | Two users buy concurrently; floor claimant and phase timer race with priority hold — needs-live | RL15; I9 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:83 | none | none | GAP |
+| M1-26 | Two users buy concurrently; floor claimant and phase timer race with priority hold | RL15; I9 | supabase/migrations/20261016000300_floor_priority_spotlight_last_word.sql:83 | `tool/real_pg/races.mjs: M1-26 spotlight hold and claim vs phase timer: consumed exactly once` | pg-local | OK |
 
 ## objection
 
@@ -81,7 +81,7 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 | M1-43 | Day N shield blocks N+1 night silence; half/lock door redundancy | RL14; C69/C80 | supabase/functions/_shared/tools.ts:85 | supabase/tests/server_fixes.test.mjs: vote_shield bought on day N covers night N + 1 only | unit | OK |
 | M1-44 | Silencer target blocked, but cannot be silenced if dead same night | §5.2 vote_shield; RL7 | supabase/functions/resolve_night/index.ts:175 | supabase/tests/server_fixes.test.mjs: silence cannot land on seat that died same night | unit | OK |
 | M1-45 | Bought before elimination, kick, or match-ending vote — charge spent though next-night shield never activates | toolVoteShieldDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | ACCEPTED — conditional tools are cover bought in advance; their descriptions state the condition |
-| M1-46 | Day-phase closure racing shield use must either record the shield or refuse without charge — needs-live | I2/I9 | supabase/functions/resolve_night/index.ts:60 | none | none | GAP |
+| M1-46 | Day-phase closure racing shield use must either record the shield or refuse without charge | I2/I9 | supabase/functions/resolve_night/index.ts:60 | `tool/real_pg/races.mjs: M1-46 shield vs day close and night commit; revote vs ballot fingerprint` | pg-local | OK |
 
 ## half_door
 
@@ -188,7 +188,7 @@ Static audit only; tests named below were inspected, not run. A `live` label den
 | M1-105 | Next night blocks kill, sniper shot and sniper penalty, silence, investigation; half door dominated | §5.2 lock_door; C77/C81/C83 | supabase/functions/resolve_night/index.ts:139 | `supabase/tests/live_local_m1.test.mjs: M1-105: a bought lock door blocks the kill, the sniper shot and its penalty, the silence and the investigation for the next night only` | edge-local | OK |
 | M1-106 | Detective sees unreachable; sense/whisper still truth | §5.2 lock_door; C77 | supabase/functions/_shared/tools.ts:73 | supabase/tests/table_tools.test.ts: detective faces: impersonate, camouflage, door | unit | OK |
 | M1-107 | Buyer eliminated/kicked before next night; charge spent with no possible protection | toolLockDoorDesc; I3 | supabase/migrations/20261016000400_floor_tools_need_turns.sql:81 | none | none | ACCEPTED — conditional tools are cover bought in advance; their descriptions state the condition |
-| M1-108 | Day-phase closure races a lock-door use; all clients must agree on accepted protection — needs-live | I2/I5/I9 | supabase/functions/resolve_night/index.ts:60 | none | none | GAP |
+| M1-108 | Day-phase closure races a lock-door use; all clients must agree on accepted protection | I2/I5/I9 | supabase/functions/resolve_night/index.ts:60 | `tool/real_pg/races.mjs: M1-108 lock door vs day close and night commit: recorded or refused uncharged` | pg-local | OK |
 
 ## appeal
 

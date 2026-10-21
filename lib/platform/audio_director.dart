@@ -438,6 +438,7 @@ class AudioDirector {
   void narrate(
     NarratorBeat beat, [
     NarrationFacts facts = NarrationFacts.none,
+    int? variant,
   ]) {
     if (_location == PhoneLocation.inHand) {
       throw StateError(
@@ -446,7 +447,12 @@ class AudioDirector {
       );
     }
     if (muted || !narrationEnabled) return;
-    final clip = narrator.pick(beat, facts, familyOnly: familyNarration);
+    final clip = narrator.pick(
+      beat,
+      facts,
+      familyOnly: familyNarration,
+      variant: variant,
+    );
     if (clip == null) return;
     emittedNarration.add(clip.id);
     unawaited(backend.play(_assetKey(clip.file), volume: narratorVolume));
