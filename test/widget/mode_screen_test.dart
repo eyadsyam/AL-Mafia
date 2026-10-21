@@ -96,6 +96,21 @@ void main() {
     }
   });
 
+  testWidgets('the system back puts the turned card away before leaving', (
+    tester,
+  ) async {
+    await tester.pumpWidget(screen());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(ModeScreen.mafiaCard));
+    await tester.pumpAndSettle();
+    expect(find.byKey(ModeScreen.offlineCard).hitTestable(), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byKey(ModeScreen.offlineCard).hitTestable(), findsNothing);
+    expect(find.byKey(ModeScreen.storiesCard).hitTestable(), findsOneWidget);
+  });
+
   for (final size in const [Size(360, 640), Size(430, 932)]) {
     testWidgets('everything fits $size, closed and open', (tester) async {
       await tester.binding.setSurfaceSize(size);

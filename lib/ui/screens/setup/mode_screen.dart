@@ -108,12 +108,19 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return DeckScaffold(
-      title: _isOpen ? l10n.modeMafiaTitle : l10n.modeTitle,
-      onBack: _isOpen ? () => _setOpen(false) : widget.onBack,
-      banner: BannerPlacement.home,
-      body: LayoutBuilder(
-        builder: (context, box) => _stage(context, box.biggest),
+    // The system back closes the turned card first, as the header's back does.
+    return PopScope(
+      canPop: !_isOpen,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _setOpen(false);
+      },
+      child: DeckScaffold(
+        title: _isOpen ? l10n.modeMafiaTitle : l10n.modeTitle,
+        onBack: _isOpen ? () => _setOpen(false) : widget.onBack,
+        banner: BannerPlacement.home,
+        body: LayoutBuilder(
+          builder: (context, box) => _stage(context, box.biggest),
+        ),
       ),
     );
   }
