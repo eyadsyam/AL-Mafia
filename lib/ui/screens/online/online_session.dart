@@ -362,8 +362,9 @@ class OnlineSession extends Notifier<OnlineSessionState> {
         if (saved ||
             saving ||
             snapshot.outcome == null ||
-            snapshot.phase != GamePhase.result)
+            snapshot.phase != GamePhase.result) {
           return;
+        }
         saving = true;
         try {
           await OnlineMatchHistory.save(

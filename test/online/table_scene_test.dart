@@ -115,7 +115,7 @@ void main() {
       // Doc 15 §1.1: council 36%, voice 34%, hand 24% — of the same column, so
       // the flexes are the property and they are read from the tokens rather
       // than from a number typed into the widget.
-      final total =
+      const total =
           CouncilTokens.councilFlex +
           CouncilTokens.voiceFlex +
           CouncilTokens.handFlex;
@@ -176,7 +176,7 @@ void main() {
           speaker: 1,
           connected: const {2: false, 4: false},
           ballots: const {1: 3, 2: 4},
-          whispers: [WhisperMeta(id: 'w1', day: 1, fromSeat: 0, toSeat: 1)],
+          whispers: [const WhisperMeta(id: 'w1', day: 1, fromSeat: 0, toSeat: 1)],
           dead: const {5},
         ),
       );
@@ -279,7 +279,7 @@ void main() {
         snapshotOf(
           phase: GamePhase.voting,
           ballots: const {1: 3, 2: null},
-          whispers: [WhisperMeta(id: 'w', day: 1, fromSeat: 0, toSeat: 1)],
+          whispers: [const WhisperMeta(id: 'w', day: 1, fromSeat: 0, toSeat: 1)],
         ),
         selected: 4,
       );

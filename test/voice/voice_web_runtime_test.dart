@@ -1,5 +1,7 @@
+@TestOn('browser')
+library;
+
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/platform/voice/voice_engine.dart';
 import 'package:mafia_master/platform/voice/webrtc_voice_engine.dart';
@@ -54,7 +56,7 @@ void main() {
       await b.setAudiblePeers({'a'});
       final connectingA = a.connect(
         selfId: 'a',
-        ice: IceConfig.stun,
+        ice: const IceConfig(VoiceRung.stun, []),
         peers: [const VoicePeer(userId: 'b', seat: 1)],
         timeout: const Duration(seconds: 15),
       );
@@ -62,7 +64,7 @@ void main() {
       await Future<void>.delayed(const Duration(seconds: 1));
       final connectingB = b.connect(
         selfId: 'b',
-        ice: IceConfig.stun,
+        ice: const IceConfig(VoiceRung.stun, []),
         peers: [const VoicePeer(userId: 'a', seat: 0)],
         timeout: const Duration(seconds: 15),
       );
@@ -94,7 +96,6 @@ void main() {
       expect(a.diagnostics.peers, isEmpty);
       expect(a.diagnostics.localTrackEnabled, isFalse);
     },
-    skip: !kIsWeb,
     timeout: const Timeout(Duration(seconds: 60)),
   );
 }

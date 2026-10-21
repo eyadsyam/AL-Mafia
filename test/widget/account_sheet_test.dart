@@ -64,7 +64,7 @@ class _FakeAuth extends AccountAuth {
 }
 
 class _Prompt extends PushPrompt {
-  _Prompt(Ref ref, this.trace) : super(ref);
+  _Prompt(super.ref, this.trace);
   final List<String> trace;
 
   @override

@@ -83,11 +83,11 @@ class _FounderBadgeState extends ConsumerState<FounderBadge> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            RasterOr(
+            const RasterOr(
               path: FunRaster.founderBadge,
               width: FunTokens.founderBadge,
               height: FunTokens.founderBadge,
-              fallback: const CustomPaint(
+              fallback: CustomPaint(
                 size: Size.square(FunTokens.founderBadge),
                 painter: FounderSealPainter(),
               ),

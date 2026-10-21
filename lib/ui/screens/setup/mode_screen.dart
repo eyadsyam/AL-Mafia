@@ -290,7 +290,7 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
         AnimatedBuilder(
           animation: Listenable.merge([_deal, _open]),
           builder: (context, _) {
-            final d = 1 - Interval(
+            final d = 1 - const Interval(
               0.12,
               1,
               curve: Curves.easeOutCubic,

@@ -111,7 +111,7 @@ class _StandingPortrait extends StatelessWidget {
           children: [
             for (var i = 0; i < bondTierThresholds.length; i++)
               Container(
-                margin: EdgeInsets.symmetric(
+                margin: const EdgeInsets.symmetric(
                   horizontal: DossierTokens.sealGap / 4,
                 ),
                 width: DossierTokens.dot,
@@ -315,14 +315,14 @@ class BondLetterArrivedCard extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Positioned.fill(
+                  const Positioned.fill(
                     child: FeatheredArt(
                       feather: Feather.hero,
                       halo: false,
                       child: RasterOr(
                         path: CouncilRaster.levelUpRays,
                         fit: BoxFit.cover,
-                        fallback: const SizedBox.shrink(),
+                        fallback: SizedBox.shrink(),
                       ),
                     ),
                   ),

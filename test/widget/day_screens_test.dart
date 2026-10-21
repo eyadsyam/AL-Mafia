@@ -18,10 +18,10 @@ void main() {
     ) async {
       await tester.pumpWidget(
         localizedApp(
-          Scaffold(
+          const Scaffold(
             body: PhaseTimer(
-              remaining: const Duration(minutes: 2, seconds: 45),
-              total: const Duration(minutes: 5),
+              remaining: Duration(minutes: 2, seconds: 45),
+              total: Duration(minutes: 5),
             ),
           ),
         ),
@@ -34,10 +34,10 @@ void main() {
     testWidgets('Renders zero time correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         localizedApp(
-          Scaffold(
+          const Scaffold(
             body: PhaseTimer(
               remaining: Duration.zero,
-              total: const Duration(minutes: 5),
+              total: Duration(minutes: 5),
             ),
           ),
         ),
@@ -52,10 +52,10 @@ void main() {
     ) async {
       await tester.pumpWidget(
         localizedApp(
-          Scaffold(
+          const Scaffold(
             body: PhaseTimer(
-              remaining: const Duration(seconds: 7),
-              total: const Duration(minutes: 1),
+              remaining: Duration(seconds: 7),
+              total: Duration(minutes: 1),
             ),
           ),
         ),
@@ -230,7 +230,7 @@ void main() {
   group('ResultScreen', () {
     testWidgets('Shows winning side prominently', (WidgetTester tester) async {
       final rows = [
-        ResultRow(
+        const ResultRow(
           seat: 0,
           name: 'Ahmed',
           role: Role.mafia,
@@ -257,7 +257,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final rows = [
-        ResultRow(
+        const ResultRow(
           seat: 0,
           name: 'Ahmed',
           role: Role.mafia,
@@ -290,25 +290,25 @@ void main() {
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
       final rows = [
-        ResultRow(
+        const ResultRow(
           seat: 0,
           name: 'Ahmed',
           role: Role.mafia,
           eliminatedLabel: 'Day 1',
         ),
-        ResultRow(
+        const ResultRow(
           seat: 1,
           name: 'Fatima',
           role: Role.doctor,
           eliminatedLabel: 'Night 2',
         ),
-        ResultRow(
+        const ResultRow(
           seat: 2,
           name: 'Salem',
           role: Role.detective,
           eliminatedLabel: null, // Survived
         ),
-        ResultRow(
+        const ResultRow(
           seat: 3,
           name: 'Laila',
           role: Role.citizen,
@@ -352,7 +352,7 @@ void main() {
       var homeTapped = false;
 
       final rows = [
-        ResultRow(
+        const ResultRow(
           seat: 0,
           name: 'Ahmed',
           role: Role.mafia,
@@ -390,7 +390,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final rows = [
-        ResultRow(
+        const ResultRow(
           seat: 0,
           name: 'Ahmed',
           role: Role.mafia,

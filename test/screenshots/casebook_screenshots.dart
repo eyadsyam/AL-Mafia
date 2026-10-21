@@ -111,11 +111,11 @@ void main() {
     await shoot(
       tester,
       'casebook_entry_ar',
-      Scaffold(
+      const Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(children: const [SizedBox(height: 120), CasebookEntry()]),
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(children: [SizedBox(height: 120), CasebookEntry()]),
           ),
         ),
       ),

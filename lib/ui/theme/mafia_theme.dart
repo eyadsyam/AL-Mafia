@@ -143,14 +143,16 @@ class MafiaTheme {
           }),
           foregroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) return colors.textMuted;
-            if (states.contains(WidgetState.selected))
+            if (states.contains(WidgetState.selected)) {
               return colors.surfaceBase;
+            }
             return colors.textPrimary;
           }),
           iconColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) return colors.textMuted;
-            if (states.contains(WidgetState.selected))
+            if (states.contains(WidgetState.selected)) {
               return colors.surfaceBase;
+            }
             return colors.textPrimary;
           }),
           side: WidgetStateProperty.resolveWith((states) {

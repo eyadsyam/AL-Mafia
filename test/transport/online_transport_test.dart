@@ -1121,7 +1121,7 @@ void main() {
     test(
       'the body is fetched for the recipient and never held in the graph',
       () async {
-        final whisper = const WhisperRow(
+        const whisper = WhisperRow(
           id: 'w1',
           day: 1,
           fromSeat: 2,

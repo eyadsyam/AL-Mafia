@@ -259,7 +259,7 @@ class ConfrontationCase {
 final List<ConfrontationCase> confrontationCases = [
   ConfrontationCase('day one is refused',
       days: [day(number: 1, opening: {0: 1})], dayNumber: 1, seed: 21),
-  ConfrontationCase('empty history', dayNumber: 2, seed: 22),
+  const ConfrontationCase('empty history', dayNumber: 2, seed: 22),
   ConfrontationCase('c1 contradiction',
       days: [day(number: 1, opening: {3: 5}, votes: {3: 2})],
       dayNumber: 2,

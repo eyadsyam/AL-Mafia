@@ -37,7 +37,7 @@ class MafiaPublicTheme extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = Theme.of(context);
-    final target = const Size(
+    const target = Size(
       IdentityTokens.buttonWidth,
       IdentityTokens.target,
     );
@@ -69,7 +69,7 @@ class MafiaPublicTheme extends StatelessWidget {
             color: VaultTokens.goldLight,
           ),
           side: BorderSide(color: context.colors.borderSubtle),
-          shape: StadiumBorder(),
+          shape: const StadiumBorder(),
         ),
         dividerTheme: DividerThemeData(
           color: context.colors.borderSubtle,

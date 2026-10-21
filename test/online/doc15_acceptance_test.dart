@@ -97,7 +97,7 @@ void main() {
     });
 
     test('the band proportions are doc 15 §1.1, and live in one place', () {
-      final total =
+      const total =
           CouncilTokens.councilFlex +
           CouncilTokens.voiceFlex +
           CouncilTokens.handFlex;
@@ -265,7 +265,7 @@ void main() {
     });
 
     test('doc 15 §3 motion catalogue, at the stated numbers', () {
-      final motion = MafiaMotion.defaults;
+      const motion = MafiaMotion.defaults;
       expect(motion.tap, const Duration(milliseconds: 120));
       expect(motion.quick, const Duration(milliseconds: 200));
       expect(motion.band, const Duration(milliseconds: 350));

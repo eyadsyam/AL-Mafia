@@ -45,8 +45,8 @@ void main() {
   Widget tally({bool reduceMotion = false}) => localizedApp(
     MediaQuery(
       data: MediaQueryData(disableAnimations: reduceMotion),
-      child: Column(
-        children: const [
+      child: const Column(
+        children: [
           VoteBar(name: 'A', votes: 3, maxVotes: 3, index: 0),
           VoteBar(name: 'B', votes: 3, maxVotes: 3, index: 1),
           VoteBar(name: 'C', votes: 3, maxVotes: 3, index: 2),

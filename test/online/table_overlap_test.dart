@@ -33,7 +33,6 @@
 /// roster sizes doc 15 §5 names.
 library;
 
-import 'dart:ui' show Rect, Size;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

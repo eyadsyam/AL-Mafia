@@ -299,8 +299,9 @@ class VoiceController {
       // connection out of this device.
       if (_tornDown ||
           _disposed ||
-          !link.peers.any((p) => p.userId == signal.fromUserId))
+          !link.peers.any((p) => p.userId == signal.fromUserId)) {
         return;
+      }
       engine.acceptSignal(signal.fromUserId, signal.payload);
     });
 

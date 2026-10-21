@@ -98,10 +98,10 @@ class _PassResultInventoryState extends ConsumerState<PassResultInventory> {
     context: context,
     isScrollControlled: true,
     backgroundColor: context.colors.surfaceBase,
-    builder: (_) => FractionallySizedBox(
+    builder: (_) => const FractionallySizedBox(
       key: PassResultInventory.sheetKey,
       heightFactor: PassInventoryTokens.sheetHeight,
-      child: const SingleChildScrollView(child: DailyRewardsTab()),
+      child: SingleChildScrollView(child: DailyRewardsTab()),
     ),
   );
 

@@ -199,7 +199,7 @@ class MatchEngine {
           ...match.eventLog,
           RoleAssigned(
             at: createdAt,
-            phaseRef: PhaseRef(phase: GamePhase.distributing, number: 1),
+            phaseRef: const PhaseRef(phase: GamePhase.distributing, number: 1),
             seat: player.seat,
             role: player.role,
           ),
@@ -1303,7 +1303,7 @@ class MatchEngine {
       // No votes, nobody eliminated
       match = match.copyWith(phase: GamePhase.reveal);
       assertMatchInvariants(match, 'resolveDayVote (no votes)');
-      return DayVoteResult();
+      return const DayVoteResult();
     }
 
     // Find max votes
@@ -1322,7 +1322,7 @@ class MatchEngine {
       // No valid targets, nobody eliminated
       match = match.copyWith(phase: GamePhase.reveal);
       assertMatchInvariants(match, 'resolveDayVote (no living target)');
-      return DayVoteResult();
+      return const DayVoteResult();
     }
 
     // Handle tie

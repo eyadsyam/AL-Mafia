@@ -218,12 +218,13 @@ class _SafetyCenterState extends ConsumerState<SafetyCenter> {
         final result = await backend.call('player_safety', body);
         if (action == 'block') await session.transport?.refreshBlocks();
         _requestId = null;
-        if (mounted)
+        if (mounted) {
           setState(
             () => _message = action == 'block'
                 ? l.safetyBlocked
                 : '${l.safetyReceipt} ${result['receipt']}',
           );
+        }
       }
     } on BackendException catch (e) {
       if (mounted) {

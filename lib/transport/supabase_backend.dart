@@ -743,8 +743,9 @@ class SupabaseBackend implements OnlineBackend {
         .where((p) => p.userId == senderId)
         .firstOrNull
         ?.seat;
-    if (seat == null)
+    if (seat == null) {
       throw const BackendException('BAD_REQUEST', 'unknown player');
+    }
     await call('player_safety', {
       'action': 'block',
       'roomId': roomId,

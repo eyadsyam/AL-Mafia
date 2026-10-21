@@ -242,8 +242,9 @@ Role characterMomentRole({
 }) {
   if (personalRole != null && roles.contains(personalRole)) return personalRole;
   if (zeroDeaths && roles.contains(Role.doctor)) return Role.doctor;
-  if (winner == Alignment.mafia && roles.contains(Role.mafia))
+  if (winner == Alignment.mafia && roles.contains(Role.mafia)) {
     return Role.mafia;
+  }
   if (survivingRoles.contains(Role.detective)) return Role.detective;
   if (roles.contains(Role.citizen)) return Role.citizen;
   return roles.first;

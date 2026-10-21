@@ -597,13 +597,15 @@ class WebRtcVoiceEngine implements VoiceEngine, VoicePlayout {
     final kind = payload['kind'];
     if (kind == 'ready') {
       if (!_authorized.contains(fromUserId) ||
-          _selfId.compareTo(fromUserId) >= 0)
+          _selfId.compareTo(fromUserId) >= 0) {
         return;
+      }
       final connection = _connections[fromUserId];
       if (connection == null || _offering.contains(fromUserId)) return;
       if (connection.connectionState ==
-          RTCPeerConnectionState.RTCPeerConnectionStateConnected)
+          RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
         return;
+      }
       final offer = await connection.getLocalDescription();
       if (!_current(fromUserId, connection, generation)) return;
       if (offer?.type == 'offer') {
@@ -1077,8 +1079,9 @@ class WebRtcVoiceEngine implements VoiceEngine, VoicePlayout {
         var incomingLevel = 0.0;
         for (final report in reports) {
           final values = report.values;
-          if (values['kind'] != 'audio' && values['mediaType'] != 'audio')
+          if (values['kind'] != 'audio' && values['mediaType'] != 'audio') {
             continue;
+          }
           if (report.type == 'inbound-rtp') {
             trace.receivedPackets =
                 (values['packetsReceived'] as num?)?.toInt() ?? 0;

@@ -1012,7 +1012,7 @@ class _ResultStageState extends State<_ResultStage>
             animation: _fly,
             builder: (context, _) {
               const n = ResultTokens.flightCoins;
-              final window = 1 - (n - 1) * ResultTokens.flightStagger;
+              const window = 1 - (n - 1) * ResultTokens.flightStagger;
               return Stack(
                 children: [
                   for (var i = 0; i < n; i++)

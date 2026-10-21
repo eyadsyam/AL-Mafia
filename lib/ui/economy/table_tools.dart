@@ -232,7 +232,9 @@ bool recoveredToolAnswerMatches(
   final savedTargets = row['targets'];
   if (row['tool'] != code || row['phaseNumber'] != phaseNumber ||
       savedTargets is! List ||
-      (requestId != null && row['requestId'] != requestId)) return false;
+      (requestId != null && row['requestId'] != requestId)) {
+    return false;
+  }
   final requested = [...targets]..sort();
   final saved = [for (final target in savedTargets) if (target is int) target]..sort();
   return saved.length == savedTargets.length &&

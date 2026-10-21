@@ -26,7 +26,7 @@ void main() {
       final match = engine.start(
         names: playerNames,
         roleCounts: roleCounts,
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 1056,
       );
 
@@ -41,7 +41,7 @@ void main() {
       engine.start(
         names: playerNames,
         roleCounts: roleCounts,
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 1063,
       );
 
@@ -73,7 +73,7 @@ void main() {
       engine.start(
         names: playerNames,
         roleCounts: roleCounts,
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 1070,
       );
 
@@ -100,7 +100,7 @@ void main() {
       engine.start(
         names: playerNames,
         roleCounts: roleCounts,
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 1077,
       );
 
@@ -131,7 +131,7 @@ void main() {
       engine.start(
         names: playerNames,
         roleCounts: roleCounts,
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 1084,
       );
 
@@ -157,7 +157,7 @@ void main() {
       engine.start(
         names: playerNames,
         roleCounts: roleCounts,
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 1091,
       );
 

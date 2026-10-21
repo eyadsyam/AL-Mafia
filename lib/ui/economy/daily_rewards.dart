@@ -1070,7 +1070,7 @@ class _OddsTable extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.balance_rounded,
                 size: CosmeticTokens.coinInline * 0.8,
                 color: VaultTokens.gold,

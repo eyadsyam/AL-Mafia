@@ -12,7 +12,7 @@ import 'package:mafia_master/engine/win_check.dart';
 /// sampling it. Everything below is a direct transcription of the state table
 /// in doc 06 §2, plus the properties that table is an instance of.
 void main() {
-  Player _player(int seat, Role role, {bool alive = true}) => Player(
+  Player player(int seat, Role role, {bool alive = true}) => Player(
     seat: seat,
     name: 'P$seat',
     role: role,
@@ -31,13 +31,13 @@ void main() {
   }) {
     var seat = 0;
     return [
-      for (var i = 0; i < mafia; i++) _player(seat++, Role.mafia),
+      for (var i = 0; i < mafia; i++) player(seat++, Role.mafia),
       for (var i = 0; i < others; i++)
-        _player(seat++, otherRoles[i % otherRoles.length]),
+        player(seat++, otherRoles[i % otherRoles.length]),
       for (var i = 0; i < deadMafia; i++)
-        _player(seat++, Role.mafia, alive: false),
+        player(seat++, Role.mafia, alive: false),
       for (var i = 0; i < deadOthers; i++)
-        _player(seat++, Role.citizen, alive: false),
+        player(seat++, Role.citizen, alive: false),
     ];
   }
 

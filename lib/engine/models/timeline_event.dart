@@ -125,11 +125,11 @@ class RoleAssigned extends TimelineEvent {
   final Role role;
 
   const RoleAssigned({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.seat,
     required this.role,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -152,8 +152,7 @@ class RoleAssigned extends TimelineEvent {
 
 /// The night phase has started.
 class NightOpened extends TimelineEvent {
-  const NightOpened({required DateTime at, required PhaseRef phaseRef})
-    : super(at: at, phaseRef: phaseRef);
+  const NightOpened({required super.at, required super.phaseRef});
 
   @override
   bool operator ==(Object other) =>
@@ -176,11 +175,11 @@ class MafiaVoteCast extends TimelineEvent {
   final int targetSeat;
 
   const MafiaVoteCast({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.actorSeat,
     required this.targetSeat,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -210,11 +209,11 @@ class ProtectCast extends TimelineEvent {
   final int targetSeat;
 
   const ProtectCast({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.actorSeat,
     required this.targetSeat,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -244,11 +243,11 @@ class InvestigateCast extends TimelineEvent {
   final int targetSeat;
 
   const InvestigateCast({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.actorSeat,
     required this.targetSeat,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -279,12 +278,12 @@ class SuspectCast extends TimelineEvent {
   final String? reason;
 
   const SuspectCast({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.actorSeat,
     required this.targetSeat,
     this.reason,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -316,11 +315,11 @@ class SilenceCast extends TimelineEvent {
   final int targetSeat;
 
   const SilenceCast({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.actorSeat,
     required this.targetSeat,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -342,12 +341,12 @@ class NightResolved extends TimelineEvent {
   final int? savedSeat;
 
   const NightResolved({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     this.victimSeat,
     this.victimSeats = const [],
     this.savedSeat,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -386,10 +385,10 @@ class ElderRevealed extends TimelineEvent {
   final int seat;
 
   const ElderRevealed({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.seat,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -405,8 +404,7 @@ class ElderRevealed extends TimelineEvent {
 
 /// The morning briefing has been announced.
 class MorningAnnounced extends TimelineEvent {
-  const MorningAnnounced({required DateTime at, required PhaseRef phaseRef})
-    : super(at: at, phaseRef: phaseRef);
+  const MorningAnnounced({required super.at, required super.phaseRef});
 
   @override
   bool operator ==(Object other) =>
@@ -425,8 +423,7 @@ class MorningAnnounced extends TimelineEvent {
 
 /// A discussion round has started.
 class DiscussionRound extends TimelineEvent {
-  const DiscussionRound({required DateTime at, required PhaseRef phaseRef})
-    : super(at: at, phaseRef: phaseRef);
+  const DiscussionRound({required super.at, required super.phaseRef});
 
   @override
   bool operator ==(Object other) =>
@@ -449,11 +446,11 @@ class QuestionAsked extends TimelineEvent {
   final int toSeat;
 
   const QuestionAsked({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.fromSeat,
     required this.toSeat,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -486,12 +483,12 @@ class VoteCast extends TimelineEvent {
   final int round;
 
   const VoteCast({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.voterSeat,
     this.targetSeat,
     this.round = 1,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -528,10 +525,10 @@ class DayRevoteCalled extends TimelineEvent {
   final List<int> tiedSeats;
 
   const DayRevoteCalled({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.tiedSeats,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -565,11 +562,11 @@ class DayResolved extends TimelineEvent {
   final Map<int, int> tally; // targetSeat -> vote count
 
   const DayResolved({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.eliminatedSeat,
     required this.tally,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   /// Entry-wise map comparison — `Map` is identity-equal, which would make a
   /// reloaded tally never match the one that was written (repository inv. 5).
@@ -612,10 +609,10 @@ class PlayerRemoved extends TimelineEvent {
   final int seat;
 
   const PlayerRemoved({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.seat,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -638,10 +635,10 @@ class WinReached extends TimelineEvent {
   final Alignment alignment;
 
   const WinReached({
-    required DateTime at,
-    required PhaseRef phaseRef,
+    required super.at,
+    required super.phaseRef,
     required this.alignment,
-  }) : super(at: at, phaseRef: phaseRef);
+  });
 
   @override
   bool operator ==(Object other) =>

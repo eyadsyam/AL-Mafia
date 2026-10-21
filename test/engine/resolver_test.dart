@@ -18,7 +18,7 @@ void main() {
           Role.doctor: 1,
           Role.citizen: 1,
         },
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 1042,
       );
 
@@ -152,7 +152,7 @@ void main() {
           Role.doctor: 1,
           Role.citizen: 1,
         },
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: testSeed,
       );
 
@@ -211,7 +211,7 @@ void main() {
           Role.doctor: 1,
           Role.citizen: 1,
         },
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: testSeed,
       );
 
@@ -273,7 +273,7 @@ void main() {
           Role.doctor: 1,
           Role.citizen: 2,
         },
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 3,
       );
       for (int i = 0; i < 5; i++) {

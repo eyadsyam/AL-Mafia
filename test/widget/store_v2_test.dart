@@ -429,12 +429,12 @@ void main() {
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(
         scope(
-          MediaQuery(
-            data: const MediaQueryData(
+          const MediaQuery(
+            data: MediaQueryData(
               size: Size(360, 780),
               disableAnimations: true,
             ),
-            child: const CoinStore(),
+            child: CoinStore(),
           ),
         ),
       );

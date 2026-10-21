@@ -18,7 +18,7 @@ void main() {
           Role.detective: 1,
           Role.citizen: 2,
         },
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 1007,
       );
 
@@ -70,7 +70,7 @@ void main() {
           Role.detective: 1,
           Role.citizen: 2,
         },
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 1014,
       );
 
@@ -118,7 +118,7 @@ void main() {
           Role.detective: 1,
           Role.citizen: 2,
         },
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 1021,
       );
 
@@ -153,7 +153,7 @@ void main() {
           Role.detective: 1,
           Role.citizen: 2,
         },
-        settings: MatchSettings.defaults(),
+        settings: const MatchSettings.defaults(),
         seed: 1028,
       );
 

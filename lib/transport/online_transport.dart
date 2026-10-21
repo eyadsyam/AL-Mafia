@@ -543,8 +543,9 @@ class OnlineTransport implements GameTransport {
         final incomingSeen = incoming.lastSeen;
         if (previousSeen != null &&
             incomingSeen != null &&
-            incomingSeen.isBefore(previousSeen))
+            incomingSeen.isBefore(previousSeen)) {
           return;
+        }
         next[at] = incoming;
       }
       _players = next..sort((a, b) => a.seat.compareTo(b.seat));

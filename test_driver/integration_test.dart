@@ -1,6 +1,7 @@
 /// The host half of `flutter drive`. Writes whatever an integration test hands
 /// back — for `council_frames_test.dart`, the timeline summary doc 15 §5's
 /// frame-budget box is closed by reading.
+library;
 import 'dart:convert';
 import 'dart:io';
 

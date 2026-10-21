@@ -141,7 +141,7 @@ void main() {
 
     test('a refusal is null, never an exception', () async {
       final backend = backendWith(const {})
-        ..refusals['ice_servers'] = BackendException('BAD_REQUEST', 'nope')
+        ..refusals['ice_servers'] = const BackendException('BAD_REQUEST', 'nope')
         ..stickyRefusals.add('ice_servers');
 
       // Null is the caller's signal to fall back to public STUN. A throw would
@@ -520,7 +520,7 @@ void main() {
                 'iceServers': [relay],
               },
             })
-            ..refusals['realtime_token'] = BackendException(
+            ..refusals['realtime_token'] = const BackendException(
               'BAD_REQUEST',
               'gone',
             )

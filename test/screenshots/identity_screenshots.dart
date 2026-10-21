@@ -190,7 +190,7 @@ void main() {
           child: ProviderScope(child: localizedApp(entry.value)),
         ),
       );
-      await capture(tester, entry.key + '_360');
+      await capture(tester, '${entry.key}_360');
     }
   });
 

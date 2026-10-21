@@ -75,8 +75,8 @@ void main() {
     test('an unreadable answer is no minimum', () {
       expect(MinBuild.fromJson(null).android, 0);
       expect(MinBuild.fromJson('nope').web, 0);
-      expect(MinBuild.fromJson({'android': -5, 'web': 'x'}).android, 0);
-      final read = MinBuild.fromJson({'android': 11, 'web': 12});
+      expect(MinBuild.fromJson(const {'android': -5, 'web': 'x'}).android, 0);
+      final read = MinBuild.fromJson(const {'android': 11, 'web': 12});
       expect((read.android, read.web), (11, 12));
     });
   });

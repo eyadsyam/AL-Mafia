@@ -54,10 +54,7 @@ void main() {
         container: container,
         child: localizedApp(
           Navigator(
-            onPopPage: (route, result) {
-              popCount++;
-              return route.didPop(result);
-            },
+            onDidRemovePage: (page) => popCount++,
             pages: [
               MaterialPage(
                 child: MatchRoute(onExit: onExit, onAnalytics: () {}),

@@ -138,7 +138,7 @@ class LevelUpSheet extends StatelessWidget {
                                 CouncilLifeTokens.emblemHero *
                                 VaultTokens.raysExtent,
                             fallback: CustomPaint(
-                              size: Size.square(
+                              size: const Size.square(
                                 CouncilLifeTokens.emblemHero *
                                     VaultTokens.raysExtent,
                               ),
@@ -1065,8 +1065,9 @@ class _LeaderboardVisibilitySwitchState
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    if (!ref.exists(economyCapabilitiesProvider))
+    if (!ref.exists(economyCapabilitiesProvider)) {
       return const SizedBox.shrink();
+    }
     final caps = ref.watch(economyCapabilitiesProvider).valueOrNull?.council;
     final rank = ref.watch(councilProvider).valueOrNull?.rank;
     if (!(caps?.leaderboard ?? false) || rank == null || !rank.enabled) {

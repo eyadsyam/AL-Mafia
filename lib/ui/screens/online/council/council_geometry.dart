@@ -66,7 +66,7 @@ abstract final class CouncilGeometry {
     // gives the largest chair wins; a tie goes to the fewer rows.
     var rows = wide ? 1 : math.min(rowsFor(totalPlayers), seatCount);
     if (wide) {
-      final wideGap = CouncilTokens.wideCouncilTargetGap;
+      const wideGap = CouncilTokens.wideCouncilTargetGap;
       var best = 0.0;
       for (var candidate = 1; candidate <= seatCount; candidate++) {
         final columns = (seatCount / candidate).ceil();
