@@ -927,7 +927,7 @@ The owner handed the calls to Claude for this audit («اتعامل كأنك ا�
 | RL8 | D9, D10 | Online, the morning names the silenced player for everyone, his mic stays closed for that day in every discussion mode, and he can still be voted out (R1). |
 | RL9 | D11 | Online abstention follows the room's setting. |
 | RL10 | D12 | Online, the morning names every player who died. |
-| RL11 | D13 | One recommended split everywhere: a quarter of the table, `(n + 1) ~/ 4` Mafia (the preset the balance harness measures). `BalanceGuard.recommended` returns it, the online lobby deals it, and the advisory names that number instead of «3». |
+| RL11 | D13 | (Superseded by RL22.) One recommended split everywhere: a quarter of the table, `(n + 1) ~/ 4` Mafia (the preset the balance harness measures). `BalanceGuard.recommended` returns it, the online lobby deals it, and the advisory names that number instead of «3». |
 | RL12 | D14 | The online lobby offers a sold role only at the player count the server accepts (Elder 6+, Sniper 7+, Silencer with two or more Mafia), as offline. |
 | RL13 | D19 | A bought revote also reopens a tied ballot: under «محدش يخرج», a tie with a revote bought goes to a second round among the tied seats. |
 | RL14 | D20, D22, D23, D24, D25 | The tool cards say exactly what the tool does (vote shield = the next night; last will = after you are out, read at once; appeal = more than two thirds; extra minute and objection = talk by turns; grave vote = the next ballot). Extra minute and objection are refused in a free-discussion room, so nobody pays for nothing. |
@@ -938,6 +938,7 @@ The owner handed the calls to Claude for this audit («اتعامل كأنك ا�
 | RL19 | D36 | Whisper bodies for the dead depend on the production flag `witness_whispers_enabled` (off by default). Turning it on is a live change: **owner's word**. |
 | RL20 | R6 / Q1 | Table tools stay online-only: a shared phone has no player identity to charge, and the store card says «جوه الماتش الأونلاين». Revisit for bot matches later. |
 | RL21 | D17, D34, D39, D41 | No change (cosmetic, or both sides equivalent). |
+| RL22 | doc 13 §5–§6, balance harness (2026-10-21) | Replaces RL11's quarter. One split for every preset and both transports: one Mafioso up to six players, two up to fourteen, three from fifteen; one Detective always; one Doctor from seven players, never in «قاسية» (which no longer takes a third: its harshness is the missing Doctor, whisper and short clock). Measured on 400 matches per cell: the quarter gave the Mafia 70–90% from twelve up and «قاسية» 72–98%; RL22 keeps every cell in 20–80%, the mean at 53%, and 19 of 24 cells from nine players up in 40–60%. Below nine no split lands in band (one Mafioso is a town game, two a Mafia game), asserted in `balance_harness_test.dart`. Client-only change: `start_match` already accepts these counts. |
 
 ### Server status (local, 2026-10-17)
 

@@ -3215,7 +3215,7 @@ abstract class AppLocalizations {
   /// No description provided for @presetBrutalHint.
   ///
   /// In en, this message translates to:
-  /// **'No doctor, more mafia, no whispers, a brutal clock.'**
+  /// **'No doctor, no whispers, a brutal clock.'**
   String get presetBrutalHint;
 
   /// No description provided for @presetLabel.

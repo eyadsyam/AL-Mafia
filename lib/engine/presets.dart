@@ -30,8 +30,8 @@ enum MatchPreset {
   /// designed at. The default.
   classic,
 
-  /// «قاسية» — no Doctor, a third of the table is Mafia, no whispers, a second
-  /// confrontation every day, and a two-minute clock. The safety net is gone.
+  /// «قاسية» — no Doctor, no whispers, a second confrontation every day, and
+  /// a two-minute clock. The safety net is gone.
   brutal;
 
   /// The stable code stored with a group's remembered configuration and used
@@ -41,14 +41,13 @@ enum MatchPreset {
 
   /// The smallest table this preset is offered at.
   ///
-  /// «قاسية» takes a third of the table and gives back no Doctor. At six
-  /// players a third is two, which is a third of the room in the family before
-  /// a single night has been played, and the balance harness measures the
-  /// result at close to four matches in five for the Mafia. There is no
-  /// integer that fixes it — one Mafia in six is the *other* preset — so the
-  /// preset is simply not offered there. Doc 13 §5 describes «قاسية» as the
-  /// shape for a group on its twentieth match, and a group on its twentieth
-  /// match is not a group of six.
+  /// «قاسية» is the game without its safety net, and below eight there is no
+  /// net to take away: at five and six no preset deals a Doctor (see
+  /// [roleCounts]), so «قاسية» would be the other presets with a shorter
+  /// clock, and at seven two Mafiosi with no Doctor measure close to nine
+  /// matches in ten for the Mafia under the fast clock. Doc 13 §5 describes
+  /// «قاسية» as the shape for a group on its twentieth match, and a group on
+  /// its twentieth match is not a group of six.
   int get minimumPlayers => this == MatchPreset.brutal ? 8 : 5;
 
   /// Whether this preset may be offered for a table of [playerCount].
@@ -121,46 +120,43 @@ enum MatchPreset {
     sniperEnabled: false,
   );
 
-  /// This preset's role split for [playerCount].
+  /// This preset's role split for [playerCount] (ruling RL22, 2026-10-21).
   ///
-  /// Doc 13 §5's last two rows. «قاسية» takes a third of the table as Mafia
-  /// and no Doctor at all; the other two take the app's standing
-  /// recommendation, which is a quarter and one of each.
+  /// One Mafioso up to six players, two up to fourteen, three from fifteen;
+  /// one Detective always; one Doctor from seven players, never in «قاسية».
+  /// The rest are citizens.
   ///
-  /// Always returns a legal split: the Mafia count is capped strictly below
-  /// half the table, because at half the table the match is over before the
-  /// first night.
+  /// Why not doc 13 §5's quarter, which this replaced: the balance harness
+  /// measures the Mafia at 70–90% from twelve players up when the count
+  /// grows with the table, because a larger town needs more days to find
+  /// each extra Mafioso and loses a player every night it spends looking.
+  /// A count that grows slower than the table holds twelve and twenty near
+  /// even. «قاسية» used to take a third as well, which gave the Mafia 72–98%
+  /// at every size; its harshness is now the missing Doctor, the missing
+  /// whisper and the short clock, not a bigger Mafia.
+  ///
+  /// The Doctor waits for the seventh player because at five and six one
+  /// save in a one-Mafioso game turns the match into a town walkover
+  /// (classic at six: under 20%), and without it the table stays a game.
+  ///
+  /// Always returns a legal split: the Mafia stay strictly below half.
   Map<Role, int> roleCounts(int playerCount) {
     final n = playerCount.clamp(5, 20);
-
-    if (this != MatchPreset.brutal) {
-      // Doc 13 §5's row: a quarter. `(n + 1) ~/ 4` rather than a bare
-      // rounding, because a bare rounding puts two Mafia in a table of six —
-      // two of six is a third, the match is at parity before the first night,
-      // and the balance harness sees it immediately. Deliberately *not*
-      // `BalanceGuard.recommended`, which flattens to three Mafia from nine
-      // players all the way to twenty — a rule that is two Mafia too many at
-      // nine and two too few at twenty. The balance harness measures this
-      // number, so it is the doc's number and not the older heuristic.
-      final mafia = ((n + 1) ~/ 4).clamp(1, (n - 1) ~/ 2);
-      return {
-        Role.mafia: mafia,
-        Role.detective: 1,
-        Role.doctor: 1,
-        Role.citizen: n - mafia - 2,
-      };
-    }
-
-    // A third, rounded down, and never enough to reach parity on night zero.
-    // «قاسية» has no Doctor at all, and the key is *omitted* rather than mapped
-    // to zero: the setup path treats an absent role and a role with zero
-    // players as the same thing, and the engine's balance guard reads keys.
-    var mafia = n ~/ 3;
-    if (mafia < 1) mafia = 1;
-    final ceiling = (n - 1) ~/ 2;
-    if (mafia > ceiling) mafia = ceiling;
-
-    return {Role.mafia: mafia, Role.detective: 1, Role.citizen: n - mafia - 1};
+    final mafia = n <= 6
+        ? 1
+        : n <= 14
+        ? 2
+        : 3;
+    // The key is *omitted* rather than mapped to zero: the setup path treats
+    // an absent role and a role with zero players as the same thing, and the
+    // engine's balance guard reads keys.
+    final doctor = this != MatchPreset.brutal && n >= 7;
+    return {
+      Role.mafia: mafia,
+      Role.detective: 1,
+      if (doctor) Role.doctor: 1,
+      Role.citizen: n - mafia - 1 - (doctor ? 1 : 0),
+    };
   }
 
   /// Whether [settings] and [counts] still are this preset.

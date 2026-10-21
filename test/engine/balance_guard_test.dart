@@ -184,12 +184,13 @@ void main() {
     });
 
     group('recommended()', () {
-      test('returns valid distribution for 5 players (1 Mafia)', () {
+      test('returns valid distribution for 5 players (1 Mafia, no Doctor)', () {
+        // RL22: the Doctor joins from the seventh player.
         final dist = BalanceGuard.recommended(5);
         expect(dist[Role.mafia], equals(1));
         expect(dist[Role.detective], equals(1));
-        expect(dist[Role.doctor], equals(1));
-        expect(dist[Role.citizen], equals(2));
+        expect(dist[Role.doctor], isNull);
+        expect(dist[Role.citizen], equals(3));
 
         final report = BalanceGuard.evaluate(playerCount: 5, roleCounts: dist);
         expect(report.valid, isTrue);
@@ -235,9 +236,9 @@ void main() {
         expect(report.valid, isTrue);
       });
 
-      test('returns valid distribution for 20 players (5 Mafia, a quarter)', () {
+      test('returns valid distribution for 20 players (3 Mafia, RL22)', () {
         final dist = BalanceGuard.recommended(20);
-        expect(dist[Role.mafia], equals(5));
+        expect(dist[Role.mafia], equals(3));
         final sum = dist.values.fold(0, (a, b) => a + b);
         expect(sum, equals(20));
 

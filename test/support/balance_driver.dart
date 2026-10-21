@@ -324,12 +324,13 @@ BalanceResult simulateMatch({
   required TownPolicy town,
   int readBias = _Reads.defaultBias,
   MatchSettings? settings,
+  Map<Role, int>? roleCounts,
 }) {
   final rng = Random(seed);
   final engine = MatchEngine(clock: Clocks.monotonic());
   engine.start(
     names: List.generate(players, (i) => 'P${i + 1}'),
-    roleCounts: preset.roleCounts(players),
+    roleCounts: roleCounts ?? preset.roleCounts(players),
     settings: settings ?? preset.settings,
     seed: seed,
   );

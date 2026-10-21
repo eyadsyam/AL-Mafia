@@ -1815,8 +1815,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Everything on, at the pace it was designed at.';
 
   @override
-  String get presetBrutalHint =>
-      'No doctor, more mafia, no whispers, a brutal clock.';
+  String get presetBrutalHint => 'No doctor, no whispers, a brutal clock.';
 
   @override
   String get presetLabel => 'Preset';

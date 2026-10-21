@@ -1769,10 +1769,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get presetFastHint => 'وقت أقل وقواعد أبسط';
 
   @override
-  String get presetClassicHint => 'دكتور ومحقق ووقت نقاش كامل';
+  String get presetClassicHint => 'كل القواعد شغالة ووقت نقاش كامل';
 
   @override
-  String get presetBrutalHint => 'مافيا أكتر ومن غير دكتور أو همس';
+  String get presetBrutalHint => 'من غير دكتور ولا همس، ووقت أقصر';
 
   @override
   String get presetLabel => 'نمط اللعب';

@@ -1121,7 +1121,7 @@
   "presetCustom": "Custom",
   "presetFastHint": "Around fifteen minutes, fewer rules. Best for a group's first match.",
   "presetClassicHint": "Everything on, at the pace it was designed at.",
-  "presetBrutalHint": "No doctor, more mafia, no whispers, a brutal clock.",
+  "presetBrutalHint": "No doctor, no whispers, a brutal clock.",
   "presetLabel": "Preset",
   "settingPressureCurve": "The pressure curve",
   "settingPressureCurveHint": "The clock closes as the table shrinks. It only ever tightens.",

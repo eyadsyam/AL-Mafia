@@ -392,7 +392,7 @@ void main() {
 
   test('M2-115: twenty-player match plays through to either outcome', () {
     const counts = {Role.mafia: 5, Role.citizen: 15};
-    expect(MatchPreset.classic.roleCounts(20)[Role.mafia], 5);
+    expect(MatchPreset.classic.roleCounts(20)[Role.mafia], 3);
     expect(BalanceGuard.evaluate(playerCount: 20, roleCounts: counts).valid,
         isTrue);
     for (final winner in Alignment.values) {

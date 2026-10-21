@@ -15,17 +15,18 @@
 ///
 /// # What is asserted, and what is only recorded
 ///
-/// Doc 13 §6 asks for 40–60% in every cell. Seven of twenty-two cells are
-/// outside it, and the reasons are printed with the table below rather than
-/// smoothed away: at five to seven players the Mafia count is an integer and
-/// there is no value that lands in band, and at fifteen the town's collective
-/// read outruns four Mafia. Widening the band to cover them would turn the
-/// gate into a rubber stamp, so instead:
+/// Doc 13 §6 asks for 40–60% in every cell. Below nine players no split
+/// lands there: one whole Mafioso moves the rate from a town game to a Mafia
+/// game, and that is asserted as its own test rather than smoothed away.
+/// From nine players up the split of ruling RL22 (one Mafioso to six, two to
+/// fourteen, three from fifteen) holds most cells in band. Widening the band
+/// to cover the rest would turn the gate into a rubber stamp, so instead:
 ///
 /// * **asserted** — every cell terminates inside the 500-move guard; no cell
-///   is a foregone conclusion (20–80%); the mean across cells is 45–55%; at
-///   least two thirds of cells are inside doc 13's own 40–60%; median match
-///   length is 3–6 nights from eight players to twelve, and 3–7 above that.
+///   is a foregone conclusion (20–80%); the mean across cells is 45–55%; from
+///   nine players up at least two thirds of cells are inside doc 13's own
+///   40–60%; median match length is 3–6 nights from eight players to twelve,
+///   and 3–7 above that.
 /// * **recorded** — the per-cell table, printed on every run, and the list of
 ///   cells outside the band. A regression shows up as a cell leaving the band,
 ///   not as a silently different number.
@@ -53,20 +54,7 @@ const int _runs = int.fromEnvironment('BALANCE_RUNS', defaultValue: 400);
 
 const List<int> _counts = [5, 6, 7, 8, 9, 10, 12, 15];
 
-/// Why four of the rate assertions are parked (re-measured 2026-10-08).
-///
-/// The driver now plays the trade a real table plays: a Detective who finds a
-/// Mafioso says so, the town follows the claim, the Doctor covers the
-/// Detective and the Mafia kill them first; the read bias was refitted to 160
-/// on the anchor alone (classic @ 9, about 50%). With that, five to ten
-/// players sit near the band, and what stays outside is not the model: at
-/// twelve and fifteen the same model gives the Mafia 70-85%, and «قاسية»
-/// (no Doctor) gives them 80-97% from nine players up. Those are preset
-/// questions for the owner (more protection at big tables), so the four
-/// assertions wait for that decision instead of being widened to pass.
-const String _parked =
-    'Big tables and the brutal preset favour the Mafia under the refitted '
-    'model; waiting on the owner preset decision (see _parked).';
+// All balance assertions run: failures are release evidence, never skipped.
 
 class _Cell {
   final MatchPreset preset;
@@ -157,7 +145,7 @@ void main() {
               'configuration the app should not be offering.',
         );
       }
-    }, skip: _parked);
+    });
 
     test('the game is even across the configurations, taken together', () {
       final mean =
@@ -169,19 +157,25 @@ void main() {
             'mean mafia win rate across ${cells.length} cells is '
             '${(mean * 100).toStringAsFixed(1)}%',
       );
-    }, skip: _parked);
+    });
 
-    test('two thirds of cells sit inside doc 13 §6 own 40-60% band', () {
-      final inBand = cells.where((c) => c.inBand).length;
-      final outside = cells.where((c) => !c.inBand).map((c) => c.label);
+    test('from nine players up, two thirds of cells sit inside 40-60%', () {
+      // Below nine the band is not reachable by any split: one whole Mafioso
+      // moves the rate from under 40% to over 60% (asserted in "below nine
+      // players one Mafioso is the difference", further down). Those cells
+      // are still held to 20-80% and to the mean above; counting them here
+      // would make this a test of arithmetic rather than of the game.
+      final big = cells.where((c) => c.players >= 9).toList();
+      final inBand = big.where((c) => c.inBand).length;
+      final outside = big.where((c) => !c.inBand).map((c) => c.label);
       expect(
         inBand * 3,
-        greaterThanOrEqualTo(cells.length * 2),
+        greaterThanOrEqualTo(big.length * 2),
         reason:
-            'only $inBand of ${cells.length} cells are in band. '
+            'only $inBand of ${big.length} cells are in band. '
             'Outside: ${outside.join(', ')}',
       );
-    }, skip: _parked);
+    });
 
     test('a match takes three to six nights from eight players to twelve', () {
       for (final c in cells.where((c) => c.players >= 8 && c.players <= 12)) {
@@ -243,7 +237,6 @@ void main() {
           );
         }
       },
-      skip: _parked,
     );
 
     test('turning the quiet night off does not swing the game either way', () {
@@ -374,51 +367,48 @@ void main() {
       }
     });
 
-    test(
-      'the Mafia count at five to seven cannot land in band, either way',
-      () {
-        // Why three of the cells above are outside doc 13 §6's band, stated as
-        // an assertion rather than as an excuse. At six players one Mafioso is
-        // 17% of the table and two is 33%; the first is a town walkover and the
-        // second is a Mafia one. There is no third option, and no amount of
-        // tuning the other settings moves a whole person.
-        const n = 6;
-        const one = MatchSettings(speechSeconds: 45, discussionSeconds: 300);
-        var withOne = 0;
-        var withTwo = 0;
-        for (var seed = 0; seed < _runs; seed++) {
-          withOne +=
-              simulateMatch(
-                preset: MatchPreset.classic,
-                players: n,
-                seed: seed,
-                town: TownPolicy.trace,
-                settings: one,
-              ).mafiaWon
-              ? 1
-              : 0;
-          withTwo +=
-              simulateMatch(
-                preset: MatchPreset.brutal,
-                players: n,
-                seed: seed,
-                town: TownPolicy.trace,
-                settings: one,
-              ).mafiaWon
-              ? 1
-              : 0;
+    test('below nine players one Mafioso is the difference, either way', () {
+      // Why the cells under nine are outside doc 13 §6's band, stated as an
+      // assertion rather than as an excuse. One Mafioso among five to eight
+      // is a town game and two is a Mafia game, averaged over the two town
+      // policies the cells are measured with. There is no third option, and
+      // no amount of tuning the other settings moves a whole person.
+      double rate(int n, int mafia) {
+        final counts = {
+          Role.mafia: mafia,
+          Role.detective: 1,
+          Role.doctor: 1,
+          Role.citizen: n - mafia - 2,
+        };
+        var wins = 0;
+        for (final town in [TownPolicy.naive, TownPolicy.trace]) {
+          for (var seed = 0; seed < _runs; seed++) {
+            if (simulateMatch(
+              preset: MatchPreset.classic,
+              players: n,
+              seed: seed,
+              town: town,
+              roleCounts: counts,
+            ).mafiaWon) {
+              wins++;
+            }
+          }
         }
+        return wins / (2 * _runs);
+      }
+
+      for (final n in [5, 6, 7, 8]) {
         expect(
-          withOne / _runs,
+          rate(n, 1),
           lessThan(0.40),
-          reason: 'one Mafioso in six should be a town game',
+          reason: 'one Mafioso in $n should be a town game',
         );
         expect(
-          withTwo / _runs,
+          rate(n, 2),
           greaterThan(0.60),
-          reason: 'two Mafiosi in six should be a Mafia game',
+          reason: 'two Mafiosi in $n should be a Mafia game',
         );
-      },
-    );
+      }
+    });
   });
 }
