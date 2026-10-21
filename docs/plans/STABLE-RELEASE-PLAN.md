@@ -1,6 +1,6 @@
 # Stable release plan: Mafia online, offline, vs computer
 
-Status: STARTED 2026-10-17. Owner: «محتاجين نوصل لنسخة ثابتة ومستقرة… الاختبار المغلق خلص وفاضل بس مراجعة جوجل».
+Status: LOCAL GATES GREEN 2026-10-21 (no skipped tests). Release readiness: INSUFFICIENT EVIDENCE until the owner's live suite and phone test (Q10). Started 2026-10-17. Owner: «محتاجين نوصل لنسخة ثابتة ومستقرة… الاختبار المغلق خلص وفاضل بس مراجعة جوجل».
 This file is the single place to resume from. Anyone (Claude, Codex, a person) picks up at the first unchecked line of §5.
 
 ## ملخص للمالك
@@ -13,12 +13,12 @@ This file is the single place to resume from. Anyone (Claude, Codex, a person) p
 ## 1. How to resume (read in this order)
 
 1. This file, §5 (the queue).
-2. `docs/PROGRESS.md` (last entries), `CLAUDE.md` (non-negotiables), `docs/specs/17-roles-and-tools.md` §9–§12 (rule book + rulings RL1–RL21, final).
+2. `docs/PROGRESS.md` (last entries), `CLAUDE.md` (non-negotiables), `docs/specs/17-roles-and-tools.md` §9–§12 (rule book + rulings RL1–RL22, final).
 3. Work model (owner, 2026-10-17): Claude plans, writes exact briefs, reviews, runs gates, commits. Codex executes briefs to the letter and decides nothing. Sonnet only if Codex cannot run.
 4. Codex cannot run `flutter` in its workspace-write sandbox (SDK cache outside the tree): Dart briefs tell it so, and the orchestrator runs analyze/tests after. Do not use danger-full-access (it could reach the network).
 5. Codex relay: from **PowerShell** (Git Bash times out on "workspace routing discovery"):
    `node C:\Users\LENOVO\.claude\skills\codex-delegate\scripts\relay.mjs --brief <file> --cd . --model gpt-6-sol --timeout 2h` (add `--read-only` for audits). Briefs live in `docs/plans/briefs/`.
-6. Machine limits: about 2.6 GB free RAM; one `flutter test` or SQL-harness process at a time. Deno and Docker are not installed.
+6. Machine limits: about 1.5–4 GB free RAM; one `flutter test` or SQL-harness process at a time. Deno is installed; Docker is installed but its engine is not running (no local Postgres, so true concurrency stays live-only).
 
 ### Never
 - Upload anything: no deploy (web, edge functions), no live migration, no live flag flip, no Play upload, no push. Owner: «اهم حاجه مترفعش اي حاجه».
@@ -28,18 +28,19 @@ This file is the single place to resume from. Anyone (Claude, Codex, a person) p
 
 | Gate | Command | Last result |
 |---|---|---|
-| Flutter tests | `flutter test --no-pub` (whole suite, alone) | 2233 pass, 5 skip, 0 fail (2026-10-18; source 5ce8c2e) |
-| Analyzer | `flutter analyze --no-pub --no-fatal-infos` | 0 errors, 0 warnings, 113 infos; exit 0 (2026-10-18; source 5ce8c2e) |
-| SQL | `node tool/test_sql_without_docker.mjs` | 96/96 (previous run, 2026-10-17; not rerun in the 2026-10-18 client gate) |
-| Node | each `supabase/tests/*.test.mjs` with `node --test <file>` | 37/37 files (previous run, 2026-10-17; not rerun in the 2026-10-18 client gate) |
+| Flutter tests | `flutter test --no-pub` (whole suite, alone) | 2305 pass, 0 skip, 0 fail (2026-10-21) |
+| Analyzer | `flutter analyze --no-pub --no-fatal-infos` | No issues found (113 infos cleared, a354fe4; 2026-10-21) |
+| SQL | `node tool/test_sql_without_docker.mjs` | 97/97 files, 161 migrations (2026-10-21) |
+| Node | each `supabase/tests/*.test.mjs` with `node --test <file>` | 37/37 files, 0 fail (2026-10-21) |
 | Parity | `node supabase/tests/run_golden_vectors_node.mjs` (35 agree) + night vectors `node --test supabase/tests/night_vectors.test.mjs` (48/48) + their Dart tests | PASS (2026-10-17) |
-| Edge type-check | `deno check supabase/functions/*/index.ts` | PASS in previous run after c54d994; not rerun in the 2026-10-18 client gate |
+| Edge type-check | `deno check supabase/functions/*/index.ts` | PASS after c54d994 (2026-10-17); no edge code changed since |
 | Live suite | `supabase/tests/run_live_suite.py` against a server running THIS code | BLOCKED: needs deploy (owner) |
 | Device | owner plays one offline and one online match on his phone | BLOCKED: owner |
+| Web voice | `flutter test --no-pub --platform chrome test/voice/voice_web_runtime_test.dart` with `CHROME_EXECUTABLE` pointing at a wrapper that adds `--use-fake-device-for-media-stream --use-fake-ui-for-media-stream`; while it waits, `node tool/repair_flutter_web_test_host.mjs <debug port> "D:/Flutter Data/Futter/flutter"` (Windows test-host workaround) | 1/1 PASS: two real RTCPeerConnections exchange audio RTP (2026-10-21) |
 
 Stable = every gate green, every audit matrix row in §4 either covered by a test or fixed, owner smoke test passed.
 
-**تخطّي معروف في اختبارات ٢٠٢٦-١٠-١٨:** أربعة اختبارات نسب فوز في `test/engine/balance_harness_test.dart` متوقفة من قبل التعديلات ومستنية قرار إعدادات الترابيزات الكبيرة؛ المحاكاة الحالية بتشير لانحياز للمافيا في بعض الإعدادات. اختبار `test/voice/voice_web_runtime_test.dart` بيتخطّى خارج المتصفح. الخمسة مش دليل نجاح، ولا نجاح باقي الاختبارات يثبت التوازن أو الصوت الحقيقي.
+**مفيش اختبارات متخطّية (٢٠٢٦-١٠-٢١):** اختبارات التوازن الأربعة بقت شغالة وناجحة بعد القاعدة RL22، واختبار الصوت بيشتغل في المتصفح بالأمر اللي في الجدول. نجاح الاختبارات المحلية مش إثبات للتزامن الحقيقي ولا للصوت على الموبايلات.
 
 ## 2b. Invariants (USEI-X §3–§6, module H multiplayer, module I voice)
 
@@ -113,12 +114,12 @@ M1: 117 rows; 20 SUSPECT. M2: 118 rows (29 OK, 76 GAP, 11 SUSPECT). Decisions:
 - [x] Q3 Online client half of the rulings + S6/S7 (537e3f0).
 - [x] Q4 Audits M1, M2, M3 (9300cc6, 7c01244); triage §4b.
 - [x] Q5a Every SUSPECT fixed or accepted: server tool guards 7c01244, engine hardening aed3e3a, decided outcome 5164053, client 537e3f0, one Elder/Sniper 537e3f0. M3-22 (one account on two devices) ACCEPTED as a design limit: one account plays on one device.
-- [ ] Q5b اختبارات الفجوات: دفعات الأدوات والشخصيات والأونلاين السابقة خلصت؛ اختبارات المتجر محفوظة في `601f2ba` ونجحت قبل التوقف. يوم ٢٠٢٦-١٠-١٨ نجح ٣٦ اختبار مرتبط بالراوي، منهم ٦ حالات جديدة للحزم التلاتة عند ٤ و٢٠ لاعب. جدول `audit/M4-store.md` اتحدّث بحدود الدليل؛ `M4-16` لسه محتاجة تحقق بين عملاء، و`M4-36/39/43/46` محتاجة تزامن حقيقي. الخطوة الجاية: مراجعة باقي الحالات المحلية، وبعدها اختبارات التطبيق الكاملة والمعاينة المحلية حسب Q9. ممنوع تشغيل محاكاتين لقاعدة البيانات مع بعض.
+- [x] Q5b GAP rows into tests. Done 2026-10-21: every SUSPECT row carries its triage (7c1e78f); 67 Dart row tests (8963e08) found and fixed two defects (fast preset hid a second night death's role; a roster push during a reread could revive a dead seat); M3-25/37/56 in `online_retry_rows.sql` (ef56b8a). Left GAP, all needs-live: M1 5 (true concurrency), M2 5 (M2-12/62/112 concurrency, M2-34/100 real voice muting), M4 5 (M4-16 cross-client audio, M4-36/39/43/46 concurrency).
 - [x] Q6 Parity of the night: `resolveNightCore` (TS) vs the Dart engine on 48 scenarios, both sides green.
 - [x] Q7 Gendered lines: confrontation C1/C4/C5/C6/C7/C8 and «مينفعش تصوّتي» follow the addressed player's gender, offline and online (test/unit/addressed_gender_test.dart).
 - [x] Q8 M4 store audit done (1471b82). Triage: M4-50 returned bundle keeps its components → FIXED 197e29a (`bundle_revoke_components.sql`); M4-51 a pack already on a room survives its owner's return → ACCEPTED (deliberate: cosmetics never block a match, purchase_access.ts comment); M4-38 two overlapping tool packs, one returned → ACCEPTED (rare); M4-4/7/10 offline keeps a returned role until the next online refresh → ACCEPTED (offline cannot ask the server); M4-24 vote shield is cover bought in advance → ACCEPTED (as M1 conditional tools).
-- [ ] Q11 Local edge harness: BUILT and used (e3aa83e, 3e6d746, 3bf4d2b; `tool/edge_harness/`, `supabase/tests/live_local_m1/m2/m3.test.mjs`). Still needs-live: M1 5 (true concurrency), M2 11, M3 8 (concurrency, voice, device, client). Optional next: M2's offline-engine rows as Dart tests, M3's client rows as widget tests. The rest is the owner's live suite and device test.
-- [ ] Q9 فحوص التطبيق الكاملة نجحت يوم ٢٠٢٦-١٠-١٨ على `5ce8c2e`: ٢٢٣٣ اختبار ناجح، ٥ متخطّيين، صفر فشل؛ التحليل صفر أخطاء وتحذيرات و١١٣ ملاحظة إرشادية. المتبقي: معاينة محلية باستخدام `flutter run -d web-server --web-port <port>` في وضع التصحيح، من غير `flutter build` أو رفع. باقي دليل الأجهزة والتزامن والصوت الحقيقي منفصل عن نجاح الفحوص المحلية.
+- [x] Q11 Local edge harness built and used (e3aa83e, 3e6d746, 3bf4d2b); the offline-engine and client rows it could not reach are now Dart tests (8963e08). The rest is the owner's live suite and phone test.
+- [ ] Q9 Full local gates green 2026-10-21 (table §2). Left: a local look with `flutter run -d web-server` in debug (no `flutter build`, no upload).
 - [ ] Q10 Owner: approve deploy to a staging project or live; then live suite; then device smoke; then Play.
 
 ## 6. Owner decisions pending
@@ -137,3 +138,10 @@ Female variants (used when the addressed offline player's gender is female; othe
 - confrontationC7 → «آخر واحد مات كان شاكك فيكي. ردّك؟»
 - confrontationC4 → «محدش شك فيكي لحد دلوقتي»
 - confrontationC8 → «بتهمسي لـ{x} كل يوم ليه؟»
+
+## استكمال هدف النسخة المستقرة — ٢٠٢٦-١٠-٢١
+
+- **التوازن (RL22):** عدد المافيا بقى بيزيد أبطأ من حجم الترابيزة: مافيا واحد لحد ٦ لاعبين، اتنين لحد ١٤، تلاتة من ١٥. الدكتور من ٧ لاعبين، و«قاسية» من غير دكتور بس بنفس عدد المافيا. قبلها المافيا كانت بتكسب ٧٠–٩٠٪ عند ١٢ و١٥ لاعب، و٧٢–٩٨٪ في «قاسية». دلوقتي كل حالة بين ٢٠ و٨٠٪، والمتوسط ٥٣٪، و١٩ من ٢٤ حالة من ٩ لاعبين وطالع جوه ٤٠–٦٠٪. تحت ٩ لاعبين التوازن الكامل مستحيل حسابيًا، لأن مافيا واحد زيادة بيقلب النتيجة، وده متسجّل كاختبار. التغيير في التطبيق بس، والسيرفر بيقبل الأعداد دي من غير رفع.
+- **عيبين اتصلحوا:** في «سريعة» دور كل ميت بالليل بقى بيظهر، مش أول واحد بس. وفي الأونلاين، تحديث موت بيوصل وقت إعادة القراءة مبقاش بيرجّع الميت عايش.
+- **زرار الرجوع:** زرار الرجوع في أندرويد بيقفل كارت المافيا الأول قبل ما يخرج من الشاشة.
+- **المتبقي عند المالك بس:** موافقة الرفع لسيرفر تجريبي أو الحي، وبعدها الاختبار الحي، والتجربة على الموبايل، والقرار RL19. ده اللي هيقفل حالات التزامن والصوت الحقيقي.
