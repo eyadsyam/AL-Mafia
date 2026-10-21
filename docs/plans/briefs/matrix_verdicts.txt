@@ -1,0 +1,34 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree; stay inside it). Mafia Master (Flutter app + Supabase). YOU EXECUTE; YOU DO NOT DESIGN. No git commit, no network, no deploy, run no tests.
+Edit ONLY the Verdict, Test and Evidence cells of the rows named below in docs/plans/audit/M1-tools.md, M2-roles.md, M3-online.md, M4-store.md. No other row, no other column, no other file. Keep each file's line endings (check CRLF vs LF before editing) and UTF-8 without BOM.
+
+WHY: every SUSPECT row was triaged on 2026-10-17 (docs/plans/STABLE-RELEASE-PLAN.md §4b and §5 Q5a/Q8) and fixed or accepted, but the matrices still say SUSPECT. Bring them in line.
+
+FORMAT: copy the convention of the rows that are already FIXED/ACCEPTED in the same file, e.g. `FIXED 7c01244 — revote refused in round 2 (tool_guards.sql)` and `ACCEPTED — conditional tools are cover bought in advance; their descriptions state the condition`.
+For FIXED rows: find the test that proves the fix (grep the named test file for the case) and put `<file>: <test name or SQL heading, shortened>` in Test; Evidence = sql-sim for supabase/tests/*.sql, unit for supabase/tests/*.test.mjs and test/engine|unit/*.dart, widget for test/widget|online|ui/*.dart. If you cannot find a test that proves that exact row, keep the Verdict as `SUSPECT` and add ` — fix <sha> found, no test proves this row` to the Case cell instead; never invent a test name.
+For ACCEPTED rows: Verdict = `ACCEPTED — <reason as written below>`; leave Test and Evidence unchanged.
+
+ROWS
+M1-73, M1-115: FIXED 7c01244 — the resolution fingerprint covers the day's tool uses (look in supabase/tests/vote_fingerprint.test.mjs and supabase/tests/tool_guards.sql)
+M1-71: FIXED 7c01244 — revote refused in round 2 (tool_guards.sql)
+M1-78: FIXED 7c01244 — grave vote only inside a ballot window (tool_guards.sql)
+M1-58, M1-79: FIXED 7c01244 — a silenced player is refused before any charge (tool_guards.sql)
+M1-25: FIXED 7c01244 — spotlight needs a living unsilenced target in a talk phase (tool_guards.sql)
+M1-18: FIXED 7c01244 — no last will at night (tool_guards.sql)
+M1-87, M1-101: FIXED 537e3f0 — a recovered answer must match phase and targets (test/ui/economy/tool_answer_match_test.dart)
+M1-38, M1-45, M1-52, M1-65, M1-94, M1-107, M1-114: ACCEPTED — conditional tools are cover bought in advance; their descriptions state the condition
+M1-6, M1-32: ACCEPTED — the floor bonus waits for the holder's next turn (consumed_at), next day included
+M1-72: ACCEPTED (rare) — a revote with no ballots has nothing to reopen
+M2-48: FIXED 537e3f0 — the online morning shows a told save (find the test under test/online or test/widget)
+M2-5, M2-35, M2-61, M2-75, M2-97: FIXED aed3e3a — night commands throw out of phase (test/engine/engine_hardening_test.dart)
+M2-11, M2-49, M2-89: FIXED aed3e3a — a refused armed move spends no bullet (test/engine/engine_hardening_test.dart)
+M2-76, M2-98: ACCEPTED — an older client's Elder/Citizen night move is acknowledged and nothing is stored (submit_night_action, deliberate)
+M3-22: ACCEPTED (design limit) — one account plays on one device at a time; a second device can displace the first
+M3-40, M3-43: FIXED 5164053 — a kick or strike after a decided outcome leaves it and the rewards alone (supabase/tests/decided_outcome_stands.sql)
+M4-4, M4-7, M4-10: ACCEPTED — offline keeps a returned role until the next online refresh; offline cannot ask the server
+M4-24: ACCEPTED — the vote shield is cover bought in advance, like the M1 conditional tools
+M4-38: ACCEPTED (rare) — two overlapping tool packs with one returned
+M4-51: ACCEPTED — cosmetics never block a match; a pack already on a room survives its owner's return (purchase_access.ts comment)
+
+Check: if a row already carries a FIXED/ACCEPTED verdict, leave it. If the file holds a duplicate row that already says the same thing, still update the named row.
+
+REPORT (final message): one line per row: id, new verdict, test cited (or why none). Then the count of SUSPECT rows left per file (should be 0 unless a test could not be found).
