@@ -119,7 +119,7 @@ M1: 117 rows; 20 SUSPECT. M2: 118 rows (29 OK, 76 GAP, 11 SUSPECT). Decisions:
 - [x] Q7 Gendered lines: confrontation C1/C4/C5/C6/C7/C8 and «مينفعش تصوّتي» follow the addressed player's gender, offline and online (test/unit/addressed_gender_test.dart).
 - [x] Q8 M4 store audit done (1471b82). Triage: M4-50 returned bundle keeps its components → FIXED 197e29a (`bundle_revoke_components.sql`); M4-51 a pack already on a room survives its owner's return → ACCEPTED (deliberate: cosmetics never block a match, purchase_access.ts comment); M4-38 two overlapping tool packs, one returned → ACCEPTED (rare); M4-4/7/10 offline keeps a returned role until the next online refresh → ACCEPTED (offline cannot ask the server); M4-24 vote shield is cover bought in advance → ACCEPTED (as M1 conditional tools).
 - [x] Q11 Local edge harness built and used (e3aa83e, 3e6d746, 3bf4d2b); the offline-engine and client rows it could not reach are now Dart tests (8963e08). The rest is the owner's live suite and phone test.
-- [ ] Q9 Full local gates green 2026-10-21 (table §2). Left: a local look with `flutter run -d web-server` in debug (no `flutter build`, no upload).
+- [x] Q9 Full local gates green 2026-10-21 (table §2), and a local look in debug (`flutter run -d web-server`, offline, no build, no upload): first run, Home, the mode card (Android back is covered by its widget test; a browser back goes Home by the browser's own history), and the roles screen at eleven players: «عادي» 2 Mafia / Detective / Doctor / 7, «صعب» 2 Mafia / Detective / no Doctor / 8.
 - [ ] Q10 Owner: approve deploy to a staging project or live; then live suite; then device smoke; then Play.
 
 ## 6. Owner decisions pending
