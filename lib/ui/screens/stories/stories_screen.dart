@@ -122,6 +122,9 @@ class _StoriesScreenState extends State<StoriesScreen> {
   StoryTable? _v2Table;
   int _v2Seed = 0;
   String? _v2Session;
+
+  /// Time since the server's deal answer arrived, for the claim's minimum.
+  Stopwatch? _v2DealClock;
   NarrationController? _narrationOrNull;
 
   NarrationController get _narration =>
@@ -216,6 +219,9 @@ class _StoriesScreenState extends State<StoriesScreen> {
       _v2Seed = seed;
       _v2Table = table;
       _v2Session = deal?.sessionId;
+      // Started when the server's answer arrived, which is after its own
+      // clock began: waiting this out always waits out the server's minute.
+      _v2DealClock = deal?.sessionId == null ? null : (Stopwatch()..start());
     });
   }
 
@@ -229,14 +235,21 @@ class _StoriesScreenState extends State<StoriesScreen> {
       solved: session.solved,
     );
     final sessionId = _v2Session;
+    final dealClock = _v2DealClock;
     setState(() {
       _progress = next;
       _v2Session = null;
+      _v2DealClock = null;
     });
     await widget.progressStore.save(next);
     unawaited(widget.afterStory?.call(story.id));
     final claim = widget.claimV2Reward;
     if (!session.solved || sessionId == null || claim == null) return;
+    // A table that solved it inside the server's minute claims when the
+    // minute is up; the progress above is already saved.
+    final early = StoriesLampTokens.serverClaimMinimum -
+        (dealClock?.elapsed ?? StoriesLampTokens.serverClaimMinimum);
+    if (early > Duration.zero) await Future<void>.delayed(early);
     final granted = await claim(sessionId, session.accusation!);
     if (granted <= 0 || !mounted) return;
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
@@ -251,6 +264,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
       _v2Players = null;
       _v2Table = null;
       _v2Session = null;
+      _v2DealClock = null;
     });
   }
 

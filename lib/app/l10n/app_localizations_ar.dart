@@ -7276,4 +7276,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String confrontationC8Female(String x) {
     return 'بتهمسي لـ$x كل يوم ليه؟';
   }
+
+  @override
+  String get pushEnableFailed => 'مقدرناش نشغّل الإشعارات على الجهاز ده';
+
+  @override
+  String get friendRemove => 'شيل من أصحابك';
+
+  @override
+  String friendRemoveConfirm(String name) {
+    return 'تشيل $name من أصحابك؟';
+  }
+
+  @override
+  String get friendRemoveYes => 'شيل';
 }

@@ -4547,5 +4547,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "pushEnableFailed": "Couldn't turn on notifications on this device",
+  "friendRemove": "Remove from friends",
+  "friendRemoveConfirm": "Remove {name} from your friends?",
+  "@friendRemoveConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "friendRemoveYes": "Remove"
 }

@@ -12738,6 +12738,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You whisper to {x} every day. Why him in particular?'**
   String confrontationC8Female(String x);
+
+  /// No description provided for @pushEnableFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t turn on notifications on this device'**
+  String get pushEnableFailed;
+
+  /// No description provided for @friendRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from friends'**
+  String get friendRemove;
+
+  /// No description provided for @friendRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name} from your friends?'**
+  String friendRemoveConfirm(String name);
+
+  /// No description provided for @friendRemoveYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get friendRemoveYes;
 }
 
 class _AppLocalizationsDelegate

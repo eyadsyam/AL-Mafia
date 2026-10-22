@@ -1,6 +1,7 @@
 import '../widgets/mafia_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show SignOutScope;
 
 import '../../platform/clipboard.dart';
@@ -39,11 +40,41 @@ final deleteAccountActionProvider = Provider<DeleteAccountAction>((ref) {
       }
     }
     await OnlineSessionStore.clear();
+    await forgetDeletedAccount();
     ref.invalidate(accountStatusProvider);
     ref.invalidate(economyCapabilitiesProvider);
     ref.invalidate(walletProvider);
   };
 });
+
+/// What this device kept *of the deleted account*: the bought roles and looks
+/// the offline screens show without a network, the owner grant, and the
+/// notifications switch (its server token went with the account). The
+/// player's own things stay, as the sheet says: the match history, the name
+/// on this phone, the language and sound choices. The screens holding those
+/// caches in memory take the new guest's wallet answer when it comes.
+///
+/// Named here as text, not by importing their owners: this sheet is reachable
+/// from the table (the safety centre), and the table must never reach the
+/// cosmetics, titles and invite code (test/golden/leakage). A test pins each
+/// name to its owner's key.
+const deletedAccountKeys = [
+  'my_owned_roles_v1',
+  'my_cosmetics_v1',
+  'all_access_v1',
+  'push_on_v1',
+];
+
+Future<void> forgetDeletedAccount() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    for (final key in deletedAccountKeys) {
+      await prefs.remove(key);
+    }
+  } catch (_) {
+    /* Storage refused: the server no longer grants anything these named. */
+  }
+}
 
 /// The confirm sheet. Closing it (scrim, back, «مش دلوقتي») deletes nothing.
 Future<void> showDeleteAccountSheet(BuildContext context) =>

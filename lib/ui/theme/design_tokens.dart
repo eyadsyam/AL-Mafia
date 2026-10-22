@@ -2590,6 +2590,10 @@ abstract final class ProfileTokens {
 
   /// The stamp sits over the photo's corner.
   static const double stampTop = 4;
+
+  /// How long a profile save waits for the server's word on the name before
+  /// saving anyway (the server still checks it at every room).
+  static const Duration nameCheckWait = Duration(seconds: 4);
 }
 
 /// «ملف القضايا» (`lib/ui/missions/casebook_sheet.dart`): drawn in the
@@ -3204,4 +3208,9 @@ abstract final class StoriesLampTokens {
   /// How long a table waits for the server's deal (story sessions) before
   /// it deals on the phone and plays without coins.
   static const Duration serverDealWait = Duration(milliseconds: 2500);
+
+  /// The server pays a v2 first solve only a minute after its deal
+  /// (`claim_story_session`); a faster table waits this long from the deal
+  /// before claiming, so the reward is not lost (a minute plus a margin).
+  static const Duration serverClaimMinimum = Duration(seconds: 62);
 }

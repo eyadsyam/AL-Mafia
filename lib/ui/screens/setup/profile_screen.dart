@@ -26,6 +26,7 @@ import '../../account/profile_panels.dart';
 import '../../economy/my_cosmetics.dart';
 import '../../social/titles_partner.dart';
 import '../../social/directory_settings.dart';
+import '../../social/directory.dart' show nameRefusedProvider;
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final VoidCallback? onSaved;
@@ -64,6 +65,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _saving = false;
   bool _failed = false;
 
+  /// The server refused the name (it is not saved).
+  bool _refused = false;
+
   /// Whether the player has touched the form. A saved profile that arrives
   /// after the first frame fills it only while it is untouched.
   bool _edited = false;
@@ -94,13 +98,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     setState(() {
       _saving = true;
       _failed = false;
+      _refused = false;
     });
     try {
+      final name = cleanPlayerName(_name.text);
+      // The server's word on the name first, when it can be had quickly: a
+      // name every room would refuse is not saved as if it were fine.
+      if (await ref.read(nameRefusedProvider)(name, _gender)) {
+        if (mounted) setState(() => _refused = true);
+        return;
+      }
       await ref
           .read(playerProfileProvider.notifier)
-          .save(
-            PlayerProfile(name: cleanPlayerName(_name.text), gender: _gender),
-          );
+          .save(PlayerProfile(name: name, gender: _gender));
       if (mounted) widget.onSaved?.call();
     } catch (_) {
       if (mounted) setState(() => _failed = true);
@@ -348,9 +358,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               // the two directory switches.
                               const DirectorySettings(),
                             ],
-                            if (_failed)
+                            if (_failed || _refused)
                               Text(
-                                l.profileSaveFailed,
+                                _refused
+                                    ? l.onlineNameNotAllowed
+                                    : l.profileSaveFailed,
                                 style: context.typography.body.copyWith(
                                   color: context.colors.accentCrimson,
                                 ),

@@ -7,7 +7,6 @@ import 'package:mafia_master/ui/theme/design_tokens.dart';
 
 import '../support/localized.dart';
 
-
 final _sample = FriendsState.fromJson({
   'friends': [
     {
@@ -44,6 +43,13 @@ class _Fixed extends FriendsController {
   Future<void> refresh() async {}
 }
 
+/// Records removals.
+class _Removing extends _Fixed {
+  static final removed = <String>[];
+  @override
+  Future<void> remove(String id) async => removed.add(id);
+}
+
 /// Counts refreshes; the first read has no invite, later reads have one.
 class _Counting extends FriendsController {
   static int refreshes = 0;
@@ -57,40 +63,45 @@ class _Counting extends FriendsController {
 }
 
 void main() {
-  testWidgets('D5: invites arrive while the door is in front, not in the background', (
-    tester,
-  ) async {
-    _Counting.refreshes = 0;
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [friendsProvider.overrideWith(_Counting.new)],
-        child: localizedApp(Scaffold(body: FriendsStrip(onJoin: (_) {}))),
-      ),
-    );
-    await tester.pump();
-    expect(find.byKey(FriendsStrip.inviteKey('ABCDEF')), findsNothing);
-    await tester.pump(FriendsTokens.inviteRefresh);
-    expect(_Counting.refreshes, 1);
-    await tester.pump();
-    expect(find.byKey(FriendsStrip.inviteKey('ABCDEF')), findsOneWidget);
+  testWidgets(
+    'D5: invites arrive while the door is in front, not in the background',
+    (tester) async {
+      _Counting.refreshes = 0;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [friendsProvider.overrideWith(_Counting.new)],
+          child: localizedApp(Scaffold(body: FriendsStrip(onJoin: (_) {}))),
+        ),
+      );
+      await tester.pump();
+      expect(find.byKey(FriendsStrip.inviteKey('ABCDEF')), findsNothing);
+      await tester.pump(FriendsTokens.inviteRefresh);
+      expect(_Counting.refreshes, 1);
+      await tester.pump();
+      expect(find.byKey(FriendsStrip.inviteKey('ABCDEF')), findsOneWidget);
 
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-    await tester.pump(FriendsTokens.inviteRefresh * 3);
-    expect(_Counting.refreshes, 1, reason: 'nothing is asked in the background');
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump(FriendsTokens.inviteRefresh * 3);
+      expect(
+        _Counting.refreshes,
+        1,
+        reason: 'nothing is asked in the background',
+      );
 
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    expect(_Counting.refreshes, 2, reason: 'asked at once on resume');
-    await tester.pump(FriendsTokens.inviteRefresh);
-    expect(_Counting.refreshes, 3);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      expect(_Counting.refreshes, 2, reason: 'asked at once on resume');
+      await tester.pump(FriendsTokens.inviteRefresh);
+      expect(_Counting.refreshes, 3);
 
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(FriendsTokens.inviteRefresh * 2);
-    expect(_Counting.refreshes, 3, reason: 'the timer leaves with the strip');
-  });
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(FriendsTokens.inviteRefresh * 2);
+      expect(_Counting.refreshes, 3, reason: 'the timer leaves with the strip');
+    },
+  );
 
   test('the status answer parses presence, requests and invites', () {
     expect(_sample.friends, hasLength(2));
@@ -129,6 +140,35 @@ void main() {
     expect(joined, 'ABCDEF');
   });
 
+  testWidgets('a friend can be removed, after one more question', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(360, 780));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    _Removing.removed.clear();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [friendsProvider.overrideWith(_Removing.new)],
+        child: localizedApp(Scaffold(body: FriendsSheet(onJoin: (_) {}))),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(FriendsSheetKeys.remove('b')));
+    await tester.tap(find.byKey(FriendsSheetKeys.remove('b')));
+    await tester.pumpAndSettle();
+    expect(find.text(arStrings.friendRemoveConfirm('كريم')), findsOneWidget);
+
+    await tester.tap(find.byKey(FriendsSheetKeys.removeCancel));
+    await tester.pumpAndSettle();
+    expect(_Removing.removed, isEmpty);
+
+    await tester.tap(find.byKey(FriendsSheetKeys.remove('b')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(FriendsSheetKeys.removeYes));
+    await tester.pumpAndSettle();
+    expect(_Removing.removed, ['b']);
+  });
+
   testWidgets('from the lobby, friends are invited rather than joined', (
     tester,
   ) async {
@@ -138,7 +178,9 @@ void main() {
       ProviderScope(
         overrides: [friendsProvider.overrideWith(_Fixed.new)],
         child: localizedApp(
-          Scaffold(body: FriendsSheet(onJoin: (_) {}, inviteRoomId: 'room')),
+          Scaffold(
+            body: FriendsSheet(onJoin: (_) {}, inviteRoomId: 'room'),
+          ),
         ),
       ),
     );

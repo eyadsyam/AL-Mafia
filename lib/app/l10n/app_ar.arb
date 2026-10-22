@@ -3272,5 +3272,10 @@
   "confrontationC5Female": "إنتي و{x} صوّتوا نفس التصويت {count} مرات",
   "confrontationC6Female": "إنتي أقل واحدة اتكلمت في الماتش. ردّك؟",
   "confrontationC7Female": "آخر واحد مات كان شاكك فيكي. ردّك؟",
-  "confrontationC8Female": "بتهمسي لـ{x} كل يوم ليه؟"
+  "confrontationC8Female": "بتهمسي لـ{x} كل يوم ليه؟",
+  "pushEnableFailed": "مقدرناش نشغّل الإشعارات على الجهاز ده",
+  "friendRemove": "شيل من أصحابك",
+  "friendRemoveConfirm": "تشيل {name} من أصحابك؟",
+  "@friendRemoveConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "friendRemoveYes": "شيل"
 }

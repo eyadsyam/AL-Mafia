@@ -1,3 +1,5 @@
+STATUS 2026-10-22 (Claude): ALL DONE in the commit after 9cc43d3. FIX 2 clears only what the deleted account left (owned-roles, cosmetics, all-access caches, push switch); the sheet promises the match history stays, so it stays. FIX 4 applies openVoting only: whisperEnabled feeds the offline engine (confrontations, legal moves) and its offline default differs, so the online room keeps whispers on. Do not run this brief.
+
 Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game «سيد المافيا: Mafia Master». YOU EXECUTE; YOU DO NOT DESIGN. Do not commit, do not deploy, no network calls. Read CLAUDE.md first (lib/engine pure; tokens only; no literal Arabic/English strings in widgets, use l10n ARB + `flutter gen-l10n`; no `if (isOnline)` in widgets). Use the exact copy below (do not reword). Reuse existing l10n keys where named.
 
 FIX 1 - profile name saved locally although the server would refuse it

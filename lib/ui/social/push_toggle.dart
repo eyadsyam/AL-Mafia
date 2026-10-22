@@ -37,12 +37,19 @@ class _PushSettingsRowState extends ConsumerState<PushSettingsRow> {
 
   Future<void> _change(bool value) async {
     setState(() => _busy = true);
-    final result = await ref.read(pushPromptProvider).setOn(value);
-    if (mounted) {
-      setState(() {
-        _on = result;
-        _busy = false;
-      });
+    final prompt = ref.read(pushPromptProvider);
+    final result = await prompt.setOn(value);
+    if (!mounted) return;
+    setState(() {
+      _on = result;
+      _busy = false;
+    });
+    // Allowed by the phone but never reached the server: the switch is back
+    // off and says why. (A refusal by the phone is the player's own answer.)
+    if (value && !result && prompt.registerFailed) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(content: Text(context.l10n.pushEnableFailed)),
+      );
     }
   }
 

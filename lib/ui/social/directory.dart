@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../engine/models/player.dart' show PlayerGender;
+import '../../platform/device/time_zone.dart';
 import '../../transport/online_backend.dart';
 import '../screens/online/online_session.dart';
+import '../theme/design_tokens.dart' show ProfileTokens;
 
 /// Find and invite anyone (`friends` edge function, 20260930000100_invites_push.sql).
 ///
@@ -246,3 +249,34 @@ class DirectoryApi {
 }
 
 final directoryApiProvider = Provider<DirectoryApi>(DirectoryApi.new);
+
+/// Whether the server refuses [name] as this player's name, asked before the
+/// profile is saved, so a name the server would turn away at the first room
+/// is not kept as if it were fine. Asked only when this device already has a
+/// session (it never starts one) and with a short wait: offline, slow, or any
+/// other answer saves as before, and the server still checks every room.
+/// The question is the directory hello the app sends anyway.
+final nameRefusedProvider =
+    Provider<Future<bool> Function(String name, PlayerGender gender)>(
+      (ref) => (name, gender) async {
+        if (!SupabaseConfig.isConfigured) return false;
+        try {
+          final backend = await ref.read(onlineBackendFactoryProvider)();
+          if (backend.userId == null) return false;
+          await ref
+              .read(directoryApiProvider)
+              .hello(
+                name: name,
+                gender: gender.name,
+                tz: await deviceTimeZone(),
+                locale: deviceLocaleTag(),
+              )
+              .timeout(ProfileTokens.nameCheckWait);
+          return false;
+        } on BackendException catch (error) {
+          return error.code == 'NAME_NOT_ALLOWED';
+        } catch (_) {
+          return false;
+        }
+      },
+    );

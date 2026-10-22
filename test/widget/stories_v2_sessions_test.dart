@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mafia_master/ui/theme/design_tokens.dart'
+    show StoriesLampTokens;
 import 'package:mafia_master/data/story_catalog.dart';
 import 'package:mafia_master/data/story_progress_store.dart';
 import 'package:mafia_master/data/story_v2_memory.dart';
@@ -158,6 +160,11 @@ void main() {
 
     await _solve(tester, 'n05');
     expect(find.text(arStrings.sv2SoloWon), findsOneWidget);
+    // Solved inside the server's minute: the claim waits the minute out
+    // instead of being turned away unpaid.
+    expect(claims, isEmpty);
+    await tester.pump(StoriesLampTokens.serverClaimMinimum);
+    await tester.pumpAndSettle();
     expect(claims, hasLength(1));
     expect(claims.single.session, 'session-1');
     expect(claims.single.accusation.suspectId, 'n05');

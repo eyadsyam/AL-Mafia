@@ -29,6 +29,7 @@ import '../../friendly_error.dart';
 import '../../widgets/player_avatar.dart';
 import '../../widgets/experience_surface.dart';
 import '../setup/profile_screen.dart';
+import '../setup/setup_draft.dart' show setupDraftProvider;
 import 'online_session.dart';
 import 'room_settings_panel.dart';
 import 'safety_center.dart';
@@ -123,6 +124,10 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
   @override
   void initState() {
     super.initState();
+    // The open-ballot default the settings screens save (marked «أونلاين
+    // بس» there) starts the room the player creates; the room's own settings
+    // panel can still change it.
+    _settings['openVoting'] = ref.read(setupDraftProvider).settings.openVoting;
     _lifecycle = AppLifecycleListener(onStateChange: _onLifecycle);
     _refresh();
     _loadResume();

@@ -344,6 +344,43 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
     Future.microtask(() => ref.read(friendsProvider.notifier).refresh());
   }
 
+  /// «شيل من أصحابك», asked once more before it happens.
+  Future<void> _confirmRemove(String id, String name) async {
+    final l = context.l10n;
+    final colors = context.colors;
+    final type = context.typography;
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: colors.surfaceRaised,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(context.radii.dialog),
+        ),
+        content: Text(
+          l.friendRemoveConfirm(name),
+          style: type.body.copyWith(color: colors.textPrimary),
+        ),
+        actions: [
+          TextButton(
+            key: FriendsSheetKeys.removeCancel,
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l.cancel),
+          ),
+          TextButton(
+            key: FriendsSheetKeys.removeYes,
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l.friendRemoveYes),
+          ),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
+    final friends = ref.read(friendsProvider.notifier);
+    await friends.remove(id);
+    // The list as the server now has it.
+    await friends.refresh();
+  }
+
   @override
   Widget build(BuildContext context) {
     final async = ref.watch(friendsProvider);
@@ -448,6 +485,12 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
                   FriendPlace.away => l.friendsAway,
                 },
                 lit: f.presence.place == FriendPlace.lobby,
+                menu: IconButton(
+                  key: FriendsSheetKeys.remove(f.id),
+                  tooltip: l.friendRemove,
+                  onPressed: () => _confirmRemove(f.id, f.name),
+                  icon: const Icon(Icons.more_vert_rounded),
+                ),
                 action: widget.inviteRoomId != null
                     ? (_invited.contains(f.id)
                           ? Text(
@@ -505,11 +548,21 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
   }
 }
 
+/// Keys for the friends sheet's per-friend controls.
+abstract final class FriendsSheetKeys {
+  static Key remove(String id) => ValueKey('friend_remove_$id');
+  static const removeYes = ValueKey('friend_remove_yes');
+  static const removeCancel = ValueKey('friend_remove_cancel');
+}
+
 class _Row extends StatelessWidget {
   final String name;
   final String gender;
   final String line;
   final Widget? action;
+
+  /// A friend's secondary control (remove), after the main action.
+  final Widget? menu;
   final bool lit;
   final String? frame;
   final String? plate;
@@ -518,6 +571,7 @@ class _Row extends StatelessWidget {
     required this.gender,
     required this.line,
     this.action,
+    this.menu,
     this.lit = false,
     this.frame,
     this.plate,
@@ -561,6 +615,7 @@ class _Row extends StatelessWidget {
             ),
           ),
           ?action,
+          ?menu,
         ],
       ),
     );

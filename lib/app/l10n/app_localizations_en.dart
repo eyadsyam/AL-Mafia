@@ -7392,4 +7392,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String confrontationC8Female(String x) {
     return 'You whisper to $x every day. Why him in particular?';
   }
+
+  @override
+  String get pushEnableFailed =>
+      'Couldn\'t turn on notifications on this device';
+
+  @override
+  String get friendRemove => 'Remove from friends';
+
+  @override
+  String friendRemoveConfirm(String name) {
+    return 'Remove $name from your friends?';
+  }
+
+  @override
+  String get friendRemoveYes => 'Remove';
 }

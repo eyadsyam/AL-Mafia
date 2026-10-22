@@ -20,6 +20,10 @@ class PushPrompt {
 
   bool _busy = false;
 
+  /// The last [setOn] to on was allowed by the phone but could not reach the
+  /// server (a refusal by the phone is the player's own answer, said nowhere).
+  bool registerFailed = false;
+
   /// Test hook: how many times the system prompt was requested.
   int prompts = 0;
 
@@ -92,14 +96,20 @@ class PushPrompt {
     }
     await prefs.setBool(askedKey, true);
     prompts++;
-    final granted = await push.askPermission();
-    await prefs.setBool(onKey, granted);
-    if (granted) {
+    var enabled = await push.askPermission();
+    registerFailed = false;
+    if (enabled) {
       try {
         await _register(push);
-      } catch (_) {}
+      } catch (_) {
+        // Allowed by the phone but never reached the server: nothing would
+        // arrive, so the switch must not say it is on.
+        enabled = false;
+        registerFailed = true;
+      }
     }
-    return granted;
+    await prefs.setBool(onKey, enabled);
+    return enabled;
   }
 
   /// A submitted transfer also needs a notification when the app is closed.
