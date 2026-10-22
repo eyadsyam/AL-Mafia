@@ -1,0 +1,16 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree). YOU EXECUTE; YOU DO NOT DESIGN. Do not commit (the orchestrator commits). Do not run the live harness (it needs the network and live credentials). Touch only supabase/tests/e2e_match.py.
+
+CONTEXT
+supabase/tests/e2e_match.py is a live end-to-end harness (5 bot players, players[0] is the host). Against today's server it failed three checks. Two causes, both in the harness, not the server:
+
+A. Lines ~593-604. The check "a guest cannot close a verdict that is still running" calls open_phase as `detective`. Roles are dealt at random (lines ~306-309: mafia/doctor/detective/citizens from by_role), so about one run in five the detective IS players[0], the host. Then the "guest" call succeeds (it is the host), the night opens, and the following host call "the verdict opens the night that follows" gets PHASE_CLOSED. Fix: make the guest the first living player who is not the host (compare by user id with players[0]; use whatever id field the harness already uses for players, e.g. p["id"]). The guest must be alive at that point (the town just voted out `saved`; `living` or the roster after the vote tells you who is alive; use the same source the harness already uses nearby). Keep both check labels unchanged.
+
+B. Lines ~643-647. The check "and the room is told somebody was saved, not who" expects morning2["someoneSavedUnnamed"] is True. Rule RL2 (docs/specs/17-roles-and-tools.md line 921) changed this: a Doctor save is told only when the match has no quiet night to hide behind; bullets on AND quiet night on => the morning says only that nobody died. The server implements it in supabase/functions/_shared/bullets.ts saveIsTold()/quietNightAvailable()/bulletEnabled() (quietNightEnabled defaults to on unless settings say false; bulletsEnabled false turns all bullets except selfProtect off). Fix: read the settings this harness gives its room (find where it creates the room / sets settings; if it sets none, the defaults apply) and compute the expectation the same way bulletEnabled() does: expected_told = not (settings.get("bulletsEnabled") is not False and settings.get("quietNightEnabled") is not False). Assert morning2.get("someoneSavedUnnamed") is expected_told. Rename the label to "the save is told only when no quiet night can hide it (RL2)". Keep the following "saved target is absent from live public history" check unchanged.
+
+Do not change any other check. Do not weaken any assertion beyond what A and B describe.
+
+GATES (run both, paste the tail of each)
+  python -m py_compile supabase/tests/e2e_match.py
+  python -c "import ast,sys; ast.parse(open('supabase/tests/e2e_match.py',encoding='utf-8').read()); print('ok')"
+
+REPORT (final message): the diff summary per fix with line numbers, how you chose the guest and why it is never the host, where the room settings come from, and the gate output.

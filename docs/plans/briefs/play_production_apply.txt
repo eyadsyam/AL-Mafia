@@ -1,0 +1,40 @@
+TASK: Fill and submit Google Play Console's production-access request ("طلب الإصدار العلني") for the game «سيد المافيا: Mafia Master» (package com.mafiamaster.mafia_master). The owner asked for this and approved submitting it. YOU do it end to end in a browser. Do not edit any repository file. Do not commit.
+
+URL (use exactly this account slot, u/0):
+https://play.google.com/console/u/0/developers/8516115344939721781/app/4973103045227664588/app-dashboard
+The Console UI is in Arabic. On the dashboard, under «مرحلة الإنتاج», click the button «طلب الإصدار العلني». A dialog «تقديم طلب الحصول على إذن الإصدار العلني» opens with 3 steps (tabs): 1 «أسئلة عن الاختبار المغلق», 2 «لمحة عن لعبتك», 3 «جاهزية التطبيق للنشر في قناة الإصدار العلني». Each text box allows at most 300 characters. Buttons: «التالي» (next), then a final submit button on step 3.
+
+HARD LIMITS (break any one = stop and report):
+- Never type a password, code, or key anywhere. Never sign in to a Google account. Never copy, read or reuse a browser profile, cookie store or saved credential.
+- If you reach a Google sign-in page, an account chooser, or a terms page (URL containing accept-terms), do NOT proceed: stop and report NEEDS_SIGNED_IN_BROWSER (or TERMS_PAGE) with the URL.
+- Do not change any other Console setting, release, track, listing or tester list. Only this dialog.
+- Paste the answers below exactly (they are factual; do not add claims). If a field asks something not covered below, stop and report its exact question text instead of inventing an answer.
+
+ANSWERS
+Step 1 «أسئلة عن الاختبار المغلق»
+ 1a «كيف استعنت بالمستخدمين لإجراء اختبارك المغلق؟...» :
+We shared a tester sign-up page on the game's website (saidalmafia.com/beta). Each sign-up got a welcome email with a link to join our Google Group and opt in on Google Play. 13 people signed up between 1 and 9 October 2026.
+ 1b «ما مدى سهولة الاستعانة بمُختبِرين للعبتك؟» : choose «ليس صعبًا ولا سهلاً»
+ 1c «يرجى وصف التفاعل الذي تلقّيته من المختبِرين أثناء الاختبار المغلق.» :
+At least 12 testers stayed opted in for 14 continuous days, and we shipped several updates to the closed track in that time (1.0 to 1.3). Alongside them we ran full online test matches with several scripted players against the live server to cover every phase, role and tool.
+ 1d «يُرجى تقديم ملخص للملاحظات والآراء التي تلقّيتها من المختبِرين، مع ذكر الطريقة المتّبعة لجمعها منهم.» :
+Testers could reply to the welcome email or send private feedback on Google Play; most findings came from our own scripted test matches. The main issues were online reliability (reconnects, state sync, timers) and role balance in larger groups. We fixed them.
+
+Step 2 «لمحة عن لعبتك» (match each field by its meaning):
+ - Intended audience:
+Players aged 16+ who enjoy social deduction party games with friends, mainly Arabic speakers in Egypt (Egyptian Arabic first, English also available). Groups play on one shared phone or in online rooms with optional voice chat.
+ - How the game provides value / what it offers:
+It runs a full Mafia game for a group: it deals secret roles, guides the night and day phases with a narrator, counts votes and shows the result, so nobody has to sit out as the moderator. Groups can play in person on one phone or online from separate phones.
+ - Expected installs in the first year (a choice): pick the option for 10,000 to 100,000 (10K-100K). If the ranges differ, pick the one that contains 50,000.
+ - Any other field: stop and report its question text.
+
+Step 3 «جاهزية التطبيق للنشر في قناة الإصدار العلني» (match each field by its meaning):
+ - What changes did you make based on what you learned in the closed test:
+We rebalanced role counts by group size, fixed online reconnection and state sync (a voted-out player could look alive), made every phone in a room play the same narrator line, fixed the Android back button in setup, showed every death on the morning screen, and tightened server rules.
+ - How did you decide the game is ready for production:
+The closed test ran its full 14 days with updates along the way. Before applying we passed our automated checks (over 2,300 app tests, database and server tests, race tests on a real database) and ran full online test matches against the live server after deploying its latest version.
+ - Any other field: stop and report its question text.
+
+Then submit the request (final button on step 3). If a confirmation dialog appears, confirm it. Wait for the Console to show the request as submitted / under review.
+
+REPORT (final message): one of SUBMITTED / NEEDS_SIGNED_IN_BROWSER / TERMS_PAGE / UNEXPECTED_FIELD / ERROR, the last URL, what the Console showed after submit (status text), and for UNEXPECTED_FIELD the exact question text. If you had no way to open a browser at all, say NO_BROWSER and what you tried.

@@ -1,0 +1,27 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game «سيد المافيا: Mafia Master». YOU EXECUTE; YOU DO NOT DESIGN. Do not commit, do not deploy, no network calls. Read CLAUDE.md first (non-negotiables: lib/engine pure; tokens only from lib/core/theme/design_tokens.dart or the existing theme token files; no literal Arabic/English strings in widgets, use l10n ARB + regenerate; no `if (isOnline)` in widgets).
+
+PROBLEM
+The table tool «صوت من القبر» (code grave_vote, desc "بعد ما تخرج، تصوّت مرة في أول تصويت جاي") is used by a DEAD player during discuss/defense/vote (SQL use_table_tool in supabase/migrations/20261017000100_tool_guards.sql lines 40-61). The server then accepts exactly one ballot from that dead seat, opening round only (supabase/functions/submit_vote/index.ts lines 21-34 and 81-83, graveVoters() in supabase/functions/_shared/tools.ts:100). But the client never gives a dead player a ballot: lib/ui/screens/online/online_table_flow.dart line ~1457 returns no selectable seats when _viewerIsDead(snapshot). So the player spends the tool and cannot vote. The published app (older code) has the same gap and cannot be updated by us now.
+
+PART 1 - client: give the grave ballot
+- When the viewer is dead, the phase is voting, ballotRound == 1, and the viewer has used grave_vote on this day (find where the client already knows the viewer's own table-tool uses: grep lib/ui/economy/table_tools.dart, lib/transport/online_transport.dart, lib/transport/supabase_backend.dart for toolUse / tool uses / "grave"), the selectable seats are the living seats (never the viewer). Submitting uses the same vote path living players use. After the ballot is accepted, or if ballotRound > 1, the dead viewer has no selectable seats again.
+- Everything else a dead viewer sees (witness view, mourning, graveyard chat) stays as it is; the grave ballot must not show any other player's role or anything a living player would not see (Doc 05, docs/specs/05-zero-leakage-spec.md).
+- Show one short line telling the dead viewer they can vote once now; add it to lib/app/l10n/app_ar.arb (Egyptian Arabic, e.g. «عندك صوت من القبر: اختار مرة واحدة») and app_en.arb ("Your vote from the grave: choose once"), then regenerate localizations with the repo's usual command (flutter gen-l10n). Use existing text styles/tokens.
+- When the client sends the table-tool use for grave_vote, add a field `caps: ["grave_ballot"]` to that request body (only the new client sends it).
+
+PART 2 - server: protect clients that cannot show the ballot
+- In supabase/functions/economy/index.ts, in the branch that handles the table-tool use action (grep "toolUse"), before calling the use_table_tool RPC: if the tool is "grave_vote" and the request body's `caps` array does not include "grave_ballot", return fail("UPDATE_REQUIRED", "update the app to vote from the grave") with the same status code style as the other refusals in that file. Nothing is charged because the RPC is not called. Add "UPDATE_REQUIRED" wherever that file or supabase/functions/_shared/api.ts keeps its list of known refusal codes, if such a list exists.
+- Map UPDATE_REQUIRED in the client's friendly error mapping (grep lib/ui/friendly_error.dart and the table-tools refusal copy) to a line like «حدّث التطبيق عشان تستخدم الأداة دي» / "Update the app to use this tool" (l10n).
+
+TESTS (add, do not weaken existing ones)
+- Widget/online test (follow the style of test/online/*_test.dart with test/support/fake_backend.dart): a dead viewer who used grave_vote today gets the living seats selectable in round 1, can submit once, and gets none in round 2; a dead viewer without the tool gets none.
+- Node test (follow supabase/tests/*.test.mjs that exercise economy or _shared): economy refuses grave_vote without caps with UPDATE_REQUIRED and does not call the RPC; with caps it proceeds. If the economy handler is not unit-testable in the existing harness, test the extracted guard function instead (put it in supabase/functions/_shared/tools.ts as `graveBallotSupported(body)` and call it from economy).
+
+GATES (run all, paste tails)
+  flutter analyze 2>&1 | tail -30
+  flutter test test/online test/widget 2>&1 | tail -40
+  flutter test 2>&1 | tail -15          (full suite; baseline is 2308 passing, 0 skipped, 0 failed)
+  node --test supabase/tests 2>&1 | tail -15   (or the repo's documented Node test command; baseline 37/37 files)
+  deno check supabase/functions/economy/index.ts  (if deno is installed; otherwise say so)
+
+REPORT (final message): files changed with one line each, how the client learns "used grave_vote today", the new tests and their names, every gate's tail, and anything you could not do.

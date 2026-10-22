@@ -591,7 +591,9 @@ def main():
     check("the verdict carries a clock", row.get("phase_ends_at") is not None, row)
 
     # A guest may not close it while that clock is still running.
-    status, early = fn("open_phase", {"roomId": room_id, "phase": "night"}, detective)
+    guest = next(p for p in living if p["id"] != players[0]["id"]
+                 and p["seat"] != saved["seat"])
+    status, early = fn("open_phase", {"roomId": room_id, "phase": "night"}, guest)
     check("a guest cannot close a verdict that is still running",
           early.get("error") == "NOT_HOST", early)
 
@@ -643,8 +645,10 @@ def main():
     status, morning2 = fn("resolve_night", {"roomId": room_id}, players[0])
     check("resolve_night (two)", status == 200, morning2)
     check("the self-protection held", morning2.get("victimSeat") is None, morning2)
-    check("and the room is told somebody was saved, not who",
-          morning2.get("someoneSavedUnnamed") is True, morning2)
+    expected_told = not (settings.get("bulletsEnabled") is not False
+                         and settings.get("quietNightEnabled") is not False)
+    check("the save is told only when no quiet night can hide it (RL2)",
+          morning2.get("someoneSavedUnnamed") is expected_told, morning2)
     _, private_check = rest("room_state?select=public_data&room_id=eq." + room_id, citizens[0])
     check("saved target is absent from live public history",
           bool(private_check) and all("savedSeat" not in n for n in

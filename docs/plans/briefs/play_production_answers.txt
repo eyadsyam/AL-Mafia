@@ -1,0 +1,27 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree). App: «سيد المافيا: Mafia Master» (Flutter + Supabase), an Egyptian-Arabic party game (social deduction: offline pass-the-phone and online rooms with voice) plus a Stories mode. READ-ONLY task: edit no file, run no network, no browser. YOU EXECUTE; report only in your final message.
+
+GOAL
+Draft the answers for Google Play Console's "Apply for production access" form (personal developer account, after a closed test of >= 12 testers for 14 days). Another agent will paste your answers into the form, so they must be TRUE and backed by the repository's records. Never invent numbers, testers, quotes or feedback. If a fact is not in the records, write UNKNOWN in its place and say which record would hold it.
+
+SOURCES (read these, use Grep before Read, read ranges)
+- docs/PROGRESS.md (search "PHASE 101", "closed testing", "tester", "1.0.1", "1.1", "1.2", "1.3", "stable-local-complete", "live-deploy-2026-10-22")
+- docs/plans/STABLE-RELEASE-PLAN.md, docs/plans/BIG-UPDATE-1.1-FINAL.md, docs/plans/UPDATE-1.0.1-BUSINESS.md
+- docs/marketing/LAUNCH-RUNBOOK.md, docs/marketing/DECISIONS.md, docs/marketing/PLAN-V4.md (tester recruitment: the /beta tester form, tester_signup / tester_admin / tester_mail_check functions under supabase/functions)
+- git log --oneline --since=2026-09-20 (what changed during the closed test)
+- pubspec.yaml version; docs/release/* for store-listing facts (audience, content rating)
+Do NOT include anything about payment methods, billing, payouts, prices or revenue in your answers.
+
+THE FORM (answer each; plain English; each text answer 2-6 sentences, under 900 characters, no marketing hype, no emojis)
+Part 1 - About your closed test
+ Q1 How easy was it to recruit testers for your app? Choose one: Very easy / Easy / Neither easy nor difficult / Difficult / Very difficult. Give the record that supports it.
+ Q2 Describe the engagement you received from testers during your closed test.
+ Q3 Provide a summary of the feedback that you received from testers, and how you collected it.
+Part 2 - About your app or game
+ Q4 Who is the intended audience of your app?
+ Q5 Describe how your app provides value to users.
+ Q6 How many installs do you expect your app to have in your first year? Choose one: 0-10K / 10K-100K / 100K-1M / 1M-10M / 10M+ ; give the record (marketing plan targets) behind it.
+Part 3 - Production readiness
+ Q7 What changes did you make to your app based on what you learned during your closed test? (List concrete fixes from git log/PROGRESS since the closed test started, e.g. balance of role counts, online reconnection, narrator, voice, back navigation. Only things that really shipped or are committed.)
+ Q8 How did you decide that your app is ready for production? (Cite the real gates: test suites and counts, live server suite, audits.)
+
+REPORT (final message only): for each Q: the answer text ready to paste, then one line "Evidence: <file:line or commit>". Then a list "UNKNOWN facts" (each with where the owner or the Play Console would show it, e.g. the closed-testing track's tester count). Nothing else.
