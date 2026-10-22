@@ -398,7 +398,8 @@ class VoiceController {
     if (_disposed || revision != _revision || _tornDown) return;
     final speaker = snapshot.activeSpeakerSeat;
     final maySpeak =
-        !_selfDead && !_viewerSilenced &&
+        !_selfDead &&
+        !_viewerSilenced &&
         switch (policy) {
           MicPolicy.open => true,
           MicPolicy.activeSpeakerOnly =>
@@ -564,6 +565,8 @@ class VoiceController {
 
   /// Asks the server for the floor. False is an ordinary answer.
   Future<bool> requestFloor() => link.claimFloor();
+
+  FloorClaim? get lastFloorClaim => link.lastFloorClaim;
 
   /// Hands the floor back.
   Future<void> yieldFloor() => link.releaseFloor();

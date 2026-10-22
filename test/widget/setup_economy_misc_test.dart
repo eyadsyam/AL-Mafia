@@ -7,6 +7,7 @@ import 'package:mafia_master/data/match_codec.dart';
 import 'package:mafia_master/data/memory_match_repository.dart';
 import 'package:mafia_master/data/repository_provider.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
+import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/economy/my_cosmetics.dart';
 import 'package:mafia_master/ui/economy/table_tools.dart';
 import 'package:mafia_master/ui/economy/wallet.dart';
@@ -197,19 +198,32 @@ void main() {
       Future<void> open(bool freeTalk) async {
         // A fresh tree each time: the previous sheet would cover the button.
         await tester.pumpWidget(const SizedBox());
-        await tester.pumpWidget(ProviderScope(
-          overrides: [
-            onlineBackendFactoryProvider.overrideWithValue(() async => backend),
-          ],
-          child: localizedApp(Scaffold(body: Builder(
-            builder: (context) => TextButton(
-              onPressed: () => showTableToolsSheet(context,
-                  roomId: 'room', phase: 'discuss', alive: true,
-                  freeTalk: freeTalk, seats: const {}),
-              child: const Text('open'),
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              onlineBackendFactoryProvider.overrideWithValue(
+                () async => backend,
+              ),
+            ],
+            child: localizedApp(
+              Scaffold(
+                body: Builder(
+                  builder: (context) => TextButton(
+                    onPressed: () => showTableToolsSheet(
+                      context,
+                      roomId: 'room',
+                      phase: 'discuss',
+                      alive: true,
+                      freeTalk: freeTalk,
+                      seats: const {},
+                    ),
+                    child: const Text('open'),
+                  ),
+                ),
+              ),
             ),
-          ))),
-        ));
+          ),
+        );
         await tester.tap(find.text('open'));
         await tester.pumpAndSettle();
       }
@@ -282,6 +296,84 @@ void main() {
       expect(find.text(arStrings.toolRefused), findsOneWidget);
       // The button is live again, not stuck busy.
       expect(tester.widget<FilledButton>(use).onPressed, isNotNull);
+    });
+
+    testWidgets('each tool refusal explains its server code', (tester) async {
+      final cases = <String, String>{
+        'LIMIT_MATCH': arStrings.toolLimitMatch,
+        'LIMIT_HEAVY': arStrings.toolLimitHeavy,
+        'LIMIT_TOOL': arStrings.toolLimitTool,
+        'LIMIT_PHASE': arStrings.toolLimitPhase,
+        'NO_CHARGES': arStrings.toolNoCharges,
+        'WRONG_PHASE': arStrings.toolWrongPhase,
+        'BAD_TARGETS': arStrings.toolBadTargets,
+        'ALIVE': arStrings.toolDeadOnly,
+        'NOT_PLAYING': arStrings.toolMatchOver,
+        'BAD_NOTE': arStrings.toolBadNote,
+      };
+      await tester.binding.setSurfaceSize(const Size(430, 932));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      for (final entry in cases.entries) {
+        final backend = FakeBackend(
+          roomId: 'room',
+          state: roomState(phase: 'lobby'),
+          players: roster(5),
+        );
+        backend.responders['economy'] = (body) {
+          if (body['action'] == 'toolUse') {
+            throw BackendException(entry.key, 'refused');
+          }
+          return {
+            'balance': 0,
+            'tools': [
+              {
+                'code': 'extra_minute',
+                'tier': 'light',
+                'packs': {'1': 40},
+                'charges': 2,
+                'perMatch': 1,
+                'phase': 'discuss',
+                'targets': 0,
+              },
+            ],
+          };
+        };
+        await tester.pumpWidget(const SizedBox());
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              onlineBackendFactoryProvider.overrideWithValue(
+                () async => backend,
+              ),
+            ],
+            child: localizedApp(
+              Scaffold(
+                body: Builder(
+                  builder: (context) => TextButton(
+                    onPressed: () => showTableToolsSheet(
+                      context,
+                      roomId: 'room',
+                      phase: 'discuss',
+                      alive: true,
+                      freeTalk: false,
+                      seats: const {},
+                    ),
+                    child: const Text('open'),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(ChoiceChip));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(FilledButton));
+        await tester.pump();
+        await tester.pump();
+        expect(find.text(entry.value), findsOneWidget, reason: entry.key);
+      }
     });
   });
 }

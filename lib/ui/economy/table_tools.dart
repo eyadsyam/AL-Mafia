@@ -206,7 +206,10 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
   /// The narrator's answer the server kept for this caller's latest [code]
   /// use in [roomId] (only the two whisper tools have one), or null.
   Future<bool?> _keptAnswer(
-    String roomId, String code, int phaseNumber, List<int> targets,
+    String roomId,
+    String code,
+    int phaseNumber,
+    List<int> targets,
   ) async {
     try {
       final res = await _call({'action': 'toolAnswers', 'roomId': roomId});
@@ -227,19 +230,30 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
 }
 
 bool recoveredToolAnswerMatches(
-  Map row, String code, int phaseNumber, List<int> targets, {String? requestId}
-) {
+  Map row,
+  String code,
+  int phaseNumber,
+  List<int> targets, {
+  String? requestId,
+}) {
   final savedTargets = row['targets'];
-  if (row['tool'] != code || row['phaseNumber'] != phaseNumber ||
+  if (row['tool'] != code ||
+      row['phaseNumber'] != phaseNumber ||
       savedTargets is! List ||
       (requestId != null && row['requestId'] != requestId)) {
     return false;
   }
   final requested = [...targets]..sort();
-  final saved = [for (final target in savedTargets) if (target is int) target]..sort();
+  final saved = [
+    for (final target in savedTargets)
+      if (target is int) target,
+  ]..sort();
   return saved.length == savedTargets.length &&
       saved.length == requested.length &&
-      List.generate(saved.length, (i) => saved[i] == requested[i]).every((same) => same);
+      List.generate(
+        saved.length,
+        (i) => saved[i] == requested[i],
+      ).every((same) => same);
 }
 
 String toolTierLabel(BuildContext context, ToolTier tier) {
@@ -283,14 +297,20 @@ Future<void> showTableToolsSheet(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (_) =>
-        _ToolsSheet(roomId: roomId, phase: phase, alive: alive,
-            freeTalk: freeTalk, seats: seats),
+    builder: (_) => _ToolsSheet(
+      roomId: roomId,
+      phase: phase,
+      alive: alive,
+      freeTalk: freeTalk,
+      seats: seats,
+    ),
   );
 }
 
 bool _toolFits(TableTool t, String phase, bool alive, bool freeTalk) {
-  if (freeTalk && const {'extra_minute', 'objection'}.contains(t.code)) return false;
+  if (freeTalk && const {'extra_minute', 'objection'}.contains(t.code)) {
+    return false;
+  }
   if (t.phase == 'dead') return !alive;
   if (!alive) return false;
   return switch (t.phase) {
@@ -389,13 +409,26 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
       // dead button is worse than a message.
       if (!mounted) return;
       setState(() => _busy = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(switch (error) {
-        ToolActionFailed(code: 'NOT_THIS_ROOM') => l.toolNeedsTurns,
-        ToolActionFailed(code: 'SILENCED') => l.toolSilencedToday,
-        _ => l.toolRefused,
-      })));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(switch (error) {
+            ToolActionFailed(code: 'NOT_THIS_ROOM') => l.toolNeedsTurns,
+            ToolActionFailed(code: 'SILENCED') => l.toolSilencedToday,
+            ToolActionFailed(code: 'UPDATE_REQUIRED') => l.updateRequiredBody,
+            ToolActionFailed(code: 'LIMIT_MATCH') => l.toolLimitMatch,
+            ToolActionFailed(code: 'LIMIT_HEAVY') => l.toolLimitHeavy,
+            ToolActionFailed(code: 'LIMIT_TOOL') => l.toolLimitTool,
+            ToolActionFailed(code: 'LIMIT_PHASE') => l.toolLimitPhase,
+            ToolActionFailed(code: 'NO_CHARGES') => l.toolNoCharges,
+            ToolActionFailed(code: 'WRONG_PHASE') => l.toolWrongPhase,
+            ToolActionFailed(code: 'BAD_TARGETS') => l.toolBadTargets,
+            ToolActionFailed(code: 'ALIVE') => l.toolDeadOnly,
+            ToolActionFailed(code: 'NOT_PLAYING') => l.toolMatchOver,
+            ToolActionFailed(code: 'BAD_NOTE') => l.toolBadNote,
+            _ => l.toolRefused,
+          }),
+        ),
+      );
     }
   }
 
@@ -552,7 +585,8 @@ class TableToolsButton extends ConsumerWidget {
       roomId: roomId,
       phase: phase,
       alive: alive,
-      freeTalk: ref.read(gameTransportProvider).snapshot.settings.discussionMode ==
+      freeTalk:
+          ref.read(gameTransportProvider).snapshot.settings.discussionMode ==
           DiscussionMode.free,
       seats: seats,
     ),

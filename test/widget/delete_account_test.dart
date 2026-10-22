@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/app/l10n/app_localizations.dart';
+import 'package:mafia_master/core/public_web_origin.dart';
 import 'package:mafia_master/platform/links/external_link.dart';
 import 'package:mafia_master/transport/account_auth.dart';
 import 'package:mafia_master/transport/account_service.dart';
@@ -73,6 +74,26 @@ void main() {
     await tester.tap(find.byKey(LegalDocuments.privacyButtonKey));
     await tester.pumpAndSettle();
     expect(find.byKey(LegalDocuments.privacySheetKey), findsOneWidget);
+  });
+
+  testWidgets('privacy summary opens the full policy in the external browser', (
+    tester,
+  ) async {
+    final opened = <String>[];
+    await _pumpAccountSheet(
+      tester,
+      action: () async {},
+      opener: (url) async {
+        opened.add(url);
+        return true;
+      },
+    );
+    await tester.tap(find.byKey(LegalDocuments.privacyButtonKey));
+    await tester.pumpAndSettle();
+    expect(find.byKey(LegalDocuments.privacyFullKey), findsOneWidget);
+    await tester.tap(find.byKey(LegalDocuments.privacyFullKey));
+    await tester.pump();
+    expect(opened, [kPrivacyPolicyUrl]);
   });
 
   testWidgets('deleting needs the box ticked, and cancel deletes nothing', (

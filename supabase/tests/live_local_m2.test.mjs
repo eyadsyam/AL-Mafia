@@ -95,7 +95,7 @@ test('M2-40 and M2-50: Doctor may cover Mafia, but consecutive target and invali
     assert.equal((await t.h.call('submit_night_action',asUser(doctor),{roomId:t.roomId,action:'kill',targetSeat:mafia.seat})).json.error,'WRONG_ROLE');
     assert.equal((await t.h.call('submit_night_action',asUser(doctor),protect(mafia.seat))).status,200);
     await phase(t,'night',2);
-    assert.equal((await t.h.call('submit_night_action',asUser(doctor),protect(mafia.seat))).json.error,'BAD_REQUEST');
+    assert.equal((await t.h.call('submit_night_action',asUser(doctor),protect(mafia.seat))).json.error,'SAME_PROTECT');
     assert.equal((await t.h.call('submit_night_action',asUser(doctor),protect(citizen.seat))).status,200);
     await phase(t,'night',3);
     await t.h.sql('update room_players set alive=false where room_id=$1 and user_id=$2',[t.roomId,mafia.user_id]);

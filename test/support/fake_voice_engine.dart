@@ -220,6 +220,7 @@ class FakeVoiceLink implements VoiceLink {
   List<VoicePeer> peers = const [];
 
   bool grantFloor;
+  FloorClaim? claimResponse;
 
   final _incoming = StreamController<VoiceSignal>.broadcast();
 
@@ -262,6 +263,9 @@ class FakeVoiceLink implements VoiceLink {
     claims++;
     return grantFloor;
   }
+
+  @override
+  FloorClaim? get lastFloorClaim => claimResponse;
 
   @override
   Future<void> releaseFloor() async {

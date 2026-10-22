@@ -200,6 +200,132 @@ abstract class AppLocalizations {
   /// **'Your choice was not saved. Try again.'**
   String get actionNotSaved;
 
+  /// No description provided for @actionTooLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Time ran out before your choice arrived'**
+  String get actionTooLate;
+
+  /// No description provided for @actionAlreadyChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Your choice was already recorded'**
+  String get actionAlreadyChosen;
+
+  /// No description provided for @actionSameProtect.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t protect the same person two nights in a row'**
+  String get actionSameProtect;
+
+  /// No description provided for @toolLimitMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached the limit: 4 tools per match'**
+  String get toolLimitMatch;
+
+  /// No description provided for @toolLimitHeavy.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached the limit: 2 heavy tools per match'**
+  String get toolLimitHeavy;
+
+  /// No description provided for @toolLimitTool.
+  ///
+  /// In en, this message translates to:
+  /// **'This tool has no uses left this match'**
+  String get toolLimitTool;
+
+  /// No description provided for @toolLimitPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'You already used this tool in this phase'**
+  String get toolLimitPhase;
+
+  /// No description provided for @toolNoCharges.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no uses of this tool left'**
+  String get toolNoCharges;
+
+  /// No description provided for @toolWrongPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'This tool can\'t be used right now'**
+  String get toolWrongPhase;
+
+  /// No description provided for @toolBadTargets.
+  ///
+  /// In en, this message translates to:
+  /// **'That choice isn\'t allowed, pick someone else'**
+  String get toolBadTargets;
+
+  /// No description provided for @toolDeadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This tool is only for players who are out'**
+  String get toolDeadOnly;
+
+  /// No description provided for @toolMatchOver.
+  ///
+  /// In en, this message translates to:
+  /// **'The match isn\'t running right now'**
+  String get toolMatchOver;
+
+  /// No description provided for @toolBadNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the message first, up to 140 characters'**
+  String get toolBadNote;
+
+  /// No description provided for @floorSilenced.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re silenced today'**
+  String get floorSilenced;
+
+  /// No description provided for @floorMuted.
+  ///
+  /// In en, this message translates to:
+  /// **'Mics are off in this phase'**
+  String get floorMuted;
+
+  /// No description provided for @floorNotYourTurn.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s someone else\'s turn'**
+  String get floorNotYourTurn;
+
+  /// No description provided for @floorTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else has the floor'**
+  String get floorTaken;
+
+  /// No description provided for @lobbyNotReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Some players aren\'t ready yet'**
+  String get lobbyNotReady;
+
+  /// No description provided for @lobbyChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The room changed, tap again'**
+  String get lobbyChanged;
+
+  /// No description provided for @featureOff.
+  ///
+  /// In en, this message translates to:
+  /// **'This is switched off right now'**
+  String get featureOff;
+
+  /// No description provided for @privacyReadFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the full policy'**
+  String get privacyReadFull;
+
   /// No description provided for @back.
   ///
   /// In en, this message translates to:

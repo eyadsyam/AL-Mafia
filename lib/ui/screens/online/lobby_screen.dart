@@ -15,6 +15,7 @@ import '../../../engine/models/player.dart' show PublicPlayer;
 import '../../../platform/reduce_motion.dart';
 import '../../../transport/game_snapshot.dart';
 import '../../l10n_ext.dart';
+import '../../friendly_error.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/connection_banner.dart';
 import '../../widgets/storage_warning_note.dart';
@@ -285,17 +286,12 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     if (snapshot == null) return;
     // The recommended distribution for this many players, with the sold
     // roles this table is big enough for (`lobbyDeal`).
-    final deal = lobbyDeal(
-      snapshot.public.players.length,
-      snapshot.settings,
-    );
+    final deal = lobbyDeal(snapshot.public.players.length, snapshot.settings);
     final started = await ref
         .read(onlineSessionProvider.notifier)
-        .start(
-          roleCounts: deal.counts,
-          settings: deal.settings,
-        );
+        .start(roleCounts: deal.counts, settings: deal.settings);
     if (started && mounted) widget.onStarted();
+    if (!started) _showSessionError();
   }
 
   Future<void> _setReady(bool ready) async {
@@ -304,6 +300,15 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     await ref
         .read(onlineSessionProvider.notifier)
         .setLobbyReady(ready: ready, revision: snapshot.lobbyRevision);
+    _showSessionError();
+  }
+
+  void _showSessionError() {
+    if (!mounted) return;
+    final code = ref.read(onlineSessionProvider).errorCode;
+    if (code == null) return;
+    ref.read(onlineSessionProvider.notifier).clearError();
+    _say(friendlyCode(context.l10n, code));
   }
 
   Future<void> _copyCode(String code) async {

@@ -149,6 +149,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   bool _submitted = false;
   bool _acknowledged = false;
   bool _actionFailed = false;
+  String? _actionFailureCode;
   int _attemptNumber = 0;
 
   GamePhase? _phaseAt;
@@ -919,6 +920,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       _submitted = true;
       _acknowledged = false;
       _actionFailed = false;
+      _actionFailureCode = null;
     });
     try {
       await action();
@@ -946,9 +948,10 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       setState(() {
         _submitted = false;
         _actionFailed = true;
+        _actionFailureCode = null;
         _attemptNumber++;
       });
-    } on BackendException {
+    } on BackendException catch (error) {
       if (!mounted ||
           _snapshot.phase != phase ||
           _snapshot.dayNumber != day ||
@@ -958,6 +961,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       setState(() {
         _submitted = false;
         _actionFailed = true;
+        _actionFailureCode = error.code;
         _attemptNumber++;
       });
     }
@@ -1459,7 +1463,10 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       GamePhase.night => {
         for (final seat in state.actorTurn?.targets ?? const <int>[])
           if (doctorMaySelectNightTarget(
-              state.actorTurn!.actorRole, seat, snapshot.viewerLastProtectSeat))
+            state.actorTurn!.actorRole,
+            seat,
+            snapshot.viewerLastProtectSeat,
+          ))
             seat,
         // `turnFor` builds the target list out of the *other* living seats,
         // which is right for every role and every night but one move. The
@@ -1469,8 +1476,11 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         if (state.actorTurn != null &&
             snapshot.viewerSeat != null &&
             _canSelfProtect(state.actorTurn!.actorRole) &&
-            doctorMaySelectNightTarget(state.actorTurn!.actorRole,
-                snapshot.viewerSeat!, snapshot.viewerLastProtectSeat))
+            doctorMaySelectNightTarget(
+              state.actorTurn!.actorRole,
+              snapshot.viewerSeat!,
+              snapshot.viewerLastProtectSeat,
+            ))
           snapshot.viewerSeat!,
       },
       GamePhase.openingRound || GamePhase.voting => {
@@ -1616,8 +1626,8 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         return CouncilVoice(
           headline: victims.isEmpty
               ? morning?.someoneSavedUnnamed == true
-                  ? l10n.someoneSavedBody
-                  : l10n.quietNight
+                    ? l10n.someoneSavedBody
+                    : l10n.quietNight
               : l10n.lostPlayerLastNight(
                   [for (final seat in victims) names[seat] ?? ''].join(' · '),
                 ),
@@ -1734,21 +1744,29 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         }
         final role = vote.eliminatedRole;
         final lastWord = snapshot.lastWord;
-        final wordLine = lastWord == null ||
+        final wordLine =
+            lastWord == null ||
                 names[lastWord.seat] == null ||
                 names[lastWord.target] == null
             ? null
-            : caption(l10n.onlineLastWordLine(
-                names[lastWord.seat]!, names[lastWord.target]!));
+            : caption(
+                l10n.onlineLastWordLine(
+                  names[lastWord.seat]!,
+                  names[lastWord.target]!,
+                ),
+              );
         return CouncilVoice(
           headline: names[seat] ?? '',
           style: type.display,
           support: role == null && wordLine == null
               ? null
-              : Column(mainAxisSize: MainAxisSize.min, children: [
-                  if (role != null) caption(EngineCopy.roleName(l10n, role)),
-                  if (wordLine != null) wordLine,
-                ]),
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (role != null) caption(EngineCopy.roleName(l10n, role)),
+                    if (wordLine != null) wordLine,
+                  ],
+                ),
         );
 
       case GamePhase.result:
@@ -1863,7 +1881,12 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         children: [
           if (_actionFailed)
             Text(
-              l10n.actionNotSaved,
+              switch (_actionFailureCode) {
+                'PHASE_CLOSED' => l10n.actionTooLate,
+                'RATE_LIMITED' => l10n.actionAlreadyChosen,
+                'SAME_PROTECT' => l10n.actionSameProtect,
+                _ => l10n.actionNotSaved,
+              },
               style: type.caption.copyWith(color: colors.textSecondary),
               textAlign: TextAlign.center,
             ),

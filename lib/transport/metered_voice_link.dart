@@ -459,6 +459,9 @@ class MeteredVoiceLink implements VoiceLink {
   Future<bool> claimFloor() => _fallback.claimFloor();
 
   @override
+  FloorClaim? get lastFloorClaim => _fallback.lastFloorClaim;
+
+  @override
   Future<void> releaseFloor() => _fallback.releaseFloor();
 
   @override

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/platform/audio_director.dart';
@@ -8,6 +9,8 @@ import 'package:mafia_master/transport/online_transport.dart';
 import 'package:mafia_master/ui/screens/match_controller.dart';
 import 'package:mafia_master/ui/screens/online/online_table_flow.dart';
 import 'package:mafia_master/ui/screens/online/table/table_scene.dart';
+import 'package:mafia_master/ui/theme/design_tokens.dart';
+import 'package:mafia_master/ui/widgets/hold_pad.dart';
 
 import '../support/fake_backend.dart';
 import '../support/localized.dart';
@@ -23,12 +26,13 @@ void main() {
     String phase = 'vote',
     bool select = true,
     int? votedRound,
+    String role = 'citizen',
   }) async {
     backend = FakeBackend(
       roomId: 'room-1',
       state: roomState(phase: phase),
       players: roster(5),
-      own: OwnSeat(seat: 0, role: 'citizen', votedRound: votedRound),
+      own: OwnSeat(seat: 0, role: role, votedRound: votedRound),
     );
     transport = await OnlineTransport.connect(
       backend: backend,
@@ -202,6 +206,28 @@ void main() {
     expect(find.text(arStrings.onlineVoteReceived), findsOneWidget);
   });
 
+  testWidgets('a ballot whose answer the gateway dropped is asked once more '
+      'with the same action id', (tester) async {
+    await pumpTable(tester);
+    var attempts = 0;
+    backend.responders['submit_vote'] = (body) {
+      attempts++;
+      if (attempts == 1) throw const BackendUnreachable('gateway 502');
+      return const {'ok': true};
+    };
+
+    await tester.tap(find.byKey(OnlineTableFlow.confirmAction));
+    await tester.pump();
+    await tester.pump();
+
+    final sent = backend.calls.where((call) => call.function == 'submit_vote');
+    expect(sent, hasLength(2));
+    expect(sent.first.body['actionId'], sent.last.body['actionId']);
+    expect(committed, 1);
+    expect(find.text(arStrings.actionNotSaved), findsNothing);
+    expect(find.text(arStrings.onlineVoteReceived), findsOneWidget);
+  });
+
   testWidgets('two taps while an acknowledgement is pending send once', (
     tester,
   ) async {
@@ -252,10 +278,36 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(find.text(arStrings.onlineVoteReceived), findsNothing);
-      expect(find.text(arStrings.actionNotSaved), findsOneWidget);
+      expect(find.text(arStrings.actionTooLate), findsOneWidget);
       expect(committed, 0);
     },
   );
+
+  for (final (code, expected) in [
+    ('PHASE_CLOSED', arStrings.actionTooLate),
+    ('RATE_LIMITED', arStrings.actionAlreadyChosen),
+    ('SAME_PROTECT', arStrings.actionSameProtect),
+    ('BAD_REQUEST', arStrings.actionNotSaved),
+  ]) {
+    testWidgets('night submit refusal $code shows its reason', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(430, 932));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await pumpTable(tester, phase: 'night', role: 'doctor');
+      backend.refusals['submit_night_action'] = BackendException(
+        code,
+        'refused',
+      );
+      final hold = await tester.startGesture(
+        tester.getCenter(find.byType(HoldPad)),
+      );
+      await tester.pump(MafiaTiming.defaults.holdToReveal);
+      await hold.up();
+      await tester.pump();
+      await tester.pump();
+      expect(backend.lastCall('submit_night_action'), isNotNull);
+      expect(find.text(expected), findsOneWidget);
+    });
+  }
 
   testWidgets('an older failed request cannot undo a successful revote', (
     tester,

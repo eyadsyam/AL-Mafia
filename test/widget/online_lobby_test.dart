@@ -217,6 +217,26 @@ void main() {
       });
     });
 
+    testWidgets('a refused Ready tap shows its reason once', (tester) async {
+      final container = containerWith(
+        players: roster(6),
+        lobbyReadyEnabled: true,
+      );
+      await pumpLobby(tester, container);
+      await tester.pump();
+      backend.refusals['lobby_ready'] = const BackendException(
+        'NOT_READY',
+        'refused',
+      );
+      await tester.tap(find.byKey(LobbyScreen.readyButton));
+      await tester.pump();
+      await tester.pump();
+      expect(find.text(arStrings.lobbyNotReady), findsOneWidget);
+      expect(container.read(onlineSessionProvider).errorCode, isNull);
+      await tester.pump();
+      expect(find.text(arStrings.lobbyNotReady), findsOneWidget);
+    });
+
     testWidgets(
       'ready roster enables host start only when every seat confirms',
       (tester) async {

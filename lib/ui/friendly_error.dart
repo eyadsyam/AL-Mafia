@@ -32,6 +32,9 @@ String friendlyCode(
   'ALREADY_JOINED' || 'ALREADY_SEATED' => l.onlineAlreadySeated,
   'NEW_ROOMS_PAUSED' => l.onlineNewRoomsPaused,
   'NOT_HOST' => l.errNotHost,
+  'NOT_READY' => l.lobbyNotReady,
+  'STALE_REVISION' => l.lobbyChanged,
+  'SAME_PROTECT' => l.actionSameProtect,
   'IN_MATCH' => l.errInRoom,
   'NAME_NOT_ALLOWED' => l.onlineNameNotAllowed,
   'ACCOUNT_RESTRICTED' => l.onlineAccountRestricted,
@@ -45,11 +48,11 @@ String friendlyCode(
   // Switched off, or not configured on the server yet.
   'NOT_CONFIGURED' ||
   'SALES_DISABLED' ||
-  'FEATURE_OFF' ||
   'PACK_UNAVAILABLE' ||
   'METHOD_UNAVAILABLE' ||
   'DAILY_PAUSED' ||
   'PRODUCT_UNKNOWN' => l.errUnavailable,
+  'FEATURE_OFF' => l.featureOff,
 
   // Not this player's to do right now.
   'WRONG_ROLE' ||

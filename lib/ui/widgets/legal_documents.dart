@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/public_web_origin.dart';
 import '../../data/terms_consent.dart';
+import '../../platform/links/external_link.dart';
 import '../l10n_ext.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
@@ -24,6 +27,7 @@ Future<void> showPrivacyDocument(BuildContext context) => _showDocument(
   key: LegalDocuments.privacySheetKey,
   title: context.l10n.privacyLinkLabel,
   body: context.l10n.privacySummaryBody,
+  fullPolicy: true,
 );
 
 Future<void> _showDocument(
@@ -32,6 +36,7 @@ Future<void> _showDocument(
   required String title,
   String? subtitle,
   required String body,
+  bool fullPolicy = false,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
@@ -58,6 +63,16 @@ Future<void> _showDocument(
               ),
             ),
             SizedBox(height: s.md),
+            if (fullPolicy) ...[
+              OutlinedButton(
+                key: LegalDocuments.privacyFullKey,
+                onPressed: () => ProviderScope.containerOf(
+                  context,
+                ).read(externalLinkOpenerProvider)(kPrivacyPolicyUrl),
+                child: Text(context.l10n.privacyReadFull),
+              ),
+              SizedBox(height: s.md),
+            ],
             FilledButton(
               key: LegalDocuments.closeKey,
               onPressed: () => Navigator.of(context).pop(),
@@ -76,6 +91,7 @@ class LegalDocuments extends StatelessWidget {
 
   static const termsSheetKey = ValueKey('legal_terms_sheet');
   static const privacySheetKey = ValueKey('legal_privacy_sheet');
+  static const privacyFullKey = ValueKey('legal_privacy_full');
   static const closeKey = ValueKey('legal_close');
   static const termsButtonKey = ValueKey('legal_open_terms');
   static const privacyButtonKey = ValueKey('legal_open_privacy');

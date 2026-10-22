@@ -4,3 +4,5 @@ const String kPublicWebOrigin = String.fromEnvironment(
   'PUBLIC_WEB_ORIGIN',
   defaultValue: 'https://saidalmafia.com',
 );
+
+const String kPrivacyPolicyUrl = '$kPublicWebOrigin/privacy/';

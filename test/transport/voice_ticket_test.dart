@@ -5,8 +5,10 @@ import 'package:metered_realtime/metered_realtime.dart';
 import 'package:mafia_master/transport/metered_voice_link.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/transport/voice_link.dart';
+import 'package:mafia_master/ui/widgets/voice_controls.dart';
 
 import '../support/fake_backend.dart';
+import '../support/localized.dart';
 
 /// The voice link: which endpoint it asks, what it degrades to, and what it
 /// refuses to let Metered decide.
@@ -141,7 +143,10 @@ void main() {
 
     test('a refusal is null, never an exception', () async {
       final backend = backendWith(const {})
-        ..refusals['ice_servers'] = const BackendException('BAD_REQUEST', 'nope')
+        ..refusals['ice_servers'] = const BackendException(
+          'BAD_REQUEST',
+          'nope',
+        )
         ..stickyRefusals.add('ice_servers');
 
       // Null is the caller's signal to fall back to public STUN. A throw would
@@ -244,6 +249,32 @@ void main() {
       expect(backend.called('release_floor'), isTrue);
       await link.dispose();
     });
+
+    test(
+      'denied floor claims retain and translate the server reason',
+      () async {
+        final cases = <(Map<String, dynamic>, String?)>[
+          (
+            {'granted': false, 'policy': 'muted', 'reason': 'silenced'},
+            arStrings.floorSilenced,
+          ),
+          ({'granted': false, 'policy': 'muted'}, arStrings.floorMuted),
+          (
+            {'granted': false, 'policy': 'turn', 'owner': 2},
+            arStrings.floorNotYourTurn,
+          ),
+          ({'granted': false, 'policy': 'turn'}, arStrings.floorTaken),
+          ({'granted': false, 'policy': 'open'}, null),
+        ];
+        for (final (response, expected) in cases) {
+          final backend = backendWith({'claim_floor': response});
+          final link = linkTo(backend);
+          expect(await link.claimFloor(), isFalse);
+          expect(floorClaimMessage(arStrings, link.lastFloorClaim), expected);
+          await link.dispose();
+        }
+      },
+    );
 
     test('with no Metered session, nothing is admitted on that path', () async {
       // The grant carried no token, so there is no socket and no session id to

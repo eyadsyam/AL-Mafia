@@ -37,6 +37,20 @@ class VoicePeer {
   const VoicePeer({required this.userId, required this.seat});
 }
 
+/// The server's public reason for a floor request that was not granted.
+class FloorClaim {
+  final bool granted;
+  final String? policy;
+  final String? reason;
+  final int? owner;
+  const FloorClaim({
+    required this.granted,
+    this.policy,
+    this.reason,
+    this.owner,
+  });
+}
+
 abstract class VoiceLink {
   /// This device's user id, which is also its address in [send].
   String get selfId;
@@ -74,6 +88,8 @@ abstract class VoiceLink {
   /// wrong phase, wrong seat, or somebody else already holds it.
   Future<bool> claimFloor();
 
+  FloorClaim? get lastFloorClaim => null;
+
   /// Gives it back. Idempotent, and safe to call when this device does not
   /// hold the floor.
   Future<void> releaseFloor();
@@ -89,6 +105,10 @@ abstract class VoiceLink {
 class BackendVoiceLink implements VoiceLink {
   final OnlineBackend backend;
   final String roomId;
+  FloorClaim? _lastFloorClaim;
+
+  @override
+  FloorClaim? get lastFloorClaim => _lastFloorClaim;
 
   /// The roster, asked for rather than held: the transport's copy changes as
   /// players join, leave and rejoin, and a list captured once would be a call
@@ -134,9 +154,16 @@ class BackendVoiceLink implements VoiceLink {
 
   @override
   Future<bool> claimFloor() async {
+    _lastFloorClaim = null;
     try {
       final result = await backend.call('claim_floor', {'roomId': roomId});
-      return result['granted'] == true;
+      _lastFloorClaim = FloorClaim(
+        granted: result['granted'] == true,
+        policy: result['policy'] as String?,
+        reason: result['reason'] as String?,
+        owner: (result['owner'] as num?)?.toInt(),
+      );
+      return _lastFloorClaim!.granted;
     } on BackendException {
       // A refusal is the expected answer for most of the game: the night, the
       // ballot, and every moment somebody else is speaking. It is not worth a

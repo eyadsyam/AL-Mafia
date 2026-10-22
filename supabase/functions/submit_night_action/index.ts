@@ -181,7 +181,7 @@ Deno.serve(handler(async (req, userId, db) => {
     if (lastNightError) throw lastNightError;
     const before = previousProtectTarget(lastNight ?? [], userId, me.phaseNumber);
     if (protectsSameTwice(before, targetId, selfProtect)) {
-      return fail("BAD_REQUEST", "not the same player two nights running");
+      return fail("SAME_PROTECT", "not the same player two nights running");
     }
   }
 

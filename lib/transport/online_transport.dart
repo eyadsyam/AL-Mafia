@@ -864,6 +864,10 @@ class OnlineTransport implements GameTransport {
   // Commands
   // ---------------------------------------------------------------------------
 
+  /// The functions that store `actionId` and answer a repeat with the first
+  /// result (`submit_night_action`, `submit_vote`).
+  static const _replayable = {'submit_night_action', 'submit_vote'};
+
   /// One request, with everything the client is allowed to get wrong handled.
   ///
   /// Separates a superseded command from a request that received no
@@ -876,20 +880,34 @@ class OnlineTransport implements GameTransport {
     bool assured = false,
   }) async {
     if (hostOnly && !isHost) return (payload: null, superseded: false);
+    final request = {
+      'roomId': roomId,
+      // O19 — a retried request on a flaky network must be a no-op, not a
+      // second vote. The key is per call, not per phase, so a genuine change
+      // of mind is a different action and still lands.
+      'actionId': _actionId(),
+      ...body,
+    };
     try {
-      final result = await backend.call(function, {
-        'roomId': roomId,
-        // O19 — a retried request on a flaky network must be a no-op, not a
-        // second vote. The key is per call, not per phase, so a genuine change
-        // of mind is a different action and still lands.
-        'actionId': _actionId(),
-        ...body,
-      });
+      Map<String, dynamic> result;
+      try {
+        result = await backend.call(function, request);
+      } on BackendUnreachable catch (e) {
+        // A gateway that dropped the answer (502/503/504) or the request: the
+        // two moves the server deduplicates by `actionId` are asked once more
+        // with the same key, so the repeat is a no-op if the first landed.
+        // Nothing else is replayed, and a paused project is not asked twice.
+        if (!_replayable.contains(function) || e.projectPaused) rethrow;
+        result = await backend.call(function, request);
+      }
       _restore();
       return (payload: result, superseded: false);
     } on BackendException catch (e) {
       if (e.isPhaseClosed) {
         await resync();
+        // A night choice or a ballot that arrived late is told so («الوقت
+        // خلص قبل ما اختيارك يوصل»); every other move is simply overtaken.
+        if (assured && _replayable.contains(function)) rethrow;
         return (payload: null, superseded: true);
       }
       if (e.isNotHost) return (payload: null, superseded: false);

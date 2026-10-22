@@ -4,9 +4,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../platform/clipboard.dart';
 import '../../platform/voice/voice_controller.dart';
+import '../../app/l10n/app_localizations.dart';
+import '../../transport/voice_link.dart' show FloorClaim;
 import '../l10n_ext.dart';
 import '../screens/online/voice_session.dart';
 import '../theme/mafia_theme.dart';
+
+/// Why a floor request was not granted, as one short line; null when there is
+/// nothing to say (every mic is already live, or the server never answered:
+/// voice is never load-bearing, and a dropped call is not "someone else").
+String? floorClaimMessage(AppLocalizations l, FloorClaim? claim) =>
+    switch (claim) {
+      null => null,
+      FloorClaim(granted: true) => null,
+      FloorClaim(policy: 'open') => null,
+      FloorClaim(reason: 'silenced') => l.floorSilenced,
+      FloorClaim(policy: 'muted') => l.floorMuted,
+      FloorClaim(owner: final int _) => l.floorNotYourTurn,
+      _ => l.floorTaken,
+    };
 
 /// The voice controls — the other of the two widgets doc 10 §7 permits to know
 /// something about the transport, and like the banner it reads a value rather
@@ -135,7 +151,16 @@ class VoiceControls extends ConsumerWidget {
               key: floorButton,
               onPressed: state.holdsFloor
                   ? controller.yieldFloor
-                  : controller.requestFloor,
+                  : () async {
+                      final granted = await controller.requestFloor();
+                      if (granted || !context.mounted) return;
+                      final claim = controller.lastFloorClaim;
+                      final message = floorClaimMessage(l10n, claim);
+                      if (message == null) return;
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(message)));
+                    },
               child: Text(
                 state.holdsFloor ? l10n.voiceYieldFloor : l10n.voiceTakeFloor,
               ),

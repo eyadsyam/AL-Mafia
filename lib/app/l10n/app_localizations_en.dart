@@ -66,6 +66,71 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionNotSaved => 'Your choice was not saved. Try again.';
 
   @override
+  String get actionTooLate => 'Time ran out before your choice arrived';
+
+  @override
+  String get actionAlreadyChosen => 'Your choice was already recorded';
+
+  @override
+  String get actionSameProtect =>
+      'You can\'t protect the same person two nights in a row';
+
+  @override
+  String get toolLimitMatch => 'You\'ve reached the limit: 4 tools per match';
+
+  @override
+  String get toolLimitHeavy =>
+      'You\'ve reached the limit: 2 heavy tools per match';
+
+  @override
+  String get toolLimitTool => 'This tool has no uses left this match';
+
+  @override
+  String get toolLimitPhase => 'You already used this tool in this phase';
+
+  @override
+  String get toolNoCharges => 'You have no uses of this tool left';
+
+  @override
+  String get toolWrongPhase => 'This tool can\'t be used right now';
+
+  @override
+  String get toolBadTargets => 'That choice isn\'t allowed, pick someone else';
+
+  @override
+  String get toolDeadOnly => 'This tool is only for players who are out';
+
+  @override
+  String get toolMatchOver => 'The match isn\'t running right now';
+
+  @override
+  String get toolBadNote => 'Write the message first, up to 140 characters';
+
+  @override
+  String get floorSilenced => 'You\'re silenced today';
+
+  @override
+  String get floorMuted => 'Mics are off in this phase';
+
+  @override
+  String get floorNotYourTurn => 'It\'s someone else\'s turn';
+
+  @override
+  String get floorTaken => 'Someone else has the floor';
+
+  @override
+  String get lobbyNotReady => 'Some players aren\'t ready yet';
+
+  @override
+  String get lobbyChanged => 'The room changed, tap again';
+
+  @override
+  String get featureOff => 'This is switched off right now';
+
+  @override
+  String get privacyReadFull => 'Read the full policy';
+
+  @override
   String get back => 'Back';
 
   @override

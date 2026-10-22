@@ -65,6 +65,69 @@ class AppLocalizationsAr extends AppLocalizations {
   String get actionNotSaved => 'اختيارك متسجلش جرب تاني';
 
   @override
+  String get actionTooLate => 'الوقت خلص قبل ما اختيارك يوصل';
+
+  @override
+  String get actionAlreadyChosen => 'اختيارك اتسجّل خلاص قبل كده';
+
+  @override
+  String get actionSameProtect => 'مينفعش تحمي نفس الشخص ليلتين ورا بعض';
+
+  @override
+  String get toolLimitMatch => 'وصلت للحد: ٤ أدوات في الماتش الواحد';
+
+  @override
+  String get toolLimitHeavy => 'وصلت للحد: أداتين تقيلة في الماتش الواحد';
+
+  @override
+  String get toolLimitTool => 'الأداة دي خلصت مرّاتها في الماتش ده';
+
+  @override
+  String get toolLimitPhase => 'استخدمت الأداة دي خلاص في المرحلة دي';
+
+  @override
+  String get toolNoCharges => 'مفيش مرّات باقية معاك من الأداة دي';
+
+  @override
+  String get toolWrongPhase => 'الأداة دي مش وقتها دلوقتي';
+
+  @override
+  String get toolBadTargets => 'الاختيار ده مينفعش، اختار حد تاني';
+
+  @override
+  String get toolDeadOnly => 'الأداة دي للي خرجوا من اللعب بس';
+
+  @override
+  String get toolMatchOver => 'الماتش مش شغال دلوقتي';
+
+  @override
+  String get toolBadNote => 'اكتب الرسالة الأول، لحد ١٤٠ حرف';
+
+  @override
+  String get floorSilenced => 'ممنوع عليك الكلام النهارده';
+
+  @override
+  String get floorMuted => 'المايك مقفول في المرحلة دي';
+
+  @override
+  String get floorNotYourTurn => 'الدور على حد تاني دلوقتي';
+
+  @override
+  String get floorTaken => 'حد تاني ماسك الكلمة دلوقتي';
+
+  @override
+  String get lobbyNotReady => 'لسه في ناس مش جاهزين';
+
+  @override
+  String get lobbyChanged => 'الأوضة اتغيّرت، دوس تاني';
+
+  @override
+  String get featureOff => 'الحاجة دي مقفولة دلوقتي';
+
+  @override
+  String get privacyReadFull => 'اقرأ السياسة كاملة';
+
+  @override
   String get back => 'رجوع';
 
   @override
