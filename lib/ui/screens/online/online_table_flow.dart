@@ -1529,10 +1529,12 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     if (_submitted || _acknowledged) return;
     switch (snapshot.phase) {
       case GamePhase.night:
+        // The night is confirmed by a held pad on screen, never by a stray
+        // tap; the key stands in for it only once a seat has been chosen.
         final turn = state.actorTurn;
         if (turn != null &&
             !_citizenRests(snapshot, state) &&
-            !(turn.actorRole == Role.doctor && _selected == null)) {
+            _selected != null) {
           unawaited(_confirmNight());
         }
       case GamePhase.openingRound:

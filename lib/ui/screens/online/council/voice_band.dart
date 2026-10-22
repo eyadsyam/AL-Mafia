@@ -69,7 +69,13 @@ class CouncilVoice extends StatelessWidget {
                 ),
               ),
             ),
-            if (support != null) ...[SizedBox(height: spacing.md), support!],
+            // Flexible too: on a short window (a phone on its side, a small
+            // desktop window) the line under the headline gives way instead
+            // of pushing the column past its band.
+            if (support != null) ...[
+              SizedBox(height: spacing.md),
+              Flexible(child: support!),
+            ],
           ],
         ),
       ),

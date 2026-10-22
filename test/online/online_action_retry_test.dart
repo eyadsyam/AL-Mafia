@@ -120,6 +120,29 @@ void main() {
     expect(backend.calls.where((c) => c.function == 'submit_vote'), isEmpty);
   });
 
+  testWidgets('Enter never confirms a night with no seat chosen', (
+    tester,
+  ) async {
+    await pumpTable(tester, phase: 'night', role: 'mafia', select: false);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    await tester.pump();
+    expect(
+      backend.calls.where((c) => c.function == 'submit_night_action'),
+      isEmpty,
+    );
+
+    await tester.tap(find.byKey(TableScene.seatKey(1)));
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    await tester.pump();
+    expect(
+      backend.calls.where((c) => c.function == 'submit_night_action'),
+      hasLength(1),
+    );
+  });
+
   testWidgets('table shortcuts ignore focused text field', (tester) async {
     final link = FakeVoiceLink();
     final voice = VoiceController(
