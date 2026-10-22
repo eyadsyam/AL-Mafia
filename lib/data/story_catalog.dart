@@ -45,7 +45,9 @@ class StoryCatalog {
     final bundle = _bundle;
     if (bundle != null) return _read(bundle);
     return _app ??= _read(rootBundle).then((stories) {
-      if (stories.isEmpty) _app = null; // nothing read: try again next time
+      // Kept only when every case was read; a case that failed this time is
+      // tried again on the next visit instead of being missing for good.
+      if (stories.length < assetPaths.length) _app = null;
       return stories;
     });
   }

@@ -65,26 +65,31 @@ void main() {
     },
   );
 
-  test('reading the grant never resets a wallet that already answered', () async {
-    SharedPreferences.setMockInitialValues({});
-    final container = ProviderContainer(
-      overrides: [
-        walletProvider.overrideWith(
-          () => _Wallet(WalletState.fromJson({'allAccess': true, 'balance': 7})),
-        ),
-        allAccessAccountProvider.overrideWith(
-          (ref) => Stream.value('account-a'),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
-    await container.read(walletProvider.future);
-    expect(container.read(allAccessProvider), isTrue);
-    await container.read(allAccessAccountProvider.future);
-    await pumpEventQueue();
-    expect(container.read(walletProvider).valueOrNull?.balance, 7);
-    expect(container.read(allAccessProvider), isTrue);
-  });
+  test(
+    'reading the grant never resets a wallet that already answered',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer(
+        overrides: [
+          walletProvider.overrideWith(
+            () => _Wallet(
+              WalletState.fromJson({'allAccess': true, 'balance': 7}),
+            ),
+          ),
+          allAccessAccountProvider.overrideWith(
+            (ref) => Stream.value('account-a'),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(walletProvider.future);
+      expect(container.read(allAccessProvider), isTrue);
+      await container.read(allAccessAccountProvider.future);
+      await pumpEventQueue();
+      expect(container.read(walletProvider).valueOrNull?.balance, 7);
+      expect(container.read(allAccessProvider), isTrue);
+    },
+  );
 
   test('a switch to another account forgets the grant', () async {
     SharedPreferences.setMockInitialValues({});
@@ -110,6 +115,35 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString(AllAccessController.storageKey), isNull);
   });
+
+  test(
+    'after a sign-out, the next account never inherits the old wallet',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final accounts = StreamController<String?>();
+      addTearDown(accounts.close);
+      final container = ProviderContainer(
+        overrides: [
+          walletProvider.overrideWith(
+            () => _Wallet(WalletState.fromJson({'allAccess': true})),
+          ),
+          allAccessAccountProvider.overrideWith((ref) => accounts.stream),
+        ],
+      );
+      addTearDown(container.dispose);
+      container.read(allAccessProvider);
+      await container.read(walletProvider.future);
+      accounts.add('account-a');
+      await pumpEventQueue();
+      accounts.add(null);
+      await pumpEventQueue();
+      accounts.add('account-b');
+      await pumpEventQueue();
+      expect(container.read(allAccessProvider), isFalse);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(AllAccessController.storageKey), isNull);
+    },
+  );
 
   test('a false wallet answer replaces a cached true grant', () async {
     SharedPreferences.setMockInitialValues({

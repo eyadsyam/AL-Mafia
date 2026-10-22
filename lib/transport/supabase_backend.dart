@@ -1,6 +1,7 @@
 import 'account_auth.dart';
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../engine/models/enums.dart' show Alignment;
@@ -61,9 +62,15 @@ class SupabaseBackend implements OnlineBackend {
     required String url,
     required String publishableKey,
   }) async {
+    // Read before Supabase reads (and tidies) the address: a sign-in coming
+    // back from a browser carries its code or token in it.
+    final authReturn = kIsWeb && AccountAuth.looksLikeAuthReturn(Uri.base);
     await Supabase.initialize(url: url, publishableKey: publishableKey);
     // «تذكرني» off: an account (never a guest) is signed out at launch.
-    await AccountAuth.applyRemember(Supabase.instance.client.auth);
+    await AccountAuth.applyRemember(
+      Supabase.instance.client.auth,
+      authReturn: authReturn,
+    );
     return SupabaseBackend(Supabase.instance.client);
   }
 
@@ -825,6 +832,9 @@ class _Identity {
 }
 
 bool ownBulletSpent(
-  String? role, List<Map<String, dynamic>> actionRows, bool teamBulletSpent,
-) => actionRows.any((row) => row['used_bullet'] == true) ||
+  String? role,
+  List<Map<String, dynamic>> actionRows,
+  bool teamBulletSpent,
+) =>
+    actionRows.any((row) => row['used_bullet'] == true) ||
     (role == 'mafia' && teamBulletSpent);

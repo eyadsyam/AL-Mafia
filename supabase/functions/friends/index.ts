@@ -77,6 +77,7 @@ Deno.serve(handler(async (req, userId, db) => {
       console.log("push skipped: error");
     }
   }
-  // The inbox is a list; every answer is an object.
+  // The inbox is a list and the name rule a boolean; every answer is an object.
+  if (call.fn === "safety_name_allowed") return ok({ allowed: data === true });
   return ok(call.fn === "invites_inbox" ? { invites: data } : data);
 }));

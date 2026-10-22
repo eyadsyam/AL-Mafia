@@ -427,6 +427,18 @@ class AccountAuth {
     }
   }
 
+  /// Whether [address] is a sign-in coming back: the PKCE code, a token in the
+  /// fragment, a one-time token hash, or the error the provider sent back.
+  static bool looksLikeAuthReturn(Uri address) {
+    final query = address.queryParameters;
+    final fragment = address.fragment;
+    return query.containsKey('code') ||
+        query.containsKey('token_hash') ||
+        query.containsKey('error') ||
+        fragment.contains('access_token=') ||
+        fragment.contains('error=');
+  }
+
   /// Whether this launch is the return of a recent [markPendingReturn]. The
   /// mark is used once.
   static Future<bool> _returning() async {
@@ -450,12 +462,20 @@ class AccountAuth {
   /// Once per *process*: the backend factory runs this on every call, so an
   /// account that unticked «تذكرني» used to be signed out by the next server
   /// call after signing in — a Google return undone a second later.
-  static Future<void> applyRemember(GoTrueClient auth) async {
+  ///
+  /// [authReturn]: this launch's address carries a sign-in coming back from a
+  /// browser ([looksLikeAuthReturn], read before Supabase tidies it). The
+  /// pending-return mark counts only then, so a reset email requested and
+  /// never opened does not keep a remember-off account signed in.
+  static Future<void> applyRemember(
+    GoTrueClient auth, {
+    bool authReturn = false,
+  }) async {
     if (_rememberApplied) return;
     _rememberApplied = true;
     final user = auth.currentUser;
     if (user == null || user.isAnonymous) return;
-    if (await _returning()) return;
+    if (authReturn && await _returning()) return;
     if (await remember()) return;
     try {
       await auth.signOut();

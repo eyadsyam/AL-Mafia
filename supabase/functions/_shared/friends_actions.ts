@@ -67,6 +67,14 @@ export function friendsCall(body: Record<string, unknown>, userId: string): Frie
         },
       };
     }
+    // The name rule alone, read-only: asked before a profile name is saved.
+    // (`hello` both checks and publishes, and for an existing entry it keeps
+    // the old name silently, so it cannot answer this question.)
+    case "nameCheck": {
+      const name = typeof body.name === "string" ? body.name.trim() : "";
+      if (name.length < 1 || name.length > 40) return null;
+      return { fn: "safety_name_allowed", args: { p_text: name, p_kind: "name" } };
+    }
     case "me":
       return { fn: "directory_me", args: { p_user: userId } };
     case "setHandle": {

@@ -12,6 +12,12 @@ const other = '00000000-0000-4000-8000-000000000002';
 const room = '00000000-0000-4000-8000-0000000000CD';
 const invite = '00000000-0000-4000-8000-0000000000EF';
 
+// ── The name rule alone: read-only, nobody's id in it ──────────────────────
+assert.deepEqual(friendsCall({ action: 'nameCheck', name: '  نور  ', p_user: other }, me),
+  { fn: 'safety_name_allowed', args: { p_text: 'نور', p_kind: 'name' } });
+assert.equal(friendsCall({ action: 'nameCheck', name: '   ' }, me), null);
+assert.equal(friendsCall({ action: 'nameCheck', name: 'x'.repeat(41) }, me), null);
+
 // ── Routing: the caller is always the session ──────────────────────────────
 assert.deepEqual(friendsCall({ action: 'search', query: 'نور', p_user: other }, me),
   { fn: 'directory_search', args: { p_user: me, p_query: 'نور', p_page: 0 } });

@@ -29,10 +29,13 @@ User _account() => const User(
 void main() {
   setUp(AccountAuth.resetRememberForTest);
 
-  Future<_Auth> launch(Map<String, Object> prefs) async {
+  Future<_Auth> launch(
+    Map<String, Object> prefs, {
+    bool authReturn = true,
+  }) async {
     SharedPreferences.setMockInitialValues(prefs);
     final auth = _Auth(_account());
-    await AccountAuth.applyRemember(auth);
+    await AccountAuth.applyRemember(auth, authReturn: authReturn);
     return auth;
   }
 
@@ -49,6 +52,31 @@ void main() {
     expect(auth.signOuts, 0);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getInt(AccountAuth.pendingReturnKey), isNull);
+  });
+
+  test('a mark without a sign-in in the address does not keep it', () async {
+    final auth = await launch({
+      AccountAuth.rememberKey: false,
+      AccountAuth.pendingReturnKey: DateTime.now().millisecondsSinceEpoch,
+    }, authReturn: false);
+    expect(auth.signOuts, 1);
+  });
+
+  test('a sign-in coming back is recognised in the address', () {
+    expect(
+      AccountAuth.looksLikeAuthReturn(Uri.parse('https://x.com/?code=abc')),
+      isTrue,
+    );
+    expect(
+      AccountAuth.looksLikeAuthReturn(
+        Uri.parse('https://x.com/#access_token=t&type=recovery'),
+      ),
+      isTrue,
+    );
+    expect(
+      AccountAuth.looksLikeAuthReturn(Uri.parse('https://x.com/join/ABC123')),
+      isFalse,
+    );
   });
 
   test('an old mark does not keep it', () async {

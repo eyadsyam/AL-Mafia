@@ -44,6 +44,7 @@ final allAccessCacheProvider = NotifierProvider<AllAccessController, bool>(
 class AllAccessController extends Notifier<bool> {
   static const storageKey = 'all_access_v1';
   String? _account;
+  bool _signedOut = false;
 
   @override
   bool build() {
@@ -74,10 +75,15 @@ class AllAccessController extends Notifier<bool> {
     if (switched) {
       // The old grant leaves with the old account; the new account's wallet
       // answer sets it again.
+      _signedOut = true;
       state = false;
       unawaited(_clear());
       return;
     }
+    // A new account after a sign-out in this run: the wallet on hand may
+    // still be the old account's, so nothing is saved or restored until the
+    // new account's own wallet answers (the listener above).
+    if (_signedOut) return;
     if (ref.read(walletProvider).valueOrNull != null) {
       unawaited(_save());
     } else {
