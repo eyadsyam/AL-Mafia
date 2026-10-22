@@ -1,0 +1,17 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game «سيد المافيا: Mafia Master». READ-ONLY REVIEW: change no file, run no build, make no network call. Read CLAUDE.md first. Doc 05 (docs/specs/05-zero-leakage-spec.md) wins: anything that lets a player infer another player's role or night action is a blocker.
+
+Adversarially review these commits (git show <sha>), one finding per real defect, ranked by player impact. No style, naming or formatting findings; do not re-propose what a comment explains as deliberate unless you show a concrete failure.
+
+  f0612f4  in-app browser detection (lib/platform/links/in_app_browser*.dart) + EmbeddedBrowserSheet + guard on every Google button; account sheet reading width
+  1b28e7c  web/index.html first-paint loader removed on flutter-first-frame; PlayAppRibbon (Android web only, closed for good); AddToHome sheet (iPhone browser tab, once, after the first finished match)
+  b28f76a  nameCheck action (supabase/functions/_shared/friends_actions.ts, friends/index.ts) and its client; all-access sign-out guard; authReturn evidence for the pending-return mark; story memo completeness
+  219e075  desktop layouts, mouse and keys (Codex wrote it; review it as a stranger's work)
+
+CHECK AT LEAST
+  - Web: the first-paint cover can never stay over the app (event never fired, service-worker cached shell, hot restart); the intent:// link cannot loop or open a non-https page; the ribbon cannot show inside the installed app's web view or on desktop; AddToHome cannot show in a standalone (home-screen) launch.
+  - Keys at the table: Enter/Space/M never act while a text field, a sheet or a dialog has focus; Enter never confirms a disabled or hidden action; nothing differs by role.
+  - The desktop three-column table: every control reachable at 1024-1100 px and at 1440; nothing duplicated (two timers, two primary buttons); the narrow layout untouched.
+  - nameCheck: cannot be used to probe anything but the name rule; old clients and the new server stay compatible.
+  - Lifecycle: futures after dispose, listeners never removed, static state that survives a sign-out.
+
+REPORT (final message): a table: commit, file:line, the defect in one sentence, a concrete failing scenario, severity (blocker / should fix / minor). "no finding" for each commit with none. No file changes.
