@@ -12792,6 +12792,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Link copied'**
   String get inAppBrowserCopied;
+
+  /// No description provided for @playRibbonText.
+  ///
+  /// In en, this message translates to:
+  /// **'Play it in the app: faster, with notifications'**
+  String get playRibbonText;
+
+  /// No description provided for @playRibbonOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play'**
+  String get playRibbonOpen;
+
+  /// No description provided for @playRibbonClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get playRibbonClose;
+
+  /// No description provided for @addToHomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the game on your screen'**
+  String get addToHomeTitle;
+
+  /// No description provided for @addToHomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It opens like an app, without the browser bar, and without hunting for the link.'**
+  String get addToHomeBody;
+
+  /// No description provided for @addToHomeStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the Share button below'**
+  String get addToHomeStep1;
+
+  /// No description provided for @addToHomeStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose \"Add to Home Screen\"'**
+  String get addToHomeStep2;
+
+  /// No description provided for @addToHomeStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Open it from the Mafia Master icon'**
+  String get addToHomeStep3;
+
+  /// No description provided for @addToHomeDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get addToHomeDone;
 }
 
 class _AppLocalizationsDelegate

@@ -41,7 +41,8 @@ abstract interface class ReviewStateStore {
 }
 
 class SharedPreferencesReviewStateStore implements ReviewStateStore {
-  static const _cleanKey = 'review_clean_matches_v1';
+  /// Finished matches on this device (read by the web add-to-home sheet too).
+  static const cleanMatchesKey = 'review_clean_matches_v1';
   static const _casesKey = 'review_solved_cases_v1';
   static const _lastKey = 'review_last_asked_ms_v1';
   static const _calmKey = 'review_calm_home_seen_v1';
@@ -51,7 +52,7 @@ class SharedPreferencesReviewStateStore implements ReviewStateStore {
     final prefs = await SharedPreferences.getInstance();
     final last = prefs.getInt(_lastKey);
     return ReviewPromptState(
-      cleanMatches: prefs.getInt(_cleanKey) ?? 0,
+      cleanMatches: prefs.getInt(cleanMatchesKey) ?? 0,
       solvedCases: prefs.getInt(_casesKey) ?? 0,
       lastAsked: last == null
           ? null
@@ -64,7 +65,7 @@ class SharedPreferencesReviewStateStore implements ReviewStateStore {
   Future<void> save(ReviewPromptState state) async {
     final prefs = await SharedPreferences.getInstance();
     await Future.wait([
-      prefs.setInt(_cleanKey, state.cleanMatches),
+      prefs.setInt(cleanMatchesKey, state.cleanMatches),
       prefs.setInt(_casesKey, state.solvedCases),
       prefs.setBool(_calmKey, state.calmHomeSeen),
       if (state.lastAsked != null)

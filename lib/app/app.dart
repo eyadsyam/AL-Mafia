@@ -48,6 +48,7 @@ import '../ui/screens/online/online_session.dart'
 import 'locale_controller.dart';
 import '../data/story_catalog.dart' show StoryCatalog;
 import '../ui/screens/online/council/council_band.dart' show CouncilBand;
+import '../ui/widgets/add_to_home_sheet.dart' show AddToHome;
 import '../ui/widgets/warmup_gate.dart';
 import '../ui/social/incoming_invite.dart';
 import '../ui/social/friends.dart' show showFriendsSheet;
@@ -395,6 +396,11 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   /// already loaded: `exists` first, so this never starts a request of its
   /// own and never delays a frame.
   void _calmHome() {
+    // iPhone browser tab only, once, after the first finished match.
+    final homeContext = _navigatorKey.currentContext;
+    if (kIsWeb && homeContext != null) {
+      unawaited(AddToHome.maybeOffer(homeContext, ref));
+    }
     if (!ref.exists(economyCapabilitiesProvider)) return;
     final caps = ref.read(economyCapabilitiesProvider).valueOrNull;
     if (caps == null) return;

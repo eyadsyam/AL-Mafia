@@ -4557,5 +4557,14 @@
   "inAppBrowserBody": "Google doesn't allow signing in inside this app. Open the link in Chrome or Safari and continue there, or use email here.",
   "inAppBrowserChrome": "Open in Chrome",
   "inAppBrowserCopy": "Copy link",
-  "inAppBrowserCopied": "Link copied"
+  "inAppBrowserCopied": "Link copied",
+  "playRibbonText": "Play it in the app: faster, with notifications",
+  "playRibbonOpen": "Google Play",
+  "playRibbonClose": "Close",
+  "addToHomeTitle": "Keep the game on your screen",
+  "addToHomeBody": "It opens like an app, without the browser bar, and without hunting for the link.",
+  "addToHomeStep1": "Tap the Share button below",
+  "addToHomeStep2": "Choose \"Add to Home Screen\"",
+  "addToHomeStep3": "Open it from the Mafia Master icon",
+  "addToHomeDone": "Got it"
 }

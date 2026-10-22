@@ -7306,4 +7306,32 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get inAppBrowserCopied => 'اتنسخ اللينك';
+
+  @override
+  String get playRibbonText => 'العبها من التطبيق، أسرع وفيها إشعارات';
+
+  @override
+  String get playRibbonOpen => 'جوجل بلاي';
+
+  @override
+  String get playRibbonClose => 'اقفل';
+
+  @override
+  String get addToHomeTitle => 'خلّي اللعبة على شاشتك';
+
+  @override
+  String get addToHomeBody =>
+      'تفتح زي التطبيق، من غير شريط المتصفح، ومن غير ما تدوّر على اللينك.';
+
+  @override
+  String get addToHomeStep1 => 'دوس على زرار المشاركة تحت';
+
+  @override
+  String get addToHomeStep2 => 'اختار «إضافة إلى الشاشة الرئيسية»';
+
+  @override
+  String get addToHomeStep3 => 'افتحها من أيقونة سيد المافيا';
+
+  @override
+  String get addToHomeDone => 'تمام';
 }

@@ -117,6 +117,9 @@ abstract final class HomeTokens {
   /// Below this height the «دوس على أي كارت» hint gives its room to the fan.
   static const double hintMinHeight = 700;
 
+  /// The close mark of the web «العبها من التطبيق» ribbon.
+  static const double ribbonIcon = 18;
+
   /// «أهلاً يا <name>» after first run: fade in, hold, fade out.
   static const Duration greetingFade = Duration(milliseconds: 600);
   static const Duration greetingHold = Duration(seconds: 4);
@@ -3217,4 +3220,10 @@ abstract final class StoriesLampTokens {
   /// (`claim_story_session`); a faster table waits this long from the deal
   /// before claiming, so the reward is not lost (a minute plus a margin).
   static const Duration serverClaimMinimum = Duration(seconds: 62);
+}
+
+/// «خلّي اللعبة على شاشتك» (lib/ui/widgets/add_to_home_sheet.dart).
+abstract final class AddToHomeTokens {
+  /// The square each step's mark sits in.
+  static const double mark = 28;
 }

@@ -7423,4 +7423,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inAppBrowserCopied => 'Link copied';
+
+  @override
+  String get playRibbonText => 'Play it in the app: faster, with notifications';
+
+  @override
+  String get playRibbonOpen => 'Google Play';
+
+  @override
+  String get playRibbonClose => 'Close';
+
+  @override
+  String get addToHomeTitle => 'Keep the game on your screen';
+
+  @override
+  String get addToHomeBody =>
+      'It opens like an app, without the browser bar, and without hunting for the link.';
+
+  @override
+  String get addToHomeStep1 => 'Tap the Share button below';
+
+  @override
+  String get addToHomeStep2 => 'Choose \"Add to Home Screen\"';
+
+  @override
+  String get addToHomeStep3 => 'Open it from the Mafia Master icon';
+
+  @override
+  String get addToHomeDone => 'Got it';
 }

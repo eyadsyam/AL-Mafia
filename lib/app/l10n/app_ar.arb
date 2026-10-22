@@ -3282,5 +3282,14 @@
   "inAppBrowserBody": "جوجل مش بيسمح بالدخول من جوه التطبيق ده. افتح اللينك في كروم أو سفاري وكمّل من هناك، أو ادخل بالإيميل من هنا.",
   "inAppBrowserChrome": "افتح في كروم",
   "inAppBrowserCopy": "انسخ اللينك",
-  "inAppBrowserCopied": "اتنسخ اللينك"
+  "inAppBrowserCopied": "اتنسخ اللينك",
+  "playRibbonText": "العبها من التطبيق، أسرع وفيها إشعارات",
+  "playRibbonOpen": "جوجل بلاي",
+  "playRibbonClose": "اقفل",
+  "addToHomeTitle": "خلّي اللعبة على شاشتك",
+  "addToHomeBody": "تفتح زي التطبيق، من غير شريط المتصفح، ومن غير ما تدوّر على اللينك.",
+  "addToHomeStep1": "دوس على زرار المشاركة تحت",
+  "addToHomeStep2": "اختار «إضافة إلى الشاشة الرئيسية»",
+  "addToHomeStep3": "افتحها من أيقونة سيد المافيا",
+  "addToHomeDone": "تمام"
 }

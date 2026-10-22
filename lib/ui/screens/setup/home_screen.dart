@@ -24,6 +24,7 @@ import '../../widgets/textured_surface.dart';
 import '../../economy/waiting_banner.dart';
 import '../../missions/casebook_sheet.dart';
 import '../../widgets/deck/deck_buttons.dart';
+import '../../widgets/play_app_ribbon.dart';
 
 /// Home screen (S-01) — the spread.
 ///
@@ -222,7 +223,12 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [_cornerRow(context, ref, l10n), ?banner],
+            children: [
+              _cornerRow(context, ref, l10n),
+              ?banner,
+              // Web on an Android phone only; closed once, gone for good.
+              const PlayAppRibbon(),
+            ],
           ),
         ),
       ),
