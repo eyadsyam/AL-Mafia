@@ -3,7 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/services.dart';
 import 'package:mafia_master/platform/audio_director.dart';
+import 'package:mafia_master/engine/voice_policy.dart';
+import 'package:mafia_master/platform/voice/voice_controller.dart';
+import 'package:mafia_master/ui/screens/online/voice_session.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/transport/online_transport.dart';
 import 'package:mafia_master/ui/screens/match_controller.dart';
@@ -13,6 +17,7 @@ import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
 
 import '../support/fake_backend.dart';
+import '../support/fake_voice_engine.dart';
 import '../support/localized.dart';
 
 void main() {
@@ -27,6 +32,8 @@ void main() {
     bool select = true,
     int? votedRound,
     String role = 'citizen',
+    bool withTextField = false,
+    VoiceController? voiceController,
   }) async {
     backend = FakeBackend(
       roomId: 'room-1',
@@ -43,6 +50,17 @@ void main() {
       overrides: [
         gameTransportProvider.overrideWithValue(transport),
         audioDirectorProvider.overrideWithValue(AudioDirector()),
+        if (voiceController != null) ...[
+          voiceControllerProvider.overrideWithValue(voiceController),
+          voiceStateProvider.overrideWith(
+            (ref) => Stream.value(
+              const VoiceState(
+                mode: VoiceMode.live,
+                policy: MicPolicy.activeSpeakerOnly,
+              ),
+            ),
+          ),
+        ],
       ],
     );
     container.read(matchControllerProvider.notifier).adoptSnapshot();
@@ -55,10 +73,21 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: localizedApp(
-          OnlineTableFlow(
-            onExit: () {},
-            onAnalytics: () {},
-            onStepCommitted: () => committed++,
+          Stack(
+            children: [
+              OnlineTableFlow(
+                onExit: () {},
+                onAnalytics: () {},
+                onStepCommitted: () => committed++,
+              ),
+              if (withTextField)
+                const Positioned(
+                  top: 0,
+                  right: 0,
+                  width: 200,
+                  child: Material(child: TextField()),
+                ),
+            ],
           ),
         ),
       ),
@@ -72,6 +101,58 @@ void main() {
   }
 
   setUp(() => committed = 0);
+
+  testWidgets('Enter submits one enabled ballot', (tester) async {
+    await pumpTable(tester);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    await tester.pump();
+    expect(
+      backend.calls.where((c) => c.function == 'submit_vote'),
+      hasLength(1),
+    );
+  });
+
+  testWidgets('Enter ignores a disabled ballot', (tester) async {
+    await pumpTable(tester, select: false);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    expect(backend.calls.where((c) => c.function == 'submit_vote'), isEmpty);
+  });
+
+  testWidgets('table shortcuts ignore focused text field', (tester) async {
+    final link = FakeVoiceLink();
+    final voice = VoiceController(
+      engine: FakeVoiceEngine(),
+      link: link,
+      statsInterval: Duration.zero,
+    );
+    addTearDown(voice.dispose);
+    await pumpTable(tester, withTextField: true, voiceController: voice);
+    await tester.tap(find.byType(TextField));
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyM);
+    await tester.pump();
+    expect(backend.calls.where((c) => c.function == 'submit_vote'), isEmpty);
+    expect(link.claims, 0);
+  });
+
+  testWidgets('Space requests the voice floor', (tester) async {
+    final link = FakeVoiceLink();
+    final voice = VoiceController(
+      engine: FakeVoiceEngine(),
+      link: link,
+      statsInterval: Duration.zero,
+    );
+    addTearDown(voice.dispose);
+    await pumpTable(tester, voiceController: voice);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.pump();
+    expect(link.claims, 1);
+  });
 
   testWidgets(
     'a revote selects only tied living opponents and sends round two',

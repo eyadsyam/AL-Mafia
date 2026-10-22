@@ -3963,3 +3963,11 @@ Open (in order):
   2. Owner: approve docs/design/web-per-device/index.html + the Android-web app ribbon; then build Q13 (plan §5).
   3. Owner: phone smoke test; the Play build when he says.
 Decisions: whisper default online stays on (offline engine reads whisperEnabled; offline default differs) — only openVoting applies from saved settings.
+
+
+## PHASE web-per-device — done
+Built:      Desktop home/mode split at 1024 logical px; online table rails; mouse hover/right-click and route keyboard actions; existing narrow layouts retained.
+Files:      lib/core/input/keyboard_keys.dart; lib/ui/theme/design_tokens.dart; lib/ui/screens/setup/{home_screen,mode_screen,group_picker_screen}.dart; lib/ui/screens/online/{online_table_flow,council/council_band,table/table_scene}.dart; lib/ui/widgets/{card_spread,deck/deck_public,voice_controls}.dart; lib/app/l10n/{app_ar.arb,app_en.arb,generated localizations}; test/widget/{home_profile_entry,mode_screen}_test.dart; test/online/{table_scene,online_action_retry}_test.dart; docs/PROGRESS.md.
+Verified:   flutter analyze --no-pub: 0 issues; flutter test --no-pub: 2366 passed, 0 failed, 0 skipped; flutter test --no-pub test/golden/leakage: 57 passed; focused desktop, pointer and keyboard tests passed.
+Gate:       PASS
+Open:       Whisper remains with Ready in the start rail because both share one phase action widget. No emulator screenshot; widget tests covered 1440x900 and 390x844.

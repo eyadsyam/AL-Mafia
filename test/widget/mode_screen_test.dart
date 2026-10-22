@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/services.dart';
 import 'package:mafia_master/ui/screens/setup/mode_screen.dart';
 
 import '../support/localized.dart';
@@ -14,6 +15,47 @@ import '../support/localized.dart';
 /// removing it is what made "the app can't do that" and "this APK was built
 /// wrong" look identical from the outside.
 void main() {
+  testWidgets(
+    'desktop mode splits and digit 2 selects online; Escape goes back',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1440, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      var online = 0;
+      var back = 0;
+      await tester.pumpWidget(
+        localizedApp(
+          ModeScreen(
+            onPlayOffline: () {},
+            onPlayOnline: () => online++,
+            onBack: () => back++,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('mode_desktop_start')), findsOneWidget);
+      expect(find.byKey(const ValueKey('mode_desktop_end')), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit2);
+      await tester.pump();
+      expect(online, 1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      expect(back, 1);
+    },
+  );
+
+  testWidgets('narrow mode retains the original card stage', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      localizedApp(
+        ModeScreen(onPlayOffline: () {}, onPlayOnline: () {}, onBack: () {}),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mode_desktop_start')), findsNothing);
+    expect(find.byKey(ModeScreen.mafiaCard), findsOneWidget);
+  });
+
   testWidgets('online is offered even when the build has no project', (
     tester,
   ) async {

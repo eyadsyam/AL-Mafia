@@ -7334,4 +7334,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get addToHomeDone => 'تمام';
+
+  @override
+  String get keyFloor => 'اطلب الكلمة';
+
+  @override
+  String get keyConfirm => 'أكّد';
+
+  @override
+  String get keyMic => 'المايك';
+
+  @override
+  String get keyClose => 'اقفل';
+
+  @override
+  String get keyChoose => 'اختار';
+
+  @override
+  String get keyBack => 'ارجع';
 }

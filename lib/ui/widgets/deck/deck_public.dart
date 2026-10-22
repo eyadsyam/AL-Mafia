@@ -845,6 +845,8 @@ class DeckScaffold extends StatelessWidget {
   final Widget body;
   final Widget? primary;
   final BannerPlacement? banner;
+  final bool desktopFullWidth;
+  final bool hideHeader;
 
   /// A full-bleed ground behind the body, dimmed (public screens only).
   final String? backdrop;
@@ -858,6 +860,8 @@ class DeckScaffold extends StatelessWidget {
     required this.body,
     this.primary,
     this.banner,
+    this.desktopFullWidth = false,
+    this.hideHeader = false,
     this.backdrop,
   });
 
@@ -909,7 +913,11 @@ class DeckScaffold extends StatelessWidget {
               bottom: false,
               child: Center(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: s.maxContentWidth),
+                  constraints: BoxConstraints(
+                    maxWidth: desktopFullWidth
+                        ? double.infinity
+                        : s.maxContentWidth,
+                  ),
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       s.screenMargin,
@@ -920,13 +928,15 @@ class DeckScaffold extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        DeckHeader(
-                          title: title,
-                          subtitle: subtitle,
-                          onBack: onBack,
-                          trailing: trailing,
-                        ),
-                        SizedBox(height: s.md),
+                        if (!hideHeader) ...[
+                          DeckHeader(
+                            title: title,
+                            subtitle: subtitle,
+                            onBack: onBack,
+                            trailing: trailing,
+                          ),
+                          SizedBox(height: s.md),
+                        ],
                         Expanded(child: body),
                       ],
                     ),

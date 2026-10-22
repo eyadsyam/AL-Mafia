@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../app/asset_constants.dart';
+import '../../../core/input/keyboard_keys.dart';
 import '../../../platform/monetization/ad_formats.dart' show BannerPlacement;
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
@@ -65,6 +66,7 @@ class ModeScreen extends StatefulWidget {
 }
 
 class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
+  String? _hoverArt;
   late final AnimationController _deal = AnimationController(
     vsync: this,
     duration: ModeTokens.deal,
@@ -109,19 +111,220 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     // The system back closes the turned card first, as the header's back does.
-    return PopScope(
-      canPop: !_isOpen,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _setOpen(false);
+    return LayoutBuilder(
+      builder: (context, viewport) {
+        final desktop =
+            viewport.maxWidth >= DesktopLayoutTokens.desktopMinWidth;
+        return PopScope(
+          canPop: !_isOpen,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) _setOpen(false);
+          },
+          child: Shortcuts(
+            shortcuts: const {
+              SingleActivator(LogicalKeyboardKey.digit1): _ModeIntent(0),
+              SingleActivator(LogicalKeyboardKey.digit2): _ModeIntent(1),
+              SingleActivator(LogicalKeyboardKey.digit3): _ModeIntent(2),
+              SingleActivator(LogicalKeyboardKey.escape): _ModeBackIntent(),
+            },
+            child: Actions(
+              actions: {
+                _ModeIntent: CallbackAction<_ModeIntent>(
+                  onInvoke: (intent) {
+                    final focused = FocusManager.instance.primaryFocus?.context;
+                    if (focused?.widget is EditableText ||
+                        focused
+                                ?.findAncestorWidgetOfExactType<
+                                  EditableText
+                                >() !=
+                            null) {
+                      return null;
+                    }
+                    final modes = _desktopWays(context);
+                    if (intent.index < modes.length) {
+                      modes[intent.index].onTap?.call();
+                    }
+                    return null;
+                  },
+                ),
+                _ModeBackIntent: CallbackAction<_ModeBackIntent>(
+                  onInvoke: (_) {
+                    if (_isOpen) {
+                      _setOpen(false);
+                    } else {
+                      widget.onBack();
+                    }
+                    return null;
+                  },
+                ),
+              },
+              child: Focus(
+                autofocus: true,
+                child: DeckScaffold(
+                  title: _isOpen ? l10n.modeMafiaTitle : l10n.modeTitle,
+                  onBack: _isOpen ? () => _setOpen(false) : widget.onBack,
+                  banner: BannerPlacement.home,
+              desktopFullWidth: desktop,
+              hideHeader: desktop,
+                  body: LayoutBuilder(
+                    builder: (context, box) => desktop
+                        ? _desktopStage(context, box.biggest)
+                        : _stage(context, box.biggest),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
       },
-      child: DeckScaffold(
-        title: _isOpen ? l10n.modeMafiaTitle : l10n.modeTitle,
-        onBack: _isOpen ? () => _setOpen(false) : widget.onBack,
-        banner: BannerPlacement.home,
-        body: LayoutBuilder(
-          builder: (context, box) => _stage(context, box.biggest),
-        ),
+    );
+  }
+
+  List<_Way> _desktopWays(BuildContext context) {
+    final l = context.l10n;
+    return [
+      _Way(
+        key: ModeScreen.offlineCard,
+        art: ExperienceArt.council,
+        face: false,
+        title: l.modeOnePhoneTitle,
+        body: l.modeOnePhoneBody,
+        onTap: widget.onPlayOffline,
       ),
+      _Way(
+        key: ModeScreen.onlineCard,
+        art: AppCouncilArt.backdropNight,
+        face: false,
+        title: l.modeOnlineTitle,
+        body: l.modeOnlineBody,
+        onTap: widget.onPlayOnline,
+        lockedReason: widget.onPlayOnline == null ? l.modeNoServer : null,
+      ),
+      if (widget.onPlayStories != null)
+        _Way(
+          key: ModeScreen.storiesCard,
+          art: ModeScreen.storiesArt,
+          face: false,
+          title: l.modeStoriesCardTitle,
+          body: l.modeStoriesCardBody,
+          onTap: widget.onPlayStories,
+        )
+      else if (widget.onPlayBots != null)
+        _Way(
+          key: ModeScreen.botsCard,
+          art: AppImages.cardFaceCitizen,
+          face: true,
+          title: l.modeBotsCardTitle,
+          body: l.modeBotsBody,
+          onTap: widget.onPlayBots,
+        ),
+    ];
+  }
+
+  Widget _desktopStage(BuildContext context, Size size) {
+    final ways = _desktopWays(context);
+    final s = context.spacing;
+    final colors = context.colors;
+    final art = _hoverArt ?? AppCouncilArt.backdropNight;
+    return Row(
+      children: [
+        Expanded(
+          key: const ValueKey('mode_desktop_start'),
+          flex: DesktopLayoutTokens.homeStartFlex,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: s.maxContentWidth),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  DeckHeader(title: context.l10n.modeTitle,
+                    onBack: widget.onBack),
+                  SizedBox(height: s.lg),
+                  for (final (index, way) in ways.indexed) ...[
+                    Focus(
+                      onFocusChange: (focused) =>
+                          setState(() => _hoverArt = focused ? way.art : null),
+                      child: MouseRegion(
+                        cursor: way.onTap == null
+                            ? SystemMouseCursors.basic
+                            : SystemMouseCursors.click,
+                        onEnter: (_) => setState(() => _hoverArt = way.art),
+                        onExit: (_) => setState(() => _hoverArt = null),
+                        child: OutlinedButton(
+                          key: way.key,
+                          onPressed: way.onTap,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: s.md),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(way.title),
+                                      Text(
+                                        way.lockedReason ?? way.body,
+                                        style: context.typography.caption
+                                            .copyWith(
+                                              color: colors.textSecondary,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(
+                                    DesktopLayoutTokens.keyInset,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: colors.borderSubtle,
+                                      width: DesktopLayoutTokens.keyBorderWidth,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: const TextStyle(
+                                      fontFamily:
+                                          DesktopLayoutTokens.keyFontFamily,
+                                      fontSize: DesktopLayoutTokens.keyFontSize,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: s.sm),
+                  ],
+                  Text(
+                    '1-3  ${context.l10n.keyChoose}     Esc  ${context.l10n.keyBack}',
+                    style: context.typography.caption.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          key: const ValueKey('mode_desktop_end'),
+          flex: DesktopLayoutTokens.homeEndFlex,
+          child: Image.asset(
+            art,
+            fit: BoxFit.cover,
+            height: size.height,
+            opacity: const AlwaysStoppedAnimation(
+              DesktopLayoutTokens.artOpacity,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -249,11 +452,14 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
             child: IgnorePointer(
               ignoring: _isOpen,
               child: DeckPress(
-                child: GestureDetector(
-                  key: ModeScreen.storiesCard,
-                  behavior: HitTestBehavior.opaque,
-                  onTap: widget.onPlayStories,
-                  child: stories,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    key: ModeScreen.storiesCard,
+                    behavior: HitTestBehavior.opaque,
+                    onTap: widget.onPlayStories,
+                    child: stories,
+                  ),
                 ),
               ),
             ),
@@ -290,16 +496,19 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
         AnimatedBuilder(
           animation: Listenable.merge([_deal, _open]),
           builder: (context, _) {
-            final d = 1 - const Interval(
-              0.12,
-              1,
-              curve: Curves.easeOutCubic,
-            ).transform(_deal.value);
+            final d =
+                1 -
+                const Interval(
+                  0.12,
+                  1,
+                  curve: Curves.easeOutCubic,
+                ).transform(_deal.value);
             final t = lift.value;
             final angle = math.pi * flip.value;
             final showBack = angle > math.pi / 2;
             final cy = closedTop + ch / 2;
-            final x = mafiaX + (w / 2 - mafiaX) * t - dir * ModeTokens.dealSpread * d;
+            final x =
+                mafiaX + (w / 2 - mafiaX) * t - dir * ModeTokens.dealSpread * d;
             final y = cy + (openCenterY - cy) * t + ModeTokens.dealRise * d;
             final scale = 1 - (1 - ModeTokens.openScale) * t;
             return Positioned(
@@ -310,7 +519,8 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
               child: Opacity(
                 opacity: (1 - d).clamp(0, 1),
                 child: Transform.rotate(
-                  angle: dir * ModeTokens.fanTilt * (1 - t) -
+                  angle:
+                      dir * ModeTokens.fanTilt * (1 - t) -
                       dir * ModeTokens.dealTilt * d,
                   child: Transform.scale(
                     scale: scale,
@@ -320,11 +530,14 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
                         ..setEntry(3, 2, ModeTokens.perspective)
                         ..rotateY(showBack ? angle - math.pi : angle),
                       child: DeckPress(
-                        child: GestureDetector(
-                          key: ModeScreen.mafiaCard,
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => _setOpen(!_isOpen),
-                          child: showBack ? mafiaBack : mafiaFront,
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            key: ModeScreen.mafiaCard,
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => _setOpen(!_isOpen),
+                            child: showBack ? mafiaBack : mafiaFront,
+                          ),
                         ),
                       ),
                     ),
@@ -341,7 +554,8 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
             width: mw,
             height: mh,
             centerX: firstX - dir * step * i,
-            top: waysTop - (i == 1 && ways.length == 3 ? ModeTokens.wayLift : 0),
+            top:
+                waysTop - (i == 1 && ways.length == 3 ? ModeTokens.wayLift : 0),
             fromX: w / 2,
             fromY: openCenterY,
             tilt: ways.length == 3 ? dir * ModeTokens.fanTilt * (1 - i) : 0,
@@ -398,7 +612,11 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
     final start = 0.5 + 0.07 * index;
     final t = CurvedAnimation(
       parent: _open,
-      curve: Interval(start, math.min(1, start + 0.45), curve: Curves.easeOutCubic),
+      curve: Interval(
+        start,
+        math.min(1, start + 0.45),
+        curve: Curves.easeOutCubic,
+      ),
     );
     final appear = CurvedAnimation(
       parent: _open,
@@ -429,7 +647,8 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
                 child: Transform.rotate(
                   angle: tilt * v,
                   child: Transform.scale(
-                    scale: ModeTokens.wayStartScale +
+                    scale:
+                        ModeTokens.wayStartScale +
                         (1 - ModeTokens.wayStartScale) * v,
                     child: child,
                   ),
@@ -441,6 +660,15 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+}
+
+class _ModeIntent extends Intent {
+  final int index;
+  const _ModeIntent(this.index);
+}
+
+class _ModeBackIntent extends Intent {
+  const _ModeBackIntent();
 }
 
 class _Way {
@@ -504,10 +732,7 @@ class _PlayCard extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             Image(
-              image: ResizeImage(
-                AssetImage(art),
-                width: (width * dpr).round(),
-              ),
+              image: ResizeImage(AssetImage(art), width: (width * dpr).round()),
               fit: BoxFit.cover,
               gaplessPlayback: true,
               excludeFromSemantics: true,
@@ -552,11 +777,7 @@ class _PlayCard extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: heading,
-                      ),
+                      Text(title, textAlign: TextAlign.center, style: heading),
                       if (body != null)
                         Text(
                           body!,
@@ -586,7 +807,11 @@ class _WayCard extends StatelessWidget {
   final double width;
   final double height;
 
-  const _WayCard({required this.way, required this.width, required this.height});
+  const _WayCard({
+    required this.way,
+    required this.width,
+    required this.height,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -711,11 +936,16 @@ class _WayCard extends StatelessWidget {
     );
     return DeckPress(
       enabled: !locked && way.onTap != null,
-      child: GestureDetector(
-        key: way.key,
-        behavior: HitTestBehavior.opaque,
-        onTap: locked ? null : way.onTap,
-        child: card,
+      child: MouseRegion(
+        cursor: locked || way.onTap == null
+            ? SystemMouseCursors.basic
+            : SystemMouseCursors.click,
+        child: GestureDetector(
+          key: way.key,
+          behavior: HitTestBehavior.opaque,
+          onTap: locked ? null : way.onTap,
+          child: card,
+        ),
       ),
     );
   }

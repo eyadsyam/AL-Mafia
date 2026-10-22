@@ -4566,5 +4566,11 @@
   "addToHomeStep1": "Tap the Share button below",
   "addToHomeStep2": "Choose \"Add to Home Screen\"",
   "addToHomeStep3": "Open it from the Mafia Master icon",
-  "addToHomeDone": "Got it"
+  "addToHomeDone": "Got it",
+  "keyFloor": "Take the floor",
+  "keyConfirm": "Confirm",
+  "keyMic": "Mic",
+  "keyClose": "Close",
+  "keyChoose": "Choose",
+  "keyBack": "Back"
 }

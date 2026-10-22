@@ -111,6 +111,9 @@ class VoiceControls extends ConsumerWidget {
               onLongPress: controller == null
                   ? null
                   : () => showVoiceDiagnostics(context, controller),
+              onSecondaryTap: controller == null
+                  ? null
+                  : () => showVoiceDiagnostics(context, controller),
               child: Text(
                 status,
                 style: type.caption.copyWith(color: colors.textSecondary),

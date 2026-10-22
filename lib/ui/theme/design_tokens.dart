@@ -2,6 +2,21 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 
+abstract final class DesktopLayoutTokens {
+  static const double desktopMinWidth = 1024;
+  static const int homeStartFlex = 42;
+  static const int homeEndFlex = 58;
+  static const int tableRailFlex = 24;
+  static const int tableCentreFlex = 52;
+  static const double railGap = 16;
+  static const double keyBorderWidth = 1;
+  static const double keyInset = 6;
+  static const double keyFontSize = 11;
+  static const double artOpacity = 0.55;
+  static const double hoverRingWidth = 3;
+  static const String keyFontFamily = 'IBM Plex Mono';
+}
+
 /// Shared public identity geometry; private turn geometry stays unchanged.
 abstract final class IdentityTokens {
   static const double target = 48;

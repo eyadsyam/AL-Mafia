@@ -12846,6 +12846,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Got it'**
   String get addToHomeDone;
+
+  /// No description provided for @keyFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the floor'**
+  String get keyFloor;
+
+  /// No description provided for @keyConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get keyConfirm;
+
+  /// No description provided for @keyMic.
+  ///
+  /// In en, this message translates to:
+  /// **'Mic'**
+  String get keyMic;
+
+  /// No description provided for @keyClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get keyClose;
+
+  /// No description provided for @keyChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get keyChoose;
+
+  /// No description provided for @keyBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get keyBack;
 }
 
 class _AppLocalizationsDelegate

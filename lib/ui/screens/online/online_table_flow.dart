@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // `Alignment` here is the engine's win side, not Flutter's layout anchor.
 import '../../../app/asset_constants.dart';
+import '../../../core/input/keyboard_keys.dart';
 import '../../../engine/models/enums.dart';
 import '../../../engine/models/player.dart' show PlayerGender, PublicPlayer;
 import '../../../platform/narrator_bank.dart';
@@ -15,6 +16,7 @@ import '../../economy/cosmetics.dart' show cosmeticsVisibleIn;
 import '../../social/invite_privacy.dart';
 import '../../../platform/monetization/interstitial_policy.dart';
 import '../../../platform/reduce_motion.dart';
+import '../../../platform/voice/voice_controller.dart' show VoiceState;
 import '../../../transport/game_snapshot.dart';
 import '../../../transport/online_backend.dart';
 import '../../../transport/online_transport.dart' show OnlineTransport;
@@ -1209,245 +1211,352 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
             ),
     );
 
-    return ConnectionWeather(
-      weather: TableWeather.of(snapshot.connection),
-      onPlayOffline: widget.onExit,
-      onRetry: () => unawaited(_controller.transport.resync()),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          ground,
-          if (_isDayPhase(snapshot.phase) && snapshot.viewerSeat != null)
-            SafeArea(
-              child: Align(
-                alignment: AlignmentDirectional.topEnd,
-                child: Padding(
-                  padding: EdgeInsets.all(context.spacing.sm),
-                  child: FilledButton.tonalIcon(
-                    onPressed: () => showDayCardCheck(
-                      context,
-                      controller: _controller,
-                      seat: snapshot.viewerSeat!,
+    return Shortcuts(
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.space): _TableFloorIntent(),
+        SingleActivator(LogicalKeyboardKey.enter): _TableConfirmIntent(),
+        SingleActivator(LogicalKeyboardKey.keyM): _TableMicIntent(),
+        SingleActivator(LogicalKeyboardKey.escape): _TableCloseIntent(),
+      },
+      child: Actions(
+        actions: {
+          _TableFloorIntent: CallbackAction<_TableFloorIntent>(
+            onInvoke: (_) {
+              if (!_keyboardInTextField()) _keyboardFloor(voice);
+              return null;
+            },
+          ),
+          _TableConfirmIntent: CallbackAction<_TableConfirmIntent>(
+            onInvoke: (_) {
+              if (!_keyboardInTextField()) _keyboardConfirm(snapshot, state);
+              return null;
+            },
+          ),
+          _TableMicIntent: CallbackAction<_TableMicIntent>(
+            onInvoke: (_) {
+              if (!_keyboardInTextField()) _keyboardMic(voice);
+              return null;
+            },
+          ),
+          _TableCloseIntent: CallbackAction<_TableCloseIntent>(
+            onInvoke: (_) {
+              if (!_keyboardInTextField()) _keyboardClose();
+              return null;
+            },
+          ),
+        },
+        child: Focus(
+          autofocus: true,
+          child: ConnectionWeather(
+            weather: TableWeather.of(snapshot.connection),
+            onPlayOffline: widget.onExit,
+            onRetry: () => unawaited(_controller.transport.resync()),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ground,
+                if (_isDayPhase(snapshot.phase) && snapshot.viewerSeat != null)
+                  SafeArea(
+                    child: Align(
+                      alignment: AlignmentDirectional.topEnd,
+                      child: Padding(
+                        padding: EdgeInsets.all(context.spacing.sm),
+                        child: FilledButton.tonalIcon(
+                          onPressed: () => showDayCardCheck(
+                            context,
+                            controller: _controller,
+                            seat: snapshot.viewerSeat!,
+                          ),
+                          icon: const Icon(Icons.style_outlined),
+                          label: Text(context.l10n.myCard),
+                        ),
+                      ),
                     ),
-                    icon: const Icon(Icons.style_outlined),
-                    label: Text(context.l10n.myCard),
                   ),
-                ),
-              ),
-            ),
-          // After the dawn curtain, never on top of it: two overlays with two
-          // sentences at once read as neither.
-          if (_mourning && _sting == null && !_scaring && !_matchOver(snapshot))
-            EliminationBeat(
-              onFinished: () => setState(() {
-                _mourning = false;
-                _mourned = true;
-              }),
-            ),
-          // The role card is the one thing that legitimately covers the table:
-          // doc 12 §3.2 beat 2 is your card *lifting out of its seat toward the
-          // camera*, so for the length of the reveal it is the whole screen.
-          if (snapshot.phase == GamePhase.distributing && state.reveal != null)
-            _reveal(context, state),
-          // Doc 15 §S-O12 beats 2–5, over the council rather than instead of
-          // it: the seat the card came out of is still there underneath, which
-          // is what makes the ring cracking at the end read as the same
-          // person.
-          if (_sting != null)
-            PhaseSting(
-              key: ValueKey('sting-${snapshot.phase}-${snapshot.dayNumber}'),
-              light: _sting!,
-              title: _sting == PhaseLight.dusk
-                  ? context.l10n.nightNumbered(snapshot.dayNumber)
-                  : context.l10n.dayNumbered(snapshot.dayNumber),
-              onFinished: () {
-                if (mounted) setState(() => _sting = null);
-              },
-            ),
-          ?_verdict(context, snapshot),
-          // Loaded during every night by every player who could still be the
-          // victim, so the scare lands on the morning's first frame; thrown
-          // away unplayed when the morning names somebody else.
-          if (_scaring ||
-              (!_mourned &&
-                  !ReduceMotion.of(context) &&
-                  _scaredDay != snapshot.dayNumber &&
-                  (snapshot.phase == GamePhase.night ||
-                      snapshot.phase == GamePhase.nightResolving)))
-            KillJumpscare(
-              key: const ValueKey('kill_jumpscare'),
-              armed: _scaring,
-              muted: _audio.muted,
-              onFinished: () {
-                if (mounted) setState(() => _scaring = false);
-              },
-            ),
-          // Above the curtain and the verdict: an open sheet is where the
-          // witness is looking, and a title drawn across it read as clutter.
-          if (witnessing && _witnessTable != null) ...[
-            if (_news case final news?)
-              PositionedDirectional(
-                top:
-                    MediaQuery.paddingOf(context).top +
-                    CouncilTokens.headerHeight +
-                    context.spacing.sm,
-                start: context.spacing.screenMargin,
-                end: context.spacing.screenMargin,
-                child: AnimatedSwitcher(
-                  duration: ReduceMotion.of(context)
-                      ? Duration.zero
-                      : context.motion.band,
-                  transitionBuilder: bandTransition,
-                  child: WitnessNewsLine(
-                    key: ValueKey(news.id),
-                    news: news,
-                    table: _witnessTable!,
-                    names: _names(snapshot),
-                    onTap: switch (news.whisper) {
-                      final whisper? => () => _openLetter(whisper),
-                      null => () => setState(() => _dossier = news.toSeat),
+                // After the dawn curtain, never on top of it: two overlays with two
+                // sentences at once read as neither.
+                if (_mourning &&
+                    _sting == null &&
+                    !_scaring &&
+                    !_matchOver(snapshot))
+                  EliminationBeat(
+                    onFinished: () => setState(() {
+                      _mourning = false;
+                      _mourned = true;
+                    }),
+                  ),
+                // The role card is the one thing that legitimately covers the table:
+                // doc 12 §3.2 beat 2 is your card *lifting out of its seat toward the
+                // camera*, so for the length of the reveal it is the whole screen.
+                if (snapshot.phase == GamePhase.distributing &&
+                    state.reveal != null)
+                  _reveal(context, state),
+                // Doc 15 §S-O12 beats 2–5, over the council rather than instead of
+                // it: the seat the card came out of is still there underneath, which
+                // is what makes the ring cracking at the end read as the same
+                // person.
+                if (_sting != null)
+                  PhaseSting(
+                    key: ValueKey(
+                      'sting-${snapshot.phase}-${snapshot.dayNumber}',
+                    ),
+                    light: _sting!,
+                    title: _sting == PhaseLight.dusk
+                        ? context.l10n.nightNumbered(snapshot.dayNumber)
+                        : context.l10n.dayNumbered(snapshot.dayNumber),
+                    onFinished: () {
+                      if (mounted) setState(() => _sting = null);
                     },
                   ),
-                ),
-              ),
-            if (_dossier case final seat?)
-              WitnessPopup(
-                onDismiss: () => setState(() => _dossier = null),
-                child: WitnessDossier(
-                  seat: seat,
-                  snapshot: snapshot,
-                  table: _witnessTable!,
-                  onOpenLetter: _openLetter,
-                  onManage: snapshot.canAdvance
-                      ? () => setState(() {
-                          _dossier = null;
-                          _inspect = seat;
-                        })
-                      : null,
-                ),
-              ),
-            if (_letter case final letter?)
-              WitnessPopup(
-                onDismiss: () => setState(() => _letter = null),
-                child: WitnessLetter(
-                  key: ValueKey('letter-${letter.id}'),
-                  whisper: letter,
-                  table: _witnessTable!,
-                  names: _names(snapshot),
-                  channel: _controller.transport.witness,
-                ),
-              ),
-          ],
-          if (witnessing && _witnessPage != null)
-            WitnessPopup(
-              fill: true,
-              onDismiss: () => setState(() => _witnessPage = null),
-              child: VaultCard(
-                lit: true,
-                padding: EdgeInsets.zero,
-                children: [
-                  Expanded(
-                    child: WitnessPanel(
-                      only: _witnessPage,
-                      snapshot: snapshot,
-                      channel: _controller.transport.witness,
-                      table: _witnessTable,
+                ?_verdict(context, snapshot),
+                // Loaded during every night by every player who could still be the
+                // victim, so the scare lands on the morning's first frame; thrown
+                // away unplayed when the morning names somebody else.
+                if (_scaring ||
+                    (!_mourned &&
+                        !ReduceMotion.of(context) &&
+                        _scaredDay != snapshot.dayNumber &&
+                        (snapshot.phase == GamePhase.night ||
+                            snapshot.phase == GamePhase.nightResolving)))
+                  KillJumpscare(
+                    key: const ValueKey('kill_jumpscare'),
+                    armed: _scaring,
+                    muted: _audio.muted,
+                    onFinished: () {
+                      if (mounted) setState(() => _scaring = false);
+                    },
+                  ),
+                // Above the curtain and the verdict: an open sheet is where the
+                // witness is looking, and a title drawn across it read as clutter.
+                if (witnessing && _witnessTable != null) ...[
+                  if (_news case final news?)
+                    PositionedDirectional(
+                      top:
+                          MediaQuery.paddingOf(context).top +
+                          CouncilTokens.headerHeight +
+                          context.spacing.sm,
+                      start: context.spacing.screenMargin,
+                      end: context.spacing.screenMargin,
+                      child: AnimatedSwitcher(
+                        duration: ReduceMotion.of(context)
+                            ? Duration.zero
+                            : context.motion.band,
+                        transitionBuilder: bandTransition,
+                        child: WitnessNewsLine(
+                          key: ValueKey(news.id),
+                          news: news,
+                          table: _witnessTable!,
+                          names: _names(snapshot),
+                          onTap: switch (news.whisper) {
+                            final whisper? => () => _openLetter(whisper),
+                            null => () => setState(
+                              () => _dossier = news.toSeat,
+                            ),
+                          },
+                        ),
+                      ),
+                    ),
+                  if (_dossier case final seat?)
+                    WitnessPopup(
+                      onDismiss: () => setState(() => _dossier = null),
+                      child: WitnessDossier(
+                        seat: seat,
+                        snapshot: snapshot,
+                        table: _witnessTable!,
+                        onOpenLetter: _openLetter,
+                        onManage: snapshot.canAdvance
+                            ? () => setState(() {
+                                _dossier = null;
+                                _inspect = seat;
+                              })
+                            : null,
+                      ),
+                    ),
+                  if (_letter case final letter?)
+                    WitnessPopup(
+                      onDismiss: () => setState(() => _letter = null),
+                      child: WitnessLetter(
+                        key: ValueKey('letter-${letter.id}'),
+                        whisper: letter,
+                        table: _witnessTable!,
+                        names: _names(snapshot),
+                        channel: _controller.transport.witness,
+                      ),
+                    ),
+                ],
+                if (witnessing && _witnessPage != null)
+                  WitnessPopup(
+                    fill: true,
+                    onDismiss: () => setState(() => _witnessPage = null),
+                    child: VaultCard(
+                      lit: true,
+                      padding: EdgeInsets.zero,
+                      children: [
+                        Expanded(
+                          child: WitnessPanel(
+                            only: _witnessPage,
+                            snapshot: snapshot,
+                            channel: _controller.transport.witness,
+                            table: _witnessTable,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                if (_composing) _composer(context, snapshot),
+                if (_roster)
+                  RoleRoster(
+                    standings: snapshot.standings,
+                    cosmetics: snapshot.seatCosmetics,
+                    onClose: () => setState(() => _roster = false),
+                  ),
+                if (_whispers && _matchOver(snapshot))
+                  if (ref.read(onlineSessionProvider).room?.roomId
+                      case final id?)
+                    RevealedWhispers(
+                      roomId: id,
+                      names: _names(snapshot),
+                      onClose: () => setState(() => _whispers = false),
+                    ),
+                // Task 5 — one line, three seconds, over whatever is on screen. It
+                // is not a phase and it does not stop anything.
+                // Task 6 — the host's two moderation actions, in the scene.
+                HostSheet(
+                  snapshot: snapshot,
+                  transport: ref.read(onlineSessionProvider).transport,
+                  seat: _inspect,
+                  onDismiss: () => setState(() => _inspect = null),
+                ),
+                // Task 5 — the deliberate ending, never the accidental one.
+                // Everybody else has gone. A match with one person left at the table
+                // is not a match; say so and offer the way home rather than run the
+                // clocks on for nobody (owner, 2026-09-23).
+                SceneSheet(
+                  visible: _abandoned(snapshot),
+                  title: context.l10n.onlineAbandonedTitle,
+                  body: context.l10n.onlineAbandonedBody,
+                  onDismiss: () {},
+                  actions: [
+                    SceneAction(
+                      key: const ValueKey('table_abandoned_home'),
+                      label: context.l10n.homeAction,
+                      emphasised: true,
+                      onTap: () async {
+                        final transport = ref
+                            .read(onlineSessionProvider)
+                            .transport;
+                        if (snapshot.canAdvance) await transport?.closeRoom();
+                        await ref.read(onlineSessionProvider.notifier).leave();
+                        if (mounted) widget.onExit();
+                      },
+                    ),
+                  ],
+                ),
+                SceneSheet(
+                  visible: _closing,
+                  title: context.l10n.onlineHostExitTitle,
+                  body: context.l10n.onlineHostExitBody,
+                  onDismiss: () => setState(() => _closing = false),
+                  actions: [
+                    SceneAction(
+                      key: const ValueKey('table_leave_keep_room'),
+                      label: context.l10n.onlineLeaveKeepRoom,
+                      emphasised: true,
+                      onTap: () async {
+                        setState(() => _closing = false);
+                        await ref.read(onlineSessionProvider.notifier).leave();
+                        if (mounted) widget.onExit();
+                      },
+                    ),
+                    SceneAction(
+                      key: OnlineTableFlow.closeRoomConfirm,
+                      label: context.l10n.onlineCloseRoomConfirm,
+                      emphasised: true,
+                      onTap: () {
+                        setState(() => _closing = false);
+                        ref.read(onlineSessionProvider).transport?.closeRoom();
+                      },
+                    ),
+                  ],
+                ),
+                HostHandover(snapshot: snapshot),
+                // Doc 14 §3.4. Over the table, never instead of it: the timer and
+                // the seats stay live underneath, because a whisper is a thing that
+                // happens *during* the argument.
+                if (_incoming != null)
+                  WhisperCard(
+                    key: ValueKey(_incoming!.id),
+                    senderName: _incoming!.senderName,
+                    body: _incoming!.body,
+                    onDismissed: () {
+                      final id = _incoming!.id;
+                      setState(() => _incoming = null);
+                      _controller.markWhisperDelivered(id);
+                    },
+                  ),
+              ],
             ),
-          if (_composing) _composer(context, snapshot),
-          if (_roster)
-            RoleRoster(
-              standings: snapshot.standings,
-              cosmetics: snapshot.seatCosmetics,
-              onClose: () => setState(() => _roster = false),
-            ),
-          if (_whispers && _matchOver(snapshot))
-            if (ref.read(onlineSessionProvider).room?.roomId case final id?)
-              RevealedWhispers(
-                roomId: id,
-                names: _names(snapshot),
-                onClose: () => setState(() => _whispers = false),
-              ),
-          // Task 5 — one line, three seconds, over whatever is on screen. It
-          // is not a phase and it does not stop anything.
-          // Task 6 — the host's two moderation actions, in the scene.
-          HostSheet(
-            snapshot: snapshot,
-            transport: ref.read(onlineSessionProvider).transport,
-            seat: _inspect,
-            onDismiss: () => setState(() => _inspect = null),
           ),
-          // Task 5 — the deliberate ending, never the accidental one.
-          // Everybody else has gone. A match with one person left at the table
-          // is not a match; say so and offer the way home rather than run the
-          // clocks on for nobody (owner, 2026-09-23).
-          SceneSheet(
-            visible: _abandoned(snapshot),
-            title: context.l10n.onlineAbandonedTitle,
-            body: context.l10n.onlineAbandonedBody,
-            onDismiss: () {},
-            actions: [
-              SceneAction(
-                key: const ValueKey('table_abandoned_home'),
-                label: context.l10n.homeAction,
-                emphasised: true,
-                onTap: () async {
-                  final transport = ref.read(onlineSessionProvider).transport;
-                  if (snapshot.canAdvance) await transport?.closeRoom();
-                  await ref.read(onlineSessionProvider.notifier).leave();
-                  if (mounted) widget.onExit();
-                },
-              ),
-            ],
-          ),
-          SceneSheet(
-            visible: _closing,
-            title: context.l10n.onlineHostExitTitle,
-            body: context.l10n.onlineHostExitBody,
-            onDismiss: () => setState(() => _closing = false),
-            actions: [
-              SceneAction(
-                key: const ValueKey('table_leave_keep_room'),
-                label: context.l10n.onlineLeaveKeepRoom,
-                emphasised: true,
-                onTap: () async {
-                  setState(() => _closing = false);
-                  await ref.read(onlineSessionProvider.notifier).leave();
-                  if (mounted) widget.onExit();
-                },
-              ),
-              SceneAction(
-                key: OnlineTableFlow.closeRoomConfirm,
-                label: context.l10n.onlineCloseRoomConfirm,
-                emphasised: true,
-                onTap: () {
-                  setState(() => _closing = false);
-                  ref.read(onlineSessionProvider).transport?.closeRoom();
-                },
-              ),
-            ],
-          ),
-          HostHandover(snapshot: snapshot),
-          // Doc 14 §3.4. Over the table, never instead of it: the timer and
-          // the seats stay live underneath, because a whisper is a thing that
-          // happens *during* the argument.
-          if (_incoming != null)
-            WhisperCard(
-              key: ValueKey(_incoming!.id),
-              senderName: _incoming!.senderName,
-              body: _incoming!.body,
-              onDismissed: () {
-                final id = _incoming!.id;
-                setState(() => _incoming = null);
-                _controller.markWhisperDelivered(id);
-              },
-            ),
-        ],
+        ),
       ),
     );
+  }
+
+  bool _keyboardInTextField() {
+    final context = FocusManager.instance.primaryFocus?.context;
+    return context?.widget is EditableText ||
+        context?.findAncestorWidgetOfExactType<EditableText>() != null;
+  }
+
+  void _keyboardFloor(VoiceState? state) {
+    final controller = ref.read(voiceControllerProvider);
+    if (controller == null || state == null) return;
+    if (state.holdsFloor) {
+      unawaited(controller.yieldFloor());
+    } else if (state.canRequestFloor) {
+      unawaited(controller.requestFloor());
+    }
+  }
+
+  void _keyboardMic(VoiceState? state) {
+    final controller = ref.read(voiceControllerProvider);
+    if (controller != null && state != null && state.canMuteSelf) {
+      unawaited(controller.setSelfMuted(!state.selfMuted));
+    }
+  }
+
+  void _keyboardConfirm(GameSnapshot snapshot, MatchUiState state) {
+    if (_submitted || _acknowledged) return;
+    switch (snapshot.phase) {
+      case GamePhase.night:
+        final turn = state.actorTurn;
+        if (turn != null &&
+            !_citizenRests(snapshot, state) &&
+            !(turn.actorRole == Role.doctor && _selected == null)) {
+          unawaited(_confirmNight());
+        }
+      case GamePhase.openingRound:
+        if (_selected != null) _confirmAccusation();
+      case GamePhase.voting:
+        if (_selected != null && !snapshot.viewerSilenced) {
+          _confirmVote(abstaining: false);
+        }
+      default:
+        break;
+    }
+  }
+
+  void _keyboardClose() {
+    if (_inspect != null || _dossier != null || _composing || _closing) {
+      setState(() {
+        _inspect = null;
+        _dossier = null;
+        _composing = false;
+        _closing = false;
+      });
+    } else {
+      Navigator.maybePop(context);
+    }
   }
 
   // ── which seats may be tapped ────────────────────────────────────────────
@@ -2347,6 +2456,22 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
 }
 
 /// One whisper on its way onto the screen.
+class _TableFloorIntent extends Intent {
+  const _TableFloorIntent();
+}
+
+class _TableConfirmIntent extends Intent {
+  const _TableConfirmIntent();
+}
+
+class _TableMicIntent extends Intent {
+  const _TableMicIntent();
+}
+
+class _TableCloseIntent extends Intent {
+  const _TableCloseIntent();
+}
+
 class _Incoming {
   final String id;
   final String senderName;

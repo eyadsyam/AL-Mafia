@@ -7451,4 +7451,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addToHomeDone => 'Got it';
+
+  @override
+  String get keyFloor => 'Take the floor';
+
+  @override
+  String get keyConfirm => 'Confirm';
+
+  @override
+  String get keyMic => 'Mic';
+
+  @override
+  String get keyClose => 'Close';
+
+  @override
+  String get keyChoose => 'Choose';
+
+  @override
+  String get keyBack => 'Back';
 }

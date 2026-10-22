@@ -3291,5 +3291,11 @@
   "addToHomeStep1": "دوس على زرار المشاركة تحت",
   "addToHomeStep2": "اختار «إضافة إلى الشاشة الرئيسية»",
   "addToHomeStep3": "افتحها من أيقونة سيد المافيا",
-  "addToHomeDone": "تمام"
+  "addToHomeDone": "تمام",
+  "keyFloor": "اطلب الكلمة",
+  "keyConfirm": "أكّد",
+  "keyMic": "المايك",
+  "keyClose": "اقفل",
+  "keyChoose": "اختار",
+  "keyBack": "ارجع"
 }

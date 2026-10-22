@@ -238,107 +238,278 @@ class TableScene extends StatelessWidget {
         .firstOrNull;
 
     return TablePulse(
-      child: Stack(
-        key: surface,
-        fit: StackFit.expand,
+      child: LayoutBuilder(
+        builder: (context, box) => Stack(
+          key: surface,
+          fit: StackFit.expand,
+          children: [
+            ColoredBox(color: colors.surfaceBase),
+            _Backdrop(
+              mood: mood,
+              winner: snapshot.outcome?.winner,
+              pack: cosmeticsVisibleIn(snapshot.phase)
+                  ? Cosmetics.packs[snapshot.room.presentationPack]
+                  : null,
+            ),
+            if (mood.kind == TableMoodKind.morning)
+              _MorningSweep(day: snapshot.dayNumber),
+            SafeArea(
+              child: box.maxWidth >= DesktopLayoutTokens.desktopMinWidth
+                  ? _desktopLayout(context, mood, viewer)
+                  : Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: spacing.screenMargin,
+                      ),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            key: header,
+                            height: CouncilTokens.headerHeight,
+                            child: _CouncilHeader(
+                              snapshot: snapshot,
+                              onCloseRoom: onCloseRoom,
+                            ),
+                          ),
+                          const BandDivider(),
+                          Expanded(
+                            flex: CouncilTokens.councilFlex,
+                            child: CouncilBand(
+                              key: council,
+                              seats: seatsFor(
+                                snapshot,
+                                mood: mood,
+                                speakingLevels: speakingLevels,
+                                witnessRoles: witnessRoles,
+                              ),
+                              totalPlayers: snapshot.public.players.length,
+                              selectedSeat: selectedSeat,
+                              selectableSeats: selectableSeats,
+                              onSeatTap: onSeatTap,
+                              onSeatInspect: onSeatInspect,
+                              crackingSeat: tearingSeat,
+                              crackProgress: tearProgress,
+                              spark: spark,
+                              spotlight: spotlight,
+                              revealProgress: revealProgress,
+                              leftLabel: context.l10n.onlineLeftRoom,
+                              seatMarks: seatMarks,
+                            ),
+                          ),
+                          Expanded(
+                            key: voice,
+                            flex: CouncilTokens.voiceFlex,
+                            child: AnimatedSwitcher(
+                              duration: ReduceMotion.of(context)
+                                  ? Duration.zero
+                                  : context.motion.band,
+                              switchInCurve: context.motion.standardCurve,
+                              switchOutCurve: context.motion.standardCurve,
+                              transitionBuilder: bandTransition,
+                              child: KeyedSubtree(
+                                key: ValueKey(snapshot.phase),
+                                child: centre ?? const SizedBox.shrink(),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            key: hand,
+                            flex: CouncilTokens.handFlex,
+                            child: _HandBand(
+                              footer: footer,
+                              viewer: viewer,
+                              speakingLevel: mood.showsPerSeatStatus
+                                  ? (speakingLevels[snapshot.viewerSeat] ?? 0)
+                                  : 0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+            SafeArea(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: spacing.screenMargin,
+                  right: spacing.screenMargin,
+                  top: CouncilTokens.headerHeight + spacing.sm,
+                ),
+                child: Align(
+                  alignment: AlignmentDirectional.topCenter,
+                  child: box.maxWidth >= DesktopLayoutTokens.desktopMinWidth
+                      ? const SizedBox.shrink()
+                      : ToolFeed(snapshot: snapshot),
+                ),
+              ),
+            ),
+            if (Cosmetics.packs.containsKey(snapshot.room.presentationPack) ||
+                Cosmetics.narrators.containsKey(snapshot.room.narratorPack))
+              RoomPresentationLayer(snapshot: snapshot),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _desktopLayout(
+    BuildContext context,
+    TableMood mood,
+    PublicPlayer? viewer,
+  ) {
+    final s = context.spacing;
+    return Padding(
+      padding: EdgeInsets.all(s.screenMargin),
+      child: Row(
         children: [
-          ColoredBox(color: colors.surfaceBase),
-          _Backdrop(
-            mood: mood,
-            winner: snapshot.outcome?.winner,
-            pack: cosmeticsVisibleIn(snapshot.phase)
-                ? Cosmetics.packs[snapshot.room.presentationPack]
-                : null,
-          ),
-          if (mood.kind == TableMoodKind.morning)
-            _MorningSweep(day: snapshot.dayNumber),
-          SafeArea(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: spacing.screenMargin),
-              child: Column(
-                children: [
-                  SizedBox(
-                    key: header,
-                    height: CouncilTokens.headerHeight,
-                    child: _CouncilHeader(
-                      snapshot: snapshot,
-                      onCloseRoom: onCloseRoom,
+          Expanded(
+            key: const ValueKey('table_desktop_start'),
+            flex: DesktopLayoutTokens.tableRailFlex,
+            child: Column(
+              children: [
+                SizedBox(
+                  height: CouncilTokens.headerHeight,
+                  child: _CouncilHeader(
+                    snapshot: snapshot,
+                    onCloseRoom: onCloseRoom,
+                    showTools: false,
+                  ),
+                ),
+                const BandDivider(),
+                Expanded(
+                  child: AnimatedSwitcher(
+                    duration: ReduceMotion.of(context)
+                        ? Duration.zero
+                        : context.motion.band,
+                    switchInCurve: context.motion.standardCurve,
+                    switchOutCurve: context.motion.standardCurve,
+                    transitionBuilder: bandTransition,
+                    child: KeyedSubtree(
+                      key: ValueKey(snapshot.phase),
+                      child: mood.kind == TableMoodKind.morning
+                          ? const SizedBox.shrink()
+                          : centre ?? const SizedBox.shrink(),
                     ),
                   ),
-                  const BandDivider(),
-                  Expanded(
-                    flex: CouncilTokens.councilFlex,
-                    child: CouncilBand(
-                      key: council,
-                      seats: seatsFor(
-                        snapshot,
-                        mood: mood,
-                        speakingLevels: speakingLevels,
-                        witnessRoles: witnessRoles,
-                      ),
-                      totalPlayers: snapshot.public.players.length,
-                      selectedSeat: selectedSeat,
-                      selectableSeats: selectableSeats,
-                      onSeatTap: onSeatTap,
-                      onSeatInspect: onSeatInspect,
-                      crackingSeat: tearingSeat,
-                      crackProgress: tearProgress,
-                      spark: spark,
-                      spotlight: spotlight,
-                      revealProgress: revealProgress,
-                      leftLabel: context.l10n.onlineLeftRoom,
-                      seatMarks: seatMarks,
-                    ),
+                ),
+                Expanded(
+                  child: _HandBand(
+                    footer: footer,
+                    viewer: viewer,
+                    speakingLevel: mood.showsPerSeatStatus
+                        ? (speakingLevels[snapshot.viewerSeat] ?? 0)
+                        : 0,
                   ),
-                  Expanded(
-                    key: voice,
-                    flex: CouncilTokens.voiceFlex,
-                    child: AnimatedSwitcher(
-                      duration: ReduceMotion.of(context)
-                          ? Duration.zero
-                          : context.motion.band,
-                      switchInCurve: context.motion.standardCurve,
-                      switchOutCurve: context.motion.standardCurve,
-                      transitionBuilder: bandTransition,
-                      child: KeyedSubtree(
-                        key: ValueKey(snapshot.phase),
-                        child: centre ?? const SizedBox.shrink(),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    key: hand,
-                    flex: CouncilTokens.handFlex,
-                    child: _HandBand(
-                      footer: footer,
-                      viewer: viewer,
-                      speakingLevel: mood.showsPerSeatStatus
-                          ? (speakingLevels[snapshot.viewerSeat] ?? 0)
-                          : 0,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          SafeArea(
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: spacing.screenMargin,
-                right: spacing.screenMargin,
-                top: CouncilTokens.headerHeight + spacing.sm,
-              ),
-              child: Align(
-                alignment: AlignmentDirectional.topCenter,
-                child: ToolFeed(snapshot: snapshot),
-              ),
+          const SizedBox(width: DesktopLayoutTokens.railGap),
+          Expanded(
+            key: const ValueKey('table_desktop_centre'),
+            flex: DesktopLayoutTokens.tableCentreFlex,
+            child: Column(
+              children: [
+                Expanded(
+                  child: CouncilBand(
+                    key: council,
+                    seats: seatsFor(
+                      snapshot,
+                      mood: mood,
+                      speakingLevels: speakingLevels,
+                      witnessRoles: witnessRoles,
+                    ),
+                    totalPlayers: snapshot.public.players.length,
+                    selectedSeat: selectedSeat,
+                    selectableSeats: selectableSeats,
+                    onSeatTap: onSeatTap,
+                    onSeatInspect: onSeatInspect,
+                    crackingSeat: tearingSeat,
+                    crackProgress: tearProgress,
+                    spark: spark,
+                    spotlight: spotlight,
+                    revealProgress: revealProgress,
+                    leftLabel: context.l10n.onlineLeftRoom,
+                    seatMarks: seatMarks,
+                  ),
+                ),
+                Wrap(
+                  spacing: s.sm,
+                  children: [
+                    _keyHint(context, 'Space', context.l10n.keyFloor),
+                    _keyHint(context, 'Enter', context.l10n.keyConfirm),
+                    _keyHint(context, 'M', context.l10n.keyMic),
+                    _keyHint(context, 'Esc', context.l10n.keyClose),
+                  ],
+                ),
+              ],
             ),
           ),
-          if (Cosmetics.packs.containsKey(snapshot.room.presentationPack) ||
-              Cosmetics.narrators.containsKey(snapshot.room.narratorPack))
-            RoomPresentationLayer(snapshot: snapshot),
+          const SizedBox(width: DesktopLayoutTokens.railGap),
+          Expanded(
+            key: const ValueKey('table_desktop_end'),
+            flex: DesktopLayoutTokens.tableRailFlex,
+            child: Column(
+              children: [
+                ToolFeed(snapshot: snapshot),
+                if (mood.kind == TableMoodKind.morning && centre != null)
+                  Expanded(child: centre!),
+                _TableTools(snapshot: snapshot),
+              ],
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _keyHint(BuildContext context, String key, String label) => Padding(
+    padding: EdgeInsets.all(context.spacing.xs),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(DesktopLayoutTokens.keyInset),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: context.colors.borderSubtle,
+              width: DesktopLayoutTokens.keyBorderWidth,
+            ),
+          ),
+          child: Text(
+            key,
+            style: const TextStyle(
+              fontFamily: DesktopLayoutTokens.keyFontFamily,
+              fontSize: DesktopLayoutTokens.keyFontSize,
+            ),
+          ),
+        ),
+        SizedBox(width: context.spacing.xs),
+        Text(label, style: context.typography.caption),
+      ],
+    ),
+  );
+}
+
+class _TableTools extends ConsumerWidget {
+  final GameSnapshot snapshot;
+  const _TableTools({required this.snapshot});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final room = ref.watch(onlineSessionProvider.select((s) => s.room?.roomId));
+    final viewer = snapshot.viewerSeat;
+    if (room == null || viewer == null) return const SizedBox.shrink();
+    final players = snapshot.public.players;
+    return TableToolsButton(
+      roomId: room,
+      phase: serverPhaseOf(snapshot.phase.name),
+      alive: players.any(
+        (p) => p.seat == viewer && p.status == PlayerStatus.alive,
+      ),
+      seats: {
+        for (final p in players)
+          if (p.seat != viewer && p.status == PlayerStatus.alive)
+            p.seat: p.name,
+      },
     );
   }
 }
@@ -346,8 +517,13 @@ class TableScene extends StatelessWidget {
 class _CouncilHeader extends StatelessWidget {
   final GameSnapshot snapshot;
   final VoidCallback? onCloseRoom;
+  final bool showTools;
 
-  const _CouncilHeader({required this.snapshot, this.onCloseRoom});
+  const _CouncilHeader({
+    required this.snapshot,
+    this.onCloseRoom,
+    this.showTools = true,
+  });
 
   String _label(BuildContext context) {
     final l10n = context.l10n;
@@ -384,28 +560,7 @@ class _CouncilHeader extends StatelessWidget {
         ),
         if (snapshot.phaseDeadline != null)
           HeaderTimer(deadline: snapshot.phaseDeadline!),
-        Consumer(
-          builder: (context, ref, _) {
-            final room = ref.watch(
-              onlineSessionProvider.select((s) => s.room?.roomId),
-            );
-            final viewer = snapshot.viewerSeat;
-            if (room == null || viewer == null) return const SizedBox.shrink();
-            final players = snapshot.public.players;
-            return TableToolsButton(
-              roomId: room,
-              phase: serverPhaseOf(snapshot.phase.name),
-              alive: players.any(
-                (p) => p.seat == viewer && p.status == PlayerStatus.alive,
-              ),
-              seats: {
-                for (final p in players)
-                  if (p.seat != viewer && p.status == PlayerStatus.alive)
-                    p.seat: p.name,
-              },
-            );
-          },
-        ),
+        if (showTools) _TableTools(snapshot: snapshot),
         const SafetyButton(),
         if (onCloseRoom != null)
           IconButton(

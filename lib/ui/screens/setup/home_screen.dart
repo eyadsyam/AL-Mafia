@@ -129,26 +129,83 @@ class HomeScreen extends ConsumerWidget {
         child: AppBackdrop(
           image: AppImages.bgHome,
           loop: AppVideo.bgHomeLoop,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              const FallingIcons(),
-              CardSpread(
-                tiltSource: tiltSource,
-                // The deal is on-table by definition — this screen is the one
-                // moment nobody is holding anything private — so a sound here
-                // is safe in a way one during a turn never is.
-                onDealStarted: () => _flipSound(ref),
-                onFlip: () => _flipSound(ref),
-              ),
-              const BottomHaze(),
-              SafeArea(
-                child: Stack(
-                  children: [
-                    _corner(context, ref, l10n),
-                    // Store truth: this player's own chip, dressed with what
-                    // they equipped; a tap opens Profile.
-                    _titleAndAction(
+          child: LayoutBuilder(
+            builder: (context, box) =>
+                box.maxWidth >= DesktopLayoutTokens.desktopMinWidth
+                ? _desktop(
+                    context,
+                    ref,
+                    l10n,
+                    colors,
+                    spacing,
+                    radii,
+                    type,
+                    bondsEnabled,
+                  )
+                : Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      const FallingIcons(),
+                      CardSpread(
+                        tiltSource: tiltSource,
+                        // The deal is on-table by definition — this screen is the one
+                        // moment nobody is holding anything private — so a sound here
+                        // is safe in a way one during a turn never is.
+                        onDealStarted: () => _flipSound(ref),
+                        onFlip: () => _flipSound(ref),
+                      ),
+                      const BottomHaze(),
+                      SafeArea(
+                        child: Stack(
+                          children: [
+                            _corner(context, ref, l10n),
+                            // Store truth: this player's own chip, dressed with what
+                            // they equipped; a tap opens Profile.
+                            _titleAndAction(
+                              context,
+                              colors: colors,
+                              spacing: spacing,
+                              radii: radii,
+                              type: type,
+                              l10n: l10n,
+                              bondsEnabled: bondsEnabled,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _desktop(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    MafiaColors colors,
+    MafiaSpacing spacing,
+    MafiaRadii radii,
+    MafiaTypography type,
+    bool bondsEnabled,
+  ) => SafeArea(
+    child: Row(
+      children: [
+        Expanded(
+          key: const ValueKey('home_desktop_start'),
+          flex: DesktopLayoutTokens.homeStartFlex,
+          child: Padding(
+            padding: EdgeInsets.all(spacing.screenMargin),
+            child: Column(
+              children: [
+                _cornerRow(context, ref, l10n),
+                ?banner,
+                const PlayAppRibbon(),
+                Expanded(
+                  child: Center(
+                    child: _titleAndAction(
                       context,
                       colors: colors,
                       spacing: spacing,
@@ -156,16 +213,33 @@ class HomeScreen extends ConsumerWidget {
                       type: type,
                       l10n: l10n,
                       bondsEnabled: bondsEnabled,
+                      desktop: true,
                     ),
-                  ],
+                  ),
                 ),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          key: const ValueKey('home_desktop_end'),
+          flex: DesktopLayoutTokens.homeEndFlex,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              const FallingIcons(),
+              CardSpread(
+                tiltSource: tiltSource,
+                onDealStarted: () => _flipSound(ref),
+                onFlip: () => _flipSound(ref),
               ),
+              const BottomHaze(),
             ],
           ),
         ),
-      ),
-    );
-  }
+      ],
+    ),
+  );
 
   /// The page turn, for the deal and for every card the host taps over.
   ///
@@ -289,9 +363,10 @@ class HomeScreen extends ConsumerWidget {
     required MafiaTypography type,
     required AppLocalizations l10n,
     required bool bondsEnabled,
+    bool desktop = false,
   }) {
     return Align(
-      alignment: Alignment.bottomCenter,
+      alignment: desktop ? Alignment.center : Alignment.bottomCenter,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: spacing.maxContentWidth),
         child: Padding(

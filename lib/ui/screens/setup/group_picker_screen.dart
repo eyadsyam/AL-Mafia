@@ -305,6 +305,7 @@ class _GroupTile extends StatelessWidget {
         key: GroupPickerScreen.tileFor(group.id),
         onTap: onTap,
         onLongPress: onLongPress,
+        onSecondaryTap: onLongPress,
         borderRadius: BorderRadius.circular(radii.card),
         child: MafiaPanel(
           // Not a fixed height: the two lines plus generous padding is what

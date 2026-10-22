@@ -455,18 +455,21 @@ class _SpreadCard extends StatelessWidget {
               angle: angle,
               child: Transform.scale(
                 scale: 1 + lift * 0.16,
-                child: GestureDetector(
-                  onTap: onTap,
-                  child: _Face(
-                    role: slot.role,
-                    flip: flip,
-                    depth: slot.depth + lift,
-                    decodeWidth:
-                        (cardSize.width *
-                                MediaQuery.devicePixelRatioOf(context) *
-                                DeviceClassTokens.cardDecodeScale)
-                            .ceil()
-                            .clamp(1, DeviceClassTokens.cardDecodeMaxWidth),
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: onTap,
+                    child: _Face(
+                      role: slot.role,
+                      flip: flip,
+                      depth: slot.depth + lift,
+                      decodeWidth:
+                          (cardSize.width *
+                                  MediaQuery.devicePixelRatioOf(context) *
+                                  DeviceClassTokens.cardDecodeScale)
+                              .ceil()
+                              .clamp(1, DeviceClassTokens.cardDecodeMaxWidth),
+                    ),
                   ),
                 ),
               ),

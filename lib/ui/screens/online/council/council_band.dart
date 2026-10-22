@@ -343,6 +343,7 @@ class _CouncilBandState extends State<CouncilBand>
     duration: Duration.zero,
   );
   int? _previousSelected;
+  int? _hoveredSeat;
 
   @override
   void didChangeDependencies() {
@@ -470,6 +471,7 @@ class _CouncilBandState extends State<CouncilBand>
                       seats: widget.seats,
                       positions: positions,
                       selectedSeat: widget.selectedSeat,
+                      hoveredSeat: _hoveredSeat,
                       previousSelected: _previousSelected,
                       shift: _shift.isAnimating || _shift.isCompleted
                           ? _shift.value
@@ -506,33 +508,49 @@ class _CouncilBandState extends State<CouncilBand>
             for (var index = 0; index < positions.length; index++)
               Positioned.fromRect(
                 rect: positions[index].hitRect,
-                child: Semantics(
-                  label: widget.seats[index].name,
-                  button: widget.selectableSeats.contains(
-                    widget.seats[index].seat,
-                  ),
-                  selected: widget.selectedSeat == widget.seats[index].seat,
-                  child: GestureDetector(
-                    key: CouncilBand.seatKey(widget.seats[index].seat),
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      final seat = widget.seats[index].seat;
-                      if (widget.onSeatTap != null &&
-                          widget.selectableSeats.contains(seat)) {
-                        widget.onSeatTap!(seat);
-                        return;
-                      }
-                      if (widget.seats[index].isEmpty) return;
-                      widget.onSeatInspect?.call(seat);
-                    },
-                    onLongPress: widget.seats[index].isEmpty
-                        ? null
-                        : () => widget.onSeatInspect?.call(
-                            widget.seats[index].seat,
-                          ),
-                    // Nothing is drawn here. The whole seat, including the
-                    // acknowledgement a tap produces, belongs to the painter.
-                    child: const SizedBox.expand(),
+                child: MouseRegion(
+                  cursor: widget.seats[index].isEmpty
+                      ? SystemMouseCursors.basic
+                      : SystemMouseCursors.click,
+                  onEnter: (_) =>
+                      setState(() => _hoveredSeat = widget.seats[index].seat),
+                  onExit: (_) => setState(() => _hoveredSeat = null),
+                  child: Tooltip(
+                    message: widget.seats[index].name ?? '',
+                    child: Semantics(
+                      label: widget.seats[index].name,
+                      button: widget.selectableSeats.contains(
+                        widget.seats[index].seat,
+                      ),
+                      selected: widget.selectedSeat == widget.seats[index].seat,
+                      child: GestureDetector(
+                        key: CouncilBand.seatKey(widget.seats[index].seat),
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          final seat = widget.seats[index].seat;
+                          if (widget.onSeatTap != null &&
+                              widget.selectableSeats.contains(seat)) {
+                            widget.onSeatTap!(seat);
+                            return;
+                          }
+                          if (widget.seats[index].isEmpty) return;
+                          widget.onSeatInspect?.call(seat);
+                        },
+                        onLongPress: widget.seats[index].isEmpty
+                            ? null
+                            : () => widget.onSeatInspect?.call(
+                                widget.seats[index].seat,
+                              ),
+                        onSecondaryTap: widget.seats[index].isEmpty
+                            ? null
+                            : () => widget.onSeatInspect?.call(
+                                widget.seats[index].seat,
+                              ),
+                        // Nothing is drawn here. The whole seat, including the
+                        // acknowledgement a tap produces, belongs to the painter.
+                        child: const SizedBox.expand(),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -563,6 +581,7 @@ class CouncilPainter extends CustomPainter {
   final List<CouncilSeatData> seats;
   final List<CouncilSeatLayout> positions;
   final int? selectedSeat;
+  final int? hoveredSeat;
   final int? previousSelected;
 
   /// 0 at the instant the selection changed, 1 once the hand-off is done.
@@ -606,6 +625,7 @@ class CouncilPainter extends CustomPainter {
     required this.seats,
     required this.positions,
     required this.selectedSeat,
+    this.hoveredSeat,
     required this.previousSelected,
     required this.shift,
     required this.crackingSeat,
@@ -772,7 +792,8 @@ class CouncilPainter extends CustomPainter {
         : dead || gone
         ? cracked
         : idle;
-    final tint = chosen || speaking || seat.lobbyReady
+    final tint =
+        chosen || speaking || seat.lobbyReady || hoveredSeat == seat.seat
         ? gold
         // Cream rather than gold: gold is the colour of a choice being made,
         // and the match is over. Warmth is what is left when there is nothing
@@ -1216,6 +1237,7 @@ class CouncilPainter extends CustomPainter {
       !listEquals(old.seats, seats) ||
       !listEquals(old.positions, positions) ||
       old.selectedSeat != selectedSeat ||
+      old.hoveredSeat != hoveredSeat ||
       old.previousSelected != previousSelected ||
       old.shift != shift ||
       old.crackingSeat != crackingSeat ||

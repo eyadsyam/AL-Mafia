@@ -30,6 +30,38 @@ class _Wallet extends WalletController {
 }
 
 void main() {
+  for (final size in const [Size(1440, 900), Size(390, 844)]) {
+    testWidgets('Home layout at $size', (tester) async {
+      await tester.binding.setSurfaceSize(size);
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [audioDirectorProvider.overrideWithValue(AudioDirector())],
+          child: localizedApp(
+            HomeScreen(
+              onNewMatch: () {},
+              onHistory: () {},
+              onSettings: () {},
+              onHowToPlay: () {},
+              tiltSource: const LevelTiltSource(),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      final desktop = size.width >= 1024;
+      expect(
+        find.byKey(const ValueKey('home_desktop_start')),
+        desktop ? findsOneWidget : findsNothing,
+      );
+      expect(
+        find.byKey(const ValueKey('home_desktop_end')),
+        desktop ? findsOneWidget : findsNothing,
+      );
+      expect(find.byKey(HomeScreen.startButton), findsOneWidget);
+    });
+  }
+
   testWidgets('Home has one profile entry: the dressed identity chip', (
     tester,
   ) async {

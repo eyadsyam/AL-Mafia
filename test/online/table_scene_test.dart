@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/engine/information/records.dart';
 import 'package:mafia_master/engine/models/enums.dart';
@@ -59,6 +60,88 @@ void main() {
     whisperGraph: whispers,
     confrontation: confrontation,
   );
+
+  for (final size in const [Size(1440, 900), Size(390, 844)]) {
+    testWidgets('table columns at $size', (tester) async {
+      await tester.binding.setSurfaceSize(size);
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        localizedApp(
+          Scaffold(
+            body: TableScene(
+              snapshot: snapshotOf(phase: GamePhase.voting),
+              footer: const FilledButton(
+                onPressed: null,
+                child: Text('Confirm'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      final desktop = size.width >= 1024;
+      final start = find.byKey(const ValueKey('table_desktop_start'));
+      expect(start, desktop ? findsOneWidget : findsNothing);
+      expect(find.byKey(TableScene.council), findsOneWidget);
+      expect(find.text('Confirm'), findsOneWidget);
+      if (desktop) {
+        expect(
+          find.descendant(of: start, matching: find.text('Confirm')),
+          findsOneWidget,
+        );
+      }
+    });
+  }
+
+  testWidgets('secondary click inspects the same seat as long press', (
+    tester,
+  ) async {
+    final inspections = <int>[];
+    await tester.pumpWidget(
+      localizedApp(
+        Scaffold(
+          body: TableScene(
+            snapshot: snapshotOf(phase: GamePhase.discussion),
+            onSeatInspect: inspections.add,
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    final seat = find.byKey(TableScene.seatKey(1));
+    await tester.longPress(seat);
+    final gesture = await tester.startGesture(
+      tester.getCenter(seat),
+      kind: PointerDeviceKind.mouse,
+      buttons: kSecondaryMouseButton,
+    );
+    await gesture.up();
+    expect(inspections, [1, 1]);
+  });
+
+  testWidgets('seat hover text is identical across secret role deals', (
+    tester,
+  ) async {
+    final snapshot = snapshotOf(phase: GamePhase.discussion);
+    Future<String> tooltipFor(Role role) async {
+      await tester.pumpWidget(
+        localizedApp(
+          Scaffold(
+            body: TableScene(snapshot: snapshot, witnessRoles: {1: role}),
+          ),
+        ),
+      );
+      await tester.pump();
+      final seat = find.byKey(TableScene.seatKey(1));
+      return tester
+          .widget<Tooltip>(
+            find.ancestor(of: seat, matching: find.byType(Tooltip)).first,
+          )
+          .message!;
+    }
+
+    expect(await tooltipFor(Role.mafia), await tooltipFor(Role.doctor));
+  });
 
   Future<void> pump(
     WidgetTester tester,
@@ -176,7 +259,9 @@ void main() {
           speaker: 1,
           connected: const {2: false, 4: false},
           ballots: const {1: 3, 2: 4},
-          whispers: [const WhisperMeta(id: 'w1', day: 1, fromSeat: 0, toSeat: 1)],
+          whispers: [
+            const WhisperMeta(id: 'w1', day: 1, fromSeat: 0, toSeat: 1),
+          ],
           dead: const {5},
         ),
       );
@@ -279,7 +364,9 @@ void main() {
         snapshotOf(
           phase: GamePhase.voting,
           ballots: const {1: 3, 2: null},
-          whispers: [const WhisperMeta(id: 'w', day: 1, fromSeat: 0, toSeat: 1)],
+          whispers: [
+            const WhisperMeta(id: 'w', day: 1, fromSeat: 0, toSeat: 1),
+          ],
         ),
         selected: 4,
       );
