@@ -450,6 +450,14 @@ def main():
     h._POOL_TAKEN[0] = 0
     count = 10 if os.environ.get('LIVE_AFFECTED') == '1' else 12
     BOTS = [h.anon_session('LiveBot%d' % i) for i in range(count)]
+    if os.environ.get('LIVE_ROLES_TIMERS_ONLY') == '1':
+        # The everyone-AFK cycle alone (run_live_suite.py --roles-timers):
+        # no coins, no tools, five bots that never act.
+        try:
+            timer_match()
+        except Exception as e:
+            record('timers: scenario interrupted', False, type(e).__name__)
+        return
     if not setup_coins():
         record('roles/tools scenarios blocked by coin setup', False, 'NO_PRIVILEGED_SETUP')
         return
@@ -574,9 +582,26 @@ def timer_match():
     # Every real deadline in a row, opening round included, plus the margins
     # on the server clock: 850 s ran out one phase (the verdict) short.
     until = time.monotonic() + 1500
+    dropped = 0
+    previous = None
     while time.monotonic() < until:
-        state = m.state()
+        try:
+            state = m.state()
+        except (urllib.error.URLError, TimeoutError, ConnectionError):
+            # This laptop's own link dropping is not the server's fault: wait
+            # and read again. A server that really stops answering still ends
+            # the scenario after a long run of drops.
+            dropped += 1
+            if dropped > 30:
+                raise
+            time.sleep(5)
+            continue
         phase = state['phase']
+        # A phase the room has left was driven out by its deadline (nothing
+        # else acts in this room), even when the answer to our call was lost.
+        if previous and phase != previous:
+            seen.add(previous)
+        previous = phase
         end = state.get('phase_ends_at')
         if not end:
             record('timer has deadline ' + phase, False, 'NO_DEADLINE')
@@ -587,27 +612,36 @@ def timer_match():
             time.sleep(min(delay, 15))
             continue
         guest = m.players[1]
-        for _ in range(4):
-            if phase in ('reveal', 'verdict'):
-                response = m.call('open_phase', guest, phase='night')
-            elif phase == 'morning':
-                response = m.call('open_phase', guest, phase='opening')
-            else:
-                response = m.call('advance_phase', guest)
-            # Still early by the server's clock: ask again rather than fail.
-            early = response[0] == 403 or 'not expired' in str(response[1].get('message', ''))
-            if response[0] == 200 or not early:
-                break
-            time.sleep(2)
-        record('timer expiry ' + phase, response[0] == 200, response[1].get('error'))
-        if response[0] == 200 and phase == 'night':
-            resolved = m.call('resolve_night', guest)
-            record('expired night resolves after defaults', resolved[0] == 200,
-                   resolved[1].get('error'))
-        elif response[0] == 200 and phase == 'vote':
-            resolved = m.call('resolve_vote', guest)
-            record('expired ballot resolves after abstentions', resolved[0] == 200,
-                   resolved[1].get('error'))
+        try:
+            for _ in range(4):
+                if phase in ('reveal', 'verdict'):
+                    response = m.call('open_phase', guest, phase='night')
+                elif phase == 'morning':
+                    response = m.call('open_phase', guest, phase='opening')
+                else:
+                    response = m.call('advance_phase', guest)
+                # Still early by the server's clock: ask again rather than fail.
+                early = response[0] == 403 or 'not expired' in str(response[1].get('message', ''))
+                if response[0] == 200 or not early:
+                    break
+                time.sleep(2)
+            record('timer expiry ' + phase, response[0] == 200, response[1].get('error'))
+            if response[0] == 200 and phase == 'night':
+                resolved = m.call('resolve_night', guest)
+                record('expired night resolves after defaults', resolved[0] == 200,
+                       resolved[1].get('error'))
+            elif response[0] == 200 and phase == 'vote':
+                resolved = m.call('resolve_vote', guest)
+                record('expired ballot resolves after abstentions', resolved[0] == 200,
+                       resolved[1].get('error'))
+        except (urllib.error.URLError, TimeoutError, ConnectionError):
+            # The answer was lost on this laptop's link; the next read shows
+            # where the room really is (the server's calls are idempotent).
+            dropped += 1
+            if dropped > 30:
+                raise
+            time.sleep(5)
+            continue
         seen.add(phase)
         if {'reveal', 'night', 'morning', 'opening', 'discuss', 'vote', 'verdict'} <= seen:
             break

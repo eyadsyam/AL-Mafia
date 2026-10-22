@@ -127,6 +127,10 @@ if __name__ == '__main__':
     if '--remaining' in sys.argv:
         run('new_roles_tools_match')
         raise SystemExit(0)
+    if '--roles-timers' in sys.argv:
+        os.environ['LIVE_ROLES_TIMERS_ONLY'] = '1'
+        run('new_roles_tools_match')
+        raise SystemExit(0)
     for name in ('e2e_match', 'ready_match', 'revote_match', 'recovery_match',
                  'kick_flow_match', 'kick_timing_match', 'roster_match',
                  'witness_match', 'concurrency_match'):
