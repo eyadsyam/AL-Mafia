@@ -46,6 +46,8 @@ import '../platform/push/push_service.dart';
 import '../ui/screens/online/online_session.dart'
     show SupabaseConfig, onlineSessionProvider;
 import 'locale_controller.dart';
+import '../data/story_catalog.dart' show StoryCatalog;
+import '../ui/screens/online/council/council_band.dart' show CouncilBand;
 import '../ui/widgets/warmup_gate.dart';
 import '../ui/social/incoming_invite.dart';
 import '../ui/social/friends.dart' show showFriendsSheet;
@@ -292,8 +294,14 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     // session is configured while nothing is sounding. Configuring it *after* a
     // player exists is how the two ended up fighting over audio focus.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // The council's rings and lights, decoded once in the background so the
+      // first lobby shows them with the room instead of a beat later.
+      CouncilBand.warmArt(rootBundle);
       await _loadNarrator();
       await _audio.warmUp();
+      // The cases, read once the cues are ready, so the first Stories visit
+      // finds them parsed.
+      StoryCatalog.prefetch();
       if (!mounted) return;
       // F19: the sonic mark as the app opens. Never on the web before a
       // gesture (browsers would refuse it, and a refused cue is a warning).

@@ -37,8 +37,26 @@ class StoryCatalog {
 
   /// Loads every case in parallel; one that fails to read or decode is
   /// skipped (and logged) instead of failing the whole hub.
-  Future<List<StoryDefinition>> load() async {
-    final bundle = _bundle ?? rootBundle;
+  ///
+  /// From the app's own bundle the answer is read once per process and kept
+  /// (the cases never change while it runs), so the app can [prefetch] it
+  /// after Home settles and the first Stories visit opens without a pause.
+  Future<List<StoryDefinition>> load() {
+    final bundle = _bundle;
+    if (bundle != null) return _read(bundle);
+    return _app ??= _read(rootBundle).then((stories) {
+      if (stories.isEmpty) _app = null; // nothing read: try again next time
+      return stories;
+    });
+  }
+
+  static Future<List<StoryDefinition>>? _app;
+
+  /// Starts [load] for the app's bundle without waiting for it.
+  static void prefetch() =>
+      const StoryCatalog().load().then<void>((_) {}, onError: (_) {});
+
+  static Future<List<StoryDefinition>> _read(AssetBundle bundle) async {
     final loaded = await Future.wait([
       for (final path in assetPaths)
         () async {

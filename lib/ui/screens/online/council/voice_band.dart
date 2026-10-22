@@ -58,10 +58,7 @@ class CouncilVoice extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (leading != null) ...[
-              leading!,
-              SizedBox(height: spacing.md),
-            ],
+            if (leading != null) ...[leading!, SizedBox(height: spacing.md)],
             Flexible(
               child: Text(
                 headline,
@@ -72,10 +69,7 @@ class CouncilVoice extends StatelessWidget {
                 ),
               ),
             ),
-            if (support != null) ...[
-              SizedBox(height: spacing.md),
-              support!,
-            ],
+            if (support != null) ...[SizedBox(height: spacing.md), support!],
           ],
         ),
       ),
@@ -236,6 +230,11 @@ class TimerRing extends StatelessWidget {
           Image.asset(
             AppCouncilArt.timerRing,
             color: colors.borderSubtle,
+            // A 512 px ring drawn at the ring's size: kept in memory at that.
+            cacheWidth:
+                (CouncilTokens.timerRingSize *
+                        (MediaQuery.maybeDevicePixelRatioOf(context) ?? 1.0))
+                    .ceil(),
             excludeFromSemantics: true,
           ),
           CustomPaint(

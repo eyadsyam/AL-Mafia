@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mafia_master/ui/theme/design_tokens.dart' show MafiaTiming;
 import 'package:mafia_master/platform/audio_backend.dart';
 import 'package:mafia_master/platform/audio_director.dart';
 import 'package:mafia_master/platform/narrator_bank.dart';
@@ -260,8 +261,34 @@ void main() {
       final director = AudioDirector(backend: _Warm(warmed))
         ..narrator = NarratorBank([clip('night_a', NarratorBeat.night)]);
       await director.warmUp();
+      await director.narratorWarmed;
       expect(warmed, contains('voice/kratos/night_a.ogg'));
     });
+
+    test(
+      'cues are warmed first; narrator clips follow in small batches',
+      () async {
+        final batches = <List<String>>[];
+        final director = AudioDirector(backend: _Batches(batches))
+          ..narrator = NarratorBank([
+            for (var i = 0; i < 9; i++) clip('night_$i', NarratorBeat.night),
+          ]);
+        await director.warmUp();
+        // The first batch is the cues alone; the narrator is still going.
+        expect(batches.first.any((key) => key.startsWith('voice/')), isFalse);
+        expect(batches.length, lessThan(4));
+        await director.narratorWarmed;
+        final narrator = batches.skip(1).toList();
+        expect(narrator, isNotEmpty);
+        for (final batch in narrator) {
+          expect(batch.length, lessThanOrEqualTo(MafiaTiming.audioWarmUpBatch));
+        }
+        expect(
+          narrator.expand((b) => b),
+          containsAll(['voice/kratos/night_0.ogg', 'voice/kratos/night_8.ogg']),
+        );
+      },
+    );
 
     test('an active store voice never falls back to the default bank', () {
       audio.registerNarratorBank(
@@ -313,8 +340,11 @@ void main() {
           reason: entry.key,
         );
         for (final clip in bank.clips) {
-          expect(File('assets/${clip.file}').existsSync(), isTrue,
-              reason: clip.file);
+          expect(
+            File('assets/${clip.file}').existsSync(),
+            isTrue,
+            reason: clip.file,
+          );
         }
         // A paid voice speaks every moment the free narrator does: each
         // (beat, condition) of the default bank has a line in the pack.
@@ -325,8 +355,11 @@ void main() {
           for (final c in bank.clips) '${c.beat.name}|${c.when}',
         };
         for (final c in base.clips) {
-          expect(packMoments, contains('${c.beat.name}|${c.when}'),
-              reason: '${entry.key} lacks ${c.beat.name} when ${c.when}');
+          expect(
+            packMoments,
+            contains('${c.beat.name}|${c.when}'),
+            reason: '${entry.key} lacks ${c.beat.name} when ${c.when}',
+          );
         }
       }
       expect(
@@ -360,6 +393,14 @@ void main() {
       }
     });
   });
+}
+
+class _Batches extends SilentAudioBackend {
+  final List<List<String>> batches;
+  _Batches(this.batches);
+  @override
+  Future<void> warmUp(Iterable<String> assetKeys) async =>
+      batches.add(assetKeys.toList());
 }
 
 class _Warm extends SilentAudioBackend {

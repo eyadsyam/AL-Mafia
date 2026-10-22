@@ -566,7 +566,9 @@ def timer_match():
     seen = set()
     # No role acknowledgements, actions or votes. Only the recovery driver acts
     # after real server deadlines; no privileged clock manipulation.
-    until = time.monotonic() + 850
+    # Every real deadline in a row, opening round included, plus the margins
+    # on the server clock: 850 s ran out one phase (the verdict) short.
+    until = time.monotonic() + 1500
     while time.monotonic() < until:
         state = m.state()
         phase = state['phase']

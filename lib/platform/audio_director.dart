@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../ui/theme/design_tokens.dart' show MafiaTiming;
 import 'audio_backend.dart';
 import 'narrator_bank.dart';
 
@@ -297,14 +298,34 @@ class AudioDirector {
   ///
   /// The registered narrator lines are included, so dropping recordings in and
   /// registering them before this runs gets them warmed too.
-  Future<void> warmUp() => backend.warmUp(<String>{
-    for (final cue in AudioCue.values)
-      if (cue.sound != null) _assetKey(cue.sound!),
-    for (final line in narratorLines.values) _assetKey(line),
-    for (final clip in _defaultNarrator.clips) _assetKey(clip.file),
-    for (final bank in narratorBanks.values)
-      for (final clip in bank.clips) _assetKey(clip.file),
-  });
+  ///
+  /// The cues are awaited (the session is configured and every short cue is
+  /// ready before the score starts). The narrator's clips — most of the
+  /// catalogue, and not needed until a match speaks — follow in the
+  /// background in small batches ([narratorWarmed]), so the score and the
+  /// Home screen no longer wait behind two hundred clips.
+  Future<void> warmUp() async {
+    await backend.warmUp(<String>{
+      for (final cue in AudioCue.values)
+        if (cue.sound != null) _assetKey(cue.sound!),
+    });
+    narratorWarmed = _warmNarrator();
+  }
+
+  /// Completes when [warmUp]'s background narrator batches are done.
+  Future<void> narratorWarmed = Future<void>.value();
+
+  Future<void> _warmNarrator() async {
+    final keys = <String>{
+      for (final line in narratorLines.values) _assetKey(line),
+      for (final clip in _defaultNarrator.clips) _assetKey(clip.file),
+      for (final bank in narratorBanks.values)
+        for (final clip in bank.clips) _assetKey(clip.file),
+    }.toList();
+    for (var i = 0; i < keys.length; i += MafiaTiming.audioWarmUpBatch) {
+      await backend.warmUp(keys.skip(i).take(MafiaTiming.audioWarmUpBatch));
+    }
+  }
 
   PhoneLocation get location => _location;
 

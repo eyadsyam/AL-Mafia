@@ -214,6 +214,38 @@ class CouncilSpark {
 /// The taps are a separate, thin layer of [GestureDetector]s positioned over
 /// the paint. They draw nothing.
 class CouncilBand extends StatefulWidget {
+  /// The band's five ring and light images, decoded once per process and
+  /// shared by every band: the first lobby and every table after it paint the
+  /// same pictures, and the app warms them after its first frame
+  /// ([warmArt]) so the first lobby never waits on a decode. Order: idle,
+  /// cracked, empty seat rings, light mote, spotlight.
+  static Future<List<ui.Image>> sharedArt(AssetBundle bundle) =>
+      _sharedArt ??= _decodeArt(bundle).catchError((Object error) {
+        _sharedArt = null; // a failed read is tried again next time
+        throw error;
+      });
+  static Future<List<ui.Image>>? _sharedArt;
+
+  /// Starts [sharedArt] without waiting for it.
+  static void warmArt(AssetBundle bundle) =>
+      unawaited(sharedArt(bundle).then<void>((_) {}, onError: (_) {}));
+
+  static Future<List<ui.Image>> _decodeArt(AssetBundle bundle) {
+    Future<ui.Image> load(String asset) async {
+      final data = await bundle.load(asset);
+      final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+      return (await codec.getNextFrame()).image;
+    }
+
+    return Future.wait([
+      load(AppCouncilArt.seatRingIdle),
+      load(AppCouncilArt.seatRingCracked),
+      load(AppCouncilArt.seatRingEmpty),
+      load(AppCouncilArt.lightMote),
+      load(AppCouncilArt.spotlight),
+    ]);
+  }
+
   final List<CouncilSeatData> seats;
 
   /// The size the council is laid out for — the whole match, not just the
@@ -384,16 +416,9 @@ class _CouncilBandState extends State<CouncilBand>
   Future<void> _loadArt() async {
     // Frame and plate art decodes alongside the ring art (not ahead of it),
     // and the one setState below paints both.
-    final cosmetics = CosmeticArtCache.load(
-      DefaultAssetBundle.of(context).load,
-    );
-    final images = await Future.wait([
-      _load(AppCouncilArt.seatRingIdle),
-      _load(AppCouncilArt.seatRingCracked),
-      _load(AppCouncilArt.seatRingEmpty),
-      _load(AppCouncilArt.lightMote),
-      _load(AppCouncilArt.spotlight),
-    ]);
+    final bundle = DefaultAssetBundle.of(context);
+    final cosmetics = CosmeticArtCache.load(bundle.load);
+    final images = await CouncilBand.sharedArt(bundle);
     await cosmetics;
     if (!mounted) return;
     setState(() {

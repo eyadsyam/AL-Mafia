@@ -1551,6 +1551,10 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// [publicRoomsBackoffCap], so a server that is down is not asked every
   /// fifteen seconds by every phone looking at the list.
   static const publicRoomsRefresh = Duration(seconds: 15);
+
+  /// The narrator's clips are prepared after the cues, this many at a time,
+  /// in the background.
+  static const audioWarmUpBatch = 4;
   static const publicRoomsBackoffCap = Duration(seconds: 60);
 
   /// Between checks for AdMob's signed reward callback after an ad. Doubles

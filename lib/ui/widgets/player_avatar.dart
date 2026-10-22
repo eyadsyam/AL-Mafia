@@ -73,6 +73,12 @@ class PlayerAvatar extends StatelessWidget {
     final colors = context.colors;
     final tint = ringColor ?? colors.borderSubtle;
     final art = occupied ? AvatarArt.forGender(gender) : null;
+    // Decoded at the size it is drawn: the avatar art is a 1254 px square
+    // (about 6 MB in memory at full size) shown as a seat a few dozen pixels
+    // wide. Same art, same fit; only the copy kept in memory is smaller.
+    final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1.0;
+    int? decoded(double logical) =>
+        logical.isFinite && logical > 0 ? (logical * dpr).ceil() : null;
 
     final pulseOverflow = diameter * CouncilTokens.voicePulseMaxRadiusRatio;
     return SizedBox(
@@ -102,6 +108,7 @@ class PlayerAvatar extends StatelessWidget {
                 AppCouncilArt.seatRingIdle,
                 width: diameter,
                 height: diameter,
+                cacheWidth: decoded(diameter),
                 color: tint,
                 filterQuality: FilterQuality.medium,
               ),
@@ -111,6 +118,7 @@ class PlayerAvatar extends StatelessWidget {
                     art,
                     width: diameter * artRatio,
                     height: diameter * artRatio,
+                    cacheWidth: decoded(diameter * artRatio),
                     fit: BoxFit.cover,
                     filterQuality: FilterQuality.medium,
                   ),
