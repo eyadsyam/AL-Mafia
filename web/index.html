@@ -335,12 +335,18 @@
     <i></i>
   </div>
   <script>
-    window.addEventListener('flutter-first-frame', function () {
-      var cover = document.getElementById('mm-first-paint');
-      if (!cover) return;
-      cover.classList.add('done');
-      setTimeout(function () { cover.remove(); }, 400);
-    });
+    (function () {
+      function lift() {
+        var cover = document.getElementById('mm-first-paint');
+        if (!cover) return;
+        cover.classList.add('done');
+        setTimeout(function () { cover.remove(); }, 400);
+      }
+      window.addEventListener('flutter-first-frame', lift);
+      // Never left over the game: if the first-frame event is missed (an
+      // engine that does not send it, a cached shell), the cover still goes.
+      setTimeout(lift, 30000);
+    })();
   </script>
   <!-- Web push config (null = push off); read by the app and firebase-messaging-sw.js. -->
   <script src="firebase-config.js"></script>
