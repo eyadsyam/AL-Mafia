@@ -1,0 +1,39 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game «سيد المافيا: Mafia Master». YOU EXECUTE; YOU DO NOT DESIGN. Do not commit, do not deploy, no builds (no `flutter build`), no network calls. Read CLAUDE.md first: lib/engine pure; every colour, size, duration and breakpoint lives in lib/ui/theme/design_tokens.dart; no literal strings in widgets (l10n ARB + `flutter gen-l10n`, copy exactly as given); no `if (isOnline)` in widgets. Doc 05 (docs/specs/05-zero-leakage-spec.md) wins: nothing new may show or hint at another player's role or night action.
+
+THE APPROVED DESIGN: docs/design/web-per-device/index.html, sections IV and V (the owner approved it). Read that file. Phones and narrow windows (< 1024 logical px wide) must look and behave EXACTLY as today. Every animation keeps its duration, curve and look; no art is replaced. Add a breakpoint token `desktopMinWidth = 1024` in an existing or new layout tokens class and use it everywhere below.
+
+D1 - Home on a wide window (lib/ui/screens/setup/home_screen.dart)
+At width >= desktopMinWidth: two columns over the same backdrop. The start side (right in RTL), about 42% of the width, holds the corner row (coin pill, account, store, settings), the wordmark, the tagline and the one primary «ابدأ اللعبة», vertically centred, at most the existing maxContentWidth. The end side holds the existing CardSpread (unchanged widget, given the end column's box) and FallingIcons. Below the breakpoint the current Stack is used untouched.
+
+D2 - Mode screen on a wide window (lib/ui/screens/setup/mode_screen.dart)
+Same split: the title «هتلعبوا إزاي؟» and the mode cards in the start column; the end column shows the existing art of the hovered/focused mode (reuse whatever backdrop or art each mode card already has; if a mode has none, the online backdrop). Keyboard: digits 1, 2, 3 choose the visible modes in order; Escape goes back (same as the back control). Show the small key tag on each card only at this breakpoint (a Text in a 1 px border box, Plex Mono, from tokens; the digit is not translated).
+
+D3 - The online table on a wide window (lib/ui/screens/online/online_table_flow.dart and lib/ui/screens/online/table/table_scene.dart)
+At width >= desktopMinWidth: three columns. Centre (about 52%): the council band (CouncilBand) at the size the space allows. Start rail (about 24%): the phase card, the timer, and the phase's primary action and secondary action that today sit below the council. End rail (about 24%): the existing public table log / morning lines, the table-tools button and the whisper button that today sit elsewhere. Do not add any information that is not already on screen today; only move widgets. Below the breakpoint, today's layout untouched. If a widget cannot be moved without duplicating state, leave it where it is and say so in the report.
+
+D4 - Mouse
+- Council seats (CouncilBand) and every card that is tappable: `SystemMouseCursors.click` over them (MouseRegion), and over a seat a hover highlight using the existing selectable/hover colours; a hover tooltip may show ONLY the seat's name and its public state already drawn (speaking / silenced / out). Never anything about roles.
+- Right-click (onSecondaryTap) does what long-press does today for: council seat moderation (the host's seat sheet), a saved group's rename/delete (group_picker_screen.dart ~103), and the voice diagnostics (voice_controls.dart ~85).
+
+D5 - Keyboard at the table (desktop or any hardware keyboard; ignored while a text field has focus)
+- Space: take the floor / hand it back (the same calls as the floor button in voice_controls.dart).
+- Enter: the phase's primary action when it is enabled (confirm the night choice or the ballot) - the same callback the button runs.
+- M: mute / unmute own microphone (setSelfMuted, the same as the existing control).
+- Escape: closes an open sheet/dialog (Flutter default; verify).
+Use Shortcuts + Actions scoped to the table route. Show the key hints row from the mockup (section V) under the council only at the desktop breakpoint, with copy:
+  keyFloor AR «اطلب الكلمة» EN "Take the floor"; keyConfirm AR «أكّد» EN "Confirm"; keyMic AR «المايك» EN "Mic"; keyClose AR «اقفل» EN "Close"; and on the mode screen keyChoose AR «اختار» EN "Choose", keyBack AR «ارجع» EN "Back". Key names (Space, Enter, M, Esc, 1-3) are not translated.
+
+TESTS (add, do not weaken existing ones)
+- Home and mode screen at 1440x900 use the split (find both columns) and at 390x844 do not (existing finders still pass).
+- Mode screen: pressing 2 selects the second visible mode; Escape calls back.
+- Table at 1440x900: the primary action and the council are both on screen and the primary action is in the start rail; at 390x844 unchanged.
+- Keyboard: Enter runs the primary action once when enabled and not when disabled; Space calls the floor request; keys do nothing while a text field is focused.
+- Right-click on a council seat opens the same sheet as long-press.
+- Doc 05: the hover tooltip text for a seat is identical for every role assignment (run the same seat through two different role deals; the tooltip strings must be equal).
+- Run the leakage goldens: flutter test test/golden/leakage
+
+GATES (run all, paste tails)
+  flutter analyze 2>&1 | tail -30
+  flutter test 2>&1 | tail -15     (full suite, 0 skipped, 0 failed; baseline 2351)
+
+REPORT (final message): files changed, one line each; what moved where for D3; anything left in place and why; new l10n keys; tests by name; gate tails.
