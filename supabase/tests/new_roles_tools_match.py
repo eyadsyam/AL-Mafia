@@ -7,12 +7,15 @@ Reports store labels/codes only. Realtime messages remain in memory.
 """
 import concurrent.futures
 import datetime as dt
+import email.utils
 import json
 import os
 from pathlib import Path
 import subprocess
 import threading
 import time
+import urllib.error
+import urllib.request
 import uuid
 import e2e_match as h
 
@@ -352,8 +355,9 @@ def role_match(kind):
 def tools_match():
     m = Match('tools', dict(mafia=2, doctor=1, citizen=7), realtime=True)
     m.start()
-    catalog = accepted('17-tool catalog', eco(m.host, 'toolsGet')).get('tools', [])
-    record('all 17 tools listed', len(catalog) == 17)
+    catalog = accepted('16-tool catalog', eco(m.host, 'toolsGet')).get('tools', [])
+    # grave_vote is retired (20261022000100): off the catalog for every client.
+    record('all 16 tools listed', len(catalog) == 16 and 'grave_vote' not in [t['code'] for t in catalog])
     # Assign at most four tools and at most two heavy tools to each owner.
     allocations = {}
     live_owners = m.players[1:7]
@@ -403,6 +407,15 @@ def tools_match():
         refused('bad targets ' + code, m.call('economy', p, action='toolUse', tool=code, targets=bad, note=note), ['BAD_TARGETS'])
         accepted('use ' + code, m.call('economy', p, action='toolUse', tool=code, targets=targets, note=note))
         refused('repeat phase ' + code, m.call('economy', p, action='toolUse', tool=code, targets=targets, note=note), ['LIMIT_TOOL', 'LIMIT_PHASE', 'LIMIT_MATCH'])
+        if code == 'spotlight':
+            # RL15: the free floor is held for the chosen seat until it speaks,
+            # so the floor checks after this one start from a spent spotlight.
+            chosen = next(x for x in m.players if x['seat'] == targets[0])
+            held = m.call('claim_floor', p)
+            record('spotlight holds the floor', held[0] == 200 and held[1].get('granted') is False)
+            taken = m.call('claim_floor', chosen)
+            record('spotlight target takes the floor', taken[0] == 200 and taken[1].get('granted') is True)
+            m.call('release_floor', chosen)
         if code in ('extra_minute', 'objection'):
             accepted('floor bonus claim ' + code, m.call('claim_floor', p))
             first = m.state().get('speaker_until')
@@ -413,9 +426,8 @@ def tools_match():
             m.call('release_floor', p)
     m.call('open_phase', phase='vote')
     target = m.role('mafia')['seat']
-    first_id = h.aid()
-    accepted('grave first ballot', m.call('submit_vote', victim, targetSeat=target, round=1, actionId=first_id))
-    refused('grave once per day', m.call('submit_vote', victim, targetSeat=target, round=1, actionId=h.aid()), ['RATE_LIMITED'])
+    # No grave ballot any more: a dead seat has no vote.
+    refused('dead seat has no ballot', m.call('submit_vote', victim, targetSeat=target, round=1, actionId=h.aid()), ['NOT_ALIVE'])
     verdict = m.vote(target)
     record('revote tool with vote shield', verdict.get('revote') is True or m.state()['phase'] == 'vote')
     if m.state()['phase'] == 'vote':
@@ -529,10 +541,26 @@ def edge_match():
     m.close()
 
 
+def server_offset():
+    """Seconds the server's clock runs ahead of this machine (O8: its clock decides).
+
+    Read from the HTTP Date header, which has one-second resolution; callers add
+    a margin on top."""
+    req = urllib.request.Request(h.URL + '/auth/v1/health')
+    req.add_header('apikey', h.KEY)
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            date = r.headers['Date']
+    except urllib.error.HTTPError as e:
+        date = e.headers['Date']
+    return email.utils.parsedate_to_datetime(date).timestamp() - time.time()
+
+
 def timer_match():
     m = Match('timers', dict(mafia=1, doctor=1, citizen=3),
               flags={'openingRoundEnabled': True})
     m.start()
+    offset = server_offset()
     # Clients stay connected and heartbeat, as in an open app, but send no
     # acknowledgements, night actions, accusations, floor claims, or votes.
     seen = set()
@@ -547,17 +575,23 @@ def timer_match():
             record('timer has deadline ' + phase, False, 'NO_DEADLINE')
             break
         deadline = dt.datetime.fromisoformat(end.replace('Z', '+00:00')).timestamp()
-        delay = deadline - time.time() + 1
+        delay = deadline - (time.time() + offset) + 2
         if delay > 0:
             time.sleep(min(delay, 15))
             continue
         guest = m.players[1]
-        if phase in ('reveal', 'verdict'):
-            response = m.call('open_phase', guest, phase='night')
-        elif phase == 'morning':
-            response = m.call('open_phase', guest, phase='opening')
-        else:
-            response = m.call('advance_phase', guest)
+        for _ in range(4):
+            if phase in ('reveal', 'verdict'):
+                response = m.call('open_phase', guest, phase='night')
+            elif phase == 'morning':
+                response = m.call('open_phase', guest, phase='opening')
+            else:
+                response = m.call('advance_phase', guest)
+            # Still early by the server's clock: ask again rather than fail.
+            early = response[0] == 403 or 'not expired' in str(response[1].get('message', ''))
+            if response[0] == 200 or not early:
+                break
+            time.sleep(2)
         record('timer expiry ' + phase, response[0] == 200, response[1].get('error'))
         if response[0] == 200 and phase == 'night':
             resolved = m.call('resolve_night', guest)
