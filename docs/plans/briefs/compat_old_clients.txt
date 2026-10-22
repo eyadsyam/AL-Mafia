@@ -1,0 +1,16 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree). Mafia Master (Flutter + Supabase). READ-ONLY review: edit no file, run no network, no deploy. YOU EXECUTE; YOU DO NOT DESIGN FIXES. Report only.
+
+CONTEXT
+Today the live server got these changes (already deployed; the published app was NOT rebuilt):
+- migrations: supabase/migrations/20261015000100_all_access_grants.sql through 20261017000300_bundle_revoke_components.sql (10 files).
+- edge functions redeployed from this tree: resolve_vote, resolve_night, submit_night_action, submit_vote, advance_phase, claim_floor, my_team, economy.
+The app players have today is the code at git tag/commit of the last release. Find it: `git log --oneline --format="%h %ad %s" --date=short -- pubspec.yaml | head` and the commit message containing "1.3.0" or "RELEASE"; call it OLD. Everything after OLD in lib/** is NOT in players' hands.
+
+QUESTION
+Does the OLD client (lib/** at OLD, read it with `git show OLD:<path>`) behave acceptably against the NEW server? For each server change, list what the old client sends/reads and what now happens:
+1. New refusal codes the server can now return: ALREADY_INVESTIGATED, BULLET_SPENT (both from triggers, surfacing through submit_night_action), SILENCED, NOT_THIS_ROOM, WRONG_PHASE (from use_table_tool via economy), RATE_LIMITED on a second investigation or second team bullet. How does the OLD client's error mapping handle an unknown code (look at lib/transport/supabase_backend.dart, online_transport.dart, the table-tools controller, and their error/copy mapping at OLD)? Does it show a generic friendly line, a raw code, or crash/hang?
+2. Response shape changes: compare at OLD vs HEAD the JSON returned by my_team, resolve_night/morning public_data (someoneSavedUnnamed etc.), resolve_vote (lastWordFloor, fingerprint), economy actions (allAccess, story sessions). Any field the OLD client requires that the NEW server no longer sends, or sends with a different type?
+3. Rules that changed under an old client: one investigation per night, team quiet-night bullet, floor priority (spotlight / last word), floor tools refused in free talk, revote/grave vote windows. Would an OLD client get stuck (e.g. keep retrying a refused move, wait forever for a floor)?
+4. Anything else in the 10 migrations or 8 functions that an OLD client calls with arguments the NEW code rejects.
+
+REPORT (final message, plain English, no code blocks longer than 5 lines): a table: change | what OLD client does | severity (none / cosmetic / confusing / blocks play) | file:line evidence at OLD. Then the top 3 risks in one line each. If something cannot be determined from the code, say so.

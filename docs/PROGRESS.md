@@ -3917,3 +3917,10 @@ Files:      lib/engine/presets.dart, lib/ui/screens/night/morning_screen.dart, l
 Verified:   flutter test 2305 pass / 0 skip / 0 fail; flutter analyze: No issues found; SQL 97/97; Node 37/37 files; golden vectors 35 agree; balance harness 12/12 with no skips; web voice runtime 1/1 in Chrome (fake media device, test-host repair tool).
 Gate:       PASS (local). Release readiness: INSUFFICIENT EVIDENCE until the live suite and a phone test.
 Open:       عند المالك بس: موافقة الرفع (سيرفر تجريبي أو الحي)، الاختبار الحي، التجربة على الموبايل، RL19. ١٥ حالة في الجداول محتاجة تزامن حقيقي أو صوت حقيقي، وده بيتقفل بالاختبار الحي. كودكس محتاج تسجيل دخول من جديد. لا بناء ولا رفع.
+
+## PHASE live-deploy-2026-10-22 — server deployed (owner: «السيرفر الحي على طول»)
+Built:      الحي اتحدّث بكود السيرفر الجديد. ١٠ migrations (all_access_grants → bundle_revoke_components) اتطبقوا بالترتيب؛ migrations يوم ٩ أكتوبر كانت متطبقة من قبل من غير ما تتسجل (اتأكدت من وجود الـobjects بتاعتها قبل أي تطبيق). ٨ edge functions اترفعوا بـSupabase CLI 2.120.0 (resolve_vote, resolve_night, submit_night_action, submit_vote, advance_phase, claim_floor, my_team, economy) بنفس إعداد verify_jwt اللي كان على الحي. RL19 اتفعّلت: economy_config.witness_whispers_enabled = true (قرار المالك). مفيش ماتش كان شغال وقت الرفع.
+Files:      none in the repo (live project hezjbrnveajypfqmjfnh); brief docs/plans/briefs/compat_old_clients.txt
+Verified:   list_migrations + object checks before applying; every apply returned success; list_edge_functions after deploy (new versions, verify_jwt unchanged); security advisors: only expected INFO/WARN on the new service-role tables and my_entitlements. Live suite: running (results in the next entry).
+Gate:       deploy PASS; live suite pending
+Open:       live suite results; old published app vs new server (Codex read-only review running); phone test; no app build (owner: «لأ لسه»).
