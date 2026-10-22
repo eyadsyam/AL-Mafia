@@ -119,11 +119,18 @@ Deno.serve(handler(async (req, userId, db) => {
       p_phase_ends_at: deadlineFor("reveal", effectiveSettings ?? {}),
     },
   );
-  if (applyError || applied !== true) {
-    if (String(applyError?.message ?? "").includes("NOT_READY")) {
+  if (applyError) {
+    if (String(applyError.message ?? "").includes("NOT_READY")) {
       return fail("NOT_READY", "the lobby is not ready", 409);
     }
     return fail("BAD_REQUEST", "match could not be started", 500);
+  }
+  // A clean "no" from the deal is a race, not a fault: somebody joined or left
+  // between the roster read above and the locked deal, or the room has
+  // already started. Nothing was written; the host reads the room and asks
+  // again.
+  if (applied !== true) {
+    return fail("STALE_REVISION", "the room changed; try again", 409);
   }
 
   // Deliberately nothing about roles in the response.

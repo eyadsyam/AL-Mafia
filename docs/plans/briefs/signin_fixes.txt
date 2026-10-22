@@ -1,0 +1,45 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game «سيد المافيا: Mafia Master». YOU EXECUTE; YOU DO NOT DESIGN. Do not commit, do not deploy, no builds, no network calls. Read CLAUDE.md first (tokens only for sizes/durations; no literal strings in widgets: l10n ARB in lib/app/l10n + `flutter gen-l10n`; Arabic copy exactly as given below, do not reword). Never weaken auth: no new sign-in method, no stored secrets, no change to server auth settings.
+
+Main files: lib/transport/account_auth.dart, lib/ui/account/account_sheet.dart, lib/app/app.dart (~line 467 `_accountReturned`), lib/ui/screens/onboarding/first_run_screen.dart (~line 1051).
+
+FIX S1 - a refused Google link never switches the guest away silently
+lib/app/app.dart `_accountReturned` (~467) and AccountAuth.switchToTakenGoogle (account_auth.dart ~350): when a guest's Google link comes back EMAIL_TAKEN with no sheet open (always the case after a web redirect), the app signs in to the other account automatically and the guest's coins/items stay behind on the guest identity. Change: never switch automatically; always open the account sheet with the existing two choices (`authGoogleUseExisting` / `authGoogleKeepGuest`), exactly as the second-refusal path does today. Remove switchToTakenGoogle and its cooldown key only if nothing else uses them (grep; also tests).
+
+FIX S2 - Google inside an in-app browser (Facebook, Instagram, Messenger, TikTok, Snapchat)
+Google refuses OAuth inside those embedded browsers (disallowed_useragent). On web only (conditional import, the same web/io split pattern the repo already uses under lib/platform), detect the embedded browser from navigator.userAgent with this test: /FBAN|FBAV|FB_IAB|FBIOS|Instagram|Messenger|musical_ly|TikTok|Bytedance|Snapchat/i. When the player taps any Google button (account sheet and first run) in such a browser, do not start OAuth; open a small bottom sheet instead (follow the app's existing bottom-sheet pattern) with:
+  inAppBrowserTitle  AR «افتح اللعبة في المتصفح»   EN "Open the game in your browser"
+  inAppBrowserBody   AR «جوجل مش بيسمح بالدخول من جوه التطبيق ده. افتح اللينك في كروم أو سفاري وكمّل من هناك، أو ادخل بالإيميل من هنا.»   EN "Google doesn't allow signing in inside this app. Open the link in Chrome or Safari and continue there, or use email here."
+  inAppBrowserChrome AR «افتح في كروم»   EN "Open in Chrome"   (Android user agents only: navigate to intent://<host><path>#Intent;scheme=https;package=com.android.chrome;end built from Uri.base)
+  inAppBrowserCopy   AR «انسخ اللينك»    EN "Copy link"        (copies Uri.base without query/fragment; then a SnackBar)
+  inAppBrowserCopied AR «اتنسخ اللينك»   EN "Link copied"
+Email and password routes stay available inside embedded browsers.
+
+FIX S3 - keyboard submission, autofill and focus order in the account sheet
+lib/ui/account/account_sheet.dart (fields around ~429 and the code field ~762): wrap each form in an AutofillGroup; give fields textInputAction next/done; onSubmitted moves focus to the next field and, on the last field, runs the same action as the step's primary button (only when that button is enabled); keep the existing autofill hints. On success call TextInput.finishAutofillContext().
+
+FIX S4 - the account sheet keeps a reading width on wide screens
+The sheet's ListView content has no max width, so on a desktop browser the fields span the window. Center it and constrain it to the same reading-width token the Home main action uses (grep design_tokens.dart near line 525 for the 480 width token; reuse it, do not add a new number). Phones are unchanged.
+
+FIX S5 - web copy that names the wrong thing
+  - `authGoogleTaken` AR becomes «حساب جوجل ده مربوط بحساب تاني في اللعبة. لو دخلت عليه، الجهاز ده هيسيب حساب الضيف.» (EN: "This Google account belongs to another player. If you sign in to it, this device leaves the guest account.")
+  - `authGoogleContinue` («كمّل في المتصفح وارجع للعبة.») is not shown on the web (the page itself goes to Google and comes back); Android unchanged.
+
+FIX S6 - a sign-in that returns by redirect is not undone by «تذكّرني»
+AccountAuth.applyRemember (~393) signs a non-guest out at launch when «تذكّرني» is off. On the web every Google return and every email-link return is a new launch, so a player who unticked it is signed out the moment they come back. Before opening any browser redirect (google(), googleSignIn(), sendReset(), and the email-link path), save a pending-return timestamp in SharedPreferences (new key next to switchKey, e.g. 'mafia.account.pending_return.v1'); in applyRemember, if that timestamp is less than a named token duration old (add `AccountTokens`-style constant, 15 minutes, in design_tokens.dart or beside the existing switchCooldown if that is where account durations live), do not sign out, and clear the key. Otherwise unchanged.
+
+FIX S7 - the web password-reset link completes in the app
+account_auth.dart sendReset passes `redirectTo: kIsWeb ? null : oauthRedirect`, so on the web the email link lands on the site default and nothing in the app finishes the reset. Change: on the web pass `Uri.base.origin + '/'`. Listen for AuthChangeEvent.passwordRecovery (from the same onAuthStateChange stream `changes()` uses); when it fires, open the account sheet on its existing "new password" step for the now signed-in user (the step that finishReset's UI shows after the code; add a sheet entry point that skips the code since the session is already there, then calls changePassword). If the step cannot be reached without a new screen, say so in the report and leave S7 undone.
+
+TESTS (add, do not weaken existing ones)
+  - S1: EMAIL_TAKEN on the profile stream with no sheet open opens the sheet with both choices and never calls googleSignIn.
+  - S2: the user-agent test (true for each listed token, false for plain Chrome/Safari/Firefox); tapping Google with the detector forced true shows the sheet and does not start OAuth.
+  - S3: submitting the last field triggers the primary action; Enter on a middle field moves focus.
+  - S4: at 1440 px wide the sheet content is no wider than the token.
+  - S6: a fresh pending-return marker keeps a non-guest signed in with remember off; an old one signs out.
+  - S7: a passwordRecovery event opens the new-password step (if done).
+
+GATES (run all, paste tails)
+  flutter analyze 2>&1 | tail -30
+  flutter test 2>&1 | tail -15     (full suite, 0 skipped, 0 failed)
+
+REPORT (final message): files changed, one line each; for each FIX what you did or why not; new l10n keys; tests by name; gate tails.

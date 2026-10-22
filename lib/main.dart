@@ -78,11 +78,13 @@ Future<void> main() async {
   // Both repositories come out of the same `Isar.open`, and both fall back
   // together: if the database will not open, the app runs entirely on the
   // in-memory stores declared in the providers.
-  final LocalStores? stores = await openLocalStores();
-  final savedSettings = await stores?.matches.loadDefaultSettings();
-
+  //
+  // The launch reads are independent and each catches its own failure, so
+  // they start together: the launch picture stays up for the slowest of them,
+  // not for their sum. Push needs only the locale (its channel names).
+  final storesOpening = openLocalStores();
+  final motionLoading = loadReduceMotionPreference();
   final savedLocale = await loadSavedLocale();
-  final reduceMotion = await loadReduceMotionPreference();
   // Heals an interrupted switch and restores the icon name after an update.
   // A switch that would close this launch is left pending natively.
   unawaited(LauncherLabel.apply(savedLocale.languageCode));
@@ -90,7 +92,7 @@ Future<void> main() async {
   // (docs/setup/PUSH-SETUP.md). Never asks for permission here, and never holds the
   // launch longer than a moment.
   final text = lookupAppLocalizations(savedLocale);
-  final push = await FirebasePushService.start(
+  final pushStarting = FirebasePushService.start(
     inviteVibration: InviteTokens.longVibration,
     socialVibration: InviteTokens.shortVibration,
     text: PushChannelText(
@@ -104,6 +106,10 @@ Future<void> main() async {
       dailyDescription: text.pushChannelDailyDesc,
     ),
   ).timeout(InviteTokens.pushStart, onTimeout: () => null);
+  final LocalStores? stores = await storesOpening;
+  final savedSettings = await stores?.matches.loadDefaultSettings();
+  final reduceMotion = await motionLoading;
+  final push = await pushStarting;
   runApp(
     ProviderScope(
       overrides: [

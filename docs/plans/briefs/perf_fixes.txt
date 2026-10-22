@@ -1,0 +1,41 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game «سيد المافيا: Mafia Master». YOU EXECUTE; YOU DO NOT DESIGN. Do not commit, do not deploy, no builds (no `flutter build`), no network calls. Read CLAUDE.md first (lib/engine pure; every duration/size/colour lives in lib/ui/theme/design_tokens.dart; no literal strings in widgets).
+
+GOAL: the owner wants the app smooth on phones and on the web, with the first launch preparing what the first minutes need, and WITHOUT losing or changing a single animation: every animation keeps its duration, curve, frames and look; every image keeps its fit, filter and on-screen size. These fixes only change WHEN and AT WHAT DECODE SIZE things are loaded. If a fix would change what the player sees, skip it and say so in the report.
+
+Already done (do not redo): lib/main.dart starts the launch reads together.
+
+FIX P1 - decode big images at the size they are shown
+- lib/ui/widgets/player_avatar.dart (~line 101): the transparent avatars are 1254x1254 PNGs (about 6 MB each when decoded) shown as small seats. Give the Image a decode size: cacheWidth/cacheHeight (or ResizeImage) = displayed diameter x MediaQuery.devicePixelRatioOf(context), rounded up. Same fit, filter, alignment.
+- lib/ui/screens/online/council/voice_band.dart (~line 229): the 512x512 timer ring is shown at 96 logical px and the seat ring similarly: same treatment.
+- Grep lib/ui for other `Image.asset(` of the online rings, avatars and victory ring (assets/images/online/**) without cacheWidth/cacheHeight and apply the same rule where the display size is known from the layout. Leave images whose display size is unknown or full-screen alone.
+
+FIX P2 - the council band's rings are decoded before the first lobby
+- lib/ui/screens/online/council/council_band.dart (~line 378) decodes five PNGs with instantiateImageCodec on first construction. Move that decode into a small shared cache (one class in the same folder, e.g. `CouncilBandArt`, holding the decoded ui.Image set, decoded once per process at a target size that suits the band; keep full size if the painter needs it - check how it draws them) and use it from the band. If the cache is not ready when the band is built, the band behaves exactly as today (it loads them itself through the same cache).
+- Warm that cache after the first frame (see P3) so the first lobby shows the rings at once.
+
+FIX P3 - the first-run preparation decodes what hitches, and later launches re-warm a small hot set
+- lib/ui/widgets/warmup_gate.dart and lib/app/asset_warmup.dart: keep the current first-launch preparation and its visual/animation exactly as is (it reads every bundled image and audio file once; the owner wants that). Change only the ORDER and what is decoded:
+  a) order the reads: first the Home screen and the mode screen art, then the online lobby/table art (assets/images/online/**), then offline card art, then story covers, then the rest;
+  b) in addition to the five images it already precaches, precache (precacheImage with ResizeImage at the same display sizes as P1) the hot set: the two avatars, the seat/timer/victory rings, and the CouncilBand set via P2. Do NOT decode animated WebPs or motion assets ahead (frame decode stays on first use);
+  c) on every launch (not only the first), after the first frame and without blocking anything, warm the same hot set in the background (it is small at display size). Use an existing post-frame hook if there is one (app.dart has post-frame work around line 288); otherwise WidgetsBinding.instance.addPostFrameCallback.
+
+FIX P4 - audio warm-up does not compete with the Home animation
+- lib/platform/audio_backend.dart (~line 209) and lib/platform/audio_director.dart (~line 300), started from lib/app/app.dart (~line 288): after the first frame one loop prepares a player for every cue and narrator clip, one after another. Change it to: the short UI/phase cues first, then narrator clips in small batches (batch size and pause as named constants in design_tokens.dart, e.g. 4 clips then a short yield), so the main isolate yields between batches. Playback timing, audio session setup and the web backend (lib/platform/audio_backend_browser.dart, browser gesture unlock) stay as they are.
+
+FIX P5 - the stories catalogue is parsed before the first Stories visit
+- lib/ui/screens/stories/stories_screen.dart (~line 130) loads and decodes 24 story JSON files plus the v2 world on entry (lib/data/story_catalog.dart:38, lib/data/story_world_catalog.dart:23). If those loaders already cache their result for the process, start them in the background after Home has settled (post-frame + a short named delay token) so the first visit finds them ready; if they do not cache, add a process-level memo inside the loader (same API, same result) and then prefetch. The Stories screen still awaits the same futures, so behaviour without the prefetch is unchanged. Story content is not touched.
+
+OUT OF SCOPE (measure first, do not change): council_band painter saveLayer, table root provider watches, phase sweep gradient, feathered art masks, store list structure, web renderer/bootstrap, service worker, video prefetch.
+
+TESTS (add, do not weaken existing ones)
+- P1: a widget test that the avatar Image's provider is a ResizeImage (or has cacheWidth) sized from the displayed diameter x DPR.
+- P2: the shared band art cache decodes once when asked twice.
+- P3: the warm-up order puts Home/mode art first and online art next (test the ordering function, not timing); the hot-set warm runs on a non-first launch.
+- P4: the narrator warm-up is batched (a fake backend sees cues before narrator clips, narrator clips in batches of the token size).
+- P5: the catalogue loader returns the same instance/result twice without re-reading assets.
+
+GATES (run all, paste tails)
+  flutter analyze 2>&1 | tail -30
+  flutter test 2>&1 | tail -15     (full suite, 0 skipped, 0 failed)
+
+REPORT (final message): files changed, one line each; for P1 every image you sized and the size rule; for P3 the final read order; for P4 batch size and yield; anything skipped because it would change what the player sees; gate tails.

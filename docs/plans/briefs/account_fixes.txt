@@ -10,8 +10,8 @@ lib/ui/account/delete_account_sheet.dart:29: after the server confirms deletion,
 FIX 3 - notifications switch can stay "on" when it is not working
 lib/ui/social/push_toggle.dart (lines ~38-55): if push is not available (server capability push off, or the platform has no push support, find the capability the app already reads), hide the switch. If registerPush fails, set the saved value back to off and show a SnackBar with new key `pushEnableFailed` AR «مقدرناش نشغّل الإشعارات على الجهاز ده» EN "Couldn't turn on notifications on this device". If the OS permission is denied, keep the existing behaviour if it already shows a line; otherwise use the same new line.
 
-FIX 4 - the open/secret ballot default in Home settings is not used online
-lib/ui/screens/setup/settings_sheet.dart:200 saves a default `openVoting`; lib/ui/screens/online/online_entry_screen.dart:114 hard-codes `openVoting: false` when creating a room. Use the saved default there (same provider/repository the sheet writes). The room's own settings panel still overrides it.
+FIX 4 - the online-only defaults saved in settings are not used online
+lib/ui/screens/setup/settings_sheet.dart:200 and lib/ui/screens/setup/settings_screen.dart:439-447 and :488-495 save the defaults `openVoting` and `whisperEnabled` (both rows are marked onlineOnly); lib/ui/screens/online/online_entry_screen.dart:109-121 hard-codes `openVoting: false` and `whisperEnabled: true` in `_defaultSettings` when creating a room. Seed both keys of `_settings` from the saved defaults (same provider/repository the sheet and setup screen write; read once when the screen opens, fall back to the current constants if nothing is saved). The room's own settings panel still overrides them.
 
 FIX 5 - no way to remove a friend
 FriendsController.remove reaches the server action friend_remove, but the friends sheet (lib/ui/social/friends.dart, the friend row around line 408-459) has no control. Add to each accepted-friend row a secondary action (the same overflow/menu or trailing icon pattern already used in that sheet or in lib/ui/social/*; if none, an IconButton with Icons.more_vert opening a small bottom sheet) with:
@@ -21,11 +21,17 @@ FriendsController.remove reaches the server action friend_remove, but the friend
   and the app's existing cancel key for the other button (grep "cancel" in app_ar.arb; reuse it).
 On confirm call FriendsController.remove and reload the list. The friends feature flag gating stays as it is.
 
+FIX 6 - a fast correct v2 story solve loses its first-solve reward
+Server: supabase/migrations/20261015000200_story_v2_sessions.sql:114-121 `claim_story_session` returns granted 0 (and does NOT close the session) when the claim arrives less than one minute after the deal (`started_at > now() - interval '1 minute'`). Client: lib/ui/screens/stories/stories_screen.dart `_dealV2` (~line 176) stores `_v2Session`; `_finishV2` (~line 222) claims once, immediately. Do NOT change the server rule.
+Do: in `_dealV2`, when `deal?.sessionId` is set, also store the moment the deal answer arrived (a monotonic Stopwatch started there is preferred; this is a widget, not lib/engine). In `_finishV2`, before calling `claim`, if less than the server minimum has passed since that moment, wait the remainder, then claim. Add the minimum to the stories tokens next to `StoriesLampTokens.serverDealWait` in lib/core/theme/design_tokens.dart (or wherever `serverDealWait` is declared) as `serverClaimMinimum = Duration(seconds: 62)` (the server's minute plus a margin; no literal duration in the widget). The wait must not block the UI: progress is already saved before it; keep the session id in a local variable (it is already copied to `sessionId`), and show the existing `storyRewardGranted` SnackBar only if still mounted when the claim returns. A wrong answer or no session still claims nothing.
+
+FIX 6 TEST: a widget/unit test with a fake clock or injected minimum (fakeAsync is fine): finishing a solved v2 story 10 s after the deal calls the claim only after the minimum has passed, exactly once; finishing after the minimum claims at once.
+
 TESTS (add, do not weaken existing ones)
   - profile: refused name -> not saved and onlineNameNotAllowed shown; allowed -> saved; offline -> saved.
   - delete account: after a successful fake deletion every listed key is gone, locale/sound keys stay, and the first-run screen shows; failed deletion leaves keys.
   - push toggle: register failure flips back to off and shows pushEnableFailed; capability off hides the switch.
-  - online entry: saved openVoting true reaches the create-room request.
+  - online entry: saved openVoting true and saved whisperEnabled false both reach the create-room request.
   - friends: remove -> confirm -> FriendsController.remove called with the friend's id.
   - if FIX 1 added `name_check`, a Node/Deno test for it following supabase/tests/*.test.mjs.
 
