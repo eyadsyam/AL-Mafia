@@ -158,7 +158,9 @@ def main():
     (s_status, started), (j_status, joined) = results
     worlds = {
         "start won": s_status == 200 and joined.get("error") == "PHASE_CLOSED",
-        "join won": j_status == 200 and started.get("error") == "BAD_REQUEST",
+        # The start either saw six seats against five roles (BAD_REQUEST) or
+        # read five and found six at the locked deal (STALE_REVISION).
+        "join won": j_status == 200 and started.get("error") in ("BAD_REQUEST", "STALE_REVISION"),
     }
     check("start vs join ends in exactly one consistent world: " + (next((k for k, v in worlds.items() if v), "neither")),
           sum(worlds.values()) == 1, (started, joined))

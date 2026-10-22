@@ -53,6 +53,9 @@ class AllAccessController extends Notifier<bool> {
       (_, next) => _accountChanged(next.valueOrNull),
     );
     ref.listen<AsyncValue<WalletState?>>(walletProvider, (_, next) {
+      // A wallet being read again still carries the answer from before,
+      // which may be the last account's: only a settled answer counts.
+      if (next.isLoading) return;
       final wallet = next.valueOrNull;
       if (wallet == null) return;
       state = wallet.allAccess;
@@ -84,7 +87,8 @@ class AllAccessController extends Notifier<bool> {
     // still be the old account's, so nothing is saved or restored until the
     // new account's own wallet answers (the listener above).
     if (_signedOut) return;
-    if (ref.read(walletProvider).valueOrNull != null) {
+    final wallet = ref.read(walletProvider);
+    if (!wallet.isLoading && wallet.valueOrNull != null) {
       unawaited(_save());
     } else {
       unawaited(_restore());

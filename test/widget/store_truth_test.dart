@@ -8,6 +8,8 @@ import 'package:mafia_master/engine/models/player.dart';
 import 'package:mafia_master/engine/views.dart';
 import 'package:mafia_master/platform/audio_director.dart';
 import 'package:mafia_master/transport/game_snapshot.dart';
+import 'package:mafia_master/ui/economy/all_access.dart'
+    show allAccessAccountProvider;
 import 'package:mafia_master/ui/economy/cosmetic_paint.dart';
 import 'package:mafia_master/ui/economy/cosmetics.dart';
 import 'package:mafia_master/ui/economy/council.dart';
@@ -69,6 +71,8 @@ Future<ProviderContainer> _container(Map<String, String> equipped) async {
   final c = ProviderContainer(
     overrides: [
       walletProvider.overrideWith(() => _Wallet(equipped)),
+      // The device copy of the looks is the signed-in account's.
+      allAccessAccountProvider.overrideWith((ref) => Stream.value('account-a')),
       playerProfileProvider.overrideWith(_Profile.new),
       audioDirectorProvider.overrideWithValue(AudioDirector()),
     ],

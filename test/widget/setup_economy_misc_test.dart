@@ -8,6 +8,8 @@ import 'package:mafia_master/data/memory_match_repository.dart';
 import 'package:mafia_master/data/repository_provider.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
 import 'package:mafia_master/transport/online_backend.dart';
+import 'package:mafia_master/ui/economy/all_access.dart'
+    show allAccessAccountProvider;
 import 'package:mafia_master/ui/economy/my_cosmetics.dart';
 import 'package:mafia_master/ui/economy/table_tools.dart';
 import 'package:mafia_master/ui/economy/wallet.dart';
@@ -35,6 +37,11 @@ class _Owns extends WalletController {
   );
 }
 
+/// The device copy is the signed-in account's; these tests stay on one.
+final _sameAccount = allAccessAccountProvider.overrideWith(
+  (ref) => Stream.value('account-a'),
+);
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -45,6 +52,7 @@ void main() {
         final first = ProviderContainer(
           overrides: [
             walletProvider.overrideWith(() => _Owns({'role_elder', 'frame_x'})),
+            _sameAccount,
           ],
         );
         addTearDown(first.dispose);
@@ -54,7 +62,7 @@ void main() {
         expect(first.read(ownedRolesProvider), {'role_elder'});
 
         // A later launch with no wallet answer yet.
-        final second = ProviderContainer();
+        final second = ProviderContainer(overrides: [_sameAccount]);
         addTearDown(second.dispose);
         expect(second.read(ownedRolesProvider), isEmpty);
         await Future<void>.delayed(const Duration(milliseconds: 20));
@@ -69,6 +77,7 @@ void main() {
       final c = ProviderContainer(
         overrides: [
           walletProvider.overrideWith(() => _Owns({'role_elder'})),
+          _sameAccount,
         ],
       );
       addTearDown(c.dispose);
@@ -86,6 +95,7 @@ void main() {
       });
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [_sameAccount],
           child: localizedApp(
             Scaffold(
               body: SingleChildScrollView(
