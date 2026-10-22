@@ -25,6 +25,7 @@ class _FakeAuth extends AccountAuth {
   Future<void> signOut() async {
     trace?.add('signOut');
   }
+
   @override
   Future<void> ensureGuestSession() async {
     trace?.add('newGuest');
@@ -277,6 +278,54 @@ void main() {
     await tester.pump(const Duration(minutes: 2));
   });
 
+  testWidgets('Enter moves to the next field and the last one signs in', (
+    tester,
+  ) async {
+    await pump(tester);
+    await tester.tap(find.byKey(AccountSheet.haveKey));
+    await tester.pumpAndSettle();
+    await type(tester, AccountSheet.emailKey, 'eyad@example.com');
+    await tester.testTextInput.receiveAction(TextInputAction.next);
+    await tester.pump();
+    final password = tester.widget<EditableText>(
+      find.descendant(
+        of: find.byKey(AccountSheet.passwordKey),
+        matching: find.byType(EditableText),
+      ),
+    );
+    expect(password.focusNode.hasFocus, isTrue);
+    expect(auth.calls, isEmpty);
+    await type(tester, AccountSheet.passwordKey, 'secret123');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(auth.calls, ['signIn:eyad@example.com']);
+  });
+
+  testWidgets('a reset link opens straight on the new password', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    auth = _FakeAuth();
+    await tester.binding.setSurfaceSize(const Size(360, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          accountAuthProvider.overrideWithValue(auth),
+          accountProfileProvider.overrideWith(
+            (ref) => Stream.value(_FakeAuth._signed),
+          ),
+        ],
+        child: localizedApp(
+          const Scaffold(body: AccountSheet(initial: AccountStep.password)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(arStrings.authChangePassword), findsOneWidget);
+    expect(find.byKey(AccountSheet.confirmKey), findsOneWidget);
+  });
+
   testWidgets('an account sees its email, remember-me and sign out', (
     tester,
   ) async {
@@ -302,16 +351,20 @@ void main() {
     auth = _FakeAuth()..trace = trace;
     await tester.binding.setSurfaceSize(const Size(360, 900));
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(ProviderScope(
-      overrides: [
-        accountAuthProvider.overrideWithValue(auth),
-        pushPromptProvider.overrideWith((ref) => _Prompt(ref, trace)),
-        accountProfileProvider.overrideWith((ref) => Stream.value(
-          const AccountProfile(signedIn: true, email: 'e@example.com'),
-        )),
-      ],
-      child: localizedApp(const Scaffold(body: AccountSheet())),
-    ));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          accountAuthProvider.overrideWithValue(auth),
+          pushPromptProvider.overrideWith((ref) => _Prompt(ref, trace)),
+          accountProfileProvider.overrideWith(
+            (ref) => Stream.value(
+              const AccountProfile(signedIn: true, email: 'e@example.com'),
+            ),
+          ),
+        ],
+        child: localizedApp(const Scaffold(body: AccountSheet())),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.byKey(AccountSheet.signOutKey));
     await tester.tap(find.byKey(AccountSheet.signOutKey));

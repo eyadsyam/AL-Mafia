@@ -1,7 +1,8 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../ui/theme/design_tokens.dart' show AccountTokens;
 import 'account_service.dart';
 import 'native_google.dart';
 
@@ -163,6 +164,8 @@ class AccountAuth {
     checkPassword(password);
     final auth = await _auth();
     await _ensureSession();
+    // The email also carries a link; opened, it is a return like Google's.
+    await markPendingReturn();
     await auth.updateUser(UserAttributes(email: clean));
   });
 
@@ -234,6 +237,7 @@ class AccountAuth {
     await _ensureSession();
     if (await _nativeGoogle(auth, link: true)) return;
     final redirect = _oauthReturn;
+    await markPendingReturn();
     final user = auth.currentUser;
     if (user != null && user.isAnonymous) {
       try {
@@ -254,14 +258,33 @@ class AccountAuth {
     );
   });
 
-  /// «نسيت كلمة السر»: emails a 6-digit code (and a link).
+  /// «نسيت كلمة السر»: emails a 6-digit code (and a link). The link returns to
+  /// the app on a phone and to this same site on the web, where the browser
+  /// that asked holds the sign-in's verifier; [passwordRecoveries] then opens
+  /// the new-password step.
   Future<void> sendReset(String email) => _guard(() async {
     final auth = await _auth();
+    await markPendingReturn();
     await auth.resetPasswordForEmail(
       cleanEmail(email),
-      redirectTo: kIsWeb ? null : oauthRedirect,
+      redirectTo: _oauthReturn,
     );
   });
+
+  /// Each time a password-reset link signs this device in: the next thing the
+  /// player needs is a new password.
+  Stream<void> passwordRecoveries() async* {
+    final GoTrueClient auth;
+    try {
+      auth = await _auth();
+    } catch (_) {
+      return;
+    }
+    yield* auth.onAuthStateChange
+        .where((state) => state.event == AuthChangeEvent.passwordRecovery)
+        .map((_) {})
+        .handleError((Object _) {});
+  }
 
   /// The code signs in; the new password is set in the same step.
   Future<AccountProfile> finishReset(
@@ -329,6 +352,7 @@ class AccountAuth {
   Future<void> googleSignIn() => _guard(() async {
     final auth = await _auth();
     if (await _nativeGoogle(auth, link: false)) return;
+    await markPendingReturn();
     await auth.signInWithOAuth(
       OAuthProvider.google,
       redirectTo: _oauthReturn,
@@ -383,9 +407,45 @@ class AccountAuth {
 
   static bool _rememberApplied = false;
 
+  /// Lets a test run [applyRemember] as a fresh launch.
+  @visibleForTesting
+  static void resetRememberForTest() => _rememberApplied = false;
+
+  static const pendingReturnKey = 'mafia.account.pending_return.v1';
+
+  /// Marks a sign-in that is about to leave for a browser (Google, an email
+  /// link). On the web its return is a new launch, and [applyRemember] would
+  /// otherwise sign the account it brings back straight out again.
+  static Future<void> markPendingReturn() async {
+    try {
+      await (await SharedPreferences.getInstance()).setInt(
+        pendingReturnKey,
+        DateTime.now().millisecondsSinceEpoch,
+      );
+    } catch (_) {
+      /* Without the mark, «تذكّرني» off still applies; nothing else changes. */
+    }
+  }
+
+  /// Whether this launch is the return of a recent [markPendingReturn]. The
+  /// mark is used once.
+  static Future<bool> _returning() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final at = prefs.getInt(pendingReturnKey);
+      if (at == null) return false;
+      await prefs.remove(pendingReturnKey);
+      final age = DateTime.now().millisecondsSinceEpoch - at;
+      return age >= 0 && age < AccountTokens.pendingReturn.inMilliseconds;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Called once per launch when the client boots: an account that asked not
   /// to be remembered is signed out. Guests are always kept (their session is
-  /// their only key to their coins).
+  /// their only key to their coins), and so is an account that is just coming
+  /// back from the browser it was sent to ([markPendingReturn]).
   ///
   /// Once per *process*: the backend factory runs this on every call, so an
   /// account that unticked «تذكرني» used to be signed out by the next server
@@ -395,6 +455,7 @@ class AccountAuth {
     _rememberApplied = true;
     final user = auth.currentUser;
     if (user == null || user.isAnonymous) return;
+    if (await _returning()) return;
     if (await remember()) return;
     try {
       await auth.signOut();

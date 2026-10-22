@@ -1,5 +1,7 @@
 Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game «سيد المافيا: Mafia Master». YOU EXECUTE; YOU DO NOT DESIGN. Do not commit, do not deploy, no builds, no network calls. Read CLAUDE.md first (tokens only for sizes/durations; no literal strings in widgets: l10n ARB in lib/app/l10n + `flutter gen-l10n`; Arabic copy exactly as given below, do not reword). Never weaken auth: no new sign-in method, no stored secrets, no change to server auth settings.
 
+STATUS 2026-10-22 (Claude): S3, S5, S6, S7 are DONE (commit after c4dd8bc). S1 is DROPPED: the automatic switch to a taken Google account is the deliberate design on both Android (native picker) and web, covered by the test "a Google account that is another player's is signed in to, no question". S2 and S4 WAIT for the owner's approval of docs/design/web-per-device/index.html; do not start them until this line says approved.
+
 Main files: lib/transport/account_auth.dart, lib/ui/account/account_sheet.dart, lib/app/app.dart (~line 467 `_accountReturned`), lib/ui/screens/onboarding/first_run_screen.dart (~line 1051).
 
 FIX S1 - a refused Google link never switches the guest away silently

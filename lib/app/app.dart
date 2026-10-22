@@ -56,8 +56,10 @@ import '../transport/account_service.dart' show AccountFailure;
 import '../ui/account/account_sheet.dart'
     show
         AccountSheet,
+        AccountStep,
         accountAuthProvider,
         accountProfileProvider,
+        passwordRecoveryProvider,
         showAccountSheet;
 import '../ui/account/onboarding_account_step.dart'
     show accountsAvailableProvider;
@@ -81,9 +83,11 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   void _openOtherPush(PushOpen open) {
     switch (open.destination) {
       case PushDestination.onlineRoom:
-        _router.go(ref.read(onlineSessionProvider).isInRoom
-            ? Routes.lobby
-            : Routes.online);
+        _router.go(
+          ref.read(onlineSessionProvider).isInRoom
+              ? Routes.lobby
+              : Routes.online,
+        );
         return;
       case PushDestination.onlineEntry:
         _router.go(Routes.online);
@@ -115,8 +119,10 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
               ),
             );
           } else {
-            showFriendsSheet(context, onJoin: (code) =>
-                _router.go(Routes.joinLink(code)));
+            showFriendsSheet(
+              context,
+              onJoin: (code) => _router.go(Routes.joinLink(code)),
+            );
           }
         });
         return;
@@ -470,7 +476,10 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   /// came back to Home, still a guest, told nothing. The player tapped Google
   /// to be that player, so it signs in to it; only a second refusal in a row
   /// opens the sheet with the two choices: sign in, or stay the guest.
-  void _accountReturned(AsyncValue<AccountProfile>? _, AsyncValue<AccountProfile> next) {
+  void _accountReturned(
+    AsyncValue<AccountProfile>? _,
+    AsyncValue<AccountProfile> next,
+  ) {
     final failure = next.error;
     if (!next.hasError || failure is! AccountFailure) return;
     if (failure.code != 'EMAIL_TAKEN' || AccountSheet.isOpen) return;
@@ -486,6 +495,17 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     });
   }
 
+  /// A password-reset link signed this device in: it came for a new password,
+  /// so the account screen opens on that step. An account screen already open
+  /// is left alone; its own code step still finishes the reset.
+  void _passwordRecovered() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = _navigatorKey.currentContext;
+      if (context == null || !context.mounted || AccountSheet.isOpen) return;
+      unawaited(showAccountSheet(context, initial: AccountStep.password));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (ref.watch(accountsAvailableProvider)) {
@@ -493,6 +513,9 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
         accountProfileProvider,
         _accountReturned,
       );
+      ref.listen<AsyncValue<int>>(passwordRecoveryProvider, (_, next) {
+        if (next.hasValue) _passwordRecovered();
+      });
     }
     ref.listen<WebAdRequest?>(webAdRequestProvider, (_, next) {
       if (next != null) {
@@ -580,14 +603,13 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
                     // An invite from inside the game, wherever the player
                     // is (never over a private phase).
                     child: IncomingInviteHost(
-                        onJoin: (code) => _router.go(Routes.joinLink(code)),
-                        onOtherPush: _openOtherPush,
-                        child: UpdateGate(
-                          // Over every route and overlay (the vault included):
-                          // the instant answer to a tap on a rewarded offer.
-                          child: RewardedAdVeil(
-                            child: child ?? const SizedBox.shrink(),
-                          ),
+                      onJoin: (code) => _router.go(Routes.joinLink(code)),
+                      onOtherPush: _openOtherPush,
+                      child: UpdateGate(
+                        // Over every route and overlay (the vault included):
+                        // the instant answer to a tap on a rewarded offer.
+                        child: RewardedAdVeil(
+                          child: child ?? const SizedBox.shrink(),
                         ),
                       ),
                     ),
@@ -597,6 +619,7 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
             ),
           ),
         ),
+      ),
     );
   }
 }

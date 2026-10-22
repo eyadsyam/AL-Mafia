@@ -1,6 +1,7 @@
 import '../widgets/mafia_kit.dart';
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -66,18 +67,36 @@ final accountProfileProvider = StreamProvider<AccountProfile>((ref) async* {
 ///
 /// [failure]: a refusal that came back with the browser while no account route
 /// was open (the app was restarted under it); the route opens saying it.
+///
+/// [initial]: the step to open on (a password-reset link opens on
+/// [AccountStep.password]).
 Future<void> showAccountSheet(
   BuildContext context, {
   bool onboarding = false,
   String? failure,
+  AccountStep initial = AccountStep.hub,
 }) => showGeneralDialog<void>(
   context: context,
   pageBuilder: (routeContext, _, _) => MafiaScaffold(
     backgroundColor: routeContext.colors.surfaceBase,
     appBar: AppBar(title: Text(routeContext.l10n.accountTitle)),
-    body: AccountSheet(onboarding: onboarding, failure: failure),
+    body: AccountSheet(
+      onboarding: onboarding,
+      failure: failure,
+      initial: initial,
+    ),
   ),
 );
+
+/// Counts the password-reset links that signed this device in (see
+/// [AccountAuth.passwordRecoveries]); each new value opens the new-password
+/// step.
+final passwordRecoveryProvider = StreamProvider<int>((ref) async* {
+  var count = 0;
+  await for (final _ in ref.read(accountAuthProvider).passwordRecoveries()) {
+    yield ++count;
+  }
+});
 
 enum AccountStep { hub, signUp, verify, signIn, forgot, forgotCode, password }
 
@@ -133,6 +152,10 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
   /// A Google return said the account is already another player's; the sheet
   /// offers to sign in to it instead (D1).
   bool _googleTaken = false;
+
+  /// The current step's primary action (null while busy), for Enter/Go on
+  /// its last field.
+  VoidCallback? _primary;
   int _cooldown = 0;
   Timer? _timer;
 
@@ -256,7 +279,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     setState(() {
       _busy = false;
       if (switched) {
-        _notice = context.l10n.authGoogleContinue;
+        _notice = _browserNotice;
       } else {
         _googleTaken = error == null;
         _error = error ?? context.l10n.authGoogleTaken;
@@ -264,6 +287,10 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     });
     if (_closePending) _closeWhenSignedIn();
   }
+
+  /// «كمّل في المتصفح وارجع للعبة» on a phone, where Google opens a browser;
+  /// nothing on the web, where this page itself goes to Google and back.
+  String? get _browserNotice => kIsWeb ? null : context.l10n.authGoogleContinue;
 
   /// Whatever changed, every screen that shows the identity reads it again.
   Future<void> _refreshIdentity() async {
@@ -310,90 +337,94 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     final s = context.spacing;
     final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
     return SafeArea(
-      child: ListView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: EdgeInsets.fromLTRB(
-          s.screenMargin,
-          s.screenMargin,
-          s.screenMargin,
-          s.screenMargin + keyboardInset,
-        ),
-        children: [
-          if (profile.signedIn) ...[
-            SizedBox(
-              height: AccountTokens.heroHeight,
-              child: FeatheredArt(
-                feather: Feather.hero,
-                child: Image.asset(
-                  AppImages.splashMask,
-                  fit: BoxFit.contain,
-                  excludeFromSemantics: true,
+      // Closing the screen after a sign-in commits the group, so the browser or
+      // the phone may offer to save the email and password.
+      child: AutofillGroup(
+        child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.fromLTRB(
+            s.screenMargin,
+            s.screenMargin,
+            s.screenMargin,
+            s.screenMargin + keyboardInset,
+          ),
+          children: [
+            if (profile.signedIn) ...[
+              SizedBox(
+                height: AccountTokens.heroHeight,
+                child: FeatheredArt(
+                  feather: Feather.hero,
+                  child: Image.asset(
+                    AppImages.splashMask,
+                    fit: BoxFit.contain,
+                    excludeFromSemantics: true,
+                  ),
                 ),
               ),
-            ),
-            // Store truth: who this account is at the table — the frame and
-            // plate it equipped, its title, and its Partner (F10).
-            SizedBox(height: s.sm),
-            const Center(
-              child: MyIdentityBadge(
-                axis: Axis.vertical,
-                diameter: StoreTruthTokens.sheetAvatar,
-              ),
-            ),
-            const Center(child: EquippedTitleLine()),
-            const TitleEquipList(),
-            SizedBox(height: s.sm),
-            const PartnerPicker(),
-          ],
-          ..._body(context, profile),
-          if (_error != null) ...[
-            SizedBox(height: s.sm),
-            Text(
-              _error!,
-              key: AccountSheet.errorKey,
-              textAlign: TextAlign.center,
-              style: context.typography.bodySmall.copyWith(
-                color: context.colors.accentCrimson,
-              ),
-            ),
-            if (_googleTaken) ...[
+              // Store truth: who this account is at the table — the frame and
+              // plate it equipped, its title, and its Partner (F10).
               SizedBox(height: s.sm),
-              OutlinedButton(
-                key: AccountSheet.googleExistingKey,
-                onPressed: _busy
-                    ? null
-                    : () => _run((auth) async {
-                        await auth.googleSignIn();
-                        if (!mounted) return;
-                        setState(() {
-                          _googleTaken = false;
-                          _error = null;
-                          _notice = context.l10n.authGoogleContinue;
-                        });
-                      }),
-                child: Text(context.l10n.authGoogleUseExisting),
+              const Center(
+                child: MyIdentityBadge(
+                  axis: Axis.vertical,
+                  diameter: StoreTruthTokens.sheetAvatar,
+                ),
               ),
-              // The other half of the choice: nothing changes, the guest and
-              // everything on it stay on this device.
-              TextButton(
-                key: AccountSheet.keepGuestKey,
-                onPressed: _busy ? null : () => _go(AccountStep.hub),
-                child: Text(context.l10n.authGoogleKeepGuest),
+              const Center(child: EquippedTitleLine()),
+              const TitleEquipList(),
+              SizedBox(height: s.sm),
+              const PartnerPicker(),
+            ],
+            ..._body(context, profile),
+            if (_error != null) ...[
+              SizedBox(height: s.sm),
+              Text(
+                _error!,
+                key: AccountSheet.errorKey,
+                textAlign: TextAlign.center,
+                style: context.typography.bodySmall.copyWith(
+                  color: context.colors.accentCrimson,
+                ),
+              ),
+              if (_googleTaken) ...[
+                SizedBox(height: s.sm),
+                OutlinedButton(
+                  key: AccountSheet.googleExistingKey,
+                  onPressed: _busy
+                      ? null
+                      : () => _run((auth) async {
+                          await auth.googleSignIn();
+                          if (!mounted) return;
+                          setState(() {
+                            _googleTaken = false;
+                            _error = null;
+                            _notice = _browserNotice;
+                          });
+                        }),
+                  child: Text(context.l10n.authGoogleUseExisting),
+                ),
+                // The other half of the choice: nothing changes, the guest and
+                // everything on it stay on this device.
+                TextButton(
+                  key: AccountSheet.keepGuestKey,
+                  onPressed: _busy ? null : () => _go(AccountStep.hub),
+                  child: Text(context.l10n.authGoogleKeepGuest),
+                ),
+              ],
+            ],
+            if (_notice != null) ...[
+              SizedBox(height: s.sm),
+              Text(
+                _notice!,
+                textAlign: TextAlign.center,
+                style: context.typography.bodySmall.copyWith(
+                  color: context.colors.accentGold,
+                ),
               ),
             ],
+            if (_step == AccountStep.hub) const AccountFooter(),
           ],
-          if (_notice != null) ...[
-            SizedBox(height: s.sm),
-            Text(
-              _notice!,
-              textAlign: TextAlign.center,
-              style: context.typography.bodySmall.copyWith(
-                color: context.colors.accentGold,
-              ),
-            ),
-          ],
-          if (_step == AccountStep.hub) const AccountFooter(),
-        ],
+        ),
       ),
     );
   }
@@ -426,10 +457,19 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
             ],
           );
 
-    Widget emailField() => TextField(
+    // Enter/Go on a field: the last one runs the step's primary action (the
+    // same as tapping it, and only while it is enabled). Any other field has
+    // TextInputAction.next, which moves the focus on by itself.
+    void onEnter(bool last) {
+      if (last) _primary?.call();
+    }
+
+    Widget emailField({bool last = false}) => TextField(
       key: AccountSheet.emailKey,
       controller: _email,
       keyboardType: TextInputType.emailAddress,
+      textInputAction: last ? TextInputAction.done : TextInputAction.next,
+      onSubmitted: (_) => onEnter(last),
       autofillHints: const [AutofillHints.email],
       textDirection: TextDirection.ltr,
       decoration: InputDecoration(labelText: l.authEmail),
@@ -440,12 +480,15 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       TextEditingController? controller,
       String? label,
       bool fresh = false,
+      bool last = false,
     }) => Padding(
       padding: EdgeInsets.only(top: s.sm),
       child: TextField(
         key: key,
         controller: controller ?? _password,
         obscureText: _hidden,
+        textInputAction: last ? TextInputAction.done : TextInputAction.next,
+        onSubmitted: (_) => onEnter(last),
         textDirection: TextDirection.ltr,
         autofillHints: [
           fresh ? AutofillHints.newPassword : AutofillHints.password,
@@ -453,33 +496,39 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
         decoration: InputDecoration(
           labelText: label ?? l.authPassword,
           helperText: fresh ? l.authPasswordRule : null,
-          suffixIcon: IconButton(
-            tooltip: _hidden ? l.authShow : l.authHide,
-            onPressed: () => setState(() => _hidden = !_hidden),
-            icon: Icon(
-              _hidden ? Icons.visibility_outlined : Icons.visibility_off,
+          // Out of the Tab/Enter order, so the next field follows this one.
+          suffixIcon: ExcludeFocus(
+            child: IconButton(
+              tooltip: _hidden ? l.authShow : l.authHide,
+              onPressed: () => setState(() => _hidden = !_hidden),
+              icon: Icon(
+                _hidden ? Icons.visibility_outlined : Icons.visibility_off,
+              ),
             ),
           ),
         ),
       ),
     );
 
-    Widget submit(String label, VoidCallback onPressed) => Padding(
-      padding: EdgeInsets.only(top: s.lg),
-      child: FilledButton(
-        key: AccountSheet.submitKey,
-        onPressed: _busy ? null : onPressed,
-        child: _busy
-            ? SizedBox.square(
-                dimension: AccountTokens.progress,
-                child: CircularProgressIndicator(
-                  strokeWidth: AccountTokens.progressStroke,
-                  color: colors.textPrimary,
-                ),
-              )
-            : Text(label),
-      ),
-    );
+    Widget submit(String label, VoidCallback onPressed) {
+      _primary = _busy ? null : onPressed;
+      return Padding(
+        padding: EdgeInsets.only(top: s.lg),
+        child: FilledButton(
+          key: AccountSheet.submitKey,
+          onPressed: _busy ? null : onPressed,
+          child: _busy
+              ? SizedBox.square(
+                  dimension: AccountTokens.progress,
+                  child: CircularProgressIndicator(
+                    strokeWidth: AccountTokens.progressStroke,
+                    color: colors.textPrimary,
+                  ),
+                )
+              : Text(label),
+        ),
+      );
+    }
 
     Widget back() => TextButton(
       onPressed: _busy ? null : () => _go(AccountStep.hub),
@@ -492,7 +541,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
           ? null
           : () => _run((auth) async {
               await auth.google();
-              if (mounted) setState(() => _notice = l.authGoogleContinue);
+              if (mounted) setState(() => _notice = _browserNotice);
             }),
       icon: const Icon(Icons.g_mobiledata_rounded),
       label: Text(l.authGoogle),
@@ -528,6 +577,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
             controller: _confirm,
             label: l.authPasswordAgain,
             fresh: true,
+            last: true,
           ),
           submit(
             l.authSendCode,
@@ -544,7 +594,11 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       case AccountStep.verify:
         return [
           title(l.authVerifyTitle, l.authVerifyBody(_email.text.trim())),
-          _CodeField(controller: _code),
+          _CodeField(
+            controller: _code,
+            last: true,
+            onSubmitted: (_) => onEnter(true),
+          ),
           submit(
             l.authVerify,
             () => _run((auth) async {
@@ -586,7 +640,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
           google(),
           SizedBox(height: s.md),
           emailField(),
-          passwordField(),
+          passwordField(last: true),
           CheckboxListTile(
             key: AccountSheet.rememberKey,
             contentPadding: EdgeInsets.zero,
@@ -616,7 +670,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       case AccountStep.forgot:
         return [
           title(l.authForgot, l.authForgotBody),
-          emailField(),
+          emailField(last: true),
           submit(
             l.authSendCode,
             () => _run((auth) async {
@@ -638,6 +692,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
             controller: _confirm,
             label: l.authPasswordAgain,
             fresh: true,
+            last: true,
           ),
           submit(
             l.authResetSave,
@@ -672,6 +727,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
             controller: _confirm,
             label: l.authPasswordAgain,
             fresh: true,
+            last: true,
           ),
           submit(
             l.authResetSave,
@@ -762,13 +818,24 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
 /// Six boxes' worth of digits in one field: paste-friendly, LTR, auto-fill.
 class _CodeField extends StatelessWidget {
   final TextEditingController controller;
-  const _CodeField({required this.controller});
+
+  /// Enter/Go: runs the step's primary action when this is its last field,
+  /// otherwise moves on to the next field.
+  final ValueChanged<String>? onSubmitted;
+  final bool last;
+  const _CodeField({
+    required this.controller,
+    this.onSubmitted,
+    this.last = false,
+  });
 
   @override
   Widget build(BuildContext context) => TextField(
     key: AccountSheet.codeKey,
     controller: controller,
     keyboardType: TextInputType.number,
+    textInputAction: last ? TextInputAction.done : TextInputAction.next,
+    onSubmitted: onSubmitted,
     textAlign: TextAlign.center,
     textDirection: TextDirection.ltr,
     autofillHints: const [AutofillHints.oneTimeCode],

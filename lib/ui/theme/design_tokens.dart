@@ -2572,6 +2572,11 @@ abstract final class AccountTokens {
   static const double progressStroke = 2.0;
   static const int resendSeconds = 60;
   static const int codeLength = 6;
+
+  /// How long a sign-in that left for a browser (Google, an email link) counts
+  /// as coming back. Within it, «تذكّرني» off does not sign the returning
+  /// account straight out again.
+  static const Duration pendingReturn = Duration(minutes: 15);
 }
 
 /// The full profile (`lib/ui/account/profile_panels.dart`).

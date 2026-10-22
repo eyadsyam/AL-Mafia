@@ -4443,7 +4443,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get authGoogleTaken =>
-      'حساب جوجل ده مربوط بحساب تاني في اللعبة. لو دخلت عليه، الموبايل ده هيسيب حساب الضيف.';
+      'حساب جوجل ده مربوط بحساب تاني في اللعبة. لو دخلت عليه، الجهاز ده هيسيب حساب الضيف.';
 
   @override
   String get authGoogleUseExisting => 'ادخل بحساب جوجل ده';
