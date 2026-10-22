@@ -28,8 +28,8 @@ This file is the single place to resume from. Anyone (Claude, Codex, a person) p
 
 | Gate | Command | Last result |
 |---|---|---|
-| Flutter tests | `flutter test --no-pub` (whole suite, alone) | 2305 pass, 0 skip, 0 fail (2026-10-21) |
-| Analyzer | `flutter analyze --no-pub --no-fatal-infos` | No issues found (113 infos cleared, a354fe4; 2026-10-21) |
+| Flutter tests | `flutter test --no-pub` (whole suite, alone) | 2308 pass, 0 skip, 0 fail (2026-10-22, a4af201) |
+| Analyzer | `flutter analyze --no-pub` | No issues found (2026-10-22) |
 | SQL | `node tool/test_sql_without_docker.mjs` | 97/97 files, 161 migrations (2026-10-21) |
 | Node | each `supabase/tests/*.test.mjs` with `node --test <file>` | 37/37 files, 0 fail (2026-10-21) |
 | Parity | `node supabase/tests/run_golden_vectors_node.mjs` (35 agree) + night vectors `node --test supabase/tests/night_vectors.test.mjs` (48/48) + their Dart tests | PASS (2026-10-17) |
@@ -37,6 +37,7 @@ This file is the single place to resume from. Anyone (Claude, Codex, a person) p
 | Live suite | `supabase/tests/run_live_suite.py` against a server running THIS code | BLOCKED: needs deploy (owner) |
 | Device | owner plays one offline and one online match on his phone | BLOCKED: owner |
 | Web voice | `flutter test --no-pub --platform chrome test/voice/voice_web_runtime_test.dart` with `CHROME_EXECUTABLE` pointing at a wrapper that adds `--use-fake-device-for-media-stream --use-fake-ui-for-media-stream`; while it waits, `node tool/repair_flutter_web_test_host.mjs <debug port> "D:/Flutter Data/Futter/flutter"` (Windows test-host workaround) | 1/1 PASS: two real RTCPeerConnections exchange audio RTP (2026-10-21) |
+| Real Postgres races | `node --test tool/real_pg/races.mjs` (local Supabase docker container `supabase_db_AL_Mafia` running; a throwaway database, all migrations, dropped after) | 22/22, every race measured to overlap (2026-10-21) |
 
 Stable = every gate green, every audit matrix row in §4 either covered by a test or fixed, owner smoke test passed.
 
@@ -114,7 +115,7 @@ M1: 117 rows; 20 SUSPECT. M2: 118 rows (29 OK, 76 GAP, 11 SUSPECT). Decisions:
 - [x] Q3 Online client half of the rulings + S6/S7 (537e3f0).
 - [x] Q4 Audits M1, M2, M3 (9300cc6, 7c01244); triage §4b.
 - [x] Q5a Every SUSPECT fixed or accepted: server tool guards 7c01244, engine hardening aed3e3a, decided outcome 5164053, client 537e3f0, one Elder/Sniper 537e3f0. M3-22 (one account on two devices) ACCEPTED as a design limit: one account plays on one device.
-- [x] Q5b GAP rows into tests. Done 2026-10-21: every SUSPECT row carries its triage (7c1e78f); 67 Dart row tests (8963e08) found and fixed two defects (fast preset hid a second night death's role; a roster push during a reread could revive a dead seat); M3-25/37/56 in `online_retry_rows.sql` (ef56b8a). Left GAP, all needs-live: M1 5 (true concurrency), M2 5 (M2-12/62/112 concurrency, M2-34/100 real voice muting), M4 5 (M4-16 cross-client audio, M4-36/39/43/46 concurrency).
+- [x] Q5b GAP rows into tests. Done 2026-10-21: every SUSPECT row carries its triage (7c1e78f); 67 Dart row tests (8963e08) found and fixed two defects; M3-25/37/56 in `online_retry_rows.sql` (ef56b8a); the concurrency rows raced on a real PostgreSQL (`tool/real_pg`, a4af201); silenced voice proven in Chrome; M4-16 fixed (every phone now speaks the same narrator recording). **0 GAP and 0 SUSPECT rows in M1–M4.**
 - [x] Q6 Parity of the night: `resolveNightCore` (TS) vs the Dart engine on 48 scenarios, both sides green.
 - [x] Q7 Gendered lines: confrontation C1/C4/C5/C6/C7/C8 and «مينفعش تصوّتي» follow the addressed player's gender, offline and online (test/unit/addressed_gender_test.dart).
 - [x] Q8 M4 store audit done (1471b82). Triage: M4-50 returned bundle keeps its components → FIXED 197e29a (`bundle_revoke_components.sql`); M4-51 a pack already on a room survives its owner's return → ACCEPTED (deliberate: cosmetics never block a match, purchase_access.ts comment); M4-38 two overlapping tool packs, one returned → ACCEPTED (rare); M4-4/7/10 offline keeps a returned role until the next online refresh → ACCEPTED (offline cannot ask the server); M4-24 vote shield is cover bought in advance → ACCEPTED (as M1 conditional tools).
