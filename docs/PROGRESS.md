@@ -3971,3 +3971,9 @@ Files:      lib/core/input/keyboard_keys.dart; lib/ui/theme/design_tokens.dart; 
 Verified:   flutter analyze --no-pub: 0 issues; flutter test --no-pub: 2366 passed, 0 failed, 0 skipped; flutter test --no-pub test/golden/leakage: 57 passed; focused desktop, pointer and keyboard tests passed.
 Gate:       PASS
 Open:       Whisper remains with Ready in the start rail because both share one phase action widget. No emulator screenshot; widget tests covered 1440x900 and 390x844.
+
+## CHECKPOINT 2026-10-23 early — resume here
+Built:      web per device complete (owner approved 2026-10-22): first-paint loader (lifts on flutter-first-frame or after 30 s), Android-web app ribbon, iPhone add-to-home sheet, in-app-browser sheet for Google, sign-in reading width, desktop split Home/mode, three-column table, cursor/hover (name only)/right-click, table keys. Codex review fixes: read-only nameCheck (friends function, deployed live), all-access sign-out guard, return mark needs a sign-in in the address, story memo only when complete. Roles page synced with the game's role lines. Live harness: heartbeats from room creation, AFK cycle survives dropped links, `--roles-timers`.
+Verified:   flutter analyze 0; flutter test 2366/0/0; leakage 57/0; node tool tests 0 fail; every supabase/tests/*.test.mjs green (m1 12/12 on its own). LIVE: new_roles_tools 245 passed (one run), and the everyone-AFK cycle alone 22/22 — reveal, night (+resolve), morning, opening, discuss, vote (+resolve), verdict all expire on the server clock, role privacy held.
+Gate:       PASS
+Open:       Owner only — phone smoke test, then the Play build and the web deploy when he says. Codex (limit until 04:12) could still run docs/plans/briefs/review_web_2026_10_22.txt (read-only); optional.
