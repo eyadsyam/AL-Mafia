@@ -4552,5 +4552,10 @@
   "friendRemove": "Remove from friends",
   "friendRemoveConfirm": "Remove {name} from your friends?",
   "@friendRemoveConfirm": { "placeholders": { "name": { "type": "String" } } },
-  "friendRemoveYes": "Remove"
+  "friendRemoveYes": "Remove",
+  "inAppBrowserTitle": "Open the game in your browser",
+  "inAppBrowserBody": "Google doesn't allow signing in inside this app. Open the link in Chrome or Safari and continue there, or use email here.",
+  "inAppBrowserChrome": "Open in Chrome",
+  "inAppBrowserCopy": "Copy link",
+  "inAppBrowserCopied": "Link copied"
 }

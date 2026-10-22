@@ -7407,4 +7407,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get friendRemoveYes => 'Remove';
+
+  @override
+  String get inAppBrowserTitle => 'Open the game in your browser';
+
+  @override
+  String get inAppBrowserBody =>
+      'Google doesn\'t allow signing in inside this app. Open the link in Chrome or Safari and continue there, or use email here.';
+
+  @override
+  String get inAppBrowserChrome => 'Open in Chrome';
+
+  @override
+  String get inAppBrowserCopy => 'Copy link';
+
+  @override
+  String get inAppBrowserCopied => 'Link copied';
 }

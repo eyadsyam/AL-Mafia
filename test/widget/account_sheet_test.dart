@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/transport/account_auth.dart';
 import 'package:mafia_master/transport/account_service.dart';
+import 'package:mafia_master/platform/links/in_app_browser.dart';
 import 'package:mafia_master/ui/account/account_sheet.dart';
+import 'package:mafia_master/ui/account/embedded_browser_sheet.dart';
 import 'package:mafia_master/ui/social/push_prompt.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
@@ -299,6 +301,76 @@ void main() {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
     expect(auth.calls, ['signIn:eyad@example.com']);
+  });
+
+  testWidgets('inside an in-app browser, Google sends the player to a real '
+      'browser and starts nothing', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    auth = _FakeAuth();
+    await tester.binding.setSurfaceSize(const Size(360, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          accountAuthProvider.overrideWithValue(auth),
+          accountProfileProvider.overrideWith(
+            (ref) => Stream.value(AccountProfile.guest),
+          ),
+          embeddedBrowserProvider.overrideWithValue(true),
+        ],
+        child: localizedApp(const Scaffold(body: AccountSheet())),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AccountSheet.googleKey));
+    await tester.pumpAndSettle();
+    expect(find.text(arStrings.inAppBrowserTitle), findsOneWidget);
+    expect(find.byKey(EmbeddedBrowserSheet.copyKey), findsOneWidget);
+    expect(auth.calls, isEmpty);
+  });
+
+  testWidgets('on a wide window the fields keep the reading width', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    auth = _FakeAuth();
+    await tester.binding.setSurfaceSize(const Size(1440, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          accountAuthProvider.overrideWithValue(auth),
+          accountProfileProvider.overrideWith(
+            (ref) => Stream.value(AccountProfile.guest),
+          ),
+        ],
+        child: localizedApp(const Scaffold(body: AccountSheet())),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(AccountSheet.haveKey));
+    await tester.pumpAndSettle();
+    final field = tester.getRect(find.byKey(AccountSheet.emailKey));
+    expect(field.width, lessThanOrEqualTo(480));
+    expect(field.center.dx, closeTo(720, 1));
+  });
+
+  test('the in-app browsers are told apart from real ones', () {
+    for (final agent in [
+      'Mozilla/5.0 (Linux; Android 14) [FBAN/EMA;FBLC/ar_EG;FBAV/430.0]',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0) Instagram 300.0',
+      'Mozilla/5.0 (Linux; Android 13) musical_ly_2023 BytedanceWebview',
+      'Mozilla/5.0 (iPhone) Snapchat/12.0',
+    ]) {
+      expect(isEmbeddedBrowser(agent), isTrue, reason: agent);
+    }
+    for (final agent in [
+      'Mozilla/5.0 (Linux; Android 14) Chrome/130.0 Mobile Safari/537.36',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0) Version/17.0 Safari/605.1',
+      'Mozilla/5.0 (Windows NT 10.0) Firefox/131.0',
+    ]) {
+      expect(isEmbeddedBrowser(agent), isFalse, reason: agent);
+    }
   });
 
   testWidgets('a reset link opens straight on the new password', (

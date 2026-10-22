@@ -7290,4 +7290,20 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get friendRemoveYes => 'شيل';
+
+  @override
+  String get inAppBrowserTitle => 'افتح اللعبة في المتصفح';
+
+  @override
+  String get inAppBrowserBody =>
+      'جوجل مش بيسمح بالدخول من جوه التطبيق ده. افتح اللينك في كروم أو سفاري وكمّل من هناك، أو ادخل بالإيميل من هنا.';
+
+  @override
+  String get inAppBrowserChrome => 'افتح في كروم';
+
+  @override
+  String get inAppBrowserCopy => 'انسخ اللينك';
+
+  @override
+  String get inAppBrowserCopied => 'اتنسخ اللينك';
 }

@@ -12762,6 +12762,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove'**
   String get friendRemoveYes;
+
+  /// No description provided for @inAppBrowserTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the game in your browser'**
+  String get inAppBrowserTitle;
+
+  /// No description provided for @inAppBrowserBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Google doesn\'t allow signing in inside this app. Open the link in Chrome or Safari and continue there, or use email here.'**
+  String get inAppBrowserBody;
+
+  /// No description provided for @inAppBrowserChrome.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Chrome'**
+  String get inAppBrowserChrome;
+
+  /// No description provided for @inAppBrowserCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get inAppBrowserCopy;
+
+  /// No description provided for @inAppBrowserCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get inAppBrowserCopied;
 }
 
 class _AppLocalizationsDelegate

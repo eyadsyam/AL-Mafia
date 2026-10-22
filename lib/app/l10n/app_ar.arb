@@ -3277,5 +3277,10 @@
   "friendRemove": "شيل من أصحابك",
   "friendRemoveConfirm": "تشيل {name} من أصحابك؟",
   "@friendRemoveConfirm": { "placeholders": { "name": { "type": "String" } } },
-  "friendRemoveYes": "شيل"
+  "friendRemoveYes": "شيل",
+  "inAppBrowserTitle": "افتح اللعبة في المتصفح",
+  "inAppBrowserBody": "جوجل مش بيسمح بالدخول من جوه التطبيق ده. افتح اللينك في كروم أو سفاري وكمّل من هناك، أو ادخل بالإيميل من هنا.",
+  "inAppBrowserChrome": "افتح في كروم",
+  "inAppBrowserCopy": "انسخ اللينك",
+  "inAppBrowserCopied": "اتنسخ اللينك"
 }

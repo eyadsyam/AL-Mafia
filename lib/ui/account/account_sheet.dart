@@ -1,5 +1,6 @@
 import '../widgets/mafia_kit.dart';
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/feathered_art.dart';
 import 'account_footer.dart';
+import 'embedded_browser_sheet.dart' show sentToRealBrowser;
 import '../../transport/native_google.dart';
 import '../../app/text_formatters.dart';
 
@@ -340,90 +342,103 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       // Closing the screen after a sign-in commits the group, so the browser or
       // the phone may offer to save the email and password.
       child: AutofillGroup(
-        child: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: EdgeInsets.fromLTRB(
-            s.screenMargin,
-            s.screenMargin,
-            s.screenMargin,
-            s.screenMargin + keyboardInset,
-          ),
-          children: [
-            if (profile.signedIn) ...[
-              SizedBox(
-                height: AccountTokens.heroHeight,
-                child: FeatheredArt(
-                  feather: Feather.hero,
-                  child: Image.asset(
-                    AppImages.splashMask,
-                    fit: BoxFit.contain,
-                    excludeFromSemantics: true,
+        child: LayoutBuilder(
+          // On a wide window the fields keep the reading width every other
+          // screen uses, centred, and the whole window still scrolls them.
+          builder: (context, constraints) {
+            final side = math.max(
+              s.screenMargin,
+              (constraints.maxWidth - s.maxContentWidth) / 2,
+            );
+            return ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.fromLTRB(
+                side,
+                s.screenMargin,
+                side,
+                s.screenMargin + keyboardInset,
+              ),
+              children: [
+                if (profile.signedIn) ...[
+                  SizedBox(
+                    height: AccountTokens.heroHeight,
+                    child: FeatheredArt(
+                      feather: Feather.hero,
+                      child: Image.asset(
+                        AppImages.splashMask,
+                        fit: BoxFit.contain,
+                        excludeFromSemantics: true,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              // Store truth: who this account is at the table — the frame and
-              // plate it equipped, its title, and its Partner (F10).
-              SizedBox(height: s.sm),
-              const Center(
-                child: MyIdentityBadge(
-                  axis: Axis.vertical,
-                  diameter: StoreTruthTokens.sheetAvatar,
-                ),
-              ),
-              const Center(child: EquippedTitleLine()),
-              const TitleEquipList(),
-              SizedBox(height: s.sm),
-              const PartnerPicker(),
-            ],
-            ..._body(context, profile),
-            if (_error != null) ...[
-              SizedBox(height: s.sm),
-              Text(
-                _error!,
-                key: AccountSheet.errorKey,
-                textAlign: TextAlign.center,
-                style: context.typography.bodySmall.copyWith(
-                  color: context.colors.accentCrimson,
-                ),
-              ),
-              if (_googleTaken) ...[
-                SizedBox(height: s.sm),
-                OutlinedButton(
-                  key: AccountSheet.googleExistingKey,
-                  onPressed: _busy
-                      ? null
-                      : () => _run((auth) async {
-                          await auth.googleSignIn();
-                          if (!mounted) return;
-                          setState(() {
-                            _googleTaken = false;
-                            _error = null;
-                            _notice = _browserNotice;
-                          });
-                        }),
-                  child: Text(context.l10n.authGoogleUseExisting),
-                ),
-                // The other half of the choice: nothing changes, the guest and
-                // everything on it stay on this device.
-                TextButton(
-                  key: AccountSheet.keepGuestKey,
-                  onPressed: _busy ? null : () => _go(AccountStep.hub),
-                  child: Text(context.l10n.authGoogleKeepGuest),
-                ),
+                  // Store truth: who this account is at the table — the frame and
+                  // plate it equipped, its title, and its Partner (F10).
+                  SizedBox(height: s.sm),
+                  const Center(
+                    child: MyIdentityBadge(
+                      axis: Axis.vertical,
+                      diameter: StoreTruthTokens.sheetAvatar,
+                    ),
+                  ),
+                  const Center(child: EquippedTitleLine()),
+                  const TitleEquipList(),
+                  SizedBox(height: s.sm),
+                  const PartnerPicker(),
+                ],
+                ..._body(context, profile),
+                if (_error != null) ...[
+                  SizedBox(height: s.sm),
+                  Text(
+                    _error!,
+                    key: AccountSheet.errorKey,
+                    textAlign: TextAlign.center,
+                    style: context.typography.bodySmall.copyWith(
+                      color: context.colors.accentCrimson,
+                    ),
+                  ),
+                  if (_googleTaken) ...[
+                    SizedBox(height: s.sm),
+                    OutlinedButton(
+                      key: AccountSheet.googleExistingKey,
+                      onPressed: _busy
+                          ? null
+                          : () async {
+                              if (await sentToRealBrowser(context, ref)) return;
+                              await _run((auth) async {
+                                await auth.googleSignIn();
+                                if (!mounted) return;
+                                setState(() {
+                                  _googleTaken = false;
+                                  _error = null;
+                                  _notice = _browserNotice;
+                                });
+                              });
+                            },
+                      child: Text(context.l10n.authGoogleUseExisting),
+                    ),
+                    // The other half of the choice: nothing changes, the guest and
+                    // everything on it stay on this device.
+                    TextButton(
+                      key: AccountSheet.keepGuestKey,
+                      onPressed: _busy ? null : () => _go(AccountStep.hub),
+                      child: Text(context.l10n.authGoogleKeepGuest),
+                    ),
+                  ],
+                ],
+                if (_notice != null) ...[
+                  SizedBox(height: s.sm),
+                  Text(
+                    _notice!,
+                    textAlign: TextAlign.center,
+                    style: context.typography.bodySmall.copyWith(
+                      color: context.colors.accentGold,
+                    ),
+                  ),
+                ],
+                if (_step == AccountStep.hub) const AccountFooter(),
               ],
-            ],
-            if (_notice != null) ...[
-              SizedBox(height: s.sm),
-              Text(
-                _notice!,
-                textAlign: TextAlign.center,
-                style: context.typography.bodySmall.copyWith(
-                  color: context.colors.accentGold,
-                ),
-              ),
-            ],
-            if (_step == AccountStep.hub) const AccountFooter(),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -539,10 +554,13 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       key: AccountSheet.googleKey,
       onPressed: _busy
           ? null
-          : () => _run((auth) async {
-              await auth.google();
-              if (mounted) setState(() => _notice = _browserNotice);
-            }),
+          : () async {
+              if (await sentToRealBrowser(context, ref)) return;
+              await _run((auth) async {
+                await auth.google();
+                if (mounted) setState(() => _notice = _browserNotice);
+              });
+            },
       icon: const Icon(Icons.g_mobiledata_rounded),
       label: Text(l.authGoogle),
     );

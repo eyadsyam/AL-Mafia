@@ -12,6 +12,7 @@ import '../../../data/terms_consent.dart';
 import '../../../engine/models/player.dart';
 import '../../../transport/account_auth.dart' show AccountProfile;
 import '../../../transport/account_service.dart' show AccountFailure;
+import '../../account/embedded_browser_sheet.dart' show sentToRealBrowser;
 import '../../account/account_sheet.dart'
     show accountAuthProvider, accountProfileProvider, showAccountSheet;
 import '../../account/onboarding_account_step.dart';
@@ -324,6 +325,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   }
 
   Future<void> _google() async {
+    if (await sentToRealBrowser(context, ref)) return;
+    if (!mounted) return;
     setState(() {
       _googleBusy = true;
       _failed = false;
