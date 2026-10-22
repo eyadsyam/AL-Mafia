@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>سيد المافيا — حكم لعبة المافيا في جيبك</title>
+<meta name="description" content="سيد المافيا: تطبيق يدير لعبة المافيا على موبايل واحد بيلفّ على الطاولة. يوزّع الأدوار، يشغّل الليل في السر، يحسب الأصوات ويعلن الفائز. بدون حساب وبدون إنترنت.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base: #0f0f0f;
+    --raised: #1a1a1a;
+    --border: #313131;
+    --text: #e9e4d9;
+    --muted: #908c83;
+    --gold: #c9a227;
+    --gold-hover: #b08d1f;
+    --max: 1040px;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--base);
+    color: var(--text);
+    font-family: "Cairo", system-ui, sans-serif;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--max); margin-inline: auto; padding-inline: 20px; }
+  a { color: inherit; }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding-block: 72px 56px;
+    background:
+      linear-gradient(to bottom, rgba(15,15,15,.55), var(--base) 96%),
+      url("img/bg_home.webp") center / cover no-repeat;
+  }
+  .brand { font-size: .95rem; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
+  h1 { font-size: clamp(2.6rem, 9vw, 5.2rem); font-weight: 900; line-height: 1.25; }
+  .lead { max-width: 34ch; margin: 16px auto 0; color: var(--muted); font-size: clamp(1.05rem, 2.6vw, 1.3rem); }
+  .cta { display: inline-block; margin-top: 32px; padding: 14px 36px; border-radius: 12px;
+         background: var(--gold); color: var(--base); font-weight: 800; font-size: 1.15rem; text-decoration: none; }
+  .cta:hover, .cta:focus-visible { background: var(--gold-hover); }
+  .cta:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
+
+  .deck { display: flex; justify-content: center; gap: clamp(6px, 2vw, 18px); margin-top: 48px; }
+  .deck img {
+    width: clamp(64px, 20vw, 190px); aspect-ratio: 2 / 3; object-fit: cover;
+    border-radius: 10px; box-shadow: 0 14px 34px rgba(0,0,0,.65);
+    animation: float 7s ease-in-out infinite;
+  }
+  .deck img:nth-child(1) { transform: rotate(-6deg); }
+  .deck img:nth-child(2) { animation-delay: -1.7s; margin-top: -14px; }
+  .deck img:nth-child(3) { animation-delay: -3.4s; margin-top: -14px; }
+  .deck img:nth-child(4) { transform: rotate(6deg); animation-delay: -5s; }
+  @keyframes float { 50% { translate: 0 -8px; } }
+
+  /* Sections */
+  section { padding-block: 72px; }
+  h2 { font-size: clamp(1.6rem, 4.5vw, 2.3rem); font-weight: 800; margin-bottom: 8px; }
+  .sub { color: var(--muted); max-width: 52ch; margin-bottom: 36px; }
+
+  .steps { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); list-style: none; padding: 0; counter-reset: s; }
+  .steps li { background: var(--raised); border: 1px solid var(--border); border-radius: 14px; padding: 22px; counter-increment: s; }
+  .steps li::before { content: counter(s); display: block; color: var(--gold); font-weight: 900; font-size: 1.6rem; line-height: 1.2; }
+  .steps h3 { font-size: 1.15rem; margin: 6px 0 4px; }
+  .steps p { color: var(--muted); font-size: .98rem; }
+
+  .roles { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  .role { background: var(--raised); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .role img { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; }
+  .role div { padding: 16px 18px 20px; }
+  .role h3 { font-size: 1.15rem; }
+  .role p { color: var(--muted); font-size: .96rem; }
+
+  .facts { display: grid; gap: 12px 32px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); list-style: none; padding: 0; }
+  .facts li { padding-inline-start: 22px; position: relative; }
+  .facts li::before { content: ""; position: absolute; inset-inline-start: 0; top: .8em; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+
+  .final { text-align: center; border-top: 1px solid var(--border); }
+  footer { text-align: center; color: var(--muted); font-size: .9rem; padding-block: 28px 40px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .deck img { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="brand">MAFIA MASTER</p>
+    <h1>سيد المافيا</h1>
+    <p class="lead">الحكم اللي بيدير لعبة المافيا بدالك. موبايل واحد، وكل اللي على الطاولة يلعبوا.</p>
+    <a class="cta" href="#download">حمّل التطبيق</a>
+    <div class="deck" aria-label="أربع كروت: المافيا والدكتور والمحقق والمواطن">
+      <img src="img/card_face_mafia.webp" alt="كارت المافيا" width="190" height="285">
+      <img src="img/card_face_doctor.webp" alt="كارت الدكتور" width="190" height="285">
+      <img src="img/card_face_detective.webp" alt="كارت المحقق" width="190" height="285">
+      <img src="img/card_face_citizen.webp" alt="كارت المواطن" width="190" height="285">
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="how">
+    <div class="wrap">
+      <h2>إزاي بتشتغل</h2>
+      <p class="sub">مفيش حد محتاج يبقى الراوي. التطبيق بيمسك الدور ده، والموبايل بيلفّ من إيد لإيد.</p>
+      <ol class="steps">
+        <li><h3>أضف اللاعبين</h3><p>اكتب الأسماء بترتيب القعدة. من ٦ لـ ١٥ لاعب.</p></li>
+        <li><h3>وزّع الأدوار</h3><p>كل لاعب يشوف كارته لوحده ويمرّر الموبايل.</p></li>
+        <li><h3>الليل بيتدار في السر</h3><p>المافيا والدكتور والمحقق كل واحد بيعمل حركته من غير ما حد يعرف.</p></li>
+        <li><h3>النهار والتصويت</h3><p>مؤقت للنقاش، وعدّ للأصوات، وإعلان للنتيجة.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="roles">
+    <div class="wrap">
+      <h2>أربع كروت مرسومة باليد</h2>
+      <p class="sub">كل دور له لوحته. مفيش حاجة تخطف العين من الفن.</p>
+      <div class="roles">
+        <article class="role"><img src="img/card_face_mafia.webp" alt="" loading="lazy"><div><h3>المافيا</h3><p>بتختار ضحية كل ليلة وبتحاول تفضل مستخبية بالنهار.</p></div></article>
+        <article class="role"><img src="img/card_face_doctor.webp" alt="" loading="lazy"><div><h3>الدكتور</h3><p>بيحمي لاعب كل ليلة (حتى نفسه)، من غير ما يكرر نفس اللاعب ليلتين ورا بعض.</p></div></article>
+        <article class="role"><img src="img/card_face_detective.webp" alt="" loading="lazy"><div><h3>المحقق</h3><p>بيحقق في لاعب بالليل ويعرف دوره بالظبط.</p></div></article>
+        <article class="role"><img src="img/card_face_citizen.webp" alt="" loading="lazy"><div><h3>المواطن</h3><p>مفيش قدرة خاصة. سلاحه الوحيد إنه يقنع الباقي.</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>مصمّم للقعدة الحقيقية</h2>
+      <p class="sub">في الصالون أو الكافيه، الموبايل مجرد أداة على الطاولة.</p>
+      <ul class="facts">
+        <li>بدون حساب ولا تسجيل دخول.</li>
+        <li>شغّال بدون إنترنت، ومفيش تتبّع.</li>
+        <li>مصمم عشان أي لاعب ميعرفش دور غيره.</li>
+        <li>واجهة عربية بالكامل.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="download" class="final">
+    <div class="wrap">
+      <h2>جاهز للّيلة الأولى؟</h2>
+      <p class="sub" style="margin-inline:auto">رابط التحميل هيتضاف هنا أول ما التطبيق يتنشر.</p>
+      <a class="cta" href="#" aria-disabled="true">قريباً</a>
+    </div>
+  </section>
+</main>
+
+<footer>© سيد المافيا</footer>
+</body>
+</html>
