@@ -1,0 +1,48 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game. YOU EXECUTE; YOU DO NOT DESIGN. Do not commit, do not deploy, no network calls except what the local test commands below need. Do not touch any file other than the one new migration named below. Another task is editing lib/** and supabase/functions/** at the same time: never edit, format or revert those files.
+
+CONTEXT
+The live database's advisor reported these, and we want them fixed with no behaviour change:
+1. function_search_path_mutable: public.is_mafia_team and public.tool_pack_price have no fixed search_path.
+2. auth_rls_initplan: table public.player_blocks, policy own_blocks calls auth.uid() (or another auth.* function) per row.
+3. unindexed_foreign_keys (24):
+   ad_reward_claims(room_id) [ad_reward_claims_room_id_fkey]
+   ad_step_claims(room_id) [ad_step_claims_room_id_fkey]
+   coin_order_events(order_id)
+   coin_orders(pack_code)
+   coin_packs(item_code)
+   creator_entitlement_audit(entitlement_id)
+   launch_event_participation(event_code)
+   mission_achievements(code)
+   play_products(item_code)
+   player_equipment(item_code)
+   player_equipment(user_id, item_code)
+   player_showcase(equipped_title)
+   player_titles(code)
+   player_tool_charges(tool_code)
+   room_tool_uses(tool_code)
+   season_reward_catalog(item_code)
+   season_reward_claims(season_id, level)
+   story_solves(story_id)
+   story_v2_sessions(story_id)
+   thursday_aggregates(event_week)
+   thursday_event_receipts(event_week)
+   thursday_participation(event_week)
+   thursday_participation(room_id)
+   thursday_participation(season_id)
+   The column names above come from the advisor's column positions; CONFIRM each one against the CREATE TABLE / ALTER TABLE in supabase/migrations before writing the index (use the real column names and order of the foreign key).
+
+WHAT TO WRITE
+One new file: supabase/migrations/20261022000100_advisor_hardening.sql (if that timestamp is not later than every existing migration file name, use the next free one that is, and say so).
+- For 1: find the LATEST definition of each function in supabase/migrations (CREATE OR REPLACE FUNCTION, exact argument types). Write `alter function public.<name>(<exact arg types>) set search_path = public, pg_temp;` for each. If either function body references objects in another schema without qualifying them (e.g. auth., extensions.), say so in the report; do not change bodies.
+- For 2: find the LATEST definition of policy own_blocks on public.player_blocks (command FOR ..., roles TO ..., USING and WITH CHECK). Write `drop policy if exists own_blocks on public.player_blocks;` then `create policy own_blocks ...` identical in every part except each `auth.uid()` (or other auth.<fn>()) becomes `(select auth.uid())`. Do not change anything else in the policy.
+- For 3: `create index if not exists <table>_<cols>_fk_idx on public.<table> (<cols>);` for each, in the foreign key's column order. Skip one only if an existing index in the migrations already starts with exactly those columns (then say which index covers it).
+- Add a short header comment saying what the migration does (match the comment style of the latest migrations in that folder).
+
+DO NOT
+- Do not touch rls_enabled_no_policy, pg_net in public, anonymous-access policies, my_entitlements, or leaked password protection (they are accepted as they are).
+
+GATES (run, paste tails)
+  node tool/test_sql_without_docker.mjs 2>&1 | tail -15      (baseline: 97/97 files pass; the new migration must apply cleanly and nothing may regress)
+  If the local Supabase docker container supabase_db_AL_Mafia is running (docker ps), also: node --test tool/real_pg/races.mjs 2>&1 | tail -15 (baseline 22/22). If it is not running, say so; do not start Docker.
+
+REPORT (final message): the migration file name and full content, how you confirmed each function signature, the policy before/after, any FK you skipped and why, and both gate tails.

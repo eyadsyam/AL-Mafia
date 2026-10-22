@@ -1,0 +1,38 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game «سيد المافيا: Mafia Master». YOU EXECUTE; YOU DO NOT DESIGN. Do not commit, do not deploy, no network calls. Read CLAUDE.md first (lib/engine pure; tokens only; no literal Arabic/English strings in widgets, use l10n ARB + `flutter gen-l10n`; no `if (isOnline)` in widgets). Use the exact copy below (do not reword). Reuse existing l10n keys where named.
+
+FIX 1 - profile name saved locally although the server would refuse it
+lib/ui/screens/setup/profile_screen.dart:93 saves via playerProfileProvider.save and reports success; the server later rejects the name (SQL safety_name_allowed, used by directory_hello in supabase/migrations/20260930000100_invites_push.sql:237 and the room-name trigger).
+Do: before reporting success, when the player is signed in online (a Supabase session exists), ask the server whether the name is allowed using an EXISTING server path (grep supabase/functions and lib/transport for a name check or the directory "hello" action that already calls safety_name_allowed; reuse it). If no existing client-callable path checks the name, add a read-only action `name_check` to the edge function that already handles directory/friends actions (follow its action switch pattern), returning {allowed: boolean} from public.safety_name_allowed(name); do not add a new function. If refused, do not save, and show the existing l10n `onlineNameNotAllowed` («الاسم ده مش مسموح. اختار اسم تاني.»). Offline or on a network error, save locally as today (the server still enforces it later).
+
+FIX 2 - "delete my account and data" leaves local data
+lib/ui/account/delete_account_sheet.dart:29: after the server confirms deletion, also clear the local player data: profile (mafia.playerProfile.v1), terms acceptance, the remember-me key, owned-roles and cosmetics caches (my_owned_roles_v1, my_cosmetics_v1), the all-access cache if present, push keys (push_on_v1, push_permission_asked_v1), and saved offline match data/stats (find their storage keys in lib/data and lib/ui/economy; list every key you clear in the report). Keep app-level choices that are not personal data: locale, sound/music/narration, reduce motion. Invalidate the providers that read those keys, then route to the first-run screen exactly as a fresh install would. Do not touch anything if the server deletion failed.
+
+FIX 3 - notifications switch can stay "on" when it is not working
+lib/ui/social/push_toggle.dart (lines ~38-55): if push is not available (server capability push off, or the platform has no push support, find the capability the app already reads), hide the switch. If registerPush fails, set the saved value back to off and show a SnackBar with new key `pushEnableFailed` AR «مقدرناش نشغّل الإشعارات على الجهاز ده» EN "Couldn't turn on notifications on this device". If the OS permission is denied, keep the existing behaviour if it already shows a line; otherwise use the same new line.
+
+FIX 4 - the open/secret ballot default in Home settings is not used online
+lib/ui/screens/setup/settings_sheet.dart:200 saves a default `openVoting`; lib/ui/screens/online/online_entry_screen.dart:114 hard-codes `openVoting: false` when creating a room. Use the saved default there (same provider/repository the sheet writes). The room's own settings panel still overrides it.
+
+FIX 5 - no way to remove a friend
+FriendsController.remove reaches the server action friend_remove, but the friends sheet (lib/ui/social/friends.dart, the friend row around line 408-459) has no control. Add to each accepted-friend row a secondary action (the same overflow/menu or trailing icon pattern already used in that sheet or in lib/ui/social/*; if none, an IconButton with Icons.more_vert opening a small bottom sheet) with:
+  friendRemove        AR «شيل من أصحابك»            EN "Remove from friends"
+  friendRemoveConfirm AR «تشيل {name} من أصحابك؟»   EN "Remove {name} from your friends?"   ({name} is a String placeholder)
+  friendRemoveYes     AR «شيل»                       EN "Remove"
+  and the app's existing cancel key for the other button (grep "cancel" in app_ar.arb; reuse it).
+On confirm call FriendsController.remove and reload the list. The friends feature flag gating stays as it is.
+
+TESTS (add, do not weaken existing ones)
+  - profile: refused name -> not saved and onlineNameNotAllowed shown; allowed -> saved; offline -> saved.
+  - delete account: after a successful fake deletion every listed key is gone, locale/sound keys stay, and the first-run screen shows; failed deletion leaves keys.
+  - push toggle: register failure flips back to off and shows pushEnableFailed; capability off hides the switch.
+  - online entry: saved openVoting true reaches the create-room request.
+  - friends: remove -> confirm -> FriendsController.remove called with the friend's id.
+  - if FIX 1 added `name_check`, a Node/Deno test for it following supabase/tests/*.test.mjs.
+
+GATES (run all, paste tails)
+  flutter analyze 2>&1 | tail -30
+  flutter test 2>&1 | tail -15     (full suite, 0 skipped, 0 failed)
+  node --test on any supabase/tests file you added or that covers the edited function
+  deno check on any edited supabase/functions/*/index.ts (if deno is installed)
+
+REPORT (final message): files changed, one line each; FIX 1: which server path you reused or added; FIX 2: every key cleared and every key kept; new tests by name; gate tails; anything not done.

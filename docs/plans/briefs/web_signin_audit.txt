@@ -1,0 +1,25 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter app «سيد المافيا: Mafia Master» for Android and the web (web is deployed to saidalmafia.com). READ-ONLY REVIEW: do not edit, create or delete any file; no flutter build; no network calls. Another task is editing lib/** right now; read the working tree as it is. YOU DESCRIBE, YOU DO NOT DESIGN: for layout problems describe the current behaviour with evidence; do not propose new layouts (the orchestrator designs them).
+
+GOAL (the owner's words, translated): "Check sign-in, it needs improving, especially on the web. The web version needs big improvements: it should suit a game on the web, whether on a phone, an iPhone or a computer, each with exactly the system that suits it."
+
+PART 1 - sign-in, every route, every platform
+Find every way to sign in / create an account / restore an account (anonymous, Google, email - magic link, OTP or password, whatever exists; linking an anonymous account to Google/email; sign out; delete account). For each, trace: the screen and controls (file:line, quote the Arabic copy from lib/app/l10n/app_ar.arb), the client call (supabase_flutter / google_sign_in / custom), the redirect or callback URL it relies on (grep redirectTo, emailRedirectTo, deep link schemes, web origin), how the session is stored and restored (app restart; on the web: reload, a new tab, Safari private mode), loading and error states (what the player sees on cancel, network error, wrong code, expired link, account already exists), and double-tap protection.
+Then, per platform, list what would go wrong:
+  a) Android app.
+  b) Web on Android Chrome.
+  c) Web on iPhone Safari (popup blocking, ITP/storage partitioning, the magic link opening in another browser than the one that asked, keyboard covering the field).
+  d) Web on desktop Chrome/Edge/Firefox/Safari.
+  e) Web opened inside an in-app browser (Facebook, Instagram, Messenger, TikTok, WhatsApp link preview): Google OAuth refuses embedded webviews ("disallowed_useragent"); is it detected and handled?
+Also: autofill hints (AutofillGroup, autofillHints), keyboard type, Enter/Go submits, focus order, text direction of an email field in RTL, paste of an OTP code, resend timer, rate-limit message.
+
+PART 2 - the web as a platform, current state only
+Report with file:line evidence:
+  1. Layout: breakpoints and max widths (grep LayoutBuilder, MediaQuery.sizeOf, maxWidth, ConstrainedBox, breakpoint tokens in lib/core/theme/design_tokens.dart). What a 1440x900 desktop window shows for Home, sign-in, store, lobby and the online match table: stretched full width, centred column, or something else. Same for a 768x1024 tablet and a 390x844 phone. Landscape phone.
+  2. Input: mouse hover states and cursors (MouseRegion, SystemMouseCursors), keyboard shortcuts (Esc closes sheets/dialogs, Enter confirms, Tab order), mouse-wheel/trackpad scrolling in custom scroll views and sheets, drag-to-dismiss sheets with a mouse, long-press-only actions that a mouse user cannot discover, text selection.
+  3. Browser integration: URL strategy (hash vs path), browser back/forward with the router, page titles per route, refresh on a deep route, opening a room invite link on the web, favicon, web/manifest.json (name, short_name, icons sizes incl. maskable, theme_color, background_color, display, orientation), install prompt (PWA), service worker/offline.
+  4. iPhone specifics in web/index.html: viewport-fit=cover, safe-area insets used by the app (notch, home bar), apple-touch-icon, apple-mobile-web-app-capable / status bar style, 100vh/address-bar resize behaviour, audio unlock on first tap, the known RTL fix (flutter-view must be LTR inside the RTL shell: confirm it is still in place).
+  5. Android Chrome specifics: address bar show/hide resize, back gesture, keyboard resize (resizeToAvoidBottomInset), vibration.
+  6. Loading: what the visitor sees from the first byte until the first Flutter frame (index.html splash, colours, logo, text, progress), and how long the main bundle is likely to be (list the heaviest web-included packages).
+  7. Voice and audio on the web (permission prompt flow, iOS Safari quirks) as the player meets them.
+
+REPORT (final message): Part 1 as a table route x platform with OK / PROBLEM + evidence + smallest fix; then Part 2 as a list per item with the current behaviour and evidence (no new design). End with the top 10 problems a web player would notice first, ordered by how soon they would hit them.

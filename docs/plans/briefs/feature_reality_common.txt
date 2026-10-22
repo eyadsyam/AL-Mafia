@@ -1,0 +1,29 @@
+COMMON RULES FOR THE "IS IT REAL?" AUDITS (read with the area brief)
+
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game «سيد المافيا: Mafia Master». READ-ONLY REVIEW: do not edit, create or delete any file, no builds, no network calls. Another task is editing lib/** and supabase/functions/** right now (grave ballot); ignore those uncommitted changes.
+
+THE OWNER'S QUESTION: "Is every existing feature really working, or is it only a look?" Answer it for your area with evidence, not opinion.
+
+METHOD, for every feature and every tappable control in your area (grep onTap/onPressed/onChanged/onLongPress/GestureDetector/InkWell in the screens listed; also every menu item, sheet action and toggle):
+1. Entry: screen file:line of the control and what the player sees (l10n key; quote the Arabic from lib/app/l10n/app_ar.arb).
+2. Client path: the provider/controller/transport method it calls (file:line).
+3. Server path: edge function (supabase/functions/<name>/index.ts) or RPC / table (supabase/migrations/<file>: function name). For a purely local feature, the local store (SharedPreferences, Hive, file) and key.
+4. Effect: what is written (table/columns or local key) and what checks run (ownership, balance, limits, once-per-day, etc.).
+5. Read back: where the result shows to the player afterwards (screen file:line) and whether it survives an app restart (read from the server or local store, not only from memory).
+6. Verdict, exactly one:
+   WORKS - full path exists end to end, effect is stored and read back.
+   COSMETIC - the control/screen shows something but nothing is stored or nothing changes (e.g. a toggle that no code reads, a counter that is hard-coded, a list that is a constant in the client).
+   BROKEN - the path exists but cannot succeed (wrong endpoint name, field name mismatch between client and server, RPC that does not exist in migrations, a server check that always refuses, a missing grant/RLS that blocks the read, a feature flag that is off on the server with no way on). Quote both sides.
+   STUB - placeholder, "coming soon"/«قريبًا», TODO/FIXME, mock data, a button with an empty handler or one that only shows a snackbar.
+   HIDDEN - deliberately not reachable in this release (behind a flag such as _offerBotMatch); say which flag.
+   Also flag any feature whose server endpoint exists but has no client entry (ORPHAN-SERVER) and any l10n string for a feature that no widget uses (ORPHAN-COPY), only within your area.
+7. Feature flags: for each flag that gates your features (grep app_config, operations_control, economy_config, feature flags in lib/app and supabase/migrations), say its default in the migrations and which features are OFF by default.
+
+Also grep your area's files for: TODO, FIXME, XXX, HACK, "coming soon", قريب, placeholder, mock, fake, dummy, lorem, kDebugMode branches that change behaviour, hard-coded lists of items/prices/counts.
+
+Do NOT report style, naming or refactor ideas. Only the verdicts above, with evidence.
+
+REPORT (final message):
+- A table: feature/control | entry file:line | client call | server/storage | read back | verdict | evidence (one line).
+- Then three short lists, ordered by how often a normal player meets it: BROKEN, COSMETIC, STUB (each with the exact smallest fix in one line: file and what to change). Then HIDDEN and ORPHAN items in one line each.
+- Say plainly which parts you could not trace and why.

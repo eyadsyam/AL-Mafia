@@ -78,13 +78,13 @@ begin
   assert (ans->0->>'tool')='sense' and (ans->0->>'answer')::boolean;
   assert public.my_tool_answers(u2,room)->'answers'='[]'::jsonb, 'another player read answers that are not theirs';
 
+  -- grave_vote is retired (20261022000100): the dead seat's charge is refused, not spent.
   update public.room_state set phase='discuss' where room_id=room;
-  assert (select targets from public.table_tools where code='grave_vote')=0;
+  assert not (select active from public.table_tools where code='grave_vote');
   begin
-    perform public.use_table_tool(u5,room,'grave_vote',array[2],null);
-    raise exception 'grave_vote accepted a target';
-  exception when raise_exception then assert sqlerrm='BAD_TARGETS',sqlerrm; end;
-  res:=public.use_table_tool(u5,room,'grave_vote',array[]::int[],null);
-  assert res->>'tool'='grave_vote';
+    perform public.use_table_tool(u5,room,'grave_vote',array[]::int[],null);
+    raise exception 'a retired grave_vote was accepted';
+  exception when raise_exception then assert sqlerrm='ITEM_NOT_FOUND',sqlerrm; end;
+  assert (select charges from public.player_tool_charges where user_id=u5 and tool_code='grave_vote')=1;
 end $$;
 rollback;

@@ -44,16 +44,12 @@ begin
   perform pg_temp.expect_tool_error(a,r,'revote','{}',null,'WRONG_PHASE');
   update public.room_state set public_data='{"morning":{"silencedSeat":null}}' where room_id=r;
 
-  -- T3: the dead seat cannot buy a ballot after this vote window.
-  update public.room_state set phase='night' where room_id=r;
-  perform pg_temp.expect_tool_error(dead_user,r,'grave_vote','{}',null,'WRONG_PHASE');
-  update public.room_state set phase='vote' where room_id=r;
+  -- T3: grave_vote is retired (20261022000100); a dead seat's old charge is refused.
+  perform pg_temp.expect_tool_error(dead_user,r,'grave_vote','{}',null,'ITEM_NOT_FOUND');
 
-  -- T4: silence blocks both ways of buying ballot weight.
+  -- T4: silence blocks buying ballot weight.
   update public.room_state set phase='discuss',public_data='{"morning":{"silencedSeat":0}}' where room_id=r;
   perform pg_temp.expect_tool_error(a,r,'double_vote','{}',null,'SILENCED');
-  update public.room_state set phase='vote',public_data='{"morning":{"silencedSeat":2}}' where room_id=r;
-  perform pg_temp.expect_tool_error(dead_user,r,'grave_vote','{}',null,'SILENCED');
 
   -- T5: spotlight requires an alive, speaking target and a talk phase.
   update public.room_state set phase='discuss',public_data='{"morning":{"silencedSeat":1}}' where room_id=r;

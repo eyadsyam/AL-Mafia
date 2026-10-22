@@ -1,0 +1,11 @@
+AREA A: wallet, store, rewards, progression. First read docs/plans/briefs/feature_reality_common.txt and follow it exactly.
+
+Cover every player-facing feature of:
+- Wallet and coins: balance display, ledger/history, coin packs, coin orders (Play Billing and any other purchase route), refunds/revocations as the player sees them. Do not describe payment methods or prices in the report; only say whether the path works.
+- Store: every item kind (table tools, roles, tool packs, bundles, cosmetics/skins/frames, all-access, creator entitlements), buy, equip/unequip, use in a match (link to where the match reads the equipped/owned item), owned list, and the same item offline (does offline play honour it?).
+- Rewards: rewarded ads (ad_reward_claims, ad_step_claims, ad_extra_claims, daily_ad_claims, SSV), daily claim, daily wheel, match receipts/awards (coins/XP after a match), story rewards.
+- Progression: missions, mission seasons, achievements, season XP and season rewards (claim), Council (identity, rank tiers, XP events, daily contracts, invite codes and redemptions, match records, preferences), titles, badges, showcase, launch events, Thursday weekly events (participation, aggregates, receipts).
+Screens: start at lib/ui/screens/ and lib/ui/economy/ (grep for store, vault, wallet, council, missions, wheel, daily, season, title, badge, showcase, thursday, launch); providers in lib/app/ and lib/state/ if present; transport in lib/transport/; server in supabase/functions/economy, purchase*, ad*, council*, mission*, season*, thursday*, launch*, and the matching migrations.
+Special checks:
+- For every catalog table (reward_catalog, mission_catalog, mission_achievement_catalog, title_catalog, season_reward_catalog, council_contract_catalog, coin_packs, play_products, table_tools, daily_wheel_prizes, council_rank_tiers): is it seeded in the migrations (insert ... values)? An empty catalog makes its screen look real but give nothing; report EMPTY-CATALOG with the table name.
+- Any cron/pg_cron job the feature depends on (season rollover, weekly Thursday event, daily contracts): does the job exist in the migrations (cron.schedule)? If the feature depends on a job that is missing, verdict BROKEN.

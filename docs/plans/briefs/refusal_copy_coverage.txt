@@ -1,0 +1,23 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game «سيد المافيا: Mafia Master». READ-ONLY REVIEW: do not edit, create or delete any file, no network calls, no builds.
+
+GOAL
+In the current client (HEAD), every refusal the server can send back for something a player can actually tap must show a specific, understandable line, never a generic error, and never a line that reveals another player's role (Doc 05: docs/specs/05-zero-leakage-spec.md, read only the sections on refusals/errors if any; grep "refus" and "error").
+
+STEP 1 - list every refusal code the server can return
+- Edge functions: grep supabase/functions for fail( and for every status/code helper in supabase/functions/_shared/api.ts. Record: function name, code string, the condition (one line), HTTP status.
+- SQL: grep supabase/migrations for `raise exception` and for any code mapping from SQL errors to API codes (api.ts or a mapError helper). Record the code the client finally receives.
+- Note: a working tree change (not committed) adds UPDATE_REQUIRED for grave_vote in supabase/functions/economy/index.ts and _shared/tools.ts; include it.
+
+STEP 2 - for each code, find how the client shows it
+- lib/ui/friendly_error.dart, lib/ui/economy/table_tools.dart, lib/ui/screens/online/*.dart, lib/transport/*.dart: grep the code string and the generic fallback. For each code say: SPECIFIC (l10n key and the Arabic text from lib/app/l10n/app_ar.arb) / GENERIC (falls to a general error line) / SILENT (nothing shown) / UNREACHABLE (the client never sends a request that can produce it; give the reason, e.g. the button is hidden in that state - cite the widget code).
+
+STEP 3 - the five cases from the old-client review; for the HEAD client, show the exact code path for each and whether the player sees a specific line or the action is never offered:
+  a) team quiet-night bullet already used by a teammate,
+  b) one investigation per night (Detective / sense tools),
+  c) the Doctor protecting the same player two nights running,
+  d) a floor reservation refused (grep "reserve" / "floor"),
+  e) free-talk table-tool refusals (grep use_table_tool refusal codes in supabase/migrations/20261017000100_tool_guards.sql).
+
+STEP 4 - leakage check: for every SPECIFIC line, say whether its wording could let the player infer someone else's role or night action (for example "your teammate already used it" is only fine if only Mafia can see it). Flag any that do.
+
+REPORT (final message): a table code | where raised | client handling (SPECIFIC/GENERIC/SILENT/UNREACHABLE + l10n key) | reachable by a tap? | leak risk. Then the list of GENERIC or SILENT codes that ARE reachable by a tap, each with the screen and tap that triggers it, ordered by how often a normal player would hit it. No file edits.

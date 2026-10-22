@@ -236,43 +236,25 @@ begin
   assert pg_temp.sg_charges(a,'revote')=2, 'a refused third ballot costs nothing';
 end $$;
 
--- M4-29 grave_vote: only a dead seat, only while a ballot can still follow, once.
+-- M4-29 grave_vote is retired (20261022000100): off the store, refused in every
+-- match, and an old charge is never spent.
 do $$
-declare r uuid; a uuid; b uuid; ph text;
+declare r uuid; a uuid;
 begin
-  r:=pg_temp.sg_room(array['citizen','mafia','citizen','doctor','citizen','citizen'],'discuss');
-  a:=pg_temp.sg_user(r,2); b:=pg_temp.sg_user(r,0);
+  r:=pg_temp.sg_room(array['citizen','mafia','citizen','doctor','citizen','citizen'],'vote');
+  a:=pg_temp.sg_user(r,2);
   perform pg_temp.sg_give(a,'grave_vote',2);
-  perform pg_temp.sg_give(b,'grave_vote',2);
-
-  perform pg_temp.sg_refuse(b,r,'grave_vote','{}',null,'ALIVE');
   update public.room_players set alive=false where room_id=r and user_id=a;
-  perform pg_temp.sg_refuse(a,r,'grave_vote','{1}',null,'BAD_TARGETS');
-  -- No ballot can follow at night, in the morning, at the verdict or after the match.
-  foreach ph in array array['night','morning','opening','confront','verdict','reveal','result'] loop
-    perform pg_temp.sg_phase(r,ph);
-    perform pg_temp.sg_refuse(a,r,'grave_vote','{}',null,'WRONG_PHASE');
-  end loop;
-  perform pg_temp.sg_phase(r,'vote');
-  update public.room_state set public_data='{"morning":{"silencedSeat":null},"revote":{"round":2,"tiedSeats":[1,3]}}'
-   where room_id=r;
-  perform pg_temp.sg_refuse(a,r,'grave_vote','{}',null,'WRONG_PHASE');
-  update public.room_state set public_data='{"morning":{"silencedSeat":2}}' where room_id=r;
-  perform pg_temp.sg_refuse(a,r,'grave_vote','{}',null,'SILENCED');
-  update public.room_state set public_data='{"morning":{"silencedSeat":null}}' where room_id=r;
-  update public.rooms set status='finished', ended_at=now() where id=r;
-  perform pg_temp.sg_refuse(a,r,'grave_vote','{}',null,'NOT_PLAYING');
-  update public.rooms set status='playing', ended_at=null where id=r;
-  update public.room_players set kicked=true where room_id=r and user_id=a;
-  perform pg_temp.sg_refuse(a,r,'grave_vote','{}',null,'NOT_A_MEMBER');
-  update public.room_players set kicked=false where room_id=r and user_id=a;
-
-  perform public.use_table_tool(a,r,'grave_vote','{}',null);
-  assert pg_temp.sg_charges(a,'grave_vote')=1;
-  assert (pg_temp.sg_last_log(r)->>'seat')::int=2 and pg_temp.sg_last_log(r)->>'tool'='grave_vote';
-  perform pg_temp.sg_refuse(a,r,'grave_vote','{}',null,'LIMIT_TOOL');
-  perform pg_temp.sg_phase(r,'vote',2);
-  perform pg_temp.sg_refuse(a,r,'grave_vote','{}',null,'LIMIT_TOOL');
+  perform pg_temp.sg_refuse(a,r,'grave_vote','{}',null,'ITEM_NOT_FOUND');
+  assert pg_temp.sg_charges(a,'grave_vote')=2, 'a retired tool spends nothing';
+  assert not exists(select 1 from jsonb_array_elements(public.table_tools_snapshot(a)->'tools') x
+                     where x->>'code'='grave_vote'), 'a retired tool is not offered';
+  begin
+    perform public.buy_table_tool(a,'grave_vote',1);
+    raise exception 'a retired tool was sold';
+  exception when others then
+    assert sqlerrm='ITEM_NOT_FOUND', sqlerrm;
+  end;
 end $$;
 
 -- M4-30 sense and M4-32 narrator_whisper: distinct legal living targets; a true
@@ -387,7 +369,7 @@ do $$
 declare
   t record; r uuid; a uuid; targets int[]; good_phase text; bad_phase text; note text;
 begin
-  for t in select * from public.table_tools order by sort_order loop
+  for t in select * from public.table_tools where active order by sort_order loop
     good_phase:=case t.phase when 'night' then 'night' when 'vote' then 'vote'
       when 'dead' then case when t.code='grave_vote' then 'vote' else 'discuss' end
       else 'discuss' end;

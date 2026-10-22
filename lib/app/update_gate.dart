@@ -24,7 +24,7 @@ final updateSurfaceProvider = Provider<UpdateSurface>((ref) {
 /// This build's number; overridable so a test can be "an old build".
 final appBuildNumberProvider = Provider<int>((ref) => kAppBuildNumber);
 
-/// The server's minimum build per platform (`public.app_min_build()`).
+/// The server's minimum build per platform (the one row of `public.app_config`).
 /// 0 means no minimum.
 @immutable
 class MinBuild {

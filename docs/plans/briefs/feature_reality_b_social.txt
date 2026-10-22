@@ -1,0 +1,10 @@
+AREA B: account, social, notifications, safety, settings. First read docs/plans/briefs/feature_reality_common.txt and follow it exactly.
+
+Cover every player-facing feature of:
+- Account: first run/onboarding, sign in (anonymous, Google, email - whichever exist), sign out, linking an anonymous account, display name and avatar change (name safety terms), profile screen, terms acceptance, data deletion request in the app and its server path (data_deletion_requests), the privacy/delete-data links.
+- Social: friends / friend links, player directory and search, partner (player_partner), invites to a room (room_invites, invite_notices, invite_unlocks, invite_events), share links / deep links (where a shared link opens the app and joins the room: AndroidManifest intent filters + router), room code join.
+- Notifications: push token registration (push_tokens), push_outbox sender (which edge function or cron sends it), in-app notices, notification settings toggles, and whether a push is actually sent for each event that shows a push setting.
+- Safety: report a player (safety_reports), block/mute (player_blocks, whisper_blocks), restrictions and moderation notices the player can see (safety_restrictions, moderation_notifications, safety_notices), kick vote as a safety tool only if a separate safety entry exists.
+- Settings: every toggle and choice in the settings screen(s) (sound, music, narrator voice, voice chat, language, text, vibration, notifications, ads consent/UMP if any). For each toggle: which code reads the saved value; a saved value that nothing reads is COSMETIC.
+- The update gate (lib/app/update_gate.dart, public.app_min_build) and any "rate us"/share-the-app control.
+Screens: lib/ui/screens/ (grep settings, profile, friends, invite, report, block, notification, onboarding, sign, account, delete), lib/app/, lib/transport/, lib/platform/; server in supabase/functions/* for these names and the matching migrations; android/app/src/main/AndroidManifest.xml for deep links and the notification setup.

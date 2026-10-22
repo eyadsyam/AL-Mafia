@@ -405,7 +405,7 @@ test('M2-38: eliminating a town seat reveals its role and Silencer counts toward
   } finally { await t.close(); }
 });
 
-test('M2-72: revealed Elder with double vote counts six; dead Elder requires grave vote', async () => {
+test('M2-72: revealed Elder with double vote counts six; a dead Elder casts no ballot (grave_vote retired)', async () => {
   const t=await table(7,{allAccess:true,settings:{elderEnabled:true},roles:{mafia:2,doctor:1,detective:1,elder:1,citizen:2}});
   try {
     const r=await t.roster(), elder=r.find(p=>p.role==='elder'), target=r.find(p=>p.role==='citizen'), graveTarget=r.find(p=>p.role==='mafia');
@@ -422,8 +422,8 @@ test('M2-72: revealed Elder with double vote counts six; dead Elder requires gra
     await phase(t,'vote',2);
     assert.equal((await t.h.call('submit_vote',asUser(elder),{roomId:t.roomId,targetSeat:target.seat})).json.error,'NOT_ALIVE');
     const grave=await t.h.call('economy',asUser(elder),{action:'toolUse',roomId:t.roomId,tool:'grave_vote',targets:[]});
-    assert.equal(grave.status,200,JSON.stringify(grave.json));
-    assert.equal((await t.h.call('submit_vote',asUser(elder),{roomId:t.roomId,targetSeat:graveTarget.seat})).status,200);
+    assert.equal(grave.status,400,JSON.stringify(grave.json));
+    assert.equal((await t.h.call('submit_vote',asUser(elder),{roomId:t.roomId,targetSeat:graveTarget.seat})).json.error,'NOT_ALIVE');
   } finally { await t.close(); }
 });
 

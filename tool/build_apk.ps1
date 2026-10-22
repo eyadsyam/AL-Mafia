@@ -93,7 +93,14 @@ if ($billingEnabled -and -not $config.PLAY_SCENARIO_PRODUCT_ID) {
     exit 1
 }
 
+# A Play bundle is always the production app: never test ad units, and never
+# the ".adstest" id that tool/build_test_ads.ps1 sets for this shell.
 if ($Bundle) {
+    if ($adTestMode) {
+        Write-Host 'ADMOB_TEST_MODE is true: a Play bundle must use the production ad units.' -ForegroundColor Red
+        exit 1
+    }
+    Remove-Item Env:ORG_GRADLE_PROJECT_TEST_ADS_SUFFIX -ErrorAction SilentlyContinue
     $target  = 'appbundle'
     $outDir  = 'build/app/outputs/bundle/release'
     $pattern = '*.aab'

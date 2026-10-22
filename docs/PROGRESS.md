@@ -3924,3 +3924,19 @@ Files:      none in the repo (live project hezjbrnveajypfqmjfnh); brief docs/pla
 Verified:   list_migrations + object checks before applying; every apply returned success; list_edge_functions after deploy (new versions, verify_jwt unchanged); security advisors: only expected INFO/WARN on the new service-role tables and my_entitlements. Live suite: running (results in the next entry).
 Gate:       deploy PASS; live suite pending
 Open:       live suite results; old published app vs new server (Codex read-only review running); phone test; no app build (owner: «لأ لسه»).
+
+## CHECKPOINT 2026-10-22 (laptop off) — resume here
+Built:      grave_vote retired (owner «شيلها خالص»): migration 20261022000100_retire_grave_vote.sql (active=false, unused charges refunded at 850/charge as operator_adjustment), its tests rewritten; Codex's grave-ballot client/server diff reverted; build_apk.ps1 refuses a Play bundle with test ads and clears the .adstest suffix; update_gate.dart comment fixed.
+Files:      supabase/migrations/20261022000100_retire_grave_vote.sql, supabase/tests/{store_gaps.sql,tools_gaps.sql,tool_guards.sql,server_fixes_20261009.sql,live_local_m1.test.mjs,live_local_m2.test.mjs}, tool/build_apk.ps1, lib/app/update_gate.dart, docs/plans/briefs/*.txt (new briefs)
+Verified:   SQL 97/97 (node tool/test_sql_without_docker.mjs); node --test live_local_m1 12/12, live_local_m2 31/31, server_fixes 1/1, store_gaps 22/22. Flutter not re-run (only a comment changed in lib).
+Live suite: e2e 94, ready 19, revote 39, recovery 42, kick_flow 62, kick_timing 46, roster, witness 17, concurrency 47 — all 0 failed. new_roles_tools 255 passed / 31 failed: 30 are "timer expiry" (harness waits on THIS laptop's clock, ~5 s ahead of the server; the server correctly refuses an unexpired phase — fix the harness to use the server Date header) + "floor bonus once objection" (not yet triaged). Server logs: no 5xx except start_match 500 on the roster join/start race (maps an unknown SQL error to BAD_REQUEST 500; should be a 409) and 2× submit_vote 502 from the gateway under load (client should retry once on 502/503/504).
+Gate:       PASS for what was run
+Open (in order):
+  1. Deploy the retire migration live (owner approved server deploys today): apply 20261022000100 via Supabase MCP apply_migration or CLI `db push`; then check table_tools.active and refunds.
+  2. Codex usage limit hit 2026-10-22 ~14:45, resets 17:52 local. Then run in order (one writer at a time, they share l10n files): docs/plans/briefs/refusal_copy_fix.txt (refusal lines + version 1.4.0+17 + privacy full-policy button + offline all-access cache), then account_fixes.txt, then advisor_hardening.txt (SQL only, can run beside a client writer).
+  3. Re-dispatch the two audits that died on the limit: perf_audit.txt and web_signin_audit.txt (read-only). Then Claude designs the web per device (phone web / iPhone / desktop) as HTML mockups for owner approval BEFORE code (memory: mockups before code), and a first-run preload step that keeps every animation.
+  4. Read the play/stories reality audit result (relay run 2026-10-22T11-39-25, task bbycj0bm3 output) and fix its BROKEN/COSMETIC items.
+  5. Harness fixes: timer expiry on server time; triage "floor bonus once objection"; start_match race code 409; client retry on gateway 5xx.
+  6. Release notes drafted (not uploaded): D:/Flutter Data/Projects/AL Mafia/release/1.4.0/release-notes-{ar,en}.txt — drop the «صوت من القبر» line (tool retired).
+  7. Owner-only: phone test, then the build when he says.
+Decisions today: Android coin transfer stays as is (owner); grave_vote removed entirely (owner); Play production access submitted, under review.

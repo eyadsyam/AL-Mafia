@@ -372,8 +372,7 @@ test('M1-53: kill, sniper shot and silence on one real night: a half door lets t
   } finally { await four.close(); }
 });
 
-test('M1-80: a grave ballot is counted once at a four-seat final ballot and after the early closure of a 15- and a 20-seat ballot, and a reconnect does not repeat it', async () => {
-  // Four alive seats and one dead citizen who bought a grave vote and casts it before the living do.
+test('M1-80: grave_vote is retired (20261022000100): a dead seat keeps its old charge, gets no ballot, and the living ballot counts alone', async () => {
   const four=await table();
   try {
     const r=await four.roster();
@@ -382,61 +381,22 @@ test('M1-80: a grave ballot is counted once at a four-seat final ballot and afte
     const living=[last,doctor,detective,citizen];
     await four.h.sql('update room_players set alive=false where room_id=$1 and seat<>all($2::int[])',[four.roomId,living.map(p=>p.seat)]);
     await phase(four,'discuss',1);
-    await buyAnySeat(four,grave,'grave_vote');
+    await grant(four,grave,'grave_vote');
+    assert.equal((await use(four,grave,'grave_vote')).status,400);
+    assert.equal(await chargesOf(four,grave,'grave_vote'),1,'a retired tool spends nothing');
+    assert.equal((await useRows(four,grave,'grave_vote')).length,0);
     await phase(four,'vote',1);
-    assert.equal((await vote(four,grave,last.seat)).status,200);
-    // Reconnecting before the others vote: the grave ballot is spent, not repeated.
-    assert.equal((await vote(four,grave,last.seat)).json.error,'RATE_LIMITED');
-    assert.equal((await vote(four,grave,doctor.seat)).json.error,'RATE_LIMITED');
-    // The living split in pairs: without the grave ballot this is a four-way tie.
-    for(const [from,to] of [[last,doctor],[doctor,last],[detective,citizen],[citizen,detective]]) {
+    assert.equal((await vote(four,grave,last.seat)).json.error,'NOT_ALIVE');
+    for(const [from,to] of [[last,doctor],[doctor,last],[detective,last],[citizen,detective]]) {
       assert.equal((await vote(four,from,to.seat)).status,200);
     }
-    const early=(await four.h.sql('select phase_ends_at <= now() as closed from room_state where room_id=$1',[four.roomId])).rows[0];
-    assert.equal(early.closed,true,'the last living ballot closes the clock');
     const resolver=[doctor,detective,citizen].find(p=>p.seat!==0);
     const verdict=await four.h.call('resolve_vote',as(resolver),{roomId:four.roomId});
     assert.equal(verdict.status,200,JSON.stringify(verdict.json));
-    assert.deepEqual(verdict.json.tally,{[last.seat]:2,[doctor.seat]:1,[detective.seat]:1,[citizen.seat]:1});
+    assert.deepEqual(verdict.json.tally,{[last.seat]:2,[doctor.seat]:1,[detective.seat]:1});
     assert.equal(verdict.json.eliminatedSeat,last.seat);
-    assert.equal(verdict.json.outcome,'town');
-    assert.equal((await four.h.sql('select count(*)::int as n from votes where room_id=$1 and voter_id=$2',[four.roomId,grave.user_id])).rows[0].n,1);
-    // After the verdict a late grave ballot is refused and nothing changes.
-    assert.equal((await vote(four,grave,last.seat)).status,400);
-    assert.equal((await four.h.sql('select count(*)::int as n from votes where room_id=$1',[four.roomId])).rows[0].n,5);
+    assert.equal((await four.h.sql('select count(*)::int as n from votes where room_id=$1 and voter_id=$2',[four.roomId,grave.user_id])).rows[0].n,0);
   } finally { await four.close(); }
-
-  // Fifteen seats (the largest room join_room admits) and twenty (seated directly): everyone alive
-  // but one abstains except two single ballots that tie; the clock closes early when the last living
-  // seat has answered, and the grave ballot cast afterwards still decides it.
-  for(const [total,roles] of [[15,{mafia:3,doctor:1,detective:1,citizen:10}],[20,{mafia:4,doctor:1,detective:1,citizen:14}]]) {
-    const big=await bigTable(total,{roles,settings:{abstainAllowed:true}});
-    try {
-      const r=await big.roster();
-      const grave=r.find(p=>p.role==='citizen' && p.seat!==0);
-      await big.h.sql('update room_players set alive=false where room_id=$1 and user_id=$2',[big.roomId,grave.user_id]);
-      const living=r.filter(p=>p.seat!==grave.seat);
-      const [A,B,voterA,voterB]=living;
-      await phase(big,'discuss',1);
-      await buyAnySeat(big,grave,'grave_vote');
-      await phase(big,'vote',1);
-      for(const p of living) {
-        const target=p.seat===voterA.seat?A.seat:p.seat===voterB.seat?B.seat:null;
-        assert.equal((await vote(big,p,target)).status,200);
-      }
-      assert.equal((await big.h.sql('select phase_ends_at <= now() as closed from room_state where room_id=$1',[big.roomId])).rows[0].closed,true,`${total} seats`);
-      assert.equal((await vote(big,grave,A.seat)).status,200);
-      assert.equal((await vote(big,grave,A.seat)).json.error,'RATE_LIMITED');
-      const resolver=living.find(p=>p.seat!==0 && ![A,B,voterA,voterB].includes(p));
-      const verdict=await big.h.call('resolve_vote',as(resolver),{roomId:big.roomId});
-      assert.equal(verdict.status,200,JSON.stringify(verdict.json));
-      assert.deepEqual(verdict.json.tally,{[A.seat]:2,[B.seat]:1},`${total} seats`);
-      assert.equal(verdict.json.eliminatedSeat,A.seat);
-      assert.equal((await big.h.sql('select count(*)::int as n from votes where room_id=$1 and voter_id=$2',[big.roomId,grave.user_id])).rows[0].n,1);
-      const reread=await clientState(big,B);
-      assert.deepEqual(reread.public_data.lastVote.tally,{[A.seat]:2,[B.seat]:1});
-    } finally { await big.close(); }
-  }
 });
 
 // ── the race rows (M1-7, M1-13, M1-26, M1-46, M1-108) ───────────────────────
@@ -445,7 +405,6 @@ test('M1-80: a grave ballot is counted once at a four-seat final ballot and afte
 // same-tick Promise.all. Row-lock behaviour under truly parallel connections is not exercised,
 // so those five rows stay `needs-live` in the matrix.
 const speakerLeft = async t => Number((await t.h.sql('select extract(epoch from (speaker_until-now())) as left from room_state where room_id=$1',[t.roomId])).rows[0].left);
-
 test('M1-7 (serial schedules; row stays needs-live): one extra minute is consumed once across two contending users, a removed buyer and phase expiry', async () => {
   const t=await table(7,{settings:{discussionMode:'structured'}});
   try {

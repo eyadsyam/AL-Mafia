@@ -9,7 +9,7 @@ declare
 begin
   -- M1-1/8/14/20/27/33/40/47/54/60/67/74/81/88/95/102/109:
   -- every tool's valid use and SQL guards at both supported table sizes.
-  for t in select * from public.table_tools order by sort_order loop
+  for t in select * from public.table_tools where active order by sort_order loop
     foreach seats in array array[4,20] loop
       r := gen_random_uuid(); actor := gen_random_uuid(); outsider := gen_random_uuid();
       insert into auth.users(id,is_anonymous) values(actor,true),(outsider,true);
