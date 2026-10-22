@@ -3953,3 +3953,13 @@ Open (in order):
   4. Remaining small: app-ads.txt duplicate line; consider raising app_min_build after 1.4.0 is live (owner); `npm uninstall supabase` in C:\Users\LENOVO when done with the CLI.
   5. Owner-only: phone test, then the build when he says.
 Decisions: S1 (auto-switch to a taken Google account) kept as designed, not changed.
+
+## CHECKPOINT 2026-10-22 night — resume here (supersedes the evening block's Open list)
+Built:      account fixes (profile name asked of the server before saving; delete account forgets owned-roles/cosmetics/all-access/push-switch caches, keeps history and name as the sheet promises; push switch flips off and says why when registration fails; saved open-ballot default starts online rooms; friend remove with confirm; a v2 story solved inside the server's minute claims when it is up) and perf fixes (avatar/ring/timer decoded at drawn size; one shared council-art decode warmed after the first frame; narrator clips warmed in background batches after the cues; story cases read once and prefetched). Release notes 1.4.0 (local) updated.
+Verified:   flutter analyze 0; flutter test 2344/0/0; leakage closure tests green (delete sheet names the cache keys as text so the table never reaches cosmetics/invite code; a test pins them). Live suite new_roles_tools: 249 passed / 1 failed ("everyone AFK default cycle" ran out of its 850 s budget one phase short; raised to 1500 s, re-run running).
+Gate:       PASS
+Open (in order):
+  1. Codex after 23:09: docs/plans/briefs/review_2026_10_22.txt (read-only review of today's five commits); fix what survives review.
+  2. Owner: approve docs/design/web-per-device/index.html + the Android-web app ribbon; then build Q13 (plan §5).
+  3. Owner: phone smoke test; the Play build when he says.
+Decisions: whisper default online stays on (offline engine reads whisperEnabled; offline default differs) — only openVoting applies from saved settings.
