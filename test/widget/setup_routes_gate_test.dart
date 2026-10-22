@@ -12,6 +12,8 @@ import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/setup/add_players_screen.dart';
 import 'package:mafia_master/ui/screens/setup/group_picker_screen.dart';
+import 'package:mafia_master/ui/screens/setup/mode_screen.dart';
+import 'package:mafia_master/ui/screens/stories/stories_screen.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/screens/setup/settings_screen.dart';
 import 'package:mafia_master/ui/screens/setup/setup_draft.dart';
@@ -109,6 +111,16 @@ void main() {
     for (final n in names) {
       expect(find.text(n), findsOneWidget, reason: n);
     }
+  });
+
+  testWidgets('a Stories link lands on the mode choice while it is closed', (
+    tester,
+  ) async {
+    expect(kOfferStories, isFalse);
+    await launch(tester, Routes.stories, setUp: true);
+    expect(find.byType(ModeScreen), findsOneWidget);
+    expect(find.byType(StoriesScreen), findsNothing);
+    expect(find.byKey(ModeScreen.storiesCard), findsNothing);
   });
 
   testWidgets('roles reopens the split chosen before going back', (

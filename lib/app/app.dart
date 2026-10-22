@@ -302,7 +302,7 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       await _audio.warmUp();
       // The cases, read once the cues are ready, so the first Stories visit
       // finds them parsed.
-      StoryCatalog.prefetch();
+      if (kOfferStories) StoryCatalog.prefetch();
       if (!mounted) return;
       // F19: the sonic mark as the app opens. Never on the web before a
       // gesture (browsers would refuse it, and a refused cue is a warning).

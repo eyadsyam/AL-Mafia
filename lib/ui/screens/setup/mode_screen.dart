@@ -302,7 +302,7 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
                     SizedBox(height: s.sm),
                   ],
                   Text(
-                    '1-3  ${context.l10n.keyChoose}     Esc  ${context.l10n.keyBack}',
+                    '1-${ways.length}  ${context.l10n.keyChoose}     Esc  ${context.l10n.keyBack}',
                     style: context.typography.caption.copyWith(
                       color: colors.textSecondary,
                     ),
@@ -343,7 +343,11 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
     );
     final ch = cw * ModeTokens.cardAspect;
     final closedTop = math.max(0.0, (h - ch) / 2 - s.lg);
-    final mafiaX = w / 2 + dir * ModeTokens.fanSpread * cw;
+    // Alone (Stories closed), the Mafia card stands upright in the middle
+    // instead of leaning towards a card that is not there.
+    final alone = widget.onPlayStories == null;
+    final mafiaX = alone ? w / 2 : w / 2 + dir * ModeTokens.fanSpread * cw;
+    final mafiaTilt = alone ? 0.0 : ModeTokens.fanTilt;
     final storiesX = w / 2 - dir * ModeTokens.fanSpread * cw;
     final openCenterY = ch * ModeTokens.openScale / 2;
 
@@ -520,7 +524,7 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
                 opacity: (1 - d).clamp(0, 1),
                 child: Transform.rotate(
                   angle:
-                      dir * ModeTokens.fanTilt * (1 - t) -
+                      dir * mafiaTilt * (1 - t) -
                       dir * ModeTokens.dealTilt * d,
                   child: Transform.scale(
                     scale: scale,

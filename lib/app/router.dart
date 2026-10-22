@@ -222,6 +222,12 @@ final _storiesExit = StoryExitGuard();
 /// release; the bot match itself is untouched.
 const _offerBotMatch = false;
 
+/// Whether Stories is open. Closed for now (owner, 2026-10-23: «اقفل القصص
+/// مؤقتا»): no card on the mode screen, `/stories` goes back to it, and the
+/// cases are not read in the background. Its screens and server stay as they
+/// are; flipping this brings it all back.
+const kOfferStories = false;
+
 GoRouter buildRouter(
   WidgetRef ref, {
   GlobalKey<NavigatorState>? navigatorKey,
@@ -475,13 +481,18 @@ GoRouter buildRouter(
             // «مش حاسسها منطقية»). The mode and its code stay; flipping
             // [_offerBotMatch] brings the card back.
             onPlayBots: _offerBotMatch ? () => startBotMatch(context) : null,
-            onPlayStories: () => forwardTo(context, Routes.stories),
+            onPlayStories: kOfferStories
+                ? () => forwardTo(context, Routes.stories)
+                : null,
             onBack: () => context.go(Routes.home),
           ),
         ),
       ),
       GoRoute(
         path: Routes.stories,
+        // A saved link or a typed address lands on the mode choice while
+        // Stories is closed.
+        redirect: (context, state) => kOfferStories ? null : Routes.mode,
         // The browser's back (and a phone browser's back gesture) asks an
         // open Stories table first, as the app's own back does.
         onExit: (context, state) => _storiesExit.mayLeave(),

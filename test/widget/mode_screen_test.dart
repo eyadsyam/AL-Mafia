@@ -107,6 +107,32 @@ void main() {
     expect(stories, 1);
   });
 
+  testWidgets('with Stories closed the Mafia card stands alone, centred', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    var offline = 0;
+    await tester.pumpWidget(
+      localizedApp(
+        ModeScreen(
+          onPlayOffline: () => offline++,
+          onPlayOnline: () {},
+          onBack: () {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(ModeScreen.storiesCard), findsNothing);
+    final card = tester.getRect(find.byKey(ModeScreen.mafiaCard));
+    expect(card.center.dx, closeTo(390 / 2, 1));
+    await tester.tap(find.byKey(ModeScreen.mafiaCard));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(ModeScreen.offlineCard));
+    await tester.pumpAndSettle();
+    expect(offline, 1);
+  });
+
   testWidgets('the Mafia card deals each way to play, back puts it away', (
     tester,
   ) async {
