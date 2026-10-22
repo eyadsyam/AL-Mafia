@@ -1,0 +1,20 @@
+Repository: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21 (git worktree), Flutter + Supabase game «سيد المافيا: Mafia Master». READ-ONLY REVIEW: change no file, run no build, make no network call. Read CLAUDE.md first. Doc 05 (docs/specs/05-zero-leakage-spec.md) wins every argument: anything that lets a player infer another player's role or night action is a blocker.
+
+TASK
+Adversarially review these commits (git show <sha>), one finding per real defect, ranked by player impact. Do not report style, naming or formatting. Do not re-propose what a commit message or code comment already explains as deliberate unless you can show a concrete failure.
+
+  63a2d8a  start_match roster race -> STALE_REVISION 409; main.dart launch reads started together; advisor migration
+  83e5835  refusal lines (table tools, night/vote PHASE_CLOSED/RATE_LIMITED/SAME_PROTECT, floor denials, lobby errors); one same-actionId retry of submit_vote/submit_night_action after BackendUnreachable; PHASE_CLOSED rethrown only for those two; offline all-access cache per account; privacy full-policy button; version 1.4.0+17
+  e31d6be  sign-in: Enter/autofill in the account sheet; pending-return mark so remember-off does not sign out a Google/email-link return; web reset link redirect + passwordRecovery opens the new-password step
+  fced4fa  account: server name check before saving the profile; delete account forgets cached grants; push switch flips off when registration fails; openVoting default online; friend remove; v2 story claim waits out the server minute
+  17b1d03  perf: cacheWidth on avatars/rings/timer; shared council-art decode; narrator warm-up in background batches; story catalogue memo + prefetch
+
+FOR EACH COMMIT, CHECK AT LEAST
+  - Concurrency and lifecycle: setState after dispose, futures that outlive their widget, a cache that can serve another account's data, a retry that can double-apply, a static memo that can hold a failure forever.
+  - Doc 05: any new message, log line, timing or UI state that differs by role or reveals a night action to someone else (the SAME_PROTECT line goes only to the Doctor who sent it; check that is true end to end).
+  - Server: start_match returns 409 only when apply_match_deal returned false without an error; confirm that function cannot return false for a reason that deserves a different code.
+  - Auth: the pending-return mark cannot keep an account signed in that the player asked to forget beyond one return within the window; passwordRecovery cannot open a password step for a session that is not a recovery.
+  - The v2 claim wait: the progress is saved before the wait; a closed screen still claims; a second finish cannot claim twice.
+  - Perf: the cacheWidth values are never 0 or larger than the source; the shared art future resets after a failure; the narrator batches cover every key exactly once.
+
+REPORT (final message): a table: commit, file:line, the defect in one sentence, a concrete failing scenario, severity (blocker / should fix / minor). Then "no finding" for each commit with none. No file changes.
