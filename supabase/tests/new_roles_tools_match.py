@@ -118,17 +118,22 @@ class Match:
         data = accepted(label + ': create', h.fn('create_room', {'name': 'LiveBot', 'visibility': 'private', 'settings': {'maxPlayers': 15}}, self.host))
         self.id, self.code = data['roomId'], data['code']
         ACTIVE.append(self)
-        for p in self.players[1:]:
-            data = accepted(label + ': join ' + str(p['seat']), h.fn('join_room', {'code': self.code, 'name': 'Bot' + str(p['seat'])}, p))
-            p['seat'] = data['seat']
-        self.watches = [Watch(self, p) for p in self.players] if realtime else []
+        # Heartbeats start with the room, for every seat taken so far: on a
+        # slow network the joins alone have taken ~90 s, long enough for the
+        # lobby to drop a silent host before the start.
+        self.seated = [self.host]
         self.beat_stop = threading.Event()
         def beats():
             while not self.beat_stop.wait(20):
                 with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
-                    list(pool.map(lambda p: self.call('heartbeat', p), self.players))
+                    list(pool.map(lambda p: self.call('heartbeat', p), list(self.seated)))
         self.beat_thread = threading.Thread(target=beats, daemon=True)
         self.beat_thread.start()
+        for p in self.players[1:]:
+            data = accepted(label + ': join ' + str(p['seat']), h.fn('join_room', {'code': self.code, 'name': 'Bot' + str(p['seat'])}, p))
+            p['seat'] = data['seat']
+            self.seated.append(p)
+        self.watches = [Watch(self, p) for p in self.players] if realtime else []
 
     def inspect(self, data, p, source):
         self.responses += 1
