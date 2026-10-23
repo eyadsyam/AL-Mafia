@@ -26,7 +26,8 @@ def main():
                           ('narrator_whisper', [m.role('doctor')['seat']])):
         n.refused('dead night use ' + code, m.call('economy', victim,
                   action='toolUse', tool=code, targets=targets), ['NOT_ALIVE'])
-    m.night(protect=m.role('mafia')['seat'])
+    # RL3: the Doctor covered the Mafioso last night, so tonight goes elsewhere.
+    m.night()
     m.discuss()
     m.vote(m.role('mafia')['seat'])
     m.finish_town()

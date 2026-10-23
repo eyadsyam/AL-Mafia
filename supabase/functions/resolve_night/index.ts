@@ -28,6 +28,9 @@ Deno.serve(handler(async (req, userId, db) => {
 
   const me = await loadMembership(db, roomId, userId);
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
+  // An archived room (everybody silent for five minutes) keeps its last phase
+  // row, but the commit refuses it: answer once instead of retrying.
+  if (me.status !== "playing") return fail("PHASE_CLOSED", "no match is running");
   if (me.phase !== "night") return fail("PHASE_CLOSED", "not the night");
   // The host resolves, and so does anybody else once the server's own clock has
   // run out — the same rule as the ballot's, for the same reason: a match must

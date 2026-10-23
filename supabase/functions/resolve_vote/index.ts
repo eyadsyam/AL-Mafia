@@ -29,6 +29,8 @@ Deno.serve(handler(async (req, userId, db) => {
 
   const me = await loadMembership(db, roomId, userId);
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
+  // See resolve_night: an archived room's commit is refused anyway.
+  if (me.status !== "playing") return fail("PHASE_CLOSED", "no match is running");
   if (me.phase !== "vote") return fail("PHASE_CLOSED", "not the ballot");
   // The host resolves, and so does anybody else once the server's own clock has
   // run out. Doc 10 §8.2 — no phase may stall — is not a promise the room can

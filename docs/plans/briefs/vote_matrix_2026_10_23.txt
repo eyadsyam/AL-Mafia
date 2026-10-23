@@ -1,0 +1,39 @@
+ROLE
+You are writing tests for Mafia Master (Arabic social-deduction game; one pure Dart engine in lib/engine used offline, and TypeScript Edge Functions on the server). The owner wants every case between players and roles proved. A night matrix already exists and passes (tool/night_matrix.dart, supabase/tests/night_matrix.json, supabase/tests/night_matrix.test.mjs, test/engine/night_matrix_test.dart): read those four files first and follow the same shape. This task covers THE DAY BALLOT, exhaustively, in both engines. You will NOT commit or deploy; the orchestrator reviews and lands it.
+
+SCOPE — you may change
+- NEW supabase/functions/_shared/ballot_core.ts: a pure function extracted from supabase/functions/resolve_vote/index.ts (see step 1).
+- supabase/functions/resolve_vote/index.ts: ONLY to call that pure function in place of the inline tally/verdict code. Behaviour must stay byte-for-byte the same: same commits, same response bodies, same refund call (refundUnusedRevote), same retry loop, same error codes.
+- NEW tool/vote_matrix.dart, supabase/tests/vote_matrix.json (generated), supabase/tests/vote_matrix.test.mjs, test/engine/vote_matrix_test.dart.
+- Do NOT change lib/**, any migration, or any other function. If a test exposes a real disagreement between the engines or a rule violation, do not fix it: mark that case `knownDivergence: "<D-number or short reason>"` in the JSON (skipped with its reason, never silently passed) and list it in the report.
+
+WHAT EXISTS (read it)
+- Server ballot: supabase/functions/resolve_vote/index.ts (lines ~75-200: roster, round from public_data.revote.round, revealed Elders weigh 3, toolVoteWeight (double_vote), grave voters (retired tool, still read), ballotTargetAllowed (round 2 only the tied seats), a dead voter or a dead target is ignored, decided outcome means nobody is eliminated, ballotVerdict + boughtRevoteCausedSecondRound in _shared/vote_rules.ts, appeal in _shared/tools.ts (appealCounts / appealed / appealUpheld), vote_shield if present in tools.ts, parity / win check after an elimination).
+- Offline ballot: lib/engine/match_engine.dart submitVote (~line 1200) and resolveDayVote (~line 1280-1380): DayTieRule.noElimination / revote, one revote at most, a second tie ends the day with nobody out, abstentions (MatchSettings.abstainAllowed), Elder.
+- Rules: docs/specs/17-roles-and-tools.md (RL9 abstention, RL13 revote: a bought revote reopens round one only when it can narrow to at least two candidates; one candidate means the clear winner goes and the charge is refunded; round 2 never re-triggers; appeal; double_vote; vote_shield; Elder reveal x3), docs/specs/11-edge-cases-and-tests.md (D* cases), docs/specs/18-scenario-matrix.md rows D19-D27, T11, T16 and priority rows 9 and 10.
+
+WHAT TO BUILD
+1. ballot_core.ts: `resolveBallotCore(input)` taking plain data (roster rows {user_id, seat, alive, role}, cast ballots {voter_id, target_id, round}, round, revote state {round, tiedSeats} or null, tool-use rows as loadToolUses returns them, day, revealed Elder seats, decided outcome or null, settings) and returning everything resolve_vote needs to commit (eliminated id or null, tied seats, revote flag, public tally by seat, appeal result, boughtRevoteWorked, outcome after the elimination). No db, no Date, no randomness. resolve_vote keeps its db reads, fingerprint, commits and responses and calls the core in between.
+2. tool/vote_matrix.dart: deterministic (`dart run tool/vote_matrix.dart`; a second run leaves the JSON byte-identical). Enumerate, as a product pruned only of impossible combinations (aim for several hundred cases, every axis value with every other at least once):
+   - table: 5, 7, 9, 12 seats with the app's deal (one to three Mafia-team seats), with and without an Elder (revealed / not revealed);
+   - ballot shape: unanimous on one seat, clear majority, plurality, 2-way tie, 3-way tie, all-but-one abstain, everybody abstains, a single ballot;
+   - abstainAllowed on / off (when off, the engine refuses a null ballot: assert the refusal, do not resolve);
+   - dayTieRule noElimination / revote;
+   - round 1, and round 2 after a tie (round 2 ballots outside the tied set are refused offline and ignored on the server: assert both);
+   - who is voted out: a Mafioso (last Mafia-team seat -> town wins), a town seat that reaches parity (-> Mafia wins), a town seat that leaves the match going;
+   - a dead voter and a vote for a dead seat (ignored).
+   For each case write the input in the server's shape plus `expected` from the REAL Dart MatchEngine (eliminated seat or null, tie flag, tied seats, whether a revote opens, outcome).
+3. Server-only tools have no Dart side: generate them for the TS side only, with the rule as the oracle (doc 17): bought revote with 0, 1, 2 and 3 candidates in round 1 and in round 2 (round 2 never re-triggers), bought revote under dayTieRule=revote (pointless -> boughtRevoteWorked false), double_vote on the deciding ballot and on a tying ballot, vote_shield on the leader (read tools.ts for what the shield does), appeal on round 1 and on the final round (appealUpheld thresholds), a removal-decided outcome with ballots cast (nobody eliminated).
+4. supabase/tests/vote_matrix.test.mjs: every case through resolveBallotCore; engine cases must equal the Dart expected; tool cases must equal the rule oracle written in the test (not by calling the core's helpers).
+5. test/engine/vote_matrix_test.dart: the engine cases against an independent rule oracle written in the test from doc 17 (not by calling resolveDayVote). Run with: flutter test --no-pub test/engine/vote_matrix_test.dart
+
+GATES (run all; report the real result lines)
+- dart run tool/vote_matrix.dart twice (determinism: second run leaves the JSON unchanged)
+- deno check supabase/functions/resolve_vote/index.ts
+- node --test supabase/tests/vote_matrix.test.mjs supabase/tests/vote_rules.test.mjs supabase/tests/live_local_m1.test.mjs
+- node --test supabase/tests/*.test.mjs (currently all pass, including the 6412-case night matrix)
+- flutter test --no-pub test/engine/
+- flutter analyze --no-pub (no new issues)
+
+REPORT CONTRACT
+Counts: cases generated per axis; passed / knownDivergence. A short statement of what moved from resolve_vote into ballot_core and why behaviour is unchanged. Then a table of every disagreement or rule violation: case name | Dart outcome | TS outcome | oracle | which is wrong in your judgement and why (doc reference). No praise, no pasting files.

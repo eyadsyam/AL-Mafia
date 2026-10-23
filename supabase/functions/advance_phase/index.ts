@@ -42,6 +42,8 @@ Deno.serve(handler(async (req, userId, db) => {
 
   const me = await loadMembership(db, roomId, userId);
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
+  // No defaults are written into a match that is over (finished or archived).
+  if (me.status !== "playing") return fail("PHASE_CLOSED", "no match is running");
 
   // O8 — the client's clock is never trusted. If the deadline has not passed on
   // the *server*, nothing happens, however sure the caller is.
