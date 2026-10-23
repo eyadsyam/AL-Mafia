@@ -85,6 +85,7 @@ void main() {
   const silencerOn = MatchSettings(
     silencerEnabled: true,
     quietNightEnabled: false,
+    abstainAllowed: true,
   );
   final sevenWithSilencer = {
     Role.mafia: 1,
@@ -340,18 +341,21 @@ void main() {
     quietNightEnabled: false,
     traceEnabled: false,
     confrontationEnabled: false,
+    abstainAllowed: true,
   );
   const sniperOn = MatchSettings(
     sniperEnabled: true,
     quietNightEnabled: false,
     traceEnabled: false,
     confrontationEnabled: false,
+    abstainAllowed: true,
   );
   const elderOn = MatchSettings(
     elderEnabled: true,
     quietNightEnabled: false,
     traceEnabled: false,
     confrontationEnabled: false,
+    abstainAllowed: true,
   );
   final standard = {
     Role.mafia: 2,

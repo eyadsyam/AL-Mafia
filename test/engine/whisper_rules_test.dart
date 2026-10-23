@@ -61,7 +61,14 @@ void main() {
     test(
       'the allowance does not accumulate — a new day grants exactly one',
       () {
-        final engine = informationMatch(seed: 6);
+        final engine = informationMatch(
+          seed: 6,
+          settings: const MatchSettings(
+            whisperEnabled: true,
+            openingRoundEnabled: true,
+            abstainAllowed: true,
+          ),
+        );
         playQuietNight(engine);
         openDay(engine);
         engine.sendWhisper(fromSeat: 0, toSeat: 2, body: 'day one');

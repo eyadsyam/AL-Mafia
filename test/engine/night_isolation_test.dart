@@ -42,7 +42,7 @@ void main() {
       // deliberately removes once the Mafia can buy a quiet night that looks
       // identical to it. These tests are about a night reading only its own
       // actions, so they run in the regime where the announcement exists.
-      settings: const MatchSettings(quietNightEnabled: false),
+      settings: const MatchSettings(quietNightEnabled: false, abstainAllowed: true),
       seed: 4242,
     );
     return engine;

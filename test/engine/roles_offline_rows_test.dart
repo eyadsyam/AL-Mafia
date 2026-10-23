@@ -44,6 +44,7 @@ const _plain = MatchSettings(
   quietNightEnabled: false,
   traceEnabled: false,
   confrontationEnabled: false,
+  abstainAllowed: true,
 );
 final _sniperOn = _plain.copyWith(sniperEnabled: true);
 final _elderAndSniperOn = _plain.copyWith(

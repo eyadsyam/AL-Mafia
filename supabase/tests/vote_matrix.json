@@ -440,9 +440,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n5 mafia1 elder0 abstainfalse revote round1 allAbstain who0 null-refusal",
@@ -508,9 +507,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n5 mafia1 elder0 abstainfalse revote round1 singleBallot who1 null-refusal",
@@ -576,9 +574,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n5 mafia1 elder0 abstainfalse revote round2 majority who2",
@@ -956,9 +953,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n5 mafia1 elder0 abstainfalse revote round2 allAbstain who1 null-refusal",
@@ -1031,9 +1027,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n5 mafia1 elder0 abstainfalse revote round2 singleBallot who2 null-refusal",
@@ -1105,9 +1100,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n5 mafia1 elder0 abstainfalse noElimination round1 majority who1",
@@ -1548,9 +1542,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n5 mafia1 elder0 abstainfalse noElimination round1 allAbstain who0 null-refusal",
@@ -1616,9 +1609,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n5 mafia1 elder0 abstainfalse noElimination round1 singleBallot who1 null-refusal",
@@ -1684,9 +1676,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n5 mafia1 elder0 abstaintrue revote round1 unanimous who0",
@@ -4452,9 +4443,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder0 abstainfalse revote round1 allAbstain who2 null-refusal",
@@ -4532,9 +4522,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder0 abstainfalse revote round1 singleBallot who0 null-refusal",
@@ -4612,9 +4601,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder0 abstainfalse revote round2 majority who1",
@@ -5082,9 +5070,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder0 abstainfalse revote round2 allAbstain who0 null-refusal",
@@ -5168,9 +5155,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder0 abstainfalse revote round2 singleBallot who1 null-refusal",
@@ -5254,9 +5240,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder0 abstainfalse noElimination round1 majority who0",
@@ -5805,9 +5790,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder0 abstainfalse noElimination round1 allAbstain who2 null-refusal",
@@ -5885,9 +5869,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder0 abstainfalse noElimination round1 singleBallot who0 null-refusal",
@@ -5965,9 +5948,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder0 abstaintrue revote round1 unanimous who2",
@@ -9266,9 +9248,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder1 abstainfalse revote round1 allAbstain who0 null-refusal",
@@ -9346,9 +9327,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder1 abstainfalse revote round1 singleBallot who1 null-refusal",
@@ -9426,9 +9406,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder1 abstainfalse revote round2 majority who2",
@@ -9896,9 +9875,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder1 abstainfalse revote round2 allAbstain who1 null-refusal",
@@ -9982,9 +9960,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder1 abstainfalse revote round2 singleBallot who2 null-refusal",
@@ -10068,9 +10045,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder1 abstainfalse noElimination round1 majority who1",
@@ -10611,9 +10587,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder1 abstainfalse noElimination round1 allAbstain who0 null-refusal",
@@ -10691,9 +10666,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder1 abstainfalse noElimination round1 singleBallot who1 null-refusal",
@@ -10771,9 +10745,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder1 abstaintrue revote round1 unanimous who0",
@@ -14099,9 +14072,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder2 abstainfalse revote round1 allAbstain who1 null-refusal",
@@ -14179,9 +14151,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder2 abstainfalse revote round1 singleBallot who2 null-refusal",
@@ -14261,9 +14232,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder2 abstainfalse revote round2 majority who0",
@@ -14735,9 +14705,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder2 abstainfalse revote round2 allAbstain who2 null-refusal",
@@ -14823,9 +14792,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder2 abstainfalse revote round2 singleBallot who0 null-refusal",
@@ -14911,9 +14879,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder2 abstainfalse noElimination round1 majority who2",
@@ -15460,9 +15427,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder2 abstainfalse noElimination round1 allAbstain who1 null-refusal",
@@ -15540,9 +15506,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder2 abstainfalse noElimination round1 singleBallot who2 null-refusal",
@@ -15622,9 +15587,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n7 mafia2 elder2 abstaintrue revote round1 unanimous who1",
@@ -19030,9 +18994,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder0 abstainfalse revote round1 allAbstain who1 null-refusal",
@@ -19122,9 +19085,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder0 abstainfalse revote round1 singleBallot who2 null-refusal",
@@ -19214,9 +19176,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder0 abstainfalse revote round2 majority who0",
@@ -19752,9 +19713,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder0 abstainfalse revote round2 allAbstain who2 null-refusal",
@@ -19850,9 +19810,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder0 abstainfalse revote round2 singleBallot who0 null-refusal",
@@ -19948,9 +19907,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder0 abstainfalse noElimination round1 majority who2",
@@ -20579,9 +20537,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder0 abstainfalse noElimination round1 allAbstain who1 null-refusal",
@@ -20671,9 +20628,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder0 abstainfalse noElimination round1 singleBallot who2 null-refusal",
@@ -20763,9 +20719,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder0 abstaintrue revote round1 unanimous who1",
@@ -24594,9 +24549,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder1 abstainfalse revote round1 allAbstain who2 null-refusal",
@@ -24686,9 +24640,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder1 abstainfalse revote round1 singleBallot who0 null-refusal",
@@ -24778,9 +24731,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder1 abstainfalse revote round2 majority who1",
@@ -25316,9 +25268,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder1 abstainfalse revote round2 allAbstain who0 null-refusal",
@@ -25414,9 +25365,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder1 abstainfalse revote round2 singleBallot who1 null-refusal",
@@ -25512,9 +25462,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder1 abstainfalse noElimination round1 majority who0",
@@ -26156,9 +26105,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder1 abstainfalse noElimination round1 allAbstain who2 null-refusal",
@@ -26248,9 +26196,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder1 abstainfalse noElimination round1 singleBallot who0 null-refusal",
@@ -26340,9 +26287,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder1 abstaintrue revote round1 unanimous who2",
@@ -30190,9 +30136,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder2 abstainfalse revote round1 allAbstain who0 null-refusal",
@@ -30284,9 +30229,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder2 abstainfalse revote round1 singleBallot who1 null-refusal",
@@ -30376,9 +30320,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder2 abstainfalse revote round2 majority who2",
@@ -30920,9 +30863,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder2 abstainfalse revote round2 allAbstain who1 null-refusal",
@@ -31018,9 +30960,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder2 abstainfalse revote round2 singleBallot who2 null-refusal",
@@ -31118,9 +31059,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder2 abstainfalse noElimination round1 majority who1",
@@ -31753,9 +31693,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder2 abstainfalse noElimination round1 allAbstain who0 null-refusal",
@@ -31847,9 +31786,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder2 abstainfalse noElimination round1 singleBallot who1 null-refusal",
@@ -31939,9 +31877,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n9 mafia2 elder2 abstaintrue revote round1 unanimous who0",
@@ -35922,9 +35859,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder0 abstainfalse revote round1 allAbstain who1 null-refusal",
@@ -36032,9 +35968,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder0 abstainfalse revote round1 singleBallot who2 null-refusal",
@@ -36142,9 +36077,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder0 abstainfalse revote round2 majority who0",
@@ -36782,9 +36716,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder0 abstainfalse revote round2 allAbstain who2 null-refusal",
@@ -36898,9 +36831,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder0 abstainfalse revote round2 singleBallot who0 null-refusal",
@@ -37014,9 +36946,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder0 abstainfalse noElimination round1 majority who2",
@@ -37780,9 +37711,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder0 abstainfalse noElimination round1 allAbstain who1 null-refusal",
@@ -37890,9 +37820,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder0 abstainfalse noElimination round1 singleBallot who2 null-refusal",
@@ -38000,9 +37929,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder0 abstaintrue revote round1 unanimous who1",
@@ -42588,9 +42516,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder1 abstainfalse revote round1 allAbstain who2 null-refusal",
@@ -42698,9 +42625,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder1 abstainfalse revote round1 singleBallot who0 null-refusal",
@@ -42808,9 +42734,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder1 abstainfalse revote round2 majority who1",
@@ -43448,9 +43373,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder1 abstainfalse revote round2 allAbstain who0 null-refusal",
@@ -43564,9 +43488,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder1 abstainfalse revote round2 singleBallot who1 null-refusal",
@@ -43680,9 +43603,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder1 abstainfalse noElimination round1 majority who0",
@@ -44456,9 +44378,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder1 abstainfalse noElimination round1 allAbstain who2 null-refusal",
@@ -44566,9 +44487,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder1 abstainfalse noElimination round1 singleBallot who0 null-refusal",
@@ -44676,9 +44596,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder1 abstaintrue revote round1 unanimous who2",
@@ -49301,9 +49220,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder2 abstainfalse revote round1 allAbstain who0 null-refusal",
@@ -49413,9 +49331,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder2 abstainfalse revote round1 singleBallot who1 null-refusal",
@@ -49523,9 +49440,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder2 abstainfalse revote round2 majority who2",
@@ -50169,9 +50085,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder2 abstainfalse revote round2 allAbstain who1 null-refusal",
@@ -50285,9 +50200,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder2 abstainfalse revote round2 singleBallot who2 null-refusal",
@@ -50403,9 +50317,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder2 abstainfalse noElimination round1 majority who1",
@@ -51155,9 +51068,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder2 abstainfalse noElimination round1 allAbstain who0 null-refusal",
@@ -51267,9 +51179,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder2 abstainfalse noElimination round1 singleBallot who1 null-refusal",
@@ -51377,9 +51288,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia2 elder2 abstaintrue revote round1 unanimous who0",
@@ -55989,9 +55899,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder0 abstainfalse revote round1 allAbstain who1 null-refusal",
@@ -56099,9 +56008,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder0 abstainfalse revote round1 singleBallot who2 null-refusal",
@@ -56209,9 +56117,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder0 abstainfalse revote round2 majority who0",
@@ -56854,9 +56761,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder0 abstainfalse revote round2 allAbstain who2 null-refusal",
@@ -56970,9 +56876,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder0 abstainfalse revote round2 singleBallot who0 null-refusal",
@@ -57086,9 +56991,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder0 abstainfalse noElimination round1 majority who2",
@@ -57857,9 +57761,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder0 abstainfalse noElimination round1 allAbstain who1 null-refusal",
@@ -57967,9 +57870,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder0 abstainfalse noElimination round1 singleBallot who2 null-refusal",
@@ -58077,9 +57979,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder0 abstaintrue revote round1 unanimous who1",
@@ -62712,9 +62613,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder1 abstainfalse revote round1 allAbstain who2 null-refusal",
@@ -62822,9 +62722,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder1 abstainfalse revote round1 singleBallot who0 null-refusal",
@@ -62932,9 +62831,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder1 abstainfalse revote round2 majority who1",
@@ -63577,9 +63475,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder1 abstainfalse revote round2 allAbstain who0 null-refusal",
@@ -63693,9 +63590,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder1 abstainfalse revote round2 singleBallot who1 null-refusal",
@@ -63809,9 +63705,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder1 abstainfalse noElimination round1 majority who0",
@@ -64582,9 +64477,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder1 abstainfalse noElimination round1 allAbstain who2 null-refusal",
@@ -64692,9 +64586,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder1 abstainfalse noElimination round1 singleBallot who0 null-refusal",
@@ -64802,9 +64695,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder1 abstaintrue revote round1 unanimous who2",
@@ -69469,9 +69361,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder2 abstainfalse revote round1 allAbstain who0 null-refusal",
@@ -69581,9 +69472,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder2 abstainfalse revote round1 singleBallot who1 null-refusal",
@@ -69693,9 +69583,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder2 abstainfalse revote round2 majority who2",
@@ -70346,9 +70235,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder2 abstainfalse revote round2 allAbstain who1 null-refusal",
@@ -70464,9 +70352,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder2 abstainfalse revote round2 singleBallot who2 null-refusal",
@@ -70582,9 +70469,8 @@
         "round": 2
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder2 abstainfalse noElimination round1 majority who1",
@@ -71350,9 +71236,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder2 abstainfalse noElimination round1 allAbstain who0 null-refusal",
@@ -71462,9 +71347,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder2 abstainfalse noElimination round1 singleBallot who1 null-refusal",
@@ -71574,9 +71458,8 @@
         "round": 1
       },
       "expected": {
-        "refused": false
-      },
-      "knownDivergence": "RL9: offline submitVote accepts null with abstainAllowed=false"
+        "refused": true
+      }
     },
     {
       "name": "n12 mafia3 elder2 abstaintrue revote round1 unanimous who0",

@@ -1,0 +1,78 @@
+TASK: client tests for reconnect, wrong clock and rotation (rows X10, X16, X18)
+
+You are working in a Flutter + Supabase repo (Mafia Master). You will NOT commit;
+the orchestrator reviews and commits. Other agents work in parallel:
+- vote matrix: supabase/functions/_shared/ballot_core.ts,
+  supabase/functions/resolve_vote/index.ts, tool/vote_matrix.dart,
+  supabase/tests/vote_matrix.*, test/engine/vote_matrix_test.dart
+- SQL tests: supabase/tests/retired_grave_vote.sql,
+  supabase/tests/pack_revoke_boundaries.sql
+- live Python tests under supabase/tests/*.py
+Do not touch those files. If flutter analyze or flutter test fails only in
+files that are not yours, ignore it and say so in the report.
+
+<goal>
+Prove three rows of docs/specs/18-scenario-matrix.md with Flutter tests
+(no network, no real server):
+
+X10 (line ~208): reconnecting at each phase (reveal, night, morning,
+confront, discuss, vote, verdict, result) rebuilds the screen from the
+current server snapshot only, keeps the same private seat and own role,
+and never shows a private answer from an earlier phase again (a Detective
+result from last night, a tool's private answer, a whisper). The rule
+behind it is docs/specs/05-zero-leakage-spec.md section 2: read that
+section before writing anything.
+
+X16 (line ~214): a device whose clock is wrong (minutes ahead or behind)
+never advances the phase on its own and never lets the player act early.
+The server deadline is the only truth; the client only shows it.
+
+X18 (line ~216): rotating the device (or any rebuild that changes the
+screen size) in the middle of choosing a night target or a ballot does
+not submit twice and does not lose or change the choice.
+</goal>
+
+<where>
+- Transport and decoding: lib/transport/online_transport.dart,
+  lib/transport/room_codec.dart, lib/engine/clock.dart.
+- Existing tests to learn the fakes and style from:
+  test/online/online_session_recovery_test.dart,
+  test/online/online_reveal_recovery_test.dart,
+  test/online/online_action_retry_test.dart,
+  test/widget/reconnect_stages_test.dart,
+  test/engine/detective_result_ephemeral_test.dart.
+  Reuse their fakes and helpers; do not build a new fake server if one
+  exists.
+- New files only: test/online/phase_resync_privacy_test.dart (X10),
+  test/online/client_clock_skew_test.dart (X16),
+  test/widget/rotation_no_double_submit_test.dart (X18).
+</where>
+
+<rules>
+- Do not change anything under lib/. If a test shows real behaviour is
+  wrong, keep the assertion that states the correct behaviour, mark it
+  clearly with a comment, and report it as a suspected defect with the
+  exact failure output. Never weaken an assertion to make it pass.
+- lib/engine is pure: tests may inject a clock, but nothing under lib/ may
+  change.
+- No literal user-facing strings in assertions when a localization key or
+  a widget key exists; find widgets by key or type the way the existing
+  tests do.
+- Comments: short, plain English, matching the existing tests.
+</rules>
+
+<gates>
+Run and paste the last lines of each:
+  flutter analyze --no-pub
+  flutter test --no-pub test/online/phase_resync_privacy_test.dart test/online/client_clock_skew_test.dart test/widget/rotation_no_double_submit_test.dart
+  flutter test --no-pub
+</gates>
+
+<report>
+In your final message:
+1. Files added.
+2. Each test name -> which row (X10/X16/X18) and which phase or case.
+3. Gate output (last lines).
+4. Suspected defects, with failing assertion and actual output.
+5. Phases or cases you could not reach with the existing fakes, and why.
+</report>

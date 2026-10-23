@@ -1,0 +1,58 @@
+TASK: the offline engine refuses a null day ballot when abstaining is off (RL9), like the server
+
+Repo: Mafia Master (Flutter + Supabase). One pure Dart engine in lib/engine is used offline; the
+server (supabase/functions/submit_vote) already refuses a null ballot when the room's
+abstainAllowed is false. You will NOT commit or deploy; the orchestrator reviews and lands it.
+Other agents work in parallel on supabase/tests/*.py and test/** files about reconnects and
+clocks: touch only the files this task needs.
+
+<problem>
+lib/engine/match_engine.dart submitVote (~line 1195) accepts targetSeat == null even when
+match.settings.abstainAllowed is false. The day-ballot matrix (tool/vote_matrix.dart ->
+supabase/tests/vote_matrix.json, test/engine/vote_matrix_test.dart,
+supabase/tests/vote_matrix.test.mjs) records this as 117 cases carrying
+knownDivergence 'RL9: offline submitVote accepts null with abstainAllowed=false', skipped.
+About 36 older tests under test/** submit a null ballot as a shortcut with abstaining off.
+</problem>
+
+<change>
+1. lib/engine/match_engine.dart submitVote: when targetSeat == null and
+   !match.settings.abstainAllowed, throw StateError('submitVote: abstaining is off (RL9)').
+   Put the check with the other voter checks, before any state changes.
+   lib/engine stays pure: no Flutter import, no DateTime.now(), no unseeded Random.
+2. Before relying on it, prove that no production caller can send null with abstaining off:
+   read every caller (lib/transport/local_transport.dart, lib/ui/screens/match_controller.dart,
+   lib/ui/screens/day/voting_screen.dart ~line 55, lib/ui/screens/online/online_table_flow.dart
+   ~line 1064, lib/engine/legal_moves.dart, any vote timer or auto-advance that submits on
+   expiry, and any bot). If one CAN send null with abstaining off, STOP and report it with file:line.
+   Do not change UI code.
+3. Update the tests that voted null as a shortcut. Each such test either enables abstaining
+   (MatchSettings(abstainAllowed: true) or copyWith) when the abstention is the point, or votes
+   for a legal living seat when it is not. Never weaken an assertion, never delete a test,
+   never add a try/catch that swallows the new error. Keep each edit minimal and in the
+   file's own style.
+4. tool/vote_matrix.dart: drop the knownDivergence on the null-refusal rows. The rows now
+   assert the refusal the engine observes. Regenerate with `dart run tool/vote_matrix.dart`
+   twice; the second run must leave supabase/tests/vote_matrix.json byte-identical. In the
+   JSON only those rows may change (the knownDivergence key goes and `expected.refused`
+   becomes true). Nothing else changes.
+5. Add one focused test in test/engine (next to the existing vote tests, in their style):
+   abstaining off -> null refused and nothing recorded; abstaining on -> null accepted.
+</change>
+
+<gates>
+Run all of these and report the real summary lines:
+  dart run tool/vote_matrix.dart   (twice, then: git diff --stat supabase/tests/vote_matrix.json)
+  flutter analyze --no-pub
+  flutter test --no-pub --concurrency=2
+  node --test supabase/tests/vote_matrix.test.mjs supabase/tests/vote_rules.test.mjs
+The Flutter SDK path contains a space; quote it if you call it by path.
+</gates>
+
+<report>
+1. The caller audit from step 2: each caller, file:line, and why it cannot send null when abstaining is off.
+2. The list of test files you changed, with how many tests in each and which way (abstain on or a legal seat).
+3. Gate results (real lines): analyze issues, flutter test passed/failed/skipped, the node counts,
+   and the number of vote_matrix rows that were knownDivergence before and after (expect 117 -> 0).
+No praise, no pasting whole files.
+</report>

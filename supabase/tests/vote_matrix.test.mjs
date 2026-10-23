@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolveBallotCore } from '../functions/_shared/ballot_core.ts';
+import { abstentionRefused } from '../functions/_shared/vote_rules.ts';
 
 const { version, scenarios } = JSON.parse(readFileSync(
   new URL('./vote_matrix.json', import.meta.url), 'utf8'));
@@ -83,7 +84,13 @@ for (const row of scenarios) {
     assert.deepEqual(actual.publicTally, rules.publicTally);
     assert.equal(actual.boughtRevoteWorked, rules.boughtRevoteWorked);
     assert.deepEqual(actual.appealResult, rules.appealResult);
-    if (row.kind !== 'tool') assert.deepEqual(project(actual), row.expected);
+    if (row.kind === 'refusal') {
+      assert.deepEqual(row.expected, {
+        refused: abstentionRefused(row.attempt.target_id, row.input.settings),
+      });
+    } else if (row.kind !== 'tool') {
+      assert.deepEqual(project(actual), row.expected);
+    }
     if (row.outsideRefusal !== undefined) assert.equal(row.outsideRefusal, true);
     if (row.deadTargetRefusal !== undefined) assert.equal(row.deadTargetRefusal, true);
   });

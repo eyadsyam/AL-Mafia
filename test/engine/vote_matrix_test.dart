@@ -89,6 +89,15 @@ void main() {
   for (final row in cases) {
     test(row['name'] as String, () {
       final input = row['input'] as Map<String, dynamic>;
+      if (row['kind'] == 'refusal') {
+        final attempt = row['attempt'] as Map<String, dynamic>;
+        final settings = input['settings'] as Map<String, dynamic>;
+        expect(row['expected'], {
+          'refused': attempt['target_id'] == null &&
+              settings['abstainAllowed'] != true,
+        }, reason: row['name'] as String);
+        return;
+      }
       expect(row['expected'], oracle(input), reason: row['name'] as String);
       if (row['outsideRefusal'] != null) expect(row['outsideRefusal'], true);
       if (row['deadTargetRefusal'] != null) {

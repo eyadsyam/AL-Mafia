@@ -1211,6 +1211,9 @@ class MatchEngine {
     if (silencedSeatToday == seat) {
       throw StateError('submitVote: silenced player cannot vote today');
     }
+    if (targetSeat == null && !match.settings.abstainAllowed) {
+      throw StateError('submitVote: abstaining is off (RL9)');
+    }
 
     if (targetSeat != null) {
       if (targetSeat < 0 || targetSeat >= match.players.length) {

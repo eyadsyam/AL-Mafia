@@ -274,8 +274,6 @@ Map<String, dynamic>? build(
         'round': round,
       },
       'expected': {'refused': nullRefusalObserved},
-      'knownDivergence':
-          'RL9: offline submitVote accepts null with abstainAllowed=false',
     };
   }
   bool outsideRejected = false;

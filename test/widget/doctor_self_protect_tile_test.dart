@@ -52,7 +52,7 @@ void main() {
     controller().startMatch(
       names: names,
       roleCounts: roleCounts,
-      settings: const MatchSettings(),
+      settings: const MatchSettings(abstainAllowed: true),
       seed: 7,
     );
 

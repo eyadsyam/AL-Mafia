@@ -15,6 +15,7 @@ void main() {
     quietNightEnabled: false,
     traceEnabled: false,
     confrontationEnabled: false,
+    abstainAllowed: true,
   );
   final withSilencer = plain.copyWith(silencerEnabled: true);
 
