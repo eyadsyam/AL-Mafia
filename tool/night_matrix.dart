@@ -1,5 +1,5 @@
-/// Deterministic cross-engine night matrix. Run: dart run tool/night_matrix.dart.
-/// Actions are taken from real MatchEngine events, using night_vectors helpers.
+// Deterministic cross-engine night matrix. Run: dart run tool/night_matrix.dart.
+// Actions are taken from real MatchEngine events, using night_vectors helpers.
 import 'dart:convert';
 import 'dart:io';
 
@@ -46,7 +46,9 @@ Map<String, dynamic>? build(int count, int mask, int index) {
   final elder = mask & 4 != 0;
   final detective = mask & 8 != 0;
   if ((silencer && mafiaCount < 2) || (sniper && count < 7) ||
-      (elder && count < 6)) return null;
+      (elder && count < 6)) {
+    return null;
+  }
   final doctor = count >= 7;
   final counts = <Role, int>{
     Role.mafia: mafiaCount - (silencer ? 1 : 0),
@@ -74,8 +76,6 @@ Map<String, dynamic>? build(int count, int mask, int index) {
   final seed = 1009 + count * 1000 + mask * 101 + index;
   final e = vectors.start(counts, settings, seed);
   final mafiosi = vectors.seatsOf(e, Role.mafia);
-  final doctorSeat = firstRole(e, Role.doctor);
-  final sniperSeat = firstRole(e, Role.sniper);
   final silencerSeat = firstRole(e, Role.silencer);
   final citizen = firstRole(e, Role.citizen)!;
   // A previous night provides actual engine history for spent bullets and the
@@ -93,7 +93,7 @@ Map<String, dynamic>? build(int count, int mask, int index) {
         } else {
           lastProtect = citizen == actor ? mafiosi.first : citizen;
           e.submitNightAction(seat: actor, kind: NightActionKind.protect,
-            targetSeat: lastProtect!);
+            targetSeat: lastProtect);
         }
       } else if (role == Role.sniper && sniperMode == 'spent') {
         // Shoot a Mafioso; the second night must still be reachable.

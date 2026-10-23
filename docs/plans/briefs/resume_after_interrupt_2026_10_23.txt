@@ -1,0 +1,12 @@
+Your previous turn was interrupted (the host process stopped at 16:23 local time).
+Nothing you did was lost: the files you wrote are still in the working tree.
+
+Continue the SAME task from where you stopped. Do not start over and do not
+redo finished steps: check the working tree (git status, the files your task
+names) to see where you are, then finish the remaining steps, run every gate
+your brief lists, and give the final report exactly in the brief's report
+format.
+
+All rules of the original brief still apply (no commit, touch only your
+task's files, never weaken an assertion, report suspected defects instead of
+changing app or server code).

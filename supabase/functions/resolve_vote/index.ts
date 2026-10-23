@@ -8,19 +8,11 @@
  */
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { deadlineFor } from "../_shared/phases.ts";
-import { isMafiaTeam } from "../_shared/teams.ts";
 import { voteFingerprint } from "../_shared/vote_fingerprint.ts";
-import { ballotTargetAllowed } from "../_shared/ballot_candidates.ts";
-import { ballotVerdict, boughtRevoteCausedSecondRound } from "../_shared/vote_rules.ts";
+import { resolveBallotCore } from "../_shared/ballot_core.ts";
 import {
-  appealCounts,
-  appealed,
-  appealUpheld,
-  graveVoters,
   lastWordOf,
   loadToolUses,
-  revoteRequested,
-  toolVoteWeight,
 } from "../_shared/tools.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
@@ -81,7 +73,6 @@ Deno.serve(handler(async (req, userId, db) => {
       .order("seat");
     if (playersError) throw playersError;
     const roster = players ?? [];
-    const seatOf = new Map(roster.map((p) => [p.user_id, p.seat]));
 
     // The round is the room's (`revote.round`), never inferred from the ballots
     // cast: a revote nobody has voted in yet is still round two, and resolving
@@ -92,14 +83,11 @@ Deno.serve(handler(async (req, userId, db) => {
     const revoteState = (state?.public_data as Record<string, unknown> | null)
       ?.revote as Record<string, unknown> | null | undefined;
     const decidedOutcome = (state?.public_data as Record<string, unknown> | null)?.outcome;
-    const revealedElders = new Set<number>(
-      (((state?.public_data as Record<string, unknown> | null)
-        ?.elderRevealedSeats as number[] | undefined) ?? []).map(Number),
-    );
+    const revealedElderSeats = ((state?.public_data as Record<string, unknown> | null)
+      ?.elderRevealedSeats as number[] | undefined) ?? [];
     const round = Number(revoteState?.round ?? 1);
     // «أدوات القعدة»: one read per request.
     const toolUses = await loadToolUses(db, roomId);
-    const graves = graveVoters(toolUses, day);
 
     const { data: cast, error: castError } = await db
       .from("votes")
@@ -112,82 +100,12 @@ Deno.serve(handler(async (req, userId, db) => {
     // See `resolve_night`: the ballots this outcome counts, for the commit to
     // check against the ballots the room holds when it locks the row.
     const fingerprint = voteFingerprint(cast ?? [], roster, toolUses, day);
-    // A ballot counts only between two living seats: a voter the host removed
-    // after casting it is out of the match, and a seat put out does not go on
-    // deciding the town's verdict from outside it (see `resolve_night`).
-    const alive = new Set(roster.filter((p) => p.alive).map((p) => p.user_id));
-    // A ballot weighs 3 for a revealed Elder, times 2 for a bought double vote.
-    const weightOf = (voter: { role: string; seat: number } | undefined) =>
-      (voter?.role === "elder" && revealedElders.has(voter.seat) ? 3 : 1) *
-      toolVoteWeight(toolUses, day, voter?.seat ?? -1);
-    const tally = new Map<string, number>();
-    // The ballots the tally accepted, with their weights: the appeal reads
-    // numerator and denominator from these same ballots.
-    const counted: { voter: string; target: string | null; weight: number }[] = [];
-    for (const v of cast ?? []) {
-      const voter = roster.find((p) => p.user_id === v.voter_id);
-      // A dead seat counts only with a bought grave vote, in the opening round.
-      const mayVote = alive.has(v.voter_id) ||
-        (!!voter && round === 1 && graves.has(voter.seat));
-      if (v.round !== round || !mayVote ||
-          (v.target_id !== null && !alive.has(v.target_id))) continue;
-      if (!ballotTargetAllowed(round, revoteState?.tiedSeats,
-        v.target_id === null ? null : seatOf.get(v.target_id))) continue;
-      const weight = weightOf(voter);
-      counted.push({ voter: v.voter_id, target: v.target_id, weight });
-      if (v.target_id !== null) {
-        tally.set(v.target_id, (tally.get(v.target_id) ?? 0) + weight);
-      }
-    }
-
-    const publicTally: Record<number, number> = {};
-    for (const [id, n] of tally) publicTally[seatOf.get(id) ?? -1] = n;
-
-    let eliminatedId: string | null = null;
-    let tiedSeats: number[] = [];
-    let revote = false;
-    const revoteBought = round === 1 && revoteRequested(toolUses, day);
-    let boughtRevoteWorked = false;
-
-    if (tally.size > 0 && decidedOutcome !== "mafia" && decidedOutcome !== "town") {
-      const top = Math.max(...tally.values());
-      const tied = [...tally.entries()].filter(([, v]) => v === top).map(([k]) => k)
-        .filter((id) => roster.find((p) => p.user_id === id)?.alive);
-      if (tied.length > 1) {
-        tiedSeats = tied.map((id) => seatOf.get(id) ?? -1).sort((a, b) => a - b);
-      }
-      // Round 1 is the opening ballot; anything above it has already had its
-      // second chance. A bought `revote` (RL13) reopens the ballot in round 1
-      // whether it was won clearly or tied, even under «محدش يخرج»; round 2
-      // never re-triggers it.
-      const ballot = {
-        round,
-        topSeats: tied.length,
-        dayTieRule: me.settings.dayTieRule ?? "noElimination",
-        revoteBought,
-        narrowedCandidates: tally.size,
-      };
-      const verdict = ballotVerdict(ballot);
-      boughtRevoteWorked = boughtRevoteCausedSecondRound(ballot);
-      if (verdict === "eliminate") {
-        eliminatedId = tied[0];
-      } else if (verdict === "revote") {
-        revote = true;
-        // Over a clear winner the bought revote narrows the ballot to the
-        // seats that drew a ballot; over a tie it is the tied seats.
-        if (tied.length === 1) {
-          tiedSeats = [...tally.keys()].map((id) => seatOf.get(id) ?? -1)
-            .filter((s) => s >= 0).sort((a, b) => a - b);
-        }
-      }
-    }
-
-    // A bought `appeal`: the elimination stands only if more than two thirds of
-    // the weighted ballots counted from everyone else (him excluded) confirm it. Otherwise nobody goes out today.
-    if (eliminatedId && appealed(toolUses, day).has(seatOf.get(eliminatedId) ?? -1)) {
-      const { confirm, voters } = appealCounts(counted, eliminatedId);
-      if (!appealUpheld(confirm, voters)) eliminatedId = null;
-    }
+    const { eliminatedId, eliminatedSeat, eliminatedRole, tiedSeats, revote,
+      publicTally, boughtRevoteWorked, outcome, revoteBought } = resolveBallotCore({
+      roster, cast: cast ?? [], round,
+      revoteState: revoteState as { round?: number; tiedSeats?: unknown } | null,
+      toolUses, day, revealedElderSeats, decidedOutcome, settings: me.settings,
+    });
 
     if (revote) {
       // A revote narrows the ballot to exactly the tied seats and opens another
@@ -210,27 +128,6 @@ Deno.serve(handler(async (req, userId, db) => {
       if (!(await stillOpen(round))) return fail("PHASE_CLOSED", "ballot already resolved");
       continue;
     }
-
-    let eliminatedSeat: number | null = null;
-    let eliminatedRole: string | null = null;
-    if (eliminatedId) {
-      eliminatedSeat = seatOf.get(eliminatedId) ?? null;
-      // D11 — the reveal is never skipped. A day elimination is public by design
-      // (FR-019); this is the one place a role legitimately reaches the table.
-      eliminatedRole =
-        roster.find((p) => p.user_id === eliminatedId)?.role ?? null;
-    }
-
-    // W8 — the check runs after every death is applied, never mid-resolution.
-    const living = roster.filter(
-      (p) => p.alive && p.user_id !== eliminatedId,
-    );
-    const mafia = living.filter((p) => isMafiaTeam(p.role)).length;
-    const town = living.length - mafia;
-    let outcome: string | null = decidedOutcome === "mafia" || decidedOutcome === "town"
-      ? decidedOutcome : null;
-    if (!outcome && mafia === 0) outcome = "town";
-    else if (!outcome && mafia >= town) outcome = "mafia";
 
     // RL15 — the eliminated player's last word, if he bought one: the table is
     // told (`lastVote.lastWord`) even when this ballot ends the match. A floor
