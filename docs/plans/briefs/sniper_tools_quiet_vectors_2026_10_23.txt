@@ -1,0 +1,87 @@
+TASK: server-unit vectors for Sniper town shots, joined secret tools and quiet nights
+(rows N57, N58, W6, T8, T25, T12-T14, N53, N54, D3)
+
+You are working in a Flutter + Supabase repo (Mafia Master). You will NOT commit;
+the orchestrator reviews and commits. Other agents work in parallel on:
+- supabase/functions/_shared/ballot_core.ts, supabase/functions/resolve_vote/index.ts,
+  tool/vote_matrix.dart, supabase/tests/vote_matrix.*, test/engine/vote_matrix_test.dart
+- supabase/tests/retired_grave_vote.sql, supabase/tests/pack_revoke_boundaries.sql
+- test/online/phase_resync_privacy_test.dart, test/online/client_clock_skew_test.dart,
+  test/widget/rotation_no_double_submit_test.dart
+- supabase/tests/*_match.py (live Python tests)
+Do not touch those files. If a gate fails only in files that are not yours,
+ignore it and say so.
+
+<goal>
+Close the offline/server-unit half of these rows of
+docs/specs/18-scenario-matrix.md (read each row first):
+
+N57, N58, W6 (lines ~67, ~68, ~126): a Sniper who shoots a town seat
+(Citizen, Doctor, Detective, Elder, another Sniper) kills the target AND
+the Sniper the same night; the morning names both deaths and nothing about
+why (no role, no "the sniper missed"); parity is checked after both deaths,
+so Mafia wins only once both are gone. The Doctor/other-Sniper pairs are
+the missing ones.
+
+T8, T25, T12, T13, T14 (lines ~153, ~170, ~157, ~158, ~159): one night
+with several secret tools at once:
+  - half_door blocks next-night silence and investigation on its owner,
+    but not the Mafia kill and not the Sniper shot;
+  - lock_door dominates half_door;
+  - for the Detective, door beats camouflage, impersonate beats camouflage;
+  - sense and narrator_whisper always answer from the TRUE role, whatever
+    door / camouflage / impersonate say.
+  Joined vectors: every pair and the triple on the same seat.
+
+N53, N54, D3 (lines ~63, ~64, ~85): online a Citizen and an Elder have no
+night move; the expiry default writes no row for them (see
+supabase/functions/advance_phase/index.ts, which skips citizen; check
+whether it also skips the Elder and assert what the rules in the row say);
+a night with no eligible trace and a day with no eligible confrontation
+produce NOTHING (no invented fact, no placeholder line).
+</goal>
+
+<where>
+- Server rules: supabase/functions/_shared/ (night core, table tools, night
+  rules, confrontation/trace generators). Find resolveNightCore and the
+  table tool resolution with grep.
+- Existing proofs to extend, not duplicate: supabase/tests/night_matrix.test.mjs
+  and its generator tool/night_matrix.dart + supabase/tests/night_matrix.json
+  (already cover lock_door and shields on 6412 nights; do NOT regenerate
+  that JSON), supabase/tests/table_tools.test.ts,
+  supabase/tests/vote_rules.test.mjs, test/engine/rule_matrix_test.dart,
+  test/engine/golden_vectors_test.dart.
+- Server unit tests run with: node --test supabase/tests/*.test.mjs
+  (and table_tools.test.ts with deno test if that is how it runs today; find
+  out from the file header or package scripts).
+- New files only: supabase/tests/sniper_tools_quiet.test.mjs and, if the
+  Dart engine side needs its own oracle check, test/engine/sniper_tools_quiet_test.dart.
+</where>
+
+<rules>
+- Do not change any code under supabase/functions or lib/. If a vector
+  shows wrong behaviour, keep the assertion for the behaviour the row and
+  docs/specs/17-*.md state, mark that test clearly, and report it with the
+  exact failure output. Never weaken an assertion.
+- Every assertion that checks "nothing about why" must check the whole
+  public payload text, not one field: no role name, no tool name, no seat
+  that only a secret tool knows.
+- lib/engine is pure; tests only.
+- Short, plain English comments matching night_matrix.test.mjs.
+</rules>
+
+<gates>
+Run and paste the summary lines of each:
+  node --test supabase/tests/*.test.mjs
+  flutter analyze --no-pub          (only if you added a Dart test)
+  flutter test --no-pub test/engine (only if you added a Dart test)
+Before your change node --test reported 6625/6625.
+</gates>
+
+<report>
+1. Files added.
+2. Each test -> row(s) and case.
+3. Gate summaries.
+4. Suspected defects with failing assertion and actual value.
+5. What still needs a live (hosted) check, one line per row.
+</report>

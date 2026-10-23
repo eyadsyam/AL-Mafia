@@ -6,13 +6,16 @@ Only bot-owned rooms may be mutated; service/admin HTTP and DELETE are disabled.
 Results contain assertion labels and error codes, never response payloads.
 """
 import contextlib
+import http.client
 import importlib
 import io
 import json
 import os
 from pathlib import Path
+import socket
 import time
 import sys
+import urllib.error
 
 ROOT = Path(__file__).resolve().parents[2]
 config = json.loads((ROOT / 'dart_defines.json').read_text(encoding='utf-8-sig'))
@@ -26,6 +29,8 @@ import e2e_match as h
 
 owned, codes, errors, reports = set(), set(), [], {}
 original = h._request
+TRANSPORT = (TimeoutError, socket.timeout, ConnectionError, http.client.IncompleteRead,
+             http.client.RemoteDisconnected, urllib.error.URLError)
 
 
 def request(path, payload, token=None, method='POST'):
@@ -36,7 +41,17 @@ def request(path, payload, token=None, method='POST'):
     if path.startswith('/functions/') and payload and payload.get('roomId'):
         if payload['roomId'] not in owned:
             return 403, {'error': 'TEST_OWNED_ROOMS_ONLY'}
-    status, data = original(path, payload, token, method)
+    for wait in (2, 5, None):  # Dropped connections are local; the server never failed these calls.
+        try:
+            status, data = original(path, payload, token, method)
+            break
+        except urllib.error.HTTPError:
+            raise
+        except TRANSPORT as e:
+            if wait is None:
+                raise
+            errors.append({'endpoint': path.split('?')[0], 'status': 0, 'code': 'TRANSPORT_' + type(e).__name__})
+            time.sleep(wait)
     if path.endswith('/create_room') and status == 200 and data.get('roomId'):
         owned.add(data['roomId'])
         codes.add(data['code'])

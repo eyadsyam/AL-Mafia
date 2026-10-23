@@ -68,8 +68,17 @@ class Watch:
     def loop(self):
         try:
             import websocket
-            self.ws = websocket.create_connection(h.URL.replace('https:', 'wss:') +
-                '/realtime/v1/websocket?apikey=' + h.KEY + '&vsn=1.0.0', timeout=2)
+            url = (h.URL.replace('https:', 'wss:') +
+                '/realtime/v1/websocket?apikey=' + h.KEY + '&vsn=1.0.0')
+            # Give a cold handshake one retry, then keep receives responsive.
+            for attempt in range(2):
+                try:
+                    self.ws = websocket.create_connection(url, timeout=15)
+                    break
+                except (TimeoutError, websocket.WebSocketTimeoutException):
+                    if attempt == 1:
+                        raise
+            self.ws.settimeout(2)
             topic = 'realtime:live-' + self.match.id + '-' + str(self.player['seat'])
             # Match the application's publication subscriptions. Subscribing
             # unpublished private tables in this channel disables delivery.

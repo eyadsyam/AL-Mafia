@@ -14,12 +14,15 @@ import new_roles_tools_match as n
 def fund(bots):
     # Exact authenticated anonymous bot IDs. Existing admin ledger path.
     ids = [h.uuid.UUID(p['id']) for p in bots]
-    sql = 'begin; do $$ declare u uuid; begin foreach u in array array['
+    run_id = h.uuid.uuid4().hex
+    sql = 'begin; do $$ declare u uuid; bal bigint; begin foreach u in array array['
     sql += ','.join("'%s'::uuid" % uid for uid in ids)
     sql += "] loop if not exists(select 1 from auth.users where id=u and is_anonymous) then raise exception 'NOT_TEST_ANON'; end if; "
     sql += "perform pg_advisory_xact_lock(hashtextextended('wallet:'||u::text,91)); "
-    sql += "perform public.credit_earned(u,'operator_adjustment',50000,null,'live-conflicts-20261009'); "
-    sql += 'end loop; end $$; commit;'
+    sql += "select balance into bal from public.wallet_accounts where user_id=u; "
+    sql += "if coalesce(bal,0) < 30000 then "
+    sql += "perform public.credit_earned(u,'operator_adjustment',50000,null,'live-topup-'||u::text||'-%s'); " % run_id
+    sql += 'end if; end loop; end $$; commit;'
     path = n.ROOT / 'build/live_conflict_bot_coin_setup.sql'
     path.write_text(sql, encoding='utf-8')
     cmd = ['npx.cmd' if os.name == 'nt' else 'npx', 'supabase', 'db', 'query', '--linked', '-f', str(path)]

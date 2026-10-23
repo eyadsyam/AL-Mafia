@@ -1,0 +1,42 @@
+TASK: the live test's realtime watcher gives up on a slow first connection
+
+Repo: Mafia Master (Flutter + Supabase). You will NOT commit. Other agents
+work in parallel on other files; change only the one file named below.
+
+<problem>
+supabase/tests/new_roles_tools_match.py, class Watch, method loop (around
+line 68-101) opens the socket with
+
+    websocket.create_connection(<url>, timeout=2)
+
+That one timeout is used both for the connect handshake (DNS + TLS +
+websocket upgrade) and afterwards for every recv(). In the last live run
+the FIRST match of the process (five watchers opening at once) failed
+with TimeoutError on every watcher: joined=False, events=0. The second
+match a minute later joined fine with 21-28 events each. A 2 s handshake
+is too short for a cold first connection; the 2 s recv timeout is wanted
+(the loop uses it to send heartbeats and notice stop()).
+</problem>
+
+<change>
+1. Connect with a 15 second timeout, then set the recv timeout back to
+   2 seconds on the connected socket (websocket-client: ws.settimeout(2)).
+2. If the connect itself fails with a timeout, retry the connect once
+   (same 15 s), so one slow handshake does not lose the whole watcher.
+   Any other exception is recorded exactly as today (self.problem =
+   type(e).__name__).
+3. Nothing else changes: same topic, same join payload, same tables,
+   same heartbeat, same record() at close. Do not loosen the
+   "realtime delivered to every bot" assertion.
+Keep the comment density of the surrounding code (one short comment line
+for the reason is enough).
+</change>
+
+<gates>
+  python -m py_compile supabase/tests/new_roles_tools_match.py
+Do not run the live suite.
+</gates>
+
+<report>
+The diff (it is small), and the gate output.
+</report>
