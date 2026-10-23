@@ -1,0 +1,56 @@
+TASK: edit the Google Play trailer for «سيد المافيا: Mafia Master» 1.4 from finished parts
+
+Repo: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21. You EDIT only: you do not
+generate or draw images or video, and you never alter app pixels. You will NOT commit and you will NOT
+upload anything anywhere.
+
+<inputs>
+- Five 5-second 1920x1080-ish shots made by Higgsfield, in order:
+  raw_assets/play-1.4/higgsfield/clip_s1.mp4 (cards on a table, one flips and shows a hooded figure)
+  clip_s2.mp4 (night alley, a hooded figure walks up close)
+  clip_s3.mp4 (dawn square, townsfolk gather, one place empty)
+  clip_s4.mp4 (two hooded figures face each other under a lamp)
+  clip_s5.mp4 (cards on a table, camera pulls back to the table and empty chairs in the square)
+- Real app screens rendered from the current app, 1080x1920: build/store_listing/07_tabletop_discussion_ar.png,
+  02_online_discussion_ar.png, 08_result_progress_ar.png.
+- The game's own music: assets/audio/score_loop.mp3.
+- Fonts: assets/fonts/Cairo-Variable.ttf (headlines, heaviest weight available), IBMPlexSansArabic-*.ttf.
+- ffmpeg is on PATH. Python with Pillow, arabic_reshaper and python-bidi is available (see
+  raw_assets/play-1.2/build_set.py for the ar() helper: Arabic must be reshaped and reordered before Pillow
+  draws it, zero letter spacing).
+</inputs>
+
+<edit>
+1920x1080, 30 fps, H.264 yuv420p, AAC audio, about 34 seconds:
+  0.0-5.0   clip_s1 ............ text «دورك سرّك»
+  5.0-8.0   real screen 07_tabletop_discussion inside a rounded phone frame centred on a dark background
+            taken from a blurred still of clip_s1, slow gentle zoom ... text «موبايل واحد يلمّ القعدة»
+  8.0-13.0  clip_s2 ............ text «بالليل كل واحد بيتحرك في السر»
+  13.0-16.0 real screen 02_online_discussion, same phone treatment ... text «أو العبوا أونلاين بالصوت»
+  16.0-21.0 clip_s3 ............ text «والصبح بيحكي اللي حصل»
+  21.0-26.0 clip_s4 ............ text «المواجهة»
+  26.0-29.0 real screen 08_result_progress, same phone treatment ... text «آخر الماتش كل الأدوار بتبان»
+  29.0-34.0 clip_s5 ............ end title «سيد المافيا» large, «Mafia Master» smaller under it,
+            then «العبها دلوقتي» small at the bottom; fade to black over the last 0.6 s.
+Cuts: 0.4 s crossfades between every pair. Text: render each line once with Pillow to a transparent PNG
+(Cairo, ivory #EFE9DC, a soft dark shadow for legibility), overlay with ffmpeg, fade in 0.3 s after the cut
+and out 0.3 s before it, placed in the lower third (the end title is centred in the upper half, where clip_s5
+keeps a calm sky). Music: score_loop.mp3 from 0, fade in 0.5 s, fade out over the last 1.5 s, peak about
+-14 LUFS. No other sound, no voice.
+Rules: no prices, coins, ratings or offers; the name «سيد المافيا: Mafia Master» is never altered; Arabic
+line height 1.6 if a line wraps.
+</edit>
+
+<outputs>
+raw_assets/play-1.4/trailer/mafia_master_trailer_1_4.mp4, plus a contact sheet trailer_contact.jpg (one
+frame from each segment, small) and the script you used (build_trailer.py) so it can be rebuilt.
+</outputs>
+
+<gates>
+ffprobe the output: report duration, resolution, fps, codecs. Pull one frame per segment into the contact
+sheet and confirm by looking that the Arabic reads correctly (joined letters, right-to-left).
+</gates>
+
+<report>
+Output path, the ffprobe line, the contact sheet path. No praise.
+</report>

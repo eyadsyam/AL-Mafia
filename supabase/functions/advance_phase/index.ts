@@ -22,6 +22,7 @@
  */
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { clearedFor, deadlineFor } from "../_shared/phases.ts";
+import { silencedSeatOf } from "../_shared/silence.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
 import { defaultProtectTargets, nightDefaultFor, previousProtectTarget } from "../_shared/night_rules.ts";
 import { deriveSeed, SeedSalt, tieBreakIndex } from "../_shared/seed.ts";
@@ -138,8 +139,12 @@ Deno.serve(handler(async (req, userId, db) => {
       .eq("round", round);
     if (castError) throw castError;
     const voted = new Set((cast ?? []).map((v) => v.voter_id));
+    // D11/X8: expiry writes abstentions for ELIGIBLE non-voters only. A silenced
+    // seat was refused its ballot (submit_vote WRONG_ROLE), so it gets no row.
+    const silencedSeat = silencedSeatOf(state?.public_data);
     for (const player of roster) {
       if (voted.has(player.user_id)) continue;
+      if (silencedSeat !== null && player.seat === silencedSeat) continue;
       const { error } = await db.from("votes").upsert({
         room_id: roomId,
         day: me.phaseNumber,

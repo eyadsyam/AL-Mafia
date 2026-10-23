@@ -1,0 +1,54 @@
+TASK: a silenced seat gets no default ballot when the vote clock runs out; two live-test fixes
+
+Repo: Mafia Master (Flutter + Supabase Edge Functions in TypeScript/Deno). You will NOT commit,
+deploy, or run any live suite (supabase/tests/*_match.py and run_live_suite.py talk to the
+production server; the orchestrator runs them). Touch only the files named here.
+
+<problem>
+1. supabase/functions/advance_phase/index.ts, the `me.phase === "vote"` branch (~line 124-156):
+   on expiry it upserts a null ballot (abstention) for every living player who has not voted,
+   using `roster` = living players. A silenced player (silencedSeatOf(public_data) from
+   ../_shared/silence.ts; submit_vote refuses his ballot with WRONG_ROLE and its early-close
+   check already leaves him out, see submit_vote/index.ts ~line 35-41 and ~145-154) still gets a
+   null row. Seen live: room R3HWF5 got a null row for the silenced seat 0.
+   Why it matters: doc 18 rows D11 and X8 say expiry writes abstentions for ELIGIBLE non-voters.
+   The offline engine writes nothing for a silenced seat. And _shared/ballot_core.ts counts null
+   ballots in `counted`, which feeds appealCounts, so the silenced seat's forced null joins the
+   appeal denominator, a seat that was never allowed to vote.
+2. supabase/tests/silence_floor_match.py:
+   a. confrontation_silence() (row D6): night two calls m.night(kill=target, silence=target,
+      protect=target), and the server refuses the Doctor with SAME_PROTECT (no protecting the
+      same seat on consecutive nights; that rule is correct). Night one goes through no_kill(m)
+      -> m.night(...): read new_roles_tools_match.py Match.night to see whom the Doctor protected
+      on night one, and make night one's protect a different seat from `target` (pass it
+      explicitly), so night two may protect `target`. Keep every D6 assertion.
+   b. rows(m) reads `votes` with the host's token while the phase is still `vote`. RLS (policy
+      votes_read) shows a member only their own ballot until the phase leaves `vote` (or the
+      room has open voting), so the D11-expiry and X8 checks saw one row and failed although
+      the server wrote the exact rows. In silenced_ballot(early=False) and abstain_disabled(),
+      take the `written = rows(m)` snapshot AFTER the `resolve_vote` call (the phase is then
+      `verdict`), keeping the expected sets and every assertion as they are.
+</problem>
+
+<change>
+1. advance_phase vote branch: read the silenced seat from the `state` it already loads
+   (silencedSeatOf(state?.public_data)) and skip that seat when writing defaults. Nothing else
+   in the function changes: same round logic, same ignoreDuplicates upsert, same
+   PHASE_CLOSED handling, same response. One short comment citing D11/X8.
+2. A unit test that does not need the network, if a suitable harness exists. Look at
+   supabase/tests/*.test.mjs for how advance_phase or vote expiry is already tested; if one
+   covers the abstention writer, add the silenced case there. If none does, say so; do not
+   build a large new harness.
+3. The two test fixes in 2a and 2b above.
+</change>
+
+<gates>
+  cmd /c "deno check supabase/functions/advance_phase/index.ts"
+  node --test supabase/tests/*.test.mjs        (report pass/fail/skip totals)
+  python -m py_compile supabase/tests/silence_floor_match.py
+</gates>
+
+<report>
+The diffs (small), the gate lines, and which unit test (if any) now covers the silenced seat.
+No praise, no pasting whole files.
+</report>

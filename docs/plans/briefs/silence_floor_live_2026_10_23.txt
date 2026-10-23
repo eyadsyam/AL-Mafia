@@ -1,0 +1,87 @@
+TASK: one live Python test for silence, ballot expiry and floor tools
+(rows D6, D11, X8, D29, T6, D33, T4)
+
+You are working in a Flutter + Supabase repo (Mafia Master). You will NOT
+commit; the orchestrator reviews, runs it against the hosted server and
+commits. You CANNOT and must NOT run the live suite: write the file and
+compile it only. Other agents work in parallel on other files; touch only
+the one file below.
+
+<goal>
+New file: supabase/tests/silence_floor_match.py. It proves these rows of
+docs/specs/18-scenario-matrix.md (read each row first):
+
+- D6 (line ~88): a silenced player who is confronted cannot speak or claim
+  the floor, but the confrontation clock still closes and the server records
+  the silence (confrontationSilent, then the phase moves to discuss). No
+  stuck phase.
+- D11 (line ~93): a silenced voter cannot cast a ballot; the ballot can be
+  resolved as soon as every ELIGIBLE living voter has voted, without the
+  silenced one; at ballot expiry defaults are written only for eligible
+  voters.
+- X8 (line ~206): ballot expiry with abstaining DISABLED in the room
+  settings (flag abstainAllowed, see supabase/tests/remaining_conflicts_match.py)
+  - assert the exact rows written for non-voters (read
+  supabase/functions/advance_phase/index.ts: today it writes target null
+  for every living non-voter) and that the ballot then resolves legally
+  (no forced vote for a seat nobody chose). Assert what the code does and
+  note in your report whether that matches the row.
+- D29 / T6 (lines ~111, ~151): last_word bought and used in the vote window
+  by a seat that is then eliminated: that seat's chosen target is the first
+  speaker the next day. If the buyer survives, or nobody is eliminated, it
+  has no effect.
+- D33 / T4 (lines ~115, ~149): spotlight (discuss window) and last_word
+  targets must be living and not the buyer at use time (refused
+  otherwise); if the target is kicked by the host between the use and the
+  floor, the server never forces a dead or removed seat to speak. Record
+  what happens to the charge then (spent or kept), and assert the
+  behaviour the server code intends (read where toolUse lives in
+  supabase/functions/economy and the floor functions claim_floor /
+  release_floor).
+</goal>
+
+<how>
+Reuse the harness; do not write a new one.
+- supabase/tests/new_roles_tools_match.py: Match (start, reveal, night,
+  discuss, vote, finish_town, close, role, alive, state, call, players,
+  watches), record / accepted / refused, eco. It already drives the
+  Silencer, spotlight, the floor and timer expiry (grep it for 'silenc',
+  'spotlight', 'expired', 'last_word', 'advance_phase') - copy those
+  patterns, including how it waits for a deadline.
+- supabase/tests/confront_expiry_match.py, timer_expiry_match.py:
+  confrontation and phase expiry.
+- supabase/tests/remaining_conflicts_match.py: fund() for coins, buy() /
+  use() helpers, and main() with one try/except per scenario so one
+  failure does not hide the rest. Copy that main() shape.
+- supabase/tests/move_negatives_match.py: a short recent example of layout
+  and style (docstring naming the rows; main() sets h._POOL_TAKEN[0] = 0
+  and n.BOTS = [h.anon_session('LiveBot%d' % i) for i in range(N)], N <= 12).
+- One small match per scenario, each ending with m.close().
+- Keep phase timers as short as the room settings allow so the file runs
+  well under 20 minutes.
+- It will be run as: python supabase/tests/run_live_suite.py --only=silence_floor_match
+  (no runner change needed).
+</how>
+
+<rules>
+- Bot-owned rooms only; every call is a bot's own request.
+- Never print, log or write credentials or tokens. record() details may
+  hold seat numbers, phase names and error codes only.
+- Do not change server code, migrations, app code or other test files. If
+  you believe the server behaves wrongly, write the assertion for the
+  correct behaviour (per the row and the docs/specs/17-*.md rule it cites)
+  and report it.
+- Never assert as public anything that would let a player infer a role.
+- Short, plain comments matching move_negatives_match.py.
+</rules>
+
+<gates>
+  python -m py_compile supabase/tests/silence_floor_match.py
+</gates>
+
+<report>
+1. Scenarios (one line each) -> rows.
+2. Intended behaviour found in server code for each, with file:line.
+3. Expected run time.
+4. Not covered and why; suspected server defects with evidence.
+</report>

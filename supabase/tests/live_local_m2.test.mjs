@@ -162,6 +162,43 @@ test('M2-22: Silencer may name self and teammate; surviving victim loses ballot 
   } finally { await t.close(); }
 });
 
+test('M2-22b (D11/X8): vote expiry writes abstentions for eligible non-voters only, never for the silenced seat, seat zero included', async () => {
+  const t=await table(7,{allAccess:true,settings:{silencerEnabled:true},roles:{mafia:1,silencer:1,doctor:1,detective:1,citizen:3}});
+  try {
+    // Seat zero is the silenced seat: the falsy seat is the one a careless `if (silencedSeat)` would skip the check for.
+    const dealt=await t.roster(), host=dealt[0], swap=dealt.find(p=>p.role==='citizen');
+    if(host.role!=='citizen') {
+      await t.h.sql('update room_players set role=$3 where room_id=$1 and user_id=$2',[t.roomId,host.user_id,swap.role]);
+      await t.h.sql('update room_players set role=$3 where room_id=$1 and user_id=$2',[t.roomId,swap.user_id,host.role]);
+    }
+    await night(t);
+    const r=await t.roster(), silencer=r.find(p=>p.role==='silencer'), mafia=r.find(p=>p.role==='mafia'), citizen=r[0];
+    assert.equal(citizen.role,'citizen');
+    assert.equal((await t.h.call('submit_night_action',asUser(silencer),{roomId:t.roomId,action:'silence',targetSeat:citizen.seat})).status,200);
+    assert.equal((await t.h.call('submit_night_action',asUser(mafia),{roomId:t.roomId,action:'skip'})).status,200);
+    const morning=await t.h.call('resolve_night','u0',{roomId:t.roomId});
+    assert.equal(morning.status,200,JSON.stringify(morning.json));
+    assert.equal(morning.json.silencedSeat,0);
+    await phase(t,'vote');
+    const voter=r.find(p=>p.seat!==citizen.seat && p.seat!==mafia.seat), chosen=mafia;
+    assert.equal((await t.h.call('submit_vote',asUser(voter),{roomId:t.roomId,targetSeat:chosen.seat})).status,200);
+    await expire(t);
+    const closed=await t.h.call('advance_phase','u1',{roomId:t.roomId});
+    assert.equal(closed.status,200,JSON.stringify(closed.json));
+    assert.equal(closed.json.applied,'abstentions');
+    const rows=(await t.h.sql('select voter_id,target_id from votes where room_id=$1 and day=1 and round=1',[t.roomId])).rows;
+    const byVoter=new Map(rows.map(x=>[x.voter_id,x.target_id]));
+    assert.equal(byVoter.has(citizen.user_id),false,'the silenced seat gets no row');
+    const expected=r.filter(p=>p.alive && p.seat!==citizen.seat && p.user_id!==voter.user_id).map(p=>p.user_id).sort();
+    assert.deepEqual([...byVoter].filter(([,target])=>target===null).map(([id])=>id).sort(),expected);
+    assert.equal(byVoter.get(voter.user_id),chosen.user_id,'a ballot already cast is left standing');
+    assert.equal(byVoter.size,expected.length+1);
+    // A second driver changes nothing.
+    assert.equal((await t.h.call('advance_phase','u2',{roomId:t.roomId})).status,200);
+    assert.equal((await t.h.sql('select count(*)::int as n from votes where room_id=$1',[t.roomId])).rows[0].n,rows.length);
+  } finally { await t.close(); }
+});
+
 test('M2-24 and M2-30: dead silence target refused; dying target has no mark; no Silencer bullet', async () => {
   const t=await table(7,{allAccess:true,settings:{silencerEnabled:true},roles:{mafia:1,silencer:1,doctor:1,detective:1,citizen:3}});
   try {
