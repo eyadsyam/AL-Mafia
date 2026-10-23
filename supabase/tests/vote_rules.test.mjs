@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { abstentionRefused, ballotVerdict } from '../functions/_shared/vote_rules.ts';
+import { abstentionRefused, ballotVerdict, boughtRevoteCausedSecondRound } from '../functions/_shared/vote_rules.ts';
 import { lastWordOf, revoteRequested } from '../functions/_shared/tools.ts';
 import { refusalOf } from '../functions/_shared/economy_actions.ts';
 
@@ -63,6 +63,20 @@ test('ballot: the bought revote the verdict reads is the tool\'s own helper', ()
   assert.equal(revoteRequested(uses, 3), false);
   assert.equal(verdict({ topSeats: 2, revoteBought: revoteRequested(uses, 2) }), 'revote');
   assert.equal(verdict({ topSeats: 2, revoteBought: revoteRequested(uses, 3) }), 'stand');
+});
+
+test('refund: only a purchased revote that alone opens round two earns its charge', () => {
+  const caused = over => boughtRevoteCausedSecondRound({
+    round: 1, topSeats: 1, dayTieRule: 'noElimination',
+    revoteBought: true, narrowedCandidates: 2, ...over,
+  });
+  assert.equal(caused({}), true, 'clear winner with two candidates');
+  assert.equal(caused({ topSeats: 2 }), true, 'bought revote overrides a standing tie');
+  assert.equal(caused({ narrowedCandidates: 1 }), false, 'one voted seat');
+  assert.equal(caused({ topSeats: 0, narrowedCandidates: 0 }), false, 'no votes');
+  assert.equal(caused({ topSeats: 2, dayTieRule: 'revote' }), false, 'room rule already reopens');
+  assert.equal(caused({ revoteBought: false }), false, 'nothing was bought');
+  assert.equal(caused({ round: 2 }), false, 'later round');
 });
 
 // ── RL15: the last word of the player voted out ───────────────────────────

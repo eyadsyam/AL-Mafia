@@ -45,3 +45,12 @@ export function ballotVerdict(input: {
       (narrowedCandidates === undefined || narrowedCandidates >= 2) ? "revote" : "eliminate";
   return firstRound && (dayTieRule === "revote" || revoteBought) ? "revote" : "stand";
 }
+
+/** A purchased revote earns its charge only when it alone opens round two. */
+export function boughtRevoteCausedSecondRound(
+  input: Parameters<typeof ballotVerdict>[0],
+): boolean {
+  return input.round === 1 && input.revoteBought &&
+    ballotVerdict(input) === "revote" &&
+    ballotVerdict({ ...input, revoteBought: false }) !== "revote";
+}

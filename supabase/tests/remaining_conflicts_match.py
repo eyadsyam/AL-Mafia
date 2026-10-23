@@ -31,6 +31,11 @@ def use(m, p, code, targets=None, note=None):
                                                      targets=targets or [], note=note))
 
 
+def charges(p, code):
+    tools = n.accepted('read charges ' + code, n.eco(p, 'toolsGet')).get('tools', [])
+    return next((t.get('charges') for t in tools if t.get('code') == code), None)
+
+
 def buy(p, code):
     key = h.aid()
     before = n.accepted('conflict buy ' + code, n.eco(p, 'toolBuy', tool=code, pack=3, requestId=key))
@@ -54,6 +59,7 @@ def played_match():
     use(m, speaker, 'extra_minute')
     use(m, speaker, 'lock_door')
     use(m, shielded, 'vote_shield')
+    kept = charges(mafia, 'revote')
     use(m, mafia, 'revote')
     use(m, accused, 'appeal')
     n.accepted('conflict floor bonus claim', m.call('claim_floor', speaker))
@@ -76,6 +82,9 @@ def played_match():
     state = m.state()
     n.record('revote forced second ballot', state['phase'] == 'vote' and
              (state['public_data'].get('revote') or {}).get('round') == 2)
+    # It did open the second round, so the charge stays spent.
+    n.record('a revote that worked keeps its charge spent',
+             kept is not None and charges(mafia, 'revote') == kept - 1)
     # Two votes to confirm, two abstain; the appellant's own vote is excluded.
     voters = [p for p in m.alive() if p != accused]
     for i, p in enumerate(voters):
@@ -104,9 +113,16 @@ def played_match():
 def tied_match():
     m = n.Match('natural_tie', dict(mafia=1, doctor=1, citizen=3),
                 flags={'dayTieRule': 'revote'}, realtime=True)
-    m.start(); m.reveal(); m.night(); m.discuss()
+    m.start()
     mafia = m.role('mafia')
     decoy = m.role('citizen')
+    # A revote bought on a ballot the room's own rule sends to a second round
+    # anyway changes nothing, so its charge comes back.
+    buyer = next(p for p in m.players if p['role'] == 'citizen' and p != decoy)
+    buy(buyer, 'revote')
+    m.reveal(); m.night(); m.discuss()
+    kept = charges(buyer, 'revote')
+    use(m, buyer, 'revote')
     n.accepted('natural tie ballot opens', m.call('open_phase', phase='vote'))
     voters = m.alive()
     # 2-2-1 abstention. A voter cannot vote for themselves.
@@ -127,6 +143,8 @@ def tied_match():
     tied = (state['public_data'].get('revote') or {}).get('tiedSeats', [])
     n.record('natural tie opens two-candidate revote', state['phase'] == 'vote' and
              set(tied) == {mafia['seat'], decoy['seat']})
+    n.record('a revote the tie rule made pointless is refunded',
+             kept is not None and charges(buyer, 'revote') == kept)
     for p in voters:
         target = mafia['seat'] if p != mafia else decoy['seat']
         n.accepted('tie second ballot ' + str(p['seat']), m.call('submit_vote', p,
@@ -136,12 +154,31 @@ def tied_match():
     m.finish_town(); m.close()
 
 
+def unanimous_match():
+    m = n.Match('unanimous_revote', dict(mafia=1, doctor=1, citizen=3),
+                flags={'abstainAllowed': True}, realtime=False)
+    m.start()
+    mafia = m.role('mafia')
+    buyer = next(p for p in m.players if p['role'] == 'citizen')
+    buy(buyer, 'revote')
+    m.reveal(); m.night(); m.discuss()
+    kept = charges(buyer, 'revote')
+    use(m, buyer, 'revote')
+    # One candidate only: nothing to narrow to, the Mafioso goes in round one.
+    verdict = m.vote(mafia['seat'])
+    n.record('a unanimous ballot ignores a bought revote',
+             verdict.get('eliminatedSeat') == mafia['seat'], verdict.get('error'))
+    n.record('the unused revote charge comes back',
+             kept is not None and charges(buyer, 'revote') == kept)
+    m.finish_town(); m.close()
+
+
 def main():
     h._POOL_TAKEN[0] = 0
     n.BOTS = [h.anon_session('ConflictBot%d' % i) for i in range(5)]
     if not fund(n.BOTS):
         return
-    scenarios = [('interactions_retry', played_match)] if os.environ.get('LIVE_ONLY_INTERACTION') == '1' else [('interactions', played_match), ('natural_tie', tied_match)]
+    scenarios = [('interactions_retry', played_match)] if os.environ.get('LIVE_ONLY_INTERACTION') == '1' else [('interactions', played_match), ('natural_tie', tied_match), ('unanimous_revote', unanimous_match)]
     for label, scenario in scenarios:
         try:
             scenario()

@@ -438,7 +438,11 @@ def tools_match():
     target = m.role('mafia')['seat']
     # No grave ballot any more: a dead seat has no vote.
     refused('dead seat has no ballot', m.call('submit_vote', victim, targetSeat=target, round=1, actionId=h.aid()), ['NOT_ALIVE'])
-    verdict = m.vote(target)
+    # The accused votes elsewhere: a bought revote needs a second candidate to
+    # narrow to, or the clear winner goes (RL13) and the charge comes back.
+    other = next(p['seat'] for p in m.alive() if p['seat'] != target)
+    verdict = m.vote(target, ballots={p['seat']: (target if p['seat'] != target else other)
+                                      for p in m.alive()})
     record('revote tool with vote shield', verdict.get('revote') is True or m.state()['phase'] == 'vote')
     if m.state()['phase'] == 'vote':
         state = m.state()['public_data'].get('revote') or {}

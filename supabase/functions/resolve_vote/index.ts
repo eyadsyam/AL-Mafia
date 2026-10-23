@@ -11,7 +11,7 @@ import { deadlineFor } from "../_shared/phases.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
 import { voteFingerprint } from "../_shared/vote_fingerprint.ts";
 import { ballotTargetAllowed } from "../_shared/ballot_candidates.ts";
-import { ballotVerdict } from "../_shared/vote_rules.ts";
+import { ballotVerdict, boughtRevoteCausedSecondRound } from "../_shared/vote_rules.ts";
 import {
   appealCounts,
   appealed,
@@ -42,6 +42,16 @@ Deno.serve(handler(async (req, userId, db) => {
   }
 
   const day = me.phaseNumber;
+  const refundUnusedRevote = async () => {
+    try {
+      const { error } = await db.rpc("refund_unused_table_tool", {
+        p_room: roomId, p_tool: "revote", p_phase_number: day,
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error("revote refund failed after resolution commit", error);
+    }
+  };
 
   // A refused commit is one of two things: the ballot already closed (or a
   // revote opened a new round, which is the same thing for this caller), or a
@@ -134,6 +144,8 @@ Deno.serve(handler(async (req, userId, db) => {
     let eliminatedId: string | null = null;
     let tiedSeats: number[] = [];
     let revote = false;
+    const revoteBought = round === 1 && revoteRequested(toolUses, day);
+    let boughtRevoteWorked = false;
 
     if (tally.size > 0 && decidedOutcome !== "mafia" && decidedOutcome !== "town") {
       const top = Math.max(...tally.values());
@@ -146,13 +158,15 @@ Deno.serve(handler(async (req, userId, db) => {
       // second chance. A bought `revote` (RL13) reopens the ballot in round 1
       // whether it was won clearly or tied, even under «محدش يخرج»; round 2
       // never re-triggers it.
-      const verdict = ballotVerdict({
+      const ballot = {
         round,
         topSeats: tied.length,
         dayTieRule: me.settings.dayTieRule ?? "noElimination",
-        revoteBought: revoteRequested(toolUses, day),
+        revoteBought,
         narrowedCandidates: tally.size,
-      });
+      };
+      const verdict = ballotVerdict(ballot);
+      boughtRevoteWorked = boughtRevoteCausedSecondRound(ballot);
       if (verdict === "eliminate") {
         eliminatedId = tied[0];
       } else if (verdict === "revote") {
@@ -187,7 +201,10 @@ Deno.serve(handler(async (req, userId, db) => {
         p_fingerprint: fingerprint,
       });
       if (error) throw error;
-      if (committed) return ok({ tie: true, tiedSeats, round: round + 1 });
+      if (committed) {
+        if (revoteBought && !boughtRevoteWorked) await refundUnusedRevote();
+        return ok({ tie: true, tiedSeats, round: round + 1 });
+      }
       if (!(await stillOpen(round))) return fail("PHASE_CLOSED", "ballot already resolved");
       continue;
     }
@@ -251,6 +268,7 @@ Deno.serve(handler(async (req, userId, db) => {
 
     if (error) throw error;
     if (committed) {
+      if (revoteBought && !boughtRevoteWorked) await refundUnusedRevote();
       return ok({
         eliminatedSeat,
         eliminatedRole,

@@ -93,10 +93,44 @@ test('M1-57: bought double vote combines with revealed Elder in both ballot roun
     assert.equal(first.status,200,JSON.stringify(first.json));
     assert.equal((await t.h.sql('select public_data from room_state where room_id=$1',[t.roomId])).rows[0].public_data.lastVote.tally[target.seat],6);
     assert.equal(first.json.round,2);
+    assert.equal(await chargesOf(t,elder,'revote'),0,'effective revote stays spent');
+    assert.equal((await useRows(t,elder,'revote')).length,1,'effective use remains');
     assert.equal((await t.h.call('submit_vote','u0',{roomId:t.roomId,targetSeat:target.seat,round:2})).status,200);
     const second=await t.h.call('resolve_vote','u0',{roomId:t.roomId});
     assert.equal(second.status,200,JSON.stringify(second.json));
     assert.equal(second.json.tally[target.seat],6);
+  } finally { await t.close(); }
+});
+
+test('bought revote with one voted seat refunds after round-one resolution', async () => {
+  const t=await table();
+  try {
+    const r=await t.roster();
+    await phase(t,'vote',1);
+    await buy(t,r[1],'revote');
+    assert.equal((await vote(t,r[0],r[2].seat)).status,200);
+    const result=await t.h.call('resolve_vote','u0',{roomId:t.roomId});
+    assert.equal(result.status,200,JSON.stringify(result.json));
+    assert.equal(result.json.eliminatedSeat,r[2].seat);
+    assert.equal(await chargesOf(t,r[1],'revote'),1);
+    assert.equal((await useRows(t,r[1],'revote')).length,0);
+    assert.equal((await roomState(t)).public_data.toolLog.some(x=>x.tool==='revote'),true);
+  } finally { await t.close(); }
+});
+
+test('bought revote refunds when the room tie rule already opens round two', async () => {
+  const t=await table(7,{settings:{dayTieRule:'revote'}});
+  try {
+    const r=await t.roster();
+    await phase(t,'vote',1);
+    await buy(t,r[1],'revote');
+    assert.equal((await vote(t,r[0],r[2].seat)).status,200);
+    assert.equal((await vote(t,r[1],r[3].seat)).status,200);
+    const result=await t.h.call('resolve_vote','u0',{roomId:t.roomId});
+    assert.equal(result.status,200,JSON.stringify(result.json));
+    assert.equal(result.json.round,2);
+    assert.equal(await chargesOf(t,r[1],'revote'),1);
+    assert.equal((await useRows(t,r[1],'revote')).length,0);
   } finally { await t.close(); }
 });
 
