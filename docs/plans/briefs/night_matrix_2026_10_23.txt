@@ -1,0 +1,35 @@
+ROLE
+You are writing tests for Mafia Master (Arabic social-deduction game; one pure Dart engine in lib/engine used offline, and a TypeScript night core on the server). The owner wants every case between players and roles proved. This task covers THE NIGHT, exhaustively, in both engines. You will NOT commit or deploy; the orchestrator reviews and lands it.
+
+SCOPE — you may change
+- tool/night_matrix.dart (new generator), supabase/tests/night_matrix.json (generated), supabase/tests/night_matrix.test.mjs (new), test/engine/night_matrix_test.dart (new).
+- Do NOT change lib/** or supabase/functions/** . If a test exposes a real disagreement between the engines or a rule violation, do not fix the code: record it (see REPORT) and mark that case with `knownDivergence: "<D-number or short reason>"` in the JSON so the tests keep passing while the defect is visible.
+
+WHAT EXISTS (read it first)
+- tool/night_vectors.dart builds 16 hand-picked night scenarios from real MatchEngine resolutions into supabase/tests/night_vectors.json; supabase/tests/night_vectors.test.mjs replays them through resolveNightCore (supabase/functions/_shared/night_core.ts) and requires the same deaths / saved seat / saveTold / silenced seat. Read both: reuse their helpers (start, actionRow, how a Silencer's inherited kill and bullets are mapped) rather than inventing new mappings.
+- Rules: docs/specs/17-roles-and-tools.md (roles, bullets, Silencer, Sniper, Elder, lock_door/half_door effects, D-numbered known divergences — D17: tie-breaks use different RNGs on purpose, so a tied Mafia vote or tied protect may legitimately pick different seats in the two engines), docs/specs/11-edge-cases-and-tests.md (N* cases).
+
+WHAT TO BUILD
+1. tool/night_matrix.dart: a deterministic generator (`dart run tool/night_matrix.dart`) that ENUMERATES night scenarios as a cartesian product over these axes (prune only impossible combinations; aim for several hundred cases, every axis value appearing with every other at least once — pairwise coverage minimum, full product where it stays under ~1500 cases):
+   - table: 5, 7, 9, 12 seats with the standard Mafia counts the app deals (read the deal rule in the engine), with and without Silencer, Sniper, Elder, Detective;
+   - Mafia votes: unanimous on each target kind (citizen, doctor, detective, elder, sniper, silencer-not-allowed), split 1-1, split 1-1-1, one Mafioso skips, all skip (quiet night when the bullet is available / spent / disabled);
+   - Doctor: protects the victim, protects someone else, protects self (first time / second time), protects the same seat as last night (must be refused — assert the refusal path, do not resolve it), skips;
+   - Silencer: silences a town seat, the victim, a seat the Sniper kills, nobody; inherits the kill when no Mafioso is alive;
+   - Sniper: shoots a Mafioso, a Silencer, a town seat, the protected victim, nobody, with the bullet spent;
+   - Detective: investigates each role (record the result it reveals);
+   - tools that change the night if the engine models them offline (lock_door, half_door — check doc 17 for which side implements them; if offline does not, generate them only for the TS side with the rule as oracle);
+   - second night (state carried: bullet spent, last protect) for the cases where history matters.
+   For each case write the input exactly as night_vectors.json does, plus `expected` from the REAL Dart MatchEngine, plus `tiedSeats` when the Mafia (or protect) choice was a tie.
+2. supabase/tests/night_matrix.test.mjs: replays every case through resolveNightCore. Non-tie cases: identical deaths / saved / saveTold / silenced. Tie cases: the TS victim is one of `tiedSeats` and every other field is consistent with that pick (recompute the expected outcome for the TS pick with the same rules). Cases marked knownDivergence are reported with test.skip and their reason, never silently passed.
+3. test/engine/night_matrix_test.dart: the same cases against an independent RULE ORACLE written in the test from doc 17 (not by calling the resolver): e.g. a Mafia-team seat never dies to the Mafia kill; a protected victim lives and saveTold follows the settings; a locked seat is untouchable; a Sniper hit kills the Mafia-team target only, a miss kills target and Sniper; quiet night kills nobody; a silenced seat that dies is not reported silenced; deaths are sorted by seat; nobody already dead dies again. Assert the engine's outcome equals the oracle's for every case (ties: oracle gives the set).
+   Run it with: flutter test --no-pub test/engine/night_matrix_test.dart
+
+GATES (run all; report the real result lines)
+- dart run tool/night_matrix.dart (twice: the second run must leave the JSON byte-identical — determinism)
+- dart run tool/night_vectors.dart must leave supabase/tests/night_vectors.json unchanged (git diff --stat on it must be empty)
+- node --test supabase/tests/night_matrix.test.mjs supabase/tests/night_vectors.test.mjs
+- flutter test --no-pub test/engine/
+- node --test supabase/tests/*.test.mjs (currently 213/213)
+
+REPORT CONTRACT
+Counts: cases generated, per axis; passed / tie-consistent / knownDivergence. Then a table of every disagreement or rule violation found: case name | Dart outcome | TS outcome | oracle | which is wrong in your judgement and why (doc reference). No praise, no pasting files.
