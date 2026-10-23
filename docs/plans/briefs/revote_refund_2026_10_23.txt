@@ -1,0 +1,33 @@
+ROLE
+You are implementing one bounded server change in the Mafia Master repository (Flutter game, Supabase backend). You will NOT commit, push or deploy; the orchestrator reviews and lands it.
+
+SCOPE
+- ADD exactly one migration: supabase/migrations/20261023000300_revote_refund.sql . Never edit an existing migration.
+- Edit supabase/functions/resolve_vote/index.ts and, if useful, supabase/functions/_shared/vote_rules.ts.
+- Add tests under supabase/tests/.
+- Touch nothing outside supabase/.
+
+BACKGROUND
+«إعادة التصويت» (`revote`) is a paid table tool. A player spends a charge with the `economy` function action `toolUse` (SQL: the newest public.use_table_tool — find it with grep, the last definition in filename order is live). Spending decrements public.player_tool_charges.charges unless public.has_all_access(user) is true, then inserts a public.room_tool_uses row (tool_code 'revote', phase_number = the day). resolve_vote reads it with revoteRequested(toolUses, day) (supabase/functions/_shared/tools.ts) and ballotVerdict (supabase/functions/_shared/vote_rules.ts). Since today, a bought revote over a clear winner opens round 2 only when at least two seats drew votes (`narrowedCandidates`).
+The owner's rule: an item a player paid for must really work. Today the charge is simply lost whenever the bought revote changes nothing.
+
+WANTED
+When resolve_vote resolves ROUND 1 of a day and a revote was bought for that day, but the bought tool did not cause a second round, give every such charge back:
+- "Did not cause a second round" = the verdict computed WITH the tool is not "revote", OR the verdict computed WITHOUT the tool (revoteBought:false) would already have been "revote" (a tie under dayTieRule "revote" reopens the ballot on its own). This covers: one clear winner with fewer than two seats that drew votes; nobody drew a vote; the tie that the room rule already reopens; a match already decided by a removal (outcome held — see the decidedOutcome branch).
+- The refund happens only after the resolution commit succeeded (commit_resolution returned true), through ONE new SQL function, e.g. public.refund_unused_table_tool(p_room uuid, p_tool text, p_phase_number int) returns int (how many refunded): security definer, `set search_path=public,pg_temp`, service_role only (revoke from public, anon, authenticated). It must be idempotent and race-safe: delete the matching room_tool_uses rows (so the tool's per-match and per-phase limits free up again and revoteRequested no longer sees it) with `delete ... returning user_id`, and for each returned user who is NOT has_all_access, add one charge back to player_tool_charges (insert ... on conflict (user_id, tool_code) do update set charges = charges + 1). A second call finds no rows and refunds nothing. Check whether anything else reads room_tool_uses for revote (tool feed, history, vote_fingerprint SQL, tests) and make sure deleting the row breaks none of them; if deleting is unsafe somewhere, add a `refunded_at timestamptz` column instead and make every reader ignore refunded rows — explain which you chose and why.
+- A refund failure must not fail the resolution the room already committed: catch it, log it with console.error, and still answer ok.
+- Never refund in round 2 or later.
+- Keep doc 05 in mind: nothing in the public answer or public_data may reveal who bought the tool beyond what the table already sees today.
+
+TESTS
+- Unit-test the "did the bought tool cause the second round" decision in supabase/tests/vote_rules.test.mjs (export a small pure helper from vote_rules.ts).
+- SQL test supabase/tests/revote_refund.sql: a revote use row and a decremented charge -> refund returns 1, the charge is back, the row is gone, a second call returns 0; an all-access user gets no extra charge.
+- If supabase/tests/live_local_m1.test.mjs or another local edge test already drives a bought revote, extend it (they skip without a local stack; keep them syntactically valid).
+
+GATES (run all; report the real result lines)
+1. node tool/test_sql_without_docker.mjs   (currently 99/99)
+2. node --test supabase/tests/*.test.mjs   (currently 210/210)
+3. node supabase/tests/run_golden_vectors_node.mjs
+
+REPORT CONTRACT
+Per change: file:line and behaviour; delete vs refunded_at and why; tests and gate result lines; anything assumed or not done. Do not paste whole files.

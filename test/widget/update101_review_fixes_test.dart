@@ -331,4 +331,49 @@ void main() {
       expect(find.text(arStrings.adRewardAction(100)), findsOneWidget);
     });
   });
+
+  group('the match reward the ad multiplies', () {
+    Map<String, dynamic> steps({required bool synced}) => {
+      'scheme': 'steps',
+      'base': synced ? 25 : 100,
+      'synced': synced,
+      'steps': [
+        {'step': 1, 'amount': synced ? 25 : 100, 'state': 'available'},
+        {'step': 2, 'amount': synced ? 25 : 100, 'state': 'available'},
+      ],
+    };
+
+    testWidgets('not credited yet: credited first, then offered at its size', (
+      tester,
+    ) async {
+      var synced = false;
+      backend.responders['economy'] = (body) => switch (body['action']) {
+        'capabilities' => caps(),
+        'sync' => () {
+          synced = true;
+          return const <String, dynamic>{'ok': true};
+        }(),
+        'ad_steps_status_v2' => steps(synced: synced),
+        _ => const <String, dynamic>{'ok': true},
+      };
+      await pump(tester, const RewardedRewardButton(roomId: 'room-1'));
+      expect(find.byKey(RewardedRewardButton.stepKey(1)), findsOneWidget);
+      expect(find.textContaining('100'), findsNothing);
+    });
+
+    testWidgets('a match that earned nothing offers nothing', (tester) async {
+      backend.responders['economy'] = (body) => switch (body['action']) {
+        'capabilities' => caps(),
+        'ad_steps_status_v2' => steps(synced: false),
+        _ => const <String, dynamic>{'ok': true},
+      };
+      await pump(tester, const RewardedRewardButton(roomId: 'room-1'));
+      expect(
+        backend.calls.where((c) => c.body['action'] == 'sync'),
+        hasLength(1),
+      );
+      expect(find.byKey(RewardedRewardButton.stepKey(1)), findsNothing);
+      expect(find.byKey(RewardedRewardButton.actionKey), findsNothing);
+    });
+  });
 }

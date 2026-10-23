@@ -543,6 +543,34 @@ void main() {
     },
   );
 
+  testWidgets('a guest with something to lose is asked before switching', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    // The native picker's refusal for a guest who holds coins or items.
+    auth = _FakeAuth()..failWith = 'EMAIL_TAKEN';
+    await tester.binding.setSurfaceSize(const Size(360, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          accountAuthProvider.overrideWithValue(auth),
+          accountProfileProvider.overrideWith(
+            (ref) => Stream.value(AccountProfile.guest),
+          ),
+        ],
+        child: localizedApp(const Scaffold(body: AccountSheet())),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(AccountSheet.googleKey));
+    await tester.tap(find.byKey(AccountSheet.googleKey));
+    await tester.pumpAndSettle();
+    expect(auth.calls, ['google']);
+    expect(find.text(arStrings.authGoogleTaken), findsOneWidget);
+    expect(find.byKey(AccountSheet.googleExistingKey), findsOneWidget);
+  });
+
   test('passwords shorter than eight are refused before any request', () {
     expect(
       () => AccountAuth.checkPassword('short'),

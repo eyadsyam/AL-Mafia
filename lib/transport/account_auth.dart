@@ -35,12 +35,31 @@ class AccountAuth {
   /// The native account picker; null where only the browser flow exists.
   final NativeGoogle? _native;
 
+  /// Whether the guest on this device has something to lose — coins, a bought
+  /// role or look. Null where nobody can say (then the guest has nothing).
+  final Future<bool> Function()? _guestStake;
+
   AccountAuth(
     this._auth, {
     required Future<void> Function() ensureSession,
     NativeGoogle? native,
+    Future<bool> Function()? guestStake,
   }) : _ensureSession = ensureSession,
-       _native = native;
+       _native = native,
+       _guestStake = guestStake;
+
+  /// A guest who would leave coins or items behind by becoming another
+  /// account is asked first. An unanswerable question counts as a yes: the
+  /// price of asking is one tap, the price of not asking is their coins.
+  Future<bool> _guestWouldLoseSomething() async {
+    final stake = _guestStake;
+    if (stake == null) return false;
+    try {
+      return await stake();
+    } catch (_) {
+      return true;
+    }
+  }
 
   /// The native picker first (a bottom sheet, no browser, no redirect). `true`
   /// when it finished — signed in or linked — or the player backed out; `false`
@@ -69,8 +88,12 @@ class AccountAuth {
         return true;
       } on AuthException catch (error) {
         // That Google account is already a player: the player meant that
-        // account, so the same picker answer signs in to it.
+        // account, so the same picker answer signs in to it — unless this
+        // guest would leave coins or items behind, who chooses first.
         if (codeFor(error) != 'EMAIL_TAKEN') rethrow;
+        if (await _guestWouldLoseSomething()) {
+          throw const AccountFailure('EMAIL_TAKEN');
+        }
       }
     }
     await auth.signInWithIdToken(
@@ -371,8 +394,10 @@ class AccountAuth {
   /// A guest's Google link came back refused because that Google account is
   /// already a player's. The player tapped Google to be that player, so this
   /// signs in to it, no second question. `false` when it already did so a
-  /// moment ago; the caller then offers the choice (switch or stay a guest).
+  /// moment ago, or when the guest has coins or items they would leave
+  /// behind; the caller then offers the choice (switch or stay a guest).
   Future<bool> switchToTakenGoogle() async {
+    if (await _guestWouldLoseSomething()) return false;
     final now = DateTime.now().millisecondsSinceEpoch;
     try {
       final prefs = await SharedPreferences.getInstance();

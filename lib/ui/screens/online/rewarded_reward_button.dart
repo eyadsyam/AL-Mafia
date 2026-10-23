@@ -41,7 +41,8 @@ class _Step {
   bool get awarded => state == 'awarded';
 }
 
-enum _Mode { loading, legacy, steps }
+/// [none]: the match earned no reward, so there is no offer.
+enum _Mode { loading, legacy, steps, none }
 
 /// The optional post-match reward.
 ///
@@ -135,7 +136,20 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
     if (!mounted) return;
     if (caps.adSteps) {
       try {
-        final status = await _call('ad_steps_status_v2');
+        var status = await _call('ad_steps_status_v2');
+        if (status['synced'] == false) {
+          // The match's reward is not on the wallet yet — the result screen
+          // can get here before the end-of-match credit — so it is asked for
+          // (idempotent) and read again. Still none: this match earned no
+          // reward, so there is nothing to multiply and nothing to offer.
+          final backend = await ref.read(onlineBackendFactoryProvider)();
+          await backend.call('economy', {'action': 'sync'});
+          status = await _call('ad_steps_status_v2');
+          if (status['synced'] == false) {
+            if (mounted) setState(() => _mode = _Mode.none);
+            return;
+          }
+        }
         if (!mounted) return;
         _apply(status);
         _warm();
@@ -401,6 +415,7 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
     }
     return switch (_mode) {
       _Mode.steps => _buildSteps(context),
+      _Mode.none => const SizedBox.shrink(),
       _ => _buildLegacy(context),
     };
   }

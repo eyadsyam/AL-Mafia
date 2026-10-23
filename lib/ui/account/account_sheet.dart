@@ -13,7 +13,7 @@ import '../../transport/supabase_backend.dart';
 import '../economy/account_status.dart' show accountStatusProvider;
 import '../economy/economy_capabilities.dart';
 import '../economy/my_identity.dart';
-import '../economy/table_tools.dart' show tableToolsProvider;
+import '../economy/table_tools.dart' show TableToolsState, tableToolsProvider;
 import '../economy/wallet.dart';
 import '../social/titles_partner.dart';
 import '../social/push_prompt.dart';
@@ -37,6 +37,20 @@ final accountAuthProvider = Provider<AccountAuth>((ref) {
     },
     ensureSession: () async => (await backend()).ensureSession(),
     native: NativeGoogle.forPlatform(),
+    // Read from the server, never from a screen's cache: the guest's coins,
+    // bought roles and looks, and table-tool charges.
+    guestStake: () async {
+      final value = await backend();
+      if (value.userId == null) return false;
+      final answers = await Future.wait([
+        value.call('economy', {'action': 'summary'}),
+        value.call('economy', {'action': 'toolsGet'}),
+      ]);
+      final wallet = WalletState.fromJson(answers[0]);
+      return wallet.balance > 0 ||
+          wallet.owned.isNotEmpty ||
+          TableToolsState.fromJson(answers[1]).owned().isNotEmpty;
+    },
   );
 });
 
@@ -249,7 +263,12 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     };
   }
 
-  Future<void> _run(Future<void> Function(AccountAuth auth) step) async {
+  /// [google]: the step links Google, whose EMAIL_TAKEN means "that Google
+  /// account is another player's" rather than a taken email address.
+  Future<void> _run(
+    Future<void> Function(AccountAuth auth) step, {
+    bool google = false,
+  }) async {
     FocusScope.of(context).unfocus();
     setState(() {
       _busy = true;
@@ -258,7 +277,15 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     try {
       await step(ref.read(accountAuthProvider));
     } on AccountFailure catch (failure) {
-      if (mounted) setState(() => _error = _message(failure.code));
+      if (mounted) {
+        setState(() {
+          // A guest with coins or items to lose is asked: switch or stay.
+          _googleTaken = google && failure.code == 'EMAIL_TAKEN';
+          _error = _googleTaken
+              ? context.l10n.authGoogleTaken
+              : _message(failure.code);
+        });
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
       if (_closePending) _closeWhenSignedIn();
@@ -564,7 +591,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
               await _run((auth) async {
                 await auth.google();
                 if (mounted) setState(() => _notice = _browserNotice);
-              });
+              }, google: true);
             },
       icon: const Icon(Icons.g_mobiledata_rounded),
       label: Text(l.authGoogle),
