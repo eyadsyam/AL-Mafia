@@ -2,6 +2,7 @@
 
 Run with run_live_suite.py --conflicts. No credentials reach output or files.
 """
+import concurrent.futures
 import json
 import os
 from pathlib import Path
@@ -126,15 +127,12 @@ def tied_match():
     n.accepted('natural tie ballot opens', m.call('open_phase', phase='vote'))
     voters = m.alive()
     # 2-2-1 abstention. A voter cannot vote for themselves.
+    plan = {mafia['seat']: decoy['seat'], decoy['seat']: mafia['seat']}
+    rest = [x for x in voters if x != mafia and x != decoy]
+    for i, x in enumerate(rest):
+        plan[x['seat']] = (mafia['seat'], decoy['seat'])[i] if i < 2 else None
     for p in voters:
-        if p == mafia:
-            target = decoy['seat']
-        elif p == decoy:
-            target = mafia['seat']
-        else:
-            mafia_votes = sum(1 for x in voters[:voters.index(p)] if x.get('_target') == mafia['seat'])
-            decoy_votes = sum(1 for x in voters[:voters.index(p)] if x.get('_target') == decoy['seat'])
-            target = mafia['seat'] if mafia_votes < 2 else (decoy['seat'] if decoy_votes < 2 else None)
+        target = plan[p['seat']]
         p['_target'] = target
         n.accepted('tie ballot ' + str(p['seat']), m.call('submit_vote', p,
             targetSeat=target, round=1, actionId=h.aid()))
@@ -173,12 +171,44 @@ def unanimous_match():
     m.finish_town(); m.close()
 
 
+def race_match():
+    """X11/T21: four identical requests at once spend or charge exactly once."""
+    m = n.Match('tool_race', dict(mafia=1, doctor=1, citizen=3), realtime=False)
+    m.start()
+    racer = next(p for p in m.players if p['role'] == 'citizen')
+    before = n.accepted('race balance read', n.eco(racer, 'toolsGet')).get('balance')
+    key = h.aid()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+        buys = list(pool.map(lambda _: n.eco(racer, 'toolBuy', tool='extra_minute', pack=3,
+                                             requestId=key), range(4)))
+    n.record('four racing buys with one request id all answer',
+             all(status == 200 for status, _ in buys), [status for status, _ in buys])
+    after = n.accepted('race balance after buys', n.eco(racer, 'toolsGet')).get('balance')
+    prices = {d.get('balance') for _, d in buys}
+    n.record('one request id is charged once', len(prices) == 1 and after in prices
+             and before is not None and after < before, sorted(p for p in prices if p is not None))
+    m.reveal(); m.night(); m.discuss()
+    kept = charges(racer, 'extra_minute')
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+        uses = list(pool.map(lambda _: m.call('economy', racer, action='toolUse',
+                                              tool='extra_minute', targets=[]), range(4)))
+    won = [d for status, d in uses if status == 200 and not d.get('error')]
+    lost = [d.get('error') for status, d in uses if status != 200]
+    n.record('one of four racing uses wins', len(won) == 1, lost)
+    n.record('the losers are told the limit',
+             all(code in ('LIMIT_TOOL', 'LIMIT_PHASE', 'LIMIT_MATCH', 'RATE_LIMITED') for code in lost),
+             lost)
+    n.record('a racing use spends one charge', kept is not None and charges(racer, 'extra_minute') == kept - 1)
+    m.vote(m.role('mafia')['seat'])
+    m.finish_town(); m.close()
+
+
 def main():
     h._POOL_TAKEN[0] = 0
     n.BOTS = [h.anon_session('ConflictBot%d' % i) for i in range(5)]
     if not fund(n.BOTS):
         return
-    scenarios = [('interactions_retry', played_match)] if os.environ.get('LIVE_ONLY_INTERACTION') == '1' else [('interactions', played_match), ('natural_tie', tied_match), ('unanimous_revote', unanimous_match)]
+    scenarios = [('interactions_retry', played_match)] if os.environ.get('LIVE_ONLY_INTERACTION') == '1' else [('interactions', played_match), ('natural_tie', tied_match), ('unanimous_revote', unanimous_match), ('tool_race', race_match)]
     for label, scenario in scenarios:
         try:
             scenario()
