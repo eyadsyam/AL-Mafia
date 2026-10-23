@@ -1,0 +1,74 @@
+TASK: SQL tests for a retired tool and a revoked pack (rows T17 and T24)
+
+You are working in a Flutter + Supabase repo (Mafia Master). You will NOT commit;
+the orchestrator reviews and commits. Another agent is working in parallel on
+the vote matrix (files: supabase/functions/_shared/ballot_core.ts,
+supabase/functions/resolve_vote/index.ts, tool/vote_matrix.dart,
+supabase/tests/vote_matrix.*, test/engine/vote_matrix_test.dart). Do not touch
+those files. If a gate fails only in those files, ignore it and say so.
+
+<goal>
+Add SQL tests that prove two rows of docs/specs/18-scenario-matrix.md:
+
+T17 (line ~162): the grave_vote tool is retired by migration
+supabase/migrations/20261022000100_retire_grave_vote.sql. Prove:
+  1. grave_vote is absent from the active catalogue the app reads.
+  2. A new purchase of grave_vote is refused (whatever error the existing
+     buy path raises; assert the real code, do not invent one).
+  3. A new use of grave_vote at a table is refused.
+  4. Unused grave_vote charges a player held before retirement were credited
+     back exactly once, by the amount the migration defines. Running the
+     retirement credit step a second time (if it is a callable function)
+     credits nothing more. If the credit is only done inline in the
+     migration and cannot be re-run, prove the ledger row exists once and
+     state that in your report.
+  5. A past match result that recorded a grave_vote use is still readable.
+
+T24 (line ~169): a revoked role or tool pack removes the unspent
+entitlement and unspent charges, keeps uses already consumed in finished
+matches, and is idempotent (revoking the same pack twice changes nothing the
+second time). Existing partial proof: supabase/tests/bundle_revoke_components.sql
+and supabase/tests/refund_revokes_items.sql. Add only what they do not
+already prove: revoke-before-any-use, revoke-after-partial-use (consumed
+uses stay recorded, remaining charges go to zero), and the second revoke.
+</goal>
+
+<where>
+- Read first: the two matrix rows above, the retirement migration, and the
+  existing SQL tests named above plus supabase/tests/revote_refund.sql
+  (a recent, short example of the house style for these tests).
+- SQL tests live in supabase/tests/*.sql and are run by
+  node tool/test_sql_without_docker.mjs (PGlite, no Docker, no network).
+  Find how that runner discovers files and how a test reports pass/fail,
+  and follow it exactly.
+- New files only: supabase/tests/retired_grave_vote.sql and
+  supabase/tests/pack_revoke_boundaries.sql. If the runner needs a list
+  entry to pick a new file up, add that one entry and nothing else.
+</where>
+
+<rules>
+- Do not change any migration, function or app code. If a test shows the
+  real behaviour is wrong, keep the assertion that states the correct
+  behaviour, mark that one test clearly in the file, and report it as a
+  suspected defect with the exact output. Do not weaken it to pass.
+- Every test must set up its own users/rows and must not depend on another
+  test file's data.
+- No secrets, keys or tokens in any file.
+- Comments: short, plain English, match the density of revote_refund.sql.
+</rules>
+
+<gates>
+Run and paste the final summary lines of each:
+  node tool/test_sql_without_docker.mjs
+The count was 100/100 before your change. It must be 100 + your new tests,
+all passing (or the marked suspected-defect tests failing, and nothing else).
+</gates>
+
+<report>
+In your final message:
+1. Files added or changed.
+2. Each new test name -> which numbered point above it proves.
+3. Gate output (summary lines).
+4. Suspected defects, with the failing assertion and actual value.
+5. Anything you could not prove and why.
+</report>
