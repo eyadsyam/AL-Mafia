@@ -9,9 +9,24 @@ class OnlineRoomResume {
   final String roomId;
   final String code;
 
-  const OnlineRoomResume({required this.roomId, required this.code});
+  /// The online player whose seat it is, or null for a pointer saved before
+  /// it was recorded. Another account on this phone has no seat there.
+  final String? userId;
 
-  Map<String, String> toJson() => {'roomId': roomId, 'code': code};
+  const OnlineRoomResume({
+    required this.roomId,
+    required this.code,
+    this.userId,
+  });
+
+  /// Whether the seat is [user]'s. A pointer that names nobody is nobody's.
+  bool belongsTo(String? user) => user != null && userId == user;
+
+  Map<String, String> toJson() => {
+    'roomId': roomId,
+    'code': code,
+    if (userId != null) 'userId': userId!,
+  };
 
   static OnlineRoomResume? fromJson(Object? value) {
     if (value is! Map) return null;
@@ -20,7 +35,12 @@ class OnlineRoomResume {
     if (roomId is! String || roomId.isEmpty || code is! String) return null;
     final normalized = code.trim().toUpperCase();
     if (!RegExp(r'^[A-Z0-9]{6}$').hasMatch(normalized)) return null;
-    return OnlineRoomResume(roomId: roomId, code: normalized);
+    final userId = value['userId'];
+    return OnlineRoomResume(
+      roomId: roomId,
+      code: normalized,
+      userId: userId is String && userId.isNotEmpty ? userId : null,
+    );
   }
 }
 

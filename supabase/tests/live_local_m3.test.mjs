@@ -2,6 +2,29 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { table, night, phase, expire } from './edge_local_fixture.mjs';
 
+test('decided outcome survives both resolutions without another death, and result opens directly', async () => {
+  for (const current of ['vote', 'night', 'discuss']) {
+    const t = await table();
+    try {
+      await phase(t, current);
+      await t.h.sql("update room_state set public_data=jsonb_set(public_data,'{outcome}','\"town\"'::jsonb,true) where room_id=$1", [t.roomId]);
+      const before = (await t.h.sql('select count(*)::int as n from room_players where room_id=$1 and alive', [t.roomId])).rows[0].n;
+      if (current !== 'discuss') {
+        const fn = current === 'vote' ? 'resolve_vote' : 'resolve_night';
+        const result = await t.h.call(fn, 'u0', { roomId: t.roomId });
+        assert.equal(result.status, 200, JSON.stringify(result.json));
+        assert.equal(result.json.outcome, 'town');
+        const state = (await t.h.sql('select phase,public_data from room_state where room_id=$1', [t.roomId])).rows[0];
+        assert.equal(state.phase, current === 'vote' ? 'verdict' : 'morning');
+        assert.equal(state.public_data.outcome, 'town');
+      }
+      assert.equal((await t.h.sql('select count(*)::int as n from room_players where room_id=$1 and alive', [t.roomId])).rows[0].n, before);
+      const opened = await t.h.call('open_phase', 'u0', { roomId: t.roomId, phase: 'result' });
+      assert.equal(opened.status, 200, JSON.stringify(opened.json));
+    } finally { await t.close(); }
+  }
+});
+
 test('M3-9: start refuses four seats and an unready five-seat roster', async () => {
   const four=await table(4,{start:false});
   try { assert.equal((await four.h.call('start_match','u0',{roomId:four.roomId,roles:{mafia:1,doctor:1,detective:1,citizen:1}})).json.error,'BAD_REQUEST'); }

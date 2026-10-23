@@ -121,11 +121,17 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
             if (!didPop) _setOpen(false);
           },
           child: Shortcuts(
-            shortcuts: const {
-              SingleActivator(LogicalKeyboardKey.digit1): _ModeIntent(0),
-              SingleActivator(LogicalKeyboardKey.digit2): _ModeIntent(1),
-              SingleActivator(LogicalKeyboardKey.digit3): _ModeIntent(2),
-              SingleActivator(LogicalKeyboardKey.escape): _ModeBackIntent(),
+            shortcuts: {
+              // The digits name the ways the wide layout lists. A narrow one
+              // shows a card to turn first, and a key there would start a
+              // mode the player has not been shown.
+              if (desktop) ...const {
+                SingleActivator(LogicalKeyboardKey.digit1): _ModeIntent(0),
+                SingleActivator(LogicalKeyboardKey.digit2): _ModeIntent(1),
+                SingleActivator(LogicalKeyboardKey.digit3): _ModeIntent(2),
+              },
+              const SingleActivator(LogicalKeyboardKey.escape):
+                  const _ModeBackIntent(),
             },
             child: Actions(
               actions: {

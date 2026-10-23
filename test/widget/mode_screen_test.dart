@@ -43,6 +43,33 @@ void main() {
     },
   );
 
+  testWidgets('a narrow screen with a keyboard starts nothing from a digit', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    var started = 0;
+    await tester.pumpWidget(
+      localizedApp(
+        ModeScreen(
+          onPlayOffline: () => started++,
+          onPlayOnline: () => started++,
+          onBack: () {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    for (final key in [
+      LogicalKeyboardKey.digit1,
+      LogicalKeyboardKey.digit2,
+      LogicalKeyboardKey.digit3,
+    ]) {
+      await tester.sendKeyEvent(key);
+      await tester.pump();
+    }
+    expect(started, 0);
+  });
+
   testWidgets('narrow mode retains the original card stage', (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));

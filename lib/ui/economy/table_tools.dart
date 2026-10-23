@@ -119,10 +119,18 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
     return backend.call('economy', body);
   }
 
+  /// The key of a purchase whose answer never came, by `code:pack`. The next
+  /// tap on the same pack is the same attempt: the server, which may already
+  /// have applied it, applies it once.
+  final _unanswered = <String, String>{};
+
   /// Buys [pack] charges of [code]. [requestId] is the attempt's idempotency
   /// key: pass the same one when retrying an attempt whose answer was lost, so
-  /// the server applies it once; a fresh key is minted when none is given.
+  /// the server applies it once. Without one, a retry of a lost attempt reuses
+  /// its key and anything else mints a fresh one.
   Future<void> buy(String code, int pack, {String? requestId}) async {
+    final attempt = '$code:$pack';
+    final key = requestId ?? (_unanswered[attempt] ??= newRequestId());
     try {
       state = AsyncData(
         TableToolsState.fromJson(
@@ -130,17 +138,22 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
             'action': 'toolBuy',
             'tool': code,
             'pack': pack,
-            'requestId': requestId ?? newRequestId(),
+            'requestId': key,
           }),
         ),
       );
+      _unanswered.remove(attempt);
     } on BackendException catch (e) {
+      // A refusal is an answer: the next tap is a new attempt.
+      _unanswered.remove(attempt);
       await _reconcile();
       throw ToolActionFailed(e.code);
     } catch (_) {
       // The server may have applied the purchase before the answer was lost.
       // Show its truth, not the shelf from before, so a retry is not blind.
-      await _reconcile();
+      // Once the shelf is shown the next tap is the player's new choice; if it
+      // could not be read either, that tap is still this attempt.
+      if (await _reconcile()) _unanswered.remove(attempt);
       throw const ToolActionFailed(null);
     }
     try {
@@ -149,16 +162,19 @@ class TableToolsController extends AsyncNotifier<TableToolsState> {
   }
 
   /// Best effort: re-reads the shelf and the wallet, keeping what is shown if
-  /// the server still cannot be reached.
-  Future<void> _reconcile() async {
+  /// the server still cannot be reached. Whether the shelf was read.
+  Future<bool> _reconcile() async {
+    var read = false;
     try {
       state = AsyncData(
         TableToolsState.fromJson(await _call({'action': 'toolsGet'})),
       );
+      read = true;
     } catch (_) {}
     try {
       await ref.read(walletProvider.notifier).settle();
     } catch (_) {}
+    return read;
   }
 
   /// A shelf that failed to load stays failed for as long as the provider

@@ -87,6 +87,8 @@ test('M1-57: bought double vote combines with revealed Elder in both ballot roun
     const boughtRevote=await t.h.call('economy','u0',{action:'toolUse',roomId:t.roomId,tool:'revote',targets:[]});
     assert.equal(boughtRevote.status,200,JSON.stringify(boughtRevote.json));
     assert.equal((await t.h.call('submit_vote','u0',{roomId:t.roomId,targetSeat:target.seat})).status,200);
+    // A bought revote needs at least two seats that drew votes.
+    assert.equal((await t.h.call('submit_vote','u2',{roomId:t.roomId,targetSeat:roster[3].seat})).status,200);
     const first=await t.h.call('resolve_vote','u0',{roomId:t.roomId});
     assert.equal(first.status,200,JSON.stringify(first.json));
     assert.equal((await t.h.sql('select public_data from room_state where room_id=$1',[t.roomId])).rows[0].public_data.lastVote.tally[target.seat],6);

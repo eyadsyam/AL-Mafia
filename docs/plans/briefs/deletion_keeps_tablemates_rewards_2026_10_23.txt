@@ -1,0 +1,29 @@
+ROLE
+You are fixing one server defect in the Mafia Master repository (Flutter game, Supabase backend). You will NOT commit, push or deploy; the orchestrator reviews and lands it.
+
+SCOPE
+- ADD exactly one migration: supabase/migrations/20261023000200_deletion_settles_tablemates.sql . Never edit an existing migration (all are applied in production).
+- Add or extend tests under supabase/tests/ .
+- Touch nothing outside supabase/ (another engineer is editing lib/ and test/).
+
+THE DEFECT
+Deleting an account (edge function supabase/functions/delete_account -> SQL chain; find the newest definitions of public.delete_my_account and public.complete_data_deletion with `grep -n "function public.complete_data_deletion\|function public.delete_my_account" supabase/migrations/*.sql` — the LAST definition in filename order is live; the chain is wrapped repeatedly via rename to *_pre_* names) ends in `delete from public.rooms where id in (select room_id from public.room_players where user_id=who)`. Unfinished rooms are refused earlier (IN_MATCH), so what gets deleted is FINISHED rooms — including rooms shared with other players.
+Match rewards are issued lazily: public.sync_player_rewards (newest in 20260929000100_economy_v3.sql, ~line 338) loops over the caller's finished rooms and, per room, calls public.economy_v3_issue_receipt(user, room) then public.economy_v3_settle_receipt(user, room). match_receipts and many reward tables reference rooms ON DELETE CASCADE.
+Failing scenario: a 6-player match finishes; the host deletes their account at once; a tablemate who has not opened their wallet yet loses that match's coins and XP for good (the room is gone before their sync), and a tablemate on the result screen gets ROOM_NOT_FOUND.
+
+WANTED
+Before any shared finished room is deleted, every OTHER member of it gets what sync_player_rewards would have given them for that room, computed while the room and the departing player's rows still exist:
+- For each finished room the departing user was in, for each other member (not kicked, role not null — mirror the exact room filter sync_player_rewards uses, including its "paid under the previous amounts" skip), run the same issue + settle pair.
+- Respect the existing lock conventions: sync_player_rewards takes public.invite_v3_lock(user) and then the wallet advisory lock `pg_advisory_xact_lock(hashtextextended('wallet:'||user::text,91))`. Read invite_v3_lock and invite_v3_settle and decide whether the per-tablemate settle needs them; explain your decision and any deadlock risk (two players deleting at the same time who shared a room) in a comment and in your report. Prefer an approach that cannot deadlock (e.g. a consistent lock order by user id) if one exists without changing other functions.
+- If economy v3 is off (public.economy_v3_on() false) do nothing new.
+- Implement it by wrapping the newest deletion entry point the same way earlier migrations did (rename to a new *_pre_settle name, new function with the same signature calls the settle step then the old body), keeping security definer, `set search_path=public,pg_temp`, and the same revoke/grant lines as the current definition.
+
+TESTS (SQL, run by the PGlite harness)
+supabase/tests/deletion_settles_tablemates.sql: build a finished 5-human room that qualifies for receipts (look at supabase/tests/fair_rewards_and_night_defaults.sql and supabase/tests/economy_hardening_receipts.sql for fixtures: auth.users rows, rooms with started_at/ended_at >= 3 minutes apart, room_players with roles, room_state outcome, votes/night_actions with action_id), have one member delete their account through the real entry point, then assert every other member has a match_receipts row (or the ledger credit the settle writes) for that room and their balance rose by exactly what a sync would have paid; and that a second member's later sync_player_rewards pays nothing more (idempotent). Also a case where economy v3 is off: deletion behaves exactly as before.
+
+GATES (run all; report the real result lines)
+1. node tool/test_sql_without_docker.mjs   (currently 98/98 must stay all-pass)
+2. node --test supabase/tests/*.test.mjs   (currently 210/210)
+
+REPORT CONTRACT
+What changed (file:line), the lock decision and why, the tests and the gate result lines, anything assumed or left out. Do not paste whole files.

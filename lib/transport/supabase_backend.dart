@@ -63,8 +63,12 @@ class SupabaseBackend implements OnlineBackend {
     required String publishableKey,
   }) async {
     // Read before Supabase reads (and tidies) the address: a sign-in coming
-    // back from a browser carries its code or token in it.
-    final authReturn = kIsWeb && AccountAuth.looksLikeAuthReturn(Uri.base);
+    // back from a browser carries its code or token in it. A phone has no
+    // address to read, and an email link that cold-starts the app brings its
+    // session in with `Supabase.initialize`, so there the recent mark alone
+    // decides.
+    final authReturn =
+        !kIsWeb || AccountAuth.looksLikeAuthReturn(Uri.base);
     await Supabase.initialize(url: url, publishableKey: publishableKey);
     // «تذكرني» off: an account (never a guest) is signed out at launch.
     await AccountAuth.applyRemember(

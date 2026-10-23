@@ -1425,4 +1425,30 @@ void main() {
       );
     });
   });
+
+  group('a removal that decides the match', () {
+    test('takes the room to the result the server now holds', () async {
+      await connect(state: roomState(phase: 'discuss', phaseNumber: 2));
+      backend.responders['kick_player'] = (_) {
+        backend.setState(
+          roomState(
+            phase: 'discuss',
+            phaseNumber: 2,
+            publicData: const {'outcome': 'town'},
+          ),
+          push: false,
+        );
+        return const {'removed': 3};
+      };
+      await transport.kickPlayer(3);
+      expect(backend.lastCall('open_phase')?.body['phase'], 'result');
+    });
+
+    test('leaves an undecided day to be played', () async {
+      await connect(state: roomState(phase: 'discuss', phaseNumber: 2));
+      await transport.kickPlayer(3);
+      expect(backend.called('kick_player'), isTrue);
+      expect(backend.called('open_phase'), isFalse);
+    });
+  });
 }

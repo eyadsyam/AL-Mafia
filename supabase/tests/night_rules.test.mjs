@@ -5,7 +5,31 @@ import {
   previousProtectTarget,
   protectsSameTwice,
   defaultProtectTargets,
+  nightDefaultFor,
+  bulletActionAllowed,
 } from '../functions/_shared/night_rules.ts';
+
+test('night default: an idle Mafioso follows an acted teammate, including a skip', () => {
+  const living = [{ user_id: 'm1', role: 'mafia' }, { user_id: 'm2', role: 'mafia' }, { user_id: 'c', role: 'citizen' }];
+  assert.equal(nightDefaultFor(living[1], living, new Set(['m1'])), 'skip');
+  assert.equal(nightDefaultFor(living[0], living, new Set()), 'kill');
+  assert.equal(nightDefaultFor(living[1], living, new Set()), 'kill');
+});
+
+test('night default: the Silencer holds the kill only without living Mafiosi', () => {
+  const s = { user_id: 's', role: 'silencer' };
+  const c = { user_id: 'c', role: 'citizen' };
+  assert.equal(nightDefaultFor(s, [s, c], new Set()), 'kill');
+  assert.equal(nightDefaultFor(s, [s, c, { user_id: 'm', role: 'mafia' }], new Set()), 'skip');
+  assert.equal(nightDefaultFor({ user_id: 'd', role: 'doctor' }, [s, c], new Set()), 'protect');
+});
+
+test('Doctor bullet: only protecting the Doctor spends it', () => {
+  assert.equal(bulletActionAllowed('selfProtect', 'protect', 3, 1), false);
+  assert.equal(bulletActionAllowed('selfProtect', 'skip', null, 1), false);
+  assert.equal(bulletActionAllowed('selfProtect', 'protect', 1, 1), true);
+  assert.equal(bulletActionAllowed('sniperShot', 'suspect', 3, 1), true);
+});
 import {
   bulletEnabled,
   bulletFor,

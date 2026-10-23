@@ -43,6 +43,9 @@ Deno.serve(handler(async (req, userId, db) => {
     if (error.message?.includes("BAD_REQUEST")) {
       return fail("BAD_REQUEST", "no such seat");
     }
+    if (error.message?.includes("PHASE_CLOSED")) {
+      return fail("PHASE_CLOSED", "the room has finished");
+    }
     throw error;
   }
   if (!removed) return fail("BAD_REQUEST", "no such seat");

@@ -340,7 +340,11 @@ class OnlineSession extends Notifier<OnlineSessionState> {
       var storageWarning = false;
       try {
         await OnlineSessionStore.save(
-          OnlineRoomResume(roomId: handle.roomId, code: handle.code),
+          OnlineRoomResume(
+            roomId: handle.roomId,
+            code: handle.code,
+            userId: backend.userId,
+          ),
         );
       } catch (_) {
         // Losing local resume storage must never prevent a successful join —

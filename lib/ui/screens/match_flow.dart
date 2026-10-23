@@ -494,7 +494,15 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
           child: Align(
             alignment: AlignmentDirectional.topEnd,
             child: Padding(
-              padding: EdgeInsets.all(context.spacing.sm),
+              // Clear of the end-match cross [MatchRoute] keeps in the top-left
+              // corner: in Arabic this button's end is that same corner, and
+              // the cross sat on its label and took its taps.
+              padding: EdgeInsets.only(
+                top: context.spacing.sm,
+                right: context.spacing.sm,
+                // The cross is one touch target wide, inset by sm.
+                left: context.spacing.sm * 2 + IdentityTokens.target,
+              ),
               child: FilledButton.tonalIcon(
                 onPressed: () => _chooseCardSeat(state),
                 icon: const Icon(Icons.style_outlined),

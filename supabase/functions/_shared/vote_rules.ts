@@ -24,7 +24,8 @@ export type BallotVerdict = "eliminate" | "revote" | "stand";
 /**
  * RL13 — what happens to a ballot that has votes in it.
  *
- *  - one top seat: eliminated, unless a bought `revote` reopens it (round 1)
+ *  - one top seat: eliminated, unless a bought `revote` can narrow to at
+ *    least two candidates (round 1)
  *  - several top seats (a tie): a second round among them when the room's
  *    `dayTieRule` is `revote` OR a revote was bought (round 1); otherwise the
  *    tie stands and nobody goes
@@ -35,10 +36,12 @@ export function ballotVerdict(input: {
   topSeats: number;
   dayTieRule: unknown;
   revoteBought: boolean;
+  narrowedCandidates?: number;
 }): BallotVerdict {
-  const { round, topSeats, dayTieRule, revoteBought } = input;
+  const { round, topSeats, dayTieRule, revoteBought, narrowedCandidates } = input;
   const firstRound = round === 1;
   if (topSeats <= 0) return "stand";
-  if (topSeats === 1) return firstRound && revoteBought ? "revote" : "eliminate";
+  if (topSeats === 1) return firstRound && revoteBought &&
+      (narrowedCandidates === undefined || narrowedCandidates >= 2) ? "revote" : "eliminate";
   return firstRound && (dayTieRule === "revote" || revoteBought) ? "revote" : "stand";
 }

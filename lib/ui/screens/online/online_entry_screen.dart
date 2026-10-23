@@ -222,7 +222,18 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
   }
 
   Future<void> _loadResume() async {
-    final resume = await OnlineSessionStore.load();
+    final connect = ref.read(onlineBackendFactoryProvider);
+    var resume = await OnlineSessionStore.load();
+    // A seat another account on this phone left behind is not offered: taken
+    // up by this player it would seat them as somebody new in that room. It
+    // stays stored for its own player to come back to.
+    if (resume?.userId != null) {
+      try {
+        if (!resume!.belongsTo((await connect()).userId)) resume = null;
+      } catch (_) {
+        resume = null;
+      }
+    }
     if (mounted) setState(() => _resume = resume);
   }
 
@@ -357,19 +368,26 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
   /// failure (or a server without the table yet) is retried on a later entry
   /// and never makes the player tick the box again.
   Future<void> _syncTerms() async {
-    final terms = ref.read(termsAcceptanceProvider).valueOrNull;
-    if (terms == null || !terms.current || terms.synced) return;
+    // Everything this needs is taken now: it runs on after the screen that
+    // started it has gone.
     final notifier = ref.read(termsAcceptanceProvider.notifier);
+    final pending = ref.read(termsAcceptanceProvider.future);
+    final connect = ref.read(onlineBackendFactoryProvider);
     try {
-      final backend = await ref.read(onlineBackendFactoryProvider)();
-      await backend.ensureSession();
+      final terms = await pending;
+      if (terms == null || !terms.current) return;
+      final backend = await connect();
+      // Recorded per online player: another account on this phone has not
+      // sent it yet.
+      final user = await backend.ensureSession();
+      if (terms.syncedFor == user) return;
       await backend.call('player_safety', {
         'action': 'accept_terms',
         'version': terms.version,
         'adult': true,
         'acceptedAt': terms.acceptedAt.toUtc().toIso8601String(),
       });
-      await notifier.markSynced();
+      await notifier.markSynced(user);
     } catch (_) {}
   }
 

@@ -21,15 +21,25 @@ final embeddedBrowserProvider = Provider<bool>(
 /// starts nothing. Email and password still work where they are.
 Future<bool> sentToRealBrowser(BuildContext context, WidgetRef ref) async {
   if (!ref.read(embeddedBrowserProvider)) return false;
-  await showMafiaSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    backgroundColor: context.colors.surfaceBase,
-    builder: (_) => const EmbeddedBrowserSheet(),
-  );
+  // A second tap before the first sheet is up is the same request, not a
+  // second sheet stacked on the first.
+  if (_realBrowserSheetOpen) return true;
+  _realBrowserSheetOpen = true;
+  try {
+    await showMafiaSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: context.colors.surfaceBase,
+      builder: (_) => const EmbeddedBrowserSheet(),
+    );
+  } finally {
+    _realBrowserSheetOpen = false;
+  }
   return true;
 }
+
+bool _realBrowserSheetOpen = false;
 
 class EmbeddedBrowserSheet extends StatefulWidget {
   const EmbeddedBrowserSheet({super.key});

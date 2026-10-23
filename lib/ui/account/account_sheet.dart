@@ -13,6 +13,7 @@ import '../../transport/supabase_backend.dart';
 import '../economy/account_status.dart' show accountStatusProvider;
 import '../economy/economy_capabilities.dart';
 import '../economy/my_identity.dart';
+import '../economy/table_tools.dart' show tableToolsProvider;
 import '../economy/wallet.dart';
 import '../social/titles_partner.dart';
 import '../social/push_prompt.dart';
@@ -55,6 +56,9 @@ final accountProfileProvider = StreamProvider<AccountProfile>((ref) async* {
       ref.invalidate(accountStatusProvider);
       ref.invalidate(economyCapabilitiesProvider);
       ref.invalidate(walletProvider);
+      // The tool shelf is the last account's too: its charges are not the
+      // next player's to see or to try.
+      ref.invalidate(tableToolsProvider);
     }
     last = now;
     return now;
@@ -300,6 +304,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     ref.invalidate(economyCapabilitiesProvider);
     // Re-read by whoever shows it next; a new identity has a new wallet.
     ref.invalidate(walletProvider);
+    ref.invalidate(tableToolsProvider);
   }
 
   void _checkPasswords() {

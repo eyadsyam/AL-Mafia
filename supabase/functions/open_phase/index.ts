@@ -71,7 +71,11 @@ Deno.serve(handler(async (req, userId, db) => {
   }
 
   const allowed = TRANSITIONS[me.phase] ?? [];
-  if (!allowed.includes(phase)) {
+  // A removal can decide the match in any phase; the result gate below checks
+  // the persisted outcome before publishing roles.
+  const decidedMidMatch = phase === "result" &&
+    !["lobby", "result", "analytics"].includes(me.phase);
+  if (!allowed.includes(phase) && !decidedMidMatch) {
     return fail("PHASE_CLOSED", "that phase cannot open now");
   }
 

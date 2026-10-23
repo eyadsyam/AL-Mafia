@@ -83,6 +83,12 @@ class TableScene extends StatelessWidget {
   /// where the room's chrome is.
   final VoidCallback? onCloseRoom;
 
+  /// Shows the viewer their own card again during the day, or null.
+  ///
+  /// In band 1 with the room's other chrome: floated over the table it sat on
+  /// top of the safety and exit buttons on a phone.
+  final VoidCallback? onMyCard;
+
   /// Opens the host's sheet for one seat (task 6), or null for everybody else.
   final ValueChanged<int>? onSeatInspect;
 
@@ -108,6 +114,7 @@ class TableScene extends StatelessWidget {
     this.revealProgress = 0,
     this.speakingLevels = const {},
     this.onCloseRoom,
+    this.onMyCard,
     this.onSeatInspect,
     this.witnessRoles = const {},
     this.seatMarks = const {},
@@ -120,6 +127,7 @@ class TableScene extends StatelessWidget {
   static const Key hand = ValueKey('council_hand');
   static const Key headerTimer = ValueKey('council_header_timer');
   static const Key exitRoomButton = ValueKey('council_exit_room');
+  static const Key myCardButton = ValueKey('council_my_card');
 
   /// Your own chair, in band 4 rather than in the council (doc 15 §1.1).
   static const Key viewerSeat = ValueKey('council_viewer_seat');
@@ -268,6 +276,7 @@ class TableScene extends StatelessWidget {
                             child: _CouncilHeader(
                               snapshot: snapshot,
                               onCloseRoom: onCloseRoom,
+                              onMyCard: onMyCard,
                             ),
                           ),
                           const BandDivider(),
@@ -370,6 +379,7 @@ class TableScene extends StatelessWidget {
                   child: _CouncilHeader(
                     snapshot: snapshot,
                     onCloseRoom: onCloseRoom,
+                    onMyCard: onMyCard,
                     showTools: false,
                   ),
                 ),
@@ -517,11 +527,13 @@ class _TableTools extends ConsumerWidget {
 class _CouncilHeader extends StatelessWidget {
   final GameSnapshot snapshot;
   final VoidCallback? onCloseRoom;
+  final VoidCallback? onMyCard;
   final bool showTools;
 
   const _CouncilHeader({
     required this.snapshot,
     this.onCloseRoom,
+    this.onMyCard,
     this.showTools = true,
   });
 
@@ -561,6 +573,14 @@ class _CouncilHeader extends StatelessWidget {
         if (snapshot.phaseDeadline != null)
           HeaderTimer(deadline: snapshot.phaseDeadline!),
         if (showTools) _TableTools(snapshot: snapshot),
+        if (onMyCard != null)
+          IconButton(
+            key: TableScene.myCardButton,
+            tooltip: context.l10n.myCard,
+            onPressed: onMyCard,
+            icon: Icon(Icons.style_outlined, color: colors.textSecondary),
+            visualDensity: VisualDensity.compact,
+          ),
         const SafetyButton(),
         if (onCloseRoom != null)
           IconButton(

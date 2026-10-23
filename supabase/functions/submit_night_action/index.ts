@@ -39,6 +39,7 @@ import { detectiveSees, loadToolUses } from "../_shared/tools.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
 import { bulletEnabled, bulletFor, loadTeamBulletSpent } from "../_shared/bullets.ts";
 import {
+  bulletActionAllowed,
   investigationVerdict,
   previousProtectTarget,
   protectsSameTwice,
@@ -87,8 +88,10 @@ Deno.serve(handler(async (req, userId, db) => {
   }
 
   // ── the bullet ──────────────────────────────────────────────────────────
-  const wants = useBullet === true;
   const bullet = bulletFor(me.role);
+  // A Doctor's selfProtect flag has no effect on any other target or action.
+  const wants = useBullet === true &&
+    bulletActionAllowed(bullet, action, targetSeat, me.seat);
   const available = bullet !== null && bulletEnabled(me.settings, bullet);
 
   // Already spent? One query, and it is the same one the unique index enforces

@@ -183,7 +183,9 @@ class DailyController extends AsyncNotifier<DailyStatus?> {
       granted: (answer['amount'] as num?)?.toInt() ?? 0,
       slot: (answer['slot'] as num?)?.toInt(),
     );
-    _absorb(answer, credited: grant.granted);
+    // A spin already made on another device or tab answers with today's
+    // prize again and `granted: 0`: the wheel shows it, the balance stays.
+    _absorb(answer, credited: (answer['granted'] as num?)?.toInt() ?? 0);
     return grant;
   }
 

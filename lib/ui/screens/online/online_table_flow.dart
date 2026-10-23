@@ -341,6 +341,11 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   int? _inspect;
   bool _closing = false;
 
+  /// The table's own hold on the keyboard. Its keys act only while this node
+  /// has focus: a text field or a button inside the table that took focus
+  /// keeps the key it was sent.
+  final _tableFocus = FocusNode(debugLabel: 'table');
+
   @override
   void initState() {
     super.initState();
@@ -375,6 +380,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     _sparkFlight.dispose();
     _spotlight.dispose();
     _turn.dispose();
+    _tableFocus.dispose();
     super.dispose();
   }
 
@@ -998,14 +1004,34 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         await _controller.skipNightAction(useBullet: false);
       }
     } else {
-      await _controller.submitNightAction(
-        kind: turn.actorRole.nightAction,
-        targetSeat: target,
-        // The Doctor choosing their own seat is the self-protection, and it is
-        // the only reason a night action may name its own actor. The server
-        // checks the same three things again with the service key.
-        useBullet: target == seat && _canSelfProtect(turn.actorRole),
-      );
+      // The Doctor choosing their own seat is the self-protection, and it is
+      // the only reason a night action may name its own actor. The Sniper's
+      // chosen seat is the shot while the bullet is still in hand, as it is
+      // offline (night_action_screen): declining is the skip. The server checks
+      // the same things again with the service key.
+      final useBullet =
+          (target == seat && _canSelfProtect(turn.actorRole)) ||
+          _canShoot(turn.actorRole);
+      try {
+        await _controller.submitNightAction(
+          kind: turn.actorRole.nightAction,
+          targetSeat: target,
+          useBullet: useBullet,
+        );
+      } on BackendException catch (error) {
+        // The shot already gone by the server's count: the choice still stands
+        // as the Sniper's suspicion, like a Mafia skip whose quiet night is
+        // spent.
+        if (!useBullet ||
+            turn.actorRole != Role.sniper ||
+            error.code != 'RATE_LIMITED') {
+          rethrow;
+        }
+        await _controller.submitNightAction(
+          kind: turn.actorRole.nightAction,
+          targetSeat: target,
+        );
+      }
     }
   });
 
@@ -1019,6 +1045,12 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   bool _canSelfProtect(Role role) =>
       role == Role.doctor &&
       _controller.bulletExistsFor(Role.doctor) &&
+      !_controller.currentBulletSpent;
+
+  /// Whether the Sniper's choice tonight is the shot.
+  bool _canShoot(Role role) =>
+      role == Role.sniper &&
+      _controller.bulletExistsFor(Role.sniper) &&
       !_controller.currentBulletSpent;
 
   void _confirmAccusation() {
@@ -1148,6 +1180,13 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       onCloseRoom: snapshot.canAdvance
           ? () => setState(() => _closing = true)
           : null,
+      onMyCard: _isDayPhase(snapshot.phase) && snapshot.viewerSeat != null
+          ? () => showDayCardCheck(
+              context,
+              controller: _controller,
+              seat: snapshot.viewerSeat!,
+            )
+          : null,
       // A witness taps a seat to open its dossier; a dead host manages the
       // seat from inside it.
       onSeatInspect: witnessing && _witnessTable != null
@@ -1220,32 +1259,26 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       },
       child: Actions(
         actions: {
-          _TableFloorIntent: CallbackAction<_TableFloorIntent>(
-            onInvoke: (_) {
-              if (!_keyboardInTextField()) _keyboardFloor(voice);
-              return null;
-            },
+          _TableFloorIntent: _TableKey<_TableFloorIntent>(
+            _keysToTable,
+            () => _keyboardFloor(voice),
           ),
-          _TableConfirmIntent: CallbackAction<_TableConfirmIntent>(
-            onInvoke: (_) {
-              if (!_keyboardInTextField()) _keyboardConfirm(snapshot, state);
-              return null;
-            },
+          _TableConfirmIntent: _TableKey<_TableConfirmIntent>(
+            _keysToTable,
+            () => _keyboardConfirm(snapshot, state),
           ),
-          _TableMicIntent: CallbackAction<_TableMicIntent>(
-            onInvoke: (_) {
-              if (!_keyboardInTextField()) _keyboardMic(voice);
-              return null;
-            },
+          _TableMicIntent: _TableKey<_TableMicIntent>(
+            _keysToTable,
+            () => _keyboardMic(voice),
           ),
-          _TableCloseIntent: CallbackAction<_TableCloseIntent>(
-            onInvoke: (_) {
-              if (!_keyboardInTextField()) _keyboardClose();
-              return null;
-            },
+          // Esc still reaches an open layer: closing it is what it is for.
+          _TableCloseIntent: _TableKey<_TableCloseIntent>(
+            _keysHeld,
+            _keyboardClose,
           ),
         },
         child: Focus(
+          focusNode: _tableFocus,
           autofocus: true,
           child: ConnectionWeather(
             weather: TableWeather.of(snapshot.connection),
@@ -1255,24 +1288,6 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
               fit: StackFit.expand,
               children: [
                 ground,
-                if (_isDayPhase(snapshot.phase) && snapshot.viewerSeat != null)
-                  SafeArea(
-                    child: Align(
-                      alignment: AlignmentDirectional.topEnd,
-                      child: Padding(
-                        padding: EdgeInsets.all(context.spacing.sm),
-                        child: FilledButton.tonalIcon(
-                          onPressed: () => showDayCardCheck(
-                            context,
-                            controller: _controller,
-                            seat: snapshot.viewerSeat!,
-                          ),
-                          icon: const Icon(Icons.style_outlined),
-                          label: Text(context.l10n.myCard),
-                        ),
-                      ),
-                    ),
-                  ),
                 // After the dawn curtain, never on top of it: two overlays with two
                 // sentences at once read as neither.
                 if (_mourning &&
@@ -1502,11 +1517,23 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     );
   }
 
-  bool _keyboardInTextField() {
-    final context = FocusManager.instance.primaryFocus?.context;
-    return context?.widget is EditableText ||
-        context?.findAncestorWidgetOfExactType<EditableText>() != null;
-  }
+  /// Whether the table holds the keyboard: nothing inside it (a text field
+  /// being typed in, a button reached with Tab) has taken focus.
+  bool _keysHeld() => FocusManager.instance.primaryFocus == _tableFocus;
+
+  /// Enter, Space and M also wait while a layer is open over the table: a
+  /// vote cast behind the whisper being written, or the host's close-room
+  /// question, is a vote nobody meant.
+  bool _keysToTable() =>
+      _keysHeld() &&
+      !_composing &&
+      !_closing &&
+      !_roster &&
+      !_whispers &&
+      _inspect == null &&
+      _dossier == null &&
+      _letter == null &&
+      _witnessPage == null;
 
   void _keyboardFloor(VoiceState? state) {
     final controller = ref.read(voiceControllerProvider);
@@ -2472,6 +2499,24 @@ class _TableMicIntent extends Intent {
 
 class _TableCloseIntent extends Intent {
   const _TableCloseIntent();
+}
+
+/// A table key. Disabled rather than ignored when [live] says no, so the key
+/// goes on to whatever has it (a field typing a space, a focused button
+/// pressed with Enter) instead of being swallowed by the table.
+class _TableKey<T extends Intent> extends Action<T> {
+  final bool Function() live;
+  final VoidCallback run;
+  _TableKey(this.live, this.run);
+
+  @override
+  bool isEnabled(T intent) => live();
+
+  @override
+  Object? invoke(T intent) {
+    run();
+    return null;
+  }
 }
 
 class _Incoming {

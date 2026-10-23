@@ -1,0 +1,29 @@
+ROLE
+Read-only adversarial review of uncommitted Flutter client changes in the Mafia Master repo (a social-deduction party game, Arabic-first). Change NO files. Your deliverable is your final message.
+
+WHAT TO REVIEW
+Run `git diff -- lib test` and read every hunk, plus enough surrounding code to judge it. The changes:
+1. lib/ui/screens/online/online_table_flow.dart
+   a. Table keyboard keys (Enter = confirm, Space = voice floor, M = mic, Esc = close) now act only while the table's own FocusNode holds primary focus and no layer is open (`_TableKey` actions whose isEnabled is false let the key propagate to a focused button or text field).
+   b. The online Sniper: a chosen seat while the bullet is still in hand is sent with useBullet:true (the shot), as offline already did; a RATE_LIMITED refusal (server says already spent) is retried once as a plain suspicion.
+   c. The day «كارتي» (my card) button moved out of a floating overlay into the table header (lib/ui/screens/online/table/table_scene.dart, `onMyCard`).
+2. lib/ui/screens/match_flow.dart — the offline «كارتي» button padded clear of the end-match cross drawn by match_route.dart.
+3. lib/transport/online_transport.dart kickPlayer — after a kick that leaves an outcome in public_data, the host opens the result phase.
+4. lib/transport/account_auth.dart + supabase_backend.dart — «تذكرني» off: an account is not signed out at launch when a room resume pointer exists, and on mobile the pending-return mark alone decides (cold-start deep link).
+5. lib/ui/account/{account_sheet,delete_account_sheet}.dart — tableToolsProvider invalidated on account change.
+6. lib/ui/economy/table_tools.dart — a tool purchase whose answer was lost (and whose shelf re-read also failed) reuses its idempotency key on the next tap.
+7. lib/ui/economy/daily_rewards.dart — a replayed wheel spin credits the server's `granted`, not `amount`.
+8. lib/data/terms_consent.dart + online_entry_screen.dart — the terms record is synced per online user id (new key mafia.terms.syncedFor).
+9. lib/ui/screens/setup/mode_screen.dart — digit shortcuts only on the wide layout.
+10. lib/ui/account/embedded_browser_sheet.dart — one in-app-browser sheet at a time.
+
+THE RULE THAT WINS EVERY ARGUMENT (docs/specs/05-zero-leakage-spec.md)
+No change may let any player infer another player's role or night action: by timing, by which controls exist, by focus or key behaviour, by layout, by network calls visible to others, by text. Check every change above against it, especially 1b (does the Sniper's shot look or time differently from any other night choice?) and 1a/1c.
+
+ALSO CHECK
+- Riverpod: ref used after an await in a widget that may be disposed; providers read before they load.
+- Every new branch has a test; tests assert behaviour, not implementation.
+- Tokens only for sizes/colours (lib/ui/theme/design_tokens.dart); no literal user-facing strings in widgets.
+
+REPORT CONTRACT
+A table: file:line | defect | failing scenario | severity (blocker / should fix / minor) | confidence. Then "checked and fine" in one short list. No praise, no restating the diff. Do not run builds. You may run `flutter test --no-pub <file>` on specific test files if useful.

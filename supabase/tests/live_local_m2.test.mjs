@@ -186,7 +186,7 @@ test('M2-24 and M2-30: dead silence target refused; dying target has no mark; no
   } finally { await t.close(); }
 });
 
-test('M2-26, M2-28 and M2-36: lone Silencer inherits kill, cannot hit team/self; prior silence stays silence; expiry skips', async () => {
+test('M2-26, M2-28 and M2-36: lone Silencer inherits kill, cannot hit team/self; prior silence stays silence; expiry kills', async () => {
   const t=await table(7,{allAccess:true,settings:{silencerEnabled:true},roles:{mafia:1,silencer:1,doctor:1,detective:1,citizen:3}});
   try {
     const r=await t.roster(), silencer=r.find(p=>p.role==='silencer'), mafia=r.find(p=>p.role==='mafia'), citizen=r.find(p=>p.role==='citizen');
@@ -204,7 +204,7 @@ test('M2-26, M2-28 and M2-36: lone Silencer inherits kill, cannot hit team/self;
     assert.equal((await actionRow(t,silencer,2)).action,'kill');
     await phase(t,'night',3); await expire(t);
     assert.equal((await t.h.call('advance_phase','u1',{roomId:t.roomId})).status,200);
-    assert.equal((await actionRow(t,silencer,3)).action,'skip');
+    assert.equal((await actionRow(t,silencer,3)).action,'kill');
     await t.h.sql('update room_players set alive=false where room_id=$1 and user_id=$2',[t.roomId,silencer.user_id]);
     assert.equal((await t.h.call('submit_night_action',asUser(silencer),body(citizen.seat))).json.error,'NOT_ALIVE');
   } finally { await t.close(); }

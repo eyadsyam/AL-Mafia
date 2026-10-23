@@ -67,6 +67,13 @@ Deno.serve(handler(async (req, userId, db) => {
       .eq("night", night);
     if (actionsError) throw actionsError;
 
+    const { data: state, error: stateError } = await db.from("room_state")
+      .select("public_data").eq("room_id", roomId).maybeSingle();
+    if (stateError) throw stateError;
+    const heldOutcome = (state?.public_data as Record<string, unknown> | null)?.outcome;
+    const decidedOutcome = heldOutcome === "mafia" || heldOutcome === "town"
+      ? heldOutcome : null;
+
     // The moves this outcome is computed from, as `commit_resolution` will
     // recompute them under the room lock (`night_fingerprint`). A move that
     // lands between this read and the commit changes the string, the commit
@@ -77,7 +84,9 @@ Deno.serve(handler(async (req, userId, db) => {
       .map((a) => `${a.actor_id}|${a.action}|${a.target_id ?? "-"}|${a.used_bullet ? "1" : "0"}`)
       .join(";") + "#roster:" + rosterFingerprint(roster);
 
-    const { deathIds, savedId, saveTold, silencedId } = resolveNightCore({
+    const { deathIds, savedId, saveTold, silencedId } = decidedOutcome
+      ? { deathIds: [] as string[], savedId: null, saveTold: false, silencedId: null }
+      : resolveNightCore({
       roster, actions: actions ?? [], matchSeed: me.matchSeed, night, settings: me.settings,
       lockedSeatSet: locked, noSilenceSeatSet: noSilence,
     });
@@ -85,7 +94,7 @@ Deno.serve(handler(async (req, userId, db) => {
 
     const history = await buildHistory(db, roomId);
     const record = history.nights.find((n) => n.nightNumber === night);
-    const trace = record
+    const trace = !decidedOutcome && record
       ? selectTrace({
         night: {
           ...record,
@@ -110,11 +119,11 @@ Deno.serve(handler(async (req, userId, db) => {
     const living = roster.filter((p) => p.alive && !deaths.has(p.user_id));
     const mafiaAlive = living.filter((p) => isMafiaTeam(p.role)).length;
     const townAlive = living.length - mafiaAlive;
-    const outcome = mafiaAlive === 0
+    const outcome = decidedOutcome ?? (mafiaAlive === 0
       ? "town"
       : mafiaAlive >= townAlive
       ? "mafia"
-      : null;
+      : null);
 
     const morning = {
       victimSeat: deathIds[0] ? seatOf.get(deathIds[0]) ?? null : null,

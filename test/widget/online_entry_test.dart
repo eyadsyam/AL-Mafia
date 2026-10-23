@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/online_session_store.dart';
 import 'package:mafia_master/data/player_profile.dart';
+import 'package:mafia_master/data/terms_consent.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/economy/room_referral.dart';
 import 'package:mafia_master/ui/economy/economy_capabilities.dart';
@@ -1066,6 +1067,28 @@ void main() {
       expect(find.byKey(OnlineEntryScreen.discardButton), findsNothing);
     });
 
+    for (final (owner, offered) in const [('u0', true), ('u7', false)]) {
+      testWidgets('a seat left by $owner is ${offered ? '' : 'not '}offered '
+          'to u0', (tester) async {
+        SharedPreferences.setMockInitialValues({
+          'community_rules_2026_09': true,
+          ProfileStore.profileKey: '{"name":"A","gender":"male"}',
+          ...acceptedTermsPrefs,
+          OnlineSessionStore.key:
+              '{"roomId":"old-room","code":"ABCDEF","userId":"$owner"}',
+        });
+        final container = containerWith();
+        await pumpEntry(tester, container);
+        await tester.pump();
+        expect(
+          find.byKey(OnlineEntryScreen.resumeButton),
+          offered ? findsOneWidget : findsNothing,
+        );
+        // Kept for its own player either way.
+        expect(await OnlineSessionStore.load(), isNotNull);
+      });
+    }
+
     testWidgets('stops being offered once the server says it is gone', (
       tester,
     ) async {
@@ -1119,6 +1142,58 @@ void main() {
       // the same note the lobby does, and the same dismissal.
       await tester.pump();
       expect(find.byKey(OnlineEntryScreen.storageWarning), findsWidgets);
+    });
+  });
+
+  group('the terms record follows the online player', () {
+    Iterable<FakeCall> termsCalls() => backend.calls.where(
+      (c) => c.function == 'player_safety' && c.body['action'] == 'accept_terms',
+    );
+
+    /// Joins as `FakeBackend`'s player, with the phone's record last sent for
+    /// [recordedFor].
+    Future<void> joinWithRecordFor(
+      WidgetTester tester,
+      String recordedFor,
+    ) async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(TermsStore.syncedForKey, recordedFor);
+      final container = containerWith();
+      await container.read(playerProfileProvider.future);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: localizedApp(
+            OnlineEntryScreen(
+              initialCode: 'ABCDEF',
+              onJoined: () {},
+              onBack: () {},
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(OnlineEntryScreen.joinButton));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+    }
+
+    testWidgets('already sent for this player: not sent again', (
+      tester,
+    ) async {
+      await joinWithRecordFor(tester, 'u0');
+      expect(backend.called('joinRoom'), isTrue);
+      expect(termsCalls(), isEmpty);
+    });
+
+    testWidgets('another player on this phone has it sent for them', (
+      tester,
+    ) async {
+      await joinWithRecordFor(tester, 'u7');
+      expect(termsCalls(), hasLength(1));
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(TermsStore.syncedForKey), 'u0');
     });
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../data/online_session_store.dart';
 import '../ui/theme/design_tokens.dart' show AccountTokens;
 import 'account_service.dart';
 import 'native_google.dart';
@@ -457,7 +458,8 @@ class AccountAuth {
   /// Called once per launch when the client boots: an account that asked not
   /// to be remembered is signed out. Guests are always kept (their session is
   /// their only key to their coins), and so is an account that is just coming
-  /// back from the browser it was sent to ([markPendingReturn]).
+  /// back from the browser it was sent to ([markPendingReturn]) or that has an
+  /// online match to go back to.
   ///
   /// Once per *process*: the backend factory runs this on every call, so an
   /// account that unticked «تذكرني» used to be signed out by the next server
@@ -466,7 +468,9 @@ class AccountAuth {
   /// [authReturn]: this launch's address carries a sign-in coming back from a
   /// browser ([looksLikeAuthReturn], read before Supabase tidies it). The
   /// pending-return mark counts only then, so a reset email requested and
-  /// never opened does not keep a remember-off account signed in.
+  /// never opened does not keep a remember-off account signed in. A phone has
+  /// no address to read and always passes true: there the mark's fifteen
+  /// minutes and its single use are the whole guard.
   static Future<void> applyRemember(
     GoTrueClient auth, {
     bool authReturn = false,
@@ -477,6 +481,12 @@ class AccountAuth {
     if (user == null || user.isAnonymous) return;
     if (authReturn && await _returning()) return;
     if (await remember()) return;
+    // A match the app was killed in the middle of: signed out here, the seat
+    // would be asked for again as a new guest, refused, and its way back
+    // deleted. The account stays for this launch; the pointer goes when the
+    // match does, and the launch after that signs it out. Only this account's
+    // own seat counts: another account's pointer is no match of this one's.
+    if ((await OnlineSessionStore.load())?.belongsTo(user.id) ?? false) return;
     try {
       await auth.signOut();
     } catch (_) {

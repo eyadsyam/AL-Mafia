@@ -51,6 +51,12 @@ test('ballot: no votes at all is nothing to decide', () => {
   assert.equal(verdict({ topSeats: 0, revoteBought: true }), 'stand');
 });
 
+test('ballot: a bought revote needs two narrowed candidates', () => {
+  assert.equal(verdict({ revoteBought: true, narrowedCandidates: 1 }), 'eliminate');
+  assert.equal(verdict({ revoteBought: true, narrowedCandidates: 2 }), 'revote');
+  assert.equal(verdict({ topSeats: 0, revoteBought: true, narrowedCandidates: 0 }), 'stand');
+});
+
 test('ballot: the bought revote the verdict reads is the tool\'s own helper', () => {
   const uses = [{ tool_code: 'revote', phase_number: 2, user_id: 'u', seat: 1, phase: 'vote', target_seats: [], note: null }];
   assert.equal(revoteRequested(uses, 2), true);

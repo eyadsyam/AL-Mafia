@@ -78,3 +78,31 @@ export function defaultProtectTargets<T extends { user_id: string; seat: number 
     .filter((p) => p.user_id !== doctorId && p.user_id !== previousTarget)
     .sort((a, b) => a.seat - b.seat);
 }
+
+/** N8/N9: an absent kill holder follows a teammate's move; only an entirely
+ * absent kill team gets seeded targets. A Silencer holds the kill only when no
+ * living Mafioso does, matching submit_night_action. */
+export function nightDefaultFor(
+  player: { user_id: string; role: string },
+  livingRoles: readonly { user_id: string; role: string }[],
+  actedIds: ReadonlySet<string>,
+): "kill" | "protect" | "skip" {
+  const mafiosi = livingRoles.filter((p) => p.role === "mafia");
+  const holders = mafiosi.length > 0
+    ? mafiosi
+    : livingRoles.filter((p) => p.role === "silencer");
+  if (holders.some((p) => p.user_id === player.user_id)) {
+    return holders.some((p) => actedIds.has(p.user_id)) ? "skip" : "kill";
+  }
+  return player.role === "doctor" ? "protect" : "skip";
+}
+
+/** Only a Doctor protecting their own seat spends selfProtect. */
+export function bulletActionAllowed(
+  bullet: string | null,
+  action: string,
+  targetSeat: number | null,
+  ownSeat: number,
+): boolean {
+  return bullet !== "selfProtect" || (action === "protect" && targetSeat === ownSeat);
+}

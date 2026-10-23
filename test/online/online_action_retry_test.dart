@@ -34,10 +34,11 @@ void main() {
     String role = 'citizen',
     bool withTextField = false,
     VoiceController? voiceController,
+    Map<String, dynamic> settings = const {},
   }) async {
     backend = FakeBackend(
       roomId: 'room-1',
-      state: roomState(phase: phase),
+      state: roomState(phase: phase, settings: settings),
       players: roster(5),
       own: OwnSeat(seat: 0, role: role, votedRound: votedRound),
     );
@@ -143,6 +144,56 @@ void main() {
     );
   });
 
+  testWidgets('the Sniper\'s chosen seat is the shot while it is in hand', (
+    tester,
+  ) async {
+    await pumpTable(
+      tester,
+      phase: 'night',
+      role: 'sniper',
+      settings: const {'sniperEnabled': true},
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    await tester.pump();
+    final shot = backend.lastCall('submit_night_action')!.body;
+    expect((shot['targetSeat'], shot['useBullet']), (1, true));
+  });
+
+  testWidgets('a room without the shot keeps the Sniper\'s choice a suspicion', (
+    tester,
+  ) async {
+    await pumpTable(tester, phase: 'night', role: 'sniper');
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    await tester.pump();
+    expect(backend.lastCall('submit_night_action')!.body['useBullet'], isFalse);
+  });
+
+  testWidgets('a shot the server counts as spent still lands as a suspicion', (
+    tester,
+  ) async {
+    await pumpTable(
+      tester,
+      phase: 'night',
+      role: 'sniper',
+      settings: const {'sniperEnabled': true},
+    );
+    backend.refusals['submit_night_action'] = const BackendException(
+      'RATE_LIMITED',
+      'you have already used it',
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
+    final sent = backend.calls
+        .where((c) => c.function == 'submit_night_action')
+        .map((c) => c.body['useBullet'])
+        .toList();
+    expect(sent, [true, false]);
+  });
+
   testWidgets('table shortcuts ignore focused text field', (tester) async {
     final link = FakeVoiceLink();
     final voice = VoiceController(
@@ -160,6 +211,62 @@ void main() {
     await tester.pump();
     expect(backend.calls.where((c) => c.function == 'submit_vote'), isEmpty);
     expect(link.claims, 0);
+  });
+
+  testWidgets('Enter on a focused button presses that button, not the vote', (
+    tester,
+  ) async {
+    await pumpTable(tester, settings: const {'abstainAllowed': true});
+    Focus.of(
+      tester.element(
+        find.descendant(
+          of: find.byKey(OnlineTableFlow.abstain),
+          matching: find.byType(Text),
+        ),
+      ),
+    ).requestFocus();
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    await tester.pump();
+    final votes = backend.calls.where((c) => c.function == 'submit_vote');
+    expect(votes, hasLength(1));
+    expect(votes.single.body['targetSeat'], isNull);
+  });
+
+  testWidgets('Enter waits while a layer is open over the table', (
+    tester,
+  ) async {
+    await pumpTable(tester);
+    // The day's card button overlaps the header in an 800×600 test window,
+    // so the host's exit is pressed through the button itself.
+    tester
+        .widget<IconButton>(find.byKey(TableScene.exitRoomButton))
+        .onPressed!();
+    await tester.pump();
+    // The table itself holds the keyboard: only the open layer stops Enter.
+    tester
+        .widget<Focus>(
+          find.byWidgetPredicate(
+            (w) => w is Focus && w.focusNode?.debugLabel == 'table',
+          ),
+        )
+        .focusNode!
+        .requestFocus();
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    expect(backend.calls.where((c) => c.function == 'submit_vote'), isEmpty);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    await tester.pump();
+    expect(
+      backend.calls.where((c) => c.function == 'submit_vote'),
+      hasLength(1),
+    );
   });
 
   testWidgets('Space requests the voice floor', (tester) async {

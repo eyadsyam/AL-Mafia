@@ -114,6 +114,7 @@ class Match:
         self.host = self.players[0]
         self.settings = dict(SETTINGS, **(flags or {}))
         self.leaks, self.responses, self.finished = set(), 0, False
+        self.last_protect = None
         self.answer_owner = {}
         data = accepted(label + ': create', h.fn('create_room', {'name': 'LiveBot', 'visibility': 'private', 'settings': {'maxPlayers': 15}}, self.host))
         self.id, self.code = data['roomId'], data['code']
@@ -214,8 +215,12 @@ class Match:
             elif role == 'sniper' and shot is not None:
                 action, target, bullet = 'suspect', shot, True
             elif role == 'doctor':
-                action, target = 'protect', protect if protect is not None else next(x['seat'] for x in alive if x != p)
+                # RL3: never last night's seat again, so the default skips it.
+                fallback = next(x['seat'] for x in alive
+                                if x != p and x['seat'] != self.last_protect)
+                action, target = 'protect', protect if protect is not None else fallback
                 bullet = target == p['seat']
+                self.last_protect = target
             if role not in ('elder', 'citizen'):
                 accepted(self.label + ': night action ' + str(self.state()['phase_number']) + ':' + role,
                     self.call('submit_night_action', p, action=action, targetSeat=target, useBullet=bullet, actionId=h.aid()))

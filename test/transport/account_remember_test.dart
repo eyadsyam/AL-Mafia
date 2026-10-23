@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mafia_master/data/online_session_store.dart';
 import 'package:mafia_master/transport/account_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -42,6 +43,29 @@ void main() {
   test('remember off signs an account out at launch', () async {
     final auth = await launch({AccountAuth.rememberKey: false});
     expect(auth.signOuts, 1);
+  });
+
+  test('a match left running keeps the account for that launch', () async {
+    final auth = await launch({
+      AccountAuth.rememberKey: false,
+      OnlineSessionStore.key: '{"roomId":"r1","code":"ABC123","userId":"u1"}',
+    }, authReturn: false);
+    expect(auth.signOuts, 0);
+  });
+
+  test('another account\'s match keeps nobody signed in', () async {
+    for (final pointer in [
+      '{"roomId":"r1","code":"ABC123","userId":"u7"}',
+      // Saved before pointers named their player: nobody's.
+      '{"roomId":"r1","code":"ABC123"}',
+    ]) {
+      AccountAuth.resetRememberForTest();
+      final auth = await launch({
+        AccountAuth.rememberKey: false,
+        OnlineSessionStore.key: pointer,
+      }, authReturn: false);
+      expect(auth.signOuts, 1, reason: pointer);
+    }
   });
 
   test('a fresh return from the browser keeps the account, once', () async {

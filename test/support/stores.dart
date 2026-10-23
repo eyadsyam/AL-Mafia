@@ -33,5 +33,6 @@ const acceptedTermsPrefs = <String, Object>{
   TermsStore.versionKey: currentTermsVersion,
   TermsStore.acceptedAtKey: '2026-09-23T10:00:00.000Z',
   TermsStore.adultKey: true,
-  TermsStore.syncedKey: true,
+  // `FakeBackend`'s player: the record is already in for the one who plays.
+  TermsStore.syncedForKey: 'u0',
 };

@@ -732,6 +732,16 @@ class OnlineTransport implements GameTransport {
   Future<void> kickPlayer(int seat) async {
     await _send('kick_player', {'seat': seat}, hostOnly: true);
     await resync();
+    // A removal can decide the match in the middle of any phase. Nothing is
+    // left to play then, so the room goes to the result the server now holds
+    // instead of playing on to the end of a day that cannot change it.
+    final state = _state;
+    if (state != null &&
+        state.status == 'playing' &&
+        state.publicData['outcome'] != null &&
+        !const {'result', 'analytics'}.contains(state.phase)) {
+      await _send('open_phase', const {'phase': 'result'}, hostOnly: true);
+    }
   }
 
   /// Silences one player for the whole room, or lets them speak again. Host

@@ -1,0 +1,62 @@
+ROLE
+You are implementing a bounded batch of server fixes in the Mafia Master repository (a Flutter social-deduction game with a Supabase backend). You will NOT commit, push or deploy. The orchestrator reviews your diff, re-runs every gate and commits.
+
+SCOPE — files you may change
+- supabase/functions/** (Deno edge functions; shared pure helpers live in supabase/functions/_shared/)
+- supabase/migrations/ — ADD exactly one new file: supabase/migrations/20261023000100_fair_rewards_and_night_defaults.sql . Never edit an existing migration (they are already applied in production). Redefine functions with `create or replace function` in the new file, keeping the same signature, owner style (`security definer set search_path=public,pg_temp`) and the same revoke/grant lines the current definition has.
+- supabase/tests/** (add or extend tests)
+Do NOT touch lib/, test/, tool/, android/, web/ or any Dart file: another engineer is editing those right now.
+
+HOW TO FIND THE CURRENT DEFINITION OF A SQL FUNCTION
+Migrations run in filename order, so the LAST migration that defines a function is the live one. Use `grep -n "function public.<name>" supabase/migrations/*.sql` and read the newest. Several functions are wrapped: the old body was renamed to `<name>_pre_economy` and a new wrapper calls it.
+
+GATES (run all; report the real output tail of each)
+1. node tool/test_sql_without_docker.mjs        (PGlite; every migration + every supabase/tests/*.sql; currently 97/97 pass — it must stay all-pass with your new tests added)
+2. node --test supabase/tests/*.test.mjs         (live_local_* files skip without a local stack; everything else must pass)
+3. node supabase/tests/run_golden_vectors_node.mjs
+4. deno test --allow-read supabase/tests/golden_vectors.test.ts   (if deno is on PATH; say so if not)
+5. deno check on every edge function index.ts you changed (if deno is on PATH)
+If PGlite crashes for memory, re-run once; report it if it repeats.
+
+TASKS (one behaviour each; keep every change minimal and commented in the file's existing comment style)
+
+T1 — Night expiry defaults: an absent Mafioso contributes nothing when a teammate acted (spec doc 11: N8 "Multiple Mafia, one disconnects: remaining Mafia's votes decide. Absent Mafia contributes nothing"; N9 "All Mafia disconnect: timer expiry -> seeded random target from living non-Mafia").
+File: supabase/functions/advance_phase/index.ts (night branch). Today every living role-`mafia` seat that has no night_actions row tonight gets a seeded random `kill`, so with 2 Mafia where M1 voted and M2 was idle, the seeded tie-break overrides M1 about half the time.
+Wanted:
+- "Kill holders" tonight = living seats with role `mafia`; if there are none, the living `silencer` seat(s) hold the kill (submit_night_action already stores a Silencer's move as `kill` when no Mafioso is alive — mirror that rule, do not duplicate a different one).
+- If ANY kill holder already has a night_actions row tonight (any action, including a deliberate skip), every idle kill holder gets a `skip` row (no target).
+- Only if NO kill holder acted, each idle kill holder gets the seeded random kill exactly as today (same seed derivation, same target list). This now also covers a lone Silencer holding the kill, who today wrongly gets `skip`.
+- Doctor, Detective, Citizen and Silencer-while-a-Mafioso-lives defaults are unchanged.
+Move the decision into a pure exported helper in supabase/functions/_shared/night_rules.ts (e.g. `nightDefaultFor(...)`) and unit-test it in supabase/tests/night_rules.test.mjs: (a) 2 Mafia, one acted -> idle one skips; (b) 2 Mafia, none acted -> both get the seeded kill; (c) no Mafioso alive, idle Silencer -> seeded kill; (d) Mafioso alive, idle Silencer -> skip; (e) Doctor default unchanged.
+
+T2 — The Doctor's self-protection bullet is spent only on the Doctor's own seat.
+File: supabase/functions/submit_night_action/index.ts. `spending` is true for any Doctor request with useBullet:true, so a non-standard client can burn the bullet while protecting seat 3. Make the selfProtect bullet count as spent only when action === "protect" and targetSeat === me.seat; any other Doctor request stores used_bullet=false. No other role's bullet logic changes. Add a test (pure helper + node test, or the existing edge harness if there is one — look at supabase/tests/edge_harness_smoke.test.mjs and its helpers).
+
+T3 — A finished room cannot be kicked from.
+The current chain is public.kick_member (wrapper, newest in 20261017000200_decided_outcome_stands.sql) -> public.kick_member_pre_economy, called by supabase/functions/kick_player/index.ts. Neither checks that the match is still running, so a host kicking after the match ended marks the player `kicked` (that player then loses their match receipt; receipts are issued lazily) and can trip the reward void for everybody who has not synced yet.
+Wanted: kicking in a room whose status is 'finished' raises PHASE_CLOSED (the edge function must surface it as the same error envelope other PHASE_CLOSED refusals use). Kicks in the lobby and during play are unchanged. SQL test in supabase/tests/.
+
+T4 — The reward void fires only for a kick or strike that actually decided the match.
+public.economy_kick_voided (20261009002200_receipt_participation_and_kick.sql) returns true for the exact marker table economy_void_rooms (written only when a removal decided the outcome — correct) OR a fallback clause: any kicked mafia-team seat when town won, or any kicked non-mafia seat in a parity Mafia win. The fallback ignores whether the kick decided anything, so kicking a dead disruptive Mafioso on day 2 and then winning by vote on day 3 voids every reward of the match.
+Wanted: keep the marker clause; apply the fallback clause only to rooms that started before 2026-10-09 00:00:00 UTC (before the marker existed). Use the rooms column that records the start (check the schema: rooms.started_at). SQL test: a room started now, a kicked dead mafia seat, outcome town, no marker -> false; same with a marker -> true; a room started before 2026-10-09 with the old pattern -> true.
+
+T5 — A player the Mafia killed at night still took part.
+public.economy_v3_issue_receipt and public.economy_roster_fingerprint (newest in 20261009002200) count a seat as taking part only if it has a votes row or a night_actions row with action_id not null. Online, Citizens and Elders have no night move, so a Citizen killed on night 1 never acts; at a 5-human table the floor (`humans<5`) then fails and NOBODY at the table gets a receipt, and the victim gets none either.
+Wanted: in all three places (the caller's own participation check, the humans floor count, and the roster fingerprint) a seat also counts when it is dead (room_players.alive = false), not kicked, status is not 'left', has a role, and was killed at night — i.e. some night_actions row in this room targets it with action 'kill', or action 'suspect' with used_bullet = true (the Sniper's shot). Factor the predicate into one SQL helper function (stable, security definer, service_role only) so the three places cannot drift. Idle seats that were never killed at night still do not count (keep the anti-farming intent of supabase/tests/economy_hardening_receipts.sql). SQL tests: 5 humans, a Citizen killed night 1 with no vote of his own, the other four voted -> every seat including the victim gets a receipt; 5 humans where one living seat never acted -> still no receipts (unchanged).
+
+T6 — Award coins follow the same rules as match rewards.
+Production has awards_enabled = true. public.match_award / match_awards_get paths (20260925000600_awards_reactions.sql, wrapped in 20261009002200) pay mvp 15 and others 5 with none of the receipt rules (5 taking-part humans, 3-minute minimum, 6 per day, 3 per roster, not left, not kicked). Wanted: an award pays coins only to a player who holds a match_receipts row for that room (call economy_v3_issue_receipt the same way the reward sync does, or read the row if sync already issued it — follow whichever the existing award code can do without a lock-order problem; explain your choice). A player without a receipt still sees the awards list (the titles), with granted 0. SQL test for both cases.
+
+T7 — A bought revote never opens a ballot with fewer than two candidates.
+supabase/functions/resolve_vote/index.ts with supabase/functions/_shared/vote_rules.ts. Over a clear winner a bought `revote` narrows round 2 to the seats that drew votes; if only one seat drew votes the round has one candidate who cannot vote for himself, and a revote bought when nobody drew a vote is spent for nothing.
+Wanted: when the narrowed candidate list would hold fewer than two seats, do not open round 2: resolve round 1 exactly as if no revote had been bought. If the table-tool system has an existing way to return an unused charge (look in supabase/functions/_shared/tools.ts, use_table_tool and the tool tables), give the revote charge back through it and add a test; if there is NO existing refund path, do not invent one — leave the charge as is and say so in your report. Unit-test the decision in supabase/tests/vote_rules.test.mjs.
+
+T8 — A decided outcome stands.
+A host kick or strike mid-day writes public_data.outcome while the day carries on; resolve_vote (and resolve_night) later recompute `outcome` from the roster and can overwrite it with null, so a match the removal already decided continues.
+Wanted: if room_state.public_data.outcome is already 'mafia' or 'town' when resolve_vote or resolve_night runs, keep it: no further elimination or night death is applied, the commit writes the existing outcome, and the phase moves on the same way a deciding resolution does today (resolve_vote -> 'verdict'; check what resolve_night does for a deciding night and mirror it). Also confirm open_phase accepts 'result' from any phase while an outcome is held, and report what you found (do not change client code).
+
+REPORT CONTRACT (your final message)
+- Per task: what changed (file:line), the behaviour now, the test that proves it.
+- The gate commands you ran with their real result lines.
+- Anything you could not do, any assumption you made, anything that looked wrong but was out of scope.
+- Do not paste whole files.

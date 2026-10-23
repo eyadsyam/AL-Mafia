@@ -20,10 +20,10 @@
  * the room. The deadline is server-side, so a client with a fast clock calling
  * early is simply refused.
  */
-import { actionForRole, fail, handler, loadMembership, ok } from "../_shared/api.ts";
+import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { clearedFor, deadlineFor } from "../_shared/phases.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
-import { defaultProtectTargets, previousProtectTarget } from "../_shared/night_rules.ts";
+import { defaultProtectTargets, nightDefaultFor, previousProtectTarget } from "../_shared/night_rules.ts";
 import { deriveSeed, SeedSalt, tieBreakIndex } from "../_shared/seed.ts";
 
 /**
@@ -80,12 +80,10 @@ Deno.serve(handler(async (req, userId, db) => {
       if (done.has(player.user_id)) continue;
       // Online a Citizen has no night move (owner, 2026-10-01).
       if (player.role === "citizen") continue;
-      const action = actionForRole(player.role);
+      const action = nightDefaultFor(player, roster, done);
       let row: { action: string; target_id: string | null };
       if (action === "kill" || action === "protect") {
-        // The one default that picks a target: a Mafia who does nothing would
-        // otherwise make "the Mafia are all disconnected" strictly better for
-        // them than playing (N9).
+        // N9: only a wholly absent kill team gets seeded targets.
         const targets = action === "kill"
           ? roster.filter((p) => !isMafiaTeam(p.role)).sort((a, b) => a.seat - b.seat)
           : defaultProtectTargets(

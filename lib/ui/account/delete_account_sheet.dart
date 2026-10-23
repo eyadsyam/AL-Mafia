@@ -11,6 +11,7 @@ import '../../transport/online_backend.dart';
 import '../../transport/supabase_backend.dart';
 import '../economy/account_status.dart' show accountStatusProvider;
 import '../economy/economy_capabilities.dart';
+import '../economy/table_tools.dart' show tableToolsProvider;
 import '../economy/wallet.dart';
 import '../friendly_error.dart';
 import '../l10n_ext.dart';
@@ -44,6 +45,7 @@ final deleteAccountActionProvider = Provider<DeleteAccountAction>((ref) {
     ref.invalidate(accountStatusProvider);
     ref.invalidate(economyCapabilitiesProvider);
     ref.invalidate(walletProvider);
+    ref.invalidate(tableToolsProvider);
   };
 });
 

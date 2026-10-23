@@ -79,6 +79,7 @@ Deno.serve(handler(async (req, userId, db) => {
     if (stateError) throw stateError;
     const revoteState = (state?.public_data as Record<string, unknown> | null)
       ?.revote as Record<string, unknown> | null | undefined;
+    const decidedOutcome = (state?.public_data as Record<string, unknown> | null)?.outcome;
     const revealedElders = new Set<number>(
       (((state?.public_data as Record<string, unknown> | null)
         ?.elderRevealedSeats as number[] | undefined) ?? []).map(Number),
@@ -134,7 +135,7 @@ Deno.serve(handler(async (req, userId, db) => {
     let tiedSeats: number[] = [];
     let revote = false;
 
-    if (tally.size > 0) {
+    if (tally.size > 0 && decidedOutcome !== "mafia" && decidedOutcome !== "town") {
       const top = Math.max(...tally.values());
       const tied = [...tally.entries()].filter(([, v]) => v === top).map(([k]) => k)
         .filter((id) => roster.find((p) => p.user_id === id)?.alive);
@@ -150,6 +151,7 @@ Deno.serve(handler(async (req, userId, db) => {
         topSeats: tied.length,
         dayTieRule: me.settings.dayTieRule ?? "noElimination",
         revoteBought: revoteRequested(toolUses, day),
+        narrowedCandidates: tally.size,
       });
       if (verdict === "eliminate") {
         eliminatedId = tied[0];
@@ -206,9 +208,10 @@ Deno.serve(handler(async (req, userId, db) => {
     );
     const mafia = living.filter((p) => isMafiaTeam(p.role)).length;
     const town = living.length - mafia;
-    let outcome: string | null = null;
-    if (mafia === 0) outcome = "town";
-    else if (mafia >= town) outcome = "mafia";
+    let outcome: string | null = decidedOutcome === "mafia" || decidedOutcome === "town"
+      ? decidedOutcome : null;
+    if (!outcome && mafia === 0) outcome = "town";
+    else if (!outcome && mafia >= town) outcome = "mafia";
 
     // RL15 — the eliminated player's last word, if he bought one: the table is
     // told (`lastVote.lastWord`) even when this ballot ends the match. A floor

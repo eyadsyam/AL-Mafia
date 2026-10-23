@@ -93,6 +93,38 @@ void main() {
     });
   }
 
+  for (final size in const [Size(1440, 900), Size(390, 844)]) {
+    testWidgets('your card and the exit are both reachable at $size', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(size);
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      var cards = 0;
+      var exits = 0;
+      await tester.pumpWidget(
+        localizedApp(
+          Scaffold(
+            body: TableScene(
+              snapshot: snapshotOf(phase: GamePhase.discussion),
+              onMyCard: () => cards++,
+              onCloseRoom: () => exits++,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(TableScene.myCardButton));
+      await tester.tap(find.byKey(TableScene.exitRoomButton));
+      expect((cards, exits), (1, 1));
+      expect(
+        tester
+            .getRect(find.byKey(TableScene.myCardButton))
+            .overlaps(tester.getRect(find.byKey(TableScene.exitRoomButton))),
+        isFalse,
+      );
+    });
+  }
+
   testWidgets('secondary click inspects the same seat as long press', (
     tester,
   ) async {
