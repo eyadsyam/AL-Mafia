@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تحسين البروفايل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#0F0F0F; --raised:#1A1A1A; --overlay:#252525; --line:#313131;
+  --bone:#C2BDB2; --muted:#908C83; --silver:#67635F; --silver-light:#9E9891;
+  --page:#0A0A0A;
+}
+:root[data-theme="light"]{--page:#E9E6E0}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--page:#E9E6E0}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);font-family:"IBM Plex Sans Arabic",sans-serif;color:var(--bone);line-height:1.6;letter-spacing:0;padding:24px 16px}
+h1,h2,h3{font-family:Cairo,sans-serif;letter-spacing:0}
+.intro{max-width:760px;margin:0 auto 24px;color:var(--muted);font-size:15px}
+.intro h1{color:var(--bone);font-size:22px;margin-bottom:6px}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .intro h1{color:#1A1A1A}:root:not([data-theme="dark"]) .intro{color:#4A4740}}
+.row{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;align-items:center;gap:10px}
+.tag{font-family:Cairo;font-weight:700;font-size:14px;color:var(--muted)}
+.phone{width:340px;max-width:100%;min-height:700px;background:var(--ground);border:1px solid var(--line);border-radius:28px;padding:20px 18px;display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden}
+.top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:20px}
+.title{font-size:28px;font-weight:800;text-align:center}
+.sub{color:var(--muted);text-align:center;font-size:14px}
+.label{font-family:Cairo;font-weight:700;font-size:15px}
+.hint{color:var(--muted);font-size:12px}
+.strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.card{flex:0 0 74px;height:104px;border-radius:10px;background:linear-gradient(180deg,#2c2c2c,#121212);border:1px solid var(--line);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:11px;color:var(--muted);position:relative}
+.card::before{content:"";position:absolute;top:14px;left:50%;width:34px;height:44px;margin-left:-17px;border-radius:17px 17px 6px 6px;background:#3a3a3a}
+.card.on{border:2px solid var(--bone);color:var(--bone)}
+.card.on::after{content:"✓";position:absolute;top:4px;right:6px;font-size:12px;color:var(--bone)}
+.field{border-bottom:1px solid var(--silver);padding:8px 0;font-size:16px;display:flex;justify-content:space-between}
+.field small{color:var(--muted)}
+.seg{display:flex;background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:4px}
+.seg div{flex:1;text-align:center;padding:8px;border-radius:9px;font-family:Cairo;font-weight:600;color:var(--muted)}
+.seg .on{background:var(--overlay);color:var(--bone)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-family:Cairo;font-size:20px}
+.stat span{font-size:12px;color:var(--muted)}
+.btn{margin-top:auto;background:var(--bone);color:#141414;border-radius:14px;text-align:center;padding:14px;font-family:Cairo;font-weight:800;font-size:17px}
+.btn.off{background:var(--overlay);color:var(--silver)}
+.empty{height:150px;border-radius:12px;background:#151515;margin:0 auto;width:120px}
+.panel{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.notes{max-width:760px;margin:28px auto 0;color:var(--muted);font-size:14px}
+.notes li{margin:6px 18px 0 0}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .notes{color:#4A4740}}
+</style>
+</head>
+<body>
+<div class="intro">
+  <h1>البروفايل: الحالي والمقترح</h1>
+  نموذج للموافقة قبل الكود. الألوان والخطوط هي نفس ألوان الصفحة الرئيسية.
+</div>
+<div class="row">
+  <div class="col"><div class="tag">الحالي</div>
+    <div class="phone">
+      <div class="top"><span>→</span><span></span></div>
+      <div class="title">بروفايلك</div>
+      <div class="sub">اختار اسمك وشخصيتك. هنحفظهم عشان ترجع تلعب بسرعة.</div>
+      <div class="panel">
+        <div class="empty"></div>
+        <div class="field"><span>اسمك في اللعبة</span></div>
+        <div class="hint">0/20</div>
+        <div class="label">نكلّمك بصيغة</div>
+        <div class="seg"><div>ولد</div><div>بنت</div></div>
+      </div>
+      <div class="seg"><div class="on">ألقابي</div><div>السجل</div></div>
+      <div class="btn off">كمل</div>
+    </div>
+  </div>
+  <div class="col"><div class="tag">المقترح</div>
+    <div class="phone">
+      <div class="top"><span>→</span><span></span></div>
+      <div class="title">بروفايلك</div>
+      <div class="label">شخصيتك</div>
+      <div class="strip">
+        <div class="card on">الشبح</div><div class="card">الدكتورة</div><div class="card">المعلم</div><div class="card">الظل</div>
+      </div>
+      <div class="field"><span>كريم</span><small>5/20</small></div>
+      <div class="label">نكلّمك بصيغة</div>
+      <div class="seg"><div class="on">ولد</div><div>بنت</div></div>
+      <div class="stats">
+        <div class="stat"><b>12</b><span>ماتش</span></div>
+        <div class="stat"><b>7</b><span>فوز</span></div>
+        <div class="stat"><b>340</b><span>عملة</span></div>
+      </div>
+      <div class="seg"><div class="on">ألقابي</div><div>السجل</div></div>
+      <div class="btn">احفظ</div>
+    </div>
+  </div>
+</div>
+<ol class="notes">
+  <li>المربع الفاضي اتشال، وبقى مكانه صف كروت الشخصيات. الشخصية اللي مختارها عليها إطار فاتح وعلامة.</li>
+  <li>الاسم بقى سطر واحد والعداد جنبه، من غير صندوق جوه صندوق.</li>
+  <li>اتزود صف أرقام صغير: الماتشات والفوز والعملات، من نفس بيانات السجل والمحفظة اللي موجودة.</li>
+  <li>الزرار اسمه «احفظ» وبينور أول ما الاسم يبقى صالح.</li>
+  <li>الشكل والألوان من غير تغيير: الأرضية #0F0F0F، والكروت رمادي، والكلام لون العضم.</li>
+</ol>
+</body>
+</html>
