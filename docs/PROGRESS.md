@@ -3998,3 +3998,10 @@ Files:      test/online/phase_resync_privacy_test.dart; test/widget/rotation_no_
 Verified:   python -m py_compile passed; focused Flutter run: 9 passed, 3 failed. Initial analyze ran during move and reported 11 stale pending_tests import errors; final analyze and full suite not run after app defects surfaced.
 Gate:       FAIL
 Open:       X10 retains an InvestigateResult after resync to morning (match_controller.dart:224); X18 landscape night overflows hold_pad.dart:186 and voice_band.dart:57. A disposal callback can write a disposed Riverpod controller (online_table_flow.dart:374). Per brief, lib/ was not changed; rerun gates after app fixes.
+
+## PHASE next-update fixes (after 1.4.0 build 17) — done
+Built:      X10 private night result cleared when an online snapshot changes phase/day; hold pad and night voice band go side by side in short landscape boxes; post-frame privacy resets guarded by mounted. D6 live scenario saves on night 1 (C11 names earlier nights only).
+Files:      lib/ui/screens/{match_controller,match_flow}.dart, lib/ui/screens/online/{online_table_flow.dart,council/voice_band.dart}, lib/ui/widgets/hold_pad.dart, test/online/phase_resync_privacy_test.dart, test/widget/rotation_no_double_submit_test.dart, supabase/tests/silence_floor_match.py, docs/plans/NEXT-UPDATE.md
+Verified:   orchestrator rerun: flutter analyze 0 issues; flutter test --concurrency=2 4181 passed, 0 failed. LIVE: hosted_night_tools 222/0 (T25), silence_floor 302 + D6 alone 32/0.
+Gate:       PASS
+Open:       Not in 1.4.0 (17); ships with the next build. Play upload of 1.4.0 (17) resumes with Codex at 22:46. Reward rules and screen polish wait for the owner's decisions/mockups.
