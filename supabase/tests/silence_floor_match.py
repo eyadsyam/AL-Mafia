@@ -2,6 +2,7 @@
 
 Run through run_live_suite.py --only=silence_floor_match. Bot-owned rooms only.
 """
+import os
 import datetime as dt
 import time
 
@@ -68,21 +69,22 @@ def confrontation_silence():
     try:
         m.start()
         target = m.role('citizen')
-        # Night one's default Doctor pick is the first living non-Doctor seat,
-        # which can be `target`; night two protects `target` and the server
-        # refuses SAME_PROTECT (RL3). Cover someone else on night one.
+        # C11 names a save from an earlier night only (doc 09: >=1 day later),
+        # so night one saves `target` and night two silences them.
         other = next(p for p in m.players if p is not target and p['role'] != 'doctor')
-        no_kill(m, protect=other['seat'])
+        m.reveal()
+        m.night(kill=target['seat'], protect=target['seat'])
+        m.discuss()
         n.accepted('D6: first vote opens', m.call('open_phase', phase='vote'))
-        # No day-one elimination; the second night creates one true survivor trace.
         n.accepted('D6: first ballot resolves', m.call('resolve_vote'))
         n.accepted('D6: second night opens', m.call('open_phase', phase='night'))
-        m.night(kill=target['seat'], silence=target['seat'], protect=target['seat'])
+        m.night(silence=target['seat'], protect=other['seat'])
         n.record('D6: saved target lives and is silenced', target in m.alive() and
                  m.state()['public_data'].get('morning', {}).get('silencedSeat') == target['seat'])
         chosen = n.accepted('D6: generate confrontation', m.call('generate_confrontation'))
         n.record('D6: silenced seat confronted', m.state()['phase'] == 'confront' and
-                 (chosen.get('confrontation') or {}).get('targetSeat') == target['seat'])
+                 (chosen.get('confrontation') or {}).get('targetSeat') == target['seat'],
+                 m.state()['phase'])
         if m.state()['phase'] != 'confront':
             raise RuntimeError('NO_CONFRONTATION')
         status, claim = m.call('claim_floor', target)
@@ -266,7 +268,10 @@ def main():
     names = ['D6', 'D11-early', 'D11-expiry', 'X8', 'D29-eliminated',
              'D29-survives', 'D29-no-elimination', 'D33-last-word',
              'D33-spotlight']
+    pick = os.environ.get('LIVE_SCENARIOS')
     for label, scenario in zip(names, scenarios):
+        if pick and label not in pick.split(','):
+            continue
         try:
             scenario()
         except Exception as error:

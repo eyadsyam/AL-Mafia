@@ -34,10 +34,12 @@ Codex had started on all three when it was stopped. Its unfinished diff is kept 
 `docs/plans/next-update/`; move them back to `test/online/` and `test/widget/` with the fixes.
 Brief: `docs/plans/briefs/fix_resync_rotation_bugs_2026_10_24.txt`.
 
-## Tests to finish
+## Live tests (done 2026-10-24, against the deployed server)
 
-- `supabase/tests/silence_floor_match.py` D6: quiet night turned off so the save is told (fixed, not yet run live).
-- `supabase/tests/hosted_night_tools_match.py` T25: night 1 protects a different seat (fixed, not yet run live).
+- `supabase/tests/silence_floor_match.py` D6: PASS (32/32 with `LIVE_SCENARIOS=D6`). The survivor confrontation (C11)
+  only names a save from an earlier night (doc 09: one day later or more), so the test now saves on night 1 and
+  silences on night 2. The server was right; only the test changed. The full suite also passed its other 8 rows.
+- `supabase/tests/hosted_night_tools_match.py` T25: PASS (222 passed, 0 failed).
 
 ## Store
 
