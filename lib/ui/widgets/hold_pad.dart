@@ -183,18 +183,23 @@ class _HoldPadState extends State<HoldPad> with SingleTickerProviderStateMixin {
         // The instruction sits under the pad, on one line, rather than
         // wrapped inside the ring: a four-line sentence in a circle read as a
         // label stuck on a button, not as a control.
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedScale(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final compact =
+                constraints.maxWidth > constraints.maxHeight &&
+                constraints.maxHeight < size + spacing.xxl;
+            final padSize = compact
+                ? math.min(size, constraints.maxHeight)
+                : size;
+            final pad = AnimatedScale(
               scale: _pressed ? motion.pressScale : 1.0,
               duration: ReduceMotion.of(context)
                   ? Duration.zero
                   : motion.instant,
               curve: motion.quickCurve,
               child: SizedBox(
-                width: size,
-                height: size,
+                width: padSize,
+                height: padSize,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -217,21 +222,38 @@ class _HoldPadState extends State<HoldPad> with SingleTickerProviderStateMixin {
                     // (L-10), so the ring is the only thing that moves.
                     Icon(
                       Icons.fingerprint,
-                      size: size * HoldPadTokens.markRatio,
+                      size: padSize * HoldPadTokens.markRatio,
                       color: colors.textSecondary,
                     ),
                   ],
                 ),
               ),
-            ),
-            SizedBox(height: spacing.sm),
-            Text(
+            );
+            final instruction = Text(
               widget.instruction,
               maxLines: 2,
               style: type.body.copyWith(color: colors.textPrimary),
               textAlign: TextAlign.center,
-            ),
-          ],
+            );
+            if (compact) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  pad,
+                  SizedBox(width: spacing.sm),
+                  Flexible(child: instruction),
+                ],
+              );
+            }
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                pad,
+                SizedBox(height: spacing.sm),
+                instruction,
+              ],
+            );
+          },
         ),
       ),
     );

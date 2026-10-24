@@ -1,0 +1,22 @@
+TASK: publish Mafia Master 1.4.0 (17) to Google Play closed testing and replace the store images, through the
+Android Publisher API. The owner asked for this. You will NOT commit to git.
+
+The scripts are ready, in tool/play/ (read both first; they print no key material, and you must not print it
+either: never cat or echo the key file):
+- node tool/play/play_listing.mjs <key> raw_assets/play-1.4/upload ar
+  replaces the Arabic listing's 8 phone screenshots and the feature graphic, then commits. It retries the
+  commit once a minute while Google answers 403 (missing permission) or 5xx, for COMMIT_WAIT_MINUTES (default 60).
+- node tool/play/play_upload.mjs <key> build/mafia-master-1.4.0-17.aab alpha "D:\Flutter Data\Projects\AL Mafia\release\1.4.0\release-notes-ar.txt" "D:\Flutter Data\Projects\AL Mafia\release\1.4.0\release-notes-en.txt"
+  uploads the bundle in resumable pieces, sets the alpha (closed testing) release with both notes, commits,
+  same retry rule.
+Key: D:\keys\mafia-master-billing-ef5d01c33970.json (service account play-verify@mafia-master-billing...).
+
+Run the listing script first, then the bundle script (one edit at a time: committing one edit invalidates any
+other open edit). Use COMMIT_WAIT_MINUTES=10 for each. A 403 that lasts means the service account still lacks
+"Manage store presence" (listing) or "Release apps to testing tracks" (bundle). Report it; do not try any
+other route (no browser, no other credentials).
+
+Note: the same images were also saved as a pending draft in the Play Console web UI; committing the API edit
+is fine, it carries the same files.
+
+REPORT: for each script, the final line it printed (COMMITTED ... or the error code), nothing else. No praise.

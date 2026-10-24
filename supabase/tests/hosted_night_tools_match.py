@@ -165,7 +165,7 @@ def doors_match():
     sn, dr = m.role('sniper'), m.role('doctor')
     keep, shot, killed, face, last = [p for p in m.players if p['role'] == 'citizen']
     m.reveal()
-    m.night()
+    m.night(protect=keep['seat'])
     m.discuss()
     tag = 'T25 day 1'
     # Covers night 2: a lock+half+camouflage seat, two half-door seats, a disguised Mafioso.

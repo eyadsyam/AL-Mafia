@@ -1,0 +1,11 @@
+RESUME the same Play Console task (brief play_console_chrome_1_4_2026_10_24.txt still applies in full). You stopped
+because of a usage limit while the 158 MB bundle upload sat at 58.4 MB on the release 7 "prepare" page of the Alpha
+(closed testing) track. Store images are already correct; release name and both notes were saved.
+
+1. Look at the release page. If the bundle finished and shows version code 17, go on. If the upload is stuck or
+   failed, cancel it and upload the bundle again (same path), then wait for Play's checks.
+2. Next > Save > start rollout to Closed testing, exactly as in the original brief.
+3. Publishing overview: send all pending changes for review. Screenshot to build\play_1_4_sent.png.
+Same limits: no typing passwords, no accepting terms, no other settings.
+
+REPORT: per step done / exact Play error; the release status and the "changes in review" line. No praise.

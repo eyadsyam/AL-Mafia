@@ -225,6 +225,9 @@ class MatchController extends Notifier<MatchUiState?> {
       public: snapshot.public,
       morning: snapshot.morning,
       lastVote: snapshot.lastVote,
+      clearSecrets:
+          !transport.isAuthoritative &&
+          _secretsExpired(current, snapshot.public),
       clearMorning: snapshot.morning == null,
       clearVote: snapshot.lastVote == null,
     );
@@ -747,6 +750,9 @@ class MatchController extends Notifier<MatchUiState?> {
       clearVote: clearVote,
     );
   }
+
+  bool _secretsExpired(MatchUiState current, PublicMatchView next) =>
+      current.phase != next.phase || current.dayNumber != next.dayNumber;
 }
 
 final matchControllerProvider =

@@ -1,0 +1,30 @@
+TASK: finish the open test work for Mafia Master (three parts). You will NOT commit, deploy, or run any live
+suite (supabase/tests/*_match.py and run_live_suite.py talk to the production server; the orchestrator runs them).
+
+PART 1 - two unfinished Flutter tests from an earlier run that stopped mid-way:
+  docs/plans/pending_tests/phase_resync_privacy_test.dart  (belongs in test/online/)
+  docs/plans/pending_tests/rotation_no_double_submit_test.dart  (belongs in test/widget/)
+Read the original brief docs/plans/briefs/client_resync_clock_rotation_2026_10_23.txt. Move each file to its
+place, make it compile (e.g. rotation test calls an undefined `localizedApp`: use the helper the other widget
+tests use, see test/support/localized.dart), and make it pass WITHOUT weakening what it asserts. One of them
+hung forever before: every pump must be bounded (pump with durations, no pumpAndSettle on endless animations).
+If a test exposes a real app bug, stop and report it with file:line instead of changing lib/.
+Remove the docs/plans/pending_tests folder when done.
+
+PART 2 - supabase/tests/silence_floor_match.py, confrontation_silence() (row D6): the room is created with
+quiet night available, so the Doctor's save is hidden (saveIsTold false in _shared/bullets.ts) and no survivor
+confrontation (C11) appears. Add 'quietNightEnabled': False to that Match's flags (check the exact setting key
+in supabase/functions/_shared/room_configuration.ts). Keep every assertion.
+
+PART 3 - supabase/tests/hosted_night_tools_match.py, row T25 night 2: 'doctor covers the detective' is refused
+with SAME_PROTECT because the Doctor protected the same seat on night 1. Make night 1 protect a different
+seat (read how the scenario picks night-1 targets). Keep every assertion.
+
+GATES
+  flutter analyze --no-pub
+  flutter test --no-pub --timeout 60s test/online/phase_resync_privacy_test.dart test/widget/rotation_no_double_submit_test.dart
+  flutter test --no-pub --concurrency=2
+  python -m py_compile supabase/tests/silence_floor_match.py supabase/tests/hosted_night_tools_match.py
+The Flutter SDK path contains a space; quote it if you call it by path.
+
+REPORT: the diffs in short, the real gate summary lines, and any app bug found. No praise.

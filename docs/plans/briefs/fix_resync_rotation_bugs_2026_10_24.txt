@@ -1,0 +1,20 @@
+TASK: fix the three app bugs your new tests found (test/online/phase_resync_privacy_test.dart X10 and
+test/widget/rotation_no_double_submit_test.dart X18). You may change lib/ now. You will NOT commit or deploy.
+Rules: lib/engine stays pure; no hardcoded colours, sizes or durations outside lib/core/theme/design_tokens.dart;
+no literal strings in widgets; Arabic line-height 1.6, zero letter-spacing, text scale 1.0; doc 05 (zero leakage)
+wins: a player must never see another player's private result.
+
+1. X10: after a resync that lands on the morning, MatchController still holds the night's InvestigateResult
+   (lib/ui/screens/match_controller.dart ~224). A private night result must be cleared when the phase it belongs
+   to is left, on every path (normal advance AND resync/reconnect). Fix at the source, not in the test.
+2. X18: night screen in landscape overflows in lib/ui/widgets/hold_pad.dart ~186 and
+   lib/ui/screens/online/council/voice_band.dart ~57. Make both layouts fit landscape phone sizes
+   (constraints-based, tokens only). No visual change in portrait.
+3. A later test used a disposed controller from lib/ui/screens/online/online_table_flow.dart ~374: guard the
+   async callback (mounted / disposed check) so nothing touches the controller after dispose.
+
+Do not weaken any assertion. GATES:
+  flutter analyze --no-pub
+  flutter test --no-pub --timeout 60s test/online/phase_resync_privacy_test.dart test/widget/rotation_no_double_submit_test.dart
+  flutter test --no-pub --concurrency=2
+REPORT: what each fix changed (file:line), real gate lines. No praise.

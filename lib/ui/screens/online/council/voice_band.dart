@@ -51,34 +51,66 @@ class CouncilVoice extends StatelessWidget {
     final type = context.typography;
     final spacing = context.spacing;
 
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: spacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (leading != null) ...[leading!, SizedBox(height: spacing.md)],
-            Flexible(
-              child: Text(
-                headline,
-                key: body,
-                textAlign: TextAlign.center,
-                style: (style ?? type.headline).copyWith(
-                  color: colors.textPrimary,
-                ),
-              ),
-            ),
-            // Flexible too: on a short window (a phone on its side, a small
-            // desktop window) the line under the headline gives way instead
-            // of pushing the column past its band.
-            if (support != null) ...[
-              SizedBox(height: spacing.md),
-              Flexible(child: support!),
-            ],
-          ],
-        ),
-      ),
+    final message = Text(
+      headline,
+      key: body,
+      textAlign: TextAlign.center,
+      style: (style ?? type.headline).copyWith(color: colors.textPrimary),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact =
+            leading != null &&
+            constraints.maxWidth > constraints.maxHeight &&
+            constraints.maxHeight <
+                CouncilTokens.nightOwnCardHeight + spacing.xxl;
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: spacing.lg),
+            child: compact
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        height: math.min(
+                          constraints.maxHeight,
+                          CouncilTokens.nightOwnCardHeight,
+                        ),
+                        child: leading!,
+                      ),
+                      SizedBox(width: spacing.md),
+                      Flexible(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(child: message),
+                            if (support != null) ...[
+                              SizedBox(height: spacing.md),
+                              Flexible(child: support!),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (leading != null) ...[
+                        leading!,
+                        SizedBox(height: spacing.md),
+                      ],
+                      Flexible(child: message),
+                      if (support != null) ...[
+                        SizedBox(height: spacing.md),
+                        Flexible(child: support!),
+                      ],
+                    ],
+                  ),
+          ),
+        );
+      },
     );
   }
 }

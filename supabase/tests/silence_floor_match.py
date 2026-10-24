@@ -64,7 +64,7 @@ def no_kill(m, silence=None, protect=None):
 def confrontation_silence():
     m = n.Match('D6', SILENCER, flags={'silencerEnabled': True,
         'confrontationEnabled': True, 'survivorConfrontationEnabled': True,
-        'confrontationSeconds': 30})
+        'confrontationSeconds': 30, 'quietNightEnabled': False})
     try:
         m.start()
         target = m.role('citizen')

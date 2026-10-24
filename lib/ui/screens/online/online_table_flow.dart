@@ -371,7 +371,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       _audio.activeVoice = null;
     }
     final privacy = _privacy;
-    WidgetsBinding.instance.addPostFrameCallback((_) => privacy.state = false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (privacy.mounted) privacy.state = false;
+    });
     _privateRetry?.cancel();
     _witnessPoll?.cancel();
     _newsTimer?.cancel();

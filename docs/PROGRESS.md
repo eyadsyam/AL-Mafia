@@ -3991,3 +3991,10 @@ Files:      lib/engine/match_engine.dart, tool/vote_matrix.dart, supabase/tests/
 Verified:   vote matrix generator twice (second byte-identical; 117 known divergence rows to 0; no other JSON row changed); flutter analyze --no-pub 0 issues; focused Flutter 722 passed; engine purity clean; node vote suites 595 passed, 0 failed, 0 skipped; full Flutter 4178 passed, 3 failed, 0 skipped.
 Gate:       PASS (orchestrator rerun: flutter analyze 0 issues; full flutter test 4169 passed, 0 failed)
 Open:       The 3 failures above were in two unfinished reconnect/rotation test files from a Codex run that hit its usage limit; they are held outside the repo until Codex finishes them (client_resync_clock_rotation brief). client_clock_skew_test.dart from that run passes (3/3) and is kept.
+
+## PHASE finish open tests — blocked
+Built:      Moved X10/X18 Dart tests into test/online and test/widget, bounded widget pumps, removed pending_tests, and corrected D6 quiet-night and T25 night-one Doctor fixtures without changing assertions.
+Files:      test/online/phase_resync_privacy_test.dart; test/widget/rotation_no_double_submit_test.dart; supabase/tests/silence_floor_match.py; supabase/tests/hosted_night_tools_match.py; docs/PROGRESS.md.
+Verified:   python -m py_compile passed; focused Flutter run: 9 passed, 3 failed. Initial analyze ran during move and reported 11 stale pending_tests import errors; final analyze and full suite not run after app defects surfaced.
+Gate:       FAIL
+Open:       X10 retains an InvestigateResult after resync to morning (match_controller.dart:224); X18 landscape night overflows hold_pad.dart:186 and voice_band.dart:57. A disposal callback can write a disposed Riverpod controller (online_table_flow.dart:374). Per brief, lib/ was not changed; rerun gates after app fixes.

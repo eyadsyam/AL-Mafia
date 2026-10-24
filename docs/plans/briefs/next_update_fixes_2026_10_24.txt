@@ -1,0 +1,18 @@
+TASK: prepare the fixes for the NEXT update of Mafia Master. Version 1.4.0 (17) is already built and ships as it
+is; nothing you do here changes it. You will NOT commit, deploy, build a release, or run any live suite.
+
+Read docs/plans/NEXT-UPDATE.md first. Then:
+1. Move docs/plans/next-update/phase_resync_privacy_test.dart to test/online/ and
+   docs/plans/next-update/rotation_no_double_submit_test.dart to test/widget/.
+2. Fix the three app bugs listed in NEXT-UPDATE.md, following the full brief
+   docs/plans/briefs/fix_resync_rotation_bugs_2026_10_24.txt (its rules apply). An earlier unfinished attempt
+   is in docs/plans/next-update/codex-wip-fixes.patch: use it only as a starting point, review it, do not apply
+   it blindly. Delete the patch file when your own fix is in.
+3. Gates:
+     flutter analyze --no-pub
+     flutter test --no-pub --timeout 60s test/online/phase_resync_privacy_test.dart test/widget/rotation_no_double_submit_test.dart
+     flutter test --no-pub --concurrency=2
+4. Update docs/plans/NEXT-UPDATE.md: under each bug write "Fixed (not released):" with the files changed and
+   one line on how, and add a "Changed files" list. Keep the rest of the file.
+
+REPORT: the gate summary lines and the files changed. No praise.

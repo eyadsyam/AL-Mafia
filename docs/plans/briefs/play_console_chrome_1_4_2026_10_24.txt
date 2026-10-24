@@ -1,0 +1,37 @@
+TASK: in the Google Play Console, through a real Chrome window, publish Mafia Master 1.4.0 (17) to closed testing and
+put the new store images live, then send everything for review. The owner asked for this now and it is the top
+priority. You do the clicks yourself. You will NOT change code, build, or commit.
+
+App: «سيد المافيا: Mafia Master», package com.mafiamaster.mafia_master, developer account eyadsyam124@gmail.com.
+Never change the app name or any other text in the listing.
+
+Files (absolute paths):
+- Bundle: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21\build\mafia-master-1.4.0-17.aab (~150 MB)
+- Release notes: D:\Flutter Data\Projects\AL Mafia\release\1.4.0\release-notes-ar.txt (ar) and release-notes-en.txt (en-US)
+- Phone screenshots, in this order: D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21\raw_assets\play-1.4\upload\mm14_screen_01.png ... mm14_screen_08.png
+- Feature graphic: same folder, mm14_feature_graphic.png
+
+Browser:
+- Open a visible Chrome window you can drive (for example Playwright with channel "chrome", or Chrome started with
+  --remote-debugging-port and a separate --user-data-dir under %TEMP%). Do not close or kill the owner's own Chrome.
+- If Google asks to sign in, do NOT type any email or password and do not read saved passwords, cookies or profile
+  files. Leave the sign-in page open, print the line "OWNER_SIGNIN_NEEDED" once, and wait (check every 30 s, up to
+  20 minutes) until the console loads, then continue.
+- If any terms, agreement, policy declaration or payment dialog appears, do not accept it: stop and report it.
+
+Steps:
+1. Testing > Closed testing (the existing closed track) > Create new release. Upload the bundle (wait for processing
+   to finish). Release name 1.4.0 (17). Paste the Arabic notes under <ar> and English under <en-US>. Next > Save.
+   If Play shows errors, report them word for word; warnings are fine. Then "Start rollout to Closed testing" /
+   save it so it joins the changes for review.
+2. Grow users > Store presence > Main store listing (Arabic default). Phone screenshots must be exactly the 8 files
+   above in order, and the feature graphic must be mm14_feature_graphic.png. A draft with these may already be saved;
+   if so keep it, otherwise remove the old phone screenshots and upload these. Save. Do not touch the icon, texts,
+   video field, tablet screenshots, or any other listing language.
+3. Publishing overview: send all pending changes for review ("Send N changes for review"). Do not turn on managed
+   publishing and do not change any other setting (pricing, ads, content rating, countries, testers).
+4. Take one screenshot of the Publishing overview after sending and save it to
+   D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21\build\play_1_4_sent.png
+
+REPORT: for each step, done / error (exact Play text). The release status shown on the closed testing page, and the
+"changes in review" line from Publishing overview. No praise.
