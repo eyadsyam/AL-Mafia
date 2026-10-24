@@ -43,8 +43,9 @@ Brief: `docs/plans/briefs/fix_resync_rotation_bugs_2026_10_24.txt`.
 
 ## Store
 
-- Pending review on Play: the 8 new screenshots and the new feature graphic (saved in the console, not yet sent
-  for review when work stopped).
+- 2026-10-24: Google granted production access. Codex (Chrome) rolled 1.4.0 (17) to closed testing at 100%,
+  created Production release 1 with the same bundle and notes (full rollout, 178 countries/regions = the closed
+  track's list) and sent 3 changes for review ("تم إرسال 3 تغييرات للمراجعة"). Screenshot: build/play_1_4_sent.png.
 - Trailer: `raw_assets/play-1.4/trailer/mafia_master_trailer_25s_1080p.mp4`; Play takes only a YouTube link.
 - Play API account `play-verify@mafia-master-billing.iam.gserviceaccount.com` can't release or edit the
   listing until the owner grants «إصدار التطبيقات إلى مسارات الاختبار» and «إدارة الظهور في المتجر».

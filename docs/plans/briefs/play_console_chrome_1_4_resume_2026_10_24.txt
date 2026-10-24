@@ -1,11 +1,25 @@
-RESUME the same Play Console task (brief play_console_chrome_1_4_2026_10_24.txt still applies in full). You stopped
-because of a usage limit while the 158 MB bundle upload sat at 58.4 MB on the release 7 "prepare" page of the Alpha
-(closed testing) track. Store images are already correct; release name and both notes were saved.
+RESUME the same Play Console task in Chrome (brief play_console_chrome_1_4_2026_10_24.txt still applies, with ONE
+CHANGE below). You stopped because of a usage limit while the 158 MB bundle upload sat at 58.4 MB on the release 7
+"prepare" page of the Alpha (closed testing) track. Store images are already correct; release name and both notes
+were saved.
 
-1. Look at the release page. If the bundle finished and shows version code 17, go on. If the upload is stuck or
+CHANGE: Google has now approved the app for PRODUCTION. The owner wants 1.4.0 (17) released publicly on Google Play
+now, and has authorized it. Closed testing still gets the same build.
+
+1. Look at the release 7 page. If the bundle finished and shows version code 17, go on. If the upload is stuck or
    failed, cancel it and upload the bundle again (same path), then wait for Play's checks.
-2. Next > Save > start rollout to Closed testing, exactly as in the original brief.
-3. Publishing overview: send all pending changes for review. Screenshot to build\play_1_4_sent.png.
-Same limits: no typing passwords, no accepting terms, no other settings.
+2. Closed testing: Next > Save > start rollout to Closed testing, exactly as in the original brief.
+3. Production: Test and release > Production > Create new release. Add the bundle from the library (version code 17,
+   do not upload it again). Release name 1.4.0 (17). Same notes: Arabic under <ar>, English under <en-US>
+   (files: D:\Flutter Data\Projects\AL Mafia\release\1.4.0\release-notes-ar.txt and release-notes-en.txt).
+   Next > Save > start rollout to Production at 100% (full rollout, not staged).
+   If Play says production has no countries/regions yet, add the same countries/regions the closed testing track
+   uses, and report exactly what you set. Do not change countries anywhere else.
+4. Publishing overview: send all pending changes for review. Do not turn on managed publishing.
+   Screenshot to D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21\build\play_1_4_sent.png
+Same limits: no typing passwords, no accepting terms or new agreements/declarations (stop and report them), no other
+settings. Never change the app name or listing texts. If Google asks to sign in: print OWNER_SIGNIN_NEEDED and wait as
+in the original brief.
 
-REPORT: per step done / exact Play error; the release status and the "changes in review" line. No praise.
+REPORT: per step done / exact Play error; the closed testing and production release statuses and the
+"changes in review" line. No praise.
