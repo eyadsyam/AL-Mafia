@@ -41,6 +41,10 @@ class RoomSettingsPanel extends ConsumerStatefulWidget {
   final GameSnapshot snapshot;
   final OnlineTransport? transport;
   final VoidCallback onClose;
+
+  /// The host's deal at a glance, opening the deal editor (owner,
+  /// 2026-10-29). Built by the lobby, which owns the split.
+  final Widget? dealEntry;
   final void Function({
     String? visibility,
     String? title,
@@ -55,6 +59,7 @@ class RoomSettingsPanel extends ConsumerStatefulWidget {
     required this.snapshot,
     required this.transport,
     required this.onClose,
+    this.dealEntry,
     this.onChanged,
     this.footer,
   });
@@ -67,7 +72,9 @@ class RoomSettingsPanel extends ConsumerStatefulWidget {
   static const Key muteAtNightSwitch = ValueKey('room_settings_mute_at_night');
   static const Key discussionStructured = ValueKey('room_settings_structured');
   static const Key discussionFree = ValueKey('room_settings_free');
-  static const Key revealWhispersKey = ValueKey('room_settings_reveal_whispers');
+  static const Key revealWhispersKey = ValueKey(
+    'room_settings_reveal_whispers',
+  );
   static const Key silencerKey = ValueKey('room_settings_silencer');
   static const Key elderKey = ValueKey('room_settings_elder');
   static const Key sniperKey = ValueKey('room_settings_sniper');
@@ -415,16 +422,22 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
                             icon: Icons.style_outlined,
                             title: l10n.rolesTitle,
                             children: [
+                              if (widget.dealEntry != null) widget.dealEntry!,
                               SettingsSwitchRow(
                                 switchKey: RoomSettingsPanel.silencerKey,
                                 label: l10n.settingSilencer,
                                 hint: _ownsRole('role_silencer')
                                     ? l10n.settingSilencerHint
                                     : l10n.roleLockedHint,
-                                pill: _ownsRole('role_silencer') ? null : l10n.roleLockedPill,
+                                pill: _ownsRole('role_silencer')
+                                    ? null
+                                    : l10n.roleLockedPill,
                                 value: match.silencerEnabled,
-                                onChanged: (_ownsRole('role_silencer') || match.silencerEnabled) &&
-                                        widget.snapshot.public.players.length >= 7
+                                onChanged:
+                                    (_ownsRole('role_silencer') ||
+                                            match.silencerEnabled) &&
+                                        widget.snapshot.public.players.length >=
+                                            7
                                     ? (value) => _send(
                                         settings: {'silencerEnabled': value},
                                       )
@@ -436,10 +449,15 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
                                 hint: _ownsRole('role_elder')
                                     ? l10n.settingElderHint
                                     : l10n.roleLockedHint,
-                                pill: _ownsRole('role_elder') ? null : l10n.roleLockedPill,
+                                pill: _ownsRole('role_elder')
+                                    ? null
+                                    : l10n.roleLockedPill,
                                 value: match.elderEnabled,
-                                onChanged: (_ownsRole('role_elder') || match.elderEnabled) &&
-                                        widget.snapshot.public.players.length >= 6
+                                onChanged:
+                                    (_ownsRole('role_elder') ||
+                                            match.elderEnabled) &&
+                                        widget.snapshot.public.players.length >=
+                                            6
                                     ? (value) => _send(
                                         settings: {'elderEnabled': value},
                                       )
@@ -451,10 +469,15 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
                                 hint: _ownsRole('role_sniper')
                                     ? l10n.settingSniperHint
                                     : l10n.roleLockedHint,
-                                pill: _ownsRole('role_sniper') ? null : l10n.roleLockedPill,
+                                pill: _ownsRole('role_sniper')
+                                    ? null
+                                    : l10n.roleLockedPill,
                                 value: match.sniperEnabled,
-                                onChanged: (_ownsRole('role_sniper') || match.sniperEnabled) &&
-                                        widget.snapshot.public.players.length >= 7
+                                onChanged:
+                                    (_ownsRole('role_sniper') ||
+                                            match.sniperEnabled) &&
+                                        widget.snapshot.public.players.length >=
+                                            7
                                     ? (value) => _send(
                                         settings: {'sniperEnabled': value},
                                       )

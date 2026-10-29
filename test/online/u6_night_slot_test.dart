@@ -147,7 +147,7 @@ void main() {
       );
     }
 
-    for (final role in [Role.citizen, Role.elder])
+    for (final role in [Role.citizen, Role.elder]) {
       testWidgets('a resting ${role.name} holds the pad and sends nothing', (
         tester,
       ) async {
@@ -172,5 +172,6 @@ void main() {
           isEmpty,
         );
       });
+    }
   });
 }

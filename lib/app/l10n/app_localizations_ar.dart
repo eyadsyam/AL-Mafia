@@ -7613,4 +7613,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String rolesOpenCard(String name) {
     return 'افتح كارت $name';
   }
+
+  @override
+  String get lobbyDeckTitle => 'الكروت اللي هتتوزع';
+
+  @override
+  String get lobbyDeckEdit => 'عدّل';
+
+  @override
+  String get lobbyDeckDone => 'تمام';
+
+  @override
+  String get lobbyDeckFollows => 'لو حد دخل أو خرج، المواطنين بيتظبطوا لوحدهم.';
+
+  @override
+  String get lobbyDeckReset => 'توزيعك مبقاش ينفع للعدد ده، فرجعنا للمقترح.';
 }

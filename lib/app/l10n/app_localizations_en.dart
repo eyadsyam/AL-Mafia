@@ -7728,4 +7728,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String rolesOpenCard(String name) {
     return 'Open the $name card';
   }
+
+  @override
+  String get lobbyDeckTitle => 'The cards to deal';
+
+  @override
+  String get lobbyDeckEdit => 'Edit';
+
+  @override
+  String get lobbyDeckDone => 'Done';
+
+  @override
+  String get lobbyDeckFollows =>
+      'If someone joins or leaves, the citizens adjust by themselves.';
+
+  @override
+  String get lobbyDeckReset =>
+      'Your split no longer fits this table, so the suggested one is back.';
 }

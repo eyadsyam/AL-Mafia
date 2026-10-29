@@ -13290,6 +13290,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open the {name} card'**
   String rolesOpenCard(String name);
+
+  /// No description provided for @lobbyDeckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The cards to deal'**
+  String get lobbyDeckTitle;
+
+  /// No description provided for @lobbyDeckEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get lobbyDeckEdit;
+
+  /// No description provided for @lobbyDeckDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get lobbyDeckDone;
+
+  /// No description provided for @lobbyDeckFollows.
+  ///
+  /// In en, this message translates to:
+  /// **'If someone joins or leaves, the citizens adjust by themselves.'**
+  String get lobbyDeckFollows;
+
+  /// No description provided for @lobbyDeckReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Your split no longer fits this table, so the suggested one is back.'**
+  String get lobbyDeckReset;
 }
 
 class _AppLocalizationsDelegate

@@ -3450,5 +3450,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "lobbyDeckTitle": "الكروت اللي هتتوزع",
+  "lobbyDeckEdit": "عدّل",
+  "lobbyDeckDone": "تمام",
+  "lobbyDeckFollows": "لو حد دخل أو خرج، المواطنين بيتظبطوا لوحدهم.",
+  "lobbyDeckReset": "توزيعك مبقاش ينفع للعدد ده، فرجعنا للمقترح."
 }

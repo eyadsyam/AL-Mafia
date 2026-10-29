@@ -40,6 +40,8 @@ import '../../fun/reactions.dart';
 import 'host_handover.dart';
 import 'host_sheet.dart';
 import 'invite_sheet.dart';
+import '../setup/optional_roles.dart';
+import 'online_deal_panel.dart';
 import 'room_settings_panel.dart';
 import 'scene_sheet.dart';
 import 'council/seat_status.dart';
@@ -164,6 +166,11 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
   bool _closing = false;
   bool _settings = false;
 
+  /// The host's own split, null until they first edit it, and whether the
+  /// deal editor is open (owner, 2026-10-29).
+  LobbyBase? _base;
+  bool _dealing = false;
+
   /// «ادعي صحابك», in the scene.
   bool _inviting = false;
 
@@ -284,7 +291,11 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     if (snapshot == null) return;
     // The recommended distribution for this many players, with the sold
     // roles this table is big enough for (`lobbyDeal`).
-    final deal = lobbyDeal(snapshot.public.players.length, snapshot.settings);
+    final deal = lobbyDeal(
+      snapshot.public.players.length,
+      snapshot.settings,
+      base: _base,
+    );
     final started = await ref
         .read(onlineSessionProvider.notifier)
         .start(roleCounts: deal.counts, settings: deal.settings);
@@ -798,6 +809,28 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                         ),
                                         SizedBox(height: spacing.md),
                                       ],
+                                      if (isHost &&
+                                          snapshot != null &&
+                                          MediaQuery.sizeOf(context).height >=
+                                              RolesTokens.fanShort) ...[
+                                        Builder(
+                                          builder: (context) {
+                                            final deal = lobbyDeal(
+                                              players.length,
+                                              snapshot.settings,
+                                              base: _base,
+                                            );
+                                            return LobbyDeckStrip(
+                                              counts: deal.counts,
+                                              reset: deal.reset,
+                                              onEdit: () => setState(
+                                                () => _dealing = true,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        SizedBox(height: spacing.sm),
+                                      ],
                                       if (isHost)
                                         FilledButton(
                                           key: LobbyScreen.startButton,
@@ -836,6 +869,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                         for (final role in lobbyDeal(
                                           players.length,
                                           snapshot.settings,
+                                          base: _base,
                                         ).skipped)
                                           Padding(
                                             padding: EdgeInsets.only(
@@ -931,12 +965,48 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                 ),
               ],
             ),
+            // The host's deal, as cards (owner, 2026-10-29).
+            if (snapshot != null)
+              OnlineDealPanel(
+                visible: _dealing && isHost,
+                players: snapshot.public.players.length,
+                settings: snapshot.settings,
+                base: _base,
+                onBase: (base) => setState(() => _base = base),
+                onRole: (role, on) => session.transport?.setRoomSettings(
+                  settings: {
+                    switch (role) {
+                      OptionalRole.silencer => 'silencerEnabled',
+                      OptionalRole.elder => 'elderEnabled',
+                      OptionalRole.sniper => 'sniperEnabled',
+                    }: on,
+                  },
+                ),
+                onClose: () => setState(() => _dealing = false),
+              ),
             // Task 10 — the whole settings screen, in the scene.
             if (snapshot != null)
               RoomSettingsPanel(
                 visible: _settings && isHost,
                 snapshot: snapshot,
                 transport: session.transport,
+                dealEntry: Builder(
+                  builder: (context) {
+                    final deal = lobbyDeal(
+                      snapshot.public.players.length,
+                      snapshot.settings,
+                      base: _base,
+                    );
+                    return LobbyDeckStrip(
+                      counts: deal.counts,
+                      reset: deal.reset,
+                      onEdit: () => setState(() {
+                        _settings = false;
+                        _dealing = true;
+                      }),
+                    );
+                  },
+                ),
                 onClose: () => setState(() => _settings = false),
               ),
             // «ادعي صحابك»: friends, search by name, people near you.

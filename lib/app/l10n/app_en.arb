@@ -4753,5 +4753,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "lobbyDeckTitle": "The cards to deal",
+  "lobbyDeckEdit": "Edit",
+  "lobbyDeckDone": "Done",
+  "lobbyDeckFollows": "If someone joins or leaves, the citizens adjust by themselves.",
+  "lobbyDeckReset": "Your split no longer fits this table, so the suggested one is back."
 }

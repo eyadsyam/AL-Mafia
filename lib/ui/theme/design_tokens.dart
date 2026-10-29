@@ -3187,6 +3187,11 @@ abstract final class RolesTokens {
   static const double sheetBackdropAlpha = 0.28;
 }
 
+/// The host's deal at a glance in the online lobby.
+abstract final class LobbyDeckTokens {
+  static const double cardHeight = 40;
+}
+
 /// «العب ضد الكمبيوتر»: the table, the levels.
 abstract final class BotTokens {
   static const Size tableCard = Size(52, 78);
