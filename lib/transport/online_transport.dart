@@ -698,7 +698,13 @@ class OnlineTransport implements GameTransport {
         _connection = ConnectionQuality.offline;
         _publish();
       }
-      await resync();
+      try {
+        await resync();
+      } on BackendException {
+        // A server that answered with an error is still down for this client:
+        // no caller is left to hear it, so the backoff keeps trying.
+        if (!_roomGone && !_controller.isClosed) _scheduleRetry();
+      }
     });
   }
 

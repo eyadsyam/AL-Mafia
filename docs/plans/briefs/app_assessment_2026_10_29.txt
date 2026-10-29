@@ -1,0 +1,27 @@
+Task: an honest, independent assessment of the Mafia Master app («سيد المافيا: Mafia Master») as it stands today, and a list of what is left. READ ONLY: do not edit, create, or delete any file. Do not commit. Do not build. Do not touch any live service.
+
+Context:
+- This is a Flutter + Riverpod app (Android on Google Play, plus a web build), with a Supabase backend: SQL migrations in supabase/migrations, edge functions in supabase/functions.
+- It is a social-deduction party game in Egyptian Arabic. Modes: offline pass-and-play on one phone, and online rooms with voice.
+- Stories mode exists but is closed for now («قريبًا»). Ignore story CONTENT entirely. Do assess the Stories code only if it affects the open app.
+- 1.5.0 (18) was just sent to Play production.
+- Project rules are in CLAUDE.md. Specs are in docs/specs. The rule that wins every argument is docs/specs/05-zero-leakage-spec.md: no player may infer another player's role.
+- Progress log: docs/PROGRESS.md (large; read only the last ~150 lines). Plans: docs/plans/STABLE-RELEASE-PLAN.md and docs/plans/UPDATE-1.5-PLAN.md.
+
+What to do:
+1. Survey the code: lib/, test/, supabase/. Sample the important paths; you do not need to read everything. Important paths: lib/engine (must stay pure), the online transport, the night/vote flow, monetization (lib/platform/monetization, lib/ui/economy), the update gate (lib/app/update_gate.dart), and account/profile.
+2. Run these read-only checks and report the real output:
+   - `flutter analyze 2>&1 | Select-Object -Last 15`
+   - Count the test files under test/.
+   - Grep for TODO/FIXME/HACK in lib/ and supabase/.
+   Do NOT run the full test suite (too heavy for this machine).
+3. Judge each area out of 10, with one line of evidence each: game engine correctness, zero-leakage safety, online robustness (reconnect, voice failure), UI quality and responsiveness, monetization (ads + store) and its correctness, backend security (RLS, grants, edge functions), test coverage, code health and maintainability, release/ops readiness.
+4. List the top risks, ordered by severity, each with file:line evidence.
+5. List what is still left to do, excluding story content: unfinished features, gaps, tech debt, missing verification. Say what is a must-do before the next update and what is a nice-to-have.
+
+Report format (plain text, English is fine):
+- SCORES: area — n/10 — evidence
+- RISKS: severity — finding — file:line
+- LEFT: must / nice — item — why
+- CHECKS RUN: exact commands and their outputs (truncated)
+- Mark anything you could not verify as UNVERIFIED. Do not guess.
