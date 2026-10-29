@@ -9,6 +9,7 @@ import '../../platform/reduce_motion.dart';
 import '../l10n_ext.dart';
 import '../theme/design_tokens.dart';
 import 'card_art.dart';
+import 'fit_or_scroll.dart';
 import '../theme/mafia_theme.dart';
 import 'hold_pad.dart';
 
@@ -462,181 +463,217 @@ class _RoleCardState extends State<RoleCard> with TickerProviderStateMixin {
     final radii = context.radii;
     final type = context.typography;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Player name header — same height always.
-        SizedBox(
-          height: spacing.xxl,
-          child: Center(
-            child: Text(
-              widget.playerName,
-              style: type.headline.emphasised.copyWith(
-                color: colors.textPrimary,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    // Player name header — same height always.
+    final header = SizedBox(
+      height: spacing.xxl,
+      child: Center(
+        child: Text(
+          widget.playerName,
+          style: type.headline.emphasised.copyWith(color: colors.textPrimary),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+
+    // The card — full-bleed image, no overlay.
+    final card = Expanded(
+      child: KeyedSubtree(
+        key: RoleCard.slotCard,
+        child: GestureDetector(
+          // The whole slot takes the swipe, not only the drawn card: the
+          // card now keeps its own proportions and leaves margin beside
+          // it, and a swipe that starts there is still a swipe.
+          behavior: HitTestBehavior.opaque,
+          onPanStart: _onPanStart,
+          onPanUpdate: _onPanUpdate,
+          onPanEnd: _onPanEnd,
+          child: _SwipeFlipCard(
+            flipProgress: _flipCurve,
+            // Mid-gesture the card follows the finger; once the gesture has
+            // committed, the resolved axis and sign are what the animation
+            // continues along.
+            drag: _swiping ? _drag : Offset.zero,
+            axis: _swiping ? _liveDirection.$1 : _axis,
+            sign: _swiping ? _liveDirection.$2 : _sign,
+            radius: radii.card,
+            elevation: context.elevation,
+            perspective: context.motion.perspective,
+            back: _CardSurface(
+              image: AppImages.cardBack,
+              radius: radii.card,
+              border: colors.borderSubtle,
+            ),
+            front: _CardSurface(
+              image: _face,
+              radius: radii.card,
+              border: colors.borderSubtle,
             ),
           ),
         ),
-        SizedBox(height: spacing.sm),
+      ),
+    );
 
-        // The card — full-bleed image, no overlay.
-        Expanded(
-          child: KeyedSubtree(
-            key: RoleCard.slotCard,
-            child: GestureDetector(
-              // The whole slot takes the swipe, not only the drawn card: the
-              // card now keeps its own proportions and leaves margin beside
-              // it, and a swipe that starts there is still a swipe.
-              behavior: HitTestBehavior.opaque,
-              onPanStart: _onPanStart,
-              onPanUpdate: _onPanUpdate,
-              onPanEnd: _onPanEnd,
-              child: _SwipeFlipCard(
-                flipProgress: _flipCurve,
-                // Mid-gesture the card follows the finger; once the gesture has
-                // committed, the resolved axis and sign are what the animation
-                // continues along.
-                drag: _swiping ? _drag : Offset.zero,
-                axis: _swiping ? _liveDirection.$1 : _axis,
-                sign: _swiping ? _liveDirection.$2 : _sign,
-                radius: radii.card,
-                elevation: context.elevation,
-                perspective: context.motion.perspective,
-                back: _CardSurface(
-                  image: AppImages.cardBack,
-                  radius: radii.card,
-                  border: colors.borderSubtle,
+    // Auto-conceal progress line (visible only when face-up).
+    final progress = KeyedSubtree(
+      key: RoleCard.progressLine,
+      child: SizedBox(
+        height: 2,
+        child: _phase == _RevealPhase.cardRevealed
+            ? AnimatedBuilder(
+                animation: _concealProgress,
+                builder: (context, _) => LinearProgressIndicator(
+                  value: _concealProgress.value,
+                  backgroundColor: colors.surfaceOverlay,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    colors.textSecondary,
+                  ),
+                  minHeight: 2,
                 ),
-                front: _CardSurface(
-                  image: _face,
-                  radius: radii.card,
-                  border: colors.borderSubtle,
+              )
+            : const SizedBox.expand(),
+      ),
+    );
+
+    // Everything the card *says*, as opposed to what it shows: the role
+    // name, its one-line description, and the mafia teammate list.
+    //
+    // Gated on the flip's own geometry rather than on the phase. Phase
+    // changes the instant the swipe completes, so an opacity driven by it
+    // put the role name on screen in legible type while the card was still
+    // turning — the leak the five-stage golden caught. Sharing
+    // [_flipCurve] with the card means the words and the painting cross the
+    // halfway point on the same frame, for every role, by construction.
+    final texts = _RevealedText(
+      flip: _flipCurve,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Role name — bone white, display font, centred. Identical
+          // position, size, weight and colour for all four roles; only the
+          // string differs, and it comes from the ARB.
+          // Tall enough for one line of the display cut at its real
+          // leading: 44 × 1.6 is 70.4, and this box was `xxl` (48), which
+          // sliced the bottom off every role name — "دكتور" lost its
+          // descender. Arabic needs the room; the box has to be told.
+          SizedBox(
+            height: spacing.xxl + spacing.lg,
+            child: Center(
+              child: Text(
+                _title(context),
+                style: type.display.emphasised.copyWith(
+                  color: colors.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          // The description, whole. Fixed height, so a wordier role cannot
+          // make its card taller (L-02) — but three lines rather than one,
+          // because at one line every role but the citizen was cut off
+          // mid-sentence with an ellipsis. The longest of the four (the
+          // detective's, 72 characters) wraps to two.
+          //
+          // Deliberately *not* a `FittedBox`: scaling the text down to fit
+          // would give each role a different type size, and a glance at
+          // someone's screen from across the table would tell you how long
+          // their role's description is. Wrapping inside a box that is the
+          // same height for everyone leaks nothing.
+          SizedBox(
+            height: spacing.xxl + spacing.lg,
+            child: Center(
+              child: Text(
+                _description(context),
+                style: type.bodySmall.copyWith(color: colors.textSecondary),
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+          SizedBox(height: spacing.sm),
+
+          // Reserved teammates slot: same height for everyone (L-02).
+          KeyedSubtree(
+            key: RoleCard.slotTeammates,
+            child: SizedBox(
+              height: spacing.xxl,
+              child: Center(
+                child: Text(
+                  widget.teammateNames.isEmpty
+                      ? ''
+                      : context.l10n.teammatesLine(
+                          widget.teammateNames.join(context.l10n.listSeparator),
+                        ),
+                  style: type.bodySmall.emphasised.copyWith(
+                    color: colors.textPrimary,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
           ),
-        ),
+        ],
+      ),
+    );
 
-        // Auto-conceal progress line (visible only when face-up).
-        SizedBox(height: spacing.sm),
-        KeyedSubtree(
-          key: RoleCard.progressLine,
-          child: SizedBox(
-            height: 2,
-            child: _phase == _RevealPhase.cardRevealed
-                ? AnimatedBuilder(
-                    animation: _concealProgress,
-                    builder: (context, _) => LinearProgressIndicator(
-                      value: _concealProgress.value,
-                      backgroundColor: colors.surfaceOverlay,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        colors.textSecondary,
-                      ),
-                      minHeight: 2,
-                    ),
-                  )
-                : const SizedBox.expand(),
-          ),
-        ),
-        SizedBox(height: spacing.sm),
+    // Bottom control: swipe hint, or pass button.
+    final bottom = KeyedSubtree(
+      key: RoleCard.slotBottom,
+      child: SizedBox(
+        height: spacing.xxl + spacing.sm,
+        child: _bottomControl(context),
+      ),
+    );
 
-        // Everything the card *says*, as opposed to what it shows: the role
-        // name, its one-line description, and the mafia teammate list.
-        //
-        // Gated on the flip's own geometry rather than on the phase. Phase
-        // changes the instant the swipe completes, so an opacity driven by it
-        // put the role name on screen in legible type while the card was still
-        // turning — the leak the five-stage golden caught. Sharing
-        // [_flipCurve] with the card means the words and the painting cross the
-        // halfway point on the same frame, for every role, by construction.
-        _RevealedText(
-          flip: _flipCurve,
-          child: Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // On its side the stack of fixed lines leaves the card no height at
+        // all, so the card takes one half and the words the other. Same
+        // pieces, same sizes, for every role (L-02).
+        if (constraints.maxWidth > constraints.maxHeight) {
+          return Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Role name — bone white, display font, centred. Identical
-              // position, size, weight and colour for all four roles; only the
-              // string differs, and it comes from the ARB.
-              // Tall enough for one line of the display cut at its real
-              // leading: 44 × 1.6 is 70.4, and this box was `xxl` (48), which
-              // sliced the bottom off every role name — "دكتور" lost its
-              // descender. Arabic needs the room; the box has to be told.
-              SizedBox(
-                height: spacing.xxl + spacing.lg,
-                child: Center(
-                  child: Text(
-                    _title(context),
-                    style: type.display.emphasised.copyWith(
-                      color: colors.textPrimary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    card,
+                    SizedBox(height: spacing.sm),
+                    progress,
+                  ],
                 ),
               ),
-              // The description, whole. Fixed height, so a wordier role cannot
-              // make its card taller (L-02) — but three lines rather than one,
-              // because at one line every role but the citizen was cut off
-              // mid-sentence with an ellipsis. The longest of the four (the
-              // detective's, 72 characters) wraps to two.
-              //
-              // Deliberately *not* a `FittedBox`: scaling the text down to fit
-              // would give each role a different type size, and a glance at
-              // someone's screen from across the table would tell you how long
-              // their role's description is. Wrapping inside a box that is the
-              // same height for everyone leaks nothing.
-              SizedBox(
-                height: spacing.xxl + spacing.lg,
-                child: Center(
-                  child: Text(
-                    _description(context),
-                    style: type.bodySmall.copyWith(color: colors.textSecondary),
-                    textAlign: TextAlign.center,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-              SizedBox(height: spacing.sm),
-
-              // Reserved teammates slot: same height for everyone (L-02).
-              KeyedSubtree(
-                key: RoleCard.slotTeammates,
-                child: SizedBox(
-                  height: spacing.xxl,
-                  child: Center(
-                    child: Text(
-                      widget.teammateNames.isEmpty
-                          ? ''
-                          : context.l10n.teammatesLine(
-                              widget.teammateNames.join(
-                                context.l10n.listSeparator,
-                              ),
-                            ),
-                      style: type.bodySmall.emphasised.copyWith(
-                        color: colors.textPrimary,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+              SizedBox(width: spacing.lg),
+              Expanded(
+                child: FitOrScroll(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [header, texts, bottom],
                   ),
                 ),
               ),
             ],
-          ),
-        ),
-
-        // Bottom control: swipe hint, or pass button.
-        KeyedSubtree(
-          key: RoleCard.slotBottom,
-          child: SizedBox(
-            height: spacing.xxl + spacing.sm,
-            child: _bottomControl(context),
-          ),
-        ),
-      ],
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            header,
+            SizedBox(height: spacing.sm),
+            card,
+            SizedBox(height: spacing.sm),
+            progress,
+            SizedBox(height: spacing.sm),
+            texts,
+            bottom,
+          ],
+        );
+      },
     );
   }
 

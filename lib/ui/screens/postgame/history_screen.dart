@@ -151,7 +151,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       ),
       // Phase 108: history is a waiting surface; zero size unless switched
       // on and filled.
-      bottomNavigationBar: const SafeArea(top: false, child: WaitingBanner(placement: BannerPlacement.history)),
+      bottomNavigationBar: const SafeArea(
+        top: false,
+        child: WaitingBanner(placement: BannerPlacement.history),
+      ),
       body: AppBackdrop(
         image: AppImages.bgNight,
         child: Builder(
@@ -169,24 +172,27 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               );
             }
             if (summaries.isEmpty && _online.isEmpty) {
+              // Scrolls when the screen is too short for it (on its side).
               return Center(
-                child: Padding(
-                  padding: EdgeInsets.all(spacing.xl),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        AppCouncilArt.whisperSeal,
-                        width: UiPolishTokens.emptyEmblem,
-                        height: UiPolishTokens.emptyEmblem,
-                        color: colors.accentGold.withValues(
-                          alpha: UiPolishTokens.emptyEmblemOpacity,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.all(spacing.xl),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          AppCouncilArt.whisperSeal,
+                          width: UiPolishTokens.emptyEmblem,
+                          height: UiPolishTokens.emptyEmblem,
+                          color: colors.accentGold.withValues(
+                            alpha: UiPolishTokens.emptyEmblemOpacity,
+                          ),
+                          excludeFromSemantics: true,
                         ),
-                        excludeFromSemantics: true,
-                      ),
-                      SizedBox(height: spacing.lg),
-                      MafiaEmpty(title: l10n.noPastMatches),
-                    ],
+                        SizedBox(height: spacing.lg),
+                        MafiaEmpty(title: l10n.noPastMatches),
+                      ],
+                    ),
                   ),
                 ),
               );

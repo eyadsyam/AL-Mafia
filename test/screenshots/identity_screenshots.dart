@@ -61,6 +61,9 @@ import '../support/artwork.dart';
 import '../support/casebook_fixture.dart';
 import '../support/localized.dart';
 import '../support/reveal_flow.dart';
+import '../support/platform_channel_mocks.dart';
+import '../support/fake_backend.dart';
+import 'package:mafia_master/ui/screens/online/online_session.dart';
 
 const _phone = Size(390, 844);
 
@@ -125,13 +128,27 @@ void main() {
     await tester.pumpWidget(
       RepaintBoundary(
         key: const ValueKey('shot'),
-        child: ProviderScope(child: localizedApp(child)),
+        child: ProviderScope(
+          overrides: [
+            onlineBackendFactoryProvider.overrideWithValue(
+              () async => FakeBackend(
+                roomId: 'identity',
+                state: roomState(phase: 'lobby'),
+                players: roster(7),
+              )..responses['browse_rooms'] = {'rooms': []},
+            ),
+          ],
+          child: localizedApp(child),
+        ),
       ),
     );
     await capture(tester, name);
   }
 
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    installPlatformChannelMocks();
+  });
 
   final publicScreens = <String, Widget>{
     '00_mode': ModeScreen(
@@ -187,7 +204,18 @@ void main() {
       await tester.pumpWidget(
         RepaintBoundary(
           key: const ValueKey('shot'),
-          child: ProviderScope(child: localizedApp(entry.value)),
+          child: ProviderScope(
+            overrides: [
+              onlineBackendFactoryProvider.overrideWithValue(
+                () async => FakeBackend(
+                  roomId: 'identity',
+                  state: roomState(phase: 'lobby'),
+                  players: roster(7),
+                )..responses['browse_rooms'] = {'rooms': []},
+              ),
+            ],
+            child: localizedApp(entry.value),
+          ),
         ),
       );
       await capture(tester, '${entry.key}_360');
@@ -212,10 +240,7 @@ void main() {
 
   for (final (name, show) in <(String, Future<void> Function(BuildContext))>[
     ('09_settings_sheet', showSettingsSheet),
-    (
-      '15_how_to_sheet',
-      (c) => showHowToSheet(c, onVideo: () {}),
-    ),
+    ('15_how_to_sheet', (c) => showHowToSheet(c, onVideo: () {})),
   ]) {
     testWidgets(name, (tester) async {
       await shoot(
@@ -564,17 +589,23 @@ void main() {
         MatchFileNight(
           day: false,
           number: 1,
-          lines: [MatchFileLine(MatchFileKind.killed, seats: [3])],
+          lines: [
+            MatchFileLine(MatchFileKind.killed, seats: [3]),
+          ],
         ),
         MatchFileNight(
           day: true,
           number: 1,
-          lines: [MatchFileLine(MatchFileKind.expelled, seats: [6], votes: 5)],
+          lines: [
+            MatchFileLine(MatchFileKind.expelled, seats: [6], votes: 5),
+          ],
         ),
         MatchFileNight(
           day: false,
           number: 2,
-          lines: [MatchFileLine(MatchFileKind.saved, seats: [1])],
+          lines: [
+            MatchFileLine(MatchFileKind.saved, seats: [1]),
+          ],
         ),
       ],
     );

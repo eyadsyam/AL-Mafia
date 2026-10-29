@@ -11,6 +11,7 @@ import '../../economy/cosmetic_paint.dart';
 import '../../economy/pass_table_dress.dart';
 import '../../theme/mafia_theme.dart';
 import '../../theme/design_tokens.dart';
+import '../../widgets/fit_or_scroll.dart';
 import '../../widgets/phase_timer.dart';
 import '../../widgets/textured_surface.dart';
 
@@ -248,114 +249,130 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                   horizontal: spacing.screenMargin,
                   vertical: spacing.lg,
                 ),
+                // The controls stay at the bottom; everything above them
+                // scrolls when the screen is too short for it (on its side).
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Title
-                    Text(
-                      widget.mode == DiscussionMode.structured
-                          ? l10n.discussionTitle
-                          : l10n.discussionFreeTitle,
-                      key: const ValueKey('discussion_headline'),
-                      style: type.display.copyWith(
-                        color: colors.textPrimary,
-                        fontSize: widget.tabletop
-                            ? TabletopTokens.headlineFontSize
-                            : null,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: spacing.sm),
-                    // Doc 14 Part 6: the row is reserved and empty. Nothing
-                    // teaches during a live match, in either mode — but the
-                    // reservation is what keeps the screen the same height as
-                    // it was, so the timer under it does not jump.
-                    SizedBox(height: HintSlot.reservedHeight(context)),
-                    SizedBox(height: spacing.sm),
-                    if (widget.tableTalk.isNotEmpty) ...[
-                      _TableTalk(
-                        lines: widget.tableTalk,
-                        onHint: widget.onTalkHint,
-                      ),
-                      SizedBox(height: spacing.md),
-                    ],
-
-                    // Speaker info (structured mode only)
-                    if (widget.mode == DiscussionMode.structured) ...[
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: spacing.md,
-                          vertical: spacing.md,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.surfaceRaised,
-                          borderRadius: BorderRadius.circular(radii.card),
-                          border: Border.all(color: colors.borderSubtle),
-                        ),
+                    Expanded(
+                      child: FitOrScroll(
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            // Title
                             Text(
-                              l10n.currentSpeaker,
-                              style: type.caption.copyWith(
-                                color: colors.textMuted,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(height: spacing.sm),
-                            // Store truth: the host's own plate when the host
-                            // holds the floor (public discussion only).
-                            CosmeticNameplate(
-                              name: currentSpeaker.name,
-                              plate: HostIdentityScope.plateFor(
-                                context,
-                                currentSpeaker.name,
-                              ),
-                              style: type.title.emphasised.copyWith(
-                                color: colors.accentGold,
+                              widget.mode == DiscussionMode.structured
+                                  ? l10n.discussionTitle
+                                  : l10n.discussionFreeTitle,
+                              key: const ValueKey('discussion_headline'),
+                              style: type.display.copyWith(
+                                color: colors.textPrimary,
                                 fontSize: widget.tabletop
-                                    ? TabletopTokens.factFontSize
+                                    ? TabletopTokens.headlineFontSize
                                     : null,
                               ),
                               textAlign: TextAlign.center,
                             ),
                             SizedBox(height: spacing.sm),
-                            Text(
-                              l10n.speakersRemaining(_speakersRemaining),
-                              style: type.bodySmall.copyWith(
-                                color: colors.textSecondary,
+                            // Doc 14 Part 6: the row is reserved and empty. Nothing
+                            // teaches during a live match, in either mode — but the
+                            // reservation is what keeps the screen the same height as
+                            // it was, so the timer under it does not jump.
+                            SizedBox(height: HintSlot.reservedHeight(context)),
+                            SizedBox(height: spacing.sm),
+                            if (widget.tableTalk.isNotEmpty) ...[
+                              _TableTalk(
+                                lines: widget.tableTalk,
+                                onHint: widget.onTalkHint,
                               ),
-                              textAlign: TextAlign.center,
+                              SizedBox(height: spacing.md),
+                            ],
+
+                            // Speaker info (structured mode only)
+                            if (widget.mode == DiscussionMode.structured) ...[
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: spacing.md,
+                                  vertical: spacing.md,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colors.surfaceRaised,
+                                  borderRadius: BorderRadius.circular(
+                                    radii.card,
+                                  ),
+                                  border: Border.all(
+                                    color: colors.borderSubtle,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      l10n.currentSpeaker,
+                                      style: type.caption.copyWith(
+                                        color: colors.textMuted,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: spacing.sm),
+                                    // Store truth: the host's own plate when the host
+                                    // holds the floor (public discussion only).
+                                    CosmeticNameplate(
+                                      name: currentSpeaker.name,
+                                      plate: HostIdentityScope.plateFor(
+                                        context,
+                                        currentSpeaker.name,
+                                      ),
+                                      style: type.title.emphasised.copyWith(
+                                        color: colors.accentGold,
+                                        fontSize: widget.tabletop
+                                            ? TabletopTokens.factFontSize
+                                            : null,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: spacing.sm),
+                                    Text(
+                                      l10n.speakersRemaining(
+                                        _speakersRemaining,
+                                      ),
+                                      style: type.bodySmall.copyWith(
+                                        color: colors.textSecondary,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: spacing.lg),
+                            ],
+
+                            // Timer
+                            Expanded(
+                              child: Center(
+                                child: PhaseTimer(
+                                  remaining: _remaining,
+                                  total: totalTime,
+                                  tabletop: widget.tabletop,
+                                ),
+                              ),
                             ),
+                            SizedBox(height: spacing.lg),
+
+                            // The whisper graph, and the way into the composer. Both
+                            // are on-table: who wrote to whom is meant to be argued
+                            // about, and the composer gates itself behind a seat pick.
+                            if (widget.onWhisper != null) ...[
+                              _WhisperPanel(
+                                graph: widget.whisperGraph,
+                                onCompose: widget.onWhisper!,
+                              ),
+                              SizedBox(height: spacing.lg),
+                            ],
                           ],
                         ),
                       ),
-                      SizedBox(height: spacing.lg),
-                    ],
-
-                    // Timer
-                    Expanded(
-                      child: Center(
-                        child: PhaseTimer(
-                          remaining: _remaining,
-                          total: totalTime,
-                          tabletop: widget.tabletop,
-                        ),
-                      ),
                     ),
-                    SizedBox(height: spacing.lg),
-
-                    // The whisper graph, and the way into the composer. Both
-                    // are on-table: who wrote to whom is meant to be argued
-                    // about, and the composer gates itself behind a seat pick.
-                    if (widget.onWhisper != null) ...[
-                      _WhisperPanel(
-                        graph: widget.whisperGraph,
-                        onCompose: widget.onWhisper!,
-                      ),
-                      SizedBox(height: spacing.lg),
-                    ],
-
                     // Control buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -460,26 +477,29 @@ class _TableTalk extends StatelessWidget {
         borderRadius: BorderRadius.circular(context.radii.card),
         border: Border.all(color: colors.borderSubtle),
       ),
-      child: ListView(
-        shrinkWrap: true,
-        padding: EdgeInsets.zero,
-        children: [
-          for (final line in lines)
-            Padding(
-              padding: EdgeInsets.only(bottom: spacing.xs),
-              child: Text(
-                line,
-                style: type.bodySmall.copyWith(color: colors.textSecondary),
+      // A scroll view that can say how tall it is (a shrink-wrapped list
+      // cannot), because the screen around it scrolls on a short phone.
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final line in lines)
+              Padding(
+                padding: EdgeInsets.only(bottom: spacing.xs),
+                child: Text(
+                  line,
+                  style: type.bodySmall.copyWith(color: colors.textSecondary),
+                ),
               ),
-            ),
-          if (onHint != null)
-            TextButton.icon(
-              key: hintKey,
-              onPressed: onHint,
-              icon: const Icon(Icons.ondemand_video_rounded),
-              label: Text(context.l10n.botHintOffer),
-            ),
-        ],
+            if (onHint != null)
+              TextButton.icon(
+                key: hintKey,
+                onPressed: onHint,
+                icon: const Icon(Icons.ondemand_video_rounded),
+                label: Text(context.l10n.botHintOffer),
+              ),
+          ],
+        ),
       ),
     );
   }

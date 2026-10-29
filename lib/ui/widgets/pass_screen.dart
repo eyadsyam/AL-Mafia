@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n_ext.dart';
 import '../theme/mafia_theme.dart';
+import 'fit_or_scroll.dart';
 import 'hold_pad.dart';
 import 'textured_surface.dart';
 
@@ -55,58 +56,60 @@ class PassScreen extends StatelessWidget {
                 horizontal: spacing.screenMargin,
                 vertical: spacing.lg,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    l10n.passPhoneTo,
-                    style: type.caption.copyWith(color: colors.textMuted),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: spacing.sm),
-                  Text(
-                    targetName,
-                    style: type.display.emphasised.copyWith(
-                      color: colors.textPrimary,
+              child: CentredScroll(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.passPhoneTo,
+                      style: type.caption.copyWith(color: colors.textMuted),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  // Reserved subtitle line: always laid out, so its presence
-                  // never signals anything.
-                  SizedBox(
-                    height: spacing.lg,
-                    child: Center(
-                      child: Text(
-                        subtitle ?? '',
-                        style: type.bodySmall.copyWith(
-                          color: colors.textSecondary,
+                    SizedBox(height: spacing.sm),
+                    Text(
+                      targetName,
+                      style: type.display.emphasised.copyWith(
+                        color: colors.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    // Reserved subtitle line: always laid out, so its presence
+                    // never signals anything.
+                    SizedBox(
+                      height: spacing.lg,
+                      child: Center(
+                        child: Text(
+                          subtitle ?? '',
+                          style: type.bodySmall.copyWith(
+                            color: colors.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
                         ),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
                       ),
                     ),
-                  ),
-                  SizedBox(height: spacing.xl),
-                  KeyedSubtree(
-                    key: holdPad,
-                    child: HoldPad(
-                      holdDuration: context.timing.holdToReveal,
-                      instruction: l10n.iAmHoldInstruction(targetName),
-                      onHoldComplete: onConfirmed,
+                    SizedBox(height: spacing.xl),
+                    KeyedSubtree(
+                      key: holdPad,
+                      child: HoldPad(
+                        holdDuration: context.timing.holdToReveal,
+                        instruction: l10n.iAmHoldInstruction(targetName),
+                        onHoldComplete: onConfirmed,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: spacing.lg),
-                  TextButton(
-                    key: wrongPerson,
-                    onPressed: onWrongPerson,
-                    child: Text(
-                      l10n.notYouNamed(targetName),
-                      style: type.bodySmall.copyWith(color: colors.textMuted),
+                    SizedBox(height: spacing.lg),
+                    TextButton(
+                      key: wrongPerson,
+                      onPressed: onWrongPerson,
+                      child: Text(
+                        l10n.notYouNamed(targetName),
+                        style: type.bodySmall.copyWith(color: colors.textMuted),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../engine/models/enums.dart' hide Alignment;
-import '../../../../transport/game_snapshot.dart' show FinalStanding, SeatCosmetics;
+import '../../../../transport/game_snapshot.dart'
+    show FinalStanding, SeatCosmetics;
 import '../../../economy/cosmetic_paint.dart';
 import '../../../l10n_ext.dart';
 import '../../../theme/design_tokens.dart';

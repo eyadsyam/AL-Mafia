@@ -33,6 +33,7 @@ import '../../economy/vault_kit.dart'
     show ClaimedMark, VaultBar, VaultPress, vaultGoldStyle;
 import '../../theme/design_tokens.dart';
 import '../../widgets/player_avatar.dart';
+import 'council/compact_bands.dart';
 import 'council/council_band.dart';
 import 'council/council_geometry.dart';
 import '../../fun/reactions.dart';
@@ -43,7 +44,6 @@ import 'room_settings_panel.dart';
 import 'scene_sheet.dart';
 import 'council/seat_status.dart';
 import 'table/table_pulse.dart';
-import 'table/table_scene.dart';
 import '../../economy/waiting_banner.dart';
 import '../../economy/web_ads.dart';
 import '../../economy/economy_capabilities.dart';
@@ -482,410 +482,401 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                         // the council band, at the same proportion it will have all
                         // match, so the first frame of the lobby and the first
                         // frame of the game are the same picture with people added.
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: CouncilTokens.headerHeight,
-                              child: LobbyHeader(
-                                title:
-                                    (snapshot?.room.title ?? '').trim().isEmpty
-                                    ? l10n.lobbyRoomHeader(code)
-                                    : snapshot!.room.title!.trim(),
-                                isHost: isHost,
-                                settingsKey: LobbyScreen.settingsButton,
-                                leaveKey: LobbyScreen.leaveButton,
-                                onSettings: () =>
-                                    setState(() => _settings = true),
-                                onLeave: () async {
-                                  if (isHost) {
-                                    setState(() => _closing = true);
-                                    return;
-                                  }
-                                  await ref
-                                      .read(onlineSessionProvider.notifier)
-                                      .leave();
-                                  if (context.mounted) widget.onLeave();
-                                },
-                              ),
+                        child: CompactBands(
+                          header: SizedBox(
+                            height: CouncilTokens.headerHeight,
+                            child: LobbyHeader(
+                              title: (snapshot?.room.title ?? '').trim().isEmpty
+                                  ? l10n.lobbyRoomHeader(code)
+                                  : snapshot!.room.title!.trim(),
+                              isHost: isHost,
+                              settingsKey: LobbyScreen.settingsButton,
+                              leaveKey: LobbyScreen.leaveButton,
+                              onSettings: () =>
+                                  setState(() => _settings = true),
+                              onLeave: () async {
+                                if (isHost) {
+                                  setState(() => _closing = true);
+                                  return;
+                                }
+                                await ref
+                                    .read(onlineSessionProvider.notifier)
+                                    .leave();
+                                if (context.mounted) widget.onLeave();
+                              },
                             ),
-                            const BandDivider(),
-                            Expanded(
-                              flex: CouncilTokens.councilFlex,
-                              // Phase 109: a reaction rises from its sender's
-                              // chair. The lobby is before any role exists.
-                              child: ReactionScope(
-                                roomId: session.room?.roomId,
-                                backend: session.transport?.backend,
-                                open: reactionsOpen(snapshot?.phase),
-                                anchor: (seat, size) =>
-                                    _chairCentre(players, snapshot, seat, size),
-                                child: TablePulse(
-                                  child: CouncilBand(
-                                    seats: _chairs(
-                                      players,
-                                      snapshot,
-                                      speakingLevels:
-                                          voice?.speakingLevels ?? const {},
-                                    ),
-                                    totalPlayers: math.max(
-                                      snapshot?.room.maxPlayers ??
-                                          LobbyScreen.defaultCapacity,
-                                      players.length,
-                                    ),
-                                    joinProgress: {
-                                      for (final seat in _arriving)
-                                        seat: _join.value,
-                                    },
-                                    leftLabel: l10n.onlineLeftRoom,
-                                    onSeatInspect: isHost && snapshot != null
-                                        ? (seat) =>
-                                              setState(() => _inspect = seat)
-                                        : null,
+                          ),
+                          council: Expanded(
+                            flex: CouncilTokens.councilFlex,
+                            // Phase 109: a reaction rises from its sender's
+                            // chair. The lobby is before any role exists.
+                            child: ReactionScope(
+                              roomId: session.room?.roomId,
+                              backend: session.transport?.backend,
+                              open: reactionsOpen(snapshot?.phase),
+                              anchor: (seat, size) =>
+                                  _chairCentre(players, snapshot, seat, size),
+                              child: TablePulse(
+                                child: CouncilBand(
+                                  seats: _chairs(
+                                    players,
+                                    snapshot,
+                                    speakingLevels:
+                                        voice?.speakingLevels ?? const {},
                                   ),
+                                  totalPlayers: math.max(
+                                    snapshot?.room.maxPlayers ??
+                                        LobbyScreen.defaultCapacity,
+                                    players.length,
+                                  ),
+                                  joinProgress: {
+                                    for (final seat in _arriving)
+                                      seat: _join.value,
+                                  },
+                                  leftLabel: l10n.onlineLeftRoom,
+                                  onSeatInspect: isHost && snapshot != null
+                                      ? (seat) =>
+                                            setState(() => _inspect = seat)
+                                      : null,
                                 ),
                               ),
                             ),
-                            Expanded(
-                              flex: CouncilTokens.voiceFlex,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: spacing.sm),
-                                    // Doc 12 §3.1: the letters stagger in on first
-                                    // render. The code is public and identical on
-                                    // every device in the room, so staggering it
-                                    // carries nothing — which is exactly the
-                                    // condition `StaggeredEntrance` exists under.
-                                    GestureDetector(
-                                      onTap: code.isEmpty
-                                          ? null
-                                          : () => _copyCode(code),
-                                      child: _StaggeredCode(
-                                        key: LobbyScreen.codeText,
-                                        code: code,
-                                        style: type.display.copyWith(
-                                          color: colors.accentGold,
-                                          letterSpacing: spacing.sm,
-                                        ),
+                          ),
+                          voice: Expanded(
+                            flex: CouncilTokens.voiceFlex,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  SizedBox(height: spacing.sm),
+                                  // Doc 12 §3.1: the letters stagger in on first
+                                  // render. The code is public and identical on
+                                  // every device in the room, so staggering it
+                                  // carries nothing — which is exactly the
+                                  // condition `StaggeredEntrance` exists under.
+                                  GestureDetector(
+                                    onTap: code.isEmpty
+                                        ? null
+                                        : () => _copyCode(code),
+                                    child: _StaggeredCode(
+                                      key: LobbyScreen.codeText,
+                                      code: code,
+                                      style: type.display.copyWith(
+                                        color: colors.accentGold,
+                                        letterSpacing: spacing.sm,
                                       ),
                                     ),
-                                    // Task 12 — two glyphs everybody already knows,
-                                    // under a code that is already the loudest
-                                    // thing on the screen. The words stay as
-                                    // tooltips and as the labels a screen reader
-                                    // reads, which is the part that was carrying
-                                    // the meaning for anybody who needed it.
-                                    // Phase 99: inviting is the host's one
-                                    // useful move in an empty room, and the
-                                    // hint below asks for it by name — so the
-                                    // share is a labelled button, not a bare
-                                    // glyph. Same native share, same session;
-                                    // copy stays a glyph beside it.
-                                    SizedBox(height: spacing.xs),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Builder(
-                                          builder: (button) =>
-                                              OutlinedButton.icon(
-                                                key: LobbyScreen.shareButton,
-                                                style: OutlinedButton.styleFrom(
-                                                  foregroundColor:
-                                                      colors.accentGold,
-                                                  side: BorderSide(
-                                                    color: colors.accentGold,
-                                                  ),
-                                                  minimumSize: const Size(
-                                                    kMinInteractiveDimension,
-                                                    kMinInteractiveDimension,
-                                                  ),
+                                  ),
+                                  // Task 12 — two glyphs everybody already knows,
+                                  // under a code that is already the loudest
+                                  // thing on the screen. The words stay as
+                                  // tooltips and as the labels a screen reader
+                                  // reads, which is the part that was carrying
+                                  // the meaning for anybody who needed it.
+                                  // Phase 99: inviting is the host's one
+                                  // useful move in an empty room, and the
+                                  // hint below asks for it by name — so the
+                                  // share is a labelled button, not a bare
+                                  // glyph. Same native share, same session;
+                                  // copy stays a glyph beside it.
+                                  SizedBox(height: spacing.xs),
+                                  // A Wrap, so on a narrow column (a phone on its
+                                  // side) the copy and friends icons drop under
+                                  // the share button instead of overflowing.
+                                  Wrap(
+                                    alignment: WrapAlignment.center,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      Builder(
+                                        builder: (button) =>
+                                            OutlinedButton.icon(
+                                              key: LobbyScreen.shareButton,
+                                              style: OutlinedButton.styleFrom(
+                                                foregroundColor:
+                                                    colors.accentGold,
+                                                side: BorderSide(
+                                                  color: colors.accentGold,
                                                 ),
-                                                onPressed: code.isEmpty
-                                                    ? null
-                                                    : () => _shareInvite(
-                                                        code,
-                                                        referralCode,
-                                                        button,
-                                                      ),
-                                                icon: const Icon(
-                                                  Icons.ios_share,
-                                                ),
-                                                label: Text(
-                                                  l10n.lobbyInviteFriends,
+                                                minimumSize: const Size(
+                                                  kMinInteractiveDimension,
+                                                  kMinInteractiveDimension,
                                                 ),
                                               ),
-                                        ),
-                                        SizedBox(width: spacing.xs),
-                                        IconButton(
-                                          key: LobbyScreen.copyButton,
-                                          tooltip: l10n.onlineCopy,
-                                          onPressed: code.isEmpty
-                                              ? null
-                                              : () => _copyCode(code),
-                                          icon: Icon(
-                                            Icons.copy_all_outlined,
-                                            color: colors.textSecondary,
-                                          ),
-                                        ),
-                                        // «أصحابك»: invite a friend straight
-                                        // into this lobby. Absent while off.
-                                        if (session.room?.roomId != null &&
-                                            ref
-                                                    .watch(friendsProvider)
-                                                    .valueOrNull !=
-                                                null)
-                                          IconButton(
-                                            key: LobbyScreen.friendsButton,
-                                            tooltip: l10n.friendsInviteToRoom,
-                                            onPressed: () => setState(
-                                              () => _inviting = true,
+                                              onPressed: code.isEmpty
+                                                  ? null
+                                                  : () => _shareInvite(
+                                                      code,
+                                                      referralCode,
+                                                      button,
+                                                    ),
+                                              icon: const Icon(Icons.ios_share),
+                                              label: Text(
+                                                l10n.lobbyInviteFriends,
+                                              ),
                                             ),
-                                            icon: Icon(
-                                              Icons.group_add_rounded,
-                                              color: colors.accentGold,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    if (isHost && referralsEnabled) ...[
-                                      SizedBox(height: spacing.xs),
-                                      Text(
-                                        l10n.onlineReferralOffer,
-                                        textAlign: TextAlign.center,
-                                        style: type.caption.copyWith(
+                                      ),
+                                      SizedBox(width: spacing.xs),
+                                      IconButton(
+                                        key: LobbyScreen.copyButton,
+                                        tooltip: l10n.onlineCopy,
+                                        onPressed: code.isEmpty
+                                            ? null
+                                            : () => _copyCode(code),
+                                        icon: Icon(
+                                          Icons.copy_all_outlined,
                                           color: colors.textSecondary,
                                         ),
                                       ),
+                                      // «أصحابك»: invite a friend straight
+                                      // into this lobby. Absent while off.
+                                      if (session.room?.roomId != null &&
+                                          ref
+                                                  .watch(friendsProvider)
+                                                  .valueOrNull !=
+                                              null)
+                                        IconButton(
+                                          key: LobbyScreen.friendsButton,
+                                          tooltip: l10n.friendsInviteToRoom,
+                                          onPressed: () =>
+                                              setState(() => _inviting = true),
+                                          icon: Icon(
+                                            Icons.group_add_rounded,
+                                            color: colors.accentGold,
+                                          ),
+                                        ),
                                     ],
-                                    // Doc 09 §7: every seat is told before
-                                    // the deal that whispers will be shown.
-                                    if (snapshot
-                                            ?.settings
-                                            .revealWhisperContent ??
-                                        false) ...[
-                                      SizedBox(height: spacing.xs),
-                                      const RevealWhispersNotice(),
-                                    ],
+                                  ),
+                                  if (isHost && referralsEnabled) ...[
+                                    SizedBox(height: spacing.xs),
                                     Text(
-                                      key: LobbyScreen.playerCount,
-                                      l10n.onlinePlayersOfMax(
-                                        players.length,
-                                        snapshot?.room.maxPlayers ??
-                                            LobbyScreen.defaultCapacity,
-                                      ),
-                                      style: type.body.copyWith(
+                                      l10n.onlineReferralOffer,
+                                      textAlign: TextAlign.center,
+                                      style: type.caption.copyWith(
                                         color: colors.textSecondary,
                                       ),
-                                      textAlign: TextAlign.center,
                                     ),
-                                    // Phase 109: quick reactions, lobby only.
-                                    if (session.room?.roomId != null &&
-                                        session.transport?.backend != null)
-                                      Center(
-                                        child: ReactionBar(
-                                          roomId: session.room!.roomId,
-                                          backend: session.transport!.backend,
-                                          open: reactionsOpen(snapshot?.phase),
-                                        ),
-                                      ),
                                   ],
-                                ),
+                                  // Doc 09 §7: every seat is told before
+                                  // the deal that whispers will be shown.
+                                  if (snapshot?.settings.revealWhisperContent ??
+                                      false) ...[
+                                    SizedBox(height: spacing.xs),
+                                    const RevealWhispersNotice(),
+                                  ],
+                                  Text(
+                                    key: LobbyScreen.playerCount,
+                                    l10n.onlinePlayersOfMax(
+                                      players.length,
+                                      snapshot?.room.maxPlayers ??
+                                          LobbyScreen.defaultCapacity,
+                                    ),
+                                    style: type.body.copyWith(
+                                      color: colors.textSecondary,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  // Phase 109: quick reactions, lobby only.
+                                  if (session.room?.roomId != null &&
+                                      session.transport?.backend != null)
+                                    Center(
+                                      child: ReactionBar(
+                                        roomId: session.room!.roomId,
+                                        backend: session.transport!.backend,
+                                        open: reactionsOpen(snapshot?.phase),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                            Expanded(
-                              flex: CouncilTokens.handFlex,
-                              child: SingleChildScrollView(
-                                // The council band is as wide as the room (doc
-                                // 15's wide council); the button under it is not.
-                                // A start button 1240px wide on a desktop window
-                                // was E-4; it takes the reading column instead.
-                                child: Center(
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      maxWidth: spacing.maxContentWidth,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        // F8 Ready, in the vault's hand: a
-                                        // struck-gold press until you are
-                                        // ready, then the gold mark with a
-                                        // quiet way back; the room's count
-                                        // as a metal bar under it.
-                                        // F10: equipped titles on the pre-deal
-                                        // roster (the server answers only for
-                                        // a lobby or a finished room).
-                                        if (snapshot != null &&
-                                            session.transport != null)
-                                          LobbyTitlesStrip(
-                                            key: ValueKey(
-                                              'titles-${snapshot.lobbyRevision}-${players.length}',
-                                            ),
-                                            backend: session.transport!.backend,
-                                            roomId: session.transport!.roomId,
-                                            names: {
-                                              for (final p in players)
-                                                p.seat: p.name,
-                                            },
+                          ),
+                          hand: Expanded(
+                            flex: CouncilTokens.handFlex,
+                            child: SingleChildScrollView(
+                              // The council band is as wide as the room (doc
+                              // 15's wide council); the button under it is not.
+                              // A start button 1240px wide on a desktop window
+                              // was E-4; it takes the reading column instead.
+                              child: Center(
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: spacing.maxContentWidth,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      // F8 Ready, in the vault's hand: a
+                                      // struck-gold press until you are
+                                      // ready, then the gold mark with a
+                                      // quiet way back; the room's count
+                                      // as a metal bar under it.
+                                      // F10: equipped titles on the pre-deal
+                                      // roster (the server answers only for
+                                      // a lobby or a finished room).
+                                      if (snapshot != null &&
+                                          session.transport != null)
+                                        LobbyTitlesStrip(
+                                          key: ValueKey(
+                                            'titles-${snapshot.lobbyRevision}-${players.length}',
                                           ),
-                                        if (lobbyReadyEnabled &&
-                                            snapshot != null) ...[
-                                          if (viewerReady)
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                ClaimedMark(
-                                                  l10n.lobbyReadyAction,
-                                                ),
-                                                SizedBox(width: spacing.sm),
-                                                TextButton(
-                                                  key: LobbyScreen.readyButton,
-                                                  onPressed: session.busy
-                                                      ? null
-                                                      : () => _setReady(false),
-                                                  child: Text(
-                                                    l10n.lobbyUnreadyAction,
-                                                    style: type.caption
-                                                        .copyWith(
-                                                          color: colors
-                                                              .textSecondary,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          else
-                                            VaultPress(
-                                              child: TextButton(
+                                          backend: session.transport!.backend,
+                                          roomId: session.transport!.roomId,
+                                          names: {
+                                            for (final p in players)
+                                              p.seat: p.name,
+                                          },
+                                        ),
+                                      if (lobbyReadyEnabled &&
+                                          snapshot != null) ...[
+                                        if (viewerReady)
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              ClaimedMark(
+                                                l10n.lobbyReadyAction,
+                                              ),
+                                              SizedBox(width: spacing.sm),
+                                              TextButton(
                                                 key: LobbyScreen.readyButton,
-                                                style: vaultGoldStyle(context),
                                                 onPressed: session.busy
                                                     ? null
-                                                    : () => _setReady(true),
+                                                    : () => _setReady(false),
                                                 child: Text(
-                                                  l10n.lobbyReadyAction,
-                                                  style: type.title,
+                                                  l10n.lobbyUnreadyAction,
+                                                  style: type.caption.copyWith(
+                                                    color: colors.textSecondary,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          // F8 + D9: this seat's one 45 s
-                                          // deadline, on the local clock.
-                                          if (!viewerReady &&
-                                              snapshot.viewerSeat != null)
-                                            ReadyCountdown(
-                                              deadline: session.transport
-                                                  ?.onLocalClock(
-                                                    snapshot
-                                                        .lobbyReadyDeadlines[snapshot
-                                                        .viewerSeat],
-                                                  ),
-                                            ),
-                                          SizedBox(height: spacing.sm),
-                                          VaultBar(
-                                            value: connectedSeats.isEmpty
-                                                ? 0
-                                                : readySeats.length /
-                                                      connectedSeats.length,
-                                          ),
-                                          SizedBox(height: spacing.xs),
-                                          Text(
-                                            l10n.lobbyReadyCount(
-                                              readySeats.length,
-                                              connectedSeats.length,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                            style: type.caption.copyWith(
-                                              color: colors.textSecondary,
-                                            ),
-                                          ),
-                                          SizedBox(height: spacing.md),
-                                        ],
-                                        if (isHost)
-                                          FilledButton(
-                                            key: LobbyScreen.startButton,
-                                            onPressed: session.busy || !canStart
-                                                ? null
-                                                : _start,
-                                            style: FilledButton.styleFrom(
-                                              backgroundColor:
-                                                  colors.accentGold,
-                                              foregroundColor:
-                                                  colors.surfaceBase,
-                                              padding: EdgeInsets.symmetric(
-                                                vertical: spacing.md,
-                                              ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                      radii.button,
-                                                    ),
-                                              ),
-                                            ),
-                                            child: Text(
-                                              canStart
-                                                  ? l10n.onlineStartMatch
-                                                  : l10n.onlineNeedFivePlayers,
-                                              style: type.title,
-                                            ),
+                                            ],
                                           )
                                         else
-                                          Text(
-                                            l10n.onlineWaitingForHost,
-                                            style: type.body.copyWith(
-                                              color: colors.textSecondary,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        if (isHost && snapshot != null)
-                                          for (final role in lobbyDeal(
-                                            players.length,
-                                            snapshot.settings,
-                                          ).skipped)
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                top: spacing.xs,
-                                              ),
+                                          VaultPress(
+                                            child: TextButton(
+                                              key: LobbyScreen.readyButton,
+                                              style: vaultGoldStyle(context),
+                                              onPressed: session.busy
+                                                  ? null
+                                                  : () => _setReady(true),
                                               child: Text(
-                                                l10n.onlineRoleSkipped(
-                                                  EngineCopy.roleName(
-                                                    l10n,
-                                                    role.role,
-                                                  ),
-                                                ),
-                                                style: type.bodySmall.copyWith(
-                                                  color: colors.textMuted,
-                                                ),
-                                                textAlign: TextAlign.center,
+                                                l10n.lobbyReadyAction,
+                                                style: type.title,
                                               ),
                                             ),
-                                        SizedBox(height: spacing.sm),
-                                        Text(
-                                          players.length <
-                                                  PublicRoom.defaultMinPlayers
-                                              ? l10n.lobbyWaitingForPlayers(
-                                                  PublicRoom.defaultMinPlayers,
-                                                )
-                                              : isHost
-                                              ? l10n.onlineLobbyHostReadyHint
-                                              : l10n.onlineLobbyGuestReadyHint,
-                                          key: const ValueKey(
-                                            'lobby_readiness_hint',
                                           ),
+                                        // F8 + D9: this seat's one 45 s
+                                        // deadline, on the local clock.
+                                        if (!viewerReady &&
+                                            snapshot.viewerSeat != null)
+                                          ReadyCountdown(
+                                            deadline: session.transport
+                                                ?.onLocalClock(
+                                                  snapshot
+                                                      .lobbyReadyDeadlines[snapshot
+                                                      .viewerSeat],
+                                                ),
+                                          ),
+                                        SizedBox(height: spacing.sm),
+                                        VaultBar(
+                                          value: connectedSeats.isEmpty
+                                              ? 0
+                                              : readySeats.length /
+                                                    connectedSeats.length,
+                                        ),
+                                        SizedBox(height: spacing.xs),
+                                        Text(
+                                          l10n.lobbyReadyCount(
+                                            readySeats.length,
+                                            connectedSeats.length,
+                                          ),
+                                          textAlign: TextAlign.center,
                                           style: type.caption.copyWith(
+                                            color: colors.textSecondary,
+                                          ),
+                                        ),
+                                        SizedBox(height: spacing.md),
+                                      ],
+                                      if (isHost)
+                                        FilledButton(
+                                          key: LobbyScreen.startButton,
+                                          onPressed: session.busy || !canStart
+                                              ? null
+                                              : _start,
+                                          style: FilledButton.styleFrom(
+                                            backgroundColor: colors.accentGold,
+                                            foregroundColor: colors.surfaceBase,
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: spacing.md,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                    radii.button,
+                                                  ),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            canStart
+                                                ? l10n.onlineStartMatch
+                                                : l10n.onlineNeedFivePlayers,
+                                            style: type.title,
+                                          ),
+                                        )
+                                      else
+                                        Text(
+                                          l10n.onlineWaitingForHost,
+                                          style: type.body.copyWith(
                                             color: colors.textSecondary,
                                           ),
                                           textAlign: TextAlign.center,
                                         ),
-                                      ],
-                                    ),
+                                      if (isHost && snapshot != null)
+                                        for (final role in lobbyDeal(
+                                          players.length,
+                                          snapshot.settings,
+                                        ).skipped)
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              top: spacing.xs,
+                                            ),
+                                            child: Text(
+                                              l10n.onlineRoleSkipped(
+                                                EngineCopy.roleName(
+                                                  l10n,
+                                                  role.role,
+                                                ),
+                                              ),
+                                              style: type.bodySmall.copyWith(
+                                                color: colors.textMuted,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                      SizedBox(height: spacing.sm),
+                                      Text(
+                                        players.length <
+                                                PublicRoom.defaultMinPlayers
+                                            ? l10n.lobbyWaitingForPlayers(
+                                                PublicRoom.defaultMinPlayers,
+                                              )
+                                            : isHost
+                                            ? l10n.onlineLobbyHostReadyHint
+                                            : l10n.onlineLobbyGuestReadyHint,
+                                        key: const ValueKey(
+                                          'lobby_readiness_hint',
+                                        ),
+                                        style: type.caption.copyWith(
+                                          color: colors.textSecondary,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -1171,32 +1162,38 @@ class _StaggeredCodeState extends State<_StaggeredCode> {
     return Semantics(
       label: widget.code,
       excludeSemantics: true,
-      child: Row(
-        // ## The code read backwards
-        //
-        // A `Row` lays its children out along the ambient `Directionality`, and
-        // this app's is RTL. So a six-character code went into the tree in
-        // order and came out of it mirrored: the screen said `XQ2K7A` while
-        // «نسخ» put `A7K2QX` on the clipboard — the one number a player reads
-        // out loud, wrong, and wrong only on the device that owns it.
-        //
-        // A room code is not Arabic text. It is an identifier in a Latin
-        // alphabet with no bidirectional behaviour of its own, and it is
-        // written left to right in every place it can be typed back in. Pinned
-        // here rather than at the call site because the mirroring belongs to
-        // this widget's decision to lay characters out itself; a plain `Text`
-        // of the same string was never affected.
-        textDirection: TextDirection.ltr,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          for (var i = 0; i < widget.code.length; i++)
-            AnimatedOpacity(
-              duration: motion.standard,
-              curve: motion.quickCurve,
-              opacity: reduced || i < _shown ? 1 : 0,
-              child: Text(widget.code[i], style: widget.style),
-            ),
-        ],
+      // Steps down to the column it is in (a phone on its side gives the
+      // code a narrow one) instead of running past the edge.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          // ## The code read backwards
+          //
+          // A `Row` lays its children out along the ambient `Directionality`, and
+          // this app's is RTL. So a six-character code went into the tree in
+          // order and came out of it mirrored: the screen said `XQ2K7A` while
+          // «نسخ» put `A7K2QX` on the clipboard — the one number a player reads
+          // out loud, wrong, and wrong only on the device that owns it.
+          //
+          // A room code is not Arabic text. It is an identifier in a Latin
+          // alphabet with no bidirectional behaviour of its own, and it is
+          // written left to right in every place it can be typed back in. Pinned
+          // here rather than at the call site because the mirroring belongs to
+          // this widget's decision to lay characters out itself; a plain `Text`
+          // of the same string was never affected.
+          textDirection: TextDirection.ltr,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var i = 0; i < widget.code.length; i++)
+              AnimatedOpacity(
+                duration: motion.standard,
+                curve: motion.quickCurve,
+                opacity: reduced || i < _shown ? 1 : 0,
+                child: Text(widget.code[i], style: widget.style),
+              ),
+          ],
+        ),
       ),
     );
   }

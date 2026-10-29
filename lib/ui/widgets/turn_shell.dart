@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../engine/models/enums.dart' show Role;
 import '../../app/l10n/app_localizations.dart';
 import '../theme/mafia_theme.dart';
+import 'fit_or_scroll.dart';
 import 'hint_slot.dart';
 import 'hold_pad.dart';
 import 'night_grid.dart';
@@ -364,54 +365,115 @@ class _TurnShellState extends State<TurnShell> with TickerProviderStateMixin {
                 horizontal: spacing.screenMargin,
                 vertical: spacing.lg,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  KeyedSubtree(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final header = KeyedSubtree(
                     key: TurnShell.slotHeader,
                     child: _header(state),
-                  ),
-                  SizedBox(height: spacing.md),
-                  KeyedSubtree(key: TurnShell.slotRail, child: _progressRail()),
-                  SizedBox(height: spacing.md),
-                  Expanded(
-                    child: KeyedSubtree(
-                      key: TurnShell.slotBody,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Doc 13 §4.2's slot, now reserved and empty.
-                          //
-                          // Doc 14 Part 6 took the words out of it — *"no hint,
-                          // tip, or strategy line appears on any screen during
-                          // a live match"* — and the height stays because the
-                          // reservation is what keeps four roles' screens the
-                          // same height whatever else changes above it. It is
-                          // measured, not decorative: `luminance_budget_test`
-                          // fails the day one state is shorter than another.
-                          SizedBox(height: HintSlot.reservedHeight(context)),
-                          SizedBox(height: spacing.sm),
-                          Expanded(child: _body(state)),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: spacing.md),
-                  KeyedSubtree(
+                  );
+                  final rail = KeyedSubtree(
+                    key: TurnShell.slotRail,
+                    child: _progressRail(),
+                  );
+                  final detail = KeyedSubtree(
                     key: TurnShell.slotDetail,
                     child: _detailSlot(state),
-                  ),
-                  SizedBox(height: spacing.md),
-                  KeyedSubtree(
+                  );
+                  final action = KeyedSubtree(
                     key: TurnShell.slotAction,
                     child: _actionSlot(state),
-                  ),
-                  SizedBox(height: spacing.sm),
-                  KeyedSubtree(
+                  );
+                  final footnote = KeyedSubtree(
                     key: TurnShell.slotFootnote,
                     child: _footnote(state),
-                  ),
-                ],
+                  );
+                  // On its side the stack of reserved slots leaves the
+                  // choices no height at all, so the choices take the left
+                  // and the detail, the button and the footnote the right.
+                  // The same slots, the same sizes, for every role.
+                  if (constraints.maxWidth > constraints.maxHeight) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              header,
+                              SizedBox(height: spacing.md),
+                              rail,
+                              SizedBox(height: spacing.md),
+                              Expanded(
+                                child: KeyedSubtree(
+                                  key: TurnShell.slotBody,
+                                  child: _body(state),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: spacing.lg),
+                        Expanded(
+                          flex: 2,
+                          child: FitOrScroll(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                detail,
+                                SizedBox(height: spacing.md),
+                                action,
+                                SizedBox(height: spacing.sm),
+                                footnote,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      header,
+                      SizedBox(height: spacing.md),
+                      rail,
+                      SizedBox(height: spacing.md),
+                      Expanded(
+                        child: KeyedSubtree(
+                          key: TurnShell.slotBody,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Doc 13 §4.2's slot, now reserved and empty.
+                              //
+                              // Doc 14 Part 6 took the words out of it — *"no
+                              // hint, tip, or strategy line appears on any
+                              // screen during a live match"* — and the height
+                              // stays because the reservation is what keeps
+                              // four roles' screens the same height whatever
+                              // else changes above it. It is measured, not
+                              // decorative: `luminance_budget_test` fails the
+                              // day one state is shorter than another.
+                              SizedBox(
+                                height: HintSlot.reservedHeight(context),
+                              ),
+                              SizedBox(height: spacing.sm),
+                              Expanded(child: _body(state)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: spacing.md),
+                      detail,
+                      SizedBox(height: spacing.md),
+                      action,
+                      SizedBox(height: spacing.sm),
+                      footnote,
+                    ],
+                  );
+                },
               ),
             ),
           ),
