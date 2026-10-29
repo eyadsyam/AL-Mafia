@@ -2309,6 +2309,27 @@ abstract final class AdTokens {
   /// Below this screen height (a phone on its side) the lobby has no room
   /// for a banner that clear of Start: it shows none.
   static const bannerMinLobbyHeight = 560.0;
+
+  /// WP4: the banner's place is reserved before the ad arrives, so nothing
+  /// moves when it fills. The standard 320x50 banner, and the strip above it
+  /// that carries the «إعلان» label (a caption line, 12 x 1.6, rounded up).
+  static const bannerAdWidth = 320.0;
+  static const bannerAdHeight = 50.0;
+  static const bannerLabelStrip = 20.0;
+
+  /// The framed slot from its top edge to its bottom: frame, label, ad.
+  /// Whatever the surface adds above it (the gap) is its own.
+  static const bannerSlotHeight =
+      2 * bannerFrame + bannerLabelGap + bannerLabelStrip + bannerAdHeight;
+
+  /// The one shell band (banner_mode = shell): the ad with a little air on
+  /// both sides, under a hairline.
+  static const bannerBandPad = 6.0;
+  static const bannerBandRule = 1.0;
+  static const bannerBandHeight = bannerAdHeight + 2 * bannerBandPad;
+
+  /// A reserved band whose player went ad-free closes over this, not a snap.
+  static const bannerCollapse = Duration(milliseconds: 180);
 }
 
 /// Phase 109: awards, reactions, welcome-back, Founder badge.

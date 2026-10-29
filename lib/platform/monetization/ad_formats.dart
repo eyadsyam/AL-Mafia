@@ -24,13 +24,14 @@ abstract interface class AppOpenAds {
   void discard();
 }
 
-/// The anchored adaptive banner for waiting surfaces only. The widget is a
-/// zero-size box until an ad has actually filled.
+/// The banner for waiting surfaces only (320x50). The slot's place is
+/// reserved from the first frame, filled or not, so nothing moves when the ad
+/// arrives; the surface decides whether to ask for one at all.
 abstract interface class BannerAds {
   bool get configured;
 
-  /// [gap] is kept above the banner only once it has filled, so an empty
-  /// slot takes no space at all.
+  /// [gap] is kept above the slot; the slot itself always has the same height
+  /// (`AdTokens.bannerSlotHeight`), empty or filled.
   Widget slot({
     Key? key,
     required String label,
@@ -50,6 +51,20 @@ enum BannerPlacement {
   home,
   stories,
   characters,
+
+  /// The one banner of the shell host (banner_mode = shell).
+  shell,
+}
+
+/// The shell's single banner (WP4, banner_mode = shell). The host mounts it
+/// once, above the router, for the whole session: it owns ONE ad that loads
+/// once and is reused across routes. [visible] only decides whether the ad is
+/// on screen; hiding and showing never reload it.
+abstract interface class ShellBannerAds {
+  bool get configured;
+
+  /// The band for the host's bottom edge. Zero-size while not [visible].
+  Widget band({Key? key, required String label, required bool visible});
 }
 
 /// Where a native ad card sits inside a menu list (its own unit each).
@@ -78,3 +93,6 @@ final appOpenAdsProvider = Provider<AppOpenAds>((ref) {
 });
 
 final bannerAdsProvider = Provider<BannerAds>((ref) => createBannerAds());
+final shellBannerAdsProvider = Provider<ShellBannerAds>(
+  (ref) => createShellBannerAds(),
+);

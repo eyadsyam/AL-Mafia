@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import '../../ui/economy/banner_frame.dart';
 import '../../ui/theme/design_tokens.dart';
 import '../../ui/theme/mafia_theme.dart';
 import 'ad_formats.dart';
@@ -17,6 +18,7 @@ InterstitialAds createInterstitialAds() => GoogleInterstitialAds();
 AppOpenAds createAppOpenAds() => GoogleAppOpenAds();
 BannerAds createBannerAds() => const GoogleBannerAds();
 NativeAds createNativeAds() => const GoogleNativeAds();
+ShellBannerAds createShellBannerAds() => const GoogleShellBannerAds();
 
 abstract final class _Units {
   static const enabled = bool.fromEnvironment('ADS_ENABLED');
@@ -108,8 +110,17 @@ abstract final class _Units {
       BannerPlacement.home => '$_pub/8363779511',
       BannerPlacement.stories => '$_pub/9972374654',
       BannerPlacement.characters => '$_pub/8174795996',
+      BannerPlacement.shell =>
+        _shellDedicatedUnit.isNotEmpty
+            ? _shellDedicatedUnit
+            : bannerUnitFor(BannerPlacement.home),
     };
   }
+
+  /// TODO(owner): create a dedicated AdMob banner unit for the shell host and
+  /// put its id here. Until then the shell banner reports under the home
+  /// unit. Deliberately empty: no unit id is invented.
+  static const _shellDedicatedUnit = '';
 }
 
 /// Consent and SDK start, shared by the rewarded offers and the interstitial.
@@ -773,7 +784,8 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
 
   /// Sized from the space the slot is actually given (a surface may pad it
   /// in from the screen edges), less the frame on both sides, floored: an
-  /// ad wider than its box would be cropped, which AdMob forbids.
+  /// ad wider than its box would be cropped, which AdMob forbids. The ad is
+  /// always the standard 320x50, so it is only asked for when that fits.
   void _fitTo(BoxConstraints constraints) {
     final available = constraints.hasBoundedWidth
         ? constraints.maxWidth
@@ -812,19 +824,13 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
     _drop();
     final epoch = _epoch;
     final width = _width;
-    if (width == null || width <= 0) return;
+    if (width == null || width < AdTokens.bannerAdWidth) return;
     try {
       if (!await _AdsRuntime.instance.start(prompt: false)) return;
       if (!await _AdsRuntime.instance.canRequestNow()) return;
       if (!mounted || epoch != _epoch) return;
-      final size =
-          await AdSize.getLargeAnchoredAdaptiveBannerAdSizeWithOrientation(
-            MediaQuery.orientationOf(context),
-            width,
-          );
-      if (size == null || !mounted || epoch != _epoch) return;
       final ad = BannerAd(
-        size: size,
+        size: AdSize.banner,
         adUnitId: _Units.bannerUnitFor(widget.placement),
         request: const AdRequest(),
         listener: BannerAdListener(
@@ -858,49 +864,141 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       _fitTo(constraints);
-      return _framed(context);
+      final ad = _ad;
+      // The box is there from the first frame; the ad only fills it.
+      return BannerFrame(
+        label: widget.label,
+        gap: widget.gap,
+        ad: _filled && ad != null ? AdWidget(ad: ad) : null,
+      );
     },
   );
+}
 
-  Widget _framed(BuildContext context) {
-    final ad = _ad;
-    // No fill: nothing at all, so the surface never reserves an empty box.
-    if (!_filled || ad == null) return const SizedBox.shrink();
-    final colors = context.colors;
-    return Padding(
-      padding: EdgeInsets.only(top: widget.gap),
-      child: Semantics(
-        container: true,
-        label: widget.label,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: colors.surfaceBase,
-            border: Border.all(
-              color: colors.borderSubtle,
-              width: AdTokens.bannerFrame,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: AdTokens.bannerLabelGap),
-                child: Text(
-                  widget.label,
-                  style: context.typography.caption.copyWith(
-                    color: colors.textMuted,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: ad.size.width.toDouble(),
-                height: ad.size.height.toDouble(),
-                child: AdWidget(ad: ad),
-              ),
-            ],
-          ),
+/// WP4: the shell host's one banner (banner_mode = shell).
+class GoogleShellBannerAds implements ShellBannerAds {
+  const GoogleShellBannerAds();
+
+  @override
+  bool get configured => _Units.bannerConfigured;
+
+  @override
+  Widget band({Key? key, required String label, required bool visible}) =>
+      configured
+      ? _ShellBand(key: key, label: label, visible: visible)
+      : SizedBox.shrink(key: key);
+}
+
+/// Mounted by the host for the whole session, shown or not. It owns the one
+/// BannerAd: asked for the first time the band is shown, and never again
+/// because a route came and went. While the band is hidden the AdWidget is
+/// simply not in the tree (the same ad can be mounted again afterwards, one
+/// widget at a time). Its refresh is the AdMob unit's own; there is no timer
+/// or reload loop here. Disposed when the app detaches.
+class _ShellBand extends StatefulWidget {
+  final String label;
+  final bool visible;
+  const _ShellBand({super.key, required this.label, required this.visible});
+
+  @override
+  State<_ShellBand> createState() => _ShellBandState();
+}
+
+class _ShellBandState extends State<_ShellBand> with WidgetsBindingObserver {
+  BannerAd? _ad;
+  bool _filled = false;
+  bool _asked = false;
+  int _epoch = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _AdsRuntime.instance.onConsentChanged(_onConsent);
+    _askIfShown();
+  }
+
+  @override
+  void didUpdateWidget(_ShellBand old) {
+    super.didUpdateWidget(old);
+    _askIfShown();
+  }
+
+  void _askIfShown() {
+    if (!widget.visible || _asked) return;
+    _asked = true;
+    // Never load mid-build: after this frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _load();
+    });
+  }
+
+  void _onConsent() {
+    _drop();
+    if (_asked && mounted) _load();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      _drop();
+    } else if (state == AppLifecycleState.resumed && _asked && _ad == null) {
+      _load();
+    }
+  }
+
+  void _drop() {
+    _epoch++;
+    _ad?.dispose();
+    _ad = null;
+    if (mounted && _filled) setState(() => _filled = false);
+  }
+
+  Future<void> _load() async {
+    _drop();
+    final epoch = _epoch;
+    try {
+      if (!await _AdsRuntime.instance.start(prompt: false)) return;
+      if (!await _AdsRuntime.instance.canRequestNow()) return;
+      if (!mounted || epoch != _epoch) return;
+      final ad = BannerAd(
+        size: AdSize.banner,
+        adUnitId: _Units.bannerUnitFor(BannerPlacement.shell),
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (_) {
+            if (mounted && epoch == _epoch) setState(() => _filled = true);
+          },
+          onAdFailedToLoad: (failed, _) {
+            failed.dispose();
+            if (identical(_ad, failed)) _ad = null;
+            if (mounted && _filled) setState(() => _filled = false);
+          },
         ),
-      ),
+      );
+      _ad = ad;
+      await ad.load();
+    } catch (_) {
+      _drop();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _AdsRuntime.instance.offConsentChanged(_onConsent);
+    _epoch++;
+    _ad?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.visible) return const SizedBox.shrink();
+    final ad = _ad;
+    return ShellBandFrame(
+      label: widget.label,
+      ad: _filled && ad != null ? AdWidget(ad: ad) : null,
     );
   }
 }
