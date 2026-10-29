@@ -1,0 +1,15 @@
+READ-ONLY CHECK in the Google Play Console through Chrome (same tab/session as before). Change nothing, click no
+send/save/rollout/submit button, accept nothing.
+
+App: «سيد المافيا: Mafia Master», developer 8516115344939721781, app 4973103045227664588.
+
+1. Publishing overview: copy the exact text of the "changes in review" section (or say it is empty / published).
+2. Test and release > Production: the status of release 1.4.0 (17) (for example in review / available on Google Play).
+3. Closed testing (Alpha): the status of release 1.4.0 (17).
+4. Any red error, policy issue or rejection notice on the dashboard or in the inbox: copy it word for word.
+5. Screenshot of the Publishing overview to
+   D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21\build\play_1_4_status.png
+
+If Google asks to sign in: print OWNER_SIGNIN_NEEDED and stop. Do not type any password.
+
+REPORT: the four answers, word for word where asked. No praise.

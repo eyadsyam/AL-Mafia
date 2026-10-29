@@ -1,0 +1,9 @@
+Round 1 again: your shell failed under the read-only sandbox on Windows. You now have a working shell with full access to the repo at the --cd path. The rules are unchanged: READ ONLY. Do not edit, create, delete or format any file, do not run git commands that change anything, do not build, do not touch the network or Supabase. Reading files, grep/rg, git log/show/diff are fine.
+
+Redo the round-1 task from the first brief exactly (sections A–E, every item with real path:line evidence, then OPEN QUESTIONS FOR CLAUDE). Throw away the provisional answers.
+
+Starting points Claude already found (verify them, don't trust them):
+- Banner: lib/ui/economy/waiting_banner.dart (WaitingBanner, BannerPlacement), mounted per screen in home_screen.dart:121, profile_screen.dart:292, coin_store.dart:373, history_screen.dart:154, online_entry_screen.dart:857, lobby_screen.dart:958, deck_public.dart:901, characters_screen.dart:73; Android impl lib/platform/monetization/rewarded_ads_mobile.dart:729-1020 (GoogleBannerAds, adaptive anchored size).
+- Reactions: lib/ui/fun/reactions.dart:114-135 (_slowDown, REACTION_RATE_LIMIT), supabase/functions/_shared/economy_actions.ts, supabase/migrations/20260925000600_awards_reactions.sql, 20260928001100_safety_v11.sql.
+- Version is 1.4.0+17 (pubspec.yaml). Grep found no in_app_update/package_info/min-version code.
+- Screens: lib/ui/screens/{setup,online,onboarding,distribution,night,day,postgame}, lib/ui/account/, lib/ui/widgets/.

@@ -1,0 +1,24 @@
+BRAINSTORM ROUND 3 of 5. Same rules: READ ONLY. Deliverable = final message. (A separate Codex run is reading Play vitals/reviews and AdMob unit stats in Chrome; do not open a browser.)
+
+Settled after round 2 (no need to re-argue): P1 without in_app_update (Play-page button, market:// then https, visible failure, latest_build soft prompt, min hard gate, cached policy, recheck on resume); P4 copy direction (true rule for the citizen); P5 hierarchy with truthful stats (matches on device / online matches / coins — no "wins"); P6 focused fixtures, not one universal harness (you were right that app.dart:593 already locks text scale); P7.
+
+CLAUDE'S ANSWERS TO YOUR QUESTIONS, then argue back where you disagree:
+
+Q1 Banner. The owner asked in plain words for ONE banner attached across the screens instead of reloading per screen, and "ads are never reduced" binds us. Claude's proposal: build the shell host, but make it reversible: app_config gets banner_mode ('shell' | 'per_screen', default 'per_screen' until the owner flips it) so we can compare impressions in AdMob and roll back without a release. Shell mode details to verify against the google_mobile_ads plugin source in the pub cache (find it under %LOCALAPPDATA%\Pub\Cache or the flutter SDK .pub-cache):
+  - Column[Expanded(navigator child), BannerBand] in MaterialApp.builder; the child gets a MediaQuery with padding.bottom = 0 and viewInsets.bottom = max(0, keyboard - band) so Scaffolds don't double-pad; dialogs/sheets live above the band.
+  - One BannerAd owned by a controller, loaded once, kept across routes; refresh is AdMob's server-side refresh (Codex will set the unit's refresh to the AdMob minimum later — only on the owner's word). Is re-inserting the same BannerAd into a new AdWidget after the band was hidden legal in the plugin, or must the band stay mounted with zero opacity / Offstage? Read the plugin code and say exactly.
+  - Band hidden (height 0) only on: offline distribution, offline night/private turns, onboarding video, update gate, while an interstitial/rewarded is showing. The change happens on navigation only.
+  - ONLINE TABLE: should the band show during the online match? Each player holds their own phone, the band would be present for every seat in every phase (no role dependence), but it costs height on 360x640 where table_scene bands are already tight. Give a recommendation with numbers from table_scene.dart.
+  - Which ad unit does the shell use? Propose (e.g. reuse the home unit vs a new "shell" unit Codex creates in AdMob).
+Q2 Reactions: 600/min silent ceiling accepted. No replay after reconnect (reactions are ephemeral). Keep the block filter. ×n coalescing before the 12 cap.
+Q3 Account: hub as a bottom sheet; auth/reset as a full-height scroll-controlled sheet with keyboard insets; fall back to the full-screen dialog only for the OAuth return if needed.
+Q4 Online night copy: each phone is private online, so a role line on your own phone leaks nothing as long as EVERY role (citizen included) gets one line in the same slot, same max length, same timing. Limit it to the three real confusions: sniper bullet (uses tonight or not), silencer (effect is tomorrow), doctor self-protect. Other roles get a neutral line of the same budget. Agree?
+Q5 Soft update prompt: only at Home (launch or resume while Home is on top). Never mid-match, never on the online table.
+
+NEW TASKS:
+T1. Work packages. Split the whole agreed scope into ordered packages (WP1..WPn), each independently testable and committable, with: files touched, risk, Doc 05 checklist items, the exact gates (flutter analyze, the specific test files to add/extend, deno tests if TS changes, SQL migration + the live-suite harness if server changes), and who should implement it (Sonnet 5.5 high = careful UI/Doc-05 work; Codex sol medium = mechanical/server/tests). Mark which packages need an HTML mockup approved by the owner first and list those mockups.
+T2. Server changes. List every Supabase migration/edge-function change (reaction ceiling, app_config latest_build_* and banner_mode, anything else), whether build-17 clients keep working, and the deploy order (migration before or after the Play release).
+T3. Release mechanics. Version 1.5.0 (18). Order of: tests → owner device check → Play upload by Codex → rollout → raising latest_build_android → raising min_build_android (when, and why only then). What exactly build-17 players will see when min is raised (quote the ARB strings in update_gate).
+T4. Anything from your round-1 audit that we have NOT yet put into scope but should (bugs, overlaps, confusing copy), ranked; and anything in scope you would cut to keep this update small and safe.
+
+REPORT: Q1–Q5 (AGREE/DISAGREE + final form), T1 table, T2, T3, T4, OPEN QUESTIONS FOR CLAUDE. No praise.

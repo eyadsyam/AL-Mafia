@@ -1,0 +1,30 @@
+BRAINSTORM ROUND 4 of 5 — adversarial pass. Same rules: READ ONLY. Deliverable = final message.
+
+Claude's rulings on your round-3 questions (argue only if you find hard evidence against):
+R1 Build 17. The owner's explicit wish is that old installs see an update screen. Build 17 only has the hard gate, so the plan will put this to the owner as a choice, with Claude's recommendation: raise min_build_android to 18 about 48 hours after 18 is available to 100% on Play (offline launches still fail open, so nobody is locked out of pass-and-play without a network). From build 18 on, every release uses the soft prompt (latest_build) and min only for real incompatibility.
+R2 Shell banner: yes to a new AdMob unit (Codex creates it in AdMob only on the owner's word) and banner_mode flag; build 18 ships reserved per_screen bands (jump fixed for everyone) and the shell code; the owner decides when to flip.
+R3 Keyboard open = band ineligible (view removed until it closes). Agreed.
+R4 Lobby header and join-code fixes get their own two small HTML states inside U6.
+
+ADD to scope — the owner said literally "make sure nothing sits on top of anything at all; this happens a lot". A cut of "all-screens redesign" is right, but we still need EVIDENCE across all screens:
+WP0 — screenshot sweep. Use the existing harnesses (test/screenshots/identity_screenshots.dart and the deck/store screenshot harnesses — find them) to render EVERY reachable screen and sheet at 360x640, 390x844 and 640x360, with long Arabic names (20 chars) and the reserved banner band, into a contact sheet; plus a widget test that fails on any RenderFlex overflow in that sweep. Tell me: which screens the existing harnesses already cover, which they miss (list them), and how much work closing the gaps is. Every defect found becomes a line item in the package that owns that screen.
+
+CLAUDE'S COPY DRAFTS — check every claim against the engine and specs (cite path:line), flag anything false or that a first-timer would misread, and propose fixes. Keep Egyptian Arabic, short, no tips.
+C1 Offline pre-deal sheet. Title «قبل ما تبدأوا». Lines:
+  1. «كل واحد يشوف دوره لوحده، ويقفل الشاشة ويدّي الموبايل للي بعده.»
+  2. «بالليل الموبايل بيلفّ على كل اللي لسه في اللعب، حتى اللي ملوش دور، عشان محدش يعرف مين بيعمل إيه.»
+  3. «المواطن بيختار حد شاكك فيه. اختياره مش بيقتل ولا بيحمي حد، بس لو مات الليلة دي ممكن الصبح يتقال كان شاكك في مين.»
+  4. «الصبح بتتكلموا، وبعدين تصوّتوا تطلّعوا حد.»
+  5. «اللي يخرج من اللعب مبيصوّتش.»
+  Button «يلا نبدأ». Questions: is line 1 right for the actual distribution flow (hold/flip/conceal)? Does every living player really get a night pass offline including roles with no move? Can a dead player vote/speak offline (engine vs owner rulings)? Is the silenced player worth one line here?
+C2 Soft update: title «فيه نسخة جديدة», body «نزلت نسخة أحدث من اللعبة على Google Play.», buttons «حدّث دلوقتي» and «بعدين». Store-failure line: «مقدرناش نفتح Google Play. افتحه وحدّث اللعبة.»
+C3 Stories card label: «قريبا».
+
+ADVERSARIAL TASK — attack the whole plan (WP0–WP10) as if you wanted it to fail in production with real players:
+A1 Live users: anything that can lock out, crash, double-charge an ad, lose coins/items, or break an in-progress online room during the rollout window when build 17 and 18 play in the SAME room (reactions, update gate, any changed client-server contract).
+A2 Doc 05: every way WP4/WP5/WP8 could leak a role (timing, geometry, sound, banner presence differing by seat or phase, ×n counts, receipts "بيتسجل/اتسجل").
+A3 Ads: every way the shell band or reserved bands could lose impressions, break AdMob policy (ad overlapping content, accidental clicks next to buttons, ads on screens with no content), or show an ad where it is not allowed today.
+A4 What would you cut if the update must ship in about one week of agent work? Give the minimal "must" set and the "next update" set.
+A5 Anything we have both missed.
+
+REPORT: C1–C3 corrected, WP0 coverage answer, A1–A5 (each risk: scenario → evidence → mitigation → owner WP), OPEN QUESTIONS FOR CLAUDE (only real ones). No praise.

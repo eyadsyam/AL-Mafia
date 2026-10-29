@@ -1,0 +1,18 @@
+READ-ONLY CHECK in Chrome (the same Chrome profile and tabs you used before for the Play Console and AdMob). Change nothing: click no save/send/publish/rollout/apply/accept button, change no setting, accept no terms or cookie banner beyond dismissing it with the most private option. If Google asks to sign in, print OWNER_SIGNIN_NEEDED and stop; never type a password.
+
+App: «سيد المافيا: Mafia Master». Play developer 8516115344939721781, app 4973103045227664588. 1.4.0 (17) went live on production recently.
+
+PLAY CONSOLE — report, word for word where it is text:
+1. Production release status of 1.4.0 (17) and the date it went live.
+2. Statistics/dashboard: installs (total and per day for the last 7 days if shown), uninstalls if shown.
+3. Android vitals: crash rate and ANR rate for 1.4.0 (17); the top 5 crash/ANR clusters with their exception line, affected devices/Android versions and counts.
+4. Ratings and reviews: average rating, number of ratings, and the text of EVERY review (Arabic as written), with stars and date. Do not reply to any review.
+5. Any policy, pre-launch report or inbox warning: copy it.
+
+ADMOB (app «سيد المافيا» / Mafia Master):
+6. For each banner ad unit: its name, its "refresh rate" setting (as shown in the ad unit's advanced settings — read it, do not change it), and for the last 7 days: requests, matched requests / match rate, impressions, show rate. Same table for the rewarded and interstitial units. Do NOT report any money figures.
+7. Any policy centre issue or ad serving limit notice: copy it.
+
+Save screenshots to D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21\build\review_2026_10_29_*.png (one per section).
+
+REPORT in your final message: sections 1–7 as above, facts only, no money figures, no praise.
