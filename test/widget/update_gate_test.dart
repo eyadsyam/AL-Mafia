@@ -9,6 +9,7 @@ import 'package:mafia_master/app/router.dart' show Routes;
 import 'package:mafia_master/app/update_gate.dart';
 import 'package:mafia_master/platform/links/page_reload.dart';
 import 'package:mafia_master/ui/social/invite_privacy.dart';
+import 'package:mafia_master/ui/theme/design_tokens.dart';
 
 import '../support/localized.dart';
 
@@ -331,6 +332,59 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(UpdateGate.softKey), findsNothing);
       expect(find.text('GAME'), findsOneWidget);
+    });
+
+    testWidgets('«بعدين»: the screen fades away untappable, the app is free', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_host(policy: _policy(latestAndroid: 12)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(UpdateGate.laterKey));
+      await tester.pump();
+      await tester.pump(DeckTokens.sheetExit ~/ 2);
+      // Mid-fade: still drawn, but it takes no taps, and the app underneath
+      // is no longer held.
+      expect(find.byKey(UpdateGate.softKey), findsOneWidget);
+      expect(
+        find.ancestor(
+          of: find.byKey(UpdateGate.softKey),
+          matching: find.byWidgetPredicate(
+            (w) => w is IgnorePointer && w.ignoring,
+          ),
+        ),
+        findsWidgets,
+      );
+      expect(
+        find.ancestor(
+          of: find.text('GAME'),
+          matching: find.byWidgetPredicate(
+            (w) => w is IgnorePointer && w.ignoring,
+          ),
+        ),
+        findsNothing,
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(UpdateGate.softKey), findsNothing);
+    });
+
+    testWidgets('reduced motion: the screen only fades, no scale', (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+      await tester.pumpWidget(_host(policy: _policy(latestAndroid: 12)));
+      await tester.pump();
+      await tester.pump();
+      expect(
+        find.ancestor(
+          of: find.byKey(UpdateGate.softKey),
+          matching: find.byType(ScaleTransition),
+        ),
+        findsNothing,
+      );
+      await tester.pump(DeckTokens.reduced);
+      expect(find.byKey(UpdateGate.softKey), findsOneWidget);
     });
 
     testWidgets('system back: «بعدين» on the soft screen, leaves on the hard', (
