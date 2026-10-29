@@ -83,7 +83,9 @@ abstract final class _Units {
   /// identifiers, not credentials. The lobby keeps the original unit.
   // Split so no 16-digit run sits in the source: the web compiler test flags
   // any as an integer literal.
-  static const _pub = 'ca-app-pub-91790639' '36085117';
+  static const _pub =
+      'ca-app-pub-91790639'
+      '36085117';
 
   static bool get nativeConfigured => enabled;
 

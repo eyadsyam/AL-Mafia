@@ -34,6 +34,5 @@ PaymentCapabilities paymentCapabilitiesFor({
 }
 
 final paymentCapabilitiesProvider = Provider<PaymentCapabilities>(
-  (ref) =>
-      paymentCapabilitiesFor(web: kIsWeb, target: defaultTargetPlatform),
+  (ref) => paymentCapabilitiesFor(web: kIsWeb, target: defaultTargetPlatform),
 );

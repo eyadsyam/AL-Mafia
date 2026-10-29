@@ -744,12 +744,18 @@ void main() {
   group('the phases the table calls open', () {
     test('silenced player hears free discussion without speaking', () async {
       final (controller, engine, _) = await connected();
-      await controller.apply(snapshotIn(GamePhase.discussion,
-          discussion: DiscussionMode.free, silenced: true));
+      await controller.apply(
+        snapshotIn(
+          GamePhase.discussion,
+          discussion: DiscussionMode.free,
+          silenced: true,
+        ),
+      );
       expect(engine.microphoneLive, isFalse);
       expect(engine.audiblePeers, containsAll(['u0', 'u2']));
-      await controller.apply(snapshotIn(GamePhase.discussion,
-          discussion: DiscussionMode.free));
+      await controller.apply(
+        snapshotIn(GamePhase.discussion, discussion: DiscussionMode.free),
+      );
       expect(engine.microphoneLive, isTrue);
     });
     test('the lobby and the result screen are a room, not a queue', () async {

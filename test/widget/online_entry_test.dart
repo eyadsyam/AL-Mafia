@@ -68,10 +68,8 @@ void main() {
         voiceStatsIntervalProvider.overrideWithValue(Duration.zero),
         if (thursdayEvent) ...[
           economyCapabilitiesProvider.overrideWith(
-            (ref) async => EconomyCapabilities.fromJson({
-              'version': 3,
-              'thursday': true,
-            }),
+            (ref) async =>
+                EconomyCapabilities.fromJson({'version': 3, 'thursday': true}),
           ),
           thursdayEventProvider.overrideWith(
             (ref) async => ThursdayEvent.fromJson({
@@ -1147,7 +1145,8 @@ void main() {
 
   group('the terms record follows the online player', () {
     Iterable<FakeCall> termsCalls() => backend.calls.where(
-      (c) => c.function == 'player_safety' && c.body['action'] == 'accept_terms',
+      (c) =>
+          c.function == 'player_safety' && c.body['action'] == 'accept_terms',
     );
 
     /// Joins as `FakeBackend`'s player, with the phone's record last sent for
@@ -1179,9 +1178,7 @@ void main() {
       await tester.pump();
     }
 
-    testWidgets('already sent for this player: not sent again', (
-      tester,
-    ) async {
+    testWidgets('already sent for this player: not sent again', (tester) async {
       await joinWithRecordFor(tester, 'u0');
       expect(backend.called('joinRoom'), isTrue);
       expect(termsCalls(), isEmpty);

@@ -36,7 +36,8 @@ bool webNeedsInstall() {
     final ios = RegExp(r'iPhone|iPad|iPod').hasMatch(ua);
     if (!ios) return false;
     final installed =
-        (_iosStandalone ?? false) || _matchMedia('(display-mode: standalone)').matches;
+        (_iosStandalone ?? false) ||
+        _matchMedia('(display-mode: standalone)').matches;
     return !installed;
   } catch (_) {
     return false;

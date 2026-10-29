@@ -47,9 +47,9 @@ class _PushSettingsRowState extends ConsumerState<PushSettingsRow> {
     // Allowed by the phone but never reached the server: the switch is back
     // off and says why. (A refusal by the phone is the player's own answer.)
     if (value && !result && prompt.registerFailed) {
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        SnackBar(content: Text(context.l10n.pushEnableFailed)),
-      );
+      ScaffoldMessenger.maybeOf(
+        context,
+      )?.showSnackBar(SnackBar(content: Text(context.l10n.pushEnableFailed)));
     }
   }
 

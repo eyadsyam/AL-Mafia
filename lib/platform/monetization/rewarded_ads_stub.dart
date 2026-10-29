@@ -18,8 +18,7 @@ class _NoBannerSizing implements BannerSizing {
   @override
   BannerSize? peek(int width, Orientation orientation) => null;
   @override
-  Future<BannerSize?> resolve(int width, Orientation orientation) async =>
-      null;
+  Future<BannerSize?> resolve(int width, Orientation orientation) async => null;
 }
 
 class _NoShellBannerAds implements ShellBannerAds {

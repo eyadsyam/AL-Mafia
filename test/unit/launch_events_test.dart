@@ -8,10 +8,19 @@ import '../support/localized.dart';
 
 void main() {
   late FakeBackend backend;
-  setUp(() => backend = FakeBackend(roomId: 'r', state: roomState(), players: roster(5)));
+  setUp(
+    () => backend = FakeBackend(
+      roomId: 'r',
+      state: roomState(),
+      players: roster(5),
+    ),
+  );
 
   test('reads the stamps of a finished room', () async {
-    backend.responders['economy'] = (_) => {'enabled': true, 'events': ['launch_night', 7]};
+    backend.responders['economy'] = (_) => {
+      'enabled': true,
+      'events': ['launch_night', 7],
+    };
     expect(await fetchLaunchEventStamps(backend, 'r'), ['launch_night']);
     expect(backend.calls.single.body, {'action': 'eventResult', 'roomId': 'r'});
   });
@@ -26,14 +35,18 @@ void main() {
   });
 
   testWidgets('public result stamp renders the painted art', (tester) async {
-    await tester.pumpWidget(localizedApp(
-      const LaunchEventStamp(code: 'launch_night'),
-    ));
-    final image = tester.widget<Image>(find.descendant(
-      of: find.byKey(LaunchEventStamp.stampKey('launch_night')),
-      matching: find.byType(Image),
-    ));
-    expect((image.image as AssetImage).assetName,
-        'assets/images/launch/event_stamp.webp');
+    await tester.pumpWidget(
+      localizedApp(const LaunchEventStamp(code: 'launch_night')),
+    );
+    final image = tester.widget<Image>(
+      find.descendant(
+        of: find.byKey(LaunchEventStamp.stampKey('launch_night')),
+        matching: find.byType(Image),
+      ),
+    );
+    expect(
+      (image.image as AssetImage).assetName,
+      'assets/images/launch/event_stamp.webp',
+    );
   });
 }

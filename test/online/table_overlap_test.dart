@@ -33,7 +33,6 @@
 /// roster sizes doc 15 §5 names.
 library;
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/ui/screens/online/council/council_band.dart';

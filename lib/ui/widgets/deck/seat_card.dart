@@ -127,7 +127,8 @@ class SeatCard extends StatelessWidget {
       container: true,
       child: SeatCardFrame(
         lifted: lifted,
-        dress: Cosmetics.frames[HostIdentityScope.frameFor(context, name, seat: seat)],
+        dress: Cosmetics
+            .frames[HostIdentityScope.frameFor(context, name, seat: seat)],
         child: LayoutBuilder(
           builder: (context, box) {
             final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;
@@ -169,20 +170,20 @@ class SeatCard extends StatelessWidget {
                     ),
                   ),
                   if (showSeat)
-                  PositionedDirectional(
-                    start: SeatTokens.plateInset + SeatTokens.inset,
-                    top: SeatTokens.plateInset + 1,
-                    child: _Badge(
-                      child: Text(
-                        '$seat',
-                        style: meta.copyWith(
-                          color: DeckTokens.bone,
-                          fontWeight: FontWeight.w700,
-                          height: 1,
+                    PositionedDirectional(
+                      start: SeatTokens.plateInset + SeatTokens.inset,
+                      top: SeatTokens.plateInset + 1,
+                      child: _Badge(
+                        child: Text(
+                          '$seat',
+                          style: meta.copyWith(
+                            color: DeckTokens.bone,
+                            fontWeight: FontWeight.w700,
+                            height: 1,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   Positioned(
                     left: SeatTokens.plateInset,
                     right: SeatTokens.plateInset,

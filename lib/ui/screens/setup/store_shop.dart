@@ -882,9 +882,7 @@ class _FeaturedCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _Stamp(
-                          l.storeNewReceipt,
-                        ),
+                        _Stamp(l.storeNewReceipt),
                         SizedBox(height: s.xs),
                         Text(
                           entry.name,
@@ -1297,9 +1295,7 @@ class _Bag extends StatelessWidget {
                               PositionedDirectional(
                                 end: s.xs,
                                 bottom: s.xs,
-                                child: _Stamp(
-                                  l.storeOwned,
-                                ),
+                                child: _Stamp(l.storeOwned),
                               ),
                           ],
                         ),

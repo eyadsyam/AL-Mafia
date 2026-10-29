@@ -43,7 +43,10 @@ void main() {
 
   test('legacy room links reach both web and Android on either domain', () {
     for (final host in ['saidalmafia.com', 'almafia.vercel.app']) {
-      expect(manifest, contains('android:host="$host" android:pathPrefix="/room/"'));
+      expect(
+        manifest,
+        contains('android:host="$host" android:pathPrefix="/room/"'),
+      );
     }
     expect(File('web/index.html').readAsStringSync(), contains('room\\/'));
     final router = File('lib/app/router.dart').readAsStringSync();
@@ -52,15 +55,23 @@ void main() {
   });
 
   test('web share metadata and sitemap use the canonical host', () {
-    expect(File('web/index.html').readAsStringSync(),
-        contains('https://saidalmafia.com/og-image.jpg'));
-    expect(File('web/sitemap.xml').readAsStringSync(),
-        contains('https://saidalmafia.com/'));
-    expect(File('web/robots.txt').readAsStringSync(),
-        contains('https://saidalmafia.com/sitemap.xml'));
+    expect(
+      File('web/index.html').readAsStringSync(),
+      contains('https://saidalmafia.com/og-image.jpg'),
+    );
+    expect(
+      File('web/sitemap.xml').readAsStringSync(),
+      contains('https://saidalmafia.com/'),
+    );
+    expect(
+      File('web/robots.txt').readAsStringSync(),
+      contains('https://saidalmafia.com/sitemap.xml'),
+    );
     // The web AdSense account first; the AdMob account stays listed.
-    expect(File('web/ads.txt').readAsStringSync(),
-        contains('google.com, pub-5174049351369803, DIRECT, f08c47fec0942fa0'));
+    expect(
+      File('web/ads.txt').readAsStringSync(),
+      contains('google.com, pub-5174049351369803, DIRECT, f08c47fec0942fa0'),
+    );
   });
 
   test('the custom scheme still resolves to the router path', () {

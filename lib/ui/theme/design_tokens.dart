@@ -3187,6 +3187,28 @@ abstract final class RolesTokens {
   static const double sheetBackdropAlpha = 0.28;
 }
 
+/// «خزنتي» (owner, 2026-10-29): what a player owns, each kind in its own
+/// room with its own art, instead of one list.
+abstract final class MyVaultTokens {
+  static const double heroHeight = 150;
+  static const double tileGap = 10;
+  static const double rolesTile = 180;
+  static const double tile = 150;
+  static const Size fanCard = Size(76, 114);
+  static const double fanSpread = 34;
+  static const double fanTilt = 0.14;
+  static const double narratorHero = 340;
+  static const double portrait = 116;
+  static const double sceneHero = 300;
+  static const double frameTile = 76;
+  static const double plateTile = 52;
+  static const double toolArt = 54;
+  static const double toolTile = 132;
+  static const int toolColumns = 3;
+  static const double dot = 8;
+  static const double tileMarkAlpha = 0.82;
+}
+
 /// The host's deal at a glance in the online lobby.
 abstract final class LobbyDeckTokens {
   static const double cardHeight = 40;

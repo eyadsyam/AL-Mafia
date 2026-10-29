@@ -96,13 +96,12 @@ const _bodyKey = ValueKey('body');
 
 /// The band's total height at [s]: the resolved adaptive height (a function
 /// of the window's width and orientation) plus the band's air.
-double _bandAt(Size s) =>
-    ShellBandFrame.heightFor(
-      FakeSizing.heightOf(
-        (s.width - 2 * AdTokens.bannerFrame).floor(),
-        s.width > s.height ? Orientation.landscape : Orientation.portrait,
-      ).toDouble(),
-    );
+double _bandAt(Size s) => ShellBandFrame.heightFor(
+  FakeSizing.heightOf(
+    (s.width - 2 * AdTokens.bannerFrame).floor(),
+    s.width > s.height ? Orientation.landscape : Orientation.portrait,
+  ).toDouble(),
+);
 
 class _Harness {
   final ProviderContainer container;

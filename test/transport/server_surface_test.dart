@@ -99,7 +99,8 @@ void main() {
       // every request passes its atomic per-address limit first.
       const ownAuth = {
         'admob_ssv': 'verifySsv(url, loadKeys)',
-        'play_voided_sync': 'sameSecret(request.headers.get("x-sync-secret") ?? "", secret)',
+        'play_voided_sync':
+            'sameSecret(request.headers.get("x-sync-secret") ?? "", secret)',
         'tester_signup': 'db.rpc("tester_signup_attempt"',
         // Answers the welcome-mail script yes/no on an HMAC only the server
         // can mint; it reads one row and changes nothing.
@@ -152,11 +153,11 @@ void main() {
                     .readAsStringSync()
                     .contains('where room_id=p_room and user_id=p_user') &&
                 // F11: the v11 report checks the same membership in SQL.
-                File('supabase/migrations/20260928001100_safety_v11.sql')
-                    .readAsStringSync()
-                    .contains(
-                      'from public.room_players where room_id=p_room and user_id=p_user',
-                    ));
+                File(
+                  'supabase/migrations/20260928001100_safety_v11.sql',
+                ).readAsStringSync().contains(
+                  'from public.room_players where room_id=p_room and user_id=p_user',
+                ));
         if (!guarded) unguarded.add(name);
       }
       expect(

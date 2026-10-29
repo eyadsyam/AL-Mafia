@@ -102,7 +102,13 @@ Map<String, dynamic> steps(String one, String two) => {
   'double': 200,
   'triple': 300,
   'steps': [
-    {'step': 1, 'amount': 100, 'totalAfter': 200, 'state': one, 'claimId': 'c1'},
+    {
+      'step': 1,
+      'amount': 100,
+      'totalAfter': 200,
+      'state': one,
+      'claimId': 'c1',
+    },
     {
       'step': 2,
       'amount': 100,
@@ -113,7 +119,11 @@ Map<String, dynamic> steps(String one, String two) => {
   ],
 };
 
-Map<String, dynamic> daily({bool coffer = false, bool spun = false, int? slot}) => {
+Map<String, dynamic> daily({
+  bool coffer = false,
+  bool spun = false,
+  int? slot,
+}) => {
   'enabled': true,
   'day': '2026-09-25',
   'coffer': {'claimed': coffer, 'amount': 20},
@@ -146,7 +156,11 @@ void main() {
     ads = _Ads();
   });
 
-  Future<void> pump(WidgetTester tester, Widget child, {PlayBilling? billing}) async {
+  Future<void> pump(
+    WidgetTester tester,
+    Widget child, {
+    PlayBilling? billing,
+  }) async {
     await tester.binding.setSurfaceSize(const Size(390, 900));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
@@ -184,7 +198,11 @@ void main() {
       final two = tester.widget<OutlinedButton>(
         find.byKey(RewardedRewardButton.stepKey(2)),
       );
-      expect(two.onPressed, isNull, reason: 'step 2 only after step 1 is verified');
+      expect(
+        two.onPressed,
+        isNull,
+        reason: 'step 2 only after step 1 is verified',
+      );
     });
 
     testWidgets('a verified step 1 is kept; step 2 opens with its own claim', (
@@ -198,9 +216,10 @@ void main() {
           'claimId': 'c1',
           'claimState': 'pending',
         },
-        'ad_steps_status_v2' => awarded
-            ? steps('awarded', 'available')
-            : steps('available', 'available'),
+        'ad_steps_status_v2' =>
+          awarded
+              ? steps('awarded', 'available')
+              : steps('available', 'available'),
         _ => {'ok': true},
       };
       await pump(tester, const RewardedRewardButton(roomId: 'room-1'));
@@ -235,7 +254,9 @@ void main() {
       }
     });
 
-    testWidgets('totals are derived when the server omits them', (tester) async {
+    testWidgets('totals are derived when the server omits them', (
+      tester,
+    ) async {
       backend.responders['economy'] = (body) => switch (body['action']) {
         'capabilities' => caps(),
         _ => {
@@ -256,7 +277,10 @@ void main() {
     testWidgets('an old server keeps the 1.0.0 single ad', (tester) async {
       backend.responders['economy'] = (body) {
         if (body['action'] == 'capabilities') {
-          throw const BackendException('BAD_REQUEST', 'invalid economy request');
+          throw const BackendException(
+            'BAD_REQUEST',
+            'invalid economy request',
+          );
         }
         return {'state': 'available', 'amount': 100};
       };
@@ -269,7 +293,12 @@ void main() {
     testWidgets('a match with a 1.0.0 claim stays a single ad', (tester) async {
       backend.responders['economy'] = (body) => switch (body['action']) {
         'capabilities' => caps(),
-        _ => {'scheme': 'v1', 'claimId': 'old', 'state': 'awarded', 'amount': 100},
+        _ => {
+          'scheme': 'v1',
+          'claimId': 'old',
+          'state': 'awarded',
+          'amount': 100,
+        },
       };
       await pump(tester, const RewardedRewardButton(roomId: 'room-1'));
       expect(find.byKey(RewardedRewardButton.stepKey(1)), findsNothing);
@@ -313,10 +342,17 @@ void main() {
       );
     });
 
-    testWidgets('the wheel lands on the stored outcome; no respin', (tester) async {
+    testWidgets('the wheel lands on the stored outcome; no respin', (
+      tester,
+    ) async {
       backend.responders['economy'] = (body) => switch (body['action']) {
         'capabilities' => caps(),
-        'daily_spin' => {'slot': 2, 'amount': 35, 'granted': 35, 'daily': daily(spun: true, slot: 2)},
+        'daily_spin' => {
+          'slot': 2,
+          'amount': 35,
+          'granted': 35,
+          'daily': daily(spun: true, slot: 2),
+        },
         _ => daily(),
       };
       await pump(tester, const DailyRewardsTab());
@@ -327,7 +363,9 @@ void main() {
         await tester.pump(MafiaTiming.wheelSpin);
       }
       expect(find.text(arStrings.dailyWheelResult(35)), findsOneWidget);
-      final spin = tester.widget<FilledButton>(find.byKey(DailyRewardsTab.spinKey));
+      final spin = tester.widget<FilledButton>(
+        find.byKey(DailyRewardsTab.spinKey),
+      );
       expect(spin.onPressed, isNull);
     });
 
@@ -340,30 +378,46 @@ void main() {
       };
       await pump(tester, const DailyRewardsTab());
       expect(find.text(arStrings.dailyWheelDone(35)), findsOneWidget);
-      expect(backend.calls.where((c) => c.body['action'] == 'daily_spin'), isEmpty);
+      expect(
+        backend.calls.where((c) => c.body['action'] == 'daily_spin'),
+        isEmpty,
+      );
     });
   });
 
   group('Play offers', () {
-    testWidgets('only products the server sells and Play lists; localized price', (
-      tester,
-    ) async {
-      final billing = _Billing();
-      backend.responders['economy'] = (_) => caps(
-        products: [
-          {'id': 'mm_remove_interruptions', 'kind': 'entitlement'},
-          {'id': 'mm_coins_500', 'kind': 'coins', 'coins': 500},
-          {'id': 'mm_coins_2500', 'kind': 'coins', 'coins': 2500},
-        ],
-      );
-      await pump(tester, const PlayOffersTab(), billing: billing);
-      await tester.pump();
-      expect(find.byKey(PlayOffersTab.buyKey('mm_remove_interruptions')), findsOneWidget);
-      expect(find.byKey(PlayOffersTab.buyKey('mm_coins_500')), findsOneWidget);
-      expect(find.byKey(PlayOffersTab.buyKey('mm_coins_2500')), findsNothing,
-          reason: 'not listed by Play on this device');
-      expect(find.text(arStrings.payWithGoogle('EGP 29.99')), findsNWidgets(2));
-    });
+    testWidgets(
+      'only products the server sells and Play lists; localized price',
+      (tester) async {
+        final billing = _Billing();
+        backend.responders['economy'] = (_) => caps(
+          products: [
+            {'id': 'mm_remove_interruptions', 'kind': 'entitlement'},
+            {'id': 'mm_coins_500', 'kind': 'coins', 'coins': 500},
+            {'id': 'mm_coins_2500', 'kind': 'coins', 'coins': 2500},
+          ],
+        );
+        await pump(tester, const PlayOffersTab(), billing: billing);
+        await tester.pump();
+        expect(
+          find.byKey(PlayOffersTab.buyKey('mm_remove_interruptions')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(PlayOffersTab.buyKey('mm_coins_500')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(PlayOffersTab.buyKey('mm_coins_2500')),
+          findsNothing,
+          reason: 'not listed by Play on this device',
+        );
+        expect(
+          find.text(arStrings.payWithGoogle('EGP 29.99')),
+          findsNWidgets(2),
+        );
+      },
+    );
 
     testWidgets('an unprotected account is asked to link an email first', (
       tester,
@@ -384,7 +438,9 @@ void main() {
       expect(find.text(arStrings.playNeedsProtection), findsOneWidget);
     });
 
-    testWidgets('no active products: nothing to buy, said honestly', (tester) async {
+    testWidgets('no active products: nothing to buy, said honestly', (
+      tester,
+    ) async {
       backend.responders['economy'] = (_) => caps();
       await pump(tester, const PlayOffersTab(), billing: _Billing());
       await tester.pump();

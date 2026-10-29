@@ -122,7 +122,9 @@ class CasePage {
     missions: [
       for (final row in _rows(json['missions'])) CaseMission.fromJson(row),
     ],
-    bonus: json['bonus'] is Map ? CaseBonus.fromJson(_map(json['bonus'])) : null,
+    bonus: json['bonus'] is Map
+        ? CaseBonus.fromJson(_map(json['bonus']))
+        : null,
   );
 
   int get ready =>

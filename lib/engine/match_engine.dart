@@ -345,10 +345,12 @@ class MatchEngine {
       targets: targets,
       teammateVotes: teammateVotes,
       // The Mafia never choose one of their own (owner, 2026-10-01).
-      blockedTargets: role.alignment == Alignment.mafia &&
+      blockedTargets:
+          role.alignment == Alignment.mafia &&
               (role == Role.mafia ||
                   !match.players.any(
-                    (p) => p.status == PlayerStatus.alive && p.role == Role.mafia,
+                    (p) =>
+                        p.status == PlayerStatus.alive && p.role == Role.mafia,
                   ))
           ? [
               for (final t in targets)
@@ -478,7 +480,9 @@ class MatchEngine {
           );
         } else {
           if (match.players[targetSeat].role.alignment == Alignment.mafia) {
-            throw StateError('submitNightAction: mafia cannot target a mafioso');
+            throw StateError(
+              'submitNightAction: mafia cannot target a mafioso',
+            );
           }
           if (useBullet) _spendBullet(seat: seat, now: now, phaseRef: phaseRef);
           match = match.copyWith(
@@ -829,10 +833,7 @@ class MatchEngine {
       matchSeed: match.seed,
       // Doc 13 §8. `T2` says a kill was blocked, and a morning in which
       // nobody died has to be unreadable once the Mafia can buy one.
-      allowSaveTrace: !Bullets.enabled(
-        match.settings,
-        BulletKind.quietNight,
-      ),
+      allowSaveTrace: !Bullets.enabled(match.settings, BulletKind.quietNight),
     );
 
     match = match.copyWith(
@@ -1294,8 +1295,7 @@ class MatchEngine {
           event.round == round) {
         final target = event.targetSeat;
         if (target != null) {
-          tally[target] =
-              (tally[target] ?? 0) + voteWeightFor(event.voterSeat);
+          tally[target] = (tally[target] ?? 0) + voteWeightFor(event.voterSeat);
         }
       }
     }

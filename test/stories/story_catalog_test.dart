@@ -22,7 +22,9 @@ class _Bundle extends CachingAssetBundle {
 
 void main() {
   test('one bad or missing story is skipped, the rest still load', () async {
-    final good = File('assets/stories/qahwet_el_moallem.json').readAsStringSync();
+    final good = File(
+      'assets/stories/qahwet_el_moallem.json',
+    ).readAsStringSync();
     final catalog = StoryCatalog(
       bundle: _Bundle(good, {StoryCatalog.assetPaths.first}),
     );

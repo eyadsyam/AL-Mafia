@@ -16,7 +16,11 @@ GameSnapshot _snap(GamePhase phase, List<ToolLogEntry> log) => GameSnapshot(
     dayNumber: 1,
     players: [
       for (var seat = 0; seat < 6; seat++)
-        PublicPlayer(seat: seat, name: ['إياد', 'كريم', 'سارة', 'منى', 'علي', 'هبة'][seat], status: PlayerStatus.alive),
+        PublicPlayer(
+          seat: seat,
+          name: ['إياد', 'كريم', 'سارة', 'منى', 'علي', 'هبة'][seat],
+          status: PlayerStatus.alive,
+        ),
     ],
   ),
   viewerSeat: 0,
@@ -27,7 +31,13 @@ void main() {
   group('ToolLogEntry parsing', () {
     test('good entry', () {
       final list = ToolLogEntry.parseList([
-        {'tool': 'spotlight', 'seat': 1, 'targets': [2, 3], 'note': null, 'phaseNumber': 2},
+        {
+          'tool': 'spotlight',
+          'seat': 1,
+          'targets': [2, 3],
+          'note': null,
+          'phaseNumber': 2,
+        },
       ]);
       expect(list, hasLength(1));
       expect(list.first.tool, 'spotlight');
@@ -38,7 +48,11 @@ void main() {
     });
 
     test('secret entry has a null seat', () {
-      final e = ToolLogEntry.tryParse({'tool': 'peek', 'seat': null, 'targets': []})!;
+      final e = ToolLogEntry.tryParse({
+        'tool': 'peek',
+        'seat': null,
+        'targets': [],
+      })!;
       expect(e.seat, isNull);
       expect(e.targets, isEmpty);
     });
@@ -51,7 +65,11 @@ void main() {
         {'seat': 1},
         {'tool': ''},
         {'tool': 7},
-        {'tool': 'anon_note', 'note': 'hi', 'targets': ['a', 1, null]},
+        {
+          'tool': 'anon_note',
+          'note': 'hi',
+          'targets': ['a', 1, null],
+        },
       ]);
       expect(list, hasLength(1));
       expect(list.first.targets, [1]);
@@ -84,7 +102,9 @@ void main() {
       const ToolLogEntry(tool: 'objection', seat: null),
     ];
 
-    testWidgets('renders max 3 newest-first in Arabic without overflow', (tester) async {
+    testWidgets('renders max 3 newest-first in Arabic without overflow', (
+      tester,
+    ) async {
       await pump(tester, _snap(GamePhase.discussion, log));
       expect(tester.takeException(), isNull);
       expect(find.byKey(ToolFeed.surface), findsOneWidget);
@@ -120,7 +140,9 @@ void main() {
         ProviderScope(
           child: localizedApp(
             Scaffold(
-              body: TableScene(snapshot: _snap(GamePhase.discussion, [log[0], log[1]])),
+              body: TableScene(
+                snapshot: _snap(GamePhase.discussion, [log[0], log[1]]),
+              ),
             ),
           ),
         ),

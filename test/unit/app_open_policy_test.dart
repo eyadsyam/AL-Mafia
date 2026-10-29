@@ -59,9 +59,7 @@ void main() {
       reason: 'an old server has no ads key',
     );
     expect(
-      decide(
-        pacing: InterstitialRules.fromJson({'maxPerDay': 0}),
-      ),
+      decide(pacing: InterstitialRules.fromJson({'maxPerDay': 0})),
       AppOpenVerdict.dailyCap,
       reason: 'a zero global cap stops every full-screen ad',
     );

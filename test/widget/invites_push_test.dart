@@ -87,8 +87,7 @@ class _Friends extends FriendsController {
 
 class _EmptyFriends extends FriendsController {
   @override
-  Future<FriendsState?> build() async =>
-      FriendsState.fromJson({'friends': []});
+  Future<FriendsState?> build() async => FriendsState.fromJson({'friends': []});
   @override
   Future<void> refresh() async {}
   @override
@@ -175,7 +174,11 @@ void main() {
         overrides: overrides(),
         child: localizedApp(
           Scaffold(
-            body: InviteSheet(visible: true, roomId: 'room-1', onDismiss: () {}),
+            body: InviteSheet(
+              visible: true,
+              roomId: 'room-1',
+              onDismiss: () {},
+            ),
           ),
           locale: locale,
         ),
@@ -222,7 +225,9 @@ void main() {
         for (final f in DiscoverFilter.values) {
           expect(find.byKey(InviteSheet.filterKey(f)), findsOneWidget);
         }
-        await tester.tap(find.byKey(InviteSheet.filterKey(DiscoverFilter.near)));
+        await tester.tap(
+          find.byKey(InviteSheet.filterKey(DiscoverFilter.near)),
+        );
         await tester.pumpAndSettle();
         expect(api.filters, [null, DiscoverFilter.near]);
         expect(find.text(l.inviteMore), findsOneWidget);
@@ -251,7 +256,11 @@ void main() {
         ],
         child: localizedApp(
           Scaffold(
-            body: InviteSheet(visible: true, roomId: 'room-1', onDismiss: () {}),
+            body: InviteSheet(
+              visible: true,
+              roomId: 'room-1',
+              onDismiss: () {},
+            ),
           ),
         ),
       ),
@@ -538,8 +547,9 @@ void main() {
       expect(PushOpen.fromData({'kind': 'unknown'}), isNull);
     });
 
-    testWidgets('cold daily and tapped orders and friends reach their routes',
-        (tester) async {
+    testWidgets('cold daily and tapped orders and friends reach their routes', (
+      tester,
+    ) async {
       final routed = <PushDestination>[];
       final key = GlobalKey<IncomingInviteHostState>();
       push.initial = PushOpen.fromData({'kind': 'daily'});
@@ -610,9 +620,9 @@ void main() {
         ),
       );
       ProviderScope.containerOf(
-      tester.element(find.text('home')),
-    ).read(directoryApiProvider);
-    api.respondWith = null;
+        tester.element(find.text('home')),
+      ).read(directoryApiProvider);
+      api.respondWith = null;
       await key.currentState!.openFromPush(
         const PushOpen(kind: 'invite', code: 'K7M2QP', inviteId: 'inv-2'),
       );

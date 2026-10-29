@@ -283,7 +283,9 @@ void main() {
       // One «وصل جديد» card, and the first drawer is on the first screen.
       expect(find.byKey(StoreShopKeys.featured), findsOneWidget);
       expect(find.text(arStrings.storeNewReceipt), findsOneWidget);
-      final first = tester.getRect(find.byKey(StoreShopKeys.drawer('narrator')));
+      final first = tester.getRect(
+        find.byKey(StoreShopKeys.drawer('narrator')),
+      );
       expect(first.bottom, lessThanOrEqualTo(780));
       // Drawers are full-width rows; Arabic starts on the right.
       expect(first.right, closeTo(360 - 16, 2));
@@ -430,10 +432,7 @@ void main() {
       await tester.pumpWidget(
         scope(
           const MediaQuery(
-            data: MediaQueryData(
-              size: Size(360, 780),
-              disableAnimations: true,
-            ),
+            data: MediaQueryData(size: Size(360, 780), disableAnimations: true),
             child: CoinStore(),
           ),
         ),

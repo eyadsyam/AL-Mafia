@@ -140,7 +140,10 @@ class FakeCasebookController extends CasebookController {
   }
 
   @override
-  Future<CaseGrant> claimMission({required bool weekly, required int slot}) async {
+  Future<CaseGrant> claimMission({
+    required bool weekly,
+    required int slot,
+  }) async {
     claims.add('${weekly ? 'weekly' : 'daily'}:$slot');
     return const CaseGrant(10, 40);
   }

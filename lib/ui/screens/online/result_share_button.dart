@@ -52,10 +52,9 @@ class _ResultShareButtonState extends ConsumerState<ResultShareButton> {
       final winner = widget.winner == game.Alignment.mafia
           ? l10n.mafiaWins
           : l10n.townWins;
-      final message = l10n.shareResultText(winner, widget.days).replaceAll(
-        'https://saidalmafia.com',
-        kPublicWebOrigin,
-      );
+      final message = l10n
+          .shareResultText(winner, widget.days)
+          .replaceAll('https://saidalmafia.com', kPublicWebOrigin);
       final room = widget.roomId;
       final awards = room == null
           ? const OnlineAwards()
@@ -117,10 +116,9 @@ class _ResultShareButtonState extends ConsumerState<ResultShareButton> {
     }
   }
 
-  void _say(String message) =>
-      ScaffoldMessenger.maybeOf(context)
-        ?..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(message)));
+  void _say(String message) => ScaffoldMessenger.maybeOf(context)
+    ?..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
 
   @override
   Widget build(BuildContext context) => IconButton.outlined(
@@ -271,10 +269,7 @@ void _paintIdentity(
     ),
     textDirection: direction,
   )..layout();
-  initial.paint(
-    canvas,
-    centre - Offset(initial.width / 2, initial.height / 2),
-  );
+  initial.paint(canvas, centre - Offset(initial.width / 2, initial.height / 2));
   if (frame != null) paintCosmeticFrame(canvas, centre, diameter, frame);
   final label = TextPainter(
     text: TextSpan(

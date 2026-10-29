@@ -110,12 +110,11 @@ class _ShellBannerHostState extends ConsumerState<ShellBannerHost> {
   BannerSize? _size;
 
   void _sizeFor(BannerSizing sizing, MediaQueryData media) {
-    final width =
-        (media.size.width - 2 * AdTokens.bannerFrame)
-            // The band keeps clear of a notch on its sides.
-            .clamp(0.0, media.size.width - media.padding.horizontal)
-            .clamp(0.0, AdTokens.bannerMaxWidth)
-            .floor();
+    final width = (media.size.width - 2 * AdTokens.bannerFrame)
+        // The band keeps clear of a notch on its sides.
+        .clamp(0.0, media.size.width - media.padding.horizontal)
+        .clamp(0.0, AdTokens.bannerMaxWidth)
+        .floor();
     if (width == _sizeWidth && media.orientation == _sizeOrientation) return;
     _sizeWidth = width;
     _sizeOrientation = media.orientation;

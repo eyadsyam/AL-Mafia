@@ -121,11 +121,7 @@ void main() {
         _state('morning', number: 2),
         _state('discuss', number: 3),
         _state('vote', number: 3),
-        _state(
-          'result',
-          number: 3,
-          publicData: const {'outcome': 'town'},
-        ),
+        _state('result', number: 3, publicData: const {'outcome': 'town'}),
       ]) {
         backend.setState(state);
         await tester.pump();

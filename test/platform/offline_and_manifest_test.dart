@@ -52,10 +52,16 @@ void main() {
       );
     });
 
-    test('the release manifest declares POST_NOTIFICATIONS for Android 13+', () {
-      final manifest = read('android/app/src/main/AndroidManifest.xml');
-      expect(manifest.contains('android.permission.POST_NOTIFICATIONS'), isTrue);
-    });
+    test(
+      'the release manifest declares POST_NOTIFICATIONS for Android 13+',
+      () {
+        final manifest = read('android/app/src/main/AndroidManifest.xml');
+        expect(
+          manifest.contains('android.permission.POST_NOTIFICATIONS'),
+          isTrue,
+        );
+      },
+    );
 
     test('the debug manifest keeps its own copy, and that is fine', () {
       final debugManifest = read('android/app/src/debug/AndroidManifest.xml');

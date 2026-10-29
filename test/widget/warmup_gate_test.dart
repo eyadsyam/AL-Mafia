@@ -77,28 +77,29 @@ void main() {
     expect(web, contains('assets/images/bg_night.webp'));
   });
 
-  testWidgets('first launch prepares behind a veil, then lets the table through', (
-    tester,
-  ) async {
-    SharedPreferences.setMockInitialValues({});
-    created = 0;
-    await pump(tester);
-    await tester.pump();
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 50)),
-    );
-    await tester.pump();
-    expect(find.byKey(WarmupGate.overlayKey), findsOneWidget);
-    await settle(tester);
-    expect(find.byKey(WarmupGate.overlayKey), findsNothing);
-    expect(find.text('table'), findsOneWidget);
-    // The table keeps its place in the tree while the veil comes and goes:
-    // re-creating it restarts the onboarding gate and loses the room link a
-    // new player arrived with.
-    expect(created, 1);
-    final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString(AssetWarmup.signatureKey), isNotNull);
-  });
+  testWidgets(
+    'first launch prepares behind a veil, then lets the table through',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      created = 0;
+      await pump(tester);
+      await tester.pump();
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump();
+      expect(find.byKey(WarmupGate.overlayKey), findsOneWidget);
+      await settle(tester);
+      expect(find.byKey(WarmupGate.overlayKey), findsNothing);
+      expect(find.text('table'), findsOneWidget);
+      // The table keeps its place in the tree while the veil comes and goes:
+      // re-creating it restarts the onboarding gate and loses the room link a
+      // new player arrived with.
+      expect(created, 1);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(AssetWarmup.signatureKey), isNotNull);
+    },
+  );
 
   testWidgets('a prepared device shows no veil at all', (tester) async {
     TestWidgetsFlutterBinding.ensureInitialized();

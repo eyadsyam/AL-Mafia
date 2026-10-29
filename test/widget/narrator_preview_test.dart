@@ -12,8 +12,11 @@ import '../support/localized.dart';
 class _Recorder extends SilentAudioBackend {
   final played = <String>[];
   @override
-  Future<void> play(String assetKey, {double rate = 1.0, double volume = 1.0}) async =>
-      played.add(assetKey);
+  Future<void> play(
+    String assetKey, {
+    double rate = 1.0,
+    double volume = 1.0,
+  }) async => played.add(assetKey);
 }
 
 void main() {

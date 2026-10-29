@@ -144,25 +144,42 @@ class _AndroidNotificationMock extends StatelessWidget {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.theater_comedy, size: 16, color: InviteTokens.accent),
+                      Icon(
+                        Icons.theater_comedy,
+                        size: 16,
+                        color: InviteTokens.accent,
+                      ),
                       SizedBox(width: 6),
-                      Text('سيد المافيا · دلوقتي',
-                          style: TextStyle(color: dim, fontSize: 12)),
+                      Text(
+                        'سيد المافيا · دلوقتي',
+                        style: TextStyle(color: dim, fontSize: 12),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  const Text('دعوة للعب',
-                      style: TextStyle(color: ink, fontSize: 15, fontWeight: FontWeight.w600)),
+                  const Text(
+                    'دعوة للعب',
+                    style: TextStyle(
+                      color: ink,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  const Text('إياد بيدعوك تلعبوا مع بعض — أوضة K7M2QP',
-                      style: TextStyle(color: ink, fontSize: 14)),
+                  const Text(
+                    'إياد بيدعوك تلعبوا مع بعض — أوضة K7M2QP',
+                    style: TextStyle(color: ink, fontSize: 14),
+                  ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      Text('ادخل',
-                          style: TextStyle(
-                              color: InviteTokens.accent.withValues(alpha: 1),
-                              fontWeight: FontWeight.w600)),
+                      Text(
+                        'ادخل',
+                        style: TextStyle(
+                          color: InviteTokens.accent.withValues(alpha: 1),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       const SizedBox(width: 24),
                       const Text('بعدين', style: TextStyle(color: dim)),
                     ],
@@ -237,13 +254,20 @@ void main() {
     final image = boundary.toImageSync(pixelRatio: 1);
     await tester.runAsync(() async {
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      File('${out.path}/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      File(
+        '${out.path}/$name.png',
+      ).writeAsBytesSync(bytes!.buffer.asUint8List());
     });
     image.dispose();
   }
 
   Widget lobby(Widget over) => Scaffold(
-    body: Stack(children: [const Center(child: Text('K7M2QP')), over]),
+    body: Stack(
+      children: [
+        const Center(child: Text('K7M2QP')),
+        over,
+      ],
+    ),
   );
 
   const sheet = InviteSheet(visible: true, roomId: 'r', onDismiss: _noop);

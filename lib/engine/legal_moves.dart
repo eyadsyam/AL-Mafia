@@ -407,7 +407,8 @@ List<Move> _nightMoves(Match match) {
   // A Silencer left without a living killer silences nobody: the engine turns
   // the move into a kill vote (match_engine), and the Mafia never kill one of
   // their own, so a teammate or itself is not a move that can be applied.
-  final silencerKills = actor.role == Role.silencer &&
+  final silencerKills =
+      actor.role == Role.silencer &&
       !match.players.any(
         (p) => p.status == PlayerStatus.alive && p.role == Role.mafia,
       );

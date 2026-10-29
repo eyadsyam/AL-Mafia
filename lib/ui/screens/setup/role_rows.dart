@@ -139,16 +139,19 @@ class RoleStepper extends StatelessWidget {
           alpha: DeckTokens.disabledAlpha,
         ),
         style: IconButton.styleFrom(
-          shape: const CircleBorder(
-            side: BorderSide(color: DeckTokens.silver),
-          ),
+          shape: const CircleBorder(side: BorderSide(color: DeckTokens.silver)),
         ),
       ),
     );
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        button(Icons.remove, '${l.decreaseRole} $label', onMinus, minusButtonKey),
+        button(
+          Icons.remove,
+          '${l.decreaseRole} $label',
+          onMinus,
+          minusButtonKey,
+        ),
         SizedBox(
           width: RolesTokens.stepperCount,
           child: Text(
@@ -220,7 +223,8 @@ class OptionalRoleRows extends ConsumerStatefulWidget {
   static Key rowKey(OptionalRole r) => ValueKey('optional_role_${r.name}');
   static Key switchKey(OptionalRole r) =>
       ValueKey('optional_role_${r.name}_switch');
-  static Key lockKey(OptionalRole r) => ValueKey('optional_role_${r.name}_lock');
+  static Key lockKey(OptionalRole r) =>
+      ValueKey('optional_role_${r.name}_lock');
 
   @override
   ConsumerState<OptionalRoleRows> createState() => _OptionalRoleRowsState();

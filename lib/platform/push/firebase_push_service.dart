@@ -98,9 +98,7 @@ class FirebasePushService implements PushService {
       // Reads the values the google-services Gradle plugin generated from
       // google-services.json; throws when that file was not in the build.
       await Firebase.initializeApp();
-      FirebaseMessaging.onBackgroundMessage(
-        firebaseMessagingBackgroundHandler,
-      );
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
       final service = FirebasePushService._(FirebaseMessaging.instance, null)
         .._text = text;
       await service._channels(inviteVibration, socialVibration);

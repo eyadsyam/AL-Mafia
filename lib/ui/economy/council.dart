@@ -250,7 +250,9 @@ class Leaderboard {
     return Leaderboard(
       enabled: j['enabled'] == true,
       week: j['week'] as String? ?? '',
-      entries: [for (final row in _rows(j['entries'])) LeaderboardEntry.fromJson(row)],
+      entries: [
+        for (final row in _rows(j['entries'])) LeaderboardEntry.fromJson(row),
+      ],
       myPosition: (me['position'] as num?)?.toInt(),
       myXp: _int(me['xp']),
       visible: j['visible'] != false,
@@ -302,7 +304,9 @@ class InviteStatus {
 
   factory InviteStatus.fromJson(Map<String, dynamic> j) {
     final redeemed = j['redeemed'];
-    final v3 = j['v3'] is Map ? Map<String, dynamic>.from(j['v3'] as Map) : null;
+    final v3 = j['v3'] is Map
+        ? Map<String, dynamic>.from(j['v3'] as Map)
+        : null;
     final caps = v3?['caps'] is Map ? v3!['caps'] as Map : const {};
     return InviteStatus(
       settledSeason: _int(v3?['settledSeason']),
@@ -554,7 +558,9 @@ class CouncilController extends AsyncNotifier<CouncilState?> {
   }
 }
 
-final leaderboardProvider = FutureProvider.autoDispose<Leaderboard>((ref) async {
+final leaderboardProvider = FutureProvider.autoDispose<Leaderboard>((
+  ref,
+) async {
   final backend = await ref.read(onlineBackendFactoryProvider)();
   await backend.ensureSession();
   return Leaderboard.fromJson(
@@ -562,9 +568,10 @@ final leaderboardProvider = FutureProvider.autoDispose<Leaderboard>((ref) async 
   );
 });
 
-final inviteProvider = AsyncNotifierProvider.autoDispose<InviteController, InviteStatus>(
-  InviteController.new,
-);
+final inviteProvider =
+    AsyncNotifierProvider.autoDispose<InviteController, InviteStatus>(
+      InviteController.new,
+    );
 
 class InviteController extends AutoDisposeAsyncNotifier<InviteStatus> {
   Future<Map<String, dynamic>> _call(Map<String, Object?> body) async {

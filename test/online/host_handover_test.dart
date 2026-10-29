@@ -25,7 +25,9 @@ GameSnapshot room(GamePhase phase, int? host) => GameSnapshot(
 /// host in every phase, never for the first host, and it leaves nothing.
 void main() {
   Future<void> show(WidgetTester tester, GameSnapshot snapshot) =>
-      tester.pumpWidget(localizedApp(Scaffold(body: HostHandover(snapshot: snapshot))));
+      tester.pumpWidget(
+        localizedApp(Scaffold(body: HostHandover(snapshot: snapshot))),
+      );
 
   testWidgets('the first host is not announced', (tester) async {
     await show(tester, room(GamePhase.setup, 0));

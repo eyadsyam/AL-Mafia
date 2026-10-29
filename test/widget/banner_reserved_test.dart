@@ -68,12 +68,18 @@ final _caps = StateProvider<EconomyCapabilities>((_) => _bannerOn);
 
 /// Every text on screen and the ad box: what must not move.
 List<Rect> _layout(WidgetTester tester) {
-  final texts = find.byType(Text).evaluate().where(
-    (e) => find
-        .ancestor(of: find.byWidget(e.widget), matching: find.byType(BannerFrame))
-        .evaluate()
-        .isEmpty,
-  );
+  final texts = find
+      .byType(Text)
+      .evaluate()
+      .where(
+        (e) => find
+            .ancestor(
+              of: find.byWidget(e.widget),
+              matching: find.byType(BannerFrame),
+            )
+            .evaluate()
+            .isEmpty,
+      );
   return [
     for (final e in texts) tester.getRect(find.byWidget(e.widget)),
     tester.getRect(find.byKey(BannerFrame.adKey)),
@@ -196,11 +202,7 @@ void main() {
   }
 
   for (final surface in surfaces) {
-    for (final size in const [
-      Size(360, 640),
-      Size(390, 844),
-      Size(640, 360),
-    ]) {
+    for (final size in const [Size(360, 640), Size(390, 844), Size(640, 360)]) {
       if (size.width > size.height && !surface.landscape) continue;
       group('${surface.name} at $size', () {
         testWidgets('nothing moves when the ad fills', (tester) async {
@@ -333,23 +335,24 @@ void main() {
     expect(tester.getRect(find.byType(BannerFrame)), frame);
   });
 
-  testWidgets('a rotation asks for the new size and relayouts; a fill does not', (
-    tester,
-  ) async {
-    final (_, ads) = await pump(tester, surfaces.first, const Size(390, 844));
-    final portrait = tester.getRect(find.byKey(BannerFrame.adKey)).height;
-    tester.view.physicalSize = const Size(844, 390);
-    await tester.pump();
-    await tester.pump();
-    final landscape = tester.getRect(find.byKey(BannerFrame.adKey));
-    expect(landscape.height, FakeSizing.heightOf(728, Orientation.landscape));
-    expect(landscape.height, isNot(portrait));
-    // Capped at the widest banner (728 dp).
-    expect(ads.sizesAsked.last.width, 728);
-    ads.filled.value = true;
-    await tester.pump();
-    expect(tester.getRect(find.byKey(BannerFrame.adKey)), landscape);
-  });
+  testWidgets(
+    'a rotation asks for the new size and relayouts; a fill does not',
+    (tester) async {
+      final (_, ads) = await pump(tester, surfaces.first, const Size(390, 844));
+      final portrait = tester.getRect(find.byKey(BannerFrame.adKey)).height;
+      tester.view.physicalSize = const Size(844, 390);
+      await tester.pump();
+      await tester.pump();
+      final landscape = tester.getRect(find.byKey(BannerFrame.adKey));
+      expect(landscape.height, FakeSizing.heightOf(728, Orientation.landscape));
+      expect(landscape.height, isNot(portrait));
+      // Capped at the widest banner (728 dp).
+      expect(ads.sizesAsked.last.width, 728);
+      ads.filled.value = true;
+      await tester.pump();
+      expect(tester.getRect(find.byKey(BannerFrame.adKey)), landscape);
+    },
+  );
 
   testWidgets('ad-free mid-screen closes the place over an ease', (
     tester,
@@ -379,7 +382,10 @@ void main() {
     expect(find.byKey(BannerFrame.adKey), findsNothing);
     // Nothing is in its place any more, and the Start button went down into
     // the room the band gave back (it is bottom-anchored, never up).
-    expect(tester.getRect(start).bottom, greaterThanOrEqualTo(startBefore.bottom));
+    expect(
+      tester.getRect(start).bottom,
+      greaterThanOrEqualTo(startBefore.bottom),
+    );
   });
 
   group('no banner has filled yet this session', () {
@@ -452,10 +458,12 @@ void main() {
 
 double _gapOf(WidgetTester tester) {
   final padding = tester.widget<Padding>(
-    find.descendant(
-      of: find.byType(BannerFrame),
-      matching: find.byType(Padding),
-    ).first,
+    find
+        .descendant(
+          of: find.byType(BannerFrame),
+          matching: find.byType(Padding),
+        )
+        .first,
   );
   return (padding.padding as EdgeInsets).top;
 }

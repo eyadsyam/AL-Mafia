@@ -81,11 +81,20 @@ void main() {
     test('missing config is off, and each switch is independent', () {
       final none = InterstitialRules.fromJson(const {});
       for (final p in AdPlacement.values) {
-        expect(decide(p, rules: none, menuMs: fiveMinutes), InterstitialVerdict.off);
+        expect(
+          decide(p, rules: none, menuMs: fiveMinutes),
+          InterstitialVerdict.off,
+        );
       }
       final onlyPre = InterstitialRules.fromJson(const {'preMatch': true});
-      expect(decide(AdPlacement.preMatch, rules: onlyPre), InterstitialVerdict.show);
-      expect(decide(AdPlacement.postMatch, rules: onlyPre), InterstitialVerdict.off);
+      expect(
+        decide(AdPlacement.preMatch, rules: onlyPre),
+        InterstitialVerdict.show,
+      );
+      expect(
+        decide(AdPlacement.postMatch, rules: onlyPre),
+        InterstitialVerdict.off,
+      );
       expect(
         decide(AdPlacement.passAndPlayDeal, rules: onlyPre),
         InterstitialVerdict.off,
@@ -122,8 +131,14 @@ void main() {
         InterstitialVerdict.grace,
       );
       // From the second match on, before and after.
-      expect(decide(AdPlacement.preMatch, ledger: afterFirst), InterstitialVerdict.show);
-      expect(decide(AdPlacement.postMatch, ledger: played(2)), InterstitialVerdict.show);
+      expect(
+        decide(AdPlacement.preMatch, ledger: afterFirst),
+        InterstitialVerdict.show,
+      );
+      expect(
+        decide(AdPlacement.postMatch, ledger: played(2)),
+        InterstitialVerdict.show,
+      );
     });
 
     test('the first match after a launch skips the pre-match ads', () {
@@ -163,7 +178,10 @@ void main() {
       for (var i = 0; i < 59; i++) {
         ledger = ledger.shown(noon - 10 * 60 * _minute + i * 2 * _minute);
       }
-      expect(decide(AdPlacement.postMatch, ledger: ledger), InterstitialVerdict.show);
+      expect(
+        decide(AdPlacement.postMatch, ledger: ledger),
+        InterstitialVerdict.show,
+      );
       ledger = ledger.shown(noon - _minute * 5);
       expect(
         decide(AdPlacement.postMatch, ledger: ledger),
@@ -217,8 +235,14 @@ void main() {
     });
 
     test('consent is required; no fill never waits', () {
-      expect(decide(AdPlacement.preMatch, consent: false), InterstitialVerdict.noConsent);
-      expect(decide(AdPlacement.preMatch, loaded: false), InterstitialVerdict.notLoaded);
+      expect(
+        decide(AdPlacement.preMatch, consent: false),
+        InterstitialVerdict.noConsent,
+      );
+      expect(
+        decide(AdPlacement.preMatch, loaded: false),
+        InterstitialVerdict.notLoaded,
+      );
     });
   });
 
@@ -246,7 +270,10 @@ void main() {
         decide(AdPlacement.session, menuMs: fiveMinutes - 1),
         InterstitialVerdict.notDue,
       );
-      expect(decide(AdPlacement.session, menuMs: fiveMinutes), InterstitialVerdict.show);
+      expect(
+        decide(AdPlacement.session, menuMs: fiveMinutes),
+        InterstitialVerdict.show,
+      );
     });
 
     test('only on a navigation between two menu screens', () {
@@ -306,11 +333,11 @@ void main() {
     late ProviderContainer container;
     late int now;
 
-    ProviderContainer make({bool adFree = false, InterstitialRules rules = _all}) {
-      final caps = EconomyCapabilities(
-        adFree: adFree,
-        interstitial: rules,
-      );
+    ProviderContainer make({
+      bool adFree = false,
+      InterstitialRules rules = _all,
+    }) {
+      final caps = EconomyCapabilities(adFree: adFree, interstitial: rules);
       final c = ProviderContainer(
         overrides: [
           interstitialAdsProvider.overrideWithValue(ads),
@@ -341,17 +368,23 @@ void main() {
       return container.read(interstitialCoordinatorProvider);
     }
 
-    test('pre-match: skipped the first time after launch, then shown', () async {
-      final c = await ready();
-      expect(await c.beforeOnlineMatch(), InterstitialVerdict.firstAfterLaunch);
-      expect(ads.shows, 0);
-      now += 2 * _minute;
-      expect(await c.beforeOnlineMatch(), InterstitialVerdict.show);
-      expect(ads.shows, 1);
-      // Straight into another: the 60 s gap holds.
-      now += 30 * _second;
-      expect(await c.beforeOnlineMatch(), InterstitialVerdict.tooSoon);
-    });
+    test(
+      'pre-match: skipped the first time after launch, then shown',
+      () async {
+        final c = await ready();
+        expect(
+          await c.beforeOnlineMatch(),
+          InterstitialVerdict.firstAfterLaunch,
+        );
+        expect(ads.shows, 0);
+        now += 2 * _minute;
+        expect(await c.beforeOnlineMatch(), InterstitialVerdict.show);
+        expect(ads.shows, 1);
+        // Straight into another: the 60 s gap holds.
+        now += 30 * _second;
+        expect(await c.beforeOnlineMatch(), InterstitialVerdict.tooSoon);
+      },
+    );
 
     test('an app-open ad counts toward the gap', () async {
       final c = await ready();
@@ -401,56 +434,83 @@ void main() {
       expect(ads.preloads, 0);
     });
 
-    test('session: three menu minutes, then only before a forward menu move', () async {
-      final c = await ready();
-      c.foreground(true);
-      c.navigated('/', '/history');
-      now += 2 * _minute;
-      expect(await c.beforeMenuNavigation('/profile'), InterstitialVerdict.notDue);
-      c.navigated('/history', '/');
-      // A match pauses the clock: ten minutes in play add nothing.
-      c.navigated('/', '/match');
-      now += 10 * _minute;
-      c.navigated('/match', '/');
-      now += 30 * _second;
-      expect(await c.beforeMenuNavigation('/online/lobby'), InterstitialVerdict.notThisExit);
-      now += 31 * _second;
-      expect(await c.beforeMenuNavigation('/profile'), InterstitialVerdict.show);
-      expect(ads.shows, 1);
-      c.navigated('/', '/profile');
-      // The clock starts again after the ad.
-      now += _minute * 2;
-      expect(await c.beforeMenuNavigation('/'), InterstitialVerdict.notDue);
-    });
+    test(
+      'session: three menu minutes, then only before a forward menu move',
+      () async {
+        final c = await ready();
+        c.foreground(true);
+        c.navigated('/', '/history');
+        now += 2 * _minute;
+        expect(
+          await c.beforeMenuNavigation('/profile'),
+          InterstitialVerdict.notDue,
+        );
+        c.navigated('/history', '/');
+        // A match pauses the clock: ten minutes in play add nothing.
+        c.navigated('/', '/match');
+        now += 10 * _minute;
+        c.navigated('/match', '/');
+        now += 30 * _second;
+        expect(
+          await c.beforeMenuNavigation('/online/lobby'),
+          InterstitialVerdict.notThisExit,
+        );
+        now += 31 * _second;
+        expect(
+          await c.beforeMenuNavigation('/profile'),
+          InterstitialVerdict.show,
+        );
+        expect(ads.shows, 1);
+        c.navigated('/', '/profile');
+        // The clock starts again after the ad.
+        now += _minute * 2;
+        expect(await c.beforeMenuNavigation('/'), InterstitialVerdict.notDue);
+      },
+    );
 
-    test('session: back and pop never show it, however long the menus ran', () async {
-      final c = await ready();
-      c.foreground(true);
-      c.navigated('/', '/history');
-      now += 30 * _minute;
-      // Router moves — the system back, a back arrow, a pop — only keep the
-      // clock; nothing is shown over a screen already on display.
-      c.navigated('/history', '/');
-      c.navigated('/', '/profile');
-      c.navigated('/profile', '/');
-      await Future<void>.delayed(Duration.zero);
-      expect(ads.shows, 0);
-      // The next forward tap is when it is due, once.
-      expect(await c.beforeMenuNavigation('/history'), InterstitialVerdict.show);
-      c.navigated('/', '/history');
-      expect(await c.beforeMenuNavigation('/history/1'), isNot(InterstitialVerdict.show));
-      expect(ads.shows, 1);
-    });
+    test(
+      'session: back and pop never show it, however long the menus ran',
+      () async {
+        final c = await ready();
+        c.foreground(true);
+        c.navigated('/', '/history');
+        now += 30 * _minute;
+        // Router moves — the system back, a back arrow, a pop — only keep the
+        // clock; nothing is shown over a screen already on display.
+        c.navigated('/history', '/');
+        c.navigated('/', '/profile');
+        c.navigated('/profile', '/');
+        await Future<void>.delayed(Duration.zero);
+        expect(ads.shows, 0);
+        // The next forward tap is when it is due, once.
+        expect(
+          await c.beforeMenuNavigation('/history'),
+          InterstitialVerdict.show,
+        );
+        c.navigated('/', '/history');
+        expect(
+          await c.beforeMenuNavigation('/history/1'),
+          isNot(InterstitialVerdict.show),
+        );
+        expect(ads.shows, 1);
+      },
+    );
 
     test('session: none while a pass-and-play match is paused', () async {
       repository.active = true;
       final c = await ready();
       c.foreground(true);
       now += 30 * _minute;
-      expect(await c.beforeMenuNavigation('/history'), InterstitialVerdict.busy);
+      expect(
+        await c.beforeMenuNavigation('/history'),
+        InterstitialVerdict.busy,
+      );
       expect(ads.shows, 0);
       repository.active = false;
-      expect(await c.beforeMenuNavigation('/history'), InterstitialVerdict.show);
+      expect(
+        await c.beforeMenuNavigation('/history'),
+        InterstitialVerdict.show,
+      );
     });
 
     test('pass-and-play result: counted, then shown after Home', () async {

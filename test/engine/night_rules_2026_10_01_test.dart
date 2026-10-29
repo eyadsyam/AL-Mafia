@@ -49,10 +49,9 @@ void main() {
           final view = e.actorView(seat);
           expect(view.blockedTargets.toSet(), mafia.difference({seat}));
           expect(view.targets.toSet().containsAll(view.blockedTargets), isTrue);
-          final legalTargets = legalMoves(e.match)
-              .whereType<NightActionMove>()
-              .map((m) => m.targetSeat)
-              .toSet();
+          final legalTargets = legalMoves(
+            e.match,
+          ).whereType<NightActionMove>().map((m) => m.targetSeat).toSet();
           expect(legalTargets.intersection(mafia), isEmpty);
           final teammate = mafia.firstWhere((s) => s != seat);
           expect(

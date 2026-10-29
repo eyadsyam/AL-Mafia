@@ -22,19 +22,18 @@ abstract final class BeforeStartKeys {
 ///
 /// Nothing here depends on a role or on who is holding the phone: the same
 /// five lines for everyone, shown before any role exists (Doc 05).
-Future<bool?> showBeforeStartSheet(BuildContext context) =>
-    showDeckSheet<bool>(
-      context: context,
-      title: context.l10n.beforeStartTitle,
-      body: (_) => const BeforeStartBody(key: BeforeStartKeys.sheet),
-      primary: Builder(
-        builder: (context) => BoneButton(
-          key: BeforeStartKeys.go,
-          label: context.l10n.beforeStartGo,
-          onPressed: () => Navigator.of(context).pop(true),
-        ),
-      ),
-    );
+Future<bool?> showBeforeStartSheet(BuildContext context) => showDeckSheet<bool>(
+  context: context,
+  title: context.l10n.beforeStartTitle,
+  body: (_) => const BeforeStartBody(key: BeforeStartKeys.sheet),
+  primary: Builder(
+    builder: (context) => BoneButton(
+      key: BeforeStartKeys.go,
+      label: context.l10n.beforeStartGo,
+      onPressed: () => Navigator.of(context).pop(true),
+    ),
+  ),
+);
 
 class BeforeStartBody extends StatelessWidget {
   const BeforeStartBody({super.key});
@@ -56,7 +55,8 @@ class BeforeStartBody extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (final i in indexes) ...[
-          if (i != indexes.first) const SizedBox(height: BeforeStartTokens.lineGap),
+          if (i != indexes.first)
+            const SizedBox(height: BeforeStartTokens.lineGap),
           _Line(
             key: BeforeStartKeys.line(i + 1),
             number: number.format(i + 1),

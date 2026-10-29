@@ -122,8 +122,8 @@ class SetupDraftNotifier extends Notifier<SetupDraft> {
   void setNames(List<String> names) =>
       state = state.copyWith(names: List.unmodifiable(names));
 
-  void setRoster(List<String> roster, Set<String> absent) => state = state
-      .copyWith(
+  void setRoster(List<String> roster, Set<String> absent) =>
+      state = state.copyWith(
         roster: List.unmodifiable(roster),
         absent: Set.unmodifiable(absent),
       );
@@ -143,9 +143,7 @@ class SetupDraftNotifier extends Notifier<SetupDraft> {
     final next = group == null
         ? state.copyWith(clearGroup: true)
         : state.copyWith(group: group);
-    state = changed
-        ? next.copyWith(roster: const [], absent: const {})
-        : next;
+    state = changed ? next.copyWith(roster: const [], absent: const {}) : next;
   }
 
   /// Clears names, roles and the group but keeps settings — those are the

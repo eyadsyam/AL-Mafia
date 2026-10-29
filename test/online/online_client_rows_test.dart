@@ -48,44 +48,45 @@ void main() {
   // M3-19: a reconnect lands on the server's phase
   // ---------------------------------------------------------------------------
   group('M3-19', () {
-    final phases = <({String server, GamePhase client, Map<String, dynamic> data})>[
-      (
-        server: 'morning',
-        client: GamePhase.morning,
-        data: {
-          'morning': {
-            'victimSeats': [1],
-          },
-        },
-      ),
-      (
-        server: 'confront',
-        client: GamePhase.confrontation,
-        data: {
-          'confrontation': {'type': 'c10', 'targetSeat': 0},
-        },
-      ),
-      (server: 'discuss', client: GamePhase.discussion, data: const {}),
-      (server: 'vote', client: GamePhase.voting, data: const {}),
-      (
-        server: 'verdict',
-        client: GamePhase.reveal,
-        data: {
-          'lastVote': {'eliminatedSeat': null},
-        },
-      ),
-      (
-        server: 'result',
-        client: GamePhase.result,
-        data: {
-          'outcome': 'town',
-          'rosterSeats': [0, 1, 2, 3, 4],
-          'standings': [
-            {'seat': 0, 'role': 'citizen'},
-          ],
-        },
-      ),
-    ];
+    final phases =
+        <({String server, GamePhase client, Map<String, dynamic> data})>[
+          (
+            server: 'morning',
+            client: GamePhase.morning,
+            data: {
+              'morning': {
+                'victimSeats': [1],
+              },
+            },
+          ),
+          (
+            server: 'confront',
+            client: GamePhase.confrontation,
+            data: {
+              'confrontation': {'type': 'c10', 'targetSeat': 0},
+            },
+          ),
+          (server: 'discuss', client: GamePhase.discussion, data: const {}),
+          (server: 'vote', client: GamePhase.voting, data: const {}),
+          (
+            server: 'verdict',
+            client: GamePhase.reveal,
+            data: {
+              'lastVote': {'eliminatedSeat': null},
+            },
+          ),
+          (
+            server: 'result',
+            client: GamePhase.result,
+            data: {
+              'outcome': 'town',
+              'rosterSeats': [0, 1, 2, 3, 4],
+              'standings': [
+                {'seat': 0, 'role': 'citizen'},
+              ],
+            },
+          ),
+        ];
 
     for (final p in phases) {
       test('the transport reads the server\'s ${p.server} phase after a '
@@ -456,10 +457,7 @@ void main() {
           ),
         );
         await pumpEventQueue();
-        expect(
-          transport.snapshot.public.players[2].status,
-          PlayerStatus.dead,
-        );
+        expect(transport.snapshot.public.players[2].status, PlayerStatus.dead);
 
         backend.fetchGate = null;
         slow.complete();
@@ -506,12 +504,13 @@ void main() {
     }
 
     int syncs(FakeBackend backend) => backend.calls
-        .where(
-          (c) => c.function == 'economy' && c.body['action'] == 'sync',
-        )
+        .where((c) => c.function == 'economy' && c.body['action'] == 'sync')
         .length;
 
-    Future<void> reconnect(FakeBackend backend, OnlineTransport transport) async {
+    Future<void> reconnect(
+      FakeBackend backend,
+      OnlineTransport transport,
+    ) async {
       backend.pushDisconnected();
       await pumpEventQueue();
       backend.pushResync();
@@ -724,11 +723,20 @@ void main() {
 
       expect(find.byKey(RoleRoster.page), findsOneWidget);
       expect(find.text(arStrings.onlineRosterOf(1, 5)), findsOneWidget);
-      expect(find.text(EngineCopy.roleName(arStrings, Role.mafia)), findsOneWidget);
+      expect(
+        find.text(EngineCopy.roleName(arStrings, Role.mafia)),
+        findsOneWidget,
+      );
       // One card at a time: no other role is on screen with it.
       expect(find.byType(RosterCard), findsOneWidget);
-      expect(find.text(EngineCopy.roleName(arStrings, Role.detective)), findsNothing);
-      expect(find.text(EngineCopy.roleName(arStrings, Role.doctor)), findsNothing);
+      expect(
+        find.text(EngineCopy.roleName(arStrings, Role.detective)),
+        findsNothing,
+      );
+      expect(
+        find.text(EngineCopy.roleName(arStrings, Role.doctor)),
+        findsNothing,
+      );
     });
 
     _screenTest('a room closed without an outcome claims no winner and the '
@@ -739,7 +747,9 @@ void main() {
         phase: 'result',
         phaseNumber: 3,
         status: 'finished',
-        publicData: const {'rosterSeats': [0, 1, 2, 3, 4]},
+        publicData: const {
+          'rosterSeats': [0, 1, 2, 3, 4],
+        },
         onExit: () => exits++,
         settle: true,
       );
@@ -857,9 +867,8 @@ void main() {
   // M2-100, client half: a silenced Citizen has no ballot that day
   // ---------------------------------------------------------------------------
   group('M2-100', () {
-    FilledButton confirm(WidgetTester tester) => tester.widget<FilledButton>(
-      find.byKey(OnlineTableFlow.confirmAction),
-    );
+    FilledButton confirm(WidgetTester tester) =>
+        tester.widget<FilledButton>(find.byKey(OnlineTableFlow.confirmAction));
 
     _screenTest('the silenced Citizen has no ballot control that day, and '
         'nothing is sent', (tester) async {

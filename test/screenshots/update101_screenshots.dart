@@ -35,7 +35,8 @@ import 'package:mafia_master/platform/tilt_source.dart';
 import 'package:mafia_master/transport/account_service.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/transport/online_transport.dart';
-import 'package:mafia_master/ui/economy/account_protection.dart' show accountServiceProvider;
+import 'package:mafia_master/ui/economy/account_protection.dart'
+    show accountServiceProvider;
 import 'package:mafia_master/ui/economy/coin_packs.dart';
 import 'package:mafia_master/ui/economy/cosmetic_art_cache.dart';
 import 'package:mafia_master/ui/economy/council_hub.dart';
@@ -116,10 +117,18 @@ Map<String, dynamic> _caps({
     'banner': {'enabled': banner},
     'extras': {'spin': extraSpin, 'coffer': extraCoffer, 'swap': extraSwap},
   },
-  'fun': {'awards': awards, 'reactions': reactions, 'founder': true, 'known': true},
+  'fun': {
+    'awards': awards,
+    'reactions': reactions,
+    'founder': true,
+    'known': true,
+  },
 };
 
-Map<String, dynamic> _contracts({bool weeklyClaimable = true, List<Map<String, Object?>> levelUps = const []}) => {
+Map<String, dynamic> _contracts({
+  bool weeklyClaimable = true,
+  List<Map<String, Object?>> levelUps = const [],
+}) => {
   'enabled': true,
   'day': '2026-09-26',
   'contracts': [
@@ -167,7 +176,11 @@ Map<String, dynamic> _contracts({bool weeklyClaimable = true, List<Map<String, O
   'levelUps': levelUps,
 };
 
-Map<String, dynamic> _rank({int xp = 1250, int level = 8, List<Map<String, Object?>> levelUps = const []}) => {
+Map<String, dynamic> _rank({
+  int xp = 1250,
+  int level = 8,
+  List<Map<String, Object?>> levelUps = const [],
+}) => {
   'enabled': true,
   'xp': xp,
   'level': level,
@@ -200,7 +213,16 @@ Map<String, dynamic> _leaderboard() => {
       {
         'position': i,
         'xp': 1200 - i * 90,
-        'name': ['ليلى', 'Omar', 'سلمى', 'Karim', 'نور', 'Yara', 'حسن', 'Mona'][i - 1],
+        'name': [
+          'ليلى',
+          'Omar',
+          'سلمى',
+          'Karim',
+          'نور',
+          'Yara',
+          'حسن',
+          'Mona',
+        ][i - 1],
         'gender': i.isEven ? 'male' : 'female',
         'level': 50 - i * 6,
         'me': i == 5,
@@ -246,7 +268,12 @@ Map<String, dynamic> _extras() => {
       {'slot': 4, 'coins': 100, 'weight': 2, 'percent': '2.00'},
     ],
   },
-  'coffer': {'enabled': true, 'ready': true, 'state': 'available', 'amount': 20},
+  'coffer': {
+    'enabled': true,
+    'ready': true,
+    'state': 'available',
+    'amount': 20,
+  },
   'swap': {'enabled': true, 'state': 'available'},
 };
 
@@ -255,8 +282,18 @@ Map<String, dynamic> _awards({bool ready = true}) => ready
         'enabled': true,
         'ready': true,
         'awards': [
-          {'code': 'mvp', 'seats': [2], 'names': ['منى عبد الرحمن'], 'coins': 20},
-          {'code': 'sharpEye', 'seats': [3], 'names': ['Karim'], 'coins': 10},
+          {
+            'code': 'mvp',
+            'seats': [2],
+            'names': ['منى عبد الرحمن'],
+            'coins': 20,
+          },
+          {
+            'code': 'sharpEye',
+            'seats': [3],
+            'names': ['Karim'],
+            'coins': 10,
+          },
           {
             'code': 'survivor',
             'seats': [2, 3, 4, 5],
@@ -277,18 +314,22 @@ Map<String, dynamic> Function(Map<String, dynamic>) economyResponder({
   bool dailyCofferClaimed = false,
   bool dailyWheelSpun = false,
   bool awardsReady = true,
-}) => (body) => switch (body['action']) {
-  'capabilities' => caps ?? _caps(),
-  'contracts_get' => _contracts(weeklyClaimable: weeklyClaimable),
-  'rank_get' => _rank(levelUps: rankLevelUps),
-  'invite_get' => _invite(),
-  'leaderboard_get' => _leaderboard(),
-  'daily_status' => _daily(coffer: dailyCofferClaimed, spun: dailyWheelSpun),
-  'extras_status' => _extras(),
-  'awards_get' => _awards(ready: awardsReady),
-  'sync' => {'ok': true},
-  _ => {'state': 'available', 'amount': 100},
-};
+}) =>
+    (body) => switch (body['action']) {
+      'capabilities' => caps ?? _caps(),
+      'contracts_get' => _contracts(weeklyClaimable: weeklyClaimable),
+      'rank_get' => _rank(levelUps: rankLevelUps),
+      'invite_get' => _invite(),
+      'leaderboard_get' => _leaderboard(),
+      'daily_status' => _daily(
+        coffer: dailyCofferClaimed,
+        spun: dailyWheelSpun,
+      ),
+      'extras_status' => _extras(),
+      'awards_get' => _awards(ready: awardsReady),
+      'sync' => {'ok': true},
+      _ => {'state': 'available', 'amount': 100},
+    };
 
 // ---------------------------------------------------------------------------
 // Small fakes for the ad / billing platform seams.
@@ -319,15 +360,22 @@ class _Banner implements BannerAds {
   @override
   bool get configured => true;
   @override
-  Widget slot({Key? key, required String label, required double gap,
-    BannerPlacement placement = BannerPlacement.lobby,}) => Padding(
+  Widget slot({
+    Key? key,
+    required String label,
+    required double gap,
+    BannerPlacement placement = BannerPlacement.lobby,
+  }) => Padding(
     padding: EdgeInsets.only(top: gap),
     child: Container(
       key: key,
       height: 50,
       alignment: Alignment.center,
       color: const Color(0xFF2A2A33),
-      child: Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+      child: Text(
+        label,
+        style: const TextStyle(color: Colors.white70, fontSize: 12),
+      ),
     ),
   );
 }
@@ -343,10 +391,15 @@ class _Billing implements PlayBilling {
   Future<bool> available() async => true;
   @override
   Future<Map<String, PlayListing>> listings(Set<String> ids) async => {
-    for (final id in ids) id: PlayListing(id: id, title: id, price: 'EGP 79.99'),
+    for (final id in ids)
+      id: PlayListing(id: id, title: id, price: 'EGP 79.99'),
   };
   @override
-  Future<bool> buy(String productId, {required bool consumable, required String accountTag}) async => true;
+  Future<bool> buy(
+    String productId, {
+    required bool consumable,
+    required String accountTag,
+  }) async => true;
   @override
   Future<void> restore() async {}
   @override
@@ -362,11 +415,13 @@ class _Accounts implements AccountService {
   @override
   Future<void> requestLink(String email) async {}
   @override
-  Future<AccountStatus> confirmLink(String email, String code) async => status();
+  Future<AccountStatus> confirmLink(String email, String code) async =>
+      status();
   @override
   Future<void> requestRecovery(String email, {String? redirectTo}) async {}
   @override
-  Future<AccountStatus> confirmRecovery(String email, String code) => confirmLink(email, code);
+  Future<AccountStatus> confirmRecovery(String email, String code) =>
+      confirmLink(email, code);
   @override
   Future<AccountStatus> confirmLinkByLink(String email) => status();
   @override
@@ -391,10 +446,18 @@ class _FixedOnlineSession extends OnlineSession {
 
 /// A `coin_orders` server with no order yet — the pack + method chooser.
 class _CoinServer extends FakeBackend {
-  _CoinServer() : super(roomId: 'r', state: roomState(phase: 'lobby'), players: roster(5));
+  _CoinServer()
+    : super(
+        roomId: 'r',
+        state: roomState(phase: 'lobby'),
+        players: roster(5),
+      );
 
   @override
-  Future<Map<String, dynamic>> call(String function, Map<String, dynamic> body) async {
+  Future<Map<String, dynamic>> call(
+    String function,
+    Map<String, dynamic> body,
+  ) async {
     if (function == 'economy') {
       calls.add(FakeCall(function, body));
       return {'balance': 340, 'catalog': [], 'owned': []};
@@ -411,7 +474,11 @@ class _CoinServer extends FakeBackend {
         ],
         'adFree': false,
         'methods': [
-          {'code': 'instapay', 'available': true, 'url': 'https://pay.example/instapay/owner'},
+          {
+            'code': 'instapay',
+            'available': true,
+            'url': 'https://pay.example/instapay/owner',
+          },
           {'code': 'vodafone_cash', 'available': false},
         ],
         'orders': [],
@@ -427,18 +494,24 @@ void main() {
   Future<void> save(WidgetTester tester, String name) async {
     await tester.runAsync(() async {
       for (final element in find.byType(Image).evaluate()) {
-        await precacheImage((element.widget as Image).image, element)
-            .timeout(const Duration(seconds: 2), onTimeout: () {});
+        await precacheImage(
+          (element.widget as Image).image,
+          element,
+        ).timeout(const Duration(seconds: 2), onTimeout: () {});
       }
       await Future<void>.delayed(const Duration(milliseconds: 200));
     });
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 1));
-    final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('shot')));
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.byKey(const ValueKey('shot')),
+    );
     final image = boundary.toImageSync(pixelRatio: 2);
     await tester.runAsync(() async {
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      File('${out.path}/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      File(
+        '${out.path}/$name.png',
+      ).writeAsBytesSync(bytes!.buffer.asUint8List());
     });
     image.dispose();
   }
@@ -490,10 +563,25 @@ void main() {
   // --------------------------------------------------------------------
   for (final locale in const [Locale('ar'), Locale('en')]) {
     testWidgets('council hub ${locale.languageCode}', (tester) async {
-      final backend = FakeBackend(roomId: 'room', state: roomState(phase: 'lobby'), players: roster(5));
+      final backend = FakeBackend(
+        roomId: 'room',
+        state: roomState(phase: 'lobby'),
+        players: roster(5),
+      );
       backend.responders['economy'] = economyResponder();
-      await show(tester, const CouncilHubTab(), _phone, locale, backend: backend);
-      await save(tester, locale.languageCode == 'ar' ? '01-vault-council-hub-ar' : '02-vault-council-hub-en');
+      await show(
+        tester,
+        const CouncilHubTab(),
+        _phone,
+        locale,
+        backend: backend,
+      );
+      await save(
+        tester,
+        locale.languageCode == 'ar'
+            ? '01-vault-council-hub-ar'
+            : '02-vault-council-hub-en',
+      );
     });
   }
 
@@ -501,9 +589,19 @@ void main() {
   // 3: the leaderboard sheet.
   // --------------------------------------------------------------------
   testWidgets('leaderboard sheet', (tester) async {
-    final backend = FakeBackend(roomId: 'room', state: roomState(phase: 'lobby'), players: roster(5));
+    final backend = FakeBackend(
+      roomId: 'room',
+      state: roomState(phase: 'lobby'),
+      players: roster(5),
+    );
     backend.responders['economy'] = economyResponder();
-    await show(tester, const CouncilHubTab(), _phone, const Locale('ar'), backend: backend);
+    await show(
+      tester,
+      const CouncilHubTab(),
+      _phone,
+      const Locale('ar'),
+      backend: backend,
+    );
     await tester.tap(find.byKey(CouncilHubTab.leaderboardKey));
     await tester.pumpAndSettle();
     await save(tester, '03-leaderboard-sheet');
@@ -513,7 +611,11 @@ void main() {
   // 4: the invite panel, standalone.
   // --------------------------------------------------------------------
   testWidgets('invite panel', (tester) async {
-    final backend = FakeBackend(roomId: 'room', state: roomState(phase: 'lobby'), players: roster(5));
+    final backend = FakeBackend(
+      roomId: 'room',
+      state: roomState(phase: 'lobby'),
+      players: roster(5),
+    );
     backend.responders['economy'] = economyResponder();
     await show(
       tester,
@@ -529,13 +631,23 @@ void main() {
   // 5: the level-up sheet, shown automatically once the hub opens.
   // --------------------------------------------------------------------
   testWidgets('level up sheet', (tester) async {
-    final backend = FakeBackend(roomId: 'room', state: roomState(phase: 'lobby'), players: roster(5));
+    final backend = FakeBackend(
+      roomId: 'room',
+      state: roomState(phase: 'lobby'),
+      players: roster(5),
+    );
     backend.responders['economy'] = economyResponder(
       rankLevelUps: const [
         {'level': 8, 'coins': 25},
       ],
     );
-    await show(tester, const CouncilHubTab(), _phone, const Locale('ar'), backend: backend);
+    await show(
+      tester,
+      const CouncilHubTab(),
+      _phone,
+      const Locale('ar'),
+      backend: backend,
+    );
     await save(tester, '05-level-up-sheet');
   });
 
@@ -543,7 +655,11 @@ void main() {
   // 6: the vault Rewards tab — the wheel plus the ad extras panel.
   // --------------------------------------------------------------------
   testWidgets('vault rewards tab', (tester) async {
-    final backend = FakeBackend(roomId: 'room', state: roomState(phase: 'lobby'), players: roster(5));
+    final backend = FakeBackend(
+      roomId: 'room',
+      state: roomState(phase: 'lobby'),
+      players: roster(5),
+    );
     backend.responders['economy'] = economyResponder();
     // Taller than the phone frame: the wheel, the week card and the ad
     // extras panel all need to be in the one shot, and `DailyRewardsTab` is
@@ -563,7 +679,11 @@ void main() {
   // 7: the Play offers tab — Quiet Pass, coin packs, Starter Bundle.
   // --------------------------------------------------------------------
   testWidgets('play offers tab', (tester) async {
-    final backend = FakeBackend(roomId: 'room', state: roomState(phase: 'lobby'), players: roster(5));
+    final backend = FakeBackend(
+      roomId: 'room',
+      state: roomState(phase: 'lobby'),
+      players: roster(5),
+    );
     backend.responders['economy'] = economyResponder(
       caps: _caps(
         products: const [
@@ -607,11 +727,16 @@ void main() {
           overrides: [
             onlineBackendFactoryProvider.overrideWithValue(() async => backend),
             accountServiceProvider.overrideWithValue(_Accounts()),
-            paymentCapabilitiesProvider.overrideWithValue(const PaymentCapabilities(transfer: true)),
+            paymentCapabilitiesProvider.overrideWithValue(
+              const PaymentCapabilities(transfer: true),
+            ),
             externalLinkOpenerProvider.overrideWithValue((url) => true),
             audioDirectorProvider.overrideWithValue(AudioDirector()),
           ],
-          child: localizedApp(const Scaffold(body: CoinPacksTab()), locale: const Locale('ar')),
+          child: localizedApp(
+            const Scaffold(body: CoinPacksTab()),
+            locale: const Locale('ar'),
+          ),
         ),
       ),
     );
@@ -639,8 +764,18 @@ void main() {
           'outcome': 'town',
           'rosterSeats': [0, 1, 2, 3, 4],
           'standings': [
-            {'seat': 0, 'role': 'mafia', 'eliminatedPhase': 'day', 'eliminatedNumber': 2},
-            {'seat': 1, 'role': 'citizen', 'eliminatedPhase': 'night', 'eliminatedNumber': 1},
+            {
+              'seat': 0,
+              'role': 'mafia',
+              'eliminatedPhase': 'day',
+              'eliminatedNumber': 2,
+            },
+            {
+              'seat': 1,
+              'role': 'citizen',
+              'eliminatedPhase': 'night',
+              'eliminatedNumber': 1,
+            },
             {'seat': 2, 'role': 'doctor'},
             {'seat': 3, 'role': 'detective'},
             {'seat': 4, 'role': 'citizen'},
@@ -695,7 +830,11 @@ void main() {
           // bare `OnlineTableFlow` drew every Text in the debug fallback style.
           child: localizedApp(
             const Scaffold(
-              body: OnlineTableFlow(onExit: _noop, onAnalytics: _noop, onStepCommitted: _noop),
+              body: OnlineTableFlow(
+                onExit: _noop,
+                onAnalytics: _noop,
+                onStepCommitted: _noop,
+              ),
             ),
             locale: const Locale('ar'),
           ),
@@ -778,12 +917,21 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'community_rules_2026_09': true,
       ProfileStore.profileKey: '{"name":"A","gender":"male"}',
-      welcomeBackLastSeenKey: now.subtract(const Duration(hours: 21)).millisecondsSinceEpoch,
+      welcomeBackLastSeenKey: now
+          .subtract(const Duration(hours: 21))
+          .millisecondsSinceEpoch,
     });
     await surface(tester, _phone);
-    final backend = FakeBackend(roomId: 'room', state: roomState(phase: 'lobby'), players: roster(5));
+    final backend = FakeBackend(
+      roomId: 'room',
+      state: roomState(phase: 'lobby'),
+      players: roster(5),
+    );
     // Coffer unclaimed → the vault's attention dot lights up.
-    backend.responders['economy'] = economyResponder(dailyCofferClaimed: false, dailyWheelSpun: false);
+    backend.responders['economy'] = economyResponder(
+      dailyCofferClaimed: false,
+      dailyWheelSpun: false,
+    );
     await tester.pumpWidget(
       RepaintBoundary(
         key: const ValueKey('shot'),

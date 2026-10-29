@@ -41,13 +41,17 @@ void main() {
     'lib/platform/push/firebase_push_service.dart',
   ];
 
-  final importPattern = RegExp(r'''^\s*import\s+['"]([^'"]+)['"]''', multiLine: true);
+  final importPattern = RegExp(
+    r'''^\s*import\s+['"]([^'"]+)['"]''',
+    multiLine: true,
+  );
 
   String? resolve(String directive, String from) {
     if (directive.startsWith('package:mafia_master/')) {
       return 'lib/${directive.substring('package:mafia_master/'.length)}';
     }
-    if (directive.startsWith('package:') || directive.startsWith('dart:')) return null;
+    if (directive.startsWith('package:') || directive.startsWith('dart:'))
+      return null;
     final stack = <String>[];
     for (final segment in [
       ...from.substring(0, from.lastIndexOf('/')).split('/'),

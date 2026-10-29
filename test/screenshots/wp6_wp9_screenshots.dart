@@ -58,7 +58,9 @@ void main() {
     final image = boundary.toImageSync(pixelRatio: 1);
     await tester.runAsync(() async {
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      File('${out.path}/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      File(
+        '${out.path}/$name.png',
+      ).writeAsBytesSync(bytes!.buffer.asUint8List());
     });
     image.dispose();
   }

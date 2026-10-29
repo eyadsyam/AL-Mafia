@@ -25,7 +25,11 @@ class _Api extends DirectoryApi {
 }
 
 class _Push implements PushService {
-  _Push({this.platformName = 'android', this.install = false, this.grant = true});
+  _Push({
+    this.platformName = 'android',
+    this.install = false,
+    this.grant = true,
+  });
   final String? platformName;
   final bool install;
   final bool grant;
@@ -41,6 +45,7 @@ class _Push implements PushService {
     asks++;
     return grant;
   }
+
   @override
   Future<bool> isGranted() async => false;
   @override
@@ -71,10 +76,12 @@ void main() {
 
   test('failed token cleanup does not prevent sign-out', () async {
     late _Api api;
-    final container = ProviderContainer(overrides: [
-      pushServiceProvider.overrideWithValue(_Push()),
-      directoryApiProvider.overrideWith((ref) => api = _Api(ref)),
-    ]);
+    final container = ProviderContainer(
+      overrides: [
+        pushServiceProvider.overrideWithValue(_Push()),
+        directoryApiProvider.overrideWith((ref) => api = _Api(ref)),
+      ],
+    );
     addTearDown(container.dispose);
     container.read(directoryApiProvider);
     api.failDrop = true;

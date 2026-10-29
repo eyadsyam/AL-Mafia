@@ -67,11 +67,12 @@ class NightResolver {
       final maxVotes = mafiaVotes.values.reduce((a, b) => a > b ? a : b);
       // Sorted by seat, as online (`resolve_night`), so the draw below never
       // depends on the order the votes happened to be cast in.
-      final tiedTargets = mafiaVotes.entries
-          .where((e) => e.value == maxVotes)
-          .map((e) => e.key)
-          .toList()
-        ..sort();
+      final tiedTargets =
+          mafiaVotes.entries
+              .where((e) => e.value == maxVotes)
+              .map((e) => e.key)
+              .toList()
+            ..sort();
 
       if (tiedTargets.length == 1) {
         victimSeat = tiedTargets.first;
@@ -109,11 +110,12 @@ class NightResolver {
     final protectedSeats = <int>{};
     if (protectVotes.isNotEmpty) {
       final top = protectVotes.values.reduce((a, b) => a > b ? a : b);
-      final tied = protectVotes.entries
-          .where((e) => e.value == top)
-          .map((e) => e.key)
-          .toList()
-        ..sort();
+      final tied =
+          protectVotes.entries
+              .where((e) => e.value == top)
+              .map((e) => e.key)
+              .toList()
+            ..sort();
       if (tied.length == 1) {
         protectedSeats.add(tied.first);
       } else {

@@ -11,7 +11,10 @@ List<Map<String, dynamic>> oracle(Map<String, dynamic> input) {
   final actions = (input['actions'] as List).cast<Map<String, dynamic>>();
   final settings = input['settings'] as Map<String, dynamic>;
   final roles = {for (final p in roster) p['seat'] as int: p['role'] as String};
-  final alive = {for (final p in roster) if (p['alive'] == true) p['seat'] as int};
+  final alive = {
+    for (final p in roster)
+      if (p['alive'] == true) p['seat'] as int,
+  };
   final locked = (input['lockedSeatSet'] as List).cast<int>().toSet();
   final noSilence = (input['noSilenceSeatSet'] as List).cast<int>().toSet();
   final votes = <int, int>{};
@@ -21,7 +24,8 @@ List<Map<String, dynamic>> oracle(Map<String, dynamic> input) {
     final target = seat(action['target_id'] as String?);
     if (!alive.contains(actor) || !alive.contains(target)) continue;
     if (action['action'] == 'kill' &&
-        roles[target] != 'mafia' && roles[target] != 'silencer') {
+        roles[target] != 'mafia' &&
+        roles[target] != 'silencer') {
       votes.update(target!, (n) => n + 1, ifAbsent: () => 1);
     }
     if (action['action'] == 'protect') {
@@ -31,11 +35,17 @@ List<Map<String, dynamic>> oracle(Map<String, dynamic> input) {
   List<int?> winners(Map<int, int> tally) {
     if (tally.isEmpty) return [null];
     final top = tally.values.reduce((a, b) => a > b ? a : b);
-    return [for (final entry in tally.entries)
-      if (entry.value == top) entry.key]..sort((a,b) => (a ?? -1).compareTo(b ?? -1));
+    return [
+      for (final entry in tally.entries)
+        if (entry.value == top) entry.key,
+    ]..sort((a, b) => (a ?? -1).compareTo(b ?? -1));
   }
-  final quiet = actions.any((a) => a['used_bullet'] == true &&
-    roles[seat(a['actor_id'] as String)] == 'mafia');
+
+  final quiet = actions.any(
+    (a) =>
+        a['used_bullet'] == true &&
+        roles[seat(a['actor_id'] as String)] == 'mafia',
+  );
   final possible = <Map<String, dynamic>>[];
   for (final chosen in winners(votes)) {
     for (final covered in winners(protections)) {
@@ -48,10 +58,14 @@ List<Map<String, dynamic>> oracle(Map<String, dynamic> input) {
       if (quiet) victim = null;
       final deaths = <int>{if (victim != null) victim};
       for (final action in actions) {
-        if (action['action'] != 'suspect' || action['used_bullet'] != true) continue;
+        if (action['action'] != 'suspect' || action['used_bullet'] != true)
+          continue;
         final actor = seat(action['actor_id'] as String);
         final target = seat(action['target_id'] as String?);
-        if (!alive.contains(actor) || !alive.contains(target) || locked.contains(target)) continue;
+        if (!alive.contains(actor) ||
+            !alive.contains(target) ||
+            locked.contains(target))
+          continue;
         deaths.add(target!);
         if (roles[target] != 'mafia' && roles[target] != 'silencer') {
           deaths.add(actor!);
@@ -63,27 +77,33 @@ List<Map<String, dynamic>> oracle(Map<String, dynamic> input) {
         if (action['action'] != 'silence') continue;
         final actor = seat(action['actor_id'] as String);
         final target = seat(action['target_id'] as String?);
-        if (alive.contains(actor) && alive.contains(target) &&
-            !locked.contains(target) && !noSilence.contains(target) &&
+        if (alive.contains(actor) &&
+            alive.contains(target) &&
+            !locked.contains(target) &&
+            !noSilence.contains(target) &&
             !deaths.contains(target)) {
           silenced = target;
           break;
         }
       }
-      possible.add({'deathSeats': deaths.toList()..sort(),
+      possible.add({
+        'deathSeats': deaths.toList()..sort(),
         'savedSeat': saved,
-        'saveTold': saved != null &&
-          (settings['bulletsEnabled'] == false ||
-           settings['quietNightEnabled'] == false),
-        'silencedSeat': silenced});
+        'saveTold':
+            saved != null &&
+            (settings['bulletsEnabled'] == false ||
+                settings['quietNightEnabled'] == false),
+        'silencedSeat': silenced,
+      });
     }
   }
   return possible;
 }
 
 void main() {
-  final json = jsonDecode(File('supabase/tests/night_matrix.json').readAsStringSync())
-    as Map<String, dynamic>;
+  final json =
+      jsonDecode(File('supabase/tests/night_matrix.json').readAsStringSync())
+          as Map<String, dynamic>;
   final scenarios = (json['scenarios'] as List).cast<Map<String, dynamic>>();
   test('matrix is substantial and versioned', () {
     expect(json['version'], 1);
@@ -98,14 +118,20 @@ void main() {
       final expected = row['expected'] as Map<String, dynamic>;
       // Compared as JSON: a decoded map and a built one are never `==`.
       final allowed = [for (final o in oracle(input)) jsonEncode(o)];
-      expect(allowed, contains(jsonEncode(expected)), reason: row['name'] as String);
+      expect(
+        allowed,
+        contains(jsonEncode(expected)),
+        reason: row['name'] as String,
+      );
       if (row['repeatRefused'] != null) expect(row['repeatRefused'], true);
-      if (row['secondBulletRefused'] != null) expect(row['secondBulletRefused'], true);
+      if (row['secondBulletRefused'] != null)
+        expect(row['secondBulletRefused'], true);
       for (final investigation in (row['investigations'] as List? ?? [])) {
         final fact = investigation as Map<String, dynamic>;
         final target = fact['targetSeat'] as int;
-        final player = (input['roster'] as List).cast<Map<String, dynamic>>()
-          .singleWhere((p) => p['seat'] == target);
+        final player = (input['roster'] as List)
+            .cast<Map<String, dynamic>>()
+            .singleWhere((p) => p['seat'] == target);
         expect(fact['revealedRole'], player['role']);
       }
     });

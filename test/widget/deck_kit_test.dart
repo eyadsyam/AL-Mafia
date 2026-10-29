@@ -14,16 +14,19 @@ void main() {
   Future<void> pump(WidgetTester tester, Widget child) => tester.pumpWidget(
     localizedApp(
       Scaffold(
-        body: Center(
-          child: SizedBox(width: 320, child: child),
-        ),
+        body: Center(child: SizedBox(width: 320, child: child)),
       ),
     ),
   );
 
-  testWidgets('bone is home\'s button: 56 high, parchment fill', (tester) async {
+  testWidgets('bone is home\'s button: 56 high, parchment fill', (
+    tester,
+  ) async {
     await pump(tester, BoneButton(label: 'ابدأ', onPressed: () {}));
-    expect(tester.getSize(find.byType(FilledButton)).height, DeckTokens.primaryHeight);
+    expect(
+      tester.getSize(find.byType(FilledButton)).height,
+      DeckTokens.primaryHeight,
+    );
     final style = tester.widget<FilledButton>(find.byType(FilledButton)).style!;
     expect(style.backgroundColor!.resolve({}), AppColors.agedParchment);
   });
@@ -31,7 +34,11 @@ void main() {
   testWidgets('a disabled bone says why', (tester) async {
     await pump(
       tester,
-      const BoneButton(label: 'كمّل', onPressed: null, disabledReason: 'اكتب اسمك الأول'),
+      const BoneButton(
+        label: 'كمّل',
+        onPressed: null,
+        disabledReason: 'اكتب اسمك الأول',
+      ),
     );
     expect(find.text('اكتب اسمك الأول'), findsOneWidget);
   });

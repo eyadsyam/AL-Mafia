@@ -771,9 +771,9 @@ class _DailyRewardsTabState extends ConsumerState<DailyRewardsTab>
     return switch (flow.phaseOf(AdReward.extraSpin)) {
       AdRewardPhase.idle when !flow.busy && !(extras?.inMatch ?? true) =>
         () => _watch(AdReward.extraSpin),
-      AdRewardPhase.late => () => ref
-          .read(adRewardFlowProvider.notifier)
-          .recheck(AdReward.extraSpin),
+      AdRewardPhase.late =>
+        () =>
+            ref.read(adRewardFlowProvider.notifier).recheck(AdReward.extraSpin),
       _ => null,
     };
   }

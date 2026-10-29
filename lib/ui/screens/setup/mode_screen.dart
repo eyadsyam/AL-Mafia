@@ -183,8 +183,8 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
                   title: _isOpen ? l10n.modeMafiaTitle : l10n.modeTitle,
                   onBack: _isOpen ? () => _setOpen(false) : widget.onBack,
                   banner: BannerPlacement.home,
-              desktopFullWidth: desktop,
-              hideHeader: desktop,
+                  desktopFullWidth: desktop,
+                  hideHeader: desktop,
                   body: LayoutBuilder(
                     builder: (context, box) {
                       if (desktop) return _desktopStage(context, box.biggest);
@@ -295,8 +295,10 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  DeckHeader(title: context.l10n.modeTitle,
-                    onBack: widget.onBack),
+                  DeckHeader(
+                    title: context.l10n.modeTitle,
+                    onBack: widget.onBack,
+                  ),
                   SizedBox(height: s.lg),
                   for (final (index, way) in ways.indexed) ...[
                     Focus(
@@ -660,8 +662,7 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
                 opacity: (1 - d).clamp(0, 1),
                 child: Transform.rotate(
                   angle:
-                      dir * mafiaTilt * (1 - t) -
-                      dir * ModeTokens.dealTilt * d,
+                      dir * mafiaTilt * (1 - t) - dir * ModeTokens.dealTilt * d,
                   child: Transform.scale(
                     scale: scale,
                     child: Transform(

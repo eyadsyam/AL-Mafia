@@ -96,7 +96,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     // The settings kit's track: the lit option is the one on the gold thumb.
-    bool lit(Key key) => tester.widget<SettingsSegment>(find.byKey(key)).selected;
+    bool lit(Key key) =>
+        tester.widget<SettingsSegment>(find.byKey(key)).selected;
     expect(lit(LanguagePicker.arabicKey), isTrue);
     expect(lit(LanguagePicker.englishKey), isFalse);
     final colors = MafiaTheme.dark.extension<MafiaColors>()!;

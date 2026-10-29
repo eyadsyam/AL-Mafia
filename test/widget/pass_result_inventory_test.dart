@@ -21,7 +21,9 @@ void main() {
     caps = {
       'version': 2,
       'dailyAd': true,
-      'ads': {'extras': {'spin': true, 'coffer': true, 'swap': false}},
+      'ads': {
+        'extras': {'spin': true, 'coffer': true, 'swap': false},
+      },
     };
     daily = {
       'enabled': true,
@@ -62,7 +64,9 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: localizedApp(
-          const Scaffold(body: SingleChildScrollView(child: PassResultInventory())),
+          const Scaffold(
+            body: SingleChildScrollView(child: PassResultInventory()),
+          ),
         ),
       ),
     );
@@ -73,10 +77,14 @@ void main() {
       .where((c) => c.function == 'economy')
       .map((c) => c.body['action'] as String?);
 
-  testWidgets('capabilities not read yet: nothing drawn, nothing fetched', (tester) async {
+  testWidgets('capabilities not read yet: nothing drawn, nothing fetched', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [onlineBackendFactoryProvider.overrideWithValue(() async => backend)],
+        overrides: [
+          onlineBackendFactoryProvider.overrideWithValue(() async => backend),
+        ],
         child: localizedApp(const Scaffold(body: PassResultInventory())),
       ),
     );
@@ -90,15 +98,21 @@ void main() {
     expect(find.byKey(PassResultInventory.stripKey), findsOneWidget);
     expect(find.text('إعلان اليوم بمكافأته'), findsOneWidget);
     expect(find.text('خزنة زيادة'), findsOneWidget);
-    expect(find.text('لفة زيادة للعجلة'), findsNothing, reason: 'already taken today');
+    expect(
+      find.text('لفة زيادة للعجلة'),
+      findsNothing,
+      reason: 'already taken today',
+    );
 
     final decoration =
         tester
                 .widget<DecoratedBox>(
-                  find.descendant(
-                    of: find.byKey(PassResultInventory.stripKey),
-                    matching: find.byType(DecoratedBox),
-                  ).first,
+                  find
+                      .descendant(
+                        of: find.byKey(PassResultInventory.stripKey),
+                        matching: find.byType(DecoratedBox),
+                      )
+                      .first,
                 )
                 .decoration
             as BoxDecoration;
@@ -115,13 +129,16 @@ void main() {
     expect(find.byKey(PassResultInventory.stripKey), findsNothing);
   });
 
-  testWidgets('features off: nothing drawn and nothing asked beyond capabilities', (tester) async {
-    caps = {'version': 2};
-    await pump(tester);
-    expect(find.byKey(PassResultInventory.stripKey), findsNothing);
-    expect(actions(), isNot(contains('daily_status')));
-    expect(actions(), isNot(contains('extras_status')));
-  });
+  testWidgets(
+    'features off: nothing drawn and nothing asked beyond capabilities',
+    (tester) async {
+      caps = {'version': 2};
+      await pump(tester);
+      expect(find.byKey(PassResultInventory.stripKey), findsNothing);
+      expect(actions(), isNot(contains('daily_status')));
+      expect(actions(), isNot(contains('extras_status')));
+    },
+  );
 
   testWidgets('no server answer: the result is never held up', (tester) async {
     backend.unreachable = true;
@@ -131,7 +148,12 @@ void main() {
   });
 
   testWidgets('never counts an offer while a match is in play', (tester) async {
-    daily['ad'] = {'enabled': true, 'amount': 25, 'state': 'available', 'inMatch': true};
+    daily['ad'] = {
+      'enabled': true,
+      'amount': 25,
+      'state': 'available',
+      'inMatch': true,
+    };
     extras['inMatch'] = true;
     await pump(tester);
     expect(find.byKey(PassResultInventory.stripKey), findsNothing);

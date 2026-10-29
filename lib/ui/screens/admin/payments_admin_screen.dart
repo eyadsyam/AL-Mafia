@@ -416,15 +416,16 @@ class _PaymentsAdminScreenState extends ConsumerState<PaymentsAdminScreen> {
                 builder: (context, value, _) => FilledButton(
                   key: PaymentsAdminScreen.approve(id),
                   style: vaultGoldStyle(context),
-                  onPressed: _busy ||
+                  onPressed:
+                      _busy ||
                           order['proofSubmitted'] != true ||
                           value.text.trim().length < 4
                       ? null
                       : () => _act({
-                            'action': 'admin_approve',
-                            'order': id,
-                            'transaction': value.text.trim(),
-                          }),
+                          'action': 'admin_approve',
+                          'order': id,
+                          'transaction': value.text.trim(),
+                        }),
                   child: Text(l.adminApproveShort),
                 ),
               ),

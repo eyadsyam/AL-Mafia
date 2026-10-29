@@ -114,7 +114,6 @@ List<RoomPlayer> _players({bool firstDead = false}) => [
     ),
 ];
 
-
 void main() {
   final out = Directory('build/store_listing')..createSync(recursive: true);
 

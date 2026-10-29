@@ -10,7 +10,6 @@ import '../../economy/council_hub.dart';
 import '../../economy/daily_rewards.dart';
 import '../../economy/economy_capabilities.dart';
 import '../../economy/play_offers.dart';
-import '../../economy/purchase_reveal.dart';
 import '../../../platform/monetization/play_billing.dart';
 import '../../economy/store_art.dart';
 import '../../economy/table_tool_names.g.dart' show tableToolCopy;
@@ -19,6 +18,7 @@ import 'store_shop.dart';
 import '../../widgets/textured_surface.dart';
 import '../../economy/mafia_coin.dart';
 import '../../economy/vault_kit.dart';
+import '../../economy/my_vault.dart';
 import '../../economy/wallet.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
@@ -226,15 +226,6 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
     }
   }
 
-  Future<void> _open(String code) => showStoreItemSheet(
-    context: context,
-    ref: ref,
-    code: code,
-    busy: _busy,
-    alive: () => mounted,
-    onEquip: _equip,
-  );
-
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -279,18 +270,15 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
               ),
       ),
       (
-        l.storeTabCollection,
+        l.vaultMineTitle,
         Icons.checkroom_rounded,
         value == null
             ? const SizedBox.shrink()
+            // «خزنتي» (owner, 2026-10-29): each kind in its own room.
             : ValueListenableBuilder<bool>(
                 valueListenable: _busy,
-                builder: (context, busy, _) => _CollectionTab(
-                  wallet: value,
-                  busy: busy,
-                  onOpen: _open,
-                  onEquip: _equip,
-                ),
+                builder: (context, busy, _) =>
+                    MyVaultTab(wallet: value, busy: busy, onEquip: _equip),
               ),
       ),
       (
@@ -300,8 +288,7 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
             ? const SizedBox.shrink()
             : _HistoryTab(history: value.history),
       ),
-      if (play)
-        (l.storeTabPlay, Icons.shop_rounded, const PlayOffersTab()),
+      if (play) (l.storeTabPlay, Icons.shop_rounded, const PlayOffersTab()),
       if (coins)
         (
           pay.platform == 'android' ? l.pay2TabTransfer : l.storeTabCoins,
@@ -312,8 +299,10 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
     final council = tabs.indexWhere((t) => t.$1 == l.storeTabCouncil);
     final requested = switch (widget.start) {
       CoinStoreStart.orders => tabs.indexWhere(
-          (t) => t.$1 == (pay.platform == 'android' ? l.pay2TabTransfer : l.storeTabCoins),
-        ),
+        (t) =>
+            t.$1 ==
+            (pay.platform == 'android' ? l.pay2TabTransfer : l.storeTabCoins),
+      ),
       CoinStoreStart.defaultTab => -1,
     };
     return DefaultTabController(
@@ -370,7 +359,10 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
                   ),
                   // Phase 108: vault browse is a waiting surface; zero size
                   // unless switched on and filled.
-                  const SafeArea(top: false, child: WaitingBanner(placement: BannerPlacement.vault)),
+                  const SafeArea(
+                    top: false,
+                    child: WaitingBanner(placement: BannerPlacement.vault),
+                  ),
                 ],
               ),
             ),
@@ -445,7 +437,9 @@ class _VaultHeader extends StatelessWidget {
                             alignment: AlignmentDirectional.centerStart,
                             child: Text(
                               l.vaultTitle,
-                              style: context.typography.headline.copyWith(color: colors.textPrimary),
+                              style: context.typography.headline.copyWith(
+                                color: colors.textPrimary,
+                              ),
                               maxLines: 1,
                             ),
                           ),
@@ -587,98 +581,6 @@ class _EarnHint extends ConsumerWidget {
     final v3 =
         ref.watch(economyCapabilitiesProvider).valueOrNull?.economyV3 ?? false;
     return Text(v3 ? l.coinsEarnHintV3 : l.coinsEarnHint);
-  }
-}
-
-class _CollectionTab extends StatelessWidget {
-  final WalletState wallet;
-  final bool busy;
-  final ValueChanged<String> onOpen;
-  final Future<void> Function(CosmeticSlot, String?) onEquip;
-  const _CollectionTab({
-    required this.wallet,
-    required this.busy,
-    required this.onOpen,
-    required this.onEquip,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    // Worn first, then by kind (frames, plates, packs, narrators), then name.
-    final owned =
-        [
-          for (final code in wallet.owned)
-            if (Cosmetics.items[code]?.slot != null) code,
-        ]..sort((a, b) {
-          final wa = wallet.equipped.values.contains(a) ? 0 : 1;
-          final wb = wallet.equipped.values.contains(b) ? 0 : 1;
-          if (wa != wb) return wa - wb;
-          final ka = Cosmetics.items[a]!.kind.index;
-          final kb = Cosmetics.items[b]!.kind.index;
-          return ka != kb ? ka - kb : a.compareTo(b);
-        });
-    if (owned.isEmpty) {
-      return Center(
-        child: Text(l.storeEmptyCollection, style: context.typography.body),
-      );
-    }
-    return ListView(
-      padding: EdgeInsets.all(context.spacing.md),
-      children: [
-        for (final code in owned)
-          Builder(
-            builder: (context) {
-              final cosmetic = Cosmetics.items[code]!;
-              final slot = cosmetic.slot!;
-              final equipped = wallet.equipped[slot.wire] == code;
-              return Material(
-                type: MaterialType.transparency,
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: SizedBox.square(
-                    dimension: StoreTokens.thumbnail,
-                    child: StoreProductArt(code: code),
-                  ),
-                  title: Text(cosmetic.name(l)),
-                  // Store truth: where it shows, and whether it is worn.
-                  subtitle: Text(
-                    equipped
-                        ? '${l.storeWearing} · ${storeWhatItChanges(l, cosmetic.kind)}'
-                        : storeWhatItChanges(l, cosmetic.kind),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: equipped
-                        ? context.typography.caption.copyWith(
-                            color: VaultTokens.gold,
-                          )
-                        : context.typography.caption,
-                  ),
-                  onTap: () => onOpen(code),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        key: CoinStore.tryOn(code),
-                        tooltip: l.storeTryOn,
-                        icon: const Icon(Icons.visibility_outlined),
-                        onPressed: () => showTryOn(context, code),
-                      ),
-                      TextButton(
-                        key: CoinStore.equip(code),
-                        onPressed: busy
-                            ? null
-                            : () => onEquip(slot, equipped ? null : code),
-                        child: Text(equipped ? l.storeUnequip : l.storeEquip),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-      ],
-    );
   }
 }
 

@@ -11,8 +11,7 @@ enum Role { mafia, silencer, doctor, detective, elder, sniper, citizen }
 
 extension RoleX on Role {
   /// Returns the alignment: mafia roles align with mafia; others with town.
-  Alignment get alignment =>
-      this == Role.mafia || this == Role.silencer
+  Alignment get alignment => this == Role.mafia || this == Role.silencer
       ? Alignment.mafia
       : Alignment.town;
 }

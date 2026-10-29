@@ -190,7 +190,11 @@ bool extraOffered(WidgetRef ref, AdReward kind) {
 
 /// One line for what a tap on an offer came to. Silence for a watched or
 /// closed ad: the button itself says what happens next.
-void sayAdAttempt(BuildContext context, AdRewardAttempt attempt, AdReward kind) {
+void sayAdAttempt(
+  BuildContext context,
+  AdRewardAttempt attempt,
+  AdReward kind,
+) {
   final l = context.l10n;
   final refusal = attempt.refusal;
   final String? message = refusal != null

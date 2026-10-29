@@ -285,7 +285,9 @@ class _Seals extends StatelessWidget {
     children: [
       for (var i = 0; i < bondTierThresholds.length; i++)
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: DossierTokens.sealGap / 2),
+          padding: const EdgeInsets.symmetric(
+            horizontal: DossierTokens.sealGap / 2,
+          ),
           child: Container(
             width: DossierTokens.seal,
             height: DossierTokens.seal,

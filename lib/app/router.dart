@@ -292,10 +292,12 @@ GoRouter buildRouter(
         .startMatch(
           names: [you, ...kBotNames.take(pick.players - 1)],
           roleCounts: pick.roleCounts,
-          settings: pick.settingsOver(saved).copyWith(
-            whisperEnabled: false,
-            discussionMode: DiscussionMode.free,
-          ),
+          settings: pick
+              .settingsOver(saved)
+              .copyWith(
+                whisperEnabled: false,
+                discussionMode: DiscussionMode.free,
+              ),
           botSeats: {for (var i = 1; i < pick.players; i++) i},
           botLevel: pick.level,
         );
@@ -523,44 +525,50 @@ GoRouter buildRouter(
         // open Stories table first, as the app's own back does.
         onExit: (context, state) => _storiesExit.mayLeave(),
         builder: (context, state) => SetupRequired(
-          child: StoryPalette(child: StoriesScreen(
-            exitGuard: _storiesExit,
-            onBack: () => context.go(Routes.mode),
-            newSeed: newMatchSeed,
-            claimReward: (completion) => claimStoryReward(
-              ProviderScope.containerOf(context), completion,
+          child: StoryPalette(
+            child: StoriesScreen(
+              exitGuard: _storiesExit,
+              onBack: () => context.go(Routes.mode),
+              newSeed: newMatchSeed,
+              claimReward: (completion) => claimStoryReward(
+                ProviderScope.containerOf(context),
+                completion,
+              ),
+              startV2Session: (story, players, avoid) => startStorySession(
+                ProviderScope.containerOf(context),
+                storyId: story,
+                players: players,
+                avoid: avoid,
+              ),
+              claimV2Reward: (session, accusation) => claimStorySession(
+                ProviderScope.containerOf(context),
+                sessionId: session,
+                accusation: accusation,
+              ),
+              beforeStory: () async {
+                await ref.read(interstitialCoordinatorProvider).beforeDeal();
+              },
+              afterStory: (id) async {
+                await ref
+                    .read(interstitialCoordinatorProvider)
+                    .leftPassAndPlayResult(
+                      'story:$id:${DateTime.now().millisecondsSinceEpoch}',
+                    );
+              },
+              playNarration: (asset) =>
+                  ref.read(audioDirectorProvider).playAccent(asset),
+              stopNarration: () =>
+                  ref.read(audioDirectorProvider).backend.stopAll(),
+              watchAdForStep: () async =>
+                  await showRewardedWith(
+                    ref.read,
+                    customData: 'l1:story_step',
+                    userId: '',
+                    placement: RewardedPlacement.extra,
+                  ) ==
+                  RewardedAdOutcome.earned,
             ),
-            startV2Session: (story, players, avoid) => startStorySession(
-              ProviderScope.containerOf(context),
-              storyId: story, players: players, avoid: avoid,
-            ),
-            claimV2Reward: (session, accusation) => claimStorySession(
-              ProviderScope.containerOf(context),
-              sessionId: session, accusation: accusation,
-            ),
-            beforeStory: () async {
-              await ref.read(interstitialCoordinatorProvider).beforeDeal();
-            },
-            afterStory: (id) async {
-              await ref
-                  .read(interstitialCoordinatorProvider)
-                  .leftPassAndPlayResult(
-                    'story:$id:${DateTime.now().millisecondsSinceEpoch}',
-                  );
-            },
-            playNarration: (asset) =>
-                ref.read(audioDirectorProvider).playAccent(asset),
-            stopNarration: () =>
-                ref.read(audioDirectorProvider).backend.stopAll(),
-            watchAdForStep: () async =>
-                await showRewardedWith(
-                  ref.read,
-                  customData: 'l1:story_step',
-                  userId: '',
-                  placement: RewardedPlacement.extra,
-                ) ==
-                RewardedAdOutcome.earned,
-          )),
+          ),
         ),
       ),
       // The online front door. Doc 12 §9's four cards used to stand in front
@@ -667,26 +675,28 @@ GoRouter buildRouter(
       ),
       GoRoute(
         path: Routes.groups,
-        builder: (context, state) => SetupRequired(child: GroupPickerScreen(
-          onSelect: (group) {
-            ref.read(setupDraftProvider.notifier).setGroup(group);
-            context.go(Routes.players);
-          },
-          onNewGroup: () {
-            ref.read(setupDraftProvider.notifier).setGroup(null);
-            context.go(Routes.players);
-          },
-          onBack: () => context.go(Routes.home),
-          onEmpty: () {
-            // The last group has just been deleted. Detaching it matters:
-            // without this the roster screen renders in group mode against a
-            // group that no longer exists — the deleted names pre-filled, an
-            // "ابدأ فوراً" offering to play it, and a match-end prompt that
-            // would write the group back into the database it was deleted from.
-            ref.read(setupDraftProvider.notifier).setGroup(null);
-            context.go(Routes.players);
-          },
-        )),
+        builder: (context, state) => SetupRequired(
+          child: GroupPickerScreen(
+            onSelect: (group) {
+              ref.read(setupDraftProvider.notifier).setGroup(group);
+              context.go(Routes.players);
+            },
+            onNewGroup: () {
+              ref.read(setupDraftProvider.notifier).setGroup(null);
+              context.go(Routes.players);
+            },
+            onBack: () => context.go(Routes.home),
+            onEmpty: () {
+              // The last group has just been deleted. Detaching it matters:
+              // without this the roster screen renders in group mode against a
+              // group that no longer exists — the deleted names pre-filled, an
+              // "ابدأ فوراً" offering to play it, and a match-end prompt that
+              // would write the group back into the database it was deleted from.
+              ref.read(setupDraftProvider.notifier).setGroup(null);
+              context.go(Routes.players);
+            },
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.players,
@@ -697,34 +707,40 @@ GoRouter buildRouter(
           // Back from the roles step keeps the guests, the seating order and
           // who was away. Only a first visit starts from the group as saved.
           final resumed = draft.roster.isNotEmpty;
-          return SetupRequired(child: HostSeatScope(
-            child: AddPlayersScreen(
-            // Seating order, exactly as saved. Not sorted, not deduplicated,
-            // not touched.
-            initialNames: resumed
-                ? draft.roster
-                : (group?.memberNames ?? draft.names),
-            initialAbsent: resumed ? draft.absent : const {},
-            onRosterChanged: ref.read(setupDraftProvider.notifier).setRoster,
-            // On a first visit the saved group genders are the truth; once
-            // the host has been here, their own flips win.
-            initialGenders: resumed
-                ? {...?group?.genders, ...draft.genders}
-                : {...draft.genders, ...?group?.genders},
-            onGendersChanged: ref.read(setupDraftProvider.notifier).setGenders,
-            group: group,
-            savedGroups: loadedGroups(),
-            onNext: (names) {
-              ref.read(setupDraftProvider.notifier).setNames(names);
-              context.go(Routes.roles);
-            },
-            onQuickStart: (names) => quickStart(context, names),
-            onSaveGroup: (names) => _saveNewGroup(ref, context, names),
-            onBack: () => context.go(
-              loadedGroups().isEmpty ? Routes.home : Routes.groups,
+          return SetupRequired(
+            child: HostSeatScope(
+              child: AddPlayersScreen(
+                // Seating order, exactly as saved. Not sorted, not deduplicated,
+                // not touched.
+                initialNames: resumed
+                    ? draft.roster
+                    : (group?.memberNames ?? draft.names),
+                initialAbsent: resumed ? draft.absent : const {},
+                onRosterChanged: ref
+                    .read(setupDraftProvider.notifier)
+                    .setRoster,
+                // On a first visit the saved group genders are the truth; once
+                // the host has been here, their own flips win.
+                initialGenders: resumed
+                    ? {...?group?.genders, ...draft.genders}
+                    : {...draft.genders, ...?group?.genders},
+                onGendersChanged: ref
+                    .read(setupDraftProvider.notifier)
+                    .setGenders,
+                group: group,
+                savedGroups: loadedGroups(),
+                onNext: (names) {
+                  ref.read(setupDraftProvider.notifier).setNames(names);
+                  context.go(Routes.roles);
+                },
+                onQuickStart: (names) => quickStart(context, names),
+                onSaveGroup: (names) => _saveNewGroup(ref, context, names),
+                onBack: () => context.go(
+                  loadedGroups().isEmpty ? Routes.home : Routes.groups,
+                ),
+              ),
             ),
-            ),
-          ));
+          );
         },
       ),
       GoRoute(
@@ -734,47 +750,51 @@ GoRouter buildRouter(
           // Deep-linking here without names would crash the balance guard;
           // send the host back to the step that produces them.
           if (names.length < 5) return const _RedirectHome();
-          return SetupRequired(child: RolesScreen(
-            playerCount: names.length,
-            initialCounts: ref.read(setupDraftProvider).roleCounts,
-            // The bought roles carry their flags into the match's settings;
-            // told every time, so a past match's flags never stay switched on.
-            onOptionalRoles: (on) {
-              final draft = ref.read(setupDraftProvider);
-              ref
-                  .read(setupDraftProvider.notifier)
-                  .setSettings(OptionalRole.flags(draft.settings, on));
-            },
-            onNext: (counts) {
-              ref.read(setupDraftProvider.notifier).setRoleCounts(counts);
-              context.go(Routes.settings);
-            },
-            onBack: () => context.go(Routes.players),
-          ));
+          return SetupRequired(
+            child: RolesScreen(
+              playerCount: names.length,
+              initialCounts: ref.read(setupDraftProvider).roleCounts,
+              // The bought roles carry their flags into the match's settings;
+              // told every time, so a past match's flags never stay switched on.
+              onOptionalRoles: (on) {
+                final draft = ref.read(setupDraftProvider);
+                ref
+                    .read(setupDraftProvider.notifier)
+                    .setSettings(OptionalRole.flags(draft.settings, on));
+              },
+              onNext: (counts) {
+                ref.read(setupDraftProvider.notifier).setRoleCounts(counts);
+                context.go(Routes.settings);
+              },
+              onBack: () => context.go(Routes.players),
+            ),
+          );
         },
       ),
       GoRoute(
         path: Routes.settings,
         builder: (context, state) {
           final draft = ref.read(setupDraftProvider);
-          return SetupRequired(child: SettingsScreen(
-            initial: draft.settings,
-            onAudioPreview: (settings) => _previewAudio(ref, settings),
-            // Doc 13 5. The preset row needs the table it is being picked for:
-            // the three shapes differ on the Mafia ratio, and a ratio with no
-            // count behind it is not a split.
-            playerCount: draft.names.length,
-            roleCounts: draft.roleCounts,
-            onRoleCounts: (counts) =>
-                ref.read(setupDraftProvider.notifier).setRoleCounts(counts),
-            onSave: (settings) {
-              ref.read(setupDraftProvider.notifier).setSettings(settings);
-              // These become the defaults for the next match too (FR-005).
-              ref.read(matchRepositoryProvider).saveDefaultSettings(settings);
-              unawaited(startMatchWithIntro(context));
-            },
-            onBack: () => context.go(Routes.roles),
-          ));
+          return SetupRequired(
+            child: SettingsScreen(
+              initial: draft.settings,
+              onAudioPreview: (settings) => _previewAudio(ref, settings),
+              // Doc 13 5. The preset row needs the table it is being picked for:
+              // the three shapes differ on the Mafia ratio, and a ratio with no
+              // count behind it is not a split.
+              playerCount: draft.names.length,
+              roleCounts: draft.roleCounts,
+              onRoleCounts: (counts) =>
+                  ref.read(setupDraftProvider.notifier).setRoleCounts(counts),
+              onSave: (settings) {
+                ref.read(setupDraftProvider.notifier).setSettings(settings);
+                // These become the defaults for the next match too (FR-005).
+                ref.read(matchRepositoryProvider).saveDefaultSettings(settings);
+                unawaited(startMatchWithIntro(context));
+              },
+              onBack: () => context.go(Routes.roles),
+            ),
+          );
         },
       ),
       // Settings are a sheet over Home now; an old link lands on Home.
@@ -793,17 +813,19 @@ GoRouter buildRouter(
           final resume = await OnlineSessionStore.load();
           return resume != null ? Routes.online : Routes.home;
         },
-        builder: (context, state) => SetupRequired(child: MatchRoute(
-          onExit: () => context.go(Routes.home),
-          onAnalytics: () => context.go(Routes.analytics),
-          // A table rematch lands straight in the new lobby; leaving the
-          // table the old way lands on the online door.
-          onRematch: () => context.go(
-            ref.read(onlineSessionProvider).isInRoom
-                ? Routes.lobby
-                : Routes.online,
+        builder: (context, state) => SetupRequired(
+          child: MatchRoute(
+            onExit: () => context.go(Routes.home),
+            onAnalytics: () => context.go(Routes.analytics),
+            // A table rematch lands straight in the new lobby; leaving the
+            // table the old way lands on the online door.
+            onRematch: () => context.go(
+              ref.read(onlineSessionProvider).isInRoom
+                  ? Routes.lobby
+                  : Routes.online,
+            ),
           ),
-        )),
+        ),
       ),
       GoRoute(
         path: Routes.analytics,

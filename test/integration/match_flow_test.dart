@@ -120,9 +120,7 @@ void main() {
       // but inert.
       await tester.tap(
         find
-            .byWidgetPredicate(
-              (w) => w is NightGridTile && w.onTap != null,
-            )
+            .byWidgetPredicate((w) => w is NightGridTile && w.onTap != null)
             .first,
       );
       await tester.pump();

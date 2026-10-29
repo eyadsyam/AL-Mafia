@@ -195,7 +195,12 @@ void main() {
 
   group('whispers', () {
     test('the body reaches the recipient and never the snapshot', () async {
-      transport = open(settings: const MatchSettings(whisperEnabled: true, abstainAllowed: true));
+      transport = open(
+        settings: const MatchSettings(
+          whisperEnabled: true,
+          abstainAllowed: true,
+        ),
+      );
       await playNight();
       await transport.beginDay();
       while (transport.snapshot.phase == GamePhase.openingRound) {

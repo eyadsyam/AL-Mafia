@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../ui/theme/design_tokens.dart' show InviteTokens;
-import 'haptics_stub.dart' if (dart.library.js_interop) 'haptics_web.dart'
+import 'haptics_stub.dart'
+    if (dart.library.js_interop) 'haptics_web.dart'
     as web_vibration;
 
 /// Centralized haptic feedback API.

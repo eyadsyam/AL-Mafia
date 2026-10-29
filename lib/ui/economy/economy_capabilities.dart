@@ -274,8 +274,7 @@ class EconomyCapabilities {
       friends:
           json['social'] is Map && (json['social'] as Map)['friends'] == true,
       directory:
-          json['social'] is Map &&
-          (json['social'] as Map)['directory'] == true,
+          json['social'] is Map && (json['social'] as Map)['directory'] == true,
       pushInvites:
           json['social'] is Map &&
           (json['social'] as Map)['pushInvites'] == true,

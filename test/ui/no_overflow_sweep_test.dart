@@ -22,37 +22,35 @@ void main() {
     for (final item in sweepCases()) {
       final knownReason = known['$sizeName ${item.name}'];
       final skipped = knownReason != null && !unskip;
-      testWidgets(
-        '$sizeName ${item.name} has no FlutterError'
-        '${knownReason == null ? '' : ' (KNOWN: $knownReason)'}',
-        (tester) async {
-          await tester.runAsync(loadSweepFonts);
-          final errors = <String>{};
-          final oldHandler = FlutterError.onError;
-          FlutterError.onError = (details) =>
-              errors.add(describeSweepError(details));
-          try {
-            await pumpSweepCase(tester, item, size);
-            Object? pending;
-            while ((pending = tester.takeException()) != null) {
-              errors.add('$pending');
-            }
-            await tester.pumpWidget(const SizedBox.shrink());
-            await tester.pump(const Duration(seconds: 5));
-            while ((pending = tester.takeException()) != null) {
-              errors.add('$pending');
-            }
-          } finally {
-            FlutterError.onError = oldHandler;
+      testWidgets('$sizeName ${item.name} has no FlutterError'
+          '${knownReason == null ? '' : ' (KNOWN: $knownReason)'}', (
+        tester,
+      ) async {
+        await tester.runAsync(loadSweepFonts);
+        final errors = <String>{};
+        final oldHandler = FlutterError.onError;
+        FlutterError.onError = (details) =>
+            errors.add(describeSweepError(details));
+        try {
+          await pumpSweepCase(tester, item, size);
+          Object? pending;
+          while ((pending = tester.takeException()) != null) {
+            errors.add('$pending');
           }
-          expect(
-            errors,
-            isEmpty,
-            reason: '$sizeName ${item.name}: ${errors.join(' | ')}',
-          );
-        },
-        skip: skipped,
-      );
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pump(const Duration(seconds: 5));
+          while ((pending = tester.takeException()) != null) {
+            errors.add('$pending');
+          }
+        } finally {
+          FlutterError.onError = oldHandler;
+        }
+        expect(
+          errors,
+          isEmpty,
+          reason: '$sizeName ${item.name}: ${errors.join(' | ')}',
+        );
+      }, skip: skipped);
     }
   }
 }

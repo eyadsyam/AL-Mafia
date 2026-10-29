@@ -231,37 +231,36 @@ void main() {
       },
     );
 
-    testWidgets(
-      'early confirmations share the same turn floor',
-      (tester) async {
-        // All three leave the full private confirmation floor before the
-        // common turn floor. Their public pass time must remain identical.
-        const confirmTimes = [
-          Duration(seconds: 8),
-          Duration(milliseconds: 8500),
-          Duration(seconds: 9),
-        ];
+    testWidgets('early confirmations share the same turn floor', (
+      tester,
+    ) async {
+      // All three leave the full private confirmation floor before the
+      // common turn floor. Their public pass time must remain identical.
+      const confirmTimes = [
+        Duration(seconds: 8),
+        Duration(milliseconds: 8500),
+        Duration(seconds: 9),
+      ];
 
-        final measured = <Duration, Duration>{};
-        for (final confirmAt in confirmTimes) {
-          measured[confirmAt] = await measureUnlock(
-            tester,
-            role: Role.mafia,
-            confirmAt: confirmAt,
-          );
-        }
+      final measured = <Duration, Duration>{};
+      for (final confirmAt in confirmTimes) {
+        measured[confirmAt] = await measureUnlock(
+          tester,
+          role: Role.mafia,
+          confirmAt: confirmAt,
+        );
+      }
 
-        expect(
-          measured.values.toSet().length,
-          equals(1),
-          reason: 'LEAK: Pass unlock time varies with action speed: $measured',
-        );
-        expect(
-          measured.values.first.inMilliseconds,
-          closeTo(timing.turnFloor.inMilliseconds, resolution.inMilliseconds),
-        );
-      },
-    );
+      expect(
+        measured.values.toSet().length,
+        equals(1),
+        reason: 'LEAK: Pass unlock time varies with action speed: $measured',
+      );
+      expect(
+        measured.values.first.inMilliseconds,
+        closeTo(timing.turnFloor.inMilliseconds, resolution.inMilliseconds),
+      );
+    });
 
     testWidgets(
       'late confirmation keeps its private result visible for three seconds',

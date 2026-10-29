@@ -66,14 +66,7 @@ class CompactBands extends StatelessWidget {
           );
         }
         return Column(
-          children: [
-            header,
-            const BandDivider(),
-            council,
-            voice,
-            ?strip,
-            hand,
-          ],
+          children: [header, const BandDivider(), council, voice, ?strip, hand],
         );
       },
     );

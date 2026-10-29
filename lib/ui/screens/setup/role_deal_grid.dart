@@ -337,9 +337,10 @@ class RoleBalanceBar extends StatelessWidget {
                 context.l10n.rolesMafiaCount(mafia),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: DeckTokens.body(
-                  type,
-                ).copyWith(color: colors.roleMafia, fontWeight: FontWeight.w800),
+                style: DeckTokens.body(type).copyWith(
+                  color: colors.roleMafia,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ],
@@ -370,18 +371,24 @@ class RoleBalanceBar extends StatelessWidget {
 
 /// The card, big, over a sheet: its art, its side, what it does, its numbers,
 /// and the same − / + as the grid, in words.
-Future<void> showRoleSheet(BuildContext context, RoleDealSpec spec) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: RolesTokens.sheetScrim),
-      builder: (context) => _RoleSheet(spec: spec),
-    );
+///
+/// [actions] false shows the card only (the vault: what a role is, not a deal).
+Future<void> showRoleSheet(
+  BuildContext context,
+  RoleDealSpec spec, {
+  bool actions = true,
+}) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  backgroundColor: Colors.transparent,
+  barrierColor: Colors.black.withValues(alpha: RolesTokens.sheetScrim),
+  builder: (context) => _RoleSheet(spec: spec, actions: actions),
+);
 
 class _RoleSheet extends StatelessWidget {
   final RoleDealSpec spec;
-  const _RoleSheet({required this.spec});
+  final bool actions;
+  const _RoleSheet({required this.spec, required this.actions});
 
   static const Key addKey = ValueKey('role_sheet_add');
 
@@ -524,7 +531,7 @@ class _RoleSheet extends StatelessWidget {
                     ),
                   ],
                   SizedBox(height: s.md),
-                  if (!c.locked && !sold && c.onMinus != null)
+                  if (actions && !c.locked && !sold && c.onMinus != null)
                     Padding(
                       padding: EdgeInsets.only(bottom: s.sm),
                       child: OutlinedButton(
@@ -532,7 +539,9 @@ class _RoleSheet extends StatelessWidget {
                         child: Text(l.rolesSheetLess),
                       ),
                     ),
-                  if (c.locked)
+                  if (!actions)
+                    const SizedBox.shrink()
+                  else if (c.locked)
                     StoreDoor(
                       builder: (context, open) =>
                           BoneButton(label: l.roleLockedPill, onPressed: open),

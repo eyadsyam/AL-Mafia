@@ -128,7 +128,10 @@ void main() {
       final container = await _open(tester, _sizes.last, showSettingsSheet);
       final more = find.byKey(SettingsSheetKeys.minutesMore);
       await tester.ensureVisible(more);
-      final start = container.read(setupDraftProvider).settings.discussionSeconds;
+      final start = container
+          .read(setupDraftProvider)
+          .settings
+          .discussionSeconds;
       await tester.tap(more);
       await tester.pump();
       final now = container.read(setupDraftProvider).settings.discussionSeconds;
@@ -177,11 +180,7 @@ void main() {
   group('how to play sheet', () {
     for (final size in _sizes) {
       testWidgets('fits $size on every page', (tester) async {
-        await _open(
-          tester,
-          size,
-          (c) => showHowToSheet(c, onVideo: () {}),
-        );
+        await _open(tester, size, (c) => showHowToSheet(c, onVideo: () {}));
         expect(find.byKey(HowToKeys.sheet), findsOneWidget);
         for (var i = 0; i < 5; i++) {
           await tester.drag(find.byKey(HowToKeys.pages), const Offset(400, 0));
@@ -198,7 +197,11 @@ void main() {
           'silencer',
           'sniper',
         ]) {
-          expect(find.byKey(HowToKeys.role(role)), findsOneWidget, reason: role);
+          expect(
+            find.byKey(HowToKeys.role(role)),
+            findsOneWidget,
+            reason: role,
+          );
         }
       });
     }

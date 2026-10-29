@@ -415,10 +415,9 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
       padding: EdgeInsets.only(top: s.md, bottom: s.xs),
       child: Text(
         text,
-        style: DeckTokens.meta(type).copyWith(
-          color: colors.textMuted,
-          fontWeight: FontWeight.w700,
-        ),
+        style: DeckTokens.meta(
+          type,
+        ).copyWith(color: colors.textMuted, fontWeight: FontWeight.w700),
       ),
     );
 

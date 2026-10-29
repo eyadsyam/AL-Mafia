@@ -157,7 +157,9 @@ void main() {
     final image = boundary.toImageSync(pixelRatio: 1);
     await tester.runAsync(() async {
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      File('${out.path}/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      File(
+        '${out.path}/$name.png',
+      ).writeAsBytesSync(bytes!.buffer.asUint8List());
     });
     image.dispose();
   }
@@ -180,11 +182,19 @@ void main() {
   });
 
   testWidgets('purchase reveal: bundle parts', (tester) async {
-    await shoot(tester, 'reveal_bundle_ar', page(const PurchaseReveal(code: 'bundle_nocturne')));
+    await shoot(
+      tester,
+      'reveal_bundle_ar',
+      page(const PurchaseReveal(code: 'bundle_nocturne')),
+    );
   });
 
   testWidgets('try on: nameplate', (tester) async {
-    await shoot(tester, 'try_on_plate_ar', page(const TryOnPreview(code: 'plate_noir')));
+    await shoot(
+      tester,
+      'try_on_plate_ar',
+      page(const TryOnPreview(code: 'plate_noir')),
+    );
   });
 
   testWidgets('own identity: chip and sheet', (tester) async {
@@ -240,7 +250,11 @@ void main() {
         dayNumber: 2,
         players: [
           for (var seat = 0; seat < 5; seat++)
-            PublicPlayer(seat: seat, name: 'P$seat', status: PlayerStatus.alive),
+            PublicPlayer(
+              seat: seat,
+              name: 'P$seat',
+              status: PlayerStatus.alive,
+            ),
         ],
       ),
     );

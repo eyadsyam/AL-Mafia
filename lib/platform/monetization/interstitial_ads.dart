@@ -12,6 +12,7 @@ abstract interface class InterstitialAds {
 
   /// An ad is loaded and not yet shown.
   bool get ready;
+
   /// [online] picks the unit, so online and pass-and-play results report
   /// apart.
   Future<void> preload({bool online = true});

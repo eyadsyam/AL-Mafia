@@ -299,8 +299,10 @@ void main() {
       };
       await pump(tester, const DailyRewardsTab());
       expect(find.byKey(DailyRewardsTab.extraSpinKey), findsNothing);
-      expect(backend.calls.any((c) => c.body['action'] == 'extras_status'),
-          isFalse);
+      expect(
+        backend.calls.any((c) => c.body['action'] == 'extras_status'),
+        isFalse,
+      );
     });
   });
 
@@ -311,8 +313,7 @@ void main() {
       var doubled = false;
       backend.responders['economy'] = (body) => switch (body['action']) {
         'capabilities' => caps(),
-        'extras_status' =>
-          doubled ? extras(cofferState: 'awarded') : extras(),
+        'extras_status' => doubled ? extras(cofferState: 'awarded') : extras(),
         'extra_claim' => {'claimId': 'c', 'state': 'pending'},
         _ => daily(coffer: true),
       };

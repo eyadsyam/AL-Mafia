@@ -19,8 +19,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
 import 'package:mafia_master/ui/missions/casebook_data.dart';
 import 'package:mafia_master/ui/missions/casebook_sheet.dart';
 
@@ -84,7 +82,9 @@ void main() {
     final image = boundary.toImageSync(pixelRatio: 1);
     await tester.runAsync(() async {
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      File('${out.path}/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      File(
+        '${out.path}/$name.png',
+      ).writeAsBytesSync(bytes!.buffer.asUint8List());
     });
     image.dispose();
   }

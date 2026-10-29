@@ -104,8 +104,11 @@ class _DayCardCheckScreenState extends State<_DayCardCheckScreen> {
                         onPressed: alreadyRevealed
                             ? null
                             : () async {
-                                await widget.controller.revealElder(widget.seat);
-                                if (context.mounted) Navigator.of(context).pop();
+                                await widget.controller.revealElder(
+                                  widget.seat,
+                                );
+                                if (context.mounted)
+                                  Navigator.of(context).pop();
                               },
                         child: Text(
                           alreadyRevealed

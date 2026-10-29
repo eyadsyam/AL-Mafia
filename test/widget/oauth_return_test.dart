@@ -136,9 +136,7 @@ void main() {
   group('bug 1: Google during onboarding', () {
     setUp(() => SharedPreferences.setMockInitialValues({}));
 
-    testWidgets('the return finishes setup, never restarts it', (
-      tester,
-    ) async {
+    testWidgets('the return finishes setup, never restarts it', (tester) async {
       await launch(tester);
       expect(find.byKey(FirstRunScreen.screenKey), findsOneWidget);
       await toSaveStep(tester);

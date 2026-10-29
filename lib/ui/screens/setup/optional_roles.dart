@@ -87,7 +87,11 @@ enum OptionalRole {
     var left = citizens;
     for (final r in OptionalRole.values) {
       if (!wanted.contains(r)) continue;
-      final blocked = r.blockedBy(players: players, mafia: mafia, citizens: left);
+      final blocked = r.blockedBy(
+        players: players,
+        mafia: mafia,
+        citizens: left,
+      );
       if (blocked != null) continue;
       if (r != OptionalRole.silencer) left--;
       out.add(r);

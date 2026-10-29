@@ -108,8 +108,10 @@ class _CoinWinRevealState extends State<CoinWinReveal>
                 alignment: Alignment.center,
                 children: [
                   for (var i = 0; i < WinTokens.coins; i++)
-                    _coin(i, _share(t, i * WinTokens.stagger,
-                        WinTokens.flightShare)),
+                    _coin(
+                      i,
+                      _share(t, i * WinTokens.stagger, WinTokens.flightShare),
+                    ),
                   Transform.scale(
                     scale: scale,
                     child: Text(

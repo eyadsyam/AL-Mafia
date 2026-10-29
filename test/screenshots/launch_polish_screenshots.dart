@@ -95,7 +95,9 @@ void main() {
     final image = boundary.toImageSync(pixelRatio: 1);
     await tester.runAsync(() async {
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      File('${out.path}/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      File(
+        '${out.path}/$name.png',
+      ).writeAsBytesSync(bytes!.buffer.asUint8List());
     });
     image.dispose();
   }
@@ -275,14 +277,29 @@ class _ShotFriends extends FriendsController {
   @override
   Future<FriendsState?> build() async => FriendsState.fromJson({
     'friends': [
-      {'id': 'a', 'name': 'ليلى', 'gender': 'female',
-       'presence': {'state': 'lobby', 'code': 'K7M2QP', 'players': 4}},
-      {'id': 'b', 'name': 'كريم', 'gender': 'male', 'presence': {'state': 'playing'}},
+      {
+        'id': 'a',
+        'name': 'ليلى',
+        'gender': 'female',
+        'presence': {'state': 'lobby', 'code': 'K7M2QP', 'players': 4},
+      },
+      {
+        'id': 'b',
+        'name': 'كريم',
+        'gender': 'male',
+        'presence': {'state': 'playing'},
+      },
       {'id': 'f', 'name': 'يوسف', 'gender': 'male'},
     ],
-    'incoming': [{'id': 'c', 'name': 'سارة', 'gender': 'female'}],
-    'recent': [{'id': 'e', 'name': 'نور', 'gender': 'female', 'matches': 3}],
-    'invites': [{'roomId': 'r', 'code': 'ABCDEF', 'name': 'ليلى'}],
+    'incoming': [
+      {'id': 'c', 'name': 'سارة', 'gender': 'female'},
+    ],
+    'recent': [
+      {'id': 'e', 'name': 'نور', 'gender': 'female', 'matches': 3},
+    ],
+    'invites': [
+      {'roomId': 'r', 'code': 'ABCDEF', 'name': 'ليلى'},
+    ],
   });
   @override
   Future<void> refresh() async {}

@@ -18,7 +18,10 @@ Future<List<String>> fetchLaunchEventStamps(
     });
     final events = answer['events'];
     if (answer['enabled'] != true || events is! List) return const [];
-    return [for (final code in events) if (code is String) code];
+    return [
+      for (final code in events)
+        if (code is String) code,
+    ];
   } catch (_) {
     // Never load-bearing for the result screen.
     return const [];

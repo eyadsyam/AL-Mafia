@@ -151,8 +151,9 @@ void main() {
 
   testWidgets('hub', (tester) async {
     final stories = [
-      for (final f in (Directory('assets/stories').listSync()
-            ..sort((a, b) => a.path.compareTo(b.path))))
+      for (final f in (Directory(
+        'assets/stories',
+      ).listSync()..sort((a, b) => a.path.compareTo(b.path))))
         if (f.path.endsWith('.json'))
           StoryDefinition.decode(File(f.path).readAsStringSync()),
     ]..sort((a, b) => a.number.compareTo(b.number));

@@ -283,27 +283,34 @@ void main() {
   });
 
   group('O7 — the phase moved while the tap was in flight', () {
-    test('PHASE_CLOSED resyncs, and a late ballot is told it was late', () async {
-      await connect();
-      backend.refusals['submit_vote'] = const BackendException(
-        'PHASE_CLOSED',
-        'the ballot is closed',
-      );
-      final before = backend.fetches;
+    test(
+      'PHASE_CLOSED resyncs, and a late ballot is told it was late',
+      () async {
+        await connect();
+        backend.refusals['submit_vote'] = const BackendException(
+          'PHASE_CLOSED',
+          'the ballot is closed',
+        );
+        final before = backend.fetches;
 
-      await expectLater(
-        transport.submitVote(seat: 0, targetSeat: 2),
-        throwsA(
-          isA<BackendException>().having((e) => e.code, 'code', 'PHASE_CLOSED'),
-        ),
-      );
+        await expectLater(
+          transport.submitVote(seat: 0, targetSeat: 2),
+          throwsA(
+            isA<BackendException>().having(
+              (e) => e.code,
+              'code',
+              'PHASE_CLOSED',
+            ),
+          ),
+        );
 
-      expect(
-        backend.fetches,
-        greaterThan(before),
-        reason: 'the client force-resyncs from a snapshot',
-      );
-    });
+        expect(
+          backend.fetches,
+          greaterThan(before),
+          reason: 'the client force-resyncs from a snapshot',
+        );
+      },
+    );
 
     test('PHASE_CLOSED on any other move resyncs instead of raising', () async {
       await connect();

@@ -149,7 +149,8 @@ class _Billing implements PlayBilling {
   Future<bool> available() async => true;
   @override
   Future<Map<String, PlayListing>> listings(Set<String> ids) async => {
-    for (final id in ids) id: PlayListing(id: id, title: id, price: 'EGP 49.99'),
+    for (final id in ids)
+      id: PlayListing(id: id, title: id, price: 'EGP 49.99'),
   };
   @override
   Future<bool> buy(
@@ -227,7 +228,10 @@ void main() {
     ) async {
       backend.responders['economy'] = (body) {
         if (body['action'] == 'capabilities') {
-          throw const BackendException('BAD_REQUEST', 'invalid economy request');
+          throw const BackendException(
+            'BAD_REQUEST',
+            'invalid economy request',
+          );
         }
         return {'balance': 0, 'catalog': [], 'owned': []};
       };
@@ -258,7 +262,11 @@ void main() {
       tester,
     ) async {
       backend.responders['economy'] = (body) => switch (body['action']) {
-        'capabilities' => caps(contracts: false, leaderboard: false, invites: false),
+        'capabilities' => caps(
+          contracts: false,
+          leaderboard: false,
+          invites: false,
+        ),
         'rank_get' => rank(),
         _ => {'ok': true},
       };
@@ -280,15 +288,25 @@ void main() {
         'capabilities' => caps(invites: false),
         'contract_claim' => () {
           claimed = true;
-          return {...contracts(claimed: true), 'granted': 15, 'bonusGranted': 0};
+          return {
+            ...contracts(claimed: true),
+            'granted': 15,
+            'bonusGranted': 0,
+          };
         }(),
         'contracts_get' => contracts(claimed: claimed),
         'rank_get' => rank(),
         _ => {'ok': true},
       };
       await pump(tester, const CouncilHubTab());
-      final unready = tester.widget<FilledButton>(find.byKey(CouncilHubTab.claimKey(1)));
-      expect(unready.onPressed, isNull, reason: 'not claimable before it is done');
+      final unready = tester.widget<FilledButton>(
+        find.byKey(CouncilHubTab.claimKey(1)),
+      );
+      expect(
+        unready.onPressed,
+        isNull,
+        reason: 'not claimable before it is done',
+      );
       await tester.tap(find.byKey(CouncilHubTab.claimKey(0)));
       await tester.pump();
       await tester.pump();
@@ -306,7 +324,10 @@ void main() {
     testWidgets('a refused claim is said plainly', (tester) async {
       backend.responders['economy'] = (body) => switch (body['action']) {
         'capabilities' => caps(invites: false),
-        'contract_claim' => throw const BackendException('CONTRACT_INCOMPLETE', 'x'),
+        'contract_claim' => throw const BackendException(
+          'CONTRACT_INCOMPLETE',
+          'x',
+        ),
         'contracts_get' => contracts(),
         'rank_get' => rank(),
         _ => {'ok': true},
@@ -412,7 +433,11 @@ void main() {
       final seat = SeatCosmetics.fromJson({'rank': 7});
       expect(seat?.rank, 7);
       expect(seat?.frame, isNull);
-      expect(SeatCosmetics.fromJson({'rank': 99}), isNull, reason: 'out of range');
+      expect(
+        SeatCosmetics.fromJson({'rank': 99}),
+        isNull,
+        reason: 'out of range',
+      );
       expect(SeatCosmetics.fromJson({'frame': 'frame_gilded'})?.rank, isNull);
     });
   });
@@ -422,9 +447,23 @@ void main() {
       'enabled': true,
       'week': '2026-W39',
       'entries': [
-        {'position': 1, 'xp': 900, 'name': 'ليلى', 'gender': 'female', 'level': 7, 'me': false},
+        {
+          'position': 1,
+          'xp': 900,
+          'name': 'ليلى',
+          'gender': 'female',
+          'level': 7,
+          'me': false,
+        },
         if (visible)
-          {'position': 2, 'xp': 240, 'name': 'أنا', 'gender': 'male', 'level': 2, 'me': true},
+          {
+            'position': 2,
+            'xp': 240,
+            'name': 'أنا',
+            'gender': 'male',
+            'level': 2,
+            'me': true,
+          },
       ],
       'me': {'position': 2, 'xp': 240},
       'visible': visible,
@@ -460,10 +499,7 @@ void main() {
       // Hidden: not listed, but the player still sees their own place.
       expect(find.byKey(LeaderboardSheet.rowKey(2)), findsNothing);
       expect(find.text(arStrings.leaderboardHidden), findsOneWidget);
-      expect(
-        find.textContaining(arStrings.leaderboardYou(2)),
-        findsOneWidget,
-      );
+      expect(find.textContaining(arStrings.leaderboardYou(2)), findsOneWidget);
     });
   });
 
@@ -474,9 +510,10 @@ void main() {
       backend.responders['economy'] = (body) => switch (body['action']) {
         'capabilities' => caps(contracts: false, rank: false),
         'invite_get' => invite(canRedeem: true),
-        'invite_redeem' => body['code'] == 'ZZZZZZZ'
-            ? {...invite(canRedeem: true), 'status': 'not_found'}
-            : throw const BackendException('INVITE_SELF', 'x'),
+        'invite_redeem' =>
+          body['code'] == 'ZZZZZZZ'
+              ? {...invite(canRedeem: true), 'status': 'not_found'}
+              : throw const BackendException('INVITE_SELF', 'x'),
         _ => {'ok': true},
       };
       await pump(tester, const CouncilHubTab());
@@ -498,33 +535,34 @@ void main() {
       expect(find.text(arStrings.inviteSelf), findsOneWidget);
     });
 
-    testWidgets('sharing falls back to copying where the platform has no sheet', (
-      tester,
-    ) async {
-      backend.responders['economy'] = (body) => switch (body['action']) {
-        'capabilities' => caps(contracts: false, rank: false),
-        'invite_get' => invite(canRedeem: true),
-        _ => {'ok': true},
-      };
-      final copied = <String>[];
-      await pump(
-        tester,
-        const CouncilHubTab(),
-        sharer: InviteSharer(
-          share: (_) async => throw UnsupportedError('no share sheet'),
-          copy: (text) async {
-            copied.add(text);
-            return true;
-          },
-        ),
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(InviteCard.shareKey));
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-      expect(copied.single, contains('K7QM2XA'));
-      expect(find.text(arStrings.shareTextCopied), findsOneWidget);
-    });
+    testWidgets(
+      'sharing falls back to copying where the platform has no sheet',
+      (tester) async {
+        backend.responders['economy'] = (body) => switch (body['action']) {
+          'capabilities' => caps(contracts: false, rank: false),
+          'invite_get' => invite(canRedeem: true),
+          _ => {'ok': true},
+        };
+        final copied = <String>[];
+        await pump(
+          tester,
+          const CouncilHubTab(),
+          sharer: InviteSharer(
+            share: (_) async => throw UnsupportedError('no share sheet'),
+            copy: (text) async {
+              copied.add(text);
+              return true;
+            },
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(InviteCard.shareKey));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        expect(copied.single, contains('K7QM2XA'));
+        expect(find.text(arStrings.shareTextCopied), findsOneWidget);
+      },
+    );
 
     testWidgets('an unread notice carries its own small emblem', (
       tester,
@@ -550,7 +588,10 @@ void main() {
       };
       await pump(tester, const CouncilHubTab());
       await tester.pumpAndSettle();
-      expect(find.text(arStrings.inviteFirstMatchNotice('نور', 25)), findsOneWidget);
+      expect(
+        find.text(arStrings.inviteFirstMatchNotice('نور', 25)),
+        findsOneWidget,
+      );
       // The emblem is decoded at a capped size, so the provider is wrapped.
       ImageProvider unwrap(ImageProvider p) =>
           p is ResizeImage ? unwrap(p.imageProvider) : p;
@@ -591,21 +632,37 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(CouncilResultStrip.stripKey), findsOneWidget);
       expect(
-        find.text(arStrings.resultContractToast(arStrings.contractFinishOne, 15)),
+        find.text(
+          arStrings.resultContractToast(arStrings.contractFinishOne, 15),
+        ),
         findsOneWidget,
       );
-      expect(economyCalls('contract_claim'), isEmpty, reason: 'nothing is claimed here');
+      expect(
+        economyCalls('contract_claim'),
+        isEmpty,
+        reason: 'nothing is claimed here',
+      );
       expect(economyCalls('resultSummary'), hasLength(1));
       expect(economyCalls('resultSummary').single['roomId'], 'room-1');
       expect(
         economyCalls('resultSummary').single['requestId'],
-        matches(RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$')),
+        matches(
+          RegExp(
+            r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+          ),
+        ),
         reason: 'D7: the summary carries a request id the server replays',
       );
-      expect(economyCalls('sync'), isEmpty, reason: 'D7: no burst of separate calls');
+      expect(
+        economyCalls('sync'),
+        isEmpty,
+        reason: 'D7: no burst of separate calls',
+      );
     });
 
-    testWidgets('the server delta wins over a before/after diff', (tester) async {
+    testWidgets('the server delta wins over a before/after diff', (
+      tester,
+    ) async {
       backend.responders['economy'] = (body) => switch (body['action']) {
         'capabilities' => caps(invites: false),
         // A replayed summary: rank already includes this room's XP, so a
@@ -668,13 +725,19 @@ void main() {
   });
 
   group('Starter Bundle', () {
-    const bundle = {'id': 'mm_starter_bundle', 'kind': 'bundle', 'coins': 600, 'item': 'frame_council_seal'};
+    const bundle = {
+      'id': 'mm_starter_bundle',
+      'kind': 'bundle',
+      'coins': 600,
+      'item': 'frame_council_seal',
+    };
 
     testWidgets('bought as a non-consumable; acknowledged, never consumed', (
       tester,
     ) async {
       final billing = _Billing();
-      backend.responders['economy'] = (_) => caps(bundle: true, products: [bundle]);
+      backend.responders['economy'] = (_) =>
+          caps(bundle: true, products: [bundle]);
       backend.responders['play_purchase'] = (_) => {
         'state': 'active',
         'kind': 'bundle',
@@ -688,8 +751,10 @@ void main() {
       expect(find.text(arStrings.bundleTitle), findsOneWidget);
       await tester.tap(find.byKey(PlayOffersTab.buyKey('mm_starter_bundle')));
       await tester.pumpAndSettle();
-      expect(billing.bought.single, ('mm_starter_bundle', false),
-          reason: 'never a consumable purchase');
+      expect(billing.bought.single, (
+        'mm_starter_bundle',
+        false,
+      ), reason: 'never a consumable purchase');
       billing.events$.add(
         const StorePurchaseEvent(
           state: StorePurchaseState.purchased,
@@ -706,7 +771,8 @@ void main() {
       tester,
     ) async {
       final billing = _Billing();
-      backend.responders['economy'] = (_) => caps(bundle: true, products: [bundle]);
+      backend.responders['economy'] = (_) =>
+          caps(bundle: true, products: [bundle]);
       backend.responders['play_purchase'] = (_) => {
         'state': 'active',
         'kind': 'bundle',
@@ -725,19 +791,28 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(billing.finished, isEmpty, reason: 'not acknowledged: Play refunds it');
+      expect(
+        billing.finished,
+        isEmpty,
+        reason: 'not acknowledged: Play refunds it',
+      );
       expect(find.text(arStrings.bundleAlreadyOwned), findsOneWidget);
       await billing.events$.close();
     });
 
-    test('the capabilities read a bundle as a non-consumable with its item', () {
-      final parsed = EconomyCapabilities.fromJson(caps(bundle: true, products: [bundle]));
-      final offer = parsed.products.single;
-      expect(offer.bundle, isTrue);
-      expect(offer.consumable, isFalse);
-      expect(offer.item, 'frame_council_seal');
-      expect(parsed.council.starterBundle, isTrue);
-    });
+    test(
+      'the capabilities read a bundle as a non-consumable with its item',
+      () {
+        final parsed = EconomyCapabilities.fromJson(
+          caps(bundle: true, products: [bundle]),
+        );
+        final offer = parsed.products.single;
+        expect(offer.bundle, isTrue);
+        expect(offer.consumable, isFalse);
+        expect(offer.item, 'frame_council_seal');
+        expect(parsed.council.starterBundle, isTrue);
+      },
+    );
   });
 
   group('narrow phones', () {

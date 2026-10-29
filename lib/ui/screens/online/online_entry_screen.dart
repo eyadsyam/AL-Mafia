@@ -854,7 +854,9 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       onJoin: (code) => _enter(code: code),
                                     ),
                                     const CasebookEntry(),
-                                    const WaitingBanner(placement: BannerPlacement.onlineHub),
+                                    const WaitingBanner(
+                                      placement: BannerPlacement.onlineHub,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -1270,66 +1272,68 @@ class _PublicRoomTile extends StatelessWidget {
       padding: EdgeInsets.only(top: spacing.sm),
       child: Material(
         type: MaterialType.transparency,
-        child: MafiaPanel(child: ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: spacing.md),
-          enabled: onTap != null,
-          title: Text(
-            room.waiting
-                ? l.publicRoomWaitingTitle
-                : (room.title ?? '').trim().isEmpty
-                ? l.onlineUntitledRoom
-                : room.title!,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: context.typography.body,
-          ),
-          subtitle: Text(
-            status,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: context.typography.caption.copyWith(
-              color: room.isFull ? c.textMuted : c.textSecondary,
-            ),
-          ),
-          leading: Tooltip(
-            message: room.voice ? l.onlineRoomVoiceOn : l.onlineRoomVoiceOff,
-            child: Icon(
+        child: MafiaPanel(
+          child: ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: spacing.md),
+            enabled: onTap != null,
+            title: Text(
               room.waiting
-                  ? Icons.hourglass_empty
-                  : room.voice
-                  ? Icons.mic_none
-                  : Icons.mic_off,
-              color: c.accentGold,
+                  ? l.publicRoomWaitingTitle
+                  : (room.title ?? '').trim().isEmpty
+                  ? l.onlineUntitledRoom
+                  : room.title!,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.typography.body,
             ),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: spacing.sm,
-                  vertical: spacing.xs,
-                ),
-                decoration: BoxDecoration(
-                  color: c.surfaceBase,
-                  borderRadius: BorderRadius.circular(context.radii.button),
-                  border: Border.all(color: c.borderSubtle),
-                ),
-                child: Text(
-                  '${room.players}/${room.capacity}',
-                  style: context.typography.caption.copyWith(
-                    color: c.accentGold,
+            subtitle: Text(
+              status,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.typography.caption.copyWith(
+                color: room.isFull ? c.textMuted : c.textSecondary,
+              ),
+            ),
+            leading: Tooltip(
+              message: room.voice ? l.onlineRoomVoiceOn : l.onlineRoomVoiceOff,
+              child: Icon(
+                room.waiting
+                    ? Icons.hourglass_empty
+                    : room.voice
+                    ? Icons.mic_none
+                    : Icons.mic_off,
+                color: c.accentGold,
+              ),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: spacing.sm,
+                    vertical: spacing.xs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: c.surfaceBase,
+                    borderRadius: BorderRadius.circular(context.radii.button),
+                    border: Border.all(color: c.borderSubtle),
+                  ),
+                  child: Text(
+                    '${room.players}/${room.capacity}',
+                    style: context.typography.caption.copyWith(
+                      color: c.accentGold,
+                    ),
                   ),
                 ),
-              ),
-              if (!room.isFull) ...[
-                SizedBox(width: spacing.xs),
-                const Icon(Icons.chevron_right),
+                if (!room.isFull) ...[
+                  SizedBox(width: spacing.xs),
+                  const Icon(Icons.chevron_right),
+                ],
               ],
-            ],
+            ),
+            onTap: onTap,
           ),
-          onTap: onTap,
-        )),
+        ),
       ),
     );
   }

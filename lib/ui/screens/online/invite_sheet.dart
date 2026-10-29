@@ -474,7 +474,9 @@ class _Empty extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: InviteTokens.emptyArtWidth),
+            constraints: const BoxConstraints(
+              maxWidth: InviteTokens.emptyArtWidth,
+            ),
             child: Image.asset(
               _art,
               excludeFromSemantics: true,

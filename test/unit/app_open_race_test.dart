@@ -25,11 +25,13 @@ class _Ads implements AppOpenAds {
     loading.complete();
     return loaded.future;
   }
+
   @override
   Future<bool> show() async {
     shows++;
     return true;
   }
+
   @override
   void discard() => discards++;
 }
@@ -44,22 +46,27 @@ void main() {
       'app_open_ledger_v1': jsonEncode(ledger.toJson()),
     });
     final ads = _Ads();
-    final container = ProviderContainer(overrides: [
-      appOpenAdsProvider.overrideWithValue(ads),
-      appOpenClockProvider.overrideWithValue(() => now),
-      economyCapabilitiesProvider.overrideWith((ref) async =>
-          const EconomyCapabilities(
+    final container = ProviderContainer(
+      overrides: [
+        appOpenAdsProvider.overrideWithValue(ads),
+        appOpenClockProvider.overrideWithValue(() => now),
+        economyCapabilitiesProvider.overrideWith(
+          (ref) async => const EconomyCapabilities(
             ads: AdsCapabilities(appOpen: AppOpenRules.on),
             interstitial: InterstitialRules.pacingDefaults,
-          )),
-    ]);
+          ),
+        ),
+      ],
+    );
     addTearDown(container.dispose);
     var roomActive = false;
-    final attempt = container.read(appOpenCoordinatorProvider).attempt(
-      trigger: AppOpenTrigger.coldStart,
-      busy: () async => roomActive,
-      onboarded: () async => true,
-    );
+    final attempt = container
+        .read(appOpenCoordinatorProvider)
+        .attempt(
+          trigger: AppOpenTrigger.coldStart,
+          busy: () async => roomActive,
+          onboarded: () async => true,
+        );
     await ads.loading.future;
     roomActive = true;
     ads.loaded.complete(now);

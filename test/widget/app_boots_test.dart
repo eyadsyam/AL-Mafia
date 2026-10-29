@@ -34,7 +34,7 @@ void main() {
       expect(find.text('سيد المافيا'), findsOneWidget);
       expect(find.text('ابدأ اللعبة'), findsOneWidget);
     });
-  
+
     testWidgets('launch starts no ad consent or ad SDK (phase 100)', (
       WidgetTester tester,
     ) async {

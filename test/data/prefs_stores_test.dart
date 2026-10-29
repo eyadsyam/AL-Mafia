@@ -81,10 +81,7 @@ void main() {
 
     final reloaded = await openPrefsStores(prefs);
     expect(await reloaded.matches.hasSeenOnboarding(), isTrue);
-    expect(
-      (await reloaded.matches.loadDefaultSettings()).speechSeconds,
-      45,
-    );
+    expect((await reloaded.matches.loadDefaultSettings()).speechSeconds, 45);
     expect(await reloaded.matches.loadSeenHints(), {'a', 'b'});
 
     await reloaded.matches.resetSeenHints();

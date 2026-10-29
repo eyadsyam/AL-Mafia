@@ -3455,5 +3455,62 @@
   "lobbyDeckEdit": "عدّل",
   "lobbyDeckDone": "تمام",
   "lobbyDeckFollows": "لو حد دخل أو خرج، المواطنين بيتظبطوا لوحدهم.",
-  "lobbyDeckReset": "توزيعك مبقاش ينفع للعدد ده، فرجعنا للمقترح."
+  "lobbyDeckReset": "توزيعك مبقاش ينفع للعدد ده، فرجعنا للمقترح.",
+  "vaultMineTitle": "خزنتي",
+  "vaultMineSub": "كل اللي عندك، وكل واحدة بتشتغل فين",
+  "vaultAllOpen": "كله مفتوح",
+  "vaultRolesTitle": "الأدوار بتاعتي",
+  "vaultRolesWhere": "بتدخل الماتش من توزيع الأدوار، في القعدة وفي الأونلاين. الكروت بتتوزع عشوائي زي أي دور.",
+  "vaultNarratorTitle": "الراوي",
+  "vaultNarratorNow": "بيحكي دلوقتي: {name}",
+  "vaultNarratorWhereLocal": "بيحكي في القعدة على موبايلك",
+  "vaultNarratorWhereRoom": "وبيحكي لكل اللي في أوضتك الأونلاين",
+  "vaultNarratorPick": "خليه هو اللي يحكي",
+  "vaultNarratorIsNow": "ده اللي بيحكي دلوقتي",
+  "vaultListenNight": "جملة الليل",
+  "vaultRoomTitle": "أجواء الأوضة",
+  "vaultRoomPick": "لبّس أوضتي بيها",
+  "vaultRoomIsNow": "أوضتك لابساها دلوقتي",
+  "vaultRoomWhere": "بتظهر لكل اللي في أوضتك، في القعدة وفي الأونلاين، وعمرها ما بتظهر بالليل.",
+  "vaultLookTitle": "شكلي",
+  "vaultLookSeen": "كده الناس شايفاك",
+  "vaultLookFrame": "الإطار",
+  "vaultLookPlate": "لافتة الاسم",
+  "vaultLookNone": "من غير",
+  "vaultLookWhere": "بيظهر في الترابيزة والبروفايل والأصحاب والنتيجة.",
+  "vaultToolsTitle": "شنطة الأدوات",
+  "vaultToolsCount": "{count} أداة",
+  "@vaultToolsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "vaultToolsUnlimited": "من غير عدد",
+  "vaultToolsWhere": "بتستخدمها جوه الماتش الأونلاين، كل أداة في وقتها.",
+  "vaultToolLeft": "فاضل {count}",
+  "@vaultToolLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "vaultToolPhaseDiscuss": "في الكلام",
+  "vaultToolPhaseVote": "في التصويت",
+  "vaultToolPhaseNight": "بالليل",
+  "vaultToolPhaseDead": "بعد ما تخرج",
+  "vaultNothingHere": "لسه معندكش حاجة هنا. هتلاقيها في المتجر.",
+  "vaultRolesActive": "{count} من {total} عندك",
+  "@vaultRolesActive": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -123,7 +123,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(RolesScreen.nextButton)); // roles
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('settings_save'))); // settings → intro
+    await tester.tap(
+      find.byKey(const ValueKey('settings_save')),
+    ); // settings → intro
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(BeforeStartKeys.go)); // «يلا نبدأ» → start
     await tester.pumpAndSettle();

@@ -218,8 +218,9 @@ NightActionKind _kindFor(Match match, int seat) =>
       Role.doctor => NightActionKind.protect,
       Role.detective => NightActionKind.investigate,
       Role.citizen => NightActionKind.suspect,
-      Role.silencer || Role.elder || Role.sniper =>
-        throw StateError('new roles are off in this test'),
+      Role.silencer ||
+      Role.elder ||
+      Role.sniper => throw StateError('new roles are off in this test'),
     };
 
 int _anyTargetFor(Match match, int seat) => match.players

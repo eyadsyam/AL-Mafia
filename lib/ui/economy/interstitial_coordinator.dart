@@ -208,7 +208,8 @@ class InterstitialCoordinator {
   bool _rematchPaid = false;
 
   /// Pass-and-play: setup confirmed, before the first pass screen.
-  Future<InterstitialVerdict> beforeDeal() => _before(AdPlacement.passAndPlayDeal);
+  Future<InterstitialVerdict> beforeDeal() =>
+      _before(AdPlacement.passAndPlayDeal);
 
   Future<InterstitialVerdict> _before(AdPlacement placement) async {
     if (!_ref.read(interstitialAdsProvider).configured) {

@@ -287,32 +287,35 @@ void main() {
 
     // M4 — an invite opened at an unfinished table used to tear that table's
     // transport down before the new room had answered.
-    test('an invite never walks the player out of an unfinished table', () async {
-      final first = fake(roomId: 'room-1');
-      final second = fake(roomId: 'room-2');
-      var handed = 0;
-      final container = containerFor(
-        () async => handed++ == 0 ? first : second,
-      );
-      final session = container.read(onlineSessionProvider.notifier);
-      await session.host('A');
-      final before = container.read(onlineSessionProvider).transport!;
-      var closed = false;
-      before.watch().listen(null, onDone: () => closed = true);
+    test(
+      'an invite never walks the player out of an unfinished table',
+      () async {
+        final first = fake(roomId: 'room-1');
+        final second = fake(roomId: 'room-2');
+        var handed = 0;
+        final container = containerFor(
+          () async => handed++ == 0 ? first : second,
+        );
+        final session = container.read(onlineSessionProvider.notifier);
+        await session.host('A');
+        final before = container.read(onlineSessionProvider).transport!;
+        var closed = false;
+        before.watch().listen(null, onDone: () => closed = true);
 
-      expect(session.seatedElsewhere('qwerty'), isTrue);
-      await session.join(code: 'QWERTY', name: 'A');
-      await Future<void>.delayed(Duration.zero);
+        expect(session.seatedElsewhere('qwerty'), isTrue);
+        await session.join(code: 'QWERTY', name: 'A');
+        await Future<void>.delayed(Duration.zero);
 
-      final after = container.read(onlineSessionProvider);
-      expect(after.errorCode, 'ALREADY_SEATED');
-      expect(after.room?.roomId, 'room-1');
-      expect(identical(after.transport, before), isTrue);
-      expect(closed, isFalse, reason: 'the live table keeps its transport');
-      expect(first.called('leave_room'), isFalse);
-      expect(second.called('joinRoom'), isFalse);
-      expect(handed, 1, reason: 'no second backend is even built');
-    });
+        final after = container.read(onlineSessionProvider);
+        expect(after.errorCode, 'ALREADY_SEATED');
+        expect(after.room?.roomId, 'room-1');
+        expect(identical(after.transport, before), isTrue);
+        expect(closed, isFalse, reason: 'the live table keeps its transport');
+        expect(first.called('leave_room'), isFalse);
+        expect(second.called('joinRoom'), isFalse);
+        expect(handed, 1, reason: 'no second backend is even built');
+      },
+    );
 
     test('the room this device is already in is not joined twice', () async {
       final backend = fake();

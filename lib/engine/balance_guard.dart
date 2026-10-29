@@ -136,9 +136,7 @@ class BalanceGuard {
 
     final silencerCount = roleCounts[Role.silencer] ?? 0;
     if (silencerCount > 1) {
-      issues.add(
-        const BalanceIssue(code: 'one_silencer_only', blocking: true),
-      );
+      issues.add(const BalanceIssue(code: 'one_silencer_only', blocking: true));
     }
     if (silencerCount == 1 && mafiaCount < 2) {
       issues.add(
@@ -154,9 +152,7 @@ class BalanceGuard {
       issues.add(const BalanceIssue(code: 'one_sniper_only', blocking: true));
     }
     if ((roleCounts[Role.elder] ?? 0) > 0 && playerCount < 6) {
-      issues.add(
-        const BalanceIssue(code: 'elder_min_players', blocking: true),
-      );
+      issues.add(const BalanceIssue(code: 'elder_min_players', blocking: true));
     }
     if ((roleCounts[Role.sniper] ?? 0) > 0 && playerCount < 7) {
       issues.add(

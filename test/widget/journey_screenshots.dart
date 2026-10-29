@@ -91,7 +91,9 @@ void main() {
     final image = boundary.toImageSync(pixelRatio: 2);
     await tester.runAsync(() async {
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      File('${out.path}/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      File(
+        '${out.path}/$name.png',
+      ).writeAsBytesSync(bytes!.buffer.asUint8List());
     });
     image.dispose();
   }
@@ -257,7 +259,12 @@ void main() {
 
   for (final (name, size, locale, list) in [
     ('entry-ar-360', _narrow, const Locale('ar'), rooms),
-    ('entry-en-390-empty', _phone, const Locale('en'), <Map<String, dynamic>>[]),
+    (
+      'entry-en-390-empty',
+      _phone,
+      const Locale('en'),
+      <Map<String, dynamic>>[],
+    ),
     ('entry-ar-desktop', _desktop, const Locale('ar'), rooms),
   ]) {
     testWidgets(name, (tester) async {

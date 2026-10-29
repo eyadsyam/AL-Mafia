@@ -96,9 +96,7 @@ void main() {
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
-    testWidgets('Home after setup keeps it', (
-      tester,
-    ) async {
+    testWidgets('Home after setup keeps it', (tester) async {
       await launch(tester, freshInstall());
       await completeSetup(tester);
       expect(find.byType(HomeScreen), findsOneWidget);

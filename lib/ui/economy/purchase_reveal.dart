@@ -142,7 +142,10 @@ class _PurchaseRevealState extends ConsumerState<PurchaseReveal>
                 ),
               );
             },
-            child: VaultGlint(play: _rise.value < 1, child: Center(child: preview)),
+            child: VaultGlint(
+              play: _rise.value < 1,
+              child: Center(child: preview),
+            ),
           ),
           SizedBox(height: s.sm),
           Text(
@@ -161,7 +164,9 @@ class _PurchaseRevealState extends ConsumerState<PurchaseReveal>
               child: Text(l.storeEquipNow),
             ),
           if (alreadyWorn)
-            Center(child: Text(l.storeEquipped, style: context.typography.body)),
+            Center(
+              child: Text(l.storeEquipped, style: context.typography.body),
+            ),
           TextButton(
             key: PurchaseReveal.laterKey,
             onPressed: _working ? null : () => Navigator.of(context).pop(),

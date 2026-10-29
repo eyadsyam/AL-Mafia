@@ -34,11 +34,13 @@ void main() {
 
     expect(
       () => engine.submitVote(seat: seat, voterSeat: seat, targetSeat: null),
-      throwsA(isA<StateError>().having(
-        (error) => error.message,
-        'message',
-        'submitVote: abstaining is off (RL9)',
-      )),
+      throwsA(
+        isA<StateError>().having(
+          (error) => error.message,
+          'message',
+          'submitVote: abstaining is off (RL9)',
+        ),
+      ),
     );
     expect(identical(engine.match, before), isTrue);
     expect(engine.match.eventLog.whereType<VoteCast>(), isEmpty);

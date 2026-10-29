@@ -115,7 +115,10 @@ void main() {
       await tester.tap(find.byKey(BotMatchBody.rolesLineKey));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.byType(OptionalRoleRows, skipOffstage: false), findsOneWidget);
+      expect(
+        find.byType(OptionalRoleRows, skipOffstage: false),
+        findsOneWidget,
+      );
     });
   }
 
@@ -130,9 +133,7 @@ void main() {
     }
     expect(seats(tester), 5);
     expect(
-      tester
-          .widget<IconButton>(find.byKey(BotMatchBody.minusKey))
-          .onPressed,
+      tester.widget<IconButton>(find.byKey(BotMatchBody.minusKey)).onPressed,
       isNull,
     );
     for (var i = 0; i < 9; i++) {
@@ -165,9 +166,7 @@ void main() {
     expect(pick.settings.silencerEnabled, isFalse);
   });
 
-  testWidgets('owned roles get a switch, the rest a lock', (
-    tester,
-  ) async {
+  testWidgets('owned roles get a switch, the rest a lock', (tester) async {
     phone(tester, phones[1]);
     await open(tester, owns: {'role_silencer', 'role_elder'});
     await tester.tap(find.byKey(BotMatchBody.rolesLineKey));

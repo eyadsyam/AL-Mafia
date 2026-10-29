@@ -8,6 +8,7 @@ import 'package:mafia_master/ui/economy/cosmetic_paint.dart';
 import 'package:mafia_master/ui/economy/cosmetic_preview.dart';
 import 'package:mafia_master/ui/economy/cosmetics.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
+import 'package:mafia_master/ui/economy/my_vault.dart';
 import 'package:mafia_master/ui/screens/setup/coin_store.dart';
 import 'package:mafia_master/ui/screens/setup/help_center.dart';
 import 'package:mafia_master/ui/screens/setup/store_shop.dart';
@@ -284,18 +285,29 @@ void main() {
   ) async {
     backend.responses['economy'] = wallet(owned: ['frame_gilded']);
     await pumpStore(tester);
-    await tester.tap(find.text(arStrings.storeTabCollection));
+    // «خزنتي» (owner, 2026-10-29): the look has its own room.
+    await tester.tap(find.text(arStrings.vaultMineTitle));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(MyVaultTab.tile(MyVaultPage.look)));
     await tester.pumpAndSettle();
     backend.responses['economy'] = wallet(
       owned: ['frame_gilded'],
       equipped: {'frame': 'frame_gilded'},
     );
-    await tester.tap(find.byKey(CoinStore.equip('frame_gilded')));
+    await tester.tap(find.byKey(MyVaultTab.pick('frame_gilded')));
     await tester.pumpAndSettle();
     final equip = economy('equip').single;
     expect(equip.body['slot'], 'frame');
     expect(equip.body['item'], 'frame_gilded');
-    expect(find.text(arStrings.storeUnequip), findsOneWidget);
+    // Worn now: its tile is the selected one.
+    expect(
+      tester
+          .getSemantics(find.byKey(MyVaultTab.pick('frame_gilded')))
+          .flagsCollection
+          .isSelected
+          .name,
+      'isTrue',
+    );
   });
 
   testWidgets(

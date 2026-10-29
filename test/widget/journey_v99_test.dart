@@ -55,9 +55,7 @@ void main() {
       seedReturningProfile();
       await pumpProfile(tester, onBack: () {});
       await openIdentitySheet(tester);
-      final field = tester.widget<TextField>(
-        find.byKey(ProfileScreen.nameKey),
-      );
+      final field = tester.widget<TextField>(find.byKey(ProfileScreen.nameKey));
       expect(field.controller!.text, 'A');
       // An edit is saved, not "continued".
       expect(find.text(arStrings.save), findsOneWidget);
@@ -272,9 +270,7 @@ void main() {
     ) async {
       await pumpEntry(tester, container());
       final create = tester.getRect(find.byKey(OnlineEntryScreen.hostButton));
-      final join = tester.getRect(
-        find.byKey(OnlineEntryScreen.haveCodeButton),
-      );
+      final join = tester.getRect(find.byKey(OnlineEntryScreen.haveCodeButton));
       expect(create.width, closeTo(join.width, 1));
       expect(create.height, greaterThanOrEqualTo(48));
       expect(create.top, closeTo(join.top, 1));

@@ -41,8 +41,10 @@ void main() {
     // One daily, one season stop, one achievement.
     expect(book.ready, 3);
     expect(Casebook.fromJson(casebookJson(enabled: false)).enabled, isFalse);
-    expect(Casebook.fromJson(const {'enabled': true, 'daily': 7}).daily.missions,
-        isEmpty);
+    expect(
+      Casebook.fromJson(const {'enabled': true, 'daily': 7}).daily.missions,
+      isEmpty,
+    );
   });
 
   testWidgets('the case room is a dark cork board with the notes pinned', (
@@ -59,45 +61,53 @@ void main() {
   });
 
   for (final locale in const [Locale('ar'), Locale('en')]) {
-    testWidgets('tonight: a ready case is taken with one tap (${locale.languageCode})',
-        (tester) async {
-      await pump(tester, locale: locale);
-      expect(find.byKey(CasebookSheet.tonightKey), findsOneWidget);
-      await tester.tap(find.byKey(CasebookSheet.claimKey('d1')));
-      await tester.pumpAndSettle();
-      expect(fake.claims, ['daily:1']);
-      // Nothing to take on a case still open or already closed.
-      expect(find.byKey(CasebookSheet.claimKey('d2')), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
+    testWidgets(
+      'tonight: a ready case is taken with one tap (${locale.languageCode})',
+      (tester) async {
+        await pump(tester, locale: locale);
+        expect(find.byKey(CasebookSheet.tonightKey), findsOneWidget);
+        await tester.tap(find.byKey(CasebookSheet.claimKey('d1')));
+        await tester.pumpAndSettle();
+        expect(fake.claims, ['daily:1']);
+        // Nothing to take on a case still open or already closed.
+        expect(find.byKey(CasebookSheet.claimKey('d2')), findsNothing);
+        expect(tester.takeException(), isNull);
+      },
+    );
 
-    testWidgets('season and legacy pages lay out at 360 (${locale.languageCode})',
-        (tester) async {
-      await pump(tester, locale: locale);
-      final l = locale.languageCode == 'ar' ? arStrings : enStrings;
-      await tester.tap(find.text(l.casebookSeason));
-      await tester.pumpAndSettle();
-      expect(find.byKey(CasebookSheet.seasonKey), findsOneWidget);
-      await tester.ensureVisible(find.byKey(CasebookSheet.claimKey('s5')));
-      await tester.tap(find.byKey(CasebookSheet.claimKey('s5')));
-      await tester.pumpAndSettle();
-      expect(fake.claims, ['season:5']);
+    testWidgets(
+      'season and legacy pages lay out at 360 (${locale.languageCode})',
+      (tester) async {
+        await pump(tester, locale: locale);
+        final l = locale.languageCode == 'ar' ? arStrings : enStrings;
+        await tester.tap(find.text(l.casebookSeason));
+        await tester.pumpAndSettle();
+        expect(find.byKey(CasebookSheet.seasonKey), findsOneWidget);
+        await tester.ensureVisible(find.byKey(CasebookSheet.claimKey('s5')));
+        await tester.tap(find.byKey(CasebookSheet.claimKey('s5')));
+        await tester.pumpAndSettle();
+        expect(fake.claims, ['season:5']);
 
-      await tester.tap(find.text(l.casebookLegacy));
-      await tester.pumpAndSettle();
-      expect(find.byKey(CasebookSheet.legacyKey), findsOneWidget);
-      await tester.tap(find.byKey(CasebookSheet.claimKey('afirst_win')));
-      await tester.pumpAndSettle();
-      expect(fake.claims.last, 'achievement:first_win');
-      expect(tester.takeException(), isNull);
-    });
+        await tester.tap(find.text(l.casebookLegacy));
+        await tester.pumpAndSettle();
+        expect(find.byKey(CasebookSheet.legacyKey), findsOneWidget);
+        await tester.tap(find.byKey(CasebookSheet.claimKey('afirst_win')));
+        await tester.pumpAndSettle();
+        expect(fake.claims.last, 'achievement:first_win');
+        expect(tester.takeException(), isNull);
+      },
+    );
   }
 
   // D4 — a season that has just begun, and a player with no rank yet, read
   // «١» rather than «٠»; the stops still count the real level.
   testWidgets('a fresh season and rank never read level zero', (tester) async {
     final json = casebookJson();
-    json['season'] = {...json['season'] as Map<String, dynamic>, 'level': 0, 'xp': 0};
+    json['season'] = {
+      ...json['season'] as Map<String, dynamic>,
+      'level': 0,
+      'xp': 0,
+    };
     json['rank'] = {'level': 0, 'xp': 0, 'next': 100};
     await pump(tester, locale: const Locale('en'), json: json);
     await tester.tap(find.text(enStrings.casebookSeason));
@@ -119,7 +129,9 @@ void main() {
     expect(find.byKey(CasebookEntry.entryKey), findsNothing);
   });
 
-  testWidgets('the entry shows what is ready and opens the sheet', (tester) async {
+  testWidgets('the entry shows what is ready and opens the sheet', (
+    tester,
+  ) async {
     await pump(tester, child: const Scaffold(body: CasebookEntry()));
     expect(find.text(arStrings.casebookReady(3)), findsOneWidget);
     await tester.tap(find.byKey(CasebookEntry.entryKey));

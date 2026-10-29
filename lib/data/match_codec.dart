@@ -468,11 +468,7 @@ class MatchCodec {
       case 'morning':
         return MorningAnnounced(at: at, phaseRef: ref);
       case 'elderRevealed':
-        return ElderRevealed(
-          at: at,
-          phaseRef: ref,
-          seat: json['seat'] as int,
-        );
+        return ElderRevealed(at: at, phaseRef: ref, seat: json['seat'] as int);
       case 'discussionRound':
         return DiscussionRound(at: at, phaseRef: ref);
       case 'question':

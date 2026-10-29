@@ -57,7 +57,8 @@ class _Billing implements PlayBilling {
   Future<bool> available() async => true;
   @override
   Future<Map<String, PlayListing>> listings(Set<String> ids) async => {
-    for (final id in ids) id: PlayListing(id: id, title: id, price: 'EGP 29.99'),
+    for (final id in ids)
+      id: PlayListing(id: id, title: id, price: 'EGP 29.99'),
   };
   @override
   Future<bool> buy(
@@ -120,7 +121,11 @@ void main() {
     ads = _Ads();
   });
 
-  Future<void> pump(WidgetTester tester, Widget child, {PlayBilling? billing}) async {
+  Future<void> pump(
+    WidgetTester tester,
+    Widget child, {
+    PlayBilling? billing,
+  }) async {
     await tester.binding.setSurfaceSize(const Size(390, 1200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
@@ -197,10 +202,7 @@ void main() {
       await pump(tester, const PlayOffersTab(), billing: _Billing());
       expect(find.byKey(PlayOffersTab.debtKey), findsOneWidget);
       expect(find.text(arStrings.playDebtNotice(500)), findsOneWidget);
-      expect(
-        find.textContaining(arStrings.playRefundRule),
-        findsOneWidget,
-      );
+      expect(find.textContaining(arStrings.playRefundRule), findsOneWidget);
       expect(
         find.textContaining(arStrings.quietPassRefundRule),
         findsOneWidget,
@@ -277,8 +279,10 @@ void main() {
         isTrue,
       );
       backend.unreachable = false;
-      backend.responders['economy'] = (_) =>
-          throw const BackendException('BAD_REQUEST', 'invalid economy request');
+      backend.responders['economy'] = (_) => throw const BackendException(
+        'BAD_REQUEST',
+        'invalid economy request',
+      );
       container.invalidate(economyCapabilitiesProvider);
       final old = await container.read(economyCapabilitiesProvider.future);
       expect(old.failed, isFalse);

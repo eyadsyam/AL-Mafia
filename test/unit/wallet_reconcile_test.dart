@@ -92,9 +92,6 @@ void main() {
       ),
     );
     await Future<void>.delayed(Duration.zero);
-    expect(
-      backend.calls.where((c) => c.body['action'] == 'summary'),
-      isEmpty,
-    );
+    expect(backend.calls.where((c) => c.body['action'] == 'summary'), isEmpty);
   });
 }

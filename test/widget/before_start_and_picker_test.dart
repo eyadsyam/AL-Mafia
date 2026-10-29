@@ -131,11 +131,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(BeforeStartKeys.sheet), findsNothing);
       expect(
-        container
-            .read(matchControllerProvider.notifier)
-            .engine
-            .match
-            .phase,
+        container.read(matchControllerProvider.notifier).engine.match.phase,
         GamePhase.distributing,
       );
     });
@@ -200,9 +196,7 @@ void main() {
         expect(scroll.bottom, lessThanOrEqualTo(go.top));
 
         final last = find.byKey(BeforeStartKeys.line(5));
-        final position = tester
-            .state<ScrollableState>(sheetScroll)
-            .position;
+        final position = tester.state<ScrollableState>(sheetScroll).position;
         if (size.height >= 640) {
           expect(
             position.maxScrollExtent,
@@ -287,8 +281,12 @@ void main() {
 
           // Closed: both cards, apart, and the cards are not squeezed.
           final mafia = tester.getRect(find.byKey(ModeScreen.mafiaCard));
-          final mafiaH = tester.getSize(find.byKey(ModeScreen.mafiaCard)).height;
-          final storiesH = tester.getSize(find.byKey(ModeScreen.storiesCard)).height;
+          final mafiaH = tester
+              .getSize(find.byKey(ModeScreen.mafiaCard))
+              .height;
+          final storiesH = tester
+              .getSize(find.byKey(ModeScreen.storiesCard))
+              .height;
           final stories = tester.getRect(find.byKey(ModeScreen.storiesCard));
           // Sizes, not the tilted bounds: the cards lean 5 degrees.
           expect(storiesH, greaterThanOrEqualTo(ModeTokens.cardMinHeight - 1));
@@ -383,66 +381,70 @@ void main() {
     });
 
     for (final withBots in [false, true]) {
-      testWidgets('the turned picker (bots: $withBots): no scroll, no overlap', (
-        tester,
-      ) async {
-        await tester.runAsync(loadAppFonts);
-        await tester.binding.setSurfaceSize(land);
-        addTearDown(() => tester.binding.setSurfaceSize(null));
-        await tester.pumpWidget(
-          localizedApp(
-            ModeScreen(
-              onPlayOffline: () {},
-              onPlayOnline: () {},
-              onPlayBots: withBots ? () {} : null,
-              storiesSoon: true,
-              onBack: () {},
+      testWidgets(
+        'the turned picker (bots: $withBots): no scroll, no overlap',
+        (tester) async {
+          await tester.runAsync(loadAppFonts);
+          await tester.binding.setSurfaceSize(land);
+          addTearDown(() => tester.binding.setSurfaceSize(null));
+          await tester.pumpWidget(
+            localizedApp(
+              ModeScreen(
+                onPlayOffline: () {},
+                onPlayOnline: () {},
+                onPlayBots: withBots ? () {} : null,
+                storiesSoon: true,
+                onBack: () {},
+              ),
             ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        await tester.tap(find.byKey(ModeScreen.mafiaCard));
-        await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull);
-        expect(find.byType(SingleChildScrollView), findsNothing);
-
-        final header = tester.getRect(find.byType(DeckHeader).first);
-        final keys = [
-          ModeScreen.mafiaCard,
-          ModeScreen.offlineCard,
-          ModeScreen.onlineCard,
-          if (withBots) ModeScreen.botsCard,
-          ModeScreen.closeButton,
-        ];
-        final pick = find.text(arStrings.modeMafiaPick);
-        final rects = <String, Rect>{
-          for (final k in keys) '$k': tester.getRect(find.byKey(k)),
-          'pick line': tester.getRect(pick),
-        };
-        for (final e in rects.entries) {
-          expect(screen.contains(e.value.topLeft), isTrue, reason: e.key);
-          expect(screen.contains(e.value.bottomRight), isTrue, reason: e.key);
-          expect(
-            e.value.top,
-            greaterThanOrEqualTo(header.bottom - 0.5),
-            reason: '${e.key} under the header',
           );
-        }
-        final all = rects.entries.toList();
-        for (var i = 0; i < all.length; i++) {
-          for (var j = i + 1; j < all.length; j++) {
+          await tester.pumpAndSettle();
+          await tester.tap(find.byKey(ModeScreen.mafiaCard));
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+          expect(find.byType(SingleChildScrollView), findsNothing);
+
+          final header = tester.getRect(find.byType(DeckHeader).first);
+          final keys = [
+            ModeScreen.mafiaCard,
+            ModeScreen.offlineCard,
+            ModeScreen.onlineCard,
+            if (withBots) ModeScreen.botsCard,
+            ModeScreen.closeButton,
+          ];
+          final pick = find.text(arStrings.modeMafiaPick);
+          final rects = <String, Rect>{
+            for (final k in keys) '$k': tester.getRect(find.byKey(k)),
+            'pick line': tester.getRect(pick),
+          };
+          for (final e in rects.entries) {
+            expect(screen.contains(e.value.topLeft), isTrue, reason: e.key);
+            expect(screen.contains(e.value.bottomRight), isTrue, reason: e.key);
             expect(
-              all[i].value.overlaps(all[j].value),
-              isFalse,
-              reason: '${all[i].key} on ${all[j].key}',
+              e.value.top,
+              greaterThanOrEqualTo(header.bottom - 0.5),
+              reason: '${e.key} under the header',
             );
           }
-        }
-        // And «رجوع» works from where it stands.
-        await tester.tap(find.byKey(ModeScreen.closeButton));
-        await tester.pumpAndSettle();
-        expect(find.byKey(ModeScreen.offlineCard).hitTestable(), findsNothing);
-      });
+          final all = rects.entries.toList();
+          for (var i = 0; i < all.length; i++) {
+            for (var j = i + 1; j < all.length; j++) {
+              expect(
+                all[i].value.overlaps(all[j].value),
+                isFalse,
+                reason: '${all[i].key} on ${all[j].key}',
+              );
+            }
+          }
+          // And «رجوع» works from where it stands.
+          await tester.tap(find.byKey(ModeScreen.closeButton));
+          await tester.pumpAndSettle();
+          expect(
+            find.byKey(ModeScreen.offlineCard).hitTestable(),
+            findsNothing,
+          );
+        },
+      );
     }
   });
 }

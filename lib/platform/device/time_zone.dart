@@ -21,5 +21,4 @@ Future<String> deviceTimeZone() async {
 }
 
 /// The device locale with its region when it has one (`ar-EG`).
-String deviceLocaleTag() =>
-    PlatformDispatcher.instance.locale.toLanguageTag();
+String deviceLocaleTag() => PlatformDispatcher.instance.locale.toLanguageTag();

@@ -148,14 +148,12 @@ class DirectoryApi {
         await _call({'action': 'search', 'query': query, 'page': page}),
       );
 
-  Future<DirectoryPage> discover(DiscoverFilter? filter, {int page = 0}) async =>
-      DirectoryPage.fromJson(
-        await _call({
-          'action': 'discover',
-          'filter': ?filter?.name,
-          'page': page,
-        }),
-      );
+  Future<DirectoryPage> discover(
+    DiscoverFilter? filter, {
+    int page = 0,
+  }) async => DirectoryPage.fromJson(
+    await _call({'action': 'discover', 'filter': ?filter?.name, 'page': page}),
+  );
 
   /// True when the invite was accepted by the server.
   Future<bool> inviteHandle(String handle, String roomId) async {
@@ -223,7 +221,8 @@ class DirectoryApi {
     final json = await _call({'action': 'inbox'});
     final rows = json['invites'];
     return [
-      for (final row in (rows is List ? rows : const [])) ?IncomingInvite.fromJson(row),
+      for (final row in (rows is List ? rows : const []))
+        ?IncomingInvite.fromJson(row),
     ];
   }
 

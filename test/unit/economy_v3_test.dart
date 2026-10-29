@@ -60,8 +60,20 @@ void main() {
           'settledLifetime': 4,
           'unlocks': ['title_kabir_elshella'],
           'notices': [
-            {'id': 1, 'kind': 'first_match', 'name': 'نور', 'progress': 0, 'coins': 25},
-            {'id': 2, 'kind': 'progress', 'name': 'نور', 'progress': 1, 'coins': 0},
+            {
+              'id': 1,
+              'kind': 'first_match',
+              'name': 'نور',
+              'progress': 0,
+              'coins': 25,
+            },
+            {
+              'id': 2,
+              'kind': 'progress',
+              'name': 'نور',
+              'progress': 1,
+              'coins': 0,
+            },
             {'id': 3, 'kind': 'role_hint', 'name': 'x'},
           ],
         },
@@ -77,14 +89,29 @@ void main() {
       final ar = AppLocalizationsAr();
       final en = AppLocalizationsEn();
       const first = InviteNotice(
-        id: 1, kind: 'first_match', name: 'نور', progress: 0, coins: 25);
+        id: 1,
+        kind: 'first_match',
+        name: 'نور',
+        progress: 0,
+        coins: 25,
+      );
       const progress = InviteNotice(
-        id: 2, kind: 'progress', name: 'نور', progress: 1, coins: 0);
+        id: 2,
+        kind: 'progress',
+        name: 'نور',
+        progress: 1,
+        coins: 0,
+      );
       expect(inviteNoticeLine(ar, first), 'نور لعب أول ماتش — خدت 25 عملة');
       expect(inviteNoticeLine(ar, progress), 'صاحبك لعب 1 من 3');
       expect(inviteNoticeLine(en, progress), 'Your friend played 1 of 3');
       const nameless = InviteNotice(
-        id: 3, kind: 'first_match', name: ' ', progress: 0, coins: 25);
+        id: 3,
+        kind: 'first_match',
+        name: ' ',
+        progress: 0,
+        coins: 25,
+      );
       expect(inviteNoticeLine(ar, nameless), startsWith('صاحبك'));
     });
   });

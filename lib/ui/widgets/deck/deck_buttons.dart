@@ -47,7 +47,9 @@ class BoneButton extends StatelessWidget {
                 : colors.accentGold,
           ),
           foregroundColor: WidgetStatePropertyAll(colors.surfaceBase),
-          overlayColor: const WidgetStatePropertyAll(IdentityTokens.transparent),
+          overlayColor: const WidgetStatePropertyAll(
+            IdentityTokens.transparent,
+          ),
           padding: WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: context.spacing.md),
           ),
@@ -115,7 +117,9 @@ class RimButton extends StatelessWidget {
                 ? colors.surfaceOverlay
                 : IdentityTokens.transparent,
           ),
-          overlayColor: const WidgetStatePropertyAll(IdentityTokens.transparent),
+          overlayColor: const WidgetStatePropertyAll(
+            IdentityTokens.transparent,
+          ),
           side: const WidgetStatePropertyAll(
             BorderSide(
               color: DeckTokens.silverLight,
@@ -135,10 +139,9 @@ class RimButton extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: DeckTokens.body(type).copyWith(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+          style: DeckTokens.body(
+            type,
+          ).copyWith(color: colors.textPrimary, fontWeight: FontWeight.w600),
         ),
       ),
     );

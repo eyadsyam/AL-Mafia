@@ -67,8 +67,7 @@ class SupabaseBackend implements OnlineBackend {
     // address to read, and an email link that cold-starts the app brings its
     // session in with `Supabase.initialize`, so there the recent mark alone
     // decides.
-    final authReturn =
-        !kIsWeb || AccountAuth.looksLikeAuthReturn(Uri.base);
+    final authReturn = !kIsWeb || AccountAuth.looksLikeAuthReturn(Uri.base);
     await Supabase.initialize(url: url, publishableKey: publishableKey);
     // «تذكرني» off: an account (never a guest) is signed out at launch.
     await AccountAuth.applyRemember(

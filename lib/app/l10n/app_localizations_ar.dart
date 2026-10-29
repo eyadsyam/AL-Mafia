@@ -7628,4 +7628,115 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get lobbyDeckReset => 'توزيعك مبقاش ينفع للعدد ده، فرجعنا للمقترح.';
+
+  @override
+  String get vaultMineTitle => 'خزنتي';
+
+  @override
+  String get vaultMineSub => 'كل اللي عندك، وكل واحدة بتشتغل فين';
+
+  @override
+  String get vaultAllOpen => 'كله مفتوح';
+
+  @override
+  String get vaultRolesTitle => 'الأدوار بتاعتي';
+
+  @override
+  String get vaultRolesWhere =>
+      'بتدخل الماتش من توزيع الأدوار، في القعدة وفي الأونلاين. الكروت بتتوزع عشوائي زي أي دور.';
+
+  @override
+  String get vaultNarratorTitle => 'الراوي';
+
+  @override
+  String vaultNarratorNow(Object name) {
+    return 'بيحكي دلوقتي: $name';
+  }
+
+  @override
+  String get vaultNarratorWhereLocal => 'بيحكي في القعدة على موبايلك';
+
+  @override
+  String get vaultNarratorWhereRoom => 'وبيحكي لكل اللي في أوضتك الأونلاين';
+
+  @override
+  String get vaultNarratorPick => 'خليه هو اللي يحكي';
+
+  @override
+  String get vaultNarratorIsNow => 'ده اللي بيحكي دلوقتي';
+
+  @override
+  String get vaultListenNight => 'جملة الليل';
+
+  @override
+  String get vaultRoomTitle => 'أجواء الأوضة';
+
+  @override
+  String get vaultRoomPick => 'لبّس أوضتي بيها';
+
+  @override
+  String get vaultRoomIsNow => 'أوضتك لابساها دلوقتي';
+
+  @override
+  String get vaultRoomWhere =>
+      'بتظهر لكل اللي في أوضتك، في القعدة وفي الأونلاين، وعمرها ما بتظهر بالليل.';
+
+  @override
+  String get vaultLookTitle => 'شكلي';
+
+  @override
+  String get vaultLookSeen => 'كده الناس شايفاك';
+
+  @override
+  String get vaultLookFrame => 'الإطار';
+
+  @override
+  String get vaultLookPlate => 'لافتة الاسم';
+
+  @override
+  String get vaultLookNone => 'من غير';
+
+  @override
+  String get vaultLookWhere =>
+      'بيظهر في الترابيزة والبروفايل والأصحاب والنتيجة.';
+
+  @override
+  String get vaultToolsTitle => 'شنطة الأدوات';
+
+  @override
+  String vaultToolsCount(int count) {
+    return '$count أداة';
+  }
+
+  @override
+  String get vaultToolsUnlimited => 'من غير عدد';
+
+  @override
+  String get vaultToolsWhere =>
+      'بتستخدمها جوه الماتش الأونلاين، كل أداة في وقتها.';
+
+  @override
+  String vaultToolLeft(int count) {
+    return 'فاضل $count';
+  }
+
+  @override
+  String get vaultToolPhaseDiscuss => 'في الكلام';
+
+  @override
+  String get vaultToolPhaseVote => 'في التصويت';
+
+  @override
+  String get vaultToolPhaseNight => 'بالليل';
+
+  @override
+  String get vaultToolPhaseDead => 'بعد ما تخرج';
+
+  @override
+  String get vaultNothingHere => 'لسه معندكش حاجة هنا. هتلاقيها في المتجر.';
+
+  @override
+  String vaultRolesActive(int count, int total) {
+    return '$count من $total عندك';
+  }
 }

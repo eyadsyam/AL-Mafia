@@ -124,7 +124,10 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         expect(find.text(arStrings.sv2HubTitle), findsOneWidget);
-        expect(find.text(arStrings.storiesStampSolvedScore(1200)), findsOneWidget);
+        expect(
+          find.text(arStrings.storiesStampSolvedScore(1200)),
+          findsOneWidget,
+        );
         expect(find.byKey(StoriesHub.startKey(cafe.id)), findsOneWidget);
 
         // The locked case: wax seal, how it opens, title still readable.
@@ -137,7 +140,9 @@ void main() {
         expect(find.byIcon(Icons.lock_rounded), findsOneWidget);
         expect(find.text(lockedRoom.title), findsOneWidget);
         expect(
-          find.text('${arStrings.storiesLocked} — ${arStrings.storiesUnlockRule}'),
+          find.text(
+            '${arStrings.storiesLocked} — ${arStrings.storiesUnlockRule}',
+          ),
           findsOneWidget,
         );
 
@@ -195,9 +200,14 @@ void main() {
         expect(tester.takeException(), isNull);
         final button = find.byKey(StoryFlowScreen.closeCaseKey);
         expect(
-          tester.widget<FilledButton>(
-            find.descendant(of: button, matching: find.byType(FilledButton)),
-          ).onPressed,
+          tester
+              .widget<FilledButton>(
+                find.descendant(
+                  of: button,
+                  matching: find.byType(FilledButton),
+                ),
+              )
+              .onPressed,
           isNull,
         );
         await tapKey(tester, StoryAccusationForm.suspectKey(wrong));
@@ -257,9 +267,7 @@ void main() {
           await tester.pump(const Duration(milliseconds: 50));
           expect(find.byKey(StoryFlowScreen.investigationKey), findsOneWidget);
           expect(tester.takeException(), isNull);
-          final open = cafe.actions
-              .where((a) => !_picked.contains(a.id))
-              .first;
+          final open = cafe.actions.where((a) => !_picked.contains(a.id)).first;
           _picked.add(open.id);
           await reveal(tester, find.text(open.title));
           await tester.tap(find.text(open.title));
@@ -277,8 +285,14 @@ void main() {
             tester,
             StoryAccusationForm.suspectKey(cafe.truth.primaryCulprit),
           );
-          await tapKey(tester, StoryAccusationForm.motiveKey(cafe.truth.motive));
-          await tapKey(tester, StoryAccusationForm.methodKey(cafe.truth.method));
+          await tapKey(
+            tester,
+            StoryAccusationForm.motiveKey(cafe.truth.motive),
+          );
+          await tapKey(
+            tester,
+            StoryAccusationForm.methodKey(cafe.truth.method),
+          );
           final g = await tester.startGesture(
             tester.getCenter(find.byType(StoryHoldButton)),
           );
@@ -328,7 +342,10 @@ void main() {
     }
     final cards = tester.widgetList<StoryMoveCard>(find.byType(StoryMoveCard));
     for (final c in cards) {
-      expect(c.done || !c.enabled || c.cost! <= session.remainingBudget, isTrue);
+      expect(
+        c.done || !c.enabled || c.cost! <= session.remainingBudget,
+        isTrue,
+      );
     }
     expect(tester.takeException(), isNull);
   });
@@ -392,7 +409,9 @@ void main() {
       return out;
     }
 
-    testWidgets('culprit and innocent: same tree, same seconds', (tester) async {
+    testWidgets('culprit and innocent: same tree, same seconds', (
+      tester,
+    ) async {
       size(tester, _small);
       await tester.pumpWidget(flow(cafe, 2));
       await tester.pump();

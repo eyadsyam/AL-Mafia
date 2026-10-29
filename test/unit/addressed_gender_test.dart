@@ -27,8 +27,12 @@ void main() {
         count: 3,
       );
       final him = InformationText.confrontation(arStrings, c, names);
-      final her =
-          InformationText.confrontation(arStrings, c, names, female: true);
+      final her = InformationText.confrontation(
+        arStrings,
+        c,
+        names,
+        female: true,
+      );
       expect(her, isNotNull, reason: '$type');
       expect(her, isNot(him), reason: '$type');
     }

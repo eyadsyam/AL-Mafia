@@ -83,20 +83,15 @@ class _Auth implements GoTrueClient {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-AccountAuth _make(_Auth auth, NativeGoogle? native) => AccountAuth(
-  () async => auth,
-  ensureSession: () async {},
-  native: native,
-);
+AccountAuth _make(_Auth auth, NativeGoogle? native) =>
+    AccountAuth(() async => auth, ensureSession: () async {}, native: native);
 
 /// The stubbed browser step fails; the player would see the friendly
 /// UNAVAILABLE message, never the raw error.
 Future<void> _swallow(Future<void> run) async {
   await expectLater(
     run,
-    throwsA(
-      isA<AccountFailure>().having((f) => f.code, 'code', 'UNAVAILABLE'),
-    ),
+    throwsA(isA<AccountFailure>().having((f) => f.code, 'code', 'UNAVAILABLE')),
   );
 }
 
@@ -121,10 +116,7 @@ void main() {
 
   test('backing out of the picker does nothing and says nothing', () async {
     final auth = _Auth(true);
-    await _make(
-      auth,
-      _Picker(error: const NativeGoogleCancelled()),
-    ).google();
+    await _make(auth, _Picker(error: const NativeGoogleCancelled())).google();
     expect(auth.calls, isEmpty);
   });
 

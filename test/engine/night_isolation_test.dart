@@ -42,7 +42,10 @@ void main() {
       // deliberately removes once the Mafia can buy a quiet night that looks
       // identical to it. These tests are about a night reading only its own
       // actions, so they run in the regime where the announcement exists.
-      settings: const MatchSettings(quietNightEnabled: false, abstainAllowed: true),
+      settings: const MatchSettings(
+        quietNightEnabled: false,
+        abstainAllowed: true,
+      ),
       seed: 4242,
     );
     return engine;
@@ -76,8 +79,9 @@ void main() {
         Role.doctor => doctorTarget,
         // Anyone will do; the investigation does not affect the resolution.
         Role.detective || Role.citizen => _firstOther(engine, seat),
-        Role.silencer || Role.elder || Role.sniper =>
-          throw StateError('new roles are off in this test'),
+        Role.silencer ||
+        Role.elder ||
+        Role.sniper => throw StateError('new roles are off in this test'),
       };
       engine.submitNightAction(
         seat: seat,
@@ -86,8 +90,9 @@ void main() {
           Role.doctor => NightActionKind.protect,
           Role.detective => NightActionKind.investigate,
           Role.citizen => NightActionKind.suspect,
-          Role.silencer || Role.elder || Role.sniper =>
-            throw StateError('new roles are off in this test'),
+          Role.silencer ||
+          Role.elder ||
+          Role.sniper => throw StateError('new roles are off in this test'),
         },
         targetSeat: target,
       );

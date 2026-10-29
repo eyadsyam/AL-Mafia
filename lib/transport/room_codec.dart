@@ -140,9 +140,7 @@ MorningReport? morningFromJson(Object? value) {
   final saved = value['someoneSavedUnnamed'] as bool? ?? false;
   return MorningReport(
     victimSeat: victim,
-    victimSeats: victims.isEmpty
-        ? [if (victim != null) victim]
-        : victims,
+    victimSeats: victims.isEmpty ? [if (victim != null) victim] : victims,
     silencedSeat: (value['silencedSeat'] as num?)?.toInt(),
     someoneSavedUnnamed: saved,
     allSurvived: victim == null && victims.isEmpty && !saved,

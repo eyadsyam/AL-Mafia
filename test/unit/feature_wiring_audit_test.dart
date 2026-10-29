@@ -9,7 +9,9 @@ import 'package:mafia_master/ui/economy/economy_capabilities.dart';
 /// (which also proves each flag changes the envelope). If the server renames
 /// a key, that test rewrites the fixture and this one fails.
 Map<String, dynamic> _allOn() =>
-    jsonDecode(File('test/fixtures/capabilities_all_on.json').readAsStringSync())
+    jsonDecode(
+          File('test/fixtures/capabilities_all_on.json').readAsStringSync(),
+        )
         as Map<String, dynamic>;
 
 void main() {

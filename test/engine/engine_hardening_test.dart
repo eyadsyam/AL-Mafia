@@ -81,7 +81,10 @@ void main() {
   test('skipNightAction refuses outside night before doctor fallback', () {
     final e = start();
     final before = e.match;
-    expect(() => e.skipNightAction(seat: seatOf(e, Role.doctor)), throwsStateError);
+    expect(
+      () => e.skipNightAction(seat: seatOf(e, Role.doctor)),
+      throwsStateError,
+    );
     expect(identical(e.match, before), isTrue);
     expect(e.match.eventLog.length, before.eventLog.length);
   });
@@ -119,9 +122,11 @@ void main() {
     );
     expect(e.match.eventLog.length, before);
     expect(e.canArmBullet(seat), isTrue);
-    final valid = e.match.players.firstWhere(
-      (p) => p.role == Role.citizen && p.status == PlayerStatus.alive,
-    ).seat;
+    final valid = e.match.players
+        .firstWhere(
+          (p) => p.role == Role.citizen && p.status == PlayerStatus.alive,
+        )
+        .seat;
     e.submitNightAction(
       seat: seat,
       kind: NightActionKind.mafiaVote,

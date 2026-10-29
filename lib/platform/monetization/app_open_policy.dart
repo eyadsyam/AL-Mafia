@@ -230,11 +230,7 @@ AppOpenVerdict decideAppOpen({
     final left = ledger.backgroundedMs;
     if (left == null || now - left < resume) return AppOpenVerdict.notLongAway;
   }
-  final paced = fullScreenPacing(
-    rules: pacing,
-    ledger: fullScreen,
-    nowMs: now,
-  );
+  final paced = fullScreenPacing(rules: pacing, ledger: fullScreen, nowMs: now);
   if (paced == InterstitialVerdict.dailyCap) return AppOpenVerdict.dailyCap;
   if (paced == InterstitialVerdict.tooSoon) return AppOpenVerdict.tooSoon;
   if (!canRequestAds) return AppOpenVerdict.noConsent;

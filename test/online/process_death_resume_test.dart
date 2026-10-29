@@ -12,11 +12,12 @@ import '../support/fake_backend.dart';
 /// offered), and whatever it had not done must be offered again, exactly as
 /// before the death (the last safe snapshot).
 void main() {
-  Future<OnlineTransport> restart(FakeBackend backend) => OnlineTransport.connect(
-    backend: backend,
-    roomId: 'room-1',
-    heartbeatInterval: Duration.zero,
-  );
+  Future<OnlineTransport> restart(FakeBackend backend) =>
+      OnlineTransport.connect(
+        backend: backend,
+        roomId: 'room-1',
+        heartbeatInterval: Duration.zero,
+      );
 
   group('reveal', () {
     test('an unacknowledged card comes back after a restart', () async {
@@ -28,7 +29,11 @@ void main() {
       );
       final transport = await restart(backend);
       addTearDown(transport.dispose);
-      expect(transport.snapshot.currentActorSeat, 0, reason: 'the card is owed');
+      expect(
+        transport.snapshot.currentActorSeat,
+        0,
+        reason: 'the card is owed',
+      );
       expect((await transport.secretsFor(0))?.role, isNotNull);
     });
 
@@ -45,8 +50,11 @@ void main() {
       final transport = await restart(backend);
       addTearDown(transport.dispose);
       expect(transport.snapshot.currentActorSeat, isNull);
-      expect(backend.calls.where((c) => c.function == 'saw_role'), isEmpty,
-          reason: 'nothing is re-sent on resume');
+      expect(
+        backend.calls.where((c) => c.function == 'saw_role'),
+        isEmpty,
+        reason: 'nothing is re-sent on resume',
+      );
     });
   });
 
@@ -57,15 +65,28 @@ void main() {
         state: roomState(phase: 'night'),
         players: roster(5),
         own: const OwnSeat(
-          seat: 0, role: 'mafia', actedThisNight: true, bulletSpent: true),
+          seat: 0,
+          role: 'mafia',
+          actedThisNight: true,
+          bulletSpent: true,
+        ),
       );
       final transport = await restart(backend);
       addTearDown(transport.dispose);
-      expect(transport.snapshot.currentActorSeat, isNull,
-          reason: 'no second move is offered');
-      expect(transport.currentActorBulletSpent, isTrue,
-          reason: 'a spent bullet is still spent after the restart');
-      expect(backend.calls.where((c) => c.function == 'submit_night_action'), isEmpty);
+      expect(
+        transport.snapshot.currentActorSeat,
+        isNull,
+        reason: 'no second move is offered',
+      );
+      expect(
+        transport.currentActorBulletSpent,
+        isTrue,
+        reason: 'a spent bullet is still spent after the restart',
+      );
+      expect(
+        backend.calls.where((c) => c.function == 'submit_night_action'),
+        isEmpty,
+      );
     });
 
     test('a move the server never received is offered again', () async {
@@ -109,8 +130,9 @@ void main() {
       );
       final transport = await restart(backend);
       addTearDown(transport.dispose);
-      final mine = transport.snapshot.whisperGraph
-          .where((w) => w.fromSeat == 0 && w.day == 2);
+      final mine = transport.snapshot.whisperGraph.where(
+        (w) => w.fromSeat == 0 && w.day == 2,
+      );
       expect(mine, hasLength(1), reason: 'the compose door reads as used');
       expect(backend.calls.where((c) => c.function == 'send_whisper'), isEmpty);
     });
@@ -126,7 +148,9 @@ void main() {
       final transport = await restart(backend);
       addTearDown(transport.dispose);
       expect(
-        transport.snapshot.whisperGraph.where((w) => w.fromSeat == 0 && w.day == 2),
+        transport.snapshot.whisperGraph.where(
+          (w) => w.fromSeat == 0 && w.day == 2,
+        ),
         isEmpty,
       );
     });

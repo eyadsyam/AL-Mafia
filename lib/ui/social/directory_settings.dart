@@ -139,9 +139,7 @@ class _DirectorySettingsState extends ConsumerState<DirectorySettings> {
               ),
             ),
             value: !me.strangerInvites,
-            onChanged: _busy
-                ? null
-                : (mute) => _prefs(strangerInvites: !mute),
+            onChanged: _busy ? null : (mute) => _prefs(strangerInvites: !mute),
           ),
         ],
       ),

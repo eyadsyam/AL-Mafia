@@ -153,19 +153,20 @@ class AppOpenCoordinator {
             await remember(caps);
             final fresh = await _load();
             final fullScreen = await pacing.pacingLedger();
-            AppOpenVerdict decide(bool consent, int? loadedAt, bool isBusy) => decideAppOpen(
-              rules: caps.ads.appOpen,
-              ledger: fresh,
-              pacing: caps.interstitial,
-              fullScreen: fullScreen,
-              nowMs: _now(),
-              trigger: trigger,
-              adFree: caps.automaticAdsDisabled,
-              onboarded: true,
-              busy: isBusy,
-              canRequestAds: consent,
-              loadedAtMs: loadedAt,
-            );
+            AppOpenVerdict decide(bool consent, int? loadedAt, bool isBusy) =>
+                decideAppOpen(
+                  rules: caps.ads.appOpen,
+                  ledger: fresh,
+                  pacing: caps.interstitial,
+                  fullScreen: fullScreen,
+                  nowMs: _now(),
+                  trigger: trigger,
+                  adFree: caps.automaticAdsDisabled,
+                  onboarded: true,
+                  busy: isBusy,
+                  canRequestAds: consent,
+                  loadedAtMs: loadedAt,
+                );
             final consent = await ads.canRequestAds();
             final before = decide(consent, _now(), await busy());
             if (before != AppOpenVerdict.show) return before;

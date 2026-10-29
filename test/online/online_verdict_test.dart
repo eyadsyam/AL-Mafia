@@ -101,19 +101,39 @@ void main() {
     expect(card.name, equals('B'));
   });
 
-  testWidgets('last word names its public target only when present', (tester) async {
+  testWidgets('last word names its public target only when present', (
+    tester,
+  ) async {
     await pumpTable(tester, state: verdict(lastWord: true));
     expect(find.text(arStrings.onlineLastWordLine('B', 'C')), findsOneWidget);
     await pumpTable(tester, state: verdict());
     expect(find.text(arStrings.onlineLastWordLine('B', 'C')), findsNothing);
   });
 
-  testWidgets('morning names an unnamed save instead of a quiet night', (tester) async {
-    await pumpTable(tester, state: roomState(phase: 'morning', hostId: 'u4',
-        publicData: {'morning': {'someoneSavedUnnamed': true}}));
+  testWidgets('morning names an unnamed save instead of a quiet night', (
+    tester,
+  ) async {
+    await pumpTable(
+      tester,
+      state: roomState(
+        phase: 'morning',
+        hostId: 'u4',
+        publicData: {
+          'morning': {'someoneSavedUnnamed': true},
+        },
+      ),
+    );
     expect(find.text(arStrings.someoneSavedBody), findsOneWidget);
-    await pumpTable(tester, state: roomState(phase: 'morning', hostId: 'u4',
-        publicData: {'morning': {'someoneSavedUnnamed': false}}));
+    await pumpTable(
+      tester,
+      state: roomState(
+        phase: 'morning',
+        hostId: 'u4',
+        publicData: {
+          'morning': {'someoneSavedUnnamed': false},
+        },
+      ),
+    );
     expect(find.text(arStrings.quietNight), findsOneWidget);
   });
 

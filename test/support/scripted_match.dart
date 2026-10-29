@@ -25,8 +25,9 @@ NightActionKind _kindFor(Role role) => switch (role) {
   Role.doctor => NightActionKind.protect,
   Role.detective => NightActionKind.investigate,
   Role.citizen => NightActionKind.suspect,
-  Role.silencer || Role.elder || Role.sniper =>
-    throw StateError('new roles are off in this test'),
+  Role.silencer ||
+  Role.elder ||
+  Role.sniper => throw StateError('new roles are off in this test'),
 };
 
 /// A legal target for [seat] this night, avoiding the doctor's no-repeat rule.

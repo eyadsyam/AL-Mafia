@@ -241,8 +241,9 @@ class ToolLogEntry {
       other.note == note &&
       other.phaseNumber == phaseNumber &&
       other.targets.length == targets.length &&
-      [for (var i = 0; i < targets.length; i++) other.targets[i] == targets[i]]
-          .every((same) => same);
+      [
+        for (var i = 0; i < targets.length; i++) other.targets[i] == targets[i],
+      ].every((same) => same);
 
   @override
   int get hashCode =>
@@ -566,6 +567,7 @@ class GameSnapshot {
   int? get currentActorSeat => public.currentActorSeat;
   MatchOutcome? get outcome => public.outcome;
   int? get silencedSeat => morning?.silencedSeat;
+
   /// Whether [seat] asked to be addressed in the feminine (lines spoken to
   /// one player: the confrontation, «مينفعش تصوّتي»).
   bool isFemale(int? seat) =>
@@ -575,7 +577,8 @@ class GameSnapshot {
       );
 
   bool get viewerSilenced =>
-      viewerSeat != null && silencedSeat == viewerSeat &&
+      viewerSeat != null &&
+      silencedSeat == viewerSeat &&
       phase.index >= GamePhase.morning.index &&
       phase.index <= GamePhase.reveal.index;
 

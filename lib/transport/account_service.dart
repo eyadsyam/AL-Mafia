@@ -66,16 +66,13 @@ class SupabaseAccountService implements AccountService {
   final Future<void> Function() _ensureSession;
 
   SupabaseAccountService(Future<OnlineBackend> Function() backend)
-    : this.withAuth(
-        () async {
-          final value = await backend();
-          if (value is! SupabaseBackend) {
-            throw const AccountFailure('UNAVAILABLE');
-          }
-          return value.client.auth;
-        },
-        ensureSession: () async => (await backend()).ensureSession(),
-      );
+    : this.withAuth(() async {
+        final value = await backend();
+        if (value is! SupabaseBackend) {
+          throw const AccountFailure('UNAVAILABLE');
+        }
+        return value.client.auth;
+      }, ensureSession: () async => (await backend()).ensureSession());
 
   /// Over an auth client directly (tests hand in a fake one).
   SupabaseAccountService.withAuth(
@@ -206,16 +203,15 @@ class SupabaseAccountService implements AccountService {
   });
 
   @override
-  Future<AccountStatus> confirmRecoveryByLink(String email) =>
-      _guard(() async {
-        final wanted = _clean(email);
-        final auth = await _auth();
-        final status = _of(await _fresh(auth));
-        if (status.recoverable && status.email?.toLowerCase() == wanted) {
-          return status;
-        }
-        throw const AccountFailure('LINK_ELSEWHERE');
-      });
+  Future<AccountStatus> confirmRecoveryByLink(String email) => _guard(() async {
+    final wanted = _clean(email);
+    final auth = await _auth();
+    final status = _of(await _fresh(auth));
+    if (status.recoverable && status.email?.toLowerCase() == wanted) {
+      return status;
+    }
+    throw const AccountFailure('LINK_ELSEWHERE');
+  });
 
   @override
   Stream<AccountStatus> changes() async* {

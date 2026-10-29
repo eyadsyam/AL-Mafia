@@ -444,7 +444,9 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
             icon: _busy
                 ? SizedBox.square(
                     dimension: spacing.md,
-                    child: const CircularProgressIndicator(strokeWidth: StoreTokens.busyStroke),
+                    child: const CircularProgressIndicator(
+                      strokeWidth: StoreTokens.busyStroke,
+                    ),
                   )
                 : const Icon(Icons.ondemand_video_outlined),
             label: Text(
@@ -520,7 +522,9 @@ class _RewardedRewardButtonState extends ConsumerState<RewardedRewardButton>
           : _busy && previousDone
           ? SizedBox.square(
               dimension: spacing.md,
-              child: const CircularProgressIndicator(strokeWidth: StoreTokens.busyStroke),
+              child: const CircularProgressIndicator(
+                strokeWidth: StoreTokens.busyStroke,
+              ),
             )
           : const Icon(Icons.ondemand_video_outlined),
       label: Text(

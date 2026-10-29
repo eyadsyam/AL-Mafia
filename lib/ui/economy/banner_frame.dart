@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../platform/monetization/ad_formats.dart' show BannerSize, BannerSizing;
+import '../../platform/monetization/ad_formats.dart'
+    show BannerSize, BannerSizing;
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 

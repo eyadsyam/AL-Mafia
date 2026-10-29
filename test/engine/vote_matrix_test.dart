@@ -93,7 +93,8 @@ void main() {
         final attempt = row['attempt'] as Map<String, dynamic>;
         final settings = input['settings'] as Map<String, dynamic>;
         expect(row['expected'], {
-          'refused': attempt['target_id'] == null &&
+          'refused':
+              attempt['target_id'] == null &&
               settings['abstainAllowed'] != true,
         }, reason: row['name'] as String);
         return;

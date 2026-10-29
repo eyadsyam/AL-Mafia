@@ -4758,5 +4758,62 @@
   "lobbyDeckEdit": "Edit",
   "lobbyDeckDone": "Done",
   "lobbyDeckFollows": "If someone joins or leaves, the citizens adjust by themselves.",
-  "lobbyDeckReset": "Your split no longer fits this table, so the suggested one is back."
+  "lobbyDeckReset": "Your split no longer fits this table, so the suggested one is back.",
+  "vaultMineTitle": "My vault",
+  "vaultMineSub": "Everything you own, and where each one works",
+  "vaultAllOpen": "All open",
+  "vaultRolesTitle": "My roles",
+  "vaultRolesWhere": "They join a match from the deal, on one phone and online. Cards are dealt at random like any role.",
+  "vaultNarratorTitle": "Narrator",
+  "vaultNarratorNow": "Narrating now: {name}",
+  "vaultNarratorWhereLocal": "Narrates your one-phone games",
+  "vaultNarratorWhereRoom": "And narrates for everyone in your online room",
+  "vaultNarratorPick": "Make this the narrator",
+  "vaultNarratorIsNow": "This one narrates now",
+  "vaultListenNight": "The night line",
+  "vaultRoomTitle": "Room atmosphere",
+  "vaultRoomPick": "Dress my room with it",
+  "vaultRoomIsNow": "Your room wears it now",
+  "vaultRoomWhere": "Everyone in your room sees it, on one phone and online, never at night.",
+  "vaultLookTitle": "My look",
+  "vaultLookSeen": "This is how people see you",
+  "vaultLookFrame": "Frame",
+  "vaultLookPlate": "Nameplate",
+  "vaultLookNone": "None",
+  "vaultLookWhere": "Shown at the table, on your profile, to friends and on the result.",
+  "vaultToolsTitle": "Tool bag",
+  "vaultToolsCount": "{count} tools",
+  "@vaultToolsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "vaultToolsUnlimited": "Unlimited",
+  "vaultToolsWhere": "Used inside online matches, each tool in its moment.",
+  "vaultToolLeft": "{count} left",
+  "@vaultToolLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "vaultToolPhaseDiscuss": "In discussion",
+  "vaultToolPhaseVote": "At the vote",
+  "vaultToolPhaseNight": "At night",
+  "vaultToolPhaseDead": "After you are out",
+  "vaultNothingHere": "Nothing here yet. You will find it in the shop.",
+  "vaultRolesActive": "{count} of {total} owned",
+  "@vaultRolesActive": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

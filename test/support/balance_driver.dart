@@ -379,7 +379,6 @@ BalanceResult simulateMatch({
           result.revealedRole == Role.mafia,
         );
       }
-
     } else {
       move.apply(engine);
     }
@@ -408,9 +407,9 @@ BalanceResult simulateMatch({
 void _claim(Match match, _Memory memory) {
   for (final p in match.players) {
     if (p.role != Role.detective || p.status != PlayerStatus.alive) continue;
-    final found = memory.mafiaKnownTo(p.seat).where(
-      (s) => match.players[s].status == PlayerStatus.alive,
-    );
+    final found = memory
+        .mafiaKnownTo(p.seat)
+        .where((s) => match.players[s].status == PlayerStatus.alive);
     if (found.isEmpty) continue;
     memory.claimedMafia.addAll(found);
     memory.claimant = p.seat;

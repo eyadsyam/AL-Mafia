@@ -247,7 +247,8 @@ class _StoriesScreenState extends State<StoriesScreen> {
     if (!session.solved || sessionId == null || claim == null) return;
     // A table that solved it inside the server's minute claims when the
     // minute is up; the progress above is already saved.
-    final early = StoriesLampTokens.serverClaimMinimum -
+    final early =
+        StoriesLampTokens.serverClaimMinimum -
         (dealClock?.elapsed ?? StoriesLampTokens.serverClaimMinimum);
     if (early > Duration.zero) await Future<void>.delayed(early);
     final granted = await claim(sessionId, session.accusation!);

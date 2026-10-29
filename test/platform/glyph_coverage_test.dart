@@ -50,12 +50,15 @@ String _code(String line) {
 void main() {
   test('every drawn character is in a bundled font', () {
     final files = [
-      ...Directory('lib').listSync(recursive: true).whereType<File>().where(
-        (f) =>
-            f.path.endsWith('.dart') &&
-            !f.path.contains('case_of_day') &&
-            !f.path.contains('app_localizations'),
-      ),
+      ...Directory('lib')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where(
+            (f) =>
+                f.path.endsWith('.dart') &&
+                !f.path.contains('case_of_day') &&
+                !f.path.contains('app_localizations'),
+          ),
       File('lib/app/l10n/app_ar.arb'),
       File('lib/app/l10n/app_en.arb'),
     ];

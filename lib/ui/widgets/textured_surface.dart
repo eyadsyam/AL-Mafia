@@ -92,7 +92,11 @@ class AppBackdrop extends StatelessWidget {
 /// provides it only in public phases. Surfaces without art ignore it.
 class BackdropDressing extends InheritedWidget {
   final Widget Function(Widget background) dress;
-  const BackdropDressing({super.key, required this.dress, required super.child});
+  const BackdropDressing({
+    super.key,
+    required this.dress,
+    required super.child,
+  });
 
   static Widget Function(Widget)? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<BackdropDressing>()?.dress;

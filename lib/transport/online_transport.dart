@@ -1343,8 +1343,14 @@ class OnlineTransport implements GameTransport {
     }
 
     if (role != null &&
-        const {'morning', 'opening', 'confront', 'discuss', 'vote', 'verdict'}
-            .contains(state.phase)) {
+        const {
+          'morning',
+          'opening',
+          'confront',
+          'discuss',
+          'vote',
+          'verdict',
+        }.contains(state.phase)) {
       return ViewerSecrets(
         seat: seat,
         role: role,

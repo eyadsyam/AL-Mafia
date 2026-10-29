@@ -86,7 +86,8 @@ class _PassResultInventoryState extends ConsumerState<PassResultInventory> {
         if (caps == null || !mounted) return;
         if (caps.dailyAd) await ref.read(dailyProvider.notifier).refresh();
         if (!mounted) return;
-        if (caps.ads.extras) await ref.read(adExtrasProvider.notifier).refresh();
+        if (caps.ads.extras)
+          await ref.read(adExtrasProvider.notifier).refresh();
         if (mounted) setState(() => _asked = true);
       } catch (_) {
         // Never load-bearing for the result screen.

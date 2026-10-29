@@ -52,7 +52,12 @@ class _Friends extends FriendsController {
   @override
   Future<FriendsState?> build() async => FriendsState.fromJson({
     'friends': [
-      {'id': 'a', 'name': 'كريم', 'frame': 'frame_moonlit', 'plate': 'plate_noir'},
+      {
+        'id': 'a',
+        'name': 'كريم',
+        'frame': 'frame_moonlit',
+        'plate': 'plate_noir',
+      },
       {'id': 'b', 'name': 'نور'},
     ],
   });
@@ -83,7 +88,11 @@ Future<ProviderContainer> _container(Map<String, String> equipped) async {
   return c;
 }
 
-Future<void> _pump(WidgetTester tester, ProviderContainer c, Widget child) async {
+Future<void> _pump(
+  WidgetTester tester,
+  ProviderContainer c,
+  Widget child,
+) async {
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: c,
@@ -126,7 +135,10 @@ void main() {
       addTearDown(c.dispose);
       await Future<void>.delayed(Duration.zero);
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString(MyCosmeticsController.storageKey), contains('frame_crimson'));
+      expect(
+        prefs.getString(MyCosmeticsController.storageKey),
+        contains('frame_crimson'),
+      );
     });
   });
 
@@ -149,7 +161,9 @@ void main() {
       expect(find.text('سلمى'), findsOneWidget);
     });
 
-    testWidgets('profile fields: ring on the avatar, the name on the plate', (tester) async {
+    testWidgets('profile fields: ring on the avatar, the name on the plate', (
+      tester,
+    ) async {
       final c = await _container(const {});
       addTearDown(c.dispose);
       final name = TextEditingController(text: 'سلمى');
@@ -171,7 +185,9 @@ void main() {
       expect(find.byKey(ProfileIdentityFields.platePreviewKey), findsOneWidget);
     });
 
-    testWidgets('friends rows carry each friend\'s own frame and plate', (tester) async {
+    testWidgets('friends rows carry each friend\'s own frame and plate', (
+      tester,
+    ) async {
       final c = await _container(const {});
       addTearDown(c.dispose);
       final friend = FriendEntry.fromJson({
@@ -186,26 +202,29 @@ void main() {
       expect(plain.frame, isNull);
     });
 
-    testWidgets('the friends sheet draws a friend\'s frame and plate, a plain row stays plain', (
+    testWidgets(
+      'the friends sheet draws a friend\'s frame and plate, a plain row stays plain',
+      (tester) async {
+        final c = ProviderContainer(
+          overrides: [friendsProvider.overrideWith(_Friends.new)],
+        );
+        addTearDown(c.dispose);
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: c,
+            child: localizedApp(Scaffold(body: FriendsSheet(onJoin: (_) {}))),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(CosmeticFrameRing.ringKey), findsOneWidget);
+        expect(find.byKey(CosmeticNameplate.plateKey), findsOneWidget);
+        expect(find.text('نور'), findsOneWidget);
+      },
+    );
+
+    testWidgets('leaderboard rows carry each player\'s frame and plate', (
       tester,
     ) async {
-      final c = ProviderContainer(
-        overrides: [friendsProvider.overrideWith(_Friends.new)],
-      );
-      addTearDown(c.dispose);
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: c,
-          child: localizedApp(Scaffold(body: FriendsSheet(onJoin: (_) {}))),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byKey(CosmeticFrameRing.ringKey), findsOneWidget);
-      expect(find.byKey(CosmeticNameplate.plateKey), findsOneWidget);
-      expect(find.text('نور'), findsOneWidget);
-    });
-
-    testWidgets('leaderboard rows carry each player\'s frame and plate', (tester) async {
       final c = ProviderContainer(
         overrides: [
           leaderboardProvider.overrideWith(
@@ -213,9 +232,22 @@ void main() {
               'enabled': true,
               'week': '2026-W40',
               'entries': [
-                {'position': 1, 'xp': 90, 'name': 'كريم', 'frame': 'frame_gilded',
-                  'plate': 'plate_noir', 'level': 3, 'me': false},
-                {'position': 2, 'xp': 40, 'name': 'نور', 'level': 2, 'me': true},
+                {
+                  'position': 1,
+                  'xp': 90,
+                  'name': 'كريم',
+                  'frame': 'frame_gilded',
+                  'plate': 'plate_noir',
+                  'level': 3,
+                  'me': false,
+                },
+                {
+                  'position': 2,
+                  'xp': 40,
+                  'name': 'نور',
+                  'level': 2,
+                  'me': true,
+                },
               ],
               'me': {'position': 2, 'xp': 40},
             }),
@@ -248,41 +280,46 @@ void main() {
   });
 
   group('«القعدة»', () {
-    testWidgets('public phases dress backdrops with art; the host seat wears the plate', (
-      tester,
-    ) async {
-      final c = await _container(_full);
-      addTearDown(c.dispose);
-      for (final phase in [
-        GamePhase.morning,
-        GamePhase.discussion,
-        GamePhase.reveal,
-        GamePhase.result,
-      ]) {
-        await _pump(
-          tester,
-          c,
-          SizedBox(
-            height: 400,
-            child: PassTableDress(
-              phase: phase,
-              child: AppBackdrop(
-                image: AppImages.bgHome,
-                child: Builder(
-                  builder: (context) => CosmeticNameplate(
-                    name: 'سلمى',
-                    plate: HostIdentityScope.plateFor(context, 'سلمى'),
-                    style: const TextStyle(),
+    testWidgets(
+      'public phases dress backdrops with art; the host seat wears the plate',
+      (tester) async {
+        final c = await _container(_full);
+        addTearDown(c.dispose);
+        for (final phase in [
+          GamePhase.morning,
+          GamePhase.discussion,
+          GamePhase.reveal,
+          GamePhase.result,
+        ]) {
+          await _pump(
+            tester,
+            c,
+            SizedBox(
+              height: 400,
+              child: PassTableDress(
+                phase: phase,
+                child: AppBackdrop(
+                  image: AppImages.bgHome,
+                  child: Builder(
+                    builder: (context) => CosmeticNameplate(
+                      name: 'سلمى',
+                      plate: HostIdentityScope.plateFor(context, 'سلمى'),
+                      style: const TextStyle(),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
-        expect(find.byType(PackBackdrop), findsOneWidget, reason: '$phase');
-        expect(find.byKey(CosmeticNameplate.plateKey), findsOneWidget, reason: '$phase');
-      }
-    });
+          );
+          expect(find.byType(PackBackdrop), findsOneWidget, reason: '$phase');
+          expect(
+            find.byKey(CosmeticNameplate.plateKey),
+            findsOneWidget,
+            reason: '$phase',
+          );
+        }
+      },
+    );
 
     testWidgets('never on a hand-off, the deal, the night or the passed vote', (
       tester,
@@ -318,7 +355,11 @@ void main() {
           ),
         );
         expect(find.byType(PackBackdrop), findsNothing, reason: '$phase');
-        expect(find.byKey(CosmeticNameplate.plateKey), findsNothing, reason: '$phase');
+        expect(
+          find.byKey(CosmeticNameplate.plateKey),
+          findsNothing,
+          reason: '$phase',
+        );
       }
     });
 
@@ -378,7 +419,10 @@ void main() {
         await tester.pumpWidget(
           localizedApp(NarrationCaption(text: 'سطر', narrator: narrator)),
         );
-        expect(find.byKey(NarrationCaption.markerKey(narrator.code)), findsOneWidget);
+        expect(
+          find.byKey(NarrationCaption.markerKey(narrator.code)),
+          findsOneWidget,
+        );
         // Every pack now has its own emblem, drawn in place of the glyph.
         expect(narrator.look.markerAsset, isNotNull, reason: narrator.code);
         final asset = tester
@@ -392,75 +436,94 @@ void main() {
         expect((asset as AssetImage).assetName, narrator.look.markerAsset);
       }
       expect(markers, hasLength(Cosmetics.narrators.length));
-      final grounds = {for (final n in Cosmetics.narrators.values) n.look.ground};
+      final grounds = {
+        for (final n in Cosmetics.narrators.values) n.look.ground,
+      };
       expect(grounds, hasLength(Cosmetics.narrators.length));
     });
 
-    testWidgets('«القعدة»: styled at a public beat, nothing on the passed vote', (
-      tester,
-    ) async {
-      final c = await _container(_full);
-      addTearDown(c.dispose);
-      Future<void> show(GamePhase phase, {NarrationBeat? moment, int day = 1}) =>
-          _pump(
-            tester,
-            c,
-            SizedBox(
-              height: 500,
-              child: Stack(
-                children: [
-                  RoomPresentationLayer.local(
-                    key: const ValueKey('layer'),
-                    snapshot: _snapshot(phase, day: day),
-                    packCode: null,
-                    narratorCode: 'narrator_keeper',
-                    visibleIn: passCosmeticsVisibleIn,
-                    moment: moment,
-                  ),
-                ],
-              ),
+    testWidgets(
+      '«القعدة»: styled at a public beat, nothing on the passed vote',
+      (tester) async {
+        final c = await _container(_full);
+        addTearDown(c.dispose);
+        Future<void> show(
+          GamePhase phase, {
+          NarrationBeat? moment,
+          int day = 1,
+        }) => _pump(
+          tester,
+          c,
+          SizedBox(
+            height: 500,
+            child: Stack(
+              children: [
+                RoomPresentationLayer.local(
+                  key: const ValueKey('layer'),
+                  snapshot: _snapshot(phase, day: day),
+                  packCode: null,
+                  narratorCode: 'narrator_keeper',
+                  visibleIn: passCosmeticsVisibleIn,
+                  moment: moment,
+                ),
+              ],
             ),
-          );
-      await show(GamePhase.night);
-      await show(GamePhase.discussion);
-      expect(find.byKey(NarrationCaption.markerKey('narrator_keeper')), findsOneWidget);
-      await show(GamePhase.voting);
-      expect(find.byKey(NarrationCaption.captionKey), findsNothing,
-          reason: 'the vote is passed hand to hand');
-      await show(GamePhase.voting, moment: NarrationBeat.voting);
-      expect(find.byKey(NarrationCaption.markerKey('narrator_keeper')), findsOneWidget,
-          reason: 'the vote announcement is on the flat phone');
-      await show(GamePhase.night, day: 2);
-      expect(find.byKey(NarrationCaption.captionKey), findsNothing);
-      await tester.pump(const Duration(seconds: 5));
-    });
+          ),
+        );
+        await show(GamePhase.night);
+        await show(GamePhase.discussion);
+        expect(
+          find.byKey(NarrationCaption.markerKey('narrator_keeper')),
+          findsOneWidget,
+        );
+        await show(GamePhase.voting);
+        expect(
+          find.byKey(NarrationCaption.captionKey),
+          findsNothing,
+          reason: 'the vote is passed hand to hand',
+        );
+        await show(GamePhase.voting, moment: NarrationBeat.voting);
+        expect(
+          find.byKey(NarrationCaption.markerKey('narrator_keeper')),
+          findsOneWidget,
+          reason: 'the vote announcement is on the flat phone',
+        );
+        await show(GamePhase.night, day: 2);
+        expect(find.byKey(NarrationCaption.captionKey), findsNothing);
+        await tester.pump(const Duration(seconds: 5));
+      },
+    );
   });
 
   group('the buy → see loop', () {
-    testWidgets('a frame is shown on the buyer\'s own avatar; equip now wears it', (
-      tester,
-    ) async {
-      final c = await _container(const {'nameplate': 'plate_ember'});
-      addTearDown(c.dispose);
-      (CosmeticSlot, String)? worn;
-      await _pump(
-        tester,
-        c,
-        PurchaseReveal(
-          code: 'frame_gilded',
-          onEquip: (slot, code) async => worn = (slot, code),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byKey(PurchaseReveal.revealKey), findsOneWidget);
-      expect(find.byKey(CosmeticFrameRing.ringKey), findsOneWidget);
-      expect(find.byKey(CosmeticNameplate.plateKey), findsOneWidget,
-          reason: 'shown with the plate already worn');
-      expect(find.text('سلمى'), findsOneWidget);
-      await tester.tap(find.byKey(PurchaseReveal.equipNowKey));
-      await tester.pumpAndSettle();
-      expect(worn, (CosmeticSlot.frame, 'frame_gilded'));
-    });
+    testWidgets(
+      'a frame is shown on the buyer\'s own avatar; equip now wears it',
+      (tester) async {
+        final c = await _container(const {'nameplate': 'plate_ember'});
+        addTearDown(c.dispose);
+        (CosmeticSlot, String)? worn;
+        await _pump(
+          tester,
+          c,
+          PurchaseReveal(
+            code: 'frame_gilded',
+            onEquip: (slot, code) async => worn = (slot, code),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(PurchaseReveal.revealKey), findsOneWidget);
+        expect(find.byKey(CosmeticFrameRing.ringKey), findsOneWidget);
+        expect(
+          find.byKey(CosmeticNameplate.plateKey),
+          findsOneWidget,
+          reason: 'shown with the plate already worn',
+        );
+        expect(find.text('سلمى'), findsOneWidget);
+        await tester.tap(find.byKey(PurchaseReveal.equipNowKey));
+        await tester.pumpAndSettle();
+        expect(worn, (CosmeticSlot.frame, 'frame_gilded'));
+      },
+    );
 
     testWidgets('already worn: no equip button, the equipped state instead', (
       tester,
@@ -488,7 +551,9 @@ void main() {
       expect(find.byKey(PurchaseReveal.equipNowKey), findsNothing);
     });
 
-    testWidgets('reduced motion shows the item at rest at once', (tester) async {
+    testWidgets('reduced motion shows the item at rest at once', (
+      tester,
+    ) async {
       final c = await _container(const {});
       addTearDown(c.dispose);
       await tester.pumpWidget(

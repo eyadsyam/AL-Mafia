@@ -88,7 +88,9 @@ void main() {
     final image = boundary.toImageSync(pixelRatio: 1);
     await tester.runAsync(() async {
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      File('${out.path}/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      File(
+        '${out.path}/$name.png',
+      ).writeAsBytesSync(bytes!.buffer.asUint8List());
     });
     image.dispose();
   }
@@ -125,13 +127,15 @@ void main() {
       await shoot(
         tester,
         '0${n}_story_$id',
-        StoryPalette(child: StoryFlowScreen(
-          story: story,
-          playerCount: 1,
-          onExit: () {},
-          onComplete: (_) async {},
-          playNarration: (_) async {},
-        )),
+        StoryPalette(
+          child: StoryFlowScreen(
+            story: story,
+            playerCount: 1,
+            onExit: () {},
+            onComplete: (_) async {},
+            playNarration: (_) async {},
+          ),
+        ),
       );
     });
   }

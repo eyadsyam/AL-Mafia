@@ -77,13 +77,16 @@ void main() {
       expect(director.emitted, equals([AudioCue.mafiaWake]));
     });
 
-    test('a tap is passed to the backend so a browser can start the score', () async {
-      final backend = _RecordingBackend();
-      final director = AudioDirector(backend: backend);
-      await director.unlock();
-      await director.unlock();
-      expect(backend.unlocks, 2);
-    });
+    test(
+      'a tap is passed to the backend so a browser can start the score',
+      () async {
+        final backend = _RecordingBackend();
+        final director = AudioDirector(backend: backend);
+        await director.unlock();
+        await director.unlock();
+        expect(backend.unlocks, 2);
+      },
+    );
 
     test('everything works with sound off', () {
       final director = AudioDirector(backend: _RecordingBackend())

@@ -21,8 +21,9 @@ void main() {
   test('the room rule is read from the room settings, off by default', () {
     expect(settingsFromJson(const {}).revealWhisperContent, isFalse);
     expect(
-      settingsFromJson(const {'revealWhisperContent': true})
-          .revealWhisperContent,
+      settingsFromJson(const {
+        'revealWhisperContent': true,
+      }).revealWhisperContent,
       isTrue,
     );
   });
@@ -58,17 +59,19 @@ void main() {
             : DateTime.now().add(const Duration(minutes: 4)),
         serverNow: DateTime.now(),
         settings: {'revealWhisperContent': reveal, 'whisperEnabled': true},
-        publicData: phase != 'result' ? const {} : const {
-          'outcome': 'town',
-          'rosterSeats': [0, 1, 2, 3, 4],
-          'standings': [
-            {'seat': 0, 'role': 'mafia'},
-            {'seat': 1, 'role': 'citizen'},
-            {'seat': 2, 'role': 'doctor'},
-            {'seat': 3, 'role': 'detective'},
-            {'seat': 4, 'role': 'citizen'},
-          ],
-        },
+        publicData: phase != 'result'
+            ? const {}
+            : const {
+                'outcome': 'town',
+                'rosterSeats': [0, 1, 2, 3, 4],
+                'standings': [
+                  {'seat': 0, 'role': 'mafia'},
+                  {'seat': 1, 'role': 'citizen'},
+                  {'seat': 2, 'role': 'doctor'},
+                  {'seat': 3, 'role': 'detective'},
+                  {'seat': 4, 'role': 'citizen'},
+                ],
+              },
       ),
       players: roster(5),
       own: const OwnSeat(seat: 2, role: 'doctor'),

@@ -134,13 +134,17 @@ void main() {
         e.match = m.copyWith(
           players: [
             for (final p in m.players)
-              if (p.seat == mafia) p.copyWith(status: PlayerStatus.dead, eliminatedOn: gone) else p,
+              if (p.seat == mafia)
+                p.copyWith(status: PlayerStatus.dead, eliminatedOn: gone)
+              else
+                p,
           ],
           currentActorSeat: silencer,
         );
         final moves = legalMoves(e.match);
         final targets = [
-          for (final move in moves.whereType<NightActionMove>()) move.targetSeat,
+          for (final move in moves.whereType<NightActionMove>())
+            move.targetSeat,
         ];
         expect(targets, isNotEmpty);
         expect(targets, isNot(contains(silencer)), reason: 'seed $seed');
@@ -162,8 +166,11 @@ void main() {
           );
           final move = defaultMoveOnExpiry(copy.match, phaseIndex: index);
           expect(move, isNotNull);
-          expect(() => move!.apply(copy), returnsNormally,
-              reason: 'seed $seed index $index');
+          expect(
+            () => move!.apply(copy),
+            returnsNormally,
+            reason: 'seed $seed index $index',
+          );
         }
       }
     });

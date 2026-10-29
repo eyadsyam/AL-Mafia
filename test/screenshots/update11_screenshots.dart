@@ -157,7 +157,9 @@ void main() {
     await shoot(
       tester,
       '01_witness_whispers',
-      Scaffold(body: WitnessPanel(snapshot: _snapshot(), table: table)),
+      Scaffold(
+        body: WitnessPanel(snapshot: _snapshot(), table: table),
+      ),
       before: (tester) async {
         await tester.tap(find.text('الترابيزة'));
         await tester.pumpAndSettle();
@@ -184,48 +186,49 @@ void main() {
   });
 
   testWidgets('F11 — the owner review queue', (tester) async {
-    final backend = FakeBackend(roomId: 'r', state: roomState(), players: roster(2))
-      ..responses['player_safety'] = {
-        'items': [
-          {
-            'id': '11111111-1111-4111-8111-111111111111',
-            'category': 'harassment',
-            'context': 'lobby',
-            'status': 'pending',
-            'createdAt': '2026-09-28T19:40:00Z',
-            'details': 'بيشتم الناس في اللوبي وبيكرر نفس الكلام',
-            'evidence': {
-              'roomCode': 'KDXQ7M',
-              'roomTitle': 'قعدة الخميس',
-              'targetName': 'زياد',
-              'targetSeat': 3,
-            },
-            'targetOpenReports': 3,
-            'targetActioned': 1,
-            'targetRestrictions': <String>[],
-            'note': '',
-          },
-          {
-            'id': '22222222-2222-4222-8222-222222222222',
-            'category': 'inappropriate_name',
-            'context': 'result',
-            'status': 'pending',
-            'createdAt': '2026-09-28T18:05:00Z',
-            'details': '',
-            'evidence': {
-              'roomCode': 'PRTW4N',
-              'roomTitle': '',
-              'targetName': 'xX_Mafia_Xx',
-              'targetSeat': 6,
-            },
-            'targetOpenReports': 1,
-            'targetActioned': 0,
-            'targetRestrictions': ['voice'],
-            'note': '',
-          },
-        ],
-        'next': null,
-      };
+    final backend =
+        FakeBackend(roomId: 'r', state: roomState(), players: roster(2))
+          ..responses['player_safety'] = {
+            'items': [
+              {
+                'id': '11111111-1111-4111-8111-111111111111',
+                'category': 'harassment',
+                'context': 'lobby',
+                'status': 'pending',
+                'createdAt': '2026-09-28T19:40:00Z',
+                'details': 'بيشتم الناس في اللوبي وبيكرر نفس الكلام',
+                'evidence': {
+                  'roomCode': 'KDXQ7M',
+                  'roomTitle': 'قعدة الخميس',
+                  'targetName': 'زياد',
+                  'targetSeat': 3,
+                },
+                'targetOpenReports': 3,
+                'targetActioned': 1,
+                'targetRestrictions': <String>[],
+                'note': '',
+              },
+              {
+                'id': '22222222-2222-4222-8222-222222222222',
+                'category': 'inappropriate_name',
+                'context': 'result',
+                'status': 'pending',
+                'createdAt': '2026-09-28T18:05:00Z',
+                'details': '',
+                'evidence': {
+                  'roomCode': 'PRTW4N',
+                  'roomTitle': '',
+                  'targetName': 'xX_Mafia_Xx',
+                  'targetSeat': 6,
+                },
+                'targetOpenReports': 1,
+                'targetActioned': 0,
+                'targetRestrictions': ['voice'],
+                'note': '',
+              },
+            ],
+            'next': null,
+          };
     await shoot(
       tester,
       '03_safety_admin_queue',
@@ -233,8 +236,10 @@ void main() {
       overrides: [
         onlineBackendFactoryProvider.overrideWithValue(() async => backend),
         accountStatusProvider.overrideWith(
-          (ref) async =>
-              const AccountStatus(recoverable: true, email: 'owner@example.test'),
+          (ref) async => const AccountStatus(
+            recoverable: true,
+            email: 'owner@example.test',
+          ),
         ),
       ],
     );
@@ -254,10 +259,8 @@ void main() {
       ),
       overrides: [
         economyCapabilitiesProvider.overrideWith(
-          (ref) async => EconomyCapabilities.fromJson({
-            'version': 3,
-            'thursday': true,
-          }),
+          (ref) async =>
+              EconomyCapabilities.fromJson({'version': 3, 'thursday': true}),
         ),
         thursdayEventProvider.overrideWith(
           (ref) async => ThursdayEvent.fromJson({

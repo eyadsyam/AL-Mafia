@@ -61,7 +61,9 @@ void main() {
     final image = boundary.toImageSync(pixelRatio: 2);
     await tester.runAsync(() async {
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      File('${out.path}/$name.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      File(
+        '${out.path}/$name.png',
+      ).writeAsBytesSync(bytes!.buffer.asUint8List());
     });
     image.dispose();
   }
@@ -107,7 +109,16 @@ void main() {
             {
               'position': i,
               'xp': 1200 - i * 90,
-              'name': ['ليلى', 'Omar', 'سلمى', 'Karim', 'نور', 'Yara', 'حسن', 'Mona'][i - 1],
+              'name': [
+                'ليلى',
+                'Omar',
+                'سلمى',
+                'Karim',
+                'نور',
+                'Yara',
+                'حسن',
+                'Mona',
+              ][i - 1],
               'gender': i.isEven ? 'male' : 'female',
               'level': 50 - i * 6,
               'me': i == 5,
@@ -127,10 +138,7 @@ void main() {
             audioDirectorProvider.overrideWithValue(AudioDirector()),
           ],
           child: MediaQuery(
-            data: MediaQueryData(
-              size: size,
-              disableAnimations: reduceMotion,
-            ),
+            data: MediaQueryData(size: size, disableAnimations: reduceMotion),
             child: localizedApp(Scaffold(body: child), locale: locale),
           ),
         ),
@@ -176,7 +184,12 @@ void main() {
   });
 
   testWidgets('leaderboard', (tester) async {
-    await show(tester, const CouncilHubTab(), const Size(360, 780), const Locale('ar'));
+    await show(
+      tester,
+      const CouncilHubTab(),
+      const Size(360, 780),
+      const Locale('ar'),
+    );
     await tester.tap(find.byKey(CouncilHubTab.leaderboardKey));
     await tester.pumpAndSettle();
     await save(tester, 'leaderboard-ar');
@@ -195,7 +208,10 @@ void main() {
               runSpacing: 8,
               children: [
                 for (var tier = 1; tier <= 10; tier++)
-                  RankEmblem(level: tier * 5, size: CouncilLifeTokens.emblemCard),
+                  RankEmblem(
+                    level: tier * 5,
+                    size: CouncilLifeTokens.emblemCard,
+                  ),
               ],
             ),
             const SizedBox(height: 16),
@@ -203,14 +219,24 @@ void main() {
               spacing: 12,
               children: [
                 for (var tier = 1; tier <= 10; tier++)
-                  RankEmblem(level: tier * 5, size: CouncilLifeTokens.emblemSeat),
+                  RankEmblem(
+                    level: tier * 5,
+                    size: CouncilLifeTokens.emblemSeat,
+                  ),
               ],
             ),
             const SizedBox(height: 16),
             Wrap(
               spacing: 12,
               children: [
-                for (final m in ['finish', 'town', 'mafia', 'win', 'host', 'reunion'])
+                for (final m in [
+                  'finish',
+                  'town',
+                  'mafia',
+                  'win',
+                  'host',
+                  'reunion',
+                ])
                   ContractIcon(metric: m),
               ],
             ),

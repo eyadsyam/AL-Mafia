@@ -7745,4 +7745,117 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get lobbyDeckReset =>
       'Your split no longer fits this table, so the suggested one is back.';
+
+  @override
+  String get vaultMineTitle => 'My vault';
+
+  @override
+  String get vaultMineSub => 'Everything you own, and where each one works';
+
+  @override
+  String get vaultAllOpen => 'All open';
+
+  @override
+  String get vaultRolesTitle => 'My roles';
+
+  @override
+  String get vaultRolesWhere =>
+      'They join a match from the deal, on one phone and online. Cards are dealt at random like any role.';
+
+  @override
+  String get vaultNarratorTitle => 'Narrator';
+
+  @override
+  String vaultNarratorNow(Object name) {
+    return 'Narrating now: $name';
+  }
+
+  @override
+  String get vaultNarratorWhereLocal => 'Narrates your one-phone games';
+
+  @override
+  String get vaultNarratorWhereRoom =>
+      'And narrates for everyone in your online room';
+
+  @override
+  String get vaultNarratorPick => 'Make this the narrator';
+
+  @override
+  String get vaultNarratorIsNow => 'This one narrates now';
+
+  @override
+  String get vaultListenNight => 'The night line';
+
+  @override
+  String get vaultRoomTitle => 'Room atmosphere';
+
+  @override
+  String get vaultRoomPick => 'Dress my room with it';
+
+  @override
+  String get vaultRoomIsNow => 'Your room wears it now';
+
+  @override
+  String get vaultRoomWhere =>
+      'Everyone in your room sees it, on one phone and online, never at night.';
+
+  @override
+  String get vaultLookTitle => 'My look';
+
+  @override
+  String get vaultLookSeen => 'This is how people see you';
+
+  @override
+  String get vaultLookFrame => 'Frame';
+
+  @override
+  String get vaultLookPlate => 'Nameplate';
+
+  @override
+  String get vaultLookNone => 'None';
+
+  @override
+  String get vaultLookWhere =>
+      'Shown at the table, on your profile, to friends and on the result.';
+
+  @override
+  String get vaultToolsTitle => 'Tool bag';
+
+  @override
+  String vaultToolsCount(int count) {
+    return '$count tools';
+  }
+
+  @override
+  String get vaultToolsUnlimited => 'Unlimited';
+
+  @override
+  String get vaultToolsWhere =>
+      'Used inside online matches, each tool in its moment.';
+
+  @override
+  String vaultToolLeft(int count) {
+    return '$count left';
+  }
+
+  @override
+  String get vaultToolPhaseDiscuss => 'In discussion';
+
+  @override
+  String get vaultToolPhaseVote => 'At the vote';
+
+  @override
+  String get vaultToolPhaseNight => 'At night';
+
+  @override
+  String get vaultToolPhaseDead => 'After you are out';
+
+  @override
+  String get vaultNothingHere =>
+      'Nothing here yet. You will find it in the shop.';
+
+  @override
+  String vaultRolesActive(int count, int total) {
+    return '$count of $total owned';
+  }
 }

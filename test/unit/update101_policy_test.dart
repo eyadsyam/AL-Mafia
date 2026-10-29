@@ -77,22 +77,37 @@ void main() {
 
     test('ten minutes apart, three a day, three minutes after a reward', () {
       var ledger = played(3).shown(noon);
-      expect(decide(ledger, now: noon + 9 * minute), InterstitialVerdict.tooSoon);
+      expect(
+        decide(ledger, now: noon + 9 * minute),
+        InterstitialVerdict.tooSoon,
+      );
       expect(decide(ledger, now: noon + 10 * minute), InterstitialVerdict.show);
       ledger = ledger.shown(noon + 10 * minute).shown(noon + 20 * minute);
-      expect(decide(ledger, now: noon + 60 * minute), InterstitialVerdict.dailyCap);
+      expect(
+        decide(ledger, now: noon + 60 * minute),
+        InterstitialVerdict.dailyCap,
+      );
       // A new UTC day resets the daily count, not the grace.
       final tomorrow = DateTime.utc(2026, 9, 26, 1).millisecondsSinceEpoch;
       expect(decide(ledger, now: tomorrow), InterstitialVerdict.show);
       final rewarded = played(3).rewarded(noon);
-      expect(decide(rewarded, now: noon + 2 * minute), InterstitialVerdict.afterReward);
-      expect(decide(rewarded, now: noon + 3 * minute), InterstitialVerdict.show);
+      expect(
+        decide(rewarded, now: noon + 2 * minute),
+        InterstitialVerdict.afterReward,
+      );
+      expect(
+        decide(rewarded, now: noon + 3 * minute),
+        InterstitialVerdict.show,
+      );
     });
 
     test('a clock moved backwards never unlocks an ad', () {
       final ledger = played(3).shown(noon);
       // Back an hour, or back a whole day: both read as "no time passed".
-      expect(decide(ledger, now: noon - 60 * minute), InterstitialVerdict.tooSoon);
+      expect(
+        decide(ledger, now: noon - 60 * minute),
+        InterstitialVerdict.tooSoon,
+      );
       final yesterday = DateTime.utc(2026, 9, 24, 23).millisecondsSinceEpoch;
       final capped = ledger.shown(noon + 11 * minute).shown(noon + 22 * minute);
       // Yesterday's date does not reset today's count.
@@ -118,10 +133,7 @@ void main() {
       // 60 s; the server can only tighten them.
       expect(wild.maxPerDay, 20);
       expect(wild.gap, const Duration(seconds: 60));
-      expect(
-        InterstitialRules.fromJson({'maxPerDay': 99}).maxPerDay,
-        60,
-      );
+      expect(InterstitialRules.fromJson({'maxPerDay': 99}).maxPerDay, 60);
       expect(wild.afterReward, const Duration(minutes: 2));
       expect(wild.graceMatches, 1);
     });
@@ -185,7 +197,8 @@ void main() {
         final r = g.restingRotation(slot);
         final middle = g.starts[slot] + g.sweeps[slot] / 2 + r;
         // The pointer is at the top (-pi/2).
-        final off = ((middle + math.pi / 2) % (2 * math.pi) + 2 * math.pi) %
+        final off =
+            ((middle + math.pi / 2) % (2 * math.pi) + 2 * math.pi) %
             (2 * math.pi);
         expect(math.min(off, 2 * math.pi - off), lessThan(1e-9));
       }

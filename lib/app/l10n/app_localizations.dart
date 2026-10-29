@@ -13320,6 +13320,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your split no longer fits this table, so the suggested one is back.'**
   String get lobbyDeckReset;
+
+  /// No description provided for @vaultMineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My vault'**
+  String get vaultMineTitle;
+
+  /// No description provided for @vaultMineSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you own, and where each one works'**
+  String get vaultMineSub;
+
+  /// No description provided for @vaultAllOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'All open'**
+  String get vaultAllOpen;
+
+  /// No description provided for @vaultRolesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My roles'**
+  String get vaultRolesTitle;
+
+  /// No description provided for @vaultRolesWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'They join a match from the deal, on one phone and online. Cards are dealt at random like any role.'**
+  String get vaultRolesWhere;
+
+  /// No description provided for @vaultNarratorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator'**
+  String get vaultNarratorTitle;
+
+  /// No description provided for @vaultNarratorNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrating now: {name}'**
+  String vaultNarratorNow(Object name);
+
+  /// No description provided for @vaultNarratorWhereLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrates your one-phone games'**
+  String get vaultNarratorWhereLocal;
+
+  /// No description provided for @vaultNarratorWhereRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'And narrates for everyone in your online room'**
+  String get vaultNarratorWhereRoom;
+
+  /// No description provided for @vaultNarratorPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Make this the narrator'**
+  String get vaultNarratorPick;
+
+  /// No description provided for @vaultNarratorIsNow.
+  ///
+  /// In en, this message translates to:
+  /// **'This one narrates now'**
+  String get vaultNarratorIsNow;
+
+  /// No description provided for @vaultListenNight.
+  ///
+  /// In en, this message translates to:
+  /// **'The night line'**
+  String get vaultListenNight;
+
+  /// No description provided for @vaultRoomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Room atmosphere'**
+  String get vaultRoomTitle;
+
+  /// No description provided for @vaultRoomPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Dress my room with it'**
+  String get vaultRoomPick;
+
+  /// No description provided for @vaultRoomIsNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Your room wears it now'**
+  String get vaultRoomIsNow;
+
+  /// No description provided for @vaultRoomWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone in your room sees it, on one phone and online, never at night.'**
+  String get vaultRoomWhere;
+
+  /// No description provided for @vaultLookTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My look'**
+  String get vaultLookTitle;
+
+  /// No description provided for @vaultLookSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'This is how people see you'**
+  String get vaultLookSeen;
+
+  /// No description provided for @vaultLookFrame.
+  ///
+  /// In en, this message translates to:
+  /// **'Frame'**
+  String get vaultLookFrame;
+
+  /// No description provided for @vaultLookPlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Nameplate'**
+  String get vaultLookPlate;
+
+  /// No description provided for @vaultLookNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get vaultLookNone;
+
+  /// No description provided for @vaultLookWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown at the table, on your profile, to friends and on the result.'**
+  String get vaultLookWhere;
+
+  /// No description provided for @vaultToolsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tool bag'**
+  String get vaultToolsTitle;
+
+  /// No description provided for @vaultToolsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} tools'**
+  String vaultToolsCount(int count);
+
+  /// No description provided for @vaultToolsUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get vaultToolsUnlimited;
+
+  /// No description provided for @vaultToolsWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Used inside online matches, each tool in its moment.'**
+  String get vaultToolsWhere;
+
+  /// No description provided for @vaultToolLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} left'**
+  String vaultToolLeft(int count);
+
+  /// No description provided for @vaultToolPhaseDiscuss.
+  ///
+  /// In en, this message translates to:
+  /// **'In discussion'**
+  String get vaultToolPhaseDiscuss;
+
+  /// No description provided for @vaultToolPhaseVote.
+  ///
+  /// In en, this message translates to:
+  /// **'At the vote'**
+  String get vaultToolPhaseVote;
+
+  /// No description provided for @vaultToolPhaseNight.
+  ///
+  /// In en, this message translates to:
+  /// **'At night'**
+  String get vaultToolPhaseNight;
+
+  /// No description provided for @vaultToolPhaseDead.
+  ///
+  /// In en, this message translates to:
+  /// **'After you are out'**
+  String get vaultToolPhaseDead;
+
+  /// No description provided for @vaultNothingHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet. You will find it in the shop.'**
+  String get vaultNothingHere;
+
+  /// No description provided for @vaultRolesActive.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} owned'**
+  String vaultRolesActive(int count, int total);
 }
 
 class _AppLocalizationsDelegate

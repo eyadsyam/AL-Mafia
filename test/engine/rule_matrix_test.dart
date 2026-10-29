@@ -374,9 +374,9 @@ void main() {
     e.beginDay();
     while (e.match.phase == GamePhase.openingRound) {
       final actor = e.match.currentActorSeat!;
-      final target = e.match.players.firstWhere(
-        (p) => p.status == PlayerStatus.alive && p.seat != actor,
-      ).seat;
+      final target = e.match.players
+          .firstWhere((p) => p.status == PlayerStatus.alive && p.seat != actor)
+          .seat;
       e.submitOpeningAccusation(seat: actor, targetSeat: target);
     }
     if (e.match.phase == GamePhase.confrontation) e.endConfrontation();
@@ -401,20 +401,21 @@ void main() {
     expect(e.winCheck(), isNull);
   }
 
-  int? saved(MatchEngine e) => e.match.eventLog
-      .whereType<NightResolved>()
-      .last
-      .savedSeat;
+  int? saved(MatchEngine e) =>
+      e.match.eventLog.whereType<NightResolved>().last.savedSeat;
 
   group('doctor', () {
     test('C1: covered Mafia target survives and is recorded', () {
       final e = start(standard, plain);
       final x = seatOf(e, Role.citizen);
-      night(e, (_, role) => switch (role) {
-        Role.mafia => (NightActionKind.mafiaVote, x, false),
-        Role.doctor => (NightActionKind.protect, x, false),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.mafia => (NightActionKind.mafiaVote, x, false),
+          Role.doctor => (NightActionKind.protect, x, false),
+          _ => null,
+        },
+      );
       final report = e.resolveNight();
       expect(report.victimSeats, isEmpty);
       expect(saved(e), x);
@@ -426,11 +427,18 @@ void main() {
         final e = start(standard, plain, seed: seed);
         final m = seatsOf(e, Role.mafia);
         final c = seatsOf(e, Role.citizen);
-        night(e, (seat, role) => switch (role) {
-          Role.mafia => (NightActionKind.mafiaVote, seat == m.first ? c[0] : c[1], false),
-          Role.doctor => (NightActionKind.protect, c[0], false),
-          _ => null,
-        });
+        night(
+          e,
+          (seat, role) => switch (role) {
+            Role.mafia => (
+              NightActionKind.mafiaVote,
+              seat == m.first ? c[0] : c[1],
+              false,
+            ),
+            Role.doctor => (NightActionKind.protect, c[0], false),
+            _ => null,
+          },
+        );
         final r = e.resolveNight();
         expect(r.victimSeats.isEmpty, saved(e) == c[0], reason: 'seed $seed');
         if (r.victimSeats.isNotEmpty) expect(r.victimSeats, [c[1]]);
@@ -441,11 +449,14 @@ void main() {
       final e = start(standard, plain);
       final d = seatOf(e, Role.doctor);
       final c = seatOf(e, Role.citizen);
-      night(e, (_, role) => switch (role) {
-        Role.mafia => (NightActionKind.mafiaVote, d, false),
-        Role.doctor => (NightActionKind.protect, c, true),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.mafia => (NightActionKind.mafiaVote, d, false),
+          Role.doctor => (NightActionKind.protect, c, true),
+          _ => null,
+        },
+      );
       expect(e.resolveNight().victimSeats, isEmpty);
       expect(saved(e), d);
       expect(e.canArmBullet(d), isFalse);
@@ -454,8 +465,11 @@ void main() {
     test('C4: doctor cannot spend self bullet twice', () {
       final e = start(standard, plain);
       final d = seatOf(e, Role.doctor), c = seatOf(e, Role.citizen);
-      night(e, (_, role) => role == Role.doctor
-          ? (NightActionKind.protect, c, true) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.doctor ? (NightActionKind.protect, c, true) : null,
+      );
       e.resolveNight();
       nextNight(e);
       night(e, (_, _) => null);
@@ -465,39 +479,71 @@ void main() {
       while (e.match.currentActorSeat != d) {
         e.skipNightAction(seat: e.match.currentActorSeat!);
       }
-      expect(() => e.submitNightAction(seat: d, kind: NightActionKind.protect,
-          targetSeat: c, useBullet: true), throwsStateError);
+      expect(
+        () => e.submitNightAction(
+          seat: d,
+          kind: NightActionKind.protect,
+          targetSeat: c,
+          useBullet: true,
+        ),
+        throwsStateError,
+      );
     });
 
     test('C5: doctor cannot cover the same player on consecutive nights', () {
       final e = start(standard, plain);
       final d = seatOf(e, Role.doctor), c = seatOf(e, Role.citizen);
-      night(e, (_, role) => role == Role.doctor
-          ? (NightActionKind.protect, c, false) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.doctor ? (NightActionKind.protect, c, false) : null,
+      );
       e.resolveNight();
       nextNight(e);
       e.beginNight();
       while (e.match.currentActorSeat != d) {
         e.skipNightAction(seat: e.match.currentActorSeat!);
       }
-      expect(() => e.submitNightAction(seat: d, kind: NightActionKind.protect,
-          targetSeat: c), throwsStateError);
+      expect(
+        () => e.submitNightAction(
+          seat: d,
+          kind: NightActionKind.protect,
+          targetSeat: c,
+        ),
+        throwsStateError,
+      );
     });
 
     test('C6: an intervening self-protection permits the previous target', () {
       final e = start(standard, plain);
       final d = seatOf(e, Role.doctor), c = seatOf(e, Role.citizen);
-      night(e, (_, role) => role == Role.doctor
-          ? (NightActionKind.protect, c, false) : null);
-      e.resolveNight(); nextNight(e);
-      night(e, (_, role) => role == Role.doctor
-          ? (NightActionKind.protect, c, true) : null);
-      e.resolveNight(); nextNight(e);
-      night(e, (_, role) => role == Role.doctor
-          ? (NightActionKind.protect, c, false) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.doctor ? (NightActionKind.protect, c, false) : null,
+      );
       e.resolveNight();
-      expect(e.match.eventLog.whereType<ProtectCast>()
-          .where((p) => p.actorSeat == d).map((p) => p.targetSeat), [c, d, c]);
+      nextNight(e);
+      night(
+        e,
+        (_, role) =>
+            role == Role.doctor ? (NightActionKind.protect, c, true) : null,
+      );
+      e.resolveNight();
+      nextNight(e);
+      night(
+        e,
+        (_, role) =>
+            role == Role.doctor ? (NightActionKind.protect, c, false) : null,
+      );
+      e.resolveNight();
+      expect(
+        e.match.eventLog
+            .whereType<ProtectCast>()
+            .where((p) => p.actorSeat == d)
+            .map((p) => p.targetSeat),
+        [c, d, c],
+      );
     });
 
     test('C7: doctor plain skip protects the first legal target', () {
@@ -517,12 +563,18 @@ void main() {
       for (var seed = 1; seed <= 20; seed++) {
         final e = start(roles, plain, seed: seed);
         final doctors = seatsOf(e, Role.doctor), c = seatsOf(e, Role.citizen);
-        night(e, (seat, role) => switch (role) {
-          Role.mafia => (NightActionKind.mafiaVote, c[0], false),
-          Role.doctor => (NightActionKind.protect,
-              seat == doctors.first ? c[0] : c[1], false),
-          _ => null,
-        });
+        night(
+          e,
+          (seat, role) => switch (role) {
+            Role.mafia => (NightActionKind.mafiaVote, c[0], false),
+            Role.doctor => (
+              NightActionKind.protect,
+              seat == doctors.first ? c[0] : c[1],
+              false,
+            ),
+            _ => null,
+          },
+        );
         final r = e.resolveNight();
         expect(r.victimSeats, anyOf(isEmpty, [c[0]]));
         expect(saved(e) == c[0], r.victimSeats.isEmpty);
@@ -532,23 +584,29 @@ void main() {
     test('C9: doctor cannot stop a town sniper shot', () {
       final e = start(withSniper, sniperOn);
       final x = seatOf(e, Role.citizen), s = seatOf(e, Role.sniper);
-      night(e, (_, role) => switch (role) {
-        Role.doctor => (NightActionKind.protect, x, false),
-        Role.sniper => (NightActionKind.suspect, x, true),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.doctor => (NightActionKind.protect, x, false),
+          Role.sniper => (NightActionKind.suspect, x, true),
+          _ => null,
+        },
+      );
       expect(e.resolveNight().victimSeats, containsAll([x, s]));
     });
 
     test('C10: protected Mafia target shot by sniper is not a save', () {
       final e = start(withSniper, sniperOn);
       final x = seatOf(e, Role.citizen), s = seatOf(e, Role.sniper);
-      night(e, (_, role) => switch (role) {
-        Role.mafia => (NightActionKind.mafiaVote, x, false),
-        Role.doctor => (NightActionKind.protect, x, false),
-        Role.sniper => (NightActionKind.suspect, x, true),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.mafia => (NightActionKind.mafiaVote, x, false),
+          Role.doctor => (NightActionKind.protect, x, false),
+          Role.sniper => (NightActionKind.suspect, x, true),
+          _ => null,
+        },
+      );
       final r = e.resolveNight();
       expect(r.victimSeats, containsAll([x, s]));
       expect(saved(e), isNull);
@@ -558,11 +616,14 @@ void main() {
     test('C11: doctor protection still resolves when doctor dies', () {
       final e = start(standard, plain);
       final d = seatOf(e, Role.doctor), x = seatOf(e, Role.citizen);
-      night(e, (_, role) => switch (role) {
-        Role.mafia => (NightActionKind.mafiaVote, d, false),
-        Role.doctor => (NightActionKind.protect, x, false),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.mafia => (NightActionKind.mafiaVote, d, false),
+          Role.doctor => (NightActionKind.protect, x, false),
+          _ => null,
+        },
+      );
       expect(e.resolveNight().victimSeats, [d]);
       expect(e.match.eventLog.whereType<ProtectCast>().last.targetSeat, x);
     });
@@ -570,34 +631,46 @@ void main() {
     test('C12: doctor cannot save a mafioso from sniper', () {
       final e = start(withSniper, sniperOn);
       final m = seatOf(e, Role.mafia);
-      night(e, (_, role) => switch (role) {
-        Role.doctor => (NightActionKind.protect, m, false),
-        Role.sniper => (NightActionKind.suspect, m, true),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.doctor => (NightActionKind.protect, m, false),
+          Role.sniper => (NightActionKind.suspect, m, true),
+          _ => null,
+        },
+      );
       expect(e.resolveNight().victimSeats, [m]);
     });
 
     test('C13: death of the last doctor leaves no later protection', () {
       final e = start(standard, plain);
       final d = seatOf(e, Role.doctor), x = seatOf(e, Role.citizen);
-      night(e, (_, role) => role == Role.mafia
-          ? (NightActionKind.mafiaVote, d, false) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.mafia ? (NightActionKind.mafiaVote, d, false) : null,
+      );
       expect(e.resolveNight().victimSeats, [d]);
       nextNight(e);
-      night(e, (_, role) => role == Role.mafia
-          ? (NightActionKind.mafiaVote, x, false) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.mafia ? (NightActionKind.mafiaVote, x, false) : null,
+      );
       expect(e.resolveNight().victimSeats, [x]);
     });
 
     test('C14: fast preset announces a doctor save', () {
       final e = start(standard, const MatchSettings(bulletsEnabled: false));
       final x = seatOf(e, Role.citizen);
-      night(e, (_, role) => switch (role) {
-        Role.mafia => (NightActionKind.mafiaVote, x, false),
-        Role.doctor => (NightActionKind.protect, x, false),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.mafia => (NightActionKind.mafiaVote, x, false),
+          Role.doctor => (NightActionKind.protect, x, false),
+          _ => null,
+        },
+      );
       expect(e.resolveNight().someoneSavedUnnamed, isTrue);
     });
   });
@@ -606,8 +679,11 @@ void main() {
     test('C15: a mafia shot kills the mafioso and spares the sniper', () {
       final e = start(withSniper, sniperOn);
       final m = seatOf(e, Role.mafia), s = seatOf(e, Role.sniper);
-      night(e, (_, role) => role == Role.sniper
-          ? (NightActionKind.suspect, m, true) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.sniper ? (NightActionKind.suspect, m, true) : null,
+      );
       expect(e.resolveNight().victimSeats, [m]);
       expect(e.match.players[s].status, PlayerStatus.alive);
     });
@@ -615,31 +691,50 @@ void main() {
     test('C16: a citizen shot names both citizen and sniper deaths', () {
       final e = start(withSniper, sniperOn);
       final x = seatOf(e, Role.citizen), s = seatOf(e, Role.sniper);
-      night(e, (_, role) => role == Role.sniper
-          ? (NightActionKind.suspect, x, true) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.sniper ? (NightActionKind.suspect, x, true) : null,
+      );
       expect(e.resolveNight().victimSeats, containsAll([x, s]));
     });
 
     test('C17: silencer is mafia-aligned for a sniper shot', () {
-      final e = start({Role.mafia: 1, Role.silencer: 1, Role.sniper: 1,
-        Role.doctor: 1, Role.citizen: 3},
-        sniperOn.copyWith(silencerEnabled: true));
+      final e = start({
+        Role.mafia: 1,
+        Role.silencer: 1,
+        Role.sniper: 1,
+        Role.doctor: 1,
+        Role.citizen: 3,
+      }, sniperOn.copyWith(silencerEnabled: true));
       final s = seatOf(e, Role.silencer), sniper = seatOf(e, Role.sniper);
-      night(e, (_, role) => role == Role.sniper
-          ? (NightActionKind.suspect, s, true) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.sniper ? (NightActionKind.suspect, s, true) : null,
+      );
       expect(e.resolveNight().victimSeats, [s]);
       expect(e.match.players[sniper].status, PlayerStatus.alive);
     });
 
     test('C18: shooting elder or detective kills shooter too', () {
       for (final targetRole in [Role.elder, Role.detective]) {
-        final roles = {Role.mafia: 2, Role.sniper: 1,
-          targetRole: 1, Role.citizen: 3};
-        final e = start(roles,
-            sniperOn.copyWith(elderEnabled: targetRole == Role.elder));
+        final roles = {
+          Role.mafia: 2,
+          Role.sniper: 1,
+          targetRole: 1,
+          Role.citizen: 3,
+        };
+        final e = start(
+          roles,
+          sniperOn.copyWith(elderEnabled: targetRole == Role.elder),
+        );
         final x = seatOf(e, targetRole), s = seatOf(e, Role.sniper);
-        night(e, (_, role) => role == Role.sniper
-            ? (NightActionKind.suspect, x, true) : null);
+        night(
+          e,
+          (_, role) =>
+              role == Role.sniper ? (NightActionKind.suspect, x, true) : null,
+        );
         expect(e.resolveNight().victimSeats, containsAll([x, s]));
       }
     });
@@ -647,33 +742,50 @@ void main() {
     test('C19: a killed sniper still lands its mafia shot', () {
       final e = start(withSniper, sniperOn);
       final m = seatOf(e, Role.mafia), s = seatOf(e, Role.sniper);
-      night(e, (_, role) => switch (role) {
-        Role.mafia => (NightActionKind.mafiaVote, s, false),
-        Role.sniper => (NightActionKind.suspect, m, true),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.mafia => (NightActionKind.mafiaVote, s, false),
+          Role.sniper => (NightActionKind.suspect, m, true),
+          _ => null,
+        },
+      );
       expect(e.resolveNight().victimSeats, containsAll([m, s]));
     });
 
     test('C20: second sniper bullet is refused', () {
       final e = start(withSniper, sniperOn);
       final m = seatOf(e, Role.mafia), s = seatOf(e, Role.sniper);
-      night(e, (_, role) => role == Role.sniper
-          ? (NightActionKind.suspect, m, true) : null);
-      e.resolveNight(); nextNight(e);
+      night(
+        e,
+        (_, role) =>
+            role == Role.sniper ? (NightActionKind.suspect, m, true) : null,
+      );
+      e.resolveNight();
+      nextNight(e);
       e.beginNight();
       while (e.match.currentActorSeat != s) {
         e.skipNightAction(seat: e.match.currentActorSeat!);
       }
-      expect(() => e.submitNightAction(seat: s, kind: NightActionKind.suspect,
-          targetSeat: seatOf(e, Role.citizen), useBullet: true), throwsStateError);
+      expect(
+        () => e.submitNightAction(
+          seat: s,
+          kind: NightActionKind.suspect,
+          targetSeat: seatOf(e, Role.citizen),
+          useBullet: true,
+        ),
+        throwsStateError,
+      );
     });
 
     test('C21: unarmed sniper suspicion does not kill', () {
       final e = start(withSniper, sniperOn);
       final x = seatOf(e, Role.citizen);
-      night(e, (_, role) => role == Role.sniper
-          ? (NightActionKind.suspect, x, false) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.sniper ? (NightActionKind.suspect, x, false) : null,
+      );
       expect(e.resolveNight().victimSeats, isEmpty);
       expect(e.match.eventLog.whereType<SuspectCast>().last.targetSeat, x);
     });
@@ -681,36 +793,60 @@ void main() {
     test('C22: overlapping kill and town shot deduplicate the target', () {
       final e = start(withSniper, sniperOn);
       final x = seatOf(e, Role.citizen), s = seatOf(e, Role.sniper);
-      night(e, (_, role) => switch (role) {
-        Role.mafia => (NightActionKind.mafiaVote, x, false),
-        Role.sniper => (NightActionKind.suspect, x, true),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.mafia => (NightActionKind.mafiaVote, x, false),
+          Role.sniper => (NightActionKind.suspect, x, true),
+          _ => null,
+        },
+      );
       expect(e.resolveNight().victimSeats.toSet(), {x, s});
-      expect(e.match.eventLog.whereType<NightResolved>().last.victimSeats.length, 2);
+      expect(
+        e.match.eventLog.whereType<NightResolved>().last.victimSeats.length,
+        2,
+      );
     });
 
     test('C23: last mafioso shot ends in town win after morning', () {
-      final e = start({Role.mafia: 1, Role.sniper: 1,
-        Role.doctor: 1, Role.citizen: 4}, sniperOn);
+      final e = start({
+        Role.mafia: 1,
+        Role.sniper: 1,
+        Role.doctor: 1,
+        Role.citizen: 4,
+      }, sniperOn);
       final m = seatOf(e, Role.mafia);
-      night(e, (_, role) => role == Role.sniper
-          ? (NightActionKind.suspect, m, true) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.sniper ? (NightActionKind.suspect, m, true) : null,
+      );
       expect(e.resolveNight().victimSeats, [m]);
       expect(e.match.phase, GamePhase.morning);
       expect(e.concludeAfterNight(), Alignment.town);
     });
 
     test('C24: town shot that reaches parity awards mafia after morning', () {
-      final e = start({Role.mafia: 2, Role.sniper: 1,
-        Role.doctor: 1, Role.citizen: 3}, sniperOn);
+      final e = start({
+        Role.mafia: 2,
+        Role.sniper: 1,
+        Role.doctor: 1,
+        Role.citizen: 3,
+      }, sniperOn);
       final c = seatsOf(e, Role.citizen);
-      night(e, (_, role) => switch (role) {
-        Role.mafia => (NightActionKind.mafiaVote, c.last, false),
-        Role.sniper => (NightActionKind.suspect, c.first, true),
-        Role.doctor => (NightActionKind.protect, seatOf(e, Role.mafia), false),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.mafia => (NightActionKind.mafiaVote, c.last, false),
+          Role.sniper => (NightActionKind.suspect, c.first, true),
+          Role.doctor => (
+            NightActionKind.protect,
+            seatOf(e, Role.mafia),
+            false,
+          ),
+          _ => null,
+        },
+      );
       expect(e.resolveNight().victimSeats.length, 3);
       expect(e.concludeAfterNight(), Alignment.mafia);
     });
@@ -720,15 +856,23 @@ void main() {
       final x = seatOf(e, Role.citizen), m = seatOf(e, Role.mafia);
       e.beginNight();
       while (e.match.currentActorSeat != null) {
-        final seat = e.match.currentActorSeat!, role = e.match.players[seat].role;
+        final seat = e.match.currentActorSeat!,
+            role = e.match.players[seat].role;
         if (role == Role.mafia && seat == m) {
           e.skipNightAction(seat: seat, useBullet: true);
         } else if (role == Role.mafia) {
-          e.submitNightAction(seat: seat, kind: NightActionKind.mafiaVote,
-            targetSeat: x);
+          e.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.mafiaVote,
+            targetSeat: x,
+          );
         } else if (role == Role.sniper) {
-          e.submitNightAction(seat: seat, kind: NightActionKind.suspect,
-            targetSeat: x, useBullet: true);
+          e.submitNightAction(
+            seat: seat,
+            kind: NightActionKind.suspect,
+            targetSeat: x,
+            useBullet: true,
+          );
         } else {
           e.skipNightAction(seat: seat);
         }
@@ -740,8 +884,11 @@ void main() {
       final e = start(withSniper, sniperOn.copyWith(bulletsEnabled: false));
       final m = seatOf(e, Role.mafia), s = seatOf(e, Role.sniper);
       expect(e.canArmBullet(s), isTrue);
-      night(e, (_, role) => role == Role.sniper
-          ? (NightActionKind.suspect, m, true) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.sniper ? (NightActionKind.suspect, m, true) : null,
+      );
       expect(e.resolveNight().victimSeats, [m]);
     });
   });
@@ -750,27 +897,44 @@ void main() {
     test('C28: silenced seat cannot cast a ballot', () {
       final e = start(sevenWithSilencer, silencerOn);
       final x = seatOf(e, Role.citizen);
-      night(e, (_, role) => role == Role.silencer
-          ? (NightActionKind.silence, x, false) : null);
-      e.resolveNight(); toVoting(e);
+      night(
+        e,
+        (_, role) =>
+            role == Role.silencer ? (NightActionKind.silence, x, false) : null,
+      );
+      e.resolveNight();
+      toVoting(e);
       while (e.match.currentActorSeat != x) {
         final a = e.match.currentActorSeat!;
         e.submitVote(seat: a, voterSeat: a, targetSeat: null);
       }
-      expect(() => e.submitVote(seat: x, voterSeat: x,
-          targetSeat: seatOf(e, Role.mafia)), throwsStateError);
+      expect(
+        () => e.submitVote(
+          seat: x,
+          voterSeat: x,
+          targetSeat: seatOf(e, Role.mafia),
+        ),
+        throwsStateError,
+      );
       e.skipSilencedVote(x);
     });
 
     test('C29: silenced seat may be voted out', () {
       final e = start(sevenWithSilencer, silencerOn);
       final x = seatOf(e, Role.citizen);
-      night(e, (_, role) => role == Role.silencer
-          ? (NightActionKind.silence, x, false) : null);
-      e.resolveNight(); toVoting(e);
+      night(
+        e,
+        (_, role) =>
+            role == Role.silencer ? (NightActionKind.silence, x, false) : null,
+      );
+      e.resolveNight();
+      toVoting(e);
       while (e.match.phase == GamePhase.voting) {
         final a = e.match.currentActorSeat!;
-        if (a == x) { e.skipSilencedVote(a); continue; }
+        if (a == x) {
+          e.skipSilencedVote(a);
+          continue;
+        }
         e.submitVote(seat: a, voterSeat: a, targetSeat: x);
       }
       expect(e.resolveDayVote().eliminatedSeat, x);
@@ -779,11 +943,14 @@ void main() {
     test('C30: a dead silence target has no silence mark', () {
       final e = start(sevenWithSilencer, silencerOn);
       final x = seatOf(e, Role.citizen);
-      night(e, (_, role) => switch (role) {
-        Role.mafia => (NightActionKind.mafiaVote, x, false),
-        Role.silencer => (NightActionKind.silence, x, false),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.mafia => (NightActionKind.mafiaVote, x, false),
+          Role.silencer => (NightActionKind.silence, x, false),
+          _ => null,
+        },
+      );
       final r = e.resolveNight();
       expect(r.victimSeats, [x]);
       expect(r.silencedSeat, isNull);
@@ -792,90 +959,133 @@ void main() {
     test('C31: silencer inherits kill after last killer leaves', () {
       final e = start(sevenWithSilencer, silencerOn);
       final m = seatOf(e, Role.mafia), s = seatOf(e, Role.silencer);
-      night(e, (_, _) => null); e.resolveNight(); nextNight(e);
-      night(e, (_, _) => null); e.resolveNight(); toVoting(e);
+      night(e, (_, _) => null);
+      e.resolveNight();
+      nextNight(e);
+      night(e, (_, _) => null);
+      e.resolveNight();
+      toVoting(e);
       while (e.match.phase == GamePhase.voting) {
         final a = e.match.currentActorSeat!;
-        e.submitVote(seat: a, voterSeat: a,
-          targetSeat: a == m ? null : m);
+        e.submitVote(seat: a, voterSeat: a, targetSeat: a == m ? null : m);
       }
       expect(e.resolveDayVote().eliminatedSeat, m);
       expect(e.winCheck(), isNull);
       final x = seatOf(e, Role.citizen);
-      night(e, (_, role) => role == Role.silencer
-          ? (NightActionKind.silence, x, false) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.silencer ? (NightActionKind.silence, x, false) : null,
+      );
       expect(e.resolveNight().victimSeats, [x]);
       expect(e.match.eventLog.whereType<MafiaVoteCast>().last.actorSeat, s);
     });
 
     test('C32: silence persists when last killer is shot that night', () {
-      final e = start({Role.mafia: 1, Role.silencer: 1,
-        Role.sniper: 1, Role.doctor: 1, Role.citizen: 3},
-        sniperOn.copyWith(silencerEnabled: true));
+      final e = start({
+        Role.mafia: 1,
+        Role.silencer: 1,
+        Role.sniper: 1,
+        Role.doctor: 1,
+        Role.citizen: 3,
+      }, sniperOn.copyWith(silencerEnabled: true));
       final m = seatOf(e, Role.mafia), y = seatOf(e, Role.citizen);
-      night(e, (_, _) => null); e.resolveNight(); nextNight(e);
-      night(e, (_, role) => switch (role) {
-        Role.silencer => (NightActionKind.silence, y, false),
-        Role.sniper => (NightActionKind.suspect, m, true),
-        _ => null,
-      });
+      night(e, (_, _) => null);
+      e.resolveNight();
+      nextNight(e);
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.silencer => (NightActionKind.silence, y, false),
+          Role.sniper => (NightActionKind.suspect, m, true),
+          _ => null,
+        },
+      );
       final r = e.resolveNight();
       expect(r.victimSeats, [m]);
       expect(r.silencedSeat, y);
       nextNight(e);
       final x = seatsOf(e, Role.citizen).last;
-      night(e, (_, role) => role == Role.silencer
-          ? (NightActionKind.silence, x, false) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.silencer ? (NightActionKind.silence, x, false) : null,
+      );
       expect(e.resolveNight().victimSeats, [x]);
     });
 
     test('C33: silencer may silence itself and loses its vote', () {
       final e = start(sevenWithSilencer, silencerOn);
       final s = seatOf(e, Role.silencer);
-      night(e, (_, role) => role == Role.silencer
-          ? (NightActionKind.silence, s, false) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.silencer ? (NightActionKind.silence, s, false) : null,
+      );
       expect(e.resolveNight().silencedSeat, s);
       toVoting(e);
       while (e.match.currentActorSeat != s) {
         final a = e.match.currentActorSeat!;
         e.submitVote(seat: a, voterSeat: a, targetSeat: null);
       }
-      expect(() => e.submitVote(seat: s, voterSeat: s, targetSeat: null),
-          throwsStateError);
+      expect(
+        () => e.submitVote(seat: s, voterSeat: s, targetSeat: null),
+        throwsStateError,
+      );
     });
 
     test('C34: silencer may silence a teammate', () {
       final e = start(sevenWithSilencer, silencerOn);
       final m = seatOf(e, Role.mafia);
-      night(e, (_, role) => role == Role.silencer
-          ? (NightActionKind.silence, m, false) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.silencer ? (NightActionKind.silence, m, false) : null,
+      );
       expect(e.resolveNight().silencedSeat, m);
     });
 
     test('C35: silenced elder may reveal but cannot vote', () {
-      final e = start({Role.mafia: 1, Role.silencer: 1,
-        Role.elder: 1, Role.citizen: 4},
-        silencerOn.copyWith(elderEnabled: true));
+      final e = start({
+        Role.mafia: 1,
+        Role.silencer: 1,
+        Role.elder: 1,
+        Role.citizen: 4,
+      }, silencerOn.copyWith(elderEnabled: true));
       final elder = seatOf(e, Role.elder);
-      night(e, (_, role) => role == Role.silencer
-          ? (NightActionKind.silence, elder, false) : null);
+      night(
+        e,
+        (_, role) => role == Role.silencer
+            ? (NightActionKind.silence, elder, false)
+            : null,
+      );
       e.resolveNight();
-      e.beginDay(); e.revealElder(elder);
+      e.beginDay();
+      e.revealElder(elder);
       expect(e.voteWeightFor(elder), 3);
       e.beginVoting();
       while (e.match.currentActorSeat != elder) {
         final a = e.match.currentActorSeat!;
         e.submitVote(seat: a, voterSeat: a, targetSeat: null);
       }
-      expect(() => e.submitVote(seat: elder, voterSeat: elder,
-          targetSeat: seatOf(e, Role.mafia)), throwsStateError);
+      expect(
+        () => e.submitVote(
+          seat: elder,
+          voterSeat: elder,
+          targetSeat: seatOf(e, Role.mafia),
+        ),
+        throwsStateError,
+      );
     });
 
     test('C38: offline silence is a public mark with no talk turn', () {
       final e = start(sevenWithSilencer, silencerOn);
       final x = seatOf(e, Role.citizen);
-      night(e, (_, role) => role == Role.silencer
-          ? (NightActionKind.silence, x, false) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.silencer ? (NightActionKind.silence, x, false) : null,
+      );
       expect(e.resolveNight().silencedSeat, x);
       e.beginDay();
       expect(e.match.phase, GamePhase.discussion);
@@ -885,8 +1095,12 @@ void main() {
     test('C43: Mafia and Silencer know each other at deal', () {
       final roles = sevenWithSilencer;
       final e = MatchEngine(clock: Clocks.monotonic());
-      e.start(names: [for (var i = 0; i < 7; i++) 'P$i'],
-          roleCounts: roles, settings: silencerOn, seed: 3);
+      e.start(
+        names: [for (var i = 0; i < 7; i++) 'P$i'],
+        roleCounts: roles,
+        settings: silencerOn,
+        seed: 3,
+      );
       for (var i = 0; i < 7; i++) {
         final view = e.revealFor(i);
         if (e.match.players[i].role.alignment == Alignment.mafia) {
@@ -905,20 +1119,40 @@ void main() {
       while (e.match.currentActorSeat != d) {
         e.skipNightAction(seat: e.match.currentActorSeat!);
       }
-      expect(e.submitNightAction(seat: d, kind: NightActionKind.investigate,
-          targetSeat: s)?.revealedRole, Role.silencer);
+      expect(
+        e
+            .submitNightAction(
+              seat: d,
+              kind: NightActionKind.investigate,
+              targetSeat: s,
+            )
+            ?.revealedRole,
+        Role.silencer,
+      );
     });
 
     test('C45: detective sees the Elder exact role', () {
-      final e = start({Role.mafia: 1, Role.elder: 1,
-        Role.detective: 1, Role.citizen: 4}, elderOn);
+      final e = start({
+        Role.mafia: 1,
+        Role.elder: 1,
+        Role.detective: 1,
+        Role.citizen: 4,
+      }, elderOn);
       final elder = seatOf(e, Role.elder), d = seatOf(e, Role.detective);
       e.beginNight();
       while (e.match.currentActorSeat != d) {
         e.skipNightAction(seat: e.match.currentActorSeat!);
       }
-      expect(e.submitNightAction(seat: d, kind: NightActionKind.investigate,
-          targetSeat: elder)?.revealedRole, Role.elder);
+      expect(
+        e
+            .submitNightAction(
+              seat: d,
+              kind: NightActionKind.investigate,
+              targetSeat: elder,
+            )
+            ?.revealedRole,
+        Role.elder,
+      );
     });
 
     test('C50: detective cannot investigate twice in one night', () {
@@ -928,12 +1162,25 @@ void main() {
       while (e.match.currentActorSeat != d) {
         e.skipNightAction(seat: e.match.currentActorSeat!);
       }
-      e.submitNightAction(seat: d, kind: NightActionKind.investigate,
-          targetSeat: c[0]);
-      expect(() => e.submitNightAction(seat: d,
-          kind: NightActionKind.investigate, targetSeat: c[1]), throwsStateError);
-      expect(e.match.eventLog.whereType<InvestigateCast>()
-          .where((v) => v.actorSeat == d), hasLength(1));
+      e.submitNightAction(
+        seat: d,
+        kind: NightActionKind.investigate,
+        targetSeat: c[0],
+      );
+      expect(
+        () => e.submitNightAction(
+          seat: d,
+          kind: NightActionKind.investigate,
+          targetSeat: c[1],
+        ),
+        throwsStateError,
+      );
+      expect(
+        e.match.eventLog.whereType<InvestigateCast>().where(
+          (v) => v.actorSeat == d,
+        ),
+        hasLength(1),
+      );
     });
 
     test('C51: detective receives answer before dying that night', () {
@@ -944,38 +1191,63 @@ void main() {
       while (e.match.currentActorSeat != null) {
         final a = e.match.currentActorSeat!, role = e.match.players[a].role;
         if (role == Role.mafia) {
-          e.submitNightAction(seat: a, kind: NightActionKind.mafiaVote,
-              targetSeat: d);
+          e.submitNightAction(
+            seat: a,
+            kind: NightActionKind.mafiaVote,
+            targetSeat: d,
+          );
         } else if (role == Role.detective) {
-          answer = e.submitNightAction(seat: a,
-              kind: NightActionKind.investigate, targetSeat: m)?.revealedRole;
+          answer = e
+              .submitNightAction(
+                seat: a,
+                kind: NightActionKind.investigate,
+                targetSeat: m,
+              )
+              ?.revealedRole;
         } else if (role == Role.doctor) {
-          e.submitNightAction(seat: a, kind: NightActionKind.protect,
-              targetSeat: seatOf(e, Role.citizen));
-        } else { e.skipNightAction(seat: a); }
+          e.submitNightAction(
+            seat: a,
+            kind: NightActionKind.protect,
+            targetSeat: seatOf(e, Role.citizen),
+          );
+        } else {
+          e.skipNightAction(seat: a);
+        }
       }
       expect(answer, Role.mafia);
       expect(e.resolveNight().victimSeats, [d]);
     });
 
     test('C52: a second detective is refused by the setup guard', () {
-      final report = BalanceGuard.evaluate(playerCount: 7,
-        roleCounts: {Role.mafia: 2, Role.detective: 2, Role.citizen: 3});
-      expect(report.issues.any((i) =>
-          i.code == 'one_detective_only' && i.blocking), isTrue);
+      final report = BalanceGuard.evaluate(
+        playerCount: 7,
+        roleCounts: {Role.mafia: 2, Role.detective: 2, Role.citizen: 3},
+      );
+      expect(
+        report.issues.any((i) => i.code == 'one_detective_only' && i.blocking),
+        isTrue,
+      );
     });
   });
 
   group('elder', () {
     test('C53: revealed Elder who dies keeps reveal but casts no ballot', () {
-      final e = start({Role.mafia: 1, Role.elder: 1,
-        Role.citizen: 5}, elderOn);
+      final e = start({Role.mafia: 1, Role.elder: 1, Role.citizen: 5}, elderOn);
       final elder = seatOf(e, Role.elder);
-      night(e, (_, _) => null); e.resolveNight();
-      e.beginDay(); e.revealElder(elder);
-      e.beginVoting(); abstainOrSkip(e); e.resolveDayVote(); e.winCheck();
-      night(e, (_, role) => role == Role.mafia
-          ? (NightActionKind.mafiaVote, elder, false) : null);
+      night(e, (_, _) => null);
+      e.resolveNight();
+      e.beginDay();
+      e.revealElder(elder);
+      e.beginVoting();
+      abstainOrSkip(e);
+      e.resolveDayVote();
+      e.winCheck();
+      night(
+        e,
+        (_, role) => role == Role.mafia
+            ? (NightActionKind.mafiaVote, elder, false)
+            : null,
+      );
       expect(e.resolveNight().victimSeats, [elder]);
       expect(e.isElderRevealed(elder), isTrue);
       toVoting(e);
@@ -983,15 +1255,20 @@ void main() {
     });
 
     test('C54: revealed Elder three votes beat two other votes', () {
-      final e = start({Role.mafia: 1, Role.elder: 1,
-        Role.citizen: 4}, elderOn);
+      final e = start({Role.mafia: 1, Role.elder: 1, Role.citizen: 4}, elderOn);
       final elder = seatOf(e, Role.elder), c = seatsOf(e, Role.citizen);
-      night(e, (_, _) => null); e.resolveNight();
-      e.beginDay(); e.revealElder(elder); e.beginVoting();
+      night(e, (_, _) => null);
+      e.resolveNight();
+      e.beginDay();
+      e.revealElder(elder);
+      e.beginVoting();
       while (e.match.phase == GamePhase.voting) {
         final a = e.match.currentActorSeat!;
-        final target = a == elder ? c[0] :
-            (a == c[1] || a == c[2]) ? c[3] : null;
+        final target = a == elder
+            ? c[0]
+            : (a == c[1] || a == c[2])
+            ? c[3]
+            : null;
         e.submitVote(seat: a, voterSeat: a, targetSeat: target);
       }
       final r = e.resolveDayVote();
@@ -1001,24 +1278,29 @@ void main() {
     });
 
     test('C55: reveal after casting weights that ballot retroactively', () {
-      final e = start({Role.mafia: 1, Role.elder: 1,
-        Role.citizen: 4}, elderOn);
+      final e = start({Role.mafia: 1, Role.elder: 1, Role.citizen: 4}, elderOn);
       final elder = seatOf(e, Role.elder), c = seatsOf(e, Role.citizen);
-      night(e, (_, _) => null); e.resolveNight(); toVoting(e);
+      night(e, (_, _) => null);
+      e.resolveNight();
+      toVoting(e);
       while (e.match.phase == GamePhase.voting) {
         final a = e.match.currentActorSeat!;
-        e.submitVote(seat: a, voterSeat: a,
-          targetSeat: a == elder ? c[0] : null);
+        e.submitVote(
+          seat: a,
+          voterSeat: a,
+          targetSeat: a == elder ? c[0] : null,
+        );
       }
       e.revealElder(elder);
       expect(e.resolveDayVote().tally?[c[0]], 3);
     });
 
     test('C56: Elder may reveal while vote resolves', () {
-      final e = start({Role.mafia: 1, Role.elder: 1,
-        Role.citizen: 4}, elderOn);
+      final e = start({Role.mafia: 1, Role.elder: 1, Role.citizen: 4}, elderOn);
       final elder = seatOf(e, Role.elder);
-      night(e, (_, _) => null); e.resolveNight(); toVoting(e);
+      night(e, (_, _) => null);
+      e.resolveNight();
+      toVoting(e);
       abstainOrSkip(e);
       expect(e.match.phase, GamePhase.voteResolving);
       e.revealElder(elder);
@@ -1026,31 +1308,48 @@ void main() {
     });
 
     test('C57: Elder cannot reveal at night', () {
-      final e = start({Role.mafia: 1, Role.elder: 1,
-        Role.citizen: 4}, elderOn);
+      final e = start({Role.mafia: 1, Role.elder: 1, Role.citizen: 4}, elderOn);
       e.beginNight();
       expect(() => e.revealElder(seatOf(e, Role.elder)), throwsStateError);
     });
 
     test('C59: revealed Elder keeps triple weight in a revote', () {
-      final e = start({Role.mafia: 1, Role.elder: 1,
-        Role.citizen: 4}, elderOn.copyWith(dayTieRule: DayTieRule.revote));
+      final e = start({
+        Role.mafia: 1,
+        Role.elder: 1,
+        Role.citizen: 4,
+      }, elderOn.copyWith(dayTieRule: DayTieRule.revote));
       final elder = seatOf(e, Role.elder), c = seatsOf(e, Role.citizen);
-      final forB = [for (final p in e.match.players)
-        if (p.seat != elder && p.seat != c[1]) p.seat].take(3).toSet();
-      night(e, (_, _) => null); e.resolveNight();
-      e.beginDay(); e.revealElder(elder); e.beginVoting();
+      final forB = [
+        for (final p in e.match.players)
+          if (p.seat != elder && p.seat != c[1]) p.seat,
+      ].take(3).toSet();
+      night(e, (_, _) => null);
+      e.resolveNight();
+      e.beginDay();
+      e.revealElder(elder);
+      e.beginVoting();
       while (e.match.phase == GamePhase.voting) {
         final a = e.match.currentActorSeat!;
-        e.submitVote(seat: a, voterSeat: a,
-          targetSeat: a == elder ? c[0] : forB.contains(a) ? c[1] : null);
+        e.submitVote(
+          seat: a,
+          voterSeat: a,
+          targetSeat: a == elder
+              ? c[0]
+              : forB.contains(a)
+              ? c[1]
+              : null,
+        );
       }
       expect(e.resolveDayVote().tie, isTrue);
       expect(e.currentVoteRound, 2);
       while (e.match.phase == GamePhase.voting) {
         final a = e.match.currentActorSeat!;
-        e.submitVote(seat: a, voterSeat: a,
-          targetSeat: a == elder ? c[0] : null);
+        e.submitVote(
+          seat: a,
+          voterSeat: a,
+          targetSeat: a == elder ? c[0] : null,
+        );
       }
       final r = e.resolveDayVote();
       expect(r.tally?[c[0]], 3);
@@ -1058,22 +1357,34 @@ void main() {
     });
 
     test('C61: offline Elder may record a night suspicion', () {
-      final e = start({Role.mafia: 1, Role.elder: 1,
-        Role.citizen: 4}, elderOn);
+      final e = start({Role.mafia: 1, Role.elder: 1, Role.citizen: 4}, elderOn);
       final x = seatOf(e, Role.mafia), elder = seatOf(e, Role.elder);
-      night(e, (_, role) => role == Role.elder
-          ? (NightActionKind.suspect, x, false) : null);
-      expect(e.match.eventLog.whereType<SuspectCast>()
-          .any((v) => v.actorSeat == elder && v.targetSeat == x), isTrue);
+      night(
+        e,
+        (_, role) =>
+            role == Role.elder ? (NightActionKind.suspect, x, false) : null,
+      );
+      expect(
+        e.match.eventLog.whereType<SuspectCast>().any(
+          (v) => v.actorSeat == elder && v.targetSeat == x,
+        ),
+        isTrue,
+      );
     });
 
     test('C62: sniper treats Elder as town', () {
-      final e = start({Role.mafia: 2, Role.elder: 1,
-        Role.sniper: 1, Role.citizen: 3},
-        sniperOn.copyWith(elderEnabled: true));
+      final e = start({
+        Role.mafia: 2,
+        Role.elder: 1,
+        Role.sniper: 1,
+        Role.citizen: 3,
+      }, sniperOn.copyWith(elderEnabled: true));
       final elder = seatOf(e, Role.elder), s = seatOf(e, Role.sniper);
-      night(e, (_, role) => role == Role.sniper
-          ? (NightActionKind.suspect, elder, true) : null);
+      night(
+        e,
+        (_, role) =>
+            role == Role.sniper ? (NightActionKind.suspect, elder, true) : null,
+      );
       expect(e.resolveNight().victimSeats, containsAll([elder, s]));
     });
   });
@@ -1086,8 +1397,14 @@ void main() {
       while (e.match.currentActorSeat != m.first) {
         e.skipNightAction(seat: e.match.currentActorSeat!);
       }
-      expect(() => e.submitNightAction(seat: m.first,
-        kind: NightActionKind.mafiaVote, targetSeat: m.last), throwsStateError);
+      expect(
+        () => e.submitNightAction(
+          seat: m.first,
+          kind: NightActionKind.mafiaVote,
+          targetSeat: m.last,
+        ),
+        throwsStateError,
+      );
     });
 
     test('C64: a team quiet night cancels another Mafia vote', () {
@@ -1099,9 +1416,14 @@ void main() {
         if (a == m.first) {
           e.skipNightAction(seat: a, useBullet: true);
         } else if (a == m.last) {
-          e.submitNightAction(seat: a,
-            kind: NightActionKind.mafiaVote, targetSeat: x);
-        } else { e.skipNightAction(seat: a); }
+          e.submitNightAction(
+            seat: a,
+            kind: NightActionKind.mafiaVote,
+            targetSeat: x,
+          );
+        } else {
+          e.skipNightAction(seat: a);
+        }
       }
       expect(e.resolveNight().victimSeats, isEmpty);
     });
@@ -1118,8 +1440,10 @@ void main() {
       while (e.match.currentActorSeat != m.last) {
         e.skipNightAction(seat: e.match.currentActorSeat!);
       }
-      expect(() => e.skipNightAction(seat: m.last, useBullet: true),
-          throwsStateError);
+      expect(
+        () => e.skipNightAction(seat: m.last, useBullet: true),
+        throwsStateError,
+      );
     });
 
     test('C66: Mafia choose nobody arms quiet night once', () {
@@ -1131,8 +1455,10 @@ void main() {
       }
       e.skipNightAction(seat: m, useBullet: true);
       expect(e.canArmBullet(m), isFalse);
-      expect(e.match.eventLog.whereType<BulletSpent>().last.kind,
-          BulletKind.quietNight);
+      expect(
+        e.match.eventLog.whereType<BulletSpent>().last.kind,
+        BulletKind.quietNight,
+      );
     });
   });
 
@@ -1141,19 +1467,30 @@ void main() {
       for (final rule in [DayTieRule.noElimination, DayTieRule.revote]) {
         final e = start(standard, plain.copyWith(dayTieRule: rule));
         final c = seatsOf(e, Role.citizen);
-        night(e, (_, _) => null); e.resolveNight(); toVoting(e);
+        night(e, (_, _) => null);
+        e.resolveNight();
+        toVoting(e);
         void tieBallot() {
-          final available = [for (final p in e.match.players)
-            if (p.seat != c[0] && p.seat != c[1]) p.seat];
+          final available = [
+            for (final p in e.match.players)
+              if (p.seat != c[0] && p.seat != c[1]) p.seat,
+          ];
           final forA = available.take(2).toSet();
           final forB = available.skip(2).take(2).toSet();
           while (e.match.phase == GamePhase.voting) {
             final a = e.match.currentActorSeat!;
-            e.submitVote(seat: a, voterSeat: a,
-              targetSeat: forA.contains(a) ? c[0] :
-                  forB.contains(a) ? c[1] : null);
+            e.submitVote(
+              seat: a,
+              voterSeat: a,
+              targetSeat: forA.contains(a)
+                  ? c[0]
+                  : forB.contains(a)
+                  ? c[1]
+                  : null,
+            );
           }
         }
+
         tieBallot();
         final first = e.resolveDayVote();
         expect(first.tie, isTrue);
@@ -1171,7 +1508,9 @@ void main() {
     test('C101: one ballot beats all abstentions', () {
       final e = start(standard, plain);
       final x = seatOf(e, Role.citizen);
-      night(e, (_, _) => null); e.resolveNight(); toVoting(e);
+      night(e, (_, _) => null);
+      e.resolveNight();
+      toVoting(e);
       var cast = false;
       while (e.match.phase == GamePhase.voting) {
         final a = e.match.currentActorSeat!;
@@ -1184,7 +1523,9 @@ void main() {
 
     test('C102: unanimous abstention advances without elimination', () {
       final e = start(standard, plain);
-      night(e, (_, _) => null); e.resolveNight(); toVoting(e);
+      night(e, (_, _) => null);
+      e.resolveNight();
+      toVoting(e);
       abstainOrSkip(e);
       expect(e.resolveDayVote().eliminatedSeat, isNull);
       expect(e.match.phase, GamePhase.reveal);
@@ -1193,26 +1534,38 @@ void main() {
     test('C103: a silence target remains eligible for elimination', () {
       final e = start(sevenWithSilencer, silencerOn);
       final x = seatOf(e, Role.citizen);
-      night(e, (_, role) => role == Role.silencer
-          ? (NightActionKind.silence, x, false) : null);
-      e.resolveNight(); toVoting(e);
+      night(
+        e,
+        (_, role) =>
+            role == Role.silencer ? (NightActionKind.silence, x, false) : null,
+      );
+      e.resolveNight();
+      toVoting(e);
       while (e.match.phase == GamePhase.voting) {
         final a = e.match.currentActorSeat!;
-        if (a == x) { e.skipSilencedVote(a); continue; }
+        if (a == x) {
+          e.skipSilencedVote(a);
+          continue;
+        }
         e.submitVote(seat: a, voterSeat: a, targetSeat: x);
       }
       expect(e.resolveDayVote().eliminatedSeat, x);
     });
 
     test('C105: last Mafioso voted out reveals role and town wins', () {
-      final e = start({Role.mafia: 1, Role.doctor: 1,
-        Role.detective: 1, Role.citizen: 3}, plain);
+      final e = start({
+        Role.mafia: 1,
+        Role.doctor: 1,
+        Role.detective: 1,
+        Role.citizen: 3,
+      }, plain);
       final m = seatOf(e, Role.mafia);
-      night(e, (_, _) => null); e.resolveNight(); toVoting(e);
+      night(e, (_, _) => null);
+      e.resolveNight();
+      toVoting(e);
       while (e.match.phase == GamePhase.voting) {
         final a = e.match.currentActorSeat!;
-        e.submitVote(seat: a, voterSeat: a,
-          targetSeat: a == m ? null : m);
+        e.submitVote(seat: a, voterSeat: a, targetSeat: a == m ? null : m);
       }
       final r = e.resolveDayVote();
       expect(r.eliminatedRole, Role.mafia);
@@ -1222,28 +1575,40 @@ void main() {
     test('C106: day elimination reaching parity awards Mafia', () {
       final e = start({Role.mafia: 2, Role.citizen: 3}, plain);
       final x = seatOf(e, Role.citizen);
-      night(e, (_, _) => null); e.resolveNight(); toVoting(e);
+      night(e, (_, _) => null);
+      e.resolveNight();
+      toVoting(e);
       while (e.match.phase == GamePhase.voting) {
         final a = e.match.currentActorSeat!;
-        e.submitVote(seat: a, voterSeat: a,
-          targetSeat: a == x ? null : x);
+        e.submitVote(seat: a, voterSeat: a, targetSeat: a == x ? null : x);
       }
       expect(e.resolveDayVote().eliminatedSeat, x);
       expect(e.winCheck(), Alignment.mafia);
     });
 
     test('C107: night parity is decided after the morning', () {
-      final e = start({Role.mafia: 1, Role.citizen: 2,
-        Role.doctor: 1, Role.detective: 1}, plain);
+      final e = start({
+        Role.mafia: 1,
+        Role.citizen: 2,
+        Role.doctor: 1,
+        Role.detective: 1,
+      }, plain);
       final c = seatsOf(e, Role.citizen);
       e.removePlayer(c.first);
       e.removePlayer(seatOf(e, Role.detective));
       final x = c.last;
-      night(e, (_, role) => switch (role) {
-        Role.mafia => (NightActionKind.mafiaVote, x, false),
-        Role.doctor => (NightActionKind.protect, seatOf(e, Role.mafia), false),
-        _ => null,
-      });
+      night(
+        e,
+        (_, role) => switch (role) {
+          Role.mafia => (NightActionKind.mafiaVote, x, false),
+          Role.doctor => (
+            NightActionKind.protect,
+            seatOf(e, Role.mafia),
+            false,
+          ),
+          _ => null,
+        },
+      );
       expect(e.resolveNight().victimSeats, [x]);
       expect(e.match.phase, GamePhase.morning);
       expect(e.concludeAfterNight(), Alignment.mafia);

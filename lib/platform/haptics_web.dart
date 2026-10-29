@@ -7,9 +7,7 @@ import 'package:web/web.dart' as web;
 /// wants a user gesture first simply ignores it.
 bool vibrate(List<int> timings) {
   try {
-    return web.window.navigator.vibrate(
-      [for (final t in timings) t.toJS].toJS,
-    );
+    return web.window.navigator.vibrate([for (final t in timings) t.toJS].toJS);
   } catch (_) {
     return false;
   }

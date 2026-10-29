@@ -151,22 +151,25 @@ void main() {
     });
     tearDown(() => container.dispose());
 
-    test('a confirmed grant shows at once, then the server\'s number', () async {
-      await container.read(walletProvider.notifier).refresh();
-      expect(container.read(walletProvider).valueOrNull?.balance, 100);
-      balance = 125;
-      final settling = container
-          .read(walletProvider.notifier)
-          .settle(credited: 25);
-      expect(
-        container.read(walletProvider).valueOrNull?.balance,
-        125,
-        reason: 'no reopening the vault, no blank header',
-      );
-      await settling;
-      expect(container.read(walletProvider).valueOrNull?.balance, 125);
-      expect(backend.calls.last.body['action'], 'summary');
-    });
+    test(
+      'a confirmed grant shows at once, then the server\'s number',
+      () async {
+        await container.read(walletProvider.notifier).refresh();
+        expect(container.read(walletProvider).valueOrNull?.balance, 100);
+        balance = 125;
+        final settling = container
+            .read(walletProvider.notifier)
+            .settle(credited: 25);
+        expect(
+          container.read(walletProvider).valueOrNull?.balance,
+          125,
+          reason: 'no reopening the vault, no blank header',
+        );
+        await settling;
+        expect(container.read(walletProvider).valueOrNull?.balance, 125);
+        expect(backend.calls.last.body['action'], 'summary');
+      },
+    );
 
     test('a wallet nobody has read is left unread', () async {
       await container.read(walletProvider.notifier).settle(credited: 25);

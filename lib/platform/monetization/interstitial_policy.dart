@@ -21,7 +21,13 @@ library;
 import '../../ui/theme/design_tokens.dart';
 
 /// Where an automatic interstitial is being considered.
-enum AdPlacement { preMatch, postMatch, passAndPlayDeal, passAndPlayResult, session }
+enum AdPlacement {
+  preMatch,
+  postMatch,
+  passAndPlayDeal,
+  passAndPlayResult,
+  session,
+}
 
 class InterstitialRules {
   /// Post-match (the phase-103 switch).
@@ -83,7 +89,10 @@ class InterstitialRules {
       passAndPlay: flag('passAndPlay'),
       session: flag('session'),
       sessionAfter: Duration(
-        seconds: read('sessionAfterSeconds', _minSession).clamp(_minSession, _day),
+        seconds: read(
+          'sessionAfterSeconds',
+          _minSession,
+        ).clamp(_minSession, _day),
       ),
       maxPerDay: read(
         'maxPerDay',
@@ -136,11 +145,10 @@ class InterstitialLedger {
 
   static const empty = InterstitialLedger();
 
-  static String dayOf(int ms) =>
-      DateTime.fromMillisecondsSinceEpoch(
-        ms,
-        isUtc: true,
-      ).toIso8601String().substring(0, 10);
+  static String dayOf(int ms) => DateTime.fromMillisecondsSinceEpoch(
+    ms,
+    isUtc: true,
+  ).toIso8601String().substring(0, 10);
 
   int effectiveNow(int nowMs) => nowMs > highWaterMs ? nowMs : highWaterMs;
 

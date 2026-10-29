@@ -94,7 +94,10 @@ class TitleHub {
 
   static const off = TitleHub();
 
-  List<TitleEntry> get owned => [for (final t in titles) if (t.owned) t];
+  List<TitleEntry> get owned => [
+    for (final t in titles)
+      if (t.owned) t,
+  ];
 
   TitleEntry? get equippedTitle =>
       titles.where((t) => t.code == equipped && t.owned).firstOrNull;
@@ -145,7 +148,11 @@ class TitleHubController extends AsyncNotifier<TitleHub> {
     final id = requestId ?? newRequestId();
     final Map<String, dynamic> answer;
     try {
-      answer = await _call({'action': 'titleEquip', 'code': code, 'requestId': id});
+      answer = await _call({
+        'action': 'titleEquip',
+        'code': code,
+        'requestId': id,
+      });
     } on BackendException catch (error) {
       throw TitleEquipFailed(error.code);
     }
@@ -213,7 +220,8 @@ class _LobbyTitlesStripState extends State<LobbyTitlesStrip> {
       final titles = snap.data ?? const <int, TitleEntry>{};
       final shown = [
         for (final entry in titles.entries)
-          if (widget.names[entry.key] case final name?) (entry.key, name, entry.value),
+          if (widget.names[entry.key] case final name?)
+            (entry.key, name, entry.value),
       ]..sort((a, b) => a.$1.compareTo(b.$1));
       if (shown.isEmpty) return const SizedBox.shrink();
       final locale = Localizations.localeOf(context);
@@ -392,9 +400,9 @@ class PartnerPicker extends ConsumerWidget {
                 await ref.read(partnerProvider.notifier).choose(side);
               } on PartnerBusy {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l.partnerBusy)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(l.partnerBusy)));
                 }
               } catch (_) {}
             },
@@ -441,7 +449,9 @@ class TitleEquipList extends ConsumerWidget {
         ListTile(
           key: noneKey,
           title: Text(l.titlesUnequip),
-          trailing: hub.equipped == null ? const Icon(Icons.check_rounded) : null,
+          trailing: hub.equipped == null
+              ? const Icon(Icons.check_rounded)
+              : null,
           onTap: () => equip(null),
         ),
         for (final title in owned)
