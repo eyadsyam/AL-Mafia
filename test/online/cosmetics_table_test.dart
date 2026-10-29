@@ -78,6 +78,29 @@ void main() {
       }
     });
 
+    test('a revealed Elder carries «×٣» for the table, by day only', () {
+      for (final (phase, shown) in [
+        (GamePhase.discussion, true),
+        (GamePhase.voting, true),
+        (GamePhase.night, false),
+      ]) {
+        final seats = TableScene.seatsFor(
+          table(phase).copyWith(revealedElderSeats: {3}),
+          mood: TableMood.of(phase),
+          revealedElderMark: '×٣',
+        );
+        expect(
+          seats.singleWhere((s) => s.seat == 3).mark,
+          shown ? '×٣' : null,
+          reason: '$phase',
+        );
+        expect(
+          seats.where((s) => s.seat != 3).every((s) => s.mark == null),
+          isTrue,
+        );
+      }
+    });
+
     test('every device draws the same seats, whoever is looking', () {
       final a = TableScene.seatsFor(
         table(GamePhase.discussion, viewerSeat: 0),

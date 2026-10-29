@@ -167,6 +167,7 @@ class TableScene extends StatelessWidget {
     required TableMood mood,
     Map<int, double> speakingLevels = const {},
     Map<int, engine.Role> witnessRoles = const {},
+    String? revealedElderMark,
   }) {
     // Doc 15 §S-O13 beat 3, and the one line in this file that touches a role.
     //
@@ -203,6 +204,11 @@ class TableScene extends StatelessWidget {
             plate: dressed ? snapshot.seatCosmetics[player.seat]?.plate : null,
             // The Council rank rides with the frame: public phases only.
             rank: dressed ? snapshot.seatCosmetics[player.seat]?.rank : null,
+            // An Elder who showed their card to the table: everyone sees whose
+            // ballot weighs three, as offline (public phases only).
+            mark: dressed && snapshot.revealedElderSeats.contains(player.seat)
+                ? revealedElderMark
+                : null,
             seat: player.seat,
             name: player.name,
             status: statusFor(snapshot, player, mood: mood),
@@ -335,6 +341,7 @@ class TableScene extends StatelessWidget {
       mood: mood,
       speakingLevels: speakingLevels,
       witnessRoles: witnessRoles,
+      revealedElderMark: context.l10n.elderVoteMark,
     ),
     totalPlayers: snapshot.public.players.length,
     selectedSeat: selectedSeat,
@@ -493,6 +500,7 @@ class TableScene extends StatelessWidget {
                       mood: mood,
                       speakingLevels: speakingLevels,
                       witnessRoles: witnessRoles,
+                      revealedElderMark: context.l10n.elderVoteMark,
                     ),
                     totalPlayers: snapshot.public.players.length,
                     selectedSeat: selectedSeat,

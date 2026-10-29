@@ -108,6 +108,11 @@ class CouncilSeatData {
   /// outside the public phases, like the frame.
   final int? rank;
 
+  /// A short public mark this seat earned in front of the table, already
+  /// worded by the caller (the revealed Elder's «×٣»), or null. Words, not a
+  /// role: this file cannot name one. Public phases only, like the frame.
+  final String? mark;
+
   const CouncilSeatData({
     required this.seat,
     required this.name,
@@ -126,6 +131,7 @@ class CouncilSeatData {
     this.frame,
     this.plate,
     this.rank,
+    this.mark,
   });
 
   @override
@@ -147,7 +153,8 @@ class CouncilSeatData {
       other.speakingLevel == speakingLevel &&
       other.frame == frame &&
       other.plate == plate &&
-      other.rank == rank;
+      other.rank == rank &&
+      other.mark == mark;
 
   @override
   int get hashCode => Object.hash(
@@ -168,6 +175,7 @@ class CouncilSeatData {
     frame,
     plate,
     rank,
+    mark,
   );
 }
 
@@ -1023,6 +1031,26 @@ class CouncilPainter extends CustomPainter {
       readyPainter.paint(
         canvas,
         Offset(at - readyPainter.width / 2, -at - readyPainter.height / 2),
+      );
+    }
+    // The table's own mark (the revealed Elder's «×٣»), on the ring's upper
+    // corner, where the lobby's ready mark sits before the deal.
+    final tableMark = seat.mark;
+    if (tableMark != null && !seat.isEmpty) {
+      final markPainter = TextPainter(
+        text: TextSpan(
+          text: tableMark,
+          style: caption.copyWith(
+            color: gold.withValues(alpha: opacity * joining),
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        textDirection: textDirection,
+      )..layout();
+      final at = layout.diameter * CouncilLifeTokens.seatBadgeOffset;
+      markPainter.paint(
+        canvas,
+        Offset(at - markPainter.width / 2, -at - markPainter.height / 2),
       );
     }
     // Phase 107: the Council rank, a small crest on the ring's lower edge.
