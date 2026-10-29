@@ -182,8 +182,11 @@ class _Float {
   final int id;
   final int seat;
   final ReactionKind kind;
-  int count = 1;
-  _Float(this.id, this.seat, this.kind);
+
+  /// Where this seal sits in its sender's run: each tap of a run rises a
+  /// little to the side of the one before, so a burst reads as a stream.
+  final int lane;
+  _Float(this.id, this.seat, this.kind, this.lane);
 }
 
 class _ReactionFloatsState extends State<ReactionFloats> {
@@ -192,7 +195,6 @@ class _ReactionFloatsState extends State<ReactionFloats> {
   final Map<int, Timer> _timers = {};
   final Set<int> _seenIds = {};
   final List<int> _seenOrder = [];
-  Timer? _coalesceTimer;
 
   @override
   void initState() {
@@ -205,7 +207,6 @@ class _ReactionFloatsState extends State<ReactionFloats> {
     super.didUpdateWidget(old);
     if (old.feed != widget.feed) {
       unawaited(_sub?.cancel());
-      _coalesceTimer?.cancel();
       for (final timer in _timers.values) {
         timer.cancel();
       }
@@ -226,26 +227,16 @@ class _ReactionFloatsState extends State<ReactionFloats> {
       if (_seenOrder.length > FunTokens.reactionSeenIds) {
         _seenIds.remove(_seenOrder.removeAt(0));
       }
-      final last = _floats.isEmpty ? null : _floats.last;
-      final combined =
-          last != null &&
-          _coalesceTimer?.isActive == true &&
-          last.seat == row.seat &&
-          last.kind == kind;
-      final float = combined ? last : _Float(row.id, row.seat, kind);
+      // Owner, 2026-10-29: no «×n». Every tap is its own seal, rising one
+      // after another from the same seat.
+      final run = _floats.where((f) => f.seat == row.seat).length;
+      final float = _Float(row.id, row.seat, kind, run);
       setState(() {
-        if (combined) {
-          float.count++;
-        } else {
-          _floats.add(float);
-        }
+        _floats.add(float);
         while (_floats.length > ReactionFloats.maxFloats) {
           _timers.remove(_floats.removeAt(0).id)?.cancel();
         }
       });
-      _coalesceTimer?.cancel();
-      _coalesceTimer = Timer(FunTokens.reactionCoalesceWindow, () {});
-      _timers.remove(float.id)?.cancel();
       _timers[float.id] = Timer(FunTokens.reactionFloatDuration, () {
         _timers.remove(float.id);
         if (mounted) setState(() => _floats.remove(float));
@@ -256,7 +247,6 @@ class _ReactionFloatsState extends State<ReactionFloats> {
   @override
   void dispose() {
     unawaited(_sub?.cancel());
-    _coalesceTimer?.cancel();
     for (final t in _timers.values) {
       t.cancel();
     }
@@ -317,28 +307,6 @@ class _ReactionFloatsState extends State<ReactionFloats> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ReactionSeal(kind: f.kind, size: FunTokens.reactionFloat),
-        if (f.count > 1) ...[
-          const SizedBox(width: FunTokens.reactionBadgeGap),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: FunTokens.reactionBadgeBackground,
-              borderRadius: BorderRadius.circular(
-                FunTokens.reactionBadgeRadius,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FunTokens.reactionBadgePadding,
-              ),
-              child: Text(
-                context.l10n.reactionCount(f.count),
-                style: context.typography.caption.copyWith(
-                  color: FunTokens.reactionBadgeText,
-                ),
-              ),
-            ),
-          ),
-        ],
         if (name != null && name.isNotEmpty) ...[
           SizedBox(width: context.spacing.xs),
           Text(
@@ -350,16 +318,21 @@ class _ReactionFloatsState extends State<ReactionFloats> {
         ],
       ],
     );
+    // A run sways left and right of its seat, never further than one step,
+    // so the stream stays over the sender.
+    final sway =
+        const [0.0, 1.0, -1.0, 0.5, -0.5][f.lane % 5] *
+        FunTokens.reactionStreamSway;
     return Positioned(
       key: ValueKey('reaction_float_${f.id}'),
-      left: origin.dx - half,
+      left: origin.dx - half + sway,
       top: origin.dy - half,
       child: IgnorePointer(
         child: ExcludeSemantics(
           child: KeyedSubtree(
             key: ReactionFloats.floatKey,
             child: TweenAnimationBuilder<double>(
-              key: ValueKey('reaction_float_anim_${f.id}_${f.count}'),
+              key: ValueKey('reaction_float_anim_${f.id}'),
               tween: Tween(begin: 0, end: 1),
               duration: FunTokens.reactionFloatDuration,
               builder: (context, t, child) {

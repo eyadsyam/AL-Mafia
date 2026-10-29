@@ -2396,13 +2396,10 @@ abstract final class FunTokens {
   static const double reactionFloat = 44.0;
   static const double reactionRise = 72.0;
   static const Duration reactionFloatDuration = Duration(milliseconds: 1600);
-  static const Duration reactionCoalesceWindow = Duration(milliseconds: 1200);
   static const int reactionSeenIds = 1024;
-  static const double reactionBadgeGap = 2.0;
-  static const double reactionBadgeRadius = 999.0;
-  static const double reactionBadgePadding = 6.0;
-  static const Color reactionBadgeBackground = Color(0xFFF3E7CC);
-  static const Color reactionBadgeText = Color(0xFF211B1B);
+
+  /// How far a run of taps sways beside its seat as the seals stream up.
+  static const double reactionStreamSway = 14.0;
 
   /// The daily strip greets with «وحشتنا» only after this long away.
   static const Duration welcomeBackAfter = Duration(days: 3);

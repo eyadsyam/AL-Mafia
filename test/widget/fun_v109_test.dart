@@ -255,8 +255,9 @@ void main() {
         'roomId': 'room-1',
         'kind': 'rose',
       });
-      expect(find.byKey(ReactionFloats.floatKey), findsOneWidget);
-      expect(find.text('×10'), findsOneWidget);
+      // No «×n» (owner, 2026-10-29): ten taps, ten seals in a stream.
+      expect(find.byKey(ReactionFloats.floatKey), findsNWidgets(10));
+      expect(find.textContaining('×'), findsNothing);
       expect(find.byType(SnackBar), findsNothing);
     });
 
@@ -290,7 +291,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('same reaction after the coalesce window starts a new float', (
+    testWidgets('the same reaction twice is two seals, one after the other', (
       tester,
     ) async {
       await pump(
@@ -310,9 +311,7 @@ void main() {
       );
       await tester.pump();
       await tester.pump();
-      await tester.pump(
-        FunTokens.reactionCoalesceWindow + const Duration(milliseconds: 1),
-      );
+      await tester.pump(const Duration(milliseconds: 100));
       backend.reactionFeed.add(
         const RoomReactionRow(id: 2, seat: 1, kind: 'rose'),
       );
@@ -352,7 +351,7 @@ void main() {
 
     for (final size in [const Size(360, 640), const Size(640, 360)]) {
       testWidgets(
-        'reaction count fits ${size.width.toInt()}x${size.height.toInt()}',
+        'a reaction stream fits ${size.width.toInt()}x${size.height.toInt()}',
         (tester) async {
           await pump(
             tester,
@@ -380,7 +379,7 @@ void main() {
           );
           await tester.pump();
           await tester.pump();
-          expect(find.text('×2'), findsOneWidget);
+          expect(find.byKey(ReactionFloats.floatKey), findsNWidgets(2));
           expect(tester.takeException(), isNull);
         },
       );
