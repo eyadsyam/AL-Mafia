@@ -4012,3 +4012,9 @@ Files:      lib/app/{update_gate,app,app_build}.dart, lib/ui/{fun/reactions,econ
 Verified:   flutter analyze 0 issues; flutter test --concurrency=2 (app architecture data engine golden integration leakage online platform stories transport ui unit voice web widget) 4491 passed, 0 failed; SQL app_config_latest_build + awards_reactions PASS (pglite), awards_reactions edge contracts PASS. Hosted: both migrations applied on hezjbrnveajypfqmjfnh, grants unchanged, app_config = 0/0/per_screen.
 Gate:       PASS
 Open:       latest_build_android=18 once Play shows 1.5.0 available; min_build_android=18 48h later; banner_mode=shell after 3 days (dedicated shell AdMob unit is the owner's click; until then shell uses the home unit). Real BannerAd not exercised (fakes only). Stories card title wraps in landscape when Stories is open (closed today).
+## PHASE update 1.5.0 (18) release — done
+Built:      1.5.0 (18) committed to the Play production track via the API (owner granted release rights); shell banner now has its own AdMob unit MM_ANDROID_BANNER_SHELL_V5 (created by Codex), wired in eec2c0e.
+Files:      lib/platform/monetization/rewarded_ads_mobile.dart, docs/plans/briefs/admob_shell_banner_2026_10_29.txt
+Verified:   play_upload.mjs printed "COMMITTED versionCode 18 to production"; flutter analyze (monetization) 0 issues; banner_placement + banner_reserved + shell_banner_host 48 passed.
+Gate:       PASS
+Open:       Google review of 1.5.0; scheduled task mafia-1-5-rollout-flags flips latest=18, min=18 (+48h), banner_mode=shell (from 2026-11-01). The shell unit id ships in the next build (build 18 shell uses the home unit). Real BannerAd not exercised on a device.
