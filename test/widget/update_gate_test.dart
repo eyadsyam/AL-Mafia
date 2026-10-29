@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/app/app_build.dart';
@@ -330,6 +331,41 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(UpdateGate.softKey), findsNothing);
       expect(find.text('GAME'), findsOneWidget);
+    });
+
+    testWidgets('system back: «بعدين» on the soft screen, leaves on the hard', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_host(policy: _policy(latestAndroid: 12)));
+      await tester.pumpAndSettle();
+      expect(find.byKey(UpdateGate.softKey), findsOneWidget);
+      expect(await tester.binding.handlePopRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(find.byKey(UpdateGate.softKey), findsNothing);
+      expect(find.text('GAME'), findsOneWidget);
+
+      final calls = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          calls.add(call.method);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(_host(policy: _policy(minAndroid: 11)));
+      await tester.pumpAndSettle();
+      expect(find.byKey(UpdateGate.sheetKey), findsOneWidget);
+      expect(await tester.binding.handlePopRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(calls, contains('SystemNavigator.pop'));
+      expect(find.byKey(UpdateGate.sheetKey), findsOneWidget);
     });
 
     testWidgets('once per launch: «بعدين» is final, even back at Home', (

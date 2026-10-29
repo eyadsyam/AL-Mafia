@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
@@ -312,6 +313,22 @@ class _UpdateGateState extends ConsumerState<UpdateGate>
     widget.routeChanges?.removeListener(_routeChanged);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  /// The system back button while a screen is up never reaches the router
+  /// underneath: on «حدّث التطبيق» it leaves the app (there is nothing else
+  /// to go back to), on «فيه نسخة جديدة» it means «بعدين».
+  @override
+  Future<bool> didPopRoute() async {
+    if (_hard) {
+      await SystemNavigator.pop();
+      return true;
+    }
+    if (_softShowing) {
+      _later();
+      return true;
+    }
+    return false;
   }
 
   @override
