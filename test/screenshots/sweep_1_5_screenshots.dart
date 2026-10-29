@@ -19,7 +19,7 @@ void main() {
         final errors = <String>[];
         final oldHandler = FlutterError.onError;
         FlutterError.onError = (details) =>
-            errors.add(details.exceptionAsString());
+            errors.add(describeSweepError(details));
         try {
           await pumpSweepCase(tester, item, size);
           final boundary = tester.renderObject<RenderRepaintBoundary>(

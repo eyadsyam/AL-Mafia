@@ -2,16 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mafia_master/app/update_gate.dart';
+import 'package:mafia_master/app/router.dart' show Routes;
+import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/enums.dart' as game;
 import 'package:mafia_master/engine/models/match_settings.dart';
 import 'package:mafia_master/engine/models/player.dart';
 import 'package:mafia_master/platform/audio_director.dart';
+import 'package:mafia_master/transport/account_auth.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/transport/online_transport.dart';
 import 'package:mafia_master/ui/account/account_sheet.dart';
 import 'package:mafia_master/ui/account/delete_account_sheet.dart';
+import 'package:mafia_master/ui/account/onboarding_account_step.dart'
+    show accountsAvailableProvider;
+import 'package:mafia_master/ui/account/profile_panels.dart';
 import 'package:mafia_master/ui/economy/council_hub.dart';
+import 'package:mafia_master/ui/economy/economy_capabilities.dart';
 import 'package:mafia_master/ui/economy/wallet.dart';
 import 'package:mafia_master/ui/economy/cosmetics.dart';
 import 'package:mafia_master/ui/screens/day/discussion_screen.dart';
@@ -29,6 +37,7 @@ import 'package:mafia_master/ui/screens/online/voice_session.dart';
 import 'package:mafia_master/ui/screens/postgame/history_screen.dart';
 import 'package:mafia_master/ui/screens/postgame/result_screen.dart';
 import 'package:mafia_master/ui/screens/setup/add_players_screen.dart';
+import 'package:mafia_master/ui/screens/setup/before_start_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/coin_store.dart';
 import 'package:mafia_master/ui/screens/setup/home_screen.dart';
 import 'package:mafia_master/ui/screens/setup/how_to_play_screen.dart';
@@ -42,6 +51,7 @@ import 'package:mafia_master/ui/screens/setup/settings_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/bot_match_sheet.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
 import 'package:mafia_master/ui/social/friends.dart';
+import 'package:mafia_master/ui/social/titles_partner.dart';
 import 'package:mafia_master/ui/fun/characters_screen.dart';
 import 'package:mafia_master/ui/screens/stories/stories_screen.dart';
 import 'package:mafia_master/ui/missions/casebook_sheet.dart';
@@ -51,8 +61,25 @@ import 'fake_backend.dart';
 import 'fake_voice_engine.dart';
 import 'localized.dart';
 import 'platform_channel_mocks.dart';
+import 'reveal_flow.dart';
 
-const longArabicName = 'عبد الرحمن المنشاوي ك';
+/// A real 20-character Arabic name (the longest a player can type).
+const longArabicName = 'عبدالرحمن محمد السيد';
+
+/// Distinct 20-character names, so a roster never repeats one.
+const sweepNames = <String>[
+  'عبدالرحمن محمد السيد',
+  'أحمد عبدالعزيز حسنين',
+  'محمود عبدالقادر سالم',
+  'مصطفى عبدالحميد علاء',
+  'إبراهيم عبدالمنعم زكي',
+  'ياسمين عبدالفتاح نور',
+  'فاطمة عبدالسلام حسني',
+  'سلمى عبدالرحيم خليلة',
+];
+
+List<String> sweepRoster(int n) => [for (var i = 0; i < n; i++) sweepNames[i]];
+
 const sweepSizes = <Size>[Size(360, 640), Size(390, 844), Size(640, 360)];
 
 Future<void> loadSweepFonts() async {
@@ -72,20 +99,38 @@ typedef SweepBuilder = Future<Widget> Function(WidgetTester tester);
 typedef SweepAction = Future<void> Function(WidgetTester tester);
 
 class SweepCase {
-  const SweepCase(this.name, this.build, {this.action, this.banner = false});
+  const SweepCase(
+    this.name,
+    this.build, {
+    this.action,
+    this.banner = false,
+    this.prefs,
+  });
   final String name;
   final SweepBuilder build;
   final SweepAction? action;
+
+  /// A 50 dp band is kept under the screen where a banner sits today.
   final bool banner;
+
+  /// Initial shared preferences; null means a player with a 20-character name.
+  final Map<String, Object>? prefs;
 }
 
 const _wallet = WalletState(
   balance: 500,
   catalog: [
-    WalletItem(code: 'frame_gilded', price: 150, charge: 150,
-      kind: 'cosmetic', slot: 'frame'),
+    WalletItem(
+      code: 'frame_gilded',
+      price: 150,
+      charge: 150,
+      kind: 'cosmetic',
+      slot: 'frame',
+    ),
   ],
-  owned: {}, equipped: {}, history: [],
+  owned: {},
+  equipped: {},
+  history: [],
 );
 
 class _SweepWallet extends WalletController {
@@ -93,22 +138,94 @@ class _SweepWallet extends WalletController {
   Future<WalletState?> build() async => _wallet;
 }
 
+final _friendsSample = FriendsState.fromJson({
+  'friends': [
+    {
+      'id': 'friend-1',
+      'name': sweepNames[1],
+      'gender': 'female',
+      'presence': {'state': 'lobby', 'code': 'K7M2QP', 'players': 4},
+    },
+    {
+      'id': 'friend-2',
+      'name': sweepNames[2],
+      'gender': 'male',
+      'presence': {'state': 'playing'},
+    },
+    {'id': 'friend-3', 'name': sweepNames[3]},
+  ],
+  'incoming': [
+    {'id': 'r1', 'name': sweepNames[4]},
+    {'id': 'r2', 'name': 'منى'},
+  ],
+  'outgoing': <Object>[],
+  'recent': [
+    {'id': 'e', 'name': sweepNames[5], 'matches': 3},
+  ],
+  'invites': <Object>[],
+  'me': {'handle': 'karim', 'searchable': true, 'strangerInvites': true},
+});
+
 class _SweepFriends extends FriendsController {
   @override
-  Future<FriendsState?> build() async => FriendsState.fromJson({
-    'friends': [
-      {'id': 'friend-1', 'name': longArabicName, 'gender': 'female',
-        'presence': {'state': 'lobby', 'code': 'K7M2QP', 'players': 4}},
-      {'id': 'friend-2', 'name': '$longArabicName ٢', 'gender': 'male'},
-    ],
-  });
+  Future<FriendsState?> build() async => _friendsSample;
 
   @override
   Future<void> refresh() async {}
 
   @override
+  Future<void> respond(String id, bool accept) async {}
+
+  @override
   Future<bool> invite(String id, String roomId) async => true;
 }
+
+class _SweepHub extends TitleHubController {
+  @override
+  Future<TitleHub> build() async => TitleHub.fromJson({
+    'enabled': true,
+    'equipped': 'kabir_elshella',
+    'titles': [
+      {
+        'code': 'kabir_elshella',
+        'source': 'invite',
+        'nameAr': 'الشبح',
+        'nameEn': 'The Ghost',
+        'owned': true,
+      },
+    ],
+  });
+}
+
+class _MemCache implements UpdatePolicyCache {
+  @override
+  Future<UpdatePolicy?> load() async => null;
+  @override
+  Future<void> save(UpdatePolicy policy) async {}
+}
+
+FakeBackend? _lastBackend;
+
+/// A screen that has already asked the server, as the real app has.
+class _Asked extends ConsumerWidget {
+  const _Asked({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(economyCapabilitiesProvider);
+    ref.watch(friendsProvider);
+    ref.watch(titleHubProvider);
+    return child;
+  }
+}
+
+const _allCaps = EconomyCapabilities(
+  friends: true,
+  titles: true,
+  daily: true,
+  fun: FunCapabilities(awards: true, reactions: true, known: true),
+);
 
 Future<Widget> _plain(Widget child) async {
   final backend = FakeBackend(
@@ -116,10 +233,12 @@ Future<Widget> _plain(Widget child) async {
     state: roomState(phase: 'lobby'),
     players: roster(7),
   )..responses['browse_rooms'] = {'rooms': []};
+  _lastBackend = backend;
   return ProviderScope(
     overrides: [
       walletProvider.overrideWith(_SweepWallet.new),
       friendsProvider.overrideWith(_SweepFriends.new),
+      titleHubProvider.overrideWith(_SweepHub.new),
       onlineBackendFactoryProvider.overrideWithValue(() async => backend),
       onlineHeartbeatProvider.overrideWithValue(Duration.zero),
       voiceStatsIntervalProvider.overrideWithValue(Duration.zero),
@@ -129,16 +248,70 @@ Future<Widget> _plain(Widget child) async {
   );
 }
 
-Future<Widget> _sheet(Widget child) async => _plain(
+/// The profile page with everything the real one has: a signed-in or guest
+/// account, friends, titles, three numbers and the history row.
+Future<Widget> _profile({bool signedIn = false}) async {
+  final account = signedIn
+      ? AccountProfile(
+          signedIn: true,
+          email: 'abdelrahman.elmenshawy.k@gmail.com',
+          emailConfirmed: true,
+          google: true,
+          password: true,
+          since: DateTime(2026, 9, 1),
+        )
+      : AccountProfile.guest;
+  return ProviderScope(
+    overrides: [
+      accountsAvailableProvider.overrideWithValue(true),
+      accountProfileProvider.overrideWith((ref) => Stream.value(account)),
+      economyCapabilitiesProvider.overrideWith((ref) async => _allCaps),
+      friendsProvider.overrideWith(_SweepFriends.new),
+      walletProvider.overrideWith(_SweepWallet.new),
+      titleHubProvider.overrideWith(_SweepHub.new),
+      profileStatsProvider.overrideWith((ref) async => (12, 5)),
+      profileLastMatchProvider.overrideWith(
+        (ref) async => DateTime(2026, 10, 28, 20),
+      ),
+      profileClockProvider.overrideWithValue(() => DateTime(2026, 10, 29, 12)),
+    ],
+    child: localizedApp(
+      _Asked(
+        child: ProfileScreen(
+          onBack: () {},
+          onSaved: () {},
+          onHistory: () {},
+          onCharacters: () {},
+          onJoinRoom: (_) {},
+        ),
+      ),
+    ),
+  );
+}
+
+/// Runs frames long enough for a sheet to finish its entrance, without
+/// waiting for animations that never end.
+Future<void> _settle(WidgetTester tester) async {
+  for (var i = 0; i < 14; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}
+
+SweepAction _tapThenSettle(Key key) => (tester) async {
+  await tester.tap(find.byKey(key));
+  await _settle(tester);
+};
+
+typedef SheetLauncher = Future<void> Function(BuildContext c, WidgetRef ref);
+
+/// A bare page with one button that opens [show]: the sheet is drawn by the
+/// same launcher the app uses, so its landscape form is the real one.
+Future<Widget> _launcher(SheetLauncher show) => _plain(
   Scaffold(
-    body: Builder(
-      builder: (context) => Center(
+    body: Consumer(
+      builder: (context, ref, _) => Center(
         child: TextButton(
-          onPressed: () => showModalBottomSheet<void>(
-            context: context,
-            isScrollControlled: true,
-            builder: (_) => child,
-          ),
+          onPressed: () => show(context, ref),
           child: const Text('open'),
         ),
       ),
@@ -146,9 +319,9 @@ Future<Widget> _sheet(Widget child) async => _plain(
   ),
 );
 
-Future<void> _openSheet(WidgetTester tester) async {
+Future<void> _openLauncher(WidgetTester tester) async {
   await tester.tap(find.text('open'));
-  await tester.pumpAndSettle();
+  await _settle(tester);
 }
 
 Future<Widget> _offline(WidgetTester tester, Widget child, String phase) async {
@@ -156,7 +329,7 @@ Future<Widget> _offline(WidgetTester tester, Widget child, String phase) async {
   addTearDown(container.dispose);
   final controller = container.read(matchControllerProvider.notifier);
   controller.startMatch(
-    names: List.generate(7, (i) => '$longArabicName ${i + 1}'),
+    names: sweepRoster(7),
     roleCounts: const {
       Role.mafia: 2,
       Role.doctor: 1,
@@ -193,27 +366,98 @@ Future<Widget> _offline(WidgetTester tester, Widget child, String phase) async {
   );
 }
 
-Future<Widget> _online(WidgetTester tester, Widget child, String phase) async {
+const _resultPublic = {
+  'outcome': 'town',
+  'rosterSeats': [0, 1, 2, 3, 4, 5, 6],
+  'standings': [
+    {'seat': 0, 'role': 'mafia'},
+    {'seat': 1, 'role': 'citizen'},
+    {'seat': 2, 'role': 'doctor'},
+    {'seat': 3, 'role': 'detective'},
+    {'seat': 4, 'role': 'citizen'},
+    {'seat': 5, 'role': 'mafia'},
+    {'seat': 6, 'role': 'citizen'},
+  ],
+};
+
+Map<String, dynamic> _economy(Map<String, dynamic> body) =>
+    switch (body['action']) {
+      'capabilities' => {
+        'version': 2,
+        'fun': {'awards': true, 'reactions': true, 'known': true},
+      },
+      'awards_get' => {
+        'enabled': true,
+        'ready': true,
+        'awards': [
+          {
+            'code': 'mvp',
+            'seats': [2],
+            'names': [sweepNames[2]],
+            'coins': 20,
+          },
+          {
+            'code': 'sharpEye',
+            'seats': [3],
+            'names': [sweepNames[3]],
+            'coins': 10,
+          },
+          {
+            'code': 'survivor',
+            'seats': [2, 3, 4],
+            'names': [sweepNames[2], sweepNames[3], sweepNames[4]],
+            'coins': 5,
+          },
+        ],
+        'mine': ['mvp'],
+        'granted': 20,
+      },
+      _ => {'ok': true},
+    };
+
+/// An online room. [phase] is a room phase, or `witness` (a dead viewer
+/// reading the table). [role] is the viewer's own role.
+Future<Widget> _online(
+  WidgetTester tester,
+  Widget child,
+  String phase, {
+  String role = 'citizen',
+  List<String> teammates = const [],
+  bool reactions = false,
+}) async {
   final witness = phase == 'witness';
+  final result = phase == 'result';
   final backend = FakeBackend(
     roomId: 'room-1',
     state: roomState(
       phase: witness ? 'discussion' : phase,
       phaseNumber: phase == 'lobby' ? 0 : 2,
-      status: phase == 'lobby' ? 'lobby' : 'playing',
+      status: phase == 'lobby'
+          ? 'lobby'
+          : result
+          ? 'finished'
+          : 'playing',
+      publicData: result ? _resultPublic : const {},
     ),
     players: [
       for (var i = 0; i < 7; i++)
         RoomPlayer(
           userId: 'u$i',
           seat: i,
-          name: '$longArabicName ${i + 1}',
+          name: sweepNames[i],
           alive: !witness || i != 0,
           lastSeen: DateTime.now(),
         ),
     ],
-    own: OwnSeat(seat: 0, role: 'citizen', alive: !witness),
+    own: OwnSeat(
+      seat: result ? 2 : 0,
+      role: result ? 'doctor' : role,
+      alive: !witness,
+      teammateNames: teammates,
+    ),
+    userId: result ? 'u2' : 'u0',
   );
+  _lastBackend = backend;
   if (witness) {
     backend.responses['witness_view'] = {
       'roles': [
@@ -225,6 +469,7 @@ Future<Widget> _online(WidgetTester tester, Widget child, String phase) async {
     };
   }
   backend.responses['create_room'] = {'roomId': 'room-1', 'code': 'ABCDEF'};
+  if (reactions) backend.responders['economy'] = _economy;
   final transport = await OnlineTransport.connect(
     backend: backend,
     roomId: 'room-1',
@@ -237,7 +482,12 @@ Future<Widget> _online(WidgetTester tester, Widget child, String phase) async {
       audioDirectorProvider.overrideWithValue(AudioDirector()),
       voiceStatsIntervalProvider.overrideWithValue(Duration.zero),
       voiceEngineFactoryProvider.overrideWithValue(FakeVoiceEngine.new),
-      onlineSessionProvider.overrideWith(() => _SweepSession(transport)),
+      friendsProvider.overrideWith(_SweepFriends.new),
+      onlineSessionProvider.overrideWith(
+        () => _SweepSession(transport, result ? 2 : 0),
+      ),
+      if (reactions)
+        economyCapabilitiesProvider.overrideWith((ref) async => _allCaps),
     ],
   );
   addTearDown(() async {
@@ -249,19 +499,70 @@ Future<Widget> _online(WidgetTester tester, Widget child, String phase) async {
   }
   return UncontrolledProviderScope(
     container: container,
-    child: localizedApp(Scaffold(body: child)),
+    child: localizedApp(
+      Consumer(
+        builder: (context, ref, inner) {
+          if (reactions) ref.watch(economyCapabilitiesProvider);
+          return inner!;
+        },
+        child: Scaffold(body: child),
+      ),
+    ),
   );
 }
 
 class _SweepSession extends OnlineSession {
-  _SweepSession(this.transport);
+  _SweepSession(this.transport, this.seat);
   final OnlineTransport transport;
+  final int seat;
   @override
   OnlineSessionState build() => OnlineSessionState(
-    room: const RoomHandle(roomId: 'room-1', code: 'ABCDEF', seat: 0),
+    room: RoomHandle(roomId: 'room-1', code: 'ABCDEF', seat: seat),
     transport: transport,
   );
 }
+
+OnlineTableFlow _table() => OnlineTableFlow(
+  onExit: () {},
+  onAnalytics: () {},
+  onStepCommitted: () {},
+);
+
+/// Seals arriving for one seat, the same kind three times in a row: one float
+/// with ×3, then another seat's.
+Future<void> _reactions(WidgetTester tester) async {
+  final feed = _lastBackend!.reactionFeed;
+  for (var id = 1; id <= 3; id++) {
+    feed.add(RoomReactionRow(id: id, seat: 3, kind: 'laugh'));
+  }
+  feed.add(const RoomReactionRow(id: 4, seat: 5, kind: 'rose'));
+  await tester.pump();
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 500));
+}
+
+Future<Widget> _updateGate(UpdatePolicy policy) async => ProviderScope(
+  overrides: [
+    updatePolicyFetchProvider.overrideWithValue(() async => policy),
+    updatePolicyCacheProvider.overrideWithValue(_MemCache()),
+    updateSurfaceProvider.overrideWithValue(UpdateSurface.android),
+    appBuildNumberProvider.overrideWithValue(10),
+  ],
+  child: localizedApp(
+    UpdateGate(
+      currentPath: () => Routes.home,
+      routeChanges: ValueNotifier<String>(Routes.home),
+      child: HomeScreen(
+        onNewMatch: () {},
+        onHistory: () {},
+        onSettings: () {},
+        onHowToPlay: () {},
+      ),
+    ),
+  ),
+);
+
+Map<String, Object> _noProfile() => <String, Object>{};
 
 List<SweepCase> sweepCases() => [
   SweepCase(
@@ -278,6 +579,17 @@ List<SweepCase> sweepCases() => [
   ),
   SweepCase(
     '01_mode',
+    (_) => _plain(
+      ModeScreen(
+        onPlayOffline: () {},
+        onPlayOnline: () {},
+        onPlayBots: () {},
+        onBack: () {},
+      ),
+    ),
+  ),
+  SweepCase(
+    '01b_mode_stories_open',
     (_) => _plain(
       ModeScreen(
         onPlayOffline: () {},
@@ -302,7 +614,7 @@ List<SweepCase> sweepCases() => [
     '03_players',
     (_) => _plain(
       AddPlayersScreen(
-        initialNames: List.generate(7, (i) => '$longArabicName ${i + 1}'),
+        initialNames: sweepRoster(7),
         onNext: (_) {},
         onBack: () {},
       ),
@@ -312,9 +624,10 @@ List<SweepCase> sweepCases() => [
     '04_roles',
     (_) => _plain(RolesScreen(playerCount: 7, onNext: (_) {}, onBack: () {})),
   ),
+  SweepCase('05_profile', (_) => _profile(), banner: true),
   SweepCase(
-    '05_profile',
-    (_) => _plain(ProfileScreen(onBack: () {})),
+    '05b_profile_signed_in',
+    (_) => _profile(signedIn: true),
     banner: true,
   ),
   SweepCase(
@@ -326,7 +639,11 @@ List<SweepCase> sweepCases() => [
     '07_help',
     (_) => _plain(HowToPlayScreen(onBack: () {}, onStartMatch: () {})),
   ),
-  SweepCase('08_first_run', (_) => _plain(const FirstRunScreen())),
+  SweepCase(
+    '08_first_run',
+    (_) => _plain(const FirstRunScreen()),
+    prefs: _noProfile(),
+  ),
   SweepCase(
     '09_characters',
     (_) => _plain(CharactersScreen(onBack: () {})),
@@ -344,17 +661,17 @@ List<SweepCase> sweepCases() => [
     banner: true,
   ),
   SweepCase(
-    '13_online_table',
+    '12b_lobby_reactions',
     (t) => _online(
       t,
-      OnlineTableFlow(
-        onExit: () {},
-        onAnalytics: () {},
-        onStepCommitted: () {},
-      ),
-      'discussion',
+      LobbyScreen(onStarted: () {}, onLeave: () {}),
+      'lobby',
+      reactions: true,
     ),
+    action: _reactions,
+    banner: true,
   ),
+  SweepCase('13_online_table', (t) => _online(t, _table(), 'discussion')),
   SweepCase(
     '14_distribution',
     (t) => _offline(
@@ -362,6 +679,27 @@ List<SweepCase> sweepCases() => [
       RoleRevealScreen(onDistributionComplete: () {}),
       'distribution',
     ),
+  ),
+  SweepCase(
+    '14b_distribution_gate_done',
+    (t) => _offline(
+      t,
+      RoleRevealScreen(onDistributionComplete: () {}),
+      'distribution',
+    ),
+    action: (tester) => tester.confirmIdentity(),
+  ),
+  SweepCase(
+    '14c_distribution_flipped',
+    (t) => _offline(
+      t,
+      RoleRevealScreen(onDistributionComplete: () {}),
+      'distribution',
+    ),
+    action: (tester) async {
+      await tester.confirmIdentity();
+      await tester.swipeToFlip();
+    },
   ),
   SweepCase(
     '15_night',
@@ -384,14 +722,14 @@ List<SweepCase> sweepCases() => [
     (_) => _plain(
       DiscussionScreen(
         mode: DiscussionMode.structured,
-        alivePlayers: List.generate(
-          7,
-          (i) => PublicPlayer(
-            seat: i,
-            name: '$longArabicName ${i + 1}',
-            status: PlayerStatus.alive,
-          ),
-        ),
+        alivePlayers: [
+          for (var i = 0; i < 7; i++)
+            PublicPlayer(
+              seat: i,
+              name: sweepNames[i],
+              status: PlayerStatus.alive,
+            ),
+        ],
         perSpeakerTime: const Duration(minutes: 1),
         tabletop: true,
         onFinished: () {},
@@ -406,7 +744,7 @@ List<SweepCase> sweepCases() => [
     '19_vote_result',
     (_) => _plain(
       VoteResultScreen(
-        names: const {0: longArabicName, 1: longArabicName},
+        names: {0: sweepNames[0], 1: sweepNames[1]},
         tally: const {0: 1, 1: 2},
         eliminatedSeat: 1,
         eliminatedRole: Role.citizen,
@@ -420,16 +758,16 @@ List<SweepCase> sweepCases() => [
     (_) => _plain(
       ResultScreen(
         winner: game.Alignment.town,
-        rows: const [
+        rows: [
           ResultRow(
             seat: 0,
-            name: longArabicName,
+            name: sweepNames[0],
             role: Role.detective,
             eliminatedLabel: 'كمل للآخر',
           ),
           ResultRow(
             seat: 1,
-            name: longArabicName,
+            name: sweepNames[1],
             role: Role.mafia,
             eliminatedLabel: 'اليوم التاني',
           ),
@@ -441,50 +779,45 @@ List<SweepCase> sweepCases() => [
   ),
   SweepCase(
     '21_settings_sheet',
-    (_) => _sheet(const SettingsSheetBody()),
-    action: _openSheet,
+    (_) => _launcher((c, _) => showSettingsSheet(c)),
+    action: _openLauncher,
   ),
   SweepCase(
     '22_account_sheet',
-    (_) => _sheet(const AccountSheet()),
-    action: _openSheet,
+    (_) => _launcher((c, _) => showAccountSheet(c)),
+    action: _openLauncher,
+  ),
+  SweepCase(
+    '22b_account_signup',
+    (_) => _launcher((c, _) => showAccountSheet(c, initial: AccountStep.signUp)),
+    action: _openLauncher,
+  ),
+  SweepCase(
+    '22c_account_signin',
+    (_) => _launcher((c, _) => showAccountSheet(c, initial: AccountStep.signIn)),
+    action: _openLauncher,
   ),
   SweepCase(
     '23_friends_sheet',
-    (_) => _sheet(FriendsSheet(onJoin: (_) {})),
-    action: _openSheet,
+    (_) => _profile(),
+    action: _tapThenSettle(ProfileScreen.friendsKey),
+  ),
+  SweepCase(
+    '23b_friends_invite_sheet',
+    (_) => _launcher(
+      (c, _) => showFriendsSheet(c, onJoin: (_) {}, inviteRoomId: 'room-1'),
+    ),
+    action: _openLauncher,
   ),
   SweepCase(
     '24_bot_sheet',
-    (_) => _plain(
-      Scaffold(
-        body: Builder(
-          builder: (context) => Center(
-            child: TextButton(
-              onPressed: () => showBotMatchSheet(context),
-              child: const Text('open'),
-            ),
-          ),
-        ),
-      ),
-    ),
-    action: _openSheet,
+    (_) => _launcher((c, _) => showBotMatchSheet(c)),
+    action: _openLauncher,
   ),
   SweepCase(
     '25_help_sheet',
-    (_) => _plain(
-      Scaffold(
-        body: Builder(
-          builder: (context) => Center(
-            child: TextButton(
-              onPressed: () => showHowToSheet(context, onVideo: () {}),
-              child: const Text('open'),
-            ),
-          ),
-        ),
-      ),
-    ),
-    action: _openSheet,
+    (_) => _launcher((c, _) => showHowToSheet(c, onVideo: () {})),
+    action: _openLauncher,
   ),
   SweepCase(
     '26_council_hub',
@@ -497,8 +830,8 @@ List<SweepCase> sweepCases() => [
   ),
   SweepCase(
     '28_casebook_sheet',
-    (_) => _sheet(const CasebookSheet()),
-    action: _openSheet,
+    (_) => _launcher((c, _) => showCasebookSheet(c)),
+    action: _openLauncher,
   ),
   SweepCase(
     '29_store_shop',
@@ -513,56 +846,129 @@ List<SweepCase> sweepCases() => [
       ),
     ),
   ),
-  SweepCase(
-    '30_witness',
-    (t) => _online(
-      t,
-      OnlineTableFlow(
-        onExit: () {},
-        onAnalytics: () {},
-        onStepCommitted: () {},
-      ),
-      'witness',
-    ),
-  ),
-  SweepCase(
-    '31_online_council',
-    (t) => _online(
-      t,
-      OnlineTableFlow(
-        onExit: () {},
-        onAnalytics: () {},
-        onStepCommitted: () {},
-      ),
-      'voting',
-    ),
-  ),
+  SweepCase('30_witness', (t) => _online(t, _table(), 'witness')),
+  SweepCase('31_online_council', (t) => _online(t, _table(), 'voting')),
   SweepCase(
     '32_delete_account_sheet',
-    (_) => _sheet(const DeleteAccountSheet()),
-    action: _openSheet,
+    (_) => _launcher((c, _) => showDeleteAccountSheet(c)),
+    action: _openLauncher,
   ),
   SweepCase(
     '33_level_up_sheet',
-    (_) => _sheet(const LevelUpSheet(level: 3, coins: 100)),
-    action: _openSheet,
+    (_) => _launcher(
+      (c, _) => showModalBottomSheet<void>(
+        context: c,
+        useSafeArea: true,
+        showDragHandle: true,
+        builder: (_) => const LevelUpSheet(level: 3, coins: 100),
+      ),
+    ),
+    action: _openLauncher,
   ),
   SweepCase(
     '34_store_item_sheet',
-    (_) => _sheet(
-      StoreItemSheet(
+    (_) => _launcher(
+      (c, ref) => showStoreItemSheet(
+        context: c,
+        ref: ref,
         code: 'frame_gilded',
         busy: ValueNotifier(false),
-        onBuy: (_, _) async => null,
+        alive: () => true,
         onEquip: (_, _) async {},
       ),
     ),
-    action: _openSheet,
+    action: _openLauncher,
+  ),
+  SweepCase(
+    '35_titles_sheet',
+    (_) => _profile(),
+    action: _tapThenSettle(ProfileScreen.titlesKey),
+  ),
+  SweepCase(
+    '36_identity_sheet',
+    (_) => _profile(),
+    action: _tapThenSettle(ProfileIdentityHeader.headerKey),
+  ),
+  SweepCase(
+    '37_before_start_sheet',
+    (_) => _launcher((c, _) => showBeforeStartSheet(c)),
+    action: _openLauncher,
+  ),
+  SweepCase(
+    '38_update_soft',
+    (_) => _updateGate(
+      const UpdatePolicy(min: MinBuild(android: 0, web: 0), latestAndroid: 20),
+    ),
+    action: _settle,
+  ),
+  SweepCase(
+    '39_update_hard',
+    (_) => _updateGate(
+      const UpdatePolicy(min: MinBuild(android: 20, web: 0), latestAndroid: 20),
+    ),
+    action: _settle,
+  ),
+  SweepCase(
+    '40_online_night_citizen',
+    (t) => _online(t, _table(), 'night'),
+  ),
+  SweepCase(
+    '41_online_night_doctor',
+    (t) => _online(t, _table(), 'night', role: 'doctor'),
+  ),
+  SweepCase(
+    '42_online_night_mafia',
+    (t) => _online(
+      t,
+      _table(),
+      'night',
+      role: 'mafia',
+      teammates: [sweepNames[5]],
+    ),
+  ),
+  SweepCase(
+    '43_online_morning',
+    (t) => _online(t, _table(), 'morning'),
+  ),
+  SweepCase(
+    '44_online_result',
+    (t) => _online(t, _table(), 'result', reactions: true),
+  ),
+  SweepCase(
+    '45_online_result_reactions',
+    (t) => _online(t, _table(), 'result', reactions: true),
+    action: (tester) async {
+      await tester.pump(const Duration(seconds: 12));
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 500));
+      }
+      await _reactions(tester);
+    },
   ),
 ];
 
-Future<void> prepareSweep(WidgetTester tester, Size size) async {
-  SharedPreferences.setMockInitialValues({});
+/// One line saying what went wrong and which widget did it: the overflow
+/// amount (or the message) and the widget Flutter blames.
+String describeSweepError(FlutterErrorDetails details) {
+  final lines = details.toString().split('\n').map((l) => l.trim()).toList();
+  final blame = lines.indexWhere((l) => l.startsWith('The relevant error'));
+  final overflow = lines.indexWhere((l) => l.contains('overflowed by'));
+  final parts = <String>[
+    if (overflow >= 0) lines[overflow] else details.exceptionAsString(),
+    if (blame >= 0 && blame + 1 < lines.length) 'at ${lines[blame + 1]}',
+  ];
+  return parts.join(' ');
+}
+
+Future<void> prepareSweep(
+  WidgetTester tester,
+  Size size,
+  Map<String, Object>? prefs,
+) async {
+  SharedPreferences.setMockInitialValues(
+    prefs ??
+        {ProfileStore.profileKey: '{"name":"$longArabicName","gender":"male"}'},
+  );
   installPlatformChannelMocks();
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -574,7 +980,7 @@ Future<void> pumpSweepCase(
   SweepCase item,
   Size size,
 ) async {
-  await prepareSweep(tester, size);
+  await prepareSweep(tester, size, item.prefs);
   final child = await item.build(tester);
   await tester.pumpWidget(
     RepaintBoundary(
