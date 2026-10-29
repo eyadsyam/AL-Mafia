@@ -542,6 +542,10 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
       ),
     );
     final soon = widget.onPlayStories == null;
+    // The Stories card lies behind the Mafia card, on its inner side.
+    final covered = storiesX < mafiaX
+        ? AxisDirection.right
+        : AxisDirection.left;
     final stories = RepaintBoundary(
       child: soon
           ? _PlayCard(
@@ -549,12 +553,14 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
               width: cw,
               title: l10n.modeStoriesSoonName,
               soon: l10n.modeStoriesSoon,
+              coveredSide: covered,
             )
           : _PlayCard(
               art: ModeScreen.storiesArt,
               width: cw,
               title: l10n.modeStoriesCardTitle,
               body: l10n.modeStoriesCardBody,
+              coveredSide: covered,
             ),
     );
 
@@ -840,12 +846,17 @@ class _PlayCard extends StatelessWidget {
   /// «قريبا»: the art is dimmed and this stands in its middle.
   final String? soon;
 
+  /// The side another card covers, if any (the back card of the fan): the
+  /// name and its line keep clear of it.
+  final AxisDirection? coveredSide;
+
   const _PlayCard({
     required this.art,
     required this.width,
     required this.title,
     this.body,
     this.soon,
+    this.coveredSide,
   });
 
   @override
@@ -946,15 +957,49 @@ class _PlayCard extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
-                    context.spacing.sm,
+                    context.spacing.sm +
+                        (coveredSide == AxisDirection.left
+                            ? width * ModeTokens.fanCover
+                            : 0),
                     context.spacing.xl,
-                    context.spacing.sm,
+                    context.spacing.sm +
+                        (coveredSide == AxisDirection.right
+                            ? width * ModeTokens.fanCover
+                            : 0),
                     context.spacing.md,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(title, textAlign: TextAlign.center, style: heading),
+                      // Wrapped at spaces only: a word too wide for the card
+                      // makes the whole name smaller, never breaks in two.
+                      LayoutBuilder(
+                        builder: (context, box) {
+                          var widest = 0.0;
+                          for (final word in title.split(' ')) {
+                            final painter = TextPainter(
+                              text: TextSpan(text: word, style: heading),
+                              textDirection: Directionality.of(context),
+                              textScaler: MediaQuery.textScalerOf(context),
+                              maxLines: 1,
+                            )..layout();
+                            widest = math.max(widest, painter.width);
+                            painter.dispose();
+                          }
+                          final fit = widest > box.maxWidth && widest > 0
+                              ? box.maxWidth / widest
+                              : 1.0;
+                          return Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            style: fit < 1
+                                ? heading.copyWith(
+                                    fontSize: heading.fontSize! * fit,
+                                  )
+                                : heading,
+                          );
+                        },
+                      ),
                       if (body != null)
                         Text(
                           body!,

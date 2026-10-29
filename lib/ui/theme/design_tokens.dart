@@ -66,6 +66,11 @@ abstract final class ModeTokens {
   static const double fanTilt = 0.087; // 5°
   static const double fanDrop = 18;
 
+  /// The share of the back card's width that the front card (and its tilt)
+  /// covers at the foot, where the back card's name sits: the name keeps
+  /// clear of it.
+  static const double fanCover = 0.12;
+
   /// The opened Mafia card, scaled down at the top.
   static const double openScale = 0.66;
 
