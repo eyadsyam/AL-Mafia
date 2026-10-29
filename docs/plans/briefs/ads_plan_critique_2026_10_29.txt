@@ -1,0 +1,25 @@
+Task: an adversarial critique of docs/plans/ADS-PLAN.md for the Mafia Master app. READ ONLY: edit or create no file, commit nothing, build nothing, call no live service. Your deliverable is your final message.
+
+Goal of the plan: earn more from ads while making them less annoying. The owner's rules:
+- Ads never inside a match.
+- Match rewards stay unchanged.
+- He now finds the large banner too big.
+
+Check the plan against the code:
+- lib/platform/monetization (rewarded_ads_mobile.dart, ad_formats.dart, ad policy and pacing code)
+- lib/ui/economy (waiting_banner.dart, banner_frame.dart, ad_extras.dart, play_offers.dart)
+- design_tokens.dart AdTokens
+- supabase migrations for economy_config ads columns and economy_capabilities
+- test/unit/banner_placement_test.dart
+
+For each lettered change A–G give:
+- VERDICT: keep, change or drop.
+- WHY: one line.
+- LIVE OR BUILD: is it really a live server switch, or does it need a new build? Cite file:line.
+- RISK: AdMob/Google Play policy (e.g. interstitial placement, accidental clicks, app-open rules), user annoyance, or revenue loss.
+
+Then:
+- Name anything the plan missed. Examples to check: mediation, frequency caps already in code that conflict, consent (UMP) coverage, a placement that breaks AdMob policy, ads during voice, and how the pre-match and pass-and-play moments interact with the "one per match" rule.
+- Give your own recommended interstitial cadence and caps, with reasons.
+
+Mark anything you cannot verify as UNVERIFIED.
