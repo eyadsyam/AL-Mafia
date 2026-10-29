@@ -115,7 +115,8 @@ class RevealedWhispers extends ConsumerWidget {
                 return ListView.separated(
                   shrinkWrap: true,
                   itemCount: rows.length,
-                  separatorBuilder: (_, _) => Divider(color: colors.borderSubtle),
+                  separatorBuilder: (_, _) =>
+                      Divider(color: colors.borderSubtle),
                   itemBuilder: (context, i) {
                     final w = rows[i];
                     return Column(

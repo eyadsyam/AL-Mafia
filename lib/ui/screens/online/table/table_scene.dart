@@ -12,6 +12,7 @@ import '../../../l10n_ext.dart';
 import '../../../theme/design_tokens.dart';
 import '../../../theme/mafia_theme.dart';
 import '../council/council_band.dart';
+import '../council/council_geometry.dart';
 import '../../../widgets/player_avatar.dart';
 import '../../../widgets/ambient_media.dart';
 import '../../../../engine/models/enums.dart' as engine;
@@ -264,6 +265,11 @@ class TableScene extends StatelessWidget {
             SafeArea(
               child: box.maxWidth >= DesktopLayoutTokens.desktopMinWidth
                   ? _desktopLayout(context, mood, viewer)
+                  : CouncilGeometry.compactLandscape(
+                      box.maxWidth,
+                      box.maxHeight,
+                    )
+                  ? _compactLayout(context, mood, viewer)
                   : Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: spacing.screenMargin,
@@ -282,54 +288,17 @@ class TableScene extends StatelessWidget {
                           const BandDivider(),
                           Expanded(
                             flex: CouncilTokens.councilFlex,
-                            child: CouncilBand(
-                              key: council,
-                              seats: seatsFor(
-                                snapshot,
-                                mood: mood,
-                                speakingLevels: speakingLevels,
-                                witnessRoles: witnessRoles,
-                              ),
-                              totalPlayers: snapshot.public.players.length,
-                              selectedSeat: selectedSeat,
-                              selectableSeats: selectableSeats,
-                              onSeatTap: onSeatTap,
-                              onSeatInspect: onSeatInspect,
-                              crackingSeat: tearingSeat,
-                              crackProgress: tearProgress,
-                              spark: spark,
-                              spotlight: spotlight,
-                              revealProgress: revealProgress,
-                              leftLabel: context.l10n.onlineLeftRoom,
-                              seatMarks: seatMarks,
-                            ),
+                            child: _councilBand(context, mood),
                           ),
                           Expanded(
                             key: voice,
                             flex: CouncilTokens.voiceFlex,
-                            child: AnimatedSwitcher(
-                              duration: ReduceMotion.of(context)
-                                  ? Duration.zero
-                                  : context.motion.band,
-                              switchInCurve: context.motion.standardCurve,
-                              switchOutCurve: context.motion.standardCurve,
-                              transitionBuilder: bandTransition,
-                              child: KeyedSubtree(
-                                key: ValueKey(snapshot.phase),
-                                child: centre ?? const SizedBox.shrink(),
-                              ),
-                            ),
+                            child: _voiceBand(context),
                           ),
                           Expanded(
                             key: hand,
                             flex: CouncilTokens.handFlex,
-                            child: _HandBand(
-                              footer: footer,
-                              viewer: viewer,
-                              speakingLevel: mood.showsPerSeatStatus
-                                  ? (speakingLevels[snapshot.viewerSeat] ?? 0)
-                                  : 0,
-                            ),
+                            child: _handBand(mood, viewer),
                           ),
                         ],
                       ),
@@ -355,6 +324,104 @@ class TableScene extends StatelessWidget {
               RoomPresentationLayer(snapshot: snapshot),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _councilBand(BuildContext context, TableMood mood) => CouncilBand(
+    key: council,
+    seats: seatsFor(
+      snapshot,
+      mood: mood,
+      speakingLevels: speakingLevels,
+      witnessRoles: witnessRoles,
+    ),
+    totalPlayers: snapshot.public.players.length,
+    selectedSeat: selectedSeat,
+    selectableSeats: selectableSeats,
+    onSeatTap: onSeatTap,
+    onSeatInspect: onSeatInspect,
+    crackingSeat: tearingSeat,
+    crackProgress: tearProgress,
+    spark: spark,
+    spotlight: spotlight,
+    revealProgress: revealProgress,
+    leftLabel: context.l10n.onlineLeftRoom,
+    seatMarks: seatMarks,
+  );
+
+  Widget _voiceBand(BuildContext context) => AnimatedSwitcher(
+    duration: ReduceMotion.of(context) ? Duration.zero : context.motion.band,
+    switchInCurve: context.motion.standardCurve,
+    switchOutCurve: context.motion.standardCurve,
+    transitionBuilder: bandTransition,
+    child: KeyedSubtree(
+      key: ValueKey(snapshot.phase),
+      child: centre ?? const SizedBox.shrink(),
+    ),
+  );
+
+  Widget _handBand(TableMood mood, PublicPlayer? viewer) => _HandBand(
+    footer: footer,
+    viewer: viewer,
+    speakingLevel: mood.showsPerSeatStatus
+        ? (speakingLevels[snapshot.viewerSeat] ?? 0)
+        : 0,
+  );
+
+  /// A phone on its side: the four bands will not stack in 360 dp (the hand
+  /// was left with less height than its own button), so the words and the
+  /// hand take the left and the council the right. The same bands, the same
+  /// content, for every viewer.
+  Widget _compactLayout(
+    BuildContext context,
+    TableMood mood,
+    PublicPlayer? viewer,
+  ) {
+    final spacing = context.spacing;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: spacing.screenMargin),
+      child: Column(
+        children: [
+          SizedBox(
+            key: header,
+            height: CouncilTokens.headerHeight,
+            child: _CouncilHeader(
+              snapshot: snapshot,
+              onCloseRoom: onCloseRoom,
+              onMyCard: onMyCard,
+            ),
+          ),
+          const BandDivider(),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  flex: CouncilTokens.compactTextFlex,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        key: voice,
+                        flex: CouncilTokens.voiceFlex,
+                        child: _voiceBand(context),
+                      ),
+                      Expanded(
+                        key: hand,
+                        flex: CouncilTokens.handFlex,
+                        child: _handBand(mood, viewer),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: spacing.md),
+                Expanded(
+                  flex: CouncilTokens.compactCouncilFlex,
+                  child: _councilBand(context, mood),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

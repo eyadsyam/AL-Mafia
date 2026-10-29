@@ -107,83 +107,94 @@ class VoteResultScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // The verdict is stamped. The same height with or without a
-                  // stamp, so a tie lays out exactly like an elimination.
-                  SizedBox(
-                    height: MotionTokens.stamp,
-                    child: eliminatedSeat == null
-                        ? null
-                        : const Center(
-                            child: MotionSprite(
-                              AppMotion.voteStamp,
-                              width: MotionTokens.stamp,
-                              once: MotionTokens.stampLength,
-                            ),
-                          ),
-                  ),
-                  Text(
-                    headline,
-                    key: const ValueKey('vote_result_headline'),
-                    style: type.headline.copyWith(
-                      color: colors.textPrimary,
-                      fontSize: tabletop
-                          ? TabletopTokens.headlineFontSize
-                          : null,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: spacing.sm),
-                  // Reserved role-chip slot: the same height whether or not a
-                  // role is being revealed.
-                  SizedBox(
-                    height: spacing.xl,
-                    child: Center(
-                      child: eliminatedRole == null
-                          ? const SizedBox.shrink()
-                          : Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: spacing.md,
-                                vertical: spacing.xs,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colors.surfaceRaised,
-                                borderRadius: BorderRadius.circular(
-                                  radii.button,
-                                ),
-                                border: Border.all(
-                                  color: _roleColor(context, eliminatedRole!),
-                                ),
-                              ),
-                              child: Text(
-                                l10n.wasRole(
-                                  EngineCopy.roleName(l10n, eliminatedRole!),
-                                ),
-                                style: type.body.emphasised.copyWith(
-                                  color: colors.textPrimary,
-                                ),
-                              ),
-                            ),
-                    ),
-                  ),
-                  SizedBox(height: spacing.lg),
+                  // Everything above the button scrolls together, so on a
+                  // short phone the verdict and the bars stay whole and the
+                  // button stays in reach.
                   Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      children: [
-                        // `entries` is already in tally order, so the index is
-                        // the row's rank and the cascade runs top to bottom —
-                        // the eliminated player's bar lands last.
-                        for (final (i, entry) in entries.indexed)
-                          VoteBar(
-                            name: names[entry.key] ?? '—',
-                            votes: entry.value,
-                            maxVotes: maxVotes,
-                            index: i,
-                            highlighted:
-                                entry.key == eliminatedSeat ||
-                                tiedSeats.contains(entry.key),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // The verdict is stamped. The same height with or without a
+                          // stamp, so a tie lays out exactly like an elimination.
+                          SizedBox(
+                            height: MotionTokens.stamp,
+                            child: eliminatedSeat == null
+                                ? null
+                                : const Center(
+                                    child: MotionSprite(
+                                      AppMotion.voteStamp,
+                                      width: MotionTokens.stamp,
+                                      once: MotionTokens.stampLength,
+                                    ),
+                                  ),
                           ),
-                      ],
+                          Text(
+                            headline,
+                            key: const ValueKey('vote_result_headline'),
+                            style: type.headline.copyWith(
+                              color: colors.textPrimary,
+                              fontSize: tabletop
+                                  ? TabletopTokens.headlineFontSize
+                                  : null,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: spacing.sm),
+                          // Reserved role-chip slot: the same height whether or not a
+                          // role is being revealed.
+                          SizedBox(
+                            height: spacing.xl,
+                            child: Center(
+                              child: eliminatedRole == null
+                                  ? const SizedBox.shrink()
+                                  : Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: spacing.md,
+                                        vertical: spacing.xs,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: colors.surfaceRaised,
+                                        borderRadius: BorderRadius.circular(
+                                          radii.button,
+                                        ),
+                                        border: Border.all(
+                                          color: _roleColor(
+                                            context,
+                                            eliminatedRole!,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        l10n.wasRole(
+                                          EngineCopy.roleName(
+                                            l10n,
+                                            eliminatedRole!,
+                                          ),
+                                        ),
+                                        style: type.body.emphasised.copyWith(
+                                          color: colors.textPrimary,
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          SizedBox(height: spacing.lg),
+                          // `entries` is already in tally order, so the index is
+                          // the row's rank and the cascade runs top to bottom —
+                          // the eliminated player's bar lands last.
+                          for (final (i, entry) in entries.indexed)
+                            VoteBar(
+                              name: names[entry.key] ?? '—',
+                              votes: entry.value,
+                              maxVotes: maxVotes,
+                              index: i,
+                              highlighted:
+                                  entry.key == eliminatedSeat ||
+                                  tiedSeats.contains(entry.key),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                   SizedBox(height: spacing.md),

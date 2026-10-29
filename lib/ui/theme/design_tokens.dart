@@ -718,6 +718,12 @@ abstract final class CouncilTokens {
   static const int councilFlex = 36;
   static const int voiceFlex = 34;
   static const int handFlex = 24;
+
+  /// A phone on its side (shorter than this and wider than tall) lays the
+  /// table out in two columns: the words and the hand, then the council.
+  static const double compactHeight = 480;
+  static const int compactTextFlex = 5;
+  static const int compactCouncilFlex = 6;
   static const double seatLarge = 72;
   static const double seatMedium = 64;
   static const double seatSmall = 56;
@@ -827,7 +833,10 @@ abstract final class CouncilTokens {
   static const double glyphSizeRatio = 0.62;
 
   /// How wide a name may run before it is truncated, as a share of the seat.
-  static const double nameWidthRatio = 1.35;
+  /// Under `1 + gap / seat` for every table size (about 1.2), so two
+  /// neighbours' names never touch: at 1.35 a 20-character name ran into the
+  /// next seat's.
+  static const double nameWidthRatio = 1.15;
 
   /// Radius of the speaking/selected glow, as a share of the seat diameter.
   static const double glowRadiusRatio = 0.43;

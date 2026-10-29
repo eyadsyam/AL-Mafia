@@ -89,6 +89,7 @@ Future<void> loadSweepFonts() async {
     'Cairo': 'assets/fonts/Cairo-Variable.ttf',
     'Bebas Neue': 'assets/fonts/BebasNeue-Regular.ttf',
     'Aref Ruqaa': 'assets/fonts/ArefRuqaa-Bold.ttf',
+    'IBM Plex Mono': 'assets/fonts/IBMPlexMono-Regular.ttf',
     'MaterialIcons': 'fonts/MaterialIcons-Regular.otf',
   }.entries) {
     await (FontLoader(font.key)..addFont(rootBundle.load(font.value))).load();
@@ -206,6 +207,26 @@ class _MemCache implements UpdatePolicyCache {
 
 FakeBackend? _lastBackend;
 
+/// The real app draws every page under a Material; a bare page here would get
+/// the debug yellow underline on all its text.
+Widget _material(Widget child) =>
+    Material(type: MaterialType.transparency, child: child);
+
+/// Runs an online table through its entrance beats (the curtain, the phase
+/// light, the narration) so the shot is the settled screen.
+Future<void> _settleTable(WidgetTester tester) async {
+  await tester.pump(const Duration(seconds: 12));
+  for (var i = 0; i < 6; i++) {
+    await tester.pump(const Duration(milliseconds: 500));
+  }
+}
+
+Future<void> _settleLong(WidgetTester tester) async {
+  for (var i = 0; i < 12; i++) {
+    await tester.pump(const Duration(milliseconds: 250));
+  }
+}
+
 /// A screen that has already asked the server, as the real app has.
 class _Asked extends ConsumerWidget {
   const _Asked({required this.child});
@@ -244,7 +265,7 @@ Future<Widget> _plain(Widget child) async {
       voiceStatsIntervalProvider.overrideWithValue(Duration.zero),
       voiceEngineFactoryProvider.overrideWithValue(FakeVoiceEngine.new),
     ],
-    child: localizedApp(child),
+    child: localizedApp(_material(child)),
   );
 }
 
@@ -261,8 +282,15 @@ Future<Widget> _profile({bool signedIn = false}) async {
           since: DateTime(2026, 9, 1),
         )
       : AccountProfile.guest;
+  final backend = FakeBackend(
+    roomId: 'sweep',
+    state: roomState(phase: 'lobby'),
+    players: roster(7),
+  );
+  _lastBackend = backend;
   return ProviderScope(
     overrides: [
+      onlineBackendFactoryProvider.overrideWithValue(() async => backend),
       accountsAvailableProvider.overrideWithValue(true),
       accountProfileProvider.overrideWith((ref) => Stream.value(account)),
       economyCapabilitiesProvider.overrideWith((ref) async => _allCaps),
@@ -362,7 +390,7 @@ Future<Widget> _offline(WidgetTester tester, Widget child, String phase) async {
   }
   return UncontrolledProviderScope(
     container: container,
-    child: localizedApp(child),
+    child: localizedApp(_material(child)),
   );
 }
 
@@ -584,9 +612,23 @@ List<SweepCase> sweepCases() => [
         onPlayOffline: () {},
         onPlayOnline: () {},
         onPlayBots: () {},
+        storiesSoon: true,
         onBack: () {},
       ),
     ),
+    action: _settleLong,
+  ),
+  SweepCase(
+    '01a_mode_stories_hidden',
+    (_) => _plain(
+      ModeScreen(
+        onPlayOffline: () {},
+        onPlayOnline: () {},
+        onPlayBots: () {},
+        onBack: () {},
+      ),
+    ),
+    action: _settleLong,
   ),
   SweepCase(
     '01b_mode_stories_open',
@@ -599,6 +641,7 @@ List<SweepCase> sweepCases() => [
         onBack: () {},
       ),
     ),
+    action: _settleLong,
   ),
   SweepCase(
     '02_settings',
@@ -642,6 +685,7 @@ List<SweepCase> sweepCases() => [
   SweepCase(
     '08_first_run',
     (_) => _plain(const FirstRunScreen()),
+    action: _settleLong,
     prefs: _noProfile(),
   ),
   SweepCase(
@@ -658,6 +702,7 @@ List<SweepCase> sweepCases() => [
   SweepCase(
     '12_lobby',
     (t) => _online(t, LobbyScreen(onStarted: () {}, onLeave: () {}), 'lobby'),
+    action: _settleLong,
     banner: true,
   ),
   SweepCase(
@@ -668,10 +713,17 @@ List<SweepCase> sweepCases() => [
       'lobby',
       reactions: true,
     ),
-    action: _reactions,
+    action: (tester) async {
+      await _settleLong(tester);
+      await _reactions(tester);
+    },
     banner: true,
   ),
-  SweepCase('13_online_table', (t) => _online(t, _table(), 'discussion')),
+  SweepCase(
+    '13_online_table',
+    (t) => _online(t, _table(), 'discussion'),
+    action: _settleTable,
+  ),
   SweepCase(
     '14_distribution',
     (t) => _offline(
@@ -846,8 +898,16 @@ List<SweepCase> sweepCases() => [
       ),
     ),
   ),
-  SweepCase('30_witness', (t) => _online(t, _table(), 'witness')),
-  SweepCase('31_online_council', (t) => _online(t, _table(), 'voting')),
+  SweepCase(
+    '30_witness',
+    (t) => _online(t, _table(), 'witness'),
+    action: _settleTable,
+  ),
+  SweepCase(
+    '31_online_council',
+    (t) => _online(t, _table(), 'voting'),
+    action: _settleTable,
+  ),
   SweepCase(
     '32_delete_account_sheet',
     (_) => _launcher((c, _) => showDeleteAccountSheet(c)),
@@ -911,10 +971,12 @@ List<SweepCase> sweepCases() => [
   SweepCase(
     '40_online_night_citizen',
     (t) => _online(t, _table(), 'night'),
+    action: _settleTable,
   ),
   SweepCase(
     '41_online_night_doctor',
     (t) => _online(t, _table(), 'night', role: 'doctor'),
+    action: _settleTable,
   ),
   SweepCase(
     '42_online_night_mafia',
@@ -925,23 +987,23 @@ List<SweepCase> sweepCases() => [
       role: 'mafia',
       teammates: [sweepNames[5]],
     ),
+    action: _settleTable,
   ),
   SweepCase(
     '43_online_morning',
     (t) => _online(t, _table(), 'morning'),
+    action: _settleTable,
   ),
   SweepCase(
     '44_online_result',
     (t) => _online(t, _table(), 'result', reactions: true),
+    action: _settleTable,
   ),
   SweepCase(
     '45_online_result_reactions',
     (t) => _online(t, _table(), 'result', reactions: true),
     action: (tester) async {
-      await tester.pump(const Duration(seconds: 12));
-      for (var i = 0; i < 6; i++) {
-        await tester.pump(const Duration(milliseconds: 500));
-      }
+      await _settleTable(tester);
       await _reactions(tester);
     },
   ),
@@ -950,14 +1012,14 @@ List<SweepCase> sweepCases() => [
 /// One line saying what went wrong and which widget did it: the overflow
 /// amount (or the message) and the widget Flutter blames.
 String describeSweepError(FlutterErrorDetails details) {
-  final lines = details.toString().split('\n').map((l) => l.trim()).toList();
-  final blame = lines.indexWhere((l) => l.startsWith('The relevant error'));
+  final text = details.toString(minLevel: DiagnosticLevel.debug);
+  final lines = text.split('\n').map((l) => l.trim()).toList();
   final overflow = lines.indexWhere((l) => l.contains('overflowed by'));
-  final parts = <String>[
+  final where = RegExp(r'lib/[^\s:]+\.dart:\d+').firstMatch(text)?.group(0);
+  return [
     if (overflow >= 0) lines[overflow] else details.exceptionAsString(),
-    if (blame >= 0 && blame + 1 < lines.length) 'at ${lines[blame + 1]}',
-  ];
-  return parts.join(' ');
+    if (where != null) 'at $where',
+  ].join(' ');
 }
 
 Future<void> prepareSweep(

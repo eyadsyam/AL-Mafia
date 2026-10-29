@@ -33,6 +33,15 @@ abstract final class CouncilGeometry {
     return 3;
   }
 
+  /// A phone on its side that is too narrow for the wide council: wider than
+  /// tall, shorter than [CouncilTokens.compactHeight], narrower than
+  /// [CouncilTokens.wideCouncilBreakpoint]. Four stacked bands leave the
+  /// council no height there, so the screens lay out two columns instead.
+  static bool compactLandscape(double width, double height) =>
+      width > height &&
+      height < CouncilTokens.compactHeight &&
+      width < CouncilTokens.wideCouncilBreakpoint;
+
   static double diameterFor(int totalPlayers) {
     if (totalPlayers <= 6) return CouncilTokens.seatLarge;
     if (totalPlayers <= 8) return CouncilTokens.seatMedium;

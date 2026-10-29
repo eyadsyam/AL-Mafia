@@ -59,11 +59,24 @@ class CouncilVoice extends StatelessWidget {
     );
     return LayoutBuilder(
       builder: (context, constraints) {
-        final compact =
-            leading != null &&
-            constraints.maxWidth > constraints.maxHeight &&
-            constraints.maxHeight <
-                CouncilTokens.nightOwnCardHeight + spacing.xxl;
+        // The card above the words when the band is tall enough for the
+        // stack (a card, a one-line headline, the support line); beside them
+        // when it is not (a small phone, or one on its side). Decided by the
+        // band's height and the type's line heights alone, never by the words
+        // (Doc 05: no role may lay itself out differently from another).
+        final headlineStyle = style ?? type.headline;
+        final headlineLine =
+            (headlineStyle.fontSize ?? 0) * (headlineStyle.height ?? 1);
+        final supportLine =
+            (type.caption.fontSize ?? 0) * (type.caption.height ?? 1);
+        final stacked =
+            CouncilTokens.nightOwnCardHeight +
+            spacing.md +
+            headlineLine +
+            (support == null
+                ? 0
+                : spacing.md + supportLine * CouncilTokens.nightSlotLines);
+        final compact = leading != null && constraints.maxHeight < stacked;
         return Center(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: spacing.lg),
@@ -83,7 +96,20 @@ class CouncilVoice extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Flexible(child: message),
+                            // Beside the card there is little width: the
+                            // headline steps down a size (for every role).
+                            Flexible(
+                              child: style == null
+                                  ? Text(
+                                      headline,
+                                      key: body,
+                                      textAlign: TextAlign.center,
+                                      style: type.title.copyWith(
+                                        color: colors.textPrimary,
+                                      ),
+                                    )
+                                  : message,
+                            ),
                             if (support != null) ...[
                               SizedBox(height: spacing.md),
                               Flexible(child: support!),
