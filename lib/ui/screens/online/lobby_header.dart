@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../platform/voice/voice_controller.dart' show VoiceMode;
 import '../../l10n_ext.dart';
+import '../../economy/council_hub.dart' show pendingInviteCodeProvider;
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/voice_mic_button.dart';
@@ -57,6 +58,30 @@ enum _More { store, safety, audio }
 class _LobbyHeaderState extends ConsumerState<LobbyHeader> {
   final _overlay = OverlayPortalController();
   _Panel _panel = _Panel.store;
+
+  ProviderSubscription<String?>? _invite;
+
+  @override
+  void initState() {
+    super.initState();
+    // An invite link opens the vault by itself, on the Council tab. The lobby
+    // used to get this from the store button it mounted; the button is in the
+    // «⋯» menu now, so the header keeps the listener (identical behaviour:
+    // fires for a code already waiting, and for one that arrives later).
+    _invite = ref.listenManual<String?>(pendingInviteCodeProvider, (_, next) {
+      if (next != null && !_overlay.isShowing) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && !_overlay.isShowing) _open(_Panel.store);
+        });
+      }
+    }, fireImmediately: true);
+  }
+
+  @override
+  void dispose() {
+    _invite?.close();
+    super.dispose();
+  }
 
   void _open(_Panel panel) {
     setState(() => _panel = panel);

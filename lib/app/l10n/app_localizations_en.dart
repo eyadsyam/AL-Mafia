@@ -7472,7 +7472,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nightLineMafia =>
-      'Pick a player to kill tonight. If you agree, it is done.';
+      'Pick a player to kill tonight. If you split, the most-voted dies.';
 
   @override
   String get nightLineSilencer =>
@@ -7484,7 +7484,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nightLineDetective =>
-      'Pick one player to check tonight. You learn who they are.';
+      'Pick one player to check tonight. You will see the result.';
 
   @override
   String get nightLineElder =>

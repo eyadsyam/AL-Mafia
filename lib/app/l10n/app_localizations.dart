@@ -12886,7 +12886,7 @@ abstract class AppLocalizations {
   /// No description provided for @nightLineMafia.
   ///
   /// In en, this message translates to:
-  /// **'Pick a player to kill tonight. If you agree, it is done.'**
+  /// **'Pick a player to kill tonight. If you split, the most-voted dies.'**
   String get nightLineMafia;
 
   /// No description provided for @nightLineSilencer.
@@ -12904,7 +12904,7 @@ abstract class AppLocalizations {
   /// No description provided for @nightLineDetective.
   ///
   /// In en, this message translates to:
-  /// **'Pick one player to check tonight. You learn who they are.'**
+  /// **'Pick one player to check tonight. You will see the result.'**
   String get nightLineDetective;
 
   /// No description provided for @nightLineElder.

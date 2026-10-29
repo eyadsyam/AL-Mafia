@@ -7355,7 +7355,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get nightLineMafia =>
-      'اختار لاعب تقتله. لو اتفقتم، هيتنفذ اللي اخترتوه.';
+      'اختار لاعب تقتله. لو اختلفتوا، الأكتر أصوات يموت.';
 
   @override
   String get nightLineSilencer =>
@@ -7367,7 +7367,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get nightLineDetective =>
-      'اختار لاعب واحد تكشفه الليلة. هتعرف شخصيته بعدها.';
+      'اختار لاعب واحد تكشفه الليلة. وهتشوف نتيجة الكشف.';
 
   @override
   String get nightLineElder =>

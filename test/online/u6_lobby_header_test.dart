@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/transport/game_snapshot.dart' show PublicRoom;
+import 'package:mafia_master/ui/economy/council_hub.dart'
+    show pendingInviteCodeProvider;
+import 'package:mafia_master/ui/screens/setup/coin_store.dart' show CoinStore;
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/screens/online/lobby_header.dart';
 import 'package:mafia_master/ui/screens/online/lobby_screen.dart';
@@ -21,12 +24,13 @@ void main() {
   // Twenty Arabic letters: the longest name the room or a player may carry.
   final long = List.filled(20, 'م').join();
 
-  Future<void> pump(
+  Future<ProviderContainer> pump(
     WidgetTester tester,
     Size size, {
     required bool host,
     String? title,
     int players = 3,
+    String? waitingInvite,
   }) async {
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = size;
@@ -62,6 +66,9 @@ void main() {
     );
     addTearDown(container.dispose);
     container.read(playerProfileProvider);
+    if (waitingInvite != null) {
+      container.read(pendingInviteCodeProvider.notifier).state = waitingInvite;
+    }
     await container.read(onlineSessionProvider.notifier).host(long);
     await tester.pumpWidget(
       UncontrolledProviderScope(
@@ -71,6 +78,7 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 600));
+    return container;
   }
 
   const sizes = [Size(360, 640), Size(390, 844), Size(640, 360)];
@@ -144,5 +152,23 @@ void main() {
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a store-invite link already waiting opens the vault', (
+    tester,
+  ) async {
+    await pump(tester, const Size(360, 640), host: true, waitingInvite: 'INV1');
+    expect(find.byType(CoinStore), findsOneWidget);
+  });
+
+  testWidgets('a store-invite link arriving in the lobby opens the vault', (
+    tester,
+  ) async {
+    final container = await pump(tester, const Size(360, 640), host: true);
+    expect(find.byType(CoinStore), findsNothing);
+    container.read(pendingInviteCodeProvider.notifier).state = 'INV2';
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(CoinStore), findsOneWidget);
   });
 }
