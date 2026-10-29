@@ -87,6 +87,9 @@ dev_dependencies:
   # through video_player; named here because a test imports them directly.
   plugin_platform_interface: ^2.1.8
   video_player_platform_interface: ^6.9.0
+  # Test-only: the Play Billing adapter is driven through a fake purchase
+  # platform, the same way.
+  in_app_purchase_platform_interface: ^1.4.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
