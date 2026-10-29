@@ -231,7 +231,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byKey(AccountCard.cardKey),
-          matching: find.text('eyad@example.com'),
+          matching: find.text(arStrings.profileAccountGoogle),
         ),
         findsOneWidget,
       );

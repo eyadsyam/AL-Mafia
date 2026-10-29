@@ -423,7 +423,7 @@ class TitleEquipList extends ConsumerWidget {
     final owned = hub.owned;
     if (owned.isEmpty) {
       return Text(
-        l.titlesNone,
+        l.titlesEmpty,
         style: context.typography.bodySmall.copyWith(
           color: context.colors.textMuted,
         ),

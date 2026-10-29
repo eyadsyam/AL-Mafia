@@ -4572,5 +4572,62 @@
   "keyMic": "Mic",
   "keyClose": "Close",
   "keyChoose": "Choose",
-  "keyBack": "Back"
+  "keyBack": "Back",
+  "profileEditHint": "Change your name or character",
+  "profileEditHintTitled": "{title} · Change your name or character",
+  "@profileEditHintTitled": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStatHere": "Matches here",
+  "profileStatOnlineMatches": "Online matches",
+  "profileStatCoins": "Coins",
+  "profileFriendsCount": "{count, plural, =0{None yet} =1{1 friend} other{{count} friends}}",
+  "@profileFriendsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileLastMatchToday": "Last match today",
+  "profileLastMatchYesterday": "Last match yesterday",
+  "profileLastMatchDays": "{count, plural, other{Last match {count} days ago}}",
+  "@profileLastMatchDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileNoMatches": "No matches yet",
+  "profileAccountGoogle": "Signed in with Google",
+  "profileAccountEmail": "Signed in with email",
+  "friendsSheetTitle": "Friends",
+  "friendsSearchHint": "Search by name or code",
+  "friendsRequestsCount": "Friend requests ({count})",
+  "@friendsRequestsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "friendsYoursCount": "Your friends ({count})",
+  "@friendsYoursCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "friendsEmpty": "No friends yet",
+  "titlesEmpty": "No titles yet",
+  "accountGuestIntro": "You are playing as a guest. If you sign up, your things and coins stay with you on any phone.",
+  "accountContinueGoogle": "Continue with Google",
+  "accountWithEmail": "With email",
+  "accountNotNow": "Not now"
 }

@@ -7469,4 +7469,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get keyBack => 'Back';
+
+  @override
+  String get profileEditHint => 'Change your name or character';
+
+  @override
+  String profileEditHintTitled(String title) {
+    return '$title · Change your name or character';
+  }
+
+  @override
+  String get profileStatHere => 'Matches here';
+
+  @override
+  String get profileStatOnlineMatches => 'Online matches';
+
+  @override
+  String get profileStatCoins => 'Coins';
+
+  @override
+  String profileFriendsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count friends',
+      one: '1 friend',
+      zero: 'None yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileLastMatchToday => 'Last match today';
+
+  @override
+  String get profileLastMatchYesterday => 'Last match yesterday';
+
+  @override
+  String profileLastMatchDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Last match $count days ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileNoMatches => 'No matches yet';
+
+  @override
+  String get profileAccountGoogle => 'Signed in with Google';
+
+  @override
+  String get profileAccountEmail => 'Signed in with email';
+
+  @override
+  String get friendsSheetTitle => 'Friends';
+
+  @override
+  String get friendsSearchHint => 'Search by name or code';
+
+  @override
+  String friendsRequestsCount(int count) {
+    return 'Friend requests ($count)';
+  }
+
+  @override
+  String friendsYoursCount(int count) {
+    return 'Your friends ($count)';
+  }
+
+  @override
+  String get friendsEmpty => 'No friends yet';
+
+  @override
+  String get titlesEmpty => 'No titles yet';
+
+  @override
+  String get accountGuestIntro =>
+      'You are playing as a guest. If you sign up, your things and coins stay with you on any phone.';
+
+  @override
+  String get accountContinueGoogle => 'Continue with Google';
+
+  @override
+  String get accountWithEmail => 'With email';
+
+  @override
+  String get accountNotNow => 'Not now';
 }

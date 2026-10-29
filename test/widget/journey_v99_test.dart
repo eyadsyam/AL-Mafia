@@ -7,6 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/engine/models/player.dart';
 import 'package:mafia_master/transport/online_backend.dart';
+import 'package:mafia_master/ui/account/profile_panels.dart'
+    show ProfileIdentityHeader;
 import 'package:mafia_master/ui/screens/online/lobby_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_entry_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
@@ -21,6 +23,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../support/fake_backend.dart';
 import '../support/localized.dart';
 import '../support/stores.dart';
+
+/// The identity block opens the name-and-address sheet (editing a saved
+/// profile; the first-run page shows the same form in place).
+Future<void> openIdentitySheet(WidgetTester tester) async {
+  await tester.tap(find.byKey(ProfileIdentityHeader.headerKey));
+  await tester.pumpAndSettle();
+}
 
 /// Phase 99: the public journey's presentation fixes, each pinned to the
 /// problem the renders showed.
@@ -45,6 +54,7 @@ void main() {
     ) async {
       seedReturningProfile();
       await pumpProfile(tester, onBack: () {});
+      await openIdentitySheet(tester);
       final field = tester.widget<TextField>(
         find.byKey(ProfileScreen.nameKey),
       );
@@ -134,6 +144,7 @@ void main() {
         ),
       );
       await tester.pump();
+      await openIdentitySheet(tester);
     }
 
     String name(WidgetTester tester) => tester
