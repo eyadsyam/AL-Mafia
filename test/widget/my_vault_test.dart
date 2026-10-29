@@ -179,6 +179,26 @@ void main() {
     expect(find.text(arStrings.vaultToolsUnlimited), findsWidgets);
   });
 
+  testWidgets('off-sale kinds show only to a player who holds one', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      wallet: const WalletState(
+        balance: 0,
+        catalog: [],
+        owned: {'frame_gilded', 'narrator_keeper', 'role_elder'},
+        equipped: {},
+        history: [],
+      ),
+    );
+    expect(find.byKey(MyVaultTab.tile(MyVaultPage.room)), findsNothing);
+    await tester.tap(find.byKey(MyVaultTab.tile(MyVaultPage.look)));
+    await tester.pumpAndSettle();
+    expect(find.text(arStrings.vaultLookPlate), findsNothing);
+    expect(find.text(arStrings.vaultLookFrame), findsOneWidget);
+  });
+
   testWidgets('a room with nothing in it says where to find it', (
     tester,
   ) async {

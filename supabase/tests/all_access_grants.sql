@@ -60,12 +60,19 @@ begin
   assert not exists(select 1 from public.player_tool_charges where user_id=owner_id);
   update public.room_state set phase_number=2;
   perform public.use_table_tool(owner_id,room_id,'anon_note','{}','two');
+  -- Owner, 2026-10-29 («الحد عندي براحتي»): no per-match count for an
+  -- all-access account; one of each kind per phase still holds.
   update public.room_state set phase_number=3;
+  perform public.use_table_tool(owner_id,room_id,'anon_note','{}','three');
+  for i in 4..8 loop
+    update public.room_state set phase_number=i;
+    perform public.use_table_tool(owner_id,room_id,'anon_note','{}','more');
+  end loop;
   begin
-    perform public.use_table_tool(owner_id,room_id,'anon_note','{}','three');
-    raise exception 'per-match limit bypassed';
+    perform public.use_table_tool(owner_id,room_id,'anon_note','{}','again');
+    raise exception 'two of a kind in one phase';
   exception when others then
-    if sqlerrm <> 'LIMIT_TOOL' then raise; end if;
+    if sqlerrm <> 'LIMIT_PHASE' then raise; end if;
   end;
   begin
     perform public.buy_table_tool(normal_id,'anon_note',1);

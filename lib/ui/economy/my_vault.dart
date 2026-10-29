@@ -266,21 +266,21 @@ class _Hub extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: MyVaultTokens.tileGap),
-              Expanded(
-                child: tile(
-                  MyVaultPage.room,
-                  label(l.vaultRoomTitle, nameOf(pack)),
-                  art: StoreArt.forCode(
-                    pack ??
-                        _ownedOf(
-                          wallet,
-                          CosmeticKind.presentationPack,
-                        ).firstOrNull ??
-                        'pack_midnight_manor',
+              // The room scenes are off sale (store v4): the room only shows
+              // for a player who already holds one, never as an empty room.
+              if (_ownedOf(wallet, CosmeticKind.presentationPack) case [
+                final first,
+                ...,
+              ]) ...[
+                const SizedBox(width: MyVaultTokens.tileGap),
+                Expanded(
+                  child: tile(
+                    MyVaultPage.room,
+                    label(l.vaultRoomTitle, nameOf(pack)),
+                    art: StoreArt.forCode(pack ?? first),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
@@ -912,14 +912,17 @@ class _LookRoom extends ConsumerWidget {
           frame,
           MyVaultTokens.frameTile,
         ),
-        SizedBox(height: s.md),
-        choices(
-          l.vaultLookPlate,
-          CosmeticSlot.nameplate,
-          plates,
-          plate,
-          MyVaultTokens.plateTile,
-        ),
+        // Plates are off sale (store v4): only a player who holds one sees it.
+        if (plates.isNotEmpty) ...[
+          SizedBox(height: s.md),
+          choices(
+            l.vaultLookPlate,
+            CosmeticSlot.nameplate,
+            plates,
+            plate,
+            MyVaultTokens.plateTile,
+          ),
+        ],
         SizedBox(height: s.md),
         _Where(lines: [l.vaultLookWhere]),
       ],
