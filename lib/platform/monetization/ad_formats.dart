@@ -24,14 +24,15 @@ abstract interface class AppOpenAds {
   void discard();
 }
 
-/// The banner for waiting surfaces only (320x50). The slot's place is
-/// reserved from the first frame, filled or not, so nothing moves when the ad
-/// arrives; the surface decides whether to ask for one at all.
+/// The large anchored adaptive banner for waiting surfaces only (full width,
+/// the height Google gives that width). The slot's place is reserved from the
+/// first frame, filled or not, so nothing moves when the ad arrives; the
+/// surface decides whether to ask for one at all.
 abstract interface class BannerAds {
   bool get configured;
 
   /// [gap] is kept above the slot; the slot itself always has the same height
-  /// (`AdTokens.bannerSlotHeight`), empty or filled.
+  /// (the adaptive height plus the frame), empty or filled.
   Widget slot({
     Key? key,
     required String label,
@@ -63,9 +64,48 @@ enum BannerPlacement {
 abstract interface class ShellBannerAds {
   bool get configured;
 
-  /// The band for the host's bottom edge. Zero-size while not [visible].
-  Widget band({Key? key, required String label, required bool visible});
+  /// The band for the host's bottom edge, [size] being the adaptive size the
+  /// host resolved for this window. Zero-size while not [visible] (the host
+  /// only shows it once [size] is known, so a drawn band never changes
+  /// height).
+  Widget band({
+    Key? key,
+    required String label,
+    required bool visible,
+    required BannerSize? size,
+  });
 }
+
+/// An adaptive banner size: the width asked for and the height Google gives
+/// it. [native] is the platform's own size object (null in tests).
+class BannerSize {
+  final int width;
+  final int height;
+  final Object? native;
+  const BannerSize(this.width, this.height, [this.native]);
+
+  @override
+  bool operator ==(Object other) =>
+      other is BannerSize && other.width == width && other.height == height;
+
+  @override
+  int get hashCode => Object.hash(width, height);
+}
+
+/// Resolves the large anchored adaptive size. It depends only on the width
+/// and the orientation, never on an ad, so the layout can know a banner's
+/// height before anything is requested. Answers are cached for the session.
+abstract interface class BannerSizing {
+  /// The cached size, or null when it has not been resolved yet.
+  BannerSize? peek(int width, Orientation orientation);
+
+  /// Resolves (and caches) the size; null when the platform has none.
+  Future<BannerSize?> resolve(int width, Orientation orientation);
+}
+
+final bannerSizingProvider = Provider<BannerSizing>(
+  (ref) => createBannerSizing(),
+);
 
 /// Where a native ad card sits inside a menu list (its own unit each).
 enum NativePlacement {

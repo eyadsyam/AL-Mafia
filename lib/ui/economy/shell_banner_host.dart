@@ -102,9 +102,46 @@ class _ShellBannerHostState extends ConsumerState<ShellBannerHost> {
     });
   }
 
+  // The adaptive size for this window, resolved as early as possible (the
+  // first build) in every mode: it primes the cache the per-screen slots read
+  // synchronously, and it is what the shell band is sized from.
+  int? _sizeWidth;
+  Orientation? _sizeOrientation;
+  BannerSize? _size;
+
+  void _sizeFor(BannerSizing sizing, MediaQueryData media) {
+    final width =
+        (media.size.width - 2 * AdTokens.bannerFrame)
+            // The band keeps clear of a notch on its sides.
+            .clamp(0.0, media.size.width - media.padding.horizontal)
+            .clamp(0.0, AdTokens.bannerMaxWidth)
+            .floor();
+    if (width == _sizeWidth && media.orientation == _sizeOrientation) return;
+    _sizeWidth = width;
+    _sizeOrientation = media.orientation;
+    _size = sizing.peek(width, media.orientation);
+    if (_size != null || width <= 0) return;
+    final orientation = media.orientation;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      BannerSize? size;
+      try {
+        size = await sizing.resolve(width, orientation);
+      } catch (_) {
+        return;
+      }
+      if (!mounted || size == null) return;
+      if (width == _sizeWidth && orientation == _sizeOrientation) {
+        setState(() => _size = size);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final ads = ref.watch(shellBannerAdsProvider);
+    if (ads.configured) {
+      _sizeFor(ref.watch(bannerSizingProvider), MediaQuery.of(context));
+    }
     final shell =
         !kIsWeb &&
         ads.configured &&
@@ -118,6 +155,9 @@ class _ShellBannerHostState extends ConsumerState<ShellBannerHost> {
     final path = widget.currentPath?.call();
     final visible =
         shell &&
+        // A band that is not drawn yet waits for its size; one that is drawn
+        // never changes height.
+        _size != null &&
         shouldShowWaitingBanner(caps) &&
         path != null &&
         shellBannerRoute(path) &&
@@ -146,6 +186,7 @@ class _ShellBannerHostState extends ConsumerState<ShellBannerHost> {
           key: ShellBannerHost.bandKey,
           label: context.l10n.adBannerLabel,
           visible: visible,
+          size: _size,
         ),
       ],
     );

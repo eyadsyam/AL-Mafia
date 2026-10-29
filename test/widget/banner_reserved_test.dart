@@ -19,6 +19,7 @@ import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../support/fake_backend.dart';
+import '../support/fake_banner_sizing.dart';
 import '../support/localized.dart';
 import '../support/stores.dart';
 
@@ -27,9 +28,12 @@ import '../support/stores.dart';
 /// was; a player who goes ad-free closes it over an ease, not a snap.
 
 /// A banner whose ad arrives when the test says so: the real shared frame
-/// around a stand-in 320x50 ad, exactly as the Google slot builds it.
+/// around a stand-in adaptive ad, exactly as the Google slot builds it.
 class _TimedBanner implements BannerAds {
   final filled = ValueNotifier<bool>(false);
+  final FakeSizing sizing;
+  final sizesAsked = <BannerSize>[];
+  _TimedBanner(this.sizing);
   static const fill = ValueKey('timed_banner_fill');
 
   @override
@@ -44,9 +48,11 @@ class _TimedBanner implements BannerAds {
   }) => ValueListenableBuilder<bool>(
     key: key,
     valueListenable: filled,
-    builder: (context, isFilled, _) => BannerFrame(
+    builder: (context, isFilled, _) => BannerReserve(
       label: label,
       gap: gap,
+      sizing: sizing,
+      onSize: sizesAsked.add,
       ad: isFilled ? const SizedBox.expand(key: fill) : null,
     ),
   );
@@ -145,13 +151,14 @@ void main() {
   Future<(ProviderContainer, _TimedBanner)> pump(
     WidgetTester tester,
     _Surface surface,
-    Size size,
-  ) async {
+    Size size, {
+    FakeSizing? sizing,
+  }) async {
     tester.view
       ..devicePixelRatio = 1
       ..physicalSize = size;
     addTearDown(tester.view.reset);
-    final ads = _TimedBanner();
+    final ads = _TimedBanner(sizing ?? FakeSizing());
     final container = ProviderContainer(
       overrides: [
         bannerAdsProvider.overrideWithValue(ads),
@@ -223,19 +230,114 @@ void main() {
     }
   }
 
-  testWidgets('the reserved slot is as tall as the token says', (tester) async {
+  testWidgets('the reserved slot is the adaptive height plus the strip, full '
+      'width, filled or not', (tester) async {
     final (_, ads) = await pump(tester, surfaces.first, const Size(390, 844));
+    const adWidth = 390 - 2 * AdTokens.bannerFrame;
+    final adaptive = FakeSizing.heightOf(adWidth.floor(), Orientation.portrait);
     final frame = tester.getRect(find.byType(BannerFrame));
     expect(
       frame.height,
-      closeTo(AdTokens.bannerSlotHeight + _gapOf(tester), 0.01),
+      closeTo(adaptive + AdTokens.bannerSlotChrome + _gapOf(tester), 0.01),
     );
+    // Full width: the frame spans the screen, the ad box its inside.
+    expect(frame.width, 390);
+    final ad = tester.getRect(find.byKey(BannerFrame.adKey));
+    expect(ad.height, adaptive);
+    expect(ad.width, adWidth);
+    // The size was asked for exactly once, for this width and orientation.
+    expect(ads.sizesAsked.map((s) => (s.width, s.height)), [
+      (adWidth.floor(), adaptive),
+    ]);
+
     ads.filled.value = true;
     await tester.pump();
     expect(tester.getRect(find.byType(BannerFrame)), frame);
-    final ad = tester.getRect(find.byKey(BannerFrame.adKey));
-    expect(ad.height, AdTokens.bannerAdHeight);
-    expect(ad.width, AdTokens.bannerAdWidth);
+    expect(tester.getRect(find.byKey(BannerFrame.adKey)), ad);
+    expect(ads.sizesAsked.length, 1, reason: 'a fill asks nothing again');
+  });
+
+  testWidgets('a cold cache reserves the floor, then settles once and stays', (
+    tester,
+  ) async {
+    final sizing = FakeSizing(primed: false);
+    final (_, ads) = await pump(
+      tester,
+      surfaces.first,
+      const Size(390, 844),
+      sizing: sizing,
+    );
+    final frame = tester.getRect(find.byType(BannerFrame));
+    expect(
+      frame.height,
+      closeTo(
+        AdTokens.bannerAdaptiveFloor +
+            AdTokens.bannerSlotChrome +
+            _gapOf(tester),
+        0.01,
+      ),
+    );
+    expect(ads.sizesAsked, isEmpty);
+    sizing.answer.complete();
+    await tester.pump();
+    await tester.pump();
+    // 388 * 0.27 = 105 is taller than the floor (100): the slot grows once to
+    // what Google answered, and a fill then moves nothing.
+    expect(ads.sizesAsked.length, 1);
+    final settled = tester.getRect(find.byType(BannerFrame));
+    expect(
+      settled.height,
+      closeTo(
+        ads.sizesAsked.single.height +
+            AdTokens.bannerSlotChrome +
+            _gapOf(tester),
+        0.01,
+      ),
+    );
+    ads.filled.value = true;
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.getRect(find.byType(BannerFrame)), settled);
+  });
+
+  testWidgets('a cold cache with a shorter answer keeps what it reserved', (
+    tester,
+  ) async {
+    final sizing = FakeSizing(primed: false, tall: -20);
+    final (_, ads) = await pump(
+      tester,
+      surfaces.first,
+      const Size(390, 844),
+      sizing: sizing,
+    );
+    final frame = tester.getRect(find.byType(BannerFrame));
+    sizing.answer.complete();
+    await tester.pump();
+    await tester.pump();
+    expect(ads.sizesAsked.length, 1);
+    expect(ads.sizesAsked.single.height, lessThan(100));
+    expect(tester.getRect(find.byType(BannerFrame)), frame);
+    ads.filled.value = true;
+    await tester.pump();
+    expect(tester.getRect(find.byType(BannerFrame)), frame);
+  });
+
+  testWidgets('a rotation asks for the new size and relayouts; a fill does not', (
+    tester,
+  ) async {
+    final (_, ads) = await pump(tester, surfaces.first, const Size(390, 844));
+    final portrait = tester.getRect(find.byKey(BannerFrame.adKey)).height;
+    tester.view.physicalSize = const Size(844, 390);
+    await tester.pump();
+    await tester.pump();
+    final landscape = tester.getRect(find.byKey(BannerFrame.adKey));
+    expect(landscape.height, FakeSizing.heightOf(728, Orientation.landscape));
+    expect(landscape.height, isNot(portrait));
+    // Capped at the widest banner (728 dp).
+    expect(ads.sizesAsked.last.width, 728);
+    ads.filled.value = true;
+    await tester.pump();
+    expect(tester.getRect(find.byKey(BannerFrame.adKey)), landscape);
   });
 
   testWidgets('ad-free mid-screen closes the place over an ease', (
@@ -249,6 +351,7 @@ void main() {
     final start = find.byKey(HomeScreen.startButton);
     final startBefore = tester.getRect(start);
     expect(find.byKey(BannerFrame.adKey), findsOneWidget);
+    final startSlot = tester.getRect(find.byType(WaitingBanner)).height;
 
     container.read(_caps.notifier).state = _adFree;
     await container.read(economyCapabilitiesProvider.future);
@@ -257,7 +360,7 @@ void main() {
     await tester.pump(AdTokens.bannerCollapse ~/ 2);
     final during = tester.getRect(find.byType(WaitingBanner)).height;
     expect(during, greaterThan(0));
-    expect(during, lessThan(AdTokens.bannerSlotHeight));
+    expect(during, lessThan(startSlot));
 
     await tester.pump(AdTokens.bannerCollapse);
     await tester.pump();
@@ -277,7 +380,7 @@ void main() {
     addTearDown(tester.view.reset);
     final container = ProviderContainer(
       overrides: [
-        bannerAdsProvider.overrideWithValue(_TimedBanner()),
+        bannerAdsProvider.overrideWithValue(_TimedBanner(FakeSizing())),
         onlineBackendFactoryProvider.overrideWithValue(
           () async => throw StateError('offline'),
         ),

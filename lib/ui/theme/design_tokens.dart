@@ -2321,22 +2321,29 @@ abstract final class AdTokens {
   static const bannerMinLobbyHeight = 560.0;
 
   /// WP4: the banner's place is reserved before the ad arrives, so nothing
-  /// moves when it fills. The standard 320x50 banner, and the strip above it
-  /// that carries the «إعلان» label (a caption line, 12 x 1.6, rounded up).
-  static const bannerAdWidth = 320.0;
-  static const bannerAdHeight = 50.0;
+  /// moves when it fills. The ad is the large anchored adaptive banner, whose
+  /// height depends only on width and orientation and is resolved ahead of
+  /// any request. This is the strip above it that carries the «إعلان» label
+  /// (a caption line, 12 x 1.6, rounded up).
   static const bannerLabelStrip = 20.0;
 
-  /// The framed slot from its top edge to its bottom: frame, label, ad.
-  /// Whatever the surface adds above it (the gap) is its own.
-  static const bannerSlotHeight =
-      2 * bannerFrame + bannerLabelGap + bannerLabelStrip + bannerAdHeight;
+  /// The framed slot's own height on top of the ad: the frame on both sides,
+  /// the label gap and the label strip. Whatever the surface adds above the
+  /// slot (the gap) is its own.
+  static const bannerSlotChrome =
+      2 * bannerFrame + bannerLabelGap + bannerLabelStrip;
 
-  /// The one shell band (banner_mode = shell): the ad with a little air on
-  /// both sides, under a hairline.
+  /// Reserved for a slot whose adaptive size has not been resolved yet (only
+  /// the very first banner of a session, before the host's early resolve has
+  /// answered): the usual large adaptive height at 360-412 dp. A slot never
+  /// shrinks below what it reserved; it only grows if Google's answer is
+  /// taller.
+  static const bannerAdaptiveFloor = 100.0;
+
+  /// The one shell band (banner_mode = shell): the adaptive ad with a little
+  /// air above and below it, under a hairline drawn on its top edge.
   static const bannerBandPad = 6.0;
   static const bannerBandRule = 1.0;
-  static const bannerBandHeight = bannerAdHeight + 2 * bannerBandPad;
 
   /// A reserved band whose player went ad-free closes over this, not a snap.
   static const bannerCollapse = Duration(milliseconds: 180);

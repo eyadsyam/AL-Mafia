@@ -18,6 +18,7 @@ import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/theme/mafia_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../support/fake_banner_sizing.dart';
 import '../support/stores.dart';
 
 /// WP4 part B: the one shell banner. A fake stands in for the Google ad: it
@@ -31,18 +32,30 @@ class _FakeShell implements ShellBannerAds {
   bool get configured => true;
 
   @override
-  Widget band({Key? key, required String label, required bool visible}) =>
-      _FakeBand(key: key, label: label, visible: visible, owner: this);
+  Widget band({
+    Key? key,
+    required String label,
+    required bool visible,
+    required BannerSize? size,
+  }) => _FakeBand(
+    key: key,
+    label: label,
+    visible: visible,
+    size: size,
+    owner: this,
+  );
 }
 
 class _FakeBand extends StatefulWidget {
   final String label;
   final bool visible;
+  final BannerSize? size;
   final _FakeShell owner;
   const _FakeBand({
     super.key,
     required this.label,
     required this.visible,
+    required this.size,
     required this.owner,
   });
 
@@ -51,7 +64,7 @@ class _FakeBand extends StatefulWidget {
 }
 
 class _FakeBandState extends State<_FakeBand> {
-  bool _asked = false;
+  BannerSize? _askedFor;
 
   @override
   void initState() {
@@ -61,22 +74,35 @@ class _FakeBandState extends State<_FakeBand> {
 
   @override
   Widget build(BuildContext context) {
-    // Like the real band: asks once, the first time it is shown.
-    if (widget.visible && !_asked) {
-      _asked = true;
+    final size = widget.size;
+    // Like the real band: asks the first time it is shown, and again only
+    // for a different adaptive size.
+    if (widget.visible && size != null && size != _askedFor) {
+      _askedFor = size;
       widget.owner.loads++;
     }
-    if (!widget.visible) return const SizedBox.shrink();
+    if (!widget.visible || size == null) return const SizedBox.shrink();
     return ShellBandFrame(
       label: widget.label,
+      adWidth: size.width.toDouble(),
+      adHeight: size.height.toDouble(),
       ad: const SizedBox.expand(key: ValueKey('fake_shell_ad')),
     );
   }
 }
 
 const _bannerOn = EconomyCapabilities(ads: AdsCapabilities(banner: true));
-const _bandHeight = AdTokens.bannerBandHeight;
 const _bodyKey = ValueKey('body');
+
+/// The band's total height at [s]: the resolved adaptive height (a function
+/// of the window's width and orientation) plus the band's air.
+double _bandAt(Size s) =>
+    ShellBandFrame.heightFor(
+      FakeSizing.heightOf(
+        (s.width - 2 * AdTokens.bannerFrame).floor(),
+        s.width > s.height ? Orientation.landscape : Orientation.portrait,
+      ).toDouble(),
+    );
 
 class _Harness {
   final ProviderContainer container;
@@ -96,6 +122,7 @@ void main() {
     BannerMode mode = BannerMode.shell,
     EconomyCapabilities caps = _bannerOn,
     Widget? home,
+    FakeSizing? sizing,
   }) async {
     tester.view
       ..devicePixelRatio = 1
@@ -107,6 +134,7 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         shellBannerAdsProvider.overrideWithValue(ads),
+        bannerSizingProvider.overrideWithValue(sizing ?? FakeSizing()),
         bannerAdsProvider.overrideWithValue(_PerScreenFake()),
         economyCapabilitiesProvider.overrideWith((ref) async => caps),
         audioDirectorProvider.overrideWithValue(AudioDirector()),
@@ -152,11 +180,55 @@ void main() {
     await pump(tester);
     expect(band, findsOneWidget);
     final body = tester.getRect(find.byKey(_bodyKey));
-    expect(body.bottom, 844 - _bandHeight);
+    expect(body.bottom, 844 - _bandAt(const Size(390, 844)));
     final ad = tester.getRect(band);
     expect(ad.top, greaterThanOrEqualTo(body.bottom));
     expect(ad.bottom, lessThanOrEqualTo(844));
-    expect(ad.height, AdTokens.bannerAdHeight);
+    // The resolved large adaptive height, nearly the full width.
+    expect(ad.height, FakeSizing.heightOf(388, Orientation.portrait));
+    expect(ad.width, 388);
+  });
+
+  testWidgets('a band waits for its size, then never changes height', (
+    tester,
+  ) async {
+    final sizing = FakeSizing(primed: false);
+    final h = await pump(tester, sizing: sizing);
+    // Not drawn until the size is known: the body has the whole screen.
+    expect(band, findsNothing);
+    expect(
+      tester.getRect(find.byKey(_bodyKey)),
+      const Rect.fromLTWH(0, 0, 390, 844),
+    );
+    sizing.answer.complete();
+    await tester.pump();
+    await tester.pump();
+    expect(band, findsOneWidget);
+    final body = tester.getRect(find.byKey(_bodyKey));
+    expect(body.bottom, 844 - _bandAt(const Size(390, 844)));
+    expect(h.ads.loads, 1);
+    // Routes and rebuilds from here on move nothing.
+    h.path.value = Routes.history;
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.getRect(find.byKey(_bodyKey)), body);
+    expect(sizing.resolves, 1, reason: 'the size is resolved once per window');
+  });
+
+  testWidgets('a rotation resolves the new size; hiding and routes do not', (
+    tester,
+  ) async {
+    final h = await pump(tester);
+    expect(h.ads.loads, 1);
+    tester.view.physicalSize = const Size(844, 390);
+    await tester.pump();
+    await tester.pump();
+    expect(band, findsOneWidget);
+    expect(
+      tester.getRect(find.byKey(_bodyKey)).bottom,
+      390 - _bandAt(const Size(844, 390)),
+    );
+    expect(h.ads.loads, 2, reason: 'a different adaptive size asks again');
   });
 
   testWidgets('going to History and back does not load a new ad', (
@@ -334,7 +406,7 @@ void main() {
       expect(band, findsOneWidget);
       expect(tester.takeException(), isNull);
       final body = tester.getRect(find.byType(HomeScreen));
-      expect(body.bottom, size.height - _bandHeight);
+      expect(body.bottom, size.height - _bandAt(size));
     });
   }
 
@@ -374,5 +446,12 @@ class _PerScreenFake implements BannerAds {
     required String label,
     required double gap,
     BannerPlacement placement = BannerPlacement.lobby,
-  }) => BannerFrame(key: key, label: label, gap: gap, ad: null);
+  }) => BannerFrame(
+    key: key,
+    label: label,
+    gap: gap,
+    adWidth: 320,
+    adHeight: 100,
+    ad: null,
+  );
 }

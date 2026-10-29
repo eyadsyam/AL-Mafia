@@ -117,6 +117,23 @@ void main() {
     }
   });
 
+  test('ads are never shrunk: the 320x50 banner size is used nowhere', () {
+    for (final file in dartFiles()) {
+      final text = file.readAsStringSync();
+      expect(text.contains('AdSize.banner,'), isFalse, reason: rel(file));
+      expect(text.contains('AdSize.banner)'), isFalse, reason: rel(file));
+    }
+    // The only banner size the app asks Google for is the large anchored
+    // adaptive one.
+    final mobile = File(
+      'lib/platform/monetization/rewarded_ads_mobile.dart',
+    ).readAsStringSync();
+    expect(
+      mobile.contains('getLargeAnchoredAdaptiveBannerAdSizeWithOrientation'),
+      isTrue,
+    );
+  });
+
   test('the shell host is not a gameplay file and is mounted in app.dart', () {
     for (final path in hosts) {
       for (final prefix in gameplay) {
