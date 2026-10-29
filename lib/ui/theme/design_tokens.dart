@@ -103,6 +103,44 @@ abstract final class ModeTokens {
   /// The frame inset inside a big card, and its radius.
   static const double frameInset = 7;
   static const double frameRadius = 9;
+
+  /// «قريبا» on the stories card: the art dimmed, the label in a ringed pill.
+  static const double soonScrimAlpha = 0.45;
+  static const double soonPillAlpha = 0.6;
+  static const double soonRingWidth = 1;
+
+  /// The least height the stage is drawn at, closed and turned over. A
+  /// shorter body (a phone on its side) scrolls the stage rather than
+  /// squeezing the cards past reading.
+  static const double stageMinHeight = 222;
+  static const double openMinHeight = 340;
+
+  /// The room kept above the cards for the line that says what to do.
+  static const double hintClear = 32;
+
+  /// Landscape, turned: the way back's width under the Mafia card.
+  static const double sideBackWidth = 96;
+
+  /// Easing, from Material 3's own set: the deal and lift decelerate into
+  /// place, the turn eases both ways, the last settling is gentle.
+  static const Curve dealCurve = Easing.emphasizedDecelerate;
+  static const Curve liftCurve = Easing.emphasizedDecelerate;
+  static const Curve turnCurve = Easing.standard;
+  static const Curve settleCurve = Easing.standardDecelerate;
+
+  /// The least height the two cards are drawn at, so they never collapse
+  /// under the title on a short screen.
+  static const double cardMinHeight = 150;
+}
+
+/// «قبل ما تبدأوا»: the numbered lines before an offline deal.
+abstract final class BeforeStartTokens {
+  /// The round number beside each line.
+  static const double badge = 24;
+  static const double lineGap = 8;
+
+  /// From this width the lines are set in two columns.
+  static const double twoColumnMinWidth = 520;
 }
 
 /// «قصص وتحقيقات»' own palette: ink brown ground, warm panels, parchment
@@ -246,6 +284,12 @@ abstract final class DeckTokens {
   static const Duration slide = Duration(milliseconds: 260);
   static const Duration seamFade = Duration(milliseconds: 400);
   static const Duration reduced = Duration(milliseconds: 150);
+
+  /// A deck sheet rises over [sheet] decelerating into place, and leaves a
+  /// little faster, accelerating away.
+  static const Duration sheetExit = Duration(milliseconds: 200);
+  static const Curve sheetCurve = Easing.emphasizedDecelerate;
+  static const Curve sheetExitCurve = Easing.emphasizedAccelerate;
 
   /// Cards arrive once: each rises [enterRise] dp and fades in over [enter],
   /// the next one [enterStagger] later. Only transform and opacity move, so

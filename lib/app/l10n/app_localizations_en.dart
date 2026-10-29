@@ -7487,4 +7487,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get keyBack => 'Back';
+
+  @override
+  String get beforeStartTitle => 'Before you start';
+
+  @override
+  String get beforeStartLine1 =>
+      'Each player holds their name, sees their role alone, and the card closes by itself. Then they hand the phone to the next one.';
+
+  @override
+  String get beforeStartLine2 =>
+      'At night the phone goes round everyone still in the game, even those with no night action, so nobody can tell who did what.';
+
+  @override
+  String get beforeStartLine3 =>
+      'The Citizen picks someone they suspect. The pick kills nobody and protects nobody, but if the Citizen dies that night, the morning may say who they suspected.';
+
+  @override
+  String get beforeStartLine4 =>
+      'In the morning you talk, then vote someone out.';
+
+  @override
+  String get beforeStartLine5 =>
+      'A player who is out of the game does not vote.';
+
+  @override
+  String get beforeStartGo => 'Let\'s start';
+
+  @override
+  String get modeStoriesSoonName => 'Stories';
+
+  @override
+  String get modeStoriesSoon => 'Soon';
 }

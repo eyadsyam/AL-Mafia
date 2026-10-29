@@ -12912,6 +12912,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back'**
   String get keyBack;
+
+  /// No description provided for @beforeStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you start'**
+  String get beforeStartTitle;
+
+  /// No description provided for @beforeStartLine1.
+  ///
+  /// In en, this message translates to:
+  /// **'Each player holds their name, sees their role alone, and the card closes by itself. Then they hand the phone to the next one.'**
+  String get beforeStartLine1;
+
+  /// No description provided for @beforeStartLine2.
+  ///
+  /// In en, this message translates to:
+  /// **'At night the phone goes round everyone still in the game, even those with no night action, so nobody can tell who did what.'**
+  String get beforeStartLine2;
+
+  /// No description provided for @beforeStartLine3.
+  ///
+  /// In en, this message translates to:
+  /// **'The Citizen picks someone they suspect. The pick kills nobody and protects nobody, but if the Citizen dies that night, the morning may say who they suspected.'**
+  String get beforeStartLine3;
+
+  /// No description provided for @beforeStartLine4.
+  ///
+  /// In en, this message translates to:
+  /// **'In the morning you talk, then vote someone out.'**
+  String get beforeStartLine4;
+
+  /// No description provided for @beforeStartLine5.
+  ///
+  /// In en, this message translates to:
+  /// **'A player who is out of the game does not vote.'**
+  String get beforeStartLine5;
+
+  /// No description provided for @beforeStartGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s start'**
+  String get beforeStartGo;
+
+  /// No description provided for @modeStoriesSoonName.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories'**
+  String get modeStoriesSoonName;
+
+  /// No description provided for @modeStoriesSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Soon'**
+  String get modeStoriesSoon;
 }
 
 class _AppLocalizationsDelegate

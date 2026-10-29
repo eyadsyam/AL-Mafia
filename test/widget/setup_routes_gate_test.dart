@@ -120,7 +120,13 @@ void main() {
     await launch(tester, Routes.stories, setUp: true);
     expect(find.byType(ModeScreen), findsOneWidget);
     expect(find.byType(StoriesScreen), findsNothing);
-    expect(find.byKey(ModeScreen.storiesCard), findsNothing);
+    // Still dealt, but «قريبا» and inert: a tap goes nowhere.
+    expect(find.byKey(ModeScreen.storiesCard), findsOneWidget);
+    expect(find.byKey(ModeScreen.soonLabel), findsOneWidget);
+    await tester.tap(find.byKey(ModeScreen.storiesCard));
+    await tester.pumpAndSettle();
+    expect(find.byType(ModeScreen), findsOneWidget);
+    expect(find.byType(StoriesScreen), findsNothing);
   });
 
   testWidgets('roles reopens the split chosen before going back', (
