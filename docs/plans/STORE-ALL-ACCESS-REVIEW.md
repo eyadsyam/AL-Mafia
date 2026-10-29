@@ -27,6 +27,13 @@ The owner's account (eyadsyam124) has the live all-access grant since 2026-10-29
 4. Ad-free on the owner's account: include remove_interruptions in all-access?
 5. What exactly looked bad on screen (screenshot of the store / the tools sheet / roles)?
 
+## Owner answers (2026-10-29)
+1. «الحد عندي براحتي»: all-access is not held to the per-match counts. Done live, migration `20261029000300_all_access_tool_limits.sql` (phase, targets and one-per-phase still hold).
+2. No tools offline. Instead: study every role in every case and make it right. The Elder's night is now the Citizen's word for word, offline and online (commits 793b19f, dde5853).
+3. The host decides everything in the deal, offline and online, simply, by pictures and sound, not text. Mockup: https://claude.ai/artifact/BetaEjweqM3M3N2jBfo2jF (boards 1–3). `start_match` already accepts any valid counts.
+4. Ads stay on his account.
+5. Every bought thing needs its own place and look, apart from the plain settings. Mockup boards 4–8: the vault, the narrator, the look on the table, the tool bag in the match, the match-start moment.
+
 ## Small fixes ready once agreed
 - Show «مفتوحة» instead of «· 1» for an all-access tool (store pill and in-match chip).
 - Auto-equip nothing, but mark all-access items as owned with their art in the store grid (verify on device).
