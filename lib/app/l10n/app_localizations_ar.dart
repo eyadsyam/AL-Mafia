@@ -7739,4 +7739,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String vaultRolesActive(int count, int total) {
     return '$count من $total عندك';
   }
+
+  @override
+  String get entranceTonight => 'الليلة دي في';
+
+  @override
+  String get entranceNarratedBy => 'بيحكيها';
+
+  @override
+  String get entranceTapToGo => 'دوس عشان تكمّل';
 }

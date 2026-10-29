@@ -3512,5 +3512,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "entranceTonight": "الليلة دي في",
+  "entranceNarratedBy": "بيحكيها",
+  "entranceTapToGo": "دوس عشان تكمّل"
 }

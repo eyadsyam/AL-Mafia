@@ -7858,4 +7858,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String vaultRolesActive(int count, int total) {
     return '$count of $total owned';
   }
+
+  @override
+  String get entranceTonight => 'Tonight, in';
+
+  @override
+  String get entranceNarratedBy => 'Told by';
+
+  @override
+  String get entranceTapToGo => 'Tap to continue';
 }

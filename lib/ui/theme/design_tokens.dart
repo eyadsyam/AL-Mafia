@@ -3209,6 +3209,20 @@ abstract final class MyVaultTokens {
   static const double tileMarkAlpha = 0.82;
 }
 
+/// The match's first public moment (owner, 2026-10-29): the host's room and
+/// narrator, full screen, the same on every device, then out of the way.
+abstract final class EntranceTokens {
+  static const Duration hold = Duration(milliseconds: 3200);
+  static const Duration holdStill = Duration(milliseconds: 2000);
+  static const Duration fade = Duration(milliseconds: 350);
+  static const double shadeTop = 0.35;
+  static const double shadeBottom = 0.92;
+  static const double medallion = 52;
+  static const double ring = 2;
+  static const double progress = 4;
+  static const double progressWidth = 120;
+}
+
 /// The host's deal at a glance in the online lobby.
 abstract final class LobbyDeckTokens {
   static const double cardHeight = 40;

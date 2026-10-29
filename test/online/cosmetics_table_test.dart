@@ -12,6 +12,7 @@ import 'package:mafia_master/ui/economy/cosmetics.dart';
 import 'package:mafia_master/ui/screens/online/table/room_presentation.dart';
 import 'package:mafia_master/ui/screens/online/table/table_mood.dart';
 import 'package:mafia_master/ui/screens/online/table/table_scene.dart';
+import 'package:mafia_master/ui/theme/design_tokens.dart' show EntranceTokens;
 
 import '../support/localized.dart';
 
@@ -162,6 +163,68 @@ void main() {
       expect(find.byKey(PackTransitionOverlay.overlayKey), findsNothing);
       await tester.pump(const Duration(seconds: 5));
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
+      'the first morning opens the entrance; a tap or time closes it',
+      (tester) async {
+        final pack = table(
+          GamePhase.night,
+          pack: 'pack_midnight_manor',
+          narrator: 'narrator_storyteller',
+        );
+        await show(tester, pack);
+        expect(find.byKey(RoomPresentationLayer.entranceKey), findsNothing);
+        await show(
+          tester,
+          table(
+            GamePhase.morning,
+            pack: 'pack_midnight_manor',
+            narrator: 'narrator_storyteller',
+          ),
+        );
+        await tester.pump();
+        expect(find.byKey(RoomPresentationLayer.entranceKey), findsOneWidget);
+        expect(find.text(arStrings.cosmeticPackManor), findsOneWidget);
+        expect(
+          find.text(arStrings.cosmeticNarratorStoryteller),
+          findsOneWidget,
+        );
+        await tester.tap(find.byKey(RoomPresentationLayer.entranceKey));
+        await tester.pumpAndSettle();
+        expect(find.byKey(RoomPresentationLayer.entranceKey), findsNothing);
+
+        // Every later morning is the table's own again, and so is the night.
+        await show(
+          tester,
+          table(GamePhase.night, day: 2, pack: 'pack_old_town'),
+        );
+        await show(
+          tester,
+          table(GamePhase.morning, day: 2, pack: 'pack_old_town'),
+        );
+        await tester.pump();
+        expect(find.byKey(RoomPresentationLayer.entranceKey), findsNothing);
+        await tester.pump(const Duration(seconds: 5));
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets('the entrance leaves by itself', (tester) async {
+      await show(tester, table(GamePhase.night, pack: 'pack_old_town'));
+      await show(tester, table(GamePhase.morning, pack: 'pack_old_town'));
+      await tester.pump();
+      expect(find.byKey(RoomPresentationLayer.entranceKey), findsOneWidget);
+      await tester.pump(EntranceTokens.hold);
+      await tester.pumpAndSettle();
+      expect(find.byKey(RoomPresentationLayer.entranceKey), findsNothing);
+    });
+
+    testWidgets('a plain room has no entrance', (tester) async {
+      await show(tester, table(GamePhase.night));
+      await show(tester, table(GamePhase.morning));
+      await tester.pump();
+      expect(find.byKey(RoomPresentationLayer.entranceKey), findsNothing);
     });
 
     testWidgets('private resolving removes even the neutral night caption', (

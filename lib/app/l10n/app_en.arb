@@ -4815,5 +4815,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "entranceTonight": "Tonight, in",
+  "entranceNarratedBy": "Told by",
+  "entranceTapToGo": "Tap to continue"
 }

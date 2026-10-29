@@ -13518,6 +13518,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} of {total} owned'**
   String vaultRolesActive(int count, int total);
+
+  /// No description provided for @entranceTonight.
+  ///
+  /// In en, this message translates to:
+  /// **'Tonight, in'**
+  String get entranceTonight;
+
+  /// No description provided for @entranceNarratedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Told by'**
+  String get entranceNarratedBy;
+
+  /// No description provided for @entranceTapToGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to continue'**
+  String get entranceTapToGo;
 }
 
 class _AppLocalizationsDelegate

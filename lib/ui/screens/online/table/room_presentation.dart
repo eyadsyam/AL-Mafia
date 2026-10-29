@@ -8,8 +8,10 @@ import '../../../../platform/audio_director.dart';
 import '../../../../transport/game_snapshot.dart';
 import '../../../economy/cosmetic_paint.dart';
 import '../../../economy/cosmetics.dart';
+import '../../../economy/store_art.dart';
 import '../../../l10n_ext.dart';
 import '../../../theme/design_tokens.dart';
+import '../../../theme/mafia_theme.dart';
 
 /// The host's presentation and narrator packs, played over the table.
 ///
@@ -50,6 +52,8 @@ class RoomPresentationLayer extends ConsumerStatefulWidget {
   final bool Function(GamePhase)? visibleIn;
   final NarrationBeat? moment;
 
+  static const Key entranceKey = ValueKey('match_entrance');
+
   @override
   ConsumerState<RoomPresentationLayer> createState() =>
       _RoomPresentationLayerState();
@@ -65,6 +69,32 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
   Timer? _hide;
   bool _introDone = false;
   bool _outroDone = false;
+
+  /// The entrance (owner, 2026-10-29): the host's scene and narrator, full
+  /// screen, at the match's first public moment, on every device alike.
+  bool _entrance = false;
+  Timer? _entranceTimer;
+
+  String? get _packCode =>
+      widget._local ? widget.packCode : widget.snapshot.room.presentationPack;
+  String? get _narratorCode =>
+      widget._local ? widget.narratorCode : widget.snapshot.room.narratorPack;
+
+  void _openEntrance() {
+    if (_pack == null && _narrator == null) return;
+    final still = MediaQuery.disableAnimationsOf(context);
+    _entrance = true;
+    _entranceTimer?.cancel();
+    _entranceTimer = Timer(
+      still ? EntranceTokens.holdStill : EntranceTokens.hold,
+      _closeEntrance,
+    );
+  }
+
+  void _closeEntrance() {
+    _entranceTimer?.cancel();
+    if (mounted && _entrance) setState(() => _entrance = false);
+  }
 
   PresentationPack? get _pack =>
       Cosmetics.packs[widget._local
@@ -160,6 +190,7 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
     final firstDay =
         !_introDone &&
         (phase == GamePhase.morning || phase == GamePhase.openingRound);
+    if (firstDay && (pack != null || narrator != null)) _openEntrance();
     if (pack != null && firstDay) {
       _introDone = true;
       line = pack.intro(l);
@@ -186,6 +217,7 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
   @override
   void dispose() {
     _hide?.cancel();
+    _entranceTimer?.cancel();
     if (_audio.activeVoice == _voiceCode) _audio.activeVoice = null;
     super.dispose();
   }
@@ -198,31 +230,199 @@ class _RoomPresentationLayerState extends ConsumerState<RoomPresentationLayer> {
     // nothing in the night, which is a hand-off there.
     final captionAllowed =
         public || (!widget._local && phase == GamePhase.night);
-    return IgnorePointer(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          PackTransitionOverlay(
-            pack: _visible(phase) ? _pack : null,
-            trigger: '${phase.name}-${widget.snapshot.dayNumber}',
+    final entrance = _entrance && _visible(phase);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        IgnorePointer(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              PackTransitionOverlay(
+                pack: _visible(phase) ? _pack : null,
+                trigger: '${phase.name}-${widget.snapshot.dayNumber}',
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    top: CosmeticTokens.captionTop,
+                  ),
+                  // Remove the previous subtree immediately on private phases;
+                  // AnimatedSwitcher would otherwise retain its outgoing text.
+                  child: captionAllowed
+                      ? NarrationCaption(
+                          key: ValueKey(public),
+                          text: _caption,
+                          narrator: _captionIsNarrator ? _narrator : null,
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ),
+            ],
           ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: CosmeticTokens.captionTop),
-              // Remove the previous subtree immediately on private phases;
-              // AnimatedSwitcher would otherwise retain its outgoing text.
-              child: captionAllowed
-                  ? NarrationCaption(
-                      key: ValueKey(public),
-                      text: _caption,
-                      narrator: _captionIsNarrator ? _narrator : null,
-                    )
-                  : const SizedBox.shrink(),
+        ),
+        AnimatedSwitcher(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : EntranceTokens.fade,
+          child: entrance
+              ? GestureDetector(
+                  key: RoomPresentationLayer.entranceKey,
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _closeEntrance,
+                  child: MatchEntrance(
+                    packCode: _pack == null ? null : _packCode,
+                    narratorCode: _narrator == null ? null : _narratorCode,
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+}
+
+/// The entrance card: the room's scene behind, its opening line, and the
+/// narrator who tells it. Public, and identical on every device (Doc 05):
+/// nothing in it depends on a seat or a role.
+class MatchEntrance extends StatelessWidget {
+  final String? packCode;
+  final String? narratorCode;
+  const MatchEntrance({super.key, this.packCode, this.narratorCode});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final colors = context.colors;
+    final type = context.typography;
+    final s = context.spacing;
+    final pack = Cosmetics.packs[packCode];
+    final packArt = packCode == null ? null : StoreArt.forCode(packCode!);
+    final narratorArt = narratorCode == null
+        ? null
+        : StoreArt.forCode(narratorCode!);
+    final narratorName = narratorCode == null
+        ? null
+        : Cosmetics.items[narratorCode]?.name(l);
+    final packName = packCode == null
+        ? null
+        : Cosmetics.items[packCode]?.name(l);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ColoredBox(color: colors.surfaceBase),
+        if (packArt != null)
+          Image.asset(packArt, fit: BoxFit.cover, excludeFromSemantics: true),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                colors.surfaceBase.withValues(alpha: EntranceTokens.shadeTop),
+                colors.surfaceBase.withValues(
+                  alpha: EntranceTokens.shadeBottom,
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+        SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(s.lg),
+            child: Column(
+              children: [
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Text(
+                    l.entranceTapToGo,
+                    style: type.caption.copyWith(color: colors.textSecondary),
+                  ),
+                ),
+                const Spacer(),
+                if (packName != null) ...[
+                  Text(
+                    l.entranceTonight,
+                    style: type.body.copyWith(color: colors.textSecondary),
+                  ),
+                  Text(
+                    packName,
+                    textAlign: TextAlign.center,
+                    style: type.headline.copyWith(color: colors.textPrimary),
+                  ),
+                  if (pack != null) ...[
+                    SizedBox(height: s.sm),
+                    Text(
+                      '«${pack.intro(l)}»',
+                      textAlign: TextAlign.center,
+                      style: type.title.copyWith(color: colors.textPrimary),
+                    ),
+                  ],
+                ],
+                if (narratorName != null) ...[
+                  SizedBox(height: s.lg),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: colors.surfaceRaised,
+                      borderRadius: BorderRadius.circular(DeckTokens.pill),
+                      border: Border.all(color: colors.borderSubtle),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(s.xs),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: EntranceTokens.medallion,
+                            height: EntranceTokens.medallion,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: VaultTokens.gold,
+                                width: EntranceTokens.ring,
+                              ),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: narratorArt == null
+                                ? null
+                                : Image.asset(
+                                    narratorArt,
+                                    fit: BoxFit.cover,
+                                    excludeFromSemantics: true,
+                                  ),
+                          ),
+                          SizedBox(width: s.sm),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l.entranceNarratedBy,
+                                style: type.caption.copyWith(
+                                  color: colors.textSecondary,
+                                ),
+                              ),
+                              Text(
+                                narratorName,
+                                style: type.title.copyWith(
+                                  color: colors.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(width: s.sm),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                SizedBox(height: s.xl),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
