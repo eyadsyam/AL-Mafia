@@ -1351,10 +1351,19 @@ class OnlineTransport implements GameTransport {
           'vote',
           'verdict',
         }.contains(state.phase)) {
+      // Doc 14 §3.3: a whisper is delivered immediately, in the discussion it
+      // was sent in, so its words travel with the day's secrets too. Only the
+      // two ends may read the body (RLS), and a shown one is not fetched again.
+      final waiting = own.alive ? _waitingWhisper() : null;
+      final body = waiting == null
+          ? null
+          : await backend.whisperBody(waiting.id);
       return ViewerSecrets(
         seat: seat,
         role: role,
         teammateNames: own.teammateNames,
+        whisperId: body == null ? null : waiting?.id,
+        whisperBody: body,
       );
     }
 
