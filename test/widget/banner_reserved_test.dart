@@ -88,8 +88,16 @@ typedef _Surface = ({
 });
 
 void main() {
-  setUp(seedReturningProfile);
-  tearDown(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    seedReturningProfile();
+    // A session in which a banner has already filled: every slot reserves
+    // its place from the first frame. The no-fill-yet session is below.
+    BannerFill.reset(seen: true);
+  });
+  tearDown(() {
+    SharedPreferences.setMockInitialValues({});
+    BannerFill.reset();
+  });
 
   FakeBackend backendFor() => FakeBackend(
     roomId: 'room-1',
@@ -281,7 +289,7 @@ void main() {
     sizing.answer.complete();
     await tester.pump();
     await tester.pump();
-    // 388 * 0.27 = 105 is taller than the floor (100): the slot grows once to
+    // 388 * 0.27 = 105 is taller than the floor (50): the slot grows once to
     // what Google answered, and a fill then moves nothing.
     expect(ads.sizesAsked.length, 1);
     final settled = tester.getRect(find.byType(BannerFrame));
@@ -303,7 +311,7 @@ void main() {
   testWidgets('a cold cache with a shorter answer keeps what it reserved', (
     tester,
   ) async {
-    final sizing = FakeSizing(primed: false, tall: -20);
+    final sizing = FakeSizing(primed: false, tall: -60);
     final (_, ads) = await pump(
       tester,
       surfaces.first,
@@ -315,7 +323,10 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(ads.sizesAsked.length, 1);
-    expect(ads.sizesAsked.single.height, lessThan(100));
+    expect(
+      ads.sizesAsked.single.height,
+      lessThan(AdTokens.bannerAdaptiveFloor),
+    );
     expect(tester.getRect(find.byType(BannerFrame)), frame);
     ads.filled.value = true;
     await tester.pump();
@@ -369,6 +380,44 @@ void main() {
     // Nothing is in its place any more, and the Start button went down into
     // the room the band gave back (it is bottom-anchored, never up).
     expect(tester.getRect(start).bottom, greaterThanOrEqualTo(startBefore.bottom));
+  });
+
+  group('no banner has filled yet this session', () {
+    setUp(BannerFill.reset);
+
+    testWidgets('no fill: no empty box, nothing held', (tester) async {
+      final (_, ads) = await pump(tester, surfaces.first, const Size(390, 844));
+      await tester.pump(const Duration(seconds: 3));
+      expect(find.byKey(BannerFrame.adKey), findsNothing);
+      expect(tester.getRect(find.byType(WaitingBanner)).height, 0);
+      // The size was still asked for, so an ad can be requested.
+      expect(ads.sizesAsked, hasLength(1));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the first fill opens over an ease, then later slots hold '
+        'their place from the first frame', (tester) async {
+      final (_, ads) = await pump(tester, surfaces.first, const Size(390, 844));
+      final closed = tester.getRect(find.byType(WaitingBanner)).height;
+      expect(closed, 0);
+
+      ads.filled.value = true;
+      BannerFill.markSeen();
+      await tester.pump();
+      await tester.pump(AdTokens.bannerReveal ~/ 2);
+      final during = tester.getRect(find.byType(WaitingBanner)).height;
+      expect(during, greaterThan(0));
+      await tester.pump(AdTokens.bannerReveal);
+      final open = tester.getRect(find.byType(WaitingBanner)).height;
+      expect(open, greaterThan(during));
+      expect(find.byKey(_TimedBanner.fill), findsOneWidget);
+
+      // The ad goes (app paused): the place stays, nothing moves.
+      ads.filled.value = false;
+      await tester.pump();
+      await tester.pump(AdTokens.bannerReveal);
+      expect(tester.getRect(find.byType(WaitingBanner)).height, open);
+    });
   });
 
   testWidgets('capabilities not loaded yet: nothing is reserved', (

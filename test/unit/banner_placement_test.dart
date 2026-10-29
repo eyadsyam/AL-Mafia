@@ -123,15 +123,13 @@ void main() {
       expect(text.contains('AdSize.banner,'), isFalse, reason: rel(file));
       expect(text.contains('AdSize.banner)'), isFalse, reason: rel(file));
     }
-    // The only banner size the app asks Google for is the large anchored
-    // adaptive one.
+    // The only banner size the app asks Google for is the standard anchored
+    // adaptive one (owner, 2026-10-29: the large one was too tall).
     final mobile = File(
       'lib/platform/monetization/rewarded_ads_mobile.dart',
     ).readAsStringSync();
-    expect(
-      mobile.contains('getLargeAnchoredAdaptiveBannerAdSizeWithOrientation'),
-      isTrue,
-    );
+    expect(mobile.contains('getAnchoredAdaptiveBannerAdSize('), isTrue);
+    expect(mobile.contains('getLargeAnchoredAdaptiveBannerAdSize'), isFalse);
   });
 
   test('the shell host is not a gameplay file and is mounted in app.dart', () {

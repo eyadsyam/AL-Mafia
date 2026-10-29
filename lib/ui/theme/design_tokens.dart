@@ -2349,10 +2349,10 @@ abstract final class AdTokens {
 
   /// Reserved for a slot whose adaptive size has not been resolved yet (only
   /// the very first banner of a session, before the host's early resolve has
-  /// answered): the usual large adaptive height at 360-412 dp. A slot never
+  /// answered): the smallest standard anchored adaptive height. A slot never
   /// shrinks below what it reserved; it only grows if Google's answer is
   /// taller.
-  static const bannerAdaptiveFloor = 100.0;
+  static const bannerAdaptiveFloor = 50.0;
 
   /// The one shell band (banner_mode = shell): the adaptive ad with a little
   /// air above and below it, under a hairline drawn on its top edge.
@@ -2361,6 +2361,10 @@ abstract final class AdTokens {
 
   /// A reserved band whose player went ad-free closes over this, not a snap.
   static const bannerCollapse = Duration(milliseconds: 180);
+
+  /// The session's first filled banner opens over this (no place is held
+  /// before any ad has filled, so there is never an empty box).
+  static const bannerReveal = Duration(milliseconds: 220);
 }
 
 /// Phase 109: awards, reactions, welcome-back, Founder badge.

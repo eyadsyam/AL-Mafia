@@ -818,6 +818,7 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
         request: const AdRequest(),
         listener: BannerAdListener(
           onAdLoaded: (_) {
+            BannerFill.markSeen();
             if (mounted && epoch == _epoch) setState(() => _filled = true);
           },
           onAdFailedToLoad: (failed, _) {
@@ -863,9 +864,10 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
   }
 }
 
-/// The large anchored adaptive size for a width and orientation, cached for
-/// the session. It needs no ad, only a platform answer, so the layout can
-/// reserve the real height before anything is requested.
+/// The standard anchored adaptive size for a width and orientation, cached
+/// for the session (the large one was too tall: owner, 2026-10-29). It needs
+/// no ad, only a platform answer, so the layout can reserve the real height
+/// before anything is requested.
 class GoogleBannerSizing implements BannerSizing {
   const GoogleBannerSizing();
 
@@ -887,11 +889,14 @@ class GoogleBannerSizing implements BannerSizing {
     if (width <= 0) return Future.value();
     return _pending[key] ??= () async {
       try {
-        final size =
-            await AdSize.getLargeAnchoredAdaptiveBannerAdSizeWithOrientation(
-              orientation,
-              width,
-            );
+        // Deprecated in favour of the large size, which the owner found too
+        // tall. Still served; if a later SDK drops it, revisit (inline
+        // adaptive with a height cap is the fallback).
+        // ignore: deprecated_member_use
+        final size = await AdSize.getAnchoredAdaptiveBannerAdSize(
+          orientation,
+          width,
+        );
         if (size == null) return null;
         return _cache[key] = BannerSize(size.width, size.height, size);
       } catch (_) {
@@ -1011,6 +1016,7 @@ class _ShellBandState extends State<_ShellBand> with WidgetsBindingObserver {
         request: const AdRequest(),
         listener: BannerAdListener(
           onAdLoaded: (_) {
+            BannerFill.markSeen();
             if (mounted && epoch == _epoch) setState(() => _filled = true);
           },
           onAdFailedToLoad: (failed, _) {

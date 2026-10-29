@@ -88,7 +88,24 @@ class BannerFrame extends StatelessWidget {
   }
 }
 
-/// Reserves a banner slot from the first frame and keeps it from changing.
+/// Whether any banner has filled in this session.
+///
+/// Owner, 2026-10-29: no empty box when no ad comes. So a slot holds no place
+/// until a banner has filled once; the first one opens over
+/// `AdTokens.bannerReveal`, and from then on every slot reserves its place
+/// from the first frame, so a later fill moves nothing (WP4).
+abstract final class BannerFill {
+  static final seen = ValueNotifier<bool>(false);
+
+  static void markSeen() => seen.value = true;
+
+  @visibleForTesting
+  static void reset({bool seen = false}) => BannerFill.seen.value = seen;
+}
+
+/// Reserves a banner slot from the first frame and keeps it from changing,
+/// once a banner has filled this session ([BannerFill]); before that it holds
+/// nothing and opens when its own ad fills.
 ///
 /// The large anchored adaptive size depends only on the width and the
 /// orientation, so it is looked up in [sizing]'s cache synchronously; the
@@ -171,20 +188,42 @@ class _BannerReserveState extends State<BannerReserve> {
   @override
   Widget build(BuildContext context) {
     final orientation = MediaQuery.orientationOf(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = _widthFor(constraints);
-        if (width != _width || orientation != _orientation) {
-          _rekey(width, orientation);
-        }
-        return BannerFrame(
-          label: widget.label,
-          gap: widget.gap,
-          adWidth: width.toDouble(),
-          adHeight: _height,
-          ad: widget.ad,
-        );
-      },
+    final reduce = MediaQuery.disableAnimationsOf(context);
+    return ValueListenableBuilder<bool>(
+      valueListenable: BannerFill.seen,
+      builder: (context, seen, _) => LayoutBuilder(
+        builder: (context, constraints) {
+          final width = _widthFor(constraints);
+          if (width != _width || orientation != _orientation) {
+            _rekey(width, orientation);
+          }
+          final hold = seen || widget.ad != null;
+          // No begin: a slot that holds on its first frame opens at once.
+          return TweenAnimationBuilder<double>(
+            tween: Tween<double>(end: hold ? 1 : 0),
+            duration: reduce ? Duration.zero : AdTokens.bannerReveal,
+            curve: Curves.easeOut,
+            child: BannerFrame(
+              label: widget.label,
+              gap: widget.gap,
+              adWidth: width.toDouble(),
+              adHeight: _height,
+              ad: widget.ad,
+            ),
+            builder: (context, factor, child) => factor == 0
+                ? const SizedBox.shrink()
+                : ClipRect(
+                    clipBehavior: factor == 1 ? Clip.none : Clip.hardEdge,
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      widthFactor: 1,
+                      heightFactor: factor,
+                      child: child,
+                    ),
+                  ),
+          );
+        },
+      ),
     );
   }
 }
