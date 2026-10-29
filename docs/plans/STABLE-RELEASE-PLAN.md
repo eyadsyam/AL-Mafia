@@ -129,7 +129,7 @@ M1: 117 rows; 20 SUSPECT. M2: 118 rows (29 OK, 76 GAP, 11 SUSPECT). Decisions:
 ## 6. Owner decisions pending
 
 1. Vs computer: DECIDED 2026-10-17 («خلاص ماشي»): its card is hidden for this release (`_offerBotMatch = false` in lib/app/router.dart); code kept, one flag brings it back. M5 audit only if it returns.
-2. RL19 witness whisper flag (live value).
+2. RL19 witness whisper flag: DECIDED, on since the 2026-10-22 deploy (Q10a); live `economy_config.witness_whispers_enabled = true` checked 2026-10-29.
 3. Deploy route for testing the new server code: a staging project/branch vs live.
 
 ## 7. Copy waiting to be applied (final Arabic, Claude)
