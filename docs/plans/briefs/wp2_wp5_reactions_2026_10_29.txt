@@ -1,0 +1,29 @@
+TASK: Update 1.5, WP2 + WP5 — online reactions: anyone taps fast, no "slow down" message, everyone sees them.
+
+Read first (binding): docs/plans/briefs/impl_common_2026_10_29.md, the WP2/WP5 rows of docs/plans/UPDATE-1.5-PLAN.md, and section #u3 of design-system/screens/update-1-5-mockups.html (approved: same sender + same reaction in a row collapses into one float with "×n", e.g. ×7, ×3).
+For the visual part load the skills frontend-design and ui-ux-pro-max (Skill tool if your environment has it; otherwise read C:\Users\LENOVO\.claude\skills\frontend-design\SKILL.md and C:\Users\LENOVO\.claude\skills\ui-ux-pro-max\SKILL.md).
+
+CURRENT STATE
+- Server: public.send_room_reaction in supabase/migrations/20260925000600_awards_reactions.sql (~line 364): 3 per 4.5 s per user per room → raises REACTION_RATE_LIMIT. Reactions are only open in the lobby and the public result (Doc 05 — keep exactly). Check later migrations / supabase/tests for any redefinition (grep send_room_reaction, and the block filter in safety_v11).
+- Client: lib/ui/fun/reactions.dart — client throttle ~lines 68-135 and the «بالراحة، واحدة واحدة» message; display cap of 12 floats ~line 243.
+
+WP2 (server, NEW migration file only, never applied to any hosted DB):
+- supabase/migrations/20261029000200_reactions_fast.sql: create or replace send_room_reaction with the same signature, same checks (feature flag, kind list, membership, open phases, block filter if a later version has it), but the rate ceiling becomes 600 per rolling minute per user per room; above it the call returns jsonb {ok:true, dropped:true} SILENTLY (no exception), so no client ever shows an error. Keep the advisory lock and the 10-minute trim. Make the count query cheap (index room_reactions_rate exists).
+- Build 17 clients in the same room must keep working: they call the same RPC and only read ok/seat/kind. Confirm nothing in the old client breaks on the new response.
+- Add/extend the SQL test in supabase/tests (follow the existing style; see how other *.sql tests there are run — README or package.json scripts) for: 50 quick calls all ok; call 601 in a minute returns dropped without raising; still REACTION_CLOSED outside lobby/result.
+
+WP5 (client):
+- Remove the client throttle and the «بالراحة، واحدة واحدة» message (and its l10n key if unused). Taps send immediately; failures stay silent.
+- Coalescing: consecutive identical (seat, kind) arriving within a short window (token, ~1.2 s, put it in lib/ui/theme/design_tokens.dart) update ONE float with a "×n" badge instead of spawning new floats; a different kind or seat starts a new float. Keep a sane on-screen cap (existing 12) so performance holds on low-end phones at 10 taps/s.
+- Everyone in the room sees everyone's reactions (already via realtime on room_reactions) — verify; if the sender currently only sees its own optimistically, make sure the server echo doesn't double it.
+- Doc 05: reactions remain impossible during the match (phases other than lobby/result). ×n counts carry no role info. No sound difference by seat.
+- Tokens only, l10n in both arb files, regenerate l10n (flutter gen-l10n).
+- Tests: widget test that 10 rapid taps produce 10 sends and one float showing ×10; different kinds make separate floats; no throttle text anywhere; update tests that referenced the old throttle (grep test/ for the message key and for "reaction").
+
+GATES (run, paste tail):
+flutter analyze --no-pub 2>&1 | tail -30
+flutter test --no-pub <the test files you touched/added> 2>&1 | tail -40
+SQL test per the repo's existing runner if it can run locally; if it cannot (needs a DB), say so plainly — do not fake it.
+
+BOUNDARIES: no builds, no deploys, no hosted Supabase calls, no git commit (the orchestrator commits). Stay inside this scope.
+REPORT: files changed + why, gate output tails, anything unrun and why, any Doc 05 doubt.
