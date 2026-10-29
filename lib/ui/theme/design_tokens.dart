@@ -739,6 +739,11 @@ abstract final class CouncilTokens {
   /// Your own card at night, above the night's question.
   static const double nightOwnCardHeight = 132;
 
+  /// The night's one line under the question (and, once a seat is picked, the
+  /// chip that replaces it) is boxed to this many caption lines for every role,
+  /// so a short line cannot make one phone's band a different shape.
+  static const int nightSlotLines = 2;
+
   static const double curtainDarkness = 0.82;
   static const double curtainVeil = 0.82;
   static const double curtainWordsDelay = 0.14;
@@ -2842,6 +2847,11 @@ abstract final class WebAdTokens {
 /// The offline state on the online door (`lib/ui/widgets/connection_problem.dart`).
 abstract final class OnlineEntryTokens {
   static const double sheetScrimOpacity = 0.78;
+
+  /// Below this window height the code sheet drops its title row and puts the
+  /// field, the join button and the close control on one line, so a phone on
+  /// its side with the keyboard up still shows all three.
+  static const double compactSheetScreenHeight = 480.0;
 }
 
 abstract final class ConnectionProblemTokens {

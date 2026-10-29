@@ -7469,4 +7469,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get keyBack => 'Back';
+
+  @override
+  String get nightLineMafia =>
+      'Pick a player to kill tonight. If you agree, it is done.';
+
+  @override
+  String get nightLineSilencer =>
+      'Pick one player to silence. They cannot vote tomorrow.';
+
+  @override
+  String get nightLineDoctor =>
+      'Pick a player to protect. Not the same one two nights.';
+
+  @override
+  String get nightLineDetective =>
+      'Pick one player to check tonight. You learn who they are.';
+
+  @override
+  String get nightLineElder =>
+      'Pick one player you doubt, or leave tonight with no pick.';
+
+  @override
+  String get nightLineSniper =>
+      'You have one bullet. If you pick someone tonight, it fires.';
+
+  @override
+  String get nightLineSniperSpent =>
+      'The bullet is gone. Tonight\'s pick is only a suspicion.';
+
+  @override
+  String get nightLineCitizen =>
+      'Nothing to pick tonight. Wait until the day comes.';
+
+  @override
+  String voteFor(String name) {
+    return 'Vote for $name';
+  }
+
+  @override
+  String get revoteBanner => 'Revote between the tied players';
+
+  @override
+  String revoteSlot(String names) {
+    return 'You can only pick $names. If they tie again, nobody goes out.';
+  }
+
+  @override
+  String get revoteNamesJoiner => ' or ';
+
+  @override
+  String lobbyRoomHeader(String code) {
+    return 'Room $code';
+  }
+
+  @override
+  String get lobbyMoreMenu => 'More';
+
+  @override
+  String lobbyWaitingForPlayers(int min) {
+    return 'Waiting for more players. At least $min needed.';
+  }
 }

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // `Alignment` here is the engine's win side, not Flutter's layout anchor.
 import '../../../app/asset_constants.dart';
+import '../../../app/l10n/app_localizations.dart';
 import '../../../core/input/keyboard_keys.dart';
 import '../../../engine/models/enums.dart';
 import '../../../engine/models/player.dart' show PlayerGender, PublicPlayer;
@@ -982,6 +983,14 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     final turn = ref.read(matchControllerProvider)?.actorTurn;
     if (seat == null || turn == null) return;
 
+    // A resting Citizen holds the same pad for the same two seconds and lands
+    // on the same «waiting» line as everyone else, but there is no move to
+    // send: the server neither waits for nor records anything from them
+    // (owner, 2026-10-01).
+    if (_snapshot.phase == GamePhase.night && turn.actorRole == Role.citizen) {
+      return;
+    }
+
     final target = _selected;
     if (target == null && turn.actorRole == Role.doctor) {
       throw const BackendException('BAD_REQUEST', 'Choose a player to protect');
@@ -1048,6 +1057,13 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       role == Role.doctor &&
       _controller.bulletExistsFor(Role.doctor) &&
       !_controller.currentBulletSpent;
+
+  /// Whether this is a Sniper whose bullet is already gone, so the night line
+  /// stops promising one.
+  bool _sniperSpent(Role role) =>
+      role == Role.sniper &&
+      !(_controller.bulletExistsFor(Role.sniper) &&
+          !_controller.currentBulletSpent);
 
   /// Whether the Sniper's choice tonight is the shot.
   bool _canShoot(Role role) =>
@@ -1721,13 +1737,6 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         // thing every player looks at first (owner, 2026-09-23). Every role
         // gets the same slot and the same size — only the art differs.
         final own = turn == null ? null : _ownCard(context, turn.actorRole);
-        if (_citizenRests(snapshot, state)) {
-          return CouncilVoice(
-            leading: own,
-            headline: l10n.nightCitizenRest,
-            support: caption(l10n.nightCitizenRestSupport),
-          );
-        }
         // No count and no names while the night runs. Doc 15 §S-O5: "how many
         // are still to act" is a fact about how many people have a move, and
         // that is a fact about roles.
@@ -1737,10 +1746,22 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
             headline: l10n.onlineWaitingForTheRest,
           );
         }
+        // Every role: the same card, a headline of the same length, and one
+        // line in a box of the same height (#u6, Doc 05). A Citizen who rests
+        // is not given a different shape for it — what differs is the words.
         return CouncilVoice(
           leading: own,
-          headline: EngineCopy.nightPrompt(l10n, turn.actorRole),
-          support: chosen(),
+          headline: _citizenRests(snapshot, state)
+              ? l10n.nightCitizenRest
+              : EngineCopy.nightPrompt(l10n, turn.actorRole),
+          support: NightSlot(
+            line: EngineCopy.nightLine(
+              l10n,
+              turn.actorRole,
+              bulletInHand: !_sniperSpent(turn.actorRole),
+            ),
+            chosen: chosen(),
+          ),
         );
 
       case GamePhase.morning:
@@ -1856,7 +1877,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
                   female: snapshot.isFemale(snapshot.viewerSeat),
                 )
               : snapshot.ballotRound > 1
-              ? l10n.tieRevoteHeadline
+              ? l10n.revoteBanner
               : l10n.whoDoYouVoteOut,
           // Public ballots become the bars; a secret ballot leaves `tally`
           // empty and the band falls back to your own choice. Neither branch
@@ -1864,7 +1885,14 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           support: tally.isEmpty
               ? (_submitted || snapshot.phase == GamePhase.voteResolving
                     ? null
-                    : chosen() ?? caption(l10n.onlineVoteSelectHint))
+                    : chosen() ??
+                          caption(
+                            snapshot.ballotRound > 1
+                                ? l10n.revoteSlot(
+                                    _tiedNames(l10n, snapshot, names),
+                                  )
+                                : l10n.onlineVoteSelectHint,
+                          ))
               : VoteTally(rows: tally, peak: tally.first.votes),
         );
 
@@ -1972,6 +2000,20 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     return waiting.take(2).join(' · ');
   }
 
+  /// «منى أو هبة»: the seats a revote may still name, in seat order. They are
+  /// the tied players, which the whole table already saw on the result.
+  String _tiedNames(
+    AppLocalizations l10n,
+    GameSnapshot snapshot,
+    Map<int, String> names,
+  ) {
+    final seats = snapshot.ballotCandidates.toList()..sort();
+    return [
+      for (final seat in seats)
+        if (names[seat] != null) names[seat]!,
+    ].join(l10n.revoteNamesJoiner);
+  }
+
   /// The open ballot as rows, heaviest first.
   ///
   /// Empty whenever the room chose a secret ballot, because the server never
@@ -2054,9 +2096,10 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     switch (snapshot.phase) {
       case GamePhase.night:
         final turn = state.actorTurn;
-        if (turn == null || _submitted || _citizenRests(snapshot, state)) {
-          return null;
-        }
+        if (turn == null || _submitted) return null;
+        // Every role gets the same pad, a Citizen included (#u6, Doc 05): a
+        // hand that was empty for one role would be the loudest tell on the
+        // table. Holding it sends nothing for a Citizen — see [_confirmNight].
         // Held, not tapped. The confirm is the one irreversible move of the
         // night, and a hold is what stops a thumb resting on a phone from
         // making it (doc 12 §3.3).
@@ -2118,7 +2161,21 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           onPressed: _selected == null
               ? null
               : () => _confirmVote(abstaining: false),
-          child: Text(l10n.confirmVote),
+          // «صوّت على سيف»: the button says who the thumb is about to name.
+          // One line, ellipsised: a long name must not push the hand taller.
+          child: Text(
+            _selected == null
+                ? l10n.confirmVote
+                : l10n.voteFor(
+                    snapshot.public.players
+                            .where((p) => p.seat == _selected)
+                            .map((p) => p.name)
+                            .firstOrNull ??
+                        '',
+                  ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         );
         if (!abstainAllowed) return confirm;
         return Column(

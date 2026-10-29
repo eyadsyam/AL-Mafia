@@ -108,6 +108,31 @@ abstract final class EngineCopy {
         Role.citizen => l10n.nightSpecialCitizen,
       };
 
+  /// The one line under a role's night question online (#u6).
+  ///
+  /// Every role has one, and all of them ink the same number of glyphs
+  /// ([nightLineInkLength] in `night_prompt_balance_test`): a Citizen who is
+  /// told "nothing to pick" and a Sniper who is told about the bullet must
+  /// throw the same light and fill the same lines (Doc 05). None names a role.
+  ///
+  /// [bulletInHand] only matters to the Sniper: once the shot is gone the line
+  /// says so, at the same length, instead of promising a bullet that is not
+  /// there.
+  static String nightLine(
+    AppLocalizations l10n,
+    Role role, {
+    bool bulletInHand = true,
+  }) => switch (role) {
+    Role.mafia => l10n.nightLineMafia,
+    Role.silencer => l10n.nightLineSilencer,
+    Role.doctor => l10n.nightLineDoctor,
+    Role.detective => l10n.nightLineDetective,
+    Role.elder => l10n.nightLineElder,
+    Role.sniper =>
+      bulletInHand ? l10n.nightLineSniper : l10n.nightLineSniperSpent,
+    Role.citizen => l10n.nightLineCitizen,
+  };
+
   /// A play hint's sentence (doc 13 §4.3).
   static String playHint(AppLocalizations l10n, PlayHint hint) =>
       switch (hint.code) {

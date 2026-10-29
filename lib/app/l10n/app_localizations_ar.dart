@@ -3032,7 +3032,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'مفيش حد فاضل على الترابيزة غيرك، فالماتش ده خلص. ارجع للرئيسية وابدأ أوضة جديدة.';
 
   @override
-  String get nightCitizenRest => 'انت مواطن';
+  String get nightCitizenRest => 'إنت مواطن ومفيش ليك دور';
 
   @override
   String get nightCitizenRestSupport =>
@@ -7352,4 +7352,65 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get keyBack => 'ارجع';
+
+  @override
+  String get nightLineMafia =>
+      'اختار لاعب تقتله. لو اتفقتم، هيتنفذ اللي اخترتوه.';
+
+  @override
+  String get nightLineSilencer =>
+      'اختار لاعب واحد تسكته لبكرة. ومش هيقدر يصوّت بكرة.';
+
+  @override
+  String get nightLineDoctor =>
+      'اختار لاعب تحميه. مينفعش نفس الشخص ليلتين ورا بعض.';
+
+  @override
+  String get nightLineDetective =>
+      'اختار لاعب واحد تكشفه الليلة. هتعرف شخصيته بعدها.';
+
+  @override
+  String get nightLineElder =>
+      'اختار لاعب واحد تشك فيه، أو سيب الليلة بدون اختيار.';
+
+  @override
+  String get nightLineSniper =>
+      'معاك طلقة واحدة. لو اخترت حد الليلة، هتطلع الطلقة.';
+
+  @override
+  String get nightLineSniperSpent =>
+      'الطلقة خلصت. اللي هتختاره الليلة مجرد شك، مش طلقة.';
+
+  @override
+  String get nightLineCitizen =>
+      'مفيش اختيار عندك الليلة. استنى لحد ما النهار يطلع.';
+
+  @override
+  String voteFor(String name) {
+    return 'صوّت على $name';
+  }
+
+  @override
+  String get revoteBanner => 'إعادة تصويت بين المتعادلين';
+
+  @override
+  String revoteSlot(String names) {
+    return 'تقدر تختار $names بس. لو اتعادلوا تاني محدش هيخرج.';
+  }
+
+  @override
+  String get revoteNamesJoiner => ' أو ';
+
+  @override
+  String lobbyRoomHeader(String code) {
+    return 'الأوضة $code';
+  }
+
+  @override
+  String get lobbyMoreMenu => 'المزيد';
+
+  @override
+  String lobbyWaitingForPlayers(int min) {
+    return 'مستنيين لاعبين كمان. لازم $min على الأقل.';
+  }
 }

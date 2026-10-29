@@ -341,3 +341,46 @@ class VictoryEmblem extends StatelessWidget {
     excludeFromSemantics: true,
   );
 }
+
+/// The night's support slot, the same box for every role (Doc 05).
+///
+/// A Sniper is told about the bullet and a Citizen is told there is nothing to
+/// pick; the words differ and the box they sit in does not. It is boxed to
+/// [CouncilTokens.nightSlotLines] caption lines whatever the text, so neither
+/// a shorter line nor the chip that replaces it once a seat is picked changes
+/// the height of the band around it.
+class NightSlot extends StatelessWidget {
+  final String line;
+
+  /// Shown instead of [line] once the player has picked a seat.
+  final Widget? chosen;
+
+  const NightSlot({super.key, required this.line, this.chosen});
+
+  static const Key box = ValueKey('council_night_slot');
+  static const Key text = ValueKey('council_night_line');
+
+  @override
+  Widget build(BuildContext context) {
+    final style = context.typography.caption.copyWith(
+      color: context.colors.textSecondary,
+    );
+    final lineHeight = (style.fontSize ?? 0) * (style.height ?? 1);
+    return SizedBox(
+      key: box,
+      height: lineHeight * CouncilTokens.nightSlotLines,
+      child: Center(
+        child:
+            chosen ??
+            Text(
+              line,
+              key: text,
+              maxLines: CouncilTokens.nightSlotLines,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: style,
+            ),
+      ),
+    );
+  }
+}
