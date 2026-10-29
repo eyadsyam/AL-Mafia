@@ -13,6 +13,7 @@ import '../../economy/mafia_coin.dart';
 import '../../economy/store_art.dart';
 import '../../economy/table_tool_names.g.dart';
 import '../../economy/table_tools.dart';
+import '../../economy/all_access.dart';
 import '../../economy/wallet.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
@@ -1492,7 +1493,10 @@ class _StoreItemSheetState extends ConsumerState<StoreItemSheet> {
                     if (entry.owned && !entry.consumable)
                       DeckPill(l.storeOwned),
                     if (entry.equipped) DeckPill(l.storeEquipped),
-                    if (entry.consumable && entry.charges > 0)
+                    // An owner grant holds every tool without a count.
+                    if (entry.consumable && ref.watch(allAccessProvider))
+                      DeckPill(l.vaultToolsUnlimited)
+                    else if (entry.consumable && entry.charges > 0)
                       DeckPill(l.toolCharges(entry.charges)),
                   ],
                 ),
