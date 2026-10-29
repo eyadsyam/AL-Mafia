@@ -206,6 +206,18 @@ abstract final class DeckTokens {
   // Panels and seals (deck_paper.dart): Mafia's result, match file, profile
   // and casebook.
   static const double panelRadius = 14;
+
+  /// The small number tiles on the profile.
+  static const double statRadius = 10;
+
+  /// From this window width a sheet or the profile lays its parts side by
+  /// side (a phone on its side, a tablet) instead of one under the other, so
+  /// nothing needs scrolling to be reached and nothing sits under a pinned
+  /// button.
+  static const double twoColumnFrom = 560;
+
+  /// The profile's reading width when it is two panes.
+  static const double twoPaneMaxWidth = 720;
   static const double sealBorder = 1.5;
   static const double sealPlateAlpha = 0.9;
 
@@ -2627,6 +2639,9 @@ abstract final class FriendsTokens {
   static const double heroHeight = 120.0;
   static const double avatar = 44.0;
 
+  /// The accept / decline / join chips under a name.
+  static const double chipHeight = 40.0;
+
   /// D5: while the online door is on screen and the app is in front, lobby
   /// invites are asked for this often. Nothing is asked in the background.
   static const Duration inviteRefresh = Duration(seconds: 20);
@@ -2650,6 +2665,11 @@ abstract final class AccountTokens {
 /// The full profile (`lib/ui/account/profile_panels.dart`).
 abstract final class ProfileTokens {
   static const double statArt = 56.0;
+
+  /// The identity block at the top of the profile: a small Mafia card with
+  /// the avatar on it, and the name beside it.
+  static const Size identityPhoto = Size(62, 84);
+  static const double identityAvatar = 48.0;
 
   /// The card's photo: a Mafia seat card clipped to a portrait, standing
   /// straight, and the avatar inside it.

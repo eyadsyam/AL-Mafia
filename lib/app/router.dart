@@ -462,6 +462,7 @@ GoRouter buildRouter(
           onBack: () => context.go(Routes.home),
           onCharacters: () => forwardTo(context, Routes.characters),
           onHistory: () => forwardTo(context, Routes.history),
+          onJoinRoom: (code) => context.go(Routes.joinLink(code)),
         ),
       ),
       // A council invite link: the code is handed to the vault, which opens

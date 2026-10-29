@@ -12966,6 +12966,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Soon'**
   String get modeStoriesSoon;
+
+  /// No description provided for @reactionSlowDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy, one at a time'**
+  String get reactionSlowDown;
+
+  /// No description provided for @profileEditHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your name or character'**
+  String get profileEditHint;
+
+  /// No description provided for @profileEditHintTitled.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} · Change your name or character'**
+  String profileEditHintTitled(String title);
+
+  /// No description provided for @profileStatHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches here'**
+  String get profileStatHere;
+
+  /// No description provided for @profileStatOnlineMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Online matches'**
+  String get profileStatOnlineMatches;
+
+  /// No description provided for @profileStatCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins'**
+  String get profileStatCoins;
+
+  /// No description provided for @profileFriendsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None yet} =1{1 friend} other{{count} friends}}'**
+  String profileFriendsCount(int count);
+
+  /// No description provided for @profileLastMatchToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Last match today'**
+  String get profileLastMatchToday;
+
+  /// No description provided for @profileLastMatchYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Last match yesterday'**
+  String get profileLastMatchYesterday;
+
+  /// No description provided for @profileLastMatchDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, other{Last match {count} days ago}}'**
+  String profileLastMatchDays(int count);
+
+  /// No description provided for @profileNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches yet'**
+  String get profileNoMatches;
+
+  /// No description provided for @profileAccountGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in with Google'**
+  String get profileAccountGoogle;
+
+  /// No description provided for @profileAccountEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in with email'**
+  String get profileAccountEmail;
+
+  /// No description provided for @friendsSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get friendsSheetTitle;
+
+  /// No description provided for @friendsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or code'**
+  String get friendsSearchHint;
+
+  /// No description provided for @friendsRequestsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend requests ({count})'**
+  String friendsRequestsCount(int count);
+
+  /// No description provided for @friendsYoursCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friends ({count})'**
+  String friendsYoursCount(int count);
+
+  /// No description provided for @friendsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No friends yet'**
+  String get friendsEmpty;
+
+  /// No description provided for @titlesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No titles yet'**
+  String get titlesEmpty;
+
+  /// No description provided for @accountGuestIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'You are playing as a guest. If you sign up, your things and coins stay with you on any phone.'**
+  String get accountGuestIntro;
+
+  /// No description provided for @accountContinueGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get accountContinueGoogle;
+
+  /// No description provided for @accountWithEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'With email'**
+  String get accountWithEmail;
+
+  /// No description provided for @accountNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get accountNotNow;
 }
 
 class _AppLocalizationsDelegate

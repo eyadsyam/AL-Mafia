@@ -2474,7 +2474,13 @@
     }
   },
   "reactionCount": "×{count}",
-  "@reactionCount": {"placeholders": {"count": {"type": "int"}}},
+  "@reactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cofferStripReady": "Today's coffer is ready",
   "cofferStripBody": "Claim it right here.",
   "cofferStripClaim": "Claim",
@@ -3537,7 +3543,16 @@
   "toolNeedsTurns": "This tool only works when talk goes by turns",
   "toolSilencedToday": "A silenced player can't use this tool today",
   "onlineLastWordLine": "{name}'s last word goes to {target}",
-  "@onlineLastWordLine": {"placeholders": {"name": {"type": "String"}, "target": {"type": "String"}}},
+  "@onlineLastWordLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "modeStoriesTitle": "Stories",
   "storiesTitle": "Stories & cases",
   "storiesSubtitle": "Every detail means something. The game never invents a fact.",
@@ -4557,7 +4572,13 @@
   "pushEnableFailed": "Couldn't turn on notifications on this device",
   "friendRemove": "Remove from friends",
   "friendRemoveConfirm": "Remove {name} from your friends?",
-  "@friendRemoveConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@friendRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "friendRemoveYes": "Remove",
   "inAppBrowserTitle": "Open the game in your browser",
   "inAppBrowserBody": "Google doesn't allow signing in inside this app. Open the link in Chrome or Safari and continue there, or use email here.",
@@ -4587,5 +4608,63 @@
   "beforeStartLine5": "A player who is out of the game does not vote.",
   "beforeStartGo": "Let's start",
   "modeStoriesSoonName": "Stories",
-  "modeStoriesSoon": "Soon"
+  "modeStoriesSoon": "Soon",
+  "reactionSlowDown": "Easy, one at a time",
+  "profileEditHint": "Change your name or character",
+  "profileEditHintTitled": "{title} · Change your name or character",
+  "@profileEditHintTitled": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStatHere": "Matches here",
+  "profileStatOnlineMatches": "Online matches",
+  "profileStatCoins": "Coins",
+  "profileFriendsCount": "{count, plural, =0{None yet} =1{1 friend} other{{count} friends}}",
+  "@profileFriendsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileLastMatchToday": "Last match today",
+  "profileLastMatchYesterday": "Last match yesterday",
+  "profileLastMatchDays": "{count, plural, other{Last match {count} days ago}}",
+  "@profileLastMatchDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileNoMatches": "No matches yet",
+  "profileAccountGoogle": "Signed in with Google",
+  "profileAccountEmail": "Signed in with email",
+  "friendsSheetTitle": "Friends",
+  "friendsSearchHint": "Search by name or code",
+  "friendsRequestsCount": "Friend requests ({count})",
+  "@friendsRequestsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "friendsYoursCount": "Your friends ({count})",
+  "@friendsYoursCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "friendsEmpty": "No friends yet",
+  "titlesEmpty": "No titles yet",
+  "accountGuestIntro": "You are playing as a guest. If you sign up, your things and coins stay with you on any phone.",
+  "accountContinueGoogle": "Continue with Google",
+  "accountWithEmail": "With email",
+  "accountNotNow": "Not now"
 }

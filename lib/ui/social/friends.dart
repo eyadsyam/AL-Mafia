@@ -1,4 +1,3 @@
-import '../widgets/mafia_kit.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -10,9 +9,11 @@ import '../economy/economy_capabilities.dart';
 import '../l10n_ext.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
+import '../widgets/deck/deck_form_sheet.dart';
 import '../widgets/feathered_art.dart';
 import '../screens/online/online_session.dart';
 import 'directory.dart';
+import 'directory_settings.dart';
 
 /// «أصحابك» — friends made at the table (`friends` edge function,
 /// 20260928000300_friends.sql). Public facts only: names, whether someone is
@@ -313,19 +314,18 @@ Future<void> showFriendsSheet(
   BuildContext context, {
   required ValueChanged<String> onJoin,
   String? inviteRoomId,
-}) => showMafiaSheet<void>(
+}) => showDeckFormSheet<void>(
   context: context,
-  isScrollControlled: true,
-  backgroundColor: context.colors.surfaceBase,
-  builder: (_) => FractionallySizedBox(
-    heightFactor: FriendsTokens.sheetHeight,
-    child: FriendsSheet(onJoin: onJoin, inviteRoomId: inviteRoomId),
-  ),
+  builder: (_) => FriendsSheet(onJoin: onJoin, inviteRoomId: inviteRoomId),
 );
 
-/// The whole list: invites, requests, friends with where they are, and the
-/// people you sat with lately. With [inviteRoomId] (from the lobby) each
-/// friend carries «اعزم» instead of «ادخل».
+/// «الأصحاب»: a search field, then invites, friend requests, friends with
+/// where they are, and the people you sat with lately. With [inviteRoomId]
+/// (from the lobby) each friend carries «اعزم» instead of «ادخل».
+///
+/// Names stay on one line (ellipsized); what a row can do sits in chips under
+/// the name, so a long name is never squeezed by its own buttons. The search
+/// looks through every list by name, and by room code for people at a table.
 class FriendsSheet extends ConsumerStatefulWidget {
   final ValueChanged<String> onJoin;
   final String? inviteRoomId;
@@ -337,11 +337,29 @@ class FriendsSheet extends ConsumerStatefulWidget {
 
 class _FriendsSheetState extends ConsumerState<FriendsSheet> {
   final Set<String> _invited = {};
+  final TextEditingController _search = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() => ref.read(friendsProvider.notifier).refresh());
+  }
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  String get _needle =>
+      _search.text.trim().replaceFirst(RegExp(r'^@'), '').toLowerCase();
+
+  /// Whether a row matches what was typed: by name, or by room code.
+  bool _hit(String name, [String? code]) {
+    final q = _needle;
+    if (q.isEmpty) return true;
+    return name.toLowerCase().contains(q) ||
+        (code?.toLowerCase().contains(q) ?? false);
   }
 
   /// «شيل من أصحابك», asked once more before it happens.
@@ -390,178 +408,303 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
     final colors = context.colors;
     final type = context.typography;
     final controller = ref.read(friendsProvider.notifier);
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+    final inviting = widget.inviteRoomId != null;
 
     Widget heading(String text) => Padding(
-      padding: EdgeInsets.only(top: s.lg, bottom: s.sm),
+      padding: EdgeInsets.only(top: s.md, bottom: s.xs),
       child: Text(
         text,
-        style: type.title.copyWith(color: colors.textSecondary),
+        style: DeckTokens.meta(type).copyWith(
+          color: colors.textMuted,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
 
-    return SafeArea(
-      child: ListView(
-        padding: EdgeInsets.all(s.screenMargin),
-        children: [
-          // A painted table instead of a header bar: the list sits under it.
-          SizedBox(
-            height: FriendsTokens.heroHeight,
-            child: FeatheredArt(
-              feather: Feather.banner,
-              child: Image.asset(
-                AppCouncilArt.onlineWelcome,
-                fit: BoxFit.cover,
-                excludeFromSemantics: true,
-              ),
+    final children = <Widget>[];
+    if (friends != null) {
+      final invites = inviting
+          ? const <RoomInviteEntry>[]
+          : [
+              for (final i in friends.invites)
+                if (_hit(i.name, i.code)) i,
+            ];
+      final requests = [
+        for (final f in friends.incoming)
+          if (_hit(f.name)) f,
+      ];
+      final mine = [
+        for (final f in friends.friends)
+          if (_hit(f.name, f.presence.code)) f,
+      ];
+      final recent = [
+        for (final f in friends.recent)
+          if (_hit(f.name)) f,
+      ];
+
+      if (invites.isNotEmpty) {
+        children.add(heading(l.friendsInvites));
+        for (final invite in invites) {
+          children.add(
+            _Row(
+              name: invite.name,
+              gender: 'unspecified',
+              line: l.friendsInvitedYou(invite.name),
+              chips: [
+                _Chip(
+                  label: l.friendsJoin,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    widget.onJoin(invite.code);
+                  },
+                ),
+              ],
             ),
-          ),
+          );
+        }
+      }
+      if (requests.isNotEmpty) {
+        children.add(heading(l.friendsRequestsCount(requests.length)));
+        for (final f in requests) {
+          children.add(
+            _Row(
+              name: f.name,
+              gender: f.gender,
+              frame: f.frame,
+              plate: f.plate,
+              line: l.friendsWantsYou,
+              chips: [
+                _Chip(
+                  key: FriendsSheetKeys.accept(f.id),
+                  label: l.friendsAccept,
+                  onPressed: () => controller.respond(f.id, true),
+                ),
+                _Chip(
+                  key: FriendsSheetKeys.decline(f.id),
+                  label: l.friendsDecline,
+                  quiet: true,
+                  onPressed: () => controller.respond(f.id, false),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+      children.add(heading(l.friendsYoursCount(mine.length)));
+      if (mine.isEmpty) {
+        children.add(
           Text(
-            l.friendsTitle,
-            textAlign: TextAlign.center,
-            style: type.headline.copyWith(color: colors.textPrimary),
+            _needle.isEmpty ? l.friendsEmpty : l.inviteSearchEmpty,
+            key: FriendsSheetKeys.empty,
+            style: type.body.copyWith(color: colors.textMuted),
           ),
-          if (friends == null && async.isLoading)
-            Padding(
-              padding: EdgeInsets.all(s.xl),
-              child: const Center(child: CircularProgressIndicator()),
+        );
+      }
+      for (final f in mine) {
+        final joinable = f.presence.place == FriendPlace.lobby;
+        children.add(
+          _Row(
+            name: f.name,
+            gender: f.gender,
+            frame: f.frame,
+            plate: f.plate,
+            line: switch (f.presence.place) {
+              FriendPlace.lobby => l.friendsInLobby(f.presence.players),
+              FriendPlace.playing => l.friendsPlaying,
+              FriendPlace.away => l.friendsAway,
+            },
+            lit: joinable,
+            menu: IconButton(
+              key: FriendsSheetKeys.remove(f.id),
+              tooltip: l.friendRemove,
+              onPressed: () => _confirmRemove(f.id, f.name),
+              icon: const Icon(Icons.more_vert_rounded),
             ),
-          if (friends != null) ...[
-            if (friends.invites.isNotEmpty && widget.inviteRoomId == null) ...[
-              heading(l.friendsInvites),
-              for (final invite in friends.invites)
-                _Row(
-                  name: invite.name,
-                  gender: 'unspecified',
-                  line: l.friendsInvitedYou(invite.name),
-                  action: FilledButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      widget.onJoin(invite.code);
+            chips: [
+              if (inviting)
+                if (_invited.contains(f.id))
+                  Text(
+                    l.friendsInvited,
+                    style: type.caption.copyWith(color: colors.accentGold),
+                  )
+                else
+                  _Chip(
+                    label: l.friendsInvite,
+                    quiet: true,
+                    onPressed: () async {
+                      final sent = await controller.invite(
+                        f.id,
+                        widget.inviteRoomId!,
+                      );
+                      if (sent && mounted) {
+                        setState(() => _invited.add(f.id));
+                      }
                     },
-                    child: Text(l.friendsJoin),
-                  ),
+                  )
+              else if (joinable)
+                _Chip(
+                  label: l.friendsJoin,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    widget.onJoin(f.presence.code!);
+                  },
                 ),
             ],
-            if (friends.incoming.isNotEmpty) ...[
-              heading(l.friendsRequests),
-              for (final f in friends.incoming)
-                _Row(
-                  name: f.name,
-                  gender: f.gender,
-                  frame: f.frame,
-                  plate: f.plate,
-                  line: l.friendsWantsYou,
-                  action: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        tooltip: l.friendsDecline,
-                        onPressed: () => controller.respond(f.id, false),
-                        icon: const Icon(Icons.close_rounded),
-                      ),
-                      FilledButton(
-                        onPressed: () => controller.respond(f.id, true),
-                        child: Text(l.friendsAccept),
-                      ),
-                    ],
+          ),
+        );
+      }
+      if (recent.isNotEmpty) {
+        children.add(heading(l.friendsRecent));
+        for (final f in recent) {
+          children.add(
+            _Row(
+              name: f.name,
+              gender: f.gender,
+              frame: f.frame,
+              plate: f.plate,
+              line: l.friendsMatchesTogether(f.matches),
+              chips: [
+                if (friends.outgoing.any((o) => o.id == f.id))
+                  Text(
+                    l.friendsPending,
+                    style: type.caption.copyWith(color: colors.textMuted),
+                  )
+                else
+                  _Chip(
+                    label: l.friendsAdd,
+                    quiet: true,
+                    onPressed: () => controller.request(f.id),
                   ),
+              ],
+            ),
+          );
+        }
+      }
+      // How others find this player: the handle and the two switches.
+      if (!inviting && _needle.isEmpty) {
+        children.add(SizedBox(height: s.md));
+        children.add(const DirectorySettings());
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(s.md, s.sm, s.md, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (!keyboardOpen) ...[
+                Text(
+                  l.friendsSheetTitle,
+                  style: type.headline.copyWith(color: colors.textPrimary),
                 ),
-            ],
-            heading(l.friendsYours),
-            if (friends.friends.isEmpty)
-              Text(
-                l.friendsNone,
-                style: type.body.copyWith(color: colors.textMuted),
-              ),
-            for (final f in friends.friends)
-              _Row(
-                name: f.name,
-                gender: f.gender,
-                frame: f.frame,
-                plate: f.plate,
-                line: switch (f.presence.place) {
-                  FriendPlace.lobby => l.friendsInLobby(f.presence.players),
-                  FriendPlace.playing => l.friendsPlaying,
-                  FriendPlace.away => l.friendsAway,
-                },
-                lit: f.presence.place == FriendPlace.lobby,
-                menu: IconButton(
-                  key: FriendsSheetKeys.remove(f.id),
-                  tooltip: l.friendRemove,
-                  onPressed: () => _confirmRemove(f.id, f.name),
-                  icon: const Icon(Icons.more_vert_rounded),
-                ),
-                action: widget.inviteRoomId != null
-                    ? (_invited.contains(f.id)
-                          ? Text(
-                              l.friendsInvited,
-                              style: type.caption.copyWith(
-                                color: colors.accentGold,
-                              ),
-                            )
-                          : OutlinedButton(
-                              onPressed: () async {
-                                final sent = await controller.invite(
-                                  f.id,
-                                  widget.inviteRoomId!,
-                                );
-                                if (sent && mounted) {
-                                  setState(() => _invited.add(f.id));
-                                }
-                              },
-                              child: Text(l.friendsInvite),
-                            ))
-                    : f.presence.place == FriendPlace.lobby
-                    ? FilledButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          widget.onJoin(f.presence.code!);
-                        },
-                        child: Text(l.friendsJoin),
-                      )
-                    : null,
-              ),
-            if (friends.recent.isNotEmpty) ...[
-              heading(l.friendsRecent),
-              for (final f in friends.recent)
-                _Row(
-                  name: f.name,
-                  gender: f.gender,
-                  frame: f.frame,
-                  plate: f.plate,
-                  line: l.friendsMatchesTogether(f.matches),
-                  action: friends.outgoing.any((o) => o.id == f.id)
-                      ? Text(
-                          l.friendsPending,
-                          style: type.caption.copyWith(color: colors.textMuted),
-                        )
-                      : OutlinedButton(
-                          onPressed: () => controller.request(f.id),
-                          child: Text(l.friendsAdd),
+                SizedBox(height: s.sm),
+              ],
+              TextField(
+                key: FriendsSheetKeys.search,
+                controller: _search,
+                onChanged: (_) => setState(() {}),
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: l.friendsSearchHint,
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: _search.text.isEmpty
+                      ? null
+                      : IconButton(
+                          key: FriendsSheetKeys.clear,
+                          tooltip: l.sheetClose,
+                          onPressed: () => setState(_search.clear),
+                          icon: const Icon(Icons.close_rounded),
                         ),
                 ),
+              ),
             ],
-          ],
-        ],
-      ),
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            key: FriendsSheetKeys.list,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: EdgeInsets.fromLTRB(s.md, 0, s.md, s.md),
+            children: [
+              if (friends == null && async.isLoading)
+                Padding(
+                  padding: EdgeInsets.all(s.xl),
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+              ...children,
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
 
-/// Keys for the friends sheet's per-friend controls.
+/// Keys for the friends sheet's controls.
 abstract final class FriendsSheetKeys {
   static Key remove(String id) => ValueKey('friend_remove_$id');
+  static Key accept(String id) => ValueKey('friend_accept_$id');
+  static Key decline(String id) => ValueKey('friend_decline_$id');
   static const removeYes = ValueKey('friend_remove_yes');
   static const removeCancel = ValueKey('friend_remove_cancel');
+  static const search = ValueKey('friends_search');
+  static const clear = ValueKey('friends_search_clear');
+  static const list = ValueKey('friends_list');
+  static const empty = ValueKey('friends_empty');
+}
+
+/// A small action under a name: bone-filled, or a quiet outline.
+class _Chip extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final bool quiet;
+  const _Chip({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.quiet = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.spacing;
+    const size = Size(0, FriendsTokens.chipHeight);
+    final padding = EdgeInsets.symmetric(horizontal: s.md);
+    return quiet
+        ? OutlinedButton(
+            onPressed: onPressed,
+            style: OutlinedButton.styleFrom(
+              minimumSize: size,
+              padding: padding,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(label),
+          )
+        : FilledButton(
+            onPressed: onPressed,
+            style: FilledButton.styleFrom(
+              minimumSize: size,
+              padding: padding,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(label),
+          );
+  }
 }
 
 class _Row extends StatelessWidget {
   final String name;
   final String gender;
   final String line;
-  final Widget? action;
 
-  /// A friend's secondary control (remove), after the main action.
+  /// What this row can do, under the name. Empty draws nothing.
+  final List<Widget> chips;
+
+  /// A friend's secondary control (remove), at the end of the row.
   final Widget? menu;
   final bool lit;
   final String? frame;
@@ -570,7 +713,7 @@ class _Row extends StatelessWidget {
     required this.name,
     required this.gender,
     required this.line,
-    this.action,
+    this.chips = const [],
     this.menu,
     this.lit = false,
     this.frame,
@@ -582,9 +725,13 @@ class _Row extends StatelessWidget {
     final colors = context.colors;
     final s = context.spacing;
     final type = context.typography;
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: s.xs),
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: s.sm),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: colors.borderSubtle)),
+      ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CosmeticFrameRing(
             frame: frame,
@@ -611,10 +758,19 @@ class _Row extends StatelessWidget {
                     color: lit ? colors.accentGold : colors.textMuted,
                   ),
                 ),
+                if (chips.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(top: s.xs),
+                    child: Wrap(
+                      spacing: s.sm,
+                      runSpacing: s.xs,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: chips,
+                    ),
+                  ),
               ],
             ),
           ),
-          ?action,
           ?menu,
         ],
       ),

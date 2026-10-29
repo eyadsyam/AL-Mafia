@@ -7400,4 +7400,100 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get modeStoriesSoon => 'قريبا';
+
+  @override
+  String get reactionSlowDown => 'بالراحة، واحدة واحدة';
+
+  @override
+  String get profileEditHint => 'غيّر الاسم أو الشخصية';
+
+  @override
+  String profileEditHintTitled(String title) {
+    return '$title · غيّر الاسم أو الشخصية';
+  }
+
+  @override
+  String get profileStatHere => 'ماتش هنا';
+
+  @override
+  String get profileStatOnlineMatches => 'ماتش أونلاين';
+
+  @override
+  String get profileStatCoins => 'عملة';
+
+  @override
+  String profileFriendsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صاحب',
+      few: '$count أصحاب',
+      two: 'صاحبين',
+      one: 'صاحب واحد',
+      zero: 'لسه مفيش',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileLastMatchToday => 'آخر ماتش النهاردة';
+
+  @override
+  String get profileLastMatchYesterday => 'آخر ماتش امبارح';
+
+  @override
+  String profileLastMatchDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'آخر ماتش من $count يوم',
+      few: 'آخر ماتش من $count أيام',
+      two: 'آخر ماتش من يومين',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileNoMatches => 'لسه مفيش ماتشات';
+
+  @override
+  String get profileAccountGoogle => 'متسجّل بجوجل';
+
+  @override
+  String get profileAccountEmail => 'متسجّل بالإيميل';
+
+  @override
+  String get friendsSheetTitle => 'الأصحاب';
+
+  @override
+  String get friendsSearchHint => 'دوّر على اسم أو كود';
+
+  @override
+  String friendsRequestsCount(int count) {
+    return 'طلبات صداقة ($count)';
+  }
+
+  @override
+  String friendsYoursCount(int count) {
+    return 'أصحابك ($count)';
+  }
+
+  @override
+  String get friendsEmpty => 'لسه مفيش أصحاب';
+
+  @override
+  String get titlesEmpty => 'لسه معندكش ألقاب';
+
+  @override
+  String get accountGuestIntro =>
+      'إنت بتلعب كضيف. لو سجّلت، حاجتك وعملاتك هتفضل معاك على أي موبايل.';
+
+  @override
+  String get accountContinueGoogle => 'كمّل بجوجل';
+
+  @override
+  String get accountWithEmail => 'بالإيميل';
+
+  @override
+  String get accountNotNow => 'مش دلوقتي';
 }

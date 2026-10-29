@@ -1612,7 +1612,13 @@
   "reactionCrown": "تاج",
   "reactionFrom": "{name}: {reaction}",
   "reactionCount": "×{count}",
-  "@reactionCount": {"placeholders": {"count": {"type": "int"}}},
+  "@reactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cofferStripReady": "صندوق النهارده جاهز",
   "cofferStripBody": "استلمه من هنا على طول.",
   "cofferStripClaim": "استلم",
@@ -2500,7 +2506,16 @@
   "toolNeedsTurns": "الأداة دي بتشتغل لما الكلام يبقى بالدور بس",
   "toolSilencedToday": "المتسكّت مايقدرش يستخدم الأداة دي النهارده",
   "onlineLastWordLine": "الكلمة الأخيرة من {name} لـ{target}",
-  "@onlineLastWordLine": {"placeholders": {"name": {"type": "String"}, "target": {"type": "String"}}},
+  "@onlineLastWordLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "modeStoriesTitle": "قصص",
   "storiesTitle": "قصص وتحقيقات",
   "storiesSubtitle": "كل تفصيلة لها معنى. مفيش معلومة بتتولد من الهوا.",
@@ -3282,7 +3297,13 @@
   "pushEnableFailed": "مقدرناش نشغّل الإشعارات على الجهاز ده",
   "friendRemove": "شيل من أصحابك",
   "friendRemoveConfirm": "تشيل {name} من أصحابك؟",
-  "@friendRemoveConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@friendRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "friendRemoveYes": "شيل",
   "inAppBrowserTitle": "افتح اللعبة في المتصفح",
   "inAppBrowserBody": "جوجل مش بيسمح بالدخول من جوه التطبيق ده. افتح اللينك في كروم أو سفاري وكمّل من هناك، أو ادخل بالإيميل من هنا.",
@@ -3312,5 +3333,63 @@
   "beforeStartLine5": "اللي يخرج من اللعب مبيصوّتش.",
   "beforeStartGo": "يلا نبدأ",
   "modeStoriesSoonName": "القصص",
-  "modeStoriesSoon": "قريبا"
+  "modeStoriesSoon": "قريبا",
+  "reactionSlowDown": "بالراحة، واحدة واحدة",
+  "profileEditHint": "غيّر الاسم أو الشخصية",
+  "profileEditHintTitled": "{title} · غيّر الاسم أو الشخصية",
+  "@profileEditHintTitled": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStatHere": "ماتش هنا",
+  "profileStatOnlineMatches": "ماتش أونلاين",
+  "profileStatCoins": "عملة",
+  "profileFriendsCount": "{count, plural, =0{لسه مفيش} =1{صاحب واحد} =2{صاحبين} few{{count} أصحاب} other{{count} صاحب}}",
+  "@profileFriendsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileLastMatchToday": "آخر ماتش النهاردة",
+  "profileLastMatchYesterday": "آخر ماتش امبارح",
+  "profileLastMatchDays": "{count, plural, =2{آخر ماتش من يومين} few{آخر ماتش من {count} أيام} other{آخر ماتش من {count} يوم}}",
+  "@profileLastMatchDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileNoMatches": "لسه مفيش ماتشات",
+  "profileAccountGoogle": "متسجّل بجوجل",
+  "profileAccountEmail": "متسجّل بالإيميل",
+  "friendsSheetTitle": "الأصحاب",
+  "friendsSearchHint": "دوّر على اسم أو كود",
+  "friendsRequestsCount": "طلبات صداقة ({count})",
+  "@friendsRequestsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "friendsYoursCount": "أصحابك ({count})",
+  "@friendsYoursCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "friendsEmpty": "لسه مفيش أصحاب",
+  "titlesEmpty": "لسه معندكش ألقاب",
+  "accountGuestIntro": "إنت بتلعب كضيف. لو سجّلت، حاجتك وعملاتك هتفضل معاك على أي موبايل.",
+  "accountContinueGoogle": "كمّل بجوجل",
+  "accountWithEmail": "بالإيميل",
+  "accountNotNow": "مش دلوقتي"
 }
