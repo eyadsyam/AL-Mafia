@@ -369,6 +369,9 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     final colors = context.colors;
     final type = context.typography;
     final spacing = context.spacing;
+    // Where the reaction bar goes: the window's shape only, never the seat.
+    final sideways =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
     final radii = context.radii;
     final l10n = context.l10n;
 
@@ -675,8 +678,8 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                  // Phase 109: quick reactions, lobby only.
-                                  if (session.room?.roomId != null &&
+                                  if (sideways &&
+                                      session.room?.roomId != null &&
                                       session.transport?.backend != null)
                                     Center(
                                       child: ReactionBar(
@@ -705,6 +708,26 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
                                     children: [
+                                      // Phase 109: quick reactions, lobby
+                                      // only. At the top of the hand, so a
+                                      // short phone shows them without a
+                                      // scroll (they used to end the band,
+                                      // under its fold at 360x640).
+                                      // On its side the hand has no height
+                                      // to spare: there they end the band.
+                                      if (!sideways &&
+                                          session.room?.roomId != null &&
+                                          session.transport?.backend != null)
+                                        Center(
+                                          child: ReactionBar(
+                                            roomId: session.room!.roomId,
+                                            backend:
+                                                session.transport!.backend,
+                                            open: reactionsOpen(
+                                              snapshot?.phase,
+                                            ),
+                                          ),
+                                        ),
                                       // F8 Ready, in the vault's hand: a
                                       // struck-gold press until you are
                                       // ready, then the gold mark with a
