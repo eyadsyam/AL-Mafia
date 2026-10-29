@@ -3905,7 +3905,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get reactionSlowDown => 'Easy, one at a time';
+  String reactionCount(int count) {
+    return '×$count';
+  }
 
   @override
   String get cofferStripReady => 'Today\'s coffer is ready';

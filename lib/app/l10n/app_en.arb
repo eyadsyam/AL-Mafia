@@ -2473,7 +2473,8 @@
       }
     }
   },
-  "reactionSlowDown": "Easy, one at a time",
+  "reactionCount": "×{count}",
+  "@reactionCount": {"placeholders": {"count": {"type": "int"}}},
   "cofferStripReady": "Today's coffer is ready",
   "cofferStripBody": "Claim it right here.",
   "cofferStripClaim": "Claim",

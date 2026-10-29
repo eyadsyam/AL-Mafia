@@ -6728,11 +6728,11 @@ abstract class AppLocalizations {
   /// **'{name}: {reaction}'**
   String reactionFrom(String name, String reaction);
 
-  /// No description provided for @reactionSlowDown.
+  /// No description provided for @reactionCount.
   ///
   /// In en, this message translates to:
-  /// **'Easy, one at a time'**
-  String get reactionSlowDown;
+  /// **'×{count}'**
+  String reactionCount(int count);
 
   /// No description provided for @cofferStripReady.
   ///
