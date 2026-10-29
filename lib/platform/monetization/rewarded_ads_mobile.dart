@@ -111,17 +111,10 @@ abstract final class _Units {
       BannerPlacement.home => '$_pub/8363779511',
       BannerPlacement.stories => '$_pub/9972374654',
       BannerPlacement.characters => '$_pub/8174795996',
-      BannerPlacement.shell =>
-        _shellDedicatedUnit.isNotEmpty
-            ? _shellDedicatedUnit
-            : bannerUnitFor(BannerPlacement.home),
+      // MM_ANDROID_BANNER_SHELL_V5, created 2026-10-29.
+      BannerPlacement.shell => '$_pub/2166957661',
     };
   }
-
-  /// TODO(owner): create a dedicated AdMob banner unit for the shell host and
-  /// put its id here. Until then the shell banner reports under the home
-  /// unit. Deliberately empty: no unit id is invented.
-  static const _shellDedicatedUnit = '';
 }
 
 /// Consent and SDK start, shared by the rewarded offers and the interstitial.

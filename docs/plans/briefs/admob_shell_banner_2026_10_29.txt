@@ -1,0 +1,27 @@
+Task: create ONE new AdMob banner ad unit for the Android app «سيد المافيا: Mafia Master», then report its ad unit id.
+
+The owner asked for you (Codex) to do this in Chrome, not Claude.
+
+Where:
+- Use the owner's Chrome, where AdMob is already signed in. The account is eyadsyam124@gmail.com. In this Chrome it is authuser=0. Verify the account email on the page before you click anything.
+- The app is ca-app-pub-9179063936085117~7320479940 (console id 7320479940).
+- Ad units list: https://admob.google.com/v2/apps/7320479940/adunits/list?authuser=0
+- The add page is already open in a tab: https://admob.google.com/v2/apps/7320479940/adunits/create?authuser=0
+
+Steps:
+1. Check the list first. If a unit named MM_ANDROID_BANNER_SHELL_V5 already exists, do not create another one. Report that unit's id.
+2. Otherwise: Add ad unit (إضافة وحدة إعلانية) → Banner (بانر).
+3. Name: MM_ANDROID_BANNER_SHELL_V5
+4. Leave every advanced setting at its default. Do not change any eCPM floor, frequency, or partner setting.
+5. Create the unit (إنشاء وحدة إعلانية), then press Done (تم).
+6. Copy the new ad unit id. It has the form ca-app-pub-9179063936085117/NNNNNNNNNN.
+
+Do not touch:
+- Any other ad unit, the app settings, the app review, the store link, privacy messages, or account settings.
+- Do not accept any terms or agreements. If a dialog asks for that, stop and report it.
+- Do not edit files in the repo. Do not commit.
+
+Report:
+- The exact unit name and the full ad unit id.
+- Whether it was newly created or already existed.
+- Any dialog or blocker you hit, quoted exactly.
