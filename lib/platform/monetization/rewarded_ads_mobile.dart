@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import '../../ui/economy/banner_frame.dart';
 import '../../ui/theme/design_tokens.dart';
 import '../../ui/theme/mafia_theme.dart';
 import 'ad_formats.dart';
@@ -17,6 +18,8 @@ InterstitialAds createInterstitialAds() => GoogleInterstitialAds();
 AppOpenAds createAppOpenAds() => GoogleAppOpenAds();
 BannerAds createBannerAds() => const GoogleBannerAds();
 NativeAds createNativeAds() => const GoogleNativeAds();
+ShellBannerAds createShellBannerAds() => const GoogleShellBannerAds();
+BannerSizing createBannerSizing() => const GoogleBannerSizing();
 
 abstract final class _Units {
   static const enabled = bool.fromEnvironment('ADS_ENABLED');
@@ -108,8 +111,17 @@ abstract final class _Units {
       BannerPlacement.home => '$_pub/8363779511',
       BannerPlacement.stories => '$_pub/9972374654',
       BannerPlacement.characters => '$_pub/8174795996',
+      BannerPlacement.shell =>
+        _shellDedicatedUnit.isNotEmpty
+            ? _shellDedicatedUnit
+            : bannerUnitFor(BannerPlacement.home),
     };
   }
+
+  /// TODO(owner): create a dedicated AdMob banner unit for the shell host and
+  /// put its id here. Until then the shell banner reports under the home
+  /// unit. Deliberately empty: no unit id is invented.
+  static const _shellDedicatedUnit = '';
 }
 
 /// Consent and SDK start, shared by the rewarded offers and the interstitial.
@@ -761,7 +773,7 @@ class _BannerSlot extends StatefulWidget {
 class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
   BannerAd? _ad;
   bool _filled = false;
-  int? _width;
+  BannerSize? _size;
   int _epoch = 0;
 
   @override
@@ -771,22 +783,10 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
     _AdsRuntime.instance.onConsentChanged(_drop);
   }
 
-  /// Sized from the space the slot is actually given (a surface may pad it
-  /// in from the screen edges), less the frame on both sides, floored: an
-  /// ad wider than its box would be cropped, which AdMob forbids.
-  void _fitTo(BoxConstraints constraints) {
-    final available = constraints.hasBoundedWidth
-        ? constraints.maxWidth
-        : MediaQuery.sizeOf(context).width;
-    final width = (available - 2 * AdTokens.bannerFrame)
-        .clamp(0.0, AdTokens.bannerMaxWidth)
-        .floor();
-    if (width == _width) return;
-    _width = width;
-    // Never load (or drop) mid-layout: after this frame.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _width == width) _load();
-    });
+  /// The reserve says which adaptive size fits this width and orientation.
+  void _onSize(BannerSize size) {
+    _size = size;
+    _load();
   }
 
   @override
@@ -796,7 +796,9 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden) {
       _drop();
-    } else if (state == AppLifecycleState.resumed && _ad == null) {
+    } else if (state == AppLifecycleState.resumed &&
+        _ad == null &&
+        _size != null) {
       _load();
     }
   }
@@ -811,18 +813,12 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
   Future<void> _load() async {
     _drop();
     final epoch = _epoch;
-    final width = _width;
-    if (width == null || width <= 0) return;
+    final size = _size?.native;
+    if (size is! AdSize) return;
     try {
       if (!await _AdsRuntime.instance.start(prompt: false)) return;
       if (!await _AdsRuntime.instance.canRequestNow()) return;
       if (!mounted || epoch != _epoch) return;
-      final size =
-          await AdSize.getLargeAnchoredAdaptiveBannerAdSizeWithOrientation(
-            MediaQuery.orientationOf(context),
-            width,
-          );
-      if (size == null || !mounted || epoch != _epoch) return;
       final ad = BannerAd(
         size: size,
         adUnitId: _Units.bannerUnitFor(widget.placement),
@@ -855,52 +851,214 @@ class _BannerSlotState extends State<_BannerSlot> with WidgetsBindingObserver {
   }
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      _fitTo(constraints);
-      return _framed(context);
-    },
-  );
-
-  Widget _framed(BuildContext context) {
+  Widget build(BuildContext context) {
     final ad = _ad;
-    // No fill: nothing at all, so the surface never reserves an empty box.
-    if (!_filled || ad == null) return const SizedBox.shrink();
-    final colors = context.colors;
-    return Padding(
-      padding: EdgeInsets.only(top: widget.gap),
-      child: Semantics(
-        container: true,
-        label: widget.label,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: colors.surfaceBase,
-            border: Border.all(
-              color: colors.borderSubtle,
-              width: AdTokens.bannerFrame,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: AdTokens.bannerLabelGap),
-                child: Text(
-                  widget.label,
-                  style: context.typography.caption.copyWith(
-                    color: colors.textMuted,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: ad.size.width.toDouble(),
-                height: ad.size.height.toDouble(),
-                child: AdWidget(ad: ad),
-              ),
-            ],
-          ),
+    // The box is there from the first frame; the ad only fills it.
+    return BannerReserve(
+      label: widget.label,
+      gap: widget.gap,
+      sizing: const GoogleBannerSizing(),
+      onSize: _onSize,
+      ad: _filled && ad != null
+          ? SizedBox(
+              width: ad.size.width.toDouble(),
+              height: ad.size.height.toDouble(),
+              child: AdWidget(ad: ad),
+            )
+          : null,
+    );
+  }
+}
+
+/// The large anchored adaptive size for a width and orientation, cached for
+/// the session. It needs no ad, only a platform answer, so the layout can
+/// reserve the real height before anything is requested.
+class GoogleBannerSizing implements BannerSizing {
+  const GoogleBannerSizing();
+
+  static final _cache = <String, BannerSize>{};
+  static final _pending = <String, Future<BannerSize?>>{};
+
+  static String _key(int width, Orientation orientation) =>
+      '$width|${orientation.name}';
+
+  @override
+  BannerSize? peek(int width, Orientation orientation) =>
+      _cache[_key(width, orientation)];
+
+  @override
+  Future<BannerSize?> resolve(int width, Orientation orientation) {
+    final key = _key(width, orientation);
+    final cached = _cache[key];
+    if (cached != null) return Future.value(cached);
+    if (width <= 0) return Future.value();
+    return _pending[key] ??= () async {
+      try {
+        final size =
+            await AdSize.getLargeAnchoredAdaptiveBannerAdSizeWithOrientation(
+              orientation,
+              width,
+            );
+        if (size == null) return null;
+        return _cache[key] = BannerSize(size.width, size.height, size);
+      } catch (_) {
+        return null;
+      } finally {
+        _pending.remove(key);
+      }
+    }();
+  }
+}
+
+/// WP4: the shell host's one banner (banner_mode = shell).
+class GoogleShellBannerAds implements ShellBannerAds {
+  const GoogleShellBannerAds();
+
+  @override
+  bool get configured => _Units.bannerConfigured;
+
+  @override
+  Widget band({
+    Key? key,
+    required String label,
+    required bool visible,
+    required BannerSize? size,
+  }) => configured
+      ? _ShellBand(key: key, label: label, visible: visible, size: size)
+      : SizedBox.shrink(key: key);
+}
+
+/// Mounted by the host for the whole session, shown or not. It owns the one
+/// BannerAd: asked for the first time the band is shown, and never again
+/// because a route came and went. While the band is hidden the AdWidget is
+/// simply not in the tree (the same ad can be mounted again afterwards, one
+/// widget at a time). Its refresh is the AdMob unit's own; there is no timer
+/// or reload loop here. A different adaptive size (a rotation) asks again;
+/// nothing else does. Disposed when the app detaches.
+class _ShellBand extends StatefulWidget {
+  final String label;
+  final bool visible;
+  final BannerSize? size;
+  const _ShellBand({
+    super.key,
+    required this.label,
+    required this.visible,
+    required this.size,
+  });
+
+  @override
+  State<_ShellBand> createState() => _ShellBandState();
+}
+
+class _ShellBandState extends State<_ShellBand> with WidgetsBindingObserver {
+  BannerAd? _ad;
+  bool _filled = false;
+  BannerSize? _askedFor;
+  int _epoch = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _AdsRuntime.instance.onConsentChanged(_onConsent);
+    _askIfShown();
+  }
+
+  @override
+  void didUpdateWidget(_ShellBand old) {
+    super.didUpdateWidget(old);
+    _askIfShown();
+  }
+
+  void _askIfShown() {
+    final size = widget.size;
+    if (!widget.visible || size == null || size == _askedFor) return;
+    _askedFor = size;
+    // Never load mid-build: after this frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _load();
+    });
+  }
+
+  void _onConsent() {
+    _drop();
+    if (_askedFor != null && mounted) _load();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      _drop();
+    } else if (state == AppLifecycleState.resumed &&
+        _askedFor != null &&
+        _ad == null) {
+      _load();
+    }
+  }
+
+  void _drop() {
+    _epoch++;
+    _ad?.dispose();
+    _ad = null;
+    if (mounted && _filled) setState(() => _filled = false);
+  }
+
+  Future<void> _load() async {
+    _drop();
+    final epoch = _epoch;
+    final size = widget.size?.native;
+    if (size is! AdSize) return;
+    try {
+      if (!await _AdsRuntime.instance.start(prompt: false)) return;
+      if (!await _AdsRuntime.instance.canRequestNow()) return;
+      if (!mounted || epoch != _epoch) return;
+      final ad = BannerAd(
+        size: size,
+        adUnitId: _Units.bannerUnitFor(BannerPlacement.shell),
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (_) {
+            if (mounted && epoch == _epoch) setState(() => _filled = true);
+          },
+          onAdFailedToLoad: (failed, _) {
+            failed.dispose();
+            if (identical(_ad, failed)) _ad = null;
+            if (mounted && _filled) setState(() => _filled = false);
+          },
         ),
-      ),
+      );
+      _ad = ad;
+      await ad.load();
+    } catch (_) {
+      _drop();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _AdsRuntime.instance.offConsentChanged(_onConsent);
+    _epoch++;
+    _ad?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = widget.size;
+    if (!widget.visible || size == null) return const SizedBox.shrink();
+    final ad = _ad;
+    return ShellBandFrame(
+      label: widget.label,
+      adWidth: size.width.toDouble(),
+      adHeight: size.height.toDouble(),
+      ad: _filled && ad != null
+          ? SizedBox(
+              width: ad.size.width.toDouble(),
+              height: ad.size.height.toDouble(),
+              child: AdWidget(ad: ad),
+            )
+          : null,
     );
   }
 }

@@ -33,6 +33,7 @@ import '../ui/economy/economy_capabilities.dart'
         economyCapabilitiesProvider,
         retryCapabilitiesIfFailed;
 import '../ui/economy/interstitial_coordinator.dart';
+import '../ui/economy/shell_banner_host.dart';
 import '../ui/economy/coin_packs.dart';
 import '../ui/economy/play_offers.dart';
 import '../ui/economy/wallet.dart';
@@ -629,7 +630,18 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
                         // Over every route and overlay (the vault included):
                         // the instant answer to a tap on a rewarded offer.
                         child: RewardedAdVeil(
-                          child: child ?? const SizedBox.shrink(),
+                          // WP4: the one banner (banner_mode = shell). Under
+                          // the veil, above the router; a pass-through
+                          // column in every other mode.
+                          child: ShellBannerHost(
+                            currentPath: () => _router
+                                .routerDelegate
+                                .currentConfiguration
+                                .uri
+                                .path,
+                            routeChanges: _router.routerDelegate,
+                            child: child ?? const SizedBox.shrink(),
+                          ),
                         ),
                       ),
                     ),
