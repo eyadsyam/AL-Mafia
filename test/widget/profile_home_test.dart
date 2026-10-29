@@ -18,6 +18,9 @@ import 'package:mafia_master/ui/social/titles_partner.dart';
 import 'package:mafia_master/ui/widgets/deck/deck_form_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:mafia_master/ui/widgets/gender_picker.dart';
+import 'package:mafia_master/ui/widgets/settings_kit.dart';
+
 import '../support/localized.dart';
 
 /// 25 characters: longer than a name can be typed, as a friend's name still
@@ -140,7 +143,8 @@ void main() {
           accountsAvailableProvider.overrideWithValue(true),
           accountProfileProvider.overrideWith((ref) => Stream.value(account)),
           economyCapabilitiesProvider.overrideWith(
-            (ref) async => const EconomyCapabilities(friends: true, titles: true),
+            (ref) async =>
+                const EconomyCapabilities(friends: true, titles: true),
           ),
           friendsProvider.overrideWith(_Friends.new),
           walletProvider.overrideWith(_Wallet.new),
@@ -149,7 +153,9 @@ void main() {
           profileLastMatchProvider.overrideWith(
             (ref) async => DateTime(2026, 10, 28, 20),
           ),
-          profileClockProvider.overrideWithValue(() => DateTime(2026, 10, 29, 12)),
+          profileClockProvider.overrideWithValue(
+            () => DateTime(2026, 10, 29, 12),
+          ),
         ],
         child: localizedApp(
           _Asked(
@@ -207,9 +213,7 @@ void main() {
     expect(find.text(arStrings.fileTabTitles), findsOneWidget);
     expect(find.text(arStrings.history), findsOneWidget);
     expect(find.text(arStrings.profileLastMatchYesterday), findsOneWidget);
-    final tops = [
-      for (var i = 0; i < 4; i++) tester.getTopLeft(rows.at(i)).dy,
-    ];
+    final tops = [for (var i = 0; i < 4; i++) tester.getTopLeft(rows.at(i)).dy];
     expect([...tops]..sort(), tops, reason: 'one under the other');
     expect(tester.takeException(), isNull);
   });
@@ -253,7 +257,10 @@ void main() {
     await tester.tap(find.byKey(ProfileScreen.titlesKey));
     await tester.pumpAndSettle();
     expect(find.byKey(TitlesSheet.sheetKey), findsOneWidget);
-    expect(find.byKey(TitleEquipList.titleKey('kabir_elshella')), findsOneWidget);
+    expect(
+      find.byKey(TitleEquipList.titleKey('kabir_elshella')),
+      findsOneWidget,
+    );
     await closeSheet(tester);
 
     await tester.tap(find.byKey(ProfileIdentityHeader.headerKey));
@@ -343,11 +350,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final size in const [
-    Size(360, 640),
-    Size(390, 844),
-    Size(640, 360),
-  ]) {
+  for (final size in const [Size(360, 640), Size(390, 844), Size(640, 360)]) {
     testWidgets(
       'nothing overflows or overlaps at ${size.width.toInt()}x${size.height.toInt()}',
       (tester) async {
@@ -386,35 +389,32 @@ void main() {
     (Size(390, 844), 320.0),
     (Size(640, 360), 170.0),
   ]) {
-    testWidgets(
-      'the keyboard does not cover the search field or the results '
-      'at ${size.width.toInt()}x${size.height.toInt()}',
-      (tester) async {
-        await pumpProfile(tester, size: size);
-        await tester.tap(find.byKey(ProfileScreen.friendsKey));
-        await tester.pumpAndSettle();
-        await tester.tap(find.byKey(FriendsSheetKeys.search));
-        await tester.pump();
-        tester.view.viewInsets = FakeViewPadding(bottom: keyboard);
-        await tester.pumpAndSettle();
-        final top = size.height - keyboard;
-        final field = tester.getRect(find.byKey(FriendsSheetKeys.search));
-        expect(field.bottom, lessThanOrEqualTo(top), reason: 'field is above');
-        expect(field.top, greaterThanOrEqualTo(0));
-        // The list is the area between the field and the keyboard.
-        final list = tester.getRect(find.byKey(FriendsSheetKeys.list));
-        expect(list.top, greaterThanOrEqualTo(field.bottom - 0.5));
-        expect(list.bottom, lessThanOrEqualTo(top + 0.5));
-        expect(list.height, greaterThan(40));
-        // A typed search shows its hit inside that area.
-        await tester.enterText(find.byKey(FriendsSheetKeys.search), 'ليلى');
-        await tester.pumpAndSettle();
-        final hit = tester.getRect(inList('ليلى'));
-        expect(hit.bottom, lessThanOrEqualTo(top + 0.5));
-        expect(hit.top, greaterThanOrEqualTo(field.bottom - 0.5));
-        expect(tester.takeException(), isNull);
-      },
-    );
+    testWidgets('the keyboard does not cover the search field or the results '
+        'at ${size.width.toInt()}x${size.height.toInt()}', (tester) async {
+      await pumpProfile(tester, size: size);
+      await tester.tap(find.byKey(ProfileScreen.friendsKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(FriendsSheetKeys.search));
+      await tester.pump();
+      tester.view.viewInsets = FakeViewPadding(bottom: keyboard);
+      await tester.pumpAndSettle();
+      final top = size.height - keyboard;
+      final field = tester.getRect(find.byKey(FriendsSheetKeys.search));
+      expect(field.bottom, lessThanOrEqualTo(top), reason: 'field is above');
+      expect(field.top, greaterThanOrEqualTo(0));
+      // The list is the area between the field and the keyboard.
+      final list = tester.getRect(find.byKey(FriendsSheetKeys.list));
+      expect(list.top, greaterThanOrEqualTo(field.bottom - 0.5));
+      expect(list.bottom, lessThanOrEqualTo(top + 0.5));
+      expect(list.height, greaterThan(40));
+      // A typed search shows its hit inside that area.
+      await tester.enterText(find.byKey(FriendsSheetKeys.search), 'ليلى');
+      await tester.pumpAndSettle();
+      final hit = tester.getRect(inList('ليلى'));
+      expect(hit.bottom, lessThanOrEqualTo(top + 0.5));
+      expect(hit.top, greaterThanOrEqualTo(field.bottom - 0.5));
+      expect(tester.takeException(), isNull);
+    });
   }
 
   testWidgets('the account sheet also stands on top of the keyboard', (
@@ -431,27 +431,172 @@ void main() {
     await tester.pumpAndSettle();
     final field = tester.getRect(find.byKey(AccountSheet.emailKey));
     expect(field.bottom, lessThanOrEqualTo(640 - 280));
-    expect(DeckFormSheetFrame.handlesKeyboard(
-      tester.element(find.byType(AccountSheet)),
-    ), isTrue);
+    expect(
+      DeckFormSheetFrame.handlesKeyboard(
+        tester.element(find.byType(AccountSheet)),
+      ),
+      isTrue,
+    );
     expect(tester.takeException(), isNull);
   });
 
   testWidgets('the last match is told in a few plain words', (tester) async {
     late BuildContext context;
     await tester.pumpWidget(
-      localizedApp(Builder(builder: (c) {
-        context = c;
-        return const SizedBox.shrink();
-      })),
+      localizedApp(
+        Builder(
+          builder: (c) {
+            context = c;
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
     );
     final now = DateTime(2026, 10, 29, 12);
     String line(DateTime? last) => lastMatchLine(context, last, now);
     expect(line(null), arStrings.profileNoMatches);
     expect(line(DateTime(2026, 10, 29, 1)), arStrings.profileLastMatchToday);
-    expect(line(DateTime(2026, 10, 28, 23)), arStrings.profileLastMatchYesterday);
+    expect(
+      line(DateTime(2026, 10, 28, 23)),
+      arStrings.profileLastMatchYesterday,
+    );
     expect(line(DateTime(2026, 10, 27)), 'آخر ماتش من يومين');
     expect(line(DateTime(2026, 10, 24)), 'آخر ماتش من 5 أيام');
     expect(line(DateTime(2026, 10, 17)), 'آخر ماتش من 12 يوم');
+  });
+
+  group('on its side (640x360)', () {
+    const side = Size(640, 360);
+
+    /// Everything a finger can use inside [root].
+    Finder controls(Finder root) => find.descendant(
+      of: root,
+      matching: find.byWidgetPredicate(
+        (w) =>
+            w is TextField ||
+            w is ButtonStyleButton ||
+            w is IconButton ||
+            w is Switch ||
+            w is ChoiceChip ||
+            w is SettingsSegment ||
+            (w is ListTile && w.onTap != null),
+      ),
+    );
+
+    /// Every control of the open sheet lies wholly inside it, wholly in view
+    /// without scrolling, and none of them touches the pinned button.
+    /// [skip] names parts that are allowed to run on below the fold (the
+    /// account sheet's legal footer, which scrolls).
+    void everyControlClear(WidgetTester tester, {Finder? skip}) {
+      final sheet = tester.getRect(find.byType(BottomSheet));
+      final pinnedFinder = find.byKey(ProfileScreen.saveKey);
+      final pinned = pinnedFinder.evaluate().isEmpty
+          ? null
+          : tester.getRect(pinnedFinder);
+      final all = controls(find.byType(BottomSheet));
+      expect(all, findsWidgets);
+      final skipped = skip == null
+          ? <Element>{}
+          : {for (final e in controls(skip).evaluate()) e, ...skip.evaluate()};
+      for (final element in all.evaluate()) {
+        if (skipped.contains(element)) continue;
+        final rect = tester.getRect(
+          find.byElementPredicate((e) => e == element),
+        );
+        expect(
+          sheet.contains(rect.topLeft) && sheet.contains(rect.bottomRight),
+          isTrue,
+          reason:
+              '${element.widget.runtimeType} $rect is cut by the sheet $sheet',
+        );
+        if (pinned != null &&
+            find
+                .descendant(
+                  of: pinnedFinder,
+                  matching: find.byElementPredicate((e) => e == element),
+                )
+                .evaluate()
+                .isEmpty &&
+            element != pinnedFinder.evaluate().first) {
+          expect(
+            rect.overlaps(pinned),
+            isFalse,
+            reason: '${element.widget.runtimeType} $rect sits under «حفظ»',
+          );
+        }
+      }
+    }
+
+    testWidgets('the profile shows who you are and all four rows at once', (
+      tester,
+    ) async {
+      await pumpProfile(tester, size: side);
+      const screen = Rect.fromLTWH(0, 0, 640, 360);
+      final shown = [
+        find.byKey(ProfileIdentityHeader.headerKey),
+        find.byKey(ProfileStats.statsKey),
+        find.byKey(ProfileRowList.listKey),
+        find.byKey(ProfileScreen.friendsKey),
+        find.byKey(AccountCard.cardKey),
+        find.byKey(ProfileScreen.titlesKey),
+        find.byKey(ProfileScreen.historyKey),
+      ];
+      final rects = <Rect>[];
+      for (final f in shown) {
+        final r = tester.getRect(f);
+        expect(
+          screen.contains(r.topLeft) && screen.contains(r.bottomRight),
+          isTrue,
+          reason: '$f $r is not wholly on screen without scrolling',
+        );
+        rects.add(r);
+      }
+      // Who you are and the rows are two panes that do not touch.
+      expect(rects[0].overlaps(rects[2]), isFalse);
+      expect(rects[1].overlaps(rects[2]), isFalse);
+      expect(rects[0].overlaps(rects[1]), isFalse);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the name sheet: nothing sits under «حفظ»', (tester) async {
+      await pumpProfile(tester, size: side);
+      await tester.tap(find.byKey(ProfileIdentityHeader.headerKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(ProfileScreen.saveKey), findsOneWidget);
+      expect(find.byKey(GenderPicker.maleKey), findsOneWidget);
+      everyControlClear(tester);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the account sheet: its three choices are all in view', (
+      tester,
+    ) async {
+      await pumpProfile(tester, size: side);
+      await tester.tap(find.byKey(AccountCard.cardKey));
+      await tester.pumpAndSettle();
+      everyControlClear(tester, skip: find.byType(AccountFooter));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the titles sheet: every title is in view', (tester) async {
+      await pumpProfile(tester, size: side);
+      await tester.tap(find.byKey(ProfileScreen.titlesKey));
+      await tester.pumpAndSettle();
+      everyControlClear(tester);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the friends sheet: the search field is in view', (
+      tester,
+    ) async {
+      await pumpProfile(tester, size: side);
+      await tester.tap(find.byKey(ProfileScreen.friendsKey));
+      await tester.pumpAndSettle();
+      final sheet = tester.getRect(find.byType(BottomSheet));
+      final field = tester.getRect(find.byKey(FriendsSheetKeys.search));
+      expect(sheet.contains(field.topLeft), isTrue);
+      expect(sheet.contains(field.bottomRight), isTrue);
+      expect(tester.takeException(), isNull);
+    });
   });
 }

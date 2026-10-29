@@ -95,11 +95,8 @@ Future<void> showAccountSheet(
   AccountStep initial = AccountStep.hub,
 }) => showDeckFormSheet<void>(
   context: context,
-  builder: (_) => AccountSheet(
-    onboarding: onboarding,
-    failure: failure,
-    initial: initial,
-  ),
+  builder: (_) =>
+      AccountSheet(onboarding: onboarding, failure: failure, initial: initial),
 );
 
 /// Counts the password-reset links that signed this device in (see
@@ -575,8 +572,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     switch (_step) {
       case AccountStep.hub:
         if (profile.signedIn) return _manage(context, profile);
-        return [
-          title(l.authAccount, l.accountGuestIntro),
+        final actions = <Widget>[
           BoneButton(
             key: AccountSheet.googleKey,
             label: l.accountContinueGoogle,
@@ -595,6 +591,26 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
             child: Text(l.accountNotNow),
           ),
         ];
+        // On its side the words sit beside the buttons, so all three are in
+        // view without scrolling.
+        if (MediaQuery.sizeOf(context).width >= DeckTokens.twoColumnFrom) {
+          return [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: title(l.authAccount, l.accountGuestIntro)),
+                SizedBox(width: s.lg),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: actions,
+                  ),
+                ),
+              ],
+            ),
+          ];
+        }
+        return [title(l.authAccount, l.accountGuestIntro), ...actions];
 
       case AccountStep.signUp:
         return [
@@ -808,10 +824,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
         style: type.caption.copyWith(color: colors.accentGold),
       ),
       SizedBox(height: s.sm),
-      Text(
-        l.authSafe,
-        style: type.body.copyWith(color: colors.textSecondary),
-      ),
+      Text(l.authSafe, style: type.body.copyWith(color: colors.textSecondary)),
       SizedBox(height: s.lg),
       SwitchListTile(
         key: AccountSheet.rememberKey,

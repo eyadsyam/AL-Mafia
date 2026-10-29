@@ -184,10 +184,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     ];
   }
 
+  /// Whether the window is wide enough for two panes (a phone on its side).
+  bool get _twoPane =>
+      widget.onBack != null &&
+      MediaQuery.sizeOf(context).width >= DeckTokens.twoColumnFrom;
+
   Widget _home(BuildContext context) {
     final s = context.spacing;
     final rows = _rows(context);
-    return Column(
+    final who = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ProfileIdentityHeader(
@@ -197,6 +202,28 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         const Center(child: FounderBadge()),
         SizedBox(height: s.md),
         const ProfileStats(),
+      ],
+    );
+    if (_twoPane) {
+      // On its side: who you are on one side, the rows on the other, all in
+      // view at once.
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: who),
+          SizedBox(width: s.lg),
+          Expanded(
+            child: rows.isEmpty
+                ? const SizedBox.shrink()
+                : ProfileRowList(rows: rows),
+          ),
+        ],
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        who,
         SizedBox(height: s.md),
         if (rows.isNotEmpty) ProfileRowList(rows: rows),
       ],
@@ -278,7 +305,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           child: SafeArea(
             child: Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: s.maxContentWidth),
+                constraints: BoxConstraints(
+                  maxWidth: _twoPane
+                      ? DeckTokens.twoPaneMaxWidth
+                      : s.maxContentWidth,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

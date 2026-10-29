@@ -19,7 +19,21 @@ Future<T?> showDeckFormSheet<T>({
   isScrollControlled: true,
   useSafeArea: true,
   backgroundColor: DeckTokens.panel,
-  builder: (sheetContext) => DeckFormSheetFrame(child: Builder(builder: builder)),
+  // The deck's own timings: the same dealt-card slide as every deck sheet,
+  // eased out coming in and in going out; reduced motion shortens both.
+  sheetAnimationStyle: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+      ? const AnimationStyle(
+          duration: DeckTokens.reduced,
+          reverseDuration: DeckTokens.reduced,
+        )
+      : const AnimationStyle(
+          duration: DeckTokens.sheet,
+          reverseDuration: DeckTokens.sheet,
+          curve: Easing.emphasizedDecelerate,
+          reverseCurve: Easing.emphasizedAccelerate,
+        ),
+  builder: (sheetContext) =>
+      DeckFormSheetFrame(child: Builder(builder: builder)),
 );
 
 /// The sheet's body: the handle, then [child] in whatever height is left above

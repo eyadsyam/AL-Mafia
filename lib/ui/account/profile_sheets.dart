@@ -98,11 +98,15 @@ class _IdentityEditSheetState extends ConsumerState<IdentityEditSheet> {
     final colors = context.colors;
     final mine = ref.watch(myCosmeticsProvider);
     final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+    // On its side the title gives its room to the form: the name and the
+    // address sit side by side above «حفظ».
+    final sideBySide =
+        MediaQuery.sizeOf(context).width >= DeckTokens.twoColumnFrom;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (!keyboardOpen)
+        if (!keyboardOpen && !sideBySide)
           Padding(
             padding: EdgeInsets.fromLTRB(s.md, s.sm, s.md, s.sm),
             child: Semantics(
@@ -128,6 +132,7 @@ class _IdentityEditSheetState extends ConsumerState<IdentityEditSheet> {
                   gender: _gender,
                   avatarDiameter: ProfileTokens.identityAvatar,
                   showAvatar: false,
+                  sideBySide: sideBySide,
                   frame: mine.frame,
                   plate: mine.plate,
                   onGender: _saving
@@ -173,11 +178,13 @@ class _IdentityEditSheetState extends ConsumerState<IdentityEditSheet> {
 
 /// «ألقابي»: the titles to wear, the Partner to bond with, and the way into
 /// the four characters' files.
-Future<void> showTitlesSheet(BuildContext context, {VoidCallback? onCharacters}) =>
-    showDeckFormSheet<void>(
-      context: context,
-      builder: (_) => TitlesSheet(onCharacters: onCharacters),
-    );
+Future<void> showTitlesSheet(
+  BuildContext context, {
+  VoidCallback? onCharacters,
+}) => showDeckFormSheet<void>(
+  context: context,
+  builder: (_) => TitlesSheet(onCharacters: onCharacters),
+);
 
 class TitlesSheet extends ConsumerWidget {
   final VoidCallback? onCharacters;

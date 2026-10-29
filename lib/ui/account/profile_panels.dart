@@ -13,6 +13,7 @@ import '../l10n_ext.dart';
 import '../social/titles_partner.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
+import '../widgets/deck/deck_buttons.dart' show DeckPress;
 import '../widgets/deck/deck_paper.dart';
 import '../widgets/deck/seat_card.dart';
 import '../widgets/player_avatar.dart';
@@ -49,56 +50,59 @@ class ProfileRow extends StatelessWidget {
       splashColor: IdentityTokens.transparent,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: DeckTokens.rowOne),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: s.md, vertical: s.sm),
-          child: Row(
-            children: [
-              Flexible(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: DeckTokens.body(type).copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              if (badge > 0) ...[
-                SizedBox(width: s.xs),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: s.sm),
-                  decoration: const ShapeDecoration(
-                    color: DeckTokens.bone,
-                    shape: StadiumBorder(),
-                  ),
+        // The deck's press: the row's content sinks a little under a finger.
+        child: DeckPress(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: s.md, vertical: s.sm),
+            child: Row(
+              children: [
+                Flexible(
                   child: Text(
-                    '$badge',
-                    textDirection: TextDirection.ltr,
-                    style: type.caption.copyWith(
-                      color: DeckTokens.ink,
-                      fontWeight: FontWeight.w800,
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: DeckTokens.body(type).copyWith(
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-              ],
-              SizedBox(width: s.sm),
-              Expanded(
-                child: Text(
-                  meta ?? '',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.end,
-                  style: type.caption.copyWith(color: colors.textMuted),
+                if (badge > 0) ...[
+                  SizedBox(width: s.xs),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: s.sm),
+                    decoration: const ShapeDecoration(
+                      color: DeckTokens.bone,
+                      shape: StadiumBorder(),
+                    ),
+                    child: Text(
+                      '$badge',
+                      textDirection: TextDirection.ltr,
+                      style: type.caption.copyWith(
+                        color: DeckTokens.ink,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+                SizedBox(width: s.sm),
+                Expanded(
+                  child: Text(
+                    meta ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                    style: type.caption.copyWith(color: colors.textMuted),
+                  ),
                 ),
-              ),
-              SizedBox(width: s.xs),
-              Icon(
-                rtl ? Icons.chevron_left : Icons.chevron_right,
-                size: DeckTokens.chevron,
-                color: DeckTokens.silver,
-              ),
-            ],
+                SizedBox(width: s.xs),
+                Icon(
+                  rtl ? Icons.chevron_left : Icons.chevron_right,
+                  size: DeckTokens.chevron,
+                  color: DeckTokens.silver,
+                ),
+              ],
+            ),
           ),
         ),
       ),

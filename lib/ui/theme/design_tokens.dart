@@ -171,6 +171,15 @@ abstract final class DeckTokens {
 
   /// The small number tiles on the profile.
   static const double statRadius = 10;
+
+  /// From this window width a sheet or the profile lays its parts side by
+  /// side (a phone on its side, a tablet) instead of one under the other, so
+  /// nothing needs scrolling to be reached and nothing sits under a pinned
+  /// button.
+  static const double twoColumnFrom = 560;
+
+  /// The profile's reading width when it is two panes.
+  static const double twoPaneMaxWidth = 720;
   static const double sealBorder = 1.5;
   static const double sealPlateAlpha = 0.9;
 
