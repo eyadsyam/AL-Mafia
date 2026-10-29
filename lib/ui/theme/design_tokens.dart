@@ -3183,6 +3183,9 @@ abstract final class RolesTokens {
 
   /// The card a tap opens: its art at full height over the sheet.
   static const Size sheetCard = Size(200, 300);
+
+  /// The most of the screen the card sheet's words may take before they scroll.
+  static const double sheetPanelMax = 0.72;
   static const double sheetScrim = 0.55;
   static const double sheetBackdropAlpha = 0.28;
 }

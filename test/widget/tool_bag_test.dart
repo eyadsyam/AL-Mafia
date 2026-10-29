@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/economy/all_access.dart';
 import 'package:mafia_master/ui/economy/table_tools.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';

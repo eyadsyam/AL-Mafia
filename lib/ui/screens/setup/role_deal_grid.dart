@@ -450,111 +450,136 @@ class _RoleSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: RolesTokens.sheetCard.width,
-            height: RolesTokens.sheetCard.height,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(context.radii.card),
-              border: sold
-                  ? Border.all(
-                      color: VaultTokens.gold,
-                      width: RolesTokens.dealOwnedRing,
-                    )
-                  : null,
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Image.asset(
-              roleFace(c.role),
-              fit: BoxFit.cover,
-              semanticLabel: c.name,
+          // The card gives up height on a short phone so the words and the
+          // button under it always stay on screen.
+          Flexible(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: RolesTokens.sheetCard.height,
+              ),
+              child: AspectRatio(
+                aspectRatio: RolesTokens.sheetCard.aspectRatio,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(context.radii.card),
+                    border: sold
+                        ? Border.all(
+                            color: VaultTokens.gold,
+                            width: RolesTokens.dealOwnedRing,
+                          )
+                        : null,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.asset(
+                    roleFace(c.role),
+                    fit: BoxFit.cover,
+                    semanticLabel: c.name,
+                  ),
+                ),
+              ),
             ),
           ),
           SizedBox(height: s.md),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: colors.surfaceRaised,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(context.radii.dialog),
-              ),
+          // On the shortest phones the words scroll rather than push the
+          // button off the screen.
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight:
+                  MediaQuery.sizeOf(context).height * RolesTokens.sheetPanelMax,
             ),
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(s.lg, s.md, s.lg, s.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: SingleChildScrollView(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colors.surfaceRaised,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(context.radii.dialog),
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(s.lg, s.md, s.lg, s.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Flexible(
-                        child: Text(
-                          c.name,
-                          style: DeckTokens.title(
-                            type,
-                          ).copyWith(color: colors.textPrimary),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              c.name,
+                              style: DeckTokens.title(
+                                type,
+                              ).copyWith(color: colors.textPrimary),
+                            ),
+                          ),
+                          Text(
+                            mafiaSide ? l.roleTeamMafia : l.roleTeamTown,
+                            style: DeckTokens.meta(type).copyWith(
+                              color: mafiaSide
+                                  ? colors.roleMafia
+                                  : colors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
+                      SizedBox(height: s.xs),
                       Text(
-                        mafiaSide ? l.roleTeamMafia : l.roleTeamTown,
-                        style: DeckTokens.meta(type).copyWith(
-                          color: mafiaSide
-                              ? colors.roleMafia
-                              : colors.textSecondary,
+                        EngineCopy.roleDescription(l, c.role),
+                        style: DeckTokens.body(
+                          type,
+                        ).copyWith(color: colors.textPrimary),
+                      ),
+                      SizedBox(height: s.md),
+                      Row(
+                        children: [
+                          stat('${c.minPlayers}+', l.rolesSheetMinPlayers),
+                          SizedBox(width: s.sm),
+                          stat(
+                            c.max == null ? '—' : '${c.max}',
+                            l.rolesSheetMax,
+                          ),
+                          SizedBox(width: s.sm),
+                          stat('${c.count}', l.rolesSheetNow),
+                        ],
+                      ),
+                      if (c.blocked != null) ...[
+                        SizedBox(height: s.sm),
+                        Text(
+                          c.blocked!,
+                          style: DeckTokens.meta(
+                            type,
+                          ).copyWith(color: colors.accentCrimson),
                         ),
-                      ),
+                      ],
+                      SizedBox(height: s.md),
+                      if (actions && !c.locked && !sold && c.onMinus != null)
+                        Padding(
+                          padding: EdgeInsets.only(bottom: s.sm),
+                          child: OutlinedButton(
+                            onPressed: () => tap(c.onMinus),
+                            child: Text(l.rolesSheetLess),
+                          ),
+                        ),
+                      if (!actions)
+                        const SizedBox.shrink()
+                      else if (c.locked)
+                        StoreDoor(
+                          builder: (context, open) => BoneButton(
+                            label: l.roleLockedPill,
+                            onPressed: open,
+                          ),
+                        )
+                      else
+                        BoneButton(
+                          key: addKey,
+                          label: primaryLabel,
+                          onPressed: primaryAction == null
+                              ? null
+                              : () => tap(primaryAction),
+                        ),
                     ],
                   ),
-                  SizedBox(height: s.xs),
-                  Text(
-                    EngineCopy.roleDescription(l, c.role),
-                    style: DeckTokens.body(
-                      type,
-                    ).copyWith(color: colors.textPrimary),
-                  ),
-                  SizedBox(height: s.md),
-                  Row(
-                    children: [
-                      stat('${c.minPlayers}+', l.rolesSheetMinPlayers),
-                      SizedBox(width: s.sm),
-                      stat(c.max == null ? '—' : '${c.max}', l.rolesSheetMax),
-                      SizedBox(width: s.sm),
-                      stat('${c.count}', l.rolesSheetNow),
-                    ],
-                  ),
-                  if (c.blocked != null) ...[
-                    SizedBox(height: s.sm),
-                    Text(
-                      c.blocked!,
-                      style: DeckTokens.meta(
-                        type,
-                      ).copyWith(color: colors.accentCrimson),
-                    ),
-                  ],
-                  SizedBox(height: s.md),
-                  if (actions && !c.locked && !sold && c.onMinus != null)
-                    Padding(
-                      padding: EdgeInsets.only(bottom: s.sm),
-                      child: OutlinedButton(
-                        onPressed: () => tap(c.onMinus),
-                        child: Text(l.rolesSheetLess),
-                      ),
-                    ),
-                  if (!actions)
-                    const SizedBox.shrink()
-                  else if (c.locked)
-                    StoreDoor(
-                      builder: (context, open) =>
-                          BoneButton(label: l.roleLockedPill, onPressed: open),
-                    )
-                  else
-                    BoneButton(
-                      key: addKey,
-                      label: primaryLabel,
-                      onPressed: primaryAction == null
-                          ? null
-                          : () => tap(primaryAction),
-                    ),
-                ],
+                ),
               ),
             ),
           ),
