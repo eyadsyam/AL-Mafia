@@ -892,10 +892,12 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   /// Online a Citizen has no night move at all: they wait while the Mafia
   /// kill, the Doctor protects and the Detective looks (owner, 2026-10-01).
   /// The server neither waits for nor records anything from them, so nothing
-  /// is sent from here either.
+  /// is sent from here either. The Elder rests the same way, word for word:
+  /// the server has no night move for them either (owner, 2026-10-29).
   bool _citizenRests(GameSnapshot snapshot, MatchUiState state) =>
-      snapshot.phase == GamePhase.night &&
-      state.actorTurn?.actorRole == Role.citizen;
+      snapshot.phase == GamePhase.night && _rests(state.actorTurn?.actorRole);
+
+  static bool _rests(Role? role) => role == Role.citizen || role == Role.elder;
 
   Widget _ownCard(BuildContext context, Role role) => SizedBox(
     height: CouncilTokens.nightOwnCardHeight,
@@ -987,7 +989,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     // on the same «waiting» line as everyone else, but there is no move to
     // send: the server neither waits for nor records anything from them
     // (owner, 2026-10-01).
-    if (_snapshot.phase == GamePhase.night && turn.actorRole == Role.citizen) {
+    if (_snapshot.phase == GamePhase.night && _rests(turn.actorRole)) {
       return;
     }
 

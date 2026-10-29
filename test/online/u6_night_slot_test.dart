@@ -147,27 +147,30 @@ void main() {
       );
     }
 
-    testWidgets('a resting Citizen holds the pad and sends nothing', (
-      tester,
-    ) async {
-      await measure(tester, Role.citizen, const Size(390, 844));
-      expect(find.byType(HoldPad), findsOneWidget);
-      final pad = tester.getCenter(find.byType(HoldPad));
-      final gesture = await tester.startGesture(pad);
-      await tester.pump(const Duration(seconds: 3));
-      await gesture.up();
-      await tester.pump();
-      await tester.pump();
-      // Same line as everybody lands on after confirming; no server call.
-      expect(find.text(arStrings.onlineWaitingForTheRest), findsOneWidget);
-      expect(
-        backend.calls.where(
-          (c) =>
-              c.function == 'submit_night_action' ||
-              c.function == 'skip_night_action',
-        ),
-        isEmpty,
-      );
-    });
+    for (final role in [Role.citizen, Role.elder])
+      testWidgets('a resting ${role.name} holds the pad and sends nothing', (
+        tester,
+      ) async {
+        await measure(tester, role, const Size(390, 844));
+        // The Elder's night is the Citizen's, word for word (owner, 2026-10-29).
+        expect(find.text(arStrings.nightCitizenRest), findsOneWidget);
+        expect(find.byType(HoldPad), findsOneWidget);
+        final pad = tester.getCenter(find.byType(HoldPad));
+        final gesture = await tester.startGesture(pad);
+        await tester.pump(const Duration(seconds: 3));
+        await gesture.up();
+        await tester.pump();
+        await tester.pump();
+        // Same line as everybody lands on after confirming; no server call.
+        expect(find.text(arStrings.onlineWaitingForTheRest), findsOneWidget);
+        expect(
+          backend.calls.where(
+            (c) =>
+                c.function == 'submit_night_action' ||
+                c.function == 'skip_night_action',
+          ),
+          isEmpty,
+        );
+      });
   });
 }
