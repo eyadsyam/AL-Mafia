@@ -7867,4 +7867,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get entranceTapToGo => 'Tap to continue';
+
+  @override
+  String get toolBagNow => 'Usable now';
+
+  @override
+  String get toolBagLater => 'Opens later';
+
+  @override
+  String get toolBagNothingNow =>
+      'No tool fits this moment. See below what opens later.';
 }

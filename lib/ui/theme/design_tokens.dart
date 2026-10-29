@@ -3223,6 +3223,16 @@ abstract final class EntranceTokens {
   static const double progressWidth = 120;
 }
 
+/// The tool bag inside an online match (owner, 2026-10-29).
+abstract final class ToolBagTokens {
+  static const int columns = 3;
+  static const double art = 52;
+  static const double laterArt = 36;
+  static const double tileAspect = 0.66;
+  static const double laterAspect = 1.05;
+  static const double laterAlpha = 0.55;
+}
+
 /// The host's deal at a glance in the online lobby.
 abstract final class LobbyDeckTokens {
   static const double cardHeight = 40;

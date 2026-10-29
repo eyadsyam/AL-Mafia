@@ -7748,4 +7748,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get entranceTapToGo => 'دوس عشان تكمّل';
+
+  @override
+  String get toolBagNow => 'تنفع دلوقتي';
+
+  @override
+  String get toolBagLater => 'بتتفتح بعدين';
+
+  @override
+  String get toolBagNothingNow =>
+      'مفيش أداة تنفع في اللحظة دي. بص تحت على اللي بيتفتح بعدين.';
 }

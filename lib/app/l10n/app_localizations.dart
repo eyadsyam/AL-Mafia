@@ -13536,6 +13536,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap to continue'**
   String get entranceTapToGo;
+
+  /// No description provided for @toolBagNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Usable now'**
+  String get toolBagNow;
+
+  /// No description provided for @toolBagLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens later'**
+  String get toolBagLater;
+
+  /// No description provided for @toolBagNothingNow.
+  ///
+  /// In en, this message translates to:
+  /// **'No tool fits this moment. See below what opens later.'**
+  String get toolBagNothingNow;
 }
 
 class _AppLocalizationsDelegate

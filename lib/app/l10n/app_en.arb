@@ -4818,5 +4818,8 @@
   },
   "entranceTonight": "Tonight, in",
   "entranceNarratedBy": "Told by",
-  "entranceTapToGo": "Tap to continue"
+  "entranceTapToGo": "Tap to continue",
+  "toolBagNow": "Usable now",
+  "toolBagLater": "Opens later",
+  "toolBagNothingNow": "No tool fits this moment. See below what opens later."
 }

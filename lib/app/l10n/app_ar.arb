@@ -3515,5 +3515,8 @@
   },
   "entranceTonight": "الليلة دي في",
   "entranceNarratedBy": "بيحكيها",
-  "entranceTapToGo": "دوس عشان تكمّل"
+  "entranceTapToGo": "دوس عشان تكمّل",
+  "toolBagNow": "تنفع دلوقتي",
+  "toolBagLater": "بتتفتح بعدين",
+  "toolBagNothingNow": "مفيش أداة تنفع في اللحظة دي. بص تحت على اللي بيتفتح بعدين."
 }

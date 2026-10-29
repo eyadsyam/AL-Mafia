@@ -239,9 +239,15 @@ void main() {
       }
 
       await open(true);
-      expect(find.byType(ChoiceChip), findsNothing);
+      expect(
+        find.byWidgetPredicate((w) => w is ToolBagTile && w.now),
+        findsNothing,
+      );
       await open(false);
-      expect(find.byType(ChoiceChip), findsNWidgets(2));
+      expect(
+        find.byWidgetPredicate((w) => w is ToolBagTile && w.now),
+        findsNWidgets(2),
+      );
     });
 
     testWidgets('a failed use frees the button and says so', (tester) async {
@@ -295,7 +301,9 @@ void main() {
       );
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(ChoiceChip));
+      await tester.tap(
+        find.byWidgetPredicate((w) => w is ToolBagTile && w.now),
+      );
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'hello');
       await tester.pumpAndSettle();
@@ -377,7 +385,9 @@ void main() {
         );
         await tester.tap(find.text('open'));
         await tester.pumpAndSettle();
-        await tester.tap(find.byType(ChoiceChip));
+        await tester.tap(
+          find.byWidgetPredicate((w) => w is ToolBagTile && w.now),
+        );
         await tester.pumpAndSettle();
         await tester.tap(find.byType(FilledButton));
         await tester.pump();

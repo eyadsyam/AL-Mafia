@@ -10,6 +10,9 @@ import '../screens/online/online_session.dart';
 import '../screens/match_controller.dart' show gameTransportProvider;
 import '../../engine/models/enums.dart' show DiscussionMode;
 import '../theme/mafia_theme.dart';
+import '../../app/l10n/app_localizations.dart';
+import '../theme/design_tokens.dart';
+import 'all_access.dart';
 import 'table_tool_names.g.dart';
 import 'wallet.dart';
 
@@ -455,11 +458,48 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
     final type = context.typography;
     final colors = context.colors;
     final data = ref.watch(tableToolsProvider).valueOrNull;
+    final unlimited = ref.watch(allAccessProvider);
+    final owned = data?.owned() ?? const <TableTool>[];
     final usable = [
-      for (final t in data?.owned() ?? const <TableTool>[])
+      for (final t in owned)
         if (_toolFits(t, widget.phase, widget.alive, widget.freeTalk)) t,
     ];
+    // Owned but not for this moment: shown dimmed with when they open, so the
+    // bag reads as everything the player holds (owner, 2026-10-29).
+    final later = [
+      for (final t in owned)
+        if (!usable.contains(t) &&
+            !(widget.freeTalk &&
+                const {'extra_minute', 'objection'}.contains(t.code)))
+          t,
+    ];
     final picked = _picked;
+    Widget grid(List<TableTool> tools, {required bool now}) => GridView.count(
+      crossAxisCount: ToolBagTokens.columns,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: s.sm,
+      crossAxisSpacing: s.sm,
+      childAspectRatio: now
+          ? ToolBagTokens.tileAspect
+          : ToolBagTokens.laterAspect,
+      children: [
+        for (final t in tools)
+          ToolBagTile(
+            tool: t,
+            now: now,
+            unlimited: unlimited,
+            selected: picked?.code == t.code,
+            onTap: now
+                ? () => setState(() {
+                    _picked = t;
+                    _targets.clear();
+                    _face = null;
+                  })
+                : null,
+          ),
+      ],
+    );
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(
@@ -473,35 +513,58 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(l.toolsInMatch, style: type.title),
+              Row(
+                children: [
+                  Expanded(child: Text(l.vaultToolsTitle, style: type.title)),
+                  if (unlimited)
+                    DecoratedBox(
+                      decoration: const BoxDecoration(
+                        color: VaultTokens.gold,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(DeckTokens.pill),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: s.sm),
+                        child: Text(
+                          l.vaultToolsUnlimited,
+                          style: type.caption.copyWith(
+                            color: VaultTokens.goldInk,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
               SizedBox(height: s.sm),
               if (data == null)
                 const Center(child: CircularProgressIndicator())
-              else if (usable.isEmpty)
+              else if (owned.isEmpty)
                 Text(
                   l.toolNoneOwned,
                   style: type.body.copyWith(color: colors.textMuted),
                 )
-              else
-                Wrap(
-                  spacing: s.sm,
-                  runSpacing: s.sm,
-                  children: [
-                    for (final t in usable)
-                      ChoiceChip(
-                        avatar: ToolIcon(code: t.code, size: s.lg),
-                        label: Text(
-                          '${tableToolCopy(l, t.code)?.$1 ?? t.code} · ${t.charges}',
-                        ),
-                        selected: picked?.code == t.code,
-                        onSelected: (_) => setState(() {
-                          _picked = t;
-                          _targets.clear();
-                          _face = null;
-                        }),
-                      ),
-                  ],
-                ),
+              else ...[
+                if (usable.isNotEmpty) ...[
+                  Text(l.toolBagNow, style: type.caption),
+                  SizedBox(height: s.xs),
+                  grid(usable, now: true),
+                ] else
+                  Text(
+                    l.toolBagNothingNow,
+                    style: type.body.copyWith(color: colors.textMuted),
+                  ),
+                if (later.isNotEmpty) ...[
+                  SizedBox(height: s.md),
+                  Text(
+                    l.toolBagLater,
+                    style: type.caption.copyWith(color: colors.textMuted),
+                  ),
+                  SizedBox(height: s.xs),
+                  grid(later, now: false),
+                ],
+              ],
               if (picked != null) ...[
                 SizedBox(height: s.md),
                 Text(
@@ -566,6 +629,117 @@ class _ToolsSheetState extends ConsumerState<_ToolsSheet> {
                 ),
               ],
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One tool in the bag: its art, its name, one line of what it does, and how
+/// many are left («من غير عدد» on an owner grant). [now] false draws it dimmed
+/// with the moment it opens in.
+class ToolBagTile extends StatelessWidget {
+  final TableTool tool;
+  final bool now;
+  final bool unlimited;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  const ToolBagTile({
+    super.key,
+    required this.tool,
+    required this.now,
+    required this.unlimited,
+    required this.selected,
+    required this.onTap,
+  });
+
+  static Key keyFor(String code) => ValueKey('tool_bag_$code');
+
+  String _when(AppLocalizations l) => switch (tool.phase) {
+    'vote' => l.vaultToolPhaseVote,
+    'night' => l.vaultToolPhaseNight,
+    'dead' => l.vaultToolPhaseDead,
+    _ => l.vaultToolPhaseDiscuss,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final colors = context.colors;
+    final type = context.typography;
+    final s = context.spacing;
+    final copy = tableToolCopy(l, tool.code);
+    return Opacity(
+      opacity: now ? 1 : ToolBagTokens.laterAlpha,
+      child: Semantics(
+        button: now,
+        selected: selected,
+        label: copy?.$1 ?? tool.code,
+        child: Material(
+          color: selected ? colors.surfaceOverlay : colors.surfaceRaised,
+          borderRadius: BorderRadius.circular(RolesTokens.dealRadius),
+          child: InkWell(
+            key: keyFor(tool.code),
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(RolesTokens.dealRadius),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(RolesTokens.dealRadius),
+                border: Border.all(
+                  color: selected ? VaultTokens.gold : colors.borderSubtle,
+                  width: selected ? RolesTokens.dealOwnedRing : 1,
+                ),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(s.xs),
+                child: ExcludeSemantics(
+                  child: Column(
+                    children: [
+                      ToolIcon(
+                        code: tool.code,
+                        size: now ? ToolBagTokens.art : ToolBagTokens.laterArt,
+                      ),
+                      Text(
+                        copy?.$1 ?? tool.code,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: type.caption.copyWith(
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Text(
+                        now ? (copy?.$2 ?? '') : _when(l),
+                        maxLines: now ? 2 : 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: type.caption.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                      if (now) ...[
+                        const Spacer(),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            unlimited
+                                ? l.vaultToolsUnlimited
+                                : l.vaultToolLeft(tool.charges),
+                            style: type.caption.copyWith(
+                              color: VaultTokens.gold,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
