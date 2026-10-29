@@ -303,6 +303,11 @@ abstract final class DeckTokens {
   static const Curve sheetCurve = Easing.emphasizedDecelerate;
   static const Curve sheetExitCurve = Easing.emphasizedAccelerate;
 
+  /// The update screen settles in from [gateScaleFrom] while it fades, over
+  /// [sheet], and fades away over [sheetExit]. With reduced motion it only
+  /// fades, over [reduced].
+  static const double gateScaleFrom = 0.96;
+
   /// Cards arrive once: each rises [enterRise] dp and fades in over [enter],
   /// the next one [enterStagger] later. Only transform and opacity move, so
   /// nothing is laid out again while it plays.

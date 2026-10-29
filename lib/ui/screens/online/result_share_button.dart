@@ -128,7 +128,9 @@ class _ResultShareButtonState extends ConsumerState<ResultShareButton> {
     icon: _busy
         ? SizedBox.square(
             dimension: context.spacing.md,
-            child: const CircularProgressIndicator(strokeWidth: 2),
+            child: const CircularProgressIndicator(
+              strokeWidth: StoreTokens.busyStroke,
+            ),
           )
         : const Icon(Icons.ios_share_rounded),
     tooltip: context.l10n.shareResult,
