@@ -9361,6 +9361,36 @@ abstract class AppLocalizations {
   /// **'Reload the page'**
   String get updateRequiredReload;
 
+  /// No description provided for @updateSoftTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version is out'**
+  String get updateSoftTitle;
+
+  /// No description provided for @updateSoftBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A newer version of the game is on Google Play.'**
+  String get updateSoftBody;
+
+  /// No description provided for @updateSoftNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Update now'**
+  String get updateSoftNow;
+
+  /// No description provided for @updateSoftLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateSoftLater;
+
+  /// No description provided for @updateStoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not open Google Play. Open it and update the game.'**
+  String get updateStoreFailed;
+
   /// No description provided for @webAdAppCta.
   ///
   /// In en, this message translates to:

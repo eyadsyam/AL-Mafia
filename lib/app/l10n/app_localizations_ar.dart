@@ -5401,6 +5401,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get updateRequiredReload => 'حدّث الصفحة';
 
   @override
+  String get updateSoftTitle => 'فيه نسخة جديدة';
+
+  @override
+  String get updateSoftBody => 'نزلت نسخة أحدث من اللعبة على Google Play.';
+
+  @override
+  String get updateSoftNow => 'حدّث دلوقتي';
+
+  @override
+  String get updateSoftLater => 'بعدين';
+
+  @override
+  String get updateStoreFailed =>
+      'مقدرناش نفتح Google Play. افتحه وحدّث اللعبة.';
+
+  @override
   String get webAdAppCta => 'نزّل التطبيق — إعلانات أقل';
 
   @override

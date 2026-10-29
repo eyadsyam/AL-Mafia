@@ -2812,8 +2812,20 @@ abstract final class UpdateGateTokens {
   /// A build left open for days asks again after this long in the background.
   static const Duration recheck = Duration(minutes: 30);
 
-  static const double scrimAlpha = 0.72;
-  static const double iconSize = 40.0;
+  /// The Play listing, tried in this order: the Play app (`market:`), then the
+  /// web page (which hands over to the app, or opens in a browser).
+  static final List<Uri> storeUris = [
+    Uri.parse('market://details?id=$playApplicationId'),
+    Uri.parse(
+      'https://play.google.com/store/apps/details?id=$playApplicationId',
+    ),
+  ];
+
+  /// `applicationId` in `android/app/build.gradle.kts`.
+  static const String playApplicationId = 'com.mafiamaster.mafia_master';
+
+  /// The inline «مقدرناش نفتح Google Play» note under the button.
+  static const double noteRadius = 10.0;
 }
 
 /// Web display inventory. Every ad is outside the private table.
