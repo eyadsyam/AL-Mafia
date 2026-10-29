@@ -213,8 +213,15 @@ void main() {
     testWidgets('prompts really do differ, so the check is not vacuous', (
       tester,
     ) async {
-      final prompts = Role.values.map(TurnShellHarness.naturalPrompt).toSet();
-      expect(prompts.length, equals(Role.values.length));
+      // The elder rests at night with the citizen's own words (owner,
+      // 2026-10-29), so the two share one prompt; every other role differs.
+      expect(
+        TurnShellHarness.naturalPrompt(Role.elder),
+        TurnShellHarness.naturalPrompt(Role.citizen),
+      );
+      final acting = Role.values.where((r) => r != Role.elder);
+      final prompts = acting.map(TurnShellHarness.naturalPrompt).toSet();
+      expect(prompts.length, equals(acting.length));
     });
   });
 

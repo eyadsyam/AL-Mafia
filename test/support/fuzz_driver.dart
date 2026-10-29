@@ -85,9 +85,14 @@ const int kStallGuard = 500;
 /// [onState] is called with every state the match passes through, before each
 /// move is chosen. Used by the coverage suite to record which phases the
 /// harness actually enters.
+/// [boughtRoles] also deals the store roles — the Silencer, the Elder and the
+/// Sniper — each at random where the table is big enough, and lets a living
+/// Elder reveal at a random moment of the day. Off by default so every seed
+/// the plain harness has ever reported still replays the same match.
 FuzzOutcome runFuzzedMatch(
   int seed, {
   bool recordTrail = false,
+  bool boughtRoles = false,
   void Function(Match state)? onState,
 }) {
   final rng = Random(seed);
@@ -96,10 +101,15 @@ FuzzOutcome runFuzzedMatch(
   final trail = <String>[];
 
   try {
+    var counts = _randomValidConfig(playerCount, rng);
+    var settings = _randomSettings(rng);
+    if (boughtRoles) {
+      (counts, settings) = _withBoughtRoles(counts, settings, playerCount, rng);
+    }
     engine.start(
       names: _names(playerCount),
-      roleCounts: _randomValidConfig(playerCount, rng),
-      settings: _randomSettings(rng),
+      roleCounts: counts,
+      settings: settings,
       seed: seed,
     );
   } catch (e) {
@@ -129,6 +139,24 @@ FuzzOutcome runFuzzedMatch(
             'actor ${engine.match.currentActorSeat}, '
             '${_aliveCount(engine)} alive — no legal move and not terminal',
       );
+    }
+
+    if (boughtRoles && _elderMayReveal(engine) && rng.nextInt(4) == 0) {
+      final elder = engine.match.players.indexWhere(
+        (p) => p.role == Role.elder && p.status == PlayerStatus.alive,
+      );
+      if (recordTrail) trail.add('${engine.match.phase.name}: reveal $elder');
+      try {
+        engine.revealElder(elder);
+      } catch (e) {
+        return FuzzOutcome(
+          seed: seed,
+          playerCount: playerCount,
+          moveCount: moves,
+          trail: trail,
+          failure: 'the living Elder could not reveal by day: $e',
+        );
+      }
     }
 
     final move = options[rng.nextInt(options.length)];
@@ -202,6 +230,57 @@ FuzzOutcome runFuzzedMatch(
     moveCount: moves,
     trail: trail,
     finished: engine.match,
+  );
+}
+
+const _elderRevealPhases = {
+  GamePhase.morning,
+  GamePhase.openingRound,
+  GamePhase.confrontation,
+  GamePhase.discussion,
+  GamePhase.voting,
+};
+
+bool _elderMayReveal(MatchEngine engine) {
+  if (!_elderRevealPhases.contains(engine.match.phase)) return false;
+  final seat = engine.match.players.indexWhere(
+    (p) => p.role == Role.elder && p.status == PlayerStatus.alive,
+  );
+  return seat >= 0 && !engine.isElderRevealed(seat);
+}
+
+/// Folds the store roles into a plain split: one Mafia becomes the Silencer
+/// when there are two or more, and the Elder (6+) and Sniper (7+) each take a
+/// citizen's seat, always leaving one plain citizen.
+(Map<Role, int>, MatchSettings) _withBoughtRoles(
+  Map<Role, int> counts,
+  MatchSettings settings,
+  int playerCount,
+  Random rng,
+) {
+  final next = Map<Role, int>.of(counts);
+  final silencer = (next[Role.mafia] ?? 0) >= 2 && rng.nextBool();
+  if (silencer) {
+    next[Role.mafia] = next[Role.mafia]! - 1;
+    next[Role.silencer] = 1;
+  }
+  bool take(Role role, int minPlayers) {
+    if (playerCount < minPlayers || (next[Role.citizen] ?? 0) < 2) return false;
+    if (!rng.nextBool()) return false;
+    next[Role.citizen] = next[Role.citizen]! - 1;
+    next[role] = 1;
+    return true;
+  }
+
+  final elder = take(Role.elder, 6);
+  final sniper = take(Role.sniper, 7);
+  return (
+    next,
+    settings.copyWith(
+      silencerEnabled: silencer,
+      elderEnabled: elder,
+      sniperEnabled: sniper,
+    ),
   );
 }
 

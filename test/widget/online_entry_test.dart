@@ -927,6 +927,30 @@ void main() {
       },
     );
 
+    testWidgets('the narrator chosen in «خزنتي» narrates the new room', (
+      tester,
+    ) async {
+      final container = containerWith();
+      backend.responses['economy'] = {
+        'balance': 0,
+        'catalog': <Object>[],
+        'owned': ['narrator_keeper'],
+        'equipped': {'narrator': 'narrator_keeper'},
+      };
+      await container.read(walletProvider.notifier).refresh();
+      await pumpEntry(tester, container, surface: const Size(500, 2200));
+      await openCreate(tester);
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('online_create_confirm')));
+      await tester.pump();
+      await tester.pump();
+      final settings = Map<String, dynamic>.from(
+        createPayload()['settings'] as Map,
+      );
+      expect(settings['narratorPack'], 'narrator_keeper');
+      expect(settings.containsKey('presentationPack'), isFalse);
+    });
+
     testWidgets('every setting travels with the room that is being made', (
       tester,
     ) async {
