@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart' show SchedulerPhase;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/router.dart' show Routes;
@@ -91,7 +92,12 @@ class _ShellBannerHostState extends ConsumerState<ShellBannerHost> {
 
   // The router can notify in the middle of a build: look after the frame.
   void _routeChanged() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    final binding = WidgetsBinding.instance;
+    if (binding.schedulerPhase == SchedulerPhase.idle) {
+      if (mounted) setState(() {});
+      return;
+    }
+    binding.addPostFrameCallback((_) {
       if (mounted) setState(() {});
     });
   }

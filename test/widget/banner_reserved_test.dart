@@ -122,7 +122,9 @@ void main() {
         onlineHeartbeatProvider.overrideWithValue(Duration.zero),
         voiceStatsIntervalProvider.overrideWithValue(Duration.zero),
       ],
-      landscape: true,
+      // The hub's banner sits at the end of a lazy list: on a phone on its
+      // side it is below the fold, not built.
+      landscape: false,
     ),
     (
       name: 'lobby',
