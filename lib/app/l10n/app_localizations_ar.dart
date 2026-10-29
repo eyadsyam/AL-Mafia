@@ -7352,4 +7352,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get keyBack => 'ارجع';
+
+  @override
+  String get beforeStartTitle => 'قبل ما تبدأوا';
+
+  @override
+  String get beforeStartLine1 =>
+      'كل واحد يمسك على اسمه ويشوف دوره لوحده، والكارت بيتقفل لوحده، وبعدها يدّي الموبايل للي بعده.';
+
+  @override
+  String get beforeStartLine2 =>
+      'بالليل الموبايل بيلفّ على كل اللي لسه في اللعب، حتى اللي ملوش دور، عشان محدش يعرف مين عمل إيه.';
+
+  @override
+  String get beforeStartLine3 =>
+      'المواطن بيختار حد شاكك فيه. اختياره مبيقتلش ومبيحميش، بس لو مات الليلة دي ممكن الصبح يتقال كان شاكك في مين.';
+
+  @override
+  String get beforeStartLine4 => 'الصبح بتتكلموا، وبعدين تصوّتوا تطلّعوا حد.';
+
+  @override
+  String get beforeStartLine5 => 'اللي يخرج من اللعب مبيصوّتش.';
+
+  @override
+  String get beforeStartGo => 'يلا نبدأ';
+
+  @override
+  String get modeStoriesSoonName => 'القصص';
+
+  @override
+  String get modeStoriesSoon => 'قريبا';
 }

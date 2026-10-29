@@ -11,6 +11,7 @@ import 'package:mafia_master/ui/screens/setup/add_players_screen.dart';
 import 'package:mafia_master/ui/screens/setup/home_screen.dart';
 import 'package:mafia_master/ui/screens/setup/mode_screen.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
+import 'package:mafia_master/ui/screens/setup/before_start_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/settings_screen.dart';
 import 'package:mafia_master/ui/screens/setup/setup_draft.dart';
 import '../support/stores.dart';
@@ -100,6 +101,9 @@ void main() {
       expect(find.byType(SettingsScreen), findsOneWidget);
       await tester.tap(find.byKey(SettingsScreen.saveButton));
       await tester.pumpAndSettle();
+      // «قبل ما تبدأوا» comes first; the deal waits for its button.
+      await tester.tap(find.byKey(BeforeStartKeys.go));
+      await tester.pumpAndSettle();
 
       // The engine now has a real match, seated in the order that was typed.
       final match = container
@@ -137,6 +141,9 @@ void main() {
       expect(chosen, isNotNull);
 
       await tester.tap(find.byKey(SettingsScreen.saveButton));
+      await tester.pumpAndSettle();
+      // «قبل ما تبدأوا» comes first; the deal waits for its button.
+      await tester.tap(find.byKey(BeforeStartKeys.go));
       await tester.pumpAndSettle();
 
       final match = container
@@ -180,6 +187,9 @@ void main() {
       await tester.tap(find.text('حر'));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(SettingsScreen.saveButton));
+      await tester.pumpAndSettle();
+      // «قبل ما تبدأوا» comes first; the deal waits for its button.
+      await tester.tap(find.byKey(BeforeStartKeys.go));
       await tester.pumpAndSettle();
 
       final match = container

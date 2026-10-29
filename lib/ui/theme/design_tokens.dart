@@ -103,6 +103,31 @@ abstract final class ModeTokens {
   /// The frame inset inside a big card, and its radius.
   static const double frameInset = 7;
   static const double frameRadius = 9;
+
+  /// «قريبا» on the stories card: the art dimmed, the label in a ringed pill.
+  static const double soonScrimAlpha = 0.45;
+  static const double soonPillAlpha = 0.6;
+  static const double soonRingWidth = 1;
+
+  /// The least height the stage is drawn at, closed and turned over. A
+  /// shorter body (a phone on its side) scrolls the stage rather than
+  /// squeezing the cards past reading.
+  static const double stageMinHeight = 222;
+  static const double openMinHeight = 340;
+
+  /// The room kept above the cards for the line that says what to do.
+  static const double hintClear = 32;
+
+  /// The least height the two cards are drawn at, so they never collapse
+  /// under the title on a short screen.
+  static const double cardMinHeight = 150;
+}
+
+/// «قبل ما تبدأوا»: the numbered lines before an offline deal.
+abstract final class BeforeStartTokens {
+  /// The round number beside each line.
+  static const double badge = 24;
+  static const double lineGap = 10;
 }
 
 /// «قصص وتحقيقات»' own palette: ink brown ground, warm panels, parchment

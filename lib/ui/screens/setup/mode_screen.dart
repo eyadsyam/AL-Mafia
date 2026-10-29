@@ -38,6 +38,11 @@ class ModeScreen extends StatefulWidget {
   /// «قصص وتحقيقات»: a case to crack. Null hides the card.
   final VoidCallback? onPlayStories;
 
+  /// Stories is closed: its card is still dealt, with its art dimmed and
+  /// only «قريبا» on it, and a tap on it does nothing. Ignored when
+  /// [onPlayStories] is set.
+  final bool storiesSoon;
+
   /// Back to Home.
   final VoidCallback onBack;
 
@@ -47,6 +52,7 @@ class ModeScreen extends StatefulWidget {
     required this.onPlayOnline,
     this.onPlayBots,
     this.onPlayStories,
+    this.storiesSoon = false,
     required this.onBack,
   });
 
@@ -56,6 +62,7 @@ class ModeScreen extends StatefulWidget {
   static const Key botsCard = ValueKey('mode_bots');
   static const Key storiesCard = ValueKey('mode_stories');
   static const Key unavailableText = ValueKey('mode_unavailable');
+  static const Key soonLabel = ValueKey('mode_stories_soon');
   static const Key closeButton = ValueKey('mode_close');
 
   /// A story's scene rather than a face: the case, not a character.
@@ -77,8 +84,12 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
   );
   bool _isOpen = false;
   bool _started = false;
+  final ScrollController _scroll = ScrollController();
 
   bool get _still => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+
+  /// The stories card is on the stage, playable or «قريبا».
+  bool get _showStories => widget.onPlayStories != null || widget.storiesSoon;
 
   @override
   void didChangeDependencies() {
@@ -92,12 +103,14 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
   void dispose() {
     _deal.dispose();
     _open.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
   void _setOpen(bool open) {
     if (_isOpen == open) return;
     setState(() => _isOpen = open);
+    if (!open && _scroll.hasClients) _scroll.jumpTo(0);
     if (_still) {
       _open.value = open ? 1 : 0;
     } else if (open) {
@@ -173,9 +186,31 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
               desktopFullWidth: desktop,
               hideHeader: desktop,
                   body: LayoutBuilder(
-                    builder: (context, box) => desktop
-                        ? _desktopStage(context, box.biggest)
-                        : _stage(context, box.biggest),
+                    builder: (context, box) {
+                      if (desktop) return _desktopStage(context, box.biggest);
+                      // A short body (a phone on its side) is not squeezed:
+                      // the stage keeps the height the small cards need and
+                      // the body scrolls once the Mafia card is turned. The
+                      // closed pair is laid out in what is visible.
+                      const least = ModeTokens.openMinHeight;
+                      if (box.maxHeight >= least) {
+                        return _stage(context, box.biggest);
+                      }
+                      return SingleChildScrollView(
+                        controller: _scroll,
+                        physics: _isOpen
+                            ? null
+                            : const NeverScrollableScrollPhysics(),
+                        child: SizedBox(
+                          height: least,
+                          child: _stage(
+                            context,
+                            Size(box.maxWidth, least),
+                            visibleHeight: box.maxHeight,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -214,6 +249,16 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
           title: l.modeStoriesCardTitle,
           body: l.modeStoriesCardBody,
           onTap: widget.onPlayStories,
+        )
+      else if (widget.storiesSoon)
+        // Listed so the ways stay three, but inert: no key press opens it.
+        _Way(
+          key: ModeScreen.storiesCard,
+          art: ModeScreen.storiesArt,
+          face: false,
+          title: l.modeStoriesSoonName,
+          body: l.modeStoriesSoon,
+          onTap: null,
         )
       else if (widget.onPlayBots != null)
         _Way(
@@ -308,7 +353,7 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
                     SizedBox(height: s.sm),
                   ],
                   Text(
-                    '1-${ways.length}  ${context.l10n.keyChoose}     Esc  ${context.l10n.keyBack}',
+                    '1-${ways.where((w) => w.key != ModeScreen.storiesCard || w.onTap != null).length}  ${context.l10n.keyChoose}     Esc  ${context.l10n.keyBack}',
                     style: context.typography.caption.copyWith(
                       color: colors.textSecondary,
                     ),
@@ -334,7 +379,7 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _stage(BuildContext context, Size size) {
+  Widget _stage(BuildContext context, Size size, {double? visibleHeight}) {
     final l10n = context.l10n;
     final s = context.spacing;
     final rtl = Directionality.of(context) == TextDirection.rtl;
@@ -342,16 +387,22 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
     final dir = rtl ? 1.0 : -1.0;
     final w = size.width;
     final h = size.height;
+    // The closed pair is laid out in the part of the stage the player sees.
+    final hc = math.max(visibleHeight ?? h, ModeTokens.stageMinHeight);
 
-    final cw = math.min(
-      w * ModeTokens.cardWidth,
-      h * ModeTokens.cardMaxHeight / ModeTokens.cardAspect,
+    final cw = math.max(
+      math.min(
+        w * ModeTokens.cardWidth,
+        hc * ModeTokens.cardMaxHeight / ModeTokens.cardAspect,
+      ),
+      ModeTokens.cardMinHeight / ModeTokens.cardAspect,
     );
     final ch = cw * ModeTokens.cardAspect;
-    final closedTop = math.max(0.0, (h - ch) / 2 - s.lg);
+    // Never up under the line that says what to do.
+    final closedTop = math.max(ModeTokens.hintClear, (hc - ch) / 2 - s.lg);
     // Alone (Stories closed), the Mafia card stands upright in the middle
     // instead of leaning towards a card that is not there.
-    final alone = widget.onPlayStories == null;
+    final alone = !_showStories;
     final mafiaX = alone ? w / 2 : w / 2 + dir * ModeTokens.fanSpread * cw;
     final mafiaTilt = alone ? 0.0 : ModeTokens.fanTilt;
     final storiesX = w / 2 - dir * ModeTokens.fanSpread * cw;
@@ -392,9 +443,12 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
     final waysTop = ch * ModeTokens.openScale + s.lg;
     // As tall as the room under the turned card allows, down to the line
     // that names them and the way back.
-    final mh = math.min(
-      mw * ModeTokens.wayAspect,
-      h - waysTop - s.md - ModeTokens.pickLine - DeckTokens.rim - s.md * 2,
+    final mh = math.max(
+      0.0,
+      math.min(
+        mw * ModeTokens.wayAspect,
+        h - waysTop - s.md - ModeTokens.pickLine - DeckTokens.rim - s.md * 2,
+      ),
     );
     final step = mw + ModeTokens.wayGap;
     final firstX = w / 2 + dir * step * (ways.length - 1) / 2;
@@ -428,13 +482,21 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
         title: l10n.modeMafiaTitle,
       ),
     );
+    final soon = widget.onPlayStories == null;
     final stories = RepaintBoundary(
-      child: _PlayCard(
-        art: ModeScreen.storiesArt,
-        width: cw,
-        title: l10n.modeStoriesCardTitle,
-        body: l10n.modeStoriesCardBody,
-      ),
+      child: soon
+          ? _PlayCard(
+              art: ModeScreen.storiesArt,
+              width: cw,
+              title: l10n.modeStoriesSoonName,
+              soon: l10n.modeStoriesSoon,
+            )
+          : _PlayCard(
+              art: ModeScreen.storiesArt,
+              width: cw,
+              title: l10n.modeStoriesCardTitle,
+              body: l10n.modeStoriesCardBody,
+            ),
     );
 
     return Stack(
@@ -456,14 +518,17 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
             ),
           ),
         ),
-        if (widget.onPlayStories != null)
+        if (_showStories)
           AnimatedBuilder(
             animation: Listenable.merge([_deal, _open]),
             child: IgnorePointer(
               ignoring: _isOpen,
               child: DeckPress(
+                enabled: !soon,
                 child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
+                  cursor: soon
+                      ? SystemMouseCursors.basic
+                      : SystemMouseCursors.click,
                   child: GestureDetector(
                     key: ModeScreen.storiesCard,
                     behavior: HitTestBehavior.opaque,
@@ -709,11 +774,15 @@ class _PlayCard extends StatelessWidget {
   final String title;
   final String? body;
 
+  /// «قريبا»: the art is dimmed and this stands in its middle.
+  final String? soon;
+
   const _PlayCard({
     required this.art,
     required this.width,
     required this.title,
     this.body,
+    this.soon,
   });
 
   @override
@@ -747,6 +816,12 @@ class _PlayCard extends StatelessWidget {
               gaplessPlayback: true,
               excludeFromSemantics: true,
             ),
+            if (soon != null)
+              ColoredBox(
+                color: DeckTokens.ground.withValues(
+                  alpha: ModeTokens.soonScrimAlpha,
+                ),
+              ),
             Positioned.fill(
               child: Padding(
                 padding: const EdgeInsets.all(ModeTokens.frameInset),
@@ -762,6 +837,35 @@ class _PlayCard extends StatelessWidget {
                 ),
               ),
             ),
+            if (soon != null)
+              Center(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: DeckTokens.ground.withValues(
+                      alpha: ModeTokens.soonPillAlpha,
+                    ),
+                    borderRadius: BorderRadius.circular(context.radii.button),
+                    border: Border.all(
+                      color: DeckTokens.bone,
+                      width: ModeTokens.soonRingWidth,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: context.spacing.md,
+                    ),
+                    child: Text(
+                      soon!,
+                      key: ModeScreen.soonLabel,
+                      textAlign: TextAlign.center,
+                      style: DeckTokens.card(type).copyWith(
+                        color: DeckTokens.bone,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             PositionedDirectional(
               start: 0,
               end: 0,
