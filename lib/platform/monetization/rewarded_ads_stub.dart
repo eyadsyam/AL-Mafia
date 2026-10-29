@@ -9,6 +9,31 @@ InterstitialAds createInterstitialAds() => const _NoInterstitialAds();
 AppOpenAds createAppOpenAds() => const _NoAppOpenAds();
 BannerAds createBannerAds() => const _NoBannerAds();
 NativeAds createNativeAds() => const _NoNativeAds();
+ShellBannerAds createShellBannerAds() => const _NoShellBannerAds();
+
+BannerSizing createBannerSizing() => const _NoBannerSizing();
+
+class _NoBannerSizing implements BannerSizing {
+  const _NoBannerSizing();
+  @override
+  BannerSize? peek(int width, Orientation orientation) => null;
+  @override
+  Future<BannerSize?> resolve(int width, Orientation orientation) async =>
+      null;
+}
+
+class _NoShellBannerAds implements ShellBannerAds {
+  const _NoShellBannerAds();
+  @override
+  bool get configured => false;
+  @override
+  Widget band({
+    Key? key,
+    required String label,
+    required bool visible,
+    required BannerSize? size,
+  }) => SizedBox.shrink(key: key);
+}
 
 class _NoNativeAds implements NativeAds {
   const _NoNativeAds();

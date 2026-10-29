@@ -24,6 +24,14 @@ void main() {
     'lib/ui/economy/native_ad_card.dart',
   };
 
+  // WP4: the shell host (banner_mode = shell) owns the one banner above the
+  // router. It decides by an allowlist of waiting paths and never uses
+  // WaitingBanner itself.
+  const hosts = {
+    'lib/ui/economy/shell_banner_host.dart',
+    'lib/ui/economy/banner_frame.dart',
+  };
+
   // Screens a banner must never touch, whatever the allowlist says later.
   const gameplay = [
     'lib/ui/screens/distribution/',
@@ -55,7 +63,10 @@ void main() {
     for (final file in dartFiles()) {
       final path = rel(file);
       final text = file.readAsStringSync();
-      if (text.contains('WaitingBanner(') && !allowed.contains(path)) {
+      // The host calls only `shouldShowWaitingBanner(` (a substring match).
+      if (text.contains('WaitingBanner(') &&
+          !allowed.contains(path) &&
+          !hosts.contains(path)) {
         offenders.add(path);
       }
     }
@@ -82,6 +93,15 @@ void main() {
     for (final file in dartFiles()) {
       final path = rel(file);
       final text = file.readAsStringSync();
+      if (text.contains('shellBannerAdsProvider')) {
+        expect(
+          path,
+          anyOf(
+            'lib/ui/economy/shell_banner_host.dart',
+            'lib/platform/monetization/ad_formats.dart',
+          ),
+        );
+      }
       if (text.contains('bannerAdsProvider')) {
         expect(
           path,
@@ -94,6 +114,44 @@ void main() {
       if (text.contains('BannerAd(')) {
         expect(path, 'lib/platform/monetization/rewarded_ads_mobile.dart');
       }
+    }
+  });
+
+  test('ads are never shrunk: the 320x50 banner size is used nowhere', () {
+    for (final file in dartFiles()) {
+      final text = file.readAsStringSync();
+      expect(text.contains('AdSize.banner,'), isFalse, reason: rel(file));
+      expect(text.contains('AdSize.banner)'), isFalse, reason: rel(file));
+    }
+    // The only banner size the app asks Google for is the large anchored
+    // adaptive one.
+    final mobile = File(
+      'lib/platform/monetization/rewarded_ads_mobile.dart',
+    ).readAsStringSync();
+    expect(
+      mobile.contains('getLargeAnchoredAdaptiveBannerAdSizeWithOrientation'),
+      isTrue,
+    );
+  });
+
+  test('the shell host is not a gameplay file and is mounted in app.dart', () {
+    for (final path in hosts) {
+      for (final prefix in gameplay) {
+        expect(path.startsWith(prefix), isFalse, reason: path);
+      }
+      expect(File(path).existsSync(), isTrue, reason: path);
+    }
+    final app = File('lib/app/app.dart').readAsStringSync();
+    expect(app.contains('ShellBannerHost('), isTrue);
+    // Only the app shell mounts it.
+    for (final file in dartFiles()) {
+      final path = rel(file);
+      if (path == 'lib/app/app.dart' || hosts.contains(path)) continue;
+      expect(
+        file.readAsStringSync().contains('ShellBannerHost('),
+        isFalse,
+        reason: path,
+      );
     }
   });
 

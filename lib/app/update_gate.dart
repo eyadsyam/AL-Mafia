@@ -407,6 +407,7 @@ class _UpdateGateState extends ConsumerState<UpdateGate>
   Widget build(BuildContext context) {
     final covered = _hard || _softShowing;
     final web = ref.read(updateSurfaceProvider) == UpdateSurface.web;
+    final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     // The child is always the first, unconditional entry of the same Stack,
     // so raising the screen never remounts the router underneath it.
     return Stack(
@@ -416,15 +417,44 @@ class _UpdateGateState extends ConsumerState<UpdateGate>
           excluding: covered,
           child: IgnorePointer(ignoring: covered, child: widget.child),
         ),
-        if (covered)
-          Positioned.fill(
-            child: _UpdateScreen(
-              key: _hard ? UpdateGate.sheetKey : UpdateGate.softKey,
-              web: web,
-              soft: !_hard,
-              onLater: _later,
+        // The screen settles in and fades away; a screen on its way out
+        // takes no taps and is not read.
+        Positioned.fill(
+          child: AnimatedSwitcher(
+            duration: reduce ? DeckTokens.reduced : DeckTokens.sheet,
+            reverseDuration: reduce ? DeckTokens.reduced : DeckTokens.sheetExit,
+            switchInCurve: DeckTokens.sheetCurve,
+            switchOutCurve: DeckTokens.sheetExitCurve,
+            layoutBuilder: (current, previous) => Stack(
+              fit: StackFit.expand,
+              children: [
+                for (final p in previous)
+                  IgnorePointer(child: ExcludeSemantics(child: p)),
+                if (current != null) current,
+              ],
             ),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: reduce
+                  ? child
+                  : ScaleTransition(
+                      scale: Tween<double>(
+                        begin: DeckTokens.gateScaleFrom,
+                        end: 1,
+                      ).animate(animation),
+                      child: child,
+                    ),
+            ),
+            child: covered
+                ? _UpdateScreen(
+                    key: _hard ? UpdateGate.sheetKey : UpdateGate.softKey,
+                    web: web,
+                    soft: !_hard,
+                    onLater: _later,
+                  )
+                : null,
           ),
+        ),
       ],
     );
   }

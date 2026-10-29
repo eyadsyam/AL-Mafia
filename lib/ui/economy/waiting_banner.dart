@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/update_gate.dart' show BannerMode, bannerModeProvider;
 import '../../platform/monetization/ad_formats.dart';
 export '../../platform/monetization/ad_formats.dart' show BannerPlacement;
 import '../fun/loaded_capabilities.dart';
@@ -21,8 +22,12 @@ bool shouldShowWaitingBanner(EconomyCapabilities? caps) =>
 /// pass-the-phone screen, a dialog, or beside a primary button:
 /// `test/unit/banner_placement_test.dart` fails if this widget appears in any
 /// file outside its allowlist. It is a zero-size box unless the build has a
-/// banner unit, the server switched banners on, the player has no Quiet Pass,
-/// and an ad actually filled. Web uses a house creative when Google has no fill.
+/// banner unit, the capabilities are loaded, the server switched banners on
+/// and the player has no Quiet Pass. Once all of that holds its place is
+/// reserved from the first frame whether or not an ad ever fills (WP4), so
+/// nothing moves when it arrives. With `banner_mode = shell` it draws nothing
+/// (the shell host owns the one banner). Web uses a house creative when Google
+/// has no fill.
 class WaitingBanner extends ConsumerStatefulWidget {
   /// On a surface whose primary action sits above the banner (the lobby's
   /// Start button), the banner keeps [AdTokens.bannerActionClearance] clear
@@ -58,16 +63,79 @@ class _WaitingBannerState extends ConsumerState<WaitingBanner> {
     // Once something else has asked, the answer is watched.
     final caps = loadedCapabilities(ref);
     if (caps == null) recheckCapabilitiesAfterFrame(this);
-    if (!shouldShowWaitingBanner(caps)) {
-      return const SizedBox.shrink();
+    final eligible = shouldShowWaitingBanner(caps);
+
+    // banner_mode = shell: the host above the router draws the one banner and
+    // already shortens the body, so there is nothing to draw here. The one
+    // thing a surface keeps is the clearance under its primary action.
+    if (ref.watch(bannerModeProvider) == BannerMode.shell) {
+      return eligible && widget.belowPrimaryAction
+          ? const SizedBox(height: AdTokens.bannerActionClearance)
+          : const SizedBox.shrink();
     }
-    return ads.slot(
-      key: WaitingBanner.slotKey,
-      label: context.l10n.adBannerLabel,
-      gap: widget.belowPrimaryAction
-          ? AdTokens.bannerActionClearance
-          : context.spacing.md,
-      placement: widget.placement,
+
+    // Eligible: the place is reserved from this frame on (the slot is a fixed
+    // box, filled or not), so the ad arriving moves nothing. A player who
+    // goes ad-free mid-screen closes it over a short ease; growing is never
+    // animated.
+    final reduce = MediaQuery.disableAnimationsOf(context);
+    return _ReservedBand(
+      collapse: reduce ? Duration.zero : AdTokens.bannerCollapse,
+      child: eligible
+          ? ads.slot(
+              key: WaitingBanner.slotKey,
+              label: context.l10n.adBannerLabel,
+              gap: widget.belowPrimaryAction
+                  ? AdTokens.bannerActionClearance
+                  : context.spacing.md,
+              placement: widget.placement,
+            )
+          : null,
+    );
+  }
+}
+
+/// Holds the slot's place at full height while [child] is there, and when it
+/// goes (the player turned ad-free) keeps the last slot on screen just long
+/// enough to close over [collapse] instead of snapping. Opening is never
+/// animated: a place that is reserved is reserved at once.
+class _ReservedBand extends StatefulWidget {
+  final Widget? child;
+  final Duration collapse;
+  const _ReservedBand({required this.child, required this.collapse});
+
+  @override
+  State<_ReservedBand> createState() => _ReservedBandState();
+}
+
+class _ReservedBandState extends State<_ReservedBand> {
+  Widget? _held;
+
+  @override
+  Widget build(BuildContext context) {
+    final open = widget.child != null;
+    if (open) _held = widget.child;
+    final held = _held;
+    if (held == null) return const SizedBox.shrink();
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: open ? 1 : 0),
+      duration: open ? Duration.zero : widget.collapse,
+      curve: Curves.easeOut,
+      onEnd: () {
+        if (mounted && widget.child == null) setState(() => _held = null);
+      },
+      child: held,
+      builder: (context, factor, child) => factor == 0
+          ? const SizedBox.shrink()
+          : ClipRect(
+              clipBehavior: factor == 1 ? Clip.none : Clip.hardEdge,
+              child: Align(
+                alignment: Alignment.topCenter,
+                widthFactor: 1,
+                heightFactor: factor,
+                child: child,
+              ),
+            ),
     );
   }
 }

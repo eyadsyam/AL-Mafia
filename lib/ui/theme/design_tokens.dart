@@ -303,6 +303,11 @@ abstract final class DeckTokens {
   static const Curve sheetCurve = Easing.emphasizedDecelerate;
   static const Curve sheetExitCurve = Easing.emphasizedAccelerate;
 
+  /// The update screen settles in from [gateScaleFrom] while it fades, over
+  /// [sheet], and fades away over [sheetExit]. With reduced motion it only
+  /// fades, over [reduced].
+  static const double gateScaleFrom = 0.96;
+
   /// Cards arrive once: each rises [enterRise] dp and fades in over [enter],
   /// the next one [enterStagger] later. Only transform and opacity move, so
   /// nothing is laid out again while it plays.
@@ -2323,6 +2328,34 @@ abstract final class AdTokens {
   /// Below this screen height (a phone on its side) the lobby has no room
   /// for a banner that clear of Start: it shows none.
   static const bannerMinLobbyHeight = 560.0;
+
+  /// WP4: the banner's place is reserved before the ad arrives, so nothing
+  /// moves when it fills. The ad is the large anchored adaptive banner, whose
+  /// height depends only on width and orientation and is resolved ahead of
+  /// any request. This is the strip above it that carries the «إعلان» label
+  /// (a caption line, 12 x 1.6, rounded up).
+  static const bannerLabelStrip = 20.0;
+
+  /// The framed slot's own height on top of the ad: the frame on both sides,
+  /// the label gap and the label strip. Whatever the surface adds above the
+  /// slot (the gap) is its own.
+  static const bannerSlotChrome =
+      2 * bannerFrame + bannerLabelGap + bannerLabelStrip;
+
+  /// Reserved for a slot whose adaptive size has not been resolved yet (only
+  /// the very first banner of a session, before the host's early resolve has
+  /// answered): the usual large adaptive height at 360-412 dp. A slot never
+  /// shrinks below what it reserved; it only grows if Google's answer is
+  /// taller.
+  static const bannerAdaptiveFloor = 100.0;
+
+  /// The one shell band (banner_mode = shell): the adaptive ad with a little
+  /// air above and below it, under a hairline drawn on its top edge.
+  static const bannerBandPad = 6.0;
+  static const bannerBandRule = 1.0;
+
+  /// A reserved band whose player went ad-free closes over this, not a snap.
+  static const bannerCollapse = Duration(milliseconds: 180);
 }
 
 /// Phase 109: awards, reactions, welcome-back, Founder badge.
