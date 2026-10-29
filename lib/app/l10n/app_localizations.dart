@@ -13104,6 +13104,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not now'**
   String get accountNotNow;
+
+  /// No description provided for @nightLineMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a player to kill tonight. If you split, the most-voted dies.'**
+  String get nightLineMafia;
+
+  /// No description provided for @nightLineSilencer.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one player to silence. They cannot vote tomorrow.'**
+  String get nightLineSilencer;
+
+  /// No description provided for @nightLineDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a player to protect. Not the same one two nights.'**
+  String get nightLineDoctor;
+
+  /// No description provided for @nightLineDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one player to check tonight. You will see the result.'**
+  String get nightLineDetective;
+
+  /// No description provided for @nightLineElder.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one player you doubt, or leave tonight with no pick.'**
+  String get nightLineElder;
+
+  /// No description provided for @nightLineSniper.
+  ///
+  /// In en, this message translates to:
+  /// **'You have one bullet. If you pick someone tonight, it fires.'**
+  String get nightLineSniper;
+
+  /// No description provided for @nightLineSniperSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'The bullet is gone. Tonight\'s pick is only a suspicion.'**
+  String get nightLineSniperSpent;
+
+  /// No description provided for @nightLineCitizen.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to pick tonight. Wait until the day comes.'**
+  String get nightLineCitizen;
+
+  /// No description provided for @voteFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote for {name}'**
+  String voteFor(String name);
+
+  /// No description provided for @revoteBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Revote between the tied players'**
+  String get revoteBanner;
+
+  /// No description provided for @revoteSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'You can only pick {names}. If they tie again, nobody goes out.'**
+  String revoteSlot(String names);
+
+  /// No description provided for @revoteNamesJoiner.
+  ///
+  /// In en, this message translates to:
+  /// **' or '**
+  String get revoteNamesJoiner;
+
+  /// No description provided for @lobbyRoomHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Room {code}'**
+  String lobbyRoomHeader(String code);
+
+  /// No description provided for @lobbyMoreMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get lobbyMoreMenu;
+
+  /// No description provided for @lobbyWaitingForPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for more players. At least {min} needed.'**
+  String lobbyWaitingForPlayers(int min);
 }
 
 class _AppLocalizationsDelegate

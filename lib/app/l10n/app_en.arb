@@ -4666,5 +4666,48 @@
   "accountGuestIntro": "You are playing as a guest. If you sign up, your things and coins stay with you on any phone.",
   "accountContinueGoogle": "Continue with Google",
   "accountWithEmail": "With email",
-  "accountNotNow": "Not now"
+  "accountNotNow": "Not now",
+  "nightLineMafia": "Pick a player to kill tonight. If you split, the most-voted dies.",
+  "nightLineSilencer": "Pick one player to silence. They cannot vote tomorrow.",
+  "nightLineDoctor": "Pick a player to protect. Not the same one two nights.",
+  "nightLineDetective": "Pick one player to check tonight. You will see the result.",
+  "nightLineElder": "Pick one player you doubt, or leave tonight with no pick.",
+  "nightLineSniper": "You have one bullet. If you pick someone tonight, it fires.",
+  "nightLineSniperSpent": "The bullet is gone. Tonight's pick is only a suspicion.",
+  "nightLineCitizen": "Nothing to pick tonight. Wait until the day comes.",
+  "voteFor": "Vote for {name}",
+  "@voteFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "revoteBanner": "Revote between the tied players",
+  "revoteSlot": "You can only pick {names}. If they tie again, nobody goes out.",
+  "@revoteSlot": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "revoteNamesJoiner": " or ",
+  "lobbyRoomHeader": "Room {code}",
+  "@lobbyRoomHeader": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "lobbyMoreMenu": "More",
+  "lobbyWaitingForPlayers": "Waiting for more players. At least {min} needed.",
+  "@lobbyWaitingForPlayers": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  }
 }

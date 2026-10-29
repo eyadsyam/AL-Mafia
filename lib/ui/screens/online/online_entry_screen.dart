@@ -942,68 +942,13 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       s.screenMargin,
                                       s.screenMargin,
                                     ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                l.onlineRoomCode,
-                                                style: context.typography.title,
-                                              ),
-                                            ),
-                                            IconButton(
-                                              key: OnlineEntryScreen
-                                                  .closeCodeButton,
-                                              onPressed: () =>
-                                                  _go(_Step.browse),
-                                              icon: const Icon(Icons.close),
-                                              tooltip: MaterialLocalizations.of(
-                                                context,
-                                              ).closeButtonTooltip,
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: s.sm),
-                                        TextField(
-                                          key: OnlineEntryScreen.codeField,
-                                          controller: _code,
-                                          maxLength: 6,
-                                          textCapitalization:
-                                              TextCapitalization.characters,
-                                          textDirection: TextDirection.ltr,
-                                          onChanged: (_) => setState(() {}),
-                                          decoration: InputDecoration(
-                                            labelText: l.onlineRoomCode,
-                                            hintText: l.onlineRoomCodeHint,
-                                          ),
-                                        ),
-                                        SizedBox(height: s.sm),
-                                        if (error != null)
-                                          Text(
-                                            error,
-                                            key: OnlineEntryScreen.errorText,
-                                            style: context.typography.body
-                                                .copyWith(
-                                                  color: c.accentCrimson,
-                                                ),
-                                          ),
-                                        FilledButton.icon(
-                                          key: OnlineEntryScreen.joinButton,
-                                          icon: const Icon(Icons.login),
-                                          label: Text(l.onlineJoinRoom),
-                                          onPressed:
-                                              state.busy ||
-                                                  !RegExp(
-                                                    r'^[A-Za-z0-9]{6}$',
-                                                  ).hasMatch(_code.text.trim())
-                                              ? null
-                                              : () => _enter(),
-                                        ),
-                                      ],
+                                    child: _JoinCodeSheetBody(
+                                      controller: _code,
+                                      error: error,
+                                      busy: state.busy,
+                                      onChanged: () => setState(() {}),
+                                      onClose: () => _go(_Step.browse),
+                                      onJoin: () => _enter(),
                                     ),
                                   ),
                                 ),
@@ -1019,6 +964,123 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The body of the «ادخل بكود» sheet (#u6).
+///
+/// The field and its button are the only things this sheet is for, so they are
+/// the only things that may not leave the screen. With the keyboard up on a
+/// phone on its side the room left above it is under 200dp: there the title row
+/// folds away, and the field, the button and the close control share one line,
+/// instead of the stack overflowing under the keys.
+class _JoinCodeSheetBody extends StatelessWidget {
+  final TextEditingController controller;
+  final String? error;
+  final bool busy;
+  final VoidCallback onChanged;
+  final VoidCallback onClose;
+  final VoidCallback onJoin;
+
+  const _JoinCodeSheetBody({
+    required this.controller,
+    required this.error,
+    required this.busy,
+    required this.onChanged,
+    required this.onClose,
+    required this.onJoin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final c = context.colors;
+    final valid = RegExp(r'^[A-Za-z0-9]{6}$').hasMatch(controller.text.trim());
+    final canJoin = !busy && valid;
+    final compact =
+        MediaQuery.sizeOf(context).height <
+        OnlineEntryTokens.compactSheetScreenHeight;
+
+    final closeButton = IconButton(
+      key: OnlineEntryScreen.closeCodeButton,
+      onPressed: onClose,
+      icon: const Icon(Icons.close),
+      tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+    );
+    final field = TextField(
+      key: OnlineEntryScreen.codeField,
+      controller: controller,
+      maxLength: 6,
+      textCapitalization: TextCapitalization.characters,
+      textDirection: TextDirection.ltr,
+      onChanged: (_) => onChanged(),
+      onSubmitted: (_) {
+        if (canJoin) onJoin();
+      },
+      scrollPadding: EdgeInsets.all(s.xl),
+      decoration: InputDecoration(
+        labelText: l.onlineRoomCode,
+        hintText: l.onlineRoomCodeHint,
+        // A counter is one more line under the field; it is not worth the
+        // height on a short screen.
+        counterText: compact ? '' : null,
+      ),
+    );
+    final errorText = error == null
+        ? null
+        : Text(
+            error!,
+            key: OnlineEntryScreen.errorText,
+            style: context.typography.body.copyWith(color: c.accentCrimson),
+          );
+    final joinButton = FilledButton.icon(
+      key: OnlineEntryScreen.joinButton,
+      icon: const Icon(Icons.login),
+      label: Text(l.onlineJoinRoom),
+      onPressed: canJoin ? onJoin : null,
+    );
+
+    if (compact) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (errorText != null) ...[errorText, SizedBox(height: s.xs)],
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: field),
+              SizedBox(width: s.sm),
+              Padding(
+                padding: EdgeInsets.only(top: s.xs),
+                child: joinButton,
+              ),
+              closeButton,
+            ],
+          ),
+        ],
+      );
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(l.onlineRoomCode, style: context.typography.title),
+            ),
+            closeButton,
+          ],
+        ),
+        SizedBox(height: s.sm),
+        field,
+        SizedBox(height: s.sm),
+        if (errorText != null) errorText,
+        joinButton,
+      ],
     );
   }
 }
