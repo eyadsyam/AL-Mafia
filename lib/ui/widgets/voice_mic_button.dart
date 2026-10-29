@@ -32,7 +32,12 @@ import 'voice_controls.dart';
 /// The switch only ever subtracts, like [VoiceControls]': turning the mute off
 /// restores what `micPolicyFor` and the server already allow, never more.
 class VoiceMicButton extends ConsumerWidget {
-  const VoiceMicButton({super.key});
+  /// Only the microphone. The playback / retry controls that normally sit
+  /// beside it are left out for a header that has room for one icon, and are
+  /// offered by the caller somewhere else (the lobby's «⋯» menu).
+  final bool compact;
+
+  const VoiceMicButton({super.key, this.compact = false});
 
   static const Key micKey = ValueKey('lobby_voice_mic');
 
@@ -76,13 +81,13 @@ class VoiceMicButton extends ConsumerWidget {
             ),
           ),
         ),
-        if (kIsWeb && controller != null)
+        if (!compact && kIsWeb && controller != null)
           TextButton.icon(
             onPressed: controller.enableAudio,
             icon: const Icon(Icons.volume_up_outlined),
             label: Text(l10n.voiceEnablePlayback),
           ),
-        if (!kIsWeb && controller != null)
+        if (!compact && !kIsWeb && controller != null)
           IconButton(
             tooltip: l10n.voiceRetry,
             onPressed: controller.enableAudio,

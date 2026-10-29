@@ -4,6 +4,7 @@ import '../support/stores.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mafia_master/transport/game_snapshot.dart' show PublicRoom;
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/screens/online/lobby_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_entry_screen.dart';
@@ -165,8 +166,15 @@ void main() {
       );
       expect(button.onPressed, isNull, reason: 'three players is not a match');
       expect(find.text(arStrings.onlineNeedFivePlayers), findsOneWidget);
-      expect(find.text(arStrings.publicRoomMissing(2)), findsOneWidget);
-      expect(find.text(arStrings.onlineLobbyInviteHint), findsOneWidget);
+      // #u6: one line, saying the minimum from the engine, not a count of
+      // what is missing and not a second hint beneath it.
+      expect(
+        find.text(
+          arStrings.lobbyWaitingForPlayers(PublicRoom.defaultMinPlayers),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text(arStrings.onlineLobbyInviteHint), findsNothing);
     });
 
     testWidgets('lets the host start once the table is big enough', (

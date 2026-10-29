@@ -20,6 +20,9 @@ import '../support/fake_backend.dart';
 import '../support/fake_voice_engine.dart';
 import '../support/localized.dart';
 
+/// The two tied seats of the revote tests, as the slot spells them.
+final revoteNames = ['B', 'C'].join(arStrings.revoteNamesJoiner);
+
 void main() {
   late FakeBackend backend;
   late OnlineTransport transport;
@@ -160,15 +163,19 @@ void main() {
     expect((shot['targetSeat'], shot['useBullet']), (1, true));
   });
 
-  testWidgets('a room without the shot keeps the Sniper\'s choice a suspicion', (
-    tester,
-  ) async {
-    await pumpTable(tester, phase: 'night', role: 'sniper');
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    await tester.pump();
-    await tester.pump();
-    expect(backend.lastCall('submit_night_action')!.body['useBullet'], isFalse);
-  });
+  testWidgets(
+    'a room without the shot keeps the Sniper\'s choice a suspicion',
+    (tester) async {
+      await pumpTable(tester, phase: 'night', role: 'sniper');
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      await tester.pump();
+      expect(
+        backend.lastCall('submit_night_action')!.body['useBullet'],
+        isFalse,
+      );
+    },
+  );
 
   testWidgets('a shot the server counts as spent still lands as a suspicion', (
     tester,
@@ -301,11 +308,12 @@ void main() {
       );
       await tester.pump();
       await tester.pump();
-      expect(find.text(arStrings.tieRevoteHeadline), findsOneWidget);
+      expect(find.text(arStrings.revoteBanner), findsOneWidget);
       await tester.tap(find.byKey(TableScene.seatKey(3)));
       await tester.pump();
       expect(find.text(arStrings.onlineChosen('D')), findsNothing);
-      expect(find.text(arStrings.onlineVoteSelectHint), findsOneWidget);
+      // #u6: the slot names the tied players the ballot is limited to.
+      expect(find.text(arStrings.revoteSlot(revoteNames)), findsOneWidget);
       await tester.tap(find.byKey(TableScene.seatKey(2)));
       await tester.pump();
       expect(find.text(arStrings.onlineChosen('C')), findsOneWidget);
@@ -346,7 +354,7 @@ void main() {
       await tester.pump();
       expect(find.text(arStrings.onlineVoteReceived), findsNothing);
       expect(find.byKey(OnlineTableFlow.confirmAction), findsOneWidget);
-      expect(find.text(arStrings.onlineVoteSelectHint), findsOneWidget);
+      expect(find.text(arStrings.revoteSlot(revoteNames)), findsOneWidget);
     },
   );
 
