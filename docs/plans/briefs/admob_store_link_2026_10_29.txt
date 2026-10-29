@@ -1,0 +1,28 @@
+Task: link the AdMob app «سيد المافيا: Mafia Master» to its public Google Play listing, so AdMob lifts limited ad serving. Then report the status.
+
+The owner asked for you (Codex) to do this in Chrome, not Claude.
+
+Where:
+- Use the owner's Chrome, where AdMob is already signed in. The account is eyadsyam124@gmail.com. In this Chrome it is authuser=0. Verify the account email on the page before you click anything.
+- AdMob app: ca-app-pub-9179063936085117~7320479940 (console id 7320479940).
+- App settings: https://admob.google.com/v2/apps/7320479940/settings?authuser=0
+- Play package: com.mafiamaster.mafia_master
+- Public listing: https://play.google.com/store/apps/details?id=com.mafiamaster.mafia_master
+
+Steps:
+1. Open a NEW Chrome tab yourself and go straight to the app settings URL above (do not reuse an old tab). Open the app settings. Read the current app status and the "app store details" section. Note them exactly.
+2. If the app is not linked to a store, use the "Add" / «إضافة» link next to the app store details. Search for com.mafiamaster.mafia_master or «سيد المافيا» on Google Play, and pick the listing with that exact package. A known route from an earlier note: Apps → «تطبيقات تحتاج إلى تأكيد» (apps to confirm) → Finish setup → add to the existing app. Use whichever route AdMob offers now.
+3. Confirm the link. If AdMob then offers "request review" for the app, request it. That is part of this task.
+4. Read the app status again and note it.
+
+Do not touch:
+- Ad units, mediation, eCPM floors, blocking controls, privacy/consent messages, payments, or account settings.
+- Do not create a new AdMob app. If the only option offered is "create a new app", stop and report it.
+- Do not accept any terms or agreements. If a dialog asks for that, stop and quote it exactly.
+- Do not edit files in the repo. Do not commit.
+
+Report:
+- The status before and after, quoted exactly.
+- Whether the store is now linked, with the package shown by AdMob.
+- Whether a review was requested.
+- Any dialog or blocker you hit, quoted exactly.

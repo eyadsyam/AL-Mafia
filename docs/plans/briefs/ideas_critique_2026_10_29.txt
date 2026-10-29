@@ -1,0 +1,27 @@
+Task: an adversarial critique of a feature-ideas draft for the Mafia Master app. Do not edit or create any file. Do not commit, build, or touch any live service. Your deliverable is your final message.
+
+Read docs/plans/NEXT-UPDATE-IDEAS.md (the draft, with live usage data). Ground every point in the code. Look at:
+- lib/app/router.dart (_offerBotMatch)
+- lib/platform/metrics.dart
+- the online room code: lib/transport, lib/ui/screens/online, and supabase/functions for rooms/invites
+- supabase/functions and migrations for push_outbox, friends and invites
+- docs/specs/05-zero-leakage-spec.md (it wins every argument)
+
+For each of the 6 ideas, report:
+- VERDICT: keep / change / drop, and one line why.
+- COST: S / M / L, naming the main files and server pieces it touches.
+- RISK: the biggest way it could hurt: role leakage, abuse in public rooms with strangers, privacy, ad policy, or Play policy.
+- EVIDENCE: file:line for what already exists and what is missing.
+
+Then:
+- Name up to 2 ideas the draft MISSED that the data points to: many installs, almost no online play, very few rewarded ads. Ground them in code.
+- Give your own top-3 order, with the reason.
+
+Constraints the ideas must respect:
+- Match rewards stay unchanged.
+- Ads are never reduced.
+- No family mode.
+- Stories stay parked.
+- No `if (isOnline)` in widgets, except voice and the connection banner.
+
+Mark anything you could not verify as UNVERIFIED.
