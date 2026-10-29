@@ -311,28 +311,37 @@ begin
   end;
 end $$;
 
--- A7. Reaction rate limit ------------------------------------------------------------
+-- A7. Fast reactions: 600 per rolling minute, then silent drops ----------------
 do $$
-declare p uuid[]; r uuid;
+declare p uuid[]; r uuid; i int; s jsonb;
 begin
   begin
     update economy_config set reactions_enabled=true;
     p := pg_temp.ar_six();
     r := pg_temp.ar_room(p, array[null,null,null,null,null,null]::text[], 'lobby','lobby');
-    perform public.send_room_reaction(p[1],r,'laugh');
-    perform public.send_room_reaction(p[1],r,'shock');
-    perform public.send_room_reaction(p[1],r,'skull');
-    begin perform public.send_room_reaction(p[1],r,'coffee'); assert false, 'burst of 4';
-    exception when others then assert sqlerrm='REACTION_RATE_LIMIT', 'limit: '||sqlerrm; end;
+    for i in 1..600 loop
+      s := public.send_room_reaction(p[1],r,'laugh');
+      assert s->>'ok'='true' and s->>'seat'='0' and s->>'kind'='laugh'
+        and s->>'dropped' is null, 'accepted '||i||': '||s::text;
+      if i=50 then
+        assert (select count(*) from room_reactions where room_id=r)=50,
+          '50 quick reactions';
+      end if;
+    end loop;
+    s := public.send_room_reaction(p[1],r,'coffee');
+    assert s='{"ok":true,"dropped":true}'::jsonb, '601 silently dropped: '||s::text;
+    assert (select count(*) from room_reactions where room_id=r)=600, '600 stored';
     -- Another player is not limited by the first.
-    perform public.send_room_reaction(p[2],r,'applause');
+    s := public.send_room_reaction(p[2],r,'applause');
+    assert s->>'ok'='true' and s->>'dropped' is null, 'other member';
     -- Once the window has passed, the first may react again.
-    update room_reactions set created_at=created_at - interval '5 seconds'
+    update room_reactions set created_at=created_at - interval '1 minute'
      where room_id=r and user_id=p[1];
-    perform public.send_room_reaction(p[1],r,'coffee');
-    assert (select count(*) from room_reactions where room_id=r and user_id=p[1])=4, 'count';
+    s := public.send_room_reaction(p[1],r,'coffee');
+    assert s->>'ok'='true' and s->>'dropped' is null, 'window reopened';
+    assert (select count(*) from room_reactions where room_id=r and user_id=p[1])=601, 'count';
     raise exception 'GATE_OK';
-  exception when assert_failure or others then perform pg_temp.ar_record('A7 rate limit', sqlerrm);
+  exception when assert_failure or others then perform pg_temp.ar_record('A7 fast reactions', sqlerrm);
   end;
 end $$;
 

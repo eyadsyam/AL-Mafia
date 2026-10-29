@@ -2284,11 +2284,13 @@ abstract final class FunTokens {
   static const double reactionFloat = 44.0;
   static const double reactionRise = 72.0;
   static const Duration reactionFloatDuration = Duration(milliseconds: 1600);
-
-  /// The client's side of the server's rate limit: a burst of three, then one
-  /// every 1.5 s.
-  static const Duration reactionInterval = Duration(milliseconds: 1500);
-  static const int reactionBurst = 3;
+  static const Duration reactionCoalesceWindow = Duration(milliseconds: 1200);
+  static const int reactionSeenIds = 1024;
+  static const double reactionBadgeGap = 2.0;
+  static const double reactionBadgeRadius = 999.0;
+  static const double reactionBadgePadding = 6.0;
+  static const Color reactionBadgeBackground = Color(0xFFF3E7CC);
+  static const Color reactionBadgeText = Color(0xFF211B1B);
 
   /// The daily strip greets with «وحشتنا» only after this long away.
   static const Duration welcomeBackAfter = Duration(days: 3);

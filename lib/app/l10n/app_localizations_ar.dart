@@ -3831,7 +3831,9 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get reactionSlowDown => 'بالراحة، واحدة واحدة';
+  String reactionCount(int count) {
+    return '×$count';
+  }
 
   @override
   String get cofferStripReady => 'صندوق النهارده جاهز';
