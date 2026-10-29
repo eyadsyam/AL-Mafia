@@ -20,12 +20,17 @@ class CompactBands extends StatelessWidget {
   final Expanded voice;
   final Expanded hand;
 
+  /// A strip that must always be in view (the lobby's reactions): its own
+  /// band over the hand, or under the council when the phone is on its side.
+  final Widget? strip;
+
   const CompactBands({
     super.key,
     required this.header,
     required this.council,
     required this.voice,
     required this.hand,
+    this.strip,
   });
 
   @override
@@ -47,7 +52,12 @@ class CompactBands extends StatelessWidget {
                     SizedBox(width: context.spacing.md),
                     Expanded(
                       flex: CouncilTokens.compactCouncilFlex,
-                      child: council.child,
+                      child: Column(
+                        children: [
+                          Expanded(child: council.child),
+                          ?strip,
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -56,7 +66,14 @@ class CompactBands extends StatelessWidget {
           );
         }
         return Column(
-          children: [header, const BandDivider(), council, voice, hand],
+          children: [
+            header,
+            const BandDivider(),
+            council,
+            voice,
+            ?strip,
+            hand,
+          ],
         );
       },
     );
