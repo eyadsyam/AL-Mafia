@@ -620,6 +620,12 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
                       onJoin: (code) => _router.go(Routes.joinLink(code)),
                       onOtherPush: _openOtherPush,
                       child: UpdateGate(
+                        currentPath: () => _router
+                            .routerDelegate
+                            .currentConfiguration
+                            .uri
+                            .path,
+                        routeChanges: _router.routerDelegate,
                         // Over every route and overlay (the vault included):
                         // the instant answer to a tap on a rewarded offer.
                         child: RewardedAdVeil(

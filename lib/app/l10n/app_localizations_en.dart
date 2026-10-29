@@ -5496,6 +5496,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateRequiredReload => 'Reload the page';
 
   @override
+  String get updateSoftTitle => 'A new version is out';
+
+  @override
+  String get updateSoftBody => 'A newer version of the game is on Google Play.';
+
+  @override
+  String get updateSoftNow => 'Update now';
+
+  @override
+  String get updateSoftLater => 'Later';
+
+  @override
+  String get updateStoreFailed =>
+      'We could not open Google Play. Open it and update the game.';
+
+  @override
   String get webAdAppCta => 'Download the app — fewer ads';
 
   @override
