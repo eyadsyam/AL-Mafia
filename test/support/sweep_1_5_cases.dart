@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,6 +53,7 @@ import 'package:mafia_master/ui/screens/setup/settings_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/bot_match_sheet.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
 import 'package:mafia_master/ui/social/friends.dart';
+import 'package:mafia_master/ui/theme/design_tokens.dart' show AdTokens;
 import 'package:mafia_master/ui/social/titles_partner.dart';
 import 'package:mafia_master/ui/fun/characters_screen.dart';
 import 'package:mafia_master/ui/screens/stories/stories_screen.dart';
@@ -550,11 +553,8 @@ class _SweepSession extends OnlineSession {
   );
 }
 
-OnlineTableFlow _table() => OnlineTableFlow(
-  onExit: () {},
-  onAnalytics: () {},
-  onStepCommitted: () {},
-);
+OnlineTableFlow _table() =>
+    OnlineTableFlow(onExit: () {}, onAnalytics: () {}, onStepCommitted: () {});
 
 /// Seals arriving for one seat, the same kind three times in a row: one float
 /// with ×3, then another seat's.
@@ -617,6 +617,7 @@ List<SweepCase> sweepCases() => [
       ),
     ),
     action: _settleLong,
+    banner: true,
   ),
   SweepCase(
     '01a_mode_stories_hidden',
@@ -629,6 +630,7 @@ List<SweepCase> sweepCases() => [
       ),
     ),
     action: _settleLong,
+    banner: true,
   ),
   SweepCase(
     '01b_mode_stories_open',
@@ -642,6 +644,7 @@ List<SweepCase> sweepCases() => [
       ),
     ),
     action: _settleLong,
+    banner: true,
   ),
   SweepCase(
     '02_settings',
@@ -841,12 +844,14 @@ List<SweepCase> sweepCases() => [
   ),
   SweepCase(
     '22b_account_signup',
-    (_) => _launcher((c, _) => showAccountSheet(c, initial: AccountStep.signUp)),
+    (_) =>
+        _launcher((c, _) => showAccountSheet(c, initial: AccountStep.signUp)),
     action: _openLauncher,
   ),
   SweepCase(
     '22c_account_signin',
-    (_) => _launcher((c, _) => showAccountSheet(c, initial: AccountStep.signIn)),
+    (_) =>
+        _launcher((c, _) => showAccountSheet(c, initial: AccountStep.signIn)),
     action: _openLauncher,
   ),
   SweepCase(
@@ -1037,6 +1042,18 @@ Future<void> prepareSweep(
   addTearDown(tester.view.reset);
 }
 
+/// The height the shell banner band reserves on a waiting surface (WP4): the
+/// large anchored adaptive banner (about a quarter of the width in portrait,
+/// never under the reserved floor; a shallow 60 on its side) plus the band's
+/// air above and below it. The band is there empty or filled, so the sweep
+/// always keeps it.
+double sweepBannerBand(Size size) {
+  final ad = size.width > size.height
+      ? 60.0
+      : math.max(AdTokens.bannerAdaptiveFloor, size.width * 0.27);
+  return ad + 2 * AdTokens.bannerBandPad;
+}
+
 Future<void> pumpSweepCase(
   WidgetTester tester,
   SweepCase item,
@@ -1051,7 +1068,7 @@ Future<void> pumpSweepCase(
           ? Column(
               children: [
                 Expanded(child: child),
-                const SizedBox(height: 50),
+                SizedBox(height: sweepBannerBand(size)),
               ],
             )
           : child,

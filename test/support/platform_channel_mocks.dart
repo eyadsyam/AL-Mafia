@@ -7,6 +7,13 @@ void installPlatformChannelMocks() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   const codec = StandardMethodCodec();
 
+  // The audio cache asks for a temp directory; any path will do, nothing is
+  // written for a sound that never plays.
+  messenger.setMockMethodCallHandler(
+    const MethodChannel('plugins.flutter.io/path_provider'),
+    (call) async => '.',
+  );
+
   void emptyEvent(String name) {
     messenger.setMockMessageHandler(
       name,
