@@ -8,9 +8,8 @@ import 'package:mafia_master/ui/economy/wallet.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/setup/coin_store.dart';
 import 'package:mafia_master/ui/screens/setup/optional_roles.dart';
-import 'package:mafia_master/ui/screens/setup/role_rows.dart';
+import 'package:mafia_master/ui/screens/setup/role_deal_grid.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
-import 'package:mafia_master/ui/widgets/deck/card_fan.dart';
 import 'package:mafia_master/ui/widgets/deck/deck_public.dart' show DeckChip;
 
 import '../support/artwork.dart';
@@ -87,15 +86,20 @@ void main() {
     return (dealt: dealt, optional: optional);
   }
 
-  int fan(WidgetTester tester) => tester
-      .widget<CardFan>(
-        find.descendant(
-          of: find.byKey(RolesScreen.fan),
-          matching: find.byType(CardFan),
-        ),
-      )
-      .cards
-      .length;
+  /// Every card the deal grid shows, summed: the whole table.
+  int fan(WidgetTester tester) => [
+    for (final r in Role.values)
+      int.parse(
+        tester
+            .widget<Text>(
+              find.descendant(
+                of: find.byKey(RoleDealGrid.count(r)),
+                matching: find.byType(Text),
+              ),
+            )
+            .data!,
+      ),
+  ].fold(0, (a, b) => a + b);
 
   Finder inc(String label) =>
       find.byTooltip('${arStrings.increaseRole} $label');
@@ -126,7 +130,12 @@ void main() {
     expect(fan(tester), 8);
     expect(
       tester
-          .widget<Text>(find.byKey(const ValueKey('roles_citizen_count')))
+          .widget<Text>(
+            find.descendant(
+              of: find.byKey(RoleDealGrid.count(Role.citizen)),
+              matching: find.byType(Text),
+            ),
+          )
           .data,
       '3',
     );
@@ -161,8 +170,13 @@ void main() {
   testWidgets('citizens are computed and cannot be edited', (tester) async {
     phone(tester, phones[1]);
     await pump(tester);
-    expect(find.byKey(RolesScreen.stepper(Role.citizen)), findsNothing);
-    expect(find.byKey(const ValueKey('roles_citizen_count')), findsOneWidget);
+    for (final key in [
+      RoleDealGrid.plus(Role.citizen),
+      RoleDealGrid.minus(Role.citizen),
+    ]) {
+      expect(tester.widget<IconButton>(find.byKey(key)).onPressed, isNull);
+    }
+    expect(find.byKey(RoleDealGrid.count(Role.citizen)), findsOneWidget);
   });
 
   testWidgets('not owned: the row is locked and the pill opens the store', (
@@ -171,11 +185,11 @@ void main() {
     phone(tester, phones[1]);
     await pump(tester);
     for (final r in OptionalRole.values) {
-      expect(find.byKey(OptionalRoleRows.switchKey(r)), findsNothing);
-      expect(find.byKey(OptionalRoleRows.lockKey(r)), findsOneWidget);
+      expect(find.byKey(RoleDealGrid.plus(r.role)), findsNothing);
+      expect(find.byKey(RoleDealGrid.lock(r.role)), findsOneWidget);
     }
     expect(find.text(arStrings.roleLockedPill), findsNWidgets(3));
-    final lock = find.byKey(OptionalRoleRows.lockKey(OptionalRole.sniper));
+    final lock = find.byKey(RoleDealGrid.lock(Role.sniper));
     await tester.ensureVisible(lock);
     await tester.tap(lock);
     await tester.pump();
@@ -193,8 +207,8 @@ void main() {
       owns: {'role_silencer', 'role_elder', 'role_sniper'},
     );
     for (final r in OptionalRole.values) {
-      await tester.ensureVisible(find.byKey(OptionalRoleRows.switchKey(r)));
-      await tester.tap(find.byKey(OptionalRoleRows.switchKey(r)));
+      await tester.ensureVisible(find.byKey(RoleDealGrid.plus(r.role)));
+      await tester.tap(find.byKey(RoleDealGrid.plus(r.role)));
       await tester.pumpAndSettle();
     }
     expect(fan(tester), 8);
@@ -212,10 +226,10 @@ void main() {
   testWidgets('a small table says why it cannot take a role', (tester) async {
     phone(tester, phones[1]);
     await pump(tester, players: 5, owns: {'role_elder', 'role_sniper'});
-    final sw = tester.widget<Switch>(
-      find.byKey(OptionalRoleRows.switchKey(OptionalRole.sniper)),
+    final plus = tester.widget<IconButton>(
+      find.byKey(RoleDealGrid.plus(Role.sniper)),
     );
-    expect(sw.onChanged, isNull);
+    expect(plus.onPressed, isNull);
     expect(find.text(arStrings.balanceSniperMinPlayers), findsOneWidget);
   });
 
@@ -227,7 +241,7 @@ void main() {
     expect(out.dealt, hasLength(1));
   });
 
-  testWidgets('reduced motion: the fan is simply there', (tester) async {
+  testWidgets('reduced motion: the deal is simply there', (tester) async {
     await loadArtwork(tester);
     phone(tester, phones[0]);
     await pump(tester, still: true);
@@ -239,7 +253,7 @@ void main() {
     expect(
       find
           .descendant(
-            of: find.byKey(RolesScreen.fan),
+            of: find.byKey(RoleDealGrid.card(Role.doctor)),
             matching: find.byType(Opacity),
           )
           .evaluate()

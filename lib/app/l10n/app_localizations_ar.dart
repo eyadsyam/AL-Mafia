@@ -7557,4 +7557,60 @@ class AppLocalizationsAr extends AppLocalizations {
   String lobbyWaitingForPlayers(int min) {
     return 'مستنيين لاعبين كمان. لازم $min على الأقل.';
   }
+
+  @override
+  String get rolesRuleOne => 'واحد بس';
+
+  @override
+  String rolesRuleFrom(int count) {
+    return 'من $count';
+  }
+
+  @override
+  String get rolesRuleRest => 'الباقي';
+
+  @override
+  String get rolesOwnedSeal => 'بتاعك';
+
+  @override
+  String rolesTownCount(int count) {
+    return 'المدينة $count';
+  }
+
+  @override
+  String rolesMafiaCount(int count) {
+    return 'المافيا $count';
+  }
+
+  @override
+  String get roleTeamTown => 'مع المدينة';
+
+  @override
+  String get roleTeamMafia => 'مع المافيا';
+
+  @override
+  String get rolesSheetMinPlayers => 'لاعيبة على الأقل';
+
+  @override
+  String get rolesSheetMax => 'أقصى عدد';
+
+  @override
+  String get rolesSheetNow => 'في الماتش ده';
+
+  @override
+  String get rolesSheetAdd => 'دخّله الماتش';
+
+  @override
+  String get rolesSheetRemove => 'مش الماتش ده';
+
+  @override
+  String get rolesSheetMore => 'زوّد واحد';
+
+  @override
+  String get rolesSheetLess => 'قلّل واحد';
+
+  @override
+  String rolesOpenCard(String name) {
+    return 'افتح كارت $name';
+  }
 }

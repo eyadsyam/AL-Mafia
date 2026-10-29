@@ -14,6 +14,7 @@ import 'package:mafia_master/ui/screens/online/room_settings_panel.dart';
 import 'package:mafia_master/ui/screens/setup/bot_match_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/optional_roles.dart';
 import 'package:mafia_master/ui/screens/setup/role_rows.dart';
+import 'package:mafia_master/ui/screens/setup/role_deal_grid.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/screens/setup/setup_draft.dart';
 
@@ -96,7 +97,7 @@ void main() {
       phone(tester);
       final c = await pumpRoles(tester, _all);
       for (final r in [OptionalRole.silencer, OptionalRole.elder]) {
-        final sw = find.byKey(OptionalRoleRows.switchKey(r));
+        final sw = find.byKey(RoleDealGrid.plus(r.role));
         await tester.ensureVisible(sw);
         await tester.tap(sw);
         await tester.pumpAndSettle();
@@ -116,8 +117,8 @@ void main() {
       phone(tester);
       final c = await pumpRoles(tester, const {});
       for (final r in OptionalRole.values) {
-        expect(find.byKey(OptionalRoleRows.switchKey(r)), findsNothing);
-        expect(find.byKey(OptionalRoleRows.lockKey(r)), findsOneWidget);
+        expect(find.byKey(RoleDealGrid.plus(r.role)), findsNothing);
+        expect(find.byKey(RoleDealGrid.lock(r.role)), findsOneWidget);
       }
       await tester.ensureVisible(find.byKey(RolesScreen.nextButton));
       await tester.tap(find.byKey(RolesScreen.nextButton));
@@ -192,7 +193,11 @@ void main() {
         dayNumber: 0,
         players: [
           for (var seat = 0; seat < 8; seat++)
-            PublicPlayer(seat: seat, name: 'P$seat', status: PlayerStatus.alive),
+            PublicPlayer(
+              seat: seat,
+              name: 'P$seat',
+              status: PlayerStatus.alive,
+            ),
         ],
       ),
     );

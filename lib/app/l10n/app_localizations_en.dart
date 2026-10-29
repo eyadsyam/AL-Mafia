@@ -7672,4 +7672,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String lobbyWaitingForPlayers(int min) {
     return 'Waiting for more players. At least $min needed.';
   }
+
+  @override
+  String get rolesRuleOne => 'One only';
+
+  @override
+  String rolesRuleFrom(int count) {
+    return 'From $count';
+  }
+
+  @override
+  String get rolesRuleRest => 'The rest';
+
+  @override
+  String get rolesOwnedSeal => 'Yours';
+
+  @override
+  String rolesTownCount(int count) {
+    return 'Town $count';
+  }
+
+  @override
+  String rolesMafiaCount(int count) {
+    return 'Mafia $count';
+  }
+
+  @override
+  String get roleTeamTown => 'With the town';
+
+  @override
+  String get roleTeamMafia => 'With the Mafia';
+
+  @override
+  String get rolesSheetMinPlayers => 'players at least';
+
+  @override
+  String get rolesSheetMax => 'most in a match';
+
+  @override
+  String get rolesSheetNow => 'in this match';
+
+  @override
+  String get rolesSheetAdd => 'Add to the match';
+
+  @override
+  String get rolesSheetRemove => 'Not this match';
+
+  @override
+  String get rolesSheetMore => 'One more';
+
+  @override
+  String get rolesSheetLess => 'One less';
+
+  @override
+  String rolesOpenCard(String name) {
+    return 'Open the $name card';
+  }
 }

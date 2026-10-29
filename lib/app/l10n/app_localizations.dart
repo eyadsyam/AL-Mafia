@@ -13194,6 +13194,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for more players. At least {min} needed.'**
   String lobbyWaitingForPlayers(int min);
+
+  /// No description provided for @rolesRuleOne.
+  ///
+  /// In en, this message translates to:
+  /// **'One only'**
+  String get rolesRuleOne;
+
+  /// No description provided for @rolesRuleFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {count}'**
+  String rolesRuleFrom(int count);
+
+  /// No description provided for @rolesRuleRest.
+  ///
+  /// In en, this message translates to:
+  /// **'The rest'**
+  String get rolesRuleRest;
+
+  /// No description provided for @rolesOwnedSeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Yours'**
+  String get rolesOwnedSeal;
+
+  /// No description provided for @rolesTownCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Town {count}'**
+  String rolesTownCount(int count);
+
+  /// No description provided for @rolesMafiaCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Mafia {count}'**
+  String rolesMafiaCount(int count);
+
+  /// No description provided for @roleTeamTown.
+  ///
+  /// In en, this message translates to:
+  /// **'With the town'**
+  String get roleTeamTown;
+
+  /// No description provided for @roleTeamMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'With the Mafia'**
+  String get roleTeamMafia;
+
+  /// No description provided for @rolesSheetMinPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'players at least'**
+  String get rolesSheetMinPlayers;
+
+  /// No description provided for @rolesSheetMax.
+  ///
+  /// In en, this message translates to:
+  /// **'most in a match'**
+  String get rolesSheetMax;
+
+  /// No description provided for @rolesSheetNow.
+  ///
+  /// In en, this message translates to:
+  /// **'in this match'**
+  String get rolesSheetNow;
+
+  /// No description provided for @rolesSheetAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to the match'**
+  String get rolesSheetAdd;
+
+  /// No description provided for @rolesSheetRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Not this match'**
+  String get rolesSheetRemove;
+
+  /// No description provided for @rolesSheetMore.
+  ///
+  /// In en, this message translates to:
+  /// **'One more'**
+  String get rolesSheetMore;
+
+  /// No description provided for @rolesSheetLess.
+  ///
+  /// In en, this message translates to:
+  /// **'One less'**
+  String get rolesSheetLess;
+
+  /// No description provided for @rolesOpenCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the {name} card'**
+  String rolesOpenCard(String name);
 }
 
 class _AppLocalizationsDelegate

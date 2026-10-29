@@ -19,7 +19,7 @@ import 'package:mafia_master/ui/screens/match_flow.dart';
 import 'package:mafia_master/ui/screens/night/night_action_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/setup/optional_roles.dart';
-import 'package:mafia_master/ui/screens/setup/role_rows.dart';
+import 'package:mafia_master/ui/screens/setup/role_deal_grid.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/night_grid.dart';
@@ -119,9 +119,7 @@ void _night(MatchEngine e, _Move? Function(int seat, Role role) choice) {
       );
     } else if (role == Role.doctor) {
       final target = e.match.players
-          .firstWhere(
-            (p) => p.status == PlayerStatus.alive && p.seat != actor,
-          )
+          .firstWhere((p) => p.status == PlayerStatus.alive && p.seat != actor)
           .seat;
       e.submitNightAction(
         seat: actor,
@@ -206,9 +204,7 @@ Future<void> _nightVia(
       );
     } else if (role == Role.doctor) {
       final target = c.engine.match.players
-          .firstWhere(
-            (p) => p.status == PlayerStatus.alive && p.seat != seat,
-          )
+          .firstWhere((p) => p.status == PlayerStatus.alive && p.seat != seat)
           .seat;
       await c.transport.submitNightAction(
         seat: seat,
@@ -261,9 +257,8 @@ Future<void> _pumpFlow(WidgetTester tester, ProviderContainer container) async {
 String _roleName(Role role) => EngineCopy.roleName(arStrings, role);
 
 /// The sentence the morning screen prints for its dead.
-String _morningFact(WidgetTester tester) => tester
-    .widget<Text>(find.byKey(const ValueKey('morning_fact')))
-    .data!;
+String _morningFact(WidgetTester tester) =>
+    tester.widget<Text>(find.byKey(const ValueKey('morning_fact'))).data!;
 
 /// No role is named for any of [names] on the morning screen: the whole
 /// «{name} كان {role}» line is absent for every role there is.
@@ -336,7 +331,10 @@ void main() {
       final dead = [citizen, mafia.last]..sort();
       expect(report.victimSeats, dead);
       expect(report.victimSeat, dead.first);
-      expect(e.match.eventLog.whereType<NightResolved>().last.victimSeats, dead);
+      expect(
+        e.match.eventLog.whereType<NightResolved>().last.victimSeats,
+        dead,
+      );
       for (final seat in dead) {
         expect(e.match.players[seat].status, PlayerStatus.dead);
       }
@@ -363,9 +361,10 @@ void main() {
 
       final both = table();
       final mafia = _seat(both, Role.mafia);
-      final last = _seats(both, Role.citizen).firstWhere(
-        (s) => both.match.players[s].status == PlayerStatus.alive,
-      );
+      final last = _seats(
+        both,
+        Role.citizen,
+      ).firstWhere((s) => both.match.players[s].status == PlayerStatus.alive);
       _night(
         both,
         (seat, role) => switch (role) {
@@ -413,7 +412,11 @@ void main() {
     ) async {
       await loadArtwork(tester);
       final container = _table();
-      final c = await _dealt(container, counts: _withSniper, settings: _sniperOn);
+      final c = await _dealt(
+        container,
+        counts: _withSniper,
+        settings: _sniperOn,
+      );
       await _nightVia(c, killAndShot(c.engine));
       final mafia = _seats(c.engine, Role.mafia);
       final citizen = _seats(c.engine, Role.citizen).first;
@@ -423,7 +426,9 @@ void main() {
 
       expect(
         _morningFact(tester),
-        arStrings.lostPlayerLastNight([for (final s in dead) 'P$s'].join(' · ')),
+        arStrings.lostPlayerLastNight(
+          [for (final s in dead) 'P$s'].join(' · '),
+        ),
       );
       _expectNoNightRole([for (final s in dead) 'P$s']);
     });
@@ -447,7 +452,9 @@ void main() {
 
       expect(
         _morningFact(tester),
-        arStrings.lostPlayerLastNight([for (final s in dead) 'P$s'].join(' · ')),
+        arStrings.lostPlayerLastNight(
+          [for (final s in dead) 'P$s'].join(' · '),
+        ),
       );
       final first = dead.first;
       expect(
@@ -463,38 +470,36 @@ void main() {
 
     // `testWidgets` takes a bool for `skip`; `group` takes the reason string.
     group('fast preset, second death', () {
-      _screenTest(
-        'the role of every night death is told, not only the first',
-        (tester) async {
-          await loadArtwork(tester);
-          final container = _table();
-          final c = await _dealt(
-            container,
-            counts: _withSniper,
-            settings: _fastSniper,
-          );
-          await _nightVia(c, killAndShot(c.engine));
-          final mafia = _seats(c.engine, Role.mafia);
-          final citizen = _seats(c.engine, Role.citizen).first;
-          final dead = [citizen, mafia.last]..sort();
+      _screenTest('the role of every night death is told, not only the first', (
+        tester,
+      ) async {
+        await loadArtwork(tester);
+        final container = _table();
+        final c = await _dealt(
+          container,
+          counts: _withSniper,
+          settings: _fastSniper,
+        );
+        await _nightVia(c, killAndShot(c.engine));
+        final mafia = _seats(c.engine, Role.mafia);
+        final citizen = _seats(c.engine, Role.citizen).first;
+        final dead = [citizen, mafia.last]..sort();
 
-          await _pumpFlow(tester, container);
+        await _pumpFlow(tester, container);
 
-          for (final seat in dead) {
-            expect(
-              find.text(
-                arStrings.victimWasRole(
-                  'P$seat',
-                  _roleName(c.engine.match.players[seat].role),
-                ),
+        for (final seat in dead) {
+          expect(
+            find.text(
+              arStrings.victimWasRole(
+                'P$seat',
+                _roleName(c.engine.match.players[seat].role),
               ),
-              findsOneWidget,
-              reason:
-                  'the fast preset tells a night death its role (seat $seat)',
-            );
-          }
-        },
-      );
+            ),
+            findsOneWidget,
+            reason: 'the fast preset tells a night death its role (seat $seat)',
+          );
+        }
+      });
     });
   });
 
@@ -563,7 +568,10 @@ void main() {
 
       await _pumpFlow(tester, container);
 
-      expect(_morningFact(tester), arStrings.lostPlayerLastNight('P$detective'));
+      expect(
+        _morningFact(tester),
+        arStrings.lostPlayerLastNight('P$detective'),
+      );
       _expectNoNightRole(['P$detective']);
     });
 
@@ -642,9 +650,8 @@ void main() {
       final sniper = _seat(e, Role.sniper);
       _night(
         e,
-        (seat, role) => role == Role.sniper
-            ? (NightActionKind.suspect, elder, true)
-            : null,
+        (seat, role) =>
+            role == Role.sniper ? (NightActionKind.suspect, elder, true) : null,
       );
       final report = e.resolveNight();
       expect(report.victimSeats, containsAll([elder, sniper]));
@@ -702,9 +709,8 @@ void main() {
       final sniper = _seat(c.engine, Role.sniper);
       await _nightVia(
         c,
-        (seat, role) => role == Role.sniper
-            ? (NightActionKind.suspect, elder, true)
-            : null,
+        (seat, role) =>
+            role == Role.sniper ? (NightActionKind.suspect, elder, true) : null,
       );
       final dead = [elder, sniper]..sort();
 
@@ -712,32 +718,36 @@ void main() {
 
       expect(
         _morningFact(tester),
-        arStrings.lostPlayerLastNight([for (final s in dead) 'P$s'].join(' · ')),
+        arStrings.lostPlayerLastNight(
+          [for (final s in dead) 'P$s'].join(' · '),
+        ),
       );
       _expectNoNightRole([for (final s in dead) 'P$s']);
     });
 
-    _screenTest('a vote death of the Elder shows the role on the reveal screen',
-        (tester) async {
-      await loadArtwork(tester);
-      final container = _table();
-      final c = await _dealt(
-        container,
-        counts: counts,
-        settings: _elderAndSniperOn,
-      );
-      final elder = _seat(c.engine, Role.elder);
-      await _nightVia(c, (_, _) => null);
-      await _voteVia(c, elder);
-      expect(c.engine.match.phase, GamePhase.reveal);
+    _screenTest(
+      'a vote death of the Elder shows the role on the reveal screen',
+      (tester) async {
+        await loadArtwork(tester);
+        final container = _table();
+        final c = await _dealt(
+          container,
+          counts: counts,
+          settings: _elderAndSniperOn,
+        );
+        final elder = _seat(c.engine, Role.elder);
+        await _nightVia(c, (_, _) => null);
+        await _voteVia(c, elder);
+        expect(c.engine.match.phase, GamePhase.reveal);
 
-      await _pumpFlow(tester, container);
+        await _pumpFlow(tester, container);
 
-      expect(
-        find.text(arStrings.wasRole(_roleName(Role.elder))),
-        findsOneWidget,
-      );
-    });
+        expect(
+          find.text(arStrings.wasRole(_roleName(Role.elder))),
+          findsOneWidget,
+        );
+      },
+    );
   });
 
   // ---------------------------------------------------------------------------
@@ -757,7 +767,11 @@ void main() {
         'names the seat and no role', (tester) async {
       await loadArtwork(tester);
       final container = _table();
-      final c = await _dealt(container, counts: _withSniper, settings: _sniperOn);
+      final c = await _dealt(
+        container,
+        counts: _withSniper,
+        settings: _sniperOn,
+      );
       final sniper = _seat(c.engine, Role.sniper);
       await _nightVia(c, mafiaKills(c.engine, sniper));
 
@@ -771,7 +785,11 @@ void main() {
         'are named, neither by role', (tester) async {
       await loadArtwork(tester);
       final container = _table();
-      final c = await _dealt(container, counts: _withSniper, settings: _sniperOn);
+      final c = await _dealt(
+        container,
+        counts: _withSniper,
+        settings: _sniperOn,
+      );
       final sniper = _seat(c.engine, Role.sniper);
       final citizen = _seats(c.engine, Role.citizen).first;
       await _nightVia(
@@ -786,31 +804,37 @@ void main() {
 
       expect(
         _morningFact(tester),
-        arStrings.lostPlayerLastNight([for (final s in dead) 'P$s'].join(' · ')),
+        arStrings.lostPlayerLastNight(
+          [for (final s in dead) 'P$s'].join(' · '),
+        ),
       );
       _expectNoNightRole([for (final s in dead) 'P$s']);
     });
 
-    _screenTest('fast preset: the Sniper\'s night death is told with its role',
-        (tester) async {
-      await loadArtwork(tester);
-      final container = _table();
-      final c = await _dealt(
-        container,
-        counts: _withSniper,
-        settings: _fastSniper,
-      );
-      final sniper = _seat(c.engine, Role.sniper);
-      await _nightVia(c, mafiaKills(c.engine, sniper));
+    _screenTest(
+      'fast preset: the Sniper\'s night death is told with its role',
+      (tester) async {
+        await loadArtwork(tester);
+        final container = _table();
+        final c = await _dealt(
+          container,
+          counts: _withSniper,
+          settings: _fastSniper,
+        );
+        final sniper = _seat(c.engine, Role.sniper);
+        await _nightVia(c, mafiaKills(c.engine, sniper));
 
-      await _pumpFlow(tester, container);
+        await _pumpFlow(tester, container);
 
-      expect(_morningFact(tester), arStrings.lostPlayerLastNight('P$sniper'));
-      expect(
-        find.text(arStrings.victimWasRole('P$sniper', _roleName(Role.sniper))),
-        findsOneWidget,
-      );
-    });
+        expect(_morningFact(tester), arStrings.lostPlayerLastNight('P$sniper'));
+        expect(
+          find.text(
+            arStrings.victimWasRole('P$sniper', _roleName(Role.sniper)),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
 
     test('a vote death reveals the Sniper', () {
       final e = _start(_withSniper, _sniperOn);
@@ -828,7 +852,11 @@ void main() {
         'screen', (tester) async {
       await loadArtwork(tester);
       final container = _table();
-      final c = await _dealt(container, counts: _withSniper, settings: _sniperOn);
+      final c = await _dealt(
+        container,
+        counts: _withSniper,
+        settings: _sniperOn,
+      );
       final sniper = _seat(c.engine, Role.sniper);
       await _nightVia(c, (_, _) => null);
       await _voteVia(c, sniper);
@@ -849,30 +877,32 @@ void main() {
   group('M2-101', () {
     const counts = {Role.mafia: 1, Role.citizen: 4};
 
-    test('the Citizen has an explicit skip, which is recorded, and no bullet',
-        () {
-      final e = _start(counts, _plain);
-      final citizen = _seat(e, Role.citizen);
-      e.beginNight();
-      while (e.match.currentActorSeat != citizen) {
-        e.skipNightAction(seat: e.match.currentActorSeat!);
-      }
-      expect(
-        legalMoves(e.match).whereType<SkipNightActionMove>().where(
-          (move) => move.seat == citizen,
-        ),
-        isNotEmpty,
-      );
-      expect(e.canArmBullet(citizen), isFalse);
-      e.skipNightAction(seat: citizen);
-      expect(
-        e.match.eventLog.whereType<NightActionSkipped>().any(
-          (event) => event.actorSeat == citizen,
-        ),
-        isTrue,
-      );
-      expect(e.match.eventLog.whereType<BulletSpent>(), isEmpty);
-    });
+    test(
+      'the Citizen has an explicit skip, which is recorded, and no bullet',
+      () {
+        final e = _start(counts, _plain);
+        final citizen = _seat(e, Role.citizen);
+        e.beginNight();
+        while (e.match.currentActorSeat != citizen) {
+          e.skipNightAction(seat: e.match.currentActorSeat!);
+        }
+        expect(
+          legalMoves(e.match).whereType<SkipNightActionMove>().where(
+            (move) => move.seat == citizen,
+          ),
+          isNotEmpty,
+        );
+        expect(e.canArmBullet(citizen), isFalse);
+        e.skipNightAction(seat: citizen);
+        expect(
+          e.match.eventLog.whereType<NightActionSkipped>().any(
+            (event) => event.actorSeat == citizen,
+          ),
+          isTrue,
+        );
+        expect(e.match.eventLog.whereType<BulletSpent>(), isEmpty);
+      },
+    );
 
     test('a vote death reveals the Citizen', () {
       final e = _start(counts, _plain);
@@ -962,9 +992,8 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
 
-      Finder skipTile() => find.byWidgetPredicate(
-        (w) => w is NightGridTile && w.choice.isSkip,
-      );
+      Finder skipTile() =>
+          find.byWidgetPredicate((w) => w is NightGridTile && w.choice.isSkip);
       expect(skipTile(), findsOneWidget);
       expect(
         tester.widget<NightGridTile>(skipTile()).choice.label,
@@ -1038,14 +1067,11 @@ void main() {
           on.contains(r) ? 1 : 0,
           reason: '${r.name} is dealt exactly when it is switched on',
         );
-        expect(
-          switch (r) {
-            OptionalRole.silencer => e.match.settings.silencerEnabled,
-            OptionalRole.elder => e.match.settings.elderEnabled,
-            OptionalRole.sniper => e.match.settings.sniperEnabled,
-          },
-          on.contains(r),
-        );
+        expect(switch (r) {
+          OptionalRole.silencer => e.match.settings.silencerEnabled,
+          OptionalRole.elder => e.match.settings.elderEnabled,
+          OptionalRole.sniper => e.match.settings.sniperEnabled,
+        }, on.contains(r));
       }
     }
 
@@ -1075,24 +1101,26 @@ void main() {
       }
     });
 
-    test('a role the table is too small for is never dealt, even if wanted',
-        () {
-      const base = {
-        Role.mafia: 2,
-        Role.doctor: 1,
-        Role.detective: 1,
-        Role.citizen: 1,
-      };
-      final on = OptionalRole.usable(
-        OptionalRole.values.toSet(),
-        players: 5,
-        mafia: 2,
-        citizens: 1,
-      );
-      expect(on, {OptionalRole.silencer});
-      final counts = OptionalRole.apply(base, on);
-      expectDealMatches(counts, on, dealWith(counts, on));
-    });
+    test(
+      'a role the table is too small for is never dealt, even if wanted',
+      () {
+        const base = {
+          Role.mafia: 2,
+          Role.doctor: 1,
+          Role.detective: 1,
+          Role.citizen: 1,
+        };
+        final on = OptionalRole.usable(
+          OptionalRole.values.toSet(),
+          players: 5,
+          mafia: 2,
+          citizens: 1,
+        );
+        expect(on, {OptionalRole.silencer});
+        final counts = OptionalRole.apply(base, on);
+        expectDealMatches(counts, on, dealWith(counts, on));
+      },
+    );
 
     test('the engine refuses a deal whose roles and switches disagree', () {
       MatchEngine engine() => MatchEngine(clock: Clocks.monotonic());
@@ -1213,7 +1241,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         for (final r in switchOn) {
-          final sw = find.byKey(OptionalRoleRows.switchKey(r));
+          final sw = find.byKey(RoleDealGrid.plus(r.role));
           await tester.ensureVisible(sw);
           await tester.tap(sw);
           await tester.pumpAndSettle();
@@ -1259,8 +1287,8 @@ void main() {
       ) async {
         final out = await walkAway(tester, owns: const {});
         for (final r in OptionalRole.values) {
-          expect(find.byKey(OptionalRoleRows.switchKey(r)), findsNothing);
-          expect(find.byKey(OptionalRoleRows.lockKey(r)), findsOneWidget);
+          expect(find.byKey(RoleDealGrid.plus(r.role)), findsNothing);
+          expect(find.byKey(RoleDealGrid.lock(r.role)), findsOneWidget);
         }
         expect(out.on, isEmpty);
         for (final r in OptionalRole.values) {

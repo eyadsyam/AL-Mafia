@@ -15,6 +15,7 @@ import 'package:mafia_master/ui/screens/setup/group_picker_screen.dart';
 import 'package:mafia_master/ui/screens/setup/mode_screen.dart';
 import 'package:mafia_master/ui/screens/stories/stories_screen.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
+import 'package:mafia_master/ui/screens/setup/role_deal_grid.dart';
 import 'package:mafia_master/ui/screens/setup/settings_screen.dart';
 import 'package:mafia_master/ui/screens/setup/setup_draft.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
@@ -150,7 +151,12 @@ void main() {
     expect(find.byType(RolesScreen), findsOneWidget);
     expect(
       tester
-          .widget<Text>(find.byKey(const ValueKey('roles_citizen_count')))
+          .widget<Text>(
+            find.descendant(
+              of: find.byKey(RoleDealGrid.count(Role.citizen)),
+              matching: find.byType(Text),
+            ),
+          )
           .data,
       '3',
     );

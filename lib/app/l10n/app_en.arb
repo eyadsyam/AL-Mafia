@@ -4709,5 +4709,49 @@
         "type": "int"
       }
     }
+  },
+  "rolesRuleOne": "One only",
+  "rolesRuleFrom": "From {count}",
+  "@rolesRuleFrom": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rolesRuleRest": "The rest",
+  "rolesOwnedSeal": "Yours",
+  "rolesTownCount": "Town {count}",
+  "@rolesTownCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rolesMafiaCount": "Mafia {count}",
+  "@rolesMafiaCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roleTeamTown": "With the town",
+  "roleTeamMafia": "With the Mafia",
+  "rolesSheetMinPlayers": "players at least",
+  "rolesSheetMax": "most in a match",
+  "rolesSheetNow": "in this match",
+  "rolesSheetAdd": "Add to the match",
+  "rolesSheetRemove": "Not this match",
+  "rolesSheetMore": "One more",
+  "rolesSheetLess": "One less",
+  "rolesOpenCard": "Open the {name} card",
+  "@rolesOpenCard": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

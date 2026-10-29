@@ -13,7 +13,7 @@ import 'package:mafia_master/ui/screens/setup/add_players_screen.dart';
 import 'package:mafia_master/ui/screens/setup/bot_match_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/optional_roles.dart';
 import 'package:mafia_master/ui/screens/setup/player_name.dart';
-import 'package:mafia_master/ui/screens/setup/role_rows.dart';
+import 'package:mafia_master/ui/screens/setup/role_deal_grid.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/screens/setup/settings_screen.dart';
 import 'package:mafia_master/ui/screens/setup/setup_draft.dart';
@@ -324,7 +324,7 @@ void main() {
     ) async {
       await pump(tester, owns: {'role_elder'});
       expect(lit(tester, 'normal'), isTrue);
-      final sw = find.byKey(OptionalRoleRows.switchKey(OptionalRole.elder));
+      final sw = find.byKey(RoleDealGrid.plus(Role.elder));
       await tester.ensureVisible(sw);
       await tester.tap(sw);
       await tester.pumpAndSettle();

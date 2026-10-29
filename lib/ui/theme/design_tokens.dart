@@ -3161,6 +3161,30 @@ abstract final class RolesTokens {
   static const double stepperCount = 30;
   static const double presetGap = 8;
   static const double lockedTextAlpha = 0.7;
+
+  /// The deal grid (owner, 2026-10-29): every role a card with its art and
+  /// its count, three to a row, the bought ones ringed in gold.
+  static const int dealColumns = 3;
+  static const double dealGap = 10;
+  static const double dealArt = 118;
+  static const double dealArtShort = 92;
+  static const double dealRadius = 12;
+  static const double dealOwnedRing = 2;
+  static const double dealBadge = 28;
+  static const double dealBadgeInset = 6;
+  static const double dealStep = 34;
+  static const double dealStepHeight = 32;
+  static const Alignment dealFocus = Alignment(0, -0.55);
+  static const double dealLockedAlpha = 0.5;
+  static const double dealOffAlpha = 0.6;
+
+  /// The town-against-Mafia bar over the grid.
+  static const double balanceBar = 10;
+
+  /// The card a tap opens: its art at full height over the sheet.
+  static const Size sheetCard = Size(200, 300);
+  static const double sheetScrim = 0.55;
+  static const double sheetBackdropAlpha = 0.28;
 }
 
 /// «العب ضد الكمبيوتر»: the table, the levels.

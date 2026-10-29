@@ -10,10 +10,10 @@ import '../../economy/wallet.dart' show walletProvider;
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
-import '../../widgets/deck/card_fan.dart';
 import '../../widgets/deck/deck_public.dart';
+import '../online/online_session.dart' show SupabaseConfig;
 import 'optional_roles.dart';
-import 'role_rows.dart';
+import 'role_deal_grid.dart';
 
 /// «الأدوار» (S-03): who is dealt what, before the cards are.
 ///
@@ -77,6 +77,15 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
   void initState() {
     super.initState();
     if (!_restore(widget.initialCounts)) _apply(MatchPreset.classic);
+    // Which roles this wallet owns is the server's answer; ask once, and
+    // never block the screen on it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted &&
+          SupabaseConfig.isConfigured &&
+          ref.read(walletProvider).valueOrNull == null) {
+        ref.read(walletProvider.notifier).refresh();
+      }
+    });
   }
 
   /// Reads [counts] back into the editor terms: the bought roles are the ones
@@ -90,7 +99,8 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
         if ((counts[r.role] ?? 0) > 0) r,
     };
     final mafia =
-        (counts[Role.mafia] ?? 0) + (on.contains(OptionalRole.silencer) ? 1 : 0);
+        (counts[Role.mafia] ?? 0) +
+        (on.contains(OptionalRole.silencer) ? 1 : 0);
     if (mafia < 1) return false;
     _mafia = mafia;
     _detective = counts[Role.detective] ?? 0;
@@ -168,27 +178,102 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
     widget.onNext(_counts);
   }
 
-  List<FanCard> _cards() {
-    final counts = _counts;
-    FanCard card(String face, String id, int k) => FanCard(
-      id: '$id#$k',
-      child: _FaceCard(asset: face),
+  // The wallet when it has answered, the device's last copy until then.
+  bool _owns(OptionalRole r) {
+    final wallet = ref.watch(walletProvider).valueOrNull;
+    final kept = ref.watch(ownedRolesProvider);
+    return wallet != null
+        ? wallet.owned.contains(r.code)
+        : kept.contains(r.code);
+  }
+
+  /// Why [r] cannot join this table now, in the balance guard's words.
+  String? _blocked(OptionalRole r) {
+    final l = context.l10n;
+    final others = _on
+        .where((o) => o != r && o != OptionalRole.silencer)
+        .length;
+    final code = r.blockedBy(
+      players: _n,
+      mafia: _mafia,
+      citizens: _baseCitizens - others,
     );
+    return switch (code) {
+      null => null,
+      'silencer_needs_two_mafia' => l.balanceSilencerNeedsTwoMafia,
+      'elder_min_players' => l.balanceElderMinPlayers,
+      'sniper_min_players' => l.balanceSniperMinPlayers,
+      _ => l.rolesNoCitizenLeft,
+    };
+  }
+
+  RoleDealSpec _sold(OptionalRole r, String rule) {
+    final l = context.l10n;
+    final owned = _owns(r);
+    final on = _on.contains(r);
+    final blocked = owned && !on ? _blocked(r) : null;
+    return RoleDealSpec(
+      role: r.role,
+      name: EngineCopy.roleName(l, r.role),
+      count: on ? 1 : 0,
+      rule: rule,
+      owned: owned,
+      locked: !owned,
+      blocked: blocked,
+      minPlayers: r.minPlayers,
+      max: 1,
+      onPlus: owned && !on && blocked == null ? () => _toggle(r, true) : null,
+      onMinus: on ? () => _toggle(r, false) : null,
+    );
+  }
+
+  List<RoleDealSpec> _deal() {
+    final l = context.l10n;
+    final counts = _counts;
+    final canGrow = _citizens > 1;
     return [
-      for (var k = 0; k < (counts[Role.mafia] ?? 0); k++)
-        card(AppImages.cardFaceMafia, 'mafia', k),
-      if (_on.contains(OptionalRole.silencer))
-        card(AppImages.cardFaceSilencer, 'silencer', 0),
-      for (var k = 0; k < (counts[Role.detective] ?? 0); k++)
-        card(AppImages.cardFaceDetective, 'detective', k),
-      for (var k = 0; k < (counts[Role.doctor] ?? 0); k++)
-        card(AppImages.cardFaceDoctor, 'doctor', k),
-      if (_on.contains(OptionalRole.elder))
-        card(AppImages.cardFaceElder, 'elder', 0),
-      if (_on.contains(OptionalRole.sniper))
-        card(AppImages.cardFaceSniper, 'sniper', 0),
-      for (var k = 0; k < (counts[Role.citizen] ?? 0); k++)
-        card(AppImages.cardFaceCitizen, 'citizen', k),
+      RoleDealSpec(
+        role: Role.mafia,
+        name: l.roleGroupMafia,
+        count: counts[Role.mafia] ?? 0,
+        onPlus: canGrow && (_mafia + 1) * 2 < _n
+            ? () => _edit(() => _mafia++)
+            : null,
+        onMinus: _mafia > (_on.contains(OptionalRole.silencer) ? 2 : 1)
+            ? () => _edit(() => _mafia--)
+            : null,
+      ),
+      _sold(OptionalRole.silencer, l.rolesRuleOne),
+      RoleDealSpec(
+        role: Role.detective,
+        name: l.roleGroupDetective,
+        count: _detective,
+        rule: l.rolesRuleOne,
+        max: 1,
+        // One Detective per match, never more (owner, 2026-10-01).
+        onPlus: _detective < 1 && canGrow
+            ? () => _edit(() => _detective++)
+            : null,
+        onMinus: _detective > 0 ? () => _edit(() => _detective--) : null,
+      ),
+      RoleDealSpec(
+        role: Role.doctor,
+        name: l.roleGroupDoctor,
+        count: _doctor,
+        onPlus: canGrow ? () => _edit(() => _doctor++) : null,
+        onMinus: _doctor > 0 ? () => _edit(() => _doctor--) : null,
+      ),
+      _sold(OptionalRole.elder, l.rolesRuleFrom(OptionalRole.elder.minPlayers)),
+      _sold(
+        OptionalRole.sniper,
+        l.rolesRuleFrom(OptionalRole.sniper.minPlayers),
+      ),
+      RoleDealSpec(
+        role: Role.citizen,
+        name: l.roleGroupCitizen,
+        count: counts[Role.citizen] ?? 0,
+        rule: l.rolesRuleRest,
+      ),
     ];
   }
 
@@ -201,8 +286,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
     final report = _report;
     final compact = MediaQuery.sizeOf(context).height < RolesTokens.fanShort;
     final blocking = report.issues.where((i) => i.blocking).firstOrNull;
-    final note =
-        blocking ?? report.issues.firstOrNull; // blocking sorts first
+    final note = blocking ?? report.issues.firstOrNull; // blocking sorts first
     final noteText = note == null
         ? l.balanceValid
         : EngineCopy.balanceIssue(l, note);
@@ -229,23 +313,6 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
       );
     }
 
-    RoleStepper stepper(
-      Role role,
-      String label,
-      int value, {
-      required bool canMinus,
-      required bool canPlus,
-      required VoidCallback minus,
-      required VoidCallback plus,
-    }) => RoleStepper(
-      key: RolesScreen.stepper(role),
-      label: label,
-      value: value,
-      onMinus: canMinus ? minus : null,
-      onPlus: canPlus ? plus : null,
-    );
-
-    final canGrow = _citizens > 1;
     return DeckScaffold(
       backdrop: AppOffline.bgRolesFan,
       title: l.rolesDeckTitle,
@@ -271,160 +338,48 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
               ],
             ),
             SizedBox(height: s.md),
-            KeyedSubtree(
-              key: RolesScreen.fan,
-              child: CardFan(
-                cards: _cards(),
-                cardSize: compact
-                    ? RolesTokens.fanCardCompact
-                    : RolesTokens.fanCard,
-                step: compact ? RolesTokens.fanStepCompact : RolesTokens.fanStep,
-                height: compact
-                    ? RolesTokens.fanHeightCompact
-                    : RolesTokens.fanHeight,
-              ),
-            ),
-            SizedBox(height: s.sm),
-            Column(
+            DecoratedBox(
               key: RolesScreen.balance,
-              children: [
-                Text(
-                  l.rolesBalanceLine(_mafia, _n - _mafia),
-                  textAlign: TextAlign.center,
-                  style: DeckTokens.body(type).copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w700,
+              decoration: BoxDecoration(
+                color: colors.surfaceRaised,
+                borderRadius: BorderRadius.circular(context.radii.card),
+                border: Border.all(
+                  color: DeckTokens.bone.withValues(
+                    alpha: DeckTokens.hairlineAlpha,
                   ),
                 ),
-                Text(
-                  noteText,
-                  textAlign: TextAlign.center,
-                  style: DeckTokens.meta(type).copyWith(
-                    color: blocking != null
-                        ? colors.accentCrimson
-                        : colors.textSecondary,
-                  ),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(s.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    RoleBalanceBar(mafia: _mafia, town: _n - _mafia),
+                    SizedBox(height: s.xs),
+                    Text(
+                      l.rolesBalanceLine(_mafia, _n - _mafia),
+                      style: DeckTokens.meta(
+                        type,
+                      ).copyWith(color: colors.textSecondary),
+                    ),
+                    Text(
+                      noteText,
+                      style: DeckTokens.meta(type).copyWith(
+                        color: blocking != null
+                            ? colors.accentCrimson
+                            : colors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
             SizedBox(height: s.md),
-            RoleRow(
-              face: AppImages.cardFaceMafia,
-              name: l.roleGroupMafia,
-              power: l.rolePowerMafia,
-              trailing: stepper(
-                Role.mafia,
-                l.roleGroupMafia,
-                _mafia,
-                canMinus: _mafia > (_on.contains(OptionalRole.silencer) ? 2 : 1),
-                canPlus: canGrow && (_mafia + 1) * 2 < _n,
-                minus: () => _edit(() => _mafia--),
-                plus: () => _edit(() => _mafia++),
-              ),
-            ),
-            const SizedBox(height: RolesTokens.rowGap),
-            RoleRow(
-              face: AppImages.cardFaceDetective,
-              name: l.roleGroupDetective,
-              power: l.rolePowerDetective,
-              trailing: stepper(
-                Role.detective,
-                l.roleGroupDetective,
-                _detective,
-                canMinus: _detective > 0,
-                // One Detective per match, never more (owner, 2026-10-01).
-                canPlus: _detective < 1 && canGrow,
-                minus: () => _edit(() => _detective--),
-                plus: () => _edit(() => _detective++),
-              ),
-            ),
-            const SizedBox(height: RolesTokens.rowGap),
-            RoleRow(
-              face: AppImages.cardFaceDoctor,
-              name: l.roleGroupDoctor,
-              power: l.rolePowerDoctor,
-              trailing: stepper(
-                Role.doctor,
-                l.roleGroupDoctor,
-                _doctor,
-                canMinus: _doctor > 0,
-                canPlus: canGrow,
-                minus: () => _edit(() => _doctor--),
-                plus: () => _edit(() => _doctor++),
-              ),
-            ),
-            const SizedBox(height: RolesTokens.rowGap),
-            RoleRow(
-              face: AppImages.cardFaceCitizen,
-              name: l.roleGroupCitizen,
-              power: l.rolePowerCitizen,
-              quiet: true,
-              trailing: SizedBox(
-                width: RolesTokens.stepperButton * 2 + RolesTokens.stepperCount,
-                child: Text(
-                  '${_counts[Role.citizen] ?? 0}',
-                  key: const ValueKey('roles_citizen_count'),
-                  textAlign: TextAlign.center,
-                  style: DeckTokens.card(type).copyWith(
-                    color: colors.textSecondary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: s.lg),
-            Text(
-              l.rolesMore,
-              style: DeckTokens.meta(type).copyWith(color: DeckTokens.muted),
-            ),
-            SizedBox(height: s.sm),
-            OptionalRoleRows(
-              players: _n,
-              mafia: _mafia,
-              citizens: _baseCitizens,
-              selected: _on,
-              onChanged: _toggle,
+            KeyedSubtree(
+              key: RolesScreen.fan,
+              child: RoleDealGrid(cards: _deal(), compact: compact),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// One card of the fan: the role's face on the Mafia card's frame.
-class _FaceCard extends StatelessWidget {
-  final String asset;
-  const _FaceCard({required this.asset});
-
-  @override
-  Widget build(BuildContext context) {
-    final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;
-    return LayoutBuilder(
-      builder: (context, box) => DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(FanTokens.radius),
-          border: Border.all(color: SeatTokens.rim),
-          boxShadow: [
-            BoxShadow(
-              color: DeckTokens.ground.withValues(alpha: FanTokens.shadowAlpha),
-              blurRadius: FanTokens.shadowBlur,
-              offset: const Offset(0, FanTokens.shadowDrop),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(FanTokens.radius),
-          child: Image(
-            image: ResizeImage(
-              AssetImage(asset),
-              width: (box.maxWidth * dpr * DeckTokens.artDecodeHeadroom)
-                  .round(),
-              policy: ResizeImagePolicy.fit,
-            ),
-            fit: BoxFit.cover,
-            gaplessPlayback: true,
-          ),
         ),
       ),
     );

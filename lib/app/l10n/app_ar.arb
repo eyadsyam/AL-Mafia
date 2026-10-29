@@ -3406,5 +3406,49 @@
   "revoteNamesJoiner": " أو ",
   "lobbyRoomHeader": "الأوضة {code}",
   "lobbyMoreMenu": "المزيد",
-  "lobbyWaitingForPlayers": "مستنيين لاعبين كمان. لازم {min} على الأقل."
+  "lobbyWaitingForPlayers": "مستنيين لاعبين كمان. لازم {min} على الأقل.",
+  "rolesRuleOne": "واحد بس",
+  "rolesRuleFrom": "من {count}",
+  "@rolesRuleFrom": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rolesRuleRest": "الباقي",
+  "rolesOwnedSeal": "بتاعك",
+  "rolesTownCount": "المدينة {count}",
+  "@rolesTownCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rolesMafiaCount": "المافيا {count}",
+  "@rolesMafiaCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roleTeamTown": "مع المدينة",
+  "roleTeamMafia": "مع المافيا",
+  "rolesSheetMinPlayers": "لاعيبة على الأقل",
+  "rolesSheetMax": "أقصى عدد",
+  "rolesSheetNow": "في الماتش ده",
+  "rolesSheetAdd": "دخّله الماتش",
+  "rolesSheetRemove": "مش الماتش ده",
+  "rolesSheetMore": "زوّد واحد",
+  "rolesSheetLess": "قلّل واحد",
+  "rolesOpenCard": "افتح كارت {name}",
+  "@rolesOpenCard": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }
