@@ -85,10 +85,24 @@ void main() {
     test('the prompts are still four distinct questions', () {
       // Equal length must not have been achieved by making them all the same
       // sentence: the player has to be asked the question their role answers.
+      // The one exception is the Elder, who has no night move and is asked
+      // the Citizen's question word for word (owner, 2026-10-29).
       final prompts = {
         for (final role in Role.values) EngineCopy.nightPrompt(arStrings, role),
       };
-      expect(prompts, hasLength(Role.values.length));
+      expect(prompts, hasLength(Role.values.length - 1));
+      expect(
+        EngineCopy.nightPrompt(arStrings, Role.elder),
+        EngineCopy.nightPrompt(arStrings, Role.citizen),
+      );
+      expect(
+        EngineCopy.nightLine(arStrings, Role.elder),
+        EngineCopy.nightLine(arStrings, Role.citizen),
+      );
+      expect(
+        EngineCopy.nightSpecial(arStrings, Role.elder),
+        EngineCopy.nightSpecial(arStrings, Role.citizen),
+      );
     });
 
     test('no prompt names any role', () {

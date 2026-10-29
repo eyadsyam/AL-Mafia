@@ -103,9 +103,8 @@ abstract final class EngineCopy {
         Role.silencer => l10n.nightSpecialSilencer,
         Role.doctor => l10n.nightSpecialDoctor,
         Role.detective => l10n.nightSpecialDetective,
-        Role.elder => l10n.nightSpecialElder,
         Role.sniper => l10n.nightSpecialSniper,
-        Role.citizen => l10n.nightSpecialCitizen,
+        Role.elder || Role.citizen => l10n.nightSpecialCitizen,
       };
 
   /// The one line under a role's night question online (#u6).
@@ -127,10 +126,10 @@ abstract final class EngineCopy {
     Role.silencer => l10n.nightLineSilencer,
     Role.doctor => l10n.nightLineDoctor,
     Role.detective => l10n.nightLineDetective,
-    Role.elder => l10n.nightLineElder,
     Role.sniper =>
       bulletInHand ? l10n.nightLineSniper : l10n.nightLineSniperSpent,
-    Role.citizen => l10n.nightLineCitizen,
+    // Owner, 2026-10-29: the Elder's night is the Citizen's, word for word.
+    Role.elder || Role.citizen => l10n.nightLineCitizen,
   };
 
   /// A play hint's sentence (doc 13 §4.3).
@@ -235,8 +234,7 @@ abstract final class EngineCopy {
     Role.silencer => l10n.nightPromptSilencer,
     Role.doctor => l10n.nightPromptDoctor,
     Role.detective => l10n.nightPromptDetective,
-    Role.elder => l10n.nightPromptElder,
     Role.sniper => l10n.nightPromptSniper,
-    Role.citizen => l10n.nightPromptCitizen,
+    Role.elder || Role.citizen => l10n.nightPromptCitizen,
   };
 }
