@@ -1611,7 +1611,14 @@
   "reactionCoffee": "قهوة",
   "reactionCrown": "تاج",
   "reactionFrom": "{name}: {reaction}",
-  "reactionSlowDown": "بالراحة، واحدة واحدة",
+  "reactionCount": "×{count}",
+  "@reactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cofferStripReady": "صندوق النهارده جاهز",
   "cofferStripBody": "استلمه من هنا على طول.",
   "cofferStripClaim": "استلم",
@@ -2404,6 +2411,11 @@
   "updateRequiredBody": "فيه نسخة أحدث من اللعبة، ولازم تحدّث علشان تكمّل. النسخة دي مش هتشتغل بعد كده.",
   "updateRequiredStore": "افتح Google Play",
   "updateRequiredReload": "حدّث الصفحة",
+  "updateSoftTitle": "فيه نسخة جديدة",
+  "updateSoftBody": "نزلت نسخة أحدث من اللعبة على Google Play.",
+  "updateSoftNow": "حدّث دلوقتي",
+  "updateSoftLater": "بعدين",
+  "updateStoreFailed": "مقدرناش نفتح Google Play. افتحه وحدّث اللعبة.",
   "webAdAppCta": "نزّل التطبيق — إعلانات أقل",
   "webAdPlayCaption": "سيد المافيا على Google Play",
   "webAdCouncilTitle": "المجلس والخزنة مستنيينك",
@@ -2494,7 +2506,16 @@
   "toolNeedsTurns": "الأداة دي بتشتغل لما الكلام يبقى بالدور بس",
   "toolSilencedToday": "المتسكّت مايقدرش يستخدم الأداة دي النهارده",
   "onlineLastWordLine": "الكلمة الأخيرة من {name} لـ{target}",
-  "@onlineLastWordLine": {"placeholders": {"name": {"type": "String"}, "target": {"type": "String"}}},
+  "@onlineLastWordLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "modeStoriesTitle": "قصص",
   "storiesTitle": "قصص وتحقيقات",
   "storiesSubtitle": "كل تفصيلة لها معنى. مفيش معلومة بتتولد من الهوا.",
@@ -3276,7 +3297,13 @@
   "pushEnableFailed": "مقدرناش نشغّل الإشعارات على الجهاز ده",
   "friendRemove": "شيل من أصحابك",
   "friendRemoveConfirm": "تشيل {name} من أصحابك؟",
-  "@friendRemoveConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@friendRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "friendRemoveYes": "شيل",
   "inAppBrowserTitle": "افتح اللعبة في المتصفح",
   "inAppBrowserBody": "جوجل مش بيسمح بالدخول من جوه التطبيق ده. افتح اللينك في كروم أو سفاري وكمّل من هناك، أو ادخل بالإيميل من هنا.",
@@ -3298,6 +3325,73 @@
   "keyClose": "اقفل",
   "keyChoose": "اختار",
   "keyBack": "ارجع",
+  "beforeStartTitle": "قبل ما تبدأوا",
+  "beforeStartLine1": "كل واحد يمسك على اسمه ويشوف دوره لوحده، والكارت بيتقفل لوحده، وبعدها يدّي الموبايل للي بعده.",
+  "beforeStartLine2": "بالليل الموبايل بيلفّ على كل اللي لسه في اللعب، حتى اللي ملوش دور، عشان محدش يعرف مين عمل إيه.",
+  "beforeStartLine3": "المواطن بيختار حد شاكك فيه. اختياره مبيقتلش ومبيحميش، بس لو مات الليلة دي ممكن الصبح يتقال كان شاكك في مين.",
+  "beforeStartLine4": "الصبح بتتكلموا، وبعدين تصوّتوا تطلّعوا حد.",
+  "beforeStartLine5": "اللي يخرج من اللعب مبيصوّتش.",
+  "beforeStartGo": "يلا نبدأ",
+  "modeStoriesSoonName": "القصص",
+  "modeStoriesSoon": "قريبا",
+  "reactionSlowDown": "بالراحة، واحدة واحدة",
+  "profileEditHint": "غيّر الاسم أو الشخصية",
+  "profileEditHintTitled": "{title} · غيّر الاسم أو الشخصية",
+  "@profileEditHintTitled": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStatHere": "ماتش هنا",
+  "profileStatOnlineMatches": "ماتش أونلاين",
+  "profileStatCoins": "عملة",
+  "profileFriendsCount": "{count, plural, =0{لسه مفيش} =1{صاحب واحد} =2{صاحبين} few{{count} أصحاب} other{{count} صاحب}}",
+  "@profileFriendsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileLastMatchToday": "آخر ماتش النهاردة",
+  "profileLastMatchYesterday": "آخر ماتش امبارح",
+  "profileLastMatchDays": "{count, plural, =2{آخر ماتش من يومين} few{آخر ماتش من {count} أيام} other{آخر ماتش من {count} يوم}}",
+  "@profileLastMatchDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileNoMatches": "لسه مفيش ماتشات",
+  "profileAccountGoogle": "متسجّل بجوجل",
+  "profileAccountEmail": "متسجّل بالإيميل",
+  "friendsSheetTitle": "الأصحاب",
+  "friendsSearchHint": "دوّر على اسم أو كود",
+  "friendsRequestsCount": "طلبات صداقة ({count})",
+  "@friendsRequestsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "friendsYoursCount": "أصحابك ({count})",
+  "@friendsYoursCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "friendsEmpty": "لسه مفيش أصحاب",
+  "titlesEmpty": "لسه معندكش ألقاب",
+  "accountGuestIntro": "إنت بتلعب كضيف. لو سجّلت، حاجتك وعملاتك هتفضل معاك على أي موبايل.",
+  "accountContinueGoogle": "كمّل بجوجل",
+  "accountWithEmail": "بالإيميل",
+  "accountNotNow": "مش دلوقتي",
   "nightLineMafia": "اختار لاعب تقتله. لو اختلفتوا، الأكتر أصوات يموت.",
   "nightLineSilencer": "اختار لاعب واحد تسكته لبكرة. ومش هيقدر يصوّت بكرة.",
   "nightLineDoctor": "اختار لاعب تحميه. مينفعش نفس الشخص ليلتين ورا بعض.",

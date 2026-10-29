@@ -103,6 +103,44 @@ abstract final class ModeTokens {
   /// The frame inset inside a big card, and its radius.
   static const double frameInset = 7;
   static const double frameRadius = 9;
+
+  /// «قريبا» on the stories card: the art dimmed, the label in a ringed pill.
+  static const double soonScrimAlpha = 0.45;
+  static const double soonPillAlpha = 0.6;
+  static const double soonRingWidth = 1;
+
+  /// The least height the stage is drawn at, closed and turned over. A
+  /// shorter body (a phone on its side) scrolls the stage rather than
+  /// squeezing the cards past reading.
+  static const double stageMinHeight = 222;
+  static const double openMinHeight = 340;
+
+  /// The room kept above the cards for the line that says what to do.
+  static const double hintClear = 32;
+
+  /// Landscape, turned: the way back's width under the Mafia card.
+  static const double sideBackWidth = 96;
+
+  /// Easing, from Material 3's own set: the deal and lift decelerate into
+  /// place, the turn eases both ways, the last settling is gentle.
+  static const Curve dealCurve = Easing.emphasizedDecelerate;
+  static const Curve liftCurve = Easing.emphasizedDecelerate;
+  static const Curve turnCurve = Easing.standard;
+  static const Curve settleCurve = Easing.standardDecelerate;
+
+  /// The least height the two cards are drawn at, so they never collapse
+  /// under the title on a short screen.
+  static const double cardMinHeight = 150;
+}
+
+/// «قبل ما تبدأوا»: the numbered lines before an offline deal.
+abstract final class BeforeStartTokens {
+  /// The round number beside each line.
+  static const double badge = 24;
+  static const double lineGap = 8;
+
+  /// From this width the lines are set in two columns.
+  static const double twoColumnMinWidth = 520;
 }
 
 /// «قصص وتحقيقات»' own palette: ink brown ground, warm panels, parchment
@@ -168,6 +206,18 @@ abstract final class DeckTokens {
   // Panels and seals (deck_paper.dart): Mafia's result, match file, profile
   // and casebook.
   static const double panelRadius = 14;
+
+  /// The small number tiles on the profile.
+  static const double statRadius = 10;
+
+  /// From this window width a sheet or the profile lays its parts side by
+  /// side (a phone on its side, a tablet) instead of one under the other, so
+  /// nothing needs scrolling to be reached and nothing sits under a pinned
+  /// button.
+  static const double twoColumnFrom = 560;
+
+  /// The profile's reading width when it is two panes.
+  static const double twoPaneMaxWidth = 720;
   static const double sealBorder = 1.5;
   static const double sealPlateAlpha = 0.9;
 
@@ -246,6 +296,12 @@ abstract final class DeckTokens {
   static const Duration slide = Duration(milliseconds: 260);
   static const Duration seamFade = Duration(milliseconds: 400);
   static const Duration reduced = Duration(milliseconds: 150);
+
+  /// A deck sheet rises over [sheet] decelerating into place, and leaves a
+  /// little faster, accelerating away.
+  static const Duration sheetExit = Duration(milliseconds: 200);
+  static const Curve sheetCurve = Easing.emphasizedDecelerate;
+  static const Curve sheetExitCurve = Easing.emphasizedAccelerate;
 
   /// Cards arrive once: each rises [enterRise] dp and fades in over [enter],
   /// the next one [enterStagger] later. Only transform and opacity move, so
@@ -2289,11 +2345,13 @@ abstract final class FunTokens {
   static const double reactionFloat = 44.0;
   static const double reactionRise = 72.0;
   static const Duration reactionFloatDuration = Duration(milliseconds: 1600);
-
-  /// The client's side of the server's rate limit: a burst of three, then one
-  /// every 1.5 s.
-  static const Duration reactionInterval = Duration(milliseconds: 1500);
-  static const int reactionBurst = 3;
+  static const Duration reactionCoalesceWindow = Duration(milliseconds: 1200);
+  static const int reactionSeenIds = 1024;
+  static const double reactionBadgeGap = 2.0;
+  static const double reactionBadgeRadius = 999.0;
+  static const double reactionBadgePadding = 6.0;
+  static const Color reactionBadgeBackground = Color(0xFFF3E7CC);
+  static const Color reactionBadgeText = Color(0xFF211B1B);
 
   /// The daily strip greets with «وحشتنا» only after this long away.
   static const Duration welcomeBackAfter = Duration(days: 3);
@@ -2586,6 +2644,9 @@ abstract final class FriendsTokens {
   static const double heroHeight = 120.0;
   static const double avatar = 44.0;
 
+  /// The accept / decline / join chips under a name.
+  static const double chipHeight = 40.0;
+
   /// D5: while the online door is on screen and the app is in front, lobby
   /// invites are asked for this often. Nothing is asked in the background.
   static const Duration inviteRefresh = Duration(seconds: 20);
@@ -2609,6 +2670,11 @@ abstract final class AccountTokens {
 /// The full profile (`lib/ui/account/profile_panels.dart`).
 abstract final class ProfileTokens {
   static const double statArt = 56.0;
+
+  /// The identity block at the top of the profile: a small Mafia card with
+  /// the avatar on it, and the name beside it.
+  static const Size identityPhoto = Size(62, 84);
+  static const double identityAvatar = 48.0;
 
   /// The card's photo: a Mafia seat card clipped to a portrait, standing
   /// straight, and the avatar inside it.
@@ -2817,8 +2883,20 @@ abstract final class UpdateGateTokens {
   /// A build left open for days asks again after this long in the background.
   static const Duration recheck = Duration(minutes: 30);
 
-  static const double scrimAlpha = 0.72;
-  static const double iconSize = 40.0;
+  /// The Play listing, tried in this order: the Play app (`market:`), then the
+  /// web page (which hands over to the app, or opens in a browser).
+  static final List<Uri> storeUris = [
+    Uri.parse('market://details?id=$playApplicationId'),
+    Uri.parse(
+      'https://play.google.com/store/apps/details?id=$playApplicationId',
+    ),
+  ];
+
+  /// `applicationId` in `android/app/build.gradle.kts`.
+  static const String playApplicationId = 'com.mafiamaster.mafia_master';
+
+  /// The inline «مقدرناش نفتح Google Play» note under the button.
+  static const double noteRadius = 10.0;
 }
 
 /// Web display inventory. Every ad is outside the private table.

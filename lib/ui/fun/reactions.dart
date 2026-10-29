@@ -65,26 +65,6 @@ bool reactionsOpen(GamePhase? phase, {bool outcomePublic = false}) =>
     ((phase == GamePhase.result || phase == GamePhase.analytics) &&
         outcomePublic);
 
-/// The client's copy of the server's limit: a burst of three, then one per
-/// 1.5 s (at most three in any 4.5 s window). The server is the authority;
-/// this only spares a round trip that would be refused.
-class ReactionThrottle {
-  final List<DateTime> _sent = [];
-
-  bool tryTake(DateTime now) {
-    final window = FunTokens.reactionInterval * FunTokens.reactionBurst;
-    _sent.removeWhere((t) => now.difference(t) >= window);
-    if (_sent.length >= FunTokens.reactionBurst) return false;
-    _sent.add(now);
-    return true;
-  }
-}
-
-/// Overridable clock for the throttle.
-final reactionClockProvider = Provider<DateTime Function()>(
-  (ref) => DateTime.now,
-);
-
 /// The row of eight seals. Renders nothing unless [open] and the server has
 /// reactions on.
 class ReactionBar extends ConsumerStatefulWidget {
@@ -109,21 +89,8 @@ class ReactionBar extends ConsumerStatefulWidget {
 }
 
 class _ReactionBarState extends ConsumerState<ReactionBar> {
-  final _throttle = ReactionThrottle();
-
-  void _slowDown() {
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    messenger
-      ?..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(context.l10n.reactionSlowDown)));
-  }
-
   Future<void> _send(ReactionKind kind) async {
     if (!widget.open) return;
-    if (!_throttle.tryTake(ref.read(reactionClockProvider)())) {
-      _slowDown();
-      return;
-    }
     Haptics.select();
     try {
       await widget.backend.call('economy', {
@@ -131,8 +98,6 @@ class _ReactionBarState extends ConsumerState<ReactionBar> {
         'roomId': widget.roomId,
         'kind': kind.code,
       });
-    } on BackendException catch (error) {
-      if (error.code == 'REACTION_RATE_LIMIT' && mounted) _slowDown();
     } catch (_) {
       // A reaction is never load-bearing.
     }
@@ -217,13 +182,17 @@ class _Float {
   final int id;
   final int seat;
   final ReactionKind kind;
-  const _Float(this.id, this.seat, this.kind);
+  int count = 1;
+  _Float(this.id, this.seat, this.kind);
 }
 
 class _ReactionFloatsState extends State<ReactionFloats> {
   StreamSubscription<RoomReactionRow>? _sub;
   final List<_Float> _floats = [];
   final Map<int, Timer> _timers = {};
+  final Set<int> _seenIds = {};
+  final List<int> _seenOrder = [];
+  Timer? _coalesceTimer;
 
   @override
   void initState() {
@@ -236,6 +205,14 @@ class _ReactionFloatsState extends State<ReactionFloats> {
     super.didUpdateWidget(old);
     if (old.feed != widget.feed) {
       unawaited(_sub?.cancel());
+      _coalesceTimer?.cancel();
+      for (final timer in _timers.values) {
+        timer.cancel();
+      }
+      _timers.clear();
+      _floats.clear();
+      _seenIds.clear();
+      _seenOrder.clear();
       _listen();
     }
   }
@@ -244,16 +221,34 @@ class _ReactionFloatsState extends State<ReactionFloats> {
     _sub = widget.feed?.listen((row) {
       final kind = ReactionKind.fromCode(row.kind);
       if (kind == null || !mounted) return;
-      if (_floats.any((f) => f.id == row.id)) return;
+      if (!_seenIds.add(row.id)) return;
+      _seenOrder.add(row.id);
+      if (_seenOrder.length > FunTokens.reactionSeenIds) {
+        _seenIds.remove(_seenOrder.removeAt(0));
+      }
+      final last = _floats.isEmpty ? null : _floats.last;
+      final combined =
+          last != null &&
+          _coalesceTimer?.isActive == true &&
+          last.seat == row.seat &&
+          last.kind == kind;
+      final float = combined ? last : _Float(row.id, row.seat, kind);
       setState(() {
-        _floats.add(_Float(row.id, row.seat, kind));
+        if (combined) {
+          float.count++;
+        } else {
+          _floats.add(float);
+        }
         while (_floats.length > ReactionFloats.maxFloats) {
           _timers.remove(_floats.removeAt(0).id)?.cancel();
         }
       });
-      _timers[row.id] = Timer(FunTokens.reactionFloatDuration, () {
-        _timers.remove(row.id);
-        if (mounted) setState(() => _floats.removeWhere((f) => f.id == row.id));
+      _coalesceTimer?.cancel();
+      _coalesceTimer = Timer(FunTokens.reactionCoalesceWindow, () {});
+      _timers.remove(float.id)?.cancel();
+      _timers[float.id] = Timer(FunTokens.reactionFloatDuration, () {
+        _timers.remove(float.id);
+        if (mounted) setState(() => _floats.remove(float));
       });
     });
   }
@@ -261,6 +256,7 @@ class _ReactionFloatsState extends State<ReactionFloats> {
   @override
   void dispose() {
     unawaited(_sub?.cancel());
+    _coalesceTimer?.cancel();
     for (final t in _timers.values) {
       t.cancel();
     }
@@ -321,6 +317,28 @@ class _ReactionFloatsState extends State<ReactionFloats> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ReactionSeal(kind: f.kind, size: FunTokens.reactionFloat),
+        if (f.count > 1) ...[
+          const SizedBox(width: FunTokens.reactionBadgeGap),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: FunTokens.reactionBadgeBackground,
+              borderRadius: BorderRadius.circular(
+                FunTokens.reactionBadgeRadius,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: FunTokens.reactionBadgePadding,
+              ),
+              child: Text(
+                context.l10n.reactionCount(f.count),
+                style: context.typography.caption.copyWith(
+                  color: FunTokens.reactionBadgeText,
+                ),
+              ),
+            ),
+          ),
+        ],
         if (name != null && name.isNotEmpty) ...[
           SizedBox(width: context.spacing.xs),
           Text(
@@ -341,6 +359,7 @@ class _ReactionFloatsState extends State<ReactionFloats> {
           child: KeyedSubtree(
             key: ReactionFloats.floatKey,
             child: TweenAnimationBuilder<double>(
+              key: ValueKey('reaction_float_anim_${f.id}_${f.count}'),
               tween: Tween(begin: 0, end: 1),
               duration: FunTokens.reactionFloatDuration,
               builder: (context, t, child) {

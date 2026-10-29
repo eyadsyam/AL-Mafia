@@ -16,6 +16,7 @@ import 'package:mafia_master/ui/screens/setup/mode_screen.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/screens/setup/setup_draft.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
+import 'package:mafia_master/ui/screens/setup/before_start_sheet.dart';
 import 'package:mafia_master/ui/widgets/back_action.dart';
 import '../support/stores.dart';
 
@@ -122,7 +123,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(RolesScreen.nextButton)); // roles
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('settings_save'))); // settings → start
+    await tester.tap(find.byKey(const ValueKey('settings_save'))); // settings → intro
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(BeforeStartKeys.go)); // «يلا نبدأ» → start
     await tester.pumpAndSettle();
   }
 
@@ -190,6 +193,11 @@ void main() {
         match.phase,
         equals(GamePhase.distributing),
         reason: 'three taps must reach role distribution',
+      );
+      expect(
+        find.byKey(BeforeStartKeys.sheet),
+        findsNothing,
+        reason: 'the rematch path never shows «قبل ما تبدأوا»',
       );
       expect(
         taps,
@@ -364,6 +372,8 @@ void main() {
       await tester.tap(find.byKey(RolesScreen.nextButton));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('settings_save')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(BeforeStartKeys.go));
       await tester.pumpAndSettle();
 
       final match = container

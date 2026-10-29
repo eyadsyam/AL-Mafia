@@ -52,6 +52,7 @@ import '../ui/fun/characters_screen.dart';
 import '../ui/economy/council_hub.dart' show pendingInviteCodeProvider;
 import '../ui/economy/ad_veil.dart';
 import '../platform/monetization/rewarded_ads.dart';
+import '../ui/screens/setup/before_start_sheet.dart';
 import '../ui/screens/setup/bot_match_sheet.dart';
 
 /// Route paths, in one place so navigation calls cannot drift from the table.
@@ -242,6 +243,7 @@ GoRouter buildRouter(
   // Set while the pass-and-play deal ad is being considered, so a second
   // tap cannot start a second match underneath it.
   var dealing = false;
+  var introShowing = false;
 
   // Set while a forward menu move waits on the session ad, so a second tap
   // cannot navigate underneath it.
@@ -343,6 +345,27 @@ GoRouter buildRouter(
     context.go(Routes.match);
   }
 
+  /// A new one-phone match from setup: «قبل ما تبدأوا» first, then the deal.
+  /// Closing the sheet any other way than its button starts nothing and
+  /// leaves the host on setup. The remembered-group rematch ([quickStart])
+  /// goes straight to [startMatch] and never sees it.
+  Future<void> startMatchWithIntro(BuildContext context) async {
+    if (dealing ||
+        introShowing ||
+        ref.read(setupDraftProvider).roleCounts == null) {
+      return;
+    }
+    introShowing = true;
+    final bool? go;
+    try {
+      go = await showBeforeStartSheet(context);
+    } finally {
+      introShowing = false;
+    }
+    if (go != true || !context.mounted) return;
+    await startMatch(context);
+  }
+
   /// The saved groups, as already loaded. Never awaited here — see
   /// [playerGroupsProvider] for why a synchronous read is the right shape and
   /// why "not loaded yet" degrades to today's behaviour rather than to a stall.
@@ -439,6 +462,7 @@ GoRouter buildRouter(
           onBack: () => context.go(Routes.home),
           onCharacters: () => forwardTo(context, Routes.characters),
           onHistory: () => forwardTo(context, Routes.history),
+          onJoinRoom: (code) => context.go(Routes.joinLink(code)),
         ),
       ),
       // A council invite link: the code is handed to the vault, which opens
@@ -484,6 +508,8 @@ GoRouter buildRouter(
             onPlayStories: kOfferStories
                 ? () => forwardTo(context, Routes.stories)
                 : null,
+            // Closed, the card is still dealt, labelled «قريبا», and inert.
+            storiesSoon: !kOfferStories,
             onBack: () => context.go(Routes.home),
           ),
         ),
@@ -745,7 +771,7 @@ GoRouter buildRouter(
               ref.read(setupDraftProvider.notifier).setSettings(settings);
               // These become the defaults for the next match too (FR-005).
               ref.read(matchRepositoryProvider).saveDefaultSettings(settings);
-              unawaited(startMatch(context));
+              unawaited(startMatchWithIntro(context));
             },
             onBack: () => context.go(Routes.roles),
           ));

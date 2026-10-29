@@ -1,4 +1,3 @@
-import '../widgets/mafia_kit.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -6,22 +5,20 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/asset_constants.dart';
 import '../../transport/account_auth.dart';
 import '../../transport/account_service.dart' show AccountFailure;
 import '../../transport/supabase_backend.dart';
 import '../economy/account_status.dart' show accountStatusProvider;
 import '../economy/economy_capabilities.dart';
-import '../economy/my_identity.dart';
 import '../economy/table_tools.dart' show TableToolsState, tableToolsProvider;
 import '../economy/wallet.dart';
-import '../social/titles_partner.dart';
 import '../social/push_prompt.dart';
 import '../l10n_ext.dart';
 import '../screens/online/online_session.dart';
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
-import '../widgets/feathered_art.dart';
+import '../widgets/deck/deck_buttons.dart';
+import '../widgets/deck/deck_form_sheet.dart';
 import 'account_footer.dart';
 import 'embedded_browser_sheet.dart' show sentToRealBrowser;
 import '../../transport/native_google.dart';
@@ -79,7 +76,8 @@ final accountProfileProvider = StreamProvider<AccountProfile>((ref) async* {
   });
 });
 
-/// Opens the full-screen account route: guest → create/sign in; account → manage.
+/// Opens the account sheet from the bottom: guest → create/sign in; account →
+/// manage.
 ///
 /// [onboarding]: the first-run chapter's route. It closes itself once the
 /// player is signed in (the chapter then moves on to the name). Google still
@@ -95,17 +93,10 @@ Future<void> showAccountSheet(
   bool onboarding = false,
   String? failure,
   AccountStep initial = AccountStep.hub,
-}) => showGeneralDialog<void>(
+}) => showDeckFormSheet<void>(
   context: context,
-  pageBuilder: (routeContext, _, _) => MafiaScaffold(
-    backgroundColor: routeContext.colors.surfaceBase,
-    appBar: AppBar(title: Text(routeContext.l10n.accountTitle)),
-    body: AccountSheet(
-      onboarding: onboarding,
-      failure: failure,
-      initial: initial,
-    ),
-  ),
+  builder: (_) =>
+      AccountSheet(onboarding: onboarding, failure: failure, initial: initial),
 );
 
 /// Counts the password-reset links that signed this device in (see
@@ -140,6 +131,7 @@ class AccountSheet extends ConsumerStatefulWidget {
   static const googleKey = ValueKey('account_google');
   static const googleExistingKey = ValueKey('account_google_existing');
   static const keepGuestKey = ValueKey('account_keep_guest');
+  static const notNowKey = ValueKey('account_not_now');
   static const createKey = ValueKey('account_create');
   static const haveKey = ValueKey('account_have');
   static const emailKey = ValueKey('account_email_field');
@@ -369,7 +361,10 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     final profile =
         ref.watch(accountProfileProvider).valueOrNull ?? AccountProfile.guest;
     final s = context.spacing;
-    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    // In its sheet, the frame already stands on top of the keyboard.
+    final keyboardInset = DeckFormSheetFrame.handlesKeyboard(context)
+        ? 0.0
+        : MediaQuery.viewInsetsOf(context).bottom;
     return SafeArea(
       // Closing the screen after a sign-in commits the group, so the browser or
       // the phone may offer to save the email and password.
@@ -383,6 +378,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
               (constraints.maxWidth - s.maxContentWidth) / 2,
             );
             return ListView(
+              shrinkWrap: true,
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: EdgeInsets.fromLTRB(
                 side,
@@ -391,32 +387,6 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
                 s.screenMargin + keyboardInset,
               ),
               children: [
-                if (profile.signedIn) ...[
-                  SizedBox(
-                    height: AccountTokens.heroHeight,
-                    child: FeatheredArt(
-                      feather: Feather.hero,
-                      child: Image.asset(
-                        AppImages.splashMask,
-                        fit: BoxFit.contain,
-                        excludeFromSemantics: true,
-                      ),
-                    ),
-                  ),
-                  // Store truth: who this account is at the table — the frame and
-                  // plate it equipped, its title, and its Partner (F10).
-                  SizedBox(height: s.sm),
-                  const Center(
-                    child: MyIdentityBadge(
-                      axis: Axis.vertical,
-                      diameter: StoreTruthTokens.sheetAvatar,
-                    ),
-                  ),
-                  const Center(child: EquippedTitleLine()),
-                  const TitleEquipList(),
-                  SizedBox(height: s.sm),
-                  const PartnerPicker(),
-                ],
                 ..._body(context, profile),
                 if (_error != null) ...[
                   SizedBox(height: s.sm),
@@ -486,17 +456,19 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     Widget title(String text, [String? sub]) => keyboardOpen
         ? const SizedBox.shrink()
         : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                text,
-                textAlign: TextAlign.center,
-                style: type.headline.copyWith(color: colors.textPrimary),
+              Semantics(
+                header: true,
+                child: Text(
+                  text,
+                  style: type.headline.copyWith(color: colors.textPrimary),
+                ),
               ),
               if (sub != null) ...[
                 SizedBox(height: s.xs),
                 Text(
                   sub,
-                  textAlign: TextAlign.center,
                   style: type.body.copyWith(color: colors.textSecondary),
                 ),
               ],
@@ -582,17 +554,17 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       child: Text(l.back),
     );
 
+    Future<void> googleTap() async {
+      if (await sentToRealBrowser(context, ref)) return;
+      await _run((auth) async {
+        await auth.google();
+        if (mounted) setState(() => _notice = _browserNotice);
+      }, google: true);
+    }
+
     Widget google() => OutlinedButton.icon(
       key: AccountSheet.googleKey,
-      onPressed: _busy
-          ? null
-          : () async {
-              if (await sentToRealBrowser(context, ref)) return;
-              await _run((auth) async {
-                await auth.google();
-                if (mounted) setState(() => _notice = _browserNotice);
-              }, google: true);
-            },
+      onPressed: _busy ? null : googleTap,
       icon: const Icon(Icons.g_mobiledata_rounded),
       label: Text(l.authGoogle),
     );
@@ -600,22 +572,45 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     switch (_step) {
       case AccountStep.hub:
         if (profile.signedIn) return _manage(context, profile);
-        return [
-          title(l.authGuestTitle, l.authGuestBody),
-          google(),
-          SizedBox(height: s.sm),
-          FilledButton(
-            key: AccountSheet.createKey,
-            onPressed: () => _go(AccountStep.signUp),
-            child: Text(l.authCreate),
+        final actions = <Widget>[
+          BoneButton(
+            key: AccountSheet.googleKey,
+            label: l.accountContinueGoogle,
+            onPressed: _busy ? null : googleTap,
           ),
           SizedBox(height: s.sm),
+          RimButton(
+            key: AccountSheet.createKey,
+            label: l.accountWithEmail,
+            onPressed: _busy ? null : () => _go(AccountStep.signUp),
+          ),
+          SizedBox(height: s.xs),
           TextButton(
-            key: AccountSheet.haveKey,
-            onPressed: () => _go(AccountStep.signIn),
-            child: Text(l.authHaveAccount),
+            key: AccountSheet.notNowKey,
+            onPressed: _busy ? null : () => Navigator.of(context).maybePop(),
+            child: Text(l.accountNotNow),
           ),
         ];
+        // On its side the words sit beside the buttons, so all three are in
+        // view without scrolling.
+        if (MediaQuery.sizeOf(context).width >= DeckTokens.twoColumnFrom) {
+          return [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: title(l.authAccount, l.accountGuestIntro)),
+                SizedBox(width: s.lg),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: actions,
+                  ),
+                ),
+              ],
+            ),
+          ];
+        }
+        return [title(l.authAccount, l.accountGuestIntro), ...actions];
 
       case AccountStep.signUp:
         return [
@@ -637,6 +632,12 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
               _startCooldown();
               _go(AccountStep.verify);
             }),
+          ),
+          // Someone who already has an account signs in to it from here.
+          TextButton(
+            key: AccountSheet.haveKey,
+            onPressed: _busy ? null : () => _go(AccountStep.signIn),
+            child: Text(l.authHaveAccount),
           ),
           back(),
         ];
@@ -799,10 +800,18 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     final colors = context.colors;
     final type = context.typography;
     return [
+      Semantics(
+        header: true,
+        child: Text(
+          l.authAccount,
+          style: type.headline.copyWith(color: colors.textPrimary),
+        ),
+      ),
+      SizedBox(height: s.sm),
       Text(
         profile.email ?? '',
-        textAlign: TextAlign.center,
         textDirection: TextDirection.ltr,
+        textAlign: TextAlign.start,
         style: type.title.copyWith(color: colors.textPrimary),
       ),
       SizedBox(height: s.xs),
@@ -812,15 +821,10 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
           if (profile.google) l.authViaGoogle,
           if (profile.password) l.authViaPassword,
         ].join(l.listSeparator),
-        textAlign: TextAlign.center,
         style: type.caption.copyWith(color: colors.accentGold),
       ),
       SizedBox(height: s.sm),
-      Text(
-        l.authSafe,
-        textAlign: TextAlign.center,
-        style: type.body.copyWith(color: colors.textSecondary),
-      ),
+      Text(l.authSafe, style: type.body.copyWith(color: colors.textSecondary)),
       SizedBox(height: s.lg),
       SwitchListTile(
         key: AccountSheet.rememberKey,

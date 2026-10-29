@@ -509,6 +509,12 @@ Future<T?> showDeckSheet<T>({
   isScrollControlled: true,
   useSafeArea: true,
   backgroundColor: DeckTokens.panel,
+  sheetAnimationStyle: const AnimationStyle(
+    duration: DeckTokens.sheet,
+    curve: DeckTokens.sheetCurve,
+    reverseDuration: DeckTokens.sheetExit,
+    reverseCurve: DeckTokens.sheetExitCurve,
+  ),
   builder: (sheetContext) => Builder(
     builder: (context) {
       final s = context.spacing;

@@ -2473,7 +2473,14 @@
       }
     }
   },
-  "reactionSlowDown": "Easy, one at a time",
+  "reactionCount": "×{count}",
+  "@reactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cofferStripReady": "Today's coffer is ready",
   "cofferStripBody": "Claim it right here.",
   "cofferStripClaim": "Claim",
@@ -3441,6 +3448,11 @@
   "updateRequiredBody": "There is a newer version of the game and you need to update to keep playing. This version will not work any more.",
   "updateRequiredStore": "Open Google Play",
   "updateRequiredReload": "Reload the page",
+  "updateSoftTitle": "A new version is out",
+  "updateSoftBody": "A newer version of the game is on Google Play.",
+  "updateSoftNow": "Update now",
+  "updateSoftLater": "Later",
+  "updateStoreFailed": "We could not open Google Play. Open it and update the game.",
   "webAdAppCta": "Download the app — fewer ads",
   "webAdPlayCaption": "Mafia Master on Google Play",
   "webAdCouncilTitle": "The Council and vault await",
@@ -3531,7 +3543,16 @@
   "toolNeedsTurns": "This tool only works when talk goes by turns",
   "toolSilencedToday": "A silenced player can't use this tool today",
   "onlineLastWordLine": "{name}'s last word goes to {target}",
-  "@onlineLastWordLine": {"placeholders": {"name": {"type": "String"}, "target": {"type": "String"}}},
+  "@onlineLastWordLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "modeStoriesTitle": "Stories",
   "storiesTitle": "Stories & cases",
   "storiesSubtitle": "Every detail means something. The game never invents a fact.",
@@ -4551,7 +4572,13 @@
   "pushEnableFailed": "Couldn't turn on notifications on this device",
   "friendRemove": "Remove from friends",
   "friendRemoveConfirm": "Remove {name} from your friends?",
-  "@friendRemoveConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@friendRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "friendRemoveYes": "Remove",
   "inAppBrowserTitle": "Open the game in your browser",
   "inAppBrowserBody": "Google doesn't allow signing in inside this app. Open the link in Chrome or Safari and continue there, or use email here.",
@@ -4573,6 +4600,73 @@
   "keyClose": "Close",
   "keyChoose": "Choose",
   "keyBack": "Back",
+  "beforeStartTitle": "Before you start",
+  "beforeStartLine1": "Each player holds their name, sees their role alone, and the card closes by itself. Then they hand the phone to the next one.",
+  "beforeStartLine2": "At night the phone goes round everyone still in the game, even those with no night action, so nobody can tell who did what.",
+  "beforeStartLine3": "The Citizen picks someone they suspect. The pick kills nobody and protects nobody, but if the Citizen dies that night, the morning may say who they suspected.",
+  "beforeStartLine4": "In the morning you talk, then vote someone out.",
+  "beforeStartLine5": "A player who is out of the game does not vote.",
+  "beforeStartGo": "Let's start",
+  "modeStoriesSoonName": "Stories",
+  "modeStoriesSoon": "Soon",
+  "reactionSlowDown": "Easy, one at a time",
+  "profileEditHint": "Change your name or character",
+  "profileEditHintTitled": "{title} · Change your name or character",
+  "@profileEditHintTitled": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStatHere": "Matches here",
+  "profileStatOnlineMatches": "Online matches",
+  "profileStatCoins": "Coins",
+  "profileFriendsCount": "{count, plural, =0{None yet} =1{1 friend} other{{count} friends}}",
+  "@profileFriendsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileLastMatchToday": "Last match today",
+  "profileLastMatchYesterday": "Last match yesterday",
+  "profileLastMatchDays": "{count, plural, other{Last match {count} days ago}}",
+  "@profileLastMatchDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileNoMatches": "No matches yet",
+  "profileAccountGoogle": "Signed in with Google",
+  "profileAccountEmail": "Signed in with email",
+  "friendsSheetTitle": "Friends",
+  "friendsSearchHint": "Search by name or code",
+  "friendsRequestsCount": "Friend requests ({count})",
+  "@friendsRequestsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "friendsYoursCount": "Your friends ({count})",
+  "@friendsYoursCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "friendsEmpty": "No friends yet",
+  "titlesEmpty": "No titles yet",
+  "accountGuestIntro": "You are playing as a guest. If you sign up, your things and coins stay with you on any phone.",
+  "accountContinueGoogle": "Continue with Google",
+  "accountWithEmail": "With email",
+  "accountNotNow": "Not now",
   "nightLineMafia": "Pick a player to kill tonight. If you split, the most-voted dies.",
   "nightLineSilencer": "Pick one player to silence. They cannot vote tomorrow.",
   "nightLineDoctor": "Pick a player to protect. Not the same one two nights.",

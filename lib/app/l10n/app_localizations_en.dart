@@ -3905,7 +3905,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get reactionSlowDown => 'Easy, one at a time';
+  String reactionCount(int count) {
+    return '×$count';
+  }
 
   @override
   String get cofferStripReady => 'Today\'s coffer is ready';
@@ -5494,6 +5496,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateRequiredReload => 'Reload the page';
+
+  @override
+  String get updateSoftTitle => 'A new version is out';
+
+  @override
+  String get updateSoftBody => 'A newer version of the game is on Google Play.';
+
+  @override
+  String get updateSoftNow => 'Update now';
+
+  @override
+  String get updateSoftLater => 'Later';
+
+  @override
+  String get updateStoreFailed =>
+      'We could not open Google Play. Open it and update the game.';
 
   @override
   String get webAdAppCta => 'Download the app — fewer ads';
@@ -7469,6 +7487,130 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get keyBack => 'Back';
+
+  @override
+  String get beforeStartTitle => 'Before you start';
+
+  @override
+  String get beforeStartLine1 =>
+      'Each player holds their name, sees their role alone, and the card closes by itself. Then they hand the phone to the next one.';
+
+  @override
+  String get beforeStartLine2 =>
+      'At night the phone goes round everyone still in the game, even those with no night action, so nobody can tell who did what.';
+
+  @override
+  String get beforeStartLine3 =>
+      'The Citizen picks someone they suspect. The pick kills nobody and protects nobody, but if the Citizen dies that night, the morning may say who they suspected.';
+
+  @override
+  String get beforeStartLine4 =>
+      'In the morning you talk, then vote someone out.';
+
+  @override
+  String get beforeStartLine5 =>
+      'A player who is out of the game does not vote.';
+
+  @override
+  String get beforeStartGo => 'Let\'s start';
+
+  @override
+  String get modeStoriesSoonName => 'Stories';
+
+  @override
+  String get modeStoriesSoon => 'Soon';
+
+  @override
+  String get reactionSlowDown => 'Easy, one at a time';
+
+  @override
+  String get profileEditHint => 'Change your name or character';
+
+  @override
+  String profileEditHintTitled(String title) {
+    return '$title · Change your name or character';
+  }
+
+  @override
+  String get profileStatHere => 'Matches here';
+
+  @override
+  String get profileStatOnlineMatches => 'Online matches';
+
+  @override
+  String get profileStatCoins => 'Coins';
+
+  @override
+  String profileFriendsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count friends',
+      one: '1 friend',
+      zero: 'None yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileLastMatchToday => 'Last match today';
+
+  @override
+  String get profileLastMatchYesterday => 'Last match yesterday';
+
+  @override
+  String profileLastMatchDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Last match $count days ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileNoMatches => 'No matches yet';
+
+  @override
+  String get profileAccountGoogle => 'Signed in with Google';
+
+  @override
+  String get profileAccountEmail => 'Signed in with email';
+
+  @override
+  String get friendsSheetTitle => 'Friends';
+
+  @override
+  String get friendsSearchHint => 'Search by name or code';
+
+  @override
+  String friendsRequestsCount(int count) {
+    return 'Friend requests ($count)';
+  }
+
+  @override
+  String friendsYoursCount(int count) {
+    return 'Your friends ($count)';
+  }
+
+  @override
+  String get friendsEmpty => 'No friends yet';
+
+  @override
+  String get titlesEmpty => 'No titles yet';
+
+  @override
+  String get accountGuestIntro =>
+      'You are playing as a guest. If you sign up, your things and coins stay with you on any phone.';
+
+  @override
+  String get accountContinueGoogle => 'Continue with Google';
+
+  @override
+  String get accountWithEmail => 'With email';
+
+  @override
+  String get accountNotNow => 'Not now';
 
   @override
   String get nightLineMafia =>

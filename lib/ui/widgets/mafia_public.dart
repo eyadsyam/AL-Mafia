@@ -13,8 +13,10 @@ Future<T?> showMafiaSheet<T>({
   bool useSafeArea = false,
   bool? showDragHandle,
   Color? backgroundColor,
+  AnimationStyle? sheetAnimationStyle,
 }) => showModalBottomSheet<T>(
   context: context,
+  sheetAnimationStyle: sheetAnimationStyle,
   isScrollControlled: isScrollControlled,
   useSafeArea: useSafeArea,
   showDragHandle: showDragHandle,
@@ -37,10 +39,7 @@ class MafiaPublicTheme extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = Theme.of(context);
-    const target = Size(
-      IdentityTokens.buttonWidth,
-      IdentityTokens.target,
-    );
+    const target = Size(IdentityTokens.buttonWidth, IdentityTokens.target);
     return Theme(
       data: base.copyWith(
         materialTapTargetSize: MaterialTapTargetSize.padded,

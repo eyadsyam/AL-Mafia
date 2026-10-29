@@ -84,7 +84,7 @@ void main() {
     expect((await TermsStore().load())!.adult, isTrue);
   });
 
-  testWidgets('email: opens the full sign-in screen', (tester) async {
+  testWidgets('email: opens the account sheet', (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 900));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     final auth = _FakeAuth();
@@ -93,7 +93,7 @@ void main() {
     await _tap(tester, FirstRunScreen.emailKey);
     expect(find.byKey(AccountSheet.googleKey), findsOneWidget);
     expect(find.byKey(AccountSheet.createKey), findsOneWidget);
-    expect(find.byKey(AccountSheet.haveKey), findsOneWidget);
+    expect(find.byKey(AccountSheet.notNowKey), findsOneWidget);
     await tester.tap(find.byKey(AccountSheet.googleKey));
     await tester.pumpAndSettle();
     // First run links too: the anonymous user id must stay the same.
@@ -159,17 +159,18 @@ void main() {
       _host(const Scaffold(body: AccountCard()), auth: auth),
     );
     await tester.pumpAndSettle();
-    expect(find.text(arStrings.authGuestTitle), findsWidgets);
+    expect(find.text(arStrings.authAccount), findsOneWidget);
+    expect(find.text(arStrings.authGuestBadge), findsOneWidget);
     await tester.tap(find.byKey(AccountCard.cardKey));
     await tester.pumpAndSettle();
-    // A dedicated full-screen route, with both Google and email choices.
-    expect(find.byType(BottomSheet), findsNothing);
-    expect(find.byType(AppBar), findsOneWidget);
-    expect(find.text(arStrings.accountTitle), findsWidgets);
+    // A sheet from the bottom, with both Google and email choices.
+    expect(find.byType(BottomSheet), findsOneWidget);
+    expect(find.byType(AppBar), findsNothing);
+    expect(find.text(arStrings.authAccount), findsWidgets);
     expect(find.byKey(AccountSheet.googleKey), findsOneWidget);
     expect(find.byKey(AccountSheet.createKey), findsOneWidget);
-    expect(find.byKey(AccountSheet.haveKey), findsOneWidget);
-    expect(find.text(arStrings.authGuestBody), findsOneWidget);
+    expect(find.byKey(AccountSheet.notNowKey), findsOneWidget);
+    expect(find.text(arStrings.accountGuestIntro), findsOneWidget);
     await tester.tap(find.byKey(AccountSheet.googleKey));
     await tester.pumpAndSettle();
     expect(auth.calls, ['google']);

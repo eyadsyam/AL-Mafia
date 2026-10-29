@@ -109,13 +109,25 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('a guest is offered Google, a new account and sign-in', (
+  testWidgets('a guest is offered Google, e-mail, and a way to wait', (
     tester,
   ) async {
     await pump(tester);
+    expect(find.text(arStrings.authAccount), findsWidgets);
+    expect(find.text(arStrings.accountGuestIntro), findsOneWidget);
+    expect(find.text(arStrings.accountContinueGoogle), findsOneWidget);
+    expect(find.text(arStrings.accountWithEmail), findsOneWidget);
+    expect(find.text(arStrings.accountNotNow), findsOneWidget);
     expect(find.byKey(AccountSheet.googleKey), findsOneWidget);
     expect(find.byKey(AccountSheet.createKey), findsOneWidget);
+    expect(find.byKey(AccountSheet.notNowKey), findsOneWidget);
+    // Sign-in to an existing account is one step in, on the e-mail path.
+    expect(find.byKey(AccountSheet.haveKey), findsNothing);
+    await tester.tap(find.byKey(AccountSheet.createKey));
+    await tester.pumpAndSettle();
     expect(find.byKey(AccountSheet.haveKey), findsOneWidget);
+    await tester.tap(find.text(arStrings.back));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(AccountSheet.googleKey));
     await tester.pumpAndSettle();
     expect(auth.calls, ['google']);
@@ -262,6 +274,9 @@ void main() {
 
   testWidgets('forgot password: code, then a new password', (tester) async {
     await pump(tester);
+    // Sign-in is the e-mail path's other door: بالإيميل, then «عندي حساب».
+    await tester.tap(find.byKey(AccountSheet.createKey));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(AccountSheet.haveKey));
     await tester.pumpAndSettle();
     expect(find.byKey(AccountSheet.rememberKey), findsOneWidget);
@@ -284,6 +299,9 @@ void main() {
     tester,
   ) async {
     await pump(tester);
+    // Sign-in is the e-mail path's other door: بالإيميل, then «عندي حساب».
+    await tester.tap(find.byKey(AccountSheet.createKey));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(AccountSheet.haveKey));
     await tester.pumpAndSettle();
     await type(tester, AccountSheet.emailKey, 'eyad@example.com');
@@ -347,6 +365,9 @@ void main() {
         child: localizedApp(const Scaffold(body: AccountSheet())),
       ),
     );
+    await tester.pumpAndSettle();
+    // Sign-in is the e-mail path's other door: بالإيميل, then «عندي حساب».
+    await tester.tap(find.byKey(AccountSheet.createKey));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(AccountSheet.haveKey));
     await tester.pumpAndSettle();

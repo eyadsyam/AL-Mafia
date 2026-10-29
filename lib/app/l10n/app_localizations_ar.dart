@@ -3831,7 +3831,9 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get reactionSlowDown => 'بالراحة، واحدة واحدة';
+  String reactionCount(int count) {
+    return '×$count';
+  }
 
   @override
   String get cofferStripReady => 'صندوق النهارده جاهز';
@@ -5399,6 +5401,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get updateRequiredReload => 'حدّث الصفحة';
+
+  @override
+  String get updateSoftTitle => 'فيه نسخة جديدة';
+
+  @override
+  String get updateSoftBody => 'نزلت نسخة أحدث من اللعبة على Google Play.';
+
+  @override
+  String get updateSoftNow => 'حدّث دلوقتي';
+
+  @override
+  String get updateSoftLater => 'بعدين';
+
+  @override
+  String get updateStoreFailed =>
+      'مقدرناش نفتح Google Play. افتحه وحدّث اللعبة.';
 
   @override
   String get webAdAppCta => 'نزّل التطبيق — إعلانات أقل';
@@ -7352,6 +7370,132 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get keyBack => 'ارجع';
+
+  @override
+  String get beforeStartTitle => 'قبل ما تبدأوا';
+
+  @override
+  String get beforeStartLine1 =>
+      'كل واحد يمسك على اسمه ويشوف دوره لوحده، والكارت بيتقفل لوحده، وبعدها يدّي الموبايل للي بعده.';
+
+  @override
+  String get beforeStartLine2 =>
+      'بالليل الموبايل بيلفّ على كل اللي لسه في اللعب، حتى اللي ملوش دور، عشان محدش يعرف مين عمل إيه.';
+
+  @override
+  String get beforeStartLine3 =>
+      'المواطن بيختار حد شاكك فيه. اختياره مبيقتلش ومبيحميش، بس لو مات الليلة دي ممكن الصبح يتقال كان شاكك في مين.';
+
+  @override
+  String get beforeStartLine4 => 'الصبح بتتكلموا، وبعدين تصوّتوا تطلّعوا حد.';
+
+  @override
+  String get beforeStartLine5 => 'اللي يخرج من اللعب مبيصوّتش.';
+
+  @override
+  String get beforeStartGo => 'يلا نبدأ';
+
+  @override
+  String get modeStoriesSoonName => 'القصص';
+
+  @override
+  String get modeStoriesSoon => 'قريبا';
+
+  @override
+  String get reactionSlowDown => 'بالراحة، واحدة واحدة';
+
+  @override
+  String get profileEditHint => 'غيّر الاسم أو الشخصية';
+
+  @override
+  String profileEditHintTitled(String title) {
+    return '$title · غيّر الاسم أو الشخصية';
+  }
+
+  @override
+  String get profileStatHere => 'ماتش هنا';
+
+  @override
+  String get profileStatOnlineMatches => 'ماتش أونلاين';
+
+  @override
+  String get profileStatCoins => 'عملة';
+
+  @override
+  String profileFriendsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صاحب',
+      few: '$count أصحاب',
+      two: 'صاحبين',
+      one: 'صاحب واحد',
+      zero: 'لسه مفيش',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileLastMatchToday => 'آخر ماتش النهاردة';
+
+  @override
+  String get profileLastMatchYesterday => 'آخر ماتش امبارح';
+
+  @override
+  String profileLastMatchDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'آخر ماتش من $count يوم',
+      few: 'آخر ماتش من $count أيام',
+      two: 'آخر ماتش من يومين',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileNoMatches => 'لسه مفيش ماتشات';
+
+  @override
+  String get profileAccountGoogle => 'متسجّل بجوجل';
+
+  @override
+  String get profileAccountEmail => 'متسجّل بالإيميل';
+
+  @override
+  String get friendsSheetTitle => 'الأصحاب';
+
+  @override
+  String get friendsSearchHint => 'دوّر على اسم أو كود';
+
+  @override
+  String friendsRequestsCount(int count) {
+    return 'طلبات صداقة ($count)';
+  }
+
+  @override
+  String friendsYoursCount(int count) {
+    return 'أصحابك ($count)';
+  }
+
+  @override
+  String get friendsEmpty => 'لسه مفيش أصحاب';
+
+  @override
+  String get titlesEmpty => 'لسه معندكش ألقاب';
+
+  @override
+  String get accountGuestIntro =>
+      'إنت بتلعب كضيف. لو سجّلت، حاجتك وعملاتك هتفضل معاك على أي موبايل.';
+
+  @override
+  String get accountContinueGoogle => 'كمّل بجوجل';
+
+  @override
+  String get accountWithEmail => 'بالإيميل';
+
+  @override
+  String get accountNotNow => 'مش دلوقتي';
 
   @override
   String get nightLineMafia =>

@@ -224,30 +224,167 @@ void main() {
       expect(find.byKey(ReactionBar.barKey), findsNothing);
     });
 
-    testWidgets('sends through the server, a burst of three then slow down', (
+    testWidgets('ten rapid taps send ten calls and coalesce one float', (
       tester,
     ) async {
-      final now = DateTime.utc(2026, 9, 26, 12);
       await pump(
         tester,
-        ReactionBar(roomId: 'room-1', backend: backend, open: true),
-        overrides: [reactionClockProvider.overrideWithValue(() => now)],
+        SizedBox(
+          height: 300,
+          child: ReactionScope(
+            roomId: 'room-1',
+            backend: backend,
+            open: true,
+            child: ReactionBar(roomId: 'room-1', backend: backend, open: true),
+          ),
+        ),
       );
-      for (var i = 0; i < 4; i++) {
+      for (var i = 0; i < 10; i++) {
         await tester.tap(find.byKey(ReactionBar.seal(ReactionKind.rose)));
+        backend.reactionFeed.add(
+          RoomReactionRow(id: i + 1, seat: 2, kind: 'rose'),
+        );
         await tester.pump();
       }
       final sent = backend.calls
           .where((c) => c.body['action'] == 'react')
           .toList();
-      expect(sent, hasLength(FunTokens.reactionBurst));
+      expect(sent, hasLength(10));
       expect(sent.first.body, {
         'action': 'react',
         'roomId': 'room-1',
         'kind': 'rose',
       });
-      expect(find.text(arStrings.reactionSlowDown), findsOneWidget);
+      expect(find.byKey(ReactionFloats.floatKey), findsOneWidget);
+      expect(find.text('×10'), findsOneWidget);
+      expect(find.byType(SnackBar), findsNothing);
     });
+
+    testWidgets('different kinds and seats start separate floats', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        SizedBox(
+          height: 300,
+          child: ReactionScope(
+            roomId: 'room-1',
+            backend: backend,
+            open: true,
+            child: const SizedBox.expand(),
+          ),
+        ),
+      );
+      backend.reactionFeed.add(
+        const RoomReactionRow(id: 1, seat: 1, kind: 'rose'),
+      );
+      backend.reactionFeed.add(
+        const RoomReactionRow(id: 2, seat: 1, kind: 'crown'),
+      );
+      backend.reactionFeed.add(
+        const RoomReactionRow(id: 3, seat: 2, kind: 'crown'),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(ReactionFloats.floatKey), findsNWidgets(3));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('same reaction after the coalesce window starts a new float', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        SizedBox(
+          height: 300,
+          child: ReactionScope(
+            roomId: 'room-1',
+            backend: backend,
+            open: true,
+            child: const SizedBox.expand(),
+          ),
+        ),
+      );
+      backend.reactionFeed.add(
+        const RoomReactionRow(id: 1, seat: 1, kind: 'rose'),
+      );
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(
+        FunTokens.reactionCoalesceWindow + const Duration(milliseconds: 1),
+      );
+      backend.reactionFeed.add(
+        const RoomReactionRow(id: 2, seat: 1, kind: 'rose'),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(ReactionFloats.floatKey), findsNWidgets(2));
+    });
+
+    testWidgets('the same room feed reaches both viewers once', (tester) async {
+      await pump(
+        tester,
+        Column(
+          children: [
+            for (var viewer = 0; viewer < 2; viewer++)
+              SizedBox(
+                height: 200,
+                child: ReactionScope(
+                  roomId: 'room-1',
+                  backend: backend,
+                  open: true,
+                  child: const SizedBox.expand(),
+                ),
+              ),
+          ],
+        ),
+      );
+      backend.reactionFeed.add(
+        const RoomReactionRow(id: 1, seat: 2, kind: 'rose'),
+      );
+      backend.reactionFeed.add(
+        const RoomReactionRow(id: 1, seat: 2, kind: 'rose'),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(ReactionFloats.floatKey), findsNWidgets(2));
+    });
+
+    for (final size in [const Size(360, 640), const Size(640, 360)]) {
+      testWidgets(
+        'reaction count fits ${size.width.toInt()}x${size.height.toInt()}',
+        (tester) async {
+          await pump(
+            tester,
+            SizedBox(
+              height: 200,
+              child: ReactionScope(
+                roomId: 'room-1',
+                backend: backend,
+                open: true,
+                nameOf: (_) => 'عبدالرحمنعبدالرحمنعلي',
+                child: ReactionBar(
+                  roomId: 'room-1',
+                  backend: backend,
+                  open: true,
+                ),
+              ),
+            ),
+            size: size,
+          );
+          backend.reactionFeed.add(
+            const RoomReactionRow(id: 1, seat: 1, kind: 'rose'),
+          );
+          backend.reactionFeed.add(
+            const RoomReactionRow(id: 2, seat: 1, kind: 'rose'),
+          );
+          await tester.pump();
+          await tester.pump();
+          expect(find.text('×2'), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
 
     testWidgets('fits at 320 px in English', (tester) async {
       await pump(
@@ -344,10 +481,7 @@ void main() {
       };
       await pump(
         tester,
-        const Align(
-          alignment: Alignment.topCenter,
-          child: WelcomeBackCard(),
-        ),
+        const Align(alignment: Alignment.topCenter, child: WelcomeBackCard()),
         caps: EconomyCapabilities(daily: daily),
         locale: locale,
         overrides: [welcomeBackClockProvider.overrideWithValue(() => now)],
