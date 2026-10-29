@@ -51,19 +51,36 @@ class BeforeStartBody extends StatelessWidget {
     ];
     final locale = Localizations.localeOf(context).toString();
     final number = NumberFormat('#', locale);
-    return Column(
+    Widget column(Iterable<int> indexes) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (final (i, text) in lines.indexed) ...[
-          if (i > 0) const SizedBox(height: BeforeStartTokens.lineGap),
+        for (final i in indexes) ...[
+          if (i != indexes.first) const SizedBox(height: BeforeStartTokens.lineGap),
           _Line(
             key: BeforeStartKeys.line(i + 1),
             number: number.format(i + 1),
-            text: text,
+            text: lines[i],
           ),
         ],
       ],
+    );
+    return LayoutBuilder(
+      builder: (context, box) {
+        // A wide, short sheet (a phone on its side) sets the lines in two
+        // columns, read in order, so all five stand in view at once.
+        if (box.maxWidth < BeforeStartTokens.twoColumnMinWidth) {
+          return column(const [0, 1, 2, 3, 4]);
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: column(const [0, 1])),
+            SizedBox(width: context.spacing.lg),
+            Expanded(child: column(const [2, 3, 4])),
+          ],
+        );
+      },
     );
   }
 }

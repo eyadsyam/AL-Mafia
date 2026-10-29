@@ -196,6 +196,12 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
                       if (box.maxHeight >= least) {
                         return _stage(context, box.biggest);
                       }
+                      // Landscape: the turned card and the ways sit side by
+                      // side, so all of it is in view with nothing to scroll.
+                      if (box.maxWidth > box.maxHeight &&
+                          box.maxHeight >= ModeTokens.stageMinHeight) {
+                        return _stage(context, box.biggest, side: true);
+                      }
                       return SingleChildScrollView(
                         controller: _scroll,
                         physics: _isOpen
@@ -379,7 +385,12 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _stage(BuildContext context, Size size, {double? visibleHeight}) {
+  Widget _stage(
+    BuildContext context,
+    Size size, {
+    double? visibleHeight,
+    bool side = false,
+  }) {
     final l10n = context.l10n;
     final s = context.spacing;
     final rtl = Directionality.of(context) == TextDirection.rtl;
@@ -406,7 +417,6 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
     final mafiaX = alone ? w / 2 : w / 2 + dir * ModeTokens.fanSpread * cw;
     final mafiaTilt = alone ? 0.0 : ModeTokens.fanTilt;
     final storiesX = w / 2 - dir * ModeTokens.fanSpread * cw;
-    final openCenterY = ch * ModeTokens.openScale / 2;
 
     final ways = <_Way>[
       _Way(
@@ -436,35 +446,84 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
           onTap: widget.onPlayBots,
         ),
     ];
-    final mw = math.min(
-      ModeTokens.wayMaxWidth,
-      (w - ModeTokens.wayGap * (ways.length - 1)) / 3,
-    );
-    final waysTop = ch * ModeTokens.openScale + s.lg;
-    // As tall as the room under the turned card allows, down to the line
-    // that names them and the way back.
-    final mh = math.max(
-      0.0,
-      math.min(
-        mw * ModeTokens.wayAspect,
-        h - waysTop - s.md - ModeTokens.pickLine - DeckTokens.rim - s.md * 2,
-      ),
-    );
+    // Where the turned Mafia card comes to rest, the ways, the line that names
+    // them and the way back. Portrait: the card at the top, the ways under
+    // it. Landscape: the card and «رجوع» on the start side, the ways beside.
+    final double openX;
+    final double openCenterY;
+    final double openScale;
+    final double mw;
+    final double mh;
+    final double waysTop;
+    final double waysCenterX;
+    final double pickTop;
+    final double backTop;
+    final double sideW;
+    if (side) {
+      const backW = ModeTokens.sideBackWidth;
+      final restH = h - DeckTokens.rim - s.md * 3;
+      openScale = math.min(1.0, restH / ch);
+      final colW = math.max(cw * openScale, backW);
+      sideW = colW;
+      openX = w / 2 + dir * (w / 2 - s.md - colW / 2);
+      final colH = ch * openScale + s.md + DeckTokens.rim;
+      final colTop = (h - colH) / 2;
+      openCenterY = colTop + ch * openScale / 2;
+      backTop = colTop + ch * openScale + s.md;
+      final areaW = w - s.md * 2 - colW - s.lg;
+      waysCenterX = w / 2 - dir * (colW + s.lg) / 2;
+      mw = math.min(
+        ModeTokens.wayMaxWidth,
+        (areaW - ModeTokens.wayGap * (ways.length - 1)) / ways.length,
+      );
+      mh = math.max(
+        0.0,
+        math.min(
+          mw * ModeTokens.wayAspect,
+          h - ModeTokens.pickLine - s.sm - s.md * 2,
+        ),
+      );
+      final blockTop = (h - (ModeTokens.pickLine + s.sm + mh)) / 2;
+      pickTop = blockTop;
+      waysTop = blockTop + ModeTokens.pickLine + s.sm;
+    } else {
+      openScale = ModeTokens.openScale;
+      openX = w / 2;
+      openCenterY = ch * openScale / 2;
+      sideW = 0;
+      backTop = 0;
+      waysCenterX = w / 2;
+      mw = math.min(
+        ModeTokens.wayMaxWidth,
+        (w - ModeTokens.wayGap * (ways.length - 1)) / 3,
+      );
+      waysTop = ch * openScale + s.lg;
+      // As tall as the room under the turned card allows, down to the line
+      // that names them and the way back.
+      mh = math.max(
+        0.0,
+        math.min(
+          mw * ModeTokens.wayAspect,
+          h - waysTop - s.md - ModeTokens.pickLine - DeckTokens.rim - s.md * 2,
+        ),
+      );
+      pickTop = waysTop + mh + s.md;
+    }
     final step = mw + ModeTokens.wayGap;
-    final firstX = w / 2 + dir * step * (ways.length - 1) / 2;
+    final firstX = waysCenterX + dir * step * (ways.length - 1) / 2;
 
-    final dealt = CurvedAnimation(parent: _deal, curve: Curves.easeOutCubic);
+    final dealt = CurvedAnimation(parent: _deal, curve: ModeTokens.dealCurve);
     final lift = CurvedAnimation(
       parent: _open,
-      curve: const Interval(0, 0.45, curve: Curves.easeOutCubic),
+      curve: const Interval(0, 0.45, curve: ModeTokens.liftCurve),
     );
     final flip = CurvedAnimation(
       parent: _open,
-      curve: const Interval(0.16, 0.8, curve: Curves.easeInOutCubic),
+      curve: const Interval(0.16, 0.8, curve: ModeTokens.turnCurve),
     );
     final last = CurvedAnimation(
       parent: _open,
-      curve: const Interval(0.8, 1, curve: Curves.easeOut),
+      curve: const Interval(0.8, 1, curve: ModeTokens.settleCurve),
     );
 
     final mafiaFront = RepaintBoundary(
@@ -576,16 +635,16 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
                 const Interval(
                   0.12,
                   1,
-                  curve: Curves.easeOutCubic,
+                  curve: ModeTokens.dealCurve,
                 ).transform(_deal.value);
             final t = lift.value;
             final angle = math.pi * flip.value;
             final showBack = angle > math.pi / 2;
             final cy = closedTop + ch / 2;
             final x =
-                mafiaX + (w / 2 - mafiaX) * t - dir * ModeTokens.dealSpread * d;
+                mafiaX + (openX - mafiaX) * t - dir * ModeTokens.dealSpread * d;
             final y = cy + (openCenterY - cy) * t + ModeTokens.dealRise * d;
-            final scale = 1 - (1 - ModeTokens.openScale) * t;
+            final scale = 1 - (1 - openScale) * t;
             return Positioned(
               left: x - cw / 2,
               top: y - ch / 2,
@@ -630,16 +689,19 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
             height: mh,
             centerX: firstX - dir * step * i,
             top:
-                waysTop - (i == 1 && ways.length == 3 ? ModeTokens.wayLift : 0),
-            fromX: w / 2,
+                waysTop -
+                (!side && i == 1 && ways.length == 3 ? ModeTokens.wayLift : 0),
+            fromX: openX,
             fromY: openCenterY,
-            tilt: ways.length == 3 ? dir * ModeTokens.fanTilt * (1 - i) : 0,
+            tilt: !side && ways.length == 3
+                ? dir * ModeTokens.fanTilt * (1 - i)
+                : 0,
           ),
         // What the small cards are, then the way back.
         Positioned(
-          top: waysTop + mh + s.md,
-          left: 0,
-          right: 0,
+          top: pickTop,
+          left: side ? waysCenterX - (w - s.md * 2 - sideW - s.lg) / 2 : 0,
+          width: side ? w - s.md * 2 - sideW - s.lg : w,
           child: FadeTransition(
             opacity: last,
             child: Text(
@@ -652,9 +714,10 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
           ),
         ),
         Positioned(
-          left: 0,
-          right: 0,
-          bottom: s.md,
+          left: side ? openX - sideW / 2 : 0,
+          width: side ? sideW : w,
+          top: side ? backTop : null,
+          bottom: side ? null : s.md,
           child: IgnorePointer(
             ignoring: !_isOpen,
             child: FadeTransition(
@@ -690,7 +753,7 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
       curve: Interval(
         start,
         math.min(1, start + 0.45),
-        curve: Curves.easeOutCubic,
+        curve: ModeTokens.dealCurve,
       ),
     );
     final appear = CurvedAnimation(

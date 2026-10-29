@@ -329,4 +329,120 @@ void main() {
       }
     }
   });
+
+  // The owner's rule: nothing sits on top of anything, nothing is cut.
+  group('landscape 640×360: all of it in view, nothing on anything', () {
+    const land = Size(640, 360);
+    final screen = Offset.zero & land;
+
+    void inView(WidgetTester tester, Finder f, String what) {
+      final r = tester.getRect(f);
+      expect(screen.contains(r.topLeft), isTrue, reason: '$what top-left $r');
+      expect(
+        screen.contains(r.bottomRight),
+        isTrue,
+        reason: '$what bottom-right $r',
+      );
+    }
+
+    testWidgets('the sheet: every line fully inside, clear of the button', (
+      tester,
+    ) async {
+      await tester.runAsync(loadAppFonts);
+      await launchSettings(tester, size: land);
+      await save(tester);
+      final go = tester.getRect(find.byKey(BeforeStartKeys.go));
+      inView(tester, find.byKey(BeforeStartKeys.go), 'button');
+      final scroller = find.ancestor(
+        of: find.byKey(BeforeStartKeys.sheet),
+        matching: find.byType(Scrollable),
+      );
+      final view = tester.getRect(scroller);
+      expect(
+        tester.state<ScrollableState>(scroller).position.maxScrollExtent,
+        0,
+        reason: 'nothing to scroll: every line is at rest in view',
+      );
+      final lines = [
+        for (var n = 1; n <= 5; n++) find.byKey(BeforeStartKeys.line(n)),
+      ];
+      for (final (i, f) in lines.indexed) {
+        inView(tester, f, 'line ${i + 1}');
+        final r = tester.getRect(f);
+        expect(r.bottom, lessThanOrEqualTo(view.bottom + 0.5), reason: '$i');
+        expect(r.overlaps(go), isFalse, reason: 'line ${i + 1} on the button');
+        expect(r.bottom, lessThan(go.top), reason: 'line ${i + 1} below top');
+        for (final (j, g) in lines.indexed.skip(i + 1)) {
+          expect(
+            r.overlaps(tester.getRect(g)),
+            isFalse,
+            reason: 'line ${i + 1} on line ${j + 1}',
+          );
+        }
+      }
+    });
+
+    for (final withBots in [false, true]) {
+      testWidgets('the turned picker (bots: $withBots): no scroll, no overlap', (
+        tester,
+      ) async {
+        await tester.runAsync(loadAppFonts);
+        await tester.binding.setSurfaceSize(land);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        await tester.pumpWidget(
+          localizedApp(
+            ModeScreen(
+              onPlayOffline: () {},
+              onPlayOnline: () {},
+              onPlayBots: withBots ? () {} : null,
+              storiesSoon: true,
+              onBack: () {},
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(ModeScreen.mafiaCard));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        expect(find.byType(SingleChildScrollView), findsNothing);
+
+        final header = tester.getRect(find.byType(DeckHeader).first);
+        final keys = [
+          ModeScreen.mafiaCard,
+          ModeScreen.offlineCard,
+          ModeScreen.onlineCard,
+          if (withBots) ModeScreen.botsCard,
+          ModeScreen.closeButton,
+        ];
+        final pick = find.text(arStrings.modeMafiaPick);
+        final rects = <String, Rect>{
+          for (final k in keys) '$k': tester.getRect(find.byKey(k)),
+          'pick line': tester.getRect(pick),
+        };
+        for (final e in rects.entries) {
+          expect(screen.contains(e.value.topLeft), isTrue, reason: e.key);
+          expect(screen.contains(e.value.bottomRight), isTrue, reason: e.key);
+          expect(
+            e.value.top,
+            greaterThanOrEqualTo(header.bottom - 0.5),
+            reason: '${e.key} under the header',
+          );
+        }
+        final all = rects.entries.toList();
+        for (var i = 0; i < all.length; i++) {
+          for (var j = i + 1; j < all.length; j++) {
+            expect(
+              all[i].value.overlaps(all[j].value),
+              isFalse,
+              reason: '${all[i].key} on ${all[j].key}',
+            );
+          }
+        }
+        // And «رجوع» works from where it stands.
+        await tester.tap(find.byKey(ModeScreen.closeButton));
+        await tester.pumpAndSettle();
+        expect(find.byKey(ModeScreen.offlineCard).hitTestable(), findsNothing);
+      });
+    }
+  });
 }
