@@ -1,0 +1,31 @@
+TASK: publish Mafia Master 1.5.0 (18) to Google Play PRODUCTION at 100%, through the Android Publisher API.
+The owner approved this release. You will NOT change code, build, or commit to git.
+
+Repo root (run from here): D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21
+
+Script (read it first; it prints no key material, and you must never print it either: never cat, type or
+echo the key file, never log its contents):
+  node tool/play/play_upload.mjs <key> build/mafia-master-1.5.0-18.aab production build/release-1.5.0/release-notes-ar.txt build/release-1.5.0/release-notes-en.txt
+It uploads the bundle in resumable pieces, sets the production release (status completed = 100%) with both
+notes, and commits. It retries the commit once a minute on 403 or 5xx for COMMIT_WAIT_MINUTES (use 10).
+Key: D:\keys\mafia-master-billing-ef5d01c33970.json
+
+Before the upload, confirm the bundle's version is 18: the file name says so, and pubspec.yaml in the repo
+root has `version: 1.5.0+18`. If build/mafia-master-1.5.0-18.aab is missing, stop and report it.
+
+If the commit keeps failing with 403 (the service account lacks release rights for production), do this
+instead, through a real Chrome window you drive (Playwright channel "chrome" or Chrome with
+--remote-debugging-port and its own --user-data-dir under %TEMP%; never close the owner's Chrome):
+  Play Console > app «سيد المافيا: Mafia Master» (com.mafiamaster.mafia_master) > Production > Create new
+  release > upload the same .aab > release name "1.5.0 (18)" > Arabic notes under <ar>, English under <en-US>
+  (paste the two files' text exactly) > Next > Save > Start rollout to Production at 100% > then in
+  Publishing overview send the changes for review if Play asks.
+  - If Google asks to sign in: type nothing, read no saved passwords, cookies or profile files. Print
+    "OWNER_SIGNIN_NEEDED" once and wait (check every 30 s, up to 20 minutes).
+  - If any terms, agreement or policy declaration dialog appears: do not accept it; stop and report.
+  - Never change the app name, listing text, images, countries, testers, content rating, or turn on
+    managed publishing.
+  - Save one screenshot of the Production page after rollout to build\play_1_5_production.png
+
+REPORT: the script's final line (COMMITTED ... or the error), or for the browser route each step done/error
+with Play's exact text, and the release status shown on the Production page. No praise.

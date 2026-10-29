@@ -4005,3 +4005,10 @@ Files:      lib/ui/screens/{match_controller,match_flow}.dart, lib/ui/screens/on
 Verified:   orchestrator rerun: flutter analyze 0 issues; flutter test --concurrency=2 4181 passed, 0 failed. LIVE: hosted_night_tools 222/0 (T25), silence_floor 302 + D6 alone 32/0.
 Gate:       PASS
 Open:       Not in 1.4.0 (17); ships with the next build. Play upload of 1.4.0 (17) resumes with Codex at 22:46. Reward rules and screen polish wait for the owner's decisions/mockups.
+
+## PHASE update 1.5.0 (18) — done
+Built:      WP1-WP9 of docs/plans/UPDATE-1.5-PLAN.md: update gate with soft «فيه نسخة جديدة» + back button + fade motion; fast reactions with ×n; before-start sheet; Stories «قريبا» card; profile rows/sheets + two-pane landscape; online lobby header, join code above keyboard, equal night slots, vote copy; reserved banner bands that never jump + ShellBannerHost behind app_config.banner_mode (large anchored adaptive kept); WP0 sweep (55 cases × 3 sizes) and the overflow/overlap fixes it found; version 1.5.0+18.
+Files:      lib/app/{update_gate,app,app_build}.dart, lib/ui/{fun/reactions,economy/*banner*,account/profile_*,screens/setup/*,screens/online/*,widgets/{role_card,turn_shell,fit_or_scroll}}.dart, design_tokens.dart, supabase/migrations/20261029000{1,2}00_*.sql, test/ui/no_overflow_sweep_test.dart, test/screenshots/sweep_1_5_screenshots.dart, pubspec.yaml
+Verified:   flutter analyze 0 issues; flutter test --concurrency=2 (app architecture data engine golden integration leakage online platform stories transport ui unit voice web widget) 4491 passed, 0 failed; SQL app_config_latest_build + awards_reactions PASS (pglite), awards_reactions edge contracts PASS. Hosted: both migrations applied on hezjbrnveajypfqmjfnh, grants unchanged, app_config = 0/0/per_screen.
+Gate:       PASS
+Open:       latest_build_android=18 once Play shows 1.5.0 available; min_build_android=18 48h later; banner_mode=shell after 3 days (dedicated shell AdMob unit is the owner's click; until then shell uses the home unit). Real BannerAd not exercised (fakes only). Stories card title wraps in landscape when Stories is open (closed today).
