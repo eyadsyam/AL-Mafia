@@ -23,13 +23,12 @@ import '../../widgets/experience_surface.dart';
 import '../../widgets/mafia_public.dart';
 
 import 'lobby_deal.dart';
+import 'lobby_header.dart';
 import 'online_session.dart';
-import 'safety_center.dart';
 import 'voice_session.dart';
 import 'room_invite.dart';
 import '../../economy/cosmetic_paint.dart';
 import '../../economy/cosmetics.dart';
-import '../setup/coin_store.dart';
 import '../../economy/vault_kit.dart'
     show ClaimedMark, VaultBar, VaultPress, vaultGoldStyle;
 import '../../theme/design_tokens.dart';
@@ -38,7 +37,6 @@ import 'council/council_band.dart';
 import 'council/council_geometry.dart';
 import '../../fun/reactions.dart';
 import 'host_handover.dart';
-import '../../widgets/voice_mic_button.dart';
 import 'host_sheet.dart';
 import 'invite_sheet.dart';
 import 'room_settings_panel.dart';
@@ -488,70 +486,26 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                           children: [
                             SizedBox(
                               height: CouncilTokens.headerHeight,
-                              // Seven 48 dp icons are 336 dp: on a 320 dp
-                              // phone they draw tighter (the tap target
-                              // stays 48 dp), rather than overflow.
-                              child: IconButtonTheme(
-                                data: IconButtonThemeData(
-                                  style: IconButton.styleFrom(
-                                    visualDensity:
-                                        MediaQuery.sizeOf(context).width <
-                                            VaultTokens.narrowHeaderWidth
-                                        ? VisualDensity.compact
-                                        : null,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    // Task 9b — the «كود الأوضة» label is gone.
-                                    // The code is six gold characters in the middle
-                                    // of the screen; naming it was a caption on a
-                                    // thing nobody was mistaking for anything else.
-                                    const Spacer(),
-                                    // Out of the match only: the lobby is the
-                                    // last place the store is reachable from.
-                                    const CoinStoreButton(compact: true),
-                                    const SafetyButton(),
-                                    // Task 10 — the room's rules, while everybody
-                                    // watches. Host only, and the server checks that
-                                    // rather than trusting this.
-                                    if (isHost)
-                                      IconButton(
-                                        key: LobbyScreen.settingsButton,
-                                        tooltip: l10n.onlineRoomSettings,
-                                        onPressed: () =>
-                                            setState(() => _settings = true),
-                                        icon: Icon(
-                                          Icons.tune,
-                                          color: colors.textSecondary,
-                                        ),
-                                      ),
-                                    IconButton(
-                                      key: LobbyScreen.leaveButton,
-                                      tooltip: l10n.onlineLeave,
-                                      onPressed: () async {
-                                        if (isHost) {
-                                          setState(() => _closing = true);
-                                          return;
-                                        }
-                                        await ref
-                                            .read(
-                                              onlineSessionProvider.notifier,
-                                            )
-                                            .leave();
-                                        if (context.mounted) widget.onLeave();
-                                      },
-                                      icon: Icon(
-                                        Icons.logout,
-                                        color: colors.textSecondary,
-                                      ),
-                                    ),
-                                    // Task 9a — the lobby's whole voice surface. Last
-                                    // in the row, so it is the far edge of the header
-                                    // once the RTL layout has run.
-                                    const VoiceMicButton(),
-                                  ],
-                                ),
+                              child: LobbyHeader(
+                                title:
+                                    (snapshot?.room.title ?? '').trim().isEmpty
+                                    ? l10n.lobbyRoomHeader(code)
+                                    : snapshot!.room.title!.trim(),
+                                isHost: isHost,
+                                settingsKey: LobbyScreen.settingsButton,
+                                leaveKey: LobbyScreen.leaveButton,
+                                onSettings: () =>
+                                    setState(() => _settings = true),
+                                onLeave: () async {
+                                  if (isHost) {
+                                    setState(() => _closing = true);
+                                    return;
+                                  }
+                                  await ref
+                                      .read(onlineSessionProvider.notifier)
+                                      .leave();
+                                  if (context.mounted) widget.onLeave();
+                                },
                               ),
                             ),
                             const BandDivider(),
@@ -911,9 +865,8 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                         Text(
                                           players.length <
                                                   PublicRoom.defaultMinPlayers
-                                              ? l10n.publicRoomMissing(
-                                                  PublicRoom.defaultMinPlayers -
-                                                      players.length,
+                                              ? l10n.lobbyWaitingForPlayers(
+                                                  PublicRoom.defaultMinPlayers,
                                                 )
                                               : isHost
                                               ? l10n.onlineLobbyHostReadyHint
@@ -926,15 +879,6 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                           ),
                                           textAlign: TextAlign.center,
                                         ),
-                                        if (players.length <
-                                            PublicRoom.defaultMinPlayers)
-                                          Text(
-                                            l10n.onlineLobbyInviteHint,
-                                            style: type.caption.copyWith(
-                                              color: colors.textSecondary,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
                                       ],
                                     ),
                                   ),

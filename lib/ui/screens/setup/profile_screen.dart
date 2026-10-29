@@ -292,8 +292,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     });
     final s = context.spacing;
     final l = context.l10n;
-    final existing = ref.watch(playerProfileProvider).valueOrNull != null;
-    final editing = widget.onBack != null;
+    final profile = ref.watch(playerProfileProvider);
+    final existing = profile.valueOrNull != null;
+    // A visitor with no profile yet (the online door sends people here before
+    // a first match) gets the name page even when there is a way back.
+    final missing = profile.hasValue && profile.value == null;
+    final editing = widget.onBack != null && !missing;
     final ready =
         !_saving &&
         cleanPlayerName(_name.text).isNotEmpty &&
@@ -313,7 +317,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (editing) ...[
+                    if (widget.onBack != null)
                       Padding(
                         padding: EdgeInsets.all(s.sm),
                         child: Align(
@@ -321,6 +325,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           child: BackAction(onPressed: widget.onBack!),
                         ),
                       ),
+                    if (editing) ...[
                       // Only when editing (never the first-run profile), at
                       // the top, far from any save button.
                       const WaitingBanner(placement: BannerPlacement.profile),
